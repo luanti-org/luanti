@@ -164,9 +164,9 @@ void MapDatabasePostgreSQL::createDatabase()
 {
 	createTableIfNotExists("blocks",
 		"CREATE TABLE blocks ("
-			"posX INT NOT NULL,"
-			"posY INT NOT NULL,"
-			"posZ INT NOT NULL,"
+			"posX smallint NOT NULL,"
+			"posY smallint NOT NULL,"
+			"posZ smallint NOT NULL,"
 			"data BYTEA,"
 			"PRIMARY KEY (posX,posY,posZ)"
 			");"
