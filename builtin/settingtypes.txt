@@ -1078,7 +1078,7 @@ csm_restriction_noderange (Client-side node lookup range restriction) int 0 0 42
 
 #    Remove color codes from incoming chat messages
 #    Use this to stop players from being able to use color in their messages
-strip_color_codes (Strip color codes) bool false
+strip_color_codes (Strip color codes) bool true
 
 #    Set the maximum length of a chat message (in characters) sent by clients.
 chat_message_max_size (Chat message max length) int 500 10 65535
