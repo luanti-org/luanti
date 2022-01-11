@@ -6752,6 +6752,19 @@ Environment access
        If set to true, decorations are placed in respect to the biome map of the current chunk.
        `pos1` and `pos2` must match the positions of the current chunk, or an error will be raised.
        default: `false`
+* `core.generate_biomes(vm, pos1, pos2[, noise_filler_depth])`
+    * Generate biome nodes according to the registered biomes and
+      temperature/humidity noises within the VoxelManip `vm` and in the area
+      from `pos1` to `pos2`.
+    * `noise_filler_depth` is an optional `ValueNoiseMap` to add an offset to
+      the `depth_filler` of the biomes (see [Biome definition]).
+    * Must be called during mapgen (`on_generated()` callback)
+    * `pos1` and `pos2` should have the same X and Z size as mapgen chunks.
+    * The initial data in `vm` should only contain air, stone, water and
+      river water nodes (see [Essential aliases]). Other nodes are ignored.
+    * Also populates the mapgen objects `heatmap`, `humiditymap` and `biomemap`
+      (see [Mapgen objects]), so that `core.generate_decorations` and
+      `core.generate_ores` will take them into account.
 * `core.clear_objects([options])`
     * Clear all objects in the environment
     * Takes an optional table as an argument with the field `mode`.
