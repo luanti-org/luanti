@@ -445,6 +445,16 @@ public:
 		return m_mesh_grid;
 	}
 
+	video::SColorf getWieldPostEffectColor() const
+	{
+		return m_wield_posteffect_color;
+	}
+
+	void setWieldPostEffectColor(video::SColorf color)
+	{
+		m_wield_posteffect_color = color;
+	}
+
 	bool inhibit_inventory_revert = false;
 
 private:
@@ -597,4 +607,6 @@ private:
 
 	// The number of blocks the client will combine for mesh generation.
 	MeshGrid m_mesh_grid;
+
+	video::SColorf m_wield_posteffect_color{0};
 };
