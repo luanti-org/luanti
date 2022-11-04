@@ -15,8 +15,8 @@ ItemVisualsManager::ItemVisuals::~ItemVisuals() {
 		wield_mesh.mesh->drop();
 }
 
-ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const ItemStack &item,
-		Client *client) const
+ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals(
+		const ItemStack &item, Client *client, u16 &variant_count) const
 {
 	// This is not thread-safe
 	sanity_check(std::this_thread::get_id() == m_main_thread);
@@ -32,6 +32,8 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	if (!inventory_overlay.empty())
 		cache_key += ":" + inventory_overlay;
 
+	variant_count = client->ndef()->get(cache_key).variant_count;
+
 	// Skip if already in cache
 	auto it = m_cached_item_visuals.find(cache_key);
 	if (it != m_cached_item_visuals.end())
@@ -43,14 +45,23 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	ITextureSource *tsrc = client->getTextureSource();
 
 	// Create new ItemVisuals
-	auto cc = std::make_unique<ItemVisuals>();
+	auto cc = std::make_unique<ItemVisuals[]>(variant_count);
 
-	cc->inventory_texture = NULL;
-	if (!inventory_image.empty())
-		cc->inventory_texture = tsrc->getTexture(inventory_image);
-	getItemMesh(client, item, &(cc->wield_mesh));
+	for (u16 v = 0; v < variant_count; v++) {
+		// Create an inventory texture
+		cc[v].inventory_texture = NULL;
+		if (!inventory_image.empty())
+			cc[v].inventory_texture = tsrc->getTexture(inventory_image);
 
-	cc->palette = tsrc->getPalette(def.palette_image);
+		ItemStack item = ItemStack();
+		item.name = def.name;
+		if (v > 0)
+			item.metadata.setString("variant", std::to_string(v));
+
+		getItemMesh(client, item, &(cc[v].wield_mesh));
+
+		cc[v].palette = tsrc->getPalette(def.palette_image);
+	}
 
 	// Put in cache
 	ItemVisuals *ptr = cc.get();
@@ -59,25 +70,29 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 }
 
 video::ITexture* ItemVisualsManager::getInventoryTexture(const ItemStack &item,
-		Client *client) const
+		u16 variant, Client *client) const
 {
-	ItemVisuals *iv = createItemVisuals(item, client);
-	if (!iv)
+	u16 variant_count;
+	ItemVisuals *iv = createItemVisuals(item, client, variant_count);
+	if (!iv || (variant >= variant_count))
 		return nullptr;
-	return iv->inventory_texture;
+	return iv[variant].inventory_texture;
 }
 
-ItemMesh* ItemVisualsManager::getWieldMesh(const ItemStack &item, Client *client) const
+ItemMesh* ItemVisualsManager::getWieldMesh(const ItemStack &item, u16 variant,
+		Client *client) const
 {
-	ItemVisuals *iv = createItemVisuals(item, client);
-	if (!iv)
+	u16 variant_count;
+	ItemVisuals *iv = createItemVisuals(item, client, variant_count);
+	if (!iv || (variant >= variant_count))
 		return nullptr;
-	return &(iv->wield_mesh);
+	return &(iv[variant].wield_mesh);
 }
 
 Palette* ItemVisualsManager::getPalette(const ItemStack &item, Client *client) const
 {
-	ItemVisuals *iv = createItemVisuals(item, client);
+	u16 variant_count;
+	ItemVisuals *iv = createItemVisuals(item, client, variant_count);
 	if (!iv)
 		return nullptr;
 	return iv->palette;

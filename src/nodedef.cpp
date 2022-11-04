@@ -314,12 +314,16 @@ ContentFeatures::ContentFeatures()
 ContentFeatures::~ContentFeatures()
 {
 #if CHECK_CLIENT_BUILD()
-	for (u16 j = 0; j < 6; j++) {
-		delete tiles[j].layers[0].frames;
-		delete tiles[j].layers[1].frames;
+	for (auto &t : tiles) {
+		for (u16 j = 0; j < 6; j++) {
+			delete t[j].layers[0].frames;
+			delete t[j].layers[1].frames;
+		}
 	}
-	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++)
-		delete special_tiles[j].layers[0].frames;
+	for (auto &t : special_tiles) {
+		for (u16 j = 0; j < CF_SPECIAL_COUNT; j++)
+			delete t[j].layers[0].frames;
+	}
 #endif
 }
 
@@ -329,6 +333,8 @@ void ContentFeatures::reset()
 		Cached stuff
 	*/
 #if CHECK_CLIENT_BUILD()
+	tiles = std::vector<std::array<TileSpec, 6> >(1);
+	special_tiles = std::vector<std::array<TileSpec, CF_SPECIAL_COUNT> >(1);
 	solidness = 2;
 	visual_solidness = 0;
 	backface_culling = true;
@@ -353,17 +359,18 @@ void ContentFeatures::reset()
 	mesh.clear();
 #if CHECK_CLIENT_BUILD()
 	mesh_ptr = nullptr;
-	minimap_color = video::SColor(0, 0, 0, 0);
+	minimap_color = std::vector<video::SColor>(1, video::SColor(0, 0, 0, 0));
 #endif
 	visual_scale = 1.0;
-	for (auto &i : tiledef)
-		i = TileDef();
-	for (auto &j : tiledef_special)
-		j = TileDef();
+	tiledef = std::vector<std::array<TileDef, 6> >(1);
+	tiledef_overlay = std::vector<std::array<TileDef, 6> >(1);
+	tiledef_special = std::vector<std::array<TileDef, CF_SPECIAL_COUNT> >(1);
 	alpha = ALPHAMODE_OPAQUE;
 	post_effect_color = video::SColor(0, 0, 0, 0);
 	param_type = CPT_NONE;
 	param_type_2 = CPT2_NONE;
+	variant_count = 1;
+	param2_variant = BitField<u8>();
 	is_ground_content = false;
 	light_propagates = false;
 	sunlight_propagates = false;
@@ -455,12 +462,12 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 	os << serializeString16(mesh);
 	writeF32(os, visual_scale);
 	writeU8(os, 6);
-	for (const TileDef &td : tiledef)
+	for (const TileDef &td : tiledef[0])
 		td.serialize(os, protocol_version);
-	for (const TileDef &td : tiledef_overlay)
+	for (const TileDef &td : tiledef_overlay[0])
 		td.serialize(os, protocol_version);
 	writeU8(os, CF_SPECIAL_COUNT);
-	for (const TileDef &td : tiledef_special) {
+	for (const TileDef &td : tiledef_special[0]) {
 		td.serialize(os, protocol_version);
 	}
 	writeU8(os, getAlphaForLegacy());
@@ -533,6 +540,21 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 	writeU8(os, move_resistance);
 	writeU8(os, liquid_move_physics);
 	writeU8(os, post_effect_color_shaded);
+	writeU16(os, variant_count);
+	writeU8(os, param2_variant.getWidth());
+	writeU8(os, param2_variant.getOffset());
+	for (u16 v = 1; v < variant_count; v++) {
+		for (const TileDef &td : tiledef[v])
+			td.serialize(os, protocol_version);
+	}
+	for (u16 v = 1; v < variant_count; v++) {
+		for (const TileDef &td : tiledef_overlay[v])
+			td.serialize(os, protocol_version);
+	}
+	for (u16 v = 1; v < variant_count; v++) {
+		for (const TileDef &td : tiledef_special[v])
+			td.serialize(os, protocol_version);
+	}
 }
 
 void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
@@ -566,13 +588,13 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 	visual_scale = readF32(is);
 	if (readU8(is) != 6)
 		throw SerializationError("unsupported tile count");
-	for (TileDef &td : tiledef)
+	for (TileDef &td : tiledef[0])
 		td.deSerialize(is, drawtype, protocol_version);
-	for (TileDef &td : tiledef_overlay)
+	for (TileDef &td : tiledef_overlay[0])
 		td.deSerialize(is, drawtype, protocol_version);
 	if (readU8(is) != CF_SPECIAL_COUNT)
 		throw SerializationError("unsupported CF_SPECIAL_COUNT");
-	for (TileDef &td : tiledef_special)
+	for (TileDef &td : tiledef_special[0])
 		td.deSerialize(is, drawtype, protocol_version);
 	setAlphaFromLegacy(readU8(is));
 	color.setRed(readU8(is));
@@ -663,6 +685,43 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 		if (is.eof())
 			throw SerializationError("");
 		post_effect_color_shaded = tmp;
+
+		u16 tmp_variant_count = readU16(is);
+		if (is.eof())
+			throw SerializationError("");
+
+		// Reserve space first for memory safety.
+		tiledef.reserve(variant_count);
+		tiledef_overlay.reserve(variant_count);
+		tiledef_special.reserve(variant_count);
+		for (u16 v = 1; v < tmp_variant_count; v++) {
+			tiledef.emplace_back();
+			tiledef_overlay.emplace_back();
+			tiledef_special.emplace_back();
+		}
+
+		variant_count = tmp_variant_count;
+
+		tmp = readU8(is);
+		u8 tmp2 = readU8(is);
+		if (is.eof())
+			throw SerializationError("");
+		param2_variant = BitField<u8>(tmp, tmp2);
+
+		for (u16 v = 1; v < variant_count; v++) {
+			for (TileDef &td : tiledef[v])
+				td.deSerialize(is, drawtype, protocol_version);
+		}
+
+		for (u16 v = 1; v < variant_count; v++) {
+			for (TileDef &td : tiledef_overlay[v])
+				td.deSerialize(is, drawtype, protocol_version);
+		}
+
+		for (u16 v = 1; v < variant_count; v++) {
+			for (TileDef &td : tiledef_special[v])
+				td.deSerialize(is, drawtype, protocol_version);
+		}
 	} catch (SerializationError &e) {};
 }
 
@@ -761,26 +820,36 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 	scene::IMeshManipulator *meshmanip, Client *client, const TextureSettings &tsettings)
 {
 	// minimap pixel color - the average color of a texture
-	if (tsettings.enable_minimap && !tiledef[0].name.empty())
-		minimap_color = tsrc->getTextureAverageColor(tiledef[0].name);
+	if (tsettings.enable_minimap) {
+		minimap_color = std::vector<video::SColor>(variant_count);
+		for (u16 v = 0; v < variant_count; v++) {
+			if (!tiledef[v][0].name.empty())
+				minimap_color[v] = tsrc->getTextureAverageColor(tiledef[v][0].name);
+		}
+	}
 
 	// Figure out the actual tiles to use
-	TileDef tdef[6];
-	for (u32 j = 0; j < 6; j++) {
-		tdef[j] = tiledef[j];
-		if (tdef[j].name.empty()) {
-			tdef[j].name = "no_texture.png";
-			tdef[j].backface_culling = false;
+	std::vector<std::array<TileDef, 6> > tdef(variant_count);
+	for (u16 v = 0; v < variant_count; v++) {
+		for (u32 j = 0; j < 6; j++) {
+			tdef[v][j] = tiledef[v][j];
+			if (tdef[v][j].name.empty()) {
+				tdef[v][j].name = "no_texture.png";
+				tdef[v][j].backface_culling = false;
+			}
 		}
 	}
 	// also the overlay tiles
-	TileDef tdef_overlay[6];
-	for (u32 j = 0; j < 6; j++)
-		tdef_overlay[j] = tiledef_overlay[j];
+	std::vector<std::array<TileDef, 6> > tdef_overlay(variant_count);
+	for (u16 v = 0; v < variant_count; v++) {
+		for (u32 j = 0; j < 6; j++)
+			tdef_overlay[v][j] = tiledef_overlay[v][j];
+	}
 	// also the special tiles
-	TileDef tdef_spec[6];
-	for (u32 j = 0; j < CF_SPECIAL_COUNT; j++) {
-		tdef_spec[j] = tiledef_special[j];
+	std::vector<std::array<TileDef, CF_SPECIAL_COUNT> > tdef_spec(variant_count);
+	for (u16 v = 0; v < variant_count; v++) {
+		for (u32 j = 0; j < CF_SPECIAL_COUNT; j++)
+			tdef_spec[v][j] = tiledef_special[v][j];
 	}
 
 	bool is_liquid = false;
@@ -832,9 +901,11 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 			solidness = 0;
 			visual_solidness = 1;
 		} else if (tsettings.leaves_style == LEAVES_SIMPLE) {
-			for (u32 j = 0; j < 6; j++) {
-				if (!tdef_spec[j].name.empty())
-					tdef[j].name = tdef_spec[j].name;
+			for (u16 v = 0; v < variant_count; v++) {
+				for (u32 j = 0; j < 6; j++) {
+					if (!tdef_spec[v][j].name.empty())
+						tdef[v][j].name = tdef_spec[v][j].name;
+				}
 			}
 			drawtype = NDT_GLASSLIKE;
 			solidness = 0;
@@ -849,8 +920,10 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 				drawtype = NDT_NORMAL;
 				solidness = 2;
 			}
-			for (TileDef &td : tdef)
-				td.name += std::string("^[noalpha");
+			for (u16 v = 0; v < variant_count; v++) {
+				for (TileDef &td : tdef[v])
+					td.name += std::string("^[noalpha");
+			}
 		}
 		if (waving >= 1)
 			material_type = TILE_MATERIAL_WAVING_LEAVES;
@@ -909,18 +982,21 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 	u32 overlay_shader = shdsrc->getShader("nodes_shader", overlay_material, drawtype);
 
 	// Tiles (fill in f->tiles[])
-	for (u16 j = 0; j < 6; j++) {
-		tiles[j].world_aligned = isWorldAligned(tdef[j].align_style,
-				tsettings.world_aligned_mode, drawtype);
-		fillTileAttribs(tsrc, &tiles[j].layers[0], tiles[j], tdef[j],
-				color, material_type, tile_shader,
-				tdef[j].backface_culling, tsettings);
-		if (!tdef_overlay[j].name.empty())
-			fillTileAttribs(tsrc, &tiles[j].layers[1], tiles[j], tdef_overlay[j],
-					color, overlay_material, overlay_shader,
-					tdef[j].backface_culling, tsettings);
+	tiles = std::vector<std::array<TileSpec, 6> >(variant_count);
+	for (u16 v = 0; v < variant_count; v++) {
+		for (u16 j = 0; j < 6; j++) {
+			tiles[v][j].world_aligned = isWorldAligned(tdef[v][j].align_style,
+					tsettings.world_aligned_mode, drawtype);
+			fillTileAttribs(tsrc, &tiles[v][j].layers[0], tiles[v][j], tdef[v][j],
+					color, material_type, tile_shader,
+					tdef[v][j].backface_culling, tsettings);
+			if (!tdef_overlay[v][j].name.empty())
+				fillTileAttribs(tsrc, &tiles[v][j].layers[1], tiles[v][j], tdef_overlay[v][j],
+						color, overlay_material, overlay_shader,
+						tdef[v][j].backface_culling, tsettings);
 
-		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
+			tiles[v][j].layers[0].need_polygon_offset = !tiles[v][j].layers[1].empty();
+		}
 	}
 
 	MaterialType special_material = material_type;
@@ -933,10 +1009,14 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 	u32 special_shader = shdsrc->getShader("nodes_shader", special_material, drawtype);
 
 	// Special tiles (fill in f->special_tiles[])
-	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++)
-		fillTileAttribs(tsrc, &special_tiles[j].layers[0], special_tiles[j], tdef_spec[j],
-				color, special_material, special_shader,
-				tdef_spec[j].backface_culling, tsettings);
+	special_tiles = std::vector<std::array<TileSpec, CF_SPECIAL_COUNT> >(variant_count);
+	for (u16 v = 0; v < variant_count; v++) {
+		for (u16 j = 0; j < CF_SPECIAL_COUNT; j++)
+			fillTileAttribs(tsrc,
+					&special_tiles[v][j].layers[0], special_tiles[v][j], tdef_spec[v][j],
+					color, special_material, special_shader,
+					tdef_spec[v][j].backface_culling, tsettings);
+	}
 
 	if (param_type_2 == CPT2_COLOR ||
 			param_type_2 == CPT2_COLORED_FACEDIR ||
@@ -1015,7 +1095,7 @@ void NodeDefManager::clear()
 		ContentFeatures f;
 		f.name = "unknown";
 		for (int t = 0; t < 6; t++)
-			f.tiledef[t].name = "unknown_node.png";
+			f.tiledef[0][t].name = "unknown_node.png";
 		// Insert directly into containers
 		content_t c = CONTENT_UNKNOWN;
 		m_content_features[c] = f;
@@ -1381,52 +1461,55 @@ void NodeDefManager::applyTextureOverrides(const std::vector<TextureOverride> &o
 
 		ContentFeatures &nodedef = m_content_features[id];
 
-		auto apply = [&] (TileDef &tile) {
-			tile.name = texture_override.texture;
-			if (texture_override.world_scale > 0) {
-				tile.align_style = ALIGN_STYLE_WORLD;
-				tile.scale = texture_override.world_scale;
+		// For now this works with tiledef_special since CF_SPECIAL_COUNT == 6.
+		auto apply = [&] (std::vector<std::array<TileDef, 6> > &tiledef, u32 i) {
+			for (u16 v = 0; v < nodedef.variant_count; v++) {
+				tiledef[v][i].name = texture_override.texture;
+				if (texture_override.world_scale > 0) {
+					tiledef[v][i].align_style = ALIGN_STYLE_WORLD;
+					tiledef[v][i].scale = texture_override.world_scale;
+				}
 			}
 		};
 
 		// Override tiles
 		if (texture_override.hasTarget(OverrideTarget::TOP))
-			apply(nodedef.tiledef[0]);
+			apply(nodedef.tiledef, 0);
 
 		if (texture_override.hasTarget(OverrideTarget::BOTTOM))
-			apply(nodedef.tiledef[1]);
+			apply(nodedef.tiledef, 1);
 
 		if (texture_override.hasTarget(OverrideTarget::RIGHT))
-			apply(nodedef.tiledef[2]);
+			apply(nodedef.tiledef, 2);
 
 		if (texture_override.hasTarget(OverrideTarget::LEFT))
-			apply(nodedef.tiledef[3]);
+			apply(nodedef.tiledef, 3);
 
 		if (texture_override.hasTarget(OverrideTarget::BACK))
-			apply(nodedef.tiledef[4]);
+			apply(nodedef.tiledef, 4);
 
 		if (texture_override.hasTarget(OverrideTarget::FRONT))
-			apply(nodedef.tiledef[5]);
+			apply(nodedef.tiledef, 5);
 
 
 		// Override special tiles, if applicable
 		if (texture_override.hasTarget(OverrideTarget::SPECIAL_1))
-			apply(nodedef.tiledef_special[0]);
+			apply(nodedef.tiledef_special, 0);
 
 		if (texture_override.hasTarget(OverrideTarget::SPECIAL_2))
-			apply(nodedef.tiledef_special[1]);
+			apply(nodedef.tiledef_special, 1);
 
 		if (texture_override.hasTarget(OverrideTarget::SPECIAL_3))
-			apply(nodedef.tiledef_special[2]);
+			apply(nodedef.tiledef_special, 2);
 
 		if (texture_override.hasTarget(OverrideTarget::SPECIAL_4))
-			apply(nodedef.tiledef_special[3]);
+			apply(nodedef.tiledef_special, 3);
 
 		if (texture_override.hasTarget(OverrideTarget::SPECIAL_5))
-			apply(nodedef.tiledef_special[4]);
+			apply(nodedef.tiledef_special, 4);
 
 		if (texture_override.hasTarget(OverrideTarget::SPECIAL_6))
-			apply(nodedef.tiledef_special[5]);
+			apply(nodedef.tiledef_special, 5);
 	}
 }
 

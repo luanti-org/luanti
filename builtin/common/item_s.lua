@@ -180,6 +180,25 @@ function core.strip_param2_color(param2, paramtype2)
 	end
 end
 
+function core.strip_param2_variant(param2, def)
+	if not def or def.variant_count <= 1 or not def.param2_variant then
+		return 0
+	end
+	local bf = def.param2_variant
+	local right_mask = bit.lshift(1, bf.width) - 1
+	return bit.band(bit.rshift(param2, bf.offset), right_mask) % def.variant_count
+end
+
+function core.set_param2_variant(param2, variant, def)
+	if not def or not def.param2_variant then
+		return param2
+	end
+	local bf = def.param2_variant
+	local mask = bit.lshift(bit.lshift(1, bf.width) - 1, bf.offset)
+	local new_bits = bit.band(bit.lshift(variant, bf.offset), mask)
+	return bit.bor(bit.band(param2, bit.bnot(mask)), new_bits)
+end
+
 -- Content ID caching
 
 local old_get_content_id = core.get_content_id

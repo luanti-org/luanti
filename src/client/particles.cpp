@@ -867,7 +867,7 @@ bool ParticleManager::getNodeParticleParams(const MapNode &n,
 		texid = tilenum - 1;
 	else
 		texid = myrand_range(0,5);
-	const TileLayer &tile = f.tiles[texid].layers[0];
+	const TileLayer &tile = f.tiles[n.getVariant(f)][texid].layers[0];
 	p.animation.type = TAT_NONE;
 
 	// Only use first frame of animated texture

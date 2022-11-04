@@ -403,7 +403,9 @@ void Minimap::blitMinimapPixelsToImageSurface(
 		MinimapPixel *mmpixel = &data->minimap_scan[x + z * data->mode.map_size];
 
 		const ContentFeatures &f = m_ndef->get(mmpixel->n);
-		const TileDef *tile = &f.tiledef[0];
+		u16 v = mmpixel->n.getVariant(f);
+		const TileDef *tile = &f.tiledef[v][0];
+		video::SColor minimap_color = f.minimap_color[v];
 
 		// Color of the 0th tile (mostly this is the topmost)
 		if(tile->has_color)
@@ -411,9 +413,9 @@ void Minimap::blitMinimapPixelsToImageSurface(
 		else
 			mmpixel->n.getColor(f, &tilecolor);
 
-		tilecolor.setRed(tilecolor.getRed() * f.minimap_color.getRed() / 255);
-		tilecolor.setGreen(tilecolor.getGreen() * f.minimap_color.getGreen() / 255);
-		tilecolor.setBlue(tilecolor.getBlue() * f.minimap_color.getBlue() / 255);
+		tilecolor.setRed(tilecolor.getRed() * minimap_color.getRed() / 255);
+		tilecolor.setGreen(tilecolor.getGreen() * minimap_color.getGreen() / 255);
+		tilecolor.setBlue(tilecolor.getBlue() * minimap_color.getBlue() / 255);
 		tilecolor.setAlpha(240);
 
 		map_image->setPixel(x, data->mode.map_size - z - 1, tilecolor);

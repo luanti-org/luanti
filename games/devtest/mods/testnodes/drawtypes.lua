@@ -25,6 +25,23 @@ core.register_node("testnodes:normal", {
 	groups = { dig_immediate = 3 },
 })
 
+-- A regular cube with tiles using color
+core.register_node("testnodes:normal_with_color", {
+	description = S("\"normal\" Drawtype Test Node").."\n"..
+		S("Opaque texture with color parameter"),
+	drawtype = "normal",
+	tiles = {
+		{ name = "testnodes_normal.png", color = "#A00" },
+		{ name = "testnodes_normal.png", color = "#00B" },
+		{ name = "testnodes_normal.png", color = "#0C0" },
+		{ name = "testnodes_normal.png", color = "#DD0" },
+		{ name = "testnodes_normal.png", color = "#0EE" },
+		{ name = "testnodes_normal.png", color = "#F0F" },
+	},
+
+	groups = { dig_immediate = 3 },
+})
+
 -- Standard glasslike node
 core.register_node("testnodes:glasslike", {
 	description = S("\"glasslike\" Drawtype Test Node").."\n"..

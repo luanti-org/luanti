@@ -19,7 +19,8 @@ TEST_CASE("Given a node definition, "
 {
 	ContentFeatures f;
 	f.name = "default:stone";
-	for (TileDef &tiledef : f.tiledef)
+	f.tiledef.emplace_back();
+	for (TileDef &tiledef : f.tiledef[0])
 		tiledef.name = "default_stone.png";
 	f.is_ground_content = true;
 

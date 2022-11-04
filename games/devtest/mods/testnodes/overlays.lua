@@ -7,6 +7,20 @@ core.register_node("testnodes:overlay", {
 	overlay_tiles = {{name = "testnodes_overlay.png"}},
 	groups = { dig_immediate = 2 },
 })
+core.register_node("testnodes:overlay_tile_colors", {
+	description = S("Texture Overlay Test Node, Tile Colors") .. "\n" ..
+		S("Uncolorized"),
+	tiles = {{name = "testnodes_overlayable.png"}},
+	overlay_tiles = {
+		{name = "testnodes_overlay.png", color = "#F00"},
+		{name = "testnodes_overlay.png", color = "#0F0"},
+		{name = "testnodes_overlay.png", color = "#00F"},
+		{name = "testnodes_overlay.png", color = "#FF0"},
+		{name = "testnodes_overlay.png", color = "#0FF"},
+		{name = "testnodes_overlay.png", color = "#F0F"},
+	},
+	groups = { dig_immediate = 2 },
+})
 core.register_node("testnodes:overlay_color_all", {
 	description = S("Texture Overlay Test Node, Colorized") .. "\n" ..
 		S("param2 changes color"),

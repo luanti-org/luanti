@@ -62,9 +62,9 @@ public:
 		f.drawtype = NDT_NORMAL;
 		f.solidness = 2;
 		f.alpha = ALPHAMODE_OPAQUE;
-		for (TileDef &tiledef : f.tiledef)
+		for (TileDef &tiledef : f.tiledef[0])
 			tiledef.name = name + ".png";
-		for (TileSpec &tile : f.tiles)
+		for (TileSpec &tile : f.tiles[0])
 			tile.layers[0].texture_id = texture;
 
 		return registerNode(itemdef, f);
@@ -89,9 +89,9 @@ public:
 		f.groups["liquids"] = 3;
 		f.liquid_alternative_source = "test:" + name + "_source";
 		f.liquid_alternative_flowing = "test:" + name + "_flowing";
-		for (TileDef &tiledef : f.tiledef)
+		for (TileDef &tiledef : f.tiledef[0])
 			tiledef.name = name + ".png";
-		for (TileSpec &tile : f.tiles)
+		for (TileSpec &tile : f.tiles[0])
 			tile.layers[0].texture_id = texture;
 
 		return registerNode(itemdef, f);
@@ -116,10 +116,10 @@ public:
 		f.groups["liquids"] = 3;
 		f.liquid_alternative_source = "test:" + name + "_source";
 		f.liquid_alternative_flowing = "test:" + name + "_flowing";
-		f.tiledef_special[0].name = name + "_top.png";
-		f.tiledef_special[1].name = name + "_side.png";
-		f.special_tiles[0].layers[0].texture_id = texture_top;
-		f.special_tiles[1].layers[0].texture_id = texture_side;
+		f.tiledef_special[0][0].name = name + "_top.png";
+		f.tiledef_special[0][1].name = name + "_side.png";
+		f.special_tiles[0][0].layers[0].texture_id = texture_top;
+		f.special_tiles[1][1].layers[0].texture_id = texture_side;
 
 		return registerNode(itemdef, f);
 	}

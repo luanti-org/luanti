@@ -38,6 +38,11 @@ void MapNode::getColor(const ContentFeatures &f, video::SColor *color) const
 	*color = f.color;
 }
 
+u16 MapNode::getVariant(const ContentFeatures &f) const
+{
+	return f.variant_count > 1 ? f.param2_variant.get(param2) % f.variant_count : 0;
+}
+
 u8 MapNode::getFaceDir(const NodeDefManager *nodemgr,
 	bool allow_wallmounted) const
 {

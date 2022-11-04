@@ -80,7 +80,7 @@ void TestGameDef::defineSomeNodes()
 		"{default_stone.png";
 	f = ContentFeatures();
 	f.name = itemdef.name;
-	for (TileDef &tiledef : f.tiledef)
+	for (TileDef &tiledef : f.tiledef[0])
 		tiledef.name = "default_stone.png";
 	f.is_ground_content = true;
 	idef->registerItem(itemdef);
@@ -98,10 +98,10 @@ void TestGameDef::defineSomeNodes()
 		"{default_dirt.png&default_grass_side.png";
 	f = ContentFeatures();
 	f.name = itemdef.name;
-	f.tiledef[0].name = "default_grass.png";
-	f.tiledef[1].name = "default_dirt.png";
+	f.tiledef[0][0].name = "default_grass.png";
+	f.tiledef[0][1].name = "default_dirt.png";
 	for(int i = 2; i < 6; i++)
-		f.tiledef[i].name = "default_dirt.png^default_grass_side.png";
+		f.tiledef[0][i].name = "default_dirt.png^default_grass_side.png";
 	f.is_ground_content = true;
 	idef->registerItem(itemdef);
 	t_CONTENT_GRASS = ndef->set(f.name, f);
@@ -137,7 +137,7 @@ void TestGameDef::defineSomeNodes()
 	f.liquid_viscosity = 4;
 	f.is_ground_content = true;
 	f.groups["liquids"] = 3;
-	for (TileDef &tiledef : f.tiledef)
+	for (TileDef &tiledef : f.tiledef[0])
 		tiledef.name = "default_water.png";
 	idef->registerItem(itemdef);
 	t_CONTENT_WATER = ndef->set(f.name, f);
@@ -159,7 +159,7 @@ void TestGameDef::defineSomeNodes()
 	f.light_source = LIGHT_MAX-1;
 	f.is_ground_content = true;
 	f.groups["liquids"] = 3;
-	for (TileDef &tiledef : f.tiledef)
+	for (TileDef &tiledef : f.tiledef[0])
 		tiledef.name = "default_lava.png";
 	idef->registerItem(itemdef);
 	t_CONTENT_LAVA = ndef->set(f.name, f);
@@ -177,7 +177,7 @@ void TestGameDef::defineSomeNodes()
 		"{default_brick.png";
 	f = ContentFeatures();
 	f.name = itemdef.name;
-	for (TileDef &tiledef : f.tiledef)
+	for (TileDef &tiledef : f.tiledef[0])
 		tiledef.name = "default_brick.png";
 	f.is_ground_content = true;
 	idef->registerItem(itemdef);
