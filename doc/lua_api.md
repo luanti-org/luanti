@@ -12229,6 +12229,10 @@ Used by `HTTPApiTable.fetch` and `HTTPApiTable.fetch_async`.
     -- Default is false.
     -- Not allowed for GET or HEAD method and `data` must be a table.
 
+    quiet = boolean,
+    -- Optional, if true then error messages are suppressed on failure.
+    -- Default is false.
+
     post_data = "Raw POST request data string" OR {field1 = "data1", field2 = "data2"},
     -- Deprecated, use `data` instead. Forces `method = "POST"`.
 }
