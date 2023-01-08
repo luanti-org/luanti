@@ -22,14 +22,17 @@ package net.minetest.minetest;
 
 import org.libsdl.app.SDLActivity;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ActivityNotFoundException;
 import android.net.Uri;
-import android.os.Bundle;
+import android.os.Build;
 import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -90,6 +93,8 @@ public class GameActivity extends SDLActivity {
 		// lifecycle documentation.
 		saveSettings();
 	}
+
+	private NotificationManager mNotifyManager;
 
 	public void showTextInputDialog(String hint, String current, int editType) {
 		runOnUiThread(() -> showTextInputDialogUI(hint, current, editType));
@@ -262,5 +267,40 @@ public class GameActivity extends SDLActivity {
 
 	public boolean hasPhysicalKeyboard() {
 		return getContext().getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS;
+	}
+
+	public void setPlayingNowNotification(boolean show) {
+		if (mNotifyManager == null) {
+			mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		}
+		int notificationId = 2;
+
+		if (!show) {
+			mNotifyManager.cancel(notificationId);
+			return;
+		}
+
+		Notification.Builder builder;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			builder = new Notification.Builder(this, MainActivity.NOTIFICATION_CHANNEL_ID);
+		} else {
+			builder = new Notification.Builder(this);
+		}
+
+		Intent notificationIntent = new Intent(this, GameActivity.class);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		int pendingIntentFlag = 0;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			pendingIntentFlag = PendingIntent.FLAG_MUTABLE;
+		}
+		PendingIntent intent = PendingIntent.getActivity(this, 0,
+			notificationIntent, pendingIntentFlag);
+
+		builder.setContentTitle(getString(R.string.game_notification_title))
+			.setSmallIcon(R.mipmap.ic_launcher)
+			.setContentIntent(intent)
+			.setOngoing(true);
+
+		mNotifyManager.notify(notificationId, builder.build());
 	}
 }

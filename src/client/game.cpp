@@ -958,6 +958,10 @@ void Game::run()
 
 	auto framemarker = FrameMarker("Game::run()-frame").started();
 
+#ifdef __ANDROID__
+	porting::setPlayingNowNotification(true);
+#endif
+
 	while (m_rendering_engine->run()
 			&& !(*kill || g_gamecallback->shutdown_requested
 			|| (server && server->isShutdownRequested()))) {
@@ -1037,6 +1041,10 @@ void Game::run()
 	}
 
 	framemarker.end();
+
+#ifdef __ANDROID__
+	porting::setPlayingNowNotification(false);
+#endif
 
 	RenderingEngine::autosaveScreensizeAndCo(initial_screen_size, initial_window_maximized);
 }
