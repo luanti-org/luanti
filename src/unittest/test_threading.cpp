@@ -6,6 +6,10 @@
 
 #include <atomic>
 #include <iostream>
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+#include "threading/ipc_channel.h"
 #include "threading/semaphore.h"
 #include "threading/thread.h"
 
@@ -19,6 +23,7 @@ public:
 	void testStartStopWait();
 	void testAtomicSemaphoreThread();
 	void testTLS();
+	void testIPCChannel();
 };
 
 static TestThreading g_test_instance;
@@ -28,6 +33,7 @@ void TestThreading::runTests(IGameDef *gamedef)
 	TEST(testStartStopWait);
 	TEST(testAtomicSemaphoreThread);
 	TEST(testTLS);
+	TEST(testIPCChannel);
 }
 
 class SimpleTestThread : public Thread {
@@ -226,4 +232,59 @@ void TestThreading::testTLS()
 			UASSERT(!g_tls_broken);
 		}
 	}
+}
+
+void TestThreading::testIPCChannel()
+{
+#if defined(_WIN32)
+	HANDLE sem_a = CreateSemaphoreA(nullptr, 0, 1, nullptr);
+	UASSERT(sem_a != INVALID_HANDLE_VALUE);
+
+	HANDLE sem_b = CreateSemaphoreA(nullptr, 0, 1, nullptr);
+	UASSERT(sem_b != INVALID_HANDLE_VALUE);
+#endif
+
+	IPCChannelShared shared, *sharedp = &shared;
+
+#if defined(_WIN32)
+	IPCChannelEnd end_a = IPCChannelEnd::makeA(sharedp, sem_a, sem_b);
+#else
+	IPCChannelEnd end_a = IPCChannelEnd::makeA(sharedp);
+#endif
+
+	std::thread thread_b([=] {
+#if defined(_WIN32)
+		IPCChannelEnd end_b = IPCChannelEnd::makeB(sharedp, sem_a, sem_b);
+#else
+		IPCChannelEnd end_b = IPCChannelEnd::makeB(sharedp);
+#endif
+
+		for (;;) {
+			end_b.recv();
+			end_b.send(end_b.getRecvData(), end_b.getRecvSize());
+			if (end_b.getRecvSize() == 0)
+				break;
+		}
+	});
+
+	char buf[20000] = {};
+	for (int i = sizeof(buf); i > 0; i -= 1000) {
+		buf[i - 1] = 123;
+		end_a.exchange(buf, i);
+		UASSERTEQ(int, end_a.getRecvSize(), i);
+		UASSERTEQ(int, ((const char *)end_a.getRecvData())[i - 1], 123);
+	}
+
+	end_a.exchange(buf, 0);
+	UASSERTEQ(int, end_a.getRecvSize(), 0);
+
+	thread_b.join();
+
+	UASSERT(!end_a.exchange(buf, 0, 1000));
+
+#if defined(_WIN32)
+	CloseHandle(sem_b);
+
+	CloseHandle(sem_a);
+#endif
 }
