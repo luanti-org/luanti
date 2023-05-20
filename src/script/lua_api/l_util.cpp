@@ -625,6 +625,197 @@ int ModApiUtil::l_colorspec_to_table(lua_State *L)
 	return 0;
 }
 
+// colorspec_to_int(colorspec)
+int ModApiUtil::l_colorspec_to_int(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	video::SColor color(0);
+	if (read_color(L, 1, &color)) {
+		lua_pushnumber(L, color.color);
+		return 1;
+	}
+
+	return 0;
+}
+
+// encode_network(format, ...)
+int ModApiUtil::l_encode_network(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	std::string format = readParam<std::string>(L, 1);
+	std::ostringstream os(std::ios_base::binary);
+
+	int arg = 2;
+	for (size_t i = 0; i < format.size(); i++) {
+		switch (format[i]) {
+		case 'b':
+			// Casting the double to a signed integer larger than the target
+			// integer results in proper integer wraparound behavior.
+			writeS8(os, (s64)luaL_checknumber(L, arg));
+			break;
+		case 'h':
+			writeS16(os, (s64)luaL_checknumber(L, arg));
+			break;
+		case 'i':
+			writeS32(os, (s64)luaL_checknumber(L, arg));
+			break;
+		case 'l':
+			writeS64(os, (s64)luaL_checknumber(L, arg));
+			break;
+		case 'B':
+			// Casting to an unsigned integer doesn't result in the proper
+			// integer conversions being applied, so we still use signed.
+			writeU8(os, (s64)luaL_checknumber(L, arg));
+			break;
+		case 'H':
+			writeU16(os, (s64)luaL_checknumber(L, arg));
+			break;
+		case 'I':
+			writeU32(os, (s64)luaL_checknumber(L, arg));
+			break;
+		case 'L':
+			// For the 64-bit integers, we can never experience integer
+			// overflow due to the limited range of Lua's doubles, but we can
+			// have underflow, hence why we cast to s64 first.
+			writeU64(os, (s64)luaL_checknumber(L, arg));
+			break;
+		case 'f':
+			writeF32(os, luaL_checknumber(L, arg));
+			break;
+		case 's': {
+			std::string str = readParam<std::string>(L, arg);
+			os << serializeString16(str, true);
+			break;
+		}
+		case 'S': {
+			std::string str = readParam<std::string>(L, arg);
+			os << serializeString32(str, true);
+			break;
+		}
+		case 'z': {
+			std::string str = readParam<std::string>(L, arg);
+			os << std::string_view(str.c_str(), strlen(str.c_str())) << '\0';
+			break;
+		}
+		case 'Z':
+			os << readParam<std::string>(L, arg);
+			break;
+		case ' ':
+			// Continue because we don't want to increment arg.
+			continue;
+		default:
+			throw LuaError("Invalid format string");
+		}
+
+		arg++;
+	}
+
+	std::string data = os.str();
+	lua_pushlstring(L, data.c_str(), data.size());
+	return 1;
+}
+
+// decode_network(format, data)
+int ModApiUtil::l_decode_network(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	std::string format = readParam<std::string>(L, 1);
+	std::string data = readParam<std::string>(L, 2);
+	std::istringstream is(data, std::ios_base::binary);
+
+	// Make sure we have space for all our returned arguments.
+	lua_checkstack(L, format.size());
+
+	// Set up tracking for verbatim strings and the number of return values.
+	int num_args = lua_gettop(L);
+	int arg = 3;
+	int ret = 0;
+
+	for (size_t i = 0; i < format.size(); i++) {
+		switch (format[i]) {
+		case 'b':
+			lua_pushnumber(L, readS8(is));
+			break;
+		case 'h':
+			lua_pushnumber(L, readS16(is));
+			break;
+		case 'i':
+			lua_pushnumber(L, readS32(is));
+			break;
+		case 'l':
+			lua_pushnumber(L, readS64(is));
+			break;
+		case 'B':
+			lua_pushnumber(L, readU8(is));
+			break;
+		case 'H':
+			lua_pushnumber(L, readU16(is));
+			break;
+		case 'I':
+			lua_pushnumber(L, readU32(is));
+			break;
+		case 'L':
+			lua_pushnumber(L, readU64(is));
+			break;
+		case 'f':
+			lua_pushnumber(L, readF32(is));
+			break;
+		case 's': {
+			std::string str = deSerializeString16(is, true);
+			lua_pushlstring(L, str.c_str(), str.size());
+			break;
+		}
+		case 'S': {
+			std::string str = deSerializeString32(is, true);
+			lua_pushlstring(L, str.c_str(), str.size());
+			break;
+		}
+		case 'z': {
+			std::string str;
+			std::getline(is, str, '\0');
+
+			lua_pushlstring(L, str.c_str(), str.size());
+			break;
+		}
+		case 'Z': {
+			if (arg > num_args) {
+				throw LuaError("Missing verbatim string size");
+			}
+
+			double size = luaL_checknumber(L, arg);
+			std::string str;
+
+			if (size < 0) {
+				// Read the entire rest of the input stream.
+				std::ostringstream os(std::ios_base::binary);
+				os << is.rdbuf();
+				str = os.str();
+			} else if (size != 0) {
+				// Read the specified number of characters.
+				str.resize(size);
+				is.read(&str[0], size);
+			}
+
+			lua_pushlstring(L, str.c_str(), str.size());
+			arg++;
+			break;
+		}
+		case ' ':
+			// Continue because we don't want to increment ret.
+			continue;
+		default:
+			throw LuaError("Invalid format string");
+		}
+
+		ret++;
+	}
+
+	return ret;
+}
+
 // time_to_day_night_ratio(time_of_day)
 int ModApiUtil::l_time_to_day_night_ratio(lua_State *L)
 {
@@ -737,8 +928,12 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 	API_FCT(colorspec_to_colorstring);
 	API_FCT(colorspec_to_bytes);
 	API_FCT(colorspec_to_table);
-	API_FCT(time_to_day_night_ratio);
+	API_FCT(colorspec_to_int);
 
+	API_FCT(encode_network);
+	API_FCT(decode_network);
+
+	API_FCT(time_to_day_night_ratio);
 	API_FCT(encode_png);
 
 	API_FCT(get_last_run_mod);
@@ -774,6 +969,11 @@ void ModApiUtil::InitializeClient(lua_State *L, int top)
 	API_FCT(colorspec_to_colorstring);
 	API_FCT(colorspec_to_bytes);
 	API_FCT(colorspec_to_table);
+	API_FCT(colorspec_to_int);
+
+	API_FCT(encode_network);
+	API_FCT(decode_network);
+
 	API_FCT(time_to_day_night_ratio);
 
 	API_FCT(get_last_run_mod);
@@ -820,8 +1020,12 @@ void ModApiUtil::InitializeAsync(lua_State *L, int top)
 	API_FCT(colorspec_to_colorstring);
 	API_FCT(colorspec_to_bytes);
 	API_FCT(colorspec_to_table);
-	API_FCT(time_to_day_night_ratio);
+	API_FCT(colorspec_to_int);
 
+	API_FCT(encode_network);
+	API_FCT(decode_network);
+
+	API_FCT(time_to_day_night_ratio);
 	API_FCT(encode_png);
 
 	API_FCT(get_last_run_mod);

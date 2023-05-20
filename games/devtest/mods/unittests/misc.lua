@@ -353,3 +353,202 @@ local function test_ipc_poll(cb)
 	print("delta: " .. (core.get_us_time() - t0) .. "us")
 end
 unittests.register("test_ipc_poll", test_ipc_poll)
+
+unittests.register("test_encode_network", function()
+	-- 8-bit integers
+	assert(core.encode_network("bbbbbbb", 0, 1, -1, -128, 127, 255, 256) ==
+			"\x00\x01\xFF\x80\x7F\xFF\x00")
+	assert(core.encode_network("BBBBBBB", 0, 1, -1, -128, 127, 255, 256) ==
+			"\x00\x01\xFF\x80\x7F\xFF\x00")
+
+	-- 16-bit integers
+	assert(core.encode_network("hhhhhhhh",
+			0,          1,          257,        -1,
+			-32768,     32767,      65535,      65536) ==
+			"\x00\x00".."\x00\x01".."\x01\x01".."\xFF\xFF"..
+			"\x80\x00".."\x7F\xFF".."\xFF\xFF".."\x00\x00")
+	assert(core.encode_network("HHHHHHHH",
+			0,          1,          257,        -1,
+			-32768,     32767,      65535,      65536) ==
+			"\x00\x00".."\x00\x01".."\x01\x01".."\xFF\xFF"..
+			"\x80\x00".."\x7F\xFF".."\xFF\xFF".."\x00\x00")
+
+	-- 32-bit integers
+	assert(core.encode_network("iiiiiiii",
+			0,                  257,                2^24-1,             -1,
+			-2^31,              2^31-1,             2^32-1,             2^32) ==
+			"\x00\x00\x00\x00".."\x00\x00\x01\x01".."\x00\xFF\xFF\xFF".."\xFF\xFF\xFF\xFF"..
+			"\x80\x00\x00\x00".."\x7F\xFF\xFF\xFF".."\xFF\xFF\xFF\xFF".."\x00\x00\x00\x00")
+	assert(core.encode_network("IIIIIIII",
+			0,                  257,                2^24-1,             -1,
+			-2^31,              2^31-1,             2^32-1,             2^32) ==
+			"\x00\x00\x00\x00".."\x00\x00\x01\x01".."\x00\xFF\xFF\xFF".."\xFF\xFF\xFF\xFF"..
+			"\x80\x00\x00\x00".."\x7F\xFF\xFF\xFF".."\xFF\xFF\xFF\xFF".."\x00\x00\x00\x00")
+
+	-- 64-bit integers
+	assert(core.encode_network("llllll",
+			0,                                  1,
+			511,                                -1,
+			2^53-1,                             -2^53) ==
+			"\x00\x00\x00\x00\x00\x00\x00\x00".."\x00\x00\x00\x00\x00\x00\x00\x01"..
+			"\x00\x00\x00\x00\x00\x00\x01\xFF".."\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"..
+			"\x00\x1F\xFF\xFF\xFF\xFF\xFF\xFF".."\xFF\xE0\x00\x00\x00\x00\x00\x00")
+	assert(core.encode_network("LLLLLL",
+			0,                                  1,
+			511,                                -1,
+			2^53-1,                             -2^53) ==
+			"\x00\x00\x00\x00\x00\x00\x00\x00".."\x00\x00\x00\x00\x00\x00\x00\x01"..
+			"\x00\x00\x00\x00\x00\x00\x01\xFF".."\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"..
+			"\x00\x1F\xFF\xFF\xFF\xFF\xFF\xFF".."\xFF\xE0\x00\x00\x00\x00\x00\x00")
+
+	-- Strings
+	local max_16 = string.rep("*", 2^16 - 1)
+	local max_32 = string.rep("*", 2^26)
+
+	assert(core.encode_network("ssss",
+			"",                 "hello",
+			max_16,             max_16.."too long") ==
+			"\x00\x00"..        "\x00\x05hello"..
+			"\xFF\xFF"..max_16.."\xFF\xFF"..max_16)
+	assert(core.encode_network("SSSS",
+			"",                         "hello",
+			max_32,                     max_32.."too long") ==
+			"\x00\x00\x00\x00"..        "\x00\x00\x00\x05hello"..
+			"\x04\x00\x00\x00"..max_32.."\x04\x00\x00\x00"..max_32)
+	assert(core.encode_network("zzzz",
+			"",   "hello",   "hello\0embedded", max_16.."longer") ==
+			"\0".."hello\0".."hello\0"..        max_16.."longer\0")
+	assert(core.encode_network("ZZZZ",
+			"", "hello", "hello\0embedded", max_16.."longer") ==
+			"".."hello".."hello\0embedded"..max_16.."longer")
+
+	-- Spaces
+	assert(core.encode_network("B I", 255, 2^31) == "\xFF\x80\x00\x00\x00")
+	assert(core.encode_network("  B Zz ", 15, "abc", "xyz") == "\x0Fabcxyz\0")
+
+	-- Empty format strings
+	assert(core.encode_network("") == "")
+	assert(core.encode_network("   ", 5, "extra args") == "")
+end)
+
+unittests.register("test_decode_network", function()
+	local d
+
+	-- 8-bit integers
+	d = {core.decode_network("bbbbb", "\x00\x01\x7F\x80\xFF")}
+	assert(#d == 5)
+	assert(d[1] == 0 and d[2] == 1 and d[3] == 127 and d[4] == -128 and d[5] == -1)
+
+	d = {core.decode_network("BBBBB", "\x00\x01\x7F\x80\xFF")}
+	assert(#d == 5)
+	assert(d[1] == 0 and d[2] == 1 and d[3] == 127 and d[4] == 128 and d[5] == 255)
+
+	-- 16-bit integers
+	d = {core.decode_network("hhhhhh",
+			"\x00\x00".."\x00\x01".."\x01\x01"..
+			"\x7F\xFF".."\x80\x00".."\xFF\xFF")}
+	assert(#d == 6)
+	assert(d[1] == 0 and d[2] == 1 and d[3] == 257 and
+			d[4] == 32767 and d[5] == -32768 and d[6] == -1)
+
+	d = {core.decode_network("HHHHHH",
+			"\x00\x00".."\x00\x01".."\x01\x01"..
+			"\x7F\xFF".."\x80\x00".."\xFF\xFF")}
+	assert(#d == 6)
+	assert(d[1] == 0 and d[2] == 1 and d[3] == 257 and
+			d[4] == 32767 and d[5] == 32768 and d[6] == 65535)
+
+	-- 32-bit integers
+	d = {core.decode_network("iiiiii",
+			"\x00\x00\x00\x00".."\x00\x00\x00\x01".."\x00\xFF\xFF\xFF"..
+			"\x7F\xFF\xFF\xFF".."\x80\x00\x00\x00".."\xFF\xFF\xFF\xFF")}
+	assert(#d == 6)
+	assert(d[1] == 0 and d[2] == 1 and d[3] == 2^24-1 and
+			d[4] == 2^31-1 and d[5] == -2^31 and d[6] == -1)
+
+	d = {core.decode_network("IIIIII",
+			"\x00\x00\x00\x00".."\x00\x00\x00\x01".."\x00\xFF\xFF\xFF"..
+			"\x7F\xFF\xFF\xFF".."\x80\x00\x00\x00".."\xFF\xFF\xFF\xFF")}
+	assert(#d == 6)
+	assert(d[1] == 0 and d[2] == 1 and d[3] == 2^24-1 and
+			d[4] == 2^31-1 and d[5] == 2^31 and d[6] == 2^32-1)
+
+	-- 64-bit integers
+	d = {core.decode_network("llllll",
+			"\x00\x00\x00\x00\x00\x00\x00\x00".."\x00\x00\x00\x00\x00\x00\x00\x01"..
+			"\x00\x00\x00\x00\x00\x00\x01\xFF".."\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"..
+			"\x00\x1F\xFF\xFF\xFF\xFF\xFF\xFF".."\xFF\xE0\x00\x00\x00\x00\x00\x00")}
+	assert(#d == 6)
+	assert(d[1] == 0 and d[2] == 1 and d[3] == 511 and
+			d[4] == -1 and d[5] == 2^53-1 and d[6] == -2^53)
+
+	d = {core.decode_network("LLLLLL",
+			"\x00\x00\x00\x00\x00\x00\x00\x00".."\x00\x00\x00\x00\x00\x00\x00\x01"..
+			"\x00\x00\x00\x00\x00\x00\x01\xFF".."\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"..
+			"\x00\x1F\xFF\xFF\xFF\xFF\xFF\xFF".."\xFF\xE0\x00\x00\x00\x00\x00\x00")}
+	assert(#d == 6)
+	assert(d[1] == 0 and d[2] == 1 and d[3] == 511 and
+			d[4] == 2^64-1 and d[5] == 2^53-1 and d[6] == 2^64 - 2^53)
+
+	-- Floating point numbers
+	local enc = core.encode_network("fff",
+			0.0, 123.456, -987.654)
+	assert(#enc == 3 * 4)
+
+	d = {core.decode_network("fff", enc)}
+	assert(#d == 3)
+	assert(d[1] == 0.0 and d[2] > 123.45 and d[2] < 123.46 and
+			d[3] > -987.66 and d[3] < -987.65)
+
+	-- Strings
+	local max_16 = string.rep("*", 2^16 - 1)
+	local max_32 = string.rep("*", 2^26)
+
+	d = {core.decode_network("ssss",
+			"\x00\x00".."\x00\x05hello".."\xFF\xFF"..max_16.."\x00\xFFtoo short")}
+	assert(#d == 4)
+	assert(d[1] == "" and d[2] == "hello" and d[3] == max_16 and d[4] == "too short")
+
+	d = {core.decode_network("SSSSS",
+			"\x00\x00\x00\x00".."\x00\x00\x00\x05hello"..
+			"\x04\x00\x00\x00"..max_32.."\x04\x00\x00\x08"..max_32.."too long"..
+			"\x00\x00\x00\xFFtoo short")}
+	assert(#d == 5)
+	assert(d[1] == "" and d[2] == "hello" and
+			d[3] == max_32 and d[4] == max_32 and d[5] == "too short")
+
+	d = {core.decode_network("zzzz", "\0".."hello\0".."missing end")}
+	assert(#d == 4)
+	assert(d[1] == "" and d[2] == "hello" and d[3] == "missing end" and d[4] == "")
+
+	-- Verbatim strings
+	d = {core.decode_network("ZZZZ", "xxxyyyyyzzz", 3, 0, 5, -1)}
+	assert(#d == 4)
+	assert(d[1] == "xxx" and d[2] == "" and d[3] == "yyyyy" and d[4] == "zzz")
+
+	-- Read past end
+	d = {core.decode_network("bhilBHILf", "")}
+	assert(#d == 9)
+	assert(d[1] == 0 and d[2] == 0 and d[3] == 0 and d[4] == 0 and
+			d[5] == 0 and d[6] == 0 and d[7] == 0 and d[8] == 0 and d[9] == 0.0)
+
+	d = {core.decode_network("ZsSzZ", "xx", 4, 4)}
+	assert(#d == 5)
+	assert(d[1] == "xx\0\0" and d[2] == "" and d[3] == "" and
+			d[4] == "" and d[5] == "\0\0\0\0")
+
+	-- Spaces
+	d = {core.decode_network("B I", "\xFF\x80\x00\x00\x00")}
+	assert(#d == 2)
+	assert(d[1] == 255 and d[2] == 2^31)
+
+	d = {core.decode_network("  B Zz ", "\x0Fabcxyz\0", 3)}
+	assert(#d == 3)
+	assert(d[1] == 15 and d[2] == "abc" and d[3] == "xyz")
+
+	-- Empty format strings
+	d = {core.decode_network("", "some random data")}
+	assert(#d == 0)
+	d = {core.decode_network("   ", "some random data", 3, 5)}
+	assert(#d == 0)
+end)
