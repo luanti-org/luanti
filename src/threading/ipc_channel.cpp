@@ -1,6 +1,6 @@
 /*
 Minetest
-Copyright (C) 2022 Desour <vorunbekannt75@web.de>
+Copyright (C) 2022 DS
 Copyright (C) 2022 TurkeyMcMac, Jude Melton-Houghton <jwmhjwmh@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
@@ -185,6 +185,37 @@ static struct timespec *set_timespec(struct timespec *ts, int ms)
 	ts->tv_sec = msu / 1000;
 	ts->tv_nsec = msu % 1000 * 1000000UL;
 	return ts;
+}
+#endif // !defined(_WIN32)
+
+#if defined(_WIN32)
+IPCChannelEnd IPCChannelEnd::makeA(std::unique_ptr<IPCChannelStuff> stuff)
+{
+	IPCChannelShared *shared = stuff->getShared();
+	HANDLE sem_a = stuff->getSemA();
+	HANDLE sem_b = stuff->getSemB();
+	return IPCChannelEnd(std::move(stuff), &shared->a, &shared->b, sem_a, sem_b);
+}
+
+IPCChannelEnd IPCChannelEnd::makeB(std::unique_ptr<IPCChannelStuff> stuff)
+{
+	IPCChannelShared *shared = stuff->getShared();
+	HANDLE sem_a = stuff->getSemA();
+	HANDLE sem_b = stuff->getSemB();
+	return IPCChannelEnd(std::move(stuff), &shared->b, &shared->a, sem_b, sem_a);
+}
+
+#else // defined(_WIN32)
+IPCChannelEnd IPCChannelEnd::makeA(std::unique_ptr<IPCChannelStuff> stuff)
+{
+	IPCChannelShared *shared = stuff->getShared();
+	return IPCChannelEnd(std::move(stuff), &shared->a, &shared->b);
+}
+
+IPCChannelEnd IPCChannelEnd::makeB(std::unique_ptr<IPCChannelStuff> stuff)
+{
+	IPCChannelShared *shared = stuff->getShared();
+	return IPCChannelEnd(std::move(stuff), &shared->b, &shared->a);
 }
 #endif // !defined(_WIN32)
 

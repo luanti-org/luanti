@@ -1,6 +1,6 @@
 /*
 Minetest
-Copyright (C) 2022 Desour <vorunbekannt75@web.de>
+Copyright (C) 2022 DS
 Copyright (C) 2022 TurkeyMcMac, Jude Melton-Houghton <jwmhjwmh@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
@@ -21,9 +21,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #pragma once
 
 #include "irrlichttypes.h"
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
+
 #if defined(_WIN32)
 #include <windows.h>
 #elif defined(__linux__)
@@ -47,7 +49,7 @@ struct IPCChannelBuffer
 {
 #if !defined(_WIN32)
 #if defined(__linux__)
-	std::atomic<u32> futex = ATOMIC_VAR_INIT(0U);
+	std::atomic<u32> futex{0};
 #else
 	pthread_cond_t cond;
 	pthread_mutex_t mutex;
@@ -56,7 +58,7 @@ struct IPCChannelBuffer
 #endif
 #endif // !defined(_WIN32)
 	size_t size;
-	u8 data[IPC_CHANNEL_MSG_SIZE];
+	u8 data[IPC_CHANNEL_MSG_SIZE]; //TODO: volatile?
 
 	IPCChannelBuffer();
 	~IPCChannelBuffer();
@@ -68,32 +70,25 @@ struct IPCChannelShared
 	IPCChannelBuffer b;
 };
 
+// opaque owner for the shared mem and stuff
+// users have to implement this
+struct IPCChannelStuff
+{
+	virtual ~IPCChannelStuff() = default;
+	virtual IPCChannelShared *getShared() = 0;
+#ifdef _WIN32
+	virtual HANDLE getSemA() = 0;
+	virtual HANDLE getSemB() = 0;
+#endif
+};
+
 class IPCChannelEnd
 {
 public:
 	IPCChannelEnd() = default;
 
-#if defined(_WIN32)
-	static IPCChannelEnd makeA(IPCChannelShared *shared, HANDLE sem_a, HANDLE sem_b)
-	{
-		return IPCChannelEnd(&shared->a, &shared->b, sem_a, sem_b);
-	}
-
-	static IPCChannelEnd makeB(IPCChannelShared *shared, HANDLE sem_a, HANDLE sem_b)
-	{
-		return IPCChannelEnd(&shared->b, &shared->a, sem_b, sem_a);
-	}
-#else
-	static IPCChannelEnd makeA(IPCChannelShared *shared)
-	{
-		return IPCChannelEnd(&shared->a, &shared->b);
-	}
-
-	static IPCChannelEnd makeB(IPCChannelShared *shared)
-	{
-		return IPCChannelEnd(&shared->b, &shared->a);
-	}
-#endif // !defined(_WIN32)
+	static IPCChannelEnd makeA(std::unique_ptr<IPCChannelStuff> stuff);
+	static IPCChannelEnd makeB(std::unique_ptr<IPCChannelStuff> stuff);
 
 	// If send, recv, or exchange return false, stop using the channel.
 	// Note: timeouts may be for receiving any response, not a whole message.
@@ -120,17 +115,28 @@ public:
 
 private:
 #if defined(_WIN32)
-	IPCChannelEnd(IPCChannelBuffer *in, IPCChannelBuffer *out, HANDLE sem_in, HANDLE sem_out):
-			m_in(in), m_out(out), m_sem_in(sem_in), m_sem_out(sem_out)
+	IPCChannelEnd(
+			std::unique_ptr<IPCChannelStuff> stuff,
+			IPCChannelBuffer *in, IPCChannelBuffer *out,
+			HANDLE sem_in, HANDLE sem_out) :
+		m_stuff(std::move(stuff)),
+		m_in(in), m_out(out),
+		m_sem_in(sem_in), m_sem_out(sem_out)
 	{}
 #else
-	IPCChannelEnd(IPCChannelBuffer *in, IPCChannelBuffer *out): m_in(in), m_out(out) {}
+	IPCChannelEnd(
+			std::unique_ptr<IPCChannelStuff> stuff,
+			IPCChannelBuffer *in, IPCChannelBuffer *out) :
+		m_stuff(std::move(stuff)),
+		m_in(in), m_out(out)
+	{}
 #endif
 
 	bool sendSmall(const void *data, size_t size) noexcept;
 
 	bool sendLarge(const void *data, size_t size, int timeout_ms) noexcept;
 
+	std::unique_ptr<IPCChannelStuff> m_stuff;
 	IPCChannelBuffer *m_in = nullptr;
 	IPCChannelBuffer *m_out = nullptr;
 #if defined(_WIN32)

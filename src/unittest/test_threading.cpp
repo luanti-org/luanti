@@ -236,28 +236,53 @@ void TestThreading::testTLS()
 
 void TestThreading::testIPCChannel()
 {
+	struct Stuff
+	{
+		IPCChannelShared shared{};
 #if defined(_WIN32)
-	HANDLE sem_a = CreateSemaphoreA(nullptr, 0, 1, nullptr);
-	UASSERT(sem_a != INVALID_HANDLE_VALUE);
-
-	HANDLE sem_b = CreateSemaphoreA(nullptr, 0, 1, nullptr);
-	UASSERT(sem_b != INVALID_HANDLE_VALUE);
+		HANDLE sem_a;
+		HANDLE sem_b;
 #endif
+		Stuff()
+		{
+#ifdef _WIN32
+			HANDLE sem_a = CreateSemaphoreA(nullptr, 0, 1, nullptr);
+			UASSERT(sem_a != INVALID_HANDLE_VALUE);
 
-	IPCChannelShared shared, *sharedp = &shared;
+			HANDLE sem_b = CreateSemaphoreA(nullptr, 0, 1, nullptr);
+			UASSERT(sem_b != INVALID_HANDLE_VALUE);
+#endif
+		}
 
+		~Stuff()
+		{
+#ifdef _WIN32
+			CloseHandle(sem_b);
+			CloseHandle(sem_a);
+#endif
+		}
+	};
+
+	struct IPCChannelStuffSingleProcess final : public IPCChannelStuff
+	{
+		std::shared_ptr<Stuff> stuff;
+
+		IPCChannelStuffSingleProcess(std::shared_ptr<Stuff> stuff) : stuff(std::move(stuff)) {}
+		~IPCChannelStuffSingleProcess() override = default;
+
+		IPCChannelShared *getShared() override { return &stuff->shared; }
 #if defined(_WIN32)
-	IPCChannelEnd end_a = IPCChannelEnd::makeA(sharedp, sem_a, sem_b);
-#else
-	IPCChannelEnd end_a = IPCChannelEnd::makeA(sharedp);
+		HANDLE getSemA() override { return stuff->sem_a; }
+		HANDLE getSemB() override { return stuff->sem_b; }
 #endif
+	};
+
+	auto stuff = std::make_shared<Stuff>();
+
+	IPCChannelEnd end_a = IPCChannelEnd::makeA(std::make_unique<IPCChannelStuffSingleProcess>(stuff));
 
 	std::thread thread_b([=] {
-#if defined(_WIN32)
-		IPCChannelEnd end_b = IPCChannelEnd::makeB(sharedp, sem_a, sem_b);
-#else
-		IPCChannelEnd end_b = IPCChannelEnd::makeB(sharedp);
-#endif
+		IPCChannelEnd end_b = IPCChannelEnd::makeB(std::make_unique<IPCChannelStuffSingleProcess>(stuff));
 
 		for (;;) {
 			end_b.recv();
@@ -281,10 +306,4 @@ void TestThreading::testIPCChannel()
 	thread_b.join();
 
 	UASSERT(!end_a.exchange(buf, 0, 1000));
-
-#if defined(_WIN32)
-	CloseHandle(sem_b);
-
-	CloseHandle(sem_a);
-#endif
 }
