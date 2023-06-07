@@ -78,6 +78,7 @@ IPCChannelBuffer::~IPCChannelBuffer()
 
 #if defined(_WIN32)
 
+// returns false on timeout
 static bool wait(HANDLE sem, DWORD timeout)
 {
 	return WaitForSingleObject(sem, timeout) == WAIT_OBJECT_0;
@@ -109,6 +110,8 @@ static int futex(std::atomic<u32> *uaddr, int futex_op, u32 val,
 
 #endif // defined(__linux__)
 
+// timeout: relative on linux, and absolute on other posix
+// returns false on timeout
 static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 {
 #if defined(__linux__)
@@ -132,8 +135,15 @@ static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 			return true;
 		}
 		int s = futex(&buf->futex, FUTEX_WAIT, 2, timeout, nullptr, 0);
-		if (s == -1 && errno != EAGAIN)
-			return false;
+		if (s == -1) {
+			if (errno == ETIMEDOUT) {
+				return false;
+			} else if (errno != EAGAIN && errno != EINTR) {
+				std::string errmsg = std::string("FUTEX_WAIT failed unexpectedly: ")
+						+ std::strerror(errno);
+				FATAL_ERROR(errmsg.c_str());
+			}
+		}
 	}
 #else
 	bool timed_out = false;
@@ -154,9 +164,13 @@ static void post(IPCChannelBuffer *buf) noexcept
 {
 #if defined(__linux__)
 	if (buf->futex.exchange(1) == 2) {
+		// 2 means reader needs to be notified
 		int s = futex(&buf->futex, FUTEX_WAKE, 1, nullptr, nullptr, 0);
-		if (s == -1)
-			FATAL_ERROR("FUTEX_WAKE failed unexpectedly");
+		if (s == -1) {
+			std::string errmsg = std::string("FUTEX_WAKE failed unexpectedly: ")
+					+ std::strerror(errno);
+			FATAL_ERROR(errmsg.c_str());
+		}
 	}
 #else
 	pthread_mutex_lock(&buf->mutex);
@@ -188,38 +202,31 @@ static struct timespec *set_timespec(struct timespec *ts, int ms)
 }
 #endif // !defined(_WIN32)
 
-#if defined(_WIN32)
 IPCChannelEnd IPCChannelEnd::makeA(std::unique_ptr<IPCChannelStuff> stuff)
 {
 	IPCChannelShared *shared = stuff->getShared();
+#if defined(_WIN32)
 	HANDLE sem_a = stuff->getSemA();
 	HANDLE sem_b = stuff->getSemB();
 	return IPCChannelEnd(std::move(stuff), &shared->a, &shared->b, sem_a, sem_b);
+#else
+	return IPCChannelEnd(std::move(stuff), &shared->a, &shared->b);
+#endif // !defined(_WIN32)
 }
 
 IPCChannelEnd IPCChannelEnd::makeB(std::unique_ptr<IPCChannelStuff> stuff)
 {
 	IPCChannelShared *shared = stuff->getShared();
+#if defined(_WIN32)
 	HANDLE sem_a = stuff->getSemA();
 	HANDLE sem_b = stuff->getSemB();
 	return IPCChannelEnd(std::move(stuff), &shared->b, &shared->a, sem_b, sem_a);
-}
-
-#else // defined(_WIN32)
-IPCChannelEnd IPCChannelEnd::makeA(std::unique_ptr<IPCChannelStuff> stuff)
-{
-	IPCChannelShared *shared = stuff->getShared();
-	return IPCChannelEnd(std::move(stuff), &shared->a, &shared->b);
-}
-
-IPCChannelEnd IPCChannelEnd::makeB(std::unique_ptr<IPCChannelStuff> stuff)
-{
-	IPCChannelShared *shared = stuff->getShared();
+#else
 	return IPCChannelEnd(std::move(stuff), &shared->b, &shared->a);
-}
 #endif // !defined(_WIN32)
+}
 
-bool IPCChannelEnd::sendSmall(const void *data, size_t size) noexcept
+void IPCChannelEnd::sendSmall(const void *data, size_t size) noexcept
 {
 	m_out->size = size;
 	memcpy(m_out->data, data, size);
@@ -228,7 +235,6 @@ bool IPCChannelEnd::sendSmall(const void *data, size_t size) noexcept
 #else
 	post(m_out);
 #endif
-	return true;
 }
 
 bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noexcept
@@ -236,7 +242,8 @@ bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noe
 #if defined(_WIN32)
 	DWORD timeout = get_timeout(timeout_ms);
 #else
-	struct timespec timeout, *timeoutp = set_timespec(&timeout, timeout_ms);
+	struct timespec timeout;
+	struct timespec *timeoutp = set_timespec(&timeout, timeout_ms);
 #endif
 	m_out->size = size;
 	do {
@@ -269,7 +276,8 @@ bool IPCChannelEnd::recv(int timeout_ms) noexcept
 #if defined(_WIN32)
 	DWORD timeout = get_timeout(timeout_ms);
 #else
-	struct timespec timeout, *timeoutp = set_timespec(&timeout, timeout_ms);
+	struct timespec timeout;
+	struct timespec *timeoutp = set_timespec(&timeout, timeout_ms);
 #endif
 #if defined(_WIN32)
 	if (!wait(m_sem_in, timeout))
@@ -285,7 +293,10 @@ bool IPCChannelEnd::recv(int timeout_ms) noexcept
 		try {
 			m_large_recv.resize(size);
 		} catch (...) {
-			return false;
+			// it's ok for us if an attacker wants to make us abort
+			std::string errmsg = std::string("std::vector::resize failed, size was: ")
+					+ std::to_string(size);
+			FATAL_ERROR(errmsg.c_str());
 		}
 		u8 *recv_data = m_large_recv.data();
 		m_recv_size = size;
