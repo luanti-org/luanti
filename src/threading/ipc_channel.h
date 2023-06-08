@@ -82,7 +82,7 @@ struct IPCChannelBuffer
 	u8 data[IPC_CHANNEL_MSG_SIZE] = {};
 
 	IPCChannelBuffer();
-	~IPCChannelBuffer();
+	~IPCChannelBuffer(); // Note: only destruct once, i.e. in one process
 };
 
 struct IPCChannelShared

@@ -44,9 +44,9 @@ IPCChannelBuffer::IPCChannelBuffer()
 		goto error_condattr_init;
 	if (pthread_mutexattr_init(&mutexattr) != 0)
 		goto error_mutexattr_init;
-	if (pthread_condattr_setpshared(&condattr, 1) != 0)
+	if (pthread_condattr_setpshared(&condattr, PTHREAD_PROCESS_SHARED) != 0)
 		goto error_condattr_setpshared;
-	if (pthread_mutexattr_setpshared(&mutexattr, 1) != 0)
+	if (pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_SHARED) != 0)
 		goto error_mutexattr_setpshared;
 	if (pthread_cond_init(&cond, &condattr) != 0)
 		goto error_cond_init;
