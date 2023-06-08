@@ -202,6 +202,18 @@ static struct timespec *set_timespec(struct timespec *ts, int ms)
 }
 #endif // !defined(_WIN32)
 
+template <typename T>
+static inline void write_once(volatile T *var, const T val)
+{
+	*var = val;
+}
+
+template <typename T>
+static inline T read_once(const volatile T *var)
+{
+	return *var;
+}
+
 IPCChannelEnd IPCChannelEnd::makeA(std::unique_ptr<IPCChannelStuff> stuff)
 {
 	IPCChannelShared *shared = stuff->getShared();
@@ -228,7 +240,7 @@ IPCChannelEnd IPCChannelEnd::makeB(std::unique_ptr<IPCChannelStuff> stuff)
 
 void IPCChannelEnd::sendSmall(const void *data, size_t size) noexcept
 {
-	m_out->size = size;
+	write_once(&m_out->size, size);
 	memcpy(m_out->data, data, size);
 #if defined(_WIN32)
 	post(m_sem_out);
@@ -245,7 +257,7 @@ bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noe
 	struct timespec timeout;
 	struct timespec *timeoutp = set_timespec(&timeout, timeout_ms);
 #endif
-	m_out->size = size;
+	write_once(&m_out->size, size);
 	do {
 		memcpy(m_out->data, data, IPC_CHANNEL_MSG_SIZE);
 #if defined(_WIN32)
@@ -285,10 +297,11 @@ bool IPCChannelEnd::recv(int timeout_ms) noexcept
 	if (!wait(m_in, timeoutp))
 #endif
 		return false;
-	size_t size = m_in->size;
+	size_t size = read_once(&m_in->size);
+	m_recv_size = size;
 	if (size <= IPC_CHANNEL_MSG_SIZE) {
-		m_recv_size = size;
-		m_recv_data = m_in->data;
+		// m_large_recv.size() is always >= IPC_CHANNEL_MSG_SIZE
+		memcpy(m_large_recv.data(), m_in->data, size);
 	} else {
 		try {
 			m_large_recv.resize(size);
@@ -299,8 +312,6 @@ bool IPCChannelEnd::recv(int timeout_ms) noexcept
 			FATAL_ERROR(errmsg.c_str());
 		}
 		u8 *recv_data = m_large_recv.data();
-		m_recv_size = size;
-		m_recv_data = recv_data;
 		do {
 			memcpy(recv_data, m_in->data, IPC_CHANNEL_MSG_SIZE);
 			size -= IPC_CHANNEL_MSG_SIZE;

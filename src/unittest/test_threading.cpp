@@ -285,8 +285,8 @@ void TestThreading::testIPCChannel()
 		IPCChannelEnd end_b = IPCChannelEnd::makeB(std::make_unique<IPCChannelStuffSingleProcess>(stuff));
 
 		for (;;) {
-			end_b.recv();
-			end_b.send(end_b.getRecvData(), end_b.getRecvSize());
+			UASSERT(end_b.recv());
+			UASSERT(end_b.send(end_b.getRecvData(), end_b.getRecvSize()));
 			if (end_b.getRecvSize() == 0)
 				break;
 		}
@@ -295,12 +295,12 @@ void TestThreading::testIPCChannel()
 	char buf[20000] = {};
 	for (int i = sizeof(buf); i > 0; i -= 1000) {
 		buf[i - 1] = 123;
-		end_a.exchange(buf, i);
+		UASSERT(end_a.exchange(buf, i));
 		UASSERTEQ(int, end_a.getRecvSize(), i);
 		UASSERTEQ(int, ((const char *)end_a.getRecvData())[i - 1], 123);
 	}
 
-	end_a.exchange(buf, 0);
+	UASSERT(end_a.exchange(buf, 0));
 	UASSERTEQ(int, end_a.getRecvSize(), 0);
 
 	thread_b.join();

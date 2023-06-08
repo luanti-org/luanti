@@ -48,7 +48,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	* other posix: uses posix mutex and condition variable
 */
 
-#define IPC_CHANNEL_MSG_SIZE 8192U
+#define IPC_CHANNEL_MSG_SIZE 0x2000U
 
 struct IPCChannelBuffer
 {
@@ -67,8 +67,11 @@ struct IPCChannelBuffer
 	bool posted = false; // protected by mutex
 #endif
 #endif // !defined(_WIN32)
-	size_t size;
-	u8 data[IPC_CHANNEL_MSG_SIZE];
+	// Note: If the other side isn't acting cooperatively, they might write to
+	// this at any times. So we must make sure to copy out the data once, and
+	// only access that copy.
+	size_t size = 0;
+	u8 data[IPC_CHANNEL_MSG_SIZE] = {};
 
 	IPCChannelBuffer();
 	~IPCChannelBuffer();
@@ -121,7 +124,7 @@ public:
 	}
 
 	// Get the content of the last received message
-	inline const void *getRecvData() const noexcept { return m_recv_data; }
+	inline const void *getRecvData() const noexcept { return m_large_recv.data(); }
 	inline size_t getRecvSize() const noexcept { return m_recv_size; }
 
 private:
@@ -155,7 +158,8 @@ private:
 	HANDLE m_sem_in;
 	HANDLE m_sem_out;
 #endif
-	const void *m_recv_data = nullptr;
 	size_t m_recv_size = 0;
-	std::vector<u8> m_large_recv;
+	// we always copy from the shared buffer into this
+	// (this buffer only grows)
+	std::vector<u8> m_large_recv = std::vector<u8>(IPC_CHANNEL_MSG_SIZE);
 };
