@@ -6,7 +6,7 @@
 
 #include <atomic>
 #include <iostream>
-#if defined(_WIN32)
+#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32) || defined(_WIN32)
 #include <windows.h>
 #endif
 #include "threading/ipc_channel.h"
@@ -239,13 +239,13 @@ void TestThreading::testIPCChannel()
 	struct Stuff
 	{
 		IPCChannelShared shared{};
-#if defined(_WIN32)
+#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 		HANDLE sem_a;
 		HANDLE sem_b;
 #endif
 		Stuff()
 		{
-#ifdef _WIN32
+#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
 			HANDLE sem_a = CreateSemaphoreA(nullptr, 0, 1, nullptr);
 			UASSERT(sem_a != INVALID_HANDLE_VALUE);
 
@@ -256,7 +256,7 @@ void TestThreading::testIPCChannel()
 
 		~Stuff()
 		{
-#ifdef _WIN32
+#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
 			CloseHandle(sem_b);
 			CloseHandle(sem_a);
 #endif
@@ -271,7 +271,7 @@ void TestThreading::testIPCChannel()
 		~IPCChannelStuffSingleProcess() override = default;
 
 		IPCChannelShared *getShared() override { return &stuff->shared; }
-#if defined(_WIN32)
+#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 		HANDLE getSemA() override { return stuff->sem_a; }
 		HANDLE getSemB() override { return stuff->sem_b; }
 #endif

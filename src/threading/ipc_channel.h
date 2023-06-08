@@ -27,10 +27,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <vector>
 
 #if defined(_WIN32)
-#include <windows.h>
+#define IPC_CHANNEL_IMPLEMENTATION_WIN32
 #elif defined(__linux__)
-#include <atomic>
+#define IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX
 #else
+#define IPC_CHANNEL_IMPLEMENTATION_POSIX
+#endif
+
+#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
+#include <windows.h>
+#elif defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
+#include <atomic>
+#elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
 #include <pthread.h>
 #endif
 
@@ -52,8 +60,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 struct IPCChannelBuffer
 {
-#if !defined(_WIN32)
-#if defined(__linux__)
+#if defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
 	// possible values:
 	// 0: futex is not posted. reader will check value before blocking => no
 	//    notify needed when posting
@@ -61,12 +68,13 @@ struct IPCChannelBuffer
 	// 2: futex is not posted. reader is waiting with futex syscall, and needs
 	//    to be notified
 	std::atomic<u32> futex{0};
-#else
+
+#elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
 	pthread_cond_t cond;
 	pthread_mutex_t mutex;
 	bool posted = false; // protected by mutex
 #endif
-#endif // !defined(_WIN32)
+
 	// Note: If the other side isn't acting cooperatively, they might write to
 	// this at any times. So we must make sure to copy out the data once, and
 	// only access that copy.
@@ -89,7 +97,7 @@ struct IPCChannelStuff
 {
 	virtual ~IPCChannelStuff() = default;
 	virtual IPCChannelShared *getShared() = 0;
-#ifdef _WIN32
+#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 	virtual HANDLE getSemA() = 0;
 	virtual HANDLE getSemB() = 0;
 #endif
@@ -128,7 +136,7 @@ public:
 	inline size_t getRecvSize() const noexcept { return m_recv_size; }
 
 private:
-#if defined(_WIN32)
+#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 	IPCChannelEnd(
 			std::unique_ptr<IPCChannelStuff> stuff,
 			IPCChannelBuffer *in, IPCChannelBuffer *out,
@@ -154,7 +162,7 @@ private:
 	std::unique_ptr<IPCChannelStuff> m_stuff;
 	IPCChannelBuffer *m_in = nullptr;
 	IPCChannelBuffer *m_out = nullptr;
-#if defined(_WIN32)
+#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 	HANDLE m_sem_in;
 	HANDLE m_sem_out;
 #endif
