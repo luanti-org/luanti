@@ -621,8 +621,12 @@ anisotropic_filter (Anisotropic filtering) bool false
 #
 #    * SSAA - Super-sampling antialiasing
 #             Renders higher-resolution image of the scene, then scales down to reduce
-#             the aliasing effects. This is the slowest and the most accurate method.
-antialiasing (Antialiasing method) enum none none,fsaa,ssaa
+#             the aliasing effects.
+#             The ssaa_ssim_based variant uses a slower downscaling algorithm
+#             which preserves the image sharpness and requires that
+#             post_processing_texture_bits is set to 16.
+#             SSAA are the slowest and the most accurate antialiasing methods.
+antialiasing (Antialiasing method) enum none none,fsaa,ssaa,ssaa_ssim_based
 
 #    Defines the size of the sampling grid for FSAA and SSAA antialiasing methods.
 #    Value of 2 means taking 2x2 = 4 samples.
