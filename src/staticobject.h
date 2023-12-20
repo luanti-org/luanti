@@ -15,6 +15,7 @@
 #include <vector>
 
 class ServerActiveObject;
+struct ClearObjectsConfig;
 
 struct StaticObject
 {
@@ -81,6 +82,7 @@ public:
 		m_active.clear();
 		m_stored.clear();
 	}
+	size_t clearInactive(ClearObjectsConfig &config);
 
 	inline size_t size()
 	{
