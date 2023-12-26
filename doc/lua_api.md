@@ -6763,8 +6763,15 @@ Environment access
     * The initial data in `vm` should only contain air, stone, water and
       river water nodes (see [Essential aliases]). Other nodes are ignored.
     * Also populates the mapgen objects `heatmap`, `humiditymap` and `biomemap`
-      (see [Mapgen objects]), so that `core.generate_decorations` and
-      `core.generate_ores` will take them into account.
+      (see [Mapgen objects]), so that `core.generate_decorations`,
+      `core.generate_ores` and `core.generate_biome_dust` will take
+      them into account.
+* `core.generate_biome_dust(vm, pos1, pos2)`
+    * Generate the `node_dust` of the biome (see [Biome definition]) within the
+      VoxelManip `vm` and in the area from `pos1` to `pos2`.
+    * `pos1` and `pos2` should have the same X and Z size as mapgen chunks.
+    * Reads the mapgen object `biomemap` (see [Mapgen Objects]), that must be
+      already computed (ie. using `core.generate_biomes`).
 * `core.clear_objects([options])`
     * Clear all objects in the environment
     * Takes an optional table as an argument with the field `mode`.
