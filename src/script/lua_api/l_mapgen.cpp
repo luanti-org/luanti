@@ -1752,6 +1752,47 @@ int ModApiMapgen::l_generate_biomes(lua_State *L)
 }
 
 
+// generate_biome_dust(vm, p1, p2)
+int ModApiMapgen::l_generate_biome_dust(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	EmergeManager *emerge = getServer(L)->getEmergeManager();
+	if (!emerge)
+		return 0;
+
+	Mapgen *mg_current = emerge->getCurrentMapgen();
+	if (!mg_current || !mg_current->biomegen ||
+			mg_current->biomegen->getType() != BIOMEGEN_ORIGINAL)
+		return 0;
+
+	const NodeDefManager *ndef = getServer(L)->getNodeDefManager();
+
+	MapgenBasic mg;
+
+	mg.vm   = checkObject<LuaVoxelManip>(L, 1)->vm;
+	mg.m_bmgr = mg_current->m_emerge->biomemgr;
+	mg.ndef = ndef;
+	mg.biomegen = mg_current->biomegen;
+	mg.biomemap = mg_current->biomegen->biomemap;
+	mg.water_level = mg_current->water_level;
+
+	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) :
+			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
+	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) :
+			mg.vm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE;
+	sortBoxVerticies(pmin, pmax);
+
+	mg.node_min = pmin;
+	mg.node_max = pmax;
+	mg.full_node_min = mg.vm->m_area.MinEdge;
+	mg.full_node_max = mg.vm->m_area.MaxEdge;
+	mg.dustTopNodes();
+
+	return 0;
+}
+
+
 // create_schematic(p1, p2, probability_list, filename, y_slice_prob_list)
 int ModApiMapgen::l_create_schematic(lua_State *L)
 {
@@ -2184,6 +2225,7 @@ void ModApiMapgen::Initialize(lua_State *L, int top)
 	API_FCT(generate_ores);
 	API_FCT(generate_decorations);
 	API_FCT(generate_biomes);
+	API_FCT(generate_biome_dust);
 	API_FCT(create_schematic);
 	API_FCT(place_schematic);
 	API_FCT(place_schematic_on_vmanip);
