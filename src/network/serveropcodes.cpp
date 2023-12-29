@@ -205,7 +205,7 @@ const ClientCommandFactory clientCommandFactoryTable[TOCLIENT_NUM_MSG_TYPES] =
 	{ "TOCLIENT_SET_MOON",                 0, true }, // 0x5b
 	{ "TOCLIENT_SET_STARS",                0, true }, // 0x5c
 	{ "TOCLIENT_MOVE_PLAYER_REL",          0, true }, // 0x5d
-	null_command_factory, // 0x5e
+	{ "TOCLIENT_SET_NODE_VISUAL",          0, true }, // 0x5e
 	null_command_factory, // 0x5f
 	{ "TOCLIENT_SRP_BYTES_S_B",            0, true }, // 0x60
 	{ "TOCLIENT_FORMSPEC_PREPEND",         0, true }, // 0x61

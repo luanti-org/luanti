@@ -219,6 +219,7 @@ public:
 	void handleCommand_MinimapModes(NetworkPacket *pkt);
 	void handleCommand_SetLighting(NetworkPacket *pkt);
 	void handleCommand_Camera(NetworkPacket* pkt);
+	void handleCommand_SetNodeVisual(NetworkPacket *pkt);
 
 	void ProcessData(NetworkPacket *pkt);
 
@@ -304,6 +305,8 @@ public:
 	// Including blocks at appropriate edges
 	void addUpdateMeshTaskWithEdge(v3s16 blockpos, bool ack_to_server=false, bool urgent=false);
 	void addUpdateMeshTaskForNode(v3s16 nodepos, bool ack_to_server=false, bool urgent=false);
+
+	void updateDrawListBlocks(bool ack_to_server=false, bool urgent=false);
 
 	bool hasClientEvents() const { return !m_client_event_queue.empty(); }
 	// Get event from queue. If queue is empty, it triggers an assertion failure.

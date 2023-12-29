@@ -40,7 +40,9 @@ void MapNode::getColor(const ContentFeatures &f, video::SColor *color) const
 
 u16 MapNode::getVariant(const ContentFeatures &f) const
 {
-	return f.variant_count > 1 ? f.param2_variant.get(param2) % f.variant_count : 0;
+	if (f.variant_count > 1)
+		return (f.param2_variant.get(param2) + f.variant_offset) % f.variant_count;
+	return 0;
 }
 
 u8 MapNode::getFaceDir(const NodeDefManager *nodemgr,

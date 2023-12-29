@@ -648,6 +648,12 @@ enum ToClientCommand : u16
 		v3f added_pos
 	*/
 
+	TOCLIENT_SET_NODE_VISUAL = 0x5e,
+	/*
+		std::string nodename
+		u16 variant_offset
+	*/
+
 	TOCLIENT_SRP_BYTES_S_B = 0x60,
 	/*
 		Belonging to AUTH_MECHANISM_SRP.

@@ -340,6 +340,8 @@ struct ContentFeatures
 	ContentParamType2 param_type_2;
 	// Number of node variants
 	u16 variant_count = 1;
+	// Node variant offset
+	u16 variant_offset = 0;
 	// Bit field for variant in param2
 	BitField<u8> param2_variant;
 
@@ -522,6 +524,15 @@ private:
 	u8 getAlphaForLegacy() const;
 };
 
+struct NodeVisual {
+	u16 variant_offset = 0;
+
+	NodeVisual();
+	NodeVisual(const ContentFeatures &f);
+
+	void from_contentFeature(const ContentFeatures &f);
+};
+
 /*!
  * @brief This class is for getting the actual properties of nodes from their
  * content ID.
@@ -616,6 +627,20 @@ public:
 	inline core::aabbox3d<s16> getSelectionBoxIntUnion() const {
 		return m_selection_box_int_union;
 	}
+
+	/*!
+	 * Get NodeVisual object of node
+	 * @param name a node name
+	 * @param node_visual NodeVisual object to be set
+	 */
+	void getNodeVisual(const std::string &name, NodeVisual &node_visual) const;
+
+	/*!
+	 * Apply NodeVisual object to node
+	 * @param name a node name
+	 * @param node_visual NodeVisual object to be applied to node
+	 */
+	void applyNodeVisual(const std::string &name, const NodeVisual &node_visual);
 
 	/*!
 	 * Checks whether a node connects to an adjacent node.

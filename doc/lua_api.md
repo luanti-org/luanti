@@ -9058,6 +9058,13 @@ child will follow movement and rotation of that bone.
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.
+* `set_node_visual(node_name, node_visual)`: sets `node_visual` of `node_name` for the player
+    * `node_name` is a name of registered node.
+    * `node_visual` is a table with the following optional fields:
+      * `variant_offset` this value is added to variant from node param2 value (default: `0`).
+
+* `get_node_visual(node_name)`: returns the current `node_visual` of `node_name` for the player.
+    * Result is a table with the same fields as `node_visual` in `set_node_visual`.
 * `respawn()`: Respawns the player using the same mechanism as the death screen,
   including calling `on_respawnplayer` callbacks.
 * `get_flags()`: returns a table of player flags (the following boolean fields):

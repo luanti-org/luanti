@@ -12,6 +12,7 @@
 #include "settings.h"
 #include "convert_json.h"
 #include "server/player_sao.h"
+#include "nodedef.h"
 
 /*
 	RemotePlayer
@@ -22,7 +23,8 @@ bool RemotePlayer::m_setting_cache_loaded = false;
 float RemotePlayer::m_setting_chat_message_limit_per_10sec = 0.0f;
 u16 RemotePlayer::m_setting_chat_message_limit_trigger_kick = 0;
 
-RemotePlayer::RemotePlayer(const std::string &name, IItemDefManager *idef):
+RemotePlayer::RemotePlayer(const std::string &name, IItemDefManager *idef,
+		NodeDefManager *ndef):
 	Player(name, idef)
 {
 	if (!RemotePlayer::m_setting_cache_loaded) {
@@ -52,6 +54,9 @@ RemotePlayer::RemotePlayer(const std::string &name, IItemDefManager *idef):
 	m_sun_params    = SkyboxDefaults::getSunDefaults();
 	m_moon_params   = SkyboxDefaults::getMoonDefaults();
 	m_star_params   = SkyboxDefaults::getStarDefaults();
+
+	// NodeDefManager forNodeDefManager for  NodeVisual
+	m_ndef = ndef;
 }
 
 RemotePlayer::~RemotePlayer()
@@ -97,6 +102,23 @@ RemotePlayerChatResult RemotePlayer::canSendChatMessage()
 
 	m_chat_message_allowance -= 1.0f;
 	return RPLAYER_CHATRESULT_OK;
+}
+
+void RemotePlayer::setNodeVisual(const std::string &node_name, const NodeVisual &node_visual)
+{
+	content_t c = m_ndef->getId(node_name);
+
+	m_node_visuals[c] = node_visual;
+}
+
+void RemotePlayer::getNodeVisual(const std::string &node_name, NodeVisual &node_visual)
+{
+	content_t c = m_ndef->getId(node_name);
+
+	if (m_node_visuals.find(c) != m_node_visuals.end())
+		node_visual = m_node_visuals[c];
+	else
+		node_visual.from_contentFeature(m_ndef->get(c));
 }
 
 void RemotePlayer::onSuccessfulSave()

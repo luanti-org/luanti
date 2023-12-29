@@ -370,6 +370,7 @@ void ContentFeatures::reset()
 	param_type = CPT_NONE;
 	param_type_2 = CPT2_NONE;
 	variant_count = 1;
+	variant_offset = 0;
 	param2_variant = BitField<u8>();
 	is_ground_content = false;
 	light_propagates = false;
@@ -1049,6 +1050,22 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 #endif
 
 /*
+	NodeVisual
+*/
+
+NodeVisual::NodeVisual() : variant_offset(0)
+{
+}
+NodeVisual::NodeVisual(const ContentFeatures &f)
+{
+	from_contentFeature(f);
+}
+void NodeVisual::from_contentFeature(const ContentFeatures &f)
+{
+	variant_offset = f.variant_offset;
+}
+
+/*
 	NodeDefManager
 */
 
@@ -1196,6 +1213,21 @@ const ContentFeatures& NodeDefManager::get(const std::string &name) const
 	return get(id);
 }
 
+void NodeDefManager::getNodeVisual(const std::string &name, NodeVisual &node_visual) const
+{
+	const ContentFeatures &f = get(name);
+	node_visual.from_contentFeature(f);
+}
+
+void NodeDefManager::applyNodeVisual(const std::string &name, const NodeVisual &node_visual)
+{
+	content_t c = getId(name);
+	if (c < m_content_features.size() && !m_content_features[c].name.empty()) {
+		ContentFeatures& f = m_content_features[c];
+
+		f.variant_offset = node_visual.variant_offset;
+	}
+}
 
 // returns CONTENT_IGNORE if no free ID found
 content_t NodeDefManager::allocateId()
