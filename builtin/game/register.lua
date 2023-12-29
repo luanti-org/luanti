@@ -193,15 +193,18 @@ function core.override_entity(name, redefinition)
 	if redefinition.name ~= nil then
 		error("Attempt to redefine entity name of "..name.." to "..dump(redefinition.name), 2)
 	end
-	if redefinition.type ~= nil then
-		error("Attempt to redefine type of "..name.." to "..dump(redefinition.type), 2)
-	end
 	local entity = core.registered_entities[name]
 	if not entity then
 		error("Attempt to override non-existent entity "..name, 2)
 	end
 	for k, v in pairs(redefinition) do
-		rawset(entity, k, v)
+		if k ~= "initial_properties" then
+			rawset(entity, k, v)
+		else
+			for k2, v2 in pairs(v) do
+				rawset(entity.initial_properties, k2, v2)
+			end
+		end
 	end
 	core.registered_entities[name] = entity
 end
