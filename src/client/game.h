@@ -8,6 +8,7 @@
 #include "config.h"
 #include <csignal>
 #include <string>
+#include "client/clientgamestartdata.h"
 
 #if !IS_CLIENT_BUILD
 #error Do not include in server builds
@@ -39,7 +40,7 @@ struct CameraOrientation {
 void the_game(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
-		const GameStartData &start_data,
+		ClientGameStartData &start_data,
 		std::string &error_message,
 		ChatBackend &chat_backend,
 		bool *reconnect_requested);
