@@ -175,12 +175,20 @@ void GUIPasswordChange::acceptInput()
 bool GUIPasswordChange::processInput()
 {
 	if (m_newpass != m_newpass_confirm) {
+		m_oldpass.safeClear();
+		m_newpass.safeClear();
+		m_newpass_confirm.safeClear();
 		gui::IGUIElement *e = getElementFromId(ID_message);
 		if (e != NULL)
 			e->setVisible(true);
 		return false;
 	}
-	m_client->sendChangePassword(wide_to_utf8(m_oldpass), wide_to_utf8(m_newpass));
+	SecureString old_pass = secure_wide_to_utf8(m_oldpass);
+	SecureString new_pass = secure_wide_to_utf8(m_newpass);
+	m_oldpass.safeClear();
+	m_newpass.safeClear();
+	m_newpass_confirm.safeClear();
+	m_client->sendChangePassword(old_pass, new_pass);
 	return true;
 }
 
