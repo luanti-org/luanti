@@ -4237,6 +4237,8 @@ Helper functions
     * since 5.12
     * `table` can also be non-table value, which will be returned as-is
     * preserves metatables as they are
+    * Returns a deep copy of `table`, i.e. a copy of the table and all its
+      nested tables.
 * `table.indexof(list, val)`: returns the smallest numerical index containing
       the value `val` in the table `list`. Non-numerical indices are ignored.
       If `val` could not be found, `-1` is returned. `list` must not have
@@ -4248,6 +4250,9 @@ Helper functions
 * `table.insert_all(table, other_table)`:
     * Appends all values in `other_table` to `table` - uses `#table + 1` to
       find new indices.
+* `table.merge(...)`:
+    * Merges multiple tables together into a new single table using
+      `table.insert_all()`.
 * `table.key_value_swap(t)`: returns a table with keys and values swapped
     * If multiple keys in `t` map to the same value, it is unspecified which
       value maps to that key.
@@ -5993,6 +5998,63 @@ Utilities
 * `core.urlencode(str)`: Encodes reserved URI characters by a
   percent sign followed by two hex digits. See
   [RFC 3986, section 2.3](https://datatracker.ietf.org/doc/html/rfc3986#section-2.3).
+* `core.class([super])`: Creates a new metatable-based class.
+    * `super` (optional): The superclass of the newly created class, or nil if
+      the class should not have a superclass.
+    * The class table is given a metatable with an `__index` field that points
+      to `super` and a `__call` metamethod that constructs a new object.
+    * By default, the only field in the class table is an `__index` field that
+      points to itself. When an instance of the class is created, the class
+      table is set as the metatable for the object.
+    * When a new object is constructed via `__call`, the `new()` method will be
+      called if it exists. If `new()` returns a nonzero number of values, then
+      those values will be returned from `__call`. Otherwise, if `new()`
+      returned no values, the object iself will be returned.
+    * Extra Lua metamethods like `__add` may be added to the class table, but
+      note that these fields will not be inherited by subclasses since Lua
+      doesn't consult `__index` when searching for metamethods.
+    * Example: The following code, demonstrating a simple example of classes
+      and inheritance, will print `Rectangle[area=6, filled=true]`:
+      ```lua
+      local Shape = core.class()
+      Shape.name = "Shape"
+
+      function Shape:new(filled)
+          self.filled = filled
+      end
+
+      function Shape:describe()
+          return string.format("%s[area=%d, filled=%s]",
+                  self.name, self:get_area(), self.filled)
+      end
+
+      local Rectangle = core.class(Shape)
+      Rectangle.name = "Rectangle"
+
+      function Rectangle:new(filled, width, height)
+          Shape.new(self, filled)
+
+          self.width = width
+          self.height = height
+      end
+
+      function Rectangle:get_area()
+          return self.width * self.height
+      end
+
+      local shape = Rectangle(true, 2, 3)
+      print(shape:describe())
+
+      assert(core.is_instance(shape, Shape))
+      assert(core.is_subclass(Rectangle, Shape))
+      assert(core.super(Rectangle) == Shape)
+      ```
+* `core.super(class)`: Returns the superclass of `class`, or nil if the table
+  is not a class or has no superclass.
+* `core.is_subclass(class, super)`: Returns true if `class` is a subclass of
+  `super`.
+* `core.is_instance(obj, class)`: Returns true if `obj` is an instance of
+  `class` or any of its subclasses.
 
 Logging
 -------
