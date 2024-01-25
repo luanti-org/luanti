@@ -192,6 +192,7 @@ public:
 	void handleCommand_InventoryFormSpec(NetworkPacket* pkt);
 	void handleCommand_DetachedInventory(NetworkPacket* pkt);
 	void handleCommand_ShowFormSpec(NetworkPacket* pkt);
+	void handleCommand_UiMessage(NetworkPacket* pkt);
 	void handleCommand_SpawnParticle(NetworkPacket* pkt);
 	void handleCommand_AddParticleSpawner(NetworkPacket* pkt);
 	void handleCommand_DeleteParticleSpawner(NetworkPacket* pkt);

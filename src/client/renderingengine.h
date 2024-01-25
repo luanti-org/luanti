@@ -129,7 +129,7 @@ public:
 			gui::IGUIEnvironment *guienv, ITextureSource *tsrc,
 			float dtime = 0, int percent = 0, float *indef_pos = nullptr);
 
-	void draw_scene(video::SColor skycolor, bool show_hud,
+	void draw_scene(video::SColor skycolor, bool show_hud, bool show_chat,
 			bool draw_wield_tool, bool draw_crosshair);
 
 	void initialize(Client *client, Hud *hud);

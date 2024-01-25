@@ -648,6 +648,12 @@ enum ToClientCommand : u16
 		v3f added_pos
 	*/
 
+	TOCLIENT_UI_MESSAGE = 0x5e,
+	/*
+		Complicated variable-length structure with many optional fields and
+		length-prefixed data for future compatibility.
+	*/
+
 	TOCLIENT_SRP_BYTES_S_B = 0x60,
 	/*
 		Belonging to AUTH_MECHANISM_SRP.

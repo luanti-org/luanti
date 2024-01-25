@@ -24,6 +24,7 @@ enum ClientEventType : u8
 	CE_SHOW_FORMSPEC,
 	CE_SHOW_CSM_FORMSPEC,
 	CE_SHOW_PAUSE_MENU_FORMSPEC,
+	CE_UI_MESSAGE,
 	CE_SPAWN_PARTICLE,
 	CE_ADD_PARTICLESPAWNER,
 	CE_DELETE_PARTICLESPAWNER,
@@ -90,6 +91,10 @@ struct ClientEvent
 			std::string *formspec;
 			std::string *formname;
 		} show_formspec;
+		struct
+		{
+			std::string *data;
+		} ui_message;
 		ParticleParameters *spawn_particle;
 		struct
 		{
