@@ -64,6 +64,9 @@
 #if USE_SOUND
 	#include "client/sound/sound_openal.h"
 #endif
+#if BUILD_UI
+#include "ui/manager.h"
+#endif
 
 class NodeDugEvent : public MtEvent
 {
@@ -725,6 +728,7 @@ private:
 	void handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_ShowCSMFormSpec(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_ShowPauseMenuFormSpec(ClientEvent *event, CameraOrientation *cam);
+	void handleClientEvent_UiMessage(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_HandleParticleEvent(ClientEvent *event,
 		CameraOrientation *cam);
 	void handleClientEvent_HudAdd(ClientEvent *event, CameraOrientation *cam);
@@ -775,6 +779,9 @@ private:
 
 	std::unique_ptr<GameUI> m_game_ui;
 	irr_ptr<GUIChatConsole> gui_chat_console;
+#if BUILD_UI
+	irr_ptr<ui::GUIManagerElem> gui_manager_elem;
+#endif
 	MapDrawControl *draw_control = nullptr;
 	Camera *camera = nullptr;
 	irr_ptr<Clouds> clouds;
@@ -1115,6 +1122,10 @@ void Game::run()
 void Game::shutdown()
 {
 	// Delete text and menus first
+#if BUILD_UI
+	ui::g_manager.reset();
+#endif
+
 	m_game_ui->clearText();
 	m_game_formspec.reset();
 	while (g_menumgr.menuCount() > 0) {
@@ -1127,6 +1138,9 @@ void Game::shutdown()
 	clouds.reset();
 
 	gui_chat_console.reset();
+#if BUILD_UI
+	gui_manager_elem.reset();
+#endif
 
 	sky.reset();
 
@@ -1424,6 +1438,10 @@ bool Game::createClient(const GameStartData &start_data)
 	if (mapper && client->modsLoaded())
 		client->getScript()->on_minimap_ready(mapper);
 
+#if BUILD_UI
+	ui::g_manager.setClient(client);
+#endif
+
 	return true;
 }
 
@@ -1451,6 +1469,12 @@ bool Game::initGui()
 	// Chat backend and console
 	gui_chat_console = make_irr<GUIChatConsole>(guienv, guienv->getRootGUIElement(),
 			-1, chat_backend, client, &g_menumgr);
+
+#if BUILD_UI
+	// Thingy to draw UI manager after chat but before formspecs.
+	gui_manager_elem = make_irr<ui::GUIManagerElem>(
+			guienv, guienv->getRootGUIElement(), -1);
+#endif
 
 	if (shouldShowTouchControls())
 		g_touchcontrols = new TouchControls(device, texture_src);
@@ -2651,6 +2675,7 @@ const ClientEventHandler Game::clientEventHandler[CLIENTEVENT_MAX] = {
 	{&Game::handleClientEvent_ShowFormSpec},
 	{&Game::handleClientEvent_ShowCSMFormSpec},
 	{&Game::handleClientEvent_ShowPauseMenuFormSpec},
+	{&Game::handleClientEvent_UiMessage},
 	{&Game::handleClientEvent_HandleParticleEvent},
 	{&Game::handleClientEvent_HandleParticleEvent},
 	{&Game::handleClientEvent_HandleParticleEvent},
@@ -2735,6 +2760,14 @@ void Game::handleClientEvent_ShowPauseMenuFormSpec(ClientEvent *event, CameraOri
 
 	delete event->show_formspec.formspec;
 	delete event->show_formspec.formname;
+}
+
+void Game::handleClientEvent_UiMessage(ClientEvent *event, CameraOrientation *cam)
+{
+#if BUILD_UI
+	ui::g_manager.receiveMessage(*event->ui_message.data);
+#endif
+	delete event->ui_message.data;
 }
 
 void Game::handleClientEvent_HandleParticleEvent(ClientEvent *event,
@@ -4149,7 +4182,7 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 		draw_crosshair = false;
 
 	this->m_rendering_engine->draw_scene(sky_color, this->m_game_ui->m_flags.show_hud,
-			draw_wield_tool, draw_crosshair);
+			this->m_game_ui->m_flags.show_chat, draw_wield_tool, draw_crosshair);
 
 	/*
 		Profiler graph

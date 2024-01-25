@@ -3389,6 +3389,19 @@ bool Server::showFormspec(const char *playername, const std::string &formspec,
 	return true;
 }
 
+void Server::sendUiMessage(const char *name, const char *data, size_t len)
+{
+	RemotePlayer *player = m_env->getPlayer(name);
+	if (!player) {
+		return;
+	}
+
+	NetworkPacket pkt(TOCLIENT_UI_MESSAGE, 0, player->getPeerId());
+	pkt.putRawString(data, len);
+
+	Send(&pkt);
+}
+
 u32 Server::hudAdd(RemotePlayer *player, HudElement *form)
 {
 	if (!player)

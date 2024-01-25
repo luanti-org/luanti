@@ -59,8 +59,9 @@
 		Rename TOSERVER_RESPAWN to TOSERVER_RESPAWN_LEGACY
 		Support float animation frame numbers in TOCLIENT_LOCAL_PLAYER_ANIMATIONS
 		[scheduled bump for 5.10.0]
-	PROTOCOL VERSION 47
+	PROTOCOL VERSION 47:
 		Add particle blend mode "clip"
+		Add TOCLIENT_UI_MESSAGE
 		[scheduled bump for 5.11.0]
 	PROTOCOL VERSION 48
 		Add compression to some existing packets
