@@ -11,6 +11,7 @@
 #include "util/serialize.h"
 
 // Include every element header for Elem::create()
+#include "ui/clickable_elems.h"
 #include "ui/static_elems.h"
 
 #include <SDL2/SDL.h>
@@ -29,6 +30,9 @@ namespace ui
 		switch (type) {
 			CREATE(ELEM, Elem);
 			CREATE(ROOT, Root);
+			CREATE(BUTTON, Button);
+			CREATE(TOGGLE, Toggle);
+			CREATE(OPTION, Option);
 		default:
 			return nullptr;
 		}
