@@ -246,6 +246,19 @@ func_preds["nth_last_match"] = function(str)
 	end
 end
 
+func_preds["family"] = function(family)
+	if family == "*" then
+		return function(elem)
+			return result(elem._family ~= nil)
+		end
+	end
+
+	assert(ui.is_id(family), "Expected '*' or ID string for ?family()")
+	return function(elem)
+		return result(elem._family == family)
+	end
+end
+
 local function parse_term(str, pred)
 	str = str:trim()
 	assert(str ~= "", "Expected selector term")

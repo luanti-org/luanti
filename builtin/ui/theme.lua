@@ -19,6 +19,10 @@ local prelude_theme = ui.Style {
 	ui.Style "image" {
 		icon_scale = 0,
 	},
+	ui.Style "check, switch, radio" {
+		icon_place = "left",
+		text_align = "left",
+	},
 }
 
 function ui.get_prelude_theme()
