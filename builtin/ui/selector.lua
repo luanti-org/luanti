@@ -160,6 +160,18 @@ local special_preds = {
 			return result(elem._rindex == rindex)
 		end
 	end,
+
+	["family"] = function(family)
+		assert(family == "*" or ui.is_id(family),
+				"Expected '*' or ID string for ?family")
+
+		return function(elem)
+			if family == "*" then
+				return result(elem._family)
+			end
+			return result(elem._family == family)
+		end
+	end,
 }
 
 local function parse_term(str, pred)

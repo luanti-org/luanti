@@ -32,6 +32,9 @@ namespace ui
 		{
 			ELEM = 0x00,
 			ROOT = 0x01,
+			BUTTON = 0x02,
+			TOGGLE = 0x03,
+			OPTION = 0x04,
 		};
 
 		// The main box is always the zeroth item in the Box::NO_GROUP group.
