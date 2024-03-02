@@ -282,25 +282,26 @@ void TestThreading::testIPCChannel()
 		IPCChannelEnd end_b = IPCChannelEnd::makeB(std::move(resources_second));
 
 		for (;;) {
-			UASSERT(end_b.recv());
-			UASSERT(end_b.send(end_b.getRecvData(), end_b.getRecvSize()));
+			UASSERT(end_b.recvWithTimeout(-1));
+			UASSERT(end_b.sendWithTimeout(end_b.getRecvData(), end_b.getRecvSize(), -1));
 			if (end_b.getRecvSize() == 0)
 				break;
 		}
 	});
 
 	char buf[20000] = {};
-	for (int i = sizeof(buf); i > 0; i -= 1000) {
+	for (int i = sizeof(buf); i > 0; i -= 100) {
 		buf[i - 1] = 123;
-		UASSERT(end_a.exchange(buf, i));
+		UASSERT(end_a.exchangeWithTimeout(buf, i, -1));
 		UASSERTEQ(int, end_a.getRecvSize(), i);
 		UASSERTEQ(int, ((const char *)end_a.getRecvData())[i - 1], 123);
 	}
 
-	UASSERT(end_a.exchange(buf, 0));
+	UASSERT(end_a.exchangeWithTimeout(buf, 0, -1));
 	UASSERTEQ(int, end_a.getRecvSize(), 0);
 
 	thread_b.join();
 
-	UASSERT(!end_a.exchange(buf, 0, 1000));
+	// other side dead ==> should time out
+	UASSERT(!end_a.exchangeWithTimeout(buf, 0, 200));
 }

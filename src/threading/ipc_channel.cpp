@@ -284,7 +284,7 @@ bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noe
 	return true;
 }
 
-bool IPCChannelEnd::recv(int timeout_ms) noexcept
+bool IPCChannelEnd::recvWithTimeout(int timeout_ms) noexcept
 {
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 	DWORD timeout = get_timeout(timeout_ms);
@@ -329,7 +329,7 @@ bool IPCChannelEnd::recv(int timeout_ms) noexcept
 #endif
 				return false;
 		} while (size > IPC_CHANNEL_MSG_SIZE);
-		memcpy(recv_data, m_in->data, size);
+		memcpy(recv_data, m_in->data, size); //TODO: memcpy volatile save?
 	}
 	return true;
 }

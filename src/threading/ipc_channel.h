@@ -168,7 +168,9 @@ public:
 	// If send, recv, or exchange return false (=timeout), stop using the channel. <--- TODO:why?
 	// Note: timeouts may be for receiving any response, not a whole message.
 
-	bool send(const void *data, size_t size, int timeout_ms = -1) noexcept
+	// Returns false on timeout
+	[[nodiscard]]
+	bool sendWithTimeout(const void *data, size_t size, int timeout_ms) noexcept
 	{
 		if (size <= IPC_CHANNEL_MSG_SIZE) {
 			sendSmall(data, size);
@@ -178,14 +180,40 @@ public:
 		}
 	}
 
-	bool recv(int timeout_ms = -1) noexcept;
-
-	bool exchange(const void *data, size_t size, int timeout_ms = -1) noexcept
+	// Same as above
+	void send(const void *data, size_t size) noexcept
 	{
-		return send(data, size, timeout_ms) && recv(timeout_ms);
+		(void)sendWithTimeout(data, size, -1);
+	}
+
+	// Returns false on timeout.
+	// Otherwise returns true, and data is available via getRecvData().
+	[[nodiscard]]
+	bool recvWithTimeout(int timeout_ms) noexcept;
+
+	// Same as above
+	void recv() noexcept
+	{
+		(void)recvWithTimeout(-1);
+	}
+
+	// Returns false on timeout
+	// Otherwise returns true, and data is available via getRecvData().
+	[[nodiscard]]
+	bool exchangeWithTimeout(const void *data, size_t size, int timeout_ms) noexcept
+	{
+		return sendWithTimeout(data, size, timeout_ms)
+				&& recvWithTimeout(timeout_ms);
+	}
+
+	// Same as above
+	void exchange(const void *data, size_t size) noexcept
+	{
+		(void)exchangeWithTimeout(data, size, -1);
 	}
 
 	// Get the content of the last received message
+	// TODO: u8 *, or string_view?
 	inline const void *getRecvData() const noexcept { return m_large_recv.data(); }
 	inline size_t getRecvSize() const noexcept { return m_recv_size; }
 
@@ -208,6 +236,7 @@ private:
 	{}
 #endif
 
+	// TODO: u8 *, or string_view?
 	void sendSmall(const void *data, size_t size) noexcept;
 
 	// returns false on timeout
