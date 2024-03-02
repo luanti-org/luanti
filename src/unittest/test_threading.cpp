@@ -236,53 +236,50 @@ void TestThreading::testTLS()
 
 void TestThreading::testIPCChannel()
 {
-	struct Stuff
+	struct IPCChannelResourcesSingleProcess final : public IPCChannelResources
 	{
-		IPCChannelShared shared{};
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-		HANDLE sem_a;
-		HANDLE sem_b;
-#endif
-		Stuff()
+		void cleanupLast() noexcept override
 		{
+			delete data.shared;
 #ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
-			HANDLE sem_a = CreateSemaphoreA(nullptr, 0, 1, nullptr);
-			UASSERT(sem_a != INVALID_HANDLE_VALUE);
-
-			HANDLE sem_b = CreateSemaphoreA(nullptr, 0, 1, nullptr);
-			UASSERT(sem_b != INVALID_HANDLE_VALUE);
+			CloseHandle(data.sem_b);
+			CloseHandle(data.sem_a);
 #endif
 		}
 
-		~Stuff()
+		void cleanupNotLast() noexcept override
 		{
-#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
-			CloseHandle(sem_b);
-			CloseHandle(sem_a);
-#endif
+			// nothing to do (i.e. no unmapping needed)
 		}
+
+		~IPCChannelResourcesSingleProcess() override { cleanup(); }
 	};
 
-	struct IPCChannelStuffSingleProcess final : public IPCChannelStuff
-	{
-		std::shared_ptr<Stuff> stuff;
+	auto resource_data = [] {
+		auto shared = new IPCChannelShared();
 
-		IPCChannelStuffSingleProcess(std::shared_ptr<Stuff> stuff) : stuff(std::move(stuff)) {}
-		~IPCChannelStuffSingleProcess() override = default;
+#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
+		HANDLE sem_a = CreateSemaphoreA(nullptr, 0, 1, nullptr);
+		UASSERT(sem_a != INVALID_HANDLE_VALUE);
 
-		IPCChannelShared *getShared() override { return &stuff->shared; }
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-		HANDLE getSemA() override { return stuff->sem_a; }
-		HANDLE getSemB() override { return stuff->sem_b; }
+		HANDLE sem_b = CreateSemaphoreA(nullptr, 0, 1, nullptr);
+		UASSERT(sem_b != INVALID_HANDLE_VALUE);
+
+		return IPCChannelResources::Data{shared, sem_a, sem_b};
+#else
+		return IPCChannelResources::Data{shared};
 #endif
-	};
+	}();
 
-	auto stuff = std::make_shared<Stuff>();
+	auto resources_first = std::make_unique<IPCChannelResourcesSingleProcess>();
+	resources_first->setFirst(resource_data);
 
-	IPCChannelEnd end_a = IPCChannelEnd::makeA(std::make_unique<IPCChannelStuffSingleProcess>(stuff));
+	IPCChannelEnd end_a = IPCChannelEnd::makeA(std::move(resources_first));
 
 	std::thread thread_b([=] {
-		IPCChannelEnd end_b = IPCChannelEnd::makeB(std::make_unique<IPCChannelStuffSingleProcess>(stuff));
+		auto resources_second = std::make_unique<IPCChannelResourcesSingleProcess>();
+		resources_second->setSecond(resource_data);
+		IPCChannelEnd end_b = IPCChannelEnd::makeB(std::move(resources_second));
 
 		for (;;) {
 			UASSERT(end_b.recv());

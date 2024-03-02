@@ -215,27 +215,27 @@ static inline T read_once(const volatile T *var)
 	return *var;
 }
 
-IPCChannelEnd IPCChannelEnd::makeA(std::unique_ptr<IPCChannelStuff> stuff)
+IPCChannelEnd IPCChannelEnd::makeA(std::unique_ptr<IPCChannelResources> resources)
 {
-	IPCChannelShared *shared = stuff->getShared();
+	IPCChannelShared *shared = resources->data.shared;
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-	HANDLE sem_a = stuff->getSemA();
-	HANDLE sem_b = stuff->getSemB();
-	return IPCChannelEnd(std::move(stuff), &shared->a, &shared->b, sem_a, sem_b);
+	HANDLE sem_a = resources->data.sem_a;
+	HANDLE sem_b = resources->data.sem_b;
+	return IPCChannelEnd(std::move(resources), &shared->a, &shared->b, sem_a, sem_b);
 #else
-	return IPCChannelEnd(std::move(stuff), &shared->a, &shared->b);
+	return IPCChannelEnd(std::move(resources), &shared->a, &shared->b);
 #endif // !defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 }
 
-IPCChannelEnd IPCChannelEnd::makeB(std::unique_ptr<IPCChannelStuff> stuff)
+IPCChannelEnd IPCChannelEnd::makeB(std::unique_ptr<IPCChannelResources> resources)
 {
-	IPCChannelShared *shared = stuff->getShared();
+	IPCChannelShared *shared = resources->data.shared;
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-	HANDLE sem_a = stuff->getSemA();
-	HANDLE sem_b = stuff->getSemB();
-	return IPCChannelEnd(std::move(stuff), &shared->b, &shared->a, sem_b, sem_a);
+	HANDLE sem_a = resources->data.sem_a;
+	HANDLE sem_b = resources->data.sem_b;
+	return IPCChannelEnd(std::move(resources), &shared->b, &shared->a, sem_b, sem_a);
 #else
-	return IPCChannelEnd(std::move(stuff), &shared->b, &shared->a);
+	return IPCChannelEnd(std::move(resources), &shared->b, &shared->a);
 #endif // !defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 }
 

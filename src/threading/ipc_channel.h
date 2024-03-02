@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #pragma once
 
 #include "irrlichttypes.h"
+#include "util/basic_macros.h"
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -87,20 +88,73 @@ struct IPCChannelBuffer
 
 struct IPCChannelShared
 {
-	IPCChannelBuffer a;
-	IPCChannelBuffer b;
+	// Both ends unmap, but last deleter also deletes shared resources.
+	std::atomic<u32> refcount{1};
+
+	IPCChannelBuffer a{};
+	IPCChannelBuffer b{};
 };
 
-// opaque owner for the shared mem and stuff
-// users have to implement this
-struct IPCChannelStuff
+struct IPCChannelResources
 {
-	virtual ~IPCChannelStuff() = default;
-	virtual IPCChannelShared *getShared() = 0;
+	// new struct, because the win32 #if is annoying
+	struct Data
+	{
+		IPCChannelShared *shared = nullptr;
+
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-	virtual HANDLE getSemA() = 0;
-	virtual HANDLE getSemB() = 0;
+		HANDLE sem_a;
+		HANDLE sem_b;
 #endif
+	};
+
+	Data data;
+
+	// Used for previously unmanaged data_ (move semantics)
+	void setFirst(Data data_)
+	{
+		data = data_;
+	}
+
+	// Used for data_ that is already managed by a IPCChannelResources (grab()
+	// semantics)
+	bool setSecond(Data data_)
+	{
+		if (data_.shared->refcount.fetch_add(1) == 0) {
+			// other end dead, can't use resources
+			data_.shared->refcount.fetch_sub(1);
+			return false;
+		}
+		data = data_;
+		return true;
+	}
+
+	virtual void cleanupLast() noexcept = 0;
+	virtual void cleanupNotLast() noexcept = 0;
+
+	void cleanup() noexcept
+	{
+		if (!data.shared) {
+			// No owned resources. Maybe setSecond failed.
+			return;
+		}
+		if (data.shared->refcount.fetch_sub(1) == 1) {
+			// We are last, we clean up.
+			cleanupLast();
+		} else {
+			// We are not responsible for cleanup.
+			// Note: Shared resources may already be invalid by now.
+			cleanupNotLast();
+		}
+	}
+
+	IPCChannelResources() = default;
+	DISABLE_CLASS_COPY(IPCChannelResources)
+
+	// Child should call cleanup().
+	// (Parent destructor can not do this, because when it's called the child is
+	// already dead.)
+	virtual ~IPCChannelResources() = default;
 };
 
 class IPCChannelEnd
@@ -108,10 +162,10 @@ class IPCChannelEnd
 public:
 	IPCChannelEnd() = default;
 
-	static IPCChannelEnd makeA(std::unique_ptr<IPCChannelStuff> stuff);
-	static IPCChannelEnd makeB(std::unique_ptr<IPCChannelStuff> stuff);
+	static IPCChannelEnd makeA(std::unique_ptr<IPCChannelResources> resources);
+	static IPCChannelEnd makeB(std::unique_ptr<IPCChannelResources> resources);
 
-	// If send, recv, or exchange return false (=timeout), stop using the channel.
+	// If send, recv, or exchange return false (=timeout), stop using the channel. <--- TODO:why?
 	// Note: timeouts may be for receiving any response, not a whole message.
 
 	bool send(const void *data, size_t size, int timeout_ms = -1) noexcept
@@ -138,18 +192,18 @@ public:
 private:
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 	IPCChannelEnd(
-			std::unique_ptr<IPCChannelStuff> stuff,
+			std::unique_ptr<IPCChannelResources> resources,
 			IPCChannelBuffer *in, IPCChannelBuffer *out,
 			HANDLE sem_in, HANDLE sem_out) :
-		m_stuff(std::move(stuff)),
+		m_resources(std::move(resources)),
 		m_in(in), m_out(out),
 		m_sem_in(sem_in), m_sem_out(sem_out)
 	{}
 #else
 	IPCChannelEnd(
-			std::unique_ptr<IPCChannelStuff> stuff,
+			std::unique_ptr<IPCChannelResources> resources,
 			IPCChannelBuffer *in, IPCChannelBuffer *out) :
-		m_stuff(std::move(stuff)),
+		m_resources(std::move(resources)),
 		m_in(in), m_out(out)
 	{}
 #endif
@@ -159,7 +213,7 @@ private:
 	// returns false on timeout
 	bool sendLarge(const void *data, size_t size, int timeout_ms) noexcept;
 
-	std::unique_ptr<IPCChannelStuff> m_stuff;
+	std::unique_ptr<IPCChannelResources> m_resources;
 	IPCChannelBuffer *m_in = nullptr;
 	IPCChannelBuffer *m_out = nullptr;
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
