@@ -242,7 +242,8 @@ IPCChannelEnd IPCChannelEnd::makeB(std::unique_ptr<IPCChannelResources> resource
 void IPCChannelEnd::sendSmall(const void *data, size_t size) noexcept
 {
 	write_once(&m_out->size, size);
-	memcpy(m_out->data, data, size);
+	if (size != 0)
+		memcpy(m_out->data, data, size);
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 	post(m_sem_out);
 #else
@@ -275,7 +276,8 @@ bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noe
 		size -= IPC_CHANNEL_MSG_SIZE;
 		data = (u8 *)data + IPC_CHANNEL_MSG_SIZE;
 	} while (size > IPC_CHANNEL_MSG_SIZE);
-	memcpy(m_out->data, data, size);
+	if (size != 0)
+		memcpy(m_out->data, data, size);
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 	post(m_sem_out);
 #else

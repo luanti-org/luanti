@@ -276,6 +276,7 @@ void TestThreading::testIPCChannel()
 
 	IPCChannelEnd end_a = IPCChannelEnd::makeA(std::move(resources_first));
 
+	// echos back messages. stops if "" is sent
 	std::thread thread_b([=] {
 		auto resources_second = std::make_unique<IPCChannelResourcesSingleProcess>();
 		resources_second->setSecond(resource_data);
@@ -297,6 +298,7 @@ void TestThreading::testIPCChannel()
 		UASSERTEQ(int, ((const char *)end_a.getRecvData())[i - 1], 123);
 	}
 
+	// stop thread_b
 	UASSERT(end_a.exchangeWithTimeout(buf, 0, -1));
 	UASSERTEQ(int, end_a.getRecvSize(), 0);
 
