@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <vector>
 #include "config.h" // for USE_GETTEXT
 #include "porting.h"
 #include "util/string.h"
@@ -103,3 +104,15 @@ inline std::string fmtgettext(const char *format, Args&&... args)
 
 	return buf;
 }
+
+/**
+ * Returns the effective locale setting for in-game translations.
+ * @return A vector of language codes based on priority.
+ */
+const std::vector<std::wstring> &get_effective_locale();
+
+/**
+ * Returns the effective locale setting for in-game translations.
+ * @return A string of the expanded language code.
+ */
+const std::string &get_client_language_code();
