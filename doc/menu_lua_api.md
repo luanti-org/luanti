@@ -326,6 +326,7 @@ Package - content which is downloadable from the content db, may or may not be i
           title            = <title of game>,
           menuicon_path    = <full path to menuicon>,
           author           = "author",
+          aliases          = {<alias> = true,},
           --DEPRECATED:
           addon_mods_paths = {[1] = <path>,},
       }
