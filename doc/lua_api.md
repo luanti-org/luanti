@@ -106,6 +106,10 @@ The game directory can contain the following files:
                  an internal ID used to track versions.
     * `textdomain`: Textdomain used to translate description. Defaults to game id.
       See [Translating content meta](#translating-content-meta).
+    * `aliases = <comma-separated gameid aliases>`
+      e.g. `aliases = foo, bar` (where "foo" and "bar" are the legacy names)
+      This allows automatic loading of worlds using a gameid from this list.
+      This is intended to allow a full rename of a game, including its id.
 * `minetest.conf`:
   Used to set default settings when running this game.
 * `settingtypes.txt`:
