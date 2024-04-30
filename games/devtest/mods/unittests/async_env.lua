@@ -207,3 +207,38 @@ local function test_vector_preserve(cb)
 	end, {vec})
 end
 unittests.register("test_async_vector", test_vector_preserve, {async=true})
+
+-- FIXME: this code is racy and can be improved once Lua IPC is supported
+local function fill_async()
+	local capacity = core.get_async_threading_capacity()
+	for _ = 1, capacity do
+		core.handle_async(function()
+			local t = core.get_us_time()
+			while core.get_us_time() < t + 100000 do
+			end
+		end, function() end)
+	end
+end
+
+local function test_async_job_replacement(cb)
+	fill_async()
+	local job = core.handle_async(function(x)
+		return x
+	end, function()
+		return cb("Canceled async job run")
+	end)
+	if not job:cancel() then
+		return cb("AsyncJob:cancel sanity check failed")
+	end
+
+	-- Try to cancel a job that is already run.
+	job = core.handle_async(function(x)
+		return x
+	end, function(ret)
+		if job:cancel() then
+			return cb("AsyncJob:cancel canceled a completed job")
+		end
+		cb()
+	end, 1)
+end
+unittests.register("test_async_job_replacement", test_async_job_replacement, {async=true})
