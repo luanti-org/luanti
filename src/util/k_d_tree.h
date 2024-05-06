@@ -1,13 +1,22 @@
+// Copyright (C) 2024 Lars Müller
+// SPDX-License-Identifier: LGPL-2.1-or-later
+
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
 #include <memory>
-#include <iostream>
 
-using Idx = std::size_t;
+using Idx = uint16_t;
+
+// TODO docs and explanation
+
+// TODO profile and tweak knobs
+
+// TODO cleanup
 
 template<uint8_t Dim, typename Component>
 class Points {
@@ -221,14 +230,15 @@ public:
 	}
 
 	//! Build a tree
+	// FIXME something must be wrong here, otherwise deleting stuff would work
 	KdTree(Idx n, Id const *ids, std::array<Component const *, Dim> pts)
 		: items(n, pts)
-		, tree(std::make_unique<Id[]>(n))
 		, ids(std::make_unique<Id[]>(n))
+		, tree(std::make_unique<Idx[]>(n))
 		, deleted(n)
 	{
 		std::copy(ids, ids + n, this->ids.get());
-		init(0, items);
+		init(0, 0, items.indices);
 	}
 
 	//! Merge two trees. Both trees are assumed to have a power of two size.
@@ -245,29 +255,6 @@ public:
 		init(0, 0, items.indices);
 	}
 
-	// TODO remove dead code
-	/* SortedPoints<Dim, Component> alivePoints() {
-		const auto newIndices = std::make_unique<Idx[]>(items.n);
-		Idx j = 0;
-		for (Idx i = 0; i < items.n; ++i)
-			newIndices[i] = deleted[i] ? j : j++;
-		Idx aliveN = std::count(deleted.begin(), deleted.end(), false);
-		SortedPoints<Dim, Component> res(aliveN);
-		for (uint8_t d = 0; d < Dim; ++d) {
-			const auto pts = &res.points[d * aliveN];
-			const auto indices = &res.indices[d * aliveN];
-			const auto items_pts = &items.points[d * items.n];
-			const auto items_indices = &items.indices[d * aliveN];
-			Idx j = 0;
-			for (Idx i = 0; i < items.n; ++i) {
-				if (deleted[i]) continue;
-				pts[j++] = items_pts[i];
-				indices[newIndices[i]] = items_indices[i];
-			}
-		}
-		return res;
-	} */
-
 	template<typename F>
 	void rangeQuery(const Point &min, const Point &max,
 			const F &cb) const {
@@ -277,16 +264,15 @@ public:
 	}
 
 	void remove(Idx internalIdx) {
+		assert(!deleted[internalIdx]);
 		deleted[internalIdx] = true;
 	}
 
 	template<class F>
-	void foreach(F cb) {
-		for (Idx i = 0; i < cap(); ++i) {
-			if (!deleted[i]) {
+	void foreach(F cb) const {
+		for (Idx i = 0; i < cap(); ++i)
+			if (!deleted[i])
 				cb(i, items.points.getPoint(i), ids[i]);
-			}
-		}
 	}
 
 	//! Capacity, not size, since some items may be marked as deleted
@@ -329,7 +315,7 @@ private:
 		} else {
 			rangeQuery(rightChild, nextSplit, min, max, cb);
 			rangeQuery(leftChild, nextSplit, min, max, cb);
-			if (deleted[root])
+			if (deleted[ptid])
 				return;
 			const auto point = items.points.getPoint(ptid);
 			for (uint8_t d = 0; d < Dim; ++d)
@@ -378,7 +364,7 @@ public:
 	void remove(const Id id) {
 		const auto del_entry = del_entries.at(id);
 		trees.at(del_entry.treeIdx).remove(del_entry.inTree);
-		del_entries.erase(del_entry);
+		del_entries.erase(id); // TODO use iterator right away...
 		++deleted;
 		if (deleted > n_entries/2) // we want to shift out the one!
 			compactify();
@@ -391,57 +377,59 @@ public:
 	}
 private:
 	void compactify() {
-		n_entries -= deleted;
+		assert(n_entries >= deleted);
+		n_entries -= deleted; // note: this should be exactly n_entries/2
+		deleted = 0;
+		// reset map, freeing memory (instead of clearing)
 		del_entries = std::unordered_map<Id, DelEntry>();
 
+
 		// Collect all live points and corresponding IDs.
-		const auto ids = std::make_unique<Id[]>(n_entries);
-		Points<Dim, Component> pts;
+		const auto live_ids = std::make_unique<Id[]>(n_entries);
+		Points<Dim, Component> live_points(n_entries);
 		Idx i = 0;
-		for (const auto tree : trees) {
-			if (tree.empty())
-				continue;
-			tree.foreach([&](Idx _, std::array<Component, Dim> point, Id id) {
-				for (uint8_t d = 0; d < Dim; ++d)
-					pts.get(d)[i] = point[d];
-				ids[i] = id;
+		for (const auto &tree : trees) {
+			tree.foreach([&](Idx _, auto point, Id id) {
+				assert(i < n_entries);
+				live_points.setPoint(i, point);
+				live_ids[i] = id;
 				++i;
 			});
 		}
+		assert(i == n_entries);
 
 		// Construct a new forest.
-		// The pattern will be the current pattern, shifted down by one.
-		auto id_ptr = ids.get();
+		// The "tree pattern" will effectively just be shifted down by one.
+		auto id_ptr = live_ids.get();
 		std::array<Component const *, Dim> point_ptrs;
-		std::vector<Tree> newTrees(trees.size() - 1);
 		Idx n = 1;
 		for (uint8_t d = 0; d < Dim; ++d)
-			point_ptrs[d] = pts.begin(d);
-		for (uint8_t i = 0; i < newTrees.size(); ++i, n *= 2) {
-			if (trees[i+1].empty())
-				continue;
-
-			// TODO maybe optimize from log² -> log?
-			// This can be achieved by doing a sorted merge of live points,
-			// then doing a radix sort.
-			Tree tree(n, id_ptr, point_ptrs);
-			id_ptr += n;
-			for (uint8_t d = 0; d < Dim; ++d)
-				point_ptrs[d] += n;
-			tree.foreach([&](Idx i, auto _, Id id) {
-				del_entries[id] = {n, i};
-			});
-			newTrees[i] = std::move(tree);
+			point_ptrs[d] = live_points.begin(d);
+		for (uint8_t treeIdx = 0; treeIdx < trees.size() - 1; ++treeIdx, n *= 2) {
+			Tree tree;
+			if (!trees[treeIdx+1].empty()) {
+				// TODO maybe optimize from log² -> log?
+				// This could be achieved by doing a sorted merge of live points, then doing a radix sort.
+				tree = std::move(Tree(n, id_ptr, point_ptrs));
+				id_ptr += n;
+				for (uint8_t d = 0; d < Dim; ++d)
+					point_ptrs[d] += n;
+				// TODO dedupe
+				tree.foreach([&](Idx objIdx, auto _, Id id) {
+					del_entries[id] = {treeIdx, objIdx};
+				});
+			}
+			trees[treeIdx] = std::move(tree);
 		}
-		trees = std::move(newTrees);
+		trees.pop_back(); // "shift out" tree with the most elements
 	}
-	// could use an array here since we've got a good bound on the size ahead of time but meh
+	// could use an array (rather than a vector) here since we've got a good bound on the size ahead of time but meh
 	std::vector<Tree> trees;
 	struct DelEntry {
 		uint8_t treeIdx;
 		Idx inTree;
 	};
 	std::unordered_map<Id, DelEntry> del_entries;
-	Idx n_entries;
-	Idx deleted;
+	Idx n_entries = 0;
+	Idx deleted = 0;
 };
