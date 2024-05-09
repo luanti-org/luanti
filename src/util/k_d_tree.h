@@ -254,9 +254,9 @@ public:
 		std::copy(a.ids.get(), a.ids.get() + a.cap(), ids.get());
 		std::copy(b.ids.get(), b.ids.get() + b.cap(), ids.get() + a.cap());
 		deleted = std::vector<bool>(cap());
+		init(0, 0, items.indices); // this does le dirty dirty hack so call it BEFORE we deal with deleted
 		std::copy(a.deleted.begin(), a.deleted.end(), deleted.begin());
 		std::copy(b.deleted.begin(), b.deleted.end(), deleted.begin() + a.items.size());
-		init(0, 0, items.indices);
 	}
 
 	template<typename F>
