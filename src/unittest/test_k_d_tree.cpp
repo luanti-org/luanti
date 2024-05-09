@@ -17,6 +17,7 @@ public:
 	void runTests(IGameDef *gamedef);
 
 	// TODO basic small cube test
+	void singleUpdate();
 	void randomOps();
 };
 
@@ -33,6 +34,10 @@ public:
 		});
 		assert(it != entries.end());
 		entries.erase(it);
+	}
+	void update(const Point &p, Id id) {
+		remove(id);
+		insert(p, id);
 	}
 	template<typename F>
 	void rangeQuery(const Point &min, const Point &max, const F &cb) {
@@ -57,18 +62,40 @@ static TestKdTree g_test_instance;
 void TestKdTree::runTests(IGameDef *gamedef)
 {
 	rawstream << "-------- k-d-tree" << std::endl;
+	TEST(singleUpdate);
 	TEST(randomOps);
 }
+
+void TestKdTree::singleUpdate() {
+	DynamicKdTrees<3, u16, u16> kds;
+	for (u16 i = 1; i <= 5; ++i)
+		kds.insert({i, i, i}, i);
+	for (u16 i = 1; i <= 5; ++i) {
+		u16 j = i - 1;
+		kds.update({j, j, j}, i);
+	}
+}
+
+// 1: asan again
+// 2: asan again
+// 3: violates assert
+// 5: violates asan
 
 void TestKdTree::randomOps() {
 	PseudoRandom pr(814538);
 
 	ObjectVector<3, f32, u16> objvec;
 	DynamicKdTrees<3, f32, u16> kds;
-	for (u16 id = 1; id < 1000; ++id) {
+
+	const auto randPos = [&]() {
 		std::array<f32, 3> point;
 		for (uint8_t d = 0; d < 3; ++d)
 			point[d] = pr.range(-1000, 1000);
+		return point;
+	};
+
+	for (u16 id = 1; id < 1000; ++id) {
+		const auto point = randPos();
 		objvec.insert(point, id);
 		kds.insert(point, id);
 	}
@@ -98,6 +125,14 @@ void TestKdTree::randomOps() {
 	for (u16 id = 1; id < 800; ++id) {
 		objvec.remove(id);
 		kds.remove(id);
+	}
+
+	testRandomQueries();
+
+	for (u16 id = 800; id < 1000; ++id) {
+		const auto point = randPos();
+		objvec.update(point, id);
+		kds.update(point, id);
 	}
 
 	testRandomQueries();
