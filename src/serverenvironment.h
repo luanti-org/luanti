@@ -334,6 +334,10 @@ public:
 	// Find the daylight value at pos with a Depth First Search
 	u8 findSunlight(v3s16 pos) const;
 
+	void updatePos(const v3f &pos, u16 id) {
+		return m_ao_manager.updatePos(pos, id);
+	}
+
 	// Find all active objects inside a radius around a point
 	void getObjectsInsideRadius(std::vector<ServerActiveObject *> &objects, const v3f &pos, float radius,
 			std::function<bool(ServerActiveObject *obj)> include_obj_cb)
@@ -513,3 +517,6 @@ private:
 	std::unique_ptr<ServerActiveObject> createSAO(ActiveObjectType type, v3f pos,
 			const std::string &data);
 };
+
+// HACK
+void ServerEnvironment_updatePos(ServerEnvironment *senv, const v3f &pos, u16 id);
