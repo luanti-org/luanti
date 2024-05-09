@@ -16,7 +16,7 @@ using Idx = uint16_t;
 
 // TODO profile and tweak knobs
 
-// TODO cleanup
+// TODO cleanup (split up in header and impl among other things)
 
 template<uint8_t Dim, typename Component>
 class Points {
@@ -63,8 +63,6 @@ private:
 
 template<uint8_t Dim>
 class SortedIndices {
-private:
-	// SortedIndices(Points<Dim, Idx> &&indices) : indices(indices) {}
 public:
 	//! empty
 	SortedIndices() : indices() {}
@@ -234,7 +232,6 @@ public:
 	}
 
 	//! Build a tree
-	// FIXME something must be wrong here, otherwise deleting stuff would work
 	KdTree(Idx n, Id const *ids, std::array<Component const *, Dim> pts)
 		: items(n, pts)
 		, ids(std::make_unique<Id[]>(n))
@@ -258,6 +255,8 @@ public:
 		std::copy(a.deleted.begin(), a.deleted.end(), deleted.begin());
 		std::copy(b.deleted.begin(), b.deleted.end(), deleted.begin() + a.items.size());
 	}
+
+	// TODO ray proximity query
 
 	template<typename F>
 	void rangeQuery(const Point &min, const Point &max,
