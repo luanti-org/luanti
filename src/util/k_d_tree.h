@@ -25,6 +25,7 @@ public:
 	//! Empty
 	Points() : n(0), coords(nullptr) {}
 	//! Leaves coords uninitialized!
+	// TODO we want make_unique_for_overwrite here...
 	Points(Idx n) : n(n), coords(std::make_unique<Component[]>(Dim * n)) {}
 	//! Copying constructor
 	Points(Idx n, const std::array<Component const *, Dim> &coords) : Points(n) {
@@ -116,7 +117,10 @@ public:
 			auto right_ptr = right.indices.begin(d);
 			for (auto it = indices.begin(d); it != indices.end(d); ++it) {
 				if (*it != *mid) { // ignore pivot
-					*(markers[*it] ? left_ptr++ : right_ptr++) = *it;
+					if (markers[*it])
+						*(left_ptr++) = *it;
+					else
+						*(right_ptr++) = *it;
 				}
 			}
 		}
@@ -333,6 +337,7 @@ private:
 	std::vector<bool> deleted;
 };
 
+// TODO abstract dynamic spatial index superclass
 template<uint8_t Dim, class Component, class Id>
 class DynamicKdTrees {
 	using Tree = KdTree<Dim, Component, Id>;
@@ -340,34 +345,38 @@ public:
 	using Point = typename Tree::Point;
 	void insert(const std::array<Component, Dim> &point, const Id id) {
 		Tree tree(point, id);
-		for (uint8_t treeIdx = 0;; ++treeIdx) {
-			if (treeIdx >= trees.size()) {
-				tree.foreach([&](Idx objIdx, auto _, Id id) {
-					del_entries[id] = {treeIdx, objIdx};
+		for (uint8_t tree_idx = 0;; ++tree_idx) {
+			if (tree_idx >= trees.size()) {
+				tree.foreach([&](Idx in_tree_idx, auto _, Id id) {
+					del_entries[id] = {tree_idx, in_tree_idx};
 				});
 				trees.push_back(std::move(tree));
 				break;
 			}
-			if (trees[treeIdx].empty()) {
+			if (trees[tree_idx].empty()) {
 				// TODO deduplicate
-				tree.foreach([&](Idx objIdx, auto _, Id id) {
-					del_entries[id] = {treeIdx, objIdx};
+				tree.foreach([&](Idx in_tree_idx, auto _, Id id) {
+					del_entries[id] = {tree_idx, in_tree_idx};
 				});
-				trees[treeIdx] = std::move(tree);
+				trees[tree_idx] = std::move(tree);
 				break;
 			}
-			tree = Tree(tree, trees[treeIdx]);
-			trees[treeIdx] = std::move(Tree());
+			tree = Tree(tree, trees[tree_idx]);
+			trees[tree_idx] = std::move(Tree());
 		}
 		++n_entries;
 	}
-	void remove(const Id id) {
+	void remove(Id id) {
 		const auto del_entry = del_entries.at(id);
 		trees.at(del_entry.treeIdx).remove(del_entry.inTree);
 		del_entries.erase(id); // TODO use iterator right away...
 		++deleted;
 		if (deleted > n_entries/2) // we want to shift out the one!
 			compactify();
+	}
+	void update(const Point &newPos, Id id) {
+		remove(id);
+		insert(newPos, id);
 	}
 	template<typename F>
 	void rangeQuery(const Point &min, const Point &max,
