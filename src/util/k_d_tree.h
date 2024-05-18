@@ -353,10 +353,11 @@ private:
 	}
 
 	template<typename F>
-	void rangeQuery(Idx root, uint8_t split,
+	// Note: root is of type std::size_t to avoid issues with wraparound
+	void rangeQuery(std::size_t root, uint8_t split,
 			const Point &min, const Point &max,
 			const F &cb) const {
-		if (root >= cap()) // TODO what if we overflow earlier?
+		if (root >= cap())
 			return;
 		const auto ptid = tree[root];
 		const auto coord = items.points.begin(split)[ptid];
