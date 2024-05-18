@@ -10,9 +10,52 @@
 #include <vector>
 #include <memory>
 
-using Idx = uint16_t;
+/*
+This implements a dynamic forest of static k-d-trees.
 
-// TODO docs and explanation
+A k-d-tree is a k-dimensional binary search tree.
+On the i-th level of the tree, you split by the (i mod k)-th coordinate.
+
+Building a balanced k-d-tree for n points is done in O(n log n) time:
+Points are stored in a matrix, identified by indices.
+These indices are presorted by all k axes.
+To split, you simply pick the pivot index in the appropriate index array,
+and mark all points left to it by index in a bitset.
+This lets you then split the indices sorted by the other axes,
+while preserving the sorted order.
+
+This however only gives us a static spatial index.
+To make it dynamic, we keep a "forest" of k-d-trees of sizes of successive powers of two.
+When we insert a new tree, we check whether there already is a k-d-tree of the same size.
+If this is the case, we merge with that tree, giving us a tree of twice the size,
+and so on, until we find a free size.
+
+This means our "forest" corresponds to a bit pattern,
+where a set bit means a non-empty tree.
+Inserting a point is equivalent to incrementing this bit pattern.
+
+To handle deletions, we simply mark the appropriate point as deleted using another bitset.
+When more than half the points have been deleted,
+we shrink the structure by removing all deleted points.
+This is equivalent to shifting down the "bit pattern" by one.
+
+There are plenty variations that could be explored:
+
+* Keeping a small amount of points in a small pool to make updates faster -
+  avoid building and querying small k-d-trees.
+  This might be useful if the overhead for small sizes hurts performance.
+* Keeping fewer trees to make queries faster, at the expense of updates.
+* More eagerly removing entries marked as deleted (for example, on merge).
+* Replacing the array-backed structure with a structure of dynamically allocated nodes.
+  This would make it possible to "let trees get out of shape".
+* Shrinking the structure currently sorts the live points by all axes,
+  not leveraging the existing presorting of the subsets.
+  Cleverly done filtering followed by sorted merges should enable linear time.
+*/
+
+using Idx = uint16_t; // TODO unify with Id
+
+// TODO more doc comments
 
 // TODO profile and tweak knobs
 
@@ -24,9 +67,8 @@ public:
 	using Point = std::array<Component, Dim>;
 	//! Empty
 	Points() : n(0), coords(nullptr) {}
-	//! Leaves coords uninitialized!
-	// TODO we want make_unique_for_overwrite here...
-	Points(Idx n) : n(n), coords(std::make_unique<Component[]>(Dim * n)) {}
+	//! Allocating constructor; leaves coords uninitialized!
+	Points(Idx n) : n(n), coords(new Component[Dim * n]) {}
 	//! Copying constructor
 	Points(Idx n, const std::array<Component const *, Dim> &coords) : Points(n) {
 		for (uint8_t d = 0; d < Dim; ++d)
@@ -49,11 +91,16 @@ public:
 		for (uint8_t d = 0; d < Dim; ++d)
 			begin(d)[i] = point[d];
 	}
-	// HACK interior mutability...
-	Component *begin(uint8_t d) const {
+	Component *begin(uint8_t d) {
 	 	return coords.get() + d * n;
 	}
-	Component *end(uint8_t d) const {
+	Component *end(uint8_t d) {
+	 	return begin(d) + n;
+	}
+	const Component *begin(uint8_t d) const {
+	 	return coords.get() + d * n;
+	}
+	const Component *end(uint8_t d) const {
 	 	return begin(d) + n;
 	}
 private:
@@ -69,10 +116,10 @@ public:
 
 	//! uninitialized indices
 	static SortedIndices newUninitialized(Idx n) {
-		return SortedIndices(n); // HACK can't be arsed to fix rn Points<Dim, Idx>(n));
+		return SortedIndices(Points<Dim, Idx>(n));
 	}
 
-	// Identity permutation on all axes
+	//! Identity permutation on all axes
 	SortedIndices(Idx n) : indices(n) {
 		for (uint8_t d = 0; d < Dim; ++d)
 			for (Idx i = 0; i < n; ++i)
@@ -130,14 +177,20 @@ public:
 		return SplitResult{std::move(left), std::move(right), *mid};
 	}
 
-	Idx *begin(uint8_t d) const {
+	Idx *begin(uint8_t d) {
 		return indices.begin(d);
 	}
-
-	Idx *end(uint8_t d) const {
+	Idx *end(uint8_t d) {
+		return indices.end(d);
+	}
+	const Idx *begin(uint8_t d) const {
+		return indices.begin(d);
+	}
+	const Idx *end(uint8_t d) const {
 		return indices.end(d);
 	}
 private:
+	SortedIndices(Points<Dim, Idx> &&indices) : indices(std::move(indices)) {}
 	Points<Dim, Idx> indices;
 };
 
@@ -147,7 +200,6 @@ public:
 	SortedPoints() : points(), indices() {}
 
 	//! Single point
-	// TODO remove this
 	SortedPoints(const std::array<Component, Dim> &point) : points(1), indices(1) {
 		points.setPoint(0, point);
 	}
@@ -200,8 +252,7 @@ public:
 		// but that is irrelevant
 		return points.size();
 	}
-	
-// HACK private:
+
 	Points<Dim, Component> points;
 	SortedIndices<Dim> indices;
 };
@@ -220,7 +271,6 @@ public:
 	{}
 
 	//! Build a tree containing just a single point
-	// TODO this will probably be obsolete soon (TM)
 	KdTree(const Point &point, const Id &id)
 		: items(point)
 		, ids(std::make_unique<Id[]>(1))
@@ -250,8 +300,10 @@ public:
 		ids = std::make_unique<Id[]>(cap());
 		std::copy(a.ids.get(), a.ids.get() + a.cap(), ids.get());
 		std::copy(b.ids.get(), b.ids.get() + b.cap(), ids.get() + a.cap());
+		// Note: Initialize `deleted` *before* calling `init`,
+		// since `init` abuses the `deleted` marks as left/right marks.
 		deleted = std::vector<bool>(cap());
-		init(0, 0, items.indices); // this does le dirty dirty hack so call it BEFORE we deal with deleted
+		init(0, 0, items.indices);
 		std::copy(a.deleted.begin(), a.deleted.end(), deleted.begin());
 		std::copy(b.deleted.begin(), b.deleted.end(), deleted.begin() + a.items.size());
 	}
@@ -290,7 +342,7 @@ public:
 
 private:
 	void init(Idx root, uint8_t axis, const SortedIndices<Dim> &sorted) {
-		// HACK abuse deleted marks as left/right marks
+		// Temporarily abuse "deleted" marks as left/right marks
 		const auto split = sorted.split(axis, deleted);
 		tree[root] = split.pivot;
 		const auto next_axis = (axis + 1) % Dim;
@@ -324,7 +376,7 @@ private:
 			for (uint8_t d = 0; d < Dim; ++d)
 				if (point[d] < min[d] || point[d] > max[d])
 					return;
-			cb(items.points.getPoint(ptid), ids[ptid]);
+			cb(point, ids[ptid]);
 		}
 	}
 	SortedPoints<Dim, Component> items;
@@ -336,28 +388,22 @@ private:
 	std::vector<bool> deleted;
 };
 
-// TODO abstract dynamic spatial index superclass
 template<uint8_t Dim, class Component, class Id>
 class DynamicKdTrees {
 	using Tree = KdTree<Dim, Component, Id>;
 public:
 	using Point = typename Tree::Point;
-	void insert(const std::array<Component, Dim> &point, const Id id) {
+	void insert(const std::array<Component, Dim> &point, Id id) {
 		Tree tree(point, id);
 		for (uint8_t tree_idx = 0;; ++tree_idx) {
-			if (tree_idx >= trees.size()) {
-				tree.foreach([&](Idx in_tree_idx, auto _, Id id) {
-					del_entries[id] = {tree_idx, in_tree_idx};
-				});
+			if (tree_idx == trees.size()) {
 				trees.push_back(std::move(tree));
+				updateDelEntries(tree_idx);
 				break;
 			}
 			if (trees[tree_idx].empty()) {
-				// TODO deduplicate
-				tree.foreach([&](Idx in_tree_idx, auto _, Id id) {
-					del_entries[id] = {tree_idx, in_tree_idx};
-				});
 				trees[tree_idx] = std::move(tree);
+				updateDelEntries(tree_idx);
 				break;
 			}
 			tree = Tree(tree, trees[tree_idx]);
@@ -366,12 +412,13 @@ public:
 		++n_entries;
 	}
 	void remove(Id id) {
-		const auto del_entry = del_entries.at(id);
-		trees.at(del_entry.treeIdx).remove(del_entry.inTree);
-		del_entries.erase(id); // TODO use iterator right away...
+		const auto it = del_entries.find(id);
+		assert(it != del_entries.end());
+		trees.at(it->second.tree_idx).remove(it->second.in_tree);
+		del_entries.erase(it);
 		++deleted;
-		if (deleted > n_entries/2) // we want to shift out the one!
-			compactify();
+		if (deleted > n_entries/2) // "shift out" the last tree
+			shrink_to_half();
 	}
 	void update(const Point &newPos, Id id) {
 		remove(id);
@@ -384,13 +431,19 @@ public:
 			tree.rangeQuery(min, max, cb);
 	}
 private:
-	void compactify() {
+	void updateDelEntries(uint8_t tree_idx) {
+		trees[tree_idx].foreach([&](Idx in_tree_idx, auto _, Id id) {
+			del_entries[id] = {tree_idx, in_tree_idx};
+		});
+	}
+	// Shrink to half the size, equivalent to shifting down the "bit pattern".
+	void shrink_to_half() {
 		assert(n_entries >= deleted);
-		n_entries -= deleted; // note: this should be exactly n_entries/2
+		assert(n_entries - deleted == (n_entries >> 1));
+		n_entries -= deleted;
 		deleted = 0;
-		// reset map, freeing memory (instead of clearing)
+		// Reset map, freeing memory (instead of clearing)
 		del_entries = std::unordered_map<Id, DelEntry>();
-
 
 		// Collect all live points and corresponding IDs.
 		const auto live_ids = std::make_unique<Id[]>(n_entries);
@@ -413,29 +466,25 @@ private:
 		Idx n = 1;
 		for (uint8_t d = 0; d < Dim; ++d)
 			point_ptrs[d] = live_points.begin(d);
-		for (uint8_t treeIdx = 0; treeIdx < trees.size() - 1; ++treeIdx, n *= 2) {
+		for (uint8_t tree_idx = 0; tree_idx < trees.size() - 1; ++tree_idx, n *= 2) {
 			Tree tree;
-			if (!trees[treeIdx+1].empty()) {
-				// TODO maybe optimize from log² -> log?
-				// This could be achieved by doing a sorted merge of live points, then doing a radix sort.
+			if (!trees[tree_idx+1].empty()) {
 				tree = std::move(Tree(n, id_ptr, point_ptrs));
 				id_ptr += n;
 				for (uint8_t d = 0; d < Dim; ++d)
 					point_ptrs[d] += n;
-				// TODO dedupe
-				tree.foreach([&](Idx objIdx, auto _, Id id) {
-					del_entries[id] = {treeIdx, objIdx};
-				});
 			}
-			trees[treeIdx] = std::move(tree);
+			trees[tree_idx] = std::move(tree);
+			updateDelEntries(tree_idx);
 		}
 		trees.pop_back(); // "shift out" tree with the most elements
 	}
-	// could use an array (rather than a vector) here since we've got a good bound on the size ahead of time but meh
+	// This could even use an array instead of a vector,
+	// since the number of trees is guaranteed to be logarithmic in the max of Idx
 	std::vector<Tree> trees;
 	struct DelEntry {
-		uint8_t treeIdx;
-		Idx inTree;
+		uint8_t tree_idx;
+		Idx in_tree;
 	};
 	std::unordered_map<Id, DelEntry> del_entries;
 	Idx n_entries = 0;
