@@ -218,7 +218,7 @@ public:
 
 	//! Merge two sets of sorted points
 	SortedPoints(const SortedPoints &a, const SortedPoints &b)
-		: points(a.size() + b.size())
+		: points(static_cast<std::size_t>(a.size()) + b.size())
 	{
 		const auto n = points.size();
 		indices = SortedIndices<Dim>::newUninitialized(n);
