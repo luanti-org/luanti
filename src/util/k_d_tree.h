@@ -418,7 +418,7 @@ public:
 		trees.at(it->second.tree_idx).remove(it->second.in_tree);
 		del_entries.erase(it);
 		++deleted;
-		if (deleted > n_entries/2) // "shift out" the last tree
+		if (deleted >= (n_entries+1)/2) // "shift out" the last tree
 			shrink_to_half();
 	}
 	void update(const Point &newPos, Id id) {
@@ -430,6 +430,9 @@ public:
 			const F &cb) const {
 		for (const auto &tree : trees)
 			tree.rangeQuery(min, max, cb);
+	}
+	Idx size() const {
+		return n_entries - deleted;
 	}
 private:
 	void updateDelEntries(uint8_t tree_idx) {

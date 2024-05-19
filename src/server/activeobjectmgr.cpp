@@ -26,7 +26,7 @@ void ActiveObjectMgr::clearIf(const std::function<bool(ServerActiveObject *, u16
 			continue;
 		if (cb(it.second.get(), it.first)) {
 			// Remove reference from m_active_objects
-			m_active_objects.remove(it.first);
+			removeObject(it.first);
 		}
 	}
 }
@@ -79,6 +79,7 @@ bool ActiveObjectMgr::registerObject(std::unique_ptr<ServerActiveObject> obj)
 	auto obj_id = obj->getId();
 	m_active_objects.put(obj_id, std::move(obj));
 	m_spatial_index.insert(pos.toArray(), obj_id);
+	assert(m_spatial_index.size() == m_active_objects.size());
 
 	auto new_size = m_active_objects.size();
 	verbosestream << "Server::ActiveObjectMgr::addActiveObjectRaw(): "
