@@ -76,11 +76,6 @@ void TestKdTree::singleUpdate() {
 	}
 }
 
-// 1: asan again
-// 2: asan again
-// 3: violates assert
-// 5: violates asan
-
 void TestKdTree::randomOps() {
 	PseudoRandom pr(814538);
 
@@ -100,23 +95,27 @@ void TestKdTree::randomOps() {
 		kds.insert(point, id);
 	}
 
+	const auto testRandomQuery = [&]() {
+		std::array<f32, 3> min, max;
+		for (uint8_t d = 0; d < 3; ++d) {
+			min[d] = pr.range(-1500, 1500);
+			max[d] = min[d] + pr.range(1, 2500);
+		}
+		std::unordered_set<u16> expected_ids;
+		objvec.rangeQuery(min, max, [&](auto _, u16 id) {
+			UASSERT(expected_ids.count(id) == 0);
+			expected_ids.insert(id);
+		});
+		kds.rangeQuery(min, max, [&](auto point, u16 id) {
+			UASSERT(expected_ids.count(id) == 1);
+			expected_ids.erase(id);
+		});
+		UASSERT(expected_ids.empty());
+	};
+
 	const auto testRandomQueries = [&]() {
 		for (int i = 0; i < 1000; ++i) {
-			std::array<f32, 3> min, max;
-			for (uint8_t d = 0; d < 3; ++d) {
-				min[d] = pr.range(-1500, 1500);
-				max[d] = min[d] + pr.range(1, 2500);
-			}
-			std::unordered_set<u16> expected_ids;
-			objvec.rangeQuery(min, max, [&](auto _, u16 id) {
-				UASSERT(expected_ids.count(id) == 0);
-				expected_ids.insert(id);
-			});
-			kds.rangeQuery(min, max, [&](auto point, u16 id) {
-				UASSERT(expected_ids.count(id) == 1);
-				expected_ids.erase(id);
-			});
-			UASSERT(expected_ids.empty());
+			testRandomQuery();
 		}
 	};
 
@@ -136,4 +135,11 @@ void TestKdTree::randomOps() {
 	}
 
 	testRandomQueries();
+
+	// Finally, empty the structure(s)
+	for (u16 id = 800; id < 1000; ++id) {
+		objvec.remove(id);
+		kds.remove(id);
+		testRandomQuery();
+	}
 }
