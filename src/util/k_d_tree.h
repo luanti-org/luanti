@@ -68,7 +68,7 @@ public:
 	//! Empty
 	Points() : n(0), coords(nullptr) {}
 	//! Allocating constructor; leaves coords uninitialized!
-	Points(Idx n) : n(n), coords(new Component[Dim * n]) {}
+	Points(Idx n) : n(n), coords(new Component[Dim * static_cast<std::size_t>(n)]) {}
 	//! Copying constructor
 	Points(Idx n, const std::array<Component const *, Dim> &coords) : Points(n) {
 		for (uint8_t d = 0; d < Dim; ++d)
@@ -92,13 +92,13 @@ public:
 			begin(d)[i] = point[d];
 	}
 	Component *begin(uint8_t d) {
-	 	return coords.get() + d * n;
+	 	return coords.get() + d * static_cast<std::size_t>(n);
 	}
 	Component *end(uint8_t d) {
 	 	return begin(d) + n;
 	}
 	const Component *begin(uint8_t d) const {
-	 	return coords.get() + d * n;
+	 	return coords.get() + d * static_cast<std::size_t>(n);
 	}
 	const Component *end(uint8_t d) const {
 	 	return begin(d) + n;
