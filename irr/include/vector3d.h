@@ -195,6 +195,22 @@ public:
 		return {X, Y, Z};
 	}
 
+	vector3d<T> min(const T min_component) const {
+		return vector3d<T>(
+			std::min(X, min_component),
+			std::min(Y, min_component),
+			std::min(Z, min_component)
+		);
+	}
+
+	vector3d<T> max(const T max_component) const {
+		return vector3d<T>(
+			std::max(X, max_component),
+			std::max(Y, max_component),
+			std::max(Z, max_component)
+		);
+	}
+
 	//! Get length of the vector.
 	T getLength() const { return core::squareroot(X * X + Y * Y + Z * Z); }
 
