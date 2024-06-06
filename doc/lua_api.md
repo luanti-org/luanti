@@ -3023,13 +3023,15 @@ Elements
 * `bgcolor` tooltip background color as `ColorString` (optional)
 * `fontcolor` tooltip font color as `ColorString` (optional)
 
-### `supertip[<X>,<Y>;<W>,<H>;<posX>,<posY>;<width>;<name>;<text>]`
+### `supertip[<X>,<Y>;<W>,<H>;<staticPos>;<width>;<name>;<text>]`
 
-* Displays a formatted text using `Markup Language` in a tooltip.
-* `x`, `y`, `w` and `h` set the mouse hover area that allows the tooltip to pop-up.
-* `posX` and `posY` set the static positioning of the tooltip (optional).
-  If not set, the tooltip is floating (moving with the pointer).
-* `width` sets the tooltip width.
+* Adds an advanced tooltip for an area. Displays a formatted text using
+  `Markup Language` in a tooltip.
+* `X`, `Y`, `W` and `H` set the cursor hover area that allows the tooltip to pop-up.
+* `staticPos` is an optional position of the form `posX,posY` in formspec coordinates.
+  If specified, the tooltip will always appear at these given formspec coordinates.
+  If this field is empty, the tooltip will follow the cursor.
+* `width` sets the tooltip width (in formspec units).
 * `name` is the name of the field.
 * `text` is the formatted text using `Markup Language` described below.
 
