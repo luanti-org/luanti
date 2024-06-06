@@ -1771,20 +1771,25 @@ void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element
 
 	std::vector<std::string> v_pos = split(parts[0], ',');
 	std::vector<std::string> v_geom = split(parts[1], ',');
+
+	MY_CHECKPOS("supertip", 0);
+	MY_CHECKGEOM("supertip", 1);
+
 	std::vector<std::string> v_stpos;
 	bool floating = true;
 	if(parts[2] != "") {
 		v_stpos = split(parts[2], ',');
+		if (v_stpos.size() != 2) {
+			errorstream << "Invalid staticPos in supertip element(" << parts.size() <<
+				"): \"" << parts[2] << "\"" << std::endl;
+			return;
+		}
 		floating = false;
 	}
 
 	s32 width = stof(parts[3]) * spacing.Y;
 	std::string name = parts[4];
 	std::string text = parts[5];
-
-	MY_CHECKPOS("supertip", 0);
-	MY_CHECKGEOM("supertip", 1);
-	MY_CHECKPOS("supertip", 2);
 
 	v2s32 pos;
 	v2s32 geom;
