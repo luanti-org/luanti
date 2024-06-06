@@ -3876,29 +3876,46 @@ void GUIFormSpecMenu::autoScroll()
 void GUIFormSpecMenu::showSuperTip(GUIHyperText *e, const SuperTipSpec &spec)
 {
 	// Supertip size and offset
-	s32 W = spec.width;
-	s32 H = e->getTextHeight();
-	s32 X,Y;
-
-	if (spec.floating) {
-		/* Issue with floating tooltips' positioning here.
-		   Set hardcoded values that only works on 16:10/4K displays. */
-		X = m_pointer.X - 1120;
-		Y = m_pointer.Y - 400;
-	} else {
-		/* Static tooltips */
-		X = spec.stpos[0];
-		Y = spec.stpos[1];
-	}
+	s32 tooltip_width = spec.width;
+	s32 tooltip_height = e->getTextHeight() + 5;
+	s32 tooltip_x, tooltip_y;
 
 	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
 
-	if (X + W > (s32)screenSize.X)
-		X = (s32)screenSize.X - W - m_btn_height;
-	if (Y + H > (s32)screenSize.Y)
-		Y = (s32)screenSize.Y - H - m_btn_height;
+	// Calculate and set the tooltip position
+	if (spec.floating) {
+		/* Dynamic tooltip position, relative to cursor */
+		int tooltip_offset_x = m_btn_height;
+		int tooltip_offset_y = m_btn_height;
 
-	e->setRelativePosition(core::rect<s32>(core::position2d(X,Y), core::dimension2d(W,H)));
+		if (m_pointer_type == PointerType::Touch) {
+			tooltip_offset_x *= 3;
+			tooltip_offset_y  = 0;
+			if (m_pointer.X > (s32)screenSize.X / 2)
+				tooltip_offset_x = -(tooltip_offset_x + tooltip_width);
+		}
+
+		v2s32 basePos = getBasePos();
+
+		tooltip_x = (m_pointer.X - basePos.X) + tooltip_offset_x*2;
+		tooltip_y = (m_pointer.Y - basePos.Y) + tooltip_offset_y*2;
+	} else {
+		/* Static tooltip position, using formspec coordinates */
+		tooltip_x = spec.stpos[0];
+		tooltip_y = spec.stpos[1];
+	}
+
+	if (tooltip_x + tooltip_width > (s32)screenSize.X)
+		tooltip_x = (s32)screenSize.X - tooltip_width  - m_btn_height;
+	if (tooltip_y + tooltip_height > (s32)screenSize.Y)
+		tooltip_y = (s32)screenSize.Y - tooltip_height - m_btn_height;
+
+	e->setRelativePosition(
+		core::rect<s32>(
+			core::position2d<s32>(tooltip_x, tooltip_y),
+			core::dimension2d<s32>(tooltip_width, tooltip_height)
+		)
+	);
 
 	// Display the supertip
 	e->setVisible(true);
