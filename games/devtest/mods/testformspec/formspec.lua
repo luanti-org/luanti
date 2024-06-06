@@ -566,11 +566,11 @@ mouse control = true]
 			supertip[1,3;1,1;2.5,3.5;5;supertip_static;<big>Simple supertip (<i>static</i>)</big>
 This one should always appear at the tiny white square.]
 			box[1,5;1,1;#ff000080]
-			supertip[1,5;1,1;5;supertip_dynamic;<big>Simple supertip (<i>dynamic</i>)</big>
+			supertip[1,5;1,1;;5;supertip_dynamic;<big>Simple supertip (<i>dynamic</i>)</big>
 This should appear at the cursor.]
 
 			box[1,7;1,1;#ff000080]
-			supertip[1,7;1,1;5;supertip_dynamic_complex;]]..minetest.formspec_escape([[<big>Complex supertip (<i>dynamic</i>)</big>
+			supertip[1,7;1,1;;5;supertip_dynamic_complex;]]..minetest.formspec_escape([[<big>Complex supertip (<i>dynamic</i>)</big>
 <img name=testformspec_node.png float=right width=64 height=64>
 <left>Left align</left>
 <center>Right align</center>
@@ -580,7 +580,7 @@ Item:
 <item name=testformspec:node>]])..[[]
 
 			box[1,9;1,1;#ff000080]
-			supertip[1,9;1,1;5;supertip_stone;]]..minetest.formspec_escape([[<global color=#333 background=#aaa margin=20>
+			supertip[1,9;1,1;;5;supertip_stone;]]..minetest.formspec_escape([[<global color=#333 background=#aaa margin=20>
 <item name=testformspec:node float=left width=64 height=64>
 <big><b><center>Formspec Test Node</center></b></big>
 The <b>Formspec Test Node</b> is a dummy node to display an item in the <mono>testformspec</mono> mod.
