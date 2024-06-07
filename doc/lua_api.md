@@ -3713,7 +3713,7 @@ Some types may inherit styles from parent types.
 * supertip
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * bgcolor - color, sets background color.
-    * border - boolean, draw border. Set to false to hide the bevelled tooltip pane. Default false.
+    * border - boolean, draw border. Set to false to hide the bevelled tooltip pane. Default true.
     * bgimg - standard background image. Defaults to none.
     * bgimg_middle - Makes the bgimg textures render in 9-sliced mode and defines the middle rect.
                      See background9[] documentation for more details.
