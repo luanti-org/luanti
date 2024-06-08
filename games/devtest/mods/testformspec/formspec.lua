@@ -556,18 +556,26 @@ mouse control = true]
 		[[
 			formspec_version[7]
 			size[12,13]
-			label[1,0.5;Hover a red box for a tooltip.]
+			label[1,0.5;Hover a red box or a button for a tooltip.]
 
 			box[1,1;1,1;#ff000080]
-			tooltip[1,1;1,1;Normal tooltip]
+			tooltip[1,1;1,1;Normal tooltip in an area]
+
+			button[2.5,1;3,1;tt_btn;HOVERME]
+			tooltip[tt_btn;Normal tooltip on a button]
 
 			box[1,3;1,1;#ff000080]
 			box[2.4,3.4;0.2,0.2;#ffffff80]
 			supertip[1,3;1,1;2.5,3.5;5;supertip_static;<big>Simple supertip (<i>static</i>)</big>
 This one should always appear at the tiny white square.]
+
 			box[1,5;1,1;#ff000080]
 			supertip[1,5;1,1;;5;supertip_dynamic;<big>Simple supertip (<i>dynamic</i>)</big>
 This should appear at the cursor.]
+
+			button[2.5,5;3,1;st_btn;HOVERME]
+			supertip[st_btn;;5;supertip_dynamic_btn;<big>Simple supertip (<i>dynamic</i>)</big>
+This should appear at the cursor when hovering the button.]
 
 			box[1,7;1,1;#ff000080]
 			supertip[1,7;1,1;;5;supertip_dynamic_complex;]]..minetest.formspec_escape([[<big>Complex supertip (<i>dynamic</i>)</big>
