@@ -3014,6 +3014,7 @@ Elements
 ### `tooltip[<gui_element_name>;<tooltip_text>;<bgcolor>;<fontcolor>]`
 
 * Adds tooltip for an element
+* It has to be declared *after* the element that is bound to
 * `bgcolor` tooltip background color as `ColorString` (optional)
 * `fontcolor` tooltip font color as `ColorString` (optional)
 
@@ -3027,7 +3028,7 @@ Elements
 
 * Adds an advanced tooltip for an element. Displays a formatted text using
   `Markup Language` in a tooltip.
-  This supertip have to be declared *after* its parent element that is bound to.
+* This supertip has to be declared *after* the element that is bound to.
 * `staticPos` is an optional position of the form `posX,posY` in formspec coordinates.
   If specified, the tooltip will always appear at these given formspec coordinates.
   If this field is empty, the tooltip will follow the cursor.
@@ -3040,12 +3041,7 @@ Elements
 * Adds an advanced tooltip for an area. Displays a formatted text using
   `Markup Language` in a tooltip.
 * `X`, `Y`, `W` and `H` set the cursor hover area that allows the tooltip to pop-up.
-* `staticPos` is an optional position of the form `posX,posY` in formspec coordinates.
-  If specified, the tooltip will always appear at these given formspec coordinates.
-  If this field is empty, the tooltip will follow the cursor.
-* `width` sets the tooltip width (in formspec units).
-* `name` is the name of the field.
-* `text` is the formatted text using `Markup Language` described below.
+* `staticPos`, `width`, `name`, `text`: See above.
 
 ### `image[<X>,<Y>;<W>,<H>;<texture name>;<middle>]`
 
