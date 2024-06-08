@@ -153,8 +153,11 @@ class GUIFormSpecMenu : public GUIModalMenu
 	struct SuperTipSpec
 	{
 		SuperTipSpec() = default;
-		SuperTipSpec(const core::rect<s32> &a_rect, v2s32 a_stpos, s32 a_width,
+		SuperTipSpec(const std::string &a_name, const std::string &a_text,
+				const core::rect<s32> &a_rect, v2s32 a_stpos, s32 a_width,
 				bool a_floating) :
+			name(a_name),
+			text(a_text),
 			hover_rect(a_rect),
 			stpos(a_stpos),
 			width(a_width),
@@ -162,10 +165,13 @@ class GUIFormSpecMenu : public GUIModalMenu
 		{
 		}
 
+		std::string name;
+		std::string text;
 		core::rect<s32> hover_rect;
 		v2s32 stpos;
 		s32 width;
 		bool floating;
+		bool bound = false;
 	};
 
 public:
@@ -360,6 +366,7 @@ protected:
 	std::vector<std::pair<FieldSpec, gui::IGUICheckBox *>> m_checkboxes;
 	std::map<std::string, TooltipSpec> m_tooltips;
 	std::vector<std::pair<GUIHyperText *, SuperTipSpec>> m_supertips;
+	std::map<std::string, SuperTipSpec> m_supertip_map;
 	std::vector<std::pair<gui::IGUIElement *, TooltipSpec>> m_tooltip_rects;
 	std::vector<std::pair<FieldSpec, GUIScrollBar *>> m_scrollbars;
 	std::vector<std::pair<FieldSpec, std::vector<std::string>>> m_dropdowns;

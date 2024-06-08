@@ -1766,75 +1766,135 @@ void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element
 {
 	std::vector<std::string> parts;
 
-	if (!precheckElement("supertip", element, 6, 6, parts))
+	if (!precheckElement("supertip", element, 5, 6, parts))
 		return;
 
-	std::vector<std::string> v_pos = split(parts[0], ',');
-	std::vector<std::string> v_geom = split(parts[1], ',');
+	// Get mode and check size
+	bool rect_mode = parts[0].find(',') != std::string::npos;
+	size_t base_size = rect_mode ? 6 : 5;
+	if (parts.size() != base_size && parts.size() != base_size + 2) {
+		errorstream << "Invalid supertip element(" << parts.size() << "): '"
+				<< element << "'"  << std::endl;
+		return;
+	}
 
-	MY_CHECKPOS("supertip", 0);
-	MY_CHECKGEOM("supertip", 1);
+	if (rect_mode) {
+		std::vector<std::string> v_pos = split(parts[0], ',');
+		std::vector<std::string> v_geom = split(parts[1], ',');
 
-	std::vector<std::string> v_stpos;
-	bool floating = true;
-	if(parts[2] != "") {
-		v_stpos = split(parts[2], ',');
-		if (v_stpos.size() != 2) {
-			errorstream << "Invalid staticPos in supertip element(" << parts.size() <<
-				"): \"" << parts[2] << "\"" << std::endl;
-			return;
+		MY_CHECKPOS("supertip", 0);
+		MY_CHECKGEOM("supertip", 1);
+
+		std::vector<std::string> v_stpos;
+		bool floating = true;
+		if(parts[2] != "") {
+			v_stpos = split(parts[2], ',');
+			if (v_stpos.size() != 2) {
+				errorstream << "Invalid staticPos in supertip element(" << parts.size() <<
+					"): \"" << parts[2] << "\"" << std::endl;
+				return;
+			}
+			floating = false;
 		}
-		floating = false;
-	}
 
-	s32 width = stof(parts[3]) * spacing.Y;
-	std::string name = parts[4];
-	std::string text = parts[5];
+		s32 width = stof(parts[3]) * spacing.Y;
+		std::string name = parts[4];
+		std::string text = parts[5];
 
-	v2s32 pos;
-	v2s32 geom;
-	v2s32 stpos;
+		v2s32 pos;
+		v2s32 geom;
+		v2s32 stpos;
 
-	if (data->real_coordinates) {
-		pos = getRealCoordinateBasePos(v_pos);
-		geom = getRealCoordinateGeometry(v_geom);
+		if (data->real_coordinates) {
+			pos = getRealCoordinateBasePos(v_pos);
+			geom = getRealCoordinateGeometry(v_geom);
 
-		if (!floating)
-			stpos = getRealCoordinateBasePos(v_stpos);
+			if (!floating)
+				stpos = getRealCoordinateBasePos(v_stpos);
+		} else {
+			pos = getElementBasePos(&v_pos);
+			geom.X = stof(v_geom[0]) * spacing.X;
+			geom.Y = stof(v_geom[1]) * spacing.Y;
+
+			if (!floating)
+				stpos = getElementBasePos(&v_stpos);
+		}
+
+		core::rect<s32> rect(pos, pos + geom);
+
+		if (m_form_src)
+			text = m_form_src->resolveText(text);
+
+		FieldSpec spec(
+			name,
+			translate_string(utf8_to_wide(unescape_string(text))),
+			L"",
+			258 + m_fields.size()
+		);
+
+		GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
+				data->current_parent, spec.fid, rect, m_client, m_tsrc);
+
+		auto style = getStyleForElement("supertip", spec.fname);
+		e->setStyles(style);
+
+		SuperTipSpec geospec(name, text, e->getAbsoluteClippingRect(), stpos, width, floating);
+
+		m_fields.push_back(spec);
+		m_supertips.emplace_back(e, geospec);
+
+		e->setVisible(false);
+		e->drop();
 	} else {
-		pos = getElementBasePos(&v_pos);
-		geom.X = stof(v_geom[0]) * spacing.X;
-		geom.Y = stof(v_geom[1]) * spacing.Y;
+		std::string fieldname = parts[0];
+		core::rect<s32> rect;
 
-		if (!floating)
-			stpos = getElementBasePos(&v_stpos);
+		for (const auto &f : m_fields) {
+			if (f.fname == fieldname) {
+				auto *e = getElementFromId(f.fid, true);
+				rect = e->getAbsoluteClippingRect();
+				break;
+			}
+		}
+
+		std::vector<std::string> v_stpos;
+		bool floating = true;
+		if(parts[1] != "") {
+			v_stpos = split(parts[1], ',');
+			if (v_stpos.size() != 2) {
+				errorstream << "Invalid staticPos in supertip element(" << parts.size() <<
+					"): \"" << parts[2] << "\"" << std::endl;
+				return;
+			}
+			floating = false;
+		}
+
+		s32 width = stof(parts[2]) * spacing.Y;
+		v2s32 stpos;
+
+		if (!floating) {
+			if (data->real_coordinates)
+				stpos = getRealCoordinateBasePos(v_stpos);
+			else
+				stpos = getElementBasePos(&v_stpos);
+		}
+
+		std::string name = parts[3];
+		std::string text = parts[4];
+
+		if (m_form_src)
+			text = m_form_src->resolveText(text);
+
+		FieldSpec spec(
+			name,
+			translate_string(utf8_to_wide(unescape_string(text))),
+			L"",
+			258 + m_fields.size()
+		);
+
+		m_fields.push_back(spec);
+		m_supertip_map[fieldname] = SuperTipSpec(name, text, rect, stpos, width, floating);
 	}
-
-	core::rect<s32> rect(pos, pos + geom);
-
-	if (m_form_src)
-		text = m_form_src->resolveText(text);
-
-	FieldSpec spec(
-		name,
-		translate_string(utf8_to_wide(unescape_string(text))),
-		L"",
-		258 + m_fields.size()
-	);
-
-	GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
-			data->current_parent, spec.fid, rect, m_client, m_tsrc);
-
-	auto style = getStyleForElement("supertip", spec.fname);
-	e->setStyles(style);
-
-	SuperTipSpec geospec(e->getAbsoluteClippingRect(), stpos, width, floating);
-
-	m_fields.push_back(spec);
-	m_supertips.emplace_back(e, geospec);
-
-	e->setVisible(false);
-	e->drop();
 }
 
 void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
@@ -3105,6 +3165,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	m_fields.clear();
 	m_tooltips.clear();
 	m_supertips.clear();
+	m_supertip_map.clear();
 	m_tooltip_rects.clear();
 	m_inventory_rings.clear();
 	m_dropdowns.clear();
@@ -3592,12 +3653,16 @@ void GUIFormSpecMenu::drawMenu()
 	/*
 		Draw supertip
 	*/
-	for (const auto &pair : m_supertips) {
-		const auto &hover_rect = pair.second.hover_rect;
+	for (auto &pair : m_supertips) {
+		auto &spec = pair.second;
+		const auto &hover_rect = spec.hover_rect;
+
 		if (hover_rect.getArea() > 0 && hover_rect.isPointInside(m_pointer))
-			showSuperTip(pair.first, pair.second);
-		else
+			showSuperTip(pair.first, spec);
+		else {
 			pair.first->setVisible(false);
+			spec.bound = false;
+		}
 	}
 
 	// Some elements are only visible while being drawn
@@ -3682,6 +3747,29 @@ void GUIFormSpecMenu::drawMenu()
 					if (!text.empty())
 						showTooltip(text, m_tooltips[field.fname].color,
 							m_tooltips[field.fname].bgcolor);
+
+					if (m_supertip_map.count(field.fname) != 0) {
+						auto &spec = m_supertip_map[field.fname];
+
+						if (!spec.bound) {
+							spec.bound = true;
+							auto *parent_element = getElementFromId(field.fid, true);
+							auto txt = translate_string(utf8_to_wide(unescape_string(spec.text)));
+
+							GUIHyperText *e = new GUIHyperText(
+									txt.c_str(), Environment,
+									parent_element->getParent(), field.fid,
+									spec.hover_rect, m_client, m_tsrc);
+
+							auto style = getStyleForElement("supertip", spec.name);
+							e->setStyles(style);
+
+							m_supertips.emplace_back(e, spec);
+
+							e->setVisible(false);
+							e->drop();
+						}
+					}
 				}
 
 				if (cursor_control &&
