@@ -153,10 +153,15 @@ class GUIFormSpecMenu : public GUIModalMenu
 	struct SuperTipSpec
 	{
 		SuperTipSpec() = default;
-		SuperTipSpec(const std::string &a_name, const std::string &a_text,
-				const core::rect<s32> &a_rect, v2s32 a_stpos, s32 a_width,
+		SuperTipSpec(const std::string &a_name,
+				const std::string &a_parent_name,
+				const std::string &a_text,
+				const core::rect<s32> &a_rect,
+				v2s32 a_stpos,
+				s32 a_width,
 				bool a_floating) :
 			name(a_name),
+			parent_name(a_parent_name),
 			text(a_text),
 			hover_rect(a_rect),
 			stpos(a_stpos),
@@ -166,6 +171,7 @@ class GUIFormSpecMenu : public GUIModalMenu
 		}
 
 		std::string name;
+		std::string parent_name;
 		std::string text;
 		core::rect<s32> hover_rect;
 		v2s32 stpos;
