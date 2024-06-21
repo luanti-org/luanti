@@ -1221,10 +1221,10 @@ void GUIHyperText::draw()
 		m_vscrollbar->setPos(0);
 		m_vscrollbar->setVisible(false);
 	}
-	if (m_drawer_ready)
+	if (m_drawer_ready) {
 		m_drawer.draw(AbsoluteClippingRect,
 				m_display_text_rect.UpperLeftCorner + m_text_scrollpos);
-	else
+	} else
 		m_drawer_ready = true;
 
 	// draw children
