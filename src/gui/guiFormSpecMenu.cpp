@@ -1848,30 +1848,31 @@ void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element
 
 		e->setVisible(false);
 		e->drop();
-	} else {
-		std::string fieldname = parts[0];
-		core::rect<s32> rect;
-
-		for (const auto &f : m_fields) {
-			if (f.fname == fieldname) {
-				auto *e = getElementFromId(f.fid, true);
-				rect = e->getAbsoluteClippingRect();
-				break;
-			}
-		}
-
-		s32 width = stof(parts[2]) * spacing.Y;
-		v2s32 stpos;
-
-		if (!floating) {
-			if (data->real_coordinates)
-				stpos = getRealCoordinateBasePos(v_stpos);
-			else
-				stpos = getElementBasePos(&v_stpos);
-		}
-
-		m_supertip_map[fieldname] = SuperTipSpec(name, fieldname, text, rect, stpos, width, floating);
+		return;
 	}
+
+	std::string fieldname = parts[0];
+	core::rect<s32> rect;
+
+	for (const auto &f : m_fields) {
+		if (f.fname == fieldname) {
+			auto *e = getElementFromId(f.fid, true);
+			rect = e->getAbsoluteClippingRect();
+			break;
+		}
+	}
+
+	s32 width = stof(parts[2]) * spacing.Y;
+	v2s32 stpos;
+
+	if (!floating) {
+		if (data->real_coordinates)
+			stpos = getRealCoordinateBasePos(v_stpos);
+		else
+			stpos = getElementBasePos(&v_stpos);
+	}
+
+	m_supertip_map[fieldname] = SuperTipSpec(name, fieldname, text, rect, stpos, width, floating);
 }
 
 void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
