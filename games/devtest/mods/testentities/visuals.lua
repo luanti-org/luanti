@@ -206,3 +206,89 @@ core.register_entity("testentities:nametag", {
 		return core.serialize({ color = self.color, bgcolor = self.bgcolor })
 	end,
 })
+
+-- Enriched nametag strings
+do
+
+local bold = core.get_font_escape_sequence("bold")
+local unbold = core.get_font_escape_sequence("unbold")
+local italic = core.get_font_escape_sequence("italic")
+local unitalic = core.get_font_escape_sequence("unitalic")
+local mono = core.get_font_escape_sequence("mono")
+local unmono = core.get_font_escape_sequence("unmono")
+local all_off = unbold..unitalic..unmono
+
+local nametags = {
+	"normal "..bold.."bold "..unbold..italic.."italic "..unitalic..mono.."mono",
+	bold..italic.."bold+italic"..unitalic..mono.." bold+mono"..unbold..italic.." mono+italic",
+	bold..italic..mono.."bold+mono+italic",
+	bold.."bold colored"..core.colorize("red", " red").." text",
+	"colored"..core.colorize("red", " red"..bold.." bold"..unbold).." text",
+	core.strip_font(bold.."striped"..italic.." font fomats"),
+	core.get_background_escape_sequence("green").."background is not supported",
+	"colored"..core.colorize("gray", " gray"..bold.." bold multi\nline").." text",
+	bold..unbold.."\nempty lines"..italic.." before and after\n"..unitalic,
+	"m"..mono.."m"..unmono.."m"..mono.."m"..unmono.."m"..mono.."m"..unmono.."m"..mono.."m",
+	"i"..italic.."i"..unitalic.."i"..italic.."i"..unitalic.."i"..italic.."i"..unitalic.."i"..
+		italic.."i",
+	"b"..bold.."b"..unbold.."b"..bold.."b"..unbold.."b"..bold.."b"..unbold.."b"..bold.."b",
+}
+
+-- Remove this if you want to look them separately
+local all_lines = "Enriched nametag text:"
+for _, nametag in ipairs(nametags) do
+	all_lines = all_lines.."\n"..all_off..nametag
+end
+nametags = {all_lines}
+
+local nametag_iterator = 0
+core.register_entity("testentities:nametag_enriched_text", {
+	initial_properties = {
+		visual = "sprite",
+		textures = { "testentities_sprite.png" },
+	},
+
+	on_activate = function(self, staticdata)
+		local color
+		local bgcolor
+		if (nametag_iterator/#nametags) % 2 < 1 then
+			color = {r = 0, g = 0, b = 255}
+			bgcolor = {r = 200, g = 200, b = 10,a = 150}
+		end
+
+		local nametag = nametags[(nametag_iterator % #nametags)+1]
+		nametag_iterator = nametag_iterator + 1
+
+		self.object:set_properties({
+			nametag = nametag,
+			nametag_color = color,
+			nametag_bgcolor = bgcolor,
+		})
+	end,
+
+})
+
+-- Who doesn't like ascii art
+core.register_entity("testentities:nametag_ascii_art", {
+	initial_properties = {
+		visual = "sprite",
+		textures = { "testentities_sprite.png" },
+	},
+	on_activate = function(self, staticdata)
+		local nametag = mono..
+			"         __.               __.                 __.  \n" ..
+			"  _____ |__| ____   _____ /  |_  _____  _____ /  |_ \n" ..
+			" /     \\|  |/    \\ /  __ \\    _\\/  __ \\/   __>    _\\\n" ..
+			"|  Y Y  \\  |   |  \\   ___/|  | |   ___/\\___  \\|  |  \n" ..
+			"|__|_|  /  |___|  /\\______>  |  \\______>_____/|  |  \n" ..
+			"      \\/ \\/     \\/         \\/                  \\/   "
+		self.object:set_properties({
+			nametag = nametag,
+			nametag_color = "green",
+			nametag_bgcolor = "black",
+		})
+	end,
+
+})
+
+end

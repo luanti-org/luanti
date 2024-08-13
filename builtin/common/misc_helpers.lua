@@ -653,6 +653,10 @@ function core.get_background_escape_sequence(color)
 	return ESCAPE_CHAR .. "(b@" .. color .. ")"
 end
 
+function core.get_font_escape_sequence(font)
+	return ESCAPE_CHAR .. "(f@" .. font .. ")"
+end
+
 function core.colorize(color, message)
 	local lines = tostring(message):split("\n", true)
 	local color_code = core.get_color_escape_sequence(color)
@@ -677,6 +681,9 @@ function core.strip_colors(str)
 	return (str:gsub(ESCAPE_CHAR .. "%([bc]@[^)]+%)", ""))
 end
 
+function core.strip_font(str)
+	return (str:gsub(ESCAPE_CHAR .. "%(f@[^)]+%)", ""))
+end
 
 local function translate(textdomain, str, num, ...)
 	local start_seq
