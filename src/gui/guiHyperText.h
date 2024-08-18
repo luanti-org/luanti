@@ -166,7 +166,7 @@ public:
 	void draw(const core::rect<s32> &clip_rect,
 			const core::position2d<s32> &dest_offset);
 	void drawBackgroundImage(video::IVideoDriver *driver, const ParsedText &m_text, const core::rect<s32> &clip_rect);
-	ParsedText &getText() { return m_text; }
+	void modifyText(const StyleSpec &style);
 	ParsedText::Element *getElementAt(core::position2d<s32> pos);
 	ParsedText::Tag *m_hovertag;
 
