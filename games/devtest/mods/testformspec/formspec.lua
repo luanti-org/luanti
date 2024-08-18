@@ -585,8 +585,8 @@ This should appear at the cursor when hovering the button.]
 <right>Right align</right>
 <b>Bold</b> <i>Italic</i> <u>Underline</u> <mono>Mono</mono>
 Item:
-<item name=testformspec:node>]])..[[]
-
+<item name=testformspec:node>]]).."]"..
+[[
 			box[1,9;1,1;#ff000080]
 			supertip[1,9;1,1;;5;supertip_stone;]]..minetest.formspec_escape([[<global color=#333 background=#aaa margin=20>
 <item name=testformspec:node float=left width=64 height=64>
@@ -594,8 +594,28 @@ Item:
 The <b>Formspec Test Node</b> is a dummy node to display an item in the <mono>testformspec</mono> mod.
 
 • <b>Max. stack size:</b> 99
-• <b>Drops:</b> <i>itself</i> <item name=testformspec:node width=32 height=32>]])..
-"]"
+• <b>Drops:</b> <i>itself</i> <item name=testformspec:node width=32 height=32>]]).."]"..
+[[
+			box[1,11;1,1;#ff000080]
+			style[supertip_bgimg;bgimg=testformspec_tooltip_style_bg.png;bgimg_middle=8]
+			supertip[1,11;1,1;;5;supertip_bgimg;This supertip is styled (bgimg)!]
+
+			box[2.5,11;1,1;#ff000080]
+			style[supertip_bgcolor;bgcolor=#444488]
+			supertip[2.5,11;1,1;;5;supertip_bgcolor;This supertip is styled (bgcolor)!]
+
+			box[4,11;1,1;#ff000080]
+			style[supertip_bgimgcolor;bgimg=testformspec_tooltip_style_bg.png;bgimg_middle=8;bgcolor=#444488]
+			supertip[4,11;1,1;;5;supertip_bgimgcolor;This supertip is styled (bgimg + bgcolor)!]
+
+			box[5.5,11;1,1;#ff000080]
+			style[supertip_noborder;border=false]
+			supertip[5.5,11;1,1;;5;supertip_noborder;This supertip is styled (no border)!]
+
+			box[7,11;1,1;#ff000080]
+			style[supertip_combined;bgimg=testformspec_tooltip_style_bg.png;bgimg_middle=8;bgcolor=#00000000;border=false]
+			supertip[7,11;1,1;;5;supertip_combined;This supertip is styled (bgimage, transparent bgcolor, no border)!]
+]]
 }
 
 local page_id = 2
