@@ -1035,6 +1035,20 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 	}
 }
 
+void TextDrawer::modifyText(const StyleSpec &style)
+{
+	m_text.background_middle = style.getRect(StyleSpec::BGIMG_MIDDLE, core::rect<s32>());
+	m_text.border = style.getBool(StyleSpec::BORDER, true);
+
+	if (m_text.background_type != m_text.BackgroundType::BACKGROUND_COLOR) {
+		m_text.background_type = m_text.BackgroundType::BACKGROUND_COLOR;
+		m_text.background_color = style.getColor(StyleSpec::BGCOLOR, video::SColor(255,110,130,60));
+	}
+
+	if (style.isNotDefault(StyleSpec::BGIMG))
+		m_text.background_image = style.getTexture(StyleSpec::BGIMG, m_tsrc);
+}
+
 // -----------------------------------------------------------------------------
 // GUIHyperText - The formated text area formspec item
 
@@ -1104,18 +1118,8 @@ void GUIHyperText::setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES> 
 	StyleSpec::State state = StyleSpec::STATE_DEFAULT;
 	StyleSpec style = StyleSpec::getStyleFromStatePropagation(styles, state);
 
-	ParsedText &text = m_drawer.getText();
-	text.background_middle = style.getRect(StyleSpec::BGIMG_MIDDLE, core::rect<s32>());
-	text.border = style.getBool(StyleSpec::BORDER, true);
 	setNotClipped(style.getBool(StyleSpec::NOCLIP, true));
-
-	if (text.background_type != text.BackgroundType::BACKGROUND_COLOR) {
-		text.background_type = text.BackgroundType::BACKGROUND_COLOR;
-		text.background_color = style.getColor(StyleSpec::BGCOLOR, video::SColor(255,110,130,60));
-	}
-
-	if (style.isNotDefault(StyleSpec::BGIMG))
-		text.background_image = style.getTexture(StyleSpec::BGIMG, m_tsrc);
+	m_drawer.modifyText(style);
 }
 
 bool GUIHyperText::OnEvent(const SEvent &event)
