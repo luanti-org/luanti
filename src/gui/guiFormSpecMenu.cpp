@@ -1814,7 +1814,10 @@ void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element
 		MY_CHECKPOS("supertip", 0);
 		MY_CHECKGEOM("supertip", 1);
 
-		s32 width = stof(parts[3]) * spacing.Y;
+		// Tooltip width is defined in em units of the default font
+		s32 em = g_fontengine->getFontSize(FM_Standard);
+		s32 width = stof(parts[3]) * em;
+
 		v2s32 pos;
 		v2s32 geom;
 		v2s32 stpos;
@@ -1862,7 +1865,10 @@ void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element
 		}
 	}
 
-	s32 width = stof(parts[2]) * spacing.Y;
+	// Tooltip width is defined in em units of the default font
+	s32 em = g_fontengine->getFontSize(FM_Standard);
+	s32 width = stof(parts[2]) * em;
+
 	v2s32 stpos;
 
 	if (!floating) {

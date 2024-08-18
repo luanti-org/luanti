@@ -3032,7 +3032,7 @@ Elements
 * `staticPos` is an optional position of the form `posX,posY` in formspec coordinates.
   If specified, the tooltip will always appear at these given formspec coordinates.
   If this field is empty, the tooltip will follow the cursor.
-* `width` sets the tooltip width (in formspec units).
+* `width` sets the tooltip width (in typographical 'em' units of the default font style).
 * `name` is the name of the field.
 * `text` is the formatted text using `Markup Language` described below.
 
