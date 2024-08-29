@@ -728,12 +728,18 @@ Example:
 
     default_cobble.png^[crack:10:1
 
-#### `[combine:<w>x<h>:<x1>,<y1>=<file1>:<x2>,<y2>=<file2>:...`
+#### `[combine:<w>x<h>:<x1>,<y1>,<w1>=<file1>:<x2>,<y2>,<w2>=<file2>:...`
 
 * `<w>`: width (integer [imagesize])
 * `<h>`: height (integer [imagesize])
-* `<x>`: x position (integer [s32])
-* `<y>`: y position (integer [s32])
+* `<xN>`: x position (integer [s32])
+* `<yN>`: y position (integer [s32])
+* `<wN>` (optional): Expected texture width (integer [s32])
+   * If the provided texture width is (e.g. 2 times) larger than `<wN>`, it will
+     result in an output texture that is also (2 times) larger.
+   * If the provided texture width is smaller, it will be upscaled proportionally
+     to match the width `<wN>`.
+   * Supported since version 5.17.0. Old clients will ignore this parameter.
 * `<file>`: texture to combine
 
 Creates a texture of size `<w>` times `<h>` and blits the listed source images
