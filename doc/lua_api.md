@@ -759,19 +759,21 @@ Examples:
 
 * Blits a 3x3 grid of crack textures, each at frame 0, on `example.png`
 
-#### `[combine:<w>x<h>:<parts>`
+#### `[combine:<w>x<h>:<x1>,<y1>,<w1>=<texture1>:<x2>,<y2>,<w2>=<texture2>:...`
 
-* `<w>`: width of resulting texture (integer [imagesize])
-* `<h>`: height of resulting texture (integer [imagesize])
-* `<parts>`: Colon-separated (`:`) list of locations `x`, `y` and textures to
-  blit; written in the form `<x>,<y>=<texture>` for each texture. Can be empty.
+* `<wN>`: width of resulting texture (integer [imagesize])
+* `<hN>`: height of resulting texture (integer [imagesize])
+* `<wN>` (optional): Expected texture width (integer [s32])
+   * If the provided texture width is (e.g. 2 times) larger than `<wN>`, it will
+     result in an output texture that is also (2 times) larger.
+   * If the provided texture width is smaller, it will be upscaled proportionally
+     to match the width `<wN>`.
+   * Supported since version 5.18.0. Old clients will ignore this parameter.
+* `<textureN>`: texture to combine. Can contain texture modifiers, but these must
+     be escaped according to the rules in [Escaping](#Escaping).
 
-`x` and `y` are integers [imageframe].
-A `<texture>` (in `<textures>`) can contain texture modifiers, but these must
-be escaped according to the rules in [Escaping](#Escaping).
-
-Creates a texture of size `<w>` times `<h>` and blits the listed files to their
-specified coordinates. The background is black and transparent (`#00000000`).
+Creates a texture of size `<w>` times `<h>` and blits the listed source images
+to their specified `<x>,<y>` coordinates of the target texture. The background is black and transparent (`#00000000`).
 
 Example:
 
