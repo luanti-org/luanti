@@ -8,6 +8,8 @@
 #include "Keycodes.h"
 #include "irrString.h"
 
+union SDL_Event;
+
 namespace irr
 {
 //! Enumeration for all event types there are.
@@ -81,6 +83,11 @@ enum EEVENT_TYPE
 
 	//! Application state events like a resume, pause etc.
 	EET_APPLICATION_EVENT,
+
+	//! Any other raw SDL event that doesn't fall into the above categories. In
+	// this case, only SEvent::SdlEvent contains valid information. Note that
+	// SEvent::SdlEvent is non-nullptr for most other event types as well.
+	EET_OTHER_SDL_EVENT,
 
 	//! This enum is never used, it only forces the compiler to
 	//! compile these enumeration values to 32 bit.
@@ -526,6 +533,7 @@ struct SEvent
 	};
 
 	EEVENT_TYPE EventType;
+	union SDL_Event *SdlEvent = nullptr;
 	union
 	{
 		struct SGUIEvent GUIEvent;

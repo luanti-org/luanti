@@ -13,9 +13,16 @@
 #include <string>
 #include <vector>
 
+union SDL_Event;
+
 namespace ui
 {
 	class Window;
+
+#define UI_CALLBACK(method)                          \
+	[](Elem &elem) {                                 \
+		static_cast<decltype(*this)>(elem).method(); \
+	}
 
 	class Elem
 	{
@@ -26,6 +33,9 @@ namespace ui
 			ELEM = 0x00,
 			ROOT = 0x01,
 		};
+
+		// The main box is always the zeroth item in the Box::NO_GROUP group.
+		static constexpr u32 MAIN_BOX = 0;
 
 	private:
 		// The window and ID are intrinsic to the element's identity, so they
@@ -40,6 +50,10 @@ namespace ui
 		std::vector<Elem *> m_children;
 
 		Box m_main_box;
+		u64 m_hovered_box = Box::NO_ID; // Persistent
+		u64 m_pressed_box = Box::NO_ID; // Persistent
+
+		u32 m_events;
 
 	public:
 		static std::unique_ptr<Elem> create(Type type, Window &window, std::string id);
@@ -48,7 +62,7 @@ namespace ui
 
 		DISABLE_CLASS_COPY(Elem)
 
-		virtual ~Elem() = default;
+		virtual ~Elem();
 
 		Window &getWindow() { return m_window; }
 		const Window &getWindow() const { return m_window; }
@@ -64,8 +78,24 @@ namespace ui
 
 		Box &getMain() { return m_main_box; }
 
+		u64 getHoveredBox() const { return m_hovered_box; }
+		u64 getPressedBox() const { return m_pressed_box; }
+
+		void setHoveredBox(u64 id) { m_hovered_box = id; }
+		void setPressedBox(u64 id) { m_pressed_box = id; }
+
 		virtual void reset();
 		virtual void read(std::istream &is);
+
+		bool isFocused() const;
+
+		virtual bool isBoxFocused (const Box &box) const { return isFocused(); }
+		virtual bool isBoxSelected(const Box &box) const { return false; }
+		virtual bool isBoxHovered (const Box &box) const { return box.getId() == m_hovered_box; }
+		virtual bool isBoxPressed (const Box &box) const { return box.getId() == m_pressed_box; }
+		virtual bool isBoxDisabled(const Box &box) const { return false; }
+
+		virtual bool processInput(const SDL_Event &event) { return false; }
 
 	protected:
 		void enableEvent(u32 event);

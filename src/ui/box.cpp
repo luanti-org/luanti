@@ -12,6 +12,8 @@
 #include "ui/window.h"
 #include "util/serialize.h"
 
+#include <SDL2/SDL.h>
+
 namespace ui
 {
 	Window &Box::getWindow()
@@ -60,6 +62,17 @@ namespace ui
 		// First, clear our current style and compute what state we're in.
 		m_style.reset();
 		State state = STATE_NONE;
+
+		if (m_elem.isBoxFocused(*this))
+			state |= STATE_FOCUSED;
+		if (m_elem.isBoxSelected(*this))
+			state |= STATE_SELECTED;
+		if (m_elem.isBoxHovered(*this))
+			state |= STATE_HOVERED;
+		if (m_elem.isBoxPressed(*this))
+			state |= STATE_PRESSED;
+		if (m_elem.isBoxDisabled(*this))
+			state |= STATE_DISABLED;
 
 		// Loop over each style state from lowest precedence to highest since
 		// they should be applied in that order.
@@ -132,6 +145,119 @@ namespace ui
 
 		for (Box *box : m_content) {
 			box->draw();
+		}
+	}
+
+	bool Box::isPointed() const
+	{
+		return m_clip_rect.contains(getWindow().getPointerPos());
+	}
+
+	bool Box::isContentPointed() const {
+		// If we're pointed, then we clearly have a pointed box.
+		if (isPointed()) {
+			return true;
+		}
+
+		// Search through our content. If any of them are contained within the
+		// same element as this box, they are candidates for being pointed.
+		for (Box *box : m_content) {
+			if (&box->getElem() == &m_elem && box->isContentPointed()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool Box::processInput(const SDL_Event &event)
+	{
+		switch (event.type) {
+		case UI_USER(FOCUS_REQUEST):
+			// The box is dynamic, so it can be focused.
+			return true;
+
+		case UI_USER(FOCUS_CHANGED):
+			// If the box is no longer focused, it can't be pressed.
+			if (event.user.data1 == &m_elem) {
+				setPressed(false);
+			}
+			return false;
+
+		case UI_USER(FOCUS_SUBVERTED):
+			// If some non-focused element used an event instead of this one,
+			// unpress the box because user interaction has been diverted.
+			setPressed(false);
+			return false;
+
+		case UI_USER(HOVER_REQUEST):
+			// The box can be hovered if the pointer is inside it.
+			return isPointed();
+
+		case UI_USER(HOVER_CHANGED):
+			// Make this box hovered if the element became hovered and the
+			// pointer is inside this box.
+			setHovered(event.user.data2 == &m_elem && isPointed());
+			return true;
+
+		default:
+			return false;
+		}
+	}
+
+	bool Box::processFullPress(const SDL_Event &event, void (*on_press)(Elem &))
+	{
+		switch (event.type) {
+		case SDL_KEYDOWN:
+			// If the space key is pressed not due to a key repeat, then the
+			// box becomes pressed. If the escape key is pressed while the box
+			// is pressed, that unpresses the box without triggering it.
+			if (event.key.keysym.sym == SDLK_SPACE && !event.key.repeat) {
+				setPressed(true);
+				return true;
+			} else if (event.key.keysym.sym == SDLK_ESCAPE && isPressed()) {
+				setPressed(false);
+				return true;
+			}
+			return false;
+
+		case SDL_KEYUP:
+			// Releasing the space key while the box is pressed causes it to be
+			// unpressed and triggered.
+			if (event.key.keysym.sym == SDLK_SPACE && isPressed()) {
+				setPressed(false);
+				on_press(m_elem);
+				return true;
+			}
+			return false;
+
+		case SDL_MOUSEBUTTONDOWN:
+			// If the box is hovered, then pressing the left mouse button
+			// causes it to be pressed. Otherwise, the mouse is directed at
+			// some other box.
+			if (isHovered() && event.button.button == SDL_BUTTON_LEFT) {
+				setPressed(true);
+				return true;
+			}
+			return false;
+
+		case SDL_MOUSEBUTTONUP:
+			// If the mouse button was released, the box becomes unpressed. If
+			// it was released while inside the bounds of the box, that counts
+			// as the box being triggered.
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				bool was_pressed = isPressed();
+				setPressed(false);
+
+				if (isHovered() && was_pressed) {
+					on_press(m_elem);
+					return true;
+				}
+			}
+			return false;
+
+		default:
+			return processInput(event);
 		}
 	}
 
@@ -508,5 +634,33 @@ namespace ui
 		getWindow().drawRect(m_icon_rect, m_clip_rect, m_style.icon.fill);
 		getWindow().drawTexture(m_icon_rect, m_clip_rect, m_style.icon.image,
 			getLayerSource(m_style.icon), m_style.icon.tint);
+	}
+
+	bool Box::isHovered() const
+	{
+		return m_elem.getHoveredBox() == getId();
+	}
+
+	bool Box::isPressed() const
+	{
+		return m_elem.getPressedBox() == getId();
+	}
+
+	void Box::setHovered(bool hovered)
+	{
+		if (hovered) {
+			m_elem.setHoveredBox(getId());
+		} else if (isHovered()) {
+			m_elem.setHoveredBox(NO_ID);
+		}
+	}
+
+	void Box::setPressed(bool pressed)
+	{
+		if (pressed) {
+			m_elem.setPressedBox(getId());
+		} else if (isPressed()) {
+			m_elem.setPressedBox(NO_ID);
+		}
 	}
 }

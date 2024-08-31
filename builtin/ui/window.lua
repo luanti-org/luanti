@@ -28,6 +28,13 @@ function ui.Window:_init(props)
 
 	self._root = ui._req(props.root, ui.Root)
 
+	self._focused = ui._opt(props.focused, "string")
+	self._allow_close = ui._opt(props.allow_close, "boolean", true)
+
+	self._on_close = ui._opt(props.on_close, "function")
+	self._on_submit = ui._opt(props.on_submit, "function")
+	self._on_focus_change = ui._opt(props.on_focus_change, "function")
+
 	self._context = nil -- Set by ui.Context
 
 	self._elems = self._root:_get_flat()
@@ -43,6 +50,11 @@ function ui.Window:_init(props)
 		elem._window = self
 	end
 
+	if self._focused and self._focused ~= "" then
+		assert(self._elems_by_id[self._focused],
+				"Invalid focused element: '" .. self._focused .. "'")
+	end
+
 	for _, item in ipairs(props) do
 		ui._req(item, ui.Style)
 	end
@@ -52,12 +64,22 @@ function ui.Window:_encode(player, opening)
 	local enc_styles = self:_encode_styles()
 	local enc_elems = self:_encode_elems()
 
+	local fl = ui._make_flags()
+
+	if ui._shift_flag(fl, self._focused) then
+		ui._encode_flag(fl, "z", self._focused)
+	end
+	ui._shift_flag(fl, opening and self._allow_close)
+
+	ui._shift_flag(fl, self._on_submit)
+	ui._shift_flag(fl, self._on_focus_change)
+
 	local data = ui._encode("ZzZ", enc_elems, self._root._id, enc_styles)
 	if opening then
 		data = ui._encode("ZB", data, ui._window_types[self._type])
 	end
 
-	return data
+	return ui._encode("ZZ", data, ui._encode_flags(fl))
 end
 
 function ui.Window:_encode_styles()
@@ -187,6 +209,77 @@ function ui.Window:_encode_elems()
 	end
 
 	return ui._encode_array("Z", enc_elems)
+end
+
+function ui.Window:_on_window_event(code, ev, data)
+	-- Get the handler function for this event if we recognize it.
+	local handler = self._handlers[code]
+	if not handler then
+		core.log("info", "Invalid window event: " .. code)
+		return
+	end
+
+	-- If the event handler returned a callback function for the user, call it
+	-- with the event table.
+	local callback = handler(self, ev, data)
+	if callback then
+		callback(ev)
+	end
+end
+
+function ui.Window:_on_elem_event(code, ev, data)
+	local type_id, target, rest = ui._decode("BzZ", data, -1)
+	ev.target = target
+
+	-- Get the element for this ID. If it doesn't exist or has a different
+	-- type, the window probably updated before receiving this event.
+	local elem = self._elems_by_id[target]
+	if not elem then
+		core.log("info", "Dropped event for non-existent element '" .. target .. "'")
+		return
+	elseif elem._type_id ~= type_id then
+		core.log("info", "Dropped event with type " .. type_id ..
+				" sent to element with type " .. elem._type_id)
+		return
+	end
+
+	-- Pass the event and data to the element for further processing.
+	elem:_on_event(code, ev, rest)
+end
+
+ui.Window._handlers = {}
+
+ui.Window._handlers[0x00] = function(self, ev, data)
+	-- We should never receive an event for an uncloseable window. If we
+	-- did, this player might be trying to cheat.
+	if not self._allow_close then
+		core.log("action", "Player '" .. self._context:get_player() ..
+				"' closed uncloseable window")
+		return nil
+	end
+
+	-- Since the window is now closed, remove the open window data.
+	self._context:_close_window()
+	return self._on_close
+end
+
+ui.Window._handlers[0x01] = function(self, ev, data)
+	return self._on_submit
+end
+
+ui.Window._handlers[0x02] = function(self, ev, data)
+	ev.unfocused, ev.focused = ui._decode("zz", data)
+
+	-- If the ID for either element doesn't exist, we probably updated the
+	-- window to remove the element. Assume nothing is focused then.
+	if not self._elems_by_id[ev.unfocused] then
+		ev.unfocused = ""
+	end
+	if not self._elems_by_id[ev.focused] then
+		ev.focused = ""
+	end
+
+	return self._on_focus_change
 end
 
 ui.Context = core.class()
@@ -328,3 +421,47 @@ core.register_on_leaveplayer(function(player)
 		end
 	end
 end)
+
+local WINDOW_EVENT = 0x00
+local ELEM_EVENT   = 0x01
+
+function core.receive_ui_message(player, data)
+	local action, id, code, rest = ui._decode("BLB Z", data, -1)
+
+	-- Discard events for any window that isn't currently open, since it's
+	-- probably due to network latency and events coming late.
+	local context = open_contexts[id]
+	if not context then
+		core.log("info", "Window " .. id .. " is not open")
+		return
+	end
+
+	-- If the player doesn't match up with what we expected, ignore the
+	-- (probably malicious) event.
+	if context:get_player() ~= player then
+		core.log("action", "Window " .. id .. " has player '" .. context:get_player() ..
+				"', but received event from player '" .. player .. "'")
+		return
+	end
+
+	-- No events should ever fire for non-GUI windows.
+	if context._window._type ~= "gui" then
+		core.log("info", "Non-GUI window received event: " .. code)
+		return
+	end
+
+	-- Prepare the basic event table shared by all events.
+	local ev = {
+		context = context,
+		player = context:get_player(),
+		state = context:get_state(),
+	}
+
+	if action == WINDOW_EVENT then
+		context._window:_on_window_event(code, ev, rest)
+	elseif action == ELEM_EVENT then
+		context._window:_on_elem_event(code, ev, rest)
+	else
+		core.log("info", "Invalid window action: " .. action)
+	end
+end
