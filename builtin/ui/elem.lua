@@ -10,6 +10,7 @@ function ui._new_type(base, type, type_id, id_required)
 	class._type = type
 	class._type_id = type_id
 	class._id_required = id_required
+	class._handlers = setmetatable({}, {__index = base and base._handlers})
 
 	ui._elem_types[type] = class
 
@@ -125,4 +126,20 @@ function ui.Elem:_encode_box(fl, box)
 	end
 
 	ui._encode_flag(fl, "s", ui._encode_flags(box_fl))
+end
+
+function ui.Elem:_on_event(code, ev, data)
+	-- Get the handler function for this event if we recognize it.
+	local handler = self._handlers[code]
+	if not handler then
+		core.log("info", "Invalid event for " .. self._type_id .. ": " .. code)
+		return
+	end
+
+	-- If the event handler returned a callback function for the user, call it
+	-- with the event table.
+	local callback = handler(self, ev, data)
+	if callback then
+		callback(ev)
+	end
 end
