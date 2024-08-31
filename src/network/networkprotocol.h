@@ -838,6 +838,11 @@ enum ToServerCommand : u16
 			u8[len] field value
 	*/
 
+	TOSERVER_UI_MESSAGE = 0x3d,
+	/*
+		Variable-length structure that changes depending on the message type.
+	*/
+
 	TOSERVER_REQUEST_MEDIA = 0x40,
 	/*
 		u16 number of files requested

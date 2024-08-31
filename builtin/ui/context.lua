@@ -141,3 +141,47 @@ core.register_on_leaveplayer(function(player)
 		end
 	end
 end)
+
+local WINDOW_EVENT = 0x00
+local ELEM_EVENT   = 0x01
+
+function core.receive_ui_message(player, data)
+	local action, id, code, rest = ui._decode("BLB Z", data, -1)
+
+	-- Discard events for any window that isn't currently open, since it's
+	-- probably due to network latency and events coming late.
+	local context = open_contexts[id]
+	if not context then
+		core.log("info", "Window " .. id .. " is not open")
+		return
+	end
+
+	-- If the player doesn't match up with what we expected, ignore the
+	-- (probably malicious) event.
+	if context:get_player() ~= player then
+		core.log("action", "Window " .. id .. " has player '" .. context:get_player() ..
+				"', but received event from player '" .. player .. "'")
+		return
+	end
+
+	-- No events should ever fire for non-GUI windows.
+	if context._window._type ~= "gui" then
+		core.log("info", "Non-GUI window received event: " .. code)
+		return
+	end
+
+	-- Prepare the basic event table shared by all events.
+	local ev = {
+		context = context,
+		player = context:get_player(),
+		state = context:get_state(),
+	}
+
+	if action == WINDOW_EVENT then
+		context._window:_on_window_event(code, ev, rest)
+	elseif action == ELEM_EVENT then
+		context._window:_on_elem_event(code, ev, rest)
+	else
+		core.log("info", "Invalid window action: " .. action)
+	end
+end

@@ -13,6 +13,8 @@
 // Include every element header for Elem::create()
 #include "ui/static_elems.h"
 
+#include <SDL2/SDL.h>
+
 namespace ui
 {
 	std::unique_ptr<Elem> Elem::create(Type type, Window &window, std::string id)
@@ -43,8 +45,14 @@ namespace ui
 	Elem::Elem(Window &window, std::string id) :
 		m_window(window),
 		m_id(std::move(id)),
-		m_main_box(*this)
+		m_main_box(*this, Box::NO_GROUP, MAIN_BOX)
 	{}
+
+	Elem::~Elem()
+	{
+		// Make sure we don't leave any dangling pointers in the window.
+		m_window.clearElem(this);
+	}
 
 	void Elem::reset()
 	{
@@ -54,6 +62,8 @@ namespace ui
 		m_children.clear();
 
 		m_main_box.reset();
+
+		m_events = 0;
 	}
 
 	void Elem::read(std::istream &is)
@@ -70,6 +80,34 @@ namespace ui
 			content.push_back(&elem->getMain());
 		}
 		m_main_box.setContent(std::move(content));
+	}
+
+	bool Elem::isFocused() const
+	{
+		return m_window.isFocused() && m_window.getFocused() == this;
+	}
+
+	void Elem::enableEvent(u32 event)
+	{
+		m_events |= (1 << event);
+	}
+
+	bool Elem::testEvent(u32 event) const
+	{
+		return m_events & (1 << event);
+	}
+
+	std::ostringstream Elem::createEvent(u32 event) const
+	{
+		auto os = newOs();
+
+		writeU8(os, Manager::ELEM_EVENT);
+		writeU64(os, m_window.getId());
+		writeU8(os, event);
+		writeU8(os, getType());
+		writeNullStr(os, m_id);
+
+		return os;
 	}
 
 	void Elem::readChildren(std::istream &is)

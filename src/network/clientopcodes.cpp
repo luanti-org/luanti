@@ -188,7 +188,7 @@ const ServerCommandFactory serverCommandFactoryTable[TOSERVER_NUM_MSG_TYPES] =
 	{ "TOSERVER_REMOVED_SOUNDS",     2, true }, // 0x3a
 	{ "TOSERVER_NODEMETA_FIELDS",    0, true }, // 0x3b
 	{ "TOSERVER_INVENTORY_FIELDS",   0, true }, // 0x3c
-	null_command_factory, // 0x3d
+	{ "TOSERVER_UI_MESSAGE",         0, true }, // 0x3d
 	null_command_factory, // 0x3e
 	null_command_factory, // 0x3f
 	{ "TOSERVER_REQUEST_MEDIA",      1, true }, // 0x40

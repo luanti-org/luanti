@@ -72,7 +72,7 @@ const ToServerCommandHandler toServerCommandTable[TOSERVER_NUM_MSG_TYPES] =
 	{ "TOSERVER_REMOVED_SOUNDS",           TOSERVER_STATE_INGAME, &Server::handleCommand_RemovedSounds }, // 0x3a
 	{ "TOSERVER_NODEMETA_FIELDS",          TOSERVER_STATE_INGAME, &Server::handleCommand_NodeMetaFields }, // 0x3b
 	{ "TOSERVER_INVENTORY_FIELDS",         TOSERVER_STATE_INGAME, &Server::handleCommand_InventoryFields }, // 0x3c
-	null_command_handler, // 0x3d
+	{ "TOSERVER_UI_MESSAGE",               TOSERVER_STATE_INGAME, &Server::handleCommand_UiMessage }, // 0x3d
 	null_command_handler, // 0x3e
 	null_command_handler, // 0x3f
 	{ "TOSERVER_REQUEST_MEDIA",            TOSERVER_STATE_STARTUP, &Server::handleCommand_RequestMedia }, // 0x40
