@@ -30,7 +30,6 @@ Some planning
 */
 
 class ServerEnvironment;
-void ServerEnvironment_updatePos(ServerEnvironment *senv, const v3f &pos, u16 id);
 struct ItemStack;
 struct ToolCapabilities;
 struct ObjectProperties;

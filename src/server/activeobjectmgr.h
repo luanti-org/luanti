@@ -26,7 +26,7 @@ public:
 
 	void invalidateActiveObjectObserverCaches();
 
-	void updatePos(const v3f &pos, u16 id);
+	void updatePos(u16 id, const v3f &pos);
 
 	void getObjectsInsideRadius(const v3f &pos, float radius,
 			std::vector<ServerActiveObject *> &result,

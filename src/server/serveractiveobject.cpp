@@ -6,6 +6,7 @@
 #include "inventory.h"
 #include "inventorymanager.h"
 #include "constants.h" // BS
+#include "serverenvironment.h"
 
 ServerActiveObject::ServerActiveObject(ServerEnvironment *env, v3f pos):
 	ActiveObject(0),
@@ -17,8 +18,8 @@ ServerActiveObject::ServerActiveObject(ServerEnvironment *env, v3f pos):
 void ServerActiveObject::setBasePosition(v3f pos) {
 	bool changed = m_base_position != pos;
 	m_base_position = pos;
-	if (changed && m_env) // HACK this doesn't feel right; *when* is m_env null?
-		ServerEnvironment_updatePos(m_env, pos, getId());
+	if (changed && getEnv()) // HACK *when* is getEnv() null?
+		getEnv()->updatePos(getId(), pos);
 }
 
 float ServerActiveObject::getMinimumSavedMovement()

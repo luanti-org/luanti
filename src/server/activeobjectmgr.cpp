@@ -117,8 +117,8 @@ void ActiveObjectMgr::invalidateActiveObjectObserverCaches()
 	}
 }
 
-void ActiveObjectMgr::updatePos(const v3f &pos, u16 id) {
-	// laziggy solution: only update if we already know the object
+void ActiveObjectMgr::updatePos(u16 id, const v3f &pos) {
+	// HACK only update if we already know the object
 	if (m_active_objects.get(id) != nullptr)
 		m_spatial_index.update(pos.toArray(), id);
 }
