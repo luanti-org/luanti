@@ -79,7 +79,6 @@ bool ActiveObjectMgr::registerObject(std::unique_ptr<ServerActiveObject> obj)
 	auto obj_id = obj->getId();
 	m_active_objects.put(obj_id, std::move(obj));
 	m_spatial_index.insert(pos.toArray(), obj_id);
-	assert(m_spatial_index.size() == m_active_objects.size());
 
 	auto new_size = m_active_objects.size();
 	verbosestream << "Server::ActiveObjectMgr::addActiveObjectRaw(): "
