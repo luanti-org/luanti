@@ -51,20 +51,15 @@ There are plenty variations that could be explored:
 * Shrinking the structure currently sorts the live points by all axes,
   not leveraging the existing presorting of the subsets.
   Cleverly done filtering followed by sorted merges should enable linear time.
+* A special ray proximity query could be implemented. This is tricky however.
 */
 
-using Idx = uint16_t; // TODO unify with Id
+using Idx = uint16_t;
 // Use a separate, larger type for sizes than for indices
 // to make sure there are no wraparounds when we approach the limit.
 // This hardly affects performance or memory usage;
 // the core arrays still only store indices.
 using Size = uint32_t;
-
-// TODO more doc comments
-
-// TODO profile and tweak knobs
-
-// TODO cleanup (split up in header and impl among other things)
 
 template<uint8_t Dim, typename Component>
 class Points {
@@ -313,8 +308,6 @@ public:
 		std::copy(b.deleted.begin(), b.deleted.end(), deleted.begin() + a.items.size());
 	}
 
-	// TODO ray proximity query
-
 	template<typename F>
 	void rangeQuery(const Point &min, const Point &max,
 			const F &cb) const {
@@ -386,9 +379,6 @@ private:
 	SortedPoints<Dim, Component> items;
 	std::unique_ptr<Id[]> ids;
 	std::unique_ptr<Idx[]> tree;
-	// vector because this has the template specialization we want
-	// and i'm too lazy to implement bitsets myself right now
-	// just to shave off 16 redundant bytes (len + cap)
 	std::vector<bool> deleted;
 };
 
