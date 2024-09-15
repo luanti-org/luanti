@@ -32,11 +32,8 @@ bool getGameConfig(const std::string &game_path, Settings &conf)
 std::string normalizeGameId(const std::string_view id)
 {
 	static const char *ends[] = {"_game", NULL};
-	auto shorter = static_cast<std::string>(removeStringEnd(id, ends));
-	if (!shorter.empty())
-		return shorter;
-	else
-		return static_cast<std::string>(id);
+	auto shorter = removeStringEnd(id, ends);
+	return std::string(shorter.empty() ? id : shorter);
 }
 
 std::unordered_set<std::string> getAliasesFromSettings(Settings &conf)
