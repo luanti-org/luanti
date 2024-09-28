@@ -165,7 +165,7 @@ public:
 	inline s32 getHeight() { return m_height; };
 	void draw(const core::rect<s32> &clip_rect,
 			const core::position2d<s32> &dest_offset);
-	void drawBackgroundImage(video::IVideoDriver *driver, const ParsedText &m_text, const core::rect<s32> &clip_rect);
+	void drawBackgroundImage(video::IVideoDriver *driver, const core::rect<s32> &clip_rect);
 	void modifyText(const StyleSpec &style);
 	ParsedText::Element *getElementAt(core::position2d<s32> pos);
 	ParsedText::Tag *m_hovertag;

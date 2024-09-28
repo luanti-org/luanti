@@ -929,7 +929,7 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 }
 
 void TextDrawer::drawBackgroundImage(
-		video::IVideoDriver *driver, const ParsedText &m_text, const core::rect<s32> &clip_rect)
+		video::IVideoDriver *driver, const core::rect<s32> &clip_rect)
 {
 	auto size = m_text.background_image->getOriginalSize();
 
@@ -969,7 +969,7 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 	}
 
 	if (m_text.background_image)
-		drawBackgroundImage(driver, m_text, clip_rect);
+		drawBackgroundImage(driver, clip_rect);
 
 	for (auto &p : m_text.m_paragraphs) {
 		for (auto &el : p.elements) {
