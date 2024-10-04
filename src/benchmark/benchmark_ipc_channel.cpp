@@ -17,11 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "benchmark_setup.h"
+#include "catch.h"
 #include "threading/ipc_channel.h"
 #include <thread>
-
-#include "log.h"
 
 TEST_CASE("benchmark_ipc_channel")
 {
@@ -80,10 +78,20 @@ TEST_CASE("benchmark_ipc_channel")
 		}
 	});
 
-	BENCHMARK("simple_call", i) {
+	BENCHMARK("simple_call_1", i) {
 		char buf[16] = {};
 		buf[i & 0xf] = i;
 		end_a.exchange(buf, 16);
+		return reinterpret_cast<const u8 *>(end_a.getRecvData())[i & 0xf];
+	};
+
+	BENCHMARK("simple_call_1000", i) {
+		char buf[16] = {};
+		buf[i & 0xf] = i;
+		for (int k = 0; k < 1000; ++k) {
+			buf[0] = k & 0xff;
+			end_a.exchange(buf, 16);
+		}
 		return reinterpret_cast<const u8 *>(end_a.getRecvData())[i & 0xf];
 	};
 

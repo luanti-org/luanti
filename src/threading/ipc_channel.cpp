@@ -24,10 +24,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "porting.h"
 #include <cerrno>
 #include <utility>
+#include <cstring>
 
 #if defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
 #include <linux/futex.h>
-#include <cstring>
 #include <sys/syscall.h>
 #include <sys/wait.h>
 #if defined(__i386__) || defined(__x86_64__)

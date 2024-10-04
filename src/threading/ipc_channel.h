@@ -26,6 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <atomic>
 
 #if defined(_WIN32)
 #define IPC_CHANNEL_IMPLEMENTATION_WIN32
@@ -37,8 +38,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 #include <windows.h>
-#elif defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
-#include <atomic>
 #elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
 #include <pthread.h>
 #endif
