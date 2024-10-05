@@ -188,8 +188,8 @@ public:
 	static IPCChannelEnd makeA(std::unique_ptr<IPCChannelResources> resources);
 	static IPCChannelEnd makeB(std::unique_ptr<IPCChannelResources> resources);
 
-	// If send, recv, or exchange return false (=timeout), stop using the channel. <--- TODO:why?
 	// Note: timeouts may be for receiving any response, not a whole message.
+	// If send, recv, or exchange return false (=timeout), stop using the channel.
 
 	// Returns false on timeout
 	[[nodiscard]]
