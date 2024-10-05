@@ -23,8 +23,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "irrlichttypes.h"
 #include "util/basic_macros.h"
 #include <memory>
-#include <string>
-#include <type_traits>
 #include <vector>
 #include <atomic>
 
@@ -85,6 +83,7 @@ struct IPCChannelBuffer
 	~IPCChannelBuffer(); // Note: only destruct once, i.e. in one process
 };
 
+// Data in shared memory
 struct IPCChannelShared
 {
 	// Both ends unmap, but last deleter also deletes shared resources.
@@ -94,6 +93,18 @@ struct IPCChannelShared
 	IPCChannelBuffer b{};
 };
 
+struct IPCChannelDirection
+{
+	IPCChannelBuffer *buf_in;
+	IPCChannelBuffer *buf_out;
+#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
+	HANDLE sem_in;
+	HANDLE sem_out;
+#endif
+};
+
+// Each end holds this. One is A, one is B.
+// Implementors of this struct decide how to allocate buffers (i.e. malloc or mmap).
 struct IPCChannelResources
 {
 	// new struct, because the win32 #if is annoying
@@ -115,7 +126,7 @@ struct IPCChannelResources
 		data = data_;
 	}
 
-	// Used for data_ that is already managed by a IPCChannelResources (grab()
+	// Used for data_ that is already managed by an IPCChannelResources (grab()
 	// semantics)
 	bool setSecond(Data data_)
 	{
@@ -159,6 +170,17 @@ struct IPCChannelResources
 class IPCChannelEnd
 {
 public:
+	// Direction. References into IPCChannelResources.
+	struct Dir
+	{
+		IPCChannelBuffer *buf_in = nullptr;
+		IPCChannelBuffer *buf_out = nullptr;
+#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
+		HANDLE sem_in;
+		HANDLE sem_out;
+#endif
+	};
+
 	IPCChannelEnd() = default;
 
 	static IPCChannelEnd makeA(std::unique_ptr<IPCChannelResources> resources);
@@ -217,23 +239,9 @@ public:
 	inline size_t getRecvSize() const noexcept { return m_recv_size; }
 
 private:
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-	IPCChannelEnd(
-			std::unique_ptr<IPCChannelResources> resources,
-			IPCChannelBuffer *in, IPCChannelBuffer *out,
-			HANDLE sem_in, HANDLE sem_out) :
-		m_resources(std::move(resources)),
-		m_in(in), m_out(out),
-		m_sem_in(sem_in), m_sem_out(sem_out)
+	IPCChannelEnd(std::unique_ptr<IPCChannelResources> resources, Dir dir) :
+		m_resources(std::move(resources)), m_dir(dir)
 	{}
-#else
-	IPCChannelEnd(
-			std::unique_ptr<IPCChannelResources> resources,
-			IPCChannelBuffer *in, IPCChannelBuffer *out) :
-		m_resources(std::move(resources)),
-		m_in(in), m_out(out)
-	{}
-#endif
 
 	// TODO: u8 *, or string_view?
 	void sendSmall(const void *data, size_t size) noexcept;
@@ -242,12 +250,7 @@ private:
 	bool sendLarge(const void *data, size_t size, int timeout_ms) noexcept;
 
 	std::unique_ptr<IPCChannelResources> m_resources;
-	IPCChannelBuffer *m_in = nullptr;
-	IPCChannelBuffer *m_out = nullptr;
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-	HANDLE m_sem_in;
-	HANDLE m_sem_out;
-#endif
+	Dir m_dir;
 	size_t m_recv_size = 0;
 	// we always copy from the shared buffer into this
 	// (this buffer only grows)
