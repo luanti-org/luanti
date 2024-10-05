@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "ipc_channel.h"
 #include "debug.h"
+#include "porting.h"
 #include <cerrno>
 #include <utility>
 #include <cstring>
@@ -193,17 +194,34 @@ static void post(IPCChannelBuffer *buf) noexcept
 
 #endif
 
+static bool wait_in(IPCChannelEnd::Dir *dir, int timeout_ms, u64 t0)
+{
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-static bool wait_in(IPCChannelEnd::Dir *dir, DWORD timeout)
-{
+	DWORD timeout = INFINITE;
+	if (timeout_ms >= 0) {
+		timeout = (DWORD)timeout_ms;
+		timeout_msu -= porting::getTimeMs() - t0; // Relative time
+	}
 	return wait(dir->sem_in, timeout);
-}
+
 #else
-static bool wait_in(IPCChannelEnd::Dir *dir, const struct timespec *timeout)
-{
-	return wait(dir->buf_in, timeout);
-}
+	struct timespec timeout;
+	struct timespec *timeoutp = nullptr;
+	if (timeout_ms >= 0) {
+		u64 timeout_msu = timeout_ms;
+#if defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
+		timeout_msu -= porting::getTimeMs() - t0; // Relative time
+#elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
+		timeout_msu += t0; // Absolute time
 #endif
+		timeout.tv_sec = timeout_msu / 1000;
+		timeout.tv_nsec = timeout_msu % 1000 * 1000000UL;
+		timeoutp = &timeout;
+	}
+
+	return wait(dir->buf_in, timeoutp);
+#endif
+}
 
 static void post_out(IPCChannelEnd::Dir *dir)
 {
@@ -213,26 +231,6 @@ static void post_out(IPCChannelEnd::Dir *dir)
 	post(dir->buf_out);
 #endif
 }
-
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-static DWORD get_timeout(int timeout_ms)
-{
-	return timeout_ms < 0 ? INFINITE : (DWORD)timeout_ms;
-}
-#elif defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX) || defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
-static struct timespec *set_timespec(struct timespec *ts, int ms)
-{
-	if (ms < 0)
-		return nullptr;
-	u64 msu = ms;
-#if defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
-	msu += porting::getTimeMs(); // Absolute time
-#endif
-	ts->tv_sec = msu / 1000;
-	ts->tv_nsec = msu % 1000 * 1000000UL;
-	return ts;
-}
-#endif
 
 template <typename T>
 static inline void write_once(volatile T *var, const T val)
@@ -280,17 +278,12 @@ void IPCChannelEnd::sendSmall(const void *data, size_t size) noexcept
 
 bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noexcept
 {
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-	DWORD timeout = get_timeout(timeout_ms);
-#else
-	struct timespec timeout_s;
-	struct timespec *timeout = set_timespec(&timeout_s, timeout_ms);
-#endif
+	u64 t0 = porting::getTimeMs();
 	write_once(&m_dir.buf_out->size, size);
 	do {
 		memcpy(m_dir.buf_out->data, data, IPC_CHANNEL_MSG_SIZE);
 		post_out(&m_dir);
-		if (!wait_in(&m_dir, timeout)) // TODO: always relative timeout, or always absolute
+		if (!wait_in(&m_dir, timeout_ms, t0))
 			return false;
 		size -= IPC_CHANNEL_MSG_SIZE;
 		data = (u8 *)data + IPC_CHANNEL_MSG_SIZE;
@@ -303,13 +296,8 @@ bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noe
 
 bool IPCChannelEnd::recvWithTimeout(int timeout_ms) noexcept
 {
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-	DWORD timeout = get_timeout(timeout_ms);
-#else
-	struct timespec timeout_s;
-	struct timespec *timeout = set_timespec(&timeout_s, timeout_ms);
-#endif
-	if (!wait_in(&m_dir, timeout))
+	u64 t0 = porting::getTimeMs();
+	if (!wait_in(&m_dir, timeout_ms, t0))
 		return false;
 	size_t size = read_once(&m_dir.buf_in->size);
 	m_recv_size = size;
@@ -336,7 +324,7 @@ bool IPCChannelEnd::recvWithTimeout(int timeout_ms) noexcept
 			size -= IPC_CHANNEL_MSG_SIZE;
 			recv_data += IPC_CHANNEL_MSG_SIZE;
 			post_out(&m_dir);
-			if (!wait_in(&m_dir, timeout))
+			if (!wait_in(&m_dir, timeout_ms, t0))
 				return false;
 		} while (size > IPC_CHANNEL_MSG_SIZE);
 		memcpy(recv_data, m_dir.buf_in->data, size);
