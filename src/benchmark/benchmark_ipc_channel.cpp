@@ -23,53 +23,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 TEST_CASE("benchmark_ipc_channel")
 {
-	// same as in test_threading.cpp (TODO: remove duplication)
-	struct IPCChannelResourcesSingleProcess final : public IPCChannelResources
-	{
-		void cleanupLast() noexcept override
-		{
-			delete data.shared;
-#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
-			CloseHandle(data.sem_b);
-			CloseHandle(data.sem_a);
-#endif
-		}
-
-		void cleanupNotLast() noexcept override
-		{
-			// nothing to do (i.e. no unmapping needed)
-		}
-
-		~IPCChannelResourcesSingleProcess() override { cleanup(); }
-	};
-
-	auto resource_data = [] {
-		auto shared = new IPCChannelShared();
-
-#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
-		HANDLE sem_a = CreateSemaphoreA(nullptr, 0, 1, nullptr);
-		REQUIRE(sem_a != INVALID_HANDLE_VALUE);
-
-		HANDLE sem_b = CreateSemaphoreA(nullptr, 0, 1, nullptr);
-		REQUIRE(sem_b != INVALID_HANDLE_VALUE);
-
-		return IPCChannelResources::Data{shared, sem_a, sem_b};
-#else
-		return IPCChannelResources::Data{shared};
-#endif
-	}();
-
-	auto resources_first = std::make_unique<IPCChannelResourcesSingleProcess>();
-	resources_first->setFirst(resource_data);
-
-	IPCChannelEnd end_a = IPCChannelEnd::makeA(std::move(resources_first));
-
-	// echos back messages. stops if "" is sent
-	std::thread thread_b([=] {
-		auto resources_second = std::make_unique<IPCChannelResourcesSingleProcess>();
-		resources_second->setSecond(resource_data);
-		IPCChannelEnd end_b = IPCChannelEnd::makeB(std::move(resources_second));
-
+	auto end_a_thread_b_p = make_test_ipc_channel([](IPCChannelEnd end_b) {
+		// echos back messages. stops if "" is sent
 		for (;;) {
 			end_b.recv();
 			end_b.send(end_b.getRecvData(), end_b.getRecvSize());
@@ -77,6 +32,9 @@ TEST_CASE("benchmark_ipc_channel")
 				break;
 		}
 	});
+	// Can't use structured bindings before C++20, because of lamda captures below.
+	auto end_a = std::move(end_a_thread_b_p.first);
+	auto thread_b = std::move(end_a_thread_b_p.second);
 
 	BENCHMARK("simple_call_1", i) {
 		char buf[16] = {};

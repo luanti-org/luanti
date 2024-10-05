@@ -236,52 +236,8 @@ void TestThreading::testTLS()
 
 void TestThreading::testIPCChannel()
 {
-	struct IPCChannelResourcesSingleProcess final : public IPCChannelResources
-	{
-		void cleanupLast() noexcept override
-		{
-			delete data.shared;
-#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
-			CloseHandle(data.sem_b);
-			CloseHandle(data.sem_a);
-#endif
-		}
-
-		void cleanupNotLast() noexcept override
-		{
-			// nothing to do (i.e. no unmapping needed)
-		}
-
-		~IPCChannelResourcesSingleProcess() override { cleanup(); }
-	};
-
-	auto resource_data = [] {
-		auto shared = new IPCChannelShared();
-
-#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
-		HANDLE sem_a = CreateSemaphoreA(nullptr, 0, 1, nullptr);
-		UASSERT(sem_a != INVALID_HANDLE_VALUE);
-
-		HANDLE sem_b = CreateSemaphoreA(nullptr, 0, 1, nullptr);
-		UASSERT(sem_b != INVALID_HANDLE_VALUE);
-
-		return IPCChannelResources::Data{shared, sem_a, sem_b};
-#else
-		return IPCChannelResources::Data{shared};
-#endif
-	}();
-
-	auto resources_first = std::make_unique<IPCChannelResourcesSingleProcess>();
-	resources_first->setFirst(resource_data);
-
-	IPCChannelEnd end_a = IPCChannelEnd::makeA(std::move(resources_first));
-
-	// echos back messages. stops if "" is sent
-	std::thread thread_b([=] {
-		auto resources_second = std::make_unique<IPCChannelResourcesSingleProcess>();
-		resources_second->setSecond(resource_data);
-		IPCChannelEnd end_b = IPCChannelEnd::makeB(std::move(resources_second));
-
+	auto [end_a, thread_b] = make_test_ipc_channel([](IPCChannelEnd end_b) {
+		// echos back messages. stops if "" is sent
 		for (;;) {
 			UASSERT(end_b.recvWithTimeout(-1));
 			UASSERT(end_b.sendWithTimeout(end_b.getRecvData(), end_b.getRecvSize(), -1));

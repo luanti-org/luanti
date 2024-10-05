@@ -353,3 +353,36 @@ bool IPCChannelEnd::recvWithTimeout(int timeout_ms) noexcept
 	}
 	return true;
 }
+
+std::pair<IPCChannelEnd, std::thread> make_test_ipc_channel(
+		const std::function<void(IPCChannelEnd)> &fun)
+{
+	auto resource_data = [] {
+		auto shared = new IPCChannelShared();
+
+#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
+		HANDLE sem_a = CreateSemaphoreA(nullptr, 0, 1, nullptr);
+		HANDLE sem_b = CreateSemaphoreA(nullptr, 0, 1, nullptr);
+		FATAL_ERROR_IF(!sem_a || !sem_b, "CreateSemaphoreA failed");
+
+		return IPCChannelResources::Data{shared, sem_a, sem_b};
+#else
+		return IPCChannelResources::Data{shared};
+#endif
+	}();
+
+	auto resources_first = std::make_unique<IPCChannelResourcesSingleProcess>();
+	resources_first->setFirst(resource_data);
+
+	IPCChannelEnd end_a = IPCChannelEnd::makeA(std::move(resources_first));
+
+	std::thread thread_b([=] {
+		auto resources_second = std::make_unique<IPCChannelResourcesSingleProcess>();
+		resources_second->setSecond(resource_data);
+		IPCChannelEnd end_b = IPCChannelEnd::makeB(std::move(resources_second));
+
+		fun(std::move(end_b));
+	});
+
+	return {std::move(end_a), std::move(thread_b)};
+}

@@ -25,6 +25,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <memory>
 #include <vector>
 #include <atomic>
+#include <thread>
+#include <functional>
 
 #if defined(_WIN32)
 #define IPC_CHANNEL_IMPLEMENTATION_WIN32
@@ -256,3 +258,29 @@ private:
 	// (this buffer only grows)
 	std::vector<u8> m_large_recv = std::vector<u8>(IPC_CHANNEL_MSG_SIZE);
 };
+
+// For testing purposes
+struct IPCChannelResourcesSingleProcess final : public IPCChannelResources
+{
+	void cleanupLast() noexcept override
+	{
+		delete data.shared;
+#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
+		CloseHandle(data.sem_b);
+		CloseHandle(data.sem_a);
+#endif
+	}
+
+	void cleanupNotLast() noexcept override
+	{
+		// nothing to do (i.e. no unmapping needed)
+	}
+
+	~IPCChannelResourcesSingleProcess() override { cleanup(); }
+};
+
+// For testing
+// Returns one end and a thread holding the other end. The thread will execute
+// fun, and pass it the other end.
+std::pair<IPCChannelEnd, std::thread> make_test_ipc_channel(
+		const std::function<void(IPCChannelEnd)> &fun);
