@@ -269,15 +269,13 @@ bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noe
 		memcpy(m_out->data, data, IPC_CHANNEL_MSG_SIZE);
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 		post(m_sem_out);
+		if (!wait(m_sem_in, timeout))
+			return false;
 #else
 		post(m_out);
-#endif
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-		if (!wait(m_sem_in, timeout))
-#else
 		if (!wait(m_in, timeoutp))
-#endif
 			return false;
+#endif
 		size -= IPC_CHANNEL_MSG_SIZE;
 		data = (u8 *)data + IPC_CHANNEL_MSG_SIZE;
 	} while (size > IPC_CHANNEL_MSG_SIZE);
@@ -295,22 +293,25 @@ bool IPCChannelEnd::recvWithTimeout(int timeout_ms) noexcept
 {
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 	DWORD timeout = get_timeout(timeout_ms);
+	if (!wait(m_sem_in, timeout))
+		return false;
 #else
 	struct timespec timeout;
 	struct timespec *timeoutp = set_timespec(&timeout, timeout_ms);
-#endif
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-	if (!wait(m_sem_in, timeout))
-#else
 	if (!wait(m_in, timeoutp))
-#endif
 		return false;
+#endif
 	size_t size = read_once(&m_in->size);
 	m_recv_size = size;
+	// Note about memcpy: If the other thread is evil, it might change the contents
+	// of the memory while it's memcopied. We're assuming here that memcpy doesn't
+	// cause vulnerabilities due to this.
 	if (size <= IPC_CHANNEL_MSG_SIZE) {
-		// m_large_recv.size() is always >= IPC_CHANNEL_MSG_SIZE
+		// small msg
+		// (m_large_recv.size() is always >= IPC_CHANNEL_MSG_SIZE)
 		memcpy(m_large_recv.data(), m_in->data, size);
 	} else {
+		// large msg
 		try {
 			m_large_recv.resize(size);
 		} catch (...) {
@@ -326,17 +327,15 @@ bool IPCChannelEnd::recvWithTimeout(int timeout_ms) noexcept
 			recv_data += IPC_CHANNEL_MSG_SIZE;
 #if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 			post(m_sem_out);
+			if (!wait(m_sem_in, timeout))
+				return false;
 #else
 			post(m_out);
-#endif
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-			if (!wait(m_sem_in, timeout))
-#else
 			if (!wait(m_in, timeoutp))
-#endif
 				return false;
+#endif
 		} while (size > IPC_CHANNEL_MSG_SIZE);
-		memcpy(recv_data, m_in->data, size); //TODO: memcpy volatile save?
+		memcpy(recv_data, m_in->data, size);
 	}
 	return true;
 }
