@@ -119,8 +119,13 @@ static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 	// try busy waiting
 	for (int i = 0; i < 100; i++) {
 		// posted?
-		if (buf->futex.exchange(0) == 1)
-			return true; // yes
+		if (buf->futex.load(std::memory_order_acquire) == 1) {
+			// yes
+			// reset it. (relaxed ordering is sufficient, because the other thread
+			// does not need to see the side effects we did before writing 0)
+			buf->futex.store(0, std::memory_order_relaxed);
+			return true;
+		}
 #if defined(__i386__) || defined(__x86_64__)
 		busy_wait(40);
 #else
@@ -130,9 +135,9 @@ static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 	// wait with futex
 	while (true) {
 		// write 2 to show that we're futexing
-		if (buf->futex.exchange(2) == 1) {
-			// futex was posted => change 2 to 0 (or 1 to 1)
-			buf->futex.fetch_and(1);
+		if (buf->futex.exchange(2, std::memory_order_acq_rel) == 1) {
+			// it was posted in the meantime
+			buf->futex.store(0, std::memory_order_relaxed);
 			return true;
 		}
 		int s = futex(&buf->futex, FUTEX_WAIT, 2, timeout, nullptr, 0);
@@ -164,7 +169,7 @@ static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 static void post(IPCChannelBuffer *buf) noexcept
 {
 #if defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
-	if (buf->futex.exchange(1) == 2) {
+	if (buf->futex.exchange(1, std::memory_order_acq_rel) == 2) {
 		// 2 means reader needs to be notified
 		int s = futex(&buf->futex, FUTEX_WAKE, 1, nullptr, nullptr, 0);
 		if (s == -1) {
