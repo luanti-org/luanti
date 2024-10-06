@@ -71,6 +71,7 @@ struct IPCChannelBuffer
 
 #elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
 	pthread_cond_t cond;
+	clockid_t cond_clockid;
 	pthread_mutex_t mutex;
 	bool posted = false; // protected by mutex
 #endif

@@ -126,7 +126,7 @@ static void post(IPCChannelBuffer *buf) noexcept
 
 #elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
 
-// timeout is absolute
+// timeout is absolute (using cond_clockid)
 // returns false on timeout
 static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 {
@@ -172,18 +172,25 @@ static bool wait_in(IPCChannelEnd::Dir *dir, u64 timeout_ms_abs)
 	struct timespec timeout;
 	struct timespec *timeoutp = nullptr;
 	if (timeout_ms_abs > 0) {
-#if defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
 		// Relative time
 		u64 tnow = porting::getTimeMs();
 		if (tnow > timeout_ms_abs)
 			return false;
-		u64 timeout_ms = timeout_ms_abs - tnow;
+		u64 timeout_ms_rel = timeout_ms_abs - tnow;
+#if defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
+		timeout.tv_sec = 0;
+		timeout.tv_nsec = 0;
 #elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
-		// Absolute time
-		u64 timeout_ms = timeout_ms_abs;
+		// Absolute time, relative to cond_clockid
+		FATAL_ERROR_IF(clock_gettime(dir->buf_in->cond_clockid, &timeout) < 0,
+				"clock_gettime failed");
+		if (timeout.tv_nsec >= 1000'000'000L) {
+			timeout.tv_nsec -= 1000'000'000L;
+			timeout.tv_sec += 1;
+		}
 #endif
-		timeout.tv_sec = timeout_ms / 1000;
-		timeout.tv_nsec = timeout_ms % 1000 * 1000000UL;
+		timeout.tv_sec += timeout_ms_rel / 1000;
+		timeout.tv_nsec += timeout_ms_rel % 1000 * 1000'000L;
 		timeoutp = &timeout;
 	}
 
@@ -225,6 +232,8 @@ IPCChannelBuffer::IPCChannelBuffer()
 		goto error_condattr_setpshared;
 	if (pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_SHARED) != 0)
 		goto error_mutexattr_setpshared;
+	if (pthread_condattr_getclock(&condattr, &cond_clockid) != 0)
+		goto error_condattr_getclock;
 	if (pthread_cond_init(&cond, &condattr) != 0)
 		goto error_cond_init;
 	if (pthread_mutex_init(&mutex, &mutexattr) != 0)
@@ -236,6 +245,7 @@ IPCChannelBuffer::IPCChannelBuffer()
 error_mutex_init:
 	pthread_cond_destroy(&cond);
 error_cond_init:
+error_condattr_getclock:
 error_mutexattr_setpshared:
 error_condattr_setpshared:
 	pthread_mutexattr_destroy(&mutexattr);
