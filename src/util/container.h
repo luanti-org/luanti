@@ -9,7 +9,6 @@
 #include "exceptions.h"
 #include "threading/mutex_auto_lock.h"
 #include "threading/semaphore.h"
-#include "debug.h"
 #include <list>
 #include <vector>
 #include <map>

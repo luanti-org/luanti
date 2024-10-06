@@ -1,7 +1,7 @@
 /*
 Minetest
-Copyright (C) 2022 DS
 Copyright (C) 2022 TurkeyMcMac, Jude Melton-Houghton <jwmhjwmh@gmail.com>
+Copyright (C) 2024 DS
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "ipc_channel.h"
 #include "debug.h"
+#include "exceptions.h"
 #include "porting.h"
 #include <cerrno>
 #include <utility>
@@ -179,7 +180,7 @@ static bool wait_in(IPCChannelEnd::Dir *dir, u64 timeout_ms_abs)
 		u64 timeout_ms = timeout_ms_abs - tnow;
 #elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
 		// Absolute time
-		u64 timeout_msu = timeout_ms_abs;
+		u64 timeout_ms = timeout_ms_abs;
 #endif
 		timeout.tv_sec = timeout_ms / 1000;
 		timeout.tv_nsec = timeout_ms % 1000 * 1000000UL;
@@ -200,13 +201,13 @@ static void post_out(IPCChannelEnd::Dir *dir)
 }
 
 template <typename T>
-static inline void write_once(volatile T *var, const T val)
+static void write_once(volatile T *var, const T val)
 {
 	*var = val;
 }
 
 template <typename T>
-static inline T read_once(const volatile T *var)
+static T read_once(const volatile T *var)
 {
 	return *var;
 }

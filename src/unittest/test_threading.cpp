@@ -6,9 +6,6 @@
 
 #include <atomic>
 #include <iostream>
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-#include <windows.h>
-#endif
 #include "threading/ipc_channel.h"
 #include "threading/semaphore.h"
 #include "threading/thread.h"

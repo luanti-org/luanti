@@ -1,7 +1,7 @@
 /*
 Minetest
-Copyright (C) 2022 DS
 Copyright (C) 2022 TurkeyMcMac, Jude Melton-Houghton <jwmhjwmh@gmail.com>
+Copyright (C) 2024 DS
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -237,8 +237,8 @@ public:
 
 	// Get the content of the last received message
 	// TODO: u8 *, or string_view?
-	inline const void *getRecvData() const noexcept { return m_large_recv.data(); }
-	inline size_t getRecvSize() const noexcept { return m_recv_size; }
+	const void *getRecvData() const noexcept { return m_large_recv.data(); }
+	size_t getRecvSize() const noexcept { return m_recv_size; }
 
 private:
 	IPCChannelEnd(std::unique_ptr<IPCChannelResources> resources, Dir dir) :
