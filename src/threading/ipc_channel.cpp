@@ -147,8 +147,8 @@ static void post(IPCChannelBuffer *buf) noexcept
 {
 	pthread_mutex_lock(&buf->mutex);
 	buf->posted = true;
-	pthread_cond_broadcast(&buf->cond);
 	pthread_mutex_unlock(&buf->mutex);
+	pthread_cond_broadcast(&buf->cond);
 }
 
 #endif
