@@ -236,7 +236,6 @@ public:
 	}
 
 	// Get the content of the last received message
-	// TODO: u8 *, or string_view?
 	const void *getRecvData() const noexcept { return m_large_recv.data(); }
 	size_t getRecvSize() const noexcept { return m_recv_size; }
 
@@ -245,7 +244,6 @@ private:
 		m_resources(std::move(resources)), m_dir(dir)
 	{}
 
-	// TODO: u8 *, or string_view?
 	void sendSmall(const void *data, size_t size) noexcept;
 
 	// returns false on timeout

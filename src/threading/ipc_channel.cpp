@@ -302,7 +302,7 @@ bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noe
 			return false;
 
 		size -= IPC_CHANNEL_MSG_SIZE;
-		data = (u8 *)data + IPC_CHANNEL_MSG_SIZE;
+		data = reinterpret_cast<const u8 *>(data) + IPC_CHANNEL_MSG_SIZE;
 	} while (size > IPC_CHANNEL_MSG_SIZE);
 
 	if (size != 0)

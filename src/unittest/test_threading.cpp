@@ -243,12 +243,12 @@ void TestThreading::testIPCChannel()
 		}
 	});
 
-	char buf[20000] = {};
+	u8 buf[20000] = {};
 	for (int i = sizeof(buf); i > 0; i -= 100) {
 		buf[i - 1] = 123;
 		UASSERT(end_a.exchangeWithTimeout(buf, i, -1));
 		UASSERTEQ(int, end_a.getRecvSize(), i);
-		UASSERTEQ(int, ((const char *)end_a.getRecvData())[i - 1], 123);
+		UASSERTEQ(int, reinterpret_cast<const u8 *>(end_a.getRecvData())[i - 1], 123);
 	}
 
 	// stop thread_b
