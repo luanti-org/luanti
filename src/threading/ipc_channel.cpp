@@ -278,38 +278,35 @@ IPCChannelEnd IPCChannelEnd::makeB(std::unique_ptr<IPCChannelResources> resource
 #endif // !defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
 }
 
-void IPCChannelEnd::sendSmall(std::string_view data) noexcept
+void IPCChannelEnd::sendSmall(const void *data, size_t size) noexcept
 {
-	write_once(&m_dir.buf_out->size, data.size());
+	write_once(&m_dir.buf_out->size, size);
 
-	if (data.size() != 0)
-		memcpy(m_dir.buf_out->data, data.data(), data.size());
+	if (size != 0)
+		memcpy(m_dir.buf_out->data, data, size);
 
 	post_out(&m_dir);
 }
 
-bool IPCChannelEnd::sendLarge(std::string_view data, int timeout_ms) noexcept
+bool IPCChannelEnd::sendLarge(const void *data, size_t size, int timeout_ms) noexcept
 {
 	u64 timeout_ms_abs = timeout_ms < 0 ? 0 : porting::getTimeMs() + timeout_ms;
 
-	write_once(&m_dir.buf_out->size, data.size());
+	write_once(&m_dir.buf_out->size, size);
 
-	size_t size = data.size();
-	const u8 *ptr = reinterpret_cast<const u8 *>(data.data());
-
-	while (size > IPC_CHANNEL_MSG_SIZE) {
-		memcpy(m_dir.buf_out->data, ptr, IPC_CHANNEL_MSG_SIZE);
+	do {
+		memcpy(m_dir.buf_out->data, data, IPC_CHANNEL_MSG_SIZE);
 		post_out(&m_dir);
 
 		if (!wait_in(&m_dir, timeout_ms_abs))
 			return false;
 
 		size -= IPC_CHANNEL_MSG_SIZE;
-		ptr = ptr + IPC_CHANNEL_MSG_SIZE;
-	}
+		data = (u8 *)data + IPC_CHANNEL_MSG_SIZE;
+	} while (size > IPC_CHANNEL_MSG_SIZE);
 
 	if (size != 0)
-		memcpy(m_dir.buf_out->data, ptr, size);
+		memcpy(m_dir.buf_out->data, data, size);
 	post_out(&m_dir);
 
 	return true;

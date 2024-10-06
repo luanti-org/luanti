@@ -27,7 +27,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <atomic>
 #include <thread>
 #include <functional>
-#include <string_view>
 
 #if defined(_WIN32)
 #define IPC_CHANNEL_IMPLEMENTATION_WIN32
@@ -194,20 +193,20 @@ public:
 
 	// Returns false on timeout
 	[[nodiscard]]
-	bool sendWithTimeout(std::string_view data, int timeout_ms) noexcept
+	bool sendWithTimeout(const void *data, size_t size, int timeout_ms) noexcept
 	{
-		if (data.size() <= IPC_CHANNEL_MSG_SIZE) {
-			sendSmall(data);
+		if (size <= IPC_CHANNEL_MSG_SIZE) {
+			sendSmall(data, size);
 			return true;
 		} else {
-			return sendLarge(data, timeout_ms);
+			return sendLarge(data, size, timeout_ms);
 		}
 	}
 
 	// Same as above
-	void send(std::string_view data) noexcept
+	void send(const void *data, size_t size) noexcept
 	{
-		(void)sendWithTimeout(data, -1);
+		(void)sendWithTimeout(data, size, -1);
 	}
 
 	// Returns false on timeout.
@@ -224,31 +223,33 @@ public:
 	// Returns false on timeout
 	// Otherwise returns true, and data is available via getRecvData().
 	[[nodiscard]]
-	bool exchangeWithTimeout(std::string_view data, int timeout_ms) noexcept
+	bool exchangeWithTimeout(const void *data, size_t size, int timeout_ms) noexcept
 	{
-		return sendWithTimeout(data, timeout_ms)
+		return sendWithTimeout(data, size, timeout_ms)
 				&& recvWithTimeout(timeout_ms);
 	}
 
 	// Same as above
-	void exchange(std::string_view data) noexcept
+	void exchange(const void *data, size_t size) noexcept
 	{
-		(void)exchangeWithTimeout(data, -1);
+		(void)exchangeWithTimeout(data, size, -1);
 	}
 
 	// Get the content of the last received message
-	std::string_view getRecvData() const noexcept
-	{ return {reinterpret_cast<const char *>(m_large_recv.data()), m_recv_size}; }
+	// TODO: u8 *, or string_view?
+	const void *getRecvData() const noexcept { return m_large_recv.data(); }
+	size_t getRecvSize() const noexcept { return m_recv_size; }
 
 private:
 	IPCChannelEnd(std::unique_ptr<IPCChannelResources> resources, Dir dir) :
 		m_resources(std::move(resources)), m_dir(dir)
 	{}
 
-	void sendSmall(std::string_view data) noexcept;
+	// TODO: u8 *, or string_view?
+	void sendSmall(const void *data, size_t size) noexcept;
 
 	// returns false on timeout
-	bool sendLarge(std::string_view data, int timeout_ms) noexcept;
+	bool sendLarge(const void *data, size_t size, int timeout_ms) noexcept;
 
 	std::unique_ptr<IPCChannelResources> m_resources;
 	Dir m_dir;

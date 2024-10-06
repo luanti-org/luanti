@@ -237,8 +237,8 @@ void TestThreading::testIPCChannel()
 		// echos back messages. stops if "" is sent
 		for (;;) {
 			UASSERT(end_b.recvWithTimeout(-1));
-			UASSERT(end_b.sendWithTimeout(end_b.getRecvData(), -1));
-			if (end_b.getRecvData().size() == 0)
+			UASSERT(end_b.sendWithTimeout(end_b.getRecvData(), end_b.getRecvSize(), -1));
+			if (end_b.getRecvSize() == 0)
 				break;
 		}
 	});
@@ -246,17 +246,17 @@ void TestThreading::testIPCChannel()
 	char buf[20000] = {};
 	for (int i = sizeof(buf); i > 0; i -= 100) {
 		buf[i - 1] = 123;
-		UASSERT(end_a.exchangeWithTimeout({buf, (size_t)i}, -1));
-		UASSERTEQ(int, end_a.getRecvData().size(), i);
-		UASSERTEQ(int, end_a.getRecvData().data()[i - 1], 123);
+		UASSERT(end_a.exchangeWithTimeout(buf, i, -1));
+		UASSERTEQ(int, end_a.getRecvSize(), i);
+		UASSERTEQ(int, ((const char *)end_a.getRecvData())[i - 1], 123);
 	}
 
 	// stop thread_b
-	UASSERT(end_a.exchangeWithTimeout({buf, 0}, -1));
-	UASSERTEQ(int, end_a.getRecvData().size(), 0);
+	UASSERT(end_a.exchangeWithTimeout(buf, 0, -1));
+	UASSERTEQ(int, end_a.getRecvSize(), 0);
 
 	thread_b.join();
 
 	// other side dead ==> should time out
-	UASSERT(!end_a.exchangeWithTimeout({buf, 0}, 200));
+	UASSERT(!end_a.exchangeWithTimeout(buf, 0, 200));
 }

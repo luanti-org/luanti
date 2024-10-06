@@ -27,8 +27,8 @@ TEST_CASE("benchmark_ipc_channel")
 		// echos back messages. stops if "" is sent
 		for (;;) {
 			end_b.recv();
-			end_b.send(end_b.getRecvData());
-			if (end_b.getRecvData().size() == 0)
+			end_b.send(end_b.getRecvData(), end_b.getRecvSize());
+			if (end_b.getRecvSize() == 0)
 				break;
 		}
 	});
@@ -39,8 +39,8 @@ TEST_CASE("benchmark_ipc_channel")
 	BENCHMARK("simple_call_1", i) {
 		char buf[16] = {};
 		buf[i & 0xf] = i;
-		end_a.exchange({buf, 16});
-		return end_a.getRecvData()[i & 0xf];
+		end_a.exchange(buf, 16);
+		return reinterpret_cast<const u8 *>(end_a.getRecvData())[i & 0xf];
 	};
 
 	BENCHMARK("simple_call_1000", i) {
@@ -48,14 +48,14 @@ TEST_CASE("benchmark_ipc_channel")
 		buf[i & 0xf] = i;
 		for (int k = 0; k < 1000; ++k) {
 			buf[0] = k & 0xff;
-			end_a.exchange({buf, 16});
+			end_a.exchange(buf, 16);
 		}
-		return end_a.getRecvData()[i & 0xf];
+		return reinterpret_cast<const u8 *>(end_a.getRecvData())[i & 0xf];
 	};
 
 	// stop thread_b
-	end_a.exchange({nullptr, 0});
-	REQUIRE(end_a.getRecvData().size() == 0);
+	end_a.exchange(nullptr, 0);
+	REQUIRE(end_a.getRecvSize() == 0);
 
 	thread_b.join();
 }
