@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #if defined(_WIN32)
 #define IPC_CHANNEL_IMPLEMENTATION_WIN32
-#elif defined(__linux__)
+#elif defined(__linux__) && 0
 #define IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX
 #else
 #define IPC_CHANNEL_IMPLEMENTATION_POSIX
@@ -71,7 +71,6 @@ struct IPCChannelBuffer
 
 #elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
 	pthread_cond_t cond;
-	clockid_t cond_clockid;
 	pthread_mutex_t mutex;
 	bool posted = false; // protected by mutex
 #endif
