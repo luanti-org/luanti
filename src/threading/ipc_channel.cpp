@@ -80,7 +80,7 @@ static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 		if (buf->futex.load(std::memory_order_acquire) == 1) {
 			// yes
 			// reset it. (relaxed ordering is sufficient, because the other thread
-			// does not need to see the side effects we did before writing 0)
+			// does not need to see the side effects we did before unposting)
 			buf->futex.store(0, std::memory_order_relaxed);
 			return true;
 		}
@@ -93,7 +93,7 @@ static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 	// wait with futex
 	while (true) {
 		// write 2 to show that we're futexing
-		if (buf->futex.exchange(2, std::memory_order_acq_rel) == 1) {
+		if (buf->futex.exchange(2, std::memory_order_acquire) == 1) {
 			// it was posted in the meantime
 			buf->futex.store(0, std::memory_order_relaxed);
 			return true;
@@ -113,7 +113,7 @@ static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 
 static void post(IPCChannelBuffer *buf) noexcept
 {
-	if (buf->futex.exchange(1, std::memory_order_acq_rel) == 2) {
+	if (buf->futex.exchange(1, std::memory_order_release) == 2) {
 		// 2 means reader needs to be notified
 		int s = futex(&buf->futex, FUTEX_WAKE, 1, nullptr, nullptr, 0);
 		if (s == -1) {
@@ -130,17 +130,18 @@ static void post(IPCChannelBuffer *buf) noexcept
 // returns false on timeout
 static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 {
-	bool timed_out = false;
 	pthread_mutex_lock(&buf->mutex);
-	if (!buf->posted) {
-		if (timeout)
-			timed_out = pthread_cond_timedwait(&buf->cond, &buf->mutex, timeout) == ETIMEDOUT;
-		else
+	while (!buf->posted) {
+		if (timeout) {
+			if (pthread_cond_timedwait(&buf->cond, &buf->mutex, timeout) == ETIMEDOUT)
+				return false;
+		} else {
 			pthread_cond_wait(&buf->cond, &buf->mutex);
+		}
 	}
 	buf->posted = false;
 	pthread_mutex_unlock(&buf->mutex);
-	return !timed_out;
+	return true;
 }
 
 static void post(IPCChannelBuffer *buf) noexcept
@@ -172,18 +173,19 @@ static bool wait_in(IPCChannelEnd::Dir *dir, u64 timeout_ms_abs)
 	struct timespec timeout;
 	struct timespec *timeoutp = nullptr;
 	if (timeout_ms_abs > 0) {
-		// Relative time
 		u64 tnow = porting::getTimeMs();
 		if (tnow > timeout_ms_abs)
 			return false;
 		u64 timeout_ms_rel = timeout_ms_abs - tnow;
 #if defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
+		// Relative time
 		timeout.tv_sec = 0;
 		timeout.tv_nsec = 0;
 #elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
 		// Absolute time, relative to cond_clockid
 		FATAL_ERROR_IF(clock_gettime(dir->buf_in->cond_clockid, &timeout) < 0,
 				"clock_gettime failed");
+		// prevent overflow
 		if (timeout.tv_nsec >= 1000'000'000L) {
 			timeout.tv_nsec -= 1000'000'000L;
 			timeout.tv_sec += 1;
@@ -339,7 +341,8 @@ bool IPCChannelEnd::recvWithTimeout(int timeout_ms) noexcept
 	if (size <= IPC_CHANNEL_MSG_SIZE) {
 		// small msg
 		// (m_large_recv.size() is always >= IPC_CHANNEL_MSG_SIZE)
-		memcpy(m_large_recv.data(), m_dir.buf_in->data, size);
+		if (size != 0)
+			memcpy(m_large_recv.data(), m_dir.buf_in->data, size);
 
 	} else {
 		// large msg
@@ -360,7 +363,8 @@ bool IPCChannelEnd::recvWithTimeout(int timeout_ms) noexcept
 			if (!wait_in(&m_dir, timeout_ms_abs))
 				return false;
 		} while (size > IPC_CHANNEL_MSG_SIZE);
-		memcpy(recv_data, m_dir.buf_in->data, size);
+		if (size != 0)
+			memcpy(recv_data, m_dir.buf_in->data, size);
 	}
 	return true;
 }
@@ -382,18 +386,15 @@ std::pair<IPCChannelEnd, std::thread> make_test_ipc_channel(
 #endif
 	}();
 
-	auto resources_first = std::make_unique<IPCChannelResourcesSingleProcess>();
-	resources_first->setFirst(resource_data);
-
-	IPCChannelEnd end_a = IPCChannelEnd::makeA(std::move(resources_first));
-
 	std::thread thread_b([=] {
-		auto resources_second = std::make_unique<IPCChannelResourcesSingleProcess>();
-		resources_second->setSecond(resource_data);
+		auto resources_second = IPCChannelResourcesSingleProcess::makeSecond(resource_data);
 		IPCChannelEnd end_b = IPCChannelEnd::makeB(std::move(resources_second));
 
 		fun(std::move(end_b));
 	});
+
+	auto resources_first = IPCChannelResourcesSingleProcess::makeFirst(resource_data);
+	IPCChannelEnd end_a = IPCChannelEnd::makeA(std::move(resources_first));
 
 	return {std::move(end_a), std::move(thread_b)};
 }

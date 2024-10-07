@@ -235,7 +235,7 @@ void TestThreading::testIPCChannel()
 {
 	auto [end_a, thread_b] = make_test_ipc_channel([](IPCChannelEnd end_b) {
 		// echos back messages. stops if "" is sent
-		for (;;) {
+		while (true) {
 			UASSERT(end_b.recvWithTimeout(-1));
 			UASSERT(end_b.sendWithTimeout(end_b.getRecvData(), end_b.getRecvSize(), -1));
 			if (end_b.getRecvSize() == 0)
@@ -243,20 +243,29 @@ void TestThreading::testIPCChannel()
 		}
 	});
 
-	u8 buf[20000] = {};
-	for (int i = sizeof(buf); i > 0; i -= 100) {
-		buf[i - 1] = 123;
-		UASSERT(end_a.exchangeWithTimeout(buf, i, -1));
+	u8 buf1[20000] = {};
+	for (int i = sizeof(buf1); i > 0; i -= 100) {
+		buf1[i - 1] = 123;
+		UASSERT(end_a.exchangeWithTimeout(buf1, i, -1));
 		UASSERTEQ(int, end_a.getRecvSize(), i);
 		UASSERTEQ(int, reinterpret_cast<const u8 *>(end_a.getRecvData())[i - 1], 123);
 	}
 
+	u8 buf2[IPC_CHANNEL_MSG_SIZE * 3 + 10];
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE * 3 + 10);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE * 3);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE * 2);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE - 1);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE + 1);
+	end_a.exchange(buf2, 1);
+
 	// stop thread_b
-	UASSERT(end_a.exchangeWithTimeout(buf, 0, -1));
+	UASSERT(end_a.exchangeWithTimeout(nullptr, 0, -1));
 	UASSERTEQ(int, end_a.getRecvSize(), 0);
 
 	thread_b.join();
 
 	// other side dead ==> should time out
-	UASSERT(!end_a.exchangeWithTimeout(buf, 0, 200));
+	UASSERT(!end_a.exchangeWithTimeout(nullptr, 0, 200));
 }

@@ -56,7 +56,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	* other posix: uses posix mutex and condition variable
 */
 
-#define IPC_CHANNEL_MSG_SIZE 0x2000U
+constexpr size_t IPC_CHANNEL_MSG_SIZE = 0x2000;
 
 struct IPCChannelBuffer
 {
@@ -83,6 +83,7 @@ struct IPCChannelBuffer
 	u8 data[IPC_CHANNEL_MSG_SIZE] = {};
 
 	IPCChannelBuffer();
+	DISABLE_CLASS_COPY(IPCChannelBuffer)
 	~IPCChannelBuffer(); // Note: only destruct once, i.e. in one process
 };
 
@@ -96,18 +97,8 @@ struct IPCChannelShared
 	IPCChannelBuffer b{};
 };
 
-struct IPCChannelDirection
-{
-	IPCChannelBuffer *buf_in;
-	IPCChannelBuffer *buf_out;
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-	HANDLE sem_in;
-	HANDLE sem_out;
-#endif
-};
-
-// Each end holds this. One is A, one is B.
-// Implementors of this struct decide how to allocate buffers (i.e. malloc or mmap).
+// Interface for managing the shared resources.
+// Implementors decide whether to use malloc or mmap.
 struct IPCChannelResources
 {
 	// new struct, because the win32 #if is annoying
@@ -123,6 +114,15 @@ struct IPCChannelResources
 
 	Data data;
 
+	IPCChannelResources() = default;
+	DISABLE_CLASS_COPY(IPCChannelResources)
+
+	// Child should call cleanup().
+	// (Parent destructor can not do this, because when it's called the child is
+	// already dead.)
+	virtual ~IPCChannelResources() = default;
+
+protected:
 	// Used for previously unmanaged data_ (move semantics)
 	void setFirst(Data data_)
 	{
@@ -160,14 +160,6 @@ struct IPCChannelResources
 			cleanupNotLast();
 		}
 	}
-
-	IPCChannelResources() = default;
-	DISABLE_CLASS_COPY(IPCChannelResources)
-
-	// Child should call cleanup().
-	// (Parent destructor can not do this, because when it's called the child is
-	// already dead.)
-	virtual ~IPCChannelResources() = default;
 };
 
 class IPCChannelEnd
@@ -184,13 +176,15 @@ public:
 #endif
 	};
 
+	// Unusable empty end
 	IPCChannelEnd() = default;
 
+	// Construct end A or end B from resources
 	static IPCChannelEnd makeA(std::unique_ptr<IPCChannelResources> resources);
 	static IPCChannelEnd makeB(std::unique_ptr<IPCChannelResources> resources);
 
-	// Note: timeouts may be for receiving any response, not a whole message.
-	// If send, recv, or exchange return false (=timeout), stop using the channel.
+	// Note: Timeouts may be for receiving any response, not a whole message.
+	// Therefore, if a timeout occurs, stop using the channel.
 
 	// Returns false on timeout
 	[[nodiscard]]
@@ -276,6 +270,20 @@ struct IPCChannelResourcesSingleProcess final : public IPCChannelResources
 	}
 
 	~IPCChannelResourcesSingleProcess() override { cleanup(); }
+
+	static std::unique_ptr<IPCChannelResourcesSingleProcess> makeFirst(Data data)
+	{
+		auto ret = std::make_unique<IPCChannelResourcesSingleProcess>();
+		ret->setFirst(data);
+		return ret;
+	}
+
+	static std::unique_ptr<IPCChannelResourcesSingleProcess> makeSecond(Data data)
+	{
+		auto ret = std::make_unique<IPCChannelResourcesSingleProcess>();
+		ret->setSecond(data);
+		return ret;
+	}
 };
 
 // For testing

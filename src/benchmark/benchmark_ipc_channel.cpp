@@ -25,7 +25,7 @@ TEST_CASE("benchmark_ipc_channel")
 {
 	auto end_a_thread_b_p = make_test_ipc_channel([](IPCChannelEnd end_b) {
 		// echos back messages. stops if "" is sent
-		for (;;) {
+		while (true) {
 			end_b.recv();
 			end_b.send(end_b.getRecvData(), end_b.getRecvSize());
 			if (end_b.getRecvSize() == 0)
