@@ -128,10 +128,8 @@ static void post(IPCChannelBuffer *buf) noexcept
 
 // timeout is absolute (using cond_clockid)
 // returns false on timeout
-static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout, const char *timestr = nullptr) noexcept
+static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout) noexcept
 {
-	if (timestr)
-		errorstream << timestr << std::endl;
 	bool timed_out = false;
 	pthread_mutex_lock(&buf->mutex);
 	while (!buf->posted) {
@@ -140,16 +138,8 @@ static bool wait(IPCChannelBuffer *buf, const struct timespec *timeout, const ch
 			if (err == ETIMEDOUT) {
 				timed_out = true;
 				break;
-			} else if (err == EINTR || err == EOWNERDEAD || err == ENOTRECOVERABLE || err == EPERM || err == EINVAL) {
-				continue;
-			} else if (err != 0) {
-				pthread_mutex_unlock(&buf->mutex);
-				auto msg = "err: " + std::to_string(err);
-				FATAL_ERROR(msg.c_str());
-				bool ret = wait(buf, timeout, msg.c_str());
-				errorstream << msg << std::endl;
-				return ret;
 			}
+			FATAL_ERROR_IF(err != 0 && err != EINTR, "pthread_cond_timedwait failed");
 		} else {
 			pthread_cond_wait(&buf->cond, &buf->mutex);
 		}
@@ -187,8 +177,6 @@ static bool wait_in(IPCChannelEnd::Dir *dir, u64 timeout_ms_abs)
 #else
 	struct timespec timeout;
 	struct timespec *timeoutp = nullptr;
-	char timestr[201];
-	timestr[0] = '\0';
 	if (timeout_ms_abs > 0) {
 		u64 tnow = porting::getTimeMs();
 		if (tnow > timeout_ms_abs)
@@ -211,14 +199,9 @@ static bool wait_in(IPCChannelEnd::Dir *dir, u64 timeout_ms_abs)
 			timeout.tv_sec += 1;
 		}
 		timeoutp = &timeout;
-
-		time_t timeout_tt = timeout.tv_sec + timeout.tv_nsec / 1000'000'000L;
-		tm timeout_tm;
-		localtime_r(&timeout_tt, &timeout_tm);
-		strftime(timestr, 200, "%F %T ", &timeout_tm);
 	}
 
-	return wait(dir->buf_in, timeoutp, timestr);
+	return wait(dir->buf_in, timeoutp);
 #endif
 }
 
@@ -248,7 +231,6 @@ IPCChannelBuffer::IPCChannelBuffer()
 #if defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
 	pthread_condattr_t condattr;
 	pthread_mutexattr_t mutexattr;
-	clockid_t cond_clockid;
 	if (pthread_condattr_init(&condattr) != 0)
 		goto error_condattr_init;
 	if (pthread_mutexattr_init(&mutexattr) != 0)
@@ -257,26 +239,17 @@ IPCChannelBuffer::IPCChannelBuffer()
 		goto error_condattr_setpshared;
 	if (pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_SHARED) != 0)
 		goto error_mutexattr_setpshared;
-	if (pthread_condattr_getclock(&condattr, &cond_clockid) != 0)
-		goto error_condattr_getclock;
 	if (pthread_cond_init(&cond, &condattr) != 0)
 		goto error_cond_init;
 	if (pthread_mutex_init(&mutex, &mutexattr) != 0)
 		goto error_mutex_init;
 	pthread_mutexattr_destroy(&mutexattr);
 	pthread_condattr_destroy(&condattr);
-/*
-	{
-		std::string bla = std::string("realt: ") + std::to_string(CLOCK_REALTIME) + " cond_clockid: " + std::to_string(cond_clockid);
-		FATAL_ERROR(bla.c_str());
-	}*/
-	FATAL_ERROR_IF(cond_clockid != CLOCK_REALTIME, "wrong clock");
 	return;
 
 error_mutex_init:
 	pthread_cond_destroy(&cond);
 error_cond_init:
-error_condattr_getclock:
 error_mutexattr_setpshared:
 error_condattr_setpshared:
 	pthread_mutexattr_destroy(&mutexattr);

@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #if defined(_WIN32)
 #define IPC_CHANNEL_IMPLEMENTATION_WIN32
-#elif defined(__linux__) && 0
+#elif defined(__linux__)
 #define IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX
 #else
 #define IPC_CHANNEL_IMPLEMENTATION_POSIX
