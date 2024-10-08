@@ -398,7 +398,6 @@ local function fetch_pkgs()
 	local url = base_url ..
 			"/api/packages/?type=mod&type=game&type=txp&protocol_version=" ..
 			core.get_max_supp_proto() .. "&engine_version=" .. core.urlencode(version.string)
-
 	for _, item in pairs(core.settings:get("contentdb_flag_blacklist"):split(",")) do
 		item = item:trim()
 		if item ~= "" then
@@ -406,19 +405,11 @@ local function fetch_pkgs()
 		end
 	end
 
-	local languages
-	local current_language = core.get_language()
-	if current_language ~= "" then
-		languages = { current_language, "en;q=0.8" }
-	else
-		languages = { "en" }
-	end
-
 	local http = core.get_http_api()
 	local response = http.fetch_sync({
 		url = url,
 		extra_headers = {
-			"Accept-Language: " .. table.concat(languages, ", ")
+			core.get_accept_languages()
 		},
 	})
 	if not response.succeeded then
@@ -596,55 +587,52 @@ function contentdb.filter_packages(query, by_type)
 end
 
 
-function contentdb.get_full_package_info(package, callback)
-	assert(package)
-	if package.full_info then
-		callback(package.full_info)
-		return
-	end
-
-	local function fetch(params)
-		local version = core.get_version()
-		local base_url = core.settings:get("contentdb_url")
-
-		local languages
-		local current_language = core.get_language()
-		if current_language ~= "" then
-			languages = { current_language, "en;q=0.8" }
-		else
-			languages = { "en" }
+local function get_package_info(key, path)
+	return function(package, callback)
+		assert(package)
+		if package[key] then
+			callback(package[key])
+			return
 		end
 
-		local url = base_url ..
-				"/api/packages/" .. params.package.url_part .. "/for-client/?" ..
-				"protocol_version=" .. core.urlencode(core.get_max_supp_proto()) ..
-				"&engine_version=" .. core.urlencode(version.string) ..
-				"&formspec_version=" .. core.urlencode(core.get_formspec_version()) ..
-				"&include_images=false"
-		local http = core.get_http_api()
-		local response = http.fetch_sync({
-			url = url,
-			extra_headers = {
-				"Accept-Language: " .. table.concat(languages, ", ")
-			},
-		})
-		if not response.succeeded then
-			return nil
+		local function fetch(params)
+			local version = core.get_version()
+			local base_url = core.settings:get("contentdb_url")
+			local url = base_url ..
+					"/api/packages/" .. params.package.url_part .. params.path .. "?" ..
+					"protocol_version=" .. core.urlencode(core.get_max_supp_proto()) ..
+					"&engine_version=" .. core.urlencode(version.string) ..
+					"&formspec_version=" .. core.urlencode(core.get_formspec_version()) ..
+					"&include_images=false"
+			local http = core.get_http_api()
+			local response = http.fetch_sync({
+				url = url,
+				extra_headers = {
+					core.get_accept_languages()
+				},
+			})
+			if not response.succeeded then
+				return nil
+			end
+
+			return core.parse_json(response.data)
 		end
 
-		return core.parse_json(response.data)
-	end
+		local function my_callback(value)
+			package[key] = value
+			callback(value)
+		end
 
-	local function my_callback(value)
-		package.full_info = value
-		callback(value)
-	end
-
-	if not core.handle_async(fetch, { package = package }, my_callback) then
-		core.log("error", "ERROR: async event failed")
-		callback(nil)
+		if not core.handle_async(fetch, { package = package, path = path }, my_callback) then
+			core.log("error", "ERROR: async event failed")
+			callback(nil)
+		end
 	end
 end
+
+
+contentdb.get_full_package_info = get_package_info("full_info", "/for-client/")
+contentdb.get_package_reviews = get_package_info("reviews", "/for-client/reviews/")
 
 
 function contentdb.get_formspec_padding()
