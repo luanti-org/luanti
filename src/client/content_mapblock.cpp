@@ -422,7 +422,7 @@ void MapblockMeshGenerator::drawSolidNode()
 	};
 	TileSpec tiles[6];
 	u16 lights[6];
-	content_t n1 = cur_node.n.getContent();
+    content_t n1 = cur_node.n.getContent();
 	for (int face = 0; face < 6; face++) {
         v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face] * data->lod;
 		MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
@@ -445,7 +445,7 @@ void MapblockMeshGenerator::drawSolidNode()
 		faces |= 1 << face;
 		getTile(tile_dirs[face], &tiles[face]);
 		for (auto &layer : tiles[face].layers) {
-			if (backface_culling)
+            if (backface_culling)
 				layer.material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_HORIZONTAL;
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_VERTICAL;
@@ -459,14 +459,11 @@ void MapblockMeshGenerator::drawSolidNode()
 	u8 mask = faces ^ 0b0011'1111; // k-th bit is set if k-th face is to be *omitted*, as expected by cuboid drawing functions.
 	cur_node.origin = intToFloat(cur_node.p, BS);
 	auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
-	f32 texture_coord_buf[24];
+    f32 texture_coord_buf[24];
     generateCuboidTextureCoords(box, texture_coord_buf);
-
-    box.MinEdge *= data->lod;
-    box.MaxEdge *= data->lod;
-	box.MinEdge += cur_node.origin;
-    box.MaxEdge += cur_node.origin;
-	if (data->m_smooth_lighting) {
+    box.MinEdge += cur_node.origin;
+    box.MaxEdge += cur_node.origin + (data->lod - 1) * BS;
+    if (data->m_smooth_lighting) {
 		LightPair lights[6][4];
 		for (int face = 0; face < 6; ++face) {
 			if (mask & (1 << face))
@@ -483,8 +480,8 @@ void MapblockMeshGenerator::drawSolidNode()
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
 				vertex.Color = encode_light(final_lights[j], cur_node.f->light_source);
-				if (!cur_node.f->light_source)
-					applyFacesShading(vertex.Color, vertex.Normal);
+                if (!cur_node.f->light_source)
+                    applyFacesShading(vertex.Color, vertex.Normal);
 			}
 			if (lightDiff(final_lights[1], final_lights[3]) < lightDiff(final_lights[0], final_lights[2]))
 				return QuadDiagonal::Diag13;
@@ -493,8 +490,8 @@ void MapblockMeshGenerator::drawSolidNode()
 	} else {
 		drawCuboid(box, tiles, 6, texture_coord_buf, mask, [&] (int face, video::S3DVertex vertices[4]) {
 			video::SColor color = encode_light(lights[face], cur_node.f->light_source);
-            if (!cur_node.f->light_source && data->lod == 1)
-				applyFacesShading(color, vertices[0].Normal);
+            if (!cur_node.f->light_source)
+                applyFacesShading(color, vertices[0].Normal);
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
 				vertex.Color = color;
@@ -1782,7 +1779,7 @@ void MapblockMeshGenerator::drawNode()
 
 void MapblockMeshGenerator::generate()
 {
-	ZoneScoped;
+    ZoneScoped;
 
     for (cur_node.p.Z = 0; cur_node.p.Z < data->side_length; cur_node.p.Z += data->lod)
     for (cur_node.p.Y = 0; cur_node.p.Y < data->side_length; cur_node.p.Y += data->lod)
