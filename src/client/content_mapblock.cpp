@@ -424,7 +424,7 @@ void MapblockMeshGenerator::drawSolidNode()
 	u16 lights[6];
 	content_t n1 = cur_node.n.getContent();
 	for (int face = 0; face < 6; face++) {
-		v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face];
+        v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face] * data->lod;
 		MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
 		content_t n2 = neighbor.getContent();
 		bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
@@ -460,9 +460,12 @@ void MapblockMeshGenerator::drawSolidNode()
 	cur_node.origin = intToFloat(cur_node.p, BS);
 	auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
 	f32 texture_coord_buf[24];
+    generateCuboidTextureCoords(box, texture_coord_buf);
+
+    box.MinEdge *= data->lod;
+    box.MaxEdge *= data->lod;
 	box.MinEdge += cur_node.origin;
-	box.MaxEdge += cur_node.origin;
-	generateCuboidTextureCoords(box, texture_coord_buf);
+    box.MaxEdge += cur_node.origin;
 	if (data->m_smooth_lighting) {
 		LightPair lights[6][4];
 		for (int face = 0; face < 6; ++face) {
@@ -490,7 +493,7 @@ void MapblockMeshGenerator::drawSolidNode()
 	} else {
 		drawCuboid(box, tiles, 6, texture_coord_buf, mask, [&] (int face, video::S3DVertex vertices[4]) {
 			video::SColor color = encode_light(lights[face], cur_node.f->light_source);
-			if (!cur_node.f->light_source)
+            if (!cur_node.f->light_source && data->lod == 1)
 				applyFacesShading(color, vertices[0].Normal);
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
@@ -1748,6 +1751,12 @@ void MapblockMeshGenerator::drawNode()
 		default:
 			break;
 	}
+
+    if (lod > 1){
+        drawSolidNode();
+        return;
+    }
+
 	cur_node.origin = intToFloat(cur_node.p, BS);
 	if (data->m_smooth_lighting)
 		getSmoothLightFrame();
@@ -1775,9 +1784,9 @@ void MapblockMeshGenerator::generate()
 {
 	ZoneScoped;
 
-	for (cur_node.p.Z = 0; cur_node.p.Z < data->side_length; cur_node.p.Z++)
-	for (cur_node.p.Y = 0; cur_node.p.Y < data->side_length; cur_node.p.Y++)
-	for (cur_node.p.X = 0; cur_node.p.X < data->side_length; cur_node.p.X++) {
+    for (cur_node.p.Z = 0; cur_node.p.Z < data->side_length; cur_node.p.Z += data->lod)
+    for (cur_node.p.Y = 0; cur_node.p.Y < data->side_length; cur_node.p.Y += data->lod)
+    for (cur_node.p.X = 0; cur_node.p.X < data->side_length; cur_node.p.X += data->lod) {
 		cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p);
 		cur_node.f = &nodedef->get(cur_node.n);
 		drawNode();

@@ -48,6 +48,7 @@ struct MeshMakeData
 	v3s16 m_crack_pos_relative = v3s16(-1337,-1337,-1337);
 	bool m_smooth_lighting = false;
 	u16 side_length;
+    u16 lod = 1;
 
 	const NodeDefManager *nodedef;
 	bool m_use_shaders;

@@ -189,6 +189,7 @@ private:
 	void drawMeshNode();
 
 // common
+    u16 lod;
 	void errorUnknownDrawtype();
 	void drawNode();
 };
