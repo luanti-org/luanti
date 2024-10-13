@@ -40,10 +40,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	MeshMakeData
 */
 
-MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, bool use_shaders):
+MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, bool use_shaders, u16 lod):
 	side_length(side_length),
 	nodedef(ndef),
-	m_use_shaders(use_shaders)
+    m_use_shaders(use_shaders),
+    lod(lod)
 {}
 
 void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
