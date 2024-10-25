@@ -6481,6 +6481,11 @@ Environment access
 * `core.get_node_or_nil(pos)`
     * Same as `get_node` but returns `nil` for unloaded areas.
     * Note that even loaded areas can contain "ignore" nodes.
+* `core.get_node_raw(x, y, z)`
+    * Low-level API returning numbers, not tables
+    * Returns `content_id`, `param1`, `param2`, and `pos_ok`
+    * The `content_id` can be mapped to a node name via `core.get_name_from_content_id`
+    * If `pos_ok` is false, the node is not yet loaded and the `content_id` is that of "ignore" nodes
 * `core.get_node_light(pos[, timeofday])`
     * Gets the light value at the given position. Note that the light value
       "inside" the node at the given position is returned, so you usually want
