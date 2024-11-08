@@ -42,9 +42,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, bool use_shaders, u16 lod):
 	side_length(side_length),
-	nodedef(ndef),
-    m_use_shaders(use_shaders),
-    lod(lod)
+    lod(lod),
+    nodedef(ndef),
+    m_use_shaders(use_shaders)
 {}
 
 void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
@@ -137,8 +137,8 @@ static u8 getFaceLight(enum LightBank bank, MapNode n, MapNode n2, const NodeDef
 */
 u16 getFaceLight(MapNode n, MapNode n2, const NodeDefManager *ndef)
 {
-	u16 day = getFaceLight(LIGHTBANK_DAY, n, n2, ndef);
-	u16 night = getFaceLight(LIGHTBANK_NIGHT, n, n2, ndef);
+    u16 day = getFaceLight(LIGHTBANK_DAY, n, n2, ndef);
+    u16 night = getFaceLight(LIGHTBANK_NIGHT, n, n2, ndef);
 	return day | (night << 8);
 }
 
@@ -337,14 +337,14 @@ void final_color_blend(video::SColor *result,
 void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, TileSpec &tile)
 {
 	const NodeDefManager *ndef = data->nodedef;
-	const ContentFeatures &f = ndef->get(mn);
+    const ContentFeatures &f = ndef->get(mn);
 	tile = f.tiles[tileindex];
 	bool has_crack = p == data->m_crack_pos_relative;
 	for (TileLayer &layer : tile.layers) {
 		if (layer.texture_id == 0)
 			continue;
-		if (!layer.has_color)
-			mn.getColor(f, &(layer.color));
+        if (!layer.has_color)
+            mn.getColor(f, &(layer.color));
 		// Apply temporary crack
 		if (has_crack)
 			layer.material_flags |= MATERIAL_FLAG_CRACK;

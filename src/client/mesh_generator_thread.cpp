@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "settings.h"
 #include "profiler.h"
 #include "client.h"
+#include "camera.h"
 #include "mapblock.h"
 #include "map.h"
 #include "util/directiontables.h"
@@ -135,6 +136,17 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 			block->refGrab();
 	}
 
+    v3f cam_pos = m_client->getCamera()->getPosition() * 0.1 / MAP_BLOCKSIZE;
+    u16 dist = std::abs(cam_pos.X - mesh_position.X) //
+               + std::abs(cam_pos.Y - mesh_position.Y) //
+               + std::abs(cam_pos.Z - mesh_position.Z);
+    u16 renderDist = 10;
+    u16 lod;
+    if (dist < renderDist)
+        lod = 1;
+    else
+        lod = 2 << ((int) std::log2(dist / renderDist));
+
 	/*
 		Add the block
 	*/
@@ -146,6 +158,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
 	q->map_blocks = std::move(map_blocks);
+    q->lod = lod;
 	m_queue.push_back(q);
 
 	return true;
@@ -191,17 +204,9 @@ void MeshUpdateQueue::done(v3s16 pos)
 
 void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
-	auto mesh_grid = m_client->getMeshGrid();
+    auto mesh_grid = m_client->getMeshGrid();
 
-    u16 dist = std::abs(q->p.X) + std::abs(q->p.Y) + std::abs(q->p.Z);
-    u16 renderDist = 5;
-    u16 lod;
-    if (dist < renderDist)
-        lod = 1;
-    else
-        lod = 2 << ((int) std::log2(dist / renderDist));
-
-    MeshMakeData *data = new MeshMakeData(m_client->ndef(), MAP_BLOCKSIZE * mesh_grid.cell_size, m_cache_enable_shaders, lod);
+    MeshMakeData *data = new MeshMakeData(m_client->ndef(), MAP_BLOCKSIZE * mesh_grid.cell_size, m_cache_enable_shaders, q->lod);
 	q->data = data;
 
 	data->fillBlockDataBegin(q->p);
@@ -216,7 +221,7 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	}
 
 	data->setCrack(q->crack_level, q->crack_pos);
-	data->setSmoothLighting(m_cache_smooth_lighting);
+    data->setSmoothLighting(q->lod == 1 && m_cache_smooth_lighting);
 }
 
 /*

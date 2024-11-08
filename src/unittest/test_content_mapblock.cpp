@@ -53,7 +53,7 @@ public:
 
 	MeshMakeData makeSingleNodeMMD(bool smooth_lighting = true, bool for_shaders = true)
 	{
-		MeshMakeData data{ndef(), 1, for_shaders};
+        MeshMakeData data{ndef(), 1, for_shaders, 1};
 		data.setSmoothLighting(smooth_lighting);
 		data.m_blockpos = {0, 0, 0};
 		for (s16 x = -1; x <= 1; x++)

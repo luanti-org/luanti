@@ -64,6 +64,7 @@ public:
 	MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output,
 			scene::IMeshManipulator *mm);
 	void generate();
+    void generateLod();
 	void renderSingle(content_t node, u8 param2 = 0x00);
 
 private:
@@ -189,7 +190,7 @@ private:
 	void drawMeshNode();
 
 // common
-    u16 lod;
 	void errorUnknownDrawtype();
 	void drawNode();
+    void generateFirstViable();
 };

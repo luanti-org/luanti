@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 */
 
 #include <cmath>
+#include <map>
 #include "content_mapblock.h"
 #include "util/basic_macros.h"
 #include "util/numeric.h"
@@ -112,7 +113,7 @@ void MapblockMeshGenerator::getTile(int index, TileSpec *tile)
 // Returns a tile, ready for use, rotated according to the node facedir.
 void MapblockMeshGenerator::getTile(v3s16 direction, TileSpec *tile)
 {
-	getNodeTile(cur_node.n, cur_node.p, direction, data, *tile);
+    getNodeTile(cur_node.n, cur_node.p, direction, data, *tile);
 }
 
 // Returns a special tile, ready for use, non-rotated.
@@ -247,8 +248,8 @@ void MapblockMeshGenerator::drawCuboid(const aabb3f &box,
 	for (int k = 0; k < 6; ++k) {
 		if (mask & (1 << k))
 			continue;
-		QuadDiagonal diagonal = face_lighter(k, &vertices[4 * k]);
-		const u16 *indices = diagonal == QuadDiagonal::Diag13 ? quad_indices_13 : quad_indices_02;
+        QuadDiagonal diagonal = face_lighter(k, &vertices[4 * k]);
+        const u16 *indices = diagonal == QuadDiagonal::Diag13 ? quad_indices_13 : quad_indices_02;
 		int tileindex = MYMIN(k, tilecount - 1);
 		collector->append(tiles[tileindex], &vertices[4 * k], 4, indices, 6);
 	}
@@ -423,42 +424,42 @@ void MapblockMeshGenerator::drawSolidNode()
 	TileSpec tiles[6];
 	u16 lights[6];
     content_t n1 = cur_node.n.getContent();
-	for (int face = 0; face < 6; face++) {
+    for (int face = 0; face < 6; face++) {
         v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face] * data->lod;
-		MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
-		content_t n2 = neighbor.getContent();
-		bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
-		if (n2 == n1)
-			continue;
-		if (n2 == CONTENT_IGNORE)
-			continue;
-		if (n2 != CONTENT_AIR) {
-			const ContentFeatures &f2 = nodedef->get(n2);
-			if (f2.solidness == 2)
-				continue;
-			if (cur_node.f->drawtype == NDT_LIQUID) {
-				if (cur_node.f->sameLiquidRender(f2))
-					continue;
-				backface_culling = f2.solidness || f2.visual_solidness;
-			}
-		}
-		faces |= 1 << face;
-		getTile(tile_dirs[face], &tiles[face]);
+        MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
+        content_t n2 = neighbor.getContent();
+        bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
+        if (n2 == n1)
+            continue;
+        if (n2 == CONTENT_IGNORE && data->lod == 1)
+            continue;
+        if (n2 != CONTENT_AIR) {
+            const ContentFeatures &f2 = nodedef->get(n2);
+            if (f2.solidness == 2)
+                continue;
+            if (cur_node.f->drawtype == NDT_LIQUID) {
+                if (cur_node.f->sameLiquidRender(f2))
+                    continue;
+                backface_culling = f2.solidness || f2.visual_solidness;
+            }
+        }
+        faces |= 1 << face;
+        getTile(tile_dirs[face], &tiles[face]);
 		for (auto &layer : tiles[face].layers) {
             if (backface_culling)
-				layer.material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
+                layer.material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_HORIZONTAL;
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_VERTICAL;
 		}
-		if (!data->m_smooth_lighting) {
-			lights[face] = getFaceLight(cur_node.n, neighbor, nodedef);
+        if (!data->m_smooth_lighting) {
+            lights[face] = getFaceLight(cur_node.n, neighbor, nodedef);
 		}
 	}
 	if (!faces)
 		return;
 	u8 mask = faces ^ 0b0011'1111; // k-th bit is set if k-th face is to be *omitted*, as expected by cuboid drawing functions.
-	cur_node.origin = intToFloat(cur_node.p, BS);
-	auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
+    cur_node.origin = intToFloat(cur_node.p, BS) - v3f{0, data->lod - 1, 0};
+    auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
     f32 texture_coord_buf[24];
     generateCuboidTextureCoords(box, texture_coord_buf);
     box.MinEdge += cur_node.origin;
@@ -489,7 +490,7 @@ void MapblockMeshGenerator::drawSolidNode()
 		});
 	} else {
 		drawCuboid(box, tiles, 6, texture_coord_buf, mask, [&] (int face, video::S3DVertex vertices[4]) {
-			video::SColor color = encode_light(lights[face], cur_node.f->light_source);
+            video::SColor color = encode_light(lights[face], cur_node.f->light_source);
             if (!cur_node.f->light_source)
                 applyFacesShading(color, vertices[0].Normal);
 			for (int j = 0; j < 4; j++) {
@@ -1117,7 +1118,7 @@ void MapblockMeshGenerator::drawSignlikeNode()
 void MapblockMeshGenerator::drawPlantlikeQuad(float rotation, float quad_offset,
 	bool offset_top_only)
 {
-	const f32 scale = cur_node.scale;
+    const f32 scale = cur_node.scale * data->lod;
 	v3f vertices[4] = {
 		v3f(-scale, -BS / 2 + 2.0 * scale * cur_plant.plant_height, 0),
 		v3f( scale, -BS / 2 + 2.0 * scale * cur_plant.plant_height, 0),
@@ -1173,7 +1174,7 @@ void MapblockMeshGenerator::drawPlantlikeQuad(float rotation, float quad_offset,
 void MapblockMeshGenerator::drawPlantlike(bool is_rooted)
 {
 	cur_plant.draw_style = PLANT_STYLE_CROSS;
-	cur_node.scale = BS / 2 * cur_node.f->visual_scale;
+    cur_node.scale = BS / 2 * cur_node.f->visual_scale;
 	cur_plant.offset = v3f(0, 0, 0);
 	cur_plant.rotate_degree = 0.0f;
 	cur_plant.random_offset_Y = false;
@@ -1205,7 +1206,8 @@ void MapblockMeshGenerator::drawPlantlike(bool is_rooted)
 
 	default:
 		break;
-	}
+    }
+    cur_plant.offset -= v3f{0, data->lod * 0.5f, 0};
 
 	if (is_rooted) {
 		u8 wall = cur_node.n.getWallMounted(nodedef);
@@ -1747,11 +1749,6 @@ void MapblockMeshGenerator::drawNode()
 			return;
 		default:
 			break;
-	}
-
-    if (lod > 1){
-        drawSolidNode();
-        return;
     }
 
 	cur_node.origin = intToFloat(cur_node.p, BS);
@@ -1777,13 +1774,56 @@ void MapblockMeshGenerator::drawNode()
 	}
 }
 
-void MapblockMeshGenerator::generate()
+void MapblockMeshGenerator::generateFirstViable()
 {
-    ZoneScoped;
+    s16 width = std::min(data->lod, data->side_length);
+    for (s16 y = 0; y < width; y++)
+    for (s16 x = 0; x < width; x++)
+    for (s16 z = 0; z < width; z++) {
+        cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{x, y, z});
+        if (cur_node.n.getContent() == CONTENT_IGNORE) {
+            continue;
+        }
+        cur_node.f = &nodedef->get(cur_node.n);
+        switch (cur_node.f->drawtype) {
+            case NDT_AIRLIKE:           continue;
+            case NDT_PLANTLIKE:         drawPlantlikeNode(); return;
+            case NDT_PLANTLIKE_ROOTED:  drawPlantlikeRootedNode(); return;
+            default:                    drawSolidNode(); return;
+        }
+    }
+}
+
+
+void MapblockMeshGenerator::generateLod()
+{
+    if (data->lod > data->side_length) {
+        u16 s = data->lod / data->side_length;
+        if (data->m_blockpos.X % s != 0 && data->m_blockpos.Y % s != 0 && data->m_blockpos.Z % s != 0) {
+            // if lod bigger than the block, only render every nth block
+            return;
+        }
+    }
 
     for (cur_node.p.Z = 0; cur_node.p.Z < data->side_length; cur_node.p.Z += data->lod)
     for (cur_node.p.Y = 0; cur_node.p.Y < data->side_length; cur_node.p.Y += data->lod)
     for (cur_node.p.X = 0; cur_node.p.X < data->side_length; cur_node.p.X += data->lod) {
+        generateFirstViable();
+    }
+}
+
+void MapblockMeshGenerator::generate()
+{
+    ZoneScoped;
+
+    if(data->lod > 1) {
+        generateLod();
+        return;
+    }
+
+    for (cur_node.p.Z = 0; cur_node.p.Z < data->side_length; cur_node.p.Z++)
+    for (cur_node.p.Y = 0; cur_node.p.Y < data->side_length; cur_node.p.Y++)
+    for (cur_node.p.X = 0; cur_node.p.X < data->side_length; cur_node.p.X++) {
 		cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p);
 		cur_node.f = &nodedef->get(cur_node.n);
 		drawNode();
