@@ -32,10 +32,14 @@
 
 #pragma once
 
-#include <irrlicht.h>
 #include <ft2build.h>
-#include <vector>
 #include <map>
+#include "IGUIEnvironment.h"
+#include "IGUIFont.h"
+#include "ISceneManager.h"
+#include "IVideoDriver.h"
+#include "IrrlichtDevice.h"
+#include "SMesh.h"
 #include "util/enriched_string.h"
 #include "util/basic_macros.h"
 #include FT_FREETYPE_H
@@ -64,7 +68,7 @@ namespace gui
 		DISABLE_CLASS_COPY(SGUITTGlyph);
 
 		//! This class would be trivially copyable except for the reference count on `surface`.
-		SGUITTGlyph(SGUITTGlyph &&other) :
+		SGUITTGlyph(SGUITTGlyph &&other) noexcept :
 			isLoaded(other.isLoaded),
 			glyph_page(other.glyph_page),
 			source_rect(other.source_rect),

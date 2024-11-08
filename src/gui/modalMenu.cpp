@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2018 stujones11, Stuart Jones <stujones111@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2018 stujones11, Stuart Jones <stujones111@gmail.com>
 
 #include <cstdlib>
 #include <IEventReceiver.h>
@@ -187,6 +172,7 @@ bool GUIModalMenu::simulateMouseEvent(ETOUCH_INPUT_EVENT touch_event, bool secon
 	mouse_event.EventType = EET_MOUSE_INPUT_EVENT;
 	mouse_event.MouseInput.X = m_pointer.X;
 	mouse_event.MouseInput.Y = m_pointer.Y;
+	mouse_event.MouseInput.Simulated = true;
 	switch (touch_event) {
 	case ETIE_PRESSED_DOWN:
 		mouse_event.MouseInput.Event = EMIE_LMOUSE_PRESSED_DOWN;
@@ -210,7 +196,6 @@ bool GUIModalMenu::simulateMouseEvent(ETOUCH_INPUT_EVENT touch_event, bool secon
 	}
 
 	bool retval;
-	m_simulated_mouse = true;
 	do {
 		if (preprocessEvent(mouse_event)) {
 			retval = true;
@@ -222,7 +207,6 @@ bool GUIModalMenu::simulateMouseEvent(ETOUCH_INPUT_EVENT touch_event, bool secon
 		}
 		retval = target->OnEvent(mouse_event);
 	} while (false);
-	m_simulated_mouse = false;
 
 	if (!retval && !second_try)
 		return simulateMouseEvent(touch_event, true);
@@ -307,13 +291,13 @@ bool GUIModalMenu::preprocessEvent(const SEvent &event)
 
 			s32 selected_idx = dropdown->getSelected();
 			s32 option_size = dropdown->getItemCount();
-			std::string list_of_options[option_size];
+			std::vector<std::string> list_of_options;
 
 			for (s32 i = 0; i < option_size; i++) {
-				list_of_options[i] = wide_to_utf8(dropdown->getItem(i));
+				list_of_options.push_back(wide_to_utf8(dropdown->getItem(i)));
 			}
 
-			porting::showComboBoxDialog(list_of_options, option_size, selected_idx);
+			porting::showComboBoxDialog(list_of_options.data(), option_size, selected_idx);
 			return true; // Prevent the Irrlicht dropdown from opening.
 		}
 	}
@@ -330,7 +314,6 @@ bool GUIModalMenu::preprocessEvent(const SEvent &event)
 		holder.grab(this); // keep this alive until return (it might be dropped downstream [?])
 
 		if (event.TouchInput.touchedCount == 1) {
-			m_pointer_type = PointerType::Touch;
 			m_pointer = v2s32(event.TouchInput.X, event.TouchInput.Y);
 
 			gui::IGUIElement *hovered = Environment->getRootGUIElement()->getElementFromPoint(core::position2d<s32>(m_pointer));
@@ -373,9 +356,8 @@ bool GUIModalMenu::preprocessEvent(const SEvent &event)
 	}
 
 	if (event.EventType == EET_MOUSE_INPUT_EVENT) {
-		if (!m_simulated_mouse) {
-			// Only set the pointer type to mouse if this is a real mouse event.
-			m_pointer_type = PointerType::Mouse;
+		if (!event.MouseInput.Simulated) {
+			// Only process if this is a real mouse event.
 			m_pointer = v2s32(event.MouseInput.X, event.MouseInput.Y);
 			m_touch_hovered.reset();
 		}

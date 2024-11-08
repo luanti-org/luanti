@@ -21,7 +21,7 @@ After that installing it will work:
 adb install -r -d ./app-arm64-v8a-release-unsigned.apk
 ```
 
-## How to get debug output from Minetest on Android
+## How to get debug output from Luanti on Android
 
 In case debug.txt isn't enough (e.g. when debugging a crash), you can get debug
 output using logcat:

@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "particles.h"
 #include <cmath>
@@ -25,6 +10,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "client/content_cao.h"
 #include "client/clientevent.h"
 #include "client/renderingengine.h"
+#include "client/texturesource.h"
 #include "util/numeric.h"
 #include "light.h"
 #include "localplayer.h"
@@ -357,16 +343,18 @@ void ParticleSpawner::spawnParticle(ClientEnvironment *env, float radius,
 
 	if (attached_absolute_pos_rot_matrix) {
 		// Apply attachment rotation
-		attached_absolute_pos_rot_matrix->rotateVect(pp.vel);
-		attached_absolute_pos_rot_matrix->rotateVect(pp.acc);
+		pp.vel = attached_absolute_pos_rot_matrix->rotateAndScaleVect(pp.vel);
+		pp.acc = attached_absolute_pos_rot_matrix->rotateAndScaleVect(pp.acc);
 	}
 
 	if (attractor_obj)
 		attractor_origin += attractor_obj->getPosition() / BS;
 	if (attractor_direction_obj) {
 		auto *attractor_absolute_pos_rot_matrix = attractor_direction_obj->getAbsolutePosRotMatrix();
-		if (attractor_absolute_pos_rot_matrix)
-			attractor_absolute_pos_rot_matrix->rotateVect(attractor_direction);
+		if (attractor_absolute_pos_rot_matrix) {
+			attractor_direction = attractor_absolute_pos_rot_matrix
+					->rotateAndScaleVect(attractor_direction);
+		}
 	}
 
 	pp.expirationtime = r_exp.pickWithin();

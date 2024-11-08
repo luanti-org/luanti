@@ -6,6 +6,7 @@
 
 #include "rect.h"
 #include "SColor.h"
+#include "IImage.h"
 #include "ITexture.h"
 #include "irrArray.h"
 #include "matrix4.h"

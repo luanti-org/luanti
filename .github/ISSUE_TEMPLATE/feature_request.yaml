@@ -7,7 +7,7 @@ body:
       value: |
         Please note the following:
         1. Only submit a feature request if the feature does not exist on the latest dev version.
-        2. This page is for suggesting changes to **the engine itself**. To suggest changes to games, please [search for the game in the ContentDB](https://content.minetest.net/packages/?type=game) and submit a feature request in their issue trackers.
+        2. This page is for suggesting changes to **the engine itself**. To suggest changes to games, please [search for the game in the ContentDB](https://content.luanti.org/packages/?type=game) and submit a feature request in their issue trackers.
   - type: textarea
     attributes:
       label: Problem

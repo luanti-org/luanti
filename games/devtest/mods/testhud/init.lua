@@ -8,8 +8,8 @@ local font_states = {
 	{4, "Monospace font"},
 	{5, "Bold and monospace font"},
 	{7, "ZOMG all the font styles"},
-	{7, "Colors test! " .. minetest.colorize("green", "Green") ..
-		minetest.colorize("red", "\nRed") .. " END"},
+	{7, "Colors test! " .. core.colorize("green", "Green") ..
+		core.colorize("red", "\nRed") .. " END"},
 }
 
 
@@ -33,13 +33,13 @@ end
 local font_etime = 0
 local font_state = 0
 
-minetest.register_globalstep(function(dtime)
+core.register_globalstep(function(dtime)
 	font_etime = font_etime + dtime
 	if font_etime < 1 then
 		return
 	end
 	font_etime = 0
-	for _, player in ipairs(minetest.get_connected_players()) do
+	for _, player in ipairs(core.get_connected_players()) do
 		local huds = player_font_huds[player:get_player_name()]
 		if huds then
 			for i, hud_id in ipairs(huds) do
@@ -52,11 +52,11 @@ minetest.register_globalstep(function(dtime)
 	font_state = font_state + 1
 end)
 
-minetest.register_chatcommand("hudfonts", {
+core.register_chatcommand("hudfonts", {
 	params = "[<HUD elements>]",
 	description = "Show/Hide some text on the HUD with various font options",
 	func = function(name, param)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		local param = tonumber(param) or 0
 		param = math.min(math.max(param, 1), #font_states)
 		if player_font_huds[name] == nil then
@@ -64,14 +64,14 @@ minetest.register_chatcommand("hudfonts", {
 			for i = 1, param do
 				table.insert(player_font_huds[name], add_font_hud(player, i))
 			end
-			minetest.chat_send_player(name, ("%d text HUD element(s) added."):format(param))
+			core.chat_send_player(name, ("%d text HUD element(s) added."):format(param))
 		else
 			local huds = player_font_huds[name]
 			if huds then
 				for _, hud_id in ipairs(huds) do
 					player:hud_remove(hud_id)
 				end
-				minetest.chat_send_player(name, "All text HUD elements removed.")
+				core.chat_send_player(name, "All text HUD elements removed.")
 			end
 			player_font_huds[name] = nil
 		end
@@ -82,11 +82,11 @@ minetest.register_chatcommand("hudfonts", {
 -- Testing waypoint capabilities
 
 local player_waypoints = {}
-minetest.register_chatcommand("hudwaypoints", {
+core.register_chatcommand("hudwaypoints", {
 	params = "[ add | add_change | remove ]",
 	description = "Create HUD waypoints at your position for testing (add: Add waypoints and change them after 0.5s (default). add_change: Add waypoints and change immediately. remove: Remove all waypoints)",
 	func = function(name, params)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if not player then
 			return false, "No player."
 		end
@@ -142,13 +142,13 @@ minetest.register_chatcommand("hudwaypoints", {
 			if hidden_distance then
 				chplayer:hud_change(hidden_distance, "number", 0x0000FF)
 			end
-			minetest.chat_send_player(chplayer:get_player_name(), "Waypoints changed.")
+			core.chat_send_player(chplayer:get_player_name(), "Waypoints changed.")
 		end
 		if params == "add_change" then
 			-- change immediate
 			change(player)
 		else
-			minetest.after(0.5, change, player)
+			core.after(0.5, change, player)
 		end
 		local image_waypoint = player:hud_add {
 			type = "image_waypoint",
@@ -182,15 +182,15 @@ minetest.register_chatcommand("hudwaypoints", {
 	end
 })
 
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	player:set_properties({zoom_fov = 15})
 end)
 
-minetest.register_chatcommand("zoomfov", {
+core.register_chatcommand("zoomfov", {
 	params = "[<FOV>]",
 	description = "Set or display your zoom_fov",
 	func = function(name, param)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if not player then
 			return false, "No player."
 		end
@@ -241,12 +241,12 @@ local hud_hotbar_defs = {
 
 
 local player_hud_hotbars= {}
-minetest.register_chatcommand("hudhotbars", {
+core.register_chatcommand("hudhotbars", {
 	description = "Shows some test Lua HUD elements of type hotbar. " ..
 			"(add: Adds elements (default). remove: Removes elements)",
 	params = "[ add | remove ]",
 	func = function(name, params)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if not player then
 			return false, "No player."
 		end
@@ -272,17 +272,87 @@ minetest.register_chatcommand("hudhotbars", {
 	end
 })
 
+-- Inventories
 
-minetest.register_on_leaveplayer(function(player)
-	player_font_huds[player:get_player_name()] = nil
-	player_waypoints[player:get_player_name()] = nil
-	player_hud_hotbars[player:get_player_name()] = nil
+local hud_inventory_defs = {
+	{
+		type = "inventory",
+		position = {x=0.2, y=0.5},
+		direction = 0,
+		text = "main",
+		number = 4,
+		item = 2,
+	},
+	{
+		type = "inventory",
+		position = {x=0.2, y=0.5},
+		direction = 2,
+		text = "main",
+		number = 4,
+		item = 2,
+	},
+	{
+		type = "inventory",
+		position = {x=0.7, y=0.5},
+		direction = 1,
+		text = "main",
+		number = 4,
+		item = 2,
+	},
+	{
+		type = "inventory",
+		position = {x=0.7, y=0.5},
+		direction = 3,
+		text = "main",
+		number = 4,
+		item = 2,
+	},
+}
+
+local player_hud_inventories= {}
+core.register_chatcommand("hudinventories", {
+	description = "Shows some test Lua HUD elements of type inventory. (add: Adds elements (default). remove: Removes elements)",
+	params = "[ add | remove ]",
+	func = function(name, params)
+		local player = core.get_player_by_name(name)
+		if not player then
+			return false, "No player."
+		end
+
+		local id_table = player_hud_inventories[name]
+		if not id_table then
+			id_table = {}
+			player_hud_inventories[name] = id_table
+		end
+
+		if params == "remove" then
+			for _, id in ipairs(id_table) do
+				player:hud_remove(id)
+			end
+			return true, "HUD Inventories removed."
+		end
+
+		-- params == "add" or default
+		for _, def in ipairs(hud_inventory_defs) do
+			table.insert(id_table, player:hud_add(def))
+		end
+		return true, #hud_inventory_defs .." HUD Inventories added."
+	end
+})
+
+
+core.register_on_leaveplayer(function(player)
+	local playername = player:get_player_name()
+	player_font_huds[playername] = nil
+	player_waypoints[playername] = nil
+	player_hud_hotbars[playername] = nil
+	player_hud_inventories[playername] = nil
 end)
 
-minetest.register_chatcommand("hudprint", {
+core.register_chatcommand("hudprint", {
 	description = "Writes all used Lua HUD elements into chat.",
 	func = function(name, params)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if not player then
 			return false, "No player."
 		end
@@ -302,11 +372,11 @@ minetest.register_chatcommand("hudprint", {
 local hud_flags = {"hotbar", "healthbar", "crosshair", "wielditem", "breathbar",
 		"minimap", "minimap_radar", "basic_debug", "chat"}
 
-minetest.register_chatcommand("hudtoggleflag", {
+core.register_chatcommand("hudtoggleflag", {
 	description = "Toggles a hud flag.",
 	params = "[ ".. table.concat(hud_flags, " | ") .." ]",
 	func = function(name, params)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if not player then
 			return false, "No player."
 		end

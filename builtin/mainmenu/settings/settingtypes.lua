@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2015 PilzAdam
 --
 --This program is free software; you can redistribute it and/or modify

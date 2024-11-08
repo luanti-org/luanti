@@ -36,11 +36,9 @@ struct SAnimatedMesh final : public IAnimatedMesh
 			mesh->drop();
 	}
 
-	//! Gets the frame count of the animated mesh.
-	/** \return Amount of frames. If the amount is 1, it is a static, non animated mesh. */
-	u32 getFrameCount() const override
+	f32 getMaxFrameNumber() const override
 	{
-		return static_cast<u32>(Meshes.size());
+		return static_cast<f32>(Meshes.size() - 1);
 	}
 
 	//! Gets the default animation speed of the animated mesh.
@@ -59,19 +57,14 @@ struct SAnimatedMesh final : public IAnimatedMesh
 	}
 
 	//! Returns the IMesh interface for a frame.
-	/** \param frame: Frame number as zero based index. The maximum frame number is
-	getFrameCount() - 1;
-	\param detailLevel: Level of detail. 0 is the lowest,
-	255 the highest level of detail. Most meshes will ignore the detail level.
-	\param startFrameLoop: start frame
-	\param endFrameLoop: end frame
-	\return The animated mesh based on a detail level. */
-	IMesh *getMesh(s32 frame, s32 detailLevel = 255, s32 startFrameLoop = -1, s32 endFrameLoop = -1) override
+	/** \param frame: Frame number as zero based index.
+	\return The animated mesh based for the given frame */
+	IMesh *getMesh(f32 frame) override
 	{
 		if (Meshes.empty())
-			return 0;
+			return nullptr;
 
-		return Meshes[frame];
+		return Meshes[static_cast<s32>(frame)];
 	}
 
 	//! adds a Mesh

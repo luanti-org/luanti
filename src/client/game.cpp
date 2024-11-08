@@ -1,26 +1,11 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "game.h"
 
-#include <iomanip>
 #include <cmath>
+#include "IAttributes.h"
 #include "client/renderingengine.h"
 #include "camera.h"
 #include "client.h"
@@ -43,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "gui/touchcontrols.h"
 #include "itemdef.h"
 #include "log.h"
-#include "filesys.h"
+#include "log_internal.h"
 #include "gameparams.h"
 #include "gettext.h"
 #include "gui/guiChatConsole.h"
@@ -54,7 +39,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "gui/guiVolumeChange.h"
 #include "gui/mainmenumanager.h"
 #include "gui/profilergraph.h"
-#include "mapblock.h"
 #include "minimap.h"
 #include "nodedef.h"         // Needed for determining pointing to nodes
 #include "nodemetadata.h"
@@ -72,7 +56,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/directiontables.h"
 #include "util/pointedthing.h"
 #include "util/quicktune_shortcutter.h"
-#include "irrlicht_changes/static_text.h"
 #include "irr_ptr.h"
 #include "version.h"
 #include "script/scripting_client.h"
@@ -405,11 +388,8 @@ class GameGlobalShaderConstantSetter : public IShaderConstantSetter
 	float m_user_exposure_compensation;
 	bool m_bloom_enabled;
 	CachedPixelShaderSetting<float> m_bloom_intensity_pixel{"bloomIntensity"};
-	float m_bloom_intensity;
 	CachedPixelShaderSetting<float> m_bloom_strength_pixel{"bloomStrength"};
-	float m_bloom_strength;
 	CachedPixelShaderSetting<float> m_bloom_radius_pixel{"bloomRadius"};
-	float m_bloom_radius;
 	CachedPixelShaderSetting<float> m_saturation_pixel{"saturation"};
 	bool m_volumetric_light_enabled;
 	CachedPixelShaderSetting<float, 3>
@@ -421,11 +401,8 @@ class GameGlobalShaderConstantSetter : public IShaderConstantSetter
 	CachedPixelShaderSetting<float>
 		m_volumetric_light_strength_pixel{"volumetricLightStrength"};
 
-	static constexpr std::array<const char*, 4> SETTING_CALLBACKS = {
+	static constexpr std::array<const char*, 1> SETTING_CALLBACKS = {
 		"exposure_compensation",
-		"bloom_intensity",
-		"bloom_strength_factor",
-		"bloom_radius"
 	};
 
 public:
@@ -433,12 +410,6 @@ public:
 	{
 		if (name == "exposure_compensation")
 			m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
-		if (name == "bloom_intensity")
-			m_bloom_intensity = g_settings->getFloat("bloom_intensity", 0.01f, 1.0f);
-		if (name == "bloom_strength_factor")
-			m_bloom_strength = RenderingEngine::BASE_BLOOM_STRENGTH * g_settings->getFloat("bloom_strength_factor", 0.1f, 10.0f);
-		if (name == "bloom_radius")
-			m_bloom_radius = g_settings->getFloat("bloom_radius", 0.1f, 8.0f);
 	}
 
 	static void settingsCallback(const std::string &name, void *userdata)
@@ -457,16 +428,12 @@ public:
 
 		m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
 		m_bloom_enabled = g_settings->getBool("enable_bloom");
-		m_bloom_intensity = g_settings->getFloat("bloom_intensity", 0.01f, 1.0f);
-		m_bloom_strength = RenderingEngine::BASE_BLOOM_STRENGTH * g_settings->getFloat("bloom_strength_factor", 0.1f, 10.0f);
-		m_bloom_radius = g_settings->getFloat("bloom_radius", 0.1f, 8.0f);
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
 	}
 
 	~GameGlobalShaderConstantSetter()
 	{
-		for (auto &name : SETTING_CALLBACKS)
-			g_settings->deregisterChangedCallback(name, settingsCallback, this);
+		g_settings->deregisterAllChangedCallbacks(this);
 	}
 
 	void onSetConstants(video::IMaterialRendererServices *services) override
@@ -511,7 +478,9 @@ public:
 		m_texel_size0_vertex.set(m_texel_size0, services);
 		m_texel_size0_pixel.set(m_texel_size0, services);
 
-		const AutoExposure &exposure_params = m_client->getEnv().getLocalPlayer()->getLighting().exposure;
+		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
+
+		const AutoExposure &exposure_params = lighting.exposure;
 		std::array<float, 7> exposure_buffer = {
 			std::pow(2.0f, exposure_params.luminance_min),
 			std::pow(2.0f, exposure_params.luminance_max),
@@ -524,12 +493,14 @@ public:
 		m_exposure_params_pixel.set(exposure_buffer.data(), services);
 
 		if (m_bloom_enabled) {
-			m_bloom_intensity_pixel.set(&m_bloom_intensity, services);
-			m_bloom_radius_pixel.set(&m_bloom_radius, services);
-			m_bloom_strength_pixel.set(&m_bloom_strength, services);
+			float intensity = std::max(lighting.bloom_intensity, 0.0f);
+			m_bloom_intensity_pixel.set(&intensity, services);
+			float strength_factor = std::max(lighting.bloom_strength_factor, 0.0f);
+			m_bloom_strength_pixel.set(&strength_factor, services);
+			float radius = std::max(lighting.bloom_radius, 0.0f);
+			m_bloom_radius_pixel.set(&radius, services);
 		}
 
-		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
 		float saturation = lighting.saturation;
 		m_saturation_pixel.set(&saturation, services);
 
@@ -733,6 +704,7 @@ protected:
 	void processUserInput(f32 dtime);
 	void processKeyInput();
 	void processItemSelection(u16 *new_playeritem);
+	bool shouldShowTouchControls();
 
 	void dropSelectedItem(bool single_item = false);
 	void openInventory();
@@ -891,7 +863,7 @@ private:
 	SoundMaker *soundmaker = nullptr;
 
 	ChatBackend *chat_backend = nullptr;
-	LogOutputBuffer m_chat_log_buf;
+	CaptureLogOutput m_chat_log_buf;
 
 	EventManager *eventmgr = nullptr;
 	QuicktuneShortcutter *quicktune = nullptr;
@@ -939,6 +911,7 @@ private:
 	 *       (as opposed to the this local caching). This can be addressed in
 	 *       a later release.
 	 */
+	bool m_cache_disable_escape_sequences;
 	bool m_cache_doubletap_jump;
 	bool m_cache_enable_clouds;
 	bool m_cache_enable_joysticks;
@@ -982,6 +955,10 @@ Game::Game() :
 	m_chat_log_buf(g_logger),
 	m_game_ui(new GameUI())
 {
+	g_settings->registerChangedCallback("chat_log_level",
+		&settingChangedCallback, this);
+	g_settings->registerChangedCallback("disable_escape_sequences",
+		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("doubletap_jump",
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("enable_clouds",
@@ -1050,44 +1027,8 @@ Game::~Game()
 
 	clearTextureNameCache();
 
-	g_settings->deregisterChangedCallback("doubletap_jump",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("enable_clouds",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("enable_joysticks",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("enable_particles",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("enable_fog",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("mouse_sensitivity",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("joystick_frustum_sensitivity",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("repeat_place_time",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("repeat_dig_time",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("noclip",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("free_move",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("fog_start",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("cinematic",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("cinematic_camera_smoothing",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("camera_smoothing",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("invert_mouse",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("enable_hotbar_mouse_wheel",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("invert_hotbar_mouse_wheel",
-		&settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("pause_on_lost_focus",
-		&settingChangedCallback, this);
+	g_settings->deregisterAllChangedCallbacks(this);
+
 	if (m_rendering_engine)
 		m_rendering_engine->finalize();
 }
@@ -1286,7 +1227,6 @@ void Game::shutdown()
 
 	chat_backend->addMessage(L"", L"# Disconnected.");
 	chat_backend->addMessage(L"", L"");
-	m_chat_log_buf.clear();
 
 	if (client) {
 		client->Stop();
@@ -1575,6 +1515,17 @@ bool Game::createClient(const GameStartData &start_data)
 	return true;
 }
 
+bool Game::shouldShowTouchControls()
+{
+	if (!device->supportsTouchEvents())
+		return false;
+
+	const std::string &touch_controls = g_settings->get("touch_controls");
+	if (touch_controls == "auto")
+		return RenderingEngine::getLastPointerType() == PointerType::Touch;
+	return is_yes(touch_controls);
+}
+
 bool Game::initGui()
 {
 	m_game_ui->init();
@@ -1589,7 +1540,7 @@ bool Game::initGui()
 	gui_chat_console = make_irr<GUIChatConsole>(guienv, guienv->getRootGUIElement(),
 			-1, chat_backend, client, &g_menumgr);
 
-	if (g_settings->getBool("touch_controls")) {
+	if (shouldShowTouchControls()) {
 		g_touchcontrols = new TouchControls(device, texture_src);
 		g_touchcontrols->setUseCrosshair(!isTouchCrosshairDisabled());
 	}
@@ -2041,6 +1992,15 @@ void Game::updateStats(RunStats *stats, const FpsControl &draw_times,
 
 void Game::processUserInput(f32 dtime)
 {
+	bool desired = shouldShowTouchControls();
+	if (desired && !g_touchcontrols) {
+		g_touchcontrols = new TouchControls(device, texture_src);
+
+	} else if (!desired && g_touchcontrols) {
+		delete g_touchcontrols;
+		g_touchcontrols = nullptr;
+	}
+
 	// Reset input if window not active or some menu is active
 	if (!device->isWindowActive() || isMenuActive() || guienv->hasFocus(gui_chat_console.get())) {
 		if (m_game_focused) {
@@ -2671,7 +2631,7 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 				cur_control->setVisible(false);
 		}
 
-		if (m_first_loop_after_window_activation) {
+		if (m_first_loop_after_window_activation && !g_touchcontrols) {
 			m_first_loop_after_window_activation = false;
 
 			input->setMousePos(driver->getScreenSize().Width / 2,
@@ -2687,6 +2647,8 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 
 		m_first_loop_after_window_activation = true;
 	}
+	if (g_touchcontrols)
+		m_first_loop_after_window_activation = true;
 }
 
 // Get the factor to multiply with sensitivity to get the same mouse/joystick
@@ -2835,7 +2797,7 @@ static void pauseNodeAnimation(PausedNodesList &paused, scene::ISceneNode *node)
 	float speed = animated_node->getAnimationSpeed();
 	if (!speed)
 		return;
-	paused.push_back({grab(animated_node), speed});
+	paused.emplace_back(grab(animated_node), speed);
 	animated_node->setAnimationSpeed(0.0f);
 }
 
@@ -3198,9 +3160,27 @@ void Game::processClientEvents(CameraOrientation *cam)
 
 void Game::updateChat(f32 dtime)
 {
+	auto color_for = [](LogLevel level) -> const char* {
+		switch (level) {
+		case LL_ERROR  : return "\x1b(c@#F00)"; // red
+		case LL_WARNING: return "\x1b(c@#EE0)"; // yellow
+		case LL_INFO   : return "\x1b(c@#BBB)"; // grey
+		case LL_VERBOSE: return "\x1b(c@#888)"; // dark grey
+		case LL_TRACE  : return "\x1b(c@#888)"; // dark grey
+		default        : return "";
+		}
+	};
+
 	// Get new messages from error log buffer
-	while (!m_chat_log_buf.empty())
-		chat_backend->addMessage(L"", utf8_to_wide(m_chat_log_buf.get()));
+	std::vector<LogEntry> entries = m_chat_log_buf.take();
+	for (const auto& entry : entries) {
+		std::string line;
+		if (!m_cache_disable_escape_sequences) {
+			line.append(color_for(entry.level));
+		}
+		line.append(entry.combined);
+		chat_backend->addMessage(L"", utf8_to_wide(line));
+	}
 
 	// Get new messages from client
 	std::wstring message;
@@ -3509,7 +3489,7 @@ PointedThing Game::updatePointedThing(
 		if (show_entity_selectionbox && runData.selected_object->doShowSelectionBox() &&
 				runData.selected_object->getSelectionBox(&selection_box)) {
 			v3f pos = runData.selected_object->getPosition();
-			selectionboxes->push_back(aabb3f(selection_box));
+			selectionboxes->push_back(selection_box);
 			hud->setSelectionPos(pos, camera_offset);
 			GenericCAO* gcao = dynamic_cast<GenericCAO*>(runData.selected_object);
 			if (gcao != nullptr && gcao->getProperties().rotate_selectionbox)
@@ -4423,6 +4403,14 @@ void Game::settingChangedCallback(const std::string &setting_name, void *data)
 
 void Game::readSettings()
 {
+	LogLevel chat_log_level = Logger::stringToLevel(g_settings->get("chat_log_level"));
+	if (chat_log_level == LL_MAX) {
+		warningstream << "Supplied unrecognized chat_log_level; showing none." << std::endl;
+		chat_log_level = LL_NONE;
+	}
+	m_chat_log_buf.setLogLevel(chat_log_level);
+
+	m_cache_disable_escape_sequences     = g_settings->getBool("disable_escape_sequences");
 	m_cache_doubletap_jump               = g_settings->getBool("doubletap_jump");
 	m_cache_enable_clouds                = g_settings->getBool("enable_clouds");
 	m_cache_enable_joysticks             = g_settings->getBool("enable_joysticks");

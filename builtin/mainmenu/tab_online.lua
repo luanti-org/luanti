@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2014 sapier
 --
 --This program is free software; you can redistribute it and/or modify
@@ -195,8 +195,7 @@ local function search_server_list(input)
 	-- setup the keyword list
 	local keywords = {}
 	for word in input:gmatch("%S+") do
-		word = word:gsub("(%W)", "%%%1")
-		table.insert(keywords, word)
+		table.insert(keywords, word:lower())
 	end
 
 	if #keywords == 0 then
@@ -207,26 +206,17 @@ local function search_server_list(input)
 
 	-- Search the serverlist
 	local search_result = {}
-	for i = 1, #serverlistmgr.servers do
-		local server = serverlistmgr.servers[i]
-		local found = 0
-		for k = 1, #keywords do
-			local keyword = keywords[k]
-			if server.name then
-				local sername = server.name:lower()
-				local _, count = sername:gsub(keyword, keyword)
-				found = found + count * 4
-			end
-
-			if server.description then
-				local desc = server.description:lower()
-				local _, count = desc:gsub(keyword, keyword)
-				found = found + count * 2
-			end
+	for i, server in ipairs(serverlistmgr.servers) do
+		local name_matches, description_matches = true, true
+		for _, keyword in ipairs(keywords) do
+			name_matches = name_matches and not not
+					(server.name or ""):lower():find(keyword, 1, true)
+			description_matches = description_matches and not not
+					(server.description or ""):lower():find(keyword, 1, true)
 		end
-		if found > 0 then
-			local points = (#serverlistmgr.servers - i) / 5 + found
-			server.points = points
+		if name_matches or description_matches then
+			server.points = #serverlistmgr.servers - i
+					+ (name_matches and 50 or 0)
 			table.insert(search_result, server)
 		end
 	end

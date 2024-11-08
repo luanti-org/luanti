@@ -57,8 +57,12 @@ void COpenGLES2Driver::initFeatures()
 		else if (FeatureAvailable[IRR_GL_APPLE_texture_format_BGRA8888])
 			TextureFormats[ECF_A8R8G8B8] = {BGRA8_EXT, GL_BGRA, GL_UNSIGNED_BYTE};
 
-		if (FeatureAvailable[IRR_GL_OES_depth32])
-			TextureFormats[ECF_D32] = {GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT};
+		// OpenGL ES 3 doesn't include a GL_DEPTH_COMPONENT32, so still use
+		// OES_depth_texture for 32-bit depth texture support.
+		// OpenGL ES 3 would allow {GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT},
+		// but I guess that would have to be called ECF_D32F...
+		if (FeatureAvailable[IRR_GL_OES_depth_texture])
+			TextureFormats[ECF_D32] = {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT};
 	} else {
 		// NOTE These are *texture* formats. They may or may not be suitable
 		// for render targets. The specs only talks on *sized* formats for the
@@ -98,8 +102,9 @@ void COpenGLES2Driver::initFeatures()
 
 		if (FeatureAvailable[IRR_GL_OES_depth_texture]) {
 			TextureFormats[ECF_D16] = {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT};
-			if (FeatureAvailable[IRR_GL_OES_depth32])
-				TextureFormats[ECF_D32] = {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT};
+			// OES_depth_texture includes 32-bit depth texture support.
+			TextureFormats[ECF_D32] = {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT};
+
 			if (FeatureAvailable[IRR_GL_OES_packed_depth_stencil])
 				TextureFormats[ECF_D24S8] = {GL_DEPTH_STENCIL, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8};
 		}

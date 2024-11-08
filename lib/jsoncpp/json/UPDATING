@@ -1,6 +1,6 @@
 #!/bin/sh
 cd ..
-git clone https://github.com/open-source-parsers/jsoncpp -b 1.9.5 --depth 1
+git clone https://github.com/open-source-parsers/jsoncpp -b 1.9.6 --depth 1
 cd jsoncpp
 ./amalgamate.py
 cp -R dist/json ../json

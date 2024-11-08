@@ -40,8 +40,10 @@ COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters &params, io::IFil
 
 bool COpenGLDriver::initDriver()
 {
-	ContextManager->generateSurface();
-	ContextManager->generateContext();
+	if (!ContextManager->generateSurface())
+		return false;
+	if (!ContextManager->generateContext())
+		return false;
 	ExposedData = ContextManager->getContext();
 	ContextManager->activateContext(ExposedData, false);
 	GL.LoadAllProcedures(ContextManager);

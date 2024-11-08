@@ -1,5 +1,3 @@
--- Minetest: builtin/static_spawn.lua
-
 local static_spawnpoint_string = core.settings:get("static_spawnpoint")
 if static_spawnpoint_string and
 		static_spawnpoint_string ~= "" and

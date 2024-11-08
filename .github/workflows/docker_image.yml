@@ -72,8 +72,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           labels: |
-            org.opencontainers.image.title=Minetest
-            org.opencontainers.image.vendor=Minetest
+            org.opencontainers.image.title=Luanti
+            org.opencontainers.image.vendor=Luanti
             org.opencontainers.image.licenses=LGPL-2.1-only
 
       # Build and push Docker image
@@ -94,5 +94,5 @@ jobs:
 
       - name: Test Docker Image
         run: |
-          docker run --rm $(cut -d, -f1 <<<"$DOCKER_METADATA_OUTPUT_TAGS") minetestserver --version
+          docker run --rm $(cut -d, -f1 <<<"$DOCKER_METADATA_OUTPUT_TAGS") luantiserver --version
         shell: bash

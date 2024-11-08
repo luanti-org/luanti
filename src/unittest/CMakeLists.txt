@@ -13,6 +13,7 @@ set (UNITTEST_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_filesys.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_inventory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_irrptr.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_logging.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_lua.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_map.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_mapblock.cpp
@@ -36,6 +37,7 @@ set (UNITTEST_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_socket.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_servermodmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_threading.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_translations.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_utilities.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_voxelarea.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_voxelalgorithms.cpp

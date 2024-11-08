@@ -990,9 +990,9 @@ bool CXMeshFileLoader::parseDataObjectSkinWeights(SXMesh &mesh)
 	// transforms the mesh vertices to the space of the bone
 	// When concatenated to the bone's transform, this provides the
 	// world space coordinates of the mesh as affected by the bone
-	core::matrix4 &MatrixOffset = joint->GlobalInversedMatrix;
-
+	core::matrix4 MatrixOffset;
 	readMatrix(MatrixOffset);
+	joint->GlobalInversedMatrix = MatrixOffset;
 
 	if (!checkForOneFollowingSemicolons()) {
 		os::Printer::log("No finishing semicolon in Skin Weights found in x file", ELL_WARNING);

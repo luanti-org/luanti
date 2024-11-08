@@ -34,14 +34,14 @@ local function show_fullscreen_fs(name, window)
 		("label[%f,%f;%s]"):format(size.x / 2, size.y / 2 + 1, touch_text),
 	}
 
-	minetest.show_formspec(name, "testfullscreenfs:fs", table.concat(fs))
-	minetest.chat_send_player(name, ("Calculated size of %f, %f"):format(size.x, size.y))
+	core.show_formspec(name, "testfullscreenfs:fs", table.concat(fs))
+	core.chat_send_player(name, ("Calculated size of %f, %f"):format(size.x, size.y))
 	last_window_info[name] = window
 end
 
-minetest.register_chatcommand("testfullscreenfs", {
+core.register_chatcommand("testfullscreenfs", {
 	func = function(name)
-		local window = minetest.get_player_window_information(name)
+		local window = core.get_player_window_information(name)
 		if not window then
 			return false, "Unable to get window info"
 		end
@@ -51,21 +51,21 @@ minetest.register_chatcommand("testfullscreenfs", {
 	end,
 })
 
-minetest.register_globalstep(function()
+core.register_globalstep(function()
 	for name, last_window in pairs(last_window_info) do
-		local window = minetest.get_player_window_information(name)
+		local window = core.get_player_window_information(name)
 		if window and not window_info_equal(last_window, window) then
 			show_fullscreen_fs(name, window)
 		end
 	end
 end)
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname == "testfullscreenfs:fs" and fields.quit then
 		last_window_info[player:get_player_name()] = nil
 	end
 end)
 
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	last_window_info[player:get_player_name()] = nil
 end)

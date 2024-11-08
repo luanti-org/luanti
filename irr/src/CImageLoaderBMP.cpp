@@ -8,8 +8,8 @@
 #include "SColor.h"
 #include "CColorConverter.h"
 #include "CImage.h"
+#include "coreutil.h"
 #include "os.h"
-#include "irrString.h"
 
 namespace irr
 {

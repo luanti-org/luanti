@@ -277,7 +277,8 @@ inline quaternion &quaternion::operator=(const matrix4 &m)
 		}
 	}
 
-	return normalize();
+	normalize();
+	return *this;
 }
 #endif
 

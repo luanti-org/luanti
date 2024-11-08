@@ -1,24 +1,8 @@
-/*
-Copyright (C) 2014 sapier
-Copyright (C) 2018 srifqi, Muhammad Rifqi Priyo Susanto
-		<muhammadrifqipriyosusanto@gmail.com>
-Copyright (C) 2024 grorp, Gregor Parzefall
-		<gregor.parzefall@posteo.de>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2014 sapier
+// Copyright (C) 2018 srifqi, Muhammad Rifqi Priyo Susanto
+// Copyright (C) 2024 grorp, Gregor Parzefall
 
 #include "touchcontrols.h"
 
@@ -416,6 +400,11 @@ TouchControls::TouchControls(IrrlichtDevice *device, ISimpleTextureSource *tsrc)
 	m_status_text = grab_gui_element<IGUIStaticText>(
 			m_guienv->addStaticText(L"", recti(), false, false));
 	m_status_text->setVisible(false);
+}
+
+TouchControls::~TouchControls()
+{
+	releaseAll();
 }
 
 void TouchControls::addButton(std::vector<button_info> &buttons, touch_gui_button_id id,
@@ -843,6 +832,7 @@ void TouchControls::emitMouseEvent(EMOUSE_INPUT_EVENT type)
 	event.MouseInput.Control      = false;
 	event.MouseInput.ButtonStates = 0;
 	event.MouseInput.Event        = type;
+	event.MouseInput.Simulated    = true;
 	m_receiver->OnEvent(event);
 }
 

@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2023 Gregor Parzefall
 --
 --This program is free software; you can redistribute it and/or modify
@@ -68,15 +68,15 @@ end
 local function get_formspec(dialogdata)
 	local markup = table.concat({
 		"<big>", fgettext("Minetest Game is no longer installed by default"), "</big>\n",
-		fgettext("For a long time, the Minetest engine shipped with a default game called \"Minetest Game\". " ..
-				"Since Minetest 5.8.0, Minetest ships without a default game."), "\n",
+		fgettext("For a long time, Luanti shipped with a default game called \"Minetest Game\". " ..
+				"Since version 5.8.0, Luanti ships without a default game."), "\n",
 		fgettext("If you want to continue playing in your Minetest Game worlds, you need to reinstall Minetest Game."),
 	})
 
 	return table.concat({
 		"formspec_version[6]",
 		"size[12.8,7]",
-		"hypertext[0.375,0.375;12.05,5.2;text;", minetest.formspec_escape(markup), "]",
+		"hypertext[0.375,0.375;12.05,5.2;text;", core.formspec_escape(markup), "]",
 		"container[0.375,5.825]",
 		"style[dismiss;bgcolor=red]",
 		"button[0,0;4,0.8;dismiss;", fgettext("Dismiss"), "]",
@@ -114,7 +114,7 @@ local function eventhandler(event)
 		return true
 	elseif event == "MenuQuit" then
 		-- Don't allow closing the dialog with ESC, but still allow exiting
-		-- Minetest.
+		-- Luanti
 		core.close()
 		return true
 	end

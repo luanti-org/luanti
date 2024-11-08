@@ -10,7 +10,7 @@ end
 
 function core.handle_async(func, callback, ...)
 	assert(type(func) == "function" and type(callback) == "function",
-		"Invalid minetest.handle_async invocation")
+		"Invalid core.handle_async invocation")
 	local args = {n = select("#", ...), ...}
 	local mod_origin = core.get_last_run_mod()
 

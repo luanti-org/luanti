@@ -4,5 +4,5 @@ contact_links:
     url: https://github.com/minetest/minetest_game/issues/new/choose
     about: Only submit issues of the engine in this repository's issue tracker. Submit those of Minetest Game in its own issue tracker.
   - name: Search for issue trackers of third-party games
-    url: https://content.minetest.net/packages/?type=game
+    url: https://content.luanti.org/packages/?type=game
     about: For issues of third-party games, search for the game in the ContentDB and then submit an issue in their issue tracker.

@@ -1,5 +1,5 @@
 --
--- This file contains built-in stuff in Minetest implemented in Lua.
+-- This file contains built-in stuff in Luanti implemented in Lua.
 --
 -- It is always loaded and executed after registration of the C API,
 -- before loading and running any mods.

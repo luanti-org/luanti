@@ -193,7 +193,7 @@ s32 CMeshManipulator::getPolyCount(scene::IMesh *mesh) const
 //! Returns amount of polygons in mesh.
 s32 CMeshManipulator::getPolyCount(scene::IAnimatedMesh *mesh) const
 {
-	if (mesh && mesh->getFrameCount() != 0)
+	if (mesh && mesh->getMaxFrameNumber() != 0)
 		return getPolyCount(mesh->getMesh(0));
 
 	return 0;

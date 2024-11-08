@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2018-20 rubenwardy
 --
 --This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 if not core.get_http_api then
 	function create_contentdb_dlg()
 		return messagebox("contentdb",
-				fgettext("ContentDB is not available when Minetest was compiled without cURL"))
+				fgettext("ContentDB is not available when Luanti was compiled without cURL"))
 	end
 	return
 end
@@ -357,7 +357,7 @@ local function get_formspec(dlgdata)
 		if package.featured then
 			table.insert_all(formspec, {
 				"tooltip[0,0;0.8,0.8;", fgettext("Featured"), "]",
-				"image[0.2,0.2;0.4,0.4;", defaulttexturedir, "server_favorite.png]",
+				"image[0.2,0.2;0.4,0.4;", core.formspec_escape(defaulttexturedir .. "server_favorite.png"), "]",
 			})
 		end
 
@@ -367,20 +367,21 @@ local function get_formspec(dlgdata)
 
 		if package.downloading then
 			table.insert_all(formspec, {
-				"animated_image[0,0;0.5,0.5;downloading;", defaulttexturedir, "cdb_downloading.png;3;400;;]",
+				"animated_image[0,0;0.5,0.5;downloading;", core.formspec_escape(defaulttexturedir .. "cdb_downloading.png"),
+					";3;400;;]",
 			})
 		elseif package.queued then
 			table.insert_all(formspec, {
-				"image[0,0;0.5,0.5;", defaulttexturedir, "cdb_queued.png]",
+				"image[0,0;0.5,0.5;", core.formspec_escape(defaulttexturedir .. "cdb_queued.png"), "]",
 			})
 		elseif package.path then
 			if package.installed_release < package.release then
 				table.insert_all(formspec, {
-					"image[0,0;0.5,0.5;", defaulttexturedir, "cdb_update.png]",
+					"image[0,0;0.5,0.5;", core.formspec_escape(defaulttexturedir .. "cdb_update.png"), "]",
 				})
 			else
 				table.insert_all(formspec, {
-					"image[0.1,0.1;0.3,0.3;", defaulttexturedir, "checkbox_64.png]",
+					"image[0.1,0.1;0.3,0.3;", core.formspec_escape(defaulttexturedir .. "checkbox_64.png"), "]",
 				})
 			end
 		end
@@ -487,12 +488,17 @@ end
 
 local function handle_events(event)
 	if event == "DialogShow" then
-		-- Don't show the "MINETEST" header behind the dialog.
+		-- Don't show the header image behind the dialog.
 		mm_game_theme.set_engine(true)
 
 		-- If ContentDB is already loaded, auto-install packages here.
 		do_auto_install()
 
+		return true
+	end
+
+	if event == "WindowInfoChange" then
+		ui.update()
 		return true
 	end
 

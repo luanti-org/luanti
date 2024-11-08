@@ -1,8 +1,8 @@
 
-License of Minetest textures and sounds
+License of Luanti textures and sounds
 ---------------------------------------
 
-This applies to textures and sounds contained in the main Minetest
+This applies to textures and sounds contained in the main Luanti
 distribution.
 
 Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
@@ -29,7 +29,6 @@ ShadowNinja:
   textures/base/pack/smoke_puff.png
 
 paramat:
-  textures/base/pack/menu_header.png
   textures/base/pack/next_icon.png
   textures/base/pack/prev_icon.png
   textures/base/pack/clear.png
@@ -39,10 +38,10 @@ rubenwardy, paramat:
   textures/base/pack/start_icon.png
   textures/base/pack/end_icon.png
 
-erlehmann:
-  misc/minetest-icon-24x24.png
-  misc/minetest-icon.ico
-  misc/minetest.svg
+erle:
+  misc/luanti-icon-24x24.png
+  misc/luanti-icon.ico
+  misc/luanti.svg
   textures/base/pack/logo.png
 
 JRottm:
@@ -68,7 +67,7 @@ Zughy:
 appgurueu:
   textures/base/pack/server_incompatible.png
 
-erlehmann, Warr1024, rollerozxa:
+erle, Warr1024, rollerozxa:
   textures/base/pack/no_screenshot.png
 
 kilbith:
@@ -88,12 +87,17 @@ DS:
 
 grorp:
   textures/base/pack/exit_btn.png
+  textures/base/pack/menu_header.png
+    using the font "undefined medium" (https://undefined-medium.com/),
+    which is licensed under the SIL Open Font License, Version 1.1
+    modified by DS
 
-License of Minetest source code
+License of Luanti source code
 -------------------------------
 
-Minetest
-Copyright (C) 2010-2018 celeron55, Perttu Ahola <celeron55@gmail.com>
+Luanti
+Copyright (C) 2010-2024 celeron55, Perttu Ahola <celeron55@gmail.com>
+and contributors (see source file comments and the version control log)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -112,7 +116,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Irrlicht
 ---------------
 
-This program uses IrrlichtMt, Minetest's fork of
+This program uses IrrlichtMt, Luanti's fork of
 the Irrlicht Engine. http://irrlicht.sourceforge.net/
 
  The Irrlicht Engine License

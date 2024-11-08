@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 #include "common/c_content.h"
 #include "common/c_converter.h"
 #include "common/c_types.h"
@@ -998,7 +983,7 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 		lua_pushstring(L, c.mesh.c_str());
 		lua_setfield(L, -2, "mesh");
 	}
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 	push_ARGB8(L, c.minimap_color);       // I know this is not set-able w/ register_node,
 	lua_setfield(L, -2, "minimap_color"); // but the people need to know!
 #endif
@@ -2063,6 +2048,7 @@ bool read_tree_def(lua_State *L, int idx, const NodeDefManager *ndef,
 }
 
 /******************************************************************************/
+
 // Returns depth of json value tree
 static int push_json_value_getdepth(const Json::Value &value)
 {
@@ -2070,11 +2056,8 @@ static int push_json_value_getdepth(const Json::Value &value)
 		return 1;
 
 	int maxdepth = 0;
-	for (const auto &it : value) {
-		int elemdepth = push_json_value_getdepth(it);
-		if (elemdepth > maxdepth)
-			maxdepth = elemdepth;
-	}
+	for (const auto &it : value)
+		maxdepth = std::max(push_json_value_getdepth(it), maxdepth);
 	return maxdepth + 1;
 }
 // Recursive function to convert JSON --> Lua table
@@ -2087,41 +2070,35 @@ static bool push_json_value_helper(lua_State *L, const Json::Value &value,
 			lua_pushvalue(L, nullindex);
 			break;
 		case Json::intValue:
-			lua_pushinteger(L, value.asLargestInt());
-			break;
 		case Json::uintValue:
-			lua_pushinteger(L, value.asLargestUInt());
-			break;
 		case Json::realValue:
+			// push everything as a double since Lua integers may be too small
 			lua_pushnumber(L, value.asDouble());
 			break;
-		case Json::stringValue:
-			{
-				const char *str = value.asCString();
-				lua_pushstring(L, str ? str : "");
-			}
+		case Json::stringValue: {
+			const auto &str = value.asString();
+			lua_pushlstring(L, str.c_str(), str.size());
 			break;
+		}
 		case Json::booleanValue:
 			lua_pushboolean(L, value.asInt());
 			break;
 		case Json::arrayValue:
 			lua_createtable(L, value.size(), 0);
-			for (Json::Value::const_iterator it = value.begin();
-					it != value.end(); ++it) {
+			for (auto it = value.begin(); it != value.end(); ++it) {
 				push_json_value_helper(L, *it, nullindex);
 				lua_rawseti(L, -2, it.index() + 1);
 			}
 			break;
 		case Json::objectValue:
 			lua_createtable(L, 0, value.size());
-			for (Json::Value::const_iterator it = value.begin();
-					it != value.end(); ++it) {
-#if !defined(JSONCPP_STRING) && (JSONCPP_VERSION_MAJOR < 1 || JSONCPP_VERSION_MINOR < 9)
+			for (auto it = value.begin(); it != value.end(); ++it) {
+#if JSONCPP_VERSION_HEXA >= 0x01060000 /* 1.6.0 */
+				const auto &str = it.name();
+				lua_pushlstring(L, str.c_str(), str.size());
+#else
 				const char *str = it.memberName();
 				lua_pushstring(L, str ? str : "");
-#else
-				std::string str = it.name();
-				lua_pushstring(L, str.c_str());
 #endif
 				push_json_value_helper(L, *it, nullindex);
 				lua_rawset(L, -3);
@@ -2130,6 +2107,7 @@ static bool push_json_value_helper(lua_State *L, const Json::Value &value,
 	}
 	return true;
 }
+
 // converts JSON --> Lua table; returns false if lua stack limit exceeded
 // nullindex: Lua stack index of value to use in place of JSON null
 bool push_json_value(lua_State *L, const Json::Value &value, int nullindex)
@@ -2148,11 +2126,11 @@ bool push_json_value(lua_State *L, const Json::Value &value, int nullindex)
 }
 
 // Converts Lua table --> JSON
-void read_json_value(lua_State *L, Json::Value &root, int index, u8 recursion)
+void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 {
-	if (recursion > 16) {
-		throw SerializationError("Maximum recursion depth exceeded");
-	}
+	if (max_depth == 0)
+		throw SerializationError("depth exceeds MAX_JSON_DEPTH");
+
 	int type = lua_type(L, index);
 	if (type == LUA_TBOOLEAN) {
 		root = (bool) lua_toboolean(L, index);
@@ -2163,11 +2141,13 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u8 recursion)
 		const char *str = lua_tolstring(L, index, &len);
 		root = std::string(str, len);
 	} else if (type == LUA_TTABLE) {
+		// Reserve two slots for key and value.
+		lua_checkstack(L, 2);
 		lua_pushnil(L);
 		while (lua_next(L, index)) {
 			// Key is at -2 and value is at -1
 			Json::Value value;
-			read_json_value(L, value, lua_gettop(L), recursion + 1);
+			read_json_value(L, value, lua_gettop(L), max_depth - 1);
 
 			Json::ValueType roottype = root.type();
 			int keytype = lua_type(L, -1);
@@ -2236,12 +2216,14 @@ void push_pointed_thing(lua_State *L, const PointedThing &pointed, bool csm,
 
 void push_objectRef(lua_State *L, const u16 id)
 {
+	assert(id != 0);
 	// Get core.object_refs[i]
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "object_refs");
 	luaL_checktype(L, -1, LUA_TTABLE);
 	lua_pushinteger(L, id);
 	lua_gettable(L, -2);
+	assert(!lua_isnoneornil(L, -1));
 	lua_remove(L, -2); // object_refs
 	lua_remove(L, -2); // core
 }

@@ -53,7 +53,7 @@ jobs:
 
       - name: Test
         run: |
-          ./build/macos/minetest.app/Contents/MacOS/minetest --run-unittests
+          ./build/macos/luanti.app/Contents/MacOS/luanti --run-unittests
 
       # Zipping the built .app preserves permissions on the contained files,
       #   which the GitHub artifact pipeline would otherwise strip away.
@@ -66,5 +66,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: minetest-macos
+          name: luanti-macos
           path: ./build/macos/*.zip

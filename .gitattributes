@@ -3,3 +3,5 @@
 
 *.cpp diff=cpp
 *.h diff=cpp
+
+*.gltf binary

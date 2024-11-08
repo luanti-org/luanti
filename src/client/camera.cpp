@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "camera.h"
 #include "debug.h"
@@ -38,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "script/scripting_client.h"
 #include "gettext.h"
 #include <SViewFrustum.h>
+#include <IGUIFont.h>
 #include <IVideoDriver.h>
 
 #define CAMERA_OFFSET_STEP 200
@@ -405,10 +391,11 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 
 	// Compute absolute camera position and target
 	m_headnode->getAbsoluteTransformation().transformVect(m_camera_position, rel_cam_pos);
-	m_headnode->getAbsoluteTransformation().rotateVect(m_camera_direction, rel_cam_target - rel_cam_pos);
+	m_camera_direction = m_headnode->getAbsoluteTransformation()
+			.rotateAndScaleVect(rel_cam_target - rel_cam_pos);
 
-	v3f abs_cam_up;
-	m_headnode->getAbsoluteTransformation().rotateVect(abs_cam_up, rel_cam_up);
+	v3f abs_cam_up = m_headnode->getAbsoluteTransformation()
+			.rotateAndScaleVect(rel_cam_up);
 
 	// Separate camera position for calculation
 	v3f my_cp = m_camera_position;

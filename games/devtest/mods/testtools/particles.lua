@@ -1,10 +1,10 @@
-minetest.register_tool("testtools:particle_spawner", {
+core.register_tool("testtools:particle_spawner", {
 	description = "Particle Spawner".."\n"..
 		"Punch: Spawn random test particle",
 	inventory_image = "testtools_particle_spawner.png",
 	groups = { testtool = 1, disable_repair = 1 },
 	on_use = function(itemstack, user, pointed_thing)
-		local pos = minetest.get_pointed_thing_position(pointed_thing, true)
+		local pos = core.get_pointed_thing_position(pointed_thing, true)
 		if pos == nil then
 			if user then
 				pos = user:get_pos()
@@ -20,7 +20,7 @@ minetest.register_tool("testtools:particle_spawner", {
 			anim = {type="vertical_frames", aspect_w=16, aspect_h=16, length=3.3}
 		end
 
-		minetest.add_particle({
+		core.add_particle({
 			pos = pos,
 			velocity = {x=0, y=0, z=0},
 			acceleration = {x=0, y=0.04, z=0},

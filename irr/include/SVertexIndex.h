@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "irrTypes.h"
-
 namespace irr
 {
 namespace video

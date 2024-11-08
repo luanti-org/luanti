@@ -45,7 +45,7 @@ public:
 	//! sets the frames between the animation is looped.
 	//! the default is 0 - MaximalFrameCount of the mesh.
 	//! NOTE: setMesh will also change this value and set it to the full range of animations of the mesh
-	bool setFrameLoop(s32 begin, s32 end) override;
+	bool setFrameLoop(f32 begin, f32 end) override;
 
 	//! Sets looping mode which is on by default. If set to false,
 	//! animations will not be looped.
@@ -93,9 +93,9 @@ public:
 	//! Returns the current displayed frame number.
 	f32 getFrameNr() const override;
 	//! Returns the current start frame number.
-	s32 getStartFrame() const override;
+	f32 getStartFrame() const override;
 	//! Returns the current end frame number.
-	s32 getEndFrame() const override;
+	f32 getEndFrame() const override;
 
 	//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
 	/* In this way it is possible to change the materials a mesh causing all mesh scene nodes
@@ -148,8 +148,8 @@ private:
 	core::aabbox3d<f32> Box;
 	IAnimatedMesh *Mesh;
 
-	s32 StartFrame;
-	s32 EndFrame;
+	f32 StartFrame;
+	f32 EndFrame;
 	f32 FramesPerSecond;
 	f32 CurrentFrameNr;
 

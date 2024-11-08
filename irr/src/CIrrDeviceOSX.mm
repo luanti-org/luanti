@@ -12,6 +12,7 @@
 #include "CIrrDeviceOSX.h"
 
 #include "IEventReceiver.h"
+#include "IVideoDriver.h"
 #include "os.h"
 #include "CTimer.h"
 #include "irrString.h"

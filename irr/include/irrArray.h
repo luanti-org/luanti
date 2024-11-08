@@ -155,7 +155,7 @@ public:
 	}
 
 	//! Assignment operator
-	const array<T> &operator=(const array<T> &other)
+	array<T> &operator=(const array<T> &other)
 	{
 		if (this == &other)
 			return *this;

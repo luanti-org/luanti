@@ -5,7 +5,6 @@
 #pragma once
 
 #include "SMaterial.h"
-#include "S3DVertex.h"
 
 namespace irr
 {

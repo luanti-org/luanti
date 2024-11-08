@@ -1,5 +1,9 @@
-Minetest Lua Modding API Reference
-==================================
+Luanti Lua Modding API Reference
+================================
+
+**WARNING**: if you're looking for the `minetest` namespace (e.g. `minetest.something`),
+it's now called `core` due to the renaming of Luanti (formerly Minetest).
+`minetest` will keep existing as an alias, so that old code won't break.
 
 * More information at <http://www.minetest.net/>
 * Developer Wiki: <http://dev.minetest.net/>
@@ -9,11 +13,11 @@ Minetest Lua Modding API Reference
 Introduction
 ------------
 
-Content and functionality can be added to Minetest using Lua scripting
+Content and functionality can be added to Luanti using Lua scripting
 in run-time loaded mods.
 
 A mod is a self-contained bunch of scripts, textures and other related
-things, which is loaded by and interfaces with Minetest.
+things, which is loaded by and interfaces with Luanti.
 
 Mods are contained and ran solely on the server side. Definitions and media
 files are automatically transferred to the client.
@@ -36,7 +40,7 @@ the `init.lua` scripts in a shared environment.
 Paths
 -----
 
-Minetest keeps and looks for files mostly in two paths. `path_share` or `path_user`.
+Luanti keeps and looks for files mostly in two paths. `path_share` or `path_user`.
 
 `path_share` contains possibly read-only content for the engine (incl. games and mods).
 `path_user` contains mods or games installed by the user but also the users
@@ -159,7 +163,7 @@ Mods can be put in a subdirectory, if the parent directory, which otherwise
 should be a mod, contains a file named `modpack.conf`.
 The file is a key-value store of modpack details.
 
-* `name`: The modpack name. Allows Minetest to determine the modpack name even
+* `name`: The modpack name. Allows Luanti to determine the modpack name even
           if the folder is wrongly named.
 * `title`: A human-readable title to address the modpack. See [Translating content meta](#translating-content-meta).
 * `description`: Description of mod to be shown in the Mods tab of the main
@@ -199,13 +203,13 @@ Mod directory structure
 ### modname
 
 The location of this directory can be fetched by using
-`minetest.get_modpath(modname)`.
+`core.get_modpath(modname)`.
 
 ### mod.conf
 
 A `Settings` file that provides meta information about the mod.
 
-* `name`: The mod name. Allows Minetest to determine the mod name even if the
+* `name`: The mod name. Allows Luanti to determine the mod name even if the
           folder is wrongly named.
 * `title`: A human-readable title to address the mod. See [Translating content meta](#translating-content-meta).
 * `description`: Description of mod to be shown in the Mods tab of the main
@@ -253,13 +257,13 @@ The format is documented in `builtin/settingtypes.txt`.
 It is parsed by the main menu settings dialogue to list mod-specific
 settings in the "Mods" category.
 
-`minetest.settings` can be used to read custom or engine settings.
+`core.settings` can be used to read custom or engine settings.
 See [`Settings`].
 
 ### `init.lua`
 
 The main Lua script. Running this script should register everything it
-wants to register. Subsequent execution depends on Minetest calling the
+wants to register. Subsequent execution depends on Luanti calling the
 registered callbacks.
 
 ### `textures`, `sounds`, `media`, `models`, `locale`
@@ -274,7 +278,7 @@ Accepted formats are:
 
     images: .png, .jpg, .tga, (deprecated:) .bmp
     sounds: .ogg vorbis
-    models: .x, .b3d, .obj, .gltf (Minetest 5.10 or newer)
+    models: .x, .b3d, .obj, (since version 5.10:) .gltf, .glb
 
 Other formats won't be sent to the client (e.g. you can store .blend files
 in a folder for convenience, without the risk that such files are transferred)
@@ -294,7 +298,7 @@ depends on by supplying a file with an equal name.
 Only a subset of model file format features is supported:
 
 Simple textured meshes (with multiple textures), optionally with normals.
-The .x and .b3d formats additionally support skeletal animation.
+The .x, .b3d and .gltf formats additionally support (a single) animation.
 
 #### glTF
 
@@ -302,9 +306,15 @@ The glTF model file format for now only serves as a
 more modern alternative to the other static model file formats;
 it unlocks no special rendering features.
 
+Binary glTF (`.glb`) files are supported and recommended over `.gltf` files
+due to their space savings.
+
 This means that many glTF features are not supported *yet*, including:
 
-* Animation
+* Animations
+  * Only a single animation is supported,
+    use frame ranges within this animation.
+  * Only integer frames are supported.
 * Cameras
 * Materials
   * Only base color textures are supported
@@ -325,7 +335,7 @@ Do not rely on glTF features not being supported; they may be supported in the f
 The backwards compatibility guarantee does not extend to ignoring unsupported features.
 
 For example, if your model used an emissive material,
-you should expect that a future version of Minetest may respect this,
+you should expect that a future version of Luanti may respect this,
 and thus cause your model to render differently there.
 
 Naming conventions
@@ -366,23 +376,23 @@ Aliases
 =======
 
 Aliases of itemnames can be added by using
-`minetest.register_alias(alias, original_name)` or
-`minetest.register_alias_force(alias, original_name)`.
+`core.register_alias(alias, original_name)` or
+`core.register_alias_force(alias, original_name)`.
 
 This adds an alias `alias` for the item called `original_name`.
 From now on, you can use `alias` to refer to the item `original_name`.
 
-The only difference between `minetest.register_alias` and
-`minetest.register_alias_force` is that if an item named `alias` already exists,
-`minetest.register_alias` will do nothing while
-`minetest.register_alias_force` will unregister it.
+The only difference between `core.register_alias` and
+`core.register_alias_force` is that if an item named `alias` already exists,
+`core.register_alias` will do nothing while
+`core.register_alias_force` will unregister it.
 
 This can be used for maintaining backwards compatibility.
 
 This can also set quick access names for things, e.g. if
 you have an item called `epiclylongmodname:stuff`, you could do
 
-    minetest.register_alias("stuff", "epiclylongmodname:stuff")
+    core.register_alias("stuff", "epiclylongmodname:stuff")
 
 and be able to use `/giveme stuff`.
 
@@ -392,7 +402,7 @@ Mapgen aliases
 In a game, a certain number of these must be set to tell core mapgens which
 of the game's nodes are to be used for core mapgen generation. For example:
 
-    minetest.register_alias("mapgen_stone", "default:stone")
+    core.register_alias("mapgen_stone", "default:stone")
 
 ### Aliases for non-V6 mapgens
 
@@ -459,7 +469,7 @@ Deprecated, define dungeon nodes in biome definitions instead.
 
 By default the world is filled with air nodes. To set a different node use e.g.:
 
-    minetest.register_alias("mapgen_singlenode", "default:stone")
+    core.register_alias("mapgen_singlenode", "default:stone")
 
 
 
@@ -829,7 +839,7 @@ swapped, i.e. `A.png^[hardlight:B.png` is the same as `B.png^[overlay:A.png`
 
 Embed a base64 encoded PNG image in the texture string.
 You can produce a valid string for this by calling
-`minetest.encode_base64(minetest.encode_png(tex))`,
+`core.encode_base64(core.encode_png(tex))`,
 where `tex` is pixel data. Refer to the documentation of these
 functions for details.
 You can use this to send disposable images such as captchas
@@ -839,7 +849,7 @@ expensive to compose with `[combine:`.
 IMPORTANT: Avoid sending large images this way.
 This is not a replacement for asset files, do not use it to do anything
 that you could instead achieve by just using a file.
-In particular consider `minetest.dynamic_add_media` and test whether
+In particular consider `core.dynamic_add_media` and test whether
 using other texture modifiers could result in a shorter string than
 embedding a whole image, this may vary by use case.
 
@@ -978,7 +988,7 @@ To transfer the color to a special drop, you need a drop table.
 Example:
 
 ```lua
-minetest.register_node("mod:stone", {
+core.register_node("mod:stone", {
     description = "Stone",
     tiles = {"default_stone.png"},
     paramtype2 = "color",
@@ -998,8 +1008,8 @@ Craft recipes only support item strings, but fortunately item strings
 can also contain metadata. Example craft recipe registration:
 
 ```lua
-minetest.register_craft({
-    output = minetest.itemstring_with_palette("wool:block", 3),
+core.register_craft({
+    output = core.itemstring_with_palette("wool:block", 3),
     type = "shapeless",
     recipe = {
         "wool:block",
@@ -1008,7 +1018,7 @@ minetest.register_craft({
 })
 ```
 
-To set the `color` field, you can use `minetest.itemstring_with_color`.
+To set the `color` field, you can use `core.itemstring_with_color`.
 
 Metadata field filtering in the `recipe` field are not supported yet,
 so the craft output is independent of the color of the ingredients.
@@ -1017,7 +1027,7 @@ Soft texture overlay
 --------------------
 
 Sometimes hardware coloring is not enough, because it affects the
-whole tile. Soft texture overlays were added to Minetest to allow
+whole tile. Soft texture overlays were added to Luanti to allow
 the dynamic coloring of only specific parts of the node's texture.
 For example a grass block may have colored grass, while keeping the
 dirt brown.
@@ -1040,7 +1050,7 @@ To skip one face, set that overlay tile to an empty string.
 Example (colored grass block):
 
 ```lua
-minetest.register_node("default:dirt_with_grass", {
+core.register_node("default:dirt_with_grass", {
     description = "Dirt with Grass",
     -- Regular tiles, as usual
     -- The dirt tile disables palette coloring
@@ -1251,13 +1261,13 @@ existence before trying to access the fields.
 
 Example:
 
-All nodes registered with `minetest.register_node` get added to the table
-`minetest.registered_nodes`.
+All nodes registered with `core.register_node` get added to the table
+`core.registered_nodes`.
 
 If you want to check the drawtype of a node, you could do it like this:
 
 ```lua
-local def = minetest.registered_nodes[nodename]
+local def = core.registered_nodes[nodename]
 local drawtype = def and def.drawtype
 ```
 
@@ -1273,7 +1283,7 @@ are quite static.
 The definition of a node is stored and can be accessed by using
 
 ```lua
-minetest.registered_nodes[node.name]
+core.registered_nodes[node.name]
 ```
 
 See [Registered definitions].
@@ -1324,7 +1334,7 @@ The function of `param2` is determined by `paramtype2` in node definition.
     * Used by `drawtype = "flowingliquid"` and `liquidtype = "flowing"`
     * The liquid level and a flag of the liquid are stored in `param2`
     * Bits 0-2: Liquid level (0-7). The higher, the more liquid is in this node;
-      see `minetest.get_node_level`, `minetest.set_node_level` and `minetest.add_node_level`
+      see `core.get_node_level`, `core.set_node_level` and `core.add_node_level`
       to access/manipulate the content of this field
     * Bit 3: If set, liquid is flowing downwards (no graphical effect)
 * `paramtype2 = "wallmounted"`
@@ -1332,7 +1342,7 @@ The function of `param2` is determined by `paramtype2` in node definition.
       "plantlike_rooted", "normal", "nodebox", "mesh"
     * The rotation of the node is stored in `param2`
     * Node is 'mounted'/facing towards one of 6 directions
-    * You can make this value by using `minetest.dir_to_wallmounted()`
+    * You can make this value by using `core.dir_to_wallmounted()`
     * Values range 0 - 7
     * The value denotes at which direction the node is "mounted":
       0 = y+,   1 = y-,   2 = x+,   3 = x-,   4 = z+,   5 = z-
@@ -1346,7 +1356,7 @@ The function of `param2` is determined by `paramtype2` in node definition.
     * Supported drawtypes: "normal", "nodebox", "mesh"
     * The rotation of the node is stored in `param2`.
     * Node is rotated around face and axis; 24 rotations in total.
-    * Can be made by using `minetest.dir_to_facedir()`.
+    * Can be made by using `core.dir_to_facedir()`.
     * Chests and furnaces can be rotated that way, and also 'flipped'
     * Values range 0 - 23
     * facedir / 4 = axis direction:
@@ -1363,7 +1373,7 @@ The function of `param2` is determined by `paramtype2` in node definition.
     * Supported drawtypes: "normal", "nodebox", "mesh"
     * The rotation of the node is stored in `param2`.
     * Allows node to be rotated horizontally, 4 rotations in total
-    * Can be made by using `minetest.dir_to_fourdir()`.
+    * Can be made by using `core.dir_to_fourdir()`.
     * Chests and furnaces can be rotated that way, but not flipped
     * Values range 0 - 3
     * 4dir modulo 4 = rotation
@@ -1765,8 +1775,8 @@ Displays text on the HUD.
 * `scale`: Defines the bounding rectangle of the text.
   A value such as `{x=100, y=100}` should work.
 * `text`: The text to be displayed in the HUD element.
-  Supports `minetest.translate` (always)
-  and `minetest.colorize` (since protocol version 44)
+  Supports `core.translate` (always)
+  and `core.colorize` (since protocol version 44)
 * `number`: An integer containing the RGB value of the color used to draw the
   text. Specify `0xFFFFFF` for white text, `0xFF0000` for red, and so on.
 * `alignment`: The alignment of the text.
@@ -2049,8 +2059,8 @@ without relying on the serialization format. Example:
     stack:get_meta():set_string("description", "My worn out pick")
     local itemstring = stack:to_string()
 
-Additionally the methods `minetest.itemstring_with_palette(item, palette_index)`
-and `minetest.itemstring_with_color(item, colorstring)` may be used to create
+Additionally the methods `core.itemstring_with_palette(item, palette_index)`
+and `core.itemstring_with_color(item, colorstring)` may be used to create
 item strings encoding color information in their metadata.
 
 ### Table format
@@ -2115,7 +2125,7 @@ read groups, you must interpret `nil` and `0` as the same value, `0`.
 You can read the rating of a group for an item or a node by using
 
 ```lua
-minetest.get_item_group(itemname, groupname)
+core.get_item_group(itemname, groupname)
 ```
 
 Groups of items
@@ -2558,7 +2568,7 @@ Some of the values in the key-value store are handled specially:
 Example:
 
 ```lua
-local meta = minetest.get_meta(pos)
+local meta = core.get_meta(pos)
 
 -- Set node formspec and infotext
 meta:set_string("formspec",
@@ -2683,8 +2693,8 @@ Inventories with a `player:<name>` inventory location are only sent to the
 player named `<name>`.
 
 When displaying text which can contain formspec code, e.g. text set by a player,
-use `minetest.formspec_escape`.
-For colored text you can use `minetest.colorize`.
+use `core.formspec_escape`.
+For colored text you can use `core.colorize`.
 
 Since formspec version 3, elements drawn in the order they are defined. All
 background elements are drawn before all other elements.
@@ -2695,7 +2705,7 @@ reserved to pass key press events to formspec!
 **WARNING**: names and values of elements cannot contain binary data such as ASCII
 control characters. For values, escape sequences used by the engine are an exception to this.
 
-**WARNING**: Minetest allows you to add elements to every single formspec instance
+**WARNING**: Luanti allows you to add elements to every single formspec instance
 using `player:set_formspec_prepend()`, which may be the reason backgrounds are
 appearing when you don't expect them to, or why things are styled differently
 to normal. See [`no_prepend[]`] and [Styling Formspecs].
@@ -2747,6 +2757,8 @@ Version History
 * Formspec version 7 (5.8.0):
   * style[]: Add focused state for buttons
   * Add field_enter_after_edit[] (experimental)
+* Formspec version 8 (5.10.0)
+  * scroll_container[]: content padding parameter
 
 Elements
 --------
@@ -2830,7 +2842,7 @@ Elements
 * End of a container, following elements are no longer relative to this
   container.
 
-### `scroll_container[<X>,<Y>;<W>,<H>;<scrollbar name>;<orientation>;<scroll factor>]`
+### `scroll_container[<X>,<Y>;<W>,<H>;<scrollbar name>;<orientation>;<scroll factor>;<content padding>]`
 
 * Start of a scroll_container block. All contained elements will ...
   * take the scroll_container coordinate as position origin,
@@ -2839,6 +2851,12 @@ Elements
   * be clipped to the rectangle defined by `X`, `Y`, `W` and `H`.
 * `orientation`: possible values are `vertical` and `horizontal`.
 * `scroll factor`: optional, defaults to `0.1`.
+* `content padding`: (optional), in formspec coordinate units
+  * If specified, the scrollbar properties `max` and `thumbsize` are calculated automatically
+    based on the content size plus `content padding` at the end of the container. `min` is set to 0.
+  * Negative `scroll factor` is not supported.
+  * When active, `scrollbaroptions[]` has no effect on the affected properties.
+  * Defaults to empty value (= disabled).
 * Nesting is possible.
 * Some elements might work a little different if they are in a scroll_container.
 * Note: If you want the scroll_container to actually work, you also need to add a
@@ -3147,8 +3165,7 @@ Elements
     * if you want a listelement to start with "#" write "##"
 * Index to be selected within textlist
 * `true`/`false`: draw transparent background
-* See also `minetest.explode_textlist_event`
-  (main menu: `core.explode_textlist_event`).
+* See also `core.explode_textlist_event`
 
 ### `tabheader[<X>,<Y>;<name>;<caption 1>,<caption 2>,...,<caption n>;<current_tab>;<transparent>;<draw_border>]`
 
@@ -3247,8 +3264,7 @@ Elements
 * `orientation`: `vertical`/`horizontal`. Default horizontal.
 * Fieldname data is transferred to Lua
 * Value of this trackbar is set to (`0`-`1000`) by default
-* See also `minetest.explode_scrollbar_event`
-  (main menu: `core.explode_scrollbar_event`).
+* See also `core.explode_scrollbar_event`
 
 ### `scrollbaroptions[opt1;opt2;...]`
 * Sets options for all following `scrollbar[]` elements
@@ -3281,8 +3297,7 @@ Elements
 * `name`: fieldname sent to server on row select or double-click
 * `cell 1`...`cell n`: cell contents given in row-major order
 * `selected idx`: index of row to be selected within table (first row = `1`)
-* See also `minetest.explode_table_event`
-  (main menu: `core.explode_table_event`).
+* See also `core.explode_table_event`
 
 ### `tableoptions[<opt 1>;<opt 2>;...]`
 
@@ -3787,23 +3802,23 @@ Most text can contain escape sequences, that can for example color the text.
 There are a few exceptions: tab headers, dropdowns and vertical labels can't.
 The following functions provide escape sequences:
 
-* `minetest.get_color_escape_sequence(color)`:
+* `core.get_color_escape_sequence(color)`:
     * `color` is a ColorString
     * The escape sequence sets the text color to `color`
-* `minetest.colorize(color, message)`:
+* `core.colorize(color, message)`:
     * Equivalent to:
-      `minetest.get_color_escape_sequence(color) ..
+      `core.get_color_escape_sequence(color) ..
       message ..
-      minetest.get_color_escape_sequence("#ffffff")`
-* `minetest.get_background_escape_sequence(color)`
+      core.get_color_escape_sequence("#ffffff")`
+* `core.get_background_escape_sequence(color)`
     * `color` is a ColorString
     * The escape sequence sets the background of the whole text element to
       `color`. Only defined for item descriptions and tooltips.
-* `minetest.strip_foreground_colors(str)`
+* `core.strip_foreground_colors(str)`
     * Removes foreground colors added by `get_color_escape_sequence`.
-* `minetest.strip_background_colors(str)`
+* `core.strip_background_colors(str)`
     * Removes background colors added by `get_background_escape_sequence`.
-* `minetest.strip_colors(str)`
+* `core.strip_colors(str)`
     * Removes all color escape sequences.
 
 
@@ -3812,7 +3827,7 @@ The following functions provide escape sequences:
 Spatial Vectors
 ===============
 
-Minetest stores 3-dimensional spatial vectors in Lua as tables of 3 coordinates,
+Luanti stores 3-dimensional spatial vectors in Lua as tables of 3 coordinates,
 and has a class to represent them (`vector.*`), which this chapter is about.
 For details on what a spatial vectors is, please refer to Wikipedia:
 https://en.wikipedia.org/wiki/Euclidean_vector.
@@ -3839,12 +3854,12 @@ Compatibility notes
 -------------------
 
 Vectors used to be defined as tables of the form `{x = num, y = num, z = num}`.
-Since Minetest 5.5.0, vectors additionally have a metatable to enable easier use.
+Since version 5.5.0, vectors additionally have a metatable to enable easier use.
 Note: Those old-style vectors can still be found in old mod code. Hence, mod and
 engine APIs still need to be able to cope with them in many places.
 
 Manually constructed tables are deprecated and highly discouraged. This interface
-should be used to ensure seamless compatibility between mods and the Minetest API.
+should be used to ensure seamless compatibility between mods and the Luanti API.
 This is especially important to callback function parameters and functions overwritten
 by mods.
 Also, though not likely, the internal implementation of a vector might change in
@@ -4027,8 +4042,8 @@ vectors.
 
 For example:
 
-* `minetest.hash_node_position` (Only works on node positions.)
-* `minetest.dir_to_wallmounted` (Involves wallmounted param2 values.)
+* `core.hash_node_position` (Only works on node positions.)
+* `core.dir_to_wallmounted` (Involves wallmounted param2 values.)
 
 
 
@@ -4065,7 +4080,7 @@ Helper functions
     * e.g. `"a,b":split","` returns `{"a","b"}`
 * `string:trim()`: returns the string without whitespace pre- and suffixes
     * e.g. `"\n \t\tfoo bar\t ":trim()` returns `"foo bar"`
-* `minetest.wrap_text(str, limit, as_table)`: returns a string or table
+* `core.wrap_text(str, limit, as_table)`: returns a string or table
     * Adds newlines to the string to keep it within the specified character
       limit
     * Note that the returned lines may be longer than the limit since it only
@@ -4073,15 +4088,15 @@ Helper functions
     * `limit`: number, maximal amount of characters in one line
     * `as_table`: boolean, if set to true, a table of lines instead of a string
       is returned, default: `false`
-* `minetest.pos_to_string(pos, decimal_places)`: returns string `"(X,Y,Z)"`
+* `core.pos_to_string(pos, decimal_places)`: returns string `"(X,Y,Z)"`
     * `pos`: table {x=X, y=Y, z=Z}
     * Converts the position `pos` to a human-readable, printable string
     * `decimal_places`: number, if specified, the x, y and z values of
       the position are rounded to the given decimal place.
-* `minetest.string_to_pos(string)`: returns a position or `nil`
+* `core.string_to_pos(string)`: returns a position or `nil`
     * Same but in reverse.
     * If the string can't be parsed to a position, nothing is returned.
-* `minetest.string_to_area("(X1, Y1, Z1) (X2, Y2, Z2)", relative_to)`:
+* `core.string_to_area("(X1, Y1, Z1) (X2, Y2, Z2)", relative_to)`:
     * returns two positions
     * Converts a string representing an area box into two positions
     * X1, Y1, ... Z2 are coordinates
@@ -4090,16 +4105,16 @@ Helper functions
     * Tilde notation
       * `"~"`: Relative coordinate
       * `"~<number>"`: Relative coordinate plus `<number>`
-    * Example: `minetest.string_to_area("(1,2,3) (~5,~-5,~)", {x=10,y=10,z=10})`
+    * Example: `core.string_to_area("(1,2,3) (~5,~-5,~)", {x=10,y=10,z=10})`
       returns `{x=1,y=2,z=3}, {x=15,y=5,z=10}`
-* `minetest.formspec_escape(string)`: returns a string
+* `core.formspec_escape(string)`: returns a string
     * escapes the characters "[", "]", "\", "," and ";", which cannot be used
       in formspecs.
-* `minetest.is_yes(arg)`
+* `core.is_yes(arg)`
     * returns true if passed 'y', 'yes', 'true' or a number that isn't zero.
-* `minetest.is_nan(arg)`
+* `core.is_nan(arg)`
     * returns true when the passed number represents NaN.
-* `minetest.get_us_time()`
+* `core.get_us_time()`
     * returns time with microsecond precision. May not return wall time.
 * `table.copy(table)`: returns a table
     * returns a deep copy of `table`
@@ -4124,16 +4139,16 @@ Helper functions
     * `random_func` defaults to `math.random`. This function receives two
       integers as arguments and should return a random integer inclusively
       between them.
-* `minetest.pointed_thing_to_face_pos(placer, pointed_thing)`: returns a
+* `core.pointed_thing_to_face_pos(placer, pointed_thing)`: returns a
   position.
     * returns the exact position on the surface of a pointed node
-* `minetest.get_tool_wear_after_use(uses [, initial_wear])`
+* `core.get_tool_wear_after_use(uses [, initial_wear])`
     * Simulates a tool being used once and returns the added wear,
       such that, if only this function is used to calculate wear,
       the tool will break exactly after `uses` times of uses
     * `uses`: Number of times the tool can be used
     * `initial_wear`: The initial wear the tool starts with (default: 0)
-* `minetest.get_dig_params(groups, tool_capabilities [, wear])`:
+* `core.get_dig_params(groups, tool_capabilities [, wear])`:
     Simulates an item that digs a node.
     Returns a table with the following fields:
     * `diggable`: `true` if node can be dug, `false` otherwise.
@@ -4144,7 +4159,7 @@ Helper functions
     * `groups`: Table of the node groups of the node that would be dug
     * `tool_capabilities`: Tool capabilities table of the item
     * `wear`: Amount of wear the tool starts with (default: 0)
-* `minetest.get_hit_params(groups, tool_capabilities [, time_from_last_punch [, wear]])`:
+* `core.get_hit_params(groups, tool_capabilities [, time_from_last_punch [, wear]])`:
     Simulates an item that punches an object.
     Returns a table with the following fields:
     * `hp`: How much damage the punch would cause (between -65535 and 65535).
@@ -4161,33 +4176,31 @@ Helper functions
 Translations
 ============
 
-Texts can be translated client-side with the help of `minetest.translate` and
+Texts can be translated client-side with the help of `core.translate` and
 translation files.
-
-Consider using the script `mod_translation_updater.py` in the Minetest
-[modtools](https://github.com/minetest/modtools) repository to generate and
-update translation files automatically from the Lua sources.
 
 Translating a string
 --------------------
 
-Two functions are provided to translate strings: `minetest.translate` and
-`minetest.get_translator`.
+Two functions are provided to translate strings: `core.translate` and
+`core.get_translator`.
 
-* `minetest.get_translator(textdomain)` is a simple wrapper around
-  `minetest.translate`, and `minetest.get_translator(textdomain)(str, ...)` is
-  equivalent to `minetest.translate(textdomain, str, ...)`.
+* `core.get_translator(textdomain)` is a simple wrapper around
+  `core.translate` and `core.translate_n`.
+  After `local S, NS = core.get_translator(textdomain)`, we have
+  `S(str, ...)` equivalent to `core.translate(textdomain, str, ...)`, and
+  `NS(str, str_plural, n, ...)` to `core.translate_n(textdomain, str, str_plural, n, ...)`.
   It is intended to be used in the following way, so that it avoids verbose
-  repetitions of `minetest.translate`:
+  repetitions of `core.translate`:
 
   ```lua
-  local S = minetest.get_translator(textdomain)
+  local S, NS = core.get_translator(textdomain)
   S(str, ...)
   ```
 
   As an extra commodity, if `textdomain` is nil, it is assumed to be "" instead.
 
-* `minetest.translate(textdomain, str, ...)` translates the string `str` with
+* `core.translate(textdomain, str, ...)` translates the string `str` with
   the given `textdomain` for disambiguation. The textdomain must match the
   textdomain specified in the translation file in order to get the string
   translated. This can be used so that a string is translated differently in
@@ -4198,44 +4211,117 @@ Two functions are provided to translate strings: `minetest.translate` and
   arguments the translated string expects.
   Arguments are literal strings -- they will not be translated.
 
-For instance, suppose we want to greet players when they join. We can do the
+* `core.translate_n(textdomain, str, str_plural, n, ...)` translates the
+  string `str` with the given `textdomain` for disambiguaion. The value of
+  `n`, which must be a nonnegative integer, is used to decide whether to use
+  the singular or the plural version of the string. Depending on the locale of
+  the client, the choice between singular and plural might be more complicated,
+  but the choice will be done automatically using the value of `n`.
+
+  You can read https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html
+  for more details on the differences of plurals between languages.
+
+  Also note that plurals are only handled in .po or .mo files, and not in .tr files.
+
+For instance, suppose we want to greet players when they join and provide a
+command that shows the amount of time since the player joined. We can do the
 following:
 
 ```lua
-local S = minetest.get_translator("hello")
-minetest.register_on_joinplayer(function(player)
+local S, NS = core.get_translator("hello")
+core.register_on_joinplayer(function(player)
     local name = player:get_player_name()
-    minetest.chat_send_player(name, S("Hello @1, how are you today?", name))
+    core.chat_send_player(name, S("Hello @1, how are you today?", name))
 end)
+core.register_chatcommand("playtime", {
+    func = function(name)
+        local last_login = core.get_auth_handler().get_auth(name).last_login
+        local playtime = math.floor((last_login-os.time())/60)
+        return true, NS(
+            "You have been playing for @1 minute.",
+            "You have been playing for @1 minutes.",
+            minutes, tostring(minutes))
+    end,
+})
 ```
 
 When someone called "CoolGuy" joins the game with an old client or a client
 that does not have localization enabled, they will see `Hello CoolGuy, how are
-you today?`
+you today?`. If they use the `/playtime` command, they will see `You have been
+playing for 1 minute` or (for example) `You have been playing for 4 minutes.`
 
-However, if we have for instance a translation file named `hello.de.tr`
+However, if we have for instance a translation file named `hello.de.po`
 containing the following:
 
-    # textdomain: hello
-    Hello @1, how are you today?=Hallo @1, wie geht es dir heute?
+```po
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Hello @1, how are you today?"
+msgstr "Hallo @1, wie geht es dir heute?"
+
+msgid "You have been playing for @1 minute."
+msgid_plural "You have been playing for @1 minutes."
+msgstr[0] "Du spielst seit @1 Minute."
+msgstr[1] "Du spielst seit @1 Minuten."
+```
 
 and CoolGuy has set a German locale, they will see `Hallo CoolGuy, wie geht es
-dir heute?`
+dir heute?` when they join, and the `/playtime` command will show them `Du
+spielst seit 1 Minute.` or (for example) `Du spielst seit 4 Minuten.`
+
+Creating and updating translation files
+---------------------------------------
+
+As an alternative to writing translation files by hand (as shown in the above
+example), it is also possible to generate translation files based on the source
+code.
+
+It is recommended to first generate a translation template. The translation
+template includes translatable strings that translators can directly work on.
+After creating the `locale` directory, a translation template for the above
+example using the following command:
+
+```sh
+xgettext -L lua -kS -kNS:1,2 -kcore.translate:1c,2 -kcore.translate_n:1c,2,3 \
+  -d hello -o locale/hello.pot *.lua
+```
+
+The above command can also be used to update the translation template when new
+translatable strings are added.
+
+The German translator can then create the translation file with
+
+```sh
+msginit -l de -i locale/hello.pot -o locale/hello.de.po
+```
+
+and provide the translations by editing `locale/hello.de.po`.
+
+The translation file can be updated using
+
+```sh
+msgmerge -U locale/hello.de.po locale/hello.pot
+```
+
+Refer to the [Gettext manual](https://www.gnu.org/software/gettext/manual/) for
+further information on creating and updating translation files.
 
 Operations on translated strings
 --------------------------------
 
-The output of `minetest.translate` is a string, with escape sequences adding
+The output of `core.translate` is a string, with escape sequences adding
 additional information to that string so that it can be translated on the
 different clients. In particular, you can't expect operations like string.length
 to work on them like you would expect them to, or string.gsub to work in the
 expected manner. However, string concatenation will still work as expected
 (note that you should only use this for things like formspecs; do not translate
 sentences by breaking them into parts; arguments should be used instead), and
-operations such as `minetest.colorize` which are also concatenation.
+operations such as `core.colorize` which are also concatenation.
 
-Translation file format
------------------------
+Old translation file format
+---------------------------
 
 A translation file has the suffix `.[lang].tr`, where `[lang]` is the language
 it corresponds to. It must be put into the `locale` subdirectory of the mod.
@@ -4250,6 +4336,34 @@ The file should be a text file, with the following format:
   There must be no extraneous whitespace around the `=` or at the beginning or
   the end of the line.
 
+Using the earlier example of greeting the player, the translation file would be
+
+```
+# textdomain: hello
+Hello @1, how are you today?=Hallo @1, wie geht es dir heute?
+```
+
+For old translation files, consider using the script `mod_translation_updater.py`
+in the Luanti [modtools](https://github.com/minetest/modtools) repository to
+generate and update translation files automatically from the Lua sources.
+
+Gettext translation file format
+-------------------------------
+
+Gettext files can also be used as translations. A translation file has the suffix
+`.[lang].po` or `.[lang].mo`, depending on whether it is compiled or not, and must
+also be placed in the `locale` subdirectory of the mod. The value of `textdomain`
+is `msgctxt` in the gettext files. If `msgctxt` is not provided, the name of the
+translation file is used instead.
+
+A typical entry in a `.po` file would look like:
+
+```po
+msgctxt "textdomain"
+msgid "Hello world!"
+msgstr "Bonjour le monde!"
+```
+
 Escapes
 -------
 
@@ -4261,11 +4375,11 @@ Strings that need to be translated can contain several escapes, preceded by `@`.
   implemented, the original translation string **must** have its arguments in
   increasing order, without gaps or repetitions, starting from 1.
 * `@=` acts as a literal `=`. It is not required in strings given to
-  `minetest.translate`, but is in translation files to avoid being confused
+  `core.translate`, but is in translation files to avoid being confused
   with the `=` separating the original from the translation.
 * `@\n` (where the `\n` is a literal newline) acts as a literal newline.
   As with `@=`, this escape is not required in strings given to
-  `minetest.translate`, but is in translation files.
+  `core.translate`, but is in translation files.
 * `@n` acts as a literal newline as well.
 
 Server side translations
@@ -4275,13 +4389,13 @@ On some specific cases, server translation could be useful. For example, filter
 a list on labels and send results to client. A method is supplied to achieve
 that:
 
-`minetest.get_translated_string(lang_code, string)`: resolves translations in
+`core.get_translated_string(lang_code, string)`: resolves translations in
 the given string just like the client would, using the translation files for
 `lang_code`. For this to have any effect, the string needs to contain translation
-markup, e.g. `minetest.get_translated_string("fr", S("Hello"))`.
+markup, e.g. `core.get_translated_string("fr", S("Hello"))`.
 
 The `lang_code` to use for a given player can be retrieved from
-the table returned by `minetest.get_player_information(name)`.
+the table returned by `core.get_player_information(name)`.
 
 IMPORTANT: This functionality should only be used for sorting, filtering or similar purposes.
 You do not need to use this to get translated strings to show up on the client.
@@ -4301,7 +4415,7 @@ Say you have a mod called `mymod` with a short description in mod.conf:
 description = This is the short description
 ```
 
-Minetest will look for translations in the `mymod` textdomain as there's no
+Luanti will look for translations in the `mymod` textdomain as there's no
 textdomain specified in mod.conf. For example, `mymod/locale/mymod.fr.tr`:
 
 ```
@@ -4311,7 +4425,7 @@ This is the short description=Voici la description succincte
 
 ### Games and Modpacks
 
-For games and modpacks, Minetest will look for the textdomain in all mods.
+For games and modpacks, Luanti will look for the textdomain in all mods.
 
 Say you have a game called `mygame` with the following game.conf:
 
@@ -4320,7 +4434,7 @@ description = This is the game's short description
 textdomain = mygame
 ```
 
-Minetest will then look for the textdomain `mygame` in all mods, for example,
+Luanti will then look for the textdomain `mygame` in all mods, for example,
 `mygame/mods/anymod/locale/mygame.fr.tr`. Note that it is still recommended that your
 textdomain match the mod name, but this isn't required.
 
@@ -4330,7 +4444,7 @@ Perlin noise
 ============
 
 Perlin noise creates a continuously-varying value depending on the input values.
-Usually in Minetest the input values are either 2D or 3D coordinates in nodes.
+Usually in Luanti the input values are either 2D or 3D coordinates in nodes.
 The result is used during map generation to create the terrain shape, vary heat
 and humidity to distribute biomes, vary the density of decorations or vary the
 structure of ores.
@@ -4670,7 +4784,7 @@ structures, such as trees, cave spikes, rocks, and so on.
 -----------
 
 Generates a L-system tree at the position where the decoration is placed.
-Uses the same L-system as `minetest.spawn_tree`, but is faster than using it manually.
+Uses the same L-system as `core.spawn_tree`, but is faster than using it manually.
 The `treedef` field in the decoration definition is used for the tree definition.
 
 
@@ -4682,7 +4796,7 @@ Schematic specifier
 --------------------
 
 A schematic specifier identifies a schematic by either a filename to a
-Minetest Schematic file (`.mts`) or through raw data supplied through Lua,
+Luanti Schematic file (`.mts`) or through raw data supplied through Lua,
 in the form of a table.  This table specifies the following fields:
 
 * The `size` field is a 3D vector containing the dimensions of the provided
@@ -4747,23 +4861,23 @@ logged.
 It is important to note that VoxelManip is designed for speed, and *not* ease
 of use or flexibility. If your mod requires a map manipulation facility that
 will handle 100% of all edge cases, or the use of high level node placement
-features, perhaps `minetest.set_node()` is better suited for the job.
+features, perhaps `core.set_node()` is better suited for the job.
 
 In addition, VoxelManip might not be faster, or could even be slower, for your
 specific use case. VoxelManip is most effective when setting large areas of map
 at once - for example, if only setting a 3x3x3 node area, a
-`minetest.set_node()` loop may be more optimal. Always profile code using both
+`core.set_node()` loop may be more optimal. Always profile code using both
 methods of map manipulation to determine which is most appropriate for your
 usage.
 
-A recent simple test of setting cubic areas showed that `minetest.set_node()`
+A recent simple test of setting cubic areas showed that `core.set_node()`
 is faster than a VoxelManip for a 3x3x3 node cube or smaller.
 
 Using VoxelManip
 ----------------
 
 A VoxelManip object can be created any time using either:
-`VoxelManip([p1, p2])`, or `minetest.get_voxel_manip([p1, p2])`.
+`VoxelManip([p1, p2])`, or `core.get_voxel_manip([p1, p2])`.
 
 If the optional position parameters are present for either of these routines,
 the specified region will be pre-loaded into the VoxelManip object on creation.
@@ -4851,8 +4965,8 @@ of the index for a single point in a flat VoxelManip array.
 A Content ID is a unique integer identifier for a specific node type.
 These IDs are used by VoxelManip in place of the node name string for
 `VoxelManip:get_data()` and `VoxelManip:set_data()`. You can use
-`minetest.get_content_id()` to look up the Content ID for the specified node
-name, and `minetest.get_name_from_content_id()` to look up the node name string
+`core.get_content_id()` to look up the Content ID for the specified node
+name, and `core.get_name_from_content_id()` to look up the node name string
 for a given Content ID.
 After registration of a node, its Content ID will remain the same throughout
 execution of the mod.
@@ -4860,9 +4974,9 @@ Note that the node being queried needs to have already been been registered.
 
 The following builtin node types have their Content IDs defined as constants:
 
-* `minetest.CONTENT_UNKNOWN`: ID for "unknown" nodes
-* `minetest.CONTENT_AIR`:     ID for "air" nodes
-* `minetest.CONTENT_IGNORE`:  ID for "ignore" nodes
+* `core.CONTENT_UNKNOWN`: ID for "unknown" nodes
+* `core.CONTENT_AIR`:     ID for "air" nodes
+* `core.CONTENT_IGNORE`:  ID for "ignore" nodes
 
 ### Mapgen VoxelManip objects
 
@@ -4872,12 +4986,12 @@ Mapgen). Most of the rules previously described still apply but with a few
 differences:
 
 * The Mapgen VoxelManip object is retrieved using:
-  `minetest.get_mapgen_object("voxelmanip")`
+  `core.get_mapgen_object("voxelmanip")`
 
 * This VoxelManip object already has the region of map just generated loaded
   into it; it's not necessary to call `VoxelManip:read_from_map()`.
   Note that the region of map it has loaded is NOT THE SAME as the `minp`, `maxp`
-  parameters of `on_generated()`. Refer to `minetest.get_mapgen_object` docs.
+  parameters of `on_generated()`. Refer to `core.get_mapgen_object` docs.
   Once you're done you still need to call `VoxelManip:write_to_map()`
 
 * The `on_generated()` callbacks of some mods may place individual nodes in the
@@ -4885,7 +4999,7 @@ differences:
   same Mapgen VoxelManip object is passed through each `on_generated()`
   callback, it becomes necessary for the Mapgen VoxelManip object to maintain
   consistency with the current map state. For this reason, calling any of
-  `minetest.add_node()`, `minetest.set_node()` or `minetest.swap_node()`
+  `core.add_node()`, `core.set_node()` or `core.swap_node()`
   will also update the Mapgen VoxelManip object's internal state active on the
   current thread.
 
@@ -4901,12 +5015,12 @@ flowing. It is recommended to call this function only after having written all
 buffered data back to the VoxelManip object, save for special situations where
 the modder desires to only have certain liquid nodes begin flowing.
 
-The functions `minetest.generate_ores()` and `minetest.generate_decorations()`
+The functions `core.generate_ores()` and `core.generate_decorations()`
 will generate all registered decorations and ores throughout the full area
 inside of the specified VoxelManip object.
 
-`minetest.place_schematic_on_vmanip()` is otherwise identical to
-`minetest.place_schematic()`, except instead of placing the specified schematic
+`core.place_schematic_on_vmanip()` is otherwise identical to
+`core.place_schematic()`, except instead of placing the specified schematic
 directly on the map at the specified position, it will place the schematic
 inside the VoxelManip.
 
@@ -4919,13 +5033,13 @@ inside the VoxelManip.
 * If you attempt to use a VoxelManip to read a region of the map that has
   already been generated, but is not currently loaded, that region will be
   loaded from disk. This means that reading a region of the map with a
-  VoxelManip has a similar effect as calling `minetest.load_area` on that
+  VoxelManip has a similar effect as calling `core.load_area` on that
   region.
 
 * If a region of the map has either not yet been generated or is outside the
   map boundaries, it is filled with "ignore" nodes. Writing to regions of the
   map that are not yet generated may result in unexpected behavior. You
-  can use `minetest.emerge_area` to make sure that the area you want to
+  can use `core.emerge_area` to make sure that the area you want to
   read/write is already generated.
 
 * Other mods, or the core itself, could possibly modify the area of the map
@@ -4953,7 +5067,7 @@ Methods
     * if `light` is true, then lighting is automatically recalculated.
       The default value is true.
       If `light` is false, no light calculations happen, and you should correct
-      all modified blocks with `minetest.fix_light()` as soon as possible.
+      all modified blocks with `core.fix_light()` as soon as possible.
       Keep in mind that modifying the map where light is incorrect can cause
       more lighting bugs.
 * `get_node_at(pos)`: Returns a `MapNode` table of the node currently loaded in
@@ -4971,7 +5085,7 @@ Methods
   a uniform value.
     * `light` is a table, `{day=<0...15>, night=<0...15>}`
     * To be used only by a `VoxelManip` object from
-      `minetest.get_mapgen_object`.
+      `core.get_mapgen_object`.
     * (`p1`, `p2`) is the area in which lighting is set, defaults to the whole
       area if left out.
 * `get_light_data([buffer])`: Gets the light data read into the
@@ -4996,8 +5110,7 @@ Methods
   the `VoxelManip`.
 * `calc_lighting([p1, p2], [propagate_shadow])`:  Calculate lighting within the
   `VoxelManip`.
-    * To be used only by a `VoxelManip` object from
-      `minetest.get_mapgen_object`.
+    * To be used only with a `VoxelManip` object from `core.get_mapgen_object`.
     * (`p1`, `p2`) is the area in which lighting is set, defaults to the whole
       area if left out or nil. For almost all uses these should be left out
       or nil to use the default.
@@ -5005,9 +5118,11 @@ Methods
       generated mapchunk above are propagated down into the mapchunk, defaults
       to `true` if left out.
 * `update_liquids()`: Update liquid flow
-* `was_modified()`: Returns `true` or `false` if the data in the voxel
-  manipulator had been modified since the last read from map, due to a call to
-  `minetest.set_data()` on the loaded area elsewhere.
+* `was_modified()`: Returns `true` if the data in the voxel manipulator has been modified
+   since it was last read from the map. This means you have to call `get_data` again.
+   This only applies to a `VoxelManip` object from `core.get_mapgen_object`,
+   where the engine will keep the map and the VM in sync automatically.
+   * Note: this doesn't do what you think it does and is subject to removal. Don't use it!
 * `get_emerged_area()`: Returns actual emerged minimum and maximum positions.
 
 `VoxelArea`
@@ -5016,7 +5131,7 @@ Methods
 A helper class for voxel areas.
 It can be created via `VoxelArea(pmin, pmax)` or
 `VoxelArea:new({MinEdge = pmin, MaxEdge = pmax})`.
-The coordinates are *inclusive*, like most other things in Minetest.
+The coordinates are *inclusive*, like most other things in Luanti.
 
 ### Methods
 
@@ -5077,7 +5192,7 @@ Mapgen objects
 A mapgen object is a construct used in map generation. Mapgen objects can be
 used by an `on_generated` callback to speed up operations by avoiding
 unnecessary recalculations, these can be retrieved using the
-`minetest.get_mapgen_object()` function. If the requested Mapgen object is
+`core.get_mapgen_object()` function. If the requested Mapgen object is
 unavailable, or `get_mapgen_object()` was called outside of an `on_generated`
 callback, `nil` is returned.
 
@@ -5111,7 +5226,7 @@ generated chunk by the current mapgen.
 ### `gennotify`
 
 Returns a table. You need to announce your interest in a specific
-field by calling `minetest.set_gen_notify()` *before* map generation happens.
+field by calling `core.set_gen_notify()` *before* map generation happens.
 
 * key = string: generation notification type
 * value = list of positions (usually)
@@ -5133,7 +5248,7 @@ Available generation notification types:
   * (see below)
 
 Decorations have a key in the format of `"decoration#id"`, where `id` is the
-numeric unique decoration ID as returned by `minetest.get_decoration_id()`.
+numeric unique decoration ID as returned by `core.get_decoration_id()`.
 For example, `decoration#123`.
 
 The returned positions are the ground surface 'place_on' nodes,
@@ -5162,8 +5277,8 @@ Callbacks:
       Calling `object:remove()` on an active object will call this with `removal=true`.
       The mapblock the entity resides in being unloaded will call this with `removal=false`.
     * Note that this won't be called if the object hasn't been activated in the first place.
-      In particular, `minetest.clear_objects({mode = "full"})` won't call this,
-      whereas `minetest.clear_objects({mode = "quick"})` might call this.
+      In particular, `core.clear_objects({mode = "full"})` won't call this,
+      whereas `core.clear_objects({mode = "quick"})` might call this.
 * `on_step(self, dtime, moveresult)`
     * Called on every server tick, after movement and collision processing.
     * `dtime`: elapsed time since last call
@@ -5308,7 +5423,7 @@ apple_tree={
     fruit_chance=10,
     fruit="default:apple"
 }
-minetest.spawn_tree(pos,apple_tree)
+core.spawn_tree(pos,apple_tree)
 ```
 
 Privileges
@@ -5322,7 +5437,7 @@ this ability is implemented in `/teleport` command which requires `teleport` pri
 Registering privileges
 ----------------------
 
-A mod can register a custom privilege using `minetest.register_privilege` function
+A mod can register a custom privilege using `core.register_privilege` function
 to give server administrators fine-grained access control over mod functionality.
 
 For consistency and practical reasons, privileges should strictly increase the abilities of the user.
@@ -5331,27 +5446,27 @@ Do not register custom privileges that e.g. restrict the player from certain in-
 Checking privileges
 -------------------
 
-A mod can call `minetest.check_player_privs` to test whether a player has privileges
+A mod can call `core.check_player_privs` to test whether a player has privileges
 to perform an operation.
-Also, when registering a chat command with `minetest.register_chatcommand` a mod can
+Also, when registering a chat command with `core.register_chatcommand` a mod can
 declare privileges that the command requires using the `privs` field of the command
 definition.
 
 Managing player privileges
 --------------------------
 
-A mod can update player privileges using `minetest.set_player_privs` function.
+A mod can update player privileges using `core.set_player_privs` function.
 Players holding the `privs` privilege can see and manage privileges for all
 players on the server.
 
-A mod can subscribe to changes in player privileges using `minetest.register_on_priv_grant`
-and `minetest.register_on_priv_revoke` functions.
+A mod can subscribe to changes in player privileges using `core.register_on_priv_grant`
+and `core.register_on_priv_revoke` functions.
 
 Built-in privileges
 -------------------
 
-Minetest includes a set of built-in privileges that control capabilities
-provided by the Minetest engine and can be used by mods:
+Luanti includes a set of built-in privileges that control capabilities
+provided by the Luanti engine and can be used by mods:
 
   * Basic privileges are normally granted to all players:
       * `shout`: can communicate using the in-game chat.
@@ -5391,30 +5506,30 @@ provided by the Minetest engine and can be used by mods:
 Related settings
 ----------------
 
-Minetest includes the following settings to control behavior of privileges:
+Luanti includes the following settings to control behavior of privileges:
 
    * `default_privs`: defines privileges granted to new players.
    * `basic_privs`: defines privileges that can be granted/revoked by players having
     the `basic_privs` privilege. This can be used, for example, to give
     limited moderation powers to selected users.
 
-'minetest' namespace reference
-==============================
+'core' namespace reference
+==========================
 
 Utilities
 ---------
 
-* `minetest.get_current_modname()`: returns the currently loading mod's name,
+* `core.get_current_modname()`: returns the currently loading mod's name,
   when loading a mod.
-* `minetest.get_modpath(modname)`: returns the directory path for a mod,
+* `core.get_modpath(modname)`: returns the directory path for a mod,
   e.g. `"/home/user/.minetest/usermods/modname"`.
     * Returns nil if the mod is not enabled or does not exist (not installed).
     * Works regardless of whether the mod has been loaded yet.
     * Useful for loading additional `.lua` modules or static data from a mod,
   or checking if a mod is enabled.
-* `minetest.get_modnames()`: returns a list of enabled mods, sorted alphabetically.
+* `core.get_modnames()`: returns a list of enabled mods, sorted alphabetically.
     * Does not include disabled mods, even if they are installed.
-* `minetest.get_game_info()`: returns a table containing information about the
+* `core.get_game_info()`: returns a table containing information about the
   current game. Note that other meta information (e.g. version/release number)
   can be manually read from `game.conf` in the game's root directory.
 
@@ -5428,16 +5543,16 @@ Utilities
   }
   ```
 
-* `minetest.get_worldpath()`: returns e.g. `"/home/user/.minetest/world"`
+* `core.get_worldpath()`: returns e.g. `"/home/user/.minetest/world"`
     * Useful for storing custom data
-* `minetest.get_mod_data_path()`: returns e.g. `"/home/user/.minetest/mod_data/mymod"`
+* `core.get_mod_data_path()`: returns e.g. `"/home/user/.minetest/mod_data/mymod"`
     * Useful for storing custom data *independently of worlds*.
     * Must be called during mod load time.
     * Can read or write to this directory at any time.
-    * It's possible that multiple Minetest instances are running at the same
+    * It's possible that multiple Luanti instances are running at the same
       time, which may lead to corruption if you are not careful.
-* `minetest.is_singleplayer()`
-* `minetest.features`: Table containing API feature flags
+* `core.is_singleplayer()`
+* `core.features`: Table containing API feature flags
 
   ```lua
   {
@@ -5471,7 +5586,7 @@ Utilities
       formspec_version_element = true,
       -- Whether AreaStore's IDs are kept on save/load (5.1.0)
       area_store_persistent_ids = true,
-      -- Whether minetest.find_path is functional (5.2.0)
+      -- Whether core.find_path is functional (5.2.0)
       pathfinder_works = true,
       -- Whether Collision info is available to an objects' on_step (5.3.0)
       object_step_has_moveresult = true,
@@ -5513,7 +5628,7 @@ Utilities
       -- PseudoRandom has get_state method
       -- PcgRandom has get_state and set_state methods (5.9.0)
       random_state_restore = true,
-      -- minetest.after guarantees that coexisting jobs are executed primarily
+      -- core.after guarantees that coexisting jobs are executed primarily
       -- in order of expiry and secondarily in order of registration (5.9.0)
       after_order_expiry_registration = true,
       -- wallmounted nodes mounted at floor or ceiling may additionally
@@ -5532,11 +5647,11 @@ Utilities
       -- Overridable pointing range using the itemstack meta key `"range"` (5.9.0)
       item_meta_range = true,
       -- Allow passing an optional "actor" ObjectRef to the following functions:
-      -- minetest.place_node, minetest.dig_node, minetest.punch_node (5.9.0)
+      -- core.place_node, core.dig_node, core.punch_node (5.9.0)
       node_interaction_actor = true,
       -- "new_pos" field in entity moveresult (5.9.0)
       moveresult_new_pos = true,
-      -- Allow removing definition fields in `minetest.override_item` (5.9.0)
+      -- Allow removing definition fields in `core.override_item` (5.9.0)
       override_item_remove_fields = true,
       -- The predefined hotbar is a Lua HUD element of type `hotbar` (5.10.0)
       hotbar_hud_element = true,
@@ -5547,10 +5662,10 @@ Utilities
   }
   ```
 
-* `minetest.has_feature(arg)`: returns `boolean, missing_features`
+* `core.has_feature(arg)`: returns `boolean, missing_features`
     * `arg`: string or table in format `{foo=true, bar=true}`
     * `missing_features`: `{foo=true, bar=true}`
-* `minetest.get_player_information(player_name)`: Table containing information
+* `core.get_player_information(player_name)`: Table containing information
   about a player. Example return value:
 
   ```lua
@@ -5580,7 +5695,7 @@ Utilities
   }
   ```
 
-* `minetest.get_player_window_information(player_name)`:
+* `core.get_player_window_information(player_name)`:
 
   ```lua
   -- Will only be present if the client sent this information (requires v5.7+)
@@ -5601,7 +5716,7 @@ Utilities
           y = 577,
       },
 
-      -- Estimated maximum formspec size before Minetest will start shrinking the
+      -- Estimated maximum formspec size before Luanti will start shrinking the
       -- formspec to fit. For a fullscreen formspec, use this formspec size and
       -- `padding[0,0]`. `bgcolor[;true]` is also recommended.
       max_formspec_size = {
@@ -5619,40 +5734,40 @@ Utilities
 
       -- Whether the touchscreen controls are enabled.
       -- Usually (but not always) `true` on Android.
-      -- Requires at least Minetest 5.9.0 on the client. For older clients, it
+      -- Requires at least version 5.9.0 on the client. For older clients, it
       -- is always set to `false`.
       touch_controls = false,
   }
   ```
 
-* `minetest.mkdir(path)`: returns success.
+* `core.mkdir(path)`: returns success.
     * Creates a directory specified by `path`, creating parent directories
       if they don't exist.
-* `minetest.rmdir(path, recursive)`: returns success.
+* `core.rmdir(path, recursive)`: returns success.
     * Removes a directory specified by `path`.
     * If `recursive` is set to `true`, the directory is recursively removed.
       Otherwise, the directory will only be removed if it is empty.
     * Returns true on success, false on failure.
-* `minetest.cpdir(source, destination)`: returns success.
+* `core.cpdir(source, destination)`: returns success.
     * Copies a directory specified by `path` to `destination`
     * Any files in `destination` will be overwritten if they already exist.
     * Returns true on success, false on failure.
-* `minetest.mvdir(source, destination)`: returns success.
+* `core.mvdir(source, destination)`: returns success.
     * Moves a directory specified by `path` to `destination`.
     * If the `destination` is a non-empty directory, then the move will fail.
     * Returns true on success, false on failure.
-* `minetest.get_dir_list(path, [is_dir])`: returns list of entry names
+* `core.get_dir_list(path, [is_dir])`: returns list of entry names
     * is_dir is one of:
         * nil: return all entries,
         * true: return only subdirectory names, or
         * false: return only file names.
-* `minetest.safe_file_write(path, content)`: returns boolean indicating success
+* `core.safe_file_write(path, content)`: returns boolean indicating success
     * Replaces contents of file at path with new contents in a safe (atomic)
       way. Use this instead of below code when writing e.g. database files:
       `local f = io.open(path, "wb"); f:write(content); f:close()`
-* `minetest.get_version()`: returns a table containing components of the
+* `core.get_version()`: returns a table containing components of the
    engine version.  Components:
-    * `project`: Name of the project, eg, "Minetest"
+    * `project`: Name of the project, eg, "Luanti"
     * `string`: Simple version, eg, "1.2.3-dev"
     * `proto_min`: The minimum supported protocol version
     * `proto_max`: The maximum supported protocol version
@@ -5664,27 +5779,27 @@ Utilities
   reliable or verifiable. Compatible forks will have a different name and
   version entirely. To check for the presence of engine features, test
   whether the functions exported by the wanted features exist. For example:
-  `if minetest.check_for_falling then ... end`.
-* `minetest.sha1(data, [raw])`: returns the sha1 hash of data
+  `if core.check_for_falling then ... end`.
+* `core.sha1(data, [raw])`: returns the sha1 hash of data
     * `data`: string of data to hash
     * `raw`: return raw bytes instead of hex digits, default: false
-* `minetest.sha256(data, [raw])`: returns the sha256 hash of data
+* `core.sha256(data, [raw])`: returns the sha256 hash of data
     * `data`: string of data to hash
     * `raw`: return raw bytes instead of hex digits, default: false
-* `minetest.colorspec_to_colorstring(colorspec)`: Converts a ColorSpec to a
+* `core.colorspec_to_colorstring(colorspec)`: Converts a ColorSpec to a
   ColorString. If the ColorSpec is invalid, returns `nil`.
     * `colorspec`: The ColorSpec to convert
-* `minetest.colorspec_to_bytes(colorspec)`: Converts a ColorSpec to a raw
+* `core.colorspec_to_bytes(colorspec)`: Converts a ColorSpec to a raw
   string of four bytes in an RGBA layout, returned as a string.
   * `colorspec`: The ColorSpec to convert
-* `minetest.colorspec_to_table(colorspec)`: Converts a ColorSpec into RGBA table
+* `core.colorspec_to_table(colorspec)`: Converts a ColorSpec into RGBA table
   form. If the ColorSpec is invalid, returns `nil`. You can use this to parse
   ColorStrings.
     * `colorspec`: The ColorSpec to convert
-* `minetest.time_to_day_night_ratio(time_of_day)`: Returns a "day-night ratio" value
+* `core.time_to_day_night_ratio(time_of_day)`: Returns a "day-night ratio" value
   (as accepted by `ObjectRef:override_day_night_ratio`) that is equivalent to
-  the given "time of day" value (as returned by `minetest.get_timeofday`).
-* `minetest.encode_png(width, height, data, [compression])`: Encode a PNG
+  the given "time of day" value (as returned by `core.get_timeofday`).
+* `core.encode_png(width, height, data, [compression])`: Encode a PNG
   image and return it in string form.
     * `width`: Width of the image
     * `height`: Height of the image
@@ -5697,16 +5812,16 @@ Utilities
   You can use `colorspec_to_bytes` to generate raw RGBA values.
   Palettes are not supported at the moment.
   You may use this to procedurally generate textures during server init.
-* `minetest.urlencode(str)`: Encodes reserved URI characters by a
+* `core.urlencode(str)`: Encodes reserved URI characters by a
   percent sign followed by two hex digits. See
   [RFC 3986, section 2.3](https://datatracker.ietf.org/doc/html/rfc3986#section-2.3).
 
 Logging
 -------
 
-* `minetest.debug(...)`
-    * Equivalent to `minetest.log(table.concat({...}, "\t"))`
-* `minetest.log([level,] text)`
+* `core.debug(...)`
+    * Equivalent to `core.log(table.concat({...}, "\t"))`
+* `core.log([level,] text)`
     * `level` is one of `"none"`, `"error"`, `"warning"`, `"action"`,
       `"info"`, or `"verbose"`.  Default is `"none"`.
 
@@ -5717,51 +5832,51 @@ Call these functions only at load time!
 
 ### Environment
 
-* `minetest.register_node(name, node definition)`
-* `minetest.register_craftitem(name, item definition)`
-* `minetest.register_tool(name, item definition)`
-* `minetest.override_item(name, redefinition, del_fields)`
+* `core.register_node(name, node definition)`
+* `core.register_craftitem(name, item definition)`
+* `core.register_tool(name, item definition)`
+* `core.override_item(name, redefinition, del_fields)`
     * `redefinition` is a table of fields `[name] = new_value`,
       overwriting fields of or adding fields to the existing definition.
     * `del_fields` is a list of field names to be set
       to `nil` ("deleted from") the original definition.
     * Overrides fields of an item registered with register_node/tool/craftitem.
     * Note: Item must already be defined, (opt)depend on the mod defining it.
-    * Example: `minetest.override_item("default:mese",
-      {light_source=minetest.LIGHT_MAX}, {"sounds"})`:
+    * Example: `core.override_item("default:mese",
+      {light_source=core.LIGHT_MAX}, {"sounds"})`:
       Overwrites the `light_source` field,
       removes the sounds from the definition of the mese block.
-* `minetest.unregister_item(name)`
+* `core.unregister_item(name)`
     * Unregisters the item from the engine, and deletes the entry with key
-      `name` from `minetest.registered_items` and from the associated item table
-      according to its nature: `minetest.registered_nodes`, etc.
-* `minetest.register_entity(name, entity definition)`
-* `minetest.register_abm(abm definition)`
-* `minetest.register_lbm(lbm definition)`
-* `minetest.register_alias(alias, original_name)`
+      `name` from `core.registered_items` and from the associated item table
+      according to its nature: `core.registered_nodes`, etc.
+* `core.register_entity(name, entity definition)`
+* `core.register_abm(abm definition)`
+* `core.register_lbm(lbm definition)`
+* `core.register_alias(alias, original_name)`
     * Also use this to set the 'mapgen aliases' needed in a game for the core
       mapgens. See [Mapgen aliases] section above.
-* `minetest.register_alias_force(alias, original_name)`
-* `minetest.register_ore(ore definition)`
+* `core.register_alias_force(alias, original_name)`
+* `core.register_ore(ore definition)`
     * Returns an integer object handle uniquely identifying the registered
       ore on success.
     * The order of ore registrations determines the order of ore generation.
-* `minetest.register_biome(biome definition)`
+* `core.register_biome(biome definition)`
     * Returns an integer object handle uniquely identifying the registered
-      biome on success. To get the biome ID, use `minetest.get_biome_id`.
-* `minetest.unregister_biome(name)`
+      biome on success. To get the biome ID, use `core.get_biome_id`.
+* `core.unregister_biome(name)`
     * Unregisters the biome from the engine, and deletes the entry with key
-      `name` from `minetest.registered_biomes`.
+      `name` from `core.registered_biomes`.
     * Warning: This alters the biome to biome ID correspondences, so any
       decorations or ores using the 'biomes' field must afterwards be cleared
       and re-registered.
-* `minetest.register_decoration(decoration definition)`
+* `core.register_decoration(decoration definition)`
     * Returns an integer object handle uniquely identifying the registered
       decoration on success. To get the decoration ID, use
-      `minetest.get_decoration_id`.
+      `core.get_decoration_id`.
     * The order of decoration registrations determines the order of decoration
       generation.
-* `minetest.register_schematic(schematic definition)`
+* `core.register_schematic(schematic definition)`
     * Returns an integer object handle uniquely identifying the registered
       schematic on success.
     * If the schematic is loaded from a file, the `name` field is set to the
@@ -5769,45 +5884,45 @@ Call these functions only at load time!
     * If the function is called when loading the mod, and `name` is a relative
       path, then the current mod path will be prepended to the schematic
       filename.
-* `minetest.clear_registered_biomes()`
+* `core.clear_registered_biomes()`
     * Clears all biomes currently registered.
     * Warning: Clearing and re-registering biomes alters the biome to biome ID
       correspondences, so any decorations or ores using the 'biomes' field must
       afterwards be cleared and re-registered.
-* `minetest.clear_registered_decorations()`
+* `core.clear_registered_decorations()`
     * Clears all decorations currently registered.
-* `minetest.clear_registered_ores()`
+* `core.clear_registered_ores()`
     * Clears all ores currently registered.
-* `minetest.clear_registered_schematics()`
+* `core.clear_registered_schematics()`
     * Clears all schematics currently registered.
 
 ### Gameplay
 
-* `minetest.register_craft(recipe)`
+* `core.register_craft(recipe)`
     * Check recipe table syntax for different types below.
-* `minetest.clear_craft(recipe)`
+* `core.clear_craft(recipe)`
     * Will erase existing craft based either on output item or on input recipe.
     * Specify either output or input only. If you specify both, input will be
       ignored. For input use the same recipe table syntax as for
-      `minetest.register_craft(recipe)`. For output specify only the item,
+      `core.register_craft(recipe)`. For output specify only the item,
       without a quantity.
     * Returns false if no erase candidate could be found, otherwise returns true.
     * **Warning**! The type field ("shaped", "cooking" or any other) will be
       ignored if the recipe contains output. Erasing is then done independently
       from the crafting method.
-* `minetest.register_chatcommand(cmd, chatcommand definition)`
-* `minetest.override_chatcommand(name, redefinition)`
+* `core.register_chatcommand(cmd, chatcommand definition)`
+* `core.override_chatcommand(name, redefinition)`
     * Overrides fields of a chatcommand registered with `register_chatcommand`.
-* `minetest.unregister_chatcommand(name)`
+* `core.unregister_chatcommand(name)`
     * Unregisters a chatcommands registered with `register_chatcommand`.
-* `minetest.register_privilege(name, definition)`
+* `core.register_privilege(name, definition)`
     * `definition` can be a description or a definition table (see [Privilege
       definition]).
     * If it is a description, the priv will be granted to singleplayer and admin
       by default.
     * To allow players with `basic_privs` to grant, see the `basic_privs`
       minetest.conf setting.
-* `minetest.register_authentication_handler(authentication handler definition)`
+* `core.register_authentication_handler(authentication handler definition)`
     * Registers an auth handler that overrides the builtin one.
     * This function can be called by a single mod once only.
 
@@ -5816,39 +5931,39 @@ Global callback registration functions
 
 Call these functions only at load time!
 
-* `minetest.register_globalstep(function(dtime))`
+* `core.register_globalstep(function(dtime))`
     * Called every server step, usually interval of 0.1s.
     * `dtime` is the time since last execution in seconds.
-* `minetest.register_on_mods_loaded(function())`
+* `core.register_on_mods_loaded(function())`
     * Called after mods have finished loading and before the media is cached or the
       aliases handled.
-* `minetest.register_on_shutdown(function())`
+* `core.register_on_shutdown(function())`
     * Called before server shutdown
     * Players that were kicked by the shutdown procedure are still fully accessible
-     in `minetest.get_connected_players()`.
+     in `core.get_connected_players()`.
     * **Warning**: If the server terminates abnormally (i.e. crashes), the
       registered callbacks **will likely not be run**. Data should be saved at
       semi-frequent intervals as well as on server shutdown.
-* `minetest.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack, pointed_thing))`
+* `core.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack, pointed_thing))`
     * Called when a node has been placed
     * If return `true` no item is taken from `itemstack`
     * `placer` may be any valid ObjectRef or nil.
     * **Not recommended**; use `on_construct` or `after_place_node` in node
       definition whenever possible.
-* `minetest.register_on_dignode(function(pos, oldnode, digger))`
+* `core.register_on_dignode(function(pos, oldnode, digger))`
     * Called when a node has been dug.
     * **Not recommended**; Use `on_destruct` or `after_dig_node` in node
       definition whenever possible.
-* `minetest.register_on_punchnode(function(pos, node, puncher, pointed_thing))`
+* `core.register_on_punchnode(function(pos, node, puncher, pointed_thing))`
     * Called when a node is punched
-* `minetest.register_on_generated(function(minp, maxp, blockseed))`
+* `core.register_on_generated(function(minp, maxp, blockseed))`
     * Called after generating a piece of world between `minp` and `maxp`.
     * **Avoid using this** whenever possible. As with other callbacks this blocks
       the main thread and introduces noticeable latency.
       Consider [Mapgen environment] for an alternative.
-* `minetest.register_on_newplayer(function(ObjectRef))`
+* `core.register_on_newplayer(function(ObjectRef))`
     * Called when a new player enters the world for the first time
-* `minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage))`
+* `core.register_on_punchplayer(function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage))`
     * Called when a player is punched
     * Note: This callback is invoked even if the punched player is dead.
     * `player`: ObjectRef - Player that was punched
@@ -5860,12 +5975,12 @@ Call these functions only at load time!
       the puncher to the punched.
     * `damage`: Number that represents the damage calculated by the engine
     * should return `true` to prevent the default damage mechanism
-* `minetest.register_on_rightclickplayer(function(player, clicker))`
+* `core.register_on_rightclickplayer(function(player, clicker))`
     * Called when the 'place/use' key was used while pointing a player
       (not necessarily an actual rightclick)
     * `player`: ObjectRef - Player that is acted upon
     * `clicker`: ObjectRef - Object that acted upon `player`, may or may not be a player
-* `minetest.register_on_player_hpchange(function(player, hp_change, reason), modifier)`
+* `core.register_on_player_hpchange(function(player, hp_change, reason), modifier)`
     * Called when the player gets damaged or healed
     * When `hp == 0`, damage doesn't trigger this callback.
     * When `hp == hp_max`, healing does still trigger this callback.
@@ -5873,7 +5988,7 @@ Call these functions only at load time!
     * `hp_change`: the amount of change. Negative when it is damage.
       * Historically, the new HP value was clamped to [0, 65535] before
         calculating the HP change. This clamping has been removed as of
-        Minetest 5.10.0
+        version 5.10.0
     * `reason`: a PlayerHPChangeReason table.
         * The `type` field will have one of the following values:
             * `set_hp`: A mod or the engine called `set_hp` without
@@ -5891,34 +6006,34 @@ Call these functions only at load time!
        Note: modifiers only get a temporary `hp_change` that can be modified by later modifiers.
        Modifiers can return true as a second argument to stop the execution of further functions.
        Non-modifiers receive the final HP change calculated by the modifiers.
-* `minetest.register_on_dieplayer(function(ObjectRef, reason))`
+* `core.register_on_dieplayer(function(ObjectRef, reason))`
     * Called when a player dies
     * `reason`: a PlayerHPChangeReason table, see register_on_player_hpchange
-    * For customizing the death screen, see `minetest.show_death_screen`.
-* `minetest.register_on_respawnplayer(function(ObjectRef))`
+    * For customizing the death screen, see `core.show_death_screen`.
+* `core.register_on_respawnplayer(function(ObjectRef))`
     * Called when player is to be respawned
     * Called _before_ repositioning of player occurs
     * return true in func to disable regular player placement
-* `minetest.register_on_prejoinplayer(function(name, ip))`
+* `core.register_on_prejoinplayer(function(name, ip))`
     * Called when a client connects to the server, prior to authentication
     * If it returns a string, the client is disconnected with that string as
       reason.
-* `minetest.register_on_joinplayer(function(ObjectRef, last_login))`
+* `core.register_on_joinplayer(function(ObjectRef, last_login))`
     * Called when a player joins the game
     * `last_login`: The timestamp of the previous login, or nil if player is new
-* `minetest.register_on_leaveplayer(function(ObjectRef, timed_out))`
+* `core.register_on_leaveplayer(function(ObjectRef, timed_out))`
     * Called when a player leaves the game
     * Does not get executed for connected players on shutdown.
     * `timed_out`: True for timeout, false for other reasons.
-* `minetest.register_on_authplayer(function(name, ip, is_success))`
+* `core.register_on_authplayer(function(name, ip, is_success))`
     * Called when a client attempts to log into an account.
     * `name`: The name of the account being authenticated.
     * `ip`: The IP address of the client
     * `is_success`: Whether the client was successfully authenticated
     * For newly registered accounts, `is_success` will always be true
-* `minetest.register_on_auth_fail(function(name, ip))`
-    * Deprecated: use `minetest.register_on_authplayer(name, ip, is_success)` instead.
-* `minetest.register_on_cheat(function(ObjectRef, cheat))`
+* `core.register_on_auth_fail(function(name, ip))`
+    * Deprecated: use `core.register_on_authplayer(name, ip, is_success)` instead.
+* `core.register_on_cheat(function(ObjectRef, cheat))`
     * Called when a player cheats
     * `cheat`: `{type=<cheat_type>}`, where `<cheat_type>` is one of:
         * `moved_too_fast`
@@ -5928,16 +6043,16 @@ Call these functions only at load time!
         * `finished_unknown_dig`
         * `dug_unbreakable`
         * `dug_too_fast`
-* `minetest.register_on_chat_message(function(name, message))`
+* `core.register_on_chat_message(function(name, message))`
     * Called always when a player says something
     * Return `true` to mark the message as handled, which means that it will
       not be sent to other players.
-* `minetest.register_on_chatcommand(function(name, command, params))`
-    * Called always when a chatcommand is triggered, before `minetest.registered_chatcommands`
+* `core.register_on_chatcommand(function(name, command, params))`
+    * Called always when a chatcommand is triggered, before `core.registered_chatcommands`
       is checked to see if the command exists, but after the input is parsed.
     * Return `true` to mark the command as handled, which means that the default
       handlers will be prevented.
-* `minetest.register_on_player_receive_fields(function(player, formname, fields))`
+* `core.register_on_player_receive_fields(function(player, formname, fields))`
     * Called when the server received input from `player`.
       Specifically, this is called on any of the
       following events:
@@ -5950,7 +6065,7 @@ Call these functions only at load time!
           * an entry was double-clicked in a textlist or table,
           * a scrollbar was moved, or
           * the form was actively closed by the player.
-    * `formname` is the name passed to `minetest.show_formspec`.
+    * `formname` is the name passed to `core.show_formspec`.
       Special case: The empty string refers to the player inventory
       (the formspec set by the `set_inventory_formspec` player method).
     * Fields are sent for formspec elements which define a field. `fields`
@@ -5965,9 +6080,9 @@ Call these functions only at load time!
           dropdown argument.
         * `tabheader`: Tab index, starting with `"1"` (only if tab changed)
         * `checkbox`: `"true"` if checked, `"false"` if unchecked
-        * `textlist`: See `minetest.explode_textlist_event`
-        * `table`: See `minetest.explode_table_event`
-        * `scrollbar`: See `minetest.explode_scrollbar_event`
+        * `textlist`: See `core.explode_textlist_event`
+        * `table`: See `core.explode_table_event`
+        * `scrollbar`: See `core.explode_scrollbar_event`
         * Special case: `["quit"]="true"` is sent when the user actively
           closed the form by mouse click, keypress or through a button_exit[]
           element.
@@ -5978,7 +6093,7 @@ Call these functions only at load time!
           text field. See also: `field_close_on_enter`.
     * Newest functions are called first
     * If function returns `true`, remaining functions are not called
-* `minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv))`
+* `core.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv))`
     * Called when `player` crafts something
     * `itemstack` is the output
     * `old_craft_grid` contains the recipe (Note: the one in the inventory is
@@ -5986,16 +6101,16 @@ Call these functions only at load time!
     * `craft_inv` is the inventory with the crafting grid
     * Return either an `ItemStack`, to replace the output, or `nil`, to not
       modify it.
-* `minetest.register_craft_predict(function(itemstack, player, old_craft_grid, craft_inv))`
+* `core.register_craft_predict(function(itemstack, player, old_craft_grid, craft_inv))`
     * The same as before, except that it is called before the player crafts, to
       make craft prediction, and it should not change anything.
-* `minetest.register_allow_player_inventory_action(function(player, action, inventory, inventory_info))`
+* `core.register_allow_player_inventory_action(function(player, action, inventory, inventory_info))`
     * Determines how much of a stack may be taken, put or moved to a
       player inventory.
-    * Function arguments: see `minetest.register_on_player_inventory_action`
+    * Function arguments: see `core.register_on_player_inventory_action`
     * Return a numeric value to limit the amount of items to be taken, put or
       moved. A value of `-1` for `take` will make the source stack infinite.
-* `minetest.register_on_player_inventory_action(function(player, action, inventory, inventory_info))`
+* `core.register_on_player_inventory_action(function(player, action, inventory, inventory_info))`
     * Called after an item take, put or move event from/to/in a player inventory
     * These inventory actions are recognized:
         * move: Item was moved within the player inventory
@@ -6009,52 +6124,52 @@ Call these functions only at load time!
         * `put`:  `{listname=string, index=number, stack=ItemStack}`
         * `take`: Same as `put`
     * Does not accept or handle any return value.
-* `minetest.register_on_protection_violation(function(pos, name))`
+* `core.register_on_protection_violation(function(pos, name))`
     * Called by `builtin` and mods when a player violates protection at a
       position (eg, digs a node or punches a protected entity).
     * The registered functions can be called using
-      `minetest.record_protection_violation`.
+      `core.record_protection_violation`.
     * The provided function should check that the position is protected by the
       mod calling this function before it prints a message, if it does, to
       allow for multiple protection mods.
-* `minetest.register_on_item_eat(function(hp_change, replace_with_item, itemstack, user, pointed_thing))`
-    * Called when an item is eaten, by `minetest.item_eat`
+* `core.register_on_item_eat(function(hp_change, replace_with_item, itemstack, user, pointed_thing))`
+    * Called when an item is eaten, by `core.item_eat`
     * Return `itemstack` to cancel the default item eat response (i.e.: hp increase).
-* `minetest.register_on_item_pickup(function(itemstack, picker, pointed_thing, time_from_last_punch,  ...))`
-    * Called by `minetest.item_pickup` before an item is picked up.
-    * Function is added to `minetest.registered_on_item_pickups`.
+* `core.register_on_item_pickup(function(itemstack, picker, pointed_thing, time_from_last_punch,  ...))`
+    * Called by `core.item_pickup` before an item is picked up.
+    * Function is added to `core.registered_on_item_pickups`.
     * Oldest functions are called first.
     * Parameters are the same as in the `on_pickup` callback.
     * Return an itemstack to cancel the default item pick-up response (i.e.: adding
       the item into inventory).
-* `minetest.register_on_priv_grant(function(name, granter, priv))`
+* `core.register_on_priv_grant(function(name, granter, priv))`
     * Called when `granter` grants the priv `priv` to `name`.
     * Note that the callback will be called twice if it's done by a player,
       once with granter being the player name, and again with granter being nil.
-* `minetest.register_on_priv_revoke(function(name, revoker, priv))`
+* `core.register_on_priv_revoke(function(name, revoker, priv))`
     * Called when `revoker` revokes the priv `priv` from `name`.
     * Note that the callback will be called twice if it's done by a player,
       once with revoker being the player name, and again with revoker being nil.
-* `minetest.register_can_bypass_userlimit(function(name, ip))`
+* `core.register_can_bypass_userlimit(function(name, ip))`
     * Called when `name` user connects with `ip`.
     * Return `true` to by pass the player limit
-* `minetest.register_on_modchannel_message(function(channel_name, sender, message))`
+* `core.register_on_modchannel_message(function(channel_name, sender, message))`
     * Called when an incoming mod channel message is received
     * You should have joined some channels to receive events.
     * If message comes from a server mod, `sender` field is an empty string.
-* `minetest.register_on_liquid_transformed(function(pos_list, node_list))`
+* `core.register_on_liquid_transformed(function(pos_list, node_list))`
     * Called after liquid nodes (`liquidtype ~= "none"`) are modified by the
       engine's liquid transformation process.
     * `pos_list` is an array of all modified positions.
     * `node_list` is an array of the old node that was previously at the position
       with the corresponding index in pos_list.
-* `minetest.register_on_mapblocks_changed(function(modified_blocks, modified_block_count))`
+* `core.register_on_mapblocks_changed(function(modified_blocks, modified_block_count))`
     * Called soon after any nodes or node metadata have been modified. No
       modifications will be missed, but there may be false positives.
     * Will never be called more than once per server step.
     * `modified_blocks` is the set of modified mapblock position hashes. These
-      are in the same format as those produced by `minetest.hash_node_position`,
-      and can be converted to positions with `minetest.get_position_from_hash`.
+      are in the same format as those produced by `core.hash_node_position`,
+      and can be converted to positions with `core.get_position_from_hash`.
       The set is a table where the keys are hashes and the values are `true`.
     * `modified_block_count` is the number of entries in the set.
     * Note: callbacks must be registered at mod load time.
@@ -6062,86 +6177,86 @@ Call these functions only at load time!
 Setting-related
 ---------------
 
-* `minetest.settings`: Settings object containing all of the settings from the
+* `core.settings`: Settings object containing all of the settings from the
   main config file (`minetest.conf`). See [`Settings`].
-* `minetest.setting_get_pos(name)`: Loads a setting from the main settings and
+* `core.setting_get_pos(name)`: Loads a setting from the main settings and
   parses it as a position (in the format `(1,2,3)`). Returns a position or nil.
 
 Authentication
 --------------
 
-* `minetest.string_to_privs(str[, delim])`:
+* `core.string_to_privs(str[, delim])`:
     * Converts string representation of privs into table form
     * `delim`: String separating the privs. Defaults to `","`.
     * Returns `{ priv1 = true, ... }`
-* `minetest.privs_to_string(privs[, delim])`:
+* `core.privs_to_string(privs[, delim])`:
     * Returns the string representation of `privs`
     * `delim`: String to delimit privs. Defaults to `","`.
-* `minetest.get_player_privs(name) -> {priv1=true,...}`
-* `minetest.check_player_privs(player_or_name, ...)`:
+* `core.get_player_privs(name) -> {priv1=true,...}`
+* `core.check_player_privs(player_or_name, ...)`:
   returns `bool, missing_privs`
     * A quickhand for checking privileges.
     * `player_or_name`: Either a Player object or the name of a player.
     * `...` is either a list of strings, e.g. `"priva", "privb"` or
       a table, e.g. `{ priva = true, privb = true }`.
 
-* `minetest.check_password_entry(name, entry, password)`
+* `core.check_password_entry(name, entry, password)`
     * Returns true if the "password entry" for a player with name matches given
       password, false otherwise.
     * The "password entry" is the password representation generated by the
       engine as returned as part of a `get_auth()` call on the auth handler.
     * Only use this function for making it possible to log in via password from
       external protocols such as IRC, other uses are frowned upon.
-* `minetest.get_password_hash(name, raw_password)`
-    * Convert a name-password pair to a password hash that Minetest can use.
+* `core.get_password_hash(name, raw_password)`
+    * Convert a name-password pair to a password hash that Luanti can use.
     * The returned value alone is not a good basis for password checks based
       on comparing the password hash in the database with the password hash
       from the function, with an externally provided password, as the hash
       in the db might use the new SRP verifier format.
-    * For this purpose, use `minetest.check_password_entry` instead.
-* `minetest.get_player_ip(name)`: returns an IP address string for the player
+    * For this purpose, use `core.check_password_entry` instead.
+* `core.get_player_ip(name)`: returns an IP address string for the player
   `name`.
     * The player needs to be online for this to be successful.
 
-* `minetest.get_auth_handler()`: Return the currently active auth handler
+* `core.get_auth_handler()`: Return the currently active auth handler
     * Must be called *after* load time, to ensure that any custom auth handler was
       already registered.
     * See the [Authentication handler definition]
     * Use this to e.g. get the authentication data for a player:
-      `local auth_data = minetest.get_auth_handler().get_auth(playername)`
-* `minetest.notify_authentication_modified(name)`
+      `local auth_data = core.get_auth_handler().get_auth(playername)`
+* `core.notify_authentication_modified(name)`
     * Must be called by the authentication handler for privilege changes.
     * `name`: string; if omitted, all auth data should be considered modified
-* `minetest.set_player_password(name, password_hash)`: Set password hash of
+* `core.set_player_password(name, password_hash)`: Set password hash of
   player `name`.
-* `minetest.set_player_privs(name, privs)`: Set privileges of player `name`.
+* `core.set_player_privs(name, privs)`: Set privileges of player `name`.
     * `privs` is a **set** of privileges:
       A table where the keys are names of privileges and the values are `true`.
-    * Example: `minetest.set_player_privs("singleplayer", {interact = true, fly = true})`.
+    * Example: `core.set_player_privs("singleplayer", {interact = true, fly = true})`.
       This **sets** the player privileges to `interact` and `fly`;
       `singleplayer` will only have these two privileges afterwards.
-* `minetest.change_player_privs(name, changes)`: Helper to grant or revoke privileges.
+* `core.change_player_privs(name, changes)`: Helper to grant or revoke privileges.
     * `changes`: Table of changes to make.
       A field `[privname] = true` grants a privilege,
       whereas `[privname] = false` revokes a privilege.
-    * Example: `minetest.change_player_privs("singleplayer", {interact = true, fly = false})`
+    * Example: `core.change_player_privs("singleplayer", {interact = true, fly = false})`
       will grant singleplayer the `interact` privilege
       and revoke singleplayer's `fly` privilege.
       All other privileges will remain unchanged.
-* `minetest.auth_reload()`
+* `core.auth_reload()`
     * See `reload()` in authentication handler definition
 
-`minetest.set_player_password`, `minetest.set_player_privs`,
-`minetest.get_player_privs` and `minetest.auth_reload` call the authentication
+`core.set_player_password`, `core.set_player_privs`,
+`core.get_player_privs` and `core.auth_reload` call the authentication
 handler.
 
 Chat
 ----
 
-* `minetest.chat_send_all(text)`: send chat message to all players
-* `minetest.chat_send_player(name, text)`: send chat message to specific player
+* `core.chat_send_all(text)`: send chat message to all players
+* `core.chat_send_player(name, text)`: send chat message to specific player
     * `name`: Name of the player
-* `minetest.format_chat_message(name, message)`
+* `core.format_chat_message(name, message)`
     * Used by the server to format a chat message, based on the setting `chat_message_format`.
       Refer to the documentation of the setting for a list of valid placeholders.
     * Takes player name and message, and returns the formatted string to be sent to players.
@@ -6151,38 +6266,38 @@ Chat
 Environment access
 ------------------
 
-* `minetest.set_node(pos, node)`
+* `core.set_node(pos, node)`
     * Set node at position `pos`.
     * Any existing metadata is deleted.
     * `node`: table `{name=string, param1=number, param2=number}`
       If param1 or param2 is omitted, it's set to `0`.
-    * e.g. `minetest.set_node({x=0, y=10, z=0}, {name="default:wood"})`
-* `minetest.add_node(pos, node)`: alias to `minetest.set_node`
-* `minetest.bulk_set_node({pos1, pos2, pos3, ...}, node)`
+    * e.g. `core.set_node({x=0, y=10, z=0}, {name="default:wood"})`
+* `core.add_node(pos, node)`: alias to `core.set_node`
+* `core.bulk_set_node({pos1, pos2, pos3, ...}, node)`
     * Set the same node at all positions in the first argument.
-    * e.g. `minetest.bulk_set_node({{x=0, y=1, z=1}, {x=1, y=2, z=2}}, {name="default:stone"})`
-    * For node specification or position syntax see `minetest.set_node` call
+    * e.g. `core.bulk_set_node({{x=0, y=1, z=1}, {x=1, y=2, z=2}}, {name="default:stone"})`
+    * For node specification or position syntax see `core.set_node` call
     * Faster than set_node due to single call, but still considerably slower
       than Lua Voxel Manipulators (LVM) for large numbers of nodes.
       Unlike LVMs, this will call node callbacks. It also allows setting nodes
       in spread out positions which would cause LVMs to waste memory.
       For setting a cube, this is 1.3x faster than set_node whereas LVM is 20
       times faster.
-* `minetest.swap_node(pos, node)`
+* `core.swap_node(pos, node)`
     * Swap node at position with another.
     * This keeps the metadata intact and will not run con-/destructor callbacks.
-* `minetest.bulk_swap_node({pos1, pos2, pos3, ...}, node)`
-    * Equivalent to `minetest.swap_node` but in bulk.
-* `minetest.remove_node(pos)`: Remove a node
-    * Equivalent to `minetest.set_node(pos, {name="air"})`, but a bit faster.
-* `minetest.get_node(pos)`
+* `core.bulk_swap_node({pos1, pos2, pos3, ...}, node)`
+    * Equivalent to `core.swap_node` but in bulk.
+* `core.remove_node(pos)`: Remove a node
+    * Equivalent to `core.set_node(pos, {name="air"})`, but a bit faster.
+* `core.get_node(pos)`
     * Returns the node at the given position as table in the same format as `set_node`.
     * This function never returns `nil` and instead returns
       `{name="ignore", param1=0, param2=0}` for unloaded areas.
-* `minetest.get_node_or_nil(pos)`
+* `core.get_node_or_nil(pos)`
     * Same as `get_node` but returns `nil` for unloaded areas.
     * Note that even loaded areas can contain "ignore" nodes.
-* `minetest.get_node_light(pos[, timeofday])`
+* `core.get_node_light(pos[, timeofday])`
     * Gets the light value at the given position. Note that the light value
       "inside" the node at the given position is returned, so you usually want
       to get the light value of a neighbor.
@@ -6190,7 +6305,7 @@ Environment access
     * `timeofday`: `nil` for current time, `0` for night, `0.5` for day
     * Returns a number between `0` and `15` or `nil`
     * `nil` is returned e.g. when the map isn't loaded at `pos`
-* `minetest.get_natural_light(pos[, timeofday])`
+* `core.get_natural_light(pos[, timeofday])`
     * Figures out the sunlight (or moonlight) value at pos at the given time of
       day.
     * `pos`: The position of the node
@@ -6198,78 +6313,78 @@ Environment access
     * Returns a number between `0` and `15` or `nil`
     * This function tests 203 nodes in the worst case, which happens very
       unlikely
-* `minetest.get_artificial_light(param1)`
+* `core.get_artificial_light(param1)`
     * Calculates the artificial light (light from e.g. torches) value from the
       `param1` value.
     * `param1`: The param1 value of a `paramtype = "light"` node.
     * Returns a number between `0` and `15`
     * Currently it's the same as `math.floor(param1 / 16)`, except that it
       ensures compatibility.
-* `minetest.place_node(pos, node[, placer])`
+* `core.place_node(pos, node[, placer])`
     * Place node with the same effects that a player would cause
     * `placer`: The ObjectRef that places the node (optional)
-* `minetest.dig_node(pos[, digger])`
+* `core.dig_node(pos[, digger])`
     * Dig node with the same effects that a player would cause
     * `digger`: The ObjectRef that digs the node (optional)
     * Returns `true` if successful, `false` on failure (e.g. protected location)
-* `minetest.punch_node(pos[, puncher])`
+* `core.punch_node(pos[, puncher])`
     * Punch node with the same effects that a player would cause
     * `puncher`: The ObjectRef that punches the node (optional)
-* `minetest.spawn_falling_node(pos)`
+* `core.spawn_falling_node(pos)`
     * Change node into falling node
     * Returns `true` and the ObjectRef of the spawned entity if successful, `false` on failure
 
-* `minetest.find_nodes_with_meta(pos1, pos2)`
+* `core.find_nodes_with_meta(pos1, pos2)`
     * Get a table of positions of nodes that have metadata within a region
       {pos1, pos2}.
-* `minetest.get_meta(pos)`
+* `core.get_meta(pos)`
     * Get a `NodeMetaRef` at that position
-* `minetest.get_node_timer(pos)`
+* `core.get_node_timer(pos)`
     * Get `NodeTimerRef`
 
-* `minetest.add_entity(pos, name, [staticdata])`: Spawn Lua-defined entity at
+* `core.add_entity(pos, name, [staticdata])`: Spawn Lua-defined entity at
   position.
     * Returns `ObjectRef`, or `nil` if failed
     * Entities with `static_save = true` can be added also
       to unloaded and non-generated blocks.
-* `minetest.add_item(pos, item)`: Spawn item
+* `core.add_item(pos, item)`: Spawn item
     * Returns `ObjectRef`, or `nil` if failed
     * Items can be added also to unloaded and non-generated blocks.
-* `minetest.get_player_by_name(name)`: Get an `ObjectRef` to a player
+* `core.get_player_by_name(name)`: Get an `ObjectRef` to a player
     * Returns nothing in case of error (player offline, doesn't exist, ...).
-* `minetest.get_objects_inside_radius(center, radius)`
+* `core.get_objects_inside_radius(center, radius)`
     * returns a list of ObjectRefs
     * `radius`: using a Euclidean metric
     * **Warning**: Any kind of interaction with the environment or other APIs
       can cause later objects in the list to become invalid while you're iterating it.
       (e.g. punching an entity removes its children)
-      It is recommended to use `minetest.objects_inside_radius` instead, which
+      It is recommended to use `core.objects_inside_radius` instead, which
       transparently takes care of this possibility.
-* `minetest.objects_inside_radius(center, radius)`
+* `core.objects_inside_radius(center, radius)`
     * returns an iterator of valid objects
-    * example: `for obj in minetest.objects_inside_radius(center, radius) do obj:punch(...) end`
-* `minetest.get_objects_in_area(min_pos, max_pos)`
+    * example: `for obj in core.objects_inside_radius(center, radius) do obj:punch(...) end`
+* `core.get_objects_in_area(min_pos, max_pos)`
     * returns a list of ObjectRefs
     * `min_pos` and `max_pos` are the min and max positions of the area to search
-    * **Warning**: The same warning as for `minetest.get_objects_inside_radius` applies.
-      Use `minetest.objects_in_area` instead to iterate only valid objects.
-* `minetest.objects_in_area(min_pos, max_pos)`
+    * **Warning**: The same warning as for `core.get_objects_inside_radius` applies.
+      Use `core.objects_in_area` instead to iterate only valid objects.
+* `core.objects_in_area(min_pos, max_pos)`
     * returns an iterator of valid objects
-* `minetest.set_timeofday(val)`: set time of day
+* `core.set_timeofday(val)`: set time of day
     * `val` is between `0` and `1`; `0` for midnight, `0.5` for midday
-* `minetest.get_timeofday()`: get time of day
-* `minetest.get_gametime()`: returns the time, in seconds, since the world was
+* `core.get_timeofday()`: get time of day
+* `core.get_gametime()`: returns the time, in seconds, since the world was
   created. The time is not available (`nil`) before the first server step.
-* `minetest.get_day_count()`: returns number days elapsed since world was
+* `core.get_day_count()`: returns number days elapsed since world was
   created.
     * Time changes are accounted for.
-* `minetest.find_node_near(pos, radius, nodenames, [search_center])`: returns
+* `core.find_node_near(pos, radius, nodenames, [search_center])`: returns
   pos or `nil`.
     * `radius`: using a maximum metric
     * `nodenames`: e.g. `{"ignore", "group:tree"}` or `"default:dirt"`
     * `search_center` is an optional boolean (default: `false`)
       If true `pos` is also checked for the nodes
-* `minetest.find_nodes_in_area(pos1, pos2, nodenames, [grouped])`
+* `core.find_nodes_in_area(pos1, pos2, nodenames, [grouped])`
     * `pos1` and `pos2` are the min and max positions of the area to search.
     * `nodenames`: e.g. `{"ignore", "group:tree"}` or `"default:dirt"`
     * If `grouped` is true the return value is a table indexed by node name
@@ -6279,21 +6394,21 @@ Environment access
       second value: Table with the count of each node with the node name
       as index
     * Area volume is limited to 4,096,000 nodes
-* `minetest.find_nodes_in_area_under_air(pos1, pos2, nodenames)`: returns a
+* `core.find_nodes_in_area_under_air(pos1, pos2, nodenames)`: returns a
   list of positions.
     * `nodenames`: e.g. `{"ignore", "group:tree"}` or `"default:dirt"`
     * Return value: Table with all node positions with a node air above
     * Area volume is limited to 4,096,000 nodes
-* `minetest.get_perlin(noiseparams)`
+* `core.get_perlin(noiseparams)`
     * Return world-specific perlin noise.
     * The actual seed used is the noiseparams seed plus the world seed.
-* `minetest.get_perlin(seeddiff, octaves, persistence, spread)`
-    * Deprecated: use `minetest.get_perlin(noiseparams)` instead.
+* `core.get_perlin(seeddiff, octaves, persistence, spread)`
+    * Deprecated: use `core.get_perlin(noiseparams)` instead.
     * Return world-specific perlin noise.
-* `minetest.get_voxel_manip([pos1, pos2])`
+* `core.get_voxel_manip([pos1, pos2])`
     * Return voxel manipulator object.
     * Loads the manipulator from the map if positions are passed.
-* `minetest.set_gen_notify(flags, [deco_ids], [custom_ids])`
+* `core.set_gen_notify(flags, [deco_ids], [custom_ids])`
     * Set the types of on-generate notifications that should be collected.
     * `flags`: flag field, see [`gennotify`] for available generation notification types.
     * The following parameters are optional:
@@ -6302,41 +6417,41 @@ Environment access
     * `custom_ids` is a list of user-defined IDs (strings) which are
       requested. By convention these should be the mod name with an optional
       colon and specifier added, e.g. `"default"` or `"default:dungeon_loot"`
-* `minetest.get_gen_notify()`
+* `core.get_gen_notify()`
     * Returns a flagstring, a table with the `deco_id`s and a table with
       user-defined IDs.
-* `minetest.get_decoration_id(decoration_name)`
+* `core.get_decoration_id(decoration_name)`
     * Returns the decoration ID number for the provided decoration name string,
       or `nil` on failure.
-* `minetest.get_mapgen_object(objectname)`
+* `core.get_mapgen_object(objectname)`
     * Return requested mapgen object if available (see [Mapgen objects])
-* `minetest.get_heat(pos)`
+* `core.get_heat(pos)`
     * Returns the heat at the position, or `nil` on failure.
-* `minetest.get_humidity(pos)`
+* `core.get_humidity(pos)`
     * Returns the humidity at the position, or `nil` on failure.
-* `minetest.get_biome_data(pos)`
+* `core.get_biome_data(pos)`
     * Returns a table containing:
         * `biome` the biome id of the biome at that position
         * `heat` the heat at the position
         * `humidity` the humidity at the position
     * Or returns `nil` on failure.
-* `minetest.get_biome_id(biome_name)`
+* `core.get_biome_id(biome_name)`
     * Returns the biome id, as used in the biomemap Mapgen object and returned
-      by `minetest.get_biome_data(pos)`, for a given biome_name string.
-* `minetest.get_biome_name(biome_id)`
+      by `core.get_biome_data(pos)`, for a given biome_name string.
+* `core.get_biome_name(biome_id)`
     * Returns the biome name string for the provided biome id, or `nil` on
       failure.
     * If no biomes have been registered, such as in mgv6, returns `default`.
-* `minetest.get_mapgen_params()`
-    * Deprecated: use `minetest.get_mapgen_setting(name)` instead.
+* `core.get_mapgen_params()`
+    * Deprecated: use `core.get_mapgen_setting(name)` instead.
     * Returns a table containing:
         * `mgname`
         * `seed`
         * `chunksize`
         * `water_level`
         * `flags`
-* `minetest.set_mapgen_params(MapgenParams)`
-    * Deprecated: use `minetest.set_mapgen_setting(name, value, override)`
+* `core.set_mapgen_params(MapgenParams)`
+    * Deprecated: use `core.set_mapgen_setting(name, value, override)`
       instead.
     * Set map generation parameters.
     * Function cannot be called after the registration period.
@@ -6351,14 +6466,14 @@ Environment access
       prefix `"no"` is attached, clears instead.
     * `flags` is in the same format and has the same options as `mg_flags` in
       `minetest.conf`.
-* `minetest.get_mapgen_edges([mapgen_limit[, chunksize]])`
+* `core.get_mapgen_edges([mapgen_limit[, chunksize]])`
     * Returns the minimum and maximum possible generated node positions
       in that order.
     * `mapgen_limit` is an optional number. If it is absent, its value is that
       of the *active* mapgen setting `"mapgen_limit"`.
     * `chunksize` is an optional number. If it is absent, its value is that
       of the *active* mapgen setting `"chunksize"`.
-* `minetest.get_mapgen_setting(name)`
+* `core.get_mapgen_setting(name)`
     * Gets the *active* mapgen setting (or nil if none exists) in string
       format with the following order of precedence:
         1) Settings loaded from map_meta.txt or overrides set during mod
@@ -6366,35 +6481,35 @@ Environment access
         2) Settings set by mods without a metafile override
         3) Settings explicitly set in the user config file, minetest.conf
         4) Settings set as the user config default
-* `minetest.get_mapgen_setting_noiseparams(name)`
+* `core.get_mapgen_setting_noiseparams(name)`
     * Same as above, but returns the value as a NoiseParams table if the
       setting `name` exists and is a valid NoiseParams.
-* `minetest.set_mapgen_setting(name, value, [override_meta])`
+* `core.set_mapgen_setting(name, value, [override_meta])`
     * Sets a mapgen param to `value`, and will take effect if the corresponding
       mapgen setting is not already present in map_meta.txt.
     * `override_meta` is an optional boolean (default: `false`). If this is set
       to true, the setting will become the active setting regardless of the map
       metafile contents.
     * Note: to set the seed, use `"seed"`, not `"fixed_map_seed"`.
-* `minetest.set_mapgen_setting_noiseparams(name, value, [override_meta])`
+* `core.set_mapgen_setting_noiseparams(name, value, [override_meta])`
     * Same as above, except value is a NoiseParams table.
-* `minetest.set_noiseparams(name, noiseparams, set_default)`
+* `core.set_noiseparams(name, noiseparams, set_default)`
     * Sets the noiseparams setting of `name` to the noiseparams table specified
       in `noiseparams`.
     * `set_default` is an optional boolean (default: `true`) that specifies
       whether the setting should be applied to the default config or current
       active config.
-* `minetest.get_noiseparams(name)`
+* `core.get_noiseparams(name)`
     * Returns a table of the noiseparams for name.
-* `minetest.generate_ores(vm, pos1, pos2)`
+* `core.generate_ores(vm, pos1, pos2)`
     * Generate all registered ores within the VoxelManip `vm` and in the area
       from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
-* `minetest.generate_decorations(vm, pos1, pos2)`
+* `core.generate_decorations(vm, pos1, pos2)`
     * Generate all registered decorations within the VoxelManip `vm` and in the
       area from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
-* `minetest.clear_objects([options])`
+* `core.clear_objects([options])`
     * Clear all objects in the environment
     * Takes an optional table as an argument with the field `mode`.
         * mode = `"full"`: Load and go through every mapblock, clearing
@@ -6402,11 +6517,11 @@ Environment access
         * mode = `"quick"`: Clear objects immediately in loaded mapblocks,
                             clear objects in unloaded mapblocks only when the
                             mapblocks are next activated.
-* `minetest.load_area(pos1[, pos2])`
+* `core.load_area(pos1[, pos2])`
     * Load the mapblocks containing the area from `pos1` to `pos2`.
       `pos2` defaults to `pos1` if not specified.
     * This function does not trigger map generation.
-* `minetest.emerge_area(pos1, pos2, [callback], [param])`
+* `core.emerge_area(pos1, pos2, [callback], [param])`
     * Queue all blocks in the area from `pos1` to `pos2`, inclusive, to be
       asynchronously fetched from memory, loaded from disk, or if inexistent,
       generates them.
@@ -6417,24 +6532,24 @@ Environment access
         * `blockpos` is the *block* coordinates of the block that had been
           emerged.
         * `action` could be one of the following constant values:
-            * `minetest.EMERGE_CANCELLED`
-            * `minetest.EMERGE_ERRORED`
-            * `minetest.EMERGE_FROM_MEMORY`
-            * `minetest.EMERGE_FROM_DISK`
-            * `minetest.EMERGE_GENERATED`
+            * `core.EMERGE_CANCELLED`
+            * `core.EMERGE_ERRORED`
+            * `core.EMERGE_FROM_MEMORY`
+            * `core.EMERGE_FROM_DISK`
+            * `core.EMERGE_GENERATED`
         * `calls_remaining` is the number of callbacks to be expected after
           this one.
         * `param` is the user-defined parameter passed to emerge_area (or
           nil if the parameter was absent).
-* `minetest.delete_area(pos1, pos2)`
+* `core.delete_area(pos1, pos2)`
     * delete all mapblocks in the area from pos1 to pos2, inclusive
-* `minetest.line_of_sight(pos1, pos2)`: returns `boolean, pos`
+* `core.line_of_sight(pos1, pos2)`: returns `boolean, pos`
     * Checks if there is anything other than air between pos1 and pos2.
     * Returns false if something is blocking the sight.
     * Returns the position of the blocking node when `false`
     * `pos1`: First position
     * `pos2`: Second position
-* `minetest.raycast(pos1, pos2, objects, liquids, pointabilities)`: returns `Raycast`
+* `core.raycast(pos1, pos2, objects, liquids, pointabilities)`: returns `Raycast`
     * Creates a `Raycast` object.
     * `pos1`: start of the ray
     * `pos2`: end of the ray
@@ -6444,7 +6559,7 @@ Environment access
     * `pointabilities`: Allows overriding the `pointable` property of
       nodes and objects. Uses the same format as the `pointabilities` property
       of item definitions. Default is `nil`.
-* `minetest.find_path(pos1,pos2,searchdistance,max_jump,max_drop,algorithm)`
+* `core.find_path(pos1,pos2,searchdistance,max_jump,max_drop,algorithm)`
     * returns table containing path that can be walked on
     * returns a table of 3D points representing a path from `pos1` to `pos2` or
       `nil` on failure.
@@ -6464,22 +6579,22 @@ Environment access
       Difference between `"A*"` and `"A*_noprefetch"` is that
       `"A*"` will pre-calculate the cost-data, the other will calculate it
       on-the-fly
-* `minetest.spawn_tree (pos, {treedef})`
+* `core.spawn_tree (pos, {treedef})`
     * spawns L-system tree at given `pos` with definition in `treedef` table
-* `minetest.transforming_liquid_add(pos)`
+* `core.transforming_liquid_add(pos)`
     * add node to liquid flow update queue
-* `minetest.get_node_max_level(pos)`
+* `core.get_node_max_level(pos)`
     * get max available level for leveled node
-* `minetest.get_node_level(pos)`
+* `core.get_node_level(pos)`
     * get level of leveled node (water, snow)
-* `minetest.set_node_level(pos, level)`
+* `core.set_node_level(pos, level)`
     * set level of leveled node, default `level` equals `1`
     * if `totallevel > maxlevel`, returns rest (`total-max`).
-* `minetest.add_node_level(pos, level)`
+* `core.add_node_level(pos, level)`
     * increase level of leveled node by level, default `level` equals `1`
     * if `totallevel > maxlevel`, returns rest (`total-max`)
     * `level` must be between -127 and 127
-* `minetest.get_node_boxes(box_type, pos, [node])`
+* `core.get_node_boxes(box_type, pos, [node])`
     * `box_type` must be `"node_box"`, `"collision_box"` or `"selection_box"`.
     * `pos` must be a node position.
     * `node` can be a table in the form `{name=string, param1=number, param2=number}`.
@@ -6490,7 +6605,7 @@ Environment access
       `{{x1, y1, z1, x2, y2, z2}, {x1, y1, z1, x2, y2, z2}, ...}`. Coordinates
       are relative to `pos`.
     * See also: [Node boxes](#node-boxes)
-* `minetest.fix_light(pos1, pos2)`: returns `true`/`false`
+* `core.fix_light(pos1, pos2)`: returns `true`/`false`
     * resets the light in a cuboid-shaped part of
       the map and removes lighting bugs.
     * Loads the area if it is not loaded.
@@ -6506,16 +6621,16 @@ Environment access
       might be removed.
     * returns `false` if the area is not fully generated,
       `true` otherwise
-* `minetest.check_single_for_falling(pos)`
+* `core.check_single_for_falling(pos)`
     * causes an unsupported `group:falling_node` node to fall and causes an
       unattached `group:attached_node` node to fall.
     * does not spread these updates to neighbors.
-* `minetest.check_for_falling(pos)`
+* `core.check_for_falling(pos)`
     * causes an unsupported `group:falling_node` node to fall and causes an
       unattached `group:attached_node` node to fall.
     * spread these updates to neighbors and can cause a cascade
       of nodes to fall.
-* `minetest.get_spawn_level(x, z)`
+* `core.get_spawn_level(x, z)`
     * Returns a player spawn y coordinate for the provided (x, z)
       coordinates, or `nil` for an unsuitable spawn point.
     * For most mapgens a 'suitable spawn point' is one with y between
@@ -6530,21 +6645,21 @@ Mod channels
 
 You can find mod channels communication scheme in `doc/mod_channels.png`.
 
-* `minetest.mod_channel_join(channel_name)`
+* `core.mod_channel_join(channel_name)`
     * Server joins channel `channel_name`, and creates it if necessary. You
       should listen for incoming messages with
-      `minetest.register_on_modchannel_message`
+      `core.register_on_modchannel_message`
 
 Inventory
 ---------
 
-`minetest.get_inventory(location)`: returns an `InvRef`
+`core.get_inventory(location)`: returns an `InvRef`
 
 * `location` = e.g.
     * `{type="player", name="celeron55"}`
     * `{type="node", pos={x=, y=, z=}}`
     * `{type="detached", name="creative"}`
-* `minetest.create_detached_inventory(name, callbacks, [player_name])`: returns
+* `core.create_detached_inventory(name, callbacks, [player_name])`: returns
   an `InvRef`.
     * `callbacks`: See [Detached inventory callbacks]
     * `player_name`: Make detached inventory available to one player
@@ -6553,111 +6668,111 @@ Inventory
       Note that this parameter is mostly just a workaround and will be removed
       in future releases.
     * Creates a detached inventory. If it already exists, it is cleared.
-* `minetest.remove_detached_inventory(name)`
+* `core.remove_detached_inventory(name)`
     * Returns a `boolean` indicating whether the removal succeeded.
-* `minetest.do_item_eat(hp_change, replace_with_item, itemstack, user, pointed_thing)`:
+* `core.do_item_eat(hp_change, replace_with_item, itemstack, user, pointed_thing)`:
   returns leftover ItemStack or nil to indicate no inventory change
-    * See `minetest.item_eat` and `minetest.register_on_item_eat`
+    * See `core.item_eat` and `core.register_on_item_eat`
 
 Formspec
 --------
 
-* `minetest.show_formspec(playername, formname, formspec)`
+* `core.show_formspec(playername, formname, formspec)`
     * `playername`: name of player to show formspec
     * `formname`: name passed to `on_player_receive_fields` callbacks.
       It should follow the `"modname:<whatever>"` naming convention.
     * `formname` must not be empty, unless you want to reshow
       the inventory formspec without updating it for future opens.
     * `formspec`: formspec to display
-* `minetest.close_formspec(playername, formname)`
+* `core.close_formspec(playername, formname)`
     * `playername`: name of player to close formspec
     * `formname`: has to exactly match the one given in `show_formspec`, or the
       formspec will not close.
     * calling `show_formspec(playername, formname, "")` is equal to this
       expression.
     * to close a formspec regardless of the formname, call
-      `minetest.close_formspec(playername, "")`.
+      `core.close_formspec(playername, "")`.
       **USE THIS ONLY WHEN ABSOLUTELY NECESSARY!**
-* `minetest.formspec_escape(string)`: returns a string
+* `core.formspec_escape(string)`: returns a string
     * escapes the characters "[", "]", "\", "," and ";", which cannot be used
       in formspecs.
-* `minetest.hypertext_escape(string)`: returns a string
+* `core.hypertext_escape(string)`: returns a string
     * escapes the characters "\", "<", and ">" to show text in a hypertext element.
     * not safe for use with tag attributes.
-* `minetest.explode_table_event(string)`: returns a table
+* `core.explode_table_event(string)`: returns a table
     * returns e.g. `{type="CHG", row=1, column=2}`
     * `type` is one of:
         * `"INV"`: no row selected
         * `"CHG"`: selected
         * `"DCL"`: double-click
-* `minetest.explode_textlist_event(string)`: returns a table
+* `core.explode_textlist_event(string)`: returns a table
     * returns e.g. `{type="CHG", index=1}`
     * `type` is one of:
         * `"INV"`: no row selected
         * `"CHG"`: selected
         * `"DCL"`: double-click
-* `minetest.explode_scrollbar_event(string)`: returns a table
+* `core.explode_scrollbar_event(string)`: returns a table
     * returns e.g. `{type="CHG", value=500}`
     * `type` is one of:
         * `"INV"`: something failed
         * `"CHG"`: has been changed
         * `"VAL"`: not changed
-* `minetest.show_death_screen(player, reason)`
+* `core.show_death_screen(player, reason)`
     * Called when the death screen should be shown.
     * `player` is an ObjectRef, `reason` is a PlayerHPChangeReason table or nil.
     * By default, this shows a simple formspec with the option to respawn.
       Respawning is done via `ObjectRef:respawn`.
     * You can override this to show a custom death screen.
-    * For general death handling, use `minetest.register_on_dieplayer` instead.
+    * For general death handling, use `core.register_on_dieplayer` instead.
 
 Item handling
 -------------
 
-* `minetest.inventorycube(img1, img2, img3)`
+* `core.inventorycube(img1, img2, img3)`
     * Returns a string for making an image of a cube (useful as an item image)
-* `minetest.get_pointed_thing_position(pointed_thing, above)`
+* `core.get_pointed_thing_position(pointed_thing, above)`
     * Returns the position of a `pointed_thing` or `nil` if the `pointed_thing`
       does not refer to a node or entity.
     * If the optional `above` parameter is true and the `pointed_thing` refers
       to a node, then it will return the `above` position of the `pointed_thing`.
-* `minetest.dir_to_facedir(dir, is6d)`
+* `core.dir_to_facedir(dir, is6d)`
     * Convert a vector to a facedir value, used in `param2` for
       `paramtype2="facedir"`.
     * passing something non-`nil`/`false` for the optional second parameter
       causes it to take the y component into account.
-* `minetest.facedir_to_dir(facedir)`
+* `core.facedir_to_dir(facedir)`
     * Convert a facedir back into a vector aimed directly out the "back" of a
       node.
-* `minetest.dir_to_fourdir(dir)`
+* `core.dir_to_fourdir(dir)`
     * Convert a vector to a 4dir value, used in `param2` for
       `paramtype2="4dir"`.
-* `minetest.fourdir_to_dir(fourdir)`
+* `core.fourdir_to_dir(fourdir)`
     * Convert a 4dir back into a vector aimed directly out the "back" of a
       node.
-* `minetest.dir_to_wallmounted(dir)`
+* `core.dir_to_wallmounted(dir)`
     * Convert a vector to a wallmounted value, used for
       `paramtype2="wallmounted"`.
-* `minetest.wallmounted_to_dir(wallmounted)`
+* `core.wallmounted_to_dir(wallmounted)`
     * Convert a wallmounted value back into a vector aimed directly out the
       "back" of a node.
-* `minetest.dir_to_yaw(dir)`
+* `core.dir_to_yaw(dir)`
     * Convert a vector into a yaw (angle)
-* `minetest.yaw_to_dir(yaw)`
+* `core.yaw_to_dir(yaw)`
     * Convert yaw (angle) to a vector
-* `minetest.is_colored_paramtype(ptype)`
+* `core.is_colored_paramtype(ptype)`
     * Returns a boolean. Returns `true` if the given `paramtype2` contains
       color information (`color`, `colorwallmounted`, `colorfacedir`, etc.).
-* `minetest.strip_param2_color(param2, paramtype2)`
+* `core.strip_param2_color(param2, paramtype2)`
     * Removes everything but the color information from the
       given `param2` value.
     * Returns `nil` if the given `paramtype2` does not contain color
       information.
-* `minetest.get_node_drops(node, toolname)`
+* `core.get_node_drops(node, toolname)`
     * Returns list of itemstrings that are dropped by `node` when dug
       with the item `toolname` (not limited to tools).
     * `node`: node as table or node name
     * `toolname`: name of the item used to dig (can be `nil`)
-* `minetest.get_craft_result(input)`: returns `output, decremented_input`
+* `core.get_craft_result(input)`: returns `output, decremented_input`
     * `input.method` = `"normal"` or `"cooking"` or `"fuel"`
     * `input.width` = for example `3`
     * `input.items` = for example
@@ -6668,7 +6783,7 @@ Item handling
       placed in `decremented_input.items`. Replacements can be placed in
       `decremented_input` if the stack of the replaced item has a count of 1.
     * `decremented_input` = like `input`
-* `minetest.get_craft_recipe(output)`: returns input
+* `core.get_craft_recipe(output)`: returns input
     * returns last registered recipe for output item (node)
     * `output` is a node or item type such as `"default:torch"`
     * `input.method` = `"normal"` or `"cooking"` or `"fuel"`
@@ -6676,7 +6791,7 @@ Item handling
     * `input.items` = for example
       `{stack1, stack2, stack3, stack4, stack 5, stack 6, stack 7, stack 8, stack 9}`
         * `input.items` = `nil` if no recipe found
-* `minetest.get_all_craft_recipes(query item)`: returns a table or `nil`
+* `core.get_all_craft_recipes(query item)`: returns a table or `nil`
     * returns indexed table with all registered recipes for query item (node)
       or `nil` if no recipe was found.
     * recipe entry table:
@@ -6698,13 +6813,13 @@ Item handling
       }
       ```
 
-* `minetest.handle_node_drops(pos, drops, digger)`
+* `core.handle_node_drops(pos, drops, digger)`
     * `drops`: list of itemstrings
     * Handles drops from nodes after digging: Default action is to put them
       into digger's inventory.
     * Can be overridden to get different functionality (e.g. dropping items on
       ground)
-* `minetest.itemstring_with_palette(item, palette_index)`: returns an item
+* `core.itemstring_with_palette(item, palette_index)`: returns an item
   string.
     * Creates an item string which contains palette index information
       for hardware colorization. You can use the returned string
@@ -6712,7 +6827,7 @@ Item handling
     * `item`: the item stack which becomes colored. Can be in string,
       table and native form.
     * `palette_index`: this index is added to the item stack
-* `minetest.itemstring_with_color(item, colorstring)`: returns an item string
+* `core.itemstring_with_color(item, colorstring)`: returns an item string
     * Creates an item string which contains static color information
       for hardware colorization. Use this method if you wish to colorize
       an item that does not own a palette. You can use the returned string
@@ -6724,11 +6839,11 @@ Item handling
 Rollback
 --------
 
-* `minetest.rollback_get_node_actions(pos, range, seconds, limit)`:
+* `core.rollback_get_node_actions(pos, range, seconds, limit)`:
   returns `{{actor, pos, time, oldnode, newnode}, ...}`
     * Find who has done something to a node, or near a node
     * `actor`: `"player:<name>"`, also `"liquid"`.
-* `minetest.rollback_revert_actions_by(actor, seconds)`: returns
+* `core.rollback_revert_actions_by(actor, seconds)`: returns
   `boolean, log_messages`.
     * Revert latest actions of someone
     * `actor`: `"player:<name>"`, also `"liquid"`.
@@ -6736,35 +6851,35 @@ Rollback
 Defaults for the `on_place` and `on_drop` item definition functions
 -------------------------------------------------------------------
 
-* `minetest.item_place_node(itemstack, placer, pointed_thing[, param2, prevent_after_place])`
+* `core.item_place_node(itemstack, placer, pointed_thing[, param2, prevent_after_place])`
     * Place item as a node
     * `param2` overrides `facedir` and wallmounted `param2`
     * `prevent_after_place`: if set to `true`, `after_place_node` is not called
       for the newly placed node to prevent a callback and placement loop
     * returns `itemstack, position`
       * `position`: the location the node was placed to. `nil` if nothing was placed.
-* `minetest.item_place_object(itemstack, placer, pointed_thing)`
+* `core.item_place_object(itemstack, placer, pointed_thing)`
     * Place item as-is
     * returns the leftover itemstack
     * **Note**: This function is deprecated and will never be called.
-* `minetest.item_place(itemstack, placer, pointed_thing[, param2])`
-    * Wrapper that calls `minetest.item_place_node` if appropriate
+* `core.item_place(itemstack, placer, pointed_thing[, param2])`
+    * Wrapper that calls `core.item_place_node` if appropriate
     * Calls `on_rightclick` of `pointed_thing.under` if defined instead
     * **Note**: is not called when wielded item overrides `on_place`
     * `param2` overrides facedir and wallmounted `param2`
     * returns `itemstack, position`
       * `position`: the location the node was placed to. `nil` if nothing was placed.
-* `minetest.item_pickup(itemstack, picker, pointed_thing, time_from_last_punch, ...)`
-    * Runs callbacks registered by `minetest.register_on_item_pickup` and adds
+* `core.item_pickup(itemstack, picker, pointed_thing, time_from_last_punch, ...)`
+    * Runs callbacks registered by `core.register_on_item_pickup` and adds
       the item to the picker's `"main"` inventory list.
     * Parameters are the same as in `on_pickup`.
     * Returns the leftover itemstack.
-* `minetest.item_drop(itemstack, dropper, pos)`
+* `core.item_drop(itemstack, dropper, pos)`
     * Drop the item
     * returns the leftover itemstack
-* `minetest.item_eat(hp_change[, replace_with_item])`
+* `core.item_eat(hp_change[, replace_with_item])`
     * Returns `function(itemstack, user, pointed_thing)` as a
-      function wrapper for `minetest.do_item_eat`.
+      function wrapper for `core.do_item_eat`.
     * `replace_with_item` is the itemstring which is added to the inventory.
       If the player is eating a stack and `replace_with_item` doesn't fit onto
       the eaten stack, then the remainings go to a different spot, or are dropped.
@@ -6772,26 +6887,26 @@ Defaults for the `on_place` and `on_drop` item definition functions
 Defaults for the `on_punch` and `on_dig` node definition callbacks
 ------------------------------------------------------------------
 
-* `minetest.node_punch(pos, node, puncher, pointed_thing)`
-    * Calls functions registered by `minetest.register_on_punchnode()`
-* `minetest.node_dig(pos, node, digger)`
+* `core.node_punch(pos, node, puncher, pointed_thing)`
+    * Calls functions registered by `core.register_on_punchnode()`
+* `core.node_dig(pos, node, digger)`
     * Checks if node can be dug, puts item into inventory, removes node
-    * Calls functions registered by `minetest.registered_on_dignodes()`
+    * Calls functions registered by `core.registered_on_dignodes()`
 
 Sounds
 ------
 
-* `minetest.sound_play(spec, parameters, [ephemeral])`: returns a handle
+* `core.sound_play(spec, parameters, [ephemeral])`: returns a handle
     * `spec` is a `SimpleSoundSpec`
     * `parameters` is a sound parameter table
     * `ephemeral` is a boolean (default: false)
       Ephemeral sounds will not return a handle and can't be stopped or faded.
       It is recommend to use this for short sounds that happen in response to
       player actions (e.g. door closing).
-* `minetest.sound_stop(handle)`
-    * `handle` is a handle returned by `minetest.sound_play`
-* `minetest.sound_fade(handle, step, gain)`
-    * `handle` is a handle returned by `minetest.sound_play`
+* `core.sound_stop(handle)`
+    * `handle` is a handle returned by `core.sound_play`
+* `core.sound_fade(handle, step, gain)`
+    * `handle` is a handle returned by `core.sound_play`
     * `step` determines how fast a sound will fade.
       The gain will change by this much per second,
       until it reaches the target gain.
@@ -6803,11 +6918,15 @@ Sounds
 Timing
 ------
 
-* `minetest.after(time, func, ...)`: returns job table to use as below.
+* `core.after(time, func, ...)`: returns job table to use as below.
     * Call the function `func` after `time` seconds, may be fractional
     * Optional: Variable number of arguments that are passed to `func`
     * Jobs set for earlier times are executed earlier. If multiple jobs expire
       at exactly the same time, then they are executed in registration order.
+    * `time` is a lower bound. The job is executed in the first server-step that
+      started at least `time` seconds after the last time a server-step started,
+      measured with globalstep dtime.
+    * If `time` is `0`, the job is executed in the next step.
 
 * `job:cancel()`
     * Cancels the job function from being called
@@ -6823,13 +6942,13 @@ value of the job function once it is finished.
 
 The async environment does *not* have access to the map, entities, players or any
 globals defined in the 'usual' environment. Consequently, functions like
-`minetest.get_node()` or `minetest.get_player_by_name()` simply do not exist in it.
+`core.get_node()` or `core.get_player_by_name()` simply do not exist in it.
 
 Arguments and return values passed through this can contain certain userdata
 objects that will be seamlessly copied (not shared) to the async environment.
 This allows you easy interoperability for delegating work to jobs.
 
-* `minetest.handle_async(func, callback, ...)`:
+* `core.handle_async(func, callback, ...)`:
     * Queue the function `func` to be ran in an async environment.
       Note that there are multiple persistent workers and any of them may
       end up running a given job. The engine will scale the amount of
@@ -6837,21 +6956,10 @@ This allows you easy interoperability for delegating work to jobs.
     * When `func` returns the callback is called (in the normal environment)
       with all of the return values as arguments.
     * Optional: Variable number of arguments that are passed to `func`
-* `minetest.register_async_dofile(path)`:
+* `core.register_async_dofile(path)`:
     * Register a path to a Lua file to be imported when an async environment
       is initialized. You can use this to preload code which you can then call
-      later using `minetest.handle_async()`.
-* `minetest.register_portable_metatable(name, mt)`:
-    * Register a metatable that should be preserved when data is transferred
-    between the main thread and the async environment.
-    * `name` is a string that identifies the metatable. It is recommended to
-      follow the `modname:name` convention for this identifier.
-    * `mt` is the metatable to register.
-    * Note that it is allowed to register the same metatable under multiple
-      names, but it is not allowed to register multiple metatables under the
-      same name.
-    * You must register the metatable in both the main environment
-      and the async environment for this mechanism to work.
+      later using `core.handle_async()`.
 
 
 ### List of APIs available in an async environment
@@ -6881,12 +6989,13 @@ Functions:
 
 * Standalone helpers such as logging, filesystem, encoding,
   hashing or compression APIs
-* `minetest.register_portable_metatable` (see above)
+* `core.register_portable_metatable`
+* IPC
 
 Variables:
 
-* `minetest.settings`
-* `minetest.registered_items`, `registered_nodes`, `registered_tools`,
+* `core.settings`
+* `core.registered_items`, `registered_nodes`, `registered_tools`,
   `registered_craftitems` and `registered_aliases`
     * with all functions and userdata values replaced by `true`, calling any
       callbacks here is obviously not possible
@@ -6907,13 +7016,13 @@ registered scripts (not all mods!) - see below - are run during initialization o
 the mapgen environment. After that only callbacks happen. The mapgen env
 does not have a global step or timer.
 
-* `minetest.register_mapgen_script(path)`:
+* `core.register_mapgen_script(path)`:
     * Register a path to a Lua file to be imported when a mapgen environment
       is initialized. Run in order of registration.
 
 ### List of APIs exclusive to the mapgen env
 
-* `minetest.register_on_generated(function(vmanip, minp, maxp, blockseed))`
+* `core.register_on_generated(function(vmanip, minp, maxp, blockseed))`
     * Called after the engine mapgen finishes a chunk but before it is written to
       the map.
     * Chunk data resides in `vmanip`. Other parts of the map are not accessible.
@@ -6922,7 +7031,7 @@ does not have a global step or timer.
       Note: calling `read_from_map()` or `write_to_map()` on the VoxelManipulator object
       is not necessary and is disallowed.
     * `blockseed`: 64-bit seed number used for this chunk
-* `minetest.save_gen_notify(id, data)`
+* `core.save_gen_notify(id, data)`
     * Saves data for retrieval using the gennotify mechanism (see [Mapgen objects]).
     * Data is bound to the chunk that is currently being processed, so this function
       only makes sense inside the `on_generated` callback.
@@ -6930,7 +7039,7 @@ does not have a global step or timer.
       By convention these should be the mod name with an optional
       colon and specifier added, e.g. `"default"` or `"default:dungeon_loot"`
     * `data`: any Lua object (will be serialized, no userdata allowed)
-    * returns `true` if the data was remembered. That is if `minetest.set_gen_notify`
+    * returns `true` if the data was remembered. That is if `core.set_gen_notify`
       was called with the same user-defined ID before.
 
 ### List of APIs available in the mapgen env
@@ -6953,21 +7062,22 @@ Functions:
 
 * Standalone helpers such as logging, filesystem, encoding,
   hashing or compression APIs
-* `minetest.get_biome_id`, `get_biome_name`, `get_heat`, `get_humidity`,
+* `core.get_biome_id`, `get_biome_name`, `get_heat`, `get_humidity`,
   `get_biome_data`, `get_mapgen_object`, `get_mapgen_params`, `get_mapgen_edges`,
   `get_mapgen_setting`, `get_noiseparams`, `get_decoration_id` and more
-* `minetest.get_node`, `set_node`, `find_node_near`, `find_nodes_in_area`,
+* `core.get_node`, `set_node`, `find_node_near`, `find_nodes_in_area`,
   `spawn_tree` and similar
     * these only operate on the current chunk (if inside a callback)
+* IPC
 
 Variables:
 
-* `minetest.settings`
-* `minetest.registered_items`, `registered_nodes`, `registered_tools`,
+* `core.settings`
+* `core.registered_items`, `registered_nodes`, `registered_tools`,
   `registered_craftitems` and `registered_aliases`
     * with all functions and userdata values replaced by `true`, calling any
       callbacks here is obviously not possible
-* `minetest.registered_biomes`, `registered_ores`, `registered_decorations`
+* `core.registered_biomes`, `registered_ores`, `registered_decorations`
 
 Note that node metadata does not exist in the mapgen env, we suggest deferring
 setting any metadata you need to the `on_generated` callback in the regular env.
@@ -6976,32 +7086,32 @@ You can use the gennotify mechanism to transfer this information.
 Server
 ------
 
-* `minetest.request_shutdown([message],[reconnect],[delay])`: request for
+* `core.request_shutdown([message],[reconnect],[delay])`: request for
   server shutdown. Will display `message` to clients.
     * `reconnect` == true displays a reconnect button
     * `delay` adds an optional delay (in seconds) before shutdown.
       Negative delay cancels the current active shutdown.
       Zero delay triggers an immediate shutdown.
-* `minetest.cancel_shutdown_requests()`: cancel current delayed shutdown
-* `minetest.get_server_status(name, joined)`
+* `core.cancel_shutdown_requests()`: cancel current delayed shutdown
+* `core.get_server_status(name, joined)`
     * Returns the server status string when a player joins or when the command
       `/status` is called. Returns `nil` or an empty string when the message is
       disabled.
     * `joined`: Boolean value, indicates whether the function was called when
       a player joined.
     * This function may be overwritten by mods to customize the status message.
-* `minetest.get_server_uptime()`: returns the server uptime in seconds
-* `minetest.get_server_max_lag()`: returns the current maximum lag
+* `core.get_server_uptime()`: returns the server uptime in seconds
+* `core.get_server_max_lag()`: returns the current maximum lag
   of the server in seconds or nil if server is not fully loaded yet
-* `minetest.remove_player(name)`: remove player from database (if they are not
+* `core.remove_player(name)`: remove player from database (if they are not
   connected).
-    * As auth data is not removed, minetest.player_exists will continue to
+    * As auth data is not removed, `core.player_exists` will continue to
       return true. Call the below method as well if you want to remove auth
       data too.
     * Returns a code (0: successful, 1: no such player, 2: player is connected)
-* `minetest.remove_player_auth(name)`: remove player authentication data
+* `core.remove_player_auth(name)`: remove player authentication data
     * Returns boolean indicating success (false if player nonexistent)
-* `minetest.dynamic_add_media(options, callback)`
+* `core.dynamic_add_media(options, callback)`
     * `options`: table containing the following parameters
         * `filename`: name the media file will be usable as
                       (optional if `filepath` present)
@@ -7036,21 +7146,67 @@ Server
       this can make transfer of bigger files painless (if set up). Nevertheless
       it is advised not to use dynamic media for big media files.
 
+IPC
+---
+
+The engine provides a generalized mechanism to enable sharing data between the
+different Lua environments (main, mapgen and async).
+It is essentially a shared in-memory key-value store.
+
+* `core.ipc_get(key)`:
+  * Read a value from the shared data area.
+  * `key`: string, should use the `"modname:thing"` convention to avoid conflicts.
+  * returns an arbitrary Lua value, or `nil` if this key does not exist
+* `core.ipc_set(key, value)`:
+  * Write a value to the shared data area.
+  * `key`: as above
+  * `value`: an arbitrary Lua value, cannot be or contain userdata.
+
+Interacting with the shared data will perform an operation comparable to
+(de)serialization on each access.
+For that reason modifying references will not have any effect, as in this example:
+```lua
+core.ipc_set("test:foo", {})
+core.ipc_get("test:foo").subkey = "value" -- WRONG!
+core.ipc_get("test:foo") -- returns an empty table
+```
+
+**Advanced**:
+
+* `core.ipc_cas(key, old_value, new_value)`:
+  * Write a value to the shared data area, but only if the previous value
+    equals what was given.
+    This operation is called Compare-and-Swap and can be used to implement
+    synchronization between threads.
+  * `key`: as above
+  * `old_value`: value compared to using `==` (`nil` compares equal for non-existing keys)
+  * `new_value`: value that will be set
+  * returns: true on success, false otherwise
+* `core.ipc_poll(key, timeout)`:
+  * Do a blocking wait until a value (other than `nil`) is present at the key.
+  * **IMPORTANT**: You usually don't need this function. Use this as a last resort
+    if nothing else can satisfy your use case! None of the Lua environments the
+    engine has are safe to block for extended periods, especially on the main
+    thread any delays directly translate to lag felt by players.
+  * `key`: as above
+  * `timeout`: maximum wait time, in milliseconds (positive values only)
+  * returns: true on success, false on timeout
+
 Bans
 ----
 
-* `minetest.get_ban_list()`: returns a list of all bans formatted as string
-* `minetest.get_ban_description(ip_or_name)`: returns list of bans matching
+* `core.get_ban_list()`: returns a list of all bans formatted as string
+* `core.get_ban_description(ip_or_name)`: returns list of bans matching
   IP address or name formatted as string
-* `minetest.ban_player(name)`: ban the IP of a currently connected player
+* `core.ban_player(name)`: ban the IP of a currently connected player
     * Returns boolean indicating success
-* `minetest.unban_player_or_ip(ip_or_name)`: remove ban record matching
+* `core.unban_player_or_ip(ip_or_name)`: remove ban record matching
   IP address or name
-* `minetest.kick_player(name[, reason[, reconnect]])`: disconnect a player with an optional
+* `core.kick_player(name[, reason[, reconnect]])`: disconnect a player with an optional
   reason.
     * Returns boolean indicating success (false if player nonexistent)
     * If `reconnect` is true, allow the user to reconnect.
-* `minetest.disconnect_player(name[, reason[, reconnect]])`: disconnect a player with an
+* `core.disconnect_player(name[, reason[, reconnect]])`: disconnect a player with an
   optional reason, this will not prefix with 'Kicked: ' like kick_player.
   If no reason is given, it will default to 'Disconnected.'
     * Returns boolean indicating success (false if player nonexistent)
@@ -7058,15 +7214,15 @@ Bans
 Particles
 ---------
 
-* `minetest.add_particle(particle definition)`
-    * Deprecated: `minetest.add_particle(pos, velocity, acceleration,
+* `core.add_particle(particle definition)`
+    * Deprecated: `core.add_particle(pos, velocity, acceleration,
       expirationtime, size, collisiondetection, texture, playername)`
 
-* `minetest.add_particlespawner(particlespawner definition)`
+* `core.add_particlespawner(particlespawner definition)`
     * Add a `ParticleSpawner`, an object that spawns an amount of particles
       over `time` seconds.
     * Returns an `id`, and -1 if adding didn't succeed
-    * Deprecated: `minetest.add_particlespawner(amount, time,
+    * Deprecated: `core.add_particlespawner(amount, time,
       minpos, maxpos,
       minvel, maxvel,
       minacc, maxacc,
@@ -7074,16 +7230,16 @@ Particles
       minsize, maxsize,
       collisiondetection, texture, playername)`
 
-* `minetest.delete_particlespawner(id, player)`
+* `core.delete_particlespawner(id, player)`
     * Delete `ParticleSpawner` with `id` (return value from
-      `minetest.add_particlespawner`).
+      `core.add_particlespawner`).
     * If playername is specified, only deletes on the player's client,
       otherwise on all clients.
 
 Schematics
 ----------
 
-* `minetest.create_schematic(p1, p2, probability_list, filename, slice_prob_list)`
+* `core.create_schematic(p1, p2, probability_list, filename, slice_prob_list)`
     * Create a schematic from the volume of map specified by the box formed by
       p1 and p2.
     * Apply the specified probability and per-node force-place to the specified
@@ -7110,9 +7266,9 @@ Schematics
               applied, the lowest slice being `ypos = 0`.
             * If slice probability list equals `nil`, no slice probabilities
               are applied.
-    * Saves schematic in the Minetest Schematic format to filename.
+    * Saves schematic in the Luanti Schematic format to filename.
 
-* `minetest.place_schematic(pos, schematic, rotation, replacements, force_placement, flags)`
+* `core.place_schematic(pos, schematic, rotation, replacements, force_placement, flags)`
     * Place the schematic specified by schematic (see [Schematic specifier]) at
       `pos`.
     * `rotation` can equal `"0"`, `"90"`, `"180"`, `"270"`, or `"random"`.
@@ -7131,8 +7287,8 @@ Schematics
         * place_center_y
         * place_center_z
 
-* `minetest.place_schematic_on_vmanip(vmanip, pos, schematic, rotation, replacement, force_placement, flags)`:
-    * This function is analogous to minetest.place_schematic, but places a
+* `core.place_schematic_on_vmanip(vmanip, pos, schematic, rotation, replacement, force_placement, flags)`:
+    * This function is analogous to core.place_schematic, but places a
       schematic onto the specified VoxelManip object `vmanip` instead of the
       map.
     * Returns false if any part of the schematic was cut-off due to the
@@ -7146,7 +7302,7 @@ Schematics
         * place_center_y
         * place_center_z
 
-* `minetest.serialize_schematic(schematic, format, options)`
+* `core.serialize_schematic(schematic, format, options)`
     * Return the serialized schematic specified by schematic
       (see [Schematic specifier])
     * in the `format` of either "mts" or "lua".
@@ -7162,7 +7318,7 @@ Schematics
           the Lua code generated will use that number of spaces as indentation
           instead of a tab character.
 
-* `minetest.read_schematic(schematic, options)`
+* `core.read_schematic(schematic, options)`
     * Returns a Lua table representing the schematic (see: [Schematic specifier])
     * `schematic` is the schematic to read (see: [Schematic specifier])
     * `options` is a table containing the following optional parameters:
@@ -7177,7 +7333,7 @@ Schematics
 HTTP Requests
 -------------
 
-* `minetest.request_http_api()`:
+* `core.request_http_api()`:
     * returns `HTTPApiTable` containing http functions if the calling mod has
       been granted access by being listed in the `secure.http_mods` or
       `secure.trusted_mods` setting, otherwise returns `nil`.
@@ -7185,7 +7341,7 @@ HTTP Requests
       `fetch_async_get` described below.
     * Only works at init time and must be called from the mod's main scope
       (not from a function).
-    * Function only exists if minetest server was built with cURL support.
+    * Function only exists if Luanti server was built with cURL support.
     * **DO NOT ALLOW ANY OTHER MODS TO ACCESS THE RETURNED TABLE, STORE IT IN
       A LOCAL VARIABLE!**
 * `HTTPApiTable.fetch(HTTPRequest req, callback)`
@@ -7201,24 +7357,24 @@ HTTP Requests
 Storage API
 -----------
 
-* `minetest.get_mod_storage()`:
+* `core.get_mod_storage()`:
     * returns reference to mod private `StorageRef`
     * must be called during mod load time
 
 Misc.
 -----
 
-* `minetest.get_connected_players()`: returns list of `ObjectRefs`
-* `minetest.is_player(obj)`: boolean, whether `obj` is a player
-* `minetest.player_exists(name)`: boolean, whether player exists
+* `core.get_connected_players()`: returns list of `ObjectRefs`
+* `core.is_player(obj)`: boolean, whether `obj` is a player
+* `core.player_exists(name)`: boolean, whether player exists
   (regardless of online status)
-* `minetest.is_valid_player_name(name)`: boolean, whether the given name
+* `core.is_valid_player_name(name)`: boolean, whether the given name
   could be used as a player name (regardless of whether said player exists).
-* `minetest.hud_replace_builtin(name, hud_definition)`
+* `core.hud_replace_builtin(name, hud_definition)`
     * Replaces definition of a builtin hud element
     * `name`: `"breath"`, `"health"`, `"minimap"` or `"hotbar"`
     * `hud_definition`: definition to replace builtin definition
-* `minetest.parse_relative_number(arg, relative_to)`: returns number or nil
+* `core.parse_relative_number(arg, relative_to)`: returns number or nil
     * Helper function for chat commands.
     * For parsing an optionally relative number of a chat command
       parameter, using the chat command tilde notation.
@@ -7229,37 +7385,39 @@ Misc.
         * Anything else will return `nil`
     * `relative_to`: Number to which the `arg` number might be relative to
     * Examples:
-        * `minetest.parse_relative_number("5", 10)` returns 5
-        * `minetest.parse_relative_number("~5", 10)` returns 15
-        * `minetest.parse_relative_number("~", 10)` returns 10
-* `minetest.send_join_message(player_name)`
+        * `core.parse_relative_number("5", 10)` returns 5
+        * `core.parse_relative_number("~5", 10)` returns 15
+        * `core.parse_relative_number("~", 10)` returns 10
+* `core.send_join_message(player_name)`
     * This function can be overridden by mods to change the join message.
-* `minetest.send_leave_message(player_name, timed_out)`
+* `core.send_leave_message(player_name, timed_out)`
     * This function can be overridden by mods to change the leave message.
-* `minetest.hash_node_position(pos)`: returns a 48-bit integer
+* `core.hash_node_position(pos)`: returns a 48-bit integer
     * `pos`: table {x=number, y=number, z=number},
     * Gives a unique hash number for a node position (16+16+16=48bit)
-* `minetest.get_position_from_hash(hash)`: returns a position
-    * Inverse transform of `minetest.hash_node_position`
-* `minetest.get_item_group(name, group)`: returns a rating
+* `core.get_position_from_hash(hash)`: returns a position
+    * Inverse transform of `core.hash_node_position`
+* `core.get_item_group(name, group)`: returns a rating
     * Get rating of a group of an item. (`0` means: not in group)
-* `minetest.get_node_group(name, group)`: returns a rating
+* `core.get_node_group(name, group)`: returns a rating
     * Deprecated: An alias for the former.
-* `minetest.raillike_group(name)`: returns a rating
+* `core.raillike_group(name)`: returns a rating
     * Returns rating of the connect_to_raillike group corresponding to name
     * If name is not yet the name of a connect_to_raillike group, a new group
       id is created, with that name.
-* `minetest.get_content_id(name)`: returns an integer
+* `core.get_content_id(name)`: returns an integer
     * Gets the internal content ID of `name`
-* `minetest.get_name_from_content_id(content_id)`: returns a string
+* `core.get_name_from_content_id(content_id)`: returns a string
     * Gets the name of the content with that content ID
-* `minetest.parse_json(string[, nullvalue])`: returns something
+* `core.parse_json(string[, nullvalue, return_error])`: returns something
     * Convert a string containing JSON data into the Lua equivalent
     * `nullvalue`: returned in place of the JSON null; defaults to `nil`
     * On success returns a table, a string, a number, a boolean or `nullvalue`
-    * On failure outputs an error message and returns `nil`
+    * On failure: If `return_error` is not set or is `false`,
+      outputs an error message and returns `nil`.
+      Otherwise returns `nil, err` (error message).
     * Example: `parse_json("[10, {\"a\":false}]")`, returns `{10, {a = false}}`
-* `minetest.write_json(data[, styled])`: returns a string or `nil` and an error
+* `core.write_json(data[, styled])`: returns a string or `nil` and an error
   message.
     * Convert a Lua table into a JSON string
     * styled: Outputs in a human-readable format if this is set, defaults to
@@ -7273,12 +7431,12 @@ Misc.
            values.
     * Example: `write_json({10, {a = false}})`,
       returns `'[10, {"a": false}]'`
-* `minetest.serialize(table)`: returns a string
+* `core.serialize(table)`: returns a string
     * Convert a table containing tables, strings, numbers, booleans and `nil`s
-      into string form readable by `minetest.deserialize`
+      into string form readable by `core.deserialize`
     * Example: `serialize({foo="bar"})`, returns `'return { ["foo"] = "bar" }'`
-* `minetest.deserialize(string[, safe])`: returns a table
-    * Convert a string returned by `minetest.serialize` into a table
+* `core.deserialize(string[, safe])`: returns a table
+    * Convert a string returned by `core.serialize` into a table
     * `string` is loaded in an empty sandbox environment.
     * Will load functions if safe is false or omitted. Although these functions
       cannot directly access the global environment, they could bypass this
@@ -7292,7 +7450,7 @@ Misc.
     * Example: `deserialize('print("foo")')`, returns `nil`
       (function call fails), returns
       `error:[string "print("foo")"]:1: attempt to call global 'print' (a nil value)`
-* `minetest.compress(data, method, ...)`: returns `compressed_data`
+* `core.compress(data, method, ...)`: returns `compressed_data`
     * Compress a string of data.
     * `method` is a string identifying the compression method to be used.
     * Supported compression methods:
@@ -7304,22 +7462,22 @@ Misc.
         * Zstandard: `level` - Compression level. Integer or `nil`. Default `3`.
         Note any supported Zstandard compression level could be used here,
         but these are subject to change between Zstandard versions.
-* `minetest.decompress(compressed_data, method, ...)`: returns data
+* `core.decompress(compressed_data, method, ...)`: returns data
     * Decompress a string of data using the algorithm specified by `method`.
-    * See documentation on `minetest.compress()` for supported compression
+    * See documentation on `core.compress()` for supported compression
       methods.
     * `...` indicates method-specific arguments. Currently, no methods use this
-* `minetest.rgba(red, green, blue[, alpha])`: returns a string
+* `core.rgba(red, green, blue[, alpha])`: returns a string
     * Each argument is an 8 Bit unsigned integer
     * Returns the ColorString from rgb or rgba values
-    * Example: `minetest.rgba(10, 20, 30, 40)`, returns `"#0A141E28"`
-* `minetest.encode_base64(string)`: returns string encoded in base64
+    * Example: `core.rgba(10, 20, 30, 40)`, returns `"#0A141E28"`
+* `core.encode_base64(string)`: returns string encoded in base64
     * Encodes a string in base64.
-* `minetest.decode_base64(string)`: returns string or nil on failure
+* `core.decode_base64(string)`: returns string or nil on failure
     * Padding characters are only supported starting at version 5.4.0, where
       5.5.0 and newer perform proper checks.
     * Decodes a string encoded in base64.
-* `minetest.is_protected(pos, name)`: returns boolean
+* `core.is_protected(pos, name)`: returns boolean
     * Returning `true` restricts the player `name` from modifying (i.e. digging,
        placing) the node at position `pos`.
     * `name` will be `""` for non-players or unknown players.
@@ -7329,25 +7487,25 @@ Misc.
       not protected by the mod. This will allow using multiple protection mods.
     * Example:
       ```lua
-      local old_is_protected = minetest.is_protected
-      function minetest.is_protected(pos, name)
+      local old_is_protected = core.is_protected
+      function core.is_protected(pos, name)
           if mymod:position_protected_from(pos, name) then
               return true
           end
           return old_is_protected(pos, name)
       end
       ```
-* `minetest.record_protection_violation(pos, name)`
+* `core.record_protection_violation(pos, name)`
     * This function calls functions registered with
-      `minetest.register_on_protection_violation`.
-* `minetest.is_creative_enabled(name)`: returns boolean
+      `core.register_on_protection_violation`.
+* `core.is_creative_enabled(name)`: returns boolean
     * Returning `true` means that Creative Mode is enabled for player `name`.
     * `name` will be `""` for non-players or if the player is unknown.
     * This function should be overridden by Creative Mode-related mods to
       implement a per-player Creative Mode.
     * By default, this function returns `true` if the setting
       `creative_mode` is `true` and `false` otherwise.
-* `minetest.is_area_protected(pos1, pos2, player_name, interval)`
+* `core.is_area_protected(pos1, pos2, player_name, interval)`
     * Returns the position of the first node that `player_name` may not modify
       in the specified cuboid between `pos1` and `pos2`.
     * Returns `false` if no protections were found.
@@ -7358,10 +7516,10 @@ Misc.
     * `interval` defaults to 4.
     * `interval` should be carefully chosen and maximized to avoid an excessive
       number of points being checked.
-    * Like `minetest.is_protected`, this function may be extended or
+    * Like `core.is_protected`, this function may be extended or
       overwritten by mods to provide a faster implementation to check the
       cuboid for intersections.
-* `minetest.rotate_and_place(itemstack, placer, pointed_thing[, infinitestacks,
+* `core.rotate_and_place(itemstack, placer, pointed_thing[, infinitestacks,
   orient_flags, prevent_after_place])`
     * Attempt to predict the desired orientation of the facedir-capable node
       defined by `itemstack`, and place it accordingly (on-wall, on the floor,
@@ -7378,14 +7536,14 @@ Misc.
           when placing on the floor or ceiling.
         * The first four options are mutually-exclusive; the last in the list
           takes precedence over the first.
-    * `prevent_after_place` is directly passed to `minetest.item_place_node`
+    * `prevent_after_place` is directly passed to `core.item_place_node`
     * Returns the new itemstack after placement
-* `minetest.rotate_node(itemstack, placer, pointed_thing)`
+* `core.rotate_node(itemstack, placer, pointed_thing)`
     * calls `rotate_and_place()` with `infinitestacks` set according to the state
       of the creative mode setting, checks for "sneak" to set the `invert_wall`
       parameter and `prevent_after_place` set to `true`.
 
-* `minetest.calculate_knockback(player, hitter, time_from_last_punch,
+* `core.calculate_knockback(player, hitter, time_from_last_punch,
   tool_capabilities, dir, distance, damage)`
     * Returns the amount of knockback applied on the punched player.
     * Arguments are equivalent to `register_on_punchplayer`, except the following:
@@ -7394,7 +7552,7 @@ Misc.
     * You may want to cache and call the old function to allow multiple mods to
       change knockback behavior.
 
-* `minetest.forceload_block(pos[, transient[, limit]])`
+* `core.forceload_block(pos[, transient[, limit]])`
     * forceloads the position `pos`.
     * returns `true` if area could be forceloaded
     * If `transient` is `false` or absent, the forceload will be persistent
@@ -7405,12 +7563,12 @@ Misc.
       absent, the limit is the value of the setting `"max_forceloaded_blocks"`.
       If the call would put the number of blocks over the limit, the call fails.
 
-* `minetest.forceload_free_block(pos[, transient])`
+* `core.forceload_free_block(pos[, transient])`
     * stops forceloading the position `pos`
     * If `transient` is `false` or absent, frees a persistent forceload.
       If `true`, frees a transient forceload.
 
-* `minetest.compare_block_status(pos, condition)`
+* `core.compare_block_status(pos, condition)`
     * Checks whether the mapblock at position `pos` is in the wanted condition.
     * `condition` may be one of the following values:
         * `"unknown"`: not in memory
@@ -7423,7 +7581,7 @@ Misc.
         * `true`: Mapblock meets the requirement
         * `nil`: Unsupported `condition` value
 
-* `minetest.request_insecure_environment()`: returns an environment containing
+* `core.request_insecure_environment()`: returns an environment containing
   insecure functions if the calling mod has been listed as trusted in the
   `secure.trusted_mods` setting or security is disabled, otherwise returns
   `nil`.
@@ -7432,16 +7590,29 @@ Misc.
     * **DO NOT ALLOW ANY OTHER MODS TO ACCESS THE RETURNED ENVIRONMENT, STORE
       IT IN A LOCAL VARIABLE!**
 
-* `minetest.global_exists(name)`
+* `core.global_exists(name)`
     * Checks if a global variable has been set, without triggering a warning.
+
+* `core.register_portable_metatable(name, mt)`:
+    * Register a metatable that should be preserved when Lua data is transferred
+      between environments (via IPC or `handle_async`).
+    * `name` is a string that identifies the metatable. It is recommended to
+      follow the `modname:name` convention for this identifier.
+    * `mt` is the metatable to register.
+    * Note that the same metatable can be registered under multiple names,
+      but multiple metatables must not be registered under the same name.
+    * You must register the metatable in both the main environment
+      and the async environment for this mechanism to work.
 
 Global objects
 --------------
 
-* `minetest.env`: `EnvRef` of the server environment and world.
-    * Any function in the minetest namespace can be called using the syntax
-      `minetest.env:somefunction(somearguments)`
-      instead of `minetest.somefunction(somearguments)`
+* `core.env`: `EnvRef` of the server environment and world.
+    * Any function in the `core` namespace can be called using the syntax
+      `core.env:somefunction(somearguments)`
+      instead of `core.somefunction(somearguments)`
+    * Deprecated, but support is not to be dropped soon
+* `minetest`: alias for the `core` namespace
     * Deprecated, but support is not to be dropped soon
 
 Global tables
@@ -7449,87 +7620,87 @@ Global tables
 
 ### Registered definition tables
 
-* `minetest.registered_items`
+* `core.registered_items`
     * Map of registered items, indexed by name
-* `minetest.registered_nodes`
+* `core.registered_nodes`
     * Map of registered node definitions, indexed by name
-* `minetest.registered_craftitems`
+* `core.registered_craftitems`
     * Map of registered craft item definitions, indexed by name
-* `minetest.registered_tools`
+* `core.registered_tools`
     * Map of registered tool definitions, indexed by name
-* `minetest.registered_entities`
+* `core.registered_entities`
     * Map of registered entity prototypes, indexed by name
     * Values in this table may be modified directly.
       Note: changes to initial properties will only affect entities spawned afterwards,
       as they are only read when spawning.
-* `minetest.object_refs`
+* `core.object_refs`
     * Map of object references, indexed by active object id
-* `minetest.luaentities`
+* `core.luaentities`
     * Map of Lua entities, indexed by active object id
-* `minetest.registered_abms`
+* `core.registered_abms`
     * List of ABM definitions
-* `minetest.registered_lbms`
+* `core.registered_lbms`
     * List of LBM definitions
-* `minetest.registered_aliases`
+* `core.registered_aliases`
     * Map of registered aliases, indexed by name
-* `minetest.registered_ores`
+* `core.registered_ores`
     * Map of registered ore definitions, indexed by the `name` field.
     * If `name` is nil, the key is the object handle returned by
-      `minetest.register_ore`.
-* `minetest.registered_biomes`
+      `core.register_ore`.
+* `core.registered_biomes`
     * Map of registered biome definitions, indexed by the `name` field.
     * If `name` is nil, the key is the object handle returned by
-      `minetest.register_biome`.
-* `minetest.registered_decorations`
+      `core.register_biome`.
+* `core.registered_decorations`
     * Map of registered decoration definitions, indexed by the `name` field.
     * If `name` is nil, the key is the object handle returned by
-      `minetest.register_decoration`.
-* `minetest.registered_chatcommands`
+      `core.register_decoration`.
+* `core.registered_chatcommands`
     * Map of registered chat command definitions, indexed by name
-* `minetest.registered_privileges`
+* `core.registered_privileges`
     * Map of registered privilege definitions, indexed by name
     * Registered privileges can be modified directly in this table.
 
 ### Registered callback tables
 
 All callbacks registered with [Global callback registration functions] are added
-to corresponding `minetest.registered_*` tables.
+to corresponding `core.registered_*` tables.
 
 For historical reasons, the use of an -s suffix in these names is inconsistent.
 
-* `minetest.registered_on_chat_messages`
-* `minetest.registered_on_chatcommands`
-* `minetest.registered_globalsteps`
-* `minetest.registered_on_punchnodes`
-* `minetest.registered_on_placenodes`
-* `minetest.registered_on_dignodes`
-* `minetest.registered_on_generateds`
-* `minetest.registered_on_newplayers`
-* `minetest.registered_on_dieplayers`
-* `minetest.registered_on_respawnplayers`
-* `minetest.registered_on_prejoinplayers`
-* `minetest.registered_on_joinplayers`
-* `minetest.registered_on_leaveplayers`
-* `minetest.registered_on_player_receive_fields`
-* `minetest.registered_on_cheats`
-* `minetest.registered_on_crafts`
-* `minetest.registered_craft_predicts`
-* `minetest.registered_on_item_eats`
-* `minetest.registered_on_item_pickups`
-* `minetest.registered_on_punchplayers`
-* `minetest.registered_on_authplayers`
-* `minetest.registered_on_player_inventory_actions`
-* `minetest.registered_allow_player_inventory_actions`
-* `minetest.registered_on_rightclickplayers`
-* `minetest.registered_on_mods_loaded`
-* `minetest.registered_on_shutdown`
-* `minetest.registered_on_protection_violation`
-* `minetest.registered_on_priv_grant`
-* `minetest.registered_on_priv_revoke`
-* `minetest.registered_can_bypass_userlimit`
-* `minetest.registered_on_modchannel_message`
-* `minetest.registered_on_liquid_transformed`
-* `minetest.registered_on_mapblocks_changed`
+* `core.registered_on_chat_messages`
+* `core.registered_on_chatcommands`
+* `core.registered_globalsteps`
+* `core.registered_on_punchnodes`
+* `core.registered_on_placenodes`
+* `core.registered_on_dignodes`
+* `core.registered_on_generateds`
+* `core.registered_on_newplayers`
+* `core.registered_on_dieplayers`
+* `core.registered_on_respawnplayers`
+* `core.registered_on_prejoinplayers`
+* `core.registered_on_joinplayers`
+* `core.registered_on_leaveplayers`
+* `core.registered_on_player_receive_fields`
+* `core.registered_on_cheats`
+* `core.registered_on_crafts`
+* `core.registered_craft_predicts`
+* `core.registered_on_item_eats`
+* `core.registered_on_item_pickups`
+* `core.registered_on_punchplayers`
+* `core.registered_on_authplayers`
+* `core.registered_on_player_inventory_actions`
+* `core.registered_allow_player_inventory_actions`
+* `core.registered_on_rightclickplayers`
+* `core.registered_on_mods_loaded`
+* `core.registered_on_shutdown`
+* `core.registered_on_protection_violation`
+* `core.registered_on_priv_grant`
+* `core.registered_on_priv_revoke`
+* `core.registered_can_bypass_userlimit`
+* `core.registered_on_modchannel_message`
+* `core.registered_on_liquid_transformed`
+* `core.registered_on_mapblocks_changed`
 
 Class reference
 ===============
@@ -7554,7 +7725,7 @@ use the provided load and write functions for this.
     * `type_name`: optional, forces the internally used API.
         * Possible values: `"LibSpatial"` (default).
         * When other values are specified, or SpatialIndex is not available,
-          the custom Minetest functions are used.
+          the custom Luanti functions are used.
 * `get_area(id, include_corners, include_data)`
     * Returns the area information about the specified ID.
     * Returned values are either of these:
@@ -7649,7 +7820,7 @@ An `InvRef` is a reference to an inventory.
   unique item this way will likely remove the wrong one -- to do that use
   `set_stack` with an empty `ItemStack`.
 * `get_location()`: returns a location compatible to
-  `minetest.get_inventory(location)`.
+  `core.get_inventory(location)`.
     * returns `{type="undefined"}` in case location is not known
 
 ### Callbacks
@@ -7891,7 +8062,7 @@ An interface to use mod channels on client and server
 -------------
 
 Node metadata: reference extra data and functionality stored in a node.
-Can be obtained via `minetest.get_meta(pos)`.
+Can be obtained via `core.get_meta(pos)`.
 
 ### Methods
 
@@ -7907,7 +8078,7 @@ Can be obtained via `minetest.get_meta(pos)`.
 --------------
 
 Node Timers: a high resolution persistent per-node timer.
-Can be gotten via `minetest.get_node_timer(pos)`.
+Can be gotten via `core.get_node_timer(pos)`.
 
 ### Methods
 
@@ -8045,8 +8216,7 @@ child will follow movement and rotation of that bone.
        * Animation interpolates towards the end frame but stops when it is reached
        * If looped, there is no interpolation back to the start frame
        * If looped, the model should look identical at start and end
-       * Only integer numbers are supported
-       * default: `{x=1, y=1}`
+       * default: `{x=1.0, y=1.0}`
     * `frame_speed`: How fast the animation plays, in frames per second (number)
        * default: `15.0`
     * `frame_blend`: number, default: `0.0`
@@ -8459,7 +8629,7 @@ child will follow movement and rotation of that bone.
               at sunrise and sunset. (default: `#7f99cc`)
             * `fog_tint_type`: string, changes which mode the directional fog
                 abides by, `"custom"` uses `sun_tint` and `moon_tint`, while
-                `"default"` uses the classic Minetest sun and moon tinting.
+                `"default"` uses the classic Luanti sun and moon tinting.
                 Will use tonemaps, if set to `"default"`. (default: `"default"`)
         * `fog`: A table with following optional fields:
             * `fog_distance`: integer, set an upper bound for the client's viewing_range.
@@ -8570,7 +8740,7 @@ child will follow movement and rotation of that bone.
     * `0`...`1`: Overrides day-night ratio, controlling sunlight to a specific
       amount.
     * Passing no arguments disables override, defaulting to sunlight based on day-night cycle
-    * See also `minetest.time_to_day_night_ratio`,
+    * See also `core.time_to_day_night_ratio`,
 * `get_day_night_ratio()`: returns the ratio or nil if it isn't overridden
 * `set_local_animation(idle, walk, dig, walk_while_dig, frame_speed)`:
   set animation for player model in third person view.
@@ -8608,23 +8778,43 @@ child will follow movement and rotation of that bone.
           * values < 0 cause an effect similar to inversion,
             but keeping original luma and being symmetrical in terms of saturation
             (eg. -1 and 1 is the same saturation and luma, but different hues)
+        * This value has no effect on clients who have shaders or post-processing disabled.
       * `shadows` is a table that controls ambient shadows
+        * This has no effect on clients who have the "Dynamic Shadows" effect disabled.
         * `intensity` sets the intensity of the shadows from 0 (no shadows, default) to 1 (blackness)
-            * This value has no effect on clients who have the "Dynamic Shadows" shader disabled.
         * `tint` tints the shadows with the provided color, with RGB values ranging from 0 to 255.
           (default `{r=0, g=0, b=0}`)
-            * This value has no effect on clients who have the "Dynamic Shadows" shader disabled.
       * `exposure` is a table that controls automatic exposure.
         The basic exposure factor equation is `e = 2^exposure_correction / clamp(luminance, 2^luminance_min, 2^luminance_max)`
+        * This has no effect on clients who have the "Automatic Exposure" effect disabled.
         * `luminance_min` set the lower luminance boundary to use in the calculation (default: `-3.0`)
         * `luminance_max` set the upper luminance boundary to use in the calculation (default: `-3.0`)
         * `exposure_correction` correct observed exposure by the given EV value (default: `0.0`)
         * `speed_dark_bright` set the speed of adapting to bright light (default: `1000.0`)
         * `speed_bright_dark` set the speed of adapting to dark scene (default: `1000.0`)
         * `center_weight_power` set the power factor for center-weighted luminance measurement (default: `1.0`)
+      * `bloom` is a table that controls bloom.
+        * This has no effect on clients with protocol version < 46 or clients who
+          have the "Bloom" effect disabled.
+        * `intensity` defines much bloom is applied to the rendered image.
+          * Recommended range: from 0.0 to 1.0, default: 0.05
+          * If set to 0, bloom is disabled.
+          * The default value is to be changed from 0.05 to 0 in the future.
+            If you wish to keep the current default value, you should set it
+            explicitly.
+        * `strength_factor` defines the magnitude of bloom overexposure.
+          * Recommended range: from 0.1 to 10.0, default: 1.0
+        * `radius` is a logical value that controls how far the bloom effect
+          spreads from the bright objects.
+          * Recommended range: from 0.1 to 8.0, default: 1.0
+        * The behavior of values outside the recommended range is unspecified.
       * `volumetric_light`: is a table that controls volumetric light (a.k.a. "godrays")
-        * `strength`: sets the strength of the volumetric light effect from 0 (off, default) to 1 (strongest)
-           * This value has no effect on clients who have the "Volumetric Lighting" or "Bloom" shaders disabled.
+        * This has no effect on clients who have the "Volumetric Lighting" or "Bloom" effects disabled.
+        * `strength`: sets the strength of the volumetric light effect from 0 (off, default) to 1 (strongest).
+            * `0.2` is a reasonable standard value.
+            * Currently, bloom `intensity` and `strength_factor` affect volumetric
+              lighting `strength` and vice versa. This behavior is to be changed
+              in the future, do not rely on it.
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.
@@ -8667,15 +8857,15 @@ offering very strong randomness.
 -------------
 
 A perlin noise generator.
-It can be created via `PerlinNoise()` or `minetest.get_perlin()`.
-For `minetest.get_perlin()`, the actual seed used is the noiseparams seed
+It can be created via `PerlinNoise()` or `core.get_perlin()`.
+For `core.get_perlin()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
 `PerlinNoise(noiseparams)`
 `PerlinNoise(seed, octaves, persistence, spread)` (Deprecated).
 
-`minetest.get_perlin(noiseparams)`
-`minetest.get_perlin(seeddiff, octaves, persistence, spread)` (Deprecated).
+`core.get_perlin(noiseparams)`
+`core.get_perlin(seeddiff, octaves, persistence, spread)` (Deprecated).
 
 ### Methods
 
@@ -8688,8 +8878,8 @@ plus the world seed, to create world-specific noise.
 A fast, bulk perlin noise generator.
 
 It can be created via `PerlinNoiseMap(noiseparams, size)` or
-`minetest.get_perlin_map(noiseparams, size)`.
-For `minetest.get_perlin_map()`, the actual seed used is the noiseparams seed
+`core.get_perlin_map(noiseparams, size)`.
+For `core.get_perlin_map()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
 Format of `size` is `{x=dimx, y=dimy, z=dimz}`. The `z` component is omitted
@@ -8779,7 +8969,7 @@ The map is loaded as the ray advances. If the map is modified after the
 `Raycast` is created, the changes may or may not have an effect on the object.
 
 It can be created via `Raycast(pos1, pos2, objects, liquids)` or
-`minetest.raycast(pos1, pos2, objects, liquids)` where:
+`core.raycast(pos1, pos2, objects, liquids)` where:
 
 * `pos1`: start of the ray
 * `pos2`: end of the ray
@@ -8826,11 +9016,11 @@ secure random device cannot be found on the system.
 
 An interface to read config files in the format of `minetest.conf`.
 
-`minetest.settings` is a `Settings` instance that can be used to access the
+`core.settings` is a `Settings` instance that can be used to access the
 main config file (`minetest.conf`). Instances for other config files can be
 created via `Settings(filename)`.
 
-Engine settings on the `minetest.settings` object have internal defaults that
+Engine settings on the `core.settings` object have internal defaults that
 will be returned if a setting is unset.
 The engine does *not* (yet) read `settingtypes.txt` for this purpose. This
 means that no defaults will be returned for mod settings.
@@ -8853,7 +9043,7 @@ means that no defaults will be returned for mod settings.
     * Setting names can't contain whitespace or any of `="{}#`.
     * Setting values can't contain the sequence `\n"""`.
     * Setting names starting with "secure." can't be set on the main settings
-      object (`minetest.settings`).
+      object (`core.settings`).
 * `set_bool(key, value)`
     * See documentation for `set()` above.
 * `set_np_group(key, value)`
@@ -8865,7 +9055,7 @@ means that no defaults will be returned for mod settings.
     * Returns a boolean indicating whether `key` exists.
     * In contrast to the various getter functions, `has()` doesn't consider
       any default values.
-    * This means that on the main settings object (`minetest.settings`),
+    * This means that on the main settings object (`core.settings`),
       `get(key)` might return a value even if `has(key)` returns `false`.
 * `write()`: returns a boolean (`true` for success)
     * Writes changes to file.
@@ -8886,7 +9076,7 @@ The settings have the format `key = value`. Example:
 ------------
 
 Mod metadata: per mod metadata, saved automatically.
-Can be obtained via `minetest.get_mod_storage()` during load time.
+Can be obtained via `core.get_mod_storage()` during load time.
 
 WARNING: This storage backend is incapable of saving raw binary data due
 to restrictions of JSON.
@@ -8912,12 +9102,14 @@ Player properties need to be saved manually.
 ```lua
 {
     hp_max = 10,
-    -- Defines the maximum and default HP of the entity
-    -- For Lua entities the maximum is not enforced.
-    -- For players this defaults to `minetest.PLAYER_MAX_HP_DEFAULT`.
+    -- Defines the maximum and default HP of the object.
+    -- For Lua entities, the maximum is not enforced.
+    -- For players, this defaults to `core.PLAYER_MAX_HP_DEFAULT` (20).
+    -- For Lua entities, the default is 10.
 
     breath_max = 0,
-    -- For players only. Defaults to `minetest.PLAYER_MAX_BREATH_DEFAULT`.
+    -- For players only. Defines the maximum amount of "breath" for the player.
+    -- Defaults to `core.PLAYER_MAX_BREATH_DEFAULT` (10).
 
     zoom_fov = 0.0,
     -- For players only. Zoom FOV in degrees.
@@ -8972,7 +9164,7 @@ Player properties need to be saved manually.
     --   Otherwise for non-node items, the object will be an extrusion of
     --   'inventory_image'.
     --   If 'itemname' contains a ColorString or palette index (e.g. from
-    --   `minetest.itemstring_with_palette()`), the entity will inherit the color.
+    --   `core.itemstring_with_palette()`), the entity will inherit the color.
     --   Wielditems are scaled a bit. If you want a wielditem to appear
     --   to be as large as a node, use `0.667` in `visual_size`
     -- "item" is similar to "wielditem" but ignores the 'wield_image' parameter.
@@ -9084,7 +9276,7 @@ Player properties need to be saved manually.
 Entity definition
 -----------------
 
-Used by `minetest.register_entity`.
+Used by `core.register_entity`.
 The entity definition table becomes a metatable of a newly created per-entity
 luaentity table, meaning its fields (e.g. `initial_properties`) will be shared
 between all instances of an entity.
@@ -9122,7 +9314,7 @@ between all instances of an entity.
 ABM (ActiveBlockModifier) definition
 ------------------------------------
 
-Used by `minetest.register_abm`.
+Used by `core.register_abm`.
 
 ```lua
 {
@@ -9176,7 +9368,7 @@ Used by `minetest.register_abm`.
 LBM (LoadingBlockModifier) definition
 -------------------------------------
 
-Used by `minetest.register_lbm`.
+Used by `core.register_lbm`.
 
 A loading block modifier (LBM) is used to define a function that is called for
 specific nodes (defined by `nodenames`) when a mapblock which contains such nodes
@@ -9214,7 +9406,7 @@ contain a matching node.
     bulk_action = function(pos_list, dtime_s) end,
     -- Function triggered with a list of all applicable node positions at once.
     -- This can be provided as an alternative to `action` (not both).
-    -- Available since `minetest.features.bulk_lbms` (5.10.0)
+    -- Available since `core.features.bulk_lbms` (5.10.0)
     -- `dtime_s`: as above
 }
 ```
@@ -9275,8 +9467,8 @@ Tile animation definition
 Item definition
 ---------------
 
-Used by `minetest.register_node`, `minetest.register_craftitem`, and
-`minetest.register_tool`.
+Used by `core.register_node`, `core.register_craftitem`, and
+`core.register_tool`.
 
 ```lua
 {
@@ -9361,8 +9553,8 @@ Used by `minetest.register_node`, `minetest.register_craftitem`, and
     light_source = 0,
     -- When used for nodes: Defines amount of light emitted by node.
     -- Otherwise: Defines texture glow when viewed as a dropped item
-    -- To set the maximum (14), use the value 'minetest.LIGHT_MAX'.
-    -- A value outside the range 0 to minetest.LIGHT_MAX causes undefined
+    -- To set the maximum (14), use the value 'core.LIGHT_MAX'.
+    -- A value outside the range 0 to core.LIGHT_MAX causes undefined
     -- behavior.
 
     -- See "Tool Capabilities" section for an example including explanation
@@ -9443,7 +9635,7 @@ Used by `minetest.register_node`, `minetest.register_craftitem`, and
         -- When tool breaks due to wear. Ignored for non-tools
 
         eat = <SimpleSoundSpec>,
-        -- When item is eaten with `minetest.do_item_eat`
+        -- When item is eaten with `core.do_item_eat`
 
         punch_use = <SimpleSoundSpec>,
         -- When item is used with the 'punch/mine' key pointing at a node or entity
@@ -9458,7 +9650,7 @@ Used by `minetest.register_node`, `minetest.register_craftitem`, and
     -- Shall place item and return the leftover itemstack
     -- or nil to not modify the inventory.
     -- The placer may be any ObjectRef or nil.
-    -- default: minetest.item_place
+    -- default: core.item_place
 
     on_secondary_use = function(itemstack, user, pointed_thing),
     -- Same as on_place but called when not pointing at a node.
@@ -9470,7 +9662,7 @@ Used by `minetest.register_node`, `minetest.register_craftitem`, and
     on_drop = function(itemstack, dropper, pos),
     -- Shall drop item and return the leftover itemstack.
     -- The dropper may be any ObjectRef or nil.
-    -- default: minetest.item_drop
+    -- default: core.item_drop
 
     on_pickup = function(itemstack, picker, pointed_thing, time_from_last_punch, ...),
     -- Called when a dropped item is punched by a player.
@@ -9483,7 +9675,7 @@ Used by `minetest.register_node`, `minetest.register_craftitem`, and
     --   luaentity) as `type="object"` `pointed_thing`.
     -- * `time_from_last_punch, ...` (optional): Other parameters from
     --   `luaentity:on_punch`.
-    -- default: `minetest.item_pickup`
+    -- default: `core.item_pickup`
 
     on_use = function(itemstack, user, pointed_thing),
     -- default: nil
@@ -9516,7 +9708,7 @@ Used by `minetest.register_node`, `minetest.register_craftitem`, and
 Node definition
 ---------------
 
-Used by `minetest.register_node`.
+Used by `core.register_node`.
 
 ```lua
 {
@@ -9554,12 +9746,18 @@ Used by `minetest.register_node`.
 
     use_texture_alpha = ...,
     -- Specifies how the texture's alpha channel will be used for rendering.
-    -- possible values:
-    -- * "opaque": Node is rendered opaque regardless of alpha channel
-    -- * "clip": A given pixel is either fully see-through or opaque
-    --           depending on the alpha channel being below/above 50% in value
-    -- * "blend": The alpha channel specifies how transparent a given pixel
-    --            of the rendered node is
+    -- Possible values:
+    -- * "opaque":
+    --   Node is rendered opaque regardless of alpha channel.
+    -- * "clip":
+    --   A given pixel is either fully see-through or opaque
+    --   depending on the alpha channel being below/above 50% in value.
+    --   Use this for nodes with fully transparent and fully opaque areas.
+    -- * "blend":
+    --   The alpha channel specifies how transparent a given pixel
+    --   of the rendered node is. This comes at a performance cost.
+    --   Only use this when correct rendering
+    --   among semitransparent nodes is necessary.
     -- The default is "opaque" for drawtypes normal, liquid and flowingliquid,
     -- mesh and nodebox or "clip" otherwise.
     -- If set to a boolean value (deprecated): true either sets it to blend
@@ -9692,7 +9890,7 @@ Used by `minetest.register_node`.
 
     leveled_max = 127,
     -- Maximum value for `leveled` (0-127), enforced in
-    -- `minetest.set_node_level` and `minetest.add_node_level`.
+    -- `core.set_node_level` and `core.add_node_level`.
     -- Values above 124 might causes collision detection issues.
 
     liquid_range = 8,
@@ -9844,9 +10042,9 @@ Used by `minetest.register_node`.
     -- Node constructor; called after adding node.
     -- Can set up metadata and stuff like that.
     -- Not called for bulk node placement (i.e. schematics and VoxelManip).
-    -- Note: Within an on_construct callback, minetest.set_node can cause an
+    -- Note: Within an on_construct callback, core.set_node can cause an
     -- infinite loop if it invokes the same callback.
-    --  Consider using minetest.swap_node instead.
+    --  Consider using core.swap_node instead.
     -- default: nil
 
     on_destruct = function(pos),
@@ -9883,14 +10081,14 @@ Used by `minetest.register_node`.
 
     after_place_node = function(pos, placer, itemstack, pointed_thing),
     -- Called after constructing node when node was placed using
-    -- minetest.item_place_node / minetest.place_node.
+    -- core.item_place_node / core.place_node.
     -- If return true no item is taken from itemstack.
     -- `placer` may be any valid ObjectRef or nil.
     -- default: nil
 
     after_dig_node = function(pos, oldnode, oldmetadata, digger),
     -- Called after destructing the node when node was dug using
-    -- `minetest.node_dig` / `minetest.dig_node`.
+    -- `core.node_dig` / `core.dig_node`.
     -- * `pos`: node position
     -- * `oldnode`: node table of node before it was dug
     -- * `oldmetadata`: metadata of node before it was dug,
@@ -9903,9 +10101,9 @@ Used by `minetest.register_node`.
     -- default: nil
 
     on_punch = function(pos, node, puncher, pointed_thing),
-    -- default: minetest.node_punch
+    -- default: core.node_punch
     -- Called when puncher (an ObjectRef) punches the node at pos.
-    -- By default calls minetest.register_on_punchnode callbacks.
+    -- By default calls core.register_on_punchnode callbacks.
 
     on_rightclick = function(pos, node, clicker, itemstack, pointed_thing),
     -- default: nil
@@ -9919,14 +10117,14 @@ Used by `minetest.register_node`.
     -- "formspec" node metadata field is set.
 
     on_dig = function(pos, node, digger),
-    -- default: minetest.node_dig
+    -- default: core.node_dig
     -- By default checks privileges, wears out item (if tool) and removes node.
     -- return true if the node was dug successfully, false otherwise.
     -- Deprecated: returning nil is the same as returning true.
 
     on_timer = function(pos, elapsed),
     -- default: nil
-    -- called by NodeTimers, see minetest.get_node_timer and NodeTimerRef.
+    -- called by NodeTimers, see core.get_node_timer and NodeTimerRef.
     -- elapsed is the total time passed since the timer was started.
     -- return true to run the timer for another cycle with the same timeout
     -- value.
@@ -9935,7 +10133,7 @@ Used by `minetest.register_node`.
     -- fields = {name1 = value1, name2 = value2, ...}
     -- formname should be the empty string; you **must not** use formname.
     -- Called when an UI form (e.g. sign text input) returns data.
-    -- See minetest.register_on_player_receive_fields for more info.
+    -- See core.register_on_player_receive_fields for more info.
     -- default: nil
 
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player),
@@ -10020,7 +10218,7 @@ Crafting converts one or more inputs to one output itemstack of arbitrary
 count (except for fuels, which don't have an output). The conversion reduces
 each input ItemStack by 1.
 
-Craft recipes are registered by `minetest.register_craft` and use a
+Craft recipes are registered by `core.register_craft` and use a
 table format. The accepted parameters are listed below.
 
 Recipe input items can either be specified by item name (item count = 1)
@@ -10061,7 +10259,7 @@ Parameters:
       `old_item` is the input item to replace (same syntax as for a regular input
       slot; groups are allowed) and `new_item` is an itemstring for the item stack
       it will become
-    * When the output is crafted, Minetest iterates through the list
+    * When the output is crafted, Luanti iterates through the list
       of input items if the crafting grid. For each input item stack, it checks if
       it matches with an `old_item` in the item pair list.
         * If it matches, the item will be replaced. Also, this item pair
@@ -10228,7 +10426,7 @@ an oven, furnace, or something similar; the exact meaning is up for games
 to decide, if they choose to use cooking at all.
 
 The engine does not implement anything specific to cooking recipes, but
-the recipes can be retrieved later using `minetest.get_craft_result` to
+the recipes can be retrieved later using `core.get_craft_result` to
 have a consistent interface across different games/mods.
 
 Parameters:
@@ -10266,7 +10464,7 @@ furnaces, ovens, stoves, etc.
 
 Like with cooking recipes, the engine does not do anything specific with
 fuel recipes and it's up to games and mods to use them by retrieving
-them via `minetest.get_craft_result`.
+them via `core.get_craft_result`.
 
 Parameters:
 
@@ -10309,7 +10507,7 @@ if used:
 Ore definition
 --------------
 
-Used by `minetest.register_ore`.
+Used by `core.register_ore`.
 
 See [Ores] section above for essential information.
 
@@ -10416,7 +10614,7 @@ See [Ores] section above for essential information.
 Biome definition
 ----------------
 
-Used by `minetest.register_biome`.
+Used by `core.register_biome`.
 
 The maximum number of biomes that can be used is 65535. However, using an
 excessive number of biomes will slow down map generation. Depending on desired
@@ -10510,7 +10708,7 @@ performance and computing power the practical limit is much lower.
 Decoration definition
 ---------------------
 
-See [Decoration types]. Used by `minetest.register_decoration`.
+See [Decoration types]. Used by `core.register_decoration`.
 
 ```lua
 {
@@ -10630,7 +10828,7 @@ See [Decoration types]. Used by `minetest.register_decoration`.
 
     schematic = "foobar.mts",
     -- If schematic is a string, it is the filepath relative to the current
-    -- working directory of the specified Minetest schematic file.
+    -- working directory of the specified Luanti schematic file.
     -- Could also be the ID of a previously registered schematic.
 
     schematic = {
@@ -10672,7 +10870,7 @@ See [Decoration types]. Used by `minetest.register_decoration`.
     ----- L-system-type parameters
 
     treedef = {},
-    -- Same as for `minetest.spawn_tree`.
+    -- Same as for `core.spawn_tree`.
     -- See section [L-system trees] for more details.
 }
 ```
@@ -10680,7 +10878,7 @@ See [Decoration types]. Used by `minetest.register_decoration`.
 Chat command definition
 -----------------------
 
-Used by `minetest.register_chatcommand`.
+Used by `core.register_chatcommand`.
 
 Specifies the function to be called and the privileges required when a player
 issues the command.  A help message that is the concatenation of the params and
@@ -10695,7 +10893,7 @@ description fields is shown when the "/help" chatcommand is issued.
     -- General description of the command's purpose.
 
     privs = {},
-    -- Required privileges to run. See `minetest.check_player_privs()` for
+    -- Required privileges to run. See `core.check_player_privs()` for
     -- the format and see [Privileges] for an overview of privileges.
 
     func = function(name, param),
@@ -10737,7 +10935,7 @@ Example:
 Privilege definition
 --------------------
 
-Used by `minetest.register_privilege`.
+Used by `core.register_privilege`.
 
 ```lua
 {
@@ -10770,7 +10968,7 @@ Used by `minetest.register_privilege`.
 Detached inventory callbacks
 ----------------------------
 
-Used by `minetest.create_detached_inventory`.
+Used by `core.create_detached_inventory`.
 
 ```lua
 {
@@ -10853,7 +11051,7 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
 Particle definition
 -------------------
 
-Used by `minetest.add_particle`.
+Used by `core.add_particle`.
 
 ```lua
 {
@@ -10932,7 +11130,7 @@ Used by `minetest.add_particle`.
 `ParticleSpawner` definition
 ----------------------------
 
-Used by `minetest.add_particlespawner`.
+Used by `core.add_particlespawner`.
 
 Before v5.6.0, particlespawners used a different syntax and had a more limited set
 of features. Definition fields that are the same in both legacy and modern versions
@@ -11367,7 +11565,7 @@ Used by `HTTPApiTable.fetch` and `HTTPApiTable.fetch_async`.
     -- table as x-www-form-urlencoded key-value pairs.
 
     user_agent = "ExampleUserAgent",
-    -- Optional, if specified replaces the default minetest user agent with
+    -- Optional, if specified replaces the default Luanti user agent with
     -- given string
 
     extra_headers = { "Accept-Language: en-us", "Accept-Charset: utf-8" },
@@ -11413,7 +11611,7 @@ Passed to `HTTPApiTable.fetch` callback. Returned by
 Authentication handler definition
 ---------------------------------
 
-Used by `minetest.register_authentication_handler`.
+Used by `core.register_authentication_handler`.
 
 ```lua
 {
@@ -11464,7 +11662,7 @@ See http://bitop.luajit.org/ for advanced information.
 Tracy Profiler
 --------------
 
-Minetest can be built with support for the Tracy profiler, which can also be
+Luanti can be built with support for the Tracy profiler, which can also be
 useful for profiling mods and is exposed to Lua as the global `tracy`.
 
 See doc/developing/misc.md for details.
@@ -11474,13 +11672,13 @@ Note: This is a development feature and not covered by compatibility promises.
 Error Handling
 --------------
 
-When an error occurs that is not caught, Minetest calls the function
-`minetest.error_handler` with the error object as its first argument. The second
+When an error occurs that is not caught, Luanti calls the function
+`core.error_handler` with the error object as its first argument. The second
 argument is the stack level where the error occurred. The return value is the
 error string that should be shown. By default this is a backtrace from
 `debug.traceback`. If the error object is not a string, it is first converted
 with `tostring` before being displayed. This means that you can use tables as
 error objects so long as you give them `__tostring` metamethods.
 
-You can override `minetest.error_handler`. You should call the previous handler
+You can override `core.error_handler`. You should call the previous handler
 with the correct stack level in your implementation.

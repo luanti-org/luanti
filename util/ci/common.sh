@@ -4,7 +4,7 @@
 install_linux_deps() {
 	local pkgs=(
 		cmake gettext postgresql
-		libpng-dev libjpeg-dev libgl1-mesa-dev libsdl2-dev libfreetype-dev
+		libpng-dev libjpeg-dev libgl1-mesa-dev libxi-dev libfreetype-dev
 		libsqlite3-dev libhiredis-dev libogg-dev libgmp-dev libvorbis-dev
 		libopenal-dev libpq-dev libleveldb-dev libcurl4-openssl-dev libzstd-dev
 	)

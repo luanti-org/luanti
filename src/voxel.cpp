@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "voxel.h"
 #include "map.h"
@@ -29,10 +14,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 /*
 	Debug stuff
 */
-u64 addarea_time = 0;
 u64 emerge_time = 0;
 u64 emerge_load_time = 0;
-u64 clearflag_time = 0;
 
 VoxelManipulator::~VoxelManipulator()
 {
@@ -53,7 +36,7 @@ void VoxelManipulator::clear()
 }
 
 void VoxelManipulator::print(std::ostream &o, const NodeDefManager *ndef,
-	VoxelPrintMode mode)
+	VoxelPrintMode mode) const
 {
 	const v3s16 &em = m_area.getExtent();
 	v3s16 of = m_area.MinEdge;
@@ -140,8 +123,6 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 	if(m_area.contains(area))
 		return;
 
-	TimeTaker timer("addArea", &addarea_time);
-
 	// Calculate new area
 	VoxelArea new_area;
 	// New area is the requested area if m_area has zero volume
@@ -157,15 +138,6 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 	}
 
 	s32 new_size = new_area.getVolume();
-
-	/*dstream<<"adding area ";
-	area.print(dstream);
-	dstream<<", old area ";
-	m_area.print(dstream);
-	dstream<<", new area ";
-	new_area.print(dstream);
-	dstream<<", new_size="<<new_size;
-	dstream<<std::endl;*/
 
 	// Allocate new data and clear flags
 	MapNode *new_data = new MapNode[new_size];
@@ -195,16 +167,11 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 	MapNode *old_data = m_data;
 	u8 *old_flags = m_flags;
 
-	/*dstream<<"old_data="<<(int)old_data<<", new_data="<<(int)new_data
-	<<", old_flags="<<(int)m_flags<<", new_flags="<<(int)new_flags<<std::endl;*/
-
 	m_data = new_data;
 	m_flags = new_flags;
 
 	delete[] old_data;
 	delete[] old_flags;
-
-	//dstream<<"addArea done"<<std::endl;
 }
 
 void VoxelManipulator::copyFrom(MapNode *src, const VoxelArea& src_area,
@@ -256,7 +223,7 @@ void VoxelManipulator::copyFrom(MapNode *src, const VoxelArea& src_area,
 }
 
 void VoxelManipulator::copyTo(MapNode *dst, const VoxelArea& dst_area,
-		v3s16 dst_pos, v3s16 from_pos, const v3s16 &size)
+		v3s16 dst_pos, v3s16 from_pos, const v3s16 &size) const
 {
 	for(s16 z=0; z<size.Z; z++)
 	for(s16 y=0; y<size.Y; y++)
@@ -277,46 +244,38 @@ void VoxelManipulator::copyTo(MapNode *dst, const VoxelArea& dst_area,
 	-----------------------------------------------------
 */
 
-void VoxelManipulator::clearFlag(u8 flags)
+void VoxelManipulator::setFlags(const VoxelArea &a, u8 flags)
 {
-	// 0-1ms on moderate area
-	TimeTaker timer("clearFlag", &clearflag_time);
+	if (a.hasEmptyExtent())
+		return;
 
-	//v3s16 s = m_area.getExtent();
+	assert(m_area.contains(a));
 
-	/*dstream<<"clearFlag clearing area of size "
-			<<""<<s.X<<"x"<<s.Y<<"x"<<s.Z<<""
-			<<std::endl;*/
-
-	//s32 count = 0;
-
-	/*for(s32 z=m_area.MinEdge.Z; z<=m_area.MaxEdge.Z; z++)
-	for(s32 y=m_area.MinEdge.Y; y<=m_area.MaxEdge.Y; y++)
-	for(s32 x=m_area.MinEdge.X; x<=m_area.MaxEdge.X; x++)
+	const s32 stride = a.getExtent().X;
+	for (s32 z = a.MinEdge.Z; z <= a.MaxEdge.Z; z++)
+	for (s32 y = a.MinEdge.Y; y <= a.MaxEdge.Y; y++)
 	{
-		u8 f = m_flags[m_area.index(x,y,z)];
-		m_flags[m_area.index(x,y,z)] &= ~flags;
-		if(m_flags[m_area.index(x,y,z)] != f)
-			count++;
-	}*/
-
-	s32 volume = m_area.getVolume();
-	for(s32 i=0; i<volume; i++)
-	{
-		m_flags[i] &= ~flags;
+		const s32 start = m_area.index(a.MinEdge.X, y, z);
+		for (s32 i = start; i < start + stride; i++)
+			m_flags[i] |= flags;
 	}
+}
 
-	/*s32 volume = m_area.getVolume();
-	for(s32 i=0; i<volume; i++)
+void VoxelManipulator::clearFlags(const VoxelArea &a, u8 flags)
+{
+	if (a.hasEmptyExtent())
+		return;
+
+	assert(m_area.contains(a));
+
+	const s32 stride = a.getExtent().X;
+	for (s32 z = a.MinEdge.Z; z <= a.MaxEdge.Z; z++)
+	for (s32 y = a.MinEdge.Y; y <= a.MaxEdge.Y; y++)
 	{
-		u8 f = m_flags[i];
-		m_flags[i] &= ~flags;
-		if(m_flags[i] != f)
-			count++;
+		const s32 start = m_area.index(a.MinEdge.X, y, z);
+		for (s32 i = start; i < start + stride; i++)
+			m_flags[i] &= ~flags;
 	}
-
-	dstream<<"clearFlag changed "<<count<<" flags out of "
-			<<volume<<" nodes"<<std::endl;*/
 }
 
 const MapNode VoxelManipulator::ContentIgnoreNode = MapNode(CONTENT_IGNORE);

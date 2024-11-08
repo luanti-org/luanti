@@ -1,9 +1,9 @@
-# Minetest Android build
-All Minetest builds, including the Android variant, are based on the same code.
+# Luanti Android build
+All Luanti builds, including the Android variant, are based on the same code.
 However, additional Java code is used for proper Android integration.
 
 ## Controls
-Compared to Minetest binaries for PC, the Android port has limited functionality
+Compared to Luanti binaries for PC, the Android port has limited functionality
 due to limited capabilities of common devices. What can be done is described below:
 
 While you're playing the game normally (that is, no menu or inventory is
@@ -35,7 +35,7 @@ When a menu or inventory is displayed:
 * Complicated control can be difficult or impossible on Android device
 
 ## File Path
-There are some settings especially useful for Android users. The Minetest-wide
+There are some settings especially useful for Android users. The Luanti-wide
 configuration file can usually be found at:
 
 * Before 5.4.2:
@@ -58,7 +58,7 @@ Mobile device generally have less RAM than PC, this setting limit how many mapbl
 this setting limit max FPS (Frame per second). Default value is 60, which lowest Android device screen refresh rate commonly found, but if you're using an device have lower refresh rate, change this
 
 ## Requirements
-The minimal and recommended system requirements for Minetest are listed below.
+The minimal and recommended system requirements for Luanti are listed below.
 
 ### CPU
 Supported architectures:
@@ -67,7 +67,7 @@ Supported architectures:
 3. x86
 4. x86_64
 
-CPU architectures similar to ARM or x86 might run Minetest but are not tested.
+CPU architectures similar to ARM or x86 might run Luanti but are not tested.
 
 ### Minimum
 1. Graphics API: OpenGL ES 1.0
@@ -89,9 +89,9 @@ some shader settings cannot be used on OpenGL ES.
 Changing the graphic driver setting to OpenGL will result in undesirable behavior.
 
 ## Building Requirements
-In order to build, your PC has to be set up to build Minetest in the usual
-manner (see the regular Minetest documentation for how to get this done).
-In addition to what is required for Minetest in general, you will need the
+In order to build, your PC has to be set up to build Luanti in the usual
+manner (see the regular Luanti documentation for how to get this done).
+In addition to what is required for Luanti in general, you will need the
 following software packages. The version number in parenthesis denotes the
 version that was tested at the time this README was drafted; newer/older
 versions may or may not work.
@@ -104,7 +104,7 @@ Additionally, you'll need to have an Internet connection available on the
 build system, as the Android build will download some source packages.
 
 ## Build
-The new build system Minetest Android is fully functional and is designed to
+The new build system Luanti Android is fully functional and is designed to
 speed up and simplify the work, as well as adding the possibility of
 cross-platform build.
 You can use `./gradlew assemblerelease` or `./gradlew assembledebug` from the
@@ -120,7 +120,7 @@ automatically. Or you can create a `local.properties` file and specify
   - choose one yourself.
 
 * Once your keystore is setup, enter the android subdirectory and create a new
-  file "ant.properties" there. Add following lines to that file:
+  file "ant.properties" there. Add the following lines to that file:
 
   > key.store=<path to your keystore>
   > key.alias=Minetest

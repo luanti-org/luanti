@@ -1,4 +1,4 @@
-glTF test model (and corresponding texture) licenses:
+The glTF test models (and corresponding textures) in this mod are all licensed freely:
 
 * Spider (`gltf_spider.gltf`, `gltf_spider.png`):
   * By [archfan7411](https://github.com/archfan7411)

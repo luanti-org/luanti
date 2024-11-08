@@ -3,18 +3,19 @@
 
 #include "CGLTFMeshFileLoader.h"
 
+#include "SMaterialLayer.h"
 #include "coreutil.h"
 #include "CSkinnedMesh.h"
-#include "ISkinnedMesh.h"
-#include "irrTypes.h"
+#include "IAnimatedMesh.h"
 #include "IReadFile.h"
+#include "irrTypes.h"
+#include "irr_ptr.h"
 #include "matrix4.h"
 #include "path.h"
 #include "quaternion.h"
+#include "vector2d.h"
 #include "vector3d.h"
 #include "os.h"
-
-#include "tiniergltf.hpp"
 
 #include <array>
 #include <cstddef>
@@ -23,6 +24,7 @@
 #include <memory>
 #include <optional>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -49,6 +51,28 @@ template <>
 core::vector3df convertHandedness(const core::vector3df &p)
 {
 	return core::vector3df(p.X, p.Y, -p.Z);
+}
+
+template <>
+core::quaternion convertHandedness(const core::quaternion &q)
+{
+	return core::quaternion(q.X, q.Y, -q.Z, q.W);
+}
+
+template <>
+core::matrix4 convertHandedness(const core::matrix4 &mat)
+{
+	// Base transformation between left & right handed coordinate systems.
+	static const core::matrix4 invertZ = core::matrix4(
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, -1, 0,
+			0, 0, 0, 1);
+	// Convert from left-handed to right-handed,
+	// then apply mat,
+	// then convert from right-handed to left-handed.
+	// Both conversions just invert Z.
+	return invertZ * mat * invertZ;
 }
 
 namespace scene {
@@ -196,6 +220,8 @@ ACCESSOR_PRIMITIVE(u16, UNSIGNED_SHORT)
 ACCESSOR_PRIMITIVE(u32, UNSIGNED_INT)
 
 ACCESSOR_TYPES(core::vector3df, VEC3, FLOAT)
+ACCESSOR_TYPES(core::quaternion, VEC4, FLOAT)
+ACCESSOR_TYPES(core::matrix4, MAT4, FLOAT)
 
 template <class T>
 T SelfType::Accessor<T>::get(std::size_t i) const
@@ -303,13 +329,11 @@ std::array<f32, N> SelfType::getNormalizedValues(
 	return values;
 }
 
-/**
- * The most basic portion of the code base. This tells irllicht if this file has a .gltf extension.
-*/
 bool SelfType::isALoadableFileExtension(
 		const io::path& filename) const
 {
-	return core::hasFileExtension(filename, "gltf");
+	return core::hasFileExtension(filename, "gltf") ||
+			core::hasFileExtension(filename, "glb");
 }
 
 /**
@@ -317,35 +341,24 @@ bool SelfType::isALoadableFileExtension(
 */
 IAnimatedMesh* SelfType::createMesh(io::IReadFile* file)
 {
-	if (file->getSize() <= 0) {
-		return nullptr;
-	}
-	std::optional<tiniergltf::GlTF> model = tryParseGLTF(file);
-	if (!model.has_value()) {
-		return nullptr;
-	}
-
-	if (!(model->buffers.has_value()
-			&& model->bufferViews.has_value()
-			&& model->accessors.has_value()
-			&& model->meshes.has_value()
-			&& model->nodes.has_value())) {
-		os::Printer::log("glTF loader", "missing required fields", ELL_ERROR);
-		return nullptr;
-	}
-
-	auto *mesh = new CSkinnedMesh();
-	MeshExtractor parser(std::move(model.value()), mesh);
+	const char *filename = file->getFileName().c_str();
 	try {
-		parser.loadNodes();
-	} catch (std::runtime_error &e) {
-		os::Printer::log("glTF loader", e.what(), ELL_ERROR);
-		mesh->drop();
-		return nullptr;
+		tiniergltf::GlTF model = parseGLTF(file);
+		irr_ptr<CSkinnedMesh> mesh(new CSkinnedMesh());
+		MeshExtractor extractor(std::move(model), mesh.get());
+		try {
+			extractor.load();
+			for (const auto &warning : extractor.getWarnings()) {
+				os::Printer::log(filename, warning.c_str(), ELL_WARNING);
+			}
+			return mesh.release();
+		} catch (const std::runtime_error &e) {
+			os::Printer::log("error converting gltf to irrlicht mesh", e.what(), ELL_ERROR);
+		}
+	} catch (const std::runtime_error &e) {
+		os::Printer::log("error parsing gltf", e.what(), ELL_ERROR);
 	}
-	if (model->images.has_value())
-		os::Printer::log("glTF loader", "embedded images are not supported", ELL_WARNING);
-	return mesh;
+	return nullptr;
 }
 
 static void transformVertices(std::vector<video::S3DVertex> &vertices, const core::matrix4 &transform)
@@ -354,8 +367,7 @@ static void transformVertices(std::vector<video::S3DVertex> &vertices, const cor
 		// Apply scaling, rotation and rotation (in that order) to the position.
 		transform.transformVect(vertex.Pos);
 		// For the normal, we do not want to apply the translation.
-		// TODO note that this also applies scaling; the Irrlicht method is misnamed.
-		transform.rotateVect(vertex.Normal);
+		vertex.Normal = transform.rotateAndScaleVect(vertex.Normal);
 		// Renormalize (length might have been affected by scaling).
 		vertex.Normal.normalize();
 	}
@@ -381,52 +393,148 @@ static std::vector<u16> generateIndices(const std::size_t nVerts)
 	return indices;
 }
 
-/**
- * Load up the rawest form of the model. The vertex positions and indices.
- * Documentation: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#meshes
- * If material is undefined, then a default material MUST be used.
-*/
-void SelfType::MeshExtractor::loadMesh(
-		const std::size_t meshIdx,
-		ISkinnedMesh::SJoint *parent) const
+using Wrap = tiniergltf::Sampler::Wrap;
+static video::E_TEXTURE_CLAMP convertTextureWrap(const Wrap wrap) {
+	switch (wrap) {
+		case Wrap::REPEAT:
+			return video::ETC_REPEAT;
+		case Wrap::CLAMP_TO_EDGE:
+			return video::ETC_CLAMP_TO_EDGE;
+		case Wrap::MIRRORED_REPEAT:
+            return video::ETC_MIRROR;
+		default:
+			throw std::runtime_error("invalid sampler wrapping mode");
+    }
+}
+
+void SelfType::MeshExtractor::addPrimitive(
+		const tiniergltf::MeshPrimitive &primitive,
+		const std::optional<std::size_t> skinIdx,
+		CSkinnedMesh::SJoint *parent)
 {
-	for (std::size_t pi = 0; pi < getPrimitiveCount(meshIdx); ++pi) {
-		const auto &primitive = m_gltf_model.meshes->at(meshIdx).primitives.at(pi);
-		auto vertices = getVertices(primitive);
-		if (!vertices.has_value())
-			continue; // "When positions are not specified, client implementations SHOULD skip primitive’s rendering"
+	auto vertices = getVertices(primitive);
+	if (!vertices.has_value())
+		return; // "When positions are not specified, client implementations SHOULD skip primitive’s rendering"
 
-		// Excludes the max value for consistency.
-		if (vertices->size() >= std::numeric_limits<u16>::max())
-			throw std::runtime_error("too many vertices");
+	const auto n_vertices = vertices->size();
 
-		// Apply the global transform along the parent chain.
-		transformVertices(*vertices, parent->GlobalMatrix);
+	// Excludes the max value for consistency.
+	if (n_vertices >= std::numeric_limits<u16>::max())
+		throw std::runtime_error("too many vertices");
 
-		auto maybeIndices = getIndices(primitive);
-		std::vector<u16> indices;
-		if (maybeIndices.has_value()) {
-			indices = std::move(*maybeIndices);
-			checkIndices(indices, vertices->size());
-		} else {
-			// Non-indexed geometry
-			indices = generateIndices(vertices->size());
-		}
+	// Apply the global transform along the parent chain.
+	transformVertices(*vertices, parent->GlobalMatrix);
 
-		m_irr_model->addMeshBuffer(
-				new SSkinMeshBuffer(std::move(*vertices), std::move(indices)));
+	auto maybeIndices = getIndices(primitive);
+	std::vector<u16> indices;
+	if (maybeIndices.has_value()) {
+		indices = std::move(*maybeIndices);
+		checkIndices(indices, vertices->size());
+	} else {
+		// Non-indexed geometry
+		indices = generateIndices(vertices->size());
+	}
 
-		if (primitive.material.has_value()) {
-			const auto &material = m_gltf_model.materials->at(*primitive.material);
-			if (material.pbrMetallicRoughness.has_value()) {
-				const auto &texture = material.pbrMetallicRoughness->baseColorTexture;
-				if (texture.has_value()) {
-					const auto meshbufNr = m_irr_model->getMeshBufferCount() - 1;
-					m_irr_model->setTextureSlot(meshbufNr, static_cast<u32>(texture->index));
+	m_irr_model->addMeshBuffer(
+			new SSkinMeshBuffer(std::move(*vertices), std::move(indices)));
+	const auto meshbufNr = m_irr_model->getMeshBufferCount() - 1;
+	auto *meshbuf = m_irr_model->getMeshBuffer(meshbufNr);
+
+	if (primitive.material.has_value()) {
+		const auto &material = m_gltf_model.materials->at(*primitive.material);
+		if (material.pbrMetallicRoughness.has_value()) {
+			const auto &texture = material.pbrMetallicRoughness->baseColorTexture;
+			if (texture.has_value()) {
+				m_irr_model->setTextureSlot(meshbufNr, static_cast<u32>(texture->index));
+				const auto samplerIdx = m_gltf_model.textures->at(texture->index).sampler;
+				if (samplerIdx.has_value()) {
+					auto &sampler = m_gltf_model.samplers->at(*samplerIdx);
+					auto &layer = meshbuf->getMaterial().TextureLayers[0];
+					layer.TextureWrapU = convertTextureWrap(sampler.wrapS);
+					layer.TextureWrapV = convertTextureWrap(sampler.wrapT);
 				}
 			}
 		}
 	}
+
+	if (!skinIdx.has_value()) {
+		// No skin => all vertices belong entirely to their parent
+		for (std::size_t v = 0; v < n_vertices; ++v) {
+			auto *weight = m_irr_model->addWeight(parent);
+			weight->buffer_id = meshbufNr;
+			weight->vertex_id = v;
+			weight->strength = 1.0f;
+		}
+		return;
+	}
+
+	const auto &skin = m_gltf_model.skins->at(*skinIdx);
+
+	const auto &attrs = primitive.attributes;
+	const auto &joints = attrs.joints;
+	if (!joints.has_value())
+		return;
+
+	const auto &weights = attrs.weights;
+	for (std::size_t set = 0; set < joints->size(); ++set) {
+		const auto jointAccessor = ([&]() -> ArrayAccessorVariant<4, u8, u16> {
+			const auto idx = joints->at(set);
+			const auto &acc = m_gltf_model.accessors->at(idx);
+
+			switch (acc.componentType) {
+			case tiniergltf::Accessor::ComponentType::UNSIGNED_BYTE:
+				return Accessor<std::array<u8, 4>>::make(m_gltf_model, idx);
+			case tiniergltf::Accessor::ComponentType::UNSIGNED_SHORT:
+				return Accessor<std::array<u16, 4>>::make(m_gltf_model, idx);
+			default:
+				throw std::runtime_error("invalid component type");
+			}
+		})();
+
+		const auto weightAccessor = createNormalizedValuesAccessor<4>(m_gltf_model, weights->at(set));
+
+		for (std::size_t v = 0; v < n_vertices; ++v) {
+			std::array<u16, 4> jointIdxs;
+			if (std::holds_alternative<Accessor<std::array<u8, 4>>>(jointAccessor)) {
+				const auto jointIdxsU8 = std::get<Accessor<std::array<u8, 4>>>(jointAccessor).get(v);
+				jointIdxs = {jointIdxsU8[0], jointIdxsU8[1], jointIdxsU8[2], jointIdxsU8[3]};
+			} else if (std::holds_alternative<Accessor<std::array<u16, 4>>>(jointAccessor)) {
+				jointIdxs = std::get<Accessor<std::array<u16, 4>>>(jointAccessor).get(v);
+			}
+			std::array<f32, 4> strengths = getNormalizedValues(weightAccessor, v);
+
+			// 4 joints per set
+			for (std::size_t in_set = 0; in_set < 4; ++in_set) {
+				u16 jointIdx = jointIdxs[in_set];
+				f32 strength = strengths[in_set];
+				if (strength == 0)
+					continue;
+
+				CSkinnedMesh::SWeight *weight = m_irr_model->addWeight(m_loaded_nodes.at(skin.joints.at(jointIdx)));
+				weight->buffer_id = meshbufNr;
+				weight->vertex_id = v;
+				weight->strength = strength;
+			}
+		}
+	}
+}
+
+/**
+ * Load up the rawest form of the model. The vertex positions and indices.
+ * Documentation: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#meshes
+ * If material is undefined, then a default material MUST be used.
+ */
+void SelfType::MeshExtractor::deferAddMesh(
+		const std::size_t meshIdx,
+		const std::optional<std::size_t> skinIdx,
+		CSkinnedMesh::SJoint *parent)
+{
+	m_mesh_loaders.emplace_back([=] {
+		for (std::size_t pi = 0; pi < getPrimitiveCount(meshIdx); ++pi) {
+			const auto &primitive = m_gltf_model.meshes->at(meshIdx).primitives.at(pi);
+			addPrimitive(primitive, skinIdx, parent);
+		}
+	});
 }
 
 // Base transformation between left & right handed coordinate systems.
@@ -439,51 +547,75 @@ static const core::matrix4 leftToRight = core::matrix4(
 );
 static const core::matrix4 rightToLeft = leftToRight;
 
-static core::matrix4 loadTransform(const tiniergltf::Node::Matrix &m)
+static core::matrix4 loadTransform(const tiniergltf::Node::Matrix &m, CSkinnedMesh::SJoint *joint)
 {
 	// Note: Under the hood, this casts these doubles to floats.
-	return core::matrix4(
+	core::matrix4 mat = convertHandedness(core::matrix4(
 			m[0], m[1], m[2], m[3],
 			m[4], m[5], m[6], m[7],
 			m[8], m[9], m[10], m[11],
-			m[12], m[13], m[14], m[15]);
+			m[12], m[13], m[14], m[15]));
+
+	// Decompose the matrix into translation, scale, and rotation.
+	joint->Animatedposition = mat.getTranslation();
+
+	auto scale = mat.getScale();
+	joint->Animatedscale = scale;
+	core::matrix4 inverseScale;
+	inverseScale.setScale(core::vector3df(
+			scale.X == 0 ? 0 : 1 / scale.X,
+			scale.Y == 0 ? 0 : 1 / scale.Y,
+			scale.Z == 0 ? 0 : 1 / scale.Z));
+
+	core::matrix4 axisNormalizedMat = inverseScale * mat;
+	joint->Animatedrotation = axisNormalizedMat.getRotationDegrees();
+	// Invert the rotation because it is applied using `getMatrix_transposed`,
+	// which again inverts.
+	joint->Animatedrotation.makeInverse();
+
+	return mat;
 }
 
-static core::matrix4 loadTransform(const tiniergltf::Node::TRS &trs)
+static core::matrix4 loadTransform(const tiniergltf::Node::TRS &trs, CSkinnedMesh::SJoint *joint)
 {
 	const auto &trans = trs.translation;
 	const auto &rot = trs.rotation;
 	const auto &scale = trs.scale;
 	core::matrix4 transMat;
-	transMat.setTranslation(core::vector3df(trans[0], trans[1], trans[2]));
-	core::matrix4 rotMat = core::quaternion(rot[0], rot[1], rot[2], rot[3]).getMatrix();
+	joint->Animatedposition = convertHandedness(core::vector3df(trans[0], trans[1], trans[2]));
+	transMat.setTranslation(joint->Animatedposition);
+	core::matrix4 rotMat;
+	joint->Animatedrotation = convertHandedness(core::quaternion(rot[0], rot[1], rot[2], rot[3]));
+	core::quaternion(joint->Animatedrotation).getMatrix_transposed(rotMat);
+	joint->Animatedscale = core::vector3df(scale[0], scale[1], scale[2]);
 	core::matrix4 scaleMat;
-	scaleMat.setScale(core::vector3df(scale[0], scale[1], scale[2]));
+	scaleMat.setScale(joint->Animatedscale);
 	return transMat * rotMat * scaleMat;
 }
 
-static core::matrix4 loadTransform(std::optional<std::variant<tiniergltf::Node::Matrix, tiniergltf::Node::TRS>> transform) {
+static core::matrix4 loadTransform(std::optional<std::variant<tiniergltf::Node::Matrix, tiniergltf::Node::TRS>> transform,
+		CSkinnedMesh::SJoint *joint) {
 	if (!transform.has_value()) {
 		return core::matrix4();
 	}
-	core::matrix4 mat = std::visit([](const auto &t) { return loadTransform(t); }, *transform);
-	return rightToLeft * mat * leftToRight;
+	return std::visit([joint](const auto &t) { return loadTransform(t, joint); }, *transform);
 }
 
 void SelfType::MeshExtractor::loadNode(
 		const std::size_t nodeIdx,
-		ISkinnedMesh::SJoint *parent) const
+		CSkinnedMesh::SJoint *parent)
 {
 	const auto &node = m_gltf_model.nodes->at(nodeIdx);
 	auto *joint = m_irr_model->addJoint(parent);
-	const core::matrix4 transform = loadTransform(node.transform);
+	const core::matrix4 transform = loadTransform(node.transform, joint);
 	joint->LocalMatrix = transform;
 	joint->GlobalMatrix = parent ? parent->GlobalMatrix * joint->LocalMatrix : joint->LocalMatrix;
 	if (node.name.has_value()) {
 		joint->Name = node.name->c_str();
 	}
+	m_loaded_nodes[nodeIdx] = joint;
 	if (node.mesh.has_value()) {
-		loadMesh(*node.mesh, joint);
+		deferAddMesh(*node.mesh, node.skin, joint);
 	}
 	if (node.children.has_value()) {
 		for (const auto &child : *node.children) {
@@ -492,8 +624,10 @@ void SelfType::MeshExtractor::loadNode(
 	}
 }
 
-void SelfType::MeshExtractor::loadNodes() const
+void SelfType::MeshExtractor::loadNodes()
 {
+	m_loaded_nodes = std::vector<CSkinnedMesh::SJoint *>(m_gltf_model.nodes->size());
+
 	std::vector<bool> isChild(m_gltf_model.nodes->size());
 	for (const auto &node : *m_gltf_model.nodes) {
 		if (!node.children.has_value())
@@ -509,6 +643,112 @@ void SelfType::MeshExtractor::loadNodes() const
 			loadNode(i, nullptr);
 		}
 	}
+}
+
+void SelfType::MeshExtractor::loadSkins()
+{
+	if (!m_gltf_model.skins.has_value())
+		return;
+
+	for (const auto &skin : *m_gltf_model.skins) {
+		if (!skin.inverseBindMatrices.has_value())
+			continue;
+		const auto accessor = Accessor<core::matrix4>::make(m_gltf_model, *skin.inverseBindMatrices);
+		if (accessor.getCount() < skin.joints.size())
+			throw std::runtime_error("accessor contains too few matrices");
+		for (std::size_t i = 0; i < skin.joints.size(); ++i) {
+			m_loaded_nodes.at(skin.joints[i])->GlobalInversedMatrix = convertHandedness(accessor.get(i));
+		}
+	}
+}
+
+void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
+{
+	const auto &anim = m_gltf_model.animations->at(animIdx);
+	for (const auto &channel : anim.channels) {
+
+		const auto &sampler = anim.samplers.at(channel.sampler);
+		if (sampler.interpolation != tiniergltf::AnimationSampler::Interpolation::LINEAR)
+			throw std::runtime_error("unsupported interpolation");
+
+		const auto inputAccessor = Accessor<f32>::make(m_gltf_model, sampler.input);
+		const auto n_frames = inputAccessor.getCount();
+
+		if (!channel.target.node.has_value())
+			throw std::runtime_error("no animated node");
+
+		const auto &joint = m_loaded_nodes.at(*channel.target.node);
+		switch (channel.target.path) {
+		case tiniergltf::AnimationChannelTarget::Path::TRANSLATION: {
+			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
+			for (std::size_t i = 0; i < n_frames; ++i) {
+				auto *key = m_irr_model->addPositionKey(joint);
+				key->frame = inputAccessor.get(i);
+				key->position = convertHandedness(outputAccessor.get(i));
+			}
+			break;
+		}
+		case tiniergltf::AnimationChannelTarget::Path::ROTATION: {
+			const auto outputAccessor = Accessor<core::quaternion>::make(m_gltf_model, sampler.output);
+			for (std::size_t i = 0; i < n_frames; ++i) {
+				auto *key = m_irr_model->addRotationKey(joint);
+				key->frame = inputAccessor.get(i);
+				key->rotation = convertHandedness(outputAccessor.get(i));
+			}
+			break;
+		}
+		case tiniergltf::AnimationChannelTarget::Path::SCALE: {
+			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
+			for (std::size_t i = 0; i < n_frames; ++i) {
+				auto *key = m_irr_model->addScaleKey(joint);
+				key->frame = inputAccessor.get(i);
+				key->scale = outputAccessor.get(i);
+			}
+			break;
+		}
+		case tiniergltf::AnimationChannelTarget::Path::WEIGHTS:
+			throw std::runtime_error("no support for morph animations");
+		}
+	}
+}
+
+void SelfType::MeshExtractor::load()
+{
+	if (m_gltf_model.extensionsRequired)
+		throw std::runtime_error("model requires extensions, but we support none");
+
+	if (!(m_gltf_model.buffers.has_value()
+			&& m_gltf_model.bufferViews.has_value()
+			&& m_gltf_model.accessors.has_value()
+			&& m_gltf_model.meshes.has_value()
+			&& m_gltf_model.nodes.has_value())) {
+		throw std::runtime_error("missing required fields");
+	}
+
+	if (m_gltf_model.images.has_value())
+		warn("embedded images are not supported");
+
+	try {
+		loadNodes();
+		for (const auto &load_mesh : m_mesh_loaders) {
+			load_mesh();
+		}
+		loadSkins();
+		// Load the first animation, if there is one.
+		if (m_gltf_model.animations.has_value()) {
+			if (m_gltf_model.animations->size() > 1)
+				warn("multiple animations are not supported");
+
+			loadAnimation(0);
+			m_irr_model->setAnimationSpeed(1);
+		}
+	} catch (const std::out_of_range &e) {
+		throw std::runtime_error(e.what());
+	} catch (const std::bad_optional_access &e) {
+		throw std::runtime_error(e.what());
+	}
+
+	m_irr_model->finalize();
 }
 
 /**
@@ -650,46 +890,51 @@ void SelfType::MeshExtractor::copyTCoords(
 		const std::size_t accessorIdx,
 		std::vector<video::S3DVertex>& vertices) const
 {
-	const auto accessor = createNormalizedValuesAccessor<2>(m_gltf_model, accessorIdx);
-	const auto count = std::visit([](auto &&a) { return a.getCount(); }, accessor);
-	for (std::size_t i = 0; i < count; ++i) {
-		const auto vals = getNormalizedValues(accessor, i);
-		vertices[i].TCoords = core::vector2df(vals[0], vals[1]);
+	const auto componentType = m_gltf_model.accessors->at(accessorIdx).componentType;
+	if (componentType == tiniergltf::Accessor::ComponentType::FLOAT) {
+		// If floats are used, they need not be normalized: Wrapping may take effect.
+		const auto accessor = Accessor<std::array<f32, 2>>::make(m_gltf_model, accessorIdx);
+		for (std::size_t i = 0; i < accessor.getCount(); ++i) {
+			vertices[i].TCoords = core::vector2d<f32>(accessor.get(i));
+		}
+	} else {
+		const auto accessor = createNormalizedValuesAccessor<2>(m_gltf_model, accessorIdx);
+		const auto count = std::visit([](auto &&a) { return a.getCount(); }, accessor);
+		for (std::size_t i = 0; i < count; ++i) {
+			vertices[i].TCoords = core::vector2d<f32>(getNormalizedValues(accessor, i));
+		}
 	}
 }
 
 /**
  * This is where the actual model's GLTF file is loaded and parsed by tiniergltf.
 */
-std::optional<tiniergltf::GlTF> SelfType::tryParseGLTF(io::IReadFile* file)
+tiniergltf::GlTF SelfType::parseGLTF(io::IReadFile* file)
 {
+	const bool isGlb = core::hasFileExtension(file->getFileName(), "glb");
 	auto size = file->getSize();
 	if (size < 0) // this can happen if `ftell` fails
-		return std::nullopt;
+		throw std::runtime_error("error reading file");
+	if (size == 0)
+		throw std::runtime_error("file is empty");
+
 	std::unique_ptr<char[]> buf(new char[size + 1]);
 	if (file->read(buf.get(), size) != static_cast<std::size_t>(size))
-		return std::nullopt;
+		throw std::runtime_error("file ended prematurely");
 	// We probably don't need this, but add it just to be sure.
 	buf[size] = '\0';
-	Json::CharReaderBuilder builder;
-	const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-	Json::Value json;
-	JSONCPP_STRING err;
-	if (!reader->parse(buf.get(), buf.get() + size, &json, &err)) {
-		return std::nullopt;
-	}
 	try {
-		return tiniergltf::GlTF(json);
-	} catch (const std::runtime_error &e) {
-		os::Printer::log("glTF loader", e.what(), ELL_ERROR);
-		return std::nullopt;
+		if (isGlb)
+			return tiniergltf::readGlb(buf.get(), size);
+		else
+			return tiniergltf::readGlTF(buf.get(), size);
 	} catch (const std::out_of_range &e) {
-		os::Printer::log("glTF loader", e.what(), ELL_ERROR);
-		return std::nullopt;
+		throw std::runtime_error(e.what());
+	} catch (const std::bad_optional_access &e) {
+		throw std::runtime_error(e.what());
 	}
 }
 
 } // namespace scene
 
 } // namespace irr
-

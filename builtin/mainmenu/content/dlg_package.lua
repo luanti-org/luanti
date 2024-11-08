@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2018-24 rubenwardy
 --
 --This program is free software; you can redistribute it and/or modify
@@ -49,10 +49,6 @@ local function get_formspec(data)
 					data.loading_error = true
 					ui.update()
 					return
-				end
-
-				if info.forums then
-					info.forums = "https://forum.minetest.net/viewtopic.php?t=" .. info.forums
 				end
 
 				assert(data.package.name == info.name)
@@ -194,7 +190,7 @@ local function get_formspec(data)
 		add_link_button(fgettext("Source"), "repo")
 		add_link_button(fgettext("Issue Tracker"), "issue_tracker")
 		add_link_button(fgettext("Translate"), "translation_url")
-		add_link_button(fgettext("Forum Topic"), "forums")
+		add_link_button(fgettext("Forum Topic"), "forum_url")
 
 		hypertext = hypertext .. "\n\n" .. info.long_description.body
 
@@ -305,12 +301,23 @@ local function handle_submit(this, fields)
 end
 
 
+local function handle_events(event)
+	if event == "WindowInfoChange" then
+		ui.update()
+		return true
+	end
+
+	return false
+end
+
+
 function create_package_dialog(package)
 	assert(package)
 
 	local dlg = dialog_create("package_dialog_" .. package.id,
 			get_formspec,
-			handle_submit)
+			handle_submit,
+			handle_events)
 	local data = dlg.data
 
 	data.package = package

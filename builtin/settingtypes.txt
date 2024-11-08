@@ -61,7 +61,7 @@
 #
 #    # This is a comment
 #    #
-#    # Requires: shaders, enable_dynamic_shadows, !touch_controls
+#    # Requires: shaders, enable_dynamic_shadows, !enable_waving_leaves
 #    name (Readable name) type type_args
 #
 # A requirement can be the name of a boolean setting or an engine-defined value.
@@ -72,6 +72,7 @@
 #     * shaders_support (a video driver that supports shaders, may not be enabled)
 #     * shaders (both enable_shaders and shaders_support)
 #     * desktop / android
+#     * touchscreen / keyboard_mouse
 #     * opengl / gles
 # * You can negate any requirement by prepending with !
 #
@@ -91,7 +92,7 @@ camera_smoothing (Camera smoothing) float 0.0 0.0 0.99
 
 #    Smooths rotation of camera when in cinematic mode, 0 to disable. Enter cinematic mode by using the key set in Controls.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 cinematic_camera_smoothing (Camera smoothing in cinematic mode) float 0.7 0.0 0.99
 
 #    If enabled, you can place nodes at the position (feet + eye level) where you stand.
@@ -112,7 +113,7 @@ always_fly_fast (Always fly fast) bool true
 #    The time in seconds it takes between repeated node placements when holding
 #    the place button.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 repeat_place_time (Place repetition interval) float 0.25 0.16 2.0
 
 #    The minimum time in seconds it takes between digging nodes when holding
@@ -131,60 +132,64 @@ safe_dig_and_place (Safe digging and placing) bool false
 
 #    Invert vertical mouse movement.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 invert_mouse (Invert mouse) bool false
 
 #    Mouse sensitivity multiplier.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
 
 #    Enable mouse wheel (scroll) for item selection in hotbar.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 enable_hotbar_mouse_wheel (Hotbar: Enable mouse wheel for selection) bool true
 
 #    Invert mouse wheel (scroll) direction for item selection in hotbar.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 
 [*Touchscreen]
 
 #    Enables the touchscreen controls, allowing you to play the game with a touchscreen.
-touch_controls (Enable touchscreen controls) bool true
+#    "auto" means that the touchscreen controls will be enabled and disabled
+#    automatically depending on the last used input method.
+#
+#    Requires: touch_support
+touch_controls (Touchscreen controls) enum auto auto,true,false
 
 #    Touchscreen sensitivity multiplier.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touchscreen_sensitivity (Touchscreen sensitivity) float 0.2 0.001 10.0
 
 #    The length in pixels after which a touch interaction is considered movement.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touchscreen_threshold (Movement threshold) int 20 0 100
 
 #    The delay in milliseconds after which a touch interaction is considered a long tap.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touch_long_tap_delay (Threshold for long taps) int 400 100 1000
 
 #    Use crosshair to select object instead of whole screen.
 #    If enabled, a crosshair will be shown and will be used for selecting object.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touch_use_crosshair (Use crosshair for touch screen) bool false
 
 #    Fixes the position of virtual joystick.
 #    If disabled, virtual joystick will center to first-touch's position.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 fixed_virtual_joystick (Fixed virtual joystick) bool false
 
 #    Use virtual joystick to trigger "Aux1" button.
 #    If enabled, virtual joystick will also tap "Aux1" button when out of main circle.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool false
 
 #    The gesture for punching players/entities.
@@ -194,10 +199,10 @@ virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool fals
 #      Easy to use and well-known from other games that shall not be named.
 #
 #    * long_tap
-#      Known from the classic Minetest mobile controls.
+#      Known from the classic Luanti mobile controls.
 #      Combat is more or less impossible.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touch_punch_gesture (Punch gesture) enum short_tap short_tap,long_tap
 
 
@@ -616,33 +621,11 @@ exposure_compensation (Exposure compensation) float 0.0 -1.0 1.0
 #    Requires: shaders, enable_post_processing
 debanding (Enable Debanding) bool true
 
-[**Bloom]
-
 #    Set to true to enable bloom effect.
 #    Bright colors will bleed over the neighboring objects.
 #
 #    Requires: shaders, enable_post_processing
 enable_bloom (Enable Bloom) bool false
-
-#    Defines how much bloom is applied to the rendered image
-#    Smaller values make bloom more subtle
-#    Range: from 0.01 to 1.0, default: 0.05
-#
-#    Requires: shaders, enable_post_processing, enable_bloom
-bloom_intensity (Bloom Intensity) float 0.05 0.01 1.0
-
-#    Defines the magnitude of bloom overexposure.
-#    Range: from 0.1 to 10.0, default: 1.0
-#
-#    Requires: shaders, enable_post_processing, enable_bloom
-bloom_strength_factor (Bloom Strength Factor) float 1.0 0.1 10.0
-
-#    Logical value that controls how far the bloom effect spreads
-#    from the bright objects.
-#    Range: from 0.1 to 8, default: 1
-#
-#    Requires: shaders, enable_post_processing, enable_bloom
-bloom_radius (Bloom Radius) float 1 0.1 8
 
 #    Set to true to enable volumetric lighting effect (a.k.a. "Godrays").
 #
@@ -747,6 +730,10 @@ show_debug (Show debug info) bool false
 #    Radius to use when the block bounds HUD feature is set to near blocks.
 show_block_bounds_radius_near (Block bounds HUD radius) int 4 0 1000
 
+#    Maximum proportion of current window to be used for hotbar.
+#    Useful if there's something to be displayed right or left of hotbar.
+hud_hotbar_max_width (Maximum hotbar width) float 1.0 0.001 1.0
+
 [**Chat]
 
 #    Maximum number of recent chat messages to show
@@ -760,10 +747,6 @@ console_color (Console color) string (0,0,0)
 
 #    In-game chat console background alpha (opaqueness, between 0 and 255).
 console_alpha (Console alpha) int 200 0 255
-
-#    Maximum proportion of current window to be used for hotbar.
-#    Useful if there's something to be displayed right or left of hotbar.
-hud_hotbar_max_width (Maximum hotbar width) float 1.0 0.001 1.0
 
 #    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
 clickable_chat_weblinks (Chat weblinks) bool true
@@ -779,9 +762,9 @@ chat_font_size (Chat font size) int 0 0 72
 [**Content Repository]
 
 #    The URL for the content repository
-contentdb_url (ContentDB URL) string https://content.minetest.net
+contentdb_url (ContentDB URL) string https://content.luanti.org
 
-#    If enabled and you have ContentDB packages installed, Minetest may contact ContentDB to
+#    If enabled and you have ContentDB packages installed, Luanti may contact ContentDB to
 #    check for package updates when opening the mainmenu.
 contentdb_enable_updates_indicator (Enable updates available indicator on content tab) bool true
 
@@ -789,8 +772,8 @@ contentdb_enable_updates_indicator (Enable updates available indicator on conten
 #    "nonfree" can be used to hide packages which do not qualify as 'free software',
 #    as defined by the Free Software Foundation.
 #    You can also specify content ratings.
-#    These flags are independent from Minetest versions,
-#    so see a full list at https://content.minetest.net/help/content_flags/
+#    These flags are independent from Luanti versions,
+#    so see a full list at https://content.luanti.org/help/content_flags/
 contentdb_flag_blacklist (ContentDB Flag Blacklist) string nonfree, desktop_default
 
 #    Maximum number of concurrent downloads. Downloads exceeding this limit will be queued.
@@ -806,13 +789,13 @@ contentdb_max_concurrent_downloads (ContentDB Max Concurrent Downloads) int 3 1
 enable_local_map_saving (Saving map received from server) bool false
 
 #    URL to the server list displayed in the Multiplayer Tab.
-serverlist_url (Serverlist URL) string servers.minetest.net
+serverlist_url (Serverlist URL) string servers.luanti.org
 
 #    If enabled, account registration is separate from login in the UI.
 #    If disabled, new accounts will be registered automatically when logging in.
 enable_split_login_register (Enable split login/register) bool true
 
-#    URL to JSON file which provides information about the newest Minetest release.
+#    URL to JSON file which provides information about the newest Luanti release.
 #    If this is empty the engine will never check for updates.
 update_information_url (Update information URL) string https://www.minetest.net/release_info.json
 
@@ -826,16 +809,16 @@ name (Admin name) string
 [**Serverlist and MOTD]
 
 #    Name of the server, to be displayed when players join and in the serverlist.
-server_name (Server name) string Minetest server
+server_name (Server name) string Luanti server
 
 #    Description of server, to be displayed when players join and in the serverlist.
 server_description (Server description) string mine here
 
 #    Domain name of server, to be displayed in the serverlist.
-server_address (Server address) string game.minetest.net
+server_address (Server address) string game.example.net
 
 #    Homepage of server, to be displayed in the serverlist.
-server_url (Server URL) string https://minetest.net
+server_url (Server URL) string https://game.example.net
 
 #    Automatically report to the serverlist.
 server_announce (Announce server) bool false
@@ -844,7 +827,7 @@ server_announce (Announce server) bool false
 server_announce_send_players (Send player names to the server list) bool true
 
 #    Announce to this serverlist.
-serverlist_url (Serverlist URL) string servers.minetest.net
+serverlist_url (Serverlist URL) string servers.luanti.org
 
 #    Message of the day displayed to players connecting.
 motd (Message of the day) string
@@ -873,7 +856,7 @@ strict_protocol_version_checking (Strict protocol checking) bool false
 #    Older clients are compatible in the sense that they will not crash when connecting
 #    to new servers, but they may not support all new features that you are expecting.
 #    This allows for more fine-grained control than strict_protocol_version_checking.
-#    Minetest still enforces its own internal minimum, and enabling
+#    Luanti still enforces its own internal minimum, and enabling
 #    strict_protocol_version_checking will effectively override this.
 protocol_version_min (Protocol version minimum) int 1 1 65535
 
@@ -903,8 +886,13 @@ default_privs (Default privileges) string interact, shout
 #    Privileges that players with basic_privs can grant
 basic_privs (Basic privileges) string interact, shout
 
-#    If enabled, disable cheat prevention in multiplayer.
-disable_anticheat (Disable anticheat) bool false
+#    Server anticheat configuration.
+#    Flags are positive. Uncheck the flag to disable corresponding anticheat module.
+anticheat_flags (Anticheat flags) flags digging,interaction,movement digging,interaction,movement
+
+#    Tolerance of movement cheat detector.
+#    Increase the value if players experience stuttery movement.
+anticheat_movement_tolerance (Anticheat movement tolerance) float 1.0 1.0
 
 #    If enabled, actions are recorded for rollback.
 #    This option is only read when server starts.
@@ -1817,7 +1805,7 @@ instrument.lbm (Loading Block Modifiers) bool true
 instrument.chatcommand (Chat commands) bool true
 
 #    Instrument global callback functions on registration.
-#    (anything you pass to a minetest.register_*() function)
+#    (anything you pass to a core.register_*() function)
 instrument.global_callback (Global callbacks) bool true
 
 #    Instrument builtin.
@@ -1885,7 +1873,7 @@ enable_mesh_cache (Mesh cache) bool false
 mesh_generation_interval (Mapblock mesh generation delay) int 0 0 50
 
 #    Number of threads to use for mesh generation.
-#    Value of 0 (default) will let Minetest autodetect the number of available threads.
+#    Value of 0 (default) will let Luanti autodetect the number of available threads.
 mesh_generation_threads (Mapblock mesh generation threads) int 0 0 8
 
 #    True = 256
@@ -2019,7 +2007,7 @@ lighting_boost_spread (Light curve boost spread) float 0.2 0.0 0.4
 [**Networking]
 
 #    Prometheus listener address.
-#    If Minetest is compiled with ENABLE_PROMETHEUS option enabled,
+#    If Luanti is compiled with ENABLE_PROMETHEUS option enabled,
 #    enable metrics listener for Prometheus on that address.
 #    Metrics can be fetched on http://127.0.0.1:30000/metrics
 prometheus_listener_address (Prometheus listener address) string 127.0.0.1:30000
@@ -2079,6 +2067,8 @@ ask_reconnect_on_crash (Ask to reconnect after crash) bool false
 #    Length of a server tick (the interval at which everything is generally updated),
 #    stated in seconds.
 #    Does not apply to sessions hosted from the client menu.
+#    This is a lower bound, i.e. server steps may not be shorter than this, but
+#    they are often longer.
 dedicated_server_step (Dedicated server step) float 0.09 0.0 1.0
 
 #    Whether players are shown to clients without any range limit.
@@ -2224,7 +2214,7 @@ curl_file_download_timeout (cURL file download timeout) int 300000 5000 21474836
 #    Adjust the detected display density, used for scaling UI elements.
 display_density_factor (Display Density Scaling Factor) float 1 0.5 5.0
 
-#    Windows systems only: Start Minetest with the command line window in the background.
+#    Windows systems only: Start Luanti with the command line window in the background.
 #    Contains the same information as the file debug.txt (default name).
 enable_console (Enable console window) bool false
 

@@ -6,7 +6,6 @@
 
 #include "IGUIElement.h"
 #include "SColor.h"
-#include "IGUISkin.h"
 
 namespace irr
 {

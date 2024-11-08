@@ -6,13 +6,11 @@
 
 #include "IReferenceCounted.h"
 #include "irrArray.h"
-#include "irrString.h"
-#include "path.h"
 #include "vector3d.h"
 #include "dimension2d.h"
 #include "SColor.h"
 #include "ESceneNodeTypes.h"
-#include "SceneParameters.h"
+#include "SceneParameters.h" // IWYU pragma: export
 #include "ISkinnedMesh.h"
 
 namespace irr

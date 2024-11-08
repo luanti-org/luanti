@@ -7,7 +7,7 @@ local simple_nodes = {
 }
 
 for k,v in pairs(simple_nodes) do
-	minetest.register_node("soundstuff:"..k, {
+	core.register_node("soundstuff:"..k, {
 		description = v[1].."\n"..v[3],
 		tiles = {"soundstuff_node_sound.png","soundstuff_node_sound.png",v[2]},
 		groups = {dig_immediate=2},
@@ -17,7 +17,7 @@ for k,v in pairs(simple_nodes) do
 	})
 end
 
-minetest.register_node("soundstuff:place_failed_attached", {
+core.register_node("soundstuff:place_failed_attached", {
 	description = "Attached Place Failed Sound Node".."\n"..
 		"Attached to the floor; plays a sound when you try to place it but failed",
 	tiles = {"soundstuff_node_sound.png", "soundstuff_node_sound.png", "soundstuff_node_place_failed.png"},
@@ -33,7 +33,7 @@ minetest.register_node("soundstuff:place_failed_attached", {
 	},
 })
 
-minetest.register_node("soundstuff:fall", {
+core.register_node("soundstuff:fall", {
 	description = "Fall Sound Node".."\n"..
 		"Falls and plays sound if node below is gone",
 	tiles = {"soundstuff_node_sound.png", "soundstuff_node_sound.png", "soundstuff_node_fall.png"},
@@ -43,7 +43,7 @@ minetest.register_node("soundstuff:fall", {
 	}
 })
 
-minetest.register_node("soundstuff:fall_attached", {
+core.register_node("soundstuff:fall_attached", {
 	description = "Attached Fall Sound Node".."\n"..
 		"Drops as item and plays sound if node below is gone",
 	tiles = {"soundstuff_node_sound.png", "soundstuff_node_sound.png", "soundstuff_node_fall.png"},
@@ -59,7 +59,7 @@ minetest.register_node("soundstuff:fall_attached", {
 	}
 })
 
-minetest.register_node("soundstuff:footstep_liquid", {
+core.register_node("soundstuff:footstep_liquid", {
 	description = "Liquid Footstep Sound Node".."\n"..
 		"Plays sound when moving inside it; swimmable",
 	drawtype = "liquid",
@@ -92,7 +92,7 @@ minetest.register_node("soundstuff:footstep_liquid", {
 	}
 })
 
-minetest.register_node("soundstuff:footstep_climbable", {
+core.register_node("soundstuff:footstep_climbable", {
 	description = "Climbable Footstep Sound Node".."\n"..
 		"Plays sound when moving inside it; can climb up and down here",
 	drawtype = "allfaces",
@@ -112,17 +112,17 @@ minetest.register_node("soundstuff:footstep_climbable", {
 
 
 
-minetest.register_craftitem("soundstuff:eat", {
+core.register_craftitem("soundstuff:eat", {
 	description = "Eat Sound Item".."\n"..
 		"Makes a sound when 'eaten' (with punch key)",
 	inventory_image = "soundstuff_eat.png",
-	on_use = minetest.item_eat(0),
+	on_use = core.item_eat(0),
 	sound = {
 		eat = { name = "soundstuff_mono", gain = 1.0 },
 	}
 })
 
-minetest.register_tool("soundstuff:breaks", {
+core.register_tool("soundstuff:breaks", {
 	description = "Break Sound Tool".."\n"..
 		"Digs cracky=3 and more".."\n"..
 		"Makes a sound when it breaks",
@@ -142,7 +142,7 @@ minetest.register_tool("soundstuff:breaks", {
 })
 
 
-minetest.register_tool("soundstuff:punch_use", {
+core.register_tool("soundstuff:punch_use", {
 	description = "Punch Use Sound Tool\n"..
 		"Digs cracky=3 and more\n"..
 		"Makes a sound when used on node or entity",
@@ -161,7 +161,7 @@ minetest.register_tool("soundstuff:punch_use", {
 	},
 })
 
-minetest.register_tool("soundstuff:punch_use_air", {
+core.register_tool("soundstuff:punch_use_air", {
 	description = "Punch Use (Air) Sound Tool\n"..
 		"Makes a sound when used pointing at nothing",
 	inventory_image = "soundstuff_node_dig.png",
@@ -171,26 +171,26 @@ minetest.register_tool("soundstuff:punch_use_air", {
 })
 
 -- Plays sound repeatedly
-minetest.register_node("soundstuff:positional", {
+core.register_node("soundstuff:positional", {
 	description = "Positional Sound Node".."\n"..
 		"Repeatedly plays a sound at the node location",
 	on_construct = function(pos)
-		local timer = minetest.get_node_timer(pos)
+		local timer = core.get_node_timer(pos)
 		timer:start(0)
 	end,
 	on_timer = function(pos, elapsed)
-		local node = minetest.get_node(pos)
+		local node = core.get_node(pos)
 		local dist = node.param2
 		if dist == 0 then
 			dist = nil
 		end
-		minetest.sound_play("soundstuff_mono", { pos = pos, max_hear_distance = dist })
-		local timer = minetest.get_node_timer(pos)
+		core.sound_play("soundstuff_mono", { pos = pos, max_hear_distance = dist })
+		local timer = core.get_node_timer(pos)
 		timer:start(0.7)
 	end,
 	on_rightclick = function(pos, node, clicker)
 		node.param2 = (node.param2 + 1) % 64
-		minetest.set_node(pos, node)
+		core.set_node(pos, node)
 		if clicker and clicker:is_player() then
 			local dist = node.param2
 			local diststr
@@ -199,7 +199,7 @@ minetest.register_node("soundstuff:positional", {
 			else
 				diststr = tostring(dist)
 			end
-			minetest.chat_send_player(clicker:get_player_name(), "max_hear_distance = " .. diststr)
+			core.chat_send_player(clicker:get_player_name(), "max_hear_distance = " .. diststr)
 		end
 	end,
 

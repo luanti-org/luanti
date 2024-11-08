@@ -1,10 +1,10 @@
 # Miscellaneous
 
-## Profiling Minetest on Linux with perf
+## Profiling Luanti on Linux with perf
 
 We will be using a tool called "perf", which you can get by installing `perf` or `linux-perf` or `linux-tools-common`.
 
-To get usable results you need to build Minetest with debug symbols
+To get usable results you need to build Luanti with debug symbols
 (`-DCMAKE_BUILD_TYPE=RelWithDebInfo` or `-DCMAKE_BUILD_TYPE=Debug`).
 
 Run the client (or server) like this and do whatever you wanted to test:
@@ -48,20 +48,20 @@ It allows one to annotate important functions and generate traces, where one can
 see when each individual function call happened, and how long it took.
 
 Tracy can also record when frames, e.g. server step, start and end, and inspect
-frames that took longer than usual. Minetest already contains annotations for
+frames that took longer than usual. Luanti already contains annotations for
 its frames.
 
 See also [Tracy's official documentation](https://github.com/wolfpld/tracy/releases/latest/download/tracy.pdf).
 
 ### Installing
 
-Tracy consists of a client (Minetest) and a server (the gui).
+Tracy consists of a client (Luanti) and a server (the gui).
 
 Install the server, e.g. using your package manager.
 
 ### Building
 
-Build Minetest with `-DDBUILD_WITH_TRACY=1`, this will fetch Tracy for building
+Build Luanti with `-DDBUILD_WITH_TRACY=1`, this will fetch Tracy for building
 the Tracy client. And use `FETCH_TRACY_GIT_TAG` to get a version matching your
 Tracy server, e.g. `-DFETCH_TRACY_GIT_TAG=v0.11.0` if it's `0.11.0`.
 
@@ -74,7 +74,7 @@ See Tracy's documentation for more build options.
 
 ### Using in C++
 
-Start the Tracy server and Minetest. You should see Minetest in the menu.
+Start the Tracy server and Luanti. You should see Luanti in the menu.
 
 To actually get useful traces, you have to annotate functions with `ZoneScoped`
 macros and recompile. Please refer to Tracy's official documentation.
@@ -82,7 +82,7 @@ macros and recompile. Please refer to Tracy's official documentation.
 ### Using in Lua
 
 Tracy also supports Lua.
-If built with Tracy, Minetest loads its API in the global `tracy` table.
+If built with Tracy, Luanti loads its API in the global `tracy` table.
 See Tracy's official documentation for more information.
 
 Note: The whole Tracy Lua API is accessible to all mods. And we don't check if it

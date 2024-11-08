@@ -20,7 +20,7 @@ local function compare_lists(a, b)
 end
 
 local function test_inventory()
-	local inv = minetest.create_detached_inventory("test")
+	local inv = core.create_detached_inventory("test")
 
 	inv:set_lists({test = {""}})
 	assert(inv:get_list("test"))
@@ -66,8 +66,8 @@ local function test_inventory()
 	assert(compare_lists(before, after))
 
 	local location = inv:get_location()
-	assert(minetest.remove_detached_inventory("test"))
-	assert(not minetest.get_inventory(location))
+	assert(core.remove_detached_inventory("test"))
+	assert(not core.get_inventory(location))
 end
 
 unittests.register("test_inventory", test_inventory)

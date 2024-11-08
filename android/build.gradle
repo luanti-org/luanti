@@ -9,7 +9,7 @@ project.ext.set("versionBuild", 0)      // Version Build
 // ^ fourth version number to allow releasing Android-only fixes and beta versions
 
 buildscript {
-	ext.ndk_version = '26.2.11394342'
+	ext.ndk_version = '27.2.12479018'
 	repositories {
 		google()
 		mavenCentral()

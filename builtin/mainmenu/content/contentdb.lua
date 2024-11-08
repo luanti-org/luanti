@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2018-24 rubenwardy
 --
 --This program is free software; you can redistribute it and/or modify
@@ -563,30 +563,32 @@ function contentdb.filter_packages(query, by_type)
 	end
 
 	local keywords = {}
-	for word in query:lower():gmatch("%S+") do
-		table.insert(keywords, word)
+	for word in query:gmatch("%S+") do
+		table.insert(keywords, word:lower())
+	end
+
+	local function contains_all_keywords(str)
+		str = str:lower()
+		for _, keyword in ipairs(keywords) do
+			if not str:find(keyword, 1, true) then
+				return false
+			end
+		end
+		return true
 	end
 
 	local function matches_keywords(package)
-		for k = 1, #keywords do
-			local keyword = keywords[k]
-
-			if string.find(package.name:lower(), keyword, 1, true) or
-					string.find(package.title:lower(), keyword, 1, true) or
-					string.find(package.author:lower(), keyword, 1, true) or
-					string.find(package.short_description:lower(), keyword, 1, true) then
-				return true
-			end
-		end
-
-		return false
+		return contains_all_keywords(package.name) or
+				contains_all_keywords(package.title) or
+				contains_all_keywords(package.author) or
+				contains_all_keywords(package.short_description)
 	end
 
 	contentdb.packages = {}
 	for _, package in pairs(contentdb.packages_full) do
 		if (query == "" or matches_keywords(package)) and
 				(by_type == nil or package.type == by_type) then
-			contentdb.packages[#contentdb.packages + 1] = package
+			table.insert(contentdb.packages, package)
 		end
 	end
 end

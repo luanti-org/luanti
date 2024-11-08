@@ -1,4 +1,4 @@
-# Compiling Minetest
+# Compiling Luanti
 
 - [Compiling on GNU/Linux](linux.md)
 - [Compiling on Windows](windows.md)
@@ -9,8 +9,8 @@
 
 General options and their default values:
 
-    BUILD_CLIENT=TRUE          - Build Minetest client
-    BUILD_SERVER=FALSE         - Build Minetest server
+    BUILD_CLIENT=TRUE          - Build Luanti client
+    BUILD_SERVER=FALSE         - Build Luanti server
     BUILD_UNITTESTS=TRUE       - Build unittest sources
     BUILD_BENCHMARKS=FALSE     - Build benchmark sources
     BUILD_DOCUMENTATION=TRUE   - Build doxygen documentation
@@ -38,11 +38,11 @@ General options and their default values:
     ENABLE_SYSTEM_JSONCPP=ON   - Use JsonCPP from system
     RUN_IN_PLACE=FALSE         - Create a portable install (worlds, settings etc. in current directory)
     ENABLE_UPDATE_CHECKER=TRUE - Whether to enable update checks by default
-    INSTALL_DEVTEST=FALSE      - Whether the Development Test game should be installed alongside Minetest
+    INSTALL_DEVTEST=FALSE      - Whether the Development Test game should be installed alongside Luanti
     USE_GPROF=FALSE            - Enable profiling using GProf
     BUILD_WITH_TRACY=FALSE     - Fetch and build with the Tracy profiler client
     FETCH_TRACY_GIT_TAG=master - Git tag for fetching Tracy client. Match with your server (gui) version
-    VERSION_EXTRA=             - Text to append to version (e.g. VERSION_EXTRA=foobar -> Minetest 0.4.9-foobar)
+    VERSION_EXTRA=             - Text to append to version (e.g. VERSION_EXTRA=foobar -> Luanti 5.10.0-foobar)
 
 Library specific options:
 

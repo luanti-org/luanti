@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -91,11 +76,9 @@ struct PlayerControl
 	// joystick input.
 	void setMovementFromKeys();
 
-#ifndef SERVER
 	// For client use
 	u32 getKeysPressed() const;
 	inline bool isMoving() const { return movement_speed > 0.001f; }
-#endif
 
 	// For server use
 	void unpackKeysPressed(u32 keypress_bits);
@@ -203,7 +186,7 @@ public:
 	f32 movement_liquid_sink;
 	f32 movement_gravity;
 
-	v2s32 local_animations[4];
+	v2f local_animations[4];
 	float local_animation_speed;
 
 	std::string inventory_formspec;

@@ -1,5 +1,3 @@
--- Minetest: builtin/item_entity.lua
-
 function core.spawn_item(pos, item)
 	-- Take item in any format
 	local stack = ItemStack(item)

@@ -286,10 +286,10 @@ void CIrrDeviceLinux::setupTopLevelXorgWindow()
 	os::Printer::log("Configuring X11-specific top level window properties", ELL_DEBUG);
 
 	// Set application name and class hints. For now name and class are the same.
-	// Note: SDL uses the executable name here (i.e. "minetest").
+	// Note: SDL uses the executable name here (i.e. "luanti").
 	XClassHint *classhint = XAllocClassHint();
-	classhint->res_name = const_cast<char *>("Minetest");
-	classhint->res_class = const_cast<char *>("Minetest");
+	classhint->res_name = const_cast<char *>("Luanti");
+	classhint->res_class = const_cast<char *>("Luanti");
 
 	XSetClassHint(XDisplay, XWindow, classhint);
 	XFree(classhint);
@@ -1205,6 +1205,17 @@ bool CIrrDeviceLinux::isWindowMaximized() const
 	return WindowMaximized;
 }
 
+//! Checks if the Irrlicht device supports touch events.
+bool CIrrDeviceLinux::supportsTouchEvents() const
+{
+#if defined(_IRR_LINUX_X11_XINPUT2_)
+	return true;
+#else
+	return false;
+#endif
+}
+
+
 //! returns color format of the window.
 video::ECOLOR_FORMAT CIrrDeviceLinux::getColorFormat() const
 {
@@ -1570,7 +1581,6 @@ bool CIrrDeviceLinux::activateJoysticks(core::array<SJoystickInfo> &joystickInfo
 		fcntl(info.fd, F_SETFL, O_NONBLOCK);
 #endif
 
-		(void)memset(&info.persistentData, 0, sizeof(info.persistentData));
 		info.persistentData.EventType = irr::EET_JOYSTICK_INPUT_EVENT;
 		info.persistentData.JoystickEvent.Joystick = ActiveJoysticks.size();
 

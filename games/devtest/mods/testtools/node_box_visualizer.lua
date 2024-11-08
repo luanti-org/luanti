@@ -1,6 +1,6 @@
-local S = minetest.get_translator("testtools")
+local S = core.get_translator("testtools")
 
-minetest.register_entity("testtools:visual_box", {
+core.register_entity("testtools:visual_box", {
 	initial_properties = {
 		visual = "cube",
 		textures = {
@@ -14,11 +14,11 @@ minetest.register_entity("testtools:visual_box", {
 	},
 
 	on_activate = function(self)
-		self.timestamp = minetest.get_us_time() + 5000000
+		self.timestamp = core.get_us_time() + 5000000
 	end,
 
 	on_step = function(self)
-		if minetest.get_us_time() >= self.timestamp then
+		if core.get_us_time() >= self.timestamp then
 			self.object:remove()
 		end
 	end,
@@ -35,14 +35,14 @@ local function visualizer_on_use(itemstack, user, pointed_thing)
 	local meta = itemstack:get_meta()
 	local box_type = meta:get("box_type") or DEFAULT_BOX_TYPE
 
-	local result = minetest.get_node_boxes(box_type, pointed_thing.under)
+	local result = core.get_node_boxes(box_type, pointed_thing.under)
 	local t = "testtools_visual_" .. box_type .. ".png"
 
 	for _, box in ipairs(result) do
 		local box_min = pointed_thing.under + vector.new(box[1], box[2], box[3])
 		local box_max = pointed_thing.under + vector.new(box[4], box[5], box[6])
 		local box_center = (box_min + box_max) / 2
-		local obj = minetest.add_entity(box_center, "testtools:visual_box")
+		local obj = core.add_entity(box_center, "testtools:visual_box")
 		if not obj then
 			break
 		end
@@ -62,12 +62,12 @@ local function visualizer_on_place(itemstack, placer, pointed_thing)
 
 	local new_value = BOX_TYPES[(prev_index % #BOX_TYPES) + 1]
 	meta:set_string("box_type", new_value)
-	minetest.chat_send_player(placer:get_player_name(), S("[Node Box Visualizer] box_type = @1", new_value))
+	core.chat_send_player(placer:get_player_name(), S("[Node Box Visualizer] box_type = @1", new_value))
 
 	return itemstack
 end
 
-minetest.register_tool("testtools:node_box_visualizer", {
+core.register_tool("testtools:node_box_visualizer", {
 	description = S("Node Box Visualizer") .. "\n" ..
 		S("Punch: Show node/collision/selection boxes of the pointed node") .. "\n" ..
 		S("Place: Change selected box type (default: selection box)"),

@@ -1,4 +1,4 @@
-local S = minetest.get_translator("testitems")
+local S = core.get_translator("testitems")
 
 --
 -- Texture overlays for items
@@ -13,7 +13,7 @@ local overlay_on_use = function(itemstack, user, pointed_thing)
 	local color = math.random(0x0, 0xFFFFFF)
 	local colorstr = string.format("#%06x", color)
 	meta:set_string("color", colorstr)
-	minetest.log("action", "[testitems] Color of "..itemstack:get_name().." changed to "..colorstr)
+	core.log("action", "[testitems] Color of "..itemstack:get_name().." changed to "..colorstr)
 	return itemstack
 end
 -- Place handler to clear item metadata color
@@ -23,7 +23,7 @@ local overlay_on_place = function(itemstack, user, pointed_thing)
 	return itemstack
 end
 
-minetest.register_craftitem("testitems:overlay_meta", {
+core.register_craftitem("testitems:overlay_meta", {
 	description = S("Texture Overlay Test Item, Meta Color") .. "\n" ..
 		S("Image must be a square with rainbow cross (inventory and wield)") .. "\n" ..
 		S("Item meta color must only change square color") .. "\n" ..
@@ -41,7 +41,7 @@ minetest.register_craftitem("testitems:overlay_meta", {
 	on_secondary_use = overlay_on_place,
 })
 
-minetest.register_craftitem("testitems:overlay_global", {
+core.register_craftitem("testitems:overlay_global", {
 	description = S("Texture Overlay Test Item, Global Color") .. "\n" ..
 		S("Image must be an orange square with rainbow cross (inventory and wield)"),
 	-- Base texture: A grayscale square (to be colorized)
@@ -53,7 +53,7 @@ minetest.register_craftitem("testitems:overlay_global", {
 	color = GLOBAL_COLOR_ARG,
 })
 
-minetest.register_craftitem("testitems:image_meta", {
+core.register_craftitem("testitems:image_meta", {
 	description = S("Image Override Meta Test Item"),
 	inventory_image = "default_apple.png",
 	wield_image = "basetools_icesword.png",
@@ -63,7 +63,7 @@ minetest.register_craftitem("testitems:image_meta", {
 		local state = meta:get_int("state")
 		state = (state + 1) % 5
 		meta:set_int("state", state)
-		minetest.chat_send_player(player:get_player_name(), "State " .. state)
+		core.chat_send_player(player:get_player_name(), "State " .. state)
 
 		if state == 0 then
 			meta:set_string("inventory_image", "")
@@ -91,7 +91,7 @@ minetest.register_craftitem("testitems:image_meta", {
 	end,
 })
 
-minetest.register_craftitem("testitems:telescope_stick", {
+core.register_craftitem("testitems:telescope_stick", {
 	description = S("Telescope Stick (Increases range on use.)"),
 	inventory_image = "testitems_telescope_stick.png",
 	on_use = function(itemstack, player)
@@ -101,7 +101,7 @@ minetest.register_craftitem("testitems:telescope_stick", {
 			range = 0
 		end
 		meta:set_float("range", range)
-		minetest.chat_send_player(player:get_player_name(), "Telescope Stick range set to "..range)
+		core.chat_send_player(player:get_player_name(), "Telescope Stick range set to "..range)
 		return itemstack
 	end,
 })

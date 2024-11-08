@@ -20,7 +20,7 @@ for g=1, #groups do
 				elseif l==2 then
 					tile = tile .. "^[colorize:#FF0000:127"
 				end
-				minetest.register_node("dignodes:"..gr.."_"..r.."_"..l, {
+				core.register_node("dignodes:"..gr.."_"..r.."_"..l, {
 					description = d,
 					tiles = { tile },
 					groups = { [gr] = r, level = l },
@@ -31,7 +31,7 @@ for g=1, #groups do
 end
 
 -- Node without any digging groups
-minetest.register_node("dignodes:none", {
+core.register_node("dignodes:none", {
 	description = "Dig Test Node: groupless".."\n"..
 		"Can't be dug by normal digging tools".."\n"..
 		"(use the Remover tool to remove)",

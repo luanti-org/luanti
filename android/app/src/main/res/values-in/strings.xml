@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_web_browser">Tidak ditemukan peramban web</string>
+    <string name="ime_dialog_done">Selesai</string>
+    <string name="label">Luanti</string>
+    <string name="loading">Memuat…</string>
+    <string name="notification_channel_name">Pemberitahuan umum</string>
+    <string name="unzip_notification_description">Kurang dari 1 menit…</string>
+    <string name="notification_channel_description">Pemberitahuan dari Luanti</string>
+    <string name="unzip_notification_title">Memuat Luanti…</string>
+</resources>

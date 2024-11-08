@@ -1,5 +1,3 @@
--- Minetest: builtin/game/chat.lua
-
 local S = core.get_translator("__builtin")
 
 -- Helper function that implements search and replace without pattern matching

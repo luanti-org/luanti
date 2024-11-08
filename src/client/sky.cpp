@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2020 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2020 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
 #include <cmath>
 #include "sky.h"
@@ -31,6 +16,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "profiler.h"
 #include "util/numeric.h"
 #include "client/renderingengine.h"
+#include "client/texturesource.h"
 #include "settings.h"
 #include "camera.h" // CameraModes
 
@@ -838,14 +824,10 @@ void Sky::updateStars()
 		);
 		core::CMatrix4<f32> a;
 		a.buildRotateFromTo(v3f(0, 1, 0), r);
-		v3f p = v3f(-d, 1, -d);
-		v3f p1 = v3f(d, 1, -d);
-		v3f p2 = v3f(d, 1, d);
-		v3f p3 = v3f(-d, 1, d);
-		a.rotateVect(p);
-		a.rotateVect(p1);
-		a.rotateVect(p2);
-		a.rotateVect(p3);
+		v3f p = a.rotateAndScaleVect(v3f(-d, 1, -d));
+		v3f p1 = a.rotateAndScaleVect(v3f(d, 1, -d));
+		v3f p2 = a.rotateAndScaleVect(v3f(d, 1, d));
+		v3f p3 = a.rotateAndScaleVect(v3f(-d, 1, d));
 		vertices.push_back(video::S3DVertex(p, {}, {}, {}));
 		vertices.push_back(video::S3DVertex(p1, {}, {}, {}));
 		vertices.push_back(video::S3DVertex(p2, {}, {}, {}));

@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -23,9 +8,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "joystick_controller.h"
 #include <list>
 #include "keycode.h"
-#include "renderingengine.h"
 
 class InputHandler;
+
+enum class PointerType {
+	Mouse,
+	Touch,
+};
 
 /****************************************************************************
  Fast key cache for main game loop
@@ -199,6 +188,8 @@ public:
 
 	JoystickController *joystick = nullptr;
 
+	PointerType getLastPointerType() { return last_pointer_type; }
+
 private:
 	s32 mouse_wheel = 0;
 
@@ -223,6 +214,8 @@ private:
 
 	// Intentionally not reset by clearInput/releaseAllKeys.
 	bool fullscreen_is_down = false;
+
+	PointerType last_pointer_type = PointerType::Mouse;
 };
 
 class InputHandler
@@ -331,25 +324,8 @@ public:
 		m_receiver->dontListenForKeys();
 	}
 
-	virtual v2s32 getMousePos()
-	{
-		auto control = RenderingEngine::get_raw_device()->getCursorControl();
-		if (control) {
-			return control->getPosition();
-		}
-
-		return m_mousepos;
-	}
-
-	virtual void setMousePos(s32 x, s32 y)
-	{
-		auto control = RenderingEngine::get_raw_device()->getCursorControl();
-		if (control) {
-			control->setPosition(x, y);
-		} else {
-			m_mousepos = v2s32(x, y);
-		}
-	}
+	virtual v2s32 getMousePos();
+	virtual void setMousePos(s32 x, s32 y);
 
 	virtual s32 getMouseWheel()
 	{

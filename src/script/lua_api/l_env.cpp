@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include <algorithm>
 #include "lua_api/l_env.h"
@@ -43,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "server/player_sao.h"
 #include "util/string.h"
 #include "translation.h"
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 #include "client/client.h"
 #endif
 
@@ -71,7 +56,7 @@ int LuaRaycast::l_next(lua_State *L)
 	ServerEnvironment *senv = dynamic_cast<ServerEnvironment*>(env);
 
 	bool csm = false;
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 	csm = getClient(L) != nullptr;
 #endif
 
@@ -847,7 +832,7 @@ int ModApiEnv::l_find_node_near(lua_State *L)
 
 	int start_radius = (lua_isboolean(L, 4) && readParam<bool>(L, 4)) ? 0 : 1;
 
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 	// Client API limitations
 	if (Client *client = getClient(L))
 		radius = client->CSMClampRadius(pos, radius);
@@ -959,7 +944,7 @@ int ModApiEnv::l_find_nodes_in_area(lua_State *L)
 	const NodeDefManager *ndef = env->getGameDef()->ndef();
 	Map &map = env->getMap();
 
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 	if (Client *client = getClient(L)) {
 		minp = client->CSMClampPos(minp);
 		maxp = client->CSMClampPos(maxp);
@@ -1021,7 +1006,7 @@ int ModApiEnv::l_find_nodes_in_area_under_air(lua_State *L)
 	const NodeDefManager *ndef = env->getGameDef()->ndef();
 	Map &map = env->getMap();
 
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 	if (Client *client = getClient(L)) {
 		minp = client->CSMClampPos(minp);
 		maxp = client->CSMClampPos(maxp);

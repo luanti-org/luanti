@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "filesys.h"
 #include "util/string.h"
@@ -26,20 +11,35 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <cerrno>
 #include <fstream>
 #include <atomic>
+#include <memory>
 #include "log.h"
 #include "config.h"
 #include "porting.h"
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 #include "irr_ptr.h"
 #include <IFileArchive.h>
 #include <IFileSystem.h>
 #endif
+
 #ifdef __linux__
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #ifndef FICLONE
 #define FICLONE _IOW(0x94, 9, int)
 #endif
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+#include <shlwapi.h>
+#include <io.h>
+#include <direct.h>
+#else
+#include <sys/types.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 // Error from last OS call as string
@@ -57,11 +57,6 @@ namespace fs
 /***********
  * Windows *
  ***********/
-
-#include <windows.h>
-#include <shlwapi.h>
-#include <io.h>
-#include <direct.h>
 
 std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 {
@@ -272,12 +267,6 @@ bool CopyFileContents(const std::string &source, const std::string &target)
  * POSIX *
  *********/
 
-#include <sys/types.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
 std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 {
 	std::vector<DirListNode> listing;
@@ -380,41 +369,41 @@ bool RecursiveDelete(const std::string &path)
 		Execute the 'rm' command directly, by fork() and execve()
 	*/
 
-	infostream<<"Removing \""<<path<<"\""<<std::endl;
+	infostream << "Removing \"" << path << "\"" << std::endl;
 
-	pid_t child_pid = fork();
+	assert(IsPathAbsolute(path));
 
-	if(child_pid == 0)
-	{
+	const pid_t child_pid = fork();
+
+	if (child_pid == -1) {
+		errorstream << "fork errno: " << errno << ": " << strerror(errno)
+			<< std::endl;
+		return false;
+	}
+
+	if (child_pid == 0) {
 		// Child
-		const char *argv[4] = {
-#ifdef __ANDROID__
-			"/system/bin/rm",
-#else
-			"/bin/rm",
-#endif
+		std::array<const char*, 4> argv = {
+			"rm",
 			"-rf",
 			path.c_str(),
-			NULL
+			nullptr
 		};
 
-		verbosestream<<"Executing '"<<argv[0]<<"' '"<<argv[1]<<"' '"
-				<<argv[2]<<"'"<<std::endl;
+		execvp(argv[0], const_cast<char**>(argv.data()));
 
-		execv(argv[0], const_cast<char**>(argv));
-
-		// Execv shouldn't return. Failed.
+		// note: use cerr because our logging won't flush in forked process
+		std::cerr << "exec errno: " << errno << ": " << strerror(errno)
+			<< std::endl;
 		_exit(1);
-	}
-	else
-	{
+	} else {
 		// Parent
-		int child_status;
+		int status;
 		pid_t tpid;
-		do{
-			tpid = wait(&child_status);
-		}while(tpid != child_pid);
-		return (child_status == 0);
+		do
+			tpid = waitpid(child_pid, &status, 0);
+		while (tpid != child_pid);
+		return WIFEXITED(status) && WEXITSTATUS(status) == 0;
 	}
 }
 
@@ -941,7 +930,7 @@ bool safeWriteToFile(const std::string &path, std::string_view content)
 	return true;
 }
 
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 bool extractZipFile(io::IFileSystem *fs, const char *filename, const std::string &destination)
 {
 	// Be careful here not to touch the global file hierarchy in Irrlicht

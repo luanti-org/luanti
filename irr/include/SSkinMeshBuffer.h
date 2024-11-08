@@ -8,7 +8,6 @@
 #include "CVertexBuffer.h"
 #include "CIndexBuffer.h"
 #include "S3DVertex.h"
-#include "irrArray.h"
 
 namespace irr
 {

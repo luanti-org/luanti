@@ -1,8 +1,8 @@
 -- Node texture tests
 
-local S = minetest.get_translator("testnodes")
+local S = core.get_translator("testnodes")
 
-minetest.register_node("testnodes:6sides", {
+core.register_node("testnodes:6sides", {
 	description = S("Six Textures Test Node").."\n"..
 		S("Has 1 texture per face"),
 	tiles = {
@@ -17,7 +17,7 @@ minetest.register_node("testnodes:6sides", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:anim", {
+core.register_node("testnodes:anim", {
 	description = S("Animated Test Node").."\n"..
 		S("Tiles animate from A to D in 4s cycle"),
 	tiles = {
@@ -33,7 +33,7 @@ minetest.register_node("testnodes:anim", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:fill_positioning", {
+core.register_node("testnodes:fill_positioning", {
 	description = S("Fill Modifier Test Node") .. "\n" ..
 		S("The node should have the same look as " ..
 		"testnodes:fill_positioning_reference."),
@@ -44,7 +44,7 @@ minetest.register_node("testnodes:fill_positioning", {
 	groups = {dig_immediate = 3},
 })
 
-minetest.register_node("testnodes:fill_positioning_reference", {
+core.register_node("testnodes:fill_positioning_reference", {
 	description = S("Fill Modifier Test Node Reference"),
 	drawtype = "glasslike",
 	paramtype = "light",
@@ -52,7 +52,7 @@ minetest.register_node("testnodes:fill_positioning_reference", {
 	groups = {dig_immediate = 3},
 })
 
-minetest.register_node("testnodes:modifier_mask", {
+core.register_node("testnodes:modifier_mask", {
 	description = S("[mask Modifier Test Node"),
 	tiles = {"testnodes_128x128_rgb.png^[mask:testnodes_mask_WRGBKW.png"},
 	groups = {dig_immediate = 3},
@@ -66,7 +66,7 @@ for a=1,#alphas do
 	local alpha = alphas[a]
 
 	-- Transparency taken from texture
-	minetest.register_node("testnodes:alpha_texture_"..alpha, {
+	core.register_node("testnodes:alpha_texture_"..alpha, {
 		description = S("Texture Alpha Test Node (@1)", alpha).."\n"..
 			S("Semi-transparent"),
 		drawtype = "glasslike",
@@ -80,7 +80,7 @@ for a=1,#alphas do
 	})
 
 	-- Transparency set via texture modifier
-	minetest.register_node("testnodes:alpha_"..alpha, {
+	core.register_node("testnodes:alpha_"..alpha, {
 		description = S("Alpha Test Node (@1)", alpha).."\n"..
 			S("Semi-transparent"),
 		drawtype = "glasslike",
@@ -94,7 +94,7 @@ for a=1,#alphas do
 	})
 end
 
-minetest.register_node("testnodes:alpha_compositing", {
+core.register_node("testnodes:alpha_compositing", {
 	description = S("Texture Overlay Test Node") .. "\n" ..
 		S("A regular grid should be visible where each cell contains two " ..
 		"texels with the same color.") .. "\n" ..
@@ -204,23 +204,23 @@ core.dynamic_add_media({
 	filedata = png_ck,
 })
 
-minetest.register_node("testnodes:generated_png_mb", {
+core.register_node("testnodes:generated_png_mb", {
 	description = S("Generated Mandelbrot PNG Test Node"),
 	tiles = { "testnodes_generated_mb.png" },
 
 	groups = { dig_immediate = 2 },
 })
-minetest.register_node("testnodes:generated_png_ck", {
+core.register_node("testnodes:generated_png_ck", {
 	description = S("Generated Checker PNG Test Node"),
 	tiles = { "testnodes_generated_ck.png" },
 
 	groups = { dig_immediate = 2 },
 })
 
-local png_emb = "[png:" .. minetest.encode_base64(
+local png_emb = "[png:" .. core.encode_base64(
 	encode_and_check(64, 64, "rgba", data_emb))
 
-minetest.register_node("testnodes:generated_png_emb", {
+core.register_node("testnodes:generated_png_emb", {
 	description = S("Generated In-Band Mandelbrot PNG Test Node"),
 	tiles = { png_emb },
 
@@ -229,7 +229,7 @@ minetest.register_node("testnodes:generated_png_emb", {
 	paramtype = "light",
 	groups = { dig_immediate = 2 },
 })
-minetest.register_node("testnodes:generated_png_src_emb", {
+core.register_node("testnodes:generated_png_src_emb", {
 	description = S("Generated In-Band Source Blit Mandelbrot PNG Test Node"),
 	tiles = { png_emb .. "^testnodes_damage_neg.png" },
 
@@ -238,7 +238,7 @@ minetest.register_node("testnodes:generated_png_src_emb", {
 	paramtype = "light",
 	groups = { dig_immediate = 2 },
 })
-minetest.register_node("testnodes:generated_png_dst_emb", {
+core.register_node("testnodes:generated_png_dst_emb", {
 	description = S("Generated In-Band Dest Blit Mandelbrot PNG Test Node"),
 	tiles = { "testnodes_generated_ck.png^" .. png_emb },
 
@@ -255,22 +255,22 @@ data_ck = nil
 
 The following nodes can be used to demonstrate the TGA format support.
 
-Minetest supports TGA types 1, 2, 3 & 10. While adding the support for
+Luanti supports TGA types 1, 2, 3 & 10. While adding the support for
 TGA type 9 (RLE-compressed, color-mapped) is easy, it is not advisable
-to do so, as it is not backwards compatible with any Minetest pre-5.5;
+to do so, as it is not backwards compatible with any engine version pre-5.5;
 content creators should therefore either use TGA type 1 or 10, or PNG.
 
 TODO: Types 1, 2 & 10 should have two test nodes each (i.e. bottom-top
 and top-bottom) for 16bpp (A1R5G5B5), 24bpp (B8G8R8), 32bpp (B8G8R8A8)
 colors.
 
-Note: Minetest requires the optional TGA footer for a texture to load.
-If a TGA image does not load in Minetest, append eight (8) null bytes,
+Note: Luanti requires the optional TGA footer for a texture to load.
+If a TGA image does not load in Luanti, append eight (8) null bytes,
 then the string “TRUEVISION-XFILE.”, then another null byte.
 
 ]]--
 
-minetest.register_node("testnodes:tga_type1_24bpp_bt", {
+core.register_node("testnodes:tga_type1_24bpp_bt", {
 	description = S("TGA Type 1 (color-mapped RGB) 24bpp bottom-top Test Node"),
 	drawtype = "glasslike",
 	paramtype = "light",
@@ -279,7 +279,7 @@ minetest.register_node("testnodes:tga_type1_24bpp_bt", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:tga_type1_24bpp_tb", {
+core.register_node("testnodes:tga_type1_24bpp_tb", {
 	description = S("TGA Type 1 (color-mapped RGB) 24bpp top-bottom Test Node"),
 	drawtype = "glasslike",
 	paramtype = "light",
@@ -288,7 +288,7 @@ minetest.register_node("testnodes:tga_type1_24bpp_tb", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:tga_type2_16bpp_bt", {
+core.register_node("testnodes:tga_type2_16bpp_bt", {
 	description = S("TGA Type 2 (uncompressed RGB) 16bpp bottom-top Test Node"),
 	drawtype = "glasslike",
 	paramtype = "light",
@@ -298,7 +298,7 @@ minetest.register_node("testnodes:tga_type2_16bpp_bt", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:tga_type2_16bpp_tb", {
+core.register_node("testnodes:tga_type2_16bpp_tb", {
 	description = S("TGA Type 2 (uncompressed RGB) 16bpp top-bottom Test Node"),
 	drawtype = "glasslike",
 	paramtype = "light",
@@ -308,7 +308,7 @@ minetest.register_node("testnodes:tga_type2_16bpp_tb", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:tga_type2_32bpp_bt", {
+core.register_node("testnodes:tga_type2_32bpp_bt", {
 	description = S("TGA Type 2 (uncompressed RGB) 32bpp bottom-top Test Node"),
 	drawtype = "glasslike",
 	paramtype = "light",
@@ -318,7 +318,7 @@ minetest.register_node("testnodes:tga_type2_32bpp_bt", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:tga_type2_32bpp_tb", {
+core.register_node("testnodes:tga_type2_32bpp_tb", {
 	description = S("TGA Type 2 (uncompressed RGB) 32bpp top-bottom Test Node"),
 	drawtype = "glasslike",
 	paramtype = "light",
@@ -328,7 +328,7 @@ minetest.register_node("testnodes:tga_type2_32bpp_tb", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:tga_type3_16bpp_bt", {
+core.register_node("testnodes:tga_type3_16bpp_bt", {
 	description = S("TGA Type 3 (uncompressed grayscale) 16bpp bottom-top Test Node"),
 	drawtype = "glasslike",
 	paramtype = "light",
@@ -338,7 +338,7 @@ minetest.register_node("testnodes:tga_type3_16bpp_bt", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:tga_type3_16bpp_tb", {
+core.register_node("testnodes:tga_type3_16bpp_tb", {
 	description = S("TGA Type 3 (uncompressed grayscale) 16bpp top-bottom Test Node"),
 	drawtype = "glasslike",
 	paramtype = "light",
@@ -348,7 +348,7 @@ minetest.register_node("testnodes:tga_type3_16bpp_tb", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:tga_type10_32bpp_bt", {
+core.register_node("testnodes:tga_type10_32bpp_bt", {
 	description = S("TGA Type 10 (RLE-compressed RGB) 32bpp bottom-top Test Node"),
 	tiles = { "testnodes_tga_type10_32bpp_bt.tga" },
 	drawtype = "glasslike",
@@ -358,7 +358,7 @@ minetest.register_node("testnodes:tga_type10_32bpp_bt", {
 	groups = { dig_immediate = 2 },
 })
 
-minetest.register_node("testnodes:tga_type10_32bpp_tb", {
+core.register_node("testnodes:tga_type10_32bpp_tb", {
 	description = S("TGA Type 10 (RLE-compressed RGB) 32bpp top-bottom Test Node"),
 	drawtype = "glasslike",
 	paramtype = "light",

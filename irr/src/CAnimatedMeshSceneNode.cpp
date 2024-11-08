@@ -16,6 +16,7 @@
 #include "IAnimatedMesh.h"
 #include "IFileSystem.h"
 #include "quaternion.h"
+#include <algorithm>
 
 namespace irr
 {
@@ -80,7 +81,7 @@ void CAnimatedMeshSceneNode::buildFrameNr(u32 timeMs)
 	}
 
 	if (StartFrame == EndFrame) {
-		CurrentFrameNr = (f32)StartFrame; // Support for non animated meshes
+		CurrentFrameNr = StartFrame; // Support for non animated meshes
 	} else if (Looping) {
 		// play animation looped
 		CurrentFrameNr += timeMs * FramesPerSecond;
@@ -89,26 +90,26 @@ void CAnimatedMeshSceneNode::buildFrameNr(u32 timeMs)
 		// the last frame must be identical to first one with our current solution.
 		if (FramesPerSecond > 0.f) { // forwards...
 			if (CurrentFrameNr > EndFrame)
-				CurrentFrameNr = StartFrame + fmodf(CurrentFrameNr - StartFrame, (f32)(EndFrame - StartFrame));
+				CurrentFrameNr = StartFrame + fmodf(CurrentFrameNr - StartFrame, EndFrame - StartFrame);
 		} else // backwards...
 		{
 			if (CurrentFrameNr < StartFrame)
-				CurrentFrameNr = EndFrame - fmodf(EndFrame - CurrentFrameNr, (f32)(EndFrame - StartFrame));
+				CurrentFrameNr = EndFrame - fmodf(EndFrame - CurrentFrameNr, EndFrame - StartFrame);
 		}
 	} else {
 		// play animation non looped
 
 		CurrentFrameNr += timeMs * FramesPerSecond;
 		if (FramesPerSecond > 0.f) { // forwards...
-			if (CurrentFrameNr > (f32)EndFrame) {
-				CurrentFrameNr = (f32)EndFrame;
+			if (CurrentFrameNr > EndFrame) {
+				CurrentFrameNr = EndFrame;
 				if (LoopCallBack)
 					LoopCallBack->OnAnimationEnd(this);
 			}
 		} else // backwards...
 		{
-			if (CurrentFrameNr < (f32)StartFrame) {
-				CurrentFrameNr = (f32)StartFrame;
+			if (CurrentFrameNr < StartFrame) {
+				CurrentFrameNr = StartFrame;
 				if (LoopCallBack)
 					LoopCallBack->OnAnimationEnd(this);
 			}
@@ -159,9 +160,7 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 {
 	if (Mesh->getMeshType() != EAMT_SKINNED) {
-		s32 frameNr = (s32)getFrameNr();
-		s32 frameBlend = (s32)(core::fract(getFrameNr()) * 1000.f);
-		return Mesh->getMesh(frameNr, frameBlend, StartFrame, EndFrame);
+		return Mesh->getMesh(getFrameNr());
 	} else {
 		// As multiple scene nodes may be sharing the same skinned mesh, we have to
 		// re-animate it every frame to ensure that this node gets the mesh that it needs.
@@ -331,33 +330,33 @@ void CAnimatedMeshSceneNode::render()
 }
 
 //! Returns the current start frame number.
-s32 CAnimatedMeshSceneNode::getStartFrame() const
+f32 CAnimatedMeshSceneNode::getStartFrame() const
 {
 	return StartFrame;
 }
 
 //! Returns the current start frame number.
-s32 CAnimatedMeshSceneNode::getEndFrame() const
+f32 CAnimatedMeshSceneNode::getEndFrame() const
 {
 	return EndFrame;
 }
 
 //! sets the frames between the animation is looped.
 //! the default is 0 - MaximalFrameCount of the mesh.
-bool CAnimatedMeshSceneNode::setFrameLoop(s32 begin, s32 end)
+bool CAnimatedMeshSceneNode::setFrameLoop(f32 begin, f32 end)
 {
-	const s32 maxFrameCount = Mesh->getFrameCount() - 1;
+	const f32 maxFrame = Mesh->getMaxFrameNumber();
 	if (end < begin) {
-		StartFrame = core::s32_clamp(end, 0, maxFrameCount);
-		EndFrame = core::s32_clamp(begin, StartFrame, maxFrameCount);
+		StartFrame = std::clamp<f32>(end, 0, maxFrame);
+		EndFrame = std::clamp<f32>(begin, StartFrame, maxFrame);
 	} else {
-		StartFrame = core::s32_clamp(begin, 0, maxFrameCount);
-		EndFrame = core::s32_clamp(end, StartFrame, maxFrameCount);
+		StartFrame = std::clamp<f32>(begin, 0, maxFrame);
+		EndFrame = std::clamp<f32>(end, StartFrame, maxFrame);
 	}
 	if (FramesPerSecond < 0)
-		setCurrentFrame((f32)EndFrame);
+		setCurrentFrame(EndFrame);
 	else
-		setCurrentFrame((f32)StartFrame);
+		setCurrentFrame(StartFrame);
 
 	return true;
 }
@@ -532,7 +531,7 @@ void CAnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 	// get materials and bounding box
 	Box = Mesh->getBoundingBox();
 
-	IMesh *m = Mesh->getMesh(0, 0);
+	IMesh *m = Mesh->getMesh(0);
 	if (m) {
 		Materials.clear();
 		Materials.reallocate(m->getMeshBufferCount());
@@ -554,7 +553,7 @@ void CAnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 
 	// get start and begin time
 	setAnimationSpeed(Mesh->getAnimationSpeed()); // NOTE: This had been commented out (but not removed!) in r3526. Which caused meshloader-values for speed to be ignored unless users specified explicitly. Missing a test-case where this could go wrong so I put the code back in.
-	setFrameLoop(0, Mesh->getFrameCount() - 1);
+	setFrameLoop(0, Mesh->getMaxFrameNumber());
 }
 
 //! updates the absolute position based on the relative and the parents position

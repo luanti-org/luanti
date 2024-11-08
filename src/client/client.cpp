@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include <iostream>
 #include <algorithm>
@@ -33,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "client/renderingengine.h"
 #include "client/sound.h"
 #include "client/texturepaths.h"
+#include "client/texturesource.h"
 #include "client/mesh_generator_thread.h"
 #include "client/particles.h"
 #include "client/localplayer.h"
@@ -827,7 +813,7 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 	}
 
 	const char *model_ext[] = {
-		".x", ".b3d", ".obj", ".gltf",
+		".x", ".b3d", ".obj", ".gltf", ".glb",
 		NULL
 	};
 	name = removeStringEnd(filename, model_ext);
@@ -841,16 +827,12 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 		return true;
 	}
 
-	const char *translate_ext[] = {
-		".tr", NULL
-	};
-	name = removeStringEnd(filename, translate_ext);
-	if (!name.empty()) {
+	if (Translations::isTranslationFile(filename)) {
 		if (from_media_push)
 			return false;
 		TRACESTREAM(<< "Client: Loading translation: "
 				<< "\"" << filename << "\"" << std::endl);
-		g_client_translations->loadTranslation(data);
+		g_client_translations->loadTranslation(filename, data);
 		return true;
 	}
 

@@ -88,9 +88,6 @@ add_cmake_libs () {
 		-DJPEG_INCLUDE_DIR=$libdir/libjpeg/include
 		-DJPEG_DLL="$(_dlls $libdir/libjpeg/bin/libjpeg*)"
 
-		-DCMAKE_PREFIX_PATH=$libdir/sdl2/lib/cmake
-		-DSDL2_DLL="$(_dlls $libdir/sdl2/bin/*)"
-
 		-DZLIB_INCLUDE_DIR=$libdir/zlib/include
 		-DZLIB_LIBRARY=$libdir/zlib/lib/libz.dll.a
 		-DZLIB_DLL=$libdir/zlib/bin/zlib1.dll

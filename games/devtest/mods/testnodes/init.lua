@@ -1,4 +1,4 @@
-local path = minetest.get_modpath(minetest.get_current_modname())
+local path = core.get_modpath(core.get_current_modname())
 
 dofile(path.."/drawtypes.lua")
 dofile(path.."/meshes.lua")

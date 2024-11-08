@@ -3,7 +3,7 @@
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 gameid=${gameid:-devtest}
-minetest=$dir/../bin/minetest
+executable=$dir/../bin/luanti
 testspath=$dir/../tests
 conf_client1=$testspath/client1.conf
 conf_server=$testspath/server.conf
@@ -21,7 +21,7 @@ waitfor () {
 	exit 1
 }
 
-[ -e "$minetest" ] || { echo "executable $minetest missing"; exit 1; }
+[ -e "$executable" ] || { echo "executable $executable missing"; exit 1; }
 
 rm -f "$testspath/log.txt"
 rm -rf "$worldpath"
@@ -39,12 +39,12 @@ printf '%s\n' >"$testspath/server.conf" \
 ln -s "$dir/helper_mod" "$worldpath/worldmods/"
 
 echo "Starting server"
-"$minetest" --debugger --server --config "$conf_server" --world "$worldpath" --gameid $gameid 2>&1 \
+"$executable" --debugger --server --config "$conf_server" --world "$worldpath" --gameid $gameid 2>&1 \
 	| sed -u 's/^/(server) /' | tee -a "$testspath/log.txt" &
 waitfor "$worldpath/startup"
 
 echo "Starting client"
-"$minetest" --debugger --config "$conf_client1" --go --address 127.0.0.1 2>&1 \
+"$executable" --debugger --config "$conf_client1" --go --address 127.0.0.1 2>&1 \
 	| sed -u 's/^/(client) /' | tee -a "$testspath/log.txt" &
 waitfor "$worldpath/done"
 

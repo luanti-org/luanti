@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "irrString.h"
 #include "path.h"
 
 namespace irr

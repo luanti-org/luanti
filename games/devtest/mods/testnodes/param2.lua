@@ -1,8 +1,8 @@
 -- This file is for misc. param2 tests that aren't covered in drawtypes.lua already.
 
-local S = minetest.get_translator("testnodes")
+local S = core.get_translator("testnodes")
 
-minetest.register_node("testnodes:facedir", {
+core.register_node("testnodes:facedir", {
 	description = S("Facedir Test Node").."\n"..
 		S("param2 = facedir rotation (0..23)"),
 	paramtype2 = "facedir",
@@ -18,7 +18,7 @@ minetest.register_node("testnodes:facedir", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:4dir", {
+core.register_node("testnodes:4dir", {
 	description = S("4dir Test Node").."\n"..
 		S("param2 = 4dir rotation (0..3)"),
 	paramtype2 = "4dir",
@@ -34,7 +34,7 @@ minetest.register_node("testnodes:4dir", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:facedir_nodebox", {
+core.register_node("testnodes:facedir_nodebox", {
 	description = S("Facedir Nodebox Test Node").."\n"..
 		S("param2 = facedir rotation (0..23)"),
 	tiles = {
@@ -56,7 +56,7 @@ minetest.register_node("testnodes:facedir_nodebox", {
 	groups = {dig_immediate=3},
 })
 
-minetest.register_node("testnodes:4dir_nodebox", {
+core.register_node("testnodes:4dir_nodebox", {
 	description = S("4dir Nodebox Test Node").."\n"..
 		S("param2 = 4dir rotation (0..3)"),
 	tiles = {
@@ -78,7 +78,7 @@ minetest.register_node("testnodes:4dir_nodebox", {
 	groups = {dig_immediate=3},
 })
 
-minetest.register_node("testnodes:4dir_nodebox_stair", {
+core.register_node("testnodes:4dir_nodebox_stair", {
 	description = S("4dir Nodebox Stair Test Node").."\n"..
 		S("param2 = 4dir rotation (0..3)"),
 	tiles = {
@@ -104,7 +104,7 @@ minetest.register_node("testnodes:4dir_nodebox_stair", {
 })
 
 
-minetest.register_node("testnodes:wallmounted", {
+core.register_node("testnodes:wallmounted", {
 	description = S("Wallmounted Test Node").."\n"..
 		S("param2 = wallmounted rotation (0..7)"),
 	paramtype2 = "wallmounted",
@@ -120,7 +120,7 @@ minetest.register_node("testnodes:wallmounted", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:wallmounted_rot", {
+core.register_node("testnodes:wallmounted_rot", {
 	description = S("Wallmounted Rotatable Test Node"),
 	paramtype2 = "wallmounted",
 	wallmounted_rotate_vertical = true,
@@ -136,7 +136,7 @@ minetest.register_node("testnodes:wallmounted_rot", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:wallmounted_nodebox", {
+core.register_node("testnodes:wallmounted_nodebox", {
 	description = S("Wallmounted Nodebox Test Node").."\n"..
 		S("param2 = wallmounted rotation (0..7)"),
 	paramtype2 = "wallmounted",
@@ -160,7 +160,7 @@ minetest.register_node("testnodes:wallmounted_nodebox", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:wallmounted_nodebox_rot", {
+core.register_node("testnodes:wallmounted_nodebox_rot", {
 	description = S("Wallmounted Rotatable Nodebox Test Node"),
 	paramtype2 = "wallmounted",
 	wallmounted_rotate_vertical = true,
@@ -184,7 +184,7 @@ minetest.register_node("testnodes:wallmounted_nodebox_rot", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:color", {
+core.register_node("testnodes:color", {
 	description = S("Color Test Node").."\n"..
 		S("param2 = color (0..255)"),
 	paramtype2 = "color",
@@ -196,7 +196,7 @@ minetest.register_node("testnodes:color", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:colorfacedir", {
+core.register_node("testnodes:colorfacedir", {
 	description = S("Color Facedir Test Node").."\n"..
 		S("param2 = color + facedir rotation (0..23, 32..55, ...)"),
 	paramtype2 = "colorfacedir",
@@ -213,7 +213,7 @@ minetest.register_node("testnodes:colorfacedir", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:colorfacedir_nodebox", {
+core.register_node("testnodes:colorfacedir_nodebox", {
 	description = S("Color Facedir Nodebox Test Node").."\n"..
 		S("param2 = color + facedir rotation (0..23, 32..55, ...)"),
 	tiles = {
@@ -236,7 +236,7 @@ minetest.register_node("testnodes:colorfacedir_nodebox", {
 	groups = {dig_immediate=3},
 })
 
-minetest.register_node("testnodes:color4dir", {
+core.register_node("testnodes:color4dir", {
 	description = S("Color 4dir Test Node").."\n"..
 		S("param2 = color + 4dir rotation (0..255)"),
 	paramtype2 = "color4dir",
@@ -253,7 +253,7 @@ minetest.register_node("testnodes:color4dir", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:color4dir_nodebox", {
+core.register_node("testnodes:color4dir_nodebox", {
 	description = S("Color 4dir Nodebox Test Node").."\n"..
 		S("param2 = color + 4dir rotation (0..255)"),
 	tiles = {
@@ -276,7 +276,7 @@ minetest.register_node("testnodes:color4dir_nodebox", {
 	groups = {dig_immediate=3},
 })
 
-minetest.register_node("testnodes:colorwallmounted", {
+core.register_node("testnodes:colorwallmounted", {
 	description = S("Color Wallmounted Test Node").."\n"..
 		S("param2 = color + wallmounted rotation (0..7, 8..15, ...)"),
 	paramtype2 = "colorwallmounted",
@@ -294,7 +294,7 @@ minetest.register_node("testnodes:colorwallmounted", {
 	groups = { dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:colorwallmounted_nodebox", {
+core.register_node("testnodes:colorwallmounted_nodebox", {
 	description = S("Color Wallmounted Nodebox Test Node").."\n"..
 		S("param2 = color + wallmounted rotation (0..7, 8..15, ...)"),
 	paramtype2 = "colorwallmounted",

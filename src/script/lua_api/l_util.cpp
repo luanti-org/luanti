@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "irrlichttypes_extrabloated.h"
 #include "lua_api/l_util.h"
@@ -33,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "convert_json.h"
 #include "debug.h"
 #include "log.h"
+#include "log_internal.h"
 #include "tool.h"
 #include "filesys.h"
 #include "settings.h"
@@ -92,12 +78,16 @@ int ModApiUtil::l_get_us_time(lua_State *L)
 	return 1;
 }
 
-// parse_json(str[, nullvalue])
+// Maximum depth of a JSON object:
+// Reading and writing should not overflow the Lua, C, or jsoncpp stacks.
+constexpr static u16 MAX_JSON_DEPTH = 1024;
+
+// parse_json(str[, nullvalue, return_error])
 int ModApiUtil::l_parse_json(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	const char *jsonstr = luaL_checkstring(L, 1);
+	const auto jsonstr = readParam<std::string_view>(L, 1);
 
 	// Use passed nullvalue or default to nil
 	int nullindex = 2;
@@ -106,36 +96,39 @@ int ModApiUtil::l_parse_json(lua_State *L)
 		nullindex = lua_gettop(L);
 	}
 
-	Json::Value root;
-
-	{
-		std::istringstream stream(jsonstr);
-
-		Json::CharReaderBuilder builder;
-		builder.settings_["collectComments"] = false;
-		std::string errs;
-
-		if (!Json::parseFromStream(builder, stream, &root, &errs)) {
-			errorstream << "Failed to parse json data " << errs << std::endl;
-			size_t jlen = strlen(jsonstr);
-			if (jlen > 100) {
-				errorstream << "Data (" << jlen
-					<< " bytes) printed to warningstream." << std::endl;
-				warningstream << "data: \"" << jsonstr << "\"" << std::endl;
-			} else {
-				errorstream << "data: \"" << jsonstr << "\"" << std::endl;
-			}
+	bool return_error = lua_toboolean(L, 3);
+	const auto handle_error = [&](const char *errmsg) {
+		if (return_error) {
 			lua_pushnil(L);
-			return 1;
+			lua_pushstring(L, errmsg);
+			return 2;
 		}
+		errorstream << "Failed to parse json data: " << errmsg << std::endl;
+		errorstream << "data: \"";
+		if (jsonstr.size() <= 100) {
+			errorstream << jsonstr << "\"";
+		} else {
+			errorstream << jsonstr.substr(0, 100) << "\"... (truncated)";
+		}
+		errorstream << std::endl;
+		lua_pushnil(L);
+		return 1;
+	};
+
+	Json::Value root;
+	{
+		Json::CharReaderBuilder builder;
+		builder.settings_["stackLimit"] = MAX_JSON_DEPTH;
+		builder.settings_["collectComments"] = false;
+		const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+		std::string errmsg;
+		if (!reader->parse(jsonstr.data(), jsonstr.data() + jsonstr.size(), &root, &errmsg))
+			return handle_error(errmsg.c_str());
 	}
 
-	if (!push_json_value(L, root, nullindex)) {
-		errorstream << "Failed to parse json data, "
-			<< "depth exceeds lua stack limit" << std::endl;
-		errorstream << "data: \"" << jsonstr << "\"" << std::endl;
-		lua_pushnil(L);
-	}
+	if (!push_json_value(L, root, nullindex))
+		return handle_error("depth exceeds lua stack limit");
+
 	return 1;
 }
 
@@ -152,7 +145,7 @@ int ModApiUtil::l_write_json(lua_State *L)
 
 	Json::Value root;
 	try {
-		read_json_value(L, root, 1);
+		read_json_value(L, root, 1, MAX_JSON_DEPTH);
 	} catch (SerializationError &e) {
 		lua_pushnil(L);
 		lua_pushstring(L, e.what());

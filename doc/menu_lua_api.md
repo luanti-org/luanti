@@ -1,5 +1,5 @@
-Minetest Lua Mainmenu API Reference 5.10.0
-=========================================
+Luanti Lua Mainmenu API Reference 5.10.0
+========================================
 
 Introduction
 -------------
@@ -128,7 +128,7 @@ HTTP Requests
     * returns `HTTPApiTable` containing http functions.
     * The returned table contains the functions `fetch_sync`, `fetch_async` and
       `fetch_async_get` described below.
-    * Function only exists if minetest server was built with cURL support.
+    * Function only exists if Luanti server was built with cURL support.
 * `HTTPApiTable.fetch_sync(HTTPRequest req)`: returns HTTPRequestResult
     * Performs given request synchronously
 * `HTTPApiTable.fetch_async(HTTPRequest req)`: returns handle
@@ -155,7 +155,7 @@ Used by `HTTPApiTable.fetch` and `HTTPApiTable.fetch_async`.
     -- If post_data is not specified, a GET request is performed instead.
 
     user_agent = "ExampleUserAgent",
-    -- Optional, if specified replaces the default minetest user agent with
+    -- Optional, if specified replaces the default Luanti user agent with
     -- given string
 
     extra_headers = { "Accept-Language: en-us", "Accept-Charset: utf-8" },
@@ -257,7 +257,7 @@ GUI
           y = 577,
       },
 
-      -- Estimated maximum formspec size before Minetest will start shrinking the
+      -- Estimated maximum formspec size before Luanti will start shrinking the
       -- formspec to fit. For a fullscreen formspec, use this formspec size and
       -- `padding[0,0]`. `bgcolor[;true]` is also recommended.
       max_formspec_size = {
@@ -295,7 +295,7 @@ Package - content which is downloadable from the content db, may or may not be i
 * `core.get_modpaths()` (possible in async calls)
     * returns table of virtual path to global modpaths, where mods have been installed
       The difference with `core.get_modpath` is that no mods should be installed in these
-      directories by Minetest -- they might be read-only.
+      directories by Luanti -- they might be read-only.
 
       Ex:
 

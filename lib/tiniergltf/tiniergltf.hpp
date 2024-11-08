@@ -1,6 +1,9 @@
 #pragma once
 
 #include <json/json.h>
+#include "util/base64.h"
+
+#include <cstdint>
 #include <functional>
 #include <stack>
 #include <string>
@@ -10,10 +13,16 @@
 #include <array>
 #include <optional>
 #include <limits>
+#include <memory> // unique_ptr
 #include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
-#include "util/base64.h"
+
+#if JSONCPP_VERSION_HEXA < 0x01090000 /* 1.9.0 */
+namespace Json {
+	using String = JSONCPP_STRING; // Polyfill
+}
+#endif
 
 namespace tiniergltf {
 
@@ -460,7 +469,8 @@ struct Buffer {
 	std::optional<std::string> name;
 	std::string data;
 	Buffer(const Json::Value &o,
-			const std::function<std::string(const std::string &uri)> &resolveURI)
+			const std::function<std::string(const std::string &uri)> &resolveURI,
+			std::optional<std::string> &&glbData = std::nullopt)
 		: byteLength(as<std::size_t>(o["byteLength"]))
 	{
 		check(o.isObject());
@@ -468,24 +478,32 @@ struct Buffer {
 		if (o.isMember("name")) {
 			name = as<std::string>(o["name"]);
 		}
-		check(o.isMember("uri"));
-		bool dataURI = false;
-		const std::string uri = as<std::string>(o["uri"]);
-		for (auto &prefix : std::array<std::string, 2> {
-			"data:application/octet-stream;base64,",
-			"data:application/gltf-buffer;base64,"
-		}) {
-			if (std::string_view(uri).substr(0, prefix.length()) == prefix) {
-				auto view = std::string_view(uri).substr(prefix.length());
-				check(base64_is_valid(view));
-				data = base64_decode(view);
-				dataURI = true;
-				break;
+		if (glbData.has_value()) {
+			check(!o.isMember("uri"));
+			data = *std::move(glbData);
+			// GLB allows padding, which need not be reflected in the JSON
+			check(byteLength + 3 >= data.size());
+			check(data.size() >= byteLength);
+		} else {
+			check(o.isMember("uri"));
+			bool dataURI = false;
+			const std::string uri = as<std::string>(o["uri"]);
+			for (auto &prefix : std::array<std::string, 2> {
+				"data:application/octet-stream;base64,",
+				"data:application/gltf-buffer;base64,"
+			}) {
+				if (std::string_view(uri).substr(0, prefix.length()) == prefix) {
+					auto view = std::string_view(uri).substr(prefix.length());
+					check(base64_is_valid(view));
+					data = base64_decode(view);
+					dataURI = true;
+					break;
+				}
 			}
+			if (!dataURI)
+				data = resolveURI(uri);
+			check(data.size() >= byteLength);
 		}
-		if (!dataURI)
-			data = resolveURI(uri);
-		check(data.size() >= byteLength);
 		data.resize(byteLength);
 	}
 };
@@ -969,21 +987,16 @@ struct Sampler {
 	};
 	std::optional<MinFilter> minFilter;
 	std::optional<std::string> name;
-	enum class WrapS {
+	enum class Wrap {
 		REPEAT,
 		CLAMP_TO_EDGE,
 		MIRRORED_REPEAT,
 	};
-	WrapS wrapS;
-	enum class WrapT {
-		REPEAT,
-		CLAMP_TO_EDGE,
-		MIRRORED_REPEAT,
-	};
-	WrapT wrapT;
+	Wrap wrapS;
+	Wrap wrapT;
 	Sampler(const Json::Value &o)
-		: wrapS(WrapS::REPEAT)
-		, wrapT(WrapT::REPEAT)
+		: wrapS(Wrap::REPEAT)
+		, wrapT(Wrap::REPEAT)
 	{
 		check(o.isObject());
 		if (o.isMember("magFilter")) {
@@ -1009,21 +1022,16 @@ struct Sampler {
 		if (o.isMember("name")) {
 			name = as<std::string>(o["name"]);
 		}
+		static std::unordered_map<Json::UInt64, Wrap> map = {
+			{10497, Wrap::REPEAT},
+			{33071, Wrap::CLAMP_TO_EDGE},
+			{33648, Wrap::MIRRORED_REPEAT},
+		};
 		if (o.isMember("wrapS")) {
-			static std::unordered_map<Json::UInt64, WrapS> map = {
-				{10497, WrapS::REPEAT},
-				{33071, WrapS::CLAMP_TO_EDGE},
-				{33648, WrapS::MIRRORED_REPEAT},
-			};
 			const auto &v = o["wrapS"]; check(v.isUInt64());
 			wrapS = map.at(v.asUInt64());
 		}
 		if (o.isMember("wrapT")) {
-			static std::unordered_map<Json::UInt64, WrapT> map = {
-				{10497, WrapT::REPEAT},
-				{33071, WrapT::CLAMP_TO_EDGE},
-				{33648, WrapT::MIRRORED_REPEAT},
-			};
 			const auto &v = o["wrapT"]; check(v.isUInt64());
 			wrapT = map.at(v.asUInt64());
 		}
@@ -1093,6 +1101,12 @@ struct Texture {
 };
 template<> Texture as(const Json::Value &o) { return o; }
 
+using UriResolver = std::function<std::string(const std::string &uri)>;
+static inline std::string uriError(const std::string &uri) {
+	// only base64 data URI support by default
+	throw std::runtime_error("unsupported URI: " + uri);
+}
+
 struct GlTF {
 	std::optional<std::vector<Accessor>> accessors;
 	std::optional<std::vector<Animation>> animations;
@@ -1111,12 +1125,10 @@ struct GlTF {
 	std::optional<std::vector<Scene>> scenes;
 	std::optional<std::vector<Skin>> skins;
 	std::optional<std::vector<Texture>> textures;
-	static std::string uriError(const std::string &uri) {
-		// only base64 data URI support by default
-		throw std::runtime_error("unsupported URI: " + uri);
-	}
+
 	GlTF(const Json::Value &o,
-			const std::function<std::string(const std::string &uri)> &resolveURI = uriError)
+			const UriResolver &resolveUri = uriError,
+			std::optional<std::string> &&glbData = std::nullopt)
 		: asset(as<Asset>(o["asset"]))
 	{
 		check(o.isObject());
@@ -1138,7 +1150,8 @@ struct GlTF {
 			std::vector<Buffer> bufs;
 			bufs.reserve(b.size());
 			for (Json::ArrayIndex i = 0; i < b.size(); ++i) {
-				bufs.emplace_back(b[i], resolveURI);
+				bufs.emplace_back(b[i], resolveUri,
+						i == 0 ? std::move(glbData) : std::nullopt);
 			}
 			check(bufs.size() >= 1);
 			buffers = std::move(bufs);
@@ -1353,5 +1366,124 @@ struct GlTF {
 		checkIndex(scenes, scene);
 	}
 };
+
+// std::span is C++ 20, so we roll our own little struct here.
+template <typename T>
+struct Span {
+	T *ptr;
+	uint32_t len;
+	bool empty() const {
+		return len == 0;
+	}
+	T *end() const {
+		return ptr + len;
+	}
+	template <typename U>
+	Span<U> cast() const {
+		return {(U *) ptr, len};
+	}
+};
+
+static Json::Value readJson(Span<const char> span) {
+	Json::CharReaderBuilder builder;
+	const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+	Json::Value json;
+	Json::String err;
+	if (!reader->parse(span.ptr, span.end(), &json, &err))
+		throw std::runtime_error(std::string("invalid JSON: ") + err);
+	return json;
+}
+
+inline GlTF readGlb(const char *data, std::size_t len, const UriResolver &resolveUri = uriError) {
+	struct Chunk {
+		uint32_t type;
+		Span<const uint8_t> span;
+	};
+
+	struct Stream {
+		Span<const uint8_t> span;
+
+		bool eof() const {
+			return span.empty();
+		}
+
+		void advance(uint32_t n) {
+			span.len -= n;
+			span.ptr += n;
+		}
+
+		uint32_t readUint32() {
+			if (span.len < 4)
+				throw std::runtime_error("premature EOF");
+			uint32_t res = 0;
+			for (int i = 0; i < 4; ++i)
+				res += span.ptr[i] << (i * 8);
+			advance(4);
+			return res;
+		}
+
+		Chunk readChunk() {
+			const auto chunkLen = readUint32();
+			if (chunkLen % 4 != 0)
+				throw std::runtime_error("chunk length must be multiple of 4");
+			const auto chunkType = readUint32();
+
+			auto chunkPtr = span.ptr;
+			if (span.len < chunkLen)
+				throw std::runtime_error("premature EOF");
+			advance(chunkLen);
+			return {chunkType, {chunkPtr, chunkLen}};
+		}
+	};
+
+	constexpr uint32_t MAGIC_GLTF = 0x46546C67;
+	constexpr uint32_t MAGIC_JSON = 0x4E4F534A;
+	constexpr uint32_t MAGIC_BIN = 0x004E4942;
+
+	if (len > std::numeric_limits<uint32_t>::max())
+		throw std::runtime_error("too large");
+
+	Stream is{{(const uint8_t *) data, static_cast<uint32_t>(len)}};
+
+	const auto magic = is.readUint32();
+	if (magic != MAGIC_GLTF)
+		throw std::runtime_error("wrong magic number");
+	const auto version = is.readUint32();
+	if (version != 2)
+		throw std::runtime_error("wrong version");
+	const auto length = is.readUint32();
+	if (length != len)
+		throw std::runtime_error("wrong length");
+
+	const auto json = is.readChunk();
+	if (json.type != MAGIC_JSON)
+		throw std::runtime_error("expected JSON chunk");
+
+	std::optional<std::string> buffer;
+	if (!is.eof()) {
+		const auto chunk = is.readChunk();
+		if (chunk.type == MAGIC_BIN)
+			buffer = std::string((const char *) chunk.span.ptr, chunk.span.len);
+		else if (chunk.type == MAGIC_JSON)
+			throw std::runtime_error("unexpected chunk");
+		// Ignore all other chunks. We still want to validate that
+		// 1. These chunks are valid;
+		// 2. These chunks are *not* JSON or BIN chunks
+		while (!is.eof()) {
+			const auto type = is.readChunk().type;
+			if (type == MAGIC_JSON || type == MAGIC_BIN)
+				throw std::runtime_error("unexpected chunk");
+		}
+	}
+
+	return GlTF(readJson(json.span.cast<const char>()), resolveUri, std::move(buffer));
+}
+
+inline GlTF readGlTF(const char *data, std::size_t len, const UriResolver &resolveUri = uriError) {
+	if (len > std::numeric_limits<uint32_t>::max())
+		throw std::runtime_error("too large");
+
+	return GlTF(readJson({data, static_cast<uint32_t>(len)}), resolveUri);
+}
 
 }

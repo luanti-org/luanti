@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "test.h"
 
@@ -42,6 +27,7 @@ public:
 	void testSafeWriteToFile();
 	void testCopyFileContents();
 	void testNonExist();
+	void testRecursiveDelete();
 };
 
 static TestFileSys g_test_instance;
@@ -56,6 +42,7 @@ void TestFileSys::runTests(IGameDef *gamedef)
 	TEST(testSafeWriteToFile);
 	TEST(testCopyFileContents);
 	TEST(testNonExist);
+	TEST(testRecursiveDelete);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,4 +324,33 @@ void TestFileSys::testNonExist()
 
 	auto ifs = open_ifstream(path.c_str(), false);
 	UASSERT(!ifs.good());
+}
+
+void TestFileSys::testRecursiveDelete()
+{
+	std::string dirs[2];
+	dirs[0] = getTestTempDirectory() + DIR_DELIM "a";
+	dirs[1] = dirs[0] + DIR_DELIM "b";
+
+	std::string files[2] = {
+		dirs[0] + DIR_DELIM "file1",
+		dirs[1] + DIR_DELIM "file2"
+	};
+
+	for (auto &it : dirs)
+		fs::CreateDir(it);
+	for (auto &it : files)
+		open_ofstream(it.c_str(), false).close();
+
+	for (auto &it : dirs)
+		UASSERT(fs::IsDir(it));
+	for (auto &it : files)
+		UASSERT(fs::IsFile(it));
+
+	UASSERT(fs::RecursiveDelete(dirs[0]));
+
+	for (auto &it : dirs)
+		UASSERT(!fs::IsDir(it));
+	for (auto &it : files)
+		UASSERT(!fs::IsFile(it));
 }

@@ -108,9 +108,7 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 	InitMaterial2D.ZBuffer = video::ECFN_DISABLED;
 	InitMaterial2D.UseMipMaps = false;
 	InitMaterial2D.forEachTexture([](auto &tex) {
-		// Using ETMINF_LINEAR_MIPMAP_NEAREST (bilinear) for 2D graphics looks
-		// much better and doesn't have any downsides (e.g. regarding pixel art).
-		tex.MinFilter = video::ETMINF_LINEAR_MIPMAP_NEAREST;
+		tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
 		tex.MagFilter = video::ETMAGF_NEAREST;
 		tex.TextureWrapU = video::ETC_REPEAT;
 		tex.TextureWrapV = video::ETC_REPEAT;

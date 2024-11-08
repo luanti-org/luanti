@@ -30,9 +30,15 @@
    john@suckerfreegames.com
 */
 
-#include <irrlicht.h>
 #include <iostream>
 #include "CGUITTFont.h"
+#include "CMeshBuffer.h"
+#include "IFileSystem.h"
+#include "IGUIEnvironment.h"
+#include "IMeshManipulator.h"
+#include "IMeshSceneNode.h"
+#include "ISceneManager.h"
+#include "ISceneNode.h"
 
 namespace irr
 {
@@ -721,7 +727,7 @@ core::dimension2d<u32> CGUITTFont::getDimension(const std::u32string& text) cons
 		if (p == '\r')	// Mac or Windows line breaks.
 		{
 			lineBreak = true;
-			if (*(iter + 1) == '\n')
+			if (iter + 1 != text.end() && *(iter + 1) == '\n')
 			{
 				++iter;
 				p = *iter;

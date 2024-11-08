@@ -6,22 +6,24 @@ body:
     attributes:
       value: |
         Please note the following:
-        1. **Please update your Minetest Engine to the latest stable or dev version** before submitting bug reports. Make sure the bug is still reproducible on the latest version.
-        2. This page is for reporting the bugs of **the engine itself**. For bugs in a particular game, please [search for the game in the ContentDB](https://content.minetest.net/packages/?type=game) and submit a bug report in their issue trackers.
-            * For example, you can submit issues about the Minetest Game (the official game of Minetest) [in its own repository](https://github.com/minetest/minetest_game/issues).
+
+        1. **Please update Luanti to the latest stable or dev version** before submitting bug reports. Make sure the bug is still reproducible on the latest version.
+        2. This page is for reporting the bugs of **the engine itself**. For bugs in a particular game, please [search for the game in the ContentDB](https://content.luanti.org/packages/?type=game) and submit a bug report in their issue trackers.
+            * For example, you can submit issues about the Minetest Game [in its own repository](https://github.com/minetest/minetest_game/issues).
         3. Please provide as many details as possible for us to spot the problem quicker.
   - type: textarea
     attributes:
-      label: Minetest version
+      label: Luanti version
       description: |
-        Paste the Minetest version below.
+        Paste the Luanti version below.
         If you are on a dev version, please also indicate the git commit hash.
-        Refer to the "About" tab of the menu or run `minetest --version` on the command line.
+        Refer to the "About" tab of the menu or run `luanti --version` on the command line.
       placeholder: |
         Example:
-        Minetest 5.7.0-dev-ca13c51 (Linux)
-        Using Irrlicht 1.9.0mt9
-        Using LuaJIT 2.1.0-beta3
+        Luanti 5.10.0-3ad6aee9b (Linux)
+        Using LuaJIT 2.1.1727870382
+        Built by GCC 14.2
+        Running on Linux/6.11.5 x86_64
         BUILD_TYPE=Release
         RUN_IN_PLACE=1
         USE_CURL=1

@@ -1,34 +1,19 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "imagesource.h"
 
 #include <IFileSystem.h>
-#include "settings.h"
-#include "mesh.h"
-#include "util/strfnd.h"
-#include "renderingengine.h"
-#include "util/base64.h"
-#include "irrlicht_changes/printing.h"
 #include "imagefilters.h"
+#include "mesh.h"
+#include "renderingengine.h"
+#include "settings.h"
 #include "texturepaths.h"
+#include "irrlicht_changes/printing.h"
+#include "util/base64.h"
 #include "util/numeric.h"
+#include "util/strfnd.h"
 
 
 ////////////////////////////////
@@ -1832,6 +1817,12 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 #undef CHECK_DIM
 
+ImageSource::ImageSource() :
+		m_setting_mipmap{g_settings->getBool("mip_map")},
+		m_setting_trilinear_filter{g_settings->getBool("trilinear_filter")},
+		m_setting_bilinear_filter{g_settings->getBool("bilinear_filter")},
+		m_setting_anisotropic_filter{g_settings->getBool("anisotropic_filter")}
+{}
 
 video::IImage* ImageSource::generateImage(std::string_view name,
 		std::set<std::string> &source_image_names)

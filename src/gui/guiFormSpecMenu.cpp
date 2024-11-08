@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 
 #include <cstdlib>
@@ -356,7 +341,7 @@ void GUIFormSpecMenu::parseContainerEnd(parserData* data, const std::string &)
 void GUIFormSpecMenu::parseScrollContainer(parserData *data, const std::string &element)
 {
 	std::vector<std::string> parts;
-	if (!precheckElement("scroll_container start", element, 4, 5, parts))
+	if (!precheckElement("scroll_container start", element, 4, 6, parts))
 		return;
 
 	std::vector<std::string> v_pos  = split(parts[0], ',');
@@ -366,6 +351,12 @@ void GUIFormSpecMenu::parseScrollContainer(parserData *data, const std::string &
 	f32 scroll_factor = 0.1f;
 	if (parts.size() >= 5 && !parts[4].empty())
 		scroll_factor = stof(parts[4]);
+
+	std::optional<s32> content_padding_px;
+	if (parts.size() >= 6 && !parts[5].empty()) {
+		std::vector<std::string> v_size = { parts[5], parts[5] };
+		content_padding_px = getRealCoordinateGeometry(v_size)[orientation == "vertical" ? 1 : 0];
+	}
 
 	MY_CHECKPOS("scroll_container", 0);
 	MY_CHECKGEOM("scroll_container", 1);
@@ -405,6 +396,7 @@ void GUIFormSpecMenu::parseScrollContainer(parserData *data, const std::string &
 
 	GUIScrollContainer *mover = new GUIScrollContainer(Environment,
 			clipper, spec_mover.fid, rect_mover, orientation, scroll_factor);
+	mover->setContentPadding(content_padding_px);
 
 	data->current_parent = mover;
 
@@ -3608,7 +3600,7 @@ void GUIFormSpecMenu::showTooltip(const std::wstring &text,
 	int tooltip_offset_x = m_btn_height;
 	int tooltip_offset_y = m_btn_height;
 
-	if (m_pointer_type == PointerType::Touch) {
+	if (RenderingEngine::getLastPointerType() == PointerType::Touch) {
 		tooltip_offset_x *= 3;
 		tooltip_offset_y  = 0;
 		if (m_pointer.X > (s32)screenSize.X / 2)

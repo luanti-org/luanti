@@ -2,7 +2,7 @@
 local drive_speed = 20
 local drive_distance = 30
 
-minetest.register_entity("soundstuff:racecar", {
+core.register_entity("soundstuff:racecar", {
 	initial_properties = {
         physical = false,
         collisionbox = {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},

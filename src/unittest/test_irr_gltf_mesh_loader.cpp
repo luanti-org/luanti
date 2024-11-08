@@ -1,15 +1,19 @@
 // Minetest
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-#include "CSceneManager.h"
 #include "content/subgames.h"
 #include "filesys.h"
 
-#include "CReadFile.h"
 #include "irr_v3d.h"
 #include "irr_v2d.h"
+#include "irr_ptr.h"
 
-#include <irrlicht.h>
+#include "EDriverTypes.h"
+#include "IFileSystem.h"
+#include "IReadFile.h"
+#include "ISceneManager.h"
+#include "ISkinnedMesh.h"
+#include "irrlicht.h"
 
 #include "catch.h"
 
@@ -20,10 +24,16 @@ const auto gamespec = findSubgame("devtest");
 if (!gamespec.isValid())
 	SKIP();
 
-irr::scene::CSceneManager smgr(nullptr, nullptr, nullptr);
-const auto loadMesh = [&smgr](const irr::io::path& filepath) {
-	irr::io::CReadFile file(filepath);
-	return smgr.getMesh(&file);
+irr::SIrrlichtCreationParameters p;
+p.DriverType = video::EDT_NULL;
+auto *driver = irr::createDeviceEx(p);
+REQUIRE(driver);
+
+auto *smgr = driver->getSceneManager();
+const auto loadMesh = [&] (const io::path& filepath) {
+	irr_ptr<io::IReadFile> file(driver->getFileSystem()->createAndOpenFile(filepath));
+	REQUIRE(file);
+	return smgr->getMesh(file.get());
 };
 
 const static auto model_stem = gamespec.gamemods_path +
@@ -33,21 +43,21 @@ SECTION("error cases") {
 	const static auto invalid_model_path = gamespec.gamemods_path + DIR_DELIM + "gltf" + DIR_DELIM + "invalid" + DIR_DELIM;
 
 	SECTION("empty gltf file") {
-		CHECK(loadMesh(invalid_model_path + "empty.gltf") == nullptr);
+		CHECK(!loadMesh(invalid_model_path + "empty.gltf"));
 	}
 
 	SECTION("null file pointer") {
-		CHECK(smgr.getMesh(nullptr) == nullptr);
+		CHECK(!smgr->getMesh(nullptr));
 	}
 
 	SECTION("invalid JSON") {
-		CHECK(loadMesh(invalid_model_path + "json_missing_brace.gltf") == nullptr);
+		CHECK(!loadMesh(invalid_model_path + "json_missing_brace.gltf"));
 	}
 
 	// This is an example of something that should be validated by tiniergltf.
 	SECTION("invalid bufferview bounds")
 	{
-		CHECK(loadMesh(invalid_model_path + "invalid_bufferview_bounds.gltf") == nullptr);
+		CHECK(!loadMesh(invalid_model_path + "invalid_bufferview_bounds.gltf"));
 	}
 }
 
@@ -59,7 +69,7 @@ SECTION("minimal triangle") {
 			model_stem + "triangle_without_indices.gltf");
 	INFO(path);
 	const auto mesh = loadMesh(path);
-	REQUIRE(mesh != nullptr);
+	REQUIRE(mesh);
 	REQUIRE(mesh->getMeshBufferCount() == 1);
 
 	SECTION("vertex coordinates are correct") {
@@ -82,8 +92,11 @@ SECTION("minimal triangle") {
 }
 
 SECTION("blender cube") {
-	const auto mesh = loadMesh(model_stem + "blender_cube.gltf");
-	REQUIRE(mesh != nullptr);
+	const auto path = GENERATE(
+		model_stem + "blender_cube.gltf",
+		model_stem + "blender_cube.glb");
+	const auto mesh = loadMesh(path);
+	REQUIRE(mesh);
 	REQUIRE(mesh->getMeshBufferCount() == 1);
 	SECTION("vertex coordinates are correct") {
 		REQUIRE(mesh->getMeshBuffer(0)->getVertexCount() == 24);
@@ -136,7 +149,7 @@ SECTION("blender cube") {
 
 SECTION("blender cube scaled") {
 	const auto mesh = loadMesh(model_stem + "blender_cube_scaled.gltf");
-	REQUIRE(mesh != nullptr);
+	REQUIRE(mesh);
 	REQUIRE(mesh->getMeshBufferCount() == 1);
 
 	SECTION("Scaling is correct") {
@@ -157,7 +170,7 @@ SECTION("blender cube scaled") {
 
 SECTION("blender cube matrix transform") {
 	const auto mesh = loadMesh(model_stem + "blender_cube_matrix_transform.gltf");
-	REQUIRE(mesh != nullptr);
+	REQUIRE(mesh);
 	REQUIRE(mesh->getMeshBufferCount() == 1);
 
 	SECTION("Transformation is correct") {
@@ -183,7 +196,7 @@ SECTION("blender cube matrix transform") {
 
 SECTION("snow man") {
 	const auto mesh = loadMesh(model_stem + "snow_man.gltf");
-	REQUIRE(mesh != nullptr);
+	REQUIRE(mesh);
 	REQUIRE(mesh->getMeshBufferCount() == 3);
 
 	SECTION("vertex coordinates are correct for all buffers") {
@@ -338,7 +351,7 @@ SECTION("snow man") {
 SECTION("simple sparse accessor")
 {
 	const auto mesh = loadMesh(model_stem + "simple_sparse_accessor.gltf");
-	REQUIRE(mesh != nullptr);
+	REQUIRE(mesh);
 	const auto *vertices = reinterpret_cast<irr::video::S3DVertex *>(
 			mesh->getMeshBuffer(0)->getVertices());
 	const std::array<v3f, 14> expectedPositions = {
@@ -363,4 +376,91 @@ SECTION("simple sparse accessor")
 		CHECK(vertices[i].Pos == expectedPositions[i]);
 }
 
+// https://github.com/KhronosGroup/glTF-Sample-Models/tree/main/2.0/SimpleSkin
+SECTION("simple skin")
+{
+	using ISkinnedMesh = irr::scene::ISkinnedMesh;
+	const auto mesh = loadMesh(model_stem + "simple_skin.gltf");
+	REQUIRE(mesh != nullptr);
+	auto csm = dynamic_cast<const ISkinnedMesh*>(mesh);
+	const auto joints = csm->getAllJoints();
+	REQUIRE(joints.size() == 3);
+
+	const auto findJoint = [&](const std::function<bool(ISkinnedMesh::SJoint*)> &predicate) {
+		for (std::size_t i = 0; i < joints.size(); ++i) {
+			if (predicate(joints[i])) {
+				return joints[i];
+			}
+		}
+		throw std::runtime_error("joint not found");
+	};
+
+	// Check the node hierarchy
+	const auto parent = findJoint([](auto joint) {
+		return !joint->Children.empty();
+	});
+	REQUIRE(parent->Children.size() == 1);
+	const auto child = parent->Children[0];
+	REQUIRE(child != parent);
+
+	SECTION("transformations are correct")
+	{
+		CHECK(parent->Animatedposition == v3f(0, 0, 0));
+		CHECK(parent->Animatedrotation == irr::core::quaternion());
+		CHECK(parent->Animatedscale == v3f(1, 1, 1));
+		CHECK(parent->GlobalInversedMatrix == irr::core::matrix4());
+		const v3f childTranslation(0, 1, 0);
+		CHECK(child->Animatedposition == childTranslation);
+		CHECK(child->Animatedrotation == irr::core::quaternion());
+		CHECK(child->Animatedscale == v3f(1, 1, 1));
+		irr::core::matrix4 inverseBindMatrix;
+		inverseBindMatrix.setInverseTranslation(childTranslation);
+		CHECK(child->GlobalInversedMatrix == inverseBindMatrix);
+	}
+
+	SECTION("weights are correct")
+	{
+		const auto weights = [&](const ISkinnedMesh::SJoint *joint) {
+			std::unordered_map<irr::u32, irr::f32> weights;
+			for (std::size_t i = 0; i < joint->Weights.size(); ++i) {
+				const auto weight = joint->Weights[i];
+				REQUIRE(weight.buffer_id == 0);
+				weights[weight.vertex_id] = weight.strength;
+			}
+			return weights;
+		};
+		const auto parentWeights = weights(parent);
+		const auto childWeights = weights(child);
+
+		const auto checkWeights = [&](irr::u32 index, irr::f32 parentWeight, irr::f32 childWeight) {
+			const auto getWeight = [](auto weights, auto index) {
+				const auto it = weights.find(index);
+				return it == weights.end() ? 0.0f : it->second;
+			};
+			CHECK(getWeight(parentWeights, index) == parentWeight);
+			CHECK(getWeight(childWeights, index) == childWeight);
+		};
+		checkWeights(0, 1.00, 0.00);
+		checkWeights(1, 1.00, 0.00);
+		checkWeights(2, 0.75, 0.25);
+		checkWeights(3, 0.75, 0.25);
+		checkWeights(4, 0.50, 0.50);
+		checkWeights(5, 0.50, 0.50);
+		checkWeights(6, 0.25, 0.75);
+		checkWeights(7, 0.25, 0.75);
+		checkWeights(8, 0.00, 1.00);
+		checkWeights(9, 0.00, 1.00);
+	}
+
+	SECTION("there should be a third node not involved in skinning")
+	{
+		const auto other = findJoint([&](auto joint) {
+			return joint != child && joint != parent;
+		});
+		CHECK(other->Weights.empty());
+	}
+}
+
+driver->closeDevice();
+driver->drop();
 }

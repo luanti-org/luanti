@@ -5,7 +5,6 @@
 #pragma once
 
 #include "IReferenceCounted.h"
-#include "irrArray.h"
 #include "EHardwareBufferFlags.h"
 #include "S3DVertex.h"
 

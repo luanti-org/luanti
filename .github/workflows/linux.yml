@@ -54,7 +54,7 @@ jobs:
 
       - name: Test
         run: |
-          ./bin/minetest --run-unittests
+          ./bin/luanti --run-unittests
 
   # Current gcc version
   gcc_14:
@@ -78,7 +78,7 @@ jobs:
           mkdir nowrite
           chmod a-w nowrite
           cd nowrite
-          ../bin/minetest --run-unittests
+          ../bin/luanti --run-unittests
 
   # Older clang version (should be close to our minimum supported version)
   clang_7:
@@ -100,7 +100,7 @@ jobs:
 
       - name: Unittest
         run: |
-          ./bin/minetest --run-unittests
+          ./bin/luanti --run-unittests
 
       # Do this here because we have ASan and error paths are sensitive to dangling pointers
       - name: Test error cases
@@ -126,7 +126,7 @@ jobs:
 
       - name: Test
         run: |
-          ./bin/minetest --run-unittests
+          ./bin/luanti --run-unittests
 
       - name: Integration test + devtest
         run: |
@@ -156,4 +156,4 @@ jobs:
 
       - name: Test
         run: |
-          ./bin/minetestserver --run-unittests
+          ./bin/luantiserver --run-unittests

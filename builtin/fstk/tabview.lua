@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2014 sapier
 --
 --This program is free software; you can redistribute it and/or modify
@@ -66,13 +66,13 @@ local function get_formspec(self)
 
 	local content, prepend = tab.get_formspec(self, tab.name, tab.tabdata, tab.tabsize)
 
-	local ENABLE_TOUCH = core.settings:get_bool("enable_touch")
+	local TOUCH_GUI = core.settings:get_bool("touch_gui")
 
 	local orig_tsize = tab.tabsize or { width = self.width, height = self.height }
 	local tsize = { width = orig_tsize.width, height = orig_tsize.height }
 	tsize.height = tsize.height
 		+ TABHEADER_H -- tabheader included in formspec size
-		+ (ENABLE_TOUCH and GAMEBAR_OFFSET_TOUCH or GAMEBAR_OFFSET_DESKTOP)
+		+ (TOUCH_GUI and GAMEBAR_OFFSET_TOUCH or GAMEBAR_OFFSET_DESKTOP)
 		+ GAMEBAR_H -- gamebar included in formspec size
 
 	if self.parent == nil and not prepend then
