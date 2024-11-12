@@ -70,10 +70,19 @@ bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0, const v3f &pos_f, ActiveObject *self = nullptr,
 		bool collide_with_objects = true);
 
-// Helper function:
-// Checks for collision of a moving aabbox with a static aabbox
-// Returns -1 if no collision, 0 if X collision, 1 if Y collision, 2 if Z collision
-// dtime receives time until first collision, invalid if -1 is returned
+/**
+ * Helper function to check for collision of a moving aabbox with a static one.
+ *
+ * @param staticbox A stationary hitbox.
+ * @param movingbox A moving hitbox.
+ * @param speed     The velocity of the moving hitbox.
+ * @param dtime     Only collisions that occur within @dtime will be
+ *                  searched.
+ *
+ * @return Returns -1 if no collision, 0 if X collision, 1 if Y collision,
+ * 2 if Z collision. Sets @a dtime to the time until the first collision,
+ * or to -1 if no collision occurs.
+ */
 CollisionAxis axisAlignedCollision(
 		const aabb3f &staticbox, const aabb3f &movingbox,
 		v3f speed, f32 *dtime);
