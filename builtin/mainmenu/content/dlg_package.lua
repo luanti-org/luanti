@@ -138,11 +138,12 @@ local function get_formspec(data)
 		formspec[#formspec + 1] = "]"
 	end
 
+	local review_count = info.reviews.positive + info.reviews.neutral + info.reviews.negative
 	local current_tab = data.current_tab or 1
 	local tab_titles = {
 		fgettext("Description"),
 		fgettext("Information"),
-		fgettext("Reviews"),
+		fgettext("Reviews") .. core.formspec_escape(" [" .. review_count .. "]"),
 	}
 
 	local tab_body_height = bottom_buttons_y - 2.8
@@ -165,7 +166,7 @@ local function get_formspec(data)
 		local fs_to_px = winfo.size.x / winfo.max_formspec_size.x
 		for i, ss in ipairs(info.screenshots) do
 			local path = get_screenshot(package, ss.url, 2)
-			hypertext = hypertext .. "<action name=\"ss_" .. i .. "\"><img name=\"" ..
+			hypertext = hypertext .. "<action name=\"ss_".. i .. "\"><img name=\"" ..
 					core.hypertext_escape(path) .. "\" width=" .. (3 * fs_to_px) ..
 					" height=" .. (2 * fs_to_px) .. "></action>"
 			if i ~= #info.screenshots then
