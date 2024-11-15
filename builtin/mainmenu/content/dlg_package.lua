@@ -301,6 +301,7 @@ local function handle_submit(this, fields)
 	end
 
 	if fields.open_contentdb then
+		local version = core.get_version()
 		local url = core.settings:get("contentdb_url") .. "/packages/" .. package.url_part ..
 				"/?protocol_version=" .. core.urlencode(core.get_max_supp_proto()) ..
 				"&engine_version=" .. core.urlencode(version.string)
