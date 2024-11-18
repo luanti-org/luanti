@@ -24,6 +24,10 @@
 #include <SDL.h>
 #endif
 
+#ifdef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
+#include <EGL/egl.h>
+#endif
+
 #include <memory>
 #include <unordered_map>
 
@@ -319,13 +323,28 @@ private:
 	void createDriver();
 
 	bool createWindow();
+#ifdef _IRR_EMSCRIPTEN_PLATFORM_
+	bool createWindowWithContextEmscripten();
+#elif defined(_IRR_COMPILE_WITH_ANGLE_ON_APPLE_)
+	bool createWindowWithContextAppleANGLE();
+#else
+	bool createWindowWithContextSDL();
+#endif
 	bool createWindowWithContext();
 
 	void createKeyMap();
 
 	void logAttributes();
-	SDL_GLContext Context;
+
 	SDL_Window *Window;
+#ifndef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
+	SDL_GLContext Context;
+#else
+	SDL_MetalView View;
+	EGLSurface Surface;
+	EGLContext Context;
+	EGLDisplay Display;
+#endif
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
 	core::array<SDL_Joystick *> Joysticks;
 #endif

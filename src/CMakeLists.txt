@@ -1,5 +1,15 @@
 project(luanti)
 
+if (APPLE)
+	if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+		set(APPLE_MACOS TRUE)
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+		set(APPLE_IOS TRUE)
+	else()
+		message(FATAL_ERROR "Unrecognized Apple device: ${CMAKE_SYSTEM_NAME}")
+	endif()
+endif()
+
 INCLUDE(CheckTypeSize)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckLibraryExists)
@@ -494,6 +504,10 @@ if(ANDROID)
 	list(APPEND common_SRCS porting_android.cpp)
 endif()
 
+if(APPLE_IOS)
+	list(APPEND common_SRCS porting_ios.mm)
+endif()
+
 if(BUILD_UNITTESTS)
 	add_subdirectory(unittest)
 	list(APPEND common_SRCS ${UNITTEST_SRCS})
@@ -628,10 +642,17 @@ endif()
 
 if(APPLE)
 	# Configure the Info.plist file
-	configure_file(
-		"${CMAKE_SOURCE_DIR}/misc/macos/Info.plist.in"
-		"${CMAKE_BINARY_DIR}/Info.plist"
-	)
+	if(APPLE_MACOS)
+		configure_file(
+			"${CMAKE_SOURCE_DIR}/misc/macos/Info.plist.in"
+			"${CMAKE_BINARY_DIR}/Info.plist"
+		)
+	else()
+		configure_file(
+			"${CMAKE_SOURCE_DIR}/misc/ios/Info.plist.in"
+			"${CMAKE_BINARY_DIR}/Info.plist"
+		)
+	endif()
 endif()
 
 if(BUILD_CLIENT)
@@ -707,6 +728,9 @@ if(BUILD_CLIENT)
 		# on Android, Luanti depends on SDL2 directly
 		# on other platforms, only IrrlichtMt depends on SDL2
 		"$<$<PLATFORM_ID:Android>:${SDL2_LIBRARIES}>"
+		"$<$<PLATFORM_ID:iOS>:-framework Security -framework CoreHaptics -framework CoreBluetooth>"
+		"$<$<PLATFORM_ID:iOS>:-framework GameController -framework Metal -framework Foundation>"
+		"$<$<PLATFORM_ID:iOS>:${OPENGLES2_LIBRARY}>"
 	)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE "MT_BUILDTARGET=1")
 	if(NOT USE_LUAJIT)
@@ -904,6 +928,21 @@ elseif(NOT MSVC)
 		message(FATAL_ERROR ${explanation_msg})
 	endif()
 endif()
+
+set(ENDIAN_CHECK_CODE "
+#include <endian.h>
+int main() {
+    uint16_t x = be16toh(1);
+    uint16_t y = htobe16(1);
+    uint32_t a = be32toh(1);
+    uint32_t b = htobe32(1);
+    uint64_t c = be64toh(1);
+    uint64_t d = htobe64(1);
+    return 0;
+}
+")
+
+check_c_source_compiles("${ENDIAN_CHECK_CODE}" HAVE_ENDIAN_FUNCS)
 
 if(MSVC)
 	# Visual Studio
