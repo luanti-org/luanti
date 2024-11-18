@@ -1,5 +1,15 @@
 project(luanti)
 
+if (APPLE)
+	if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+		set(APPLE_MACOS TRUE)
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+		set(APPLE_IOS TRUE)
+	else()
+		message(FATAL_ERROR "Unrecognized Apple device: ${CMAKE_SYSTEM_NAME}")
+	endif()
+endif()
+
 INCLUDE(CheckTypeSize)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckLibraryExists)
@@ -374,8 +384,6 @@ else()
 	set(HAVE_MALLOC_TRIM FALSE)
 endif()
 
-check_include_files(endian.h HAVE_ENDIAN_H)
-
 if((NOT PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR) AND EXISTS "${PROJECT_SOURCE_DIR}/cmake_config.h")
 	message(FATAL_ERROR "You are doing an out-of-tree build, but build artifacts are left in-tree. This will break the build!")
 endif()
@@ -527,6 +535,10 @@ if(ANDROID)
 	list(APPEND common_SRCS porting_android.cpp)
 endif()
 
+if(APPLE_IOS)
+	list(APPEND common_SRCS porting_ios.mm)
+endif()
+
 if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
 	list(APPEND common_SRCS catch.cpp)
 endif()
@@ -646,10 +658,17 @@ endif()
 
 if(APPLE)
 	# Configure the Info.plist file
-	configure_file(
-		"${CMAKE_SOURCE_DIR}/misc/macos/Info.plist.in"
-		"${CMAKE_BINARY_DIR}/Info.plist"
-	)
+	if(APPLE_MACOS)
+		configure_file(
+			"${CMAKE_SOURCE_DIR}/misc/macos/Info.plist.in"
+			"${CMAKE_BINARY_DIR}/Info.plist"
+		)
+	else()
+		configure_file(
+			"${CMAKE_SOURCE_DIR}/misc/ios/Info.plist.in"
+			"${CMAKE_BINARY_DIR}/Info.plist"
+		)
+	endif()
 endif()
 
 if(BUILD_CLIENT)
@@ -725,6 +744,10 @@ if(BUILD_CLIENT)
 		# on Android, Luanti depends on SDL2 directly
 		# on other platforms, only IrrlichtMt depends on SDL2
 		"$<$<PLATFORM_ID:Android>:${SDL2_LIBRARIES}>"
+		# extra libraries needed on iOS
+		"$<$<PLATFORM_ID:iOS>:-framework Security -framework CoreHaptics -framework CoreBluetooth>"
+		"$<$<PLATFORM_ID:iOS>:-framework GameController -framework Metal -framework Foundation>"
+		"$<$<PLATFORM_ID:iOS>:${OPENGLES2_LIBRARY}>"
 	)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE "MT_BUILDTARGET=1")
 	if(NOT USE_LUAJIT)
