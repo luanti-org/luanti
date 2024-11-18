@@ -20,6 +20,13 @@
 	#define BYTE_ORDER 1234
 #elif defined(__MACH__) && defined(__APPLE__)
 	#include <machine/endian.h>
+	#include <TargetConditionals.h>
+
+	// on iOS, we have endian.h, but not be16toh and other functions
+#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
+	#undef HAVE_ENDIAN_H
+#endif
+
 #elif defined(__FreeBSD__) || defined(__DragonFly__)
 	#include <sys/endian.h>
 #elif HAVE_ENDIAN_H
