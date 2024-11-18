@@ -46,3 +46,22 @@ install_macos_deps() {
 	brew unlink $(brew ls --formula)
 	brew link "${pkgs[@]}"
 }
+
+# iOS build only
+install_ios_deps() {
+	osver=$1
+
+	local pkgs=(
+		cmake gettext wget
+	)
+	export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+	export HOMEBREW_NO_INSTALL_CLEANUP=1
+	# contrary to how it may look --auto-update makes brew do *less*
+	brew update --auto-update
+	brew install --display-times "${pkgs[@]}"
+	brew unlink $(brew ls --formula)
+	brew link "${pkgs[@]}"
+
+	wget ios${osver}_deps.tar.gz https://github.com/luanti-org/luanti_ios_deps/releases/download/latest/ios${osver}_deps.tar.gz || echo "Ignore stupid error number 4: $?"
+	tar -xf ios${osver}_deps.tar.gz
+}

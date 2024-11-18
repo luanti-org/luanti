@@ -38,6 +38,7 @@
 #elif !defined(BYTE_ORDER) && defined(__BYTE_ORDER)
 	#define BYTE_ORDER __BYTE_ORDER
 #endif
+#undef HAVE_ENDIAN_H
 
 #define FIXEDPOINT_FACTOR 1000.0f
 
