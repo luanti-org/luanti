@@ -213,8 +213,7 @@ local function test_async_job_replacement(cb)
 	local running = capacity
 	for _ = 1, capacity do
 		core.handle_async(function()
-			local t = core.get_us_time()
-			core.ipc_poll("unittests:end_blocking", 100)
+			core.ipc_poll("unittests:end_blocking", 1000)
 		end, function()
 			running = running - 1
 			if running <= 0 then
