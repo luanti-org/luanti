@@ -8057,6 +8057,7 @@ An `AsyncJob` is a reference to a job to be run in an async environment.
 ### Methods
 * `cancel()`: try to cancel the job
     * Returns whether the job was cancelled.
+    * A job can only be cancelled if it has not started.
 
 `InvRef`
 --------
