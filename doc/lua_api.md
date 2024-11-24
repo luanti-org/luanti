@@ -3162,6 +3162,13 @@ Elements
   half a coordinate.  With the old system, newlines are spaced 2/5 of
   an inventory slot.
 
+### `label[<X>,<Y>;<W>,<H>;<label>]`
+
+* The label formspec element displays the text set in `label`
+  at the specified position and size.
+* Text is wrapped to fit within the given bounds.
+* Only available with the new coordinate system.
+
 ### `hypertext[<X>,<Y>;<W>,<H>;<name>;<text>]`
 * Displays a static formatted text with hyperlinks.
 * **Note**: This element is currently unstable and subject to change.
