@@ -345,7 +345,9 @@ local function get_formspec(dlgdata)
 					core.colorize(mt_color_green, package.title) ..
 							core.colorize("#BFBFBF", " by " .. package.author)), "]",
 
-			"textarea[", img_w + 0.25, ",0.75;", cell_w - img_w - 0.25, ",", cell_h - 0.75, ";;;",
+			"label[", img_w + 0.25, ",0.75;", cell_w - img_w - 0.25, ",", cell_h - 0.75, ";",
+				core.formspec_escape(package.short_description), "]",
+			"tooltip[", img_w + 0.25, ",0.75;", cell_w - img_w - 0.25, ",", cell_h - 0.75, ";",
 				core.formspec_escape(package.short_description), "]",
 
 			"style[view_", i, ";border=false]",
