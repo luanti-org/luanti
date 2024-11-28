@@ -210,16 +210,10 @@ unittests.register("test_async_vector", test_vector_preserve, {async=true})
 
 local function test_async_job_replacement(cb)
 	local capacity = core.get_async_threading_capacity()
-	local running = capacity
 	for _ = 1, capacity do
 		core.handle_async(function()
 			core.ipc_poll("unittests:end_blocking", 1000)
-		end, function()
-			running = running - 1
-			if running <= 0 then
-				core.ipc_set("unittests:end_blocking", nil)
-			end
-		end)
+		end, function() end)
 	end
 	local job = core.handle_async(function(x)
 		return x
@@ -235,6 +229,7 @@ local function test_async_job_replacement(cb)
 	job = core.handle_async(function(x)
 		return x
 	end, function(ret)
+		core.ipc_set("unittests:end_blocking", nil)
 		if job:cancel() then
 			return cb("AsyncJob:cancel canceled a completed job")
 		end
