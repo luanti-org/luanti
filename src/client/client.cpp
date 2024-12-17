@@ -67,6 +67,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cmath>
+#include "script/sscsm/sscsm_controller.h"
 
 extern gui::IGUIEnvironment* guienv;
 
@@ -149,6 +150,8 @@ Client::Client(
 
 	m_cache_save_interval = g_settings->getU16("server_map_save_interval");
 	m_mesh_grid = { g_settings->getU16("client_mesh_chunk") };
+
+	m_sscsm_controller = SSCSMController::create();
 }
 
 void Client::migrateModStorage()
@@ -535,6 +538,8 @@ void Client::step(float dtime)
 		Handle environment
 	*/
 	LocalPlayer *player = m_env.getLocalPlayer();
+
+	m_sscsm_controller->eventOnStep(this, dtime);
 
 	// Step environment (also handles player controls)
 	m_env.step(dtime);
