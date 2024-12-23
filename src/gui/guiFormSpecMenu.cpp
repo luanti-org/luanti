@@ -3973,7 +3973,7 @@ void GUIFormSpecMenu::showSuperTip(GUIHyperText *e, const SuperTipSpec &spec)
 		int tooltip_offset_x = m_btn_height;
 		int tooltip_offset_y = m_btn_height;
 
-		if (m_pointer_type == PointerType::Touch) {
+		if (RenderingEngine::getLastPointerType() == PointerType::Touch) {
 			tooltip_offset_x *= 3;
 			tooltip_offset_y  = 0;
 			if (m_pointer.X > (s32)screenSize.X / 2)
