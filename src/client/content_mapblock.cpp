@@ -124,12 +124,12 @@ void MapblockMeshGenerator::drawQuad(v3f *coords, const v3s16 &normal,
 	float vertical_tiling)
 {
 	const v2f tcoords[4] = {v2f(0.0, 0.0), v2f(1.0, 0.0),
-		v2f(1.0, vertical_tiling), v2f(0.0, vertical_tiling)};
+        v2f(1.0, vertical_tiling), v2f(0.0, vertical_tiling)};
 	video::S3DVertex vertices[4];
 	bool shade_face = !cur_node.f->light_source && (normal != v3s16(0, 0, 0));
 	v3f normal2(normal.X, normal.Y, normal.Z);
 	for (int j = 0; j < 4; j++) {
-		vertices[j].Pos = coords[j] + cur_node.origin;
+        vertices[j].Pos = coords[j] + cur_node.origin;
 		vertices[j].Normal = normal2;
 		if (data->m_smooth_lighting)
 			vertices[j].Color = blendLightColor(coords[j]);
@@ -345,8 +345,8 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box, const f32 *txc,
 			generateCuboidTextureCoords(box, texture_coord_buf);
 			txc = texture_coord_buf;
 		}
-		box.MinEdge *= cur_node.f->visual_scale;
-		box.MaxEdge *= cur_node.f->visual_scale;
+        box.MinEdge *= cur_node.f->visual_scale;
+        box.MaxEdge *= cur_node.f->visual_scale;
 	}
 	box.MinEdge += cur_node.origin;
 	box.MaxEdge += cur_node.origin;
@@ -416,7 +416,7 @@ void MapblockMeshGenerator::drawSolidNode()
         bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
         if (n2 == n1)
             continue;
-        if (n2 == CONTENT_IGNORE && data->lod == 1)
+        if (n2 == CONTENT_IGNORE)// && data->lod == 1)
             continue;
         if (n2 != CONTENT_AIR) {
             const ContentFeatures &f2 = nodedef->get(n2);
@@ -827,7 +827,7 @@ void MapblockMeshGenerator::drawGlasslikeNode()
 	for (int face = 0; face < 6; face++) {
 		// Check this neighbor
 		v3s16 dir = g_6dirs[face];
-		v3s16 neighbor_pos = blockpos_nodes + cur_node.p + dir;
+        v3s16 neighbor_pos = blockpos_nodes + cur_node.p + dir;
 		MapNode neighbor = data->m_vmanip.getNodeNoExNoEmerge(neighbor_pos);
 		// Don't make face if neighbor is of same type
 		if (neighbor.getContent() == cur_node.n.getContent())
@@ -1532,7 +1532,7 @@ void MapblockMeshGenerator::drawAllfacesNode()
 	for (int face = 0; face < 6; face++)
 		getTile(nodebox_tile_dirs[face], &tiles[face]);
 	if (data->m_smooth_lighting)
-		getSmoothLightFrame();
+        getSmoothLightFrame();
 	drawAutoLightedCuboid(box, nullptr, tiles, 6);
 }
 
@@ -1766,7 +1766,19 @@ void MapblockMeshGenerator::generateFirstViable()
     for (s16 x = 0; x < width; x++)
     for (s16 z = 0; z < width; z++) {
         cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{x, y, z});
-        if (cur_node.n.getContent() == CONTENT_IGNORE) {
+        if (cur_node.n.getContent() == CONTENT_IGNORE // AIR
+            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{1, 0, 0}).getContent() == CONTENT_IGNORE)
+            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{data->lod, 0, 0}).getContent() == CONTENT_IGNORE)
+            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 1, 0}).getContent() == CONTENT_IGNORE)
+            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, data->lod, 0}).getContent() == CONTENT_IGNORE)
+            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 0, 1}).getContent() == CONTENT_IGNORE)
+            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 0, data->lod}).getContent() == CONTENT_IGNORE)
+            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{-1, 0, 0}).getContent() == CONTENT_IGNORE)
+            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{-data->lod, 0, 0}).getContent() == CONTENT_IGNORE)
+            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, -1, 0}).getContent() == CONTENT_IGNORE)
+            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, -data->lod, 0}).getContent() == CONTENT_IGNORE)
+            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 0, -1}).getContent() == CONTENT_IGNORE)
+            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 0, -data->lod}).getContent() == CONTENT_IGNORE)) {
             continue;
         }
         cur_node.f = &nodedef->get(cur_node.n);
@@ -1774,7 +1786,12 @@ void MapblockMeshGenerator::generateFirstViable()
             case NDT_AIRLIKE:           continue;
             case NDT_PLANTLIKE:         drawPlantlikeNode(); return;
             case NDT_PLANTLIKE_ROOTED:  drawPlantlikeRootedNode(); return;
-            default:                    drawSolidNode(); return;
+            case NDT_GLASSLIKE:
+            case NDT_GLASSLIKE_FRAMED:
+            case NDT_ALLFACES:
+            case NDT_LIQUID:
+            case NDT_NORMAL:            drawSolidNode(); return;
+            default:                    continue;
         }
     }
 }
