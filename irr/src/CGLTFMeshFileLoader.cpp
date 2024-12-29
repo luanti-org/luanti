@@ -5,7 +5,7 @@
 
 #include "SMaterialLayer.h"
 #include "coreutil.h"
-#include "CSkinnedMesh.h"
+#include "SkinnedMesh.h"
 #include "IAnimatedMesh.h"
 #include "IReadFile.h"
 #include "irrTypes.h"
@@ -305,7 +305,7 @@ SelfType::createNormalizedValuesAccessor(
 	}
 }
 
-template <std::size_t N>
+template <std::size_t N, bool validate>
 std::array<f32, N> SelfType::getNormalizedValues(
 		const NormalizedValuesAccessor<N> &accessor,
 		const std::size_t i)
@@ -313,17 +313,19 @@ std::array<f32, N> SelfType::getNormalizedValues(
 	std::array<f32, N> values;
 	if (std::holds_alternative<Accessor<std::array<u8, N>>>(accessor)) {
 		const auto u8s = std::get<Accessor<std::array<u8, N>>>(accessor).get(i);
-		for (u8 i = 0; i < N; ++i)
-			values[i] = static_cast<f32>(u8s[i]) / std::numeric_limits<u8>::max();
+		for (std::size_t j = 0; j < N; ++j)
+			values[j] = static_cast<f32>(u8s[j]) / std::numeric_limits<u8>::max();
 	} else if (std::holds_alternative<Accessor<std::array<u16, N>>>(accessor)) {
 		const auto u16s = std::get<Accessor<std::array<u16, N>>>(accessor).get(i);
-		for (u8 i = 0; i < N; ++i)
-			values[i] = static_cast<f32>(u16s[i]) / std::numeric_limits<u16>::max();
+		for (std::size_t j = 0; j < N; ++j)
+			values[j] = static_cast<f32>(u16s[j]) / std::numeric_limits<u16>::max();
 	} else {
 		values = std::get<Accessor<std::array<f32, N>>>(accessor).get(i);
-		for (u8 i = 0; i < N; ++i) {
-			if (values[i] < 0 || values[i] > 1)
-				throw std::runtime_error("invalid normalized value");
+		if constexpr (validate) {
+			for (std::size_t j = 0; j < N; ++j) {
+				if (values[j] < 0 || values[j] > 1)
+					throw std::runtime_error("invalid normalized value");
+			}
 		}
 	}
 	return values;
@@ -344,14 +346,14 @@ IAnimatedMesh* SelfType::createMesh(io::IReadFile* file)
 	const char *filename = file->getFileName().c_str();
 	try {
 		tiniergltf::GlTF model = parseGLTF(file);
-		irr_ptr<CSkinnedMesh> mesh(new CSkinnedMesh());
+		irr_ptr<SkinnedMeshBuilder> mesh(new SkinnedMeshBuilder());
 		MeshExtractor extractor(std::move(model), mesh.get());
 		try {
 			extractor.load();
 			for (const auto &warning : extractor.getWarnings()) {
 				os::Printer::log(filename, warning.c_str(), ELL_WARNING);
 			}
-			return mesh.release();
+			return mesh.release()->finalize();
 		} catch (const std::runtime_error &e) {
 			os::Printer::log("error converting gltf to irrlicht mesh", e.what(), ELL_ERROR);
 		}
@@ -410,7 +412,7 @@ static video::E_TEXTURE_CLAMP convertTextureWrap(const Wrap wrap) {
 void SelfType::MeshExtractor::addPrimitive(
 		const tiniergltf::MeshPrimitive &primitive,
 		const std::optional<std::size_t> skinIdx,
-		CSkinnedMesh::SJoint *parent)
+		SkinnedMesh::SJoint *parent)
 {
 	auto vertices = getVertices(primitive);
 	if (!vertices.has_value())
@@ -493,6 +495,7 @@ void SelfType::MeshExtractor::addPrimitive(
 
 		const auto weightAccessor = createNormalizedValuesAccessor<4>(m_gltf_model, weights->at(set));
 
+		bool negative_weights = false;
 		for (std::size_t v = 0; v < n_vertices; ++v) {
 			std::array<u16, 4> jointIdxs;
 			if (std::holds_alternative<Accessor<std::array<u8, 4>>>(jointAccessor)) {
@@ -501,21 +504,27 @@ void SelfType::MeshExtractor::addPrimitive(
 			} else if (std::holds_alternative<Accessor<std::array<u16, 4>>>(jointAccessor)) {
 				jointIdxs = std::get<Accessor<std::array<u16, 4>>>(jointAccessor).get(v);
 			}
-			std::array<f32, 4> strengths = getNormalizedValues(weightAccessor, v);
+
+			// Be lax: We can allow weights that aren't normalized. Irrlicht already normalizes them.
+			// The glTF spec only requires that these be "as close to 1 as reasonably possible".
+			auto strengths = getNormalizedValues<4, false>(weightAccessor, v);
 
 			// 4 joints per set
 			for (std::size_t in_set = 0; in_set < 4; ++in_set) {
 				u16 jointIdx = jointIdxs[in_set];
 				f32 strength = strengths[in_set];
-				if (strength == 0)
-					continue;
+				negative_weights = negative_weights || (strength < 0);
+				if (strength <= 0)
+					continue; // note: also ignores negative weights
 
-				CSkinnedMesh::SWeight *weight = m_irr_model->addWeight(m_loaded_nodes.at(skin.joints.at(jointIdx)));
+				SkinnedMesh::SWeight *weight = m_irr_model->addWeight(m_loaded_nodes.at(skin.joints.at(jointIdx)));
 				weight->buffer_id = meshbufNr;
 				weight->vertex_id = v;
 				weight->strength = strength;
 			}
 		}
+		if (negative_weights)
+			warn("negative weights");
 	}
 }
 
@@ -527,7 +536,7 @@ void SelfType::MeshExtractor::addPrimitive(
 void SelfType::MeshExtractor::deferAddMesh(
 		const std::size_t meshIdx,
 		const std::optional<std::size_t> skinIdx,
-		CSkinnedMesh::SJoint *parent)
+		SkinnedMesh::SJoint *parent)
 {
 	m_mesh_loaders.emplace_back([=] {
 		for (std::size_t pi = 0; pi < getPrimitiveCount(meshIdx); ++pi) {
@@ -547,7 +556,7 @@ static const core::matrix4 leftToRight = core::matrix4(
 );
 static const core::matrix4 rightToLeft = leftToRight;
 
-static core::matrix4 loadTransform(const tiniergltf::Node::Matrix &m, CSkinnedMesh::SJoint *joint)
+static core::matrix4 loadTransform(const tiniergltf::Node::Matrix &m, SkinnedMesh::SJoint *joint)
 {
 	// Note: Under the hood, this casts these doubles to floats.
 	core::matrix4 mat = convertHandedness(core::matrix4(
@@ -576,7 +585,7 @@ static core::matrix4 loadTransform(const tiniergltf::Node::Matrix &m, CSkinnedMe
 	return mat;
 }
 
-static core::matrix4 loadTransform(const tiniergltf::Node::TRS &trs, CSkinnedMesh::SJoint *joint)
+static core::matrix4 loadTransform(const tiniergltf::Node::TRS &trs, SkinnedMesh::SJoint *joint)
 {
 	const auto &trans = trs.translation;
 	const auto &rot = trs.rotation;
@@ -594,7 +603,7 @@ static core::matrix4 loadTransform(const tiniergltf::Node::TRS &trs, CSkinnedMes
 }
 
 static core::matrix4 loadTransform(std::optional<std::variant<tiniergltf::Node::Matrix, tiniergltf::Node::TRS>> transform,
-		CSkinnedMesh::SJoint *joint) {
+		SkinnedMesh::SJoint *joint) {
 	if (!transform.has_value()) {
 		return core::matrix4();
 	}
@@ -603,7 +612,7 @@ static core::matrix4 loadTransform(std::optional<std::variant<tiniergltf::Node::
 
 void SelfType::MeshExtractor::loadNode(
 		const std::size_t nodeIdx,
-		CSkinnedMesh::SJoint *parent)
+		SkinnedMesh::SJoint *parent)
 {
 	const auto &node = m_gltf_model.nodes->at(nodeIdx);
 	auto *joint = m_irr_model->addJoint(parent);
@@ -626,7 +635,7 @@ void SelfType::MeshExtractor::loadNode(
 
 void SelfType::MeshExtractor::loadNodes()
 {
-	m_loaded_nodes = std::vector<CSkinnedMesh::SJoint *>(m_gltf_model.nodes->size());
+	m_loaded_nodes = std::vector<SkinnedMesh::SJoint *>(m_gltf_model.nodes->size());
 
 	std::vector<bool> isChild(m_gltf_model.nodes->size());
 	for (const auto &node : *m_gltf_model.nodes) {
@@ -668,8 +677,17 @@ void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 	for (const auto &channel : anim.channels) {
 
 		const auto &sampler = anim.samplers.at(channel.sampler);
-		if (sampler.interpolation != tiniergltf::AnimationSampler::Interpolation::LINEAR)
-			throw std::runtime_error("unsupported interpolation");
+
+		bool interpolate = ([&]() {
+			switch (sampler.interpolation) {
+				case tiniergltf::AnimationSampler::Interpolation::STEP:
+					return false;
+				case tiniergltf::AnimationSampler::Interpolation::LINEAR:
+					return true;
+				default:
+					throw std::runtime_error("Only STEP and LINEAR keyframe interpolation are supported");
+			}
+		})();
 
 		const auto inputAccessor = Accessor<f32>::make(m_gltf_model, sampler.input);
 		const auto n_frames = inputAccessor.getCount();
@@ -677,32 +695,38 @@ void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 		if (!channel.target.node.has_value())
 			throw std::runtime_error("no animated node");
 
-		const auto &joint = m_loaded_nodes.at(*channel.target.node);
+		auto *joint = m_loaded_nodes.at(*channel.target.node);
 		switch (channel.target.path) {
 		case tiniergltf::AnimationChannelTarget::Path::TRANSLATION: {
 			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
+			auto &channel = joint->keys.position;
+			channel.interpolate = interpolate;
 			for (std::size_t i = 0; i < n_frames; ++i) {
-				auto *key = m_irr_model->addPositionKey(joint);
-				key->frame = inputAccessor.get(i);
-				key->position = convertHandedness(outputAccessor.get(i));
+				f32 frame = inputAccessor.get(i);
+				core::vector3df position = outputAccessor.get(i);
+				channel.pushBack(frame, convertHandedness(position));
 			}
 			break;
 		}
 		case tiniergltf::AnimationChannelTarget::Path::ROTATION: {
 			const auto outputAccessor = Accessor<core::quaternion>::make(m_gltf_model, sampler.output);
+			auto &channel = joint->keys.rotation;
+			channel.interpolate = interpolate;
 			for (std::size_t i = 0; i < n_frames; ++i) {
-				auto *key = m_irr_model->addRotationKey(joint);
-				key->frame = inputAccessor.get(i);
-				key->rotation = convertHandedness(outputAccessor.get(i));
+				f32 frame = inputAccessor.get(i);
+				core::quaternion rotation = outputAccessor.get(i);
+				channel.pushBack(frame, convertHandedness(rotation));
 			}
 			break;
 		}
 		case tiniergltf::AnimationChannelTarget::Path::SCALE: {
 			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
+			auto &channel = joint->keys.scale;
+			channel.interpolate = interpolate;
 			for (std::size_t i = 0; i < n_frames; ++i) {
-				auto *key = m_irr_model->addScaleKey(joint);
-				key->frame = inputAccessor.get(i);
-				key->scale = outputAccessor.get(i);
+				f32 frame = inputAccessor.get(i);
+				core::vector3df scale = outputAccessor.get(i);
+				channel.pushBack(frame, scale);
 			}
 			break;
 		}
@@ -747,8 +771,6 @@ void SelfType::MeshExtractor::load()
 	} catch (const std::bad_optional_access &e) {
 		throw std::runtime_error(e.what());
 	}
-
-	m_irr_model->finalize();
 }
 
 /**
@@ -791,7 +813,8 @@ std::optional<std::vector<u16>> SelfType::MeshExtractor::getIndices(
 			index = std::get<Accessor<u16>>(accessor).get(elemIdx);
 			if (index == std::numeric_limits<u16>::max())
 				throw std::runtime_error("invalid index");
-		} else if (std::holds_alternative<Accessor<u32>>(accessor)) {
+		} else {
+			_IRR_DEBUG_BREAK_IF(!std::holds_alternative<Accessor<u32>>(accessor));
 			u32 indexWide = std::get<Accessor<u32>>(accessor).get(elemIdx);
 			// Use >= here for consistency.
 			if (indexWide >= std::numeric_limits<u16>::max())

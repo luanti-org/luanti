@@ -13,7 +13,7 @@
 #include "settings.h"
 #include "util/hex.h"
 #include "util/serialize.h"
-#include "util/sha1.h"
+#include "util/hashing.h"
 #include "util/string.h"
 #include <sstream>
 
@@ -537,12 +537,7 @@ bool IClientMediaDownloader::checkAndLoad(
 	std::string sha1_hex = hex_encode(sha1);
 
 	// Compute actual checksum of data
-	std::string data_sha1;
-	{
-		SHA1 ctx;
-		ctx.addBytes(data);
-		data_sha1 = ctx.getDigest();
-	}
+	std::string data_sha1 = hashing::sha1(data);
 
 	// Check that received file matches announced checksum
 	if (data_sha1 != sha1) {

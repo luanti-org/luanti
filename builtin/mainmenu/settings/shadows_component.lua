@@ -82,7 +82,6 @@ end
 return {
 	query_text = "Shadows",
 	requires = {
-		shaders = true,
 		opengl = true,
 	},
 	get_formspec = function(self, avail_w)

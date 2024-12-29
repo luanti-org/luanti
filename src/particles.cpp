@@ -190,8 +190,10 @@ void ServerParticleTexture::serialize(std::ostream &os, u16 protocol_ver,
 	FlagT flags = 0;
 	if (animated)
 		flags |= FlagT(ParticleTextureFlags::animated);
-	if (blendmode != BlendMode::alpha)
-		flags |= FlagT(blendmode) << 1;
+	// Default to `blend = "alpha"` for older clients that don't support `blend = "clip"`
+	auto sent_blendmode = (protocol_ver < 47 && blendmode == BlendMode::clip)
+			? BlendMode::alpha : blendmode;
+	flags |= FlagT(sent_blendmode) << 1;
 	serializeParameterValue(os, flags);
 
 	alpha.serialize(os);
@@ -215,6 +217,8 @@ void ServerParticleTexture::deSerialize(std::istream &is, u16 protocol_ver,
 
 	animated = !!(flags & FlagT(ParticleTextureFlags::animated));
 	blendmode = BlendMode((flags & FlagT(ParticleTextureFlags::blend)) >> 1);
+	if (blendmode >= BlendMode::BlendMode_END)
+		throw SerializationError("invalid blend mode");
 
 	alpha.deSerialize(is);
 	scale.deSerialize(is);

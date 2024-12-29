@@ -34,23 +34,9 @@
 #include "CEGLManager.h"
 #endif
 
-#if defined(_IRR_COMPILE_WITH_OPENGL_)
+#if defined(_IRR_COMPILE_WITH_WGL_MANAGER_)
 #include "CWGLManager.h"
 #endif
-
-namespace irr
-{
-namespace video
-{
-#ifdef _IRR_COMPILE_WITH_OPENGL_
-IVideoDriver *createOpenGLDriver(const irr::SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
-#endif
-
-#ifdef _IRR_COMPILE_WITH_OGLES2_
-IVideoDriver *createOGLES2Driver(const irr::SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
-#endif
-}
-} // end namespace irr
 
 namespace irr
 {
@@ -727,10 +713,6 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters &params) :
 		ExternalWindow(false), Win32CursorControl(0), JoyControl(0),
 		WindowMaximized(params.WindowMaximized)
 {
-#ifdef _DEBUG
-	setDebugName("CIrrDeviceWin32");
-#endif
-
 	// get windows version and create OS operator
 	core::stringc winversion;
 	getWindowsVersion(winversion);
@@ -880,14 +862,23 @@ void CIrrDeviceWin32::createDriver()
 
 		ContextManager = new video::CWGLManager();
 		ContextManager->initialize(CreationParams, video::SExposedVideoData(HWnd));
-
+#endif
 		VideoDriver = video::createOpenGLDriver(CreationParams, FileSystem, ContextManager);
 
 		if (!VideoDriver)
 			os::Printer::log("Could not create OpenGL driver.", ELL_ERROR);
-#else
-		os::Printer::log("OpenGL driver was not compiled in.", ELL_ERROR);
+		break;
+	case video::EDT_OPENGL3:
+#ifdef ENABLE_OPENGL3
+		switchToFullScreen();
+
+		ContextManager = new video::CWGLManager();
+		ContextManager->initialize(CreationParams, video::SExposedVideoData(HWnd));
 #endif
+		VideoDriver = video::createOpenGL3Driver(CreationParams, FileSystem, ContextManager);
+
+		if (!VideoDriver)
+			os::Printer::log("Could not create OpenGL 3 driver.", ELL_ERROR);
 		break;
 	case video::EDT_OGLES2:
 #ifdef _IRR_COMPILE_WITH_OGLES2_
@@ -895,14 +886,11 @@ void CIrrDeviceWin32::createDriver()
 
 		ContextManager = new video::CEGLManager();
 		ContextManager->initialize(CreationParams, video::SExposedVideoData(HWnd));
-
+#endif
 		VideoDriver = video::createOGLES2Driver(CreationParams, FileSystem, ContextManager);
 
 		if (!VideoDriver)
 			os::Printer::log("Could not create OpenGL-ES2 driver.", ELL_ERROR);
-#else
-		os::Printer::log("OpenGL-ES2 driver was not compiled in.", ELL_ERROR);
-#endif
 		break;
 	case video::EDT_WEBGL1:
 		os::Printer::log("WebGL1 driver not supported on Win32 device.", ELL_ERROR);

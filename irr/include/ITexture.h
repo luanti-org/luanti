@@ -74,9 +74,7 @@ enum E_TEXTURE_CREATION_FLAG
 
 	//! Allow the driver to keep a copy of the texture in memory
 	/** Enabling this makes calls to ITexture::lock a lot faster, but costs main memory.
-	Currently only used in combination with OpenGL drivers.
-	NOTE: Disabling this does not yet work correctly with alpha-textures.
-	So the default is on for now (but might change with Irrlicht 1.9 if we get the alpha-troubles fixed).
+	This is disabled by default.
 	*/
 	ETCF_ALLOW_MEMORY_COPY = 0x00000080,
 
@@ -158,6 +156,9 @@ enum E_TEXTURE_TYPE
 	//! 2D texture.
 	ETT_2D,
 
+	//! 2D texture with multisampling.
+	ETT_2D_MS,
+
 	//! Cubemap texture.
 	ETT_CUBEMAP
 };
@@ -184,7 +185,7 @@ public:
 	//! Lock function.
 	/** Locks the Texture and returns a pointer to access the
 	pixels. After lock() has been called and all operations on the pixels
-	are done, you must call unlock().
+	are done, you must call unlock(). Afterwards the pointer becomes invalid.
 	Locks are not accumulating, hence one unlock will do for an arbitrary
 	number of previous locks. You should avoid locking different levels without
 	unlocking in between, though, because only the last level locked will be

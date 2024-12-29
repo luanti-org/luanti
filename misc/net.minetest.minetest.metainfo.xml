@@ -135,8 +135,8 @@
     <url type="bugtracker">https://www.minetest.net/get-involved/#reporting-issues</url>
     <url type="translate">https://dev.minetest.net/Translation</url>
     <url type="donation">https://www.minetest.net/get-involved/#donate</url>
-    <url type="faq">https://wiki.minetest.net/FAQ</url>
-    <url type="help">https://wiki.minetest.net</url>
+    <url type="faq">https://wiki.luanti.org/FAQ</url>
+    <url type="help">https://wiki.luanti.org</url>
     <url type="vcs-browser">https://github.com/minetest/minetest</url>
     <url type="contribute">https://www.minetest.net/get-involved</url>
 
@@ -149,6 +149,6 @@
     <update_contact>celeron55@gmail.com</update_contact>
 
     <releases>
-        <release date="2024-08-11" version="5.9.0"/>
+        <release date="2024-11-10" version="5.10.0"/>
     </releases>
 </component>

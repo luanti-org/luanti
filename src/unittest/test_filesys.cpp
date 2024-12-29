@@ -24,6 +24,7 @@ public:
 	void testRemoveLastPathComponent();
 	void testRemoveLastPathComponentWithTrailingDelimiter();
 	void testRemoveRelativePathComponent();
+	void testAbsolutePath();
 	void testSafeWriteToFile();
 	void testCopyFileContents();
 	void testNonExist();
@@ -39,6 +40,7 @@ void TestFileSys::runTests(IGameDef *gamedef)
 	TEST(testRemoveLastPathComponent);
 	TEST(testRemoveLastPathComponentWithTrailingDelimiter);
 	TEST(testRemoveRelativePathComponent);
+	TEST(testAbsolutePath);
 	TEST(testSafeWriteToFile);
 	TEST(testCopyFileContents);
 	TEST(testNonExist);
@@ -55,7 +57,7 @@ static std::string p(std::string path)
 	for (size_t i = 0; i < path.size(); ++i) {
 		if (path[i] == '/') {
 			path.replace(i, 1, DIR_DELIM);
-			i += std::string(DIR_DELIM).size() - 1; // generally a no-op
+			i += strlen(DIR_DELIM) - 1; // generally a no-op
 		}
 	}
 
@@ -256,6 +258,46 @@ void TestFileSys::testRemoveRelativePathComponent()
 	path = p("/a/b/c/.././../d/../e/f/g/../h/i/j/../../../..");
 	result = fs::RemoveRelativePathComponents(path);
 	UASSERT(result == p("/a/e"));
+}
+
+
+void TestFileSys::testAbsolutePath()
+{
+	const auto dir_path = getTestTempDirectory();
+
+	/* AbsolutePath */
+	UASSERTEQ(auto, fs::AbsolutePath(""), ""); // empty is a not valid path
+	const auto cwd = fs::AbsolutePath(".");
+	UASSERTCMP(auto, !=, cwd, "");
+	{
+		const auto dir_path2 = getTestTempFile();
+		UASSERTEQ(auto, fs::AbsolutePath(dir_path2), ""); // doesn't exist
+		fs::CreateDir(dir_path2);
+		UASSERTCMP(auto, !=, fs::AbsolutePath(dir_path2), ""); // now it does
+		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM ".."), fs::AbsolutePath(dir_path));
+	}
+
+	/* AbsolutePathPartial */
+	// equivalent to AbsolutePath if it exists
+	UASSERTEQ(auto, fs::AbsolutePathPartial("."), cwd);
+	UASSERTEQ(auto, fs::AbsolutePathPartial(dir_path), fs::AbsolutePath(dir_path));
+	// usual usage of the function with a partially existing path
+	auto expect = cwd + DIR_DELIM + p("does/not/exist");
+	UASSERTEQ(auto, fs::AbsolutePathPartial("does/not/exist"), expect);
+	UASSERTEQ(auto, fs::AbsolutePathPartial(expect), expect);
+
+	// a nonsense combination as you couldn't actually access it, but allowed by function
+	UASSERTEQ(auto, fs::AbsolutePathPartial("bla/blub/../.."), cwd);
+	UASSERTEQ(auto, fs::AbsolutePathPartial("./bla/blub/../.."), cwd);
+
+#ifdef __unix__
+	// one way to produce the error case is to remove more components than there are
+	// but only if the path does not actually exist ("/.." does exist).
+	UASSERTEQ(auto, fs::AbsolutePathPartial("/.."), "/");
+	UASSERTEQ(auto, fs::AbsolutePathPartial("/noexist/../.."), "");
+#endif
+	// or with an empty path
+	UASSERTEQ(auto, fs::AbsolutePathPartial(""), "");
 }
 
 

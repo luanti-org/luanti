@@ -392,7 +392,7 @@ function contentdb.resolve_dependencies(package, game, callback)
 end
 
 
-local function fetch_pkgs(params)
+local function fetch_pkgs()
 	local version = core.get_version()
 	local base_url = core.settings:get("contentdb_url")
 	local url = base_url ..
@@ -429,41 +429,43 @@ local function fetch_pkgs(params)
 	if not packages or #packages == 0 then
 		return
 	end
-	local aliases = {}
+	return packages
+end
+
+
+function contentdb.set_packages_from_api(packages)
+	contentdb.package_by_id = {}
+	contentdb.aliases = {}
 
 	for _, package in pairs(packages) do
-		package.id = params.calculate_package_id(package.type, package.author, package.name)
+		package.id = contentdb.calculate_package_id(package.type, package.author, package.name)
 		package.url_part = core.urlencode(package.author) .. "/" .. core.urlencode(package.name)
+
+		contentdb.package_by_id[package.id] = package
 
 		if package.aliases then
 			for _, alias in ipairs(package.aliases) do
 				-- We currently don't support name changing
 				local suffix = "/" .. package.name
 				if alias:sub(-#suffix) == suffix then
-					aliases[alias:lower()] = package.id
+					contentdb.aliases[alias:lower()] = package.id
 				end
 			end
 		end
 	end
 
-	return { packages = packages, aliases = aliases }
+	contentdb.load_ok = true
+	contentdb.load_error = false
+	contentdb.packages = packages
+	contentdb.packages_full = packages
+	contentdb.packages_full_unordered = packages
 end
-
 
 function contentdb.fetch_pkgs(callback)
 	contentdb.loading = true
-	core.handle_async(fetch_pkgs, { calculate_package_id = contentdb.calculate_package_id  }, function(result)
+	core.handle_async(fetch_pkgs, nil, function(result)
 		if result then
-			contentdb.load_ok = true
-			contentdb.load_error = false
-			contentdb.packages = result.packages
-			contentdb.packages_full = result.packages
-			contentdb.packages_full_unordered = result.packages
-			contentdb.aliases = result.aliases
-
-			for _, package in ipairs(result.packages) do
-				contentdb.package_by_id[package.id] = package
-			end
+			contentdb.set_packages_from_api(result)
 		else
 			contentdb.load_error = true
 		end

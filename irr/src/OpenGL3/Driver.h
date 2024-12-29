@@ -13,7 +13,7 @@ namespace video
 /// OpenGL 3+ driver
 ///
 /// For OpenGL 3.2 and higher. Compatibility profile is required currently.
-class COpenGL3Driver : public COpenGL3DriverBase
+class COpenGL3Driver final : public COpenGL3DriverBase
 {
 	friend IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
 

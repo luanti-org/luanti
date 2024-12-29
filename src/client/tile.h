@@ -20,6 +20,7 @@ enum MaterialType{
 	TILE_MATERIAL_WAVING_LIQUID_BASIC,
 	TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT,
 	TILE_MATERIAL_WAVING_LIQUID_OPAQUE,
+	// Note: PLAIN isn't a material actually used by tiles, rather just entities.
 	TILE_MATERIAL_PLAIN,
 	TILE_MATERIAL_PLAIN_ALPHA
 };
@@ -78,15 +79,17 @@ struct TileLayer
 		return !(*this == other);
 	}
 
-	// Sets everything else except the texture in the material
 	void applyMaterialOptions(video::SMaterial &material) const;
 
 	void applyMaterialOptionsWithShaders(video::SMaterial &material) const;
 
+	/// @return is this layer semi-transparent?
 	bool isTransparent() const
 	{
+		// see also: the mapping in ShaderSource::generateShader()
 		switch (material_type) {
 		case TILE_MATERIAL_ALPHA:
+		case TILE_MATERIAL_PLAIN_ALPHA:
 		case TILE_MATERIAL_LIQUID_TRANSPARENT:
 		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
 			return true;

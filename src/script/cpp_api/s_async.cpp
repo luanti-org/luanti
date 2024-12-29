@@ -14,10 +14,14 @@ extern "C" {
 #include "server.h"
 #include "s_async.h"
 #include "log.h"
+#include "config.h"
 #include "filesys.h"
 #include "porting.h"
 #include "common/c_internal.h"
 #include "common/c_packer.h"
+#if CHECK_CLIENT_BUILD()
+#include "script/scripting_mainmenu.h"
+#endif
 #include "lua_api/l_base.h"
 
 /******************************************************************************/
@@ -256,7 +260,6 @@ bool AsyncEngine::prepareEnvironment(lua_State* L, int top)
 	return true;
 }
 
-/******************************************************************************/
 AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
 		const std::string &name) :
 	ScriptApiBase(ScriptingType::Async),
@@ -270,6 +273,8 @@ AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
 
 		if (g_settings->getBool("secure.enable_security"))
 			initializeSecurity();
+	} else {
+		initializeSecurity();
 	}
 
 	// Prepare job lua environment
@@ -287,13 +292,27 @@ AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
 	lua_pop(L, 1);
 }
 
-/******************************************************************************/
 AsyncWorkerThread::~AsyncWorkerThread()
 {
 	sanity_check(!isRunning());
 }
 
-/******************************************************************************/
+bool AsyncWorkerThread::checkPathInternal(const std::string &abs_path,
+	bool write_required, bool *write_allowed)
+{
+	auto *L = getStack();
+	// dispatch to the right implementation. this should be refactored some day...
+	if (jobDispatcher->server) {
+		return ScriptApiSecurity::checkPathWithGamedef(L, abs_path, write_required, write_allowed);
+	} else {
+#if CHECK_CLIENT_BUILD()
+		return MainMenuScripting::checkPathAccess(abs_path, write_required, write_allowed);
+#else
+		FATAL_ERROR("should never get here");
+#endif
+	}
+}
+
 void* AsyncWorkerThread::run()
 {
 	if (isErrored)

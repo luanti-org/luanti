@@ -98,11 +98,6 @@ void GUIScene::draw()
 	if (m_inf_rot)
 		rotateCamera(v3f(0.f, -0.03f * (float)dtime_ms, 0.f));
 
-	// HACK restore mesh vertex colors to full brightness:
-	// They may have been mutated in entity rendering code before.
-	if (!g_settings->getBool("enable_shaders"))
-		setMeshColor(m_mesh->getMesh(), irr::video::SColor(0xFFFFFFFF));
-
 	m_smgr->drawAll();
 
 	if (m_initial_rotation && m_mesh) {

@@ -43,10 +43,6 @@ namespace io
 //! constructor
 CFileSystem::CFileSystem()
 {
-#ifdef _DEBUG
-	setDebugName("CFileSystem");
-#endif
-
 	setFileListSystem(FILESYSTEM_NATIVE);
 	//! reset current working directory
 	getWorkingDirectory();

@@ -19,9 +19,6 @@ namespace video
 //! constructor
 CImageLoaderJPG::CImageLoaderJPG()
 {
-#ifdef _DEBUG
-	setDebugName("CImageLoaderJPG");
-#endif
 }
 
 //! destructor

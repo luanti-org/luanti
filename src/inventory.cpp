@@ -295,10 +295,8 @@ std::string ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
 v3f ItemStack::getWieldScale(const IItemDefManager *itemdef) const
 {
 	std::string scale = metadata.getString("wield_scale");
-	if (scale.empty())
-		return getDefinition(itemdef).wield_scale;
 
-	return str_to_v3f(scale);
+	return str_to_v3f(scale).value_or(getDefinition(itemdef).wield_scale);
 }
 
 ItemStack ItemStack::addItem(ItemStack newitem, IItemDefManager *itemdef)

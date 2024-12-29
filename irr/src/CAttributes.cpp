@@ -12,12 +12,7 @@ namespace irr
 namespace io
 {
 
-CAttributes::CAttributes()
-{
-#ifdef _DEBUG
-	setDebugName("CAttributes");
-#endif
-}
+CAttributes::CAttributes() {}
 
 CAttributes::~CAttributes()
 {

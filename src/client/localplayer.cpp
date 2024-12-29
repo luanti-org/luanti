@@ -75,10 +75,8 @@ static aabb3f getNodeBoundingBox(const std::vector<aabb3f> &nodeboxes)
 	if (nodeboxes.empty())
 		return aabb3f(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	aabb3f b_max;
-
-	std::vector<aabb3f>::const_iterator it = nodeboxes.begin();
-	b_max = aabb3f(it->MinEdge, it->MaxEdge);
+	auto it = nodeboxes.begin();
+	aabb3f b_max(it->MinEdge, it->MaxEdge);
 
 	++it;
 	for (; it != nodeboxes.end(); ++it)
@@ -209,7 +207,7 @@ bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 	return true;
 }
 
-void LocalPlayer::move(f32 dtime, Environment *env, f32 pos_max_d,
+void LocalPlayer::move(f32 dtime, Environment *env,
 		std::vector<CollisionInfo> *collision_info)
 {
 	// Node at feet position, update each ClientEnvironment::step()
@@ -218,7 +216,7 @@ void LocalPlayer::move(f32 dtime, Environment *env, f32 pos_max_d,
 
 	// Temporary option for old move code
 	if (!physics_override.new_move) {
-		old_move(dtime, env, pos_max_d, collision_info);
+		old_move(dtime, env, collision_info);
 		return;
 	}
 
@@ -320,17 +318,6 @@ void LocalPlayer::move(f32 dtime, Environment *env, f32 pos_max_d,
 			nodemgr->get(node2.getContent()).climbable) && !free_move;
 	}
 
-	/*
-		Collision uncertainty radius
-		Make it a bit larger than the maximum distance of movement
-	*/
-	//f32 d = pos_max_d * 1.1;
-	// A fairly large value in here makes moving smoother
-	f32 d = 0.15f * BS;
-
-	// This should always apply, otherwise there are glitches
-	sanity_check(d > pos_max_d);
-
 	// Player object property step height is multiplied by BS in
 	// /src/script/common/c_content.cpp and /src/content_sao.cpp
 	float player_stepheight = (m_cao == nullptr) ? 0.0f :
@@ -341,7 +328,7 @@ void LocalPlayer::move(f32 dtime, Environment *env, f32 pos_max_d,
 	const v3f initial_speed = m_speed;
 
 	collisionMoveResult result = collisionMoveSimple(env, m_client,
-		pos_max_d, m_collisionbox, player_stepheight, dtime,
+		m_collisionbox, player_stepheight, dtime,
 		&position, &m_speed, accel_f, m_cao);
 
 	bool could_sneak = control.sneak && !free_move && !in_liquid &&
@@ -528,12 +515,12 @@ void LocalPlayer::move(f32 dtime, Environment *env, f32 pos_max_d,
 	m_can_jump = m_can_jump && jumpspeed != 0.0f;
 
 	// Autojump
-	handleAutojump(dtime, env, result, initial_position, initial_speed, pos_max_d);
+	handleAutojump(dtime, env, result, initial_position, initial_speed);
 }
 
-void LocalPlayer::move(f32 dtime, Environment *env, f32 pos_max_d)
+void LocalPlayer::move(f32 dtime, Environment *env)
 {
-	move(dtime, env, pos_max_d, NULL);
+	move(dtime, env, nullptr);
 }
 
 void LocalPlayer::applyControl(float dtime, Environment *env)
@@ -827,7 +814,7 @@ void LocalPlayer::accelerate(const v3f &target_speed, const f32 max_increase_H,
 }
 
 // Temporary option for old move code
-void LocalPlayer::old_move(f32 dtime, Environment *env, f32 pos_max_d,
+void LocalPlayer::old_move(f32 dtime, Environment *env,
 	std::vector<CollisionInfo> *collision_info)
 {
 	Map *map = &env->getMap();
@@ -924,15 +911,6 @@ void LocalPlayer::old_move(f32 dtime, Environment *env, f32 pos_max_d,
 		is_climbing = (nodemgr->get(node.getContent()).climbable ||
 			nodemgr->get(node2.getContent()).climbable) && !free_move;
 
-	/*
-		Collision uncertainty radius
-		Make it a bit larger than the maximum distance of movement
-	*/
-	//f32 d = pos_max_d * 1.1;
-	// A fairly large value in here makes moving smoother
-	f32 d = 0.15f * BS;
-	// This should always apply, otherwise there are glitches
-	sanity_check(d > pos_max_d);
 	// Maximum distance over border for sneaking
 	f32 sneak_max = BS * 0.4f;
 
@@ -971,7 +949,7 @@ void LocalPlayer::old_move(f32 dtime, Environment *env, f32 pos_max_d,
 	const v3f initial_speed = m_speed;
 
 	collisionMoveResult result = collisionMoveSimple(env, m_client,
-		pos_max_d, m_collisionbox, player_stepheight, dtime,
+		m_collisionbox, player_stepheight, dtime,
 		&position, &m_speed, accel_f, m_cao);
 
 	// Position was slightly changed; update standing node pos
@@ -1155,7 +1133,7 @@ void LocalPlayer::old_move(f32 dtime, Environment *env, f32 pos_max_d,
 	}
 
 	// Autojump
-	handleAutojump(dtime, env, result, initial_position, initial_speed, pos_max_d);
+	handleAutojump(dtime, env, result, initial_position, initial_speed);
 }
 
 float LocalPlayer::getSlipFactor(Environment *env, const v3f &speedH)
@@ -1178,8 +1156,7 @@ float LocalPlayer::getSlipFactor(Environment *env, const v3f &speedH)
 }
 
 void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
-	const collisionMoveResult &result, const v3f &initial_position,
-	const v3f &initial_speed, f32 pos_max_d)
+	const collisionMoveResult &result, v3f initial_position, v3f initial_speed)
 {
 	PlayerSettings &player_settings = getPlayerSettings();
 	if (!player_settings.autojump)
@@ -1196,7 +1173,7 @@ void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
 
 	bool horizontal_collision = false;
 	for (const auto &colinfo : result.collisions) {
-		if (colinfo.type == COLLISION_NODE && colinfo.plane != 1) {
+		if (colinfo.type == COLLISION_NODE && colinfo.axis != COLLISION_AXIS_Y) {
 			horizontal_collision = true;
 			break; // one is enough
 		}
@@ -1235,7 +1212,7 @@ void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
 	v3f jump_speed = initial_speed;
 
 	// try at peak of jump, zero step height
-	collisionMoveResult jump_result = collisionMoveSimple(env, m_client, pos_max_d,
+	collisionMoveResult jump_result = collisionMoveSimple(env, m_client,
 		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f), m_cao);
 
 	// see if we can get a little bit farther horizontally if we had

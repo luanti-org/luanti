@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "CSkinnedMesh.h"
+#include "SkinnedMesh.h"
 #include "IMeshLoader.h"
 #include "IReadFile.h"
 #include "irrTypes.h"
@@ -91,7 +91,7 @@ private:
 			const tiniergltf::GlTF &model,
 			const std::size_t accessorIdx);
 
-	template <std::size_t N>
+	template <std::size_t N, bool validate = true>
 	static std::array<f32, N> getNormalizedValues(
 			const NormalizedValuesAccessor<N> &accessor,
 			const std::size_t i);
@@ -100,7 +100,7 @@ private:
 	{
 	public:
 		MeshExtractor(tiniergltf::GlTF &&model,
-				CSkinnedMesh *mesh) noexcept
+				SkinnedMeshBuilder *mesh) noexcept
 			: m_gltf_model(std::move(model)), m_irr_model(mesh) {};
 
 		/* Gets indices for the given mesh/primitive.
@@ -118,20 +118,20 @@ private:
 		std::size_t getPrimitiveCount(const std::size_t meshIdx) const;
 
 		void load();
-		const std::vector<std::string> &getWarnings() {
+		const std::unordered_set<std::string> &getWarnings() {
 			return warnings;
 		}
 
 	private:
 		const tiniergltf::GlTF m_gltf_model;
-		CSkinnedMesh *m_irr_model;
+		SkinnedMeshBuilder *m_irr_model;
 
 		std::vector<std::function<void()>> m_mesh_loaders;
-		std::vector<CSkinnedMesh::SJoint *> m_loaded_nodes;
+		std::vector<SkinnedMesh::SJoint *> m_loaded_nodes;
 
-		std::vector<std::string> warnings;
+		std::unordered_set<std::string> warnings;
 		void warn(const std::string &warning) {
-			warnings.push_back(warning);
+			warnings.insert(warning);
 		}
 
 		void copyPositions(const std::size_t accessorIdx,
@@ -145,13 +145,13 @@ private:
 
 		void addPrimitive(const tiniergltf::MeshPrimitive &primitive,
 				const std::optional<std::size_t> skinIdx,
-				CSkinnedMesh::SJoint *parent);
+				SkinnedMesh::SJoint *parent);
 
 		void deferAddMesh(const std::size_t meshIdx,
 				const std::optional<std::size_t> skinIdx,
-				CSkinnedMesh::SJoint *parentJoint);
+				SkinnedMesh::SJoint *parentJoint);
 
-		void loadNode(const std::size_t nodeIdx, CSkinnedMesh::SJoint *parentJoint);
+		void loadNode(const std::size_t nodeIdx, SkinnedMesh::SJoint *parentJoint);
 
 		void loadNodes();
 

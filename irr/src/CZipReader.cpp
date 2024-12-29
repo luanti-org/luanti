@@ -24,11 +24,7 @@ namespace io
 //! Constructor
 CArchiveLoaderZIP::CArchiveLoaderZIP(io::IFileSystem *fs) :
 		FileSystem(fs)
-{
-#ifdef _DEBUG
-	setDebugName("CArchiveLoaderZIP");
-#endif
-}
+{}
 
 //! returns true if the file maybe is able to be loaded by this class
 bool CArchiveLoaderZIP::isALoadableFileFormat(const io::path &filename) const
@@ -107,10 +103,6 @@ bool CArchiveLoaderZIP::isALoadableFileFormat(io::IReadFile *file) const
 CZipReader::CZipReader(IFileSystem *fs, IReadFile *file, bool ignoreCase, bool ignorePaths, bool isGZip) :
 		CFileList((file ? file->getFileName() : io::path("")), ignoreCase, ignorePaths), FileSystem(fs), File(file), IsGZip(isGZip)
 {
-#ifdef _DEBUG
-	setDebugName("CZipReader");
-#endif
-
 	if (File) {
 		File->grab();
 

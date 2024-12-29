@@ -13,6 +13,8 @@ std::string QuicktuneValue::getString()
 		return "(none)";
 	case QVT_FLOAT:
 		return ftos(value_QVT_FLOAT.current);
+	case QVT_INT:
+		return itos(value_QVT_INT.current);
 	}
 	return "<invalid type>";
 }
@@ -22,13 +24,20 @@ void QuicktuneValue::relativeAdd(float amount)
 	switch(type){
 	case QVT_NONE:
 		break;
-	case QVT_FLOAT:
-		value_QVT_FLOAT.current += amount * (value_QVT_FLOAT.max - value_QVT_FLOAT.min);
-		if(value_QVT_FLOAT.current > value_QVT_FLOAT.max)
-			value_QVT_FLOAT.current = value_QVT_FLOAT.max;
-		if(value_QVT_FLOAT.current < value_QVT_FLOAT.min)
-			value_QVT_FLOAT.current = value_QVT_FLOAT.min;
+	case QVT_FLOAT: {
+		float &v = value_QVT_FLOAT.current;
+		v += amount * (value_QVT_FLOAT.max - value_QVT_FLOAT.min);
+		v = core::clamp(v, value_QVT_FLOAT.min, value_QVT_FLOAT.max);
 		break;
+	}
+	case QVT_INT: {
+		int &v = value_QVT_INT.current;
+		int diff = std::floor(amount * (value_QVT_INT.max - value_QVT_INT.min));
+		if (!diff)
+			diff = amount < 0 ? -1 : 1;
+		v = core::clamp(v + diff, value_QVT_INT.min, value_QVT_INT.max);
+		break;
+	}
 	}
 }
 
@@ -44,12 +53,9 @@ const std::vector<std::string> &getQuicktuneNames()
 QuicktuneValue getQuicktuneValue(const std::string &name)
 {
 	MutexAutoLock lock(g_mutex);
-	std::map<std::string, QuicktuneValue>::iterator i = g_values.find(name);
-	if(i == g_values.end()){
-		QuicktuneValue val;
-		val.type = QVT_NONE;
-		return val;
-	}
+	auto i = g_values.find(name);
+	if (i == g_values.end())
+		return QuicktuneValue();
 	return i->second;
 }
 
@@ -64,15 +70,15 @@ void updateQuicktuneValue(const std::string &name, QuicktuneValue &val)
 {
 	MutexAutoLock lock(g_mutex);
 	auto i = g_values.find(name);
-	if(i == g_values.end()){
+	if (i == g_values.end()) {
 		g_values[name] = val;
 		g_names.push_back(name);
 		return;
 	}
 	QuicktuneValue &ref = i->second;
-	if(ref.modified)
+	if (ref.modified) {
 		val = ref;
-	else{
+	} else {
 		ref = val;
 		ref.modified = false;
 	}

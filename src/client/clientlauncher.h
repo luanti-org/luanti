@@ -26,6 +26,7 @@ private:
 	void init_args(GameStartData &start_data, const Settings &cmd_args);
 	bool init_engine();
 	void init_input();
+	void init_joysticks();
 
 	static void setting_changed_callback(const std::string &name, void *data);
 	void config_guienv();

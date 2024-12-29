@@ -26,9 +26,6 @@ CGUIButton::CGUIButton(IGUIEnvironment *environment, IGUIElement *parent,
 		IsPushButton(false), Pressed(false),
 		UseAlphaChannel(false), DrawBorder(true), ScaleImage(false)
 {
-#ifdef _DEBUG
-	setDebugName("CGUIButton");
-#endif
 	setNotClipped(noclip);
 
 	// This element can be tabbed.

@@ -3,6 +3,7 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "lua_api/l_particles.h"
+#include "common/c_types.h"
 #include "lua_api/l_object.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_particleparams.h"
@@ -279,6 +280,9 @@ int ModApiParticles::l_add_particlespawner(lua_State *L)
 
 		p.node_tile = getintfield_default(L, 1, "node_tile", p.node_tile);
 	}
+
+	if (p.time < 0)
+		throw LuaError("particle spawner 'time' must be >= 0");
 
 	u32 id = getServer(L)->addParticleSpawner(p, attached, playername);
 	lua_pushnumber(L, id);

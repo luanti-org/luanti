@@ -85,7 +85,19 @@ bool                read_color          (lua_State *L, int index,
                                          video::SColor *color);
 bool                is_color_table      (lua_State *L, int index);
 
+/**
+ * Read a floating-point axis-aligned box from Lua.
+ *
+ * @param  L the Lua state
+ * @param  index the index of the Lua variable to read the box from. The
+ *         variable must contain a table of the form
+ *         {minx, miny, minz, maxx, maxy, maxz}.
+ * @param  scale factor to scale the bounding box by
+ *
+ * @return the box corresponding to lua table
+ */
 aabb3f              read_aabb3f         (lua_State *L, int index, f32 scale);
+
 v3s16               read_v3s16          (lua_State *L, int index);
 std::vector<aabb3f> read_aabb3f_vector  (lua_State *L, int index, f32 scale);
 size_t              read_stringlist     (lua_State *L, int index,

@@ -833,14 +833,49 @@ std::string RemoveRelativePathComponents(std::string path)
 std::string AbsolutePath(const std::string &path)
 {
 #ifdef _WIN32
+	// handle behavior differences on windows
+	if (path.empty())
+		return "";
+	else if (!PathExists(path))
+		return "";
 	char *abs_path = _fullpath(NULL, path.c_str(), MAX_PATH);
 #else
 	char *abs_path = realpath(path.c_str(), NULL);
 #endif
-	if (!abs_path) return "";
+	if (!abs_path)
+		return "";
 	std::string abs_path_str(abs_path);
 	free(abs_path);
 	return abs_path_str;
+}
+
+std::string AbsolutePathPartial(const std::string &path)
+{
+	if (path.empty())
+		return "";
+	// Try to determine absolute path
+	std::string abs_path = fs::AbsolutePath(path);
+	if (!abs_path.empty())
+		return abs_path;
+	// Remove components until it works
+	std::string cur_path = path;
+	std::string removed;
+	while (abs_path.empty() && !cur_path.empty()) {
+		std::string component;
+		cur_path = RemoveLastPathComponent(cur_path, &component);
+		removed = component + (removed.empty() ? "" : DIR_DELIM + removed);
+		abs_path = AbsolutePath(cur_path);
+	}
+	// If we had a relative path that does not exist, it needs to be joined with cwd
+	if (cur_path.empty() && !IsPathAbsolute(path))
+		abs_path = AbsolutePath(".");
+	// or there's an error
+	if (abs_path.empty())
+		return "";
+	// Put them back together and resolve the remaining relative components
+	if (!removed.empty())
+		abs_path.append(DIR_DELIM).append(removed);
+	return RemoveRelativePathComponents(abs_path);
 }
 
 const char *GetFilenameFromPath(const char *path)

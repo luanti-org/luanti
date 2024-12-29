@@ -48,7 +48,7 @@ const c8 *const BoneAnimationModeNames[] = {
 	};
 
 //! Interface for bones used for skeletal animation.
-/** Used with ISkinnedMesh and IAnimatedMeshSceneNode. */
+/** Used with SkinnedMesh and IAnimatedMeshSceneNode. */
 class IBoneSceneNode : public ISceneNode
 {
 public:

@@ -131,7 +131,6 @@ protected:
 	 *       (as opposed to the this local caching). This can be addressed in
 	 *       a later release.
 	 */
-	bool m_cache_enable_shaders;
 	float m_cache_active_block_mgmt_interval;
 	float m_cache_abm_interval;
 	float m_cache_nodetimer_interval;

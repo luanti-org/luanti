@@ -225,37 +225,6 @@ std::string ScriptApiBase::getCurrentModNameInsecure(lua_State *L)
 	return ret;
 }
 
-std::string ScriptApiBase::getCurrentModName(lua_State *L)
-{
-	auto script = ModApiBase::getScriptApiBase(L);
-	if (script->getType() == ScriptingType::Async ||
-		script->getType() == ScriptingType::Emerge)
-	{
-		// As a precaution never return a "secure" mod name in the async and
-		// emerge environment, because these currently do not track mod origins
-		// in a spoof-safe way (see l_register_async_dofile and l_register_mapgen_script).
-		return "";
-	}
-
-	// We have to make sure that this function is being called directly by
-	// a mod, otherwise a malicious mod could override a function and
-	// steal its return value. (e.g. request_insecure_environment)
-	lua_Debug info;
-
-	// Make sure there's only one item below this function on the stack...
-	if (lua_getstack(L, 2, &info))
-		return "";
-	FATAL_ERROR_IF(!lua_getstack(L, 1, &info), "lua_getstack() failed");
-	FATAL_ERROR_IF(!lua_getinfo(L, "S", &info), "lua_getinfo() failed");
-
-	// ...and that that item is the main file scope.
-	if (strcmp(info.what, "main") != 0)
-		return "";
-
-	// at this point we can trust this value:
-	return getCurrentModNameInsecure(L);
-}
-
 void ScriptApiBase::loadMod(const std::string &script_path,
 		const std::string &mod_name)
 {
@@ -273,7 +242,7 @@ void ScriptApiBase::loadScript(const std::string &script_path)
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
 	bool ok;
-	if (m_secure) {
+	if (ScriptApiSecurity::isSecure(L)) {
 		ok = ScriptApiSecurity::safeLoadFile(L, script_path.c_str());
 	} else {
 		ok = !luaL_loadfile(L, script_path.c_str());

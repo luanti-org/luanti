@@ -17,6 +17,13 @@ class EmergeScripting:
 public:
 	EmergeScripting(EmergeThread *parent);
 
+protected:
+	bool checkPathInternal(const std::string &abs_path, bool write_required,
+		bool *write_allowed) override {
+		return ScriptApiSecurity::checkPathWithGamedef(getStack(),
+			abs_path, write_required, write_allowed);
+	};
+
 private:
 	void InitializeModApi(lua_State *L, int top);
 };

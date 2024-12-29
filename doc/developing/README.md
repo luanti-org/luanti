@@ -23,4 +23,4 @@ Notable pages:
 
 Oftentimes knowledge hasn't been written down (yet) and your best bet is to ask someone experienced and/or the core developers.
 
-Feel free to join the [#minetest-dev IRC](https://wiki.minetest.net/IRC) and ask questions related to **engine development**.
+Feel free to join the [#minetest-dev IRC](https://wiki.luanti.org/IRC) and ask questions related to **engine development**.

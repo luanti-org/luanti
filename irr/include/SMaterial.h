@@ -230,14 +230,14 @@ const c8 *const ZWriteNames[] = {
 /** SMaterial might ignore some textures in most function, like assignment and comparison,
 	when SIrrlichtCreationParameters::MaxTextureUnits is set to a lower number.
 */
-const u32 MATERIAL_MAX_TEXTURES = 4;
+constexpr static u32 MATERIAL_MAX_TEXTURES = 4;
 
 //! Struct for holding parameters for a material renderer
 // Note for implementors: Serialization is in CNullDriver
 class SMaterial
 {
 public:
-	//! Default constructor. Creates a solid, lit material with white colors
+	//! Default constructor. Creates a solid material
 	SMaterial() :
 			MaterialType(EMT_SOLID), ColorParam(0, 0, 0, 0),
 			MaterialTypeParam(0.0f), Thickness(1.0f), ZBuffer(ECFN_LESSEQUAL),
@@ -257,7 +257,7 @@ public:
 	E_MATERIAL_TYPE MaterialType;
 
 	//! Custom color parameter, can be used by custom shader materials.
-	// See MainShaderConstantSetter in Minetest.
+	// See MainShaderConstantSetter in Luanti.
 	SColor ColorParam;
 
 	//! Free parameter, dependent on the material type.
@@ -427,10 +427,13 @@ public:
 				PolygonOffsetDepthBias != b.PolygonOffsetDepthBias ||
 				PolygonOffsetSlopeScale != b.PolygonOffsetSlopeScale ||
 				UseMipMaps != b.UseMipMaps;
-		for (u32 i = 0; (i < MATERIAL_MAX_TEXTURES) && !different; ++i) {
-			different |= (TextureLayers[i] != b.TextureLayers[i]);
+		if (different)
+			return true;
+		for (u32 i = 0; i < MATERIAL_MAX_TEXTURES; ++i) {
+			if (TextureLayers[i] != b.TextureLayers[i])
+				return true;
 		}
-		return different;
+		return false;
 	}
 
 	//! Equality operator
@@ -477,5 +480,19 @@ public:
 
 //! global const identity Material
 IRRLICHT_API extern SMaterial IdentityMaterial;
+
 } // end namespace video
 } // end namespace irr
+
+template<>
+struct std::hash<irr::video::SMaterial>
+{
+	/// @brief std::hash specialization for video::SMaterial
+	std::size_t operator()(const irr::video::SMaterial &m) const noexcept
+	{
+		// basic implementation that hashes the two things most likely to differ
+		auto h1 = std::hash<irr::video::ITexture*>{}(m.getTexture(0));
+		auto h2 = std::hash<int>{}(m.MaterialType);
+		return (h1 << 1) ^ h2;
+	}
+};

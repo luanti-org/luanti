@@ -328,6 +328,8 @@ public:
 			return 32;
 		case ECF_D16:
 			return 16;
+		case ECF_D24:
+			return 32;
 		case ECF_D32:
 			return 32;
 		case ECF_D24S8:
@@ -339,6 +341,8 @@ public:
 		case ECF_R16:
 			return 16;
 		case ECF_R16G16:
+			return 32;
+		case ECF_A2R10G10B10:
 			return 32;
 		case ECF_R16F:
 			return 16;
@@ -378,6 +382,7 @@ public:
 	{
 		switch (format) {
 		case ECF_D16:
+		case ECF_D24:
 		case ECF_D32:
 		case ECF_D24S8:
 			return true;

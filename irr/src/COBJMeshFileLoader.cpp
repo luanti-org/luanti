@@ -26,11 +26,7 @@ namespace scene
 //! Constructor
 COBJMeshFileLoader::COBJMeshFileLoader(scene::ISceneManager *smgr) :
 		SceneManager(smgr)
-{
-#ifdef _DEBUG
-	setDebugName("COBJMeshFileLoader");
-#endif
-}
+{}
 
 //! destructor
 COBJMeshFileLoader::~COBJMeshFileLoader()

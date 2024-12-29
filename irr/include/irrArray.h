@@ -59,8 +59,12 @@ public:
 	{
 		size_t allocated = m_data.capacity();
 		if (new_size < allocated) {
-			if (canShrink)
-				m_data.resize(new_size);
+			if (canShrink) {
+				// since capacity != size don't accidentally make it bigger
+				if (m_data.size() > new_size)
+					m_data.resize(new_size);
+				m_data.shrink_to_fit();
+			}
 		} else {
 			m_data.reserve(new_size);
 		}

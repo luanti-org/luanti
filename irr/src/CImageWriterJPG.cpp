@@ -10,6 +10,7 @@
 #include "os.h"
 
 #include <cstdio> // IWYU pragma: keep (required for jpeglib.h)
+#include <memory>
 #include <jpeglib.h>
 #include <jerror.h>
 
@@ -130,32 +131,28 @@ static bool writeJPEGFile(io::IWriteFile *file, IImage *image, u32 quality)
 	jpeg_set_quality(&cinfo, quality, TRUE);
 	jpeg_start_compress(&cinfo, TRUE);
 
-	u8 *dest = new u8[dim.Width * 3];
+	std::unique_ptr<u8[]> dest{new u8[dim.Width * 3]};
 
-	if (dest) {
-		const u32 pitch = image->getPitch();
-		JSAMPROW row_pointer[1]; /* pointer to JSAMPLE row[s] */
-		row_pointer[0] = dest;
+	const u32 pitch = image->getPitch();
+	JSAMPROW row_pointer[1]; /* pointer to JSAMPLE row[s] */
+	row_pointer[0] = dest.get();
 
-		u8 *src = (u8 *)image->getData();
+	u8 *src = (u8 *)image->getData();
 
-		while (cinfo.next_scanline < cinfo.image_height) {
-			// convert next line
-			format(src, dim.Width, dest);
-			src += pitch;
-			jpeg_write_scanlines(&cinfo, row_pointer, 1);
-		}
-
-		delete[] dest;
-
-		/* Step 6: Finish compression */
-		jpeg_finish_compress(&cinfo);
+	while (cinfo.next_scanline < cinfo.image_height) {
+		// convert next line
+		format(src, dim.Width, dest.get());
+		src += pitch;
+		jpeg_write_scanlines(&cinfo, row_pointer, 1);
 	}
+
+	/* Step 6: Finish compression */
+	jpeg_finish_compress(&cinfo);
 
 	/* Step 7: Destroy */
 	jpeg_destroy_compress(&cinfo);
 
-	return (dest != 0);
+	return true;
 }
 
 } // namespace video
@@ -172,11 +169,7 @@ IImageWriter *createImageWriterJPG()
 }
 
 CImageWriterJPG::CImageWriterJPG()
-{
-#ifdef _DEBUG
-	setDebugName("CImageWriterJPG");
-#endif
-}
+{}
 
 bool CImageWriterJPG::isAWriteableFileExtension(const io::path &filename) const
 {

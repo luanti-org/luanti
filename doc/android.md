@@ -3,8 +3,6 @@ All Luanti builds, including the Android variant, are based on the same code.
 However, additional Java code is used for proper Android integration.
 
 ## Controls
-Compared to Luanti binaries for PC, the Android port has limited functionality
-due to limited capabilities of common devices. What can be done is described below:
 
 While you're playing the game normally (that is, no menu or inventory is
 shown), the following controls are available:
@@ -44,7 +42,7 @@ configuration file can usually be found at:
 * After 5.4.2:
     * `/sdcard/Android/data/net.minetest.minetest/` or `/storage/emulated/0/Android/data/net.minetest.minetest/` if stored on the device
     * `/storage/emulated/(varying folder name)/Android/data/net.minetest.minetest/` if stored on the SD card
-* [Learn more about Android directory](https://wiki.minetest.net/Accessing_Android_Data_Directory)
+* [Learn more about Android directory](https://wiki.luanti.org/Accessing_Android_Data_Directory)
 
 ## Useful settings
 
@@ -58,35 +56,25 @@ Mobile device generally have less RAM than PC, this setting limit how many mapbl
 this setting limit max FPS (Frame per second). Default value is 60, which lowest Android device screen refresh rate commonly found, but if you're using an device have lower refresh rate, change this
 
 ## Requirements
-The minimal and recommended system requirements for Luanti are listed below.
+The recommended system requirements for Luanti are listed below.
 
 ### CPU
 Supported architectures:
-1. ARM v7
-2. ARM v8
+1. ARMv7
+2. AArch64
 3. x86
 4. x86_64
 
-CPU architectures similar to ARM or x86 might run Luanti but are not tested.
-
-### Minimum
-1. Graphics API: OpenGL ES 1.0
-    * Shaders might not work correctly or work at all on OpenGL ES 1.0.
-2. Android version: Android 4.1 (API Level 16)
-3. Free RAM: 500 MB
-4. Free storage: 100 MB
-    * More storage is highly recommended
-
 ### Recommended
 1. Graphics API: OpenGL ES 2.0
-2. Android version: Android 4.4 (API Level 19) or newer
-3. Empty RAM: 850 MB
-4. Free storage: 480 MB
+2. Android version: Android 5 (API Level 21) or newer
+3. Free RAM: 1 GB
+4. Free storage: 500 MB
 
 ## Rendering
 Unlike on PC, Android devices use OpenGL ES which less powerful than OpenGL, thus
 some shader settings cannot be used on OpenGL ES.
-Changing the graphic driver setting to OpenGL will result in undesirable behavior.
+Changing the graphic driver setting to OpenGL will not work.
 
 ## Building Requirements
 In order to build, your PC has to be set up to build Luanti in the usual

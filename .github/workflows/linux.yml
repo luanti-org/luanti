@@ -12,9 +12,8 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'util/ci/**'
-      - 'Dockerfile'
-      - '.dockerignore'
       - '.github/workflows/linux.yml'
   pull_request:
     paths:
@@ -26,9 +25,8 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'util/ci/**'
-      - 'Dockerfile'
-      - '.dockerignore'
       - '.github/workflows/linux.yml'
 
 env:
@@ -51,6 +49,8 @@ jobs:
         env:
           CC: gcc-7
           CXX: g++-7
+          # Test fallback SHA implementations
+          CMAKE_FLAGS: '-DENABLE_OPENSSL=0'
 
       - name: Test
         run: |

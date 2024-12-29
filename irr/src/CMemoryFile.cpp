@@ -12,11 +12,7 @@ namespace io
 
 CMemoryReadFile::CMemoryReadFile(const void *memory, long len, const io::path &fileName, bool d) :
 		Buffer(memory), Len(len), Pos(0), Filename(fileName), deleteMemoryWhenDropped(d)
-{
-#ifdef _DEBUG
-	setDebugName("CMemoryReadFile");
-#endif
-}
+{}
 
 CMemoryReadFile::~CMemoryReadFile()
 {
@@ -82,11 +78,7 @@ const io::path &CMemoryReadFile::getFileName() const
 
 CMemoryWriteFile::CMemoryWriteFile(void *memory, long len, const io::path &fileName, bool d) :
 		Buffer(memory), Len(len), Pos(0), Filename(fileName), deleteMemoryWhenDropped(d)
-{
-#ifdef _DEBUG
-	setDebugName("CMemoryWriteFile");
-#endif
-}
+{}
 
 CMemoryWriteFile::~CMemoryWriteFile()
 {

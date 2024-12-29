@@ -105,3 +105,68 @@ core.register_craftitem("testitems:telescope_stick", {
 		return itemstack
 	end,
 })
+
+
+-- Tree spawners
+
+local tree_def={
+    axiom="Af",
+    rules_a="TT[&GB][&+GB][&++GB][&+++GB]A",
+    rules_b="[+GB]fB",
+    trunk="basenodes:tree",
+    leaves="basenodes:leaves",
+    angle=90,
+    iterations=4,
+    trunk_type="single",
+    thin_branches=true,
+}
+
+core.register_craftitem("testitems:tree_spawner", {
+	description = S("Tree Spawner"),
+	inventory_image = "testitems_tree_spawner.png",
+	on_place = function(itemstack, placer, pointed_thing)
+		if (not pointed_thing or pointed_thing.type ~= "node") then
+			return
+		end
+		core.spawn_tree(pointed_thing.above, tree_def)
+	end,
+})
+
+local vmanip_for_trees = {} -- per player
+core.register_craftitem("testitems:tree_spawner_vmanip", {
+	description = S("Tree Spawner using VoxelManip"),
+	inventory_image = "testitems_tree_spawner_vmanip.png",
+	on_place = function(itemstack, placer, pointed_thing)
+		if (not pointed_thing or pointed_thing.type ~= "node" or
+				not core.is_player(placer)) then
+			return
+		end
+		local name = placer:get_player_name()
+		local vm = vmanip_for_trees[name]
+		if not vm then
+			vm = VoxelManip(vector.add(pointed_thing.above, 20),
+				vector.subtract(pointed_thing.above, 20))
+			vmanip_for_trees[name] = vm
+			core.chat_send_player(name,
+				"Tree in new VoxelManip spawned, left click to apply to map, "..
+				"or right click to add more trees.")
+		end
+		core.spawn_tree_on_vmanip(vm, pointed_thing.above, tree_def)
+	end,
+	on_use = function(itemstack, user, pointed_thing)
+		if not core.is_player(user) then
+			return
+		end
+		local name = user:get_player_name()
+		local vm = vmanip_for_trees[name]
+		if vm then
+			vm:write_to_map()
+			vmanip_for_trees[name] = nil
+			core.chat_send_player(name, "VoxelManip written to map.")
+		end
+	end,
+})
+
+core.register_on_leaveplayer(function(player, timed_out)
+	vmanip_for_trees[player:get_player_name()] = nil
+end)

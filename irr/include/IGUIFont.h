@@ -53,7 +53,7 @@ public:
 	//! Calculates the width and height of a given string of text.
 	/** \return Returns width and height of the area covered by the text if
 	it would be drawn. */
-	virtual core::dimension2d<u32> getDimension(const wchar_t *text) const = 0;
+	virtual core::dimension2du getDimension(const wchar_t *text) const = 0;
 
 	//! Calculates the index of the character in the text which is on a specific position.
 	/** \param text: Text string.
@@ -82,10 +82,7 @@ public:
 	which supports kerning pairs a string such as 'Wo' may have the 'o'
 	tucked neatly under the 'W'.
 	*/
-	virtual s32 getKerningWidth(const wchar_t *thisLetter = 0, const wchar_t *previousLetter = 0) const = 0;
-
-	//! Returns the distance between letters
-	virtual s32 getKerningHeight() const = 0;
+	virtual core::vector2di getKerning(const wchar_t thisLetter = 0, const wchar_t previousLetter = 0) const = 0;
 
 	//! Define which characters should not be drawn by the font.
 	/** For example " " would not draw any space which is usually blank in

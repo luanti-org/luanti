@@ -90,16 +90,16 @@ class TernaryOperation: public GettextPluralForm
 };
 
 typedef std::pair<GettextPluralForm::Ptr, std::wstring_view> ParserResult;
-typedef ParserResult (*Parser)(const size_t, const std::wstring_view &);
+typedef ParserResult (*Parser)(const size_t, std::wstring_view);
 
-static ParserResult parse_expr(const size_t nplurals, const std::wstring_view &str);
+static ParserResult parse_expr(const size_t nplurals, std::wstring_view str);
 
 template<Parser Parser, template<typename> typename Operator>
 static ParserResult reduce_ltr(const size_t nplurals, const ParserResult &res, const wchar_t* pattern)
 {
 	if (!str_starts_with(res.second, pattern))
 		return ParserResult(nullptr, res.second);
-	auto next = Parser(nplurals, res.second.substr(std::char_traits<wchar_t>::length(pattern)));
+	auto next = Parser(nplurals, trim(res.second.substr(std::char_traits<wchar_t>::length(pattern))));
 	if (!next.first)
 		return next;
 	next.first = GettextPluralForm::Ptr(new BinaryOperation<Operator>(res.first, next.first));
@@ -123,7 +123,7 @@ static ParserResult reduce_ltr(const size_t nplurals, const ParserResult &res, c
 }
 
 template<Parser Parser, template<typename> typename Operator, template<typename> typename... Operators>
-static ParserResult parse_ltr(const size_t nplurals, const std::wstring_view &str, const wchar_t** patterns)
+static ParserResult parse_ltr(const size_t nplurals, std::wstring_view str, const wchar_t** patterns)
 {
 	auto &&pres = Parser(nplurals, str);
 	if (!pres.first)
@@ -139,7 +139,7 @@ static ParserResult parse_ltr(const size_t nplurals, const std::wstring_view &st
 	return pres;
 }
 
-static ParserResult parse_atomic(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_atomic(const size_t nplurals, std::wstring_view str)
 {
 	if (str.empty())
 		return ParserResult(nullptr, str);
@@ -151,7 +151,7 @@ static ParserResult parse_atomic(const size_t nplurals, const std::wstring_view 
 	return ParserResult(new ConstValue(nplurals, val), trim(str.substr(endp-str.data())));
 }
 
-static ParserResult parse_parenthesized(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_parenthesized(const size_t nplurals, std::wstring_view str)
 {
 	if (str.empty())
 		return ParserResult(nullptr, str);
@@ -167,7 +167,7 @@ static ParserResult parse_parenthesized(const size_t nplurals, const std::wstrin
 	return result;
 }
 
-static ParserResult parse_negation(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_negation(const size_t nplurals, std::wstring_view str)
 {
 	if (str.empty())
 		return ParserResult(nullptr, str);
@@ -179,43 +179,43 @@ static ParserResult parse_negation(const size_t nplurals, const std::wstring_vie
 	return result;
 }
 
-static ParserResult parse_multiplicative(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_multiplicative(const size_t nplurals, std::wstring_view str)
 {
 	static const wchar_t *patterns[] = { L"*", L"/", L"%" };
 	return parse_ltr<parse_negation, std::multiplies, std::divides, std::modulus>(nplurals, str, patterns);
 }
 
-static ParserResult parse_additive(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_additive(const size_t nplurals, std::wstring_view str)
 {
 	static const wchar_t *patterns[] = { L"+", L"-" };
 	return parse_ltr<parse_multiplicative, std::plus, std::minus>(nplurals, str, patterns);
 }
 
-static ParserResult parse_comparison(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_comparison(const size_t nplurals, std::wstring_view str)
 {
 	static const wchar_t *patterns[] = { L"<=", L">=", L"<", L">" };
 	return parse_ltr<parse_additive, std::less_equal, std::greater_equal, std::less, std::greater>(nplurals, str, patterns);
 }
 
-static ParserResult parse_equality(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_equality(const size_t nplurals, std::wstring_view str)
 {
 	static const wchar_t *patterns[] = { L"==", L"!=" };
 	return parse_ltr<parse_comparison, std::equal_to, std::not_equal_to>(nplurals, str, patterns);
 }
 
-static ParserResult parse_conjunction(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_conjunction(const size_t nplurals, std::wstring_view str)
 {
 	static const wchar_t *and_pattern[] = { L"&&" };
 	return parse_ltr<parse_equality, std::logical_and>(nplurals, str, and_pattern);
 }
 
-static ParserResult parse_disjunction(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_disjunction(const size_t nplurals, std::wstring_view str)
 {
 	static const wchar_t *or_pattern[] = { L"||" };
 	return parse_ltr<parse_conjunction, std::logical_or>(nplurals, str, or_pattern);
 }
 
-static ParserResult parse_ternary(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_ternary(const size_t nplurals, std::wstring_view str)
 {
 	auto pres = parse_disjunction(nplurals, str);
 	if (pres.second.empty() || pres.second[0] != '?') // no ? :
@@ -229,12 +229,12 @@ static ParserResult parse_ternary(const size_t nplurals, const std::wstring_view
 	return ParserResult(new TernaryOperation(cond, val, pres.first), pres.second);
 }
 
-static ParserResult parse_expr(const size_t nplurals, const std::wstring_view &str)
+static ParserResult parse_expr(const size_t nplurals, std::wstring_view str)
 {
 	return parse_ternary(nplurals, trim(str));
 }
 
-GettextPluralForm::Ptr GettextPluralForm::parse(const size_t nplurals, const std::wstring_view &str)
+GettextPluralForm::Ptr GettextPluralForm::parse(const size_t nplurals, std::wstring_view str)
 {
 	if (nplurals == 0)
 		return nullptr;
@@ -244,7 +244,7 @@ GettextPluralForm::Ptr GettextPluralForm::parse(const size_t nplurals, const std
 	return result.first;
 }
 
-GettextPluralForm::Ptr GettextPluralForm::parseHeaderLine(const std::wstring_view &str)
+GettextPluralForm::Ptr GettextPluralForm::parseHeaderLine(std::wstring_view str)
 {
 	if (!str_starts_with(str, L"Plural-Forms: nplurals=") || !str_ends_with(str, L";"))
 		return nullptr;

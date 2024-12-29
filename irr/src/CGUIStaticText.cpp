@@ -27,10 +27,6 @@ CGUIStaticText::CGUIStaticText(const wchar_t *text, bool border,
 		OverrideColor(video::SColor(101, 255, 255, 255)), BGColor(video::SColor(101, 210, 210, 210)),
 		OverrideFont(0), LastBreakFont(0)
 {
-#ifdef _DEBUG
-	setDebugName("CGUIStaticText");
-#endif
-
 	Text = text;
 	if (environment && environment->getSkin()) {
 		BGColor = environment->getSkin()->getColor(gui::EGDC_3D_FACE);
@@ -78,10 +74,12 @@ void CGUIStaticText::draw()
 		IGUIFont *font = getActiveFont();
 
 		if (font) {
+			s32 kerningHeight = font->getKerning(L'A').Y;
+
 			if (!WordWrap) {
 				if (VAlign == EGUIA_LOWERRIGHT) {
 					frameRect.UpperLeftCorner.Y = frameRect.LowerRightCorner.Y -
-												  font->getDimension(L"A").Height - font->getKerningHeight();
+												  font->getDimension(L"A").Height - kerningHeight;
 				}
 				if (HAlign == EGUIA_LOWERRIGHT) {
 					frameRect.UpperLeftCorner.X = frameRect.LowerRightCorner.X -
@@ -96,7 +94,7 @@ void CGUIStaticText::draw()
 					breakText();
 
 				core::rect<s32> r = frameRect;
-				s32 height = font->getDimension(L"A").Height + font->getKerningHeight();
+				s32 height = font->getDimension(L"A").Height + kerningHeight;
 				s32 totalHeight = height * BrokenText.size();
 				if (VAlign == EGUIA_CENTER) {
 					r.UpperLeftCorner.Y = r.getCenter().Y - (totalHeight / 2);
@@ -475,7 +473,7 @@ s32 CGUIStaticText::getTextHeight() const
 		return 0;
 
 	if (WordWrap) {
-		s32 height = font->getDimension(L"A").Height + font->getKerningHeight();
+		s32 height = font->getDimension(L"A").Height + font->getKerning(L'A').Y;
 		return height * BrokenText.size();
 	} else {
 		// TODO: Text can have multiple lines which are not in BrokenText

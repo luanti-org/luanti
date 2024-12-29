@@ -37,19 +37,21 @@
 #include <map>
 #include <vector>
 
-enum QuicktuneValueType{
+enum QuicktuneValueType {
 	QVT_NONE,
-	QVT_FLOAT
+	QVT_FLOAT,
+	QVT_INT
 };
 struct QuicktuneValue
 {
 	QuicktuneValueType type = QVT_NONE;
-	union{
-		struct{
-			float current;
-			float min;
-			float max;
+	union {
+		struct {
+			float current, min, max;
 		} value_QVT_FLOAT;
+		struct {
+			int current, min, max;
+		} value_QVT_INT;
 	};
 	bool modified = false;
 
@@ -65,19 +67,15 @@ void setQuicktuneValue(const std::string &name, const QuicktuneValue &val);
 
 void updateQuicktuneValue(const std::string &name, QuicktuneValue &val);
 
-#ifndef NDEBUG
-	#define QUICKTUNE(type_, var, min_, max_, name){\
-		QuicktuneValue qv;\
-		qv.type = type_;\
-		qv.value_##type_.current = var;\
-		qv.value_##type_.min = min_;\
-		qv.value_##type_.max = max_;\
-		updateQuicktuneValue(name, qv);\
-		var = qv.value_##type_.current;\
-	}
-#else // NDEBUG
-	#define QUICKTUNE(type, var, min_, max_, name){}
-#endif
+#define QUICKTUNE(type_, var, min_, max_, name) do { \
+	QuicktuneValue qv; \
+	qv.type = type_; \
+	qv.value_##type_.current = var; \
+	qv.value_##type_.min = min_; \
+	qv.value_##type_.max = max_; \
+	updateQuicktuneValue(name, qv); \
+	var = qv.value_##type_.current; \
+	} while (0)
 
 #define QUICKTUNE_AUTONAME(type_, var, min_, max_)\
 	QUICKTUNE(type_, var, min_, max_, #var)

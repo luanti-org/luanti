@@ -74,6 +74,8 @@ public:
 			return false;
 		case EVDF_STENCIL_BUFFER:
 			return StencilBuffer;
+		case EVDF_TEXTURE_MULTISAMPLE:
+			return TextureMultisampleSupported;
 		default:
 			return false;
 		};
@@ -161,6 +163,7 @@ public:
 
 	bool AnisotropicFilterSupported = false;
 	bool BlendMinMaxSupported = false;
+	bool TextureMultisampleSupported = false;
 };
 
 }

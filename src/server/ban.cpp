@@ -7,11 +7,11 @@
 #include <fstream>
 #include "threading/mutex_auto_lock.h"
 #include <sstream>
-#include <set>
 #include "util/strfnd.h"
 #include "util/string.h"
 #include "log.h"
 #include "filesys.h"
+#include "exceptions.h"
 
 BanManager::BanManager(const std::string &banfilepath):
 		m_banfilepath(banfilepath)
@@ -68,13 +68,13 @@ void BanManager::save()
 	m_modified = false;
 }
 
-bool BanManager::isIpBanned(const std::string &ip)
+bool BanManager::isIpBanned(const std::string &ip) const
 {
 	MutexAutoLock lock(m_mutex);
 	return m_ips.find(ip) != m_ips.end();
 }
 
-std::string BanManager::getBanDescription(const std::string &ip_or_name)
+std::string BanManager::getBanDescription(const std::string &ip_or_name) const
 {
 	MutexAutoLock lock(m_mutex);
 	std::string s;
@@ -88,10 +88,10 @@ std::string BanManager::getBanDescription(const std::string &ip_or_name)
 	return s;
 }
 
-std::string BanManager::getBanName(const std::string &ip)
+std::string BanManager::getBanName(const std::string &ip) const
 {
 	MutexAutoLock lock(m_mutex);
-	StringMap::iterator it = m_ips.find(ip);
+	StringMap::const_iterator it = m_ips.find(ip);
 	if (it == m_ips.end())
 		return "";
 	return it->second;
@@ -118,9 +118,8 @@ void BanManager::remove(const std::string &ip_or_name)
 }
 
 
-bool BanManager::isModified()
+bool BanManager::isModified() const
 {
 	MutexAutoLock lock(m_mutex);
 	return m_modified;
 }
-

@@ -45,13 +45,8 @@ There's usually no reason to raise this unless the NDK drops older versions.
 
 **Compilers**: gcc, clang and MSVC (exceptions exist)
 
-**OpenGL** is an entirely different beast, there is no formal consensus on changing the requirements
-and neither do we have an exact set of requirements.
-
-We still support OpenGL 1.4 without shaders (fixed-pipeline), which could be considered very unreasonable in 2024.
-OpenGL ES 2.0 is supported for the sake of mobile platforms.
-
-It has been [proposed](https://irc.minetest.net/minetest-dev/2022-08-18) moving to OpenGL 2.x or 3.0 with shaders required.
+We require **OpenGL** 2.0 or ES 2.0, so shaders can be relied on.
+Graphics code should generally work on both. Newer features can be used as long as a fallback exists.
 
 General **system requirements** are not bounded either.
 Being able to play Luanti on a recent low-end phone is a reasonable target.

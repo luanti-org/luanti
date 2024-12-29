@@ -101,17 +101,15 @@ public:
 	void setOriginDirect(const char *origin);
 	void setOriginFromTableRaw(int index, const char *fxn);
 
-	// Returns the currently running mod, only during init time.
-	// The reason this is "insecure" is that mods can mess with each others code,
-	// so the boundary of who is responsible is fuzzy.
-	// Note: checking this against BUILTIN_MOD_NAME is always safe (not spoofable).
-	// returns "" on error
+	/**
+	 * Returns the currently running mod, only during init time.
+	 * The reason this is insecure is that mods can mess with each others code,
+	 * so the boundary of who is responsible is fuzzy.
+	 * @note Checking this against BUILTIN_MOD_NAME is always safe (not spoofable).
+	 * @note See ScriptApiSecurity::getCurrentModName() for the secure equivalent.
+	 * @return mod name or "" on error
+	 */
 	static std::string getCurrentModNameInsecure(lua_State *L);
-	// Returns the currently running mod, only during init time.
-	// This checks the Lua stack to only permit direct calls in the file
-	// scope. That way it is assured that it's really the mod it claims to be.
-	// returns "" on error
-	static std::string getCurrentModName(lua_State *L);
 
 #if !CHECK_CLIENT_BUILD()
 	inline void clientOpenLibs(lua_State *L) { assert(false); }
@@ -171,7 +169,7 @@ protected:
 
 	std::recursive_mutex m_luastackmutex;
 	std::string     m_last_run_mod;
-	bool            m_secure = false;
+
 #ifdef SCRIPTAPI_LOCK_DEBUG
 	int             m_lock_recursion_count{};
 	std::thread::id m_owning_thread;

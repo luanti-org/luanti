@@ -541,7 +541,7 @@ v2f Settings::getV2F(const std::string &name) const
 }
 
 
-v3f Settings::getV3F(const std::string &name) const
+std::optional<v3f> Settings::getV3F(const std::string &name) const
 {
 	return str_to_v3f(get(name));
 }
@@ -626,7 +626,11 @@ bool Settings::getNoiseParamsFromGroup(const std::string &name,
 
 	group->getFloatNoEx("offset",      np.offset);
 	group->getFloatNoEx("scale",       np.scale);
-	group->getV3FNoEx("spread",        np.spread);
+
+    std::optional<v3f> spread;
+	if (group->getV3FNoEx("spread", spread) && spread.has_value())
+        np.spread = *spread;
+
 	group->getS32NoEx("seed",          np.seed);
 	group->getU16NoEx("octaves",       np.octaves);
 	group->getFloatNoEx("persistence", np.persist);
@@ -783,7 +787,7 @@ bool Settings::getV2FNoEx(const std::string &name, v2f &val) const
 }
 
 
-bool Settings::getV3FNoEx(const std::string &name, v3f &val) const
+bool Settings::getV3FNoEx(const std::string &name, std::optional<v3f> &val) const
 {
 	try {
 		val = getV3F(name);

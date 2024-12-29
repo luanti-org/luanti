@@ -39,6 +39,7 @@ enum {
 #endif
 
 	CUSTOM_RIDX_SCRIPTAPI,
+	/// @warning don't use directly, `ScriptApiSecurity` has wrappers
 	CUSTOM_RIDX_GLOBALS_BACKUP,
 	CUSTOM_RIDX_CURRENT_MOD_NAME,
 	CUSTOM_RIDX_ERROR_HANDLER,

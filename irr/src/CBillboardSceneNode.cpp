@@ -20,10 +20,6 @@ CBillboardSceneNode::CBillboardSceneNode(ISceneNode *parent, ISceneManager *mgr,
 		IBillboardSceneNode(parent, mgr, id, position),
 		Buffer(new SMeshBuffer())
 {
-#ifdef _DEBUG
-	setDebugName("CBillboardSceneNode");
-#endif
-
 	setSize(size);
 
 	auto &Vertices = Buffer->Vertices->Data;

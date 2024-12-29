@@ -68,7 +68,7 @@ void setMeshColorByNormal(scene::IMesh *mesh, const v3f &normal,
 	Rotate the mesh by 6d facedir value.
 	Method only for meshnodes, not suitable for entities.
 */
-void rotateMeshBy6dFacedir(scene::IMesh *mesh, int facedir);
+void rotateMeshBy6dFacedir(scene::IMesh *mesh, u8 facedir);
 
 /*
 	Rotate the mesh around the axis and given angle in degrees.

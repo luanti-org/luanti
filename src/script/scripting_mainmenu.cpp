@@ -12,11 +12,14 @@
 #include "lua_api/l_util.h"
 #include "lua_api/l_settings.h"
 #include "log.h"
+#include "filesys.h"
+#include "porting.h"
 
 extern "C" {
 #include "lualib.h"
 }
-#define MAINMENU_NUM_ASYNC_THREADS 4
+
+#define MAINMENU_NUM_ASYNC_THREADS 2
 
 
 MainMenuScripting::MainMenuScripting(GUIEngine* guiengine):
@@ -25,6 +28,8 @@ MainMenuScripting::MainMenuScripting(GUIEngine* guiengine):
 	setGuiEngine(guiengine);
 
 	SCRIPTAPI_PRECHECKHEADER
+
+	initializeSecurity();
 
 	lua_getglobal(L, "core");
 	int top = lua_gettop(L);
@@ -67,6 +72,43 @@ void MainMenuScripting::registerLuaClasses(lua_State *L, int top)
 {
 	LuaSettings::Register(L);
 	MainMenuSoundHandle::Register(L);
+}
+
+bool MainMenuScripting::mayModifyPath(const std::string &path)
+{
+	std::string path_temp = fs::AbsolutePathPartial(fs::TempPath());
+	if (fs::PathStartsWith(path, path_temp))
+		return true;
+
+	std::string path_user = fs::AbsolutePathPartial(porting::path_user);
+
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "client"))
+		return true;
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "games"))
+		return true;
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "mods"))
+		return true;
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "textures"))
+		return true;
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "worlds"))
+		return true;
+
+	if (fs::PathStartsWith(path, fs::AbsolutePathPartial(porting::path_cache)))
+		return true;
+
+	return false;
+}
+
+bool MainMenuScripting::checkPathAccess(const std::string &abs_path, bool write_required,
+	bool *write_allowed)
+{
+	if (mayModifyPath(abs_path)) {
+		if (write_allowed)
+			*write_allowed = true;
+		return true;
+	}
+	// TODO?: global read access sounds too broad
+	return !write_required;
 }
 
 void MainMenuScripting::beforeClose()

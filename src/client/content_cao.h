@@ -116,8 +116,6 @@ private:
 	// Material
 	video::E_MATERIAL_TYPE m_material_type;
 	f32 m_material_type_param;
-	// Settings
-	bool m_enable_shaders = false;
 
 	bool visualExpiryRequired(const ObjectProperties &newprops) const;
 

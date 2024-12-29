@@ -16,7 +16,7 @@
 
 #include "os.h"
 
-#include "CSkinnedMesh.h"
+#include "SkinnedMesh.h"
 #include "CXMeshFileLoader.h"
 #include "COBJMeshFileLoader.h"
 #include "CB3DMeshFileLoader.h"
@@ -41,14 +41,9 @@ CSceneManager::CSceneManager(video::IVideoDriver *driver,
 		ISceneNode(0, 0),
 		Driver(driver),
 		CursorControl(cursorControl),
-		ActiveCamera(0), ShadowColor(150, 0, 0, 0), AmbientLight(0, 0, 0, 0), Parameters(0),
+		ActiveCamera(0), Parameters(0),
 		MeshCache(cache), CurrentRenderPass(ESNRP_NONE)
 {
-#ifdef _DEBUG
-	ISceneManager::setDebugName("CSceneManager ISceneManager");
-	ISceneNode::setDebugName("CSceneManager ISceneNode");
-#endif
-
 	// root node's scene manager
 	SceneManager = this;
 
@@ -140,28 +135,29 @@ IAnimatedMesh *CSceneManager::getMesh(io::IReadFile *file)
 // load and create a mesh which we know already isn't in the cache and put it in there
 IAnimatedMesh *CSceneManager::getUncachedMesh(io::IReadFile *file, const io::path &filename, const io::path &cachename)
 {
-	IAnimatedMesh *msh = 0;
-
 	// iterate the list in reverse order so user-added loaders can override the built-in ones
+
+	bool unsupported = true;
 	for (auto it = MeshLoaderList.rbegin(); it != MeshLoaderList.rend(); it++) {
 		if ((*it)->isALoadableFileExtension(filename)) {
+			unsupported = false;
 			// reset file to avoid side effects of previous calls to createMesh
 			file->seek(0);
-			msh = (*it)->createMesh(file);
+			IAnimatedMesh *msh = (*it)->createMesh(file);
 			if (msh) {
 				MeshCache->addMesh(cachename, msh);
 				msh->drop();
-				break;
+				os::Printer::log("Loaded mesh", filename, ELL_DEBUG);
+				return msh;
 			}
 		}
 	}
 
-	if (!msh)
-		os::Printer::log("Could not load mesh, file format seems to be unsupported", filename, ELL_ERROR);
-	else
-		os::Printer::log("Loaded mesh", filename, ELL_DEBUG);
-
-	return msh;
+	os::Printer::log(unsupported
+			? "Could not load mesh, file format seems to be unsupported"
+			: "Attempt to load mesh failed",
+			filename, ELL_ERROR);
+	return nullptr;
 }
 
 //! returns the video driver
@@ -311,7 +307,7 @@ const core::aabbox3d<f32> &CSceneManager::getBoundingBox() const
 {
 	_IRR_DEBUG_BREAK_IF(true) // Bounding Box of Scene Manager should never be used.
 
-	static const core::aabbox3d<f32> dummy;
+	static const core::aabbox3d<f32> dummy{{0.0f, 0.0f, 0.0f}};
 	return dummy;
 }
 
@@ -444,9 +440,6 @@ u32 CSceneManager::registerNodeForRendering(ISceneNode *node, E_SCENE_NODE_RENDE
 			taken = 1;
 		}
 
-	// as of yet unused
-	case ESNRP_LIGHT:
-	case ESNRP_SHADOW:
 	case ESNRP_NONE: // ignore this one
 		break;
 	}
@@ -471,14 +464,12 @@ void CSceneManager::drawAll()
 	if (!Driver)
 		return;
 
-	u32 i; // new ISO for scoping problem in some compilers
-
 	// reset all transforms
 	Driver->setMaterial(video::SMaterial());
 	Driver->setTransform(video::ETS_PROJECTION, core::IdentityMatrix);
 	Driver->setTransform(video::ETS_VIEW, core::IdentityMatrix);
 	Driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
-	for (i = video::ETS_COUNT - 1; i >= video::ETS_TEXTURE_0; --i)
+	for (u32 i = video::ETS_COUNT - 1; i >= video::ETS_TEXTURE_0; --i)
 		Driver->setTransform((video::E_TRANSFORMATION_STATE)i, core::IdentityMatrix);
 	// TODO: This should not use an attribute here but a real parameter when necessary (too slow!)
 	Driver->setAllowZWriteOnTransparent(Parameters->getAttributeAsBool(ALLOW_ZWRITE_ON_TRANSPARENT));
@@ -774,22 +765,10 @@ ISceneManager *CSceneManager::createNewSceneManager(bool cloneContent)
 	return manager;
 }
 
-//! Sets ambient color of the scene
-void CSceneManager::setAmbientLight(const video::SColorf &ambientColor)
-{
-	AmbientLight = ambientColor;
-}
-
-//! Returns ambient color of the scene
-const video::SColorf &CSceneManager::getAmbientLight() const
-{
-	return AmbientLight;
-}
-
 //! Get a skinned mesh, which is not available as header-only code
-ISkinnedMesh *CSceneManager::createSkinnedMesh()
+SkinnedMesh *CSceneManager::createSkinnedMesh()
 {
-	return new CSkinnedMesh();
+	return new SkinnedMesh();
 }
 
 // creates a scenemanager

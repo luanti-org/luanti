@@ -5,9 +5,6 @@
 #pragma once
 
 #include "util/string.h"
-#include "threading/thread.h"
-#include "exceptions.h"
-#include <map>
 #include <string>
 #include <mutex>
 
@@ -18,16 +15,16 @@ public:
 	~BanManager();
 	void load();
 	void save();
-	bool isIpBanned(const std::string &ip);
+	bool isIpBanned(const std::string &ip) const;
 	// Supplying ip_or_name = "" lists all bans.
-	std::string getBanDescription(const std::string &ip_or_name);
-	std::string getBanName(const std::string &ip);
+	std::string getBanDescription(const std::string &ip_or_name) const;
+	std::string getBanName(const std::string &ip) const;
 	void add(const std::string &ip, const std::string &name);
 	void remove(const std::string &ip_or_name);
-	bool isModified();
+	bool isModified() const;
 
 private:
-	std::mutex m_mutex;
+	mutable std::mutex m_mutex;
 	std::string m_banfilepath = "";
 	StringMap m_ips;
 	bool m_modified = false;

@@ -50,10 +50,6 @@ CGUIEnvironment::CGUIEnvironment(io::IFileSystem *fs, video::IVideoDriver *drive
 	if (Operator)
 		Operator->grab();
 
-#ifdef _DEBUG
-	IGUIEnvironment::setDebugName("CGUIEnvironment");
-#endif
-
 	loadBuiltInFont();
 
 	IGUISkin *skin = createSkin(gui::EGST_WINDOWS_METALLIC);

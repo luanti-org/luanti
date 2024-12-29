@@ -48,7 +48,7 @@ struct Nametag
 			return bgcolor.value();
 		else if (!use_fallback)
 			return video::SColor(0, 0, 0, 0);
-		else if (textcolor.getLuminance() > 186)
+		else if (textcolor.getBrightness() > 186)
 			// Dark background for light text
 			return video::SColor(50, 50, 50, 50);
 		else

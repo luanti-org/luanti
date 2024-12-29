@@ -5,10 +5,8 @@
 #include "CMeshSceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
-#include "S3DVertex.h"
-#include "ICameraSceneNode.h"
 #include "IMeshCache.h"
-#include "IAnimatedMesh.h"
+#include "IMeshBuffer.h"
 #include "IMaterialRenderer.h"
 #include "IFileSystem.h"
 
@@ -25,10 +23,6 @@ CMeshSceneNode::CMeshSceneNode(IMesh *mesh, ISceneNode *parent, ISceneManager *m
 		Mesh(0),
 		PassCount(0), ReadOnlyMaterials(false)
 {
-#ifdef _DEBUG
-	setDebugName("CMeshSceneNode");
-#endif
-
 	setMesh(mesh);
 }
 

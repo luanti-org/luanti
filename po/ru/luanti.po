@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Russian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-28 19:57+0100\n"
-"PO-Revision-Date: 2024-10-19 17:16+0000\n"
+"PO-Revision-Date: 2024-11-01 17:58+0000\n"
 "Last-Translator: BlackImpostor <SkyBuilderOFFICAL@yandex.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/minetest/"
 "minetest/ru/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.8-rc\n"
+"X-Generator: Weblate 5.8.2-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -160,7 +160,7 @@ msgstr "$1 скачивается…"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "All"
-msgstr ""
+msgstr "Всё"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua
@@ -169,9 +169,8 @@ msgid "Back"
 msgstr "Назад"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
-msgstr "ContentDB недоступен, когда Minetest скомпилирован без cURL"
+msgstr "ContentDB недоступен, когда Luanti скомпилирован без cURL"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Downloading..."
@@ -179,7 +178,7 @@ msgstr "Загрузка…"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
-msgstr ""
+msgstr "Рекомендуемое"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -215,9 +214,8 @@ msgid "Queued"
 msgstr "В очереди"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "Texture Packs"
-msgstr "Наборы текстур"
+msgstr "Наборы Текстур"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "The package $1 was not found."
@@ -269,9 +267,8 @@ msgid "Dependencies:"
 msgstr "Зависимости:"
 
 #: builtin/mainmenu/content/dlg_install.lua
-#, fuzzy
 msgid "Error getting dependencies for package $1"
-msgstr "Ошибка при получении зависимостей для дополнения"
+msgstr "Ошибка при получении зависимостей для дополнения $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Install"
@@ -306,44 +303,40 @@ msgid "Overwrite"
 msgstr "Перезаписать"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "ContentDB page"
-msgstr "Ссылка ContentDB"
+msgstr "Страница ContentDB"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Description"
-msgstr "Описание сервера"
+msgstr "Описание"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
-msgstr ""
+msgstr "Пожертвовать"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
-msgstr ""
+msgstr "Страница на Форуме"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Information"
-msgstr "Информация:"
+msgstr "Информация"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Install [$1]"
-msgstr "Установить $1"
+msgstr "Установить [$1]"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
-msgstr ""
+msgstr "Треккер Проблем"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
-msgstr ""
+msgstr "Источник"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Translate"
-msgstr ""
+msgstr "Перевести"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
@@ -354,13 +347,12 @@ msgid "Update"
 msgstr "Обновить"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Website"
-msgstr "Посетить вебсайт"
+msgstr "Веб-сайт"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
-msgstr ""
+msgstr "сделано $1  —  $2 загрузок  —  +$3 / $4 / -$5"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 (Enabled)"
@@ -722,14 +714,13 @@ msgid "Dismiss"
 msgstr "Пропустить"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
-#, fuzzy
 msgid ""
 "For a long time, Luanti shipped with a default game called \"Minetest "
 "Game\". Since version 5.8.0, Luanti ships without a default game."
 msgstr ""
-"Долгое время движок Minetest поставлялся вместе с игрой по умолчанию под "
-"названием «Minetest Game». Начиная с Minetest 5.8.0, Minetest поставляется "
-"без игры по умолчанию."
+"Долгое время движок Luanti поставлялся вместе с игрой по умолчанию под "
+"названием «Minetest Game». Начиная с версии 5.8.0, Luanti поставляется без "
+"игры по умолчанию."
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid ""
@@ -890,19 +881,16 @@ msgid "eased"
 msgstr "cглаженный"
 
 #: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
 msgid "(The game will need to enable automatic exposure as well)"
-msgstr "(В игре также необходимо будет включить тени)"
+msgstr "(В игре также необходимо будет включить автоматическую экспозицию)"
 
 #: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
 msgid "(The game will need to enable bloom as well)"
-msgstr "(В игре также необходимо будет включить тени)"
+msgstr "(В игре также нужно будет включить функцию размытия)"
 
 #: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
 msgid "(The game will need to enable volumetric lighting as well)"
-msgstr "(В игре также необходимо будет включить тени)"
+msgstr "(В игре также необходимо будет включить объемное освещение)"
 
 #: builtin/mainmenu/settings/dlg_settings.lua
 msgid "(Use system language)"
@@ -914,7 +902,7 @@ msgstr "Доступность"
 
 #: builtin/mainmenu/settings/dlg_settings.lua
 msgid "Auto"
-msgstr ""
+msgstr "Авто"
 
 #: builtin/mainmenu/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
 #: src/gui/touchcontrols.cpp src/settings_translation_file.cpp
@@ -945,7 +933,7 @@ msgstr "Основной"
 
 #: builtin/mainmenu/settings/dlg_settings.lua
 msgid "Movement"
-msgstr "Движение"
+msgstr "Перемещение"
 
 #: builtin/mainmenu/settings/dlg_settings.lua
 msgid "Reset setting to default"
@@ -980,18 +968,16 @@ msgid "Content: Mods"
 msgstr "Контент: Дополнения"
 
 #: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
 msgid "Enable"
-msgstr "Включено"
+msgstr "Включить"
 
 #: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
 msgid "Shaders are disabled."
-msgstr "Обновление камеры выключено"
+msgstr "Шейдеры выключены."
 
 #: builtin/mainmenu/settings/shader_warning_component.lua
 msgid "This is not a recommended configuration."
-msgstr ""
+msgstr "Это конфигурация не рекомендуется."
 
 #: builtin/mainmenu/settings/shadows_component.lua
 msgid "(The game will need to enable shadows as well)"
@@ -1028,7 +1014,7 @@ msgstr "Очень низкие"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
-msgstr "Узнать подробнее"
+msgstr "Подробней"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Active Contributors"
@@ -1151,17 +1137,15 @@ msgid "Install games from ContentDB"
 msgstr "Установить игры с ContentDB"
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid "Luanti doesn't come with a game by default."
-msgstr "Minetest Game больше не стоит по умолчанию."
+msgstr "Luanti больше не стоит по умолчанию."
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid ""
 "Luanti is a game-creation platform that allows you to play many different "
 "games."
 msgstr ""
-"Minetest - это платформа для создания модификаций, которая позволяет вам "
+"Luanti - это платформа для создания модификаций, которая позволяет вам "
 "играть во множество различных игр и устанавливать дополнения."
 
 #: builtin/mainmenu/tab_local.lua
@@ -1219,7 +1203,7 @@ msgstr "Избранное"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
-msgstr "Несовместимые серверы"
+msgstr "Несовместимые Сервера"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Join Game"
@@ -2261,37 +2245,36 @@ msgid "Sound Volume: %d%%"
 msgstr "Громкость звука: %d%%"
 
 #: src/gui/touchcontrols.cpp
-#, fuzzy
 msgid "Joystick"
-msgstr "ID контроллера"
+msgstr "Джойстик"
 
 #: src/gui/touchcontrols.cpp
 msgid "Overflow menu"
-msgstr ""
+msgstr "Переполненное меню"
 
 #: src/gui/touchcontrols.cpp
-#, fuzzy
 msgid "Toggle debug"
-msgstr "Вкл/откл туман"
+msgstr "Переключать отладку"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "Another client is connected with this name.  If your client closed "
 "unexpectedly, try again in a minute."
 msgstr ""
+"Другой клиент уже подключён с таким именем.  Если ваш клиент неожиданно "
+"закрылся, повторите попытку через минуту."
 
 #: src/network/clientpackethandler.cpp
 msgid "Empty passwords are disallowed.  Set a password and try again."
-msgstr ""
+msgstr "Пустые пароли не принимаются.  Установите пароль и повторите попытку."
 
 #: src/network/clientpackethandler.cpp
 msgid "Internal server error"
-msgstr ""
+msgstr "Внутренняя ошибка сервера"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Invalid password"
-msgstr "Старый пароль"
+msgstr "Неверный пароль"
 
 #. ~ DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
@@ -2314,46 +2297,48 @@ msgstr "Имя занято. Пожалуйста, выберите другое
 
 #: src/network/clientpackethandler.cpp
 msgid "Player name contains disallowed characters"
-msgstr ""
+msgstr "Имя игрока содержит запрещенные символы"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Player name not allowed"
-msgstr "Имя игрока слишком длинное."
+msgstr "Имя игрока запрещено"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Server shutting down"
-msgstr "Завершение…"
+msgstr "Сервер завершает работу"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "The server has experienced an internal error.  You will now be disconnected."
-msgstr ""
+msgstr "У сервера произошла внутренняя ошибка.  Вы будете отключены от сети."
 
 #: src/network/clientpackethandler.cpp
 msgid "The server is running in singleplayer mode.  You cannot connect."
-msgstr ""
+msgstr "Сервер работает в одиночном режиме.  Вам не удается подключиться."
 
 #: src/network/clientpackethandler.cpp
 msgid "Too many users"
-msgstr ""
+msgstr "Слишком много пользователей"
 
 #: src/network/clientpackethandler.cpp
 msgid "Unknown disconnect reason."
-msgstr ""
+msgstr "Неизвестная причина отключения."
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "Your client sent something the server didn't expect.  Try reconnecting or "
 "updating your client."
 msgstr ""
+"Ваш клиент отправил то, чего сервер не ожидал.  Попробуйте повторно "
+"подключиться или обновить свой клиент."
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "Your client's version is not supported.\n"
 "Please contact the server administrator."
 msgstr ""
+"Версия вашего клиента не поддерживается.\n"
+"Пожалуйста, свяжитесь с администратором сервера."
 
 #: src/server.cpp
 #, c-format
@@ -2647,11 +2632,11 @@ msgstr "Метод сглаживания"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat flags"
-msgstr ""
+msgstr "Флаги Анти-чита"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat movement tolerance"
-msgstr ""
+msgstr "Допуск движения Анти-чита"
 
 #: src/settings_translation_file.cpp
 msgid "Append item name"
@@ -2688,7 +2673,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Apply specular shading to nodes."
-msgstr ""
+msgstr "Применить зеркальное затенение к блокам."
 
 #: src/settings_translation_file.cpp
 msgid "Arm inertia"
@@ -2809,9 +2794,8 @@ msgid "Biome noise"
 msgstr "Шум биомов"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Block bounds HUD radius"
-msgstr "Границы мапблока"
+msgstr "Радиус ограничения HUD блока"
 
 #: src/settings_translation_file.cpp
 msgid "Block cull optimize distance"
@@ -3028,7 +3012,6 @@ msgstr ""
 "cpp]."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Comma-separated list of flags to hide in the content repository.\n"
 "\"nonfree\" can be used to hide packages which do not qualify as 'free "
@@ -3038,12 +3021,13 @@ msgid ""
 "These flags are independent from Luanti versions,\n"
 "so see a full list at https://content.minetest.net/help/content_flags/"
 msgstr ""
-"Список меток, разделённый запятыми, для скрытия в репозитории контента.\n"
-"«nonfree» скрывает дополнения не являющиеся «свободным ПО»\n"
-"по определению Фонда свободного программного обеспечения.\n"
-"Вы также можете указать рейтинг дополнений.\n"
-"Эти метки не зависят от версии Minetest,\n"
-"узнать полный список можно на https://content.minetest.net/help/"
+"Список разделенных запятыми флажков для скрытия в хранилище контента.\n"
+"\"nonfree\" может использоваться для скрытия пакетов,\n"
+"которые не подпадают под категорию Free Software Foundation,\n"
+"как это определено Фондом свободного программного обеспечения.\n"
+"Вы также можете указать рейтинг контента. Эти флаги не зависят от версий "
+"Luanti,\n"
+"поэтому смотрите полный список по адресу https://content.minetest.net/help/"
 "content_flags/"
 
 #: src/settings_translation_file.cpp
@@ -3249,7 +3233,6 @@ msgstr ""
 "но также использует больше ресурсов."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Define the oldest clients allowed to connect.\n"
 "Older clients are compatible in the sense that they will not crash when "
@@ -3263,14 +3246,12 @@ msgid ""
 msgstr ""
 "Определите, к каким самым старым клиентам разрешено подключаться.\n"
 "Старые клиенты совместимы в том смысле, что они не будут выходить из строя "
-"при подключении\n"
-"к новым серверам, но они могут поддерживать не все новые функции, которые вы "
-"ожидаете.\n"
+"при подключении к новым серверам,\n"
+"но они могут поддерживать не все новые функции, которые вы ожидаете.\n"
 "Это позволяет осуществлять более детальный контроль, чем "
 "strict_protocol_version_checking.\n"
-"Minetest по-прежнему применяет свой собственный внутренний минимум, и "
-"включение\n"
-"strict_protocol_version_checking эффективно отменит это."
+"Luanti по-прежнему применяет свой собственный внутренний минимум,\n"
+"и включение strict_protocol_version_checking эффективно отменит это."
 
 #: src/settings_translation_file.cpp
 msgid "Defines areas where trees have apples."
@@ -3406,14 +3387,16 @@ msgid "Display Density Scaling Factor"
 msgstr "Коэффициент масштабирования плотности отображения"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Distance in nodes at which transparency depth sorting is enabled.\n"
 "Use this to limit the performance impact of transparency depth sorting.\n"
 "Set to 0 to disable it entirely."
 msgstr ""
-"Расстояние в нодах на котором включено разделение по глубине прозрачности\n"
-"Используйте это, чтобы ограничить его влияние на производительность"
+"Расстояние в блоках, на котором включена сортировка по глубине прозрачности."
+"\n"
+"Используйте это значение, чтобы ограничить влияние сортировки по глубине "
+"прозрачности на производительность.\n"
+"Задайте значение 0, чтобы полностью отключить ее."
 
 #: src/settings_translation_file.cpp
 msgid "Domain name of server, to be displayed in the serverlist."
@@ -3444,9 +3427,8 @@ msgid "Dungeon noise"
 msgstr "Шум подземелий"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Effects"
-msgstr "Графические эффекты"
+msgstr "Эффекты"
 
 #: src/settings_translation_file.cpp
 msgid "Enable Automatic Exposure"
@@ -3553,11 +3535,8 @@ msgid "Enable random user input (only used for testing)."
 msgstr "Включить случайный ввод пользователя (только для тестов)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable smooth lighting with simple ambient occlusion."
-msgstr ""
-"Включить мягкое освещение с простым глобальным затенением.\n"
-"Отключите для более высокой скорости или другого вида."
+msgstr "Включить плавное освещение с помощью простой внешней окклюзии."
 
 #: src/settings_translation_file.cpp
 msgid "Enable split login/register"
@@ -3579,7 +3558,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Enable updates available indicator on content tab"
-msgstr ""
+msgstr "Включить индикатор доступности обновлений на вкладке «Контент»"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3629,20 +3608,20 @@ msgid "Enables animation of inventory items."
 msgstr "Включить анимацию предметов в инвентаре."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Enables caching of facedir rotated meshes.\n"
 "This is only effective with shaders disabled."
-msgstr "Включает кэширование повёрнутых мешей."
+msgstr ""
+"Включает кэширование повернутых сеток facedir.\n"
+"Это работает только при отключенных шейдерах."
 
 #: src/settings_translation_file.cpp
 msgid "Enables debug and error-checking in the OpenGL driver."
 msgstr "Включает отладку и проверку ошибок в драйвере OpenGL."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enables smooth scrolling."
-msgstr "Включить Постобработку"
+msgstr "Обеспечивает плавную прокрутку."
 
 #: src/settings_translation_file.cpp
 msgid "Enables the post processing pipeline."
@@ -3655,6 +3634,11 @@ msgid ""
 "\"auto\" means that the touchscreen controls will be enabled and disabled\n"
 "automatically depending on the last used input method."
 msgstr ""
+"Включает сенсорные элементы управления, позволяя вам играть в игру с помощью "
+"сенсорного экрана.\n"
+"\"auto\" означает, что сенсорные элементы управления будут включаться и "
+"отключаться\n"
+"автоматически в зависимости от последнего использованного метода ввода."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4225,6 +4209,9 @@ msgid ""
 "ContentDB to\n"
 "check for package updates when opening the mainmenu."
 msgstr ""
+"Если включено и у вас установлены пакеты ContentDB, Luanti может связаться с "
+"ContentDB,\n"
+"чтобы проверить наличие обновлений пакетов при открытии главного меню."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4356,13 +4343,12 @@ msgid "Instrument chat commands on registration."
 msgstr "Замерять команды чата при регистрации."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Instrument global callback functions on registration.\n"
 "(anything you pass to a core.register_*() function)"
 msgstr ""
-"Замерять глобальные обратные вызовы\n"
-"(всё, что вы передаёте в функции вида minetest.register_*())"
+"Функции глобального обратного вызова инструмента при регистрации.\n"
+"(все, что вы передаете в функцию core.register_*())"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4565,7 +4551,6 @@ msgid "Leaves style"
 msgstr "Стиль листвы"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Leaves style:\n"
 "-   Fancy:  all faces visible\n"
@@ -4574,11 +4559,10 @@ msgid ""
 msgstr ""
 "Стили листвы:\n"
 "-   Fancy:  видны все стороны\n"
-"-   Simple: видны внешние стороны, если используется special_tiles\n"
-"-   Opaque: прозачность отключена"
+"-   Simple: видны внешние стороны\n"
+"-   Opaque: отключённая прозрачность"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Length of a server tick (the interval at which everything is generally "
 "updated),\n"
@@ -4587,9 +4571,12 @@ msgid ""
 "This is a lower bound, i.e. server steps may not be shorter than this, but\n"
 "they are often longer."
 msgstr ""
-"Длительность тика сервера (интервал, с которым обычно все обновляется),\n"
+"Длительность тика сервера (интервал, с которым обычно обновляется вся "
+"информация),\n"
 "указанная в секундах.\n"
-"Не применяется к сеансам, размещенным из клиентского меню."
+"Не применяется к сеансам, размещаемым из клиентского меню.\n"
+"Это нижняя граница, т.е. шаги сервера могут быть не короче этого значения,\n"
+"но часто они длиннее."
 
 #: src/settings_translation_file.cpp
 msgid "Length of liquid waves."
@@ -4704,9 +4691,8 @@ msgid "Liquid queue purge time"
 msgstr "Время очистки очереди жидкостей"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Liquid reflections"
-msgstr "Текучесть жидкости"
+msgstr "Отражения жидкости"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid sinking"
@@ -5043,6 +5029,10 @@ msgid ""
 "You generally don't need to change this, however busy servers may benefit "
 "from a higher number."
 msgstr ""
+"Максимальное количество пакетов, отправляемых на шаг отправки в коде "
+"низкоуровневой сети.\n"
+"Обычно это не требуется изменять, однако для загруженных серверов может быть "
+"полезно большее количество."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of players that can be connected simultaneously."
@@ -5272,7 +5262,7 @@ msgstr "Подсветка нод"
 
 #: src/settings_translation_file.cpp
 msgid "Node specular"
-msgstr ""
+msgstr "Зеркальный блок"
 
 #: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
@@ -5328,14 +5318,13 @@ msgstr ""
 "Количество сообщений, которые игрок может отправить в течении 10 секунд."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Number of threads to use for mesh generation.\n"
 "Value of 0 (default) will let Luanti autodetect the number of available "
 "threads."
 msgstr ""
 "Количество потоков, используемых для генерации мешей.\n"
-"Значение 0 (по умолчанию) позволит Minetest автоматически определять "
+"Значение 0 (по умолчанию) позволит Luanti автоматически определять "
 "количество доступных потоков."
 
 #: src/settings_translation_file.cpp
@@ -5365,18 +5354,16 @@ msgid "OpenGL debug"
 msgstr "Отладка OpenGL"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Optimize GUI for touchscreens"
-msgstr "Использовать перекрестие для сенсорного экрана"
+msgstr "Оптимизирует графический интерфейс для сенсорных экранов"
 
 #: src/settings_translation_file.cpp
 msgid "Optional override for chat weblink color."
 msgstr "Опциональное переопределение цвета ссылки в чате."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Other Effects"
-msgstr "Графические эффекты"
+msgstr "Другие Эффекты"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5492,7 +5479,6 @@ msgid "Prometheus listener address"
 msgstr "Адрес прослушивания Prometheus"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Prometheus listener address.\n"
 "If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
@@ -5500,7 +5486,7 @@ msgid ""
 "Metrics can be fetched on http://127.0.0.1:30000/metrics"
 msgstr ""
 "Адрес прослушивания Prometheus.\n"
-"Если Minetest скомпилирован с опцией ENABLE_PROMETHEUS,\n"
+"Если Luanti скомпилирован с опцией ENABLE_PROMETHEUS,\n"
 "включить прослушивание метрик для Prometheus по этому адресу.\n"
 "Метрики можно получить на http://127.0.0.1:30000/metrics"
 
@@ -5528,6 +5514,8 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Radius to use when the block bounds HUD feature is set to near blocks."
 msgstr ""
+"Радиус, используемый, когда функция отображения границ блоков установлена на "
+"ближние блоки."
 
 #: src/settings_translation_file.cpp
 msgid "Raises terrain to make valleys around the rivers."
@@ -5851,11 +5839,12 @@ msgid ""
 "Send names of online players to the serverlist. If disabled only the player "
 "count is revealed."
 msgstr ""
+"Отправлять имена онлайн-игроков в список серверов. Если этот параметр "
+"отключен, отображается только количество игроков."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Send player names to the server list"
-msgstr "Анонсировать в этот список серверов."
+msgstr "Отправлять имена игроков на список серверов"
 
 #: src/settings_translation_file.cpp
 msgid "Server"
@@ -5883,6 +5872,9 @@ msgid ""
 "Flags are positive. Uncheck the flag to disable corresponding anticheat "
 "module."
 msgstr ""
+"Конфигурация Ати-чита сервера.\n"
+"Флажки являются положительными. Снимите флажок, чтобы отключить "
+"соответствующий модуль анти-чита."
 
 #: src/settings_translation_file.cpp
 msgid "Server description"
@@ -6037,6 +6029,8 @@ msgid ""
 "Shaders are a fundamental part of rendering and enable advanced visual "
 "effects."
 msgstr ""
+"Шейдеры являются фундаментальной частью рендеринга и обеспечивают "
+"расширенные визуальные эффекты."
 
 #: src/settings_translation_file.cpp
 msgid "Shadow filter quality"
@@ -6107,7 +6101,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Simulate translucency when looking at foliage in the sunlight."
-msgstr ""
+msgstr "Имитировать прозрачность при взгляде на листву в солнечном свете."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6161,9 +6155,8 @@ msgid "Smooth lighting"
 msgstr "Мягкое освещение"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Smooth scrolling"
-msgstr "Мягкое освещение"
+msgstr "Плавная прокрутка"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6191,9 +6184,8 @@ msgid "Sneaking speed, in nodes per second."
 msgstr "Скорость ходьбы украдкой, в нодах в секунду."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Soft clouds"
-msgstr "Объёмные облака"
+msgstr "Мягкие облака"
 
 #: src/settings_translation_file.cpp
 msgid "Soft shadow radius"
@@ -6431,7 +6423,6 @@ msgstr ""
 "Путь к файлу, куда будут сохранены профили, относительно пути к вашему миру."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
@@ -6451,7 +6442,7 @@ msgstr ""
 "указываются.\n"
 "\n"
 "* длинный удар\n"
-"Известен по классическому мобильному элементу управления Minetest.\n"
+"Известен по классическому мобильному элементу управления Luanti.\n"
 "Сражение более или менее невозможно."
 
 #: src/settings_translation_file.cpp
@@ -6516,7 +6507,6 @@ msgstr ""
 "Это должно быть настроено вместе с active_object_send_range_blocks."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
@@ -6525,8 +6515,7 @@ msgstr ""
 "Серверная часть рендеринга.\n"
 "Примечание: После изменения этого параметра требуется перезагрузка!\n"
 "По умолчанию для настольных компьютеров используется OpenGL, а для Android - "
-"OGLES2.\n"
-"Шейдеры поддерживаются всеми, кроме OGLES1."
+"OGLES2."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6651,6 +6640,8 @@ msgid ""
 "Tolerance of movement cheat detector.\n"
 "Increase the value if players experience stuttery movement."
 msgstr ""
+"Детектор читерства \"Устойчивость к движению\".\n"
+"Увеличьте значение, если игроки начинают неуверенно двигаться."
 
 #: src/settings_translation_file.cpp
 msgid "Tooltip delay"
@@ -6661,9 +6652,8 @@ msgid "Touchscreen"
 msgstr "Сенсорный экран"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen controls"
-msgstr "Порог сенсорного экрана"
+msgstr "Сенсорное управление"
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen sensitivity"
@@ -6678,9 +6668,8 @@ msgid "Tradeoffs for performance"
 msgstr "Компромиссы для производительности"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Translucent foliage"
-msgstr "Полупрозрачные жидкости"
+msgstr "Полупрозрачная листва"
 
 #: src/settings_translation_file.cpp
 msgid "Translucent liquids"
@@ -6731,14 +6720,13 @@ msgstr ""
 "производительностью."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "URL to JSON file which provides information about the newest Luanti "
 "release.\n"
 "If this is empty the engine will never check for updates."
 msgstr ""
 "URL-адрес файла JSON, который предоставляет информацию о последней версии "
-"Minetest\n"
+"Luanti.\n"
 "Если поле не заполнено, движок никогда не будет проверять наличие обновлений."
 
 #: src/settings_translation_file.cpp
@@ -6838,7 +6826,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Use smooth cloud shading."
-msgstr ""
+msgstr "Используйте плавный шейдинг облаков."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7046,13 +7034,17 @@ msgstr "Цвет ссылки"
 
 #: src/settings_translation_file.cpp
 msgid "When enabled, liquid reflections are simulated."
-msgstr ""
+msgstr "При включении имитируются отражения от жидкости."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "When enabled, the GUI is optimized to be more usable on touchscreens.\n"
 "Whether this is enabled by default depends on your hardware form-factor."
 msgstr ""
+"Если этот параметр будет включен, графический интерфейс оптимизирован для "
+"более удобного использования на сенсорных экранах.\n"
+"Будет ли он включен по умолчанию, зависит от форм-фактора вашего "
+"оборудования."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7167,15 +7159,14 @@ msgid "Window maximized"
 msgstr "Окно развёрнуто"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Windows systems only: Start Luanti with the command line window in the "
 "background.\n"
 "Contains the same information as the file debug.txt (default name)."
 msgstr ""
-"Только для Windows: запускать Minetest с окном командной строки на заднем "
-"плане\n"
-"Содержит ту же информацию, что и файл debug.txt (имя файла по умолчанию)."
+"Только для систем Windows: Запустите Luanti с помощью окна командной строки "
+"в фоновом режиме.\n"
+"Содержит ту же информацию, что и файл debug.txt (имя по умолчанию)."
 
 #: src/settings_translation_file.cpp
 msgid ""

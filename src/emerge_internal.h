@@ -93,7 +93,7 @@ public:
 	MapEditEventAreaIgnorer(VoxelArea *ignorevariable, const VoxelArea &a):
 		m_ignorevariable(ignorevariable)
 	{
-		if (m_ignorevariable->getVolume() == 0)
+		if (m_ignorevariable->hasEmptyExtent())
 			*m_ignorevariable = a;
 		else
 			m_ignorevariable = nullptr;
@@ -102,7 +102,7 @@ public:
 	~MapEditEventAreaIgnorer()
 	{
 		if (m_ignorevariable) {
-			assert(m_ignorevariable->getVolume() != 0);
+			assert(!m_ignorevariable->hasEmptyExtent());
 			*m_ignorevariable = VoxelArea();
 		}
 	}

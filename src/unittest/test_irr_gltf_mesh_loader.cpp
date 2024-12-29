@@ -12,7 +12,7 @@
 #include "IFileSystem.h"
 #include "IReadFile.h"
 #include "ISceneManager.h"
-#include "ISkinnedMesh.h"
+#include "SkinnedMesh.h"
 #include "irrlicht.h"
 
 #include "catch.h"
@@ -379,14 +379,14 @@ SECTION("simple sparse accessor")
 // https://github.com/KhronosGroup/glTF-Sample-Models/tree/main/2.0/SimpleSkin
 SECTION("simple skin")
 {
-	using ISkinnedMesh = irr::scene::ISkinnedMesh;
+	using SkinnedMesh = irr::scene::SkinnedMesh;
 	const auto mesh = loadMesh(model_stem + "simple_skin.gltf");
 	REQUIRE(mesh != nullptr);
-	auto csm = dynamic_cast<const ISkinnedMesh*>(mesh);
+	auto csm = dynamic_cast<const SkinnedMesh*>(mesh);
 	const auto joints = csm->getAllJoints();
 	REQUIRE(joints.size() == 3);
 
-	const auto findJoint = [&](const std::function<bool(ISkinnedMesh::SJoint*)> &predicate) {
+	const auto findJoint = [&](const std::function<bool(SkinnedMesh::SJoint*)> &predicate) {
 		for (std::size_t i = 0; i < joints.size(); ++i) {
 			if (predicate(joints[i])) {
 				return joints[i];
@@ -420,7 +420,7 @@ SECTION("simple skin")
 
 	SECTION("weights are correct")
 	{
-		const auto weights = [&](const ISkinnedMesh::SJoint *joint) {
+		const auto weights = [&](const SkinnedMesh::SJoint *joint) {
 			std::unordered_map<irr::u32, irr::f32> weights;
 			for (std::size_t i = 0; i < joint->Weights.size(); ++i) {
 				const auto weight = joint->Weights[i];

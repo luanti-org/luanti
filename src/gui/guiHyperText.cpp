@@ -1015,10 +1015,6 @@ GUIHyperText::GUIHyperText(const wchar_t *text, IGUIEnvironment *environment,
 		m_drawer(text, client, environment, tsrc), m_text_scrollpos(0, 0)
 {
 
-#ifdef _DEBUG
-	setDebugName("GUIHyperText");
-#endif
-
 	IGUISkin *skin = 0;
 	if (Environment)
 		skin = Environment->getSkin();

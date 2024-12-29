@@ -3,16 +3,16 @@ msgstr ""
 "Project-Id-Version: Chinese (Simplified) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-28 19:57+0100\n"
-"PO-Revision-Date: 2024-07-31 22:09+0000\n"
+"PO-Revision-Date: 2024-11-01 22:24+0000\n"
 "Last-Translator: y5nw <y5nw@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
-"minetest/minetest/zh_Hans/>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/minetest/minetest/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.7-dev\n"
+"X-Generator: Weblate 5.8.2-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -267,9 +267,8 @@ msgid "Dependencies:"
 msgstr "依赖项："
 
 #: builtin/mainmenu/content/dlg_install.lua
-#, fuzzy
 msgid "Error getting dependencies for package $1"
-msgstr "无法获取这个包的依赖项"
+msgstr "无法获取$1的依赖项"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Install"
@@ -309,9 +308,8 @@ msgid "ContentDB page"
 msgstr "ContentDB网址"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Description"
-msgstr "服务器描述"
+msgstr "描述"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
@@ -324,7 +322,7 @@ msgstr ""
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "Information"
-msgstr "信息："
+msgstr "信息"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
@@ -337,11 +335,11 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
-msgstr ""
+msgstr "源代码"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Translate"
-msgstr ""
+msgstr "翻译"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
@@ -352,9 +350,8 @@ msgid "Update"
 msgstr "更新"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Website"
-msgstr "访问网站"
+msgstr "网站"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -718,8 +715,8 @@ msgid ""
 "For a long time, Luanti shipped with a default game called \"Minetest "
 "Game\". Since version 5.8.0, Luanti ships without a default game."
 msgstr ""
-"一直以来，Minetest 游戏引擎默认已经自带了“Minetest Game”这个子游戏。但是从 "
-"Minetest 5.8.0 版本起，Minetest 将不再自带任何子游戏。"
+"一直以来，Luanti 游戏引擎默认自带了“Minetest Game”这个子游戏。但是从 5.8.0 "
+"版本起，Luanti 不再自带任何子游戏。"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid ""
@@ -1140,7 +1137,7 @@ msgstr "从 ContentDB 安装游戏"
 #: builtin/mainmenu/tab_local.lua
 #, fuzzy
 msgid "Luanti doesn't come with a game by default."
-msgstr "Minetest Game 不再是默认自带的子游戏了"
+msgstr "Luanti 不自带任何子游戏。"
 
 #: builtin/mainmenu/tab_local.lua
 msgid ""
@@ -1181,7 +1178,6 @@ msgid "Start Game"
 msgstr "启动游戏"
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid "You need to install a game before you can create a world."
 msgstr "您需要先安装一个子游戏才能创建新的世界。"
 
@@ -2207,12 +2203,10 @@ msgid "Open"
 msgstr "打开"
 
 #: src/gui/guiOpenURL.cpp
-#, fuzzy
 msgid "Open URL?"
 msgstr "是否打开网页？"
 
 #: src/gui/guiOpenURL.cpp
-#, fuzzy
 msgid "Unable to open URL"
 msgstr "无法打开网页"
 
@@ -2296,18 +2290,19 @@ msgid "Name is taken. Please choose another name"
 msgstr "名称已被占用。请选择其他名称"
 
 #: src/network/clientpackethandler.cpp
+#, fuzzy
 msgid "Player name contains disallowed characters"
-msgstr ""
+msgstr "玩家名称包含不允许使用的字符"
 
 #: src/network/clientpackethandler.cpp
 #, fuzzy
 msgid "Player name not allowed"
-msgstr "玩家名称过长。"
+msgstr "不允许使用该玩家名称"
 
 #: src/network/clientpackethandler.cpp
 #, fuzzy
 msgid "Server shutting down"
-msgstr "关闭中..."
+msgstr "服务器正在关闭"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2337,6 +2332,8 @@ msgid ""
 "Your client's version is not supported.\n"
 "Please contact the server administrator."
 msgstr ""
+"服务器不支持这个客户端版本。\n"
+"请联系管理员。"
 
 #: src/server.cpp
 #, c-format
@@ -5735,15 +5732,15 @@ msgstr ""
 "18 = 4D \"Mandelbulb\" 朱利亚集."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Send names of online players to the serverlist. If disabled only the player "
 "count is revealed."
-msgstr ""
+msgstr "向服务器列表发送在线玩家的名称。如果禁用此设置，服务器只发送玩家数量。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Send player names to the server list"
-msgstr "向服务器表公开服务器。"
+msgstr "向服务器列表公开玩家名称"
 
 #: src/settings_translation_file.cpp
 msgid "Server"
@@ -6574,7 +6571,9 @@ msgid ""
 "URL to JSON file which provides information about the newest Luanti "
 "release.\n"
 "If this is empty the engine will never check for updates."
-msgstr "提供最新 Minetest 版本信息的 JSON 文件的 URL"
+msgstr ""
+"提供最新 Luanti 版本信息的 JSON 文件的 URL。\n"
+"如果设置为空，Luanti 不会查找新版本。"
 
 #: src/settings_translation_file.cpp
 msgid "URL to the server list displayed in the Multiplayer Tab."

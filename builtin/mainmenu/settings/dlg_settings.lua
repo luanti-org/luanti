@@ -19,8 +19,6 @@
 local component_funcs =  dofile(core.get_mainmenu_path() .. DIR_DELIM ..
 		"settings" .. DIR_DELIM .. "components.lua")
 
-local shader_warning_component =  dofile(core.get_mainmenu_path() .. DIR_DELIM ..
-		"settings" .. DIR_DELIM .. "shader_warning_component.lua")
 local shadows_component =  dofile(core.get_mainmenu_path() .. DIR_DELIM ..
 		"settings" .. DIR_DELIM .. "shadows_component.lua")
 
@@ -125,6 +123,22 @@ local function load()
 		end,
 	}
 
+	local touchscreen_layout = {
+		query_text = "Touchscreen layout",
+		requires = {
+			touchscreen = true,
+		},
+		get_formspec = function(self, avail_w)
+			local btn_w = math.min(avail_w, 6)
+			return ("button[0,0;%f,0.8;btn_touch_layout;%s]"):format(btn_w, fgettext("Touchscreen layout")), 0.8
+		end,
+		on_submit = function(self, fields)
+			if fields.btn_touch_layout then
+				core.show_touchscreen_layout()
+			end
+		end,
+	}
+
 	add_page({
 		id = "accessibility",
 		title = fgettext_ne("Accessibility"),
@@ -153,13 +167,10 @@ local function load()
 	load_settingtypes()
 
 	table.insert(page_by_id.controls_keyboard_and_mouse.content, 1, change_keys)
+	-- insert after "touch_controls"
+	table.insert(page_by_id.controls_touchscreen.content, 2, touchscreen_layout)
 	do
-		local content = page_by_id.graphics_and_audio_graphics.content
-		table.insert(content, 1, shader_warning_component)
-
-		content = page_by_id.graphics_and_audio_effects.content
-		table.insert(content, 1, shader_warning_component)
-
+		local content = page_by_id.graphics_and_audio_effects.content
 		local idx = table.indexof(content, "enable_dynamic_shadows")
 		table.insert(content, idx, shadows_component)
 
@@ -348,7 +359,6 @@ local function check_requirements(name, requires)
 	end
 
 	local video_driver = core.get_active_driver()
-	local shaders_support = video_driver == "opengl" or video_driver == "opengl3" or video_driver == "ogles2"
 	local touch_support = core.irrlicht_device_supports_touch()
 	local touch_controls = core.settings:get("touch_controls")
 	local special = {
@@ -359,9 +369,7 @@ local function check_requirements(name, requires)
 		-- be used, so we show settings for both.
 		touchscreen = touch_support and (touch_controls == "auto" or core.is_yes(touch_controls)),
 		keyboard_mouse = not touch_support or (touch_controls == "auto" or not core.is_yes(touch_controls)),
-		shaders_support = shaders_support,
-		shaders = core.settings:get_bool("enable_shaders") and shaders_support,
-		opengl = video_driver == "opengl",
+		opengl = (video_driver == "opengl" or video_driver == "opengl3"),
 		gles = video_driver:sub(1, 5) == "ogles",
 	}
 
@@ -369,7 +377,7 @@ local function check_requirements(name, requires)
 		if special[req_key] == nil then
 			local required_setting = get_setting_info(req_key)
 			if required_setting == nil then
-				core.log("warning", "Unknown setting " .. req_key .. " required by " .. name)
+				core.log("warning", "Unknown setting " .. req_key .. " required by " .. (name or "???"))
 			end
 			local actual_value = core.settings:get_bool(req_key,
 				required_setting and core.is_yes(required_setting.default))

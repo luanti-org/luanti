@@ -118,13 +118,14 @@ namespace LuaParticleParams
 			{(int)BlendMode::add,    "add"},
 			{(int)BlendMode::sub,    "sub"},
 			{(int)BlendMode::screen, "screen"},
+			{(int)BlendMode::clip,   "clip"},
 			{0, nullptr},
 		};
 
 		luaL_checktype(L, -1, LUA_TSTRING);
 		int v = (int)BlendMode::alpha;
 		if (!string_to_enum(opts, v, lua_tostring(L, -1))) {
-			throw LuaError("blend mode must be one of ('alpha', 'add', 'sub', 'screen')");
+			throw LuaError("blend mode must be one of ('alpha', 'clip', 'add', 'sub', 'screen')");
 		}
 		ret = (BlendMode)v;
 	}

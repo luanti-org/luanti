@@ -99,7 +99,6 @@ private:
 };
 
 class ClientScripting;
-class GameUI;
 
 class Client : public con::PeerHandler, public InventoryManager, public IGameDef
 {
@@ -119,7 +118,6 @@ public:
 			ISoundManager *sound,
 			MtEventManager *event,
 			RenderingEngine *rendering_engine,
-			GameUI *game_ui,
 			ELoginRegister allow_login_or_register
 	);
 
@@ -571,8 +569,6 @@ private:
 
 	// own state
 	LocalClientState m_state;
-
-	GameUI *m_game_ui;
 
 	// Used for saving server map to disk client-side
 	MapDatabase *m_localdb = nullptr;

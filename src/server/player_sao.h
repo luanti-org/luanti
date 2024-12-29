@@ -156,11 +156,13 @@ public:
 
 	// Other
 
-	void updatePrivileges(const std::set<std::string> &privs, bool is_singleplayer)
+	void updatePrivileges(const std::set<std::string> &privs)
 	{
 		m_privs = privs;
-		m_is_singleplayer = is_singleplayer;
 	}
+
+	inline void setNewPlayer() { m_is_new_player = true; }
+	inline bool isNewPlayer()  { return m_is_new_player; }
 
 	bool getCollisionBox(aabb3f *toset) const override;
 	bool getSelectionBox(aabb3f *toset) const override;
@@ -202,7 +204,8 @@ private:
 
 	// Cached privileges for enforcement
 	std::set<std::string> m_privs;
-	bool m_is_singleplayer;
+	const bool m_is_singleplayer;
+	bool m_is_new_player = false;
 
 	u16 m_breath = PLAYER_MAX_BREATH_DEFAULT;
 	f32 m_pitch = 0.0f;

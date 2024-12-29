@@ -24,8 +24,8 @@ public:
 	}
 	virtual ~GettextPluralForm() {};
 
-	static GettextPluralForm::Ptr parse(const size_t nplurals, const std::wstring_view &str);
-	static GettextPluralForm::Ptr parseHeaderLine(const std::wstring_view &str);
+	static GettextPluralForm::Ptr parse(const size_t nplurals, std::wstring_view str);
+	static GettextPluralForm::Ptr parseHeaderLine(std::wstring_view str);
 protected:
 	GettextPluralForm(size_t nplurals): nplurals(nplurals) {};
 private:

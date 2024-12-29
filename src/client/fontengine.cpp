@@ -140,7 +140,7 @@ unsigned int FontEngine::getLineHeight(const FontSpec &spec)
 	gui::IGUIFont *font = getFont(spec);
 
 	return font->getDimension(L"Some unimportant example String").Height
-			+ font->getKerningHeight();
+			+ font->getKerning(L'S').Y;
 }
 
 /******************************************************************************/

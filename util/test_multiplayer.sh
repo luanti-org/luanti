@@ -29,7 +29,7 @@ mkdir -p "$worldpath/worldmods"
 
 printf '%s\n' >"$testspath/client1.conf" \
 	video_driver=null name=client1 viewing_range=10 \
-	enable_{sound,minimap,shaders}=false
+	enable_{sound,minimap,post_processing}=false
 
 printf '%s\n' >"$testspath/server.conf" \
 	max_block_send_distance=1 active_block_range=1 \

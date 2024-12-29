@@ -688,6 +688,10 @@ void initializePaths()
 
 #endif // RUN_IN_PLACE
 
+	assert(!path_share.empty());
+	assert(!path_user.empty());
+	assert(!path_cache.empty());
+
 	infostream << "Detected share path: " << path_share << std::endl;
 	infostream << "Detected user path: " << path_user << std::endl;
 	infostream << "Detected cache path: " << path_cache << std::endl;

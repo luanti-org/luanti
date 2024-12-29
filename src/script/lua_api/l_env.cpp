@@ -1307,11 +1307,7 @@ int ModApiEnv::l_spawn_tree(lua_State *L)
 	ServerMap *map = &env->getServerMap();
 	treegen::error e;
 	if ((e = treegen::spawn_ltree (map, p0, tree_def)) != treegen::SUCCESS) {
-		if (e == treegen::UNBALANCED_BRACKETS) {
-			luaL_error(L, "spawn_tree(): closing ']' has no matching opening bracket");
-		} else {
-			luaL_error(L, "spawn_tree(): unknown error");
-		}
+		throw LuaError("spawn_tree(): " + treegen::error_to_string(e));
 	}
 
 	lua_pushboolean(L, true);
@@ -1614,11 +1610,7 @@ int ModApiEnvVM::l_spawn_tree(lua_State *L)
 
 	treegen::error e;
 	if ((e = treegen::make_ltree(*vm, p0, tree_def)) != treegen::SUCCESS) {
-		if (e == treegen::UNBALANCED_BRACKETS) {
-			throw LuaError("spawn_tree(): closing ']' has no matching opening bracket");
-		} else {
-			throw LuaError("spawn_tree(): unknown error");
-		}
+		throw LuaError("spawn_tree(): " + treegen::error_to_string(e));
 	}
 
 	lua_pushboolean(L, true);

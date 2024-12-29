@@ -109,8 +109,7 @@ extern std::string path_cache;
 bool getCurrentExecPath(char *buf, size_t len);
 
 /*
-	Get full path of stuff in data directory.
-	Example: "stone.png" -> "../data/stone.png"
+	Concatenate subpath to path_share.
 */
 std::string getDataPath(const char *subpath);
 

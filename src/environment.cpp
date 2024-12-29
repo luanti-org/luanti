@@ -17,7 +17,6 @@ Environment::Environment(IGameDef *gamedef):
 	m_day_count(0),
 	m_gamedef(gamedef)
 {
-	m_cache_enable_shaders = g_settings->getBool("enable_shaders");
 	m_cache_active_block_mgmt_interval = g_settings->getFloat("active_block_mgmt_interval");
 	m_cache_abm_interval = g_settings->getFloat("abm_interval");
 	m_cache_nodetimer_interval = g_settings->getFloat("nodetimer_interval");
@@ -32,7 +31,7 @@ u32 Environment::getDayNightRatio()
 	MutexAutoLock lock(m_time_lock);
 	if (m_enable_day_night_ratio_override)
 		return m_day_night_ratio_override;
-	return time_to_daynight_ratio(m_time_of_day_f * 24000, m_cache_enable_shaders);
+	return time_to_daynight_ratio(m_time_of_day_f * 24000, true);
 }
 
 void Environment::setTimeOfDaySpeed(float speed)

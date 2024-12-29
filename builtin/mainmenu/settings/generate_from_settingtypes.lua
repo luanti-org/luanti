@@ -16,7 +16,7 @@ local minetest_example_header = [[
 #    to the program, eg. "luanti.exe --config ../minetest.conf.example".
 
 #    Further documentation:
-#    https://wiki.minetest.net/
+#    https://wiki.luanti.org/
 
 ]]
 

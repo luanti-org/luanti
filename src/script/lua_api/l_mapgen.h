@@ -131,6 +131,9 @@ private:
 	//     replacements, force_placement, flagstring)
 	static int l_place_schematic_on_vmanip(lua_State *L);
 
+	// spawn_tree_on_vmanip(vmanip, pos, treedef)
+	static int l_spawn_tree_on_vmanip(lua_State *L);
+
 	// serialize_schematic(schematic, format, options={...})
 	static int l_serialize_schematic(lua_State *L);
 

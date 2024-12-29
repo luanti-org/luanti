@@ -3,6 +3,7 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "mapblock_mesh.h"
+#include "CMeshBuffer.h"
 #include "client.h"
 #include "mapblock.h"
 #include "map.h"
@@ -25,11 +26,10 @@
 	MeshMakeData
 */
 
-MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, bool use_shaders, u16 lod):
+MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, u16 lod):
 	side_length(side_length),
     lod(lod),
-    nodedef(ndef),
-    m_use_shaders(use_shaders)
+    nodedef(ndef)
 {}
 
 void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
@@ -268,7 +268,8 @@ u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner, MeshMakeData 
 	return getSmoothLightCombined(p, dirs, data);
 }
 
-void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio){
+void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio)
+{
 	f32 rg = daynight_ratio / 1000.0f - 0.04f;
 	f32 b = (0.98f * daynight_ratio) / 1000.0f + 0.078f;
 	sunlight->r = rg;
@@ -595,14 +596,12 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 	m_shdrsrc(client->getShaderSource()),
 	m_bounding_sphere_center((data->side_length * 0.5f - 0.5f) * BS),
 	m_animation_force_timer(0), // force initial animation
-	m_last_crack(-1),
-	m_last_daynight_ratio((u32) -1)
+	m_last_crack(-1)
 {
 	ZoneScoped;
 
 	for (auto &m : m_mesh)
 		m = make_irr<scene::SMesh>();
-	m_enable_shaders = data->m_use_shaders;
 
 	auto mesh_grid = client->getMeshGrid();
 	v3s16 bp = data->m_blockpos;
@@ -635,8 +634,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 	*/
 
 	{
-		MapblockMeshGenerator(data, &collector,
-			client->getSceneManager()->getMeshManipulator()).generate();
+		MapblockMeshGenerator(data, &collector).generate();
 	}
 
 	/*
@@ -696,30 +694,6 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 				p.layer.texture = (*p.layer.frames)[0].texture;
 			}
 
-			if (!m_enable_shaders) {
-				// Extract colors for day-night animation
-				// Dummy sunlight to handle non-sunlit areas
-				video::SColorf sunlight;
-				get_sunlight_color(&sunlight, 0);
-
-				std::map<u32, video::SColor> colors;
-				const u32 vertex_count = p.vertices.size();
-				for (u32 j = 0; j < vertex_count; j++) {
-					video::SColor *vc = &p.vertices[j].Color;
-					video::SColor copy = *vc;
-					if (vc->getAlpha() == 0) // No sunlight - no need to animate
-						final_color_blend(vc, copy, sunlight); // Finalize color
-					else // Record color to animate
-						colors[j] = copy;
-
-					// The sunlight ratio has been stored,
-					// delete alpha (for the final rendering).
-					vc->setAlpha(255);
-				}
-				if (!colors.empty())
-					m_daynight_diffs[{layer, i}] = std::move(colors);
-			}
-
 			// Create material
 			video::SMaterial material;
 			material.BackfaceCulling = true;
@@ -730,12 +704,10 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 				tex.MagFilter = video::ETMAGF_NEAREST;
 			});
 
-			if (m_enable_shaders) {
+			{
 				material.MaterialType = m_shdrsrc->getShaderInfo(
 						p.layer.shader_id).material;
 				p.layer.applyMaterialOptionsWithShaders(material);
-			} else {
-				p.layer.applyMaterialOptions(material);
 			}
 
 			scene::SMeshBuffer *buf = new scene::SMeshBuffer();
@@ -772,7 +744,6 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 	// Check if animation is required for this mesh
 	m_has_animation =
 		!m_crack_materials.empty() ||
-		!m_daynight_diffs.empty() ||
 		!m_animation_info.empty();
 }
 
@@ -845,28 +816,11 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 		buf->getMaterial().setTexture(0, frame.texture);
 	}
 
-	// Day-night transition
-	if (!m_enable_shaders && (daynight_ratio != m_last_daynight_ratio)) {
-		video::SColorf day_color;
-		get_sunlight_color(&day_color, daynight_ratio);
-
-		for (auto &daynight_diff : m_daynight_diffs) {
-			auto *mesh = m_mesh[daynight_diff.first.first].get();
-			mesh->setDirty(scene::EBT_VERTEX); // force reload to VBO
-			scene::IMeshBuffer *buf = mesh->
-				getMeshBuffer(daynight_diff.first.second);
-			video::S3DVertex *vertices = (video::S3DVertex *)buf->getVertices();
-			for (const auto &j : daynight_diff.second)
-				final_color_blend(&(vertices[j.first].Color), j.second,
-						day_color);
-		}
-		m_last_daynight_ratio = daynight_ratio;
-	}
-
 	return true;
 }
 
-void MapBlockMesh::updateTransparentBuffers(v3f camera_pos, v3s16 block_pos)
+void MapBlockMesh::updateTransparentBuffers(v3f camera_pos, v3s16 block_pos,
+		bool group_by_buffers)
 {
 	// nothing to do if the entire block is opaque
 	if (m_transparent_triangles.empty())
@@ -882,24 +836,56 @@ void MapBlockMesh::updateTransparentBuffers(v3f camera_pos, v3s16 block_pos)
 	m_transparent_buffers_consolidated = false;
 	m_transparent_buffers.clear();
 
+	std::vector<std::pair<scene::SMeshBuffer *, std::vector<u16>>> ordered_strains;
+	std::unordered_map<scene::SMeshBuffer *, size_t> strain_idxs;
+
+	if (group_by_buffers) {
+		// find (reversed) order for strains, by iterating front-to-back
+		// (if a buffer A has a triangle nearer than all triangles of another
+		// buffer B, A should be drawn in front of (=after) B)
+		scene::SMeshBuffer *current_buffer = nullptr;
+		for (auto it = triangle_refs.rbegin(); it != triangle_refs.rend(); ++it) {
+			const auto &t = m_transparent_triangles[*it];
+			if (current_buffer == t.buffer)
+				continue;
+			current_buffer = t.buffer;
+			auto [_it2, is_new] =
+				strain_idxs.emplace(current_buffer, ordered_strains.size());
+			if (is_new)
+				ordered_strains.emplace_back(current_buffer, std::vector<u16>{});
+		}
+	}
+
+	// find order for triangles, by iterating back-to-front
 	scene::SMeshBuffer *current_buffer = nullptr;
-	std::vector<u16> current_strain;
+	std::vector<u16> *current_strain = nullptr;
 	for (auto i : triangle_refs) {
 		const auto &t = m_transparent_triangles[i];
 		if (current_buffer != t.buffer) {
-			if (current_buffer) {
-				m_transparent_buffers.emplace_back(current_buffer, std::move(current_strain));
-				current_strain.clear();
-			}
 			current_buffer = t.buffer;
+			if (group_by_buffers) {
+				auto it = strain_idxs.find(current_buffer);
+				assert(it != strain_idxs.end());
+				current_strain = &ordered_strains[it->second].second;
+			} else {
+				ordered_strains.emplace_back(current_buffer, std::vector<u16>{});
+				current_strain = &ordered_strains.back().second;
+			}
 		}
-		current_strain.push_back(t.p1);
-		current_strain.push_back(t.p2);
-		current_strain.push_back(t.p3);
+		current_strain->push_back(t.p1);
+		current_strain->push_back(t.p2);
+		current_strain->push_back(t.p3);
 	}
 
-	if (!current_strain.empty())
-		m_transparent_buffers.emplace_back(current_buffer, std::move(current_strain));
+	m_transparent_buffers.reserve(ordered_strains.size());
+	if (group_by_buffers) {
+		// the order was reversed
+		for (auto it = ordered_strains.rbegin(); it != ordered_strains.rend(); ++it)
+			m_transparent_buffers.emplace_back(it->first, std::move(it->second));
+	} else {
+		for (auto it = ordered_strains.begin(); it != ordered_strains.end(); ++it)
+			m_transparent_buffers.emplace_back(it->first, std::move(it->second));
+	}
 }
 
 void MapBlockMesh::consolidateTransparentBuffers()

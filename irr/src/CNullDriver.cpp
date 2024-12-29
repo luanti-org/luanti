@@ -22,9 +22,6 @@ namespace irr
 namespace video
 {
 
-//! creates a loader which is able to load windows bitmaps
-IImageLoader *createImageLoaderBMP();
-
 //! creates a loader which is able to load jpeg images
 IImageLoader *createImageLoaderJPG();
 
@@ -56,10 +53,6 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 		ViewPort(0, 0, 0, 0), ScreenSize(screenSize), MinVertexCountForVBO(500),
 		TextureCreationFlags(0), OverrideMaterial2DEnabled(false), AllowZWriteOnTransparent(false)
 {
-#ifdef _DEBUG
-	setDebugName("CNullDriver");
-#endif
-
 	DriverAttributes = new io::CAttributes();
 	DriverAttributes->addInt("MaxTextures", MATERIAL_MAX_TEXTURES);
 	DriverAttributes->addInt("MaxSupportedTextures", MATERIAL_MAX_TEXTURES);
@@ -79,7 +72,7 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 	setTextureCreationFlag(ETCF_ALWAYS_32_BIT, true);
 	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, true);
 	setTextureCreationFlag(ETCF_AUTO_GENERATE_MIP_MAPS, true);
-	setTextureCreationFlag(ETCF_ALLOW_MEMORY_COPY, true);
+	setTextureCreationFlag(ETCF_ALLOW_MEMORY_COPY, false);
 
 	ViewPort = core::rect<s32>(core::position2d<s32>(0, 0), core::dimension2di(screenSize));
 
@@ -93,7 +86,6 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 	SurfaceLoader.push_back(video::createImageLoaderTGA());
 	SurfaceLoader.push_back(video::createImageLoaderPNG());
 	SurfaceLoader.push_back(video::createImageLoaderJPG());
-	SurfaceLoader.push_back(video::createImageLoaderBMP());
 
 	SurfaceWriter.push_back(video::createImageWriterJPG());
 	SurfaceWriter.push_back(video::createImageWriterPNG());
@@ -747,19 +739,6 @@ SFrameStats CNullDriver::getFrameStats() const
 	return FrameStats;
 }
 
-//! Sets the dynamic ambient light color. The default color is
-//! (0,0,0,0) which means it is dark.
-//! \param color: New color of the ambient light.
-void CNullDriver::setAmbientLight(const SColorf &color)
-{
-	AmbientLight = color;
-}
-
-const SColorf &CNullDriver::getAmbientLight() const
-{
-	return AmbientLight;
-}
-
 //! \return Returns the name of the video driver. Example: In case of the DIRECT3D8
 //! driver, it would return "Direct3D8".
 
@@ -940,9 +919,10 @@ void CNullDriver::setTextureCreationFlag(E_TEXTURE_CREATION_FLAG flag, bool enab
 		setTextureCreationFlag(ETCF_OPTIMIZED_FOR_SPEED, false);
 	}
 
-	// set flag
-	TextureCreationFlags = (TextureCreationFlags & (~flag)) |
-						   ((((u32)!enabled) - 1) & flag);
+	if (enabled)
+		TextureCreationFlags |= flag;
+	else
+		TextureCreationFlags &= ~flag;
 }
 
 //! Returns if a texture creation flag is enabled or disabled.
@@ -1164,6 +1144,10 @@ CNullDriver::SHWBufferLink *CNullDriver::getBufferLink(const scene::IIndexBuffer
 //! Update all hardware buffers, remove unused ones
 void CNullDriver::updateAllHardwareBuffers()
 {
+	// FIXME: this method can take a lot of time just doing the refcount
+	// checks and iteration (too much pointer chasing?) for
+	// large buffer counts (e.g. 50000)
+
 	auto it = HWBufferList.begin();
 	while (it != HWBufferList.end()) {
 		SHWBufferLink *Link = *it;
@@ -1185,6 +1169,24 @@ void CNullDriver::deleteHardwareBuffer(SHWBufferLink *HWBuffer)
 		return;
 	HWBufferList.erase(HWBuffer->listPosition);
 	delete HWBuffer;
+}
+
+void CNullDriver::updateHardwareBuffer(const scene::IVertexBuffer *vb)
+{
+	if (!vb)
+		return;
+	auto *link = getBufferLink(vb);
+	if (link)
+		updateHardwareBuffer(link);
+}
+
+void CNullDriver::updateHardwareBuffer(const scene::IIndexBuffer *ib)
+{
+	if (!ib)
+		return;
+	auto *link = getBufferLink(ib);
+	if (link)
+		updateHardwareBuffer(link);
 }
 
 void CNullDriver::removeHardwareBuffer(const scene::IVertexBuffer *vb)
@@ -1681,6 +1683,12 @@ ITexture *CNullDriver::addRenderTargetTexture(const core::dimension2d<u32> &size
 	return 0;
 }
 
+ITexture *CNullDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &size, u8 msaa,
+		const io::path &name, const ECOLOR_FORMAT format)
+{
+	return 0;
+}
+
 ITexture *CNullDriver::addRenderTargetTextureCubemap(const irr::u32 sideLen,
 		const io::path &name, const ECOLOR_FORMAT format)
 {
@@ -1769,22 +1777,6 @@ bool CNullDriver::needsTransparentRenderPass(const irr::video::SMaterial &materi
 		return true;
 
 	return false;
-}
-
-//! Color conversion convenience function
-/** Convert an image (as array of pixels) from source to destination
-array, thereby converting the color format. The pixel size is
-determined by the color formats.
-\param sP Pointer to source
-\param sF Color format of source
-\param sN Number of pixels to convert, both array must be large enough
-\param dP Pointer to destination
-\param dF Color format of destination
-*/
-void CNullDriver::convertColor(const void *sP, ECOLOR_FORMAT sF, s32 sN,
-		void *dP, ECOLOR_FORMAT dF) const
-{
-	video::CColorConverter::convert_viaFormat(sP, sF, sN, dP, dF);
 }
 
 } // end namespace

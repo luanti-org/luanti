@@ -196,18 +196,33 @@ using CachedStructPixelShaderSetting = CachedStructShaderSetting<T, count, cache
 
 /*
 	ShaderSource creates and caches shaders.
-*/
 
+	A "shader" could more precisely be called a "shader material" and comprises
+	a vertex, fragment and optional geometry shader.
+*/
 class IShaderSource {
 public:
 	IShaderSource() = default;
 	virtual ~IShaderSource() = default;
 
-	virtual u32 getShaderIdDirect(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL){return 0;}
-	virtual ShaderInfo getShaderInfo(u32 id){return ShaderInfo();}
+	/**
+	 * @brief returns information about an existing shader
+	 *
+	 * Use this to get the material ID to plug into `video::SMaterial`.
+	 */
+	virtual ShaderInfo getShaderInfo(u32 id) = 0;
+
+	/// @brief Generates or gets a shader suitable for nodes and entities
 	virtual u32 getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL){return 0;}
+		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL) = 0;
+
+	/**
+	 * Generates or gets a shader for general use.
+	 * @param name name of the shader (directory on disk)
+	 * @param blendAlpha enable alpha blending for this material?
+	 * @return shader ID
+	 */
+	virtual u32 getShaderRaw(const std::string &name, bool blendAlpha = false) = 0;
 };
 
 class IWritableShaderSource : public IShaderSource {

@@ -21,10 +21,6 @@ CGUIFont::CGUIFont(IGUIEnvironment *env, const io::path &filename) :
 		Driver(0), SpriteBank(0), Environment(env), WrongCharacter(0),
 		MaxHeight(0), GlobalKerningWidth(0), GlobalKerningHeight(0)
 {
-#ifdef _DEBUG
-	setDebugName("CGUIFont");
-#endif
-
 	if (Environment) {
 		// don't grab environment, to avoid circular references
 		Driver = Environment->getVideoDriver();
@@ -56,141 +52,6 @@ CGUIFont::~CGUIFont()
 		// where they can't be removed unless materials start reference-couting 'em.
 	}
 }
-
-#if 0
-//! loads a font file from xml
-bool CGUIFont::load(io::IXMLReader* xml, const io::path& directory)
-{
-	if (!SpriteBank)
-		return false;
-
-	SpriteBank->clear();
-
-	while (xml->read())
-	{
-		if (io::EXN_ELEMENT == xml->getNodeType())
-		{
-			if (core::stringw(L"Texture") == xml->getNodeName())
-			{
-				// add a texture
-				core::stringc fn = xml->getAttributeValue(L"filename");
-				u32 i = (u32)xml->getAttributeValueAsInt(L"index");
-				core::stringw alpha = xml->getAttributeValue(L"hasAlpha");
-
-				while (i+1 > SpriteBank->getTextureCount())
-					SpriteBank->addTexture(0);
-
-				bool flags[3];
-				pushTextureCreationFlags(flags);
-
-				// load texture
-				io::path textureFullName = core::mergeFilename(directory, fn);
-				SpriteBank->setTexture(i, Driver->getTexture(textureFullName));
-
-				popTextureCreationFlags(flags);
-
-				// couldn't load texture, abort.
-				if (!SpriteBank->getTexture(i))
-				{
-					os::Printer::log("Unable to load all textures in the font, aborting", ELL_ERROR);
-					return false;
-				}
-				else
-				{
-					// colorkey texture rather than alpha channel?
-					if (alpha == core::stringw("false"))
-						Driver->makeColorKeyTexture(SpriteBank->getTexture(i), core::position2di(0,0));
-				}
-			}
-			else if (core::stringw(L"c") == xml->getNodeName())
-			{
-				// adding a character to this font
-				SFontArea a;
-				SGUISpriteFrame f;
-				SGUISprite s;
-				core::rect<s32> rectangle;
-
-				a.underhang     = xml->getAttributeValueAsInt(L"u");
-				a.overhang      = xml->getAttributeValueAsInt(L"o");
-				a.spriteno      = SpriteBank->getSprites().size();
-				s32 texno       = xml->getAttributeValueAsInt(L"i");
-
-				// parse rectangle
-				core::stringc rectstr   = xml->getAttributeValue(L"r");
-				wchar_t ch      = xml->getAttributeValue(L"c")[0];
-
-				const c8 *c = rectstr.c_str();
-				s32 val;
-				val = 0;
-				while (*c >= '0' && *c <= '9')
-				{
-					val *= 10;
-					val += *c - '0';
-					c++;
-				}
-				rectangle.UpperLeftCorner.X = val;
-				while (*c == L' ' || *c == L',') c++;
-
-				val = 0;
-				while (*c >= '0' && *c <= '9')
-				{
-					val *= 10;
-					val += *c - '0';
-					c++;
-				}
-				rectangle.UpperLeftCorner.Y = val;
-				while (*c == L' ' || *c == L',') c++;
-
-				val = 0;
-				while (*c >= '0' && *c <= '9')
-				{
-					val *= 10;
-					val += *c - '0';
-					c++;
-				}
-				rectangle.LowerRightCorner.X = val;
-				while (*c == L' ' || *c == L',') c++;
-
-				val = 0;
-				while (*c >= '0' && *c <= '9')
-				{
-					val *= 10;
-					val += *c - '0';
-					c++;
-				}
-				rectangle.LowerRightCorner.Y = val;
-
-				CharacterMap.emplace(ch, Areas.size());
-
-				// make frame
-				f.rectNumber = SpriteBank->getPositions().size();
-				f.textureNumber = texno;
-
-				// add frame to sprite
-				s.Frames.push_back(f);
-				s.frameTime = 0;
-
-				// add rectangle to sprite bank
-				SpriteBank->getPositions().push_back(rectangle);
-				a.width = rectangle.getWidth();
-
-				// add sprite to sprite bank
-				SpriteBank->getSprites().push_back(s);
-
-				// add character to font
-				Areas.push_back(a);
-			}
-		}
-	}
-
-	// set bad character
-	WrongCharacter = getAreaFromCharacter(L' ');
-
-	setMaxHeight();
-
-	return true;
-}
-#endif
 
 void CGUIFont::setMaxHeight()
 {
@@ -369,17 +230,15 @@ void CGUIFont::setKerningWidth(s32 kerning)
 	GlobalKerningWidth = kerning;
 }
 
-//! set an Pixel Offset on Drawing ( scale position on width )
-s32 CGUIFont::getKerningWidth(const wchar_t *thisLetter, const wchar_t *previousLetter) const
+core::vector2di CGUIFont::getKerning(const wchar_t thisLetter, const wchar_t previousLetter) const
 {
-	s32 ret = GlobalKerningWidth;
+	core::vector2di ret(GlobalKerningWidth, GlobalKerningHeight);
 
 	if (thisLetter) {
-		ret += Areas[getAreaFromCharacter(*thisLetter)].overhang;
+		ret.X += Areas[getAreaFromCharacter(thisLetter)].overhang;
 
-		if (previousLetter) {
-			ret += Areas[getAreaFromCharacter(*previousLetter)].underhang;
-		}
+		if (previousLetter)
+			ret.X += Areas[getAreaFromCharacter(previousLetter)].underhang;
 	}
 
 	return ret;
@@ -389,12 +248,6 @@ s32 CGUIFont::getKerningWidth(const wchar_t *thisLetter, const wchar_t *previous
 void CGUIFont::setKerningHeight(s32 kerning)
 {
 	GlobalKerningHeight = kerning;
-}
-
-//! set an Pixel Offset on Drawing ( scale position on height )
-s32 CGUIFont::getKerningHeight() const
-{
-	return GlobalKerningHeight;
 }
 
 //! returns the sprite number from a given character

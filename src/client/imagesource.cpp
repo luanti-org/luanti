@@ -566,7 +566,7 @@ static void apply_hue_saturation(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 		for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++) {
 
 			if (colorize) {
-				f32 lum = dst->getPixel(x, y).getLuminance() / 255.0f;
+				f32 lum = dst->getPixel(x, y).getBrightness() / 255.0f;
 
 				if (norm_l < 0) {
 					lum *= norm_l + 1.0f;
@@ -1511,10 +1511,18 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			CHECK_BASEIMG();
 
-			// Apply the "clean transparent" filter, if needed
+			/* Apply the "clean transparent" filter, if necessary
+			 * This is needed since filtering will sample parts of the image
+			 * that are transparent and PNG optimizers often discard the color
+			 * information in those parts. */
 			if (m_setting_mipmap || m_setting_bilinear_filter ||
-				m_setting_trilinear_filter || m_setting_anisotropic_filter)
-				imageCleanTransparent(baseimg, 127);
+				m_setting_trilinear_filter || m_setting_anisotropic_filter) {
+				/* Note: in theory we should pass either 0 or 127 depending on
+				 * if the texture is used with an ALPHA or ALPHA_REF material,
+				 * however we don't have this information here.
+				 * It doesn't matter in practice. */
+				imageCleanTransparent(baseimg, 0);
+			}
 
 			/* Upscale textures to user's requested minimum size.  This is a trick to make
 			 * filters look as good on low-res textures as on high-res ones, by making

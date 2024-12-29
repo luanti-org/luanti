@@ -12,6 +12,7 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'util/buildbot/**'
       - 'misc/*.manifest'
       - '.github/workflows/windows.yml'
@@ -25,6 +26,7 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'util/buildbot/**'
       - 'misc/*.manifest'
       - '.github/workflows/windows.yml'
@@ -71,7 +73,7 @@ jobs:
     env:
       VCPKG_VERSION: 01f602195983451bc83e72f4214af2cbc495aa94
       # 2024.05.24
-      vcpkg_packages: zlib zstd curl[winssl] openal-soft libvorbis libogg libjpeg-turbo sqlite3 freetype luajit gmp jsoncpp opengl-registry
+      vcpkg_packages: zlib zstd curl[winssl] openal-soft libvorbis libogg libjpeg-turbo sqlite3 freetype luajit gmp jsoncpp sdl2
     strategy:
       fail-fast: false
       matrix:

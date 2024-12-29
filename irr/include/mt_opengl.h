@@ -15,11 +15,18 @@
 #ifndef APIENTRYP
 	#define APIENTRYP APIENTRY *
 #endif
-#ifndef GLAPI
-	#define GLAPI extern
+// undefine a few names that can easily clash with system headers
+#ifdef NO_ERROR
+#undef NO_ERROR
+#endif
+#ifdef ZERO
+#undef ZERO
+#endif
+#ifdef ONE
+#undef ONE
 #endif
 
-class OpenGLProcedures {
+class OpenGLProcedures final {
 private:
 	// ./glcorearb.h
 	typedef void GLvoid;
@@ -49,8 +56,6 @@ private:
 	typedef khronos_int64_t GLint64EXT;
 
 	typedef void *GLeglClientBufferEXT;
-	// The script will miss this particular typedef thinking it's a PFN,
-	// so we have to paste it in manually. It's the only such type in OpenGL.
 	typedef void (APIENTRY *GLDEBUGPROC)
 		(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
 
@@ -775,10 +780,12 @@ private:
 	typedef void (APIENTRYP PFNGLTEXPAGECOMMITMENTPROC_MT) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLboolean commit);
 
 	std::unordered_set<std::string> extensions;
+
 public:
 	// Call this once after creating the context.
 	void LoadAllProcedures(irr::video::IContextManager *cmgr);
-	// Check if an extension is supported.
+	/// Check if an extension is supported.
+	/// @param ext full extension name e.g. "GL_KHR_no_error"
 	inline bool IsExtensionPresent(const std::string &ext) const
 	{
 		return extensions.count(ext) > 0;
@@ -3185,6 +3192,7 @@ public:
 	static constexpr const GLenum STATE_RESTORE = 0x8BDC;
 	static constexpr const GLenum SHADER_BINARY_VIV = 0x8FC4;
 
+	static constexpr const GLenum NO_ERROR = 0;
 	static constexpr const GLenum ZERO = 0;
 	static constexpr const GLenum ONE = 1;
 	static constexpr const GLenum NONE = 0;

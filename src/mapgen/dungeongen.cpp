@@ -127,7 +127,7 @@ void DungeonGen::generate(MMVManip *vm, u32 bseed, v3s16 nmin, v3s16 nmax)
 
 void DungeonGen::makeDungeon(v3s16 start_padding)
 {
-	const v3s16 &areasize = vm->m_area.getExtent();
+	const v3s32 &areasize = vm->m_area.getExtent();
 	v3s16 roomsize;
 	v3s16 roomplace;
 

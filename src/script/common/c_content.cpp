@@ -2032,12 +2032,11 @@ bool read_tree_def(lua_State *L, int idx, const NodeDefManager *ndef,
 	getstringfield(L, idx, "trunk_type", tree_def.trunk_type);
 	getboolfield(L, idx, "thin_branches", tree_def.thin_branches);
 	tree_def.fruit_chance = 0;
+	fruit = "air";
 	getstringfield(L, idx, "fruit", fruit);
-	if (!fruit.empty()) {
+	if (!fruit.empty())
 		getintfield(L, idx, "fruit_chance", tree_def.fruit_chance);
-		if (tree_def.fruit_chance)
-			tree_def.m_nodenames.push_back(fruit);
-	}
+	tree_def.m_nodenames.push_back(fruit);
 	tree_def.explicit_seed = getintfield(L, idx, "seed", tree_def.seed);
 
 	// Resolves the node IDs for trunk, leaves, leaves2 and fruit at runtime,

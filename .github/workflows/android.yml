@@ -12,6 +12,7 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'android/**'
       - '.github/workflows/android.yml'
   pull_request:
@@ -24,6 +25,7 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'android/**'
       - '.github/workflows/android.yml'
 

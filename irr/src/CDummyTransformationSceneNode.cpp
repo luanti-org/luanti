@@ -15,10 +15,6 @@ CDummyTransformationSceneNode::CDummyTransformationSceneNode(
 		ISceneNode *parent, ISceneManager *mgr, s32 id) :
 		IDummyTransformationSceneNode(parent, mgr, id)
 {
-#ifdef _DEBUG
-	setDebugName("CDummyTransformationSceneNode");
-#endif
-
 	setAutomaticCulling(scene::EAC_OFF);
 }
 

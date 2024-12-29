@@ -766,7 +766,7 @@ void MMVManip::initialEmerge(v3s16 blockpos_min, v3s16 blockpos_max,
 	VoxelArea block_area_nodes
 			(p_min*MAP_BLOCKSIZE, (p_max+1)*MAP_BLOCKSIZE-v3s16(1,1,1));
 
-	u32 size_MB = block_area_nodes.getVolume()*4/1000000;
+	u32 size_MB = block_area_nodes.getVolume() * sizeof(MapNode) / 1000000U;
 	if(size_MB >= 1)
 	{
 		infostream<<"initialEmerge: area: ";
@@ -855,7 +855,7 @@ MMVManip *MMVManip::clone() const
 {
 	MMVManip *ret = new MMVManip();
 
-	const s32 size = m_area.getVolume();
+	const u32 size = m_area.getVolume();
 	ret->m_area = m_area;
 	if (m_data) {
 		ret->m_data = new MapNode[size];

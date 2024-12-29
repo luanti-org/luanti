@@ -1,3 +1,5 @@
+"Minetest Sam":
+
 Original model by MirceaKitsune (CC BY-SA 3.0).
 Various alterations and fixes by kilbith, sofar, xunto, Rogier-5, TeTpaAka, Desour,
 stujones11, An0n3m0us (CC BY-SA 3.0):
@@ -5,3 +7,9 @@ stujones11, An0n3m0us (CC BY-SA 3.0):
 
 Jordach (CC BY-SA 3.0):
   testentities_sam.png
+
+"Lava Flan":
+
+Zeg9 (CC BY-SA 3.0):
+  testentities_lava_flan.x
+  testentities_lava_flan.png

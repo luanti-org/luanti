@@ -10,7 +10,7 @@
 
 #include "IMeshLoader.h"
 #include "ISceneManager.h"
-#include "CSkinnedMesh.h"
+#include "SkinnedMesh.h"
 #include "SB3DStructs.h"
 #include "IReadFile.h"
 
@@ -39,12 +39,12 @@ public:
 
 private:
 	bool load();
-	bool readChunkNODE(CSkinnedMesh::SJoint *InJoint);
-	bool readChunkMESH(CSkinnedMesh::SJoint *InJoint);
-	bool readChunkVRTS(CSkinnedMesh::SJoint *InJoint);
+	bool readChunkNODE(SkinnedMesh::SJoint *InJoint);
+	bool readChunkMESH(SkinnedMesh::SJoint *InJoint);
+	bool readChunkVRTS(SkinnedMesh::SJoint *InJoint);
 	bool readChunkTRIS(scene::SSkinMeshBuffer *MeshBuffer, u32 MeshBufferID, s32 Vertices_Start);
-	bool readChunkBONE(CSkinnedMesh::SJoint *InJoint);
-	bool readChunkKEYS(CSkinnedMesh::SJoint *InJoint);
+	bool readChunkBONE(SkinnedMesh::SJoint *InJoint);
+	bool readChunkKEYS(SkinnedMesh::SJoint *InJoint);
 	bool readChunkANIM();
 	bool readChunkTEXS();
 	bool readChunkBRUS();
@@ -63,7 +63,7 @@ private:
 
 	core::array<video::S3DVertex2TCoords> BaseVertices;
 
-	CSkinnedMesh *AnimatedMesh;
+	SkinnedMeshBuilder *AnimatedMesh;
 	io::IReadFile *B3DFile;
 
 	// B3Ds have Vertex ID's local within the mesh I don't want this

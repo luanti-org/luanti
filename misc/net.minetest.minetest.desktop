@@ -11,4 +11,4 @@ PrefersNonDefaultGPU=true
 Type=Application
 Categories=Game;Simulation;
 StartupNotify=false
-Keywords=sandbox;world;mining;crafting;blocks;nodes;multiplayer;roleplaying;
+Keywords=sandbox;world;mining;crafting;blocks;nodes;multiplayer;roleplaying;minetest;

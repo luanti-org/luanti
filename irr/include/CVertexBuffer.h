@@ -24,12 +24,7 @@ class CVertexBuffer final : public IVertexBuffer
 {
 public:
 	//! Default constructor for empty buffer
-	CVertexBuffer()
-	{
-#ifdef _DEBUG
-		setDebugName("CVertexBuffer");
-#endif
-	}
+	CVertexBuffer() {}
 
 	const void *getData() const override
 	{

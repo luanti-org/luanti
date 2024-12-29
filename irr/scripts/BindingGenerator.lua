@@ -219,11 +219,11 @@ local function ParseHeader( path, into, apiRegex, defs, consts, nameSet, noNewNa
 				};
 			end
 		elseif ( line:find( "#" ) and not line:find( "#include" ) ) then
-			local rawName, value = line:match( "#define%s+GL_([_%w]+)%s+0x(%w+)" );
+			local rawName, value = line:match( "#define%s+GL_([_%w]+)%s+(0x%w+)" );
 			if rawName and value then
 				local name, vendor = StripVendorSuffix( rawName, true );
 				if not constBanned[vendor] then
-					consts:Add{ name = name, vendor = vendor, value = "0x"..value };
+					consts:Add{ name = name, vendor = vendor, value = value };
 				end
 			end
 			::skip::
@@ -359,21 +359,28 @@ f:write[[
 #ifndef APIENTRYP
 	#define APIENTRYP APIENTRY *
 #endif
-#ifndef GLAPI
-	#define GLAPI extern
+// undefine a few names that can easily clash with system headers
+#ifdef NO_ERROR
+#undef NO_ERROR
+#endif
+#ifdef ZERO
+#undef ZERO
+#endif
+#ifdef ONE
+#undef ONE
 #endif
 
 ]];
 
 f:write[[
-class OpenGLProcedures {
+class OpenGLProcedures final {
 private:
 ]];
 f:write( definitions:Concat( "\n" ) );
 f:write( "\n" );
+-- The script will miss this particular typedef thinking it's a PFN,
+-- so we have to paste it in manually. It's the only such type in OpenGL.
 f:write[[
-	// The script will miss this particular typedef thinking it's a PFN,
-	// so we have to paste it in manually. It's the only such type in OpenGL.
 	typedef void (APIENTRY *GLDEBUGPROC)
 		(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
 
@@ -382,10 +389,12 @@ f:write( typedefs:Concat( "\n" ) );
 f:write( "\n\n" );
 f:write [[
 	std::unordered_set<std::string> extensions;
+
 public:
 	// Call this once after creating the context.
 	void LoadAllProcedures(irr::video::IContextManager *cmgr);
-	// Check if an extension is supported.
+	/// Check if an extension is supported.
+	/// @param ext full extension name e.g. "GL_KHR_no_error"
 	inline bool IsExtensionPresent(const std::string &ext) const
 	{
 		return extensions.count(ext) > 0;
@@ -396,7 +405,10 @@ f:write( pointers:Concat( "\n" ) );
 f:write( "\n\n" );
 f:write( cppConsts:Concat( "\n" ) );
 f:write( "\n\n" );
+-- We filter constants not in hex format to avoid the VERSION_X_X and extension
+-- defines, but that means we miss these.
 f:write[[
+	static constexpr const GLenum NO_ERROR = 0;
 	static constexpr const GLenum ZERO = 0;
 	static constexpr const GLenum ONE = 1;
 	static constexpr const GLenum NONE = 0;
@@ -416,7 +428,7 @@ f:write[[
 #include <string>
 #include <sstream>
 
-OpenGLProcedures GL = OpenGLProcedures();
+OpenGLProcedures GL;
 
 void OpenGLProcedures::LoadAllProcedures(irr::video::IContextManager *cmgr)
 {
@@ -425,9 +437,11 @@ void OpenGLProcedures::LoadAllProcedures(irr::video::IContextManager *cmgr)
 f:write( loader:Concat() );
 f:write[[
 
-	// OpenGL 3 way to enumerate extensions
+	/* OpenGL 3 & ES 3 way to enumerate extensions */
 	GLint ext_count = 0;
 	GetIntegerv(NUM_EXTENSIONS, &ext_count);
+	// clear error which is raised if unsupported
+	while (GetError() != GL.NO_ERROR) {}
 	extensions.reserve(ext_count);
 	for (GLint k = 0; k < ext_count; k++) {
 		auto tmp = GetStringi(EXTENSIONS, k);
@@ -437,16 +451,15 @@ f:write[[
 	if (!extensions.empty())
 		return;
 
-	// OpenGL 2 / ES 2 way to enumerate extensions
+	/* OpenGL 2 / ES 2 way to enumerate extensions */
 	auto ext_str = GetString(EXTENSIONS);
 	if (!ext_str)
 		return;
 	// get the extension string, chop it up
-	std::stringstream ext_ss((char*)ext_str);
+	std::istringstream ext_ss((char*)ext_str);
 	std::string tmp;
 	while (std::getline(ext_ss, tmp, ' '))
 		extensions.emplace(tmp);
-
 }
 ]];
 f:close();

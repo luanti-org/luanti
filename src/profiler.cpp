@@ -121,7 +121,7 @@ int Profiler::print(std::ostream &o, u32 page, u32 pagecount)
 {
 	GraphValues values;
 	getPage(values, page, pagecount);
-	char buffer[50];
+	char buffer[128];
 
 	for (const auto &i : values) {
 		o << "  " << i.first << " ";
@@ -132,7 +132,7 @@ int Profiler::print(std::ostream &o, u32 page, u32 pagecount)
 
 		{
 			// Padding
-			s32 space = std::max(0, 44 - (s32)i.first.size());
+			s32 space = std::max(0, 46 - (s32)i.first.size());
 			memset(buffer, '_', space);
 			buffer[space] = '\0';
 			o << buffer;

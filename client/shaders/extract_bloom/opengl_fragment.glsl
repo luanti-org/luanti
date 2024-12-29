@@ -23,7 +23,7 @@ void main(void)
 	vec2 uv = varTexCoord.st;
 	vec3 color = texture2D(rendered, uv).rgb;
 	// translate to linear colorspace (approximate)
-	color = pow(color, vec3(2.2));
+	color = pow(clamp(color, 0.0, 1.0), vec3(2.2));
 
 	color *= exposureParams.compensationFactor * bloomStrength;
 

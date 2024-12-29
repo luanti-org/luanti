@@ -249,6 +249,19 @@ if(ENABLE_SPATIAL)
 	endif(SPATIAL_LIBRARY AND SPATIAL_INCLUDE_DIR)
 endif(ENABLE_SPATIAL)
 
+option(ENABLE_OPENSSL "Use OpenSSL's libcrypto for faster SHA implementations" TRUE)
+set(USE_OPENSSL FALSE)
+
+if(ENABLE_OPENSSL)
+	find_package(OpenSSL 3.0)
+	if(OPENSSL_FOUND)
+		set(USE_OPENSSL TRUE)
+		message(STATUS "OpenSSL's libcrypto SHA enabled.")
+	else()
+		message(STATUS "OpenSSL not found!")
+	endif()
+endif(ENABLE_OPENSSL)
+
 
 find_package(ZLIB REQUIRED)
 find_package(Zstd REQUIRED)
@@ -260,12 +273,11 @@ endif()
 
 # Haiku endian support
 if(HAIKU)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_BSD_SOURCE")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_BSD_SOURCE")
+	add_compile_definitions(_BSD_SOURCE)
 endif()
 
 # Use cmake_config.h
-add_definitions(-DUSE_CMAKE_CONFIG_H)
+add_compile_definitions(USE_CMAKE_CONFIG_H)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -274,15 +286,19 @@ set(PLATFORM_LIBS Threads::Threads)
 if(WIN32)
 	# Windows
 	if(MSVC) # MSVC Specifics
-		set(PLATFORM_LIBS dbghelp.lib ${PLATFORM_LIBS})
+		list(APPEND PLATFORM_LIBS dbghelp.lib)
 		# Surpress some useless warnings
-		add_definitions ( /D "_CRT_SECURE_NO_DEPRECATE" /W1 )
-		# Get M_PI to work
-		add_definitions(/D "_USE_MATH_DEFINES")
-		# Don't define min/max macros in minwindef.h
-		add_definitions(/D "NOMINMAX")
+		add_compile_options(/W1)
+		add_compile_definitions(
+			# Suppress some useless warnings
+			_CRT_SECURE_NO_DEPRECATE
+			# Get M_PI to work
+			_USE_MATH_DEFINES
+			# Don't define min/max macros in minwindef.h
+			NOMINMAX
+		)
 	endif()
-	set(PLATFORM_LIBS ws2_32.lib version.lib shlwapi.lib winmm.lib ${PLATFORM_LIBS})
+	list(APPEND PLATFORM_LIBS ws2_32.lib version.lib shlwapi.lib winmm.lib)
 
 	set(EXTRA_DLL "" CACHE FILEPATH "Optional paths to additional DLLs that should be packaged")
 
@@ -309,28 +325,28 @@ if(WIN32)
 	endif()
 else()
 	# Unix probably
-	set(PLATFORM_LIBS ${PLATFORM_LIBS} ${CMAKE_DL_LIBS})
+	list(APPEND PLATFORM_LIBS ${CMAKE_DL_LIBS})
 	if(APPLE)
-		set(PLATFORM_LIBS "-framework CoreFoundation" ${PLATFORM_LIBS})
+		list(APPEND PLATFORM_LIBS "-framework CoreFoundation")
 	else()
 		check_library_exists(rt clock_gettime "" HAVE_LIBRT)
 		if (HAVE_LIBRT)
-			set(PLATFORM_LIBS -lrt ${PLATFORM_LIBS})
+			list(APPEND PLATFORM_LIBS -lrt)
 		endif(HAVE_LIBRT)
 	endif(APPLE)
 
 	find_library(ICONV_LIBRARY iconv)
 	mark_as_advanced(ICONV_LIBRARY)
 	if (ICONV_LIBRARY)
-		set(PLATFORM_LIBS ${PLATFORM_LIBS} ${ICONV_LIBRARY})
+		list(APPEND PLATFORM_LIBS ${ICONV_LIBRARY})
 	endif()
 
 	if (HAIKU)
-		set(PLATFORM_LIBS ${PLATFORM_LIBS} network)
+		list(APPEND PLATFORM_LIBS network)
 	endif()
 
 	if (ANDROID)
-		set(PLATFORM_LIBS ${PLATFORM_LIBS} android log)
+		list(APPEND PLATFORM_LIBS android log)
 	endif()
 endif()
 
@@ -344,7 +360,7 @@ if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	check_c_source_compiles("int main(){}" HAVE_LINK_ATOMIC)
 	set(CMAKE_REQUIRED_LIBRARIES "")
 	if(HAVE_LINK_ATOMIC)
-		set(PLATFORM_LIBS ${PLATFORM_LIBS} "-latomic")
+		list(APPEND PLATFORM_LIBS "-latomic")
 	endif()
 endif()
 
@@ -468,21 +484,21 @@ set(common_SRCS
 )
 
 if(ANDROID)
-	set(common_SRCS ${common_SRCS} porting_android.cpp)
+	list(APPEND common_SRCS porting_android.cpp)
 endif()
 
 if(BUILD_UNITTESTS)
 	add_subdirectory(unittest)
-	set(common_SRCS ${common_SRCS} ${UNITTEST_SRCS})
+	list(APPEND common_SRCS ${UNITTEST_SRCS})
 endif()
 
 if(BUILD_BENCHMARKS)
 	add_subdirectory(benchmark)
-	set(common_SRCS ${common_SRCS} ${BENCHMARK_SRCS})
+	list(APPEND common_SRCS ${BENCHMARK_SRCS})
 endif()
 
 if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
-	set(common_SRCS ${common_SRCS} catch.cpp)
+	list(APPEND common_SRCS catch.cpp)
 endif()
 
 # This gives us the icon and file version information
@@ -513,8 +529,7 @@ if (BUILD_CLIENT)
 	add_subdirectory(irrlicht_changes)
 endif(BUILD_CLIENT)
 
-set(client_SRCS
-	${client_SRCS}
+list(APPEND client_SRCS
 	${common_SRCS}
 	${gui_SRCS}
 	${client_network_SRCS}
@@ -523,11 +538,11 @@ set(client_SRCS
 )
 
 if(BUILD_UNITTESTS)
-	set(client_SRCS ${client_SRCS} ${UNITTEST_CLIENT_SRCS})
+	list(APPEND client_SRCS ${UNITTEST_CLIENT_SRCS})
 endif()
 
 if(BUILD_BENCHMARKS)
-	set(client_SRCS ${client_SRCS} ${BENCHMARK_CLIENT_SRCS})
+	list(APPEND client_SRCS ${BENCHMARK_CLIENT_SRCS})
 endif()
 
 # Server sources
@@ -591,11 +606,22 @@ add_dependencies(EngineCommon GenerateVersion)
 target_link_libraries(EngineCommon
 	sha256
 )
+if(USE_OPENSSL)
+	target_link_libraries(EngineCommon OpenSSL::Crypto)
+endif()
 get_target_property(
 	IRRLICHT_INCLUDES IrrlichtMt::IrrlichtMt INTERFACE_INCLUDE_DIRECTORIES)
 target_include_directories(EngineCommon PRIVATE ${IRRLICHT_INCLUDES})
 if(PRECOMPILE_HEADERS)
 	target_precompile_headers(EngineCommon PRIVATE ${PRECOMPILED_HEADERS_LIST})
+endif()
+
+if(APPLE)
+	# Configure the Info.plist file
+	configure_file(
+		"${CMAKE_SOURCE_DIR}/misc/macos/Info.plist.in"
+		"${CMAKE_BINARY_DIR}/Info.plist"
+	)
 endif()
 
 if(BUILD_CLIENT)
@@ -605,6 +631,47 @@ if(BUILD_CLIENT)
 	else()
 		add_executable(${PROJECT_NAME})
 	endif()
+
+
+	if(CMAKE_GENERATOR STREQUAL "Xcode")
+		# File with used entitlements
+		set(XCODE_CODE_SIGN_ENTITLEMENTS "${CMAKE_SOURCE_DIR}/misc/macos/entitlements/release.entitlements" CACHE FILEPATH "Path to entitlements file to be used with Xcode signing")
+
+		set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/build")
+		set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/build")
+
+		target_sources(${PROJECT_NAME} PUBLIC ${client_RESOURCES})
+
+		add_dependencies(${PROJECT_NAME} translations)
+
+		set_target_properties(${PROJECT_NAME} PROPERTIES
+			MACOSX_BUNDLE TRUE
+			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
+			RESOURCE "${client_RESOURCES}"
+			XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.luanti.luanti"
+			XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME "YES"
+			XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
+			XCODE_ATTRIBUTE_SKIP_INSTALL "NO"
+			XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
+			XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS "YES"
+			XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "$(inherited)"
+			XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${XCODE_CODE_SIGN_ENTITLEMENTS}"
+		)
+
+		# Prinv env variables to file, for debugging purposes
+		#add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+		#	COMMAND ${CMAKE_COMMAND} -E env bash ${CMAKE_SOURCE_DIR}/util/xcode/capture_env.sh ${CMAKE_BINARY_DIR}/post_env.log
+		#)
+
+		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/util/xcode/install_resources.cmake
+				-DTARGET_DIR=$<TARGET_FILE_DIR:${PROJECT_NAME}>
+				-DBINARY_DIR=${CMAKE_BINARY_DIR}
+				-DPROJECT_NAME=${PROJECT_NAME}
+			COMMENT "Checking INSTALL_ROOT and copying resources"
+		)
+	endif()
+
 	list(SORT client_SRCS)
 	target_sources(${PROJECT_NAME} PRIVATE
 		$<TARGET_OBJECTS:EngineCommon>
@@ -675,6 +742,9 @@ if(BUILD_CLIENT)
 	if (USE_SPATIAL)
 		target_link_libraries(${PROJECT_NAME} ${SPATIAL_LIBRARY})
 	endif()
+	if (USE_OPENSSL)
+		target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto)
+	endif()
 	if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
 		target_link_libraries(${PROJECT_NAME} Catch2::Catch2)
 	endif()
@@ -743,6 +813,9 @@ if(BUILD_SERVER)
 	endif()
 	if (USE_SPATIAL)
 		target_link_libraries(${PROJECT_NAME}server ${SPATIAL_LIBRARY})
+	endif()
+	if (USE_OPENSSL)
+		target_link_libraries(${PROJECT_NAME}server OpenSSL::Crypto)
 	endif()
 	if(USE_CURL)
 		target_link_libraries(
@@ -822,7 +895,7 @@ endif()
 
 if(MSVC)
 	# Visual Studio
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D _WIN32_WINNT=0x0601 /D WIN32_LEAN_AND_MEAN /D _CRT_SECURE_NO_WARNINGS")
+	add_compile_definitions(_WIN32_WINNT=0x0601 WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
 	# EHa enables SEH exceptions (used for catching segfaults)
 	set(CMAKE_CXX_FLAGS_RELEASE "/EHa /Ox /MD /GS- /Zi /fp:fast /D NDEBUG /D _HAS_ITERATOR_DEBUGGING=0")
 	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -844,12 +917,12 @@ if(MSVC)
 	# Flags that cannot be shared between cl and clang-cl
 	# https://clang.llvm.org/docs/UsersManual.html#clang-cl
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld")
+		add_compile_options(-fuse-ld=lld)
 
 		# Disable pragma-pack warning
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-pragma-pack")
 	else()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+		add_compile_options(/MP)
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /TP /FD /GL")
 		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
 	endif()
@@ -866,7 +939,7 @@ else()
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			set(OTHER_FLAGS "${OTHER_FLAGS} -mthreads")
 		endif()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=0x0601 -DWIN32_LEAN_AND_MEAN")
+		add_compile_definitions(_WIN32_WINNT=0x0601 WIN32_LEAN_AND_MEAN)
 	endif()
 
 	# Use a safe subset of flags to speed up math calculations:
@@ -1054,7 +1127,7 @@ elseif (USE_GETTEXT)
 			COMMENT "mo-update [${LOCALE}]: Creating mo file."
 			)
 
-		set(MO_FILES ${MO_FILES} ${MO_FILE_PATH})
+		list(APPEND MO_FILES ${MO_FILE_PATH})
 	endforeach()
 
 	add_custom_target(translations ALL COMMENT "mo update" DEPENDS ${MO_FILES})

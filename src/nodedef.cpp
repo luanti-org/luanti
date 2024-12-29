@@ -13,6 +13,7 @@
 #include "client/texturesource.h"
 #include "client/tile.h"
 #include <IMeshManipulator.h>
+#include <SkinnedMesh.h>
 #endif
 #include "log.h"
 #include "settings.h"
@@ -120,7 +121,7 @@ void NodeBox::deSerialize(std::istream &is)
 		case NODEBOX_LEVELED: {
 			u16 fixed_count = readU16(is);
 			while(fixed_count--) {
-				aabb3f box;
+				aabb3f box{{0.0f, 0.0f, 0.0f}};
 				box.MinEdge = readV3F32(is);
 				box.MaxEdge = readV3F32(is);
 				fixed.push_back(box);
@@ -270,17 +271,11 @@ void TextureSettings::readSettings()
 {
 	connected_glass                = g_settings->getBool("connected_glass");
 	translucent_liquids            = g_settings->getBool("translucent_liquids");
-	bool smooth_lighting           = g_settings->getBool("smooth_lighting");
-	enable_mesh_cache              = g_settings->getBool("enable_mesh_cache");
 	enable_minimap                 = g_settings->getBool("enable_minimap");
 	node_texture_size              = std::max<u16>(g_settings->getU16("texture_min_size"), 1);
 	std::string leaves_style_str   = g_settings->get("leaves_style");
 	std::string world_aligned_mode_str = g_settings->get("world_aligned_mode");
 	std::string autoscale_mode_str = g_settings->get("autoscale_mode");
-
-	// Mesh cache is not supported in combination with smooth lighting
-	if (smooth_lighting)
-		enable_mesh_cache = false;
 
 	if (leaves_style_str == "fancy") {
 		leaves_style = LEAVES_FANCY;
@@ -357,8 +352,7 @@ void ContentFeatures::reset()
 	drawtype = NDT_NORMAL;
 	mesh.clear();
 #if CHECK_CLIENT_BUILD()
-	for (auto &i : mesh_ptr)
-		i = NULL;
+	mesh_ptr = nullptr;
 	minimap_color = video::SColor(0, 0, 0, 0);
 #endif
 	visual_scale = 1.0;
@@ -950,49 +944,24 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		palette = tsrc->getPalette(palette_name);
 
 	if (drawtype == NDT_MESH && !mesh.empty()) {
-		// Meshnode drawtype
 		// Read the mesh and apply scale
-		mesh_ptr[0] = client->getMesh(mesh);
-		if (mesh_ptr[0]){
-			v3f scale = v3f(1.0, 1.0, 1.0) * BS * visual_scale;
-			scaleMesh(mesh_ptr[0], scale);
-			recalculateBoundingBox(mesh_ptr[0]);
-			meshmanip->recalculateNormals(mesh_ptr[0], true, false);
+		mesh_ptr = client->getMesh(mesh);
+		if (mesh_ptr) {
+			v3f scale = v3f(BS) * visual_scale;
+			scaleMesh(mesh_ptr, scale);
+			recalculateBoundingBox(mesh_ptr);
+			if (!checkMeshNormals(mesh_ptr)) {
+				infostream << "ContentFeatures: recalculating normals for mesh "
+					<< mesh << std::endl;
+				meshmanip->recalculateNormals(mesh_ptr, true, false);
+			} else {
+				// Animation is not supported, but we need to reset it to
+				// default state if it is animated.
+				// Note: recalculateNormals() also does this hence the else-block
+				if (mesh_ptr->getMeshType() == scene::EAMT_SKINNED)
+					((scene::SkinnedMesh*) mesh_ptr)->resetAnimation();
+			}
 		}
-	}
-
-	//Cache 6dfacedir and wallmounted rotated clones of meshes
-	if (tsettings.enable_mesh_cache && mesh_ptr[0] &&
-			(param_type_2 == CPT2_FACEDIR
-			|| param_type_2 == CPT2_COLORED_FACEDIR)) {
-		for (u16 j = 1; j < 24; j++) {
-			mesh_ptr[j] = cloneMesh(mesh_ptr[0]);
-			rotateMeshBy6dFacedir(mesh_ptr[j], j);
-			recalculateBoundingBox(mesh_ptr[j]);
-			meshmanip->recalculateNormals(mesh_ptr[j], true, false);
-		}
-	} else if (tsettings.enable_mesh_cache && mesh_ptr[0] &&
-			(param_type_2 == CPT2_4DIR
-			|| param_type_2 == CPT2_COLORED_4DIR)) {
-		for (u16 j = 1; j < 4; j++) {
-			mesh_ptr[j] = cloneMesh(mesh_ptr[0]);
-			rotateMeshBy6dFacedir(mesh_ptr[j], j);
-			recalculateBoundingBox(mesh_ptr[j]);
-			meshmanip->recalculateNormals(mesh_ptr[j], true, false);
-		}
-	} else if (tsettings.enable_mesh_cache && mesh_ptr[0]
-			&& (param_type_2 == CPT2_WALLMOUNTED ||
-			param_type_2 == CPT2_COLORED_WALLMOUNTED)) {
-		static const u8 wm_to_6d[6] = { 20, 0, 16 + 1, 12 + 3, 8, 4 + 2 };
-		for (u16 j = 1; j < 6; j++) {
-			mesh_ptr[j] = cloneMesh(mesh_ptr[0]);
-			rotateMeshBy6dFacedir(mesh_ptr[j], wm_to_6d[j]);
-			recalculateBoundingBox(mesh_ptr[j]);
-			meshmanip->recalculateNormals(mesh_ptr[j], true, false);
-		}
-		rotateMeshBy6dFacedir(mesh_ptr[0], wm_to_6d[0]);
-		recalculateBoundingBox(mesh_ptr[0]);
-		meshmanip->recalculateNormals(mesh_ptr[0], true, false);
 	}
 }
 #endif
@@ -1014,10 +983,8 @@ NodeDefManager::~NodeDefManager()
 {
 #if CHECK_CLIENT_BUILD()
 	for (ContentFeatures &f : m_content_features) {
-		for (auto &j : f.mesh_ptr) {
-			if (j)
-				j->drop();
-		}
+		if (f.mesh_ptr)
+			f.mesh_ptr->drop();
 	}
 #endif
 }

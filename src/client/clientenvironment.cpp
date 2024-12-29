@@ -96,7 +96,6 @@ void ClientEnvironment::step(float dtime)
 	/*
 		Maximum position increment
 	*/
-	//f32 position_max_increment = 0.05*BS;
 	f32 position_max_increment = 0.1*BS;
 
 	// Maximum time increment (for collision detection etc)
@@ -176,12 +175,11 @@ void ClientEnvironment::step(float dtime)
 		}
 
 		/*
-			Move the lplayer.
+			Move the local player.
 			This also does collision detection.
 		*/
 
-		lplayer->move(dtime_part, this, position_max_increment,
-			&player_collisions);
+		lplayer->move(dtime_part, this, &player_collisions);
 	}
 
 	bool player_immortal = false;
@@ -432,7 +430,7 @@ void ClientEnvironment::getSelectedActiveObjects(
 
 	for (const auto &allObject : allObjects) {
 		ClientActiveObject *obj = allObject.obj;
-		aabb3f selection_box;
+		aabb3f selection_box{{0.0f, 0.0f, 0.0f}};
 		if (!obj->getSelectionBox(&selection_box))
 			continue;
 

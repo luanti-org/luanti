@@ -25,5 +25,7 @@ set(gui_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/modalMenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/profilergraph.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/touchcontrols.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/touchscreenlayout.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/touchscreeneditor.cpp
 	PARENT_SCOPE
 )

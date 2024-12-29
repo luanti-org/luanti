@@ -63,6 +63,8 @@ Zughy:
   textures/base/pack/settings_btn.png
   textures/base/pack/settings_info.png
   textures/base/pack/settings_reset.png
+  textures/base/pack/server_url.png
+  textures/base/pack/server_view_clients.png
 
 appgurueu:
   textures/base/pack/server_incompatible.png

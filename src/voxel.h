@@ -109,21 +109,20 @@ public:
 		const methods
 	*/
 
-	const v3s16 &getExtent() const
+	const v3s32 &getExtent() const
 	{
 		return m_cache_extent;
 	}
 
-	/// @note `getVolume() == 0` and `getEmptyExtent()` are not identical.
 	bool hasEmptyExtent() const
 	{
-		// FIXME: shouldn't this actually be a component-wise check?
-		return m_cache_extent == v3s16(0,0,0);
+		return !m_cache_extent.X || !m_cache_extent.Y || !m_cache_extent.Z;
 	}
 
-	s32 getVolume() const
+	u32 getVolume() const
 	{
-		return (s32)m_cache_extent.X * (s32)m_cache_extent.Y * (s32)m_cache_extent.Z;
+		// FIXME: possible integer overflow here
+		return (u32)m_cache_extent.X * (u32)m_cache_extent.Y * (u32)m_cache_extent.Z;
 	}
 
 	bool contains(const VoxelArea &a) const
@@ -149,8 +148,9 @@ public:
 	}
 	bool contains(s32 i) const
 	{
-		return (i >= 0 && i < getVolume());
+		return i >= 0 && static_cast<u32>(i) < getVolume();
 	}
+
 	bool operator==(const VoxelArea &other) const
 	{
 		return (MinEdge == other.MinEdge
@@ -206,7 +206,7 @@ public:
 		if(a.hasEmptyExtent())
 		{
 			VoxelArea b = *this;
-			if (b.getVolume() != 0)
+			if (!b.hasEmptyExtent())
 				result.push_back(b);
 			return;
 		}
@@ -215,7 +215,7 @@ public:
 
 		const auto &take = [&result] (v3s16 min, v3s16 max) {
 			VoxelArea b(min, max);
-			if (b.getVolume() != 0)
+			if (!b.hasEmptyExtent())
 				result.push_back(b);
 		};
 
@@ -280,15 +280,16 @@ public:
 	/**
 	 * Translate index in the X coordinate
 	 */
-	static void add_x(const v3s16 &extent, u32 &i, s16 a)
+	static void add_x(const v3s32 &extent, u32 &i, s16 a)
 	{
+		(void)extent;
 		i += a;
 	}
 
 	/**
 	 * Translate index in the Y coordinate
 	 */
-	static void add_y(const v3s16 &extent, u32 &i, s16 a)
+	static void add_y(const v3s32 &extent, u32 &i, s16 a)
 	{
 		i += a * extent.X;
 	}
@@ -296,7 +297,7 @@ public:
 	/**
 	 * Translate index in the Z coordinate
 	 */
-	static void add_z(const v3s16 &extent, u32 &i, s16 a)
+	static void add_z(const v3s32 &extent, u32 &i, s16 a)
 	{
 		i += a * extent.X * extent.Y;
 	}
@@ -304,7 +305,7 @@ public:
 	/**
 	 * Translate index in space
 	 */
-	static void add_p(const v3s16 &extent, u32 &i, v3s16 a)
+	static void add_p(const v3s32 &extent, u32 &i, v3s16 a)
 	{
 		i += a.Z * extent.X * extent.Y + a.Y * extent.X + a.X;
 	}
@@ -329,15 +330,20 @@ public:
 private:
 	void cacheExtent()
 	{
-		m_cache_extent = MaxEdge - MinEdge + v3s16(1,1,1);
+		m_cache_extent = {
+			MaxEdge.X - MinEdge.X + 1,
+			MaxEdge.Y - MinEdge.Y + 1,
+			MaxEdge.Z - MinEdge.Z + 1
+		};
 		// If positions were sorted correctly this must always hold.
 		// Note that this still permits empty areas (where MinEdge = MaxEdge + 1).
-		assert(m_cache_extent.X >= 0);
-		assert(m_cache_extent.Y >= 0);
-		assert(m_cache_extent.Z >= 0);
+		assert(m_cache_extent.X >= 0 && m_cache_extent.X <= MAX_EXTENT);
+		assert(m_cache_extent.Y >= 0 && m_cache_extent.Y <= MAX_EXTENT);
+		assert(m_cache_extent.Z >= 0 && m_cache_extent.Z <= MAX_EXTENT);
 	}
 
-	v3s16 m_cache_extent = v3s16(0,0,0);
+	static constexpr s32 MAX_EXTENT = S16_MAX - S16_MIN + 1;
+	v3s32 m_cache_extent;
 };
 
 enum : u8 {

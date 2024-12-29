@@ -50,10 +50,6 @@ COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(video::COpenGLDriver *drive
 		Driver(driver),
 		CallBack(callback), Alpha(false), Blending(false), AlphaTest(false), Program(0), Program2(0), UserData(userData)
 {
-#ifdef _DEBUG
-	setDebugName("COpenGLSLMaterialRenderer");
-#endif
-
 	switch (baseMaterial) {
 	case EMT_TRANSPARENT_VERTEX_ALPHA:
 	case EMT_TRANSPARENT_ALPHA_CHANNEL:
@@ -401,8 +397,10 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 #endif
 
 		if (maxlen == 0) {
-			os::Printer::log("GLSL (> 2.x): failed to retrieve uniform information", ELL_ERROR);
-			return false;
+			// Intel driver bug that seems to primarily happen on Win 8.1 or older:
+			// There are >0 uniforms yet the driver reports a max name length of 0.
+			os::Printer::log("GLSL (> 2.x): failed to retrieve uniform information", ELL_WARNING);
+			maxlen = 256; // hope that this is enough
 		}
 
 		// seems that some implementations use an extra null terminator
@@ -471,8 +469,10 @@ bool COpenGLSLMaterialRenderer::linkProgram()
 #endif
 
 		if (maxlen == 0) {
-			os::Printer::log("GLSL: failed to retrieve uniform information", ELL_ERROR);
-			return false;
+			// Intel driver bug that seems to primarily happen on Win 8.1 or older:
+			// There are >0 uniforms yet the driver reports a max name length of 0.
+			os::Printer::log("GLSL: failed to retrieve uniform information", ELL_WARNING);
+			maxlen = 256; // hope that this is enough
 		}
 
 		// seems that some implementations use an extra null terminator

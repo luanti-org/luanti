@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "CMeshManipulator.h"
-#include "ISkinnedMesh.h"
+#include "SkinnedMesh.h"
 #include "SMesh.h"
 #include "CMeshBuffer.h"
 #include "SAnimatedMesh.h"
@@ -101,7 +101,7 @@ void CMeshManipulator::recalculateNormals(scene::IMesh *mesh, bool smooth, bool 
 		return;
 
 	if (mesh->getMeshType() == EAMT_SKINNED) {
-		ISkinnedMesh *smesh = (ISkinnedMesh *)mesh;
+		auto *smesh = (SkinnedMesh *)mesh;
 		smesh->resetAnimation();
 	}
 
@@ -110,7 +110,7 @@ void CMeshManipulator::recalculateNormals(scene::IMesh *mesh, bool smooth, bool 
 		recalculateNormals(mesh->getMeshBuffer(b), smooth, angleWeighted);
 
 	if (mesh->getMeshType() == EAMT_SKINNED) {
-		ISkinnedMesh *smesh = (ISkinnedMesh *)mesh;
+		auto *smesh = (SkinnedMesh *)mesh;
 		smesh->refreshJointCache();
 	}
 }

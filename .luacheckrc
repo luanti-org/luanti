@@ -15,6 +15,7 @@ read_globals = {
 	"fgettext", "fgettext_ne",
 	"vector",
 	"VoxelArea",
+	"VoxelManip",
 	"profiler",
 	"Settings",
 	"PerlinNoise", "PerlinNoiseMap",

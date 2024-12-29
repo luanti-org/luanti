@@ -18,10 +18,6 @@ static const io::path emptyFileListEntry;
 CFileList::CFileList(const io::path &path, bool ignoreCase, bool ignorePaths) :
 		IgnorePaths(ignorePaths), IgnoreCase(ignoreCase), Path(path)
 {
-#ifdef _DEBUG
-	setDebugName("CFileList");
-#endif
-
 	Path.replace('\\', '/');
 }
 

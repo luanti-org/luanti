@@ -108,7 +108,7 @@ public:
 		if (!mesh)
 			return true;
 		bool result = true;
-		core::aabbox3df bufferbox;
+		core::aabbox3df bufferbox{{0, 0, 0}};
 		for (u32 i = 0; i < mesh->getMeshBufferCount(); ++i) {
 			result &= apply(func, mesh->getMeshBuffer(i), boundingBoxUpdate);
 			if (boundingBoxUpdate) {
@@ -136,7 +136,7 @@ protected:
 		if (!buffer)
 			return true;
 
-		core::aabbox3df bufferbox;
+		core::aabbox3df bufferbox{{0, 0, 0}};
 		for (u32 i = 0; i < buffer->getVertexCount(); ++i) {
 			switch (buffer->getVertexType()) {
 			case video::EVT_STANDARD: {

@@ -21,6 +21,7 @@ public:
 	virtual void changeVolume() = 0;
 	virtual void showOpenURLDialog(const std::string &url) = 0;
 	virtual void signalKeyConfigChange() = 0;
+	virtual void touchscreenLayout() = 0;
 };
 
 extern gui::IGUIEnvironment *guienv;
@@ -70,6 +71,12 @@ public:
 		return m_stack.size();
 	}
 
+	void deleteFront()
+	{
+		m_stack.front()->setVisible(false);
+		deletingMenu(m_stack.front());
+	}
+
 	bool pausesGame()
 	{
 		for (gui::IGUIElement *i : m_stack) {
@@ -80,7 +87,7 @@ public:
 		return false;
 	}
 
-	// FIXME: why isn't this private?
+private:
 	std::list<gui::IGUIElement*> m_stack;
 };
 
@@ -127,6 +134,11 @@ public:
 		keyconfig_changed = true;
 	}
 
+	void touchscreenLayout() override
+	{
+		touchscreenlayout_requested = true;
+	}
+
 	void showOpenURLDialog(const std::string &url) override
 	{
 		show_open_url_dialog = url;
@@ -136,6 +148,7 @@ public:
 	bool changepassword_requested = false;
 	bool changevolume_requested = false;
 	bool keyconfig_requested = false;
+	bool touchscreenlayout_requested = false;
 	bool shutdown_requested = false;
 	bool keyconfig_changed = false;
 	std::string show_open_url_dialog = "";

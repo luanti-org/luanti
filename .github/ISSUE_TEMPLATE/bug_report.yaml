@@ -36,13 +36,6 @@ body:
       required: true
   - type: input
     attributes:
-      label: Irrlicht device
-      description:
-      placeholder: "Example: X11"
-    validations:
-      required: false
-  - type: input
-    attributes:
       label: Operating system and version
       description: It is recommended to upgrade your operating system to see if the problem persists.
       placeholder: "Example: Ubuntu 22.04"
@@ -69,7 +62,7 @@ body:
     attributes:
       label: Active renderer
       description: You can find this in the "About" tab in the main menu.
-      placeholder: "Example: OpenGL 4.6.0"
+      placeholder: "Example: ES 3.2 / ogles2 / X11"
     validations:
       required: false
   - type: textarea

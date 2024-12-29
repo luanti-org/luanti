@@ -43,6 +43,8 @@ core.features = {
 	hotbar_hud_element = true,
 	bulk_lbms = true,
 	abm_without_neighbors = true,
+	biome_weights = true,
+	particle_blend_clip = true,
 }
 
 function core.has_feature(arg)

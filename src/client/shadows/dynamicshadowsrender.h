@@ -118,11 +118,11 @@ private:
 	std::vector<NodeToApply> m_shadow_node_array;
 
 	float m_shadow_strength;
-	video::SColor m_shadow_tint{ 255, 0, 0, 0 };
+	video::SColor m_shadow_tint;
 	float m_shadow_strength_gamma;
 	float m_shadow_map_max_distance;
 	float m_shadow_map_texture_size;
-	float m_time_day{0.0f};
+	float m_time_day;
 	int m_shadow_samples;
 	bool m_shadow_map_texture_32bit;
 	bool m_shadows_enabled;
@@ -130,7 +130,7 @@ private:
 	bool m_shadow_map_colored;
 	bool m_force_update_shadow_map;
 	u8 m_map_shadow_update_frames; /* Use this number of frames to update map shaodw */
-	u8 m_current_frame{0}; /* Current frame */
+	u8 m_current_frame; /* Current frame */
 	f32 m_perspective_bias_xy;
 	f32 m_perspective_bias_z;
 

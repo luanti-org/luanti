@@ -302,7 +302,7 @@ private:
 	v3s16 m_start;                /**< source position                          */
 	v3s16 m_destination;          /**< destination position                     */
 
-	core::aabbox3d<s16> m_limits; /**< position limits in real map coordinates  */
+	core::aabbox3d<s16> m_limits{{0, 0, 0}}; /**< position limits in real map coordinates  */
 
 	/** contains all map data already collected and analyzed.
 		Access it via the getIndexElement/getIdxElem methods. */

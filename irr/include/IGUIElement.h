@@ -34,10 +34,6 @@ public:
 			AlignLeft(EGUIA_UPPERLEFT), AlignRight(EGUIA_UPPERLEFT), AlignTop(EGUIA_UPPERLEFT), AlignBottom(EGUIA_UPPERLEFT),
 			Environment(environment), Type(type)
 	{
-#ifdef _DEBUG
-		setDebugName("IGUIElement");
-#endif
-
 		// if we were given a parent to attach to
 		if (parent) {
 			parent->addChildToEnd(this);

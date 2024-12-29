@@ -82,6 +82,9 @@ private:
 };
 
 std::unique_ptr<RenderStep> create3DStage(Client *client, v2f scale);
-RenderStep* addUpscaling(RenderPipeline *pipeline, RenderStep *previousStep, v2f downscale_factor);
+RenderStep* addUpscaling(RenderPipeline *pipeline, RenderStep *previousStep, v2f downscale_factor, Client *client);
 
 void populatePlainPipeline(RenderPipeline *pipeline, Client *client);
+
+video::ECOLOR_FORMAT selectColorFormat(video::IVideoDriver *driver);
+video::ECOLOR_FORMAT selectDepthFormat(video::IVideoDriver *driver);

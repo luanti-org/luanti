@@ -6,7 +6,7 @@
 #include <string>
 #include "auth.h"
 #include "base64.h"
-#include "sha1.h"
+#include "util/hashing.h"
 #include "srp.h"
 #include "util/string.h"
 #include "debug.h"
@@ -23,9 +23,7 @@ std::string translate_password(const std::string &name,
 		return "";
 
 	std::string slt = name + password;
-	SHA1 sha1;
-	sha1.addBytes(slt);
-	std::string digest = sha1.getDigest();
+	std::string digest = hashing::sha1(slt);
 	std::string pwd = base64_encode(digest);
 	return pwd;
 }

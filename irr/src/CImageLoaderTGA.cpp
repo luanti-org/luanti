@@ -93,6 +93,25 @@ bool CImageLoaderTGA::isALoadableFileFormat(io::IReadFile *file) const
 	return (!strcmp(footer.Signature, "TRUEVISION-XFILE.")); // very old tgas are refused.
 }
 
+/// Converts *byte order* BGR to *endianness order* ARGB (SColor "=" u32)
+static void convert_BGR8_to_SColor(const u8 *src, u32 n, u32 *dst)
+{
+	for (u32 i = 0; i < n; ++i) {
+		const u8 *bgr = &src[3 * i];
+		dst[i] = 0xff000000 | (bgr[2] << 16) | (bgr[1] << 8) | bgr[0];
+	}
+}
+
+/// Converts *byte order* BGRA to *endianness order* ARGB (SColor "=" u32)
+/// Note: This just copies from src to dst on little endian.
+static void convert_BGRA8_to_SColor(const u8 *src, u32 n, u32 *dst)
+{
+	for (u32 i = 0; i < n; ++i) {
+		const u8 *bgra = &src[4 * i];
+		dst[i] = (bgra[3] << 24) | (bgra[2] << 16) | (bgra[1] << 8) | bgra[0];
+	}
+}
+
 //! creates a surface from the file
 IImage *CImageLoaderTGA::loadImage(io::IReadFile *file) const
 {
@@ -139,10 +158,10 @@ IImage *CImageLoaderTGA::loadImage(io::IReadFile *file) const
 			CColorConverter::convert_A1R5G5B5toA8R8G8B8(colorMap, header.ColorMapLength, palette);
 			break;
 		case 24:
-			CColorConverter::convert_B8G8R8toA8R8G8B8(colorMap, header.ColorMapLength, palette);
+			convert_BGR8_to_SColor(colorMap, header.ColorMapLength, palette);
 			break;
 		case 32:
-			CColorConverter::convert_B8G8R8A8toA8R8G8B8(colorMap, header.ColorMapLength, palette);
+			convert_BGRA8_to_SColor(colorMap, header.ColorMapLength, palette);
 			break;
 		}
 		delete[] colorMap;

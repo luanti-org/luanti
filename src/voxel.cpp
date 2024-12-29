@@ -38,7 +38,7 @@ void VoxelManipulator::clear()
 void VoxelManipulator::print(std::ostream &o, const NodeDefManager *ndef,
 	VoxelPrintMode mode) const
 {
-	const v3s16 &em = m_area.getExtent();
+	auto &em = m_area.getExtent();
 	v3s16 of = m_area.MinEdge;
 	o<<"size: "<<em.X<<"x"<<em.Y<<"x"<<em.Z
 	 <<" offset: ("<<of.X<<","<<of.Y<<","<<of.Z<<")"<<std::endl;
@@ -137,7 +137,7 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 		new_area.addArea(area);
 	}
 
-	s32 new_size = new_area.getVolume();
+	u32 new_size = new_area.getVolume();
 
 	// Allocate new data and clear flags
 	MapNode *new_data = new MapNode[new_size];
@@ -147,7 +147,7 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 	memset(new_flags, VOXELFLAG_NO_DATA, new_size);
 
 	// Copy old data
-	s32 old_x_width = m_area.MaxEdge.X - m_area.MinEdge.X + 1;
+	u32 old_x_width = m_area.getExtent().X;
 	for(s32 z=m_area.MinEdge.Z; z<=m_area.MaxEdge.Z; z++)
 	for(s32 y=m_area.MinEdge.Y; y<=m_area.MaxEdge.Y; y++)
 	{

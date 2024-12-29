@@ -17,6 +17,42 @@
 
 namespace irr
 {
+namespace video
+{
+#ifndef _IRR_COMPILE_WITH_OPENGL_
+IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+{
+	os::Printer::log("No OpenGL support compiled in.", ELL_ERROR);
+	return nullptr;
+}
+#endif
+
+#ifndef ENABLE_OPENGL3
+IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+{
+	os::Printer::log("No OpenGL 3 support compiled in.", ELL_ERROR);
+	return nullptr;
+}
+#endif
+
+#ifndef _IRR_COMPILE_WITH_OGLES2_
+IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+{
+	os::Printer::log("No OpenGL ES 2 support compiled in.", ELL_ERROR);
+	return nullptr;
+}
+#endif
+
+#ifndef _IRR_COMPILE_WITH_WEBGL1_
+IVideoDriver *createWebGL1Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+{
+	os::Printer::log("No WebGL 1 support compiled in.", ELL_ERROR);
+	return nullptr;
+}
+#endif
+}
+
+
 //! constructor
 CIrrDeviceStub::CIrrDeviceStub(const SIrrlichtCreationParameters &params) :
 		IrrlichtDevice(), VideoDriver(0), GUIEnvironment(0), SceneManager(0),

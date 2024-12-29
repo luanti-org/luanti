@@ -11,6 +11,7 @@
 #include "client.h"
 #include "client/clientevent.h"
 #include "client/gameui.h"
+#include "client/game_formspec.h"
 #include "client/inputhandler.h"
 #include "client/texturepaths.h"
 #include "client/keys.h"
@@ -32,11 +33,7 @@
 #include "gameparams.h"
 #include "gettext.h"
 #include "gui/guiChatConsole.h"
-#include "gui/guiFormSpecMenu.h"
-#include "gui/guiKeyChangeMenu.h"
-#include "gui/guiPasswordChange.h"
-#include "gui/guiOpenURL.h"
-#include "gui/guiVolumeChange.h"
+#include "texturesource.h"
 #include "gui/mainmenumanager.h"
 #include "gui/profilergraph.h"
 #include "minimap.h"
@@ -67,171 +64,6 @@
 #if USE_SOUND
 	#include "client/sound/sound_openal.h"
 #endif
-
-/*
-	Text input system
-*/
-
-struct TextDestNodeMetadata : public TextDest
-{
-	TextDestNodeMetadata(v3s16 p, Client *client)
-	{
-		m_p = p;
-		m_client = client;
-	}
-	// This is deprecated I guess? -celeron55
-	void gotText(const std::wstring &text)
-	{
-		std::string ntext = wide_to_utf8(text);
-		infostream << "Submitting 'text' field of node at (" << m_p.X << ","
-			   << m_p.Y << "," << m_p.Z << "): " << ntext << std::endl;
-		StringMap fields;
-		fields["text"] = ntext;
-		m_client->sendNodemetaFields(m_p, "", fields);
-	}
-	void gotText(const StringMap &fields)
-	{
-		m_client->sendNodemetaFields(m_p, "", fields);
-	}
-
-	v3s16 m_p;
-	Client *m_client;
-};
-
-struct TextDestPlayerInventory : public TextDest
-{
-	TextDestPlayerInventory(Client *client)
-	{
-		m_client = client;
-		m_formname.clear();
-	}
-	TextDestPlayerInventory(Client *client, const std::string &formname)
-	{
-		m_client = client;
-		m_formname = formname;
-	}
-	void gotText(const StringMap &fields)
-	{
-		m_client->sendInventoryFields(m_formname, fields);
-	}
-
-	Client *m_client;
-};
-
-struct LocalFormspecHandler : public TextDest
-{
-	LocalFormspecHandler(const std::string &formname)
-	{
-		m_formname = formname;
-	}
-
-	LocalFormspecHandler(const std::string &formname, Client *client):
-		m_client(client)
-	{
-		m_formname = formname;
-	}
-
-	void gotText(const StringMap &fields)
-	{
-		if (m_formname == "MT_PAUSE_MENU") {
-			if (fields.find("btn_sound") != fields.end()) {
-				g_gamecallback->changeVolume();
-				return;
-			}
-
-			if (fields.find("btn_key_config") != fields.end()) {
-				g_gamecallback->keyConfig();
-				return;
-			}
-
-			if (fields.find("btn_exit_menu") != fields.end()) {
-				g_gamecallback->disconnect();
-				return;
-			}
-
-			if (fields.find("btn_exit_os") != fields.end()) {
-				g_gamecallback->exitToOS();
-#ifndef __ANDROID__
-				RenderingEngine::get_raw_device()->closeDevice();
-#endif
-				return;
-			}
-
-			if (fields.find("btn_change_password") != fields.end()) {
-				g_gamecallback->changePassword();
-				return;
-			}
-
-			return;
-		}
-
-		if (m_formname == "MT_DEATH_SCREEN") {
-			assert(m_client != nullptr);
-
-			if (fields.find("quit") != fields.end())
-				m_client->sendRespawnLegacy();
-
-			return;
-		}
-
-		if (m_client->modsLoaded())
-			m_client->getScript()->on_formspec_input(m_formname, fields);
-	}
-
-	Client *m_client = nullptr;
-};
-
-/* Form update callback */
-
-class NodeMetadataFormSource: public IFormSource
-{
-public:
-	NodeMetadataFormSource(ClientMap *map, v3s16 p):
-		m_map(map),
-		m_p(p)
-	{
-	}
-	const std::string &getForm() const
-	{
-		static const std::string empty_string = "";
-		NodeMetadata *meta = m_map->getNodeMetadata(m_p);
-
-		if (!meta)
-			return empty_string;
-
-		return meta->getString("formspec");
-	}
-
-	virtual std::string resolveText(const std::string &str)
-	{
-		NodeMetadata *meta = m_map->getNodeMetadata(m_p);
-
-		if (!meta)
-			return str;
-
-		return meta->resolveString(str);
-	}
-
-	ClientMap *m_map;
-	v3s16 m_p;
-};
-
-class PlayerInventoryFormSource: public IFormSource
-{
-public:
-	PlayerInventoryFormSource(Client *client):
-		m_client(client)
-	{
-	}
-
-	const std::string &getForm() const
-	{
-		LocalPlayer *player = m_client->getEnv().getLocalPlayer();
-		return player->inventory_formspec;
-	}
-
-	Client *m_client;
-};
 
 class NodeDugEvent : public MtEvent
 {
@@ -590,8 +422,6 @@ public:
 	}
 };
 
-#define SIZE_TAG "size[11,5.5,true]" // Fixed size (ignored in touchscreen mode)
-
 /****************************************************************************
  ****************************************************************************/
 
@@ -693,7 +523,6 @@ protected:
 
 	void updateInteractTimers(f32 dtime);
 	bool checkConnection();
-	bool handleCallbacks();
 	void processQueues();
 	void updateProfilers(const RunStats &stats, const FpsControl &draw_times, f32 dtime);
 	void updateDebugState();
@@ -707,7 +536,6 @@ protected:
 	bool shouldShowTouchControls();
 
 	void dropSelectedItem(bool single_item = false);
-	void openInventory();
 	void openConsole(float scale, const wchar_t *line=NULL);
 	void toggleFreeMove();
 	void toggleFreeMoveAlt();
@@ -809,9 +637,6 @@ private:
 		bool disable_camera_update = false;
 	};
 
-	void showDeathFormspecLegacy();
-	void showPauseMenu();
-
 	void pauseAnimation();
 	void resumeAnimation();
 
@@ -876,6 +701,7 @@ private:
 	irr_ptr<Sky> sky;
 	Hud *hud = nullptr;
 	Minimap *mapper = nullptr;
+	GameFormSpec m_game_formspec;
 
 	// Map server hud ids to client hud ids
 	std::unordered_map<u32, u32> m_hud_server_to_client;
@@ -1083,6 +909,8 @@ bool Game::startup(bool *kill,
 
 	m_rendering_engine->initialize(client, hud);
 
+	m_game_formspec.init(client, m_rendering_engine, input);
+
 	return true;
 }
 
@@ -1153,7 +981,7 @@ void Game::run()
 
 		if (!checkConnection())
 			break;
-		if (!handleCallbacks())
+		if (!m_game_formspec.handleCallbacks())
 			break;
 
 		processQueues();
@@ -1185,7 +1013,7 @@ void Game::run()
 		updateProfilerGraphs(&graph);
 
 		if (m_does_lost_focus_pause_game && !device->isWindowFocused() && !isMenuActive()) {
-			showPauseMenu();
+			m_game_formspec.showPauseMenu();
 		}
 	}
 
@@ -1197,10 +1025,6 @@ void Game::run()
 
 void Game::shutdown()
 {
-	auto formspec = m_game_ui->getFormspecGUI();
-	if (formspec)
-		formspec->quitMenu();
-
 	// Clear text when exiting.
 	m_game_ui->clearText();
 
@@ -1219,11 +1043,8 @@ void Game::shutdown()
 
 	/* cleanup menus */
 	while (g_menumgr.menuCount() > 0) {
-		g_menumgr.m_stack.front()->setVisible(false);
-		g_menumgr.deletingMenu(g_menumgr.m_stack.front());
+		g_menumgr.deleteFront();
 	}
-
-	m_game_ui->deleteFormspec();
 
 	chat_backend->addMessage(L"", L"# Disconnected.");
 	chat_backend->addMessage(L"", L"");
@@ -1609,7 +1430,7 @@ bool Game::connectToServer(const GameStartData &start_data,
 				start_data.password,
 				*draw_control, texture_src, shader_src,
 				itemdef_manager, nodedef_manager, sound_manager.get(), eventmgr,
-				m_rendering_engine, m_game_ui.get(),
+				m_rendering_engine,
 				start_data.allow_login_or_register);
 	} catch (const BaseException &e) {
 		*error_message = fmtgettext("Error creating client: %s", e.what());
@@ -1817,49 +1638,6 @@ inline bool Game::checkConnection()
 	return true;
 }
 
-
-/* returns false if game should exit, otherwise true
- */
-inline bool Game::handleCallbacks()
-{
-	if (g_gamecallback->disconnect_requested) {
-		g_gamecallback->disconnect_requested = false;
-		return false;
-	}
-
-	if (g_gamecallback->changepassword_requested) {
-		(void)make_irr<GUIPasswordChange>(guienv, guiroot, -1,
-				       &g_menumgr, client, texture_src);
-		g_gamecallback->changepassword_requested = false;
-	}
-
-	if (g_gamecallback->changevolume_requested) {
-		(void)make_irr<GUIVolumeChange>(guienv, guiroot, -1,
-				     &g_menumgr, texture_src);
-		g_gamecallback->changevolume_requested = false;
-	}
-
-	if (g_gamecallback->keyconfig_requested) {
-		(void)make_irr<GUIKeyChangeMenu>(guienv, guiroot, -1,
-				      &g_menumgr, texture_src);
-		g_gamecallback->keyconfig_requested = false;
-	}
-
-	if (!g_gamecallback->show_open_url_dialog.empty()) {
-		(void)make_irr<GUIOpenURLMenu>(guienv, guiroot, -1,
-				 &g_menumgr, texture_src, g_gamecallback->show_open_url_dialog);
-		g_gamecallback->show_open_url_dialog.clear();
-	}
-
-	if (g_gamecallback->keyconfig_changed) {
-		input->keycache.populate(); // update the cache with new settings
-		g_gamecallback->keyconfig_changed = false;
-	}
-
-	return true;
-}
-
-
 void Game::processQueues()
 {
 	texture_src->processQueue();
@@ -1886,10 +1664,7 @@ void Game::updateDebugState()
 	if (!has_debug) {
 		draw_control->show_wireframe = false;
 		m_flags.disable_camera_update = false;
-		auto formspec = m_game_ui->getFormspecGUI();
-		if (formspec) {
-			formspec->setDebugView(false);
-		}
+		m_game_formspec.disableDebugView();
 	}
 
 	// noclip
@@ -2033,10 +1808,7 @@ void Game::processUserInput(f32 dtime)
 	input->step(dtime);
 
 #ifdef __ANDROID__
-	auto formspec = m_game_ui->getFormspecGUI();
-	if (formspec)
-		formspec->getAndroidUIInput();
-	else
+	if (!m_game_formspec.handleAndroidUIInput())
 		handleAndroidChatInput();
 #endif
 
@@ -2061,13 +1833,13 @@ void Game::processKeyInput()
 		if (g_settings->getBool("continuous_forward"))
 			toggleAutoforward();
 	} else if (wasKeyDown(KeyType::INVENTORY)) {
-		openInventory();
+		m_game_formspec.showPlayerInventory();
 	} else if (input->cancelPressed()) {
 #ifdef __ANDROID__
 		m_android_chat_open = false;
 #endif
 		if (!gui_chat_console->isOpenInhibited()) {
-			showPauseMenu();
+			m_game_formspec.showPauseMenu();
 		}
 	} else if (wasKeyDown(KeyType::CHAT)) {
 		openConsole(0.2, L"");
@@ -2234,45 +2006,6 @@ void Game::dropSelectedItem(bool single_item)
 	a->from_i = client->getEnv().getLocalPlayer()->getWieldIndex();
 	client->inventoryAction(a);
 }
-
-
-void Game::openInventory()
-{
-	/*
-	 * Don't permit to open inventory is CAO or player doesn't exists.
-	 * This prevent showing an empty inventory at player load
-	 */
-
-	LocalPlayer *player = client->getEnv().getLocalPlayer();
-	if (!player || !player->getCAO())
-		return;
-
-	infostream << "Game: Launching inventory" << std::endl;
-
-	PlayerInventoryFormSource *fs_src = new PlayerInventoryFormSource(client);
-
-	InventoryLocation inventoryloc;
-	inventoryloc.setCurrentPlayer();
-
-	if (client->modsLoaded() && client->getScript()->on_inventory_open(fs_src->m_client->getInventory(inventoryloc))) {
-		delete fs_src;
-		return;
-	}
-
-	if (fs_src->getForm().empty()) {
-		delete fs_src;
-		return;
-	}
-
-	TextDest *txt_dst = new TextDestPlayerInventory(client);
-	auto *&formspec = m_game_ui->updateFormspec("");
-	GUIFormSpecMenu::create(formspec, client, m_rendering_engine->get_gui_env(),
-		&input->joystick, fs_src, txt_dst, client->getFormspecPrepend(),
-		sound_manager.get());
-
-	formspec->setFormSpec(fs_src->getForm(), inventoryloc);
-}
-
 
 void Game::openConsole(float scale, const wchar_t *line)
 {
@@ -2875,28 +2608,13 @@ void Game::handleClientEvent_PlayerForceMove(ClientEvent *event, CameraOrientati
 
 void Game::handleClientEvent_DeathscreenLegacy(ClientEvent *event, CameraOrientation *cam)
 {
-	showDeathFormspecLegacy();
+	m_game_formspec.showDeathFormspecLegacy();
 }
 
 void Game::handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation *cam)
 {
-	if (event->show_formspec.formspec->empty()) {
-		auto formspec = m_game_ui->getFormspecGUI();
-		if (formspec && (event->show_formspec.formname->empty()
-				|| *(event->show_formspec.formname) == m_game_ui->getFormspecName())) {
-			formspec->quitMenu();
-		}
-	} else {
-		FormspecFormSource *fs_src =
-			new FormspecFormSource(*(event->show_formspec.formspec));
-		TextDestPlayerInventory *txt_dst =
-			new TextDestPlayerInventory(client, *(event->show_formspec.formname));
-
-		auto *&formspec = m_game_ui->updateFormspec(*(event->show_formspec.formname));
-		GUIFormSpecMenu::create(formspec, client, m_rendering_engine->get_gui_env(),
-			&input->joystick, fs_src, txt_dst, client->getFormspecPrepend(),
-			sound_manager.get());
-	}
+	m_game_formspec.showFormSpec(*event->show_formspec.formspec,
+		*event->show_formspec.formname);
 
 	delete event->show_formspec.formspec;
 	delete event->show_formspec.formname;
@@ -2904,11 +2622,8 @@ void Game::handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation 
 
 void Game::handleClientEvent_ShowLocalFormSpec(ClientEvent *event, CameraOrientation *cam)
 {
-	FormspecFormSource *fs_src = new FormspecFormSource(*event->show_formspec.formspec);
-	LocalFormspecHandler *txt_dst =
-		new LocalFormspecHandler(*event->show_formspec.formname, client);
-	GUIFormSpecMenu::create(m_game_ui->getFormspecGUI(), client, m_rendering_engine->get_gui_env(),
-			&input->joystick, fs_src, txt_dst, client->getFormspecPrepend(), sound_manager.get());
+	m_game_formspec.showLocalFormSpec(*event->show_formspec.formspec,
+		*event->show_formspec.formname);
 
 	delete event->show_formspec.formspec;
 	delete event->show_formspec.formname;
@@ -3485,7 +3200,7 @@ PointedThing Game::updatePointedThing(
 		hud->pointing_at_object = true;
 
 		runData.selected_object = client->getEnv().getActiveObject(result.object_id);
-		aabb3f selection_box;
+		aabb3f selection_box{{0.0f, 0.0f, 0.0f}};
 		if (show_entity_selectionbox && runData.selected_object->doShowSelectionBox() &&
 				runData.selected_object->getSelectionBox(&selection_box)) {
 			v3f pos = runData.selected_object->getPosition();
@@ -3646,21 +3361,7 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 		if (nodedef_manager->get(map.getNode(nodepos)).rightclickable)
 			client->interact(INTERACT_PLACE, pointed);
 
-		infostream << "Launching custom inventory view" << std::endl;
-
-		InventoryLocation inventoryloc;
-		inventoryloc.setNodeMeta(nodepos);
-
-		NodeMetadataFormSource *fs_src = new NodeMetadataFormSource(
-			&client->getEnv().getClientMap(), nodepos);
-		TextDest *txt_dst = new TextDestNodeMetadata(nodepos, client);
-
-		auto *&formspec = m_game_ui->updateFormspec("");
-		GUIFormSpecMenu::create(formspec, client, m_rendering_engine->get_gui_env(),
-			&input->joystick, fs_src, txt_dst, client->getFormspecPrepend(),
-			sound_manager.get());
-
-		formspec->setFormSpec(meta->getString("formspec"), inventoryloc);
+		m_game_formspec.showNodeFormspec(meta->getString("formspec"), nodepos);
 		return false;
 	}
 
@@ -4196,34 +3897,7 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 	m_game_ui->update(*stats, client, draw_control, cam, runData.pointed_old,
 			gui_chat_console.get(), dtime);
 
-	/*
-	   make sure menu is on top
-	   1. Delete formspec menu reference if menu was removed
-	   2. Else, make sure formspec menu is on top
-	*/
-	auto formspec = m_game_ui->getFormspecGUI();
-	do { // breakable. only runs for one iteration
-		if (!formspec)
-			break;
-
-		if (formspec->getReferenceCount() == 1) {
-			// See GUIFormSpecMenu::create what refcnt = 1 means
-			m_game_ui->deleteFormspec();
-			break;
-		}
-
-		auto &loc = formspec->getFormspecLocation();
-		if (loc.type == InventoryLocation::NODEMETA) {
-			NodeMetadata *meta = client->getEnv().getClientMap().getNodeMetadata(loc.p);
-			if (!meta || meta->getString("formspec").empty()) {
-				formspec->quitMenu();
-				break;
-			}
-		}
-
-		if (isMenuActive())
-			guiroot->bringToFront(formspec);
-	} while (false);
+	m_game_formspec.update();
 
 	/*
 		==================== Drawing begins ====================
@@ -4438,140 +4112,6 @@ void Game::readSettings()
 	m_invert_hotbar_mouse_wheel = g_settings->getBool("invert_hotbar_mouse_wheel");
 
 	m_does_lost_focus_pause_game = g_settings->getBool("pause_on_lost_focus");
-}
-
-/****************************************************************************/
-/****************************************************************************
- Shutdown / cleanup
- ****************************************************************************/
-/****************************************************************************/
-
-void Game::showDeathFormspecLegacy()
-{
-	static std::string formspec_str =
-		std::string("formspec_version[1]") +
-		SIZE_TAG
-		"bgcolor[#320000b4;true]"
-		"label[4.85,1.35;" + gettext("You died") + "]"
-		"button_exit[4,3;3,0.5;btn_respawn;" + gettext("Respawn") + "]"
-		;
-
-	/* Create menu */
-	/* Note: FormspecFormSource and LocalFormspecHandler  *
-	 * are deleted by guiFormSpecMenu                     */
-	FormspecFormSource *fs_src = new FormspecFormSource(formspec_str);
-	LocalFormspecHandler *txt_dst = new LocalFormspecHandler("MT_DEATH_SCREEN", client);
-
-	auto *&formspec = m_game_ui->getFormspecGUI();
-	GUIFormSpecMenu::create(formspec, client, m_rendering_engine->get_gui_env(),
-		&input->joystick, fs_src, txt_dst, client->getFormspecPrepend(),
-		sound_manager.get());
-	formspec->setFocus("btn_respawn");
-}
-
-#define GET_KEY_NAME(KEY) gettext(getKeySetting(#KEY).name())
-void Game::showPauseMenu()
-{
-	std::string control_text;
-
-	if (g_touchcontrols) {
-		control_text = strgettext("Controls:\n"
-			"No menu open:\n"
-			"- slide finger: look around\n"
-			"- tap: place/punch/use (default)\n"
-			"- long tap: dig/use (default)\n"
-			"Menu/inventory open:\n"
-			"- double tap (outside):\n"
-			" --> close\n"
-			"- touch stack, touch slot:\n"
-			" --> move stack\n"
-			"- touch&drag, tap 2nd finger\n"
-			" --> place single item to slot\n"
-			);
-	}
-
-	float ypos = simple_singleplayer_mode ? 0.7f : 0.1f;
-	std::ostringstream os;
-
-	os << "formspec_version[1]" << SIZE_TAG
-		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_continue;"
-		<< strgettext("Continue") << "]";
-
-	if (!simple_singleplayer_mode) {
-		os << "button_exit[4," << (ypos++) << ";3,0.5;btn_change_password;"
-			<< strgettext("Change Password") << "]";
-	} else {
-		os << "field[4.95,0;5,1.5;;" << strgettext("Game paused") << ";]";
-	}
-
-#ifndef __ANDROID__
-#if USE_SOUND
-	if (g_settings->getBool("enable_sound")) {
-		os << "button_exit[4," << (ypos++) << ";3,0.5;btn_sound;"
-			<< strgettext("Sound Volume") << "]";
-	}
-#endif
-	os		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_key_config;"
-		<< strgettext("Controls")  << "]";
-#endif
-	os		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_exit_menu;"
-		<< strgettext("Exit to Menu") << "]";
-	os		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_exit_os;"
-		<< strgettext("Exit to OS")   << "]";
-	if (!control_text.empty()) {
-	os		<< "textarea[7.5,0.25;3.9,6.25;;" << control_text << ";]";
-	}
-	os		<< "textarea[0.4,0.25;3.9,6.25;;" << PROJECT_NAME_C " " VERSION_STRING "\n"
-		<< "\n"
-		<<  strgettext("Game info:") << "\n";
-	const std::string &address = client->getAddressName();
-	os << strgettext("- Mode: ");
-	if (!simple_singleplayer_mode) {
-		if (address.empty())
-			os << strgettext("Hosting server");
-		else
-			os << strgettext("Remote server");
-	} else {
-		os << strgettext("Singleplayer");
-	}
-	os << "\n";
-	if (simple_singleplayer_mode || address.empty()) {
-		static const std::string on = strgettext("On");
-		static const std::string off = strgettext("Off");
-		// Note: Status of enable_damage and creative_mode settings is intentionally
-		// NOT shown here because the game might roll its own damage system and/or do
-		// a per-player Creative Mode, in which case writing it here would mislead.
-		bool damage = g_settings->getBool("enable_damage");
-		const std::string &announced = g_settings->getBool("server_announce") ? on : off;
-		if (!simple_singleplayer_mode) {
-			if (damage) {
-				const std::string &pvp = g_settings->getBool("enable_pvp") ? on : off;
-				//~ PvP = Player versus Player
-				os << strgettext("- PvP: ") << pvp << "\n";
-			}
-			os << strgettext("- Public: ") << announced << "\n";
-			std::string server_name = g_settings->get("server_name");
-			str_formspec_escape(server_name);
-			if (announced == on && !server_name.empty())
-				os << strgettext("- Server Name: ") << server_name;
-
-		}
-	}
-	os << ";]";
-
-	/* Create menu */
-	/* Note: FormspecFormSource and LocalFormspecHandler  *
-	 * are deleted by guiFormSpecMenu                     */
-	FormspecFormSource *fs_src = new FormspecFormSource(os.str());
-	LocalFormspecHandler *txt_dst = new LocalFormspecHandler("MT_PAUSE_MENU");
-
-	auto *&formspec = m_game_ui->getFormspecGUI();
-	GUIFormSpecMenu::create(formspec, client, m_rendering_engine->get_gui_env(),
-			&input->joystick, fs_src, txt_dst, client->getFormspecPrepend(),
-			sound_manager.get());
-	formspec->setFocus("btn_continue");
-	// game will be paused in next step, if in singleplayer (see m_is_paused)
-	formspec->doPause = true;
 }
 
 /****************************************************************************/

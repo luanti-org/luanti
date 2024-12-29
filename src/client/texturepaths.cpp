@@ -22,10 +22,8 @@ void clearTextureNameCache()
 // If failed, return "".
 std::string getImagePath(std::string_view path)
 {
-	// A NULL-ended list of possible image extensions
-	// (In newer C++ versions a fixed size array and ranges::subrange could be used
-	// or just modernise removeStringEnd.)
-	static const char *extensions[] = {".png", ".jpg", ".bmp", ".tga", nullptr};
+	// possible image extensions
+	static const char *extensions[] = {".png", ".jpg", ".tga", nullptr};
 
 	// Remove present extension
 	std::string_view stripped_path = removeStringEnd(path, extensions);

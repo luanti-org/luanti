@@ -1,7 +1,7 @@
 local static_spawnpoint_string = core.settings:get("static_spawnpoint")
 if static_spawnpoint_string and
 		static_spawnpoint_string ~= "" and
-		not core.setting_get_pos("static_spawnpoint") then
+		not core.settings:get_pos("static_spawnpoint") then
 	error('The static_spawnpoint setting is invalid: "' ..
 			static_spawnpoint_string .. '"')
 end

@@ -1015,8 +1015,6 @@ public:
 	bool TextureCompressionExtension;
 
 	// Some non-boolean properties
-	//! Maximum hardware lights supported
-	u8 MaxLights;
 	//! Maximal Anisotropy
 	u8 MaxAnisotropy;
 	//! Number of auxiliary buffers

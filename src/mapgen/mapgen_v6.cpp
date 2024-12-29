@@ -222,7 +222,7 @@ void MapgenV6Params::setDefaultSettings(Settings *settings)
 // Returns Y one under area minimum if not found
 s16 MapgenV6::find_stone_level(v2s16 p2d)
 {
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	s16 y_nodes_max = vm->m_area.MaxEdge.Y;
 	s16 y_nodes_min = vm->m_area.MinEdge.Y;
 	u32 i = vm->m_area.index(p2d.X, y_nodes_max, p2d.Y);
@@ -670,7 +670,7 @@ int MapgenV6::generateGround()
 		BiomeV6Type bt = getBiome(v2s16(x, z));
 
 		// Fill ground with stone
-		const v3s16 &em = vm->m_area.getExtent();
+		const v3s32 &em = vm->m_area.getExtent();
 		u32 i = vm->m_area.index(x, node_min.Y, z);
 		for (s16 y = node_min.Y; y <= node_max.Y; y++) {
 			if (vm->m_data[i].getContent() == CONTENT_IGNORE) {
@@ -739,7 +739,7 @@ void MapgenV6::addMud()
 
 		// Add mud on ground
 		s16 mudcount = 0;
-		const v3s16 &em = vm->m_area.getExtent();
+		const v3s32 &em = vm->m_area.getExtent();
 		s16 y_start = surface_y + 1;
 		u32 i = vm->m_area.index(x, y_start, z);
 		for (s16 y = y_start; y <= node_max.Y; y++) {
@@ -757,7 +757,7 @@ void MapgenV6::addMud()
 
 void MapgenV6::flowMud(s16 &mudflow_minpos, s16 &mudflow_maxpos)
 {
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	static const v3s16 dirs4[4] = {
 		v3s16(0, 0, 1), // Back
 		v3s16(1, 0, 0), // Right
@@ -870,7 +870,7 @@ void MapgenV6::flowMud(s16 &mudflow_minpos, s16 &mudflow_maxpos)
 
 
 void MapgenV6::moveMud(u32 remove_index, u32 place_index,
-	u32 above_remove_index, v2s16 pos, v3s16 em)
+	u32 above_remove_index, v2s16 pos, v3s32 em)
 {
 	MapNode n_air(CONTENT_AIR);
 	// Copy mud from old place to new place
@@ -920,7 +920,7 @@ void MapgenV6::placeTreesAndJungleGrass()
 	if (c_junglegrass == CONTENT_IGNORE)
 		c_junglegrass = CONTENT_AIR;
 	MapNode n_junglegrass(c_junglegrass);
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 
 	// Divide area into parts
 	s16 div = 8;
@@ -1027,7 +1027,7 @@ void MapgenV6::growGrass() // Add surface nodes
 	MapNode n_dirt_with_grass(c_dirt_with_grass);
 	MapNode n_dirt_with_snow(c_dirt_with_snow);
 	MapNode n_snowblock(c_snowblock);
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 
 	u32 index = 0;
 	for (s16 z = full_node_min.Z; z <= full_node_max.Z; z++)

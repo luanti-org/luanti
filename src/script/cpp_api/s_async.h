@@ -50,10 +50,13 @@ class AsyncWorkerThread : public Thread,
 public:
 	virtual ~AsyncWorkerThread();
 
-	void *run();
+	void *run() override;
 
 protected:
 	AsyncWorkerThread(AsyncEngine* jobDispatcher, const std::string &name);
+
+	bool checkPathInternal(const std::string &abs_path, bool write_required,
+		bool *write_allowed) override;
 
 private:
 	AsyncEngine *jobDispatcher = nullptr;

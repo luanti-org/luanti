@@ -14,7 +14,6 @@
 #include "nodedef.h"
 #include "client/tile.h"
 #include "mesh.h"
-#include <IMeshManipulator.h>
 #include "client/meshgen/collector.h"
 #include "client/renderingengine.h"
 #include "client.h"
@@ -61,15 +60,11 @@ static const auto &quad_indices = quad_indices_02;
 
 const std::string MapblockMeshGenerator::raillike_groupname = "connect_to_raillike";
 
-MapblockMeshGenerator::MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output,
-		scene::IMeshManipulator *mm):
+MapblockMeshGenerator::MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output):
 	data(input),
 	collector(output),
 	nodedef(data->nodedef),
-	meshmanip(mm),
 	blockpos_nodes(data->m_blockpos * MAP_BLOCKSIZE),
-	enable_mesh_cache(g_settings->getBool("enable_mesh_cache") &&
-			!data->m_smooth_lighting), // Mesh cache is not supported with smooth lighting
 	smooth_liquids(g_settings->getBool("enable_water_reflections"))
 {
 }
@@ -1648,7 +1643,6 @@ void MapblockMeshGenerator::drawMeshNode()
 {
 	u8 facedir = 0;
 	scene::IMesh* mesh;
-	bool private_mesh; // as a grab/drop pair is not thread-safe
 	int degrotate = 0;
 
 	if (cur_node.f->param_type_2 == CPT2_FACEDIR ||
@@ -1659,45 +1653,44 @@ void MapblockMeshGenerator::drawMeshNode()
 	} else if (cur_node.f->param_type_2 == CPT2_WALLMOUNTED ||
 			cur_node.f->param_type_2 == CPT2_COLORED_WALLMOUNTED) {
 		// Convert wallmounted to 6dfacedir.
-		// When cache enabled, it is already converted.
 		facedir = cur_node.n.getWallMounted(nodedef);
-		if (!enable_mesh_cache)
-			facedir = wallmounted_to_facedir[facedir];
+		facedir = wallmounted_to_facedir[facedir];
 	} else if (cur_node.f->param_type_2 == CPT2_DEGROTATE ||
 			cur_node.f->param_type_2 == CPT2_COLORED_DEGROTATE) {
 		degrotate = cur_node.n.getDegRotate(nodedef);
 	}
 
-	if (!data->m_smooth_lighting && cur_node.f->mesh_ptr[facedir] && !degrotate) {
-		// use cached meshes
-		private_mesh = false;
-		mesh = cur_node.f->mesh_ptr[facedir];
-	} else if (cur_node.f->mesh_ptr[0]) {
-		// no cache, clone and rotate mesh
-		private_mesh = true;
-		mesh = cloneMesh(cur_node.f->mesh_ptr[0]);
+	if (cur_node.f->mesh_ptr) {
+		// clone and rotate mesh
+		mesh = cloneMesh(cur_node.f->mesh_ptr);
+		bool modified = true;
 		if (facedir)
 			rotateMeshBy6dFacedir(mesh, facedir);
 		else if (degrotate)
 			rotateMeshXZby(mesh, 1.5f * degrotate);
-		recalculateBoundingBox(mesh);
-		meshmanip->recalculateNormals(mesh, true, false);
-	} else
+		else
+			modified = false;
+		if (modified) {
+			recalculateBoundingBox(mesh);
+		}
+	} else {
+		warningstream << "drawMeshNode(): missing mesh" << std::endl;
 		return;
+	}
 
-	int mesh_buffer_count = mesh->getMeshBufferCount();
-	for (int j = 0; j < mesh_buffer_count; j++) {
+	for (u32 j = 0; j < mesh->getMeshBufferCount(); j++) {
 		// Only up to 6 tiles are supported
-		const auto tile =  mesh->getTextureSlot(j);
+		const u32 tile = mesh->getTextureSlot(j);
 		useTile(MYMIN(tile, 5));
+
 		scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
 		video::S3DVertex *vertices = (video::S3DVertex *)buf->getVertices();
-		int vertex_count = buf->getVertexCount();
+		u32 vertex_count = buf->getVertexCount();
 
 		if (data->m_smooth_lighting) {
 			// Mesh is always private here. So the lighting is applied to each
 			// vertex right here.
-			for (int k = 0; k < vertex_count; k++) {
+			for (u32 k = 0; k < vertex_count; k++) {
 				video::S3DVertex &vertex = vertices[k];
 				vertex.Color = blendLightColor(vertex.Pos, vertex.Normal);
 				vertex.Pos += cur_node.origin;
@@ -1705,15 +1698,13 @@ void MapblockMeshGenerator::drawMeshNode()
 			collector->append(cur_node.tile, vertices, vertex_count,
 				buf->getIndices(), buf->getIndexCount());
 		} else {
-			// Don't modify the mesh, it may not be private here.
-			// Instead, let the collector process colors, etc.
+			// Let the collector process colors, etc.
 			collector->append(cur_node.tile, vertices, vertex_count,
 				buf->getIndices(), buf->getIndexCount(), cur_node.origin,
 				cur_node.color, cur_node.f->light_source);
 		}
 	}
-	if (private_mesh)
-		mesh->drop();
+	mesh->drop();
 }
 
 // also called when the drawtype is known but should have been pre-converted

@@ -66,6 +66,7 @@ void ScriptApiSecurity::initializeSecurity()
 		"core",
 		"collectgarbage",
 		"DIR_DELIM",
+		"PLATFORM",
 		"error",
 		"getfenv",
 		"getmetatable",
@@ -260,6 +261,8 @@ void ScriptApiSecurity::initializeSecurity()
 	lua_pop(L, 1); // Pop empty string
 }
 
+#if CHECK_CLIENT_BUILD()
+
 void ScriptApiSecurity::initializeSecurityClient()
 {
 	static const char *whitelist[] = {
@@ -375,6 +378,8 @@ void ScriptApiSecurity::initializeSecurityClient()
 	setLuaEnv(L, thread);
 }
 
+#endif
+
 int ScriptApiSecurity::getThread(lua_State *L)
 {
 #if LUA_VERSION_NUM <= 501
@@ -408,19 +413,24 @@ void ScriptApiSecurity::setLuaEnv(lua_State *L, int thread)
 
 bool ScriptApiSecurity::isSecure(lua_State *L)
 {
-#if CHECK_CLIENT_BUILD()
-	auto script = ModApiBase::getScriptApiBase(L);
-	// CSM keeps no globals backup but is always secure
-	if (script->getType() == ScriptingType::Client)
-		return true;
-#endif
-	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
-	bool secure = !lua_isnil(L, -1);
-	lua_pop(L, 1);
-	return secure;
+	auto *script = ModApiBase::getScriptApiBase(L);
+	if (auto *sec = dynamic_cast<ScriptApiSecurity*>(script))
+		return sec->m_secure;
+	return false;
 }
 
-bool ScriptApiSecurity::safeLoadString(lua_State *L, const std::string &code, const char *chunk_name)
+void ScriptApiSecurity::getGlobalsBackup(lua_State *L)
+{
+	if (!ScriptApiSecurity::isSecure(L)) {
+		lua_getglobal(L, "_G");
+		return;
+	}
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
+	// We cannot fulfill the callers wish securely if they don't exist.
+	FATAL_ERROR_IF(lua_isnil(L, -1), "Globals backup requested, but it is not available. Cannot proceed securely.");
+}
+
+bool ScriptApiSecurity::safeLoadString(lua_State *L, std::string_view code, const char *chunk_name)
 {
 	if (code.size() > 0 && code[0] == LUA_SIGNATURE[0]) {
 		lua_pushliteral(L, "Bytecode prohibited when mod security is enabled.");
@@ -441,7 +451,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 		fp = stdin;
 		chunk_name = const_cast<char *>("=stdin");
 	} else {
-		fp = fopen(path, "rb");
+		fp = std::fopen(path, "rb");
 		if (!fp) {
 			lua_pushfstring(L, "%s: %s", path, strerror(errno));
 			return false;
@@ -500,7 +510,35 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 }
 
 
-bool checkModNameWhitelisted(const std::string &mod_name, const std::string &setting)
+std::string ScriptApiSecurity::getCurrentModName(lua_State *L)
+{
+	auto *script = ModApiBase::getScriptApiBase(L);
+
+	auto *sec = dynamic_cast<ScriptApiSecurity*>(script);
+	if (sec && !sec->modNamesAreTrusted())
+		return "";
+
+	// We have to make sure that this function is being called directly by
+	// a mod, otherwise a malicious mod could override a function and
+	// steal its return value. (e.g. request_insecure_environment)
+	lua_Debug info;
+
+	// Make sure there's only one item below this function on the stack...
+	if (lua_getstack(L, 2, &info))
+		return "";
+	FATAL_ERROR_IF(!lua_getstack(L, 1, &info), "lua_getstack() failed");
+	FATAL_ERROR_IF(!lua_getinfo(L, "S", &info), "lua_getinfo() failed");
+
+	// ...and that that item is the main file scope.
+	if (strcmp(info.what, "main") != 0)
+		return "";
+
+	// at this point we can trust this value:
+	return getCurrentModNameInsecure(L);
+}
+
+
+static bool checkModNameWhitelisted(const std::string &mod_name, const std::string &setting)
 {
 	assert(str_starts_with(setting, "secure."));
 
@@ -517,7 +555,7 @@ bool checkModNameWhitelisted(const std::string &mod_name, const std::string &set
 
 bool ScriptApiSecurity::checkWhitelisted(lua_State *L, const std::string &setting)
 {
-	std::string mod_name = ScriptApiBase::getCurrentModName(L);
+	std::string mod_name = getCurrentModName(L);
 	return checkModNameWhitelisted(mod_name, setting);
 }
 
@@ -528,93 +566,95 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	if (write_allowed)
 		*write_allowed = false;
 
-	std::string str;  // Transient
+	// We can't use AbsolutePath() here since we want to allow creating paths that
+	// do not yet exist. But RemoveRelativePathComponents() would also be incorrect
+	// since that wouldn't normalize subpaths that *do* exist.
+	// This is required so that comparisons with other normalized paths work correctly.
+	std::string abs_path = fs::AbsolutePathPartial(path);
+	tracestream << "ScriptApiSecurity: path \"" << path << "\" resolved to \""
+		<< abs_path << "\"" << std::endl;
 
-	std::string abs_path = fs::AbsolutePath(path);
-
-	if (!abs_path.empty()) {
-		// Don't allow accessing the settings file
-		str = fs::AbsolutePath(g_settings_path);
-		if (str == abs_path) return false;
-	}
-
-	// If we couldn't find the absolute path (path doesn't exist) then
-	// try removing the last components until it works (to allow
-	// non-existent files/folders for mkdir).
-	std::string cur_path = path;
-	std::string removed;
-	while (abs_path.empty() && !cur_path.empty()) {
-		std::string component;
-		cur_path = fs::RemoveLastPathComponent(cur_path, &component);
-		if (component == "..") {
-			// Parent components can't be allowed or we could allow something like
-			// /home/user/minetest/worlds/foo/noexist/../../../../../../etc/passwd.
-			// If we have previous non-relative elements in the path we might be
-			// able to remove them so that things like worlds/foo/noexist/../auth.txt
-			// could be allowed, but those paths will be interpreted as nonexistent
-			// by the operating system anyways.
-			return false;
-		}
-		removed = component + (removed.empty() ? "" : DIR_DELIM + removed);
-		abs_path = fs::AbsolutePath(cur_path);
-	}
 	if (abs_path.empty())
 		return false;
-	// Add the removed parts back so that you can't, eg, create a
-	// directory in worldmods if worldmods doesn't exist.
-	if (!removed.empty())
-		abs_path += DIR_DELIM + removed;
 
-	// Get gamedef from registry
-	ScriptApiBase *script = ModApiBase::getScriptApiBase(L);
-	const IGameDef *gamedef = script->getGameDef();
+	// Note: abs_path can be a valid path while path isn't, e.g.
+	// abs_path = "/home/user/.luanti"
+	// path = "/home/user/.luanti/noexist/.."
+	// Letting this through the sandbox isn't a concern as any actual attempts to
+	// use the path would fail.
+
+	// Ask the environment-specific implementation
+	auto *sec = ModApiBase::getScriptApi<ScriptApiSecurity>(L);
+	return sec->checkPathInternal(abs_path, write_required, write_allowed);
+}
+
+
+bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
+	const std::string &abs_path, bool write_required, bool *write_allowed)
+{
+	const auto &set_write_allowed = [&] (bool v) {
+		if (write_allowed)
+			*write_allowed = v;
+	};
+	std::string str;  // Transient
+
+	auto *gamedef = ModApiBase::getGameDef(L);
 	if (!gamedef)
 		return false;
+
+	assert(!abs_path.empty());
+
+	if (!g_settings_path.empty()) {
+		// Don't allow accessing the settings file
+		str = fs::AbsolutePathPartial(g_settings_path);
+		if (str == abs_path)
+			return false;
+	}
 
 	// Get mod name
 	std::string mod_name = ScriptApiBase::getCurrentModNameInsecure(L);
 	if (!mod_name.empty()) {
 		// Builtin can access anything
 		if (mod_name == BUILTIN_MOD_NAME) {
-			if (write_allowed) *write_allowed = true;
+			set_write_allowed(true);
 			return true;
 		}
+	}
 
-		// Allow paths in mod path
-		// Don't bother if write access isn't important, since it will be handled later
-		if (write_required || write_allowed != NULL) {
-			const ModSpec *mod = gamedef->getModSpec(mod_name);
-			if (mod) {
-				str = fs::AbsolutePath(mod->path);
-				if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
-					// `mod_name` cannot be trusted here, so we catch the scenarios where this becomes a problem:
-					bool is_trusted = checkModNameWhitelisted(mod_name, "secure.trusted_mods") ||
-							checkModNameWhitelisted(mod_name, "secure.http_mods");
-					std::string filename = lowercase(fs::GetFilenameFromPath(abs_path.c_str()));
-					// By writing to any of these a malicious mod could turn itself into
-					// an existing trusted mod by renaming or becoming a modpack.
-					bool is_dangerous_file = filename == "mod.conf" ||
-							filename == "modpack.conf" ||
-							filename == "modpack.txt";
-					if (write_required) {
-						if (is_trusted) {
-							throw LuaError(
-									"Unable to write to a trusted or http mod's directory. "
-									"For data storage consider minetest.get_mod_data_path() or minetest.get_worldpath() instead.");
-						} else if (is_dangerous_file) {
-							throw LuaError(
-									"Unable to write to special file for security reasons");
-						} else {
-							const char *message =
-									"Writing to mod directories is deprecated, as any changes "
-									"will be overwritten when updating content. "
-									"For data storage consider minetest.get_mod_data_path() or minetest.get_worldpath() instead.";
-							log_deprecated(L, message, 1);
-						}
+	// Allow paths in mod path
+	// Don't bother if write access isn't important, since it will be handled later
+	if (write_required || write_allowed) {
+		const ModSpec *mod = gamedef->getModSpec(mod_name);
+		if (mod) {
+			str = fs::AbsolutePath(mod->path);
+			if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
+				// `mod_name` cannot be trusted here, so we catch the scenarios where this becomes a problem:
+				bool is_trusted = checkModNameWhitelisted(mod_name, "secure.trusted_mods") ||
+						checkModNameWhitelisted(mod_name, "secure.http_mods");
+				std::string filename = lowercase(fs::GetFilenameFromPath(abs_path.c_str()));
+				// By writing to any of these a malicious mod could turn itself into
+				// an existing trusted mod by renaming or becoming a modpack.
+				bool is_dangerous_file = filename == "mod.conf" ||
+						filename == "modpack.conf" ||
+						filename == "modpack.txt";
+				if (write_required) {
+					if (is_trusted) {
+						throw LuaError(
+								"Unable to write to a trusted or http mod's directory. "
+								"For data storage consider minetest.get_mod_data_path() or minetest.get_worldpath() instead.");
+					} else if (is_dangerous_file) {
+						throw LuaError(
+								"Unable to write to special file for security reasons");
+					} else {
+						const char *message =
+								"Writing to mod directories is deprecated, as any changes "
+								"will be overwritten when updating content. "
+								"For data storage consider minetest.get_mod_data_path() or minetest.get_worldpath() instead.";
+						log_deprecated(L, message, 1);
 					}
-					if (write_allowed) *write_allowed = !is_trusted && !is_dangerous_file;
-					return true;
 				}
+				set_write_allowed(!is_trusted && !is_dangerous_file);
+				return true;
 			}
 		}
 	}
@@ -624,9 +664,8 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 		const SubgameSpec *game_spec = gamedef->getGameSpec();
 		if (game_spec && !game_spec->path.empty()) {
 			str = fs::AbsolutePath(game_spec->path);
-			if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
+			if (!str.empty() && fs::PathStartsWith(abs_path, str))
 				return true;
-			}
 		}
 	}
 
@@ -635,16 +674,15 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 		const std::vector<ModSpec> &mods = gamedef->getMods();
 		for (const ModSpec &mod : mods) {
 			str = fs::AbsolutePath(mod.path);
-			if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
+			if (!str.empty() && fs::PathStartsWith(abs_path, str))
 				return true;
-			}
 		}
 	}
 
 	// Allow read/write access to all mod common dirs
 	str = fs::AbsolutePath(gamedef->getModDataPath());
 	if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
-		if (write_allowed) *write_allowed = true;
+		set_write_allowed(true);
 		return true;
 	}
 
@@ -662,12 +700,11 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 		}
 		// Allow all other paths in world path
 		if (fs::PathStartsWith(abs_path, str)) {
-			if (write_allowed) *write_allowed = true;
+			set_write_allowed(true);
 			return true;
 		}
 	}
 
-	// Default to disallowing
 	return false;
 }
 

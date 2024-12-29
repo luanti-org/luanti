@@ -33,16 +33,13 @@ Clouds::Clouds(scene::ISceneManager* mgr, IShaderSource *ssrc,
 	m_seed(seed)
 {
 	assert(ssrc);
-	m_enable_shaders = g_settings->getBool("enable_shaders");
 
 	m_material.BackfaceCulling = true;
 	m_material.FogEnable = true;
 	m_material.AntiAliasing = video::EAAM_SIMPLE;
-	if (m_enable_shaders) {
-		auto sid = ssrc->getShader("cloud_shader", TILE_MATERIAL_ALPHA);
+	{
+		auto sid = ssrc->getShaderRaw("cloud_shader", true);
 		m_material.MaterialType = ssrc->getShaderInfo(sid).material;
-	} else {
-		m_material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 	}
 
 	m_params = SkyboxDefaults::getCloudDefaults();
@@ -119,15 +116,11 @@ void Clouds::updateMesh()
 
 	// Colors with primitive shading
 
-	video::SColorf c_top_f(m_color);
-	video::SColorf c_side_1_f(m_color);
-	video::SColorf c_side_2_f(m_color);
-	video::SColorf c_bottom_f(m_color);
-	if (m_enable_shaders) {
-		// shader mixes the base color, set via ColorParam
-		c_top_f = c_side_1_f = c_side_2_f = c_bottom_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);
-	}
-	video::SColorf shadow = m_params.color_shadow;
+	video::SColorf c_top_f(1, 1, 1, 1);
+	video::SColorf c_side_1_f(1, 1, 1, 1);
+	video::SColorf c_side_2_f(1, 1, 1, 1);
+	video::SColorf c_bottom_f(1, 1, 1, 1);
+	const video::SColorf shadow = m_params.color_shadow;
 
 	c_side_1_f.r *= shadow.r * 0.25f + 0.75f;
 	c_side_1_f.g *= shadow.g * 0.25f + 0.75f;
@@ -385,8 +378,7 @@ void Clouds::render()
 	}
 
 	m_material.BackfaceCulling = is3D();
-	if (m_enable_shaders)
-		m_material.ColorParam = m_color.toSColor();
+	m_material.ColorParam = m_color.toSColor();
 
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 	driver->setMaterial(m_material);

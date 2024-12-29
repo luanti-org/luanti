@@ -44,4 +44,18 @@ private:
 	void configureMaterial();
 };
 
+
+class ResolveMSAAStep : public TrivialRenderStep
+{
+public:
+	ResolveMSAAStep(TextureBufferOutput *_msaa_fbo, TextureBufferOutput *_target_fbo) :
+			msaa_fbo(_msaa_fbo), target_fbo(_target_fbo) {};
+	void run(PipelineContext &context) override;
+
+private:
+	TextureBufferOutput *msaa_fbo;
+	TextureBufferOutput *target_fbo;
+};
+
+
 RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep, v2f scale, Client *client);

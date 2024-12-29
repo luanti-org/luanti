@@ -50,6 +50,15 @@ public:
 	u32 queueAsync(std::string &&serialized_func,
 		PackedValue *param, const std::string &mod_origin);
 
+protected:
+	// from ScriptApiSecurity:
+	bool checkPathInternal(const std::string &abs_path, bool write_required,
+		bool *write_allowed) override {
+		return ScriptApiSecurity::checkPathWithGamedef(getStack(),
+			abs_path, write_required, write_allowed);
+	}
+	bool modNamesAreTrusted() override { return true; }
+
 private:
 	void InitializeModApi(lua_State *L, int top);
 

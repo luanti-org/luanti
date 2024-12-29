@@ -22,9 +22,6 @@ struct SSkinMeshBuffer final : public IMeshBuffer
 			VertexType(vt), PrimitiveType(EPT_TRIANGLES),
 			BoundingBoxNeedsRecalculated(true)
 	{
-#ifdef _DEBUG
-		setDebugName("SSkinMeshBuffer");
-#endif
 		Vertices_Tangents = new SVertexBufferTangents();
 		Vertices_2TCoords = new SVertexBufferLightMap();
 		Vertices_Standard = new SVertexBuffer();
@@ -231,7 +228,7 @@ public:
 	video::SMaterial Material;
 	video::E_VERTEX_TYPE VertexType;
 
-	core::aabbox3d<f32> BoundingBox;
+	core::aabbox3d<f32> BoundingBox{{0, 0, 0}};
 
 	//! Primitive type used for rendering (triangles, lines, ...)
 	E_PRIMITIVE_TYPE PrimitiveType;

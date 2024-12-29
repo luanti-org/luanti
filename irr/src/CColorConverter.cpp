@@ -7,97 +7,19 @@
 #include "os.h"
 #include "irrString.h"
 
+// Warning: The naming of Irrlicht color formats
+// is not consistent regarding actual component order in memory.
+// E.g. in CImage, ECF_R8G8B8 is handled per-byte and stored as [R][G][B] in memory
+// while ECF_A8R8G8B8 is handled as an u32 0xAARRGGBB so [B][G][R][A] (little endian) in memory.
+// The conversions suffer from the same inconsistencies, e.g.
+// convert_R8G8B8toA8R8G8B8 converts [R][G][B] into 0xFFRRGGBB = [B][G][R][FF] (little endian);
+// convert_A1R5G5B5toR8G8B8 converts 0bARRRRRGGGGGBBBBB into [R][G][B].
+// This also means many conversions may be broken on big endian.
+
 namespace irr
 {
 namespace video
 {
-
-//! converts a monochrome bitmap to A1R5G5B5 data
-void CColorConverter::convert1BitTo16Bit(const u8 *in, s16 *out, s32 width, s32 height, s32 linepad, bool flip)
-{
-	if (!in || !out)
-		return;
-
-	if (flip)
-		out += width * height;
-
-	for (s32 y = 0; y < height; ++y) {
-		s32 shift = 7;
-		if (flip)
-			out -= width;
-
-		for (s32 x = 0; x < width; ++x) {
-			out[x] = *in >> shift & 0x01 ? (s16)0xffff : (s16)0x8000;
-
-			if ((--shift) < 0) { // 8 pixel done
-				shift = 7;
-				++in;
-			}
-		}
-
-		if (shift != 7) // width did not fill last byte
-			++in;
-
-		if (!flip)
-			out += width;
-		in += linepad;
-	}
-}
-
-//! converts a 4 bit palettized image to A1R5G5B5
-void CColorConverter::convert4BitTo16Bit(const u8 *in, s16 *out, s32 width, s32 height, const s32 *palette, s32 linepad, bool flip)
-{
-	if (!in || !out || !palette)
-		return;
-
-	if (flip)
-		out += width * height;
-
-	for (s32 y = 0; y < height; ++y) {
-		s32 shift = 4;
-		if (flip)
-			out -= width;
-
-		for (s32 x = 0; x < width; ++x) {
-			out[x] = X8R8G8B8toA1R5G5B5(palette[(u8)((*in >> shift) & 0xf)]);
-
-			if (shift == 0) {
-				shift = 4;
-				++in;
-			} else
-				shift = 0;
-		}
-
-		if (shift == 0) // odd width
-			++in;
-
-		if (!flip)
-			out += width;
-		in += linepad;
-	}
-}
-
-//! converts a 8 bit palettized image into A1R5G5B5
-void CColorConverter::convert8BitTo16Bit(const u8 *in, s16 *out, s32 width, s32 height, const s32 *palette, s32 linepad, bool flip)
-{
-	if (!in || !out || !palette)
-		return;
-
-	if (flip)
-		out += width * height;
-
-	for (s32 y = 0; y < height; ++y) {
-		if (flip)
-			out -= width; // one line back
-		for (s32 x = 0; x < width; ++x) {
-			out[x] = X8R8G8B8toA1R5G5B5(palette[(u8)(*in)]);
-			++in;
-		}
-		if (!flip)
-			out += width;
-		in += linepad;
-	}
-}
 
 //! converts a 8 bit palettized or non palettized image (A8) into R8G8B8
 void CColorConverter::convert8BitTo24Bit(const u8 *in, u8 *out, s32 width, s32 height, const u8 *palette, s32 linepad, bool flip)
@@ -480,19 +402,6 @@ void CColorConverter::convert_R8G8B8toA1R5G5B5(const void *sP, s32 sN, void *dP)
 	}
 }
 
-void CColorConverter::convert_B8G8R8toA8R8G8B8(const void *sP, s32 sN, void *dP)
-{
-	u8 *sB = (u8 *)sP;
-	u32 *dB = (u32 *)dP;
-
-	for (s32 x = 0; x < sN; ++x) {
-		*dB = 0xff000000 | (sB[2] << 16) | (sB[1] << 8) | sB[0];
-
-		sB += 3;
-		++dB;
-	}
-}
-
 void CColorConverter::convert_A8R8G8B8toR8G8B8A8(const void *sP, s32 sN, void *dP)
 {
 	const u32 *sB = (const u32 *)sP;
@@ -512,22 +421,6 @@ void CColorConverter::convert_A8R8G8B8toA8B8G8R8(const void *sP, s32 sN, void *d
 	for (s32 x = 0; x < sN; ++x) {
 		*dB++ = (*sB & 0xff00ff00) | ((*sB & 0x00ff0000) >> 16) | ((*sB & 0x000000ff) << 16);
 		++sB;
-	}
-}
-
-void CColorConverter::convert_B8G8R8A8toA8R8G8B8(const void *sP, s32 sN, void *dP)
-{
-	u8 *sB = (u8 *)sP;
-	u8 *dB = (u8 *)dP;
-
-	for (s32 x = 0; x < sN; ++x) {
-		dB[0] = sB[3];
-		dB[1] = sB[2];
-		dB[2] = sB[1];
-		dB[3] = sB[0];
-
-		sB += 4;
-		dB += 4;
 	}
 }
 

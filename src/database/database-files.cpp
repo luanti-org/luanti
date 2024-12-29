@@ -43,7 +43,7 @@ void PlayerDatabaseFiles::deSerialize(RemotePlayer *p, std::istream &is,
 		}
 
 		try {
-			sao->setBasePosition(args.getV3F("position"));
+			sao->setBasePosition(args.getV3F("position").value_or(v3f()));
 		} catch (SettingNotFoundException &e) {}
 
 		try {

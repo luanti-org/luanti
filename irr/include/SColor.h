@@ -72,10 +72,16 @@ enum ECOLOR_FORMAT
 	//! 32 bit format using 16 bits for the red and green channels.
 	ECF_R16G16,
 
+	//! 32 bit format using 10 bits for R, G, B and 2 for alpha.
+	ECF_A2R10G10B10,
+
 	/** Depth and stencil formats. */
 
 	//! 16 bit format using 16 bits for depth.
 	ECF_D16,
+
+	//! 32 bit(?) format using 24 bits for depth.
+	ECF_D24,
 
 	//! 32 bit format using 32 bits for depth.
 	ECF_D32,
@@ -88,7 +94,7 @@ enum ECOLOR_FORMAT
 };
 
 //! Names for ECOLOR_FORMAT types
-const c8 *const ColorFormatNames[ECF_UNKNOWN + 2] = {
+const c8 *const ColorFormatNames[] = {
 		"A1R5G5B5",
 		"R5G6B5",
 		"R8G8B8",
@@ -103,12 +109,17 @@ const c8 *const ColorFormatNames[ECF_UNKNOWN + 2] = {
 		"R8G8",
 		"R16",
 		"R16G16",
+		"A2R10G10B10",
 		"D16",
+		"D24",
 		"D32",
 		"D24S8",
 		"UNKNOWN",
 		0,
 	};
+
+static_assert(sizeof(ColorFormatNames) / sizeof(ColorFormatNames[0])
+	== ECF_UNKNOWN + 2, "name table size mismatch");
 
 //! Creates a 16 bit A1R5G5B5 color
 inline u16 RGBA16(u32 r, u32 g, u32 b, u32 a = 0xFF)
@@ -220,12 +231,6 @@ inline u32 getBlue(u16 color)
 	return (color & 0x1F);
 }
 
-//! Returns the average from a 16 bit A1R5G5B5 color
-inline s32 getAverage(s16 color)
-{
-	return ((getRed(color) << 3) + (getGreen(color) << 3) + (getBlue(color) << 3)) / 3;
-}
-
 //! Class representing a 32 bit ARGB color.
 /** The color values for alpha, red, green, and blue are
 stored in a single u32. So all four values may be between 0 and 255.
@@ -271,22 +276,10 @@ public:
 	0 means no blue, 255 means full blue. */
 	u32 getBlue() const { return color & 0xff; }
 
-	//! Get lightness of the color in the range [0,255]
-	f32 getLightness() const
-	{
-		return 0.5f * (core::max_(core::max_(getRed(), getGreen()), getBlue()) + core::min_(core::min_(getRed(), getGreen()), getBlue()));
-	}
-
-	//! Get luminance of the color in the range [0,255].
-	f32 getLuminance() const
+	//! Get an approximate brightness value of the color in the range [0,255]
+	f32 getBrightness() const
 	{
 		return 0.3f * getRed() + 0.59f * getGreen() + 0.11f * getBlue();
-	}
-
-	//! Get average intensity of the color in the range [0,255].
-	u32 getAverage() const
-	{
-		return (getRed() + getGreen() + getBlue()) / 3;
 	}
 
 	//! Sets the alpha component of the Color.
@@ -358,9 +351,9 @@ public:
 	/** \return True if this color is smaller than the other one */
 	bool operator<(const SColor &other) const { return (color < other.color); }
 
-	//! Adds two colors, result is clamped to 0..255 values
+	//! Adds two colors in a gamma-incorrect way
 	/** \param other Color to add to this color
-	\return Addition of the two colors, clamped to 0..255 values */
+	\return Sum of the two non-linear colors, clamped to 0..255 values */
 	SColor operator+(const SColor &other) const
 	{
 		return SColor(core::min_(getAlpha() + other.getAlpha(), 255u),
@@ -370,7 +363,9 @@ public:
 	}
 
 	//! Interpolates the color with a f32 value to another color
-	/** \param other: Other color
+	/** Note that the interpolation is neither physically nor perceptually
+	linear since it happens directly in the sRGB color space.
+	\param other: Other color
 	\param d: value between 0.0f and 1.0f. d=0 returns other, d=1 returns this, values between interpolate.
 	\return Interpolated color. */
 	SColor getInterpolated(const SColor &other, f32 d) const
@@ -381,34 +376,6 @@ public:
 				(u32)core::round32(other.getRed() * inv + getRed() * d),
 				(u32)core::round32(other.getGreen() * inv + getGreen() * d),
 				(u32)core::round32(other.getBlue() * inv + getBlue() * d));
-	}
-
-	//! Returns interpolated color. ( quadratic )
-	/** \param c1: first color to interpolate with
-	\param c2: second color to interpolate with
-	\param d: value between 0.0f and 1.0f. */
-	SColor getInterpolated_quadratic(const SColor &c1, const SColor &c2, f32 d) const
-	{
-		// this*(1-d)*(1-d) + 2 * c1 * (1-d) + c2 * d * d;
-		d = core::clamp(d, 0.f, 1.f);
-		const f32 inv = 1.f - d;
-		const f32 mul0 = inv * inv;
-		const f32 mul1 = 2.f * d * inv;
-		const f32 mul2 = d * d;
-
-		return SColor(
-				core::clamp(core::floor32(
-									getAlpha() * mul0 + c1.getAlpha() * mul1 + c2.getAlpha() * mul2),
-						0, 255),
-				core::clamp(core::floor32(
-									getRed() * mul0 + c1.getRed() * mul1 + c2.getRed() * mul2),
-						0, 255),
-				core::clamp(core::floor32(
-									getGreen() * mul0 + c1.getGreen() * mul1 + c2.getGreen() * mul2),
-						0, 255),
-				core::clamp(core::floor32(
-									getBlue() * mul0 + c1.getBlue() * mul1 + c2.getBlue() * mul2),
-						0, 255));
 	}
 
 	//! set the color by expecting data in the given format
@@ -504,7 +471,7 @@ public:
 	SColorf(f32 r, f32 g, f32 b, f32 a = 1.0f) :
 			r(r), g(g), b(b), a(a) {}
 
-	//! Constructs a color from 32 bit Color.
+	//! Constructs a color from 32 bit Color without gamma correction
 	/** \param c: 32 bit color from which this SColorf class is
 	constructed from. */
 	SColorf(SColor c)
@@ -516,7 +483,7 @@ public:
 		a = c.getAlpha() * inv;
 	}
 
-	//! Converts this color to a SColor without floats.
+	//! Converts this color to a SColor without gamma correction
 	SColor toSColor() const
 	{
 		return SColor((u32)core::round32(a * 255.0f), (u32)core::round32(r * 255.0f), (u32)core::round32(g * 255.0f), (u32)core::round32(b * 255.0f));
@@ -554,7 +521,9 @@ public:
 	}
 
 	//! Interpolates the color with a f32 value to another color
-	/** \param other: Other color
+	/** Note that the interpolation is neither physically nor perceptually
+	linear if it happens directly in the sRGB color space.
+	\param other: Other color
 	\param d: value between 0.0f and 1.0f
 	\return Interpolated color. */
 	SColorf getInterpolated(const SColorf &other, f32 d) const
@@ -563,45 +532,6 @@ public:
 		const f32 inv = 1.0f - d;
 		return SColorf(other.r * inv + r * d,
 				other.g * inv + g * d, other.b * inv + b * d, other.a * inv + a * d);
-	}
-
-	//! Returns interpolated color. ( quadratic )
-	/** \param c1: first color to interpolate with
-	\param c2: second color to interpolate with
-	\param d: value between 0.0f and 1.0f. */
-	inline SColorf getInterpolated_quadratic(const SColorf &c1, const SColorf &c2,
-			f32 d) const
-	{
-		d = core::clamp(d, 0.f, 1.f);
-		// this*(1-d)*(1-d) + 2 * c1 * (1-d) + c2 * d * d;
-		const f32 inv = 1.f - d;
-		const f32 mul0 = inv * inv;
-		const f32 mul1 = 2.f * d * inv;
-		const f32 mul2 = d * d;
-
-		return SColorf(r * mul0 + c1.r * mul1 + c2.r * mul2,
-				g * mul0 + c1.g * mul1 + c2.g * mul2,
-				b * mul0 + c1.b * mul1 + c2.b * mul2,
-				a * mul0 + c1.a * mul1 + c2.a * mul2);
-	}
-
-	//! Sets a color component by index. R=0, G=1, B=2, A=3
-	void setColorComponentValue(s32 index, f32 value)
-	{
-		switch (index) {
-		case 0:
-			r = value;
-			break;
-		case 1:
-			g = value;
-			break;
-		case 2:
-			b = value;
-			break;
-		case 3:
-			a = value;
-			break;
-		}
 	}
 
 	//! Returns the alpha component of the color in the range 0.0 (transparent) to 1.0 (opaque)

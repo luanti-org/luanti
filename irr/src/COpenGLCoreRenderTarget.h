@@ -5,6 +5,7 @@
 #pragma once
 
 #include "IRenderTarget.h"
+#include <stdexcept>
 
 #ifndef GL_FRAMEBUFFER_INCOMPLETE_FORMATS
 #define GL_FRAMEBUFFER_INCOMPLETE_FORMATS GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT
@@ -27,10 +28,6 @@ public:
 			AssignedDepth(false), AssignedStencil(false), RequestTextureUpdate(false), RequestDepthStencilUpdate(false),
 			BufferID(0), ColorAttachment(0), MultipleRenderTarget(0), Driver(driver)
 	{
-#ifdef _DEBUG
-		setDebugName("COpenGLCoreRenderTarget");
-#endif
-
 		DriverType = Driver->getDriverType();
 
 		Size = Driver->getScreenSize();
@@ -122,7 +119,7 @@ public:
 			TOpenGLTexture *currentTexture = (depthStencil && depthStencil->getDriverType() == DriverType) ? static_cast<TOpenGLTexture *>(depthStencil) : 0;
 
 			if (currentTexture) {
-				if (currentTexture->getType() == ETT_2D) {
+				if (currentTexture->getType() == ETT_2D || currentTexture->getType() == ETT_2D_MS) {
 					GLuint textureID = currentTexture->getOpenGLTextureName();
 
 					const ECOLOR_FORMAT textureFormat = (textureID != 0) ? depthStencil->getColorFormat() : ECF_UNKNOWN;
@@ -172,7 +169,20 @@ public:
 
 					if (textureID != 0) {
 						AssignedTextures[i] = GL_COLOR_ATTACHMENT0 + i;
-						GLenum textarget = currentTexture->getType() == ETT_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)CubeSurfaces[i];
+						GLenum textarget;
+						switch (currentTexture->getType()) {
+						case ETT_2D:
+							textarget = GL_TEXTURE_2D;
+							break;
+						case ETT_2D_MS:
+							textarget = GL_TEXTURE_2D_MULTISAMPLE;
+							break;
+						case ETT_CUBEMAP:
+							textarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)CubeSurfaces[i];
+							break;
+						default:
+							throw std::logic_error("not reachable");
+						}
 						Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, AssignedTextures[i], textarget, textureID, 0);
 						TEST_GL_ERROR(Driver);
 					} else if (AssignedTextures[i] != GL_NONE) {
@@ -198,36 +208,50 @@ public:
 			// Set depth and stencil attachments.
 
 			if (RequestDepthStencilUpdate) {
-				const ECOLOR_FORMAT textureFormat = (DepthStencil) ? DepthStencil->getColorFormat() : ECF_UNKNOWN;
+				const ECOLOR_FORMAT textureFormat = DepthStencil ? DepthStencil->getColorFormat() : ECF_UNKNOWN;
 
 				if (IImage::isDepthFormat(textureFormat)) {
+					GLenum textarget;
+					switch (DepthStencil->getType()) {
+					case ETT_2D:
+						textarget = GL_TEXTURE_2D;
+						break;
+					case ETT_2D_MS:
+						textarget = GL_TEXTURE_2D_MULTISAMPLE;
+						break;
+					default:
+						// ETT_CUBEMAP is rejected for depth/stencil by setTextures
+						throw std::logic_error("not reachable");
+					}
+
 					GLuint textureID = static_cast<TOpenGLTexture *>(DepthStencil)->getOpenGLTextureName();
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_ // The WEBGL_depth_texture extension does not allow attaching stencil+depth separate.
 					if (textureFormat == ECF_D24S8) {
 						GLenum attachment = 0x821A; // GL_DEPTH_STENCIL_ATTACHMENT
-						Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, textureID, 0);
+						Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textarget, textureID, 0);
 						AssignedStencil = true;
 					} else {
-						Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureID, 0);
+						Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textarget, textureID, 0);
 						AssignedStencil = false;
 					}
 #else
-					Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureID, 0);
+					Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textarget, textureID, 0);
 
 					if (textureFormat == ECF_D24S8) {
-						Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, textureID, 0);
+						Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, textarget, textureID, 0);
 
 						AssignedStencil = true;
 					} else {
 						if (AssignedStencil)
-							Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+							Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, textarget, 0, 0);
 
 						AssignedStencil = false;
 					}
 #endif
 					AssignedDepth = true;
 				} else {
+					// No (valid) depth/stencil texture.
 					if (AssignedDepth)
 						Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 

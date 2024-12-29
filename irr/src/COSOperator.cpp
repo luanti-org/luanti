@@ -43,11 +43,7 @@ COSOperator::COSOperator(const core::stringc &osVersion, CIrrDeviceLinux *device
 // constructor
 COSOperator::COSOperator(const core::stringc &osVersion) :
 		OperatingSystem(osVersion)
-{
-#ifdef _DEBUG
-	setDebugName("COSOperator");
-#endif
-}
+{}
 
 COSOperator::~COSOperator()
 {

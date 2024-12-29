@@ -8,7 +8,7 @@
 #include "nodedef.h"
 #include "map.h"
 #include "content_mapnode.h" // For mapnode_translate_*_internal
-#include "serialization.h" // For ser_ver_supported
+#include "serialization.h" // For ser_ver_supported_*
 #include "util/serialize.h"
 #include "log.h"
 #include "util/directiontables.h"
@@ -620,7 +620,7 @@ s8 MapNode::addLevel(const NodeDefManager *nodemgr, s16 add)
 
 u32 MapNode::serializedLength(u8 version)
 {
-	if(!ser_ver_supported(version))
+	if (!ser_ver_supported_read(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	if (version == 0)
@@ -636,7 +636,7 @@ u32 MapNode::serializedLength(u8 version)
 }
 void MapNode::serialize(u8 *dest, u8 version) const
 {
-	if(!ser_ver_supported(version))
+	if (!ser_ver_supported_write(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	// Can't do this anymore; we have 16-bit dynamically allocated node IDs
@@ -651,7 +651,7 @@ void MapNode::serialize(u8 *dest, u8 version) const
 }
 void MapNode::deSerialize(u8 *source, u8 version)
 {
-	if(!ser_ver_supported(version))
+	if (!ser_ver_supported_read(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	if(version <= 21)
@@ -679,17 +679,11 @@ Buffer<u8> MapNode::serializeBulk(int version,
 		const MapNode *nodes, u32 nodecount,
 		u8 content_width, u8 params_width)
 {
-	if (!ser_ver_supported(version))
+	if (!ser_ver_supported_write(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	sanity_check(content_width == 2);
 	sanity_check(params_width == 2);
-
-	// Can't do this anymore; we have 16-bit dynamically allocated node IDs
-	// in memory; conversion just won't work in this direction.
-	if (version < 24)
-		throw SerializationError("MapNode::serializeBulk: serialization to "
-				"version < 24 not possible");
 
 	Buffer<u8> databuf(nodecount * (content_width + params_width));
 
@@ -712,13 +706,13 @@ void MapNode::deSerializeBulk(std::istream &is, int version,
 		MapNode *nodes, u32 nodecount,
 		u8 content_width, u8 params_width)
 {
-	if(!ser_ver_supported(version))
+	if (!ser_ver_supported_read(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	if (version < 22
 			|| (content_width != 1 && content_width != 2)
 			|| params_width != 2)
-		FATAL_ERROR("Deserialize bulk node data error");
+		throw SerializationError("Deserialize bulk node data error");
 
 	// read data
 	const u32 len = nodecount * (content_width + params_width);

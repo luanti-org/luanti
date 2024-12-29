@@ -21,9 +21,6 @@ struct SAnimatedMesh final : public IAnimatedMesh
 	SAnimatedMesh(scene::IMesh *mesh = 0, scene::E_ANIMATED_MESH_TYPE type = scene::EAMT_UNKNOWN) :
 			IAnimatedMesh(), FramesPerSecond(25.f), Type(type)
 	{
-#ifdef _DEBUG
-		setDebugName("SAnimatedMesh");
-#endif
 		addMesh(mesh);
 		recalculateBoundingBox();
 	}
@@ -157,7 +154,7 @@ struct SAnimatedMesh final : public IAnimatedMesh
 	std::vector<IMesh *> Meshes;
 
 	//! The bounding box of this mesh
-	core::aabbox3d<f32> Box;
+	core::aabbox3d<f32> Box{{0.0f, 0.0f, 0.0f}};
 
 	//! Default animation speed of this mesh.
 	f32 FramesPerSecond;

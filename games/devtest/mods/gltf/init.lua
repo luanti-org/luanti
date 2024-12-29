@@ -55,6 +55,20 @@ core.register_entity("gltf:simple_skin", {
 	end
 })
 
+core.register_entity("gltf:simple_skin_step", {
+	initial_properties = {
+		infotext = "Simple skin, but using STEP interpolation",
+		visual = "mesh",
+		visual_size = vector.new(5, 5, 5),
+		mesh = "gltf_simple_skin_step.gltf",
+		textures = {},
+		backface_culling = false
+	},
+	on_activate = function(self)
+		self.object:set_animation({x = 0, y = 5.5}, 1)
+	end
+})
+
 -- The claws rendering incorrectly from one side is expected behavior:
 -- They use an unsupported double-sided material.
 core.register_entity("gltf:frog", {

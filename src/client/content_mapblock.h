@@ -5,7 +5,6 @@
 #pragma once
 
 #include "nodedef.h"
-#include <IMeshManipulator.h>
 
 struct MeshMakeData;
 struct MeshCollector;
@@ -46,8 +45,7 @@ struct LightFrame {
 class MapblockMeshGenerator
 {
 public:
-	MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output,
-			scene::IMeshManipulator *mm);
+	MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output);
 	void generate();
     void generateLod();
 	void renderSingle(content_t node, u8 param2 = 0x00);
@@ -57,12 +55,8 @@ private:
 	MeshCollector *const collector;
 
 	const NodeDefManager *const nodedef;
-	scene::IMeshManipulator *const meshmanip;
 
 	const v3s16 blockpos_nodes;
-
-// options
-	const bool enable_mesh_cache;
 
 // current node
 	struct {

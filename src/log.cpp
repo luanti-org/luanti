@@ -105,7 +105,7 @@ void AndroidLogOutput::logRaw(LogLevel lev, std::string_view line)
 	static_assert(ARRLEN(g_level_to_android) == LL_MAX,
 		"mismatch between android and internal loglevels");
 	__android_log_print(g_level_to_android[lev], PROJECT_NAME_C, "%.*s",
-		line.size(), line.data());
+		static_cast<int>(line.size()), line.data());
 }
 #endif
 

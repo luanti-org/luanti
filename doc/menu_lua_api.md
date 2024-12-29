@@ -1,4 +1,4 @@
-Luanti Lua Mainmenu API Reference 5.10.0
+Luanti Lua Mainmenu API Reference 5.11.0
 ========================================
 
 Introduction
@@ -223,6 +223,7 @@ GUI
 * `core.set_clouds(<true/false>)`
 * `core.set_topleft_text(text)`
 * `core.show_keys_menu()`
+* `core.show_touchscreen_layout()`
 * `core.show_path_select_dialog(formname, caption, is_file_select)`
   * shows a path select dialog
   * `formname` is base name of dialog response returned in fields

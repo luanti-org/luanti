@@ -24,5 +24,19 @@ public:
 
 	~DummyMap() = default;
 
+	void fill(v3s16 bpmin, v3s16 bpmax, MapNode n)
+	{
+		for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
+		for (s16 y = bpmin.Y; y <= bpmax.Y; y++)
+		for (s16 x = bpmin.X; x <= bpmax.X; x++) {
+			MapBlock *block = getBlockNoCreateNoEx({x, y, z});
+			if (block) {
+				for (size_t i = 0; i < MapBlock::nodecount; i++)
+					block->getData()[i] = n;
+				block->expireIsAirCache();
+			}
+		}
+	}
+
 	bool maySaveBlocks() override { return false; }
 };

@@ -32,11 +32,7 @@ COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters &params, io::IFil
 		CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(), CacheHandler(0), CurrentRenderMode(ERM_NONE), ResetRenderStates(true),
 		Transformation3DChanged(true), AntiAlias(params.AntiAlias), ColorFormat(ECF_R8G8B8), FixedPipelineState(EOFPS_ENABLE), Params(params),
 		ContextManager(contextManager)
-{
-#ifdef _DEBUG
-	setDebugName("COpenGLDriver");
-#endif
-}
+{}
 
 bool COpenGLDriver::initDriver()
 {
@@ -122,7 +118,6 @@ bool COpenGLDriver::genericDriverInit()
 		os::Printer::log("GLSL not available.", ELL_INFORMATION);
 	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.MaxTextureUnits);
 	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxLights", MaxLights);
 	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
 	DriverAttributes->setAttribute("MaxAuxBuffers", MaxAuxBuffers);
 	DriverAttributes->setAttribute("MaxMultipleRenderTargets", (s32)Feature.MultipleRenderTarget);
@@ -138,13 +133,6 @@ bool COpenGLDriver::genericDriverInit()
 
 	for (i = 0; i < ETS_COUNT; ++i)
 		setTransform(static_cast<E_TRANSFORMATION_STATE>(i), core::IdentityMatrix);
-
-	setAmbientLight(SColorf(0.0f, 0.0f, 0.0f, 0.0f));
-#ifdef GL_EXT_separate_specular_color
-	if (FeatureAvailable[IRR_EXT_separate_specular_color])
-		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-#endif
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
 
 	// This is a fast replacement for NORMALIZE_NORMALS
 	//	if ((Version>101) || FeatureAvailable[IRR_EXT_rescale_normal])
@@ -649,6 +637,29 @@ IRenderTarget *COpenGLDriver::addRenderTarget()
 	RenderTargets.push_back(renderTarget);
 
 	return renderTarget;
+}
+
+void COpenGLDriver::blitRenderTarget(IRenderTarget *from, IRenderTarget *to)
+{
+	if (Version < 300) {
+		os::Printer::log("glBlitFramebuffer not supported by OpenGL < 3.0", ELL_ERROR);
+		return;
+	}
+
+	GLuint prev_fbo_id;
+	CacheHandler->getFBO(prev_fbo_id);
+
+	COpenGLRenderTarget *src = static_cast<COpenGLRenderTarget *>(from);
+	COpenGLRenderTarget *dst = static_cast<COpenGLRenderTarget *>(to);
+	GL.BindFramebuffer(GL.READ_FRAMEBUFFER, src->getBufferID());
+	GL.BindFramebuffer(GL.DRAW_FRAMEBUFFER, dst->getBufferID());
+	GL.BlitFramebuffer(
+			0, 0, src->getSize().Width, src->getSize().Height,
+			0, 0, dst->getSize().Width, dst->getSize().Height,
+			GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT, GL.NEAREST);
+
+	// This resets both read and draw framebuffer. Note that we bypass CacheHandler here.
+	GL.BindFramebuffer(GL.FRAMEBUFFER, prev_fbo_id);
 }
 
 // small helper function to create vertex buffer object address offsets
@@ -2091,7 +2102,9 @@ void COpenGLDriver::setBasicRenderStates(const SMaterial &material, const SMater
 		else if (lastmaterial.AntiAliasing & EAAM_ALPHA_TO_COVERAGE)
 			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
 
-		if ((AntiAlias >= 2) && (material.AntiAliasing & (EAAM_SIMPLE | EAAM_QUALITY))) {
+		// Enable MSAA even if it's not enabled in the OpenGL context, we might
+		// be rendering to an FBO with multisampling.
+		if (material.AntiAliasing & (EAAM_SIMPLE | EAAM_QUALITY)) {
 			glEnable(GL_MULTISAMPLE_ARB);
 #ifdef GL_NV_multisample_filter_hint
 			if (FeatureAvailable[IRR_NV_multisample_filter_hint]) {
@@ -2395,16 +2408,6 @@ const char *COpenGLDriver::getName() const
 	return Name.c_str();
 }
 
-//! Sets the dynamic ambient light color. The default color is
-//! (0,0,0,0) which means it is dark.
-//! \param color: New color of the ambient light.
-void COpenGLDriver::setAmbientLight(const SColorf &color)
-{
-	CNullDriver::setAmbientLight(color);
-	GLfloat data[4] = {color.r, color.g, color.b, color.a};
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, data);
-}
-
 // this code was sent in by Oliver Klems, thank you! (I modified the glViewport
 // method just a bit.
 void COpenGLDriver::setViewPort(const core::rect<s32> &area)
@@ -2695,6 +2698,12 @@ IVideoDriver *COpenGLDriver::getVideoDriver()
 ITexture *COpenGLDriver::addRenderTargetTexture(const core::dimension2d<u32> &size,
 		const io::path &name, const ECOLOR_FORMAT format)
 {
+	return addRenderTargetTextureMs(size, 0, name, format);
+}
+
+ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &size, u8 msaa,
+		const io::path &name, const ECOLOR_FORMAT format)
+{
 	if (IImage::isCompressedFormat(format))
 		return 0;
 
@@ -2711,7 +2720,7 @@ ITexture *COpenGLDriver::addRenderTargetTexture(const core::dimension2d<u32> &si
 		destSize = destSize.getOptimalSize((size == size.getOptimalSize()), false, false);
 	}
 
-	COpenGLTexture *renderTargetTexture = new COpenGLTexture(name, destSize, ETT_2D, format, this);
+	COpenGLTexture *renderTargetTexture = new COpenGLTexture(name, destSize, msaa > 0 ? ETT_2D_MS : ETT_2D, format, this, msaa);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
 
@@ -3239,19 +3248,9 @@ COpenGLCacheHandler *COpenGLDriver::getCacheHandler() const
 	return CacheHandler;
 }
 
-} // end namespace
-} // end namespace
-
-#endif // _IRR_COMPILE_WITH_OPENGL_
-
-namespace irr
-{
-namespace video
-{
 
 IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
 {
-#ifdef _IRR_COMPILE_WITH_OPENGL_
 	COpenGLDriver *ogl = new COpenGLDriver(params, io, contextManager);
 
 	if (!ogl->initDriver()) {
@@ -3260,10 +3259,8 @@ IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::
 	}
 
 	return ogl;
-#else
-	return 0;
-#endif
 }
 
-} // end namespace
-} // end namespace
+} // end namespace video
+} // end namespace irr
+#endif // opengl

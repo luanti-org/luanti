@@ -21,3 +21,4 @@ This list is largely advisory and items may be reevaluated once the time comes.
 * merge `sound` and `sounds` table in itemdef
 * remove `DIR_DELIM` from Lua
 * stop reading initial properties from bare entity def
+* change particle default blend mode to `clip`

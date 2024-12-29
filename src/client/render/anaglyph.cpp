@@ -21,8 +21,7 @@ void SetColorMaskStep::run(PipelineContext &context)
 	mat.Material.ColorMask = color_mask;
 	mat.EnableProps = video::EMP_COLOR_MASK;
 	mat.EnablePasses = scene::ESNRP_SKY_BOX | scene::ESNRP_SOLID |
-			   scene::ESNRP_TRANSPARENT | scene::ESNRP_TRANSPARENT_EFFECT |
-			   scene::ESNRP_SHADOW;
+			   scene::ESNRP_TRANSPARENT | scene::ESNRP_TRANSPARENT_EFFECT;
 }
 
 /// ClearDepthBufferTarget

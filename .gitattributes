@@ -5,3 +5,4 @@
 *.h diff=cpp
 
 *.gltf binary
+*.x binary

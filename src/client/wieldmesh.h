@@ -117,7 +117,6 @@ private:
 	scene::IMeshSceneNode *m_meshnode = nullptr;
 	video::E_MATERIAL_TYPE m_material_type;
 
-	bool m_enable_shaders;
 	bool m_anisotropic_filter;
 	bool m_bilinear_filter;
 	bool m_trilinear_filter;
@@ -135,7 +134,7 @@ private:
 	// Bounding box culling is disabled for this type of scene node,
 	// so this variable is just required so we can implement
 	// getBoundingBox() and is set to an empty box.
-	aabb3f m_bounding_box;
+	aabb3f m_bounding_box{{0, 0, 0}};
 
 	ShadowRenderer *m_shadow;
 };
@@ -152,6 +151,6 @@ scene::SMesh *getExtrudedMesh(ITextureSource *tsrc, const std::string &imagename
  * be NULL to leave the original material.
  * \param colors returns the colors of the mesh buffers in the mesh.
  */
-void postProcessNodeMesh(scene::SMesh *mesh, const ContentFeatures &f, bool use_shaders,
+void postProcessNodeMesh(scene::SMesh *mesh, const ContentFeatures &f,
 		bool set_material, const video::E_MATERIAL_TYPE *mattype,
 		std::vector<ItemPartColor> *colors, bool apply_scale = false);
