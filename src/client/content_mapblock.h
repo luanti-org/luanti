@@ -171,5 +171,5 @@ private:
 // common
 	void errorUnknownDrawtype();
 	void drawNode();
-    void generateFirstViable();
+    MapNode generateFirstViable(v3s16 p, s16 width);
 };

@@ -2510,18 +2510,18 @@ void Server::SendBlocks(float dtime)
 
 bool Server::SendBlock(session_t peer_id, const v3s16 &blockpos)
 {
-	MapBlock *block = m_env->getMap().getBlockNoCreateNoEx(blockpos);
-	if (!block)
-		return false;
+    MapBlock *block = m_env->getMap().getBlockNoCreateNoEx(blockpos);
+    if (!block)
+        return false;
 
-	ClientInterface::AutoLock clientlock(m_clients);
-	RemoteClient *client = m_clients.lockedGetClientNoEx(peer_id, CS_Active);
-	if (!client || client->isBlockSent(blockpos))
-		return false;
-	SendBlockNoLock(peer_id, block, client->serialization_version,
-			client->net_proto_version);
+    ClientInterface::AutoLock clientlock(m_clients);
+    RemoteClient *client = m_clients.lockedGetClientNoEx(peer_id, CS_Active);
+    if (!client || client->isBlockSent(blockpos))
+        return false;
+    SendBlockNoLock(peer_id, block, client->serialization_version,
+            client->net_proto_version);
 
-	return true;
+    return true;
 }
 
 bool Server::addMediaFile(const std::string &filename,

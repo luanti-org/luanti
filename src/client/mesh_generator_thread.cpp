@@ -74,6 +74,22 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	if (urgent)
 		m_urgents.insert(mesh_position);
 
+    /*
+     * Calculate LOD
+     */
+    v3f cam_pos = m_client->getCamera()->getPosition() * 0.1 / MAP_BLOCKSIZE;
+    v3f d = v3f{cam_pos.X - mesh_position.X,
+                        cam_pos.Y - mesh_position.Y,
+                        cam_pos.Z - mesh_position.Z};
+    u16 dist2 = d.X * d.X + d.Y * d.Y + d.Z * d.Z; // distance squared
+    u16 renderDist = g_settings->getU16("lod_threshold");;
+    u16 lod;
+    if (dist2 < renderDist) {
+        lod = 1;
+    } else {
+        lod = 2 << ((int) std::log2(dist2 / renderDist));
+    }
+
 	/*
 		Find if block is already in queue.
 		If it is, update the data and quit.
@@ -86,7 +102,15 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 				q->ack_list.push_back(p);
 			q->crack_level = m_client->getCrackLevel();
 			q->crack_pos = m_client->getCrackPos();
-			q->urgent |= urgent;
+            if (q->lod != lod) {
+                q->lod = lod;
+                q->urgent = true;
+            } else if (lod > 1) {
+                // lod blocks only need to be updated if the resolution changes, not for any other reason
+                return true;
+            } else {
+                q->urgent |= urgent;
+            }
 			v3s16 pos;
 			int i = 0;
 			for (pos.X = q->p.X - 1; pos.X <= q->p.X + mesh_grid.cell_size; pos.X++)
@@ -118,18 +142,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 		map_blocks.push_back(block);
 		if (block)
 			block->refGrab();
-	}
-
-    v3f cam_pos = m_client->getCamera()->getPosition() * 0.1 / MAP_BLOCKSIZE;
-    u16 dist = std::abs(cam_pos.X - mesh_position.X) //
-               + std::abs(cam_pos.Y - mesh_position.Y) //
-               + std::abs(cam_pos.Z - mesh_position.Z);
-    u16 renderDist = 10;
-    u16 lod;
-    if (dist < renderDist)
-        lod = 1;
-    else
-        lod = 2 << ((int) std::log2(dist / renderDist));
+    }
 
 	/*
 		Add the block

@@ -262,6 +262,9 @@ fps_max_unfocused (FPS when unfocused or paused) int 20 1 4294967295
 #    View distance in nodes.
 viewing_range (Viewing range) int 190 20 4000
 
+#    Squared distance of blocks (chunks) when LODs should kick in.
+lod_threshold (LOD Threshold) int 100 4 2000
+
 #    Undersampling is similar to using a lower screen resolution, but it applies
 #    to the game world only, keeping the GUI intact.
 #    It should give a significant performance boost at the cost of less detailed image.

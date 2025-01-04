@@ -633,7 +633,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 		- whatever
 	*/
 
-	{
+    {
 		MapblockMeshGenerator(data, &collector).generate();
 	}
 

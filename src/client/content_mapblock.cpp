@@ -342,9 +342,10 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box, const f32 *txc,
 		}
         box.MinEdge *= cur_node.f->visual_scale;
         box.MaxEdge *= cur_node.f->visual_scale;
-	}
-	box.MinEdge += cur_node.origin;
-	box.MaxEdge += cur_node.origin;
+    }
+
+    box.MinEdge += cur_node.origin;
+    box.MaxEdge += cur_node.origin;
 	if (!txc) {
 		generateCuboidTextureCoords(box, texture_coord_buf);
 		txc = texture_coord_buf;
@@ -406,12 +407,18 @@ void MapblockMeshGenerator::drawSolidNode()
     content_t n1 = cur_node.n.getContent();
     for (int face = 0; face < 6; face++) {
         v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face] * data->lod;
-        MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
+        MapNode neighbor;
+        s16 width = std::min(data->lod, data->side_length);
+        if (data->lod == 1)
+            neighbor = data->m_vmanip.getNodeNoEx(p2);
+        else
+            neighbor = generateFirstViable(p2, width);
         content_t n2 = neighbor.getContent();
         bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
         if (n2 == n1)
             continue;
-        if (n2 == CONTENT_IGNORE)// && data->lod == 1)
+        // LODs make this iffy, since we arent checking the immediate neighbor anymore, so we just skip this step
+        if (n2 == CONTENT_IGNORE && data->lod == 1)
             continue;
         if (n2 != CONTENT_AIR) {
             const ContentFeatures &f2 = nodedef->get(n2);
@@ -431,19 +438,22 @@ void MapblockMeshGenerator::drawSolidNode()
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_HORIZONTAL;
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_VERTICAL;
 		}
-        if (!data->m_smooth_lighting) {
+        if (data->lod != 1) {
+            lights[face] = 255;
+        } else if (!data->m_smooth_lighting) {
             lights[face] = getFaceLight(cur_node.n, neighbor, nodedef);
 		}
-	}
+    }
 	if (!faces)
-		return;
-	u8 mask = faces ^ 0b0011'1111; // k-th bit is set if k-th face is to be *omitted*, as expected by cuboid drawing functions.
-    cur_node.origin = intToFloat(cur_node.p, BS) - v3f{0, data->lod - 1, 0};
+        return;
+    u8 mask = faces ^ 0b0011'1111; // k-th bit is set if k-th face is to be *omitted*, as expected by cuboid drawing functions.
+    cur_node.origin = intToFloat(cur_node.p, BS);
     auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
     f32 texture_coord_buf[24];
     generateCuboidTextureCoords(box, texture_coord_buf);
-    box.MinEdge += cur_node.origin;
-    box.MaxEdge += cur_node.origin + (data->lod - 1) * BS;
+    f32 nodeWidth = (data->lod - 1) * BS;
+    box.MinEdge += cur_node.origin - v3f{0, nodeWidth, 0};
+    box.MaxEdge += cur_node.origin + v3f{nodeWidth, 0, nodeWidth};
     if (data->m_smooth_lighting) {
 		LightPair lights[6][4];
 		for (int face = 0; face < 6; ++face) {
@@ -1098,7 +1108,7 @@ void MapblockMeshGenerator::drawSignlikeNode()
 void MapblockMeshGenerator::drawPlantlikeQuad(float rotation, float quad_offset,
 	bool offset_top_only)
 {
-    const f32 scale = cur_node.scale * data->lod;
+    const f32 scale = cur_node.scale;// * data->lod; TODO
 	v3f vertices[4] = {
 		v3f(-scale, -BS / 2 + 2.0 * scale * cur_plant.plant_height, 0),
 		v3f( scale, -BS / 2 + 2.0 * scale * cur_plant.plant_height, 0),
@@ -1154,7 +1164,7 @@ void MapblockMeshGenerator::drawPlantlikeQuad(float rotation, float quad_offset,
 void MapblockMeshGenerator::drawPlantlike(bool is_rooted)
 {
 	cur_plant.draw_style = PLANT_STYLE_CROSS;
-    cur_node.scale = BS / 2 * cur_node.f->visual_scale;
+    cur_node.scale = BS / 2 * cur_node.f->visual_scale * data->lod;
 	cur_plant.offset = v3f(0, 0, 0);
 	cur_plant.rotate_degree = 0.0f;
 	cur_plant.random_offset_Y = false;
@@ -1187,7 +1197,6 @@ void MapblockMeshGenerator::drawPlantlike(bool is_rooted)
 	default:
 		break;
     }
-    cur_plant.offset -= v3f{0, data->lod * 0.5f, 0};
 
 	if (is_rooted) {
 		u8 wall = cur_node.n.getWallMounted(nodedef);
@@ -1204,6 +1213,9 @@ void MapblockMeshGenerator::drawPlantlike(bool is_rooted)
 				break;
 		}
 	}
+
+    f32 nodeWidth = (data->lod - 1) * BS * 0.5;
+    cur_plant.offset += v3f{nodeWidth, 0, nodeWidth};
 
 	switch (cur_plant.draw_style) {
 	case PLANT_STYLE_CROSS:
@@ -1579,7 +1591,7 @@ void MapblockMeshGenerator::drawNodeboxNode()
 	}
 
 	std::vector<aabb3f> boxes;
-	cur_node.n.getNodeBoxes(nodedef, &boxes, neighbors_set);
+    cur_node.n.getNodeBoxes(nodedef, &boxes, neighbors_set);
 
 	bool isTransparent = false;
 
@@ -1633,7 +1645,7 @@ void MapblockMeshGenerator::drawNodeboxNode()
 		}
 	}
 
-	for (auto &box : boxes) {
+    for (aabb3f &box : boxes) {
 		u8 mask = getNodeBoxMask(box, solid_neighbors, sametype_neighbors);
 		drawAutoLightedCuboid(box, nullptr, tiles, 6, mask);
 	}
@@ -1750,41 +1762,64 @@ void MapblockMeshGenerator::drawNode()
 	}
 }
 
-void MapblockMeshGenerator::generateFirstViable()
+MapNode MapblockMeshGenerator::generateFirstViable(v3s16 p, s16 width)
 {
-    s16 width = std::min(data->lod, data->side_length);
-    for (s16 y = 0; y < width; y++)
-    for (s16 x = 0; x < width; x++)
-    for (s16 z = 0; z < width; z++) {
-        cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{x, y, z});
-        if (cur_node.n.getContent() == CONTENT_IGNORE // AIR
-            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{1, 0, 0}).getContent() == CONTENT_IGNORE)
-            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{data->lod, 0, 0}).getContent() == CONTENT_IGNORE)
-            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 1, 0}).getContent() == CONTENT_IGNORE)
-            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, data->lod, 0}).getContent() == CONTENT_IGNORE)
-            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 0, 1}).getContent() == CONTENT_IGNORE)
-            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 0, data->lod}).getContent() == CONTENT_IGNORE)
-            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{-1, 0, 0}).getContent() == CONTENT_IGNORE)
-            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{-data->lod, 0, 0}).getContent() == CONTENT_IGNORE)
-            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, -1, 0}).getContent() == CONTENT_IGNORE)
-            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, -data->lod, 0}).getContent() == CONTENT_IGNORE)
-            || (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 0, -1}).getContent() == CONTENT_IGNORE)
-            != (data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{0, 0, -data->lod}).getContent() == CONTENT_IGNORE)) {
+    // for (s16 y = width - 1; y >= 0; y--)
+    // for (s16 x = 0; x < width; x++)
+    // for (s16 z = 0; z < width; z++) {
+    //     cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{z, width - 1 - z, z});
+    //     if (cur_node.n.getContent() == CONTENT_AIR) { // AIR
+    //         continue;
+    //     }
+    //     cur_node.f = &nodedef->get(cur_node.n);
+    //     switch (cur_node.f->drawtype) {
+    //     // case NDT_PLANTLIKE:         drawPlantlikeNode(); return;
+    //     // case NDT_PLANTLIKE_ROOTED:  drawPlantlikeRootedNode(); return;
+    //     case NDT_NODEBOX:
+    //     case NDT_FLOWINGLIQUID:
+    //     case NDT_GLASSLIKE:
+    //     case NDT_GLASSLIKE_FRAMED:
+    //     case NDT_ALLFACES:
+    //     // case NDT_NORMAL:
+    //     case NDT_LIQUID:            drawSolidNode(); return;
+    //     default:                    continue;
+    //     }
+    // }
+    // cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p);
+    // if (cur_node.n.getContent() != CONTENT_AIR) { // AIR
+    //     cur_node.f = &nodedef->get(cur_node.n);
+    //     switch (cur_node.f->drawtype) {
+    //         case NDT_PLANTLIKE:         drawPlantlikeNode(); return;
+    //         case NDT_PLANTLIKE_ROOTED:  drawPlantlikeRootedNode(); return;
+    //         case NDT_NODEBOX:
+    //         case NDT_FLOWINGLIQUID:
+    //         case NDT_GLASSLIKE:
+    //         case NDT_GLASSLIKE_FRAMED:
+    //         case NDT_ALLFACES:
+    //         case NDT_NORMAL:            drawSolidNode(); return;
+    //         default:                    return;
+    //     }
+    // }
+    for (s16 i = 0; i < width; i++) {
+        MapNode n = data->m_vmanip.getNodeNoEx(p + v3s16{i, width - 1 - i, i});
+        if (n.getContent() == CONTENT_AIR) { // AIR
             continue;
         }
-        cur_node.f = &nodedef->get(cur_node.n);
-        switch (cur_node.f->drawtype) {
-            case NDT_AIRLIKE:           continue;
-            case NDT_PLANTLIKE:         drawPlantlikeNode(); return;
-            case NDT_PLANTLIKE_ROOTED:  drawPlantlikeRootedNode(); return;
+        const ContentFeatures *f = &nodedef->get(n);
+        switch (f->drawtype) {
+            case NDT_PLANTLIKE:         return n;
+            case NDT_PLANTLIKE_ROOTED:  return n;
+            case NDT_NODEBOX:
+            case NDT_FLOWINGLIQUID:
             case NDT_GLASSLIKE:
             case NDT_GLASSLIKE_FRAMED:
             case NDT_ALLFACES:
-            case NDT_LIQUID:
-            case NDT_NORMAL:            drawSolidNode(); return;
+            case NDT_NORMAL:
+            case NDT_LIQUID:            return n;
             default:                    continue;
         }
     }
+    return data->m_vmanip.getNodeNoEx(p);
 }
 
 
@@ -1798,10 +1833,27 @@ void MapblockMeshGenerator::generateLod()
         }
     }
 
+    s16 width = std::min(data->lod, data->side_length);
     for (cur_node.p.Z = 0; cur_node.p.Z < data->side_length; cur_node.p.Z += data->lod)
     for (cur_node.p.Y = 0; cur_node.p.Y < data->side_length; cur_node.p.Y += data->lod)
     for (cur_node.p.X = 0; cur_node.p.X < data->side_length; cur_node.p.X += data->lod) {
-        generateFirstViable();
+        cur_node.n = generateFirstViable(blockpos_nodes + cur_node.p, width);
+        if (cur_node.n.getContent() == CONTENT_AIR) { // AIR
+            continue;
+        }
+        cur_node.f = &nodedef->get(cur_node.n);
+        switch (cur_node.f->drawtype) {
+            case NDT_PLANTLIKE:         drawPlantlikeNode(); continue;
+            case NDT_PLANTLIKE_ROOTED:  drawPlantlikeRootedNode(); continue;
+            case NDT_NODEBOX:
+            case NDT_FLOWINGLIQUID:
+            case NDT_GLASSLIKE:
+            case NDT_GLASSLIKE_FRAMED:
+            case NDT_ALLFACES:
+            case NDT_NORMAL:
+            case NDT_LIQUID:            drawSolidNode(); continue;
+            default:                    continue;
+        }
     }
 }
 
