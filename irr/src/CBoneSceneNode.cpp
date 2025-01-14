@@ -11,49 +11,6 @@ namespace irr
 namespace scene
 {
 
-//! constructor
-CBoneSceneNode::CBoneSceneNode(ISceneNode *parent, ISceneManager *mgr, s32 id,
-		u32 boneIndex, const std::optional<std::string> &boneName) :
-		IBoneSceneNode(parent, mgr, id),
-		BoneIndex(boneIndex),
-		AnimationMode(EBAM_AUTOMATIC), SkinningSpace(EBSS_LOCAL)
-{
-	setName(boneName);
-}
-
-//! Returns the index of the bone
-u32 CBoneSceneNode::getBoneIndex() const
-{
-	return BoneIndex;
-}
-
-//! Sets the animation mode of the bone. Returns true if successful.
-bool CBoneSceneNode::setAnimationMode(E_BONE_ANIMATION_MODE mode)
-{
-	AnimationMode = mode;
-	return true;
-}
-
-//! Gets the current animation mode of the bone
-E_BONE_ANIMATION_MODE CBoneSceneNode::getAnimationMode() const
-{
-	return AnimationMode;
-}
-
-//! returns the axis aligned bounding box of this node
-const core::aabbox3d<f32> &CBoneSceneNode::getBoundingBox() const
-{
-	return Box;
-}
-
-/*
-//! Returns the relative transformation of the scene node.
-core::matrix4 CBoneSceneNode::getRelativeTransformation() const
-{
-	return core::matrix4(); // RelativeTransformation;
-}
-*/
-
 void CBoneSceneNode::OnAnimate(u32 timeMs)
 {
 	if (IsVisible) {
