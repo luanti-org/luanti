@@ -309,7 +309,7 @@ public:
 	//! Joints
 	struct SJoint
 	{
-		SJoint() : GlobalSkinningSpace(false) {}
+		SJoint() {}
 
 		//! The name of this joint
 		std::optional<std::string> Name;
@@ -344,8 +344,6 @@ public:
 	private:
 		//! Internal members used by SkinnedMesh
 		friend class SkinnedMesh;
-
-		bool GlobalSkinningSpace;
 	};
 
 	const std::vector<SJoint *> &getAllJoints() const {

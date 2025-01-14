@@ -74,9 +74,7 @@ void SkinnedMesh::animateMesh(f32 frame)
 	SkinnedLastFrame = false;
 
 	for (auto *joint : AllJoints) {
-		// The joints can be animated here with no input from their
-		// parents, but for setAnimationMode extra checks are needed
-		// to their parents
+		// The joints can be animated here with no input from their parents
 		joint->keys.updateTransform(frame,
 				joint->Animatedposition,
 				joint->Animatedrotation,
@@ -102,8 +100,6 @@ void SkinnedMesh::buildAllLocalAnimatedMatrices()
 		// Could be faster:
 
 		if (!joint->keys.empty()) {
-			joint->GlobalSkinningSpace = false;
-
 			// IRR_TEST_BROKEN_QUATERNION_USE: TODO - switched to getMatrix_transposed instead of getMatrix for downward compatibility.
 			//								   Not tested so far if this was correct or wrong before quaternion fix!
 			// Note that using getMatrix_transposed inverts the rotation.
@@ -164,7 +160,7 @@ void SkinnedMesh::buildAllGlobalAnimatedMatrices(SJoint *joint, SJoint *parentJo
 		return;
 	} else {
 		// Find global matrix...
-		if (!parentJoint || joint->GlobalSkinningSpace)
+		if (!parentJoint)
 			joint->GlobalAnimatedMatrix = joint->LocalAnimatedMatrix;
 		else
 			joint->GlobalAnimatedMatrix = parentJoint->GlobalAnimatedMatrix * joint->LocalAnimatedMatrix;
@@ -706,8 +702,6 @@ void SkinnedMesh::transferJointsToMesh(const std::vector<IBoneSceneNode *> &join
 		joint->LocalAnimatedMatrix.setRotationDegrees(node->getRotation());
 		joint->LocalAnimatedMatrix.setTranslation(node->getPosition());
 		joint->LocalAnimatedMatrix *= core::matrix4().setScale(node->getScale());
-
-		joint->GlobalSkinningSpace = (node->getSkinningSpace() == EBSS_GLOBAL);
 	}
 	// Make sure we recalc the next frame
 	LastAnimatedFrame = -1;

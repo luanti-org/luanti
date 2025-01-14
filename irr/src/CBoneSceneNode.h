@@ -21,49 +21,36 @@ public:
 	//! constructor
 	CBoneSceneNode(ISceneNode *parent, ISceneManager *mgr,
 			s32 id = -1, u32 boneIndex = 0,
-			const std::optional<std::string> &boneName = std::nullopt);
+			const std::optional<std::string> &boneName = std::nullopt) :
+		IBoneSceneNode(parent, mgr, id),
+		BoneIndex(boneIndex)
+	{
+		setName(boneName);
+	}
 
 	//! Returns the index of the bone
-	u32 getBoneIndex() const override;
-
-	//! Sets the animation mode of the bone. Returns true if successful.
-	bool setAnimationMode(E_BONE_ANIMATION_MODE mode) override;
-
-	//! Gets the current animation mode of the bone
-	E_BONE_ANIMATION_MODE getAnimationMode() const override;
+	u32 getBoneIndex() const override
+	{
+		return BoneIndex;
+	}
 
 	//! returns the axis aligned bounding box of this node
-	const core::aabbox3d<f32> &getBoundingBox() const override;
-
-	/*
-	//! Returns the relative transformation of the scene node.
-	//core::matrix4 getRelativeTransformation() const override;
-	*/
+	const core::aabbox3d<f32> &getBoundingBox() const override
+	{
+		return Box;
+	}
 
 	void OnAnimate(u32 timeMs) override;
 
 	void updateAbsolutePositionOfAllChildren() override;
 
-	//! How the relative transformation of the bone is used
-	void setSkinningSpace(E_BONE_SKINNING_SPACE space) override
-	{
-		SkinningSpace = space;
-	}
-
-	E_BONE_SKINNING_SPACE getSkinningSpace() const override
-	{
-		return SkinningSpace;
-	}
-
 private:
 	void helper_updateAbsolutePositionOfAllChildren(ISceneNode *Node);
 
-	u32 BoneIndex;
+	const u32 BoneIndex;
 
-	core::aabbox3d<f32> Box{-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f};
-
-	E_BONE_ANIMATION_MODE AnimationMode;
-	E_BONE_SKINNING_SPACE SkinningSpace;
+	// Bogus box; bone scene nodes are not rendered anyways.
+	static constexpr core::aabbox3d<f32> Box = {{0, 0, 0}};
 };
 
 } // end namespace scene

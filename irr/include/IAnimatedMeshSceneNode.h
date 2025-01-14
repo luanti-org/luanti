@@ -12,18 +12,6 @@ namespace irr
 {
 namespace scene
 {
-enum E_JOINT_UPDATE_ON_RENDER
-{
-	//! do nothing
-	EJUOR_NONE = 0,
-
-	//! get joints positions from the mesh (for attached nodes, etc)
-	EJUOR_READ,
-
-	//! control joint positions in the mesh (eg. ragdolls, or set the animation from animateJoints() )
-	EJUOR_CONTROL
-};
-
 class IAnimatedMeshSceneNode;
 
 //! Callback interface for catching events of ended animations.
@@ -141,13 +129,8 @@ public:
 	//! Returns the current mesh
 	virtual IAnimatedMesh *getMesh(void) = 0;
 
-	//! Set how the joints should be updated on render
-	virtual void setJointMode(E_JOINT_UPDATE_ON_RENDER mode) = 0;
-
 	//! Sets the transition time in seconds
-	/** Note: This needs to enable joints, and setJointmode set to
-	EJUOR_CONTROL. You must call animateJoints(), or the mesh will
-	not animate. */
+	/** Note: You must call animateJoints(), or the mesh will not animate. */
 	virtual void setTransitionTime(f32 Time) = 0;
 
 	//! animates the joints in the mesh based on the current frame.

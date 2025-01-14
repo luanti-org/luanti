@@ -1398,12 +1398,9 @@ void GenericCAO::updateBones(f32 dtime)
 {
 	if (!m_animated_meshnode)
 		return;
-	if (m_bone_override.empty()) {
-		m_animated_meshnode->setJointMode(scene::EJUOR_NONE);
+	if (m_bone_override.empty())
 		return;
-	}
 
-	m_animated_meshnode->setJointMode(scene::EJUOR_CONTROL); // To write positions to the mesh on render
 	for (auto &it : m_bone_override) {
 		std::string bone_name = it.first;
 		scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
