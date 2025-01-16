@@ -135,7 +135,7 @@ public:
 
 	//! animates the joints in the mesh based on the current frame.
 	/** Also takes in to account transitions. */
-	virtual void animateJoints(bool CalculateAbsolutePositions = true) = 0;
+	virtual void animateJoints() = 0;
 
 	//! render mesh ignoring its transformation.
 	/** Culling is unaffected. */

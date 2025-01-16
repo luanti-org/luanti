@@ -1401,6 +1401,8 @@ void GenericCAO::updateBones(f32 dtime)
 	if (m_bone_override.empty())
 		return;
 
+	// FIXME these need to be applied at a different point in time
+	// in order to be relative to the animated bone positions of the current frame
 	for (auto &it : m_bone_override) {
 		std::string bone_name = it.first;
 		scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());

@@ -8,11 +8,14 @@
 #include "ISceneManager.h"
 #include "SMeshBuffer.h"
 #include "SSkinMeshBuffer.h"
+#include "irrMath.h"
+#include "matrix4.h"
 #include "quaternion.h"
 #include "vector3d.h"
 
 #include <optional>
 #include <string>
+#include <variant>
 
 namespace irr
 {
@@ -314,8 +317,56 @@ public:
 		//! The name of this joint
 		std::optional<std::string> Name;
 
-		//! Local matrix of this joint
-		core::matrix4 LocalMatrix;
+		struct Transform {
+			core::vector3df translation;
+			core::quaternion rotation;
+			core::vector3df scale{1};
+
+			core::matrix4 buildMatrix() const {
+				core::matrix4 T;
+				T.setTranslation(translation);
+				core::matrix4 R;
+				rotation.getMatrix_transposed(R);
+				core::matrix4 S;
+				S.setScale(scale);
+				return T * R * S;
+			}
+		};
+
+		//! Local transformation to be set by loaders. Mutated by animation.
+		//! If a matrix is used, this joint **must not** be animated,
+		//! because then the unique decomposition into translation, rotation and scale need not exist!
+		std::variant<core::matrix4, Transform> transform = Transform{};
+
+		Transform &getAnimatableTransform() {
+			if (std::holds_alternative<Transform>(transform))
+				return std::get<Transform>(transform);
+			const auto &mat = std::get<core::matrix4>(transform);
+			Transform trs;
+			trs.translation = mat.getTranslation();
+			trs.scale = mat.getScale();
+			trs.rotation = core::quaternion(
+					mat.getRotationDegrees(trs.scale) * core::DEGTORAD);
+			transform = trs;
+			// TODO raise a warning if the recomposed matrix does not equal the decomposed.
+			return std::get<Transform>(transform);
+		}
+
+		void animate(f32 frame) {
+			if (keys.empty())
+				return;
+			auto &transform = getAnimatableTransform();
+			keys.updateTransform(frame,
+				transform.translation,
+				transform.rotation,
+				transform.scale);
+		}
+
+		core::matrix4 buildLocalMatrix() const {
+			if (std::holds_alternative<core::matrix4>(transform))
+				return std::get<core::matrix4>(transform);
+			return std::get<Transform>(transform).buildMatrix();
+		}
 
 		//! List of child joints
 		std::vector<SJoint *> Children;
@@ -333,11 +384,6 @@ public:
 		core::matrix4 GlobalMatrix; // loaders may still choose to set this (temporarily) to calculate absolute vertex data.
 		core::matrix4 GlobalAnimatedMatrix;
 		core::matrix4 LocalAnimatedMatrix;
-
-		//! These should be set by loaders.
-		core::vector3df Animatedposition;
-		core::vector3df Animatedscale;
-		core::quaternion Animatedrotation;
 
 		// The .x and .gltf formats pre-calculate this
 		std::optional<core::matrix4> GlobalInversedMatrix;

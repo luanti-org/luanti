@@ -413,17 +413,23 @@ SECTION("simple skin")
 
 	SECTION("transformations are correct")
 	{
-		CHECK(parent->Animatedposition == v3f(0, 0, 0));
-		CHECK(parent->Animatedrotation == irr::core::quaternion());
-		CHECK(parent->Animatedscale == v3f(1, 1, 1));
-		CHECK(parent->GlobalInversedMatrix == irr::core::matrix4());
-		const v3f childTranslation(0, 1, 0);
-		CHECK(child->Animatedposition == childTranslation);
-		CHECK(child->Animatedrotation == irr::core::quaternion());
-		CHECK(child->Animatedscale == v3f(1, 1, 1));
-		irr::core::matrix4 inverseBindMatrix;
-		inverseBindMatrix.setTranslation(-childTranslation);
-		CHECK(child->GlobalInversedMatrix == inverseBindMatrix);
+		{
+			const auto &transform = std::get<SkinnedMesh::SJoint::Transform>(parent->transform);
+			CHECK(transform.translation == v3f(0, 0, 0));
+			CHECK(transform.rotation == irr::core::quaternion());
+			CHECK(transform.scale == v3f(1, 1, 1));
+			CHECK(parent->GlobalInversedMatrix == irr::core::matrix4());
+		}
+		{
+			const auto &transform = std::get<SkinnedMesh::SJoint::Transform>(child->transform);
+			const v3f translation(0, 1, 0);
+			CHECK(transform.translation == translation);
+			CHECK(transform.rotation == irr::core::quaternion());
+			CHECK(transform.scale == v3f(1, 1, 1));
+			irr::core::matrix4 inverseBindMatrix;
+			inverseBindMatrix.setTranslation(-translation);
+			CHECK(child->GlobalInversedMatrix == inverseBindMatrix);
+		}
 	}
 
 	SECTION("weights are correct")

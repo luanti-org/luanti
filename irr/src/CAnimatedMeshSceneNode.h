@@ -117,12 +117,12 @@ public:
 	//! updates the absolute position based on the relative and the parents position
 	void updateAbsolutePosition() override;
 
-	//! Sets the transition time in seconds (note: This needs to enable joints, and setJointmode maybe set to 2)
+	//! Sets the transition time in seconds (note: This needs to enable joints)
 	//! you must call animateJoints(), or the mesh will not animate
 	void setTransitionTime(f32 Time) override;
 
 	//! updates the joint positions of this mesh
-	void animateJoints(bool CalculateAbsolutePositions = true) override;
+	void animateJoints() override;
 
 	//! render mesh ignoring its transformation. Used with ragdolls. (culling is unaffected)
 	void setRenderFromIdentity(bool On) override;

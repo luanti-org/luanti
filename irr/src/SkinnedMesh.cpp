@@ -7,7 +7,11 @@
 #include "CBoneSceneNode.h"
 #include "IAnimatedMeshSceneNode.h"
 #include "SSkinMeshBuffer.h"
+#include "irrMath.h"
+#include "matrix4.h"
 #include "os.h"
+#include "vector3d.h"
+#include <variant>
 #include <vector>
 #include <cassert>
 
@@ -73,13 +77,8 @@ void SkinnedMesh::animateMesh(f32 frame)
 	LastAnimatedFrame = frame;
 	SkinnedLastFrame = false;
 
-	for (auto *joint : AllJoints) {
-		// The joints can be animated here with no input from their parents
-		joint->keys.updateTransform(frame,
-				joint->Animatedposition,
-				joint->Animatedrotation,
-				joint->Animatedscale);
-	}
+	for (auto *joint : AllJoints)
+		joint->animate(frame);
 
 	// Note:
 	// LocalAnimatedMatrix needs to be built at some point, but this function may be called lots of times for
@@ -98,56 +97,7 @@ void SkinnedMesh::buildAllLocalAnimatedMatrices()
 {
 	for (auto *joint : AllJoints) {
 		// Could be faster:
-
-		if (!joint->keys.empty()) {
-			// IRR_TEST_BROKEN_QUATERNION_USE: TODO - switched to getMatrix_transposed instead of getMatrix for downward compatibility.
-			//								   Not tested so far if this was correct or wrong before quaternion fix!
-			// Note that using getMatrix_transposed inverts the rotation.
-			joint->Animatedrotation.getMatrix_transposed(joint->LocalAnimatedMatrix);
-
-			// --- joint->LocalAnimatedMatrix *= joint->Animatedrotation.getMatrix() ---
-			f32 *m1 = joint->LocalAnimatedMatrix.pointer();
-			core::vector3df &Pos = joint->Animatedposition;
-			m1[0] += Pos.X * m1[3];
-			m1[1] += Pos.Y * m1[3];
-			m1[2] += Pos.Z * m1[3];
-			m1[4] += Pos.X * m1[7];
-			m1[5] += Pos.Y * m1[7];
-			m1[6] += Pos.Z * m1[7];
-			m1[8] += Pos.X * m1[11];
-			m1[9] += Pos.Y * m1[11];
-			m1[10] += Pos.Z * m1[11];
-			m1[12] += Pos.X * m1[15];
-			m1[13] += Pos.Y * m1[15];
-			m1[14] += Pos.Z * m1[15];
-			// -----------------------------------
-
-			if (!joint->keys.scale.empty()) {
-				/*
-				core::matrix4 scaleMatrix;
-				scaleMatrix.setScale(joint->Animatedscale);
-				joint->LocalAnimatedMatrix *= scaleMatrix;
-				*/
-
-				// -------- joint->LocalAnimatedMatrix *= scaleMatrix -----------------
-				core::matrix4 &mat = joint->LocalAnimatedMatrix;
-				mat[0] *= joint->Animatedscale.X;
-				mat[1] *= joint->Animatedscale.X;
-				mat[2] *= joint->Animatedscale.X;
-				mat[3] *= joint->Animatedscale.X;
-				mat[4] *= joint->Animatedscale.Y;
-				mat[5] *= joint->Animatedscale.Y;
-				mat[6] *= joint->Animatedscale.Y;
-				mat[7] *= joint->Animatedscale.Y;
-				mat[8] *= joint->Animatedscale.Z;
-				mat[9] *= joint->Animatedscale.Z;
-				mat[10] *= joint->Animatedscale.Z;
-				mat[11] *= joint->Animatedscale.Z;
-				// -----------------------------------
-			}
-		} else {
-			joint->LocalAnimatedMatrix = joint->LocalMatrix;
-		}
+		joint->LocalAnimatedMatrix = joint->buildLocalMatrix();
 	}
 	SkinnedLastFrame = false;
 }
@@ -396,12 +346,13 @@ void SkinnedMesh::calculateGlobalMatrices(SJoint *joint, SJoint *parentJoint)
 		return;
 	}
 
+	const auto local_matrix = joint->buildLocalMatrix();
 	if (!parentJoint)
-		joint->GlobalMatrix = joint->LocalMatrix;
+		joint->GlobalMatrix = local_matrix;
 	else
-		joint->GlobalMatrix = parentJoint->GlobalMatrix * joint->LocalMatrix;
+		joint->GlobalMatrix = parentJoint->GlobalMatrix * local_matrix;
 
-	joint->LocalAnimatedMatrix = joint->LocalMatrix;
+	joint->LocalAnimatedMatrix = local_matrix;
 	joint->GlobalAnimatedMatrix = joint->GlobalMatrix;
 
 	if (!joint->GlobalInversedMatrix.has_value()) { // might be pre calculated
@@ -689,7 +640,7 @@ void SkinnedMesh::recoverJointsFromMesh(std::vector<IBoneSceneNode *> &jointChil
 		node->setRotation(joint->LocalAnimatedMatrix.getRotationDegrees());
 		node->setScale(joint->LocalAnimatedMatrix.getScale());
 
-		node->updateAbsolutePosition();
+		node->updateAbsolutePosition(); // WTF
 	}
 }
 

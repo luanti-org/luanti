@@ -28,15 +28,9 @@ public:
 	//! Returns the relative transformation of the scene node.
 	// virtual core::matrix4 getRelativeTransformation() const = 0;
 
-	//! The animation method.
-	void OnAnimate(u32 timeMs) override = 0;
-
 	//! The render method.
 	/** Does nothing as bones are not visible. */
 	void render() override {}
-
-	//! Updates the absolute position based on the relative and the parents position
-	virtual void updateAbsolutePositionOfAllChildren() = 0;
 };
 
 } // end namespace scene
