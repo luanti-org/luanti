@@ -40,13 +40,6 @@ public:
 		return Box;
 	}
 
-	void OnAnimate(u32 timeMs) override;
-
-	void updateAbsolutePositionOfAllChildren() override;
-
-private:
-	void helper_updateAbsolutePositionOfAllChildren(ISceneNode *Node);
-
 	const u32 BoneIndex;
 
 	// Bogus box; bone scene nodes are not rendered anyways.

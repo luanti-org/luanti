@@ -170,7 +170,11 @@ IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 		// Update the skinned mesh for the current joint transforms.
 		skinnedMesh->skinMesh();
 
-			skinnedMesh->updateBoundingBox();
+		skinnedMesh->updateBoundingBox();
+
+		Box = skinnedMesh->getBoundingBox();
+
+		setAutomaticCulling(EAC_OFF);
 
 		return skinnedMesh;
 	}
@@ -186,6 +190,10 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	// set CurrentFrameNr
 	buildFrameNr(timeMs - LastTimeMs);
 	LastTimeMs = timeMs;
+
+	// This needs to be done on animate, which is called recursively *before*
+	// anything is rendered so that the transformations of children are up to date
+	animateJoints();
 
 	IAnimatedMeshSceneNode::OnAnimate(timeMs);
 }
@@ -204,15 +212,8 @@ void CAnimatedMeshSceneNode::render()
 	++PassCount;
 
 	scene::IMesh *m = getMeshForCurrentFrame();
-
-	if (m) {
-		Box = m->getBoundingBox();
-	} else {
-#ifdef _DEBUG
-		os::Printer::log("Animated Mesh returned no mesh to render.", ELL_WARNING);
-#endif
-		return;
-	}
+	_IRR_DEBUG_BREAK_IF(!m);
+	Box = m->getBoundingBox(); // HACK
 
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
@@ -237,6 +238,7 @@ void CAnimatedMeshSceneNode::render()
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
 	// for debug purposes only:
+	// DebugDataVisible = ~0;
 	if (DebugDataVisible && PassCount == 1) {
 		video::SMaterial debug_mat;
 		debug_mat.AntiAliasing = video::EAAM_OFF;
@@ -559,7 +561,7 @@ void CAnimatedMeshSceneNode::setRenderFromIdentity(bool enable)
 }
 
 //! updates the joint positions of this mesh
-void CAnimatedMeshSceneNode::animateJoints(bool CalculateAbsolutePositions)
+void CAnimatedMeshSceneNode::animateJoints()
 {
 	if (Mesh && Mesh->getMeshType() == EAMT_SKINNED) {
 		checkJoints();
@@ -612,15 +614,6 @@ void CAnimatedMeshSceneNode::animateJoints(bool CalculateAbsolutePositions)
 				//			PretransitingSave[n].getScale(),
 				//			JointChildSceneNodes[n]->getScale(),
 				//			TransitingBlend));
-			}
-		}
-
-		if (CalculateAbsolutePositions) {
-			//---slow---
-			for (u32 n = 0; n < JointChildSceneNodes.size(); ++n) {
-				if (JointChildSceneNodes[n]->getParent() == this) {
-					JointChildSceneNodes[n]->updateAbsolutePositionOfAllChildren(); // temp, should be an option
-				}
 			}
 		}
 	}
