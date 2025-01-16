@@ -552,12 +552,9 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 			if (!parseDataObjectFrame(joint))
 				return false;
 		} else if (objectName == "FrameTransformMatrix") {
-			if (!parseDataObjectTransformationMatrix(joint->LocalMatrix))
+			joint->transform = core::matrix4();
+			if (!parseDataObjectTransformationMatrix(std::get<core::matrix4>(joint->transform)))
 				return false;
-
-			// joint->LocalAnimatedMatrix
-			// joint->LocalAnimatedMatrix.makeInverse();
-			// joint->LocalMatrix=tmp*joint->LocalAnimatedMatrix;
 		} else if (objectName == "Mesh") {
 			/*
 			frame.Meshes.push_back(SXMesh());
