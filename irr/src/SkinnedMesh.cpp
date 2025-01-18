@@ -636,11 +636,25 @@ void SkinnedMesh::recoverJointsFromMesh(std::vector<IBoneSceneNode *> &jointChil
 	for (u32 i = 0; i < AllJoints.size(); ++i) {
 		IBoneSceneNode *node = jointChildSceneNodes[i];
 		SJoint *joint = AllJoints[i];
-		node->setPosition(joint->LocalAnimatedMatrix.getTranslation());
-		node->setRotation(joint->LocalAnimatedMatrix.getRotationDegrees());
-		node->setScale(joint->LocalAnimatedMatrix.getScale());
+		if (std::holds_alternative<SJoint::Transform>(joint->transform)) {
+			auto transform = std::get<SJoint::Transform>(joint->transform);
+			node->setPosition(transform.translation);
+			{
+				core::vector3df euler;
+				auto rot = transform.rotation;
+				// Invert to be consistent with setRotationDegrees
+				rot.makeInverse();
+				rot.toEuler(euler);
+				node->setRotation(euler * core::RADTODEG);
+			}
+			node->setScale(transform.scale);
+		} else {
+			node->setPosition(joint->LocalAnimatedMatrix.getTranslation());
+			node->setRotation(joint->LocalAnimatedMatrix.getRotationDegrees());
+			node->setScale(joint->LocalAnimatedMatrix.getScale());
+		}
 
-		node->updateAbsolutePosition(); // WTF
+		// node->updateAbsolutePosition(); // WTF
 	}
 }
 
@@ -650,9 +664,12 @@ void SkinnedMesh::transferJointsToMesh(const std::vector<IBoneSceneNode *> &join
 		const IBoneSceneNode *const node = jointChildSceneNodes[i];
 		SJoint *joint = AllJoints[i];
 
-		joint->LocalAnimatedMatrix.setRotationDegrees(node->getRotation());
-		joint->LocalAnimatedMatrix.setTranslation(node->getPosition());
-		joint->LocalAnimatedMatrix *= core::matrix4().setScale(node->getScale());
+		if (std::holds_alternative<SJoint::Transform>(joint->transform)) {
+			joint->LocalAnimatedMatrix = core::matrix4();
+			joint->LocalAnimatedMatrix.setRotationDegrees(node->getRotation());
+			joint->LocalAnimatedMatrix.setTranslation(node->getPosition());
+			joint->LocalAnimatedMatrix *= core::matrix4().setScale(node->getScale());
+		}
 	}
 	// Make sure we recalc the next frame
 	LastAnimatedFrame = -1;

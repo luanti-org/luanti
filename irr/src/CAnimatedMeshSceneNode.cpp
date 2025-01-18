@@ -163,9 +163,7 @@ IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 
 		SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
 
-		skinnedMesh->animateMesh(getFrameNr());
-
-		// skinnedMesh->transferJointsToMesh(JointChildSceneNodes);
+		skinnedMesh->transferJointsToMesh(JointChildSceneNodes);
 
 		// Update the skinned mesh for the current joint transforms.
 		skinnedMesh->skinMesh();
@@ -173,8 +171,6 @@ IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 		skinnedMesh->updateBoundingBox();
 
 		Box = skinnedMesh->getBoundingBox();
-
-		setAutomaticCulling(EAC_OFF);
 
 		return skinnedMesh;
 	}
@@ -238,7 +234,6 @@ void CAnimatedMeshSceneNode::render()
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
 	// for debug purposes only:
-	// DebugDataVisible = ~0;
 	if (DebugDataVisible && PassCount == 1) {
 		video::SMaterial debug_mat;
 		debug_mat.AntiAliasing = video::EAAM_OFF;
@@ -513,18 +508,15 @@ void CAnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 	// get materials and bounding box
 	Box = Mesh->getBoundingBox();
 
-	IMesh *m = Mesh->getMesh(0);
-	if (m) {
-		Materials.clear();
-		Materials.reallocate(m->getMeshBufferCount());
+	Materials.clear();
+	Materials.reallocate(Mesh->getMeshBufferCount());
 
-		for (u32 i = 0; i < m->getMeshBufferCount(); ++i) {
-			IMeshBuffer *mb = m->getMeshBuffer(i);
-			if (mb)
-				Materials.push_back(mb->getMaterial());
-			else
-				Materials.push_back(video::SMaterial());
-		}
+	for (u32 i = 0; i < Mesh->getMeshBufferCount(); ++i) {
+		IMeshBuffer *mb = Mesh->getMeshBuffer(i);
+		if (mb)
+			Materials.push_back(mb->getMaterial());
+		else
+			Materials.push_back(video::SMaterial());
 	}
 
 	// clean up joint nodes
@@ -563,58 +555,58 @@ void CAnimatedMeshSceneNode::setRenderFromIdentity(bool enable)
 //! updates the joint positions of this mesh
 void CAnimatedMeshSceneNode::animateJoints()
 {
-	if (Mesh && Mesh->getMeshType() == EAMT_SKINNED) {
-		checkJoints();
-		const f32 frame = getFrameNr(); // old?
+	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED)
+		return;
 
-		SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
+	checkJoints();
 
-		skinnedMesh->animateMesh(frame);
-		skinnedMesh->recoverJointsFromMesh(JointChildSceneNodes);
+	SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
 
-		//-----------------------------------------
-		//		Transition
-		//-----------------------------------------
+	skinnedMesh->animateMesh(getFrameNr());
+	skinnedMesh->recoverJointsFromMesh(JointChildSceneNodes);
 
-		if (Transiting != 0.f) {
-			// Init additional matrices
-			if (PretransitingSave.size() < JointChildSceneNodes.size()) {
-				for (u32 n = PretransitingSave.size(); n < JointChildSceneNodes.size(); ++n)
-					PretransitingSave.push_back(core::matrix4());
-			}
+	//-----------------------------------------
+	//		Transition
+	//-----------------------------------------
 
-			for (u32 n = 0; n < JointChildSceneNodes.size(); ++n) {
-				//------Position------
+	if (Transiting != 0.f) {
+		// Init additional matrices
+		if (PretransitingSave.size() < JointChildSceneNodes.size()) {
+			for (u32 n = PretransitingSave.size(); n < JointChildSceneNodes.size(); ++n)
+				PretransitingSave.push_back(core::matrix4());
+		}
 
-				JointChildSceneNodes[n]->setPosition(
-						core::lerp(
-								PretransitingSave[n].getTranslation(),
-								JointChildSceneNodes[n]->getPosition(),
-								TransitingBlend));
+		for (u32 n = 0; n < JointChildSceneNodes.size(); ++n) {
+			//------Position------
 
-				//------Rotation------
+			JointChildSceneNodes[n]->setPosition(
+					core::lerp(
+							PretransitingSave[n].getTranslation(),
+							JointChildSceneNodes[n]->getPosition(),
+							TransitingBlend));
 
-				// Code is slow, needs to be fixed up
+			//------Rotation------
 
-				const core::quaternion RotationStart(PretransitingSave[n].getRotationRadians());
-				const core::quaternion RotationEnd(JointChildSceneNodes[n]->getRotation() * core::DEGTORAD);
+			// Code is slow, needs to be fixed up
 
-				core::quaternion QRotation;
-				QRotation.slerp(RotationStart, RotationEnd, TransitingBlend);
+			const core::quaternion RotationStart(PretransitingSave[n].getRotationDegrees() * core::DEGTORAD);
+			const core::quaternion RotationEnd(JointChildSceneNodes[n]->getRotation() * core::DEGTORAD);
 
-				core::vector3df tmpVector;
-				QRotation.toEuler(tmpVector);
-				tmpVector *= core::RADTODEG; // convert from radians back to degrees
-				JointChildSceneNodes[n]->setRotation(tmpVector);
+			core::quaternion QRotation;
+			QRotation.slerp(RotationStart, RotationEnd, TransitingBlend);
 
-				//------Scale------
+			core::vector3df tmpVector;
+			QRotation.toEuler(tmpVector);
+			tmpVector *= core::RADTODEG; // convert from radians back to degrees
+			JointChildSceneNodes[n]->setRotation(tmpVector);
 
-				// JointChildSceneNodes[n]->setScale(
-				//		core::lerp(
-				//			PretransitingSave[n].getScale(),
-				//			JointChildSceneNodes[n]->getScale(),
-				//			TransitingBlend));
-			}
+			//------Scale------
+
+			// JointChildSceneNodes[n]->setScale(
+			//		core::lerp(
+			//			PretransitingSave[n].getScale(),
+			//			JointChildSceneNodes[n]->getScale(),
+			//			TransitingBlend));
 		}
 	}
 }
