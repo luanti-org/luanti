@@ -54,9 +54,11 @@ public:
 	//! returns the current loop mode
 	bool getLoopMode() const override;
 
-	//! Sets a callback interface which will be called if an animation
-	//! playback has ended. Set this to 0 to disable the callback again.
-	void setAnimationEndCallback(IAnimationEndCallBack *callback = 0) override;
+	void setOnAnimateCallback(
+			const std::function<void(f32 dtime)> &cb) override
+	{
+		OnAnimateCallback = cb;
+	}
 
 	//! sets the speed with which the animation is played
 	//! NOTE: setMesh will also change this value and set it to the default speed of the mesh
@@ -161,8 +163,8 @@ private:
 	bool ReadOnlyMaterials;
 	bool RenderFromIdentity;
 
-	IAnimationEndCallBack *LoopCallBack;
 	s32 PassCount;
+	std::function<void(f32)> OnAnimateCallback;
 
 	std::vector<IBoneSceneNode *> JointChildSceneNodes;
 	core::array<core::matrix4> PretransitingSave;
