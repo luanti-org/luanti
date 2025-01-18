@@ -36,7 +36,7 @@ CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(IAnimatedMesh *mesh,
 		TransitionTime(0), Transiting(0.f), TransitingBlend(0.f),
 		JointsUsed(false),
 		Looping(true), ReadOnlyMaterials(false), RenderFromIdentity(false),
-		LoopCallBack(0), PassCount(0)
+		PassCount(0)
 {
 	setMesh(mesh);
 }
@@ -44,8 +44,6 @@ CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(IAnimatedMesh *mesh,
 //! destructor
 CAnimatedMeshSceneNode::~CAnimatedMeshSceneNode()
 {
-	if (LoopCallBack)
-		LoopCallBack->drop();
 	if (Mesh)
 		Mesh->drop();
 }
@@ -87,8 +85,7 @@ void CAnimatedMeshSceneNode::buildFrameNr(u32 timeMs)
 		if (FramesPerSecond > 0.f) { // forwards...
 			if (CurrentFrameNr > EndFrame)
 				CurrentFrameNr = StartFrame + fmodf(CurrentFrameNr - StartFrame, EndFrame - StartFrame);
-		} else // backwards...
-		{
+		} else { // backwards...
 			if (CurrentFrameNr < StartFrame)
 				CurrentFrameNr = EndFrame - fmodf(EndFrame - CurrentFrameNr, EndFrame - StartFrame);
 		}
@@ -97,18 +94,9 @@ void CAnimatedMeshSceneNode::buildFrameNr(u32 timeMs)
 
 		CurrentFrameNr += timeMs * FramesPerSecond;
 		if (FramesPerSecond > 0.f) { // forwards...
-			if (CurrentFrameNr > EndFrame) {
-				CurrentFrameNr = EndFrame;
-				if (LoopCallBack)
-					LoopCallBack->OnAnimationEnd(this);
-			}
-		} else // backwards...
-		{
-			if (CurrentFrameNr < StartFrame) {
-				CurrentFrameNr = StartFrame;
-				if (LoopCallBack)
-					LoopCallBack->OnAnimationEnd(this);
-			}
+			CurrentFrameNr = std::min(CurrentFrameNr, EndFrame);
+		} else { // backwards...
+			CurrentFrameNr = std::max(CurrentFrameNr, StartFrame);
 		}
 	}
 }
@@ -190,6 +178,8 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	// This needs to be done on animate, which is called recursively *before*
 	// anything is rendered so that the transformations of children are up to date
 	animateJoints();
+
+	OnAnimateCallback(timeMs / 1000.0f);
 
 	IAnimatedMeshSceneNode::OnAnimate(timeMs);
 }
@@ -461,22 +451,6 @@ bool CAnimatedMeshSceneNode::getLoopMode() const
 	return Looping;
 }
 
-//! Sets a callback interface which will be called if an animation
-//! playback has ended. Set this to 0 to disable the callback again.
-void CAnimatedMeshSceneNode::setAnimationEndCallback(IAnimationEndCallBack *callback)
-{
-	if (callback == LoopCallBack)
-		return;
-
-	if (LoopCallBack)
-		LoopCallBack->drop();
-
-	LoopCallBack = callback;
-
-	if (LoopCallBack)
-		LoopCallBack->grab();
-}
-
 //! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
 void CAnimatedMeshSceneNode::setReadOnlyMaterials(bool readonly)
 {
@@ -681,9 +655,6 @@ ISceneNode *CAnimatedMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *
 	newNode->TransitingBlend = TransitingBlend;
 	newNode->Looping = Looping;
 	newNode->ReadOnlyMaterials = ReadOnlyMaterials;
-	newNode->LoopCallBack = LoopCallBack;
-	if (newNode->LoopCallBack)
-		newNode->LoopCallBack->grab();
 	newNode->PassCount = PassCount;
 	newNode->JointChildSceneNodes = JointChildSceneNodes;
 	newNode->PretransitingSave = PretransitingSave;

@@ -14,21 +14,6 @@ namespace scene
 {
 class IAnimatedMeshSceneNode;
 
-//! Callback interface for catching events of ended animations.
-/** Implement this interface and use
-IAnimatedMeshSceneNode::setAnimationEndCallback to be able to
-be notified if an animation playback has ended.
-**/
-class IAnimationEndCallBack : public virtual IReferenceCounted
-{
-public:
-	//! Will be called when the animation playback has ended.
-	/** See IAnimatedMeshSceneNode::setAnimationEndCallback for
-	more information.
-	\param node: Node of which the animation has ended. */
-	virtual void OnAnimationEnd(IAnimatedMeshSceneNode *node) = 0;
-};
-
 //! Scene node capable of displaying an animated mesh.
 class IAnimatedMeshSceneNode : public ISceneNode
 {
@@ -108,11 +93,10 @@ public:
 	/** When true the animations are played looped */
 	virtual bool getLoopMode() const = 0;
 
-	//! Sets a callback interface which will be called if an animation playback has ended.
-	/** Set this to 0 to disable the callback again.
-	Please note that this will only be called when in non looped
-	mode, see IAnimatedMeshSceneNode::setLoopMode(). */
-	virtual void setAnimationEndCallback(IAnimationEndCallBack *callback = 0) = 0;
+	//! Will be called right after the joints have been animated,
+	//! but before the transforms have been propagated recursively to children.
+	virtual void setOnAnimateCallback(
+			const std::function<void(f32 dtime)> &cb) = 0;
 
 	//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
 	/** In this way it is possible to change the materials a mesh
