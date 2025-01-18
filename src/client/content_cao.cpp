@@ -682,7 +682,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			m_animated_meshnode = m_smgr->addAnimatedMeshSceneNode(mesh, m_matrixnode);
 			m_animated_meshnode->grab();
 			mesh->drop(); // The scene node took hold of it
-			m_animated_meshnode->animateJoints(); // Needed for some animations
 			m_animated_meshnode->setScale(m_prop.visual_size);
 
 			// set vertex colors to ensure alpha is set
@@ -692,6 +691,21 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 
 			m_animated_meshnode->forEachMaterial([this] (auto &mat) {
 				mat.BackfaceCulling = m_prop.backface_culling;
+			});
+
+			m_animated_meshnode->setOnAnimateCallback([&](f32 dtime) {
+				for (auto &it : m_bone_override) {
+					auto* bone = m_animated_meshnode->getJointNode(it.first.c_str());
+					if (!bone)
+						continue;
+
+					BoneOverride &props = it.second;
+					props.dtime_passed += dtime;
+
+					bone->setPosition(props.getPosition(bone->getPosition()));
+					bone->setRotation(props.getRotationEulerDeg(bone->getRotation()));
+					bone->setScale(props.getScale(bone->getScale()));
+				}
 			});
 		} else
 			errorstream<<"GenericCAO::addToScene(): Could not load mesh "<<m_prop.mesh<<std::endl;
@@ -783,7 +797,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 	updateMarker();
 	updateNodePos();
 	updateAnimation();
-	updateBones(.0f);
 	updateAttachments();
 	setNodeLight(m_last_light);
 	updateMeshCulling();
@@ -1173,18 +1186,6 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 
 		rot_translator.val_current = m_rotation;
 		updateNodePos();
-	}
-
-	if (m_animated_meshnode) {
-		// Everything must be updated; the whole transform
-		// chain as well as the animated mesh node.
-		// Otherwise, bone attachments would be relative to
-		// a position that's one frame old.
-		if (m_matrixnode)
-			updatePositionRecursive(m_matrixnode);
-		m_animated_meshnode->updateAbsolutePosition();
-		m_animated_meshnode->animateJoints();
-		updateBones(dtime);
 	}
 }
 
@@ -1746,7 +1747,6 @@ void GenericCAO::processMessage(const std::string &data)
 		} else {
 			m_bone_override[bone] = props;
 		}
-		// updateBones(); now called every step
 	} else if (cmd == AO_CMD_ATTACH_TO) {
 		u16 parent_id = readS16(is);
 		std::string bone = deSerializeString16(is);
