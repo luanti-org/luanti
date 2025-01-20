@@ -9,6 +9,7 @@
 #include "MatrixBoneSceneNode.h"
 #include "SSkinMeshBuffer.h"
 #include "Transform.h"
+#include "aabbox3d.h"
 #include "irrMath.h"
 #include "matrix4.h"
 #include "os.h"
@@ -67,6 +68,28 @@ std::vector<VariantTransform> SkinnedMesh::animateMesh(f32 frame)
 	result.reserve(AllJoints.size());
 	for (auto *joint : AllJoints)
 		result.push_back(joint->animate(frame));
+	return result;
+}
+
+core::aabbox3df SkinnedMesh::calculateBoundingBox(
+		const std::vector<core::matrix4> &global_transforms)
+{
+	assert(global_transforms.size() == AllJoints.size());
+	core::aabbox3df result = StaticBoundingBox;
+	// skeletal animation
+	for (u16 i = 0; i < AllJoints.size(); ++i) {
+		auto box = AllJoints[i]->LocalBoundingBox;
+		global_transforms[i].transformBoxEx(box);
+		result.addInternalBox(box);
+	}
+	// rigid animation
+	for (u16 i = 0; i < AllJoints.size(); ++i) {
+		for (u32 j : AllJoints[i]->AttachedMeshes) {
+			auto box = (*SkinningBuffers)[j]->BoundingBox;
+			global_transforms[i].transformBoxEx(box);
+			result.addInternalBox(box);
+		}
+	}
 	return result;
 }
 
@@ -131,8 +154,6 @@ void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
 
 				//*(weight._Pos) += thisVertexMove * weight.strength;
 			}
-
-			buffersUsed[weight.buffer_id]->boundingBoxNeedsRecalculated();
 		}
 	}
 
@@ -314,8 +335,6 @@ void SkinnedMesh::prepareForSkinning()
 			weight.Moved = &Vertices_Moved[buffer_id][vertex_id];
 			weight.StaticPos = LocalBuffers[buffer_id]->getVertex(vertex_id)->Pos;
 			weight.StaticNormal = LocalBuffers[buffer_id]->getVertex(vertex_id)->Normal;
-
-			// weight._Pos=&Buffers[buffer_id]->getVertex(vertex_id)->Pos;
 		}
 	}
 
@@ -324,6 +343,70 @@ void SkinnedMesh::prepareForSkinning()
 	for (auto *joint : AllJoints) {
 		joint->keys.cleanup();
 	}
+}
+
+void SkinnedMesh::calculateStaticBoundingBox()
+{
+	std::vector<std::vector<bool>> animated(getMeshBufferCount());
+	for (u32 mb = 0; mb < getMeshBufferCount(); mb++)
+		animated[mb] = std::vector<bool>(getMeshBuffer(mb)->getVertexCount());
+
+	for (auto *joint : AllJoints) {
+		for (auto &weight : joint->Weights) {
+			const u16 buffer_id = weight.buffer_id;
+			const u32 vertex_id = weight.vertex_id;
+			animated[buffer_id][vertex_id] = true;
+		}
+	}
+
+	bool first = true;
+	for (u16 mb = 0; mb < getMeshBufferCount(); mb++) {
+		for (u32 v = 0; v < getMeshBuffer(mb)->getVertexCount(); v++) {
+			if (!animated[mb][v]) {
+				auto pos = getMeshBuffer(mb)->getVertexBuffer()->getPosition(v);
+				if (!first) {
+					StaticBoundingBox.addInternalPoint(pos);
+				} else {
+					StaticBoundingBox.reset(pos);
+					first = false;
+				}
+			}
+		}
+	}
+}
+
+void SkinnedMesh::calculateJointBoundingBoxes()
+{
+	for (auto *joint : AllJoints) {
+		bool first = true;
+		for (auto &weight : joint->Weights) {
+			if (weight.strength < 1e-6)
+				continue;
+			auto pos = weight.StaticPos;
+			joint->GlobalInversedMatrix.value().transformVect(pos);
+			if (!first) {
+				joint->LocalBoundingBox.addInternalPoint(pos);
+			} else {
+				joint->LocalBoundingBox.reset(pos);
+				first = false;
+			}
+		}
+	}
+}
+
+void SkinnedMesh::calculateBufferBoundingBoxes()
+{
+	for (u32 j = 0; j < LocalBuffers.size(); ++j) {
+		// If we use skeletal animation, this will just be a bounding box of the static pose;
+		// if we use rigid animation, this will correctly transform the points first.
+		LocalBuffers[j]->recalculateBoundingBox();
+	}
+}
+
+void SkinnedMesh::recalculateBaseBoundingBoxes() {
+	calculateStaticBoundingBox();
+	calculateJointBoundingBoxes();
+	calculateBufferBoundingBoxes();
 }
 
 void SkinnedMesh::topoSortJoints()
@@ -368,11 +451,6 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 
 	topoSortJoints();
 
-	// Calculate bounding box
-	for (auto *buffer : LocalBuffers) {
-		buffer->recalculateBoundingBox();
-	}
-
 	// Set array sizes
 	for (u32 i = 0; i < LocalBuffers.size(); ++i) {
 		Vertices_Moved.emplace_back(LocalBuffers[i]->getVertexCount());
@@ -382,7 +460,6 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 
 	std::vector<core::matrix4> matrices;
 	matrices.reserve(AllJoints.size());
-	// TODO populate with local matrices
 	for (auto *joint : AllJoints) {
 		if (const auto *matrix = std::get_if<core::matrix4>(&joint->transform))
 			matrices.push_back(*matrix);
@@ -403,39 +480,9 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 		}
 	}
 
-	// calculate bounding box
-	if (LocalBuffers.empty())
-		BoundingBox.reset(0, 0, 0);
-	else {
-		irr::core::aabbox3df bb(LocalBuffers[0]->BoundingBox);
-		LocalBuffers[0]->Transformation.transformBoxEx(bb);
-		BoundingBox.reset(bb);
-
-		for (u32 j = 1; j < LocalBuffers.size(); ++j) {
-			bb = LocalBuffers[j]->BoundingBox;
-			LocalBuffers[j]->Transformation.transformBoxEx(bb);
-
-			BoundingBox.addInternalBox(bb);
-		}
-	}
+	recalculateBaseBoundingBoxes();
 
 	return this;
-}
-
-void SkinnedMesh::updateBoundingBox()
-{
-	if (!SkinningBuffers)
-		return;
-
-	BoundingBox.reset(0, 0, 0);
-
-	for (auto *buffer : *SkinningBuffers) {
-		buffer->recalculateBoundingBox();
-		core::aabbox3df bb = buffer->BoundingBox;
-		buffer->Transformation.transformBoxEx(bb);
-
-		BoundingBox.addInternalBox(bb);
-	}
 }
 
 scene::SSkinMeshBuffer *SkinnedMeshBuilder::addMeshBuffer()

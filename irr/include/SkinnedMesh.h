@@ -98,12 +98,13 @@ public:
 
 	//! returns an axis aligned bounding box
 	const core::aabbox3d<f32> &getBoundingBox() const override {
-		return BoundingBox;
+		// assert(false); // TODO refactor IMesh so that we don't have to implement this
+		return StaticBoundingBox;
 	}
 
 	//! set user axis aligned bounding box
 	void setBoundingBox(const core::aabbox3df &box) override {
-		BoundingBox = box;
+		// assert(false); // TODO refactor
 	}
 
 	//! set the hardware mapping hint, for driver
@@ -152,8 +153,6 @@ public:
 
 	//! Moves the mesh into static position.
 	void resetAnimation();
-
-	void updateBoundingBox();
 
 	//! Creates an array of joints from this mesh as children of node
 	std::vector<IBoneSceneNode *> addJoints(
@@ -339,6 +338,9 @@ public:
 		//! Skin weights
 		std::vector<SWeight> Weights;
 
+		//! Bounding box of all affected vertices, in local space
+		core::aabbox3df LocalBoundingBox{{0, 0, 0}};
+
 		//! Unnecessary for loaders, will be overwritten on finalize
 		core::matrix4 GlobalMatrix; // loaders may still choose to set this (temporarily) to calculate absolute vertex data.
 
@@ -353,9 +355,10 @@ public:
 	//! Animates joints based on frame input
 	std::vector<SJoint::VariantTransform> animateMesh(f32 frame);
 
-	//! TODO
 	core::aabbox3df calculateBoundingBox(
-			const std::vector<SJoint::VariantTransform> &transforms);
+			const std::vector<core::matrix4> &global_transforms);
+	
+	void recalculateBaseBoundingBoxes();
 
 	const std::vector<SJoint *> &getAllJoints() const {
 		return AllJoints;
@@ -367,6 +370,10 @@ protected:
 	void topoSortJoints();
 
 	void prepareForSkinning();
+
+	void calculateStaticBoundingBox();
+	void calculateJointBoundingBoxes();
+	void calculateBufferBoundingBoxes();
 
 	void normalizeWeights();
 
@@ -388,7 +395,8 @@ protected:
 	// doesn't allow taking a reference to individual elements.
 	std::vector<std::vector<char>> Vertices_Moved;
 
-	core::aabbox3d<f32> BoundingBox{{0, 0, 0}};
+	//! Bounding box of just the static parts of the mesh
+	core::aabbox3d<f32> StaticBoundingBox{{0, 0, 0}};
 
 	f32 EndFrame;
 	f32 FramesPerSecond;
