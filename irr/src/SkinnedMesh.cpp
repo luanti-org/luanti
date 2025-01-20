@@ -408,6 +408,7 @@ void SkinnedMesh::recalculateBaseBoundingBoxes() {
 	calculateBufferBoundingBoxes();
 }
 
+// TODO this can be removed: Our API guarantees topo sorting if we prevent mutation
 void SkinnedMesh::topoSortJoints()
 {
 	size_t n = AllJoints.size();
