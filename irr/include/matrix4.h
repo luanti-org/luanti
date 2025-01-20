@@ -12,6 +12,8 @@
 #include "aabbox3d.h"
 #include "rect.h"
 #include <cassert>
+#include "IrrCompileConfig.h" // for IRRLICHT_API
+#include <ostream>
 
 namespace irr
 {
@@ -86,6 +88,20 @@ public:
 	T &operator[](u32 index)
 	{
 		return M[index];
+	}
+	//! Debug print the matrix
+	friend std::ostream& operator<<(std::ostream& os, const CMatrix4<T>& matrix)
+	{
+		os << "Matrix4:" << std::endl;
+		for (int row = 0; row < 4; ++row)
+		{
+			for (int col = 0; col < 4; ++col)
+			{
+				os << matrix(row, col) << " ";
+			}
+			os << std::endl;
+		}
+		return os;
 	}
 
 	//! Simple operator for linearly accessing every element of the matrix.
