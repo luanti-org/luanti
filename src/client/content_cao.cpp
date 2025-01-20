@@ -178,15 +178,6 @@ static void setBillboardTextureMatrix(scene::IBillboardSceneNode *bill,
 	matrix.setTextureScale(txs, tys);
 }
 
-// Evaluate transform chain recursively; irrlicht does not do this for us
-static void updatePositionRecursive(scene::ISceneNode *node)
-{
-	scene::ISceneNode *parent = node->getParent();
-	if (parent)
-		updatePositionRecursive(parent);
-	node->updateAbsolutePosition();
-}
-
 static bool logOnce(const std::ostringstream &from, std::ostream &log_to)
 {
 	thread_local std::vector<u64> logged;

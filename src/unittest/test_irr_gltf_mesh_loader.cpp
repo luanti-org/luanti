@@ -414,14 +414,14 @@ SECTION("simple skin")
 	SECTION("transformations are correct")
 	{
 		{
-			const auto &transform = std::get<SkinnedMesh::SJoint::Transform>(parent->transform);
+			const auto &transform = std::get<core::Transform>(parent->transform);
 			CHECK(transform.translation == v3f(0, 0, 0));
 			CHECK(transform.rotation == irr::core::quaternion());
 			CHECK(transform.scale == v3f(1, 1, 1));
 			CHECK(parent->GlobalInversedMatrix == irr::core::matrix4());
 		}
 		{
-			const auto &transform = std::get<SkinnedMesh::SJoint::Transform>(child->transform);
+			const auto &transform = std::get<core::Transform>(child->transform);
 			const v3f translation(0, 1, 0);
 			CHECK(transform.translation == translation);
 			CHECK(transform.rotation == irr::core::quaternion());

@@ -8,14 +8,17 @@
 #include "ISceneManager.h"
 #include "SMeshBuffer.h"
 #include "SSkinMeshBuffer.h"
+#include "aabbox3d.h"
 #include "irrMath.h"
 #include "matrix4.h"
 #include "quaternion.h"
 #include "vector3d.h"
+#include "Transform.h"
 
 #include <optional>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace irr
 {
@@ -40,9 +43,8 @@ public:
 	//! constructor
 	SkinnedMesh(SourceFormat src_format) :
 		EndFrame(0.f), FramesPerSecond(25.f),
-		LastAnimatedFrame(-1), SkinnedLastFrame(false),
 		HasAnimation(false), PreparedForSkinning(false),
-		AnimateNormals(true), HardwareSkinning(false),
+		AnimateNormals(true),
 		SrcFormat(src_format)
 	{
 		SkinningBuffers = &LocalBuffers;
@@ -67,14 +69,16 @@ public:
 	The actual speed is set in the scene node the mesh is instantiated in.*/
 	void setAnimationSpeed(f32 fps) override;
 
-	//! returns the animated mesh for the given frame
-	IMesh *getMesh(f32) override;
+	//! **Must not be called**.
+	//! TODO refactor Irrlicht so that we need not implement this.
+	IMesh *getMesh(f32) override { assert(false); };
 
-	//! Animates joints based on frame input
-	void animateMesh(f32 frame);
+	//! Turns the given array of local matrices into an array of global matrices
+	//! by multiplying with respective parent matrices.
+	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices);
 
-	//! Performs a software skin on this mesh based of joint positions
-	void skinMesh();
+	//! Performs a software skin on this mesh based on the given joint matrices
+	void skinMesh(const std::vector<core::matrix4> &animated_transforms);
 
 	//! returns amount of mesh buffers.
 	u32 getMeshBufferCount() const override;
@@ -143,10 +147,6 @@ public:
 		return !HasAnimation;
 	}
 
-	//! Allows to enable hardware skinning.
-	/* This feature is not implemented in Irrlicht yet */
-	bool setHardwareSkinning(bool on);
-
 	//! Refreshes vertex data cached in joints such as positions and normals
 	void refreshJointCache();
 
@@ -155,16 +155,9 @@ public:
 
 	void updateBoundingBox();
 
-	//! Recovers the joints from the mesh
-	void recoverJointsFromMesh(std::vector<IBoneSceneNode *> &jointChildSceneNodes);
-
-	//! Transfers the joint data to the mesh
-	void transferJointsToMesh(const std::vector<IBoneSceneNode *> &jointChildSceneNodes);
-
 	//! Creates an array of joints from this mesh as children of node
-	void addJoints(std::vector<IBoneSceneNode *> &jointChildSceneNodes,
-			IAnimatedMeshSceneNode *node,
-			ISceneManager *smgr);
+	std::vector<IBoneSceneNode *> addJoints(
+			IAnimatedMeshSceneNode *node, ISceneManager *smgr);
 
 	//! A vertex weight
 	struct SWeight
@@ -291,15 +284,14 @@ public:
 			});
 		}
 
-		void updateTransform(f32 frame,
-				core::vector3df &t, core::quaternion &r, core::vector3df &s) const
+		void updateTransform(f32 frame, core::Transform &transform) const
 		{
 			if (auto pos = position.get(frame))
-				t = *pos;
+				transform.translation = *pos;
 			if (auto rot = rotation.get(frame))
-				r = *rot;
+				transform.rotation = *rot;
 			if (auto scl = scale.get(frame))
-				s = *scl;
+				transform.scale = *scl;
 		}
 
 		void cleanup() {
@@ -317,55 +309,24 @@ public:
 		//! The name of this joint
 		std::optional<std::string> Name;
 
-		struct Transform {
-			core::vector3df translation;
-			core::quaternion rotation;
-			core::vector3df scale{1};
-
-			core::matrix4 buildMatrix() const {
-				core::matrix4 T;
-				T.setTranslation(translation);
-				core::matrix4 R;
-				rotation.getMatrix_transposed(R);
-				core::matrix4 S;
-				S.setScale(scale);
-				return T * R * S;
-			}
-		};
-
 		//! Local transformation to be set by loaders. Mutated by animation.
 		//! If a matrix is used, this joint **must not** be animated,
 		//! because then the unique decomposition into translation, rotation and scale need not exist!
-		std::variant<core::matrix4, Transform> transform = Transform{};
+		using VariantTransform = std::variant<core::Transform, core::matrix4>;
+		VariantTransform transform{core::Transform{}};
 
-		Transform &getAnimatableTransform() {
-			if (std::holds_alternative<Transform>(transform))
-				return std::get<Transform>(transform);
-			const auto &mat = std::get<core::matrix4>(transform);
-			Transform trs;
-			trs.translation = mat.getTranslation();
-			trs.scale = mat.getScale();
-			trs.rotation = core::quaternion(
-					mat.getRotationDegrees(trs.scale) * core::DEGTORAD);
-			transform = trs;
-			// TODO raise a warning if the recomposed matrix does not equal the decomposed.
-			return std::get<Transform>(transform);
-		}
-
-		void animate(f32 frame) {
+		VariantTransform animate(f32 frame) const {
 			if (keys.empty())
-				return;
-			auto &transform = getAnimatableTransform();
-			keys.updateTransform(frame,
-				transform.translation,
-				transform.rotation,
-				transform.scale);
-		}
+				return transform;
 
-		core::matrix4 buildLocalMatrix() const {
-			if (std::holds_alternative<core::matrix4>(transform))
-				return std::get<core::matrix4>(transform);
-			return std::get<Transform>(transform).buildMatrix();
+			if (std::holds_alternative<core::matrix4>(transform)) {
+				// TODO raise a warning: Attempt to animate a static joint.
+				return transform;
+			}
+
+			auto trs = std::get<core::Transform>(transform);
+			keys.updateTransform(frame, trs);
+			return {trs};
 		}
 
 		//! List of child joints
@@ -382,32 +343,34 @@ public:
 
 		//! Unnecessary for loaders, will be overwritten on finalize
 		core::matrix4 GlobalMatrix; // loaders may still choose to set this (temporarily) to calculate absolute vertex data.
-		core::matrix4 GlobalAnimatedMatrix;
-		core::matrix4 LocalAnimatedMatrix;
 
 		// The .x and .gltf formats pre-calculate this
 		std::optional<core::matrix4> GlobalInversedMatrix;
-	private:
-		//! Internal members used by SkinnedMesh
-		friend class SkinnedMesh;
+	
+		// TODO friends?
+		u16 JointID; // TODO refactor away: pointers -> IDs
+		std::optional<u16> ParentJointID;
 	};
+
+	//! Animates joints based on frame input
+	std::vector<SJoint::VariantTransform> animateMesh(f32 frame);
+
+	//! TODO
+	core::aabbox3df calculateBoundingBox(
+			const std::vector<SJoint::VariantTransform> &transforms);
 
 	const std::vector<SJoint *> &getAllJoints() const {
 		return AllJoints;
 	}
 
 protected:
-	void checkForAnimation();
+	bool checkForAnimation() const;
+
+	void topoSortJoints();
+
+	void prepareForSkinning();
 
 	void normalizeWeights();
-
-	void buildAllLocalAnimatedMatrices();
-
-	void buildAllGlobalAnimatedMatrices(SJoint *Joint = 0, SJoint *ParentJoint = 0);
-
-	void calculateGlobalMatrices(SJoint *Joint, SJoint *ParentJoint);
-
-	void skinJoint(SJoint *Joint, SJoint *ParentJoint);
 
 	void calculateTangents(core::vector3df &normal,
 			core::vector3df &tangent, core::vector3df &binormal,
@@ -420,8 +383,8 @@ protected:
 	//! Mapping from meshbuffer number to bindable texture slot
 	std::vector<u32> TextureSlots;
 
+	//! Joints, topologically sorted (parents come before their children).
 	std::vector<SJoint *> AllJoints;
-	std::vector<SJoint *> RootJoints;
 
 	// bool can't be used here because std::vector<bool>
 	// doesn't allow taking a reference to individual elements.
@@ -432,15 +395,17 @@ protected:
 	f32 EndFrame;
 	f32 FramesPerSecond;
 
-	f32 LastAnimatedFrame;
-	bool SkinnedLastFrame;
-
 	bool HasAnimation;
 	bool PreparedForSkinning;
 	bool AnimateNormals;
+<<<<<<< HEAD
 	bool HardwareSkinning;
 
 	SourceFormat SrcFormat;
+||||||| parent of 44f1cd940 (progress)
+	bool HardwareSkinning;
+=======
+>>>>>>> 44f1cd940 (progress)
 };
 
 // Interface for mesh loaders

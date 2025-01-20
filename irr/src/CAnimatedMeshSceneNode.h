@@ -7,6 +7,7 @@
 #include "IAnimatedMeshSceneNode.h"
 #include "IAnimatedMesh.h"
 
+#include "SkinnedMesh.h"
 #include "matrix4.h"
 
 namespace irr
@@ -123,8 +124,12 @@ public:
 	//! you must call animateJoints(), or the mesh will not animate
 	void setTransitionTime(f32 Time) override;
 
+	void updateJointSceneNodes(const std::vector<SkinnedMesh::SJoint::VariantTransform> &transforms);
+
 	//! updates the joint positions of this mesh
 	void animateJoints() override;
+
+	void addJoints();
 
 	//! render mesh ignoring its transformation. Used with ragdolls. (culling is unaffected)
 	void setRenderFromIdentity(bool On) override;

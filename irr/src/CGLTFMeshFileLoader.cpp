@@ -551,7 +551,7 @@ static core::matrix4 loadTransform(const tiniergltf::Node::TRS &trs, SkinnedMesh
 	const auto &t = trs.translation;
 	const auto &r = trs.rotation;
 	const auto &s = trs.scale;
-	SkinnedMesh::SJoint::Transform transform{
+	core::Transform transform{
 		convertHandedness(core::vector3df(t[0], t[1], t[2])),
 		convertHandedness(core::quaternion(r[0], r[1], r[2], r[3])),
 		core::vector3df(s[0], s[1], s[2]),
