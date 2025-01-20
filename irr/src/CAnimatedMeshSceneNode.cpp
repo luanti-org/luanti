@@ -148,8 +148,11 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 
 IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 {
-	if (Mesh->getMeshType() != EAMT_SKINNED)
-		return Mesh->getMesh(getFrameNr());
+	if (Mesh->getMeshType() != EAMT_SKINNED) {
+		auto *res = Mesh->getMesh(getFrameNr());
+		Box = res->getBoundingBox();
+		return res;
+	}
 
 	// As multiple scene nodes may be sharing the same skinned mesh, we have to
 	// re-animate it every frame to ensure that this node gets the mesh that it needs.
@@ -164,9 +167,9 @@ IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 
 	skinnedMesh->skinMesh(matrices);
 
-	skinnedMesh->updateBoundingBox();
-
-	Box = skinnedMesh->getBoundingBox();
+	// TODO this should have happened *before* the skinning in OnAnimate;
+	// we should thus probably store the global matrices.
+	Box = skinnedMesh->calculateBoundingBox(matrices);
 
 	return skinnedMesh;
 }
@@ -206,7 +209,6 @@ void CAnimatedMeshSceneNode::render()
 
 	scene::IMesh *m = getMeshForCurrentFrame();
 	_IRR_DEBUG_BREAK_IF(!m);
-	Box = m->getBoundingBox(); // HACK
 
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
