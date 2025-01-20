@@ -404,12 +404,12 @@ SECTION("simple skin")
 	};
 
 	// Check the node hierarchy
-	const auto parent = findJoint([](auto joint) {
-		return !joint->Children.empty();
+	const auto *parent = findJoint([](auto *joint) {
+		return !joint->ParentJointID;
 	});
-	REQUIRE(parent->Children.size() == 1);
-	const auto child = parent->Children[0];
-	REQUIRE(child != parent);
+	const auto child = findJoint([&](auto *joint) {
+		return joint->ParentJointID && *joint->ParentJointID == parent->JointID;
+	});
 
 	SECTION("transformations are correct")
 	{

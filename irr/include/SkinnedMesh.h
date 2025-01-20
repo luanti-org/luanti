@@ -329,8 +329,6 @@ public:
 			return {trs};
 		}
 
-		//! List of child joints
-		std::vector<SJoint *> Children;
 
 		//! List of attached meshes
 		std::vector<u32> AttachedMeshes;

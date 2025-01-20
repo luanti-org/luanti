@@ -528,8 +528,6 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 #ifdef _XREADER_DEBUG
 		os::Printer::log("using joint ", name.c_str(), ELL_DEBUG);
 #endif
-		if (Parent)
-			Parent->Children.push_back(joint);
 	}
 
 	// Now inside a frame.
