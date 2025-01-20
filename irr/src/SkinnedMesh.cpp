@@ -471,8 +471,10 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 	
 	for (size_t i = 0; i < AllJoints.size(); ++i) {
 		auto *joint = AllJoints[i];
-		joint->GlobalInversedMatrix = matrices[i];
-		joint->GlobalInversedMatrix->makeInverse();
+		if (!joint->GlobalInversedMatrix) {
+			joint->GlobalInversedMatrix = matrices[i];
+			joint->GlobalInversedMatrix->makeInverse();
+		}
 		// rigid animation for non animated meshes
 		for (u32 attachedMeshIdx : joint->AttachedMeshes) {
 			SSkinMeshBuffer *Buffer = (*SkinningBuffers)[attachedMeshIdx];
