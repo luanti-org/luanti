@@ -4,6 +4,7 @@
 
 #include "CXMeshFileLoader.h"
 #include "SkinnedMesh.h"
+#include "Transform.h"
 #include "os.h"
 
 #include "fast_atof.h"
@@ -552,9 +553,16 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 			if (!parseDataObjectFrame(joint))
 				return false;
 		} else if (objectName == "FrameTransformMatrix") {
-			joint->transform = core::matrix4();
-			if (!parseDataObjectTransformationMatrix(std::get<core::matrix4>(joint->transform)))
+			core::matrix4 matrix;
+			if (!parseDataObjectTransformationMatrix(matrix))
 				return false;
+			auto transform = core::Transform::decompose(matrix);
+			// Try to decompose. If the recomposed matrix equals the old one with a liberal tolerance, use that.
+			if (transform.buildMatrix().equals(matrix, 1e-5)) {
+				joint->transform = transform;
+			} else {
+				joint->transform = matrix;
+			}
 		} else if (objectName == "Mesh") {
 			/*
 			frame.Meshes.push_back(SXMesh());

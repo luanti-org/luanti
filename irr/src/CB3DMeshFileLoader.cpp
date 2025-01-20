@@ -143,7 +143,7 @@ bool CB3DMeshFileLoader::readChunkNODE(SkinnedMesh::SJoint *inJoint)
 	os::Printer::log(logStr.c_str(), joint->Name.value_or("").c_str(), ELL_DEBUG);
 #endif
 
-	SkinnedMesh::SJoint::Transform transform;
+	core::Transform transform;
 	{
 		f32 t[3], s[3], r[4];
 
@@ -159,9 +159,9 @@ bool CB3DMeshFileLoader::readChunkNODE(SkinnedMesh::SJoint *inJoint)
 	}
 
 	if (inJoint)
-		joint->GlobalMatrix = inJoint->GlobalMatrix * joint->buildLocalMatrix();
+		joint->GlobalMatrix = inJoint->GlobalMatrix * transform.buildMatrix();
 	else
-		joint->GlobalMatrix = joint->buildLocalMatrix();
+		joint->GlobalMatrix = transform.buildMatrix();
 
 	while (B3dStack.getLast().startposition + B3dStack.getLast().length > B3DFile->getPos()) // this chunk repeats
 	{

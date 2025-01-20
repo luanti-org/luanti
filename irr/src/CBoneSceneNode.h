@@ -7,6 +7,7 @@
 // Used with SkinnedMesh and IAnimatedMeshSceneNode, for boned meshes
 
 #include "IBoneSceneNode.h"
+#include "Transform.h"
 
 #include <optional>
 
@@ -21,29 +22,26 @@ public:
 	//! constructor
 	CBoneSceneNode(ISceneNode *parent, ISceneManager *mgr,
 			s32 id = -1, u32 boneIndex = 0,
-			const std::optional<std::string> &boneName = std::nullopt) :
-		IBoneSceneNode(parent, mgr, id),
-		BoneIndex(boneIndex)
+			const std::optional<std::string> &boneName = std::nullopt,
+			const core::Transform &transform = {}) :
+		IBoneSceneNode(parent, mgr, id, boneIndex, boneName)
 	{
-		setName(boneName);
+		setTransform(transform);
 	}
 
-	//! Returns the index of the bone
-	u32 getBoneIndex() const override
+	void setTransform(const core::Transform &transform)
 	{
-		return BoneIndex;
+		setPosition(transform.translation);
+		{
+			core::vector3df euler;
+			auto rot = transform.rotation;
+			// Invert to be consistent with setRotationDegrees
+			rot.makeInverse();
+			rot.toEuler(euler);
+			setRotation(euler * core::RADTODEG);
+		}
+		setScale(transform.scale);
 	}
-
-	//! returns the axis aligned bounding box of this node
-	const core::aabbox3d<f32> &getBoundingBox() const override
-	{
-		return Box;
-	}
-
-	const u32 BoneIndex;
-
-	// Bogus box; bone scene nodes are not rendered anyways.
-	static constexpr core::aabbox3d<f32> Box = {{0, 0, 0}};
 };
 
 } // end namespace scene

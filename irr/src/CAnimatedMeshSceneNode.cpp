@@ -3,9 +3,13 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "CAnimatedMeshSceneNode.h"
+#include "CBoneSceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
+#include "MatrixBoneSceneNode.h"
 #include "S3DVertex.h"
+#include "Transform.h"
+#include "matrix4.h"
 #include "os.h"
 #include "SkinnedMesh.h"
 #include "IDummyTransformationSceneNode.h"
@@ -17,6 +21,7 @@
 #include "IFileSystem.h"
 #include "quaternion.h"
 #include <algorithm>
+#include <cstddef>
 
 namespace irr
 {
@@ -30,7 +35,7 @@ CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(IAnimatedMesh *mesh,
 		const core::vector3df &rotation,
 		const core::vector3df &scale) :
 		IAnimatedMeshSceneNode(parent, mgr, id, position, rotation, scale),
-		Mesh(0),
+		Mesh(nullptr),
 		StartFrame(0), EndFrame(0), FramesPerSecond(0.025f),
 		CurrentFrameNr(0.f), LastTimeMs(0),
 		TransitionTime(0), Transiting(0.f), TransitingBlend(0.f),
@@ -143,25 +148,27 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 
 IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 {
-	if (Mesh->getMeshType() != EAMT_SKINNED) {
+	if (Mesh->getMeshType() != EAMT_SKINNED)
 		return Mesh->getMesh(getFrameNr());
-	} else {
-		// As multiple scene nodes may be sharing the same skinned mesh, we have to
-		// re-animate it every frame to ensure that this node gets the mesh that it needs.
 
-		SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
+	// As multiple scene nodes may be sharing the same skinned mesh, we have to
+	// re-animate it every frame to ensure that this node gets the mesh that it needs.
 
-		skinnedMesh->transferJointsToMesh(JointChildSceneNodes);
+	auto *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
 
-		// Update the skinned mesh for the current joint transforms.
-		skinnedMesh->skinMesh();
+	std::vector<core::matrix4> matrices;
+	matrices.reserve(JointChildSceneNodes.size());
+	for (auto *node : JointChildSceneNodes)
+		matrices.push_back(node->getRelativeTransformation());
+	skinnedMesh->calculateGlobalMatrices(matrices);
 
-		skinnedMesh->updateBoundingBox();
+	skinnedMesh->skinMesh(matrices);
 
-		Box = skinnedMesh->getBoundingBox();
+	skinnedMesh->updateBoundingBox();
 
-		return skinnedMesh;
-	}
+	Box = skinnedMesh->getBoundingBox();
+
+	return skinnedMesh;
 }
 
 //! OnAnimate() is called just before rendering the whole scene.
@@ -268,13 +275,13 @@ void CAnimatedMeshSceneNode::render()
 			if (Mesh->getMeshType() == EAMT_SKINNED) {
 				// draw skeleton
 
-				for (auto *joint : ((SkinnedMesh *)Mesh)->getAllJoints()) {
+				/*for (auto *joint : ((SkinnedMesh *)Mesh)->getAllJoints()) {
 					for (const auto *childJoint : joint->Children) {
 						driver->draw3DLine(joint->GlobalAnimatedMatrix.getTranslation(),
 								childJoint->GlobalAnimatedMatrix.getTranslation(),
 								video::SColor(255, 51, 66, 255));
 					}
-				}
+				}*/
 			}
 		}
 
@@ -526,6 +533,42 @@ void CAnimatedMeshSceneNode::setRenderFromIdentity(bool enable)
 	RenderFromIdentity = enable;
 }
 
+void CAnimatedMeshSceneNode::addJoints()
+{
+	const auto &joints = static_cast<SkinnedMesh*>(Mesh)->getAllJoints();
+	JointChildSceneNodes.clear();
+	JointChildSceneNodes.reserve(joints.size());
+	for (size_t i = 0; i < joints.size(); ++i) {
+		const auto *joint = joints[i];
+		ISceneNode *parent = this;
+		if (joint->ParentJointID)
+			parent = JointChildSceneNodes.at(*joint->ParentJointID); // exists because of topo. order
+		assert(parent);
+		if (const auto *matrix = std::get_if<core::matrix4>(&joint->transform)) {
+			JointChildSceneNodes.push_back(new MatrixBoneSceneNode(
+					parent, SceneManager, 0, i, joint->Name, *matrix));
+		} else {
+			JointChildSceneNodes.push_back(new CBoneSceneNode(
+					parent, SceneManager, 0, i, joint->Name,
+					std::get<core::Transform>(joint->transform)));
+		}
+	}
+}
+
+void CAnimatedMeshSceneNode::updateJointSceneNodes(
+		const std::vector<SkinnedMesh::SJoint::VariantTransform> &transforms)
+{
+	for (size_t i = 0; i < transforms.size(); ++i) {
+		const auto &transform = transforms[i];
+		IBoneSceneNode *node = JointChildSceneNodes[i];
+		if (const auto *trs = std::get_if<core::Transform>(&transform)) {
+			dynamic_cast<CBoneSceneNode*>(node)->setTransform(*trs);
+		} else {
+			assert(dynamic_cast<MatrixBoneSceneNode*>(node));
+		}
+	}
+}
+
 //! updates the joint positions of this mesh
 void CAnimatedMeshSceneNode::animateJoints()
 {
@@ -536,8 +579,7 @@ void CAnimatedMeshSceneNode::animateJoints()
 
 	SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
 
-	skinnedMesh->animateMesh(getFrameNr());
-	skinnedMesh->recoverJointsFromMesh(JointChildSceneNodes);
+	updateJointSceneNodes(skinnedMesh->animateMesh(getFrameNr()));
 
 	//-----------------------------------------
 	//		Transition
@@ -593,11 +635,7 @@ void CAnimatedMeshSceneNode::checkJoints()
 	if (!JointsUsed) {
 		for (u32 i = 0; i < JointChildSceneNodes.size(); ++i)
 			removeChild(JointChildSceneNodes[i]);
-		JointChildSceneNodes.clear();
-
-		// Create joints for SkinnedMesh
-		((SkinnedMesh *)Mesh)->addJoints(JointChildSceneNodes, this, SceneManager);
-		((SkinnedMesh *)Mesh)->recoverJointsFromMesh(JointChildSceneNodes);
+		addJoints();
 
 		JointsUsed = true;
 	}
