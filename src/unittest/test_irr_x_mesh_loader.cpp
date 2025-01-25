@@ -28,6 +28,7 @@ if (!gamespec.isValid())
 irr::SIrrlichtCreationParameters p;
 p.DriverType = video::EDT_NULL;
 auto *driver = irr::createDeviceEx(p);
+
 REQUIRE(driver);
 
 auto *smgr = driver->getSceneManager();
@@ -45,37 +46,63 @@ SECTION("cool guy") {
 	REQUIRE(mesh);
 	REQUIRE(mesh->getMeshBufferCount() == 1);
 
-	auto getJoint = [&](auto name) {
-		return mesh->getAllJoints()[mesh->getJointNumber(name).value()];
+	auto getJointId = [&](auto name) {
+		return mesh->getJointNumber(name).value();
 	};
 
-	const auto *root = getJoint("Root");
-	const auto *armature = getJoint("Armature");
-	const auto *armature_body = getJoint("Armature_body");
-	const auto *armature_arm_r = getJoint("Armature_arm_r");
+	const auto root = getJointId("Root");
+	const auto armature = getJointId("Armature");
+	const auto armature_body = getJointId("Armature_body");
+	const auto armature_arm_r = getJointId("Armature_arm_r");
 
+	std::vector<core::matrix4> matrices;
+	matrices.reserve(mesh->getJointCount());
+	for (auto *joint : mesh->getAllJoints()) {
+		if (const auto *matrix = std::get_if<core::matrix4>(&joint->transform))
+			matrices.push_back(*matrix);
+		else
+		 	matrices.push_back(std::get<core::Transform>(joint->transform).buildMatrix());
+	}
+	auto local_matrices = matrices;
+	mesh->calculateGlobalMatrices(matrices);
+
+	SECTION("joints are topologically sorted") {
+		REQUIRE(root < armature);
+		REQUIRE(armature < armature_body);
+		REQUIRE(armature_body < armature_arm_r);
+	}
+
+	SECTION("parents are correct") {
+		const auto get_parent = [&](auto id) {
+			return mesh->getAllJoints()[id]->ParentJointID;
+		};
+		REQUIRE(!get_parent(root));
+		REQUIRE(get_parent(armature).value() == root);
+		REQUIRE(get_parent(armature_body).value() == armature);
+		REQUIRE(get_parent(armature_arm_r).value() == armature_body);
+	}
 
 	SECTION("local matrices are correct") {
-		REQUIRE(root->LocalMatrix.equals(core::IdentityMatrix));
-		REQUIRE(armature->LocalMatrix.equals(core::IdentityMatrix));
-		REQUIRE(armature_body->LocalMatrix.equals(core::matrix4(
+		REQUIRE(local_matrices[root].equals(core::IdentityMatrix));
+		REQUIRE(local_matrices[armature].equals(core::IdentityMatrix));
+		REQUIRE(local_matrices[armature_body] == core::matrix4(
 			-1,0,0,0,
 			0,0,1,0,
 			0,1,0,0,
 			0,2.571201,0,1
-		)));
-		REQUIRE(armature_arm_r->LocalMatrix.equals(core::matrix4(
+		));
+		REQUIRE(local_matrices[armature_arm_r] == core::matrix4(
 			-0.047733,0.997488,-0.05233,0,
 			0.901521,0.020464,-0.432251,0,
 			-0.430095,-0.067809,-0.900233,
 			0,-0.545315,0,1,1
-		)));
+		));
 	}
 
 	SECTION("global matrices are correct") {
-		REQUIRE(armature_body->GlobalMatrix.equals(armature_body->LocalMatrix));
-		REQUIRE(armature_arm_r->GlobalMatrix.equals(
-			armature_body->GlobalMatrix * armature_arm_r->LocalMatrix));
+		REQUIRE(matrices[armature_body] == local_matrices[armature_body]);
+		REQUIRE(matrices[armature_arm_r] ==
+			matrices[armature_body] * local_matrices[armature_arm_r]);
 	}
 }
 
