@@ -632,7 +632,6 @@ void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 {
 	const auto &anim = m_gltf_model.animations->at(animIdx);
 	for (const auto &channel : anim.channels) {
-
 		const auto &sampler = anim.samplers.at(channel.sampler);
 
 		bool interpolate = ([&]() {
@@ -653,6 +652,11 @@ void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 			throw std::runtime_error("no animated node");
 
 		auto *joint = m_loaded_nodes.at(*channel.target.node);
+		if (std::holds_alternative<core::matrix4>(joint->transform)) {
+			warn("nodes using matrix transforms must not be animated");
+			continue;
+		}
+
 		switch (channel.target.path) {
 		case tiniergltf::AnimationChannelTarget::Path::TRANSLATION: {
 			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
