@@ -265,7 +265,7 @@ void SkinnedMesh::resetAnimation()
 
 //! Turns the given array of local matrices into an array of global matrices
 //! by multiplying with respective parent matrices.
-void SkinnedMesh::calculateGlobalMatrices(std::vector<core::matrix4> &matrices)
+void SkinnedMesh::calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const
 {
 	// Note that the joints are topologically sorted.
 	for (u16 i = 0; i < AllJoints.size(); ++i) {
@@ -409,40 +409,45 @@ void SkinnedMesh::recalculateBaseBoundingBoxes() {
 	calculateBufferBoundingBoxes();
 }
 
-// TODO this can be removed: Our API guarantees topo sorting if we prevent mutation
 void SkinnedMesh::topoSortJoints()
 {
 	size_t n = AllJoints.size();
 
-	std::vector<u16> permutation; // new id -> old id
+	std::vector<u16> new_to_old_id; // new id -> old id
 
-	std::vector<std::vector<u16>> children(AllJoints.size());
+	std::vector<std::vector<u16>> children(n);
 	for (u16 i = 0; i < n; ++i) {
 		if (auto parentId = AllJoints[i]->ParentJointID)
 			children[*parentId].push_back(i);
 		else
-		 	permutation.push_back(i);
+		 	new_to_old_id.push_back(i);
 	}
 
 	// Levelorder
 	for (u16 i = 0; i < n; ++i) {
-		permutation.insert(permutation.end(),
-				children[i].begin(), children[i].end());
+		new_to_old_id.insert(new_to_old_id.end(),
+				children[new_to_old_id[i]].begin(),
+				children[new_to_old_id[i]].end());
 	}
 
 	// old id -> new id
-	std::vector<u16> inverse_permutation(n);
+	std::vector<u16> old_to_new_id(n);
 	for (u16 i = 0; i < n; ++i)
-		inverse_permutation[permutation[i]] = i;
+		old_to_new_id[new_to_old_id[i]] = i;
 
 	std::vector<SJoint *> joints(n);
 	for (u16 i = 0; i < n; ++i) {
-		joints[i] = AllJoints[permutation[i]];
+		joints[i] = AllJoints[new_to_old_id[i]];
 		joints[i]->JointID = i;
 		if (auto parentId = joints[i]->ParentJointID)
-			joints[i]->ParentJointID = inverse_permutation[*parentId];
+			joints[i]->ParentJointID = old_to_new_id[*parentId];
 	}
-	AllJoints = joints;
+	AllJoints = std::move(joints);
+
+	for (u16 i = 0; i < n; ++i) {
+		if (auto pjid = AllJoints[i]->ParentJointID)
+			assert(*pjid < i);
+	}
 }
 
 //! called by loader after populating with mesh and bone data
@@ -469,7 +474,6 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 	}
 	calculateGlobalMatrices(matrices);
 
-	
 	for (size_t i = 0; i < AllJoints.size(); ++i) {
 		auto *joint = AllJoints[i];
 		if (!joint->GlobalInversedMatrix) {

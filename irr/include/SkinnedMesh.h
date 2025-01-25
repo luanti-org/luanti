@@ -75,7 +75,7 @@ public:
 
 	//! Turns the given array of local matrices into an array of global matrices
 	//! by multiplying with respective parent matrices.
-	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices);
+	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const;
 
 	//! Performs a software skin on this mesh based on the given joint matrices
 	void skinMesh(const std::vector<core::matrix4> &animated_transforms);
