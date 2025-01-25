@@ -17,7 +17,6 @@
 #include <cassert>
 #include <cstddef>
 #include <variant>
-#include <iostream>
 #include <vector>
 
 namespace irr
@@ -467,7 +466,6 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 		else
 		 	matrices.push_back(std::get<core::Transform>(joint->transform).buildMatrix());
 	}
-	auto local_matrices = matrices;
 	calculateGlobalMatrices(matrices);
 
 	
@@ -482,10 +480,6 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 			SSkinMeshBuffer *Buffer = (*SkinningBuffers)[attachedMeshIdx];
 			Buffer->Transformation = matrices[i];
 		}
-		std::cout << "Joint Name: " << joint->Name.value_or("unnamed") << std::endl;
-		std::cout << "Local: " << local_matrices[i] << std::endl;
-		std::cout << "Global: " << matrices[i] << std::endl;
-		std::cout << "Global Inverse: " << joint->GlobalInversedMatrix.value() << std::endl;
 	}
 
 	recalculateBaseBoundingBoxes();
