@@ -46,6 +46,15 @@ public:
 		setScale(transform.scale);
 	}
 
+	core::Transform getTransform() const
+	{
+		return {
+			getPosition(),
+			core::quaternion(getRotation() * core::DEGTORAD).makeInverse(),
+			getScale()
+		};
+	}
+
 	core::matrix4 getRelativeTransformation() const override
 	{
 		if (Matrix)
