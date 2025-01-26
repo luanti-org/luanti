@@ -6,7 +6,6 @@
 #include "IBoneSceneNode.h"
 #include "CBoneSceneNode.h"
 #include "IAnimatedMeshSceneNode.h"
-#include "MatrixBoneSceneNode.h"
 #include "SSkinMeshBuffer.h"
 #include "Transform.h"
 #include "aabbox3d.h"

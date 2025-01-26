@@ -6,7 +6,6 @@
 #include "CBoneSceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
-#include "MatrixBoneSceneNode.h"
 #include "S3DVertex.h"
 #include "Transform.h"
 #include "matrix4.h"
@@ -22,6 +21,7 @@
 #include "quaternion.h"
 #include <algorithm>
 #include <cstddef>
+#include <optional>
 
 namespace irr
 {
@@ -546,14 +546,11 @@ void CAnimatedMeshSceneNode::addJoints()
 		if (joint->ParentJointID)
 			parent = JointChildSceneNodes.at(*joint->ParentJointID); // exists because of topo. order
 		assert(parent);
-		if (const auto *matrix = std::get_if<core::matrix4>(&joint->transform)) {
-			JointChildSceneNodes.push_back(new MatrixBoneSceneNode(
-					parent, SceneManager, 0, i, joint->Name, *matrix));
-		} else {
-			JointChildSceneNodes.push_back(new CBoneSceneNode(
-					parent, SceneManager, 0, i, joint->Name,
-					std::get<core::Transform>(joint->transform)));
-		}
+		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
+		JointChildSceneNodes.push_back(new CBoneSceneNode(
+				parent, SceneManager, 0, i, joint->Name,
+				matrix ? core::Transform{} : std::get<core::Transform>(joint->transform),
+				matrix ? *matrix : std::optional<core::matrix4>{}));
 	}
 }
 
@@ -562,11 +559,13 @@ void CAnimatedMeshSceneNode::updateJointSceneNodes(
 {
 	for (size_t i = 0; i < transforms.size(); ++i) {
 		const auto &transform = transforms[i];
-		IBoneSceneNode *node = JointChildSceneNodes[i];
+		auto *node = static_cast<CBoneSceneNode*>(JointChildSceneNodes[i]);
 		if (const auto *trs = std::get_if<core::Transform>(&transform)) {
-			dynamic_cast<CBoneSceneNode*>(node)->setTransform(*trs);
+			node->setTransform(*trs);
+			// .x lets animations override matrix transforms entirely.
+			node->Matrix = std::nullopt;
 		} else {
-			assert(dynamic_cast<MatrixBoneSceneNode*>(node));
+			node->Matrix = std::get<core::matrix4>(transform);
 		}
 	}
 }

@@ -319,8 +319,10 @@ public:
 				return transform;
 
 			if (std::holds_alternative<core::matrix4>(transform)) {
-				// TODO raise a warning: Attempt to animate a static joint.
-				return transform;
+				// .x lets animations override matrix transforms entirely.
+				core::Transform trs;
+				keys.updateTransform(frame, trs);
+				return {trs};
 			}
 
 			auto trs = std::get<core::Transform>(transform);
@@ -346,7 +348,7 @@ public:
 
 		// The .x and .gltf formats pre-calculate this
 		std::optional<core::matrix4> GlobalInversedMatrix;
-	
+
 		// TODO friends?
 		u16 JointID; // TODO refactor away: pointers -> IDs
 		std::optional<u16> ParentJointID;
@@ -357,7 +359,7 @@ public:
 
 	core::aabbox3df calculateBoundingBox(
 			const std::vector<core::matrix4> &global_transforms);
-	
+
 	void recalculateBaseBoundingBoxes();
 
 	const std::vector<SJoint *> &getAllJoints() const {
