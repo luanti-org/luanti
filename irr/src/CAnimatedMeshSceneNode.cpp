@@ -540,6 +540,8 @@ void CAnimatedMeshSceneNode::addJoints()
 	const auto &joints = static_cast<SkinnedMesh*>(Mesh)->getAllJoints();
 	JointChildSceneNodes.clear();
 	JointChildSceneNodes.reserve(joints.size());
+	PretransitingSave.clear();
+	PretransitingSave.resize(JointChildSceneNodes.size());
 	for (size_t i = 0; i < joints.size(); ++i) {
 		const auto *joint = joints[i];
 		ISceneNode *parent = this;
@@ -587,43 +589,11 @@ void CAnimatedMeshSceneNode::animateJoints()
 	//-----------------------------------------
 
 	if (Transiting != 0.f) {
-		// Init additional matrices
-		if (PretransitingSave.size() < JointChildSceneNodes.size()) {
-			for (u32 n = PretransitingSave.size(); n < JointChildSceneNodes.size(); ++n)
-				PretransitingSave.push_back(core::matrix4());
-		}
-
-		for (u32 n = 0; n < JointChildSceneNodes.size(); ++n) {
-			//------Position------
-
-			JointChildSceneNodes[n]->setPosition(
-					core::lerp(
-							PretransitingSave[n].getTranslation(),
-							JointChildSceneNodes[n]->getPosition(),
-							TransitingBlend));
-
-			//------Rotation------
-
-			// Code is slow, needs to be fixed up
-
-			const core::quaternion RotationStart(PretransitingSave[n].getRotationDegrees() * core::DEGTORAD);
-			const core::quaternion RotationEnd(JointChildSceneNodes[n]->getRotation() * core::DEGTORAD);
-
-			core::quaternion QRotation;
-			QRotation.slerp(RotationStart, RotationEnd, TransitingBlend);
-
-			core::vector3df tmpVector;
-			QRotation.toEuler(tmpVector);
-			tmpVector *= core::RADTODEG; // convert from radians back to degrees
-			JointChildSceneNodes[n]->setRotation(tmpVector);
-
-			//------Scale------
-
-			// JointChildSceneNodes[n]->setScale(
-			//		core::lerp(
-			//			PretransitingSave[n].getScale(),
-			//			JointChildSceneNodes[n]->getScale(),
-			//			TransitingBlend));
+		for (u32 i = 0; i < JointChildSceneNodes.size(); ++i) {
+			if (PretransitingSave[i]) {
+				JointChildSceneNodes[i]->setTransform(PretransitingSave[i]->interpolate(
+						JointChildSceneNodes[i]->getTransform(), TransitingBlend));
+			}
 		}
 	}
 }
@@ -648,15 +618,14 @@ void CAnimatedMeshSceneNode::beginTransition()
 		return;
 
 	if (TransitionTime != 0) {
-		// Check the array is big enough
-		if (PretransitingSave.size() < JointChildSceneNodes.size()) {
-			for (u32 n = PretransitingSave.size(); n < JointChildSceneNodes.size(); ++n)
-				PretransitingSave.push_back(core::matrix4());
+		// Copy the transforms of animated joints
+		for (u32 i = 0; i < JointChildSceneNodes.size(); ++i) {
+			if (!JointChildSceneNodes[i]->Matrix) {
+				PretransitingSave[i] = JointChildSceneNodes[i]->getTransform();
+			} else {
+				PretransitingSave[i] = std::nullopt;
+			}
 		}
-
-		// Copy the position of joints
-		for (u32 n = 0; n < JointChildSceneNodes.size(); ++n)
-			PretransitingSave[n] = JointChildSceneNodes[n]->getRelativeTransformation();
 
 		Transiting = core::reciprocal((f32)TransitionTime);
 	}

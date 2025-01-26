@@ -4,11 +4,12 @@
 
 #pragma once
 
+#include "CBoneSceneNode.h"
 #include "IAnimatedMeshSceneNode.h"
 #include "IAnimatedMesh.h"
 
 #include "SkinnedMesh.h"
-#include "matrix4.h"
+#include "Transform.h"
 
 namespace irr
 {
@@ -171,8 +172,8 @@ private:
 	s32 PassCount;
 	std::function<void(f32)> OnAnimateCallback;
 
-	std::vector<IBoneSceneNode *> JointChildSceneNodes;
-	core::array<core::matrix4> PretransitingSave;
+	std::vector<CBoneSceneNode *> JointChildSceneNodes;
+	std::vector<std::optional<core::Transform>> PretransitingSave;
 };
 
 } // end namespace scene
