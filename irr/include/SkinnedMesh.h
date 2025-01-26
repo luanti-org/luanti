@@ -231,7 +231,7 @@ public:
 
 		static core::quaternion interpolateValue(core::quaternion from, core::quaternion to, f32 time) {
 			core::quaternion result;
-			result.slerp(from, to, time, 0.001f);
+			result.slerp(from, to, time);
 			return result;
 		}
 

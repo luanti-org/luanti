@@ -2,7 +2,6 @@
 
 #include "irrMath.h"
 #include <matrix4.h>
-#include <variant>
 #include <vector3d.h>
 #include <quaternion.h>
 
@@ -27,12 +26,23 @@ struct Transform {
 		};
 	}
 
+
+	Transform interpolate(Transform to, f32 time) const
+	{
+		core::quaternion interpolated_rotation;
+		interpolated_rotation.slerp(rotation, to.rotation, time);
+		return {
+			to.translation.getInterpolated(translation, time),
+			interpolated_rotation,
+			to.scale.getInterpolated(scale, time),
+		};
+	}
+
 	matrix4 buildMatrix() const
 	{
 		matrix4 T;
 		T.setTranslation(translation);
 		matrix4 R;
-		// TODO this is sussy. probably shouldn't be doing this.
 		rotation.getMatrix_transposed(R);
 		matrix4 S;
 		S.setScale(scale);
