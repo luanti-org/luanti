@@ -8,6 +8,7 @@
 
 #include "IBoneSceneNode.h"
 #include "Transform.h"
+#include "matrix4.h"
 
 #include <optional>
 
@@ -23,8 +24,10 @@ public:
 	CBoneSceneNode(ISceneNode *parent, ISceneManager *mgr,
 			s32 id = -1, u32 boneIndex = 0,
 			const std::optional<std::string> &boneName = std::nullopt,
-			const core::Transform &transform = {}) :
-		IBoneSceneNode(parent, mgr, id, boneIndex, boneName)
+			const core::Transform &transform = {},
+			const std::optional<core::matrix4> &matrix = std::nullopt) :
+		IBoneSceneNode(parent, mgr, id, boneIndex, boneName),
+		Matrix(matrix)
 	{
 		setTransform(transform);
 	}
@@ -42,6 +45,17 @@ public:
 		}
 		setScale(transform.scale);
 	}
+
+	core::matrix4 getRelativeTransformation() const override
+	{
+		if (Matrix)
+			return *Matrix;
+		return IBoneSceneNode::getRelativeTransformation();
+	}
+
+	//! Some file formats alternatively let bones specify a transformation matrix.
+	//! If this is set, it overrides the TRS properties.
+	std::optional<core::matrix4> Matrix;
 };
 
 } // end namespace scene
