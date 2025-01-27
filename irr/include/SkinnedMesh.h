@@ -99,7 +99,7 @@ public:
 	//! returns an axis aligned bounding box
 	const core::aabbox3d<f32> &getBoundingBox() const override {
 		// assert(false); // TODO refactor IMesh so that we don't have to implement this
-		return StaticBoundingBox;
+		return StaticPartsBoundingBox;
 	}
 
 	//! set user axis aligned bounding box
@@ -398,7 +398,7 @@ protected:
 	std::vector<std::vector<char>> Vertices_Moved;
 
 	//! Bounding box of just the static parts of the mesh
-	core::aabbox3d<f32> StaticBoundingBox{{0, 0, 0}};
+	core::aabbox3d<f32> StaticPartsBoundingBox{{0, 0, 0}};
 
 	f32 EndFrame;
 	f32 FramesPerSecond;
