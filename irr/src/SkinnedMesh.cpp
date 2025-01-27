@@ -509,8 +509,7 @@ void SkinnedMeshBuilder::addMeshBuffer(SSkinMeshBuffer *meshbuf)
 SkinnedMesh::SJoint *SkinnedMeshBuilder::addJoint(SJoint *parent)
 {
 	SJoint *joint = new SJoint;
-	if (parent)
-		joint->ParentJointID = parent->JointID;
+	joint->setParent(parent);
 
 	joint->JointID = AllJoints.size();
 	AllJoints.push_back(joint);

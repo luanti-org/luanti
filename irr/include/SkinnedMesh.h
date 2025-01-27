@@ -349,8 +349,11 @@ public:
 		// The .x and .gltf formats pre-calculate this
 		std::optional<core::matrix4> GlobalInversedMatrix;
 
-		// TODO friends?
-		u16 JointID; // TODO refactor away: pointers -> IDs
+		void setParent(SJoint *parent) {
+			ParentJointID = parent ? parent->JointID : std::optional<u16>{};
+		}
+
+		u16 JointID; // TODO refactor away: pointers -> IDs (problem: .x loader abuses SJoint)
 		std::optional<u16> ParentJointID;
 	};
 
