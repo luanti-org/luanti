@@ -4,6 +4,7 @@
 
 #include "CAnimatedMeshSceneNode.h"
 #include "CBoneSceneNode.h"
+#include "EDebugSceneTypes.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
 #include "S3DVertex.h"
@@ -159,17 +160,8 @@ IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 
 	auto *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
 
-	std::vector<core::matrix4> matrices;
-	matrices.reserve(JointChildSceneNodes.size());
-	for (auto *node : JointChildSceneNodes)
-		matrices.push_back(node->getRelativeTransformation());
-	skinnedMesh->calculateGlobalMatrices(matrices);
-
-	skinnedMesh->skinMesh(matrices);
-
-	// TODO this should have happened *before* the skinning in OnAnimate;
-	// we should thus probably store the global matrices.
-	Box = skinnedMesh->calculateBoundingBox(matrices);
+	// Matrices have already been calculated in OnAnimate
+	skinnedMesh->skinMesh(PerJoint.GlobalMatrices);
 
 	return skinnedMesh;
 }
@@ -192,6 +184,13 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	OnAnimateCallback(timeMs / 1000.0f);
 
 	IAnimatedMeshSceneNode::OnAnimate(timeMs);
+
+	if (auto *skinnedMesh = dynamic_cast<SkinnedMesh*>(Mesh)) {
+		for (u16 i = 0; i < PerJoint.SceneNodes.size(); ++i)
+			PerJoint.GlobalMatrices[i] = PerJoint.SceneNodes[i]->getRelativeTransformation();
+		skinnedMesh->calculateGlobalMatrices(PerJoint.GlobalMatrices);
+		Box = skinnedMesh->calculateBoundingBox(PerJoint.GlobalMatrices);
+	}
 }
 
 //! renders the node.
@@ -389,12 +388,12 @@ IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 		return 0;
 	}
 
-	if (JointChildSceneNodes.size() <= *number) {
+	if (PerJoint.SceneNodes.size() <= *number) {
 		os::Printer::log("Joint was found in mesh, but is not loaded into node", jointName, ELL_WARNING);
 		return 0;
 	}
 
-	return JointChildSceneNodes[*number];
+	return PerJoint.SceneNodes[*number];
 }
 
 //! Returns a pointer to a child node, which has the same transformation as
@@ -408,12 +407,12 @@ IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(u32 jointID)
 
 	checkJoints();
 
-	if (JointChildSceneNodes.size() <= jointID) {
+	if (PerJoint.SceneNodes.size() <= jointID) {
 		os::Printer::log("Joint not loaded into node", ELL_WARNING);
 		return 0;
 	}
 
-	return JointChildSceneNodes[jointID];
+	return PerJoint.SceneNodes[jointID];
 }
 
 //! Gets joint count.
@@ -434,9 +433,9 @@ bool CAnimatedMeshSceneNode::removeChild(ISceneNode *child)
 {
 	if (ISceneNode::removeChild(child)) {
 		if (JointsUsed) { // stop weird bugs caused while changing parents as the joints are being created
-			for (u32 i = 0; i < JointChildSceneNodes.size(); ++i) {
-				if (JointChildSceneNodes[i] == child) {
-					JointChildSceneNodes[i] = 0; // remove link to child
+			for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i) {
+				if (PerJoint.SceneNodes[i] == child) {
+					PerJoint.SceneNodes[i] = 0; // remove link to child
 					break;
 				}
 			}
@@ -538,18 +537,17 @@ void CAnimatedMeshSceneNode::setRenderFromIdentity(bool enable)
 void CAnimatedMeshSceneNode::addJoints()
 {
 	const auto &joints = static_cast<SkinnedMesh*>(Mesh)->getAllJoints();
-	JointChildSceneNodes.clear();
-	JointChildSceneNodes.reserve(joints.size());
-	PretransitingSave.clear();
-	PretransitingSave.resize(JointChildSceneNodes.size());
+	PerJoint.setN(joints.size());
+	PerJoint.SceneNodes.clear();
+	PerJoint.SceneNodes.reserve(joints.size());
 	for (size_t i = 0; i < joints.size(); ++i) {
 		const auto *joint = joints[i];
 		ISceneNode *parent = this;
 		if (joint->ParentJointID)
-			parent = JointChildSceneNodes.at(*joint->ParentJointID); // exists because of topo. order
+			parent = PerJoint.SceneNodes.at(*joint->ParentJointID); // exists because of topo. order
 		assert(parent);
 		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
-		JointChildSceneNodes.push_back(new CBoneSceneNode(
+		PerJoint.SceneNodes.push_back(new CBoneSceneNode(
 				parent, SceneManager, 0, i, joint->Name,
 				matrix ? core::Transform{} : std::get<core::Transform>(joint->transform),
 				matrix ? *matrix : std::optional<core::matrix4>{}));
@@ -561,7 +559,7 @@ void CAnimatedMeshSceneNode::updateJointSceneNodes(
 {
 	for (size_t i = 0; i < transforms.size(); ++i) {
 		const auto &transform = transforms[i];
-		auto *node = static_cast<CBoneSceneNode*>(JointChildSceneNodes[i]);
+		auto *node = static_cast<CBoneSceneNode*>(PerJoint.SceneNodes[i]);
 		if (const auto *trs = std::get_if<core::Transform>(&transform)) {
 			node->setTransform(*trs);
 			// .x lets animations override matrix transforms entirely.
@@ -589,10 +587,10 @@ void CAnimatedMeshSceneNode::animateJoints()
 	//-----------------------------------------
 
 	if (Transiting != 0.f) {
-		for (u32 i = 0; i < JointChildSceneNodes.size(); ++i) {
-			if (PretransitingSave[i]) {
-				JointChildSceneNodes[i]->setTransform(PretransitingSave[i]->interpolate(
-						JointChildSceneNodes[i]->getTransform(), TransitingBlend));
+		for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i) {
+			if (PerJoint.PreTransSaves[i]) {
+				PerJoint.SceneNodes[i]->setTransform(PerJoint.PreTransSaves[i]->interpolate(
+						PerJoint.SceneNodes[i]->getTransform(), TransitingBlend));
 			}
 		}
 	}
@@ -604,8 +602,8 @@ void CAnimatedMeshSceneNode::checkJoints()
 		return;
 
 	if (!JointsUsed) {
-		for (u32 i = 0; i < JointChildSceneNodes.size(); ++i)
-			removeChild(JointChildSceneNodes[i]);
+		for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i)
+			removeChild(PerJoint.SceneNodes[i]);
 		addJoints();
 
 		JointsUsed = true;
@@ -619,11 +617,11 @@ void CAnimatedMeshSceneNode::beginTransition()
 
 	if (TransitionTime != 0) {
 		// Copy the transforms of animated joints
-		for (u32 i = 0; i < JointChildSceneNodes.size(); ++i) {
-			if (!JointChildSceneNodes[i]->Matrix) {
-				PretransitingSave[i] = JointChildSceneNodes[i]->getTransform();
+		for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i) {
+			if (!PerJoint.SceneNodes[i]->Matrix) {
+				PerJoint.PreTransSaves[i] = PerJoint.SceneNodes[i]->getTransform();
 			} else {
-				PretransitingSave[i] = std::nullopt;
+				PerJoint.PreTransSaves[i] = std::nullopt;
 			}
 		}
 
@@ -664,8 +662,8 @@ ISceneNode *CAnimatedMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *
 	newNode->Looping = Looping;
 	newNode->ReadOnlyMaterials = ReadOnlyMaterials;
 	newNode->PassCount = PassCount;
-	newNode->JointChildSceneNodes = JointChildSceneNodes;
-	newNode->PretransitingSave = PretransitingSave;
+	newNode->PerJoint.SceneNodes = PerJoint.SceneNodes;
+	newNode->PerJoint.PreTransSaves = PerJoint.PreTransSaves;
 	newNode->RenderFromIdentity = RenderFromIdentity;
 
 	return newNode;

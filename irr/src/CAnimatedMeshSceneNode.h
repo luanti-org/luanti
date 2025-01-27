@@ -10,6 +10,7 @@
 
 #include "SkinnedMesh.h"
 #include "Transform.h"
+#include "matrix4.h"
 
 namespace irr
 {
@@ -172,8 +173,21 @@ private:
 	s32 PassCount;
 	std::function<void(f32)> OnAnimateCallback;
 
-	std::vector<CBoneSceneNode *> JointChildSceneNodes;
-	std::vector<std::optional<core::Transform>> PretransitingSave;
+	struct PerJointData {
+		std::vector<CBoneSceneNode *> SceneNodes;
+		std::vector<core::matrix4> GlobalMatrices;
+		std::vector<std::optional<core::Transform>> PreTransSaves;
+		void setN(u16 n) {
+			SceneNodes.clear();
+			SceneNodes.resize(n);
+			GlobalMatrices.clear();
+			GlobalMatrices.resize(n);
+			PreTransSaves.clear();
+			PreTransSaves.resize(n);
+		}
+	};
+
+	PerJointData PerJoint;
 };
 
 } // end namespace scene
