@@ -74,7 +74,7 @@ core::aabbox3df SkinnedMesh::calculateBoundingBox(
 		const std::vector<core::matrix4> &global_transforms)
 {
 	assert(global_transforms.size() == AllJoints.size());
-	core::aabbox3df result = StaticPartsBoundingBox;
+	core::aabbox3df result = StaticPartsBox;
 	// skeletal animation
 	for (u16 i = 0; i < AllJoints.size(); ++i) {
 		auto box = AllJoints[i]->LocalBoundingBox;
@@ -364,9 +364,9 @@ void SkinnedMesh::calculateStaticBoundingBox()
 			if (!animated[mb][v]) {
 				auto pos = getMeshBuffer(mb)->getVertexBuffer()->getPosition(v);
 				if (!first) {
-					StaticPartsBoundingBox.addInternalPoint(pos);
+					StaticPartsBox.addInternalPoint(pos);
 				} else {
-					StaticPartsBoundingBox.reset(pos);
+					StaticPartsBox.reset(pos);
 					first = false;
 				}
 			}
@@ -487,6 +487,7 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 	}
 
 	recalculateBaseBoundingBoxes();
+	StaticPoseBox = calculateBoundingBox(matrices);
 
 	return this;
 }

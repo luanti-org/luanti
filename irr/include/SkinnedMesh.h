@@ -96,15 +96,15 @@ public:
 
 	void setTextureSlot(u32 meshbufNr, u32 textureSlot);
 
-	//! returns an axis aligned bounding box
+	//! Returns bounding box of the mesh *in static pose*.
 	const core::aabbox3d<f32> &getBoundingBox() const override {
-		// assert(false); // TODO refactor IMesh so that we don't have to implement this
-		return StaticPartsBoundingBox;
+		// TODO ideally we shouldn't be forced to implement this
+		return StaticPoseBox;
 	}
 
-	//! set user axis aligned bounding box
+	//! Set bounding box of the mesh *in static pose*.
 	void setBoundingBox(const core::aabbox3df &box) override {
-		// assert(false); // TODO refactor
+		StaticPoseBox = box;
 	}
 
 	//! set the hardware mapping hint, for driver
@@ -357,6 +357,7 @@ public:
 	//! Animates joints based on frame input
 	std::vector<SJoint::VariantTransform> animateMesh(f32 frame);
 
+	//! Calculates a bounding box given an animation in the form of global joint transforms.
 	core::aabbox3df calculateBoundingBox(
 			const std::vector<core::matrix4> &global_transforms);
 
@@ -398,7 +399,10 @@ protected:
 	std::vector<std::vector<char>> Vertices_Moved;
 
 	//! Bounding box of just the static parts of the mesh
-	core::aabbox3d<f32> StaticPartsBoundingBox{{0, 0, 0}};
+	core::aabbox3df StaticPartsBox{{0, 0, 0}};
+
+	//! Bounding box of the mesh in static pose
+	core::aabbox3df StaticPoseBox{{0, 0, 0}};
 
 	f32 EndFrame;
 	f32 FramesPerSecond;
