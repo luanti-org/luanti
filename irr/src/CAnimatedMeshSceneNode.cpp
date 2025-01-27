@@ -9,6 +9,7 @@
 #include "ISceneManager.h"
 #include "S3DVertex.h"
 #include "Transform.h"
+#include "irrTypes.h"
 #include "matrix4.h"
 #include "os.h"
 #include "SkinnedMesh.h"
@@ -549,7 +550,7 @@ void CAnimatedMeshSceneNode::addJoints()
 		ISceneNode *parent = this;
 		if (joint->ParentJointID)
 			parent = PerJoint.SceneNodes.at(*joint->ParentJointID); // exists because of topo. order
-		assert(parent);
+		_IRR_DEBUG_BREAK_IF(!parent);
 		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
 		PerJoint.SceneNodes.push_back(new CBoneSceneNode(
 				parent, SceneManager, 0, i, joint->Name,

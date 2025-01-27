@@ -555,13 +555,7 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 			core::matrix4 matrix;
 			if (!parseDataObjectTransformationMatrix(matrix))
 				return false;
-			auto transform = core::Transform::decompose(matrix);
-			// Try to decompose. If the recomposed matrix equals the old one with a liberal tolerance, use that.
-			if (transform.buildMatrix().equals(matrix, 1e-5)) {
-				joint->transform = transform;
-			} else {
-				joint->transform = matrix;
-			}
+			joint->transform = matrix;
 		} else if (objectName == "Mesh") {
 			/*
 			frame.Meshes.push_back(SXMesh());

@@ -394,22 +394,20 @@ SECTION("simple skin")
 	const auto joints = csm->getAllJoints();
 	REQUIRE(joints.size() == 3);
 
-	const auto findJoint = [&](const std::function<bool(SkinnedMesh::SJoint*)> &predicate) {
-		for (std::size_t i = 0; i < joints.size(); ++i) {
-			if (predicate(joints[i])) {
-				return joints[i];
+	const auto findJoint = [&](const std::function<bool(const SkinnedMesh::SJoint*)> &predicate) {
+		for (const auto *joint : joints) {
+			if (predicate(joint)) {
+				return joint;
 			}
 		}
 		throw std::runtime_error("joint not found");
 	};
 
 	// Check the node hierarchy
-	const auto *parent = findJoint([](auto *joint) {
-		return !joint->ParentJointID;
-	});
 	const auto child = findJoint([&](auto *joint) {
-		return joint->ParentJointID && *joint->ParentJointID == parent->JointID;
+		return !!joint->ParentJointID;
 	});
+	const auto *parent = joints.at(*child->ParentJointID);
 
 	SECTION("transformations are correct")
 	{

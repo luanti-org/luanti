@@ -412,7 +412,7 @@ void SkinnedMesh::topoSortJoints()
 {
 	size_t n = AllJoints.size();
 
-	std::vector<u16> new_to_old_id; // new id -> old id
+	std::vector<u16> new_to_old_id;
 
 	std::vector<std::vector<u16>> children(n);
 	for (u16 i = 0; i < n; ++i) {
@@ -429,7 +429,6 @@ void SkinnedMesh::topoSortJoints()
 				children[new_to_old_id[i]].end());
 	}
 
-	// old id -> new id
 	std::vector<u16> old_to_new_id(n);
 	for (u16 i = 0; i < n; ++i)
 		old_to_new_id[new_to_old_id[i]] = i;

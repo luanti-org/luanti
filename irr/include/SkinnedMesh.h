@@ -10,6 +10,7 @@
 #include "SSkinMeshBuffer.h"
 #include "aabbox3d.h"
 #include "irrMath.h"
+#include "irrTypes.h"
 #include "matrix4.h"
 #include "quaternion.h"
 #include "vector3d.h"
@@ -70,8 +71,11 @@ public:
 	void setAnimationSpeed(f32 fps) override;
 
 	//! **Must not be called**.
-	//! TODO refactor Irrlicht so that we need not implement this.
-	IMesh *getMesh(f32) override { assert(false); };
+	IMesh *getMesh(f32) override {
+		// TODO refactor Irrlicht so that we need not implement this.
+		_IRR_DEBUG_BREAK_IF(true);
+		return nullptr;
+	};
 
 	//! Turns the given array of local matrices into an array of global matrices
 	//! by multiplying with respective parent matrices.
