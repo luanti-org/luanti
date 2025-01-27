@@ -148,6 +148,7 @@ private:
 
 	void buildFrameNr(u32 timeMs);
 	void checkJoints();
+	void copyOldTransforms();
 	void beginTransition();
 
 	core::array<video::SMaterial> Materials;
