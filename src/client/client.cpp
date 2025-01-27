@@ -68,6 +68,7 @@
 #include <sstream>
 #include <cmath>
 #include "script/sscsm/sscsm_controller.h"
+#include "script/sscsm/sscsm_events.h"
 
 extern gui::IGUIEnvironment* guienv;
 
@@ -152,6 +153,42 @@ Client::Client(
 	m_mesh_grid = { g_settings->getU16("client_mesh_chunk") };
 
 	m_sscsm_controller = SSCSMController::create();
+
+	{
+		auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+		//TODO: read files
+		event1->files.emplace_back("/client_builtin/sscsm_client/init.lua",
+				R"=+=(
+print("client builtin: loading")
+				)=+=");
+
+		//TODO: checksum
+
+		m_sscsm_controller->runEvent(this, std::move(event1));
+
+		// load client builtin immediately
+		auto event2 = std::make_unique<SSCSMEventLoadMods>();
+		event2->init_paths.emplace_back("/client_builtin/sscsm_client/init.lua");
+		m_sscsm_controller->runEvent(this, std::move(event2));
+	}
+
+	{
+		//TODO: network packets
+
+		std::string enable_sscsm = g_settings->get("enable_sscsm");
+		if (enable_sscsm == "singleplayer") {
+			auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+			event1->files.emplace_back("/mods/sscsm_test0/init.lua",
+					R"=+=(
+print("sscsm_test0: loading")
+					)=+=");
+			m_sscsm_controller->runEvent(this, std::move(event1));
+
+			auto event2 = std::make_unique<SSCSMEventLoadMods>();
+			event2->init_paths.emplace_back("/client_builtin/sscsm_client/init.lua");
+			m_sscsm_controller->runEvent(this, std::move(event2));
+		}
+	}
 }
 
 void Client::migrateModStorage()

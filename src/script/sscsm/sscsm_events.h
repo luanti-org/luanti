@@ -7,9 +7,7 @@
 #include "sscsm_ievent.h"
 #include "debug.h"
 #include "irrlichttypes.h"
-#include "irr_v3d.h"
 #include "sscsm_environment.h"
-#include "mapnode.h"
 
 struct SSCSMEventTearDown : public ISSCSMEvent
 {
@@ -19,14 +17,35 @@ struct SSCSMEventTearDown : public ISSCSMEvent
 	}
 };
 
-struct SSCSMEventOnStep final : public ISSCSMEvent
+struct SSCSMEventUpdateVFSFiles : public ISSCSMEvent
+{
+	// pairs are virtual path and file content
+	std::vector<std::pair<std::string, std::string>> files;
+
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->updateVFSFiles(std::move(files));
+	}
+};
+
+struct SSCSMEventLoadMods : public ISSCSMEvent
+{
+	// paths to init.lua files, in load order
+	std::vector<std::string> init_paths;
+
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->getScript()->load_mods(init_paths);
+	}
+};
+
+struct SSCSMEventOnStep : public ISSCSMEvent
 {
 	f32 dtime;
 
 	void exec(SSCSMEnvironment *env) override
 	{
-		// example
-		env->requestGetNode(v3s16(0, 0, 0));
+		env->getScript()->environment_step(dtime);
 	}
 };
 

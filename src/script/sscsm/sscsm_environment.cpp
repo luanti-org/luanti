@@ -8,6 +8,13 @@
 #include "sscsm_stupid_channel.h"
 
 
+SSCSMEnvironment::SSCSMEnvironment(std::shared_ptr<StupidChannel> channel) :
+	Thread("SSCSMEnvironment-thread"),
+	m_channel(std::move(channel)),
+	m_script(std::make_unique<SSCSMScripting>(this))
+{
+}
+
 void *SSCSMEnvironment::run()
 {
 	while (true) {
@@ -26,6 +33,21 @@ void *SSCSMEnvironment::run()
 SerializedSSCSMAnswer SSCSMEnvironment::exchange(SerializedSSCSMRequest req)
 {
 	return m_channel->exchangeA(std::move(req));
+}
+
+void SSCSMEnvironment::updateVFSFiles(std::vector<std::pair<std::string, std::string>> &&files)
+{
+	for (auto &&p : files) {
+		m_vfs.emplace(std::move(p.first), std::move(p.second));
+	}
+}
+
+void SSCSMEnvironment::setFatalError(const std::string &reason)
+{
+	//TODO
+	// what to do on error?
+	// probably send a request
+	errorstream << "SSCSMEnvironment::setFatalError() reason: " << reason << std::endl;
 }
 
 std::unique_ptr<ISSCSMEvent> SSCSMEnvironment::requestPollNextEvent()
