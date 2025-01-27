@@ -514,8 +514,7 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 		if (n.has_value()) {
 			JointID = *n;
 			joint = AnimatedMesh->getAllJoints()[JointID];
-			if (Parent)
-				joint->ParentJointID = Parent->JointID;
+			joint->setParent(Parent);
 		}
 	}
 
