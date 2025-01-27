@@ -181,6 +181,10 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	// anything is rendered so that the transformations of children are up to date
 	animateJoints();
 
+	// Copy old transforms *before* bone overrides have been applied.
+	// TODO if there are no bone overrides or no animation blending, this is unnecessary.
+	copyOldTransforms();
+
 	OnAnimateCallback(timeMs / 1000.0f);
 
 	IAnimatedMeshSceneNode::OnAnimate(timeMs);
@@ -610,21 +614,23 @@ void CAnimatedMeshSceneNode::checkJoints()
 	}
 }
 
+void CAnimatedMeshSceneNode::copyOldTransforms()
+{
+	for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i) {
+		if (!PerJoint.SceneNodes[i]->Matrix) {
+			PerJoint.PreTransSaves[i] = PerJoint.SceneNodes[i]->getTransform();
+		} else {
+			PerJoint.PreTransSaves[i] = std::nullopt;
+		}
+	}
+}
+
 void CAnimatedMeshSceneNode::beginTransition()
 {
 	if (!JointsUsed)
 		return;
 
 	if (TransitionTime != 0) {
-		// Copy the transforms of animated joints
-		for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i) {
-			if (!PerJoint.SceneNodes[i]->Matrix) {
-				PerJoint.PreTransSaves[i] = PerJoint.SceneNodes[i]->getTransform();
-			} else {
-				PerJoint.PreTransSaves[i] = std::nullopt;
-			}
-		}
-
 		Transiting = core::reciprocal((f32)TransitionTime);
 	}
 	TransitingBlend = 0.f;
