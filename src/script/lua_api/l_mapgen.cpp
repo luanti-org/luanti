@@ -1721,8 +1721,8 @@ int ModApiMapgen::l_generate_biomes(lua_State *L)
 	mg.biomemap = bgen->biomemap;
 	mg.water_level = mg_current->water_level;
 
-	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) :
-			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
+	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) - v3s16(0,1,0) :
+			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE - v3s16(0,1,0);
 	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) :
 			mg.vm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE;
 	sortBoxVerticies(pmin, pmax);
@@ -1778,8 +1778,8 @@ int ModApiMapgen::l_generate_biome_dust(lua_State *L)
 
 	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) :
 			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
-	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) :
-			mg.vm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE;
+	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) - v3s16(0,1,0) :
+			mg.vm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE - v3s16(0,1,0);
 	sortBoxVerticies(pmin, pmax);
 
 	mg.node_min = pmin;
