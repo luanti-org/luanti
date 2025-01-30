@@ -100,7 +100,7 @@ SECTION("matrix-euler roundtrip") {
 	test_euler_angles_rad([](v3f rad) {
 		matrix4 mat, mat2;
 		mat.setRotationRadians(rad);
-		v3f rad2 = mat.getRotationDegrees() * core::DEGTORAD;
+		v3f rad2 = mat.getRotationRadians();
 		mat2.setRotationRadians(rad2);
 		CHECK(matrix_equals(mat, mat2));
 	});
