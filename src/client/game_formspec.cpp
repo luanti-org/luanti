@@ -16,7 +16,6 @@
 #include "gui/touchcontrols.h"
 #include "gui/touchscreeneditor.h"
 #include "gui/guiPasswordChange.h"
-#include "gui/guiKeyChangeMenu.h"
 #include "gui/guiPasswordChange.h"
 #include "gui/guiOpenURL.h"
 #include "gui/guiVolumeChange.h"
@@ -536,12 +535,6 @@ bool GameFormSpec::handleCallbacks()
 		(void)make_irr<GUIVolumeChange>(guienv, guiroot, -1,
 				     &g_menumgr, texture_src);
 		g_gamecallback->changevolume_requested = false;
-	}
-
-	if (g_gamecallback->keyconfig_requested) {
-		(void)make_irr<GUIKeyChangeMenu>(guienv, guiroot, -1,
-				      &g_menumgr, texture_src);
-		g_gamecallback->keyconfig_requested = false;
 	}
 
 	if (g_gamecallback->touchscreenlayout_requested) {

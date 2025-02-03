@@ -217,7 +217,6 @@ GUI
    doing tiling (background only)
 * `core.set_clouds(<true/false>)`
 * `core.set_topleft_text(text)`
-* `core.show_keys_menu()`
 * `core.show_touchscreen_layout()`
 * `core.show_path_select_dialog(formname, caption, is_file_select)`
   * shows a path select dialog
