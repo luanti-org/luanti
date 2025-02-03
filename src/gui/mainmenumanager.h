@@ -22,7 +22,6 @@ class IGameCallback
 public:
 	virtual void exitToOS() = 0;
 	virtual void openSettings() = 0;
-	virtual void keyConfig() = 0;
 	virtual void disconnect() = 0;
 	virtual void changePassword() = 0;
 	virtual void changeVolume() = 0;
@@ -136,11 +135,6 @@ public:
 		changevolume_requested = true;
 	}
 
-	void keyConfig() override
-	{
-		keyconfig_requested = true;
-	}
-
 	void signalKeyConfigChange() override
 	{
 		keyconfig_changed = true;
@@ -160,7 +154,6 @@ public:
 	bool settings_requested = false;
 	bool changepassword_requested = false;
 	bool changevolume_requested = false;
-	bool keyconfig_requested = false;
 	bool touchscreenlayout_requested = false;
 	bool shutdown_requested = false;
 	bool keyconfig_changed = false;
