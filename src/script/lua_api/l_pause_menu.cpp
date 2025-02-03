@@ -8,13 +8,6 @@
 #include "client/client.h"
 
 
-int ModApiPauseMenu::l_show_keys_menu(lua_State *L)
-{
-	g_gamecallback->keyConfig();
-	return 0;
-}
-
-
 int ModApiPauseMenu::l_show_touchscreen_layout(lua_State *L)
 {
 	g_gamecallback->touchscreenLayout();
@@ -31,7 +24,6 @@ int ModApiPauseMenu::l_is_internal_server(lua_State *L)
 
 void ModApiPauseMenu::Initialize(lua_State *L, int top)
 {
-	API_FCT(show_keys_menu);
 	API_FCT(show_touchscreen_layout);
 	API_FCT(is_internal_server);
 }
