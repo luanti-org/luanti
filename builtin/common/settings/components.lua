@@ -442,6 +442,9 @@ local function make_noise_params(setting)
 	}
 end
 
+-- TODO: Implement proper UI for changing keybindings.
+make.key = make.string
+
 if INIT == "pause_menu" then
 	-- Making the noise parameter dialog work in the pause menu settings would
 	-- require porting "FSTK" (at least the dialog API) from the mainmenu formspec
