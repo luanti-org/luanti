@@ -9,7 +9,6 @@
 #include "scripting_mainmenu.h"
 #include "gui/guiEngine.h"
 #include "gui/guiMainMenu.h"
-#include "gui/guiKeyChangeMenu.h"
 #include "gui/guiPathSelectMenu.h"
 #include "gui/touchscreeneditor.h"
 #include "version.h"
@@ -520,22 +519,6 @@ int ModApiMainMenu::l_get_content_translation(lua_State *L)
 	string = wide_to_utf8(translate_string(utf8_to_wide(string), translations));
 	lua_pushstring(L, string.c_str());
 	return 1;
-}
-
-/******************************************************************************/
-int ModApiMainMenu::l_show_keys_menu(lua_State *L)
-{
-	GUIEngine *engine = getGuiEngine(L);
-	sanity_check(engine != NULL);
-
-	GUIKeyChangeMenu *kmenu = new GUIKeyChangeMenu(
-			engine->m_rendering_engine->get_gui_env(),
-			engine->m_parent,
-			-1,
-			engine->m_menumanager,
-			engine->m_texture_source.get());
-	kmenu->drop();
-	return 0;
 }
 
 /******************************************************************************/
@@ -1051,7 +1034,6 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(get_content_translation);
 	API_FCT(start);
 	API_FCT(close);
-	API_FCT(show_keys_menu);
 	API_FCT(show_touchscreen_layout);
 	API_FCT(create_world);
 	API_FCT(delete_world);
