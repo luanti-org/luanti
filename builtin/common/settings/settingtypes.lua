@@ -87,7 +87,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 
 		if category_context then
 			if force_context then
-				return "Context annotations are not allowed in this context, context is always " .. force_context
+				return "Context annotations are not allowed, context is always " .. force_context
 			end
 			if not valid_contexts[category_context] then
 				return "Unknown context"
@@ -162,7 +162,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 
 	if setting_context then
 		if force_context then
-			return "Context annotations are not allowed in this context, context is always " .. force_context
+			return "Context annotations are not allowed, context is always " .. force_context
 		end
 		if not valid_contexts[setting_context] then
 			return "Unknown context"
