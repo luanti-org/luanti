@@ -584,8 +584,8 @@ void CAnimatedMeshSceneNode::animateJoints()
 	checkJoints();
 
 	SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
-
-	updateJointSceneNodes(skinnedMesh->animateMesh(getFrameNr()));
+	if (!skinnedMesh->isStatic())
+		updateJointSceneNodes(skinnedMesh->animateMesh(getFrameNr()));
 
 	//-----------------------------------------
 	//		Transition
