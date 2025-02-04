@@ -186,7 +186,8 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	// TODO if there are no bone overrides or no animation blending, this is unnecessary.
 	copyOldTransforms();
 
-	OnAnimateCallback(timeMs / 1000.0f);
+	if (OnAnimateCallback)
+		OnAnimateCallback(timeMs / 1000.0f);
 
 	IAnimatedMeshSceneNode::OnAnimate(timeMs);
 
