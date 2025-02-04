@@ -2176,7 +2176,7 @@ block_cull_optimize_distance (Block cull optimize distance) int 25 2 2047
 #    Reducing this value increases cave and dungeon density.
 #    Altering this value is for special usage, leaving it unchanged is
 #    recommended.
-chunksize (Chunk size) int 5 1 10
+chunksize (Chunk size) [world_creation] int 5 1 10
 
 #    Dump the mapgen debug information.
 enable_mapgen_debug_info (Mapgen debug) bool false
