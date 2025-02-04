@@ -2,19 +2,26 @@
 #
 # General format:
 #    name (Readable name) type type_args
-#    name (Readable name) [side] type type_args
+#    name (Readable name) [context] type type_args
 #
 # Note that the parts are separated by exactly one space
 #
-# `side` is optional and can be:
-#    - client
-#    - server
-#    - common
-# If not specified, the value is inherited from the side value of the containing
+# `context` (optional) is used to document where the setting is read. It can be:
+#    - common: Read by both client and server.
+#    - client: Read by the client.
+#      (Includes settings read by the mainmenu.)
+#    - server: Read by the server.
+#    - world_creation: Read at world creation, thus only applied to new worlds.
+#      (Worlds are commonly created in the mainmenu (part of the client), but
+#      world creation is conceptually a server-side thing...)
+# If not specified, the value is inherited from the context value of the containing
 # category instead.
-# For the builtin/settingtypes.txt file, every setting needs to have a side defined,
+# For the builtin/settingtypes.txt file, every setting needs to have a context defined,
 # either via a category containing it or via the setting itself. In game/mod-provided
-# settingtypes.txt files, side declarations are invalid.
+# settingtypes.txt files, context annotations are invalid.
+# Note: For context annotations, it's irrelevant whether changes to a setting
+# after startup/game-join will be read. A separate mechanism for declaring that
+# is needed.
 #
 # `type` can be:
 #    - int
@@ -88,7 +95,7 @@
 # Sections are marked by a single line in the format: [Section Name]
 # Sub-section are marked by adding * in front of the section name: [*Sub-section]
 # Sub-sub-sections have two * etc.
-# A side (see above) can be specified optionally: [Section Name] [side]
+# A context (see above) can be specified optionally: [Section Name] [context]
 # There shouldn't be too many settings per category.
 #
 # The top-level categories "Advanced", "Client and Server" and "Mapgen" are
@@ -933,7 +940,7 @@ chat_message_limit_trigger_kick (Chat message kick threshold) int 50 1 65535
 time_speed (Time speed) int 72 0
 
 #    Time of day when a new world is started, in millihours (0-23999).
-world_start_time (World start time) int 6125 0 23999
+world_start_time (World start time) [world_creation] int 6125 0 23999
 
 #    Time in seconds for item entity (dropped items) to live.
 #    Setting it to -1 disables the feature.
@@ -988,7 +995,7 @@ movement_liquid_sink (Liquid sinking) float 10.0
 movement_gravity (Gravity) float 9.81
 
 
-[Mapgen] [server]
+[Mapgen] [world_creation]
 
 #    A chosen map seed for a new map, leave empty for random.
 #    Will be overridden when creating a new world in the main menu.

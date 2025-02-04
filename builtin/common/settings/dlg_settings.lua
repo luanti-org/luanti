@@ -362,14 +362,15 @@ local function update_filtered_pages(query)
 end
 
 
-local shown_sides = {
+local shown_contexts = {
+	common = true,
 	client = true,
 	server = INIT ~= "pause_menu" or core.is_local_server(),
-	common = true,
+	world_creation = INIT ~= "pause_menu",
 }
 
-local function check_requirements(name, requires, side)
-	if side and not shown_sides[side] then
+local function check_requirements(name, requires, context)
+	if context and not shown_contexts[context] then
 		return false
 	end
 
@@ -433,11 +434,11 @@ function page_has_contents(page, actual_content)
 		elseif type(item) == "string" then
 			local setting = get_setting_info(item)
 			assert(setting, "Unknown setting: " .. item)
-			if check_requirements(setting.name, setting.requires, setting.side) then
+			if check_requirements(setting.name, setting.requires, setting.context) then
 				return true
 			end
 		elseif item.get_formspec then
-			if check_requirements(item.id, item.requires, item.side) then
+			if check_requirements(item.id, item.requires, item.context) then
 				return true
 			end
 		else
@@ -459,22 +460,22 @@ local function build_page_components(page)
 		elseif item.heading then
 			last_heading = item
 		else
-			local name, requires, side
+			local name, requires, context
 			if type(item) == "string" then
 				local setting = get_setting_info(item)
 				assert(setting, "Unknown setting: " .. item)
 				name = setting.name
 				requires = setting.requires
-				side = setting.side
+				context = setting.context
 			elseif item.get_formspec then
 				name = item.id
 				requires = item.requires
-				side = item.side
+				context = item.context
 			else
 				error("Unknown content in page: " .. dump(item))
 			end
 
-			if check_requirements(name, requires, side) then
+			if check_requirements(name, requires, context) then
 				if last_heading then
 					content[#content + 1] = last_heading
 					last_heading = nil

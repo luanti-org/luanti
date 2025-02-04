@@ -40,14 +40,14 @@ local CHAR_CLASSES = {
 	FLAGS = "[%w_%-%.,]",
 }
 
-local valid_sides = {client = true, server = true, common = true}
+local valid_contexts = {common = true, client = true, server = true, world_creation = true}
 
 local function flags_to_table(flags)
 	return flags:gsub("%s+", ""):split(",", true) -- Remove all spaces and split
 end
 
 -- returns error message, or nil
-local function parse_setting_line(settings, line, read_all, base_level, allow_secure, force_side)
+local function parse_setting_line(settings, line, read_all, base_level, allow_secure, force_context)
 
 	-- strip carriage returns (CR, /r)
 	line = line:gsub("\r", "")
@@ -71,32 +71,32 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 
 	-- category
 	local stars, category = line:match("^%[([%*]*)([^%]]+)%]$")
-	local category_side
+	local category_context
 	if not category then
-		stars, category, category_side = line:match("^%[([%*]*)([^%]]+)%] %[([^%]]+)%]$")
+		stars, category, category_context = line:match("^%[([%*]*)([^%]]+)%] %[([^%]]+)%]$")
 	end
 	if category then
 		local category_level = stars:len() + base_level
 
-		if settings.current_side_level and
-				category_level <= settings.current_side_level then
-			-- The start of this category marks the end of the side annotation's scope.
-			settings.current_side_level = nil
-			settings.current_side = nil
+		if settings.current_context_level and
+				category_level <= settings.current_context_level then
+			-- The start of this category marks the end of the context annotation's scope.
+			settings.current_context_level = nil
+			settings.current_context = nil
 		end
 
-		if category_side then
-			if force_side then
-				return "Side annotations are not allowed in this context, side is always " .. force_side
+		if category_context then
+			if force_context then
+				return "Context annotations are not allowed in this context, context is always " .. force_context
 			end
-			if not valid_sides[category_side] then
-				return "Unknown side"
+			if not valid_contexts[category_context] then
+				return "Unknown context"
 			end
-			if settings.current_side_level then
-				return "Category side annotations cannot be nested"
+			if settings.current_context_level then
+				return "Category context annotations cannot be nested"
 			end
-			settings.current_side_level = category_level
-			settings.current_side = category_side
+			settings.current_context_level = category_level
+			settings.current_context = category_context
 		end
 
 		if settings.current_hide_level then
@@ -129,7 +129,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 	end
 
 	-- settings
-	local function make_pattern(include_side)
+	local function make_pattern(include_context)
 		return "^"
 			-- this first capture group matches the whole first part,
 			--  so we can later strip it from the rest of the line
@@ -138,8 +138,8 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 				.. CHAR_CLASSES.SPACE .. "*"
 				.. "%(([^%)]*)%)"  -- readable name
 				.. CHAR_CLASSES.SPACE .. "*"
-				.. (include_side and (
-					"%[([^%]]+)%]" -- side annotation
+				.. (include_context and (
+					"%[([^%]]+)%]" -- context annotation
 					.. CHAR_CLASSES.SPACE .. "*"
 				) or "")
 				.. "(" .. CHAR_CLASSES.VARIABLE .. "+)" -- type
@@ -147,9 +147,9 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			.. ")"
 	end
 	local first_part, name, readable_name, setting_type = line:match(make_pattern(false))
-	local setting_side
+	local setting_context
 	if not first_part then
-		first_part, name, readable_name, setting_side, setting_type = line:match(make_pattern(true))
+		first_part, name, readable_name, setting_context, setting_type = line:match(make_pattern(true))
 	end
 
 	if not first_part then
@@ -160,25 +160,25 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 		return "Tried to add \"secure.\" setting"
 	end
 
-	if setting_side then
-		if force_side then
-			return "Side annotations are not allowed in this context, side is always " .. force_side
+	if setting_context then
+		if force_context then
+			return "Context annotations are not allowed in this context, context is always " .. force_context
 		end
-		if not valid_sides[setting_side] then
-			return "Unknown side"
+		if not valid_contexts[setting_context] then
+			return "Unknown context"
 		end
 	end
 
-	local side
-	if force_side then
-		side = force_side
+	local context
+	if force_context then
+		context = force_context
 	else
-		if setting_side then
-			side = setting_side
-		elseif settings.current_side_level then
-			side = settings.current_side
+		if setting_context then
+			context = setting_context
+		elseif settings.current_context_level then
+			context = settings.current_context
 		else
-			return "Missing side annotation"
+			return "Missing context annotation"
 		end
 	end
 
@@ -230,7 +230,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			min = min,
 			max = max,
 			requires = requires,
-			side = side,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -254,7 +254,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			type = setting_type,
 			default = default,
 			requires = requires,
-			side = side,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -307,7 +307,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			},
 			values = values,
 			requires = requires,
-			side = side,
+			context = context,
 			comment = comment,
 			noise_params = true,
 			flags = flags_to_table("defaults,eased,absvalue")
@@ -326,7 +326,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			type = "bool",
 			default = remaining_line,
 			requires = requires,
-			side = side,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -354,7 +354,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			min = min,
 			max = max,
 			requires = requires,
-			side = side,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -378,7 +378,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			default = default,
 			values = values:split(",", true),
 			requires = requires,
-			side = side,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -397,7 +397,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			type = setting_type,
 			default = default,
 			requires = requires,
-			side = side,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -428,7 +428,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			default = default,
 			possible = flags_to_table(possible),
 			requires = requires,
-			side = side,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -437,14 +437,14 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 	return "Invalid setting type \"" .. setting_type .. "\""
 end
 
-local function parse_single_file(file, filepath, read_all, result, base_level, allow_secure, force_side)
+local function parse_single_file(file, filepath, read_all, result, base_level, allow_secure, force_context)
 	-- store this helper variable in the table so it's easier to pass to parse_setting_line()
 	result.current_comment = {}
 	result.current_hide_level = nil
 
 	local line = file:read("*line")
 	while line do
-		local error_msg = parse_setting_line(result, line, read_all, base_level, allow_secure, force_side)
+		local error_msg = parse_setting_line(result, line, read_all, base_level, allow_secure, force_context)
 		if error_msg then
 			core.log("error", error_msg .. " in " .. filepath .. " \"" .. line .. "\"")
 		end
@@ -480,7 +480,7 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 	-- Note that this will need to work different from how it's done in the
 	-- mainmenu:
 	-- * ~~Only if in singleplayer / on local server, not on remote servers~~
-	--   (done: side annotations)
+	--   (done now: context annotations)
 	-- * Only show settings for the active game and mods
 	--   (add API function to get them, can return nil if on a remote server)
 	--   (names are probably not enough, will need paths for uniqueness)

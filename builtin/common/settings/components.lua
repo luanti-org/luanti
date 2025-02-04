@@ -447,8 +447,8 @@ if INIT == "pause_menu" then
 	-- require porting "FSTK" (at least the dialog API) from the mainmenu formspec
 	-- API to the in-game formspec API.
 	-- There's no reason you'd want to adjust mapgen noise parameter settings
-	-- in-game (they only apply to new worlds), so there's no reason to implement
-	-- this.
+	-- in-game (they only apply to new worlds, hidden as [world_creation]),
+	-- so there's no reason to implement this.
 	local empty = function()
 		return { get_formspec = function() return "", 0 end }
 	end
