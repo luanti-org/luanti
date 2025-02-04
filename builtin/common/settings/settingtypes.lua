@@ -40,12 +40,14 @@ local CHAR_CLASSES = {
 	FLAGS = "[%w_%-%.,]",
 }
 
+local valid_sides = {client = true, server = true, common = true}
+
 local function flags_to_table(flags)
 	return flags:gsub("%s+", ""):split(",", true) -- Remove all spaces and split
 end
 
 -- returns error message, or nil
-local function parse_setting_line(settings, line, read_all, base_level, allow_secure)
+local function parse_setting_line(settings, line, read_all, base_level, allow_secure, force_side)
 
 	-- strip carriage returns (CR, /r)
 	line = line:gsub("\r", "")
@@ -69,8 +71,33 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 
 	-- category
 	local stars, category = line:match("^%[([%*]*)([^%]]+)%]$")
+	local category_side
+	if not category then
+		stars, category, category_side = line:match("^%[([%*]*)([^%]]+)%] %[([^%]]+)%]$")
+	end
 	if category then
 		local category_level = stars:len() + base_level
+
+		if settings.current_side_level and
+				category_level <= settings.current_side_level then
+			-- The start of this category marks the end of the side annotation's scope.
+			settings.current_side_level = nil
+			settings.current_side = nil
+		end
+
+		if category_side then
+			if force_side then
+				return "Side annotations are not allowed in this context, side is always " .. force_side
+			end
+			if not valid_sides[category_side] then
+				return "Unknown side"
+			end
+			if settings.current_side_level then
+				return "Category side annotations cannot be nested"
+			end
+			settings.current_side_level = category_level
+			settings.current_side = category_side
+		end
 
 		if settings.current_hide_level then
 			if settings.current_hide_level < category_level then
@@ -102,7 +129,8 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 	end
 
 	-- settings
-	local first_part, name, readable_name, setting_type = line:match("^"
+	local function make_pattern(include_side)
+		return "^"
 			-- this first capture group matches the whole first part,
 			--  so we can later strip it from the rest of the line
 			.. "("
@@ -110,9 +138,19 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 				.. CHAR_CLASSES.SPACE .. "*"
 				.. "%(([^%)]*)%)"  -- readable name
 				.. CHAR_CLASSES.SPACE .. "*"
+				.. (include_side and (
+					"%[([^%]]+)%]" -- side annotation
+					.. CHAR_CLASSES.SPACE .. "*"
+				) or "")
 				.. "(" .. CHAR_CLASSES.VARIABLE .. "+)" -- type
 				.. CHAR_CLASSES.SPACE .. "*"
-			.. ")")
+			.. ")"
+	end
+	local first_part, name, readable_name, setting_type = line:match(make_pattern(false))
+	local setting_side
+	if not first_part then
+		first_part, name, readable_name, setting_side, setting_type = line:match(make_pattern(true))
+	end
 
 	if not first_part then
 		return "Invalid line"
@@ -120,6 +158,28 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 
 	if name:match("secure%.[.]*") and not allow_secure then
 		return "Tried to add \"secure.\" setting"
+	end
+
+	if setting_side then
+		if force_side then
+			return "Side annotations are not allowed in this context, side is always " .. force_side
+		end
+		if not valid_sides[setting_side] then
+			return "Unknown side"
+		end
+	end
+
+	local side
+	if force_side then
+		side = force_side
+	else
+		if setting_side then
+			side = setting_side
+		elseif settings.current_side_level then
+			side = settings.current_side_level
+		else
+			return "Missing side annotation"
+		end
 	end
 
 	local requires = {}
@@ -170,6 +230,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			min = min,
 			max = max,
 			requires = requires,
+			side = side,
 			comment = comment,
 		})
 		return
@@ -193,6 +254,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			type = setting_type,
 			default = default,
 			requires = requires,
+			side = side,
 			comment = comment,
 		})
 		return
@@ -245,6 +307,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			},
 			values = values,
 			requires = requires,
+			side = side,
 			comment = comment,
 			noise_params = true,
 			flags = flags_to_table("defaults,eased,absvalue")
@@ -263,6 +326,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			type = "bool",
 			default = remaining_line,
 			requires = requires,
+			side = side,
 			comment = comment,
 		})
 		return
@@ -290,6 +354,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			min = min,
 			max = max,
 			requires = requires,
+			side = side,
 			comment = comment,
 		})
 		return
@@ -313,6 +378,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			default = default,
 			values = values:split(",", true),
 			requires = requires,
+			side = side,
 			comment = comment,
 		})
 		return
@@ -331,6 +397,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			type = setting_type,
 			default = default,
 			requires = requires,
+			side = side,
 			comment = comment,
 		})
 		return
@@ -361,6 +428,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			default = default,
 			possible = flags_to_table(possible),
 			requires = requires,
+			side = side,
 			comment = comment,
 		})
 		return
@@ -369,14 +437,14 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 	return "Invalid setting type \"" .. setting_type .. "\""
 end
 
-local function parse_single_file(file, filepath, read_all, result, base_level, allow_secure)
+local function parse_single_file(file, filepath, read_all, result, base_level, allow_secure, force_side)
 	-- store this helper variable in the table so it's easier to pass to parse_setting_line()
 	result.current_comment = {}
 	result.current_hide_level = nil
 
 	local line = file:read("*line")
 	while line do
-		local error_msg = parse_setting_line(result, line, read_all, base_level, allow_secure)
+		local error_msg = parse_setting_line(result, line, read_all, base_level, allow_secure, force_side)
 		if error_msg then
 			core.log("error", error_msg .. " in " .. filepath .. " \"" .. line .. "\"")
 		end
@@ -441,7 +509,7 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 					type = "category",
 				})
 
-				parse_single_file(file, path, read_all, settings, 2, false)
+				parse_single_file(file, path, read_all, settings, 2, false, "server")
 
 				file:close()
 			end
@@ -474,7 +542,7 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 					type = "category",
 				})
 
-				parse_single_file(file, path, read_all, settings, 2, false)
+				parse_single_file(file, path, read_all, settings, 2, false, "server")
 
 				file:close()
 			end
@@ -505,7 +573,7 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 					type = "category",
 				})
 
-				parse_single_file(file, path, read_all, settings, 2, false)
+				parse_single_file(file, path, read_all, settings, 2, false, "client")
 
 				file:close()
 			end
