@@ -42,6 +42,16 @@ local CHAR_CLASSES = {
 
 local valid_contexts = {common = true, client = true, server = true, world_creation = true}
 
+local function check_context_annotation(context, force_context)
+	if force_context then
+		return "Context annotations are not allowed, context is always " .. force_context
+	end
+	if not valid_contexts[context] then
+		return "Unknown context"
+	end
+	return nil
+end
+
 local function flags_to_table(flags)
 	return flags:gsub("%s+", ""):split(",", true) -- Remove all spaces and split
 end
@@ -86,11 +96,9 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 		end
 
 		if category_context then
-			if force_context then
-				return "Context annotations are not allowed, context is always " .. force_context
-			end
-			if not valid_contexts[category_context] then
-				return "Unknown context"
+			local err = check_context_annotation(category_context, force_context)
+			if err then
+				return err
 			end
 			if settings.current_context_level then
 				return "Category context annotations cannot be nested"
@@ -161,11 +169,9 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 	end
 
 	if setting_context then
-		if force_context then
-			return "Context annotations are not allowed, context is always " .. force_context
-		end
-		if not valid_contexts[setting_context] then
-			return "Unknown context"
+		local err = check_context_annotation(setting_context, force_context)
+		if err then
+			return err
 		end
 	end
 
