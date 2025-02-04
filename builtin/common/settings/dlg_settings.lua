@@ -111,6 +111,7 @@ local function load()
 		requires = {
 			keyboard_mouse = true,
 		},
+		context = "client",
 		get_formspec = function(self, avail_w)
 			local btn_w = math.min(avail_w, 3)
 			return ("button[0,0;%f,0.8;btn_change_keys;%s]"):format(btn_w, fgettext("Controls")), 0.8
@@ -127,6 +128,7 @@ local function load()
 		requires = {
 			touchscreen = true,
 		},
+		context = "client",
 		get_formspec = function(self, avail_w)
 			local btn_w = math.min(avail_w, 6)
 			return ("button[0,0;%f,0.8;btn_touch_layout;%s]"):format(btn_w, fgettext("Touchscreen layout")), 0.8
@@ -173,18 +175,24 @@ local function load()
 		table.insert(content, idx, shadows_component)
 
 		idx = table.indexof(content, "enable_auto_exposure") + 1
+		local setting_info = get_setting_info("enable_auto_exposure")
 		local note = component_funcs.note(fgettext_ne("(The game will need to enable automatic exposure as well)"))
-		note.requires = get_setting_info("enable_auto_exposure").requires
+		note.requires = setting_info.requires
+		note.context = setting_info.context
 		table.insert(content, idx, note)
 
 		idx = table.indexof(content, "enable_bloom") + 1
+		setting_info = get_setting_info("enable_bloom")
 		note = component_funcs.note(fgettext_ne("(The game will need to enable bloom as well)"))
-		note.requires = get_setting_info("enable_bloom").requires
+		note.requires = setting_info.requires
+		note.context = setting_info.context
 		table.insert(content, idx, note)
 
 		idx = table.indexof(content, "enable_volumetric_lighting") + 1
+		setting_info = get_setting_info("enable_volumetric_lighting")
 		note = component_funcs.note(fgettext_ne("(The game will need to enable volumetric lighting as well)"))
-		note.requires = get_setting_info("enable_volumetric_lighting").requires
+		note.requires = setting_info.requires
+		note.context = setting_info.context
 		table.insert(content, idx, note)
 	end
 
