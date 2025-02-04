@@ -70,13 +70,6 @@ public:
 	The actual speed is set in the scene node the mesh is instantiated in.*/
 	void setAnimationSpeed(f32 fps) override;
 
-	//! **Must not be called**.
-	IMesh *getMesh(f32) override {
-		// TODO refactor Irrlicht so that we need not implement this.
-		_IRR_DEBUG_BREAK_IF(true);
-		return nullptr;
-	};
-
 	//! Turns the given array of local matrices into an array of global matrices
 	//! by multiplying with respective parent matrices.
 	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const;

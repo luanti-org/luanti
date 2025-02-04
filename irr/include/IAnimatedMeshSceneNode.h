@@ -111,7 +111,7 @@ public:
 	virtual void setMesh(IAnimatedMesh *mesh) = 0;
 
 	//! Returns the current mesh
-	virtual IAnimatedMesh *getMesh(void) = 0;
+	virtual IAnimatedMesh *getMesh() = 0;
 
 	//! Sets the transition time in seconds
 	/** Note: You must call animateJoints(), or the mesh will not animate. */

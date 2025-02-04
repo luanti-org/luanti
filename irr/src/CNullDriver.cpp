@@ -1238,7 +1238,7 @@ void CNullDriver::addOcclusionQuery(scene::ISceneNode *node, const scene::IMesh 
 		else if (node->getType() == scene::ESNT_MESH)
 			mesh = static_cast<scene::IMeshSceneNode *>(node)->getMesh();
 		else
-			mesh = static_cast<scene::IAnimatedMeshSceneNode *>(node)->getMesh()->getMesh(0);
+			mesh = static_cast<scene::IAnimatedMeshSceneNode *>(node)->getMesh();
 		if (!mesh)
 			return;
 	}

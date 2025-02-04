@@ -151,9 +151,7 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 {
 	if (Mesh->getMeshType() != EAMT_SKINNED) {
-		auto *res = Mesh->getMesh(getFrameNr());
-		Box = res->getBoundingBox();
-		return res;
+		return Mesh;
 	}
 
 	// As multiple scene nodes may be sharing the same skinned mesh, we have to
@@ -194,8 +192,11 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	if (auto *skinnedMesh = dynamic_cast<SkinnedMesh*>(Mesh)) {
 		for (u16 i = 0; i < PerJoint.SceneNodes.size(); ++i)
 			PerJoint.GlobalMatrices[i] = PerJoint.SceneNodes[i]->getRelativeTransformation();
+		_IRR_DEBUG_BREAK_IF(PerJoint.GlobalMatrices.size() != skinnedMesh->getJointCount());
 		skinnedMesh->calculateGlobalMatrices(PerJoint.GlobalMatrices);
 		Box = skinnedMesh->calculateBoundingBox(PerJoint.GlobalMatrices);
+	} else {
+		Box = Mesh->getBoundingBox();
 	}
 }
 
