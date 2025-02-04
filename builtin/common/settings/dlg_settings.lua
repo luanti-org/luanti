@@ -362,7 +362,17 @@ local function update_filtered_pages(query)
 end
 
 
-local function check_requirements(name, requires)
+local shown_sides = {
+	client = true,
+	server = INIT ~= "pause_menu" or core.is_local_server(),
+	common = true,
+}
+
+local function check_requirements(name, requires, side)
+	if side and not shown_sides[side] then
+		return false
+	end
+
 	if requires == nil then
 		return true
 	end
@@ -423,11 +433,11 @@ function page_has_contents(page, actual_content)
 		elseif type(item) == "string" then
 			local setting = get_setting_info(item)
 			assert(setting, "Unknown setting: " .. item)
-			if check_requirements(setting.name, setting.requires) then
+			if check_requirements(setting.name, setting.requires, setting.side) then
 				return true
 			end
 		elseif item.get_formspec then
-			if check_requirements(item.id, item.requires) then
+			if check_requirements(item.id, item.requires, item.side) then
 				return true
 			end
 		else
@@ -449,20 +459,22 @@ local function build_page_components(page)
 		elseif item.heading then
 			last_heading = item
 		else
-			local name, requires
+			local name, requires, side
 			if type(item) == "string" then
 				local setting = get_setting_info(item)
 				assert(setting, "Unknown setting: " .. item)
 				name = setting.name
 				requires = setting.requires
+				side = setting.side
 			elseif item.get_formspec then
 				name = item.id
 				requires = item.requires
+				side = item.side
 			else
 				error("Unknown content in page: " .. dump(item))
 			end
 
-			if check_requirements(name, requires) then
+			if check_requirements(name, requires, side) then
 				if last_heading then
 					content[#content + 1] = last_heading
 					last_heading = nil

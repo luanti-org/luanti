@@ -781,7 +781,7 @@ contentdb_max_concurrent_downloads (ContentDB Max Concurrent Downloads) int 3 1
 enable_local_map_saving (Saving map received from server) bool false
 
 #    URL to the server list displayed in the Multiplayer Tab.
-serverlist_url (Serverlist URL) [common] string https://servers.luanti.org
+serverlist_url (Serverlist URL) string https://servers.luanti.org
 
 #    If enabled, server account registration is separate from login in the UI.
 #    If disabled, connecting to a server will automatically register a new account.
@@ -819,7 +819,7 @@ server_announce (Announce server) bool false
 server_announce_send_players (Send player names to the server list) bool true
 
 #    Announce to this serverlist.
-serverlist_url (Serverlist URL) [common] string https://servers.luanti.org
+serverlist_url (Serverlist URL) string https://servers.luanti.org
 
 #    Message of the day displayed to players connecting.
 motd (Message of the day) string

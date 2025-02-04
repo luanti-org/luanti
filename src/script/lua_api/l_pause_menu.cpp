@@ -5,6 +5,7 @@
 #include "l_pause_menu.h"
 #include "gui/mainmenumanager.h"
 #include "lua_api/l_internal.h"
+#include "client/client.h"
 
 
 int ModApiPauseMenu::l_show_keys_menu(lua_State *L)
@@ -21,8 +22,16 @@ int ModApiPauseMenu::l_show_touchscreen_layout(lua_State *L)
 }
 
 
+int ModApiPauseMenu::l_is_local_server(lua_State *L)
+{
+	lua_pushboolean(L, getClient(L)->isLocalServer());
+	return 1;
+}
+
+
 void ModApiPauseMenu::Initialize(lua_State *L, int top)
 {
 	API_FCT(show_keys_menu);
 	API_FCT(show_touchscreen_layout);
+	API_FCT(is_local_server);
 }

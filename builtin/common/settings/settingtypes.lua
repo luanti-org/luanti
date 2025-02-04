@@ -176,7 +176,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 		if setting_side then
 			side = setting_side
 		elseif settings.current_side_level then
-			side = settings.current_side_level
+			side = settings.current_side
 		else
 			return "Missing side annotation"
 		end
@@ -479,7 +479,8 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 	-- TODO: Support game/mod settings in the pause menu too
 	-- Note that this will need to work different from how it's done in the
 	-- mainmenu:
-	-- * Only if in singleplayer / on local server, not on remote servers
+	-- * ~~Only if in singleplayer / on local server, not on remote servers~~
+	--   (done: side annotations)
 	-- * Only show settings for the active game and mods
 	--   (add API function to get them, can return nil if on a remote server)
 	--   (names are probably not enough, will need paths for uniqueness)
