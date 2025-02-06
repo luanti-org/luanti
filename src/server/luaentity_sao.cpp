@@ -70,6 +70,13 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	m_rotation = rotation;
 }
 
+LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &name,
+		const std::string &state) :
+		UnitSAO(env, pos),
+		m_init_name(name), m_init_state(state)
+{
+}
+
 LuaEntitySAO::~LuaEntitySAO()
 {
 	if(m_registered){
@@ -98,6 +105,10 @@ void LuaEntitySAO::addedToEnvironment(u32 dtime_s)
 		// Activate entity, supplying serialized state
 		m_env->getScriptIface()->
 			luaentity_Activate(m_id, m_init_state, dtime_s);
+		// if Activate callback does not set guid, set it.
+		if (m_guid.empty()) {
+			getGuid();
+		}
 	} else {
 		// It's an unknown object
 		// Use entitystring as infotext for debugging
@@ -412,6 +423,22 @@ void LuaEntitySAO::setHP(s32 hp, const PlayerHPChangeReason &reason)
 u16 LuaEntitySAO::getHP() const
 {
 	return m_hp;
+}
+
+bool LuaEntitySAO::setGuid(std::string &guid)
+{
+	if (m_guid.empty()) {
+		m_guid = guid;
+		return true;
+	}
+	return false;
+}
+const GUId& LuaEntitySAO::getGuid()
+{
+	if (m_guid.empty()) {
+		m_guid = m_env->getGUIdGenerator().next();
+	}
+	return m_guid;
 }
 
 void LuaEntitySAO::setVelocity(v3f velocity)

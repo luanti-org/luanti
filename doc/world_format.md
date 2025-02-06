@@ -597,6 +597,9 @@ Since protocol version 37:
 * `u8` `version2` (=1)
 * `s32` pitch * 1000
 * `s32` roll * 1000
+* if version2 >= 2:
+  * u32 len
+  * u8[len] guid
 
 # Itemstring Format
 

@@ -76,6 +76,22 @@ core.register_entity("unittests:callbacks", {
 	end,
 })
 
+core.register_entity("unittests:guid", {
+	initial_properties = {
+		static_save = false,
+	},
+	on_activate = function(self, staticdata, dtime_s)
+    self.object:set_guid("@UNITTEST")
+		insert_log("on_activate(%d)", #staticdata)
+	end,
+	on_deactivate = function(self, removal)
+		insert_log("on_deactivate(%s)", tostring(removal))
+	end,
+	get_staticdata = function(self)
+		assert(false)
+	end,
+})
+
 --
 
 local function check_log(expect)
@@ -255,3 +271,25 @@ local function test_item_drop(_, pos)
 	assert(itemstack_ret:equals(itemstack_src))
 end
 unittests.register("test_item_drop", test_item_drop, {map=true})
+
+local function test_entity_guid(_, pos)
+	log = {}
+
+	local obj = core.add_entity(pos, "unittests:callbacks")
+	check_log({"on_activate(0)"})
+
+	assert(obj:get_guid()~="")
+
+	obj:remove()
+	check_log({"on_deactivate(true)"})
+
+	assert(core.objects_by_guid["@UNITTEST"]==nil)
+	obj = core.add_entity(pos, "unittests:guid")
+	check_log({"on_activate(0)"})
+
+	assert(obj:get_guid()=="@UNITTEST")
+	assert(core.objects_by_guid["@UNITTEST"]~=nil)
+
+	obj:remove()
+end
+unittests.register("test_entity_guid", test_entity_guid, {map=true})
