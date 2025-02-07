@@ -1428,8 +1428,6 @@ u16 ServerEnvironment::addActiveObjectRaw(std::unique_ptr<ServerActiveObject> ob
 	// Post-initialize object
 	// Note that this can change the value of isStaticAllowed() in case of LuaEntitySAO
 	object->addedToEnvironment(dtime_s);
-	// After post-initialize, GUID is known
-	m_script->addObjectByGuid(object);
 
 	// Activate object
 	if (object->m_static_exists)

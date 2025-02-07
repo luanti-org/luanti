@@ -5783,7 +5783,7 @@ Utilities
       -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
       httpfetch_additional_methods = true,
       -- objects have get_guid method (5.12.0)
-      have_guids = true,
+      object_guids = true,
   }
   ```
 
@@ -7821,8 +7821,6 @@ Global tables
     * Values in this table may be modified directly.
       Note: changes to initial properties will only affect entities spawned afterwards,
       as they are only read when spawning.
-* `core.object_refs`
-    * Map of object references, indexed by active object id
 * `core.objects_by_guid`
     * Map of object references, indexed by active object GUID
 * `core.luaentities`

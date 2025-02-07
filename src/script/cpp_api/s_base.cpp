@@ -416,8 +416,11 @@ void ScriptApiBase::setOriginFromTableRaw(int index, const char *fxn)
  *     for objects without ID.
  *     It's unclear what the latter are needed for and their use is problematic
  *     since we lose control over the ref and the contained pointer.
+ *
+ *
+ * DEPRECATED
+ * core.object_regs[id] can be removed in future!!!
  */
-
 void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 {
 	SCRIPTAPI_PRECHECKHEADER
@@ -437,22 +440,12 @@ void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 	lua_pushinteger(L, cobj->getId()); // Push id
 	lua_pushvalue(L, object); // Copy object to top of stack
 	lua_settable(L, objectstable);
-}
-
-void ScriptApiBase::addObjectByGuid(ServerActiveObject *cobj)
-{
-	SCRIPTAPI_PRECHECKHEADER
-	assert(getType() == ScriptingType::Server);
-
-	// Create object on stack
-	ObjectRef::create(L, cobj); // Puts ObjectRef (as userdata) on stack
-	int object = lua_gettop(L);
 
 	// Get core.objects_by_guid table
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "objects_by_guid");
 	luaL_checktype(L, -1, LUA_TTABLE);
-	int objectstable = lua_gettop(L);
+	objectstable = lua_gettop(L);
 
 	// objects_by_guid[GUID] = object
 	lua_pushstring(L, cobj->getGuid().text.c_str()); // Push GUID

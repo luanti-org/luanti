@@ -59,12 +59,15 @@ GUId GUIdGenerator::next()
 {
 	GUId result;
 
-	result.p1 = m_uniform(m_rand) & 0xFFFFFFFF;
-	result.p2 = m_uniform(m_rand) & 0xFFFF;
-	result.p3 = m_uniform(m_rand) & 0xFFFF;
-	result.p4 = m_uniform(m_rand) & 0xFFFF;
-	result.p5 = m_uniform(m_rand) & 0xFFFFFFFF;
-	result.p6 = m_uniform(m_rand) & 0xFFFF;
+	u64 rand1 = m_uniform(m_rand);
+	u64 rand2 = m_uniform(m_rand);
+
+	result.p1 = rand1 & 0xFFFFFFFF;
+	result.p2 = (rand1 >> 32) & 0xFFFF;
+	result.p3 = (rand1 >> 48) & 0xFFFF;
+	result.p4 = rand2 & 0xFFFF;
+	result.p5 = (rand2 >> 16) & 0xFFFFFFFF;
+	result.p6 = (rand2 >> 48) & 0xFFFF;
 
 	result.generateText();
 

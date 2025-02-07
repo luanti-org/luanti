@@ -362,10 +362,7 @@ private:
 	server::ActiveObjectMgr m_ao_manager;
 	// on_mapblocks_changed map event receiver
 	OnMapblocksChangedReceiver m_on_mapblocks_changed_receiver;
-	// Generator for luaentity guids
 	GUIdGenerator m_guid_generator;
-	// World path
-	const std::string m_path_world;
 	// Outgoing network message buffer for active objects
 	std::queue<ActiveObjectMessage> m_active_object_messages;
 	// Some timers

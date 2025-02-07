@@ -53,7 +53,7 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 
 		if (version2 < 2)
 			break;
-		
+
 		guid.deSerialize(is);
 
 		// if (version2 < 2)
