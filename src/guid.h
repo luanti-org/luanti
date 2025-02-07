@@ -16,7 +16,19 @@ class ServerEnvironment;
  * It is global because it stays valid in a world forever.
  * It is unique because there are no collisions.
  */
-typedef std::string GUId;
+struct GUId {
+	std::string text;
+	u32 p1;
+	u16 p2, p3, p4;
+	u32 p5;
+	u16 p6;
+
+	GUId() = default;
+	GUId(const std::string &str);
+	void generateText();
+	void serialize(std::ostringstream &os) const;
+	void deSerialize(std::istream &is);
+};
 
 /**
  * Generates infinitely many guids.

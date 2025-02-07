@@ -109,7 +109,7 @@ int ObjectRef::l_get_guid(lua_State *L)
 	if (sao == nullptr)
 		return 0;
 
-	lua_pushstring(L, sao->getGuid().c_str());
+	lua_pushstring(L, sao->getGuid().text.c_str());
 	return 1;
 }
 
@@ -1234,25 +1234,6 @@ int ObjectRef::l_set_sprite(lua_State *L)
 
 	entitysao->setSprite(start_frame, num_frames, framelength, select_x_by_camera);
 	return 0;
-}
-
-// set_guid(self, guid)
-int ObjectRef::l_set_guid(lua_State *L)
-{
-	NO_MAP_LOCK_REQUIRED;
-	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
-	LuaEntitySAO *entitysao = getluaobject(ref);
-	if (entitysao == nullptr)
-		return 0;
-
-	std::string guid = readParam<std::string>(L, 2, "");
-
-	if (!guid.empty())
-		lua_pushboolean(L, entitysao->setGuid(guid));
-	else
-		lua_pushboolean(L, false);
-
-	return 1;
 }
 
 // DEPRECATED
@@ -2899,7 +2880,6 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod_aliased(ObjectRef, set_texture_mod, settexturemod),
 	luamethod(ObjectRef, get_texture_mod),
 	luamethod_aliased(ObjectRef, set_sprite, setsprite),
-	luamethod(ObjectRef, set_guid),
 	luamethod(ObjectRef, get_entity_name),
 	luamethod(ObjectRef, get_luaentity),
 

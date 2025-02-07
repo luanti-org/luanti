@@ -5782,7 +5782,7 @@ Utilities
       remove_item_match_meta = true,
       -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
       httpfetch_additional_methods = true,
-      -- objects have get_guid method and lua entities alse set_guid method (5.12.0)
+      -- objects have get_guid method (5.12.0)
       have_guids = true,
   }
   ```
@@ -8532,10 +8532,6 @@ child will follow movement and rotation of that bone.
     * The object is removed after returning from Lua. However the `ObjectRef`
       itself instantly becomes unusable with all further method calls having
       no effect and returning `nil`.
-* `set_guid(guid)`:
-    * Set a global unique identifier string of entity.
-    * Is valid to be called only in `on_activate` callback.
-    * Should be used ONLY for restoring saved guid from staticdata!!!
 * `set_velocity(vel)`
     * Sets the velocity
     * `vel` is a vector, e.g. `{x=0.0, y=2.3, z=1.0}`
