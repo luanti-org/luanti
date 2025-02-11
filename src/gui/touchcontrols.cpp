@@ -15,6 +15,7 @@
 #include "client/guiscalingfilter.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
+#include "util/enum_string.h"
 #include "util/numeric.h"
 #include "irr_gui_ptr.h"
 #include "IGUIImage.h"
@@ -78,15 +79,18 @@ bool TouchControls::buttonsHandlePress(std::vector<button_info> &buttons, size_t
 
 	for (button_info &btn : buttons) {
 		if (btn.gui_button.get() == element) {
+			// Allow moving the camera with the same finger that holds dig/place.
+			bool absorb = btn.id != dig_id && btn.id != place_id;
+
 			assert(std::find(btn.pointer_ids.begin(), btn.pointer_ids.end(), pointer_id) == btn.pointer_ids.end());
 			btn.pointer_ids.push_back(pointer_id);
 
 			if (btn.pointer_ids.size() > 1)
-				return true;
+				return absorb;
 
 			buttonEmitAction(btn, true);
 			btn.repeat_counter = -BUTTON_REPEAT_DELAY;
-			return true;
+			return absorb;
 		}
 	}
 
@@ -99,13 +103,16 @@ bool TouchControls::buttonsHandleRelease(std::vector<button_info> &buttons, size
 	for (button_info &btn : buttons) {
 		auto it = std::find(btn.pointer_ids.begin(), btn.pointer_ids.end(), pointer_id);
 		if (it != btn.pointer_ids.end()) {
+			// Don't absorb since we didn't absorb the press event either.
+			bool absorb = btn.id != dig_id && btn.id != place_id;
+
 			btn.pointer_ids.erase(it);
 
 			if (!btn.pointer_ids.empty())
-				return true;
+				return absorb;
 
 			buttonEmitAction(btn, false);
-			return true;
+			return absorb;
 		}
 	}
 
@@ -117,6 +124,8 @@ bool TouchControls::buttonsStep(std::vector<button_info> &buttons, float dtime)
 	bool has_pointers = false;
 
 	for (button_info &btn : buttons) {
+		if (btn.id == dig_id || btn.id == place_id)
+			continue; // key repeats would cause glitches here
 		if (btn.pointer_ids.empty())
 			continue;
 		has_pointers = true;
@@ -205,7 +214,7 @@ static const KeyPress &id_to_keypress(touch_gui_button_id id)
 
 
 static const char *setting_names[] = {
-	"touch_use_crosshair",
+	"touch_interaction_style",
 	"touchscreen_threshold", "touch_long_tap_delay",
 	"fixed_virtual_joystick", "virtual_joystick_triggers_aux1",
 	"touch_layout",
@@ -232,14 +241,20 @@ void TouchControls::settingChangedCallback(const std::string &name, void *data)
 
 void TouchControls::readSettings()
 {
-	m_use_crosshair = g_settings->getBool("touch_use_crosshair");
+	const std::string &s = g_settings->get("touch_interaction_style");
+	if (!string_to_enum(es_TouchInteractionStyle, m_interaction_style, s)) {
+		m_interaction_style = TAP;
+		warningstream << "Invalid touch_interaction_style value" << std::endl;
+	}
+
 	m_touchscreen_threshold = g_settings->getU16("touchscreen_threshold");
 	m_long_tap_delay = g_settings->getU16("touch_long_tap_delay");
 	m_fixed_joystick = g_settings->getBool("fixed_virtual_joystick");
 	m_joystick_triggers_aux1 = g_settings->getBool("virtual_joystick_triggers_aux1");
 
-	// Note that "fixed_virtual_joystick" and "virtual_joystick_triggers_aux1"
-	// also affect the layout.
+	// Note that other settings also affect the layout:
+	// - ButtonLayout::loadFromSettings: "touch_interaction_style" and "virtual_joystick_triggers_aux1"
+	// - applyLayout: "fixed_virtual_joystick"
 	applyLayout(ButtonLayout::loadFromSettings());
 }
 
@@ -305,8 +320,8 @@ void TouchControls::applyLayout(const ButtonLayout &layout)
 	overflow_buttons.erase(std::remove_if(
 			overflow_buttons.begin(), overflow_buttons.end(),
 			[&](touch_gui_button_id id) {
-				// There's no sense in adding the overflow button to the overflow
-				// menu (also, it's impossible since it doesn't have a keycode).
+				// There would be no sense in adding the overflow button to the
+				// overflow menu.
 				return !mayAddButton(id) || id == overflow_id;
 			}), overflow_buttons.end());
 
@@ -346,13 +361,10 @@ TouchControls::~TouchControls()
 
 bool TouchControls::mayAddButton(touch_gui_button_id id)
 {
-	if (!ButtonLayout::isButtonAllowed(id))
-		return false;
-	if (id == aux1_id && m_joystick_triggers_aux1)
-		return false;
-	if (id != overflow_id && !id_to_keypress(id))
-		return false;
-	return true;
+	assert(ButtonLayout::isButtonValid(id));
+	assert(ButtonLayout::isButtonAllowed(id));
+	// The overflow button doesn't need a keycode to be valid.
+	return id == overflow_id || id_to_keypress(id);
 }
 
 void TouchControls::addButton(std::vector<button_info> &buttons, touch_gui_button_id id,
@@ -363,6 +375,7 @@ void TouchControls::addButton(std::vector<button_info> &buttons, touch_gui_butto
 	loadButtonTexture(btn_gui_button, image);
 
 	button_info &btn = buttons.emplace_back();
+	btn.id = id;
 	btn.keypress = id_to_keypress(id);
 	btn.gui_button = grab_gui_element<IGUIImage>(btn_gui_button);
 }
@@ -429,7 +442,8 @@ void TouchControls::handleReleaseEvent(size_t pointer_id)
 		// If m_tap_state is already set to TapState::ShortTap, we must keep
 		// that value. Otherwise, many short taps will be ignored if you tap
 		// very fast.
-		if (!m_move_has_really_moved && !m_move_prevent_short_tap &&
+		if (m_interaction_style != BUTTONS_CROSSHAIR &&
+				!m_move_has_really_moved && !m_move_prevent_short_tap &&
 				m_tap_state != TapState::LongTap) {
 			m_tap_state = TapState::ShortTap;
 		} else {
@@ -655,7 +669,9 @@ void TouchControls::step(float dtime)
 	applyJoystickStatus();
 
 	// if a new placed pointer isn't moved for some time start digging
-	if (m_has_move_id && !m_move_has_really_moved && m_tap_state == TapState::None) {
+	if (m_interaction_style != BUTTONS_CROSSHAIR &&
+			m_has_move_id && !m_move_has_really_moved &&
+			m_tap_state == TapState::None) {
 		u64 delta = porting::getDeltaMs(m_move_downtime, porting::getTimeMs());
 
 		if (delta > m_long_tap_delay) {
@@ -669,7 +685,7 @@ void TouchControls::step(float dtime)
 	// shootline when a touch event occurs.
 	// Only updating when m_has_move_id means that the shootline will stay at
 	// it's last in-world position when the player doesn't need it.
-	if (!m_use_crosshair && (m_has_move_id || m_had_move_id)) {
+	if (m_interaction_style == TAP && (m_has_move_id || m_had_move_id)) {
 		m_shootline = m_device
 				->getSceneManager()
 				->getSceneCollisionManager()
@@ -757,6 +773,9 @@ void TouchControls::show()
 
 void TouchControls::applyContextControls(const TouchInteractionMode &mode)
 {
+	if (m_interaction_style == BUTTONS_CROSSHAIR)
+		return;
+
 	// Since the pointed thing has already been determined when this function
 	// is called, we cannot use this function to update the shootline.
 
