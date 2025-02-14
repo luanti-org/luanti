@@ -10,6 +10,18 @@
 void ScriptApiSSCSM::load_mods(const std::vector<std::string> &init_paths)
 {
 	//TODO
+
+	SSCSMEnvironment *env = getSSCSMEnv();
+	actionstream << "load_mods:\n";
+	for (const auto &p : init_paths) {
+		actionstream << "    " << p << ":\n";
+		auto f = env->readVFSFile(p);
+		if (!f.has_value()) {
+			env->setFatalError("load_mods(): File doesn't exist: " + p);
+			return;
+		}
+		actionstream << *f << "\n";
+	}
 }
 
 void ScriptApiSSCSM::environment_step(float dtime)
