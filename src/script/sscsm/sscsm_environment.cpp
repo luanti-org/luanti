@@ -42,20 +42,26 @@ void SSCSMEnvironment::updateVFSFiles(std::vector<std::pair<std::string, std::st
 	}
 }
 
+std::optional<std::string_view> SSCSMEnvironment::readVFSFile(const std::string &path)
+{
+	auto it = m_vfs.find(path);
+	if (it == m_vfs.end())
+		return std::nullopt;
+	else
+		return it->second;
+}
+
 void SSCSMEnvironment::setFatalError(const std::string &reason)
 {
-	//TODO
-	// what to do on error?
-	// probably send a request
-	errorstream << "SSCSMEnvironment::setFatalError() reason: " << reason << std::endl;
+	auto request = SSCSMRequestSetFatalError{};
+	request.reason = reason;
+	doRequest(std::move(request));
 }
 
 std::unique_ptr<ISSCSMEvent> SSCSMEnvironment::requestPollNextEvent()
 {
 	auto request = SSCSMRequestPollNextEvent{};
-	auto answer = deserializeSSCSMAnswer<SSCSMRequestPollNextEvent::Answer>(
-			exchange(serializeSSCSMRequest(request))
-		);
+	auto answer = doRequest(std::move(request));
 	return std::move(answer.next_event);
 }
 
@@ -63,8 +69,6 @@ MapNode SSCSMEnvironment::requestGetNode(v3s16 pos)
 {
 	auto request = SSCSMRequestGetNode{};
 	request.pos = pos;
-	auto answer = deserializeSSCSMAnswer<SSCSMRequestGetNode::Answer>(
-			exchange(serializeSSCSMRequest(request))
-		);
+	auto answer = doRequest(std::move(request));
 	return answer.node;
 }

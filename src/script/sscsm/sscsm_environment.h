@@ -5,6 +5,9 @@
 #pragma once
 
 #include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
 #include "client/client.h"
 #include "threading/thread.h"
 #include "sscsm_controller.h"
@@ -34,11 +37,20 @@ public:
 	SSCSMScripting *getScript() { return m_script.get(); }
 
 	void updateVFSFiles(std::vector<std::pair<std::string, std::string>> &&files);
+	std::optional<std::string_view> readVFSFile(const std::string &path);
 
 	void setFatalError(const std::string &reason);
 	void setFatalError(const LuaError &e)
 	{
 		setFatalError(std::string("Lua: ") + e.what());
+	}
+
+	template <typename RQ>
+	typename RQ::Answer doRequest(RQ &&rq)
+	{
+		return deserializeSSCSMAnswer<typename RQ::Answer>(
+				exchange(serializeSSCSMRequest(std::forward<RQ>(rq)))
+			);
 	}
 
 	std::unique_ptr<ISSCSMEvent> requestPollNextEvent();

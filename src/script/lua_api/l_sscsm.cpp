@@ -9,14 +9,16 @@
 #include "l_internal.h"
 #include "log.h"
 #include "script/sscsm/sscsm_environment.h"
+#include "script/sscsm/sscsm_requests.h"
 #include "mapnode.h"
 
 // print(text)
 int ModApiSSCSM::l_print(lua_State *L)
 {
-	// TODO: send request to main process
-	std::string text = luaL_checkstring(L, 1);
-	rawstream << text << std::endl;
+	auto request = SSCSMRequestPrint{};
+	request.text = luaL_checkstring(L, 1);
+	getSSCSMEnv(L)->doRequest(std::move(request));
+
 	return 0;
 }
 
@@ -28,11 +30,13 @@ int ModApiSSCSM::l_get_node_or_nil(lua_State *L)
 	v3s16 pos = read_v3s16(L, 1);
 
 	// Do it
-	bool pos_ok = true;
-	MapNode n = getSSCSMEnv(L)->requestGetNode(pos); //TODO: add pos_ok to request
-	if (pos_ok) {
+	auto request = SSCSMRequestGetNode{};
+	request.pos = pos;
+	auto answer = getSSCSMEnv(L)->doRequest(std::move(request));
+
+	if (answer.is_pos_ok) {
 		// Return node
-		pushnode(L, n);
+		pushnode(L, answer.node);
 	} else {
 		lua_pushnil(L);
 	}
