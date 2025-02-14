@@ -4,7 +4,8 @@
 
 #include "scripting_sscsm.h"
 
-SSCSMScripting::SSCSMScripting(SSCSMEnvironment *env)
+SSCSMScripting::SSCSMScripting(SSCSMEnvironment *env) :
+	ScriptApiBase(ScriptingType::SSCSM)
 {
 	setSSCSMEnv(env);
 
