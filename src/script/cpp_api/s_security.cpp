@@ -394,6 +394,105 @@ void ScriptApiSecurity::initializeSecurityClient()
 	setLuaEnv(L, thread);
 }
 
+void ScriptApiSecurity::initializeSecuritySSCSM()
+{
+	static const char *whitelist[] = {
+		"assert",
+		"core",
+		"collectgarbage",
+		"DIR_DELIM", //TODO: useless?
+		"error",
+		"getfenv",
+		"ipairs",
+		"next",
+		"pairs",
+		"pcall",
+		"print", //TODO
+		"rawequal",
+		"rawget",
+		"rawset",
+		"select",
+		"setfenv",
+		"getmetatable",
+		"setmetatable",
+		"tonumber",
+		"tostring",
+		"type",
+		"unpack", //TODO: replace, because of UB in some lua versions
+		"_VERSION",
+		"xpcall",
+		// Completely safe libraries
+		"coroutine",
+		"string",
+		"table",
+		"math",
+		"bit",
+	};
+	static const char *os_whitelist[] = {
+		"clock", //TODO: limit resolution, to mitigate side channel attacks
+		"date",
+		"difftime",
+		"time"
+	};
+
+#if USE_LUAJIT
+	static const char *jit_whitelist[] = {
+		"arch",
+		"flush",
+		"off",
+		"on",
+		"opt",
+		"os",
+		"status",
+		"version",
+		"version_num",
+	};
+#endif
+
+	m_secure = true;
+
+	lua_State *L = getStack();
+	int thread = getThread(L);
+
+	// create an empty environment
+	createEmptyEnv(L);
+
+	// Copy safe base functions
+	lua_getglobal(L, "_G");
+	lua_getfield(L, -2, "_G");
+	copy_safe(L, whitelist, sizeof(whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(g, dofile);
+	SECURE_API(g, load);
+	SECURE_API(g, loadfile);
+	SECURE_API(g, loadstring);
+	SECURE_API(g, require);
+	lua_pop(L, 2);
+
+
+
+	// Copy safe OS functions
+	lua_getglobal(L, "os");
+	lua_newtable(L);
+	copy_safe(L, os_whitelist, sizeof(os_whitelist));
+	lua_setfield(L, -3, "os");
+	lua_pop(L, 1);  // Pop old OS
+
+
+#if USE_LUAJIT
+	// Copy safe jit functions, if they exist
+	lua_getglobal(L, "jit");
+	lua_newtable(L);
+	copy_safe(L, jit_whitelist, sizeof(jit_whitelist));
+	lua_setfield(L, -3, "jit");
+	lua_pop(L, 1);  // Pop old jit
+#endif
+
+	// Set the environment to the one we created earlier
+	setLuaEnv(L, thread);
+}
+
 #endif
 
 int ScriptApiSecurity::getThread(lua_State *L)
@@ -791,10 +890,11 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 #if CHECK_CLIENT_BUILD()
 	ScriptApiBase *script = ModApiBase::getScriptApiBase(L);
 
-	// Client implementation
-	if (script->getType() == ScriptingType::Client) {
+	// SSCSM & CPCSM implementation
+	if (script->getType() == ScriptingType::Client
+			|| script->getType() == ScriptingType::SSCSM) {
 		std::string path = readParam<std::string>(L, 1);
-		const std::string *contents = script->getClient()->getModFile(path);
+		const std::string *contents = script->getClient()->getModFile(path); //TODO
 		if (!contents) {
 			std::string error_msg = "Couldn't find script called: " + path;
 			lua_pushnil(L);
