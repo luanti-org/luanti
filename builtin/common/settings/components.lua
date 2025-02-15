@@ -444,21 +444,34 @@ end
 
 function make.key(setting)
 	local btn_bind = "bind_" .. setting.name
+	local btn_clear = "unbind_" .. setting.name
 	return {
 		info_text = setting.comment,
 		setting = setting,
 
 		get_formspec = function(self, avail_w)
 			self.resettable = core.settings:has(setting.name)
+			local btn_bind_width = math.max(2.5, avail_w/2)
 			local value = core.settings:get(setting.name)
-			local fs = "label[0,0.4;" .. get_label(setting) .. "]" ..
-					("button_key[%f,0;2.5,0.8;%s;%s]"):format(avail_w - 2.5, btn_bind, value)
-			return fs, 0.8
+			local fs = {
+				("label[0,0.4;%s]"):format(get_label(setting)),
+				("button_key[%f,0;%f,0.8;%s;%s]"):format(
+						btn_bind_width, btn_bind_width-0.8,
+						btn_bind, core.formspec_escape(value)),
+				("image_button[%f,0;0.8,0.8;%s;%s;]"):format(avail_w - 0.8,
+						core.formspec_escape(defaulttexturedir .. "clear.png"),
+						btn_clear),
+				("tooltip[%s;%s]"):format(btn_clear, fgettext("Remove keybinding")),
+			}
+			return table.concat(fs), 0.8
 		end,
 
 		on_submit = function(self, fields)
 			if fields[btn_bind] then
 				core.settings:set(setting.name, fields[btn_bind])
+				return true
+			elseif fields[btn_clear] then
+				core.settings:set(setting.name, "")
 				return true
 			end
 		end,
