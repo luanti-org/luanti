@@ -442,8 +442,28 @@ local function make_noise_params(setting)
 	}
 end
 
--- TODO: Implement proper UI for changing keybindings.
-make.key = make.string
+function make.key(setting)
+	local btn_bind = "bind_" .. setting.name
+	return {
+		info_text = setting.comment,
+		setting = setting,
+
+		get_formspec = function(self, avail_w)
+			self.resettable = core.settings:has(setting.name)
+			local value = core.settings:get(setting.name)
+			local fs = "label[0,0.4;" .. get_label(setting) .. "]" ..
+					("button_key[%f,0;2.5,0.8;%s;%s]"):format(avail_w - 2.5, btn_bind, value)
+			return fs, 0.8
+		end,
+
+		on_submit = function(self, fields)
+			if fields[btn_bind] then
+				core.settings:set(setting.name, fields[btn_bind])
+				return true
+			end
+		end,
+	}
+end
 
 if INIT == "pause_menu" then
 	-- Making the noise parameter dialog work in the pause menu settings would
