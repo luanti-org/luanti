@@ -14,6 +14,8 @@
 
 void MyEventReceiver::reloadKeybindings()
 {
+	clearKeyCache();
+
 	keybindings[KeyType::FORWARD] = getKeySetting("keymap_forward");
 	keybindings[KeyType::BACKWARD] = getKeySetting("keymap_backward");
 	keybindings[KeyType::LEFT] = getKeySetting("keymap_left");
