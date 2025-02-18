@@ -218,7 +218,7 @@ local function test_async_job_replacement(cb)
 	end
 	local job = core.handle_async(function()
 	end, function()
-		return cb("Canceled async job run")
+		return cb("Canceled async job ran")
 	end)
 	if not job:cancel() then
 		return cb("AsyncJob:cancel sanity check failed")
