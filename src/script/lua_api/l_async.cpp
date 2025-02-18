@@ -11,7 +11,9 @@ static std::string get_serialized_function(lua_State *L, int index)
 	call_string_dump(L, index);
 	size_t func_length;
 	const char *serialized_func_raw = lua_tolstring(L, -1, &func_length);
-	return std::string(serialized_func_raw, func_length);
+	std::string serialized_func(serialized_func_raw, func_length);
+	lua_pop(L, 1);
+	return serialized_func;
 }
 
 // do_async_callback(func, params, mod_origin)
