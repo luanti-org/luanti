@@ -219,7 +219,7 @@ keymap_chat (Chat key) key KEY_KEY_T
 keymap_cmd (Command key) key /
 
 #    Key for opening the chat window to type local commands.
-keymap_cmd_local (Command key) key .
+keymap_cmd_local (Local command key) key .
 
 #    Key for toggling unlimited view range.
 keymap_rangeselect (Range select key) key
