@@ -262,7 +262,7 @@ public:
 	// If not as many items exist as requested, removes as
 	// many as possible.
 	// Returns the items that were actually removed.
-	ItemStack removeItem(const ItemStack &item);
+	ItemStack removeItem(const ItemStack &item, bool match_meta);
 
 	// Takes some items from a slot.
 	// If there are not enough, takes as many as it can.
