@@ -426,20 +426,6 @@ void getNodeTile(MapNode mn, const v3s16 &p, const v3s16 &dir, MeshMakeData *dat
 	tile.rotation = tile.world_aligned ? TileRotation::None : dir_to_tile[facedir][dir_i].rotation;
 }
 
-static void applyTileColor(PreMeshBuffer &pmb)
-{
-	video::SColor tc = pmb.layer.color;
-	if (tc == video::SColor(0xFFFFFFFF))
-		return;
-	for (video::S3DVertex &vertex : pmb.vertices) {
-		video::SColor *c = &vertex.Color;
-		c->set(c->getAlpha(),
-			c->getRed() * tc.getRed() / 255,
-			c->getGreen() * tc.getGreen() / 255,
-			c->getBlue() * tc.getBlue() / 255);
-	}
-}
-
 /*
 	MapBlockBspTree
 */
@@ -668,7 +654,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 		{
 			PreMeshBuffer &p = collector.prebuffers[layer][i];
 
-			applyTileColor(p);
+			p.applyTileColor();
 
 			// Generate animation data
 			// - Cracks
@@ -701,28 +687,16 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 
 			// Create material
 			video::SMaterial material;
-			material.BackfaceCulling = true;
 			material.FogEnable = true;
-			material.setTexture(0, p.layer.texture);
 			material.forEachTexture([] (auto &tex) {
 				tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
 				tex.MagFilter = video::ETMAGF_NEAREST;
 			});
-			/*
-			 * The second layer is for overlays, but uses the same vertex positions
-			 * as the first, which quickly leads to z-fighting.
-			 * To fix this we can offset the polygons in the direction of the camera.
-			 * This only affects the depth buffer and leads to no visual gaps in geometry.
-			 */
-			if (layer == 1) {
-				material.PolygonOffsetSlopeScale = -1;
-				material.PolygonOffsetDepthBias = -1;
-			}
 
 			{
 				material.MaterialType = m_shdrsrc->getShaderInfo(
 						p.layer.shader_id).material;
-				p.layer.applyMaterialOptionsWithShaders(material);
+				p.layer.applyMaterialOptions(material, layer);
 			}
 
 			scene::SMeshBuffer *buf = new scene::SMeshBuffer();

@@ -669,7 +669,7 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 #if CHECK_CLIENT_BUILD()
 static void fillTileAttribs(ITextureSource *tsrc, TileLayer *layer,
 		const TileSpec &tile, const TileDef &tiledef, video::SColor color,
-		u8 material_type, u32 shader_id, bool backface_culling,
+		MaterialType material_type, u32 shader_id, bool backface_culling,
 		const TextureSettings &tsettings)
 {
 	layer->shader_id     = shader_id;

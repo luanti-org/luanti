@@ -21,7 +21,7 @@ CMeshSceneNode::CMeshSceneNode(IMesh *mesh, ISceneNode *parent, ISceneManager *m
 		const core::vector3df &scale) :
 		IMeshSceneNode(parent, mgr, id, position, rotation, scale),
 		Mesh(0),
-		PassCount(0), ReadOnlyMaterials(false)
+		PassCount(0), SharedMaterials(false)
 {
 	setMesh(mesh);
 }
@@ -49,9 +49,9 @@ void CMeshSceneNode::OnRegisterSceneNode()
 		int solidCount = 0;
 
 		// count transparent and solid materials in this scene node
-		const u32 numMaterials = ReadOnlyMaterials ? Mesh->getMeshBufferCount() : Materials.size();
+		const u32 numMaterials = SharedMaterials ? Mesh->getMeshBufferCount() : Materials.size();
 		for (u32 i = 0; i < numMaterials; ++i) {
-			const video::SMaterial &material = ReadOnlyMaterials ? Mesh->getMeshBuffer(i)->getMaterial() : Materials[i];
+			const auto &material = SharedMaterials ? Mesh->getMeshBuffer(i)->getMaterial() : Materials[i];
 
 			if (driver->needsTransparentRenderPass(material))
 				++transparentCount;
@@ -93,7 +93,7 @@ void CMeshSceneNode::render()
 	for (u32 i = 0; i < Mesh->getMeshBufferCount(); ++i) {
 		scene::IMeshBuffer *mb = Mesh->getMeshBuffer(i);
 		if (mb) {
-			const video::SMaterial &material = ReadOnlyMaterials ? mb->getMaterial() : Materials[i];
+			const auto &material = SharedMaterials ? mb->getMaterial() : Materials[i];
 
 			const bool transparent = driver->needsTransparentRenderPass(material);
 
@@ -164,14 +164,10 @@ const core::aabbox3d<f32> &CMeshSceneNode::getBoundingBox() const
 
 //! returns the material based on the zero based index i. To get the amount
 //! of materials used by this scene node, use getMaterialCount().
-//! This function is needed for inserting the node into the scene hierarchy on a
-//! optimal position for minimizing renderstate changes, but can also be used
-//! to directly modify the material of a scene node.
 video::SMaterial &CMeshSceneNode::getMaterial(u32 i)
 {
-	if (Mesh && ReadOnlyMaterials && i < Mesh->getMeshBufferCount()) {
-		ReadOnlyMaterial = Mesh->getMeshBuffer(i)->getMaterial();
-		return ReadOnlyMaterial;
+	if (Mesh && SharedMaterials && i < Mesh->getMeshBufferCount()) {
+		return Mesh->getMeshBuffer(i)->getMaterial();
 	}
 
 	if (i >= Materials.size())
@@ -183,7 +179,7 @@ video::SMaterial &CMeshSceneNode::getMaterial(u32 i)
 //! returns amount of materials used by this scene node.
 u32 CMeshSceneNode::getMaterialCount() const
 {
-	if (Mesh && ReadOnlyMaterials)
+	if (Mesh && SharedMaterials)
 		return Mesh->getMeshBufferCount();
 
 	return Materials.size();
@@ -206,9 +202,10 @@ void CMeshSceneNode::copyMaterials()
 {
 	Materials.clear();
 
-	if (Mesh) {
+	if (Mesh && !SharedMaterials) {
 		video::SMaterial mat;
 
+		Materials.reserve(Mesh->getMeshBufferCount());
 		for (u32 i = 0; i < Mesh->getMeshBufferCount(); ++i) {
 			IMeshBuffer *mb = Mesh->getMeshBuffer(i);
 			if (mb)
@@ -222,15 +219,18 @@ void CMeshSceneNode::copyMaterials()
 //! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
 /* In this way it is possible to change the materials a mesh causing all mesh scene nodes
 referencing this mesh to change too. */
-void CMeshSceneNode::setReadOnlyMaterials(bool readonly)
+void CMeshSceneNode::setSharedMaterials(bool shared)
 {
-	ReadOnlyMaterials = readonly;
+	if (SharedMaterials != shared) {
+		SharedMaterials = shared;
+		copyMaterials();
+	}
 }
 
 //! Returns if the scene node should not copy the materials of the mesh but use them in a read only style
-bool CMeshSceneNode::isReadOnlyMaterials() const
+bool CMeshSceneNode::isSharedMaterials() const
 {
-	return ReadOnlyMaterials;
+	return SharedMaterials;
 }
 
 //! Creates a clone of this scene node and its children.
@@ -245,7 +245,7 @@ ISceneNode *CMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *newManag
 			newManager, ID, RelativeTranslation, RelativeRotation, RelativeScale);
 
 	nb->cloneMembers(this, newManager);
-	nb->ReadOnlyMaterials = ReadOnlyMaterials;
+	nb->SharedMaterials = SharedMaterials;
 	nb->Materials = Materials;
 
 	if (newParent)

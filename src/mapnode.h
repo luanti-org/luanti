@@ -145,7 +145,7 @@ struct alignas(u32) MapNode
 
 	MapNode() = default;
 
-	MapNode(content_t content, u8 a_param1=0, u8 a_param2=0) noexcept
+	constexpr MapNode(content_t content, u8 a_param1=0, u8 a_param2=0) noexcept
 		: param0(content),
 		  param1(a_param1),
 		  param2(a_param2)
@@ -156,6 +156,10 @@ struct alignas(u32) MapNode
 		return (param0 == other.param0
 				&& param1 == other.param1
 				&& param2 == other.param2);
+	}
+	bool operator!=(const MapNode &other) const noexcept
+	{
+		return !(*this == other);
 	}
 
 	// To be used everywhere

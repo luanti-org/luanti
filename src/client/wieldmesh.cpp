@@ -204,7 +204,6 @@ WieldMeshSceneNode::WieldMeshSceneNode(scene::ISceneManager *mgr, s32 id):
 	// Create the child scene node
 	scene::IMesh *dummymesh = g_extrusion_mesh_cache->createCube();
 	m_meshnode = SceneManager->addMeshSceneNode(dummymesh, this, -1);
-	m_meshnode->setReadOnlyMaterials(false);
 	m_meshnode->setVisible(false);
 	dummymesh->drop(); // m_meshnode grabbed it
 
@@ -327,13 +326,8 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 			buf->append(&p.vertices[0], p.vertices.size(),
 					&p.indices[0], p.indices.size());
 
-			// Set up material
-			buf->Material.setTexture(0, p.layer.texture);
-			if (layer == 1) {
-				buf->Material.PolygonOffsetSlopeScale = -1;
-				buf->Material.PolygonOffsetDepthBias = -1;
-			}
-			p.layer.applyMaterialOptions(buf->Material);
+			// note: material type is left unset, overriden later
+			p.layer.applyMaterialOptions(buf->Material, layer);
 
 			mesh->addMeshBuffer(buf.get());
 			colors->emplace_back(p.layer.has_color, p.layer.color);
@@ -433,7 +427,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		u32 material_count = m_meshnode->getMaterialCount();
 		for (u32 i = 0; i < material_count; ++i) {
 			video::SMaterial &material = m_meshnode->getMaterial(i);
-			// FIXME: overriding this breaks different alpha modes the mesh may have
+			// FIXME: we should take different alpha modes of the mesh into account here
 			material.MaterialType = m_material_type;
 			material.MaterialTypeParam = 0.5f;
 			material.forEachTexture([this] (auto &tex) {

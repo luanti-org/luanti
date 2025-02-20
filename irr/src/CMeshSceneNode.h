@@ -52,13 +52,16 @@ public:
 	//! Returns the current mesh
 	IMesh *getMesh(void) override { return Mesh; }
 
-	//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
-	/* In this way it is possible to change the materials a mesh causing all mesh scene nodes
-	referencing this mesh to change too. */
-	void setReadOnlyMaterials(bool readonly) override;
+	//! Sets if the scene node should not copy the materials of the mesh but use them directly.
+	/** In this way it is possible to change the materials of a mesh
+	causing all mesh scene nodes referencing this mesh to change, too.
+	\param shared Flag if the materials shall be shared. */
+	void setSharedMaterials(bool shared) override;
 
-	//! Returns if the scene node should not copy the materials of the mesh but use them in a read only style
-	bool isReadOnlyMaterials() const override;
+	//! Check if the scene node does not copy the materials of the mesh but uses them directly.
+	/** This flag can be set by setSharedMaterials().
+	\return Whether the materials are shared. */
+	bool isSharedMaterials() const override;
 
 	//! Creates a clone of this scene node and its children.
 	ISceneNode *clone(ISceneNode *newParent = 0, ISceneManager *newManager = 0) override;
@@ -71,14 +74,13 @@ public:
 protected:
 	void copyMaterials();
 
-	core::array<video::SMaterial> Materials;
+	std::vector<video::SMaterial> Materials;
 	core::aabbox3d<f32> Box{{0, 0, 0}};
-	video::SMaterial ReadOnlyMaterial;
 
 	IMesh *Mesh;
 
 	s32 PassCount;
-	bool ReadOnlyMaterials;
+	bool SharedMaterials;
 };
 
 } // end namespace scene

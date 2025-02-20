@@ -34,16 +34,16 @@ public:
 	/** \return Pointer to mesh which is displayed by this node. */
 	virtual IMesh *getMesh(void) = 0;
 
-	//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
+	//! Sets if the scene node should not copy the materials of the mesh but use them directly.
 	/** In this way it is possible to change the materials of a mesh
 	causing all mesh scene nodes referencing this mesh to change, too.
-	\param readonly Flag if the materials shall be read-only. */
-	virtual void setReadOnlyMaterials(bool readonly) = 0;
+	\param shared Flag if the materials shall be shared. */
+	virtual void setSharedMaterials(bool shared) = 0;
 
-	//! Check if the scene node should not copy the materials of the mesh but use them in a read only style
-	/** This flag can be set by setReadOnlyMaterials().
-	\return Whether the materials are read-only. */
-	virtual bool isReadOnlyMaterials() const = 0;
+	//! Check if the scene node does not copy the materials of the mesh but uses them directly.
+	/** This flag can be set by setSharedMaterials().
+	\return Whether the materials are shared. */
+	virtual bool isSharedMaterials() const = 0;
 };
 
 } // end namespace scene

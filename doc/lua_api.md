@@ -1522,7 +1522,7 @@ There are a bunch of different looking node types.
 * `allfaces`
     * Often used for partially-transparent nodes.
     * External sides of textures, and unlike other drawtypes, the external sides
-      of other blocks, are visible from the inside.
+      of other nodes, are visible from the inside.
 * `allfaces_optional`
     * Often used for leaves nodes.
     * This switches between `normal`, `glasslike` and `allfaces` according to
@@ -9229,7 +9229,7 @@ Player properties need to be saved manually.
     -- Clients older than 5.9.0 interpret `pointable = "blocking"` as `pointable = true`.
     -- Can be overridden by the `pointabilities` of the held item.
 
-    visual = "cube" / "sprite" / "upright_sprite" / "mesh" / "wielditem" / "item",
+    visual = "",
     -- "cube" is a node-sized cube.
     -- "sprite" is a flat texture always facing the player.
     -- "upright_sprite" is a vertical flat texture.
@@ -9251,6 +9251,8 @@ Player properties need to be saved manually.
     --   Wielditems are scaled a bit. If you want a wielditem to appear
     --   to be as large as a node, use `0.667` in `visual_size`
     -- "item" is similar to "wielditem" but ignores the 'wield_image' parameter.
+    -- "node" looks exactly like a node in-world (supported since 5.12.0)
+    --   Note that visual effects like waving or liquid reflections will not work.
 
     visual_size = {x = 1, y = 1, z = 1},
     -- Multipliers for the visual size. If `z` is not specified, `x` will be used
@@ -9270,11 +9272,15 @@ Player properties need to be saved manually.
     colors = {},
     -- Currently unused.
 
+    node = {name = "ignore", param1=0, param2=0},
+    -- Node to show when using the "node" visual
+
     use_texture_alpha = false,
     -- Use texture's alpha channel.
     -- Excludes "upright_sprite" and "wielditem".
     -- Note: currently causes visual issues when viewed through other
     -- semi-transparent materials such as water.
+    -- Note: ignored for "item", "wielditem" and "node" visual.
 
     spritediv = {x = 1, y = 1},
     -- Used with spritesheet textures for animation and/or frame selection
@@ -9314,6 +9320,7 @@ Player properties need to be saved manually.
 
     backface_culling = true,
     -- Set to false to disable backface_culling for model
+    -- Note: only used by "mesh" and "cube" visual
 
     glow = 0,
     -- Add this much extra lighting when calculating texture color.
@@ -9349,6 +9356,7 @@ Player properties need to be saved manually.
 
     shaded = true,
     -- Setting this to 'false' disables diffuse lighting of entity
+    -- Note: ignored for "item", "wielditem" and "node" visual
 
     show_on_minimap = false,
     -- Defaults to true for players, false for other entities.
