@@ -8,12 +8,23 @@ local next, rawget, pairs, pcall, error, type, setfenv, loadstring
 local table_concat, string_dump, string_format, string_match, math_huge
 	= table.concat, string.dump, string.format, string.match, math.huge
 
--- Recursively counts occurrences of objects (non-primitives including strings) in a table.
-local function count_objects(value)
+local itemstack_mt
+if ItemStack then
+	itemstack_mt = getmetatable(ItemStack())
+end
+local function is_itemstack(x)
+	return itemstack_mt and getmetatable(x) == itemstack_mt
+end
+
+-- Recursively
+-- (1) reads metatables from tables;
+-- (2) counts occurrences of objects (non-primitives including strings) in a table.
+local function prepare_objects(value)
 	local counts = {}
+	local type_lookup = {}
 	if value == nil then
 		-- Early return for nil; tables can't contain nil
-		return counts
+		return counts, type_lookup
 	end
 	local function count_values(val)
 		local type_ = type(val)
@@ -22,19 +33,23 @@ local function count_objects(value)
 		end
 		local count = counts[val]
 		counts[val] = (count or 0) + 1
+		local mt = getmetatable(val)
 		if type_ == "table" then
 			if not count then
 				for k, v in pairs(val) do
 					count_values(k)
 					count_values(v)
 				end
+				if mt then
+					type_lookup[val] = core.known_metatables[mt]
+				end
 			end
-		elseif type_ ~= "string" and type_ ~= "function" then
+		elseif type_ ~= "string" and type_ ~= "function" and not is_itemstack(val) then
 			error("unsupported type: " .. type_)
 		end
 	end
-	count_values(value)
-	return counts
+	count_values(value, {})
+	return counts, type_lookup
 end
 
 -- Build a "set" of Lua keywords. These can't be used as short key names.
@@ -58,6 +73,10 @@ local function dump_func(func)
 	return string_format("loadstring(%q)", string_dump(func))
 end
 
+local function dump_itemstack(item)
+	return string_format("ItemStack(%q)", item:to_string())
+end
+
 -- Serializes Lua nil, booleans, numbers, strings, tables and even functions
 -- Tables are referenced by reference, strings are referenced by value. Supports circular tables.
 local function serialize(value, write)
@@ -66,7 +85,11 @@ local function serialize(value, write)
 	local references = {}
 	-- Circular tables that must be filled using `table[key] = value` statements
 	local to_fill = {}
-	for object, count in pairs(count_objects(value)) do
+	local counts, typenames = prepare_objects(value)
+	if next(typenames) then
+		write "if not setmetatable then core={known_metatables={}}; setmetatable = function(x) return x end; end;"
+	end
+	for object, count in pairs(counts) do
 		local type_ = type(object)
 		-- Object must appear more than once. If it is a string, the reference has to be shorter than the string.
 		if count >= 2 and (type_ ~= "string" or #reference + 5 < #object) then
@@ -82,10 +105,12 @@ local function serialize(value, write)
 				write(dump_func(object))
 			elseif type_ == "string" then
 				write(quote(object))
+			elseif is_itemstack(object) then
+				write(dump_itemstack(object))
 			end
 			write(";")
 			references[object] = reference
-			if type_ == "table" then
+			if type_ ~= "string" and not is_itemstack(object) then
 				to_fill[object] = reference
 			end
 			refnum = refnum + 1
@@ -96,7 +121,7 @@ local function serialize(value, write)
 	local function use_short_key(key)
 		return not references[key] and type(key) == "string" and (not keywords[key]) and string_match(key, "^[%a_][%a%d_]*$")
 	end
-	local function dump(value)
+	local function dump(value, skip_mt)
 		-- Primitive types
 		if value == nil then
 			return write("nil")
@@ -126,11 +151,22 @@ local function serialize(value, write)
 			write(ref)
 			return write"]"
 		end
+		if (not skip_mt) and typenames[value] then
+			write "setmetatable("
+			dump(value, true)
+			write ",core.known_metatables["
+			dump(typenames[value])
+			write "] or {})"
+			return
+		end
 		if type_ == "string" then
 			return write(quote(value))
 		end
 		if type_ == "function" then
 			return write(dump_func(value))
+		end
+		if is_itemstack(value) then
+			return write(dump_itemstack(value))
 		end
 		if type_ == "table" then
 			write("{")
@@ -169,6 +205,7 @@ local function serialize(value, write)
 	end
 	-- Write the statements to fill circular tables
 	for table, ref in pairs(to_fill) do
+		local typename = typenames[table]
 		for k, v in pairs(table) do
 			write("_[")
 			write(ref)
@@ -184,6 +221,13 @@ local function serialize(value, write)
 			write("=")
 			dump(v)
 			write(";")
+		end
+		if typename then
+			write("setmetatable(_[")
+			write(ref)
+			write("],core.known_metatables[")
+			dump(typename)
+			write("] or {})")
 		end
 	end
 	write("return ")
@@ -216,7 +260,13 @@ function core.deserialize(str, safe)
 	if not func then return nil, err end
 
 	-- math.huge was serialized to inf and NaNs to nan by Lua in engine version 5.6, so we have to support this here
-	local env = {inf = math_huge, nan = 0/0}
+	local env = {
+		inf = math_huge,
+		nan = 0/0,
+		ItemStack = ItemStack or function(str) return str end,
+		setmetatable = setmetatable,
+		core = { known_metatables = core.known_metatables }
+	}
 	if safe then
 		env.loadstring = dummy_func
 	else
@@ -236,3 +286,4 @@ function core.deserialize(str, safe)
 	end
 	return nil, value_or_err
 end
+

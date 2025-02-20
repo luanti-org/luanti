@@ -12,6 +12,10 @@ vector = {}
 local metatable = {}
 vector.metatable = metatable
 
+if core and core.register_serializable then
+	core.register_serializable("__builtin:vector", metatable)
+end
+
 local xyz = {"x", "y", "z"}
 
 -- only called when rawget(v, key) returns nil

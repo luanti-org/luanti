@@ -7655,7 +7655,7 @@ Misc.
 
 * `core.register_portable_metatable(name, mt)`:
     * Register a metatable that should be preserved when Lua data is transferred
-      between environments (via IPC or `handle_async`).
+      between environments (via IPC, `handle_async`, or `core.serialize`).
     * `name` is a string that identifies the metatable. It is recommended to
       follow the `modname:name` convention for this identifier.
     * `mt` is the metatable to register.
