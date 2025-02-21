@@ -55,6 +55,7 @@ struct PointedThing;
 struct ItemVisualsManager;
 class ClientScripting;
 class SSCSMController;
+struct ModVFS;
 
 namespace scene {
 class IAnimatedMesh;
@@ -126,14 +127,6 @@ public:
 
 	~Client();
 	DISABLE_CLASS_COPY(Client);
-
-	// Load local mods into memory
-	void scanModSubfolder(const std::string &mod_name, const std::string &mod_path,
-				std::string mod_subpath);
-	inline void scanModIntoMemory(const std::string &mod_name, const std::string &mod_path)
-	{
-		scanModSubfolder(mod_name, mod_path, "");
-	}
 
 	/*
 	 request all threads managed by client to be stopped
@@ -383,7 +376,7 @@ public:
 	bool checkLocalPrivilege(const std::string &priv)
 	{ return checkPrivilege(priv); }
 	virtual scene::IAnimatedMesh* getMesh(const std::string &filename, bool cache = false);
-	const std::string* getModFile(std::string filename);
+	ModVFS *getModVFS() { return m_mod_vfs.get(); }
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
 
 	ItemVisualsManager *getItemVisualsManager() { return m_item_visuals_manager; }
@@ -585,7 +578,7 @@ private:
 	ModStorageDatabase *m_mod_storage_database = nullptr;
 	float m_mod_storage_save_timer = 10.0f;
 	std::vector<ModSpec> m_mods;
-	StringMap m_mod_vfs;
+	std::unique_ptr<ModVFS> m_mod_vfs;
 
 	// SSCSM
 	std::unique_ptr<SSCSMController> m_sscsm_controller;

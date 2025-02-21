@@ -25,7 +25,7 @@ class SSCSMEnvironment : public Thread
 	// /client_builtin/subdir/foo.lua
 	// /server_builtin/subdir/foo.lua
 	// /mods/modname/subdir/foo.lua
-	std::unordered_map<std::string, std::string> m_vfs;
+	std::unique_ptr<ModVFS> m_vfs;
 
 	void *run() override;
 
@@ -33,9 +33,11 @@ class SSCSMEnvironment : public Thread
 
 public:
 	SSCSMEnvironment(std::shared_ptr<StupidChannel> channel);
+	~SSCSMEnvironment();
 
 	SSCSMScripting *getScript() { return m_script.get(); }
 
+	ModVFS *getModVFS() { return m_vfs.get(); }
 	void updateVFSFiles(std::vector<std::pair<std::string, std::string>> &&files);
 	std::optional<std::string_view> readVFSFile(const std::string &path);
 

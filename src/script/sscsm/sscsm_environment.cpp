@@ -6,14 +6,18 @@
 #include "sscsm_requests.h"
 #include "sscsm_events.h"
 #include "sscsm_stupid_channel.h"
+#include "client/mod_vfs.h"
 
 
 SSCSMEnvironment::SSCSMEnvironment(std::shared_ptr<StupidChannel> channel) :
 	Thread("SSCSMEnvironment-thread"),
 	m_channel(std::move(channel)),
-	m_script(std::make_unique<SSCSMScripting>(this))
+	m_script(std::make_unique<SSCSMScripting>(this)),
+	m_vfs(std::make_unique<ModVFS>())
 {
 }
+
+SSCSMEnvironment::~SSCSMEnvironment() = default;
 
 void *SSCSMEnvironment::run()
 {
@@ -44,14 +48,14 @@ SerializedSSCSMAnswer SSCSMEnvironment::exchange(SerializedSSCSMRequest req)
 void SSCSMEnvironment::updateVFSFiles(std::vector<std::pair<std::string, std::string>> &&files)
 {
 	for (auto &&p : files) {
-		m_vfs.emplace(std::move(p.first), std::move(p.second));
+		m_vfs->m_vfs.emplace(std::move(p.first), std::move(p.second));
 	}
 }
 
 std::optional<std::string_view> SSCSMEnvironment::readVFSFile(const std::string &path)
 {
-	auto it = m_vfs.find(path);
-	if (it == m_vfs.end())
+	auto it = m_vfs->m_vfs.find(path);
+	if (it == m_vfs->m_vfs.end())
 		return std::nullopt;
 	else
 		return it->second;
