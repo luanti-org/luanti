@@ -30,12 +30,12 @@ struct SSCSMEventUpdateVFSFiles : public ISSCSMEvent
 
 struct SSCSMEventLoadMods : public ISSCSMEvent
 {
-	// paths to init.lua files, in load order
-	std::vector<std::string> init_paths;
+	// modnames and paths to init.lua file, in load order
+	std::vector<std::pair<std::string, std::string>> mods;
 
 	void exec(SSCSMEnvironment *env) override
 	{
-		env->getScript()->load_mods(init_paths);
+		env->getScript()->load_mods(mods);
 	}
 };
 

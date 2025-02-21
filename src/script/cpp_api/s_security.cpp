@@ -385,7 +385,7 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"assert",
 		"core",
 		"collectgarbage",
-		"DIR_DELIM", //TODO: useless?
+		"DIR_DELIM",
 		"error",
 		"getfenv",
 		"ipairs",
@@ -418,6 +418,10 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"date",
 		"difftime",
 		"time"
+	};
+	static const char *debug_whitelist[] = {
+		"getinfo", // used by builtin and unset before mods load //TODO
+		"traceback" //TODO
 	};
 
 #if USE_LUAJIT
@@ -463,6 +467,14 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	copy_safe(L, os_whitelist, sizeof(os_whitelist));
 	lua_setfield(L, -3, "os");
 	lua_pop(L, 1);  // Pop old OS
+
+
+	// Copy safe debug functions //TODO
+	lua_getglobal(L, "debug");
+	lua_newtable(L);
+	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
+	lua_setfield(L, -3, "debug");
+	lua_pop(L, 1);  // Pop old debug
 
 
 #if USE_LUAJIT
