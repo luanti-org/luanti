@@ -12,6 +12,9 @@ private:
 	// print(text)
 	static int l_print(lua_State *L);
 
+	// log([level], text)
+	static int l_log(lua_State *L);
+
 	// get_node_or_nil(pos)
 	static int l_get_node_or_nil(lua_State *L);
 
