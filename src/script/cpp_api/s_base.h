@@ -62,6 +62,7 @@ class GUIEngine;
 class SSCSMEnvironment;
 class ServerActiveObject;
 struct PlayerHPChangeReason;
+struct ModVFS;
 
 class ScriptApiBase : protected LuaHelper {
 public:
@@ -95,6 +96,7 @@ public:
 	Server *getServer();
 #if CHECK_CLIENT_BUILD()
 	Client *getClient();
+	ModVFS *getModVFS();
 #endif
 
 	// IMPORTANT: These cannot be used for any security-related uses, they exist
