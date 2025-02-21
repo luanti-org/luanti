@@ -5,7 +5,8 @@
 #include "scripting_sscsm.h"
 #include "cpp_api/s_internal.h"
 #include "lua_api/l_sscsm.h"
-// #include "lua_api/l_util.h"
+#include "lua_api/l_util.h"
+#include "lua_api/l_client.h"
 
 SSCSMScripting::SSCSMScripting(SSCSMEnvironment *env) :
 	ScriptApiBase(ScriptingType::SSCSM) //TODO: use different CUSTOM_RIDX_ERROR_HANDLER, or set debug.traceback
@@ -32,7 +33,7 @@ SSCSMScripting::SSCSMScripting(SSCSMEnvironment *env) :
 
 void SSCSMScripting::initializeModApi(lua_State *L, int top)
 {
-	// Initialize mod API modules
-	// ModApiUtil::Initialize(L, top);
+	ModApiUtil::InitializeClient(L, top); //TODO: probably needs an InitializeSSCSM
+	ModApiClient::InitializeSSCSM(L, top);
 	ModApiSSCSM::Initialize(L, top);
 }

@@ -7,19 +7,12 @@
 #include "s_internal.h"
 #include "script/sscsm/sscsm_environment.h"
 
-void ScriptApiSSCSM::load_mods(const std::vector<std::string> &init_paths)
+void ScriptApiSSCSM::load_mods(const std::vector<std::pair<std::string, std::string>> &mods)
 {
-	//TODO
-
-	SSCSMEnvironment *env = getSSCSMEnv();
-	actionstream << "load_mods:\n";
-	for (const auto &p : init_paths) {
-		actionstream << "    " << p << ":\n";
-		auto f = env->readVFSFile(p);
-		if (!f.has_value()) {
-			throw ModError("load_mods(): File doesn't exist: " + p);
-		}
-		actionstream << *f << "\n";
+	infostream << "Loading SSCSMs:" << std::endl;
+	for (const auto &m : mods) {
+		infostream << "Loading SSCSM " << m.first << std::endl;
+		loadModFromMemory(m.first, m.second);
 	}
 }
 

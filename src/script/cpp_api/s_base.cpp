@@ -141,7 +141,8 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 	// Finally, put the table into the global environment:
 	lua_setglobal(m_luastack, "core");
 
-	if (m_type == ScriptingType::Client)
+	if (m_type == ScriptingType::Client
+			|| m_type == ScriptingType::SSCSM)
 		lua_pushstring(m_luastack, "/");
 	else
 		lua_pushstring(m_luastack, DIR_DELIM);
@@ -263,17 +264,18 @@ void ScriptApiBase::loadScript(const std::string &script_path)
 }
 
 #if CHECK_CLIENT_BUILD()
-void ScriptApiBase::loadModFromMemory(const std::string &mod_name)
+void ScriptApiBase::loadModFromMemory(const std::string &mod_name, std::string init_path)
 {
 	ModNameStorer mod_name_storer(getStack(), mod_name);
 
 	sanity_check(m_type == ScriptingType::Client
 			|| m_type == ScriptingType::SSCSM);
 
-	const std::string init_filename = mod_name + ":init.lua";
-	const std::string chunk_name = "@" + init_filename;
+	if (init_path.empty())
+		init_path = mod_name + ":init.lua";
+	const std::string chunk_name = "@" + init_path;
 
-	const std::string *contents = getModVFS()->getModFile(init_filename);
+	const std::string *contents = getModVFS()->getModFile(init_path);
 	if (!contents)
 		throw ModError("Mod \"" + mod_name + "\" lacks init.lua");
 

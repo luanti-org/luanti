@@ -79,7 +79,7 @@ public:
 	void loadScript(const std::string &script_path);
 
 #if CHECK_CLIENT_BUILD()
-	void loadModFromMemory(const std::string &mod_name);
+	void loadModFromMemory(const std::string &mod_name, std::string init_path = "");
 #endif
 
 	void runCallbacksRaw(int nargs,

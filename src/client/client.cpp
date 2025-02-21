@@ -159,36 +159,38 @@ Client::Client(
 
 	{
 		auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
-		//TODO: read files
-		event1->files.emplace_back("/client_builtin/sscsm_client/init.lua",
-				R"=+=(
-print("client builtin: loading")
-				)=+=");
 
-		//TODO: checksum
+		ModVFS tmp_mod_vfs;
+		// FIXME: only read files that are relevant to sscsm, and compute sha2 digests
+		tmp_mod_vfs.scanModIntoMemory("*client_builtin*", getBuiltinLuaPath());
+
+		for (auto &p : tmp_mod_vfs.m_vfs) {
+			event1->files.emplace_back(p.first, std::move(p.second));
+		}
 
 		m_sscsm_controller->runEvent(this, std::move(event1));
 
 		// load client builtin immediately
 		auto event2 = std::make_unique<SSCSMEventLoadMods>();
-		event2->init_paths.emplace_back("/client_builtin/sscsm_client/init.lua");
+		event2->mods.emplace_back("*client_builtin*", "*client_builtin*:init.lua");
 		m_sscsm_controller->runEvent(this, std::move(event2));
 	}
 
 	{
 		//TODO: network packets
+		//TODO: check that *client_builtin* is not overridden
 
 		std::string enable_sscsm = g_settings->get("enable_sscsm");
 		if (enable_sscsm == "singleplayer") {
 			auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
-			event1->files.emplace_back("/mods/sscsm_test0/init.lua",
+			event1->files.emplace_back("sscsm_test0:init.lua",
 					R"=+=(
 print("sscsm_test0: loading")
 					)=+=");
 			m_sscsm_controller->runEvent(this, std::move(event1));
 
 			auto event2 = std::make_unique<SSCSMEventLoadMods>();
-			event2->init_paths.emplace_back("/client_builtin/sscsm_client/init.lua");
+			event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
 			m_sscsm_controller->runEvent(this, std::move(event2));
 		}
 	}
