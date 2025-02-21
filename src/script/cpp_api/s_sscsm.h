@@ -9,7 +9,7 @@
 class ScriptApiSSCSM : virtual public ScriptApiBase
 {
 public:
-	void load_mods(const std::vector<std::string> &init_paths);
+	void load_mods(const std::vector<std::pair<std::string, std::string>> &mods);
 
 	void environment_step(float dtime);
 };
