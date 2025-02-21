@@ -59,7 +59,7 @@ int ModApiClient::l_get_current_modname(lua_State *L)
 int ModApiClient::l_get_modpath(lua_State *L)
 {
 	std::string modname = readParam<std::string>(L, 1);
-	// Client mods use a virtual filesystem, see Client::scanModSubfolder()
+	// Client mods use a virtual filesystem, see ModVFS::scanModSubfolder()
 	std::string path = modname + ":";
 	lua_pushstring(L, path.c_str());
 	return 1;
@@ -284,7 +284,12 @@ int ModApiClient::l_get_privilege_list(lua_State *L)
 // get_builtin_path()
 int ModApiClient::l_get_builtin_path(lua_State *L)
 {
-	lua_pushstring(L, BUILTIN_MOD_NAME ":");
+	if (getScriptApiBase(L)->getType() == ScriptingType::Client)
+		lua_pushstring(L, BUILTIN_MOD_NAME ":");
+	else if (getScriptApiBase(L)->getType() == ScriptingType::SSCSM)
+		lua_pushstring(L, "*client_builtin*:"); //TODO
+	else
+		return 0;
 	return 1;
 }
 
@@ -321,4 +326,12 @@ void ModApiClient::Initialize(lua_State *L, int top)
 	API_FCT(get_builtin_path);
 	API_FCT(get_language);
 	API_FCT(get_csm_restrictions);
+}
+
+void ModApiClient::InitializeSSCSM(lua_State *L, int top)
+{
+	API_FCT(get_current_modname);
+	API_FCT(get_modpath);
+	API_FCT(print);
+	API_FCT(get_builtin_path);
 }
