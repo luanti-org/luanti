@@ -60,6 +60,7 @@ struct SSCSMRequestPrint : public ISSCSMRequest
 };
 
 // core.log(level, text)
+// FIXME: override global loggers to use this in sscsm process
 struct SSCSMRequestLog : public ISSCSMRequest
 {
 	struct Answer : public ISSCSMAnswer

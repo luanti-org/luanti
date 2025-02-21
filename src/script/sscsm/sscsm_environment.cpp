@@ -24,7 +24,13 @@ void *SSCSMEnvironment::run()
 			break;
 		}
 
-		next_event->exec(this);
+		try {
+			next_event->exec(this);
+		} catch (LuaError &e) {
+			setFatalError(std::string("Lua error: ") + e.what());
+		} catch (ModError &e) {
+			setFatalError(std::string("Mod error: ") + e.what());
+		}
 	}
 
 	return nullptr;

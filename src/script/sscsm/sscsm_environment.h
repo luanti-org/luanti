@@ -40,10 +40,6 @@ public:
 	std::optional<std::string_view> readVFSFile(const std::string &path);
 
 	void setFatalError(const std::string &reason);
-	void setFatalError(const LuaError &e)
-	{
-		setFatalError(std::string("Lua: ") + e.what());
-	}
 
 	template <typename RQ>
 	typename RQ::Answer doRequest(RQ &&rq)

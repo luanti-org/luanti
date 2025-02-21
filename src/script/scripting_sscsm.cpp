@@ -8,7 +8,7 @@
 // #include "lua_api/l_util.h"
 
 SSCSMScripting::SSCSMScripting(SSCSMEnvironment *env) :
-	ScriptApiBase(ScriptingType::SSCSM)
+	ScriptApiBase(ScriptingType::SSCSM) //TODO: use different CUSTOM_RIDX_ERROR_HANDLER, or set debug.traceback
 {
 	setSSCSMEnv(env);
 

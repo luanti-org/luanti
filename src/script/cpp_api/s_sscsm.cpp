@@ -17,8 +17,7 @@ void ScriptApiSSCSM::load_mods(const std::vector<std::string> &init_paths)
 		actionstream << "    " << p << ":\n";
 		auto f = env->readVFSFile(p);
 		if (!f.has_value()) {
-			env->setFatalError("load_mods(): File doesn't exist: " + p);
-			return;
+			throw ModError("load_mods(): File doesn't exist: " + p);
 		}
 		actionstream << *f << "\n";
 	}
@@ -33,9 +32,5 @@ void ScriptApiSSCSM::environment_step(float dtime)
 	lua_getfield(L, -1, "registered_globalsteps");
 	// Call callbacks
 	lua_pushnumber(L, dtime);
-	try {
-		runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
-	} catch (LuaError &e) {
-		getSSCSMEnv()->setFatalError(e);
-	}
+	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
 }
