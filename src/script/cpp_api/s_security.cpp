@@ -9,6 +9,7 @@
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
+#include "client/mod_vfs.h"
 #endif
 #include "settings.h"
 
@@ -878,7 +879,7 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 	if (script->getType() == ScriptingType::Client
 			|| script->getType() == ScriptingType::SSCSM) {
 		std::string path = readParam<std::string>(L, 1);
-		const std::string *contents = script->getClient()->getModFile(path); //TODO
+		const std::string *contents = script->getModVFS()->getModFile(path);
 		if (!contents) {
 			std::string error_msg = "Couldn't find script called: " + path;
 			lua_pushnil(L);
