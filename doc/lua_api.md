@@ -4142,6 +4142,11 @@ Helper functions
     * returns time with microsecond precision. May not return wall time.
 * `table.copy(table)`: returns a table
     * returns a deep copy of `table`
+    * strips metatables, but this may change in the future
+* `table.copy_with_metatables(table)`
+    * since 5.12
+    * `table` can also be non-table value, which will be returned as-is
+    * preserves metatables as they are
 * `table.indexof(list, val)`: returns the smallest numerical index containing
       the value `val` in the table `list`. Non-numerical indices are ignored.
       If `val` could not be found, `-1` is returned. `list` must not have
