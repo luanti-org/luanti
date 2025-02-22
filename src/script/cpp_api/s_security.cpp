@@ -502,8 +502,6 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 
 	// Set the environment to the one we created earlier
 	setLuaEnv(L, thread);
-
-	// TODO: tostring({})
 }
 
 #endif
