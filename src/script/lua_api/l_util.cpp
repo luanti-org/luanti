@@ -813,6 +813,37 @@ void ModApiUtil::InitializeClient(lua_State *L, int top)
 	lua_setfield(L, top, "settings");
 }
 
+void ModApiUtil::InitializeSSCSM(lua_State *L, int top)
+{
+	API_FCT(log);
+
+	API_FCT(get_us_time); //TODO: is us to precise?
+
+	API_FCT(parse_json);
+	API_FCT(write_json);
+
+	API_FCT(is_yes);
+
+	API_FCT(compress);
+	API_FCT(decompress);
+
+	API_FCT(encode_base64);
+	API_FCT(decode_base64);
+
+	API_FCT(get_version);
+	API_FCT(sha1);
+	API_FCT(sha256);
+	API_FCT(colorspec_to_colorstring);
+	API_FCT(colorspec_to_bytes);
+	API_FCT(colorspec_to_table);
+	API_FCT(time_to_day_night_ratio);
+
+	API_FCT(get_last_run_mod);
+	API_FCT(set_last_run_mod);
+
+	API_FCT(urlencode);
+}
+
 void ModApiUtil::InitializeAsync(lua_State *L, int top)
 {
 	API_FCT(log);
