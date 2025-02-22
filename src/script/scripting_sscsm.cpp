@@ -31,7 +31,7 @@ SSCSMScripting::SSCSMScripting(SSCSMEnvironment *env) :
 
 void SSCSMScripting::initializeModApi(lua_State *L, int top)
 {
-	ModApiUtil::InitializeClient(L, top); //TODO: probably needs an InitializeSSCSM
+	ModApiUtil::InitializeSSCSM(L, top);
 	ModApiClient::InitializeSSCSM(L, top);
 	ModApiSSCSM::Initialize(L, top);
 }
