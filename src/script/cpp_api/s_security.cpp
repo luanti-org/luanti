@@ -12,6 +12,7 @@
 #include "client/mod_vfs.h"
 #endif
 #include "settings.h"
+#include "constants.h"
 
 #include <cerrno>
 #include <string>
@@ -413,7 +414,6 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"bit",
 	};
 	static const char *os_whitelist[] = {
-		"clock", //TODO: limit resolution, to mitigate side channel attacks
 		"date",
 		"difftime",
 		"time"
@@ -463,6 +463,10 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	lua_getglobal(L, "os");
 	lua_newtable(L);
 	copy_safe(L, os_whitelist, sizeof(os_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(os, clock);
+
 	lua_setfield(L, -3, "os");
 	lua_pop(L, 1);  // Pop old OS
 
@@ -1072,5 +1076,14 @@ int ScriptApiSecurity::sl_os_setlocale(lua_State *L)
 	if (cat)
 		lua_pushvalue(L, 2);
 	lua_call(L, cat ? 2 : 1, 1);
+	return 1;
+}
+
+
+int ScriptApiSecurity::sl_os_clock(lua_State *L)
+{
+	auto t = clock();
+	t = t - t % (SSCSM_CLOCK_RESOLUTION_US * CLOCKS_PER_SEC / 1'000'000);
+	lua_pushnumber(L, static_cast<lua_Number>(t) / static_cast<lua_Number>(CLOCKS_PER_SEC));
 	return 1;
 }
