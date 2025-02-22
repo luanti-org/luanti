@@ -117,4 +117,5 @@ private:
 	static int sl_os_rename(lua_State *L);
 	static int sl_os_remove(lua_State *L);
 	static int sl_os_setlocale(lua_State *L);
+	static int sl_os_clock(lua_State *L);
 };
