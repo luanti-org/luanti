@@ -408,7 +408,6 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"next",
 		"pairs",
 		"pcall",
-		"print", //TODO
 		"rawequal",
 		"rawget",
 		"rawset",
@@ -419,7 +418,7 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"tonumber",
 		"tostring",
 		"type",
-		"unpack", //TODO: replace, because of UB in some lua versions
+		"unpack",
 		"_VERSION",
 		"xpcall",
 		// Completely safe libraries
@@ -439,7 +438,6 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"getinfo", // used by builtin and unset before mods load //TODO
 		"traceback" //TODO: is this fine, or does it print paths of C functions?
 	};
-
 #if USE_LUAJIT
 	static const char *jit_whitelist[] = {
 		"arch",
@@ -485,7 +483,7 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	lua_pop(L, 1);  // Pop old OS
 
 
-	// Copy safe debug functions //TODO
+	// Copy safe debug functions
 	lua_getglobal(L, "debug");
 	lua_newtable(L);
 	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));

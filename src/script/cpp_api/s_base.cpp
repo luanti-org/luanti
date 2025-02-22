@@ -72,7 +72,7 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 
 	lua_atpanic(m_luastack, &luaPanic);
 
-	if (m_type == ScriptingType::Client)
+	if (m_type == ScriptingType::Client || m_type == ScriptingType::SSCSM)
 		clientOpenLibs(m_luastack);
 	else
 		luaL_openlibs(m_luastack);
@@ -209,7 +209,8 @@ void ScriptApiBase::checkSetByBuiltin()
 	if (getType() == ScriptingType::Server ||
 			(getType() == ScriptingType::Async && m_gamedef) ||
 			getType() == ScriptingType::Emerge ||
-			getType() == ScriptingType::Client) {
+			getType() == ScriptingType::Client ||
+			getType() == ScriptingType::SSCSM) {
 		CHECK(CUSTOM_RIDX_READ_NODE, "read_node");
 		CHECK(CUSTOM_RIDX_PUSH_NODE, "push_node");
 	}

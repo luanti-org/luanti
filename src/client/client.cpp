@@ -177,11 +177,11 @@ Client::Client(
 	}
 
 	{
-		//TODO: network packets
-		//TODO: check that *client_builtin* is not overridden
+		//FIXME: network packets
+		//FIXME: check that *client_builtin* is not overridden
 
 		std::string enable_sscsm = g_settings->get("enable_sscsm");
-		if (enable_sscsm == "singleplayer") {
+		if (enable_sscsm == "singleplayer") { //FIXME: enum
 			auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
 			event1->files.emplace_back("sscsm_test0:init.lua",
 					R"=+=(
