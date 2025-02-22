@@ -20,11 +20,11 @@ class SSCSMEnvironment : public Thread
 {
 	std::shared_ptr<StupidChannel> m_channel;
 	std::unique_ptr<SSCSMScripting> m_script;
-	// virtual file system.
-	// TODO: decide and doc how paths look like, maybe:
-	// /client_builtin/subdir/foo.lua
-	// /server_builtin/subdir/foo.lua
-	// /mods/modname/subdir/foo.lua
+	// the virtual file system.
+	// paths look like this:
+	// *client_builtin*:subdir/foo.lua
+	// *server_builtin*:subdir/foo.lua
+	// modname:subdir/foo.lua
 	std::unique_ptr<ModVFS> m_vfs;
 
 	void *run() override;
