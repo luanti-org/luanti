@@ -421,7 +421,7 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	};
 	static const char *debug_whitelist[] = {
 		"getinfo", // used by builtin and unset before mods load //TODO
-		"traceback" //TODO
+		"traceback" //TODO: is this fine, or does it print paths of C functions?
 	};
 
 #if USE_LUAJIT
@@ -488,6 +488,8 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 
 	// Set the environment to the one we created earlier
 	setLuaEnv(L, thread);
+
+	// TODO: tostring({})
 }
 
 #endif
