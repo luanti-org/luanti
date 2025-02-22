@@ -186,6 +186,8 @@ Client::Client(
 			event1->files.emplace_back("sscsm_test0:init.lua",
 					R"=+=(
 print("sscsm_test0: loading")
+--print(dump(_G))
+--print(debug.traceback())
 					)=+=");
 			m_sscsm_controller->runEvent(this, std::move(event1));
 

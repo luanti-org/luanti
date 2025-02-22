@@ -284,12 +284,16 @@ int ModApiClient::l_get_privilege_list(lua_State *L)
 // get_builtin_path()
 int ModApiClient::l_get_builtin_path(lua_State *L)
 {
+	std::string modname;
 	if (getScriptApiBase(L)->getType() == ScriptingType::Client)
-		lua_pushstring(L, BUILTIN_MOD_NAME ":");
+		modname = BUILTIN_MOD_NAME;
 	else if (getScriptApiBase(L)->getType() == ScriptingType::SSCSM)
-		lua_pushstring(L, "*client_builtin*:"); //TODO
-	else
+		modname = ScriptApiBase::getCurrentModNameInsecure(L);
+
+	if (modname.empty())
 		return 0;
+
+	lua_pushstring(L, (modname + ":").c_str());
 	return 1;
 }
 

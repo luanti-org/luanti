@@ -43,6 +43,7 @@ struct SSCSMRequestSetFatalError : public ISSCSMRequest
 };
 
 // print(text)
+// FIXME: override global loggers to use this in sscsm process
 struct SSCSMRequestPrint : public ISSCSMRequest
 {
 	struct Answer : public ISSCSMAnswer
@@ -73,7 +74,7 @@ struct SSCSMRequestLog : public ISSCSMRequest
 	SerializedSSCSMAnswer exec(Client *client) override
 	{
 		if (level >= LL_MAX) {
-			errorstream << "Tried to log at non-existent level." << std::endl; // TODO: should probably throw
+			throw BaseException("Tried to log at non-existent level."); // TODO: choose better exception type
 		} else {
 			g_logger.log(level, text);
 		}
