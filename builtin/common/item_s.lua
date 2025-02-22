@@ -232,6 +232,14 @@ if core.set_read_node and core.set_push_node then
 	core.set_read_node = nil
 
 	local function push_node(content, param1, param2)
+		if false then -- TODO: tmp
+			print(dump(debug.traceback()))
+			--~ error()
+			for i = 0, 10 do
+				print("i="..i)
+				print(dump(debug.getinfo(i)))
+			end
+		end
 		return {name = content2name[content], param1 = param1, param2 = param2}
 	end
 	core.set_push_node(push_node)
