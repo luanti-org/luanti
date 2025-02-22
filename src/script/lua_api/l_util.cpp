@@ -28,6 +28,7 @@
 #include "util/png.h"
 #include "player.h"
 #include "daynightratio.h"
+#include "constants.h"
 #include <cstdio>
 
 // only available in zstd 1.3.5+
@@ -77,6 +78,16 @@ int ModApiUtil::l_get_us_time(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 	lua_pushnumber(L, porting::getTimeUs());
+	return 1;
+}
+
+// get_us_time() for SSCSM
+int ModApiUtil::l_get_us_time_sscsm(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	auto t = porting::getTimeUs();
+	t = t - t % SSCSM_CLOCK_RESOLUTION_US;
+	lua_pushnumber(L, t);
 	return 1;
 }
 
@@ -817,7 +828,7 @@ void ModApiUtil::InitializeSSCSM(lua_State *L, int top)
 {
 	API_FCT(log);
 
-	API_FCT(get_us_time); //TODO: is us to precise?
+	registerFunction(L, "get_us_time", l_get_us_time_sscsm, top);
 
 	API_FCT(parse_json);
 	API_FCT(write_json);
