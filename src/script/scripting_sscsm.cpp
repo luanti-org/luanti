@@ -9,7 +9,7 @@
 #include "lua_api/l_client.h"
 
 SSCSMScripting::SSCSMScripting(SSCSMEnvironment *env) :
-	ScriptApiBase(ScriptingType::SSCSM) //TODO: use different CUSTOM_RIDX_ERROR_HANDLER, or set debug.traceback
+	ScriptApiBase(ScriptingType::SSCSM)
 {
 	setSSCSMEnv(env);
 
@@ -27,8 +27,6 @@ SSCSMScripting::SSCSMScripting(SSCSMEnvironment *env) :
 	// Push builtin initialization type
 	lua_pushstring(L, "sscsm");
 	lua_setglobal(L, "INIT");
-
-	// infostream << "SCRIPTAPI: Initialized SSCSM modules" << std::endl;
 }
 
 void SSCSMScripting::initializeModApi(lua_State *L, int top)
