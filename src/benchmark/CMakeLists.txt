@@ -1,10 +1,11 @@
 set (BENCHMARK_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_activeobjectmgr.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_ipc_channel.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_lighting.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_serialize.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_mapblock.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_mapmodify.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_serialize.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_sha.cpp
 	PARENT_SCOPE)
 
