@@ -47,6 +47,7 @@ public:
 */
 class LuaPerlinNoiseMap : public ModApiBase
 {
+	friend class ModApiMapgen;
 	Noise *noise;
 
 	static luaL_Reg methods[];
