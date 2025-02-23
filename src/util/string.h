@@ -766,11 +766,12 @@ inline const std::string duration_to_string(int sec)
  *
  * @return A std::string
  */
+template<typename T>
 [[nodiscard]]
-inline std::string str_join(const std::vector<std::string> &list,
-		std::string_view delimiter)
+inline std::basic_string<T> str_join(const std::vector<std::basic_string<T>> &list,
+		std::basic_string_view<T> delimiter)
 {
-	std::ostringstream oss;
+	std::basic_ostringstream<T> oss;
 	bool first = true;
 	for (const auto &part : list) {
 		if (!first)
@@ -779,6 +780,13 @@ inline std::string str_join(const std::vector<std::string> &list,
 		first = false;
 	}
 	return oss.str();
+}
+
+template<typename T>
+inline std::basic_string<T> str_join(const std::vector<std::basic_string<T>> &list,
+		const T *delimiter)
+{
+	return str_join(list, std::basic_string_view<T>(delimiter));
 }
 
 #if IS_CLIENT_BUILD
