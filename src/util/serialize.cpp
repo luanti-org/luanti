@@ -24,6 +24,7 @@ std::string serializeString16(std::string_view plain)
 	std::string s;
 	char buf[2];
 
+	static_assert(STRING_MAX_LEN <= U16_MAX);
 	if (plain.size() > STRING_MAX_LEN)
 		throw SerializationError("String too long for serializeString16");
 	s.reserve(2 + plain.size());
@@ -51,7 +52,7 @@ std::string deSerializeString16(std::istream &is)
 	s.resize(s_size);
 	is.read(&s[0], s_size);
 	if (is.gcount() != s_size)
-		throw SerializationError("deSerializeString16: couldn't read all chars");
+		throw SerializationError("deSerializeString16: truncated");
 
 	return s;
 }
@@ -66,6 +67,7 @@ std::string serializeString32(std::string_view plain)
 	std::string s;
 	char buf[4];
 
+	static_assert(LONG_STRING_MAX_LEN <= U32_MAX);
 	if (plain.size() > LONG_STRING_MAX_LEN)
 		throw SerializationError("String too long for serializeLongString");
 	s.reserve(4 + plain.size());
@@ -98,7 +100,7 @@ std::string deSerializeString32(std::istream &is)
 	s.resize(s_size);
 	is.read(&s[0], s_size);
 	if ((u32)is.gcount() != s_size)
-		throw SerializationError("deSerializeLongString: couldn't read all chars");
+		throw SerializationError("deSerializeLongString: truncated");
 
 	return s;
 }

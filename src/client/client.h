@@ -538,11 +538,6 @@ private:
 	// Pending downloads of dynamic media (key: token)
 	std::vector<std::pair<u32, std::shared_ptr<SingleMediaDownloader>>> m_pending_media_downloads;
 
-	// time_of_day speed approximation for old protocol
-	bool m_time_of_day_set = false;
-	float m_last_time_of_day_f = -1.0f;
-	float m_time_of_day_update_timer = 0.0f;
-
 	// An interval for generally sending object positions and stuff
 	float m_recommended_send_interval = 0.1f;
 

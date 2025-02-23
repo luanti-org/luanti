@@ -1,32 +1,16 @@
 -- minetest.lua
--- Packet dissector for the UDP-based Minetest protocol
+-- Packet dissector for the UDP-based Luanti protocol
 -- Copy this to $HOME/.wireshark/plugins/
 
-
---
--- Minetest
+-- Luanti
+-- SPDX-License-Identifier: LGPL-2.1-or-later
 -- Copyright (C) 2011 celeron55, Perttu Ahola <celeron55@gmail.com>
---
--- This program is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 2 of the License, or
--- (at your option) any later version.
---
--- This program is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License along
--- with this program; if not, write to the Free Software Foundation, Inc.,
--- 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
---
 
 
 -- Wireshark documentation:
--- https://web.archive.org/web/20170711121726/https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Proto.html
--- https://web.archive.org/web/20170711121844/https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Tree.html
--- https://web.archive.org/web/20170711121917/https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Tvb.html
+-- https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Proto.html
+-- https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Tree.html
+-- https://www.wireshark.org/docs/wsdg_html_chunked/lua_module_Tvb.html
 
 
 -- Table of Contents:
@@ -51,7 +35,8 @@ function minetest_field_helper(lentype, name, abbr)
 	return f_textlen, f_text
 end
 
-
+-- global reference to 'minetest.peer' field (set later)
+local minetest_peer_field
 
 
 --------------------------------------------
@@ -97,7 +82,7 @@ end
 
 -- TOSERVER_INIT_LEGACY (obsolete)
 
-minetest_client_commands[0x10] = { "INIT_LEGACY", 53 }
+minetest_client_commands[0x10] = { "INIT_LEGACY", 2 }
 minetest_client_obsolete[0x10] = true
 
 -- TOSERVER_INIT2
@@ -332,7 +317,7 @@ end
 
 -- TOSERVER_PASSWORD (obsolete)
 
-minetest_client_commands[0x36] = { "CLICK_ACTIVEOBJECT", 2 }
+minetest_client_commands[0x36] = { "PASSWORD", 2 }
 minetest_client_obsolete[0x36] = true
 
 -- TOSERVER_PLAYERITEM
@@ -349,9 +334,9 @@ do
 	}
 end
 
--- TOSERVER_RESPAWN
+-- TOSERVER_RESPAWN_LEGACY
 
-minetest_client_commands[0x38] = { "RESPAWN", 2 }
+minetest_client_commands[0x38] = { "RESPAWN_LEGACY", 2 }
 
 -- TOSERVER_INTERACT
 
@@ -482,8 +467,7 @@ end
 minetest_client_commands[0x50] = { "FIRST_SRP", 2 }
 minetest_client_commands[0x51] = { "SRP_BYTES_A", 2 }
 minetest_client_commands[0x52] = { "SRP_BYTES_M", 2 }
-
-
+minetest_client_commands[0x53] = { "UPDATE_CLIENT_INFO", 2 }
 
 --------------------------------------------
 -- Part 3                                 --
@@ -669,7 +653,7 @@ do
 	local f_time_speed = ProtoField.float("minetest.server.time_speed", "Time Speed", base.DEC)
 
 	minetest_server_commands[0x29] = {
-		"TIME_OF_DAY", 4,
+		"TIME_OF_DAY", 8,
 		{ f_time, f_time_speed },
 		function(buffer, pinfo, tree, t)
 			t:add(f_time, buffer(2,2))
@@ -678,13 +662,11 @@ do
 	}
 end
 
--- TOCLIENT_CSM_RESTRICTION_FLAGS
+-- ...
 
 minetest_server_commands[0x2a] = { "CSM_RESTRICTION_FLAGS", 2 }
-
--- TOCLIENT_PLAYER_SPEED
-
 minetest_server_commands[0x2b] = { "PLAYER_SPEED", 2 }
+minetest_server_commands[0x2c] = { "MEDIA_PUSH", 2 }
 
 -- TOCLIENT_CHAT_MESSAGE
 
@@ -911,18 +893,15 @@ end
 -- TOCLIENT_ACCESS_DENIED_LEGACY
 
 do
-	local f_reason_length = ProtoField.uint16("minetest.server.access_denied_reason_length", "Reason length", base.DEC)
-	local f_reason = ProtoField.string("minetest.server.access_denied_reason", "Reason")
+	local f_reasonlen, f_reason = minetest_field_helper("uint16",
+		"minetest.server.access_denied_reason", "Reason")
 
 	minetest_server_commands[0x35] = {
 		"ACCESS_DENIED_LEGACY", 4,
-		{ f_reason_length, f_reason },
+		{ f_reasonlen, f_reason },
 		function(buffer, pinfo, tree, t)
-			t:add(f_reason_length, buffer(2,2))
-			local reason_length = buffer(2,2):uint()
-			if minetest_check_length(buffer, 4 + reason_length * 2, t) then
-				t:add(f_reason, minetest_convert_utf16(buffer(4, reason_length * 2), "Converted reason message"))
-			end
+			local off = 2
+			minetest_decode_helper_utf16(buffer, t, "uint16", off, f_reasonlen, f_reason)
 		end
 	}
 end
@@ -931,34 +910,9 @@ end
 
 minetest_server_commands[0x36] = { "FOV", 2 }
 
--- TOCLIENT_DEATHSCREEN
+-- TOCLIENT_DEATHSCREEN_LEGACY
 
-do
-	local f_set_camera_point_target = ProtoField.bool(
-		"minetest.server.deathscreen_set_camera_point_target",
-		"Set camera point target")
-	local f_camera_point_target_x = ProtoField.int32(
-		"minetest.server.deathscreen_camera_point_target_x",
-		"Camera point target X", base.DEC)
-	local f_camera_point_target_y = ProtoField.int32(
-		"minetest.server.deathscreen_camera_point_target_y",
-		"Camera point target Y", base.DEC)
-	local f_camera_point_target_z = ProtoField.int32(
-		"minetest.server.deathscreen_camera_point_target_z",
-		"Camera point target Z", base.DEC)
-
-	minetest_server_commands[0x37] = {
-		"DEATHSCREEN", 15,
-		{ f_set_camera_point_target, f_camera_point_target_x,
-		  f_camera_point_target_y, f_camera_point_target_z},
-		function(buffer, pinfo, tree, t)
-			t:add(f_set_camera_point_target, buffer(2,1))
-			t:add(f_camera_point_target_x, buffer(3,4))
-			t:add(f_camera_point_target_y, buffer(7,4))
-			t:add(f_camera_point_target_z, buffer(11,4))
-		end
-	}
-end
+minetest_server_commands[0x37] = { "DEATHSCREEN_LEGACY", 2 }
 
 -- TOCLIENT_MEDIA
 
@@ -990,18 +944,77 @@ minetest_server_commands[0x43] = {"DETACHED_INVENTORY", 2}
 minetest_server_commands[0x44] = {"SHOW_FORMSPEC", 2}
 minetest_server_commands[0x45] = {"MOVEMENT", 2}
 minetest_server_commands[0x46] = {"SPAWN_PARTICLE", 2}
-minetest_server_commands[0x47] = {"ADD_PARTICLE_SPAWNER", 2}
+minetest_server_commands[0x47] = {"ADD_PARTICLESPAWNER", 2}
+minetest_server_commands[0x48] = {"CAMERA", 2}
+minetest_server_commands[0x49] = {"HUDADD", 2}
+minetest_server_commands[0x4a] = {"HUDRM", 2}
 
--- TOCLIENT_DELETE_PARTICLESPAWNER_LEGACY (obsolete)
+-- TOCLIENT_HUDCHANGE
 
-minetest_server_commands[0x48] = {"DELETE_PARTICLESPAWNER_LEGACY", 2}
-minetest_server_obsolete[0x48] = true
+do
+	local abbr = "minetest.server.hudchange_"
+	local vs_stat = {
+		[0] = "pos",
+		[1] = "name",
+		[2] = "scale",
+		[3] = "text",
+		[4] = "number",
+		[5] = "item",
+		[6] = "dir",
+		[7] = "align",
+		[8] = "offset",
+		[9] = "world_pos",
+		[10] = "size",
+		[11] = "z_index",
+		[12] = "text2",
+		[13] = "style",
+	}
+	local uses_v2f = {
+		[0] = true, [2] = true, [7] = true, [8] = true,
+	}
+	local uses_string = {
+		[1] = true, [3] = true, [12] = true,
+	}
+
+	local f_id = ProtoField.uint32(abbr.."id", "HUD ID", base.DEC)
+	local f_stat = ProtoField.uint8(abbr.."stat", "HUD Type", base.DEC, vs_stat)
+	local f_x = ProtoField.float(abbr.."x", "Position X")
+	local f_y = ProtoField.float(abbr.."y", "Position Y")
+	local f_z = ProtoField.float(abbr.."z", "Position Z")
+	local f_str = ProtoField.string(abbr.."string", "String data")
+	local f_sx = ProtoField.int32(abbr.."sy", "Size X", base.DEC)
+	local f_sy = ProtoField.int32(abbr.."sz", "Size Y", base.DEC)
+	local f_int = ProtoField.uint32(abbr.."int", "Integer data", base.DEC)
+
+	minetest_server_commands[0x4b] = {
+		"HUDCHANGE", 7,
+		{ f_id, f_stat, f_x, f_y, f_z, f_str, f_sx, f_sy, f_int, },
+		function(buffer, pinfo, tree, t)
+			t:add(f_id, buffer(2,4))
+			t:add(f_stat, buffer(6,1))
+			local stat = buffer(6,1):uint()
+			local off = 7
+			if uses_v2f[stat] then
+				t:add(f_x, buffer(off,4))
+				t:add(f_y, buffer(off+4,4))
+			elseif uses_string[stat] then
+				minetest_decode_helper_ascii(buffer, t, "uint16", off, nil, f_str)
+			elseif stat == 9 then -- v3f
+				t:add(f_x, buffer(off,4))
+				t:add(f_y, buffer(off+4,4))
+				t:add(f_z, buffer(off+8,4))
+			elseif stat == 10 then -- v2s32
+				t:add(f_sx, buffer(off,4))
+				t:add(f_sy, buffer(off+8,4))
+			else
+				t:add(f_int, buffer(off,4))
+			end
+		end
+	}
+end
 
 -- ...
 
-minetest_server_commands[0x49] = {"HUDADD", 2}
-minetest_server_commands[0x4a] = {"HUDRM", 2}
-minetest_server_commands[0x4b] = {"HUDCHANGE", 2}
 minetest_server_commands[0x4c] = {"HUD_SET_FLAGS", 2}
 minetest_server_commands[0x4d] = {"HUD_SET_PARAM", 2}
 minetest_server_commands[0x4e] = {"BREATH", 2}
@@ -1057,8 +1070,11 @@ minetest_server_commands[0x59] = {"NODEMETA_CHANGED", 2}
 minetest_server_commands[0x5a] = {"SET_SUN", 2}
 minetest_server_commands[0x5b] = {"SET_MOON", 2}
 minetest_server_commands[0x5c] = {"SET_STARS", 2}
+minetest_server_commands[0x5d] = {"MOVE_PLAYER_REL", 2}
 minetest_server_commands[0x60] = {"SRP_BYTES_S_B", 2}
 minetest_server_commands[0x61] = {"FORMSPEC_PREPEND", 2}
+minetest_server_commands[0x62] = {"MINIMAP_MODES", 2}
+minetest_server_commands[0x63] = {"SET_LIGHTING", 2}
 
 
 ------------------------------------
@@ -1069,13 +1085,13 @@ minetest_server_commands[0x61] = {"FORMSPEC_PREPEND", 2}
 -- minetest.control dissector
 
 do
-	local p_control = Proto("minetest.control", "Minetest Control")
+	local p_control = Proto("minetest.control", "Luanti Control")
 
 	local vs_control_type = {
 		[0] = "Ack",
 		[1] = "Set Peer ID",
 		[2] = "Ping",
-		[3] = "Disco"
+		[3] = "Disconnect"
 	}
 
 	local f_control_type = ProtoField.uint8("minetest.control.type", "Control Type", base.DEC, vs_control_type)
@@ -1105,7 +1121,7 @@ do
 		elseif buffer(0,1):uint() == 2 then
 			pinfo.cols.info = "Ping"
 		elseif buffer(0,1):uint() == 3 then
-			pinfo.cols.info = "Disco"
+			pinfo.cols.info = "Disconnect"
 		end
 
 		data_dissector:call(buffer(pos):tvb(), pinfo, tree)
@@ -1143,7 +1159,7 @@ function minetest_define_client_or_server_proto(is_client)
 	end
 
 	-- Create the protocol object.
-	local proto = Proto(proto_name, "Minetest " .. this_peer .. " to " .. other_peer)
+	local proto = Proto(proto_name, "Luanti " .. this_peer .. " to " .. other_peer)
 
 	-- Create a table vs_command that maps command codes to command names.
 	local vs_command = {}
@@ -1173,7 +1189,10 @@ function minetest_define_client_or_server_proto(is_client)
 	function proto.dissector(buffer, pinfo, tree)
 		local t = tree:add(proto, buffer)
 
-		pinfo.cols.info = this_peer
+		-- If we're nested, don't reset
+		if string.find(tostring(pinfo.cols.info), this_peer, 1, true) ~= 1 then
+			pinfo.cols.info = this_peer
+		end
 
 		if buffer:len() == 0 then
 			-- Empty message.
@@ -1195,8 +1214,8 @@ function minetest_define_client_or_server_proto(is_client)
 				local command_min_length = command_info[2]
 				local command_fields = command_info[3]
 				local command_dissector = command_info[4]
+				pinfo.cols.info:append(": " .. command_name)
 				if minetest_check_length(buffer, command_min_length, t) then
-					pinfo.cols.info:append(": " .. command_name)
 					if command_dissector ~= nil then
 						command_dissector(buffer, pinfo, tree, t)
 					end
@@ -1215,7 +1234,7 @@ minetest_define_client_or_server_proto(false) -- minetest.server
 -- minetest.split dissector
 
 do
-	local p_split = Proto("minetest.split", "Minetest Split Message")
+	local p_split = Proto("minetest.split", "Luanti Split Message")
 
 	local f_split_seq = ProtoField.uint16("minetest.split.seq", "Sequence number", base.DEC)
 	local f_split_chunkcount = ProtoField.uint16("minetest.split.chunkcount", "Chunk count", base.DEC)
@@ -1230,6 +1249,17 @@ do
 		t:add(f_split_chunknum, buffer(4,2))
 		t:add(f_split_data, buffer(6))
 		pinfo.cols.info:append(" " .. buffer(0,2):uint() .. " chunk " .. buffer(4,2):uint() .. "/" .. buffer(2,2):uint())
+		-- If it's the first chunk, read the peer id from the upper layer and
+		-- pass the data that we have to the right dissector.
+		-- this provides at least a partial decoding
+		if buffer(4,2):uint() == 0 then
+			local peer_id = minetest_peer_field()
+			if peer_id.value and peer_id.value == 1 then
+				Dissector.get("minetest.server"):call(buffer(6):tvb(), pinfo, tree)
+			elseif peer_id.value then
+				Dissector.get("minetest.client"):call(buffer(6):tvb(), pinfo, tree)
+			end
+		end
 	end
 end
 
@@ -1241,10 +1271,8 @@ end
 -- Wrapper protocol main dissector --
 -------------------------------------
 
--- minetest dissector
-
 do
-	local p_minetest = Proto("minetest", "Minetest")
+	local p_minetest = Proto("minetest", "Luanti")
 
 	local minetest_id = 0x4f457403
 	local vs_id = {
@@ -1263,7 +1291,7 @@ do
 		[3] = "Reliable"
 	}
 
-	local f_id = ProtoField.uint32("minetest.id", "ID", base.HEX, vs_id)
+	local f_id = ProtoField.uint32("minetest.id", "Protocol ID", base.HEX, vs_id)
 	local f_peer = ProtoField.uint16("minetest.peer", "Peer", base.DEC, vs_peer)
 	local f_channel = ProtoField.uint8("minetest.channel", "Channel", base.DEC)
 	local f_type = ProtoField.uint8("minetest.type", "Type", base.DEC, vs_type)
@@ -1290,14 +1318,15 @@ do
 		t:add(f_id, buffer(0,4))
 
 		-- ID is valid, so replace packet's shown protocol
-		pinfo.cols.protocol = "Minetest"
-		pinfo.cols.info = "Minetest"
+		pinfo.cols.protocol = "Luanti"
+		pinfo.cols.info = "Luanti"
 
 		-- Set the other header fields
+		local peer_id = buffer(4,2):uint()
 		t:add(f_peer, buffer(4,2))
 		t:add(f_channel, buffer(6,1))
 		t:add(f_type, buffer(7,1))
-		t:set_text("Minetest, Peer: " .. buffer(4,2):uint() .. ", Channel: " .. buffer(6,1):uint())
+		t:set_text("Luanti, Peer: " .. peer_id .. ", Channel: " .. buffer(6,1):uint())
 
 		local reliability_info
 		local pos
@@ -1319,14 +1348,14 @@ do
 			control_dissector:call(buffer(pos+1):tvb(), pinfo, tree)
 		elseif buffer(pos,1):uint() == 1 then
 			-- Original message, possibly reliable
-			if buffer(4,2):uint() == 1 then
+			if peer_id == 1 then
 				server_dissector:call(buffer(pos+1):tvb(), pinfo, tree)
 			else
 				client_dissector:call(buffer(pos+1):tvb(), pinfo, tree)
 			end
 		elseif buffer(pos,1):uint() == 2 then
 			-- Split message, possibly reliable
-			if buffer(4,2):uint() == 1 then
+			if peer_id == 1 then
 				pinfo.cols.info = "Server: Split message"
 			else
 				pinfo.cols.info = "Client: Split message"
@@ -1354,6 +1383,8 @@ end
 -- Part 6                   --
 -- Utility functions part 2 --
 ------------------------------
+
+minetest_peer_field = Field.new("minetest.peer")
 
 -- Checks if a (sub-)Tvb is long enough to be further dissected.
 -- If it is long enough, sets the dissector tree item length to min_len

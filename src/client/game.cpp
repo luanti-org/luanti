@@ -2438,7 +2438,7 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
 	}
 
-	cam->camera_pitch = rangelim(cam->camera_pitch, -89.5, 89.5);
+	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
 }
 
 

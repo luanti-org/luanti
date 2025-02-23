@@ -398,11 +398,7 @@ void Client::step(float dtime)
 	if (dtime > DTIME_LIMIT)
 		dtime = DTIME_LIMIT;
 
-	m_animation_time += dtime;
-	if(m_animation_time > 60.0)
-		m_animation_time -= 60.0;
-
-	m_time_of_day_update_timer += dtime;
+	m_animation_time = fmodf(m_animation_time + dtime, 60.0f);
 
 	ReceiveAll();
 
@@ -873,14 +869,6 @@ void Client::deletingPeer(con::IPeer *peer, bool timeout)
 		m_access_denied_reason = gettext("Connection aborted (protocol error?).");
 }
 
-/*
-	u16 command
-	u16 number of files requested
-	for each file {
-		u16 length of name
-		string name
-	}
-*/
 void Client::request_media(const std::vector<std::string> &file_requests)
 {
 	std::ostringstream os(std::ios_base::binary);

@@ -340,7 +340,6 @@ private:
 	};
 
 	core::array<SKeyMap> KeyMap;
-	SDL_SysWMinfo Info;
 
 	s32 CurrentTouchCount;
 	bool IsInBackground;

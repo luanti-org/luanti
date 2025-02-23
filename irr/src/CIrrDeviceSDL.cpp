@@ -308,8 +308,6 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		if (SDL_Init(flags) < 0) {
 			os::Printer::log("Unable to initialize SDL", SDL_GetError(), ELL_ERROR);
 			Close = true;
-		} else {
-			os::Printer::log("SDL initialized", ELL_INFORMATION);
 		}
 	}
 
@@ -324,21 +322,27 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		}
 	}
 
-	SDL_VERSION(&Info.version);
+	core::stringc sdlver = "SDL ";
+	{
+		SDL_version v{};
+		SDL_GetVersion(&v);
+		sdlver += v.major;
+		sdlver += ".";
+		sdlver += v.minor;
+		sdlver += ".";
+		sdlver += v.patch;
+		// the SDL team seems to intentionally number sdl2-compat this way:
+		// <https://github.com/libsdl-org/sdl2-compat/tags>
+		if (v.patch >= 50)
+			sdlver += " (compat)";
 
-#ifndef _IRR_EMSCRIPTEN_PLATFORM_
-	SDL_GetWindowWMInfo(Window, &Info);
-#endif //_IRR_EMSCRIPTEN_PLATFORM_
-	core::stringc sdlversion = "SDL Version ";
-	sdlversion += Info.version.major;
-	sdlversion += ".";
-	sdlversion += Info.version.minor;
-	sdlversion += ".";
-	sdlversion += Info.version.patch;
+		sdlver += " on ";
+		sdlver += SDL_GetPlatform();
+	}
 
-	Operator = new COSOperator(sdlversion);
+	Operator = new COSOperator(sdlver);
 	if (SDLDeviceInstances == 1) {
-		os::Printer::log(sdlversion.c_str(), ELL_INFORMATION);
+		os::Printer::log(sdlver.c_str(), ELL_INFORMATION);
 	}
 
 	// create cursor control

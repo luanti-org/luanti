@@ -1559,10 +1559,6 @@ void Server::SendChatMessage(session_t peer_id, const ChatMessage &message)
 		<< static_cast<u64>(message.timestamp);
 
 	if (peer_id != PEER_ID_INEXISTENT) {
-		RemotePlayer *player = m_env->getPlayer(peer_id);
-		if (!player)
-			return;
-
 		Send(&pkt);
 	} else {
 		m_clients.sendToAll(&pkt);
@@ -2921,7 +2917,7 @@ void Server::acceptAuth(session_t peer_id, bool forSudoMode)
 
 		NetworkPacket resp_pkt(TOCLIENT_AUTH_ACCEPT, 1 + 6 + 8 + 4, peer_id);
 
-		resp_pkt << v3f(0,0,0) << (u64) m_env->getServerMap().getSeed()
+		resp_pkt << v3f() << (u64) m_env->getServerMap().getSeed()
 				<< g_settings->getFloat("dedicated_server_step")
 				<< client->allowed_auth_mechs;
 
