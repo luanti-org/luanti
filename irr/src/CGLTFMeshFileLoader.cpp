@@ -546,16 +546,6 @@ void SelfType::MeshExtractor::deferAddMesh(
 	});
 }
 
-// Base transformation between left & right handed coordinate systems.
-// This just inverts the Z axis.
-static const core::matrix4 leftToRight = core::matrix4(
-	1, 0, 0, 0,
-	0, 1, 0, 0,
-	0, 0, -1, 0,
-	0, 0, 0, 1
-);
-static const core::matrix4 rightToLeft = leftToRight;
-
 static core::matrix4 loadTransform(const tiniergltf::Node::Matrix &m, SkinnedMesh::SJoint *joint)
 {
 	// Note: Under the hood, this casts these doubles to floats.
@@ -570,14 +560,7 @@ static core::matrix4 loadTransform(const tiniergltf::Node::Matrix &m, SkinnedMes
 
 	auto scale = mat.getScale();
 	joint->Animatedscale = scale;
-	core::matrix4 inverseScale;
-	inverseScale.setScale(core::vector3df(
-			scale.X == 0 ? 0 : 1 / scale.X,
-			scale.Y == 0 ? 0 : 1 / scale.Y,
-			scale.Z == 0 ? 0 : 1 / scale.Z));
-
-	core::matrix4 axisNormalizedMat = inverseScale * mat;
-	joint->Animatedrotation = axisNormalizedMat.getRotationDegrees();
+	joint->Animatedrotation = mat.getRotationRadians(scale);
 	// Invert the rotation because it is applied using `getMatrix_transposed`,
 	// which again inverts.
 	joint->Animatedrotation.makeInverse();

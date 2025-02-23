@@ -880,7 +880,7 @@ void Hud::drawSelectionMesh()
 	core::matrix4 translate;
 	translate.setTranslation(m_selection_pos_with_offset);
 	core::matrix4 rotation;
-	rotation.setRotationDegrees(m_selection_rotation);
+	rotation.setRotationRadians(m_selection_rotation_radians);
 	driver->setTransform(video::ETS_WORLD, translate * rotation);
 
 	if (m_mode == HIGHLIGHT_BOX) {

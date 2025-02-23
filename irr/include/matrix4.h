@@ -179,9 +179,7 @@ public:
 	CMatrix4<T> &setRotationDegrees(const vector3d<T> &rotation);
 
 	//! Get the rotation, as set by setRotation() when you already know the scale used to create the matrix
-	/** NOTE: The scale needs to be the correct one used to create this matrix.
-		You can _not_ use the result of getScale(), but have to save your scale
-		variable in another place (like ISceneNode does).
+	/**
 	NOTE: No scale value can be 0 or the result is undefined.
 	NOTE: It does not necessarily return the *same* Euler angles as those set by setRotationDegrees(),
 		but the rotation will be equivalent,  i.e. will have the same result when used to rotate a vector or node.
@@ -189,15 +187,17 @@ public:
 	WARNING: There have been troubles with this function over the years and we may still have missed some corner cases.
 		It's generally safer to keep the rotation and scale you used to create the matrix around and work with those.
 	*/
-	vector3d<T> getRotationDegrees(const vector3d<T> &scale) const;
+	vector3d<T> getRotationRadians(const vector3d<T> &scale) const;
 
 	//! Returns the rotation, as set by setRotation().
 	/** NOTE: You will have the same end-rotation as used in setRotation, but it might not use the same axis values.
-		NOTE: This only works correct if no other matrix operations have been done on the inner 3x3 matrix besides
-			setting rotation (so no scale/shear). Thought it (probably) works as long as scale doesn't flip handedness.
+		NOTE: This only works correctly for TRS matrix products where S is a positive, component-wise scaling (see setScale).
 		NOTE: It does not necessarily return the *same* Euler angles as those set by setRotationDegrees(),
-		but the rotation will be equivalent,  i.e. will have the same result when used to rotate a vector or node.
+		but the rotation will be equivalent, i.e. will have the same result when used to rotate a vector or node.
 	*/
+	vector3d<T> getRotationRadians() const;
+
+	//! Same as getRotationRadians, but returns degrees.
 	vector3d<T> getRotationDegrees() const;
 
 	//! Make a rotation matrix from angle and axis, assuming left handed rotation.
@@ -425,6 +425,9 @@ public:
 	bool equals(const CMatrix4<T> &other, const T tolerance = (T)ROUNDING_ERROR_f64) const;
 
 private:
+	template <bool degrees>
+	vector3d<T> getRotation(const vector3d<T> &scale) const;
+
 	//! Matrix data, stored in row-major order
 	T M[16];
 };
@@ -779,63 +782,60 @@ inline CMatrix4<T> &CMatrix4<T>::setRotationRadians(const vector3d<T> &rotation)
 	return *this;
 }
 
-//! Returns a rotation which (mostly) works in combination with the given scale
-/**
-This code was originally written by by Chev (assuming no scaling back then,
-we can be blamed for all problems added by regarding scale)
-*/
 template <class T>
-inline vector3d<T> CMatrix4<T>::getRotationDegrees(const vector3d<T> &scale_) const
+template <bool degrees>
+inline vector3d<T> CMatrix4<T>::getRotation(const vector3d<T> &scale_) const
 {
+	// Based on code by Chev
 	const CMatrix4<T> &mat = *this;
 	const vector3d<f64> scale(iszero(scale_.X) ? FLT_MAX : scale_.X, iszero(scale_.Y) ? FLT_MAX : scale_.Y, iszero(scale_.Z) ? FLT_MAX : scale_.Z);
 	const vector3d<f64> invScale(reciprocal(scale.X), reciprocal(scale.Y), reciprocal(scale.Z));
 
-	f64 Y = -asin(clamp(mat[2] * invScale.X, -1.0, 1.0));
-	const f64 C = cos(Y);
-	Y *= RADTODEG64;
+	f64 a = clamp(mat[2] * invScale.X, -1.0, 1.0);
+	f64 Y = -asin(a);
 
 	f64 rotx, roty, X, Z;
 
-	if (!iszero((T)C)) {
-		const f64 invC = reciprocal(C);
-		rotx = mat[10] * invC * invScale.Z;
-		roty = mat[6] * invC * invScale.Y;
-		X = atan2(roty, rotx) * RADTODEG64;
-		rotx = mat[0] * invC * invScale.X;
-		roty = mat[1] * invC * invScale.X;
-		Z = atan2(roty, rotx) * RADTODEG64;
+	if (!core::equals(std::abs(a), 1.0)) {
+		// abs(a) = abs(sin(Y)) = 1 <=> cos(Y) = 0
+		rotx = mat[10] * invScale.Z;
+		roty = mat[6] * invScale.Y;
+		X = atan2(roty, rotx);
+		rotx = mat[0] * invScale.X;
+		roty = mat[1] * invScale.X;
+		Z = atan2(roty, rotx);
 	} else {
 		X = 0.0;
-		rotx = mat[5] * invScale.Y;
-		roty = -mat[4] * invScale.Y;
-		Z = atan2(roty, rotx) * RADTODEG64;
+		rotx = mat[5];
+		roty = -mat[4];
+		Z = atan2(roty, rotx);
 	}
 
-	// fix values that get below zero
-	if (X < 0.0)
-		X += 360.0;
-	if (Y < 0.0)
-		Y += 360.0;
-	if (Z < 0.0)
-		Z += 360.0;
+	if (degrees) {
+		X *= core::RADTODEG64;
+		Y *= core::RADTODEG64;
+		Z *= core::RADTODEG64;
+	}
 
 	return vector3d<T>((T)X, (T)Y, (T)Z);
 }
 
-//! Returns a rotation that is equivalent to that set by setRotationDegrees().
+template <class T>
+inline vector3d<T> CMatrix4<T>::getRotationRadians(const vector3d<T> &scale) const
+{
+	return getRotation<false>(scale);
+}
+
+template <class T>
+inline vector3d<T> CMatrix4<T>::getRotationRadians() const
+{
+	return getRotationRadians(getScale());
+}
+
 template <class T>
 inline vector3d<T> CMatrix4<T>::getRotationDegrees() const
 {
-	// Note: Using getScale() here make it look like it could do matrix decomposition.
-	// It can't! It works (or should work) as long as rotation doesn't flip the handedness
-	// aka scale swapping 1 or 3 axes. (I think we could catch that as well by comparing
-	// crossproduct of first 2 axes to direction of third axis, but TODO)
-	// And maybe it should also offer the solution for the simple calculation
-	// without regarding scaling as Irrlicht did before 1.7
-	vector3d<T> scale(getScale());
-
-	return getRotationDegrees(scale);
+	return getRotation<true>(getScale());
 }
 
 //! Sets matrix to rotation matrix defined by axis and angle, assuming LH rotation

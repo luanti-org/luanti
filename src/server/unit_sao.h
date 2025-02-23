@@ -30,7 +30,7 @@ public:
 		v3f res;
 		// First rotate by m_rotation, then rotate by the automatic rotate yaw
 		(core::quaternion(v3f(0, -m_rotation_add_yaw * core::DEGTORAD, 0))
-				* core::quaternion(rot.getRotationDegrees() * core::DEGTORAD))
+				* core::quaternion(rot.getRotationRadians()))
 				.toEuler(res);
 		return res * core::RADTODEG;
 	}
