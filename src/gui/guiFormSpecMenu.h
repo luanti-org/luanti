@@ -346,11 +346,17 @@ protected:
 
 	GUIInventoryList::ItemSpec *m_selected_item = nullptr;
 	u16 m_selected_amount = 0;
+	/// `true` when picking up and dragging a stack without releasing LMB
 	bool m_selected_dragging = false;
+	/// Allows to deselect `m_selected_item` when releasing LMB if the ItemStack
+	/// is kept selected after moving.
+	/// `true` after dragging and combining ItemStacks
+	bool m_selected_allow_deselect = false;
 	ItemStack m_selected_swap;
 	ButtonEventType m_held_mouse_button = BET_OTHER;
 	bool m_shift_move_after_craft = false;
 
+	/// Feature to split stacks across multiple inventory slots (hold LMB + drag)
 	u16 m_left_drag_amount = 0;
 	ItemStack m_left_drag_stack;
 	std::vector<std::pair<GUIInventoryList::ItemSpec, ItemStack>> m_left_drag_stacks;

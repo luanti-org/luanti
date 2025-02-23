@@ -4358,6 +4358,10 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 				} else if (!getAbsoluteClippingRect().isPointInside(m_pointer)) {
 					// Dragged outside of window: drop all selected
 					drop_amount = m_selected_amount;
+				} else if (m_selected_allow_deselect) {
+					// Release the selected stack after combining into the current stack
+					m_selected_amount = 0;
+					m_selected_allow_deselect = false;
 				}
 			}
 
@@ -4448,7 +4452,8 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 				} else if (m_selected_dragging && matching && !identical) {
 					// Pickup items of the same type while dragging
-					pickup_amount = s_count;
+					// The selected stack shall be moved to `s`.
+					move_amount = m_selected_amount;
 				}
 
 			} else if (m_held_mouse_button == BET_LEFT) {
@@ -4603,7 +4608,11 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			ItemStack stack_to = list_s->getItem(s.i);
 
 			// Check how many items can be moved
-			move_amount = stack_from.count = MYMIN(move_amount, stack_from.count);
+			// Note: `move_amount` should not be range-limited because it is uncertain whether
+			// `stack_from.count` was reverted by the server in the meantime. Thus, attempt
+			// to move the amount that is assumed to be there and let the server correct it
+			// by a later inventory update.
+			stack_from.count = MYMIN(move_amount, stack_from.count);
 			ItemStack leftover = stack_to.addItem(stack_from, m_client->idef());
 
 			// If source stack cannot be added to destination stack at all,
@@ -4641,6 +4650,14 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 				a->to_list = s.listname;
 				a->to_i = s.i;
 				m_invmgr->inventoryAction(a);
+			}
+
+			if (m_selected_dragging) {
+				// Assume that the ItemStack movement was successful. To keep dragging
+				// `m_selected_item`, we need to re-select the combined ItemStack.
+				*m_selected_item = s;
+				m_selected_amount = stack_to.count;
+				m_selected_allow_deselect = true;
 			}
 		} else if (pickup_amount > 0) {
 			// Send IAction::Move
