@@ -141,6 +141,8 @@ private:
 
 	static int l_share_file(lua_State *L);
 
+	static int l_are_keycodes_equal(lua_State *L);
+
 	// async
 	static int l_do_async_callback(lua_State *L);
 

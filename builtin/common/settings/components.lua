@@ -462,7 +462,17 @@ function make.key(setting)
 						core.formspec_escape(defaulttexturedir .. "clear.png"),
 						btn_clear),
 			}
-			return table.concat(fs), 0.8
+			local height = 0.8
+			if value ~= "" then
+				for _, o in pairs(core.full_settings) do
+					if o.type == "key" and o.name ~= setting.name and core.settings:get(o.name) == value then
+						table.insert(fs, ("label[0,%f;%s]"):format(height+0.3,
+								fgettext("Keybinding conflict: $1", o.readable_name)))
+						height = height+0.6
+					end
+				end
+			end
+			return table.concat(fs), height
 		end,
 
 		on_submit = function(self, fields)
