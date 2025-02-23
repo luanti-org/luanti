@@ -2331,6 +2331,9 @@ keymap_jump (Jump key) key KEY_SPACE
 #    Also used for climbing down and descending in water if aux1_descends is disabled.
 keymap_sneak (Sneak key) key KEY_LSHIFT
 
+#    Key for locking sneak.
+keymap_sneak_lock (Sneak lock key) key
+
 #    Key for digging, punching or using something.
 #    (Note: The actual meaning might vary on a per-game basis.)
 keymap_dig (Dig/punch/use key) key KEY_LBUTTON

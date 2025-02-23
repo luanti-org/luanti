@@ -19,6 +19,7 @@ public:
 		JUMP,
 		AUX1,
 		SNEAK,
+		SNEAK_LOCK,
 		AUTOFORWARD,
 		DIG,
 		PLACE,

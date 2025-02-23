@@ -42,6 +42,7 @@ enum
 	GUI_ID_KEY_CMD_LOCAL_BUTTON,
 	GUI_ID_KEY_CONSOLE_BUTTON,
 	GUI_ID_KEY_SNEAK_BUTTON,
+	GUI_ID_KEY_SNEAK_LOCK_BUTTON,
 	GUI_ID_KEY_DROP_BUTTON,
 	GUI_ID_KEY_INVENTORY_BUTTON,
 	GUI_ID_KEY_HOTBAR_PREV_BUTTON,
@@ -372,6 +373,7 @@ void GUIKeyChangeMenu::init_keys()
 	this->add_key(GUI_ID_KEY_AUX1_BUTTON,         wstrgettext("Aux1"),             "keymap_aux1");
 	this->add_key(GUI_ID_KEY_JUMP_BUTTON,         wstrgettext("Jump"),             "keymap_jump");
 	this->add_key(GUI_ID_KEY_SNEAK_BUTTON,        wstrgettext("Sneak"),            "keymap_sneak");
+	this->add_key(GUI_ID_KEY_SNEAK_LOCK_BUTTON,   wstrgettext("Sneak lock"),       "keymap_sneak_lock");
 	this->add_key(GUI_ID_KEY_DROP_BUTTON,         wstrgettext("Drop"),             "keymap_drop");
 	this->add_key(GUI_ID_KEY_INVENTORY_BUTTON,    wstrgettext("Inventory"),        "keymap_inventory");
 	this->add_key(GUI_ID_KEY_HOTBAR_PREV_BUTTON,  wstrgettext("Prev. item"),       "keymap_hotbar_previous");

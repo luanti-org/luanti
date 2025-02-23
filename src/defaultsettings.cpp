@@ -136,6 +136,7 @@ void set_default_settings()
 	settings->setDefault("keymap_right", "KEY_KEY_D");
 	settings->setDefault("keymap_jump", "KEY_SPACE");
 	settings->setDefault("keymap_sneak", "KEY_LSHIFT");
+	settings->setDefault("keymap_sneak_lock", "");
 	settings->setDefault("keymap_dig", "KEY_LBUTTON");
 	settings->setDefault("keymap_place", "KEY_RBUTTON");
 	settings->setDefault("keymap_drop", "KEY_KEY_Q");
@@ -231,6 +232,7 @@ void set_default_settings()
 	settings->setDefault("show_debug", "true");
 	settings->setDefault("opengl_debug", "true");
 #endif
+	settings->setDefault("sneak_lock", "false");
 	settings->setDefault("fsaa", "2");
 	settings->setDefault("undersampling", "1");
 	settings->setDefault("world_aligned_mode", "enable");
