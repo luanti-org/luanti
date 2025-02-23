@@ -23,6 +23,8 @@
 
 #include "mt_opengl.h"
 
+#include <iostream>
+
 namespace irr
 {
 namespace video
@@ -216,14 +218,20 @@ void COpenGL3DriverBase::initQuadsIndices(u32 max_vertex_count)
 
 void COpenGL3DriverBase::initVersion()
 {
+	TEST_GL_ERROR(this);
 	Name = GL.GetString(GL_VERSION);
+	TEST_GL_ERROR(this);
 	printVersion();
 
 	// print renderer information
+	TEST_GL_ERROR(this);
 	VendorName = GL.GetString(GL_RENDERER);
+	TEST_GL_ERROR(this);
 	os::Printer::log("Renderer", VendorName.c_str(), ELL_INFORMATION);
 
+	TEST_GL_ERROR(this);
 	Version = getVersionFromOpenGL();
+	TEST_GL_ERROR(this);
 }
 
 bool COpenGL3DriverBase::isVersionAtLeast(int major, int minor) const noexcept
@@ -237,9 +245,13 @@ bool COpenGL3DriverBase::isVersionAtLeast(int major, int minor) const noexcept
 
 bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenSize, bool stencilBuffer)
 {
+	TEST_GL_ERROR(this);
 	initVersion();
+	TEST_GL_ERROR(this);
 	initFeatures();
+	TEST_GL_ERROR(this);
 	printTextureFormats();
+	TEST_GL_ERROR(this);
 
 	if (EnableErrorTest) {
 		if (KHRDebugSupported) {
@@ -261,6 +273,7 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 
 	StencilBuffer = stencilBuffer;
 
+	TEST_GL_ERROR(this);
 	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.MaxTextureUnits);
 	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.MaxTextureUnits);
 	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
@@ -270,6 +283,7 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 	DriverAttributes->setAttribute("Version", 100 * Version.Major + Version.Minor);
 	DriverAttributes->setAttribute("AntiAlias", AntiAlias);
 
+	TEST_GL_ERROR(this);
 	GL.PixelStorei(GL_PACK_ALIGNMENT, 1);
 
 	for (s32 i = 0; i < ETS_COUNT; ++i)
@@ -277,16 +291,20 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 
 	GL.ClearDepthf(1.0f);
 
+	TEST_GL_ERROR(this);
 	GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 	GL.FrontFace(GL_CW);
 
 	// create material renderers
+	TEST_GL_ERROR(this);
 	createMaterialRenderers();
 
+	TEST_GL_ERROR(this);
 	// set the renderstates
 	setRenderStates3DMode();
 
 	// set fog mode
+	TEST_GL_ERROR(this);
 	setFog(FogColor, FogType, FogStart, FogEnd, FogDensity, PixelFog, RangeFog);
 
 	// create matrix for flipping textures
@@ -738,6 +756,7 @@ void COpenGL3DriverBase::draw2DImage(const video::ITexture *texture, const core:
 		const core::rect<s32> &sourceRect, const core::rect<s32> *clipRect,
 		const video::SColor *const colors, bool useAlphaChannelOfTexture)
 {
+	TEST_GL_ERROR(this);
 	if (!texture)
 		return;
 
@@ -905,6 +924,7 @@ void COpenGL3DriverBase::draw2DImageBatch(const video::ITexture *texture,
 
 	if (clipRect)
 		GL.Disable(GL_SCISSOR_TEST);
+	TEST_GL_ERROR(this);
 }
 
 //! draw a 2d rectangle
@@ -985,13 +1005,16 @@ void COpenGL3DriverBase::drawArrays(GLenum primitiveType, const VertexType &vert
 	beginDraw(vertexType, reinterpret_cast<uintptr_t>(vertices));
 	GL.DrawArrays(primitiveType, 0, vertexCount);
 	endDraw(vertexType);
+	TEST_GL_ERROR(this);
 }
 
 void COpenGL3DriverBase::drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount)
 {
+	TEST_GL_ERROR(this);
 	beginDraw(vertexType, reinterpret_cast<uintptr_t>(vertices));
 	GL.DrawRangeElements(primitiveType, 0, vertexCount - 1, indexCount, GL_UNSIGNED_SHORT, indices);
 	endDraw(vertexType);
+	TEST_GL_ERROR(this);
 }
 
 void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList,
@@ -1197,6 +1220,7 @@ void COpenGL3DriverBase::setRenderStates3DMode()
 //! Can be called by an IMaterialRenderer to make its work easier.
 void COpenGL3DriverBase::setBasicRenderStates(const SMaterial &material, const SMaterial &lastmaterial, bool resetAllRenderStates)
 {
+	TEST_GL_ERROR(this);
 	// ZBuffer
 	switch (material.ZBuffer) {
 	case ECFN_DISABLED:
@@ -1349,6 +1373,7 @@ void COpenGL3DriverBase::setBasicRenderStates(const SMaterial &material, const S
 
 	// Texture parameters
 	setTextureRenderStates(material, resetAllRenderStates);
+	TEST_GL_ERROR(this);
 }
 
 //! Compare in SMaterial doesn't check texture parameters, so we should call this on each OnRender call.
@@ -1499,6 +1524,7 @@ void COpenGL3DriverBase::setRenderStates2DMode(bool alpha, bool texture, bool al
 	}
 
 	MaterialRenderer2DActive->OnRender(this, video::EVT_STANDARD);
+	TEST_GL_ERROR(this);
 }
 
 void COpenGL3DriverBase::chooseMaterial2D()
