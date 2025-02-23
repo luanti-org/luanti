@@ -9,7 +9,6 @@
 #include "scripting_mainmenu.h"
 #include "gui/guiEngine.h"
 #include "gui/guiMainMenu.h"
-#include "gui/guiKeyChangeMenu.h"
 #include "gui/guiPathSelectMenu.h"
 #include "gui/touchscreeneditor.h"
 #include "version.h"
@@ -22,6 +21,7 @@
 #include "settings.h"
 #include "clientdynamicinfo.h"
 #include "client/client.h"
+#include "client/keycode.h"
 #include "client/renderingengine.h"
 #include "client/texturepaths.h"
 #include "network/networkprotocol.h"
@@ -522,22 +522,6 @@ int ModApiMainMenu::l_get_content_translation(lua_State *L)
 }
 
 /******************************************************************************/
-int ModApiMainMenu::l_show_keys_menu(lua_State *L)
-{
-	GUIEngine *engine = getGuiEngine(L);
-	sanity_check(engine != NULL);
-
-	GUIKeyChangeMenu *kmenu = new GUIKeyChangeMenu(
-			engine->m_rendering_engine->get_gui_env(),
-			engine->m_parent,
-			-1,
-			engine->m_menumanager,
-			engine->m_texture_source.get());
-	kmenu->drop();
-	return 0;
-}
-
-/******************************************************************************/
 int ModApiMainMenu::l_show_touchscreen_layout(lua_State *L)
 {
 	GUIEngine *engine = getGuiEngine(L);
@@ -1014,6 +998,15 @@ int ModApiMainMenu::l_share_file(lua_State *L)
 }
 
 /******************************************************************************/
+int ModApiMainMenu::l_are_keycodes_equal(lua_State *L)
+{
+	auto k1 = luaL_checkstring(L, 1);
+	auto k2 = luaL_checkstring(L, 2);
+	lua_pushboolean(L, KeyPress(k1) == KeyPress(k2));
+	return 1;
+}
+
+/******************************************************************************/
 int ModApiMainMenu::l_do_async_callback(lua_State *L)
 {
 	MainMenuScripting *script = getScriptApi<MainMenuScripting>(L);
@@ -1050,7 +1043,6 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(get_content_translation);
 	API_FCT(start);
 	API_FCT(close);
-	API_FCT(show_keys_menu);
 	API_FCT(show_touchscreen_layout);
 	API_FCT(create_world);
 	API_FCT(delete_world);
@@ -1086,6 +1078,7 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_url_dialog);
 	API_FCT(open_dir);
 	API_FCT(share_file);
+	API_FCT(are_keycodes_equal);
 	API_FCT(do_async_callback);
 }
 
