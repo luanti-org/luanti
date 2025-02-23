@@ -105,7 +105,11 @@ void benchGetObjectsInArea(Catch::Benchmark::Chronometer &meter)
 TEST_CASE("ActiveObjectMgr") {
 	BENCH_INSIDE_RADIUS(200)
 	BENCH_INSIDE_RADIUS(1450)
+	BENCH_INSIDE_RADIUS(10000)
 
 	BENCH_IN_AREA(200)
 	BENCH_IN_AREA(1450)
+	BENCH_IN_AREA(10000)
 }
+
+// TODO benchmark active object manager update costs

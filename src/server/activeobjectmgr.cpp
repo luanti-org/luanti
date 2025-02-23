@@ -26,7 +26,7 @@ void ActiveObjectMgr::clearIf(const std::function<bool(ServerActiveObject *, u16
 			continue;
 		if (cb(it.second.get(), it.first)) {
 			// Remove reference from m_active_objects
-			m_active_objects.remove(it.first);
+			removeObject(it.first);
 		}
 	}
 }
@@ -68,16 +68,17 @@ bool ActiveObjectMgr::registerObject(std::unique_ptr<ServerActiveObject> obj)
 		return false;
 	}
 
-	if (objectpos_over_limit(obj->getBasePosition())) {
-		v3f p = obj->getBasePosition();
+	const v3f pos = obj->getBasePosition();
+	if (objectpos_over_limit(pos)) {
 		warningstream << "Server::ActiveObjectMgr::addActiveObjectRaw(): "
-				<< "object position (" << p.X << "," << p.Y << "," << p.Z
+				<< "object position (" << pos.X << "," << pos.Y << "," << pos.Z
 				<< ") outside maximum range" << std::endl;
 		return false;
 	}
 
 	auto obj_id = obj->getId();
 	m_active_objects.put(obj_id, std::move(obj));
+	m_spatial_index.insert(pos.toArray(), obj_id);
 
 	auto new_size = m_active_objects.size();
 	verbosestream << "Server::ActiveObjectMgr::addActiveObjectRaw(): "
@@ -100,6 +101,8 @@ void ActiveObjectMgr::removeObject(u16 id)
 	if (!ok) {
 		infostream << "Server::ActiveObjectMgr::removeObject(): "
 				<< "id=" << id << " not found" << std::endl;
+	} else {
+		m_spatial_index.remove(id);
 	}
 }
 
@@ -113,39 +116,40 @@ void ActiveObjectMgr::invalidateActiveObjectObserverCaches()
 	}
 }
 
+void ActiveObjectMgr::updatePos(u16 id, const v3f &pos) {
+	// HACK only update if we already know the object
+	if (m_active_objects.get(id) != nullptr)
+		m_spatial_index.update(pos.toArray(), id);
+}
+
 void ActiveObjectMgr::getObjectsInsideRadius(const v3f &pos, float radius,
 		std::vector<ServerActiveObject *> &result,
 		std::function<bool(ServerActiveObject *obj)> include_obj_cb)
 {
-	float r2 = radius * radius;
-	for (auto &activeObject : m_active_objects.iter()) {
-		ServerActiveObject *obj = activeObject.second.get();
-		if (!obj)
-			continue;
-		const v3f &objectpos = obj->getBasePosition();
-		if (objectpos.getDistanceFromSQ(pos) > r2)
-			continue;
+	float r_squared = radius * radius;
+	m_spatial_index.rangeQuery((pos - v3f(radius)).toArray(), (pos + v3f(radius)).toArray(), [&](auto objPos, u16 id) {
+		if (v3f(objPos).getDistanceFromSQ(pos) > r_squared)
+			return;
 
+		auto obj = m_active_objects.get(id).get();
+		if (!obj)
+			return;
 		if (!include_obj_cb || include_obj_cb(obj))
 			result.push_back(obj);
-	}
+	});
 }
 
 void ActiveObjectMgr::getObjectsInArea(const aabb3f &box,
 		std::vector<ServerActiveObject *> &result,
 		std::function<bool(ServerActiveObject *obj)> include_obj_cb)
 {
-	for (auto &activeObject : m_active_objects.iter()) {
-		ServerActiveObject *obj = activeObject.second.get();
+	m_spatial_index.rangeQuery(box.MinEdge.toArray(), box.MaxEdge.toArray(), [&](auto _, u16 id) {
+		auto obj = m_active_objects.get(id).get();
 		if (!obj)
-			continue;
-		const v3f &objectpos = obj->getBasePosition();
-		if (!box.isPointInside(objectpos))
-			continue;
-
+			return;
 		if (!include_obj_cb || include_obj_cb(obj))
 			result.push_back(obj);
-	}
+	});
 }
 
 void ActiveObjectMgr::getAddedActiveObjectsAroundPos(

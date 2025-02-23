@@ -7,6 +7,7 @@
 #include "irrMath.h"
 
 #include <functional>
+#include <array>
 
 namespace irr
 {
@@ -32,6 +33,9 @@ public:
 	//! Constructor with the same value for all elements
 	explicit constexpr vector3d(T n) :
 			X(n), Y(n), Z(n) {}
+	//! Array - vector conversion
+	constexpr vector3d(const std::array<T, 3> &arr) :
+			X(arr[0]), Y(arr[1]), Z(arr[2]) {}
 
 	// operators
 
@@ -179,6 +183,26 @@ public:
 		Y = p.Y;
 		Z = p.Z;
 		return *this;
+	}
+
+	std::array<T, 3> toArray() const {
+		return {X, Y, Z};
+	}
+
+	vector3d<T> min(const T min_component) const {
+		return vector3d<T>(
+			std::min(X, min_component),
+			std::min(Y, min_component),
+			std::min(Z, min_component)
+		);
+	}
+
+	vector3d<T> max(const T max_component) const {
+		return vector3d<T>(
+			std::max(X, max_component),
+			std::max(Y, max_component),
+			std::max(Z, max_component)
+		);
 	}
 
 	//! Get length of the vector.
