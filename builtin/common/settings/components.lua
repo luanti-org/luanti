@@ -445,6 +445,20 @@ end
 function make.key(setting)
 	local btn_bind = "bind_" .. setting.name
 	local btn_clear = "unbind_" .. setting.name
+	local function add_conflict_warnings(fs, height)
+		local value = core.settings:get(setting.name)
+		if value == "" then
+			return height
+		end
+		for _, o in pairs(core.full_settingtypes) do
+			if o.type == "key" and o.name ~= setting.name and core.are_keycodes_equal(core.settings:get(o.name), value) then
+				table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
+						fgettext("Keybinding conflict: $1", fgettext(o.readable_name))))
+				height = height + 0.6
+			end
+		end
+		return height
+	end
 	return {
 		info_text = setting.comment,
 		setting = setting,
@@ -463,7 +477,9 @@ function make.key(setting)
 						btn_clear),
 				("tooltip[%s;%s]"):format(btn_clear, fgettext("Remove keybinding")),
 			}
-			return table.concat(fs), 0.8
+			local height = 0.8
+			height = add_conflict_warnings(fs, height)
+			return table.concat(fs), height
 		end,
 
 		on_submit = function(self, fields)
