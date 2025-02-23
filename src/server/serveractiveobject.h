@@ -7,9 +7,9 @@
 #include <cassert>
 #include <unordered_set>
 #include <optional>
-#include "irrlichttypes_bloated.h"
 #include "activeobject.h"
 #include "itemgroup.h"
+#include "irr_v2d.h"
 #include "util/container.h"
 
 

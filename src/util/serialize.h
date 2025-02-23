@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
+#include <SColor.h>
+#include "irr_v2d.h"
+#include "irr_v3d.h"
 #include "exceptions.h" // for SerializationError
 #include "ieee_float.h"
 

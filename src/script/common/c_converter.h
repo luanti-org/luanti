@@ -14,7 +14,10 @@
 #include <vector>
 #include <string_view>
 
-#include "irrlichttypes_bloated.h"
+#include <SColor.h>
+#include "irr_v3d.h"
+#include "irr_v2d.h"
+#include "irr_aabb3d.h"
 
 extern "C" {
 #include <lua.h>

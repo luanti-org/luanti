@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
 #include <string>
 #include <iostream>
 #include <optional>

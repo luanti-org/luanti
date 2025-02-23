@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
+#include <irrTypes.h>
+#include "irr_aabb3d.h"
+#include "irr_v3d.h"
 #include "activeobject.h"
 #include <memory>
 #include <unordered_map>

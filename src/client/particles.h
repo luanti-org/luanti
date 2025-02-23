@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
 #include "irr_ptr.h"
 #include "ISceneNode.h"
 #include "S3DVertex.h"

@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
+#include <SColor.h>
+#include "irrlichttypes.h"
+#include "irr_v3d.h"
 #include "config.h" // IS_CLIENT_BUILD
 #if IS_CLIENT_BUILD
 #include "irrString.h"

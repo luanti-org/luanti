@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
 #include <ISceneNode.h>
 #include <SMeshBuffer.h>
 #include <array>

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "IGUIElement.h"
-#include "irrlichttypes_bloated.h"
+#include "irr_v2d.h"
 #include "irr_ptr.h"
 
 #include "util/string.h"

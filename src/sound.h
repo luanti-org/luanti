@@ -7,7 +7,6 @@
 #include <set>
 #include <string>
 #include "util/serialize.h"
-#include "irrlichttypes_bloated.h"
 
 /**
  * Describes the sound information for playback.

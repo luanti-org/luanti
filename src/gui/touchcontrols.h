@@ -6,6 +6,7 @@
 #pragma once
 
 #include "irrlichttypes.h"
+#include "irr_aabb3d.h"
 #include "IEventReceiver.h"
 
 #include <memory>

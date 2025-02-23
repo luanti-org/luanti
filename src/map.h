@@ -8,7 +8,6 @@
 #include <set>
 #include <map>
 
-#include "irrlichttypes_bloated.h"
 #include "mapblock.h"
 #include "mapnode.h"
 #include "constants.h"

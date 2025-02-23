@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
 #include "inventory.h"
 #include "constants.h"
 #include "util/basic_macros.h"
