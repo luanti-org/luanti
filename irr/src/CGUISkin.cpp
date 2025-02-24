@@ -24,7 +24,7 @@ CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
 	{
 		Colors[EGDC_3D_DARK_SHADOW]     = video::SColor(101,50,50,50);
 		Colors[EGDC_3D_SHADOW]          = video::SColor(101,130,130,130);
-		Colors[EGDC_3D_FACE]            = video::SColor(220,70,70,70);
+		Colors[EGDC_3D_FACE]            = video::SColor(220,75,75,75);
 		Colors[EGDC_3D_HIGH_LIGHT]      = video::SColor(101,255,255,255);
 		Colors[EGDC_3D_LIGHT]           = video::SColor(101,210,210,210);
 		Colors[EGDC_ACTIVE_BORDER]      = video::SColor(101,16,14,115);
