@@ -156,7 +156,7 @@ public:
 	 * change with the next call to `getContentTranslations`.
 	 * */
 	Translations *getContentTranslations(const std::string &path,
-			const std::string &domain, const std::string &lang_code);
+			const std::string &domain, const std::vector<std::wstring> &lang_code);
 
 private:
 	std::string m_last_translations_key;

@@ -29,10 +29,13 @@ public:
 	{
 		return getFileLanguage(filename) != "";
 	}
-	// for testing
 	inline size_t size()
 	{
 		return m_translations.size() + m_plural_translations.size()/2;
+	}
+	inline bool empty()
+	{
+		return size() == 0;
 	}
 
 #ifndef SERVER

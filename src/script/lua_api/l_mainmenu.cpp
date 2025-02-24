@@ -552,10 +552,10 @@ int ModApiMainMenu::l_get_content_translation(lua_State *L)
 	std::string path = luaL_checkstring(L, 1);
 	std::string domain = luaL_checkstring(L, 2);
 	std::string string = luaL_checkstring(L, 3);
-	std::string lang = get_client_language_code();
+	auto lang = get_effective_locale();
 
 	auto *translations = engine->getContentTranslations(path, domain, lang);
-	string = wide_to_utf8(translate_string(utf8_to_wide(string), translations));
+	string = wide_to_utf8(translate_string(utf8_to_wide(string), lang, translations));
 	lua_pushstring(L, string.c_str());
 	return 1;
 }

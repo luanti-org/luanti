@@ -7,6 +7,7 @@
 #include "numeric.h"
 #include "log.h"
 
+#include "gettext.h"
 #include "hex.h"
 #include "porting.h" // strtok_r, strtoull and strncasecmp
 #include "translation.h"
@@ -654,9 +655,9 @@ std::string wrap_rows(std::string_view from, unsigned row_len, bool has_color_co
  */
 
 static void translate_all(std::wstring_view s, size_t &i,
-		Translations *translations, std::wstring &res);
+		const std::vector<std::wstring> &lang, Translations *translations, std::wstring &res);
 
-static void translate_string(std::wstring_view s, Translations *translations,
+static void translate_string(std::wstring_view s, const std::vector<std::wstring> &lang, Translations *translations,
 		const std::wstring &textdomain, size_t &i, std::wstring &res,
 		bool use_plural, unsigned long int number)
 {
@@ -716,7 +717,7 @@ static void translate_string(std::wstring_view s, Translations *translations,
 			if (arg_number >= 10) {
 				errorstream << "Ignoring too many arguments to translation" << std::endl;
 				std::wstring arg;
-				translate_all(s, i, translations, arg);
+				translate_all(s, i, lang, translations, arg);
 				args.push_back(arg);
 				continue;
 			}
@@ -724,7 +725,7 @@ static void translate_string(std::wstring_view s, Translations *translations,
 			output += std::to_wstring(arg_number);
 			++arg_number;
 			std::wstring arg;
-			translate_all(s, i, translations, arg);
+			translate_all(s, i, lang, translations, arg);
 			args.push_back(std::move(arg));
 		} else {
 			// This is an escape sequence *inside* the template string to translate itself.
@@ -739,10 +740,10 @@ static void translate_string(std::wstring_view s, Translations *translations,
 	if (translations != nullptr) {
 		if (use_plural)
 			toutput = translations->getPluralTranslation(
-					textdomain, output, number);
+					lang, textdomain, output, number);
 		else
 			toutput = translations->getTranslation(
-					textdomain, output);
+					lang, textdomain, output);
 	} else {
 		toutput = output;
 	}
@@ -780,7 +781,7 @@ static void translate_string(std::wstring_view s, Translations *translations,
 }
 
 static void translate_all(std::wstring_view s, size_t &i,
-		Translations *translations, std::wstring &res)
+		const std::vector<std::wstring> &lang, Translations *translations, std::wstring &res)
 {
 	res.clear();
 	res.reserve(s.length());
@@ -858,7 +859,7 @@ static void translate_all(std::wstring_view s, size_t &i,
 				}
 			}
 			std::wstring translated;
-			translate_string(s, translations, textdomain, i, translated, use_plural, number);
+			translate_string(s, lang, translations, textdomain, i, translated, use_plural, number);
 			res.append(translated);
 		} else {
 			// Another escape sequence, such as colors. Preserve it.
@@ -868,17 +869,17 @@ static void translate_all(std::wstring_view s, size_t &i,
 }
 
 // Translate string server side
-std::wstring translate_string(std::wstring_view s, Translations *translations)
+std::wstring translate_string(std::wstring_view s, const std::vector<std::wstring> &lang, Translations *translations)
 {
 	size_t i = 0;
 	std::wstring res;
-	translate_all(s, i, translations, res);
+	translate_all(s, i, lang, translations, res);
 	return res;
 }
 
 std::wstring translate_string(std::wstring_view s)
 {
-	return translate_string(s, g_client_translations);
+	return translate_string(s, get_effective_locale(), g_client_translations);
 }
 
 static const std::array<std::wstring_view, 30> disallowed_dir_names = {
