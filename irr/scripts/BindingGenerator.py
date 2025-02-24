@@ -12,14 +12,20 @@ class GLInfo:
 		self.__functions_order: List(str) = []
 		self.__enums_db: Dict[str, Dict[str]] = {}
 		self.__enums_order: List(str) = []
-		
+
 		self.__allowed_extensions = ["GL_KHR_debug", "GL_ARB_bindless_texture", "GL_ARB_gpu_shader_int64", "GL_ARB_shading_language_include", "GL_ARB_sparse_buffer", "GL_ARB_sparse_texture", "GL_ARB_cl_event", "GL_ARB_compute_shader", "GL_ARB_geometry_shader4", "GL_EXT_texture_storage_compression", "GL_ARB_texture_buffer_object", "GL_ARB_geometry_shader4", "GL_ARB_draw_instanced", "GL_ARB_sample_shading", "GL_ARB_draw_buffers_blend", "GL_ARB_instanced_arrays", "GL_ARB_parallel_shader_compile", "GL_ARB_gl_spirv", "GL_ARB_ES3_2_compatibility", "GL_ARB_indirect_parameters", "GL_ARB_sample_locations", "GL_KHR_parallel_shader_compile"]
 		self.__ignore_api = ["GL_VERSION_ES_CM_1_0"]
 		self.__unwanted_suffixes = ["_KHR", "KHR", "_ARB", "ARB"]
 
+		# functions loaded manualy in template
+		self.__noload_functions = ["glGetStringi"]
+
 	def __parse_version(self, version: str) -> Tuple[int, int]:
 		major, minor = map(int, version.split('.'))
 		return major, minor
+
+	def __is_basic_function(self, function):
+		return function['min_gl_version']==(1, 0) and function['min_gles_version']==(2,0)
 
 	def __is_wanted_extension(self, extension_name):
 		# Check if the extension name contains any of the specified vendor keywords
@@ -80,6 +86,8 @@ class GLInfo:
 				'min_gl_version': None,
 				'min_gles_version': None,
 				'defined_extensions': set(),
+				'defined_gl_extensions': set(),
+				'defined_gles_extensions': set(),
 				'aliases': set(),
 				'have_alias': (func_alias != None),
 				'return': ret_type,
@@ -152,10 +160,21 @@ class GLInfo:
 			# definition with profile not found and not used in Luanti Irrlicht
 			if require.get('profile'):
 				continue
+			api = require.get('api')
+			only_gl = (api == "gl")
+			only_gles = (api == "gles2")
+			if api and not (only_gl or only_gles):
+				continue
+				
 			for command in require.findall('command'):
 				# update function info about extensions
 				func_name = command.get('name')
-				self.__functions_db[func_name]['defined_extensions'].add(ext_name)
+				if only_gl:
+					self.__functions_db[func_name]['defined_gl_extensions'].add(ext_name)
+				elif only_gles:
+					self.__functions_db[func_name]['defined_gles_extensions'].add(ext_name)
+				else:
+					self.__functions_db[func_name]['defined_extensions'].add(ext_name)
 				if not func_name in self.__functions_order:
 						self.__functions_order.append(func_name)
 
@@ -225,8 +244,6 @@ class GLInfo:
 			function = self.__functions_db[func_name]
 			if not function['have_alias']:
 				text = '{}\tPFN{}PROC_MT {} = NULL;\n'.format(text, function["name_clean"].upper(), function["name_clean"][2:])
-				if function['name_clean']=='glGetnUniformdv':
-					print(function)
 		return text
 
 	def generate_constants(self):
@@ -240,16 +257,58 @@ class GLInfo:
 				text = '{}\tstatic constexpr const {} {} = {}{};\n'.format(text, enum_type, enum['name_clean'][3:], enum['value'], enum['type'] or '')
 		return text
 	
-	def generate_loaders(self):
+	def generate_basic_loaders(self):
 		text = ''
 		for func_name in self.__functions_order:
+			if func_name in self.__noload_functions:
+				continue
+			function = self.__functions_db[func_name]
+			if self.__is_basic_function(function):
+				if not function['have_alias']:
+					text = '{}\tif (!{}) {} = (PFN{}PROC_MT)cmgr->getProcAddress("{}");\n'.format(text, function["name_clean"][2:], function["name_clean"][2:], function["name_clean"].upper(), func_name)
+		return text
+
+	def __generate_condition(self, function):
+		condition = ''
+		separator = ''
+		min_gl_version = function['min_gl_version']
+		min_gles_version = function['min_gles_version']
+		if min_gl_version and min_gles_version:
+			condition = 'CHECK_VER({},{},{},{})'.format(min_gl_version[0], min_gl_version[1], min_gles_version[0], min_gles_version[1])
+			separator = ' || '
+		elif min_gl_version != None:
+			condition = 'CHECK_VER_GL({},{})'.format(min_gl_version[0], min_gl_version[1])
+			separator = ' || '
+		elif min_gles_version != None:
+			condition = 'CHECK_VER_GLES({},{})'.format(min_gles_version[0], min_gles_version[1])
+			separator = ' || '
+		for extension in function['defined_extensions']:
+			condition = '{}{}CHECK_EXT("{}")'.format(condition, separator, extension)
+			separator = ' || '
+		for extension in function['defined_gl_extensions']:
+			condition = '{}{}CHECK_EXT_GL("{}")'.format(condition, separator, extension)
+			separator = ' || '
+		for extension in function['defined_gles_extensions']:
+			condition = '{}{}CHECK_EXT_GLES("{}")'.format(condition, separator, extension)
+			separator = ' || '
+		return condition
+		
+
+	def generate_conditional_loaders(self):
+		text = ''
+		for func_name in self.__functions_order:
+			if func_name in self.__noload_functions:
+				continue
 			function = self.__functions_db[func_name]
 			if not function['have_alias']:
-				text = '{}\tif (!{}) {} = (PFN{}PROC_MT)cmgr->getProcAddress("{}");\n'.format(text, function["name_clean"][2:], function["name_clean"][2:], function["name_clean"].upper(), func_name)
+				if not self.__is_basic_function(function):
+					condition = self.__generate_condition(function)
+					text = '{}\tif (!{} && ({})) {} = (PFN{}PROC_MT)cmgr->getProcAddress("{}");\n'.format(text, function["name_clean"][2:], condition, function["name_clean"][2:], function["name_clean"].upper(), func_name)
 				for alias_name in function['aliases']:
 					if alias_name in self.__functions_order:
 						alias = self.__functions_db[alias_name]
-						text = '{}\tif (!{}) {} = (PFN{}PROC_MT)cmgr->getProcAddress("{}");\n'.format(text, function["name_clean"][2:], function["name_clean"][2:], function["name_clean"].upper(), alias_name)
+						condition = self.__generate_condition(alias)
+						text = '{}\tif (!{} && ({})) {} = (PFN{}PROC_MT)cmgr->getProcAddress("{}");\n'.format(text, function["name_clean"][2:], condition, function["name_clean"][2:], function["name_clean"].upper(), alias_name)
 		return text
 
 	def get_function_info(self, function_name: str) -> Optional[Dict[str, Optional[Tuple[int, int]]]]:
@@ -289,7 +348,8 @@ def generate_loader(template_file, output_file, gl_info):
 
   # Define the values to be substituted in the template
   values = {
-	  'pointers_load': gl_info.generate_loaders()
+	  'basic_pointers_load': gl_info.generate_basic_loaders(),
+	  'cond_pointers_load': gl_info.generate_conditional_loaders()
   }
 
   # Substitute the values in the template
@@ -319,7 +379,7 @@ if __name__ == "__main__":
 	generate_loader(loader_temp, loader_cpp, gl_info)
 
 	# Show parsed info about function, for debug purposes
-	#function_names = ["glReadnPixelsARB", "glReadnPixels"]
+	#function_names = ["glReadnPixelsARB", "glReadnPixels", "glGetString"]
 	function_names = []
 	for function_name in function_names:
 		info = gl_info.get_function_info(function_name)
@@ -328,6 +388,8 @@ if __name__ == "__main__":
 			print(f"Minimum OpenGL Version: {info['min_gl_version']}")
 			print(f"Minimum OpenGL ES Version: {info['min_gles_version']}")
 			print(f"Defined in Extensions: {', '.join(info['defined_extensions'])}")
+			print(f"Defined GL in Extensions: {', '.join(info['defined_gl_extensions'])}")
+			print(f"Defined GLES in Extensions: {', '.join(info['defined_gles_extensions'])}")
 			print(f"aliases: {info['aliases']}")
 			print(f"have alias: {info['have_alias']}")
 			print(f"return: {info['return']}")

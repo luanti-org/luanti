@@ -817,7 +817,7 @@ private:
 
 public:
 	// Call this once after creating the context.
-	void LoadAllProcedures(irr::video::IContextManager *cmgr);
+	void LoadAllProcedures(irr::video::IContextManager *cmgr, bool load_gles);
 	/// Check if an extension is supported.
 	/// @param ext full extension name e.g. "GL_KHR_no_error"
 	inline bool IsExtensionPresent(const std::string &ext) const
