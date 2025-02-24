@@ -718,7 +718,8 @@ private:
 
 	// NOTE: Cannot use forward declaration of 'Translations'. Whereas most
 	// modern compilers support incomplete types here, it's not in the C++ spec.
-	std::unordered_map<std::string, Translations> server_translations;
+	Translations server_translations;
+	std::unordered_set<std::string> loaded_translations;
 
 	ModIPCStore m_ipcstore;
 

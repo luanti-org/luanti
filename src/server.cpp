@@ -4304,28 +4304,33 @@ void Server::broadcastModChannelMessage(const std::string &channel,
 	}
 }
 
-Translations *Server::getTranslationLanguage(const std::string &lang_code)
+Translations *Server::getTranslationLanguage(const std::string &lang)
 {
-	if (lang_code.empty())
+	if (lang.empty())
 		return nullptr;
 
-	auto it = server_translations.find(lang_code);
-	if (it != server_translations.end())
-		return &it->second; // Already loaded
+	std::unordered_set<std::string> load_langs;
 
-	// [] will create an entry
-	auto *translations = &server_translations[lang_code];
+	for (const auto &lang_code: str_split(lang, ':')) {
+		if (loaded_translations.find(lang_code) == loaded_translations.end()) {
+			load_langs.insert(lang_code);
+			loaded_translations.insert(lang_code);
+		}
+	}
+
+	if (load_langs.empty())
+		return &server_translations;
 
 	for (const auto &i : m_media) {
-		if (Translations::getFileLanguage(i.first) == lang_code) {
+		if (load_langs.find(std::string(Translations::getFileLanguage(i.first))) != load_langs.end()) {
 			std::string data;
 			if (fs::ReadFile(i.second.path, data, true)) {
-				translations->loadTranslation(i.first, data);
+				server_translations.loadTranslation(i.first, data);
 			}
 		}
 	}
 
-	return translations;
+	return &server_translations;
 }
 
 std::unordered_map<std::string, std::string> Server::getMediaList()
