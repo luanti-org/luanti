@@ -9,7 +9,10 @@
 #define CONTEXT L"context"
 #define TEXTDOMAIN_PO L"translation_po"
 #define TEST_PO_NAME "translation_po.de.po"
+#define SECONDARY_PO_NAME "translation_po.de_CH.po"
 #define TEST_MO_NAME "translation_mo.de.mo"
+
+const std::vector<std::wstring> lang {L"de"};
 
 static std::string read_translation_file(const std::string &filename)
 {
@@ -86,17 +89,17 @@ TEST_CASE("test translations")
 		Translations translations;
 		translations.loadTranslation(TEST_PO_NAME, read_translation_file(TEST_PO_NAME));
 
-		CHECK(translations.size() == 5);
-		CHECK(translations.getTranslation(TEXTDOMAIN_PO, L"foo") == L"bar");
-		CHECK(translations.getTranslation(TEXTDOMAIN_PO, L"Untranslated") == L"Untranslated");
-		CHECK(translations.getTranslation(TEXTDOMAIN_PO, L"Fuzzy") == L"Fuzzy");
-		CHECK(translations.getTranslation(TEXTDOMAIN_PO, L"Multi\\line\nstring") == L"Multi\\\"li\\ne\nresult");
-		CHECK(translations.getTranslation(TEXTDOMAIN_PO, L"Wrong order") == L"Wrong order");
-		CHECK(translations.getPluralTranslation(TEXTDOMAIN_PO, L"Plural form", 1) == L"Singular result");
-		CHECK(translations.getPluralTranslation(TEXTDOMAIN_PO, L"Singular form", 0) == L"Plural result");
-		CHECK(translations.getPluralTranslation(TEXTDOMAIN_PO, L"Partial translation", 1) == L"Partially translated");
-		CHECK(translations.getPluralTranslation(TEXTDOMAIN_PO, L"Partial translations", 2) == L"Partial translations");
-		CHECK(translations.getTranslation(CONTEXT, L"With context") == L"Has context");
+		CHECK(translations.size() == 7);
+		CHECK(translations.getTranslation(lang, TEXTDOMAIN_PO, L"foo") == L"bar");
+		CHECK(translations.getTranslation(lang, TEXTDOMAIN_PO, L"Untranslated") == L"Untranslated");
+		CHECK(translations.getTranslation(lang, TEXTDOMAIN_PO, L"Fuzzy") == L"Fuzzy");
+		CHECK(translations.getTranslation(lang, TEXTDOMAIN_PO, L"Multi\\line\nstring") == L"Multi\\\"li\\ne\nresult");
+		CHECK(translations.getTranslation(lang, TEXTDOMAIN_PO, L"Wrong order") == L"Wrong order");
+		CHECK(translations.getPluralTranslation(lang, TEXTDOMAIN_PO, L"Plural form", 1) == L"Singular result");
+		CHECK(translations.getPluralTranslation(lang, TEXTDOMAIN_PO, L"Singular form", 0) == L"Plural result");
+		CHECK(translations.getPluralTranslation(lang, TEXTDOMAIN_PO, L"Partial translation", 1) == L"Partially translated");
+		CHECK(translations.getPluralTranslation(lang, TEXTDOMAIN_PO, L"Partial translations", 2) == L"Partial translations");
+		CHECK(translations.getTranslation(lang, CONTEXT, L"With context") == L"Has context");
 	}
 
 	SECTION("MO file parser")
@@ -105,8 +108,19 @@ TEST_CASE("test translations")
 		translations.loadTranslation(TEST_MO_NAME, read_translation_file(TEST_MO_NAME));
 
 		CHECK(translations.size() == 2);
-		CHECK(translations.getTranslation(CONTEXT, L"With context") == L"Has context");
-		CHECK(translations.getPluralTranslation(CONTEXT, L"Plural form", 1) == L"Singular result");
-		CHECK(translations.getPluralTranslation(CONTEXT, L"Singular form", 0) == L"Plural result");
+		CHECK(translations.getTranslation(lang, CONTEXT, L"With context") == L"Has context");
+		CHECK(translations.getPluralTranslation(lang, CONTEXT, L"Plural form", 1) == L"Singular result");
+		CHECK(translations.getPluralTranslation(lang, CONTEXT, L"Singular form", 0) == L"Plural result");
+	}
+
+	SECTION("Translation fallback")
+	{
+		Translations translations;
+		translations.loadTranslation(TEST_PO_NAME, read_translation_file(TEST_PO_NAME));
+		translations.loadTranslation(SECONDARY_PO_NAME, read_translation_file(SECONDARY_PO_NAME));
+
+		CHECK(translations.getTranslation({L"de_CH", L"de"}, TEXTDOMAIN_PO, L"In multiple languages") == L"In Swiss German");
+		CHECK(translations.getTranslation({L"de", L"de_CH"}, TEXTDOMAIN_PO, L"In multiple languages") == L"In standard German");
+		CHECK(translations.getTranslation({L"de_CH", L"de"}, TEXTDOMAIN_PO, L"In one language") == L"Only in standard German");
 	}
 }

@@ -1,0 +1,2 @@
+msgid "In multiple languages"
+msgstr "In Swiss German"
