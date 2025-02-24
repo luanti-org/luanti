@@ -2691,22 +2691,18 @@ void Server::fillMediaCache()
 	infostream << "Server: " << m_media.size() << " media files collected" << std::endl;
 }
 
-void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_code)
+void Server::sendMediaAnnouncement(session_t peer_id, const std::string &langstring)
 {
-	std::string translation_formats[3] = { ".tr", ".po", ".mo" };
-	std::string lang_suffixes[3];
-	for (size_t i = 0; i < 3; i++) {
-		lang_suffixes[i].append(".").append(lang_code).append(translation_formats[i]);
-	}
+	std::unordered_set<std::string> langs;
+	for (const auto &lang_code: str_split(langstring, ':'))
+		langs.insert(lang_code);
 
 	auto include = [&] (const std::string &name, const MediaInfo &info) -> bool {
 		if (info.no_announce)
 			return false;
-		for (size_t j = 0; j < 3; j++) {
-			if (str_ends_with(name, translation_formats[j]) && !str_ends_with(name, lang_suffixes[j])) {
-				return false;
-			}
-		}
+		if (auto filelang = Translations::getFileLanguage(name);
+				!filelang.empty() && langs.find(std::string(filelang)) == langs.end())
+			return false;
 		return true;
 	};
 
