@@ -40,3 +40,9 @@ msgstr[1] ""
 msgctxt "context"
 msgid "With context"
 msgstr "Has context"
+
+msgid "In multiple languages"
+msgstr "In standard German"
+
+msgid "In one language"
+msgstr "Only in standard German"
