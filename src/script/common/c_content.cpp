@@ -843,6 +843,8 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	getboolfield(L, index, "diggable", f.diggable);
 	// Player can climb these
 	getboolfield(L, index, "climbable", f.climbable);
+	// Multiplies climb speed on climbable node
+	getfloatfield(L, index, "climb_factor", f.climb_factor);
 	// Player can build on these
 	getboolfield(L, index, "buildable_to", f.buildable_to);
 	// Liquids flow into and replace node
@@ -1115,6 +1117,8 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	lua_setfield(L, -2, "move_resistance");
 	lua_pushboolean(L, c.liquid_move_physics);
 	lua_setfield(L, -2, "liquid_move_physics");
+	lua_pushnumber(L, c.climb_factor);
+	lua_setfield(L, -2, "climb_factor");
 }
 
 /******************************************************************************/
