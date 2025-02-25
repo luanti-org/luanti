@@ -560,6 +560,7 @@ protected:
 
 	void updateCameraDirection(CameraOrientation *cam, float dtime);
 	void updateCameraOrientation(CameraOrientation *cam, float dtime);
+	void updatePointDir(const CameraOrientation &cam);
 	void updatePlayerControl(const CameraOrientation &cam);
 	void updatePauseState();
 	void step(f32 dtime);
@@ -1014,6 +1015,7 @@ void Game::run()
 				cam_view.camera_yaw) * m_cache_cam_smoothing;
 		cam_view.camera_pitch += (cam_view_target.camera_pitch -
 				cam_view.camera_pitch) * m_cache_cam_smoothing;
+		updatePointDir(cam_view);
 		updatePlayerControl(cam_view);
 
 		updatePauseState();
@@ -2436,6 +2438,30 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 	}
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -89.5, 89.5);
+}
+
+void Game::updatePointDir(const CameraOrientation &cam)
+{
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
+
+	if (isTouchShootlineUsed()) {
+		v2s32 pointer_pos = g_touchcontrols->getPointerPos();
+		v2u32 screensize = driver->getScreenSize();
+		player->pointer_pos.X = (f32)pointer_pos.X / (f32)screensize.X;
+		player->pointer_pos.Y = (f32)pointer_pos.Y / (f32)screensize.Y;
+
+		const v3f point_dir = g_touchcontrols->getShootline().getVector().normalize();
+		// getHorizontalAngle is Irrlicht's "direction to rotation" function
+		// Roll (Z) is always 0
+		const v3f point_rot = point_dir.getHorizontalAngle();
+		player->point_pitch = point_rot.X;
+		player->point_yaw = point_rot.Y;
+	} else {
+		player->pointer_pos.X = 0.5f;
+		player->pointer_pos.Y = 0.5f;
+		player->point_pitch = 0.0f;
+		player->point_yaw = 0.0f;
+	}
 }
 
 

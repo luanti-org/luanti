@@ -201,6 +201,18 @@ public:
 	PlayerControl control;
 	const PlayerControl& getPlayerControl() { return control; }
 
+	// Pointer position, as screen coordinates in the range 0..1
+	// When using a crosshair, this is always (0.5, 0.5)
+	v2f pointer_pos = v2f(0.5f, 0.5f);
+	// Pointing direction, represented as pitch/yaw in degrees
+	// When using a crosshair, it's unspecified what values these will have.
+	f32 point_pitch = 0.0f;
+	f32 point_yaw = 0.0f;
+
+	// Note: If there is no crosshair and the player is not touching the screen,
+	// pointer position and pointing direction are not well-defined. In this
+	// case, the last values are kept.
+
 	PlayerPhysicsOverride physics_override;
 
 	// Returns non-empty `selected` ItemStack. `hand` is a fallback, if specified

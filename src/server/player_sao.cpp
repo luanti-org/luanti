@@ -408,6 +408,15 @@ void PlayerSAO::setPlayerYaw(const float yaw)
 	UnitSAO::setRotation(rotation);
 }
 
+v3f PlayerSAO::getLookDir() const
+{
+	// FIXME: get rid of deprecated method usage
+	float pitch = getRadLookPitchDep();
+	float yaw = getRadYawDep();
+	return v3f(std::cos(pitch) * std::cos(yaw), std::sin(pitch), std::cos(pitch) *
+			std::sin(yaw));
+}
+
 void PlayerSAO::setFov(const float fov)
 {
 	if (m_player && fov != m_fov)

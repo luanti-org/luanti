@@ -1279,12 +1279,42 @@ int ObjectRef::l_get_look_dir(lua_State *L)
 	if (playersao == nullptr)
 		return 0;
 
-	float pitch = playersao->getRadLookPitchDep();
-	float yaw = playersao->getRadYawDep();
-	v3f v(std::cos(pitch) * std::cos(yaw), std::sin(pitch), std::cos(pitch) *
-		std::sin(yaw));
+	push_v3f(L, playersao->getLookDir());
+	return 1;
+}
 
-	push_v3f(L, v);
+// get_point_screen_pos(self)
+int ObjectRef::l_get_point_screen_pos(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	push_v2f(L, player->pointer_pos);
+	return 1;
+}
+
+// get_point_dir(self)
+int ObjectRef::l_get_point_dir(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	PlayerSAO* playersao = getplayersao(ref);
+	if (playersao == nullptr)
+		return 0;
+
+	RemotePlayer *player = playersao->getPlayer();
+
+	if (player->pointer_pos.X == 0.5f && player->pointer_pos.Y == 0.5f) {
+		push_v3f(L, playersao->getLookDir());
+		return 1;
+	}
+
+	const v3f point_rot = v3f(player->point_pitch, player->point_yaw, 0.0f);
+	const v3f point_dir = point_rot.rotationToDirection();
+	push_v3f(L, point_dir);
 	return 1;
 }
 
@@ -2873,6 +2903,8 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod(ObjectRef, is_player),
 	luamethod(ObjectRef, get_player_name),
 	luamethod(ObjectRef, get_look_dir),
+	luamethod(ObjectRef, get_point_screen_pos),
+	luamethod(ObjectRef, get_point_dir),
 	luamethod(ObjectRef, get_look_pitch),
 	luamethod(ObjectRef, get_look_yaw),
 	luamethod(ObjectRef, get_look_vertical),

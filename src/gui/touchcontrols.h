@@ -108,6 +108,14 @@ public:
 	 */
 	line3d<f32> getShootline() { return m_shootline; }
 
+	/**
+	 * Returns the pointer position in pixels.
+	 *
+	 * This may only be used if isShootlineAvailable returns true.
+	 * Otherwise, the normal crosshair position (center of the screen) must be used.
+	 */
+	v2s32 getPointerPos() { return m_move_pos; }
+
 	float getJoystickDirection() { return m_joystick_direction; }
 	float getJoystickSpeed() { return m_joystick_speed; }
 

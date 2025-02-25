@@ -87,6 +87,7 @@ public:
 	f32 getRadLookPitch() const { return m_pitch * core::DEGTORAD; }
 	// Deprecated
 	f32 getRadLookPitchDep() const { return -1.0 * m_pitch * core::DEGTORAD; }
+	v3f getLookDir() const;
 	void setFov(const float pitch);
 	f32 getFov() const { return m_fov; }
 	void setWantedRange(const s16 range);

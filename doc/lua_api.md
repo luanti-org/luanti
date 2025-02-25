@@ -8452,6 +8452,22 @@ child will follow movement and rotation of that bone.
   table {x, y, z} representing the player's instantaneous velocity in nodes/s
 * `add_player_velocity(vel)`: **DEPRECATED**, use add_velocity(vel) instead.
 * `get_look_dir()`: get camera direction as a unit vector
+* `get_point_dir()`: get pointing direction as a unit vector
+    * If the player uses a crosshair, this returns the same value as `get_look_dir`.
+    * If the player uses the touchscreen controls without a crosshair, ...
+        * ...the look direction and the pointing direction may differ.
+        * ...the player doesn't have a well-defined pointing direction when not
+          touching the screen. In this case, `get_point_dir` returns the last
+          pointing direction.
+* `get_point_screen_pos()`: get pointer position in screen-space
+    * Returns a 2D vector in coordinates relative to the screen size:
+      `{x = 0..1, y = 0..1}`
+    * If the player uses a crosshair, this always returns `{x = 0.5, y = 0.5}`
+    * If the player uses the touchscreen controls without a crosshair, ...
+      * ...other values may be returned.
+      * ...the player doesn't have a well-defined pointer position when not
+        touching the screen. In this case, `get_point_screen_pos` returns the
+        last pointer position.
 * `get_look_vertical()`: pitch in radians
     * Angle ranges between -pi/2 and pi/2, which are straight up and down
       respectively.

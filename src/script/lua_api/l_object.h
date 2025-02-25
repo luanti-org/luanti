@@ -218,6 +218,12 @@ private:
 	// get_look_dir(self)
 	static int l_get_look_dir(lua_State *L);
 
+	// get_point_screen_pos(self)
+	static int l_get_point_screen_pos(lua_State *L);
+
+	// get_point_dir(self)
+	static int l_get_point_dir(lua_State *L);
+
 	// DEPRECATED
 	// get_look_pitch(self)
 	static int l_get_look_pitch(lua_State *L);
