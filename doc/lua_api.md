@@ -7872,8 +7872,15 @@ An `InvRef` is a reference to an inventory.
   `ItemStack`.
 * `room_for_item(listname, stack):` returns `true` if the stack of items
   can be fully added to the list
+* `room_for_items(listname, stacks_array):` returns `true` if all the stacks of items
+  in the array can be fully added to the list (since Luanti 5.13.0)
 * `contains_item(listname, stack, [match_meta])`: returns `true` if
   the stack of items can be fully taken from the list.
+    * If `match_meta` is `true`, item metadata is also considered when comparing
+      items. Otherwise, only the items names are compared. Default: `false`
+    * The method ignores wear.
+* `contains_items(listname, stacks_array, [match_meta])`: returns `true` if
+  all the stacks of items in the array can be fully taken from the list (since Luanti 5.13.0).
     * If `match_meta` is `true`, item metadata is also considered when comparing
       items. Otherwise, only the items names are compared. Default: `false`
     * The method ignores wear.

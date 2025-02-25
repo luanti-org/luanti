@@ -310,6 +310,23 @@ int InvRef::l_room_for_item(lua_State *L)
 	return 1;
 }
 
+// room_for_items(self, listname, array of itemstacks) -> true/false
+// Returns true if the items completely fit into the list
+int InvRef::l_room_for_items(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	InvRef *ref = checkObject<InvRef>(L, 1);
+	const char *listname = luaL_checkstring(L, 2);
+	std::vector<ItemStack> items = read_items(L, 3, getServer(L)->idef());
+	InventoryList *list = getlist(L, ref, listname);
+	if(list){
+		lua_pushboolean(L, list->roomForItems(items));
+	} else {
+		lua_pushboolean(L, false);
+	}
+	return 1;
+}
+
 // contains_item(self, listname, itemstack or itemstring or table or nil, [match_meta]) -> true/false
 // Returns true if the list contains the given count of the given item
 int InvRef::l_contains_item(lua_State *L)
@@ -322,6 +339,26 @@ int InvRef::l_contains_item(lua_State *L)
 	bool match_meta = readParam<bool>(L, 4, false);
 	if (list) {
 		lua_pushboolean(L, list->containsItem(item, match_meta));
+	} else {
+		lua_pushboolean(L, false);
+	}
+	return 1;
+}
+
+// contains_items(self, listname, array of itemstacks, [match_meta]) -> true/false
+// Returns true if the list contains the given count of the given items
+int InvRef::l_contains_items(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	InvRef *ref = checkObject<InvRef>(L, 1);
+	const char *listname = luaL_checkstring(L, 2);
+	std::vector<ItemStack> items = read_items(L, 3, getServer(L)->idef());
+	InventoryList *list = getlist(L, ref, listname);
+	bool match_meta = false;
+	if (lua_isboolean(L, 4))
+		match_meta = readParam<bool>(L, 4);
+	if (list) {
+		lua_pushboolean(L, list->containsItems(items, match_meta));
 	} else {
 		lua_pushboolean(L, false);
 	}
@@ -431,7 +468,9 @@ const luaL_Reg InvRef::methods[] = {
 	luamethod(InvRef, set_lists),
 	luamethod(InvRef, add_item),
 	luamethod(InvRef, room_for_item),
+	luamethod(InvRef, room_for_items),
 	luamethod(InvRef, contains_item),
+	luamethod(InvRef, contains_items),
 	luamethod(InvRef, remove_item),
 	luamethod(InvRef, get_location),
 	{0,0}

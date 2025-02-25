@@ -1516,7 +1516,7 @@ void read_inventory_list(lua_State *L, int tableindex,
 	}
 
 	// Get Lua-specified items to insert into the list
-	std::vector<ItemStack> items = read_items(L, tableindex, gdef);
+	std::vector<ItemStack> items = read_items(L, tableindex, gdef->idef());
 	size_t listsize = (forcesize >= 0) ? forcesize : items.size();
 
 	// Create or resize/clear list
@@ -1935,7 +1935,7 @@ void push_items(lua_State *L, const std::vector<ItemStack> &items)
 }
 
 /******************************************************************************/
-std::vector<ItemStack> read_items(lua_State *L, int index, IGameDef *gdef)
+std::vector<ItemStack> read_items(lua_State *L, int index, IItemDefManager *idef)
 {
 	if(index < 0)
 		index = lua_gettop(L) + 1 + index;
@@ -1951,7 +1951,7 @@ std::vector<ItemStack> read_items(lua_State *L, int index, IGameDef *gdef)
 		if (items.size() < (u32) key) {
 			items.resize(key);
 		}
-		items[key - 1] = read_item(L, -1, gdef->idef());
+		items[key - 1] = read_item(L, -1, idef);
 		lua_pop(L, 1);
 	}
 	return items;
