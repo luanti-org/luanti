@@ -7,32 +7,9 @@
 
 
 /****************
- * Black magic! *
- ****************
- * The position hashing is very messed up.
- * It's a lot more complicated than it looks.
+ * The position encoding is a bit messed up because negative
+ * values were not taken into account properly.
  */
-
-static inline s16 unsigned_to_signed(u16 i, u16 max_positive)
-{
-	if (i < max_positive) {
-		return i;
-	}
-
-	return i - (max_positive * 2);
-}
-
-
-// Modulo of a negative number does not work consistently in C
-static inline s64 pythonmodulo(s64 i, s16 mod)
-{
-	if (i >= 0) {
-		return i % mod;
-	}
-	return mod - ((-i) % mod);
-}
-
-
 s64 MapDatabase::getBlockAsInteger(const v3s16 &pos)
 {
 	return (u64) pos.Z * 0x1000000 +
@@ -43,12 +20,10 @@ s64 MapDatabase::getBlockAsInteger(const v3s16 &pos)
 
 v3s16 MapDatabase::getIntegerAsBlock(s64 i)
 {
-	v3s16 pos;
-	pos.X = unsigned_to_signed(pythonmodulo(i, 4096), 2048);
-	i = (i - pos.X) / 4096;
-	pos.Y = unsigned_to_signed(pythonmodulo(i, 4096), 2048);
-	i = (i - pos.Y) / 4096;
-	pos.Z = unsigned_to_signed(pythonmodulo(i, 4096), 2048);
+	// Missing offset so that all negative coordinates become non-negative
+	i = i + 0x800800800;
+	pos.X = (i & 0xFFF) - 0x800;
+	pos.Y = ((i >> 12) & 0xFFF) - 0x800;
+	pos.Z = ((i >> 24) & 0xFFF) - 0x800;
 	return pos;
 }
-
