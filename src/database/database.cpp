@@ -22,6 +22,7 @@ v3s16 MapDatabase::getIntegerAsBlock(s64 i)
 {
 	// Missing offset so that all negative coordinates become non-negative
 	i = i + 0x800800800;
+	v3s16 pos;
 	pos.X = (i & 0xFFF) - 0x800;
 	pos.Y = ((i >> 12) & 0xFFF) - 0x800;
 	pos.Z = ((i >> 24) & 0xFFF) - 0x800;
