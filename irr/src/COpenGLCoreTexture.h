@@ -603,10 +603,14 @@ protected:
 			switch (TextureType) {
 			case GL_TEXTURE_2D:
 			case GL_TEXTURE_CUBE_MAP:
-				if (initTexture)
+				TEST_GL_ERROR(Driver);
+				if (initTexture) {
 					GL.TexImage2D(tmpTextureType, level, InternalFormat, width, height, 0, PixelFormat, PixelType, tmpData);
-				else
+					TEST_GL_ERROR(Driver);
+				} else {
 					GL.TexSubImage2D(tmpTextureType, level, 0, 0, width, height, PixelFormat, PixelType, tmpData);
+					TEST_GL_ERROR(Driver);
+				}
 				TEST_GL_ERROR(Driver);
 				break;
 			default:
