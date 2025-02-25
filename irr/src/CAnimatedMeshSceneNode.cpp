@@ -619,7 +619,7 @@ void CAnimatedMeshSceneNode::animateJoints(bool CalculateAbsolutePositions)
 
 				// Code is slow, needs to be fixed up
 
-				const core::quaternion RotationStart(PretransitingSave[n].getRotationDegrees() * core::DEGTORAD);
+				const core::quaternion RotationStart(PretransitingSave[n].getRotationRadians());
 				const core::quaternion RotationEnd(JointChildSceneNodes[n]->getRotation() * core::DEGTORAD);
 
 				core::quaternion QRotation;
