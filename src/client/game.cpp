@@ -750,6 +750,8 @@ private:
 	bool m_cache_enable_fog;
 	bool m_cache_enable_noclip;
 	bool m_cache_enable_free_move;
+	bool m_cache_toggle_aux1_key;
+	bool m_cache_toggle_sneak_key;
 	f32  m_cache_mouse_sensitivity;
 	f32  m_cache_joystick_frustum_sensitivity;
 	f32  m_repeat_place_time;
@@ -791,6 +793,10 @@ Game::Game() :
 	g_settings->registerChangedCallback("chat_log_level",
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("doubletap_jump",
+		&settingChangedCallback, this);
+	g_settings->registerChangedCallback("toggle_sneak_key",
+		&settingChangedCallback, this);
+	g_settings->registerChangedCallback("toggle_aux1_key",
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("enable_joysticks",
 		&settingChangedCallback, this);
@@ -2444,6 +2450,21 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
+	bool sneak_state = false;
+	if (!m_cache_toggle_sneak_key){
+		sneak_state = isKeyDown(KeyType::SNEAK);
+	} else {
+		sneak_state = player->control.sneak;
+		if (wasKeyPressed(KeyType::SNEAK)) sneak_state = !sneak_state;
+	}
+	bool aux1_state = false;
+	if (!m_cache_toggle_aux1_key){
+		aux1_state = isKeyDown(KeyType::AUX1);
+	} else {
+		aux1_state = player->control.aux1;
+		if (wasKeyPressed(KeyType::AUX1)) aux1_state = !aux1_state;
+	}
+
 
 	PlayerControl control(
 		isKeyDown(KeyType::FORWARD),
@@ -2451,8 +2472,8 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		isKeyDown(KeyType::LEFT),
 		isKeyDown(KeyType::RIGHT),
 		isKeyDown(KeyType::JUMP) || player->getAutojump(),
-		isKeyDown(KeyType::AUX1),
-		isKeyDown(KeyType::SNEAK),
+		aux1_state,  //isKeyDown(KeyType::AUX1),
+		sneak_state, //isKeyDown(KeyType::SNEAK),
 		isKeyDown(KeyType::ZOOM),
 		isKeyDown(KeyType::DIG),
 		isKeyDown(KeyType::PLACE),
@@ -4118,6 +4139,8 @@ void Game::readSettings()
 
 	m_cache_enable_noclip                = g_settings->getBool("noclip");
 	m_cache_enable_free_move             = g_settings->getBool("free_move");
+	m_cache_toggle_sneak_key             = g_settings->getBool("toggle_sneak_key");
+	m_cache_toggle_aux1_key              = g_settings->getBool("toggle_aux1_key");
 
 	m_cache_cam_smoothing = 0;
 	if (g_settings->getBool("cinematic"))

@@ -12,6 +12,7 @@
 #pragma once
 
 #include <string_view>
+#include <string>
 
 extern "C" {
 #include <lua.h>

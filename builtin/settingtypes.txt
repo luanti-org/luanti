@@ -111,6 +111,12 @@ doubletap_jump (Double tap jump for fly) bool false
 #    enabled.
 always_fly_fast (Always fly fast) bool true
 
+#    If enabled, the "Sneak" key will toggle when pressed. Only affects player movement.
+toggle_sneak_key (Toggle sneak key) bool false
+
+#    If enabled, the "Aux1" key will toggle when pressed. Only affects player movement.
+toggle_aux1_key (Toggle aux1 key) bool false
+
 #    The time in seconds it takes between repeated node placements when holding
 #    the place button.
 #

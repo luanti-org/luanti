@@ -13,6 +13,7 @@
 #include "log.h"
 
 #include <iomanip>
+#include <string>
 
 #define HTTP_API(name) \
 	lua_pushstring(L, #name); \
