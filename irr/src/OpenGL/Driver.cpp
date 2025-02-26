@@ -242,15 +242,19 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 	printTextureFormats();
 
 	if (EnableErrorTest) {
-		if (KHRDebugSupported) {
+		if (KHRDebugSupported || KHRDebugGLESSupported) {
 			GL.Enable(GL_DEBUG_OUTPUT);
-			GL.DebugMessageCallback(debugCb, this);
+			if (KHRDebugGLESSupported)
+				GL.DebugMessageCallbackKHR(debugCb, this);
+			else
+				GL.DebugMessageCallback(debugCb, this);
 		} else {
 			os::Printer::log("GL debug extension not available");
 		}
 	} else {
 		// don't do debug things if they are not wanted (even if supported)
 		KHRDebugSupported = false;
+		KHRDebugGLESSupported = false;
 	}
 
 	initQuadsIndices();

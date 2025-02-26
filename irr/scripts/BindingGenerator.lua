@@ -243,7 +243,7 @@ end
 local funcRegex = "GLAPI%s+(.+)APIENTRY%s+(%w+)%s*%((.*)%)";
 local funcRegexES = "GL_APICALL%s+(.+)GL_APIENTRY%s+(%w+)%s*%((.*)%)";
 ParseHeader( glHeaderPath .. "/glcorearb.h", procedures, funcRegex, definitions, consts, nameset );
-ParseHeader( glHeaderPath .. "/gl2ext.h", procedures, funcRegexES, List(), consts, nameset, true );
+ParseHeader( glHeaderPath .. "/gl2ext.h", procedures, funcRegexES, List(), consts, nameset );
 -- Typedefs are redirected to a dummy list here on purpose.
 -- The only unique typedef from gl2ext is this:
 definitions:Add "\ttypedef void *GLeglClientBufferEXT;";
@@ -317,20 +317,21 @@ local pointers = List();
 local loader = List();
 
 for s, str in ipairs( uniqueNames ) do
-	pointers:Add( ("\t%s %s = NULL;")( pfnFormat( str:upper() ), str ) );
 	local typeDefGenerated = false;
 	for i=1, #priorityList do
 		local k = priorityList[i];
 		local proc = procTable[str][k]
 		if proc then
+			local vendor = k == "core" and "" or k;
+			fname = str..vendor
+			pointers:Add( ("\t%s %s = NULL;")( pfnFormat( str:upper() ), fname ) );
 			if not typeDefGenerated then
 				typedefs:Add( GetProcedureTypedef( proc ) );
 				typeDefGenerated = true;
 			end
-			local vendor = k == "core" and "" or k;
 			loader:AddFormat(
 				'\tif (!%s) %s = (%s)cmgr->getProcAddress("%s");\n',
-				str, str, pfnFormat( proc.name:upper() ), ("gl%s%s")(str,vendor)
+				fname, fname, pfnFormat( proc.name:upper() ), ("gl%s")(fname)
 			);
 		end
 	end
