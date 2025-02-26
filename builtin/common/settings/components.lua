@@ -442,6 +442,51 @@ local function make_noise_params(setting)
 	}
 end
 
+function make.key(setting)
+	local btn_bind = "bind_" .. setting.name
+	local btn_clear = "unbind_" .. setting.name
+	return {
+		info_text = setting.comment,
+		setting = setting,
+
+		get_formspec = function(self, avail_w)
+			self.resettable = core.settings:has(setting.name)
+			local btn_bind_width = math.max(2.5, avail_w/2)
+			local value = core.settings:get(setting.name)
+			local fs = {
+				("label[0,0.4;%s]"):format(get_label(setting)),
+				("button_key[%f,0;%f,0.8;%s;%s]"):format(
+						btn_bind_width, btn_bind_width-0.8,
+						btn_bind, core.formspec_escape(value)),
+				("image_button[%f,0;0.8,0.8;%s;%s;]"):format(avail_w - 0.8,
+						core.formspec_escape(defaulttexturedir .. "clear.png"),
+						btn_clear),
+			}
+			local height = 0.8
+			if value ~= "" then
+				for _, o in pairs(core.full_settings) do
+					if o.type == "key" and o.name ~= setting.name and core.settings:get(o.name) == value then
+						table.insert(fs, ("label[0,%f;%s]"):format(height+0.3,
+								fgettext("Keybinding conflict: $1", o.readable_name)))
+						height = height+0.6
+					end
+				end
+			end
+			return table.concat(fs), height
+		end,
+
+		on_submit = function(self, fields)
+			if fields[btn_bind] then
+				core.settings:set(setting.name, fields[btn_bind])
+				return true
+			elseif fields[btn_clear] then
+				core.settings:set(setting.name, "")
+				return true
+			end
+		end,
+	}
+end
+
 if INIT == "pause_menu" then
 	-- Making the noise parameter dialog work in the pause menu settings would
 	-- require porting "FSTK" (at least the dialog API) from the mainmenu formspec

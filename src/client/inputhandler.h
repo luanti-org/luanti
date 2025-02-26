@@ -9,6 +9,8 @@
 #include "joystick_controller.h"
 #include <list>
 #include "keycode.h"
+#include "settings.h"
+#include "util/string.h"
 
 class InputHandler;
 
@@ -226,6 +228,9 @@ public:
 	{
 		keycache.handler = this;
 		keycache.populate();
+		for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
+			if (str_starts_with(name, "keymap_"))
+				g_settings->registerChangedCallback(name, &settingChangedCallback, this);
 	}
 
 	virtual ~InputHandler() = default;
@@ -259,6 +264,12 @@ public:
 
 	virtual void clear() {}
 	virtual void releaseAllKeys() {}
+
+	static void settingChangedCallback(const std::string &name, void *data)
+	{
+		clearKeyCache();
+		static_cast<InputHandler *>(data)->keycache.populate();
+	}
 
 	JoystickController joystick;
 	KeyCache keycache;
