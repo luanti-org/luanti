@@ -1780,4 +1780,16 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.bloom_strength_factor
 				>> lighting.bloom_radius;
 	}
+	if (pkt->getRemainingBytes() >= 72) {
+		*pkt >> lighting.artificial_light_color;
+		*pkt >> lighting.volumetric_beta_r0;
+		*pkt >> lighting.vignette.dark
+				>> lighting.vignette.bright
+				>> lighting.vignette.power;
+		*pkt >> lighting.cdl.slope;
+		*pkt >> lighting.cdl.offset;
+		*pkt >> lighting.cdl.power;
+		*pkt >> lighting.foliage_translucency;
+		*pkt >> lighting.specular_intensity;
+	}
 }

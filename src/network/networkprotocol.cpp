@@ -61,6 +61,7 @@
 		[scheduled bump for 5.10.0]
 	PROTOCOL VERSION 47
 		Add particle blend mode "clip"
+		Add artificial light color, beta_r0, vignette, specular intensity, foliage translucency and cdl parameters to Lighting packets
 		[scheduled bump for 5.11.0]
 */
 

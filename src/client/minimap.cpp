@@ -592,8 +592,8 @@ void Minimap::drawMinimap(core::rect<s32> rect)
 
 	video::SMaterial &material = m_meshbuffer->getMaterial();
 	material.forEachTexture([] (auto &tex) {
-		tex.MinFilter = video::ETMINF_LINEAR_MIPMAP_LINEAR;
-		tex.MagFilter = video::ETMAGF_LINEAR;
+		tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
+		tex.MagFilter = video::ETMAGF_NEAREST;
 	});
 	material.TextureLayers[0].Texture = minimap_texture;
 	material.TextureLayers[1].Texture = data->heightmap_texture;

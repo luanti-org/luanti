@@ -197,12 +197,14 @@ class GameGlobalShaderConstantSetter : public IShaderConstantSetter
 		m_animation_timer_delta_vertex{"animationTimerDelta"};
 	CachedPixelShaderSetting<float>
 		m_animation_timer_delta_pixel{"animationTimerDelta"};
+	CachedPixelShaderSetting<float, 3> m_artificial_light{ "artificialLight" };
 	CachedPixelShaderSetting<float, 3> m_day_light{"dayLight"};
 	CachedPixelShaderSetting<float, 3> m_minimap_yaw{"yawVec"};
-	CachedPixelShaderSetting<float, 3> m_camera_offset_pixel{"cameraOffset"};
+	CachedPixelShaderSetting<float> m_minimap_size{"mapSize"};
 	CachedVertexShaderSetting<float, 3> m_camera_offset_vertex{"cameraOffset"};
-	CachedPixelShaderSetting<float, 3> m_camera_position_pixel{ "cameraPosition" };
-	CachedVertexShaderSetting<float, 3> m_camera_position_vertex{ "cameraPosition" };
+	CachedPixelShaderSetting<float, 3> m_camera_offset_pixel{ "cameraOffset" };
+	CachedVertexShaderSetting<float, 3> m_camera_position_vertex{"cameraPosition"};
+	CachedPixelShaderSetting<float, 3> m_camera_position_pixel{"cameraPosition"};
 	CachedPixelShaderSetting<SamplerLayer_t> m_texture0{"texture0"};
 	CachedPixelShaderSetting<SamplerLayer_t> m_texture1{"texture1"};
 	CachedPixelShaderSetting<SamplerLayer_t> m_texture2{"texture2"};
@@ -219,10 +221,13 @@ class GameGlobalShaderConstantSetter : public IShaderConstantSetter
 		}};
 	float m_user_exposure_compensation;
 	bool m_bloom_enabled;
+	bool m_color_grading_enabled;
 	CachedPixelShaderSetting<float> m_bloom_intensity_pixel{"bloomIntensity"};
 	CachedPixelShaderSetting<float> m_bloom_strength_pixel{"bloomStrength"};
 	CachedPixelShaderSetting<float> m_bloom_radius_pixel{"bloomRadius"};
 	CachedPixelShaderSetting<float> m_saturation_pixel{"saturation"};
+	float m_gamma;
+	CachedPixelShaderSetting<float> m_gamma_pixel{"gamma"};
 	bool m_volumetric_light_enabled;
 	CachedPixelShaderSetting<float, 3>
 		m_sun_position_pixel{"sunPositionScreen"};
@@ -232,6 +237,18 @@ class GameGlobalShaderConstantSetter : public IShaderConstantSetter
 	CachedPixelShaderSetting<float> m_moon_brightness_pixel{"moonBrightness"};
 	CachedPixelShaderSetting<float>
 		m_volumetric_light_strength_pixel{"volumetricLightStrength"};
+	CachedPixelShaderSetting<float, 3>
+		m_volumetric_beta_r0_pixel{ "beta_r0_l" };
+	CachedVertexShaderSetting<float, 3>
+		m_volumetric_beta_r0_vertex{ "beta_r0_l" };
+	CachedPixelShaderSetting<float, 3> m_cdl_slope_pixel{"cdl_slope"};
+	CachedPixelShaderSetting<float, 3> m_cdl_offset_pixel{"cdl_offset"};
+	CachedPixelShaderSetting<float, 3> m_cdl_power_pixel{"cdl_power"};
+	CachedPixelShaderSetting<float> m_vignette_dark_pixel{"vignette_dark"};
+	CachedPixelShaderSetting<float> m_vignette_bright_pixel{"vignette_bright"};
+	CachedPixelShaderSetting<float> m_vignette_power_pixel{"vignette_power"};
+	CachedPixelShaderSetting<float> m_foliage_translucency_pixel{ "foliage_translucency" };
+	CachedPixelShaderSetting<float> m_specular_intensity_pixel{ "specular_intensity" };
 
 	static constexpr std::array<const char*, 1> SETTING_CALLBACKS = {
 		"exposure_compensation",
@@ -261,6 +278,8 @@ public:
 		m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
 		m_bloom_enabled = g_settings->getBool("enable_bloom");
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
+		m_gamma = g_settings->getFloat("secondstage_gamma");
+		m_color_grading_enabled = g_settings->getBool("enable_color_grading");
 	}
 
 	~GameGlobalShaderConstantSetter()
@@ -287,14 +306,16 @@ public:
 		if (m_client->getMinimap()) {
 			v3f minimap_yaw = m_client->getMinimap()->getYawVec();
 			m_minimap_yaw.set(minimap_yaw, services);
+			float minimap_size = m_client->getMinimap()->getModeDef().map_size;
+			m_minimap_size.set(&minimap_size, services);
 		}
 
 		v3f offset = intToFloat(m_client->getCamera()->getOffset(), BS);
-		m_camera_offset_pixel.set(offset, services);
 		m_camera_offset_vertex.set(offset, services);
+		m_camera_offset_pixel.set(offset, services);
 
 		v3f camera_position = m_client->getCamera()->getPosition();
-		m_camera_position_pixel.set(camera_position, services);
+		m_camera_position_vertex.set(camera_position, services);
 		m_camera_position_pixel.set(camera_position, services);
 
 		SamplerLayer_t tex_id;
@@ -335,6 +356,26 @@ public:
 
 		float saturation = lighting.saturation;
 		m_saturation_pixel.set(&saturation, services);
+		video::SColorf artificial_light = lighting.artificial_light_color;
+		m_artificial_light.set(artificial_light, services);
+
+		float gamma = m_gamma;
+		m_gamma_pixel.set(&gamma, services);
+
+		const Vignette &vignette_params = lighting.vignette;
+		m_vignette_dark_pixel.set(&vignette_params.dark, services);
+		m_vignette_bright_pixel.set(&vignette_params.bright, services);
+		m_vignette_power_pixel.set(&vignette_params.power, services);
+
+		m_foliage_translucency_pixel.set(&lighting.foliage_translucency, services);
+		m_specular_intensity_pixel.set(&lighting.specular_intensity, services);
+
+		if (m_color_grading_enabled) {
+			const ColorDecisionList& cdl_params = lighting.cdl;
+			m_cdl_slope_pixel.set(cdl_params.slope, services);
+			m_cdl_offset_pixel.set(cdl_params.offset, services);
+			m_cdl_power_pixel.set(cdl_params.power, services);
+		}
 
 		if (m_volumetric_light_enabled) {
 			// Map directional light to screen space
@@ -379,6 +420,10 @@ public:
 			float volumetric_light_strength = lighting.volumetric_light_strength;
 			m_volumetric_light_strength_pixel.set(&volumetric_light_strength, services);
 		}
+
+		v3f beta_r0 = lighting.volumetric_beta_r0;
+		m_volumetric_beta_r0_vertex.set(beta_r0, services);
+		m_volumetric_beta_r0_pixel.set(beta_r0, services);
 	}
 
 	void onSetMaterial(const video::SMaterial &material) override
