@@ -422,7 +422,7 @@ void MapblockMeshGenerator::drawSolidNode()
 			if (cur_node.f->drawtype == NDT_LIQUID) {
 				if (cur_node.f->sameLiquidRender(f2))
 					continue;
-				backface_culling = f2.solidness || f2.visual_solidness;
+				backface_culling = f2.solidness || f2.visual_solidness || f2.drawtype == NDT_NODEBOX;
 			}
 		}
 		faces |= 1 << face;
