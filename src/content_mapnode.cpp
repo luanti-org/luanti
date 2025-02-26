@@ -4,7 +4,6 @@
 
 #include "content_mapnode.h"
 
-#include "irrlichttypes_bloated.h"
 #include "mapnode.h"
 #include "nodedef.h"
 #include "nameidmapping.h"

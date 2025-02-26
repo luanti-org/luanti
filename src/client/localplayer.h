@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "irr_aabb3d.h"
 #include "player.h"
 #include "environment.h"
 #include "constants.h"

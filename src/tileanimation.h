@@ -5,7 +5,7 @@
 #pragma once
 
 #include <iostream>
-#include "irrlichttypes_bloated.h"
+#include "irr_v2d.h"
 
 enum TileAnimationType : u8
 {

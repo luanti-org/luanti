@@ -7,8 +7,8 @@
 #include "client/texturesource.h"
 #include "client/fontengine.h"
 #include "debug.h"
-#include "irrlichttypes_bloated.h"
 #include "util/string.h"
+#include "irr_v2d.h"
 #include <algorithm>
 #include <array>
 #include <vector>

@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
 #include "lua_api/l_base.h"
 
 class IMetadata;

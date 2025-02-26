@@ -5,7 +5,8 @@
 #pragma once
 
 #include "util/pointer.h" // Buffer<T>
-#include "irrlichttypes_bloated.h"
+#include "irr_v3d.h"
+#include "irr_v2d.h"
 #include "networkprotocol.h"
 #include <SColor.h>
 #include <vector>

@@ -4,7 +4,6 @@
 
 #include "object_properties.h"
 #include "irrlicht_changes/printing.h"
-#include "irrlichttypes_bloated.h"
 #include "exceptions.h"
 #include "log.h"
 #include "util/serialize.h"

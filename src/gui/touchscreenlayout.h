@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include "irrlichttypes.h"
+#include "irr_v2d.h"
 #include "irr_ptr.h"
-#include "irrlichttypes_bloated.h"
 #include "rect.h"
 #include <iostream>
 #include <unordered_map>

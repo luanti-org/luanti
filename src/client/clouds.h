@@ -4,7 +4,11 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
+#include <SColor.h>
+#include <irrTypes.h>
+#include "irr_v3d.h"
+#include "irr_v2d.h"
+#include "irr_aabb3d.h"
 #include "constants.h"
 #include "irr_ptr.h"
 #include "skyparams.h"

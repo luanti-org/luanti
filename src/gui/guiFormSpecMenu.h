@@ -9,7 +9,6 @@
 #include <stack>
 #include <unordered_set>
 
-#include "irrlichttypes_bloated.h"
 #include "irr_ptr.h"
 #include "inventory.h"
 #include "inventorymanager.h"

@@ -9,7 +9,6 @@
 #include "lua_api/l_base.h"
 #include "lua_api/l_metadata.h"
 #include "lua_api/l_item.h"
-#include "irrlichttypes_bloated.h"
 
 class ItemStackMetaRef : public MetaDataRef
 {

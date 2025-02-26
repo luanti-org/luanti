@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
 #include "clientsimpleobject.h"
+#include "irr_v3d.h"
+#include "irr_v2d.h"
 
 namespace irr::scene
 {
