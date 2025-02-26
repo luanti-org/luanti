@@ -625,7 +625,8 @@ void Camera::wield(const ItemStack &item)
 	}
 }
 
-void Camera::drawWieldedTool(irr::core::matrix4* translation)
+void Camera::drawWieldedTool(irr::core::matrix4* translation,
+		const video::SColorf &post_color)
 {
 	// Clear Z buffer so that the wielded tool stays in front of world geometry
 	m_wieldmgr->getVideoDriver()->clearBuffers(video::ECBF_DEPTH);
@@ -649,7 +650,9 @@ void Camera::drawWieldedTool(irr::core::matrix4* translation)
 		cam->updateAbsolutePosition();
 		cam->setTarget(focusPoint);
 	}
+	m_client->setWieldPostEffectColor(post_color);
 	m_wieldmgr->drawAll();
+	m_client->setWieldPostEffectColor(video::SColorf(0.0f,0.0f,0.0f,0.0f));
 }
 
 void Camera::drawNametags()
