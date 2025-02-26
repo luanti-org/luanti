@@ -141,6 +141,12 @@ invert_mouse (Invert mouse) bool false
 #    Requires: keyboard_mouse
 mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
 
+#    Use relative mouse mode for camera mouse movement.
+#    This is generally preferable, but on some setups it causes issues.
+#
+#    Requires: keyboard_mouse
+enable_relative_mouse_mode (Enable relative mouse mode) bool true
+
 #    Enable mouse wheel (scroll) for item selection in hotbar.
 #
 #    Requires: keyboard_mouse

@@ -289,6 +289,10 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 		SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 
+		// For sdl2-compat. We have a setting enable_relative_mouse_mode, so
+		// we wan't SDL to interfere here.
+		SDL_SetHint("SDL_MOUSE_EMULATE_WARP_WITH_RELATIVE", "0");
+
 #if defined(SDL_HINT_APP_NAME)
 		SDL_SetHint(SDL_HINT_APP_NAME, "Luanti");
 #endif
