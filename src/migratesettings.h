@@ -1,10 +1,8 @@
 // Minetest
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-#include "gui/touchscreenlayout.h"
 #include "settings.h"
 #include "server.h"
-#include "util/enum_string.h"
 
 void migrate_settings()
 {
@@ -34,8 +32,7 @@ void migrate_settings()
 	// Convert touch_use_crosshair to touch_interaction_style
 	if (g_settings->existsLocal("touch_use_crosshair")) {
 		bool value = g_settings->getBool("touch_use_crosshair");
-		g_settings->set("touch_interaction_style",
-				enum_to_string(es_TouchInteractionStyle, value ? TAP_CROSSHAIR : TAP));
+		g_settings->set("touch_interaction_style", value ? "tap_crosshair" : "tap");
 		g_settings->remove("touch_use_crosshair");
 	}
 }

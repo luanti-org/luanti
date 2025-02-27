@@ -27,7 +27,7 @@ enum TouchInteractionStyle : u8
 	TAP_CROSSHAIR,
 	BUTTONS_CROSSHAIR,
 };
-extern EnumString es_TouchInteractionStyle[];
+extern const struct EnumString es_TouchInteractionStyle[];
 
 enum touch_gui_button_id : u8
 {

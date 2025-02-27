@@ -14,7 +14,7 @@
 #include "IGUIStaticText.h"
 #include "util/enum_string.h"
 
-struct EnumString es_TouchInteractionStyle[] =
+const struct EnumString es_TouchInteractionStyle[] =
 {
 	{TAP, "tap"},
 	{TAP_CROSSHAIR, "tap_crosshair"},
