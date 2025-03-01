@@ -1416,9 +1416,9 @@ void ModApiEnv::Initialize(lua_State *L, int top)
 	API_FCT(emerge_area);
 	API_FCT(delete_area);
 	API_FCT(get_value_noise);
-	registerFunction(L, get_perlin, l_get_value_noise, top); // deprecated name
+	registerFunction(L, "get_perlin", l_get_value_noise, top); // deprecated name
 	API_FCT(get_value_noise_map);
-	registerFunction(L, get_perlin_map, l_get_value_noise_map, top); // deprecated name
+	registerFunction(L, "get_perlin_map", l_get_value_noise_map, top); // deprecated name
 	API_FCT(get_voxel_manip);
 	API_FCT(clear_objects);
 	API_FCT(spawn_tree);

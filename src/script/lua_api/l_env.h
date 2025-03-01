@@ -179,11 +179,11 @@ private:
 	// delete_area(p1, p2) -> true/false
 	static int l_delete_area(lua_State *L);
 
-	// get_perlin(seeddiff, octaves, persistence, scale)
+	// get_value_noise(seeddiff, octaves, persistence, scale)
 	// returns world-specific ValueNoise
 	static int l_get_value_noise(lua_State *L);
 
-	// get_perlin_map(noiseparams, size)
+	// get_value_noise_map(noiseparams, size)
 	// returns world-specific ValueNoiseMap
 	static int l_get_value_noise_map(lua_State *L);
 
