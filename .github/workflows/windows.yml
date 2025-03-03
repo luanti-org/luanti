@@ -70,6 +70,8 @@ jobs:
   msvc:
     name: VS 2019 ${{ matrix.config.arch }}-${{ matrix.type }}
     runs-on: windows-2019
+    env:
+      VCPKG_DEFAULT_TRIPLET: ${{matrix.config.vcpkg_triplet}}
     strategy:
       fail-fast: false
       matrix:
@@ -93,11 +95,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Restore from cache and run vcpkg
-        uses: lukka/run-vcpkg@v7
+        uses: lukka/run-vcpkg@v11
         with:
           vcpkgDirectory: '${{ github.workspace }}\vcpkg'
-          appendedCacheKey: ${{ matrix.config.vcpkg_triplet }}
-          vcpkgTriplet: ${{ matrix.config.vcpkg_triplet }}
 
       - name: CMake
         # Note: See #15976 for why CMAKE_POLICY_VERSION_MINIMUM=3.5 is set.
