@@ -293,6 +293,7 @@ if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
 endif()
 
 add_subdirectory(lib/tiniergltf)
+add_subdirectory(lib/fastnoiselite)
 
 # Subdirectories
 # Be sure to add all relevant definitions above this

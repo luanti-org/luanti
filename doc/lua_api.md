@@ -4585,7 +4585,7 @@ octaves to cover a particular range of 'wavelengths'.
 ### `flags`
 
 Leave this field unset for no special handling.
-Currently supported are `defaults`, `eased` and `absvalue`:
+Currently supported are `defaults`, `eased`, `absvalue`, `perlin`, `simplex`, and `compat`:
 
 #### `defaults`
 
@@ -4613,6 +4613,25 @@ noise = offset + scale * (abs(octave1) +
                           abs(octave3) * persistence ^ 2 +
                           abs(octave4) * persistence ^ 3 +
                           ...)
+
+#### `perlin`
+
+Instead of the old Luanti noise, this uses the Perlin noise from FastNoiseLite.
+Note that this noise has a slightly different scale, it is bound by -1:+1.
+It can be combined with the `absvalue` and `compat` flags.
+
+#### `simplex`
+
+OpenSimplex2 noise via the FastNoiseLite library. This noise has a somewhat finer
+resolution than Perlin noise and Luanti value noise, as well as a different
+standard deviation.
+It can be combined with the `absvalue` and `compat` flags.
+
+#### `compat`
+
+This flag only applies to `perlin` and `simplex` modes and activates some scaling
+heuristics to make these two more similar in scale and magnitude to default Luanti
+value noise.
 
 ### Format example
 
