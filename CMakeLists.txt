@@ -268,6 +268,7 @@ if(UNIX AND NOT APPLE)
 	install(FILES "misc/luanti-xorg-icon-128.png"
 		DESTINATION "${ICONDIR}/hicolor/128x128/apps"
 		RENAME "luanti.png")
+	install(FILES "misc/bash_completion.sh" DESTINATION "share/bash-completion/completions" RENAME "luanti")
 endif()
 
 if(APPLE)
