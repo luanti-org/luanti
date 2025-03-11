@@ -1,0 +1,29 @@
+{
+  "builtin-baseline": "efb1e7436979a30c4d3e5ab2375fd8e2e461d541",
+  "dependencies": [
+    "zlib",
+    "zstd",
+    {
+      "name": "curl",
+      "features": [
+        "winssl"
+      ]
+    },
+    "openal-soft",
+    "libvorbis",
+    "libogg",
+    "libjpeg-turbo",
+    "sqlite3",
+    "freetype",
+    "luajit",
+    "gmp",
+    "jsoncpp",
+    {
+      "name": "gettext",
+      "features": [
+        "tools"
+      ]
+    },
+    "sdl2"
+  ]
+}
