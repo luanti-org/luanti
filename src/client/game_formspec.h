@@ -55,9 +55,7 @@ private:
 	InputHandler *m_input;
 	std::unique_ptr<PauseMenuScripting> m_pause_script;
 
-	// Default: "". If other than "": Empty show_formspec packets will only
-	// close the formspec when the formname matches
-	std::string m_formname;
+	/// The currently open formspec that is not a submenu of the pause menu
 	GUIFormSpecMenu *m_formspec = nullptr;
 
 	bool handleEmptyFormspec(const std::string &formspec, const std::string &formname);
