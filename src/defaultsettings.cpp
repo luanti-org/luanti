@@ -134,69 +134,69 @@ void set_default_settings()
 #else
 #define USEKEY2(name, _, value) settings->setDefault(name, value)
 #endif
-	USEKEY2("keymap_forward", "<26>", "KEY_KEY_W");
+	USEKEY2("keymap_forward", "SYSTEM_SCANCODE_26", "KEY_KEY_W");
 	settings->setDefault("keymap_autoforward", "");
-	USEKEY2("keymap_backward", "<22>", "KEY_KEY_S");
-	USEKEY2("keymap_left", "<4>", "KEY_KEY_A");
-	USEKEY2("keymap_right", "<7>", "KEY_KEY_D");
-	USEKEY2("keymap_jump", "<44>", "KEY_SPACE");
+	USEKEY2("keymap_backward", "SYSTEM_SCANCODE_22", "KEY_KEY_S");
+	USEKEY2("keymap_left", "SYSTEM_SCANCODE_4", "KEY_KEY_A");
+	USEKEY2("keymap_right", "SYSTEM_SCANCODE_7", "KEY_KEY_D");
+	USEKEY2("keymap_jump", "SYSTEM_SCANCODE_44", "KEY_SPACE");
 #if !USE_SDL2 && defined(__MACH__) && defined(__APPLE__)
 	// Altered settings for CIrrDeviceOSX
 	settings->setDefault("keymap_sneak", "KEY_SHIFT");
 #else
-	USEKEY2("keymap_sneak", "<225>", "KEY_LSHIFT");
+	USEKEY2("keymap_sneak", "SYSTEM_SCANCODE_225", "KEY_LSHIFT");
 #endif
 	settings->setDefault("keymap_dig", "KEY_LBUTTON");
 	settings->setDefault("keymap_place", "KEY_RBUTTON");
-	USEKEY2("keymap_drop", "<20>", "KEY_KEY_Q");
-	USEKEY2("keymap_zoom", "<29>", "KEY_KEY_Z");
-	USEKEY2("keymap_inventory", "<12>", "KEY_KEY_I");
-	USEKEY2("keymap_aux1", "<8>", "KEY_KEY_E");
-	USEKEY2("keymap_chat", "<23>", "KEY_KEY_T");
-	USEKEY2("keymap_cmd", "<56>", "/");
-	USEKEY2("keymap_cmd_local", "<55>", ".");
-	USEKEY2("keymap_minimap", "<25>", "KEY_KEY_V");
-	USEKEY2("keymap_console", "<67>", "KEY_F10");
+	USEKEY2("keymap_drop", "SYSTEM_SCANCODE_20", "KEY_KEY_Q");
+	USEKEY2("keymap_zoom", "SYSTEM_SCANCODE_29", "KEY_KEY_Z");
+	USEKEY2("keymap_inventory", "SYSTEM_SCANCODE_12", "KEY_KEY_I");
+	USEKEY2("keymap_aux1", "SYSTEM_SCANCODE_8", "KEY_KEY_E");
+	USEKEY2("keymap_chat", "SYSTEM_SCANCODE_23", "KEY_KEY_T");
+	USEKEY2("keymap_cmd", "SYSTEM_SCANCODE_56", "/");
+	USEKEY2("keymap_cmd_local", "SYSTEM_SCANCODE_55", ".");
+	USEKEY2("keymap_minimap", "SYSTEM_SCANCODE_25", "KEY_KEY_V");
+	USEKEY2("keymap_console", "SYSTEM_SCANCODE_67", "KEY_F10");
 
 	// see <https://github.com/luanti-org/luanti/issues/12792>
-	USEKEY2("keymap_rangeselect", has_touch ? "<21>" : "", has_touch ? "KEY_KEY_R" : "");
+	USEKEY2("keymap_rangeselect", has_touch ? "SYSTEM_SCANCODE_21" : "", has_touch ? "KEY_KEY_R" : "");
 
-	USEKEY2("keymap_freemove", "<14>", "KEY_KEY_K");
+	USEKEY2("keymap_freemove", "SYSTEM_SCANCODE_14", "KEY_KEY_K");
 	settings->setDefault("keymap_pitchmove", "");
-	USEKEY2("keymap_fastmove", "<13>", "KEY_KEY_J");
-	USEKEY2("keymap_noclip", "<11>", "KEY_KEY_H");
-	USEKEY2("keymap_hotbar_next", "<17>", "KEY_KEY_N");
-	USEKEY2("keymap_hotbar_previous", "<5>", "KEY_KEY_B");
-	USEKEY2("keymap_mute", "<16>", "KEY_KEY_M");
+	USEKEY2("keymap_fastmove", "SYSTEM_SCANCODE_13", "KEY_KEY_J");
+	USEKEY2("keymap_noclip", "SYSTEM_SCANCODE_11", "KEY_KEY_H");
+	USEKEY2("keymap_hotbar_next", "SYSTEM_SCANCODE_17", "KEY_KEY_N");
+	USEKEY2("keymap_hotbar_previous", "SYSTEM_SCANCODE_5", "KEY_KEY_B");
+	USEKEY2("keymap_mute", "SYSTEM_SCANCODE_16", "KEY_KEY_M");
 	settings->setDefault("keymap_increase_volume", "");
 	settings->setDefault("keymap_decrease_volume", "");
 	settings->setDefault("keymap_cinematic", "");
 	settings->setDefault("keymap_toggle_block_bounds", "");
-	USEKEY2("keymap_toggle_hud", "<58>", "KEY_F1");
-	USEKEY2("keymap_toggle_chat", "<59>", "KEY_F2");
-	USEKEY2("keymap_toggle_fog", "<60>", "KEY_F3");
+	USEKEY2("keymap_toggle_hud", "SYSTEM_SCANCODE_58", "KEY_F1");
+	USEKEY2("keymap_toggle_chat", "SYSTEM_SCANCODE_59", "KEY_F2");
+	USEKEY2("keymap_toggle_fog", "SYSTEM_SCANCODE_60", "KEY_F3");
 #ifndef NDEBUG
-	USEKEY2("keymap_toggle_update_camera", "<61>", "KEY_F4");
+	USEKEY2("keymap_toggle_update_camera", "SYSTEM_SCANCODE_61", "KEY_F4");
 #else
 	settings->setDefault("keymap_toggle_update_camera", "");
 #endif
-	USEKEY2("keymap_toggle_debug", "<62>", "KEY_F5");
-	USEKEY2("keymap_toggle_profiler", "<63>", "KEY_F6");
-	USEKEY2("keymap_camera_mode", "<6>", "KEY_KEY_C");
-	USEKEY2("keymap_screenshot", "<69>", "KEY_F12");
-	USEKEY2("keymap_fullscreen", "<68>", "KEY_F11");
-	USEKEY2("keymap_increase_viewing_range_min", "<46>", "+");
-	USEKEY2("keymap_decrease_viewing_range_min", "<45>", "-");
-	USEKEY2("keymap_slot1", "<30>", "KEY_KEY_1");
-	USEKEY2("keymap_slot2", "<31>", "KEY_KEY_2");
-	USEKEY2("keymap_slot3", "<32>", "KEY_KEY_3");
-	USEKEY2("keymap_slot4", "<33>", "KEY_KEY_4");
-	USEKEY2("keymap_slot5", "<34>", "KEY_KEY_5");
-	USEKEY2("keymap_slot6", "<35>", "KEY_KEY_6");
-	USEKEY2("keymap_slot7", "<36>", "KEY_KEY_7");
-	USEKEY2("keymap_slot8", "<37>", "KEY_KEY_8");
-	USEKEY2("keymap_slot9", "<38>", "KEY_KEY_9");
-	USEKEY2("keymap_slot10", "<39>", "KEY_KEY_0");
+	USEKEY2("keymap_toggle_debug", "SYSTEM_SCANCODE_62", "KEY_F5");
+	USEKEY2("keymap_toggle_profiler", "SYSTEM_SCANCODE_63", "KEY_F6");
+	USEKEY2("keymap_camera_mode", "SYSTEM_SCANCODE_6", "KEY_KEY_C");
+	USEKEY2("keymap_screenshot", "SYSTEM_SCANCODE_69", "KEY_F12");
+	USEKEY2("keymap_fullscreen", "SYSTEM_SCANCODE_68", "KEY_F11");
+	USEKEY2("keymap_increase_viewing_range_min", "SYSTEM_SCANCODE_46", "+");
+	USEKEY2("keymap_decrease_viewing_range_min", "SYSTEM_SCANCODE_45", "-");
+	USEKEY2("keymap_slot1", "SYSTEM_SCANCODE_30", "KEY_KEY_1");
+	USEKEY2("keymap_slot2", "SYSTEM_SCANCODE_31", "KEY_KEY_2");
+	USEKEY2("keymap_slot3", "SYSTEM_SCANCODE_32", "KEY_KEY_3");
+	USEKEY2("keymap_slot4", "SYSTEM_SCANCODE_33", "KEY_KEY_4");
+	USEKEY2("keymap_slot5", "SYSTEM_SCANCODE_34", "KEY_KEY_5");
+	USEKEY2("keymap_slot6", "SYSTEM_SCANCODE_35", "KEY_KEY_6");
+	USEKEY2("keymap_slot7", "SYSTEM_SCANCODE_36", "KEY_KEY_7");
+	USEKEY2("keymap_slot8", "SYSTEM_SCANCODE_37", "KEY_KEY_8");
+	USEKEY2("keymap_slot9", "SYSTEM_SCANCODE_38", "KEY_KEY_9");
+	USEKEY2("keymap_slot10", "SYSTEM_SCANCODE_39", "KEY_KEY_0");
 	settings->setDefault("keymap_slot11", "");
 	settings->setDefault("keymap_slot12", "");
 	settings->setDefault("keymap_slot13", "");
@@ -222,10 +222,10 @@ void set_default_settings()
 
 #ifndef NDEBUG
 	// Default keybinds for quicktune in debug builds
-	USEKEY2("keymap_quicktune_prev", "<74>", "KEY_HOME");
-	USEKEY2("keymap_quicktune_next", "<77>", "KEY_END");
-	USEKEY2("keymap_quicktune_dec", "<81>", "KEY_NEXT");
-	USEKEY2("keymap_quicktune_inc", "<82>", "KEY_PRIOR");
+	USEKEY2("keymap_quicktune_prev", "SYSTEM_SCANCODE_74", "KEY_HOME");
+	USEKEY2("keymap_quicktune_next", "SYSTEM_SCANCODE_77", "KEY_END");
+	USEKEY2("keymap_quicktune_dec", "SYSTEM_SCANCODE_81", "KEY_NEXT");
+	USEKEY2("keymap_quicktune_inc", "SYSTEM_SCANCODE_82", "KEY_PRIOR");
 #else
 	settings->setDefault("keymap_quicktune_prev", "");
 	settings->setDefault("keymap_quicktune_next", "");
