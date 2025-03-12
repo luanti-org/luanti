@@ -318,7 +318,7 @@ std::string KeyPress::formatScancode() const
 {
 	if (USE_SDL2) {
 		if (auto pv = std::get_if<u32>(&scancode))
-			return *pv == 0 ? "" : "<" + std::to_string(*pv) + ">";
+			return *pv == 0 ? "" : "SYSTEM_SCANCODE_" + std::to_string(*pv);
 	}
 	return "";
 }
@@ -353,11 +353,11 @@ wchar_t KeyPress::getKeychar() const
 bool KeyPress::loadFromScancode(const std::string &name)
 {
 	if (USE_SDL2) {
-		if (name.size() < 2 || name[0] != '<' || name.back() != '>')
+		if (!str_starts_with(name, "SYSTEM_SCANCODE_"))
 			return false;
 		char *p;
-		const auto code = strtoul(name.c_str()+1, &p, 10);
-		if (p != name.c_str() + name.size() - 1)
+		const auto code = strtoul(name.c_str()+16, &p, 10);
+		if (p != name.c_str() + name.size())
 			return false;
 		scancode.emplace<u32>(code);
 		return true;
