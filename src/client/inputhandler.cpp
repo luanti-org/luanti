@@ -143,7 +143,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	// Remember whether each key is down or up
 	if (event.EventType == irr::EET_KEY_INPUT_EVENT) {
 		const KeyPress keyCode(event.KeyInput);
-		if (keyCode && keysListenedFor[keyCode]) {
+		if (keyCode && keysListenedFor[keyCode]) { // ignore key input that is invalid or irrelevant for the game.
 			if (event.KeyInput.PressedDown) {
 				if (!IsKeyDown(keyCode))
 					keyWasPressed.set(keyCode);
