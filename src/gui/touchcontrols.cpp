@@ -196,7 +196,11 @@ static const KeyPress &id_to_keypress(touch_gui_button_id id)
 			break;
 	}
 	assert(!key.empty());
-	return getKeySetting("keymap_" + key);
+	auto &kp = getKeySetting("keymap_" + key);
+	if (!kp)
+		warningstream << "TouchControls: Unbound or invalid key for"
+				<< key << ", hiding button." << std::endl;
+	return kp;
 }
 
 
