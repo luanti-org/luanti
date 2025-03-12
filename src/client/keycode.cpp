@@ -303,14 +303,14 @@ KeyPress::KeyPress(const std::string &name)
 
 KeyPress::KeyPress(const irr::SEvent::SKeyInput &in)
 {
-#if USE_SDL2
-	if (in.SystemKeyCode)
-		scancode.emplace<u32>(in.SystemKeyCode);
-	else
-		scancode.emplace<irr::EKEY_CODE>(in.Key);
-#else
-	loadFromKey(in.Key, in.Char);
-#endif
+	if (USE_SDL2) {
+		if (in.SystemKeyCode)
+			scancode.emplace<u32>(in.SystemKeyCode);
+		else
+			scancode.emplace<irr::EKEY_CODE>(in.Key);
+	} else {
+		loadFromKey(in.Key, in.Char);
+	}
 }
 
 std::string KeyPress::formatScancode() const
@@ -351,18 +351,18 @@ wchar_t KeyPress::getKeychar() const
 
 bool KeyPress::loadFromScancode(const std::string &name)
 {
-#if USE_SDL2
-	if (name.size() < 2 || name[0] != '<' || name.back() != '>')
+	if (USE_SDL2) {
+		if (name.size() < 2 || name[0] != '<' || name.back() != '>')
+			return false;
+		char *p;
+		const auto code = strtoul(name.c_str()+1, &p, 10);
+		if (p != name.c_str() + name.size() - 1)
+			return false;
+		scancode.emplace<u32>(code);
+		return true;
+	} else {
 		return false;
-	char *p;
-	const auto code = strtoul(name.c_str()+1, &p, 10);
-	if (p != name.c_str() + name.size() - 1)
-		return false;
-	scancode.emplace<u32>(code);
-	return true;
-#else
-	return false;
-#endif
+	}
 }
 
 std::unordered_map<std::string, KeyPress> KeyPress::specialKeyCache;
