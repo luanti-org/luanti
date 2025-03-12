@@ -163,12 +163,18 @@ public:
 
 	inline void irrGlObjectLabel(GLenum identifier, GLuint name, const char *label)
 	{
-		if (KHRDebugSupported) {
+		if (KHRDebugSupported || KHRDebugGLESSupported) {
 			u32 len = strlen(label);
 			// Since our texture strings can get quite long we also truncate
 			// to a hardcoded limit of 82
 			len = std::min(len, std::min(MaxLabelLength, 82U));
-			GL.ObjectLabel(identifier, name, len, label);
+			// According to KHR_debug specification
+			// https://registry.khronos.org/OpenGL/extensions/KHR/KHR_debug.txt
+			// KHR suffix is used for entry point in OpenGL ES.
+			if (KHRDebugGLESSupported)
+				GL.ObjectLabelKHR(identifier, name, len, label);
+			else
+				GL.ObjectLabel(identifier, name, len, label);
 		}
 	}
 
@@ -177,6 +183,7 @@ public:
 	bool BlendMinMaxSupported = false;
 	bool TextureMultisampleSupported = false;
 	bool KHRDebugSupported = false;
+	bool KHRDebugGLESSupported = false;
 	u32 MaxLabelLength = 0;
 };
 
