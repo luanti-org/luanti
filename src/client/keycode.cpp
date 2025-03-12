@@ -10,6 +10,7 @@
 #include "util/hex.h"
 #include "util/string.h"
 #include "util/basic_macros.h"
+#include <unordered_map>
 #include <vector>
 
 struct table_key {
@@ -365,7 +366,7 @@ bool KeyPress::loadFromScancode(const std::string &name)
 	}
 }
 
-std::unordered_map<std::string, KeyPress> KeyPress::specialKeyCache;
+std::unordered_map<std::string, KeyPress> specialKeyCache;
 const KeyPress &KeyPress::getSpecialKey(const std::string &name)
 {
 	auto &key = specialKeyCache[name];

@@ -8,7 +8,6 @@
 #include <Keycodes.h>
 #include <IEventReceiver.h>
 #include <string>
-#include <unordered_map>
 #include <variant>
 
 /* A key press, consisting of a scancode or a keycode */
@@ -64,8 +63,6 @@ private:
 	std::string formatScancode() const;
 
 	std::variant<u32, irr::EKEY_CODE> scancode = irr::KEY_UNKNOWN;
-
-	static std::unordered_map<std::string, KeyPress> specialKeyCache;
 };
 
 // Global defines for convenience
