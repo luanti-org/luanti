@@ -347,7 +347,7 @@ public:
 		return video::isDriverSupported(driver);
 	}
 
-	//! Get the scancode of the corresponding keycode.
+	//! Get the corresponding scancode for the keycode.
 	/**
 	\param key The keycode to convert.
 	\return The implementation-dependent scancode for the key (represented by the u32 component) or, if a scancode is not
@@ -359,7 +359,7 @@ public:
 		return (u32)std::get<wchar_t>(key);
 	}
 
-	//! Get the keycode of the corresponding scancode.
+	//! Get the corresponding keycode for the scancode.
 	/**
 	\param scancode The implementation-dependent scancode for the key.
 	\return The corresponding keycode.
