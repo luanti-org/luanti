@@ -869,6 +869,12 @@ bool CIrrDeviceSDL::run()
 			auto keysym = SDL_event.key.keysym.sym;
 			auto scancode = SDL_event.key.keysym.scancode;
 
+			// Treat AC_BACK as the Escape key
+			if (scancode == SDL_SCANCODE_AC_BACK) {
+				scancode = SDL_SCANCODE_ESCAPE;
+				keysym = SDLK_ESCAPE;
+			}
+
 			const auto &entry = KeyMap.find(keysym);
 			auto key = entry == KeyMap.end() ? KEY_UNKNOWN : entry->second;
 
