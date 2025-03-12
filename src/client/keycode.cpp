@@ -388,8 +388,12 @@ const KeyPress &getKeySetting(const std::string &settingname)
 	if (n != g_key_setting_cache.end())
 		return n->second;
 
+	auto keysym = g_settings->get(settingname);
 	auto &ref = g_key_setting_cache[settingname];
-	ref = KeyPress(g_settings->get(settingname));
+	ref = KeyPress(keysym);
+	if (!keysym.empty() && !ref) {
+		warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
+	}
 	return ref;
 }
 
