@@ -13,7 +13,7 @@
 #include <vector>
 
 struct table_key {
-	std::string Name;
+	std::string Name; // An EKEY_CODE 'symbol' name as a string
 	irr::EKEY_CODE Key;
 	wchar_t Char; // L'\0' means no character assigned
 	std::string LangName; // empty string means it doesn't have a human description
@@ -315,10 +315,10 @@ KeyPress::KeyPress(const irr::SEvent::SKeyInput &in)
 
 std::string KeyPress::formatScancode() const
 {
-#if USE_SDL2
-	if (auto pv = std::get_if<u32>(&scancode))
-		return *pv == 0 ? "" : "<" + std::to_string(*pv) + ">";
-#endif
+	if (USE_SDL2) {
+		if (auto pv = std::get_if<u32>(&scancode))
+			return *pv == 0 ? "" : "<" + std::to_string(*pv) + ">";
+	}
 	return "";
 }
 
