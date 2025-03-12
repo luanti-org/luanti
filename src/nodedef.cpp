@@ -449,7 +449,7 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 		}
 	}
 	writeU8(os, param_type);
-	if (protocol_version < 47 && param_type_2 == CPT2_COLORED_FLOWINGLIQUID) {
+	if (protocol_version < 48 && param_type_2 == CPT2_COLORED_FLOWINGLIQUID) {
 		// Old clients will not see color in the liquid
 		writeU8(os, CPT2_FLOWINGLIQUID);
 	} else {

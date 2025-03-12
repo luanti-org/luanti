@@ -64,7 +64,7 @@
 		[scheduled bump for 5.11.0]
 	PROTOCOL VERSION 48
 		Add compression to some existing packets
-    Add colorflowingliquid param2.
+		Add colorflowingliquid param2.
 		[scheduled bump for 5.12.0]
 */
 
