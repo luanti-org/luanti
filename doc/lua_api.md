@@ -6944,8 +6944,13 @@ Defaults for the `on_place` and `on_drop` item definition functions
     * Parameters are the same as in `on_pickup`.
     * Returns the leftover itemstack.
 * `core.item_drop(itemstack, dropper, pos)`
-    * Drop the item
-    * returns the leftover itemstack
+    * Converts `itemstack` to an in-world Lua entity.
+    * `itemstack` (`ItemStack`) is modified (cleared) on success.
+      * In versions < 5.12.0, `itemstack` was cleared in all cases.
+    * `dropper` (`ObjectRef`) is optional.
+    * Returned values on success:
+      1. leftover itemstack
+      2. `ObjectRef` of the spawned object (provided since 5.12.0)
 * `core.item_eat(hp_change[, replace_with_item])`
     * Returns `function(itemstack, user, pointed_thing)` as a
       function wrapper for `core.do_item_eat`.

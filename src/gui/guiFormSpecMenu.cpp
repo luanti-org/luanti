@@ -25,7 +25,7 @@
 #include "client/renderingengine.h"
 #include "client/joystick_controller.h"
 #include "log.h"
-#include "client/hud.h" // drawItemStack
+#include "drawItemStack.h"
 #include "filesys.h"
 #include "gettime.h"
 #include "gettext.h"

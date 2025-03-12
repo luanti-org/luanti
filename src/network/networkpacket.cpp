@@ -69,6 +69,18 @@ void NetworkPacket::putRawString(const char* src, u32 len)
 	m_read_offset += len;
 }
 
+void NetworkPacket::readRawString(char *dst, u32 len)
+{
+	checkReadOffset(m_read_offset, len);
+
+	if (len == 0)
+		return;
+
+	memcpy(dst, &m_data[m_read_offset], len);
+	m_read_offset += len;
+}
+
+
 NetworkPacket& NetworkPacket::operator>>(std::string& dst)
 {
 	checkReadOffset(m_read_offset, 2);

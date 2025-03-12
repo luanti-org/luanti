@@ -5,7 +5,7 @@
 #include "guiHyperText.h"
 #include "guiScrollBar.h"
 #include "client/fontengine.h"
-#include "client/hud.h" // drawItemStack
+#include "drawItemStack.h"
 #include "IVideoDriver.h"
 #include "client/client.h"
 #include "client/renderingengine.h"

@@ -35,6 +35,6 @@ unittests.register("test_protocol_version", function(player)
 
 	-- The protocol version the client and server agreed on must exist in the table.
 	local match = table.key_value_swap(core.protocol_versions)[info.protocol_version]
-	assert(match ~= nil)
 	print(string.format("client proto matched: %s sent: %s", match, info.version_string))
+	assert(match ~= nil)
 end, {player = true})

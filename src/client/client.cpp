@@ -902,7 +902,6 @@ void Client::request_media(const std::vector<std::string> &file_requests)
 
 	FATAL_ERROR_IF(file_requests_size > 0xFFFF, "Unsupported number of file requests");
 
-	// Packet dynamicly resized
 	NetworkPacket pkt(TOSERVER_REQUEST_MEDIA, 2 + 0);
 
 	pkt << (u16) (file_requests_size & 0xFFFF);

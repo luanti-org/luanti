@@ -3907,7 +3907,8 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 	runData.update_draw_list_timer += dtime;
 	runData.touch_blocks_timer += dtime;
 
-	float update_draw_list_delta = 0.2f;
+	constexpr float update_draw_list_delta = 0.2f;
+	constexpr float touch_mapblock_delta = 4.0f;
 
 	v3f camera_direction = camera->getDirection();
 
@@ -3920,7 +3921,7 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		runData.update_draw_list_timer = 0;
 		client->getEnv().getClientMap().updateDrawList();
 		runData.update_draw_list_last_cam_dir = camera_direction;
-	} else if (runData.touch_blocks_timer > update_draw_list_delta) {
+	} else if (runData.touch_blocks_timer > touch_mapblock_delta) {
 		client->getEnv().getClientMap().touchMapBlocks();
 		runData.touch_blocks_timer = 0;
 	} else if (RenderingEngine::get_shadow_renderer()) {

@@ -469,3 +469,10 @@ std::string serializeJsonStringIfNeeded(std::string_view s);
 
 // Parses a string serialized by serializeJsonStringIfNeeded.
 std::string deSerializeJsonStringIfNeeded(std::istream &is);
+
+// Serializes an array of strings (max 2^16 chars each)
+// Output is well suited for compression :)
+std::string serializeString16Array(const std::vector<std::string> &array);
+
+// Deserializes a string array
+std::vector<std::string> deserializeString16Array(std::istream &is);

@@ -51,6 +51,16 @@ public:
 		putRawString(src.data(), src.size());
 	}
 
+	// Reads bytes from packet into string buffer
+	void readRawString(char *dst, u32 len);
+	std::string readRawString(u32 len)
+	{
+		std::string s;
+		s.resize(len);
+		readRawString(&s[0], len);
+		return s;
+	}
+
 	NetworkPacket &operator>>(std::string &dst);
 	NetworkPacket &operator<<(std::string_view src);
 

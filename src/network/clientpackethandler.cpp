@@ -606,10 +606,6 @@ void Client::handleCommand_DeathScreenLegacy(NetworkPacket* pkt)
 
 void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 {
-	u16 num_files;
-
-	*pkt >> num_files;
-
 	infostream << "Client: Received media announcement: packet size: "
 			<< pkt->getSize() << std::endl;
 
@@ -619,9 +615,7 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 			"we already saw another announcement" :
 			"all media has been received already";
 		errorstream << "Client: Received media announcement but "
-			<< problem << "! "
-			<< " files=" << num_files
-			<< " size=" << pkt->getSize() << std::endl;
+			<< problem << "!" << std::endl;
 		return;
 	}
 
@@ -629,16 +623,36 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 	// updating content definitions
 	sanity_check(!m_mesh_update_manager->isRunning());
 
-	for (u16 i = 0; i < num_files; i++) {
+	if (m_proto_ver >= 48) {
+		// compressed table of media names
+		std::vector<std::string> names;
+		{
+			std::istringstream iss(pkt->readLongString(), std::ios::binary);
+			std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
+			decompressZstd(iss, ss);
+			names = deserializeString16Array(ss);
+		}
+
+		// raw hash for each media file
+		for (auto &name : names) {
+			auto sha1_raw = pkt->readRawString(20);
+			m_media_downloader->addFile(name, sha1_raw);
+		}
+	} else {
+		u16 num_files;
+		*pkt >> num_files;
+
 		std::string name, sha1_base64;
+		for (u16 i = 0; i < num_files; i++) {
+			*pkt >> name >> sha1_base64;
 
-		*pkt >> name >> sha1_base64;
-
-		std::string sha1_raw = base64_decode(sha1_base64);
-		m_media_downloader->addFile(name, sha1_raw);
+			std::string sha1_raw = base64_decode(sha1_base64);
+			m_media_downloader->addFile(name, sha1_raw);
+		}
 	}
 
 	{
+		// Remote media servers
 		std::string str;
 		*pkt >> str;
 
@@ -657,18 +671,6 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 
 void Client::handleCommand_Media(NetworkPacket* pkt)
 {
-	/*
-		u16 command
-		u16 total number of file bunches
-		u16 index of this bunch
-		u32 number of files in this bunch
-		for each file {
-			u16 length of name
-			string name
-			u32 length of data
-			data
-		}
-	*/
 	u16 num_bunches;
 	u16 bunch_i;
 	u32 num_files;
@@ -695,6 +697,12 @@ void Client::handleCommand_Media(NetworkPacket* pkt)
 
 		*pkt >> name;
 		data = pkt->readLongString();
+		if (m_proto_ver >= 48) {
+			std::istringstream iss(data, std::ios::binary);
+			std::ostringstream oss(std::ios::binary);
+			decompressZstd(iss, oss);
+			data = oss.str();
+		}
 
 		bool ok = false;
 		if (init_phase) {
@@ -729,7 +737,10 @@ void Client::handleCommand_NodeDef(NetworkPacket* pkt)
 	// Decompress node definitions
 	std::istringstream tmp_is(pkt->readLongString(), std::ios::binary);
 	std::stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
-	decompressZlib(tmp_is, tmp_os);
+	if (m_proto_ver >= 48)
+		decompressZstd(tmp_is, tmp_os);
+	else
+		decompressZlib(tmp_is, tmp_os);
 
 	// Deserialize node definitions
 	m_nodedef->deSerialize(tmp_os, m_proto_ver);
@@ -748,7 +759,10 @@ void Client::handleCommand_ItemDef(NetworkPacket* pkt)
 	// Decompress item definitions
 	std::istringstream tmp_is(pkt->readLongString(), std::ios::binary);
 	std::stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
-	decompressZlib(tmp_is, tmp_os);
+	if (m_proto_ver >= 48)
+		decompressZstd(tmp_is, tmp_os);
+	else
+		decompressZlib(tmp_is, tmp_os);
 
 	// Deserialize node definitions
 	m_itemdef->deSerialize(tmp_os, m_proto_ver);

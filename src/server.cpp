@@ -1487,17 +1487,20 @@ void Server::SendAccessDenied(session_t peer_id, AccessDeniedCode reason,
 void Server::SendItemDef(session_t peer_id,
 		IItemDefManager *itemdef, u16 protocol_version)
 {
+	auto *client = m_clients.getClientNoEx(peer_id, CS_Created);
+	assert(client);
+
 	NetworkPacket pkt(TOCLIENT_ITEMDEF, 0, peer_id);
 
-	/*
-		u16 command
-		u32 length of the next item
-		zlib-compressed serialized ItemDefManager
-	*/
-	std::ostringstream tmp_os(std::ios::binary);
-	itemdef->serialize(tmp_os, protocol_version);
 	std::ostringstream tmp_os2(std::ios::binary);
-	compressZlib(tmp_os.str(), tmp_os2);
+	{
+		std::ostringstream tmp_os(std::ios::binary);
+		itemdef->serialize(tmp_os, protocol_version);
+		if (client->net_proto_version >= 48)
+			compressZstd(tmp_os.str(), tmp_os2);
+		else
+			compressZlib(tmp_os.str(), tmp_os2);
+	}
 	pkt.putLongString(tmp_os2.str());
 
 	// Make data buffer
@@ -1510,18 +1513,20 @@ void Server::SendItemDef(session_t peer_id,
 void Server::SendNodeDef(session_t peer_id,
 	const NodeDefManager *nodedef, u16 protocol_version)
 {
+	auto *client = m_clients.getClientNoEx(peer_id, CS_Created);
+	assert(client);
+
 	NetworkPacket pkt(TOCLIENT_NODEDEF, 0, peer_id);
 
-	/*
-		u16 command
-		u32 length of the next item
-		zlib-compressed serialized NodeDefManager
-	*/
-	std::ostringstream tmp_os(std::ios::binary);
-	nodedef->serialize(tmp_os, protocol_version);
 	std::ostringstream tmp_os2(std::ios::binary);
-	compressZlib(tmp_os.str(), tmp_os2);
-
+	{
+		std::ostringstream tmp_os(std::ios::binary);
+		nodedef->serialize(tmp_os, protocol_version);
+		if (client->net_proto_version >= 48)
+			compressZstd(tmp_os.str(), tmp_os2);
+		else
+			compressZlib(tmp_os.str(), tmp_os2);
+	}
 	pkt.putLongString(tmp_os2.str());
 
 	// Make data buffer
@@ -2583,13 +2588,12 @@ bool Server::addMediaFile(const std::string &filename,
 	}
 
 	std::string sha1 = hashing::sha1(filedata);
-	std::string sha1_base64 = base64_encode(sha1);
 	std::string sha1_hex = hex_encode(sha1);
 	if (digest_to)
 		*digest_to = sha1;
 
 	// Put in list
-	m_media[filename] = MediaInfo(filepath, sha1_base64);
+	m_media[filename] = MediaInfo(filepath, sha1);
 	verbosestream << "Server: " << sha1_hex << " is " << filename
 			<< std::endl;
 
@@ -2651,20 +2655,48 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 	};
 
 	// Make packet
+	auto *client = m_clients.getClientNoEx(peer_id, CS_Created);
+	assert(client);
 	NetworkPacket pkt(TOCLIENT_ANNOUNCE_MEDIA, 0, peer_id);
 
-	u16 media_sent = 0;
-	for (const auto &i : m_media) {
-		if (include(i.first, i.second))
-			media_sent++;
-	}
-	pkt << media_sent;
+	size_t media_sent = 0;
+	if (client->net_proto_version < 48) {
+		for (const auto &i : m_media) {
+			if (include(i.first, i.second))
+				media_sent++;
+		}
+		assert(media_sent < U16_MAX);
+		pkt << static_cast<u16>(media_sent);
+		for (const auto &i : m_media) {
+			if (include(i.first, i.second))
+				pkt << i.first << base64_encode(i.second.sha1_digest);
+		}
+	} else {
+		std::vector<std::string> names;
+		for (const auto &i : m_media) {
+			if (include(i.first, i.second))
+				names.emplace_back(i.first);
+		}
+		media_sent = names.size();
 
-	for (const auto &i : m_media) {
-		if (include(i.first, i.second))
-			pkt << i.first << i.second.sha1_digest;
+		// compressed table of media names
+		{
+			std::ostringstream oss(std::ios::binary);
+			auto tmp = serializeString16Array(names);
+			compressZstd(tmp, oss);
+			pkt.putLongString(oss.str());
+		}
+
+		// then the raw hash for each file
+		for (const auto &i : m_media) {
+			if (include(i.first, i.second)) {
+				assert(i.second.sha1_digest.size() == 20);
+				pkt.putRawString(i.second.sha1_digest);
+			}
+		}
 	}
 
+	// and the remote media server(s)
 	pkt << g_settings->get("remote_media");
 	Send(&pkt);
 
@@ -2694,8 +2726,11 @@ void Server::sendRequestedMedia(session_t peer_id,
 	auto *client = getClient(peer_id, CS_DefinitionsSent);
 	assert(client);
 
+	const bool compress = client->net_proto_version >= 48;
+
 	infostream << "Server::sendRequestedMedia(): Sending "
-		<< tosend.size() << " files to " << client->getName() << std::endl;
+		<< tosend.size() << " files to " << client->getName()
+		<< (compress ? " (compressed)" : "") << std::endl;
 
 	/* Read files and prepare bunches */
 
@@ -2713,6 +2748,7 @@ void Server::sendRequestedMedia(session_t peer_id,
 	// the amount of bunches quite well (at the expense of overshooting).
 
 	u32 file_size_bunch_total = 0;
+	size_t bytes_compressed = 0, bytes_uncompressed = 0;
 	for (const std::string &name : tosend) {
 		auto it = m_media.find(name);
 
@@ -2739,9 +2775,19 @@ void Server::sendRequestedMedia(session_t peer_id,
 		if (!fs::ReadFile(m.path, data, true)) {
 			continue;
 		}
-		file_size_bunch_total += data.size();
+		bytes_uncompressed += data.size();
+		if (compress) {
+			// Zstd is very fast and can handle non-compressible data efficiently
+			// so we can just throw it at every file. Still we don't want to
+			// spend too much here, so we use the lowest compression level.
+			std::ostringstream oss(std::ios::binary);
+			compressZstd(data, oss, 1);
+			data = oss.str();
+		}
+		bytes_compressed += data.size();
 
 		// Put in list
+		file_size_bunch_total += data.size();
 		file_bunches.back().emplace_back(name, m.path, std::move(data));
 
 		// Start next bunch if got enough data
@@ -2756,17 +2802,6 @@ void Server::sendRequestedMedia(session_t peer_id,
 	const u16 num_bunches = file_bunches.size();
 	for (u16 i = 0; i < num_bunches; i++) {
 		auto &bunch = file_bunches[i];
-		/*
-			u16 total number of media bunches
-			u16 index of this bunch
-			u32 number of files in this bunch
-			for each file {
-				u16 length of name
-				string name
-				u32 length of data
-				data
-			}
-		*/
 		NetworkPacket pkt(TOCLIENT_MEDIA, 4 + 0, peer_id);
 
 		const u32 bunch_size = bunch.size();
@@ -2783,6 +2818,14 @@ void Server::sendRequestedMedia(session_t peer_id,
 				<< " files=" << bunch_size
 				<< " size="  << pkt.getSize() << std::endl;
 		Send(&pkt);
+	}
+
+	if (compress && bytes_uncompressed != 0) {
+		int percent = bytes_compressed / (float)bytes_uncompressed * 100;
+		int diff = (int)bytes_compressed - (int)bytes_uncompressed;
+		infostream << "Server::sendRequestedMedia(): size after compression "
+			<< percent << "% (" << (diff > 0 ? '+' : '-') << std::abs(diff)
+			<< " byte)" << std::endl;
 	}
 }
 
@@ -4210,7 +4253,7 @@ std::unordered_map<std::string, std::string> Server::getMediaList()
 	for (auto &it : m_media) {
 		if (it.second.no_announce)
 			continue;
-		ret.emplace(base64_decode(it.second.sha1_digest), it.second.path);
+		ret.emplace(it.second.sha1_digest, it.second.path);
 	}
 	return ret;
 }

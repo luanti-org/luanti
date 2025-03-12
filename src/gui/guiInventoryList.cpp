@@ -4,7 +4,7 @@
 
 #include "guiInventoryList.h"
 #include "guiFormSpecMenu.h"
-#include "client/hud.h"
+#include "drawItemStack.h"
 #include "client/client.h"
 #include "client/renderingengine.h"
 #include <IVideoDriver.h>
