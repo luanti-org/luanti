@@ -100,7 +100,9 @@ class COpenGLCoreCacheHandler
 									GL.Enable(curTextureType);
 #endif
 
-							GL.BindTexture(curTextureType, static_cast<const TOpenGLTexture *>(texture)->getOpenGLTextureName());
+							auto name = static_cast<const TOpenGLTexture *>(texture)->getOpenGLTextureName();
+							_IRR_DEBUG_BREAK_IF(name == 0)
+							GL.BindTexture(curTextureType, name);
 						} else {
 							texture = 0;
 
