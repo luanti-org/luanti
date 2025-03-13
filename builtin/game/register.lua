@@ -26,6 +26,7 @@ core.registered_nodes = {}
 core.registered_craftitems = {}
 core.registered_tools = {}
 core.registered_aliases = {}
+core.registered_crafts = {}
 
 -- For tables that are indexed by item name:
 -- If table[X] does not exist, default to table[core.registered_aliases[X]]
@@ -318,6 +319,62 @@ function core.register_alias_force(name, convert_to)
 	--core.log("Registering alias: " .. name .. " -> " .. convert_to)
 	core.registered_aliases[name] = convert_to
 	register_alias_raw(name, convert_to)
+end
+
+local old_register_craft = core.register_craft
+function core.register_craft(recipe)
+	local name = recipe.output
+	if not name then
+		if recipe.type ~= "fuel" then
+			name = recipe.type
+		else
+			name = recipe.recipe
+		end
+	else
+		name = ItemStack(name):get_name()
+	end
+	if not core.registered_crafts[name] then
+		core.registered_crafts[name] = {}
+	end
+	table.insert(core.registered_crafts[name], recipe)
+	old_register_craft(recipe)
+end
+
+-- Helper function to compare tables
+local function compare(def, recipe)
+	local correct = 0
+	for key, value in pairs(def) do
+		if value == recipe[key] then
+			correct = correct + 1
+		end
+	end
+	if correct == #recipe then
+		return true
+	end
+	return false
+end
+
+local old_clear_craft = core.clear_craft
+function core.clear_craft(recipe)
+	local name = recipe.output or ""
+	if not core.registered_crafts[name] then
+		old_clear_craft(recipe)
+		return
+	end
+	local pos
+	for i, def in pairs(core.registered_crafts[name]) do
+		if compare(def, recipe) or
+				(def.type == recipe.type and def.output == recipe.output or def.recipe == recipe.recipe) then
+			pos = i
+		end
+	end
+	if pos then
+		core.registered_crafts[name][pos] = nil
+		if #core.registered_crafts[name] == 0 then
+			core.registered_crafts[name] = nil
+		end
+	end
+	old_clear_craft(recipe)
 end
 
 function core.on_craft(itemstack, player, old_craft_list, craft_inv)
