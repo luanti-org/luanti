@@ -38,7 +38,9 @@
 // Unsigned magic seed prevents undefined behavior.
 #define NOISE_MAGIC_SEED 1013U
 
-FlagDesc flagdesc_noiseparams[] = {
+#define myfloor(x) ((x) < 0 ? (int)(x) - 1 : (int)(x))
+
+const FlagDesc flagdesc_noiseparams[] = {
 	{"defaults",    NOISE_FLAG_DEFAULTS},
 	{"eased",       NOISE_FLAG_EASED},
 	{"absvalue",    NOISE_FLAG_ABSVALUE},
@@ -160,8 +162,8 @@ void PcgRandom::getState(u64 state[2]) const
 
 void PcgRandom::setState(const u64 state[2])
 {
-  m_state = state[0];
-  m_inc = state[1];
+	m_state = state[0];
+	m_inc = state[1];
 }
 
 ///////////////////////////////////////////////////////////////////////////////

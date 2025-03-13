@@ -23,7 +23,12 @@ void main(void)
 	vec2 uv = varTexCoord.st;
 	vec3 color = texture2D(rendered, uv).rgb;
 	// translate to linear colorspace (approximate)
+#ifdef GL_ES
+	// clamp color to [0,1] range in lieu of centroids
+	color = pow(clamp(color, 0.0, 1.0), vec3(2.2));
+#else
 	color = pow(color, vec3(2.2));
+#endif
 
 	color *= exposureParams.compensationFactor * bloomStrength;
 

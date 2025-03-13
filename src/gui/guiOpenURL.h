@@ -17,7 +17,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
 #include "modalMenu.h"
 #include <string>
 

@@ -1,26 +1,10 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
 #include "nodedef.h"
-#include <IMeshManipulator.h>
 
 struct MeshMakeData;
 struct MeshCollector;
@@ -61,34 +45,25 @@ struct LightFrame {
 class MapblockMeshGenerator
 {
 public:
-	MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output,
-			scene::IMeshManipulator *mm);
+	MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output);
 	void generate();
-	void renderSingle(content_t node, u8 param2 = 0x00);
 
 private:
 	MeshMakeData *const data;
 	MeshCollector *const collector;
 
 	const NodeDefManager *const nodedef;
-	scene::IMeshManipulator *const meshmanip;
 
 	const v3s16 blockpos_nodes;
 
-// options
-	const bool enable_mesh_cache;
-
 // current node
 	struct {
-		v3s16 p;
-		v3f origin;
+		v3s16 p; // relative to blockpos_nodes
+		v3f origin; // p in BS space
 		MapNode n;
 		const ContentFeatures *f;
-		LightPair light;
-		LightFrame frame;
-		video::SColor color;
-		TileSpec tile;
-		f32 scale;
+		LightFrame lframe; // smooth lighting
+		video::SColor lcolor; // unsmooth lighting
 	} cur_node;
 
 // lighting
@@ -97,21 +72,23 @@ private:
 	video::SColor blendLightColor(const v3f &vertex_pos);
 	video::SColor blendLightColor(const v3f &vertex_pos, const v3f &vertex_normal);
 
-	void useTile(int index = 0, u8 set_flags = MATERIAL_FLAG_CRACK_OVERLAY,
+	void useTile(TileSpec *tile_ret, int index = 0, u8 set_flags = MATERIAL_FLAG_CRACK_OVERLAY,
 		u8 reset_flags = 0, bool special = false);
-	void getTile(int index, TileSpec *tile);
-	void getTile(v3s16 direction, TileSpec *tile);
-	void getSpecialTile(int index, TileSpec *tile, bool apply_crack = false);
+	void getTile(int index, TileSpec *tile_ret);
+	void getTile(v3s16 direction, TileSpec *tile_ret);
+	void getSpecialTile(int index, TileSpec *tile_ret, bool apply_crack = false);
 
 // face drawing
-	void drawQuad(v3f *vertices, const v3s16 &normal = v3s16(0, 0, 0),
+	void drawQuad(const TileSpec &tile, v3f *vertices, const v3s16 &normal = v3s16(0, 0, 0),
 		float vertical_tiling = 1.0);
 
 // cuboid drawing!
 	template <typename Fn>
-	void drawCuboid(const aabb3f &box, TileSpec *tiles, int tilecount, const f32 *txc, u8 mask, Fn &&face_lighter);
+	void drawCuboid(const aabb3f &box, const TileSpec *tiles, int tilecount,
+			const f32 *txc, u8 mask, Fn &&face_lighter);
 	void generateCuboidTextureCoords(aabb3f const &box, f32 *coords);
-	void drawAutoLightedCuboid(aabb3f box, f32 const *txc = nullptr, TileSpec *tiles = nullptr, int tile_count = 0, u8 mask = 0);
+	void drawAutoLightedCuboid(aabb3f box, const TileSpec &tile, f32 const *txc	= nullptr, u8 mask = 0);
+	void drawAutoLightedCuboid(aabb3f box, const TileSpec *tiles, int tile_count, f32 const *txc = nullptr, u8 mask = 0);
 	u8 getNodeBoxMask(aabb3f box, u8 solid_neighbors, u8 sametype_neighbors) const;
 
 // liquid-specific
@@ -156,6 +133,7 @@ private:
 	struct PlantlikeData {
 		PlantlikeStyle draw_style;
 		v3f offset;
+		float scale;
 		float rotate_degree;
 		bool random_offset_Y;
 		int face_num;
@@ -163,12 +141,12 @@ private:
 	};
 	PlantlikeData cur_plant;
 
-	void drawPlantlikeQuad(float rotation, float quad_offset = 0,
+	void drawPlantlikeQuad(const TileSpec &tile, float rotation, float quad_offset = 0,
 		bool offset_top_only = false);
-	void drawPlantlike(bool is_rooted = false);
+	void drawPlantlike(const TileSpec &tile, bool is_rooted = false);
 
 // firelike-specific
-	void drawFirelikeQuad(float rotation, float opening_angle,
+	void drawFirelikeQuad(const TileSpec &tile, float rotation, float opening_angle,
 		float offset_h, float offset_v = 0.0);
 
 // drawtypes

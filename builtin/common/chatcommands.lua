@@ -1,5 +1,3 @@
--- Minetest: builtin/common/chatcommands.lua
-
 -- For server-side translations (if INIT == "game")
 -- Otherwise, use core.gettext
 local S = core.get_translator("__builtin")

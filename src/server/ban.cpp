@@ -1,32 +1,17 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2018 nerzhul, Loic BLOT <loic.blot@unix-experience.fr>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2018 nerzhul, Loic BLOT <loic.blot@unix-experience.fr>
 
 #include "ban.h"
 #include <fstream>
 #include "threading/mutex_auto_lock.h"
 #include <sstream>
-#include <set>
 #include "util/strfnd.h"
 #include "util/string.h"
 #include "log.h"
 #include "filesys.h"
+#include "exceptions.h"
 
 BanManager::BanManager(const std::string &banfilepath):
 		m_banfilepath(banfilepath)
@@ -83,13 +68,13 @@ void BanManager::save()
 	m_modified = false;
 }
 
-bool BanManager::isIpBanned(const std::string &ip)
+bool BanManager::isIpBanned(const std::string &ip) const
 {
 	MutexAutoLock lock(m_mutex);
 	return m_ips.find(ip) != m_ips.end();
 }
 
-std::string BanManager::getBanDescription(const std::string &ip_or_name)
+std::string BanManager::getBanDescription(const std::string &ip_or_name) const
 {
 	MutexAutoLock lock(m_mutex);
 	std::string s;
@@ -103,10 +88,10 @@ std::string BanManager::getBanDescription(const std::string &ip_or_name)
 	return s;
 }
 
-std::string BanManager::getBanName(const std::string &ip)
+std::string BanManager::getBanName(const std::string &ip) const
 {
 	MutexAutoLock lock(m_mutex);
-	StringMap::iterator it = m_ips.find(ip);
+	StringMap::const_iterator it = m_ips.find(ip);
 	if (it == m_ips.end())
 		return "";
 	return it->second;
@@ -133,9 +118,8 @@ void BanManager::remove(const std::string &ip_or_name)
 }
 
 
-bool BanManager::isModified()
+bool BanManager::isModified() const
 {
 	MutexAutoLock lock(m_mutex);
 	return m_modified;
 }
-

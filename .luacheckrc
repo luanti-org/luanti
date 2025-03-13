@@ -10,11 +10,13 @@ ignore = {
 read_globals = {
 	"ItemStack",
 	"INIT",
+	"PLATFORM",
 	"DIR_DELIM",
 	"dump", "dump2",
 	"fgettext", "fgettext_ne",
 	"vector",
 	"VoxelArea",
+	"VoxelManip",
 	"profiler",
 	"Settings",
 	"PerlinNoise", "PerlinNoiseMap",
@@ -73,10 +75,6 @@ files["builtin/common/filterlist.lua"] = {
 files["builtin/mainmenu"] = {
 	globals = {
 		"gamedata",
-	},
-
-	read_globals = {
-		"PLATFORM",
 	},
 }
 

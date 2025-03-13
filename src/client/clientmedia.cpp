@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "clientmedia.h"
 #include "gettext.h"
@@ -28,7 +13,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "settings.h"
 #include "util/hex.h"
 #include "util/serialize.h"
-#include "util/sha1.h"
+#include "util/hashing.h"
 #include "util/string.h"
 #include <sstream>
 
@@ -552,12 +537,7 @@ bool IClientMediaDownloader::checkAndLoad(
 	std::string sha1_hex = hex_encode(sha1);
 
 	// Compute actual checksum of data
-	std::string data_sha1;
-	{
-		SHA1 ctx;
-		ctx.addBytes(data);
-		data_sha1 = ctx.getDigest();
-	}
+	std::string data_sha1 = hashing::sha1(data);
 
 	// Check that received file matches announced checksum
 	if (data_sha1 != sha1) {

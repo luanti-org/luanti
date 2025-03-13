@@ -9,6 +9,7 @@ attribute vec2 inTexCoord0;
 /* Uniforms */
 
 uniform float uThickness;
+uniform mat4 uProjection;
 
 /* Varyings */
 
@@ -17,7 +18,7 @@ varying vec4 vVertexColor;
 
 void main()
 {
-	gl_Position = inVertexPosition;
+	gl_Position = uProjection * inVertexPosition;
 	gl_PointSize = uThickness;
 	vTextureCoord = inTexCoord0;
 	vVertexColor = inVertexColor.bgra;

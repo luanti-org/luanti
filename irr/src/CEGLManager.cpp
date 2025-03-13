@@ -18,11 +18,7 @@ namespace video
 CEGLManager::CEGLManager() :
 		IContextManager(), EglWindow(0), EglDisplay(EGL_NO_DISPLAY),
 		EglSurface(EGL_NO_SURFACE), EglContext(EGL_NO_CONTEXT), EglConfig(0), MajorVersion(0), MinorVersion(0)
-{
-#ifdef _DEBUG
-	setDebugName("CEGLManager");
-#endif
-}
+{}
 
 CEGLManager::~CEGLManager()
 {
@@ -51,9 +47,6 @@ bool CEGLManager::initialize(const SIrrlichtCreationParameters &params, const SE
 #elif defined(_IRR_COMPILE_WITH_X11_DEVICE_)
 	EglWindow = (NativeWindowType)Data.OpenGLLinux.X11Window;
 	EglDisplay = eglGetDisplay((NativeDisplayType)Data.OpenGLLinux.X11Display);
-#elif defined(_IRR_COMPILE_WITH_FB_DEVICE_)
-	EglWindow = (NativeWindowType)Data.OpenGLFB.Window;
-	EglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #endif
 
 	// We must check if EGL display is valid.

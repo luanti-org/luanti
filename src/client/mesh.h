@@ -1,33 +1,28 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
+#include "SColor.h"
 #include "SMaterialLayer.h"
-#include "irrlichttypes_extrabloated.h"
 #include "nodedef.h"
+
+namespace irr {
+	namespace scene {
+		class IAnimatedMesh;
+		class IMesh;
+		class IMeshBuffer;
+	}
+}
+
+using namespace irr;
 
 /*!
  * Applies shading to a color based on the surface's
  * normal vector.
  */
-void applyFacesShading(video::SColor &color, const v3f &normal);
+void applyFacesShading(video::SColor &color, const v3f normal);
 
 /*
 	Create a new cube mesh.
@@ -52,17 +47,12 @@ void translateMesh(scene::IMesh *mesh, v3f vec);
 /*!
  * Sets a constant color for all vertices in the mesh buffer.
  */
-void setMeshBufferColor(scene::IMeshBuffer *buf, const video::SColor &color);
+void setMeshBufferColor(scene::IMeshBuffer *buf, const video::SColor color);
 
 /*
 	Set a constant color for all vertices in the mesh
 */
-void setMeshColor(scene::IMesh *mesh, const video::SColor &color);
-
-/*
-	Set a constant color for an animated mesh
-*/
-void setAnimatedMeshColor(scene::IAnimatedMeshSceneNode *node, const video::SColor &color);
+void setMeshColor(scene::IMesh *mesh, const video::SColor color);
 
 /*!
  * Overwrites the color of a mesh buffer.
@@ -88,7 +78,7 @@ void setMeshColorByNormal(scene::IMesh *mesh, const v3f &normal,
 	Rotate the mesh by 6d facedir value.
 	Method only for meshnodes, not suitable for entities.
 */
-void rotateMeshBy6dFacedir(scene::IMesh *mesh, int facedir);
+void rotateMeshBy6dFacedir(scene::IMesh *mesh, u8 facedir);
 
 /*
 	Rotate the mesh around the axis and given angle in degrees.

@@ -46,7 +46,9 @@ float sampleVolumetricLight(vec2 uv, vec3 lightVec, float rawDepth)
 		if (min(samplepos.x, samplepos.y) > 0. && max(samplepos.x, samplepos.y) < 1.)
 			result += texture2D(depthmap, samplepos).r < 1. ? 0.0 : 1.0;
 	}
-	return result / samples;
+	// We use the depth map to approximate the effect of depth on the light intensity.
+	// The exponent was chosen based on aesthetic preference.
+	return result / samples * pow(texture2D(depthmap, uv).r, 128.0);
 }
 
 vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)

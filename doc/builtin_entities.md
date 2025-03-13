@@ -1,12 +1,12 @@
 # Builtin Entities
-Minetest registers two entities by default: Falling nodes and dropped items.
+Luanti registers two entities by default: Falling nodes and dropped items.
 This document describes how they behave and what you can do with them.
 
 ## Falling node (`__builtin:falling_node`)
 
-This entity is created by `minetest.check_for_falling` in place of a node
+This entity is created by `core.check_for_falling` in place of a node
 with the special group `falling_node=1`. Falling nodes can also be created
-artificially with `minetest.spawn_falling_node`.
+artificially with `core.spawn_falling_node`.
 
 Needs manual initialization when spawned using `/spawnentity`.
 
@@ -81,7 +81,7 @@ Common cases that spawn a dropped item:
 
 * Item dropped by player
 * The root node of a node with the group `attached_node=1` is removed
-* `minetest.add_item` is called
+* `core.add_item` is called
 
 Needs manual initialization when spawned using `/spawnentity`.
 

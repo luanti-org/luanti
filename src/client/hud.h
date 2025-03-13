@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2010-2013 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-Copyright (C) 2017 red-001 <red-001@outlook.ie>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
+// Copyright (C) 2017 red-001 <red-001@outlook.ie>
 
 #pragma once
 
@@ -89,9 +74,15 @@ public:
 
 	v3f getSelectionPos() const { return m_selection_pos; }
 
-	void setSelectionRotation(v3f rotation) { m_selection_rotation = rotation; }
+	void setSelectionRotationRadians(v3f rotation)
+	{
+		m_selection_rotation_radians = rotation;
+	}
 
-	v3f getSelectionRotation() const { return m_selection_rotation; }
+	v3f getSelectionRotationRadians() const
+	{
+		return m_selection_rotation_radians;
+	}
 
 	void setSelectionMeshColor(const video::SColor &color)
 	{
@@ -144,7 +135,7 @@ private:
 	std::vector<aabb3f> m_halo_boxes;
 	v3f m_selection_pos;
 	v3f m_selection_pos_with_offset;
-	v3f m_selection_rotation;
+	v3f m_selection_rotation_radians;
 
 	scene::IMesh *m_selection_mesh = nullptr;
 	video::SColor m_selection_mesh_color;
@@ -162,32 +153,3 @@ private:
 		HIGHLIGHT_NONE
 	} m_mode;
 };
-
-enum ItemRotationKind
-{
-	IT_ROT_SELECTED,
-	IT_ROT_HOVERED,
-	IT_ROT_DRAGGED,
-	IT_ROT_OTHER,
-	IT_ROT_NONE, // Must be last, also serves as number
-};
-
-void drawItemStack(video::IVideoDriver *driver,
-		gui::IGUIFont *font,
-		const ItemStack &item,
-		const core::rect<s32> &rect,
-		const core::rect<s32> *clip,
-		Client *client,
-		ItemRotationKind rotation_kind);
-
-void drawItemStack(
-		video::IVideoDriver *driver,
-		gui::IGUIFont *font,
-		const ItemStack &item,
-		const core::rect<s32> &rect,
-		const core::rect<s32> *clip,
-		Client *client,
-		ItemRotationKind rotation_kind,
-		const v3s16 &angle,
-		const v3s16 &rotation_speed);
-

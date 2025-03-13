@@ -1,4 +1,4 @@
-# Minetest World Format 22...29
+# Luanti World Format 22...29
 
 This applies to a world format carrying the block serialization version
 22...27, used at least in
@@ -249,14 +249,14 @@ Example content:
 
 # Map File Format
 
-Minetest maps consist of `MapBlock`s, chunks of 16x16x16 nodes.
+Luanti maps consist of `MapBlock`s, chunks of 16x16x16 nodes.
 
 In addition to the bulk node data, `MapBlock`s stored on disk also contain
 other things.
 
 ## History
 
-Initially, Minetest stored maps in a format called the "sectors" format.
+Initially, Luanti stored maps in a format called the "sectors" format.
 It was a directory/file structure like this:
 
     sectors2/XXX/ZZZ/YYYY
@@ -265,7 +265,7 @@ For example, the `MapBlock` at `(0, 1, -2)` was this file:
 
     sectors2/000/ffd/0001
 
-Eventually Minetest outgrew this directory structure, as filesystems were
+Eventually Luanti outgrew this directory structure, as filesystems were
 struggling under the number of files and directories.
 
 Large servers seriously needed a new format, and thus the base of the
@@ -281,14 +281,26 @@ storing coordinates separately), but the format has been kept unchanged for
 that part.
 
 ## `map.sqlite`
-`map.sqlite` is a `SQLite3` database, containing a single table, called
+`map.sqlite` is an `SQLite3` database, containing a single table, called
 `blocks`. It looks like this:
+
+```sql
+CREATE TABLE `blocks` (
+    `x` INTEGER, `y` INTEGER, `z` INTEGER,
+    `data` BLOB NOT NULL,
+    PRIMARY KEY (`x`, `z`, `y`)
+);
+```
+
+Before 5.12.0 it looked like this:
 
 ```sql
 CREATE TABLE `blocks` (`pos` INT NOT NULL PRIMARY KEY, `data` BLOB);
 ```
 
 ## Position Hashing
+
+Applies to the pre-5.12.0 schema:
 
 `pos` (a node position hash) is created from the three coordinates of a
 `MapBlock` using this algorithm, defined here in Python:
@@ -335,8 +347,8 @@ See below for description.
 >  * NOTE: Byte order is MSB first (big-endian).
 >  * NOTE: Zlib data is in such a format that Python's `zlib` at least can
 >          directly decompress.
->  * NOTE: Since version 29 zstd is used instead of zlib. In addition, the entire
->          block is first serialized and then compressed (except the version byte).
+>  * NOTE: Since version 29 zstd is used instead of zlib. In addition, the
+>          **entire block** is first serialized and then compressed (except version byte).
 
 `u8` version
 * map format version number, see serialization.h for the latest number
@@ -370,7 +382,7 @@ See below for description.
 * Indicates if the light is correct at the sides of a map block.
   Lighting may not be correct if the light changed, but a neighbor
   block was not loaded at that time.
-  If these flags are false, Minetest will automatically recompute light
+  If these flags are false, Luanti will automatically recompute light
   when both this block and its required neighbor are loaded.
 
 * The bit order is:
@@ -383,7 +395,7 @@ See below for description.
   to indicate if direct sunlight spreading is finished.
 
 * Example: if the block at `(0, 0, 0)` has `lighting_complete = 0b1111111111111110`,
-  Minetest will correct lighting in the day light bank when the block at
+  Luanti will correct lighting in the day light bank when the block at
   `(1, 0, 0)` is also loaded.
 
 Timestamp and node ID mappings were introduced in map format version 29.

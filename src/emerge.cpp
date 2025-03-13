@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2010-2013 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2010-2013 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
 
 
 #include "emerge_internal.h"
@@ -31,6 +16,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "filesys.h"
 #include "log.h"
 #include "servermap.h"
+#include "database/database.h"
 #include "mapblock.h"
 #include "mapgen/mg_biome.h"
 #include "mapgen/mg_ore.h"
@@ -120,9 +106,9 @@ EmergeManager::EmergeManager(Server *server, MetricsBackend *mb)
 		m_qlimit_generate = nthreads + 1;
 
 	// don't trust user input for something very important like this
-	m_qlimit_total = rangelim(m_qlimit_total, 1, 1000000);
-	m_qlimit_diskonly = rangelim(m_qlimit_diskonly, 1, 1000000);
+	m_qlimit_diskonly = rangelim(m_qlimit_diskonly, 2, 1000000);
 	m_qlimit_generate = rangelim(m_qlimit_generate, 1, 1000000);
+	m_qlimit_total = std::max(m_qlimit_diskonly, m_qlimit_generate);
 
 	for (s16 i = 0; i < nthreads; i++)
 		m_threads.push_back(new EmergeThread(server, i));
@@ -185,10 +171,22 @@ SchematicManager *EmergeManager::getWritableSchematicManager()
 	return schemmgr;
 }
 
+void EmergeManager::initMap(MapDatabaseAccessor *holder)
+{
+	FATAL_ERROR_IF(m_db, "Map database already initialized.");
+	assert(holder->dbase);
+	m_db = holder;
+}
+
+void EmergeManager::resetMap()
+{
+	FATAL_ERROR_IF(m_threads_active, "Threads are still active.");
+	m_db = nullptr;
+}
 
 void EmergeManager::initMapgens(MapgenParams *params)
 {
-	FATAL_ERROR_IF(!m_mapgens.empty(), "Mapgen already initialised.");
+	FATAL_ERROR_IF(!m_mapgens.empty(), "Mapgen already initialized.");
 
 	mgparams = params;
 
@@ -303,6 +301,12 @@ bool EmergeManager::enqueueBlockEmergeEx(
 }
 
 
+size_t EmergeManager::getQueueSize()
+{
+	MutexAutoLock queuelock(m_queue_mutex);
+	return m_blocks_enqueued.size();
+}
+
 bool EmergeManager::isBlockInQueue(v3s16 pos)
 {
 	MutexAutoLock queuelock(m_queue_mutex);
@@ -371,8 +375,7 @@ bool EmergeManager::pushBlockEmergeData(
 		}
 	}
 
-	std::pair<std::map<v3s16, BlockEmergeData>::iterator, bool> findres;
-	findres = m_blocks_enqueued.insert(std::make_pair(pos, BlockEmergeData()));
+	auto findres = m_blocks_enqueued.insert(std::make_pair(pos, BlockEmergeData()));
 
 	BlockEmergeData &bedata = findres.first->second;
 	*entry_already_exists   = !findres.second;
@@ -466,7 +469,7 @@ void EmergeThread::signal()
 }
 
 
-bool EmergeThread::pushBlock(const v3s16 &pos)
+bool EmergeThread::pushBlock(v3s16 pos)
 {
 	m_block_queue.push(pos);
 	return true;
@@ -491,7 +494,7 @@ void EmergeThread::cancelPendingItems()
 }
 
 
-void EmergeThread::runCompletionCallbacks(const v3s16 &pos, EmergeAction action,
+void EmergeThread::runCompletionCallbacks(v3s16 pos, EmergeAction action,
 	const EmergeCallbackList &callbacks)
 {
 	m_emerge->reportCompletedEmerge(action);
@@ -524,21 +527,38 @@ bool EmergeThread::popBlockEmerge(v3s16 *pos, BlockEmergeData *bedata)
 }
 
 
-EmergeAction EmergeThread::getBlockOrStartGen(
-	const v3s16 &pos, bool allow_gen, MapBlock **block, BlockMakeData *bmdata)
+EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
+	 const std::string *from_db, MapBlock **block, BlockMakeData *bmdata)
 {
-	MutexAutoLock envlock(m_server->m_env_mutex);
+	//TimeTaker tt("", nullptr, PRECISION_MICRO);
+	Server::EnvAutoLock envlock(m_server);
+	//g_profiler->avg("EmergeThread: lock wait time [us]", tt.stop());
+
+	auto block_ok = [] (MapBlock *b) {
+		return b && b->isGenerated();
+	};
 
 	// 1). Attempt to fetch block from memory
 	*block = m_map->getBlockNoCreateNoEx(pos);
 	if (*block) {
-		if ((*block)->isGenerated())
+		if (block_ok(*block)) {
+			// if we just read it from the db but the block exists that means
+			// someone else was faster. don't touch it to prevent data loss.
+			if (from_db)
+				verbosestream << "getBlockOrStartGen: block loading raced" << std::endl;
 			return EMERGE_FROM_MEMORY;
+		}
 	} else {
-		// 2). Attempt to load block from disk if it was not in the memory
-		*block = m_map->loadBlock(pos);
-		if (*block && (*block)->isGenerated())
+		if (!from_db) {
+			// 2). We should attempt loading it
 			return EMERGE_FROM_DISK;
+		}
+		// 2). Second invocation, we have the data
+		if (!from_db->empty()) {
+			*block = m_map->loadBlock(*from_db, pos);
+			if (block_ok(*block))
+				return EMERGE_FROM_DISK;
+		}
 	}
 
 	// 3). Attempt to start generation
@@ -553,7 +573,7 @@ EmergeAction EmergeThread::getBlockOrStartGen(
 MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 	std::map<v3s16, MapBlock *> *modified_blocks)
 {
-	MutexAutoLock envlock(m_server->m_env_mutex);
+	Server::EnvAutoLock envlock(m_server);
 	ScopeProfiler sp(g_profiler,
 		"EmergeThread: after Mapgen::makeChunk", SPT_AVG);
 
@@ -643,7 +663,8 @@ void *EmergeThread::run()
 	BEGIN_DEBUG_EXCEPTION_HANDLER
 
 	v3s16 pos;
-	std::map<v3s16, MapBlock *> modified_blocks;
+	std::map<v3s16, MapBlock*> modified_blocks;
+	std::string databuf;
 
 	m_map    = &m_server->m_env->getServerMap();
 	m_emerge = m_server->getEmergeManager();
@@ -669,13 +690,32 @@ void *EmergeThread::run()
 			continue;
 		}
 
+		g_profiler->add(m_name + ": processed [#]", 1);
+
 		if (blockpos_over_max_limit(pos))
 			continue;
 
 		bool allow_gen = bedata.flags & BLOCK_EMERGE_ALLOW_GEN;
 		EMERGE_DBG_OUT("pos=" << pos << " allow_gen=" << allow_gen);
 
-		action = getBlockOrStartGen(pos, allow_gen, &block, &bmdata);
+		action = getBlockOrStartGen(pos, allow_gen, nullptr, &block, &bmdata);
+
+		/* Try to load it */
+		if (action == EMERGE_FROM_DISK) {
+			auto &m_db = *m_emerge->m_db;
+			{
+				ScopeProfiler sp(g_profiler, "EmergeThread: load block - async (sum)");
+				MutexAutoLock dblock(m_db.mutex);
+				// Note: this can throw an exception, but there isn't really
+				// a good, safe way to handle it.
+				m_db.loadBlock(pos, databuf);
+			}
+			// actually load it, then decide again
+			action = getBlockOrStartGen(pos, allow_gen, &databuf, &block, &bmdata);
+			databuf.clear();
+		}
+
+		/* Generate it */
 		if (action == EMERGE_GENERATED) {
 			bool error = false;
 			m_trans_liquid = &bmdata.transforming_liquid;
@@ -716,7 +756,7 @@ void *EmergeThread::run()
 			MapEditEvent event;
 			event.type = MEET_OTHER;
 			event.setModifiedBlocks(modified_blocks);
-			MutexAutoLock envlock(m_server->m_env_mutex);
+			Server::EnvAutoLock envlock(m_server);
 			m_map->dispatchEvent(event);
 		}
 		modified_blocks.clear();

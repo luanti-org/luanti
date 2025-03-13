@@ -1,29 +1,16 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "common/c_internal.h"
+#include "cpp_api/s_security.h"
 #include "util/numeric.h"
 #include "debug.h"
 #include "log.h"
 #include "porting.h"
 #include "settings.h"
 #include <algorithm> // std::find
+#include "common/c_types.h" // LuaError
 
 std::string script_get_backtrace(lua_State *L)
 {
@@ -199,12 +186,9 @@ void log_deprecated(lua_State *L, std::string_view message, int stack_depth, boo
 
 void call_string_dump(lua_State *L, int idx)
 {
-	// Retrieve string.dump from insecure env to avoid it being tampered with
-	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
-	if (!lua_isnil(L, -1))
-		lua_getfield(L, -1, "string");
-	else
-		lua_getglobal(L, "string");
+	// Retrieve string.dump from untampered env
+	ScriptApiSecurity::getGlobalsBackup(L);
+	lua_getfield(L, -1, "string");
 	lua_getfield(L, -1, "dump");
 	lua_remove(L, -2); // remove _G
 	lua_remove(L, -2); // remove 'string' table

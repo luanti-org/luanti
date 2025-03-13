@@ -7,7 +7,7 @@
 #include "ISceneManager.h"
 #include "S3DVertex.h"
 #include "os.h"
-#include "CSkinnedMesh.h"
+#include "SkinnedMesh.h"
 #include "IDummyTransformationSceneNode.h"
 #include "IBoneSceneNode.h"
 #include "IMaterialRenderer.h"
@@ -16,6 +16,7 @@
 #include "IAnimatedMesh.h"
 #include "IFileSystem.h"
 #include "quaternion.h"
+#include <algorithm>
 
 namespace irr
 {
@@ -37,10 +38,6 @@ CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(IAnimatedMesh *mesh,
 		Looping(true), ReadOnlyMaterials(false), RenderFromIdentity(false),
 		LoopCallBack(0), PassCount(0)
 {
-#ifdef _DEBUG
-	setDebugName("CAnimatedMeshSceneNode");
-#endif
-
 	setMesh(mesh);
 }
 
@@ -80,7 +77,7 @@ void CAnimatedMeshSceneNode::buildFrameNr(u32 timeMs)
 	}
 
 	if (StartFrame == EndFrame) {
-		CurrentFrameNr = (f32)StartFrame; // Support for non animated meshes
+		CurrentFrameNr = StartFrame; // Support for non animated meshes
 	} else if (Looping) {
 		// play animation looped
 		CurrentFrameNr += timeMs * FramesPerSecond;
@@ -89,26 +86,26 @@ void CAnimatedMeshSceneNode::buildFrameNr(u32 timeMs)
 		// the last frame must be identical to first one with our current solution.
 		if (FramesPerSecond > 0.f) { // forwards...
 			if (CurrentFrameNr > EndFrame)
-				CurrentFrameNr = StartFrame + fmodf(CurrentFrameNr - StartFrame, (f32)(EndFrame - StartFrame));
+				CurrentFrameNr = StartFrame + fmodf(CurrentFrameNr - StartFrame, EndFrame - StartFrame);
 		} else // backwards...
 		{
 			if (CurrentFrameNr < StartFrame)
-				CurrentFrameNr = EndFrame - fmodf(EndFrame - CurrentFrameNr, (f32)(EndFrame - StartFrame));
+				CurrentFrameNr = EndFrame - fmodf(EndFrame - CurrentFrameNr, EndFrame - StartFrame);
 		}
 	} else {
 		// play animation non looped
 
 		CurrentFrameNr += timeMs * FramesPerSecond;
 		if (FramesPerSecond > 0.f) { // forwards...
-			if (CurrentFrameNr > (f32)EndFrame) {
-				CurrentFrameNr = (f32)EndFrame;
+			if (CurrentFrameNr > EndFrame) {
+				CurrentFrameNr = EndFrame;
 				if (LoopCallBack)
 					LoopCallBack->OnAnimationEnd(this);
 			}
 		} else // backwards...
 		{
-			if (CurrentFrameNr < (f32)StartFrame) {
-				CurrentFrameNr = (f32)StartFrame;
+			if (CurrentFrameNr < StartFrame) {
+				CurrentFrameNr = StartFrame;
 				if (LoopCallBack)
 					LoopCallBack->OnAnimationEnd(this);
 			}
@@ -159,19 +156,17 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 {
 	if (Mesh->getMeshType() != EAMT_SKINNED) {
-		s32 frameNr = (s32)getFrameNr();
-		s32 frameBlend = (s32)(core::fract(getFrameNr()) * 1000.f);
-		return Mesh->getMesh(frameNr, frameBlend, StartFrame, EndFrame);
+		return Mesh->getMesh(getFrameNr());
 	} else {
 		// As multiple scene nodes may be sharing the same skinned mesh, we have to
 		// re-animate it every frame to ensure that this node gets the mesh that it needs.
 
-		CSkinnedMesh *skinnedMesh = static_cast<CSkinnedMesh *>(Mesh);
+		SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
 
 		if (JointMode == EJUOR_CONTROL) // write to mesh
 			skinnedMesh->transferJointsToMesh(JointChildSceneNodes);
 		else
-			skinnedMesh->animateMesh(getFrameNr(), 1.0f);
+			skinnedMesh->animateMesh(getFrameNr());
 
 		// Update the skinned mesh for the current joint transforms.
 		skinnedMesh->skinMesh();
@@ -228,7 +223,7 @@ void CAnimatedMeshSceneNode::render()
 		Box = m->getBoundingBox();
 	} else {
 #ifdef _DEBUG
-		os::Printer::log("Animated Mesh returned no mesh to render.", Mesh->getDebugName(), ELL_WARNING);
+		os::Printer::log("Animated Mesh returned no mesh to render.", ELL_WARNING);
 #endif
 		return;
 	}
@@ -258,8 +253,7 @@ void CAnimatedMeshSceneNode::render()
 	// for debug purposes only:
 	if (DebugDataVisible && PassCount == 1) {
 		video::SMaterial debug_mat;
-		debug_mat.Lighting = false;
-		debug_mat.AntiAliasing = 0;
+		debug_mat.AntiAliasing = video::EAAM_OFF;
 		driver->setMaterial(debug_mat);
 		// show normals
 		if (DebugDataVisible & scene::EDS_NORMALS) {
@@ -280,11 +274,7 @@ void CAnimatedMeshSceneNode::render()
 		}
 
 		debug_mat.ZBuffer = video::ECFN_DISABLED;
-		debug_mat.Lighting = false;
 		driver->setMaterial(debug_mat);
-
-		if (DebugDataVisible & scene::EDS_BBOX)
-			driver->draw3DBox(Box, video::SColor(255, 255, 255, 255));
 
 		// show bounding box
 		if (DebugDataVisible & scene::EDS_BBOX_BUFFERS) {
@@ -297,17 +287,18 @@ void CAnimatedMeshSceneNode::render()
 			}
 		}
 
+		if (DebugDataVisible & scene::EDS_BBOX)
+			driver->draw3DBox(Box, video::SColor(255, 255, 255, 255));
+
 		// show skeleton
 		if (DebugDataVisible & scene::EDS_SKELETON) {
 			if (Mesh->getMeshType() == EAMT_SKINNED) {
 				// draw skeleton
 
-				for (u32 g = 0; g < ((ISkinnedMesh *)Mesh)->getAllJoints().size(); ++g) {
-					ISkinnedMesh::SJoint *joint = ((ISkinnedMesh *)Mesh)->getAllJoints()[g];
-
-					for (u32 n = 0; n < joint->Children.size(); ++n) {
+				for (auto *joint : ((SkinnedMesh *)Mesh)->getAllJoints()) {
+					for (const auto *childJoint : joint->Children) {
 						driver->draw3DLine(joint->GlobalAnimatedMatrix.getTranslation(),
-								joint->Children[n]->GlobalAnimatedMatrix.getTranslation(),
+								childJoint->GlobalAnimatedMatrix.getTranslation(),
 								video::SColor(255, 51, 66, 255));
 					}
 				}
@@ -316,7 +307,6 @@ void CAnimatedMeshSceneNode::render()
 
 		// show mesh
 		if (DebugDataVisible & scene::EDS_MESH_WIRE_OVERLAY) {
-			debug_mat.Lighting = false;
 			debug_mat.Wireframe = true;
 			debug_mat.ZBuffer = video::ECFN_DISABLED;
 			driver->setMaterial(debug_mat);
@@ -334,33 +324,33 @@ void CAnimatedMeshSceneNode::render()
 }
 
 //! Returns the current start frame number.
-s32 CAnimatedMeshSceneNode::getStartFrame() const
+f32 CAnimatedMeshSceneNode::getStartFrame() const
 {
 	return StartFrame;
 }
 
 //! Returns the current start frame number.
-s32 CAnimatedMeshSceneNode::getEndFrame() const
+f32 CAnimatedMeshSceneNode::getEndFrame() const
 {
 	return EndFrame;
 }
 
 //! sets the frames between the animation is looped.
 //! the default is 0 - MaximalFrameCount of the mesh.
-bool CAnimatedMeshSceneNode::setFrameLoop(s32 begin, s32 end)
+bool CAnimatedMeshSceneNode::setFrameLoop(f32 begin, f32 end)
 {
-	const s32 maxFrameCount = Mesh->getFrameCount() - 1;
+	const f32 maxFrame = Mesh->getMaxFrameNumber();
 	if (end < begin) {
-		StartFrame = core::s32_clamp(end, 0, maxFrameCount);
-		EndFrame = core::s32_clamp(begin, StartFrame, maxFrameCount);
+		StartFrame = std::clamp<f32>(end, 0, maxFrame);
+		EndFrame = std::clamp<f32>(begin, StartFrame, maxFrame);
 	} else {
-		StartFrame = core::s32_clamp(begin, 0, maxFrameCount);
-		EndFrame = core::s32_clamp(end, StartFrame, maxFrameCount);
+		StartFrame = std::clamp<f32>(begin, 0, maxFrame);
+		EndFrame = std::clamp<f32>(end, StartFrame, maxFrame);
 	}
 	if (FramesPerSecond < 0)
-		setCurrentFrame((f32)EndFrame);
+		setCurrentFrame(EndFrame);
 	else
-		setCurrentFrame((f32)StartFrame);
+		setCurrentFrame(StartFrame);
 
 	return true;
 }
@@ -408,7 +398,7 @@ IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 
 	checkJoints();
 
-	ISkinnedMesh *skinnedMesh = (ISkinnedMesh *)Mesh;
+	auto *skinnedMesh = (SkinnedMesh *)Mesh;
 
 	const std::optional<u32> number = skinnedMesh->getJointNumber(jointName);
 
@@ -450,7 +440,7 @@ u32 CAnimatedMeshSceneNode::getJointCount() const
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED)
 		return 0;
 
-	ISkinnedMesh *skinnedMesh = (ISkinnedMesh *)Mesh;
+	auto *skinnedMesh = (SkinnedMesh *)Mesh;
 
 	return skinnedMesh->getJointCount();
 }
@@ -535,7 +525,7 @@ void CAnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 	// get materials and bounding box
 	Box = Mesh->getBoundingBox();
 
-	IMesh *m = Mesh->getMesh(0, 0);
+	IMesh *m = Mesh->getMesh(0);
 	if (m) {
 		Materials.clear();
 		Materials.reallocate(m->getMeshBufferCount());
@@ -557,7 +547,7 @@ void CAnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 
 	// get start and begin time
 	setAnimationSpeed(Mesh->getAnimationSpeed()); // NOTE: This had been commented out (but not removed!) in r3526. Which caused meshloader-values for speed to be ignored unless users specified explicitly. Missing a test-case where this could go wrong so I put the code back in.
-	setFrameLoop(0, Mesh->getFrameCount() - 1);
+	setFrameLoop(0, Mesh->getMaxFrameNumber());
 }
 
 //! updates the absolute position based on the relative and the parents position
@@ -600,10 +590,9 @@ void CAnimatedMeshSceneNode::animateJoints(bool CalculateAbsolutePositions)
 		checkJoints();
 		const f32 frame = getFrameNr(); // old?
 
-		CSkinnedMesh *skinnedMesh = static_cast<CSkinnedMesh *>(Mesh);
+		SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
 
-		skinnedMesh->transferOnlyJointsHintsToMesh(JointChildSceneNodes);
-		skinnedMesh->animateMesh(frame, 1.0f);
+		skinnedMesh->animateMesh(frame);
 		skinnedMesh->recoverJointsFromMesh(JointChildSceneNodes);
 
 		//-----------------------------------------
@@ -630,7 +619,7 @@ void CAnimatedMeshSceneNode::animateJoints(bool CalculateAbsolutePositions)
 
 				// Code is slow, needs to be fixed up
 
-				const core::quaternion RotationStart(PretransitingSave[n].getRotationDegrees() * core::DEGTORAD);
+				const core::quaternion RotationStart(PretransitingSave[n].getRotationRadians());
 				const core::quaternion RotationEnd(JointChildSceneNodes[n]->getRotation() * core::DEGTORAD);
 
 				core::quaternion QRotation;
@@ -675,8 +664,8 @@ void CAnimatedMeshSceneNode::checkJoints()
 		JointChildSceneNodes.clear();
 
 		// Create joints for SkinnedMesh
-		((CSkinnedMesh *)Mesh)->addJoints(JointChildSceneNodes, this, SceneManager);
-		((CSkinnedMesh *)Mesh)->recoverJointsFromMesh(JointChildSceneNodes);
+		((SkinnedMesh *)Mesh)->addJoints(JointChildSceneNodes, this, SceneManager);
+		((SkinnedMesh *)Mesh)->recoverJointsFromMesh(JointChildSceneNodes);
 
 		JointsUsed = true;
 		JointMode = EJUOR_READ;

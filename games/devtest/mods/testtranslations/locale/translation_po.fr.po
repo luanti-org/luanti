@@ -1,0 +1,22 @@
+# Test Plural-Forms parsing
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural= (n-1+1)<=1 ? n||1?0:1 : 1?(!!2):2;"
+
+msgctxt "testtranslations"
+msgid "Testing .po files: untranslated"
+msgstr "Testing .po files: translated"
+
+msgctxt "testtranslations"
+msgid "@1: .po singular"
+msgid_plural "@1: .po plural"
+msgstr[0] "@1: .po 0 and 1 (French singular)"
+msgstr[1] "@1: .po >1 (French plural)"
+
+#, foo bar fuzzy
+msgctxt "testtranslations"
+msgid "Testing fuzzy .po entry: untranslated (expected)"
+msgstr "Testing fuzzy .po entry: translated (wrong)"
+
+msgid "Testing .po without context: untranslated"
+msgstr "Testing .po without context: translated"

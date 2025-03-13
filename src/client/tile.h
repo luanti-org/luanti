@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -24,7 +9,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <vector>
 #include <SMaterial.h>
 
-enum MaterialType{
+enum MaterialType : u8 {
 	TILE_MATERIAL_BASIC,
 	TILE_MATERIAL_ALPHA,
 	TILE_MATERIAL_LIQUID_TRANSPARENT,
@@ -35,6 +20,7 @@ enum MaterialType{
 	TILE_MATERIAL_WAVING_LIQUID_BASIC,
 	TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT,
 	TILE_MATERIAL_WAVING_LIQUID_OPAQUE,
+	// Note: PLAIN isn't a material actually used by tiles, rather just entities.
 	TILE_MATERIAL_PLAIN,
 	TILE_MATERIAL_PLAIN_ALPHA
 };
@@ -64,6 +50,11 @@ struct FrameSpec
 	video::ITexture *texture = nullptr;
 };
 
+/**
+ * We have two tile layers:
+ * layer 0 = base
+ * layer 1 = overlay
+ */
 #define MAX_TILE_LAYERS 2
 
 //! Defines a layer of a tile.
@@ -93,20 +84,27 @@ struct TileLayer
 		return !(*this == other);
 	}
 
-	// Sets everything else except the texture in the material
-	void applyMaterialOptions(video::SMaterial &material) const;
+	/**
+	 * Set some material parameters accordingly.
+	 * @note does not set `MaterialType`
+	 * @param material material to mody
+	 * @param layer index of this layer in the `TileSpec`
+	 */
+	void applyMaterialOptions(video::SMaterial &material, int layer) const;
 
-	void applyMaterialOptionsWithShaders(video::SMaterial &material) const;
-
+	/// @return is this layer semi-transparent?
 	bool isTransparent() const
 	{
+		// see also: the mapping in ShaderSource::generateShader()
 		switch (material_type) {
 		case TILE_MATERIAL_ALPHA:
+		case TILE_MATERIAL_PLAIN_ALPHA:
 		case TILE_MATERIAL_LIQUID_TRANSPARENT:
 		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
 			return true;
+		default:
+			return false;
 		}
-		return false;
 	}
 
 	// Ordered for size, please do not reorder
@@ -120,16 +118,14 @@ struct TileLayer
 	u16 animation_frame_length_ms = 0;
 	u16 animation_frame_count = 1;
 
-	u8 material_type = TILE_MATERIAL_BASIC;
+	MaterialType material_type = TILE_MATERIAL_BASIC;
 	u8 material_flags =
 		//0 // <- DEBUG, Use the one below
 		MATERIAL_FLAG_BACKFACE_CULLING |
 		MATERIAL_FLAG_TILEABLE_HORIZONTAL|
 		MATERIAL_FLAG_TILEABLE_VERTICAL;
 
-	//! If true, the tile has its own color.
-	bool has_color = false;
-
+	/// @note not owned by this struct
 	std::vector<FrameSpec> *frames = nullptr;
 
 	/*!
@@ -137,6 +133,9 @@ struct TileLayer
 	 * a color then the color of the node owning this tile.
 	 */
 	video::SColor color = video::SColor(0, 0, 0, 0);
+
+	//! If true, the tile has its own color.
+	bool has_color = false;
 
 	u8 scale = 1;
 };

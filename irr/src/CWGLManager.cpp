@@ -19,9 +19,6 @@ namespace video
 CWGLManager::CWGLManager() :
 		PrimaryContext(SExposedVideoData(0)), PixelFormat(0), libHandle(NULL)
 {
-#ifdef _DEBUG
-	setDebugName("CWGLManager");
-#endif
 	memset(FunctionPointers, 0, sizeof(FunctionPointers));
 }
 

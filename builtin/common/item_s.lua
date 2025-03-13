@@ -1,4 +1,3 @@
--- Minetest: builtin/item_s.lua
 -- The distinction of what goes here is a bit tricky, basically it's everything
 -- that does not (directly or indirectly) need access to ServerEnvironment,
 -- Server or writable access to IGameDef on the engine side.
@@ -91,7 +90,7 @@ local facedir_to_dir_map = {
 	1, 4, 3, 2,
 }
 function core.facedir_to_dir(facedir)
-	return facedir_to_dir[facedir_to_dir_map[facedir % 32]]
+	return vector.copy(facedir_to_dir[facedir_to_dir_map[facedir % 32]])
 end
 
 function core.dir_to_fourdir(dir)
@@ -111,7 +110,7 @@ function core.dir_to_fourdir(dir)
 end
 
 function core.fourdir_to_dir(fourdir)
-	return facedir_to_dir[facedir_to_dir_map[fourdir % 4]]
+	return vector.copy(facedir_to_dir[facedir_to_dir_map[fourdir % 4]])
 end
 
 function core.dir_to_wallmounted(dir)
@@ -148,7 +147,7 @@ local wallmounted_to_dir = {
 	vector.new( 0, -1,  0),
 }
 function core.wallmounted_to_dir(wallmounted)
-	return wallmounted_to_dir[wallmounted % 8]
+	return vector.copy(wallmounted_to_dir[wallmounted % 8])
 end
 
 function core.dir_to_yaw(dir)
@@ -166,20 +165,19 @@ function core.is_colored_paramtype(ptype)
 end
 
 function core.strip_param2_color(param2, paramtype2)
-	if not core.is_colored_paramtype(paramtype2) then
+	if paramtype2 == "color" then
+		return param2
+	elseif paramtype2 == "colorfacedir" then
+		return math.floor(param2 / 32) * 32
+	elseif paramtype2 == "color4dir" then
+		return math.floor(param2 / 4) * 4
+	elseif paramtype2 == "colorwallmounted" then
+		return math.floor(param2 / 8) * 8
+	elseif paramtype2 == "colordegrotate" then
+		return math.floor(param2 / 32) * 32
+	else
 		return nil
 	end
-	if paramtype2 == "colorfacedir" then
-		param2 = math.floor(param2 / 32) * 32
-	elseif paramtype2 == "color4dir" then
-		param2 = math.floor(param2 / 4) * 4
-	elseif paramtype2 == "colorwallmounted" then
-		param2 = math.floor(param2 / 8) * 8
-	elseif paramtype2 == "colordegrotate" then
-		param2 = math.floor(param2 / 32) * 32
-	end
-	-- paramtype2 == "color" requires no modification.
-	return param2
 end
 
 -- Content ID caching

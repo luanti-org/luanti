@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2017 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2017 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
 #include "database-files.h"
 #include "convert_json.h"
@@ -58,7 +43,7 @@ void PlayerDatabaseFiles::deSerialize(RemotePlayer *p, std::istream &is,
 		}
 
 		try {
-			sao->setBasePosition(args.getV3F("position"));
+			sao->setBasePosition(args.getV3F("position").value_or(v3f()));
 		} catch (SettingNotFoundException &e) {}
 
 		try {
@@ -249,8 +234,7 @@ void PlayerDatabaseFiles::listPlayers(std::vector<std::string> &res)
 {
 	std::vector<fs::DirListNode> files = fs::GetDirListing(m_savedir);
 	// list files into players directory
-	for (std::vector<fs::DirListNode>::const_iterator it = files.begin(); it !=
-		files.end(); ++it) {
+	for (auto it = files.begin(); it != files.end(); ++it) {
 		// Ignore directories
 		if (it->dir)
 			continue;

@@ -23,6 +23,8 @@ core.add_node = core.set_node
 -- we don't deal with metadata currently
 core.swap_node = core.set_node
 
+core.bulk_swap_node = core.bulk_set_node
+
 function core.remove_node(pos)
 	return core.vmanip:set_node_at(pos, {name="air"})
 end

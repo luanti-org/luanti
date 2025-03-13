@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -28,7 +13,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 */
 
 /*
-    Connection
+    Network Protocol
 */
 
 #define PEER_ID_INEXISTENT 0
@@ -75,14 +60,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // Use floatToInt(p, BS) and intToFloat(p, BS).
 #define BS 10.0f
 
-// Dimension of a MapBlock
+// Dimension of a MapBlock in nodes
 #define MAP_BLOCKSIZE 16
-// This makes mesh updates too slow, as many meshes are updated during
-// the main loop (related to TempMods and day/night)
-//#define MAP_BLOCKSIZE 32
 
 // Player step height in nodes
 #define PLAYER_DEFAULT_STEPHEIGHT 0.6f
+
+// Arbitrary volume limit for working with contiguous areas (in nodes)
+// needs to safely fit in the VoxelArea class; used by e.g. VManips
+#define MAX_WORKING_VOLUME 150000000UL
 
 /*
     Old stuff that shouldn't be hardcoded
@@ -97,6 +83,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // Default maximal breath of a player
 #define PLAYER_MAX_BREATH_DEFAULT 10
 
+/*
+    Misc
+*/
+
 // Number of different files to try to save a player to if the first fails
 // (because of a case-insensitive filesystem)
 // TODO: Use case-insensitive player names instead of this hack.
@@ -107,9 +97,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // This is the maximum number of attempts to try and add a serial to the end of
 // the file attempting to ensure a unique filename
 #define SCREENSHOT_MAX_SERIAL_TRIES 1000
-
-/*
-    GUI related things
-*/
 
 #define TTF_DEFAULT_FONT_SIZE (16)

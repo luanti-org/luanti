@@ -95,7 +95,7 @@ task prepareAssets() {
 			def moPath = "${assetsFolder}/locale/${poFile.parentFile.name}/LC_MESSAGES/"
 			file(moPath).mkdirs()
 			exec {
-				commandLine 'msgfmt', '-o', "${moPath}/minetest.mo", poFile
+				commandLine 'msgfmt', '-o', "${moPath}/luanti.mo", poFile
 			}
 		}
 
@@ -103,7 +103,7 @@ task prepareAssets() {
 	}
 
 	task zipAssets(dependsOn: prepareAssets, type: Zip) {
-		archiveFileName = "Minetest.zip"
+		archiveFileName = "assets.zip"
 		from assetsFolder
 		destinationDirectory = file("src/main/assets")
 	}
@@ -113,7 +113,7 @@ preBuild.dependsOn zipAssets
 prepareAssets.dependsOn ':native:getDeps'
 
 clean {
-	delete new File("src/main/assets", "Minetest.zip")
+	delete new File("src/main/assets", "assets.zip")
 }
 
 dependencies {

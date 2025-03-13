@@ -1,13 +1,13 @@
 local function player_names_excluding(exclude_player_name)
 	local player_names = {}
-	for _, player in ipairs(minetest.get_connected_players()) do
+	for _, player in ipairs(core.get_connected_players()) do
 		player_names[player:get_player_name()] = true
 	end
 	player_names[exclude_player_name] = nil
 	return player_names
 end
 
-minetest.register_entity("testentities:observable", {
+core.register_entity("testentities:observable", {
 	initial_properties = {
 		visual = "sprite",
 		textures = { "testentities_sprite.png" },

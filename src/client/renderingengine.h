@@ -1,37 +1,23 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2017 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2017 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
 #pragma once
 
 #include <vector>
 #include <memory>
 #include <string>
-#include "irrlichttypes_extrabloated.h"
+#include "client/inputhandler.h"
 #include "debug.h"
+#include "config.h"
 #include "client/shader.h"
 #include "client/render/core.h"
 // include the shadow mapper classes too
 #include "client/shadows/dynamicshadowsrender.h"
 #include <IVideoDriver.h>
 
-#ifdef SERVER
+#if !IS_CLIENT_BUILD
 #error Do not include in server builds
 #endif
 
@@ -59,7 +45,7 @@ struct FpsControl {
 
 	void reset();
 
-	void limit(IrrlichtDevice *device, f32 *dtime, bool assume_paused = false);
+	void limit(IrrlichtDevice *device, f32 *dtime);
 
 	u32 getBusyMs() const { return busy_time / 1000; }
 
@@ -81,9 +67,8 @@ class RenderingEngine
 {
 public:
 	static const video::SColor MENU_SKY_COLOR;
-	static const float BASE_BLOOM_STRENGTH;
 
-	RenderingEngine(IEventReceiver *eventReceiver);
+	RenderingEngine(MyEventReceiver *eventReceiver);
 	~RenderingEngine();
 
 	void setResizable(bool resize);
@@ -168,6 +153,12 @@ public:
 			const irr::core::dimension2d<u32> initial_screen_size,
 			const bool initial_window_maximized);
 
+	static PointerType getLastPointerType()
+	{
+		sanity_check(s_singleton && s_singleton->m_receiver);
+		return s_singleton->m_receiver->getLastPointerType();
+	}
+
 private:
 	static void settingChangedCallback(const std::string &name, void *data);
 	v2u32 _getWindowSize() const;
@@ -175,5 +166,6 @@ private:
 	std::unique_ptr<RenderingCore> core;
 	irr::IrrlichtDevice *m_device = nullptr;
 	irr::video::IVideoDriver *driver;
+	MyEventReceiver *m_receiver = nullptr;
 	static RenderingEngine *s_singleton;
 };

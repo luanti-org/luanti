@@ -5,6 +5,9 @@
 static const char *const copyright = "Irrlicht Engine (c) 2002-2017 Nikolaus Gebhardt"; // put string in binary
 
 #include "irrlicht.h"
+#include "matrix4.h"
+#include "SMaterial.h"
+
 #ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
 #include "CIrrDeviceWin32.h"
 #endif
@@ -85,7 +88,7 @@ const matrix4 IdentityMatrix(matrix4::EM4CONST_IDENTITY);
 
 namespace video
 {
-SMaterial IdentityMaterial;
+const SMaterial IdentityMaterial;
 
 extern "C" IRRLICHT_API bool IRRCALLCONV isDriverSupported(E_DRIVER_TYPE driver)
 {

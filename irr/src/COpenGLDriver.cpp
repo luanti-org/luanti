@@ -32,16 +32,14 @@ COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters &params, io::IFil
 		CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(), CacheHandler(0), CurrentRenderMode(ERM_NONE), ResetRenderStates(true),
 		Transformation3DChanged(true), AntiAlias(params.AntiAlias), ColorFormat(ECF_R8G8B8), FixedPipelineState(EOFPS_ENABLE), Params(params),
 		ContextManager(contextManager)
-{
-#ifdef _DEBUG
-	setDebugName("COpenGLDriver");
-#endif
-}
+{}
 
 bool COpenGLDriver::initDriver()
 {
-	ContextManager->generateSurface();
-	ContextManager->generateContext();
+	if (!ContextManager->generateSurface())
+		return false;
+	if (!ContextManager->generateContext())
+		return false;
 	ExposedData = ContextManager->getContext();
 	ContextManager->activateContext(ExposedData, false);
 	GL.LoadAllProcedures(ContextManager);
@@ -120,7 +118,6 @@ bool COpenGLDriver::genericDriverInit()
 		os::Printer::log("GLSL not available.", ELL_INFORMATION);
 	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.MaxTextureUnits);
 	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxLights", MaxLights);
 	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
 	DriverAttributes->setAttribute("MaxAuxBuffers", MaxAuxBuffers);
 	DriverAttributes->setAttribute("MaxMultipleRenderTargets", (s32)Feature.MultipleRenderTarget);
@@ -136,13 +133,6 @@ bool COpenGLDriver::genericDriverInit()
 
 	for (i = 0; i < ETS_COUNT; ++i)
 		setTransform(static_cast<E_TRANSFORMATION_STATE>(i), core::IdentityMatrix);
-
-	setAmbientLight(SColorf(0.0f, 0.0f, 0.0f, 0.0f));
-#ifdef GL_EXT_separate_specular_color
-	if (FeatureAvailable[IRR_EXT_separate_specular_color])
-		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-#endif
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
 
 	// This is a fast replacement for NORMALIZE_NORMALS
 	//	if ((Version>101) || FeatureAvailable[IRR_EXT_rescale_normal])
@@ -440,9 +430,7 @@ COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::I
 		return 0;
 
 	SHWBufferLink_opengl *HWBuffer = new SHWBufferLink_opengl(vb);
-
-	// add to map
-	HWBuffer->listPosition = HWBufferList.insert(HWBufferList.end(), HWBuffer);
+	registerHardwareBuffer(HWBuffer);
 
 	if (!updateVertexHardwareBuffer(HWBuffer)) {
 		deleteHardwareBuffer(HWBuffer);
@@ -463,9 +451,7 @@ COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::I
 		return 0;
 
 	SHWBufferLink_opengl *HWBuffer = new SHWBufferLink_opengl(ib);
-
-	// add to map
-	HWBuffer->listPosition = HWBufferList.insert(HWBufferList.end(), HWBuffer);
+	registerHardwareBuffer(HWBuffer);
 
 	if (!updateIndexHardwareBuffer(HWBuffer)) {
 		deleteHardwareBuffer(HWBuffer);
@@ -647,6 +633,29 @@ IRenderTarget *COpenGLDriver::addRenderTarget()
 	RenderTargets.push_back(renderTarget);
 
 	return renderTarget;
+}
+
+void COpenGLDriver::blitRenderTarget(IRenderTarget *from, IRenderTarget *to)
+{
+	if (Version < 300) {
+		os::Printer::log("glBlitFramebuffer not supported by OpenGL < 3.0", ELL_ERROR);
+		return;
+	}
+
+	GLuint prev_fbo_id;
+	CacheHandler->getFBO(prev_fbo_id);
+
+	COpenGLRenderTarget *src = static_cast<COpenGLRenderTarget *>(from);
+	COpenGLRenderTarget *dst = static_cast<COpenGLRenderTarget *>(to);
+	GL.BindFramebuffer(GL.READ_FRAMEBUFFER, src->getBufferID());
+	GL.BindFramebuffer(GL.DRAW_FRAMEBUFFER, dst->getBufferID());
+	GL.BlitFramebuffer(
+			0, 0, src->getSize().Width, src->getSize().Height,
+			0, 0, dst->getSize().Width, dst->getSize().Height,
+			GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT, GL.NEAREST);
+
+	// This resets both read and draw framebuffer. Note that we bypass CacheHandler here.
+	GL.BindFramebuffer(GL.FRAMEBUFFER, prev_fbo_id);
 }
 
 // small helper function to create vertex buffer object address offsets
@@ -1840,112 +1849,11 @@ void COpenGLDriver::setBasicRenderStates(const SMaterial &material, const SMater
 	E_OPENGL_FIXED_PIPELINE_STATE tempState = FixedPipelineState;
 
 	if (resetAllRenderStates || tempState == EOFPS_ENABLE || tempState == EOFPS_DISABLE_TO_ENABLE) {
-		// material colors
-		if (resetAllRenderStates || tempState == EOFPS_DISABLE_TO_ENABLE ||
-				lastmaterial.ColorMaterial != material.ColorMaterial) {
-			switch (material.ColorMaterial) {
-			case ECM_NONE:
-				glDisable(GL_COLOR_MATERIAL);
-				break;
-			case ECM_DIFFUSE:
-				glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-				break;
-			case ECM_AMBIENT:
-				glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
-				break;
-			case ECM_EMISSIVE:
-				glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-				break;
-			case ECM_SPECULAR:
-				glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-				break;
-			case ECM_DIFFUSE_AND_AMBIENT:
-				glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-				break;
-			}
-			if (material.ColorMaterial != ECM_NONE)
-				glEnable(GL_COLOR_MATERIAL);
-		}
-
-		if (resetAllRenderStates || tempState == EOFPS_DISABLE_TO_ENABLE ||
-				lastmaterial.AmbientColor != material.AmbientColor ||
-				lastmaterial.DiffuseColor != material.DiffuseColor ||
-				lastmaterial.EmissiveColor != material.EmissiveColor ||
-				lastmaterial.ColorMaterial != material.ColorMaterial) {
-			GLfloat color[4];
-
-			const f32 inv = 1.0f / 255.0f;
-
-			if ((material.ColorMaterial != video::ECM_AMBIENT) &&
-					(material.ColorMaterial != video::ECM_DIFFUSE_AND_AMBIENT)) {
-				color[0] = material.AmbientColor.getRed() * inv;
-				color[1] = material.AmbientColor.getGreen() * inv;
-				color[2] = material.AmbientColor.getBlue() * inv;
-				color[3] = material.AmbientColor.getAlpha() * inv;
-				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color);
-			}
-
-			if ((material.ColorMaterial != video::ECM_DIFFUSE) &&
-					(material.ColorMaterial != video::ECM_DIFFUSE_AND_AMBIENT)) {
-				color[0] = material.DiffuseColor.getRed() * inv;
-				color[1] = material.DiffuseColor.getGreen() * inv;
-				color[2] = material.DiffuseColor.getBlue() * inv;
-				color[3] = material.DiffuseColor.getAlpha() * inv;
-				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, color);
-			}
-
-			if (material.ColorMaterial != video::ECM_EMISSIVE) {
-				color[0] = material.EmissiveColor.getRed() * inv;
-				color[1] = material.EmissiveColor.getGreen() * inv;
-				color[2] = material.EmissiveColor.getBlue() * inv;
-				color[3] = material.EmissiveColor.getAlpha() * inv;
-				glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, color);
-			}
-		}
-
-		if (resetAllRenderStates || tempState == EOFPS_DISABLE_TO_ENABLE ||
-				lastmaterial.SpecularColor != material.SpecularColor ||
-				lastmaterial.Shininess != material.Shininess ||
-				lastmaterial.ColorMaterial != material.ColorMaterial) {
-			GLfloat color[4] = {0.f, 0.f, 0.f, 1.f};
-			const f32 inv = 1.0f / 255.0f;
-
-			glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material.Shininess);
-			// disable Specular colors if no shininess is set
-			if ((material.Shininess != 0.0f) &&
-					(material.ColorMaterial != video::ECM_SPECULAR)) {
-#ifdef GL_EXT_separate_specular_color
-				if (FeatureAvailable[IRR_EXT_separate_specular_color])
-					glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-#endif
-				color[0] = material.SpecularColor.getRed() * inv;
-				color[1] = material.SpecularColor.getGreen() * inv;
-				color[2] = material.SpecularColor.getBlue() * inv;
-				color[3] = material.SpecularColor.getAlpha() * inv;
-			}
-#ifdef GL_EXT_separate_specular_color
-			else if (FeatureAvailable[IRR_EXT_separate_specular_color])
-				glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
-#endif
-			glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, color);
-		}
-
-		// shademode
-		if (resetAllRenderStates || tempState == EOFPS_DISABLE_TO_ENABLE ||
-				lastmaterial.GouraudShading != material.GouraudShading) {
-			if (material.GouraudShading)
-				glShadeModel(GL_SMOOTH);
-			else
-				glShadeModel(GL_FLAT);
-		}
-
-		// lighting
-		if (resetAllRenderStates || tempState == EOFPS_DISABLE_TO_ENABLE ||
-				lastmaterial.Lighting != material.Lighting) {
-			if (material.Lighting)
-				glEnable(GL_LIGHTING);
-			else
-				glDisable(GL_LIGHTING);
+		if (resetAllRenderStates || tempState == EOFPS_DISABLE_TO_ENABLE) {
+			glDisable(GL_COLOR_MATERIAL);
+			glDisable(GL_LIGHTING);
+			glShadeModel(GL_SMOOTH);
+			glDisable(GL_NORMALIZE);
 		}
 
 		// fog
@@ -1955,15 +1863,6 @@ void COpenGLDriver::setBasicRenderStates(const SMaterial &material, const SMater
 				glEnable(GL_FOG);
 			else
 				glDisable(GL_FOG);
-		}
-
-		// normalization
-		if (resetAllRenderStates || tempState == EOFPS_DISABLE_TO_ENABLE ||
-				lastmaterial.NormalizeNormals != material.NormalizeNormals) {
-			if (material.NormalizeNormals)
-				glEnable(GL_NORMALIZE);
-			else
-				glDisable(GL_NORMALIZE);
 		}
 
 		// Set fixed pipeline as active.
@@ -2199,7 +2098,9 @@ void COpenGLDriver::setBasicRenderStates(const SMaterial &material, const SMater
 		else if (lastmaterial.AntiAliasing & EAAM_ALPHA_TO_COVERAGE)
 			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
 
-		if ((AntiAlias >= 2) && (material.AntiAliasing & (EAAM_SIMPLE | EAAM_QUALITY))) {
+		// Enable MSAA even if it's not enabled in the OpenGL context, we might
+		// be rendering to an FBO with multisampling.
+		if (material.AntiAliasing & (EAAM_SIMPLE | EAAM_QUALITY)) {
 			glEnable(GL_MULTISAMPLE_ARB);
 #ifdef GL_NV_multisample_filter_hint
 			if (FeatureAvailable[IRR_NV_multisample_filter_hint]) {
@@ -2405,7 +2306,6 @@ void COpenGLDriver::setRenderStates2DMode(bool alpha, bool texture, bool alphaCh
 	}
 
 	SMaterial currentMaterial = (!OverrideMaterial2DEnabled) ? InitMaterial2D : OverrideMaterial2D;
-	currentMaterial.Lighting = false;
 
 	if (texture) {
 		setTransform(ETS_TEXTURE_0, core::IdentityMatrix);
@@ -2504,16 +2404,6 @@ const char *COpenGLDriver::getName() const
 	return Name.c_str();
 }
 
-//! Sets the dynamic ambient light color. The default color is
-//! (0,0,0,0) which means it is dark.
-//! \param color: New color of the ambient light.
-void COpenGLDriver::setAmbientLight(const SColorf &color)
-{
-	CNullDriver::setAmbientLight(color);
-	GLfloat data[4] = {color.r, color.g, color.b, color.a};
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, data);
-}
-
 // this code was sent in by Oliver Klems, thank you! (I modified the glViewport
 // method just a bit.
 void COpenGLDriver::setViewPort(const core::rect<s32> &area)
@@ -2570,66 +2460,6 @@ void COpenGLDriver::setFog(SColor c, E_FOG_TYPE fogType, f32 start,
 	SColorf color(c);
 	GLfloat data[4] = {color.r, color.g, color.b, color.a};
 	glFogfv(GL_FOG_COLOR, data);
-}
-
-//! Draws a 3d box.
-void COpenGLDriver::draw3DBox(const core::aabbox3d<f32> &box, SColor color)
-{
-	core::vector3df edges[8];
-	box.getEdges(edges);
-
-	setRenderStates3DMode();
-
-	video::S3DVertex v[24];
-
-	for (u32 i = 0; i < 24; i++)
-		v[i].Color = color;
-
-	v[0].Pos = edges[5];
-	v[1].Pos = edges[1];
-	v[2].Pos = edges[1];
-	v[3].Pos = edges[3];
-	v[4].Pos = edges[3];
-	v[5].Pos = edges[7];
-	v[6].Pos = edges[7];
-	v[7].Pos = edges[5];
-	v[8].Pos = edges[0];
-	v[9].Pos = edges[2];
-	v[10].Pos = edges[2];
-	v[11].Pos = edges[6];
-	v[12].Pos = edges[6];
-	v[13].Pos = edges[4];
-	v[14].Pos = edges[4];
-	v[15].Pos = edges[0];
-	v[16].Pos = edges[1];
-	v[17].Pos = edges[0];
-	v[18].Pos = edges[3];
-	v[19].Pos = edges[2];
-	v[20].Pos = edges[7];
-	v[21].Pos = edges[6];
-	v[22].Pos = edges[5];
-	v[23].Pos = edges[4];
-
-	if (!FeatureAvailable[IRR_ARB_vertex_array_bgra] && !FeatureAvailable[IRR_EXT_vertex_array_bgra])
-		getColorBuffer(v, 24, EVT_STANDARD);
-
-	CacheHandler->setClientState(true, false, true, false);
-
-	glVertexPointer(3, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(v))[0].Pos);
-
-#ifdef GL_BGRA
-	const GLint colorSize = (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) ? GL_BGRA : 4;
-#else
-	const GLint colorSize = 4;
-#endif
-	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
-		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(v))[0].Color);
-	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
-		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
-	}
-
-	glDrawArrays(GL_LINES, 0, 24);
 }
 
 //! Draws a 3d line.
@@ -2764,14 +2594,9 @@ bool COpenGLDriver::setPixelShaderConstant(s32 index, const u32 *ints, int count
 //! Adds a new material renderer to the VideoDriver, using GLSL to render geometry.
 s32 COpenGLDriver::addHighLevelShaderMaterial(
 		const c8 *vertexShaderProgram,
-		const c8 *vertexShaderEntryPointName,
-		E_VERTEX_SHADER_TYPE vsCompileTarget,
 		const c8 *pixelShaderProgram,
-		const c8 *pixelShaderEntryPointName,
-		E_PIXEL_SHADER_TYPE psCompileTarget,
 		const c8 *geometryShaderProgram,
-		const c8 *geometryShaderEntryPointName,
-		E_GEOMETRY_SHADER_TYPE gsCompileTarget,
+		const c8 *shaderName,
 		scene::E_PRIMITIVE_TYPE inType,
 		scene::E_PRIMITIVE_TYPE outType,
 		u32 verticesOut,
@@ -2783,9 +2608,9 @@ s32 COpenGLDriver::addHighLevelShaderMaterial(
 
 	COpenGLSLMaterialRenderer *r = new COpenGLSLMaterialRenderer(
 			this, nr,
-			vertexShaderProgram, vertexShaderEntryPointName, vsCompileTarget,
-			pixelShaderProgram, pixelShaderEntryPointName, psCompileTarget,
-			geometryShaderProgram, geometryShaderEntryPointName, gsCompileTarget,
+			vertexShaderProgram,
+			pixelShaderProgram,
+			geometryShaderProgram,
 			inType, outType, verticesOut,
 			callback, baseMaterial, userData);
 
@@ -2804,6 +2629,12 @@ IVideoDriver *COpenGLDriver::getVideoDriver()
 ITexture *COpenGLDriver::addRenderTargetTexture(const core::dimension2d<u32> &size,
 		const io::path &name, const ECOLOR_FORMAT format)
 {
+	return addRenderTargetTextureMs(size, 0, name, format);
+}
+
+ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &size, u8 msaa,
+		const io::path &name, const ECOLOR_FORMAT format)
+{
 	if (IImage::isCompressedFormat(format))
 		return 0;
 
@@ -2820,7 +2651,7 @@ ITexture *COpenGLDriver::addRenderTargetTexture(const core::dimension2d<u32> &si
 		destSize = destSize.getOptimalSize((size == size.getOptimalSize()), false, false);
 	}
 
-	COpenGLTexture *renderTargetTexture = new COpenGLTexture(name, destSize, ETT_2D, format, this);
+	COpenGLTexture *renderTargetTexture = new COpenGLTexture(name, destSize, msaa > 0 ? ETT_2D_MS : ETT_2D, format, this, msaa);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
 
@@ -3348,19 +3179,9 @@ COpenGLCacheHandler *COpenGLDriver::getCacheHandler() const
 	return CacheHandler;
 }
 
-} // end namespace
-} // end namespace
-
-#endif // _IRR_COMPILE_WITH_OPENGL_
-
-namespace irr
-{
-namespace video
-{
 
 IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
 {
-#ifdef _IRR_COMPILE_WITH_OPENGL_
 	COpenGLDriver *ogl = new COpenGLDriver(params, io, contextManager);
 
 	if (!ogl->initDriver()) {
@@ -3369,10 +3190,8 @@ IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::
 	}
 
 	return ogl;
-#else
-	return 0;
-#endif
 }
 
-} // end namespace
-} // end namespace
+} // end namespace video
+} // end namespace irr
+#endif // opengl

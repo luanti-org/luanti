@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2015 est31 <MTest31@outlook.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2015 est31 <MTest31@outlook.com>
 
 #include <inttypes.h>
 #include "config.h"
@@ -347,12 +332,9 @@ void TerminalChatConsole::step(int ch)
 		if (p.first > m_log_level)
 			continue;
 
-		std::wstring error_message = utf8_to_wide(Logger::getLevelLabel(p.first));
-		if (!g_settings->getBool("disable_escape_sequences")) {
-			error_message = std::wstring(L"\x1b(c@red)").append(error_message)
-				.append(L"\x1b(c@white)");
-		}
-		m_chat_backend.addMessage(error_message, utf8_to_wide(p.second));
+		auto label = std::string("\x1b(c@red)") + Logger::getLevelLabel(p.first)
+			+ "\x1b(c@white)";
+		m_chat_backend.addMessage(utf8_to_wide(label), utf8_to_wide(p.second));
 	}
 
 	// handle input

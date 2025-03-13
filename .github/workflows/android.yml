@@ -12,6 +12,7 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'android/**'
       - '.github/workflows/android.yml'
   pull_request:
@@ -24,6 +25,7 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'android/**'
       - '.github/workflows/android.yml'
 
@@ -50,25 +52,25 @@ jobs:
     - name: Save AAB artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Minetest-release.aab
+        name: Luanti-release.aab
         path: android/app/build/outputs/bundle/release/app-release.aab
     - name: Save armeabi artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Minetest-armeabi-v7a.apk
+        name: Luanti-armeabi-v7a.apk
         path: android/app/build/outputs/apk/release/app-armeabi-v7a-release-unsigned.apk
     - name: Save arm64 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Minetest-arm64-v8a.apk
+        name: Luanti-arm64-v8a.apk
         path: android/app/build/outputs/apk/release/app-arm64-v8a-release-unsigned.apk
     - name: Save x86 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Minetest-x86.apk
+        name: Luanti-x86.apk
         path: android/app/build/outputs/apk/release/app-x86-release-unsigned.apk
     - name: Save x86_64 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Minetest-x86_64.apk
+        name: Luanti-x86_64.apk
         path: android/app/build/outputs/apk/release/app-x86_64-release-unsigned.apk

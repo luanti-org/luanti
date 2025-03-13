@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2017-2019 vlapsley, Vaughan Lapsley <vlapsley@gmail.com>
-Copyright (C) 2017-2019 paramat
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2017-2019 vlapsley, Vaughan Lapsley <vlapsley@gmail.com>
+// Copyright (C) 2017-2019 paramat
 
 
 #include <cmath>
@@ -39,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "mapgen_carpathian.h"
 
 
-FlagDesc flagdesc_mapgen_carpathian[] = {
+const FlagDesc flagdesc_mapgen_carpathian[] = {
 	{"caverns", MGCARPATHIAN_CAVERNS},
 	{"rivers",  MGCARPATHIAN_RIVERS},
 	{NULL,      0}
@@ -460,7 +445,7 @@ int MapgenCarpathian::generateTerrain()
 		noise_rivers->perlinMap2D(node_min.X, node_min.Z);
 
 	//// Place nodes
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	s16 stone_surface_max_y = -MAX_MAP_GENERATION_LIMIT;
 	u32 index2d = 0;
 

@@ -11,11 +11,6 @@ end
 core.async_event_handler = handle_job
 
 function core.handle_async(func, parameter, callback)
-	-- Serialize function
-	local serialized_func = string.dump(func)
-
-	assert(serialized_func ~= nil)
-
 	-- Serialize parameters
 	local serialized_param = core.serialize(parameter)
 
@@ -23,7 +18,7 @@ function core.handle_async(func, parameter, callback)
 		return false
 	end
 
-	local jobid = core.do_async_callback(serialized_func, serialized_param)
+	local jobid = core.do_async_callback(func, serialized_param)
 
 	core.async_jobs[jobid] = callback
 

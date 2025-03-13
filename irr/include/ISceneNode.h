@@ -9,14 +9,13 @@
 #include "ECullingTypes.h"
 #include "EDebugSceneTypes.h"
 #include "SMaterial.h"
-#include "irrString.h"
 #include "irrArray.h"
 #include "aabbox3d.h"
 #include "matrix4.h"
-#include "IAttributes.h"
 
 #include <list>
 #include <optional>
+#include <string>
 
 namespace irr
 {
@@ -311,7 +310,11 @@ public:
 	\return The material at that index. */
 	virtual video::SMaterial &getMaterial(u32 num)
 	{
-		return video::IdentityMaterial;
+		// We return a default material since a reference can't be null,
+		// but note that writing to this is a mistake either by a child class
+		// or the caller, because getMaterialCount() is zero.
+		// Doing so will helpfully cause a segfault.
+		return const_cast<video::SMaterial&>(video::IdentityMaterial);
 	}
 
 	//! Get amount of materials used by this scene node.
@@ -404,14 +407,14 @@ public:
 	their geometry because it is their only reason for existence,
 	for example the OctreeSceneNode.
 	\param state The culling state to be used. Check E_CULLING_TYPE for possible values.*/
-	void setAutomaticCulling(u32 state)
+	void setAutomaticCulling(u16 state)
 	{
 		AutomaticCullingState = state;
 	}
 
 	//! Gets the automatic culling state.
 	/** \return The automatic culling state. */
-	u32 getAutomaticCulling() const
+	u16 getAutomaticCulling() const
 	{
 		return AutomaticCullingState;
 	}
@@ -420,7 +423,7 @@ public:
 	/** A bitwise OR of the types from @ref irr::scene::E_DEBUG_SCENE_TYPE.
 	Please note that not all scene nodes support all debug data types.
 	\param state The debug data visibility state to be used. */
-	virtual void setDebugDataVisible(u32 state)
+	virtual void setDebugDataVisible(u16 state)
 	{
 		DebugDataVisible = state;
 	}
@@ -428,7 +431,7 @@ public:
 	//! Returns if debug data like bounding boxes are drawn.
 	/** \return A bitwise OR of the debug data values from
 	@ref irr::scene::E_DEBUG_SCENE_TYPE that are currently visible. */
-	u32 isDebugDataVisible() const
+	u16 isDebugDataVisible() const
 	{
 		return DebugDataVisible;
 	}
@@ -582,10 +585,10 @@ protected:
 	s32 ID;
 
 	//! Automatic culling state
-	u32 AutomaticCullingState;
+	u16 AutomaticCullingState;
 
 	//! Flag if debug data should be drawn, such as Bounding Boxes.
-	u32 DebugDataVisible;
+	u16 DebugDataVisible;
 
 	//! Is the node visible?
 	bool IsVisible;

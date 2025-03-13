@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2018-24 rubenwardy
 --
 --This program is free software; you can redistribute it and/or modify
@@ -243,4 +243,46 @@ function create_install_dialog(package)
 	dlg.data.dlg = dlg
 
 	return dlg
+end
+
+
+function install_or_update_package(parent, package)
+	local install_parent
+	if package.type == "mod" then
+		install_parent = core.get_modpath()
+	elseif package.type == "game" then
+		install_parent = core.get_gamepath()
+	elseif package.type == "txp" then
+		install_parent = core.get_texturepath()
+	else
+		error("Unknown package type: " .. package.type)
+	end
+
+	if package.queued or package.downloading then
+		return
+	end
+
+	local function on_confirm()
+		local dlg = create_install_dialog(package)
+		dlg:set_parent(parent)
+		parent:hide()
+		dlg:show()
+
+		dlg:load_deps()
+	end
+
+	if package.type == "mod" and #pkgmgr.games == 0 then
+		local dlg = messagebox("install_game",
+				fgettext("You need to install a game before you can install a mod"))
+		dlg:set_parent(parent)
+		parent:hide()
+		dlg:show()
+	elseif not package.path and core.is_dir(install_parent .. DIR_DELIM .. package.name) then
+		local dlg = create_confirm_overwrite(package, on_confirm)
+		dlg:set_parent(parent)
+		parent:hide()
+		dlg:show()
+	else
+		on_confirm()
+	end
 end

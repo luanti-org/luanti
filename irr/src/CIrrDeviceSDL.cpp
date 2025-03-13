@@ -31,53 +31,6 @@ static int SDLDeviceInstances = 0;
 
 namespace irr
 {
-namespace video
-{
-#ifdef _IRR_COMPILE_WITH_OPENGL_
-IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
-#else
-static IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
-{
-	os::Printer::log("No OpenGL support compiled in.", ELL_ERROR);
-	return nullptr;
-}
-#endif
-
-#ifdef ENABLE_OPENGL3
-IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
-#else
-static IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
-{
-	os::Printer::log("No OpenGL 3 support compiled in.", ELL_ERROR);
-	return nullptr;
-}
-#endif
-
-#ifdef _IRR_COMPILE_WITH_OGLES2_
-IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
-#else
-static IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
-{
-	os::Printer::log("No OpenGL ES 2 support compiled in.", ELL_ERROR);
-	return nullptr;
-}
-#endif
-
-#ifdef _IRR_COMPILE_WITH_WEBGL1_
-IVideoDriver *createWebGL1Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
-#else
-static IVideoDriver *createWebGL1Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
-{
-	os::Printer::log("No WebGL 1 support compiled in.", ELL_ERROR);
-	return nullptr;
-}
-#endif
-} // end namespace video
-
-} // end namespace irr
-
-namespace irr
-{
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 EM_BOOL CIrrDeviceSDL::MouseUpDownCallback(int eventType, const EmscriptenMouseEvent *event, void *userData)
 {
@@ -300,14 +253,10 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		Resizable(param.WindowResizable == 1 ? true : false), CurrentTouchCount(0),
 		IsInBackground(false)
 {
-#ifdef _DEBUG
-	setDebugName("CIrrDeviceSDL");
-#endif
-
 	if (++SDLDeviceInstances == 1) {
 #ifdef __ANDROID__
 		// Blocking on pause causes problems with multiplayer.
-		// See https://github.com/minetest/minetest/issues/10842.
+		// see <https://github.com/luanti-org/luanti/issues/10842>
 		SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "0");
 		SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE_PAUSEAUDIO, "0");
 
@@ -321,7 +270,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
 
 		// Disabling the compositor is not a good idea in windowed mode.
-		// See https://github.com/minetest/minetest/issues/14596
+		// see <https://github.com/luanti-org/luanti/issues/14596>
 		SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
 
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
@@ -341,7 +290,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 
 #if defined(SDL_HINT_APP_NAME)
-		SDL_SetHint(SDL_HINT_APP_NAME, "Minetest");
+		SDL_SetHint(SDL_HINT_APP_NAME, "Luanti");
 #endif
 
 		// Set IME hints
@@ -359,8 +308,6 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		if (SDL_Init(flags) < 0) {
 			os::Printer::log("Unable to initialize SDL", SDL_GetError(), ELL_ERROR);
 			Close = true;
-		} else {
-			os::Printer::log("SDL initialized", ELL_INFORMATION);
 		}
 	}
 
@@ -375,21 +322,27 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		}
 	}
 
-	SDL_VERSION(&Info.version);
+	core::stringc sdlver = "SDL ";
+	{
+		SDL_version v{};
+		SDL_GetVersion(&v);
+		sdlver += v.major;
+		sdlver += ".";
+		sdlver += v.minor;
+		sdlver += ".";
+		sdlver += v.patch;
+		// the SDL team seems to intentionally number sdl2-compat this way:
+		// <https://github.com/libsdl-org/sdl2-compat/tags>
+		if (v.patch >= 50)
+			sdlver += " (compat)";
 
-#ifndef _IRR_EMSCRIPTEN_PLATFORM_
-	SDL_GetWindowWMInfo(Window, &Info);
-#endif //_IRR_EMSCRIPTEN_PLATFORM_
-	core::stringc sdlversion = "SDL Version ";
-	sdlversion += Info.version.major;
-	sdlversion += ".";
-	sdlversion += Info.version.minor;
-	sdlversion += ".";
-	sdlversion += Info.version.patch;
+		sdlver += " on ";
+		sdlver += SDL_GetPlatform();
+	}
 
-	Operator = new COSOperator(sdlversion);
+	Operator = new COSOperator(sdlver);
 	if (SDLDeviceInstances == 1) {
-		os::Printer::log(sdlversion.c_str(), ELL_INFORMATION);
+		os::Printer::log(sdlver.c_str(), ELL_INFORMATION);
 	}
 
 	// create cursor control
@@ -713,7 +666,7 @@ bool CIrrDeviceSDL::run()
 
 	while (!Close && wrap_PollEvent(&SDL_event)) {
 		// os::Printer::log("event: ", core::stringc((int)SDL_event.type).c_str(),   ELL_INFORMATION);	// just for debugging
-		memset(&irrevent, 0, sizeof(irrevent));
+		irrevent = {};
 
 		switch (SDL_event.type) {
 		case SDL_MOUSEMOTION: {
@@ -721,12 +674,19 @@ bool CIrrDeviceSDL::run()
 
 			irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
 			irrevent.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
-			MouseX = irrevent.MouseInput.X =
-				static_cast<s32>(SDL_event.motion.x * ScaleX);
-			MouseY = irrevent.MouseInput.Y =
-				static_cast<s32>(SDL_event.motion.y * ScaleY);
+
 			MouseXRel = static_cast<s32>(SDL_event.motion.xrel * ScaleX);
 			MouseYRel = static_cast<s32>(SDL_event.motion.yrel * ScaleY);
+			if (!SDL_GetRelativeMouseMode()) {
+				MouseX = static_cast<s32>(SDL_event.motion.x * ScaleX);
+				MouseY = static_cast<s32>(SDL_event.motion.y * ScaleY);
+			} else {
+				MouseX += MouseXRel;
+				MouseY += MouseYRel;
+			}
+			irrevent.MouseInput.X = MouseX;
+			irrevent.MouseInput.Y = MouseY;
+
 			irrevent.MouseInput.ButtonStates = MouseButtonStates;
 			irrevent.MouseInput.Shift = (keymod & KMOD_SHIFT) != 0;
 			irrevent.MouseInput.Control = (keymod & KMOD_CTRL) != 0;
@@ -749,6 +709,10 @@ bool CIrrDeviceSDL::run()
 			irrevent.MouseInput.Control = (keymod & KMOD_CTRL) != 0;
 			irrevent.MouseInput.X = MouseX;
 			irrevent.MouseInput.Y = MouseY;
+
+			// wheel y can be 0 if scrolling sideways
+			if (irrevent.MouseInput.Wheel == 0.0f)
+				break;
 
 			postEventFromUser(irrevent);
 			break;
@@ -1284,6 +1248,12 @@ bool CIrrDeviceSDL::setFullscreen(bool fullscreen)
 bool CIrrDeviceSDL::isWindowVisible() const
 {
 	return !IsInBackground;
+}
+
+//! Checks if the Irrlicht device supports touch events.
+bool CIrrDeviceSDL::supportsTouchEvents() const
+{
+	return true;
 }
 
 //! returns if window is active. if not, nothing need to be drawn

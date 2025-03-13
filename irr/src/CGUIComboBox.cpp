@@ -26,10 +26,6 @@ CGUIComboBox::CGUIComboBox(IGUIEnvironment *environment, IGUIElement *parent,
 		Selected(-1), HAlign(EGUIA_UPPERLEFT), VAlign(EGUIA_CENTER), MaxSelectionRows(5), HasFocus(false),
 		ActiveFont(nullptr)
 {
-#ifdef _DEBUG
-	setDebugName("CGUIComboBox");
-#endif
-
 	IGUISkin *skin = Environment->getSkin();
 
 	ListButton = Environment->addButton(core::recti(0, 0, 1, 1), this, -1, L"");

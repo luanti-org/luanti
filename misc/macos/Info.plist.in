@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>luanti</string>
+	<key>CFBundleIconFile</key>
+	<string>luanti-icon.icns</string>
+	<key>CFBundleName</key>
+	<string>@PROJECT_NAME_CAPITALIZED@</string>
+	<key>CFBundleDisplayName</key>
+	<string>@PROJECT_NAME_CAPITALIZED@</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.luanti.luanti</string>
+	<key>CFBundleVersion</key>
+	<string>@VERSION_STRING@</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.games</string>
+	<key>NSHighResolutionCapable</key>
+	<false/>
+</dict>
+</plist>

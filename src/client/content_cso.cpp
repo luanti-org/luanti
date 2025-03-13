@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "content_cso.h"
 #include <IBillboardSceneNode.h>
@@ -40,7 +25,6 @@ public:
 		video::ITexture *tex = env->getGameDef()->tsrc()->getTextureForMesh("smoke_puff.png");
 		m_spritenode->forEachMaterial([tex] (auto &mat) {
 			mat.TextureLayers[0].Texture = tex;
-			mat.Lighting = false;
 			mat.TextureLayers[0].MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
 			mat.TextureLayers[0].MagFilter = video::ETMAGF_NEAREST;
 			mat.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
@@ -55,7 +39,7 @@ public:
 		MapNode n = env->getMap().getNode(floatToInt(pos, BS), &pos_ok);
 		light = pos_ok ? decode_light(n.getLightBlend(env->getDayNightRatio(),
 							env->getGameDef()->ndef()->getLightingFlags(n)))
-		               : 64;
+						: 64;
 		video::SColor color(255,light,light,light);
 		m_spritenode->setColor(color);
 	}

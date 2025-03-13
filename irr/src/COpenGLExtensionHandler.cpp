@@ -19,7 +19,7 @@ namespace video
 bool COpenGLExtensionHandler::needsDSAFramebufferHack = true;
 
 COpenGLExtensionHandler::COpenGLExtensionHandler() :
-		StencilBuffer(false), TextureCompressionExtension(false), MaxLights(1),
+		StencilBuffer(false), TextureCompressionExtension(false),
 		MaxAnisotropy(1), MaxAuxBuffers(0), MaxIndices(65535),
 		MaxTextureSize(1), MaxGeometryVerticesOut(0),
 		MaxTextureLODBias(0.f), Version(0), ShaderLanguageVersion(0),
@@ -130,10 +130,10 @@ void COpenGLExtensionHandler::initExtensions(video::IContextManager *cmgr, bool 
 {
 	const f32 ogl_ver = core::fast_atof(reinterpret_cast<const c8 *>(glGetString(GL_VERSION)));
 	Version = static_cast<u16>(core::floor32(ogl_ver) * 100 + core::round32(core::fract(ogl_ver) * 10.0f));
-	if (Version >= 102)
-		os::Printer::log("OpenGL driver version is 1.2 or better.", ELL_INFORMATION);
+	if (Version >= 200)
+		os::Printer::log("OpenGL driver version is 2.0 or newer.", ELL_INFORMATION);
 	else
-		os::Printer::log("OpenGL driver version is not 1.2 or better.", ELL_WARNING);
+		os::Printer::log("OpenGL driver version is older than 2.0.", ELL_WARNING);
 
 	{
 		const char *t = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
@@ -399,8 +399,6 @@ void COpenGLExtensionHandler::initExtensions(video::IContextManager *cmgr, bool 
 		Feature.MaxTextureUnits = core::max_(Feature.MaxTextureUnits, static_cast<u8>(num));
 	}
 #endif
-	glGetIntegerv(GL_MAX_LIGHTS, &num);
-	MaxLights = static_cast<u8>(num);
 #ifdef GL_EXT_texture_filter_anisotropic
 	if (FeatureAvailable[IRR_EXT_texture_filter_anisotropic]) {
 		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &num);
@@ -612,6 +610,8 @@ bool COpenGLExtensionHandler::queryFeature(E_VIDEO_DRIVER_FEATURE feature) const
 		return FeatureAvailable[IRR_ARB_seamless_cube_map];
 	case EVDF_DEPTH_CLAMP:
 		return FeatureAvailable[IRR_NV_depth_clamp] || FeatureAvailable[IRR_ARB_depth_clamp];
+	case EVDF_TEXTURE_MULTISAMPLE:
+		return (Version >= 302) || FeatureAvailable[IRR_ARB_texture_multisample];
 
 	default:
 		return false;

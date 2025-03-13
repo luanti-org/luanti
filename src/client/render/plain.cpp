@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2017 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2017 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
 #include "plain.h"
 #include "secondstage.h"
@@ -26,6 +11,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "client/hud.h"
 #include "client/minimap.h"
 #include "client/shadows/dynamicshadowsrender.h"
+#include <IGUIEnvironment.h>
 
 /// Draw3D pipeline step
 void Draw3D::run(PipelineContext &context)
@@ -102,7 +88,7 @@ void UpscaleStep::run(PipelineContext &context)
 std::unique_ptr<RenderStep> create3DStage(Client *client, v2f scale)
 {
 	RenderStep *step = new Draw3D();
-	if (g_settings->getBool("enable_shaders") && g_settings->getBool("enable_post_processing")) {
+	if (g_settings->getBool("enable_post_processing")) {
 		RenderPipeline *pipeline = new RenderPipeline();
 		pipeline->addStep(pipeline->own(std::unique_ptr<RenderStep>(step)));
 
@@ -119,24 +105,30 @@ static v2f getDownscaleFactor()
 	return v2f(1.0f / undersampling);
 }
 
-RenderStep* addUpscaling(RenderPipeline *pipeline, RenderStep *previousStep, v2f downscale_factor)
+RenderStep* addUpscaling(RenderPipeline *pipeline, RenderStep *previousStep, v2f downscale_factor, Client *client)
 {
-	const int TEXTURE_UPSCALE = 0;
+	const int TEXTURE_LOWRES_COLOR = 0;
+	const int TEXTURE_LOWRES_DEPTH = 1;
 
 	if (downscale_factor.X == 1.0f && downscale_factor.Y == 1.0f)
 		return previousStep;
 
-	// When shaders are enabled, post-processing pipeline takes care of rescaling
-	if (g_settings->getBool("enable_shaders") && g_settings->getBool("enable_post_processing"))
+	// post-processing pipeline takes care of rescaling
+	if (g_settings->getBool("enable_post_processing"))
 		return previousStep;
 
+	auto driver = client->getSceneManager()->getVideoDriver();
+	video::ECOLOR_FORMAT color_format = selectColorFormat(driver);
+	video::ECOLOR_FORMAT depth_format = selectDepthFormat(driver);
 
 	// Initialize buffer
 	TextureBuffer *buffer = pipeline->createOwned<TextureBuffer>();
-	buffer->setTexture(TEXTURE_UPSCALE, downscale_factor, "upscale", video::ECF_A8R8G8B8);
+	buffer->setTexture(TEXTURE_LOWRES_COLOR, downscale_factor, "lowres_color", color_format);
+	buffer->setTexture(TEXTURE_LOWRES_DEPTH, downscale_factor, "lowres_depth", depth_format);
 
 	// Attach previous step to the buffer
-	TextureBufferOutput *buffer_output = pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_UPSCALE);
+	TextureBufferOutput *buffer_output = pipeline->createOwned<TextureBufferOutput>(
+			buffer, std::vector<u8> {TEXTURE_LOWRES_COLOR}, TEXTURE_LOWRES_DEPTH);
 	previousStep->setRenderTarget(buffer_output);
 
 	// Add upscaling step
@@ -155,9 +147,28 @@ void populatePlainPipeline(RenderPipeline *pipeline, Client *client)
 	pipeline->addStep<DrawWield>();
 	pipeline->addStep<MapPostFxStep>();
 
-	step3D = addUpscaling(pipeline, step3D, downscale_factor);
+	step3D = addUpscaling(pipeline, step3D, downscale_factor, client);
 
 	step3D->setRenderTarget(pipeline->createOwned<ScreenTarget>());
 
 	pipeline->addStep<DrawHUD>();
+}
+
+video::ECOLOR_FORMAT selectColorFormat(video::IVideoDriver *driver)
+{
+	u32 bits = g_settings->getU32("post_processing_texture_bits");
+	if (bits >= 16 && driver->queryTextureFormat(video::ECF_A16B16G16R16F))
+		return video::ECF_A16B16G16R16F;
+	if (bits >= 10 && driver->queryTextureFormat(video::ECF_A2R10G10B10))
+		return video::ECF_A2R10G10B10;
+	return video::ECF_A8R8G8B8;
+}
+
+video::ECOLOR_FORMAT selectDepthFormat(video::IVideoDriver *driver)
+{
+	if (driver->queryTextureFormat(video::ECF_D24))
+		return video::ECF_D24;
+	if (driver->queryTextureFormat(video::ECF_D24S8))
+		return video::ECF_D24S8;
+	return video::ECF_D16; // fallback depth format
 }

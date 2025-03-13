@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "tool.h"
 #include "itemdef.h"
@@ -27,7 +12,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/serialize.h"
 #include "util/numeric.h"
 #include "util/hex.h"
-#include "common/c_content.h"
 #include <json/json.h>
 
 
@@ -62,7 +46,7 @@ void ToolGroupCap::fromJson(const Json::Value &json)
 
 	for (Json::ArrayIndex i = 0; i < size; ++i) {
 		if (times_object[i].isDouble())
-			times[i] = times_object[i].asFloat();
+			times.emplace_back(i, times_object[i].asFloat());
 	}
 }
 
@@ -121,7 +105,7 @@ void ToolCapabilities::deSerialize(std::istream &is)
 		for(u32 i = 0; i < times_size; i++) {
 			int level = readS16(is);
 			float time = readF32(is);
-			cap.times[level] = time;
+			cap.times.emplace_back(level, time);
 		}
 		groupcaps[name] = cap;
 	}
@@ -250,7 +234,7 @@ void WearBarParams::serializeJson(std::ostream &os) const
 		color_stops[ftos(item.first)] = encodeHexColorString(item.second);
 	}
 	root["color_stops"] = color_stops;
-	root["blend"] = WearBarParams::es_BlendMode[blend].str;
+	root["blend"] = enum_to_string(WearBarParams::es_BlendMode, blend);
 
 	fastWriteJson(root, os);
 }
@@ -287,21 +271,11 @@ std::optional<WearBarParams> WearBarParams::deserializeJson(std::istream &is)
 	return WearBarParams(colorStops, blend);
 }
 
-video::SColor WearBarParams::getWearBarColor(f32 durabilityPercent) {
+video::SColor WearBarParams::getWearBarColor(f32 durabilityPercent)
+{
 	if (colorStops.empty())
 		return video::SColor();
 
-	/*
-	 * Strategy:
-	 * Find upper bound of durabilityPercent
-	 *
-	 * if it == stops.end() -> return last color in the map
-	 * if it == stops.begin() -> return first color in the map
-	 *
-	 * else:
-	 * 	lower_bound = it - 1
-	 * 	interpolate/do constant
-	 */
 	auto upper = colorStops.upper_bound(durabilityPercent);
 
 	if (upper == colorStops.end()) // durability is >= the highest defined color stop
@@ -310,6 +284,7 @@ video::SColor WearBarParams::getWearBarColor(f32 durabilityPercent) {
 	if (upper == colorStops.begin()) // durability is <= the lowest defined color stop
 		return upper->second;
 
+	// between two values, interpolate
 	auto lower = std::prev(upper);
 	f32 lower_bound = lower->first;
 	video::SColor lower_color = lower->second;

@@ -1,4 +1,4 @@
-Checks: '-*,modernize-use-emplace,modernize-avoid-bind,misc-throw-by-value-catch-by-reference,misc-unconventional-assign-operator,performance-*'
+Checks: '-*,modernize-use-emplace,modernize-avoid-bind,misc-throw-by-value-catch-by-reference,misc-unconventional-assign-operator,performance-*,-performance-avoid-endl,performance-inefficient-string-concatenation'
 WarningsAsErrors: '-*,modernize-use-emplace,performance-type-promotion-in-math-fn,performance-faster-string-find,performance-implicit-cast-in-loop'
 CheckOptions:
   - key: performance-unnecessary-value-param.AllowedTypes

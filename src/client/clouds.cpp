@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "client/renderingengine.h"
 #include "client/shader.h"
@@ -28,11 +13,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "settings.h"
 #include <cmath>
 
-
-// Menu clouds are created later
 class Clouds;
-Clouds *g_menuclouds = NULL;
-scene::ISceneManager *g_menucloudsmgr = NULL;
+scene::ISceneManager *g_menucloudsmgr = nullptr;
+Clouds *g_menuclouds = nullptr;
 
 // Constant for now
 static constexpr const float cloud_size = BS * 64.0f;
@@ -49,19 +32,14 @@ Clouds::Clouds(scene::ISceneManager* mgr, IShaderSource *ssrc,
 	scene::ISceneNode(mgr->getRootSceneNode(), mgr, id),
 	m_seed(seed)
 {
-	m_enable_shaders = g_settings->getBool("enable_shaders");
-	// menu clouds use shader-less clouds for simplicity (ssrc == NULL)
-	m_enable_shaders = m_enable_shaders && ssrc;
+	assert(ssrc);
 
-	m_material.Lighting = false;
 	m_material.BackfaceCulling = true;
 	m_material.FogEnable = true;
 	m_material.AntiAliasing = video::EAAM_SIMPLE;
-	if (m_enable_shaders) {
-		auto sid = ssrc->getShader("cloud_shader", TILE_MATERIAL_ALPHA);
+	{
+		auto sid = ssrc->getShaderRaw("cloud_shader", true);
 		m_material.MaterialType = ssrc->getShaderInfo(sid).material;
-	} else {
-		m_material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 	}
 
 	m_params = SkyboxDefaults::getCloudDefaults();
@@ -69,8 +47,17 @@ Clouds::Clouds(scene::ISceneManager* mgr, IShaderSource *ssrc,
 	readSettings();
 	g_settings->registerChangedCallback("enable_3d_clouds",
 		&cloud_3d_setting_changed, this);
+	g_settings->registerChangedCallback("soft_clouds",
+		&cloud_3d_setting_changed, this);
 
 	updateBox();
+
+	// Neither EAC_BOX (the default) nor EAC_FRUSTUM_BOX will correctly cull
+	// the clouds.
+	// And yes, the bounding box is correct. You can check using the #if 0'd
+	// code in render() and see for yourself.
+	// So I give up and let's disable culling.
+	setAutomaticCulling(scene::EAC_OFF);
 
 	m_meshbuffer.reset(new scene::SMeshBuffer());
 	m_meshbuffer->setHardwareMappingHint(scene::EHM_DYNAMIC);
@@ -78,8 +65,7 @@ Clouds::Clouds(scene::ISceneManager* mgr, IShaderSource *ssrc,
 
 Clouds::~Clouds()
 {
-	g_settings->deregisterChangedCallback("enable_3d_clouds",
-		&cloud_3d_setting_changed, this);
+	g_settings->deregisterAllChangedCallbacks(this);
 }
 
 void Clouds::OnRegisterSceneNode()
@@ -137,23 +123,22 @@ void Clouds::updateMesh()
 
 	// Colors with primitive shading
 
-	video::SColorf c_top_f(m_color);
-	video::SColorf c_side_1_f(m_color);
-	video::SColorf c_side_2_f(m_color);
-	video::SColorf c_bottom_f(m_color);
-	if (m_enable_shaders) {
-		// shader mixes the base color, set via EmissiveColor
-		c_top_f = c_side_1_f = c_side_2_f = c_bottom_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);
-	}
-	c_side_1_f.r *= 0.95f;
-	c_side_1_f.g *= 0.95f;
-	c_side_1_f.b *= 0.95f;
-	c_side_2_f.r *= 0.90f;
-	c_side_2_f.g *= 0.90f;
-	c_side_2_f.b *= 0.90f;
-	c_bottom_f.r *= 0.80f;
-	c_bottom_f.g *= 0.80f;
-	c_bottom_f.b *= 0.80f;
+	video::SColorf c_top_f(1, 1, 1, 1);
+	video::SColorf c_side_1_f(1, 1, 1, 1);
+	video::SColorf c_side_2_f(1, 1, 1, 1);
+	video::SColorf c_bottom_f(1, 1, 1, 1);
+	const video::SColorf shadow = m_params.color_shadow;
+
+	c_side_1_f.r *= shadow.r * 0.25f + 0.75f;
+	c_side_1_f.g *= shadow.g * 0.25f + 0.75f;
+	c_side_1_f.b *= shadow.b * 0.25f + 0.75f;
+	c_side_2_f.r *= shadow.r * 0.5f + 0.5f;
+	c_side_2_f.g *= shadow.g * 0.5f + 0.5f;
+	c_side_2_f.b *= shadow.b * 0.5f + 0.5f;
+	c_bottom_f.r *= shadow.r;
+	c_bottom_f.g *= shadow.g;
+	c_bottom_f.b *= shadow.b;
+
 	video::SColor c_top = c_top_f.toSColor();
 	video::SColor c_side_1 = c_side_1_f.toSColor();
 	video::SColor c_side_2 = c_side_2_f.toSColor();
@@ -225,13 +210,14 @@ void Clouds::updateMesh()
 		const f32 ry = is3D() ? m_params.thickness * BS : 0.0f;
 		const f32 rz = cloud_size / 2;
 
-		for(u32 i = 0; i < num_faces_to_draw; i++)
+		bool soft_clouds_enabled = g_settings->getBool("soft_clouds");
+		for (u32 i = 0; i < num_faces_to_draw; i++)
 		{
-			switch(i)
+			switch (i)
 			{
 			case 0:	// top
-				for (video::S3DVertex &vertex : v) {
-					vertex.Normal.set(0,1,0);
+				for (video::S3DVertex& vertex : v) {
+					vertex.Normal.set(0, 1, 0);
 				}
 				v[0].Pos.set(-rx, ry,-rz);
 				v[1].Pos.set(-rx, ry, rz);
@@ -241,12 +227,20 @@ void Clouds::updateMesh()
 			case 1: // back
 				if (INAREA(xi, zi - 1, m_cloud_radius_i)) {
 					u32 j = GETINDEX(xi, zi - 1, m_cloud_radius_i);
-					if(grid[j])
+					if (grid[j])
 						continue;
 				}
-				for (video::S3DVertex &vertex : v) {
-					vertex.Color = c_side_1;
-					vertex.Normal.set(0,0,-1);
+				if (soft_clouds_enabled) {
+					for (video::S3DVertex& vertex : v) {
+						vertex.Normal.set(0, 0, -1);
+					}
+					v[2].Color = c_bottom;
+					v[3].Color = c_bottom;
+				} else {
+					for (video::S3DVertex& vertex : v) {
+						vertex.Color = c_side_1;
+						vertex.Normal.set(0, 0, -1);
+					}
 				}
 				v[0].Pos.set(-rx, ry,-rz);
 				v[1].Pos.set( rx, ry,-rz);
@@ -255,28 +249,45 @@ void Clouds::updateMesh()
 				break;
 			case 2: //right
 				if (INAREA(xi + 1, zi, m_cloud_radius_i)) {
-					u32 j = GETINDEX(xi+1, zi, m_cloud_radius_i);
-					if(grid[j])
+					u32 j = GETINDEX(xi + 1, zi, m_cloud_radius_i);
+					if (grid[j])
 						continue;
 				}
-				for (video::S3DVertex &vertex : v) {
-					vertex.Color = c_side_2;
-					vertex.Normal.set(1,0,0);
+				if (soft_clouds_enabled) {
+					for (video::S3DVertex& vertex : v) {
+						vertex.Normal.set(1, 0, 0);
+					}
+					v[2].Color = c_bottom;
+					v[3].Color = c_bottom;
 				}
-				v[0].Pos.set( rx, ry,-rz);
-				v[1].Pos.set( rx, ry, rz);
-				v[2].Pos.set( rx,  0, rz);
-				v[3].Pos.set( rx,  0,-rz);
+				else {
+					for (video::S3DVertex& vertex : v) {
+						vertex.Color = c_side_2;
+						vertex.Normal.set(1, 0, 0);
+					}
+				}
+				v[0].Pos.set(rx, ry,-rz);
+				v[1].Pos.set(rx, ry, rz);
+				v[2].Pos.set(rx,  0, rz);
+				v[3].Pos.set(rx,  0,-rz);
 				break;
 			case 3: // front
 				if (INAREA(xi, zi + 1, m_cloud_radius_i)) {
 					u32 j = GETINDEX(xi, zi + 1, m_cloud_radius_i);
-					if(grid[j])
+					if (grid[j])
 						continue;
 				}
-				for (video::S3DVertex &vertex : v) {
-					vertex.Color = c_side_1;
-					vertex.Normal.set(0,0,-1);
+				if (soft_clouds_enabled) {
+					for (video::S3DVertex& vertex : v) {
+						vertex.Normal.set(0, 0, -1);
+					}
+					v[2].Color = c_bottom;
+					v[3].Color = c_bottom;
+				} else {
+					for (video::S3DVertex& vertex : v) {
+						vertex.Color = c_side_1;
+						vertex.Normal.set(0, 0, -1);
+					}
 				}
 				v[0].Pos.set( rx, ry, rz);
 				v[1].Pos.set(-rx, ry, rz);
@@ -284,14 +295,22 @@ void Clouds::updateMesh()
 				v[3].Pos.set( rx,  0, rz);
 				break;
 			case 4: // left
-				if (INAREA(xi-1, zi, m_cloud_radius_i)) {
-					u32 j = GETINDEX(xi-1, zi, m_cloud_radius_i);
-					if(grid[j])
+				if (INAREA(xi - 1, zi, m_cloud_radius_i)) {
+					u32 j = GETINDEX(xi - 1, zi, m_cloud_radius_i);
+					if (grid[j])
 						continue;
 				}
-				for (video::S3DVertex &vertex : v) {
-					vertex.Color = c_side_2;
-					vertex.Normal.set(-1,0,0);
+				if (soft_clouds_enabled) {
+					for (video::S3DVertex& vertex : v) {
+						vertex.Normal.set(-1, 0, 0);
+					}
+					v[2].Color = c_bottom;
+					v[3].Color = c_bottom;
+				} else {
+					for (video::S3DVertex& vertex : v) {
+						vertex.Color = c_side_2;
+						vertex.Normal.set(-1, 0, 0);
+					}
 				}
 				v[0].Pos.set(-rx, ry, rz);
 				v[1].Pos.set(-rx, ry,-rz);
@@ -299,9 +318,9 @@ void Clouds::updateMesh()
 				v[3].Pos.set(-rx,  0, rz);
 				break;
 			case 5: // bottom
-				for (video::S3DVertex &vertex : v) {
+				for (video::S3DVertex& vertex : v) {
 					vertex.Color = c_bottom;
-					vertex.Normal.set(0,-1,0);
+					vertex.Normal.set(0, -1, 0);
 				}
 				v[0].Pos.set( rx,  0, rz);
 				v[1].Pos.set(-rx,  0, rz);
@@ -354,6 +373,19 @@ void Clouds::render()
 	if (SceneManager->getSceneNodeRenderPass() != scene::ESNRP_TRANSPARENT)
 		return;
 
+#if 0
+	{
+		video::SMaterial tmp;
+		tmp.Thickness = 1.f;
+		driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
+		driver->setMaterial(tmp);
+		aabb3f tmpbox = m_box;
+		tmpbox.MinEdge.X = tmpbox.MinEdge.Z = -1000 * BS;
+		tmpbox.MaxEdge.X = tmpbox.MaxEdge.Z = 1000 * BS;
+		driver->draw3DBox(tmpbox, video::SColor(255, 255, 0x4d, 0));
+	}
+#endif
+
 	updateMesh();
 
 	// Update position
@@ -366,8 +398,7 @@ void Clouds::render()
 	}
 
 	m_material.BackfaceCulling = is3D();
-	if (m_enable_shaders)
-		m_material.EmissiveColor = m_color.toSColor();
+	m_material.ColorParam = m_color.toSColor();
 
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 	driver->setMaterial(m_material);
@@ -414,14 +445,14 @@ void Clouds::update(const v3f &camera_p, const video::SColorf &color_diffuse)
 
 	// is the camera inside the cloud mesh?
 	m_camera_pos = camera_p;
-	m_camera_inside_cloud = false; // default
+	m_camera_inside_cloud = false;
 	if (is3D()) {
 		float camera_height = camera_p.Y - BS * m_camera_offset.Y;
 		if (camera_height >= m_box.MinEdge.Y &&
 				camera_height <= m_box.MaxEdge.Y) {
 			v2f camera_in_noise;
-			camera_in_noise.X = floor((camera_p.X - m_origin.X) / cloud_size + 0.5);
-			camera_in_noise.Y = floor((camera_p.Z - m_origin.Y) / cloud_size + 0.5);
+			camera_in_noise.X = floorf((camera_p.X - m_origin.X) / cloud_size + 0.5f);
+			camera_in_noise.Y = floorf((camera_p.Z - m_origin.Y) / cloud_size + 0.5f);
 			bool filled = gridFilled(camera_in_noise.X, camera_in_noise.Y);
 			m_camera_inside_cloud = filled;
 		}
@@ -434,8 +465,8 @@ void Clouds::readSettings()
 	// chosen to avoid exactly that.
 	// refer to vertex_count in updateMesh()
 	m_enable_3d = g_settings->getBool("enable_3d_clouds");
-	const u16 maximum = m_enable_3d ? 62 : 25;
-	m_cloud_radius_i = rangelim(g_settings->getU16("cloud_radius"), 1, maximum);
+	const u16 maximum = !m_enable_3d ? 62 : 25;
+	m_cloud_radius_i = rangelim(g_settings->getU16("cloud_radius"), 8, maximum);
 
 	invalidateMesh();
 }

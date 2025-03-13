@@ -2,7 +2,7 @@
 
 ## Sign the Android APK from CI
 
-The [Github Actions Workflow](https://github.com/minetest/minetest/actions?query=workflow%3Aandroid+event%3Apush)
+The [Github Actions Workflow](https://github.com/luanti-org/luanti/actions?query=workflow%3Aandroid+event%3Apush)
 automatically produces an APK for each architecture.
 Before installing them onto a device they however need to be signed.
 
@@ -21,7 +21,7 @@ After that installing it will work:
 adb install -r -d ./app-arm64-v8a-release-unsigned.apk
 ```
 
-## How to get debug output from Minetest on Android
+## How to get debug output from Luanti on Android
 
 In case debug.txt isn't enough (e.g. when debugging a crash), you can get debug
 output using logcat:

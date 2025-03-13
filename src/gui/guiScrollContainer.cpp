@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2020 DS
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2020 DS
 
 #include "guiScrollContainer.h"
 
@@ -65,6 +50,50 @@ void GUIScrollContainer::draw()
 							child->getAbsolutePosition()))
 				child->draw();
 	}
+}
+
+void GUIScrollContainer::setScrollBar(GUIScrollBar *scrollbar)
+{
+	m_scrollbar = scrollbar;
+
+	if (m_scrollbar && m_content_padding_px.has_value() && m_scrollfactor != 0.0f) {
+		// Set the scrollbar max value based on the content size.
+
+		// Get content size based on elements
+		core::rect<s32> size;
+		for (gui::IGUIElement *e : Children) {
+			core::rect<s32> abs_rect = e->getAbsolutePosition();
+			size.addInternalPoint(abs_rect.LowerRightCorner);
+		}
+
+		s32 visible_content_px = (
+			m_orientation == VERTICAL
+				? AbsoluteClippingRect.getHeight()
+				: AbsoluteClippingRect.getWidth()
+		);
+
+		s32 total_content_px = *m_content_padding_px + (
+			m_orientation == VERTICAL
+				? (size.LowerRightCorner.Y - AbsoluteClippingRect.UpperLeftCorner.Y)
+				: (size.LowerRightCorner.X - AbsoluteClippingRect.UpperLeftCorner.X)
+		);
+
+		s32 hidden_content_px = std::max<s32>(0, total_content_px - visible_content_px);
+		m_scrollbar->setMin(0);
+		m_scrollbar->setMax(std::ceil(hidden_content_px / std::fabs(m_scrollfactor)));
+
+		// Note: generally, the scrollbar has the same size as the scroll container.
+		// However, in case it isn't, proportional adjustments are needed.
+		s32 scrollbar_px = (
+			m_scrollbar->isHorizontal()
+				? m_scrollbar->getRelativePosition().getWidth()
+				: m_scrollbar->getRelativePosition().getHeight()
+		);
+
+		m_scrollbar->setPageSize((total_content_px * scrollbar_px) / visible_content_px);
+	}
+
+	updateScrolling();
 }
 
 void GUIScrollContainer::updateScrolling()

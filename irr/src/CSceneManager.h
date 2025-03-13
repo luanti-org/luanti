@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SkinnedMesh.h"
 #include "ISceneManager.h"
 #include "ISceneNode.h"
 #include "ICursorControl.h"
@@ -21,6 +22,8 @@ class IFileSystem;
 namespace scene
 {
 class IMeshCache;
+
+class SkinnedMesh;
 
 /*!
 	The Scene Manager manages scene nodes, mesh resources, cameras and all the other stuff.
@@ -167,20 +170,19 @@ public:
 	//! Returns type of the scene node
 	ESCENE_NODE_TYPE getType() const override { return ESNT_SCENE_MANAGER; }
 
-	//! Get a skinned mesh, which is not available as header-only code
-	ISkinnedMesh *createSkinnedMesh() override;
-
-	//! Sets ambient color of the scene
-	void setAmbientLight(const video::SColorf &ambientColor) override;
-
-	//! Returns ambient color of the scene
-	const video::SColorf &getAmbientLight() const override;
+	//! Get a skinned mesh
+	SkinnedMesh *createSkinnedMesh() override;
 
 	//! Get current render time.
 	E_SCENE_NODE_RENDER_PASS getCurrentRenderPass() const override { return CurrentRenderPass; }
 
 	//! Set current render time.
 	void setCurrentRenderPass(E_SCENE_NODE_RENDER_PASS nextPass) override { CurrentRenderPass = nextPass; }
+
+	void setGlobalDebugData(u16 setBits, u16 unsetBits) override {
+		DebugDataMask = ~unsetBits;
+		DebugDataBits = setBits;
+	}
 
 	//! returns if node is culled
 	bool isCulled(const ISceneNode *node) const override;
@@ -199,21 +201,21 @@ private:
 		}
 
 		DefaultNodeEntry(ISceneNode *n) :
-				Node(n), TextureValue(0)
+				Node(n)
 		{
 			if (n->getMaterialCount())
-				TextureValue = (n->getMaterial(0).getTexture(0));
+				Hash = std::hash<video::SMaterial>{}(n->getMaterial(0));
 		}
 
-		bool operator<(const DefaultNodeEntry &other) const
+		bool operator<(const DefaultNodeEntry &other) const noexcept
 		{
-			return (TextureValue < other.TextureValue);
+			return Hash < other.Hash;
 		}
 
-		ISceneNode *Node;
+		ISceneNode *Node = nullptr;
 
 	private:
-		void *TextureValue;
+		size_t Hash = 0;
 	};
 
 	//! sort on distance (center) to camera
@@ -229,42 +231,15 @@ private:
 			Distance = Node->getAbsoluteTransformation().getTranslation().getDistanceFromSQ(camera);
 		}
 
-		bool operator<(const TransparentNodeEntry &other) const
+		bool operator<(const TransparentNodeEntry &other) const noexcept
 		{
 			return Distance > other.Distance;
 		}
 
-		ISceneNode *Node;
+		ISceneNode *Node = nullptr;
 
 	private:
-		f64 Distance;
-	};
-
-	//! sort on distance (sphere) to camera
-	struct DistanceNodeEntry
-	{
-		DistanceNodeEntry(ISceneNode *n, const core::vector3df &cameraPos) :
-				Node(n)
-		{
-			setNodeAndDistanceFromPosition(n, cameraPos);
-		}
-
-		bool operator<(const DistanceNodeEntry &other) const
-		{
-			return Distance < other.Distance;
-		}
-
-		void setNodeAndDistanceFromPosition(ISceneNode *n, const core::vector3df &fromPosition)
-		{
-			Node = n;
-			Distance = Node->getAbsoluteTransformation().getTranslation().getDistanceFromSQ(fromPosition);
-			Distance -= Node->getBoundingBox().getExtent().getLengthSQ() * 0.5;
-		}
-
-		ISceneNode *Node;
-
-	private:
-		f64 Distance;
+		f32 Distance = 0;
 	};
 
 	//! video driver
@@ -291,15 +266,15 @@ private:
 	ICameraSceneNode *ActiveCamera;
 	core::vector3df camWorldPos; // Position of camera for transparent nodes.
 
-	video::SColor ShadowColor;
-	video::SColorf AmbientLight;
-
 	//! String parameters
 	// NOTE: Attributes are slow and should only be used for debug-info and not in release
 	io::CAttributes *Parameters;
 
 	//! Mesh cache
 	IMeshCache *MeshCache;
+
+	//! Global debug render state
+	u16 DebugDataMask = 0, DebugDataBits = 0;
 
 	E_SCENE_NODE_RENDER_PASS CurrentRenderPass;
 };

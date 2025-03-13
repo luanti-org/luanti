@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -65,21 +50,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	28: Added "private" flag to NodeMetadata
 	29: Switched compression to zstd, a bit of reorganization
 */
+
 // This represents an uninitialized or invalid format
-#define SER_FMT_VER_INVALID 255
+constexpr u8 SER_FMT_VER_INVALID = 255;
 // Highest supported serialization version
-#define SER_FMT_VER_HIGHEST_READ 29
+constexpr u8 SER_FMT_VER_HIGHEST_READ = 29;
 // Saved on disk version
-#define SER_FMT_VER_HIGHEST_WRITE 29
+constexpr u8 SER_FMT_VER_HIGHEST_WRITE = 29;
 // Lowest supported serialization version
-#define SER_FMT_VER_LOWEST_READ 0
+constexpr u8 SER_FMT_VER_LOWEST_READ = 0;
 // Lowest serialization version for writing
 // Can't do < 24 anymore; we have 16-bit dynamically allocated node IDs
 // in memory; conversion just won't work in this direction.
-#define SER_FMT_VER_LOWEST_WRITE 24
+constexpr u8 SER_FMT_VER_LOWEST_WRITE = 24;
 
-inline bool ser_ver_supported(s32 v) {
+inline bool ser_ver_supported_read(s32 v)
+{
 	return v >= SER_FMT_VER_LOWEST_READ && v <= SER_FMT_VER_HIGHEST_READ;
+}
+
+inline bool ser_ver_supported_write(s32 v)
+{
+	return v >= SER_FMT_VER_LOWEST_WRITE && v <= SER_FMT_VER_HIGHEST_WRITE;
 }
 
 /*

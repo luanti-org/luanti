@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2024 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2024 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -23,8 +8,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <memory>
 
 #include "map.h"
-#include "util/container.h"
-#include "util/metricsbackend.h"
+#include "util/container.h" // UniqueQueue
+#include "util/metricsbackend.h" // ptr typedefs
 #include "map_settings_manager.h"
 
 class Settings;
@@ -33,8 +18,21 @@ class IRollbackManager;
 class EmergeManager;
 class ServerEnvironment;
 struct BlockMakeData;
-
 class MetricsBackend;
+
+// TODO: this could wrap all calls to MapDatabase, including locking
+struct MapDatabaseAccessor {
+	/// Lock, to be taken for any operation
+	std::mutex mutex;
+	/// Main database
+	MapDatabase *dbase = nullptr;
+	/// Fallback database for read operations
+	MapDatabase *dbase_ro = nullptr;
+
+	/// Load a block, taking dbase_ro into account.
+	/// @note call locked
+	void loadBlock(v3s16 blockpos, std::string &ret);
+};
 
 /*
 	ServerMap
@@ -75,7 +73,7 @@ public:
 	MapBlock *createBlock(v3s16 p);
 
 	/*
-		Forcefully get a block from somewhere.
+		Forcefully get a block from somewhere (blocking!).
 		- Memory
 		- Load from disk
 		- Create blank filled with CONTENT_IGNORE
@@ -114,9 +112,16 @@ public:
 
 	bool saveBlock(MapBlock *block) override;
 	static bool saveBlock(MapBlock *block, MapDatabase *db, int compression_level = -1);
-	MapBlock* loadBlock(v3s16 p);
-	// Database version
-	void loadBlock(std::string *blob, v3s16 p3d, MapSector *sector, bool save_after_load=false);
+
+	// Load block in a synchronous fashion
+	MapBlock *loadBlock(v3s16 p);
+	/// Load a block that was already read from disk. Used by EmergeManager.
+	/// @return non-null block (but can be blank)
+	MapBlock *loadBlock(const std::string &blob, v3s16 p, bool save_after_load=false);
+
+	// Helper for deserializing blocks from disk
+	// @throws SerializationError
+	static void deSerializeBlock(MapBlock *block, std::istream &is);
 
 	// Blocks are removed from the map but not deleted from memory until
 	// deleteDetachedBlocks() is called, since pointers to them may still exist
@@ -185,8 +190,8 @@ private:
 		This is reset to false when written on disk.
 	*/
 	bool m_map_metadata_changed = true;
-	MapDatabase *dbase = nullptr;
-	MapDatabase *dbase_ro = nullptr;
+
+	MapDatabaseAccessor m_db;
 
 	// Map metrics
 	MetricGaugePtr m_loaded_blocks_gauge;

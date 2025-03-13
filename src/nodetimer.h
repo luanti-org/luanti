@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -65,8 +50,7 @@ public:
 
 	// Get timer
 	NodeTimer get(const v3s16 &p) {
-		std::map<v3s16, std::multimap<double, NodeTimer>::iterator>::iterator n =
-			m_iterators.find(p);
+		auto n = m_iterators.find(p);
 		if (n == m_iterators.end())
 			return NodeTimer();
 		NodeTimer t = n->second->second;
@@ -75,8 +59,7 @@ public:
 	}
 	// Deletes timer
 	void remove(v3s16 p) {
-		std::map<v3s16, std::multimap<double, NodeTimer>::iterator>::iterator n =
-			m_iterators.find(p);
+		auto n = m_iterators.find(p);
 		if(n != m_iterators.end()) {
 			double removed_time = n->second->first;
 			m_timers.erase(n->second);
@@ -96,7 +79,7 @@ public:
 	void insert(const NodeTimer &timer) {
 		v3s16 p = timer.position;
 		double trigger_time = m_time + (double)(timer.timeout - timer.elapsed);
-		std::multimap<double, NodeTimer>::iterator it = m_timers.emplace(trigger_time, timer);
+		auto it = m_timers.emplace(trigger_time, timer);
 		m_iterators.emplace(p, it);
 		if (m_next_trigger_time == -1. || trigger_time < m_next_trigger_time)
 			m_next_trigger_time = trigger_time;

@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2015-2020 paramat
-Copyright (C) 2014-2016 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2015-2020 paramat
+// Copyright (C) 2014-2016 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
 
 #include "mg_ore.h"
 #include "mapgen.h"
@@ -28,7 +13,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <algorithm>
 
 
-FlagDesc flagdesc_ore[] = {
+const FlagDesc flagdesc_ore[] = {
 	{"absheight",                 OREFLAG_ABSHEIGHT}, // Non-functional
 	{"puff_cliffs",               OREFLAG_PUFF_CLIFFS},
 	{"puff_additive_composition", OREFLAG_PUFF_ADDITIVE},
@@ -339,7 +324,7 @@ void OrePuff::generate(MMVManip *vm, int mapseed, u32 blockseed,
 		int y1 = ymid + ntop;
 
 		if ((flags & OREFLAG_PUFF_ADDITIVE) && (y0 > y1))
-			SWAP(int, y0, y1);
+			std::swap(y0, y1);
 
 		for (int y = y0; y <= y1; y++) {
 			u32 i = vm->m_area.index(x, y, z);

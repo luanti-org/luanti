@@ -1,35 +1,17 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
+#include "IGUIElement.h"
+#include "irrlichttypes_bloated.h"
 #include "irr_ptr.h"
+
 #include "util/string.h"
 #ifdef __ANDROID__
 	#include <porting_android.h>
 #endif
-
-enum class PointerType {
-	Mouse,
-	Touch,
-};
 
 struct PointerAction {
 	v2s32 pos;
@@ -74,14 +56,10 @@ public:
 	porting::AndroidDialogState getAndroidUIInputState();
 #endif
 
-	PointerType getPointerType() { return m_pointer_type; };
-
 protected:
 	virtual std::wstring getLabelByID(s32 id) = 0;
 	virtual std::string getNameByID(s32 id) = 0;
 
-	// Stores the last known pointer type.
-	PointerType m_pointer_type = PointerType::Mouse;
 	// Stores the last known pointer position.
 	// If the last input event was a mouse event, it's the cursor position.
 	// If the last input event was a touch event, it's the finger position.
@@ -102,9 +80,6 @@ protected:
 
 	// This is set to true if the menu is currently processing a second-touch event.
 	bool m_second_touch = false;
-	// This is set to true if the menu is currently processing a mouse event
-	// that was synthesized by the menu itself from a touch event.
-	bool m_simulated_mouse = false;
 
 private:
 	IMenuManager *m_menumgr;

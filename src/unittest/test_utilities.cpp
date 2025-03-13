@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "test.h"
 
@@ -671,8 +656,6 @@ C apply_all(const C &co, F functor)
 	return ret;
 }
 
-#define cast_v3(T, other) T((other).X, (other).Y, (other).Z)
-
 void TestUtilities::testIsBlockInSight()
 {
 	const std::vector<v3s16> testdata1 = {
@@ -689,7 +672,7 @@ void TestUtilities::testIsBlockInSight()
 	auto test1 = [] (const std::vector<v3s16> &data) {
 		float range = BS * MAP_BLOCKSIZE * 4;
 		float fov = 72 * core::DEGTORAD;
-		v3f cam_pos = cast_v3(v3f, data[0]), cam_dir = cast_v3(v3f, data[1]);
+		v3f cam_pos = v3f::from(data[0]), cam_dir = v3f::from(data[1]);
 		UASSERT( isBlockInSight(data[2], cam_pos, cam_dir, fov, range));
 		UASSERT(!isBlockInSight(data[3], cam_pos, cam_dir, fov, range));
 		UASSERT(!isBlockInSight(data[4], cam_pos, cam_dir, fov, range));

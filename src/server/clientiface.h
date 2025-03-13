@@ -1,45 +1,30 @@
-/*
-Minetest
-Copyright (C) 2010-2014 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2014 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
 #include "irr_v3d.h"                   // for irrlicht datatypes
 
-#include "constants.h"
-#include "serialization.h"             // for SER_FMT_VER_INVALID
-#include "network/networkpacket.h"
-#include "network/networkprotocol.h"
 #include "network/address.h"
+#include "network/networkprotocol.h" // session_t
 #include "porting.h"
 #include "threading/mutex_auto_lock.h"
 #include "clientdynamicinfo.h"
 
 #include <list>
-#include <vector>
-#include <set>
-#include <unordered_set>
 #include <memory>
 #include <mutex>
+#include <set>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
-class MapBlock;
-class ServerEnvironment;
 class EmergeManager;
+class MapBlock;
+class NetworkPacket;
+class ServerEnvironment;
 
 /*
  * State Transitions
@@ -126,7 +111,7 @@ class EmergeManager;
 | TOCLIENT_INVENTORY          |                |                 |                     |
 | TOCLIENT_HP (opt)           |                \-----------------/                     |
 | TOCLIENT_BREATH             |                                                        |
-| TOCLIENT_DEATHSCREEN        |                                                        |
+| TOCLIENT_DEATHSCREEN_LEGACY |                                                        |
 +-----------------------------+                                                        |
               |                                                                        |
               v                                                                        |
@@ -233,7 +218,7 @@ public:
 	//       Also, the client must be moved to some other container.
 	session_t peer_id = PEER_ID_INEXISTENT;
 	// The serialization version to use with the client
-	u8 serialization_version = SER_FMT_VER_INVALID;
+	u8 serialization_version;
 	//
 	u16 net_proto_version = 0;
 
@@ -347,7 +332,7 @@ public:
 
 private:
 	// Version is stored in here after INIT before INIT2
-	u8 m_pending_serialization_version = SER_FMT_VER_INVALID;
+	u8 m_pending_serialization_version;
 
 	/* current state of client */
 	ClientState m_state = CS_Created;

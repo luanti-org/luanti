@@ -12,9 +12,8 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'util/ci/**'
-      - 'Dockerfile'
-      - '.dockerignore'
       - '.github/workflows/linux.yml'
   pull_request:
     paths:
@@ -26,9 +25,8 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'util/ci/**'
-      - 'Dockerfile'
-      - '.dockerignore'
       - '.github/workflows/linux.yml'
 
 env:
@@ -51,10 +49,12 @@ jobs:
         env:
           CC: gcc-7
           CXX: g++-7
+          # Test fallback SHA implementations
+          CMAKE_FLAGS: '-DENABLE_OPENSSL=0'
 
       - name: Test
         run: |
-          ./bin/minetest --run-unittests
+          ./bin/luanti --run-unittests
 
   # Current gcc version
   gcc_14:
@@ -78,7 +78,7 @@ jobs:
           mkdir nowrite
           chmod a-w nowrite
           cd nowrite
-          ../bin/minetest --run-unittests
+          ../bin/luanti --run-unittests
 
   # Older clang version (should be close to our minimum supported version)
   clang_7:
@@ -88,7 +88,7 @@ jobs:
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps clang-7 llvm
+          install_linux_deps clang-7 llvm-7
 
       - name: Build
         run: |
@@ -100,7 +100,12 @@ jobs:
 
       - name: Unittest
         run: |
-          ./bin/minetest --run-unittests
+          ./bin/luanti --run-unittests
+
+      # Do this here because we have ASan and error paths are sensitive to dangling pointers
+      - name: Test error cases
+        run: |
+          ./util/test_error_cases.sh
 
   # Current clang version
   clang_18:
@@ -121,7 +126,7 @@ jobs:
 
       - name: Test
         run: |
-          ./bin/minetest --run-unittests
+          ./bin/luanti --run-unittests
 
       - name: Integration test + devtest
         run: |
@@ -151,4 +156,4 @@ jobs:
 
       - name: Test
         run: |
-          ./bin/minetestserver --run-unittests
+          ./bin/luantiserver --run-unittests

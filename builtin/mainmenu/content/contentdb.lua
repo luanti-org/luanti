@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2018-24 rubenwardy
 --
 --This program is free software; you can redistribute it and/or modify
@@ -178,6 +178,23 @@ end
 
 
 function contentdb.get_package_by_id(id)
+	return contentdb.package_by_id[id]
+end
+
+
+function contentdb.calculate_package_id(type, author, name)
+	local id = author:lower() .. "/"
+	if (type == nil or type == "game") and #name > 5 and name:sub(#name - 4) == "_game" then
+		id = id .. name:sub(1, #name - 5)
+	else
+		id = id .. name
+	end
+	return id
+end
+
+
+function contentdb.get_package_by_info(author, name)
+	local id = contentdb.calculate_package_id(nil, author, name)
 	return contentdb.package_by_id[id]
 end
 
@@ -375,7 +392,7 @@ function contentdb.resolve_dependencies(package, game, callback)
 end
 
 
-local function fetch_pkgs(params)
+local function fetch_pkgs()
 	local version = core.get_version()
 	local base_url = core.settings:get("contentdb_url")
 	local url = base_url ..
@@ -412,49 +429,43 @@ local function fetch_pkgs(params)
 	if not packages or #packages == 0 then
 		return
 	end
-	local aliases = {}
+	return packages
+end
+
+
+function contentdb.set_packages_from_api(packages)
+	contentdb.package_by_id = {}
+	contentdb.aliases = {}
 
 	for _, package in pairs(packages) do
-		local name_len = #package.name
-		-- This must match what contentdb.update_paths() does!
-		package.id = package.author:lower() .. "/"
-		if package.type == "game" and name_len > 5 and package.name:sub(name_len - 4) == "_game" then
-			package.id = package.id .. package.name:sub(1, name_len - 5)
-		else
-			package.id = package.id .. package.name
-		end
-
+		package.id = contentdb.calculate_package_id(package.type, package.author, package.name)
 		package.url_part = core.urlencode(package.author) .. "/" .. core.urlencode(package.name)
+
+		contentdb.package_by_id[package.id] = package
 
 		if package.aliases then
 			for _, alias in ipairs(package.aliases) do
 				-- We currently don't support name changing
 				local suffix = "/" .. package.name
 				if alias:sub(-#suffix) == suffix then
-					aliases[alias:lower()] = package.id
+					contentdb.aliases[alias:lower()] = package.id
 				end
 			end
 		end
 	end
 
-	return { packages = packages, aliases = aliases }
+	contentdb.load_ok = true
+	contentdb.load_error = false
+	contentdb.packages = packages
+	contentdb.packages_full = packages
+	contentdb.packages_full_unordered = packages
 end
-
 
 function contentdb.fetch_pkgs(callback)
 	contentdb.loading = true
 	core.handle_async(fetch_pkgs, nil, function(result)
 		if result then
-			contentdb.load_ok = true
-			contentdb.load_error = false
-			contentdb.packages = result.packages
-			contentdb.packages_full = result.packages
-			contentdb.packages_full_unordered = result.packages
-			contentdb.aliases = result.aliases
-
-			for _, package in ipairs(result.packages) do
-				contentdb.package_by_id[package.id] = package
-			end
+			contentdb.set_packages_from_api(result)
 		else
 			contentdb.load_error = true
 		end
@@ -554,30 +565,107 @@ function contentdb.filter_packages(query, by_type)
 	end
 
 	local keywords = {}
-	for word in query:lower():gmatch("%S+") do
-		table.insert(keywords, word)
+	for word in query:gmatch("%S+") do
+		table.insert(keywords, word:lower())
+	end
+
+	local function contains_all_keywords(str)
+		str = str:lower()
+		for _, keyword in ipairs(keywords) do
+			if not str:find(keyword, 1, true) then
+				return false
+			end
+		end
+		return true
 	end
 
 	local function matches_keywords(package)
-		for k = 1, #keywords do
-			local keyword = keywords[k]
-
-			if string.find(package.name:lower(), keyword, 1, true) or
-					string.find(package.title:lower(), keyword, 1, true) or
-					string.find(package.author:lower(), keyword, 1, true) or
-					string.find(package.short_description:lower(), keyword, 1, true) then
-				return true
-			end
-		end
-
-		return false
+		return contains_all_keywords(package.name) or
+				contains_all_keywords(package.title) or
+				contains_all_keywords(package.author) or
+				contains_all_keywords(package.short_description)
 	end
 
 	contentdb.packages = {}
 	for _, package in pairs(contentdb.packages_full) do
 		if (query == "" or matches_keywords(package)) and
 				(by_type == nil or package.type == by_type) then
-			contentdb.packages[#contentdb.packages + 1] = package
+			table.insert(contentdb.packages, package)
 		end
 	end
+end
+
+
+function contentdb.get_full_package_info(package, callback)
+	assert(package)
+	if package.full_info then
+		callback(package.full_info)
+		return
+	end
+
+	local function fetch(params)
+		local version = core.get_version()
+		local base_url = core.settings:get("contentdb_url")
+
+		local languages
+		local current_language = core.get_language()
+		if current_language ~= "" then
+			languages = { current_language, "en;q=0.8" }
+		else
+			languages = { "en" }
+		end
+
+		local url = base_url ..
+				"/api/packages/" .. params.package.url_part .. "/for-client/?" ..
+				"protocol_version=" .. core.urlencode(core.get_max_supp_proto()) ..
+				"&engine_version=" .. core.urlencode(version.string) ..
+				"&formspec_version=" .. core.urlencode(core.get_formspec_version()) ..
+				"&include_images=false"
+		local http = core.get_http_api()
+		local response = http.fetch_sync({
+			url = url,
+			extra_headers = {
+				"Accept-Language: " .. table.concat(languages, ", ")
+			},
+		})
+		if not response.succeeded then
+			return nil
+		end
+
+		return core.parse_json(response.data)
+	end
+
+	local function my_callback(value)
+		package.full_info = value
+		callback(value)
+	end
+
+	if not core.handle_async(fetch, { package = package }, my_callback) then
+		core.log("error", "ERROR: async event failed")
+		callback(nil)
+	end
+end
+
+
+function contentdb.get_formspec_padding()
+	-- Padding is increased on Android to account for notches
+	-- TODO: use Android API to determine size of cut outs
+	return { x = PLATFORM == "Android" and 1 or 0.5, y = PLATFORM == "Android" and 0.25 or 0.5 }
+end
+
+
+function contentdb.get_formspec_size()
+	local window = core.get_window_info()
+	local size = { x = window.max_formspec_size.x, y = window.max_formspec_size.y }
+
+	-- Minimum formspec size
+	local min_x = 15.5
+	local min_y = 10
+	if size.x < min_x or size.y < min_y then
+		local scale = math.max(min_x / size.x, min_y / size.y)
+		size.x = size.x * scale
+		size.y = size.y * scale
+	end
+
+	return size
 end

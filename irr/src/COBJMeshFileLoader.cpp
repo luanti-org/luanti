@@ -26,11 +26,7 @@ namespace scene
 //! Constructor
 COBJMeshFileLoader::COBJMeshFileLoader(scene::ISceneManager *smgr) :
 		SceneManager(smgr)
-{
-#ifdef _DEBUG
-	setDebugName("COBJMeshFileLoader");
-#endif
-}
+{}
 
 //! destructor
 COBJMeshFileLoader::~COBJMeshFileLoader()
@@ -182,7 +178,7 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 				mtlChanged = false;
 			}
 			if (currMtl)
-				v.Color = currMtl->Meshbuffer->Material.DiffuseColor;
+				v.Color = video::SColorf(0.8f, 0.8f, 0.8f, 1.0f).toSColor();
 
 			// get all vertices data in this face (current line of obj file)
 			const core::stringc wordBuffer = copyLine(bufPtr, bufEnd);

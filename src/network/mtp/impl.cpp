@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include <iomanip>
 #include <cerrno>
@@ -66,6 +51,15 @@ u16 BufferedPacket::getSeqnum() const
 		return 0; // should never happen
 
 	return readU16(&data[BASE_HEADER_SIZE + 1]);
+}
+
+void BufferedPacket::setSenderPeerId(session_t id)
+{
+	if (size() < BASE_HEADER_SIZE) {
+		assert(false); // should never happen
+		return;
+	}
+	writeU16(&data[4], id);
 }
 
 BufferedPacketPtr makePacket(const Address &address, const SharedBuffer<u8> &data,
@@ -352,6 +346,13 @@ void ReliablePacketBuffer::insert(BufferedPacketPtr &p_ptr, u16 next_expected)
 	m_oldest_non_answered_ack = m_list.front()->getSeqnum();
 }
 
+void ReliablePacketBuffer::fixPeerId(session_t new_id)
+{
+	MutexAutoLock listlock(m_list_mutex);
+	for (auto &packet : m_list)
+		packet->setSenderPeerId(new_id);
+}
+
 void ReliablePacketBuffer::incrementTimeouts(float dtime)
 {
 	MutexAutoLock listlock(m_list_mutex);
@@ -584,6 +585,13 @@ ConnectionCommandPtr ConnectionCommand::resend_one(session_t peer_id)
 	return c;
 }
 
+ConnectionCommandPtr ConnectionCommand::peer_id_set(session_t own_peer_id)
+{
+	auto c = create(CONNCMD_PEER_ID_SET);
+	c->peer_id = own_peer_id;
+	return c;
+}
+
 ConnectionCommandPtr ConnectionCommand::send(session_t peer_id, u8 channelnum,
 	NetworkPacket *pkt, bool reliable)
 {
@@ -739,18 +747,19 @@ void Channel::UpdateTimers(float dtime)
 	if (packet_loss_counter > 1.0f) {
 		packet_loss_counter -= 1.0f;
 
-		unsigned int packet_loss = 11; /* use a neutral value for initialization */
-		unsigned int packets_successful = 0;
-		//unsigned int packet_too_late = 0;
+		unsigned int packet_loss;
+		unsigned int packets_successful;
+		unsigned int packet_too_late;
 
 		bool reasonable_amount_of_data_transmitted = false;
 
 		{
 			MutexAutoLock internal(m_internal_mutex);
 			packet_loss = current_packet_loss;
-			//packet_too_late = current_packet_too_late;
+			packet_too_late = current_packet_too_late;
 			packets_successful = current_packet_successful;
 
+			// has half the window even been used?
 			if (current_bytes_transfered > (unsigned int) (m_window_size*512/2)) {
 				reasonable_amount_of_data_transmitted = true;
 			}
@@ -758,6 +767,11 @@ void Channel::UpdateTimers(float dtime)
 			current_packet_too_late = 0;
 			current_packet_successful = 0;
 		}
+
+		// Packets too late means either packet duplication along the way
+		// or we were too fast in resending it (which should be self-regulating).
+		// Count this a signal of congestion, like packet loss.
+		packet_loss = std::min(packet_loss + packet_too_late, packets_successful);
 
 		/* dynamic window size */
 		float successful_to_lost_ratio = 0.0f;
@@ -989,19 +1003,27 @@ bool UDPPeer::isTimedOut(float timeout, std::string &reason)
 
 void UDPPeer::reportRTT(float rtt)
 {
-	if (rtt < 0.0) {
+	if (rtt < 0)
 		return;
-	}
 	RTTStatistics(rtt,"rudp",MAX_RELIABLE_WINDOW_SIZE*10);
 
 	// use this value to decide the resend timeout
-	float timeout = getStat(AVG_RTT) * RESEND_TIMEOUT_FACTOR;
+	const float rtt_stat = getStat(AVG_RTT);
+	if (rtt_stat < 0)
+		return;
+	float timeout = rtt_stat * RESEND_TIMEOUT_FACTOR;
 	if (timeout < RESEND_TIMEOUT_MIN)
 		timeout = RESEND_TIMEOUT_MIN;
 	if (timeout > RESEND_TIMEOUT_MAX)
 		timeout = RESEND_TIMEOUT_MAX;
 
+	float timeout_old = getResendTimeout();
 	setResendTimeout(timeout);
+
+	if (std::abs(timeout - timeout_old) >= 0.001f) {
+		dout_con << m_connection->getDesc() << " set resend timeout " << timeout
+			<< " (rtt=" << rtt_stat << ") for peer id: " << id << std::endl;
+	}
 }
 
 bool UDPPeer::Ping(float dtime,SharedBuffer<u8>& data)
@@ -1121,7 +1143,7 @@ bool UDPPeer::processReliableSendCommand(
 	u16 packets_available = toadd.size();
 	/* we didn't get a single sequence number no need to fill queue */
 	if (!have_initial_sequence_number) {
-		LOG(derr_con << m_connection->getDesc() << "Ran out of sequence numbers!" << std::endl);
+		dout_con << m_connection->getDesc() << " No sequence numbers available!" << std::endl;
 		return false;
 	}
 
@@ -1614,6 +1636,14 @@ const std::string Connection::getDesc()
 void Connection::DisconnectPeer(session_t peer_id)
 {
 	putCommand(ConnectionCommand::disconnect_peer(peer_id));
+}
+
+void Connection::SetPeerID(session_t id)
+{
+	m_peer_id = id;
+	// fix peer id in existing queued reliable packets
+	if (id != PEER_ID_INEXISTENT)
+		putCommand(ConnectionCommand::peer_id_set(id));
 }
 
 void Connection::doResendOne(session_t peer_id)

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">Luanti</string>
+    <string name="no_web_browser">Браузерів не знайдено</string>
+    <string name="loading">Завантаження…</string>
+    <string name="notification_channel_name">Загальні сповіщення</string>
+    <string name="unzip_notification_title">Luanti завантажується</string>
+    <string name="unzip_notification_description">Менше за 1 хвилину…</string>
+    <string name="ime_dialog_done">Готово</string>
+    <string name="notification_channel_description">Сповіщення від Luanti</string>
+</resources>

@@ -1,24 +1,11 @@
-/*
-Minetest
-Copyright (C) 2015 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2015 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
 #include "client/client.h"
 
+#include "exceptions.h"
+#include "irr_v2d.h"
 #include "util/base64.h"
 #include "client/camera.h"
 #include "client/mesh_generator_thread.h"
@@ -41,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "script/scripting_client.h"
 #include "util/serialize.h"
 #include "util/srp.h"
-#include "util/sha1.h"
+#include "util/hashing.h"
 #include "tileanimation.h"
 #include "gettext.h"
 #include "skyparams.h"
@@ -76,7 +63,7 @@ void Client::handleCommand_Hello(NetworkPacket* pkt)
 	if (pkt->getSize() < 1)
 		return;
 
-	u8 serialization_ver;
+	u8 serialization_ver; // negotiated value
 	u16 proto_ver;
 	u16 unused_compression_mode;
 	u32 auth_mechs;
@@ -93,9 +80,9 @@ void Client::handleCommand_Hello(NetworkPacket* pkt)
 			<< ", proto_ver=" << proto_ver
 			<< ". Doing auth with mech " << chosen_auth_mechanism << std::endl;
 
-	if (!ser_ver_supported(serialization_ver)) {
+	if (!ser_ver_supported_read(serialization_ver)) {
 		infostream << "Client: TOCLIENT_HELLO: Server sent "
-				<< "unsupported ser_fmt_ver"<< std::endl;
+				<< "unsupported ser_fmt_ver=" << (int)serialization_ver << std::endl;
 		return;
 	}
 
@@ -145,16 +132,9 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 {
 	deleteAuthData();
 
-	v3f playerpos;
-	*pkt >> playerpos >> m_map_seed >> m_recommended_send_interval
+	v3f unused;
+	*pkt >> unused >> m_map_seed >> m_recommended_send_interval
 		>> m_sudo_auth_methods;
-
-	playerpos -= v3f(0, BS / 2, 0);
-
-	// Set player position
-	LocalPlayer *player = m_env.getLocalPlayer();
-	assert(player != NULL);
-	player->setPosition(playerpos);
 
 	infostream << "Client: received map seed: " << m_map_seed << std::endl;
 	infostream << "Client: received recommended send interval "
@@ -189,6 +169,7 @@ void Client::handleCommand_AcceptSudoMode(NetworkPacket* pkt)
 	// reset again
 	m_chosen_auth_mech = AUTH_MECHANISM_NONE;
 }
+
 void Client::handleCommand_DenySudoMode(NetworkPacket* pkt)
 {
 	ChatMessage *chatMessage = new ChatMessage(CHATMESSAGE_TYPE_SYSTEM,
@@ -204,11 +185,10 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 	// to be processed even if the serialization format has
 	// not been agreed yet, the same as TOCLIENT_INIT.
 	m_access_denied = true;
-	m_access_denied_reason = "Unknown";
 
 	if (pkt->getCommand() != TOCLIENT_ACCESS_DENIED) {
-		// Legacy code from 0.4.12 and older but is still used
-		// in some places of the server code
+		// Servers older than 5.6 still send TOCLIENT_ACCESS_DENIED_LEGACY sometimes.
+		// see commit a65f6f07f3a5601207b790edcc8cc945133112f7
 		if (pkt->getSize() >= 2) {
 			std::wstring wide_reason;
 			*pkt >> wide_reason;
@@ -223,37 +203,28 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 	u8 denyCode;
 	*pkt >> denyCode;
 
-	if (denyCode == SERVER_ACCESSDENIED_SHUTDOWN ||
-			denyCode == SERVER_ACCESSDENIED_CRASH) {
+	if (pkt->getRemainingBytes() > 0)
 		*pkt >> m_access_denied_reason;
-		if (m_access_denied_reason.empty())
+
+	if (m_access_denied_reason.empty()) {
+		if (denyCode >= SERVER_ACCESSDENIED_MAX) {
+			m_access_denied_reason = gettext("Unknown disconnect reason.");
+		} else if (denyCode != SERVER_ACCESSDENIED_CUSTOM_STRING) {
 			m_access_denied_reason = gettext(accessDeniedStrings[denyCode]);
+		}
+	}
+
+	if (denyCode == SERVER_ACCESSDENIED_TOO_MANY_USERS) {
+		m_access_denied_reconnect = true;
+	} else if (pkt->getRemainingBytes() > 0) {
 		u8 reconnect;
 		*pkt >> reconnect;
 		m_access_denied_reconnect = reconnect & 1;
-	} else if (denyCode == SERVER_ACCESSDENIED_CUSTOM_STRING) {
-		*pkt >> m_access_denied_reason;
-	} else if (denyCode == SERVER_ACCESSDENIED_TOO_MANY_USERS) {
-		m_access_denied_reason = gettext(accessDeniedStrings[denyCode]);
-		m_access_denied_reconnect = true;
-	} else if (denyCode < SERVER_ACCESSDENIED_MAX) {
-		m_access_denied_reason = gettext(accessDeniedStrings[denyCode]);
-	} else {
-		// Allow us to add new error messages to the
-		// protocol without raising the protocol version, if we want to.
-		// Until then (which may be never), this is outside
-		// of the defined protocol.
-		*pkt >> m_access_denied_reason;
-		if (m_access_denied_reason.empty())
-			m_access_denied_reason = "Unknown";
 	}
 }
 
 void Client::handleCommand_RemoveNode(NetworkPacket* pkt)
 {
-	if (pkt->getSize() < 6)
-		return;
-
 	v3s16 p;
 	*pkt >> p;
 	removeNode(p);
@@ -261,22 +232,19 @@ void Client::handleCommand_RemoveNode(NetworkPacket* pkt)
 
 void Client::handleCommand_AddNode(NetworkPacket* pkt)
 {
-	if (pkt->getSize() < 6 + MapNode::serializedLength(m_server_ser_ver))
-		return;
-
 	v3s16 p;
 	*pkt >> p;
 
+	auto *ptr = reinterpret_cast<const u8*>(pkt->getRemainingString());
+	pkt->skip(MapNode::serializedLength(m_server_ser_ver)); // performs length check
+
 	MapNode n;
-	n.deSerialize(pkt->getU8Ptr(6), m_server_ser_ver);
+	n.deSerialize(ptr, m_server_ser_ver);
 
-	bool remove_metadata = true;
-	u32 index = 6 + MapNode::serializedLength(m_server_ser_ver);
-	if ((pkt->getSize() >= index + 1) && pkt->getU8(index)) {
-		remove_metadata = false;
-	}
+	bool keep_metadata;
+	*pkt >> keep_metadata;
 
-	addNode(p, n, remove_metadata);
+	addNode(p, n, !keep_metadata);
 }
 
 void Client::handleCommand_NodemetaChanged(NetworkPacket *pkt)
@@ -292,7 +260,7 @@ void Client::handleCommand_NodemetaChanged(NetworkPacket *pkt)
 	meta_updates_list.deSerialize(sstr, m_itemdef, true);
 
 	Map &map = m_env.getMap();
-	for (NodeMetadataMap::const_iterator i = meta_updates_list.begin();
+	for (auto i = meta_updates_list.begin();
 			i != meta_updates_list.end(); ++i) {
 		v3s16 pos = i->first;
 
@@ -314,7 +282,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 	v3s16 p;
 	*pkt >> p;
 
-	std::string datastring(pkt->getString(6), pkt->getSize() - 6);
+	std::string datastring(pkt->getRemainingString(), pkt->getRemainingBytes());
 	std::istringstream istr(datastring, std::ios_base::binary);
 
 	MapSector *sector;
@@ -378,46 +346,15 @@ void Client::handleCommand_TimeOfDay(NetworkPacket* pkt)
 		return;
 
 	u16 time_of_day;
-
 	*pkt >> time_of_day;
-
 	time_of_day      = time_of_day % 24000;
-	float time_speed = 0;
 
-	if (pkt->getSize() >= 2 + 4) {
-		*pkt >> time_speed;
-	}
-	else {
-		// Old message; try to approximate speed of time by ourselves
-		float time_of_day_f = (float)time_of_day / 24000.0f;
-		float tod_diff_f = 0;
-
-		if (time_of_day_f < 0.2 && m_last_time_of_day_f > 0.8)
-			tod_diff_f = time_of_day_f - m_last_time_of_day_f + 1.0f;
-		else
-			tod_diff_f = time_of_day_f - m_last_time_of_day_f;
-
-		m_last_time_of_day_f       = time_of_day_f;
-		float time_diff            = m_time_of_day_update_timer;
-		m_time_of_day_update_timer = 0;
-
-		if (m_time_of_day_set) {
-			time_speed = (3600.0f * 24.0f) * tod_diff_f / time_diff;
-			infostream << "Client: Measured time_of_day speed (old format): "
-					<< time_speed << " tod_diff_f=" << tod_diff_f
-					<< " time_diff=" << time_diff << std::endl;
-		}
-	}
+	float time_speed;
+	*pkt >> time_speed;
 
 	// Update environment
 	m_env.setTimeOfDay(time_of_day);
 	m_env.setTimeOfDaySpeed(time_speed);
-	m_time_of_day_set = true;
-
-	//u32 dr = m_env.getDayNightRatio();
-	//infostream << "Client: time_of_day=" << time_of_day
-	//		<< " time_speed=" << time_speed
-	//		<< " dr=" << dr << std::endl;
 }
 
 void Client::handleCommand_ChatMessage(NetworkPacket *pkt)
@@ -631,7 +568,7 @@ void Client::handleCommand_MovePlayer(NetworkPacket* pkt)
 	player->setPosition(pos);
 
 	infostream << "Client got TOCLIENT_MOVE_PLAYER"
-			<< " pos=(" << pos.X << "," << pos.Y << "," << pos.Z << ")"
+			<< " pos=" << pos
 			<< " pitch=" << pitch
 			<< " yaw=" << yaw
 			<< std::endl;
@@ -660,29 +597,15 @@ void Client::handleCommand_MovePlayerRel(NetworkPacket *pkt)
 	player->addPosition(added_pos);
 }
 
-void Client::handleCommand_DeathScreen(NetworkPacket* pkt)
+void Client::handleCommand_DeathScreenLegacy(NetworkPacket* pkt)
 {
-	bool set_camera_point_target;
-	v3f camera_point_target;
-
-	*pkt >> set_camera_point_target;
-	*pkt >> camera_point_target;
-
 	ClientEvent *event = new ClientEvent();
-	event->type                                = CE_DEATHSCREEN;
-	event->deathscreen.set_camera_point_target = set_camera_point_target;
-	event->deathscreen.camera_point_target_x   = camera_point_target.X;
-	event->deathscreen.camera_point_target_y   = camera_point_target.Y;
-	event->deathscreen.camera_point_target_z   = camera_point_target.Z;
+	event->type = CE_DEATHSCREEN_LEGACY;
 	m_client_event_queue.push(event);
 }
 
 void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 {
-	u16 num_files;
-
-	*pkt >> num_files;
-
 	infostream << "Client: Received media announcement: packet size: "
 			<< pkt->getSize() << std::endl;
 
@@ -692,9 +615,7 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 			"we already saw another announcement" :
 			"all media has been received already";
 		errorstream << "Client: Received media announcement but "
-			<< problem << "! "
-			<< " files=" << num_files
-			<< " size=" << pkt->getSize() << std::endl;
+			<< problem << "!" << std::endl;
 		return;
 	}
 
@@ -702,16 +623,36 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 	// updating content definitions
 	sanity_check(!m_mesh_update_manager->isRunning());
 
-	for (u16 i = 0; i < num_files; i++) {
+	if (m_proto_ver >= 48) {
+		// compressed table of media names
+		std::vector<std::string> names;
+		{
+			std::istringstream iss(pkt->readLongString(), std::ios::binary);
+			std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
+			decompressZstd(iss, ss);
+			names = deserializeString16Array(ss);
+		}
+
+		// raw hash for each media file
+		for (auto &name : names) {
+			auto sha1_raw = pkt->readRawString(20);
+			m_media_downloader->addFile(name, sha1_raw);
+		}
+	} else {
+		u16 num_files;
+		*pkt >> num_files;
+
 		std::string name, sha1_base64;
+		for (u16 i = 0; i < num_files; i++) {
+			*pkt >> name >> sha1_base64;
 
-		*pkt >> name >> sha1_base64;
-
-		std::string sha1_raw = base64_decode(sha1_base64);
-		m_media_downloader->addFile(name, sha1_raw);
+			std::string sha1_raw = base64_decode(sha1_base64);
+			m_media_downloader->addFile(name, sha1_raw);
+		}
 	}
 
 	{
+		// Remote media servers
 		std::string str;
 		*pkt >> str;
 
@@ -730,18 +671,6 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 
 void Client::handleCommand_Media(NetworkPacket* pkt)
 {
-	/*
-		u16 command
-		u16 total number of file bunches
-		u16 index of this bunch
-		u32 number of files in this bunch
-		for each file {
-			u16 length of name
-			string name
-			u32 length of data
-			data
-		}
-	*/
 	u16 num_bunches;
 	u16 bunch_i;
 	u32 num_files;
@@ -768,6 +697,12 @@ void Client::handleCommand_Media(NetworkPacket* pkt)
 
 		*pkt >> name;
 		data = pkt->readLongString();
+		if (m_proto_ver >= 48) {
+			std::istringstream iss(data, std::ios::binary);
+			std::ostringstream oss(std::ios::binary);
+			decompressZstd(iss, oss);
+			data = oss.str();
+		}
 
 		bool ok = false;
 		if (init_phase) {
@@ -802,7 +737,10 @@ void Client::handleCommand_NodeDef(NetworkPacket* pkt)
 	// Decompress node definitions
 	std::istringstream tmp_is(pkt->readLongString(), std::ios::binary);
 	std::stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
-	decompressZlib(tmp_is, tmp_os);
+	if (m_proto_ver >= 48)
+		decompressZstd(tmp_is, tmp_os);
+	else
+		decompressZlib(tmp_is, tmp_os);
 
 	// Deserialize node definitions
 	m_nodedef->deSerialize(tmp_os, m_proto_ver);
@@ -821,7 +759,10 @@ void Client::handleCommand_ItemDef(NetworkPacket* pkt)
 	// Decompress item definitions
 	std::istringstream tmp_is(pkt->readLongString(), std::ios::binary);
 	std::stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
-	decompressZlib(tmp_is, tmp_os);
+	if (m_proto_ver >= 48)
+		decompressZstd(tmp_is, tmp_os);
+	else
+		decompressZlib(tmp_is, tmp_os);
 
 	// Deserialize node definitions
 	m_itemdef->deSerialize(tmp_os, m_proto_ver);
@@ -881,6 +822,8 @@ void Client::handleCommand_PlaySound(NetworkPacket* pkt)
 			pos = cao->getPosition() * (1.0f/BS);
 			vel = cao->getVelocity() * (1.0f/BS);
 		}
+		// Note that the server sends 'pos' correctly even for attached sounds,
+		// so this fallback path is not a mistake.
 		m_sound->playSoundAt(client_id, spec, pos, vel);
 		break;
 	}
@@ -913,7 +856,7 @@ void Client::handleCommand_StopSound(NetworkPacket* pkt)
 
 	*pkt >> server_id;
 
-	std::unordered_map<s32, int>::iterator i = m_sounds_server_to_client.find(server_id);
+	auto i = m_sounds_server_to_client.find(server_id);
 	if (i != m_sounds_server_to_client.end()) {
 		int client_id = i->second;
 		m_sound->stopSound(client_id);
@@ -928,9 +871,7 @@ void Client::handleCommand_FadeSound(NetworkPacket *pkt)
 
 	*pkt >> sound_id >> step >> gain;
 
-	std::unordered_map<s32, int>::const_iterator i =
-			m_sounds_server_to_client.find(sound_id);
-
+	auto i = m_sounds_server_to_client.find(sound_id);
 	if (i != m_sounds_server_to_client.end())
 		m_sound->fadeSound(i->second, step, gain);
 }
@@ -988,8 +929,8 @@ void Client::handleCommand_DetachedInventory(NetworkPacket* pkt)
 		inv = inv_it->second;
 	}
 
-	u16 ignore;
-	*pkt >> ignore; // this used to be the length of the following string, ignore it
+	// this used to be the length of the following string, ignore it
+	pkt->skip(2);
 
 	std::string contents(pkt->getRemainingString(), pkt->getRemainingBytes());
 	std::istringstream is(contents, std::ios::binary);
@@ -1038,6 +979,8 @@ void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 
 	p.amount             = readU16(is);
 	p.time               = readF32(is);
+	if (p.time < 0)
+		throw PacketError("particle spawner time < 0");
 
 	bool missing_end_values = false;
 	if (m_proto_ver >= 42) {
@@ -1352,10 +1295,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		for (size_t i = 0; i < count; i++)
 			skybox.textures.emplace_back(deSerializeString16(is));
 
-		skybox.clouds = true;
-		try {
-			skybox.clouds = readU8(is);
-		} catch (...) {}
+		skybox.clouds = readU8(is) != 0;
 
 		// Use default skybox settings:
 		SunParams sun = SkyboxDefaults::getSunDefaults();
@@ -1483,12 +1423,17 @@ void Client::handleCommand_CloudParams(NetworkPacket* pkt)
 	f32 density;
 	video::SColor color_bright;
 	video::SColor color_ambient;
+	video::SColor color_shadow = video::SColor(255, 204, 204, 204);
 	f32 height;
 	f32 thickness;
 	v2f speed;
 
 	*pkt >> density >> color_bright >> color_ambient
 			>> height >> thickness >> speed;
+
+	if (pkt->getRemainingBytes() >= 4) {
+		*pkt >> color_shadow;
+	}
 
 	ClientEvent *event = new ClientEvent();
 	event->type                       = CE_CLOUD_PARAMS;
@@ -1498,6 +1443,7 @@ void Client::handleCommand_CloudParams(NetworkPacket* pkt)
 	// we avoid using new() and delete() for no good reason
 	event->cloud_params.color_bright  = color_bright.color;
 	event->cloud_params.color_ambient = color_ambient.color;
+	event->cloud_params.color_shadow = color_shadow.color;
 	event->cloud_params.height        = height;
 	event->cloud_params.thickness     = thickness;
 	// same here: deconstruct to skip constructor
@@ -1527,10 +1473,16 @@ void Client::handleCommand_LocalPlayerAnimations(NetworkPacket* pkt)
 	LocalPlayer *player = m_env.getLocalPlayer();
 	assert(player != NULL);
 
-	*pkt >> player->local_animations[0];
-	*pkt >> player->local_animations[1];
-	*pkt >> player->local_animations[2];
-	*pkt >> player->local_animations[3];
+	for (int i = 0; i < 4; ++i) {
+		if (getProtoVersion() >= 46) {
+			*pkt >> player->local_animations[i];
+		} else {
+			v2s32 local_animation;
+			*pkt >> local_animation;
+			player->local_animations[i] = v2f::from(local_animation);
+		}
+	}
+
 	*pkt >> player->local_animation_speed;
 
 	player->last_animation = LocalPlayerAnimation::NO_ANIM;
@@ -1546,7 +1498,19 @@ void Client::handleCommand_EyeOffset(NetworkPacket* pkt)
 		*pkt >> player->eye_offset_third_front;
 	} catch (PacketError &e) {
 		player->eye_offset_third_front = player->eye_offset_third;
-	};
+	}
+}
+
+void Client::handleCommand_Camera(NetworkPacket* pkt)
+{
+	LocalPlayer *player = m_env.getLocalPlayer();
+	assert(player);
+
+	u8 tmp;
+	*pkt >> tmp;
+	player->allowed_camera_mode = static_cast<CameraMode>(tmp);
+
+	m_client_event_queue.push(new ClientEvent(CE_UPDATE_CAMERA));
 }
 
 void Client::handleCommand_UpdatePlayerList(NetworkPacket* pkt)
@@ -1661,12 +1625,7 @@ void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 	if (!filedata.empty()) {
 		// LEGACY CODEPATH
 		// Compute and check checksum of data
-		std::string computed_hash;
-		{
-			SHA1 ctx;
-			ctx.addBytes(filedata);
-			computed_hash = ctx.getDigest();
-		}
+		std::string computed_hash = hashing::sha1(filedata);
 		if (raw_hash != computed_hash) {
 			verbosestream << "Hash of file data mismatches, ignoring." << std::endl;
 			return;
@@ -1828,6 +1787,13 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 	}
 	if (pkt->getRemainingBytes() >= 4)
 		*pkt >> lighting.volumetric_light_strength;
+	if (pkt->getRemainingBytes() >= 4)
+		*pkt >> lighting.shadow_tint;
+	if (pkt->getRemainingBytes() >= 12) {
+		*pkt >> lighting.bloom_intensity
+				>> lighting.bloom_strength_factor
+				>> lighting.bloom_radius;
+	}
 }
 
 void Client::handleCommand_CameraRoll(NetworkPacket* pkt)

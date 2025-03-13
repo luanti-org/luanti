@@ -16,7 +16,7 @@ on:
 
 jobs:
   build:
-    if: github.repository == 'minetest/minetest'
+    if: github.repository == 'luanti-org/luanti'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

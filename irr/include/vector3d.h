@@ -33,6 +33,12 @@ public:
 	explicit constexpr vector3d(T n) :
 			X(n), Y(n), Z(n) {}
 
+	template <class U>
+	constexpr static vector3d<T> from(const vector3d<U> &other)
+	{
+		return {static_cast<T>(other.X), static_cast<T>(other.Y), static_cast<T>(other.Z)};
+	}
+
 	// operators
 
 	vector3d<T> operator-() const { return vector3d<T>(-X, -Y, -Z); }

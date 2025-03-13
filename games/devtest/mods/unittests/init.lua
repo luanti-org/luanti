@@ -12,6 +12,7 @@ unittests.list = {}
 --   player = false, -- Does test require a player?
 --   map = false, -- Does test require map access?
 --   async = false, -- Does the test run asynchronously? (read notes above!)
+--   random = false, -- Does the test use math.random directly or indirectly?
 -- }
 function unittests.register(name, func, opts)
 	local def = table.copy(opts or {})
@@ -47,8 +48,18 @@ local function await(invoke)
 	return coroutine.yield()
 end
 
+local function printf(fmt, ...)
+	print(fmt:format(...))
+end
+
 function unittests.run_one(idx, counters, out_callback, player, pos)
 	local def = unittests.list[idx]
+	local seed
+	if def.random then
+		seed = core.get_us_time()
+		math.randomseed(seed)
+	end
+
 	if not def.player then
 		player = nil
 	elseif player == nil then
@@ -70,8 +81,10 @@ function unittests.run_one(idx, counters, out_callback, player, pos)
 		if not status then
 			core.log("error", err)
 		end
-		print(string.format("[%s] %s - %dms",
-			status and "PASS" or "FAIL", def.name, ms_taken))
+		printf("[%s] %s - %dms", status and "PASS" or "FAIL", def.name, ms_taken)
+		if seed and not status then
+			printf("Random was seeded to %d", seed)
+		end
 		counters.time = counters.time + ms_taken
 		counters.total = counters.total + 1
 		if status then
@@ -160,11 +173,11 @@ function unittests.run_all()
 	-- Print stats
 	assert(#unittests.list == counters.total)
 	print(string.rep("+", 80))
-	print(string.format("Devtest Unit Test Results: %s",
-	counters.total == counters.passed and "PASSED" or "FAILED"))
-	print(string.format("    %d / %d failed tests.",
-	counters.total - counters.passed, counters.total))
-	print(string.format("    Testing took %dms total.", counters.time))
+	local passed = counters.total == counters.passed
+	printf("Devtest Unit Test Results: %s", passed and "PASSED" or "FAILED")
+	printf("    %d / %d failed tests.",
+		counters.total - counters.passed, counters.total)
+	printf("    Testing took %dms total.", counters.time)
 	print(string.rep("+", 80))
 	unittests.on_finished(counters.total == counters.passed)
 	return counters.total == counters.passed
@@ -179,7 +192,7 @@ dofile(modpath .. "/crafting.lua")
 dofile(modpath .. "/itemdescription.lua")
 dofile(modpath .. "/async_env.lua")
 dofile(modpath .. "/entity.lua")
-dofile(modpath .. "/get_version.lua")
+dofile(modpath .. "/version.lua")
 dofile(modpath .. "/itemstack_equals.lua")
 dofile(modpath .. "/content_ids.lua")
 dofile(modpath .. "/metadata.lua")
@@ -187,12 +200,13 @@ dofile(modpath .. "/raycast.lua")
 dofile(modpath .. "/inventory.lua")
 dofile(modpath .. "/load_time.lua")
 dofile(modpath .. "/on_shutdown.lua")
+dofile(modpath .. "/color.lua")
 
 --------------
 
 local function send_results(name, ok)
 	core.chat_send_player(name,
-		minetest.colorize(ok and "green" or "red",
+		core.colorize(ok and "green" or "red",
 			(ok and "All devtest unit tests passed." or
 				"There were devtest unit test failures.") ..
 				" Check the console for detailed output."))
@@ -205,7 +219,7 @@ if core.settings:get_bool("devtest_unittests_autostart", false) then
 		-- to write status information to the filesystem
 		local old_on_finished = unittests.on_finished
 		unittests.on_finished = function(ok)
-			for _, player in ipairs(minetest.get_connected_players()) do
+			for _, player in ipairs(core.get_connected_players()) do
 				send_results(player:get_player_name(), ok)
 			end
 			test_results = ok
@@ -213,7 +227,7 @@ if core.settings:get_bool("devtest_unittests_autostart", false) then
 		end
 		coroutine.wrap(unittests.run_all)()
 	end)
-	minetest.register_on_joinplayer(function(player)
+	core.register_on_joinplayer(function(player)
 		if test_results == nil then
 			return -- tests haven't completed yet
 		end

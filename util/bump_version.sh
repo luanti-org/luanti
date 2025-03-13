@@ -36,14 +36,19 @@ read_versions() {
 	fi
 	CURRENT_VERSION="$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH"
 
-	echo "Current Minetest version: $CURRENT_VERSION"
+	echo "Current Luanti version: $CURRENT_VERSION"
 }
 
 # Retrieves protocol version from header
 # in: $1
 read_proto_ver() {
 	local ref=$1
-	git show "$ref":src/network/networkprotocol.h | grep -oE 'LATEST_PROTOCOL_VERSION [0-9]+' | tr -dC 0-9
+	local output=$(git show "$ref":src/network/networkprotocol.cpp 2>/dev/null)
+	if [ -z "$output" ]; then
+		# Fallback to previous file (for tags < 5.10.0)
+		output=$(git show "$ref":src/network/networkprotocol.h)
+	fi
+	grep -oE 'LATEST_PROTOCOL_VERSION\s+=?\s*[0-9]+' <<<"$output" | tr -dC 0-9
 }
 
 ## Prompts for new version
@@ -143,7 +148,7 @@ back_to_devel() {
 # Start of main logic:
 #######################
 
-# Switch to top minetest directory
+# Switch to top luanti directory
 cd ${0%/*}/..
 
 # Determine old versions

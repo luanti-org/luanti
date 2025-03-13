@@ -11,7 +11,6 @@ attribute vec2 inTexCoord0;
 
 uniform mat4 uWVPMatrix;
 uniform mat4 uWVMatrix;
-uniform mat4 uNMatrix;
 uniform mat4 uTMatrix0;
 
 uniform float uThickness;

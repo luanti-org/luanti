@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2018 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2018 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
 #pragma once
 #include <array>
@@ -33,6 +18,21 @@ struct PreMeshBuffer
 
 	PreMeshBuffer() = default;
 	explicit PreMeshBuffer(const TileLayer &layer) : layer(layer) {}
+
+	/// @brief Colorizes vertices as indicated by tile layer
+	void applyTileColor()
+	{
+		video::SColor tc = layer.color;
+		if (tc == video::SColor(0xFFFFFFFF))
+			return;
+		for (auto &vertex : vertices) {
+			video::SColor *c = &vertex.Color;
+			c->set(c->getAlpha(),
+				c->getRed() * tc.getRed() / 255U,
+				c->getGreen() * tc.getGreen() / 255U,
+				c->getBlue() * tc.getBlue() / 255U);
+		}
+	}
 };
 
 struct MeshCollector
@@ -50,20 +50,11 @@ struct MeshCollector
 	void append(const TileSpec &material,
 			const video::S3DVertex *vertices, u32 numVertices,
 			const u16 *indices, u32 numIndices);
-	void append(const TileSpec &material,
-			const video::S3DVertex *vertices, u32 numVertices,
-			const u16 *indices, u32 numIndices,
-			v3f pos, video::SColor c, u8 light_source);
 
 private:
 	void append(const TileLayer &material,
 			const video::S3DVertex *vertices, u32 numVertices,
 			const u16 *indices, u32 numIndices,
-			u8 layernum, bool use_scale = false);
-	void append(const TileLayer &material,
-			const video::S3DVertex *vertices, u32 numVertices,
-			const u16 *indices, u32 numIndices,
-			v3f pos, video::SColor c, u8 light_source,
 			u8 layernum, bool use_scale = false);
 
 	PreMeshBuffer &findBuffer(const TileLayer &layer, u8 layernum, u32 numVertices);

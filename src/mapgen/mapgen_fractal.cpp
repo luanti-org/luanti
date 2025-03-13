@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2015-2019 paramat
-Copyright (C) 2015-2016 kwolekr, Ryan Kwolek
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2015-2019 paramat
+// Copyright (C) 2015-2016 kwolekr, Ryan Kwolek
 
 
 #include "mapgen.h"
@@ -39,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "mapgen_fractal.h"
 
 
-FlagDesc flagdesc_mapgen_fractal[] = {
+const FlagDesc flagdesc_mapgen_fractal[] = {
 	{"terrain", MGFRACTAL_TERRAIN},
 	{NULL,      0}
 };
@@ -118,8 +103,17 @@ void MapgenFractalParams::readParams(const Settings *settings)
 	settings->getS16NoEx("mgfractal_dungeon_ymax",         dungeon_ymax);
 	settings->getU16NoEx("mgfractal_fractal",              fractal);
 	settings->getU16NoEx("mgfractal_iterations",           iterations);
-	settings->getV3FNoEx("mgfractal_scale",                scale);
-	settings->getV3FNoEx("mgfractal_offset",               offset);
+
+	std::optional<v3f> mgfractal_scale;
+	if (settings->getV3FNoEx("mgfractal_scale", mgfractal_scale) && mgfractal_scale.has_value()) {
+		scale = *mgfractal_scale;
+	}
+
+	std::optional<v3f> mgfractal_offset;
+	if (settings->getV3FNoEx("mgfractal_offset", mgfractal_offset) && mgfractal_offset.has_value()) {
+		offset = *mgfractal_offset;
+	}
+
 	settings->getFloatNoEx("mgfractal_slice_w",            slice_w);
 	settings->getFloatNoEx("mgfractal_julia_x",            julia_x);
 	settings->getFloatNoEx("mgfractal_julia_y",            julia_y);

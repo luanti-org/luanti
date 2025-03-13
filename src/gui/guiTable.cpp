@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 
 #include "guiTable.h"
@@ -377,8 +362,7 @@ void GUITable::setTable(const TableOptions &options,
 				// Find content_index. Image indices are defined in
 				// column options so check active_image_indices.
 				s32 image_index = stoi(content[i * colcount + j]);
-				std::map<s32, s32>::iterator image_iter =
-					active_image_indices.find(image_index);
+				auto image_iter =active_image_indices.find(image_index);
 				if (image_iter != active_image_indices.end())
 					row->content_index = image_iter->second;
 
@@ -980,7 +964,7 @@ bool GUITable::OnEvent(const SEvent &event)
 
 s32 GUITable::allocString(const std::string &text)
 {
-	std::map<std::string, s32>::iterator it = m_alloc_strings.find(text);
+	auto it = m_alloc_strings.find(text);
 	if (it == m_alloc_strings.end()) {
 		s32 id = m_strings.size();
 		std::wstring wtext = utf8_to_wide(text);
@@ -994,7 +978,7 @@ s32 GUITable::allocString(const std::string &text)
 
 s32 GUITable::allocImage(const std::string &imagename)
 {
-	std::map<std::string, s32>::iterator it = m_alloc_images.find(imagename);
+	auto it = m_alloc_images.find(imagename);
 	if (it == m_alloc_images.end()) {
 		s32 id = m_images.size();
 		m_images.push_back(m_tsrc->getTexture(imagename));
@@ -1122,7 +1106,6 @@ void GUITable::sendTableEvent(s32 column, bool doubleclick)
 	m_sel_doubleclick = doubleclick;
 	if (Parent) {
 		SEvent e;
-		memset(&e, 0, sizeof e);
 		e.EventType = EET_GUI_EVENT;
 		e.GUIEvent.Caller = this;
 		e.GUIEvent.Element = 0;

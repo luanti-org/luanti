@@ -1,23 +1,8 @@
-/*
-Minetest
-Copyright (C) 2010-2018 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2013-2018 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-Copyright (C) 2015-2018 paramat
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2018 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2013-2018 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
+// Copyright (C) 2015-2018 paramat
 
 #include <cmath>
 #include "mapgen.h"
@@ -52,7 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "cavegen.h"
 #include "dungeongen.h"
 
-FlagDesc flagdesc_mapgen[] = {
+const FlagDesc flagdesc_mapgen[] = {
 	{"caves",       MG_CAVES},
 	{"dungeons",    MG_DUNGEONS},
 	{"light",       MG_LIGHT},
@@ -62,7 +47,7 @@ FlagDesc flagdesc_mapgen[] = {
 	{NULL,          0}
 };
 
-FlagDesc flagdesc_gennotify[] = {
+const FlagDesc flagdesc_gennotify[] = {
 	{"dungeon",          1 << GENNOTIFY_DUNGEON},
 	{"temple",           1 << GENNOTIFY_TEMPLE},
 	{"cave_begin",       1 << GENNOTIFY_CAVE_BEGIN},
@@ -255,7 +240,7 @@ u32 Mapgen::getBlockSeed2(v3s16 p, s32 seed)
 // Returns -MAX_MAP_GENERATION_LIMIT if not found
 s16 Mapgen::findGroundLevel(v2s16 p2d, s16 ymin, s16 ymax)
 {
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	u32 i = vm->m_area.index(p2d.X, ymax, p2d.Y);
 	s16 y;
 
@@ -273,7 +258,7 @@ s16 Mapgen::findGroundLevel(v2s16 p2d, s16 ymin, s16 ymax)
 // Returns -MAX_MAP_GENERATION_LIMIT if not found or if ground is found first
 s16 Mapgen::findLiquidSurface(v2s16 p2d, s16 ymin, s16 ymax)
 {
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	u32 i = vm->m_area.index(p2d.X, ymax, p2d.Y);
 	s16 y;
 
@@ -311,7 +296,7 @@ void Mapgen::updateHeightmap(v3s16 nmin, v3s16 nmax)
 void Mapgen::getSurfaces(v2s16 p2d, s16 ymin, s16 ymax,
 	std::vector<s16> &floors, std::vector<s16> &ceilings)
 {
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 
 	bool is_walkable = false;
 	u32 vi = vm->m_area.index(p2d.X, ymax, p2d.Y);
@@ -335,7 +320,7 @@ void Mapgen::getSurfaces(v2s16 p2d, s16 ymin, s16 ymax,
 }
 
 
-inline bool Mapgen::isLiquidHorizontallyFlowable(u32 vi, v3s16 em)
+inline bool Mapgen::isLiquidHorizontallyFlowable(u32 vi, v3s32 em)
 {
 	u32 vi_neg_x = vi;
 	VoxelArea::add_x(em, vi_neg_x, -1);
@@ -372,7 +357,7 @@ void Mapgen::updateLiquid(UniqueQueue<v3s16> *trans_liquid, v3s16 nmin, v3s16 nm
 {
 	bool isignored, isliquid, wasignored, wasliquid, waschecked, waspushed;
 	content_t was_n;
-	const v3s16 &em  = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 
 	isignored = true;
 	isliquid = false;
@@ -496,7 +481,7 @@ void Mapgen::propagateSunlight(v3s16 nmin, v3s16 nmax, bool propagate_shadow)
 	//TimeTaker t("propagateSunlight");
 	VoxelArea a(nmin, nmax);
 	bool block_is_underground = (water_level >= nmax.Y);
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 
 	// NOTE: Direct access to the low 4 bits of param1 is okay here because,
 	// by definition, sunlight will never be in the night lightbank.
@@ -644,7 +629,7 @@ void MapgenBasic::generateBiomes()
 	assert(biomegen);
 	assert(biomemap);
 
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	u32 index = 0;
 
 	noise_filler_depth->perlinMap2D(node_min.X, node_min.Z);
@@ -659,7 +644,7 @@ void MapgenBasic::generateBiomes()
 		u16 depth_riverbed = 0;
 		u32 vi = vm->m_area.index(x, node_max.Y, z);
 
-		s16 biome_y_min = biomegen->getNextTransitionY(node_max.Y);
+		s16 biome_y_next = biomegen->getNextTransitionY(node_max.Y);
 
 		// Check node at base of mapchunk above, either a node of a previously
 		// generated mapchunk or if not, a node of overgenerated base terrain.
@@ -676,23 +661,29 @@ void MapgenBasic::generateBiomes()
 
 		for (s16 y = node_max.Y; y >= node_min.Y; y--) {
 			content_t c = vm->m_data[vi].getContent();
+			const bool biome_outdated = !biome || y <= biome_y_next;
 			// Biome is (re)calculated:
 			// 1. At the surface of stone below air or water.
 			// 2. At the surface of water below air.
 			// 3. When stone or water is detected but biome has not yet been calculated.
 			// 4. When stone or water is detected just below a biome's lower limit.
 			bool is_stone_surface = (c == c_stone) &&
-				(air_above || water_above || !biome || y < biome_y_min); // 1, 3, 4
+				(air_above || water_above || biome_outdated); // 1, 3, 4
 
 			bool is_water_surface =
 				(c == c_water_source || c == c_river_water_source) &&
-				(air_above || !biome || y < biome_y_min); // 2, 3, 4
+				(air_above || biome_outdated); // 2, 3, 4
 
 			if (is_stone_surface || is_water_surface) {
-				if (!biome || y < biome_y_min) {
+				if (biome_outdated) {
 					// (Re)calculate biome
 					biome = biomegen->getBiomeAtIndex(index, v3s16(x, y, z));
-					biome_y_min = biomegen->getNextTransitionY(y);
+					biome_y_next = biomegen->getNextTransitionY(y);
+
+					if (x == node_min.X && z == node_min.Z && false) {
+						dstream << "biomegen: biome at " << y << " is " << biome->name
+							<< ", next at " << biome_y_next << std::endl;
+					}
 				}
 
 				// Add biome to biomemap at first stone surface detected
@@ -772,7 +763,7 @@ void MapgenBasic::generateBiomes()
 		// If no stone surface detected in mapchunk column and a water surface
 		// biome fallback exists, add it to the biomemap. This avoids water
 		// surface decorations failing in deep water.
- 		if (biomemap[index] == BIOME_NONE && water_biome_index != 0)
+		if (biomemap[index] == BIOME_NONE && water_biome_index != 0)
 			biomemap[index] = water_biome_index;
 	}
 }
@@ -783,7 +774,7 @@ void MapgenBasic::dustTopNodes()
 	if (node_max.Y < water_level)
 		return;
 
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	u32 index = 0;
 
 	for (s16 z = node_min.Z; z <= node_max.Z; z++)

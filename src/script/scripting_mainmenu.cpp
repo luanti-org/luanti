@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "scripting_mainmenu.h"
 #include "content/mods.h"
@@ -24,14 +9,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "lua_api/l_http.h"
 #include "lua_api/l_mainmenu.h"
 #include "lua_api/l_mainmenu_sound.h"
+#include "lua_api/l_menu_common.h"
 #include "lua_api/l_util.h"
 #include "lua_api/l_settings.h"
 #include "log.h"
+#include "filesys.h"
+#include "porting.h"
 
 extern "C" {
 #include "lualib.h"
 }
-#define MAINMENU_NUM_ASYNC_THREADS 4
+
+#define MAINMENU_NUM_ASYNC_THREADS 2
 
 
 MainMenuScripting::MainMenuScripting(GUIEngine* guiengine):
@@ -40,6 +29,8 @@ MainMenuScripting::MainMenuScripting(GUIEngine* guiengine):
 	setGuiEngine(guiengine);
 
 	SCRIPTAPI_PRECHECKHEADER
+
+	initializeSecurity();
 
 	lua_getglobal(L, "core");
 	int top = lua_gettop(L);
@@ -63,12 +54,14 @@ void MainMenuScripting::initializeModApi(lua_State *L, int top)
 	registerLuaClasses(L, top);
 
 	// Initialize mod API modules
+	ModApiMenuCommon::Initialize(L, top);
 	ModApiMainMenu::Initialize(L, top);
 	ModApiUtil::Initialize(L, top);
 	ModApiMainMenuSound::Initialize(L, top);
 	ModApiHttp::Initialize(L, top);
 
 	asyncEngine.registerStateInitializer(registerLuaClasses);
+	asyncEngine.registerStateInitializer(ModApiMenuCommon::InitializeAsync);
 	asyncEngine.registerStateInitializer(ModApiMainMenu::InitializeAsync);
 	asyncEngine.registerStateInitializer(ModApiUtil::InitializeAsync);
 	asyncEngine.registerStateInitializer(ModApiHttp::InitializeAsync);
@@ -82,6 +75,43 @@ void MainMenuScripting::registerLuaClasses(lua_State *L, int top)
 {
 	LuaSettings::Register(L);
 	MainMenuSoundHandle::Register(L);
+}
+
+bool MainMenuScripting::mayModifyPath(const std::string &path)
+{
+	std::string path_temp = fs::AbsolutePathPartial(fs::TempPath());
+	if (fs::PathStartsWith(path, path_temp))
+		return true;
+
+	std::string path_user = fs::AbsolutePathPartial(porting::path_user);
+
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "client"))
+		return true;
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "games"))
+		return true;
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "mods"))
+		return true;
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "textures"))
+		return true;
+	if (fs::PathStartsWith(path, path_user + DIR_DELIM "worlds"))
+		return true;
+
+	if (fs::PathStartsWith(path, fs::AbsolutePathPartial(porting::path_cache)))
+		return true;
+
+	return false;
+}
+
+bool MainMenuScripting::checkPathAccess(const std::string &abs_path, bool write_required,
+	bool *write_allowed)
+{
+	if (mayModifyPath(abs_path)) {
+		if (write_allowed)
+			*write_allowed = true;
+		return true;
+	}
+	// TODO?: global read access sounds too broad
+	return !write_required;
 }
 
 void MainMenuScripting::beforeClose()

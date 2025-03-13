@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "lua_api/l_server.h"
 #include "lua_api/l_internal.h"
@@ -254,6 +239,10 @@ int ModApiServer::l_get_player_information(lua_State *L)
 	lua_pushstring(L, info.lang_code.c_str());
 	lua_settable(L, table);
 
+	lua_pushstring(L, "version_string");
+	lua_pushstring(L, info.vers_string.c_str());
+	lua_settable(L, table);
+
 #ifndef NDEBUG
 	lua_pushstring(L,"serialization_version");
 	lua_pushnumber(L, info.ser_vers);
@@ -269,10 +258,6 @@ int ModApiServer::l_get_player_information(lua_State *L)
 
 	lua_pushstring(L,"patch");
 	lua_pushnumber(L, info.patch);
-	lua_settable(L, table);
-
-	lua_pushstring(L,"version_string");
-	lua_pushstring(L, info.vers_string.c_str());
 	lua_settable(L, table);
 
 	lua_pushstring(L,"state");
@@ -365,7 +350,7 @@ int ModApiServer::l_ban_player(lua_State *L)
 	return 1;
 }
 
-// disconnect_player(name, [reason]) -> success
+// disconnect_player(name[, reason[, reconnect]]) -> success
 int ModApiServer::l_disconnect_player(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
@@ -388,7 +373,9 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 		return 1;
 	}
 
-	server->DenyAccess(player->getPeerId(), SERVER_ACCESSDENIED_CUSTOM_STRING, message);
+	bool reconnect = readParam<bool>(L, 3, false);
+
+	server->DenyAccess(player->getPeerId(), SERVER_ACCESSDENIED_CUSTOM_STRING, message, reconnect);
 	lua_pushboolean(L, true);
 	return 1;
 }

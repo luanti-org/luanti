@@ -1,27 +1,13 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
 #include "lua_api/l_base.h"
-#include "serverenvironment.h"
 #include "raycast.h"
+
+class ServerScripting;
 
 // base class containing helpers
 class ModApiEnvBase : public ModApiBase {
@@ -63,6 +49,10 @@ private:
 	// bulk_set_node([pos1, pos2, ...], node)
 	// pos = {x=num, y=num, z=num}
 	static int l_bulk_set_node(lua_State *L);
+
+	// bulk_swap_node([pos1, pos2, ...], node)
+	// pos = {x=num, y=num, z=num}
+	static int l_bulk_swap_node(lua_State *L);
 
 	static int l_add_node(lua_State *L);
 
@@ -279,82 +269,6 @@ private:
 
 public:
 	static void InitializeEmerge(lua_State *L, int top);
-};
-
-class LuaABM : public ActiveBlockModifier {
-private:
-	int m_id;
-
-	std::vector<std::string> m_trigger_contents;
-	std::vector<std::string> m_required_neighbors;
-	float m_trigger_interval;
-	u32 m_trigger_chance;
-	bool m_simple_catch_up;
-	s16 m_min_y;
-	s16 m_max_y;
-public:
-	LuaABM(lua_State *L, int id,
-			const std::vector<std::string> &trigger_contents,
-			const std::vector<std::string> &required_neighbors,
-			float trigger_interval, u32 trigger_chance, bool simple_catch_up, s16 min_y, s16 max_y):
-		m_id(id),
-		m_trigger_contents(trigger_contents),
-		m_required_neighbors(required_neighbors),
-		m_trigger_interval(trigger_interval),
-		m_trigger_chance(trigger_chance),
-		m_simple_catch_up(simple_catch_up),
-		m_min_y(min_y),
-		m_max_y(max_y)
-	{
-	}
-	virtual const std::vector<std::string> &getTriggerContents() const
-	{
-		return m_trigger_contents;
-	}
-	virtual const std::vector<std::string> &getRequiredNeighbors() const
-	{
-		return m_required_neighbors;
-	}
-	virtual float getTriggerInterval()
-	{
-		return m_trigger_interval;
-	}
-	virtual u32 getTriggerChance()
-	{
-		return m_trigger_chance;
-	}
-	virtual bool getSimpleCatchUp()
-	{
-		return m_simple_catch_up;
-	}
-	virtual s16 getMinY()
-	{
-		return m_min_y;
-	}
-	virtual s16 getMaxY()
-	{
-		return m_max_y;
-	}
-	virtual void trigger(ServerEnvironment *env, v3s16 p, MapNode n,
-			u32 active_object_count, u32 active_object_count_wider);
-};
-
-class LuaLBM : public LoadingBlockModifierDef
-{
-private:
-	int m_id;
-public:
-	LuaLBM(lua_State *L, int id,
-			const std::set<std::string> &trigger_contents,
-			const std::string &name,
-			bool run_at_every_load):
-		m_id(id)
-	{
-		this->run_at_every_load = run_at_every_load;
-		this->trigger_contents = trigger_contents;
-		this->name = name;
-	}
-	virtual void trigger(ServerEnvironment *env, v3s16 p, MapNode n, float dtime_s);
 };
 
 //! Lua wrapper for RaycastState objects

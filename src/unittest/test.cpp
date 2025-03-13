@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "catch.h"
 
@@ -24,6 +9,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "nodedef.h"
 #include "itemdef.h"
 #include "dummygamedef.h"
+#include "log_internal.h"
 #include "modchannels.h"
 #include "util/numeric.h"
 #include "porting.h"
@@ -226,8 +212,6 @@ bool run_tests()
 	u64 t1 = porting::getTimeMs();
 	TestGameDef gamedef;
 
-	g_logger.setLevelSilenced(LL_ERROR, true);
-
 	u32 num_modules_failed     = 0;
 	u32 num_total_tests_failed = 0;
 	u32 num_total_tests_run    = 0;
@@ -257,11 +241,9 @@ bool run_tests()
 
 	u64 tdiff = porting::getTimeMs() - t1;
 
-	g_logger.setLevelSilenced(LL_ERROR, false);
-
 	const char *overall_status = (num_modules_failed == 0) ? "PASSED" : "FAILED";
 
-	rawstream
+	rawstream << "\n"
 		<< "++++++++++++++++++++++++++++++++++++++++"
 		<< "++++++++++++++++++++++++++++++++++++++++" << std::endl
 		<< "Unit Test Results: " << overall_status << std::endl
@@ -297,17 +279,15 @@ bool run_tests(const std::string &module_name)
 		return catch_test_failures == 0;
 	}
 
-	g_logger.setLevelSilenced(LL_ERROR, true);
 	u64 t1 = porting::getTimeMs();
 
 	bool ok = testmod->testModule(&gamedef);
 
 	u64 tdiff = porting::getTimeMs() - t1;
-	g_logger.setLevelSilenced(LL_ERROR, false);
 
 	const char *overall_status = ok ? "PASSED" : "FAILED";
 
-	rawstream
+	rawstream << "\n"
 		<< "++++++++++++++++++++++++++++++++++++++++"
 		<< "++++++++++++++++++++++++++++++++++++++++" << std::endl
 		<< "Unit Test Results: " << overall_status << std::endl

@@ -1,5 +1,4 @@
 diff --git a/android/app/src/main/java/org/libsdl/app/SDLActivity.java b/android/app/src/main/java/org/libsdl/app/SDLActivity.java
-index fd5a056e3..83e3cf657 100644
 --- a/android/app/src/main/java/org/libsdl/app/SDLActivity.java
 +++ b/android/app/src/main/java/org/libsdl/app/SDLActivity.java
 @@ -1345,7 +1345,12 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
@@ -9,7 +8,7 @@ index fd5a056e3..83e3cf657 100644
 -        if ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
 +        if ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE ||
 +                /*
-+                 * CUSTOM ADDITION FOR MINETEST
++                 * CUSTOM ADDITION FOR LUANTI
 +                 * should be upstreamed
 +                 */
 +                (source & InputDevice.SOURCE_MOUSE_RELATIVE) == InputDevice.SOURCE_MOUSE_RELATIVE) {

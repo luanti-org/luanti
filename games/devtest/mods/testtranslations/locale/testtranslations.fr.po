@@ -1,0 +1,9 @@
+# Dummy entry. This is a test to make sure that a parser error is not thrown
+# if the following line is msgctxt.
+msgctxt "testtranslations"
+msgid "Dummy entry"
+msgstr "Dummy result"
+
+# Used for translating the mod title
+msgid "Test translations"
+msgstr "Test translations (French)"

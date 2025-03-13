@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2015 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2015 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "profiler.h"
 #include "porting.h"
@@ -136,7 +121,7 @@ int Profiler::print(std::ostream &o, u32 page, u32 pagecount)
 {
 	GraphValues values;
 	getPage(values, page, pagecount);
-	char buffer[50];
+	char buffer[128];
 
 	for (const auto &i : values) {
 		o << "  " << i.first << " ";
@@ -147,7 +132,7 @@ int Profiler::print(std::ostream &o, u32 page, u32 pagecount)
 
 		{
 			// Padding
-			s32 space = std::max(0, 44 - (s32)i.first.size());
+			s32 space = std::max(0, 46 - (s32)i.first.size());
 			memset(buffer, '_', space);
 			buffer[space] = '\0';
 			o << buffer;

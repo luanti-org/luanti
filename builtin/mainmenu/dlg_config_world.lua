@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2013 sapier
 --
 --This program is free software; you can redistribute it and/or modify
@@ -299,7 +299,7 @@ local function handle_buttons(this, fields)
 						worldfile:set("load_mod_" .. mod.name, mod.virtual_path)
 						was_set[mod.name] = true
 					elseif not was_set[mod.name] then
-						worldfile:set("load_mod_" .. mod.name, "false")
+						worldfile:remove("load_mod_" .. mod.name)
 					end
 				elseif mod.enabled then
 					gamedata.errormessage = fgettext_ne("Failed to enable mo" ..

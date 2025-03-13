@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "test.h"
 
@@ -113,8 +98,8 @@ void TestVoxelAlgorithms::testLighting(IGameDef *gamedef)
 		std::map<v3s16, MapBlock*> modified_blocks;
 		MMVManip vm(&map);
 		vm.initialEmerge(bpmin, bpmax, false);
-		s32 volume = vm.m_area.getVolume();
-		for (s32 i = 0; i < volume; i++)
+		u32 volume = vm.m_area.getVolume();
+		for (u32 i = 0; i < volume; i++)
 			vm.m_data[i] = MapNode(CONTENT_AIR);
 		for (s16 z = -10; z <= 10; z++)
 		for (s16 y = -10; y <= 10; y++)

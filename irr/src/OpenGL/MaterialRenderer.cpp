@@ -24,16 +24,13 @@ COpenGL3MaterialRenderer::COpenGL3MaterialRenderer(COpenGL3DriverBase *driver,
 		s32 &outMaterialTypeNr,
 		const c8 *vertexShaderProgram,
 		const c8 *pixelShaderProgram,
+		const c8 *debugName,
 		IShaderConstantSetCallBack *callback,
 		E_MATERIAL_TYPE baseMaterial,
 		s32 userData) :
 		Driver(driver),
 		CallBack(callback), Alpha(false), Blending(false), Program(0), UserData(userData)
 {
-#ifdef _DEBUG
-	setDebugName("MaterialRenderer");
-#endif
-
 	switch (baseMaterial) {
 	case EMT_TRANSPARENT_VERTEX_ALPHA:
 	case EMT_TRANSPARENT_ALPHA_CHANNEL:
@@ -49,7 +46,7 @@ COpenGL3MaterialRenderer::COpenGL3MaterialRenderer(COpenGL3DriverBase *driver,
 	if (CallBack)
 		CallBack->grab();
 
-	init(outMaterialTypeNr, vertexShaderProgram, pixelShaderProgram);
+	init(outMaterialTypeNr, vertexShaderProgram, pixelShaderProgram, debugName);
 }
 
 COpenGL3MaterialRenderer::COpenGL3MaterialRenderer(COpenGL3DriverBase *driver,
@@ -102,6 +99,7 @@ GLuint COpenGL3MaterialRenderer::getProgram() const
 void COpenGL3MaterialRenderer::init(s32 &outMaterialTypeNr,
 		const c8 *vertexShaderProgram,
 		const c8 *pixelShaderProgram,
+		const c8 *debugName,
 		bool addMaterial)
 {
 	outMaterialTypeNr = -1;
@@ -124,6 +122,9 @@ void COpenGL3MaterialRenderer::init(s32 &outMaterialTypeNr,
 
 	if (!linkProgram())
 		return;
+
+	if (debugName)
+		Driver->irrGlObjectLabel(GL_PROGRAM, Program, debugName);
 
 	if (addMaterial)
 		outMaterialTypeNr = Driver->addMaterialRenderer(this);
@@ -411,7 +412,7 @@ bool COpenGL3MaterialRenderer::setPixelShaderConstant(s32 index, const s32 *ints
 
 bool COpenGL3MaterialRenderer::setPixelShaderConstant(s32 index, const u32 *ints, int count)
 {
-	os::Printer::log("Unsigned int support needs at least GLES 3.0", ELL_WARNING);
+	os::Printer::log("Unsigned int support is unimplemented", ELL_WARNING);
 	return false;
 }
 

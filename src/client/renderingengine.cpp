@@ -1,25 +1,11 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2017 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2017 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
 #include <optional>
 #include <irrlicht.h>
+#include "IMeshCache.h"
 #include "fontengine.h"
 #include "client.h"
 #include "clouds.h"
@@ -27,21 +13,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "guiscalingfilter.h"
 #include "localplayer.h"
 #include "client/hud.h"
+#include "client/texturesource.h"
 #include "camera.h"
 #include "minimap.h"
 #include "clientmap.h"
 #include "renderingengine.h"
 #include "render/core.h"
 #include "render/factory.h"
-#include "inputhandler.h"
-#include "gettext.h"
 #include "filesys.h"
 #include "irrlicht_changes/static_text.h"
 #include "irr_ptr.h"
 
 RenderingEngine *RenderingEngine::s_singleton = nullptr;
 const video::SColor RenderingEngine::MENU_SKY_COLOR = video::SColor(255, 140, 186, 250);
-const float RenderingEngine::BASE_BLOOM_STRENGTH = 1.0f;
 
 /* Helper classes */
 
@@ -50,9 +34,9 @@ void FpsControl::reset()
 	last_time = porting::getTimeUs();
 }
 
-void FpsControl::limit(IrrlichtDevice *device, f32 *dtime, bool assume_paused)
+void FpsControl::limit(IrrlichtDevice *device, f32 *dtime)
 {
-	const float fps_limit = (device->isWindowFocused() && !assume_paused)
+	const float fps_limit = device->isWindowFocused()
 			? g_settings->getFloat("fps_max")
 			: g_settings->getFloat("fps_max_unfocused");
 	const u64 frametime_min = 1000000.0f / std::max(fps_limit, 1.0f);
@@ -66,8 +50,7 @@ void FpsControl::limit(IrrlichtDevice *device, f32 *dtime, bool assume_paused)
 
 	if (busy_time < frametime_min) {
 		sleep_time = frametime_min - busy_time;
-		if (sleep_time > 0)
-			sleep_us(sleep_time);
+		porting::preciseSleepUs(sleep_time);
 	} else {
 		sleep_time = 0;
 	}
@@ -151,7 +134,7 @@ static irr::IrrlichtDevice *createDevice(SIrrlichtCreationParameters params, std
 {
 	if (requested_driver) {
 		params.DriverType = *requested_driver;
-		verbosestream << "Trying video driver " << getVideoDriverName(params.DriverType) << std::endl;
+		infostream << "Trying video driver " << getVideoDriverName(params.DriverType) << std::endl;
 		if (auto *device = createDeviceEx(params))
 			return device;
 		errorstream << "Failed to initialize the " << getVideoDriverName(params.DriverType) << " video driver" << std::endl;
@@ -163,7 +146,7 @@ static irr::IrrlichtDevice *createDevice(SIrrlichtCreationParameters params, std
 		if (fallback_driver == video::EDT_NULL || fallback_driver == requested_driver)
 			continue;
 		params.DriverType = fallback_driver;
-		verbosestream << "Trying video driver " << getVideoDriverName(params.DriverType) << std::endl;
+		infostream << "Trying video driver " << getVideoDriverName(params.DriverType) << std::endl;
 		if (auto *device = createDeviceEx(params))
 			return device;
 	}
@@ -173,7 +156,7 @@ static irr::IrrlichtDevice *createDevice(SIrrlichtCreationParameters params, std
 
 /* RenderingEngine class */
 
-RenderingEngine::RenderingEngine(IEventReceiver *receiver)
+RenderingEngine::RenderingEngine(MyEventReceiver *receiver)
 {
 	sanity_check(!s_singleton);
 
@@ -195,7 +178,10 @@ RenderingEngine::RenderingEngine(IEventReceiver *receiver)
 
 	// bpp, fsaa, vsync
 	bool vsync = g_settings->getBool("vsync");
-	bool enable_fsaa = g_settings->get("antialiasing") == "fsaa";
+	// Don't enable MSAA in OpenGL context creation if post-processing is enabled,
+	// the post-processing pipeline handles it.
+	bool enable_fsaa = g_settings->get("antialiasing") == "fsaa" &&
+			!g_settings->getBool("enable_post_processing");
 	u16 fsaa = enable_fsaa ? MYMAX(2, g_settings->getU16("fsaa")) : 0;
 
 	// Determine driver
@@ -226,6 +212,8 @@ RenderingEngine::RenderingEngine(IEventReceiver *receiver)
 	// This changes the minimum allowed number of vertices in a VBO. Default is 500.
 	driver->setMinHardwareBufferVertexCount(4);
 
+	m_receiver = receiver;
+
 	s_singleton = this;
 
 	g_settings->registerChangedCallback("fullscreen", settingChangedCallback, this);
@@ -236,8 +224,7 @@ RenderingEngine::~RenderingEngine()
 {
 	sanity_check(s_singleton == this);
 
-	g_settings->deregisterChangedCallback("fullscreen", settingChangedCallback, this);
-	g_settings->deregisterChangedCallback("window_maximized", settingChangedCallback, this);
+	g_settings->deregisterAllChangedCallbacks(this);
 
 	core.reset();
 	m_device->closeDevice();
@@ -386,7 +373,7 @@ void RenderingEngine::draw_load_screen(const std::wstring &text,
 std::vector<video::E_DRIVER_TYPE> RenderingEngine::getSupportedVideoDrivers()
 {
 	// Only check these drivers. We do not support software and D3D in any capacity.
-	// Order by preference (best first)
+	// ordered by preference (best first)
 	static const video::E_DRIVER_TYPE glDrivers[] = {
 		video::EDT_OPENGL,
 		video::EDT_OPENGL3,
@@ -395,7 +382,7 @@ std::vector<video::E_DRIVER_TYPE> RenderingEngine::getSupportedVideoDrivers()
 	};
 	std::vector<video::E_DRIVER_TYPE> drivers;
 
-	for (video::E_DRIVER_TYPE driver: glDrivers) {
+	for (auto driver : glDrivers) {
 		if (IrrlichtDevice::isDriverSupported(driver))
 			drivers.push_back(driver);
 	}

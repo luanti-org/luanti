@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -107,22 +92,19 @@ public:
 	void add(const Key &key, Caller caller, CallerData callerdata,
 		ResultQueue<Key, T, Caller, CallerData> *dest)
 	{
-		typename std::deque<GetRequest<Key, T, Caller, CallerData> >::iterator i;
-		typename std::list<CallerInfo<Caller, CallerData, Key, T> >::iterator j;
-
 		{
 			MutexAutoLock lock(m_queue.getMutex());
 
 			/*
 				If the caller is already on the list, only update CallerData
 			*/
-			for (i = m_queue.getQueue().begin(); i != m_queue.getQueue().end(); ++i) {
-				GetRequest<Key, T, Caller, CallerData> &request = *i;
+			for (auto i = m_queue.getQueue().begin(); i != m_queue.getQueue().end(); ++i) {
+				auto &request = *i;
 				if (request.key != key)
 					continue;
 
-				for (j = request.callers.begin(); j != request.callers.end(); ++j) {
-					CallerInfo<Caller, CallerData, Key, T> &ca = *j;
+				for (auto j = request.callers.begin(); j != request.callers.end(); ++j) {
+					auto &ca = *j;
 					if (ca.caller == caller) {
 						ca.data = callerdata;
 						return;
@@ -165,10 +147,9 @@ public:
 
 	void pushResult(GetRequest<Key, T, Caller, CallerData> req, T res)
 	{
-		for (typename std::list<CallerInfo<Caller, CallerData, Key, T> >::iterator
-				i = req.callers.begin();
+		for (auto i = req.callers.begin();
 				i != req.callers.end(); ++i) {
-			CallerInfo<Caller, CallerData, Key, T> &ca = *i;
+			auto &ca = *i;
 
 			GetResult<Key,T,Caller,CallerData> result;
 

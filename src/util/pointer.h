@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -51,10 +36,11 @@ public:
 	Buffer(unsigned int size)
 	{
 		m_size = size;
-		if(size != 0)
+		if (size != 0) {
 			data = new T[size];
-		else
+		} else {
 			data = nullptr;
+		}
 	}
 
 	// Disable class copy
@@ -64,26 +50,24 @@ public:
 	Buffer(Buffer &&buffer)
 	{
 		m_size = buffer.m_size;
-		if(m_size != 0)
-		{
+		if (m_size != 0) {
 			data = buffer.data;
 			buffer.data = nullptr;
 			buffer.m_size = 0;
-		}
-		else
+		} else {
 			data = nullptr;
+		}
 	}
 	// Copies whole buffer
 	Buffer(const T *t, unsigned int size)
 	{
 		m_size = size;
-		if(size != 0)
-		{
+		if (size != 0) {
 			data = new T[size];
-			memcpy(data, t, size);
-		}
-		else
+			memcpy(data, t, sizeof(T) * size);
+		} else {
 			data = nullptr;
+		}
 	}
 
 	~Buffer()
@@ -93,18 +77,18 @@ public:
 
 	Buffer& operator=(Buffer &&buffer)
 	{
-		if(this == &buffer)
+		if (this == &buffer) {
 			return *this;
+		}
 		drop();
 		m_size = buffer.m_size;
-		if(m_size != 0)
-		{
+		if (m_size != 0) {
 			data = buffer.data;
 			buffer.data = nullptr;
 			buffer.m_size = 0;
-		}
-		else
+		} else {
 			data = nullptr;
+		}
 		return *this;
 	}
 
@@ -114,7 +98,7 @@ public:
 		buffer.m_size = m_size;
 		if (m_size != 0) {
 			buffer.data = new T[m_size];
-			memcpy(buffer.data, data, m_size);
+			memcpy(buffer.data, data, sizeof(T) * m_size);
 		} else {
 			buffer.data = nullptr;
 		}
@@ -136,8 +120,9 @@ public:
 
 	operator std::string_view() const
 	{
-		if (!data)
+		if (!data) {
 			return std::string_view();
+		}
 		return std::string_view(reinterpret_cast<char*>(data), m_size);
 	}
 
@@ -171,12 +156,14 @@ public:
 	SharedBuffer(unsigned int size)
 	{
 		m_size = size;
-		if(m_size != 0)
+		if (m_size != 0) {
 			data = new T[m_size];
-		else
+		} else {
 			data = nullptr;
+		}
+
 		refcount = new unsigned int;
-		memset(data,0,sizeof(T)*m_size);
+		memset(data, 0, sizeof(T) * m_size);
 		(*refcount) = 1;
 	}
 	SharedBuffer(const SharedBuffer &buffer)
@@ -188,8 +175,10 @@ public:
 	}
 	SharedBuffer & operator=(const SharedBuffer & buffer)
 	{
-		if(this == &buffer)
+		if (this == &buffer) {
 			return *this;
+		}
+
 		drop();
 		m_size = buffer.m_size;
 		data = buffer.data;
@@ -197,36 +186,22 @@ public:
 		(*refcount)++;
 		return *this;
 	}
-	/*
-		Copies whole buffer
-	*/
+	//! Copies whole buffer
 	SharedBuffer(const T *t, unsigned int size)
 	{
 		m_size = size;
-		if(m_size != 0)
-		{
+		if (m_size != 0) {
 			data = new T[m_size];
-			memcpy(data, t, m_size);
-		}
-		else
+			memcpy(data, t, sizeof(T) * m_size);
+		} else {
 			data = nullptr;
+		}
 		refcount = new unsigned int;
 		(*refcount) = 1;
 	}
-	/*
-		Copies whole buffer
-	*/
-	SharedBuffer(const Buffer<T> &buffer)
+	//! Copies whole buffer
+	SharedBuffer(const Buffer<T> &buffer) : SharedBuffer(*buffer, buffer.getSize())
 	{
-		m_size = buffer.getSize();
-		if (m_size != 0) {
-				data = new T[m_size];
-				memcpy(data, *buffer, buffer.getSize());
-		}
-		else
-			data = nullptr;
-		refcount = new unsigned int;
-		(*refcount) = 1;
 	}
 	~SharedBuffer()
 	{
@@ -254,8 +229,7 @@ private:
 	{
 		assert((*refcount) > 0);
 		(*refcount)--;
-		if(*refcount == 0)
-		{
+		if (*refcount == 0) {
 			delete[] data;
 			delete refcount;
 		}

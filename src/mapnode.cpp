@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "irrlichttypes_bloated.h"
 #include "mapnode.h"
@@ -23,7 +8,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "nodedef.h"
 #include "map.h"
 #include "content_mapnode.h" // For mapnode_translate_*_internal
-#include "serialization.h" // For ser_ver_supported
+#include "serialization.h" // For ser_ver_supported_*
 #include "util/serialize.h"
 #include "log.h"
 #include "util/directiontables.h"
@@ -194,130 +179,52 @@ void transformNodeBox(const MapNode &n, const NodeBox &nodebox,
 	if (nodebox.type == NODEBOX_FIXED || nodebox.type == NODEBOX_LEVELED) {
 		const auto &fixed = nodebox.fixed;
 		int facedir = n.getFaceDir(nodemgr, true);
-		u8 axisdir = facedir>>2;
-		facedir&=0x03;
+		u8 axisdir = facedir >> 2;
+		facedir &= 0x03;
 
 		boxes.reserve(boxes.size() + fixed.size());
 		for (aabb3f box : fixed) {
 			if (nodebox.type == NODEBOX_LEVELED)
 				box.MaxEdge.Y = (-0.5f + n.getLevel(nodemgr) / 64.0f) * BS;
 
+			if(facedir == 1) {
+				box.MinEdge.rotateXZBy(-90);
+				box.MaxEdge.rotateXZBy(-90);
+			} else if(facedir == 2) {
+				box.MinEdge.rotateXZBy(180);
+				box.MaxEdge.rotateXZBy(180);
+			} else if(facedir == 3) {
+				box.MinEdge.rotateXZBy(90);
+				box.MaxEdge.rotateXZBy(90);
+			}
+
 			switch (axisdir) {
 			case 0:
-				if(facedir == 1)
-				{
-					box.MinEdge.rotateXZBy(-90);
-					box.MaxEdge.rotateXZBy(-90);
-				}
-				else if(facedir == 2)
-				{
-					box.MinEdge.rotateXZBy(180);
-					box.MaxEdge.rotateXZBy(180);
-				}
-				else if(facedir == 3)
-				{
-					box.MinEdge.rotateXZBy(90);
-					box.MaxEdge.rotateXZBy(90);
-				}
 				break;
 			case 1: // z+
 				box.MinEdge.rotateYZBy(90);
 				box.MaxEdge.rotateYZBy(90);
-				if(facedir == 1)
-				{
-					box.MinEdge.rotateXYBy(90);
-					box.MaxEdge.rotateXYBy(90);
-				}
-				else if(facedir == 2)
-				{
-					box.MinEdge.rotateXYBy(180);
-					box.MaxEdge.rotateXYBy(180);
-				}
-				else if(facedir == 3)
-				{
-					box.MinEdge.rotateXYBy(-90);
-					box.MaxEdge.rotateXYBy(-90);
-				}
 				break;
 			case 2: //z-
 				box.MinEdge.rotateYZBy(-90);
 				box.MaxEdge.rotateYZBy(-90);
-				if(facedir == 1)
-				{
-					box.MinEdge.rotateXYBy(-90);
-					box.MaxEdge.rotateXYBy(-90);
-				}
-				else if(facedir == 2)
-				{
-					box.MinEdge.rotateXYBy(180);
-					box.MaxEdge.rotateXYBy(180);
-				}
-				else if(facedir == 3)
-				{
-					box.MinEdge.rotateXYBy(90);
-					box.MaxEdge.rotateXYBy(90);
-				}
 				break;
 			case 3:  //x+
 				box.MinEdge.rotateXYBy(-90);
 				box.MaxEdge.rotateXYBy(-90);
-				if(facedir == 1)
-				{
-					box.MinEdge.rotateYZBy(90);
-					box.MaxEdge.rotateYZBy(90);
-				}
-				else if(facedir == 2)
-				{
-					box.MinEdge.rotateYZBy(180);
-					box.MaxEdge.rotateYZBy(180);
-				}
-				else if(facedir == 3)
-				{
-					box.MinEdge.rotateYZBy(-90);
-					box.MaxEdge.rotateYZBy(-90);
-				}
 				break;
 			case 4:  //x-
 				box.MinEdge.rotateXYBy(90);
 				box.MaxEdge.rotateXYBy(90);
-				if(facedir == 1)
-				{
-					box.MinEdge.rotateYZBy(-90);
-					box.MaxEdge.rotateYZBy(-90);
-				}
-				else if(facedir == 2)
-				{
-					box.MinEdge.rotateYZBy(180);
-					box.MaxEdge.rotateYZBy(180);
-				}
-				else if(facedir == 3)
-				{
-					box.MinEdge.rotateYZBy(90);
-					box.MaxEdge.rotateYZBy(90);
-				}
 				break;
 			case 5:
 				box.MinEdge.rotateXYBy(-180);
 				box.MaxEdge.rotateXYBy(-180);
-				if(facedir == 1)
-				{
-					box.MinEdge.rotateXZBy(90);
-					box.MaxEdge.rotateXZBy(90);
-				}
-				else if(facedir == 2)
-				{
-					box.MinEdge.rotateXZBy(180);
-					box.MaxEdge.rotateXZBy(180);
-				}
-				else if(facedir == 3)
-				{
-					box.MinEdge.rotateXZBy(-90);
-					box.MaxEdge.rotateXZBy(-90);
-				}
 				break;
 			default:
 				break;
 			}
+
 			box.repair();
 			boxes.push_back(box);
 		}
@@ -434,57 +341,47 @@ void transformNodeBox(const MapNode &n, const NodeBox &nodebox,
 
 		boxes.reserve(boxes_size);
 
-#define BOXESPUSHBACK(c) \
-		for (std::vector<aabb3f>::const_iterator \
-				it = (c).begin(); \
-				it != (c).end(); ++it) \
-			(boxes).push_back(*it);
+		auto boxes_insert = [&](const std::vector<aabb3f> &boxes_src) {
+			boxes.insert(boxes.end(), boxes_src.begin(), boxes_src.end());
+		};
 
-		BOXESPUSHBACK(nodebox.fixed);
+		boxes_insert(nodebox.fixed);
 
-		if (neighbors & 1) {
-			BOXESPUSHBACK(c.connect_top);
-		} else {
-			BOXESPUSHBACK(c.disconnected_top);
-		}
+		if (neighbors & 1)
+			boxes_insert(c.connect_top);
+		else
+			boxes_insert(c.disconnected_top);
 
-		if (neighbors & 2) {
-			BOXESPUSHBACK(c.connect_bottom);
-		} else {
-			BOXESPUSHBACK(c.disconnected_bottom);
-		}
+		if (neighbors & 2)
+			boxes_insert(c.connect_bottom);
+		else
+			boxes_insert(c.disconnected_bottom);
 
-		if (neighbors & 4) {
-			BOXESPUSHBACK(c.connect_front);
-		} else {
-			BOXESPUSHBACK(c.disconnected_front);
-		}
+		if (neighbors & 4)
+			boxes_insert(c.connect_front);
+		else
+			boxes_insert(c.disconnected_front);
 
-		if (neighbors & 8) {
-			BOXESPUSHBACK(c.connect_left);
-		} else {
-			BOXESPUSHBACK(c.disconnected_left);
-		}
+		if (neighbors & 8)
+			boxes_insert(c.connect_left);
+		else
+			boxes_insert(c.disconnected_left);
 
-		if (neighbors & 16) {
-			BOXESPUSHBACK(c.connect_back);
-		} else {
-			BOXESPUSHBACK(c.disconnected_back);
-		}
+		if (neighbors & 16)
+			boxes_insert(c.connect_back);
+		else
+			boxes_insert(c.disconnected_back);
 
-		if (neighbors & 32) {
-			BOXESPUSHBACK(c.connect_right);
-		} else {
-			BOXESPUSHBACK(c.disconnected_right);
-		}
+		if (neighbors & 32)
+			boxes_insert(c.connect_right);
+		else
+			boxes_insert(c.disconnected_right);
 
-		if (neighbors == 0) {
-			BOXESPUSHBACK(c.disconnected);
-		}
+		if (neighbors == 0)
+			boxes_insert(c.disconnected);
 
-		if (neighbors < 4) {
-			BOXESPUSHBACK(c.disconnected_sides);
-		}
+		if (neighbors < 4)
+			boxes_insert(c.disconnected_sides);
 
 	}
 	else // NODEBOX_REGULAR
@@ -635,7 +532,7 @@ s8 MapNode::addLevel(const NodeDefManager *nodemgr, s16 add)
 
 u32 MapNode::serializedLength(u8 version)
 {
-	if(!ser_ver_supported(version))
+	if (!ser_ver_supported_read(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	if (version == 0)
@@ -651,7 +548,7 @@ u32 MapNode::serializedLength(u8 version)
 }
 void MapNode::serialize(u8 *dest, u8 version) const
 {
-	if(!ser_ver_supported(version))
+	if (!ser_ver_supported_write(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	// Can't do this anymore; we have 16-bit dynamically allocated node IDs
@@ -664,9 +561,9 @@ void MapNode::serialize(u8 *dest, u8 version) const
 	writeU8(dest+2, param1);
 	writeU8(dest+3, param2);
 }
-void MapNode::deSerialize(u8 *source, u8 version)
+void MapNode::deSerialize(const u8 *source, u8 version)
 {
-	if(!ser_ver_supported(version))
+	if (!ser_ver_supported_read(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	if(version <= 21)
@@ -694,17 +591,11 @@ Buffer<u8> MapNode::serializeBulk(int version,
 		const MapNode *nodes, u32 nodecount,
 		u8 content_width, u8 params_width)
 {
-	if (!ser_ver_supported(version))
+	if (!ser_ver_supported_write(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	sanity_check(content_width == 2);
 	sanity_check(params_width == 2);
-
-	// Can't do this anymore; we have 16-bit dynamically allocated node IDs
-	// in memory; conversion just won't work in this direction.
-	if (version < 24)
-		throw SerializationError("MapNode::serializeBulk: serialization to "
-				"version < 24 not possible");
 
 	Buffer<u8> databuf(nodecount * (content_width + params_width));
 
@@ -727,13 +618,13 @@ void MapNode::deSerializeBulk(std::istream &is, int version,
 		MapNode *nodes, u32 nodecount,
 		u8 content_width, u8 params_width)
 {
-	if(!ser_ver_supported(version))
+	if (!ser_ver_supported_read(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
 
 	if (version < 22
 			|| (content_width != 1 && content_width != 2)
 			|| params_width != 2)
-		FATAL_ERROR("Deserialize bulk node data error");
+		throw SerializationError("Deserialize bulk node data error");
 
 	// read data
 	const u32 len = nodecount * (content_width + params_width);

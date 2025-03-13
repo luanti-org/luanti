@@ -1,32 +1,24 @@
-/*
-Minetest
-Copyright (C) 2010-2014 sapier <sapier at gmx dot net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2014 sapier <sapier at gmx dot net>
 
 #pragma once
 
 #include <map>
+#include <unordered_map>
+#include "irr_ptr.h"
+#include "irrlicht_changes/CGUITTFont.h"
 #include "util/basic_macros.h"
 #include "irrlichttypes.h"
-#include <IGUIFont.h>
-#include <IGUISkin.h>
-#include <IGUIEnvironment.h>
-#include "settings.h"
+#include "irrString.h" // utf8_to_wide
 #include "threading/mutex_auto_lock.h"
+
+namespace irr {
+	namespace gui {
+		class IGUIEnvironment;
+		class IGUIFont;
+	}
+}
 
 #define FONT_SIZE_UNSPECIFIED 0xFFFFFFFF
 
@@ -77,7 +69,7 @@ public:
 	/** get text height for a specific font */
 	unsigned int getTextHeight(const FontSpec &spec);
 
-	/** get text width if a text for a specific font */
+	/** get text width of a text for a specific font */
 	unsigned int getTextHeight(
 			unsigned int font_size=FONT_SIZE_UNSPECIFIED,
 			FontMode mode=FM_Unspecified)
@@ -88,7 +80,7 @@ public:
 
 	unsigned int getTextWidth(const std::wstring &text, const FontSpec &spec);
 
-	/** get text width if a text for a specific font */
+	/** get text width of a text for a specific font */
 	unsigned int getTextWidth(const std::wstring& text,
 			unsigned int font_size=FONT_SIZE_UNSPECIFIED,
 			FontMode mode=FM_Unspecified)
@@ -129,11 +121,15 @@ public:
 	/** update internal parameters from settings */
 	void readSettings();
 
+	void setMediaFont(const std::string &name, const std::string &data);
+
+	void clearMediaFonts();
+
 private:
 	irr::gui::IGUIFont *getFont(FontSpec spec, bool may_fail);
 
 	/** update content of font cache in case of a setting change made it invalid */
-	void updateFontCache();
+	void updateCache();
 
 	/** initialize a new TTF font */
 	gui::IGUIFont *initFont(const FontSpec &spec);
@@ -141,8 +137,10 @@ private:
 	/** update current minetest skin with font changes */
 	void updateSkin();
 
-	/** clean cache */
-	void cleanCache();
+	void clearCache();
+
+	/** refresh after fonts have been changed */
+	void refresh();
 
 	/** pointer to irrlicht gui environment */
 	gui::IGUIEnvironment* m_env = nullptr;
@@ -152,6 +150,9 @@ private:
 
 	/** internal storage for caching fonts of different size */
 	std::map<unsigned int, irr::gui::IGUIFont*> m_font_cache[FM_MaxMode << 2];
+
+	/** media-provided faces, indexed by filename (without extension) */
+	std::unordered_map<std::string, irr_ptr<gui::SGUITTFace>> m_media_faces;
 
 	/** default font size to use */
 	unsigned int m_default_size[FM_MaxMode];

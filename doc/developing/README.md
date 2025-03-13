@@ -2,15 +2,15 @@
 
 ## Wiki
 
-Some important development docs are found in the wiki: https://dev.minetest.net/
+Some important development docs are found in the wiki: https://dev.luanti.org/
 
 Notable pages:
 
-- [Releasing Minetest](https://dev.minetest.net/Releasing_Minetest)
-- [Engine translations](https://dev.minetest.net/Translation#Maintaining_engine_translations)
-- [Changelog](https://dev.minetest.net/Changelog)
-- [Organisation](https://dev.minetest.net/Organisation)
-- [Code style guidelines](https://dev.minetest.net/Code_style_guidelines)
+- [Releasing Luanti](https://dev.luanti.org/Releasing_Luanti)
+- [Engine translations](https://dev.luanti.org/Translation#Maintaining_engine_translations)
+- [Changelog](https://dev.luanti.org/Changelog)
+- [Organisation](https://dev.luanti.org/Organisation)
+- [Code style guidelines](https://dev.luanti.org/Code_style_guidelines)
 
 ## In this folder
 
@@ -23,4 +23,4 @@ Notable pages:
 
 Oftentimes knowledge hasn't been written down (yet) and your best bet is to ask someone experienced and/or the core developers.
 
-Feel free to join the [#minetest-dev IRC](https://wiki.minetest.net/IRC) and ask questions related to **engine development**.
+Feel free to join the [#minetest-dev IRC](https://wiki.luanti.org/IRC) and ask questions related to **engine development**.

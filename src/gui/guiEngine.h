@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 sapier
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 sapier
 
 #pragma once
 
@@ -203,8 +188,6 @@ private:
 	MainMenuData                         *m_data = nullptr;
 	/** texture source */
 	std::unique_ptr<ISimpleTextureSource> m_texture_source;
-	/** shader source */
-	std::unique_ptr<IWritableShaderSource> m_shader_source;
 	/** sound manager */
 	std::unique_ptr<ISoundManager>        m_sound_manager;
 
@@ -279,23 +262,11 @@ private:
 	/** and text that is in it */
 	EnrichedString m_toplefttext;
 
-	/** initialize cloud subsystem */
-	void cloudInit();
 	/** do preprocessing for cloud subsystem */
 	void drawClouds(float dtime);
 
-	/** internam data required for drawing clouds */
-	struct clouddata {
-		/** pointer to cloud class */
-		irr_ptr<Clouds> clouds;
-		/** camera required for drawing clouds */
-		scene::ICameraSceneNode *camera = nullptr;
-	};
-
 	/** is drawing of clouds enabled atm */
-	bool        m_clouds_enabled = true;
-	/** data used to draw clouds */
-	clouddata   m_cloud;
+	bool m_clouds_enabled = true;
 
 	static void fullscreenChangedCallback(const std::string &name, void *data);
 };

@@ -1,23 +1,8 @@
-/*
-Minetest
-Copyright (C) 2010-2020 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2015-2020 paramat
-Copyright (C) 2010-2016 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2020 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2015-2020 paramat
+// Copyright (C) 2010-2016 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
 
 #include "util/numeric.h"
 #include <cmath>
@@ -79,7 +64,7 @@ void CavesNoiseIntersection::generateCaves(MMVManip *vm,
 	noise_cave1->perlinMap3D(nmin.X, nmin.Y - 1, nmin.Z);
 	noise_cave2->perlinMap3D(nmin.X, nmin.Y - 1, nmin.Z);
 
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	u32 index2d = 0;  // Biomemap index
 
 	for (s16 z = nmin.Z; z <= nmax.Z; z++)
@@ -99,7 +84,7 @@ void CavesNoiseIntersection::generateCaves(MMVManip *vm,
 		u16 depth_riverbed = biome->depth_riverbed;
 		u16 nplaced = 0;
 
-		s16 biome_y_min = m_bmgn->getNextTransitionY(nmax.Y);
+		s16 biome_y_next = m_bmgn->getNextTransitionY(nmax.Y);
 
 		// Don't excavate the overgenerated stone at nmax.Y + 1,
 		// this creates a 'roof' over the tunnel, preventing light in
@@ -109,13 +94,13 @@ void CavesNoiseIntersection::generateCaves(MMVManip *vm,
 				index3d -= m_ystride,
 				VoxelArea::add_y(em, vi, -1)) {
 			// We need this check to make sure that biomes don't generate too far down
-			if (y < biome_y_min) {
+			if (y <= biome_y_next) {
 				biome = m_bmgn->getBiomeAtIndex(index2d, v3s16(x, y, z));
-				biome_y_min = m_bmgn->getNextTransitionY(y);
+				biome_y_next = m_bmgn->getNextTransitionY(y);
 
 				if (x == nmin.X && z == nmin.Z && false) {
 					dstream << "cavegen: biome at " << y << " is " << biome->name
-						<< ", next at " << biome_y_min << std::endl;
+						<< ", next at " << biome_y_next << std::endl;
 				}
 			}
 
@@ -245,7 +230,7 @@ bool CavernsNoise::generateCaverns(MMVManip *vm, v3s16 nmin, v3s16 nmax)
 
 	//// Place nodes
 	bool near_cavern = false;
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	u32 index2d = 0;
 
 	for (s16 z = nmin.Z; z <= nmax.Z; z++)

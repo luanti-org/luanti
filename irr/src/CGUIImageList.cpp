@@ -18,10 +18,6 @@ CGUIImageList::CGUIImageList(video::IVideoDriver *driver) :
 		ImagesPerRow(0),
 		UseAlphaChannel(false)
 {
-#ifdef _DEBUG
-	setDebugName("CGUIImageList");
-#endif
-
 	if (Driver) {
 		Driver->grab();
 	}

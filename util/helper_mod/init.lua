@@ -48,4 +48,24 @@ elseif mode == "mapgen" then
 	end
 	core.after(0, next_, 1)
 
+elseif mode == "error" then
+
+	local n = tonumber(core.settings:get("error_type"))
+	local error_lua = core.get_modpath(core.get_current_modname()) .. "/error.lua"
+	if n == 1 then
+		print("=> error during startup <=")
+		error("intentional")
+	elseif n == 2 then
+		print("=> error on first step <=")
+		core.after(0, error, "intentional")
+	elseif n == 3 then
+		print("=> error in async script <=")
+		core.register_async_dofile(error_lua)
+	elseif n == 4 then
+		print("=> error in mapgen script <=")
+		core.register_mapgen_script(error_lua)
+	else
+		assert(false)
+	end
+
 end

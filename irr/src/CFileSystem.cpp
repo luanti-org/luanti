@@ -7,12 +7,11 @@
 #include "IWriteFile.h"
 #include "CZipReader.h"
 #include "CFileList.h"
-#include "stdio.h"
-#include "os.h"
 #include "CReadFile.h"
 #include "CMemoryFile.h"
 #include "CLimitReadFile.h"
 #include "CWriteFile.h"
+#include "coreutil.h"
 #include <list>
 
 #if defined(__STRICT_ANSI__)
@@ -44,10 +43,6 @@ namespace io
 //! constructor
 CFileSystem::CFileSystem()
 {
-#ifdef _DEBUG
-	setDebugName("CFileSystem");
-#endif
-
 	setFileListSystem(FILESYSTEM_NATIVE);
 	//! reset current working directory
 	getWorkingDirectory();

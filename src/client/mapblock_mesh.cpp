@@ -1,23 +1,9 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "mapblock_mesh.h"
+#include "CMeshBuffer.h"
 #include "client.h"
 #include "mapblock.h"
 #include "map.h"
@@ -28,22 +14,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "minimap.h"
 #include "content_mapblock.h"
 #include "util/directiontables.h"
+#include "util/tracy_wrapper.h"
 #include "client/meshgen/collector.h"
 #include "client/renderingengine.h"
 #include <array>
 #include <algorithm>
 #include <cmath>
 #include "client/texturesource.h"
+#include <SMesh.h>
+#include <IMeshBuffer.h>
+#include <SMeshBuffer.h>
 
 /*
 	MeshMakeData
 */
 
-MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, bool use_shaders):
-	side_length(side_length),
-	nodedef(ndef),
-	m_use_shaders(use_shaders)
-{}
+MeshMakeData::MeshMakeData(const NodeDefManager *ndef,
+		u16 side_length, MeshGrid mesh_grid) :
+	m_side_length(side_length),
+	m_mesh_grid(mesh_grid),
+	m_nodedef(ndef)
+{
+	assert(m_side_length > 0);
+}
 
 void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
 {
@@ -52,8 +45,9 @@ void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
 	v3s16 blockpos_nodes = m_blockpos*MAP_BLOCKSIZE;
 
 	m_vmanip.clear();
+	// extra 1 block thick layer around the mesh
 	VoxelArea voxel_area(blockpos_nodes - v3s16(1,1,1) * MAP_BLOCKSIZE,
-			blockpos_nodes + v3s16(1,1,1) * (side_length + MAP_BLOCKSIZE /* extra layer of blocks around the mesh */) - v3s16(1,1,1));
+			blockpos_nodes + v3s16(1,1,1) * (m_side_length + MAP_BLOCKSIZE) - v3s16(1,1,1));
 	m_vmanip.addArea(voxel_area);
 }
 
@@ -66,15 +60,28 @@ void MeshMakeData::fillBlockData(const v3s16 &bp, MapNode *data)
 	m_vmanip.copyFrom(data, data_area, v3s16(0,0,0), blockpos_nodes, data_size);
 }
 
+void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
+{
+	m_blockpos = {0, 0, 0};
+
+	m_vmanip.clear();
+	// area around 0,0,0 so that this positon has neighbors
+	const s16 sz = 3;
+	m_vmanip.addArea({v3s16(-sz), v3s16(sz)});
+
+	u32 count = m_vmanip.m_area.getVolume();
+	for (u32 i = 0; i < count; i++) {
+		m_vmanip.m_data[i] = padding;
+		m_vmanip.m_flags[i] &= ~VOXELFLAG_NO_DATA;
+	}
+
+	m_vmanip.setNodeNoEmerge({0, 0, 0}, data);
+}
+
 void MeshMakeData::setCrack(int crack_level, v3s16 crack_pos)
 {
 	if (crack_level >= 0)
 		m_crack_pos_relative = crack_pos - m_blockpos*MAP_BLOCKSIZE;
-}
-
-void MeshMakeData::setSmoothLighting(bool smooth_lighting)
-{
-	m_smooth_lighting = smooth_lighting;
 }
 
 /*
@@ -147,7 +154,7 @@ u16 getFaceLight(MapNode n, MapNode n2, const NodeDefManager *ndef)
 static u16 getSmoothLightCombined(const v3s16 &p,
 	const std::array<v3s16,8> &dirs, MeshMakeData *data)
 {
-	const NodeDefManager *ndef = data->nodedef;
+	const NodeDefManager *ndef = data->m_nodedef;
 
 	u16 ambient_occlusion = 0;
 	u16 light_count = 0;
@@ -281,7 +288,8 @@ u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner, MeshMakeData 
 	return getSmoothLightCombined(p, dirs, data);
 }
 
-void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio){
+void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio)
+{
 	f32 rg = daynight_ratio / 1000.0f - 0.04f;
 	f32 b = (0.98f * daynight_ratio) / 1000.0f + 0.078f;
 	sunlight->r = rg;
@@ -334,7 +342,7 @@ void final_color_blend(video::SColor *result,
 */
 void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, TileSpec &tile)
 {
-	const NodeDefManager *ndef = data->nodedef;
+	const NodeDefManager *ndef = data->m_nodedef;
 	const ContentFeatures &f = ndef->get(mn);
 	tile = f.tiles[tileindex];
 	bool has_crack = p == data->m_crack_pos_relative;
@@ -354,7 +362,7 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 */
 void getNodeTile(MapNode mn, const v3s16 &p, const v3s16 &dir, MeshMakeData *data, TileSpec &tile)
 {
-	const NodeDefManager *ndef = data->nodedef;
+	const NodeDefManager *ndef = data->m_nodedef;
 
 	// Direction must be (1,0,0), (-1,0,0), (0,1,0), (0,-1,0),
 	// (0,0,1), (0,0,-1) or (0,0,0)
@@ -416,20 +424,6 @@ void getNodeTile(MapNode mn, const v3s16 &p, const v3s16 &dir, MeshMakeData *dat
 	};
 	getNodeTileN(mn, p, dir_to_tile[facedir][dir_i].tile, data, tile);
 	tile.rotation = tile.world_aligned ? TileRotation::None : dir_to_tile[facedir][dir_i].rotation;
-}
-
-static void applyTileColor(PreMeshBuffer &pmb)
-{
-	video::SColor tc = pmb.layer.color;
-	if (tc == video::SColor(0xFFFFFFFF))
-		return;
-	for (video::S3DVertex &vertex : pmb.vertices) {
-		video::SColor *c = &vertex.Color;
-		c->set(c->getAlpha(),
-			c->getRed() * tc.getRed() / 255,
-			c->getGreen() * tc.getGreen() / 255,
-			c->getBlue() * tc.getBlue() / 255);
-	}
 }
 
 /*
@@ -603,22 +597,24 @@ void PartialMeshBuffer::draw(video::IVideoDriver *driver) const
 	MapBlockMesh
 */
 
-MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offset):
+MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	m_tsrc(client->getTextureSource()),
 	m_shdrsrc(client->getShaderSource()),
-	m_bounding_sphere_center((data->side_length * 0.5f - 0.5f) * BS),
+	m_bounding_sphere_center((data->m_side_length * 0.5f - 0.5f) * BS),
 	m_animation_force_timer(0), // force initial animation
-	m_last_crack(-1),
-	m_last_daynight_ratio((u32) -1)
+	m_last_crack(-1)
 {
-	for (auto &m : m_mesh)
-		m = new scene::SMesh();
-	m_enable_shaders = data->m_use_shaders;
+	ZoneScoped;
 
-	auto mesh_grid = client->getMeshGrid();
+	for (auto &m : m_mesh)
+		m = make_irr<scene::SMesh>();
+
+	auto mesh_grid = data->m_mesh_grid;
 	v3s16 bp = data->m_blockpos;
-	// Only generate minimap mapblocks at even coordinates.
-	if (mesh_grid.isMeshPos(bp) && client->getMinimap()) {
+	// Only generate minimap mapblocks at grid aligned coordinates.
+	// FIXME: ^ doesn't really make sense. and in practice, bp is always aligned
+	if (mesh_grid.isMeshPos(bp) && data->m_generate_minimap) {
+		// meshgen area always fits into a grid cell
 		m_minimap_mapblocks.resize(mesh_grid.getCellVolume(), nullptr);
 		v3s16 ofs;
 
@@ -635,38 +631,30 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 		}
 	}
 
+	// algin vertices to mesh grid, not meshgen area
 	v3f offset = intToFloat((data->m_blockpos - mesh_grid.getMeshPos(data->m_blockpos)) * MAP_BLOCKSIZE, BS);
+
 	MeshCollector collector(m_bounding_sphere_center, offset);
-	/*
-		Add special graphics:
-		- torches
-		- flowing water
-		- fences
-		- whatever
-	*/
 
 	{
-		MapblockMeshGenerator(data, &collector,
-			client->getSceneManager()->getMeshManipulator()).generate();
+		// Generate everything
+		MapblockMeshGenerator(data, &collector).generate();
 	}
 
 	/*
 		Convert MeshCollector to SMesh
 	*/
 
-	const bool desync_animations = g_settings->getBool(
-		"desynchronize_mapblock_texture_animation");
-
 	m_bounding_radius = std::sqrt(collector.m_bounding_radius_sq);
 
 	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
-		scene::SMesh *mesh = (scene::SMesh *)m_mesh[layer];
+		scene::SMesh *mesh = static_cast<scene::SMesh *>(m_mesh[layer].get());
 
 		for(u32 i = 0; i < collector.prebuffers[layer].size(); i++)
 		{
 			PreMeshBuffer &p = collector.prebuffers[layer][i];
 
-			applyTileColor(p);
+			p.applyTileColor();
 
 			// Generate animation data
 			// - Cracks
@@ -693,61 +681,22 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 				auto &info = m_animation_info[{layer, i}];
 				info.tile = p.layer;
 				info.frame = 0;
-				if (desync_animations) {
-					// Get starting position from noise
-					info.frame_offset =
-							100000 * (2.0 + noise3d(
-							data->m_blockpos.X, data->m_blockpos.Y,
-							data->m_blockpos.Z, 0));
-				} else {
-					// Play all synchronized
-					info.frame_offset = 0;
-				}
 				// Replace tile texture with the first animation frame
 				p.layer.texture = (*p.layer.frames)[0].texture;
 			}
 
-			if (!m_enable_shaders) {
-				// Extract colors for day-night animation
-				// Dummy sunlight to handle non-sunlit areas
-				video::SColorf sunlight;
-				get_sunlight_color(&sunlight, 0);
-
-				std::map<u32, video::SColor> colors;
-				const u32 vertex_count = p.vertices.size();
-				for (u32 j = 0; j < vertex_count; j++) {
-					video::SColor *vc = &p.vertices[j].Color;
-					video::SColor copy = *vc;
-					if (vc->getAlpha() == 0) // No sunlight - no need to animate
-						final_color_blend(vc, copy, sunlight); // Finalize color
-					else // Record color to animate
-						colors[j] = copy;
-
-					// The sunlight ratio has been stored,
-					// delete alpha (for the final rendering).
-					vc->setAlpha(255);
-				}
-				if (!colors.empty())
-					m_daynight_diffs[{layer, i}] = std::move(colors);
-			}
-
 			// Create material
 			video::SMaterial material;
-			material.Lighting = false;
-			material.BackfaceCulling = true;
 			material.FogEnable = true;
-			material.setTexture(0, p.layer.texture);
 			material.forEachTexture([] (auto &tex) {
 				tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
 				tex.MagFilter = video::ETMAGF_NEAREST;
 			});
 
-			if (m_enable_shaders) {
+			{
 				material.MaterialType = m_shdrsrc->getShaderInfo(
 						p.layer.shader_id).material;
-				p.layer.applyMaterialOptionsWithShaders(material);
-			} else {
-				p.layer.applyMaterialOptions(material);
+				p.layer.applyMaterialOptions(material, layer);
 			}
 
 			scene::SMeshBuffer *buf = new scene::SMeshBuffer();
@@ -779,22 +728,21 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 		}
 	}
 
-	m_bsp_tree.buildTree(&m_transparent_triangles, data->side_length);
+	m_bsp_tree.buildTree(&m_transparent_triangles, data->m_side_length);
 
 	// Check if animation is required for this mesh
 	m_has_animation =
 		!m_crack_materials.empty() ||
-		!m_daynight_diffs.empty() ||
 		!m_animation_info.empty();
 }
 
 MapBlockMesh::~MapBlockMesh()
 {
 	size_t sz = 0;
-	for (scene::IMesh *m : m_mesh) {
+	for (auto &&m : m_mesh) {
 		for (u32 i = 0; i < m->getMeshBufferCount(); i++)
 			sz += m->getMeshBuffer(i)->getSize();
-		m->drop();
+		m.reset();
 	}
 	for (MinimapMapblock *block : m_minimap_mapblocks)
 		delete block;
@@ -843,8 +791,8 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 	for (auto &it : m_animation_info) {
 		const TileLayer &tile = it.second.tile;
 		// Figure out current frame
-		int frameno = (int)(time * 1000 / tile.animation_frame_length_ms
-				+ it.second.frame_offset) % tile.animation_frame_count;
+		int frameno = (int)(time * 1000 / tile.animation_frame_length_ms) %
+			tile.animation_frame_count;
 		// If frame doesn't change, skip
 		if (frameno == it.second.frame)
 			continue;
@@ -857,28 +805,11 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 		buf->getMaterial().setTexture(0, frame.texture);
 	}
 
-	// Day-night transition
-	if (!m_enable_shaders && (daynight_ratio != m_last_daynight_ratio)) {
-		video::SColorf day_color;
-		get_sunlight_color(&day_color, daynight_ratio);
-
-		for (auto &daynight_diff : m_daynight_diffs) {
-			auto *mesh = m_mesh[daynight_diff.first.first];
-			mesh->setDirty(scene::EBT_VERTEX); // force reload to VBO
-			scene::IMeshBuffer *buf = mesh->
-				getMeshBuffer(daynight_diff.first.second);
-			video::S3DVertex *vertices = (video::S3DVertex *)buf->getVertices();
-			for (const auto &j : daynight_diff.second)
-				final_color_blend(&(vertices[j.first].Color), j.second,
-						day_color);
-		}
-		m_last_daynight_ratio = daynight_ratio;
-	}
-
 	return true;
 }
 
-void MapBlockMesh::updateTransparentBuffers(v3f camera_pos, v3s16 block_pos)
+void MapBlockMesh::updateTransparentBuffers(v3f camera_pos, v3s16 block_pos,
+		bool group_by_buffers)
 {
 	// nothing to do if the entire block is opaque
 	if (m_transparent_triangles.empty())
@@ -894,24 +825,56 @@ void MapBlockMesh::updateTransparentBuffers(v3f camera_pos, v3s16 block_pos)
 	m_transparent_buffers_consolidated = false;
 	m_transparent_buffers.clear();
 
+	std::vector<std::pair<scene::SMeshBuffer *, std::vector<u16>>> ordered_strains;
+	std::unordered_map<scene::SMeshBuffer *, size_t> strain_idxs;
+
+	if (group_by_buffers) {
+		// find (reversed) order for strains, by iterating front-to-back
+		// (if a buffer A has a triangle nearer than all triangles of another
+		// buffer B, A should be drawn in front of (=after) B)
+		scene::SMeshBuffer *current_buffer = nullptr;
+		for (auto it = triangle_refs.rbegin(); it != triangle_refs.rend(); ++it) {
+			const auto &t = m_transparent_triangles[*it];
+			if (current_buffer == t.buffer)
+				continue;
+			current_buffer = t.buffer;
+			auto [_it2, is_new] =
+				strain_idxs.emplace(current_buffer, ordered_strains.size());
+			if (is_new)
+				ordered_strains.emplace_back(current_buffer, std::vector<u16>{});
+		}
+	}
+
+	// find order for triangles, by iterating back-to-front
 	scene::SMeshBuffer *current_buffer = nullptr;
-	std::vector<u16> current_strain;
+	std::vector<u16> *current_strain = nullptr;
 	for (auto i : triangle_refs) {
 		const auto &t = m_transparent_triangles[i];
 		if (current_buffer != t.buffer) {
-			if (current_buffer) {
-				m_transparent_buffers.emplace_back(current_buffer, std::move(current_strain));
-				current_strain.clear();
-			}
 			current_buffer = t.buffer;
+			if (group_by_buffers) {
+				auto it = strain_idxs.find(current_buffer);
+				assert(it != strain_idxs.end());
+				current_strain = &ordered_strains[it->second].second;
+			} else {
+				ordered_strains.emplace_back(current_buffer, std::vector<u16>{});
+				current_strain = &ordered_strains.back().second;
+			}
 		}
-		current_strain.push_back(t.p1);
-		current_strain.push_back(t.p2);
-		current_strain.push_back(t.p3);
+		current_strain->push_back(t.p1);
+		current_strain->push_back(t.p2);
+		current_strain->push_back(t.p3);
 	}
 
-	if (!current_strain.empty())
-		m_transparent_buffers.emplace_back(current_buffer, std::move(current_strain));
+	m_transparent_buffers.reserve(ordered_strains.size());
+	if (group_by_buffers) {
+		// the order was reversed
+		for (auto it = ordered_strains.rbegin(); it != ordered_strains.rend(); ++it)
+			m_transparent_buffers.emplace_back(it->first, std::move(it->second));
+	} else {
+		for (auto it = ordered_strains.begin(); it != ordered_strains.end(); ++it)
+			m_transparent_buffers.emplace_back(it->first, std::move(it->second));
+	}
 }
 
 void MapBlockMesh::consolidateTransparentBuffers()
@@ -974,21 +937,22 @@ video::SColor encode_light(u16 light, u8 emissive_light)
 
 u8 get_solid_sides(MeshMakeData *data)
 {
-	std::unordered_map<v3s16, u8> results;
 	v3s16 blockpos_nodes = data->m_blockpos * MAP_BLOCKSIZE;
-	const NodeDefManager *ndef = data->nodedef;
+	const NodeDefManager *ndef = data->m_nodedef;
 
-	u8 result = 0x3F; // all sides solid;
+	const u16 side = data->m_side_length;
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes + v3s16(side - 1)));
 
-	for (s16 i = 0; i < data->side_length && result != 0; i++)
-	for (s16 j = 0; j < data->side_length && result != 0; j++) {
+	u8 result = 0x3F; // all sides solid
+	for (s16 i = 0; i < side && result != 0; i++)
+	for (s16 j = 0; j < side && result != 0; j++) {
 		v3s16 positions[6] = {
 			v3s16(0, i, j),
-			v3s16(data->side_length - 1, i, j),
+			v3s16(side - 1, i, j),
 			v3s16(i, 0, j),
-			v3s16(i, data->side_length - 1, j),
+			v3s16(i, side - 1, j),
 			v3s16(i, j, 0),
-			v3s16(i, j, data->side_length - 1)
+			v3s16(i, j, side - 1)
 		};
 
 		for (u8 k = 0; k < 6; k++) {

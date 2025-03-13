@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "settings.h"
 #include "irrlichttypes_bloated.h"
@@ -556,7 +541,7 @@ v2f Settings::getV2F(const std::string &name) const
 }
 
 
-v3f Settings::getV3F(const std::string &name) const
+std::optional<v3f> Settings::getV3F(const std::string &name) const
 {
 	return str_to_v3f(get(name));
 }
@@ -641,7 +626,11 @@ bool Settings::getNoiseParamsFromGroup(const std::string &name,
 
 	group->getFloatNoEx("offset",      np.offset);
 	group->getFloatNoEx("scale",       np.scale);
-	group->getV3FNoEx("spread",        np.spread);
+
+	std::optional<v3f> spread;
+	if (group->getV3FNoEx("spread", spread) && spread.has_value())
+		np.spread = *spread;
+
 	group->getS32NoEx("seed",          np.seed);
 	group->getU16NoEx("octaves",       np.octaves);
 	group->getFloatNoEx("persistence", np.persist);
@@ -798,7 +787,7 @@ bool Settings::getV2FNoEx(const std::string &name, v2f &val) const
 }
 
 
-bool Settings::getV3FNoEx(const std::string &name, v3f &val) const
+bool Settings::getV3FNoEx(const std::string &name, std::optional<v3f> &val) const
 {
 	try {
 		val = getV3F(name);
@@ -1048,21 +1037,22 @@ void Settings::registerChangedCallback(const std::string &name,
 	m_callbacks[name].emplace_back(cbf, userdata);
 }
 
-void Settings::deregisterChangedCallback(const std::string &name,
-	SettingsChangedCallback cbf, void *userdata)
+size_t Settings::deregisterAllChangedCallbacks(const void *userdata)
 {
 	MutexAutoLock lock(m_callback_mutex);
-	SettingsCallbackMap::iterator it_cbks = m_callbacks.find(name);
 
-	if (it_cbks != m_callbacks.end()) {
-		SettingsCallbackList &cbks = it_cbks->second;
-
-		SettingsCallbackList::iterator position =
-			std::find(cbks.begin(), cbks.end(), std::make_pair(cbf, userdata));
-
-		if (position != cbks.end())
-			cbks.erase(position);
+	size_t n_removed = 0;
+	for (auto &settings : m_callbacks) {
+		for (auto cb = settings.second.begin(); cb != settings.second.end();) {
+			if (cb->second == userdata) {
+				cb = settings.second.erase(cb);
+				n_removed++;
+			} else {
+				++cb;
+			}
+		}
 	}
+	return n_removed;
 }
 
 void Settings::removeSecureSettings()

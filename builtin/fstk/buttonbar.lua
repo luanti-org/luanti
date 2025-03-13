@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2014 sapier
 --Copyright (C) 2023 Gregor Parzefall
 --
@@ -38,7 +38,7 @@ local function buttonbar_formspec(self)
 	-- `BASE_SPACING` is used as the minimum spacing, like `gap` in CSS Flexbox.
 
 	-- The number of buttons per page is always calculated as if the scroll
-    -- buttons were visible.
+	-- buttons were visible.
 	local avail_space = self.size.x - 2*BASE_SPACING - 2*get_scroll_btn_width()
 	local btns_per_page = math.floor((avail_space - BASE_SPACING) / (btn_size + BASE_SPACING))
 

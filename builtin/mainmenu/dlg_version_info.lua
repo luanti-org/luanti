@@ -1,5 +1,5 @@
 --[[
-Minetest
+Luanti
 Copyright (C) 2018-2020 SmallJoker, 2022 rubenwardy
 
 This program is free software; you can redistribute it and/or modify

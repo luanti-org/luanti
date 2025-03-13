@@ -1,44 +1,44 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
 #include <optional>
-#include <tuple>
 #include <string>
 #include "irrlichttypes_bloated.h"
 #include <iostream>
-#include <map>
 #include <vector>
 #include "util/pointabilities.h"
+#include "mapnode.h"
+
+struct EnumString;
+
+enum ObjectVisual : u8 {
+	OBJECTVISUAL_UNKNOWN,
+	OBJECTVISUAL_SPRITE,
+	OBJECTVISUAL_UPRIGHT_SPRITE,
+	OBJECTVISUAL_CUBE,
+	OBJECTVISUAL_MESH,
+	OBJECTVISUAL_ITEM,
+	OBJECTVISUAL_WIELDITEM,
+	OBJECTVISUAL_NODE,
+};
+
+extern const EnumString es_ObjectVisual[];
+
 
 struct ObjectProperties
 {
 	/* member variables ordered roughly by size */
 
 	std::vector<std::string> textures;
-	std::vector<video::SColor> colors;
+	std::vector<video::SColor> colors; // Currently unused
 	// Values are BS=1
 	aabb3f collisionbox = aabb3f(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
 	// Values are BS=1
 	aabb3f selectionbox = aabb3f(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
-	std::string visual = "sprite";
+	ObjectVisual visual = OBJECTVISUAL_SPRITE;
 	std::string mesh;
 	std::string damage_texture_modifier = "^[brighten";
 	std::string nametag;
@@ -56,6 +56,7 @@ struct ObjectProperties
 	f32 automatic_face_movement_max_rotation_per_sec = -1.0f;
 	float eye_height = 1.625f;
 	float zoom_fov = 0.0f;
+	MapNode node = MapNode(CONTENT_IGNORE);
 	u16 hp_max = 1;
 	u16 breath_max = 0;
 	s8 glow = 0;
@@ -77,28 +78,10 @@ struct ObjectProperties
 
 	std::string dump() const;
 
-private:
-	auto tie() const {
-		// Make sure to add new members to this list!
-		return std::tie(
-		textures, colors, collisionbox, selectionbox, visual, mesh, damage_texture_modifier,
-		nametag, infotext, wield_item, visual_size, nametag_color, nametag_bgcolor,
-		spritediv, initial_sprite_basepos, stepheight, automatic_rotate,
-		automatic_face_movement_dir_offset, automatic_face_movement_max_rotation_per_sec,
-		eye_height, zoom_fov, hp_max, breath_max, glow, pointable, physical,
-		collideWithObjects, rotate_selectionbox, is_visible, makes_footstep_sound,
-		automatic_face_movement_dir, backface_culling, static_save, use_texture_alpha,
-		shaded, show_on_minimap
-		);
-	}
-
-public:
-	bool operator==(const ObjectProperties &other) const {
-		return tie() == other.tie();
-	};
+	bool operator==(const ObjectProperties &other) const;
 	bool operator!=(const ObjectProperties &other) const {
-		return tie() != other.tie();
-	};
+		return !(*this == other);
+	}
 
 	/**
 	 * Check limits of some important properties that'd cause exceptions later on.

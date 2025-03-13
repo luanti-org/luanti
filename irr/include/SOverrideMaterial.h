@@ -98,12 +98,6 @@ struct SOverrideMaterial
 					case EMP_POINTCLOUD:
 						material.PointCloud = Material.PointCloud;
 						break;
-					case EMP_GOURAUD_SHADING:
-						material.GouraudShading = Material.GouraudShading;
-						break;
-					case EMP_LIGHTING:
-						material.Lighting = Material.Lighting;
-						break;
 					case EMP_ZBUFFER:
 						material.ZBuffer = Material.ZBuffer;
 						break;
@@ -140,9 +134,6 @@ struct SOverrideMaterial
 					case EMP_FOG_ENABLE:
 						material.FogEnable = Material.FogEnable;
 						break;
-					case EMP_NORMALIZE_NORMALS:
-						material.NormalizeNormals = Material.NormalizeNormals;
-						break;
 					case EMP_TEXTURE_WRAP:
 						for (u32 i = 0; i < MATERIAL_MAX_TEXTURES; ++i) {
 							if (EnableLayerProps[i]) {
@@ -157,9 +148,6 @@ struct SOverrideMaterial
 						break;
 					case EMP_COLOR_MASK:
 						material.ColorMask = Material.ColorMask;
-						break;
-					case EMP_COLOR_MATERIAL:
-						material.ColorMaterial = Material.ColorMaterial;
 						break;
 					case EMP_USE_MIP_MAPS:
 						material.UseMipMaps = Material.UseMipMaps;

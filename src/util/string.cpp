@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "string.h"
 #include "serialize.h" // BYTE_ORDER
@@ -182,6 +167,22 @@ std::string wide_to_utf8(std::wstring_view input)
 
 #endif // _WIN32
 
+void wide_add_codepoint(std::wstring &result, char32_t codepoint)
+{
+	if ((0xD800 <= codepoint && codepoint <= 0xDFFF) || codepoint > 0x10FFFF) {
+		// Invalid codepoint, replace with unicode replacement character
+		result.push_back(0xFFFD);
+		return;
+	}
+	if constexpr (sizeof(wchar_t) == 2) { // Surrogate encoding needed?
+		if (codepoint > 0xffff) {
+			result.push_back((wchar_t) ((codepoint >> 10) | 0xD800));
+			result.push_back((wchar_t) ((codepoint & 0x3FF) | 0xDC00));
+			return;
+		}
+	}
+	result.push_back((wchar_t) codepoint);
+}
 
 std::string urlencode(std::string_view str)
 {
@@ -668,13 +669,20 @@ std::string wrap_rows(std::string_view from, unsigned row_len, bool has_color_co
  * We get the argument "White", translated, and create a template string with "@1" instead of it.
  * We finally get the template "@1 Wool" that was used in the beginning, which we translate
  * before filling it again.
+ *
+ * The \x1bT marking the beginning of a translated string allows two '@'-separated arguments:
+ * - The first one is the textdomain/context in which the string is to be translated. Most often,
+ *   this is the name of the mod which asked for the translation.
+ * - The second argument, if present, should be an integer; it is used to decide which plural form
+ *   to use, for languages containing several plural forms.
  */
 
 static void translate_all(std::wstring_view s, size_t &i,
 		Translations *translations, std::wstring &res);
 
 static void translate_string(std::wstring_view s, Translations *translations,
-		const std::wstring &textdomain, size_t &i, std::wstring &res)
+		const std::wstring &textdomain, size_t &i, std::wstring &res,
+		bool use_plural, unsigned long int number)
 {
 	std::vector<std::wstring> args;
 	int arg_number = 1;
@@ -751,8 +759,17 @@ static void translate_string(std::wstring_view s, Translations *translations,
 	}
 
 	// Translate the template.
-	const std::wstring &toutput = translations ?
-		translations->getTranslation(textdomain, output) : output;
+	std::wstring toutput;
+	if (translations != nullptr) {
+		if (use_plural)
+			toutput = translations->getPluralTranslation(
+					textdomain, output, number);
+		else
+			toutput = translations->getTranslation(
+					textdomain, output);
+	} else {
+		toutput = output;
+	}
 
 	// Put back the arguments in the translated template.
 	size_t j = 0;
@@ -835,10 +852,37 @@ static void translate_all(std::wstring_view s, size_t &i,
 		} else if (parts[0] == L"T") {
 			// Beginning of translated string.
 			std::wstring textdomain;
+			bool use_plural = false;
+			unsigned long int number = 0;
 			if (parts.size() > 1)
 				textdomain = parts[1];
+			if (parts.size() > 2 && parts[2] != L"") {
+				// parts[2] should contain a number used for selecting
+				// the plural form.
+				// However, we can't blindly cast it to an unsigned long int,
+				// as it might be too large for that.
+				//
+				// We follow the advice of gettext and reduce integers larger than 1000000
+				// to something in the range [1000000, 2000000), with the same last 6 digits.
+				//
+				// https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html
+				constexpr unsigned long int max = 1000000;
+
+				use_plural = true;
+				number = 0;
+				for (char c : parts[2]) {
+					if (L'0' <= c && c <= L'9') {
+						number = (10 * number + (unsigned long int)(c - L'0'));
+						if (number >= 2 * max) number = (number % max) + max;
+					} else {
+						// Invalid number
+						use_plural = false;
+						break;
+					}
+				}
+			}
 			std::wstring translated;
-			translate_string(s, translations, textdomain, i, translated);
+			translate_string(s, translations, textdomain, i, translated, use_plural, number);
 			res.append(translated);
 		} else {
 			// Another escape sequence, such as colors. Preserve it.
@@ -856,14 +900,9 @@ std::wstring translate_string(std::wstring_view s, Translations *translations)
 	return res;
 }
 
-// Translate string client side
 std::wstring translate_string(std::wstring_view s)
 {
-#ifdef SERVER
-	return translate_string(s, nullptr);
-#else
 	return translate_string(s, g_client_translations);
-#endif
 }
 
 static const std::array<std::wstring_view, 30> disallowed_dir_names = {
@@ -1012,14 +1051,41 @@ void safe_print_string(std::ostream &os, std::string_view str)
 	os.setf(flags);
 }
 
-
-v3f str_to_v3f(std::string_view str)
+std::optional<v3f> str_to_v3f(std::string_view str)
 {
+	str = trim(str);
+
+	if (str.empty())
+		return std::nullopt;
+
+	// Strip parentheses if they exist
+	if (str.front() == '(' && str.back() == ')') {
+		str.remove_prefix(1);
+		str.remove_suffix(1);
+		str = trim(str);
+	}
+
+	std::istringstream iss((std::string(str)));
+
+	const auto expect_delimiter = [&]() {
+		const auto c = iss.get();
+		return c == ' ' || c == ',';
+	};
+
 	v3f value;
-	Strfnd f(str);
-	f.next("(");
-	value.X = stof(f.next(","));
-	value.Y = stof(f.next(","));
-	value.Z = stof(f.next(")"));
+	if (!(iss >> value.X))
+		return std::nullopt;
+	if (!expect_delimiter())
+		return std::nullopt;
+	if (!(iss >> value.Y))
+		return std::nullopt;
+	if (!expect_delimiter())
+		return std::nullopt;
+	if (!(iss >> value.Z))
+		return std::nullopt;
+
+	if (!iss.eof())
+		return std::nullopt;
+
 	return value;
 }

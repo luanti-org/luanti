@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -35,8 +20,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "gameparams.h"
 #include "script/common/c_types.h" // LuaError
 #include "util/numeric.h"
+#include "util/string.h" // StringMap
+#include "config.h"
 
-#ifdef SERVER
+#if !IS_CLIENT_BUILD
 #error Do not include in server builds
 #endif
 
@@ -112,7 +99,6 @@ private:
 };
 
 class ClientScripting;
-class GameUI;
 
 class Client : public con::PeerHandler, public InventoryManager, public IGameDef
 {
@@ -132,7 +118,6 @@ public:
 			ISoundManager *sound,
 			MtEventManager *event,
 			RenderingEngine *rendering_engine,
-			GameUI *game_ui,
 			ELoginRegister allow_login_or_register
 	);
 
@@ -194,7 +179,7 @@ public:
 	void handleCommand_Breath(NetworkPacket* pkt);
 	void handleCommand_MovePlayer(NetworkPacket* pkt);
 	void handleCommand_MovePlayerRel(NetworkPacket* pkt);
-	void handleCommand_DeathScreen(NetworkPacket* pkt);
+	void handleCommand_DeathScreenLegacy(NetworkPacket* pkt);
 	void handleCommand_AnnounceMedia(NetworkPacket* pkt);
 	void handleCommand_Media(NetworkPacket* pkt);
 	void handleCommand_NodeDef(NetworkPacket* pkt);
@@ -251,7 +236,7 @@ public:
 	void sendChangePassword(const std::string &oldpassword,
 		const std::string &newpassword);
 	void sendDamage(u16 damage);
-	void sendRespawn();
+	void sendRespawnLegacy();
 	void sendReady();
 	void sendHaveMedia(const std::vector<u32> &tokens);
 	void sendUpdateClientInfo(const ClientDynamicInfo &info);
@@ -316,8 +301,6 @@ public:
 	// Including blocks at appropriate edges
 	void addUpdateMeshTaskWithEdge(v3s16 blockpos, bool ack_to_server=false, bool urgent=false);
 	void addUpdateMeshTaskForNode(v3s16 nodepos, bool ack_to_server=false, bool urgent=false);
-
-	void updateCameraOffset(v3s16 camera_offset);
 
 	bool hasClientEvents() const { return !m_client_event_queue.empty(); }
 	// Get event from queue. If queue is empty, it triggers an assertion failure.
@@ -504,23 +487,18 @@ private:
 	u8 m_server_ser_ver;
 
 	// Used version of the protocol with server
-	// Values smaller than 25 only mean they are smaller than 25,
-	// and aren't accurate. We simply just don't know, because
-	// the server didn't send the version back then.
 	// If 0, server init hasn't been received yet.
 	u16 m_proto_ver = 0;
 
 	bool m_update_wielded_item = false;
 	Inventory *m_inventory_from_server = nullptr;
 	float m_inventory_from_server_age = 0.0f;
+	s32 m_mapblock_limit_logged = 0;
 	PacketCounter m_packetcounter;
 	// Block mesh animation parameters
 	float m_animation_time = 0.0f;
 	int m_crack_level = -1;
 	v3s16 m_crack_pos;
-	// 0 <= m_daynight_i < DAYNIGHT_CACHE_COUNT
-	//s32 m_daynight_i;
-	//u32 m_daynight_ratio;
 	std::queue<std::wstring> m_out_chat_queue;
 	u32 m_last_chat_message_sent;
 	float m_chat_message_allowance = 5.0f;
@@ -556,11 +534,6 @@ private:
 	// Pending downloads of dynamic media (key: token)
 	std::vector<std::pair<u32, std::shared_ptr<SingleMediaDownloader>>> m_pending_media_downloads;
 
-	// time_of_day speed approximation for old protocol
-	bool m_time_of_day_set = false;
-	float m_last_time_of_day_f = -1.0f;
-	float m_time_of_day_update_timer = 0.0f;
-
 	// An interval for generally sending object positions and stuff
 	float m_recommended_send_interval = 0.1f;
 
@@ -586,8 +559,6 @@ private:
 
 	// own state
 	LocalClientState m_state;
-
-	GameUI *m_game_ui;
 
 	// Used for saving server map to disk client-side
 	MapDatabase *m_localdb = nullptr;

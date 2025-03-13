@@ -1,7 +1,7 @@
 
 local message = function(msg)
-	minetest.log("action", "[callbacks] "..msg)
-	minetest.chat_send_all(msg)
+	core.log("action", "[callbacks] "..msg)
+	core.chat_send_all(msg)
 end
 
 core.register_on_punchplayer(function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage)

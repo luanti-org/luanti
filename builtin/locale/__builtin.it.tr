@@ -245,3 +245,5 @@ A total of @1 sample(s) were taken.=Son stati ottenuti campioni per un totale di
 The output is limited to '@1'.=L'output è limitato a '@1'.
 Saving of profile failed: @1=Errore nel salvare il profilo: @1
 Profile saved to @1=Profilo salvato in @1
+You died=Sei morto
+Respawn=Rinasci

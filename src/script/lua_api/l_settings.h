@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 PilzAdam <pilzadam@minetest.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 PilzAdam <pilzadam@minetest.net>
 
 #pragma once
 
@@ -44,6 +29,9 @@ private:
 	// get_flags(self, key) -> key/value table
 	static int l_get_flags(lua_State *L);
 
+	// get_pos(self, key) -> vector or nil
+	static int l_get_pos(lua_State *L);
+
 	// set(self, key, value)
 	static int l_set(lua_State *L);
 
@@ -52,6 +40,9 @@ private:
 
 	// set_np_group(self, key, value)
 	static int l_set_np_group(lua_State *L);
+
+	// set_pos(self, key, value)
+	static int l_set_pos(lua_State *L);
 
 	// remove(self, key) -> success
 	static int l_remove(lua_State *L);

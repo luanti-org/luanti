@@ -1,29 +1,13 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2018 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2018 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
 #include "gameui.h"
 #include <irrlicht_changes/static_text.h>
 #include <gettext.h>
 #include "gui/mainmenumanager.h"
 #include "gui/guiChatConsole.h"
-#include "gui/guiFormSpecMenu.h"
 #include "gui/touchcontrols.h"
 #include "util/enriched_string.h"
 #include "util/pointedthing.h"
@@ -120,11 +104,11 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 		os << std::fixed
 			<< PROJECT_NAME_C " " << g_version_hash
 			<< " | FPS: " << fps
-			<< std::setprecision(0)
+			<< std::setprecision(fps >= 100 ? 1 : 0)
 			<< " | drawtime: " << m_drawtime_avg << "ms"
 			<< std::setprecision(1)
 			<< " | dtime jitter: "
-			<< (stats.dtime_jitter.max_fraction * 100.0) << "%"
+			<< (stats.dtime_jitter.max_fraction * 100.0f) << "%"
 			<< std::setprecision(1)
 			<< " | view range: "
 			<< (draw_control->range_all ? "All" : itos(draw_control->wanted_range))
@@ -216,10 +200,10 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 			status_y - status_height, status_x + status_width, status_y));
 
 		// Fade out
-		video::SColor final_color = m_statustext_initial_color;
-		final_color.setAlpha(0);
-		video::SColor fade_color = m_statustext_initial_color.getInterpolated_quadratic(
-			m_statustext_initial_color, final_color, m_statustext_time / statustext_time_max);
+		video::SColor fade_color = m_statustext_initial_color;
+		f32 d = m_statustext_time / statustext_time_max;
+		fade_color.setAlpha(static_cast<u32>(
+			fade_color.getAlpha() * (1.0f - d * d)));
 		guitext_status->setOverrideColor(fade_color);
 		guitext_status->enableOverrideColor(true);
 	}
@@ -231,7 +215,6 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 void GameUI::initFlags()
 {
 	m_flags = GameUI::Flags();
-	m_flags.show_minimal_debug = g_settings->getBool("show_debug");
 }
 
 void GameUI::showTranslatedStatusText(const char *str)
@@ -332,17 +315,6 @@ void GameUI::toggleProfiler()
 	} else {
 		showTranslatedStatusText("Profiler hidden");
 	}
-}
-
-
-void GameUI::deleteFormspec()
-{
-	if (m_formspec) {
-		m_formspec->drop();
-		m_formspec = nullptr;
-	}
-
-	m_formname.clear();
 }
 
 void GameUI::clearText()

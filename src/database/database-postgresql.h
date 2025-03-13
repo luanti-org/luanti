@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -24,20 +9,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "database.h"
 #include "util/basic_macros.h"
 
-class Settings;
-
-class Database_PostgreSQL: public Database
+// Template class for PostgreSQL based data storage
+class Database_PostgreSQL : public Database
 {
 public:
 	Database_PostgreSQL(const std::string &connect_string, const char *type);
 	~Database_PostgreSQL();
 
-	void beginSave();
-	void endSave();
+	void beginSave() override;
+	void endSave() override;
 	void rollback();
 
-	bool initialized() const;
+	bool initialized() const override;
 
+	void verifyDatabase() override;
 
 protected:
 	// Conversion helpers
@@ -88,7 +73,6 @@ protected:
 	}
 
 	void createTableIfNotExists(const std::string &table_name, const std::string &definition);
-	void verifyDatabase();
 
 	// Database initialization
 	void connectToDatabase();
@@ -114,6 +98,12 @@ private:
 	int m_pgversion = 0;
 };
 
+// Not sure why why we have to do this. can't C++ figure it out on its own?
+#define PARENT_CLASS_FUNCS \
+	void beginSave() { Database_PostgreSQL::beginSave(); } \
+	void endSave() { Database_PostgreSQL::endSave(); } \
+	void verifyDatabase() { Database_PostgreSQL::verifyDatabase(); }
+
 class MapDatabasePostgreSQL : private Database_PostgreSQL, public MapDatabase
 {
 public:
@@ -125,8 +115,7 @@ public:
 	bool deleteBlock(const v3s16 &pos);
 	void listAllLoadableBlocks(std::vector<v3s16> &dst);
 
-	void beginSave() { Database_PostgreSQL::beginSave(); }
-	void endSave() { Database_PostgreSQL::endSave(); }
+	PARENT_CLASS_FUNCS
 
 protected:
 	virtual void createDatabase();
@@ -144,6 +133,8 @@ public:
 	bool removePlayer(const std::string &name);
 	void listPlayers(std::vector<std::string> &res);
 
+	PARENT_CLASS_FUNCS
+
 protected:
 	virtual void createDatabase();
 	virtual void initStatements();
@@ -158,14 +149,14 @@ public:
 	AuthDatabasePostgreSQL(const std::string &connect_string);
 	virtual ~AuthDatabasePostgreSQL() = default;
 
-	virtual void verifyDatabase() { Database_PostgreSQL::verifyDatabase(); }
-
 	virtual bool getAuth(const std::string &name, AuthEntry &res);
 	virtual bool saveAuth(const AuthEntry &authEntry);
 	virtual bool createAuth(AuthEntry &authEntry);
 	virtual bool deleteAuth(const std::string &name);
 	virtual void listNames(std::vector<std::string> &res);
 	virtual void reload();
+
+	PARENT_CLASS_FUNCS
 
 protected:
 	virtual void createDatabase();
@@ -191,10 +182,11 @@ public:
 	bool removeModEntries(const std::string &modname);
 	void listMods(std::vector<std::string> *res);
 
-	void beginSave() { Database_PostgreSQL::beginSave(); }
-	void endSave() { Database_PostgreSQL::endSave(); }
+	PARENT_CLASS_FUNCS
 
 protected:
 	virtual void createDatabase();
 	virtual void initStatements();
 };
+
+#undef PARENT_CLASS_FUNCS

@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2014-2020 paramat
-Copyright (C) 2014-2016 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2014-2020 paramat
+// Copyright (C) 2014-2016 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
 
 #pragma once
 
@@ -34,6 +19,12 @@ class BiomeManager;
 
 typedef u16 biome_t;
 
+constexpr v3s16 MAX_MAP_GENERATION_LIMIT_V3(
+	MAX_MAP_GENERATION_LIMIT,
+	MAX_MAP_GENERATION_LIMIT,
+	MAX_MAP_GENERATION_LIMIT
+);
+
 #define BIOME_NONE ((biome_t)0)
 
 enum BiomeType {
@@ -44,31 +35,32 @@ class Biome : public ObjDef, public NodeResolver {
 public:
 	ObjDef *clone() const;
 
-	u32 flags;
-
-	content_t c_top;
-	content_t c_filler;
-	content_t c_stone;
-	content_t c_water_top;
-	content_t c_water;
-	content_t c_river_water;
-	content_t c_riverbed;
-	content_t c_dust;
+	content_t
+		c_top         = CONTENT_IGNORE,
+		c_filler      = CONTENT_IGNORE,
+		c_stone       = CONTENT_IGNORE,
+		c_water_top   = CONTENT_IGNORE,
+		c_water       = CONTENT_IGNORE,
+		c_river_water = CONTENT_IGNORE,
+		c_riverbed    = CONTENT_IGNORE,
+		c_dust        = CONTENT_IGNORE;
 	std::vector<content_t> c_cave_liquid;
-	content_t c_dungeon;
-	content_t c_dungeon_alt;
-	content_t c_dungeon_stair;
+	content_t
+		c_dungeon       = CONTENT_IGNORE,
+		c_dungeon_alt   = CONTENT_IGNORE,
+		c_dungeon_stair = CONTENT_IGNORE;
 
-	s16 depth_top;
-	s16 depth_filler;
-	s16 depth_water_top;
-	s16 depth_riverbed;
+	s16 depth_top       = 0;
+	s16 depth_filler    = -MAX_MAP_GENERATION_LIMIT;
+	s16 depth_water_top = 0;
+	s16 depth_riverbed  = 0;
 
-	v3s16 min_pos;
-	v3s16 max_pos;
-	float heat_point;
-	float humidity_point;
-	s16 vertical_blend;
+	v3s16 min_pos = -MAX_MAP_GENERATION_LIMIT_V3;
+	v3s16 max_pos =  MAX_MAP_GENERATION_LIMIT_V3;
+	float heat_point     = 0.0f;
+	float humidity_point = 0.0f;
+	s16 vertical_blend = 0;
+	float weight = 1.0f;
 
 	virtual void resolveNodeNames();
 };
@@ -205,7 +197,8 @@ private:
 	Noise *noise_heat_blend;
 	Noise *noise_humidity_blend;
 
-	// ordered descending
+	/// Y values at which biomes may transition.
+	/// This array may only be used for downwards scanning!
 	std::vector<s16> m_transitions_y;
 };
 

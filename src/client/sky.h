@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -32,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace irr::video
 {
 	class IVideoDriver;
+	class IImage;
 }
 
 class IShaderSource;
@@ -136,7 +122,7 @@ public:
 	}
 
 private:
-	aabb3f m_box;
+	aabb3f m_box{{0.0f, 0.0f, 0.0f}};
 	video::SMaterial m_materials[SKY_MATERIAL_COUNT];
 	// How much sun & moon transition should affect horizon color
 	float m_horizon_blend()
@@ -188,7 +174,6 @@ private:
 	bool m_clouds_enabled = true; // Initialised to true, reset only by set_sky API
 	bool m_directional_colored_fog;
 	bool m_in_clouds = true; // Prevent duplicating bools to remember old values
-	bool m_enable_shaders = false;
 
 	video::SColorf m_bgcolor_bright_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);
 	video::SColorf m_skycolor_bright_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);
@@ -216,10 +201,10 @@ private:
 	u64 m_seed = 0;
 	irr_ptr<scene::SMeshBuffer> m_stars;
 
-	video::ITexture *m_sun_texture;
-	video::ITexture *m_moon_texture;
-	video::ITexture *m_sun_tonemap;
-	video::ITexture *m_moon_tonemap;
+	video::ITexture *m_sun_texture = nullptr;
+	video::ITexture *m_moon_texture = nullptr;
+	video::IImage *m_sun_tonemap = nullptr;
+	video::IImage *m_moon_tonemap = nullptr;
 
 	void updateStars();
 

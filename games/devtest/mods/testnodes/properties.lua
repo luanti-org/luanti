@@ -1,9 +1,9 @@
 -- Test Nodes: Node property tests
 
-local S = minetest.get_translator("testnodes")
+local S = core.get_translator("testnodes")
 
 -- Is supposed to fall when it doesn't rest on solid ground
-minetest.register_node("testnodes:falling", {
+core.register_node("testnodes:falling", {
 	description = S("Falling Node").."\n"..
 		S("Falls down if no node below"),
 	tiles = {
@@ -14,7 +14,7 @@ minetest.register_node("testnodes:falling", {
 	groups = { falling_node = 1, dig_immediate = 3 },
 })
 
-minetest.register_node("testnodes:falling_facedir", {
+core.register_node("testnodes:falling_facedir", {
 	description = S("Falling Facedir Node").."\n"..
 		S("Falls down if no node below").."\n"..
 		S("param2 = facedir rotation"),
@@ -31,7 +31,7 @@ minetest.register_node("testnodes:falling_facedir", {
 })
 
 -- Same as falling node, but will stop falling on top of liquids
-minetest.register_node("testnodes:falling_float", {
+core.register_node("testnodes:falling_float", {
 	description = S("Falling+Floating Node").."\n"..
 		S("Falls down if no node below, floats on liquids (liquidtype ~= \"none\")"),
 	groups = { falling_node = 1, float = 1, dig_immediate = 3 },
@@ -47,7 +47,7 @@ minetest.register_node("testnodes:falling_float", {
 
 -- This node attaches to the floor and drops as item
 -- when the floor is gone.
-minetest.register_node("testnodes:attached", {
+core.register_node("testnodes:attached", {
 	description = S("Floor-Attached Node").."\n"..
 		S("Drops as item if no solid node below"),
 	tiles = {
@@ -59,7 +59,7 @@ minetest.register_node("testnodes:attached", {
 })
 -- This node attaches to the side of a node and drops as item
 -- when the node it attaches to is gone.
-minetest.register_node("testnodes:attached_wallmounted", {
+core.register_node("testnodes:attached_wallmounted", {
 	description = S("Wallmounted Attached Node").."\n"..
 		S("Attaches to solid node it was placed on; drops as item if neighbor node is gone").."\n"..
 		S("param2 = wallmounted rotation (0..7)"),
@@ -75,7 +75,7 @@ minetest.register_node("testnodes:attached_wallmounted", {
 -- This node attaches to the side of a node and drops as item
 -- when the node it attaches to is gone.
 -- Also adds vertical 90° rotation variants.
-minetest.register_node("testnodes:attached_wallmounted_rot", {
+core.register_node("testnodes:attached_wallmounted_rot", {
 	description = S("Rotatable Wallmounted Attached Node").."\n"..
 		S("Attaches to solid node it was placed on; drops as item if neighbor node is gone").."\n"..
 		S("param2 = wallmounted rotation (0..7)").."\n"..
@@ -91,7 +91,7 @@ minetest.register_node("testnodes:attached_wallmounted_rot", {
 })
 
 -- Wallmounted node that always attaches to the floor
-minetest.register_node("testnodes:attached_wallmounted_floor", {
+core.register_node("testnodes:attached_wallmounted_floor", {
 	description = S("Floor-Attached Wallmounted Node").."\n"..
 		S("Drops as item if no solid node below (regardless of rotation)").."\n"..
 		S("param2 = wallmounted rotation (visual only) (0..7)"),
@@ -107,7 +107,7 @@ minetest.register_node("testnodes:attached_wallmounted_floor", {
 
 -- Wallmounted node that always attaches to the floor.
 -- Also adds 90° rotation variants.
-minetest.register_node("testnodes:attached_wallmounted_floor_rot", {
+core.register_node("testnodes:attached_wallmounted_floor_rot", {
 	description = S("Rotatable Floor-Attached Wallmounted Node").."\n"..
 		S("Drops as item if no solid node below (regardless of rotation)").."\n"..
 		S("param2 = wallmounted rotation (visual only) (0..7)").."\n"..
@@ -124,7 +124,7 @@ minetest.register_node("testnodes:attached_wallmounted_floor_rot", {
 
 -- This node attaches to the ceiling and drops as item
 -- when the ceiling is gone.
-minetest.register_node("testnodes:attached_top", {
+core.register_node("testnodes:attached_top", {
 	description = S("Ceiling-Attached Node").."\n"..
 		S("Drops as item if no solid node above"),
 	tiles = {
@@ -136,7 +136,7 @@ minetest.register_node("testnodes:attached_top", {
 })
 
 -- Same as wallmounted attached, but for facedir
-minetest.register_node("testnodes:attached_facedir", {
+core.register_node("testnodes:attached_facedir", {
 	description = S("Facedir Attached Node").."\n"..
 		S("Attaches to a neighboring solid node; drops as item if that node is gone").."\n"..
 		S("param2 = facedir rotation (0..23)"),
@@ -153,7 +153,7 @@ minetest.register_node("testnodes:attached_facedir", {
 })
 
 -- Same as facedir attached, but for 4dir
-minetest.register_node("testnodes:attached_4dir", {
+core.register_node("testnodes:attached_4dir", {
 	description = S("4dir Attached Node").."\n"..
 		S("Attaches to the side of a solid node; drops as item if that node is gone").."\n"..
 		S("param2 = 4dir rotation (0..3)"),
@@ -170,7 +170,7 @@ minetest.register_node("testnodes:attached_4dir", {
 })
 
 -- Jump disabled
-minetest.register_node("testnodes:nojump", {
+core.register_node("testnodes:nojump", {
 	description = S("Non-jumping Node").."\n"..
 		S("You can't jump on it"),
 	groups = {disable_jump=1, dig_immediate=3},
@@ -178,7 +178,7 @@ minetest.register_node("testnodes:nojump", {
 })
 
 -- Jump disabled plant
-minetest.register_node("testnodes:nojump_walkable", {
+core.register_node("testnodes:nojump_walkable", {
 	description = S("Non-jumping Plant Node").."\n"..
 		S("You can't jump while your feet are in it"),
 	drawtype = "plantlike",
@@ -192,7 +192,7 @@ local climbable_nodebox = {
 }
 
 -- Climbable up and down with jump and sneak keys
-minetest.register_node("testnodes:climbable", {
+core.register_node("testnodes:climbable", {
 	description = S("Climbable Node").."\n"..
 		S("You can climb up and down"),
 	climbable = true,
@@ -210,7 +210,7 @@ minetest.register_node("testnodes:climbable", {
 })
 
 -- Climbable only downwards with sneak key
-minetest.register_node("testnodes:climbable_nojump", {
+core.register_node("testnodes:climbable_nojump", {
 	description = S("Downwards-climbable Node").."\n"..
 		S("You can climb only downwards"),
 	climbable = true,
@@ -226,7 +226,7 @@ minetest.register_node("testnodes:climbable_nojump", {
 })
 
 
-minetest.register_node("testnodes:climbable_nodescend", {
+core.register_node("testnodes:climbable_nodescend", {
 	description = S("Upwards-climbable Node"),
 	climbable = true,
 	walkable = false,
@@ -240,7 +240,7 @@ minetest.register_node("testnodes:climbable_nodescend", {
 	sunlight_propagates = true,
 })
 
-minetest.register_node("testnodes:climbable_nodescend_nojump", {
+core.register_node("testnodes:climbable_nodescend_nojump", {
 	description = S("Horizontal-only Climbable Node"),
 	climbable = true,
 	walkable = false,
@@ -255,7 +255,7 @@ minetest.register_node("testnodes:climbable_nodescend_nojump", {
 })
 
 -- A liquid in which you can't rise
-minetest.register_node("testnodes:liquid_nojump", {
+core.register_node("testnodes:liquid_nojump", {
 	description = S("Non-jumping Liquid Source Node").."\n"..
 		S("Swimmable liquid, but you can't swim upwards"),
 	liquidtype = "source",
@@ -282,7 +282,7 @@ minetest.register_node("testnodes:liquid_nojump", {
 })
 
 -- A liquid in which you can't rise (flowing variant)
-minetest.register_node("testnodes:liquidflowing_nojump", {
+core.register_node("testnodes:liquidflowing_nojump", {
 	description = S("Non-jumping Flowing Liquid Node").."\n"..
 		S("Swimmable liquid, but you can't swim upwards"),
 	liquidtype = "flowing",
@@ -311,7 +311,7 @@ minetest.register_node("testnodes:liquidflowing_nojump", {
 })
 
 -- A liquid which doesn't have liquid movement physics (source variant)
-minetest.register_node("testnodes:liquid_noswim", {
+core.register_node("testnodes:liquid_noswim", {
 	description = S("No-swim Liquid Source Node").."\n"..
 		S("Liquid node, but swimming is disabled"),
 	liquidtype = "source",
@@ -340,7 +340,7 @@ minetest.register_node("testnodes:liquid_noswim", {
 })
 
 -- A liquid which doen't have liquid movement physics (flowing variant)
-minetest.register_node("testnodes:liquidflowing_noswim", {
+core.register_node("testnodes:liquidflowing_noswim", {
 	description = S("No-swim Flowing Liquid Node").."\n"..
 		S("Liquid node, but swimming is disabled"),
 	liquidtype = "flowing",
@@ -372,7 +372,7 @@ minetest.register_node("testnodes:liquidflowing_noswim", {
 
 -- A liquid in which you can't actively descend.
 -- Note: You'll still descend slowly by doing nothing.
-minetest.register_node("testnodes:liquid_nodescend", {
+core.register_node("testnodes:liquid_nodescend", {
 	description = S("No-descending Liquid Source Node"),
 	liquidtype = "source",
 	liquid_range = 0,
@@ -398,7 +398,7 @@ minetest.register_node("testnodes:liquid_nodescend", {
 })
 
 -- A liquid in which you can't actively descend (flowing variant)
-minetest.register_node("testnodes:liquidflowing_nodescend", {
+core.register_node("testnodes:liquidflowing_nodescend", {
 	description = S("No-descending Flowing Liquid Node"),
 	liquidtype = "flowing",
 	liquid_range = 1,
@@ -452,7 +452,7 @@ for i=-100, 100, 25 do
 			end
 			desc = S("Fall Damage Node (-@1%)", math.abs(i))
 		end
-		minetest.register_node("testnodes:damage"..subname, {
+		core.register_node("testnodes:damage"..subname, {
 			description = desc,
 			groups = {fall_damage_add_percent=i, dig_immediate=3},
 
@@ -483,7 +483,7 @@ for i=-MAX_BOUNCE_NONJUMPY, MAX_BOUNCE_JUMPY, 20 do
 			color = { r=val2, g=255, b=val2, a=255 }
 			num = "NEG"..num
 		end
-		minetest.register_node("testnodes:bouncy"..num, {
+		core.register_node("testnodes:bouncy"..num, {
 			description = desc,
 			groups = {bouncy=i, dig_immediate=3},
 
@@ -497,7 +497,7 @@ end
 
 -- Slippery nodes (various slippery levels)
 for i=1, 5 do
-	minetest.register_node("testnodes:slippery"..i, {
+	core.register_node("testnodes:slippery"..i, {
 		description = S("Slippery Node (@1)", i),
 		tiles ={"testnodes_slippery.png"},
 		is_ground_content = false,
@@ -509,7 +509,7 @@ end
 -- Move resistance nodes (various resistance levels)
 for r=0, 7 do
 	if r > 0 then
-		minetest.register_node("testnodes:move_resistance"..r, {
+		core.register_node("testnodes:move_resistance"..r, {
 			description = S("Move-resistant Node (@1)", r).."\n"..
 				S("Reduces movement speed"),
 			walkable = false,
@@ -537,7 +537,7 @@ for r=0, 7 do
 	end
 
 
-	minetest.register_node("testnodes:move_resistance_liquidlike"..r, {
+	core.register_node("testnodes:move_resistance_liquidlike"..r, {
 		description = mdesc,
 		walkable = false,
 		move_resistance = r,
@@ -553,7 +553,7 @@ for r=0, 7 do
 	})
 end
 
-minetest.register_node("testnodes:climbable_move_resistance_4", {
+core.register_node("testnodes:climbable_move_resistance_4", {
 	description = S("Climbable Move-resistant Node (4)").."\n"..
 		S("You can climb up and down; reduced movement speed"),
 	walkable = false,
@@ -570,7 +570,7 @@ minetest.register_node("testnodes:climbable_move_resistance_4", {
 })
 
 -- By placing something on the node, the node itself will be replaced
-minetest.register_node("testnodes:buildable_to", {
+core.register_node("testnodes:buildable_to", {
 	description = S("\"buildable_to\" Node").."\n"..
 		S("Placing a node on it will replace it"),
 	buildable_to = true,
@@ -598,7 +598,7 @@ for d=-3,3 do
 		elseif math.abs(d) == 3 then
 			tile = tile .. "^[colorize:#000000:140"
 		end
-		minetest.register_node("testnodes:damage_"..sub, {
+		core.register_node("testnodes:damage_"..sub, {
 			description = desc,
 			damage_per_second = d,
 
@@ -615,7 +615,7 @@ for d=-3,3 do
 end
 
 -- Causes drowning damage
-minetest.register_node("testnodes:drowning_1", {
+core.register_node("testnodes:drowning_1", {
 	description = S("Drowning Node (@1 damage)", 1).."\n"..
 		S("You'll drown inside it"),
 	drowning = 1,
@@ -632,7 +632,7 @@ minetest.register_node("testnodes:drowning_1", {
 
 -- post_effect_color_shaded
 
-minetest.register_node("testnodes:post_effect_color_shaded_false", {
+core.register_node("testnodes:post_effect_color_shaded_false", {
 	description = S("\"post_effect_color_shaded = false\" Node"),
 
 	drawtype = "allfaces",
@@ -648,7 +648,7 @@ minetest.register_node("testnodes:post_effect_color_shaded_false", {
 	groups = {dig_immediate=3},
 })
 
-minetest.register_node("testnodes:post_effect_color_shaded_true", {
+core.register_node("testnodes:post_effect_color_shaded_true", {
 	description = S("\"post_effect_color_shaded = true\" Node"),
 
 	drawtype = "allfaces",
@@ -669,7 +669,7 @@ minetest.register_node("testnodes:post_effect_color_shaded_true", {
 -- Register wrapper for compactness
 local function register_pointable_test_node(name, description, pointable)
 	local texture = "testnodes_"..name..".png"
-	minetest.register_node("testnodes:"..name, {
+	core.register_node("testnodes:"..name, {
 		description = S(description),
 		tiles = {texture},
 		drawtype = "glasslike_framed",

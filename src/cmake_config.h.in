@@ -29,6 +29,7 @@
 #cmakedefine01 USE_SYSTEM_GMP
 #cmakedefine01 USE_SYSTEM_JSONCPP
 #cmakedefine01 USE_REDIS
+#cmakedefine01 USE_OPENSSL
 #cmakedefine01 HAVE_ENDIAN_H
 #cmakedefine01 HAVE_STRLCPY
 #cmakedefine01 HAVE_MALLOC_TRIM
@@ -41,3 +42,4 @@
 #cmakedefine01 BUILD_UNITTESTS
 #cmakedefine01 BUILD_BENCHMARKS
 #cmakedefine01 USE_SDL2
+#cmakedefine01 BUILD_WITH_TRACY

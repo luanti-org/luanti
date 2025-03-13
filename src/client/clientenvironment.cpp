@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2017 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2017 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "util/serialize.h"
 #include "util/pointedthing.h"
@@ -43,10 +28,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	ClientEnvironment
 */
 
-ClientEnvironment::ClientEnvironment(ClientMap *map,
+ClientEnvironment::ClientEnvironment(irr_ptr<ClientMap> map,
 	ITextureSource *texturesource, Client *client):
 	Environment(client),
-	m_map(map),
+	m_map(std::move(map)),
 	m_texturesource(texturesource),
 	m_client(client)
 {
@@ -60,18 +45,17 @@ ClientEnvironment::~ClientEnvironment()
 		delete simple_object;
 	}
 
-	// Drop/delete map
-	m_map->drop();
+	m_map.reset();
 
 	delete m_local_player;
 }
 
-Map & ClientEnvironment::getMap()
+Map &ClientEnvironment::getMap()
 {
 	return *m_map;
 }
 
-ClientMap & ClientEnvironment::getClientMap()
+ClientMap &ClientEnvironment::getClientMap()
 {
 	return *m_map;
 }
@@ -112,7 +96,6 @@ void ClientEnvironment::step(float dtime)
 	/*
 		Maximum position increment
 	*/
-	//f32 position_max_increment = 0.05*BS;
 	f32 position_max_increment = 0.1*BS;
 
 	// Maximum time increment (for collision detection etc)
@@ -192,12 +175,11 @@ void ClientEnvironment::step(float dtime)
 		}
 
 		/*
-			Move the lplayer.
+			Move the local player.
 			This also does collision detection.
 		*/
 
-		lplayer->move(dtime_part, this, position_max_increment,
-			&player_collisions);
+		lplayer->move(dtime_part, this, &player_collisions);
 	}
 
 	bool player_immortal = false;
@@ -448,7 +430,7 @@ void ClientEnvironment::getSelectedActiveObjects(
 
 	for (const auto &allObject : allObjects) {
 		ClientActiveObject *obj = allObject.obj;
-		aabb3f selection_box;
+		aabb3f selection_box{{0.0f, 0.0f, 0.0f}};
 		if (!obj->getSelectionBox(&selection_box))
 			continue;
 
@@ -459,8 +441,8 @@ void ClientEnvironment::getSelectedActiveObjects(
 		GenericCAO* gcao = dynamic_cast<GenericCAO*>(obj);
 		if (gcao != nullptr && gcao->getProperties().rotate_selectionbox) {
 			gcao->getSceneNode()->updateAbsolutePosition();
-			const v3f deg = obj->getSceneNode()->getAbsoluteTransformation().getRotationDegrees();
-			collision = boxLineCollision(selection_box, deg,
+			const v3f rad = obj->getSceneNode()->getAbsoluteTransformation().getRotationRadians();
+			collision = boxLineCollision(selection_box, rad,
 				rel_pos, line_vector, &current_intersection, &current_normal, &current_raw_normal);
 		} else {
 			collision = boxLineCollision(selection_box, rel_pos, line_vector,

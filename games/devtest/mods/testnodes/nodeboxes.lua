@@ -1,9 +1,9 @@
-local S = minetest.get_translator("testnodes")
+local S = core.get_translator("testnodes")
 
 -- Nodebox examples and tests.
 
 -- An simple example nodebox with one centered box
-minetest.register_node("testnodes:nodebox_fixed", {
+core.register_node("testnodes:nodebox_fixed", {
 	description = S("Fixed Nodebox Test Node").."\n"..
 		S("Nodebox is always the same"),
 	tiles = {"testnodes_nodebox.png"},
@@ -18,7 +18,7 @@ minetest.register_node("testnodes:nodebox_fixed", {
 })
 
 -- 50% higher than a regular node
-minetest.register_node("testnodes:nodebox_overhigh", {
+core.register_node("testnodes:nodebox_overhigh", {
 	description = S("+50% high Nodebox Test Node"),
 	tiles = {"testnodes_nodebox.png"},
 	drawtype = "nodebox",
@@ -32,7 +32,7 @@ minetest.register_node("testnodes:nodebox_overhigh", {
 })
 
 -- 95% higher than a regular node
-minetest.register_node("testnodes:nodebox_overhigh2", {
+core.register_node("testnodes:nodebox_overhigh2", {
 	description = S("+95% high Nodebox Test Node"),
 	tiles = {"testnodes_nodebox.png"},
 	drawtype = "nodebox",
@@ -47,7 +47,7 @@ minetest.register_node("testnodes:nodebox_overhigh2", {
 })
 
 -- Height of nodebox changes with its param2 value
-minetest.register_node("testnodes:nodebox_leveled", {
+core.register_node("testnodes:nodebox_leveled", {
 	description = S("Leveled Nodebox Test Node").."\n"..
 		S("param2 = height (0..127)"),
 	tiles = {"testnodes_nodebox.png^[colorize:#0F0:32"},
@@ -93,7 +93,7 @@ local nodebox_wall_thick = {
 }
 
 -- Wall-like nodebox that connects to 4 neighbors
-minetest.register_node("testnodes:nodebox_connected", {
+core.register_node("testnodes:nodebox_connected", {
 	description = S("Connected Nodebox Test Node (4 Side Wall)").."\n"..
 		S("Connects to 4 neighbors sideways"),
 	tiles = {"testnodes_nodebox.png^[colorize:#F00:32"},
@@ -106,7 +106,7 @@ minetest.register_node("testnodes:nodebox_connected", {
 })
 
 -- Cable-like nodebox that connects to 6 neighbors
-minetest.register_node("testnodes:nodebox_connected_6side", {
+core.register_node("testnodes:nodebox_connected_6side", {
 	description = S("Connected Nodebox Test Node (6 Side Cable)").."\n"..
 		S("Connects to 6 neighbors"),
 	tiles = {"testnodes_nodebox.png^[colorize:#F00:32"},
@@ -119,7 +119,7 @@ minetest.register_node("testnodes:nodebox_connected_6side", {
 })
 
 -- More walls
-minetest.register_node("testnodes:nodebox_connected_facedir", {
+core.register_node("testnodes:nodebox_connected_facedir", {
 	description = S("Facedir Connected Nodebox Test Node (4 Side Wall)").."\n"..
 		S("Connects to neighbors").."\n"..
 		S("param2 = facedir rotation of textures (not of the nodebox!)"),
@@ -140,7 +140,7 @@ minetest.register_node("testnodes:nodebox_connected_facedir", {
 	node_box = nodebox_wall_thick,
 })
 
-minetest.register_node("testnodes:nodebox_connected_4dir", {
+core.register_node("testnodes:nodebox_connected_4dir", {
 	description = S("4Dir Connected Nodebox Test Node").."\n"..
 		S("Connects to neighbors").."\n"..
 		S("param2 = 4dir rotation of textures (not of the nodebox!)"),
@@ -162,7 +162,7 @@ minetest.register_node("testnodes:nodebox_connected_4dir", {
 })
 
 -- Doesn't connect, but lets other nodes connect
-minetest.register_node("testnodes:facedir_to_connect_to", {
+core.register_node("testnodes:facedir_to_connect_to", {
 	description = S("Facedir Node that connected Nodeboxes connect to").."\n"..
 		S("Neighbors connect only to left (blue 4) and top (yellow 1) face").."\n"..
 		S("(Currently broken for param2 >= 4, see FIXME in nodedef.cpp)").."\n"..
@@ -184,7 +184,7 @@ minetest.register_node("testnodes:facedir_to_connect_to", {
 -- 3D sign and button:
 -- These are example nodes for more realistic example uses
 -- of wallmounted_rotate_vertical
-minetest.register_node("testnodes:sign3d", {
+core.register_node("testnodes:sign3d", {
 	description = S("Nodebox Sign, Nodebox Type \"fixed\""),
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -202,7 +202,7 @@ minetest.register_node("testnodes:sign3d", {
 	},
 })
 
-minetest.register_node("testnodes:sign3d_wallmounted", {
+core.register_node("testnodes:sign3d_wallmounted", {
 	description = S("Nodebox Sign, Nodebox Type \"wallmounted\""),
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -222,7 +222,7 @@ minetest.register_node("testnodes:sign3d_wallmounted", {
 	},
 })
 
-minetest.register_node("testnodes:button", {
+core.register_node("testnodes:button", {
 	description = S("Button Nodebox Test Node"),
 	drawtype = "nodebox",
 	paramtype = "light",

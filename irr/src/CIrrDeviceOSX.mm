@@ -12,6 +12,7 @@
 #include "CIrrDeviceOSX.h"
 
 #include "IEventReceiver.h"
+#include "IVideoDriver.h"
 #include "os.h"
 #include "CTimer.h"
 #include "irrString.h"
@@ -432,14 +433,6 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void *key)
 	return value;
 }
 
-namespace irr
-{
-namespace video
-{
-IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &param, io::IFileSystem *io, IContextManager *contextManager);
-}
-} // end namespace irr
-
 static bool firstLaunch = true;
 
 @implementation CIrrDelegateOSX {
@@ -530,10 +523,6 @@ CIrrDeviceMacOSX::CIrrDeviceMacOSX(const SIrrlichtCreationParameters &param) :
 		IsActive(true), IsFullscreen(false), IsShiftDown(false), IsControlDown(false), IsResizable(false)
 {
 	struct utsname name;
-
-#ifdef _DEBUG
-	setDebugName("CIrrDeviceMacOSX");
-#endif
 
 	if (firstLaunch) {
 		firstLaunch = false;
@@ -720,6 +709,7 @@ void CIrrDeviceMacOSX::createDriver()
 #endif
 	break;
 
+	case video::EDT_OPENGL3:
 	case video::EDT_OGLES2:
 		os::Printer::log("This driver is not available on OSX.", ELL_ERROR);
 		break;

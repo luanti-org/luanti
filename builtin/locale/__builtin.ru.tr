@@ -244,3 +244,5 @@ A total of @1 sample(s) were taken.=Всего было взято @1 образ
 The output is limited to '@1'.=Вывод ограничен значением '@1'.
 Saving of profile failed: @1=Не удалось сохранить данные профилирования: @1
 Profile saved to @1=Данные профилирования сохранены в @1
+You died=Вы умерли
+Respawn=Возродиться

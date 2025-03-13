@@ -28,13 +28,13 @@ There are other optional libraries, but they are not tested if they can build an
 Use `--triplet` to specify the target triplet, e.g. `x64-windows` or `x86-windows`.
 
 
-## Compile Minetest
+## Compile Luanti
 
 ### a) Using the vcpkg toolchain and CMake GUI
 
 1. Start up the CMake GUI
-2. Select **Browse Source...** and select DIR/minetest
-3. Select **Browse Build...** and select DIR/minetest-build
+2. Select **Browse Source...** and select DIR/luanti
+3. Select **Browse Build...** and select DIR/luanti-build
 4. Select **Configure**
 5. Choose the right visual Studio version and target platform. It has to match the version of the installed dependencies
 6. Choose **Specify toolchain file for cross-compiling**
@@ -45,7 +45,7 @@ Use `--triplet` to specify the target triplet, e.g. `x64-windows` or `x86-window
 11. If there are any errors, solve them and hit **Configure**
 12. Click **Generate**
 13. Click **Open Project**
-14. Compile Minetest inside Visual studio.
+14. Compile Luanti inside Visual studio.
 
 ### b) Using the vcpkg toolchain and the commandline
 

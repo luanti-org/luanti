@@ -61,7 +61,7 @@
 #
 #    # This is a comment
 #    #
-#    # Requires: shaders, enable_dynamic_shadows, !touch_controls
+#    # Requires: enable_dynamic_shadows, !enable_waving_leaves
 #    name (Readable name) type type_args
 #
 # A requirement can be the name of a boolean setting or an engine-defined value.
@@ -69,17 +69,19 @@
 #
 # * The value of a boolean setting, such as enable_dynamic_shadows
 # * An engine-defined value:
-#     * shaders_support (a video driver that supports shaders, may not be enabled)
-#     * shaders (both enable_shaders and shaders_support)
 #     * desktop / android
+#     * touchscreen / keyboard_mouse
 #     * opengl / gles
 # * You can negate any requirement by prepending with !
 #
 # Sections are marked by a single line in the format: [Section Name]
 # Sub-section are marked by adding * in front of the section name: [*Sub-section]
 # Sub-sub-sections have two * etc.
-# There shouldn't be too much settings per category; settings that shouldn't be
-#  modified by the "average user" should be in (sub-)categories called "Advanced".
+# There shouldn't be too many settings per category.
+#
+# The top-level categories "Advanced", "Client and Server" and "Mapgen" are
+# handled specially and its contents only shown when a checkbox is checked.
+# They contain settings not intended for the "average user".
 
 
 [Controls]
@@ -91,7 +93,7 @@ camera_smoothing (Camera smoothing) float 0.0 0.0 0.99
 
 #    Smooths rotation of camera when in cinematic mode, 0 to disable. Enter cinematic mode by using the key set in Controls.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 cinematic_camera_smoothing (Camera smoothing in cinematic mode) float 0.7 0.0 0.99
 
 #    If enabled, you can place nodes at the position (feet + eye level) where you stand.
@@ -109,10 +111,16 @@ doubletap_jump (Double tap jump for fly) bool false
 #    enabled.
 always_fly_fast (Always fly fast) bool true
 
+#    If enabled, the "Sneak" key will toggle when pressed.
+toggle_sneak_key (Toggle Sneak key) bool false
+
+#    If enabled, the "Aux1" key will toggle when pressed.
+toggle_aux1_key (Toggle Aux1 key) bool false
+
 #    The time in seconds it takes between repeated node placements when holding
 #    the place button.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 repeat_place_time (Place repetition interval) float 0.25 0.16 2.0
 
 #    The minimum time in seconds it takes between digging nodes when holding
@@ -131,60 +139,64 @@ safe_dig_and_place (Safe digging and placing) bool false
 
 #    Invert vertical mouse movement.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 invert_mouse (Invert mouse) bool false
 
 #    Mouse sensitivity multiplier.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
 
 #    Enable mouse wheel (scroll) for item selection in hotbar.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 enable_hotbar_mouse_wheel (Hotbar: Enable mouse wheel for selection) bool true
 
 #    Invert mouse wheel (scroll) direction for item selection in hotbar.
 #
-#    Requires: !touch_controls
+#    Requires: keyboard_mouse
 invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 
 [*Touchscreen]
 
 #    Enables the touchscreen controls, allowing you to play the game with a touchscreen.
-touch_controls (Enable touchscreen controls) bool true
+#    "auto" means that the touchscreen controls will be enabled and disabled
+#    automatically depending on the last used input method.
+#
+#    Requires: touch_support
+touch_controls (Touchscreen controls) enum auto auto,true,false
 
 #    Touchscreen sensitivity multiplier.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touchscreen_sensitivity (Touchscreen sensitivity) float 0.2 0.001 10.0
 
 #    The length in pixels after which a touch interaction is considered movement.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touchscreen_threshold (Movement threshold) int 20 0 100
 
 #    The delay in milliseconds after which a touch interaction is considered a long tap.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touch_long_tap_delay (Threshold for long taps) int 400 100 1000
 
 #    Use crosshair to select object instead of whole screen.
 #    If enabled, a crosshair will be shown and will be used for selecting object.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touch_use_crosshair (Use crosshair for touch screen) bool false
 
 #    Fixes the position of virtual joystick.
 #    If disabled, virtual joystick will center to first-touch's position.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 fixed_virtual_joystick (Fixed virtual joystick) bool false
 
 #    Use virtual joystick to trigger "Aux1" button.
 #    If enabled, virtual joystick will also tap "Aux1" button when out of main circle.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool false
 
 #    The gesture for punching players/entities.
@@ -194,10 +206,10 @@ virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool fals
 #      Easy to use and well-known from other games that shall not be named.
 #
 #    * long_tap
-#      Known from the classic Minetest mobile controls.
+#      Known from the classic Luanti mobile controls.
 #      Combat is more or less impossible.
 #
-#    Requires: touch_controls
+#    Requires: touchscreen
 touch_punch_gesture (Punch gesture) enum short_tap short_tap,long_tap
 
 
@@ -250,8 +262,8 @@ fps_max (Maximum FPS) int 60 1 4294967295
 #    Vertical screen synchronization. Your system may still force VSync on even if this is disabled.
 vsync (VSync) bool false
 
-#    Maximum FPS when the window is not focused, or when the game is paused.
-fps_max_unfocused (FPS when unfocused or paused) int 20 1 4294967295
+#    Maximum FPS when the window is not focused.
+fps_max_unfocused (FPS when unfocused) int 10 1 4294967295
 
 #    View distance in nodes.
 viewing_range (Viewing range) int 190 20 4000
@@ -260,32 +272,9 @@ viewing_range (Viewing range) int 190 20 4000
 #    to the game world only, keeping the GUI intact.
 #    It should give a significant performance boost at the cost of less detailed image.
 #    Higher values result in a less detailed image.
+#    Note: Undersampling is currently not supported if the "3d_mode" setting is set
+#    to a non-default value.
 undersampling (Undersampling) int 1 1 8
-
-[**Graphics Effects]
-
-#    Allows liquids to be translucent.
-translucent_liquids (Translucent liquids) bool true
-
-#    Leaves style:
-#    -   Fancy:  all faces visible
-#    -   Simple: only outer faces, if defined special_tiles are used
-#    -   Opaque: disable transparency
-leaves_style (Leaves style) enum fancy fancy,simple,opaque
-
-#    Connects glass if supported by node.
-connected_glass (Connect glass) bool false
-
-#    Enable smooth lighting with simple ambient occlusion.
-#    Disable for speed or for different looks.
-smooth_lighting (Smooth lighting) bool true
-
-#    Enables tradeoffs that reduce CPU load or increase rendering performance
-#    at the expense of minor visual glitches that do not impact game playability.
-performance_tradeoffs (Tradeoffs for performance) bool false
-
-#    Adds particles when digging a node.
-enable_particles (Digging particles) bool true
 
 [**3D]
 
@@ -297,7 +286,6 @@ enable_particles (Digging particles) bool true
 #    -    topbottom: split screen top/bottom.
 #    -    sidebyside: split screen side by side.
 #    -    crossview: Cross-eyed 3d
-#    Note that the interlaced mode requires shaders to be enabled.
 3d_mode (3D mode) enum none none,anaglyph,interlaced,topbottom,sidebyside,crossview
 
 #    Strength of 3D mode parallax.
@@ -312,10 +300,6 @@ arm_inertia (Arm inertia) bool true
 #    Enable view bobbing and amount of view bobbing.
 #    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
 view_bobbing_amount (View bobbing factor) float 1.0 0.0 7.9
-
-#    Multiplier for fall bobbing.
-#    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
-fall_bobbing_amount (Fall bobbing factor) float 0.03 0.0 100.0
 
 [**Camera]
 
@@ -395,13 +379,13 @@ fog_start (Fog start) float 0.4 0.0 0.99
 
 [**Clouds]
 
-#    Clouds are a client-side effect.
-enable_clouds (Clouds) bool true
-
-#    Use 3D cloud look instead of flat.
-#
-#    Requires: enable_clouds
+#    Allow clouds to look 3D instead of flat.
 enable_3d_clouds (3D clouds) bool true
+
+#   Use smooth cloud shading.
+#
+#   Requires: enable_3d_clouds
+soft_clouds (Soft clouds) bool false
 
 [**Filtering and Antialiasing]
 
@@ -419,6 +403,7 @@ bilinear_filter (Bilinear filtering) bool false
 trilinear_filter (Trilinear filtering) bool false
 
 #    Use anisotropic filtering when looking at textures from an angle.
+#    This provides a significant improvement when used together with mipmapping.
 anisotropic_filter (Anisotropic filtering) bool false
 
 #    Select the antialiasing method to apply.
@@ -426,16 +411,18 @@ anisotropic_filter (Anisotropic filtering) bool false
 #    * None - No antialiasing (default)
 #
 #    * FSAA - Hardware-provided full-screen antialiasing
-#             (incompatible with Post Processing and Undersampling)
 #             A.K.A multi-sample antialiasing (MSAA)
 #             Smoothens out block edges but does not affect the insides of textures.
-#             A restart is required to change this option.
 #
-#    * FXAA - Fast approximate antialiasing (requires shaders)
+#             If Post Processing is disabled, changing FSAA requires a restart.
+#             Also, if Post Processing is disabled, FSAA will not work together with
+#             undersampling or a non-default "3d_mode" setting.
+#
+#    * FXAA - Fast approximate antialiasing
 #             Applies a post-processing filter to detect and smoothen high-contrast edges.
 #             Provides balance between speed and image quality.
 #
-#    * SSAA - Super-sampling antialiasing (requires shaders)
+#    * SSAA - Super-sampling antialiasing
 #             Renders higher-resolution image of the scene, then scales down to reduce
 #             the aliasing effects. This is the slowest and the most accurate method.
 antialiasing (Antialiasing method) enum none none,fsaa,fxaa,ssaa
@@ -461,29 +448,37 @@ enable_raytraced_culling (Enable Raytraced Culling) bool true
 
 
 
-[*Shaders]
+[*Effects]
 
-#    Shaders allow advanced visual effects and may increase performance on some video
-#    cards.
-#
-#    Requires: shaders_support
-enable_shaders (Shaders) bool true
+#    Allows liquids to be translucent.
+translucent_liquids (Translucent liquids) bool true
+
+#    Leaves style:
+#    -   Fancy:  all faces visible
+#    -   Simple: only outer faces
+#    -   Opaque: disable transparency
+leaves_style (Leaves style) enum fancy fancy,simple,opaque
+
+#    Connects glass if supported by node.
+connected_glass (Connect glass) bool false
+
+#    Enable smooth lighting with simple ambient occlusion.
+smooth_lighting (Smooth lighting) bool true
+
+#    Enables tradeoffs that reduce CPU load or increase rendering performance
+#    at the expense of minor visual glitches that do not impact game playability.
+performance_tradeoffs (Tradeoffs for performance) bool false
+
 
 [**Waving Nodes]
 
 #    Set to true to enable waving leaves.
-#
-#    Requires: shaders
 enable_waving_leaves (Waving leaves) bool false
 
 #    Set to true to enable waving plants.
-#
-#    Requires: shaders
 enable_waving_plants (Waving plants) bool false
 
 #    Set to true to enable waving liquids (like water).
-#
-#    Requires: shaders
 enable_waving_water (Waving liquids) bool false
 
 #    The maximum height of the surface of waving liquids.
@@ -491,99 +486,83 @@ enable_waving_water (Waving liquids) bool false
 #    0.0 = Wave doesn't move at all.
 #    Default is 1.0 (1/2 node).
 #
-#    Requires: shaders, enable_waving_water
+#    Requires: enable_waving_water
 water_wave_height (Waving liquids wave height) float 1.0 0.0 4.0
 
 #    Length of liquid waves.
 #
-#    Requires: shaders, enable_waving_water
+#    Requires: enable_waving_water
 water_wave_length (Waving liquids wavelength) float 20.0 0.1
 
 #    How fast liquid waves will move. Higher = faster.
 #    If negative, liquid waves will move backwards.
 #
-#    Requires: shaders, enable_waving_water
+#    Requires: enable_waving_water
 water_wave_speed (Waving liquids wave speed) float 5.0
 
 [**Dynamic shadows]
 
 #    Set to true to enable Shadow Mapping.
 #
-#    Requires: shaders, opengl
+#    Requires: opengl
 enable_dynamic_shadows (Dynamic shadows) bool false
 
 #    Set the shadow strength gamma.
 #    Adjusts the intensity of in-game dynamic shadows.
 #    Lower value means lighter shadows, higher value means darker shadows.
 #
-#    Requires: shaders, enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, opengl
 shadow_strength_gamma (Shadow strength gamma) float 1.0 0.1 10.0
 
 #    Maximum distance to render shadows.
 #
-#    Requires: shaders, enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, opengl
 shadow_map_max_distance (Shadow map max distance in nodes to render shadows) float 140.0 10.0 1000.0
 
 #    Texture size to render the shadow map on.
 #    This must be a power of two.
 #    Bigger numbers create better shadows but it is also more expensive.
 #
-#    Requires: shaders, enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, opengl
 shadow_map_texture_size (Shadow map texture size) int 2048 128 8192
 
 #    Sets shadow texture quality to 32 bits.
 #    On false, 16 bits texture will be used.
 #    This can cause much more artifacts in the shadow.
 #
-#    Requires: shaders, enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, opengl
 shadow_map_texture_32bit (Shadow map texture in 32 bits) bool true
-
-#    Enable Poisson disk filtering.
-#    On true uses Poisson disk to make "soft shadows". Otherwise uses PCF filtering.
-#
-#    Requires: shaders, enable_dynamic_shadows, opengl
-shadow_poisson_filter (Poisson filtering) bool true
 
 #    Define shadow filtering quality.
 #    This simulates the soft shadows effect by applying a PCF or Poisson disk
 #    but also uses more resources.
 #
-#    Requires: shaders, enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, opengl
 shadow_filters (Shadow filter quality) enum 1 0,1,2
 
-#    Enable colored shadows.
-#    On true translucent nodes cast colored shadows. This is expensive.
+#    Enable colored shadows for transculent nodes.
+#    This is expensive.
 #
-#    Requires: shaders, enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, opengl
 shadow_map_color (Colored shadows) bool false
-
-#    Spread a complete update of shadow map over given number of frames.
-#    Higher values might make shadows laggy, lower values
-#    will consume more resources.
-#    Minimum value: 1; maximum value: 16
-#
-#    Requires: shaders, enable_dynamic_shadows, opengl
-shadow_update_frames (Map shadows update frames) int 8 1 16
 
 #    Set the soft shadow radius size.
 #    Lower values mean sharper shadows, bigger values mean softer shadows.
 #    Minimum value: 1.0; maximum value: 15.0
 #
-#    Requires: shaders, enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, opengl
 shadow_soft_radius (Soft shadow radius) float 5.0 1.0 15.0
 
 #    Set the default tilt of Sun/Moon orbit in degrees.
 #    Games may change orbit tilt via API.
 #    Value of 0 means no tilt / vertical orbit.
 #
-#    Requires: shaders, enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, opengl
 shadow_sky_body_orbit_tilt (Sky Body Orbit Tilt) float 0.0 -60.0 60.0
 
 [**Post Processing]
 
 #    Enables the post processing pipeline.
-#
-#    Requires: shaders
 enable_post_processing (Enable Post Processing) bool true
 
 #    Enables Hable's 'Uncharted 2' filmic tone mapping.
@@ -591,7 +570,7 @@ enable_post_processing (Enable Post Processing) bool true
 #    appearance of high dynamic range images. Mid-range contrast is slightly
 #    enhanced, highlights and shadows are gradually compressed.
 #
-#    Requires: shaders, enable_post_processing
+#    Requires: enable_post_processing
 tone_mapping (Filmic tone mapping) bool false
 
 #    Enable automatic exposure correction
@@ -599,14 +578,14 @@ tone_mapping (Filmic tone mapping) bool false
 #    automatically adjust to the brightness of the scene,
 #    simulating the behavior of human eye.
 #
-#    Requires: shaders, enable_post_processing
+#    Requires: enable_post_processing
 enable_auto_exposure (Enable Automatic Exposure) bool false
 
 #    Set the exposure compensation in EV units.
 #    Value of 0.0 (default) means no exposure compensation.
 #    Range: from -1 to 1.0
 #
-#    Requires: shaders, enable_post_processing, enable_auto_exposure
+#    Requires: enable_post_processing, enable_auto_exposure
 exposure_compensation (Exposure compensation) float 0.0 -1.0 1.0
 
 #    Apply dithering to reduce color banding artifacts.
@@ -617,49 +596,36 @@ exposure_compensation (Exposure compensation) float 0.0 -1.0 1.0
 #    With OpenGL ES, dithering only works if the shader supports high
 #    floating-point precision and it may have a higher performance impact.
 #
-#    Requires: shaders, enable_post_processing
+#    Requires: enable_post_processing
 debanding (Enable Debanding) bool true
-
-[**Bloom]
 
 #    Set to true to enable bloom effect.
 #    Bright colors will bleed over the neighboring objects.
 #
-#    Requires: shaders, enable_post_processing
+#    Requires: enable_post_processing
 enable_bloom (Enable Bloom) bool false
-
-#    Set to true to render debugging breakdown of the bloom effect.
-#    In debug mode, the screen is split into 4 quadrants:
-#    top-left - processed base image, top-right - final image
-#    bottom-left - raw base image, bottom-right - bloom texture.
-#
-#    Requires: shaders, enable_post_processing, enable_bloom
-enable_bloom_debug (Enable Bloom Debug) bool false
-
-#    Defines how much bloom is applied to the rendered image
-#    Smaller values make bloom more subtle
-#    Range: from 0.01 to 1.0, default: 0.05
-#
-#    Requires: shaders, enable_post_processing, enable_bloom
-bloom_intensity (Bloom Intensity) float 0.05 0.01 1.0
-
-#    Defines the magnitude of bloom overexposure.
-#    Range: from 0.1 to 10.0, default: 1.0
-#
-#    Requires: shaders, enable_post_processing, enable_bloom
-bloom_strength_factor (Bloom Strength Factor) float 1.0 0.1 10.0
-
-#    Logical value that controls how far the bloom effect spreads
-#    from the bright objects.
-#    Range: from 0.1 to 8, default: 1
-#
-#    Requires: shaders, enable_post_processing, enable_bloom
-bloom_radius (Bloom Radius) float 1 0.1 8
 
 #    Set to true to enable volumetric lighting effect (a.k.a. "Godrays").
 #
-#    Requires: shaders, enable_post_processing, enable_bloom
+#    Requires: enable_post_processing, enable_bloom
 enable_volumetric_lighting (Volumetric lighting) bool false
+
+[**Other Effects]
+
+#   Simulate translucency when looking at foliage in the sunlight.
+#
+#   Requires: enable_dynamic_shadows
+enable_translucent_foliage (Translucent foliage) bool false
+
+#   Apply specular shading to nodes.
+#
+#   Requires: enable_dynamic_shadows
+enable_node_specular (Node specular) bool false
+
+#   When enabled, liquid reflections are simulated.
+#
+#   Requires: enable_waving_water, enable_dynamic_shadows
+enable_water_reflections (Liquid reflections) bool false
 
 [*Audio]
 
@@ -670,8 +636,7 @@ sound_volume (Volume) float 0.8 0.0 1.0
 #    Volume multiplier when the window is unfocused.
 sound_volume_unfocused (Volume when unfocused) float 0.3 0.0 1.0
 
-#    Whether to mute sounds. You can unmute sounds at any time, unless the
-#    sound system is disabled (enable_sound=false).
+#    Whether to mute sounds. You can unmute sounds at any time.
 #    In-game, you can toggle the mute state with the mute key or by using the
 #    pause menu.
 mute_sound (Mute sound) bool false
@@ -712,12 +677,6 @@ formspec_fullscreen_bg_color (Formspec Full-Screen Background Color) string (0,0
 #    to hardware (e.g. render-to-texture for nodes in inventory).
 gui_scaling_filter (GUI scaling filter) bool false
 
-#    When gui_scaling_filter_txr2img is true, copy those images
-#    from hardware to software for scaling.  When false, fall back
-#    to the old scaling method, for video drivers that don't
-#    properly support downloading textures back from hardware.
-gui_scaling_filter_txr2img (GUI scaling filter txr2img) bool true
-
 #    Delay showing tooltips, stated in milliseconds.
 tooltip_show_delay (Tooltip delay) int 400 0 18446744073709551615
 
@@ -742,6 +701,10 @@ show_debug (Show debug info) bool false
 #    Radius to use when the block bounds HUD feature is set to near blocks.
 show_block_bounds_radius_near (Block bounds HUD radius) int 4 0 1000
 
+#    Maximum proportion of current window to be used for hotbar.
+#    Useful if there's something to be displayed right or left of hotbar.
+hud_hotbar_max_width (Maximum hotbar width) float 1.0 0.001 1.0
+
 [**Chat]
 
 #    Maximum number of recent chat messages to show
@@ -756,13 +719,6 @@ console_color (Console color) string (0,0,0)
 #    In-game chat console background alpha (opaqueness, between 0 and 255).
 console_alpha (Console alpha) int 200 0 255
 
-#    Maximum proportion of current window to be used for hotbar.
-#    Useful if there's something to be displayed right or left of hotbar.
-hud_hotbar_max_width (Maximum hotbar width) float 1.0 0.001 1.0
-
-#    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
-clickable_chat_weblinks (Chat weblinks) bool true
-
 #    Optional override for chat weblink color.
 chat_weblink_color (Weblink color) string #8888FF
 
@@ -774,9 +730,9 @@ chat_font_size (Chat font size) int 0 0 72
 [**Content Repository]
 
 #    The URL for the content repository
-contentdb_url (ContentDB URL) string https://content.minetest.net
+contentdb_url (ContentDB URL) string https://content.luanti.org
 
-#    If enabled and you have ContentDB packages installed, Minetest may contact ContentDB to
+#    If enabled and you have ContentDB packages installed, Luanti may contact ContentDB to
 #    check for package updates when opening the mainmenu.
 contentdb_enable_updates_indicator (Enable updates available indicator on content tab) bool true
 
@@ -784,8 +740,8 @@ contentdb_enable_updates_indicator (Enable updates available indicator on conten
 #    "nonfree" can be used to hide packages which do not qualify as 'free software',
 #    as defined by the Free Software Foundation.
 #    You can also specify content ratings.
-#    These flags are independent from Minetest versions,
-#    so see a full list at https://content.minetest.net/help/content_flags/
+#    These flags are independent from Luanti versions,
+#    so see a full list at https://content.luanti.org/help/content_flags/
 contentdb_flag_blacklist (ContentDB Flag Blacklist) string nonfree, desktop_default
 
 #    Maximum number of concurrent downloads. Downloads exceeding this limit will be queued.
@@ -801,36 +757,36 @@ contentdb_max_concurrent_downloads (ContentDB Max Concurrent Downloads) int 3 1
 enable_local_map_saving (Saving map received from server) bool false
 
 #    URL to the server list displayed in the Multiplayer Tab.
-serverlist_url (Serverlist URL) string servers.minetest.net
+serverlist_url (Serverlist URL) string https://servers.luanti.org
 
-#    If enabled, account registration is separate from login in the UI.
-#    If disabled, new accounts will be registered automatically when logging in.
+#    If enabled, server account registration is separate from login in the UI.
+#    If disabled, connecting to a server will automatically register a new account.
 enable_split_login_register (Enable split login/register) bool true
 
-#    URL to JSON file which provides information about the newest Minetest release.
+#    URL to JSON file which provides information about the newest Luanti release.
 #    If this is empty the engine will never check for updates.
-update_information_url (Update information URL) string https://www.minetest.net/release_info.json
+update_information_url (Update information URL) string https://www.luanti.org/release_info.json
 
 [*Server]
 
 #    Name of the player.
-#    When running a server, clients connecting with this name are admins.
+#    When running a server, a client connecting with this name is admin.
 #    When starting from the main menu, this is overridden.
 name (Admin name) string
 
 [**Serverlist and MOTD]
 
 #    Name of the server, to be displayed when players join and in the serverlist.
-server_name (Server name) string Minetest server
+server_name (Server name) string Luanti server
 
 #    Description of server, to be displayed when players join and in the serverlist.
 server_description (Server description) string mine here
 
 #    Domain name of server, to be displayed in the serverlist.
-server_address (Server address) string game.minetest.net
+server_address (Server address) string game.example.net
 
 #    Homepage of server, to be displayed in the serverlist.
-server_url (Server URL) string https://minetest.net
+server_url (Server URL) string https://game.example.net
 
 #    Automatically report to the serverlist.
 server_announce (Announce server) bool false
@@ -839,7 +795,7 @@ server_announce (Announce server) bool false
 server_announce_send_players (Send player names to the server list) bool true
 
 #    Announce to this serverlist.
-serverlist_url (Serverlist URL) string servers.minetest.net
+serverlist_url (Serverlist URL) string https://servers.luanti.org
 
 #    Message of the day displayed to players connecting.
 motd (Message of the day) string
@@ -868,7 +824,7 @@ strict_protocol_version_checking (Strict protocol checking) bool false
 #    Older clients are compatible in the sense that they will not crash when connecting
 #    to new servers, but they may not support all new features that you are expecting.
 #    This allows for more fine-grained control than strict_protocol_version_checking.
-#    Minetest still enforces its own internal minimum, and enabling
+#    Luanti still enforces its own internal minimum, and enabling
 #    strict_protocol_version_checking will effectively override this.
 protocol_version_min (Protocol version minimum) int 1 1 65535
 
@@ -878,10 +834,12 @@ protocol_version_min (Protocol version minimum) int 1 1 65535
 #    Files that are not present will be fetched the usual way.
 remote_media (Remote media) string
 
-#    Enable/disable running an IPv6 server.
+#    Enable IPv6 support for server.
+#    Note that clients will be able to connect with both IPv4 and IPv6.
 #    Ignored if bind_address is set.
-#    Needs enable_ipv6 to be enabled.
-ipv6_server (IPv6 server) bool false
+#
+#    Requires: enable_ipv6
+ipv6_server (IPv6 server) bool true
 
 [*Server Security]
 
@@ -898,8 +856,13 @@ default_privs (Default privileges) string interact, shout
 #    Privileges that players with basic_privs can grant
 basic_privs (Basic privileges) string interact, shout
 
-#    If enabled, disable cheat prevention in multiplayer.
-disable_anticheat (Disable anticheat) bool false
+#    Server anticheat configuration.
+#    Flags are positive. Uncheck the flag to disable corresponding anticheat module.
+anticheat_flags (Anticheat flags) flags digging,interaction,movement digging,interaction,movement
+
+#    Tolerance of movement cheat detector.
+#    Increase the value if players experience stuttery movement.
+anticheat_movement_tolerance (Anticheat movement tolerance) float 1.0 1.0
 
 #    If enabled, actions are recorded for rollback.
 #    This option is only read when server starts.
@@ -1812,7 +1775,7 @@ instrument.lbm (Loading Block Modifiers) bool true
 instrument.chatcommand (Chat commands) bool true
 
 #    Instrument global callback functions on registration.
-#    (anything you pass to a minetest.register_*() function)
+#    (anything you pass to a core.register_*() function)
 instrument.global_callback (Global callbacks) bool true
 
 #    Instrument builtin.
@@ -1834,19 +1797,12 @@ profiler_print_interval (Engine profiling data print interval) int 0 0
 
 [*Advanced]
 
-#    Enable IPv6 support (for both client and server).
-#    Required for IPv6 connections to work at all.
-enable_ipv6 (IPv6) bool true
-
-#    If enabled, invalid world data won't cause the server to shut down.
-#    Only enable this if you know what you are doing.
-ignore_world_load_errors (Ignore world errors) bool false
-
 [**Graphics]
 
+#    Enables debug and error-checking in the OpenGL driver.
+opengl_debug (OpenGL debug) bool false
+
 #    Path to shader directory. If no path is defined, default location will be used.
-#
-#    Requires: shaders
 shader_path (Shader path) path
 
 #    The rendering back-end.
@@ -1859,23 +1815,26 @@ video_driver (Video driver) enum  ,opengl,opengl3,ogles2
 #    Set to 0 to disable it entirely.
 transparency_sorting_distance (Transparency Sorting Distance) int 16 0 128
 
+#    Draw transparency sorted triangles grouped by their mesh buffers.
+#    This breaks transparency sorting between mesh buffers, but avoids situations
+#    where transparency sorting would be very slow otherwise.
+transparency_sorting_group_by_buffers (Transparency Sorting Group by Buffers) bool true
+
 #    Radius of cloud area stated in number of 64 node cloud squares.
 #    Values larger than 26 will start to produce sharp cutoffs at cloud area corners.
-cloud_radius (Cloud radius) int 12 1 62
-
-#    Whether node texture animations should be desynchronized per mapblock.
-desynchronize_mapblock_texture_animation (Desynchronize block animation) bool false
-
-#    Enables caching of facedir rotated meshes.
-enable_mesh_cache (Mesh cache) bool false
+cloud_radius (Cloud radius) int 12 8 62
 
 #    Delay between mesh updates on the client in ms. Increasing this will slow
 #    down the rate of mesh updates, thus reducing jitter on slower clients.
 mesh_generation_interval (Mapblock mesh generation delay) int 0 0 50
 
 #    Number of threads to use for mesh generation.
-#    Value of 0 (default) will let Minetest autodetect the number of available threads.
+#    Value of 0 (default) will let Luanti autodetect the number of available threads.
 mesh_generation_threads (Mapblock mesh generation threads) int 0 0 8
+
+#    All mesh buffers with less than this number of vertices will be merged
+#    during map rendering. This improves rendering performance.
+mesh_buffer_min_vertices (Minimum vertex count for mesh buffers) int 300 0 1000
 
 #    True = 256
 #    False = 128
@@ -1898,12 +1857,11 @@ world_aligned_mode (World-aligned textures mode) enum enable disable,enable,forc
 #    Warning: This option is EXPERIMENTAL!
 autoscale_mode (Autoscaling mode) enum disable disable,enable,force
 
-#    When using bilinear/trilinear/anisotropic filters, low-resolution textures
-#    can be blurred, so automatically upscale them with nearest-neighbor
-#    interpolation to preserve crisp pixels. This sets the minimum texture size
-#    for the upscaled textures; higher values look sharper, but require more
-#    memory. Powers of 2 are recommended. This setting is ONLY applied if
-#    bilinear/trilinear/anisotropic filtering is enabled.
+#    When using bilinear/trilinear filtering, low-resolution textures
+#    can be blurred, so this option automatically upscales them to preserve
+#    crisp pixels. This defines the minimum texture size for the upscaled textures;
+#    higher values look sharper, but require more memory.
+#    This setting is ONLY applied if any of the mentioned filters are enabled.
 #    This is also used as the base node texture size for world-aligned
 #    texture autoscaling.
 texture_min_size (Base texture size) int 64 1 32768
@@ -1915,8 +1873,33 @@ texture_min_size (Base texture size) int 64 1 32768
 #    Systems with a low-end GPU (or no GPU) would benefit from smaller values.
 client_mesh_chunk (Client Mesh Chunksize) int 1 1 16
 
-#    Enables debug and error-checking in the OpenGL driver.
-opengl_debug (OpenGL debug) bool false
+#    Decide the color depth of the texture used for the post-processing pipeline.
+#    Reducing this can improve performance, but some effects (e.g. debanding)
+#    require more than 8 bits to work.
+#
+#    Requires: enable_post_processing
+post_processing_texture_bits (Color depth for post-processing texture) enum 16 8,10,16
+
+#    Enable Poisson disk filtering.
+#    On true uses Poisson disk to make "soft shadows". Otherwise uses PCF filtering.
+#
+#    Requires: enable_dynamic_shadows, opengl
+shadow_poisson_filter (Poisson filtering) bool true
+
+#    Spread a complete update of the shadow map over a given number of frames.
+#    Higher values might make shadows laggy, lower values
+#    will consume more resources.
+#
+#    Requires: enable_dynamic_shadows, opengl
+shadow_update_frames (Map shadows update frames) int 16 1 32
+
+#    Set to true to render debugging breakdown of the bloom effect.
+#    In debug mode, the screen is split into 4 quadrants:
+#    top-left - processed base image, top-right - final image
+#    bottom-left - raw base image, bottom-right - bloom texture.
+#
+#    Requires: enable_post_processing, enable_bloom
+enable_bloom_debug (Enable Bloom Debug) bool false
 
 [**Sound]
 #    Comma-separated list of AL and ALC extensions that should not be used.
@@ -1999,8 +1982,12 @@ lighting_boost_spread (Light curve boost spread) float 0.2 0.0 0.4
 
 [**Networking]
 
+#    Enable IPv6 support (for both client and server).
+#    Required for IPv6 connections to work at all.
+enable_ipv6 (IPv6) bool true
+
 #    Prometheus listener address.
-#    If Minetest is compiled with ENABLE_PROMETHEUS option enabled,
+#    If Luanti is compiled with ENABLE_PROMETHEUS option enabled,
 #    enable metrics listener for Prometheus on that address.
 #    Metrics can be fetched on http://127.0.0.1:30000/metrics
 prometheus_listener_address (Prometheus listener address) string 127.0.0.1:30000
@@ -2013,7 +2000,9 @@ max_out_chat_queue_size (Maximum size of the outgoing chat queue) int 20 -1 3276
 client_unload_unused_data_timeout (Mapblock unload timeout) float 600.0 0.0
 
 #    Maximum number of mapblocks for client to be kept in memory.
-#    Set to -1 for unlimited amount.
+#    Note that there is an internal dynamic minimum number of blocks that
+#    won't be deleted, depending on the current view range.
+#    Set to -1 for no limit.
 client_mapblock_limit (Mapblock limit) int 7500 -1 2147483647
 
 #    Maximum number of blocks that are simultaneously sent per client.
@@ -2060,6 +2049,8 @@ ask_reconnect_on_crash (Ask to reconnect after crash) bool false
 #    Length of a server tick (the interval at which everything is generally updated),
 #    stated in seconds.
 #    Does not apply to sessions hosted from the client menu.
+#    This is a lower bound, i.e. server steps may not be shorter than this, but
+#    they are often longer.
 dedicated_server_step (Dedicated server step) float 0.09 0.0 1.0
 
 #    Whether players are shown to clients without any range limit.
@@ -2090,9 +2081,6 @@ max_block_send_distance (Max block send distance) int 12 1 65535
 #    Set this to -1 to disable the limit.
 max_forceloaded_blocks (Maximum forceloaded blocks) int 16 -1
 
-#    Interval of sending time of day to clients, stated in seconds.
-time_send_interval (Time send interval) float 5.0 0.001
-
 #    Interval of saving important changes in the world, stated in seconds.
 server_map_save_interval (Map save interval) float 5.3 0.001
 
@@ -2101,7 +2089,7 @@ server_map_save_interval (Map save interval) float 5.3 0.001
 server_unload_unused_data_timeout (Unload unused server data) int 29 0 4294967295
 
 #    Maximum number of statically stored objects in a block.
-max_objects_per_block (Maximum objects per block) int 256 1 65535
+max_objects_per_block (Maximum objects per block) int 256 256 65535
 
 #    Length of time between active block management cycles, stated in seconds.
 active_block_mgmt_interval (Active block management interval) float 2.0 0.0
@@ -2202,10 +2190,17 @@ curl_file_download_timeout (cURL file download timeout) int 300000 5000 21474836
 
 [**Miscellaneous]
 
+#    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
+clickable_chat_weblinks (Chat weblinks) bool true
+
+#    If enabled, invalid world data won't cause the server to shut down.
+#    Only enable this if you know what you are doing.
+ignore_world_load_errors (Ignore world errors) bool false
+
 #    Adjust the detected display density, used for scaling UI elements.
 display_density_factor (Display Density Scaling Factor) float 1 0.5 5.0
 
-#    Windows systems only: Start Minetest with the command line window in the background.
+#    Windows systems only: Start Luanti with the command line window in the background.
 #    Contains the same information as the file debug.txt (default name).
 enable_console (Enable console window) bool false
 
@@ -2319,12 +2314,6 @@ show_technical_names (Show technical names) bool false
 
 #    Controlled by a checkbox in the settings menu.
 show_advanced (Show advanced settings) bool false
-
-#    Enables the sound system.
-#    If disabled, this completely disables all sounds everywhere and the in-game
-#    sound controls will be non-functional.
-#    Changing this setting requires a restart.
-enable_sound (Sound) bool true
 
 #    Key for moving the player forward.
 keymap_forward (Forward key) key KEY_KEY_W

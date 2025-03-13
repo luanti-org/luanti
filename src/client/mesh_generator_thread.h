@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013, 2017 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013, 2017 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -84,12 +69,11 @@ private:
 	std::unordered_set<v3s16> m_inflight_blocks;
 	std::mutex m_mutex;
 
-	// TODO: Add callback to update these when g_settings changes
-	bool m_cache_enable_shaders;
+	// TODO: Add callback to update these when g_settings changes, and update all meshes
 	bool m_cache_smooth_lighting;
+	bool m_cache_enable_water_reflections;
 
 	void fillDataFromMapBlocks(QueuedMeshUpdate *q);
-	void cleanupCache();
 };
 
 struct MeshUpdateResult
@@ -109,7 +93,7 @@ class MeshUpdateManager;
 class MeshUpdateWorkerThread : public UpdateThread
 {
 public:
-	MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, v3s16 *camera_offset);
+	MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager);
 
 protected:
 	virtual void doUpdate();
@@ -118,7 +102,6 @@ private:
 	Client *m_client;
 	MeshUpdateQueue *m_queue_in;
 	MeshUpdateManager *m_manager;
-	v3s16 *m_camera_offset;
 
 	// TODO: Add callback to update these when g_settings changes
 	int m_generation_interval;
@@ -136,8 +119,6 @@ public:
 	void putResult(const MeshUpdateResult &r);
 	bool getNextResult(MeshUpdateResult &r);
 
-
-	v3s16 m_camera_offset;
 
 	void start();
 	void stop();

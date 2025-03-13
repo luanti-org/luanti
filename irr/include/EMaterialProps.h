@@ -18,12 +18,6 @@ enum E_MATERIAL_PROP
 	//! Corresponds to SMaterial::PointCloud.
 	EMP_POINTCLOUD = 0x2,
 
-	//! Corresponds to SMaterial::GouraudShading.
-	EMP_GOURAUD_SHADING = 0x4,
-
-	//! Corresponds to SMaterial::Lighting.
-	EMP_LIGHTING = 0x8,
-
 	//! Corresponds to SMaterial::ZBuffer.
 	EMP_ZBUFFER = 0x10,
 
@@ -48,9 +42,6 @@ enum E_MATERIAL_PROP
 	//! Corresponds to SMaterial::FogEnable.
 	EMP_FOG_ENABLE = 0x800,
 
-	//! Corresponds to SMaterial::NormalizeNormals.
-	EMP_NORMALIZE_NORMALS = 0x1000,
-
 	//! Corresponds to SMaterialLayer::TextureWrapU, TextureWrapV and
 	//! TextureWrapW.
 	EMP_TEXTURE_WRAP = 0x2000,
@@ -60,9 +51,6 @@ enum E_MATERIAL_PROP
 
 	//! Corresponds to SMaterial::ColorMask.
 	EMP_COLOR_MASK = 0x8000,
-
-	//! Corresponds to SMaterial::ColorMaterial.
-	EMP_COLOR_MATERIAL = 0x10000,
 
 	//! Corresponds to SMaterial::UseMipMaps.
 	EMP_USE_MIP_MAPS = 0x20000,

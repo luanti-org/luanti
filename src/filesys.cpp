@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "filesys.h"
 #include "util/string.h"
@@ -26,20 +11,35 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <cerrno>
 #include <fstream>
 #include <atomic>
+#include <memory>
 #include "log.h"
 #include "config.h"
 #include "porting.h"
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 #include "irr_ptr.h"
 #include <IFileArchive.h>
 #include <IFileSystem.h>
 #endif
+
 #ifdef __linux__
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #ifndef FICLONE
 #define FICLONE _IOW(0x94, 9, int)
 #endif
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+#include <shlwapi.h>
+#include <io.h>
+#include <direct.h>
+#else
+#include <sys/types.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 // Error from last OS call as string
@@ -57,11 +57,6 @@ namespace fs
 /***********
  * Windows *
  ***********/
-
-#include <windows.h>
-#include <shlwapi.h>
-#include <io.h>
-#include <direct.h>
 
 std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 {
@@ -109,7 +104,7 @@ std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 					<< " Error is " << dwError << std::endl;
 			listing.clear();
 			return listing;
- 		}
+		}
 	}
 	return listing;
 }
@@ -272,12 +267,6 @@ bool CopyFileContents(const std::string &source, const std::string &target)
  * POSIX *
  *********/
 
-#include <sys/types.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
 std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 {
 	std::vector<DirListNode> listing;
@@ -380,41 +369,41 @@ bool RecursiveDelete(const std::string &path)
 		Execute the 'rm' command directly, by fork() and execve()
 	*/
 
-	infostream<<"Removing \""<<path<<"\""<<std::endl;
+	infostream << "Removing \"" << path << "\"" << std::endl;
 
-	pid_t child_pid = fork();
+	assert(IsPathAbsolute(path));
 
-	if(child_pid == 0)
-	{
+	const pid_t child_pid = fork();
+
+	if (child_pid == -1) {
+		errorstream << "fork errno: " << errno << ": " << strerror(errno)
+			<< std::endl;
+		return false;
+	}
+
+	if (child_pid == 0) {
 		// Child
-		const char *argv[4] = {
-#ifdef __ANDROID__
-			"/system/bin/rm",
-#else
-			"/bin/rm",
-#endif
+		std::array<const char*, 4> argv = {
+			"rm",
 			"-rf",
 			path.c_str(),
-			NULL
+			nullptr
 		};
 
-		verbosestream<<"Executing '"<<argv[0]<<"' '"<<argv[1]<<"' '"
-				<<argv[2]<<"'"<<std::endl;
+		execvp(argv[0], const_cast<char**>(argv.data()));
 
-		execv(argv[0], const_cast<char**>(argv));
-
-		// Execv shouldn't return. Failed.
+		// note: use cerr because our logging won't flush in forked process
+		std::cerr << "exec errno: " << errno << ": " << strerror(errno)
+			<< std::endl;
 		_exit(1);
-	}
-	else
-	{
+	} else {
 		// Parent
-		int child_status;
+		int status;
 		pid_t tpid;
-		do{
-			tpid = wait(&child_status);
-		}while(tpid != child_pid);
-		return (child_status == 0);
+		do
+			tpid = waitpid(child_pid, &status, 0);
+		while (tpid != child_pid);
+		return WIFEXITED(status) && WEXITSTATUS(status) == 0;
 	}
 }
 
@@ -517,15 +506,10 @@ bool CopyFileContents(const std::string &source, const std::string &target)
 	// fallback to normal copy, but no need to reopen the files
 	sourcefile.reset(fdopen(srcfd, "rb"));
 	targetfile.reset(fdopen(tgtfd, "wb"));
-	goto fallback;
-
-#endif
-
+#else
 	sourcefile.reset(fopen(source.c_str(), "rb"));
 	targetfile.reset(fopen(target.c_str(), "wb"));
-
-fallback:
-
+#endif
 	if (!sourcefile) {
 		errorstream << source << ": can't open for reading: "
 			<< strerror(errno) << std::endl;
@@ -726,7 +710,7 @@ bool PathStartsWith(const std::string &path, const std::string &prefix)
 			if(prefixpos == prefixsize)
 				return true;
 			// Return false if path has ended (at delimiter/EOS)
-            // while prefix did not.
+			// while prefix did not.
 			if(pathpos == pathsize)
 				return false;
 		}
@@ -844,14 +828,49 @@ std::string RemoveRelativePathComponents(std::string path)
 std::string AbsolutePath(const std::string &path)
 {
 #ifdef _WIN32
+	// handle behavior differences on windows
+	if (path.empty())
+		return "";
+	else if (!PathExists(path))
+		return "";
 	char *abs_path = _fullpath(NULL, path.c_str(), MAX_PATH);
 #else
 	char *abs_path = realpath(path.c_str(), NULL);
 #endif
-	if (!abs_path) return "";
+	if (!abs_path)
+		return "";
 	std::string abs_path_str(abs_path);
 	free(abs_path);
 	return abs_path_str;
+}
+
+std::string AbsolutePathPartial(const std::string &path)
+{
+	if (path.empty())
+		return "";
+	// Try to determine absolute path
+	std::string abs_path = fs::AbsolutePath(path);
+	if (!abs_path.empty())
+		return abs_path;
+	// Remove components until it works
+	std::string cur_path = path;
+	std::string removed;
+	while (abs_path.empty() && !cur_path.empty()) {
+		std::string component;
+		cur_path = RemoveLastPathComponent(cur_path, &component);
+		removed = component + (removed.empty() ? "" : DIR_DELIM + removed);
+		abs_path = AbsolutePath(cur_path);
+	}
+	// If we had a relative path that does not exist, it needs to be joined with cwd
+	if (cur_path.empty() && !IsPathAbsolute(path))
+		abs_path = AbsolutePath(".");
+	// or there's an error
+	if (abs_path.empty())
+		return "";
+	// Put them back together and resolve the remaining relative components
+	if (!removed.empty())
+		abs_path.append(DIR_DELIM).append(removed);
+	return RemoveRelativePathComponents(abs_path);
 }
 
 const char *GetFilenameFromPath(const char *path)
@@ -941,7 +960,7 @@ bool safeWriteToFile(const std::string &path, std::string_view content)
 	return true;
 }
 
-#ifndef SERVER
+#if CHECK_CLIENT_BUILD()
 bool extractZipFile(io::IFileSystem *fs, const char *filename, const std::string &destination)
 {
 	// Be careful here not to touch the global file hierarchy in Irrlicht

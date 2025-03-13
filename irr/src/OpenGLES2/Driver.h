@@ -13,7 +13,7 @@ namespace video
 /// OpenGL ES 2+ driver
 ///
 /// For OpenGL ES 2.0 and higher.
-class COpenGLES2Driver : public COpenGL3DriverBase
+class COpenGLES2Driver final : public COpenGL3DriverBase
 {
 	friend IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
 

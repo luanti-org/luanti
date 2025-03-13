@@ -13,9 +13,14 @@ set (UNITTEST_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_filesys.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_inventory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_irrptr.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_matrix4.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_rotation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_logging.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_lua.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_map.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_mapblock.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_mapdatabase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_mapgen.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_map_settings_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_mapnode.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_modchannels.cpp
@@ -36,6 +41,7 @@ set (UNITTEST_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_socket.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_servermodmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_threading.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_translations.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_utilities.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_voxelarea.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_voxelalgorithms.cpp

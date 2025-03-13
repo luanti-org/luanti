@@ -1,21 +1,21 @@
-CORE_GIT=https://github.com/minetest/minetest
+CORE_GIT=https://github.com/luanti-org/luanti
 CORE_BRANCH=master
 CORE_NAME=minetest
 
 ogg_version=1.3.5
-openal_version=1.23.1
+openal_version=1.24.2
 vorbis_version=1.3.7
-curl_version=8.5.0
+curl_version=8.12.1
 gettext_version=0.20.2
-freetype_version=2.13.2
-sqlite3_version=3.44.2
-luajit_version=20240125
+freetype_version=2.13.3
+sqlite3_version=3.46.1
+luajit_version=20250113
 leveldb_version=1.23
 zlib_version=1.3.1
-zstd_version=1.5.5
+zstd_version=1.5.7
 libjpeg_version=3.0.1
-libpng_version=1.6.40
-sdl2_version=2.30.3
+libpng_version=1.6.47
+sdl2_version=2.32.2
 
 download () {
 	local url=$1
@@ -51,10 +51,10 @@ get_sources () {
 # sets $runtime_dlls
 find_runtime_dlls () {
 	local triple=$1
-	# Try to find runtime DLLs in various paths
+	# Try to find runtime DLLs in various paths (fun)
 	local tmp=$(dirname "$(command -v $compiler)")/..
 	runtime_dlls=
-	for name in lib{clang_rt,c++,unwind,winpthread-}'*'.dll; do
+	for name in lib{c++,unwind,winpthread-}'*'.dll; do
 		for dir in $tmp/$triple/{bin,lib}; do
 			[ -d "$dir" ] || continue
 			local file=$(echo $dir/$name)
@@ -80,7 +80,7 @@ _dlls () {
 
 add_cmake_libs () {
 	cmake_args+=(
-		-DPNG_LIBRARY=$libdir/libpng/lib/libpng.dll.a
+		-DPNG_LIBRARY=$libdir/libpng/lib/libpng16.dll.a
 		-DPNG_PNG_INCLUDE_DIR=$libdir/libpng/include
 		-DPNG_DLL="$(_dlls $libdir/libpng/bin/*)"
 

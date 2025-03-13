@@ -30,10 +30,6 @@ GUIEditBoxWithScrollBar::GUIEditBoxWithScrollBar(const wchar_t* text, bool borde
 	: GUIEditBox(environment, parent, id, rectangle, border, writable),
 	m_background(true), m_bg_color_used(false), m_tsrc(tsrc)
 {
-#ifdef _DEBUG
-	setDebugName("GUIEditBoxWithScrollBar");
-#endif
-
 
 	Text = text;
 
@@ -198,9 +194,9 @@ void GUIEditBoxWithScrollBar::draw()
 						mbegin = font->getDimension(s.c_str()).Width;
 
 						// deal with kerning
-						mbegin += font->getKerningWidth(
-							&((*txt_line)[realmbgn - start_pos]),
-							realmbgn - start_pos > 0 ? &((*txt_line)[realmbgn - start_pos - 1]) : 0);
+						mbegin += font->getKerning(
+							(*txt_line)[realmbgn - start_pos],
+							realmbgn - start_pos > 0 ? (*txt_line)[realmbgn - start_pos - 1] : 0).X;
 
 						lineStartPos = realmbgn - start_pos;
 					}
@@ -246,7 +242,8 @@ void GUIEditBoxWithScrollBar::draw()
 			}
 			s = txt_line->subString(0, m_cursor_pos - start_pos);
 			charcursorpos = font->getDimension(s.c_str()).Width +
-				font->getKerningWidth(L"_", m_cursor_pos - start_pos > 0 ? &((*txt_line)[m_cursor_pos - start_pos - 1]) : 0);
+				font->getKerning(L'_',
+					m_cursor_pos - start_pos > 0 ? (*txt_line)[m_cursor_pos - start_pos - 1] : 0).X;
 
 			if (focus && (porting::getTimeMs() - m_blink_start_time) % 700 < 350) {
 				setTextRect(cursor_line);
@@ -435,7 +432,7 @@ void GUIEditBoxWithScrollBar::setTextRect(s32 line)
 		d = font->getDimension(Text.c_str());
 		d.Height = AbsoluteRect.getHeight();
 	}
-	d.Height += font->getKerningHeight();
+	d.Height += font->getKerning(L'A').Y;
 
 	// justification
 	switch (m_halign) {
@@ -540,7 +537,7 @@ void GUIEditBoxWithScrollBar::calculateScrollPos()
 
 	// calculate vertical scrolling
 	if (has_broken_text) {
-		irr::u32 line_height = font->getDimension(L"A").Height + font->getKerningHeight();
+		irr::u32 line_height = font->getDimension(L"A").Height + font->getKerning(L'A').Y;
 		// only up to 1 line fits?
 		if (line_height >= (irr::u32)m_frame_rect.getHeight()) {
 			m_vscroll_pos = 0;

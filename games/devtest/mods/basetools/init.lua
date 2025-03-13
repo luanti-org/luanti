@@ -24,11 +24,11 @@ Tool materials:
 ]]
 
 -- The hand
-if minetest.settings:get_bool("creative_mode") then
+if core.settings:get_bool("creative_mode") then
 	local digtime = 42
 	local caps = {times = {digtime, digtime, digtime}, uses = 0, maxlevel = 256}
 
-	minetest.register_item(":", {
+	core.register_item(":", {
 		type = "none",
 		wield_image = "wieldhand.png",
 		wield_scale = {x = 1, y = 1, z = 2.5},
@@ -50,7 +50,7 @@ if minetest.settings:get_bool("creative_mode") then
 		}
 	})
 else
-	minetest.register_item(":", {
+	core.register_item(":", {
 		type = "none",
 		wield_image = "wieldhand.png",
 		wield_scale = {x = 1, y = 1, z = 2.5},
@@ -69,7 +69,7 @@ else
 end
 
 -- Mese Pickaxe: special tool that digs "everything" instantly
-minetest.register_tool("basetools:pick_mese", {
+core.register_tool("basetools:pick_mese", {
 	description = "Mese Pickaxe".."\n"..
 			"Digs diggable nodes instantly.",
 	inventory_image = "basetools_mesepick.png",
@@ -89,7 +89,7 @@ minetest.register_tool("basetools:pick_mese", {
 
 
 -- A variant of the mese pickaxe that is not affected by the 0.15s digging delay
-minetest.register_tool("basetools:pick_mese_no_delay", {
+core.register_tool("basetools:pick_mese_no_delay", {
 	description = "Mese Pickaxe (no delay)".."\n"..
 			"Digs diggable nodes instantly.".."\n"..
 			"There is no delay between digging each node,\n"..
@@ -114,7 +114,7 @@ minetest.register_tool("basetools:pick_mese_no_delay", {
 -- Pickaxes: Dig cracky
 --
 
-minetest.register_tool("basetools:pick_wood", {
+core.register_tool("basetools:pick_wood", {
 	description = "Wooden Pickaxe".."\n"..
 		"Digs cracky=3",
 	inventory_image = "basetools_woodpick.png",
@@ -125,7 +125,7 @@ minetest.register_tool("basetools:pick_wood", {
 		},
 	},
 })
-minetest.register_tool("basetools:pick_stone", {
+core.register_tool("basetools:pick_stone", {
 	description = "Stone Pickaxe".."\n"..
 		"Digs cracky=2..3",
 	inventory_image = "basetools_stonepick.png",
@@ -136,7 +136,7 @@ minetest.register_tool("basetools:pick_stone", {
 		},
 	},
 })
-minetest.register_tool("basetools:pick_steel", {
+core.register_tool("basetools:pick_steel", {
 	description = "Steel Pickaxe".."\n"..
 		"Digs cracky=1..3",
 	inventory_image = "basetools_steelpick.png",
@@ -147,7 +147,7 @@ minetest.register_tool("basetools:pick_steel", {
 		},
 	},
 })
-minetest.register_tool("basetools:pick_steel_l1", {
+core.register_tool("basetools:pick_steel_l1", {
 	description = "Steel Pickaxe Level 1".."\n"..
 		"Digs cracky=1..3".."\n"..
 		"maxlevel=1",
@@ -159,7 +159,7 @@ minetest.register_tool("basetools:pick_steel_l1", {
 		},
 	},
 })
-minetest.register_tool("basetools:pick_steel_l2", {
+core.register_tool("basetools:pick_steel_l2", {
 	description = "Steel Pickaxe Level 2".."\n"..
 		"Digs cracky=1..3".."\n"..
 		"maxlevel=2",
@@ -176,7 +176,7 @@ minetest.register_tool("basetools:pick_steel_l2", {
 -- Shovels (dig crumbly)
 --
 
-minetest.register_tool("basetools:shovel_wood", {
+core.register_tool("basetools:shovel_wood", {
 	description = "Wooden Shovel".."\n"..
 		"Digs crumbly=3",
 	inventory_image = "basetools_woodshovel.png",
@@ -187,7 +187,7 @@ minetest.register_tool("basetools:shovel_wood", {
 		},
 	},
 })
-minetest.register_tool("basetools:shovel_stone", {
+core.register_tool("basetools:shovel_stone", {
 	description = "Stone Shovel".."\n"..
 		"Digs crumbly=2..3",
 	inventory_image = "basetools_stoneshovel.png",
@@ -198,7 +198,7 @@ minetest.register_tool("basetools:shovel_stone", {
 		},
 	},
 })
-minetest.register_tool("basetools:shovel_steel", {
+core.register_tool("basetools:shovel_steel", {
 	description = "Steel Shovel".."\n"..
 		"Digs crumbly=1..3",
 	inventory_image = "basetools_steelshovel.png",
@@ -214,7 +214,7 @@ minetest.register_tool("basetools:shovel_steel", {
 -- Axes (dig choppy)
 --
 
-minetest.register_tool("basetools:axe_wood", {
+core.register_tool("basetools:axe_wood", {
 	description = "Wooden Axe".."\n"..
 		"Digs choppy=3",
 	inventory_image = "basetools_woodaxe.png",
@@ -225,7 +225,7 @@ minetest.register_tool("basetools:axe_wood", {
 		},
 	},
 })
-minetest.register_tool("basetools:axe_stone", {
+core.register_tool("basetools:axe_stone", {
 	description = "Stone Axe".."\n"..
 		"Digs choppy=2..3",
 	inventory_image = "basetools_stoneaxe.png",
@@ -236,7 +236,7 @@ minetest.register_tool("basetools:axe_stone", {
 		},
 	},
 })
-minetest.register_tool("basetools:axe_steel", {
+core.register_tool("basetools:axe_steel", {
 	description = "Steel Axe".."\n"..
 		"Digs choppy=1..3",
 	inventory_image = "basetools_steelaxe.png",
@@ -252,7 +252,7 @@ minetest.register_tool("basetools:axe_steel", {
 -- Shears (dig snappy)
 --
 
-minetest.register_tool("basetools:shears_wood", {
+core.register_tool("basetools:shears_wood", {
 	description = "Wooden Shears".."\n"..
 		"Digs snappy=3",
 	inventory_image = "basetools_woodshears.png",
@@ -263,7 +263,7 @@ minetest.register_tool("basetools:shears_wood", {
 		},
 	},
 })
-minetest.register_tool("basetools:shears_stone", {
+core.register_tool("basetools:shears_stone", {
 	description = "Stone Shears".."\n"..
 		"Digs snappy=2..3",
 	inventory_image = "basetools_stoneshears.png",
@@ -274,7 +274,7 @@ minetest.register_tool("basetools:shears_stone", {
 		},
 	},
 })
-minetest.register_tool("basetools:shears_steel", {
+core.register_tool("basetools:shears_steel", {
 	description = "Steel Shears".."\n"..
 		"Digs snappy=1..3",
 	inventory_image = "basetools_steelshears.png",
@@ -290,7 +290,7 @@ minetest.register_tool("basetools:shears_steel", {
 -- Swords (deal damage)
 --
 
-minetest.register_tool("basetools:sword_wood", {
+core.register_tool("basetools:sword_wood", {
 	description = "Wooden Sword".."\n"..
 		"Damage: fleshy=2",
 	inventory_image = "basetools_woodsword.png",
@@ -299,7 +299,7 @@ minetest.register_tool("basetools:sword_wood", {
 		damage_groups = {fleshy=2},
 	}
 })
-minetest.register_tool("basetools:sword_stone", {
+core.register_tool("basetools:sword_stone", {
 	description = "Stone Sword".."\n"..
 		"Damage: fleshy=5",
 	inventory_image = "basetools_stonesword.png",
@@ -309,7 +309,7 @@ minetest.register_tool("basetools:sword_stone", {
 		damage_groups = {fleshy=5},
 	}
 })
-minetest.register_tool("basetools:sword_steel", {
+core.register_tool("basetools:sword_steel", {
 	description = "Steel Sword".."\n"..
 		"Damage: fleshy=10",
 	inventory_image = "basetools_steelsword.png",
@@ -319,7 +319,7 @@ minetest.register_tool("basetools:sword_steel", {
 		damage_groups = {fleshy=10},
 	}
 })
-minetest.register_tool("basetools:sword_titanium", {
+core.register_tool("basetools:sword_titanium", {
 	description = "Titanium Sword".."\n"..
 		"Damage: fleshy=100",
 	inventory_image = "basetools_titaniumsword.png",
@@ -329,7 +329,7 @@ minetest.register_tool("basetools:sword_titanium", {
 		damage_groups = {fleshy=100},
 	}
 })
-minetest.register_tool("basetools:sword_blood", {
+core.register_tool("basetools:sword_blood", {
 	description = "Blood Sword".."\n"..
 		"Damage: fleshy=1000",
 	inventory_image = "basetools_bloodsword.png",
@@ -341,7 +341,7 @@ minetest.register_tool("basetools:sword_blood", {
 })
 
 -- Max. damage sword
-minetest.register_tool("basetools:sword_mese", {
+core.register_tool("basetools:sword_mese", {
 	description = "Mese Sword".."\n"..
 		"Damage: fleshy=32767, fiery=32767, icy=32767".."\n"..
 		"Full Punch Interval: 0.0s",
@@ -354,7 +354,7 @@ minetest.register_tool("basetools:sword_mese", {
 })
 
 -- Fire/Ice sword: Deal damage to non-fleshy damage groups
-minetest.register_tool("basetools:sword_fire", {
+core.register_tool("basetools:sword_fire", {
 	description = "Fire Sword".."\n"..
 		"Damage: icy=10",
 	inventory_image = "basetools_firesword.png",
@@ -364,7 +364,7 @@ minetest.register_tool("basetools:sword_fire", {
 		damage_groups = {icy=10},
 	}
 })
-minetest.register_tool("basetools:sword_ice", {
+core.register_tool("basetools:sword_ice", {
 	description = "Ice Sword".."\n"..
 		"Damage: fiery=10",
 	inventory_image = "basetools_icesword.png",
@@ -374,7 +374,7 @@ minetest.register_tool("basetools:sword_ice", {
 		damage_groups = {fiery=10},
 	}
 })
-minetest.register_tool("basetools:sword_elemental", {
+core.register_tool("basetools:sword_elemental", {
 	description = "Elemental Sword".."\n"..
 		"Damage: fiery=10, icy=10",
 	inventory_image = "basetools_elementalsword.png",
@@ -386,7 +386,7 @@ minetest.register_tool("basetools:sword_elemental", {
 })
 
 -- Healing weapons: heal HP
-minetest.register_tool("basetools:dagger_heal", {
+core.register_tool("basetools:dagger_heal", {
 	description = "Healing Dagger".."\n"..
 		"Heal: fleshy=1".."\n"..
 		"Full Punch Interval: 0.5s",
@@ -396,7 +396,7 @@ minetest.register_tool("basetools:dagger_heal", {
 		damage_groups = {fleshy=-1},
 	}
 })
-minetest.register_tool("basetools:sword_heal", {
+core.register_tool("basetools:sword_heal", {
 	description = "Healing Sword".."\n"..
 		"Heal: fleshy=10",
 	inventory_image = "basetools_healsword.png",
@@ -405,7 +405,7 @@ minetest.register_tool("basetools:sword_heal", {
 		damage_groups = {fleshy=-10},
 	}
 })
-minetest.register_tool("basetools:sword_heal_super", {
+core.register_tool("basetools:sword_heal_super", {
 	description = "Super Healing Sword".."\n"..
 		"Heal: fleshy=32768, fiery=32768, icy=32768",
 	inventory_image = "basetools_superhealsword.png",
@@ -419,7 +419,7 @@ minetest.register_tool("basetools:sword_heal_super", {
 --
 -- Dagger: Low damage, fast punch interval
 --
-minetest.register_tool("basetools:dagger_wood", {
+core.register_tool("basetools:dagger_wood", {
 	description = "Wooden Dagger".."\n"..
 		"Damage: fleshy=1".."\n"..
 		"Full Punch Interval: 0.5s",
@@ -430,7 +430,7 @@ minetest.register_tool("basetools:dagger_wood", {
 		damage_groups = {fleshy=1},
 	}
 })
-minetest.register_tool("basetools:dagger_steel", {
+core.register_tool("basetools:dagger_steel", {
 	description = "Steel Dagger".."\n"..
 		"Damage: fleshy=2".."\n"..
 		"Full Punch Interval: 0.5s",
@@ -492,7 +492,7 @@ for i, params in ipairs(tool_params) do
 	local uses = params.uses
 	local ustring = uses.."-Use"..(uses == 1 and "" or "s")
 	local color = string.format("#FF00%02X", math.floor(((i-1)/#tool_params) * 255))
-	minetest.register_tool("basetools:pick_uses_"..string.format("%05d", uses), {
+	core.register_tool("basetools:pick_uses_"..string.format("%05d", uses), {
 		description = ustring.." Pickaxe".."\n"..
 			"Digs cracky=3"..
 			(params.wear_description and "\n".."Wear bar: " .. params.wear_description or ""),
@@ -506,7 +506,7 @@ for i, params in ipairs(tool_params) do
 		wear_color = params.wear_color
 	})
 
-	minetest.register_tool("basetools:sword_uses_"..string.format("%05d", uses), {
+	core.register_tool("basetools:sword_uses_"..string.format("%05d", uses), {
 		description = ustring.." Sword".."\n"..
 			"Damage: fleshy=1",
 		inventory_image = "basetools_usessword.png^[colorize:"..color..":127",
@@ -517,11 +517,11 @@ for i, params in ipairs(tool_params) do
 	})
 end
 
-minetest.register_chatcommand("wear_color", {
+core.register_chatcommand("wear_color", {
 	params = "[idx]",
 	description = "Set wear bar color override",
 	func = function(player_name, param)
-		local player = minetest.get_player_by_name(player_name)
+		local player = core.get_player_by_name(player_name)
 		if not player then return end
 
 		local wear_color = nil
@@ -551,7 +551,7 @@ local wear_on_use = function(itemstack, user, pointed_thing)
 	local color = math.random(0, 0xFFFFFF)
 	local colorstr = string.format("#%06x", color)
 	meta:set_wear_bar_params(colorstr)
-	minetest.log("action", "[basetool] Wear bar color of "..itemstack:get_name().." changed to "..colorstr)
+	core.log("action", "[basetool] Wear bar color of "..itemstack:get_name().." changed to "..colorstr)
 	itemstack:set_wear(math.random(0, 65535))
 	return itemstack
 end
@@ -563,7 +563,7 @@ local wear_on_place = function(itemstack, user, pointed_thing)
 	return itemstack
 end
 
-minetest.register_tool("basetools:random_wear_bar", {
+core.register_tool("basetools:random_wear_bar", {
 	description = "Wear Bar Color Test\n" ..
 			"Punch: Set random color & wear\n" ..
 			"Place: Clear color",

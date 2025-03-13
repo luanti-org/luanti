@@ -12,8 +12,9 @@ the arrow buttons where there is insufficient space.
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
 #include <optional>
+#include <IGUIElement.h>
+#include <IGUIEnvironment.h>
 
 class ISimpleTextureSource;
 
@@ -45,6 +46,7 @@ public:
 	s32 getSmallStep() const { return small_step; }
 	s32 getPos() const;
 	s32 getTargetPos() const;
+	bool isHorizontal() const { return is_horizontal; }
 
 	void setMax(const s32 &max);
 	void setMin(const s32 &min);

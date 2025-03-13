@@ -7,8 +7,8 @@
 #include "SColor.h"
 #include "matrix4.h"
 #include "irrMath.h"
-#include "EMaterialTypes.h"
-#include "EMaterialProps.h"
+#include "EMaterialTypes.h" // IWYU pragma: export
+#include "EMaterialProps.h" // IWYU pragma: export
 #include "SMaterialLayer.h"
 #include "IrrCompileConfig.h" // for IRRLICHT_API
 
@@ -20,7 +20,7 @@ class ITexture;
 
 //! Flag for MaterialTypeParam (in combination with EMT_ONETEXTURE_BLEND) or for BlendFactor
 //! BlendFunc = source * sourceFactor + dest * destFactor
-enum E_BLEND_FACTOR
+enum E_BLEND_FACTOR : u8
 {
 	EBF_ZERO = 0,            //!< src & dest	(0, 0, 0, 0)
 	EBF_ONE,                 //!< src & dest	(1, 1, 1, 1)
@@ -36,7 +36,7 @@ enum E_BLEND_FACTOR
 };
 
 //! Values defining the blend operation
-enum E_BLEND_OPERATION
+enum E_BLEND_OPERATION : u8
 {
 	EBO_NONE = 0,    //!< No blending happens
 	EBO_ADD,         //!< Default blending adds the color values
@@ -51,7 +51,7 @@ enum E_BLEND_OPERATION
 };
 
 //! MaterialTypeParam: e.g. DirectX: D3DTOP_MODULATE, D3DTOP_MODULATE2X, D3DTOP_MODULATE4X
-enum E_MODULATE_FUNC
+enum E_MODULATE_FUNC : u8
 {
 	EMFN_MODULATE_1X = 1,
 	EMFN_MODULATE_2X = 2,
@@ -59,7 +59,7 @@ enum E_MODULATE_FUNC
 };
 
 //! Comparison function, e.g. for depth buffer test
-enum E_COMPARISON_FUNC
+enum E_COMPARISON_FUNC : u8
 {
 	//! Depth test disabled (disable also write to depth buffer)
 	ECFN_DISABLED = 0,
@@ -82,7 +82,7 @@ enum E_COMPARISON_FUNC
 };
 
 //! Enum values for enabling/disabling color planes for rendering
-enum E_COLOR_PLANE
+enum E_COLOR_PLANE : u8
 {
 	//! No color enabled
 	ECP_NONE = 0,
@@ -103,7 +103,7 @@ enum E_COLOR_PLANE
 //! Source of the alpha value to take
 /** This is currently only supported in EMT_ONETEXTURE_BLEND. You can use an
 or'ed combination of values. Alpha values are modulated (multiplied). */
-enum E_ALPHA_SOURCE
+enum E_ALPHA_SOURCE : u8
 {
 	//! Use no alpha, somewhat redundant with other settings
 	EAS_NONE = 0,
@@ -181,7 +181,7 @@ Some drivers don't support a per-material setting of the anti-aliasing
 modes. In those cases, FSAA/multisampling is defined by the device mode
 chosen upon creation via irr::SIrrCreationParameters.
 */
-enum E_ANTI_ALIASING_MODE
+enum E_ANTI_ALIASING_MODE : u8
 {
 	//! Use to turn off anti-aliasing for this material
 	EAAM_OFF = 0,
@@ -194,29 +194,6 @@ enum E_ANTI_ALIASING_MODE
 	EAAM_ALPHA_TO_COVERAGE = 4
 };
 
-//! These flags allow to define the interpretation of vertex color when lighting is enabled
-/** Without lighting being enabled the vertex color is the only value defining the fragment color.
-Once lighting is enabled, the four values for diffuse, ambient, emissive, and specular take over.
-With these flags it is possible to define which lighting factor shall be defined by the vertex color
-instead of the lighting factor which is the same for all faces of that material.
-The default is to use vertex color for the diffuse value, another pretty common value is to use
-vertex color for both diffuse and ambient factor. */
-enum E_COLOR_MATERIAL
-{
-	//! Don't use vertex color for lighting
-	ECM_NONE = 0,
-	//! Use vertex color for diffuse light, this is default
-	ECM_DIFFUSE,
-	//! Use vertex color for ambient light
-	ECM_AMBIENT,
-	//! Use vertex color for emissive light
-	ECM_EMISSIVE,
-	//! Use vertex color for specular light
-	ECM_SPECULAR,
-	//! Use vertex color for both diffuse and ambient light
-	ECM_DIFFUSE_AND_AMBIENT
-};
-
 //! Names for polygon offset direction
 const c8 *const PolygonOffsetDirectionNames[] = {
 		"Back",
@@ -225,7 +202,7 @@ const c8 *const PolygonOffsetDirectionNames[] = {
 	};
 
 //! For SMaterial.ZWriteEnable
-enum E_ZWRITE
+enum E_ZWRITE : u8
 {
 	//! zwrite always disabled for this material
 	EZW_OFF = 0,
@@ -253,25 +230,23 @@ const c8 *const ZWriteNames[] = {
 /** SMaterial might ignore some textures in most function, like assignment and comparison,
 	when SIrrlichtCreationParameters::MaxTextureUnits is set to a lower number.
 */
-const u32 MATERIAL_MAX_TEXTURES = 4;
+constexpr static u32 MATERIAL_MAX_TEXTURES = 4;
 
 //! Struct for holding parameters for a material renderer
 // Note for implementors: Serialization is in CNullDriver
 class SMaterial
 {
 public:
-	//! Default constructor. Creates a solid, lit material with white colors
+	//! Default constructor. Creates a solid material
 	SMaterial() :
-			MaterialType(EMT_SOLID), AmbientColor(255, 255, 255, 255),
-			DiffuseColor(255, 255, 255, 255), EmissiveColor(0, 0, 0, 0),
-			SpecularColor(255, 255, 255, 255), Shininess(0.0f),
-			MaterialTypeParam(0.0f), Thickness(1.0f), ZBuffer(ECFN_LESSEQUAL),
-			AntiAliasing(EAAM_SIMPLE), ColorMask(ECP_ALL), ColorMaterial(ECM_DIFFUSE),
-			BlendOperation(EBO_NONE), BlendFactor(0.0f), PolygonOffsetDepthBias(0.f),
-			PolygonOffsetSlopeScale(0.f), Wireframe(false), PointCloud(false),
-			GouraudShading(true), Lighting(true), ZWriteEnable(EZW_AUTO),
+			MaterialType(EMT_SOLID), ColorParam(0, 0, 0, 0),
+			MaterialTypeParam(0.0f), Thickness(1.0f), BlendFactor(0.0f),
+			PolygonOffsetDepthBias(0.f), PolygonOffsetSlopeScale(0.f),
+			ZBuffer(ECFN_LESSEQUAL), AntiAliasing(EAAM_SIMPLE), ColorMask(ECP_ALL),
+			BlendOperation(EBO_NONE), Wireframe(false), PointCloud(false),
+			ZWriteEnable(EZW_AUTO),
 			BackfaceCulling(true), FrontfaceCulling(false), FogEnable(false),
-			NormalizeNormals(false), UseMipMaps(true)
+			UseMipMaps(true)
 	{
 	}
 
@@ -281,42 +256,9 @@ public:
 	//! Type of the material. Specifies how everything is blended together
 	E_MATERIAL_TYPE MaterialType;
 
-	//! How much ambient light (a global light) is reflected by this material.
-	/** The default is full white, meaning objects are completely
-	globally illuminated. Reduce this if you want to see diffuse
-	or specular light effects. */
-	SColor AmbientColor;
-
-	//! How much diffuse light coming from a light source is reflected by this material.
-	/** The default is full white. */
-	SColor DiffuseColor;
-
-	//! Light emitted by this material. Default is to emit no light.
-	SColor EmissiveColor;
-
-	//! How much specular light (highlights from a light) is reflected.
-	/** The default is to reflect white specular light. See
-	SMaterial::Shininess on how to enable specular lights. */
-	SColor SpecularColor;
-
-	//! Value affecting the size of specular highlights.
-	/** A value of 20 is common. If set to 0, no specular
-	highlights are being used. To activate, simply set the
-	shininess of a material to a value in the range [0.5;128]:
-	\code
-	sceneNode->getMaterial(0).Shininess = 20.0f;
-	\endcode
-
-	You can change the color of the highlights using
-	\code
-	sceneNode->getMaterial(0).SpecularColor.set(255,255,255,255);
-	\endcode
-
-	The specular color of the dynamic lights
-	(SLight::SpecularColor) will influence the the highlight color
-	too, but they are set to a useful value by default when
-	creating the light scene node.*/
-	f32 Shininess;
+	//! Custom color parameter, can be used by custom shader materials.
+	// See MainShaderConstantSetter in Luanti.
+	SColor ColorParam;
 
 	//! Free parameter, dependent on the material type.
 	/** Mostly ignored, used for example in
@@ -325,36 +267,6 @@ public:
 
 	//! Thickness of non-3dimensional elements such as lines and points.
 	f32 Thickness;
-
-	//! Is the ZBuffer enabled? Default: ECFN_LESSEQUAL
-	/** If you want to disable depth test for this material
-	just set this parameter to ECFN_DISABLED.
-	Values are from E_COMPARISON_FUNC. */
-	u8 ZBuffer;
-
-	//! Sets the antialiasing mode
-	/** Values are chosen from E_ANTI_ALIASING_MODE. Default is
-	EAAM_SIMPLE, i.e. simple multi-sample anti-aliasing. */
-	u8 AntiAliasing;
-
-	//! Defines the enabled color planes
-	/** Values are defined as or'ed values of the E_COLOR_PLANE enum.
-	Only enabled color planes will be rendered to the current render
-	target. Typical use is to disable all colors when rendering only to
-	depth or stencil buffer, or using Red and Green for Stereo rendering. */
-	u8 ColorMask : 4;
-
-	//! Defines the interpretation of vertex color in the lighting equation
-	/** Values should be chosen from E_COLOR_MATERIAL.
-	When lighting is enabled, vertex color can be used instead of the
-	material values for light modulation. This allows to easily change e.g. the
-	diffuse light behavior of each face. The default, ECM_DIFFUSE, will result in
-	a very similar rendering as with lighting turned off, just with light shading. */
-	u8 ColorMaterial : 3;
-
-	//! Store the blend operation of choice
-	/** Values to be chosen from E_BLEND_OPERATION. */
-	E_BLEND_OPERATION BlendOperation : 4;
 
 	//! Store the blend factors
 	/** textureBlendFunc/textureBlendFuncSeparate functions should be used to write
@@ -370,11 +282,7 @@ public:
 
 	//! A constant z-buffer offset for a polygon/line/point
 	/** The range of the value is driver specific.
-	On OpenGL you get units which are multiplied by the smallest value that is guaranteed to produce a resolvable offset.
-	On D3D9 you can pass a range between -1 and 1. But you should likely divide it by the range of the depthbuffer.
-	Like dividing by 65535.0 for a 16 bit depthbuffer. Thought it still might produce too large of a bias.
-	Some article (https://aras-p.info/blog/2008/06/12/depth-bias-and-the-power-of-deceiving-yourself/)
-	recommends multiplying by 2.0*4.8e-7 (and strangely on both 16 bit and 24 bit).	*/
+	On OpenGL you get units which are multiplied by the smallest value that is guaranteed to produce a resolvable offset. */
 	f32 PolygonOffsetDepthBias;
 
 	//! Variable Z-Buffer offset based on the slope of the polygon.
@@ -386,17 +294,30 @@ public:
 	and -1.f to pull them towards the camera.  */
 	f32 PolygonOffsetSlopeScale;
 
+	//! Is the ZBuffer enabled? Default: ECFN_LESSEQUAL
+	/** If you want to disable depth test for this material
+	just set this parameter to ECFN_DISABLED. */
+	E_COMPARISON_FUNC ZBuffer : 4;
+
+	//! Sets the antialiasing mode
+	/** Default is EAAM_SIMPLE, i.e. simple multi-sample anti-aliasing. */
+	E_ANTI_ALIASING_MODE AntiAliasing : 4;
+
+	//! Defines the enabled color planes
+	/** Values are defined as or'ed values of the E_COLOR_PLANE enum.
+	Only enabled color planes will be rendered to the current render
+	target. Typical use is to disable all colors when rendering only to
+	depth or stencil buffer, or using Red and Green for Stereo rendering. */
+	E_COLOR_PLANE ColorMask : 4;
+
+	//! Store the blend operation of choice
+	E_BLEND_OPERATION BlendOperation : 4;
+
 	//! Draw as wireframe or filled triangles? Default: false
 	bool Wireframe : 1;
 
 	//! Draw as point cloud or filled triangles? Default: false
 	bool PointCloud : 1;
-
-	//! Flat or Gouraud shading? Default: true
-	bool GouraudShading : 1;
-
-	//! Will this material be lighted? Default: true
-	bool Lighting : 1;
 
 	//! Is the zbuffer writable or is it read-only. Default: EZW_AUTO.
 	/** If this parameter is not EZW_OFF, you probably also want to set ZBuffer
@@ -411,10 +332,6 @@ public:
 
 	//! Is fog enabled? Default: false
 	bool FogEnable : 1;
-
-	//! Should normals be normalized?
-	/** Always use this if the mesh lit and scaled. Default: false */
-	bool NormalizeNormals : 1;
 
 	//! Shall mipmaps be used if available
 	/** Sometimes, disabling mipmap usage can be useful. Default: true */
@@ -486,35 +403,30 @@ public:
 	{
 		bool different =
 				MaterialType != b.MaterialType ||
-				AmbientColor != b.AmbientColor ||
-				DiffuseColor != b.DiffuseColor ||
-				EmissiveColor != b.EmissiveColor ||
-				SpecularColor != b.SpecularColor ||
-				Shininess != b.Shininess ||
+				ColorParam != b.ColorParam ||
 				MaterialTypeParam != b.MaterialTypeParam ||
 				Thickness != b.Thickness ||
 				Wireframe != b.Wireframe ||
 				PointCloud != b.PointCloud ||
-				GouraudShading != b.GouraudShading ||
-				Lighting != b.Lighting ||
 				ZBuffer != b.ZBuffer ||
 				ZWriteEnable != b.ZWriteEnable ||
 				BackfaceCulling != b.BackfaceCulling ||
 				FrontfaceCulling != b.FrontfaceCulling ||
 				FogEnable != b.FogEnable ||
-				NormalizeNormals != b.NormalizeNormals ||
 				AntiAliasing != b.AntiAliasing ||
 				ColorMask != b.ColorMask ||
-				ColorMaterial != b.ColorMaterial ||
 				BlendOperation != b.BlendOperation ||
 				BlendFactor != b.BlendFactor ||
 				PolygonOffsetDepthBias != b.PolygonOffsetDepthBias ||
 				PolygonOffsetSlopeScale != b.PolygonOffsetSlopeScale ||
 				UseMipMaps != b.UseMipMaps;
-		for (u32 i = 0; (i < MATERIAL_MAX_TEXTURES) && !different; ++i) {
-			different |= (TextureLayers[i] != b.TextureLayers[i]);
+		if (different)
+			return true;
+		for (u32 i = 0; i < MATERIAL_MAX_TEXTURES; ++i) {
+			if (TextureLayers[i] != b.TextureLayers[i])
+				return true;
 		}
-		return different;
+		return false;
 	}
 
 	//! Equality operator
@@ -560,6 +472,20 @@ public:
 };
 
 //! global const identity Material
-IRRLICHT_API extern SMaterial IdentityMaterial;
+IRRLICHT_API extern const SMaterial IdentityMaterial;
+
 } // end namespace video
 } // end namespace irr
+
+template<>
+struct std::hash<irr::video::SMaterial>
+{
+	/// @brief std::hash specialization for video::SMaterial
+	std::size_t operator()(const irr::video::SMaterial &m) const noexcept
+	{
+		// basic implementation that hashes the two things most likely to differ
+		auto h1 = std::hash<irr::video::ITexture*>{}(m.getTexture(0));
+		auto h2 = std::hash<int>{}(m.MaterialType);
+		return (h1 << 1) ^ h2;
+	}
+};

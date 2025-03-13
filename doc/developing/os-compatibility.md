@@ -2,7 +2,7 @@ OS/library compatibility policy
 ===============================
 
 This document describes how we decide which minimum versions of operating systems, C++ standards,
-libraries, build tools (CMake) or compilers Minetest requires.
+libraries, build tools (CMake) or compilers Luanti requires.
 
 Most important is that we do not increase our minimum requirements without a reason or use case.
 A reason can be as simple as "cleaning up legacy support code", but it needs to exist.
@@ -45,16 +45,11 @@ There's usually no reason to raise this unless the NDK drops older versions.
 
 **Compilers**: gcc, clang and MSVC (exceptions exist)
 
-**OpenGL** is an entirely different beast, there is no formal consensus on changing the requirements
-and neither do we have an exact set of requirements.
-
-We still support OpenGL 1.4 without shaders (fixed-pipeline), which could be considered very unreasonable in 2024.
-OpenGL ES 2.0 is supported for the sake of mobile platforms.
-
-It has been [proposed](https://irc.minetest.net/minetest-dev/2022-08-18) moving to OpenGL 2.x or 3.0 with shaders required.
+We require **OpenGL** 2.0 or ES 2.0, so shaders can be relied on.
+Graphics code should generally work on both. Newer features can be used as long as a fallback exists.
 
 General **system requirements** are not bounded either.
-Being able to play Minetest on a recent low-end phone is a reasonable target.
+Being able to play Luanti on a recent low-end phone is a reasonable target.
 
 ## On totality
 
@@ -71,7 +66,7 @@ Sound is optional at build-time but nobody would call an engine build without so
 
 In general also consider:
 * Is the proposition important enough to warrant a new dependency?
-* Can we make it easier for users to build the library together with Minetest?
+* Can we make it easier for users to build the library together with Luanti?
 * Maybe even vendor the library?
 * Or could the engine include a transparent fallback implementation?
 

@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2021 Liso <anlismon@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2021 Liso <anlismon@gmail.com>
 
 #pragma once
 
@@ -37,7 +22,6 @@ struct shadowFrustum
 	core::matrix4 ViewMat;
 	v3f position;
 	v3f player;
-	v3s16 camera_offset;
 };
 
 class DirectionalLight
@@ -49,9 +33,9 @@ public:
 			f32 farValue = 100.0f);
 	~DirectionalLight() = default;
 
-	//DISABLE_CLASS_COPY(DirectionalLight)
+	void updateCameraOffset(const Camera *cam);
 
-	void update_frustum(const Camera *cam, Client *client, bool force = false);
+	void updateFrustum(const Camera *cam, Client *client);
 
 	// when set direction is updated to negative normalized(direction)
 	void setDirection(v3f dir);
@@ -100,6 +84,7 @@ public:
 		return mapRes;
 	}
 
+	/// If true, shadow map needs to be invalidated due to frustum change
 	bool should_update_map_shadow{true};
 
 	void commitFrustum();

@@ -17,12 +17,7 @@ namespace scene
 struct SMesh final : public IMesh
 {
 	//! constructor
-	SMesh()
-	{
-#ifdef _DEBUG
-		setDebugName("SMesh");
-#endif
-	}
+	SMesh() {}
 
 	//! destructor
 	virtual ~SMesh()
@@ -138,7 +133,7 @@ struct SMesh final : public IMesh
 	std::vector<u32> TextureSlots;
 
 	//! The bounding box of this mesh
-	core::aabbox3d<f32> BoundingBox;
+	core::aabbox3d<f32> BoundingBox{{0, 0, 0}};
 };
 
 } // end namespace scene

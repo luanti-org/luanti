@@ -1,7 +1,7 @@
-local color = minetest.colorize
+local color = core.colorize
 
 -- \208\176 is a cyrillic small a
-local unsafe_url = minetest.formspec_escape("https://u:p@wikipedi\208\176.org:1233/heIIoll?a=b#c")
+local unsafe_url = core.formspec_escape("https://u:p@wikipedi\208\176.org:1233/heIIoll?a=b#c")
 
 local clip_fs = [[
 	style_type[label,button,image_button,item_image_button,
@@ -178,8 +178,8 @@ This is a test of the global tag. The parameters are:
 background=gray margin=20 valign=bottom halign=right color=pink hovercolor=purple size=12 font=mono
 <action name=global>action</action>]]
 
-local hypertext_fs = "hypertext[0,0;11,9;hypertext;"..minetest.formspec_escape(hypertext_basic).."]"..
-	"hypertext[0,9.5;11,2.5;hypertext;"..minetest.formspec_escape(hypertext_global).."]"
+local hypertext_fs = "hypertext[0,0;11,9;hypertext;"..core.formspec_escape(hypertext_basic).."]"..
+	"hypertext[0,9.5;11,2.5;hypertext;"..core.formspec_escape(hypertext_global).."]"
 
 local style_fs = [[
 	style[one_btn1;bgcolor=red;textcolor=yellow;bgcolor_hovered=orange;
@@ -255,11 +255,11 @@ local style_fs = [[
 
 	style[one_f3;textcolor=yellow]
 	textarea[0,7.025;2.5,0.8;one_f3;Label;]] ..
-		minetest.formspec_escape("Yellow Text\nLine two") .. [[ ]
+		core.formspec_escape("Yellow Text\nLine two") .. [[ ]
 
 	style[one_f4;border=false;textcolor=cyan]
 	textarea[0,8.324999999999999;2.5,0.8;one_f4;Label;]] ..
-		minetest.formspec_escape("Borderless Cyan Text\nLine two") .. [[ ]
+		core.formspec_escape("Borderless Cyan Text\nLine two") .. [[ ]
 
 	container_end[]
 ]]
@@ -299,7 +299,18 @@ local scroll_fs =
 	"scrollbaroptions[max=170]".. -- lowest seen pos is: 0.1*170+6=23 (factor*max+height)
 	"scrollbar[7.5,0;0.3,4;vertical;scrbar;0]"..
 	"scrollbar[8,0;0.3,4;vertical;scrbarhmmm;0]"..
-	"dropdown[0,6;2;hmdrpdwnnn;Outside,of,container;1]"
+	"dropdown[0,6;2;hmdrpdwnnn;Outside,of,container;1]"..
+	"scroll_container[0,8;10,4;scrbar420;vertical;0.1;2]"..
+		"button[0.5,0.5;10,1;;Container with padding=2]"..
+		"list[current_player;main;0,5;8,4;]"..
+	"scroll_container_end[]"..
+	"scrollbar[10.1,8;0.5,4;vertical;scrbar420;0]"..
+	-- Buttons for scale comparison
+	"button[11,8;1,1;;0]"..
+	"button[11,9;1,1;;1]"..
+	"button[11,10;1,1;;2]"..
+	"button[11,11;1,1;;3]"..
+	"button[11,12;1,1;;4]"
 
 --style_type[label;textcolor=green]
 --label[0,0;Green]
@@ -462,7 +473,7 @@ mouse control = true]
 		]],
 
 	-- Scroll containers
-		"formspec_version[3]size[12,13]" ..
+		"formspec_version[7]size[12,13]" ..
 		scroll_fs,
 
 	-- Sound
@@ -518,10 +529,10 @@ local function show_test_formspec(pname)
 
 	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Sound,Background,Unsized;" .. page_id .. ";false;false]"
 
-	minetest.show_formspec(pname, "testformspec:formspec", fs)
+	core.show_formspec(pname, "testformspec:formspec", fs)
 end
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "testformspec:formspec" then
 		return false
 	end
@@ -533,15 +544,15 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	end
 
 	if fields.ani_img_1 and fields.ani_btn_1 then
-		minetest.chat_send_player(player:get_player_name(), "ani_img_1 = " .. tostring(fields.ani_img_1))
+		core.chat_send_player(player:get_player_name(), "ani_img_1 = " .. tostring(fields.ani_img_1))
 		return true
 	elseif fields.ani_img_2 and fields.ani_btn_2 then
-		minetest.chat_send_player(player:get_player_name(), "ani_img_2 = " .. tostring(fields.ani_img_2))
+		core.chat_send_player(player:get_player_name(), "ani_img_2 = " .. tostring(fields.ani_img_2))
 		return true
 	end
 
 	if fields.hypertext then
-		minetest.chat_send_player(player:get_player_name(), "Hypertext action received: " .. tostring(fields.hypertext))
+		core.chat_send_player(player:get_player_name(), "Hypertext action received: " .. tostring(fields.hypertext))
 		return true
 	end
 
@@ -566,11 +577,11 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	end
 end)
 
-minetest.register_chatcommand("test_formspec", {
+core.register_chatcommand("test_formspec", {
 	params = "",
 	description = "Open the test formspec",
 	func = function(name)
-		if not minetest.get_player_by_name(name) then
+		if not core.get_player_by_name(name) then
 			return false, "You need to be online!"
 		end
 

@@ -1,4 +1,4 @@
 License information for Development Test
 ----------------------------------------
 
-The same license as for Minetest applies.
+The same license as for Luanti applies.

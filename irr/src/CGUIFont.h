@@ -58,8 +58,7 @@ public:
 	void setKerningHeight(s32 kerning) override;
 
 	//! set an Pixel Offset on Drawing ( scale position on width )
-	s32 getKerningWidth(const wchar_t *thisLetter = 0, const wchar_t *previousLetter = 0) const override;
-	s32 getKerningHeight() const override;
+	core::vector2di getKerning(const wchar_t thisLetter, const wchar_t previousLetter) const override;
 
 	//! gets the sprite bank
 	IGUISpriteBank *getSpriteBank() const override;

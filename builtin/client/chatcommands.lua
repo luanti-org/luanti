@@ -1,5 +1,3 @@
--- Minetest: builtin/client/chatcommands.lua
-
 core.register_on_sending_chat_message(function(message)
 	if message:sub(1,2) == ".." then
 		return false

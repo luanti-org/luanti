@@ -1,31 +1,17 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "texturesource.h"
 
 #include <IVideoDriver.h>
-#include "util/thread.h"
-#include "imagefilters.h"
 #include "guiscalingfilter.h"
-#include "renderingengine.h"
-#include "texturepaths.h"
+#include "imagefilters.h"
 #include "imagesource.h"
+#include "renderingengine.h"
+#include "settings.h"
+#include "texturepaths.h"
+#include "util/thread.h"
 
 
 // Stores internal information about a texture.
@@ -135,7 +121,6 @@ public:
 	// Shall be called from the main thread.
 	void rebuildImagesAndTextures();
 
-	video::ITexture* getNormalTexture(const std::string &name);
 	video::SColor getTextureAverageColor(const std::string &name);
 
 private:
@@ -502,40 +487,20 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 		m_texture_trash.push_back(t_old);
 }
 
-video::ITexture* TextureSource::getNormalTexture(const std::string &name)
-{
-	if (isKnownSourceImage("override_normal.png"))
-		return getTexture("override_normal.png");
-	std::string fname_base = name;
-	static const char *normal_ext = "_normal.png";
-	static const u32 normal_ext_size = strlen(normal_ext);
-	size_t pos = fname_base.find('.');
-	std::string fname_normal = fname_base.substr(0, pos) + normal_ext;
-	if (isKnownSourceImage(fname_normal)) {
-		// look for image extension and replace it
-		size_t i = 0;
-		while ((i = fname_base.find('.', i)) != std::string::npos) {
-			fname_base.replace(i, 4, normal_ext);
-			i += normal_ext_size;
-		}
-		return getTexture(fname_base);
-	}
-	return nullptr;
-}
-
 video::SColor TextureSource::getTextureAverageColor(const std::string &name)
 {
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	video::ITexture *texture = getTexture(name);
 	if (!texture)
 		return {0, 0, 0, 0};
+	// Note: this downloads the texture back from the GPU, which is pointless
 	video::IImage *image = driver->createImage(texture,
 		core::position2d<s32>(0, 0),
 		texture->getOriginalSize());
 	if (!image)
 		return {0, 0, 0, 0};
 
-	video::SColor c = ImageSource::getImageAverageColor(*image);
+	video::SColor c = imageAverageColor(image);
 	image->drop();
 
 	return c;

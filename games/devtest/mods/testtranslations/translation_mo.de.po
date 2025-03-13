@@ -1,0 +1,26 @@
+msgid ""
+msgstr "Plural-Forms: nplurals=2; plural= n != 1;"
+
+msgctxt "context"
+msgid "With context"
+msgstr "Has context"
+
+msgctxt "context"
+msgid "Singular form"
+msgid_plural "Plural form"
+msgstr[0] "Singular result"
+msgstr[1] "Plural result"
+
+# Replace plural form delimiter in the msgstr
+msgid "Corrupt singular"
+msgid_plural "Corrupt plural"
+msgstr[0] "Corrupt singular result"
+msgstr[1] "Corrupt plural result"
+
+# Replace terminating NUL in the MO file
+msgid "Corrupt entry"
+msgstr "Corrupted result"
+
+# Change the address of this entry to something invalid
+msgid "Removed entry"
+msgstr "Removed result"

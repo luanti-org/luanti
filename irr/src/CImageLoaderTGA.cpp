@@ -5,10 +5,10 @@
 #include "CImageLoaderTGA.h"
 
 #include "IReadFile.h"
+#include "coreutil.h"
 #include "os.h"
 #include "CColorConverter.h"
 #include "CImage.h"
-#include "irrString.h"
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
@@ -93,6 +93,25 @@ bool CImageLoaderTGA::isALoadableFileFormat(io::IReadFile *file) const
 	return (!strcmp(footer.Signature, "TRUEVISION-XFILE.")); // very old tgas are refused.
 }
 
+/// Converts *byte order* BGR to *endianness order* ARGB (SColor "=" u32)
+static void convert_BGR8_to_SColor(const u8 *src, u32 n, u32 *dst)
+{
+	for (u32 i = 0; i < n; ++i) {
+		const u8 *bgr = &src[3 * i];
+		dst[i] = 0xff000000 | (bgr[2] << 16) | (bgr[1] << 8) | bgr[0];
+	}
+}
+
+/// Converts *byte order* BGRA to *endianness order* ARGB (SColor "=" u32)
+/// Note: This just copies from src to dst on little endian.
+static void convert_BGRA8_to_SColor(const u8 *src, u32 n, u32 *dst)
+{
+	for (u32 i = 0; i < n; ++i) {
+		const u8 *bgra = &src[4 * i];
+		dst[i] = (bgra[3] << 24) | (bgra[2] << 16) | (bgra[1] << 8) | bgra[0];
+	}
+}
+
 //! creates a surface from the file
 IImage *CImageLoaderTGA::loadImage(io::IReadFile *file) const
 {
@@ -139,10 +158,10 @@ IImage *CImageLoaderTGA::loadImage(io::IReadFile *file) const
 			CColorConverter::convert_A1R5G5B5toA8R8G8B8(colorMap, header.ColorMapLength, palette);
 			break;
 		case 24:
-			CColorConverter::convert_B8G8R8toA8R8G8B8(colorMap, header.ColorMapLength, palette);
+			convert_BGR8_to_SColor(colorMap, header.ColorMapLength, palette);
 			break;
 		case 32:
-			CColorConverter::convert_B8G8R8A8toA8R8G8B8(colorMap, header.ColorMapLength, palette);
+			convert_BGRA8_to_SColor(colorMap, header.ColorMapLength, palette);
 			break;
 		}
 		delete[] colorMap;
@@ -181,27 +200,16 @@ IImage *CImageLoaderTGA::loadImage(io::IReadFile *file) const
 						header.ImageWidth, header.ImageHeight,
 						0, 0, (header.ImageDescriptor & 0x20) == 0);
 		} else {
-			switch (header.ColorMapEntrySize) {
-			case 16:
-				image = new CImage(ECF_A1R5G5B5, core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
-				if (image)
-					CColorConverter::convert8BitTo16Bit((u8 *)data,
-							(s16 *)image->getData(),
-							header.ImageWidth, header.ImageHeight,
-							(s32 *)palette, 0,
-							(header.ImageDescriptor & 0x20) == 0);
-				break;
-			// Note: 24 bit with palette would need a 24 bit palette, too lazy doing that now (textures will prefer 32-bit later anyway)
-			default:
-				image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
-				if (image)
-					CColorConverter::convert8BitTo32Bit((u8 *)data,
-							(u8 *)image->getData(),
-							header.ImageWidth, header.ImageHeight,
-							(u8 *)palette, 0,
-							(header.ImageDescriptor & 0x20) == 0);
-				break;
-			}
+			// Colormap is converted to A8R8G8B8 at this point – thus the code can handle all color formats.
+			// This wastes some texture memory, but is less of a third of the code that does this optimally.
+			// If you want to refactor this: The possible color formats here are A1R5G5B5, B8G8R8, B8G8R8A8.
+			image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
+			if (image)
+				CColorConverter::convert8BitTo32Bit((u8 *)data,
+						(u8 *)image->getData(),
+						header.ImageWidth, header.ImageHeight,
+						(u8 *)palette, 0,
+						(header.ImageDescriptor & 0x20) == 0);
 		}
 	} break;
 	case 16:

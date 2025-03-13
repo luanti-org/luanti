@@ -1,5 +1,3 @@
--- Minetest: builtin/game/chat.lua
-
 local S = core.get_translator("__builtin")
 
 -- Helper function that implements search and replace without pattern matching
@@ -1277,7 +1275,7 @@ core.register_chatcommand("msg", {
 		core.log("action", "DM from " .. name .. " to " .. sendto
 				.. ": " .. message)
 		core.chat_send_player(sendto, S("DM from @1: @2", name, message))
-		return true, S("Message sent.")
+		return true, S("DM sent to @1: @2", sendto, message)
 	end,
 })
 

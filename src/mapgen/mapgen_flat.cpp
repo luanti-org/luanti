@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2015-2020 paramat
-Copyright (C) 2015-2016 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2015-2020 paramat
+// Copyright (C) 2015-2016 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
 
 
 #include "mapgen.h"
@@ -38,7 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "mapgen_flat.h"
 
 
-FlagDesc flagdesc_mapgen_flat[] = {
+const FlagDesc flagdesc_mapgen_flat[] = {
 	{"lakes",   MGFLAT_LAKES},
 	{"hills",   MGFLAT_HILLS},
 	{"caverns", MGFLAT_CAVERNS},
@@ -187,7 +172,7 @@ int MapgenFlat::getSpawnLevelAtPoint(v2s16 p)
 		stone_level = ground_level - depress;
 	} else if ((spflags & MGFLAT_HILLS) && n_terrain > hill_threshold) {
 		s16 rise = (n_terrain - hill_threshold) * hill_steepness;
-	 	stone_level = ground_level + rise;
+		stone_level = ground_level + rise;
 	}
 
 	if (ground_level < water_level)
@@ -293,7 +278,7 @@ s16 MapgenFlat::generateTerrain()
 	MapNode n_stone(c_stone);
 	MapNode n_water(c_water_source);
 
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	s16 stone_surface_max_y = -MAX_MAP_GENERATION_LIMIT;
 	u32 ni2d = 0;
 
@@ -311,7 +296,7 @@ s16 MapgenFlat::generateTerrain()
 			stone_level = ground_level - depress;
 		} else if ((spflags & MGFLAT_HILLS) && n_terrain > hill_threshold) {
 			s16 rise = (n_terrain - hill_threshold) * hill_steepness;
-		 	stone_level = ground_level + rise;
+			stone_level = ground_level + rise;
 		}
 
 		u32 vi = vm->m_area.index(x, node_min.Y - 1, z);

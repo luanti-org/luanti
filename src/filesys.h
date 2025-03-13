@@ -1,24 +1,10 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
+#include "config.h"
 #include <set>
 #include <string>
 #include <string_view>
@@ -145,6 +131,12 @@ std::string RemoveRelativePathComponents(std::string path);
 // components and symlinks removed.  Returns "" on error.
 std::string AbsolutePath(const std::string &path);
 
+// This is a combination of RemoveRelativePathComponents() and AbsolutePath()
+// It will resolve symlinks for the leading path components that exist and
+// still remove "." and ".." in the rest of the path.
+// Returns "" on error.
+std::string AbsolutePathPartial(const std::string &path);
+
 // Returns the filename from a path or the entire path if no directory
 // delimiter is found.
 const char *GetFilenameFromPath(const char *path);
@@ -154,7 +146,7 @@ const char *GetFilenameFromPath(const char *path);
 // logs and returns false on error
 bool safeWriteToFile(const std::string &path, std::string_view content);
 
-#ifndef SERVER
+#if IS_CLIENT_BUILD
 bool extractZipFile(irr::io::IFileSystem *fs, const char *filename, const std::string &destination);
 #endif
 

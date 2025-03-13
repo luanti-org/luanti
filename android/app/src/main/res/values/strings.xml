@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="label">Minetest</string>
+	<string name="label">Luanti</string>
 	<string name="loading">Loading&#8230;</string>
 	<string name="notification_channel_name">General notification</string>
-	<string name="notification_channel_description">Notifications from Minetest</string>
-	<string name="unzip_notification_title">Loading Minetest</string>
+	<string name="notification_channel_description">Notifications from Luanti</string>
+	<string name="unzip_notification_title">Loading Luanti</string>
 	<string name="unzip_notification_description">Less than 1 minute&#8230;</string>
 	<string name="ime_dialog_done">Done</string>
 	<string name="no_web_browser">No web browser found</string>

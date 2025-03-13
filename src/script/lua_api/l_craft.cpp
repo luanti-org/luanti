@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 
 #include "lua_api/l_craft.h"
@@ -426,7 +411,7 @@ static void push_craft_recipe(lua_State *L, IGameDef *gdef,
 	CraftOutput output = recipe->getOutput(input, gdef);
 
 	lua_newtable(L); // items
-	std::vector<ItemStack>::const_iterator iter = input.items.begin();
+	auto iter = input.items.begin();
 	for (u16 j = 1; iter != input.items.end(); ++iter, j++) {
 		if (iter->empty())
 			continue;
@@ -472,7 +457,7 @@ static void push_craft_recipes(lua_State *L, IGameDef *gdef,
 
 	lua_createtable(L, recipes.size(), 0);
 
-	std::vector<CraftDefinition*>::const_iterator it = recipes.begin();
+	auto it = recipes.begin();
 	for (unsigned i = 0; it != recipes.end(); ++it) {
 		lua_newtable(L);
 		push_craft_recipe(L, gdef, *it, output);

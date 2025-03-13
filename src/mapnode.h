@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -160,7 +145,7 @@ struct alignas(u32) MapNode
 
 	MapNode() = default;
 
-	MapNode(content_t content, u8 a_param1=0, u8 a_param2=0) noexcept
+	constexpr MapNode(content_t content, u8 a_param1=0, u8 a_param2=0) noexcept
 		: param0(content),
 		  param1(a_param1),
 		  param2(a_param2)
@@ -171,6 +156,10 @@ struct alignas(u32) MapNode
 		return (param0 == other.param0
 				&& param1 == other.param1
 				&& param2 == other.param2);
+	}
+	bool operator!=(const MapNode &other) const noexcept
+	{
+		return !(*this == other);
 	}
 
 	// To be used everywhere
@@ -307,7 +296,7 @@ struct alignas(u32) MapNode
 
 	static u32 serializedLength(u8 version);
 	void serialize(u8 *dest, u8 version) const;
-	void deSerialize(u8 *source, u8 version);
+	void deSerialize(const u8 *source, u8 version);
 
 	// Serializes or deserializes a list of nodes in bulk format (first the
 	// content of all nodes, then the param1 of all nodes, then the param2

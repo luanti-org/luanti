@@ -6,14 +6,11 @@
 
 #include "IReferenceCounted.h"
 #include "irrArray.h"
-#include "irrString.h"
-#include "path.h"
 #include "vector3d.h"
 #include "dimension2d.h"
 #include "SColor.h"
 #include "ESceneNodeTypes.h"
-#include "SceneParameters.h"
-#include "ISkinnedMesh.h"
+#include "SceneParameters.h" // IWYU pragma: export
 
 namespace irr
 {
@@ -57,9 +54,6 @@ enum E_SCENE_NODE_RENDER_PASS
 	//! Camera pass. The active view is set up here. The very first pass.
 	ESNRP_CAMERA = 1,
 
-	//! In this pass, lights are transformed into camera space and added to the driver
-	ESNRP_LIGHT = 2,
-
 	//! This is used for sky boxes.
 	ESNRP_SKY_BOX = 4,
 
@@ -87,9 +81,6 @@ enum E_SCENE_NODE_RENDER_PASS
 	//! Transparent effect scene nodes, drawn after Transparent nodes. They are sorted from back to front and drawn in that order.
 	ESNRP_TRANSPARENT_EFFECT = 32,
 
-	//! Drawn after the solid nodes, before the transparent nodes, the time for drawing shadow volumes
-	ESNRP_SHADOW = 64,
-
 	//! Drawn after transparent effect nodes. For custom gui's. Unsorted (in order nodes registered themselves).
 	ESNRP_GUI = 128
 
@@ -101,6 +92,7 @@ class IBillboardSceneNode;
 class ICameraSceneNode;
 class IDummyTransformationSceneNode;
 class IMesh;
+class SkinnedMesh;
 class IMeshBuffer;
 class IMeshCache;
 class ISceneCollisionManager;
@@ -129,189 +121,6 @@ public:
 	//! Get pointer to an animatable mesh. Loads the file if not loaded already.
 	/**
 	 * If you want to remove a loaded mesh from the cache again, use removeMesh().
-	 *  Currently there are the following mesh formats supported:
-	 *  <TABLE border="1" cellpadding="2" cellspacing="0">
-	 *  <TR>
-	 *    <TD>Format</TD>
-	 *    <TD>Description</TD>
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>3D Studio (.3ds)</TD>
-	 *    <TD>Loader for 3D-Studio files which lots of 3D packages
-	 *      are able to export. Only static meshes are currently
-	 *      supported by this importer.</TD>
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>3D World Studio (.smf)</TD>
-	 *    <TD>Loader for Leadwerks SMF mesh files, a simple mesh format
-	 *    containing static geometry for games. The proprietary .STF texture format
-	 *    is not supported yet. This loader was originally written by Joseph Ellis. </TD>
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>Bliz Basic B3D (.b3d)</TD>
-	 *    <TD>Loader for blitz basic files, developed by Mark
-	 *      Sibly. This is the ideal animated mesh format for game
-	 *      characters as it is both rigidly defined and widely
-	 *      supported by modeling and animation software.
-	 *      As this format supports skeletal animations, an
-	 *      ISkinnedMesh will be returned by this importer.</TD>
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>Cartography shop 4 (.csm)</TD>
-	 *    <TD>Cartography Shop is a modeling program for creating
-	 *      architecture and calculating lighting. Irrlicht can
-	 *      directly import .csm files thanks to the IrrCSM library
-	 *      created by Saurav Mohapatra which is now integrated
-	 *      directly in Irrlicht.
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>Delgine DeleD (.dmf)</TD>
-	 *    <TD>DeleD (delgine.com) is a 3D editor and level-editor
-	 *        combined into one and is specifically designed for 3D
-	 *        game-development. With this loader, it is possible to
-	 *        directly load all geometry is as well as textures and
-	 *        lightmaps from .dmf files. To set texture and
-	 *        material paths, see scene::DMF_USE_MATERIALS_DIRS.
-	 *        It is also possible to flip the alpha texture by setting
-	 *        scene::DMF_FLIP_ALPHA_TEXTURES to true and to set the
-	 *        material transparent reference value by setting
-	 *        scene::DMF_ALPHA_CHANNEL_REF to a float between 0 and
-	 *        1. The loader is based on Salvatore Russo's .dmf
-	 *        loader, I just changed some parts of it. Thanks to
-	 *        Salvatore for his work and for allowing me to use his
-	 *        code in Irrlicht and put it under Irrlicht's license.
-	 *        For newer and more enhanced versions of the loader,
-	 *        take a look at delgine.com.
-	 *    </TD>
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>DirectX (.x)</TD>
-	 *    <TD>Platform independent importer (so not D3D-only) for
-	 *      .x files. Most 3D packages can export these natively
-	 *      and there are several tools for them available, e.g.
-	 *      the Maya exporter included in the DX SDK.
-	 *      .x files can include skeletal animations and Irrlicht
-	 *      is able to play and display them, users can manipulate
-	 *      the joints via the ISkinnedMesh interface. Currently,
-	 *      Irrlicht only supports uncompressed .x files.</TD>
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>Half-Life model (.mdl)</TD>
-	 *    <TD>This loader opens Half-life 1 models, it was contributed
-	 *        by Fabio Concas and adapted by Thomas Alten.</TD>
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>LightWave (.lwo)</TD>
-	 *    <TD>Native to NewTek's LightWave 3D, the LWO format is well
-	 *      known and supported by many exporters. This loader will
-	 *      import LWO2 models including lightmaps, bumpmaps and
-	 *      reflection textures.</TD>
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>Maya (.obj)</TD>
-	 *    <TD>Most 3D software can create .obj files which contain
-	 *      static geometry without material data. The material
-	 *      files .mtl are also supported. This importer for
-	 *      Irrlicht can load them directly. </TD>
-	 *  </TR>
-	 *  <TR>
-	 *    <TD>Milkshape (.ms3d)</TD>
-	 *    <TD>.MS3D files contain models and sometimes skeletal
-	 *      animations from the Milkshape 3D modeling and animation
-	 *      software. Like the other skeletal mesh loaders, joints
-	 *      are exposed via the ISkinnedMesh animated mesh type.</TD>
-	 *  </TR>
-	 *  <TR>
-	 *  <TD>My3D (.my3d)</TD>
-	 *      <TD>.my3D is a flexible 3D file format. The My3DTools
-	 *        contains plug-ins to export .my3D files from several
-	 *        3D packages. With this built-in importer, Irrlicht
-	 *        can read and display those files directly. This
-	 *        loader was written by Zhuck Dimitry who also created
-	 *        the whole My3DTools package.
-	 *        </TD>
-	 *    </TR>
-	 *    <TR>
-	 *      <TD>OCT (.oct)</TD>
-	 *      <TD>The oct file format contains 3D geometry and
-	 *        lightmaps and can be loaded directly by Irrlicht. OCT
-	 *        files<br> can be created by FSRad, Paul Nette's
-	 *        radiosity processor or exported from Blender using
-	 *        OCTTools which can be found in the exporters/OCTTools
-	 *        directory of the SDK. Thanks to Murphy McCauley for
-	 *        creating all this.</TD>
-	 *    </TR>
-	 *    <TR>
-	 *      <TD>OGRE Meshes (.mesh)</TD>
-	 *      <TD>Ogre .mesh files contain 3D data for the OGRE 3D
-	 *        engine. Irrlicht can read and display them directly
-	 *        with this importer. To define materials for the mesh,
-	 *        copy a .material file named like the corresponding
-	 *        .mesh file where the .mesh file is. (For example
-	 *        ogrehead.material for ogrehead.mesh). Thanks to
-	 *        Christian Stehno who wrote and contributed this
-	 *        loader.</TD>
-	 *    </TR>
-	 *    <TR>
-	 *      <TD>Pulsar LMTools (.lmts)</TD>
-	 *      <TD>LMTools is a set of tools (Windows &amp; Linux) for
-	 *        creating lightmaps. Irrlicht can directly read .lmts
-	 *        files thanks to<br> the importer created by Jonas
-	 *        Petersen.
-	 *        Notes for<br> this version of the loader:<br>
-	 *        - It does not recognize/support user data in the
-	 *          *.lmts files.<br>
-	 *        - The TGAs generated by LMTools don't work in
-	 *          Irrlicht for some reason (the textures are upside
-	 *          down). Opening and resaving them in a graphics app
-	 *          will solve the problem.</TD>
-	 *    </TR>
-	 *    <TR>
-	 *      <TD>Quake 3 levels (.bsp)</TD>
-	 *      <TD>Quake 3 is a popular game by IDSoftware, and .pk3
-	 *        files contain .bsp files and textures/lightmaps
-	 *        describing huge prelighted levels. Irrlicht can read
-	 *        .pk3 and .bsp files directly and thus render Quake 3
-	 *        levels directly. Written by Nikolaus Gebhardt
-	 *        enhanced by Dean P. Macri with the curved surfaces
-	 *        feature. </TD>
-	 *    </TR>
-	 *    <TR>
-	 *      <TD>Quake 2 models (.md2)</TD>
-	 *      <TD>Quake 2 models are characters with morph target
-	 *        animation. Irrlicht can read, display and animate
-	 *        them directly with this importer. </TD>
-	 *    </TR>
-	 *    <TR>
-	 *      <TD>Quake 3 models (.md3)</TD>
-	 *      <TD>Quake 3 models are characters with morph target
-	 *        animation, they contain mount points for weapons and body
-	 *        parts and are typically made of several sections which are
-	 *        manually joined together.</TD>
-	 *    </TR>
-	 *    <TR>
-	 *      <TD>Stanford Triangle (.ply)</TD>
-	 *      <TD>Invented by Stanford University and known as the native
-	 *        format of the infamous "Stanford Bunny" model, this is a
-	 *        popular static mesh format used by 3D scanning hardware
-	 *        and software. This loader supports extremely large models
-	 *        in both ASCII and binary format, but only has rudimentary
-	 *        material support in the form of vertex colors and texture
-	 *        coordinates.</TD>
-	 *    </TR>
-	 *    <TR>
-	 *      <TD>Stereolithography (.stl)</TD>
-	 *      <TD>The STL format is used for rapid prototyping and
-	 *        computer-aided manufacturing, thus has no support for
-	 *        materials.</TD>
-	 *    </TR>
-	 *  </TABLE>
-	 *
-	 *  To load and display a mesh quickly, just do this:
-	 *  \code
-	 *  SceneManager->addAnimatedMeshSceneNode(
-	 *		SceneManager->getMesh("yourmesh.3ds"));
-	 * \endcode
 	 * If you would like to implement and add your own file format loader to Irrlicht,
 	 * see addExternalMeshLoader().
 	 * \param file File handle of the mesh to load.
@@ -578,6 +387,14 @@ public:
 	pass currently is active they can render the correct part of their geometry. */
 	virtual E_SCENE_NODE_RENDER_PASS getSceneNodeRenderPass() const = 0;
 
+	/**
+	 * Sets debug data flags that will be set on every rendered scene node.
+	 * Refer to `E_DEBUG_SCENE_TYPE`.
+	 * @param setBits bit mask of types to enable
+	 * @param unsetBits bit mask of types to disable
+	 */
+	virtual void setGlobalDebugData(u16 setBits, u16 unsetBits) = 0;
+
 	//! Creates a new scene manager.
 	/** This can be used to easily draw and/or store two
 	independent scenes at the same time. The mesh cache will be
@@ -602,13 +419,7 @@ public:
 	//! Get a skinned mesh, which is not available as header-only code
 	/** Note: You need to drop() the pointer after use again, see IReferenceCounted::drop()
 	for details. */
-	virtual ISkinnedMesh *createSkinnedMesh() = 0;
-
-	//! Sets ambient color of the scene
-	virtual void setAmbientLight(const video::SColorf &ambientColor) = 0;
-
-	//! Get ambient color of the scene
-	virtual const video::SColorf &getAmbientLight() const = 0;
+	virtual SkinnedMesh *createSkinnedMesh() = 0;
 
 	//! Get current render pass.
 	virtual E_SCENE_NODE_RENDER_PASS getCurrentRenderPass() const = 0;

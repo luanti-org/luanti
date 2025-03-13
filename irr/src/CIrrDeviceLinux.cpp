@@ -38,7 +38,7 @@
 #include "CEGLManager.h"
 #endif
 
-#if defined(_IRR_COMPILE_WITH_OPENGL_)
+#if defined(_IRR_COMPILE_WITH_GLX_MANAGER_)
 #include "CGLXManager.h"
 #endif
 
@@ -68,24 +68,6 @@
 #endif
 
 #endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
-
-namespace irr
-{
-namespace video
-{
-#ifdef _IRR_COMPILE_WITH_OPENGL_
-IVideoDriver *createOpenGLDriver(const irr::SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
-#endif
-
-#ifdef _IRR_COMPILE_WITH_OGLES2_
-IVideoDriver *createOGLES2Driver(const irr::SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
-#endif
-
-#ifdef _IRR_COMPILE_WITH_WEBGL1_
-IVideoDriver *createWebGL1Driver(const irr::SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
-#endif
-}
-} // end namespace irr
 
 namespace
 {
@@ -123,10 +105,6 @@ CIrrDeviceLinux::CIrrDeviceLinux(const SIrrlichtCreationParameters &param) :
 		WindowHasFocus(false), WindowMinimized(false), WindowMaximized(param.WindowMaximized),
 		ExternalWindow(false), AutorepeatSupport(0)
 {
-#ifdef _DEBUG
-	setDebugName("CIrrDeviceLinux");
-#endif
-
 	// print version, distribution etc.
 	// thx to LynxLuna for pointing me to the uname function
 	core::stringc linuxversion;
@@ -286,10 +264,10 @@ void CIrrDeviceLinux::setupTopLevelXorgWindow()
 	os::Printer::log("Configuring X11-specific top level window properties", ELL_DEBUG);
 
 	// Set application name and class hints. For now name and class are the same.
-	// Note: SDL uses the executable name here (i.e. "minetest").
+	// Note: SDL uses the executable name here (i.e. "luanti").
 	XClassHint *classhint = XAllocClassHint();
-	classhint->res_name = const_cast<char *>("Minetest");
-	classhint->res_class = const_cast<char *>("Minetest");
+	classhint->res_name = const_cast<char *>("Luanti");
+	classhint->res_class = const_cast<char *>("Luanti");
 
 	XSetClassHint(XDisplay, XWindow, classhint);
 	XFree(classhint);
@@ -397,10 +375,11 @@ bool CIrrDeviceLinux::createWindow()
 	if (WMCheck != None)
 		HasNetWM = true;
 
-#if defined(_IRR_COMPILE_WITH_OPENGL_)
+#if defined(_IRR_COMPILE_WITH_GLX_MANAGER_)
 	// don't use the XVisual with OpenGL, because it ignores all requested
 	// properties of the CreationParams
-	if (CreationParams.DriverType == video::EDT_OPENGL) {
+	if (CreationParams.DriverType == video::EDT_OPENGL
+			|| CreationParams.DriverType == video::EDT_OPENGL3) {
 		video::SExposedVideoData data;
 		data.OpenGLLinux.X11Display = XDisplay;
 		ContextManager = new video::CGLXManager(CreationParams, data, Screennr);
@@ -539,51 +518,54 @@ void CIrrDeviceLinux::createDriver()
 	switch (CreationParams.DriverType) {
 #ifdef _IRR_COMPILE_WITH_X11_
 	case video::EDT_OPENGL:
-#ifdef _IRR_COMPILE_WITH_OPENGL_
 	{
+#ifdef _IRR_COMPILE_WITH_OPENGL_
 		video::SExposedVideoData data;
 		data.OpenGLLinux.X11Window = XWindow;
 		data.OpenGLLinux.X11Display = XDisplay;
 
 		ContextManager->initialize(CreationParams, data);
-
+#endif
 		VideoDriver = video::createOpenGLDriver(CreationParams, FileSystem, ContextManager);
 	}
-#else
-		os::Printer::log("No OpenGL support compiled in.", ELL_ERROR);
+	break;
+	case video::EDT_OPENGL3:
+	{
+#ifdef ENABLE_OPENGL3
+		video::SExposedVideoData data;
+		data.OpenGLLinux.X11Window = XWindow;
+		data.OpenGLLinux.X11Display = XDisplay;
+
+		ContextManager->initialize(CreationParams, data);
 #endif
+		VideoDriver = video::createOpenGL3Driver(CreationParams, FileSystem, ContextManager);
+	}
 	break;
 	case video::EDT_OGLES2:
-#ifdef _IRR_COMPILE_WITH_OGLES2_
 	{
+#ifdef _IRR_COMPILE_WITH_OGLES2_
 		video::SExposedVideoData data;
 		data.OpenGLLinux.X11Window = XWindow;
 		data.OpenGLLinux.X11Display = XDisplay;
 
 		ContextManager = new video::CEGLManager();
 		ContextManager->initialize(CreationParams, data);
-
+#endif
 		VideoDriver = video::createOGLES2Driver(CreationParams, FileSystem, ContextManager);
 	}
-#else
-		os::Printer::log("No OpenGL-ES2 support compiled in.", ELL_ERROR);
-#endif
 	break;
 	case video::EDT_WEBGL1:
-#ifdef _IRR_COMPILE_WITH_WEBGL1_
 	{
+#ifdef _IRR_COMPILE_WITH_WEBGL1_
 		video::SExposedVideoData data;
 		data.OpenGLLinux.X11Window = XWindow;
 		data.OpenGLLinux.X11Display = XDisplay;
 
 		ContextManager = new video::CEGLManager();
 		ContextManager->initialize(CreationParams, data);
-
+#endif
 		VideoDriver = video::createWebGL1Driver(CreationParams, FileSystem, ContextManager);
 	}
-#else
-		os::Printer::log("No WebGL1 support compiled in.", ELL_ERROR);
-#endif
 	break;
 	case video::EDT_NULL:
 		VideoDriver = video::createNullDriver(FileSystem, CreationParams.WindowSize);
@@ -591,7 +573,7 @@ void CIrrDeviceLinux::createDriver()
 	default:
 		os::Printer::log("Unable to create video driver of unknown type.", ELL_ERROR);
 		break;
-#else
+#else // no X11
 	case video::EDT_NULL:
 		VideoDriver = video::createNullDriver(FileSystem, CreationParams.WindowSize);
 		break;
@@ -1205,6 +1187,17 @@ bool CIrrDeviceLinux::isWindowMaximized() const
 	return WindowMaximized;
 }
 
+//! Checks if the Irrlicht device supports touch events.
+bool CIrrDeviceLinux::supportsTouchEvents() const
+{
+#if defined(_IRR_LINUX_X11_XINPUT2_)
+	return true;
+#else
+	return false;
+#endif
+}
+
+
 //! returns color format of the window.
 video::ECOLOR_FORMAT CIrrDeviceLinux::getColorFormat() const
 {
@@ -1570,7 +1563,6 @@ bool CIrrDeviceLinux::activateJoysticks(core::array<SJoystickInfo> &joystickInfo
 		fcntl(info.fd, F_SETFL, O_NONBLOCK);
 #endif
 
-		(void)memset(&info.persistentData, 0, sizeof(info.persistentData));
 		info.persistentData.EventType = irr::EET_JOYSTICK_INPUT_EVENT;
 		info.persistentData.JoystickEvent.Joystick = ActiveJoysticks.size();
 
@@ -1955,7 +1947,8 @@ Cursor CIrrDeviceLinux::TextureToMonochromeCursor(irr::video::ITexture *tex, con
 				XPutPixel(sourceImage, x, y, 0);
 			} else // color
 			{
-				if (pixelCol.getAverage() >= 127)
+				if ((pixelCol.getRed() + pixelCol.getGreen() +
+						pixelCol.getBlue()) / 3 >= 127)
 					XPutPixel(sourceImage, x, y, 1);
 				else
 					XPutPixel(sourceImage, x, y, 0);

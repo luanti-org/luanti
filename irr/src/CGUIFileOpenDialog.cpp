@@ -33,10 +33,6 @@ CGUIFileOpenDialog::CGUIFileOpenDialog(const wchar_t *title,
 						(parent->getAbsolutePosition().getHeight() - FOD_HEIGHT) / 2 + FOD_HEIGHT)),
 		FileNameText(0), FileList(0), Dragging(false)
 {
-#ifdef _DEBUG
-	IGUIElement::setDebugName("CGUIFileOpenDialog");
-#endif
-
 	Text = title;
 
 	FileSystem = Environment ? Environment->getFileSystem() : 0;

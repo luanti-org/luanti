@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -202,6 +187,7 @@ struct BufferedPacket {
 	DISABLE_CLASS_COPY(BufferedPacket)
 
 	u16 getSeqnum() const;
+	void setSenderPeerId(session_t id);
 
 	inline size_t size() const { return m_data.size(); }
 
@@ -265,6 +251,8 @@ public:
 	BufferedPacketPtr popFirst();
 	BufferedPacketPtr popSeqnum(u16 seqnum);
 	void insert(BufferedPacketPtr &p_ptr, u16 next_expected);
+	/// Adjusts the sender peer ID for all packets
+	void fixPeerId(session_t id);
 
 	void incrementTimeouts(float dtime);
 	u32 getTimedOuts(float timeout);
@@ -322,7 +310,8 @@ enum ConnectionCommandType{
 	CONNCMD_SEND_TO_ALL,
 	CONCMD_ACK,
 	CONCMD_CREATE_PEER,
-	CONNCMD_RESEND_ONE
+	CONNCMD_RESEND_ONE,
+	CONNCMD_PEER_ID_SET
 };
 
 // This is very similar to ConnectionEvent
@@ -343,6 +332,7 @@ struct ConnectionCommand
 	static ConnectionCommandPtr disconnect();
 	static ConnectionCommandPtr disconnect_peer(session_t peer_id);
 	static ConnectionCommandPtr resend_one(session_t peer_id);
+	static ConnectionCommandPtr peer_id_set(session_t own_peer_id);
 	static ConnectionCommandPtr send(session_t peer_id, u8 channelnum, NetworkPacket *pkt, bool reliable);
 	static ConnectionCommandPtr ack(session_t peer_id, u8 channelnum, const Buffer<u8> &data);
 	static ConnectionCommandPtr createPeer(session_t peer_id, const Buffer<u8> &data);
@@ -354,15 +344,24 @@ private:
 	static ConnectionCommandPtr create(ConnectionCommandType type);
 };
 
-/* maximum window size to use, 0xFFFF is theoretical maximum. don't think about
+/*
+ * Window sizes to use, in packets (not bytes!).
+ * 0xFFFF is theoretical maximum. don't think about
  * touching it, the less you're away from it the more likely data corruption
  * will occur
+ *
+ * Note: window sizes directly translate to maximum possible throughput, e.g.
+ *       (2048 * 512 bytes) / 33ms = 15 MiB/s
  */
+
+// Due to backwards compatibility we have different window sizes for what we'll
+// accept from peers vs. what we use for sending.
 #define MAX_RELIABLE_WINDOW_SIZE 0x8000
+#define MAX_RELIABLE_WINDOW_SIZE_SEND 2048
 /* starting value for window size */
-#define START_RELIABLE_WINDOW_SIZE 0x400
+#define START_RELIABLE_WINDOW_SIZE 64
 /* minimum value for window size */
-#define MIN_RELIABLE_WINDOW_SIZE 0x40
+#define MIN_RELIABLE_WINDOW_SIZE 32
 
 class Channel
 {
@@ -430,7 +429,7 @@ public:
 
 	void setWindowSize(long size)
 	{
-		m_window_size = (u16)rangelim(size, MIN_RELIABLE_WINDOW_SIZE, MAX_RELIABLE_WINDOW_SIZE);
+		m_window_size = (u16)rangelim(size, MIN_RELIABLE_WINDOW_SIZE, MAX_RELIABLE_WINDOW_SIZE_SEND);
 	}
 
 private:

@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2014-2018 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-Copyright (C) 2015-2018 paramat
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2014-2018 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
+// Copyright (C) 2015-2018 paramat
 
 #include <fstream>
 #include "mg_schematic.h"
@@ -142,7 +127,7 @@ void Schematic::blitToVManip(MMVManip *vm, v3s16 p, Rotation rot, bool force_pla
 			i_start  = sx - 1;
 			i_step_x = zstride;
 			i_step_z = -xstride;
-			SWAP(s16, sx, sz);
+			std::swap(sx, sz);
 			break;
 		case ROTATE_180:
 			i_start  = zstride * (sz - 1) + sx - 1;
@@ -153,7 +138,7 @@ void Schematic::blitToVManip(MMVManip *vm, v3s16 p, Rotation rot, bool force_pla
 			i_start  = zstride * (sz - 1);
 			i_step_x = -zstride;
 			i_step_z = xstride;
-			SWAP(s16, sx, sz);
+			std::swap(sx, sz);
 			break;
 		default:
 			i_start  = 0;
@@ -237,7 +222,6 @@ void Schematic::placeOnMap(ServerMap *map, v3s16 p, u32 flags,
 	Rotation rot, bool force_place)
 {
 	std::map<v3s16, MapBlock *> modified_blocks;
-	std::map<v3s16, MapBlock *>::iterator it;
 
 	assert(map != NULL);
 	assert(schemdata != NULL);

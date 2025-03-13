@@ -5,6 +5,7 @@
 #pragma once
 
 #include "IGUIElement.h"
+#include "SColor.h"
 
 namespace irr
 {

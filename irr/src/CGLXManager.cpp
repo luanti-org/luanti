@@ -23,10 +23,6 @@ namespace video
 CGLXManager::CGLXManager(const SIrrlichtCreationParameters &params, const SExposedVideoData &videodata, int screennr) :
 		Params(params), PrimaryContext(videodata), VisualInfo(0), glxFBConfig(0), GlxWin(0)
 {
-#ifdef _DEBUG
-	setDebugName("CGLXManager");
-#endif
-
 	CurrentContext.OpenGLLinux.X11Display = PrimaryContext.OpenGLLinux.X11Display;
 
 	int major, minor;

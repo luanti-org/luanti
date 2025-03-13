@@ -1,7 +1,7 @@
-/** @mainpage The Minetest engine internal documentation
+/** @mainpage The Luanti engine internal documentation
 
-Welcome to the Minetest engine Doxygen documentation site!\n
-This page documents the internal structure of the Minetest engine's C++ code.\n
+Welcome to the Luanti engine Doxygen documentation site!\n
+This page documents the internal structure of the Luanti engine's C++ code.\n
 Use the tree view at the left to navigate.
 
 */

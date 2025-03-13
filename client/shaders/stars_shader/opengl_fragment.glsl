@@ -1,6 +1,6 @@
-uniform lowp vec4 emissiveColor;
+uniform lowp vec4 materialColor;
 
 void main(void)
 {
-	gl_FragColor = emissiveColor;
+	gl_FragColor = materialColor;
 }

@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "socket.h"
 
@@ -49,9 +34,6 @@ typedef int socklen_t;
 #define LAST_SOCKET_ERR() (errno)
 #define SOCKET_ERR_STR(e) strerror(e)
 #endif
-
-// Set to true to enable verbose debug output
-bool socket_enable_debug_output = false; // yuck
 
 static bool g_sockets_initialized = false;
 
@@ -104,42 +86,22 @@ bool UDPSocket::init(bool ipv6, bool noExceptions)
 	m_addr_family = ipv6 ? AF_INET6 : AF_INET;
 	m_handle = socket(m_addr_family, SOCK_DGRAM, IPPROTO_UDP);
 
-	if (socket_enable_debug_output) {
-		tracestream << "UDPSocket(" << (int)m_handle
-			<< ")::UDPSocket(): ipv6 = " << (ipv6 ? "true" : "false")
-			<< std::endl;
-	}
-
 	if (m_handle < 0) {
-		if (noExceptions) {
+		auto msg = std::string("Failed to create socket: ") +
+			SOCKET_ERR_STR(LAST_SOCKET_ERR());
+		verbosestream << msg << std::endl;
+		if (noExceptions)
 			return false;
-		}
-
-		throw SocketException(std::string("Failed to create socket: error ") +
-				      SOCKET_ERR_STR(LAST_SOCKET_ERR()));
+		throw SocketException(msg);
 	}
 
 	setTimeoutMs(0);
-
-	if (m_addr_family == AF_INET6) {
-		// Allow our socket to accept both IPv4 and IPv6 connections
-		// required on Windows:
-		// https://msdn.microsoft.com/en-us/library/windows/desktop/bb513665(v=vs.85).aspx
-		int value = 0;
-		setsockopt(m_handle, IPPROTO_IPV6, IPV6_V6ONLY,
-				reinterpret_cast<char *>(&value), sizeof(value));
-	}
 
 	return true;
 }
 
 UDPSocket::~UDPSocket()
 {
-	if (socket_enable_debug_output) {
-		tracestream << "UDPSocket( " << (int)m_handle << ")::~UDPSocket()"
-			<< std::endl;
-	}
-
 	if (m_handle >= 0) {
 #ifdef _WIN32
 		closesocket(m_handle);
@@ -151,17 +113,25 @@ UDPSocket::~UDPSocket()
 
 void UDPSocket::Bind(Address addr)
 {
-	if (socket_enable_debug_output) {
-		tracestream << "UDPSocket(" << (int)m_handle
-			<< ")::Bind(): " << addr.serializeString() << ":"
-			<< addr.getPort() << std::endl;
-	}
-
 	if (addr.getFamily() != m_addr_family) {
 		const char *errmsg =
 				"Socket and bind address families do not match";
 		errorstream << "Bind failed: " << errmsg << std::endl;
 		throw SocketException(errmsg);
+	}
+
+	if (m_addr_family == AF_INET6) {
+		// Allow our socket to accept both IPv4 and IPv6 connections
+		// required on Windows:
+		// <https://msdn.microsoft.com/en-us/library/windows/desktop/bb513665(v=vs.85).aspx>
+		int value = 0;
+		if (setsockopt(m_handle, IPPROTO_IPV6, IPV6_V6ONLY,
+				reinterpret_cast<char *>(&value), sizeof(value)) != 0) {
+			auto errmsg = SOCKET_ERR_STR(LAST_SOCKET_ERR());
+			errorstream << "Failed to disable V6ONLY: " << errmsg
+				<< "\nTry disabling ipv6_server to fix this." << std::endl;
+			throw SocketException(errmsg);
+		}
 	}
 
 	int ret = 0;
@@ -201,30 +171,6 @@ void UDPSocket::Send(const Address &destination, const void *data, int size)
 
 	if (INTERNET_SIMULATOR)
 		dumping_packet = myrand() % INTERNET_SIMULATOR_PACKET_LOSS == 0;
-
-	if (socket_enable_debug_output) {
-		// Print packet destination and size
-		tracestream << (int)m_handle << " -> ";
-		destination.print(tracestream);
-		tracestream << ", size=" << size;
-
-		// Print packet contents
-		tracestream << ", data=";
-		for (int i = 0; i < size && i < 20; i++) {
-			if (i % 2 == 0)
-				tracestream << " ";
-			unsigned int a = ((const unsigned char *)data)[i];
-			tracestream << std::hex << std::setw(2) << std::setfill('0') << a;
-		}
-
-		if (size > 20)
-			tracestream << "...";
-
-		if (dumping_packet)
-			tracestream << " (DUMPED BY INTERNET_SIMULATOR)";
-
-		tracestream << std::endl;
-	}
 
 	if (dumping_packet) {
 		// Lol let's forget it
@@ -300,26 +246,6 @@ int UDPSocket::Receive(Address &sender, void *data, int size)
 		u16 address_port = ntohs(address.sin_port);
 
 		sender = Address(address_ip, address_port);
-	}
-
-	if (socket_enable_debug_output) {
-		// Print packet sender and size
-		tracestream << (int)m_handle << " <- ";
-		sender.print(tracestream);
-		tracestream << ", size=" << received;
-
-		// Print packet contents
-		tracestream << ", data=";
-		for (int i = 0; i < received && i < 20; i++) {
-			if (i % 2 == 0)
-				tracestream << " ";
-			unsigned int a = ((const unsigned char *)data)[i];
-			tracestream << std::hex << std::setw(2) << std::setfill('0') << a;
-		}
-		if (received > 20)
-			tracestream << "...";
-
-		tracestream << std::endl;
 	}
 
 	return received;

@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "inventory.h"
 #include "serialization.h"
@@ -310,10 +295,8 @@ std::string ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
 v3f ItemStack::getWieldScale(const IItemDefManager *itemdef) const
 {
 	std::string scale = metadata.getString("wield_scale");
-	if (scale.empty())
-		return getDefinition(itemdef).wield_scale;
 
-	return str_to_v3f(scale);
+	return str_to_v3f(scale).value_or(getDefinition(itemdef).wield_scale);
 }
 
 ItemStack ItemStack::addItem(ItemStack newitem, IItemDefManager *itemdef)
@@ -710,11 +693,11 @@ bool InventoryList::containsItem(const ItemStack &item, bool match_meta) const
 	return false;
 }
 
-ItemStack InventoryList::removeItem(const ItemStack &item)
+ItemStack InventoryList::removeItem(const ItemStack &item, bool match_meta)
 {
 	ItemStack removed;
 	for (auto i = m_items.rbegin(); i != m_items.rend(); ++i) {
-		if (i->name == item.name) {
+		if (i->name == item.name && (!match_meta || i->metadata == item.metadata)) {
 			u32 still_to_remove = item.count - removed.count;
 			ItemStack leftover = removed.addItem(i->takeItem(still_to_remove),
 					m_itemdef);

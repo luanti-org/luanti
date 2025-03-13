@@ -5,8 +5,7 @@
 #pragma once
 
 #include "IReferenceCounted.h"
-#include "irrString.h"
-#include "coreutil.h"
+#include "path.h"
 
 namespace irr
 {

@@ -25,12 +25,12 @@ local function place_nodes(param)
 	local pos = param.pos
 	local start_pos = param.start_pos
 	table.sort(nodes)
-	minetest.chat_send_player(name, "Placing nodes …")
+	core.chat_send_player(name, "Placing nodes …")
 	local nodes_placed = 0
 	local aborted = false
 	for n=1, #nodes do
 		local itemstring = nodes[n]
-		local def = minetest.registered_nodes[itemstring]
+		local def = core.registered_nodes[itemstring]
 		local p2_max = 0
 		if param.param ~= "no_param2" then
 			-- Also test the param2 values of the nodes
@@ -64,7 +64,7 @@ local function place_nodes(param)
 					((def.paramtype2 == "colorfacedir" or def.paramtype2 == "colordegrotate")
 					and p2 % 32 > 23)) then
 
-				minetest.set_node(pos, { name = itemstring, param2 = p2 })
+				core.set_node(pos, { name = itemstring, param2 = p2 })
 				nodes_placed = nodes_placed + 1
 				pos = advance_pos(pos, start_pos)
 				if not pos then
@@ -78,9 +78,9 @@ local function place_nodes(param)
 		end
 	end
 	if aborted then
-		minetest.chat_send_player(name, "Not all nodes could be placed, please move further away from the world boundary. Nodes placed: "..nodes_placed)
+		core.chat_send_player(name, "Not all nodes could be placed, please move further away from the world boundary. Nodes placed: "..nodes_placed)
 	end
-	minetest.chat_send_player(name, "Nodes placed: "..nodes_placed..".")
+	core.chat_send_player(name, "Nodes placed: "..nodes_placed..".")
 end
 
 local function after_emerge(blockpos, action, calls_remaining, param)
@@ -89,11 +89,11 @@ local function after_emerge(blockpos, action, calls_remaining, param)
 	end
 end
 
-minetest.register_chatcommand("test_place_nodes", {
+core.register_chatcommand("test_place_nodes", {
 	params = "[ no_param2 ]",
 	description = "Test: Place all nodes (except dummy and callback nodes) and optionally their permissible param2 variants",
 	func = function(name, param)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if not player then
 			return false, "No player."
 		end
@@ -112,12 +112,12 @@ minetest.register_chatcommand("test_place_nodes", {
 		local aborted = false
 		local nodes = {}
 		local emerge_estimate = 0
-		for itemstring, def in pairs(minetest.registered_nodes) do
+		for itemstring, def in pairs(core.registered_nodes) do
 			if itemstring ~= "ignore" and
 					-- Skip callback test and dummy nodes
 					-- to avoid clutter and chat spam
-					minetest.get_item_group(itemstring, "callback_test") == 0 and
-					minetest.get_item_group(itemstring, "dummy") == 0 then
+					core.get_item_group(itemstring, "callback_test") == 0 and
+					core.get_item_group(itemstring, "dummy") == 0 then
 				table.insert(nodes, itemstring)
 				if def.paramtype2 == 0 then
 					emerge_estimate = emerge_estimate + 1
@@ -130,7 +130,7 @@ minetest.register_chatcommand("test_place_nodes", {
 		-- Note we will emerge much more than we need to (overestimation),
 		-- the estimation code could be improved performance-wise …
 		local length = 16 + math.ceil(emerge_estimate / 24) * 2
-		minetest.emerge_area(start_pos,
+		core.emerge_area(start_pos,
 			{ x = start_pos.x + 46, y = start_pos.y, z = start_pos.z + length },
 			after_emerge, { nodes = nodes, name = name, pos = pos, start_pos = start_pos, param = param })
 		return true, "Emerging area …"

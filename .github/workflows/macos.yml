@@ -13,6 +13,7 @@ on:
       - 'irr/**.mm' # Objective-C(++)
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - '.github/workflows/macos.yml'
   pull_request:
     paths:
@@ -25,12 +26,13 @@ on:
       - 'irr/**.mm' # Objective-C(++)
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - '.github/workflows/macos.yml'
 
 jobs:
-  build:
-    # use lowest possible macOS running on x86_64 to support more users
-    runs-on: macos-12
+  build-intel-macos:
+    # use lowest possible macOS running on x86_64 supported by brew to support more users
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
@@ -53,7 +55,7 @@ jobs:
 
       - name: Test
         run: |
-          ./build/macos/minetest.app/Contents/MacOS/minetest --run-unittests
+          ./build/macos/luanti.app/Contents/MacOS/luanti --run-unittests
 
       # Zipping the built .app preserves permissions on the contained files,
       #   which the GitHub artifact pipeline would otherwise strip away.
@@ -66,5 +68,46 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: minetest-macos
+          name: luanti-macos
           path: ./build/macos/*.zip
+  build-arm-macos-xcode:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          source ./util/ci/common.sh
+          install_macos_deps
+          # brew jsoncpp do not include libjsoncpp.a, and if installed header conflict caused build failure
+          brew uninstall jsoncpp
+
+      - name: Build with Cmake
+        run: |
+          mkdir build
+          cd build
+          cmake .. \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=14 \
+            -DCMAKE_FIND_FRAMEWORK=LAST \
+            -DCMAKE_INSTALL_PREFIX=../build/macos/ \
+            -DRUN_IN_PLACE=FALSE -DENABLE_GETTEXT=TRUE \
+            -DENABLE_SYSTEM_JSONCPP=OFF
+          cmake --build . -j$(sysctl -n hw.logicalcpu)
+          make install
+
+      - name: Build and Archive with Xcode
+        run: |
+          mkdir build_xcode
+          cd build_xcode
+          ../util/ci/build_xcode.sh
+
+      - name: Tests
+        run: |
+          mkdir -p "${HOME}/Library/Application Support/minetest/games/"
+          ln -s "${PWD}/games/devtest" "${HOME}/Library/Application Support/minetest/games/"
+          ./build/macos/luanti.app/Contents/MacOS/luanti --run-unittests
+          ./build_xcode/luanti.xcarchive/Products/Applications/luanti.app/Contents/MacOS/luanti --run-unittests
+
+      - name: Diff Resources
+        run: |
+          diff -rd ./build/macos/luanti.app/Contents/Resources ./build_xcode/build/Release/luanti.app/Contents/Resources || exit 1
+          diff -rd ./build/macos/luanti.app/Contents/Resources ./build_xcode/luanti.xcarchive/Products/Applications/luanti.app/Contents/Resources || exit 1

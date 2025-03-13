@@ -19,10 +19,6 @@ namespace gui
 CGUICheckBox::CGUICheckBox(bool checked, IGUIEnvironment *environment, IGUIElement *parent, s32 id, core::rect<s32> rectangle) :
 		IGUICheckBox(environment, parent, id, rectangle), CheckTime(0), Pressed(false), Checked(checked), Border(false), Background(false)
 {
-#ifdef _DEBUG
-	setDebugName("CGUICheckBox");
-#endif
-
 	// this element can be tabbed into
 	setTabStop(true);
 	setTabOrder(-1);

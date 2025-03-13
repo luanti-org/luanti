@@ -1,32 +1,24 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
+#include "irrlichttypes.h"
 #include "irr_ptr.h"
+#include "IMesh.h"
+#include "SMeshBuffer.h"
+
 #include "util/numeric.h"
 #include "client/tile.h"
 #include "voxel.h"
 #include <array>
 #include <map>
 #include <unordered_map>
+
+namespace irr::video {
+	class IVideoDriver;
+}
 
 class Client;
 class NodeDefManager;
@@ -44,15 +36,25 @@ struct MinimapMapblock;
 struct MeshMakeData
 {
 	VoxelManipulator m_vmanip;
+
+	// base pos of meshgen area, in blocks
 	v3s16 m_blockpos = v3s16(-1337,-1337,-1337);
+	// size of meshgen area, in nodes.
+	// vmanip will have at least an extra 1 node onion layer.
+	// area is expected to fit into mesh grid cell.
+	u16 m_side_length;
+	// vertex positions will be relative to this grid
+	MeshGrid m_mesh_grid;
+
+	// relative to blockpos
 	v3s16 m_crack_pos_relative = v3s16(-1337,-1337,-1337);
+	bool m_generate_minimap = false;
 	bool m_smooth_lighting = false;
-	u16 side_length;
+	bool m_enable_water_reflections = false;
 
-	const NodeDefManager *nodedef;
-	bool m_use_shaders;
+	const NodeDefManager *m_nodedef;
 
-	MeshMakeData(const NodeDefManager *ndef, u16 side_length, bool use_shaders);
+	MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid);
 
 	/*
 		Copy block data manually (to allow optimizations by the caller)
@@ -61,14 +63,14 @@ struct MeshMakeData
 	void fillBlockData(const v3s16 &bp, MapNode *data);
 
 	/*
+		Prepare block data for rendering a single node located at (0,0,0).
+	*/
+	void fillSingleNode(MapNode data, MapNode padding = MapNode(CONTENT_AIR));
+
+	/*
 		Set the (node) position of a crack
 	*/
 	void setCrack(int crack_level, v3s16 crack_pos);
-
-	/*
-		Enable or disable smooth lighting
-	*/
-	void setSmoothLighting(bool smooth_lighting);
 };
 
 // represents a triangle as indexes into the vertex buffer in SMeshBuffer
@@ -168,19 +170,17 @@ private:
 /*
 	Holds a mesh for a mapblock.
 
-	Besides the SMesh*, this contains information used for animating
-	the vertex positions, colors and texture coordinates of the mesh.
+	Besides the SMesh*, this contains information used fortransparency sorting
+	and texture animation.
 	For example:
-	- cracks [implemented]
-	- day/night transitions [implemented]
-	- animated flowing liquids [not implemented]
-	- animating vertex positions for e.g. axles [not implemented]
+	- cracks
+	- day/night transitions
 */
 class MapBlockMesh
 {
 public:
 	// Builds the mesh given
-	MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offset);
+	MapBlockMesh(Client *client, MeshMakeData *data);
 	~MapBlockMesh();
 
 	// Main animation function, parameters:
@@ -191,14 +191,18 @@ public:
 	// Returns true if anything has been changed.
 	bool animate(bool faraway, float time, int crack, u32 daynight_ratio);
 
+	/// @warning ClientMap requires that the vertex and index data is not modified
 	scene::IMesh *getMesh()
 	{
-		return m_mesh[0];
+		return m_mesh[0].get();
 	}
 
+	/// @param layer layer index
+	/// @warning ClientMap requires that the vertex and index data is not modified
 	scene::IMesh *getMesh(u8 layer)
 	{
-		return m_mesh[layer];
+		assert(layer < MAX_TILE_LAYERS);
+		return m_mesh[layer].get();
 	}
 
 	std::vector<MinimapMapblock*> moveMinimapMapblocks()
@@ -225,8 +229,14 @@ public:
 	/// Center of the bounding-sphere, in BS-space, relative to block pos.
 	v3f getBoundingSphereCenter() const { return m_bounding_sphere_center; }
 
-	/// update transparent buffers to render towards the camera
-	void updateTransparentBuffers(v3f camera_pos, v3s16 block_pos);
+	/** Update transparent buffers to render towards the camera.
+	 * @param group_by_buffers If true, triangles in the same buffer are batched
+	 *     into the same PartialMeshBuffer, resulting in fewer draw calls, but
+	 *     wrong order. Triangles within a single buffer are still ordered, and
+	 *     buffers are ordered relative to each other (with respect to their nearest
+	 *     triangle).
+	 */
+	void updateTransparentBuffers(v3f camera_pos, v3s16 block_pos, bool group_by_buffers);
 	void consolidateTransparentBuffers();
 
 	/// get the list of transparent buffers
@@ -238,19 +248,16 @@ public:
 private:
 	struct AnimationInfo {
 		int frame; // last animation frame
-		int frame_offset;
 		TileLayer tile;
 	};
 
-	scene::IMesh *m_mesh[MAX_TILE_LAYERS];
+	irr_ptr<scene::IMesh> m_mesh[MAX_TILE_LAYERS];
 	std::vector<MinimapMapblock*> m_minimap_mapblocks;
 	ITextureSource *m_tsrc;
 	IShaderSource *m_shdrsrc;
 
 	f32 m_bounding_radius;
 	v3f m_bounding_sphere_center;
-
-	bool m_enable_shaders;
 
 	// Must animate() be called before rendering?
 	bool m_has_animation;
@@ -266,14 +273,6 @@ private:
 	// Maps mesh and mesh buffer indices to TileSpecs
 	// Keys are pairs of (mesh index, buffer index in the mesh)
 	std::map<std::pair<u8, u32>, AnimationInfo> m_animation_info;
-
-	// Animation info: day/night transitions
-	// Last daynight_ratio value passed to animate()
-	u32 m_last_daynight_ratio;
-	// For each mesh and mesh buffer, stores pre-baked colors
-	// of sunlit vertices
-	// Keys are pairs of (mesh index, buffer index in the mesh)
-	std::map<std::pair<u8, u32>, std::map<u32, video::SColor > > m_daynight_diffs;
 
 	// list of all semitransparent triangles in the mapblock
 	std::vector<MeshTriangle> m_transparent_triangles;

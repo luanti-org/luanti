@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 sapier
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 sapier
 
 #pragma once
 
@@ -52,14 +37,6 @@ private:
 	 */
 	static int getBoolData(lua_State *L, const std::string &name ,bool& valid);
 
-	/**
-	 * Checks if a path may be modified. Paths in the temp directory or the user
-	 * games, mods, textures, or worlds directories may be modified.
-	 * @param path path to check
-	 * @return true if the path may be modified
-	 */
-	static bool mayModifyPath(std::string path);
-
 	//api calls
 
 	static int l_start(lua_State *L);
@@ -76,8 +53,6 @@ private:
 
 	static int l_get_language(lua_State *L);
 
-	static int l_gettext(lua_State *L);
-
 	//packages
 
 	static int l_get_games(lua_State *L);
@@ -91,6 +66,8 @@ private:
 	//gui
 
 	static int l_show_keys_menu(lua_State *L);
+
+	static int l_show_touchscreen_layout(lua_State *L);
 
 	static int l_show_path_select_dialog(lua_State *L);
 
@@ -109,8 +86,6 @@ private:
 	static int l_set_formspec_prepend(lua_State *L);
 
 	static int l_get_window_info(lua_State *L);
-
-	static int l_get_active_driver(lua_State *L);
 
 	static int l_get_active_renderer(lua_State *L);
 
@@ -152,15 +127,17 @@ private:
 
 	static int l_download_file(lua_State *L);
 
-	static int l_get_video_drivers(lua_State *L);
-
 	//version compatibility
 	static int l_get_min_supp_proto(lua_State *L);
 
 	static int l_get_max_supp_proto(lua_State *L);
 
+	static int l_get_formspec_version(lua_State  *L);
+
 	// other
 	static int l_open_url(lua_State *L);
+
+	static int l_open_url_dialog(lua_State *L);
 
 	static int l_open_dir(lua_State *L);
 

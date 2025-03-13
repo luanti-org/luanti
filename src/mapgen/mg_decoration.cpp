@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2014-2018 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-Copyright (C) 2015-2018 paramat
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2014-2018 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
+// Copyright (C) 2015-2018 paramat
 
 #include "mg_decoration.h"
 #include "mg_schematic.h"
@@ -30,7 +15,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "mapgen/treegen.h"
 
 
-FlagDesc flagdesc_deco[] = {
+const FlagDesc flagdesc_deco[] = {
 	{"place_center_x",  DECO_PLACE_CENTER_X},
 	{"place_center_y",  DECO_PLACE_CENTER_Y},
 	{"place_center_z",  DECO_PLACE_CENTER_Z},
@@ -51,21 +36,17 @@ DecorationManager::DecorationManager(IGameDef *gamedef) :
 }
 
 
-size_t DecorationManager::placeAllDecos(Mapgen *mg, u32 blockseed,
+void DecorationManager::placeAllDecos(Mapgen *mg, u32 blockseed,
 	v3s16 nmin, v3s16 nmax)
 {
-	size_t nplaced = 0;
-
 	for (size_t i = 0; i != m_objects.size(); i++) {
 		Decoration *deco = (Decoration *)m_objects[i];
 		if (!deco)
 			continue;
 
-		nplaced += deco->placeDeco(mg, blockseed, nmin, nmax);
+		deco->placeDeco(mg, blockseed, nmin, nmax);
 		blockseed++;
 	}
-
-	return nplaced;
 }
 
 DecorationManager *DecorationManager::clone() const
@@ -143,38 +124,31 @@ bool Decoration::canPlaceDecoration(MMVManip *vm, v3s16 p)
 }
 
 
-size_t Decoration::placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
+void Decoration::placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
 {
+	// Skip if y ranges do not overlap
+	if (nmax.Y < y_min || y_max < nmin.Y)
+		return;
+
 	PcgRandom ps(blockseed + 53);
 	int carea_size = nmax.X - nmin.X + 1;
 
 	// Divide area into parts
 	// If chunksize is changed it may no longer be divisable by sidelen
-	if (carea_size % sidelen)
+	if (carea_size % sidelen != 0)
 		sidelen = carea_size;
 
-	s16 divlen = carea_size / sidelen;
 	int area = sidelen * sidelen;
 
-	for (s16 z0 = 0; z0 < divlen; z0++)
-	for (s16 x0 = 0; x0 < divlen; x0++) {
-		v2s16 p2d_center( // Center position of part of division
-			nmin.X + sidelen / 2 + sidelen * x0,
-			nmin.Z + sidelen / 2 + sidelen * z0
-		);
-		v2s16 p2d_min( // Minimum edge of part of division
-			nmin.X + sidelen * x0,
-			nmin.Z + sidelen * z0
-		);
-		v2s16 p2d_max( // Maximum edge of part of division
-			nmin.X + sidelen + sidelen * x0 - 1,
-			nmin.Z + sidelen + sidelen * z0 - 1
-		);
+	for (s16 z0 = 0; z0 < carea_size; z0 += sidelen)
+	for (s16 x0 = 0; x0 < carea_size; x0 += sidelen) {
+		v2s16 p2d_min(nmin.X + x0, nmin.Z + z0);
+		v2s16 p2d_max(nmin.X + x0 + sidelen - 1, nmin.Z + z0 + sidelen - 1);
 
 		bool cover = false;
 		// Amount of decorations
 		float nval = (flags & DECO_USE_NOISE) ?
-			NoisePerlin2D(&np, p2d_center.X, p2d_center.Y, mapseed) :
+			NoisePerlin2D(&np, p2d_min.X + sidelen / 2, p2d_min.Y + sidelen / 2, mapseed) :
 			fill_ratio;
 		u32 deco_count = 0;
 
@@ -277,7 +251,7 @@ size_t Decoration::placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
 		}
 	}
 
-	return 0;
+	return;
 }
 
 
@@ -361,7 +335,7 @@ size_t DecoSimple::generate(MMVManip *vm, PcgRandom *pr, v3s16 p, bool ceiling)
 		pr->range(deco_param2, deco_param2_max) : deco_param2;
 	bool force_placement = (flags & DECO_FORCE_PLACEMENT);
 
-	const v3s16 &em = vm->m_area.getExtent();
+	const v3s32 &em = vm->m_area.getExtent();
 	u32 vi = vm->m_area.index(p);
 
 	if (ceiling) {

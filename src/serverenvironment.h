@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2017 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2017 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #pragma once
 
@@ -63,6 +48,9 @@ public:
 	// Set of required neighbors (trigger doesn't happen if none are found)
 	// Empty = do not check neighbors
 	virtual const std::vector<std::string> &getRequiredNeighbors() const = 0;
+	// Set of without neighbors (trigger doesn't happen if any are found)
+	// Empty = do not check neighbors
+	virtual const std::vector<std::string> &getWithoutNeighbors() const = 0;
 	// Trigger interval in seconds
 	virtual float getTriggerInterval() = 0;
 	// Random chance of (1 / return value), 0 is disallowed
@@ -90,29 +78,40 @@ struct ABMWithState
 struct LoadingBlockModifierDef
 {
 	// Set of contents to trigger on
-	std::set<std::string> trigger_contents;
+	std::vector<std::string> trigger_contents;
 	std::string name;
 	bool run_at_every_load = false;
 
 	virtual ~LoadingBlockModifierDef() = default;
 
-	virtual void trigger(ServerEnvironment *env, v3s16 p,
-			MapNode n, float dtime_s) {};
+	/// @brief Called to invoke LBM
+	/// @param env environment
+	/// @param block the block in question
+	/// @param positions set of node positions (block-relative!)
+	/// @param dtime_s game time since last deactivation
+	virtual void trigger(ServerEnvironment *env, MapBlock *block,
+		const std::unordered_set<v3s16> &positions, float dtime_s) {};
 };
 
-struct LBMContentMapping
+class LBMContentMapping
 {
-	typedef std::unordered_map<content_t, std::vector<LoadingBlockModifierDef *>> lbm_map;
-	lbm_map map;
+public:
+	typedef std::vector<LoadingBlockModifierDef*> lbm_vector;
+	typedef std::unordered_map<content_t, lbm_vector> lbm_map;
 
-	std::vector<LoadingBlockModifierDef *> lbm_list;
-
-	// Needs to be separate method (not inside destructor),
-	// because the LBMContentMapping may be copied and destructed
-	// many times during operation in the lbm_lookup_map.
-	void deleteContents();
+	LBMContentMapping() = default;
 	void addLBM(LoadingBlockModifierDef *lbm_def, IGameDef *gamedef);
 	const lbm_map::mapped_type *lookup(content_t c) const;
+	const lbm_vector &getList() const { return lbm_list; }
+
+	// This struct owns the LBM pointers.
+	~LBMContentMapping();
+	DISABLE_CLASS_COPY(LBMContentMapping);
+	ALLOW_CLASS_MOVE(LBMContentMapping);
+
+private:
+	lbm_vector lbm_list;
+	lbm_map map;
 };
 
 class LBMManager
@@ -241,8 +240,7 @@ public:
 	// Save players
 	void saveLoadedPlayers(bool force = false);
 	void savePlayer(RemotePlayer *player);
-	PlayerSAO *loadPlayer(RemotePlayer *player, bool *new_player, session_t peer_id,
-		bool is_singleplayer);
+	std::unique_ptr<PlayerSAO> loadPlayer(RemotePlayer *player, session_t peer_id);
 	void addPlayer(RemotePlayer *player);
 	void removePlayer(RemotePlayer *player);
 	bool removePlayerFromDatabase(const std::string &name);

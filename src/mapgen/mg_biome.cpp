@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2014-2018 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
-Copyright (C) 2014-2018 paramat
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2014-2018 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
+// Copyright (C) 2014-2018 paramat
 
 #include "mg_biome.h"
 #include "mg_decoration.h"
@@ -40,20 +25,7 @@ BiomeManager::BiomeManager(Server *server) :
 
 	// Create default biome to be used in case none exist
 	Biome *b = new Biome;
-
 	b->name            = "default";
-	b->flags           = 0;
-	b->depth_top       = 0;
-	b->depth_filler    = -MAX_MAP_GENERATION_LIMIT;
-	b->depth_water_top = 0;
-	b->depth_riverbed  = 0;
-	b->min_pos         = v3s16(-MAX_MAP_GENERATION_LIMIT,
-			-MAX_MAP_GENERATION_LIMIT, -MAX_MAP_GENERATION_LIMIT);
-	b->max_pos         = v3s16(MAX_MAP_GENERATION_LIMIT,
-			MAX_MAP_GENERATION_LIMIT, MAX_MAP_GENERATION_LIMIT);
-	b->heat_point      = 0.0;
-	b->humidity_point  = 0.0;
-	b->vertical_blend  = 0;
 
 	b->m_nodenames.emplace_back("mapgen_stone");
 	b->m_nodenames.emplace_back("mapgen_stone");
@@ -78,11 +50,13 @@ void BiomeManager::clear()
 {
 	EmergeManager *emerge = m_server->getEmergeManager();
 
-	// Remove all dangling references in Decorations
-	DecorationManager *decomgr = emerge->getWritableDecorationManager();
-	for (size_t i = 0; i != decomgr->getNumObjects(); i++) {
-		Decoration *deco = (Decoration *)decomgr->getRaw(i);
-		deco->biomes.clear();
+	if (emerge) {
+		// Remove all dangling references in Decorations
+		DecorationManager *decomgr = emerge->getWritableDecorationManager();
+		for (size_t i = 0; i != decomgr->getNumObjects(); i++) {
+			Decoration *deco = (Decoration *)decomgr->getRaw(i);
+			deco->biomes.clear();
+		}
 	}
 
 	// Don't delete the first biome
@@ -155,7 +129,10 @@ BiomeGenOriginal::BiomeGenOriginal(BiomeManager *biomemgr,
 	for (size_t i = 0; i < m_bmgr->getNumObjects(); i++) {
 		Biome *b = (Biome *)m_bmgr->getRaw(i);
 		values.push_back(b->max_pos.Y);
-		values.push_back(b->min_pos.Y);
+		// We scan for biomes from high Y to low Y (top to bottom). Hence,
+		// biomes effectively transition at (min_pos.Y - 1).
+		if (b->min_pos.Y > -MAX_MAP_GENERATION_LIMIT)
+			values.push_back(b->min_pos.Y - 1);
 	}
 
 	std::sort(values.begin(), values.end(), std::greater<>());
@@ -271,7 +248,9 @@ Biome *BiomeGenOriginal::calcBiomeFromNoise(float heat, float humidity, v3s16 po
 
 		float d_heat = heat - b->heat_point;
 		float d_humidity = humidity - b->humidity_point;
-		float dist = (d_heat * d_heat) + (d_humidity * d_humidity);
+		float dist = ((d_heat * d_heat) + (d_humidity * d_humidity));
+		if (b->weight > 0.f)
+		       dist /= b->weight;
 
 		if (pos.Y <= b->max_pos.Y) { // Within y limits of biome b
 			if (dist < dist_min) {
@@ -311,8 +290,6 @@ ObjDef *Biome::clone() const
 	ObjDef::cloneTo(obj);
 	NodeResolver::cloneTo(obj);
 
-	obj->flags = flags;
-
 	obj->c_top = c_top;
 	obj->c_filler = c_filler;
 	obj->c_stone = c_stone;
@@ -336,6 +313,7 @@ ObjDef *Biome::clone() const
 	obj->heat_point = heat_point;
 	obj->humidity_point = humidity_point;
 	obj->vertical_blend = vertical_blend;
+	obj->weight = weight;
 
 	return obj;
 }

@@ -1,4 +1,3 @@
--- Minetest: builtin/misc_s.lua
 -- The distinction of what goes here is a bit tricky, basically it's everything
 -- that does not (directly or indirectly) need access to ServerEnvironment,
 -- Server or writable access to IGameDef on the engine side.
@@ -25,11 +24,8 @@ end
 
 
 function core.get_item_group(name, group)
-	if not core.registered_items[name] or not
-			core.registered_items[name].groups[group] then
-		return 0
-	end
-	return core.registered_items[name].groups[group]
+	local def = core.registered_items[name]
+	return def and def.groups[group] or 0
 end
 
 
@@ -40,11 +36,7 @@ end
 
 
 function core.setting_get_pos(name)
-	local value = core.settings:get(name)
-	if not value then
-		return nil
-	end
-	return core.string_to_pos(value)
+	return core.settings:get_pos(name)
 end
 
 
@@ -120,3 +112,26 @@ if core.set_push_moveresult1 then
 	end)
 	core.set_push_moveresult1 = nil
 end
+
+-- Protocol version table
+-- see also src/network/networkprotocol.cpp
+core.protocol_versions = {
+	["5.0.0"] = 37,
+	["5.1.0"] = 38,
+	["5.2.0"] = 39,
+	["5.3.0"] = 39,
+	["5.4.0"] = 39,
+	["5.5.0"] = 40,
+	["5.6.0"] = 41,
+	["5.7.0"] = 42,
+	["5.8.0"] = 43,
+	["5.9.0"] = 44,
+	["5.9.1"] = 45,
+	["5.10.0"] = 46,
+	["5.11.0"] = 47,
+	["5.12.0"] = 48,
+}
+
+setmetatable(core.protocol_versions, {__newindex = function()
+	error("core.protocol_versions is read-only")
+end})

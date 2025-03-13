@@ -1,0 +1,137 @@
+.TH luanti 6 "2 February 2019" "" ""
+
+.SH NAME
+luanti, luantiserver \- voxel game engine
+
+.SH SYNOPSIS
+.B luanti
+[\fB--server SERVER OPTIONS\fR | \fBCLIENT OPTIONS\fR]
+[\fBCOMMON OPTIONS\fR]
+[\fBWORLD PATH\fR]
+
+.B luantiserver
+[\fBSERVER OPTIONS\fR]
+[\fBCOMMON OPTIONS\fR]
+[\fBWORLD PATH\fR]
+
+.SH DESCRIPTION
+.B Luanti (formerly Minetest) is a voxel game engine with easy modding and game creation.
+
+.SH COMMON OPTIONS
+.TP
+.B \-\-help
+Print allowed options and exit
+.TP
+.B \-\-version
+Print version information and exit
+.TP
+.B \-\-config <value>
+Load configuration from specified file
+.TP
+.B \-\-logfile <value>
+Set logfile path ('' for no logging)
+.TP
+.B \-\-info
+Print more information to console
+.TP
+.B \-\-verbose
+Print even more information to console
+.TP
+.B \-\-trace
+Print enormous amounts of information to console
+.TP
+.B \-\-quiet
+Print only errors to console
+.TP
+.B \-\-color <value>
+Colorize the logs ('always', 'never' or 'auto'), defaults to 'auto'
+.TP
+.B \-\-gameid <value> | list
+Set gameid or list available ones
+.TP
+.B \-\-worldname <value>
+Set world path by name
+.TP
+.B \-\-world <value>
+Set world path
+.TP
+.B \-\-worldlist path | name | both
+Get list of worlds ('path' lists paths, 'name' lists names, 'both' lists both)
+.TP
+.B \-\-map\-dir <value>
+Same as \-\-world (deprecated)
+.TP
+.B \-\-port <value>
+Set network port (UDP) to use
+.TP
+.B \-\-run\-unittests
+Run unit tests and exit
+
+.SH CLIENT OPTIONS
+.TP
+.B \-\-address <value>
+Address to connect to
+.TP
+.B \-\-go
+Disable main menu
+.TP
+.B \-\-name <value>
+Set player name
+.TP
+.B \-\-password <value>
+Set password
+.TP
+.B \-\-password\-file <value>
+Set password from contents of file
+.TP
+.B \-\-random\-input
+Enable random user input, for testing (client only)
+.TP
+.TP
+.B \-\-speedtests
+Run speed tests
+
+.SH SERVER OPTIONS
+.TP
+.B \-\-migrate <value>
+Migrate from current map backend to another. Possible values are sqlite3,
+leveldb, redis, postgresql, and dummy.
+.TP
+.B \-\-migrate-auth <value>
+Migrate from current auth backend to another. Possible values are sqlite3,
+leveldb, and files.
+.TP
+.B \-\-migrate-players <value>
+Migrate from current players backend to another. Possible values are sqlite3,
+leveldb, postgresql, dummy, and files.
+.TP
+.B \-\-migrate-mod-storage <value>
+Migrate from current mod storage backend to another. Possible values are
+sqlite3, dummy, and files.
+.TP
+.B \-\-terminal
+Display an interactive terminal over ncurses during execution.
+
+.SH ENVIRONMENT
+.TP
+.B MINETEST_GAME_PATH
+Colon delimited list of directories to search for games.
+.TP
+.B MINETEST_MOD_PATH
+Colon delimited list of directories to search for mods.
+.TP
+.B MINETEST_USER_PATH
+Path to Luanti user data directory.
+
+.SH BUGS
+Please report all bugs at https://github.com/luanti-org/luanti/issues.
+
+.SH AUTHOR
+.PP
+Perttu Ahola <celeron55@gmail.com> and contributors.
+.PP
+This man page was originally written by
+Juhani Numminen <juhaninumminen0@gmail.com>.
+
+.SH WWW
+http://www.luanti.org/

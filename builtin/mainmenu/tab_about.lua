@@ -1,4 +1,4 @@
---Minetest
+--Luanti
 --Copyright (C) 2013 sapier
 --
 --This program is free software; you can redistribute it and/or modify
@@ -19,12 +19,7 @@
 local function prepare_credits(dest, source)
 	local string = table.concat(source, "\n") .. "\n"
 
-	local hypertext_escapes = {
-		["\\"] = "\\\\",
-		["<"] = "\\<",
-		[">"] = "\\>",
-	}
-	string = string:gsub("[\\<>]", hypertext_escapes)
+	string = core.hypertext_escape(string)
 	string = string:gsub("%[.-%]", "<gray>%1</gray>")
 
 	table.insert(dest, string)
@@ -35,6 +30,27 @@ local function get_credits()
 	local json = core.parse_json(f:read("*all"))
 	f:close()
 	return json
+end
+
+local function get_renderer_info()
+	local ret = {}
+
+	-- OpenGL version, stripped to just the important part
+	local s1 = core.get_active_renderer()
+	if s1:sub(1, 7) == "OpenGL " then
+		s1 = s1:sub(8)
+	end
+	local m = s1:match("^[%d.]+")
+	if not m then
+		m = s1:match("^ES [%d.]+")
+	end
+	ret[#ret+1] = m or s1
+	-- video driver
+	ret[#ret+1] = core.get_active_driver():lower()
+	-- irrlicht device
+	ret[#ret+1] = core.get_active_irrlicht_device():upper()
+
+	return table.concat(ret, " / ")
 end
 
 return {
@@ -83,22 +99,14 @@ return {
 			"style[label_button;border=false]" ..
 			"button[0.1,3.4;5.3,0.5;label_button;" ..
 			core.formspec_escape(version.project .. " " .. version.string) .. "]" ..
-			"button_url[1.5,4.1;2.5,0.8;homepage;minetest.net;https://www.minetest.net/]" ..
-			"hypertext[5.5,0.25;9.75,6.6;credits;" .. minetest.formspec_escape(hypertext) .. "]"
+			"button_url[1.5,4.1;2.5,0.8;homepage;luanti.org;https://www.luanti.org/]" ..
+			"hypertext[5.5,0.25;9.75,6.6;credits;" .. core.formspec_escape(hypertext) .. "]"
 
-		-- Render information
-		local active_renderer_info = fgettext("Active renderer:") .. " " ..
-			core.formspec_escape(core.get_active_renderer())
+		local active_renderer_info = fgettext("Active renderer:") .. "\n" ..
+			core.formspec_escape(get_renderer_info())
 		fs = fs .. "style[label_button2;border=false]" ..
-			"button[0.1,6;5.3,0.5;label_button2;" .. active_renderer_info .. "]"..
+			"button[0.1,6;5.3,1;label_button2;" .. active_renderer_info .. "]"..
 			"tooltip[label_button2;" .. active_renderer_info .. "]"
-
-		-- Irrlicht device information
-		local irrlicht_device_info = fgettext("Irrlicht device:") .. " " ..
-			core.formspec_escape(core.get_active_irrlicht_device())
-		fs = fs .. "style[label_button3;border=false]" ..
-			"button[0.1,6.5;5.3,0.5;label_button3;" .. irrlicht_device_info .. "]"..
-			"tooltip[label_button3;" .. irrlicht_device_info .. "]"
 
 		if PLATFORM == "Android" then
 			fs = fs .. "button[0.5,5.1;4.5,0.8;share_debug;" .. fgettext("Share debug log") .. "]"

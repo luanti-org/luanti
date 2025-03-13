@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "test.h"
 
@@ -39,9 +24,11 @@ public:
 	void testRemoveLastPathComponent();
 	void testRemoveLastPathComponentWithTrailingDelimiter();
 	void testRemoveRelativePathComponent();
+	void testAbsolutePath();
 	void testSafeWriteToFile();
 	void testCopyFileContents();
 	void testNonExist();
+	void testRecursiveDelete();
 };
 
 static TestFileSys g_test_instance;
@@ -53,9 +40,11 @@ void TestFileSys::runTests(IGameDef *gamedef)
 	TEST(testRemoveLastPathComponent);
 	TEST(testRemoveLastPathComponentWithTrailingDelimiter);
 	TEST(testRemoveRelativePathComponent);
+	TEST(testAbsolutePath);
 	TEST(testSafeWriteToFile);
 	TEST(testCopyFileContents);
 	TEST(testNonExist);
+	TEST(testRecursiveDelete);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +57,7 @@ static std::string p(std::string path)
 	for (size_t i = 0; i < path.size(); ++i) {
 		if (path[i] == '/') {
 			path.replace(i, 1, DIR_DELIM);
-			i += std::string(DIR_DELIM).size() - 1; // generally a no-op
+			i += strlen(DIR_DELIM) - 1; // generally a no-op
 		}
 	}
 
@@ -272,6 +261,46 @@ void TestFileSys::testRemoveRelativePathComponent()
 }
 
 
+void TestFileSys::testAbsolutePath()
+{
+	const auto dir_path = getTestTempDirectory();
+
+	/* AbsolutePath */
+	UASSERTEQ(auto, fs::AbsolutePath(""), ""); // empty is a not valid path
+	const auto cwd = fs::AbsolutePath(".");
+	UASSERTCMP(auto, !=, cwd, "");
+	{
+		const auto dir_path2 = getTestTempFile();
+		UASSERTEQ(auto, fs::AbsolutePath(dir_path2), ""); // doesn't exist
+		fs::CreateDir(dir_path2);
+		UASSERTCMP(auto, !=, fs::AbsolutePath(dir_path2), ""); // now it does
+		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM ".."), fs::AbsolutePath(dir_path));
+	}
+
+	/* AbsolutePathPartial */
+	// equivalent to AbsolutePath if it exists
+	UASSERTEQ(auto, fs::AbsolutePathPartial("."), cwd);
+	UASSERTEQ(auto, fs::AbsolutePathPartial(dir_path), fs::AbsolutePath(dir_path));
+	// usual usage of the function with a partially existing path
+	auto expect = cwd + DIR_DELIM + p("does/not/exist");
+	UASSERTEQ(auto, fs::AbsolutePathPartial("does/not/exist"), expect);
+	UASSERTEQ(auto, fs::AbsolutePathPartial(expect), expect);
+
+	// a nonsense combination as you couldn't actually access it, but allowed by function
+	UASSERTEQ(auto, fs::AbsolutePathPartial("bla/blub/../.."), cwd);
+	UASSERTEQ(auto, fs::AbsolutePathPartial("./bla/blub/../.."), cwd);
+
+#ifdef __unix__
+	// one way to produce the error case is to remove more components than there are
+	// but only if the path does not actually exist ("/.." does exist).
+	UASSERTEQ(auto, fs::AbsolutePathPartial("/.."), "/");
+	UASSERTEQ(auto, fs::AbsolutePathPartial("/noexist/../.."), "");
+#endif
+	// or with an empty path
+	UASSERTEQ(auto, fs::AbsolutePathPartial(""), "");
+}
+
+
 void TestFileSys::testSafeWriteToFile()
 {
 	const std::string dest_path = getTestTempFile();
@@ -337,4 +366,33 @@ void TestFileSys::testNonExist()
 
 	auto ifs = open_ifstream(path.c_str(), false);
 	UASSERT(!ifs.good());
+}
+
+void TestFileSys::testRecursiveDelete()
+{
+	std::string dirs[2];
+	dirs[0] = getTestTempDirectory() + DIR_DELIM "a";
+	dirs[1] = dirs[0] + DIR_DELIM "b";
+
+	std::string files[2] = {
+		dirs[0] + DIR_DELIM "file1",
+		dirs[1] + DIR_DELIM "file2"
+	};
+
+	for (auto &it : dirs)
+		fs::CreateDir(it);
+	for (auto &it : files)
+		open_ofstream(it.c_str(), false).close();
+
+	for (auto &it : dirs)
+		UASSERT(fs::IsDir(it));
+	for (auto &it : files)
+		UASSERT(fs::IsFile(it));
+
+	UASSERT(fs::RecursiveDelete(dirs[0]));
+
+	for (auto &it : dirs)
+		UASSERT(!fs::IsDir(it));
+	for (auto &it : files)
+		UASSERT(!fs::IsFile(it));
 }

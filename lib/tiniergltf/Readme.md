@@ -6,7 +6,7 @@ What this is:
 
 * A tiny glTF deserializer which maps JSON objects to appropriate C++ structures.
 * Intended to be safe for loading untrusted input.
-* Slightly tailored to the needs of [Minetest](https://github.com/minetest/minetest).
+* Slightly tailored to the needs of Luanti
 
 What this doesn't and shouldn't do:
 

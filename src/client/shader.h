@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2013 Kahrl <kahrl@gmx.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2013 Kahrl <kahrl@gmx.net>
 
 #pragma once
 
@@ -211,18 +196,33 @@ using CachedStructPixelShaderSetting = CachedStructShaderSetting<T, count, cache
 
 /*
 	ShaderSource creates and caches shaders.
-*/
 
+	A "shader" could more precisely be called a "shader material" and comprises
+	a vertex, fragment and optional geometry shader.
+*/
 class IShaderSource {
 public:
 	IShaderSource() = default;
 	virtual ~IShaderSource() = default;
 
-	virtual u32 getShaderIdDirect(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL){return 0;}
-	virtual ShaderInfo getShaderInfo(u32 id){return ShaderInfo();}
+	/**
+	 * @brief returns information about an existing shader
+	 *
+	 * Use this to get the material ID to plug into `video::SMaterial`.
+	 */
+	virtual ShaderInfo getShaderInfo(u32 id) = 0;
+
+	/// @brief Generates or gets a shader suitable for nodes and entities
 	virtual u32 getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL){return 0;}
+		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL) = 0;
+
+	/**
+	 * Generates or gets a shader for general use.
+	 * @param name name of the shader (directory on disk)
+	 * @param blendAlpha enable alpha blending for this material?
+	 * @return shader ID
+	 */
+	virtual u32 getShaderRaw(const std::string &name, bool blendAlpha = false) = 0;
 };
 
 class IWritableShaderSource : public IShaderSource {

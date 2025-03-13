@@ -1,5 +1,5 @@
-Minetest Lua Mainmenu API Reference 5.10.0
-=========================================
+Luanti Lua Mainmenu API Reference 5.12.0
+========================================
 
 Introduction
 -------------
@@ -57,7 +57,10 @@ Functions
   * returns the maximum supported network protocol version
 * `core.open_url(url)`
   * opens the URL in a web browser, returns false on failure.
-  * Must begin with http:// or https://
+  * `url` must begin with http:// or https://
+* `core.open_url_dialog(url)`
+  * shows a dialog to allow the user to choose whether to open a URL.
+  * `url` must begin with http:// or https://
 * `core.open_dir(path)`
   * opens the path in the system file browser/explorer, returns false on failure.
   * Must be an existing directory.
@@ -65,6 +68,8 @@ Functions
   * Android only. Shares file using the share popup
 * `core.get_version()` (possible in async calls)
   * returns current core version
+* `core.get_formspec_version()`
+  * returns maximum supported formspec version
 
 
 
@@ -100,11 +105,6 @@ of manually putting one, as different OSs use different delimiters. E.g.
   * `spec` = `SimpleSoundSpec` (see `lua_api.md`)
   * `looped` = bool
 * `handle:stop()` or `core.sound_stop(handle)`
-* `core.get_video_drivers()`
-  * get list of video drivers supported by engine (not all modes are guaranteed to work)
-  * returns list of available video drivers' settings name and 'friendly' display name
-    e.g. `{ {name="opengl", friendly_name="OpenGL"}, {name="software", friendly_name="Software Renderer"} }`
-  * first element of returned list is guaranteed to be the NULL driver
 * `core.get_mapgen_names([include_hidden=false])` -> table of map generator algorithms
     registered in the core (possible in async calls)
 * `core.get_cache_path()` -> path of cache
@@ -123,7 +123,7 @@ HTTP Requests
     * returns `HTTPApiTable` containing http functions.
     * The returned table contains the functions `fetch_sync`, `fetch_async` and
       `fetch_async_get` described below.
-    * Function only exists if minetest server was built with cURL support.
+    * Function only exists if Luanti server was built with cURL support.
 * `HTTPApiTable.fetch_sync(HTTPRequest req)`: returns HTTPRequestResult
     * Performs given request synchronously
 * `HTTPApiTable.fetch_async(HTTPRequest req)`: returns handle
@@ -150,7 +150,7 @@ Used by `HTTPApiTable.fetch` and `HTTPApiTable.fetch_async`.
     -- If post_data is not specified, a GET request is performed instead.
 
     user_agent = "ExampleUserAgent",
-    -- Optional, if specified replaces the default minetest user agent with
+    -- Optional, if specified replaces the default Luanti user agent with
     -- given string
 
     extra_headers = { "Accept-Language: en-us", "Accept-Charset: utf-8" },
@@ -218,6 +218,7 @@ GUI
 * `core.set_clouds(<true/false>)`
 * `core.set_topleft_text(text)`
 * `core.show_keys_menu()`
+* `core.show_touchscreen_layout()`
 * `core.show_path_select_dialog(formname, caption, is_file_select)`
   * shows a path select dialog
   * `formname` is base name of dialog response returned in fields
@@ -252,7 +253,7 @@ GUI
           y = 577,
       },
 
-      -- Estimated maximum formspec size before Minetest will start shrinking the
+      -- Estimated maximum formspec size before Luanti will start shrinking the
       -- formspec to fit. For a fullscreen formspec, use this formspec size and
       -- `padding[0,0]`. `bgcolor[;true]` is also recommended.
       max_formspec_size = {
@@ -290,7 +291,7 @@ Package - content which is downloadable from the content db, may or may not be i
 * `core.get_modpaths()` (possible in async calls)
     * returns table of virtual path to global modpaths, where mods have been installed
       The difference with `core.get_modpath` is that no mods should be installed in these
-      directories by Minetest -- they might be read-only.
+      directories by Luanti -- they might be read-only.
 
       Ex:
 
@@ -381,7 +382,7 @@ Settings
 * `core.settings:save()` -> nil, save all settings to config file
 
 For a complete list of methods of the `Settings` object see
-[lua_api.md](https://github.com/minetest/minetest/blob/master/doc/lua_api.md)
+[lua_api.md](./lua_api.md)
 
 
 Worlds

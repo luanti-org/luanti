@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2017 Dumbeldor, Vincent Glize <vincent.glize@live.fr>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2017 Dumbeldor, Vincent Glize <vincent.glize@live.fr>
 
 #include "l_localplayer.h"
 #include "l_internal.h"
@@ -260,12 +245,13 @@ int LuaLocalPlayer::l_get_control(lua_State *L)
 	set("zoom",  c.zoom);
 	set("dig",   c.dig);
 	set("place", c.place);
-	// Player movement in polar coordinates and non-binary speed
-	lua_pushnumber(L, c.movement_speed);
-	lua_setfield(L, -2, "movement_speed");
-	lua_pushnumber(L, c.movement_direction);
-	lua_setfield(L, -2, "movement_direction");
-	// Provide direction keys to ensure compatibility
+
+	v2f movement = c.getMovement();
+	lua_pushnumber(L, movement.X);
+	lua_setfield(L, -2, "movement_x");
+	lua_pushnumber(L, movement.Y);
+	lua_setfield(L, -2, "movement_y");
+
 	set("up",    c.direction_keys & (1 << 0));
 	set("down",  c.direction_keys & (1 << 1));
 	set("left",  c.direction_keys & (1 << 2));

@@ -234,3 +234,24 @@ local function test_get_bone_rot(_, pos)
 	end
 end
 unittests.register("test_get_bone_rot", test_get_bone_rot, {map=true})
+
+---------
+
+-- Spawn an entity from an ItemStack
+local function test_item_drop(_, pos)
+	local itemstack_src, itemstack_ret, obj
+
+	-- Try to place something that does not exist (placement fails)
+	itemstack_src = ItemStack("n_np_solution 1")
+	itemstack_ret, obj = core.item_drop(itemstack_src, nil, pos)
+	assert(obj == nil)
+	assert(itemstack_ret == nil)
+
+	-- Test known item (placement successful)
+	itemstack_src = ItemStack("testnodes:normal 69")
+	itemstack_ret, obj = core.item_drop(itemstack_src, nil, pos)
+	assert(obj:get_hp() ~= nil)
+	assert(itemstack_ret and itemstack_ret:is_empty())
+	assert(itemstack_ret:equals(itemstack_src))
+end
+unittests.register("test_item_drop", test_item_drop, {map=true})

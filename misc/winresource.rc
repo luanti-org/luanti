@@ -16,11 +16,11 @@
 #endif
 
 #ifdef __MINGW32__
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "minetest.exe.manifest"
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "luanti.exe.manifest"
 #endif
 
 LANGUAGE 0, SUBLANG_NEUTRAL
-130        ICON         "minetest-icon.ico"
+130        ICON         "luanti-icon.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -49,9 +49,8 @@ BEGIN
         VALUE "FileDescription", PROJECT_NAME_C " engine"
         VALUE "FileVersion", VERSION_STRING
         VALUE "InternalName", PROJECT_NAME
-        VALUE "LegalCopyright", "(c) 2011-2015 celeron55"
-        VALUE "LegalTrademarks", """Minetest"" is the property of the Minetest community, don't use it without permission!"
-        VALUE "OriginalFilename", "minetest.exe"
+        VALUE "LegalCopyright", "(c) 2010-2024 Perttu Ahola (celeron55) and contributors"
+        VALUE "OriginalFilename", PROJECT_NAME ".exe"
         VALUE "PrivateBuild", VERSION_EXTRA
         VALUE "ProductName", PROJECT_NAME_C
         VALUE "ProductVersion", PRODUCT_VERSION_STRING

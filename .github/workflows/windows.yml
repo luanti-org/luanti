@@ -12,6 +12,7 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'util/buildbot/**'
       - 'misc/*.manifest'
       - '.github/workflows/windows.yml'
@@ -25,6 +26,7 @@ on:
       - 'irr/**.cpp'
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
+      - 'po/**.po'
       - 'util/buildbot/**'
       - 'misc/*.manifest'
       - '.github/workflows/windows.yml'
@@ -56,8 +58,8 @@ jobs:
         run: |
           dest=$(mktemp -d)
           unzip -q -d "$dest" B/build/*.zip
-          cd "$dest"/minetest-*-win*
-          wine bin/minetest.exe --version
+          cd "$dest"/luanti-*-win*
+          wine bin/luanti.exe --version
 
       - uses: actions/upload-artifact@v4
         with:
@@ -69,8 +71,8 @@ jobs:
     name: VS 2019 ${{ matrix.config.arch }}-${{ matrix.type }}
     runs-on: windows-2019
     env:
-      VCPKG_VERSION: 01f602195983451bc83e72f4214af2cbc495aa94
-      # 2024.05.24
+      VCPKG_VERSION: d5ec528843d29e3a52d745a64b469f810b2cedbf
+      # 2025.02.14
       vcpkg_packages: zlib zstd curl[winssl] openal-soft libvorbis libogg libjpeg-turbo sqlite3 freetype luajit gmp jsoncpp sdl2
     strategy:
       fail-fast: false
@@ -103,7 +105,7 @@ jobs:
           vcpkgGitCommitId: ${{ env.VCPKG_VERSION }}
           vcpkgTriplet: ${{ matrix.config.vcpkg_triplet }}
 
-      - name: Minetest CMake
+      - name: CMake
         run: |
           cmake ${{matrix.config.generator}}  `
           -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake"  `
@@ -113,13 +115,13 @@ jobs:
           -DREQUIRE_LUAJIT=TRUE  `
           -DRUN_IN_PLACE=${{ contains(matrix.type, 'portable') }} .
 
-      - name: Build Minetest
+      - name: Build
         run: cmake --build . --config Release
 
       - name: Unittests
         # need this workaround for stdout to work
         run: |
-          $proc = start .\bin\Release\minetest.exe --run-unittests -NoNewWindow -Wait -PassThru
+          $proc = start .\bin\Release\luanti.exe --run-unittests -NoNewWindow -Wait -PassThru
           exit $proc.ExitCode
         continue-on-error: true # FIXME!!
 

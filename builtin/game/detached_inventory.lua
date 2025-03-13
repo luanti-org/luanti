@@ -1,5 +1,3 @@
--- Minetest: builtin/detached_inventory.lua
-
 core.detached_inventories = {}
 
 local create_detached_inventory_raw = core.create_detached_inventory_raw

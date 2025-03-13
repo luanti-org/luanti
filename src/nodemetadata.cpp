@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "nodemetadata.h"
 #include "exceptions.h"
@@ -62,14 +47,14 @@ void NodeMetadata::serialize(std::ostream &os, u8 version, bool disk) const
 void NodeMetadata::deSerialize(std::istream &is, u8 version)
 {
 	clear();
-	int num_vars = readU32(is);
-	for(int i=0; i<num_vars; i++){
+	u32 num_vars = readU32(is);
+	for (u32 i = 0; i < num_vars; i++){
 		std::string name = deSerializeString16(is);
 		std::string var = deSerializeString32(is);
-		m_stringvars[name] = var;
+		m_stringvars[name] = std::move(var);
 		if (version >= 2) {
 			if (readU8(is) == 1)
-				markPrivate(name, true);
+				m_privatevars.insert(name);
 		}
 	}
 
@@ -89,12 +74,12 @@ bool NodeMetadata::empty() const
 }
 
 
-void NodeMetadata::markPrivate(const std::string &name, bool set)
+bool NodeMetadata::markPrivate(const std::string &name, bool set)
 {
 	if (set)
-		m_privatevars.insert(name);
+		return m_privatevars.insert(name).second;
 	else
-		m_privatevars.erase(name);
+		return m_privatevars.erase(name) > 0;
 }
 
 int NodeMetadata::countNonPrivate() const
@@ -144,6 +129,8 @@ void NodeMetadataList::serialize(std::ostream &os, u8 blockver, bool disk,
 			writeS16(os, p.Z);
 		} else {
 			// Serialize positions within a mapblock
+			static_assert(MAP_BLOCKSIZE * MAP_BLOCKSIZE * MAP_BLOCKSIZE <= U16_MAX,
+				"position too big to serialize");
 			u16 p16 = (p.Z * MAP_BLOCKSIZE + p.Y) * MAP_BLOCKSIZE + p.X;
 			writeU16(os, p16);
 		}
@@ -246,8 +233,7 @@ void NodeMetadataList::set(v3s16 p, NodeMetadata *d)
 void NodeMetadataList::clear()
 {
 	if (m_is_metadata_owner) {
-		NodeMetadataMap::const_iterator it;
-		for (it = m_data.begin(); it != m_data.end(); ++it)
+		for (auto it = m_data.begin(); it != m_data.end(); ++it)
 			delete it->second;
 	}
 	m_data.clear();

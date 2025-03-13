@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 project.ext.set("versionMajor", 5)      // Version Major
-project.ext.set("versionMinor", 10)     // Version Minor
+project.ext.set("versionMinor", 12)     // Version Minor
 project.ext.set("versionPatch", 0)      // Version Patch
 // ^ keep in sync with cmake
 
@@ -9,7 +9,7 @@ project.ext.set("versionBuild", 0)      // Version Build
 // ^ fourth version number to allow releasing Android-only fixes and beta versions
 
 buildscript {
-	ext.ndk_version = '26.2.11394342'
+	ext.ndk_version = '27.2.12479018'
 	repositories {
 		google()
 		mavenCentral()

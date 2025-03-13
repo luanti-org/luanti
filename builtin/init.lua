@@ -1,5 +1,5 @@
 --
--- This file contains built-in stuff in Minetest implemented in Lua.
+-- This file contains built-in stuff in Luanti implemented in Lua.
 --
 -- It is always loaded and executed after registration of the C API,
 -- before loading and running any mods.
@@ -78,6 +78,8 @@ elseif INIT == "client" then
 	dofile(scriptdir .. "client" .. DIR_DELIM .. "init.lua")
 elseif INIT == "emerge" then
 	dofile(scriptdir .. "emerge" .. DIR_DELIM .. "init.lua")
+elseif INIT == "pause_menu" then
+	dofile(scriptdir .. "pause_menu" .. DIR_DELIM .. "init.lua")
 else
 	error(("Unrecognized builtin initialization type %s!"):format(tostring(INIT)))
 end

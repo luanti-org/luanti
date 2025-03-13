@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2010-2017 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2017 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include <algorithm>
 #include <stack>
@@ -58,6 +43,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // A number that is much smaller than the timeout for particle spawners should/could ever be
 #define PARTICLE_SPAWNER_NO_EXPIRY -1024.f
 
+static constexpr s16 ACTIVE_OBJECT_RESAVE_DISTANCE_SQ = sqr(3);
+
 /*
 	ABMWithState
 */
@@ -77,11 +64,11 @@ ABMWithState::ABMWithState(ActiveBlockModifier *abm_):
 	LBMManager
 */
 
-void LBMContentMapping::deleteContents()
+LBMContentMapping::~LBMContentMapping()
 {
-	for (auto &it : lbm_list) {
+	map.clear();
+	for (auto &it : lbm_list)
 		delete it;
-	}
 }
 
 void LBMContentMapping::addLBM(LoadingBlockModifierDef *lbm_def, IGameDef *gamedef)
@@ -90,29 +77,32 @@ void LBMContentMapping::addLBM(LoadingBlockModifierDef *lbm_def, IGameDef *gamed
 	// Unknown names get added to the global NameIdMapping.
 	const NodeDefManager *nodedef = gamedef->ndef();
 
+	FATAL_ERROR_IF(CONTAINS(lbm_list, lbm_def), "Same LBM registered twice");
 	lbm_list.push_back(lbm_def);
 
-	for (const std::string &nodeTrigger: lbm_def->trigger_contents) {
-		std::vector<content_t> c_ids;
-		bool found = nodedef->getIds(nodeTrigger, c_ids);
+	std::vector<content_t> c_ids;
+
+	for (const auto &node : lbm_def->trigger_contents) {
+		bool found = nodedef->getIds(node, c_ids);
 		if (!found) {
-			content_t c_id = gamedef->allocateUnknownNodeId(nodeTrigger);
+			content_t c_id = gamedef->allocateUnknownNodeId(node);
 			if (c_id == CONTENT_IGNORE) {
 				// Seems it can't be allocated.
-				warningstream << "Could not internalize node name \"" << nodeTrigger
+				warningstream << "Could not internalize node name \"" << node
 					<< "\" while loading LBM \"" << lbm_def->name << "\"." << std::endl;
 				continue;
 			}
 			c_ids.push_back(c_id);
 		}
-
-		for (content_t c_id : c_ids) {
-			map[c_id].push_back(lbm_def);
-		}
 	}
+
+	SORT_AND_UNIQUE(c_ids);
+
+	for (content_t c_id : c_ids)
+		map[c_id].push_back(lbm_def);
 }
 
-const std::vector<LoadingBlockModifierDef *> *
+const LBMContentMapping::lbm_vector *
 LBMContentMapping::lookup(content_t c) const
 {
 	lbm_map::const_iterator it = map.find(c);
@@ -130,9 +120,7 @@ LBMManager::~LBMManager()
 		delete m_lbm_def.second;
 	}
 
-	for (auto &it : m_lbm_lookup) {
-		(it.second).deleteContents();
-	}
+	m_lbm_lookup.clear();
 }
 
 void LBMManager::addLBMDef(LoadingBlockModifierDef *lbm_def)
@@ -236,7 +224,7 @@ std::string LBMManager::createIntroductionTimesString()
 	std::ostringstream oss;
 	for (const auto &it : m_lbm_lookup) {
 		u32 time = it.first;
-		const std::vector<LoadingBlockModifierDef *> &lbm_list = it.second.lbm_list;
+		auto &lbm_list = it.second.getList();
 		for (const auto &lbm_def : lbm_list) {
 			// Don't add if the LBM runs at every load,
 			// then introducement time is hardcoded
@@ -255,39 +243,72 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 	// Precondition, we need m_lbm_lookup to be initialized
 	FATAL_ERROR_IF(!m_query_mode,
 		"attempted to query on non fully set up LBMManager");
-	v3s16 pos_of_block = block->getPosRelative();
-	v3s16 pos;
-	MapNode n;
-	content_t c;
-	auto it = getLBMsIntroducedAfter(stamp);
-	for (; it != m_lbm_lookup.end(); ++it) {
-		// Cache previous version to speedup lookup which has a very high performance
-		// penalty on each call
+
+	// Collect a list of all LBMs and associated positions
+	struct LBMToRun {
+		std::unordered_set<v3s16> p; // node positions
+		std::unordered_set<LoadingBlockModifierDef*> l;
+	};
+	std::unordered_map<content_t, LBMToRun> to_run;
+
+	// Note: the iteration count of this outer loop is typically very low, so it's ok.
+	for (auto it = getLBMsIntroducedAfter(stamp); it != m_lbm_lookup.end(); ++it) {
+		v3s16 pos;
+		content_t c;
+
+		// Cache previous lookups since it has a high performance penalty.
 		content_t previous_c = CONTENT_IGNORE;
-		const std::vector<LoadingBlockModifierDef *> *lbm_list = nullptr;
+		const LBMContentMapping::lbm_vector *lbm_list = nullptr;
+		LBMToRun *batch = nullptr;
 
 		for (pos.Z = 0; pos.Z < MAP_BLOCKSIZE; pos.Z++)
 		for (pos.Y = 0; pos.Y < MAP_BLOCKSIZE; pos.Y++)
 		for (pos.X = 0; pos.X < MAP_BLOCKSIZE; pos.X++) {
-			n = block->getNodeNoCheck(pos);
-			c = n.getContent();
+			c = block->getNodeNoCheck(pos).getContent();
 
-			// If content_t are not matching perform an LBM lookup
+			bool c_changed = false;
 			if (previous_c != c) {
+				c_changed = true;
 				lbm_list = it->second.lookup(c);
+				batch = &to_run[c];
 				previous_c = c;
 			}
 
 			if (!lbm_list)
 				continue;
-			for (auto lbmdef : *lbm_list) {
-				lbmdef->trigger(env, pos + pos_of_block, n, dtime_s);
-				if (block->isOrphan())
-					return;
-				n = block->getNodeNoCheck(pos);
-				if (n.getContent() != c)
-					break; // The node was changed and the LBMs no longer apply
+			batch->p.insert(pos);
+			if (c_changed) {
+				batch->l.insert(lbm_list->begin(), lbm_list->end());
+			} else {
+				// we were here before so the list must be filled
+				assert(!batch->l.empty());
 			}
+		}
+	}
+
+	// Actually run them
+	bool first = true;
+	for (auto &[c, batch] : to_run) {
+		for (auto &lbm_def : batch.l) {
+			if (!first) {
+				// The fun part: since any LBM call can change the nodes inside of he
+				// block, we have to recheck the positions to see if the wanted node
+				// is still there.
+				// Note that we don't rescan the whole block, we don't want to include new changes.
+				for (auto it2 = batch.p.begin(); it2 != batch.p.end(); ) {
+					if (block->getNodeNoCheck(*it2).getContent() != c)
+						it2 = batch.p.erase(it2);
+					else
+						++it2;
+				}
+			}
+			first = false;
+
+			if (batch.p.empty())
+				break;
+			lbm_def->trigger(env, block, batch.p, dtime_s);
+			if (block->isOrphan())
+				return;
 		}
 	}
 }
@@ -507,14 +528,14 @@ void ServerEnvironment::init()
 		warningstream << "/!\\ You are using old player file backend. "
 				<< "This backend is deprecated and will be removed in a future release /!\\"
 				<< std::endl << "Switching to SQLite3 or PostgreSQL is advised, "
-				<< "please read http://wiki.minetest.net/Database_backends." << std::endl;
+				<< "please read https://wiki.luanti.org/Database_backends." << std::endl;
 	}
 
 	if (auth_backend_name == "files") {
 		warningstream << "/!\\ You are using old auth file backend. "
 				<< "This backend is deprecated and will be removed in a future release /!\\"
 				<< std::endl << "Switching to SQLite3 is advised, "
-				<< "please read http://wiki.minetest.net/Database_backends." << std::endl;
+				<< "please read https://wiki.luanti.org/Database_backends." << std::endl;
 	}
 
 	m_player_database = openPlayerDatabase(player_backend_name, world_path, conf);
@@ -606,8 +627,7 @@ void ServerEnvironment::addPlayer(RemotePlayer *player)
 
 void ServerEnvironment::removePlayer(RemotePlayer *player)
 {
-	for (std::vector<RemotePlayer *>::iterator it = m_players.begin();
-		it != m_players.end(); ++it) {
+	for (auto it = m_players.begin(); it != m_players.end(); ++it) {
 		if ((*it) == player) {
 			delete *it;
 			m_players.erase(it);
@@ -648,13 +668,13 @@ void ServerEnvironment::savePlayer(RemotePlayer *player)
 	}
 }
 
-PlayerSAO *ServerEnvironment::loadPlayer(RemotePlayer *player, bool *new_player,
-	session_t peer_id, bool is_singleplayer)
+std::unique_ptr<PlayerSAO> ServerEnvironment::loadPlayer(RemotePlayer *player, session_t peer_id)
 {
-	auto playersao = std::make_unique<PlayerSAO>(this, player, peer_id, is_singleplayer);
+	auto playersao = std::make_unique<PlayerSAO>(this, player, peer_id, m_server->isSingleplayer());
 	// Create player if it doesn't exist
 	if (!m_player_database->loadPlayer(player, playersao.get())) {
-		*new_player = true;
+		playersao->setNewPlayer();
+
 		// Set player position
 		infostream << "Server: Finding spawn place for player \""
 			<< player->getName() << "\"" << std::endl;
@@ -673,20 +693,10 @@ PlayerSAO *ServerEnvironment::loadPlayer(RemotePlayer *player, bool *new_player,
 		}
 	}
 
-	// Add player to environment
-	addPlayer(player);
-
-	/* Clean up old HUD elements from previous sessions */
-	player->clearHud();
-
-	/* Add object to environment */
-	PlayerSAO *ret = playersao.get();
-	addActiveObject(std::move(playersao));
-
 	// Update active blocks quickly for a bit so objects in those blocks appear on the client
 	m_fast_active_block_divider = 10;
 
-	return ret;
+	return playersao;
 }
 
 void ServerEnvironment::saveMeta()
@@ -792,11 +802,10 @@ void ServerEnvironment::loadDefaultMeta()
 struct ActiveABM
 {
 	ActiveBlockModifier *abm;
-	int chance;
 	std::vector<content_t> required_neighbors;
-	bool check_required_neighbors; // false if required_neighbors is known to be empty
-	s16 min_y;
-	s16 max_y;
+	std::vector<content_t> without_neighbors;
+	int chance;
+	s16 min_y, max_y;
 };
 
 #define CONTENT_TYPE_CACHE_MAX 64
@@ -812,16 +821,16 @@ public:
 		bool use_timers):
 		m_env(env)
 	{
-		if(dtime_s < 0.001)
+		if (dtime_s < 0.001f)
 			return;
 		const NodeDefManager *ndef = env->getGameDef()->ndef();
 		for (ABMWithState &abmws : abms) {
 			ActiveBlockModifier *abm = abmws.abm;
 			float trigger_interval = abm->getTriggerInterval();
-			if(trigger_interval < 0.001)
-				trigger_interval = 0.001;
+			if (trigger_interval < 0.001f)
+				trigger_interval = 0.001f;
 			float actual_interval = dtime_s;
-			if(use_timers){
+			if (use_timers) {
 				abmws.timer += dtime_s;
 				if(abmws.timer < trigger_interval)
 					continue;
@@ -831,6 +840,7 @@ public:
 			float chance = abm->getTriggerChance();
 			if (chance == 0)
 				chance = 1;
+
 			ActiveABM aabm;
 			aabm.abm = abm;
 			if (abm->getSimpleCatchUp()) {
@@ -848,25 +858,25 @@ public:
 			aabm.max_y = abm->getMaxY();
 
 			// Trigger neighbors
-			const std::vector<std::string> &required_neighbors_s =
-				abm->getRequiredNeighbors();
-			for (const std::string &required_neighbor_s : required_neighbors_s) {
-				ndef->getIds(required_neighbor_s, aabm.required_neighbors);
-			}
-			aabm.check_required_neighbors = !required_neighbors_s.empty();
+			for (const auto &s : abm->getRequiredNeighbors())
+				ndef->getIds(s, aabm.required_neighbors);
+			SORT_AND_UNIQUE(aabm.required_neighbors);
+
+			for (const auto &s : abm->getWithoutNeighbors())
+				ndef->getIds(s, aabm.without_neighbors);
+			SORT_AND_UNIQUE(aabm.without_neighbors);
 
 			// Trigger contents
-			const std::vector<std::string> &contents_s = abm->getTriggerContents();
-			for (const std::string &content_s : contents_s) {
-				std::vector<content_t> ids;
-				ndef->getIds(content_s, ids);
-				for (content_t c : ids) {
-					if (c >= m_aabms.size())
-						m_aabms.resize(c + 256, NULL);
-					if (!m_aabms[c])
-						m_aabms[c] = new std::vector<ActiveABM>;
-					m_aabms[c]->push_back(aabm);
-				}
+			std::vector<content_t> ids;
+			for (const auto &s : abm->getTriggerContents())
+				ndef->getIds(s, ids);
+			SORT_AND_UNIQUE(ids);
+			for (content_t c : ids) {
+				if (c >= m_aabms.size())
+					m_aabms.resize(c + 256, nullptr);
+				if (!m_aabms[c])
+					m_aabms[c] = new std::vector<ActiveABM>;
+				m_aabms[c]->push_back(aabm);
 			}
 		}
 	}
@@ -967,8 +977,11 @@ public:
 					continue;
 
 				// Check neighbors
-				if (aabm.check_required_neighbors) {
+				const bool check_required_neighbors = !aabm.required_neighbors.empty();
+				const bool check_without_neighbors = !aabm.without_neighbors.empty();
+				if (check_required_neighbors || check_without_neighbors) {
 					v3s16 p1;
+					bool have_required = false;
 					for(p1.X = p0.X-1; p1.X <= p0.X+1; p1.X++)
 					for(p1.Y = p0.Y-1; p1.Y <= p0.Y+1; p1.Y++)
 					for(p1.Z = p0.Z-1; p1.Z <= p0.Z+1; p1.Z++)
@@ -986,12 +999,25 @@ public:
 							MapNode n = map->getNode(p1 + block->getPosRelative());
 							c = n.getContent();
 						}
-						if (CONTAINS(aabm.required_neighbors, c))
-							goto neighbor_found;
+						if (check_required_neighbors && !have_required) {
+							if (CONTAINS(aabm.required_neighbors, c)) {
+								if (!check_without_neighbors)
+									goto neighbor_found;
+								have_required = true;
+							}
+						}
+						if (check_without_neighbors) {
+							if (CONTAINS(aabm.without_neighbors, c))
+								goto neighbor_invalid;
+						}
 					}
+					if (have_required || !check_required_neighbors)
+						goto neighbor_found;
 					// No required neighbor found
+					neighbor_invalid:
 					continue;
 				}
+
 				neighbor_found:
 
 				abms_run++;
@@ -1367,21 +1393,6 @@ void ServerEnvironment::step(float dtime)
 		u32 inc_i = (u32)m_game_time_fraction_counter;
 		m_game_time += inc_i;
 		m_game_time_fraction_counter -= (float)inc_i;
-	}
-
-	/*
-		Handle players
-	*/
-	{
-		ScopeProfiler sp(g_profiler, "ServerEnv: move players", SPT_AVG);
-		for (RemotePlayer *player : m_players) {
-			// Ignore disconnected players
-			if (player->getPeerId() == PEER_ID_INEXISTENT)
-				continue;
-
-			// Move
-			player->move(dtime, this, 100 * BS);
-		}
 	}
 
 	/*
@@ -1837,7 +1848,7 @@ void ServerEnvironment::getSelectedActiveObjects(
 	auto process = [&] (ServerActiveObject *obj) -> bool {
 		if (obj->isGone())
 			return false;
-		aabb3f selection_box;
+		aabb3f selection_box{{0.0f, 0.0f, 0.0f}};
 		if (!obj->getSelectionBox(&selection_box))
 			return false;
 
@@ -2150,12 +2161,14 @@ void ServerEnvironment::deactivateFarObjects(const bool _force_delete)
 		// The block in which the object resides in
 		v3s16 blockpos_o = getNodeBlockPos(floatToInt(objectpos, BS));
 
-		// If object's static data is stored in a deactivated block and object
-		// is actually located in an active block, re-save to the block in
-		// which the object is actually located in.
+		// If object's static data is stored in a deactivated block or it has moved a bunch
+		// then re-save to the block in which the object is now located in.
+		// This only applies if the object is in a currently active block, since deactivating
+		// is handled by the code further below.
 		if (!force_delete && obj->isStaticAllowed() && obj->m_static_exists &&
-		   !m_active_blocks.contains(obj->m_static_block) &&
-		   m_active_blocks.contains(blockpos_o)) {
+		   m_active_blocks.contains(blockpos_o) &&
+		   (!m_active_blocks.contains(obj->m_static_block) ||
+		   blockpos_o.getDistanceFromSQ(obj->m_static_block) >= ACTIVE_OBJECT_RESAVE_DISTANCE_SQ)) {
 
 			// Delete from block where object was located
 			deleteStaticFromBlock(obj, id, MOD_REASON_STATIC_DATA_REMOVED, false);
@@ -2398,7 +2411,7 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 
 		std::vector<std::string> player_list;
 		srcdb->listPlayers(player_list);
-		for (std::vector<std::string>::const_iterator it = player_list.begin();
+		for (auto it = player_list.begin();
 			it != player_list.end(); ++it) {
 			actionstream << "Migrating player " << it->c_str() << std::endl;
 			RemotePlayer player(it->c_str(), NULL);

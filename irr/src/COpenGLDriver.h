@@ -108,6 +108,8 @@ public:
 	//! Create render target.
 	IRenderTarget *addRenderTarget() override;
 
+	void blitRenderTarget(IRenderTarget *from, IRenderTarget *to) override;
+
 	//! draws a vertex primitive list
 	virtual void drawVertexPrimitiveList(const void *vertices, u32 vertexCount,
 			const void *indexList, u32 primitiveCount,
@@ -168,9 +170,6 @@ public:
 			const core::position2d<s32> &end,
 			SColor color = SColor(255, 255, 255, 255)) override;
 
-	//! Draws a 3d box
-	void draw3DBox(const core::aabbox3d<f32> &box, SColor color = SColor(255, 255, 255, 255)) override;
-
 	//! Draws a 3d line.
 	virtual void draw3DLine(const core::vector3df &start,
 			const core::vector3df &end,
@@ -179,11 +178,6 @@ public:
 	//! \return Returns the name of the video driver. Example: In case of the Direct3D8
 	//! driver, it would return "Direct3D8.1".
 	const char *getName() const override;
-
-	//! Sets the dynamic ambient light color. The default color is
-	//! (0,0,0,0) which means it is dark.
-	//! \param color: New color of the ambient light.
-	void setAmbientLight(const SColorf &color) override;
 
 	//! sets a viewport
 	void setViewPort(const core::rect<s32> &area) override;
@@ -243,18 +237,13 @@ public:
 	//! Adds a new material renderer to the VideoDriver, using GLSL to render geometry.
 	virtual s32 addHighLevelShaderMaterial(
 			const c8 *vertexShaderProgram,
-			const c8 *vertexShaderEntryPointName,
-			E_VERTEX_SHADER_TYPE vsCompileTarget,
 			const c8 *pixelShaderProgram,
-			const c8 *pixelShaderEntryPointName,
-			E_PIXEL_SHADER_TYPE psCompileTarget,
 			const c8 *geometryShaderProgram,
-			const c8 *geometryShaderEntryPointName = "main",
-			E_GEOMETRY_SHADER_TYPE gsCompileTarget = EGST_GS_4_0,
+			const c8 *shaderName = nullptr,
 			scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 			scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 			u32 verticesOut = 0,
-			IShaderConstantSetCallBack *callback = 0,
+			IShaderConstantSetCallBack *callback = nullptr,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 			s32 userData = 0) override;
 
@@ -269,6 +258,9 @@ public:
 
 	virtual ITexture *addRenderTargetTexture(const core::dimension2d<u32> &size,
 			const io::path &name, const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
+
+	virtual ITexture *addRenderTargetTextureMs(const core::dimension2d<u32> &size, u8 msaa,
+			const io::path &name = "rt", const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
 
 	//! Creates a render target texture for a cubemap
 	ITexture *addRenderTargetTextureCubemap(const irr::u32 sideLen,

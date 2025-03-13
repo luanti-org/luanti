@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "lua_api/l_inventory.h"
 #include "lua_api/l_internal.h"
@@ -111,37 +96,36 @@ int InvRef::l_set_size(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	InvRef *ref = checkObject<InvRef>(L, 1);
 	const char *listname = luaL_checkstring(L, 2);
+	Inventory *inv;
+	InventoryList *list;
 
 	int newsize = luaL_checknumber(L, 3);
-	if (newsize < 0) {
-		lua_pushboolean(L, false);
-		return 1;
+	if (newsize < 0)
+		goto fail;
+
+	inv = getinv(L, ref);
+	if (!inv)
+		goto fail;
+
+	if (newsize == 0) {
+		inv->deleteList(listname);
+		goto done;
 	}
 
-	Inventory *inv = getinv(L, ref);
-	if(inv == NULL){
-		lua_pushboolean(L, false);
-		return 1;
-	}
-	if(newsize == 0){
-		inv->deleteList(listname);
-		reportInventoryChange(L, ref);
-		lua_pushboolean(L, true);
-		return 1;
-	}
-	InventoryList *list = inv->getList(listname);
-	if(list){
+	list = inv->getList(listname);
+	if (list) {
 		list->setSize(newsize);
 	} else {
 		list = inv->addList(listname, newsize);
 		if (!list)
-		{
-			lua_pushboolean(L, false);
-			return 1;
-		}
+			goto fail;
 	}
+done:
 	reportInventoryChange(L, ref);
 	lua_pushboolean(L, true);
+	return 1;
+fail:
+	lua_pushboolean(L, false);
 	return 1;
 }
 
@@ -151,27 +135,27 @@ int InvRef::l_set_width(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	InvRef *ref = checkObject<InvRef>(L, 1);
 	const char *listname = luaL_checkstring(L, 2);
+	Inventory *inv;
+	InventoryList *list;
 
 	int newwidth = luaL_checknumber(L, 3);
-	if (newwidth < 0) {
-		lua_pushboolean(L, false);
-		return 1;
-	}
+	if (newwidth < 0)
+		goto fail;
 
-	Inventory *inv = getinv(L, ref);
-	if(inv == NULL){
-		lua_pushboolean(L, false);
-		return 1;
-	}
-	InventoryList *list = inv->getList(listname);
-	if(list){
-		list->setWidth(newwidth);
-	} else {
-		lua_pushboolean(L, false);
-		return 1;
-	}
+	inv = getinv(L, ref);
+	if (!inv)
+		goto fail;
+
+	list = inv->getList(listname);
+	if (!list)
+		goto fail;
+
+	list->setWidth(newwidth);
 	reportInventoryChange(L, ref);
 	lua_pushboolean(L, true);
+	return 1;
+fail:
+	lua_pushboolean(L, false);
 	return 1;
 }
 
@@ -335,9 +319,7 @@ int InvRef::l_contains_item(lua_State *L)
 	const char *listname = luaL_checkstring(L, 2);
 	ItemStack item = read_item(L, 3, getServer(L)->idef());
 	InventoryList *list = getlist(L, ref, listname);
-	bool match_meta = false;
-	if (lua_isboolean(L, 4))
-		match_meta = readParam<bool>(L, 4);
+	bool match_meta = readParam<bool>(L, 4, false);
 	if (list) {
 		lua_pushboolean(L, list->containsItem(item, match_meta));
 	} else {
@@ -346,7 +328,7 @@ int InvRef::l_contains_item(lua_State *L)
 	return 1;
 }
 
-// remove_item(self, listname, itemstack or itemstring or table or nil) -> itemstack
+// remove_item(self, listname, itemstack or itemstring or table or nil, [match_meta]) -> itemstack
 // Returns the items that were actually removed
 int InvRef::l_remove_item(lua_State *L)
 {
@@ -355,8 +337,9 @@ int InvRef::l_remove_item(lua_State *L)
 	const char *listname = luaL_checkstring(L, 2);
 	ItemStack item = read_item(L, 3, getServer(L)->idef());
 	InventoryList *list = getlist(L, ref, listname);
+	bool match_meta = readParam<bool>(L, 4, false);
 	if(list){
-		ItemStack removed = list->removeItem(item);
+		ItemStack removed = list->removeItem(item, match_meta);
 		if(!removed.empty())
 			reportInventoryChange(L, ref);
 		LuaItemStack::create(L, removed);

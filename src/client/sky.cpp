@@ -1,22 +1,7 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-Copyright (C) 2020 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2020 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
 #include <cmath>
 #include "sky.h"
@@ -25,11 +10,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <ISceneManager.h>
 #include <ICameraSceneNode.h>
 #include <S3DVertex.h>
+#include "client/mesh.h"
 #include "client/tile.h"
 #include "noise.h" // easeCurve
 #include "profiler.h"
 #include "util/numeric.h"
 #include "client/renderingengine.h"
+#include "client/texturesource.h"
 #include "settings.h"
 #include "camera.h" // CameraModes
 
@@ -38,10 +25,9 @@ using namespace irr::core;
 static video::SMaterial baseMaterial()
 {
 	video::SMaterial mat;
-	mat.Lighting = false;
 	mat.ZBuffer = video::ECFN_DISABLED;
 	mat.ZWriteEnable = video::EZW_OFF;
-	mat.AntiAliasing = 0;
+	mat.AntiAliasing = video::EAAM_OFF;
 	mat.TextureLayers[0].TextureWrapU = video::ETC_CLAMP_TO_EDGE;
 	mat.TextureLayers[0].TextureWrapV = video::ETC_CLAMP_TO_EDGE;
 	mat.BackfaceCulling = false;
@@ -64,10 +50,6 @@ Sky::Sky(s32 id, RenderingEngine *rendering_engine, ITextureSource *tsrc, IShade
 	m_seed = (u64)myrand() << 32 | myrand();
 
 	setAutomaticCulling(scene::EAC_OFF);
-	m_box.MaxEdge.set(0, 0, 0);
-	m_box.MinEdge.set(0, 0, 0);
-
-	m_enable_shaders = g_settings->getBool("enable_shaders");
 
 	m_sky_params = SkyboxDefaults::getSkyDefaults();
 	m_sun_params = SkyboxDefaults::getSunDefaults();
@@ -77,10 +59,8 @@ Sky::Sky(s32 id, RenderingEngine *rendering_engine, ITextureSource *tsrc, IShade
 	// Create materials
 
 	m_materials[0] = baseMaterial();
-	// FIXME: shouldn't this check m_enable_shaders?
-	m_materials[0].MaterialType = ssrc->getShaderInfo(ssrc->getShader("stars_shader", TILE_MATERIAL_ALPHA)).material;
-	m_materials[0].Lighting = true;
-	m_materials[0].ColorMaterial = video::ECM_NONE;
+	m_materials[0].MaterialType =
+			ssrc->getShaderInfo(ssrc->getShaderRaw("stars_shader", true)).material;
 
 	m_materials[1] = baseMaterial();
 	m_materials[1].MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
@@ -95,7 +75,6 @@ Sky::Sky(s32 id, RenderingEngine *rendering_engine, ITextureSource *tsrc, IShade
 
 	for (int i = 5; i < 11; i++) {
 		m_materials[i] = baseMaterial();
-		m_materials[i].Lighting = true;
 		m_materials[i].MaterialType = video::EMT_SOLID;
 	}
 
@@ -164,21 +143,17 @@ void Sky::render()
 		float offset = (1.0 - fabs(sin((m_time_of_day - 0.5) * irr::core::PI))) * 511;
 
 		if (m_sun_tonemap) {
-			u8 * texels = (u8 *)m_sun_tonemap->lock();
-			video::SColor* texel = (video::SColor *)(texels + (u32)offset * 4);
-			video::SColor texel_color (255, texel->getRed(),
-				texel->getGreen(), texel->getBlue());
-			m_sun_tonemap->unlock();
-			m_materials[3].EmissiveColor = texel_color;
+			auto texel_color = m_sun_tonemap->getPixel(offset, 0);
+			texel_color.setAlpha(255);
+			// Only accessed by our code later, not used by a shader
+			m_materials[3].ColorParam = texel_color;
 		}
 
 		if (m_moon_tonemap) {
-			u8 * texels = (u8 *)m_moon_tonemap->lock();
-			video::SColor* texel = (video::SColor *)(texels + (u32)offset * 4);
-			video::SColor texel_color (255, texel->getRed(),
-				texel->getGreen(), texel->getBlue());
-			m_moon_tonemap->unlock();
-			m_materials[4].EmissiveColor = texel_color;
+			auto texel_color = m_moon_tonemap->getPixel(offset, 0);
+			texel_color.setAlpha(255);
+			// Only accessed by our code later, not used by a shader
+			m_materials[4].ColorParam = texel_color;
 		}
 
 		const f32 t = 1.0f;
@@ -465,11 +440,11 @@ void Sky::update(float time_of_day, float time_brightness,
 			// which keeps previous behavior.
 			if (m_sun_tonemap && m_default_tint) {
 				pointcolor_sun_f.r = pointcolor_light *
-					(float)m_materials[3].EmissiveColor.getRed() / 255;
+					(float)m_materials[3].ColorParam.getRed() / 255;
 				pointcolor_sun_f.b = pointcolor_light *
-					(float)m_materials[3].EmissiveColor.getBlue() / 255;
+					(float)m_materials[3].ColorParam.getBlue() / 255;
 				pointcolor_sun_f.g = pointcolor_light *
-					(float)m_materials[3].EmissiveColor.getGreen() / 255;
+					(float)m_materials[3].ColorParam.getGreen() / 255;
 			} else if (!m_default_tint) {
 				pointcolor_sun_f = m_sky_params.fog_sun_tint;
 			} else {
@@ -498,11 +473,11 @@ void Sky::update(float time_of_day, float time_brightness,
 			}
 			if (m_moon_tonemap && m_default_tint) {
 				pointcolor_moon_f.r = pointcolor_light *
-					(float)m_materials[4].EmissiveColor.getRed() / 255;
+					(float)m_materials[4].ColorParam.getRed() / 255;
 				pointcolor_moon_f.b = pointcolor_light *
-					(float)m_materials[4].EmissiveColor.getBlue() / 255;
+					(float)m_materials[4].ColorParam.getBlue() / 255;
 				pointcolor_moon_f.g = pointcolor_light *
-					(float)m_materials[4].EmissiveColor.getGreen() / 255;
+					(float)m_materials[4].ColorParam.getGreen() / 255;
 			}
 
 			video::SColor pointcolor_sun = pointcolor_sun_f.toSColor();
@@ -603,11 +578,8 @@ void Sky::draw_sun(video::IVideoDriver *driver, const video::SColor &suncolor,
 		// Another magic number that contributes to the ratio 1.57 sun/moon size
 		// difference.
 		float d = (sunsize * 1.7) * m_sun_params.scale;
-		video::SColor c;
-		if (m_sun_tonemap)
-			c = video::SColor(0, 0, 0, 0);
-		else
-			c = video::SColor(255, 255, 255, 255);
+		video::SColor c = m_sun_tonemap ? m_materials[3].ColorParam :
+				video::SColor(255, 255, 255, 255);
 		draw_sky_body(vertices, -d, d, c);
 		place_sky_body(vertices, 90, wicked_time_of_day * 360 - 90);
 		driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
@@ -660,11 +632,8 @@ void Sky::draw_moon(video::IVideoDriver *driver, const video::SColor &mooncolor,
 		// Another magic number that contributes to the ratio 1.57 sun/moon size
 		// difference.
 		float d = (moonsize * 1.9) * m_moon_params.scale;
-		video::SColor c;
-		if (m_moon_tonemap)
-			c = video::SColor(0, 0, 0, 0);
-		else
-			c = video::SColor(255, 255, 255, 255);
+		video::SColor c = m_sun_tonemap ? m_materials[4].ColorParam :
+				video::SColor(255, 255, 255, 255);
 		draw_sky_body(vertices, -d, d, c);
 		place_sky_body(vertices, -90, wicked_time_of_day * 360 - 90);
 		driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
@@ -688,9 +657,11 @@ void Sky::draw_stars(video::IVideoDriver * driver, float wicked_time_of_day)
 	color.a *= alpha;
 	if (color.a <= 0.0f) // Stars are only drawn when not fully transparent
 		return;
-	m_materials[0].EmissiveColor = color.toSColor();
+	m_materials[0].ColorParam = color.toSColor();
 
-	auto sky_rotation = core::matrix4().setRotationAxisRadians(2.0f * M_PI * (wicked_time_of_day - 0.25f), v3f(0.0f, 0.0f, 1.0f));
+	auto day_rotation = core::matrix4().setRotationAxisRadians(2.0f * M_PI * (wicked_time_of_day - 0.25f), v3f(0.0f, 0.0f, 1.0f));
+	auto orbit_rotation = core::matrix4().setRotationAxisRadians(m_sky_params.body_orbit_tilt * M_PI / 180.0, v3f(1.0f, 0.0f, 0.0f));
+	auto sky_rotation = orbit_rotation * day_rotation;
 	auto world_matrix = driver->getTransform(video::ETS_WORLD);
 	driver->setTransform(video::ETS_WORLD, world_matrix * sky_rotation);
 	driver->setMaterial(m_materials[0]);
@@ -724,13 +695,29 @@ void Sky::place_sky_body(
 	* day_position: turn the body around the Z axis, to place it depending of the time of the day
 	*/
 {
-	v3f centrum = getSkyBodyPosition(horizon_position, day_position, m_sky_params.body_orbit_tilt);
-	v3f untilted_centrum = getSkyBodyPosition(horizon_position, day_position, 0.f);
 	for (video::S3DVertex &vertex : vertices) {
 		// Body is directed to -Z (south) by default
 		vertex.Pos.rotateXZBy(horizon_position);
 		vertex.Pos.rotateXYBy(day_position);
-		vertex.Pos += centrum - untilted_centrum;
+		vertex.Pos.rotateYZBy(m_sky_params.body_orbit_tilt);
+	}
+}
+
+// FIXME: stupid helper that does a pointless texture upload/download
+static void getTextureAsImage(video::IImage *&dst, const std::string &name, ITextureSource *tsrc)
+{
+	if (dst) {
+		dst->drop();
+		dst = nullptr;
+	}
+	if (tsrc->isKnownSourceImage(name)) {
+		auto *texture = tsrc->getTexture(name);
+		assert(texture);
+		auto *driver = RenderingEngine::get_video_driver();
+		dst = driver->createImageFromData(
+			texture->getColorFormat(), texture->getSize(),
+			texture->lock(video::ETLM_READ_ONLY));
+		texture->unlock();
 	}
 }
 
@@ -739,10 +726,10 @@ void Sky::setSunTexture(const std::string &sun_texture,
 {
 	// Ignore matching textures (with modifiers) entirely,
 	// but lets at least update the tonemap before hand.
-	m_sun_params.tonemap = sun_tonemap;
-	m_sun_tonemap = tsrc->isKnownSourceImage(sun_tonemap) ?
-		tsrc->getTexture(sun_tonemap) : nullptr;
-	m_materials[3].Lighting = !!m_sun_tonemap;
+	if (m_sun_params.tonemap != sun_tonemap) {
+		m_sun_params.tonemap = sun_tonemap;
+		getTextureAsImage(m_sun_tonemap, sun_tonemap, tsrc);
+	}
 
 	if (m_sun_params.texture == sun_texture && !m_first_update)
 		return;
@@ -762,7 +749,6 @@ void Sky::setSunTexture(const std::string &sun_texture,
 		m_materials[3].setTexture(0, m_sun_texture);
 		m_materials[3].MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 		disableTextureFiltering(m_materials[3]);
-		m_materials[3].Lighting = !!m_sun_tonemap;
 	}
 }
 
@@ -783,10 +769,10 @@ void Sky::setMoonTexture(const std::string &moon_texture,
 {
 	// Ignore matching textures (with modifiers) entirely,
 	// but lets at least update the tonemap before hand.
-	m_moon_params.tonemap = moon_tonemap;
-	m_moon_tonemap = tsrc->isKnownSourceImage(moon_tonemap) ?
-		tsrc->getTexture(moon_tonemap) : nullptr;
-	m_materials[4].Lighting = !!m_moon_tonemap;
+	if (m_moon_params.tonemap != moon_tonemap) {
+		m_moon_params.tonemap = moon_tonemap;
+		getTextureAsImage(m_moon_tonemap, moon_tonemap, tsrc);
+	}
 
 	if (m_moon_params.texture == moon_texture && !m_first_update)
 		return;
@@ -806,7 +792,6 @@ void Sky::setMoonTexture(const std::string &moon_texture,
 		m_materials[4].setTexture(0, m_moon_texture);
 		m_materials[4].MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 		disableTextureFiltering(m_materials[4]);
-		m_materials[4].Lighting = !!m_moon_tonemap;
 	}
 }
 
@@ -835,7 +820,6 @@ void Sky::updateStars()
 	vertices.reserve(4 * m_star_params.count);
 	indices.reserve(6 * m_star_params.count);
 
-	video::SColor fallback_color = m_star_params.starcolor; // used on GLES 2 “without shaders”
 	PcgRandom rgen(m_seed);
 	float d = (0.006 / 2) * m_star_params.scale;
 	for (u16 i = 0; i < m_star_params.count; i++) {
@@ -846,18 +830,14 @@ void Sky::updateStars()
 		);
 		core::CMatrix4<f32> a;
 		a.buildRotateFromTo(v3f(0, 1, 0), r);
-		v3f p = v3f(-d, 1, -d);
-		v3f p1 = v3f(d, 1, -d);
-		v3f p2 = v3f(d, 1, d);
-		v3f p3 = v3f(-d, 1, d);
-		a.rotateVect(p);
-		a.rotateVect(p1);
-		a.rotateVect(p2);
-		a.rotateVect(p3);
-		vertices.push_back(video::S3DVertex(p, {}, fallback_color, {}));
-		vertices.push_back(video::S3DVertex(p1, {}, fallback_color, {}));
-		vertices.push_back(video::S3DVertex(p2, {}, fallback_color, {}));
-		vertices.push_back(video::S3DVertex(p3, {}, fallback_color, {}));
+		v3f p = a.rotateAndScaleVect(v3f(-d, 1, -d));
+		v3f p1 = a.rotateAndScaleVect(v3f(d, 1, -d));
+		v3f p2 = a.rotateAndScaleVect(v3f(d, 1, d));
+		v3f p3 = a.rotateAndScaleVect(v3f(-d, 1, d));
+		vertices.push_back(video::S3DVertex(p, {}, {}, {}));
+		vertices.push_back(video::S3DVertex(p1, {}, {}, {}));
+		vertices.push_back(video::S3DVertex(p2, {}, {}, {}));
+		vertices.push_back(video::S3DVertex(p3, {}, {}, {}));
 	}
 	for (u16 i = 0; i < m_star_params.count; i++) {
 		indices.push_back(i * 4 + 0);

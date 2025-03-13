@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 sapier, <sapier AT gmx DOT net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 sapier, <sapier AT gmx DOT net>
 
 #include <cstdio>
 #include <cstdlib>
@@ -29,10 +14,14 @@ extern "C" {
 #include "server.h"
 #include "s_async.h"
 #include "log.h"
+#include "config.h"
 #include "filesys.h"
 #include "porting.h"
 #include "common/c_internal.h"
 #include "common/c_packer.h"
+#if CHECK_CLIENT_BUILD()
+#include "script/scripting_mainmenu.h"
+#endif
 #include "lua_api/l_base.h"
 
 /******************************************************************************/
@@ -50,11 +39,12 @@ AsyncEngine::~AsyncEngine()
 	}
 
 	// Wait for threads to finish
+	infostream << "AsyncEngine: Waiting for " << workerThreads.size()
+		<< " threads" << std::endl;
 	for (AsyncWorkerThread *workerThread : workerThreads) {
 		workerThread->wait();
 	}
 
-	// Force kill all threads
 	for (AsyncWorkerThread *workerThread : workerThreads) {
 		delete workerThread;
 	}
@@ -270,7 +260,6 @@ bool AsyncEngine::prepareEnvironment(lua_State* L, int top)
 	return true;
 }
 
-/******************************************************************************/
 AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
 		const std::string &name) :
 	ScriptApiBase(ScriptingType::Async),
@@ -284,6 +273,8 @@ AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
 
 		if (g_settings->getBool("secure.enable_security"))
 			initializeSecurity();
+	} else {
+		initializeSecurity();
 	}
 
 	// Prepare job lua environment
@@ -301,13 +292,27 @@ AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
 	lua_pop(L, 1);
 }
 
-/******************************************************************************/
 AsyncWorkerThread::~AsyncWorkerThread()
 {
 	sanity_check(!isRunning());
 }
 
-/******************************************************************************/
+bool AsyncWorkerThread::checkPathInternal(const std::string &abs_path,
+	bool write_required, bool *write_allowed)
+{
+	auto *L = getStack();
+	// dispatch to the right implementation. this should be refactored some day...
+	if (jobDispatcher->server) {
+		return ScriptApiSecurity::checkPathWithGamedef(L, abs_path, write_required, write_allowed);
+	} else {
+#if CHECK_CLIENT_BUILD()
+		return MainMenuScripting::checkPathAccess(abs_path, write_required, write_allowed);
+#else
+		FATAL_ERROR("should never get here");
+#endif
+	}
+}
+
 void* AsyncWorkerThread::run()
 {
 	if (isErrored)

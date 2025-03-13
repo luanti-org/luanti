@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2021 Liso <anlismon@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2021 Liso <anlismon@gmail.com>
 
 #include <cmath>
 
@@ -27,18 +12,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <IVideoDriver.h>
 
 using m4f = core::matrix4;
-
-static v3f quantizeDirection(v3f direction, float step)
-{
-
-	float yaw = std::atan2(direction.Z, direction.X);
-	float pitch = std::asin(direction.Y); // assume look is normalized
-
-	yaw = std::floor(yaw / step) * step;
-	pitch = std::floor(pitch / step) * step;
-
-	return v3f(std::cos(yaw)*std::cos(pitch), std::sin(pitch), std::sin(yaw)*std::cos(pitch));
-}
 
 void DirectionalLight::createSplitMatrices(const Camera *cam)
 {
@@ -59,11 +32,12 @@ void DirectionalLight::createSplitMatrices(const Camera *cam)
 	// adjusted frustum boundaries
 	float sfNear = future_frustum.zNear;
 	float sfFar = adjustDist(future_frustum.zFar, cam->getFovY());
+	assert(sfFar - sfNear > 0);
 
 	// adjusted camera positions
 	v3f cam_pos_world = cam->getPosition();
 
-	// if world position is less than 1 block away from the captured
+	// if world position is less than 1 node away from the captured
 	// world position then stick to the captured value, otherwise recapture.
 	if (cam_pos_world.getDistanceFromSQ(last_cam_pos_world) < BS * BS)
 		cam_pos_world = last_cam_pos_world;
@@ -89,7 +63,7 @@ void DirectionalLight::createSplitMatrices(const Camera *cam)
 	v3f boundVec = (cam_pos_scene + farCorner * sfFar) - center_scene;
 	float radius = boundVec.getLength();
 	float length = radius * 3.0f;
-	v3f eye_displacement = quantizeDirection(direction, M_PI / 2880 /*15 seconds*/) * length;
+	v3f eye_displacement = direction * length;
 
 	// we must compute the viewmat with the position - the camera offset
 	// but the future_frustum position must be the actual world position
@@ -101,7 +75,6 @@ void DirectionalLight::createSplitMatrices(const Camera *cam)
 	future_frustum.ViewMat.buildCameraLookAtMatrixLH(eye, center_scene, v3f(0.0f, 1.0f, 0.0f));
 	future_frustum.ProjOrthMat.buildProjectionMatrixOrthoLH(radius, radius,
 			0.0f, length, false);
-	future_frustum.camera_offset = cam->getOffset();
 }
 
 DirectionalLight::DirectionalLight(const u32 shadowMapResolution,
@@ -111,9 +84,18 @@ DirectionalLight::DirectionalLight(const u32 shadowMapResolution,
 		farPlane(farValue), mapRes(shadowMapResolution), pos(position)
 {}
 
-void DirectionalLight::update_frustum(const Camera *cam, Client *client, bool force)
+void DirectionalLight::updateCameraOffset(const Camera *cam)
 {
-	if (dirty && !force)
+	if (future_frustum.zFar == 0.0f) // not initialized
+		return;
+	createSplitMatrices(cam);
+	should_update_map_shadow = true;
+	dirty = true;
+}
+
+void DirectionalLight::updateFrustum(const Camera *cam, Client *client)
+{
+	if (dirty)
 		return;
 
 	float zNear = cam->getCameraNode()->getNearValue();
@@ -133,16 +115,6 @@ void DirectionalLight::update_frustum(const Camera *cam, Client *client, bool fo
 			getPosition(), getDirection(), future_frustum.radius, future_frustum.length);
 	should_update_map_shadow = true;
 	dirty = true;
-
-	// when camera offset changes, adjust the current frustum view matrix to avoid flicker
-	v3s16 cam_offset = cam->getOffset();
-	if (cam_offset != shadow_frustum.camera_offset) {
-		v3f rotated_offset;
-		shadow_frustum.ViewMat.rotateVect(rotated_offset, intToFloat(cam_offset - shadow_frustum.camera_offset, BS));
-		shadow_frustum.ViewMat.setTranslation(shadow_frustum.ViewMat.getTranslation() + rotated_offset);
-		shadow_frustum.player += intToFloat(shadow_frustum.camera_offset - cam->getOffset(), BS);
-		shadow_frustum.camera_offset = cam_offset;
-	}
 }
 
 void DirectionalLight::commitFrustum()

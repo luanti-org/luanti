@@ -20,10 +20,6 @@ CBillboardSceneNode::CBillboardSceneNode(ISceneNode *parent, ISceneManager *mgr,
 		IBillboardSceneNode(parent, mgr, id, position),
 		Buffer(new SMeshBuffer())
 {
-#ifdef _DEBUG
-	setDebugName("CBillboardSceneNode");
-#endif
-
 	setSize(size);
 
 	auto &Vertices = Buffer->Vertices->Data;
@@ -85,7 +81,6 @@ void CBillboardSceneNode::render()
 	if (DebugDataVisible & scene::EDS_BBOX) {
 		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 		video::SMaterial m;
-		m.Lighting = false;
 		driver->setMaterial(m);
 		driver->draw3DBox(BBoxSafe, video::SColor(0, 208, 195, 152));
 	}

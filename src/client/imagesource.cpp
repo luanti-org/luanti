@@ -1,34 +1,19 @@
-/*
-Minetest
-Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "imagesource.h"
 
 #include <IFileSystem.h>
-#include "settings.h"
-#include "mesh.h"
-#include "util/strfnd.h"
-#include "renderingengine.h"
-#include "util/base64.h"
-#include "irrlicht_changes/printing.h"
 #include "imagefilters.h"
+#include "mesh.h"
+#include "renderingengine.h"
+#include "settings.h"
 #include "texturepaths.h"
+#include "irrlicht_changes/printing.h"
+#include "util/base64.h"
 #include "util/numeric.h"
+#include "util/strfnd.h"
 
 
 ////////////////////////////////
@@ -46,8 +31,7 @@ void SourceImageCache::insert(const std::string &name, video::IImage *img, bool 
 {
 	assert(img); // Pre-condition
 	// Remove old image
-	std::map<std::string, video::IImage*>::iterator n;
-	n = m_images.find(name);
+	auto n = m_images.find(name);
 	if (n != m_images.end()){
 		if (n->second)
 			n->second->drop();
@@ -78,8 +62,7 @@ void SourceImageCache::insert(const std::string &name, video::IImage *img, bool 
 
 video::IImage* SourceImageCache::get(const std::string &name)
 {
-	std::map<std::string, video::IImage*>::iterator n;
-	n = m_images.find(name);
+	auto n = m_images.find(name);
 	if (n != m_images.end())
 		return n->second;
 	return nullptr;
@@ -88,8 +71,7 @@ video::IImage* SourceImageCache::get(const std::string &name)
 // Primarily fetches from cache, secondarily tries to read from filesystem
 video::IImage* SourceImageCache::getOrLoad(const std::string &name)
 {
-	std::map<std::string, video::IImage*>::iterator n;
-	n = m_images.find(name);
+	auto n = m_images.find(name);
 	if (n != m_images.end()){
 		n->second->grab(); // Grab for caller
 		return n->second;
@@ -181,13 +163,13 @@ static void draw_crack(video::IImage *crack, video::IImage *dst,
 		video::IVideoDriver *driver, u8 tiles = 1);
 
 // Brighten image
-void brighten(video::IImage *image);
+static void brighten(video::IImage *image);
 // Parse a transform name
-u32 parseImageTransform(std::string_view s);
+static u32 parseImageTransform(std::string_view s);
 // Apply transform to image dimension
-core::dimension2d<u32> imageTransformDimension(u32 transform, core::dimension2d<u32> dim);
+static core::dimension2du imageTransformDimension(u32 transform, core::dimension2du dim);
 // Apply transform to image data
-void imageTransform(u32 transform, video::IImage *src, video::IImage *dst);
+static void imageTransform(u32 transform, video::IImage *src, video::IImage *dst);
 
 inline static void applyShadeFactor(video::SColor &color, u32 factor)
 {
@@ -304,7 +286,7 @@ static video::IImage *createInventoryCubeImage(
 	return result;
 }
 
-static std::string unescape_string(const std::string &str, const char esc = '\\')
+static std::string unescape_string(std::string_view str, const char esc = '\\')
 {
 	std::string out;
 	size_t pos = 0, cpos;
@@ -315,7 +297,8 @@ static std::string unescape_string(const std::string &str, const char esc = '\\'
 			out += str.substr(pos);
 			break;
 		}
-		out += str.substr(pos, cpos - pos) + str[cpos + 1];
+		out += str.substr(pos, cpos - pos);
+		out += str[cpos + 1];
 		pos = cpos + 2;
 	}
 	return out;
@@ -327,7 +310,7 @@ static std::string unescape_string(const std::string &str, const char esc = '\\'
 	Ensure no other references to these images are being held, as one may
 	get dropped and switched with a new image.
 */
-void upscaleImagesToMatchLargest(video::IImage *& img1,
+static void upscaleImagesToMatchLargest(video::IImage *& img1,
 	video::IImage *& img2)
 {
 	core::dimension2d<u32> dim1 = img1->getDimension();
@@ -355,7 +338,7 @@ void upscaleImagesToMatchLargest(video::IImage *& img1,
 	}
 }
 
-void blitBaseImage(video::IImage* &src, video::IImage* &dst)
+static void blitBaseImage(video::IImage* &src, video::IImage* &dst)
 {
 	//infostream<<"Blitting "<<part_of_name<<" on base"<<std::endl;
 	upscaleImagesToMatchLargest(dst, src);
@@ -426,9 +409,10 @@ void blit_pixel(video::SColor src_col, video::SColor &dst_col)
 	dst_col.set(dst_a, dst.r, dst.g, dst.b);
 }
 
-}  // namespace
+}  // namespace (anonymous)
+
 template<bool overlay>
-void blit_with_alpha(video::IImage *src, video::IImage *dst, v2s32 dst_pos,
+static void blit_with_alpha(video::IImage *src, video::IImage *dst, v2s32 dst_pos,
 	v2u32 size)
 {
 	if (dst->getColorFormat() != video::ECF_A8R8G8B8)
@@ -442,13 +426,12 @@ void blit_with_alpha(video::IImage *src, video::IImage *dst, v2s32 dst_pos,
 		video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 		video::IImage *src_converted = driver->createImage(video::ECF_A8R8G8B8,
 			src_dim);
-		if (!src_converted)
-			throw BaseException("blit_with_alpha() failed to convert the "
-				"source image to ECF_A8R8G8B8.");
+		sanity_check(src_converted != nullptr);
 		src->copyTo(src_converted);
 		src = src_converted;
 		drop_src = true;
 	}
+
 	video::SColor *pixels_src =
 		reinterpret_cast<video::SColor *>(src->getData());
 	video::SColor *pixels_dst =
@@ -468,6 +451,7 @@ void blit_with_alpha(video::IImage *src, video::IImage *dst, v2s32 dst_pos,
 			blit_pixel<overlay>(pixels_src[i_src++], pixels_dst[i_dst++]);
 		}
 	}
+
 	if (drop_src)
 		src->drop();
 }
@@ -581,7 +565,7 @@ static void apply_hue_saturation(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 		for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++) {
 
 			if (colorize) {
-				f32 lum = dst->getPixel(x, y).getLuminance() / 255.0f;
+				f32 lum = dst->getPixel(x, y).getBrightness() / 255.0f;
 
 				if (norm_l < 0) {
 					lum *= norm_l + 1.0f;
@@ -741,7 +725,7 @@ static void apply_mask(video::IImage *mask, video::IImage *dst,
 	}
 }
 
-video::IImage *create_crack_image(video::IImage *crack, s32 frame_index,
+static video::IImage *create_crack_image(video::IImage *crack, s32 frame_index,
 		core::dimension2d<u32> size, u8 tiles, video::IVideoDriver *driver)
 {
 	core::dimension2d<u32> strip_size = crack->getDimension();
@@ -819,7 +803,7 @@ static void draw_crack(video::IImage *crack, video::IImage *dst,
 	crack_scaled->drop();
 }
 
-void brighten(video::IImage *image)
+static void brighten(video::IImage *image)
 {
 	if (image == NULL)
 		return;
@@ -837,7 +821,7 @@ void brighten(video::IImage *image)
 	}
 }
 
-u32 parseImageTransform(std::string_view s)
+static u32 parseImageTransform(std::string_view s)
 {
 	int total_transform = 0;
 
@@ -887,15 +871,15 @@ u32 parseImageTransform(std::string_view s)
 	return total_transform;
 }
 
-core::dimension2d<u32> imageTransformDimension(u32 transform, core::dimension2d<u32> dim)
+static core::dimension2du imageTransformDimension(u32 transform, core::dimension2du dim)
 {
 	if (transform % 2 == 0)
 		return dim;
 
-	return core::dimension2d<u32>(dim.Height, dim.Width);
+	return core::dimension2du(dim.Height, dim.Width);
 }
 
-void imageTransform(u32 transform, video::IImage *src, video::IImage *dst)
+static void imageTransform(u32 transform, video::IImage *src, video::IImage *dst)
 {
 	if (src == NULL || dst == NULL)
 		return;
@@ -937,48 +921,6 @@ void imageTransform(u32 transform, video::IImage *src, video::IImage *dst)
 		u32 sy = entries[syn];
 		video::SColor c = src->getPixel(sx,sy);
 		dst->setPixel(dx,dy,c);
-	}
-}
-
-namespace {
-	// For more colorspace transformations, see for example
-	// https://github.com/tobspr/GLSL-Color-Spaces/blob/master/ColorSpaces.inc.glsl
-
-	inline float linear_to_srgb_component(float v)
-	{
-		if (v > 0.0031308f)
-			return 1.055f * powf(v, 1.0f / 2.4f) - 0.055f;
-		return 12.92f * v;
-	}
-	inline float srgb_to_linear_component(float v)
-	{
-		if (v > 0.04045f)
-			return powf((v + 0.055f) / 1.055f, 2.4f);
-		return v / 12.92f;
-	}
-
-	v3f srgb_to_linear(const video::SColor col_srgb)
-	{
-		v3f col(col_srgb.getRed(), col_srgb.getGreen(), col_srgb.getBlue());
-		col /= 255.0f;
-		col.X = srgb_to_linear_component(col.X);
-		col.Y = srgb_to_linear_component(col.Y);
-		col.Z = srgb_to_linear_component(col.Z);
-		return col;
-	}
-
-	video::SColor linear_to_srgb(const v3f col_linear)
-	{
-		v3f col;
-		col.X = linear_to_srgb_component(col_linear.X);
-		col.Y = linear_to_srgb_component(col_linear.Y);
-		col.Z = linear_to_srgb_component(col_linear.Z);
-		col *= 255.0f;
-		col.X = core::clamp<float>(col.X, 0.0f, 255.0f);
-		col.Y = core::clamp<float>(col.Y, 0.0f, 255.0f);
-		col.Z = core::clamp<float>(col.Z, 0.0f, 255.0f);
-		return video::SColor(0xff, myround(col.X), myround(col.Y),
-			myround(col.Z));
 	}
 }
 
@@ -1032,17 +974,11 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 		std::string part_s(part_of_name);
 		source_image_names.insert(part_s);
 		video::IImage *image = m_sourcecache.getOrLoad(part_s);
+
 		if (!image) {
 			// Do not create the dummy texture
 			if (part_of_name.empty())
 				return true;
-
-			// Do not create normalmap dummies
-			if (str_ends_with(part_of_name, "_normal.png")) {
-				warningstream << "generateImagePart(): Could not load normal map \""
-					<< part_of_name << "\"" << std::endl;
-				return true;
-			}
 
 			errorstream << "generateImagePart(): Could not load image \""
 				<< part_of_name << "\" while building texture; "
@@ -1055,16 +991,15 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 					myrand()%256,myrand()%256));
 		}
 
-		// If base image is NULL, load as base.
-		if (baseimg == NULL)
+		// load as base or blit
+		if (!baseimg)
 		{
 			/*
 				Copy it this way to get an alpha channel.
 				Otherwise images with alpha cannot be blitted on
 				images that don't have alpha in the original file.
 			*/
-			core::dimension2d<u32> dim = image->getDimension();
-			baseimg = driver->createImage(video::ECF_A8R8G8B8, dim);
+			baseimg = driver->createImage(video::ECF_A8R8G8B8, image->getDimension());
 			image->copyTo(baseimg);
 		}
 		// Else blit on base.
@@ -1447,6 +1382,8 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			video::IImage *img = generateImage(filename, source_image_names);
 			if (img) {
+				upscaleImagesToMatchLargest(baseimg, img);
+
 				apply_mask(img, baseimg, v2s32(0, 0), v2s32(0, 0),
 						img->getDimension());
 				img->drop();
@@ -1524,10 +1461,18 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			CHECK_BASEIMG();
 
-			// Apply the "clean transparent" filter, if needed
+			/* Apply the "clean transparent" filter, if necessary
+			 * This is needed since filtering will sample parts of the image
+			 * that are transparent and PNG optimizers often discard the color
+			 * information in those parts. */
 			if (m_setting_mipmap || m_setting_bilinear_filter ||
-				m_setting_trilinear_filter || m_setting_anisotropic_filter)
-				imageCleanTransparent(baseimg, 127);
+				m_setting_trilinear_filter || m_setting_anisotropic_filter) {
+				/* Note: in theory we should pass either 0 or 127 depending on
+				 * if the texture is used with an ALPHA or ALPHA_REF material,
+				 * however we don't have this information here.
+				 * It doesn't matter in practice. */
+				imageCleanTransparent(baseimg, 0);
+			}
 
 			/* Upscale textures to user's requested minimum size.  This is a trick to make
 			 * filters look as good on low-res textures as on high-res ones, by making
@@ -1710,14 +1655,17 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 				return false;
 			}
 
+			// blit or use as base
 			if (baseimg) {
 				blitBaseImage(pngimg, baseimg);
-			} else {
-				core::dimension2d<u32> dim = pngimg->getDimension();
-				baseimg = driver->createImage(video::ECF_A8R8G8B8, dim);
+				pngimg->drop();
+			} else if (pngimg->getColorFormat() != video::ECF_A8R8G8B8) {
+				baseimg = driver->createImage(video::ECF_A8R8G8B8, pngimg->getDimension());
 				pngimg->copyTo(baseimg);
+				pngimg->drop();
+			} else {
+				baseimg = pngimg;
 			}
-			pngimg->drop();
 		}
 		/*
 			[hsl:hue:saturation:lightness
@@ -1830,6 +1778,12 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 #undef CHECK_DIM
 
+ImageSource::ImageSource() :
+		m_setting_mipmap{g_settings->getBool("mip_map")},
+		m_setting_trilinear_filter{g_settings->getBool("trilinear_filter")},
+		m_setting_bilinear_filter{g_settings->getBool("bilinear_filter")},
+		m_setting_anisotropic_filter{g_settings->getBool("anisotropic_filter")}
+{}
 
 video::IImage* ImageSource::generateImage(std::string_view name,
 		std::set<std::string> &source_image_names)
@@ -1944,32 +1898,7 @@ video::IImage* ImageSource::generateImage(std::string_view name,
 	return baseimg;
 }
 
-video::SColor ImageSource::getImageAverageColor(const video::IImage &image)
+void ImageSource::insertSourceImage(const std::string &name, video::IImage *img, bool prefer_local)
 {
-	video::SColor c(0, 0, 0, 0);
-	u32 total = 0;
-	v3f col_acc(0, 0, 0);
-	core::dimension2d<u32> dim = image.getDimension();
-	u16 step = 1;
-	if (dim.Width > 16)
-		step = dim.Width / 16;
-	for (u16 x = 0; x < dim.Width; x += step) {
-		for (u16 y = 0; y < dim.Width; y += step) {
-			c = image.getPixel(x,y);
-			if (c.getAlpha() > 0) {
-				total++;
-				col_acc += srgb_to_linear(c);
-			}
-		}
-	}
-	if (total > 0) {
-		col_acc /= total;
-		c = linear_to_srgb(col_acc);
-	}
-	c.setAlpha(255);
-	return c;
-}
-
-void ImageSource::insertSourceImage(const std::string &name, video::IImage *img, bool prefer_local) {
 	m_sourcecache.insert(name, img, prefer_local);
 }

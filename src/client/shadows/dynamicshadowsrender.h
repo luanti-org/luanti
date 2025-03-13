@@ -1,29 +1,15 @@
-/*
-Minetest
-Copyright (C) 2021 Liso <anlismon@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2021 Liso <anlismon@gmail.com>
 
 #pragma once
 
 #include <string>
 #include <vector>
 #include <IrrlichtDevice.h>
-#include "irrlichttypes_extrabloated.h"
 #include "client/shadows/dynamicshadows.h"
+#include <ISceneNode.h>
+#include <ISceneManager.h>
 
 class ShadowDepthShaderCB;
 class shadowScreenQuad;
@@ -42,7 +28,8 @@ struct NodeToApply
 			E_SHADOW_MODE m = E_SHADOW_MODE::ESM_BOTH) :
 			node(n),
 			shadowMode(m){};
-	bool operator<(const NodeToApply &other) const { return node < other.node; };
+
+	bool operator==(scene::ISceneNode *n) const { return node == n; }
 
 	scene::ISceneNode *node;
 
@@ -82,6 +69,7 @@ public:
 	void removeNodeFromShadowList(scene::ISceneNode *node);
 
 	void update(video::ITexture *outputTarget = nullptr);
+	/// Force shadow map to be re-drawn in one go next frame
 	void setForceUpdateShadowMap() { m_force_update_shadow_map = true; }
 	void drawDebug();
 
@@ -94,9 +82,11 @@ public:
 	bool is_active() const { return m_shadows_enabled && shadowMapTextureFinal != nullptr; }
 	void setTimeOfDay(float isDay) { m_time_day = isDay; };
 	void setShadowIntensity(float shadow_intensity);
+	void setShadowTint(video::SColor shadow_tint) { m_shadow_tint = shadow_tint; }
 
 	s32 getShadowSamples() const { return m_shadow_samples; }
 	float getShadowStrength() const { return m_shadows_enabled ? m_shadow_strength : 0.0f; }
+	video::SColor getShadowTint() const { return m_shadow_tint; }
 	float getTimeOfDay() const { return m_time_day; }
 
 	f32 getPerspectiveBiasXY() { return m_perspective_bias_xy; }
@@ -131,10 +121,11 @@ private:
 	std::vector<NodeToApply> m_shadow_node_array;
 
 	float m_shadow_strength;
+	video::SColor m_shadow_tint;
 	float m_shadow_strength_gamma;
 	float m_shadow_map_max_distance;
 	float m_shadow_map_texture_size;
-	float m_time_day{0.0f};
+	float m_time_day;
 	int m_shadow_samples;
 	bool m_shadow_map_texture_32bit;
 	bool m_shadows_enabled;
@@ -142,7 +133,7 @@ private:
 	bool m_shadow_map_colored;
 	bool m_force_update_shadow_map;
 	u8 m_map_shadow_update_frames; /* Use this number of frames to update map shaodw */
-	u8 m_current_frame{0}; /* Current frame */
+	u8 m_current_frame; /* Current frame */
 	f32 m_perspective_bias_xy;
 	f32 m_perspective_bias_z;
 

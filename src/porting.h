@@ -1,21 +1,6 @@
-/*
-Minetest
-Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 /*
 	Random portability stuff
@@ -47,11 +32,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	#define sleep_ms(x) Sleep(x)
 	#define sleep_us(x) Sleep((x)/1000)
 
+	#define SLEEP_ACCURACY_US 2000
+
 	#define setenv(n,v,o) _putenv_s(n,v)
 	#define unsetenv(n) _putenv_s(n,"")
 #else
 	#include <unistd.h>
 	#include <cstdlib> // setenv
+
+	#define SLEEP_ACCURACY_US 200
 
 	#define sleep_ms(x) usleep((x)*1000)
 	#define sleep_us(x) usleep(x)
@@ -78,9 +67,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef _WIN32 // POSIX
 	#include <sys/time.h>
 	#include <ctime>
-    #if defined(__MACH__) && defined(__APPLE__)
-        #include <TargetConditionals.h>
-    #endif
+	#if defined(__MACH__) && defined(__APPLE__)
+		#include <TargetConditionals.h>
+	#endif
 #endif
 
 namespace porting
@@ -124,8 +113,7 @@ extern std::string path_cache;
 bool getCurrentExecPath(char *buf, size_t len);
 
 /*
-	Get full path of stuff in data directory.
-	Example: "stone.png" -> "../data/stone.png"
+	Concatenate subpath to path_share.
 */
 std::string getDataPath(const char *subpath);
 
@@ -234,6 +222,21 @@ inline u64 getDeltaMs(u64 old_time_ms, u64 new_time_ms)
 	}
 
 	return (old_time_ms - new_time_ms);
+}
+
+inline void preciseSleepUs(u64 sleep_time)
+{
+	if (sleep_time > 0)
+	{
+		u64 target_time = porting::getTimeUs() + sleep_time;
+		if (sleep_time > SLEEP_ACCURACY_US)
+			sleep_us(sleep_time - SLEEP_ACCURACY_US);
+
+		// Busy-wait the remaining time to adjust for sleep inaccuracies
+		// The target - now > 0 construct will handle overflow gracefully (even though it should
+		// never happen)
+		while ((s64)(target_time - porting::getTimeUs()) > 0) {}
+	}
 }
 
 inline const char *getPlatformName()
