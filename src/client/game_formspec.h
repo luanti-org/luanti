@@ -56,6 +56,8 @@ private:
 	std::unique_ptr<PauseMenuScripting> m_pause_script;
 
 	/// The currently open formspec that is not a submenu of the pause menu
+	/// FIXME: Layering is already managed by `GUIModalMenu` (`g_menumgr`), hence this
+	/// variable should be removed in long-term.
 	GUIFormSpecMenu *m_formspec = nullptr;
 
 	bool handleEmptyFormspec(const std::string &formspec, const std::string &formname);
