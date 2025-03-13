@@ -695,7 +695,9 @@ void GUIFormSpecMenu::parseScrollBar(parserData* data, const std::string &elemen
 	e->setMax(max);
 	e->setMin(min);
 
-	e->setPos(stoi(value));
+	// Preserve for min/max values defined by `scroll_container[]`.
+	spec.aux_f32 = stoi(value); // scroll position
+	e->setPos(spec.aux_f32);
 
 	e->setSmallStep(data->scrollbar_options.small_step);
 	e->setLargeStep(data->scrollbar_options.large_step);
@@ -2198,7 +2200,6 @@ void GUIFormSpecMenu::parseItemImageButton(parserData* data, const std::string &
 
 	spec_btn.ftype = f_Button;
 	rect += data->basepos-padding;
-	spec_btn.rect = rect;
 	m_fields.push_back(spec_btn);
 }
 
@@ -3235,6 +3236,8 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		for (const std::pair<FieldSpec, GUIScrollBar *> &b : m_scrollbars) {
 			if (c.first == b.first.fname) {
 				c.second->setScrollBar(b.second);
+				b.second->setPos(b.first.aux_f32); // scroll position
+				c.second->updateScrolling();
 				break;
 			}
 		}
