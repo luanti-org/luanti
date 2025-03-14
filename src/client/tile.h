@@ -73,7 +73,8 @@ struct TileLayer
 			material_flags == other.material_flags &&
 			has_color == other.has_color &&
 			color == other.color &&
-			scale == other.scale;
+			scale == other.scale &&
+			need_polygon_offset == other.need_polygon_offset;
 	}
 
 	/*!
@@ -91,6 +92,12 @@ struct TileLayer
 	 * @param layer index of this layer in the `TileSpec`
 	 */
 	void applyMaterialOptions(video::SMaterial &material, int layer) const;
+
+	/// @return is this layer uninitalized?
+	bool empty() const
+	{
+		return !shader_id && !texture_id;
+	}
 
 	/// @return is this layer semi-transparent?
 	bool isTransparent() const
@@ -125,6 +132,12 @@ struct TileLayer
 		MATERIAL_FLAG_TILEABLE_HORIZONTAL|
 		MATERIAL_FLAG_TILEABLE_VERTICAL;
 
+	u8 scale = 1;
+
+	/// does this tile need to have a positive polygon offset set?
+	/// @see TileLayer::applyMaterialOptions
+	bool need_polygon_offset = false;
+
 	/// @note not owned by this struct
 	std::vector<FrameSpec> *frames = nullptr;
 
@@ -136,8 +149,6 @@ struct TileLayer
 
 	//! If true, the tile has its own color.
 	bool has_color = false;
-
-	u8 scale = 1;
 };
 
 enum class TileRotation: u8 {
