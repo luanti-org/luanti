@@ -970,6 +970,8 @@ void Game::run()
 
 		framemarker.start();
 
+		g_fontengine->handleReload();
+
 		const auto current_dynamic_info = ClientDynamicInfo::getCurrent();
 		if (!current_dynamic_info.equal(client_display_info)) {
 			client_display_info = current_dynamic_info;
