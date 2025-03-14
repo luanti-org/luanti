@@ -9,6 +9,7 @@
 #include <Keycodes.h>
 #include <IEventReceiver.h>
 #include <string>
+#include <vector>
 
 class UnknownKeycode : public BaseException
 {
@@ -57,7 +58,8 @@ extern const KeyPress MMBKey; // Middle Mouse Button
 extern const KeyPress RMBKey;
 
 // Key configuration getter
-const KeyPress &getKeySetting(const char *settingname);
+const std::vector<KeyPress> &getKeySetting(const std::string &settingname);
+bool inKeySetting(const std::string &settingname, const KeyPress &kp);
 
 // Clear fast lookup cache
 void clearKeyCache();

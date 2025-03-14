@@ -14,7 +14,7 @@
 
 void KeyCache::populate_nonchanging()
 {
-	key[KeyType::ESC] = EscapeKey;
+	key[KeyType::ESC] = std::vector<KeyPress>{EscapeKey};
 }
 
 void KeyCache::populate()
@@ -77,8 +77,9 @@ void KeyCache::populate()
 	if (handler) {
 		// First clear all keys, then re-add the ones we listen for
 		handler->dontListenForKeys();
-		for (const KeyPress &k : key) {
-			handler->listenForKey(k);
+		for (const auto &keylist : key) {
+			for (const auto &kp: keylist)
+				handler->listenForKey(kp);
 		}
 		handler->listenForKey(EscapeKey);
 	}
@@ -112,7 +113,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	// This is separate from other keyboard handling so that it also works in menus.
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
 		const KeyPress keyCode(event.KeyInput);
-		if (keyCode == getKeySetting("keymap_fullscreen")) {
+		if (inKeySetting("keymap_fullscreen", keyCode)) {
 			if (event.KeyInput.PressedDown && !fullscreen_is_down) {
 				IrrlichtDevice *device = RenderingEngine::get_raw_device();
 
@@ -257,7 +258,7 @@ s32 RandomInputHandler::Rand(s32 min, s32 max)
 }
 
 struct RandomInputHandlerSimData {
-	std::string key;
+	GameKeyType key;
 	float counter;
 	int time_max;
 };
@@ -265,19 +266,19 @@ struct RandomInputHandlerSimData {
 void RandomInputHandler::step(float dtime)
 {
 	static RandomInputHandlerSimData rnd_data[] = {
-		{ "keymap_jump", 0.0f, 40 },
-		{ "keymap_aux1", 0.0f, 40 },
-		{ "keymap_forward", 0.0f, 40 },
-		{ "keymap_left", 0.0f, 40 },
-		{ "keymap_dig", 0.0f, 30 },
-		{ "keymap_place", 0.0f, 15 }
+		{ KeyType::JUMP, 0.0f, 40 },
+		{ KeyType::AUX1, 0.0f, 40 },
+		{ KeyType::FORWARD, 0.0f, 40 },
+		{ KeyType::LEFT, 0.0f, 40 },
+		{ KeyType::DIG, 0.0f, 30 },
+		{ KeyType::PLACE, 0.0f, 15 }
 	};
 
 	for (auto &i : rnd_data) {
 		i.counter -= dtime;
 		if (i.counter < 0.0) {
 			i.counter = 0.1 * Rand(1, i.time_max);
-			keydown.toggle(getKeySetting(i.key.c_str()));
+			keydown[i.key] = !keydown[i.key];
 		}
 	}
 	{

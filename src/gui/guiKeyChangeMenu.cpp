@@ -358,7 +358,8 @@ void GUIKeyChangeMenu::add_key(int id, std::wstring button_name, const std::stri
 
 	k->button_name = std::move(button_name);
 	k->setting_name = setting_name;
-	k->key = getKeySetting(k->setting_name.c_str());
+	if (const auto &keylist = getKeySetting(k->setting_name.c_str()); keylist.size() > 0)
+		k->key = keylist.front();
 	key_settings.push_back(k);
 }
 

@@ -43,7 +43,7 @@ struct KeyCache
 	// Keys that are not settings dependent
 	void populate_nonchanging();
 
-	KeyPress key[KeyType::INTERNAL_ENUM_COUNT];
+	std::vector<KeyPress> key[KeyType::INTERNAL_ENUM_COUNT];
 	InputHandler *handler;
 };
 
@@ -118,6 +118,14 @@ public:
 	}
 
 	bool operator[](const KeyPress &key) const { return find(key) != end(); }
+
+	bool operator[](const std::vector<KeyPress> &keylist) const
+	{
+		for (const auto &key: keylist)
+			if (find(key) != end())
+				return true;
+		return false;
+	}
 };
 
 class MyEventReceiver : public IEventReceiver
@@ -127,23 +135,28 @@ public:
 	virtual bool OnEvent(const SEvent &event);
 
 	bool IsKeyDown(const KeyPress &keyCode) const { return keyIsDown[keyCode]; }
+	bool IsKeyDown(const std::vector<KeyPress> &keyCode) const { return keyIsDown[keyCode]; }
 
 	// Checks whether a key was down and resets the state
-	bool WasKeyDown(const KeyPress &keyCode)
+	bool WasKeyDown(const std::vector<KeyPress> &keylist)
 	{
-		bool b = keyWasDown[keyCode];
-		if (b)
-			keyWasDown.unset(keyCode);
+		bool b = false;
+		for (const auto &key: keylist) {
+			if (keyWasDown[key]) {
+				b = true;
+				keyWasDown.unset(key);
+			}
+		}
 		return b;
 	}
 
 	// Checks whether a key was just pressed. State will be cleared
 	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyPressed(const KeyPress &keycode) const { return keyWasPressed[keycode]; }
+	bool WasKeyPressed(const std::vector<KeyPress> &keycode) const { return keyWasPressed[keycode]; }
 
 	// Checks whether a key was just released. State will be cleared
 	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyReleased(const KeyPress &keycode) const { return keyWasReleased[keycode]; }
+	bool WasKeyReleased(const std::vector<KeyPress> &keycode) const { return keyWasReleased[keycode]; }
 
 	void listenForKey(const KeyPress &keyCode)
 	{
@@ -360,7 +373,7 @@ public:
 		return true;
 	}
 
-	virtual bool isKeyDown(GameKeyType k) { return keydown[keycache.key[k]]; }
+	virtual bool isKeyDown(GameKeyType k) { return keydown[k]; }
 	virtual bool wasKeyDown(GameKeyType k) { return false; }
 	virtual bool wasKeyPressed(GameKeyType k) { return false; }
 	virtual bool wasKeyReleased(GameKeyType k) { return false; }
@@ -377,7 +390,7 @@ public:
 	s32 Rand(s32 min, s32 max);
 
 private:
-	KeyList keydown;
+	std::bitset<KeyType::INTERNAL_ENUM_COUNT> keydown;
 	v2s32 mousepos;
 	v2s32 mousespeed;
 	float joystickSpeed;

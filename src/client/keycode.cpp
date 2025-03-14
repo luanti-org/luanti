@@ -343,17 +343,35 @@ const KeyPress RMBKey("KEY_RBUTTON");
 */
 
 // A simple cache for quicker lookup
-static std::unordered_map<std::string, KeyPress> g_key_setting_cache;
+static std::unordered_map<std::string, std::vector<KeyPress>> g_key_setting_cache;
 
-const KeyPress &getKeySetting(const char *settingname)
+const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
 {
 	auto n = g_key_setting_cache.find(settingname);
 	if (n != g_key_setting_cache.end())
 		return n->second;
 
 	auto &ref = g_key_setting_cache[settingname];
-	ref = g_settings->get(settingname).c_str();
+	auto &settingvalue = g_settings->get(settingname);
+
+	if (settingvalue == "|") {
+		// TODO: with SDL scancodes we should check that there is a key with "|"
+		ref.push_back("|");
+	} else {
+		for (const auto &str: str_split(settingvalue, '|'))
+			if (KeyPress kp(str.c_str()); strlen(kp.sym()) > 0)
+				ref.push_back(kp);
+	}
+
 	return ref;
+}
+
+bool inKeySetting(const std::string &settingname, const KeyPress &kp)
+{
+	for (const auto &key: getKeySetting(settingname))
+		if (key == kp)
+			return true;
+	return false;
 }
 
 void clearKeyCache()
