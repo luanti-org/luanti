@@ -119,6 +119,8 @@ protected:
 	bool loadMedia(Client *client, const std::string &data,
 			const std::string &name) override;
 
+	static std::string makeReferer(Client *client);
+
 private:
 	struct FileStatus {
 		bool received;
@@ -142,7 +144,6 @@ private:
 
 	static void deSerializeHashSet(const std::string &data,
 			std::set<std::string> &result);
-	std::string serializeRequiredHashSet();
 
 	// Maps filename to file status
 	std::map<std::string, FileStatus*> m_files;
