@@ -834,8 +834,8 @@ void Server::handleCommand_PlayerItem(NetworkPacket* pkt)
 bool Server::checkInteractDistance(RemotePlayer *player, const f32 d, const std::string &what)
 {
 	ItemStack selected_item, hand_item;
-	player->getWieldedItem(&selected_item, &hand_item);
-	f32 max_d = BS * getToolRange(selected_item, hand_item, m_itemdef);
+	const ItemStack &tool_item = player->getWieldedItem(&selected_item, &hand_item);
+	f32 max_d = BS * getToolRange(tool_item, hand_item, m_itemdef);
 
 	// Cube diagonal * 1.5 for maximal supported node extents:
 	// sqrt(3) * 1.5 ≅ 2.6
@@ -1036,7 +1036,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		ItemStack selected_item, hand_item;
 		ItemStack tool_item = playersao->getWieldedItem(&selected_item, &hand_item);
 		ToolCapabilities toolcap =
-				tool_item.getToolCapabilities(m_itemdef);
+				tool_item.getToolCapabilities(m_itemdef, &hand_item);
 		v3f dir = (pointed_object->getBasePosition() -
 				(playersao->getBasePosition() + playersao->getEyeOffset())
 					).normalize();
@@ -1093,12 +1093,12 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 			// Get player's wielded item
 			// See also: Game::handleDigging
 			ItemStack selected_item, hand_item;
-			player->getWieldedItem(&selected_item, &hand_item);
+			ItemStack &tool_item = player->getWieldedItem(&selected_item, &hand_item);
 
 			// Get diggability and expected digging time
 			DigParams params = getDigParams(m_nodedef->get(n).groups,
-					&selected_item.getToolCapabilities(m_itemdef),
-					selected_item.wear);
+					&tool_item.getToolCapabilities(m_itemdef, &hand_item),
+					tool_item.wear);
 			// If can't dig, try hand
 			if (!params.diggable) {
 				params = getDigParams(m_nodedef->get(n).groups,

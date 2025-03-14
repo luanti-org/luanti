@@ -75,8 +75,8 @@ public:
 			Client *client, ClientEnvironment *env);
 
 	// If returns true, punch will not be sent to the server
-	virtual bool directReportPunch(v3f dir, const ItemStack *punchitem = nullptr,
-		float time_from_last_punch = 1000000) { return false; }
+	virtual bool directReportPunch(v3f dir, const ItemStack *punchitem,
+		const ItemStack *hand_item, float time_from_last_punch = 1000000) { return false; }
 
 protected:
 	// Used for creating objects based on type
