@@ -121,6 +121,9 @@ public:
 	/** update internal parameters from settings */
 	void readSettings();
 
+	/** reload fonts if settings were changed */
+	void handleReload();
+
 	void setMediaFont(const std::string &name, const std::string &data);
 
 	void clearMediaFonts();
@@ -141,6 +144,9 @@ private:
 
 	/** refresh after fonts have been changed */
 	void refresh();
+
+	/** callback to be used on change of font size setting */
+	static void fontSettingChanged(const std::string &name, void *userdata);
 
 	/** pointer to irrlicht gui environment */
 	gui::IGUIEnvironment* m_env = nullptr;
@@ -163,6 +169,8 @@ private:
 
 	/** default font engine mode (fixed) */
 	static const FontMode m_currentMode = FM_Standard;
+
+	static bool m_needs_reload;
 
 	DISABLE_CLASS_COPY(FontEngine);
 };

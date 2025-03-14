@@ -18,10 +18,11 @@
 /** reference to access font engine, has to be initialized by main */
 FontEngine *g_fontengine = nullptr;
 
-/** callback to be used on change of font size setting */
-static void font_setting_changed(const std::string &name, void *userdata)
+bool FontEngine::m_needs_reload = false;
+
+void FontEngine::fontSettingChanged(const std::string &name, void *userdata)
 {
-	static_cast<FontEngine *>(userdata)->readSettings();
+	m_needs_reload = true;
 }
 
 static const char *settings[] = {
@@ -49,7 +50,7 @@ FontEngine::FontEngine(gui::IGUIEnvironment* env) :
 	readSettings();
 
 	for (auto name : settings)
-		g_settings->registerChangedCallback(name, font_setting_changed, this);
+		g_settings->registerChangedCallback(name, fontSettingChanged, this);
 }
 
 FontEngine::~FontEngine()
@@ -160,6 +161,15 @@ void FontEngine::readSettings()
 	m_default_italic = g_settings->getBool("font_italic");
 
 	refresh();
+}
+
+void FontEngine::handleReload()
+{
+	if (!m_needs_reload)
+		return;
+
+	m_needs_reload = false;
+	readSettings();
 }
 
 void FontEngine::updateSkin()

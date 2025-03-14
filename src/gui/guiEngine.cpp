@@ -337,6 +337,8 @@ void GUIEngine::run()
 		fps_control.limit(device, &dtime);
 		framemarker.start();
 
+		g_fontengine->handleReload();
+
 		if (device->isWindowVisible()) {
 			// check if we need to update the "upper left corner"-text
 			if (text_height != g_fontengine->getTextHeight()) {
