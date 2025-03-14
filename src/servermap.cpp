@@ -1109,8 +1109,13 @@ void ServerMap::transformLiquids(std::map<v3s16, MapBlock*> &modified_blocks,
 			// set level to last 3 bits, flowing down bit to 4th bit
 			n0.param2 = (flowing_down ? LIQUID_FLOW_DOWN_MASK : 0x00) | (new_node_level & LIQUID_LEVEL_MASK);
 		} else {
-			// set the liquid level and flow bits to 0
+			// Preserve the extra bits.
 			n0.param2 &= ~(LIQUID_LEVEL_MASK | LIQUID_FLOW_DOWN_MASK);
+		}
+		if (m_nodedef->get(new_node_content).liquid_type == LIQUID_FLOWING) {
+			if (flowing_down)
+				n0.param2 |= LIQUID_FLOW_DOWN_MASK;
+			n0.param2 |= new_node_level & LIQUID_LEVEL_MASK;
 		}
 
 		// change the node.

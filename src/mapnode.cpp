@@ -462,8 +462,7 @@ void MapNode::getSelectionBoxes(const NodeDefManager *nodemgr,
 u8 MapNode::getMaxLevel(const NodeDefManager *nodemgr) const
 {
 	const ContentFeatures &f = nodemgr->get(*this);
-	// todo: after update in all games leave only if (f.param_type_2 ==
-	if( f.liquid_type == LIQUID_FLOWING || f.param_type_2 == CPT2_FLOWINGLIQUID)
+	if( f.liquid_type == LIQUID_FLOWING)
 		return LIQUID_LEVEL_MAX;
 	if(f.leveled || f.param_type_2 == CPT2_LEVELED)
 		return f.leveled_max;
@@ -473,11 +472,8 @@ u8 MapNode::getMaxLevel(const NodeDefManager *nodemgr) const
 u8 MapNode::getLevel(const NodeDefManager *nodemgr) const
 {
 	const ContentFeatures &f = nodemgr->get(*this);
-	// todo: after update in all games leave only if (f.param_type_2 ==
 	if(f.liquid_type == LIQUID_SOURCE)
 		return LIQUID_LEVEL_SOURCE;
-	if (f.param_type_2 == CPT2_FLOWINGLIQUID)
-		return getParam2() & LIQUID_LEVEL_MASK;
 	if(f.liquid_type == LIQUID_FLOWING) // can remove if all param_type_2 set
 		return getParam2() & LIQUID_LEVEL_MASK;
 	if (f.param_type_2 == CPT2_LEVELED) {
@@ -495,8 +491,10 @@ s8 MapNode::setLevel(const NodeDefManager *nodemgr, s16 level)
 {
 	s8 rest = 0;
 	const ContentFeatures &f = nodemgr->get(*this);
-	if (f.param_type_2 == CPT2_FLOWINGLIQUID
-			|| f.liquid_type == LIQUID_FLOWING
+	//if (f.param_type_2 == CPT2_FLOWINGLIQUID
+	//		|| f.param_type_2 == CPT2_COLORED_FLOWINGLIQUID
+	//		|| f.liquid_type == LIQUID_FLOWING
+	if (f.liquid_type == LIQUID_FLOWING
 			|| f.liquid_type == LIQUID_SOURCE) {
 		if (level <= 0) { // liquid can’t exist with zero level
 			setContent(CONTENT_AIR);
