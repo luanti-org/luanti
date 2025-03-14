@@ -632,7 +632,7 @@ void MapgenBasic::generateBiomes()
 	const v3s32 &em = vm->m_area.getExtent();
 	u32 index = 0;
 
-	noise_filler_depth->perlinMap2D(node_min.X, node_min.Z);
+	noise_filler_depth->noiseMap2D(node_min.X, node_min.Z);
 
 	for (s16 z = node_min.Z; z <= node_max.Z; z++)
 	for (s16 x = node_min.X; x <= node_max.X; x++, index++) {
@@ -897,7 +897,7 @@ void MapgenBasic::generateDungeons(s16 max_stone_y)
 		return;
 
 	u16 num_dungeons = std::fmax(std::floor(
-		NoisePerlin3D(&np_dungeons, node_min.X, node_min.Y, node_min.Z, seed)), 0.0f);
+		NoiseFractal3D(&np_dungeons, node_min.X, node_min.Y, node_min.Z, seed)), 0.0f);
 	if (num_dungeons == 0)
 		return;
 
