@@ -127,7 +127,7 @@ void GUIKeyChangeMenu::regenerateGui(v2u32 screensize)
 			core::rect<s32> rect(0, 0, 100 * s, 30 * s);
 			rect += topleft + v2s32(offset.X + 150 * s, offset.Y - 5 * s);
 			k->button = GUIButton::addButton(Environment, rect, m_tsrc, this, k->id,
-					wstrgettext(k->key.name()).c_str());
+					utf8_to_wide(k->key.name()).c_str());
 		}
 		if ((i + 1) % KMaxButtonPerColumns == 0) {
 			offset.X += 260 * s;
@@ -241,7 +241,7 @@ bool GUIKeyChangeMenu::acceptInput()
 bool GUIKeyChangeMenu::resetMenu()
 {
 	if (active_key) {
-		active_key->button->setText(wstrgettext(active_key->key.name()).c_str());
+		active_key->button->setText(utf8_to_wide(active_key->key.name()).c_str());
 		active_key = nullptr;
 		return false;
 	}
@@ -249,10 +249,13 @@ bool GUIKeyChangeMenu::resetMenu()
 }
 bool GUIKeyChangeMenu::OnEvent(const SEvent& event)
 {
-	if (event.EventType == EET_KEY_INPUT_EVENT && active_key
-			&& event.KeyInput.PressedDown) {
+	if (event.EventType == EET_KEY_INPUT_EVENT && active_key) {
+		if (!event.KeyInput.PressedDown) {
+			active_key = nullptr;
+			return true;
+		}
 
-		bool prefer_character = shift_down;
+		bool prefer_character = false;
 		KeyPress kp(event.KeyInput, prefer_character);
 
 		if (event.KeyInput.Key == irr::KEY_DELETE)
@@ -260,16 +263,9 @@ bool GUIKeyChangeMenu::OnEvent(const SEvent& event)
 		else if (event.KeyInput.Key == irr::KEY_ESCAPE)
 			kp = active_key->key; // Cancel
 
-		bool shift_went_down = false;
-		if(!shift_down &&
-				(event.KeyInput.Key == irr::KEY_SHIFT ||
-				event.KeyInput.Key == irr::KEY_LSHIFT ||
-				event.KeyInput.Key == irr::KEY_RSHIFT))
-			shift_went_down = true;
-
 		// Display Key already in use message
 		bool key_in_use = false;
-		if (strcmp(kp.sym(), "") != 0) {
+		if (!kp.sym().empty()) {
 			for (key_setting *ks : key_settings) {
 				if (ks != active_key && ks->key == kp) {
 					key_in_use = true;
@@ -292,15 +288,8 @@ bool GUIKeyChangeMenu::OnEvent(const SEvent& event)
 		// But go on
 		{
 			active_key->key = kp;
-			active_key->button->setText(wstrgettext(kp.name()).c_str());
+			active_key->button->setText(utf8_to_wide(kp.name()).c_str());
 
-			// Allow characters made with shift
-			if (shift_went_down){
-				shift_down = true;
-				return false;
-			}
-
-			active_key = nullptr;
 			return true;
 		}
 	} else if (event.EventType == EET_KEY_INPUT_EVENT && !active_key
@@ -341,7 +330,6 @@ bool GUIKeyChangeMenu::OnEvent(const SEvent& event)
 					}
 					FATAL_ERROR_IF(!active_key, "Key setting not found");
 
-					shift_down = false;
 					active_key->button->setText(wstrgettext("press key").c_str());
 					break;
 			}

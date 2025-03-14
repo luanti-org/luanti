@@ -58,4 +58,5 @@ set (UNITTEST_CLIENT_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_gltf_mesh_loader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_mesh_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_keycode.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_inputhandler.cpp
 	PARENT_SCOPE)

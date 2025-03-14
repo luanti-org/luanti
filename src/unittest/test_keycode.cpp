@@ -31,7 +31,7 @@ void TestKeycode::runTests(IGameDef *gamedef)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define UASSERTEQ_STR(one, two) UASSERT(strcmp(one, two) == 0)
+#define UASSERT_HAS_NAME(key) UASSERTCMP(size_t, >, key.name().size(), 0)
 
 void TestKeycode::testCreateFromString()
 {
@@ -39,57 +39,62 @@ void TestKeycode::testCreateFromString()
 
 	// Character key, from char
 	k = KeyPress("R");
-	UASSERTEQ_STR(k.sym(), "KEY_KEY_R");
-	UASSERTCMP(int, >, strlen(k.name()), 0); // should have human description
+	UASSERT(k.sym() == "KEY_KEY_R");
+	UASSERT_HAS_NAME(k); // should have human description
 
 	// Character key, from identifier
 	k = KeyPress("KEY_KEY_B");
-	UASSERTEQ_STR(k.sym(), "KEY_KEY_B");
-	UASSERTCMP(int, >, strlen(k.name()), 0);
+	UASSERT(k.sym() == "KEY_KEY_B");
+	UASSERT_HAS_NAME(k);
 
 	// Non-Character key, from identifier
 	k = KeyPress("KEY_UP");
-	UASSERTEQ_STR(k.sym(), "KEY_UP");
-	UASSERTCMP(int, >, strlen(k.name()), 0);
+	UASSERT(k.sym() == "KEY_UP");
+	UASSERT_HAS_NAME(k);
 
 	k = KeyPress("KEY_F6");
-	UASSERTEQ_STR(k.sym(), "KEY_F6");
-	UASSERTCMP(int, >, strlen(k.name()), 0);
+	UASSERT(k.sym() == "KEY_F6");
+	UASSERT_HAS_NAME(k);
 
 	// Irrlicht-unknown key, from char
 	k = KeyPress("/");
-	UASSERTEQ_STR(k.sym(), "/");
-	UASSERTCMP(int, >, strlen(k.name()), 0);
+	UASSERT(k.sym() == "/");
+	UASSERT_HAS_NAME(k);
+
+	// Key with modifier
+	k = KeyPress("KEY_SHIFT-KEY_CONTROL-2");
+	UASSERT(k.sym() == "KEY_CONTROL-KEY_SHIFT-KEY_KEY_2");
 }
 
 void TestKeycode::testCreateFromSKeyInput()
 {
 	KeyPress k;
 	irr::SEvent::SKeyInput in;
+	in.Control = in.Shift = false;
 
 	// Character key
 	in.Key = irr::KEY_KEY_3;
 	in.Char = L'3';
 	k = KeyPress(in);
-	UASSERTEQ_STR(k.sym(), "KEY_KEY_3");
+	UASSERT(k.sym() == "KEY_KEY_3");
 
 	// Non-Character key
 	in.Key = irr::KEY_RSHIFT;
 	in.Char = L'\0';
 	k = KeyPress(in);
-	UASSERTEQ_STR(k.sym(), "KEY_RSHIFT");
+	UASSERT(k.sym() == "KEY_SHIFT");
 
 	// Irrlicht-unknown key
 	in.Key = irr::KEY_KEY_CODES_COUNT;
 	in.Char = L'?';
 	k = KeyPress(in);
-	UASSERTEQ_STR(k.sym(), "?");
+	UASSERT(k.sym() == "?");
 
 	// prefer_character mode
 	in.Key = irr::KEY_COMMA;
 	in.Char = L'G';
 	k = KeyPress(in, true);
-	UASSERTEQ_STR(k.sym(), "KEY_KEY_G");
+	UASSERT(k.sym() == "KEY_KEY_G");
 }
 
 void TestKeycode::testCompare()
@@ -98,9 +103,25 @@ void TestKeycode::testCompare()
 	UASSERT(KeyPress("5") == KeyPress("KEY_KEY_5"));
 	UASSERT(!(KeyPress("5") == KeyPress("KEY_NUMPAD5")));
 
+	// Test modifiers
+	UASSERT(KeyPress("KEY_CONTROL-KEY_SHIFT-5") == KeyPress("KEY_SHIFT-KEY_CONTROL-KEY_KEY_5"));
+	UASSERT(KeyPress("KEY_SHIFT--") == KeyPress("KEY_SHIFT-KEY_MINUS"));
+	UASSERT(KeyPress("KEY_CONTROL-KEY_LSHIFT") == KeyPress("KEY_SHIFT-KEY_RCONTROL"));
+	UASSERT(KeyPress("KEY_RSHIFT") == KeyPress("KEY_SHIFT-"));
+
+	// Test matching
+	UASSERT(!KeyPress("5").matches(KeyPress("KEY_CONTROL-5")));
+	UASSERT(!KeyPress("5").matches(KeyPress("KEY_CONTROL")));
+	UASSERT(KeyPress("KEY_SHIFT-5").matches(KeyPress("KEY_SHIFT")));
+	UASSERT(KeyPress("KEY_SHIFT-5").matches(KeyPress("5")));
+	UASSERT(KeyPress("KEY_SHIFT-5").matches(KeyPress("KEY_SHIFT-5")) > KeyPress("KEY_SHIFT-5").matches("5"));
+	UASSERT(!KeyPress("5").matches(KeyPress("$")));
+	UASSERT(!KeyPress("5").matches(KeyPress("KEY_F10")));
+
 	// Matching char suffices
 	// note: This is a real-world example, Irrlicht maps XK_equal to irr::KEY_PLUS on Linux
 	irr::SEvent::SKeyInput in;
+	in.Shift = in.Control = false;
 	in.Key = irr::KEY_PLUS;
 	in.Char = L'=';
 	UASSERT(KeyPress("=") == KeyPress(in));
@@ -108,6 +129,7 @@ void TestKeycode::testCompare()
 	// Matching keycode suffices
 	irr::SEvent::SKeyInput in2;
 	in.Key = in2.Key = irr::KEY_OEM_CLEAR;
+	in2.Shift = in2.Control = false;
 	in.Char = L'\0';
 	in2.Char = L';';
 	UASSERT(KeyPress(in) == KeyPress(in2));
