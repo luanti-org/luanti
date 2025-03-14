@@ -677,11 +677,11 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 
 	bool enable_waving_water = g_settings->getBool("enable_waving_water");
 	shaders_header << "#define ENABLE_WAVING_WATER " << enable_waving_water << "\n";
-	if (enable_waving_water) {
-		shaders_header << "#define WATER_WAVE_HEIGHT " << g_settings->getFloat("water_wave_height") << "\n";
-		shaders_header << "#define WATER_WAVE_LENGTH " << g_settings->getFloat("water_wave_length") << "\n";
-		shaders_header << "#define WATER_WAVE_SPEED " << g_settings->getFloat("water_wave_speed") << "\n";
-	}
+
+	shaders_header << "#define WATER_WAVE_HEIGHT " << g_settings->getFloat("water_wave_height") << "\n";
+	shaders_header << "#define WATER_WAVE_LENGTH " << g_settings->getFloat("water_wave_length") << "\n";
+	shaders_header << "#define WATER_WAVE_SPEED " << g_settings->getFloat("water_wave_speed") << "\n";
+
 	switch (material_type) {
 		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
 		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
@@ -713,6 +713,9 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 
 	shaders_header << "#define ENABLE_TONE_MAPPING " << g_settings->getBool("tone_mapping") << "\n";
 
+	if (g_settings->getBool("enable_tinted_fog"))
+		shaders_header << "#define ENABLE_TINTED_FOG 1\n";
+
 	if (g_settings->getBool("enable_dynamic_shadows")) {
 		shaders_header << "#define ENABLE_DYNAMIC_SHADOWS 1\n";
 		if (g_settings->getBool("shadow_map_color"))
@@ -737,6 +740,9 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		if (shadow_soft_radius < 1.0f)
 			shadow_soft_radius = 1.0f;
 		shaders_header << "#define SOFTSHADOWRADIUS " << shadow_soft_radius << "\n";
+
+		if (g_settings->getBool("enable_sun_tint"))
+			shaders_header << "#define ENABLE_TINTED_SUNLIGHT 1\n";
 	}
 
 	if (g_settings->getBool("enable_bloom")) {
@@ -747,6 +753,9 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 
 	if (g_settings->getBool("enable_auto_exposure"))
 		shaders_header << "#define ENABLE_AUTO_EXPOSURE 1\n";
+
+	if (g_settings->getBool("enable_color_grading"))
+		shaders_header << "#define ENABLE_COLOR_GRADING 1\n";
 
 	if (g_settings->get("antialiasing") == "ssaa") {
 		shaders_header << "#define ENABLE_SSAA 1\n";
@@ -759,6 +768,10 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 
 	if (g_settings->getBool("enable_volumetric_lighting")) {
 		shaders_header << "#define VOLUMETRIC_LIGHT 1\n";
+	}
+
+	if (g_settings->getBool("enable_volumetric_depth_attenuation")) {
+		shaders_header << "#define VOLUMETRIC_DEPTH_ATTENUATION 1\n";
 	}
 
 	std::string common_header = shaders_header.str();

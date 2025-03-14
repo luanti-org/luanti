@@ -486,19 +486,22 @@ enable_waving_water (Waving liquids) bool false
 #    0.0 = Wave doesn't move at all.
 #    Default is 1.0 (1/2 node).
 #
-#    Requires: enable_waving_water
 water_wave_height (Waving liquids wave height) float 1.0 0.0 4.0
 
 #    Length of liquid waves.
 #
-#    Requires: enable_waving_water
 water_wave_length (Waving liquids wavelength) float 20.0 0.1
 
 #    How fast liquid waves will move. Higher = faster.
 #    If negative, liquid waves will move backwards.
 #
-#    Requires: enable_waving_water
 water_wave_speed (Waving liquids wave speed) float 5.0
+
+#   When enabled, crude liquid reflections are simulated.
+#   Wave height, length and speed will affect these reflections.
+#
+#   Requires: enable_dynamic_shadows
+enable_water_reflections (Liquid reflections) bool false
 
 [**Dynamic shadows]
 
@@ -560,6 +563,11 @@ shadow_soft_radius (Soft shadow radius) float 5.0 1.0 15.0
 #    Requires: enable_dynamic_shadows, opengl
 shadow_sky_body_orbit_tilt (Sky Body Orbit Tilt) float 0.0 -60.0 60.0
 
+#    Tint sunlight during sunrise/sunset.
+#
+#    Requires: enable_dynamic_shadows, opengl
+enable_sun_tint (Tinted sunlight) bool false
+
 [**Post Processing]
 
 #    Enables the post processing pipeline.
@@ -588,6 +596,19 @@ enable_auto_exposure (Enable Automatic Exposure) bool false
 #    Requires: enable_post_processing, enable_auto_exposure
 exposure_compensation (Exposure compensation) float 0.0 -1.0 1.0
 
+#   Set the post processing gamma value.
+#   Higher values give lower contrast and vice versa.
+#   Range: from 1.0 to 5.0
+#   Default: 1.6
+#
+#   Requires: enable_post_processing, tone_mapping
+secondstage_gamma (Gamma) float 1.6 1.0 5.0
+
+#   Apply ASL CDL color grading to make brighter colors warmer and darker colors cooler.
+#
+#   Requires: enable_post_processing
+enable_color_grading (Color grading) bool false
+
 #    Apply dithering to reduce color banding artifacts.
 #    Dithering significantly increases the size of losslessly-compressed
 #    screenshots and it works incorrectly if the display or operating system
@@ -608,11 +629,20 @@ enable_bloom (Enable Bloom) bool false
 #    Set to true to enable volumetric lighting effect (a.k.a. "Godrays").
 #
 #    Requires: enable_post_processing, enable_bloom
-enable_volumetric_lighting (Volumetric lighting) bool false
+enable_volumetric_lighting (Volumetric Lighting) bool false
+
+#    Make volumetrics weaker against closer objects to emulate physical volumetrics.
+#
+#    Requires: enable_post_processing, enable_bloom, enable_volumetric_lighting
+enable_volumetric_depth_attenuation (Volumetric Depth Attenuation) bool false
 
 [**Other Effects]
 
+#   Makes the color of light fog more saturated.
+enable_tinted_fog (Tinted fog) bool false
+
 #   Simulate translucency when looking at foliage in the sunlight.
+#   It is recommended to use this with the leaves style set to fancy.
 #
 #   Requires: enable_dynamic_shadows
 enable_translucent_foliage (Translucent foliage) bool false
@@ -621,11 +651,6 @@ enable_translucent_foliage (Translucent foliage) bool false
 #
 #   Requires: enable_dynamic_shadows
 enable_node_specular (Node specular) bool false
-
-#   When enabled, liquid reflections are simulated.
-#
-#   Requires: enable_waving_water, enable_dynamic_shadows
-enable_water_reflections (Liquid reflections) bool false
 
 [*Audio]
 
