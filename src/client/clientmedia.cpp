@@ -253,9 +253,9 @@ void ClientMediaDownloader::initialStep(Client *client)
 		// requests, so if there are lots of remote servers that are
 		// not responding, those will stall new media file transfers.
 
-		assert(m_httpfetch_next_id == 0);
-
 		for (u32 i = 0; i < m_remotes.size(); ++i) {
+			assert(m_httpfetch_next_id == i);
+
 			RemoteServerStatus *remote = m_remotes[i];
 			actionstream << "Client: Contacting remote server \""
 				<< remote->baseurl << "\"" << std::endl;
