@@ -147,12 +147,13 @@ bool GUIModalMenu::remapClickOutside(const SEvent &event)
 	if (event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP &&
 			current.isRelated(last)) {
 		SEvent translated{};
-		translated.EventType            = EET_KEY_INPUT_EVENT;
-		translated.KeyInput.Key         = KEY_ESCAPE;
-		translated.KeyInput.Control     = false;
-		translated.KeyInput.Shift       = false;
-		translated.KeyInput.PressedDown = true;
-		translated.KeyInput.Char        = 0;
+		translated.EventType              = EET_KEY_INPUT_EVENT;
+		translated.KeyInput.Key           = KEY_ESCAPE;
+		translated.KeyInput.SystemKeyCode = EscapeKey.getScancode();
+		translated.KeyInput.Control       = false;
+		translated.KeyInput.Shift         = false;
+		translated.KeyInput.PressedDown   = true;
+		translated.KeyInput.Char          = 0;
 		OnEvent(translated);
 		return true;
 	}
