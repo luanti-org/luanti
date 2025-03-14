@@ -18,11 +18,9 @@
 /** reference to access font engine, has to be initialized by main */
 FontEngine *g_fontengine = nullptr;
 
-bool FontEngine::m_needs_reload = false;
-
 void FontEngine::fontSettingChanged(const std::string &name, void *userdata)
 {
-	m_needs_reload = true;
+	((FontEngine *)userdata)->m_needs_reload = true;
 }
 
 static const char *settings[] = {

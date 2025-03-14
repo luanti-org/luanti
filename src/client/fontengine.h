@@ -170,7 +170,7 @@ private:
 	/** default font engine mode (fixed) */
 	static const FontMode m_currentMode = FM_Standard;
 
-	static bool m_needs_reload;
+	bool m_needs_reload = false;
 
 	DISABLE_CLASS_COPY(FontEngine);
 };
