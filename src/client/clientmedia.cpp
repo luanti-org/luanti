@@ -238,11 +238,12 @@ void ClientMediaDownloader::initialStep(Client *client)
 
 		// Note: we used to use a POST request that contained the set of
 		// hashes we needed here, but this use was discontinued in 5.12.0 as
-		// it's not CDN-friendly. Even with a large repository of media (think 60k files),
-		// you would be looking at just 1.1 MB for the index file.
+		// it's not CDN/static hosting-friendly.
+		// Even with a large repository of media (think 60k files), you would be
+		// looking at only 1.1 MB for the index file.
 		// If it becomes a problem we can always still introduce a v2 of the
-		// hash set format and truncate the hashes to 8 bytes -- at the cost of
-		// a false-positive rate of 2^-64 -- which is 60% less space.
+		// hash set format and truncate the hashes to 6 bytes -- at the cost of
+		// a false-positive rate of 2^-48 -- which is 70% less space.
 
 		// minor fixme: this loop ignores m_httpfetch_active_limit
 
