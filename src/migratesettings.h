@@ -28,4 +28,11 @@ void migrate_settings()
 		}
 		g_settings->remove("disable_anticheat");
 	}
+
+	// Convert touch_use_crosshair to touch_interaction_style
+	if (g_settings->existsLocal("touch_use_crosshair")) {
+		bool value = g_settings->getBool("touch_use_crosshair");
+		g_settings->set("touch_interaction_style", value ? "tap_crosshair" : "tap");
+		g_settings->remove("touch_use_crosshair");
+	}
 }

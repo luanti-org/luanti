@@ -139,20 +139,33 @@ are placeholders intended to be overwritten by the game.
 
 ### Android textures
 
-* `drop_btn.png`
-* `fast_btn.png`
-* `fly_btn.png`
-* `jump_btn.png`
-* `noclip_btn.png`
+* `dig_btn.png`
+* `place_btn.png`
 
-* `camera_btn.png`
+* `jump_btn.png`
+* `down.png`
+* `zoom.png`
+* `aux1_btn.png`
+* `overflow_btn.png`
+
 * `chat_btn.png`
 * `inventory_btn.png`
-* `rangeview_btn.png`
-
-* `debug_btn.png`
-* `overflow_btn.png`
+* `drop_btn.png`
 * `exit_btn.png`
+
+* `fly_btn.png`
+* `fast_btn.png`
+* `noclip_btn.png`
+* `debug_btn.png`
+* `camera_btn.png`
+* `rangeview_btn.png`
+* `minimap_btn.png`
+* `chat_hide_btn.png`
+* `chat_show_btn.png`
+
+* `joystick_off.png`
+* `joystick_bg.png`
+* `joystick_center.png`
 
 Texture Overrides
 -----------------
