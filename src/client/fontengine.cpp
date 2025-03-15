@@ -81,7 +81,7 @@ irr::gui::IGUIFont *FontEngine::getFont(FontSpec spec)
 irr::gui::IGUIFont *FontEngine::getFont(FontSpec spec, bool may_fail)
 {
 	if (spec.mode == FM_Unspecified) {
-		spec.mode = m_currentMode;
+		spec.mode = s_default_font_mode;
 	} else if (spec.mode == _FM_Fallback) {
 		// Fallback font doesn't support these
 		spec.bold = false;
@@ -139,7 +139,7 @@ unsigned int FontEngine::getLineHeight(const FontSpec &spec)
 
 unsigned int FontEngine::getDefaultFontSize()
 {
-	return m_default_size[m_currentMode];
+	return m_default_size[s_default_font_mode];
 }
 
 unsigned int FontEngine::getFontSize(FontMode mode)
@@ -153,8 +153,13 @@ unsigned int FontEngine::getFontSize(FontMode mode)
 void FontEngine::readSettings()
 {
 	m_default_size[FM_Standard]  = rangelim(g_settings->getU16("font_size"), 5, 72);
-	m_default_size[_FM_Fallback] = m_default_size[FM_Standard];
 	m_default_size[FM_Mono]      = rangelim(g_settings->getU16("mono_font_size"), 5, 72);
+
+	m_default_size[FM_Standard_NoServerMedia]
+		= m_default_size[_FM_Fallback]
+		= m_default_size[FM_Standard];
+	m_default_size[FM_Mono_NoServerMedia]
+		= m_default_size[FM_Mono];
 
 	m_default_bold = g_settings->getBool("font_bold");
 	m_default_italic = g_settings->getBool("font_italic");
@@ -219,8 +224,16 @@ gui::IGUIFont *FontEngine::initFont(const FontSpec &spec)
 	assert(spec.mode != FM_Unspecified);
 	assert(spec.size != FONT_SIZE_UNSPECIFIED);
 
+	FontMode mode = spec.mode; // this takes priority over `spec.mode` !
+
+	const bool allow_server_media = mode == FM_Standard || mode == FM_Mono;
+	if (mode == FM_Standard_NoServerMedia)
+		mode = FM_Standard;
+	if (mode == FM_Mono_NoServerMedia)
+		mode = FM_Mono;
+
 	std::string setting_prefix = "";
-	if (spec.mode == FM_Mono)
+	if (mode == FM_Mono)
 		setting_prefix = "mono_";
 
 	std::string setting_suffix = "";
@@ -248,18 +261,6 @@ gui::IGUIFont *FontEngine::initFont(const FontSpec &spec)
 	g_settings->getU16NoEx(setting_prefix + "font_shadow_alpha",
 			font_shadow_alpha);
 
-	std::string path_setting;
-	if (spec.mode == _FM_Fallback)
-		path_setting = "fallback_font_path";
-	else
-		path_setting = setting_prefix + "font_path" + setting_suffix;
-
-	std::string media_name = spec.mode == FM_Mono
-			? "mono" + setting_suffix
-			: (setting_suffix.empty() ? "" : setting_suffix.substr(1));
-	if (media_name.empty())
-		media_name = "regular";
-
 	auto createFont = [&](gui::SGUITTFace *face) -> gui::CGUITTFont* {
 		auto *font = gui::CGUITTFont::createTTFont(m_env,
 				face, size, true, true, font_shadow,
@@ -268,7 +269,7 @@ gui::IGUIFont *FontEngine::initFont(const FontSpec &spec)
 		if (!font)
 			return nullptr;
 
-		if (spec.mode != _FM_Fallback) {
+		if (mode != _FM_Fallback) {
 			FontSpec spec2(spec);
 			spec2.mode = _FM_Fallback;
 			font->setFallback(getFont(spec2, true));
@@ -277,14 +278,30 @@ gui::IGUIFont *FontEngine::initFont(const FontSpec &spec)
 		return font;
 	};
 
-	auto it = m_media_faces.find(media_name);
-	if (spec.mode != _FM_Fallback && it != m_media_faces.end()) {
-		auto *face = it->second.get();
-		if (auto *font = createFont(face))
-			return font;
-		errorstream << "FontEngine: Cannot load media font '" << media_name <<
-			"'. Falling back to client settings." << std::endl;
+	// Use the server-provided font media (if available)
+	if (allow_server_media) {
+		std::string media_name = mode == FM_Mono
+				? "mono" + setting_suffix
+				: (setting_suffix.empty() ? "" : setting_suffix.substr(1));
+		if (media_name.empty())
+			media_name = "regular";
+
+		auto it = m_media_faces.find(media_name);
+		if (it != m_media_faces.end()) {
+			auto *face = it->second.get();
+			if (auto *font = createFont(face))
+				return font;
+			errorstream << "FontEngine: Cannot load media font '" << media_name <<
+				"'. Falling back to client settings." << std::endl;
+		}
 	}
+
+	// Use the local font files specified by the settings
+	std::string path_setting;
+	if (mode == _FM_Fallback)
+		path_setting = "fallback_font_path";
+	else
+		path_setting = setting_prefix + "font_path" + setting_suffix;
 
 	std::string fallback_settings[] = {
 		g_settings->get(path_setting),

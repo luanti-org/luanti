@@ -23,10 +23,29 @@ namespace irr {
 #define FONT_SIZE_UNSPECIFIED 0xFFFFFFFF
 
 enum FontMode : u8 {
+	/// Regular font (settings "font_path*", overwritable)
 	FM_Standard = 0,
+
+	/// Monospace font (settings "mono_font*", overwritable)
 	FM_Mono,
-	_FM_Fallback, // do not use directly
+
+	/// Like `FM_Standard` but cannot be overwritten by server-provided media
+	/// This font should be used in case of user security concerns.
+	FM_Standard_NoServerMedia,
+
+	/// Analog to `FM_Standard_NoServerMedia`
+	FM_Mono_NoServerMedia,
+
+	/// Use only in `FontEngine`. Fallback font to render glyphs that are not present
+	/// in the originally requested font (setting "fallback_font_path")
+	_FM_Fallback,
+
+	/// Sum of all font modes
 	FM_MaxMode,
+
+	// ----------------------------
+
+	/// Request the defult font specified by `s_default_font_mode`
 	FM_Unspecified
 };
 
@@ -162,7 +181,7 @@ private:
 	bool m_default_italic = false;
 
 	/** default font engine mode (fixed) */
-	static const FontMode m_currentMode = FM_Standard;
+	static const FontMode s_default_font_mode = FM_Standard;
 
 	DISABLE_CLASS_COPY(FontEngine);
 };

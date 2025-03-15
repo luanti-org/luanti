@@ -112,6 +112,7 @@ doubletap_jump (Double tap jump for fly) bool false
 always_fly_fast (Always fly fast) bool true
 
 #    If enabled, the "Sneak" key will toggle when pressed.
+#    This functionality is ignored when fly is enabled.
 toggle_sneak_key (Toggle Sneak key) bool false
 
 #    If enabled, the "Aux1" key will toggle when pressed.

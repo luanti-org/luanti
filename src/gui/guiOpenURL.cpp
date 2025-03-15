@@ -87,6 +87,9 @@ void GUIOpenURLMenu::regenerateGui(v2u32 screensize)
 		ok = false;
 	}
 
+	auto font_standard = g_fontengine->getFont(FONT_SIZE_UNSPECIFIED,
+			FM_Standard_NoServerMedia);
+
 	/*
 		Add stuff
 	*/
@@ -99,8 +102,9 @@ void GUIOpenURLMenu::regenerateGui(v2u32 screensize)
 		std::wstring title = ok
 				? wstrgettext("Open URL?")
 				: wstrgettext("Unable to open URL");
-		gui::StaticText::add(Environment, title, rect,
+		auto *e = gui::StaticText::add(Environment, title, rect,
 				false, true, this, -1);
+		e->setOverrideFont(font_standard);
 	}
 
 	ypos += 50 * s;
@@ -108,8 +112,9 @@ void GUIOpenURLMenu::regenerateGui(v2u32 screensize)
 	{
 		core::rect<s32> rect(0, 0, 440 * s, 60 * s);
 
-		auto font = g_fontengine->getFont(FONT_SIZE_UNSPECIFIED,
-				ok ? FM_Mono : FM_Standard);
+		auto font = ok ? g_fontengine->getFont(FONT_SIZE_UNSPECIFIED,
+				FM_Mono_NoServerMedia) : font_standard;
+
 		int scrollbar_width = Environment->getSkin()->getSize(gui::EGDS_SCROLLBAR_SIZE);
 		int max_cols = (rect.getWidth() - scrollbar_width - 10) / font->getDimension(L"x").Width;
 
@@ -131,14 +136,16 @@ void GUIOpenURLMenu::regenerateGui(v2u32 screensize)
 	if (ok) {
 		core::rect<s32> rect(0, 0, 100 * s, 40 * s);
 		rect = rect + v2s32(size.X / 2 - 150 * s, ypos);
-		GUIButton::addButton(Environment, rect, m_tsrc, this, ID_open,
+		auto *e = GUIButton::addButton(Environment, rect, m_tsrc, this, ID_open,
 				wstrgettext("Open").c_str());
+		e->setOverrideFont(font_standard);
 	}
 	{
 		core::rect<s32> rect(0, 0, 100 * s, 40 * s);
 		rect = rect + v2s32(size.X / 2 + 50 * s, ypos);
-		GUIButton::addButton(Environment, rect, m_tsrc, this, ID_cancel,
+		auto *e = GUIButton::addButton(Environment, rect, m_tsrc, this, ID_cancel,
 				wstrgettext("Cancel").c_str());
+		e->setOverrideFont(font_standard);
 	}
 }
 
