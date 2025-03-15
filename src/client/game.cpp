@@ -2448,6 +2448,11 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 {
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
+	// In free move (fly), the "toggle_sneak_key" setting would prevent precise
+	// up/down movements. Hence, enable the feature only during 'normal' movement.
+	const bool allow_sneak_toggle = m_cache_toggle_sneak_key &&
+		!player->getPlayerSettings().free_move;
+
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
 	PlayerControl control(
@@ -2456,8 +2461,8 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		isKeyDown(KeyType::LEFT),
 		isKeyDown(KeyType::RIGHT),
 		isKeyDown(KeyType::JUMP) || player->getAutojump(),
-		getTogglableKeyState(KeyType::AUX1,  m_cache_toggle_aux1_key,  player->control.aux1),
-		getTogglableKeyState(KeyType::SNEAK, m_cache_toggle_sneak_key, player->control.sneak),
+		getTogglableKeyState(KeyType::AUX1,  m_cache_toggle_aux1_key, player->control.aux1),
+		getTogglableKeyState(KeyType::SNEAK, allow_sneak_toggle,      player->control.sneak),
 		isKeyDown(KeyType::ZOOM),
 		isKeyDown(KeyType::DIG),
 		isKeyDown(KeyType::PLACE),
