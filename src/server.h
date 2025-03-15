@@ -17,6 +17,7 @@
 #include "util/thread.h"
 #include "util/basic_macros.h"
 #include "util/metricsbackend.h"
+#include "util/hotbar_source.h"
 #include "serverenvironment.h"
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
@@ -364,7 +365,8 @@ public:
 	bool hudRemove(RemotePlayer *player, u32 id);
 	bool hudChange(RemotePlayer *player, u32 id, HudElementStat stat, void *value);
 	bool hudSetFlags(RemotePlayer *player, u32 flags, u32 mask);
-	bool hudSetHotbarItemcount(RemotePlayer *player, s32 hotbar_itemcount);
+	bool hudSetHotbarItemcountLegacy(RemotePlayer *player, s32 hotbar_itemcount);
+	bool hudSetHotbarSource(RemotePlayer *player, const HotbarSource& source);
 	void hudSetHotbarImage(RemotePlayer *player, const std::string &name);
 	void hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &name);
 

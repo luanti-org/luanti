@@ -212,40 +212,144 @@ core.register_chatcommand("zoomfov", {
 
 local hud_hotbar_defs = {
 	{
-		type = "hotbar",
-		position = {x=0.2, y=0.5},
-		direction = 0,
-		alignment = {x=1, y=-1},
+		{
+			type = "hotbar",
+			position = {x=0.2, y=0.5},
+			direction = 1,
+			alignment = {x=1, y=-1},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.2, y=0.5},
+			direction = 3,
+			alignment = {x=1, y=1},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.7, y=0.5},
+			direction = 0,
+			offset = {x=140, y=20},
+			alignment = {x=-1, y=-1},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.7, y=0.5},
+			direction = 2,
+			offset = {x=140, y=20},
+			alignment = {x=-1, y=1},
+		},
 	},
 	{
-		type = "hotbar",
-		position = {x=0.2, y=0.5},
-		direction = 2,
-		alignment = {x=1, y=1},
+		hotbar_source = {
+			{list = "craft", length = 4, offset = 3},
+			{list = "main", length = 5, offset = 0},
+		},
+		hotbar_image = "default_stone.png^[opacity:150",
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.2},
+			world_pos = {x=1},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.3},
+			world_pos = {x=1, y=6},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.4},
+			world_pos = {x=1, z=5, y=3},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.5},
+			world_pos = {x=2},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.6},
+			world_pos = {x=2, z=1, y=3},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.7},
+			world_pos = {x=2},
+			direction = 1,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.8},
+			world_pos = {x=2, z=1, y=3},
+			direction = 1,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.2, y=0.5},
+			world_pos = {x=2, z=1, y=3},
+			direction = 2,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.8, y=0.5},
+			world_pos = {x=2, z=1, y=3},
+			direction = 3,
+		},
 	},
 	{
-		type = "hotbar",
-		position = {x=0.7, y=0.5},
-		direction = 0,
-		offset = {x=140, y=20},
-		alignment = {x=-1, y=-1},
-	},
-	{
-		type = "hotbar",
-		position = {x=0.7, y=0.5},
-		direction = 2,
-		offset = {x=140, y=20},
-		alignment = {x=-1, y=1},
-	},
+		hotbar_source = {
+			{list = "craft", length = 4, offset = 3},
+			{list = "main", length = 5, offset = 0},
+			{list = "main", length = 2, offset = 4},
+			{list = "craft", length = 4, offset = 3},
+		},
+		hotbar_image = "default_stone.png^[opacity:150",
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.8},
+			direction = 1,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.7},
+			world_pos = {z=1, y=10},
+			direction = 1,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.6},
+			world_pos = {z=1, y=10},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.5},
+			world_pos = {z=17, y=5},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.4},
+			world_pos = {z=10, y=10},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.2, y=0.5},
+			direction = 2,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.8, y=0.5},
+			direction = 3,
+		},
+	}
 }
 
 
 local player_hud_hotbars= {}
 core.register_chatcommand("hudhotbars", {
 	description = "Shows some test Lua HUD elements of type hotbar. " ..
-			"(add: Adds elements (default). remove: Removes elements)",
-	params = "[ add | remove ]",
-	func = function(name, params)
+			"(Cycles between: none, aligned using all direction and offset," ..
+			"changed hotbar_source each only using a single inventory," ..
+			"using multiple inventories (world_pos.x = 0))",
+	func = function(name)
 		local player = core.get_player_by_name(name)
 		if not player then
 			return false, "No player."
@@ -253,22 +357,37 @@ core.register_chatcommand("hudhotbars", {
 
 		local id_table = player_hud_hotbars[name]
 		if not id_table then
-			id_table = {}
+			id_table = {mode = 0}
 			player_hud_hotbars[name] = id_table
 		end
 
-		if params == "remove" then
-			for _, id in ipairs(id_table) do
-				player:hud_remove(id)
-			end
+		id_table.mode = (id_table.mode + 1) % (#hud_hotbar_defs + 1)
+
+		-- Reset
+		for _, id in ipairs(id_table) do
+			player:hud_remove(id)
+		end
+		player:hud_set_hotbar_itemcount(8)
+		player:hud_set_hotbar_image("")
+
+		if id_table.mode == 0 then
 			return true, "Hotbars removed."
 		end
 
-		-- params == "add" or default
-		for _, def in ipairs(hud_hotbar_defs) do
+		for _, def in ipairs(hud_hotbar_defs[id_table.mode]) do
 			table.insert(id_table, player:hud_add(def))
 		end
-		return true, #hud_hotbar_defs .." Hotbars added."
+
+		if hud_hotbar_defs[id_table.mode].hotbar_source then
+			player:set_hotbar_source(hud_hotbar_defs[id_table.mode].hotbar_source)
+		end
+
+		if hud_hotbar_defs[id_table.mode].hotbar_image then
+			player:hud_set_hotbar_image(hud_hotbar_defs[id_table.mode].hotbar_image)
+		end
+
+
+		return true, #hud_hotbar_defs[id_table.mode] .." Hotbars added."
 	end
 })
 
