@@ -11,6 +11,7 @@
 #include "hud.h"
 #include "log_internal.h"
 #include "client/renderingengine.h"
+#include "util/hotbar_source.h" // HOTBAR_ITEMCOUNT_MAX
 
 void KeyCache::populate_nonchanging()
 {
@@ -69,7 +70,7 @@ void KeyCache::populate()
 	key[KeyType::QUICKTUNE_INC] = getKeySetting("keymap_quicktune_inc");
 	key[KeyType::QUICKTUNE_DEC] = getKeySetting("keymap_quicktune_dec");
 
-	for (int i = 0; i < HUD_HOTBAR_ITEMCOUNT_MAX; i++) {
+	for (int i = 0; i < HOTBAR_ITEMCOUNT_MAX; i++) {
 		std::string slot_key_name = "keymap_slot" + std::to_string(i + 1);
 		key[KeyType::SLOT_1 + i] = getKeySetting(slot_key_name.c_str());
 	}
