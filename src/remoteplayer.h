@@ -35,12 +35,8 @@ public:
 
 	RemotePlayerChatResult canSendChatMessage();
 
-	void setHotbarItemcount(s32 hotbar_itemcount)
-	{
-		hud_hotbar_itemcount = hotbar_itemcount;
-	}
-
-	s32 getHotbarItemcount() const { return hud_hotbar_itemcount; }
+	void setHotbarSource(const HotbarSource& source) { hotbar_source = source; }
+	const HotbarSource& getHotbarSource() const { return hotbar_source; }
 
 	void overrideDayNightRatio(bool do_override, float ratio)
 	{
