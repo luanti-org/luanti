@@ -23,6 +23,10 @@
 #undef SDL_VIDEO_DRIVER_DIRECTFB
 #include <SDL_syswm.h>
 
+#ifdef _IRR_COMPILE_WITH_ANGLE_
+#include <EGL/egl.h>
+#endif
+
 #include <memory>
 
 namespace irr
@@ -298,8 +302,16 @@ private:
 	void createKeyMap();
 
 	void logAttributes();
-	SDL_GLContext Context;
+
 	SDL_Window *Window;
+#ifndef _IRR_COMPILE_WITH_ANGLE_
+	SDL_GLContext Context;
+#else
+	SDL_MetalView View;
+	EGLSurface Surface;
+	EGLContext Context;
+	EGLDisplay Display;
+#endif
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
 	core::array<SDL_Joystick *> Joysticks;
 #endif

@@ -35,7 +35,11 @@ bool CSDLManager::activateContext(const SExposedVideoData &videoData, bool resto
 
 void *CSDLManager::getProcAddress(const std::string &procName)
 {
+#ifndef _IRR_COMPILE_WITH_ANGLE_
 	return SDL_GL_GetProcAddress(procName.c_str());
+#else
+	return (void *)eglGetProcAddress(procName.c_str());
+#endif
 }
 
 bool CSDLManager::swapBuffers()

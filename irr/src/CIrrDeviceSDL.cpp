@@ -1,4 +1,5 @@
 // Copyright (C) 2002-2012 Nikolaus Gebhardt
+// Copyright (C) 2025 Luanti contributors
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -26,6 +27,13 @@
 #endif
 
 #include "CSDLManager.h"
+
+#ifdef _IRR_COMPILE_WITH_ANGLE_
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES2/gl2.h>
+#include <GLES3/gl3.h>
+#endif
 
 static int SDLDeviceInstances = 0;
 
@@ -365,13 +373,19 @@ CIrrDeviceSDL::~CIrrDeviceSDL()
 	for (u32 i = 0; i < numJoysticks; ++i)
 		SDL_JoystickClose(Joysticks[i]);
 #endif
+#ifndef _IRR_COMPILE_WITH_ANGLE_
 	if (Window && Context) {
 		SDL_GL_MakeCurrent(Window, NULL);
 		SDL_GL_DeleteContext(Context);
 	}
+#else
+	if (View) {
+		SDL_Metal_DestroyView(View);
+	}
 	if (Window) {
 		SDL_DestroyWindow(Window);
 	}
+#endif
 
 	if (--SDLDeviceInstances == 0) {
 		SDL_Quit();
@@ -496,6 +510,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 	if (CreationParams.WindowMaximized)
 		SDL_Flags |= SDL_WINDOW_MAXIMIZED;
 	SDL_Flags |= SDL_WINDOW_OPENGL;
+	//SDL_Flags |= SDL_WINDOW_METAL;
 
 	SDL_GL_ResetAttributes();
 
@@ -585,12 +600,29 @@ bool CIrrDeviceSDL::createWindowWithContext()
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 	}
 
-	Window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_Flags);
+	SDL_GL_ResetAttributes();
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	//SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+
+#ifndef _IRR_COMPILE_WITH_ANGLE_
+	if (!SDL_GL_LoadLibrary(NULL)) {
+	os::Printer::log("Could not load OpenGL ES library", SDL_GetError(), ELL_WARNING);
+	return false;
+	}
+
+	Window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+#else
+	Window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_METAL | SDL_WINDOW_ALLOW_HIGHDPI);
+#endif
 	if (!Window) {
 		os::Printer::log("Could not create window", SDL_GetError(), ELL_WARNING);
 		return false;
 	}
 
+#ifndef _IRR_COMPILE_WITH_ANGLE_
 	Context = SDL_GL_CreateContext(Window);
 	if (!Context) {
 		os::Printer::log("Could not create context", SDL_GetError(), ELL_WARNING);
@@ -598,6 +630,84 @@ bool CIrrDeviceSDL::createWindowWithContext()
 		Window = nullptr;
 		return false;
 	}
+
+	int major, minor;
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
+	os::Printer::log("OpenGL ES version", std::to_string(major) + "." + std::to_string(minor), ELL_INFORMATION);
+
+	const char* error = SDL_GetError();
+	if (*error != '\0') {
+		os::Printer::log("SDL Error", error, ELL_WARNING);
+		SDL_ClearError();
+	}
+#else
+	auto metal_view = SDL_Metal_CreateView(Window);
+	auto metal_layer = SDL_Metal_GetLayer(metal_view);
+
+	EGLAttrib egl_display_attribs[] = {
+		EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_METAL_ANGLE,
+		EGL_POWER_PREFERENCE_ANGLE, EGL_HIGH_POWER_ANGLE,
+		EGL_NONE
+	};
+
+	Display = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, (void*) EGL_DEFAULT_DISPLAY, egl_display_attribs);
+	if (Display == EGL_NO_DISPLAY)
+	{
+		os::Printer::log("Failed to get EGL display");
+		return false;
+	}
+
+	if (eglInitialize(Display, NULL, NULL) == false)
+	{
+		os::Printer::log("Failed to initialize EGL");
+		return false;
+	}
+
+	EGLint egl_config_attribs[] = {
+		EGL_RED_SIZE, 8,
+		EGL_GREEN_SIZE, 8,
+		EGL_BLUE_SIZE, 8,
+		EGL_ALPHA_SIZE, 8,
+		EGL_DEPTH_SIZE, 16,
+		EGL_STENCIL_SIZE, 8,
+		EGL_COLOR_BUFFER_TYPE, EGL_RGB_BUFFER,
+		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT,
+		EGL_NONE
+	};
+
+	EGLConfig config;
+	EGLint configs_count;
+	if (!eglChooseConfig(Display, egl_config_attribs, &config, 1, &configs_count))
+	{
+		os::Printer::log("Failed to choose EGL config");
+		return false;
+	}
+
+	EGLint egl_context_attribs[] = {
+		EGL_CONTEXT_CLIENT_VERSION, 3,
+		EGL_NONE
+	};
+	Context = eglCreateContext(Display, config, EGL_NO_CONTEXT, egl_context_attribs);
+	if (Context == EGL_NO_CONTEXT) {
+		os::Printer::log("Failed to create EGL context");
+		return false;
+	}
+
+	Surface = eglCreateWindowSurface(Display, config, metal_layer, NULL);
+	if (Surface == EGL_NO_SURFACE)
+	{
+		os::Printer::log("Failed to create EGL surface");
+		return false;
+	}
+
+	if (!eglMakeCurrent(Display, Surface, Surface, Context))
+	{
+		os::Printer::log("Failed to make EGL context current");
+		return false;
+	}
+#endif
 
 	updateSizeAndScale();
 	if (ScaleX != 1.0f || ScaleY != 1.0f) {
@@ -1094,7 +1204,11 @@ float CIrrDeviceSDL::getDisplayDensity() const
 
 void CIrrDeviceSDL::SwapWindow()
 {
+#ifndef _IRR_COMPILE_WITH_ANGLE_
 	SDL_GL_SwapWindow(Window);
+#else
+	eglSwapBuffers(Display, Surface);
+#endif
 }
 
 //! pause execution temporarily
