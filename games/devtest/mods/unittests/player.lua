@@ -183,9 +183,32 @@ end
 unittests.register("test_player_add_pos", run_player_add_pos_tests, {player=true})
 
 --
--- Hotbar selection clamp
+-- Hotbar Source
 --
-local function run_player_hotbar_clamp_tests(player)
+
+local function table_equals(t1, t2)
+	local keys = {}
+	local checked = {}
+	for k, v in pairs(t1) do
+		if type(v) == "table" then
+			if not (checked[v] or table_equals(v, t2[k])) then
+				return false
+			end
+			checked[v] = true
+		elseif t2[k] ~= v then
+			return false
+		end
+		keys[k] = true
+	end
+	for k, _ in pairs(t2) do
+		if not keys[k] then
+			return false
+		end
+	end
+	return true
+end
+
+local function run_player_hotbar_source_tests(player)
 	local inv = player:get_inventory()
 	local old_inv_size = inv:get_size("main")
 	local old_inv_list = inv:get_list("main") -- Avoid accidentally removing item
@@ -195,15 +218,23 @@ local function run_player_hotbar_clamp_tests(player)
 
 	player:hud_set_hotbar_itemcount(2)
 	assert(player:hud_get_hotbar_itemcount() == 2)
+	assert(table_equals(player:get_hotbar_source(), {{list = "main", length = 2, offset = 0}}))
 
+	-- Test clamp
 	player:hud_set_hotbar_itemcount(6)
 	assert(player:hud_get_hotbar_itemcount() == 5)
+	assert(table_equals(player:get_hotbar_source(), {{list = "main", length = 5, offset = 0}}))
+
+	local hotbar_source = {{list = "test", length = 4, offset = 2}, {list = "myinv", length = 16, offset = 99}}
+	player:set_hotbar_source(hotbar_source)
+	assert(table_equals(player:get_hotbar_source(), hotbar_source))
+	assert(player:hud_get_hotbar_itemcount() == 20)
 
 	inv:set_size("main", old_inv_size)
 	inv:set_list("main", old_inv_list)
 	player:hud_set_hotbar_itemcount(old_bar_size)
 end
-unittests.register("test_player_hotbar_clamp", run_player_hotbar_clamp_tests, {player=true})
+unittests.register("test_player_hotbar_source", run_player_hotbar_source_tests, {player=true})
 
 --
 -- Player GUID
