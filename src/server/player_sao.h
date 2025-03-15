@@ -119,7 +119,6 @@ public:
 	Inventory *getInventory() const override;
 	InventoryLocation getInventoryLocation() const override;
 	void setInventoryModified() override {}
-	std::string getWieldList() const override { return "main"; }
 	u16 getWieldIndex() const override;
 	ItemStack getWieldedItem(ItemStack *selected, ItemStack *hand = nullptr) const override;
 	bool setWieldedItem(const ItemStack &item) override;

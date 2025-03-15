@@ -144,7 +144,7 @@ private:
 	ButtonLayout m_layout;
 	void applyLayout(const ButtonLayout &layout);
 
-	std::unordered_map<u16, recti> m_hotbar_rects;
+	std::vector<std::pair<u16, recti>> m_hotbar_rects;
 	std::optional<u16> m_hotbar_selection = std::nullopt;
 
 	// value in degree
