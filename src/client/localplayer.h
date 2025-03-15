@@ -83,12 +83,6 @@ public:
 	v3f last_speed;
 	float last_pitch = 0.0f;
 	float last_yaw = 0.0f;
-	u32 last_keyPressed = 0;
-	u8 last_camera_fov = 0;
-	u8 last_wanted_range = 0;
-	bool last_camera_inverted = false;
-	f32 last_movement_speed = 0.0f;
-	f32 last_movement_dir = 0.0f;
 
 	float camera_impact = 0.0f;
 
