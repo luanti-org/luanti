@@ -77,10 +77,22 @@ void KeyCache::populate()
 	if (handler) {
 		// First clear all keys, then re-add the ones we listen for
 		handler->dontListenForKeys();
+		avoidModifiers.fill({});
 		for (const KeyPress &k : key) {
 			handler->listenForKey(k);
+
+			for (auto j = 0; j < KeyType::INTERNAL_ENUM_COUNT; j++) {
+				const auto &k2 = key[j];
+				if (!k2.empty() && k != k2 && k.matches(k2) > 0) {
+					// warningstream << k.sym() << " matches " << k2.sym() << std::endl;
+					// k2 involves a modifier key that is not used by k
+					avoidModifiers[j].emplace_front(k);
+				}
+			}
 		}
 		handler->listenForKey(EscapeKey);
+		handler->listenForKey(KeyPress("KEY_SHIFT", false));
+		handler->listenForKey(KeyPress("KEY_CONTROL", false));
 	}
 }
 
@@ -142,7 +154,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 
 	// Remember whether each key is down or up
 	if (event.EventType == irr::EET_KEY_INPUT_EVENT) {
-		const KeyPress keyCode(event.KeyInput);
+		const KeyPress keyCode(event.KeyInput, false, false);
 		if (keysListenedFor[keyCode]) {
 			if (event.KeyInput.PressedDown) {
 				if (!IsKeyDown(keyCode))
@@ -155,6 +167,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 					keyWasReleased.set(keyCode);
 
 				keyIsDown.unset(keyCode);
+				keyWasDown.unset(keyCode);
 			}
 
 			return true;

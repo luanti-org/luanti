@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#include "gettext.h"
 #include "keycode.h"
 #include "settings.h"
 #include "log.h"
@@ -27,8 +28,6 @@ struct table_key {
 	{ "KEY_F" TOSTRING(ch), irr::KEY_F ## ch, L'\0', "F" TOSTRING(ch) },
 #define DEFINEKEY5(ch) /* key without Irrlicht keycode */ \
 	{ ch, irr::KEY_KEY_CODES_COUNT, (wchar_t) *ch, ch },
-
-#define N_(text) text
 
 static const struct table_key table[] = {
 	// Keys that can be reliably mapped between Char and Key
@@ -224,10 +223,10 @@ static const struct table_key table[] = {
 #undef N_
 
 
-static const table_key &lookup_keyname(const char *name)
+static const table_key &lookup_keyname(const std::string_view &name)
 {
 	for (const auto &table_key : table) {
-		if (strcmp(table_key.Name, name) == 0)
+		if (table_key.Name == name)
 			return table_key;
 	}
 
@@ -258,19 +257,39 @@ static const table_key &lookup_keychar(wchar_t Char)
 	throw UnknownKeycode(os.str().c_str());
 }
 
-KeyPress::KeyPress(const char *name)
+std::string_view KeyPress::parseModifiers(const std::string_view &name, bool merge_modifiers)
 {
-	if (strlen(name) == 0) {
+	if (str_starts_with(name, "KEY_CONTROL-")) {
+		control = true;
+		return parseModifiers(name.substr(12), merge_modifiers);
+	} else if (str_starts_with(name, "KEY_SHIFT-")) {
+		shift = true;
+		return parseModifiers(name.substr(10), merge_modifiers);
+	}
+	if (merge_modifiers) {
+		if (is_control_base(name)) {
+			control = true;
+			return "";
+		} else if (is_shift_base(name)) {
+			shift = true;
+			return "";
+		}
+	}
+	return name;
+}
+
+KeyPress::KeyPress(const std::string_view &name, bool merge_modifiers)
+{
+	auto keyname = parseModifiers(name, merge_modifiers);
+	auto wkeyname = utf8_to_wide(keyname);
+	if (wkeyname.empty()) {
 		Key = irr::KEY_KEY_CODES_COUNT;
 		Char = L'\0';
 		m_name = "";
 		return;
-	}
-
-	if (strlen(name) <= 4) {
+	} else if (wkeyname.size() == 1) {
 		// Lookup by resulting character
-		int chars_read = mbtowc(&Char, name, 1);
-		FATAL_ERROR_IF(chars_read != 1, "Unexpected multibyte character");
+		Char = wkeyname[0];
 		try {
 			auto &k = lookup_keychar(Char);
 			m_name = k.Name;
@@ -279,9 +298,9 @@ KeyPress::KeyPress(const char *name)
 		} catch (UnknownKeycode &e) {};
 	} else {
 		// Lookup by name
-		m_name = name;
+		m_name = keyname;
 		try {
-			auto &k = lookup_keyname(name);
+			auto &k = lookup_keyname(keyname);
 			Key = k.Key;
 			Char = k.Char;
 			return;
@@ -290,15 +309,28 @@ KeyPress::KeyPress(const char *name)
 
 	// It's not a known key, complain and try to do something
 	Key = irr::KEY_KEY_CODES_COUNT;
-	int chars_read = mbtowc(&Char, name, 1);
-	FATAL_ERROR_IF(chars_read != 1, "Unexpected multibyte character");
+	Char = wkeyname[0];
 	m_name = "";
-	warningstream << "KeyPress: Unknown key '" << name
+	warningstream << "KeyPress: Unknown key '" << keyname
 		<< "', falling back to first char." << std::endl;
 }
 
-KeyPress::KeyPress(const irr::SEvent::SKeyInput &in, bool prefer_character)
+KeyPress::KeyPress(const irr::SEvent::SKeyInput &in, bool prefer_character, bool merge_modifiers):
+	shift(in.Shift), control(in.Control)
 {
+	if (merge_modifiers) {
+		switch (in.Key) {
+			case irr::KEY_SHIFT: case irr::KEY_LSHIFT: case irr::KEY_RSHIFT:
+				shift = true;
+				return;
+			case irr::KEY_CONTROL: case irr::KEY_LCONTROL: case irr::KEY_RCONTROL:
+				control = true;
+				return;
+			default:
+				break;
+		}
+	}
+
 	if (prefer_character)
 		Key = irr::KEY_KEY_CODES_COUNT;
 	else
@@ -315,21 +347,47 @@ KeyPress::KeyPress(const irr::SEvent::SKeyInput &in, bool prefer_character)
 	};
 }
 
-const char *KeyPress::sym() const
+const std::string KeyPress::sym() const
 {
-	return m_name.c_str();
+	std::string sym = m_name;
+	if (shift)
+		sym = sym.empty() ? "KEY_SHIFT" : "KEY_SHIFT-" + sym;
+	if (control)
+		sym = sym.empty() ? "KEY_CONTROL" : "KEY_CONTROL-" + sym;
+	return sym;
 }
 
-const char *KeyPress::name() const
+const std::string KeyPress::name() const
 {
-	if (m_name.empty())
+	if (m_name.empty() && !has_modifier())
 		return "";
-	const char *ret;
+	std::string ret;
 	if (valid_kcode(Key))
 		ret = lookup_keykey(Key).LangName;
-	else
+	else if (Char != L'\0')
 		ret = lookup_keychar(Char).LangName;
-	return ret ? ret : "<Unnamed key>";
+	if (!ret.empty())
+		ret = strgettext(ret);
+	if (shift)
+		ret = ret.empty() ? gettext("Shift Key") : fmtgettext("Shift-%s", ret.c_str());
+	if (control)
+		ret = ret.empty() ? gettext("Control Key") : fmtgettext("Control-%s", ret.c_str());
+	if (ret.empty())
+		ret = gettext("<Unnamed key>");
+	return ret;
+}
+
+int KeyPress::matches(const KeyPress &p) const {
+	if (!basic_equals(p) && p.valid_base())
+		return 0;
+	if ((p.shift && !shift) || (p.control && !control))
+		return 0;
+	int score = basic_equals(p);
+	if (p.shift == shift)
+		score++;
+	if (p.control == control)
+		score++;
+	return score;
 }
 
 const KeyPress EscapeKey("KEY_ESCAPE");
