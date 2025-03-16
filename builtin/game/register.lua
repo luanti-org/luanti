@@ -61,7 +61,7 @@ local function check_modname_prefix(name)
 		return name:sub(2)
 	else
 		-- Enforce that the name starts with the correct mod name.
-		local expected_prefix = core.get_current_modname() .. ":"
+		local expected_prefix = (core.get_current_modname() or "") .. ":"
 		if name:sub(1, #expected_prefix) ~= expected_prefix then
 			error("Name " .. name .. " does not follow naming conventions: " ..
 				"\"" .. expected_prefix .. "\" or \":\" prefix required")
@@ -95,6 +95,7 @@ function core.register_abm(spec)
 	check_node_list(spec.nodenames, "nodenames")
 	check_node_list(spec.neighbors, "neighbors")
 	assert(type(spec.action) == "function", "Required field 'action' of type function")
+
 	core.registered_abms[#core.registered_abms + 1] = spec
 	spec.mod_origin = core.get_current_modname() or "??"
 end
@@ -581,15 +582,57 @@ core.registered_on_rightclickplayers, core.register_on_rightclickplayer = make_r
 core.registered_on_liquid_transformed, core.register_on_liquid_transformed = make_registration()
 core.registered_on_mapblocks_changed, core.register_on_mapblocks_changed = make_registration()
 
+-- A bunch of registrations are read by the C++ side once on env init, so we cannot
+-- allow them to change afterwards (see s_env.cpp).
+-- Nodes and items do not have this problem but there are obvious consistency
+-- problems if this would be allowed.
+
+local function freeze_table(t)
+	-- Freezing a Lua table is not actually possible without some very intrusive
+	-- metatable hackery, but we can trivially prevent new additions.
+	local mt = table.copy(getmetatable(t) or {})
+	mt.__newindex = function()
+		error("modification forbidden")
+	end
+	setmetatable(t, mt)
+end
+
+local function generic_reg_error(what)
+	return function(something)
+		local described = what
+		if type(something) == "table" and type(something.name) == "string" then
+			described = what .. " " .. something.name
+		elseif type(something) == "string" then
+			described = what .. " " .. something
+		end
+		error("Tried to register " .. described .. " after load time!")
+	end
+end
+
 core.register_on_mods_loaded(function()
 	core.after(0, function()
 		itemdefs_finalized = true
 
-		setmetatable(core.registered_on_mapblocks_changed, {
-			__newindex = function()
-				error("on_mapblocks_changed callbacks must be registered at load time")
-			end,
-		})
+		-- prevent direct modification
+		freeze_table(core.registered_abms)
+		freeze_table(core.registered_lbms)
+		freeze_table(core.registered_items)
+		freeze_table(core.registered_nodes)
+		freeze_table(core.registered_craftitems)
+		freeze_table(core.registered_tools)
+		freeze_table(core.registered_aliases)
+		freeze_table(core.registered_on_mapblocks_changed)
+
+		-- neutralize registration functions
+		core.register_abm = generic_reg_error("ABM")
+		core.register_lbm = generic_reg_error("LBM")
+		core.register_item = generic_reg_error("item")
+		core.unregister_item = function(name)
+			error("Refusing to unregister item " .. name .. " after load time")
+		end
+		core.register_alias = generic_reg_error("alias")
+		core.register_alias_force = generic_reg_error("alias")
+		core.register_on_mapblocks_changed = generic_reg_error("on_mapblocks_changed callback")
 	end)
 end)
 

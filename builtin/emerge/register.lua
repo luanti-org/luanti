@@ -36,6 +36,9 @@ end
 local alias_metatable = {
 	__index = function(t, name)
 		return rawget(t, core.registered_aliases[name])
+	end,
+	__newindex = function()
+		error("table is read-only")
 	end
 }
 setmetatable(core.registered_items, alias_metatable)
