@@ -1725,7 +1725,7 @@ for each axis:
 * Minimum:
   nodepos = blockpos * core.MAP_BLOCKSIZE
 * Maximum:
-  nodepos = blockpos * core.MAP_BLOCKSIZE + (core.MAP_BLOCKSIZE - 1)
+  nodepos = (blockpos + 1) * core.MAP_BLOCKSIZE - 1
 
 
 
