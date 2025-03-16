@@ -139,6 +139,12 @@ function core.register_item(name, itemdef)
 	end
 	itemdef.name = name
 
+	local mt = getmetatable(itemdef)
+	if mt ~= nil and next(mt) ~= nil then
+		core.log("warning", "Item definition has a metatable, this is "..
+			"unsupported and it will be overwritten: " .. name)
+	end
+
 	-- Apply defaults and add to registered_* table
 	if itemdef.type == "node" then
 		-- Use the nodebox as selection box if it's not set manually
@@ -194,8 +200,8 @@ function core.register_item(name, itemdef)
 
 	itemdef.mod_origin = core.get_current_modname() or "??"
 
-	-- Disable all further modifications
-	getmetatable(itemdef).__newindex = {}
+	-- Ignore new keys as a failsafe to prevent mistakes
+	getmetatable(itemdef).__newindex = function() end
 
 	--core.log("Registering item: " .. itemdef.name)
 	core.registered_items[itemdef.name] = itemdef
