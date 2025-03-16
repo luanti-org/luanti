@@ -412,6 +412,7 @@ core.register_item(":", {
 	groups = {not_in_creative_inventory=1},
 })
 
+local itemdefs_finalized = false
 
 function core.override_item(name, redefinition, del_fields)
 	if redefinition.name ~= nil then
@@ -424,10 +425,16 @@ function core.override_item(name, redefinition, del_fields)
 	if not item then
 		error("Attempt to override non-existent item "..name, 2)
 	end
+	if itemdefs_finalized then
+		-- TODO: it's not clear if this needs to be allowed at all?
+		core.log("warning", "Overriding item " .. name .. " after server startup. " ..
+			"This is unsupported and can cause problems related to data inconsistency.")
+	end
 	for k, v in pairs(redefinition) do
 		rawset(item, k, v)
 	end
 	for _, field in ipairs(del_fields or {}) do
+		assert(field ~= "name" and field ~= "type")
 		rawset(item, field, nil)
 	end
 	register_item_raw(item)
@@ -576,6 +583,8 @@ core.registered_on_mapblocks_changed, core.register_on_mapblocks_changed = make_
 
 core.register_on_mods_loaded(function()
 	core.after(0, function()
+		itemdefs_finalized = true
+
 		setmetatable(core.registered_on_mapblocks_changed, {
 			__newindex = function()
 				error("on_mapblocks_changed callbacks must be registered at load time")
