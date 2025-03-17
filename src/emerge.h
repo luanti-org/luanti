@@ -6,6 +6,8 @@
 
 #include <map>
 #include <mutex>
+#include <queue>
+#include <atomic>
 #include "network/networkprotocol.h"
 #include "irr_v3d.h"
 #include "util/metricsbackend.h"
@@ -113,6 +115,7 @@ private:
 		const SchematicManager *schemmgr);
 };
 
+
 class EmergeManager {
 	/* The mod API needs unchecked access to allow:
 	 * - using decomgr or oremgr to place decos/ores
@@ -199,9 +202,19 @@ private:
 	// The map database
 	MapDatabaseAccessor *m_db = nullptr;
 
+  bool m_request_stop = false;
 	std::mutex m_queue_mutex;
+	std::mutex m_queue_pop_mutex;
 	std::map<v3s16, BlockEmergeData> m_blocks_enqueued;
 	std::unordered_map<u16, u32> m_peer_queue_count;
+
+
+  std::array<std::queue<v3s16>, 8> m_queues;
+  std::atomic<int> m_current_queue;
+
+  std::atomic<size_t> m_turn_waiting;
+  std::atomic<size_t> m_turn_pending;
+
 
 	u32 m_qlimit_total;
 	u32 m_qlimit_diskonly;
@@ -218,9 +231,6 @@ private:
 	DecorationManager *decomgr;
 	SchematicManager *schemmgr;
 
-	// Requires m_queue_mutex held
-	EmergeThread *getOptimalThread();
-
 	bool pushBlockEmergeData(
 		v3s16 pos,
 		u16 peer_requested,
@@ -229,7 +239,7 @@ private:
 		void *callback_param,
 		bool *entry_already_exists);
 
-	bool popBlockEmergeData(v3s16 pos, BlockEmergeData *bedata);
+  bool popBlockEmergeData(BlockEmergeData *bedata, v3s16 *pos);
 
 	void reportCompletedEmerge(EmergeAction action);
 
