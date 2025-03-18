@@ -270,7 +270,8 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 			if (previous_c != c) {
 				c_changed = true;
 				lbm_list = it->second.lookup(c);
-				batch = &to_run[c];
+				if (lbm_list)
+					batch = &to_run[c]; // creates entry
 				previous_c = c;
 			}
 
@@ -301,6 +302,8 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 					else
 						++it2;
 				}
+			} else {
+				assert(!batch.p.empty());
 			}
 			first = false;
 
@@ -1061,9 +1064,6 @@ void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
 		dtime_s = m_game_time - stamp;
 	dtime_s += additional_dtime;
 
-	/*infostream<<"ServerEnvironment::activateBlock(): block timestamp: "
-			<<stamp<<", game time: "<<m_game_time<<std::endl;*/
-
 	// Remove stored static objects if clearObjects was called since block's timestamp
 	// Note that non-generated blocks may still have stored static objects
 	if (stamp != BLOCK_TIMESTAMP_UNDEFINED && stamp < m_last_clear_objects_time) {
@@ -1073,9 +1073,6 @@ void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
 
 	// Set current time as timestamp
 	block->setTimestampNoChangedFlag(m_game_time);
-
-	/*infostream<<"ServerEnvironment::activateBlock(): block is "
-			<<dtime_s<<" seconds old."<<std::endl;*/
 
 	// Activate stored objects
 	activateObjects(block, dtime_s);
