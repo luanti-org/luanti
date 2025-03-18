@@ -237,6 +237,21 @@ std::string LBMManager::createIntroductionTimesString()
 	return oss.str();
 }
 
+namespace {
+	struct LBMToRun {
+		std::unordered_set<v3s16> p; // node positions
+		std::vector<LoadingBlockModifierDef*> l; // ordered list of LBMs
+
+		template <typename C>
+		void insertLBMs(const C &container) {
+			for (auto &it : container) {
+				if (!CONTAINS(l, it))
+					l.push_back(it);
+			}
+		}
+	};
+}
+
 void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 		const u32 stamp, const float dtime_s)
 {
@@ -245,10 +260,6 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 		"attempted to query on non fully set up LBMManager");
 
 	// Collect a list of all LBMs and associated positions
-	struct LBMToRun {
-		std::unordered_set<v3s16> p; // node positions
-		std::unordered_set<LoadingBlockModifierDef*> l;
-	};
 	std::unordered_map<content_t, LBMToRun> to_run;
 
 	// Note: the iteration count of this outer loop is typically very low, so it's ok.
@@ -279,7 +290,7 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 				continue;
 			batch->p.insert(pos);
 			if (c_changed) {
-				batch->l.insert(lbm_list->begin(), lbm_list->end());
+				batch->insertLBMs(*lbm_list);
 			} else {
 				// we were here before so the list must be filled
 				assert(!batch->l.empty());
@@ -290,6 +301,11 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 	// Actually run them
 	bool first = true;
 	for (auto &[c, batch] : to_run) {
+		if (tracestream) {
+			tracestream << "Running " << batch.l.size() << " LBMs for node "
+				<< env->getGameDef()->ndef()->get(c).name << " ("
+				<< batch.p.size() << "x) in block " << block->getPos() << std::endl;
+		}
 		for (auto &lbm_def : batch.l) {
 			if (!first) {
 				// The fun part: since any LBM call can change the nodes inside of he
