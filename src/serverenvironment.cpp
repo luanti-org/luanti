@@ -45,6 +45,8 @@
 
 static constexpr s16 ACTIVE_OBJECT_RESAVE_DISTANCE_SQ = sqr(3);
 
+static constexpr u32 BLOCK_RESAVE_TIMESTAMP_DIFF = 60; // in units of game time
+
 /*
 	ABMWithState
 */
@@ -54,9 +56,9 @@ ABMWithState::ABMWithState(ActiveBlockModifier *abm_):
 {
 	// Initialize timer to random value to spread processing
 	float itv = abm->getTriggerInterval();
-	itv = MYMAX(0.001, itv); // No less than 1ms
-	int minval = MYMAX(-0.51*itv, -60); // Clamp to
-	int maxval = MYMIN(0.51*itv, 60);   // +-60 seconds
+	itv = MYMAX(0.001f, itv); // No less than 1ms
+	int minval = MYMAX(-0.51f*itv, -60); // Clamp to
+	int maxval = MYMIN(0.51f*itv, 60);   // +-60 seconds
 	timer = myrand_range(minval, maxval);
 }
 
@@ -494,6 +496,11 @@ ServerEnvironment::ServerEnvironment(std::unique_ptr<ServerMap> map,
 	m_script(server->getScriptIface()),
 	m_server(server)
 {
+	m_cache_active_block_mgmt_interval = g_settings->getFloat("active_block_mgmt_interval");
+	m_cache_abm_interval = rangelim(g_settings->getFloat("abm_interval"), 0.1f, 30);
+	m_cache_nodetimer_interval = rangelim(g_settings->getFloat("nodetimer_interval"), 0.1f, 1);
+	m_cache_abm_time_budget = g_settings->getFloat("abm_time_budget");
+
 	m_step_time_counter = mb->addCounter(
 		"minetest_env_step_time", "Time spent in environment step (in microseconds)");
 
@@ -1083,9 +1090,10 @@ void ServerEnvironment::forceActivateBlock(MapBlock *block)
 	assert(block);
 	if (m_active_blocks.add(block->getPos()))
 		activateBlock(block);
+	m_active_block_gauge->set(m_active_blocks.size());
 }
 
-void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
+void ServerEnvironment::activateBlock(MapBlock *block)
 {
 	// Reset usage timer immediately, otherwise a block that becomes active
 	// again at around the same time as it would normally be unloaded will
@@ -1100,7 +1108,6 @@ void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
 	u32 stamp = block->getTimestamp();
 	if (m_game_time > stamp && stamp != BLOCK_TIMESTAMP_UNDEFINED)
 		dtime_s = m_game_time - stamp;
-	dtime_s += additional_dtime;
 
 	// Remove stored static objects if clearObjects was called since block's timestamp
 	// Note that non-generated blocks may still have stored static objects
@@ -1124,7 +1131,7 @@ void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
 
 	// Run node timers
 	block->step((float)dtime_s, [&](v3s16 p, MapNode n, f32 d) -> bool {
-		return !block->isOrphan() && m_script->node_on_timer(p, n, d);
+		return m_script->node_on_timer(p, n, d);
 	});
 }
 
@@ -1525,7 +1532,10 @@ void ServerEnvironment::step(float dtime)
 	if (m_active_blocks_nodemetadata_interval.step(dtime, m_cache_nodetimer_interval)) {
 		ScopeProfiler sp(g_profiler, "ServerEnv: Run node timers", SPT_AVG);
 
-		float dtime = m_cache_nodetimer_interval;
+		// FIXME: this is not actually correct, because the block may have been
+		// activated just moments ago. In practice the intervnal is very small
+		// so this doesn't really matter.
+		const float dtime = m_cache_nodetimer_interval;
 
 		for (const v3s16 &p: m_active_blocks.m_list) {
 			MapBlock *block = m_map->getBlockNoCreateNoEx(p);
@@ -1537,11 +1547,14 @@ void ServerEnvironment::step(float dtime)
 
 			// Set current time as timestamp
 			block->setTimestampNoChangedFlag(m_game_time);
-			// If time has changed much from the one on disk,
-			// set block to be saved when it is unloaded
-			if(block->getTimestamp() > block->getDiskTimestamp() + 60)
+			// If the block timestamp has changed considerably, mark it to be
+			// re-saved. We do this even if there were no actual data changes
+			// for the sake of LBMs.
+			if (block->getTimestamp() > block->getDiskTimestamp()
+				+ BLOCK_RESAVE_TIMESTAMP_DIFF) {
 				block->raiseModified(MOD_STATE_WRITE_AT_UNLOAD,
 					MOD_REASON_BLOCK_EXPIRED);
+			}
 
 			// Run node timers
 			block->step(dtime, [&](v3s16 p, MapNode n, f32 d) -> bool {
@@ -1558,6 +1571,7 @@ void ServerEnvironment::step(float dtime)
 		std::shuffle(m_abms.begin(), m_abms.end(), MyRandGenerator());
 
 		// Initialize handling of ActiveBlockModifiers
+		// TODO: reinitializing this state every time is probably not efficient?
 		ABMHandler abmhandler(m_abms, m_cache_abm_interval, this, true);
 
 		int blocks_scanned = 0;

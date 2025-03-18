@@ -419,7 +419,7 @@ private:
 	static AuthDatabase *openAuthDatabase(const std::string &name,
 			const std::string &savedir, const Settings &conf);
 
-	void activateBlock(MapBlock *block, u32 additional_dtime=0);
+	void activateBlock(MapBlock *block);
 
 	/*
 		Internal ActiveObject interface
@@ -513,6 +513,16 @@ private:
 	// Estimate for general maximum lag as determined by server.
 	// Can raise to high values like 15s with eg. map generation mods.
 	float m_max_lag_estimate = 0.1f;
+
+
+	/*
+	 * TODO: Add a callback function so these can be updated when a setting
+	 *       changes.
+	 */
+	float m_cache_active_block_mgmt_interval;
+	float m_cache_abm_interval;
+	float m_cache_nodetimer_interval;
+	float m_cache_abm_time_budget;
 
 	// peer_ids in here should be unique, except that there may be many 0s
 	std::vector<RemotePlayer*> m_players;

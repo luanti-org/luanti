@@ -2106,14 +2106,14 @@ max_objects_per_block (Maximum objects per block) int 256 256 65535
 active_block_mgmt_interval (Active block management interval) float 2.0 0.0
 
 #    Length of time between Active Block Modifier (ABM) execution cycles, stated in seconds.
-abm_interval (ABM interval) float 1.0 0.0
+abm_interval (ABM interval) float 1.0 0.1 30.0
 
 #    The time budget allowed for ABMs to execute on each step
 #    (as a fraction of the ABM Interval)
 abm_time_budget (ABM time budget) float 0.2 0.1 0.9
 
 #    Length of time between NodeTimer execution cycles, stated in seconds.
-nodetimer_interval (NodeTimer interval) float 0.2 0.0
+nodetimer_interval (NodeTimer interval) float 0.2 0.1 1.0
 
 #    Max liquids processed per step.
 liquid_loop_max (Liquid loop max) int 100000 1 4294967295
