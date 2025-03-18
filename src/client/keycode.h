@@ -65,6 +65,19 @@ private:
 	std::variant<u32, irr::EKEY_CODE> scancode = irr::KEY_UNKNOWN;
 };
 
+template <>
+class std::hash<KeyPress>
+{
+public:
+	size_t operator()(const KeyPress &kp) const
+	{
+		// This should be mostly enough for SDL; the only time this yields
+		// zero is for invalid keys or mouse keys, where the collision with
+		// two elements should be acceptable.
+		return kp.getScancode();
+	}
+};
+
 // Global defines for convenience
 // This implementation defers creation of the objects to make sure that the
 // IrrlichtDevice is initialized.
