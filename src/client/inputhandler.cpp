@@ -77,11 +77,29 @@ void KeyCache::populate()
 	if (handler) {
 		// First clear all keys, then re-add the ones we listen for
 		handler->dontListenForKeys();
-		for (auto k : key) {
-			handler->listenForKey(k);
+		for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
+			handler->listenForKey(key[i], static_cast<GameKeyType>(i));
 		}
-		handler->listenForKey(EscapeKey);
 	}
+}
+
+bool MyEventReceiver::setKeyDown(KeyPress keyCode, bool is_down)
+{
+	if (keysListenedFor.find(keyCode) == keysListenedFor.end()) // ignore irrelevant key input
+		return false;
+	auto action = keysListenedFor[keyCode];
+	if (is_down) {
+		if (!IsKeyDown(action))
+			keyWasPressed.set(action);
+		keyIsDown.set(action);
+		keyWasDown.set(action);
+	} else {
+		if (IsKeyDown(action))
+			keyWasReleased.set(action);
+
+		keyIsDown.reset(action);
+	}
+	return true;
 }
 
 bool MyEventReceiver::OnEvent(const SEvent &event)
@@ -143,24 +161,8 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	// Remember whether each key is down or up
 	if (event.EventType == irr::EET_KEY_INPUT_EVENT) {
 		KeyPress keyCode(event.KeyInput);
-		// ignore key input that is invalid or irrelevant for the game.
-		if (keyCode && keysListenedFor.find(keyCode) != keysListenedFor.end()) {
-			if (event.KeyInput.PressedDown) {
-				if (!IsKeyDown(keyCode))
-					keyWasPressed.insert(keyCode);
-
-				keyIsDown.insert(keyCode);
-				keyWasDown.insert(keyCode);
-			} else {
-				if (IsKeyDown(keyCode))
-					keyWasReleased.insert(keyCode);
-
-				keyIsDown.erase(keyCode);
-			}
-
+		if (setKeyDown(keyCode, event.KeyInput.PressedDown))
 			return true;
-		}
-
 	} else if (g_touchcontrols && event.EventType == irr::EET_TOUCH_INPUT_EVENT) {
 		// In case of touchcontrols, we have to handle different events
 		g_touchcontrols->translateEvent(event);
@@ -172,31 +174,22 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		// Handle mouse events
 		switch (event.MouseInput.Event) {
 		case EMIE_LMOUSE_PRESSED_DOWN:
-			keyIsDown.insert(LMBKey);
-			keyWasDown.insert(LMBKey);
-			keyWasPressed.insert(LMBKey);
+			setKeyDown(LMBKey, true);
 			break;
 		case EMIE_MMOUSE_PRESSED_DOWN:
-			keyIsDown.insert(MMBKey);
-			keyWasDown.insert(MMBKey);
-			keyWasPressed.insert(MMBKey);
+			setKeyDown(MMBKey, true);
 			break;
 		case EMIE_RMOUSE_PRESSED_DOWN:
-			keyIsDown.insert(RMBKey);
-			keyWasDown.insert(RMBKey);
-			keyWasPressed.insert(RMBKey);
+			setKeyDown(RMBKey, true);
 			break;
 		case EMIE_LMOUSE_LEFT_UP:
-			keyIsDown.erase(LMBKey);
-			keyWasReleased.insert(LMBKey);
+			setKeyDown(LMBKey, false);
 			break;
 		case EMIE_MMOUSE_LEFT_UP:
-			keyIsDown.erase(MMBKey);
-			keyWasReleased.insert(MMBKey);
+			setKeyDown(MMBKey, false);
 			break;
 		case EMIE_RMOUSE_LEFT_UP:
-			keyIsDown.erase(RMBKey);
-			keyWasReleased.insert(RMBKey);
+			setKeyDown(RMBKey, false);
 			break;
 		case EMIE_MOUSE_WHEEL:
 			mouse_wheel += event.MouseInput.Wheel;

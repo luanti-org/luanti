@@ -9,6 +9,7 @@
 #include "joystick_controller.h"
 #include <list>
 #include <unordered_set>
+#include <unordered_map>
 #include "keycode.h"
 
 class InputHandler;
@@ -54,28 +55,29 @@ public:
 	// This is the one method that we have to implement
 	virtual bool OnEvent(const SEvent &event);
 
-	bool IsKeyDown(KeyPress keyCode) const { return keyIsDown.find(keyCode) != keyIsDown.end(); }
+	bool IsKeyDown(GameKeyType key) const { return keyIsDown[key]; }
 
 	// Checks whether a key was down and resets the state
-	bool WasKeyDown(KeyPress keyCode)
+	bool WasKeyDown(GameKeyType key)
 	{
-		bool b = keyWasDown.find(keyCode) != keyWasDown.end();
+		bool b = keyWasDown[key];
 		if (b)
-			keyWasDown.erase(keyCode);
+			keyWasDown.reset(key);
 		return b;
 	}
 
 	// Checks whether a key was just pressed. State will be cleared
 	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyPressed(KeyPress keycode) const { return keyWasPressed.find(keycode) != keyWasPressed.end(); }
+	bool WasKeyPressed(GameKeyType key) const { return keyWasPressed[key]; }
 
 	// Checks whether a key was just released. State will be cleared
 	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyReleased(KeyPress keycode) const { return keyWasReleased.find(keycode) != keyWasReleased.end(); }
+	bool WasKeyReleased(GameKeyType key) const { return keyWasReleased[key]; }
 
-	void listenForKey(KeyPress keyCode)
+	void listenForKey(KeyPress keyCode, GameKeyType action)
 	{
-		keysListenedFor.insert(keyCode);
+		if (keyCode)
+			keysListenedFor[keyCode] = action;
 	}
 	void dontListenForKeys()
 	{
@@ -91,28 +93,28 @@ public:
 
 	void clearInput()
 	{
-		keyIsDown.clear();
-		keyWasDown.clear();
-		keyWasPressed.clear();
-		keyWasReleased.clear();
+		keyIsDown.reset();
+		keyWasDown.reset();
+		keyWasPressed.reset();
+		keyWasReleased.reset();
 
 		mouse_wheel = 0;
 	}
 
 	void releaseAllKeys()
 	{
-		keyWasReleased.merge(keyIsDown);
-		keyIsDown.clear();
+		keyWasReleased |= keyIsDown;
+		keyIsDown.reset();
 	}
 
 	void clearWasKeyPressed()
 	{
-		keyWasPressed.clear();
+		keyWasPressed.reset();
 	}
 
 	void clearWasKeyReleased()
 	{
-		keyWasReleased.clear();
+		keyWasReleased.reset();
 	}
 
 	JoystickController *joystick = nullptr;
@@ -120,22 +122,24 @@ public:
 	PointerType getLastPointerType() { return last_pointer_type; }
 
 private:
+	bool setKeyDown(KeyPress keyCode, bool is_down);
+
 	s32 mouse_wheel = 0;
 
 	// The current state of keys
-	std::unordered_set<KeyPress> keyIsDown;
+	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyIsDown;
 
 	// Like keyIsDown but only reset when that key is read
-	std::unordered_set<KeyPress> keyWasDown;
+	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasDown;
 
 	// Whether a key has just been pressed
-	std::unordered_set<KeyPress> keyWasPressed;
+	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasPressed;
 
 	// Whether a key has just been released
-	std::unordered_set<KeyPress> keyWasReleased;
+	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasReleased;
 
 	// List of keys we listen for
-	std::unordered_set<KeyPress> keysListenedFor;
+	std::unordered_map<KeyPress, GameKeyType> keysListenedFor;
 
 	// Intentionally not reset by clearInput/releaseAllKeys.
 	bool fullscreen_is_down = false;
@@ -171,7 +175,7 @@ public:
 	virtual void clearWasKeyPressed() {}
 	virtual void clearWasKeyReleased() {}
 
-	virtual void listenForKey(KeyPress keyCode) {}
+	virtual void listenForKey(KeyPress keyCode, GameKeyType action) {}
 	virtual void dontListenForKeys() {}
 
 	virtual v2s32 getMousePos() = 0;
@@ -207,19 +211,19 @@ public:
 
 	virtual bool isKeyDown(GameKeyType k)
 	{
-		return m_receiver->IsKeyDown(keycache.key[k]) || joystick.isKeyDown(k);
+		return m_receiver->IsKeyDown(k) || joystick.isKeyDown(k);
 	}
 	virtual bool wasKeyDown(GameKeyType k)
 	{
-		return m_receiver->WasKeyDown(keycache.key[k]) || joystick.wasKeyDown(k);
+		return m_receiver->WasKeyDown(k) || joystick.wasKeyDown(k);
 	}
 	virtual bool wasKeyPressed(GameKeyType k)
 	{
-		return m_receiver->WasKeyPressed(keycache.key[k]) || joystick.wasKeyPressed(k);
+		return m_receiver->WasKeyPressed(k) || joystick.wasKeyPressed(k);
 	}
 	virtual bool wasKeyReleased(GameKeyType k)
 	{
-		return m_receiver->WasKeyReleased(keycache.key[k]) || joystick.wasKeyReleased(k);
+		return m_receiver->WasKeyReleased(k) || joystick.wasKeyReleased(k);
 	}
 
 	virtual float getJoystickSpeed();
@@ -240,9 +244,9 @@ public:
 		m_receiver->clearWasKeyReleased();
 	}
 
-	virtual void listenForKey(KeyPress keyCode)
+	virtual void listenForKey(KeyPress keyCode, GameKeyType action)
 	{
-		m_receiver->listenForKey(keyCode);
+		m_receiver->listenForKey(keyCode, action);
 	}
 	virtual void dontListenForKeys()
 	{
