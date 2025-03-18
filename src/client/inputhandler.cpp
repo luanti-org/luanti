@@ -257,7 +257,7 @@ s32 RandomInputHandler::Rand(s32 min, s32 max)
 }
 
 struct RandomInputHandlerSimData {
-	std::string key;
+	GameKeyType key;
 	float counter;
 	int time_max;
 };
@@ -265,19 +265,19 @@ struct RandomInputHandlerSimData {
 void RandomInputHandler::step(float dtime)
 {
 	static RandomInputHandlerSimData rnd_data[] = {
-		{ "keymap_jump", 0.0f, 40 },
-		{ "keymap_aux1", 0.0f, 40 },
-		{ "keymap_forward", 0.0f, 40 },
-		{ "keymap_left", 0.0f, 40 },
-		{ "keymap_dig", 0.0f, 30 },
-		{ "keymap_place", 0.0f, 15 }
+		{ KeyType::JUMP, 0.0f, 40 },
+		{ KeyType::AUX1, 0.0f, 40 },
+		{ KeyType::FORWARD, 0.0f, 40 },
+		{ KeyType::LEFT, 0.0f, 40 },
+		{ KeyType::DIG, 0.0f, 30 },
+		{ KeyType::PLACE, 0.0f, 15 }
 	};
 
 	for (auto &i : rnd_data) {
 		i.counter -= dtime;
 		if (i.counter < 0.0) {
 			i.counter = 0.1 * Rand(1, i.time_max);
-			keydown.toggle(getKeySetting(i.key.c_str()));
+			keydown.flip(i.key);
 		}
 	}
 	{
