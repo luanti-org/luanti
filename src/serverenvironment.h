@@ -124,6 +124,7 @@ public:
 	// Don't call this after loadIntroductionTimes() ran.
 	void addLBMDef(LoadingBlockModifierDef *lbm_def);
 
+	/// @param now current game time
 	void loadIntroductionTimes(const std::string &times,
 		IGameDef *gamedef, u32 now);
 
@@ -150,6 +151,7 @@ private:
 	// The key of the map is the LBM def's first introduction time.
 	lbm_lookup_map m_lbm_lookup;
 
+	/// @return map of LBM name -> timestamp
 	static std::unordered_map<std::string, u32>
 	parseIntroductionTimesString(const std::string &times);
 
@@ -186,12 +188,24 @@ public:
 		m_list.clear();
 	}
 
+	/// @return true if block was newly added
+	bool add(v3s16 p) {
+		if (m_list.insert(p).second) {
+			m_abm_list.insert(p);
+			return true;
+		}
+		return false;
+	}
+
 	void remove(v3s16 p) {
 		m_list.erase(p);
 		m_abm_list.erase(p);
 	}
 
+	// list of all active blocks
 	std::set<v3s16> m_list;
+	// list of blocks for ABM processing
+	// subset of `m_list` that does not contain view cone affected blocks
 	std::set<v3s16> m_abm_list;
 	// list of blocks that are always active, not modified by this class
 	std::set<v3s16> m_forceloaded_list;
@@ -312,10 +326,10 @@ public:
 	);
 
 	/*
-		Activate objects and dynamically modify for the dtime determined
-		from timestamp and additional_dtime
+		Force a block to become active. It will probably be deactivated
+		the next time active blocks are re-calculated.
 	*/
-	void activateBlock(MapBlock *block, u32 additional_dtime=0);
+	void forceActivateBlock(MapBlock *block);
 
 	/*
 		{Active,Loading}BlockModifiers
@@ -404,6 +418,9 @@ private:
 			const std::string &savedir, const Settings &conf);
 	static AuthDatabase *openAuthDatabase(const std::string &name,
 			const std::string &savedir, const Settings &conf);
+
+	void activateBlock(MapBlock *block, u32 additional_dtime=0);
+
 	/*
 		Internal ActiveObject interface
 		-------------------------------------------

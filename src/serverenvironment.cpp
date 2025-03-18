@@ -394,10 +394,8 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 	*/
 	std::set<v3s16> newlist = m_forceloaded_list;
 	std::set<v3s16> extralist;
-	m_abm_list = m_forceloaded_list;
 	for (const PlayerSAO *playersao : active_players) {
 		v3s16 pos = getNodeBlockPos(floatToInt(playersao->getBasePosition(), BS));
-		fillRadiusBlock(pos, active_block_range, m_abm_list);
 		fillRadiusBlock(pos, active_block_range, newlist);
 
 		s16 player_ao_range = std::min(active_object_range, playersao->getWantedRange());
@@ -416,6 +414,8 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 				extralist);
 		}
 	}
+
+	m_abm_list = newlist;
 
 	/*
 		Find out which blocks on the new list are not on the old list
@@ -448,6 +448,7 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 		Do some least-effort sanity checks to hopefully catch code bugs.
 	*/
 	assert(newlist.size() >= extralist.size());
+	assert(newlist.size() >= m_abm_list.size());
 	assert(blocks_removed.size() <= m_list.size());
 	if (!blocks_added.empty()) {
 		assert(newlist.count(*blocks_added.begin()) > 0);
@@ -1075,6 +1076,14 @@ public:
 		}
 	}
 };
+
+
+void ServerEnvironment::forceActivateBlock(MapBlock *block)
+{
+	assert(block);
+	if (m_active_blocks.add(block->getPos()))
+		activateBlock(block);
+}
 
 void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
 {
