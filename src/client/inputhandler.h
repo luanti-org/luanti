@@ -360,7 +360,7 @@ public:
 		return true;
 	}
 
-	virtual bool isKeyDown(GameKeyType k) { return keydown[keycache.key[k]]; }
+	virtual bool isKeyDown(GameKeyType k) { return keydown[k]; }
 	virtual bool wasKeyDown(GameKeyType k) { return false; }
 	virtual bool wasKeyPressed(GameKeyType k) { return false; }
 	virtual bool wasKeyReleased(GameKeyType k) { return false; }
@@ -377,7 +377,7 @@ public:
 	s32 Rand(s32 min, s32 max);
 
 private:
-	KeyList keydown;
+	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keydown;
 	v2s32 mousepos;
 	v2s32 mousespeed;
 	float joystickSpeed;
