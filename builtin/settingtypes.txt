@@ -2015,7 +2015,7 @@ lighting_boost_spread (Light curve boost spread) float 0.2 0.0 0.4
 
 #    Enable IPv6 support (for both client and server).
 #    Required for IPv6 connections to work at all.
-enable_ipv6 (IPv6) bool true
+enable_ipv6 (IPv6) [common] bool true
 
 #    Prometheus listener address.
 #    If Luanti is compiled with ENABLE_PROMETHEUS option enabled,
@@ -2222,11 +2222,11 @@ curl_file_download_timeout (cURL file download timeout) int 300000 5000 21474836
 [**Miscellaneous]
 
 #    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
-clickable_chat_weblinks (Chat weblinks) bool true
+clickable_chat_weblinks (Chat weblinks) [client] bool true
 
 #    If enabled, invalid world data won't cause the server to shut down.
 #    Only enable this if you know what you are doing.
-ignore_world_load_errors (Ignore world errors) bool false
+ignore_world_load_errors (Ignore world errors) [server] bool false
 
 #    Adjust the detected display density, used for scaling UI elements.
 display_density_factor (Display Density Scaling Factor) [client] float 1 0.5 5.0
