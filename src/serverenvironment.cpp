@@ -150,50 +150,56 @@ void LBMManager::loadIntroductionTimes(const std::string &times,
 	auto introduction_times = parseIntroductionTimesString(times);
 
 	// Put stuff from introduction_times into m_lbm_lookup
-	for (auto &it : introduction_times) {
-		const std::string &name = it.first;
-		u32 time = it.second;
-
+	for (auto &[name, time] : introduction_times) {
 		auto def_it = m_lbm_defs.find(name);
 		if (def_it == m_lbm_defs.end()) {
-			// This seems to be an LBM entry for
-			// an LBM we haven't loaded. Discard it.
+			infostream << "LBMManager: LBM " << name << " is not registered. "
+				"Discarding it." << std::endl;
 			continue;
 		}
-		LoadingBlockModifierDef *lbm_def = def_it->second;
+		auto *lbm_def = def_it->second;
 		if (lbm_def->run_at_every_load) {
-			// This seems to be an LBM entry for
-			// an LBM that runs at every load.
-			// Don't add it just yet.
+			continue; // These are handled below
+		}
+		if (time > now) {
+			warningstream << "LBMManager: LBM " << name << " was introduced in "
+				"the future. Pretending it's new." << std::endl;
+			// By skipping here it will be added as newly introduced.
 			continue;
 		}
 
 		m_lbm_lookup[time].addLBM(lbm_def, gamedef);
 
 		// Erase the entry so that we know later
-		// what elements didn't get put into m_lbm_lookup
-		m_lbm_defs.erase(name);
+		// which elements didn't get put into m_lbm_lookup
+		m_lbm_defs.erase(def_it);
 	}
 
 	// Now also add the elements from m_lbm_defs to m_lbm_lookup
 	// that weren't added in the previous step.
 	// They are introduced first time to this world,
-	// or are run at every load (introducement time hardcoded to U32_MAX).
+	// or are run at every load (introduction time hardcoded to U32_MAX).
 
-	LBMContentMapping &lbms_we_introduce_now = m_lbm_lookup[now];
-	LBMContentMapping &lbms_running_always = m_lbm_lookup[U32_MAX];
-
-	for (auto &m_lbm_def : m_lbm_defs) {
-		if (m_lbm_def.second->run_at_every_load) {
-			lbms_running_always.addLBM(m_lbm_def.second, gamedef);
-		} else {
-			lbms_we_introduce_now.addLBM(m_lbm_def.second, gamedef);
-		}
+	auto &lbms_we_introduce_now = m_lbm_lookup[now];
+	auto &lbms_running_always = m_lbm_lookup[U32_MAX];
+	for (auto &it : m_lbm_defs) {
+		if (it.second->run_at_every_load)
+			lbms_running_always.addLBM(it.second, gamedef);
+		else
+			lbms_we_introduce_now.addLBM(it.second, gamedef);
 	}
 
-	// Clear the list, so that we don't delete remaining elements
-	// twice in the destructor
+	// All pointer ownership now moved to LBMContentMapping
 	m_lbm_defs.clear();
+
+	// If these are empty delete them again to avoid pointless iteration.
+	if (lbms_we_introduce_now.empty())
+		m_lbm_lookup.erase(now);
+	if (lbms_running_always.empty())
+		m_lbm_lookup.erase(U32_MAX);
+
+	infostream << "LBMManager: " << m_lbm_lookup.size() <<
+		" unique times in lookup table" << std::endl;
 }
 
 std::string LBMManager::createIntroductionTimesString()
@@ -208,8 +214,7 @@ std::string LBMManager::createIntroductionTimesString()
 		auto &lbm_list = it.second.getList();
 		for (const auto &lbm_def : lbm_list) {
 			// Don't add if the LBM runs at every load,
-			// then introducement time is hardcoded
-			// and doesn't need to be stored
+			// then introduction time is hardcoded and doesn't need to be stored.
 			if (lbm_def->run_at_every_load)
 				continue;
 			oss << lbm_def->name << "~" << time << ";";

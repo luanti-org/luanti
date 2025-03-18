@@ -103,6 +103,7 @@ public:
 	void addLBM(LoadingBlockModifierDef *lbm_def, IGameDef *gamedef);
 	const lbm_map::mapped_type *lookup(content_t c) const;
 	const lbm_vector &getList() const { return lbm_list; }
+	bool empty() const { return lbm_list.empty(); }
 
 	// This struct owns the LBM pointers.
 	~LBMContentMapping();
