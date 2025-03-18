@@ -149,6 +149,9 @@ private:
 	// The key of the map is the LBM def's first introduction time.
 	lbm_lookup_map m_lbm_lookup;
 
+	static std::unordered_map<std::string, u32>
+	parseIntroductionTimesString(const std::string &times);
+
 	// Returns an iterator to the LBMs that were introduced
 	// after the given time. This is guaranteed to return
 	// valid values for everything

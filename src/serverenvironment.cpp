@@ -129,7 +129,11 @@ void LBMManager::addLBMDef(LoadingBlockModifierDef *lbm_def)
 	FATAL_ERROR_IF(m_query_mode,
 		"attempted to modify LBMManager in query mode");
 
-	if (!string_allowed(lbm_def->name, LBM_NAME_ALLOWED_CHARS)) {
+	if (str_starts_with(lbm_def->name, ":"))
+		lbm_def->name.erase(0, 1);
+
+	if (lbm_def->name.empty() ||
+		!string_allowed(lbm_def->name, LBM_NAME_ALLOWED_CHARS)) {
 		throw ModError("Error adding LBM \"" + lbm_def->name +
 			"\": Does not follow naming conventions: "
 				"Only characters [a-z0-9_:] are allowed.");
@@ -143,30 +147,7 @@ void LBMManager::loadIntroductionTimes(const std::string &times,
 {
 	m_query_mode = true;
 
-	// name -> time map.
-	// Storing it in a map first instead of
-	// handling the stuff directly in the loop
-	// removes all duplicate entries.
-	std::unordered_map<std::string, u32> introduction_times;
-
-	/*
-	The introduction times string consists of name~time entries,
-	with each entry terminated by a semicolon. The time is decimal.
-	 */
-
-	size_t idx = 0;
-	size_t idx_new;
-	while ((idx_new = times.find(';', idx)) != std::string::npos) {
-		std::string entry = times.substr(idx, idx_new - idx);
-		std::vector<std::string> components = str_split(entry, '~');
-		if (components.size() != 2)
-			throw SerializationError("Introduction times entry \""
-				+ entry + "\" requires exactly one '~'!");
-		const std::string &name = components[0];
-		u32 time = from_string<u32>(components[1]);
-		introduction_times[name] = time;
-		idx = idx_new + 1;
-	}
+	auto introduction_times = parseIntroductionTimesString(times);
 
 	// Put stuff from introduction_times into m_lbm_lookup
 	for (auto &it : introduction_times) {
@@ -235,6 +216,33 @@ std::string LBMManager::createIntroductionTimesString()
 		}
 	}
 	return oss.str();
+}
+
+std::unordered_map<std::string, u32>
+	LBMManager::parseIntroductionTimesString(const std::string &times)
+{
+	std::unordered_map<std::string, u32> ret;
+
+	size_t idx = 0;
+	size_t idx_new;
+	while ((idx_new = times.find(';', idx)) != std::string::npos) {
+		std::string entry = times.substr(idx, idx_new - idx);
+		idx = idx_new + 1;
+
+		std::vector<std::string> components = str_split(entry, '~');
+		if (components.size() != 2)
+			throw SerializationError("Introduction times entry \""
+				+ entry + "\" requires exactly one '~'!");
+		if (components[0].empty())
+			throw SerializationError("LBM name is empty");
+		std::string name = std::move(components[0]);
+		if (name.front() == ':') // old versions didn't strip this
+			name.erase(0, 1);
+		u32 time = from_string<u32>(components[1]);
+		ret[std::move(name)] = time;
+	}
+
+	return ret;
 }
 
 namespace {
