@@ -55,6 +55,7 @@ bool parseDependsString(std::string &dep, std::unordered_set<char> &symbols)
 	return !dep.empty();
 }
 
+[[nodiscard]]
 bool parseModContents(ModSpec &spec)
 {
 	// NOTE: this function works in mutual recursion with getModsInPath
@@ -175,8 +176,9 @@ std::map<std::string, ModSpec> getModsInPath(
 		mod_virtual_path.append(virtual_path).append("/").append(modname);
 
 		ModSpec spec(modname, mod_path, part_of_modpack, mod_virtual_path);
-		parseModContents(spec);
-		result[modname] = std::move(spec);
+		if (parseModContents(spec)) {
+			result[modname] = std::move(spec);
+		}
 	}
 	return result;
 }
