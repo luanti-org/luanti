@@ -60,11 +60,24 @@ public:
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
+	using value_type = std::variant<u32, irr::EKEY_CODE>;
 	bool loadFromScancode(const std::string &name);
 	void loadFromKey(irr::EKEY_CODE keycode, wchar_t keychar);
 	std::string formatScancode() const;
 
-	std::variant<u32, irr::EKEY_CODE> scancode = irr::KEY_UNKNOWN;
+	value_type scancode = irr::KEY_UNKNOWN;
+
+	friend std::hash<KeyPress>;
+};
+
+template <>
+class std::hash<KeyPress>: std::hash<KeyPress::value_type>
+{
+public:
+	size_t operator()(KeyPress kp) const
+	{
+		return std::hash<KeyPress::value_type>::operator()(kp.scancode);
+	}
 };
 
 // Global defines for convenience

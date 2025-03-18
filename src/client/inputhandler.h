@@ -8,6 +8,7 @@
 #include "irr_v2d.h"
 #include "joystick_controller.h"
 #include <list>
+#include <unordered_set>
 #include "keycode.h"
 
 class InputHandler;
@@ -47,107 +48,34 @@ struct KeyCache
 	InputHandler *handler;
 };
 
-class KeyList : private std::list<KeyPress>
-{
-	typedef std::list<KeyPress> super;
-	typedef super::iterator iterator;
-	typedef super::const_iterator const_iterator;
-
-	virtual const_iterator find(KeyPress key) const
-	{
-		const_iterator f(begin());
-		const_iterator e(end());
-
-		while (f != e) {
-			if (*f == key)
-				return f;
-
-			++f;
-		}
-
-		return e;
-	}
-
-	virtual iterator find(KeyPress key)
-	{
-		iterator f(begin());
-		iterator e(end());
-
-		while (f != e) {
-			if (*f == key)
-				return f;
-
-			++f;
-		}
-
-		return e;
-	}
-
-public:
-	void clear() { super::clear(); }
-
-	void set(KeyPress key)
-	{
-		if (find(key) == end())
-			push_back(key);
-	}
-
-	void unset(KeyPress key)
-	{
-		iterator p(find(key));
-
-		if (p != end())
-			erase(p);
-	}
-
-	void toggle(KeyPress key)
-	{
-		iterator p(this->find(key));
-
-		if (p != end())
-			erase(p);
-		else
-			push_back(key);
-	}
-
-	void append(const KeyList &other)
-	{
-		for (auto key : other) {
-			set(key);
-		}
-	}
-
-	bool operator[](KeyPress key) const { return find(key) != end(); }
-};
-
 class MyEventReceiver : public IEventReceiver
 {
 public:
 	// This is the one method that we have to implement
 	virtual bool OnEvent(const SEvent &event);
 
-	bool IsKeyDown(KeyPress keyCode) const { return keyIsDown[keyCode]; }
+	bool IsKeyDown(KeyPress keyCode) const { return keyIsDown.find(keyCode) != keyIsDown.end(); }
 
 	// Checks whether a key was down and resets the state
 	bool WasKeyDown(KeyPress keyCode)
 	{
-		bool b = keyWasDown[keyCode];
+		bool b = keyWasDown.find(keyCode) != keyWasDown.end();
 		if (b)
-			keyWasDown.unset(keyCode);
+			keyWasDown.erase(keyCode);
 		return b;
 	}
 
 	// Checks whether a key was just pressed. State will be cleared
 	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyPressed(KeyPress keycode) const { return keyWasPressed[keycode]; }
+	bool WasKeyPressed(KeyPress keycode) const { return keyWasPressed.find(keycode) != keyWasPressed.end(); }
 
 	// Checks whether a key was just released. State will be cleared
 	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyReleased(KeyPress keycode) const { return keyWasReleased[keycode]; }
+	bool WasKeyReleased(KeyPress keycode) const { return keyWasReleased.find(keycode) != keyWasReleased.end(); }
 
 	void listenForKey(KeyPress keyCode)
 	{
-		keysListenedFor.set(keyCode);
+		keysListenedFor.insert(keyCode);
 	}
 	void dontListenForKeys()
 	{
@@ -173,7 +101,7 @@ public:
 
 	void releaseAllKeys()
 	{
-		keyWasReleased.append(keyIsDown);
+		keyWasReleased.merge(keyIsDown);
 		keyIsDown.clear();
 	}
 
@@ -195,23 +123,19 @@ private:
 	s32 mouse_wheel = 0;
 
 	// The current state of keys
-	KeyList keyIsDown;
+	std::unordered_set<KeyPress> keyIsDown;
 
 	// Like keyIsDown but only reset when that key is read
-	KeyList keyWasDown;
+	std::unordered_set<KeyPress> keyWasDown;
 
 	// Whether a key has just been pressed
-	KeyList keyWasPressed;
+	std::unordered_set<KeyPress> keyWasPressed;
 
 	// Whether a key has just been released
-	KeyList keyWasReleased;
+	std::unordered_set<KeyPress> keyWasReleased;
 
 	// List of keys we listen for
-	// TODO perhaps the type of this is not really
-	// performant as KeyList is designed for few but
-	// often changing keys, and keysListenedFor is expected
-	// to change seldomly but contain lots of keys.
-	KeyList keysListenedFor;
+	std::unordered_set<KeyPress> keysListenedFor;
 
 	// Intentionally not reset by clearInput/releaseAllKeys.
 	bool fullscreen_is_down = false;

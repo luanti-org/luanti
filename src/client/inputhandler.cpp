@@ -143,18 +143,19 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	// Remember whether each key is down or up
 	if (event.EventType == irr::EET_KEY_INPUT_EVENT) {
 		KeyPress keyCode(event.KeyInput);
-		if (keyCode && keysListenedFor[keyCode]) { // ignore key input that is invalid or irrelevant for the game.
+		// ignore key input that is invalid or irrelevant for the game.
+		if (keyCode && keysListenedFor.find(keyCode) != keysListenedFor.end()) {
 			if (event.KeyInput.PressedDown) {
 				if (!IsKeyDown(keyCode))
-					keyWasPressed.set(keyCode);
+					keyWasPressed.insert(keyCode);
 
-				keyIsDown.set(keyCode);
-				keyWasDown.set(keyCode);
+				keyIsDown.insert(keyCode);
+				keyWasDown.insert(keyCode);
 			} else {
 				if (IsKeyDown(keyCode))
-					keyWasReleased.set(keyCode);
+					keyWasReleased.insert(keyCode);
 
-				keyIsDown.unset(keyCode);
+				keyIsDown.erase(keyCode);
 			}
 
 			return true;
@@ -171,31 +172,31 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		// Handle mouse events
 		switch (event.MouseInput.Event) {
 		case EMIE_LMOUSE_PRESSED_DOWN:
-			keyIsDown.set(LMBKey);
-			keyWasDown.set(LMBKey);
-			keyWasPressed.set(LMBKey);
+			keyIsDown.insert(LMBKey);
+			keyWasDown.insert(LMBKey);
+			keyWasPressed.insert(LMBKey);
 			break;
 		case EMIE_MMOUSE_PRESSED_DOWN:
-			keyIsDown.set(MMBKey);
-			keyWasDown.set(MMBKey);
-			keyWasPressed.set(MMBKey);
+			keyIsDown.insert(MMBKey);
+			keyWasDown.insert(MMBKey);
+			keyWasPressed.insert(MMBKey);
 			break;
 		case EMIE_RMOUSE_PRESSED_DOWN:
-			keyIsDown.set(RMBKey);
-			keyWasDown.set(RMBKey);
-			keyWasPressed.set(RMBKey);
+			keyIsDown.insert(RMBKey);
+			keyWasDown.insert(RMBKey);
+			keyWasPressed.insert(RMBKey);
 			break;
 		case EMIE_LMOUSE_LEFT_UP:
-			keyIsDown.unset(LMBKey);
-			keyWasReleased.set(LMBKey);
+			keyIsDown.erase(LMBKey);
+			keyWasReleased.insert(LMBKey);
 			break;
 		case EMIE_MMOUSE_LEFT_UP:
-			keyIsDown.unset(MMBKey);
-			keyWasReleased.set(MMBKey);
+			keyIsDown.erase(MMBKey);
+			keyWasReleased.insert(MMBKey);
 			break;
 		case EMIE_RMOUSE_LEFT_UP:
-			keyIsDown.unset(RMBKey);
-			keyWasReleased.set(RMBKey);
+			keyIsDown.erase(RMBKey);
+			keyWasReleased.insert(RMBKey);
 			break;
 		case EMIE_MOUSE_WHEEL:
 			mouse_wheel += event.MouseInput.Wheel;
