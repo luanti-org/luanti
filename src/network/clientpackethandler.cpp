@@ -1795,3 +1795,27 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.bloom_radius;
 	}
 }
+
+void Client::handleCommand_CameraRoll(NetworkPacket* pkt)
+{
+	LocalPlayer *player = m_env.getLocalPlayer();
+	assert(player);
+
+	f32 roll, transition_time;
+
+	*pkt >> roll >> transition_time;
+	player->setCameraRollTransitionTime(transition_time);
+	player->setTargetCameraRoll(roll);
+	m_camera->notifyRollChange();
+}
+
+void Client::handleCommand_CameraBaseRotation(NetworkPacket* pkt)
+{
+	LocalPlayer *player = m_env.getLocalPlayer();
+	assert(player);
+
+	v3f rot;
+
+	*pkt >> rot;
+	player->setCameraBaseRotation(rot);
+}

@@ -211,4 +211,6 @@ const ClientCommandFactory clientCommandFactoryTable[TOCLIENT_NUM_MSG_TYPES] =
 	{ "TOCLIENT_FORMSPEC_PREPEND",         0, true }, // 0x61
 	{ "TOCLIENT_MINIMAP_MODES",            0, true }, // 0x62
 	{ "TOCLIENT_SET_LIGHTING",             0, true }, // 0x63
+	{ "TOCLIENT_CAMERA_ROLL",               0, true }, // 0x64
+	{ "TOCLIENT_CAMERA_BASE_ROTATION",               0, true }, // 0x65
 };

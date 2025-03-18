@@ -120,6 +120,23 @@ void Camera::notifyFovChange()
 	}
 }
 
+void Camera::notifyRollChange()
+{
+	LocalPlayer *player = m_client->getEnv().getLocalPlayer();
+	assert(player);
+
+	m_camera_roll_transition_active = player->getCameraRollTransitionTime() > 0.0f;
+	if (m_camera_roll_transition_active)
+	{
+		m_camera_roll_transition_time = player->getCameraRollTransitionTime();
+		m_camera_roll_diff = player->getTargetCameraRoll() - player->getCameraRoll();
+	}
+	else
+	{
+		player->setCameraRoll(player->getTargetCameraRoll());
+	}
+}
+
 // Returns the fractional part of x
 inline f32 my_modf(f32 x)
 {
@@ -312,6 +329,8 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 
 	f32 yaw = player->getYaw();
 	f32 pitch = player->getPitch();
+	f32 roll = player->getCameraRoll();
+	v3f base_rotation = player->getCameraBaseRotation();
 
 	// This is worse than `LocalPlayer::getPosition()` but
 	// mods expect the player head to be at the parent's position
@@ -375,7 +394,7 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	// Compute relative camera position and target
 	v3f rel_cam_pos = v3f(0,0,0);
 	v3f rel_cam_target = v3f(0,0,1);
-	v3f rel_cam_up = v3f(0,1,0);
+	v3f rel_cam_up = v3f(sin(roll * core::DEGTORAD),cos(roll * core::DEGTORAD),0);
 
 	if (m_cache_view_bobbing_amount != 0.0f && m_view_bobbing_anim != 0.0f &&
 		m_camera_mode < CAMERA_MODE_THIRD) {
@@ -399,9 +418,15 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	m_headnode->getAbsoluteTransformation().transformVect(m_camera_position, rel_cam_pos);
 	m_camera_direction = m_headnode->getAbsoluteTransformation()
 			.rotateAndScaleVect(rel_cam_target - rel_cam_pos);
+	m_camera_direction.rotateXYBy(base_rotation.Z);
+	m_camera_direction.rotateYZBy(base_rotation.X);
+	m_camera_direction.rotateXZBy(base_rotation.Y);
 
 	v3f abs_cam_up = m_headnode->getAbsoluteTransformation()
 			.rotateAndScaleVect(rel_cam_up);
+	abs_cam_up.rotateXYBy(base_rotation.Z);
+	abs_cam_up.rotateYZBy(base_rotation.X);
+	abs_cam_up.rotateXZBy(base_rotation.Y);
 
 	// Reposition the camera for third person view
 	if (m_camera_mode > CAMERA_MODE_FIRST)
@@ -452,6 +477,22 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	// *100 helps in large map coordinates
 	m_cameranode->setTarget(m_camera_position - intToFloat(m_camera_offset, BS)
 		+ 100 * m_camera_direction);
+
+	/*
+	 * Apply server-sent roll, instantaneous or smooth transition.
+	 */
+	if (m_camera_roll_transition_active)
+	{
+		f32 delta = (frametime / m_camera_roll_transition_time) * m_camera_roll_diff;
+		player->setCameraRoll(player->getCameraRoll() + delta);
+
+		if ((m_camera_roll_diff > 0.0f && player->getCameraRoll() >= player->getTargetCameraRoll()) ||
+			(m_camera_roll_diff < 0.0f && player->getCameraRoll() <= player->getTargetCameraRoll()))
+		{
+			m_camera_roll_transition_active = false;
+			player->setCameraRoll(player->getTargetCameraRoll());
+		}
+	}
 
 	/*
 	 * Apply server-sent FOV, instantaneous or smooth transition.

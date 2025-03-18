@@ -687,7 +687,18 @@ enum ToClientCommand : u16
 			f32 center_weight_power
 	*/
 
-	TOCLIENT_NUM_MSG_TYPES = 0x64,
+	TOCLIENT_CAMERA_ROLL = 0x64,
+	/*
+		f32 roll
+		f32 transition_time
+	*/
+
+	TOCLIENT_CAMERA_BASE_ROTATION = 0x65,
+	/*
+		v3f rotation
+	*/
+
+	TOCLIENT_NUM_MSG_TYPES = 0x66,
 };
 
 enum ToServerCommand : u16

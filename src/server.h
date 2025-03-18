@@ -374,6 +374,9 @@ public:
 			f32 frame_speed);
 	void setPlayerEyeOffset(RemotePlayer *player, v3f first, v3f third, v3f third_front);
 
+	void setPlayerCameraRoll(RemotePlayer *player, f32 roll, f32 transition_time = 0.0f);
+	void setPlayerCameraBaseRotation(RemotePlayer *player, v3f roll);
+
 	void setSky(RemotePlayer *player, const SkyboxParams &params);
 	void setSun(RemotePlayer *player, const SunParams &params);
 	void setMoon(RemotePlayer *player, const MoonParams &params);
@@ -531,6 +534,9 @@ private:
 	void SendLocalPlayerAnimations(session_t peer_id, v2f animation_frames[4],
 		f32 animation_speed);
 	void SendEyeOffset(session_t peer_id, v3f first, v3f third, v3f third_front);
+	void SendCameraRoll(session_t peer_id, float roll, float transition_time);
+	void SendCameraBaseRotation(session_t peer_id, v3f rot);
+	void SendCameraOrientation(session_t peer_id, v3f rot);
 	void SendPlayerPrivileges(session_t peer_id);
 	void SendPlayerInventoryFormspec(session_t peer_id);
 	void SendPlayerFormspecPrepend(session_t peer_id);
