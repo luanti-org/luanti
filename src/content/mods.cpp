@@ -55,7 +55,6 @@ bool parseDependsString(std::string &dep, std::unordered_set<char> &symbols)
 	return !dep.empty();
 }
 
-[[nodiscard]]
 bool parseModContents(ModSpec &spec)
 {
 	// NOTE: this function works in mutual recursion with getModsInPath
