@@ -2492,9 +2492,10 @@ void Server::SendBlocks(float dtime)
 	// Sort.
 	// Lowest priority number comes first.
 	// Lowest is most important.
-	std::sort(queue.begin(), queue.end());
-
-	ClientInterface::AutoLock clientlock(m_clients);
+	if (unique_clients > 1) {
+		// for a single client queue already sorted by dist
+		std::sort(queue.begin(), queue.end());
+	}
 
 	// Maximal total count calculation
 	// The per-client block sends is halved with the maximal online users
@@ -2510,6 +2511,7 @@ void Server::SendBlocks(float dtime)
 		cache_ptr = &cache;
 	}
 
+	ClientInterface::AutoLock clientlock(m_clients);
 	for (const PrioritySortedBlockTransfer &block_to_send : queue) {
 		if (total_sending >= max_blocks_to_send)
 			break;

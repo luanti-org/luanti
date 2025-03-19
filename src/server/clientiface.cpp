@@ -377,9 +377,7 @@ void RemoteClient::GetNextBlocks (
 			/*
 				Add block to send queue
 			*/
-			PrioritySortedBlockTransfer q((float)dist, p, peer_id);
-
-			dest.push_back(q);
+			dest.emplace_back((float)dist, p, peer_id);
 
 			num_blocks_selected += 1;
 		}
