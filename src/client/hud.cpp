@@ -336,8 +336,9 @@ void Hud::drawInventory(const v2s32& screen_pos, const v2f& offset, s32 itemcoun
 }
 
 // If max_inv_length == 0 do not clamp size
+// source_index is one based, if 0 use all next to each other
 void Hud::drawHotbar(const v2s32 &screen_pos, const v2f &offset, u16 direction,
-	const v2f &alignment, s32 max_inv_length, s32 inv_offset)
+		const v2f &alignment, s32 max_inv_length, s32 inv_offset, u16 source_index)
 {
 	if (g_touchcontrols)
 		g_touchcontrols->resetHotbarRects();
@@ -345,6 +346,30 @@ void Hud::drawHotbar(const v2s32 &screen_pos, const v2f &offset, u16 direction,
 	auto& sources = player->hotbar_source.getSources();
 	u16 wield_index = player->getWieldIndex() + 1;
 	v2s32 screen_offset(offset.X, offset.Y);
+
+	// Single inventory
+	if (source_index) {
+		if (source_index > sources.size())
+			return;
+		const HotbarSource::Source& source = sources[source_index - 1];
+
+		if (inv_offset > source.length)
+			return;
+		max_inv_length = max_inv_length ? max_inv_length : source.length - inv_offset;
+
+		s32 height, width;
+		v2s32 pos;
+		getInventoryDimensions(screen_pos, screen_offset, max_inv_length, alignment, direction,
+				pos, width, height);
+		drawInventoryBackground(pos, width, height);
+
+		u16 length_before = player->hotbar_source.getLengthBefore(source_index - 1);
+		inv_offset += source.offset;
+		max_inv_length = MYMIN(max_inv_length, source.length);
+		drawItems(pos, max_inv_length + inv_offset, inv_offset, inventory->getList(source.list),
+				wield_index - length_before + inv_offset, direction, true, length_before);
+		return;
+	}
 
 	// All invs next to each other
 	if (inv_offset > player->hotbar_source.getMaxLength())
@@ -359,7 +384,6 @@ void Hud::drawHotbar(const v2s32 &screen_pos, const v2f &offset, u16 direction,
 	drawInventoryBackground(pos, width, height);
 
 	// Handle offset
-	std::size_t source_index = 0;
 	u16 length_before = 0;
 	for (s32 i_offset = inv_offset; source_index < sources.size(); source_index++) {
 		const HotbarSource::Source& source = sources[source_index];
@@ -652,21 +676,25 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 				client->getMinimap()->drawMinimap(rect);
 				break; }
 			case HUD_ELEM_HOTBAR: {
-				// Handle splitting caused by hud_hotbar_max_width
-				u16 hotbar_itemcount = player->hotbar_source.getMaxLength();
-				s32 width = hotbar_itemcount * (m_hotbar_imagesize + m_padding * 2);
-				const v2u32 &window_size = RenderingEngine::getWindowSize();
-				if ((float) width / (float) window_size.X >
-						g_settings->getFloat("hud_hotbar_max_width")) {
-					v2s32 upper_pos = pos - v2s32(0, m_hotbar_imagesize + m_padding);
-					u16 upper_itemcount = hotbar_itemcount/2;
-					drawHotbar(upper_pos, e->offset, e->dir, e->align, upper_itemcount, 0);
-					drawHotbar(pos, e->offset, e->dir, e->align,
-							hotbar_itemcount - upper_itemcount, upper_itemcount);
-					break;
-				} else {
-					drawHotbar(pos, e->offset, e->dir, e->align);
+				if (!e->world_pos.X) { // Handle splitting caused by hud_hotbar_max_width
+					u16 hotbar_itemcount = e->world_pos.Y ? e->world_pos.Y :
+							player->hotbar_source.getMaxLength();
+					hotbar_itemcount -= e->world_pos.Z;
+					s32 width = hotbar_itemcount * (m_hotbar_imagesize + m_padding * 2);
+					const v2u32 &window_size = RenderingEngine::getWindowSize();
+					if ((float) width / (float) window_size.X >
+							g_settings->getFloat("hud_hotbar_max_width")) {
+						v2s32 upper_pos = pos - v2s32(0, m_hotbar_imagesize + m_padding);
+						u16 upper_itemcount = hotbar_itemcount/2;
+						drawHotbar(upper_pos, e->offset, e->dir, e->align,
+								upper_itemcount, e->world_pos.Z);
+						drawHotbar(pos, e->offset, e->dir, e->align,
+								hotbar_itemcount - upper_itemcount, e->world_pos.Z + upper_itemcount);
+						break;
+					}
 				}
+				drawHotbar(pos, e->offset, e->dir, e->align,
+						e->world_pos.Y, e->world_pos.Z, e->world_pos.X);
 				break; }
 			default:
 				infostream << "Hud::drawLuaElements: ignoring drawform " << e->type

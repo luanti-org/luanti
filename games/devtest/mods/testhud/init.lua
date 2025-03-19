@@ -254,6 +254,27 @@ local hud_hotbar_defs = {
 		},
 		{
 			type = "hotbar",
+			position = {x=0.5, y=0.7},
+			world_pos = {z=1, y=10},
+			direction = 1,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.6},
+			world_pos = {z=1, y=10},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.5},
+			world_pos = {z=17, y=5},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.4},
+			world_pos = {z=10, y=10},
+		},
+		{
+			type = "hotbar",
 			position = {x=0.2, y=0.5},
 			direction = 2,
 		},
@@ -262,15 +283,71 @@ local hud_hotbar_defs = {
 			position = {x=0.8, y=0.5},
 			direction = 3,
 		},
-	}
+	},
+	{
+		hotbar_source = {
+			{list = "craft", length = 4, offset = 3},
+			{list = "main", length = 5, offset = 0},
+		},
+		hotbar_image = "default_stone.png^[opacity:150",
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.2},
+			world_pos = {x=1},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.3},
+			world_pos = {x=1, y=6},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.4},
+			world_pos = {x=1, z=5, y=3},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.5},
+			world_pos = {x=2},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.6},
+			world_pos = {x=2, z=1, y=3},
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.7},
+			world_pos = {x=2},
+			direction = 1,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.5, y=0.8},
+			world_pos = {x=2, z=1, y=3},
+			direction = 1,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.2, y=0.5},
+			world_pos = {x=2, z=1, y=3},
+			direction = 2,
+		},
+		{
+			type = "hotbar",
+			position = {x=0.8, y=0.5},
+			world_pos = {x=2, z=1, y=3},
+			direction = 3,
+		},
+	},
 }
 
 
 local player_hud_hotbars= {}
 core.register_chatcommand("hudhotbars", {
-	description = "Shows some test Lua HUD elements of type hotbar. " ..
-			"(Cycles between tests for: none, aligned all direction and offset," ..
-			"changed hotbar_source all direction and hotbar image)",
+	description = "(Cycles between tests for: none, aligned all direction and offset, " ..
+			"changed hotbar_source all direction and hotbar image, " ..
+			"using a single index of the hotbar_source )",
 	func = function(name)
 		local player = core.get_player_by_name(name)
 		if not player then

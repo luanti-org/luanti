@@ -116,7 +116,7 @@ private:
 			v2f alignment, InventoryList *mainlist, u16 selectitem, u16 direction);
 
 	void drawHotbar(const v2s32 &pos, const v2f &offset, u16 direction,	const v2f &alignment,
-			s32 max_inv_length = 0, s32 inv_offset = 0);
+			s32 max_inv_length = 0, s32 inv_offset = 0, u16 source_index = 0);
 
 	void drawCompassTranslate(HudElement *e, video::ITexture *texture,
 			const core::rect<s32> &rect, int way);
