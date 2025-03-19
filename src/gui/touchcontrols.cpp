@@ -133,12 +133,8 @@ bool TouchControls::buttonsStep(std::vector<button_info> &buttons, float dtime)
 	return has_pointers;
 }
 
-static KeyPress id_to_keypress(touch_gui_button_id id)
+static std::string id_to_setting(touch_gui_button_id id)
 {
-	// ESC isn't part of the keymap.
-	if (id == exit_id)
-		return EscapeKey;
-
 	std::string key = "";
 	switch (id) {
 		case dig_id:
@@ -195,11 +191,22 @@ static KeyPress id_to_keypress(touch_gui_button_id id)
 		default:
 			break;
 	}
-	assert(!key.empty());
-	auto kp = getKeySetting("keymap_" + key);
+	return key.empty() ? key : "keymap_" + key;
+}
+
+static KeyPress id_to_keypress(touch_gui_button_id id)
+{
+	// ESC isn't part of the keymap.
+	if (id == exit_id)
+		return EscapeKey;
+
+	auto setting_name = id_to_setting(id);
+
+	assert(!setting_name.empty());
+	auto kp = getKeySetting(setting_name);
 	if (!kp)
-		warningstream << "TouchControls: Unbound or invalid key for"
-				<< key << ", hiding button." << std::endl;
+		warningstream << "TouchControls: Unbound or invalid key for "
+				<< setting_name << ", hiding button." << std::endl;
 	return kp;
 }
 
@@ -223,6 +230,11 @@ TouchControls::TouchControls(IrrlichtDevice *device, ISimpleTextureSource *tsrc)
 	readSettings();
 	for (auto name : setting_names)
 		g_settings->registerChangedCallback(name, settingChangedCallback, this);
+
+	// Also update layout when keybindings change (e.g. for convertibles)
+	for (int id = 0; id < touch_gui_button_id_END; id++)
+		if (auto name = id_to_setting((touch_gui_button_id)id); !name.empty())
+			g_settings->registerChangedCallback(name, settingChangedCallback, this);
 }
 
 void TouchControls::settingChangedCallback(const std::string &name, void *data)
