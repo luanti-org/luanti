@@ -21,7 +21,7 @@ struct Transform {
 		auto scale = mat.getScale();
 		return {
 			mat.getTranslation(),
-			quaternion(mat.getRotationDegrees(scale) * DEGTORAD),
+			quaternion(mat.getRotationRadians(scale)),
 			scale,
 		};
 	}
