@@ -1400,8 +1400,10 @@ void ServerEnvironment::getSelectedActiveObjects(
 		return false;
 	};
 
-	aabb3f search_area(shootline_on_map.start - 5 * BS, shootline_on_map.end + 5 * BS);
+	aabb3f search_area(shootline_on_map.start, shootline_on_map.end);
 	search_area.repair();
+	search_area.MinEdge -= 5 * BS;
+	search_area.MaxEdge += 5 * BS;
 
 	// Use "logic in callback" pattern to avoid useless vector filling
 	std::vector<ServerActiveObject*> tmp;
