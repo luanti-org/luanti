@@ -275,14 +275,14 @@ TEST_CASE("server active object manager")
 	SECTION("spatial index") {
 		TestServerActiveObjectMgr saomgr;
 		std::mt19937 gen(0xABCDEF);
-    	std::uniform_int_distribution<s32> coordinate(-1000, 1000);
+		std::uniform_int_distribution<s32> coordinate(-1000, 1000);
 		const auto random_pos = [&]() {
 			return v3f(coordinate(gen), coordinate(gen), coordinate(gen));
 		};
 
 		std::uniform_int_distribution<u32> percent(0, 99);
 		const auto modify = [&](u32 p_insert, u32 p_delete, u32 p_update) {
-            const auto p = percent(gen);
+			const auto p = percent(gen);
 			if (p < p_insert) {
 				saomgr.registerObject(std::make_unique<MockServerActiveObject>(nullptr, random_pos()));
 			} else if (p < p_insert + p_delete) {
