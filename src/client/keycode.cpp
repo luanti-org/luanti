@@ -367,7 +367,7 @@ bool KeyPress::loadFromScancode(const std::string &name)
 }
 
 std::unordered_map<std::string, KeyPress> specialKeyCache;
-const KeyPress &KeyPress::getSpecialKey(const std::string &name)
+KeyPress KeyPress::getSpecialKey(const std::string &name)
 {
 	auto &key = specialKeyCache[name];
 	if (!key)
@@ -382,7 +382,7 @@ const KeyPress &KeyPress::getSpecialKey(const std::string &name)
 // A simple cache for quicker lookup
 static std::unordered_map<std::string, KeyPress> g_key_setting_cache;
 
-const KeyPress &getKeySetting(const std::string &settingname)
+KeyPress getKeySetting(const std::string &settingname)
 {
 	auto n = g_key_setting_cache.find(settingname);
 	if (n != g_key_setting_cache.end())

@@ -30,7 +30,7 @@
 
 TouchControls *g_touchcontrols;
 
-void TouchControls::emitKeyboardEvent(const KeyPress &key, bool pressed)
+void TouchControls::emitKeyboardEvent(KeyPress key, bool pressed)
 {
 	SEvent e{};
 	e.EventType              = EET_KEY_INPUT_EVENT;
@@ -133,7 +133,7 @@ bool TouchControls::buttonsStep(std::vector<button_info> &buttons, float dtime)
 	return has_pointers;
 }
 
-static const KeyPress &id_to_keypress(touch_gui_button_id id)
+static KeyPress id_to_keypress(touch_gui_button_id id)
 {
 	// ESC isn't part of the keymap.
 	if (id == exit_id)
@@ -196,7 +196,7 @@ static const KeyPress &id_to_keypress(touch_gui_button_id id)
 			break;
 	}
 	assert(!key.empty());
-	auto &kp = getKeySetting("keymap_" + key);
+	auto kp = getKeySetting("keymap_" + key);
 	if (!kp)
 		warningstream << "TouchControls: Unbound or invalid key for"
 				<< key << ", hiding button." << std::endl;

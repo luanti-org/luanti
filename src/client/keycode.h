@@ -10,7 +10,9 @@
 #include <string>
 #include <variant>
 
-/* A key press, consisting of a scancode or a keycode */
+/* A key press, consisting of a scancode or a keycode.
+ * This fits into 64 bits, so prefer passing this by value.
+*/
 class KeyPress
 {
 public:
@@ -40,10 +42,10 @@ public:
 		return 0;
 	}
 
-	bool operator==(const KeyPress &o) const {
+	bool operator==(KeyPress o) const {
 		return scancode == o.scancode;
 	}
-	bool operator!=(const KeyPress &o) const {
+	bool operator!=(KeyPress o) const {
 		return !(*this == o);
 	}
 
@@ -55,7 +57,7 @@ public:
 			std::get<u32>(scancode) != 0;
 	}
 
-	static const KeyPress &getSpecialKey(const std::string &name);
+	static KeyPress getSpecialKey(const std::string &name);
 
 private:
 	bool loadFromScancode(const std::string &name);
@@ -74,7 +76,7 @@ private:
 #define RMBKey KeyPress::getSpecialKey("KEY_RBUTTON")
 
 // Key configuration getter
-const KeyPress &getKeySetting(const std::string &settingname);
+KeyPress getKeySetting(const std::string &settingname);
 
 // Clear fast lookup cache
 void clearKeyCache();

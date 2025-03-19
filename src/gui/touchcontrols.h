@@ -203,7 +203,7 @@ private:
 	// for its buttons. We only want static image display, not interactivity,
 	// from Irrlicht.
 
-	void emitKeyboardEvent(const KeyPress &keycode, bool pressed);
+	void emitKeyboardEvent(KeyPress keycode, bool pressed);
 
 	void loadButtonTexture(IGUIImage *gui_button, const std::string &path);
 	void buttonEmitAction(button_info &btn, bool action);
