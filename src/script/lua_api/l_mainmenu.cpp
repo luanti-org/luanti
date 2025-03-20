@@ -31,6 +31,8 @@
 #include "gui/guiOpenURL.h"
 #include "gettext.h"
 
+#include <cassert>
+
 /******************************************************************************/
 std::string ModApiMainMenu::getTextData(lua_State *L, const std::string &name)
 {
@@ -385,8 +387,12 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 	if (spec.type == "mod") {
 		ModSpec spec;
 		spec.path = path;
-		// TODO return nothing on failure (needs callers to handle it)
-		static_cast<void>(parseModContents(spec));
+		// Since the content was already determined to be a mod,
+		// the parsing is guaranteed to succeed unless the init.lua
+		// file happens to be deleted between the content parse and
+		// the mod parse.
+		[[maybe_unused]] bool success = parseModContents(spec);
+		assert(success);
 
 		// Dependencies
 		lua_newtable(L);
