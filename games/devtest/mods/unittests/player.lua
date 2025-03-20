@@ -226,9 +226,7 @@ local function run_player_hotbar_source_tests(player)
 	assert(table_equals(player:get_hotbar_source(), {{list = "main", length = 5, offset = 0}}))
 
 	local hotbar_source = {{list = "test", length = 4, offset = 2}, {list = "myinv", length = 16, offset = 99}}
-	print(dump(player:get_hotbar_source()))
-	print(player:set_hotbar_source(hotbar_source))
-	print(dump(player:get_hotbar_source()))
+	player:set_hotbar_source(hotbar_source)
 	assert(table_equals(player:get_hotbar_source(), hotbar_source))
 	assert(player:hud_get_hotbar_itemcount() == 20)
 
