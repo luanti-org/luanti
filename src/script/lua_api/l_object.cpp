@@ -1964,7 +1964,7 @@ int ObjectRef::l_get_hotbar_source(lua_State *L)
 
 	lua_newtable(L);
 
-	auto& sources = player->hotbar_source.getSources();
+	auto &sources = player->hotbar_source.getSources();
 	for (std::size_t i = 0; i < sources.size(); i++) {
 		auto& source = sources[i];
 		lua_newtable(L);

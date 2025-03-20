@@ -35,7 +35,7 @@ public:
 
 	RemotePlayerChatResult canSendChatMessage();
 
-	void setHotbarSource(const HotbarSource& source) { hotbar_source = source; }
+	void setHotbarSource(const HotbarSource &source) { hotbar_source = source; }
 	const HotbarSource& getHotbarSource() const { return hotbar_source; }
 
 	void overrideDayNightRatio(bool do_override, float ratio)

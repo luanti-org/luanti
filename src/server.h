@@ -366,7 +366,7 @@ public:
 	bool hudChange(RemotePlayer *player, u32 id, HudElementStat stat, void *value);
 	bool hudSetFlags(RemotePlayer *player, u32 flags, u32 mask);
 	bool hudSetHotbarItemcountLegacy(RemotePlayer *player, s32 hotbar_itemcount);
-	bool hudSetHotbarSource(RemotePlayer *player, const HotbarSource& source);
+	bool hudSetHotbarSource(RemotePlayer *player, const HotbarSource &source);
 	void hudSetHotbarImage(RemotePlayer *player, const std::string &name);
 	void hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &name);
 
