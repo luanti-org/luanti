@@ -358,7 +358,7 @@ void Hud::drawHotbar(const v2s32 &screen_pos, const v2f &offset, u16 direction,
 			direction, pos, width, height);
 	drawInventoryBackground(pos, width, height);
 
-	// Handle offset
+	/// Handle offset
 	std::size_t source_index = 0;
 	u16 length_before = 0;
 	for (s32 i_offset = inv_offset; source_index < sources.size(); source_index++) {
@@ -367,8 +367,10 @@ void Hud::drawHotbar(const v2s32 &screen_pos, const v2f &offset, u16 direction,
 			s32 inv_length = MYMIN(source.length - i_offset, max_inv_length);
 
 			drawItems(pos + getInventoryPosOffset(direction, 0, max_inv_length - inv_length),
-					inv_length + source.offset + i_offset, source.offset + i_offset,
-					inventory->getList(source.list), wield_index + source.offset,
+					inv_length + source.offset + i_offset,
+					source.offset + i_offset,
+					inventory->getList(source.list),
+					wield_index + source.offset - inv_offset + i_offset,
 					direction, true, 0);
 			length_before = inv_length;
 			source_index++;
@@ -378,7 +380,7 @@ void Hud::drawHotbar(const v2s32 &screen_pos, const v2f &offset, u16 direction,
 	}
 
 	for (; source_index < sources.size(); source_index++) {
-		const HotbarSource::Source& source = sources[source_index];
+		const HotbarSource::Source &source = sources[source_index];
 		s32 inv_length = MYMIN(source.length, max_inv_length - length_before);
 		if(inv_length <= 0)
 			break;
@@ -386,7 +388,8 @@ void Hud::drawHotbar(const v2s32 &screen_pos, const v2f &offset, u16 direction,
 		drawItems(pos + getInventoryPosOffset(direction, length_before, max_inv_length - inv_length),
 				inv_length + source.offset,
 				source.offset, inventory->getList(source.list),
-				wield_index - length_before + source.offset, direction, true, length_before);
+				wield_index - length_before + source.offset - inv_offset,
+				direction, true, length_before);
 		length_before += inv_length;
 	}
 }
