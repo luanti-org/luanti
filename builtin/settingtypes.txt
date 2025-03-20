@@ -146,7 +146,7 @@ invert_mouse (Invert mouse) bool false
 #    Mouse sensitivity multiplier.
 #
 #    Requires: keyboard_mouse
-mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
+mouse_sensitivity (Mouse sensitivity) float 0.2 0.000000001 1000000.0
 
 #    Enable mouse wheel (scroll) for item selection in hotbar.
 #
