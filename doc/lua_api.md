@@ -1842,6 +1842,7 @@ Displays a horizontal bar made up of half-images with an optional background.
 * `alignment`: The alignment of the inventory.
 * `world_pos`: Inventory of the hotbar depending on `hotbar_source`
     `x` the index of the `hotbar_source` table to be used, if 0 use all next to each other
+        if not 0, ignores the `hud_hotbar_max_width` setting
     `y` an additional length to clamp the size, if 0 use whole length as defined in `hotbar_source`
     `z` an additional offset to adjust where the displayed inventory starts
 
