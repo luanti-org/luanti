@@ -82,12 +82,12 @@ Player::~Player()
 
 void Player::setWieldIndex(u16 index)
 {
-	m_wield_index = MYMIN(index, hotbar_source.getMaxLength() - 1);
+	m_wield_index = std::min<u16>(index, hotbar_source.getMaxLength() - 1);
 }
 
 u16 Player::getWieldIndex()
 {
-	return MYMIN(m_wield_index, hotbar_source.getMaxLength() - 1);
+	return std::min<u16>(m_wield_index, hotbar_source.getMaxLength() - 1);
 }
 
 ItemStack &Player::getWieldedItem(ItemStack *selected, ItemStack *hand) const

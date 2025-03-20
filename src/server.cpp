@@ -3530,7 +3530,7 @@ bool Server::hudSetHotbarItemcountLegacy(RemotePlayer *player, s32 hotbar_itemco
 		return false;
 
 	InventoryList *mainlist = player->inventory.getList("main");
-	hotbar_itemcount = mainlist ? MYMIN(mainlist->getSize(), (u32) hotbar_itemcount) : 0;
+	hotbar_itemcount = mainlist ? std::min<u32>(mainlist->getSize(), hotbar_itemcount) : 0;
 
 	player->hotbar_source.setHotbarItemcountLegacy(hotbar_itemcount);
 
