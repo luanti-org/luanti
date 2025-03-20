@@ -3,11 +3,15 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "test.h"
+#include "catch.h"
+#include "collision.h"
 #include "dummymap.h"
 #include "environment.h"
 #include "irrlicht_changes/printing.h"
+#include "irrlichttypes.h"
 
-#include "collision.h"
+
+const double EPSILON = 0.001;
 
 class TestCollision : public TestBase {
 public:
@@ -16,7 +20,6 @@ public:
 
 	void runTests(IGameDef *gamedef);
 
-	void testAxisAlignedCollision();
 	void testCollisionMoveSimple(IGameDef *gamedef);
 };
 
@@ -24,7 +27,6 @@ static TestCollision g_test_instance;
 
 void TestCollision::runTests(IGameDef *gamedef)
 {
-	TEST(testAxisAlignedCollision);
 	TEST(testCollisionMoveSimple, gamedef);
 }
 
@@ -60,149 +62,194 @@ namespace {
 		UASSERTEQ_F(va.X, ve.X); UASSERTEQ_F(va.Y, ve.Y); UASSERTEQ_F(va.Z, ve.Z); \
 	} while (0)
 
+#define fpos(x,y,z) (BS * v3f(x, y, z))
+
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void TestCollision::testAxisAlignedCollision()
+TEST_CASE("Test axis aligned collision with unit cube.", "[collision]")
 {
-	for (s16 bx = -3; bx <= 3; bx++)
-	for (s16 by = -3; by <= 3; by++)
-	for (s16 bz = -3; bz <= 3; bz++) {
-		// X-
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx-2, by, bz, bx-1, by+1, bz+1);
-			v3f v(1, 0, 0);
-			f32 dtime = 1.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 0);
-			UASSERT(fabs(dtime - 1.000) < 0.001);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx-2, by, bz, bx-1, by+1, bz+1);
-			v3f v(-1, 0, 0);
-			f32 dtime = 1.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == -1);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx-2, by+1.5, bz, bx-1, by+2.5, bz+1);
-			v3f v(1, 0, 0);
-			f32 dtime = 1.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == -1);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx-2, by-1.5, bz, bx-1.5, by+0.5, bz+1);
-			v3f v(0.5, 0.1, 0);
-			f32 dtime = 3.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 0);
-			UASSERT(fabs(dtime - 3.000) < 0.001);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx-2, by-1.5, bz, bx-1.5, by+0.5, bz+1);
-			v3f v(0.5, 0.1, 0);
-			f32 dtime = 3.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 0);
-			UASSERT(fabs(dtime - 3.000) < 0.001);
-		}
+	f32 bx = GENERATE(-3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f);
+	f32 by = GENERATE(-3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f);
+	f32 bz = GENERATE(-3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f);
 
-		// X+
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx+2, by, bz, bx+3, by+1, bz+1);
-			v3f v(-1, 0, 0);
-			f32 dtime = 1.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 0);
-			UASSERT(fabs(dtime - 1.000) < 0.001);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx+2, by, bz, bx+3, by+1, bz+1);
-			v3f v(1, 0, 0);
-			f32 dtime = 1.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == -1);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx+2, by, bz+1.5, bx+3, by+1, bz+3.5);
-			v3f v(-1, 0, 0);
-			f32 dtime = 1.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == -1);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx+2, by-1.5, bz, bx+2.5, by-0.5, bz+1);
-			v3f v(-0.5, 0.2, 0); // 0.200000003 precisely
-			f32 dtime = 2.51f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 1);  // Y, not X!
-			UASSERT(fabs(dtime - 2.500) < 0.001);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+1, by+1, bz+1);
-			aabb3f m(bx+2, by-1.5, bz, bx+2.5, by-0.5, bz+1);
-			v3f v(-0.5, 0.3, 0); // 0.300000012 precisely
-			f32 dtime = 2.1f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 0);
-			UASSERT(fabs(dtime - 2.000) < 0.001);
-		}
+	INFO("Testing with static cube at (" << bx << ", " << by << ", " << bz << ").");
 
-		// TODO: Y-, Y+, Z-, Z+
+	aabb3f s{bx, by, bz, bx+1.0f, by+1.0f, bz+1.0f};
 
-		// misc
-		{
-			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
-			aabb3f m(bx+2.3, by+2.29, bz+2.29, bx+4.2, by+4.2, bz+4.2);
-			v3f v(-1./3, -1./3, -1./3);
-			f32 dtime = 1.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 0);
-			UASSERT(fabs(dtime - 0.9) < 0.001);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
-			aabb3f m(bx+2.29, by+2.3, bz+2.29, bx+4.2, by+4.2, bz+4.2);
-			v3f v(-1./3, -1./3, -1./3);
-			f32 dtime = 1.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 1);
-			UASSERT(fabs(dtime - 0.9) < 0.001);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
-			aabb3f m(bx+2.29, by+2.29, bz+2.3, bx+4.2, by+4.2, bz+4.2);
-			v3f v(-1./3, -1./3, -1./3);
-			f32 dtime = 1.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 2);
-			UASSERT(fabs(dtime - 0.9) < 0.001);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
-			aabb3f m(bx-4.2, by-4.2, bz-4.2, bx-2.3, by-2.29, bz-2.29);
-			v3f v(1./7, 1./7, 1./7);
-			f32 dtime = 17.1f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 0);
-			UASSERT(fabs(dtime - 16.1) < 0.001);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
-			aabb3f m(bx-4.2, by-4.2, bz-4.2, bx-2.29, by-2.3, bz-2.29);
-			v3f v(1./7, 1./7, 1./7);
-			f32 dtime = 17.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 1);
-			UASSERT(fabs(dtime - 16.1) < 0.001);
-		}
-		{
-			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
-			aabb3f m(bx-4.2, by-4.2, bz-4.2, bx-2.29, by-2.29, bz-2.3);
-			v3f v(1./7, 1./7, 1./7);
-			f32 dtime = 17.0f;
-			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 2);
-			UASSERT(fabs(dtime - 16.1) < 0.001);
-		}
+	// The following set of tests is for boxes translated in the -X direction
+	// from the static cube, possibly with additional offsets.
+	SECTION("Given a unit cube translated by -2 units on the x-axis, "
+			"when it moves 1 unit per step in the +x direction for 1 step, "
+			"then it should collide on the X axis within epsilon of 1 step.")
+	{
+		aabb3f m{bx-2.0f, by, bz, bx-1.0f, by+1.0f, bz+1.0f};
+		f32 dtime = 1.0f;
+		CHECK(0 == axisAlignedCollision(s, m, v3f{1.0f, 0.0f, 0.0f}, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 1.0) < EPSILON);
+	}
+
+	SECTION("Given a unit cube translated by -2 units on the x-axis, "
+			"when it moves 1 unit per step in the -x direction for 1 step, "
+			"then it should never collide.")
+	{
+		aabb3f m{bx-2.0f, by, bz, bx-1.0f, by+1.0f, bz+1.0f};
+		f32 dtime = 1.0f;
+		CHECK(-1 == axisAlignedCollision(s, m, v3f{-1.0f, 0.0f, 0.0f}, &dtime));
+	}
+
+
+	SECTION("Given a unit cube translated by -2 units on the x-axis "
+			"and 1.5 units on the y-axis, "
+			"when it moves 1 unit per step in the +x direction for 1 step, "
+			"then it should never collide.")
+	{
+		aabb3f m{bx-2.0f, by+1.5f, bz, bx-1.0f, by+2.5f, bz+1.0f};
+		f32 dtime = 1.0f;
+		CHECK(-1 == axisAlignedCollision(s, m, v3f{1.0f, 0.0f, 0.0f}, &dtime));
+	}
+
+	SECTION("Given a 0.5x2x1 cube translated by -2 units on the x-axis "
+			"and -1.5 units on the y-axis, "
+			"when it moves 0.5 units per step in the +x direction "
+			"and 0.1 units per step in the +y direction for 3 steps, "
+			"then it should collide on the X axis within epsilon of 3 steps.")
+	{
+		aabb3f m{bx-2.0f, by-1.5f, bz, bx-1.5f, by+0.5f, bz+1.0f};
+		f32 dtime = 3.0f;
+		CHECK(0 == axisAlignedCollision(s, m, v3f{0.5f, 0.1f, 0}, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 3.0) < EPSILON);
+	}
+
+	// The following set of tests is for boxes translated in the +X direction
+	// from the static cube, possibly with additional offsets. They are not
+	// all mirror images of the tests for the -X direction.
+
+	SECTION("Given a unit cube translated by +2 units on the x-axis, "
+			"when it moves 1 unit per step in the -x direction for 1 step, "
+			"then it should collide on the X axis within epsilon of 1 step.")
+	{
+		aabb3f m{bx+2.0f, by, bz, bx+3.0f, by+1.0f, bz+1.0f};
+		f32 dtime = 1.0f;
+		CHECK(0 == axisAlignedCollision(s, m, v3f{-1.0f, 0.0f, 0.0f}, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 1.0) < EPSILON);
+	}
+
+	SECTION("Given a unit cube translated by +2 units on the x-axis, "
+			"when it moves 1 unit per step in the +x direction for 1 step, "
+			"then it should never collide.")
+	{
+		aabb3f m{bx+2.0f, by, bz, bx+3.0f, by+1.0f, bz+1.0f};
+		f32 dtime = 1.0f;
+		CHECK(-1 == axisAlignedCollision(s, m, v3f{1.0f, 0.0f, 0.0f}, &dtime));
+	}
+
+	SECTION("Given a unit cube translated by +2 units on the x-axis "
+			"and 1.5 units on the z-axis, "
+			"when it moves 1 unit per step in the -x direction for 1 step, "
+			"then it should never collide.")
+	{
+		aabb3f m{bx+2.0f, by, bz+1.5f, bx+3.0f, by+1.0f, bz+3.5f};
+		f32 dtime = 1.0f;
+		CHECK(-1 == axisAlignedCollision(s, m, v3f{-1.0f, 0.0f, 0.0f}, &dtime));
+	}
+
+	SECTION("Given a 0.5x1x1 cube translated by +2 units on the x-axis "
+			"and -1.5 units on the y-axis, "
+			"when it moves 0.5 units per step in the -x direction "
+			"and 0.2 units per step in the +y direction for 3 steps, "
+			"then it should collide on the Y axis within epsilon of 2.5 steps.")
+	{
+		// This test is interesting because the Y-faces are the first to collide.
+		aabb3f m{bx+2.0f, by-1.5f, bz, bx+2.5f, by-0.5f, bz+1.0f};
+		f32 dtime = 2.51f;
+		// y velocity is 0.200000003 precisely
+		CHECK(1 == axisAlignedCollision(s, m, v3f{-0.5f, 0.2f, 0}, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 2.5) < EPSILON);
+	}
+
+	SECTION("Given a 0.5x1x1 cube translated by +2 units on the x-axis "
+			"and -1.5 units on the y-axis, "
+			"when it moves 0.5 units per step in the -x direction "
+			"and 0.3 units per step in the +y direction for 3 steps, "
+			"then it should collide on the X axis within epsilon of 2.0 steps.")
+	{
+		aabb3f m{bx+2.0f, by-1.5f, bz, bx+2.5f, by-0.5f, bz+1.0f};
+		f32 dtime = 2.1f;
+		// y velocity is 0.300000012 precisely
+		CHECK(0 == axisAlignedCollision(s, m, v3f{-0.5f, 0.3f, 0}, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 2.0) < EPSILON);
 	}
 }
 
-#define fpos(x,y,z) (BS * v3f(x, y, z))
+TEST_CASE("Test axis aligned collision with 2x2x2 cube.", "[collision]")
+{
+	f32 bx = GENERATE(-3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f);
+	f32 by = GENERATE(-3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f);
+	f32 bz = GENERATE(-3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f);
+
+	INFO("Testing with static cube at (" << bx << ", " << by << ", " << bz << ").");
+
+	aabb3f s{bx, by, bz, bx+2.0f, by+2.0f, bz+2.0f};
+
+	// The following set of tests checks small floating point offsets
+	// colliding at the corner of two boxes, to ensure the function under
+	// test can detect which axis collided first.
+
+	SECTION("Collides on X axis near (+X,+Y,+Z) corner.")
+	{
+		aabb3f m{bx+2.3f, by+2.29f, bz+2.29f, bx+4.2f, by+4.2f, bz+4.2f};
+		v3f v{-1.0f/3.0f, -1.0f/3.0f, -1.0/3.0f};
+		f32 dtime = 1.0f;
+		CHECK(0 == axisAlignedCollision(s, m, v, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 0.9) < EPSILON);
+	}
+
+	SECTION("Collides on Y axis near (+X,+Y,+Z) corner.")
+	{
+		aabb3f m{bx+2.29f, by+2.3f, bz+2.29f, bx+4.2f, by+4.2f, bz+4.2f};
+		v3f v{-1.0f/3.0f, -1.0f/3.0f, -1.0/3.0f};
+		f32 dtime = 1.0f;
+		CHECK(1 == axisAlignedCollision(s, m, v, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 0.9) < EPSILON);
+	}
+
+	SECTION("Collides on Z axis near (+X,+Y,+Z) corner.")
+	{
+		aabb3f m{bx+2.29f, by+2.29f, bz+2.3f, bx+4.2f, by+4.2f, bz+4.2f};
+		v3f v{-1.0f/3.0f, -1.0f/3.0f, -1.0/3.0f};
+		f32 dtime = 1.0f;
+		CHECK(2 == axisAlignedCollision(s, m, v, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 0.9) < EPSILON);
+	}
+
+	SECTION("Collides on X axis near (-X,-Y,-Z) corner.")
+	{
+		aabb3f m{bx-4.2f, by-4.2f, bz-4.2f, bx-2.3f, by-2.29f, bz-2.29f};
+		v3f v{1.0f/7.0f, 1.0f/7.0f, 1.0/7.0f};
+		f32 dtime = 17.0f;
+		CHECK(0 == axisAlignedCollision(s, m, v, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 16.1) < EPSILON);
+	}
+
+	SECTION("Collides on Y axis near (-X,-Y,-Z) corner.")
+	{
+		aabb3f m{bx-4.2f, by-4.2f, bz-4.2f, bx-2.29f, by-2.3f, bz-2.29f};
+		v3f v{1.0f/7.0f, 1.0f/7.0f, 1.0/7.0f};
+		f32 dtime = 17.0f;
+		CHECK(1 == axisAlignedCollision(s, m, v, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 16.1) < EPSILON);
+	}
+
+	SECTION("Collides on Z axis near (-X,-Y,-Z) corner.")
+	{
+		aabb3f m{bx-4.2f, by-4.2f, bz-4.2f, bx-2.29f, by-2.29f, bz-2.3f};
+		v3f v{1.0f/7.0f, 1.0f/7.0f, 1.0/7.0f};
+		f32 dtime = 17.0f;
+		CHECK(2 == axisAlignedCollision(s, m, v, &dtime));
+		CHECK(std::fabs(static_cast<double>(dtime) - 16.1) < EPSILON);
+	}
+}
+
 
 void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 {
