@@ -355,7 +355,7 @@ void Hud::drawHotbar(v2s32 screen_pos, v2f offset, u16 direction,
 			direction, pos, width, height);
 	drawInventoryBackground(pos, width, height);
 
-	/// Handle offset
+	// Handle offset
 	std::size_t source_index = 0;
 	u16 length_before = 0;
 	for (s32 i_offset = inv_offset; source_index < sources.size(); source_index++) {
@@ -393,9 +393,6 @@ void Hud::drawHotbar(v2s32 screen_pos, v2f offset, u16 direction,
 
 void Hud::drawHotbarElement(v2s32 pos, HudElement *e)
 {
-	if (g_touchcontrols) // FIXME probably breaks if more then one hotbar element exists
-		g_touchcontrols->resetHotbarRects();
-
 	// Handle splitting caused by hud_hotbar_max_width
 	u16 hotbar_itemcount = player->hotbar_source.getMaxLength();
 	float width = hotbar_itemcount * (m_hotbar_imagesize + m_padding * 2);
@@ -472,6 +469,9 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 	std::stable_sort(elems.begin(), elems.end(), [] (HudElement *l, HudElement *r) {
 		return l->z_index < r->z_index;
 	});
+
+	if (g_touchcontrols)
+		g_touchcontrols->resetHotbarRects();
 
 	for (HudElement *e : elems) {
 

@@ -1307,7 +1307,8 @@ void Client::handleCommand_HudSetParam(NetworkPacket* pkt)
 			break;
 		s32 hotbar_itemcount = readS32((u8*) value.c_str());
 		player->hotbar_source.setHotbarItemcountLegacy(hotbar_itemcount);
-		break; }
+		break;
+	}
 	case HUD_PARAM_HOTBAR_IMAGE:
 		player->hotbar_image = value;
 		break;
@@ -1317,7 +1318,8 @@ void Client::handleCommand_HudSetParam(NetworkPacket* pkt)
 	case HUD_PARAM_HOTBAR_SOURCE: {
 		std::istringstream is(value);
 		player->hotbar_source.deSerialize(is);
-		break; }
+		break;
+	}
 	default:
 		break;
 	}
