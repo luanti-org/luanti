@@ -334,6 +334,10 @@ public:
 	// Find the daylight value at pos with a Depth First Search
 	u8 findSunlight(v3s16 pos) const;
 
+	void updatePos(u16 id, const v3f &pos) {
+		return m_ao_manager.updatePos(id, pos);
+	}
+
 	// Find all active objects inside a radius around a point
 	void getObjectsInsideRadius(std::vector<ServerActiveObject *> &objects, const v3f &pos, float radius,
 			std::function<bool(ServerActiveObject *obj)> include_obj_cb)
