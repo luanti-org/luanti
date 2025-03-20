@@ -367,11 +367,6 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 	lua_pushstring(L, spec.author.c_str());
 	lua_setfield(L, -2, "author");
 
-	if (!spec.title.empty()) {
-		lua_pushstring(L, spec.title.c_str());
-		lua_setfield(L, -2, "title");
-	}
-
 	lua_pushinteger(L, spec.release);
 	lua_setfield(L, -2, "release");
 
