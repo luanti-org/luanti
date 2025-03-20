@@ -5701,6 +5701,8 @@ Utilities
       particle_blend_clip = true,
       -- The `match_meta` optional parameter is available for `InvRef:remove_item()` (5.12.0)
       remove_item_match_meta = true,
+      -- Hotbar HUD element definitions make use of the `world_pos` field (5.12.0)
+      hud_element_hotbar_partitioning = true,
   }
   ```
 
