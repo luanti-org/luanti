@@ -3546,7 +3546,7 @@ bool Server::hudSetHotbarItemcountLegacy(RemotePlayer *player, s32 hotbar_itemco
 	return true;
 }
 
-bool Server::hudSetHotbarSource(RemotePlayer *player, const HotbarSource& source)
+bool Server::hudSetHotbarSource(RemotePlayer *player, const HotbarSource &source)
 {
 	if (!player)
 		return false;

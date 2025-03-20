@@ -19,7 +19,7 @@ void HotbarSource::setHotbarItemcountLegacy(u16 count)
 
 bool HotbarSource::getInventoryFromWieldIndex(u16 wield_index, std::string &list, u16 &index) const
 {
-	for (auto& source : sources) {
+	for (auto &source : sources) {
 		if (wield_index < source.length) {
 			list = source.list;
 			index = wield_index + source.offset;

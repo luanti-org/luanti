@@ -359,7 +359,7 @@ void Hud::drawHotbar(v2s32 screen_pos, v2f offset, u16 direction,
 	std::size_t source_index = 0;
 	u16 length_before = 0;
 	for (s32 i_offset = inv_offset; source_index < sources.size(); source_index++) {
-		const HotbarSource::Source& source = sources[source_index];
+		const HotbarSource::Source &source = sources[source_index];
 		if (i_offset < source.length) {
 			s32 inv_length = std::min<s32>(source.length - i_offset, max_inv_length);
 
