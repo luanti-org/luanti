@@ -30,8 +30,10 @@
 #include "common/c_converter.h"
 #include "gui/guiOpenURL.h"
 #include "gettext.h"
+#include "log.h"
 
 #include <cassert>
+#include <iostream>
 
 /******************************************************************************/
 std::string ModApiMainMenu::getTextData(lua_State *L, const std::string &name)
@@ -352,6 +354,14 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 	ContentSpec spec;
 	spec.path = path;
 	parseContentInfo(spec);
+
+	if (spec.type == "unknown") {
+		// In <=5.11.0 the API call was erroneously not documented as
+		// being able to return type "unknown".
+		// TODO inspect call sites and make sure this is handled, then we can
+		// likely remove the warning.
+		warningstream << "Requested content info has type \"unknown\"" << std::endl;
+	}
 
 	lua_newtable(L);
 
