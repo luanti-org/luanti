@@ -24,10 +24,12 @@ struct HotbarSource {
 	};
 
 	// Old functionality which could only use the "main" list
-	void setHotbarItemcountLegacy(s32 count);
+	void setHotbarItemcountLegacy(u16 count);
 
 	// Returns the total length of all sources
-	u16 getMaxLength() const;
+	u16 getMaxLength() const {
+		return getLengthBefore(sources.size());
+	}
 
 	// Returns list and index of the inventory if it exists
 	bool getInventoryFromWieldIndex(u16 wield_index, std::string &list, u16 &index) const;

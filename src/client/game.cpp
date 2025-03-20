@@ -2010,7 +2010,7 @@ void Game::dropSelectedItem(bool single_item)
 	a->count = single_item ? 1 : 0;
 	a->from_inv.setCurrentPlayer();
 
-	LocalPlayer* player = client->getEnv().getLocalPlayer();
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
 	u16 index;
 	if (player->hotbar_source.getInventoryFromWieldIndex(player->getWieldIndex(),
 			a->from_list, index)) {

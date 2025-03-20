@@ -17,7 +17,6 @@
 #include "util/thread.h"
 #include "util/basic_macros.h"
 #include "util/metricsbackend.h"
-#include "util/hotbar_source.h"
 #include "serverenvironment.h"
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
@@ -67,6 +66,7 @@ class ServerInventoryManager;
 struct PackedValue;
 struct ParticleParameters;
 struct ParticleSpawnerParameters;
+struct HotbarSource;
 
 // Anticheat flags
 enum {
