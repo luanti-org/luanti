@@ -45,6 +45,8 @@
 
 static constexpr s16 ACTIVE_OBJECT_RESAVE_DISTANCE_SQ = sqr(3);
 
+static constexpr u32 BLOCK_RESAVE_TIMESTAMP_DIFF = 60;
+
 /*
 	ABMWithState
 */
@@ -54,9 +56,9 @@ ABMWithState::ABMWithState(ActiveBlockModifier *abm_):
 {
 	// Initialize timer to random value to spread processing
 	float itv = abm->getTriggerInterval();
-	itv = MYMAX(0.001, itv); // No less than 1ms
-	int minval = MYMAX(-0.51*itv, -60); // Clamp to
-	int maxval = MYMIN(0.51*itv, 60);   // +-60 seconds
+	itv = MYMAX(0.001f, itv); // No less than 1ms
+	int minval = MYMAX(-0.51f*itv, -60); // Clamp to
+	int maxval = MYMIN(0.51f*itv, 60);   // +-60 seconds
 	timer = myrand_range(minval, maxval);
 }
 
@@ -129,7 +131,11 @@ void LBMManager::addLBMDef(LoadingBlockModifierDef *lbm_def)
 	FATAL_ERROR_IF(m_query_mode,
 		"attempted to modify LBMManager in query mode");
 
-	if (!string_allowed(lbm_def->name, LBM_NAME_ALLOWED_CHARS)) {
+	if (str_starts_with(lbm_def->name, ":"))
+		lbm_def->name.erase(0, 1);
+
+	if (lbm_def->name.empty() ||
+		!string_allowed(lbm_def->name, LBM_NAME_ALLOWED_CHARS)) {
 		throw ModError("Error adding LBM \"" + lbm_def->name +
 			"\": Does not follow naming conventions: "
 				"Only characters [a-z0-9_:] are allowed.");
@@ -143,76 +149,59 @@ void LBMManager::loadIntroductionTimes(const std::string &times,
 {
 	m_query_mode = true;
 
-	// name -> time map.
-	// Storing it in a map first instead of
-	// handling the stuff directly in the loop
-	// removes all duplicate entries.
-	std::unordered_map<std::string, u32> introduction_times;
-
-	/*
-	The introduction times string consists of name~time entries,
-	with each entry terminated by a semicolon. The time is decimal.
-	 */
-
-	size_t idx = 0;
-	size_t idx_new;
-	while ((idx_new = times.find(';', idx)) != std::string::npos) {
-		std::string entry = times.substr(idx, idx_new - idx);
-		std::vector<std::string> components = str_split(entry, '~');
-		if (components.size() != 2)
-			throw SerializationError("Introduction times entry \""
-				+ entry + "\" requires exactly one '~'!");
-		const std::string &name = components[0];
-		u32 time = from_string<u32>(components[1]);
-		introduction_times[name] = time;
-		idx = idx_new + 1;
-	}
+	auto introduction_times = parseIntroductionTimesString(times);
 
 	// Put stuff from introduction_times into m_lbm_lookup
-	for (auto &it : introduction_times) {
-		const std::string &name = it.first;
-		u32 time = it.second;
-
+	for (auto &[name, time] : introduction_times) {
 		auto def_it = m_lbm_defs.find(name);
 		if (def_it == m_lbm_defs.end()) {
-			// This seems to be an LBM entry for
-			// an LBM we haven't loaded. Discard it.
+			infostream << "LBMManager: LBM " << name << " is not registered. "
+				"Discarding it." << std::endl;
 			continue;
 		}
-		LoadingBlockModifierDef *lbm_def = def_it->second;
+		auto *lbm_def = def_it->second;
 		if (lbm_def->run_at_every_load) {
-			// This seems to be an LBM entry for
-			// an LBM that runs at every load.
-			// Don't add it just yet.
+			continue; // These are handled below
+		}
+		if (time > now) {
+			warningstream << "LBMManager: LBM " << name << " was introduced in "
+				"the future. Pretending it's new." << std::endl;
+			// By skipping here it will be added as newly introduced.
 			continue;
 		}
 
 		m_lbm_lookup[time].addLBM(lbm_def, gamedef);
 
 		// Erase the entry so that we know later
-		// what elements didn't get put into m_lbm_lookup
-		m_lbm_defs.erase(name);
+		// which elements didn't get put into m_lbm_lookup
+		m_lbm_defs.erase(def_it);
 	}
 
 	// Now also add the elements from m_lbm_defs to m_lbm_lookup
 	// that weren't added in the previous step.
 	// They are introduced first time to this world,
-	// or are run at every load (introducement time hardcoded to U32_MAX).
+	// or are run at every load (introduction time hardcoded to U32_MAX).
 
-	LBMContentMapping &lbms_we_introduce_now = m_lbm_lookup[now];
-	LBMContentMapping &lbms_running_always = m_lbm_lookup[U32_MAX];
-
-	for (auto &m_lbm_def : m_lbm_defs) {
-		if (m_lbm_def.second->run_at_every_load) {
-			lbms_running_always.addLBM(m_lbm_def.second, gamedef);
-		} else {
-			lbms_we_introduce_now.addLBM(m_lbm_def.second, gamedef);
-		}
+	auto &lbms_we_introduce_now = m_lbm_lookup[now];
+	auto &lbms_running_always = m_lbm_lookup[U32_MAX];
+	for (auto &it : m_lbm_defs) {
+		if (it.second->run_at_every_load)
+			lbms_running_always.addLBM(it.second, gamedef);
+		else
+			lbms_we_introduce_now.addLBM(it.second, gamedef);
 	}
 
-	// Clear the list, so that we don't delete remaining elements
-	// twice in the destructor
+	// All pointer ownership now moved to LBMContentMapping
 	m_lbm_defs.clear();
+
+	// If these are empty delete them again to avoid pointless iteration.
+	if (lbms_we_introduce_now.empty())
+		m_lbm_lookup.erase(now);
+	if (lbms_running_always.empty())
+		m_lbm_lookup.erase(U32_MAX);
+
+	infostream << "LBMManager: " << m_lbm_lookup.size() <<
+		" unique times in lookup table" << std::endl;
 }
 
 std::string LBMManager::createIntroductionTimesString()
@@ -227,14 +216,55 @@ std::string LBMManager::createIntroductionTimesString()
 		auto &lbm_list = it.second.getList();
 		for (const auto &lbm_def : lbm_list) {
 			// Don't add if the LBM runs at every load,
-			// then introducement time is hardcoded
-			// and doesn't need to be stored
+			// then introduction time is hardcoded and doesn't need to be stored.
 			if (lbm_def->run_at_every_load)
 				continue;
 			oss << lbm_def->name << "~" << time << ";";
 		}
 	}
 	return oss.str();
+}
+
+std::unordered_map<std::string, u32>
+	LBMManager::parseIntroductionTimesString(const std::string &times)
+{
+	std::unordered_map<std::string, u32> ret;
+
+	size_t idx = 0;
+	size_t idx_new;
+	while ((idx_new = times.find(';', idx)) != std::string::npos) {
+		std::string entry = times.substr(idx, idx_new - idx);
+		idx = idx_new + 1;
+
+		std::vector<std::string> components = str_split(entry, '~');
+		if (components.size() != 2)
+			throw SerializationError("Introduction times entry \""
+				+ entry + "\" requires exactly one '~'!");
+		if (components[0].empty())
+			throw SerializationError("LBM name is empty");
+		std::string name = std::move(components[0]);
+		if (name.front() == ':') // old versions didn't strip this
+			name.erase(0, 1);
+		u32 time = from_string<u32>(components[1]);
+		ret[std::move(name)] = time;
+	}
+
+	return ret;
+}
+
+namespace {
+	struct LBMToRun {
+		std::unordered_set<v3s16> p; // node positions
+		std::vector<LoadingBlockModifierDef*> l; // ordered list of LBMs
+
+		template <typename C>
+		void insert_lbms(const C &container) {
+			for (auto &it : container) {
+				if (!CONTAINS(l, it))
+					l.push_back(it);
+			}
+		}
+	};
 }
 
 void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
@@ -245,10 +275,6 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 		"attempted to query on non fully set up LBMManager");
 
 	// Collect a list of all LBMs and associated positions
-	struct LBMToRun {
-		std::unordered_set<v3s16> p; // node positions
-		std::unordered_set<LoadingBlockModifierDef*> l;
-	};
 	std::unordered_map<content_t, LBMToRun> to_run;
 
 	// Note: the iteration count of this outer loop is typically very low, so it's ok.
@@ -270,7 +296,8 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 			if (previous_c != c) {
 				c_changed = true;
 				lbm_list = it->second.lookup(c);
-				batch = &to_run[c];
+				if (lbm_list)
+					batch = &to_run[c]; // creates entry
 				previous_c = c;
 			}
 
@@ -278,7 +305,7 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 				continue;
 			batch->p.insert(pos);
 			if (c_changed) {
-				batch->l.insert(lbm_list->begin(), lbm_list->end());
+				batch->insert_lbms(*lbm_list);
 			} else {
 				// we were here before so the list must be filled
 				assert(!batch->l.empty());
@@ -289,6 +316,11 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 	// Actually run them
 	bool first = true;
 	for (auto &[c, batch] : to_run) {
+		if (tracestream) {
+			tracestream << "Running " << batch.l.size() << " LBMs for node "
+				<< env->getGameDef()->ndef()->get(c).name << " ("
+				<< batch.p.size() << "x) in block " << block->getPos() << std::endl;
+		}
 		for (auto &lbm_def : batch.l) {
 			if (!first) {
 				// The fun part: since any LBM call can change the nodes inside of he
@@ -301,6 +333,8 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 					else
 						++it2;
 				}
+			} else {
+				assert(!batch.p.empty());
 			}
 			first = false;
 
@@ -362,10 +396,8 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 	*/
 	std::set<v3s16> newlist = m_forceloaded_list;
 	std::set<v3s16> extralist;
-	m_abm_list = m_forceloaded_list;
 	for (const PlayerSAO *playersao : active_players) {
 		v3s16 pos = getNodeBlockPos(floatToInt(playersao->getBasePosition(), BS));
-		fillRadiusBlock(pos, active_block_range, m_abm_list);
 		fillRadiusBlock(pos, active_block_range, newlist);
 
 		s16 player_ao_range = std::min(active_object_range, playersao->getWantedRange());
@@ -384,6 +416,8 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 				extralist);
 		}
 	}
+
+	m_abm_list = newlist;
 
 	/*
 		Find out which blocks on the new list are not on the old list
@@ -416,6 +450,7 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 		Do some least-effort sanity checks to hopefully catch code bugs.
 	*/
 	assert(newlist.size() >= extralist.size());
+	assert(newlist.size() >= m_abm_list.size());
 	assert(blocks_removed.size() <= m_list.size());
 	if (!blocks_added.empty()) {
 		assert(newlist.count(*blocks_added.begin()) > 0);
@@ -461,6 +496,11 @@ ServerEnvironment::ServerEnvironment(std::unique_ptr<ServerMap> map,
 	m_script(server->getScriptIface()),
 	m_server(server)
 {
+	m_cache_active_block_mgmt_interval = g_settings->getFloat("active_block_mgmt_interval");
+	m_cache_abm_interval = rangelim(g_settings->getFloat("abm_interval"), 0.1f, 30);
+	m_cache_nodetimer_interval = rangelim(g_settings->getFloat("nodetimer_interval"), 0.1f, 1);
+	m_cache_abm_time_budget = g_settings->getFloat("abm_time_budget");
+
 	m_step_time_counter = mb->addCounter(
 		"minetest_env_step_time", "Time spent in environment step (in microseconds)");
 
@@ -1044,7 +1084,16 @@ public:
 	}
 };
 
-void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
+
+void ServerEnvironment::forceActivateBlock(MapBlock *block)
+{
+	assert(block);
+	if (m_active_blocks.add(block->getPos()))
+		activateBlock(block);
+	m_active_block_gauge->set(m_active_blocks.size());
+}
+
+void ServerEnvironment::activateBlock(MapBlock *block)
 {
 	// Reset usage timer immediately, otherwise a block that becomes active
 	// again at around the same time as it would normally be unloaded will
@@ -1059,10 +1108,6 @@ void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
 	u32 stamp = block->getTimestamp();
 	if (m_game_time > stamp && stamp != BLOCK_TIMESTAMP_UNDEFINED)
 		dtime_s = m_game_time - stamp;
-	dtime_s += additional_dtime;
-
-	/*infostream<<"ServerEnvironment::activateBlock(): block timestamp: "
-			<<stamp<<", game time: "<<m_game_time<<std::endl;*/
 
 	// Remove stored static objects if clearObjects was called since block's timestamp
 	// Note that non-generated blocks may still have stored static objects
@@ -1073,9 +1118,6 @@ void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
 
 	// Set current time as timestamp
 	block->setTimestampNoChangedFlag(m_game_time);
-
-	/*infostream<<"ServerEnvironment::activateBlock(): block is "
-			<<dtime_s<<" seconds old."<<std::endl;*/
 
 	// Activate stored objects
 	activateObjects(block, dtime_s);
@@ -1089,7 +1131,7 @@ void ServerEnvironment::activateBlock(MapBlock *block, u32 additional_dtime)
 
 	// Run node timers
 	block->step((float)dtime_s, [&](v3s16 p, MapNode n, f32 d) -> bool {
-		return !block->isOrphan() && m_script->node_on_timer(p, n, d);
+		return m_script->node_on_timer(p, n, d);
 	});
 }
 
@@ -1490,7 +1532,10 @@ void ServerEnvironment::step(float dtime)
 	if (m_active_blocks_nodemetadata_interval.step(dtime, m_cache_nodetimer_interval)) {
 		ScopeProfiler sp(g_profiler, "ServerEnv: Run node timers", SPT_AVG);
 
-		float dtime = m_cache_nodetimer_interval;
+		// FIXME: this is not actually correct, because the block may have been
+		// activated just moments ago. In practice the intervnal is very small
+		// so this doesn't really matter.
+		const float dtime = m_cache_nodetimer_interval;
 
 		for (const v3s16 &p: m_active_blocks.m_list) {
 			MapBlock *block = m_map->getBlockNoCreateNoEx(p);
@@ -1502,11 +1547,14 @@ void ServerEnvironment::step(float dtime)
 
 			// Set current time as timestamp
 			block->setTimestampNoChangedFlag(m_game_time);
-			// If time has changed much from the one on disk,
-			// set block to be saved when it is unloaded
-			if(block->getTimestamp() > block->getDiskTimestamp() + 60)
+			// If the block timestamp has changed considerably, mark it to be
+			// re-saved. We do this even if there were no actual data changes
+			// for the sake of LBMs.
+			if (block->getTimestamp() > block->getDiskTimestamp()
+				+ BLOCK_RESAVE_TIMESTAMP_DIFF) {
 				block->raiseModified(MOD_STATE_WRITE_AT_UNLOAD,
 					MOD_REASON_BLOCK_EXPIRED);
+			}
 
 			// Run node timers
 			block->step(dtime, [&](v3s16 p, MapNode n, f32 d) -> bool {
@@ -1523,6 +1571,7 @@ void ServerEnvironment::step(float dtime)
 		std::shuffle(m_abms.begin(), m_abms.end(), MyRandGenerator());
 
 		// Initialize handling of ActiveBlockModifiers
+		// TODO: reinitializing this state every time is probably not efficient?
 		ABMHandler abmhandler(m_abms, m_cache_abm_interval, this, true);
 
 		int blocks_scanned = 0;

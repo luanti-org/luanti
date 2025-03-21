@@ -103,6 +103,7 @@ public:
 	void addLBM(LoadingBlockModifierDef *lbm_def, IGameDef *gamedef);
 	const lbm_map::mapped_type *lookup(content_t c) const;
 	const lbm_vector &getList() const { return lbm_list; }
+	bool empty() const { return lbm_list.empty(); }
 
 	// This struct owns the LBM pointers.
 	~LBMContentMapping();
@@ -149,6 +150,9 @@ private:
 	// The key of the map is the LBM def's first introduction time.
 	lbm_lookup_map m_lbm_lookup;
 
+	static std::unordered_map<std::string, u32>
+	parseIntroductionTimesString(const std::string &times);
+
 	// Returns an iterator to the LBMs that were introduced
 	// after the given time. This is guaranteed to return
 	// valid values for everything
@@ -182,12 +186,24 @@ public:
 		m_list.clear();
 	}
 
+	/// @return true if block was newly added
+	bool add(v3s16 p) {
+		if (m_list.insert(p).second) {
+			m_abm_list.insert(p);
+			return true;
+		}
+		return false;
+	}
+
 	void remove(v3s16 p) {
 		m_list.erase(p);
 		m_abm_list.erase(p);
 	}
 
+	// list of all active blocks
 	std::set<v3s16> m_list;
+	// list of blocks for ABM processing
+	// subset of `m_list` that does not contain view cone affected blocks
 	std::set<v3s16> m_abm_list;
 	// list of blocks that are always active, not modified by this class
 	std::set<v3s16> m_forceloaded_list;
@@ -308,10 +324,10 @@ public:
 	);
 
 	/*
-		Activate objects and dynamically modify for the dtime determined
-		from timestamp and additional_dtime
+		Force a block to become active. It will probably be deactivated
+		the next time active blocks are re-calculated.
 	*/
-	void activateBlock(MapBlock *block, u32 additional_dtime=0);
+	void forceActivateBlock(MapBlock *block);
 
 	/*
 		{Active,Loading}BlockModifiers
@@ -400,6 +416,9 @@ private:
 			const std::string &savedir, const Settings &conf);
 	static AuthDatabase *openAuthDatabase(const std::string &name,
 			const std::string &savedir, const Settings &conf);
+
+	void activateBlock(MapBlock *block);
+
 	/*
 		Internal ActiveObject interface
 		-------------------------------------------
@@ -492,6 +511,16 @@ private:
 	// Estimate for general maximum lag as determined by server.
 	// Can raise to high values like 15s with eg. map generation mods.
 	float m_max_lag_estimate = 0.1f;
+
+
+	/*
+	 * TODO: Add a callback function so these can be updated when a setting
+	 *       changes.
+	 */
+	float m_cache_active_block_mgmt_interval;
+	float m_cache_abm_interval;
+	float m_cache_nodetimer_interval;
+	float m_cache_abm_time_budget;
 
 	// peer_ids in here should be unique, except that there may be many 0s
 	std::vector<RemotePlayer*> m_players;

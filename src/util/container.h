@@ -53,9 +53,14 @@ public:
 		return m_queue.front();
 	}
 
-	u32 size() const
+	size_t size() const
 	{
 		return m_queue.size();
+	}
+
+	bool empty() const
+	{
+		return m_queue.empty();
 	}
 
 private:

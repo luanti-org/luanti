@@ -63,7 +63,7 @@ public:
 	bool blockpos_over_mapgen_limit(v3s16 p);
 	bool initBlockMake(v3s16 blockpos, BlockMakeData *data);
 	void finishBlockMake(BlockMakeData *data,
-		std::map<v3s16, MapBlock*> *changed_blocks);
+		std::map<v3s16, MapBlock*> *changed_blocks, ServerEnvironment *env);
 
 	/*
 		Get a block from somewhere.

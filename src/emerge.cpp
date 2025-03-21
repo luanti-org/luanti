@@ -581,7 +581,7 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 		Perform post-processing on blocks (invalidate lighting, queue liquid
 		transforms, etc.) to finish block make
 	*/
-	m_map->finishBlockMake(bmdata, modified_blocks);
+	m_map->finishBlockMake(bmdata, modified_blocks, m_server->m_env);
 
 	MapBlock *block = m_map->getBlockNoCreateNoEx(pos);
 	if (!block) {
@@ -618,11 +618,6 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 	assert(!m_mapgen->generating);
 	m_mapgen->gennotify.clearEvents();
 	m_mapgen->vm = nullptr;
-
-	/*
-		Activate the block
-	*/
-	m_server->m_env->activateBlock(block, 0);
 
 	return block;
 }
