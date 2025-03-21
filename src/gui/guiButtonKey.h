@@ -63,10 +63,10 @@ public:
 	}
 
 	//! Sets the captured key and stop capturing
-	void setKey(const KeyPress &key);
+	void setKey(KeyPress key);
 
 	//! Gets the captured key
-	const KeyPress &getKey() const
+	KeyPress getKey() const
 	{
 		return key_value;
 	}

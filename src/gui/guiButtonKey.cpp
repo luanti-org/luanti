@@ -18,7 +18,7 @@ GUIButtonKey *GUIButtonKey::addButton(IGUIEnvironment *environment,
 	return button.get();
 }
 
-void GUIButtonKey::setKey(const KeyPress &kp)
+void GUIButtonKey::setKey(KeyPress kp)
 {
 	key_value = kp;
 	keysym = utf8_to_wide(kp.sym());
