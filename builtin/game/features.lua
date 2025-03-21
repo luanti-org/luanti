@@ -46,6 +46,7 @@ core.features = {
 	biome_weights = true,
 	particle_blend_clip = true,
 	remove_item_match_meta = true,
+	preserve_liquid_param2 = true,
 }
 
 function core.has_feature(arg)
