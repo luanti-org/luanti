@@ -7,7 +7,6 @@
 #include "CSceneManager.h"
 #include "IVideoDriver.h"
 #include "IFileSystem.h"
-#include "SAnimatedMesh.h"
 #include "CMeshCache.h"
 #include "IGUIEnvironment.h"
 #include "IMaterialRenderer.h"

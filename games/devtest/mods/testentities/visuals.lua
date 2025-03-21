@@ -102,6 +102,19 @@ core.register_entity("testentities:lava_flan", {
 	end,
 })
 
+core.register_entity("testentities:cool_guy", {
+	initial_properties = {
+		visual = "mesh",
+		mesh = "testentities_cool_guy.x",
+		textures = {
+			"testentities_cool_guy.png"
+		},
+	},
+	on_activate = function(self)
+		self.object:set_animation({x = 0, y = 29}, 30, 0, true)
+	end,
+})
+
 -- Advanced visual tests
 
 -- An entity for testing animated and yaw-modulated sprites

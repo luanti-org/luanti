@@ -8,10 +8,9 @@
 #include <cmath>
 #include <iostream>
 #include <IAnimatedMesh.h>
-#include <SAnimatedMesh.h>
 #include <IAnimatedMeshSceneNode.h>
 #include "S3DVertex.h"
-#include "SMesh.h"
+#include <SMesh.h>
 #include "SMeshBuffer.h"
 
 inline static void applyShadeFactor(video::SColor& color, float factor)
@@ -95,11 +94,8 @@ scene::IAnimatedMesh* createCubeMesh(v3f scale)
 		mesh->addMeshBuffer(buf);
 		buf->drop();
 	}
-
-	scene::SAnimatedMesh *anim_mesh = new scene::SAnimatedMesh(mesh);
-	mesh->drop();
-	scaleMesh(anim_mesh, scale);  // also recalculates bounding box
-	return anim_mesh;
+	scaleMesh(mesh, scale);  // also recalculates bounding box
+	return mesh;
 }
 
 void scaleMesh(scene::IMesh *mesh, v3f scale)
