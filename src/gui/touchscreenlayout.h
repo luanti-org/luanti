@@ -90,8 +90,11 @@ struct ButtonLayout {
 	static bool isButtonRequired(touch_gui_button_id id);
 	static s32 getButtonSize(v2u32 screensize);
 
+	// Returns the default layout.
 	// Note: Indirectly depends on settings.
 	static ButtonLayout loadDefault();
+	// Reads the layout from the "touch_layout" setting. Falls back to loadDefault
+	// if the setting is absent or invalid.
 	// Note: Indirectly depends on additional settings.
 	static ButtonLayout loadFromSettings();
 
