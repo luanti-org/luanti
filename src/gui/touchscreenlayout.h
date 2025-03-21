@@ -90,7 +90,9 @@ struct ButtonLayout {
 	static bool isButtonRequired(touch_gui_button_id id);
 	static s32 getButtonSize(v2u32 screensize);
 
+	// Note: Indirectly depends on settings.
 	static ButtonLayout loadDefault();
+	// Note: Indirectly depends on additional settings.
 	static ButtonLayout loadFromSettings();
 
 	static video::ITexture *getTexture(touch_gui_button_id btn, ISimpleTextureSource *tsrc);
