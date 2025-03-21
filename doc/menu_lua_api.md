@@ -331,7 +331,7 @@ Package - content which is downloadable from the content db, may or may not be i
       ```lua
       {
           name             = "technical_id",
-          type             = "mod" or "modpack" or "game" or "txp",
+          type             = "mod" or "modpack" or "game" or "txp" or "unknown",
           title            = "Human readable title",
           description      = "description",
           author           = "author",
