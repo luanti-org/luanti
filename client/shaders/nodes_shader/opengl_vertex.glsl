@@ -47,13 +47,20 @@ centroid varying float nightRatio;
 varying float area_enable_parallax;
 
 varying highp vec3 eyeVec;
+varying vec3 sunTint;
+varying float nightFactor;
+
 // Color of the light emitted by the light sources.
-const vec3 artificialLight = vec3(1.04, 1.04, 1.04);
+uniform vec3 artificialLight;
 const float e = 2.718281828459;
 const float BS = 10.0;
 uniform float xyPerspectiveBias0;
 uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
+
+#ifdef ENABLE_TINTED_SUNLIGHT
+	uniform vec3 beta_r0_l;
+#endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 
@@ -146,8 +153,17 @@ float snoise(vec3 p)
 
 #endif
 
+#ifdef ENABLE_TINTED_SUNLIGHT
+vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
+{
+	// Based on talk at 2002 Game Developers Conference by Naty Hoffman and Arcot J. Preetham
+	const float beta_r0 = 1e-5; // Rayleigh scattering beta
 
-
+	const float atmosphere_height = 15000.; // height of the atmosphere in meters
+	// sun/moon light at the ground level, after going through the atmosphere
+	return exp(-beta_r0_l * beta_r0 * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
+}
+#endif
 
 void main(void)
 {
@@ -207,7 +223,7 @@ void main(void)
 	// The alpha gives the ratio of sunlight in the incoming light.
 	nightRatio = 1.0 - color.a;
 	color.rgb = color.rgb * (color.a * dayLight.rgb +
-		nightRatio * artificialLight.rgb) * 2.0;
+		nightRatio * 2.0 * artificialLight.rgb) * 2.0;
 	color.a = 1.0;
 
 	// Emphase blue a bit in darker places
@@ -257,16 +273,23 @@ void main(void)
 #endif
 		perspective_factor = pFactor;
 
-		if (f_timeofday < 0.2) {
+		sunTint = vec3(1.0);
+		nightFactor = 0.;
+		// The sun rises at 5:00 and sets at 19:00, which corresponds to 5/24=0.208 and 19/24 = 0.792.
+		if (f_timeofday < 0.208) {
 			adj_shadow_strength = f_shadow_strength * 0.5 *
-				(1.0 - mtsmoothstep(0.18, 0.2, f_timeofday));
-		} else if (f_timeofday >= 0.8) {
+				(1.0 - mtsmoothstep(0.178, 0.208, f_timeofday));
+		} else if (f_timeofday >= 0.792) {
 			adj_shadow_strength = f_shadow_strength * 0.5 *
-				mtsmoothstep(0.8, 0.83, f_timeofday);
+				mtsmoothstep(0.792, 0.822, f_timeofday);
 		} else {
 			adj_shadow_strength = f_shadow_strength *
-				mtsmoothstep(0.20, 0.25, f_timeofday) *
-				(1.0 - mtsmoothstep(0.7, 0.8, f_timeofday));
+				mtsmoothstep(0.208, 0.238, f_timeofday) *
+				(1.0 - mtsmoothstep(0.762, 0.792, f_timeofday));
+			nightFactor = adj_shadow_strength / f_shadow_strength;
+#ifdef ENABLE_TINTED_SUNLIGHT
+			sunTint = mix(vec3(1.0), getDirectLightScatteringAtGround(v_LightDirection), adj_shadow_strength / f_shadow_strength);
+#endif
 		}
 	}
 #endif
