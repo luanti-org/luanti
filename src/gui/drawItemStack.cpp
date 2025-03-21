@@ -118,13 +118,13 @@ void drawItemStack(
 			client->idef()->getItemstackColor(item, client);
 
 		const u32 mc = mesh->getMeshBufferCount();
-		if (mc > imesh->buffer_colors.size())
-			imesh->buffer_colors.resize(mc);
+		if (mc > imesh->buffer_info.size())
+			imesh->buffer_info.resize(mc);
 		for (u32 j = 0; j < mc; ++j) {
 			scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
 			video::SColor c = basecolor;
 
-			auto &p = imesh->buffer_colors[j];
+			auto &p = imesh->buffer_info[j];
 			p.applyOverride(c);
 
 			// TODO: could be moved to a shader
@@ -134,6 +134,22 @@ void drawItemStack(
 					colorizeMeshBuffer(buf, &c);
 				else
 					setMeshBufferColor(buf, c);
+			}
+
+			// Texture animation
+			if (enable_animations && p.animation_info) {
+				const TileLayer &tile = p.animation_info->second;
+				// Figure out current frame
+				int frameno = (int)(client->getAnimationTime() * 1000 /
+						tile.animation_frame_length_ms) %
+						tile.animation_frame_count;
+				// Only adjust if frame changed
+				if (frameno != p.animation_info->first) {
+					p.animation_info->first = frameno;
+
+					const FrameSpec &frame = (*tile.frames)[frameno];
+					buf->getMaterial().setTexture(0, frame.texture);
+				}
 			}
 
 			video::SMaterial &material = buf->getMaterial();
