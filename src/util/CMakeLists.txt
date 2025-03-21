@@ -19,4 +19,5 @@ set(util_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/timetaker.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/png.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/enum_string.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/hotbar_source.cpp
 	PARENT_SCOPE)
