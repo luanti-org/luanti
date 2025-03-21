@@ -232,7 +232,7 @@ TouchControls::TouchControls(IrrlichtDevice *device, ISimpleTextureSource *tsrc)
 		g_settings->registerChangedCallback(name, settingChangedCallback, this);
 
 	// Also update layout when keybindings change (e.g. for convertibles)
-	for (int id = 0; id < touch_gui_button_id_END; id++)
+	for (u8 id = 0; id < touch_gui_button_id_END; id++)
 		if (auto name = id_to_setting((touch_gui_button_id)id); !name.empty())
 			g_settings->registerChangedCallback(name, settingChangedCallback, this);
 }
