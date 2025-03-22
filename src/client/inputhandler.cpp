@@ -89,11 +89,13 @@ bool MyEventReceiver::setKeyDown(KeyPress keyCode, bool is_down)
 		return false;
 	auto action = keysListenedFor[keyCode];
 	if (is_down) {
+		physicalKeyDown.insert(keyCode);
 		if (!IsKeyDown(action))
 			keyWasPressed.set(action);
 		keyIsDown.set(action);
 		keyWasDown.set(action);
 	} else {
+		physicalKeyDown.erase(keyCode);
 		if (IsKeyDown(action))
 			keyWasReleased.set(action);
 

@@ -8,6 +8,7 @@
 #include "irr_v2d.h"
 #include "joystick_controller.h"
 #include <list>
+#include <set>
 #include <unordered_map>
 #include "keycode.h"
 
@@ -92,6 +93,7 @@ public:
 
 	void clearInput()
 	{
+		physicalKeyDown.clear();
 		keyIsDown.reset();
 		keyWasDown.reset();
 		keyWasPressed.reset();
@@ -102,6 +104,7 @@ public:
 
 	void releaseAllKeys()
 	{
+		physicalKeyDown.clear();
 		keyWasReleased |= keyIsDown;
 		keyIsDown.reset();
 	}
@@ -124,6 +127,9 @@ private:
 	bool setKeyDown(KeyPress keyCode, bool is_down);
 
 	s32 mouse_wheel = 0;
+
+	// The current state of physical keys.
+	std::set<KeyPress> physicalKeyDown;
 
 	// The current state of keys
 	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyIsDown;

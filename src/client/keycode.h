@@ -49,6 +49,11 @@ public:
 		return !(*this == o);
 	}
 
+	// Used for e.g. std::unordered_set
+	bool operator<(KeyPress o) const {
+		return scancode < o.scancode;
+	}
+
 	// Check whether the keypress is valid
 	operator bool() const
 	{
