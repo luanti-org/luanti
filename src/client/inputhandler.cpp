@@ -90,18 +90,26 @@ bool MyEventReceiver::setKeyDown(KeyPress keyCode, bool is_down)
 	auto action = keysListenedFor[keyCode];
 	if (is_down) {
 		physicalKeyDown.insert(keyCode);
+		setKeyDown(action, true);
+	} else {
+		physicalKeyDown.erase(keyCode);
+		setKeyDown(action, false);
+	}
+	return true;
+}
+
+void MyEventReceiver::setKeyDown(GameKeyType action, bool is_down)
+{
+	if (is_down) {
 		if (!IsKeyDown(action))
 			keyWasPressed.set(action);
 		keyIsDown.set(action);
 		keyWasDown.set(action);
 	} else {
-		physicalKeyDown.erase(keyCode);
 		if (IsKeyDown(action))
 			keyWasReleased.set(action);
-
 		keyIsDown.reset(action);
 	}
-	return true;
 }
 
 bool MyEventReceiver::OnEvent(const SEvent &event)

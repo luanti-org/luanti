@@ -125,6 +125,7 @@ public:
 
 private:
 	bool setKeyDown(KeyPress keyCode, bool is_down);
+	void setKeyDown(GameKeyType action, bool is_down);
 
 	s32 mouse_wheel = 0;
 
