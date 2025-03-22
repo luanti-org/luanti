@@ -244,7 +244,6 @@ fixed_virtual_joystick (Fixed virtual joystick) bool false
 #    Requires: touchscreen
 virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool false
 
-
 [Graphics and Audio] [client]
 
 [*Graphics]
