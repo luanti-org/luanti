@@ -33,7 +33,7 @@ function core.get_node(pos)
 	return core.vmanip:get_node_at(pos)
 end
 
-function core.get_perlin(seed, octaves, persist, spread)
+function core.get_value_noise(seed, octaves, persist, spread)
 	local params
 	if type(seed) == "table" then
 		params = table.copy(seed)
@@ -47,12 +47,31 @@ function core.get_perlin(seed, octaves, persist, spread)
 		}
 	end
 	params.seed = core.get_seed(params.seed) -- add mapgen seed
-	return PerlinNoise(params)
+	return ValueNoise(params)
 end
 
-
-function core.get_perlin_map(params, size)
+function core.get_value_noise_map(params, size)
 	local params2 = table.copy(params)
 	params2.seed = core.get_seed(params.seed) -- add mapgen seed
-	return PerlinNoiseMap(params2, size)
+	return ValueNoiseMap(params2, size)
 end
+
+-- deprecated as of 5.12, as it was not perlin noise
+local get_perlin_deprecation_message_printed = false
+function core.get_perlin(seed, octaves, persist, spread)
+	if not get_perlin_deprecation_message_printed then
+		core.log("deprecated", "core.get_perlin is deprecated and was renamed to core.get_value_noise")
+		get_perlin_deprecation_message_printed = true
+	end
+	return core.get_value_noise(seed, octaves, persist, spread)
+end
+local get_perlin_map_deprecation_message_printed
+-- deprecated as of 5.12, as it was not perlin noise
+function core.get_perlin_map(params, size)
+	if not get_perlin_map_deprecation_message_printed then
+		core.log("deprecated", "core.get_perlin_map is deprecated and was renamed to core.get_value_noise_map")
+		get_perlin_map_deprecation_message_printed = true
+	end
+	return core.get_value_noise_map(params, size)
+end
+
