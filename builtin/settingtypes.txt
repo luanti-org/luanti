@@ -2024,9 +2024,9 @@ enable_ipv6 (IPv6) [common] bool true
 #    Metrics can be fetched on http://127.0.0.1:30000/metrics
 prometheus_listener_address (Prometheus listener address) [server] string 127.0.0.1:30000
 
-#    Maximum size of the outgoing chat queue.
+#    Maximum size of the client's outgoing chat queue.
 #    0 to disable queueing and -1 to make the queue size unlimited.
-max_out_chat_queue_size (Maximum size of the outgoing chat queue) [client] int 20 -1 32767
+max_out_chat_queue_size (Maximum size of the client's outgoing chat queue) [client] int 20 -1 32767
 
 #    Timeout for client to remove unused map data from memory, in seconds.
 client_unload_unused_data_timeout (Mapblock unload timeout) [client] float 600.0 0.0
