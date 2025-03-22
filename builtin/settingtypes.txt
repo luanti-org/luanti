@@ -96,6 +96,7 @@
 # Sub-section are marked by adding * in front of the section name: [*Sub-section]
 # Sub-sub-sections have two * etc.
 # A context (see above) can be specified optionally: [Section Name] [context]
+# Context annotations on categories cannot be nested.
 # There shouldn't be too many settings per category.
 #
 # The top-level categories "Advanced", "Client and Server" and "Mapgen" are
@@ -788,7 +789,7 @@ contentdb_max_concurrent_downloads (ContentDB Max Concurrent Downloads) int 3 1
 enable_local_map_saving (Saving map received from server) bool false
 
 #    URL to the server list displayed in the Multiplayer Tab.
-serverlist_url (Serverlist URL) string https://servers.luanti.org
+serverlist_url (Serverlist URL) [common] string https://servers.luanti.org
 
 #    If enabled, server account registration is separate from login in the UI.
 #    If disabled, connecting to a server will automatically register a new account.
@@ -826,7 +827,7 @@ server_announce (Announce server) bool false
 server_announce_send_players (Send player names to the server list) bool true
 
 #    Announce to this serverlist.
-serverlist_url (Serverlist URL) string https://servers.luanti.org
+serverlist_url (Serverlist URL) [common] string https://servers.luanti.org
 
 #    Message of the day displayed to players connecting.
 motd (Message of the day) string
@@ -1768,7 +1769,7 @@ chat_log_level (Chat log level) [client] enum error ,none,error,warning,action,i
 #    -    none: Do not log deprecated calls
 #    -    log: mimic and log backtrace of deprecated call (default).
 #    -    error: abort on usage of deprecated call (suggested for mod developers).
-deprecated_lua_api_handling (Deprecated Lua API handling) [server] enum log none,log,error
+deprecated_lua_api_handling (Deprecated Lua API handling) [common] enum log none,log,error
 
 #    Enable random user input (only used for testing).
 random_input (Random input) [client] bool false
@@ -2047,7 +2048,7 @@ full_block_send_enable_min_time_from_building (Delay in sending blocks after bui
 
 #    Maximum number of packets sent per send step in the low-level networking code.
 #    You generally don't need to change this, however busy servers may benefit from a higher number.
-max_packets_per_iteration (Max. packets per iteration) [server] int 1024 1 65535
+max_packets_per_iteration (Max. packets per iteration) [common] int 1024 1 65535
 
 #    Compression level to use when sending mapblocks to the client.
 #    -1 - use default compression level
@@ -2286,7 +2287,7 @@ joystick_deadzone (Joystick dead zone) int 2048 0 65535
 joystick_frustum_sensitivity (Joystick frustum sensitivity) float 170.0 0.001
 
 
-[*Hide: Temporary Settings] [client]
+[*Hide: Temporary Settings] [common]
 
 #    Path to texture directory. All textures are first searched from here.
 texture_path (Texture path) path
