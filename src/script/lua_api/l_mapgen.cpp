@@ -5,6 +5,7 @@
 #include "lua_api/l_mapgen.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_vmanip.h"
+#include "lua_api/l_noise.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "cpp_api/s_security.h"
@@ -12,6 +13,8 @@
 #include "server.h"
 #include "environment.h"
 #include "emerge_internal.h"
+#include "emerge.h"
+#include "noise.h"
 #include "mapgen/mg_biome.h"
 #include "mapgen/mg_ore.h"
 #include "mapgen/mg_decoration.h"
@@ -1565,6 +1568,10 @@ int ModApiMapgen::l_generate_ores(lua_State *L)
 	mg.vm   = checkObject<LuaVoxelManip>(L, 1)->vm;
 	mg.ndef = emerge->ndef;
 
+	auto *bgen = getBiomeGen(L);
+	if (bgen)
+		mg.biomemap = bgen->biomemap;
+
 	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) :
 			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
 	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) :
@@ -1600,6 +1607,10 @@ int ModApiMapgen::l_generate_decorations(lua_State *L)
 	mg.vm   = checkObject<LuaVoxelManip>(L, 1)->vm;
 	mg.ndef = emerge->ndef;
 
+	auto *bgen = getBiomeGen(L);
+	if (bgen)
+		mg.biomemap = bgen->biomemap;
+
 	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) :
 			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
 	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) :
@@ -1609,6 +1620,101 @@ int ModApiMapgen::l_generate_decorations(lua_State *L)
 	u32 blockseed = Mapgen::getBlockSeed(pmin, mg.seed);
 
 	decomgr->placeAllDecos(&mg, blockseed, pmin, pmax);
+
+	return 0;
+}
+
+
+// generate_biomes(vm, p1, p2, [noise_filler_depth])
+int ModApiMapgen::l_generate_biomes(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	auto *mg_current = getMapgen(L);
+	auto *bgen = getBiomeGen(L);
+	if (!mg_current || !bgen)
+		return 0;
+
+	const NodeDefManager *ndef = mg_current->ndef;
+
+	MapgenBasic mg;
+
+	mg.c_stone              = ndef->getId("mapgen_stone");
+	mg.c_water_source       = ndef->getId("mapgen_water_source");
+	mg.c_river_water_source = ndef->getId("mapgen_river_water_source");
+
+	mg.vm   = checkObject<LuaVoxelManip>(L, 1)->vm;
+	mg.ndef = ndef;
+	mg.biomegen = mg_current->biomegen;
+	mg.biomemap = bgen->biomemap;
+	mg.water_level = mg_current->water_level;
+
+	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) - v3s16(0,1,0) :
+			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE - v3s16(0,1,0);
+	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) :
+			mg.vm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE;
+	sortBoxVerticies(pmin, pmax);
+	v3s16 psize = pmax - pmin + v3s16(1,1,1);
+
+	if (psize.X != (s16)mg_current->csize.X ||
+			psize.Z > (s16)mg_current->csize.Z) {
+		errorstream << "generate_biomes: X/Z extent must match"
+				" mapgen chunk size" << std::endl;
+		return 0;
+	}
+
+	mg.biomegen->calcBiomeNoise(pmin);
+
+	if (lua_isuserdata(L, 4)) {
+		LuaPerlinNoiseMap *nmap = checkObject<LuaPerlinNoiseMap>(L, 4);
+		Noise *noise = nmap->noise;
+		if ((s16)noise->sx == psize.X && (s16)noise->sz >= psize.Z)
+			mg.noise_filler_depth = noise;
+		else
+			warningstream << "generate_biomes: size of noisemap is inconsistent with chunk size,"
+					" noise will not be used" << std::endl;
+	}
+
+	mg.node_min = pmin;
+	mg.node_max = pmax;
+	mg.generateBiomes();
+
+	return 0;
+}
+
+
+// generate_biome_dust(vm, p1, p2)
+int ModApiMapgen::l_generate_biome_dust(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	auto *mg_current = getMapgen(L);
+	auto *bgen = getBiomeGen(L);
+	if (!mg_current || !bgen)
+		return 0;
+
+	const NodeDefManager *ndef = mg_current->ndef;
+
+	MapgenBasic mg;
+
+	mg.vm   = checkObject<LuaVoxelManip>(L, 1)->vm;
+	mg.m_bmgr = mg_current->m_emerge->biomemgr;
+	mg.ndef = ndef;
+	mg.biomegen = mg_current->biomegen;
+	mg.biomemap = bgen->biomemap;
+	mg.water_level = mg_current->water_level;
+
+	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) :
+			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
+	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) - v3s16(0,1,0) :
+			mg.vm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE - v3s16(0,1,0);
+	sortBoxVerticies(pmin, pmax);
+
+	mg.node_min = pmin;
+	mg.node_max = pmax;
+	mg.full_node_min = mg.vm->m_area.MinEdge;
+	mg.full_node_max = mg.vm->m_area.MaxEdge;
+	mg.dustTopNodes();
 
 	return 0;
 }
@@ -2047,6 +2153,8 @@ void ModApiMapgen::Initialize(lua_State *L, int top)
 
 	API_FCT(generate_ores);
 	API_FCT(generate_decorations);
+	API_FCT(generate_biomes);
+	API_FCT(generate_biome_dust);
 	API_FCT(create_schematic);
 	API_FCT(place_schematic);
 	API_FCT(place_schematic_on_vmanip);
@@ -2076,6 +2184,8 @@ void ModApiMapgen::InitializeEmerge(lua_State *L, int top)
 
 	API_FCT(generate_ores);
 	API_FCT(generate_decorations);
+	API_FCT(generate_biomes);
+	API_FCT(generate_biome_dust);
 	API_FCT(place_schematic_on_vmanip);
 	API_FCT(spawn_tree_on_vmanip);
 	API_FCT(serialize_schematic);
