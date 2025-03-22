@@ -8,7 +8,6 @@
 #include "irr_v2d.h"
 #include "joystick_controller.h"
 #include <list>
-#include <unordered_set>
 #include <unordered_map>
 #include "keycode.h"
 
