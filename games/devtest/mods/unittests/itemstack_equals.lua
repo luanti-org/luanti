@@ -72,3 +72,10 @@ local function test_itemstack_equals_metadata()
 end
 
 unittests.register("test_itemstack_equals_metadata", test_itemstack_equals_metadata)
+
+local function test_itemstack_serialization_preservation()
+	local i = ItemStack("basenodes:stone 20 1000")
+	assert(i:equals(core.deserialize(core.serialize(i))))
+end
+
+unittests.register("test_itemstack_serialization_preservation", test_itemstack_serialization_preservation)
