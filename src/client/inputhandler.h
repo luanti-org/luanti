@@ -19,36 +19,6 @@ enum class PointerType {
 	Touch,
 };
 
-/****************************************************************************
- Fast key cache for main game loop
- ****************************************************************************/
-
-/* This is faster than using getKeySetting with the tradeoff that functions
- * using it must make sure that it's initialised before using it and there is
- * no error handling (for example bounds checking). This is really intended for
- * use only in the main running loop of the client (the_game()) where the faster
- * (up to 10x faster) key lookup is an asset. Other parts of the codebase
- * (e.g. formspecs) should continue using getKeySetting().
- */
-struct KeyCache
-{
-
-	KeyCache()
-	{
-		handler = NULL;
-		populate();
-		populate_nonchanging();
-	}
-
-	void populate();
-
-	// Keys that are not settings dependent
-	void populate_nonchanging();
-
-	KeyPress key[KeyType::INTERNAL_ENUM_COUNT];
-	InputHandler *handler;
-};
-
 class MyEventReceiver : public IEventReceiver
 {
 public:
@@ -74,15 +44,7 @@ public:
 	// in the subsequent iteration of Game::processPlayerInteraction
 	bool WasKeyReleased(GameKeyType key) const { return keyWasReleased[key]; }
 
-	void listenForKey(KeyPress keyCode, GameKeyType action)
-	{
-		if (keyCode)
-			keysListenedFor[keyCode] = action;
-	}
-	void dontListenForKeys()
-	{
-		keysListenedFor.clear();
-	}
+	void reloadKeybindings();
 
 	s32 getMouseWheel()
 	{
@@ -124,8 +86,21 @@ public:
 	PointerType getLastPointerType() { return last_pointer_type; }
 
 private:
+	void listenForKey(KeyPress keyCode, GameKeyType action)
+	{
+		if (keyCode)
+			keysListenedFor[keyCode] = action;
+	}
+
 	bool setKeyDown(KeyPress keyCode, bool is_down);
 	void setKeyDown(GameKeyType action, bool is_down);
+
+	/* This is faster than using getKeySetting with the tradeoff that functions
+	 * using it must make sure that it's initialised before using it and there is
+	 * no error handling (for example bounds checking). This is useful here as the
+	 * faster (up to 10x faster) key lookup is an asset.
+	 */
+	KeyPress keybindings[KeyType::INTERNAL_ENUM_COUNT];
 
 	s32 mouse_wheel = 0;
 
@@ -156,12 +131,6 @@ private:
 class InputHandler
 {
 public:
-	InputHandler()
-	{
-		keycache.handler = this;
-		keycache.populate();
-	}
-
 	virtual ~InputHandler() = default;
 
 	virtual bool isRandom() const
@@ -181,8 +150,7 @@ public:
 	virtual void clearWasKeyPressed() {}
 	virtual void clearWasKeyReleased() {}
 
-	virtual void listenForKey(KeyPress keyCode, GameKeyType action) {}
-	virtual void dontListenForKeys() {}
+	virtual void reloadKeybindings() {}
 
 	virtual v2s32 getMousePos() = 0;
 	virtual void setMousePos(s32 x, s32 y) = 0;
@@ -195,7 +163,6 @@ public:
 	virtual void releaseAllKeys() {}
 
 	JoystickController joystick;
-	KeyCache keycache;
 };
 
 /*
@@ -208,6 +175,7 @@ public:
 	RealInputHandler(MyEventReceiver *receiver) : m_receiver(receiver)
 	{
 		m_receiver->joystick = &joystick;
+		m_receiver->reloadKeybindings();
 	}
 
 	virtual ~RealInputHandler()
@@ -250,13 +218,9 @@ public:
 		m_receiver->clearWasKeyReleased();
 	}
 
-	virtual void listenForKey(KeyPress keyCode, GameKeyType action)
+	virtual void reloadKeybindings()
 	{
-		m_receiver->listenForKey(keyCode, action);
-	}
-	virtual void dontListenForKeys()
-	{
-		m_receiver->dontListenForKeys();
+		m_receiver->reloadKeybindings();
 	}
 
 	virtual v2s32 getMousePos();

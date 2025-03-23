@@ -12,74 +12,69 @@
 #include "log_internal.h"
 #include "client/renderingengine.h"
 
-void KeyCache::populate_nonchanging()
+void MyEventReceiver::reloadKeybindings()
 {
-	key[KeyType::ESC] = EscapeKey;
-}
+	keybindings[KeyType::FORWARD] = getKeySetting("keymap_forward");
+	keybindings[KeyType::BACKWARD] = getKeySetting("keymap_backward");
+	keybindings[KeyType::LEFT] = getKeySetting("keymap_left");
+	keybindings[KeyType::RIGHT] = getKeySetting("keymap_right");
+	keybindings[KeyType::JUMP] = getKeySetting("keymap_jump");
+	keybindings[KeyType::AUX1] = getKeySetting("keymap_aux1");
+	keybindings[KeyType::SNEAK] = getKeySetting("keymap_sneak");
+	keybindings[KeyType::DIG] = getKeySetting("keymap_dig");
+	keybindings[KeyType::PLACE] = getKeySetting("keymap_place");
 
-void KeyCache::populate()
-{
-	key[KeyType::FORWARD] = getKeySetting("keymap_forward");
-	key[KeyType::BACKWARD] = getKeySetting("keymap_backward");
-	key[KeyType::LEFT] = getKeySetting("keymap_left");
-	key[KeyType::RIGHT] = getKeySetting("keymap_right");
-	key[KeyType::JUMP] = getKeySetting("keymap_jump");
-	key[KeyType::AUX1] = getKeySetting("keymap_aux1");
-	key[KeyType::SNEAK] = getKeySetting("keymap_sneak");
-	key[KeyType::DIG] = getKeySetting("keymap_dig");
-	key[KeyType::PLACE] = getKeySetting("keymap_place");
+	keybindings[KeyType::ESC] = EscapeKey;
 
-	key[KeyType::AUTOFORWARD] = getKeySetting("keymap_autoforward");
+	keybindings[KeyType::AUTOFORWARD] = getKeySetting("keymap_autoforward");
 
-	key[KeyType::DROP] = getKeySetting("keymap_drop");
-	key[KeyType::INVENTORY] = getKeySetting("keymap_inventory");
-	key[KeyType::CHAT] = getKeySetting("keymap_chat");
-	key[KeyType::CMD] = getKeySetting("keymap_cmd");
-	key[KeyType::CMD_LOCAL] = getKeySetting("keymap_cmd_local");
-	key[KeyType::CONSOLE] = getKeySetting("keymap_console");
-	key[KeyType::MINIMAP] = getKeySetting("keymap_minimap");
-	key[KeyType::FREEMOVE] = getKeySetting("keymap_freemove");
-	key[KeyType::PITCHMOVE] = getKeySetting("keymap_pitchmove");
-	key[KeyType::FASTMOVE] = getKeySetting("keymap_fastmove");
-	key[KeyType::NOCLIP] = getKeySetting("keymap_noclip");
-	key[KeyType::HOTBAR_PREV] = getKeySetting("keymap_hotbar_previous");
-	key[KeyType::HOTBAR_NEXT] = getKeySetting("keymap_hotbar_next");
-	key[KeyType::MUTE] = getKeySetting("keymap_mute");
-	key[KeyType::INC_VOLUME] = getKeySetting("keymap_increase_volume");
-	key[KeyType::DEC_VOLUME] = getKeySetting("keymap_decrease_volume");
-	key[KeyType::CINEMATIC] = getKeySetting("keymap_cinematic");
-	key[KeyType::SCREENSHOT] = getKeySetting("keymap_screenshot");
-	key[KeyType::TOGGLE_BLOCK_BOUNDS] = getKeySetting("keymap_toggle_block_bounds");
-	key[KeyType::TOGGLE_HUD] = getKeySetting("keymap_toggle_hud");
-	key[KeyType::TOGGLE_CHAT] = getKeySetting("keymap_toggle_chat");
-	key[KeyType::TOGGLE_FOG] = getKeySetting("keymap_toggle_fog");
-	key[KeyType::TOGGLE_UPDATE_CAMERA] = getKeySetting("keymap_toggle_update_camera");
-	key[KeyType::TOGGLE_DEBUG] = getKeySetting("keymap_toggle_debug");
-	key[KeyType::TOGGLE_PROFILER] = getKeySetting("keymap_toggle_profiler");
-	key[KeyType::CAMERA_MODE] = getKeySetting("keymap_camera_mode");
-	key[KeyType::INCREASE_VIEWING_RANGE] =
+	keybindings[KeyType::DROP] = getKeySetting("keymap_drop");
+	keybindings[KeyType::INVENTORY] = getKeySetting("keymap_inventory");
+	keybindings[KeyType::CHAT] = getKeySetting("keymap_chat");
+	keybindings[KeyType::CMD] = getKeySetting("keymap_cmd");
+	keybindings[KeyType::CMD_LOCAL] = getKeySetting("keymap_cmd_local");
+	keybindings[KeyType::CONSOLE] = getKeySetting("keymap_console");
+	keybindings[KeyType::MINIMAP] = getKeySetting("keymap_minimap");
+	keybindings[KeyType::FREEMOVE] = getKeySetting("keymap_freemove");
+	keybindings[KeyType::PITCHMOVE] = getKeySetting("keymap_pitchmove");
+	keybindings[KeyType::FASTMOVE] = getKeySetting("keymap_fastmove");
+	keybindings[KeyType::NOCLIP] = getKeySetting("keymap_noclip");
+	keybindings[KeyType::HOTBAR_PREV] = getKeySetting("keymap_hotbar_previous");
+	keybindings[KeyType::HOTBAR_NEXT] = getKeySetting("keymap_hotbar_next");
+	keybindings[KeyType::MUTE] = getKeySetting("keymap_mute");
+	keybindings[KeyType::INC_VOLUME] = getKeySetting("keymap_increase_volume");
+	keybindings[KeyType::DEC_VOLUME] = getKeySetting("keymap_decrease_volume");
+	keybindings[KeyType::CINEMATIC] = getKeySetting("keymap_cinematic");
+	keybindings[KeyType::SCREENSHOT] = getKeySetting("keymap_screenshot");
+	keybindings[KeyType::TOGGLE_BLOCK_BOUNDS] = getKeySetting("keymap_toggle_block_bounds");
+	keybindings[KeyType::TOGGLE_HUD] = getKeySetting("keymap_toggle_hud");
+	keybindings[KeyType::TOGGLE_CHAT] = getKeySetting("keymap_toggle_chat");
+	keybindings[KeyType::TOGGLE_FOG] = getKeySetting("keymap_toggle_fog");
+	keybindings[KeyType::TOGGLE_UPDATE_CAMERA] = getKeySetting("keymap_toggle_update_camera");
+	keybindings[KeyType::TOGGLE_DEBUG] = getKeySetting("keymap_toggle_debug");
+	keybindings[KeyType::TOGGLE_PROFILER] = getKeySetting("keymap_toggle_profiler");
+	keybindings[KeyType::CAMERA_MODE] = getKeySetting("keymap_camera_mode");
+	keybindings[KeyType::INCREASE_VIEWING_RANGE] =
 			getKeySetting("keymap_increase_viewing_range_min");
-	key[KeyType::DECREASE_VIEWING_RANGE] =
+	keybindings[KeyType::DECREASE_VIEWING_RANGE] =
 			getKeySetting("keymap_decrease_viewing_range_min");
-	key[KeyType::RANGESELECT] = getKeySetting("keymap_rangeselect");
-	key[KeyType::ZOOM] = getKeySetting("keymap_zoom");
+	keybindings[KeyType::RANGESELECT] = getKeySetting("keymap_rangeselect");
+	keybindings[KeyType::ZOOM] = getKeySetting("keymap_zoom");
 
-	key[KeyType::QUICKTUNE_NEXT] = getKeySetting("keymap_quicktune_next");
-	key[KeyType::QUICKTUNE_PREV] = getKeySetting("keymap_quicktune_prev");
-	key[KeyType::QUICKTUNE_INC] = getKeySetting("keymap_quicktune_inc");
-	key[KeyType::QUICKTUNE_DEC] = getKeySetting("keymap_quicktune_dec");
+	keybindings[KeyType::QUICKTUNE_NEXT] = getKeySetting("keymap_quicktune_next");
+	keybindings[KeyType::QUICKTUNE_PREV] = getKeySetting("keymap_quicktune_prev");
+	keybindings[KeyType::QUICKTUNE_INC] = getKeySetting("keymap_quicktune_inc");
+	keybindings[KeyType::QUICKTUNE_DEC] = getKeySetting("keymap_quicktune_dec");
 
 	for (int i = 0; i < HUD_HOTBAR_ITEMCOUNT_MAX; i++) {
 		std::string slot_key_name = "keymap_slot" + std::to_string(i + 1);
-		key[KeyType::SLOT_1 + i] = getKeySetting(slot_key_name.c_str());
+		keybindings[KeyType::SLOT_1 + i] = getKeySetting(slot_key_name.c_str());
 	}
 
-	if (handler) {
-		// First clear all keys, then re-add the ones we listen for
-		handler->dontListenForKeys();
-		for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
-			handler->listenForKey(key[i], static_cast<GameKeyType>(i));
-		}
+	// First clear all keys, then re-add the ones we listen for
+	keysListenedFor.clear();
+	for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
+		listenForKey(keybindings[i], static_cast<GameKeyType>(i));
 	}
 }
 
