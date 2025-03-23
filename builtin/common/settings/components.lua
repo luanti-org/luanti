@@ -461,6 +461,7 @@ function make.key(setting)
 				("image_button[%f,0;0.8,0.8;%s;%s;]"):format(avail_w - 0.8,
 						core.formspec_escape(defaulttexturedir .. "clear.png"),
 						btn_clear),
+				("tooltip[%s;%s]"):format(btn_clear, fgettext("Remove keybinding")),
 			}
 			local height = 0.8
 			if value ~= "" then
