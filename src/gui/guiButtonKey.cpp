@@ -1,3 +1,6 @@
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+
 #include "guiButtonKey.h"
 using namespace irr::gui;
 
