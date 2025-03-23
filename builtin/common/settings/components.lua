@@ -464,7 +464,7 @@ function make.key(setting)
 			}
 			local height = 0.8
 			if value ~= "" then
-				for _, o in pairs(core.full_settings) do
+				for _, o in pairs(core.full_settingtypes) do
 					if o.type == "key" and o.name ~= setting.name and core.settings:get(o.name) == value then
 						table.insert(fs, ("label[0,%f;%s]"):format(height+0.3,
 								fgettext("Keybinding conflict: $1", o.readable_name)))
