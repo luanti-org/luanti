@@ -31,7 +31,7 @@ local filtered_page_by_id = page_by_id
 
 
 local function get_setting_info(name)
-	for _, entry in ipairs(core.full_settings) do
+	for _, entry in ipairs(core.full_settingtypes) do
 		if entry.type ~= "category" and entry.name == name then
 			return entry
 		end
@@ -69,7 +69,7 @@ local function load_settingtypes()
 		end
 	end
 
-	for _, entry in ipairs(core.full_settings) do
+	for _, entry in ipairs(core.full_settingtypes) do
 		if entry.type == "category" then
 			if entry.level == 0 then
 				section = entry.name
@@ -103,7 +103,7 @@ local function load()
 	end
 	loaded = true
 
-	core.full_settings = settingtypes.parse_config_file(false, true)
+	core.full_settingtypes = settingtypes.parse_config_file(false, true)
 
 	local touchscreen_layout = {
 		query_text = "Touchscreen layout",
