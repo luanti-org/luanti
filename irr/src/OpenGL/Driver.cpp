@@ -867,21 +867,25 @@ void COpenGL3DriverBase::draw2DImageBatch(const video::ITexture *texture,
 	std::vector<S3DVertex> vtx;
 	vtx.reserve(drawCount * 4);
 
+	// texcoords need to be flipped horizontally for RTTs
+	const bool isRTT = texture->isRenderTarget();
+	const core::dimension2du ss = texture->getOriginalSize();
+	const f32 invW = 1.f / static_cast<f32>(ss.Width);
+	const f32 invH = 1.f / static_cast<f32>(ss.Height);
+
 	for (u32 i = 0; i < drawCount; i++) {
-		core::position2d<s32> targetPos = positions[i];
-		core::position2d<s32> sourcePos = sourceRects[i].UpperLeftCorner;
-		// This needs to be signed as it may go negative.
-		core::dimension2d<s32> sourceSize(sourceRects[i].getSize());
+		const core::position2d<s32> targetPos = positions[i];
+		const core::rect<s32> sourceRect = sourceRects[i];
 
 		// now draw it.
 
-		core::rect<f32> tcoords;
-		tcoords.UpperLeftCorner.X = (((f32)sourcePos.X)) / texture->getOriginalSize().Width;
-		tcoords.UpperLeftCorner.Y = (((f32)sourcePos.Y)) / texture->getOriginalSize().Height;
-		tcoords.LowerRightCorner.X = tcoords.UpperLeftCorner.X + ((f32)(sourceSize.Width) / texture->getOriginalSize().Width);
-		tcoords.LowerRightCorner.Y = tcoords.UpperLeftCorner.Y + ((f32)(sourceSize.Height) / texture->getOriginalSize().Height);
+		const core::rect<f32> tcoords(
+			sourceRect.UpperLeftCorner.X * invW,
+			(isRTT ? sourceRect.LowerRightCorner.Y : sourceRect.UpperLeftCorner.Y) * invH,
+			sourceRect.LowerRightCorner.X * invW,
+			(isRTT ? sourceRect.UpperLeftCorner.Y : sourceRect.LowerRightCorner.Y) * invH);
 
-		const core::rect<s32> poss(targetPos, sourceSize);
+		const core::rect<s32> poss(targetPos, sourceRect.getSize());
 
 		f32 left  = (f32)poss.UpperLeftCorner.X;
 		f32 right = (f32)poss.LowerRightCorner.X;
@@ -1084,6 +1088,14 @@ ITexture *COpenGL3DriverBase::createDeviceDependentTextureCubemap(const io::path
 	return texture;
 }
 
+// Same as COpenGLDriver::TextureFlipMatrix
+static const core::matrix4 s_texture_flip_matrix = {
+	1,  0, 0, 0,
+	0, -1, 0, 0,
+	0,  1, 1, 0,
+	0,  0, 0, 1
+};
+
 //! Sets a material.
 void COpenGL3DriverBase::setMaterial(const SMaterial &material)
 {
@@ -1094,7 +1106,11 @@ void COpenGL3DriverBase::setMaterial(const SMaterial &material)
 		auto *texture = material.getTexture(i);
 		CacheHandler->getTextureCache().set(i, texture);
 		if (texture) {
-			setTransform((E_TRANSFORMATION_STATE)(ETS_TEXTURE_0 + i), material.getTextureMatrix(i));
+			setTransform((E_TRANSFORMATION_STATE)(ETS_TEXTURE_0 + i),
+				texture->isRenderTarget()
+					? material.getTextureMatrix(i) * s_texture_flip_matrix
+					: material.getTextureMatrix(i)
+			);
 		}
 	}
 }
