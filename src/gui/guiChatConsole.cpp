@@ -436,7 +436,7 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 		}
 
 		// Key input
-		if (KeyPress(event.KeyInput) == getKeySetting("keymap_console")) {
+		if (keySettingHasMatch("keymap_console", event.KeyInput)) {
 			closeConsole();
 
 			// inhibit open so the_game doesn't reopen immediately
