@@ -3635,6 +3635,7 @@ void Game::handlePointingAtObject(const PointedThing &pointed, const ItemStack &
 		if (do_punch) {
 			infostream << "Punched object" << std::endl;
 			runData.punching = true;
+			runData.nodig_delay_timer = std::max(0.15f, m_repeat_dig_time);
 		}
 
 		if (do_punch_damage) {
