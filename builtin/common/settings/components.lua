@@ -450,7 +450,6 @@ function make.key(setting)
 		if value == "" then
 			return height
 		end
-		local count = 0
 		for _, o in pairs(core.full_settingtypes) do
 			if o.type == "key" and o.name ~= setting.name and core.settings:get(o.name) == value then
 				table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
