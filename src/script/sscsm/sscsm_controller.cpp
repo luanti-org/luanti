@@ -60,10 +60,3 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 		answer = handleRequest(client, request.get());
 	}
 }
-
-void SSCSMController::eventOnStep(Client *client, f32 dtime)
-{
-	auto event = std::make_unique<SSCSMEventOnStep>();
-	event->dtime = dtime;
-	runEvent(client, std::move(event));
-}
