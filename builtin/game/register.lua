@@ -129,11 +129,97 @@ function core.register_entity(name, prototype)
 	prototype.mod_origin = core.get_current_modname() or "??"
 end
 
+local function preprocess_node(nodedef)
+	-- Use the nodebox as selection box if it's not set manually
+	if nodedef.drawtype == "nodebox" and not nodedef.selection_box then
+		nodedef.selection_box = nodedef.node_box
+	elseif nodedef.drawtype == "fencelike" and not nodedef.selection_box then
+		nodedef.selection_box = {
+			type = "fixed",
+			fixed = {-1/8, -1/2, -1/8, 1/8, 1/2, 1/8},
+		}
+	end
+
+	if nodedef.light_source and nodedef.light_source > core.LIGHT_MAX then
+		nodedef.light_source = core.LIGHT_MAX
+		core.log("warning", "Node 'light_source' value exceeds maximum," ..
+			" limiting it: " .. nodedef.name)
+	end
+
+	-- Flowing liquid uses param2
+	if nodedef.liquidtype == "flowing" then
+		nodedef.paramtype2 = "flowingliquid"
+	end
+end
+
+local function preprocess_craft(itemdef)
+	-- BEGIN Legacy stuff
+	if itemdef.inventory_image == nil and itemdef.image ~= nil then
+		itemdef.inventory_image = itemdef.image
+	end
+	-- END Legacy stuff
+end
+
+local function preprocess_tool(tooldef)
+	tooldef.stack_max = 1
+
+	-- BEGIN Legacy stuff
+	if tooldef.inventory_image == nil and tooldef.image ~= nil then
+		tooldef.inventory_image = tooldef.image
+	end
+
+	if tooldef.tool_capabilities == nil and
+	   (tooldef.full_punch_interval ~= nil or
+	    tooldef.basetime ~= nil or
+	    tooldef.dt_weight ~= nil or
+	    tooldef.dt_crackiness ~= nil or
+	    tooldef.dt_crumbliness ~= nil or
+	    tooldef.dt_cuttability ~= nil or
+	    tooldef.basedurability ~= nil or
+	    tooldef.dd_weight ~= nil or
+	    tooldef.dd_crackiness ~= nil or
+	    tooldef.dd_crumbliness ~= nil or
+	    tooldef.dd_cuttability ~= nil) then
+		tooldef.tool_capabilities = {
+			full_punch_interval = tooldef.full_punch_interval,
+			basetime = tooldef.basetime,
+			dt_weight = tooldef.dt_weight,
+			dt_crackiness = tooldef.dt_crackiness,
+			dt_crumbliness = tooldef.dt_crumbliness,
+			dt_cuttability = tooldef.dt_cuttability,
+			basedurability = tooldef.basedurability,
+			dd_weight = tooldef.dd_weight,
+			dd_crackiness = tooldef.dd_crackiness,
+			dd_crumbliness = tooldef.dd_crumbliness,
+			dd_cuttability = tooldef.dd_cuttability,
+		}
+	end
+	-- END Legacy stuff
+
+	-- Automatically set punch_attack_uses as a convenience feature
+	local toolcaps = tooldef.tool_capabilities
+	if toolcaps and toolcaps.punch_attack_uses == nil then
+		for _, cap in pairs(toolcaps.groupcaps or {}) do
+			local level = (cap.maxlevel or 0) - 1
+			if (cap.uses or 0) ~= 0 and level >= 0 then
+				toolcaps.punch_attack_uses = cap.uses * (3 ^ level)
+				break
+			end
+		end
+	end
+end
+
 local default_tables = {
 	node = core.nodedef_default,
 	craft = core.craftitemdef_default,
 	tool = core.tooldef_default,
 	none = core.noneitemdef_default,
+}
+
+local preprocess_fns = {
+	node = preprocess_node,
+	craft = preprocess_craft,
+	tool = preprocess_tool,
 }
 
 function core.register_item(name, itemdef)
@@ -145,23 +231,13 @@ function core.register_item(name, itemdef)
 	if forbidden_item_names[name] then
 		error("Unable to register item: Name is forbidden: " .. name)
 	end
+
 	itemdef.name = name
 
-	if itemdef.type == "node" then
-		-- Use the nodebox as selection box if it's not set manually
-		if itemdef.drawtype == "nodebox" and not itemdef.selection_box then
-			itemdef.selection_box = itemdef.node_box
-		elseif itemdef.drawtype == "fencelike" and not itemdef.selection_box then
-			itemdef.selection_box = {
-				type = "fixed",
-				fixed = {-1/8, -1/2, -1/8, 1/8, 1/2, 1/8},
-			}
-		end
-		if itemdef.light_source and itemdef.light_source > core.LIGHT_MAX then
-			itemdef.light_source = core.LIGHT_MAX
-			core.log("warning", "Node 'light_source' value exceeds maximum," ..
-				" limiting to maximum: " ..name)
-		end
+	-- Compatibility stuff depending on type
+	local fn = preprocess_fns[itemdef.type]
+	if fn then
+		fn(itemdef)
 	end
 
 	-- Apply defaults
@@ -183,11 +259,6 @@ function core.register_item(name, itemdef)
 		end
 	end
 	setmetatable(itemdef, {__index = defaults})
-
-	-- Flowing liquid uses param2
-	if itemdef.type == "node" and itemdef.liquidtype == "flowing" then
-		itemdef.paramtype2 = "flowingliquid"
-	end
 
 	-- BEGIN Legacy stuff
 	if itemdef.cookresult_itemstring ~= nil and itemdef.cookresult_itemstring ~= "" then
@@ -226,6 +297,17 @@ function core.register_item(name, itemdef)
 	register_item_raw(itemdef)
 end
 
+local function make_register_item_wrapper(the_type)
+	return function(name, itemdef)
+		itemdef.type = the_type
+		return core.register_item(name, itemdef)
+	end
+end
+
+core.register_node = make_register_item_wrapper("node")
+core.register_craftitem = make_register_item_wrapper("craft")
+core.register_tool = make_register_item_wrapper("tool")
+
 function core.unregister_item(name)
 	if not core.registered_items[name] then
 		core.log("warning", "Not unregistering item " ..name..
@@ -239,74 +321,6 @@ function core.unregister_item(name)
 	core.registered_items[name] = nil
 
 	unregister_item_raw(name)
-end
-
-function core.register_node(name, nodedef)
-	nodedef.type = "node"
-	core.register_item(name, nodedef)
-end
-
-function core.register_craftitem(name, craftitemdef)
-	craftitemdef.type = "craft"
-
-	-- BEGIN Legacy stuff
-	if craftitemdef.inventory_image == nil and craftitemdef.image ~= nil then
-		craftitemdef.inventory_image = craftitemdef.image
-	end
-	-- END Legacy stuff
-
-	core.register_item(name, craftitemdef)
-end
-
-function core.register_tool(name, tooldef)
-	tooldef.type = "tool"
-	tooldef.stack_max = 1
-
-	-- BEGIN Legacy stuff
-	if tooldef.inventory_image == nil and tooldef.image ~= nil then
-		tooldef.inventory_image = tooldef.image
-	end
-	if tooldef.tool_capabilities == nil and
-	   (tooldef.full_punch_interval ~= nil or
-	    tooldef.basetime ~= nil or
-	    tooldef.dt_weight ~= nil or
-	    tooldef.dt_crackiness ~= nil or
-	    tooldef.dt_crumbliness ~= nil or
-	    tooldef.dt_cuttability ~= nil or
-	    tooldef.basedurability ~= nil or
-	    tooldef.dd_weight ~= nil or
-	    tooldef.dd_crackiness ~= nil or
-	    tooldef.dd_crumbliness ~= nil or
-	    tooldef.dd_cuttability ~= nil) then
-		tooldef.tool_capabilities = {
-			full_punch_interval = tooldef.full_punch_interval,
-			basetime = tooldef.basetime,
-			dt_weight = tooldef.dt_weight,
-			dt_crackiness = tooldef.dt_crackiness,
-			dt_crumbliness = tooldef.dt_crumbliness,
-			dt_cuttability = tooldef.dt_cuttability,
-			basedurability = tooldef.basedurability,
-			dd_weight = tooldef.dd_weight,
-			dd_crackiness = tooldef.dd_crackiness,
-			dd_crumbliness = tooldef.dd_crumbliness,
-			dd_cuttability = tooldef.dd_cuttability,
-		}
-	end
-	-- END Legacy stuff
-
-	-- This isn't just legacy, but more of a convenience feature
-	local toolcaps = tooldef.tool_capabilities
-	if toolcaps and toolcaps.punch_attack_uses == nil then
-		for _, cap in pairs(toolcaps.groupcaps or {}) do
-			local level = (cap.maxlevel or 0) - 1
-			if (cap.uses or 0) ~= 0 and level >= 0 then
-				toolcaps.punch_attack_uses = cap.uses * (3 ^ level)
-				break
-			end
-		end
-	end
-
-	core.register_item(name, tooldef)
 end
 
 function core.register_alias(name, convert_to)
