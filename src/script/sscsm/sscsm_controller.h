@@ -32,6 +32,4 @@ public:
 
 	// Handles requests until the next event is polled
 	void runEvent(Client *client, std::unique_ptr<ISSCSMEvent> event);
-
-	void eventOnStep(Client *client, f32 dtime);
 };
