@@ -20,14 +20,3 @@ assert(loadfile(commonpath .. "register.lua"))(builtin_shared)
 assert(loadfile(mypath .. "register.lua"))(builtin_shared)
 
 dofile(commonpath .. "after.lua")
-
-
--- TODO: tmp
-
-local function dings()
-	print(dump(core.get_node_or_nil(vector.zero())))
-	core.after(1, dings)
-end
---~ core.after(0, dings)
-
-print(core.get_current_modname())
