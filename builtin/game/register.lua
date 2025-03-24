@@ -129,6 +129,13 @@ function core.register_entity(name, prototype)
 	prototype.mod_origin = core.get_current_modname() or "??"
 end
 
+local default_tables = {
+	node = core.nodedef_default,
+	craft = core.craftitemdef_default,
+	tool = core.tooldef_default,
+	none = core.noneitemdef_default,
+}
+
 function core.register_item(name, itemdef)
 	-- Check name
 	if name == nil then
@@ -140,13 +147,6 @@ function core.register_item(name, itemdef)
 	end
 	itemdef.name = name
 
-	local mt = getmetatable(itemdef)
-	if mt ~= nil and next(mt) ~= nil then
-		core.log("warning", "Item definition has a metatable, this is "..
-			"unsupported and it will be overwritten: " .. name)
-	end
-
-	-- Apply defaults and add to registered_* table
 	if itemdef.type == "node" then
 		-- Use the nodebox as selection box if it's not set manually
 		if itemdef.drawtype == "nodebox" and not itemdef.selection_box then
@@ -162,19 +162,27 @@ function core.register_item(name, itemdef)
 			core.log("warning", "Node 'light_source' value exceeds maximum," ..
 				" limiting to maximum: " ..name)
 		end
-		setmetatable(itemdef, {__index = core.nodedef_default})
-		core.registered_nodes[itemdef.name] = itemdef
-	elseif itemdef.type == "craft" then
-		setmetatable(itemdef, {__index = core.craftitemdef_default})
-		core.registered_craftitems[itemdef.name] = itemdef
-	elseif itemdef.type == "tool" then
-		setmetatable(itemdef, {__index = core.tooldef_default})
-		core.registered_tools[itemdef.name] = itemdef
-	elseif itemdef.type == "none" then
-		setmetatable(itemdef, {__index = core.noneitemdef_default})
-	else
+	end
+
+	-- Apply defaults
+	local defaults = default_tables[itemdef.type]
+	if defaults == nil then
 		error("Unable to register item: Type is invalid: " .. dump(itemdef))
 	end
+	local old_mt = getmetatable(itemdef)
+	-- TODO most of these checks should become an error after a while (maybe in 2026?)
+	if old_mt ~= nil and next(old_mt) ~= nil then
+		-- Note that even registering multiple identical items with the same table
+		-- is not allowed, due to the 'name' property.
+		if old_mt.__index == defaults then
+			core.log("warning", "Item definition table was reused between registrations. "..
+				"This is unsupported and broken: " .. name)
+		else
+			core.log("warning", "Item definition has a metatable, this is "..
+				"unsupported and it will be overwritten: " .. name)
+		end
+	end
+	setmetatable(itemdef, {__index = defaults})
 
 	-- Flowing liquid uses param2
 	if itemdef.type == "node" and itemdef.liquidtype == "flowing" then
@@ -204,9 +212,17 @@ function core.register_item(name, itemdef)
 	-- Ignore new keys as a failsafe to prevent mistakes
 	getmetatable(itemdef).__newindex = function() end
 
-	--core.log("Registering item: " .. itemdef.name)
+	-- Add to registered_* tables
+	if itemdef.type == "node" then
+		core.registered_nodes[itemdef.name] = itemdef
+	elseif itemdef.type == "craft" then
+		core.registered_craftitems[itemdef.name] = itemdef
+	elseif itemdef.type == "tool" then
+		core.registered_tools[itemdef.name] = itemdef
+	end
 	core.registered_items[itemdef.name] = itemdef
 	core.registered_aliases[itemdef.name] = nil
+
 	register_item_raw(itemdef)
 end
 
@@ -217,16 +233,10 @@ function core.unregister_item(name)
 		return
 	end
 	-- Erase from registered_* table
-	local type = core.registered_items[name].type
-	if type == "node" then
-		core.registered_nodes[name] = nil
-	elseif type == "craft" then
-		core.registered_craftitems[name] = nil
-	elseif type == "tool" then
-		core.registered_tools[name] = nil
-	end
+	core.registered_nodes[name] = nil
+	core.registered_craftitems[name] = nil
+	core.registered_tools[name] = nil
 	core.registered_items[name] = nil
-
 
 	unregister_item_raw(name)
 end
