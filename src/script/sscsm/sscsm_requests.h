@@ -74,7 +74,7 @@ struct SSCSMRequestLog : public ISSCSMRequest
 	SerializedSSCSMAnswer exec(Client *client) override
 	{
 		if (level >= LL_MAX) {
-			throw BaseException("Tried to log at non-existent level."); // TODO: choose better exception type
+			throw MisbehavedSSCSMException("Tried to log at non-existent level.");
 		} else {
 			g_logger.log(level, text);
 		}
