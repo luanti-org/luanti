@@ -14,8 +14,14 @@
 #include "sscsm_irequest.h"
 #include "../scripting_sscsm.h"
 
-// The thread that runs SSCSM code.
-// Meant to be replaced by a sandboxed process.
+/** The thread that runs SSCSM code.
+ *
+ * Meant to be replaced by a sandboxed process.
+ *
+ * RAII-owns and abstracts away resources to communicate to the main process / thread.
+ *
+ * See also SSCSMController for other side.
+ */
 class SSCSMEnvironment : public Thread
 {
 	std::shared_ptr<StupidChannel> m_channel;
