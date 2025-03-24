@@ -50,7 +50,4 @@ public:
 				exchange(serializeSSCSMRequest(std::forward<RQ>(rq)))
 			);
 	}
-
-	std::unique_ptr<ISSCSMEvent> requestPollNextEvent();
-	MapNode requestGetNode(v3s16 pos);
 };

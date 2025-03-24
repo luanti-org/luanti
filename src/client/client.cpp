@@ -556,7 +556,11 @@ void Client::step(float dtime)
 	*/
 	LocalPlayer *player = m_env.getLocalPlayer();
 
-	m_sscsm_controller->eventOnStep(this, dtime);
+	{
+		auto event = std::make_unique<SSCSMEventOnStep>();
+		event->dtime = dtime;
+		m_sscsm_controller->runEvent(this, std::move(event));
+	}
 
 	// Step environment (also handles player controls)
 	m_env.step(dtime);
