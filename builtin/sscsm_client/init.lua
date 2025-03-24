@@ -1,4 +1,3 @@
-
 local scriptpath = core.get_builtin_path()
 local commonpath = scriptpath .. "common" .. DIR_DELIM
 local mypath     = scriptpath .. "sscsm_client".. DIR_DELIM
