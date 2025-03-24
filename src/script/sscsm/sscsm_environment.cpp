@@ -22,7 +22,11 @@ SSCSMEnvironment::~SSCSMEnvironment() = default;
 void *SSCSMEnvironment::run()
 {
 	while (true) {
-		auto next_event = requestPollNextEvent();
+		auto next_event = [&]{
+			auto request = SSCSMRequestPollNextEvent{};
+			auto answer = doRequest(std::move(request));
+			return std::move(answer.next_event);
+		}();
 
 		if (dynamic_cast<SSCSMEventTearDown *>(next_event.get())) {
 			break;
@@ -66,19 +70,4 @@ void SSCSMEnvironment::setFatalError(const std::string &reason)
 	auto request = SSCSMRequestSetFatalError{};
 	request.reason = reason;
 	doRequest(std::move(request));
-}
-
-std::unique_ptr<ISSCSMEvent> SSCSMEnvironment::requestPollNextEvent()
-{
-	auto request = SSCSMRequestPollNextEvent{};
-	auto answer = doRequest(std::move(request));
-	return std::move(answer.next_event);
-}
-
-MapNode SSCSMEnvironment::requestGetNode(v3s16 pos)
-{
-	auto request = SSCSMRequestGetNode{};
-	request.pos = pos;
-	auto answer = doRequest(std::move(request));
-	return answer.node;
 }
