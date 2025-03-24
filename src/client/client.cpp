@@ -183,12 +183,26 @@ Client::Client(
 		std::string enable_sscsm = g_settings->get("enable_sscsm");
 		if (enable_sscsm == "singleplayer") { //FIXME: enum
 			auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+
+			// some simple test code
 			event1->files.emplace_back("sscsm_test0:init.lua",
 					R"=+=(
 print("sscsm_test0: loading")
+
 --print(dump(_G))
 --print(debug.traceback())
+
+do
+	local pos = vector.zero()
+	local function print_nodes()
+		print(string.format("node at %s: %s", pos, dump(core.get_node_or_nil(pos))))
+		pos = pos:offset(1, 0, 0)
+		core.after(1, print_nodes)
+	end
+	core.after(0, print_nodes)
+end
 					)=+=");
+
 			m_sscsm_controller->runEvent(this, std::move(event1));
 
 			auto event2 = std::make_unique<SSCSMEventLoadMods>();
