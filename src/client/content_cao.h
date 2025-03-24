@@ -290,8 +290,8 @@ public:
 
 	void processMessage(const std::string &data) override;
 
-	bool directReportPunch(v3f dir, const ItemStack *punchitem=NULL,
-			float time_from_last_punch=1000000) override;
+	bool directReportPunch(v3f dir, const ItemStack *punchitem,
+			const ItemStack *hand_item, float time_from_last_punch=1000000) override;
 
 	std::string debugInfoText() override;
 

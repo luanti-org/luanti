@@ -592,7 +592,7 @@ protected:
 	void handlePointingAtNode(const PointedThing &pointed,
 			const ItemStack &selected_item, const ItemStack &hand_item, f32 dtime);
 	void handlePointingAtObject(const PointedThing &pointed, const ItemStack &playeritem,
-			const v3f &player_position, bool show_debug);
+			const ItemStack &hand_item, const v3f &player_position, bool show_debug);
 	void handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 			const ItemStack &selected_item, const ItemStack &hand_item, f32 dtime);
 	void updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
@@ -969,6 +969,8 @@ void Game::run()
 		draw_times.limit(device, &dtime);
 
 		framemarker.start();
+
+		g_fontengine->handleReload();
 
 		const auto current_dynamic_info = ClientDynamicInfo::getCurrent();
 		if (!current_dynamic_info.equal(client_display_info)) {
@@ -2448,6 +2450,11 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 {
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
+	// In free move (fly), the "toggle_sneak_key" setting would prevent precise
+	// up/down movements. Hence, enable the feature only during 'normal' movement.
+	const bool allow_sneak_toggle = m_cache_toggle_sneak_key &&
+		!player->getPlayerSettings().free_move;
+
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
 	PlayerControl control(
@@ -2456,8 +2463,8 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		isKeyDown(KeyType::LEFT),
 		isKeyDown(KeyType::RIGHT),
 		isKeyDown(KeyType::JUMP) || player->getAutojump(),
-		getTogglableKeyState(KeyType::AUX1,  m_cache_toggle_aux1_key,  player->control.aux1),
-		getTogglableKeyState(KeyType::SNEAK, m_cache_toggle_sneak_key, player->control.sneak),
+		getTogglableKeyState(KeyType::AUX1,  m_cache_toggle_aux1_key, player->control.aux1),
+		getTogglableKeyState(KeyType::SNEAK, allow_sneak_toggle,      player->control.sneak),
 		isKeyDown(KeyType::ZOOM),
 		isKeyDown(KeyType::DIG),
 		isKeyDown(KeyType::PLACE),
@@ -2951,14 +2958,14 @@ void Game::updateCamera(f32 dtime)
 	LocalPlayer *player = env.getLocalPlayer();
 
 	// For interaction purposes, get info about the held item
-	ItemStack playeritem;
+	ItemStack playeritem, hand;
 	{
-		ItemStack selected, hand;
+		ItemStack selected;
 		playeritem = player->getWieldedItem(&selected, &hand);
 	}
 
 	ToolCapabilities playeritem_toolcap =
-		playeritem.getToolCapabilities(itemdef_manager);
+		playeritem.getToolCapabilities(itemdef_manager, &hand);
 
 	float full_punch_interval = playeritem_toolcap.full_punch_interval;
 	float tool_reload_ratio = runData.time_from_last_punch / full_punch_interval;
@@ -3065,8 +3072,8 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	ItemStack selected_item, hand_item;
 	const ItemStack &tool_item = player->getWieldedItem(&selected_item, &hand_item);
 
-	const ItemDefinition &selected_def = selected_item.getDefinition(itemdef_manager);
-	f32 d = getToolRange(selected_item, hand_item, itemdef_manager);
+	const ItemDefinition &selected_def = tool_item.getDefinition(itemdef_manager);
+	f32 d = getToolRange(tool_item, hand_item, itemdef_manager);
 
 	core::line3d<f32> shootline;
 
@@ -3183,7 +3190,7 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	} else if (pointed.type == POINTEDTHING_OBJECT) {
 		v3f player_position  = player->getPosition();
 		bool basic_debug_allowed = client->checkPrivilege("debug") || (player->hud_flags & HUD_FLAG_BASIC_DEBUG);
-		handlePointingAtObject(pointed, tool_item, player_position,
+		handlePointingAtObject(pointed, tool_item, hand_item, player_position,
 				m_game_ui->m_flags.show_basic_debug && basic_debug_allowed);
 	} else if (isKeyDown(KeyType::DIG)) {
 		// When button is held down in air, show continuous animation
@@ -3597,8 +3604,8 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 	}
 }
 
-void Game::handlePointingAtObject(const PointedThing &pointed,
-		const ItemStack &tool_item, const v3f &player_position, bool show_debug)
+void Game::handlePointingAtObject(const PointedThing &pointed, const ItemStack &tool_item,
+		const ItemStack &hand_item, const v3f &player_position, bool show_debug)
 {
 	std::wstring infotext = unescape_translate(
 		utf8_to_wide(runData.selected_object->infoText()));
@@ -3636,7 +3643,7 @@ void Game::handlePointingAtObject(const PointedThing &pointed,
 			v3f dir = (objpos - player_position).normalize();
 
 			bool disable_send = runData.selected_object->directReportPunch(
-					dir, &tool_item, runData.time_from_last_punch);
+					dir, &tool_item, &hand_item, runData.time_from_last_punch);
 			runData.time_from_last_punch = 0;
 
 			if (!disable_send)
@@ -3657,13 +3664,14 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 	ClientMap &map = client->getEnv().getClientMap();
 	MapNode n = map.getNode(nodepos);
 	const auto &features = nodedef_manager->get(n);
+	const ItemStack &tool_item = selected_item.name.empty() ? hand_item : selected_item;
 
 	// NOTE: Similar piece of code exists on the server side for
 	// cheat detection.
 	// Get digging parameters
 	DigParams params = getDigParams(features.groups,
-			&selected_item.getToolCapabilities(itemdef_manager),
-			selected_item.wear);
+			&tool_item.getToolCapabilities(itemdef_manager, &hand_item),
+			tool_item.wear);
 
 	// If can't dig, try hand
 	if (!params.diggable) {

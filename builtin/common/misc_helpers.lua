@@ -457,18 +457,37 @@ do
 	end
 end
 
---------------------------------------------------------------------------------
-function table.copy(t, seen)
-	local n = {}
-	seen = seen or {}
-	seen[t] = n
-	for k, v in pairs(t) do
-		n[(type(k) == "table" and (seen[k] or table.copy(k, seen))) or k] =
-			(type(v) == "table" and (seen[v] or table.copy(v, seen))) or v
+
+local function table_copy(value, preserve_metatables)
+	local seen = {}
+	local function copy(val)
+		if type(val) ~= "table" then
+			return val
+		end
+		local t = val
+		if seen[t] then
+			return seen[t]
+		end
+		local res = {}
+		seen[t] = res
+		for k, v in pairs(t) do
+			res[copy(k)] = copy(v)
+		end
+		if preserve_metatables then
+			setmetatable(res, getmetatable(t))
+		end
+		return res
 	end
-	return n
+	return copy(value)
 end
 
+function table.copy(value)
+	return table_copy(value, false)
+end
+
+function table.copy_with_metatables(value)
+	return table_copy(value, true)
+end
 
 function table.insert_all(t, other)
 	if table.move then -- LuaJIT

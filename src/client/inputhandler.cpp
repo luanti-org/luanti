@@ -77,7 +77,7 @@ void KeyCache::populate()
 	if (handler) {
 		// First clear all keys, then re-add the ones we listen for
 		handler->dontListenForKeys();
-		for (const KeyPress &k : key) {
+		for (auto k : key) {
 			handler->listenForKey(k);
 		}
 		handler->listenForKey(EscapeKey);
@@ -111,7 +111,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 
 	// This is separate from other keyboard handling so that it also works in menus.
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
-		const KeyPress keyCode(event.KeyInput);
+		KeyPress keyCode(event.KeyInput);
 		if (keyCode == getKeySetting("keymap_fullscreen")) {
 			if (event.KeyInput.PressedDown && !fullscreen_is_down) {
 				IrrlichtDevice *device = RenderingEngine::get_raw_device();
@@ -142,8 +142,8 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 
 	// Remember whether each key is down or up
 	if (event.EventType == irr::EET_KEY_INPUT_EVENT) {
-		const KeyPress keyCode(event.KeyInput);
-		if (keysListenedFor[keyCode]) {
+		KeyPress keyCode(event.KeyInput);
+		if (keyCode && keysListenedFor[keyCode]) { // ignore key input that is invalid or irrelevant for the game.
 			if (event.KeyInput.PressedDown) {
 				if (!IsKeyDown(keyCode))
 					keyWasPressed.set(keyCode);

@@ -931,6 +931,8 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 			fillTileAttribs(tsrc, &tiles[j].layers[1], tiles[j], tdef_overlay[j],
 					color, overlay_material, overlay_shader,
 					tdef[j].backface_culling, tsettings);
+
+		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
 	}
 
 	MaterialType special_material = material_type;

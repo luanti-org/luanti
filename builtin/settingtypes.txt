@@ -112,6 +112,7 @@ doubletap_jump (Double tap jump for fly) bool false
 always_fly_fast (Always fly fast) bool true
 
 #    If enabled, the "Sneak" key will toggle when pressed.
+#    This functionality is ignored when fly is enabled.
 toggle_sneak_key (Toggle Sneak key) bool false
 
 #    If enabled, the "Aux1" key will toggle when pressed.
@@ -166,6 +167,36 @@ invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 #    Requires: touch_support
 touch_controls (Touchscreen controls) enum auto auto,true,false
 
+#    The kind of digging/placing controls used.
+#
+#    * Tap
+#      Long/short tap anywhere on the screen to interact.
+#      Interaction happens at finger position.
+#
+#    * Tap with crosshair
+#      Long/short tap anywhere on the screen to interact.
+#      Interaction happens at crosshair position.
+#
+#    * Buttons with crosshair
+#      Use dedicated dig/place buttons to interact.
+#      Interaction happens at crosshair position.
+#
+#    Requires: touchscreen
+touch_interaction_style (Interaction style) enum tap tap,tap_crosshair,buttons_crosshair
+
+#    The gesture for punching players/entities.
+#    This can be overridden by games and mods.
+#
+#    * Short tap
+#      Easy to use and well-known from other games that shall not be named.
+#
+#    * Long tap
+#      Known from the classic Luanti mobile controls.
+#      Combat is more or less impossible.
+#
+#    Requires: touchscreen, touch_interaction_style_tap
+touch_punch_gesture (Punch gesture) enum short_tap short_tap,long_tap
+
 #    Touchscreen sensitivity multiplier.
 #
 #    Requires: touchscreen
@@ -181,12 +212,6 @@ touchscreen_threshold (Movement threshold) int 20 0 100
 #    Requires: touchscreen
 touch_long_tap_delay (Threshold for long taps) int 400 100 1000
 
-#    Use crosshair to select object instead of whole screen.
-#    If enabled, a crosshair will be shown and will be used for selecting object.
-#
-#    Requires: touchscreen
-touch_use_crosshair (Use crosshair for touch screen) bool false
-
 #    Fixes the position of virtual joystick.
 #    If disabled, virtual joystick will center to first-touch's position.
 #
@@ -198,20 +223,6 @@ fixed_virtual_joystick (Fixed virtual joystick) bool false
 #
 #    Requires: touchscreen
 virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool false
-
-#    The gesture for punching players/entities.
-#    This can be overridden by games and mods.
-#
-#    * short_tap
-#      Easy to use and well-known from other games that shall not be named.
-#
-#    * long_tap
-#      Known from the classic Luanti mobile controls.
-#      Combat is more or less impossible.
-#
-#    Requires: touchscreen
-touch_punch_gesture (Punch gesture) enum short_tap short_tap,long_tap
-
 
 [Graphics and Audio]
 

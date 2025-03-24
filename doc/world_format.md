@@ -298,41 +298,44 @@ Before 5.12.0 it looked like this:
 CREATE TABLE `blocks` (`pos` INT NOT NULL PRIMARY KEY, `data` BLOB);
 ```
 
-## Position Hashing
+## Position Encoding
 
 Applies to the pre-5.12.0 schema:
 
-`pos` (a node position hash) is created from the three coordinates of a
-`MapBlock` using this algorithm, defined here in Python:
+`pos` (a node position encoding) is created from the three coordinates of a
+`MapBlock` using the following simple equation:
 
-```python
-def getBlockAsInteger(p):
-    return int64(p[2]*16777216 + p[1]*4096 + p[0])
+```C
+pos = (z << 24) + (y << 12) + x;
+```
+or, equivalently, `pos = (z * 0x1000000) + (y * 0x1000) + x`.
 
-def int64(u):
-    while u >= 2**63:
-        u -= 2**64
-    while u <= -2**63:
-        u += 2**64
-    return u
+A position can be decoded using:
+
+```C
+pos = pos + 0x800800800;
+x = (pos & 0xFFF) - 0x800;
+y = ((pos >> 12) & 0xFFF) - 0x800;
+z = ((pos >> 24) & 0xFFF) - 0x800;
 ```
 
-It can be converted the other way by using this code:
+Positions are sequential along the x axis (as easily seen from the position equation above).
+It is possible to retrieve all blocks from an interval using the following SQL statement:
 
-```python
-def getIntegerAsBlock(i):
-    x = unsignedToSigned(i % 4096, 2048)
-    i = int((i - x) / 4096)
-    y = unsignedToSigned(i % 4096, 2048)
-    i = int((i - y) / 4096)
-    z = unsignedToSigned(i % 4096, 2048)
-    return x,y,z
-
-def unsignedToSigned(i, max_positive):
-    if i < max_positive:
-        return i
-    else:
-        return i - 2*max_positive
+```sql
+SELECT
+`pos`,
+`data`,
+( (`pos` + 0x800800800)        & 0xFFF) - 0x800 as x,
+(((`pos` + 0x800800800) >> 12) & 0xFFF) - 0x800 as y,
+(((`pos` + 0x800800800) >> 24) & 0xFFF) - 0x800 as z
+FROM `blocks` WHERE
+( (`pos` + 0x800800800)        & 0xFFF) - 0x800 >= ? AND -- minx
+( (`pos` + 0x800800800)        & 0xFFF) - 0x800 <= ? AND -- maxx
+(((`pos` + 0x800800800) >> 12) & 0xFFF) - 0x800 >= ? AND -- miny
+(((`pos` + 0x800800800) >> 12) & 0xFFF) - 0x800 <= ? AND -- maxy
+`pos` >= (? << 24) - 0x800800 AND -- minz
+`pos` <= (? << 24) + 0x7FF7FF; -- maxz
 ```
 
 ## Blob

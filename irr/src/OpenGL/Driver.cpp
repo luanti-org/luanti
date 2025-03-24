@@ -212,6 +212,7 @@ void COpenGL3DriverBase::initQuadsIndices(u32 max_vertex_count)
 	}
 	QuadIndexVBO.upload(QuadsIndices.data(), QuadsIndices.size() * sizeof(u16),
 		0, GL_STATIC_DRAW, true);
+	assert(QuadIndexVBO.exists());
 }
 
 void COpenGL3DriverBase::initVersion()
@@ -626,6 +627,7 @@ void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
 	const void *vertices = vb->getData();
 	if (hwvert) {
 		assert(hwvert->IsVertex);
+		assert(hwvert->Vbo.exists());
 		GL.BindBuffer(GL_ARRAY_BUFFER, hwvert->Vbo.getName());
 		vertices = nullptr;
 	}
@@ -633,6 +635,7 @@ void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
 	const void *indexList = ib->getData();
 	if (hwidx) {
 		assert(!hwidx->IsVertex);
+		assert(hwidx->Vbo.exists());
 		GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, hwidx->Vbo.getName());
 		indexList = nullptr;
 	}

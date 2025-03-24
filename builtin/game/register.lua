@@ -61,7 +61,7 @@ local function check_modname_prefix(name)
 		return name:sub(2)
 	else
 		-- Enforce that the name starts with the correct mod name.
-		local expected_prefix = core.get_current_modname() .. ":"
+		local expected_prefix = (core.get_current_modname() or "") .. ":"
 		if name:sub(1, #expected_prefix) ~= expected_prefix then
 			error("Name " .. name .. " does not follow naming conventions: " ..
 				"\"" .. expected_prefix .. "\" or \":\" prefix required")
@@ -95,6 +95,7 @@ function core.register_abm(spec)
 	check_node_list(spec.nodenames, "nodenames")
 	check_node_list(spec.neighbors, "neighbors")
 	assert(type(spec.action) == "function", "Required field 'action' of type function")
+
 	core.registered_abms[#core.registered_abms + 1] = spec
 	spec.mod_origin = core.get_current_modname() or "??"
 end
@@ -138,6 +139,12 @@ function core.register_item(name, itemdef)
 		error("Unable to register item: Name is forbidden: " .. name)
 	end
 	itemdef.name = name
+
+	local mt = getmetatable(itemdef)
+	if mt ~= nil and next(mt) ~= nil then
+		core.log("warning", "Item definition has a metatable, this is "..
+			"unsupported and it will be overwritten: " .. name)
+	end
 
 	-- Apply defaults and add to registered_* table
 	if itemdef.type == "node" then
@@ -194,8 +201,8 @@ function core.register_item(name, itemdef)
 
 	itemdef.mod_origin = core.get_current_modname() or "??"
 
-	-- Disable all further modifications
-	getmetatable(itemdef).__newindex = {}
+	-- Ignore new keys as a failsafe to prevent mistakes
+	getmetatable(itemdef).__newindex = function() end
 
 	--core.log("Registering item: " .. itemdef.name)
 	core.registered_items[itemdef.name] = itemdef
@@ -406,6 +413,7 @@ core.register_item(":", {
 	groups = {not_in_creative_inventory=1},
 })
 
+local itemdefs_finalized = false
 
 function core.override_item(name, redefinition, del_fields)
 	if redefinition.name ~= nil then
@@ -418,10 +426,16 @@ function core.override_item(name, redefinition, del_fields)
 	if not item then
 		error("Attempt to override non-existent item "..name, 2)
 	end
+	if itemdefs_finalized then
+		-- TODO: it's not clear if this needs to be allowed at all?
+		core.log("warning", "Overriding item " .. name .. " after server startup. " ..
+			"This is unsupported and can cause problems related to data inconsistency.")
+	end
 	for k, v in pairs(redefinition) do
 		rawset(item, k, v)
 	end
 	for _, field in ipairs(del_fields or {}) do
+		assert(field ~= "name" and field ~= "type")
 		rawset(item, field, nil)
 	end
 	register_item_raw(item)
@@ -568,13 +582,57 @@ core.registered_on_rightclickplayers, core.register_on_rightclickplayer = make_r
 core.registered_on_liquid_transformed, core.register_on_liquid_transformed = make_registration()
 core.registered_on_mapblocks_changed, core.register_on_mapblocks_changed = make_registration()
 
+-- A bunch of registrations are read by the C++ side once on env init, so we cannot
+-- allow them to change afterwards (see s_env.cpp).
+-- Nodes and items do not have this problem but there are obvious consistency
+-- problems if this would be allowed.
+
+local function freeze_table(t)
+	-- Freezing a Lua table is not actually possible without some very intrusive
+	-- metatable hackery, but we can trivially prevent new additions.
+	local mt = table.copy(getmetatable(t) or {})
+	mt.__newindex = function()
+		error("modification forbidden")
+	end
+	setmetatable(t, mt)
+end
+
+local function generic_reg_error(what)
+	return function(something)
+		local described = what
+		if type(something) == "table" and type(something.name) == "string" then
+			described = what .. " " .. something.name
+		elseif type(something) == "string" then
+			described = what .. " " .. something
+		end
+		error("Tried to register " .. described .. " after load time!")
+	end
+end
+
 core.register_on_mods_loaded(function()
 	core.after(0, function()
-		setmetatable(core.registered_on_mapblocks_changed, {
-			__newindex = function()
-				error("on_mapblocks_changed callbacks must be registered at load time")
-			end,
-		})
+		itemdefs_finalized = true
+
+		-- prevent direct modification
+		freeze_table(core.registered_abms)
+		freeze_table(core.registered_lbms)
+		freeze_table(core.registered_items)
+		freeze_table(core.registered_nodes)
+		freeze_table(core.registered_craftitems)
+		freeze_table(core.registered_tools)
+		freeze_table(core.registered_aliases)
+		freeze_table(core.registered_on_mapblocks_changed)
+
+		-- neutralize registration functions
+		core.register_abm = generic_reg_error("ABM")
+		core.register_lbm = generic_reg_error("LBM")
+		core.register_item = generic_reg_error("item")
+		core.unregister_item = function(name)
+			error("Refusing to unregister item " .. name .. " after load time")
+		end
+		core.register_alias = generic_reg_error("alias")
+		core.register_alias_force = generic_reg_error("alias")
+		core.register_on_mapblocks_changed = generic_reg_error("on_mapblocks_changed callback")
 	end)
 end)
 

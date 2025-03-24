@@ -16,6 +16,7 @@
 #include "itemdef.h"
 #include "touchscreenlayout.h"
 #include "util/basic_macros.h"
+#include "client/keycode.h"
 
 namespace irr
 {
@@ -56,8 +57,9 @@ enum class TapState
 
 struct button_info
 {
+	touch_gui_button_id id;
 	float repeat_counter;
-	EKEY_CODE keycode;
+	KeyPress keypress;
 	std::vector<size_t> pointer_ids;
 	std::shared_ptr<IGUIImage> gui_button = nullptr;
 
@@ -93,7 +95,7 @@ public:
 		return res;
 	}
 
-	bool isShootlineAvailable() { return !m_use_crosshair; }
+	bool isShootlineAvailable() { return m_interaction_style == TAP; }
 
 	/**
 	 * Returns a line which describes what the player is pointing at.
@@ -136,7 +138,7 @@ private:
 	s32 m_button_size;
 
 	// cached settings
-	bool m_use_crosshair;
+	TouchInteractionStyle m_interaction_style;
 	double m_touchscreen_threshold;
 	u16 m_long_tap_delay;
 	bool m_fixed_joystick;
@@ -160,7 +162,7 @@ private:
 	 * The line ends on the camera's far plane.
 	 * The coordinates do not contain the camera offset.
 	 *
-	 * Only valid if !m_use_crosshair
+	 * Only used for m_interaction_style == TAP
 	 */
 	line3d<f32> m_shootline;
 
@@ -202,7 +204,7 @@ private:
 	// for its buttons. We only want static image display, not interactivity,
 	// from Irrlicht.
 
-	void emitKeyboardEvent(EKEY_CODE keycode, bool pressed);
+	void emitKeyboardEvent(KeyPress keycode, bool pressed);
 
 	void loadButtonTexture(IGUIImage *gui_button, const std::string &path);
 	void buttonEmitAction(button_info &btn, bool action);
@@ -241,6 +243,8 @@ private:
 	std::unordered_map<size_t, v2s32> m_pointer_downpos;
 	// map to store the IDs and positions of currently pressed pointers
 	std::unordered_map<size_t, v2s32> m_pointer_pos;
+
+	// The following are not used if m_interaction_style == BUTTONS_CROSSHAIR
 
 	TouchInteractionMode m_last_mode = TouchInteractionMode_END;
 	TapState m_tap_state = TapState::None;

@@ -1685,7 +1685,9 @@ roughly 1x1x1 meters in size.
 
 A 'mapblock' (often abbreviated to 'block') is 16x16x16 nodes and is the
 fundamental region of a world that is stored in the world database, sent to
-clients and handled by many parts of the engine.
+clients and handled by many parts of the engine. This size is defined by the constant
+`core.MAP_BLOCKSIZE` (=16).
+
 'mapblock' is preferred terminology to 'block' to help avoid confusion with
 'node', however 'block' often appears in the API.
 
@@ -1717,7 +1719,7 @@ node position (0,0,0) to node position (15,15,15).
 To calculate the blockpos of the mapblock that contains the node at 'nodepos',
 for each axis:
 
-* blockpos = math.floor(nodepos / 16)
+* blockpos = math.floor(nodepos / core.MAP_BLOCKSIZE)
 
 #### Converting blockpos to min/max node positions
 
@@ -1725,9 +1727,9 @@ To calculate the min/max node positions contained in the mapblock at 'blockpos',
 for each axis:
 
 * Minimum:
-  nodepos = blockpos * 16
+  nodepos = blockpos * core.MAP_BLOCKSIZE
 * Maximum:
-  nodepos = blockpos * 16 + 15
+  nodepos = (blockpos + 1) * core.MAP_BLOCKSIZE - 1
 
 
 
@@ -4146,6 +4148,11 @@ Helper functions
     * returns time with microsecond precision. May not return wall time.
 * `table.copy(table)`: returns a table
     * returns a deep copy of `table`
+    * strips metatables, but this may change in the future
+* `table.copy_with_metatables(table)`
+    * since 5.12
+    * `table` can also be non-table value, which will be returned as-is
+    * preserves metatables as they are
 * `table.indexof(list, val)`: returns the smallest numerical index containing
       the value `val` in the table `list`. Non-numerical indices are ignored.
       If `val` could not be found, `-1` is returned. `list` must not have

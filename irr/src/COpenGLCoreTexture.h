@@ -99,6 +99,11 @@ public:
 		}
 
 		GL.GenTextures(1, &TextureName);
+		TEST_GL_ERROR(Driver);
+		if (!TextureName) {
+			os::Printer::log("COpenGLCoreTexture: texture not created", ELL_ERROR);
+			return;
+		}
 
 		const COpenGLCoreTexture *prevTexture = Driver->getCacheHandler()->getTextureCache().get(0);
 		Driver->getCacheHandler()->getTextureCache().set(0, this);
@@ -195,6 +200,11 @@ public:
 #endif
 
 		GL.GenTextures(1, &TextureName);
+		TEST_GL_ERROR(Driver);
+		if (!TextureName) {
+			os::Printer::log("COpenGLCoreTexture: texture not created", ELL_ERROR);
+			return;
+		}
 
 		const COpenGLCoreTexture *prevTexture = Driver->getCacheHandler()->getTextureCache().get(0);
 		Driver->getCacheHandler()->getTextureCache().set(0, this);
