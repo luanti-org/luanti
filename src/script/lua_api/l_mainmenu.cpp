@@ -131,8 +131,9 @@ int ModApiMainMenu::l_start(lua_State *L)
 		// on Android, which would then cause SERVER_ACCESSDENIED_WRONG_CHARS_IN_NAME).
 		data->name     = trim(getTextData(L,"playername"));
 		data->password = getTextData(L,"password");
-		data->address  = getTextData(L,"address");
-		data->port     = getTextData(L,"port");
+		// There's no reason for these to have leading/trailing whitespace either.
+		data->address  = trim(getTextData(L,"address"));
+		data->port     = trim(getTextData(L,"port"));
 
 		const auto val = getTextData(L, "allow_login_or_register");
 		if (val == "login")
