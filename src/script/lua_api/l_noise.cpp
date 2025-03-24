@@ -104,7 +104,6 @@ void LuaValueNoise::Register(lua_State *L)
 	registerClass(L, className, methods, metamethods);
 
 	lua_register(L, className, create_object);
-	lua_register(L, "PerlinNoise", create_object); // deprecated name
 
 	script_register_packer(L, className, packIn, packOut);
 }
@@ -364,7 +363,6 @@ void LuaValueNoiseMap::Register(lua_State *L)
 	registerClass(L, className, methods, metamethods);
 
 	lua_register(L, className, create_object);
-	lua_register(L, "PerlinNoiseMap", create_object); // deprecated name
 
 	script_register_packer(L, className, packIn, packOut);
 }

@@ -4474,8 +4474,10 @@ textdomain match the mod name, but this isn't required.
 Fractal value noise
 ===================
 
-Value noise creates a continuously-varying value depending on the input values,
-it is a simpler (but faster) version of Perlin noise.
+Value noise creates a continuously-varying value depending on the input values.
+It is similar to Perlin noise, but may exhibit more geometric artifacts,
+as it interpolates between values and not between gradients as in Perlin noise.
+
 Usually in Luanti the input values are either 2D or 3D coordinates in nodes.
 The result is used during map generation to create the terrain shape, vary heat
 and humidity to distribute biomes, vary the density of decorations or vary the

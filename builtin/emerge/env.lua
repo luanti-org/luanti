@@ -56,7 +56,7 @@ function core.get_value_noise_map(params, size)
 	return ValueNoiseMap(params2, size)
 end
 
--- deprecated as of 5.12, as it was not perlin noise
+-- deprecated as of 5.12, as it was not Perlin noise
 local get_perlin_deprecation_message_printed = false
 function core.get_perlin(seed, octaves, persist, spread)
 	if not get_perlin_deprecation_message_printed then
@@ -66,7 +66,7 @@ function core.get_perlin(seed, octaves, persist, spread)
 	return core.get_value_noise(seed, octaves, persist, spread)
 end
 local get_perlin_map_deprecation_message_printed
--- deprecated as of 5.12, as it was not perlin noise
+-- deprecated as of 5.12, as it was not Perlin noise
 function core.get_perlin_map(params, size)
 	if not get_perlin_map_deprecation_message_printed then
 		core.log("deprecated", "core.get_perlin_map is deprecated and was renamed to core.get_value_noise_map")
@@ -74,4 +74,21 @@ function core.get_perlin_map(params, size)
 	end
 	return core.get_value_noise_map(params, size)
 end
-
+-- deprecated as of 5.12, as it was not Perlin noise
+local perlinnoise_deprecation_message_printed = false
+function PerlinNoise(noiseparams_or_seed, octaves, persistence, spread)
+	if not perlinnoise_deprecation_message_printed then
+		core.log("deprecated", "PerlinNoise is deprecated and was renamed to ValueNoise")
+		perlinnoise_deprecation_message_printed = true
+	end
+	return ValueNoise(noiseparams_or_seed, octaves, persistence, spread)
+end
+-- deprecated as of 5.12, as it was not Perlin noise
+local perlinnoisemap_deprecation_message_printed = false
+function PerlinNoiseMap(noiseparams, size)
+	if not perlinnoisemap_deprecation_message_printed then
+		core.log("deprecated", "PerlinNoise is deprecated and was renamed to ValueNoise")
+		perlinnoisemap_deprecation_message_printed = true
+	end
+	return ValueNoiseMap(noiseparams, size)
+end
