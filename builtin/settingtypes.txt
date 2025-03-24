@@ -91,6 +91,8 @@
 #     * touchscreen / keyboard_mouse
 #     * opengl / gles
 # * You can negate any requirement by prepending with !
+# * The "keyboard_mouse" requirement is automatically added to settings with the
+#   "key" type.
 #
 # Sections are marked by a single line in the format: [Section Name]
 # Sub-section are marked by adding * in front of the section name: [*Sub-section]

@@ -250,6 +250,10 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			return "Invalid string setting"
 		end
 
+		if setting_type == "key" then
+			requires.keyboard_mouse = true
+		end
+
 		table.insert(settings, {
 			name = name,
 			readable_name = readable_name,
