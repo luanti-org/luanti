@@ -13,6 +13,14 @@
 class SSCSMEnvironment;
 class StupidChannel;
 
+/**
+ * The purpose of this class is to:
+ * * Be the RAII owner of the SSCSM process.
+ * * Send events to SSCSM process, and process requests. (`runEvent`)
+ * * Hide details (e.g. that it is a separate process, or that it has to do IPC calls).
+ *
+ * See also SSCSMEnvironment for other side.
+ */
 class SSCSMController
 {
 	std::unique_ptr<SSCSMEnvironment> m_thread;
