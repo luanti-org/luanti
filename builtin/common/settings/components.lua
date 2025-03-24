@@ -466,18 +466,19 @@ function make.key(setting)
 
 		get_formspec = function(self, avail_w)
 			self.resettable = core.settings:has(setting.name)
-			local btn_bind_width = avail_w - 0.8
+			local btn_bind_width = math.max(2.5, avail_w/2)
 			local value = core.settings:get(setting.name)
 			local fs = {
 				("label[0,0.4;%s]"):format(get_label(setting)),
-				("button_key[0,0.6;%f,0.8;%s;%s]"):format(btn_bind_width,
+				("button_key[%f,0;%f,0.8;%s;%s]"):format(
+						btn_bind_width, btn_bind_width-0.8,
 						btn_bind, core.formspec_escape(value)),
-				("image_button[%f,0.6;0.8,0.8;%s;%s;]"):format(btn_bind_width,
+				("image_button[%f,0;0.8,0.8;%s;%s;]"):format(avail_w - 0.8,
 						core.formspec_escape(defaulttexturedir .. "clear.png"),
 						btn_clear),
 				("tooltip[%s;%s]"):format(btn_clear, fgettext("Remove keybinding")),
 			}
-			local height = 1.4
+			local height = 0.8
 			height = add_conflict_warnings(fs, height)
 			return table.concat(fs), height
 		end,
