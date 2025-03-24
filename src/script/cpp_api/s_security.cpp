@@ -424,13 +424,13 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"xpcall",
 		// Completely safe libraries
 		"coroutine",
-		"string",
+		"string", //TODO: string.dump?
 		"table",
 		"math",
 		"bit",
 	};
 	static const char *os_whitelist[] = {
-		"date",
+		"date", // TODO: can crash? (<http://lua-users.org/wiki/SandBoxes>)
 		"difftime",
 		"time"
 	};
