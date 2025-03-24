@@ -19,6 +19,8 @@
 #include "network/peerhandler.h"
 #include "gameparams.h"
 #include "script/common/c_types.h" // LuaError
+#include "clientdynamicinfo.h"
+#include "clientauth.h"
 #include "util/numeric.h"
 #include "util/string.h" // StringMap
 #include "config.h"
@@ -108,8 +110,9 @@ public:
 	*/
 
 	Client(
-			const char *playername,
-			const std::string &password,
+			const std::string &playername,
+			//const std::string &password,
+			ClientAuth *auth,
 			MapDrawControl &control,
 			IWritableTextureSource *tsrc,
 			IWritableShaderSource *shsrc,
@@ -232,8 +235,8 @@ public:
 	void sendInventoryAction(InventoryAction *a);
 	void sendChatMessage(const std::wstring &message);
 	void clearOutChatQueue();
-	void sendChangePassword(const std::string &oldpassword,
-		const std::string &newpassword);
+	void sendChangePassword(std::string &oldpassword,
+		std::string &newpassword);
 	void sendDamage(u16 damage);
 	void sendRespawnLegacy();
 	void sendReady();
@@ -511,12 +514,11 @@ private:
 
 	// Auth data
 	std::string m_playername;
-	std::string m_password;
+	ClientAuth *m_auth;
 	// If set, this will be sent (and cleared) upon a TOCLIENT_ACCEPT_SUDO_MODE
-	std::string m_new_password;
+	ClientAuth m_new_auth;
 	// Usable by auth mechanisms.
 	AuthMechanism m_chosen_auth_mech;
-	void *m_auth_data = nullptr;
 
 	bool m_access_denied = false;
 	bool m_access_denied_reconnect = false;
