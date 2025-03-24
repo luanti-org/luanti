@@ -2407,8 +2407,10 @@ f32 Game::getSensitivityScaleFactor() const
 void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 {
 	if (g_touchcontrols) {
-		cam->camera_yaw   += g_touchcontrols->getYawChange();
-		cam->camera_pitch += g_touchcontrols->getPitchChange();
+		// User setting is already applied by TouchControls.
+		f32 sens_scale = getSensitivityScaleFactor();
+		cam->camera_yaw   += g_touchcontrols->getYawChange()   * sens_scale;
+		cam->camera_pitch += g_touchcontrols->getPitchChange() * sens_scale;
 	} else {
 		v2s32 center(driver->getScreenSize().Width / 2, driver->getScreenSize().Height / 2);
 		v2s32 dist = input->getMousePos() - center;
