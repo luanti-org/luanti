@@ -424,19 +424,33 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"xpcall",
 		// Completely safe libraries
 		"coroutine",
-		"string", //TODO: string.dump?
 		"table",
 		"math",
 		"bit",
 	};
 	static const char *os_whitelist[] = {
-		"date", // TODO: can crash? (<http://lua-users.org/wiki/SandBoxes>)
 		"difftime",
 		"time"
 	};
 	static const char *debug_whitelist[] = {
 		"getinfo", // used by builtin and unset before mods load //TODO
-		"traceback" //TODO: is this fine, or does it print paths of C functions?
+		"traceback"
+	};
+	static const char *string_whitelist[] = { // all but string.dump
+		"byte",
+		"char",
+		"dump",
+		"find",
+		"format",
+		"gmatch",
+		"gsub",
+		"len",
+		"lower",
+		"match",
+		"rep",
+		"reverse",
+		"sub",
+		"upper"
 	};
 #if USE_LUAJIT
 	static const char *jit_whitelist[] = {
@@ -493,6 +507,14 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
 	lua_setfield(L, -3, "debug");
 	lua_pop(L, 1);  // Pop old debug
+
+
+	// Copy safe string functions
+	lua_getglobal(L, "string");
+	lua_newtable(L);
+	copy_safe(L, string_whitelist, sizeof(string_whitelist));
+	lua_setfield(L, -3, "string");
+	lua_pop(L, 1);  // Pop old string
 
 
 #if USE_LUAJIT
