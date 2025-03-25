@@ -33,7 +33,7 @@ globals = {
 	"_",
 }
 
-files["builtin/client/register.lua"] = {
+files["builtin/client/init.lua"] = {
 	globals = {
 		debug = {fields={"getinfo"}},
 	}
