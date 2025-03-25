@@ -433,7 +433,7 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"time"
 	};
 	static const char *debug_whitelist[] = {
-		"getinfo", // used by builtin and unset before mods load //TODO
+		"getinfo", // used by client builtin and unset before mods load
 		"traceback"
 	};
 	static const char *string_whitelist[] = { // all but string.dump
