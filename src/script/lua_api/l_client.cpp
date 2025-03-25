@@ -285,10 +285,14 @@ int ModApiClient::l_get_privilege_list(lua_State *L)
 int ModApiClient::l_get_builtin_path(lua_State *L)
 {
 	std::string modname;
-	if (getScriptApiBase(L)->getType() == ScriptingType::Client)
+	if (getScriptApiBase(L)->getType() == ScriptingType::Client) {
 		modname = BUILTIN_MOD_NAME;
-	else if (getScriptApiBase(L)->getType() == ScriptingType::SSCSM)
+	} else if (getScriptApiBase(L)->getType() == ScriptingType::SSCSM) {
+		// get_builtin_path() is only called in builtin, so this is fine
 		modname = ScriptApiBase::getCurrentModNameInsecure(L);
+		if (modname != "*client_builtin*" && modname != "*server_builtin*")
+			modname = "";
+	}
 
 	if (modname.empty())
 		return 0;
