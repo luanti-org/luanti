@@ -47,6 +47,12 @@ files["builtin/client/init.lua"] = {
 	}
 }
 
+files["builtin/sscsm_client/init.lua"] = {
+	globals = {
+		debug = {fields={"getinfo"}},
+	}
+}
+
 files["builtin/common/math.lua"] = {
 	globals = {
 		"math",
