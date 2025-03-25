@@ -5,6 +5,7 @@
 local format, ipairs, type = string.format, ipairs, type
 local core, get_current_modname = core, core.get_current_modname
 local profiler, sampler = ...
+local debug_getinfo = debug.getinfo
 
 local instrument_builtin = core.settings:get_bool("instrument.builtin", false)
 
@@ -67,7 +68,7 @@ local worldmods_path = regex_escape(core.get_worldpath())
 local user_path = regex_escape(core.get_user_path())
 local builtin_path = regex_escape(core.get_builtin_path())
 local function generate_source_location(def)
-	local info = debug.getinfo(def.func)
+	local info = debug_getinfo(def.func)
 	local modpath = regex_escape(core.get_modpath(def.mod) or "")
 	local source = info.source
 	if modpath ~= "" then
