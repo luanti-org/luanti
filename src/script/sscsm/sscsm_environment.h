@@ -39,7 +39,7 @@ class SSCSMEnvironment : public Thread
 
 public:
 	SSCSMEnvironment(std::shared_ptr<StupidChannel> channel);
-	~SSCSMEnvironment();
+	~SSCSMEnvironment() override;
 
 	SSCSMScripting *getScript() { return m_script.get(); }
 
