@@ -152,6 +152,7 @@ Unless noted otherwise, these work the same as in the server modding API.
 * `next`
 * `pairs`
 * `pcall`
+* `print`
 * `rawequal`
 * `rawget`
 * `rawset`
