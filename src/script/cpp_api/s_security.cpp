@@ -309,7 +309,7 @@ void ScriptApiSecurity::initializeSecurityClient()
 		"time"
 	};
 	static const char *debug_whitelist[] = {
-		"getinfo", // used by builtin and unset before mods load <- FIXME: doesn't actually happen
+		"getinfo", // used by builtin and unset before mods load
 		"traceback"
 	};
 
