@@ -124,7 +124,7 @@ void COpenGLES2Driver::initFeatures()
 	AnisotropicFilterSupported = queryExtension("GL_EXT_texture_filter_anisotropic");
 	BlendMinMaxSupported = (Version.Major >= 3) || FeatureAvailable[IRR_GL_EXT_blend_minmax];
 	TextureMultisampleSupported = isVersionAtLeast(3, 1);
-	KHRDebugSupported = queryExtension("GL_KHR_debug");
+	KHRDebugSupported = isVersionAtLeast(3, 2) || queryExtension("GL_KHR_debug");
 	if (KHRDebugSupported)
 		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
 
