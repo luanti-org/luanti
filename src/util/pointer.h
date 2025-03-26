@@ -5,25 +5,10 @@
 #pragma once
 
 #include "irrlichttypes.h"
-#include "debug.h" // For assert()
+#include "util/basic_macros.h"
+#include <cassert>
 #include <cstring>
-#include <memory> // std::shared_ptr
 #include <string_view>
-
-
-template<typename T>
-class ConstSharedPtr {
-public:
-	ConstSharedPtr(T *ptr) : ptr(ptr) {}
-	ConstSharedPtr(const std::shared_ptr<T> &ptr) : ptr(ptr) {}
-
-	const T* get() const noexcept { return ptr.get(); }
-	const T& operator*() const noexcept { return *ptr.get(); }
-	const T* operator->() const noexcept { return ptr.get(); }
-
-private:
-	std::shared_ptr<T> ptr;
-};
 
 template <typename T>
 class Buffer
