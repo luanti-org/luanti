@@ -84,7 +84,6 @@ u32 readFlagString(std::string str, const FlagDesc *flagdesc, u32 *flagmask);
 std::string writeFlagString(u32 flags, const FlagDesc *flagdesc, u32 flagmask);
 
 size_t mystrlcpy(char *dst, const char *src, size_t size) noexcept;
-char *mystrtok_r(char *s, const char *sep, char **lasts) noexcept;
 
 /// @brief turn string into a map seed. either directly if it's a number or by hashing it.
 u64 read_seed(const char *str);

@@ -292,32 +292,6 @@ size_t mystrlcpy(char *dst, const char *src, size_t size) noexcept
 	return srclen;
 }
 
-char *mystrtok_r(char *s, const char *sep, char **lasts) noexcept
-{
-	char *t;
-
-	if (!s)
-		s = *lasts;
-
-	while (*s && strchr(sep, *s))
-		s++;
-
-	if (!*s)
-		return nullptr;
-
-	t = s;
-	while (*t) {
-		if (strchr(sep, *t)) {
-			*t++ = '\0';
-			break;
-		}
-		t++;
-	}
-
-	*lasts = t;
-	return s;
-}
-
 u64 read_seed(const char *str)
 {
 	char *endptr = nullptr;

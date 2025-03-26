@@ -55,11 +55,6 @@
 	#define strncasecmp(x, y, n) strnicmp(x, y, n)
 #endif
 
-#ifdef __MINGW32__
-	// was broken in 2013, unclear if still needed
-	#define strtok_r(x, y, z) mystrtok_r(x, y, z)
-#endif
-
 #if !HAVE_STRLCPY
 	#define strlcpy(d, s, n) mystrlcpy(d, s, n)
 #endif
