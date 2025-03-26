@@ -100,7 +100,7 @@ private:
 	 * no error handling (for example bounds checking). This is useful here as the
 	 * faster (up to 10x faster) key lookup is an asset.
 	 */
-	KeyPress keybindings[KeyType::INTERNAL_ENUM_COUNT];
+	std::array<KeyPress, KeyType::INTERNAL_ENUM_COUNT> keybindings;
 
 	s32 mouse_wheel = 0;
 
