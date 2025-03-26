@@ -49,7 +49,7 @@ public:
 		return !(*this == o);
 	}
 
-	// Used for e.g. std::unordered_set
+	// Used for e.g. std::set
 	bool operator<(KeyPress o) const {
 		return scancode < o.scancode;
 	}
