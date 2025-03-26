@@ -78,7 +78,7 @@ private:
 template <>
 struct std::hash<KeyPress>
 {
-	size_t operator()(const KeyPress &kp) const noexcept {
+	size_t operator()(KeyPress kp) const noexcept {
 		return std::hash<KeyPress::value_type>{}(kp.scancode);
 	}
 };
