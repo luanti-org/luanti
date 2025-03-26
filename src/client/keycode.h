@@ -76,12 +76,10 @@ private:
 };
 
 template <>
-class std::hash<KeyPress>: std::hash<KeyPress::value_type>
+struct std::hash<KeyPress>
 {
-public:
-	size_t operator()(KeyPress kp) const
-	{
-		return std::hash<KeyPress::value_type>::operator()(kp.scancode);
+	size_t operator()(const KeyPress &kp) const noexcept {
+		return std::hash<KeyPress::value_type>{}(kp.scancode);
 	}
 };
 
