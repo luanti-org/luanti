@@ -175,8 +175,9 @@ std::map<std::string, ModSpec> getModsInPath(
 		mod_virtual_path.append(virtual_path).append("/").append(modname);
 
 		ModSpec spec(modname, mod_path, part_of_modpack, mod_virtual_path);
-		parseModContents(spec);
-		result[modname] = std::move(spec);
+		if (parseModContents(spec)) {
+			result[modname] = std::move(spec);
+		}
 	}
 	return result;
 }

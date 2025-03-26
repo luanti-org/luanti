@@ -43,7 +43,7 @@
 // A number that is much smaller than the timeout for particle spawners should/could ever be
 #define PARTICLE_SPAWNER_NO_EXPIRY -1024.f
 
-static constexpr s16 ACTIVE_OBJECT_RESAVE_DISTANCE_SQ = 3 * 3;
+static constexpr s16 ACTIVE_OBJECT_RESAVE_DISTANCE_SQ = sqr(3);
 
 /*
 	ABMWithState
@@ -627,8 +627,7 @@ void ServerEnvironment::addPlayer(RemotePlayer *player)
 
 void ServerEnvironment::removePlayer(RemotePlayer *player)
 {
-	for (std::vector<RemotePlayer *>::iterator it = m_players.begin();
-		it != m_players.end(); ++it) {
+	for (auto it = m_players.begin(); it != m_players.end(); ++it) {
 		if ((*it) == player) {
 			delete *it;
 			m_players.erase(it);
@@ -2412,7 +2411,7 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 
 		std::vector<std::string> player_list;
 		srcdb->listPlayers(player_list);
-		for (std::vector<std::string>::const_iterator it = player_list.begin();
+		for (auto it = player_list.begin();
 			it != player_list.end(); ++it) {
 			actionstream << "Migrating player " << it->c_str() << std::endl;
 			RemotePlayer player(it->c_str(), NULL);

@@ -316,6 +316,8 @@ public:
 				spec.bold = true;
 			else if (modes[i] == "italic")
 				spec.italic = true;
+			else if (modes[i] == "_no_server_media") // for internal use only
+				spec.allow_server_media = false;
 		}
 
 		if (!size.empty()) {

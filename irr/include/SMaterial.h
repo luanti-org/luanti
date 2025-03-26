@@ -472,7 +472,7 @@ public:
 };
 
 //! global const identity Material
-IRRLICHT_API extern SMaterial IdentityMaterial;
+IRRLICHT_API extern const SMaterial IdentityMaterial;
 
 } // end namespace video
 } // end namespace irr

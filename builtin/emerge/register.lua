@@ -9,8 +9,8 @@ do
 	all.registered_craftitems = {}
 	all.registered_tools = {}
 	for k, v in pairs(all.registered_items) do
-		-- Disable further modification
-		setmetatable(v, {__newindex = {}})
+		-- Ignore new keys
+		setmetatable(v, {__newindex = function() end})
 		-- Reassemble the other tables
 		if v.type == "node" then
 			getmetatable(v).__index = all.nodedef_default
@@ -36,6 +36,9 @@ end
 local alias_metatable = {
 	__index = function(t, name)
 		return rawget(t, core.registered_aliases[name])
+	end,
+	__newindex = function()
+		error("table is read-only")
 	end
 }
 setmetatable(core.registered_items, alias_metatable)

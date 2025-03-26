@@ -35,8 +35,14 @@ public:
 		ColorAttachment = Driver->getFeature().ColorAttachment;
 		MultipleRenderTarget = Driver->getFeature().MultipleRenderTarget;
 
-		if (ColorAttachment > 0)
+		if (ColorAttachment > 0) {
+			TEST_GL_ERROR(Driver);
 			Driver->irrGlGenFramebuffers(1, &BufferID);
+			if (!BufferID) {
+				os::Printer::log("COpenGLCoreRenderTarget: framebuffer not created", ELL_ERROR);
+				return;
+			}
+		}
 
 		AssignedTextures.set_used(static_cast<u32>(ColorAttachment));
 

@@ -88,7 +88,7 @@ const matrix4 IdentityMatrix(matrix4::EM4CONST_IDENTITY);
 
 namespace video
 {
-SMaterial IdentityMaterial;
+const SMaterial IdentityMaterial;
 
 extern "C" IRRLICHT_API bool IRRCALLCONV isDriverSupported(E_DRIVER_TYPE driver)
 {

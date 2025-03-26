@@ -486,23 +486,18 @@ private:
 	u8 m_server_ser_ver;
 
 	// Used version of the protocol with server
-	// Values smaller than 25 only mean they are smaller than 25,
-	// and aren't accurate. We simply just don't know, because
-	// the server didn't send the version back then.
 	// If 0, server init hasn't been received yet.
 	u16 m_proto_ver = 0;
 
 	bool m_update_wielded_item = false;
 	Inventory *m_inventory_from_server = nullptr;
 	float m_inventory_from_server_age = 0.0f;
+	s32 m_mapblock_limit_logged = 0;
 	PacketCounter m_packetcounter;
 	// Block mesh animation parameters
 	float m_animation_time = 0.0f;
 	int m_crack_level = -1;
 	v3s16 m_crack_pos;
-	// 0 <= m_daynight_i < DAYNIGHT_CACHE_COUNT
-	//s32 m_daynight_i;
-	//u32 m_daynight_ratio;
 	std::queue<std::wstring> m_out_chat_queue;
 	u32 m_last_chat_message_sent;
 	float m_chat_message_allowance = 5.0f;
@@ -537,11 +532,6 @@ private:
 	ClientMediaDownloader *m_media_downloader;
 	// Pending downloads of dynamic media (key: token)
 	std::vector<std::pair<u32, std::shared_ptr<SingleMediaDownloader>>> m_pending_media_downloads;
-
-	// time_of_day speed approximation for old protocol
-	bool m_time_of_day_set = false;
-	float m_last_time_of_day_f = -1.0f;
-	float m_time_of_day_update_timer = 0.0f;
 
 	// An interval for generally sending object positions and stuff
 	float m_recommended_send_interval = 0.1f;

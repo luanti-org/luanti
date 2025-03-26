@@ -24,7 +24,7 @@
 #include "mapgen_fractal.h"
 
 
-FlagDesc flagdesc_mapgen_fractal[] = {
+const FlagDesc flagdesc_mapgen_fractal[] = {
 	{"terrain", MGFRACTAL_TERRAIN},
 	{NULL,      0}
 };

@@ -57,7 +57,7 @@ void TileAnimationParams::determineParams(v2u32 texture_size, int *frame_count,
 		if (frame_count)
 			*frame_count = _frame_count;
 		if (frame_length_ms)
-			*frame_length_ms = 1000.0 * vertical_frames.length / _frame_count;
+			*frame_length_ms = 1000 * vertical_frames.length / _frame_count;
 		if (frame_size)
 			*frame_size = v2u32(texture_size.X, frame_height);
 	} else if (type == TAT_SHEET_2D) {
@@ -104,5 +104,5 @@ v2f TileAnimationParams::getTextureCoords(v2u32 texture_size, int frame) const
 		r = frame % sheet_2d.frames_w;
 		ret = v2u32(r * frame_size.X, q * frame_size.Y);
 	}
-	return v2f(ret.X / (float) texture_size.X, ret.Y / (float) texture_size.Y);
+	return v2f::from(ret) / v2f::from(texture_size);
 }

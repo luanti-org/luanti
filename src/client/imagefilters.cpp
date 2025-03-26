@@ -285,13 +285,13 @@ void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::I
 		maxsx = minsx + sw / dim.Width;
 		maxsx = rangelim(maxsx, 0, sox + sw);
 		if (minsx > maxsx)
-			SWAP(double, minsx, maxsx);
+			std::swap(minsx, maxsx);
 		minsy = soy + (dy * sh / dim.Height);
 		minsy = rangelim(minsy, 0, soy + sh);
 		maxsy = minsy + sh / dim.Height;
 		maxsy = rangelim(maxsy, 0, soy + sh);
 		if (minsy > maxsy)
-			SWAP(double, minsy, maxsy);
+			std::swap(minsy, maxsy);
 
 		// Total area, and integral of r, g, b values over that area,
 		// initialized to zero, to be summed up in next loops.

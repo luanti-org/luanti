@@ -1681,7 +1681,9 @@ roughly 1x1x1 meters in size.
 
 A 'mapblock' (often abbreviated to 'block') is 16x16x16 nodes and is the
 fundamental region of a world that is stored in the world database, sent to
-clients and handled by many parts of the engine.
+clients and handled by many parts of the engine. This size is defined by the constant
+`core.MAP_BLOCKSIZE` (=16).
+
 'mapblock' is preferred terminology to 'block' to help avoid confusion with
 'node', however 'block' often appears in the API.
 
@@ -1713,7 +1715,7 @@ node position (0,0,0) to node position (15,15,15).
 To calculate the blockpos of the mapblock that contains the node at 'nodepos',
 for each axis:
 
-* blockpos = math.floor(nodepos / 16)
+* blockpos = math.floor(nodepos / core.MAP_BLOCKSIZE)
 
 #### Converting blockpos to min/max node positions
 
@@ -1721,9 +1723,9 @@ To calculate the min/max node positions contained in the mapblock at 'blockpos',
 for each axis:
 
 * Minimum:
-  nodepos = blockpos * 16
+  nodepos = blockpos * core.MAP_BLOCKSIZE
 * Maximum:
-  nodepos = blockpos * 16 + 15
+  nodepos = (blockpos + 1) * core.MAP_BLOCKSIZE - 1
 
 
 
@@ -4142,6 +4144,11 @@ Helper functions
     * returns time with microsecond precision. May not return wall time.
 * `table.copy(table)`: returns a table
     * returns a deep copy of `table`
+    * strips metatables, but this may change in the future
+* `table.copy_with_metatables(table)`
+    * since 5.12
+    * `table` can also be non-table value, which will be returned as-is
+    * preserves metatables as they are
 * `table.indexof(list, val)`: returns the smallest numerical index containing
       the value `val` in the table `list`. Non-numerical indices are ignored.
       If `val` could not be found, `-1` is returned. `list` must not have
@@ -6937,8 +6944,13 @@ Defaults for the `on_place` and `on_drop` item definition functions
     * Parameters are the same as in `on_pickup`.
     * Returns the leftover itemstack.
 * `core.item_drop(itemstack, dropper, pos)`
-    * Drop the item
-    * returns the leftover itemstack
+    * Converts `itemstack` to an in-world Lua entity.
+    * `itemstack` (`ItemStack`) is modified (cleared) on success.
+      * In versions < 5.12.0, `itemstack` was cleared in all cases.
+    * `dropper` (`ObjectRef`) is optional.
+    * Returned values on success:
+      1. leftover itemstack
+      2. `ObjectRef` of the spawned object (provided since 5.12.0)
 * `core.item_eat(hp_change[, replace_with_item])`
     * Returns `function(itemstack, user, pointed_thing)` as a
       function wrapper for `core.do_item_eat`.
@@ -7456,7 +7468,8 @@ Misc.
     * This function can be overridden by mods to change the leave message.
 * `core.hash_node_position(pos)`: returns a 48-bit integer
     * `pos`: table {x=number, y=number, z=number},
-    * Gives a unique hash number for a node position (16+16+16=48bit)
+    * Gives a unique numeric encoding for a node position (16+16+16=48bit)
+    * Despite the name, this is not a hash function (so it doesn't mix or produce collisions).
 * `core.get_position_from_hash(hash)`: returns a position
     * Inverse transform of `core.hash_node_position`
 * `core.get_item_group(name, group)`: returns a rating

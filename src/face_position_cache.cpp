@@ -13,7 +13,7 @@ std::mutex FacePositionCache::cache_mutex;
 const std::vector<v3s16> &FacePositionCache::getFacePositions(u16 d)
 {
 	MutexAutoLock lock(cache_mutex);
-	std::unordered_map<u16, std::vector<v3s16>>::const_iterator it = cache.find(d);
+	auto it = cache.find(d);
 	if (it != cache.end())
 		return it->second;
 

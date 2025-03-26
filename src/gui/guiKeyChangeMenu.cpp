@@ -205,6 +205,8 @@ void GUIKeyChangeMenu::drawMenu()
 
 bool GUIKeyChangeMenu::acceptInput()
 {
+	clearKeyCache();
+
 	for (key_setting *k : key_settings) {
 		std::string default_key;
 		Settings::getLayer(SL_DEFAULTS)->getNoEx(k->setting_name, default_key);
@@ -231,8 +233,6 @@ bool GUIKeyChangeMenu::acceptInput()
 			g_settings->setBool("autojump", ((gui::IGUICheckBox*)e)->isChecked());
 	}
 
-	clearKeyCache();
-
 	g_gamecallback->signalKeyConfigChange();
 
 	return true;
@@ -252,8 +252,7 @@ bool GUIKeyChangeMenu::OnEvent(const SEvent& event)
 	if (event.EventType == EET_KEY_INPUT_EVENT && active_key
 			&& event.KeyInput.PressedDown) {
 
-		bool prefer_character = shift_down;
-		KeyPress kp(event.KeyInput, prefer_character);
+		KeyPress kp(event.KeyInput);
 
 		if (event.KeyInput.Key == irr::KEY_DELETE)
 			kp = KeyPress(""); // To erase key settings
@@ -269,7 +268,7 @@ bool GUIKeyChangeMenu::OnEvent(const SEvent& event)
 
 		// Display Key already in use message
 		bool key_in_use = false;
-		if (strcmp(kp.sym(), "") != 0) {
+		if (kp) {
 			for (key_setting *ks : key_settings) {
 				if (ks != active_key && ks->key == kp) {
 					key_in_use = true;

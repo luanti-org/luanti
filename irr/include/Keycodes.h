@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #pragma once
+#include <variant>
 
 namespace irr
 {
@@ -180,6 +181,32 @@ enum EKEY_CODE
 	KEY_NONE = 0xFF,              // usually no key mapping, but some laptops use it for fn key
 
 	KEY_KEY_CODES_COUNT = 0x100 // this is not a key, but the amount of keycodes there are.
+};
+
+// A Keycode is either a character produced by the key or one of Irrlicht's codes (EKEY_CODE)
+class Keycode : public std::variant<EKEY_CODE, wchar_t> {
+	using super = std::variant<EKEY_CODE, wchar_t>;
+public:
+	Keycode() : Keycode(KEY_KEY_CODES_COUNT, L'\0') {}
+
+	Keycode(EKEY_CODE code, wchar_t ch)
+	{
+		emplace(code, ch);
+	}
+
+	using super::emplace;
+	void emplace(EKEY_CODE code, wchar_t ch)
+	{
+		if (isValid(code))
+			emplace<EKEY_CODE>(code);
+		else
+			emplace<wchar_t>(ch);
+	}
+
+	static bool isValid(EKEY_CODE code)
+	{
+		return code > 0 && code < KEY_KEY_CODES_COUNT;
+	}
 };
 
 } // end namespace irr

@@ -34,7 +34,7 @@ static constexpr f32 CAMERA_OFFSET_STEP = 200;
 #define WIELDMESH_AMPLITUDE_Y 10.0f
 
 static const char *setting_names[] = {
-	"fall_bobbing_amount", "view_bobbing_amount", "fov", "arm_inertia",
+	"view_bobbing_amount", "fov", "arm_inertia",
 	"show_nametag_backgrounds",
 };
 
@@ -78,7 +78,6 @@ void Camera::readSettings()
 	 *       (as opposed to the this local caching). This can be addressed in
 	 *       a later release.
 	 */
-	m_cache_fall_bobbing_amount = g_settings->getFloat("fall_bobbing_amount", 0.0f, 100.0f);
 	m_cache_view_bobbing_amount = g_settings->getFloat("view_bobbing_amount", 0.0f, 7.9f);
 	// 45 degrees is the lowest FOV that doesn't cause the server to treat this
 	// as a zoom FOV and load world beyond the set server limits.
@@ -130,13 +129,6 @@ inline f32 my_modf(f32 x)
 
 void Camera::step(f32 dtime)
 {
-	if(m_view_bobbing_fall > 0)
-	{
-		m_view_bobbing_fall -= 3 * dtime;
-		if(m_view_bobbing_fall <= 0)
-			m_view_bobbing_fall = -1; // Mark the effect as finished
-	}
-
 	bool was_under_zero = m_wield_change_timer < 0;
 	m_wield_change_timer = MYMIN(m_wield_change_timer + dtime, 0.125);
 
@@ -351,26 +343,6 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	// Get camera tilt timer (hurt animation)
 	float cameratilt = fabs(fabs(player->hurt_tilt_timer-0.75)-0.75);
 
-	// Fall bobbing animation
-	float fall_bobbing = 0;
-	if(player->camera_impact >= 1 && m_camera_mode < CAMERA_MODE_THIRD)
-	{
-		if(m_view_bobbing_fall == -1) // Effect took place and has finished
-			player->camera_impact = m_view_bobbing_fall = 0;
-		else if(m_view_bobbing_fall == 0) // Initialize effect
-			m_view_bobbing_fall = 1;
-
-		// Convert 0 -> 1 to 0 -> 1 -> 0
-		fall_bobbing = m_view_bobbing_fall < 0.5 ? m_view_bobbing_fall * 2 : -(m_view_bobbing_fall - 0.5) * 2 + 1;
-		// Smoothen and invert the above
-		fall_bobbing = sin(fall_bobbing * 0.5 * M_PI) * -1;
-		// Amplify according to the intensity of the impact
-		if (player->camera_impact > 0.0f)
-			fall_bobbing *= (1 - rangelim(50 / player->camera_impact, 0, 1)) * 5;
-
-		fall_bobbing *= m_cache_fall_bobbing_amount;
-	}
-
 	// Calculate and translate the head SceneNode offsets
 	{
 		v3f eye_offset = player->getEyeOffset();
@@ -392,7 +364,7 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 		}
 
 		// Set head node transformation
-		eye_offset.Y += cameratilt * -player->hurt_tilt_strength + fall_bobbing;
+		eye_offset.Y += cameratilt * -player->hurt_tilt_strength;
 		m_headnode->setPosition(eye_offset);
 		m_headnode->setRotation(v3f(pitch, 0,
 			cameratilt * player->hurt_tilt_strength));

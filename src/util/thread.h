@@ -92,22 +92,19 @@ public:
 	void add(const Key &key, Caller caller, CallerData callerdata,
 		ResultQueue<Key, T, Caller, CallerData> *dest)
 	{
-		typename std::deque<GetRequest<Key, T, Caller, CallerData> >::iterator i;
-		typename std::list<CallerInfo<Caller, CallerData, Key, T> >::iterator j;
-
 		{
 			MutexAutoLock lock(m_queue.getMutex());
 
 			/*
 				If the caller is already on the list, only update CallerData
 			*/
-			for (i = m_queue.getQueue().begin(); i != m_queue.getQueue().end(); ++i) {
-				GetRequest<Key, T, Caller, CallerData> &request = *i;
+			for (auto i = m_queue.getQueue().begin(); i != m_queue.getQueue().end(); ++i) {
+				auto &request = *i;
 				if (request.key != key)
 					continue;
 
-				for (j = request.callers.begin(); j != request.callers.end(); ++j) {
-					CallerInfo<Caller, CallerData, Key, T> &ca = *j;
+				for (auto j = request.callers.begin(); j != request.callers.end(); ++j) {
+					auto &ca = *j;
 					if (ca.caller == caller) {
 						ca.data = callerdata;
 						return;
@@ -150,10 +147,9 @@ public:
 
 	void pushResult(GetRequest<Key, T, Caller, CallerData> req, T res)
 	{
-		for (typename std::list<CallerInfo<Caller, CallerData, Key, T> >::iterator
-				i = req.callers.begin();
+		for (auto i = req.callers.begin();
 				i != req.callers.end(); ++i) {
-			CallerInfo<Caller, CallerData, Key, T> &ca = *i;
+			auto &ca = *i;
 
 			GetResult<Key,T,Caller,CallerData> result;
 

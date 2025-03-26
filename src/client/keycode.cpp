@@ -6,15 +6,18 @@
 #include "settings.h"
 #include "log.h"
 #include "debug.h"
+#include "renderingengine.h"
 #include "util/hex.h"
 #include "util/string.h"
 #include "util/basic_macros.h"
+#include <unordered_map>
+#include <vector>
 
 struct table_key {
-	const char *Name;
+	std::string Name; // An EKEY_CODE 'symbol' name as a string
 	irr::EKEY_CODE Key;
 	wchar_t Char; // L'\0' means no character assigned
-	const char *LangName; // NULL means it doesn't have a human description
+	std::string LangName; // empty string means it doesn't have a human description
 };
 
 #define DEFINEKEY1(x, lang) /* Irrlicht key without character */ \
@@ -30,7 +33,7 @@ struct table_key {
 
 #define N_(text) text
 
-static const struct table_key table[] = {
+static std::vector<table_key> table = {
 	// Keys that can be reliably mapped between Char and Key
 	DEFINEKEY3(0)
 	DEFINEKEY3(1)
@@ -126,7 +129,7 @@ static const struct table_key table[] = {
 	DEFINEKEY1(KEY_ADD, N_("Numpad +"))
 	DEFINEKEY1(KEY_SEPARATOR, N_("Numpad ."))
 	DEFINEKEY1(KEY_SUBTRACT, N_("Numpad -"))
-	DEFINEKEY1(KEY_DECIMAL, NULL)
+	DEFINEKEY1(KEY_DECIMAL, N_("Numpad ."))
 	DEFINEKEY1(KEY_DIVIDE, N_("Numpad /"))
 	DEFINEKEY4(1)
 	DEFINEKEY4(2)
@@ -221,122 +224,156 @@ static const struct table_key table[] = {
 	DEFINEKEY5("_")
 };
 
+static const table_key invalid_key = {"", irr::KEY_UNKNOWN, L'\0', ""};
+
 #undef N_
 
 
-static const table_key &lookup_keyname(const char *name)
-{
-	for (const auto &table_key : table) {
-		if (strcmp(table_key.Name, name) == 0)
-			return table_key;
-	}
-
-	throw UnknownKeycode(name);
-}
-
-static const table_key &lookup_keykey(irr::EKEY_CODE key)
-{
-	for (const auto &table_key : table) {
-		if (table_key.Key == key)
-			return table_key;
-	}
-
-	std::ostringstream os;
-	os << "<Keycode " << (int) key << ">";
-	throw UnknownKeycode(os.str().c_str());
-}
-
 static const table_key &lookup_keychar(wchar_t Char)
 {
+	if (Char == L'\0')
+		return invalid_key;
+
 	for (const auto &table_key : table) {
 		if (table_key.Char == Char)
 			return table_key;
 	}
 
-	std::ostringstream os;
-	os << "<Char " << hex_encode((char*) &Char, sizeof(wchar_t)) << ">";
-	throw UnknownKeycode(os.str().c_str());
+	// Create a new entry in the lookup table if one is not available.
+	auto newsym = wide_to_utf8(std::wstring_view(&Char, 1));
+	table_key new_key {newsym, irr::KEY_KEY_CODES_COUNT, Char, newsym};
+	return table.emplace_back(std::move(new_key));
 }
 
-KeyPress::KeyPress(const char *name)
+static const table_key &lookup_keykey(irr::EKEY_CODE key)
 {
-	if (strlen(name) == 0) {
-		Key = irr::KEY_KEY_CODES_COUNT;
-		Char = L'\0';
-		m_name = "";
+	if (!Keycode::isValid(key))
+		return invalid_key;
+
+	for (const auto &table_key : table) {
+		if (table_key.Key == key)
+			return table_key;
+	}
+
+	return invalid_key;
+}
+
+static const table_key &lookup_keyname(std::string_view name)
+{
+	if (name.empty())
+		return invalid_key;
+
+	for (const auto &table_key : table) {
+		if (table_key.Name == name)
+			return table_key;
+	}
+
+	auto wname = utf8_to_wide(name);
+	if (wname.empty())
+		return invalid_key;
+	return lookup_keychar(wname[0]);
+}
+
+static const table_key &lookup_scancode(const u32 scancode)
+{
+	auto key = RenderingEngine::get_raw_device()->getKeyFromScancode(scancode);
+	return std::holds_alternative<EKEY_CODE>(key) ?
+		lookup_keykey(std::get<irr::EKEY_CODE>(key)) :
+		lookup_keychar(std::get<wchar_t>(key));
+}
+
+static const table_key &lookup_scancode(const std::variant<u32, irr::EKEY_CODE> &scancode)
+{
+	return std::holds_alternative<irr::EKEY_CODE>(scancode) ?
+		lookup_keykey(std::get<irr::EKEY_CODE>(scancode)) :
+		lookup_scancode(std::get<u32>(scancode));
+}
+
+void KeyPress::loadFromKey(irr::EKEY_CODE keycode, wchar_t keychar)
+{
+	scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+}
+
+KeyPress::KeyPress(const std::string &name)
+{
+	if (loadFromScancode(name))
 		return;
-	}
-
-	if (strlen(name) <= 4) {
-		// Lookup by resulting character
-		int chars_read = mbtowc(&Char, name, 1);
-		FATAL_ERROR_IF(chars_read != 1, "Unexpected multibyte character");
-		try {
-			auto &k = lookup_keychar(Char);
-			m_name = k.Name;
-			Key = k.Key;
-			return;
-		} catch (UnknownKeycode &e) {};
-	} else {
-		// Lookup by name
-		m_name = name;
-		try {
-			auto &k = lookup_keyname(name);
-			Key = k.Key;
-			Char = k.Char;
-			return;
-		} catch (UnknownKeycode &e) {};
-	}
-
-	// It's not a known key, complain and try to do something
-	Key = irr::KEY_KEY_CODES_COUNT;
-	int chars_read = mbtowc(&Char, name, 1);
-	FATAL_ERROR_IF(chars_read != 1, "Unexpected multibyte character");
-	m_name = "";
-	warningstream << "KeyPress: Unknown key '" << name
-		<< "', falling back to first char." << std::endl;
+	const auto &key = lookup_keyname(name);
+	loadFromKey(key.Key, key.Char);
 }
 
-KeyPress::KeyPress(const irr::SEvent::SKeyInput &in, bool prefer_character)
+KeyPress::KeyPress(const irr::SEvent::SKeyInput &in)
 {
-	if (prefer_character)
-		Key = irr::KEY_KEY_CODES_COUNT;
-	else
-		Key = in.Key;
-	Char = in.Char;
-
-	try {
-		if (valid_kcode(Key))
-			m_name = lookup_keykey(Key).Name;
+	if (USE_SDL2) {
+		if (in.SystemKeyCode)
+			scancode.emplace<u32>(in.SystemKeyCode);
 		else
-			m_name = lookup_keychar(Char).Name;
-	} catch (UnknownKeycode &e) {
-		m_name.clear();
-	};
+			scancode.emplace<irr::EKEY_CODE>(in.Key);
+	} else {
+		loadFromKey(in.Key, in.Char);
+	}
 }
 
-const char *KeyPress::sym() const
+std::string KeyPress::formatScancode() const
 {
-	return m_name.c_str();
+	if (USE_SDL2) {
+		if (auto pv = std::get_if<u32>(&scancode))
+			return *pv == 0 ? "" : "SYSTEM_SCANCODE_" + std::to_string(*pv);
+	}
+	return "";
 }
 
-const char *KeyPress::name() const
+std::string KeyPress::sym() const
 {
-	if (m_name.empty())
-		return "";
-	const char *ret;
-	if (valid_kcode(Key))
-		ret = lookup_keykey(Key).LangName;
-	else
-		ret = lookup_keychar(Char).LangName;
-	return ret ? ret : "<Unnamed key>";
+	std::string name = lookup_scancode(scancode).Name;
+	if (USE_SDL2 || name.empty())
+		if (auto newname = formatScancode(); !newname.empty())
+			return newname;
+	return name;
 }
 
-const KeyPress EscapeKey("KEY_ESCAPE");
+std::string KeyPress::name() const
+{
+	const auto &name = lookup_scancode(scancode).LangName;
+	if (!name.empty())
+		return name;
+	return formatScancode();
+}
 
-const KeyPress LMBKey("KEY_LBUTTON");
-const KeyPress MMBKey("KEY_MBUTTON");
-const KeyPress RMBKey("KEY_RBUTTON");
+irr::EKEY_CODE KeyPress::getKeycode() const
+{
+	return lookup_scancode(scancode).Key;
+}
+
+wchar_t KeyPress::getKeychar() const
+{
+	return lookup_scancode(scancode).Char;
+}
+
+bool KeyPress::loadFromScancode(const std::string &name)
+{
+	if (USE_SDL2) {
+		if (!str_starts_with(name, "SYSTEM_SCANCODE_"))
+			return false;
+		char *p;
+		const auto code = strtoul(name.c_str()+16, &p, 10);
+		if (p != name.c_str() + name.size())
+			return false;
+		scancode.emplace<u32>(code);
+		return true;
+	} else {
+		return false;
+	}
+}
+
+std::unordered_map<std::string, KeyPress> specialKeyCache;
+KeyPress KeyPress::getSpecialKey(const std::string &name)
+{
+	auto &key = specialKeyCache[name];
+	if (!key)
+		key = KeyPress(name);
+	return key;
+}
 
 /*
 	Key config
@@ -345,23 +382,22 @@ const KeyPress RMBKey("KEY_RBUTTON");
 // A simple cache for quicker lookup
 static std::unordered_map<std::string, KeyPress> g_key_setting_cache;
 
-const KeyPress &getKeySetting(const char *settingname)
+KeyPress getKeySetting(const std::string &settingname)
 {
 	auto n = g_key_setting_cache.find(settingname);
 	if (n != g_key_setting_cache.end())
 		return n->second;
 
+	auto keysym = g_settings->get(settingname);
 	auto &ref = g_key_setting_cache[settingname];
-	ref = g_settings->get(settingname).c_str();
+	ref = KeyPress(keysym);
+	if (!keysym.empty() && !ref) {
+		warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
+	}
 	return ref;
 }
 
 void clearKeyCache()
 {
 	g_key_setting_cache.clear();
-}
-
-irr::EKEY_CODE keyname_to_keycode(const char *name)
-{
-	return lookup_keyname(name).Key;
 }

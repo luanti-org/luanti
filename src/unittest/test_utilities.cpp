@@ -656,8 +656,6 @@ C apply_all(const C &co, F functor)
 	return ret;
 }
 
-#define cast_v3(T, other) T((other).X, (other).Y, (other).Z)
-
 void TestUtilities::testIsBlockInSight()
 {
 	const std::vector<v3s16> testdata1 = {
@@ -674,7 +672,7 @@ void TestUtilities::testIsBlockInSight()
 	auto test1 = [] (const std::vector<v3s16> &data) {
 		float range = BS * MAP_BLOCKSIZE * 4;
 		float fov = 72 * core::DEGTORAD;
-		v3f cam_pos = cast_v3(v3f, data[0]), cam_dir = cast_v3(v3f, data[1]);
+		v3f cam_pos = v3f::from(data[0]), cam_dir = v3f::from(data[1]);
 		UASSERT( isBlockInSight(data[2], cam_pos, cam_dir, fov, range));
 		UASSERT(!isBlockInSight(data[3], cam_pos, cam_dir, fov, range));
 		UASSERT(!isBlockInSight(data[4], cam_pos, cam_dir, fov, range));

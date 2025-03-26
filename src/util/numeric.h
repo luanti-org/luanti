@@ -15,14 +15,16 @@
 #include <cmath>
 #include <algorithm>
 
-#define rangelim(d, min, max) ((d) < (min) ? (min) : ((d) > (max) ? (max) : (d)))
-#define myfloor(x) ((x) < 0.0 ? (int)(x) - 1 : (int)(x))
-// The naive swap performs better than the xor version
-#define SWAP(t, x, y) do { \
-	t temp = x; \
-	x = y; \
-	y = temp; \
-} while (0)
+// Like std::clamp but allows mismatched types
+template <typename T, typename T2, typename T3>
+inline constexpr T rangelim(const T &d, const T2 &min, const T3 &max)
+{
+	if (d < (T)min)
+		return (T)min;
+	if (d > (T)max)
+		return (T)max;
+	return d;
+}
 
 // Maximum radius of a block.  The magic number is
 // sqrt(3.0) / 2.0 in literal form.
@@ -113,23 +115,24 @@ inline bool isInArea(v3s16 p, v3s16 d)
 	);
 }
 
-inline void sortBoxVerticies(v3s16 &p1, v3s16 &p2) {
+inline void sortBoxVerticies(v3s16 &p1, v3s16 &p2)
+{
 	if (p1.X > p2.X)
-		SWAP(s16, p1.X, p2.X);
+		std::swap(p1.X, p2.X);
 	if (p1.Y > p2.Y)
-		SWAP(s16, p1.Y, p2.Y);
+		std::swap(p1.Y, p2.Y);
 	if (p1.Z > p2.Z)
-		SWAP(s16, p1.Z, p2.Z);
+		std::swap(p1.Z, p2.Z);
 }
 
 inline v3s16 componentwise_min(const v3s16 &a, const v3s16 &b)
 {
-	return v3s16(MYMIN(a.X, b.X), MYMIN(a.Y, b.Y), MYMIN(a.Z, b.Z));
+	return v3s16(std::min(a.X, b.X), std::min(a.Y, b.Y), std::min(a.Z, b.Z));
 }
 
 inline v3s16 componentwise_max(const v3s16 &a, const v3s16 &b)
 {
-	return v3s16(MYMAX(a.X, b.X), MYMAX(a.Y, b.Y), MYMAX(a.Z, b.Z));
+	return v3s16(std::max(a.X, b.X), std::max(a.Y, b.Y), std::max(a.Z, b.Z));
 }
 
 /// @brief Describes a grid with given step, oirginating at (0,0,0)
@@ -290,7 +293,8 @@ inline s32 myround(f32 f)
 	return (s32)(f < 0.f ? (f - 0.5f) : (f + 0.5f));
 }
 
-inline constexpr f32 sqr(f32 f)
+template <typename T>
+inline constexpr T sqr(T f)
 {
 	return f * f;
 }
@@ -322,23 +326,15 @@ inline v3s16 doubleToInt(v3d p, double d)
 */
 inline v3f intToFloat(v3s16 p, f32 d)
 {
-	return v3f(
-		(f32)p.X * d,
-		(f32)p.Y * d,
-		(f32)p.Z * d
-	);
+	return v3f::from(p) * d;
 }
 
 // Random helper. Usually d=BS
 inline aabb3f getNodeBox(v3s16 p, float d)
 {
 	return aabb3f(
-		(float)p.X * d - 0.5f * d,
-		(float)p.Y * d - 0.5f * d,
-		(float)p.Z * d - 0.5f * d,
-		(float)p.X * d + 0.5f * d,
-		(float)p.Y * d + 0.5f * d,
-		(float)p.Z * d + 0.5f * d
+		v3f::from(p) * d - 0.5f * d,
+		v3f::from(p) * d + 0.5f * d
 	);
 }
 
@@ -410,14 +406,15 @@ inline float cycle_shift(float value, float by = 0, float max = 1)
 	return value + by;
 }
 
-inline bool is_power_of_two(u32 n)
+constexpr inline bool is_power_of_two(u32 n)
 {
 	return n != 0 && (n & (n - 1)) == 0;
 }
 
 // Compute next-higher power of 2 efficiently, e.g. for power-of-2 texture sizes.
 // Public Domain: https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-inline u32 npot2(u32 orig) {
+constexpr inline u32 npot2(u32 orig)
+{
 	orig--;
 	orig |= orig >> 1;
 	orig |= orig >> 2;

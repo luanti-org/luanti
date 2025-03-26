@@ -121,7 +121,7 @@ void MapblockMeshGenerator::drawQuad(const TileSpec &tile, v3f *coords, const v3
 		v2f(1.0, vertical_tiling), v2f(0.0, vertical_tiling)};
 	video::S3DVertex vertices[4];
 	bool shade_face = !cur_node.f->light_source && (normal != v3s16(0, 0, 0));
-	v3f normal2(normal.X, normal.Y, normal.Z);
+	v3f normal2 = v3f::from(normal);
 	for (int j = 0; j < 4; j++) {
 		vertices[j].Pos = coords[j] + cur_node.origin;
 		vertices[j].Normal = normal2;

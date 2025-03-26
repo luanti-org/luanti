@@ -919,6 +919,8 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 			fillTileAttribs(tsrc, &tiles[j].layers[1], tiles[j], tdef_overlay[j],
 					color, overlay_material, overlay_shader,
 					tdef[j].backface_culling, tsettings);
+
+		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
 	}
 
 	MaterialType special_material = material_type;
@@ -1067,8 +1069,7 @@ void NodeDefManager::clear()
 
 bool NodeDefManager::getId(const std::string &name, content_t &result) const
 {
-	std::unordered_map<std::string, content_t>::const_iterator
-		i = m_name_id_mapping_with_aliases.find(name);
+	auto i = m_name_id_mapping_with_aliases.find(name);
 	if(i == m_name_id_mapping_with_aliases.end())
 		return false;
 	result = i->second;

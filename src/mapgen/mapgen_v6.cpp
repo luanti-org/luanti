@@ -25,7 +25,7 @@
 #include "mapgen_v6.h"
 
 
-FlagDesc flagdesc_mapgen_v6[] = {
+const FlagDesc flagdesc_mapgen_v6[] = {
 	{"jungles",    MGV6_JUNGLES},
 	{"biomeblend", MGV6_BIOMEBLEND},
 	{"mudflow",    MGV6_MUDFLOW},

@@ -560,6 +560,7 @@ protected:
 
 	void updateCameraDirection(CameraOrientation *cam, float dtime);
 	void updateCameraOrientation(CameraOrientation *cam, float dtime);
+	bool getTogglableKeyState(GameKeyType key, bool toggling_enabled, bool prev_key_state);
 	void updatePlayerControl(const CameraOrientation &cam);
 	void updatePauseState();
 	void step(f32 dtime);
@@ -591,7 +592,7 @@ protected:
 	void handlePointingAtNode(const PointedThing &pointed,
 			const ItemStack &selected_item, const ItemStack &hand_item, f32 dtime);
 	void handlePointingAtObject(const PointedThing &pointed, const ItemStack &playeritem,
-			const v3f &player_position, bool show_debug);
+			const ItemStack &hand_item, const v3f &player_position, bool show_debug);
 	void handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 			const ItemStack &selected_item, const ItemStack &hand_item, f32 dtime);
 	void updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
@@ -746,6 +747,8 @@ private:
 	 *       a later release.
 	 */
 	bool m_cache_doubletap_jump;
+	bool m_cache_toggle_sneak_key;
+	bool m_cache_toggle_aux1_key;
 	bool m_cache_enable_joysticks;
 	bool m_cache_enable_fog;
 	bool m_cache_enable_noclip;
@@ -756,7 +759,6 @@ private:
 	f32  m_repeat_dig_time;
 	f32  m_cache_cam_smoothing;
 
-	bool m_enable_relative_mode = false;
 	bool m_invert_mouse;
 	bool m_enable_hotbar_mouse_wheel;
 	bool m_invert_hotbar_mouse_wheel;
@@ -772,9 +774,10 @@ private:
 	bool m_is_paused = false;
 
 	bool m_touch_simulate_aux1 = false;
-	bool m_touch_use_crosshair;
-	inline bool isTouchCrosshairDisabled() {
-		return !m_touch_use_crosshair && camera->getCameraMode() == CAMERA_MODE_FIRST;
+	inline bool isTouchShootlineUsed()
+	{
+		return g_touchcontrols && g_touchcontrols->isShootlineAvailable() &&
+				camera->getCameraMode() == CAMERA_MODE_FIRST;
 	}
 #ifdef __ANDROID__
 	bool m_android_chat_open;
@@ -790,6 +793,10 @@ Game::Game() :
 	g_settings->registerChangedCallback("chat_log_level",
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("doubletap_jump",
+		&settingChangedCallback, this);
+	g_settings->registerChangedCallback("toggle_sneak_key",
+		&settingChangedCallback, this);
+	g_settings->registerChangedCallback("toggle_aux1_key",
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("enable_joysticks",
 		&settingChangedCallback, this);
@@ -823,8 +830,6 @@ Game::Game() :
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("pause_on_lost_focus",
 		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("touch_use_crosshair",
-			&settingChangedCallback, this);
 
 	readSettings();
 }
@@ -901,15 +906,6 @@ bool Game::startup(bool *kill,
 
 	m_first_loop_after_window_activation = true;
 
-	// In principle we could always enable relative mouse mode, but it causes weird
-	// bugs on some setups (e.g. #14932), so we enable it only when it's required.
-	// That is: on Wayland or Android, because it does not support mouse repositioning
-#ifdef __ANDROID__
-	m_enable_relative_mode = true;
-#else
-	m_enable_relative_mode = device->isUsingWayland();
-#endif
-
 	g_client_translations->clear();
 
 	// address can change if simple_singleplayer_mode
@@ -973,6 +969,8 @@ void Game::run()
 		draw_times.limit(device, &dtime);
 
 		framemarker.start();
+
+		g_fontengine->handleReload();
 
 		const auto current_dynamic_info = ClientDynamicInfo::getCurrent();
 		if (!current_dynamic_info.equal(client_display_info)) {
@@ -1380,10 +1378,8 @@ bool Game::initGui()
 	gui_chat_console = make_irr<GUIChatConsole>(guienv, guienv->getRootGUIElement(),
 			-1, chat_backend, client, &g_menumgr);
 
-	if (shouldShowTouchControls()) {
+	if (shouldShowTouchControls())
 		g_touchcontrols = new TouchControls(device, texture_src);
-		g_touchcontrols->setUseCrosshair(!isTouchCrosshairDisabled());
-	}
 
 	return true;
 }
@@ -2364,10 +2360,8 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 	Since Minetest has its own code to synthesize mouse events from touch events,
 	this results in duplicated input. To avoid that, we don't enable relative
 	mouse mode if we're in touchscreen mode. */
-	if (cur_control) {
-		cur_control->setRelativeMode(m_enable_relative_mode &&
-			!g_touchcontrols && !isMenuActive());
-	}
+	if (cur_control)
+		cur_control->setRelativeMode(!g_touchcontrols && !isMenuActive());
 
 	if ((device->isWindowActive() && device->isWindowFocused()
 			&& !isMenuActive()) || input->isRandom()) {
@@ -2438,13 +2432,28 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
 	}
 
-	cam->camera_pitch = rangelim(cam->camera_pitch, -89.5, 89.5);
+	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
+}
+
+
+// Get the state of an optionally togglable key
+bool Game::getTogglableKeyState(GameKeyType key, bool toggling_enabled, bool prev_key_state)
+{
+	if (!toggling_enabled)
+		return isKeyDown(key);
+	else
+		return prev_key_state ^ wasKeyPressed(key);
 }
 
 
 void Game::updatePlayerControl(const CameraOrientation &cam)
 {
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
+
+	// In free move (fly), the "toggle_sneak_key" setting would prevent precise
+	// up/down movements. Hence, enable the feature only during 'normal' movement.
+	const bool allow_sneak_toggle = m_cache_toggle_sneak_key &&
+		!player->getPlayerSettings().free_move;
 
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
@@ -2454,8 +2463,8 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		isKeyDown(KeyType::LEFT),
 		isKeyDown(KeyType::RIGHT),
 		isKeyDown(KeyType::JUMP) || player->getAutojump(),
-		isKeyDown(KeyType::AUX1),
-		isKeyDown(KeyType::SNEAK),
+		getTogglableKeyState(KeyType::AUX1,  m_cache_toggle_aux1_key, player->control.aux1),
+		getTogglableKeyState(KeyType::SNEAK, allow_sneak_toggle,      player->control.sneak),
 		isKeyDown(KeyType::ZOOM),
 		isKeyDown(KeyType::DIG),
 		isKeyDown(KeyType::PLACE),
@@ -2949,14 +2958,14 @@ void Game::updateCamera(f32 dtime)
 	LocalPlayer *player = env.getLocalPlayer();
 
 	// For interaction purposes, get info about the held item
-	ItemStack playeritem;
+	ItemStack playeritem, hand;
 	{
-		ItemStack selected, hand;
+		ItemStack selected;
 		playeritem = player->getWieldedItem(&selected, &hand);
 	}
 
 	ToolCapabilities playeritem_toolcap =
-		playeritem.getToolCapabilities(itemdef_manager);
+		playeritem.getToolCapabilities(itemdef_manager, &hand);
 
 	float full_punch_interval = playeritem_toolcap.full_punch_interval;
 	float tool_reload_ratio = runData.time_from_last_punch / full_punch_interval;
@@ -2979,9 +2988,6 @@ void Game::updateCameraMode()
 	// Obey server choice
 	if (player->allowed_camera_mode != CAMERA_MODE_ANY)
 		camera->setCameraMode(player->allowed_camera_mode);
-
-	if (g_touchcontrols)
-		g_touchcontrols->setUseCrosshair(!isTouchCrosshairDisabled());
 
 	GenericCAO *playercao = player->getCAO();
 	if (playercao) {
@@ -3007,8 +3013,13 @@ void Game::updateCameraOffset()
 
 	if (!m_flags.disable_camera_update) {
 		auto *shadow = RenderingEngine::get_shadow_renderer();
-		if (shadow)
+		if (shadow) {
 			shadow->getDirectionalLight().updateCameraOffset(camera);
+			// FIXME: I bet we can be smarter about this and don't need to redraw
+			// the shadow map at all, but this is for someone else to figure out.
+			if (!g_settings->getFlag("performance_tradeoffs"))
+				shadow->setForceUpdateShadowMap();
+		}
 
 		env.getClientMap().updateCamera(camera->getPosition(),
 			camera->getDirection(), camera->getFovMax(), camera_offset,
@@ -3061,8 +3072,8 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	ItemStack selected_item, hand_item;
 	const ItemStack &tool_item = player->getWieldedItem(&selected_item, &hand_item);
 
-	const ItemDefinition &selected_def = selected_item.getDefinition(itemdef_manager);
-	f32 d = getToolRange(selected_item, hand_item, itemdef_manager);
+	const ItemDefinition &selected_def = tool_item.getDefinition(itemdef_manager);
+	f32 d = getToolRange(tool_item, hand_item, itemdef_manager);
 
 	core::line3d<f32> shootline;
 
@@ -3086,7 +3097,7 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	}
 	shootline.end = shootline.start + camera_direction * BS * d;
 
-	if (g_touchcontrols && isTouchCrosshairDisabled()) {
+	if (isTouchShootlineUsed()) {
 		shootline = g_touchcontrols->getShootline();
 		// Scale shootline to the acual distance the player can reach
 		shootline.end = shootline.start +
@@ -3179,7 +3190,7 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	} else if (pointed.type == POINTEDTHING_OBJECT) {
 		v3f player_position  = player->getPosition();
 		bool basic_debug_allowed = client->checkPrivilege("debug") || (player->hud_flags & HUD_FLAG_BASIC_DEBUG);
-		handlePointingAtObject(pointed, tool_item, player_position,
+		handlePointingAtObject(pointed, tool_item, hand_item, player_position,
 				m_game_ui->m_flags.show_basic_debug && basic_debug_allowed);
 	} else if (isKeyDown(KeyType::DIG)) {
 		// When button is held down in air, show continuous animation
@@ -3245,9 +3256,10 @@ PointedThing Game::updatePointedThing(
 			hud->setSelectionPos(pos, camera_offset);
 			GenericCAO* gcao = dynamic_cast<GenericCAO*>(runData.selected_object);
 			if (gcao != nullptr && gcao->getProperties().rotate_selectionbox)
-				hud->setSelectionRotation(gcao->getSceneNode()->getAbsoluteTransformation().getRotationDegrees());
+				hud->setSelectionRotationRadians(gcao->getSceneNode()
+						->getAbsoluteTransformation().getRotationRadians());
 			else
-				hud->setSelectionRotation(v3f());
+				hud->setSelectionRotationRadians(v3f());
 		}
 		hud->setSelectedFaceNormal(result.raw_intersection_normal);
 	} else if (result.type == POINTEDTHING_NODE) {
@@ -3257,17 +3269,15 @@ PointedThing Game::updatePointedThing(
 		n.getSelectionBoxes(nodedef, &boxes,
 			n.getNeighbors(result.node_undersurface, &map));
 
-		f32 d = 0.002 * BS;
-		for (std::vector<aabb3f>::const_iterator i = boxes.begin();
-			i != boxes.end(); ++i) {
-			aabb3f box = *i;
+		f32 d = 0.002f * BS;
+		for (aabb3f box : boxes) {
 			box.MinEdge -= v3f(d, d, d);
 			box.MaxEdge += v3f(d, d, d);
 			selectionboxes->push_back(box);
 		}
 		hud->setSelectionPos(intToFloat(result.node_undersurface, BS),
 			camera_offset);
-		hud->setSelectionRotation(v3f());
+		hud->setSelectionRotationRadians(v3f());
 		hud->setSelectedFaceNormal(result.intersection_normal);
 	}
 
@@ -3462,9 +3472,8 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 			u8 predicted_param2 = dir.Y < 0 ? 1 : 0;
 			if (selected_def.wallmounted_rotate_vertical) {
 				bool rotate90 = false;
-				v3f fnodepos = v3f(neighborpos.X, neighborpos.Y, neighborpos.Z);
 				v3f ppos = client->getEnv().getLocalPlayer()->getPosition() / BS;
-				v3f pdir = fnodepos - ppos;
+				v3f pdir = v3f::from(neighborpos) - ppos;
 				switch (predicted_f.drawtype) {
 					case NDT_TORCHLIKE: {
 						rotate90 = !((pdir.X < 0 && pdir.Z > 0) ||
@@ -3595,8 +3604,8 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 	}
 }
 
-void Game::handlePointingAtObject(const PointedThing &pointed,
-		const ItemStack &tool_item, const v3f &player_position, bool show_debug)
+void Game::handlePointingAtObject(const PointedThing &pointed, const ItemStack &tool_item,
+		const ItemStack &hand_item, const v3f &player_position, bool show_debug)
 {
 	std::wstring infotext = unescape_translate(
 		utf8_to_wide(runData.selected_object->infoText()));
@@ -3634,7 +3643,7 @@ void Game::handlePointingAtObject(const PointedThing &pointed,
 			v3f dir = (objpos - player_position).normalize();
 
 			bool disable_send = runData.selected_object->directReportPunch(
-					dir, &tool_item, runData.time_from_last_punch);
+					dir, &tool_item, &hand_item, runData.time_from_last_punch);
 			runData.time_from_last_punch = 0;
 
 			if (!disable_send)
@@ -3655,13 +3664,14 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 	ClientMap &map = client->getEnv().getClientMap();
 	MapNode n = map.getNode(nodepos);
 	const auto &features = nodedef_manager->get(n);
+	const ItemStack &tool_item = selected_item.name.empty() ? hand_item : selected_item;
 
 	// NOTE: Similar piece of code exists on the server side for
 	// cheat detection.
 	// Get digging parameters
 	DigParams params = getDigParams(features.groups,
-			&selected_item.getToolCapabilities(itemdef_manager),
-			selected_item.wear);
+			&tool_item.getToolCapabilities(itemdef_manager, &hand_item),
+			tool_item.wear);
 
 	// If can't dig, try hand
 	if (!params.diggable) {
@@ -3905,7 +3915,8 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 	runData.update_draw_list_timer += dtime;
 	runData.touch_blocks_timer += dtime;
 
-	float update_draw_list_delta = 0.2f;
+	constexpr float update_draw_list_delta = 0.2f;
+	constexpr float touch_mapblock_delta = 4.0f;
 
 	v3f camera_direction = camera->getDirection();
 
@@ -3918,7 +3929,7 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		runData.update_draw_list_timer = 0;
 		client->getEnv().getClientMap().updateDrawList();
 		runData.update_draw_list_last_cam_dir = camera_direction;
-	} else if (runData.touch_blocks_timer > update_draw_list_delta) {
+	} else if (runData.touch_blocks_timer > touch_mapblock_delta) {
 		client->getEnv().getClientMap().touchMapBlocks();
 		runData.touch_blocks_timer = 0;
 	} else if (RenderingEngine::get_shadow_renderer()) {
@@ -4059,7 +4070,7 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 			(player->hud_flags & HUD_FLAG_CROSSHAIR_VISIBLE) &&
 			(this->camera->getCameraMode() != CAMERA_MODE_THIRD_FRONT));
 
-	if (g_touchcontrols && isTouchCrosshairDisabled())
+	if (isTouchShootlineUsed())
 		draw_crosshair = false;
 
 	this->m_rendering_engine->draw_scene(sky_color, this->m_game_ui->m_flags.show_hud,
@@ -4115,6 +4126,8 @@ void Game::readSettings()
 	m_chat_log_buf.setLogLevel(chat_log_level);
 
 	m_cache_doubletap_jump               = g_settings->getBool("doubletap_jump");
+	m_cache_toggle_sneak_key             = g_settings->getBool("toggle_sneak_key");
+	m_cache_toggle_aux1_key              = g_settings->getBool("toggle_aux1_key");
 	m_cache_enable_joysticks             = g_settings->getBool("enable_joysticks");
 	m_cache_enable_fog                   = g_settings->getBool("enable_fog");
 	m_cache_mouse_sensitivity            = g_settings->getFloat("mouse_sensitivity", 0.001f, 10.0f);
@@ -4139,10 +4152,6 @@ void Game::readSettings()
 	m_invert_hotbar_mouse_wheel = g_settings->getBool("invert_hotbar_mouse_wheel");
 
 	m_does_lost_focus_pause_game = g_settings->getBool("pause_on_lost_focus");
-
-	m_touch_use_crosshair = g_settings->getBool("touch_use_crosshair");
-	if (g_touchcontrols)
-		g_touchcontrols->setUseCrosshair(!isTouchCrosshairDisabled());
 }
 
 /****************************************************************************/

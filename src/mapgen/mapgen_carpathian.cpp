@@ -24,7 +24,7 @@
 #include "mapgen_carpathian.h"
 
 
-FlagDesc flagdesc_mapgen_carpathian[] = {
+const FlagDesc flagdesc_mapgen_carpathian[] = {
 	{"caverns", MGCARPATHIAN_CAVERNS},
 	{"rivers",  MGCARPATHIAN_RIVERS},
 	{NULL,      0}

@@ -154,8 +154,7 @@ public:
 
 		int maxdim = MYMAX(dim.Width, dim.Height);
 
-		std::map<int, scene::IMesh*>::iterator
-			it = m_extrusion_meshes.lower_bound(maxdim);
+		auto it = m_extrusion_meshes.lower_bound(maxdim);
 
 		if (it == m_extrusion_meshes.end()) {
 			// no viable resolution found; use largest one

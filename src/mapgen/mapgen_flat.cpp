@@ -23,7 +23,7 @@
 #include "mapgen_flat.h"
 
 
-FlagDesc flagdesc_mapgen_flat[] = {
+const FlagDesc flagdesc_mapgen_flat[] = {
 	{"lakes",   MGFLAT_LAKES},
 	{"hills",   MGFLAT_HILLS},
 	{"caverns", MGFLAT_CAVERNS},

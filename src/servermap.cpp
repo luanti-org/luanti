@@ -577,27 +577,34 @@ MapDatabase *ServerMap::createDatabase(
 	const std::string &savedir,
 	Settings &conf)
 {
+	MapDatabase *db = nullptr;
+
 	if (name == "sqlite3")
-		return new MapDatabaseSQLite3(savedir);
+		db = new MapDatabaseSQLite3(savedir);
 	if (name == "dummy")
-		return new Database_Dummy();
+		db = new Database_Dummy();
 	#if USE_LEVELDB
 	if (name == "leveldb")
-		return new Database_LevelDB(savedir);
+		db = new Database_LevelDB(savedir);
 	#endif
 	#if USE_REDIS
 	if (name == "redis")
-		return new Database_Redis(conf);
+		db = new Database_Redis(conf);
 	#endif
 	#if USE_POSTGRESQL
 	if (name == "postgresql") {
 		std::string connect_string;
 		conf.getNoEx("pgsql_connection", connect_string);
-		return new MapDatabasePostgreSQL(connect_string);
+		db = new MapDatabasePostgreSQL(connect_string);
 	}
 	#endif
 
-	throw BaseException(std::string("Database backend ") + name + " not supported.");
+	if (!db)
+		throw BaseException(std::string("Database backend ") + name + " not supported.");
+	// Do this to get feedback about errors asap
+	db->verifyDatabase();
+	assert(db->initialized());
+	return db;
 }
 
 void ServerMap::beginSave()

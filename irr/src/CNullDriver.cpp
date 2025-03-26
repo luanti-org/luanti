@@ -1455,9 +1455,9 @@ void CNullDriver::setMaterialRendererName(u32 idx, const char *name)
 void CNullDriver::swapMaterialRenderers(u32 idx1, u32 idx2, bool swapNames)
 {
 	if (idx1 < MaterialRenderers.size() && idx2 < MaterialRenderers.size()) {
-		irr::core::swap(MaterialRenderers[idx1].Renderer, MaterialRenderers[idx2].Renderer);
+		std::swap(MaterialRenderers[idx1].Renderer, MaterialRenderers[idx2].Renderer);
 		if (swapNames)
-			irr::core::swap(MaterialRenderers[idx1].Name, MaterialRenderers[idx2].Name);
+			std::swap(MaterialRenderers[idx1].Name, MaterialRenderers[idx2].Name);
 	}
 }
 

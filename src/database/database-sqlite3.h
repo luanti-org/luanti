@@ -19,16 +19,16 @@ class Database_SQLite3 : public Database
 public:
 	virtual ~Database_SQLite3();
 
-	void beginSave();
-	void endSave();
+	void beginSave() override;
+	void endSave() override;
 
-	bool initialized() const { return m_initialized; }
+	bool initialized() const override { return m_initialized; }
+
+	/// @note not thread-safe
+	void verifyDatabase() override;
 
 protected:
 	Database_SQLite3(const std::string &savedir, const std::string &dbname);
-
-	// Open and initialize the database if needed (not thread-safe)
-	void verifyDatabase();
 
 	// Check if a specific table exists
 	bool checkTable(const char *table);
@@ -160,6 +160,12 @@ private:
 	static int busyHandler(void *data, int count);
 };
 
+// Not sure why why we have to do this. can't C++ figure it out on its own?
+#define PARENT_CLASS_FUNCS \
+	void beginSave() { Database_SQLite3::beginSave(); } \
+	void endSave() { Database_SQLite3::endSave(); } \
+	void verifyDatabase() { Database_SQLite3::verifyDatabase(); }
+
 class MapDatabaseSQLite3 : private Database_SQLite3, public MapDatabase
 {
 public:
@@ -171,8 +177,8 @@ public:
 	bool deleteBlock(const v3s16 &pos);
 	void listAllLoadableBlocks(std::vector<v3s16> &dst);
 
-	void beginSave() { Database_SQLite3::beginSave(); }
-	void endSave() { Database_SQLite3::endSave(); }
+	PARENT_CLASS_FUNCS
+
 protected:
 	virtual void createDatabase();
 	virtual void initStatements();
@@ -200,6 +206,8 @@ public:
 	bool loadPlayer(RemotePlayer *player, PlayerSAO *sao);
 	bool removePlayer(const std::string &name);
 	void listPlayers(std::vector<std::string> &res);
+
+	PARENT_CLASS_FUNCS
 
 protected:
 	virtual void createDatabase();
@@ -238,6 +246,8 @@ public:
 	virtual void listNames(std::vector<std::string> &res);
 	virtual void reload();
 
+	PARENT_CLASS_FUNCS
+
 protected:
 	virtual void createDatabase();
 	virtual void initStatements();
@@ -273,8 +283,7 @@ public:
 	virtual bool removeModEntries(const std::string &modname);
 	virtual void listMods(std::vector<std::string> *res);
 
-	virtual void beginSave() { Database_SQLite3::beginSave(); }
-	virtual void endSave() { Database_SQLite3::endSave(); }
+	PARENT_CLASS_FUNCS
 
 protected:
 	virtual void createDatabase();
@@ -289,3 +298,5 @@ private:
 	sqlite3_stmt *m_stmt_remove = nullptr;
 	sqlite3_stmt *m_stmt_remove_all = nullptr;
 };
+
+#undef PARENT_CLASS_FUNCS

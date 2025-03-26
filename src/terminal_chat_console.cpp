@@ -332,12 +332,9 @@ void TerminalChatConsole::step(int ch)
 		if (p.first > m_log_level)
 			continue;
 
-		std::wstring error_message = utf8_to_wide(Logger::getLevelLabel(p.first));
-		if (!g_settings->getBool("disable_escape_sequences")) {
-			error_message = std::wstring(L"\x1b(c@red)").append(error_message)
-				.append(L"\x1b(c@white)");
-		}
-		m_chat_backend.addMessage(error_message, utf8_to_wide(p.second));
+		auto label = std::string("\x1b(c@red)") + Logger::getLevelLabel(p.first)
+			+ "\x1b(c@white)";
+		m_chat_backend.addMessage(utf8_to_wide(label), utf8_to_wide(p.second));
 	}
 
 	// handle input

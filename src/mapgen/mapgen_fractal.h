@@ -12,7 +12,7 @@
 
 class BiomeManager;
 
-extern FlagDesc flagdesc_mapgen_fractal[];
+extern const FlagDesc flagdesc_mapgen_fractal[];
 
 
 struct MapgenFractalParams : public MapgenParams

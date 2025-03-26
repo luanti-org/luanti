@@ -49,7 +49,13 @@ const char* NetworkPacket::getString(u32 from_offset) const
 {
 	checkReadOffset(from_offset, 0);
 
-	return (char*)&m_data[from_offset];
+	return reinterpret_cast<const char*>(&m_data[from_offset]);
+}
+
+void NetworkPacket::skip(u32 count)
+{
+	checkReadOffset(m_read_offset, count);
+	m_read_offset += count;
 }
 
 void NetworkPacket::putRawString(const char* src, u32 len)
@@ -62,6 +68,18 @@ void NetworkPacket::putRawString(const char* src, u32 len)
 	memcpy(&m_data[m_read_offset], src, len);
 	m_read_offset += len;
 }
+
+void NetworkPacket::readRawString(char *dst, u32 len)
+{
+	checkReadOffset(m_read_offset, len);
+
+	if (len == 0)
+		return;
+
+	memcpy(dst, &m_data[m_read_offset], len);
+	m_read_offset += len;
+}
+
 
 NetworkPacket& NetworkPacket::operator>>(std::string& dst)
 {
@@ -311,24 +329,6 @@ NetworkPacket& NetworkPacket::operator>>(u8& dst)
 	return *this;
 }
 
-u8 NetworkPacket::getU8(u32 offset)
-{
-	checkReadOffset(offset, 1);
-
-	return readU8(&m_data[offset]);
-}
-
-u8* NetworkPacket::getU8Ptr(u32 from_offset)
-{
-	if (m_datasize == 0) {
-		return NULL;
-	}
-
-	checkReadOffset(from_offset, 1);
-
-	return &m_data[from_offset];
-}
-
 NetworkPacket& NetworkPacket::operator>>(u16& dst)
 {
 	checkReadOffset(m_read_offset, 2);
@@ -337,13 +337,6 @@ NetworkPacket& NetworkPacket::operator>>(u16& dst)
 
 	m_read_offset += 2;
 	return *this;
-}
-
-u16 NetworkPacket::getU16(u32 from_offset)
-{
-	checkReadOffset(from_offset, 2);
-
-	return readU16(&m_data[from_offset]);
 }
 
 NetworkPacket& NetworkPacket::operator>>(u32& dst)

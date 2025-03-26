@@ -1223,7 +1223,7 @@ static bool migrate_map_database(const GameParams &game_params, const Settings &
 	std::vector<v3s16> blocks;
 	old_db->listAllLoadableBlocks(blocks);
 	new_db->beginSave();
-	for (std::vector<v3s16>::const_iterator it = blocks.begin(); it != blocks.end(); ++it) {
+	for (auto it = blocks.begin(); it != blocks.end(); ++it) {
 		if (kill) return false;
 
 		std::string data;

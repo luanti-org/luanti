@@ -23,7 +23,7 @@
 #include "mapgen_v5.h"
 
 
-FlagDesc flagdesc_mapgen_v5[] = {
+const FlagDesc flagdesc_mapgen_v5[] = {
 	{"caverns", MGV5_CAVERNS},
 	{NULL,      0}
 };

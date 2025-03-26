@@ -32,7 +32,7 @@ Licensing changed by permission of Gael de Sailly.
 #include <cmath>
 
 
-FlagDesc flagdesc_mapgen_valleys[] = {
+const FlagDesc flagdesc_mapgen_valleys[] = {
 	{"altitude_chill",   MGVALLEYS_ALT_CHILL},
 	{"humid_rivers",     MGVALLEYS_HUMID_RIVERS},
 	{"vary_river_depth", MGVALLEYS_VARY_RIVER_DEPTH},

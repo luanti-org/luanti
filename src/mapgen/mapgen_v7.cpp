@@ -24,7 +24,7 @@
 #include "mapgen_v7.h"
 
 
-FlagDesc flagdesc_mapgen_v7[] = {
+const FlagDesc flagdesc_mapgen_v7[] = {
 	{"mountains",   MGV7_MOUNTAINS},
 	{"ridges",      MGV7_RIDGES},
 	{"floatlands",  MGV7_FLOATLANDS},

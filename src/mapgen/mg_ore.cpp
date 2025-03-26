@@ -13,7 +13,7 @@
 #include <algorithm>
 
 
-FlagDesc flagdesc_ore[] = {
+const FlagDesc flagdesc_ore[] = {
 	{"absheight",                 OREFLAG_ABSHEIGHT}, // Non-functional
 	{"puff_cliffs",               OREFLAG_PUFF_CLIFFS},
 	{"puff_additive_composition", OREFLAG_PUFF_ADDITIVE},
@@ -324,7 +324,7 @@ void OrePuff::generate(MMVManip *vm, int mapseed, u32 blockseed,
 		int y1 = ymid + ntop;
 
 		if ((flags & OREFLAG_PUFF_ADDITIVE) && (y0 > y1))
-			SWAP(int, y0, y1);
+			std::swap(y0, y1);
 
 		for (int y = y0; y <= y1; y++) {
 			u32 i = vm->m_area.index(x, y, z);

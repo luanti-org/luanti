@@ -16,6 +16,7 @@
 #include "IrrCompileConfig.h"
 #include "position2d.h"
 #include "SColor.h" // video::ECOLOR_FORMAT
+#include <variant>
 
 namespace irr
 {
@@ -198,9 +199,6 @@ public:
 	or similar. */
 	virtual bool supportsTouchEvents() const { return false; }
 
-	//! Checks whether windowing uses the Wayland protocol.
-	virtual bool isUsingWayland() const { return false; }
-
 	//! Get the current color format of the window
 	/** \return Color format of the window. */
 	virtual video::ECOLOR_FORMAT getColorFormat() const = 0;
@@ -344,6 +342,27 @@ public:
 	static bool isDriverSupported(video::E_DRIVER_TYPE driver)
 	{
 		return video::isDriverSupported(driver);
+	}
+
+	//! Get the corresponding scancode for the keycode.
+	/**
+	\param key The keycode to convert.
+	\return The implementation-dependent scancode for the key (represented by the u32 component) or, if a scancode is not
+	available, the corresponding Irrlicht keycode (represented by the EKEY_CODE component).
+	*/
+	virtual std::variant<u32, EKEY_CODE> getScancodeFromKey(const Keycode &key) const {
+		if (auto pv = std::get_if<EKEY_CODE>(&key))
+			return *pv;
+		return (u32)std::get<wchar_t>(key);
+	}
+
+	//! Get the corresponding keycode for the scancode.
+	/**
+	\param scancode The implementation-dependent scancode for the key.
+	\return The corresponding keycode.
+	*/
+	virtual Keycode getKeyFromScancode(const u32 scancode) const {
+		return Keycode(KEY_UNKNOWN, (wchar_t)scancode);
 	}
 };
 

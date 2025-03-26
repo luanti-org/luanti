@@ -385,7 +385,8 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 	if (spec.type == "mod") {
 		ModSpec spec;
 		spec.path = path;
-		parseModContents(spec);
+		// TODO return nothing on failure (needs callers to handle it)
+		static_cast<void>(parseModContents(spec));
 
 		// Dependencies
 		lua_newtable(L);

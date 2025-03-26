@@ -36,7 +36,7 @@
 #undef RANDOM_MAX
 #endif
 
-extern FlagDesc flagdesc_noiseparams[];
+extern const FlagDesc flagdesc_noiseparams[];
 
 // Note: this class is not polymorphic so that its high level of
 // optimizability may be preserved in the common use case

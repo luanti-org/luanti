@@ -14,7 +14,7 @@
 
 class BiomeManager;
 
-extern FlagDesc flagdesc_mapgen_flat[];
+extern const FlagDesc flagdesc_mapgen_flat[];
 
 struct MapgenFlatParams : public MapgenParams
 {

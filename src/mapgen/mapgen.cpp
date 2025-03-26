@@ -37,7 +37,7 @@
 #include "cavegen.h"
 #include "dungeongen.h"
 
-FlagDesc flagdesc_mapgen[] = {
+const FlagDesc flagdesc_mapgen[] = {
 	{"caves",       MG_CAVES},
 	{"dungeons",    MG_DUNGEONS},
 	{"light",       MG_LIGHT},
@@ -47,7 +47,7 @@ FlagDesc flagdesc_mapgen[] = {
 	{NULL,          0}
 };
 
-FlagDesc flagdesc_gennotify[] = {
+const FlagDesc flagdesc_gennotify[] = {
 	{"dungeon",          1 << GENNOTIFY_DUNGEON},
 	{"temple",           1 << GENNOTIFY_TEMPLE},
 	{"cave_begin",       1 << GENNOTIFY_CAVE_BEGIN},
