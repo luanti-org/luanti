@@ -205,6 +205,8 @@ void GUIKeyChangeMenu::drawMenu()
 
 bool GUIKeyChangeMenu::acceptInput()
 {
+	clearKeyCache();
+
 	for (key_setting *k : key_settings) {
 		std::string default_key;
 		Settings::getLayer(SL_DEFAULTS)->getNoEx(k->setting_name, default_key);
@@ -230,8 +232,6 @@ bool GUIKeyChangeMenu::acceptInput()
 		if(e && e->getType() == gui::EGUIET_CHECK_BOX)
 			g_settings->setBool("autojump", ((gui::IGUICheckBox*)e)->isChecked());
 	}
-
-	clearKeyCache();
 
 	g_gamecallback->signalKeyConfigChange();
 

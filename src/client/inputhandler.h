@@ -53,7 +53,7 @@ class KeyList : private std::list<KeyPress>
 	typedef super::iterator iterator;
 	typedef super::const_iterator const_iterator;
 
-	virtual const_iterator find(const KeyPress &key) const
+	virtual const_iterator find(KeyPress key) const
 	{
 		const_iterator f(begin());
 		const_iterator e(end());
@@ -68,7 +68,7 @@ class KeyList : private std::list<KeyPress>
 		return e;
 	}
 
-	virtual iterator find(const KeyPress &key)
+	virtual iterator find(KeyPress key)
 	{
 		iterator f(begin());
 		iterator e(end());
@@ -86,13 +86,13 @@ class KeyList : private std::list<KeyPress>
 public:
 	void clear() { super::clear(); }
 
-	void set(const KeyPress &key)
+	void set(KeyPress key)
 	{
 		if (find(key) == end())
 			push_back(key);
 	}
 
-	void unset(const KeyPress &key)
+	void unset(KeyPress key)
 	{
 		iterator p(find(key));
 
@@ -100,7 +100,7 @@ public:
 			erase(p);
 	}
 
-	void toggle(const KeyPress &key)
+	void toggle(KeyPress key)
 	{
 		iterator p(this->find(key));
 
@@ -112,12 +112,12 @@ public:
 
 	void append(const KeyList &other)
 	{
-		for (const KeyPress &key : other) {
+		for (auto key : other) {
 			set(key);
 		}
 	}
 
-	bool operator[](const KeyPress &key) const { return find(key) != end(); }
+	bool operator[](KeyPress key) const { return find(key) != end(); }
 };
 
 class MyEventReceiver : public IEventReceiver
@@ -126,10 +126,10 @@ public:
 	// This is the one method that we have to implement
 	virtual bool OnEvent(const SEvent &event);
 
-	bool IsKeyDown(const KeyPress &keyCode) const { return keyIsDown[keyCode]; }
+	bool IsKeyDown(KeyPress keyCode) const { return keyIsDown[keyCode]; }
 
 	// Checks whether a key was down and resets the state
-	bool WasKeyDown(const KeyPress &keyCode)
+	bool WasKeyDown(KeyPress keyCode)
 	{
 		bool b = keyWasDown[keyCode];
 		if (b)
@@ -139,13 +139,13 @@ public:
 
 	// Checks whether a key was just pressed. State will be cleared
 	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyPressed(const KeyPress &keycode) const { return keyWasPressed[keycode]; }
+	bool WasKeyPressed(KeyPress keycode) const { return keyWasPressed[keycode]; }
 
 	// Checks whether a key was just released. State will be cleared
 	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyReleased(const KeyPress &keycode) const { return keyWasReleased[keycode]; }
+	bool WasKeyReleased(KeyPress keycode) const { return keyWasReleased[keycode]; }
 
-	void listenForKey(const KeyPress &keyCode)
+	void listenForKey(KeyPress keyCode)
 	{
 		keysListenedFor.set(keyCode);
 	}
@@ -247,7 +247,7 @@ public:
 	virtual void clearWasKeyPressed() {}
 	virtual void clearWasKeyReleased() {}
 
-	virtual void listenForKey(const KeyPress &keyCode) {}
+	virtual void listenForKey(KeyPress keyCode) {}
 	virtual void dontListenForKeys() {}
 
 	virtual v2s32 getMousePos() = 0;
@@ -316,7 +316,7 @@ public:
 		m_receiver->clearWasKeyReleased();
 	}
 
-	virtual void listenForKey(const KeyPress &keyCode)
+	virtual void listenForKey(KeyPress keyCode)
 	{
 		m_receiver->listenForKey(keyCode);
 	}

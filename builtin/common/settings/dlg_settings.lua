@@ -259,6 +259,17 @@ local function load()
 		["true"] = fgettext_ne("Enabled"),
 		["false"] = fgettext_ne("Disabled"),
 	}
+
+	get_setting_info("touch_interaction_style").option_labels = {
+		["tap"] = fgettext_ne("Tap"),
+		["tap_crosshair"] = fgettext_ne("Tap with crosshair"),
+		["buttons_crosshair"] = fgettext("Buttons with crosshair"),
+	}
+
+	get_setting_info("touch_punch_gesture").option_labels = {
+		["short_tap"] = fgettext_ne("Short tap"),
+		["long_tap"] = fgettext_ne("Long tap"),
+	}
 end
 
 
@@ -359,6 +370,7 @@ local function check_requirements(name, requires)
 	local video_driver = core.get_active_driver()
 	local touch_support = core.irrlicht_device_supports_touch()
 	local touch_controls = core.settings:get("touch_controls")
+	local touch_interaction_style = core.settings:get("touch_interaction_style")
 	local special = {
 		android = PLATFORM == "Android",
 		desktop = PLATFORM ~= "Android",
@@ -369,6 +381,7 @@ local function check_requirements(name, requires)
 		keyboard_mouse = not touch_support or (touch_controls == "auto" or not core.is_yes(touch_controls)),
 		opengl = (video_driver == "opengl" or video_driver == "opengl3"),
 		gles = video_driver:sub(1, 5) == "ogles",
+		touch_interaction_style_tap = touch_interaction_style ~= "buttons_crosshair",
 	}
 
 	for req_key, req_value in pairs(requires) do
