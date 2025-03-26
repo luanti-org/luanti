@@ -24,4 +24,4 @@ bool string_to_enum(const EnumString *spec, T &result, std::string_view str)
 	return ret;
 }
 
-const char *enum_to_string(const EnumString *spec, int num);
+[[nodiscard]] const char *enum_to_string(const EnumString *spec, int num);

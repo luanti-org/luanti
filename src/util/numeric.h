@@ -17,6 +17,7 @@
 
 // Like std::clamp but allows mismatched types
 template <typename T, typename T2, typename T3>
+[[nodiscard]]
 inline constexpr T rangelim(const T &d, const T2 &min, const T3 &max)
 {
 	if (d < (T)min)
@@ -87,7 +88,6 @@ inline void getContainerPosWithOffset(const v3s16 &p, s16 d, v3s16 &container, v
 	getContainerPosWithOffset(p.Y, d, container.Y, offset.Y);
 	getContainerPosWithOffset(p.Z, d, container.Z, offset.Z);
 }
-
 
 inline bool isInArea(v3s16 p, s16 d)
 {
@@ -193,6 +193,7 @@ struct MeshGrid {
  *  \note This is also used in cases where degrees wrapped to the range [0, 360]
  *  is innapropriate (e.g. pitch needs negative values)
  */
+[[nodiscard]]
 inline float modulo360f(float f)
 {
 	return fmodf(f, 360.0f);
@@ -201,6 +202,7 @@ inline float modulo360f(float f)
 
 /** Returns \p f wrapped to the range [0, 360]
   */
+[[nodiscard]]
 inline float wrapDegrees_0_360(float f)
 {
 	float value = modulo360f(f);
@@ -210,6 +212,7 @@ inline float wrapDegrees_0_360(float f)
 
 /** Returns \p v3f wrapped to the range [0, 360]
   */
+[[nodiscard]]
 inline v3f wrapDegrees_0_360_v3f(v3f v)
 {
 	v3f value_v3f;
@@ -227,6 +230,7 @@ inline v3f wrapDegrees_0_360_v3f(v3f v)
 
 /** Returns \p f wrapped to the range [-180, 180]
   */
+[[nodiscard]]
 inline float wrapDegrees_180(float f)
 {
 	float value = modulo360f(f + 180);
@@ -289,6 +293,7 @@ inline u32 calc_parity(u32 v)
  * @param seed initial seed value
  * @return hash value
  */
+[[nodiscard]]
 u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed);
 
 /**
@@ -299,7 +304,7 @@ u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed);
  * @param distance_ptr return location for distance from the camera
  */
 bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
-		f32 camera_fov, f32 range, f32 *distance_ptr=NULL);
+		f32 camera_fov, f32 range, f32 *distance_ptr=nullptr);
 
 s16 adjustDist(s16 dist, float zoom_fov);
 
@@ -307,12 +312,14 @@ s16 adjustDist(s16 dist, float zoom_fov);
 	Returns nearest 32-bit integer for given floating point number.
 	<cmath> and <math.h> in VC++ don't provide round().
 */
+[[nodiscard]]
 inline s32 myround(f32 f)
 {
 	return (s32)(f < 0.f ? (f - 0.5f) : (f + 0.5f));
 }
 
 template <typename T>
+[[nodiscard]]
 inline constexpr T sqr(T f)
 {
 	return f * f;
@@ -321,6 +328,7 @@ inline constexpr T sqr(T f)
 /*
 	Returns integer position of node in given floating point position
 */
+[[nodiscard]]
 inline v3s16 floatToInt(v3f p, f32 d)
 {
 	return v3s16(
@@ -332,6 +340,7 @@ inline v3s16 floatToInt(v3f p, f32 d)
 /*
 	Returns integer position of node in given double precision position
  */
+[[nodiscard]]
 inline v3s16 doubleToInt(v3d p, double d)
 {
 	return v3s16(
@@ -343,12 +352,14 @@ inline v3s16 doubleToInt(v3d p, double d)
 /*
 	Returns floating point position of node in given integer position
 */
+[[nodiscard]]
 inline v3f intToFloat(v3s16 p, f32 d)
 {
 	return v3f::from(p) * d;
 }
 
-// Random helper. Usually d=BS
+// Returns box of a node as in-world box. Usually d=BS
+[[nodiscard]]
 inline aabb3f getNodeBox(v3s16 p, float d)
 {
 	return aabb3f(
@@ -368,6 +379,7 @@ public:
 		@param wanted_interval interval wanted
 		@return true if action should be done
 	*/
+	[[nodiscard]]
 	bool step(float dtime, float wanted_interval)
 	{
 		m_accumulator += dtime;
@@ -489,12 +501,14 @@ inline video::SColor multiplyColorValue(const video::SColor &color, float mod)
 			core::clamp<u32>(color.getBlue() * mod, 0, 255));
 }
 
-template <typename T> constexpr inline T numericAbsolute(T v)
+template <typename T>
+constexpr inline T numericAbsolute(T v)
 {
 	return v < 0 ? T(-v) : v;
 }
 
-template <typename T> constexpr inline T numericSign(T v)
+template <typename T>
+constexpr inline T numericSign(T v)
 {
 	return T(v < 0 ? -1 : (v == 0 ? 0 : 1));
 }

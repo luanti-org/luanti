@@ -9,6 +9,7 @@
 
 static const char hex_chars[] = "0123456789abcdef";
 
+[[nodiscard]]
 static inline std::string hex_encode(std::string_view data)
 {
 	std::string ret;
@@ -20,6 +21,7 @@ static inline std::string hex_encode(std::string_view data)
 	return ret;
 }
 
+[[nodiscard]]
 static inline std::string hex_encode(const char *data, size_t data_size)
 {
 	if (!data_size)
