@@ -7,6 +7,7 @@
 #include "irrlichttypes.h"
 #include "irr_v2d.h"
 #include "joystick_controller.h"
+#include <array>
 #include <list>
 #include <set>
 #include <unordered_map>
