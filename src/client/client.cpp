@@ -1642,11 +1642,6 @@ void Client::inventoryAction(InventoryAction *a)
 	delete a;
 }
 
-float Client::getAnimationTime()
-{
-	return m_animation_time;
-}
-
 int Client::getCrackLevel()
 {
 	return m_crack_level;

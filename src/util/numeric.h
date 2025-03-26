@@ -115,7 +115,8 @@ inline bool isInArea(v3s16 p, v3s16 d)
 	);
 }
 
-inline void sortBoxVerticies(v3s16 &p1, v3s16 &p2)
+template <typename T>
+inline void sortBoxVerticies(core::vector3d<T> &p1, core::vector3d<T> &p2)
 {
 	if (p1.X > p2.X)
 		std::swap(p1.X, p2.X);
@@ -125,14 +126,18 @@ inline void sortBoxVerticies(v3s16 &p1, v3s16 &p2)
 		std::swap(p1.Z, p2.Z);
 }
 
-inline v3s16 componentwise_min(const v3s16 &a, const v3s16 &b)
+template <typename T>
+inline constexpr core::vector3d<T> componentwise_min(const core::vector3d<T> &a,
+	const core::vector3d<T> &b)
 {
-	return v3s16(std::min(a.X, b.X), std::min(a.Y, b.Y), std::min(a.Z, b.Z));
+	return {std::min(a.X, b.X), std::min(a.Y, b.Y), std::min(a.Z, b.Z)};
 }
 
-inline v3s16 componentwise_max(const v3s16 &a, const v3s16 &b)
+template <typename T>
+inline constexpr core::vector3d<T> componentwise_max(const core::vector3d<T> &a,
+	const core::vector3d<T> &b)
 {
-	return v3s16(std::max(a.X, b.X), std::max(a.Y, b.Y), std::max(a.Z, b.Z));
+	return {std::max(a.X, b.X), std::max(a.Y, b.Y), std::max(a.Z, b.Z)};
 }
 
 /// @brief Describes a grid with given step, oirginating at (0,0,0)
@@ -277,8 +282,22 @@ inline u32 calc_parity(u32 v)
 	return (0x6996 >> v) & 1;
 }
 
-u64 murmur_hash_64_ua(const void *key, int len, unsigned int seed);
+/**
+ * Calculate MurmurHash64A hash for an arbitrary block of data.
+ * @param key data to hash (does not need to be aligned)
+ * @param len length in bytes
+ * @param seed initial seed value
+ * @return hash value
+ */
+u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed);
 
+/**
+ * @param blockpos_b position of block in block coordinates
+ * @param camera_pos position of camera in nodes
+ * @param camera_dir an unit vector pointing to camera direction
+ * @param range viewing range
+ * @param distance_ptr return location for distance from the camera
+ */
 bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 		f32 camera_fov, f32 range, f32 *distance_ptr=NULL);
 
@@ -399,13 +418,6 @@ inline void paging(u32 length, u32 page, u32 pagecount, u32 &minindex, u32 &maxi
 	}
 }
 
-inline float cycle_shift(float value, float by = 0, float max = 1)
-{
-	if (value + by < 0)   return value + by + max;
-	if (value + by > max) return value + by - max;
-	return value + by;
-}
-
 constexpr inline bool is_power_of_two(u32 n)
 {
 	return n != 0 && (n & (n - 1)) == 0;
@@ -469,31 +481,40 @@ inline v3f getPitchYawRoll(const core::matrix4 &m)
 }
 
 // Muliply the RGB value of a color linearly, and clamp to black/white
-inline irr::video::SColor multiplyColorValue(const irr::video::SColor &color, float mod)
+inline video::SColor multiplyColorValue(const video::SColor &color, float mod)
 {
-	return irr::video::SColor(color.getAlpha(),
+	return video::SColor(color.getAlpha(),
 			core::clamp<u32>(color.getRed() * mod, 0, 255),
 			core::clamp<u32>(color.getGreen() * mod, 0, 255),
 			core::clamp<u32>(color.getBlue() * mod, 0, 255));
 }
 
-template <typename T> inline T numericAbsolute(T v) { return v < 0 ? T(-v) : v;                }
-template <typename T> inline T numericSign(T v)     { return T(v < 0 ? -1 : (v == 0 ? 0 : 1)); }
-
-inline v3f vecAbsolute(v3f v)
+template <typename T> constexpr inline T numericAbsolute(T v)
 {
-	return v3f(
+	return v < 0 ? T(-v) : v;
+}
+
+template <typename T> constexpr inline T numericSign(T v)
+{
+	return T(v < 0 ? -1 : (v == 0 ? 0 : 1));
+}
+
+template <typename T>
+inline constexpr core::vector3d<T> vecAbsolute(const core::vector3d<T> &v)
+{
+	return {
 		numericAbsolute(v.X),
 		numericAbsolute(v.Y),
 		numericAbsolute(v.Z)
-	);
+	};
 }
 
-inline v3f vecSign(v3f v)
+template <typename T>
+inline constexpr core::vector3d<T> vecSign(const core::vector3d<T> &v)
 {
-	return v3f(
+	return {
 		numericSign(v.X),
 		numericSign(v.Y),
 		numericSign(v.Z)
-	);
+	};
 }

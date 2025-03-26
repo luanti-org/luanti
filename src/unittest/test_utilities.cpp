@@ -47,6 +47,7 @@ public:
 	void testIsBlockInSight();
 	void testColorizeURL();
 	void testSanitizeUntrusted();
+	void testReadSeed();
 };
 
 static TestUtilities g_test_instance;
@@ -82,6 +83,7 @@ void TestUtilities::runTests(IGameDef *gamedef)
 	TEST(testIsBlockInSight);
 	TEST(testColorizeURL);
 	TEST(testSanitizeUntrusted);
+	TEST(testReadSeed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -752,4 +754,12 @@ void TestUtilities::testSanitizeUntrusted()
 		UASSERTEQ(auto, sanitize_untrusted("\x1b", keep), "");
 		UASSERTEQ(auto, sanitize_untrusted("\x1b(", keep), "(");
 	}
+}
+
+void TestUtilities::testReadSeed()
+{
+	UASSERTEQ(int, read_seed("123"), 123);
+	UASSERTEQ(int, read_seed("0x123"), 0x123);
+	// hashing should produce some non-zero number
+	UASSERT(read_seed("hello") != 0);
 }

@@ -277,7 +277,10 @@ public:
 		return m_env.getPlayerNames();
 	}
 
-	float getAnimationTime();
+	float getAnimationTime() const
+	{
+		return m_animation_time;
+	}
 
 	int getCrackLevel();
 	v3s16 getCrackPos();
@@ -294,7 +297,7 @@ public:
 	bool getChatMessage(std::wstring &message);
 	void typeChatMessage(const std::wstring& message);
 
-	u64 getMapSeed(){ return m_map_seed; }
+	u64 getMapSeed() const { return m_map_seed; }
 
 	void addUpdateMeshTask(v3s16 blockpos, bool ack_to_server=false, bool urgent=false);
 	// Including blocks at appropriate edges

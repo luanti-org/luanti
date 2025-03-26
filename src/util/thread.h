@@ -18,6 +18,9 @@ public:
 	MutexedVariable(const T &value):
 		m_value(value)
 	{}
+	MutexedVariable(T &&value):
+		m_value(std::move(value))
+	{}
 
 	T get()
 	{
@@ -31,9 +34,14 @@ public:
 		m_value = value;
 	}
 
-	// You pretty surely want to grab the lock when accessing this
-	T m_value;
+	void set(T &&value)
+	{
+		MutexAutoLock lock(m_mutex);
+		m_value = std::move(value);
+	}
+
 private:
+	T m_value;
 	std::mutex m_mutex;
 };
 

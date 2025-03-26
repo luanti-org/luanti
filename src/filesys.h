@@ -49,15 +49,14 @@ bool IsDir(const std::string &path);
 
 bool IsExecutable(const std::string &path);
 
-inline bool IsFile(const std::string &path)
+bool IsFile(const std::string &path);
+
+inline bool IsDirDelimiter(char c)
 {
-	return PathExists(path) && !IsDir(path);
+	return c == '/' || c == DIR_DELIM_CHAR;
 }
 
-bool IsDirDelimiter(char c);
-
-// Only pass full paths to this one. True on success.
-// NOTE: The WIN32 version returns always true.
+// Only pass full paths to this one. returns true on success.
 bool RecursiveDelete(const std::string &path);
 
 bool DeleteSingleFileOrEmptyDirectory(const std::string &path);

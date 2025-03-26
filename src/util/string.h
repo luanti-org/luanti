@@ -86,7 +86,9 @@ std::string writeFlagString(u32 flags, const FlagDesc *flagdesc, u32 flagmask);
 size_t mystrlcpy(char *dst, const char *src, size_t size) noexcept;
 char *mystrtok_r(char *s, const char *sep, char **lasts) noexcept;
 
+/// @brief turn string into a map seed. either directly if it's a number or by hashing it.
 u64 read_seed(const char *str);
+
 bool parseColorString(const std::string &value, video::SColor &color, bool quiet,
 		unsigned char default_alpha = 0xff);
 std::string encodeHexColorString(video::SColor color);
@@ -330,7 +332,7 @@ inline bool my_isspace(const wchar_t c)
  * @return A view of \p str with leading and trailing whitespace removed.
  */
 template<typename T>
-inline std::basic_string_view<T> trim(const std::basic_string_view<T> &str)
+inline std::basic_string_view<T> trim(std::basic_string_view<T> str)
 {
 	size_t front = 0;
 	size_t back = str.size();

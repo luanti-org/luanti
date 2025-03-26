@@ -189,35 +189,37 @@ std::string urlencode(std::string_view str)
 	// Encodes reserved URI characters by a percent sign
 	// followed by two hex digits. See RFC 3986, section 2.3.
 	static const char url_hex_chars[] = "0123456789ABCDEF";
-	std::ostringstream oss(std::ios::binary);
+	std::string ret;
+	ret.reserve(str.size());
 	for (unsigned char c : str) {
 		if (isalnum(c) || c == '-' || c == '.' || c == '_' || c == '~') {
-			oss << c;
+			ret.push_back(c);
 		} else {
-			oss << "%"
-				<< url_hex_chars[(c & 0xf0) >> 4]
-				<< url_hex_chars[c & 0x0f];
+			ret.push_back('%');
+			ret.push_back(url_hex_chars[(c & 0xf0) >> 4]);
+			ret.push_back(url_hex_chars[c & 0x0f]);
 		}
 	}
-	return oss.str();
+	return ret;
 }
 
 std::string urldecode(std::string_view str)
 {
 	// Inverse of urlencode
-	std::ostringstream oss(std::ios::binary);
+	std::string ret;
+	ret.reserve(str.size());
 	for (u32 i = 0; i < str.size(); i++) {
 		unsigned char highvalue, lowvalue;
-		if (str[i] == '%' &&
+		if (str[i] == '%' && i+2 < str.size() &&
 				hex_digit_decode(str[i+1], highvalue) &&
 				hex_digit_decode(str[i+2], lowvalue)) {
-			oss << (char) ((highvalue << 4) | lowvalue);
+			ret.push_back(static_cast<char>((highvalue << 4) | lowvalue));
 			i += 2;
 		} else {
-			oss << str[i];
+			ret.push_back(str[i]);
 		}
 	}
-	return oss.str();
+	return ret;
 }
 
 u32 readFlagString(std::string str, const FlagDesc *flagdesc, u32 *flagmask)
@@ -318,7 +320,7 @@ char *mystrtok_r(char *s, const char *sep, char **lasts) noexcept
 
 u64 read_seed(const char *str)
 {
-	char *endptr;
+	char *endptr = nullptr;
 	u64 num;
 
 	if (str[0] == '0' && str[1] == 'x')
@@ -327,7 +329,7 @@ u64 read_seed(const char *str)
 		num = strtoull(str, &endptr, 10);
 
 	if (*endptr)
-		num = murmur_hash_64_ua(str, (int)strlen(str), 0x1337);
+		num = murmur_hash_64_ua(str, strlen(str), 0x1337);
 
 	return num;
 }
