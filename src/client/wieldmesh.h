@@ -12,6 +12,7 @@
 #include <IMeshSceneNode.h>
 #include <SColor.h>
 #include <memory>
+#include "tile.h"
 
 namespace irr::scene
 {
@@ -27,7 +28,6 @@ class Client;
 class ITextureSource;
 struct ContentFeatures;
 class ShadowRenderer;
-struct TileLayer;
 
 /*
  * Holds information of an item mesh's buffer.
@@ -71,8 +71,16 @@ public:
 		return true;
 	}
 
-	// Null for no animated parts, stores last animation frame and tile layer
-	std::unique_ptr<std::pair<int, TileLayer>> animation_info;
+	// TODO:
+	// This is the same as MapBlockMesh::AnimationInfo and should be declared somewhere else
+	// Also it doesn't a copy of the whole tile layer
+	struct AnimationInfo {
+		int frame; // last animation frame
+		TileLayer tile;
+	};
+
+	// Null for no animated parts
+	std::unique_ptr<AnimationInfo> animation_info;
 };
 
 struct ItemMesh

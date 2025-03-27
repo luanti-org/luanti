@@ -138,14 +138,14 @@ void drawItemStack(
 
 			// Texture animation
 			if (enable_animations && p.animation_info) {
-				const TileLayer &tile = p.animation_info->second;
+				const TileLayer &tile = p.animation_info->tile;
 				// Figure out current frame
 				int frameno = (int)(client->getAnimationTime() * 1000 /
 						tile.animation_frame_length_ms) %
 						tile.animation_frame_count;
 				// Only adjust if frame changed
-				if (frameno != p.animation_info->first) {
-					p.animation_info->first = frameno;
+				if (frameno != p.animation_info->frame) {
+					p.animation_info->frame = frameno;
 
 					const FrameSpec &frame = (*tile.frames)[frameno];
 					buf->getMaterial().setTexture(0, frame.texture);
