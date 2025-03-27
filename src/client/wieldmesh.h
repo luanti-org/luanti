@@ -73,7 +73,7 @@ public:
 
 	// TODO:
 	// This is the same as MapBlockMesh::AnimationInfo and should be declared somewhere else
-	// Also it doesn't a copy of the whole tile layer
+	// Also it doesn't need a copy of the whole tile layer
 	struct AnimationInfo {
 		int frame; // last animation frame
 		TileLayer tile;
