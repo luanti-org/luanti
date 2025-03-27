@@ -33,7 +33,7 @@
 ItemMeshBufferInfo::ItemMeshBufferInfo(const TileLayer &layer) :
 		override_color(layer.color),
 		override_color_set(layer.has_color),
-		animation_info(layer.material_flags & MATERIAL_FLAG_ANIMATION ?
+		animation_info((layer.material_flags & MATERIAL_FLAG_ANIMATION) ?
 			std::make_unique<std::pair<int, TileLayer>>(0, layer) :
 			nullptr)
 {}
