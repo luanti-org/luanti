@@ -137,7 +137,7 @@ void drawItemStack(
 			}
 
 			// Texture animation
-			if (enable_animations && p.animation_info) {
+			if (p.animation_info) {
 				const TileLayer &tile = p.animation_info->tile;
 				// Figure out current frame
 				int frameno = (int)(client->getAnimationTime() * 1000 /
