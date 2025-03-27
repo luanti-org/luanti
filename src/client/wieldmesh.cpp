@@ -401,8 +401,8 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 				wscale, tsrc,
 				l0.animation_frame_count);
 			// Add color
-			m_buffer_info.emplace_back(l0);
-			m_buffer_info.emplace_back(l1);
+			m_buffer_info.emplace_back(l0.has_color, l0.color);
+			m_buffer_info.emplace_back(l1.has_color, l1.color);
 			break;
 		}
 		case NDT_PLANTLIKE_ROOTED: {
@@ -411,7 +411,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			setExtruded(tsrc->getTextureName(l0.texture_id),
 				"", wield_scale, tsrc,
 				l0.animation_frame_count);
-			m_buffer_info.emplace_back(l0);
+			m_buffer_info.emplace_back(l0.has_color, l0.color);
 			break;
 		}
 		default: {
