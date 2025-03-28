@@ -117,7 +117,7 @@ public:
 	// Must only be used if the constructor was called with lighting = false
 	void setColor(video::SColor color);
 
-	void setNodeLightColor(video::SColor color);
+	void setLightColorAndAnimation(video::SColor color, float animation_time);
 
 	scene::IMesh *getMesh() { return m_meshnode->getMesh(); }
 

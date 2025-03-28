@@ -496,15 +496,31 @@ void WieldMeshSceneNode::setColor(video::SColor c)
 	}
 }
 
-void WieldMeshSceneNode::setNodeLightColor(video::SColor color)
+void WieldMeshSceneNode::setLightColorAndAnimation(video::SColor color, float animation_time)
 {
 	if (!m_meshnode)
 		return;
 
-	{
-		for (u32 i = 0; i < m_meshnode->getMaterialCount(); ++i) {
-			video::SMaterial &material = m_meshnode->getMaterial(i);
-			material.ColorParam = color;
+	for (u32 i = 0; i < m_meshnode->getMaterialCount(); ++i) {
+		// Color
+		video::SMaterial &material = m_meshnode->getMaterial(i);
+		material.ColorParam = color;
+
+		// Animation
+		const ItemMeshBufferInfo &buf_info = m_buffer_info[i];
+		if (buf_info.animation_info) {
+			const TileLayer &tile = buf_info.animation_info->tile;
+			// Figure out current frame
+			int frameno = (int)(animation_time * 1000 /
+					tile.animation_frame_length_ms) %
+					tile.animation_frame_count;
+			// Only adjust if frame changed
+			if (frameno != buf_info.animation_info->frame) {
+				buf_info.animation_info->frame = frameno;
+
+				const FrameSpec &frame = (*tile.frames)[frameno];
+				material.setTexture(0, frame.texture);
+			}
 		}
 	}
 }
