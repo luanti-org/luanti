@@ -338,8 +338,10 @@ void RemoteClient::GetNextBlocks (
 				*/
 				if (d >= d_opt && block->isAir())
 						continue;
-			} else if (emerge->isBlockInQueue(p)) {
+			}
+			if ((!block || !block->isGenerated()) && emerge->isBlockInQueue(p)) {
 				// if the block is already in the emerge queue we don't have to check again
+				nearest_emerged_d = d;
 				continue;
 			}
 
