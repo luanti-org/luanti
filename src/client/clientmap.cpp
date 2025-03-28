@@ -1328,6 +1328,15 @@ void ClientMap::renderPostFx(CameraMode cam_mode)
 
 	const ContentFeatures& features = m_nodedef->get(n);
 	video::SColor post_color = features.post_effect_color;
+	if (features.post_effect_use_node_color) {
+		video::SColor color;
+		n.getColor(features, &color);
+		post_color.set(
+				post_color.getAlpha(),
+				(post_color.getRed() * color.getRed()) / 255,
+				(post_color.getGreen() * color.getGreen()) / 255,
+				(post_color.getBlue() * color.getBlue()) / 255);
+	}
 
 	if (features.post_effect_color_shaded) {
 		auto apply_light = [] (u32 color, u32 light) {

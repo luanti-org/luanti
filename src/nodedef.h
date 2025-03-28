@@ -69,6 +69,8 @@ enum ContentParamType2 : u8
 	CPT2_4DIR,
 	// 6 bits of palette index, then 4dir
 	CPT2_COLORED_4DIR,
+	// 4 bits of palette index, then flowing liquid properties
+	CPT2_COLORED_FLOWINGLIQUID,
 	// Dummy for validity check
 	ContentParamType2_END
 };
@@ -363,6 +365,8 @@ struct ContentFeatures
 	// Post effect color, drawn when the camera is inside the node.
 	video::SColor post_effect_color;
 	bool post_effect_color_shaded;
+	// Whether to apply the node's coloration to the post effect color.
+	bool post_effect_use_node_color;
 	// Flowing liquid or leveled nodebox, value = default level
 	u8 leveled;
 	// Maximum value for leveled nodes
