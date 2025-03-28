@@ -574,8 +574,8 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 				tsrc->getTextureName(l0.texture_id),
 				tsrc->getTextureName(l1.texture_id));
 			// Add color
-			result->buffer_info.emplace_back(l0);
-			result->buffer_info.emplace_back(l1);
+			result->buffer_info.emplace_back(l0.has_color, l0.color);
+			result->buffer_info.emplace_back(l1.has_color, l1.color);
 			break;
 		}
 		case NDT_PLANTLIKE_ROOTED: {
@@ -583,7 +583,7 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 			const TileLayer &l0 = f.special_tiles[0].layers[0];
 			mesh = getExtrudedMesh(tsrc,
 				tsrc->getTextureName(l0.texture_id), "");
-			result->buffer_info.emplace_back(l0);
+			result->buffer_info.emplace_back(l0.has_color, l0.color);
 			break;
 		}
 		default: {
