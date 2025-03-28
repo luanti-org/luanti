@@ -19,7 +19,7 @@ read_globals = {
 	"VoxelManip",
 	"profiler",
 	"Settings",
-	"PerlinNoise", "PerlinNoiseMap",
+	"ValueNoise", "ValueNoiseMap",
 
 	string = {fields = {"split", "trim"}},
 	table  = {fields = {"copy", "copy_with_metatables", "getn", "indexof", "keyof", "insert_all"}},
