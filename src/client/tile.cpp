@@ -4,6 +4,17 @@
 
 #include "tile.h"
 
+void AnimationInfo::updateTexture(video::SMaterial &material, float animation_time)
+{
+	// Figure out current frame
+	u16 frame = (u16)(animation_time * 1000 / m_frame_length_ms) % m_frame_count;
+	// Only adjust if frame changed
+	if (frame != m_frame) {
+		m_frame = frame;
+		material.setTexture(0, (*m_frames)[m_frame].texture);
+	}
+};
+
 void TileLayer::applyMaterialOptions(video::SMaterial &material, int layer) const
 {
 	material.setTexture(0, texture);

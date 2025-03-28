@@ -71,14 +71,6 @@ public:
 		return true;
 	}
 
-	// TODO:
-	// This is the same as MapBlockMesh::AnimationInfo and should be declared somewhere else
-	// Also it doesn't need a copy of the whole tile layer
-	struct AnimationInfo {
-		int frame; // last animation frame
-		TileLayer tile;
-	};
-
 	// Null for no animated parts
 	std::unique_ptr<AnimationInfo> animation_info;
 };

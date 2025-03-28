@@ -34,7 +34,7 @@ ItemMeshBufferInfo::ItemMeshBufferInfo(const TileLayer &layer) :
 		override_color(layer.color),
 		override_color_set(layer.has_color),
 		animation_info((layer.material_flags & MATERIAL_FLAG_ANIMATION) ?
-			new ItemMeshBufferInfo::AnimationInfo{0, layer} :
+			std::make_unique<AnimationInfo>(layer) :
 			nullptr)
 {}
 
@@ -509,18 +509,7 @@ void WieldMeshSceneNode::setLightColorAndAnimation(video::SColor color, float an
 		// Animation
 		const ItemMeshBufferInfo &buf_info = m_buffer_info[i];
 		if (buf_info.animation_info) {
-			const TileLayer &tile = buf_info.animation_info->tile;
-			// Figure out current frame
-			int frameno = (int)(animation_time * 1000 /
-					tile.animation_frame_length_ms) %
-					tile.animation_frame_count;
-			// Only adjust if frame changed
-			if (frameno != buf_info.animation_info->frame) {
-				buf_info.animation_info->frame = frameno;
-
-				const FrameSpec &frame = (*tile.frames)[frameno];
-				material.setTexture(0, frame.texture);
-			}
+			buf_info.animation_info->updateTexture(material, animation_time);
 		}
 	}
 }
