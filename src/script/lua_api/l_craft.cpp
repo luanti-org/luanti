@@ -368,7 +368,7 @@ int ModApiCraft::l_get_craft_result(lua_State *L)
 		width = luaL_checkinteger(L, -1);
 	lua_pop(L, 1);
 	lua_getfield(L, input_i, "items");
-	std::vector<ItemStack> items = read_items(L, -1, gdef);
+	std::vector<ItemStack> items = read_items(L, -1, gdef->idef());
 	lua_pop(L, 1); // items
 
 	ICraftDefManager *cdef = gdef->cdef();
