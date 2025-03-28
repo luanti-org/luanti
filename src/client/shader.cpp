@@ -748,11 +748,17 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 	if (g_settings->getBool("enable_auto_exposure"))
 		shaders_header << "#define ENABLE_AUTO_EXPOSURE 1\n";
 
-	if (g_settings->get("antialiasing") == "ssaa") {
-		shaders_header << "#define ENABLE_SSAA 1\n";
-		u16 ssaa_scale = MYMAX(2, g_settings->getU16("fsaa"));
-		shaders_header << "#define SSAA_SCALE " << ssaa_scale << ".\n";
-	}
+	const std::string antialiasing = g_settings->get("antialiasing");
+	if (antialiasing == "ssaa")
+		shaders_header << "#define ENABLE_SSAA_SMOOTH 1\n"
+			"#define SSAA_SCALE " << MYMAX(2, g_settings->getU16("fsaa"))
+			<< ".\n";
+	else if (antialiasing == "ssaa_ssim_based"
+			&& g_settings->getU32("post_processing_texture_bits") == 16
+			&& driver->queryTextureFormat(video::ECF_R32F))
+		shaders_header << "#define ENABLE_SSAA_SSIM_BASED 1\n"
+			"#define SSAA_SCALE " << MYMAX(2, g_settings->getU16("fsaa"))
+			<< ".\n";
 
 	if (g_settings->getBool("debanding"))
 		shaders_header << "#define ENABLE_DITHERING 1\n";
