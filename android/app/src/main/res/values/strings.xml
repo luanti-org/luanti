@@ -6,6 +6,7 @@
 	<string name="notification_channel_description">Notifications from Luanti</string>
 	<string name="unzip_notification_title">Loading Luanti</string>
 	<string name="unzip_notification_description">Less than 1 minute&#8230;</string>
+	<string name="game_notification_title">Luanti is running</string>
 	<string name="ime_dialog_done">Done</string>
 	<string name="no_web_browser">No web browser found</string>
 </resources>
