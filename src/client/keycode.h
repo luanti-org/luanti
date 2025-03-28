@@ -49,6 +49,11 @@ public:
 		return !(*this == o);
 	}
 
+	// Used for e.g. std::set
+	bool operator<(KeyPress o) const {
+		return scancode < o.scancode;
+	}
+
 	// Check whether the keypress is valid
 	operator bool() const
 	{
@@ -60,11 +65,22 @@ public:
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
+	using value_type = std::variant<u32, irr::EKEY_CODE>;
 	bool loadFromScancode(const std::string &name);
 	void loadFromKey(irr::EKEY_CODE keycode, wchar_t keychar);
 	std::string formatScancode() const;
 
-	std::variant<u32, irr::EKEY_CODE> scancode = irr::KEY_UNKNOWN;
+	value_type scancode = irr::KEY_UNKNOWN;
+
+	friend std::hash<KeyPress>;
+};
+
+template <>
+struct std::hash<KeyPress>
+{
+	size_t operator()(KeyPress kp) const noexcept {
+		return std::hash<KeyPress::value_type>{}(kp.scancode);
+	}
 };
 
 // Global defines for convenience

@@ -554,7 +554,7 @@ bool GameFormSpec::handleCallbacks()
 	}
 
 	if (g_gamecallback->keyconfig_changed) {
-		m_input->keycache.populate(); // update the cache with new settings
+		m_input->reloadKeybindings(); // update the cache with new settings
 		g_gamecallback->keyconfig_changed = false;
 	}
 
