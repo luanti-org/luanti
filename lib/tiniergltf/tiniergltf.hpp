@@ -916,12 +916,7 @@ struct Node {
 	std::optional<std::size_t> skin;
 	std::optional<std::vector<double>> weights;
 	Node(const Json::Value &o)
-		: transform(Matrix {
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1
-		})
+		: transform(TRS{})
 	{
 		check(o.isObject());
 		if (o.isMember("camera")) {
