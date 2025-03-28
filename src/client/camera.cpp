@@ -470,12 +470,12 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 			m_fov_transition_active = false;
 			m_curr_fov_degrees = m_target_fov_degrees;
 		}
-	} else if (m_server_sent_fov) {
-		// Instantaneous FOV change
-		m_curr_fov_degrees = m_target_fov_degrees;
 	} else if (player->getPlayerControl().zoom && player->getZoomFOV() > 0.001f) {
 		// Player requests zoom, apply zoom FOV
 		m_curr_fov_degrees = player->getZoomFOV();
+	} else if (m_server_sent_fov) {
+		// Instantaneous FOV change
+		m_curr_fov_degrees = m_target_fov_degrees;
 	} else {
 		// Set to client's selected FOV
 		m_curr_fov_degrees = m_cache_fov;
