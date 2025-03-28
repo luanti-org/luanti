@@ -183,6 +183,8 @@ function core.register_item(name, itemdef)
 
 	-- BEGIN Legacy stuff
 	if itemdef.cookresult_itemstring ~= nil and itemdef.cookresult_itemstring ~= "" then
+		core.log("deprecated", "The `cookresult_itemstring` item definition " ..
+			"field is deprecated. Use `core.register_craft` instead.")
 		core.register_craft({
 			type="cooking",
 			output=itemdef.cookresult_itemstring,
@@ -191,6 +193,8 @@ function core.register_item(name, itemdef)
 		})
 	end
 	if itemdef.furnace_burntime ~= nil and itemdef.furnace_burntime >= 0 then
+		core.log("deprecated", "The `furnace_burntime` item definition " ..
+			"field is deprecated. Use `core.register_craft` instead.")
 		core.register_craft({
 			type="fuel",
 			recipe=itemdef.name,
@@ -204,7 +208,6 @@ function core.register_item(name, itemdef)
 	-- Ignore new keys as a failsafe to prevent mistakes
 	getmetatable(itemdef).__newindex = function() end
 
-	--core.log("Registering item: " .. itemdef.name)
 	core.registered_items[itemdef.name] = itemdef
 	core.registered_aliases[itemdef.name] = nil
 	register_item_raw(itemdef)
@@ -241,6 +244,8 @@ function core.register_craftitem(name, craftitemdef)
 
 	-- BEGIN Legacy stuff
 	if craftitemdef.inventory_image == nil and craftitemdef.image ~= nil then
+		core.log("deprecated", "The `image` field in craftitem definitions " ..
+			"is deprecated. Use `inventory_image` instead.")
 		craftitemdef.inventory_image = craftitemdef.image
 	end
 	-- END Legacy stuff
@@ -254,6 +259,8 @@ function core.register_tool(name, tooldef)
 
 	-- BEGIN Legacy stuff
 	if tooldef.inventory_image == nil and tooldef.image ~= nil then
+		core.log("deprecated", "The `image` field in tool definitions " ..
+			"is deprecated. Use `inventory_image` instead.")
 		tooldef.inventory_image = tooldef.image
 	end
 	if tooldef.tool_capabilities == nil and
@@ -268,6 +275,8 @@ function core.register_tool(name, tooldef)
 	    tooldef.dd_crackiness ~= nil or
 	    tooldef.dd_crumbliness ~= nil or
 	    tooldef.dd_cuttability ~= nil) then
+		core.log("deprecated", "Specifying tool capabilities directly in the tool " ..
+			"definition is deprecated. Use the `tool_capabilities` field instead.")
 		tooldef.tool_capabilities = {
 			full_punch_interval = tooldef.full_punch_interval,
 			basetime = tooldef.basetime,
@@ -307,7 +316,6 @@ function core.register_alias(name, convert_to)
 		core.log("warning", "Not registering alias, item with same name" ..
 			" is already defined: " .. name .. " -> " .. convert_to)
 	else
-		--core.log("Registering alias: " .. name .. " -> " .. convert_to)
 		core.registered_aliases[name] = convert_to
 		register_alias_raw(name, convert_to)
 	end
@@ -322,7 +330,6 @@ function core.register_alias_force(name, convert_to)
 		core.log("info", "Removed item " ..name..
 			" while attempting to force add an alias")
 	end
-	--core.log("Registering alias: " .. name .. " -> " .. convert_to)
 	core.registered_aliases[name] = convert_to
 	register_alias_raw(name, convert_to)
 end
