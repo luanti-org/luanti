@@ -171,6 +171,7 @@ void main(void)
 	// Generate waves with Perlin-type noise.
 	// The constants are calibrated such that they roughly
 	// correspond to the old sine waves.
+	// Note: The same thing is implemented in clientmap.cpp. Keep them consistent!
 	vec3 wavePos = (mWorld * pos).xyz + cameraOffset;
 	// The waves are slightly compressed along the z-axis to get
 	// wave-fronts along the x-axis.
