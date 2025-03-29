@@ -78,6 +78,13 @@ public:
 		return m_stack.size();
 	}
 
+	GUIModalMenu *tryGetTopMenu() const
+	{
+		if (m_stack.empty())
+			return nullptr;
+		return dynamic_cast<GUIModalMenu *>(m_stack.back());
+	}
+
 	void deleteFront()
 	{
 		m_stack.front()->setVisible(false);
