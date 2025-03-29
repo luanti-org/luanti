@@ -98,7 +98,7 @@ TEST_CASE("Test axis aligned collision with unit cube.", "[collision]")
 
 	SECTION("Given the box and the target do not overlap on the X or Y axes, "
 			"when the box moves away on the X axis, "
-			"then they should never collide."
+			"then they should never collide.")
 	{
 		aabb3f m{bx-2.0f, by+1.5f, bz, bx-1.0f, by+2.5f, bz+1.0f};
 		f32 dtime = 1.0f;
@@ -138,7 +138,7 @@ TEST_CASE("Test axis aligned collision with unit cube.", "[collision]")
 
 	SECTION("Given the box and the target do not overlap on the X or Z axes, "
 			"when the box moves away on the X axis, "
-			"then they should never collide."
+			"then they should never collide.")
 	{
 		aabb3f m{bx+2.0f, by, bz+1.5f, bx+3.0f, by+1.0f, bz+3.5f};
 		f32 dtime = 1.0f;
