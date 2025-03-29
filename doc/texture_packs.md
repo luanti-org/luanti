@@ -22,8 +22,9 @@ This is a directory containing the entire contents of a single texture pack.
 It can be chosen more or less freely and will also become the name of the
 texture pack. The name must not be “base”.
 
-### The server texture pack
-Textures in the texture pack named `server` replace textures sent to clients.
+### The "server" texture pack
+If a texture pack named `server` exists, the textures in it will replace textures
+sent to clients.
 It's independent of the client's texture pack, which will take precedence as usual.
 
 ### `texture_pack.conf`
