@@ -3768,7 +3768,8 @@ Player Inventory lists
 * `craftresult`: list containing the crafted output
 * `hand`: list containing an override for the empty hand
     * Is not created automatically, use `InvRef:set_size`
-    * Is only used to enhance the empty hand's tool capabilities
+    * Players use the first item in this list as their hand
+    * It behaves as if the default hand `""` has been overridden for this specific player
 
 Custom lists can be added and deleted with `InvRef:set_size(name, size)` like
 any other inventory.
