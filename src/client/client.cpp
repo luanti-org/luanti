@@ -381,6 +381,7 @@ void Client::connect(const Address &address, const std::string &address_name,
 	}
 
 	m_address_name = address_name;
+	m_is_local_server = is_local_server;
 	m_con.reset(con::createMTP(CONNECTION_TIMEOUT, address.isIPv6(), this));
 
 	infostream << "Connecting to server at ";
@@ -389,7 +390,7 @@ void Client::connect(const Address &address, const std::string &address_name,
 
 	m_con->Connect(address);
 
-	initLocalMapSaving(address, m_address_name, is_local_server);
+	initLocalMapSaving(address, m_address_name);
 }
 
 void Client::step(float dtime)
@@ -918,10 +919,9 @@ void Client::request_media(const std::vector<std::string> &file_requests)
 }
 
 void Client::initLocalMapSaving(const Address &address,
-		const std::string &hostname,
-		bool is_local_server)
+		const std::string &hostname)
 {
-	if (!g_settings->getBool("enable_local_map_saving") || is_local_server) {
+	if (!g_settings->getBool("enable_local_map_saving") || m_is_local_server) {
 		return;
 	}
 	if (m_localdb) {
