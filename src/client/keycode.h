@@ -9,6 +9,7 @@
 #include <IEventReceiver.h>
 #include <string>
 #include <variant>
+#include <vector>
 
 /* A key press, consisting of a scancode or a keycode.
  * This fits into 64 bits, so prefer passing this by value.
@@ -49,6 +50,11 @@ public:
 		return !(*this == o);
 	}
 
+	// Used for e.g. std::set
+	bool operator<(KeyPress o) const {
+		return scancode < o.scancode;
+	}
+
 	// Check whether the keypress is valid
 	operator bool() const
 	{
@@ -60,11 +66,22 @@ public:
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
+	using value_type = std::variant<u32, irr::EKEY_CODE>;
 	bool loadFromScancode(const std::string &name);
 	void loadFromKey(irr::EKEY_CODE keycode, wchar_t keychar);
 	std::string formatScancode() const;
 
-	std::variant<u32, irr::EKEY_CODE> scancode = irr::KEY_UNKNOWN;
+	value_type scancode = irr::KEY_UNKNOWN;
+
+	friend std::hash<KeyPress>;
+};
+
+template <>
+struct std::hash<KeyPress>
+{
+	size_t operator()(KeyPress kp) const noexcept {
+		return std::hash<KeyPress::value_type>{}(kp.scancode);
+	}
 };
 
 // Global defines for convenience
@@ -76,7 +93,13 @@ private:
 #define RMBKey KeyPress::getSpecialKey("KEY_RBUTTON")
 
 // Key configuration getter
-KeyPress getKeySetting(const std::string &settingname);
+// Note that the reference may be invalidated by a next call to getKeySetting
+// or a related function, so the value should either be used immediately or
+// copied elsewhere before calling this again.
+const std::vector<KeyPress> &getKeySetting(const std::string &settingname);
+
+// Check whether the key setting includes a key.
+bool keySettingHasMatch(const std::string &settingname, KeyPress kp);
 
 // Clear fast lookup cache
 void clearKeyCache();

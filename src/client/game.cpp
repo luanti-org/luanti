@@ -885,7 +885,7 @@ bool Game::startup(bool *kill,
 	this->chat_backend        = chat_backend;
 	simple_singleplayer_mode  = start_data.isSinglePlayer();
 
-	input->keycache.populate();
+	input->reloadKeybindings();
 
 	driver = device->getVideoDriver();
 	smgr = m_rendering_engine->get_scene_manager();
