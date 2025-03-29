@@ -9503,9 +9503,9 @@ that all given positions contain a matching node.
     run_at_every_load = false,
     -- If `true`: The LBM runs whenever a mapblock is activated.
     --
-    -- If `false`: The LBM only runs for a mapblock when it is activated for
+    -- If `false`: The LBM only runs on a mapblock when it is activated for
     -- the first time after the LBM was introduced.
-    -- It never runs for mapblocks generated after the LBM's introduction.
+    -- It never runs on mapblocks generated after the LBM's introduction.
     --
     -- For this, each LBM's introduction timestamp is stored in the world data,
     -- identified by `name`. When a LBM is removed, the corresponding timestamp
