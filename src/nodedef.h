@@ -122,6 +122,8 @@ struct NodeBox
 	// NODEBOX_CONNECTED
 	// (kept externally to not bloat the structure)
 	std::shared_ptr<NodeBoxConnected> connected;
+	// NODEBOX_LEVELED
+	std::vector<aabb3f> leveled_fixed;
 
 	NodeBox()
 	{ reset(); }

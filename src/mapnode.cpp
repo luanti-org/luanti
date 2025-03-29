@@ -170,6 +170,62 @@ void MapNode::rotateAlongYAxis(const NodeDefManager *nodemgr, Rotation rot)
 	}
 }
 
+void buildFixedNodeBox(const MapNode &n, const NodeBox &nodebox,
+		const NodeDefManager *nodemgr,
+		std::vector<aabb3f> &boxes, const std::vector<aabb3f> &input_boxes,
+		NodeBoxType nbt) {
+	u8 facedir = n.getFaceDir(nodemgr, true);
+	u8 axisdir = facedir >> 2;
+	facedir &= 0x03;
+	const auto &fixed = nodebox.fixed;
+	boxes.reserve(boxes.size() + fixed.size());
+	for (aabb3f box : input_boxes) {
+		if (nbt == NODEBOX_LEVELED) {
+			box.MaxEdge.Y = (-0.5f + n.getLevel(nodemgr) / 64.0f) * BS;
+		}
+
+		if(facedir == 1) {
+			box.MinEdge.rotateXZBy(-90);
+			box.MaxEdge.rotateXZBy(-90);
+		} else if(facedir == 2) {
+			box.MinEdge.rotateXZBy(180);
+			box.MaxEdge.rotateXZBy(180);
+		} else if(facedir == 3) {
+			box.MinEdge.rotateXZBy(90);
+			box.MaxEdge.rotateXZBy(90);
+		}
+
+		switch (axisdir) {
+		case 0:
+			break;
+		case 1: // z+
+			box.MinEdge.rotateYZBy(90);
+			box.MaxEdge.rotateYZBy(90);
+			break;
+		case 2: //z-
+			box.MinEdge.rotateYZBy(-90);
+			box.MaxEdge.rotateYZBy(-90);
+			break;
+		case 3:  //x+
+			box.MinEdge.rotateXYBy(-90);
+			box.MaxEdge.rotateXYBy(-90);
+			break;
+		case 4:  //x-
+			box.MinEdge.rotateXYBy(90);
+			box.MaxEdge.rotateXYBy(90);
+			break;
+		case 5:
+			box.MinEdge.rotateXYBy(-180);
+			box.MaxEdge.rotateXYBy(-180);
+			break;
+		default:
+			break;
+		}
+		box.repair();
+		boxes.push_back(box);
+	}
+}
+
 void transformNodeBox(const MapNode &n, const NodeBox &nodebox,
 	const NodeDefManager *nodemgr, std::vector<aabb3f> *p_boxes,
 	u8 neighbors = 0)
@@ -177,57 +233,14 @@ void transformNodeBox(const MapNode &n, const NodeBox &nodebox,
 	std::vector<aabb3f> &boxes = *p_boxes;
 
 	if (nodebox.type == NODEBOX_FIXED || nodebox.type == NODEBOX_LEVELED) {
-		const auto &fixed = nodebox.fixed;
-		int facedir = n.getFaceDir(nodemgr, true);
-		u8 axisdir = facedir >> 2;
-		facedir &= 0x03;
-
-		boxes.reserve(boxes.size() + fixed.size());
-		for (aabb3f box : fixed) {
-			if (nodebox.type == NODEBOX_LEVELED)
-				box.MaxEdge.Y = (-0.5f + n.getLevel(nodemgr) / 64.0f) * BS;
-
-			if(facedir == 1) {
-				box.MinEdge.rotateXZBy(-90);
-				box.MaxEdge.rotateXZBy(-90);
-			} else if(facedir == 2) {
-				box.MinEdge.rotateXZBy(180);
-				box.MaxEdge.rotateXZBy(180);
-			} else if(facedir == 3) {
-				box.MinEdge.rotateXZBy(90);
-				box.MaxEdge.rotateXZBy(90);
-			}
-
-			switch (axisdir) {
-			case 0:
-				break;
-			case 1: // z+
-				box.MinEdge.rotateYZBy(90);
-				box.MaxEdge.rotateYZBy(90);
-				break;
-			case 2: //z-
-				box.MinEdge.rotateYZBy(-90);
-				box.MaxEdge.rotateYZBy(-90);
-				break;
-			case 3:  //x+
-				box.MinEdge.rotateXYBy(-90);
-				box.MaxEdge.rotateXYBy(-90);
-				break;
-			case 4:  //x-
-				box.MinEdge.rotateXYBy(90);
-				box.MaxEdge.rotateXYBy(90);
-				break;
-			case 5:
-				box.MinEdge.rotateXYBy(-180);
-				box.MaxEdge.rotateXYBy(-180);
-				break;
-			default:
-				break;
-			}
-
-			box.repair();
-			boxes.push_back(box);
+		if (nodebox.type == NODEBOX_LEVELED) {
+			// add leveled_fixed boxes as if they were really fixed
+			// (because we modify the fixed ones...)
+			buildFixedNodeBox(n, nodebox, nodemgr, boxes,
+				nodebox.leveled_fixed, NODEBOX_FIXED);
 		}
+		buildFixedNodeBox(n, nodebox, nodemgr, boxes,
+			nodebox.fixed, nodebox.type);
 	}
 	else if(nodebox.type == NODEBOX_WALLMOUNTED)
 	{
