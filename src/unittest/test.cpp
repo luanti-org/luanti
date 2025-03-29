@@ -32,25 +32,6 @@ content_t t_CONTENT_BRICK;
 //// TestGameDef
 ////
 
-class TestGameDef : public DummyGameDef {
-public:
-	TestGameDef();
-	~TestGameDef() = default;
-
-	void defineSomeNodes();
-
-	bool joinModChannel(const std::string &channel);
-	bool leaveModChannel(const std::string &channel);
-	bool sendModChannelMessage(const std::string &channel, const std::string &message);
-	ModChannel *getModChannel(const std::string &channel)
-	{
-		return m_modchannel_mgr->getModChannel(channel);
-	}
-
-private:
-	std::unique_ptr<ModChannelMgr> m_modchannel_mgr;
-};
-
 
 TestGameDef::TestGameDef() :
 	DummyGameDef(),
