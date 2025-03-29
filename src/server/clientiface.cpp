@@ -343,24 +343,21 @@ void RemoteClient::GetNextBlocks (
 			const bool want_emerge = !block || !block->isGenerated();
 
 			// if the block is already in the emerge queue we don't have to check again
-			if (want_emerge && emerge->isBlockInQueue(p)) {
-				nearest_emerged_d = d;
-				continue;
-			}
+			if (!want_emerge || !emerge->isBlockInQueue(p)) {
+				/*
+					Check occlusion cache first.
+				 */
+				if (m_blocks_occ.find(p) != m_blocks_occ.end())
+					continue;
 
-			/*
-				Check occlusion cache first.
-			 */
-			if (m_blocks_occ.find(p) != m_blocks_occ.end())
-				continue;
-
-			/*
-				Note that we do this even before the block is loaded as this does not depend on its contents.
-			 */
-			if (m_occ_cull &&
-					env->getMap().isBlockOccluded(p * MAP_BLOCKSIZE, cam_pos_nodes, d >= d_cull_opt)) {
-				m_blocks_occ.insert(p);
-				continue;
+				/*
+					Note that we do this even before the block is loaded as this does not depend on its contents.
+				 */
+				if (m_occ_cull &&
+						env->getMap().isBlockOccluded(p * MAP_BLOCKSIZE, cam_pos_nodes, d >= d_cull_opt)) {
+					m_blocks_occ.insert(p);
+					continue;
+				}
 			}
 
 			/*
