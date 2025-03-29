@@ -9486,17 +9486,29 @@ Used by `core.register_lbm`.
 
 A loading block modifier (LBM) is used to define a function that is called for
 specific nodes (defined by `nodenames`) when a mapblock which contains such nodes
-gets activated (**not loaded!**).
+gets **activated** (**not loaded!**).
 
 *Note*: LBMs operate on a "snapshot" of node positions taken once before they are triggered.
 That means if an LBM callback adds a node, it won't be taken into account.
 However the engine guarantees that at the point in time when the callback is called
 that all given positions contain a matching node.
 
-*Note*: For maps generated in 5.11.0 or older, many newly generated blocks did not
-get a timestamp set. This means LBMs introduced between generation time and
-time of first activation will never run.
-Currently the only workaround is to use `run_at_every_load`.
+For `run_at_every_load = false` to work, both mapblocks and LBMs have timestamps
+associated with them:
+
+* Each mapblock has a "last active" timestamp. It is also updated when the
+  mapblock is generated.
+* For each LBM, an introduction timestamp is stored in the world data, identified
+  by the LBM's `name` field. If an LBM disappears, the corresponding timestamp
+  is cleared.
+
+When a mapblock is activated, only LBMs whose introduction timestamp is newer
+than the mapblock's timestamp are run.
+
+*Note*: For maps generated in 5.11.0 or older, many newly generated mapblocks
+did not get a timestamp set. This means LBMs introduced between generation time
+and time of first activation will never run.
+Currently the only workaround is to use `run_at_every_load = true`.
 
 ```lua
 {
@@ -9513,13 +9525,16 @@ Currently the only workaround is to use `run_at_every_load`.
     -- will work as well.
 
     run_at_every_load = false,
-    -- Whether to run the LBM's action every time a block gets activated,
-    -- and not only the first time the block gets activated after the LBM
-    -- was introduced.
+    -- If `false`: The LBM only runs on mapblocks the first time they are
+    -- activated after the LBM was introduced.
+    -- It never runs on mapblocks generated after the LBM's introduction.
+    -- See above for details.
+    --
+    -- If `true`: The LBM runs every time a mapblock is activated.
 
     action = function(pos, node, dtime_s) end,
     -- Function triggered for each qualifying node.
-    -- `dtime_s` is the in-game time (in seconds) elapsed since the block
+    -- `dtime_s` is the in-game time (in seconds) elapsed since the mapblock
     -- was last active (available since 5.7.0).
 
     bulk_action = function(pos_list, dtime_s) end,
