@@ -9479,7 +9479,7 @@ Used by `core.register_lbm`.
 
 A loading block modifier (LBM) is used to define a function that is called for
 specific nodes (defined by `nodenames`) when a mapblock which contains such nodes
-gets activated (**not loaded!**).
+gets **activated** (**not loaded!**).
 
 *Note*: LBMs operate on a "snapshot" of node positions taken once before they are triggered.
 That means if an LBM callback adds a node, it won't be taken into account.
