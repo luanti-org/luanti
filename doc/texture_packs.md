@@ -21,7 +21,10 @@ Texture pack directory structure
 This is a directory containing the entire contents of a single texture pack.
 It can be chosen more or less freely and will also become the name of the
 texture pack. The name must not be “base”.
-Textures in the “server“ pack will be used by the server.
+
+### The server texture pack
+Textures in the texture pack named `server` replace textures sent to clients.
+It's independent of the client's texture pack, which will take precedence as usual.
 
 ### `texture_pack.conf`
 A key-value config file with the following keys:
