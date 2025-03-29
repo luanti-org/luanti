@@ -118,13 +118,13 @@ void drawItemStack(
 			client->idef()->getItemstackColor(item, client);
 
 		const u32 mc = mesh->getMeshBufferCount();
-		if (mc > imesh->buffer_colors.size())
-			imesh->buffer_colors.resize(mc);
+		if (mc > imesh->buffer_info.size())
+			imesh->buffer_info.resize(mc);
 		for (u32 j = 0; j < mc; ++j) {
 			scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
 			video::SColor c = basecolor;
 
-			auto &p = imesh->buffer_colors[j];
+			auto &p = imesh->buffer_info[j];
 			p.applyOverride(c);
 
 			// TODO: could be moved to a shader
@@ -137,6 +137,12 @@ void drawItemStack(
 			}
 
 			video::SMaterial &material = buf->getMaterial();
+
+			// Texture animation
+			if (p.animation_info) {
+				p.animation_info->updateTexture(material, client->getAnimationTime());
+			}
+
 			material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
 			driver->setMaterial(material);
 			driver->drawMeshBuffer(buf);

@@ -678,9 +678,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 			// - Texture animation
 			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
 				// Add to MapBlockMesh in order to animate these tiles
-				auto &info = m_animation_info[{layer, i}];
-				info.tile = p.layer;
-				info.frame = 0;
+				m_animation_info.emplace(std::make_pair(layer, i), AnimationInfo(p.layer));
 				// Replace tile texture with the first animation frame
 				p.layer.texture = (*p.layer.frames)[0].texture;
 			}
@@ -763,6 +761,12 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 	// Cracks
 	if (crack != m_last_crack) {
 		for (auto &crack_material : m_crack_materials) {
+
+			// TODO crack on animated tiles does not work
+			auto anim_it = m_animation_info.find(crack_material.first);
+			if (anim_it != m_animation_info.end())
+				continue;
+
 			scene::IMeshBuffer *buf = m_mesh[crack_material.first.first]->
 				getMeshBuffer(crack_material.first.second);
 
@@ -772,16 +776,6 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 			video::ITexture *new_texture =
 					m_tsrc->getTextureForMesh(s, &new_texture_id);
 			buf->getMaterial().setTexture(0, new_texture);
-
-			// If the current material is also animated, update animation info
-			auto anim_it = m_animation_info.find(crack_material.first);
-			if (anim_it != m_animation_info.end()) {
-				TileLayer &tile = anim_it->second.tile;
-				tile.texture = new_texture;
-				tile.texture_id = new_texture_id;
-				// force animation update
-				anim_it->second.frame = -1;
-			}
 		}
 
 		m_last_crack = crack;
@@ -789,20 +783,9 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 
 	// Texture animation
 	for (auto &it : m_animation_info) {
-		const TileLayer &tile = it.second.tile;
-		// Figure out current frame
-		int frameno = (int)(time * 1000 / tile.animation_frame_length_ms) %
-			tile.animation_frame_count;
-		// If frame doesn't change, skip
-		if (frameno == it.second.frame)
-			continue;
-
-		it.second.frame = frameno;
-
 		scene::IMeshBuffer *buf = m_mesh[it.first.first]->getMeshBuffer(it.first.second);
-
-		const FrameSpec &frame = (*tile.frames)[frameno];
-		buf->getMaterial().setTexture(0, frame.texture);
+		video::SMaterial &material = buf->getMaterial();
+		it.second.updateTexture(material, time);
 	}
 
 	return true;
