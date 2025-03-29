@@ -9508,7 +9508,7 @@ that all given positions contain a matching node.
     -- It never runs on mapblocks generated after the LBM's introduction.
     --
     -- For this, each LBM's introduction timestamp is stored in the world data,
-    -- identified by `name`. When a LBM is removed, the corresponding timestamp
+    -- identified by `name`. If an LBM disappears, the corresponding timestamp
     -- is cleared.
     --
     -- *Note*: For maps generated in 5.11.0 or older, many newly generated
