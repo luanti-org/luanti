@@ -9486,11 +9486,6 @@ That means if an LBM callback adds a node, it won't be taken into account.
 However the engine guarantees that at the point in time when the callback is called
 that all given positions contain a matching node.
 
-*Note*: For maps generated in 5.11.0 or older, many newly generated blocks did not
-get a timestamp set. This means LBMs introduced between generation time and
-time of first activation will never run.
-Currently the only workaround is to use `run_at_every_load`.
-
 ```lua
 {
     label = "Upgrade legacy doors",
@@ -9506,13 +9501,24 @@ Currently the only workaround is to use `run_at_every_load`.
     -- will work as well.
 
     run_at_every_load = false,
-    -- Whether to run the LBM's action every time a block gets activated,
-    -- and not only the first time the block gets activated after the LBM
-    -- was introduced.
+    -- If `true`: The LBM runs whenever a mapblock is activated.
+    --
+    -- If `false`: The LBM only runs for a mapblock when it is activated for
+    -- the first time after the LBM was introduced.
+    -- It never runs for mapblocks generated after the LBM's introduction.
+    --
+    -- For this, each LBM's introduction timestamp is stored in the world data,
+    -- identified by `name`. When a LBM is removed, the corresponding timestamp
+    -- is cleared.
+    --
+    -- *Note*: For maps generated in 5.11.0 or older, many newly generated
+    -- mapblocks did not get a timestamp set. This means LBMs introduced between
+    -- generation time and time of first activation will never run.
+    -- Currently the only workaround is to use `true`.
 
     action = function(pos, node, dtime_s) end,
     -- Function triggered for each qualifying node.
-    -- `dtime_s` is the in-game time (in seconds) elapsed since the block
+    -- `dtime_s` is the in-game time (in seconds) elapsed since the mapblock
     -- was last active (available since 5.7.0).
 
     bulk_action = function(pos_list, dtime_s) end,
