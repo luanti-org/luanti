@@ -29,14 +29,13 @@ CArchiveLoaderZIP::CArchiveLoaderZIP(io::IFileSystem *fs) :
 //! returns true if the file maybe is able to be loaded by this class
 bool CArchiveLoaderZIP::isALoadableFileFormat(const io::path &filename) const
 {
-	return core::hasFileExtension(filename, "zip", "pk3") ||
-		   core::hasFileExtension(filename, "gz", "tgz");
+	return core::hasFileExtension(filename, "zip", "pk3");
 }
 
 //! Check to see if the loader can create archives of this type.
 bool CArchiveLoaderZIP::isALoadableFileFormat(E_FILE_ARCHIVE_TYPE fileType) const
 {
-	return (fileType == EFAT_ZIP || fileType == EFAT_GZIP);
+	return fileType == EFAT_ZIP;
 }
 
 //! Creates an archive from the filename
@@ -63,18 +62,7 @@ IFileArchive *CArchiveLoaderZIP::createArchive(io::IReadFile *file, bool ignoreC
 	if (file) {
 		file->seek(0);
 
-		u16 sig;
-		file->read(&sig, 2);
-
-#ifdef __BIG_ENDIAN__
-		sig = os::Byteswap::byteswap(sig);
-#endif
-
-		file->seek(0);
-
-		bool isGZip = (sig == 0x8b1f);
-
-		archive = new CZipReader(FileSystem, file, ignoreCase, ignorePaths, isGZip);
+		archive = new CZipReader(FileSystem, file, ignoreCase, ignorePaths);
 	}
 	return archive;
 }
@@ -92,27 +80,21 @@ bool CArchiveLoaderZIP::isALoadableFileFormat(io::IReadFile *file) const
 	header.Sig = os::Byteswap::byteswap(header.Sig);
 #endif
 
-	return header.Sig == 0x04034b50 ||      // ZIP
-		   (header.Sig & 0xffff) == 0x8b1f; // gzip
+	return header.Sig == 0x04034b50; // ZIP
 }
 
 // -----------------------------------------------------------------------------
 // zip archive
 // -----------------------------------------------------------------------------
 
-CZipReader::CZipReader(IFileSystem *fs, IReadFile *file, bool ignoreCase, bool ignorePaths, bool isGZip) :
-		CFileList((file ? file->getFileName() : io::path("")), ignoreCase, ignorePaths), FileSystem(fs), File(file), IsGZip(isGZip)
+CZipReader::CZipReader(IFileSystem *fs, IReadFile *file, bool ignoreCase, bool ignorePaths) :
+		CFileList((file ? file->getFileName() : io::path("")), ignoreCase, ignorePaths), FileSystem(fs), File(file)
 {
 	if (File) {
 		File->grab();
 
 		// load file entries
-		if (IsGZip)
-			while (scanGZipHeader()) {
-			}
-		else
-			while (scanZipHeader()) {
-			}
+		while (scanZipHeader()) {}
 
 		sort();
 	}
@@ -127,111 +109,12 @@ CZipReader::~CZipReader()
 //! get the archive type
 E_FILE_ARCHIVE_TYPE CZipReader::getType() const
 {
-	return IsGZip ? EFAT_GZIP : EFAT_ZIP;
+	return EFAT_ZIP;
 }
 
 const IFileList *CZipReader::getFileList() const
 {
 	return this;
-}
-
-//! scans for a local header, returns false if there is no more local file header.
-//! The gzip file format seems to think that there can be multiple files in a gzip file
-//! but none
-bool CZipReader::scanGZipHeader()
-{
-	SZipFileEntry entry;
-	entry.Offset = 0;
-	memset(&entry.header, 0, sizeof(SZIPFileHeader));
-
-	// read header
-	SGZIPMemberHeader header;
-	if (File->read(&header, sizeof(SGZIPMemberHeader)) == sizeof(SGZIPMemberHeader)) {
-
-#ifdef __BIG_ENDIAN__
-		header.sig = os::Byteswap::byteswap(header.sig);
-		header.time = os::Byteswap::byteswap(header.time);
-#endif
-
-		// check header value
-		if (header.sig != 0x8b1f)
-			return false;
-
-		// now get the file info
-		if (header.flags & EGZF_EXTRA_FIELDS) {
-			// read lenth of extra data
-			u16 dataLen;
-
-			File->read(&dataLen, 2);
-
-#ifdef __BIG_ENDIAN__
-			dataLen = os::Byteswap::byteswap(dataLen);
-#endif
-
-			// skip it
-			File->seek(dataLen, true);
-		}
-
-		io::path ZipFileName = "";
-
-		if (header.flags & EGZF_FILE_NAME) {
-			c8 c;
-			File->read(&c, 1);
-			while (c) {
-				ZipFileName.append(c);
-				File->read(&c, 1);
-			}
-		} else {
-			// no file name?
-			ZipFileName = core::deletePathFromFilename(Path);
-
-			// rename tgz to tar or remove gz extension
-			if (core::hasFileExtension(ZipFileName, "tgz")) {
-				ZipFileName[ZipFileName.size() - 2] = 'a';
-				ZipFileName[ZipFileName.size() - 1] = 'r';
-			} else if (core::hasFileExtension(ZipFileName, "gz")) {
-				ZipFileName[ZipFileName.size() - 3] = 0;
-				ZipFileName.validate();
-			}
-		}
-
-		if (header.flags & EGZF_COMMENT) {
-			c8 c = 'a';
-			while (c)
-				File->read(&c, 1);
-		}
-
-		if (header.flags & EGZF_CRC16)
-			File->seek(2, true);
-
-		// we are now at the start of the data blocks
-		entry.Offset = File->getPos();
-
-		entry.header.FilenameLength = ZipFileName.size();
-
-		entry.header.CompressionMethod = header.compressionMethod;
-		entry.header.DataDescriptor.CompressedSize = (File->getSize() - 8) - File->getPos();
-
-		// seek to file end
-		File->seek(entry.header.DataDescriptor.CompressedSize, true);
-
-		// read CRC
-		File->read(&entry.header.DataDescriptor.CRC32, 4);
-		// read uncompressed size
-		File->read(&entry.header.DataDescriptor.UncompressedSize, 4);
-
-#ifdef __BIG_ENDIAN__
-		entry.header.DataDescriptor.CRC32 = os::Byteswap::byteswap(entry.header.DataDescriptor.CRC32);
-		entry.header.DataDescriptor.UncompressedSize = os::Byteswap::byteswap(entry.header.DataDescriptor.UncompressedSize);
-#endif
-
-		// now we've filled all the fields, this is just a standard deflate block
-		addItem(ZipFileName, entry.Offset, entry.header.DataDescriptor.UncompressedSize, false, 0);
-		FileInfo.push_back(entry);
-	}
-
-	// there's only one block of data in a gzip file
-	return false;
 }
 
 //! scans for a local header, returns false if there is no more local file header.
