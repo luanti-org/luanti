@@ -18,6 +18,7 @@
 local format, pairs, type = string.format, pairs, type
 local core, get_current_modname = core, core.get_current_modname
 local profiler, sampler, get_bool_default = ...
+local debug_getinfo = debug.getinfo
 
 local instrument_builtin = get_bool_default("instrument.builtin", false)
 
@@ -72,7 +73,7 @@ local function generate_name(def)
 	local index_id = def.mod .. (class or func_name)
 	local index = counts[index_id] or 1
 	counts[index_id] = index + 1
-	local info = debug.getinfo(def.func)
+	local info = debug_getinfo(def.func)
 	local modpath = regex_escape(core.get_modpath(def.mod) or "")
 	local source = info.source
 	if modpath ~= "" then

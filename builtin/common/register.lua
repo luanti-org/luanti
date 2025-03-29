@@ -1,4 +1,5 @@
 local builtin_shared = ...
+local debug_getinfo = debug.getinfo
 
 do
 	local default = {mod = "??", name = "??"}
@@ -56,7 +57,7 @@ function builtin_shared.make_registration()
 		core.callback_origins[func] = {
 			-- may be nil or return nil
 			mod = core.get_current_modname and core.get_current_modname() or "??",
-			name = debug.getinfo(1, "n").name or "??"
+			name = debug_getinfo(1, "n").name or "??"
 		}
 	end
 	return t, registerfunc
@@ -69,7 +70,7 @@ function builtin_shared.make_registration_reverse()
 		core.callback_origins[func] = {
 			-- may be nil or return nil
 			mod = core.get_current_modname and core.get_current_modname() or "??",
-			name = debug.getinfo(1, "n").name or "??"
+			name = debug_getinfo(1, "n").name or "??"
 		}
 	end
 	return t, registerfunc
