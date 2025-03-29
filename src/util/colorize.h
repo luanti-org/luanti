@@ -37,6 +37,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * Throws an exception if the url is invalid.
  */
-std::string colorize_url(const std::string &url);
+[[nodiscard]] std::string colorize_url(const std::string &url);
 
 #endif

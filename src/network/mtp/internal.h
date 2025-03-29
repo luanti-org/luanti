@@ -48,12 +48,6 @@ controltype and data description:
 	  packet to get a reply
 	CONTROLTYPE_DISCO
 */
-enum ControlType : u8 {
-	CONTROLTYPE_ACK = 0,
-	CONTROLTYPE_SET_PEER_ID = 1,
-	CONTROLTYPE_PING = 2,
-	CONTROLTYPE_DISCO = 3,
-};
 
 /*
 ORIGINAL: This is a plain packet with no control and no error
@@ -62,7 +56,6 @@ checking at all.
 	Header (1 byte):
 	[0] u8 type
 */
-//#define TYPE_ORIGINAL 1
 #define ORIGINAL_HEADER_SIZE 1
 
 /*
@@ -80,7 +73,6 @@ data.
 	[3] u16 chunk_count
 	[5] u16 chunk_num
 */
-//#define TYPE_SPLIT 2
 
 /*
 RELIABLE: Delivery of all RELIABLE packets shall be forced by ACKs,
@@ -93,14 +85,28 @@ with a buffer in the receiving and transmitting end.
 	[1] u16 seqnum
 
 */
-//#define TYPE_RELIABLE 3
 #define RELIABLE_HEADER_SIZE 3
 #define SEQNUM_INITIAL 65500
 #define SEQNUM_MAX 65535
 
+/****/
+
+template<typename T>
+class ConstSharedPtr {
+public:
+	ConstSharedPtr(T *ptr) : ptr(ptr) {}
+	ConstSharedPtr(const std::shared_ptr<T> &ptr) : ptr(ptr) {}
+
+	const T* get() const noexcept { return ptr.get(); }
+	const T& operator*() const noexcept { return *ptr.get(); }
+	const T* operator->() const noexcept { return ptr.get(); }
+
+private:
+	std::shared_ptr<T> ptr;
+};
+
 namespace con
 {
-
 
 enum PacketType : u8 {
 	PACKET_TYPE_CONTROL = 0,
@@ -108,6 +114,13 @@ enum PacketType : u8 {
 	PACKET_TYPE_SPLIT = 2,
 	PACKET_TYPE_RELIABLE = 3,
 	PACKET_TYPE_MAX
+};
+
+enum ControlType : u8 {
+	CONTROLTYPE_ACK = 0,
+	CONTROLTYPE_SET_PEER_ID = 1,
+	CONTROLTYPE_PING = 2,
+	CONTROLTYPE_DISCO = 3,
 };
 
 inline bool seqnum_higher(u16 totest, u16 base)

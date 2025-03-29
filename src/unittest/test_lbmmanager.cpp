@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-#include "serverenvironment.h"
+#include "server/blockmodifier.h"
 
 class TestLBMManager : public TestBase
 {

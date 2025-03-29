@@ -14,6 +14,7 @@
 #include "network/networkprotocol.h"
 #include <iostream>
 #include <vector>
+#include <memory>
 #include <map>
 
 namespace con
@@ -24,7 +25,6 @@ class ConnectionSendThread;
 
 class Peer;
 
-// FIXME: Peer refcounting should generally be replaced by std::shared_ptr
 class PeerHelper
 {
 public:

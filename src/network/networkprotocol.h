@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "irrTypes.h"
-using namespace irr;
+#include "irrlichttypes.h"
 
 extern const u16 LATEST_PROTOCOL_VERSION;
 

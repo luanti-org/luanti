@@ -8,6 +8,7 @@
 #include "objdef.h"
 #include "nodedef.h"
 #include "noise.h"
+#include "debug.h"
 
 class Server;
 class Settings;
