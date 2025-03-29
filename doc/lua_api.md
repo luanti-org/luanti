@@ -9486,7 +9486,7 @@ That means if an LBM callback adds a node, it won't be taken into account.
 However the engine guarantees that at the point in time when the callback is called
 that all given positions contain a matching node.
 
-For `run_at_every_load = false`, both mapblocks and LBMs have timestamps
+For `run_at_every_load = false` to work, both mapblocks and LBMs have timestamps
 associated with them:
 
 * Each mapblock has a "last active" timestamp. It is also updated when the
@@ -9498,9 +9498,9 @@ associated with them:
 When a mapblock is activated, only LBMs whose introduction timestamp is newer
 than the mapblock's timestamp are run.
 
-*Note*: For maps generated in 5.11.0 or older, many newly generated blocks did not
-get a timestamp set. This means LBMs introduced between generation time and
-time of first activation will never run.
+*Note*: For maps generated in 5.11.0 or older, many newly generated mapblocks
+did not get a timestamp set. This means LBMs introduced between generation time
+and time of first activation will never run.
 Currently the only workaround is to use `run_at_every_load = true`.
 
 ```lua
@@ -9518,11 +9518,12 @@ Currently the only workaround is to use `run_at_every_load = true`.
     -- will work as well.
 
     run_at_every_load = false,
-    -- If `false`: The LBM only runs on mapblocks when they are activated for
-    -- the first time after the LBM was introduced.
+    -- If `false`: The LBM only runs on mapblocks the first time they are
+    -- activated after the LBM was introduced.
     -- It never runs on mapblocks generated after the LBM's introduction.
+    -- See above for details.
     --
-    -- If `true`: The LBM runs whenever a mapblock is activated.
+    -- If `true`: The LBM runs every time a mapblock is activated.
 
     action = function(pos, node, dtime_s) end,
     -- Function triggered for each qualifying node.
