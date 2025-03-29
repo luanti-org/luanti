@@ -62,6 +62,28 @@ core.register_node("testnodes:nodebox_leveled", {
 	groups = {dig_immediate=3},
 })
 
+-- Leveled nodebox that also contains a static nodebox
+minetest.register_node("testnodes:nodebox_leveled_fixed", {
+	description = S("Combined Leveled Nodebox Test Node").."\n"..
+		S("param2 = height of center box (0..127)").."\n"..
+		S("Other boxes are unaffected by param2"),
+	tiles = {"testnodes_nodebox.png^[colorize:#0F0:32"},
+	drawtype = "nodebox",
+	paramtype = "light",
+	paramtype2 = "leveled",
+	node_box = {
+		type = "leveled",
+		fixed = {-0.25, 0.0, -0.25, 0.25, -0.499, 0.25},
+		leveled_fixed = {
+			{-0.5, -0.5, -0.5, -0.25, 0.0, -0.25},
+			{0.25, -0.5, 0.25, 0.5, 0.0, 0.5},
+			{-0.5, -0.5, 0.25, -0.25, 0.0, 0.5},
+			{0.25, -0.5, -0.5, 0.5, 0.0, -0.25},
+		},
+	},
+
+	groups = {dig_immediate=3},
+})
 
 local nodebox_wall = {
 	type = "connected",
