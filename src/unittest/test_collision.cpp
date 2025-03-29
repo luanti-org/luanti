@@ -10,25 +10,7 @@
 #include "irrlicht_changes/printing.h"
 #include "irrlichttypes.h"
 
-
 const float EPSILON = 0.001f;
-
-class TestCollision : public TestBase {
-public:
-	TestCollision() { TestManager::registerTestModule(this); }
-	const char *getName() { return "TestCollision"; }
-
-	void runTests(IGameDef *gamedef);
-
-	void testCollisionMoveSimple(IGameDef *gamedef);
-};
-
-static TestCollision g_test_instance;
-
-void TestCollision::runTests(IGameDef *gamedef)
-{
-	TEST(testCollisionMoveSimple, gamedef);
-}
 
 namespace {
 	class TestEnvironment : public Environment {
@@ -53,7 +35,7 @@ namespace {
 #define UASSERTEQ_F(actual, expected) do { \
 		f32 a = (actual); \
 		f32 e = (expected); \
-		UTEST(fabsf(a - e) <= 0.0001f, "actual: %.5f expected: %.5f", a, e) \
+		CHECK(fabsf(a - e) <= 0.0001f); \
 	} while (0)
 
 #define UASSERTEQ_V3F(actual, expected) do { \
@@ -238,11 +220,12 @@ TEST_CASE("Test axis aligned collision with 2x2x2 cube.", "[collision]")
 	}
 }
 
-
-void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
+TEST_CASE("Test simple moving collision.", "[collision]")
 {
-	auto env = std::make_unique<TestEnvironment>(gamedef);
-	g_collision_problems_encountered = false;
+	TestGameDef gamedef;
+
+	auto env = std::make_unique<TestEnvironment>(&gamedef);
+	REQUIRE(!g_collision_problems_encountered);
 
 	for (s16 x = 0; x < MAP_BLOCKSIZE; x++)
 	for (s16 z = 0; z < MAP_BLOCKSIZE; z++)
@@ -252,163 +235,194 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	const aabb3f box(fpos(-0.1f, 0, -0.1f), fpos(0.1f, 1.4f, 0.1f));
 	collisionMoveResult res;
 
-	/* simple movement with accel */
-	pos   = fpos(4, 1, 4);
-	speed = fpos(0, 0, 0);
-	accel = fpos(0, 1, 0);
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1.0f,
-		&pos, &speed, accel);
+	SECTION("Simple movement with accel.")
+	{
+		pos   = fpos(4, 1, 4);
+		speed = fpos(0, 0, 0);
+		accel = fpos(0, 1, 0);
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 1.0f,
+			&pos, &speed, accel);
 
-	UASSERT(!res.touching_ground && !res.collides && !res.standing_on_object);
-	UASSERT(res.collisions.empty());
-	UASSERTEQ_V3F(pos, fpos(4, 1.5f, 4));
-	UASSERTEQ_V3F(speed, fpos(0, 1, 0));
+		CHECK(!res.touching_ground);
+		CHECK(!res.collides);
+		CHECK(!res.standing_on_object);
+		CHECK(res.collisions.empty());
+		UASSERTEQ_V3F(pos, fpos(4, 1.5f, 4));
+		UASSERTEQ_V3F(speed, fpos(0, 1, 0));
+	}
 
 	/* standing on ground */
-	pos   = fpos(0, 0.5f, 0);
-	speed = fpos(0, 0, 0);
-	accel = fpos(0, -9.81f, 0);
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.05f,
-		&pos, &speed, accel);
-
-	UASSERT(res.collides);
-	UASSERT(res.touching_ground);
-	UASSERT(!res.standing_on_object);
-	UASSERTEQ_V3F(pos, fpos(0, 0.5f, 0));
-	UASSERTEQ_V3F(speed, fpos(0, 0, 0));
-	UASSERT(res.collisions.size() == 1);
+	SECTION("Standing on ground.")
 	{
-		auto &ci = res.collisions.front();
-		UASSERTEQ(int, ci.type, COLLISION_NODE);
-		UASSERTEQ(int, ci.axis, COLLISION_AXIS_Y);
-		UASSERTEQ(v3s16, ci.node_p, v3s16(0, 0, 0));
+		pos   = fpos(0, 0.5f, 0);
+		speed = fpos(0, 0, 0);
+		accel = fpos(0, -9.81f, 0);
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 0.05f,
+			&pos, &speed, accel);
+
+		CHECK(res.collides);
+		CHECK(res.touching_ground);
+		CHECK(!res.standing_on_object);
+		UASSERTEQ_V3F(pos, fpos(0, 0.5f, 0));
+		UASSERTEQ_V3F(speed, fpos(0, 0, 0));
+		REQUIRE(res.collisions.size() == 1);
+		{
+			auto &ci = res.collisions.front();
+			CHECK(ci.type == COLLISION_NODE);
+			CHECK(ci.axis == COLLISION_AXIS_Y);
+			CHECK(ci.node_p == v3s16(0, 0, 0));
+		}
 	}
 
 	/* glitched into ground */
-	pos   = fpos(0, 0.499f, 0);
-	speed = fpos(0, 0, 0);
-	accel = fpos(0, -9.81f, 0);
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.05f,
-		&pos, &speed, accel);
-
-	UASSERTEQ_V3F(pos, fpos(0, 0.5f, 0)); // moved back out
-	UASSERTEQ_V3F(speed, fpos(0, 0, 0));
-	UASSERT(res.collides);
-	UASSERT(res.touching_ground);
-	UASSERT(!res.standing_on_object);
-	UASSERT(res.collisions.size() == 1);
+	SECTION("Glitched into ground.")
 	{
-		auto &ci = res.collisions.front();
-		UASSERTEQ(int, ci.type, COLLISION_NODE);
-		UASSERTEQ(int, ci.axis, COLLISION_AXIS_Y);
-		UASSERTEQ(v3s16, ci.node_p, v3s16(0, 0, 0));
+		pos   = fpos(0, 0.499f, 0);
+		speed = fpos(0, 0, 0);
+		accel = fpos(0, -9.81f, 0);
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 0.05f,
+			&pos, &speed, accel);
+
+		UASSERTEQ_V3F(pos, fpos(0, 0.5f, 0)); // moved back out
+		UASSERTEQ_V3F(speed, fpos(0, 0, 0));
+		CHECK(res.collides);
+		CHECK(res.touching_ground);
+		CHECK(!res.standing_on_object);
+		REQUIRE(res.collisions.size() == 1);
+		{
+			auto &ci = res.collisions.front();
+			CHECK(ci.type == COLLISION_NODE);
+			CHECK(ci.axis == COLLISION_AXIS_Y);
+			CHECK(ci.node_p == v3s16(0, 0, 0));
+		}
 	}
 
 	/* falling on ground */
-	pos   = fpos(0, 1.2345f, 0);
-	speed = fpos(0, -3.f, 0);
-	accel = fpos(0, -9.81f, 0);
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.5f,
-		&pos, &speed, accel);
-
-	UASSERT(res.collides);
-	UASSERT(res.touching_ground);
-	UASSERT(!res.standing_on_object);
-	// Current collision code uses linear collision, which incorrectly yields a collision at 0.741 here
-	// but usually this resolves itself in the next dtime, fortunately.
-	// Parabolic collision should correctly find this in one step.
-	// UASSERTEQ_V3F(pos, fpos(0, 0.5f, 0));
-	UASSERTEQ_V3F(speed, fpos(0, 0, 0));
-	UASSERT(res.collisions.size() == 1);
+	SECTION("Falling on ground.")
 	{
-		auto &ci = res.collisions.front();
-		UASSERTEQ(int, ci.type, COLLISION_NODE);
-		UASSERTEQ(int, ci.axis, COLLISION_AXIS_Y);
-		UASSERTEQ(v3s16, ci.node_p, v3s16(0, 0, 0));
+		pos   = fpos(0, 1.2345f, 0);
+		speed = fpos(0, -3.f, 0);
+		accel = fpos(0, -9.81f, 0);
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 0.5f,
+			&pos, &speed, accel);
+
+		CHECK(res.collides);
+		CHECK(res.touching_ground);
+		CHECK(!res.standing_on_object);
+		// Current collision code uses linear collision, which incorrectly yields a collision at 0.741 here
+		// but usually this resolves itself in the next dtime, fortunately.
+		// Parabolic collision should correctly find this in one step.
+		// UASSERTEQ_V3F(pos, fpos(0, 0.5f, 0));
+		UASSERTEQ_V3F(speed, fpos(0, 0, 0));
+		REQUIRE(res.collisions.size() == 1);
+		{
+			auto &ci = res.collisions.front();
+			CHECK(ci.type == COLLISION_NODE);
+			CHECK(ci.axis == COLLISION_AXIS_Y);
+			CHECK(ci.node_p == v3s16(0, 0, 0));
+		}
 	}
 
 	/* jumping on ground */
-	pos   = fpos(0, 0.5f, 0);
-	speed = fpos(0, 2.0f, 0);
-	accel = fpos(0, -9.81f, 0);
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.2f,
-		&pos, &speed, accel);
-	UASSERT(!res.collides && !res.touching_ground && !res.standing_on_object);
-
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.5f,
-		&pos, &speed, accel);
-
-	UASSERT(res.collides);
-	UASSERT(res.touching_ground);
-	UASSERT(!res.standing_on_object);
-	// Current collision code uses linear collision, which incorrectly yields a collision at 0.672 here
-	// but usually this resolves itself in the next dtime, fortunately.
-	// Parabolic collision should correctly find this in one step.
-	// UASSERTEQ_V3F(pos, fpos(0, 0.5f, 0));
-	UASSERTEQ_V3F(speed, fpos(0, 0, 0));
-	UASSERT(res.collisions.size() == 1);
+	SECTION("Jumping on ground.")
 	{
-		auto &ci = res.collisions.front();
-		UASSERTEQ(int, ci.type, COLLISION_NODE);
-		UASSERTEQ(int, ci.axis, COLLISION_AXIS_Y);
-		UASSERTEQ(v3s16, ci.node_p, v3s16(0, 0, 0));
+		pos   = fpos(0, 0.5f, 0);
+		speed = fpos(0, 2.0f, 0);
+		accel = fpos(0, -9.81f, 0);
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 0.2f,
+			&pos, &speed, accel);
+
+		CHECK(!res.touching_ground);
+		CHECK(!res.collides);
+		CHECK(!res.standing_on_object);
+
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 0.5f,
+			&pos, &speed, accel);
+
+		CHECK(res.collides);
+		CHECK(res.touching_ground);
+		CHECK(!res.standing_on_object);
+		// Current collision code uses linear collision, which incorrectly yields a collision at 0.672 here
+		// but usually this resolves itself in the next dtime, fortunately.
+		// Parabolic collision should correctly find this in one step.
+		// UASSERTEQ_V3F(pos, fpos(0, 0.5f, 0));
+		UASSERTEQ_V3F(speed, fpos(0, 0, 0));
+		REQUIRE(res.collisions.size() == 1);
+		{
+			auto &ci = res.collisions.front();
+			CHECK(ci.type == COLLISION_NODE);
+			CHECK(ci.axis == COLLISION_AXIS_Y);
+			CHECK(ci.node_p == v3s16(0, 0, 0));
+		}
 	}
 
 	/* moving over ground, no gravity */
-	pos   = fpos(0, 0.5f, 0);
-	speed = fpos(-1.6f, 0, -1.7f);
-	accel = fpos(0, 0.0f, 0);
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1.0f,
-		&pos, &speed, accel);
+	SECTION("Moving over ground, no gravity.")
+	{
+		pos   = fpos(0, 0.5f, 0);
+		speed = fpos(-1.6f, 0, -1.7f);
+		accel = fpos(0, 0.0f, 0);
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 1.0f,
+			&pos, &speed, accel);
 
-	UASSERT(!res.collides);
-	// UASSERT(res.touching_ground); // no gravity, so not guaranteed
-	UASSERT(!res.standing_on_object);
-	UASSERTEQ_V3F(pos, fpos(-1.6f, 0.5f, -1.7f));
-	UASSERTEQ_V3F(speed, fpos(-1.6f, 0, -1.7f));
-	UASSERT(res.collisions.empty());
+		CHECK(!res.collides);
+		// CHECK(res.touching_ground); // no gravity, so not guaranteed
+		CHECK(!res.standing_on_object);
+		UASSERTEQ_V3F(pos, fpos(-1.6f, 0.5f, -1.7f));
+		UASSERTEQ_V3F(speed, fpos(-1.6f, 0, -1.7f));
+		CHECK(res.collisions.empty());
+	}
 
-	/* moving over ground, with gravity */
-	pos   = fpos(5.5f, 0.5f, 5.5f);
-	speed = fpos(-1.0f, 0.0f, -0.1f);
-	accel = fpos(0, -9.81f, 0);
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1.0f,
-		&pos, &speed, accel);
+	SECTION("Moving over ground, with gravity.")
+	{
+		/* moving over ground, with gravity */
+		pos   = fpos(5.5f, 0.5f, 5.5f);
+		speed = fpos(-1.0f, 0.0f, -0.1f);
+		accel = fpos(0, -9.81f, 0);
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 1.0f,
+			&pos, &speed, accel);
 
-	UASSERT(res.collides);
-	UASSERT(res.touching_ground);
-	UASSERT(!res.standing_on_object);
-	UASSERTEQ_V3F(pos, fpos(4.5f, 0.5f, 5.4f));
-	UASSERTEQ_V3F(speed, fpos(-1.0f, 0, -0.1f));
-	UASSERT(res.collisions.size() == 1);
-	{ // first collision on y axis zeros speed and acceleration.
-		auto &ci = res.collisions.front();
-		UASSERTEQ(int, ci.type, COLLISION_NODE);
-		UASSERTEQ(int, ci.axis, COLLISION_AXIS_Y);
-		UASSERTEQ(v3s16, ci.node_p, v3s16(5, 0, 5));
+		CHECK(res.collides);
+		CHECK(res.touching_ground);
+		CHECK(!res.standing_on_object);
+		UASSERTEQ_V3F(pos, fpos(4.5f, 0.5f, 5.4f));
+		UASSERTEQ_V3F(speed, fpos(-1.0f, 0, -0.1f));
+		CHECK(res.collisions.size() == 1);
+		{ // first collision on y axis zeros speed and acceleration.
+			auto &ci = res.collisions.front();
+			CHECK(ci.type == COLLISION_NODE);
+			CHECK(ci.axis == COLLISION_AXIS_Y);
+			CHECK(ci.node_p == v3s16(5, 0, 5));
+		}
 	}
 
 	/* not moving never collides */
-	pos   = fpos(0, -100, 0);
-	speed = fpos(0, 0, 0);
-	accel = fpos(0, 0, 0);
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1/60.0f,
-		&pos, &speed, accel);
-	UASSERT(!res.collides);
+	SECTION("Not moving never collides.")
+	{
+		pos   = fpos(0, -100, 0);
+		speed = fpos(0, 0, 0);
+		accel = fpos(0, 0, 0);
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 1/60.0f,
+			&pos, &speed, accel);
+		CHECK(!res.collides);
+	}
 
 	/* collision in ignore */
-	pos   = fpos(0, -100, 0);
-	speed = fpos(5, 0, 0);
-	accel = fpos(0, 0, 0);
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1/60.0f,
-		&pos, &speed, accel);
-	UASSERTEQ_V3F(speed, fpos(0, 0, 0));
-	UASSERT(!res.collides); // FIXME this is actually inconsistent
-	UASSERT(res.collisions.empty());
+	SECTION("Collision in ignore.")
+	{
+		pos   = fpos(0, -100, 0);
+		speed = fpos(5, 0, 0);
+		accel = fpos(0, 0, 0);
+		res = collisionMoveSimple(env.get(), &gamedef, box, 0.0f, 1/60.0f,
+			&pos, &speed, accel);
+		UASSERTEQ_V3F(speed, fpos(0, 0, 0));
+		CHECK(!res.collides); // FIXME this is actually inconsistent
+		CHECK(res.collisions.empty());
+	}
 
 	// TODO things to test:
 	// standing_on_object, multiple collisions, bouncy, stepheight
 
 	// No warnings should have been raised during our test.
-	UASSERT(!g_collision_problems_encountered);
+	CHECK(!g_collision_problems_encountered);
 }
