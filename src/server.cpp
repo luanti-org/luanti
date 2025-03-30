@@ -3397,6 +3397,11 @@ bool Server::showFormspec(const char *playername, const std::string &formspec,
 	if (!player)
 		return false;
 
+	if (formname.empty() && !formspec.empty()) {
+		// Overwrite the inventory formspec
+		player->inventory_formspec = formspec;
+	}
+
 	SendShowFormspecMessage(player->getPeerId(), formspec, formname);
 	return true;
 }

@@ -2714,11 +2714,21 @@ void Game::handleClientEvent_DeathscreenLegacy(ClientEvent *event, CameraOrienta
 
 void Game::handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation *cam)
 {
-	m_game_formspec.showFormSpec(*event->show_formspec.formspec,
-		*event->show_formspec.formname);
+	auto &fs = event->show_formspec;
 
-	delete event->show_formspec.formspec;
-	delete event->show_formspec.formname;
+	if (fs.formname->empty() && !fs.formspec->empty()) {
+		// Overwrite the inventory formspec
+		LocalPlayer *player = client->getEnv().getLocalPlayer();
+		player->inventory_formspec = *fs.formspec;
+
+		m_game_formspec.showPlayerInventory();
+	} else {
+		m_game_formspec.showFormSpec(*fs.formspec,
+			*fs.formname);
+	}
+
+	delete fs.formspec;
+	delete fs.formname;
 }
 
 void Game::handleClientEvent_ShowCSMFormSpec(ClientEvent *event, CameraOrientation *cam)
