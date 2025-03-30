@@ -35,6 +35,8 @@ typedef int socklen_t;
 #define SOCKET_ERR_STR(e) strerror(e)
 #endif
 
+#define ENV_ALL_PROXY "ALL_PROXY"
+
 static bool g_sockets_initialized = false;
 
 // Initialize sockets
@@ -132,6 +134,18 @@ void UDPSocket::Bind(Address addr)
 				<< "\nTry disabling ipv6_server to fix this." << std::endl;
 			throw SocketException(errmsg);
 		}
+	}
+
+	// UDP connections currenlty do not support proxies in Luanti
+	// Many socks5 procies do not support UDP
+	// Therefore, we disable UDP when the ALL_PROXY is set
+	// Use the http_proxy variable instead if you want unproxied UDP connections
+	if (std::getenv(ENV_ALL_PROXY)) {
+		auto msg = "UDP connections are not supported when " ENV_ALL_PROXY " environment variable is set. Use the http_proxy environment variable to not proxy UDP connections";
+		verbosestream << msg << std::endl;
+		if (noExceptions)
+			return false;
+		throw SocketException(msg);
 	}
 
 	int ret = 0;
