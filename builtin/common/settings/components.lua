@@ -442,22 +442,42 @@ local function make_noise_params(setting)
 	}
 end
 
+local function get_key_setting(name)
+	return string.split(core.settings:get(name), "|")
+end
 function make.key(setting)
 	local btn_bind = "bind_" .. setting.name
 	local btn_clear = "unbind_" .. setting.name
-	local function add_conflict_warnings(fs, height)
-		local value = core.settings:get(setting.name)
+	local function add_conflict_warnings(fs, height, value)
 		if value == "" then
 			return height
 		end
 		for _, o in pairs(core.full_settingtypes) do
-			if o.type == "key" and o.name ~= setting.name and core.are_keycodes_equal(core.settings:get(o.name), value) then
-				table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
-						fgettext("Keybinding conflict: $1", fgettext(o.readable_name))))
-				height = height + 0.6
+			if o.type == "key" and o.name ~= setting.name then
+				local other_keys = get_key_setting(o.name)
+				for _, other_key in pairs(other_keys) do
+					if core.are_keycodes_equal(other_key, value) then
+						table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
+								fgettext("Keybinding conflict: $1", fgettext(o.readable_name))))
+						height = height + 0.6
+						break -- do not check for multiple duplications against the same key
+					end
+				end
 			end
 		end
 		return height
+	end
+	local function set_key(idx, val)
+		if not idx then
+			return
+		end
+		local setting_value = get_key_setting(setting.name)
+		if val then
+			setting_value[idx] = val
+		else
+			table.remove(setting_value, idx)
+		end
+		core.settings:set(setting.name, table.concat(setting_value, "|"))
 	end
 	return {
 		info_text = setting.comment,
@@ -466,29 +486,40 @@ function make.key(setting)
 		get_formspec = function(self, avail_w)
 			self.resettable = core.settings:has(setting.name)
 			local btn_bind_width = math.max(2.5, avail_w/2)
-			local value = core.settings:get(setting.name)
+			local values = get_key_setting(setting.name)
+			local height = 0
 			local fs = {
 				("label[0,0.4;%s]"):format(get_label(setting)),
-				("button_key[%f,0;%f,0.8;%s;%s]"):format(
-						btn_bind_width, btn_bind_width-0.8,
-						btn_bind, core.formspec_escape(value)),
-				("image_button[%f,0;0.8,0.8;%s;%s;]"):format(avail_w - 0.8,
-						core.formspec_escape(defaulttexturedir .. "clear.png"),
-						btn_clear),
-				("tooltip[%s;%s]"):format(btn_clear, fgettext("Remove keybinding")),
 			}
-			local height = 0.8
-			height = add_conflict_warnings(fs, height)
-			return table.concat(fs), height
+			for idx, key in ipairs(values) do
+				table.insert(fs, ("button_key[%f,%f;%f,0.8;%s%d;%s]"):format(
+						btn_bind_width, height, btn_bind_width-0.8,
+						btn_bind, idx, core.formspec_escape(key)))
+				table.insert(fs, ("image_button[%f,%f;0.8,0.8;%s;%s%d;]"):format(
+						avail_w - 0.8, height,
+						core.formspec_escape(defaulttexturedir .. "clear.png"),
+						btn_clear, idx))
+				table.insert(fs, ("tooltip[%s%d;%s]"):format(btn_clear, idx, fgettext("Remove keybinding")))
+				height = add_conflict_warnings(fs, height + 0.8, key)
+			end
+			-- Add button at the end to allow adding a keybinding
+			table.insert(fs, ("button_key[%f,%f;%f,0.8;%s%d;]"):format(
+					btn_bind_width, height, btn_bind_width, btn_bind, #values+1))
+			return table.concat(fs), height + 0.8
 		end,
 
 		on_submit = function(self, fields)
-			if fields[btn_bind] then
-				core.settings:set(setting.name, fields[btn_bind])
-				return true
-			elseif fields[btn_clear] then
-				core.settings:set(setting.name, "")
-				return true
+			for field_name, field_value in pairs(fields) do
+				local start, idxpos = string.find(field_name, btn_bind)
+				if start == 1 then
+					set_key(tonumber(string.sub(field_name, idxpos+1)), field_value)
+					return true
+				end
+				start, idxpos = string.find(field_name, btn_clear)
+				if start == 1 then
+					set_key(tonumber(string.sub(field_name, idxpos+1)), nil)
+					return true
+				end
 			end
 		end,
 	}
