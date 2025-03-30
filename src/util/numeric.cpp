@@ -20,7 +20,7 @@ u32 myrand()
 	return g_pcgrand.next();
 }
 
-void mysrand(unsigned int seed)
+void mysrand(u64 seed)
 {
 	g_pcgrand.seed(seed);
 }

@@ -700,12 +700,18 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 	init_log_streams(cmd_args);
 
 	// Initialize random seed
-	{
-		u32 seed = static_cast<u32>(time(nullptr)) << 16;
-		seed |= porting::getTimeUs() & 0xffff;
-		srand(seed);
-		mysrand(seed);
+	u64 seed;
+	if (!porting::secure_rand_fill_buf(&seed, sizeof(seed))) {
+		verbosestream << "Secure randomness not available to seed global RNG." << std::endl;
+		std::ostringstream oss;
+		// some stuff that's hard to predict:
+		oss << time(nullptr) << porting::getTimeUs() << argc << g_settings_path;
+		print_version(oss);
+		std::string data = oss.str();
+		seed = murmur_hash_64_ua(data.c_str(), data.size(), 0xc0ffee);
 	}
+	srand(seed);
+	mysrand(seed);
 
 	// Initialize HTTP fetcher
 	httpfetch_init(g_settings->getS32("curl_parallel_limit"));

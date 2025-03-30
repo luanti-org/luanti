@@ -244,7 +244,7 @@ inline float wrapDegrees_180(float f)
 */
 #define MYRAND_RANGE 0xffffffff
 u32 myrand();
-void mysrand(unsigned int seed);
+void mysrand(u64 seed);
 void myrand_bytes(void *out, size_t len);
 int myrand_range(int min, int max);
 float myrand_range(float min, float max);
