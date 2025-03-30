@@ -47,6 +47,7 @@
 #include "guiButton.h"
 #include "guiButtonImage.h"
 #include "guiButtonItemImage.h"
+#include "guiButtonKey.h"
 #include "guiEditBoxWithScrollbar.h"
 #include "guiInventoryList.h"
 #include "guiItemImage.h"
@@ -1026,8 +1027,16 @@ void GUIFormSpecMenu::parseButton(parserData* data, const std::string &element)
 	if (data->type == "button_url" || data->type == "button_url_exit")
 		spec.url = url;
 
-	GUIButton *e = GUIButton::addButton(Environment, rect, m_tsrc,
-			data->current_parent, spec.fid, spec.flabel.c_str());
+	GUIButton *e;
+
+	if (data->type == "button_key") {
+		spec.ftype = f_Unknown;
+		e = GUIButtonKey::addButton(Environment, rect, m_tsrc,
+				data->current_parent, spec.fid, spec.flabel.c_str());
+	} else {
+		e = GUIButton::addButton(Environment, rect, m_tsrc,
+				data->current_parent, spec.fid, spec.flabel.c_str());
+	}
 
 	auto style = getStyleForElement(data->type, name, (data->type != "button") ? "button" : "");
 
@@ -2869,6 +2878,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"button_exit",            &GUIFormSpecMenu::parseButton},
 		{"button_url",             &GUIFormSpecMenu::parseButton},
 		{"button_url_exit",        &GUIFormSpecMenu::parseButton},
+		{"button_key",             &GUIFormSpecMenu::parseButton},
 		{"background",             &GUIFormSpecMenu::parseBackground},
 		{"background9",            &GUIFormSpecMenu::parseBackground},
 		{"tableoptions",           &GUIFormSpecMenu::parseTableOptions},
@@ -3956,7 +3966,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
 			KeyPress kp(event.KeyInput);
 		if (kp == EscapeKey
-				|| kp == getKeySetting("keymap_inventory")
+				|| keySettingHasMatch("keymap_inventory", kp)
 				|| event.KeyInput.Key==KEY_RETURN) {
 			gui::IGUIElement *focused = Environment->getFocus();
 			if (focused && isMyChild(focused) &&
@@ -4023,17 +4033,17 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		KeyPress kp(event.KeyInput);
 		if (event.KeyInput.PressedDown && (
 				(kp == EscapeKey) ||
-				((m_client != NULL) && (kp == getKeySetting("keymap_inventory"))))) {
+				((m_client != NULL) && (keySettingHasMatch("keymap_inventory", kp))))) {
 			tryClose();
 			return true;
 		}
 
 		if (m_client != NULL && event.KeyInput.PressedDown &&
-				(kp == getKeySetting("keymap_screenshot"))) {
+				(keySettingHasMatch("keymap_screenshot", kp))) {
 			m_client->makeScreenshot();
 		}
 
-		if (event.KeyInput.PressedDown && kp == getKeySetting("keymap_toggle_debug")) {
+		if (event.KeyInput.PressedDown && keySettingHasMatch("keymap_toggle_debug", kp)) {
 			if (!m_client || m_client->checkPrivilege("debug"))
 				m_show_debug = !m_show_debug;
 		}

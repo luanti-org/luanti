@@ -12,6 +12,8 @@
 #include <set>
 #include <unordered_map>
 #include "keycode.h"
+#include "settings.h"
+#include "util/string.h"
 
 class InputHandler;
 
@@ -95,13 +97,14 @@ private:
 
 	bool setKeyDown(KeyPress keyCode, bool is_down);
 	void setKeyDown(GameKeyType action, bool is_down);
+	bool checkKeyDown(GameKeyType action);
 
 	/* This is faster than using getKeySetting with the tradeoff that functions
 	 * using it must make sure that it's initialised before using it and there is
 	 * no error handling (for example bounds checking). This is useful here as the
 	 * faster (up to 10x faster) key lookup is an asset.
 	 */
-	std::array<KeyPress, KeyType::INTERNAL_ENUM_COUNT> keybindings;
+	std::array<std::vector<KeyPress>, KeyType::INTERNAL_ENUM_COUNT> keybindings;
 
 	s32 mouse_wheel = 0;
 
@@ -132,6 +135,13 @@ private:
 class InputHandler
 {
 public:
+	InputHandler()
+	{
+		for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
+			if (str_starts_with(name, "keymap_"))
+				g_settings->registerChangedCallback(name, &settingChangedCallback, this);
+	}
+
 	virtual ~InputHandler() = default;
 
 	virtual bool isRandom() const
@@ -162,6 +172,12 @@ public:
 
 	virtual void clear() {}
 	virtual void releaseAllKeys() {}
+
+	static void settingChangedCallback(const std::string &name, void *data)
+	{
+		clearKeyCache();
+		static_cast<InputHandler *>(data)->reloadKeybindings();
+	}
 
 	JoystickController joystick;
 };
