@@ -108,7 +108,7 @@ EmergeManager::EmergeManager(Server *server, MetricsBackend *mb)
 	// don't trust user input for something very important like this
 	m_qlimit_diskonly = rangelim(m_qlimit_diskonly, 2, 1000000);
 	m_qlimit_generate = rangelim(m_qlimit_generate, 1, 1000000);
-	m_qlimit_total = std::max(m_qlimit_diskonly, m_qlimit_generate);
+	m_qlimit_total = std::max(m_qlimit_total, std::max(m_qlimit_diskonly, m_qlimit_generate));
 
 	for (s16 i = 0; i < nthreads; i++)
 		m_threads.push_back(new EmergeThread(server, i));

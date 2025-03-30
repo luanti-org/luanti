@@ -129,132 +129,40 @@ function core.register_entity(name, prototype)
 	prototype.mod_origin = core.get_current_modname() or "??"
 end
 
-function core.register_item(name, itemdef)
-	-- Check name
-	if name == nil then
-		error("Unable to register item: Name is nil")
-	end
-	name = check_modname_prefix(tostring(name))
-	if forbidden_item_names[name] then
-		error("Unable to register item: Name is forbidden: " .. name)
-	end
-	itemdef.name = name
-
-	local mt = getmetatable(itemdef)
-	if mt ~= nil and next(mt) ~= nil then
-		core.log("warning", "Item definition has a metatable, this is "..
-			"unsupported and it will be overwritten: " .. name)
+local function preprocess_node(nodedef)
+	-- Use the nodebox as selection box if it's not set manually
+	if nodedef.drawtype == "nodebox" and not nodedef.selection_box then
+		nodedef.selection_box = nodedef.node_box
+	elseif nodedef.drawtype == "fencelike" and not nodedef.selection_box then
+		nodedef.selection_box = {
+			type = "fixed",
+			fixed = {-1/8, -1/2, -1/8, 1/8, 1/2, 1/8},
+		}
 	end
 
-	-- Apply defaults and add to registered_* table
-	if itemdef.type == "node" then
-		-- Use the nodebox as selection box if it's not set manually
-		if itemdef.drawtype == "nodebox" and not itemdef.selection_box then
-			itemdef.selection_box = itemdef.node_box
-		elseif itemdef.drawtype == "fencelike" and not itemdef.selection_box then
-			itemdef.selection_box = {
-				type = "fixed",
-				fixed = {-1/8, -1/2, -1/8, 1/8, 1/2, 1/8},
-			}
-		end
-		if itemdef.light_source and itemdef.light_source > core.LIGHT_MAX then
-			itemdef.light_source = core.LIGHT_MAX
-			core.log("warning", "Node 'light_source' value exceeds maximum," ..
-				" limiting to maximum: " ..name)
-		end
-		setmetatable(itemdef, {__index = core.nodedef_default})
-		core.registered_nodes[itemdef.name] = itemdef
-	elseif itemdef.type == "craft" then
-		setmetatable(itemdef, {__index = core.craftitemdef_default})
-		core.registered_craftitems[itemdef.name] = itemdef
-	elseif itemdef.type == "tool" then
-		setmetatable(itemdef, {__index = core.tooldef_default})
-		core.registered_tools[itemdef.name] = itemdef
-	elseif itemdef.type == "none" then
-		setmetatable(itemdef, {__index = core.noneitemdef_default})
-	else
-		error("Unable to register item: Type is invalid: " .. dump(itemdef))
+	if nodedef.light_source and nodedef.light_source > core.LIGHT_MAX then
+		nodedef.light_source = core.LIGHT_MAX
+		core.log("warning", "Node 'light_source' value exceeds maximum," ..
+			" limiting it: " .. nodedef.name)
 	end
 
 	-- Flowing liquid uses param2
-	if itemdef.type == "node" and itemdef.liquidtype == "flowing" then
-		itemdef.paramtype2 = "flowingliquid"
+	if nodedef.liquidtype == "flowing" then
+		nodedef.paramtype2 = "flowingliquid"
 	end
+end
 
+local function preprocess_craft(itemdef)
 	-- BEGIN Legacy stuff
-	if itemdef.cookresult_itemstring ~= nil and itemdef.cookresult_itemstring ~= "" then
-		core.log("deprecated", "The `cookresult_itemstring` item definition " ..
-			"field is deprecated. Use `core.register_craft` instead.")
-		core.register_craft({
-			type="cooking",
-			output=itemdef.cookresult_itemstring,
-			recipe=itemdef.name,
-			cooktime=itemdef.furnace_cooktime
-		})
-	end
-	if itemdef.furnace_burntime ~= nil and itemdef.furnace_burntime >= 0 then
-		core.log("deprecated", "The `furnace_burntime` item definition " ..
-			"field is deprecated. Use `core.register_craft` instead.")
-		core.register_craft({
-			type="fuel",
-			recipe=itemdef.name,
-			burntime=itemdef.furnace_burntime
-		})
-	end
-	-- END Legacy stuff
-
-	itemdef.mod_origin = core.get_current_modname() or "??"
-
-	-- Ignore new keys as a failsafe to prevent mistakes
-	getmetatable(itemdef).__newindex = function() end
-
-	core.registered_items[itemdef.name] = itemdef
-	core.registered_aliases[itemdef.name] = nil
-	register_item_raw(itemdef)
-end
-
-function core.unregister_item(name)
-	if not core.registered_items[name] then
-		core.log("warning", "Not unregistering item " ..name..
-			" because it doesn't exist.")
-		return
-	end
-	-- Erase from registered_* table
-	local type = core.registered_items[name].type
-	if type == "node" then
-		core.registered_nodes[name] = nil
-	elseif type == "craft" then
-		core.registered_craftitems[name] = nil
-	elseif type == "tool" then
-		core.registered_tools[name] = nil
-	end
-	core.registered_items[name] = nil
-
-
-	unregister_item_raw(name)
-end
-
-function core.register_node(name, nodedef)
-	nodedef.type = "node"
-	core.register_item(name, nodedef)
-end
-
-function core.register_craftitem(name, craftitemdef)
-	craftitemdef.type = "craft"
-
-	-- BEGIN Legacy stuff
-	if craftitemdef.inventory_image == nil and craftitemdef.image ~= nil then
+	if itemdef.inventory_image == nil and itemdef.image ~= nil then
 		core.log("deprecated", "The `image` field in craftitem definitions " ..
 			"is deprecated. Use `inventory_image` instead.")
-		craftitemdef.inventory_image = craftitemdef.image
+		itemdef.inventory_image = itemdef.image
 	end
 	-- END Legacy stuff
-
-	core.register_item(name, craftitemdef)
 end
 
-function core.register_tool(name, tooldef)
-	tooldef.type = "tool"
+local function preprocess_tool(tooldef)
 	tooldef.stack_max = 1
 
 	-- BEGIN Legacy stuff
@@ -263,6 +171,7 @@ function core.register_tool(name, tooldef)
 			"is deprecated. Use `inventory_image` instead.")
 		tooldef.inventory_image = tooldef.image
 	end
+
 	if tooldef.tool_capabilities == nil and
 	   (tooldef.full_punch_interval ~= nil or
 	    tooldef.basetime ~= nil or
@@ -293,7 +202,7 @@ function core.register_tool(name, tooldef)
 	end
 	-- END Legacy stuff
 
-	-- This isn't just legacy, but more of a convenience feature
+	-- Automatically set punch_attack_uses as a convenience feature
 	local toolcaps = tooldef.tool_capabilities
 	if toolcaps and toolcaps.punch_attack_uses == nil then
 		for _, cap in pairs(toolcaps.groupcaps or {}) do
@@ -304,8 +213,124 @@ function core.register_tool(name, tooldef)
 			end
 		end
 	end
+end
 
-	core.register_item(name, tooldef)
+local default_tables = {
+	node = core.nodedef_default,
+	craft = core.craftitemdef_default,
+	tool = core.tooldef_default,
+	none = core.noneitemdef_default,
+}
+
+local preprocess_fns = {
+	node = preprocess_node,
+	craft = preprocess_craft,
+	tool = preprocess_tool,
+}
+
+function core.register_item(name, itemdef)
+	-- Check name
+	if name == nil then
+		error("Unable to register item: Name is nil")
+	end
+	name = check_modname_prefix(tostring(name))
+	if forbidden_item_names[name] then
+		error("Unable to register item: Name is forbidden: " .. name)
+	end
+
+	itemdef.name = name
+
+	-- Compatibility stuff depending on type
+	local fn = preprocess_fns[itemdef.type]
+	if fn then
+		fn(itemdef)
+	end
+
+	-- Apply defaults
+	local defaults = default_tables[itemdef.type]
+	if defaults == nil then
+		error("Unable to register item: Type is invalid: " .. dump(itemdef))
+	end
+	local old_mt = getmetatable(itemdef)
+	-- TODO most of these checks should become an error after a while (maybe in 2026?)
+	if old_mt ~= nil and next(old_mt) ~= nil then
+		-- Note that even registering multiple identical items with the same table
+		-- is not allowed, due to the 'name' property.
+		if old_mt.__index == defaults then
+			core.log("warning", "Item definition table was reused between registrations. "..
+				"This is unsupported and broken: " .. name)
+		else
+			core.log("warning", "Item definition has a metatable, this is "..
+				"unsupported and it will be overwritten: " .. name)
+		end
+	end
+	setmetatable(itemdef, {__index = defaults})
+
+	-- BEGIN Legacy stuff
+	if itemdef.cookresult_itemstring ~= nil and itemdef.cookresult_itemstring ~= "" then
+		core.log("deprecated", "The `cookresult_itemstring` item definition " ..
+			"field is deprecated. Use `core.register_craft` instead.")
+		core.register_craft({
+			type="cooking",
+			output=itemdef.cookresult_itemstring,
+			recipe=itemdef.name,
+			cooktime=itemdef.furnace_cooktime
+		})
+	end
+	if itemdef.furnace_burntime ~= nil and itemdef.furnace_burntime >= 0 then
+		core.log("deprecated", "The `furnace_burntime` item definition " ..
+			"field is deprecated. Use `core.register_craft` instead.")
+		core.register_craft({
+			type="fuel",
+			recipe=itemdef.name,
+			burntime=itemdef.furnace_burntime
+		})
+	end
+	-- END Legacy stuff
+
+	itemdef.mod_origin = core.get_current_modname() or "??"
+
+	-- Ignore new keys as a failsafe to prevent mistakes
+	getmetatable(itemdef).__newindex = function() end
+
+	-- Add to registered_* tables
+	if itemdef.type == "node" then
+		core.registered_nodes[itemdef.name] = itemdef
+	elseif itemdef.type == "craft" then
+		core.registered_craftitems[itemdef.name] = itemdef
+	elseif itemdef.type == "tool" then
+		core.registered_tools[itemdef.name] = itemdef
+	end
+	core.registered_items[itemdef.name] = itemdef
+	core.registered_aliases[itemdef.name] = nil
+
+	register_item_raw(itemdef)
+end
+
+local function make_register_item_wrapper(the_type)
+	return function(name, itemdef)
+		itemdef.type = the_type
+		return core.register_item(name, itemdef)
+	end
+end
+
+core.register_node = make_register_item_wrapper("node")
+core.register_craftitem = make_register_item_wrapper("craft")
+core.register_tool = make_register_item_wrapper("tool")
+
+function core.unregister_item(name)
+	if not core.registered_items[name] then
+		core.log("warning", "Not unregistering item " ..name..
+			" because it doesn't exist.")
+		return
+	end
+	-- Erase from registered_* table
+	core.registered_nodes[name] = nil
+	core.registered_craftitems[name] = nil
+	core.registered_tools[name] = nil
+	core.registered_items[name] = nil
+
+	unregister_item_raw(name)
 end
 
 function core.register_alias(name, convert_to)

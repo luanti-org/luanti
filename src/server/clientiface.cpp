@@ -339,6 +339,15 @@ void RemoteClient::GetNextBlocks (
 				if (d >= d_opt && block->isAir())
 						continue;
 			}
+
+			const bool want_emerge = !block || !block->isGenerated();
+
+			// if the block is already in the emerge queue we don't have to check again
+			if (want_emerge && emerge->isBlockInQueue(p)) {
+				nearest_emerged_d = d;
+				continue;
+			}
+
 			/*
 				Check occlusion cache first.
 			 */
@@ -357,7 +366,7 @@ void RemoteClient::GetNextBlocks (
 			/*
 				Add inexistent block to emerge queue.
 			*/
-			if (!block || !block->isGenerated()) {
+			if (want_emerge) {
 				if (emerge->enqueueBlockEmerge(peer_id, p, generate)) {
 					if (nearest_emerged_d == -1)
 						nearest_emerged_d = d;
