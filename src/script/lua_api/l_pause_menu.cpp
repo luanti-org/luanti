@@ -22,9 +22,9 @@ int ModApiPauseMenu::l_show_touchscreen_layout(lua_State *L)
 }
 
 
-int ModApiPauseMenu::l_is_local_server(lua_State *L)
+int ModApiPauseMenu::l_is_internal_server(lua_State *L)
 {
-	lua_pushboolean(L, getClient(L)->isLocalServer());
+	lua_pushboolean(L, getClient(L)->m_internal_server);
 	return 1;
 }
 
@@ -33,5 +33,5 @@ void ModApiPauseMenu::Initialize(lua_State *L, int top)
 {
 	API_FCT(show_keys_menu);
 	API_FCT(show_touchscreen_layout);
-	API_FCT(is_local_server);
+	API_FCT(is_internal_server);
 }

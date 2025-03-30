@@ -367,8 +367,7 @@ Client::~Client()
 	g_fontengine->clearMediaFonts();
 }
 
-void Client::connect(const Address &address, const std::string &address_name,
-	bool is_local_server)
+void Client::connect(const Address &address, const std::string &address_name)
 {
 	if (m_con) {
 		// can't do this if the connection has entered auth phase
@@ -381,7 +380,6 @@ void Client::connect(const Address &address, const std::string &address_name,
 	}
 
 	m_address_name = address_name;
-	m_is_local_server = is_local_server;
 	m_con.reset(con::createMTP(CONNECTION_TIMEOUT, address.isIPv6(), this));
 
 	infostream << "Connecting to server at ";
@@ -918,10 +916,9 @@ void Client::request_media(const std::vector<std::string> &file_requests)
 			<< pkt.getSize() << ")" << std::endl;
 }
 
-void Client::initLocalMapSaving(const Address &address,
-		const std::string &hostname)
+void Client::initLocalMapSaving(const Address &address, const std::string &hostname)
 {
-	if (!g_settings->getBool("enable_local_map_saving") || m_is_local_server) {
+	if (!g_settings->getBool("enable_local_map_saving") || m_internal_server) {
 		return;
 	}
 	if (m_localdb) {

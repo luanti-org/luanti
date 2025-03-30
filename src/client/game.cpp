@@ -908,7 +908,6 @@ bool Game::startup(bool *kill,
 
 	g_client_translations->clear();
 
-	// address can change if simple_singleplayer_mode
 	if (!init(start_data.world_spec.path, start_data.address,
 			start_data.socket_port, start_data.game_spec))
 		return false;
@@ -1389,7 +1388,7 @@ bool Game::connectToServer(const GameStartData &start_data,
 {
 	*connect_ok = false;	// Let's not be overly optimistic
 	*connection_aborted = false;
-	bool local_server_mode = false;
+	const bool internal_server = start_data.address.empty();
 	const auto &address_name = start_data.address;
 
 	showOverlayMessage(N_("Resolving address..."), 0, 15);
@@ -1409,7 +1408,6 @@ bool Game::connectToServer(const GameStartData &start_data,
 			} else {
 				connect_address.setAddress(127, 0, 0, 1);
 			}
-			local_server_mode = true;
 		}
 	} catch (ResolveError &e) {
 		*error_message = fmtgettext("Couldn't resolve address: %s", e.what());
@@ -1455,13 +1453,13 @@ bool Game::connectToServer(const GameStartData &start_data,
 
 	client->migrateModStorage();
 	client->m_simple_singleplayer_mode = simple_singleplayer_mode;
+	client->m_internal_server = internal_server;
 
 	/*
 		Wait for server to accept connection
 	*/
 
-	client->connect(connect_address, address_name,
-		simple_singleplayer_mode || local_server_mode);
+	client->connect(connect_address, address_name);
 
 	try {
 		input->clear();
@@ -1508,12 +1506,11 @@ bool Game::connectToServer(const GameStartData &start_data,
 			}
 
 			wait_time += dtime;
-			if (local_server_mode) {
+			if (internal_server) {
 				// never time out
 			} else if (wait_time > GAME_FALLBACK_TIMEOUT && !did_fallback) {
 				if (!client->hasServerReplied() && fallback_address.isValid()) {
-					client->connect(fallback_address, address_name,
-						simple_singleplayer_mode || local_server_mode);
+					client->connect(fallback_address, address_name);
 				}
 				did_fallback = true;
 			} else if (wait_time > GAME_CONNECTION_TIMEOUT) {

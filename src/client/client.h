@@ -140,8 +140,7 @@ public:
 
 	bool isShutdown();
 
-	void connect(const Address &address, const std::string &address_name,
-		bool is_local_server);
+	void connect(const Address &address, const std::string &address_name);
 
 	/*
 		Stuff that references the environment is valid only as
@@ -338,7 +337,16 @@ public:
 	u16 getProtoVersion() const
 	{ return m_proto_ver; }
 
+	// Whether the server is in "simple singleplayer mode".
+	// This implies "m_internal_server = true".
 	bool m_simple_singleplayer_mode;
+
+	// Whether the server is hosted by the same Luanti instance and singletons
+	// like g_settings are shared between client and server.
+	//
+	// This is intentionally *not* true if we're just connecting to a localhost
+	// server hosted by a different Luanti instance.
+	bool m_internal_server;
 
 	float mediaReceiveProgress();
 
@@ -409,8 +417,6 @@ public:
 		return m_address_name;
 	}
 
-	bool isLocalServer() const { return m_is_local_server; }
-
 	inline u64 getCSMRestrictionFlags() const
 	{
 		return m_csm_restriction_flags;
@@ -443,8 +449,7 @@ private:
 	void peerAdded(con::IPeer *peer) override;
 	void deletingPeer(con::IPeer *peer, bool timeout) override;
 
-	void initLocalMapSaving(const Address &address,
-			const std::string &hostname);
+	void initLocalMapSaving(const Address &address, const std::string &hostname);
 
 	void ReceiveAll();
 
@@ -482,7 +487,6 @@ private:
 	std::unique_ptr<ParticleManager> m_particle_manager;
 	std::unique_ptr<con::IConnection> m_con;
 	std::string m_address_name;
-	bool m_is_local_server = false;
 	ELoginRegister m_allow_login_or_register = ELoginRegister::Any;
 	Camera *m_camera = nullptr;
 	Minimap *m_minimap = nullptr;
