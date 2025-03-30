@@ -175,7 +175,7 @@ public:
 	static void settingChangedCallback(const std::string &name, void *data)
 	{
 		clearKeyCache();
-		static_cast<InputHandler *>(data)->keycache.populate();
+		static_cast<InputHandler *>(data)->reloadKeybindings();
 	}
 
 	JoystickController joystick;
