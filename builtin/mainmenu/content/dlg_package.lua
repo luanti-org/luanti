@@ -197,13 +197,13 @@ local function get_formspec(data)
 
 		hypertext = hypertext .. "\n\n" .. info.long_description.body
 
+		-- Fix the path to blank.png. This is needed for bullet indentation.
 		hypertext = hypertext:gsub("<img name=\"?blank.png\"? ",
 				"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "blank.png\" ")
 
 		table.insert_all(formspec, {
 			"hypertext[0,0;", W, ",", tab_body_height - 0.375,
 			";desc;", core.formspec_escape(hypertext), "]",
-
 		})
 
 	elseif current_tab == 2 then
@@ -226,8 +226,10 @@ local function get_formspec(data)
 
 		if package.reviews then
 			local hypertext = package.reviews.head .. package.reviews.body
+			-- Provide correct path to blank.png image. This is needed for bullet indentation.
 			hypertext = hypertext:gsub("<img name=\"?blank.png\"? ",
 					"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "blank.png\" ")
+			-- Placeholders in reviews hypertext for icons
 			hypertext = hypertext:gsub("<thumbsup>",
 					"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "contentdb_thumb_up.png\" width=24>")
 			hypertext = hypertext:gsub("<thumbsdown>",

@@ -10,7 +10,7 @@ function core.job_processor(func, serialized_param)
 end
 
 
-function core.get_accept_languages()
+function core.get_http_accept_languages()
 	local languages
 	local current_language = core.get_language()
 	if current_language ~= "" then

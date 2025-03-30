@@ -409,7 +409,7 @@ local function fetch_pkgs()
 	local response = http.fetch_sync({
 		url = url,
 		extra_headers = {
-			core.get_accept_languages()
+			core.get_http_accept_languages()
 		},
 	})
 	if not response.succeeded then
@@ -608,7 +608,7 @@ local function get_package_info(key, path)
 			local response = http.fetch_sync({
 				url = url,
 				extra_headers = {
-					core.get_accept_languages()
+					core.get_http_accept_languages()
 				},
 			})
 			if not response.succeeded then
