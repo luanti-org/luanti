@@ -21,7 +21,6 @@
 #include "settings.h"
 #include "clientdynamicinfo.h"
 #include "client/client.h"
-#include "client/keycode.h"
 #include "client/renderingengine.h"
 #include "client/texturepaths.h"
 #include "network/networkprotocol.h"
@@ -1014,15 +1013,6 @@ int ModApiMainMenu::l_share_file(lua_State *L)
 }
 
 /******************************************************************************/
-int ModApiMainMenu::l_are_keycodes_equal(lua_State *L)
-{
-	auto k1 = luaL_checkstring(L, 1);
-	auto k2 = luaL_checkstring(L, 2);
-	lua_pushboolean(L, KeyPress(k1) == KeyPress(k2));
-	return 1;
-}
-
-/******************************************************************************/
 int ModApiMainMenu::l_do_async_callback(lua_State *L)
 {
 	MainMenuScripting *script = getScriptApi<MainMenuScripting>(L);
@@ -1094,7 +1084,6 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_url_dialog);
 	API_FCT(open_dir);
 	API_FCT(share_file);
-	API_FCT(are_keycodes_equal);
 	API_FCT(do_async_callback);
 }
 

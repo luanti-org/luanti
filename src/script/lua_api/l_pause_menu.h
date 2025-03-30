@@ -10,6 +10,7 @@ class ModApiPauseMenu: public ModApiBase
 {
 private:
 	static int l_show_touchscreen_layout(lua_State *L);
+	static int l_are_keycodes_equal(lua_State *L);
 
 public:
 	static void Initialize(lua_State *L, int top);
