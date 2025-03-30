@@ -508,7 +508,7 @@ protected:
 	bool init(const std::string &map_dir, const std::string &address,
 			u16 port, const SubgameSpec &gamespec);
 	bool initSound();
-	bool createSingleplayerServer(const std::string &map_dir,
+	bool createServer(const std::string &map_dir,
 			const SubgameSpec &gamespec, u16 port);
 	void copyServerClientCache();
 
@@ -1137,7 +1137,7 @@ bool Game::init(
 
 	// Create a server if not connecting to an existing one
 	if (address.empty()) {
-		if (!createSingleplayerServer(map_dir, gamespec, port))
+		if (!createServer(map_dir, gamespec, port))
 			return false;
 	}
 
@@ -1172,7 +1172,7 @@ bool Game::initSound()
 	return true;
 }
 
-bool Game::createSingleplayerServer(const std::string &map_dir,
+bool Game::createServer(const std::string &map_dir,
 		const SubgameSpec &gamespec, u16 port)
 {
 	showOverlayMessage(N_("Creating server..."), 0, 5);
@@ -1388,7 +1388,6 @@ bool Game::connectToServer(const GameStartData &start_data,
 {
 	*connect_ok = false;	// Let's not be overly optimistic
 	*connection_aborted = false;
-	const bool internal_server = start_data.address.empty();
 	const auto &address_name = start_data.address;
 
 	showOverlayMessage(N_("Resolving address..."), 0, 15);
@@ -1453,7 +1452,7 @@ bool Game::connectToServer(const GameStartData &start_data,
 
 	client->migrateModStorage();
 	client->m_simple_singleplayer_mode = simple_singleplayer_mode;
-	client->m_internal_server = internal_server;
+	client->m_internal_server = !!server;
 
 	/*
 		Wait for server to accept connection
@@ -1506,7 +1505,7 @@ bool Game::connectToServer(const GameStartData &start_data,
 			}
 
 			wait_time += dtime;
-			if (internal_server) {
+			if (server) {
 				// never time out
 			} else if (wait_time > GAME_FALLBACK_TIMEOUT && !did_fallback) {
 				if (!client->hasServerReplied() && fallback_address.isValid()) {

@@ -16,7 +16,7 @@ struct MainMenuDataForScript {
 	std::string errormessage = "";
 };
 
-// TODO: Unify with GameStartData
+// TODO: unify with GameStartData
 struct MainMenuData {
 	// Client options
 	std::string servername;
