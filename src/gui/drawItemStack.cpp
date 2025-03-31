@@ -116,8 +116,7 @@ void drawItemStack(
 		driver->setTransform(video::ETS_WORLD, matrix);
 		driver->setViewPort(viewrect);
 
-		video::SColor basecolor =
-			client->getItemVisualsManager()->getItemstackColor(item, client);
+		video::SColor basecolor = item_visuals->getItemstackColor(item, client);
 
 		const u32 mc = mesh->getMeshBufferCount();
 		if (mc > imesh->buffer_info.size())

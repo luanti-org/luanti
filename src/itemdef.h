@@ -18,7 +18,6 @@
 #include "util/pointedthing.h"
 
 struct ToolCapabilities;
-using namespace irr;
 
 /*
 	Base item definition

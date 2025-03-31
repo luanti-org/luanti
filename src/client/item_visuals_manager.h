@@ -13,13 +13,8 @@
 class Client;
 class IItemDefManager;
 class ItemStack;
-typedef std::vector<video::SColor> Palette;
-
-namespace irr {
-	namespace video {
-		class ITexture;
-	}
-}
+typedef std::vector<video::SColor> Palette; // copied from src/client/texturesource.h
+namespace irr::video { class ITexture; }
 
 // Caches data needed to draw an itemstack
 
