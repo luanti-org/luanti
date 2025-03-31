@@ -87,7 +87,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
     if (dist2 < renderDist) {
         lod = 1;
     } else {
-        lod = 2 << ((int) std::log2(dist2 / renderDist));
+        lod = (int) std::log2(dist2 / renderDist);
     }
 
 	/*
