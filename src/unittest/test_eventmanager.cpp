@@ -3,6 +3,7 @@
 // Copyright (C) 2018 nerzhul, Loic BLOT <loic.blot@unix-experience.fr>
 
 #include <unordered_map>
+#include <memory>
 #include "test.h"
 #include "client/event_manager.h"
 

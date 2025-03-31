@@ -416,6 +416,8 @@ void Server::handleCommand_GotBlocks(NetworkPacket* pkt)
 
 	ClientInterface::AutoLock lock(m_clients);
 	RemoteClient *client = m_clients.lockedGetClientNoEx(pkt->getPeerId());
+	if (!client)
+		return;
 
 	for (u16 i = 0; i < count; i++) {
 		v3s16 p;
@@ -538,6 +540,8 @@ void Server::handleCommand_DeletedBlocks(NetworkPacket* pkt)
 
 	ClientInterface::AutoLock lock(m_clients);
 	RemoteClient *client = m_clients.lockedGetClientNoEx(pkt->getPeerId());
+	if (!client)
+		return;
 
 	for (u16 i = 0; i < count; i++) {
 		v3s16 p;

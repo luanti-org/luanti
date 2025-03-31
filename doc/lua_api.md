@@ -2026,6 +2026,17 @@ that acts as tool in a gameplay sense as a craftitem, and vice-versa.
 Craftitems can be used for items that neither need to be a node
 nor a tool.
 
+Special Items
+-------------
+The following items are predefined and have special properties.
+
+* `"unknown"`: An item that represents every item which has not been registered
+* `"air"`: The node which appears everywhere where no other node is
+* `"ignore"`: Mapblocks which have not been yet generated consist of this node
+* `""`: The player's hand, which is in use whenever the player wields no item
+  * Its rage and tool capabilities are also used as an fallback for the wield item
+  * It can be overridden to change those properties
+
 Amount and wear
 ---------------
 
@@ -3768,7 +3779,8 @@ Player Inventory lists
 * `craftresult`: list containing the crafted output
 * `hand`: list containing an override for the empty hand
     * Is not created automatically, use `InvRef:set_size`
-    * Is only used to enhance the empty hand's tool capabilities
+    * Players use the first item in this list as their hand
+    * It behaves as if the default hand `""` has been overridden for this specific player
 
 Custom lists can be added and deleted with `InvRef:set_size(name, size)` like
 any other inventory.
@@ -5895,16 +5907,23 @@ Call these functions only at load time!
 
 ### Environment
 
-* `core.register_node(name, node definition)`
-* `core.register_craftitem(name, item definition)`
-* `core.register_tool(name, item definition)`
+* `core.register_node(name, nodedef)`
+    * register a node with its definition
+    * Note: you must pass a clean table that hasn't already been used for
+      another registration to this function, as it will be modified.
+* `core.register_craftitem(name, itemdef)`
+    * register an item with its definition
+    * Note: (as above)
+* `core.register_tool(name, tooldef)`
+    * register a tool item with its definition
+    * Note: (as above)
 * `core.override_item(name, redefinition, del_fields)`
     * `redefinition` is a table of fields `[name] = new_value`,
       overwriting fields of or adding fields to the existing definition.
     * `del_fields` is a list of field names to be set
       to `nil` ("deleted from") the original definition.
     * Overrides fields of an item registered with register_node/tool/craftitem.
-    * Note: Item must already be defined, (opt)depend on the mod defining it.
+    * Note: Item must already be defined.
     * Example: `core.override_item("default:mese",
       {light_source=core.LIGHT_MAX}, {"sounds"})`:
       Overwrites the `light_source` field,
@@ -5912,7 +5931,7 @@ Call these functions only at load time!
 * `core.unregister_item(name)`
     * Unregisters the item from the engine, and deletes the entry with key
       `name` from `core.registered_items` and from the associated item table
-      according to its nature: `core.registered_nodes`, etc.
+      according to its nature (e.g. `core.registered_nodes`)
 * `core.register_entity(name, entity definition)`
 * `core.register_abm(abm definition)`
 * `core.register_lbm(lbm definition)`
@@ -9479,12 +9498,17 @@ Used by `core.register_lbm`.
 
 A loading block modifier (LBM) is used to define a function that is called for
 specific nodes (defined by `nodenames`) when a mapblock which contains such nodes
-gets activated (not loaded!).
+gets activated (**not loaded!**).
 
-Note: LBMs operate on a "snapshot" of node positions taken once before they are triggered.
+*Note*: LBMs operate on a "snapshot" of node positions taken once before they are triggered.
 That means if an LBM callback adds a node, it won't be taken into account.
-However the engine guarantees that when the callback is called that all given position(s)
-contain a matching node.
+However the engine guarantees that at the point in time when the callback is called
+that all given positions contain a matching node.
+
+*Note*: For maps generated in 5.11.0 or older, many newly generated blocks did not
+get a timestamp set. This means LBMs introduced between generation time and
+time of first activation will never run.
+Currently the only workaround is to use `run_at_every_load`.
 
 ```lua
 {
@@ -9508,7 +9532,7 @@ contain a matching node.
     action = function(pos, node, dtime_s) end,
     -- Function triggered for each qualifying node.
     -- `dtime_s` is the in-game time (in seconds) elapsed since the block
-    -- was last active.
+    -- was last active (available since 5.7.0).
 
     bulk_action = function(pos_list, dtime_s) end,
     -- Function triggered with a list of all applicable node positions at once.

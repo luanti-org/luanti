@@ -120,20 +120,19 @@ bool MapBlock::saveStaticObject(u16 id, const StaticObject &obj, u32 reason)
 	return true;
 }
 
-// This method is only for Server, don't call it on client
 void MapBlock::step(float dtime, const std::function<bool(v3s16, MapNode, f32)> &on_timer_cb)
 {
-	// Run script callbacks for elapsed node_timers
+	// Run callbacks for elapsed node_timers
 	std::vector<NodeTimer> elapsed_timers = m_node_timers.step(dtime);
-	if (!elapsed_timers.empty()) {
-		MapNode n;
-		v3s16 p;
-		for (const NodeTimer &elapsed_timer : elapsed_timers) {
-			n = getNodeNoEx(elapsed_timer.position);
-			p = elapsed_timer.position + getPosRelative();
-			if (on_timer_cb(p, n, elapsed_timer.elapsed))
-				setNodeTimer(NodeTimer(elapsed_timer.timeout, 0, elapsed_timer.position));
-		}
+	MapNode n;
+	v3s16 p;
+	for (const auto &it : elapsed_timers) {
+		n = getNodeNoEx(it.position);
+		p = it.position + getPosRelative();
+		if (on_timer_cb(p, n, it.elapsed))
+			setNodeTimer(NodeTimer(it.timeout, 0, it.position));
+		if (isOrphan())
+			return;
 	}
 }
 

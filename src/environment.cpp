@@ -17,11 +17,6 @@ Environment::Environment(IGameDef *gamedef):
 	m_day_count(0),
 	m_gamedef(gamedef)
 {
-	m_cache_active_block_mgmt_interval = g_settings->getFloat("active_block_mgmt_interval");
-	m_cache_abm_interval = g_settings->getFloat("abm_interval");
-	m_cache_nodetimer_interval = g_settings->getFloat("nodetimer_interval");
-	m_cache_abm_time_budget = g_settings->getFloat("abm_time_budget");
-
 	m_time_of_day = g_settings->getU32("world_start_time");
 	m_time_of_day_f = (float)m_time_of_day / 24000.0f;
 }

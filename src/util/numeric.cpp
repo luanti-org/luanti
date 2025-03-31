@@ -6,7 +6,7 @@
 
 #include "log.h"
 #include "constants.h" // BS, MAP_BLOCKSIZE
-#include "noise.h" // PseudoRandom, PcgRandom
+#include "noise.h" // PcgRandom
 #include <cstring>
 #include <cmath>
 
@@ -20,7 +20,7 @@ u32 myrand()
 	return g_pcgrand.next();
 }
 
-void mysrand(unsigned int seed)
+void mysrand(u64 seed)
 {
 	g_pcgrand.seed(seed);
 }
@@ -47,10 +47,7 @@ float myrand_range(float min, float max)
 }
 
 
-/*
-	64-bit unaligned version of MurmurHash
-*/
-u64 murmur_hash_64_ua(const void *key, int len, unsigned int seed)
+u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed)
 {
 	const u64 m = 0xc6a4a7935bd1e995ULL;
 	const int r = 47;
@@ -90,13 +87,7 @@ u64 murmur_hash_64_ua(const void *key, int len, unsigned int seed)
 	return h;
 }
 
-/*
-	blockpos_b: position of block in block coordinates
-	camera_pos: position of camera in nodes
-	camera_dir: an unit vector pointing to camera direction
-	range: viewing range
-	distance_ptr: return location for distance from the camera
-*/
+
 bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 		f32 camera_fov, f32 range, f32 *distance_ptr)
 {
@@ -148,6 +139,7 @@ bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 
 	return true;
 }
+
 
 inline float adjustDist(float dist, float zoom_fov)
 {

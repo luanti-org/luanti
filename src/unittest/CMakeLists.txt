@@ -16,6 +16,7 @@ set (UNITTEST_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_matrix4.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_rotation.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_logging.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_lbmmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_lua.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_map.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_mapblock.cpp

@@ -30,6 +30,11 @@
 #include "common/c_converter.h"
 #include "gui/guiOpenURL.h"
 #include "gettext.h"
+#include "log.h"
+#include "util/string.h"
+
+#include <cassert>
+#include <iostream>
 
 /******************************************************************************/
 std::string ModApiMainMenu::getTextData(lua_State *L, const std::string &name)
@@ -126,10 +131,13 @@ int ModApiMainMenu::l_start(lua_State *L)
 	data->simple_singleplayer_mode = getBoolData(L,"singleplayer",valid);
 	data->do_reconnect = getBoolData(L, "do_reconnect", valid);
 	if (!data->do_reconnect) {
-		data->name     = getTextData(L,"playername");
-		data->password = getTextData(L,"password");
-		data->address  = getTextData(L,"address");
-		data->port     = getTextData(L,"port");
+		// Get rid of trailing whitespace in name (may be added by autocompletion
+		// on Android, which would then cause SERVER_ACCESSDENIED_WRONG_CHARS_IN_NAME).
+		data->name     = trim(getTextData(L, "playername"));
+		data->password = getTextData(L, "password");
+		// There's no reason for these to have leading/trailing whitespace either.
+		data->address  = trim(getTextData(L, "address"));
+		data->port     = trim(getTextData(L, "port"));
 
 		const auto val = getTextData(L, "allow_login_or_register");
 		if (val == "login")
@@ -351,6 +359,14 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 	spec.path = path;
 	parseContentInfo(spec);
 
+	if (spec.type == "unknown") {
+		// In <=5.11.0 the API call was erroneously not documented as
+		// being able to return type "unknown".
+		// TODO inspect call sites and make sure this is handled, then we can
+		// likely remove the warning.
+		warningstream << "Requested content info has type \"unknown\"" << std::endl;
+	}
+
 	lua_newtable(L);
 
 	lua_pushstring(L, spec.name.c_str());
@@ -364,11 +380,6 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 
 	lua_pushstring(L, spec.author.c_str());
 	lua_setfield(L, -2, "author");
-
-	if (!spec.title.empty()) {
-		lua_pushstring(L, spec.title.c_str());
-		lua_setfield(L, -2, "title");
-	}
 
 	lua_pushinteger(L, spec.release);
 	lua_setfield(L, -2, "release");
@@ -385,8 +396,12 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 	if (spec.type == "mod") {
 		ModSpec spec;
 		spec.path = path;
-		// TODO return nothing on failure (needs callers to handle it)
-		static_cast<void>(parseModContents(spec));
+		// Since the content was already determined to be a mod,
+		// the parsing is guaranteed to succeed unless the init.lua
+		// file happens to be deleted between the content parse and
+		// the mod parse.
+		[[maybe_unused]] bool success = parseModContents(spec);
+		assert(success);
 
 		// Dependencies
 		lua_newtable(L);

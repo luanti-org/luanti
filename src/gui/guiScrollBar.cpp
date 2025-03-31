@@ -249,7 +249,7 @@ void GUIScrollBar::updatePos()
 	setPosRaw(scroll_pos);
 }
 
-void GUIScrollBar::setPosRaw(const s32 &pos)
+void GUIScrollBar::setPosRaw(const s32 pos)
 {
 	s32 thumb_area = 0;
 	s32 thumb_min = 0;
@@ -275,7 +275,7 @@ void GUIScrollBar::setPosRaw(const s32 &pos)
 		border_size;
 }
 
-void GUIScrollBar::setPos(const s32 &pos)
+void GUIScrollBar::setPos(const s32 pos)
 {
 	setPosRaw(pos);
 	target_pos = std::nullopt;
