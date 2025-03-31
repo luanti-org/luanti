@@ -453,7 +453,7 @@ function make.key(setting)
 		for _, o in pairs(core.full_settingtypes) do
 			if o.type == "key" and o.name ~= setting.name and core.are_keycodes_equal(core.settings:get(o.name), value) then
 				table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
-						fgettext("Keybinding conflict: $1", fgettext(o.readable_name))))
+						core.colorize(mt_color_orange, fgettext("Keybinding conflict: $1", fgettext(o.readable_name)))))
 				height = height + 0.6
 			end
 		end

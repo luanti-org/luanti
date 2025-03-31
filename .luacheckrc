@@ -33,6 +33,13 @@ globals = {
 	"_",
 }
 
+stds.menu_common = {
+	globals = {
+		"mt_color_grey", "mt_color_blue", "mt_color_lightblue", "mt_color_green",
+		"mt_color_dark_green", "mt_color_orange", "mt_color_red",
+	},
+}
+
 files["builtin/client/register.lua"] = {
 	globals = {
 		debug = {fields={"getinfo"}},
@@ -73,9 +80,14 @@ files["builtin/common/filterlist.lua"] = {
 }
 
 files["builtin/mainmenu"] = {
+	std = "+menu_common",
 	globals = {
 		"gamedata",
 	},
+}
+
+files["builtin/common/settings"] = {
+	std = "+menu_common",
 }
 
 files["builtin/common/tests"] = {
