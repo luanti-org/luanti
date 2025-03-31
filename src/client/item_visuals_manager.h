@@ -11,7 +11,6 @@
 #include "util/basic_macros.h"
 
 class Client;
-class IItemDefManager;
 class ItemStack;
 typedef std::vector<video::SColor> Palette; // copied from src/client/texturesource.h
 namespace irr::video { class ITexture; }
@@ -20,7 +19,7 @@ namespace irr::video { class ITexture; }
 
 struct ItemVisualsManager
 {
-	ItemVisualsManager(IItemDefManager *idef) : m_idef(idef)
+	ItemVisualsManager()
 	{
 		m_main_thread = std::this_thread::get_id();
 	}
@@ -64,8 +63,6 @@ private:
 	std::thread::id m_main_thread;
 	// Cached textures and meshes
 	mutable std::unordered_map<std::string, std::unique_ptr<ItemVisuals>> m_cached_item_visuals;
-
-	IItemDefManager *m_idef;
 
 	ItemVisuals* createItemVisuals(const ItemStack &item, Client *client) const;
 };

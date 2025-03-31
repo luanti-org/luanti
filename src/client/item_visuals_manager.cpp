@@ -21,9 +21,11 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	// This is not thread-safe
 	sanity_check(std::this_thread::get_id() == m_main_thread);
 
-	const ItemDefinition &def = item.getDefinition(m_idef);
-	std::string inventory_image = item.getInventoryImage(m_idef);
-	std::string inventory_overlay = item.getInventoryOverlay(m_idef);
+	IItemDefManager *idef = client->idef();
+
+	const ItemDefinition &def = item.getDefinition(idef);
+	std::string inventory_image = item.getInventoryImage(idef);
+	std::string inventory_overlay = item.getInventoryOverlay(idef);
 	std::string cache_key = def.name;
 	if (!inventory_image.empty())
 		cache_key += "/" + inventory_image;
@@ -95,6 +97,6 @@ video::SColor ItemVisualsManager::getItemstackColor(const ItemStack &stack,
 	if (palette && !index.empty())
 		return (*palette)[mystoi(index, 0, 255)];
 	// Fallback color
-	return m_idef->get(stack.name).color;
+	return client->idef()->get(stack.name).color;
 }
 

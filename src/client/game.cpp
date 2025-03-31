@@ -1127,7 +1127,7 @@ bool Game::init(
 	itemdef_manager = createItemDefManager();
 	nodedef_manager = createNodeDefManager();
 
-	m_item_visuals_manager = std::make_unique<ItemVisualsManager>(itemdef_manager);
+	m_item_visuals_manager = std::make_unique<ItemVisualsManager>();
 
 	eventmgr = new EventManager();
 	quicktune = new QuicktuneShortcutter();
