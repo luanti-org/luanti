@@ -8,22 +8,38 @@ local next, rawget, pairs, pcall, error, type, setfenv, loadstring
 local table_concat, string_dump, string_format, string_match, math_huge
 	= table.concat, string.dump, string.format, string.match, math.huge
 
--- Recursively counts occurrences of objects (non-primitives including strings) in a table.
-local function count_objects(value)
+local function pack_args(...)
+	return {n = select("#", ...), ...}
+end
+
+-- Recursively
+-- (1) reads metatables from tables;
+-- (2) counts occurrences of objects (non-primitives including strings) in a table.
+local function prepare_objects(value)
 	local counts = {}
+	local type_lookup = {}
 	if value == nil then
 		-- Early return for nil; tables can't contain nil
-		return counts
+		return counts, type_lookup
 	end
-	local function count_values(val)
+	local function count_values(val, recount)
 		local type_ = type(val)
 		if type_ == "boolean" or type_ == "number" then
 			return
 		end
 		local count = counts[val]
-		counts[val] = (count or 0) + 1
-		if type_ == "table" then
-			if not count then
+		if not recount then
+			counts[val] = (count or 0) + 1
+		end
+		local mt = (not count) and (type_ == "table" or type_ == "userdata") and getmetatable(val)
+		if mt and core.serializable_metatables[mt] then
+			local args = pack_args(core.known_metatables[mt], core.serializable_metatables[mt](val))
+			type_lookup[val] = args
+			for _, v in ipairs(args) do
+				count_values(v, rawequal(v, val))
+			end
+		elseif type_ == "table" then
+			if recount or not count then
 				for k, v in pairs(val) do
 					count_values(k)
 					count_values(v)
@@ -34,7 +50,7 @@ local function count_objects(value)
 		end
 	end
 	count_values(value)
-	return counts
+	return counts, type_lookup
 end
 
 -- Build a "set" of Lua keywords. These can't be used as short key names.
@@ -66,7 +82,15 @@ local function serialize(value, write)
 	local references = {}
 	-- Circular tables that must be filled using `table[key] = value` statements
 	local to_fill = {}
-	for object, count in pairs(count_objects(value)) do
+	local counts, typeinfo = prepare_objects(value)
+	if next(typeinfo) then
+		write [[
+		if not (core and core.serializable_metatables) then
+			core = { known_metatables = {}, serializable_metatables = {}}
+		end;
+		]]
+	end
+	for object, count in pairs(counts) do
 		local type_ = type(object)
 		-- Object must appear more than once. If it is a string, the reference has to be shorter than the string.
 		if count >= 2 and (type_ ~= "string" or #reference + 5 < #object) then
@@ -96,7 +120,22 @@ local function serialize(value, write)
 	local function use_short_key(key)
 		return not references[key] and type(key) == "string" and (not keywords[key]) and string_match(key, "^[%a_][%a%d_]*$")
 	end
-	local function dump(value)
+	local dump
+	local function dump_serialized(value)
+		local serialized = assert(typeinfo[value])
+		write "(core.serializable_metatables["
+		dump(serialized[1])
+		write "])("
+		for k = 2, serialized.n do
+			if k ~= 2 then
+				write ","
+			end
+			local v = serialized[k]
+			dump(v, rawequal(v, value))
+		end
+		write ")"
+	end
+	dump = function(value, skip_mt)
 		-- Primitive types
 		if value == nil then
 			return write("nil")
@@ -125,6 +164,10 @@ local function serialize(value, write)
 			write"_["
 			write(ref)
 			return write"]"
+		end
+		if (not skip_mt) and typeinfo[value] then
+			dump_serialized(value)
+			return
 		end
 		if type_ == "string" then
 			return write(quote(value))
@@ -168,8 +211,8 @@ local function serialize(value, write)
 		end
 	end
 	-- Write the statements to fill circular tables
-	for table, ref in pairs(to_fill) do
-		for k, v in pairs(table) do
+	for tbl, ref in pairs(to_fill) do
+		for k, v in pairs(tbl) do
 			write("_[")
 			write(ref)
 			write("]")
@@ -183,6 +226,13 @@ local function serialize(value, write)
 			end
 			write("=")
 			dump(v)
+			write(";")
+		end
+		if typeinfo[tbl] then
+			write("_[")
+			write(ref)
+			write("]=")
+			dump_serialized(tbl)
 			write(";")
 		end
 	end
@@ -216,7 +266,14 @@ function core.deserialize(str, safe)
 	if not func then return nil, err end
 
 	-- math.huge was serialized to inf and NaNs to nan by Lua in engine version 5.6, so we have to support this here
-	local env = {inf = math_huge, nan = 0/0}
+	local env = {
+		inf = math_huge,
+		nan = 0/0,
+		core = {
+			known_metatables = core.known_metatables,
+			serializable_metatables = core.serializable_metatables,
+		},
+	}
 	if safe then
 		env.loadstring = dummy_func
 	else
@@ -236,3 +293,4 @@ function core.deserialize(str, safe)
 	end
 	return nil, value_or_err
 end
+

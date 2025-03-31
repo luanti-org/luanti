@@ -7687,12 +7687,18 @@ Misc.
 * `core.global_exists(name)`
     * Checks if a global variable has been set, without triggering a warning.
 
-* `core.register_portable_metatable(name, mt)`:
+* `core.register_portable_metatable(name, mt, serializer, deserializer)`:
     * Register a metatable that should be preserved when Lua data is transferred
-      between environments (via IPC or `handle_async`).
+      between environments (via IPC, `handle_async`, or `core.serialize`).
     * `name` is a string that identifies the metatable. It is recommended to
       follow the `modname:name` convention for this identifier.
     * `mt` is the metatable to register.
+    * `serializer` is a function used by `core.serialize` to serialize data with
+      the given metatable. It may return multiple values, but the return values should not
+      contain the input datum unless `serializer` is the identity function. The default
+      value for `serializer` is the identity function.
+    * `deserializer` is a function used by `core.deserialize` to deserialize data from
+      values returned by `serializer`. The default value is a wrapper around `setmetatable`.
     * Note that the same metatable can be registered under multiple names,
       but multiple metatables must not be registered under the same name.
     * You must register the metatable in both the main environment
