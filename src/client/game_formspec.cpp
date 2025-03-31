@@ -549,11 +549,6 @@ bool GameFormSpec::handleCallbacks()
 		g_gamecallback->show_open_url_dialog.clear();
 	}
 
-	if (g_gamecallback->keyconfig_changed) {
-		m_input->reloadKeybindings(); // update the cache with new settings
-		g_gamecallback->keyconfig_changed = false;
-	}
-
 	return true;
 }
 
