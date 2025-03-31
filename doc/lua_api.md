@@ -6475,12 +6475,12 @@ Environment access
       first value: Table with all node positions
       second value: Table with the count of each node with the node name
       as index
-    * Area volume is limited to 4,096,000 nodes
+    * Area volume is limited to 150,000,000 nodes
 * `core.find_nodes_in_area_under_air(pos1, pos2, nodenames)`: returns a
   list of positions.
     * `nodenames`: e.g. `{"ignore", "group:tree"}` or `"default:dirt"`
     * Return value: Table with all node positions with a node air above
-    * Area volume is limited to 4,096,000 nodes
+    * Area volume is limited to 150,000,000 nodes
 * `core.get_perlin(noiseparams)`
     * Return world-specific perlin noise.
     * The actual seed used is the noiseparams seed plus the world seed.
