@@ -349,12 +349,12 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 		box.MinEdge *= cur_node.f->visual_scale;
 		box.MaxEdge *= cur_node.f->visual_scale;
 	}
-	box.MinEdge += cur_node.origin;
-	box.MaxEdge += cur_node.origin;
 	if (!txc) {
 		generateCuboidTextureCoords(box, texture_coord_buf);
 		txc = texture_coord_buf;
 	}
+	box.MinEdge += cur_node.origin;
+	box.MaxEdge += cur_node.origin;
 	if (data->m_smooth_lighting) {
 		LightInfo lights[8];
 		for (int j = 0; j < 8; ++j) {
@@ -443,9 +443,9 @@ void MapblockMeshGenerator::drawSolidNode()
 	cur_node.origin = intToFloat(cur_node.p, BS);
 	auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
 	f32 texture_coord_buf[24];
+	generateCuboidTextureCoords(box, texture_coord_buf);
 	box.MinEdge += cur_node.origin;
 	box.MaxEdge += cur_node.origin;
-	generateCuboidTextureCoords(box, texture_coord_buf);
 	if (data->m_smooth_lighting) {
 		LightPair lights[6][4];
 		for (int face = 0; face < 6; ++face) {

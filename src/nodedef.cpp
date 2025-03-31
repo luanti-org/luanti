@@ -923,6 +923,37 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
 	}
 
+	do {
+		const std::string_view app{"^[applyfiltersformesh"};
+		constexpr bool debug = false;
+		std::set<std::string> can_merge;
+		for (u16 j = 0; j < 6; j++) {
+			auto &l = tiles[j].layers[0];
+			if (!l.empty() && l.scale == 1 && !l.frames)
+				can_merge.emplace(tdef[j].name);
+		}
+		if (can_merge.size() < 2)
+			break;
+		std::string funny = "array";
+		if (debug)
+			funny += "|error_icon_red.png";
+		for (auto &s : can_merge)
+			funny.append("|").append(s).append(app);
+		u32 texid;
+		auto *tex = tsrc->getTexture(funny, &texid);
+		if (!tex)
+			break;
+		for (u16 j = 0; j < 6; j++) {
+			auto &l = tiles[j].layers[0];
+			auto si = can_merge.find(tdef[j].name);
+			if (si != can_merge.end()) { // replaces texture of this layer
+				l.texture = tex;
+				l.texture_id = texid;
+				l.texture_layer_idx = std::distance(can_merge.begin(), si) + (debug ? 1 : 0);
+			}
+		}
+	} while (0);
+
 	MaterialType special_material = material_type;
 	if (drawtype == NDT_PLANTLIKE_ROOTED) {
 		if (waving == 1)

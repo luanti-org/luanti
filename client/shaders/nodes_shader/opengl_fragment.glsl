@@ -414,9 +414,11 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 void main(void)
 {
 	vec3 color;
-	vec2 uv = varTexCoord.st;
+	vec3 uv = varTexCoord.sts;
+	uv.s = mod(uv.s, 1.0);
+	uv.p = floor(uv.p); // layer
 
-	vec4 base = texture(baseTexture, vec3(uv, 0)).rgba;
+	vec4 base = texture(baseTexture, uv).rgba;
 	// If alpha is zero, we can just discard the pixel. This fixes transparency
 	// on GPUs like GC7000L, where GL_ALPHA_TEST is not implemented in mesa,
 	// and also on GLES 2, where GL_ALPHA_TEST is missing entirely.
