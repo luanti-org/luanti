@@ -288,7 +288,10 @@ u32 TextureSource::generateTexture(const std::string &name)
 	if (img) {
 		img = Align2Npot2(img, driver);
 		// Create texture from resulting image
-		tex = driver->addTexture(name.c_str(), img);
+		if (name.find("applyfiltersformesh") != std::string::npos)
+			tex = driver->addArrayTexture(name.c_str(), &img, 1);
+		else
+			tex = driver->addTexture(name.c_str(), img);
 		guiScalingCache(io::path(name.c_str()), driver, img);
 		img->drop();
 	}
@@ -474,7 +477,10 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 	// Create texture from resulting image
 	video::ITexture *t = nullptr;
 	if (img) {
-		t = driver->addTexture(ti.name.c_str(), img);
+		if (ti.name.find("applyfiltersformesh") != std::string::npos)
+			t = driver->addArrayTexture(ti.name.c_str(), &img, 1);
+		else
+			t = driver->addTexture(ti.name.c_str(), img);
 		guiScalingCache(io::path(ti.name.c_str()), driver, img);
 		img->drop();
 	}
