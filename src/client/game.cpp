@@ -60,6 +60,7 @@
 #include "clientdynamicinfo.h"
 #include <IAnimatedMeshSceneNode.h>
 #include "util/tracy_wrapper.h"
+#include "item_visuals_manager.h"
 
 #if USE_SOUND
 	#include "client/sound/sound_openal.h"
@@ -692,6 +693,7 @@ private:
 	// When created, these will be filled with data received from the server
 	IWritableItemDefManager *itemdef_manager = nullptr;
 	NodeDefManager *nodedef_manager = nullptr;
+	std::unique_ptr<ItemVisualsManager> m_item_visuals_manager;
 
 	std::unique_ptr<ISoundManager> sound_manager;
 	SoundMaker *soundmaker = nullptr;
@@ -1125,6 +1127,8 @@ bool Game::init(
 	itemdef_manager = createItemDefManager();
 	nodedef_manager = createNodeDefManager();
 
+	m_item_visuals_manager = std::make_unique<ItemVisualsManager>(itemdef_manager);
+
 	eventmgr = new EventManager();
 	quicktune = new QuicktuneShortcutter();
 
@@ -1443,6 +1447,7 @@ bool Game::connectToServer(const GameStartData &start_data,
 				*draw_control, texture_src, shader_src,
 				itemdef_manager, nodedef_manager, sound_manager.get(), eventmgr,
 				m_rendering_engine,
+				m_item_visuals_manager.get(),
 				start_data.allow_login_or_register);
 	} catch (const BaseException &e) {
 		*error_message = fmtgettext("Error creating client: %s", e.what());

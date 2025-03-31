@@ -53,6 +53,7 @@
 #include "translation.h"
 #include "content/mod_configuration.h"
 #include "mapnode.h"
+#include "item_visuals_manager.h"
 
 extern gui::IGUIEnvironment* guienv;
 
@@ -95,6 +96,7 @@ Client::Client(
 		ISoundManager *sound,
 		MtEventManager *event,
 		RenderingEngine *rendering_engine,
+		ItemVisualsManager *item_visuals_manager,
 		ELoginRegister allow_login_or_register
 ):
 	m_tsrc(tsrc),
@@ -104,6 +106,7 @@ Client::Client(
 	m_sound(sound),
 	m_event(event),
 	m_rendering_engine(rendering_engine),
+	m_item_visuals_manager(item_visuals_manager),
 	m_mesh_update_manager(std::make_unique<MeshUpdateManager>(this)),
 	m_env(
 		make_irr<ClientMap>(this, rendering_engine, control, 666),
@@ -345,6 +348,8 @@ Client::~Client()
 
 	// cleanup 3d model meshes on client shutdown
 	m_rendering_engine->cleanupMeshCache();
+
+	m_item_visuals_manager->clear();
 
 	guiScalingCacheClear();
 

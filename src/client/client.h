@@ -55,6 +55,7 @@ struct MeshMakeData;
 struct MinimapMapblock;
 struct PlayerControl;
 struct PointedThing;
+struct ItemVisualsManager;
 
 namespace con {
 class IConnection;
@@ -118,6 +119,7 @@ public:
 			ISoundManager *sound,
 			MtEventManager *event,
 			RenderingEngine *rendering_engine,
+			ItemVisualsManager *item_visuals,
 			ELoginRegister allow_login_or_register
 	);
 
@@ -383,6 +385,8 @@ public:
 	const std::string* getModFile(std::string filename);
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
 
+	ItemVisualsManager *getItemVisualsManager() { return m_item_visuals_manager; }
+
 	// Migrates away old files-based mod storage if necessary
 	void migrateModStorage();
 
@@ -480,6 +484,7 @@ private:
 	ISoundManager *m_sound;
 	MtEventManager *m_event;
 	RenderingEngine *m_rendering_engine;
+	ItemVisualsManager *m_item_visuals_manager;
 
 
 	std::unique_ptr<MeshUpdateManager> m_mesh_update_manager;

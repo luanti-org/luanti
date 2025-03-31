@@ -23,6 +23,7 @@
 #include <SMesh.h>
 #include <IMeshBuffer.h>
 #include <SMeshBuffer.h>
+#include "item_visuals_manager.h"
 
 #define WIELD_SCALE_FACTOR 30.0f
 #define WIELD_SCALE_FACTOR_EXTRUDED 40.0f
@@ -348,6 +349,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 {
 	ITextureSource *tsrc = client->getTextureSource();
 	IItemDefManager *idef = client->getItemDefManager();
+	ItemVisualsManager *item_visuals = client->getItemVisualsManager();
 	IShaderSource *shdrsrc = client->getShaderSource();
 	const NodeDefManager *ndef = client->getNodeDefManager();
 	const ItemDefinition &def = item.getDefinition(idef);
@@ -361,7 +363,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 
 	// Color-related
 	m_buffer_info.clear();
-	m_base_color = idef->getItemstackColor(item, client);
+	m_base_color = item_visuals->getItemstackColor(item, client);
 
 	const std::string wield_image = item.getWieldImage(idef);
 	const std::string wield_overlay = item.getWieldOverlay(idef);
