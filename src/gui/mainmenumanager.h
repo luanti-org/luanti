@@ -26,7 +26,6 @@ public:
 	virtual void changePassword() = 0;
 	virtual void changeVolume() = 0;
 	virtual void showOpenURLDialog(const std::string &url) = 0;
-	virtual void signalKeyConfigChange() = 0;
 	virtual void touchscreenLayout() = 0;
 };
 
@@ -135,11 +134,6 @@ public:
 		changevolume_requested = true;
 	}
 
-	void signalKeyConfigChange() override
-	{
-		keyconfig_changed = true;
-	}
-
 	void touchscreenLayout() override
 	{
 		touchscreenlayout_requested = true;
@@ -156,7 +150,6 @@ public:
 	bool changevolume_requested = false;
 	bool touchscreenlayout_requested = false;
 	bool shutdown_requested = false;
-	bool keyconfig_changed = false;
 	std::string show_open_url_dialog = "";
 };
 
