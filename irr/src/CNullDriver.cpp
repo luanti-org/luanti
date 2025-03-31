@@ -71,7 +71,6 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 
 	setTextureCreationFlag(ETCF_ALWAYS_32_BIT, true);
 	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, true);
-	setTextureCreationFlag(ETCF_AUTO_GENERATE_MIP_MAPS, true);
 	setTextureCreationFlag(ETCF_ALLOW_MEMORY_COPY, false);
 
 	ViewPort = core::rect<s32>(core::position2d<s32>(0, 0), core::dimension2di(screenSize));
@@ -406,17 +405,13 @@ ITexture *CNullDriver::getTexture(const io::path &filename)
 	const io::path absolutePath = FileSystem->getAbsolutePath(filename);
 
 	ITexture *texture = findTexture(absolutePath);
-	if (texture) {
-		texture->updateSource(ETS_FROM_CACHE);
+	if (texture)
 		return texture;
-	}
 
 	// Then try the raw filename, which might be in an Archive
 	texture = findTexture(filename);
-	if (texture) {
-		texture->updateSource(ETS_FROM_CACHE);
+	if (texture)
 		return texture;
-	}
 
 	// Now try to open the file using the complete path.
 	io::IReadFile *file = FileSystem->createAndOpenFile(absolutePath);
@@ -430,7 +425,6 @@ ITexture *CNullDriver::getTexture(const io::path &filename)
 		// Re-check name for actual archive names
 		texture = findTexture(file->getFileName());
 		if (texture) {
-			texture->updateSource(ETS_FROM_CACHE);
 			file->drop();
 			return texture;
 		}
@@ -439,7 +433,6 @@ ITexture *CNullDriver::getTexture(const io::path &filename)
 		file->drop();
 
 		if (texture) {
-			texture->updateSource(ETS_FROM_FILE);
 			addTexture(texture);
 			texture->drop(); // drop it because we created it, one grab too much
 		} else
@@ -459,15 +452,12 @@ ITexture *CNullDriver::getTexture(io::IReadFile *file)
 	if (file) {
 		texture = findTexture(file->getFileName());
 
-		if (texture) {
-			texture->updateSource(ETS_FROM_CACHE);
+		if (texture)
 			return texture;
-		}
 
 		texture = loadTextureFromFile(file);
 
 		if (texture) {
-			texture->updateSource(ETS_FROM_FILE);
 			addTexture(texture);
 			texture->drop(); // drop it because we created it, one grab too much
 		}

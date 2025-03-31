@@ -103,7 +103,7 @@ void MapblockMeshGenerator::getSpecialTile(int index, TileSpec *tile_ret, bool a
 
 	for (auto &layernum : tile_ret->layers) {
 		TileLayer *layer = &layernum;
-		if (layer->texture_id == 0)
+		if (layer->empty())
 			continue;
 		top_layer = layer;
 		if (!layer->has_color)

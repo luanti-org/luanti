@@ -56,7 +56,6 @@ public:
 	//! Returns bits per pixel.
 	u32 getBitsPerPixel() const
 	{
-
 		return getBitsPerPixelFromFormat(Format);
 	}
 

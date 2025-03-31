@@ -20,7 +20,10 @@ CImage::CImage(ECOLOR_FORMAT format, const core::dimension2d<u32> &size, void *d
 		IImage(format, size, deleteMemory)
 {
 	if (ownForeignMemory) {
-		Data = (u8 *)data;
+		_IRR_DEBUG_BREAK_IF(!data)
+		Data = reinterpret_cast<u8*>(data);
+		if (reinterpret_cast<uintptr_t>(data) % sizeof(u32) != 0)
+			os::Printer::log("CImage created with foreign memory that's not aligned", ELL_WARNING);
 	} else {
 		const u32 dataSize = getDataSizeFromFormat(Format, Size.Width, Size.Height);
 		const u32 allocSize = align_next(dataSize, 16);

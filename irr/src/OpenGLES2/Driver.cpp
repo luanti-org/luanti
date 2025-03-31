@@ -146,7 +146,7 @@ void COpenGLES2Driver::initFeatures()
 	MaxTextureSize = GetInteger(GL_MAX_TEXTURE_SIZE);
 	if (LODBiasSupported)
 		GL.GetFloatv(GL_MAX_TEXTURE_LOD_BIAS, &MaxTextureLODBias);
-	GL.GetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, DimAliasedLine); // NOTE: this is not in the OpenGL ES 2.0 spec...
+	GL.GetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, DimAliasedLine);
 	GL.GetFloatv(GL_ALIASED_POINT_SIZE_RANGE, DimAliasedPoint);
 }
 
