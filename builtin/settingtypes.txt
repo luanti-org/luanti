@@ -180,6 +180,8 @@ enable_hotbar_mouse_wheel (Hotbar: Enable mouse wheel for selection) bool true
 #    Requires: keyboard_mouse
 invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 
+[**Keybindings]
+
 #    Key for moving the player forward.
 keymap_forward (Move forward) key KEY_KEY_W
 
