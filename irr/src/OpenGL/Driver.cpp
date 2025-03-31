@@ -1088,6 +1088,17 @@ ITexture *COpenGL3DriverBase::createDeviceDependentTextureCubemap(const io::path
 	return texture;
 }
 
+ITexture *COpenGL3DriverBase::addArrayTexture(const io::path &name, IImage **images, u32 count)
+{
+	std::vector<IImage*> tmp;
+	// stupid but who cares
+	tmp.resize(count);
+	for (u32 i = 0; i < count; i++)
+		tmp[i] = images[i];
+
+	return new COpenGL3Texture(name, tmp, ETT_2D_ARRAY, this);
+}
+
 // Same as COpenGLDriver::TextureFlipMatrix
 static const core::matrix4 s_texture_flip_matrix = {
 	1,  0, 0, 0,
