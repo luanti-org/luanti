@@ -110,7 +110,7 @@ function add_keybinding_conflict_warnings(fs, x, y, setting_name)
 	if value == "" then
 		return y
 	end
-	for _, o in pairs(core.full_settingtypes) do
+	for _, o in ipairs(core.full_settingtypes) do
 		if o.type == "key" and o.name ~= setting_name
 				and core.are_keycodes_equal(core.settings:get(o.name), value) then
 			table.insert(fs, ("label[%f,%f;%s]"):format(x, y+0.3, core.colorize(mt_color_orange,
