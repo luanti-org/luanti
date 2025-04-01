@@ -452,10 +452,11 @@ function make.key(setting)
 			self.resettable = core.settings:has(setting.name)
 			local btn_width = math.max(2.5, avail_w/2)
 			local value = core.settings:get(setting.name)
+			local button_label = core.formspec_escape(core.get_keycode_name(value) or "")
 			local fs = {
 				("label[0,0.4;%s]"):format(get_label(setting)),
 				("button[%f,0;%f,0.8;%s;%s]"):format(
-						btn_width, btn_width, btn_edit, fgettext("Edit")),
+						btn_width, btn_width, btn_edit, button_label),
 			}
 			local height = 0.8
 			height = add_keybinding_conflict_warnings(fs, 0, height, setting.name)
