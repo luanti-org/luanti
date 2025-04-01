@@ -443,52 +443,29 @@ local function make_noise_params(setting)
 end
 
 function make.key(setting)
-	local btn_bind = "bind_" .. setting.name
-	local btn_clear = "unbind_" .. setting.name
-	local function add_conflict_warnings(fs, height)
-		local value = core.settings:get(setting.name)
-		if value == "" then
-			return height
-		end
-		for _, o in ipairs(core.full_settingtypes) do
-			if o.type == "key" and o.name ~= setting.name and core.are_keycodes_equal(core.settings:get(o.name), value) then
-				table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
-						core.colorize(mt_color_orange, fgettext("Keybinding conflict: $1", fgettext(o.readable_name)))))
-				height = height + 0.6
-			end
-		end
-		return height
-	end
+	local btn_edit = "btn_edit_" .. setting.name
 	return {
 		info_text = setting.comment,
 		setting = setting,
 
 		get_formspec = function(self, avail_w)
 			self.resettable = core.settings:has(setting.name)
-			local btn_bind_width = math.max(2.5, avail_w/2)
+			local btn_width = math.max(2.5, avail_w/2)
 			local value = core.settings:get(setting.name)
+			local button_label = core.formspec_escape(core.get_keycode_name(value) or "")
 			local fs = {
 				("label[0,0.4;%s]"):format(get_label(setting)),
-				("button_key[%f,0;%f,0.8;%s;%s]"):format(
-						btn_bind_width, btn_bind_width-0.8,
-						btn_bind, core.formspec_escape(value)),
-				("image_button[%f,0;0.8,0.8;%s;%s;]"):format(avail_w - 0.8,
-						core.formspec_escape(defaulttexturedir .. "clear.png"),
-						btn_clear),
-				("tooltip[%s;%s]"):format(btn_clear, fgettext("Remove keybinding")),
+				("button[%f,0;%f,0.8;%s;%s]"):format(
+						btn_width, btn_width, btn_edit, button_label),
 			}
 			local height = 0.8
-			height = add_conflict_warnings(fs, height)
+			height = add_keybinding_conflict_warnings(fs, 0, height, setting.name)
 			return table.concat(fs), height
 		end,
 
-		on_submit = function(self, fields)
-			if fields[btn_bind] then
-				core.settings:set(setting.name, fields[btn_bind])
-				return true
-			elseif fields[btn_clear] then
-				core.settings:set(setting.name, "")
-				return true
+		on_submit = function(self, fields, tabview)
+			if fields[btn_edit] then
+				return show_change_keybinding_dlg(setting, tabview)
 			end
 		end,
 	}
