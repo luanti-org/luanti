@@ -157,7 +157,6 @@ struct AnimationInfo {
 	AnimationInfo() = default;
 
 	AnimationInfo(const TileLayer &tile) :
-			m_frame(0),
 			m_frame_length_ms(tile.animation_frame_length_ms),
 			m_frame_count(tile.animation_frame_count),
 			m_frames(tile.frames)
@@ -171,7 +170,6 @@ private:
 	u16 m_frame_count = 1;
 
 	/// @note not owned by this struct
-	// The ContentFeatures class typically owns it
 	std::vector<FrameSpec> *m_frames = nullptr;
 };
 

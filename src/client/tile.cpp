@@ -11,6 +11,7 @@ void AnimationInfo::updateTexture(video::SMaterial &material, float animation_ti
 	// Only adjust if frame changed
 	if (frame != m_frame) {
 		m_frame = frame;
+		assert(m_frame < m_frames->size());
 		material.setTexture(0, (*m_frames)[m_frame].texture);
 	}
 };
