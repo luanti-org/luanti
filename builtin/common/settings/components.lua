@@ -465,11 +465,7 @@ function make.key(setting)
 
 		on_submit = function(self, fields, tabview)
 			if fields[btn_edit] then
-				local dlg = create_change_keybinding_dlg(setting)
-				dlg:set_parent(tabview)
-				tabview:hide()
-				dlg:show()
-				return true
+				return show_change_keybinding_dlg(setting, tabview)
 			end
 		end,
 	}
