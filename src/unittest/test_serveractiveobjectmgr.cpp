@@ -40,11 +40,11 @@ public:
 		saomgr.removeObject(id);
 	}
 
-	void updatePos(u16 id, const v3f &pos) {
+	void updateObjectPos(u16 id, const v3f &pos) {
 		auto *obj = saomgr.getActiveObject(id);
 		REQUIRE(obj != nullptr);
 		obj->setPos(pos);
-		saomgr.updatePos(id, pos); // HACK work around m_env == nullptr
+		saomgr.updateObjectPos(id, pos); // HACK work around m_env == nullptr
 	}
 
 	void clear() {
@@ -290,7 +290,7 @@ TEST_CASE("server active object manager")
 					saomgr.removeObject(saomgr.randomId(gen));
 			} else if (p < p_insert + p_delete + p_update) {
 				if (!saomgr.empty())
-					saomgr.updatePos(saomgr.randomId(gen), random_pos());
+					saomgr.updateObjectPos(saomgr.randomId(gen), random_pos());
 			}
 		};
 

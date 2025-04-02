@@ -9,6 +9,7 @@
 #include "map.h"
 #include "nodedef.h"
 #include "gamedef.h"
+#include "util/numeric.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/clientenvironment.h"
 #include "client/localplayer.h"
@@ -312,7 +313,7 @@ static void add_object_boxes(Environment *env,
 		}
 	};
 
-	const f32 tolerance = 1.5f * BS; // TODO increase tolerance
+	constexpr f32 tolerance = 1.5f * BS;
 
 #if CHECK_CLIENT_BUILD()
 	ClientEnvironment *c_env = dynamic_cast<ClientEnvironment*>(env);
@@ -360,8 +361,8 @@ static void add_object_boxes(Environment *env,
 
 			// Calculate distance by speed, add own extent and tolerance
 			const v3f movement = speed_f * dtime;
-			const v3f min = pos_f + box_0.MinEdge - v3f(tolerance) + movement.min(0);
-			const v3f max = pos_f + box_0.MaxEdge + v3f(tolerance) + movement.max(0);
+			const v3f min = pos_f + box_0.MinEdge - v3f(tolerance) + componentwise_min(movement, v3f());
+			const v3f max = pos_f + box_0.MaxEdge + v3f(tolerance) + componentwise_max(movement, v3f());
 
 			// nothing is put into this vector
 			std::vector<ServerActiveObject*> s_objects;

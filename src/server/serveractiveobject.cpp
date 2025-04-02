@@ -19,7 +19,7 @@ void ServerActiveObject::setBasePosition(v3f pos) {
 	bool changed = m_base_position != pos;
 	m_base_position = pos;
 	if (changed && getEnv()) // HACK *when* is getEnv() null?
-		getEnv()->updatePos(getId(), pos);
+		getEnv()->updateObjectPos(getId(), pos);
 }
 
 float ServerActiveObject::getMinimumSavedMovement()
