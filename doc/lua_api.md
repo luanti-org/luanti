@@ -2063,10 +2063,10 @@ The following items are predefined and have special properties.
 * `"ignore"`: Mapblocks that are not loaded are represented using this node.
   It also appears outside the world boundary.
 * `""`: The player's hand, which is in use whenever the player wields no item.
-  * Its range and tool capabilities are also used as an fallback for the wielded item.
-  * It can be overridden to change those properties:
-    * globally using `core.override_item`
-    * per-player using the special `"hand"` inventory list
+    * Its range and tool capabilities are also used as an fallback for the wielded item.
+    * It can be overridden to change those properties:
+        * globally using `core.override_item`
+        * per-player using the special `"hand"` inventory list
 
 Amount and wear
 ---------------
