@@ -40,6 +40,6 @@ public:
 			const std::set<u16> &current_objects,
 			std::vector<u16> &added_objects);
 private:
-	DynamicKdTrees<3, f32, u16> m_spatial_index;
+	k_d_tree::DynamicKdTrees<3, f32, u16> m_spatial_index;
 };
 } // namespace server

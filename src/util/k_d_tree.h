@@ -54,6 +54,8 @@ There are plenty variations that could be explored:
 * A special ray proximity query could be implemented. This is tricky however.
 */
 
+namespace k_d_tree {
+
 using Idx = uint16_t;
 
 // We use size_t for sizes (but not for indices)
@@ -487,3 +489,5 @@ private:
 	size_t n_entries = 0;
 	size_t deleted = 0;
 };
+
+} // end namespace k_d_tree

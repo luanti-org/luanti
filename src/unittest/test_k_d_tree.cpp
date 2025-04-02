@@ -67,7 +67,7 @@ void TestKdTree::runTests(IGameDef *gamedef)
 }
 
 void TestKdTree::singleUpdate() {
-	DynamicKdTrees<3, u16, u16> kds;
+	k_d_tree::DynamicKdTrees<3, u16, u16> kds;
 	for (u16 i = 1; i <= 5; ++i)
 		kds.insert({i, i, i}, i);
 	for (u16 i = 1; i <= 5; ++i) {
@@ -80,7 +80,7 @@ void TestKdTree::randomOps() {
 	PseudoRandom pr(814538);
 
 	ObjectVector<3, f32, u16> objvec;
-	DynamicKdTrees<3, f32, u16> kds;
+	k_d_tree::DynamicKdTrees<3, f32, u16> kds;
 
 	const auto randPos = [&]() {
 		std::array<f32, 3> point;
