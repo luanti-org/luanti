@@ -4,7 +4,6 @@
 
 #include "CAnimatedMeshSceneNode.h"
 #include "CBoneSceneNode.h"
-#include "EDebugSceneTypes.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
 #include "S3DVertex.h"
@@ -282,14 +281,15 @@ void CAnimatedMeshSceneNode::render()
 		if (DebugDataVisible & scene::EDS_SKELETON) {
 			if (Mesh->getMeshType() == EAMT_SKINNED) {
 				// draw skeleton
-
-				/*for (auto *joint : ((SkinnedMesh *)Mesh)->getAllJoints()) {
-					for (const auto *childJoint : joint->Children) {
-						driver->draw3DLine(joint->GlobalAnimatedMatrix.getTranslation(),
-								childJoint->GlobalAnimatedMatrix.getTranslation(),
+				const auto &joints = (static_cast<SkinnedMesh *>(Mesh))->getAllJoints();
+				for (u16 i = 0; i < PerJoint.GlobalMatrices.size(); ++i) {
+					const auto translation = PerJoint.GlobalMatrices[i].getTranslation();
+					if (auto pjid = joints[i]->ParentJointID) {
+						const auto parent_translation = PerJoint.GlobalMatrices[*pjid].getTranslation();
+						driver->draw3DLine(parent_translation, translation,
 								video::SColor(255, 51, 66, 255));
 					}
-				}*/
+				}
 			}
 		}
 
