@@ -105,7 +105,6 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 	current_keys_pending.key_down = false;
 	current_keys_pending.key_up = false;
 	current_keys_pending.key_enter = false;
-	current_keys_pending.key_escape = false;
 
 	m_tooltip_show_delay = (u32)g_settings->getS32("tooltip_show_delay");
 	m_tooltip_append_itemname = g_settings->getBool("tooltip_append_itemname");
@@ -2833,6 +2832,11 @@ void GUIFormSpecMenu::parseModel(parserData *data, const std::string &element)
 	m_fields.push_back(spec);
 }
 
+void GUIFormSpecMenu::parseAllowClose(parserData *data, const std::string &element)
+{
+	m_allowclose = is_yes(element);
+}
+
 void GUIFormSpecMenu::removeAll()
 {
 	// Remove children
@@ -2901,6 +2905,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"scroll_container_end",   &GUIFormSpecMenu::parseScrollContainerEnd},
 		{"set_focus",              &GUIFormSpecMenu::parseSetFocus},
 		{"model",                  &GUIFormSpecMenu::parseModel},
+		{"allow_close",            &GUIFormSpecMenu::parseAllowClose},
 };
 
 
@@ -3003,6 +3008,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	field_close_on_enter.clear();
 	m_dropdown_index_event.clear();
 
+	m_allowclose = true;
 	m_bgnonfullscreen = true;
 	m_bgfullscreen = false;
 
@@ -3788,12 +3794,12 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 
 		if (quitmode == quit_mode_accept) {
 			fields["quit"] = "true";
-		}
-
-		if (quitmode == quit_mode_cancel) {
+		} else if (quitmode == quit_mode_cancel) {
 			fields["quit"] = "true";
 			m_text_dst->gotText(fields);
 			return;
+		} else if (quitmode == quit_mode_try) {
+			fields["try_quit"] = "true";
 		}
 
 		if (current_keys_pending.key_down) {
@@ -3814,11 +3820,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 		if (!current_field_enter_pending.empty()) {
 			fields["key_enter_field"] = current_field_enter_pending;
 			current_field_enter_pending.clear();
-		}
-
-		if (current_keys_pending.key_escape) {
-			fields["key_escape"] = "true";
-			current_keys_pending.key_escape = false;
 		}
 
 		for (const GUIFormSpecMenu::FieldSpec &s : m_fields) {
@@ -3997,6 +3998,8 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 				if (m_allowclose) {
 					acceptInput(quit_mode_accept);
 					quitMenu();
+				} else {
+					acceptInput(quit_mode_try);
 				}
 			}
 		}
@@ -4013,6 +4016,7 @@ void GUIFormSpecMenu::tryClose()
 		acceptInput(quit_mode_cancel);
 		quitMenu();
 	} else {
+		acceptInput(quit_mode_try);
 		m_text_dst->gotText(L"MenuQuit");
 	}
 }
@@ -4021,11 +4025,16 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 {
 	if (event.EventType==EET_KEY_INPUT_EVENT) {
 		KeyPress kp(event.KeyInput);
-		if (event.KeyInput.PressedDown && (
-				(kp == EscapeKey) ||
-				((m_client != NULL) && (kp == getKeySetting("keymap_inventory"))))) {
-			tryClose();
-			return true;
+		if (event.KeyInput.PressedDown) {
+			if (kp == EscapeKey && event.KeyInput.Control) {
+				m_text_dst->gotText(L"MenuQuit");
+				g_gamecallback->disconnect();
+				return true;
+			} else if (kp == EscapeKey ||
+					(m_client != nullptr && kp == getKeySetting("keymap_inventory"))) {
+				tryClose();
+				return true;
+			}
 		}
 
 		if (m_client != NULL && event.KeyInput.PressedDown &&
@@ -4059,9 +4068,13 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					FATAL_ERROR("Reached a source line that can't ever been reached");
 					break;
 			}
-			if (current_keys_pending.key_enter && m_allowclose) {
-				acceptInput(quit_mode_accept);
-				quitMenu();
+			if (current_keys_pending.key_enter) {
+				if (m_allowclose) {
+					acceptInput(quit_mode_accept);
+					quitMenu();
+				} else {
+					acceptInput(quit_mode_try);
+				}
 			} else {
 				acceptInput();
 			}
@@ -4806,14 +4819,9 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			s32 caller_id = event.GUIEvent.Caller->getID();
 
 			if (caller_id == 257) {
-				if (m_allowclose) {
-					acceptInput(quit_mode_accept);
-					quitMenu();
-				} else {
-					acceptInput();
-					m_text_dst->gotText(L"ExitButton");
-				}
-				// quitMenu deallocates menu
+				acceptInput(quit_mode_accept);
+				m_text_dst->gotText(L"ExitButton");
+				quitMenu();
 				return true;
 			}
 
@@ -4842,12 +4850,9 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					}
 
 					if (s.is_exit) {
-						if (m_allowclose) {
-							acceptInput(quit_mode_accept);
-							quitMenu();
-						} else {
-							m_text_dst->gotText(L"ExitButton");
-						}
+						acceptInput(quit_mode_accept);
+						m_text_dst->gotText(L"ExitButton");
+						quitMenu();
 						return true;
 					}
 
@@ -4910,15 +4915,18 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					}
 				}
 
-				if (m_allowclose && close_on_enter) {
-					current_keys_pending.key_enter = true;
-					acceptInput(quit_mode_accept);
-					quitMenu();
+				current_keys_pending.key_enter = true;
+
+				if (close_on_enter) {
+					if (m_allowclose) {
+						acceptInput(quit_mode_accept);
+						quitMenu();
+					} else {
+						acceptInput(quit_mode_try);
+					}
 				} else {
-					current_keys_pending.key_enter = true;
 					acceptInput();
 				}
-				// quitMenu deallocates menu
 				return true;
 			}
 		}

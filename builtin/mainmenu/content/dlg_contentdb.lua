@@ -133,6 +133,7 @@ local function get_info_formspec(size, padding, text)
 		"formspec_version[6]",
 		"size[", size.x, ",", size.y, "]",
 		"padding[0,0]",
+		"allow_close[false]",
 		"bgcolor[;true]",
 
 		"label[", padding.x + 3.625, ",4.35;", text, "]",
@@ -232,6 +233,7 @@ local function get_formspec(dlgdata)
 		"formspec_version[7]",
 		"size[", size.x, ",", size.y, "]",
 		"padding[0,0]",
+		"allow_close[false]",
 		"bgcolor[;true]",
 
 		"container[", window_padding.x, ",", window_padding.y, "]",

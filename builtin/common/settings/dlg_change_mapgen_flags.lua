@@ -177,6 +177,7 @@ local function get_formspec(dialogdata)
 
 	return (
 		"size[" .. width .. "," .. height + 0.25 .. ",true]" ..
+		"allow_close[false]" ..
 		create_textfield(description_box, setting_name, comment_text) ..
 		formspec ..
 		"button[" .. width / 2 - 2.5 .. "," .. height - 0.4 .. ";2.5,1;btn_done;" ..

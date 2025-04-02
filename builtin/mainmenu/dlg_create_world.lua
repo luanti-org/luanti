@@ -282,6 +282,7 @@ local function create_world_formspec(dialogdata)
 
 	local retval =
 		"size[12.25,7.4,true]" ..
+		"allow_close[false]" ..
 
 		-- Left side
 		"container[0,0]"..

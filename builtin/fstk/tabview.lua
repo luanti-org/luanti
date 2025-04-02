@@ -85,6 +85,9 @@ local function get_formspec(self)
 		if tab.formspec_version then
 			prepend = ("formspec_version[%d]"):format(tab.formspec_version) .. prepend
 		end
+
+		prepend = prepend .. "allow_close[false]"
+
 	end
 
 	local end_button_size = 0.75

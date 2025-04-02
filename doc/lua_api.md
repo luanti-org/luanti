@@ -2866,6 +2866,13 @@ Elements
 * For information on converting forms to the new coordinate system, see `Migrating
   to Real Coordinates`.
 
+### `allow_close[<bool>]`
+
+* When set to false, the formspec will not close when the user tries to close
+  it with the Escape key or similar. Default true.
+* The formspec can still be closed with `button_exit[]` elements and
+  `core.close_formspec()`, regardless of this setting.
+
 ### `container[<X>,<Y>]`
 
 * Start of a container block, moves all physical elements in the container by
@@ -6166,8 +6173,10 @@ Call these functions only at load time!
         * `table`: See `core.explode_table_event`
         * `scrollbar`: See `core.explode_scrollbar_event`
         * Special case: `["quit"]="true"` is sent when the user actively
-          closed the form by mouse click, keypress or through a button_exit[]
+          closed the form by mouse click, keypress or through a `button_exit[]`
           element.
+        * Special case: `["try_quit"]="true"` is sent when the user tries to
+          close the formspec, but the the formspec used `allow_close[false]`.
         * Special case: `["key_enter"]="true"` is sent when the user pressed
           the Enter key and the focus was either nowhere (causing the formspec
           to be closed) or on a button. If the focus was on a text field,
