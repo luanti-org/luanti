@@ -15,18 +15,6 @@ struct Transform {
 	quaternion rotation;
 	vector3df scale{1};
 
-	// Tries to decompose the matrix, if there is one.
-	static Transform decompose(const core::matrix4 &mat)
-	{
-		auto scale = mat.getScale();
-		return {
-			mat.getTranslation(),
-			quaternion(mat.getRotationRadians(scale)),
-			scale,
-		};
-	}
-
-
 	Transform interpolate(Transform to, f32 time) const
 	{
 		core::quaternion interpolated_rotation;
