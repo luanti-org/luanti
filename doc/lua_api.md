@@ -2061,7 +2061,9 @@ The following items are predefined and have special properties.
 * `"unknown"`: An item that represents every item which has not been registered
 * `"air"`: The node which appears everywhere where no other node is
 * `"ignore"`: Mapblocks that are not loaded are represented using this node.
-  It also appears outside the world boundary.
+    * Also used for nodes that have not yet been set by the map generator.
+    * Reading outside of the map boundary returns `"ignore"` nodes, but nothing
+    actually exists there.
 * `""`: The player's hand, which is in use whenever the player wields no item.
     * Its range and tool capabilities are also used as an fallback for the wielded item.
     * It can be overridden to change those properties:
@@ -7680,7 +7682,7 @@ Misc.
 * `core.forceload_block(pos[, transient[, limit]])`
     * forceloads the position `pos`.
     * this means that the mapblock containing `pos` will always be kept in the
-      `"active"` state, regardless of player positions.
+      `"active"` state, regardless of nearby players or server settings.
     * returns `true` if area could be forceloaded
     * If `transient` is `false` or absent, the forceload will be persistent
       (saved between server runs). If `true`, the forceload will be transient
