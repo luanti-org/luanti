@@ -13,7 +13,6 @@
 #include "matrix4.h"
 #include "os.h"
 #include "vector3d.h"
-#include <cassert>
 #include <cstddef>
 #include <variant>
 #include <vector>
@@ -62,7 +61,7 @@ void SkinnedMesh::setAnimationSpeed(f32 fps)
 using VariantTransform = SkinnedMesh::SJoint::VariantTransform;
 std::vector<VariantTransform> SkinnedMesh::animateMesh(f32 frame)
 {
-	assert(HasAnimation);
+	_IRR_DEBUG_BREAK_IF(!HasAnimation);
 	std::vector<VariantTransform> result;
 	result.reserve(AllJoints.size());
 	for (auto *joint : AllJoints)
@@ -73,7 +72,7 @@ std::vector<VariantTransform> SkinnedMesh::animateMesh(f32 frame)
 core::aabbox3df SkinnedMesh::calculateBoundingBox(
 		const std::vector<core::matrix4> &global_transforms)
 {
-	assert(global_transforms.size() == AllJoints.size());
+	_IRR_DEBUG_BREAK_IF(global_transforms.size() != AllJoints.size());
 	core::aabbox3df result = StaticPartsBox;
 	// skeletal animation
 	for (u16 i = 0; i < AllJoints.size(); ++i) {
@@ -444,7 +443,7 @@ void SkinnedMesh::topoSortJoints()
 
 	for (u16 i = 0; i < n; ++i) {
 		if (auto pjid = AllJoints[i]->ParentJointID)
-			assert(*pjid < i);
+			_IRR_DEBUG_BREAK_IF(*pjid >= i);
 	}
 }
 
@@ -518,19 +517,19 @@ SkinnedMesh::SJoint *SkinnedMeshBuilder::addJoint(SJoint *parent)
 
 void SkinnedMeshBuilder::addPositionKey(SJoint *joint, f32 frame, core::vector3df pos)
 {
-	assert(joint);
+	_IRR_DEBUG_BREAK_IF(!joint);
 	joint->keys.position.pushBack(frame, pos);
 }
 
 void SkinnedMeshBuilder::addScaleKey(SJoint *joint, f32 frame, core::vector3df scale)
 {
-	assert(joint);
+	_IRR_DEBUG_BREAK_IF(!joint);
 	joint->keys.scale.pushBack(frame, scale);
 }
 
 void SkinnedMeshBuilder::addRotationKey(SJoint *joint, f32 frame, core::quaternion rot)
 {
-	assert(joint);
+	_IRR_DEBUG_BREAK_IF(!joint);
 	joint->keys.rotation.pushBack(frame, rot);
 }
 

@@ -306,8 +306,6 @@ public:
 		std::optional<std::string> Name;
 
 		//! Local transformation to be set by loaders. Mutated by animation.
-		//! If a matrix is used, this joint **must not** be animated,
-		//! because then the unique decomposition into translation, rotation and scale need not exist!
 		using VariantTransform = std::variant<core::Transform, core::matrix4>;
 		VariantTransform transform{core::Transform{}};
 
@@ -316,7 +314,10 @@ public:
 				return transform;
 
 			if (std::holds_alternative<core::matrix4>(transform)) {
-				// .x lets animations override matrix transforms entirely.
+				// .x lets animations override matrix transforms entirely,
+				// which is what we implement here.
+				// .gltf does not allow animation of nodes using matrix transforms.
+				// Note that a decomposition into a TRS transform need not exist!
 				core::Transform trs;
 				keys.updateTransform(frame, trs);
 				return {trs};
