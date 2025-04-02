@@ -55,11 +55,11 @@ There are plenty variations that could be explored:
 */
 
 using Idx = uint16_t;
-// Use a separate, larger type for sizes than for indices
+
+// We use size_t for sizes (but not for indices)
 // to make sure there are no wraparounds when we approach the limit.
 // This hardly affects performance or memory usage;
 // the core arrays still only store indices.
-using Size = uint32_t;
 
 template<uint8_t Dim, typename Component>
 class Points {
@@ -68,13 +68,13 @@ public:
 	//! Empty
 	Points() : n(0), coords(nullptr) {}
 	//! Allocating constructor; leaves coords uninitialized!
-	Points(Size n) : n(n), coords(new Component[Dim * n]) {}
+	Points(size_t n) : n(n), coords(new Component[Dim * n]) {}
 	//! Copying constructor
-	Points(Size n, const std::array<Component const *, Dim> &coords) : Points(n) {
+	Points(size_t n, const std::array<Component const *, Dim> &coords) : Points(n) {
 		for (uint8_t d = 0; d < Dim; ++d)
 			std::copy(coords[d], coords[d] + n, begin(d));
 	}
-	Size size() const {
+	size_t size() const {
 		return n;
 	}
 	void assign(Idx start, const Points &from) {
@@ -104,7 +104,7 @@ public:
 	 	return begin(d) + n;
 	}
 private:
-	Size n;
+	size_t n;
 	std::unique_ptr<Component[]> coords;
 };
 
@@ -115,18 +115,18 @@ public:
 	SortedIndices() : indices() {}
 
 	//! uninitialized indices
-	static SortedIndices newUninitialized(Size n) {
+	static SortedIndices newUninitialized(size_t n) {
 		return SortedIndices(Points<Dim, Idx>(n));
 	}
 
 	//! Identity permutation on all axes
-	SortedIndices(Size n) : indices(n) {
+	SortedIndices(size_t n) : indices(n) {
 		for (uint8_t d = 0; d < Dim; ++d)
 			for (Idx i = 0; i < n; ++i)
 				indices.begin(d)[i] = i;
 	}
 
-	Size size() const {
+	size_t size() const {
 		return indices.size();
 	}
 
@@ -205,7 +205,7 @@ public:
 	}
 
 	//! Sort points
-	SortedPoints(Size n, const std::array<Component const *, Dim> ptrs)
+	SortedPoints(size_t n, const std::array<Component const *, Dim> ptrs)
 		: points(n, ptrs), indices(n)
 	{
 		for (uint8_t d = 0; d < Dim; ++d) {
@@ -247,7 +247,7 @@ public:
 		}
 	}
 
-	Size size() const {
+	size_t size() const {
 		// technically redundant with indices.size(),
 		// but that is irrelevant
 		return points.size();
@@ -282,7 +282,7 @@ public:
 	}
 
 	//! Build a tree
-	KdTree(Size n, Id const *ids, std::array<Component const *, Dim> pts)
+	KdTree(size_t n, Id const *ids, std::array<Component const *, Dim> pts)
 		: items(n, pts)
 		, ids(std::make_unique<Id[]>(n))
 		, tree(std::make_unique<Idx[]>(n))
@@ -327,7 +327,7 @@ public:
 	}
 
 	//! Capacity, not size, since some items may be marked as deleted
-	Size cap() const {
+	size_t cap() const {
 		return items.size();
 	}
 
@@ -424,7 +424,7 @@ public:
 		for (const auto &tree : trees)
 			tree.rangeQuery(min, max, cb);
 	}
-	Size size() const {
+	size_t size() const {
 		return n_entries - deleted;
 	}
 private:
@@ -445,7 +445,7 @@ private:
 		// Collect all live points and corresponding IDs.
 		const auto live_ids = std::make_unique<Id[]>(n_entries);
 		Points<Dim, Component> live_points(n_entries);
-		Size i = 0;
+		size_t i = 0;
 		for (const auto &tree : trees) {
 			tree.foreach([&](Idx _, auto point, Id id) {
 				assert(i < n_entries);
@@ -460,7 +460,7 @@ private:
 		// The "tree pattern" will effectively just be shifted down by one.
 		auto id_ptr = live_ids.get();
 		std::array<Component const *, Dim> point_ptrs;
-		Size n = 1;
+		size_t n = 1;
 		for (uint8_t d = 0; d < Dim; ++d)
 			point_ptrs[d] = live_points.begin(d);
 		for (uint8_t tree_idx = 0; tree_idx < trees.size() - 1; ++tree_idx, n *= 2) {
@@ -484,6 +484,6 @@ private:
 		Idx in_tree;
 	};
 	std::unordered_map<Id, DelEntry> del_entries;
-	Size n_entries = 0;
-	Size deleted = 0;
+	size_t n_entries = 0;
+	size_t deleted = 0;
 };
