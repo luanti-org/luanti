@@ -196,6 +196,12 @@ struct alignas(u32) MapNode
 	 */
 	void getColor(const ContentFeatures &f, video::SColor *color) const;
 
+	/*!
+	 * Returns the variant of the node.
+	 * \param f content features of this node
+	 */
+	u16 getVariant(const ContentFeatures &f) const;
+
 	inline void setLight(LightBank bank, u8 a_light, ContentLightingFlags f) noexcept
 	{
 		// If node doesn't contain light data, ignore this

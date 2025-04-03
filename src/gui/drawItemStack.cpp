@@ -43,6 +43,9 @@ void drawItemStack(
 
 	auto *idef = client->idef();
 	const ItemDefinition &def = item.getDefinition(idef);
+	const ContentFeatures &f = client->ndef()->get(def.name);
+	u16 variant = f.variant_count > 1 ?
+			mystoi(item.metadata.getString("variant"), 0, f.variant_count - 1) : 0;
 
 	bool draw_overlay = false;
 
@@ -58,7 +61,7 @@ void drawItemStack(
 
 	// Render as mesh if animated or no inventory image
 	if ((enable_animations && rotation_kind < IT_ROT_NONE) || inventory_image.empty()) {
-		imesh = idef->getWieldMesh(item, client);
+		imesh = idef->getWieldMesh(item, variant, client);
 		has_mesh = imesh && imesh->mesh;
 	}
 	if (has_mesh) {
@@ -148,7 +151,8 @@ void drawItemStack(
 
 		draw_overlay = def.type == ITEM_NODE && inventory_image.empty();
 	} else { // Otherwise just draw as 2D
-		video::ITexture *texture = client->idef()->getInventoryTexture(item, client);
+		video::ITexture *texture =
+				client->idef()->getInventoryTexture(item, variant, client);
 		video::SColor color;
 		if (texture) {
 			color = client->idef()->getItemstackColor(item, client);

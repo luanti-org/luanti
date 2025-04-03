@@ -147,14 +147,17 @@ public:
 	// TODO: should be moved elsewhere in the future
 
 	// Get item inventory texture
-	virtual video::ITexture* getInventoryTexture(const ItemStack &item, Client *client) const
+	// variant must be valid
+	virtual video::ITexture* getInventoryTexture(const ItemStack &item, u16 variant,
+			Client *client) const
 	{ return nullptr; }
 
 	/**
 	 * Get wield mesh
 	 * @returns nullptr if there is an inventory image
 	 */
-	virtual ItemMesh* getWieldMesh(const ItemStack &item, Client *client) const
+	virtual ItemMesh* getWieldMesh(const ItemStack &item, u16 variant,
+			Client *client) const
 	{ return nullptr; }
 
 	// Get item palette

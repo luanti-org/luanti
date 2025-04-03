@@ -461,15 +461,26 @@ protected:
 
 		ITextureSource *tsrc = client->getTextureSource();
 
+		u16 variant_count = client->ndef()->get(cache_key).variant_count;
+
 		// Create new ClientCached
-		auto cc = std::make_unique<ClientCached>();
+		auto cc = std::make_unique<ClientCached[]>(variant_count);
 
-		cc->inventory_texture = NULL;
-		if (!inventory_image.empty())
-			cc->inventory_texture = tsrc->getTexture(inventory_image);
-		getItemMesh(client, item, &(cc->wield_mesh));
+		for (u16 v = 0; v < variant_count; v++) {
+			// Create an inventory texture
+			cc[v].inventory_texture = NULL;
+			if (!inventory_image.empty())
+				cc[v].inventory_texture = tsrc->getTexture(inventory_image);
 
-		cc->palette = tsrc->getPalette(def.palette_image);
+			ItemStack item = ItemStack();
+			item.name = def.name;
+			if (v > 0)
+				item.metadata.setString("variant", std::to_string(v));
+
+			getItemMesh(client, item, &cc[v].wield_mesh);
+
+			cc[v].palette = tsrc->getPalette(def.palette_image);
+		}
 
 		// Put in cache
 		ClientCached *ptr = cc.get();
@@ -479,22 +490,23 @@ protected:
 
 public:
 	// Get item inventory texture
-	virtual video::ITexture* getInventoryTexture(const ItemStack &item,
+	virtual video::ITexture* getInventoryTexture(const ItemStack &item, u16 variant,
 			Client *client) const
 	{
 		ClientCached *cc = createClientCachedDirect(item, client);
 		if (!cc)
 			return nullptr;
-		return cc->inventory_texture;
+		return cc[variant].inventory_texture;
 	}
 
 	// Get item wield mesh
-	virtual ItemMesh* getWieldMesh(const ItemStack &item, Client *client) const
+	virtual ItemMesh* getWieldMesh(const ItemStack &item, u16 variant,
+			Client *client) const
 	{
 		ClientCached *cc = createClientCachedDirect(item, client);
 		if (!cc)
 			return nullptr;
-		return &(cc->wield_mesh);
+		return &(cc[variant].wield_mesh);
 	}
 
 	// Get item palette
@@ -670,7 +682,7 @@ private:
 	// The id of the thread that is allowed to use irrlicht directly
 	std::thread::id m_main_thread;
 	// Cached textures and meshes
-	mutable std::unordered_map<std::string, std::unique_ptr<ClientCached>> m_clientcached;
+	mutable std::unordered_map<std::string, std::unique_ptr<ClientCached[]>> m_clientcached;
 #endif
 };
 
