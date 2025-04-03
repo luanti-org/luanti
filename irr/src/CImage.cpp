@@ -9,6 +9,8 @@
 #include "os.h"
 #include "SoftwareDriver2_helper.h"
 
+#include <cassert>
+
 namespace irr
 {
 namespace video
@@ -20,7 +22,7 @@ CImage::CImage(ECOLOR_FORMAT format, const core::dimension2d<u32> &size, void *d
 		IImage(format, size, deleteMemory)
 {
 	if (ownForeignMemory) {
-		_IRR_DEBUG_BREAK_IF(!data)
+		assert(data);
 		Data = reinterpret_cast<u8*>(data);
 		if (reinterpret_cast<uintptr_t>(data) % sizeof(u32) != 0)
 			os::Printer::log("CImage created with foreign memory that's not aligned", ELL_WARNING);

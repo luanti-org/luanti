@@ -5,6 +5,8 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
+
 #include "SMaterialLayer.h"
 #include "ITexture.h"
 #include "EDriverFeatures.h"
@@ -48,10 +50,10 @@ public:
 			TextureName(0), InternalFormat(GL_RGBA), PixelFormat(GL_RGBA), PixelType(GL_UNSIGNED_BYTE), MSAA(0), Converter(0), LockReadOnly(false), LockImage(0), LockLayer(0),
 			KeepImage(false), MipLevelStored(0)
 	{
-		_IRR_DEBUG_BREAK_IF(srcImages.empty())
+		assert(!srcImages.empty());
 
 		DriverType = Driver->getDriverType();
-		_IRR_DEBUG_BREAK_IF(Type == ETT_2D_MS) // not supported by this constructor
+		assert(Type != ETT_2D_MS); // not supported by this constructor
 		TextureType = TextureTypeIrrToGL(Type);
 		HasMipMaps = Driver->getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
 		KeepImage = Driver->getTextureCreationFlag(ETCF_ALLOW_MEMORY_COPY);
@@ -142,7 +144,7 @@ public:
 			MipLevelStored(0)
 	{
 		DriverType = Driver->getDriverType();
-		_IRR_DEBUG_BREAK_IF(Type == ETT_2D_ARRAY) // not supported by this constructor
+		assert(Type != ETT_2D_ARRAY); // not supported by this constructor
 		TextureType = TextureTypeIrrToGL(Type);
 		HasMipMaps = false;
 		IsRenderTarget = true;
@@ -242,7 +244,7 @@ public:
 		MipLevelStored = mipmapLevel;
 
 		if (KeepImage) {
-			_IRR_DEBUG_BREAK_IF(LockLayer > Images.size())
+			assert(LockLayer < Images.size());
 
 			if (mipmapLevel == 0) {
 				LockImage = Images[LockLayer];
@@ -252,7 +254,7 @@ public:
 
 		if (!LockImage) {
 			core::dimension2d<u32> lockImageSize(IImage::getMipMapsSize(Size, MipLevelStored));
-			_IRR_DEBUG_BREAK_IF(lockImageSize.Width == 0 || lockImageSize.Height == 0)
+			assert(lockImageSize.Width > 0 && lockImageSize.Height > 0);
 
 			LockImage = Driver->createImage(ColorFormat, lockImageSize);
 
@@ -512,7 +514,7 @@ protected:
 	{
 		// Compressed textures cannot be pre-allocated and are initialized on upload
 		if (IImage::isCompressedFormat(ColorFormat)) {
-			_IRR_DEBUG_BREAK_IF(IsRenderTarget)
+			assert(!IsRenderTarget);
 			return;
 		}
 
@@ -587,7 +589,7 @@ protected:
 			TEST_GL_ERROR(Driver);
 			break;
 		default:
-			_IRR_DEBUG_BREAK_IF(1)
+			assert(false);
 			break;
 		}
 	}
@@ -628,7 +630,7 @@ protected:
 				GL.TexSubImage3D(tmpTextureType, level, 0, 0, layer, width, height, 1, PixelFormat, PixelType, tmpData);
 				break;
 			default:
-				_IRR_DEBUG_BREAK_IF(1)
+				assert(false);
 				break;
 			}
 			TEST_GL_ERROR(Driver);
@@ -643,7 +645,7 @@ protected:
 				Driver->irrGlCompressedTexImage2D(tmpTextureType, level, InternalFormat, width, height, 0, dataSize, data);
 				break;
 			default:
-				_IRR_DEBUG_BREAK_IF(1)
+				assert(false);
 				break;
 			}
 			TEST_GL_ERROR(Driver);
@@ -671,7 +673,7 @@ protected:
 	{
 		GLenum tmp = TextureType;
 		if (tmp == GL_TEXTURE_CUBE_MAP) {
-			_IRR_DEBUG_BREAK_IF(layer > 5)
+			assert(layer < 6);
 			tmp = GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer;
 		}
 		return tmp;

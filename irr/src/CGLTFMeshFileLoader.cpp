@@ -20,6 +20,7 @@
 #include <array>
 #include <cstddef>
 #include <cstring>
+#include <cassert>
 #include <limits>
 #include <memory>
 #include <optional>
@@ -797,7 +798,7 @@ std::optional<std::vector<u16>> SelfType::MeshExtractor::getIndices(
 			if (index == std::numeric_limits<u16>::max())
 				throw std::runtime_error("invalid index");
 		} else {
-			_IRR_DEBUG_BREAK_IF(!std::holds_alternative<Accessor<u32>>(accessor));
+			assert(std::holds_alternative<Accessor<u32>>(accessor));
 			u32 indexWide = std::get<Accessor<u32>>(accessor).get(elemIdx);
 			// Use >= here for consistency.
 			if (indexWide >= std::numeric_limits<u16>::max())

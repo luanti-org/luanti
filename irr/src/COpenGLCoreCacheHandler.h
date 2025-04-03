@@ -9,6 +9,8 @@
 
 #include "mt_opengl.h"
 
+#include <cassert>
+
 namespace irr
 {
 namespace video
@@ -101,7 +103,7 @@ class COpenGLCoreCacheHandler
 #endif
 
 							auto name = static_cast<const TOpenGLTexture *>(texture)->getOpenGLTextureName();
-							_IRR_DEBUG_BREAK_IF(name == 0)
+							assert(name != 0);
 							GL.BindTexture(curTextureType, name);
 						} else {
 							texture = 0;

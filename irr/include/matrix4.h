@@ -12,6 +12,7 @@
 #include "aabbox3d.h"
 #include "rect.h"
 #include "IrrCompileConfig.h" // for IRRLICHT_API
+#include <cassert>
 
 namespace irr
 {
@@ -1198,10 +1199,10 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovRH(
 		f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero)
 {
 	const f64 h = reciprocal(tan(fieldOfViewRadians * 0.5));
-	_IRR_DEBUG_BREAK_IF(aspectRatio == 0.f); // divide by zero
+	assert(aspectRatio != 0.f); // divide by zero
 	const T w = static_cast<T>(h / aspectRatio);
 
-	_IRR_DEBUG_BREAK_IF(zNear == zFar); // divide by zero
+	assert(zNear != zFar); // divide by zero
 	M[0] = w;
 	M[1] = 0;
 	M[2] = 0;
@@ -1240,10 +1241,10 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovLH(
 		f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero)
 {
 	const f64 h = reciprocal(tan(fieldOfViewRadians * 0.5));
-	_IRR_DEBUG_BREAK_IF(aspectRatio == 0.f); // divide by zero
+	assert(aspectRatio != 0.f); // divide by zero
 	const T w = static_cast<T>(h / aspectRatio);
 
-	_IRR_DEBUG_BREAK_IF(zNear == zFar); // divide by zero
+	assert(zNear != zFar); // divide by zero
 	M[0] = w;
 	M[1] = 0;
 	M[2] = 0;
@@ -1282,7 +1283,7 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovInfinityLH(
 		f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 epsilon)
 {
 	const f64 h = reciprocal(tan(fieldOfViewRadians * 0.5));
-	_IRR_DEBUG_BREAK_IF(aspectRatio == 0.f); // divide by zero
+	assert(aspectRatio != 0.f); // divide by zero
 	const T w = static_cast<T>(h / aspectRatio);
 
 	M[0] = w;
@@ -1313,9 +1314,9 @@ template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixOrthoLH(
 		f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 {
-	_IRR_DEBUG_BREAK_IF(widthOfViewVolume == 0.f);  // divide by zero
-	_IRR_DEBUG_BREAK_IF(heightOfViewVolume == 0.f); // divide by zero
-	_IRR_DEBUG_BREAK_IF(zNear == zFar);             // divide by zero
+	assert(widthOfViewVolume != 0.f);  // divide by zero
+	assert(heightOfViewVolume != 0.f); // divide by zero
+	assert(zNear != zFar);             // divide by zero
 	M[0] = (T)(2 / widthOfViewVolume);
 	M[1] = 0;
 	M[2] = 0;
@@ -1352,9 +1353,9 @@ template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixOrthoRH(
 		f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 {
-	_IRR_DEBUG_BREAK_IF(widthOfViewVolume == 0.f);  // divide by zero
-	_IRR_DEBUG_BREAK_IF(heightOfViewVolume == 0.f); // divide by zero
-	_IRR_DEBUG_BREAK_IF(zNear == zFar);             // divide by zero
+	assert(widthOfViewVolume != 0.f);  // divide by zero
+	assert(heightOfViewVolume != 0.f); // divide by zero
+	assert(zNear != zFar);             // divide by zero
 	M[0] = (T)(2 / widthOfViewVolume);
 	M[1] = 0;
 	M[2] = 0;
@@ -1391,9 +1392,9 @@ template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveRH(
 		f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 {
-	_IRR_DEBUG_BREAK_IF(widthOfViewVolume == 0.f);  // divide by zero
-	_IRR_DEBUG_BREAK_IF(heightOfViewVolume == 0.f); // divide by zero
-	_IRR_DEBUG_BREAK_IF(zNear == zFar);             // divide by zero
+	assert(widthOfViewVolume != 0.f);  // divide by zero
+	assert(heightOfViewVolume != 0.f); // divide by zero
+	assert(zNear != zFar);             // divide by zero
 	M[0] = (T)(2 * zNear / widthOfViewVolume);
 	M[1] = 0;
 	M[2] = 0;
@@ -1431,9 +1432,9 @@ template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveLH(
 		f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 {
-	_IRR_DEBUG_BREAK_IF(widthOfViewVolume == 0.f);  // divide by zero
-	_IRR_DEBUG_BREAK_IF(heightOfViewVolume == 0.f); // divide by zero
-	_IRR_DEBUG_BREAK_IF(zNear == zFar);             // divide by zero
+	assert(widthOfViewVolume != 0.f);  // divide by zero
+	assert(heightOfViewVolume != 0.f); // divide by zero
+	assert(zNear != zFar);             // divide by zero
 	M[0] = (T)(2 * zNear / widthOfViewVolume);
 	M[1] = 0;
 	M[2] = 0;
