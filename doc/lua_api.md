@@ -592,16 +592,24 @@ Example:
 
     default_cobble.png^[crack:10:1
 
-#### `[combine:<w>x<h>:<x1>,<y1>=<file1>:<x2>,<y2>=<file2>:...`
-
-* `<w>`: width
-* `<h>`: height
-* `<x>`: x position, negative numbers allowed
-* `<y>`: y position, negative numbers allowed
-* `<file>`: texture to combine
+#### `[combine:<w>x<h>:<x1>,<y1>,<w1>=<file1>:<x2>,<y2>,<w2>=<file2>:...`
 
 Creates a texture of size `<w>` times `<h>` and blits the listed files to their
 specified coordinates.
+
+Note: the output texture size may vary if one or more of `<wN>` is provided.
+The aspect ratio is preserved.
+
+* `<xN>`: X offset of insertion, negative numbers allowed
+* `<yN>`: Y offset of insertion, negative numbers allowed
+* `<wN>` (optional): Expected texture width
+   * If the provided texture width is (e.g. 2 times) larger than `<wN>`, it will
+     result in an output texture that is also (2 times) larger.
+   * If the provided texture width is smaller, it will be upscaled proportionally
+     to match the width `<wN>`.
+   * Supported since protocol version 47. Old clients will ignore this parameter.
+* `<file>`: texture to combine
+
 
 Example:
 
