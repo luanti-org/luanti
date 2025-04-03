@@ -118,6 +118,11 @@ void ReflowScan::scanColumn(int x, int z)
 		was_ignore = true;
 		was_liquid = false;
 	}
+	// we can out early if there's no liquid above
+	// and the current block is all air
+	if (!was_liquid && block->isAir())
+		return;
+
 	bool was_checked = false;
 	bool was_pushed = false;
 
