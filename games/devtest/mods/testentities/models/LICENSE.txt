@@ -16,6 +16,6 @@ Zeg9 (CC BY-SA 3.0):
 
 "Cool Guy":
 
-Irrlicht authors (refer to irr/LICENSE):
+hecks (refer to irr/LICENSE):
   testentities_cool_guy.x
   testentities_cool_guy.png
