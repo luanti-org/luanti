@@ -2069,7 +2069,7 @@ The following items are predefined and have special properties.
     * Also used for nodes that have not yet been set by the map generator.
     * This is also what appears outside of the map boundary.
 * `""`: The player's hand, which is in use whenever the player wields no item.
-    * Its range and tool capabilities are also used as an fallback for the wielded item.
+    * Its range and tool capabilities are also used as a fallback for the wielded item.
     * It can be overridden to change those properties:
         * globally using `core.override_item`
         * per-player using the special `"hand"` inventory list
