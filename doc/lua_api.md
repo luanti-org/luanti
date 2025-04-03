@@ -1707,7 +1707,7 @@ A mapblock being "active" means that it is not only in memory, but also affected
 by world simulation:
 
 * Entities are active
-* ABMs are excecuted
+* ABMs are executed
 * Node timers are executed
 
 Also, when a mapblock is "activated", LBMs are executed. Mapblocks are active
@@ -2063,8 +2063,7 @@ The following items are predefined and have special properties.
 * `"air"`: The node which appears everywhere where no other node is
 * `"ignore"`: Mapblocks that are not loaded are represented using this node.
     * Also used for nodes that have not yet been set by the map generator.
-    * Reading outside of the map boundary returns `"ignore"` nodes, but nothing
-      actually exists there.
+    * This is also what appears outside of the map boundary.
 * `""`: The player's hand, which is in use whenever the player wields no item.
     * Its range and tool capabilities are also used as an fallback for the wielded item.
     * It can be overridden to change those properties:
