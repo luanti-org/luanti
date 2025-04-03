@@ -1707,6 +1707,8 @@ A mapblock being "active" means that it is not only in memory, but also affected
 by world simulation:
 
 * Entities are active
+    * They are in memory as `ServerActiveObject`, exposed to Lua as `ObjectRef`
+    * They exist in Lua as luaentity tables
 * ABMs are executed
 * Node timers are executed
 
