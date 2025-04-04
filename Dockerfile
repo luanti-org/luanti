@@ -1,7 +1,10 @@
+# syntax=docker/dockerfile:1
+# check=error=true
+
 ARG DOCKER_IMAGE=alpine:3.19
 FROM $DOCKER_IMAGE AS dev
 
-ENV LUAJIT_VERSION v2.1
+ENV LUAJIT_VERSION=v2.1
 
 RUN apk add --no-cache git build-base cmake curl-dev zlib-dev zstd-dev \
 		sqlite-dev postgresql-dev hiredis-dev leveldb-dev \
@@ -30,7 +33,7 @@ RUN git clone --recursive https://github.com/jupp0r/prometheus-cpp && \
 		make amalg && make install && \
 	cd /usr/src/
 
-FROM dev as builder
+FROM dev AS builder
 
 COPY .git /usr/src/luanti/.git
 COPY CMakeLists.txt /usr/src/luanti/CMakeLists.txt
