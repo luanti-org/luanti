@@ -549,12 +549,10 @@ void SelfType::MeshExtractor::deferAddMesh(
 
 static core::matrix4 loadTransform(const tiniergltf::Node::Matrix &m, SkinnedMesh::SJoint *joint)
 {
-	// Note: Under the hood, this casts these doubles to floats.
-	core::matrix4 mat = convertHandedness(core::matrix4(
-			m[0], m[1], m[2], m[3],
-			m[4], m[5], m[6], m[7],
-			m[8], m[9], m[10], m[11],
-			m[12], m[13], m[14], m[15]));
+	core::matrix4 mat;
+	for (size_t i = 0; i < m.size(); ++i)
+		mat[i] = static_cast<f32>(m[i]);
+	mat = convertHandedness(mat);
 
 	// Decompose the matrix into translation, scale, and rotation.
 	joint->Animatedposition = mat.getTranslation();
