@@ -103,8 +103,9 @@ public class UnzipService extends IntentService {
 	@NonNull
 	private Notification.Builder createNotification() {
 		Notification.Builder builder;
-		if (mNotifyManager == null)
+		if (mNotifyManager == null) {
 			mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			builder = new Notification.Builder(this, MainActivity.NOTIFICATION_CHANNEL_ID);
 		} else {
