@@ -5849,7 +5849,7 @@ Utilities
       particlespawner_exclude_player = true,
       -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
       generate_decorations_biomes = true,
-      -- Item definitions make use the `inventory_image_animation`
+      -- Item definitions make use of the `inventory_image_animation`
       -- and `wield_image_animation` field (5.12.0)
       item_image_animation = true,
   }
