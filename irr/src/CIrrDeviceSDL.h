@@ -198,7 +198,7 @@ public:
 		{
 		}
 
-		virtual void setRelativeMode(bool relative) _IRR_OVERRIDE_
+		virtual void setRelativeMode(bool relative) override
 		{
 			// Only change it when necessary, as it flushes mouse motion when enabled
 			if (relative != static_cast<bool>(SDL_GetRelativeMouseMode())) {

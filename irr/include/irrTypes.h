@@ -66,10 +66,6 @@ typedef char fschar_t;
 
 } // end namespace irr
 
-//! deprecated macro for virtual function override
-/** prefer to use the override keyword for new code */
-#define _IRR_OVERRIDE_ override
-
 // Invokes undefined behavior for unreachable code optimization
 // Note: an assert(false) is included first to catch this in debug builds
 #if defined(__cpp_lib_unreachable)
