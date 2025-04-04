@@ -118,8 +118,10 @@ void ActiveObjectMgr::invalidateActiveObjectObserverCaches()
 
 void ActiveObjectMgr::updateObjectPos(u16 id, v3f pos)
 {
-	// HACK only update if we already know the object
-	if (m_active_objects.get(id) != nullptr)
+	// HACK defensively only update if we already know the object,
+	// otherwise we're still waiting to be inserted into the index
+	// (or have already been removed).
+	if (m_active_objects.get(id))
 		m_spatial_index.update(pos.toArray(), id);
 }
 
