@@ -22,14 +22,16 @@ uniform float animationTimer;
 	uniform float xyPerspectiveBias0;
 	uniform float xyPerspectiveBias1;
 	uniform vec3 shadow_tint;
+	uniform float foliage_translucency;
+	uniform float specular_intensity;
 
 	varying float adj_shadow_strength;
 	varying float cosLight;
 	varying float f_normal_length;
 	varying vec3 shadow_position;
 	varying float perspective_factor;
+	varying vec3 sunTint;
 #endif
-
 
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -49,9 +51,10 @@ centroid varying vec2 varTexCoord;
 centroid varying float nightRatio;
 #endif
 varying highp vec3 eyeVec;
+varying float nightFactor;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
-#if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)
+#if (MATERIAL_WAVING_LIQUID && defined(ENABLE_WATER_REFLECTIONS))
 vec4 perm(vec4 x)
 {
 	return mod(((x * 34.0) + 1.0) * x, 289.0);
@@ -115,7 +118,7 @@ float mtsmoothstep(in float edge0, in float edge1, in float x)
 
 float shadowCutoff(float x) {
 	#if defined(ENABLE_TRANSLUCENT_FOLIAGE) && MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES
-		return mtsmoothstep(0.0, 0.002, x);
+		return mtsmoothstep(0.0, 3.0 / f_shadowfar, x);
 	#else
 		return step(0.0, x);
 	#endif
@@ -407,7 +410,6 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 }
 
 #endif
-
 #endif
 #endif
 
@@ -436,6 +438,8 @@ void main(void)
 	// Fragment normal, can differ from vNormal which is derived from vertex normals.
 	vec3 fNormal = vNormal;
 
+	vec3 viewVec = normalize(worldPosition + cameraOffset - cameraPosition);
+
 	if (f_shadow_strength > 0.0) {
 		float shadow_int = 0.0;
 		vec3 shadow_color = vec3(0.0, 0.0, 0.0);
@@ -445,6 +449,7 @@ void main(void)
 		if (max(abs(posLightSpace.x - 0.5), abs(posLightSpace.y - 0.5)) > 0.5)
 			distance_rate = 0.0;
 		float f_adj_shadow_strength = max(adj_shadow_strength - mtsmoothstep(0.9, 1.1, posLightSpace.z),0.0);
+		float f_shadow_factor = adj_shadow_strength / f_shadow_strength;
 
 		if (distance_rate > 1e-7) {
 
@@ -477,6 +482,7 @@ void main(void)
 		// Apply self-shadowing when light falls at a narrow angle to the surface
 		// Cosine of the cut-off angle.
 		const float self_shadow_cutoff_cosine = 0.035;
+
 		if (f_normal_length != 0 && cosLight < self_shadow_cutoff_cosine) {
 			shadow_int = max(shadow_int, 1 - clamp(cosLight, 0.0, self_shadow_cutoff_cosine)/self_shadow_cutoff_cosine);
 			shadow_color = mix(vec3(0.0), shadow_color, min(cosLight, self_shadow_cutoff_cosine)/self_shadow_cutoff_cosine);
@@ -492,29 +498,27 @@ void main(void)
 		// calculate fragment color from components:
 		col.rgb =
 				adjusted_night_ratio * col.rgb + // artificial light
-				(1.0 - adjusted_night_ratio) * ( // natural light
+				sunTint * (1.0 - adjusted_night_ratio) * ( // natural light
 						col.rgb * (1.0 - shadow_int * (1.0 - shadow_color) * (1.0 - shadow_tint)) +  // filtered texture color
 						dayLight * shadow_color * shadow_int);                 // reflected filtered sunlight/moonlight
 
 
 		vec3 reflect_ray = -normalize(v_LightDirection - fNormal * dot(v_LightDirection, fNormal) * 2.0);
 
-		vec3 viewVec = normalize(worldPosition + cameraOffset - cameraPosition);
-
 		// Water reflections
-#if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)
+#if (MATERIAL_WAVING_LIQUID && defined(ENABLE_WATER_REFLECTIONS))
 		vec3 wavePos = worldPosition * vec3(2.0, 0.0, 2.0);
 		float off = animationTimer * WATER_WAVE_SPEED * 10.0;
 		wavePos.x /= WATER_WAVE_LENGTH * 3.0;
 		wavePos.z /= WATER_WAVE_LENGTH * 2.0;
 
-		// This is an analogous method to the bumpmap, except we get the gradient information directly from gnoise.
+		// We get the gradient information of the waves using gnoise.
 		vec2 gradient = wave_noise(wavePos, off);
 		fNormal = normalize(normalize(fNormal) + vec3(gradient.x, 0., gradient.y) * WATER_WAVE_HEIGHT * abs(fNormal.y) * 0.25);
 		reflect_ray = -normalize(v_LightDirection - fNormal * dot(v_LightDirection, fNormal) * 2.0);
 		float fresnel_factor = dot(fNormal, viewVec);
 
-		float brightness_factor = 1.0 - adjusted_night_ratio;
+		float brightness_factor = (1.0 - adjusted_night_ratio) / base.a;
 
 		// A little trig hack. We go from the dot product of viewVec and normal to the dot product of viewVec and tangent to apply a fresnel effect.
 		fresnel_factor = clamp(pow(1.0 - fresnel_factor * fresnel_factor, 8.0), 0.0, 1.0) * 0.8 + 0.2;
@@ -523,33 +527,37 @@ void main(void)
 
 		// Sky reflection
 		col.rgb += reflection_color * pow(fresnel_factor, 2.0) * 0.5 * brightness_factor;
-		vec3 water_reflect_color = 12.0 * dayLight * fresnel_factor * mtsmoothstep(0.85, 0.9, pow(clamp(dot(reflect_ray, viewVec), 0.0, 1.0), 32.0)) * max(1.0 - shadow_uncorrected, 0.0);
 
-		// This line exists to prevent ridiculously bright reflection colors.
-		water_reflect_color /= clamp(max(water_reflect_color.r, max(water_reflect_color.g, water_reflect_color.b)) * 0.375, 1.0, 400.0);
-		col.rgb += water_reflect_color * f_adj_shadow_strength * brightness_factor;
+		vec3 water_reflect_color =
+			1.5 * specular_intensity * sunTint * dayLight * fresnel_factor * max(1.0 - shadow_uncorrected, 0.0) *
+			mtsmoothstep(0.85, 0.9, pow(clamp(dot(reflect_ray, viewVec), 0.0, 1.0), 32.0));
+
+		// Sun reflection
+		col.rgb += water_reflect_color * f_shadow_factor * brightness_factor;
 #endif
 
 #if (defined(ENABLE_NODE_SPECULAR) && !MATERIAL_WATER_REFLECTIONS)
 		// Apply specular to blocks.
 		if (dot(v_LightDirection, vNormal) < 0.0) {
-			float intensity = 2.0 * (1.0 - (base.r * varColor.r));
+			// This intensity is a placeholder and should be replaced by proper specular maps.
+			float intensity = specular_intensity * min(1.0, length(varColor.rgb * base.rgb));
 			const float specular_exponent = 5.0;
 			const float fresnel_exponent =  4.0;
 
 			col.rgb +=
-				intensity * dayLight * (1.0 - nightRatio) * (1.0 - shadow_uncorrected) * f_adj_shadow_strength *
+				sunTint * intensity * f_shadow_factor * dayLight * (1.0 - nightRatio) * (1.0 - shadow_uncorrected) *
 				pow(max(dot(reflect_ray, viewVec), 0.0), fresnel_exponent) * pow(1.0 - abs(dot(viewVec, fNormal)), specular_exponent);
 		}
 #endif
 
 #if (MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS || MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES) && defined(ENABLE_TRANSLUCENT_FOLIAGE)
 		// Simulate translucent foliage.
-		col.rgb += 4.0 * dayLight * base.rgb * normalize(base.rgb * varColor.rgb * varColor.rgb) * f_adj_shadow_strength * pow(max(-dot(v_LightDirection, viewVec), 0.0), 4.0) * max(1.0 - shadow_uncorrected, 0.0);
+		col.rgb +=
+			foliage_translucency * nightFactor * sunTint * dayLight * base.rgb * normalize(base.rgb * varColor.rgb * varColor.rgb) *
+			pow(max(-dot(v_LightDirection, viewVec), 0.0), 4.0) * max(1.0 - shadow_uncorrected, 0.0);
 #endif
 	}
 #endif
-
 	// Due to a bug in some (older ?) graphics stacks (possibly in the glsl compiler ?),
 	// the fog will only be rendered correctly if the last operation before the
 	// clamp() is an addition. Else, the clamp() seems to be ignored.
@@ -561,6 +569,8 @@ void main(void)
 	// Note: clarity = (1 - fogginess)
 	float clarity = clamp(fogShadingParameter
 		- fogShadingParameter * length(eyeVec) / fogDistance, 0.0, 1.0);
+
+#ifdef ENABLE_TINTED_FOG
 	float fogColorMax = max(max(fogColor.r, fogColor.g), fogColor.b);
 	// Prevent zero division.
 	if (fogColorMax < 0.0000001) fogColorMax = 1.0;
@@ -568,6 +578,10 @@ void main(void)
 	// For this to not make the fog color artificially dark we need to normalize using the
 	// fog color's brightest value. We then blend our base color with this to make the fog.
 	col = mix(fogColor * pow(fogColor / fogColorMax, vec4(2.0 * clarity)), col, clarity);
+#else
+	col = mix(fogColor, col, clarity);
+#endif
+
 	col = vec4(col.rgb, base.a);
 
 	gl_FragData[0] = col;
