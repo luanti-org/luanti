@@ -235,31 +235,22 @@ WieldMeshSceneNode::~WieldMeshSceneNode()
 		g_extrusion_mesh_cache = nullptr;
 }
 
-void WieldMeshSceneNode::setExtruded(const std::string &imagename,
-	const std::string &overlay_name, v3f wield_scale, ITextureSource *tsrc,
-	u8 num_frames)
+void WieldMeshSceneNode::setExtruded(video::ITexture *texture,
+		video::ITexture *overlay_texture, v3f wield_scale)
 {
-	video::ITexture *texture = tsrc->getTexture(imagename);
 	if (!texture) {
 		changeToMesh(nullptr);
 		return;
 	}
-	video::ITexture *overlay_texture =
-		overlay_name.empty() ? NULL : tsrc->getTexture(overlay_name);
 
+	// Get mesh from cache
 	core::dimension2d<u32> dim = texture->getSize();
-	// Detect animation texture and pull off top frame instead of using entire thing
-	// FIXME: this is quite unportable, we should be working with the original TileLayer if there's one
-	if (num_frames > 1) {
-		u32 frame_height = dim.Height / num_frames;
-		dim = core::dimension2d<u32>(dim.Width, frame_height);
-	}
 	scene::IMesh *original = g_extrusion_mesh_cache->create(dim);
 	scene::SMesh *mesh = cloneMesh(original);
 	original->drop();
+
 	//set texture
-	mesh->getMeshBuffer(0)->getMaterial().setTexture(0,
-		tsrc->getTexture(imagename));
+	mesh->getMeshBuffer(0)->getMaterial().setTexture(0, texture);
 	if (overlay_texture) {
 		// duplicate the extruded mesh for the overlay
 		scene::IMeshBuffer *copy = cloneMeshBuffer(mesh->getMeshBuffer(0));
@@ -345,6 +336,48 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 	return mesh;
 }
 
+// Returns the first frame of a texture in case it is animated
+static video::ITexture *getTileTexture(const TileLayer &tile)
+{
+	if (tile.animation_frame_count > 1 && tile.frames)
+		return (*tile.frames)[0].texture;
+
+	return tile.texture;
+}
+
+
+std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
+		const std::string &image_name, const TileAnimationParams &animation,
+		int& result_frame_length_ms)
+{
+	result_frame_length_ms = 0;
+
+	if (image_name.empty() || animation.type == TileAnimationType::TAT_NONE)
+		return {};
+
+	video::ITexture *orginal_texture = tsrc->getTexture(image_name);
+	if (!orginal_texture)
+		return {};
+
+	int frame_count = 1;
+	auto orginal_size = orginal_texture->getOriginalSize();
+	animation.determineParams(orginal_size, &frame_count, &result_frame_length_ms, nullptr);
+
+	std::vector<FrameSpec> frames(frame_count);
+	std::ostringstream os(std::ios::binary);
+	for (int i = 0; i < frame_count; i++) {
+		os.str("");
+		os << image_name;
+		animation.getTextureModifer(os, orginal_size, i);
+
+		u32 id;
+		frames[i].texture = tsrc->getTextureForMesh(os.str(), &id);
+		frames[i].texture_id = id;
+	}
+
+	return frames;
+}
+
 void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool check_wield_image)
 {
 	ITextureSource *tsrc = client->getTextureSource();
@@ -371,10 +404,40 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 
 	// If wield_image needs to be checked and is defined, it overrides everything else
 	if (!wield_image.empty() && check_wield_image) {
-		setExtruded(wield_image, wield_overlay, wield_scale, tsrc, 1);
-		m_buffer_info.emplace_back();
-		// overlay is white, if present
-		m_buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
+		video::ITexture *wield_texture = tsrc->getTexture(wield_image);
+		video::ITexture *wield_overlay_texture = wield_image.empty() ?
+				nullptr : tsrc->getTexture(wield_overlay);
+		if (def.wield_image_animation.type == TileAnimationType::TAT_NONE) {
+			m_buffer_info.emplace_back();
+			// overlay is white, if present
+			m_buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
+		} else {
+			// Handle animation
+			int frame_length_ms, overlay_frame_length_ms;
+			m_wield_image_frames = std::make_unique<std::vector<FrameSpec>>(
+					createAnimationFrames(tsrc, wield_image, def.wield_image_animation,
+					frame_length_ms));
+			m_wield_overlay_frames = std::make_unique<std::vector<FrameSpec>>(
+					createAnimationFrames(tsrc, wield_overlay, def.wield_image_animation,
+					overlay_frame_length_ms));
+
+			if (m_wield_image_frames->empty()) {
+				m_buffer_info.emplace_back();
+			} else {
+				m_buffer_info.emplace_back(m_wield_image_frames.get(), frame_length_ms);
+				wield_texture = (*m_wield_image_frames)[0].texture;
+			}
+
+			if (m_wield_overlay_frames->empty()) {
+				m_buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
+			} else {
+				m_buffer_info.emplace_back(
+						m_wield_overlay_frames.get(), overlay_frame_length_ms,
+						true, video::SColor(0xFFFFFFFF));
+				wield_overlay_texture = (*m_wield_overlay_frames)[0].texture;
+			}
+		}
+		setExtruded(wield_texture, wield_overlay_texture, wield_scale);
 		// initialize the color
 		setColor(video::SColor(0xFFFFFFFF));
 		return;
@@ -385,8 +448,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 
 		switch (f.drawtype) {
 		case NDT_AIRLIKE:
-			setExtruded("no_texture_airlike.png", "",
-				v3f(1), tsrc, 1);
+			setExtruded(tsrc->getTexture("no_texture_airlike.png"), nullptr, v3f(1));
 			break;
 		case NDT_SIGNLIKE:
 		case NDT_TORCHLIKE:
@@ -398,22 +460,17 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 				wscale.Z *= 0.1f;
 			const TileLayer &l0 = f.tiles[0].layers[0];
 			const TileLayer &l1 = f.tiles[0].layers[1];
-			setExtruded(tsrc->getTextureName(l0.texture_id),
-				tsrc->getTextureName(l1.texture_id),
-				wscale, tsrc,
-				l0.animation_frame_count);
+			setExtruded(getTileTexture(l0), getTileTexture(l1), wscale);
 			// Add color
-			m_buffer_info.emplace_back(l0.has_color, l0.color);
-			m_buffer_info.emplace_back(l1.has_color, l1.color);
+			m_buffer_info.emplace_back(l0);
+			m_buffer_info.emplace_back(l1);
 			break;
 		}
 		case NDT_PLANTLIKE_ROOTED: {
 			// use the plant tile
 			const TileLayer &l0 = f.special_tiles[0].layers[0];
-			setExtruded(tsrc->getTextureName(l0.texture_id),
-				"", wield_scale, tsrc,
-				l0.animation_frame_count);
-			m_buffer_info.emplace_back(l0.has_color, l0.color);
+			setExtruded(getTileTexture(l0), nullptr, wield_scale);
+			m_buffer_info.emplace_back(l0);
 			break;
 		}
 		default: {
@@ -448,17 +505,19 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		setColor(video::SColor(0xFFFFFFFF));
 		return;
 	} else {
-		const std::string inventory_image = item.getInventoryImage(idef);
-		if (!inventory_image.empty()) {
-			const std::string inventory_overlay = item.getInventoryOverlay(idef);
-			setExtruded(inventory_image, inventory_overlay, def.wield_scale, tsrc, 1);
+		video::ITexture* inventory_texture = item_visuals->getInventoryTexture(item, client);
+		if (inventory_texture) {
+			video::ITexture* inventory_overlay = item_visuals->getInventoryOverlayTexture(item,
+					client);
+			setExtruded(inventory_texture, inventory_overlay, wield_scale);
 		} else {
-			setExtruded("no_texture.png", "", def.wield_scale, tsrc, 1);
+			setExtruded(tsrc->getTexture("no_texture.png"), nullptr, wield_scale);
 		}
 
-		m_buffer_info.emplace_back();
+		m_buffer_info.emplace_back(item_visuals->getInventoryAnimation(item, client));
 		// overlay is white, if present
-		m_buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
+		m_buffer_info.emplace_back(item_visuals->getInventoryOverlayAnimation(item, client),
+				true, video::SColor(0xFFFFFFFF));
 
 		// initialize the color
 		setColor(video::SColor(0xFFFFFFFF));
@@ -537,14 +596,14 @@ void WieldMeshSceneNode::changeToMesh(scene::IMesh *mesh)
 	m_meshnode->setVisible(true);
 }
 
-void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
+void createItemMesh(Client *client, const ItemDefinition &def,
+		video::ITexture *inventory_texture, AnimationInfo* inventory_animation,
+		video::ITexture *inventory_overlay_texture, AnimationInfo* inventory_overlay_animation,
+		ItemMesh *result)
 {
 	ITextureSource *tsrc = client->getTextureSource();
-	IItemDefManager *idef = client->getItemDefManager();
 	const NodeDefManager *ndef = client->getNodeDefManager();
-	const ItemDefinition &def = item.getDefinition(idef);
 	const ContentFeatures &f = ndef->get(def.name);
-	content_t id = ndef->getId(def.name);
 
 	FATAL_ERROR_IF(!g_extrusion_mesh_cache, "Extrusion mesh cache is not yet initialized");
 
@@ -554,43 +613,40 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 	result->needs_shading = true;
 
 	// If inventory_image is defined, it overrides everything else
-	const std::string inventory_image = item.getInventoryImage(idef);
-	const std::string inventory_overlay = item.getInventoryOverlay(idef);
-	if (!inventory_image.empty()) {
-		mesh = getExtrudedMesh(tsrc, inventory_image, inventory_overlay);
-		result->buffer_info.emplace_back();
+	if (inventory_texture) {
+		mesh = getExtrudedMesh(inventory_texture, inventory_overlay_texture);
+
+		result->buffer_info.emplace_back(inventory_animation);
 		// overlay is white, if present
-		result->buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
+		result->buffer_info.emplace_back(inventory_overlay_animation,
+				true, video::SColor(0xFFFFFFFF));
 		// Items with inventory images do not need shading
 		result->needs_shading = false;
 	} else if (def.type == ITEM_NODE && f.drawtype == NDT_AIRLIKE) {
 		// Fallback image for airlike node
-		mesh = getExtrudedMesh(tsrc, "no_texture_airlike.png", inventory_overlay);
+		mesh = getExtrudedMesh(tsrc->getTexture("no_texture_airlike.png"));
 		result->needs_shading = false;
 	} else if (def.type == ITEM_NODE) {
 		switch (f.drawtype) {
 		case NDT_PLANTLIKE: {
 			const TileLayer &l0 = f.tiles[0].layers[0];
 			const TileLayer &l1 = f.tiles[0].layers[1];
-			mesh = getExtrudedMesh(tsrc,
-				tsrc->getTextureName(l0.texture_id),
-				tsrc->getTextureName(l1.texture_id));
+			mesh = getExtrudedMesh(l0.texture, l1.texture);
 			// Add color
-			result->buffer_info.emplace_back(l0.has_color, l0.color);
-			result->buffer_info.emplace_back(l1.has_color, l1.color);
+			result->buffer_info.emplace_back(l0);
+			result->buffer_info.emplace_back(l1);
 			break;
 		}
 		case NDT_PLANTLIKE_ROOTED: {
 			// Use the plant tile
 			const TileLayer &l0 = f.special_tiles[0].layers[0];
-			mesh = getExtrudedMesh(tsrc,
-				tsrc->getTextureName(l0.texture_id), "");
-			result->buffer_info.emplace_back(l0.has_color, l0.color);
+			mesh = getExtrudedMesh(l0.texture);
+			result->buffer_info.emplace_back(l0);
 			break;
 		}
 		default: {
 			// Render all other drawtypes like the actual node
-			MapNode n(id);
+			MapNode n(ndef->getId(def.name));
 			if (def.place_param2)
 				n.setParam2(*def.place_param2);
 
@@ -624,34 +680,28 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 	result->mesh = mesh;
 }
 
-
-
-scene::SMesh *getExtrudedMesh(ITextureSource *tsrc,
-	const std::string &imagename, const std::string &overlay_name)
+scene::SMesh *getExtrudedMesh(video::ITexture *texture,
+		video::ITexture *overlay_texture)
 {
-	// check textures
-	video::ITexture *texture = tsrc->getTexture(imagename);
 	if (!texture) {
-		return NULL;
+		return nullptr;
 	}
-	video::ITexture *overlay_texture =
-		(overlay_name.empty()) ? NULL : tsrc->getTexture(overlay_name);
 
-	// get mesh
+	// Get mesh
 	core::dimension2d<u32> dim = texture->getSize();
 	scene::IMesh *original = g_extrusion_mesh_cache->create(dim);
 	scene::SMesh *mesh = cloneMesh(original);
 	original->drop();
 
-	//set texture
-	mesh->getMeshBuffer(0)->getMaterial().setTexture(0,
-		tsrc->getTexture(imagename));
+	// Set texture
+	mesh->getMeshBuffer(0)->getMaterial().setTexture(0, texture);
 	if (overlay_texture) {
 		scene::IMeshBuffer *copy = cloneMeshBuffer(mesh->getMeshBuffer(0));
 		copy->getMaterial().setTexture(0, overlay_texture);
 		mesh->addMeshBuffer(copy);
 		copy->drop();
 	}
+
 	// Customize materials
 	for (u32 layer = 0; layer < mesh->getMeshBufferCount(); layer++) {
 		video::SMaterial &material = mesh->getMeshBuffer(layer)->getMaterial();

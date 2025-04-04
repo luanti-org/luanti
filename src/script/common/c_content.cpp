@@ -78,6 +78,14 @@ void read_item_definition(lua_State* L, int index,
 	}
 	lua_pop(L, 1);
 
+	lua_getfield(L, index, "inventory_image_animation");
+	def.inventory_image_animation = read_animation_definition(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, index, "wield_image_animation");
+	def.wield_image_animation = read_animation_definition(L, -1);
+	lua_pop(L, 1);
+
 	int stack_max = getintfield_default(L, index, "stack_max", def.stack_max);
 	def.stack_max = rangelim(stack_max, 1, U16_MAX);
 

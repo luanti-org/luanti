@@ -5747,6 +5747,9 @@ Utilities
       particle_blend_clip = true,
       -- The `match_meta` optional parameter is available for `InvRef:remove_item()` (5.12.0)
       remove_item_match_meta = true,
+      -- Item definitions make use the `inventory_image_animation`
+      -- and `wield_image_animation` field (5.12.0)
+      item_image_animation = true,
   }
   ```
 
@@ -9686,12 +9689,18 @@ Used by `core.register_node`, `core.register_craftitem`, and
     inventory_overlay = "",
     -- An overlay texture which is not affected by colorization
 
+    inventory_image_animation = {Tile Animation definition},
+    -- Optional, animates the `inventory_image` and `inventory_overlay` if specified
+
     wield_image = "",
     -- Texture shown when item is held in hand
     -- Defaults to a 3D rendering of the node if left empty.
 
     wield_overlay = "",
     -- Like inventory_overlay but only used in the same situation as wield_image
+
+    wield_image_animation = {Tile Animation definition}
+    -- Optional, animates the `wield_image` and `wield_overlay` if specified
 
     wield_scale = {x = 1, y = 1, z = 1},
     -- Scale for the item when held in hand

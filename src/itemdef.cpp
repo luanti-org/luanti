@@ -112,6 +112,8 @@ ItemDefinition& ItemDefinition::operator=(const ItemDefinition &def)
 	wield_image = def.wield_image;
 	wield_overlay = def.wield_overlay;
 	wield_scale = def.wield_scale;
+	inventory_image_animation = def.inventory_image_animation;
+	wield_image_animation = def.wield_image_animation;
 	stack_max = def.stack_max;
 	usable = def.usable;
 	liquids_pointable = def.liquids_pointable;
@@ -160,6 +162,8 @@ void ItemDefinition::reset()
 	palette_image.clear();
 	color = video::SColor(0xFFFFFFFF);
 	wield_scale = v3f(1.0, 1.0, 1.0);
+	inventory_image_animation.type = TileAnimationType::TAT_NONE;
+	wield_image_animation.type = TileAnimationType::TAT_NONE;
 	stack_max = 99;
 	usable = false;
 	liquids_pointable = false;
@@ -254,6 +258,9 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	} else {
 		writeU8(os, 0);
 	}
+
+	inventory_image_animation.serialize(os, protocol_version);
+	wield_image_animation.serialize(os, protocol_version);
 }
 
 void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
@@ -340,6 +347,10 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 		if (readU8(is)) {
 			wear_bar_params = WearBarParams::deserialize(is);
 		}
+
+		inventory_image_animation.deSerialize(is, protocol_version);
+		wield_image_animation.deSerialize(is, protocol_version);
+
 	} catch(SerializationError &e) {};
 }
 

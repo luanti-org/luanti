@@ -31,9 +31,20 @@ struct ItemVisualsManager
 	// Get item inventory texture
 	video::ITexture* getInventoryTexture(const ItemStack &item, Client *client) const;
 
-	// Get item wield mesh
+	// Get item inventory overlay texture
+	video::ITexture* getInventoryOverlayTexture(const ItemStack &item, Client *client) const;
+
+	// Get item inventory animation
+	// returns nullptr if it is not animated
+	AnimationInfo *getInventoryAnimation(const ItemStack &item, Client *client) const;
+
+	// Get item inventory overlay animation
+	// returns nullptr if it is not animated
+	AnimationInfo *getInventoryOverlayAnimation(const ItemStack &item, Client *client) const;
+
+	// Get item item mesh
 	// Once said to return nullptr if there is an inventory image, but this is wrong
-	ItemMesh* getWieldMesh(const ItemStack &item, Client *client) const;
+	ItemMesh *getItemMesh(const ItemStack &item, Client *client) const;
 
 	// Get item palette
 	Palette* getPalette(const ItemStack &item, Client *client) const;
@@ -46,8 +57,17 @@ private:
 	struct ItemVisuals
 	{
 		video::ITexture *inventory_texture;
-		ItemMesh wield_mesh;
+		video::ITexture *inventory_overlay_texture;
+		ItemMesh item_mesh;
 		Palette *palette;
+
+		// Null if non animated
+		// ItemVisuals owns the frames vector of the inventory and overlay image,
+		// and stores an AnimationInfo to draw animated non-mesh items,
+		using OwnedAnimationInfo = std::unique_ptr<std::pair<AnimationInfo,
+				std::vector<FrameSpec>>>;
+		OwnedAnimationInfo inventory_animation;
+		OwnedAnimationInfo inventory_overlay_animation;
 
 		ItemVisuals():
 			inventory_texture(nullptr),
