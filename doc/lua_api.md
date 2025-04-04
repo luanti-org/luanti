@@ -5747,7 +5747,7 @@ Utilities
       particle_blend_clip = true,
       -- The `match_meta` optional parameter is available for `InvRef:remove_item()` (5.12.0)
       remove_item_match_meta = true,
-      -- Item definitions make use the `inventory_image_animation`
+      -- Item definitions make use of the `inventory_image_animation`
       -- and `wield_image_animation` field (5.12.0)
       item_image_animation = true,
   }

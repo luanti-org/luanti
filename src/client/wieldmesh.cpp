@@ -249,7 +249,7 @@ void WieldMeshSceneNode::setExtruded(video::ITexture *texture,
 	scene::SMesh *mesh = cloneMesh(original);
 	original->drop();
 
-	//set texture
+	// Set texture
 	mesh->getMeshBuffer(0)->getMaterial().setTexture(0, texture);
 	if (overlay_texture) {
 		// duplicate the extruded mesh for the overlay

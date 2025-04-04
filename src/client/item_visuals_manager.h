@@ -42,7 +42,7 @@ struct ItemVisualsManager
 	// returns nullptr if it is not animated
 	AnimationInfo *getInventoryOverlayAnimation(const ItemStack &item, Client *client) const;
 
-	// Get item item mesh
+	// Get item mesh
 	// Once said to return nullptr if there is an inventory image, but this is wrong
 	ItemMesh *getItemMesh(const ItemStack &item, Client *client) const;
 
