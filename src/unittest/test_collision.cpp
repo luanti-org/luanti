@@ -251,7 +251,6 @@ TEST_CASE("Test simple moving collision.", "[collision]")
 		UASSERTEQ_V3F(speed, fpos(0, 1, 0));
 	}
 
-	/* standing on ground */
 	SECTION("Standing on ground.")
 	{
 		pos   = fpos(0, 0.5f, 0);
@@ -274,7 +273,6 @@ TEST_CASE("Test simple moving collision.", "[collision]")
 		}
 	}
 
-	/* glitched into ground */
 	SECTION("Glitched into ground.")
 	{
 		pos   = fpos(0, 0.499f, 0);
@@ -297,7 +295,6 @@ TEST_CASE("Test simple moving collision.", "[collision]")
 		}
 	}
 
-	/* falling on ground */
 	SECTION("Falling on ground.")
 	{
 		pos   = fpos(0, 1.2345f, 0);
@@ -323,7 +320,6 @@ TEST_CASE("Test simple moving collision.", "[collision]")
 		}
 	}
 
-	/* jumping on ground */
 	SECTION("Jumping on ground.")
 	{
 		pos   = fpos(0, 0.5f, 0);
@@ -356,7 +352,6 @@ TEST_CASE("Test simple moving collision.", "[collision]")
 		}
 	}
 
-	/* moving over ground, no gravity */
 	SECTION("Moving over ground, no gravity.")
 	{
 		pos   = fpos(0, 0.5f, 0);
@@ -396,7 +391,6 @@ TEST_CASE("Test simple moving collision.", "[collision]")
 		}
 	}
 
-	/* not moving never collides */
 	SECTION("Not moving never collides.")
 	{
 		pos   = fpos(0, -100, 0);
@@ -407,7 +401,6 @@ TEST_CASE("Test simple moving collision.", "[collision]")
 		CHECK(!res.collides);
 	}
 
-	/* collision in ignore */
 	SECTION("Collision in ignore.")
 	{
 		pos   = fpos(0, -100, 0);
