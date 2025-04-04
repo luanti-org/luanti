@@ -170,7 +170,7 @@ public:
 
 	void finalize(RemotePlayer *player, const std::set<std::string> &privs);
 
-	v3f getEyePosition() const { return m_base_position + getEyeOffset(); }
+	v3f getEyePosition() const { return getBasePosition() + getEyeOffset(); }
 	v3f getEyeOffset() const;
 	float getZoomFOV() const;
 
