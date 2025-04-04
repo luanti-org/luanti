@@ -57,6 +57,7 @@ function ui.get_message_formspec(title, message, btn_id)
 	return table.concat({
 		"size[14,8]",
 		"real_coordinates[true]",
+		"allow_close[false]",
 		"set_focus[", btn_id, ";true]",
 		"box[0.5,1.2;13,5;#000]",
 		("textarea[0.5,1.2;13,5;;%s;%s]"):format(title, message),
@@ -81,6 +82,7 @@ function ui.update()
 		formspec = {
 			"size[14,8]",
 			"real_coordinates[true]",
+			"allow_close[false]",
 			"set_focus[btn_reconnect_yes;true]",
 			"box[0.5,1.2;13,5;#000]",
 			("textarea[0.5,1.2;13,5;;%s;%s]"):format(

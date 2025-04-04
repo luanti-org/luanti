@@ -541,6 +541,7 @@ local function get_formspec(dialogdata)
 		"formspec_version[6]",
 		"size[", tostring(tabsize.width), ",", tostring(tabsize.height + extra_h), "]",
 		core.settings:get_bool("touch_gui") and "padding[0.01,0.01]" or "",
+		"allow_close[" .. tostring(dialogdata.allow_close) .. "]",
 		"bgcolor[#0000]",
 
 		-- HACK: this is needed to allow resubmitting the same formspec
@@ -809,6 +810,7 @@ if INIT == "mainmenu" then
 		local dlg = dialog_create("dlg_settings", get_formspec, buttonhandler, eventhandler)
 
 		dlg.data.page_id = update_filtered_pages("")
+		dlg.data.allow_close = false
 
 		return dlg
 	end
@@ -834,6 +836,7 @@ else
 		dialog = {}
 		dialog.data = {}
 		dialog.data.page_id = update_filtered_pages("")
+		dialog.data.allow_close = true
 		dialog.delete = function()
 			dialog = nil
 			-- only needed for the "fields.back" case, in the "fields.quit"

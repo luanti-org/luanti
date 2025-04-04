@@ -47,7 +47,8 @@ enum FormspecFieldType {
 enum FormspecQuitMode {
 	quit_mode_no,
 	quit_mode_accept,
-	quit_mode_cancel
+	quit_mode_cancel,
+	quit_mode_try,
 };
 
 enum ButtonEventType : u8
@@ -201,11 +202,6 @@ public:
 	{
 		delete m_text_dst;
 		m_text_dst = text_dst;
-	}
-
-	void allowClose(bool value)
-	{
-		m_allowclose = value;
 	}
 
 	void setDebugView(bool value)
@@ -422,7 +418,6 @@ private:
 		bool key_up;
 		bool key_down;
 		bool key_enter;
-		bool key_escape;
 	};
 
 	fs_key_pending current_keys_pending;
@@ -484,6 +479,7 @@ private:
 	void parseStyle(parserData *data, const std::string &element);
 	void parseSetFocus(parserData *, const std::string &element);
 	void parseModel(parserData *data, const std::string &element);
+	void parseAllowClose(parserData *data, const std::string &element);
 
 	bool parseMiddleRect(const std::string &value, core::rect<s32> *parsed_rect);
 
