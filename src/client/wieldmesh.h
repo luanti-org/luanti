@@ -26,6 +26,8 @@ struct ItemStack;
 struct TileDef;
 class Client;
 class ITextureSource;
+struct ItemDefinition;
+struct TileAnimationParams;
 class ShadowRenderer;
 
 /*
@@ -55,6 +57,14 @@ public:
 		override_color(color), override_color_set(override),
 		layer(layer)
 	{}
+
+	ItemMeshBufferInfo(int layer, const AnimationInfo *animation,
+			bool override_c = false, video::SColor color = {}) :
+		override_color(color), override_color_set(override_c), layer(layer)
+	{
+		if (animation)
+			animation_info = std::make_unique<AnimationInfo>(*animation);
+	}
 
 	ItemMeshBufferInfo(int layer_num, const TileLayer &layer);
 
@@ -109,9 +119,6 @@ public:
 	void setExtruded(const TileDef &d0, const TileLayer &l0,
 			const TileDef &d1, const TileLayer &l1,
 			v3f wield_scale, ITextureSource *tsrc);
-	// Set apperance from texture name
-	void setExtruded(const std::string &image, const std::string &overlay,
-			v3f wield_scale, ITextureSource *tsrc);
 
 	void setItem(const ItemStack &item, Client *client,
 			bool check_wield_image = true);
@@ -153,6 +160,11 @@ private:
 	 */
 	video::SColor m_base_color;
 
+	// Empty if wield image is empty or not animated
+	// Owned by this class to get AnimationInfo for the mesh buffer info
+	std::vector<FrameSpec> m_wield_image_frames;
+	std::vector<FrameSpec> m_wield_overlay_frames;
+
 	// Bounding box culling is disabled for this type of scene node,
 	// so this variable is just required so we can implement
 	// getBoundingBox() and is set to an empty box.
@@ -161,14 +173,20 @@ private:
 	ShadowRenderer *m_shadow;
 };
 
+std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
+		const std::string &image_name, const TileAnimationParams &animation,
+		int& result_frame_length_ms);
+
+scene::SMesh *getExtrudedMesh(video::ITexture *texture,
+	video::ITexture *overlay_texture = nullptr);
+
 /**
  * NOTE: The item mesh is only suitable for inventory rendering (due to its
  * material types). In-world rendering of items must go through WieldMeshSceneNode.
  */
-void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result);
-
-scene::SMesh *getExtrudedMesh(video::ITexture *texture,
-		video::ITexture *overlay_texture);
-
-scene::SMesh *getExtrudedMesh(ITextureSource *tsrc, const std::string &imagename,
-		const std::string &overlay_name);
+// This is only used to initially generate an ItemMesh
+// To get the mesh, use ItemVisualsManager::getItemMesh(item, client) instead
+void createItemMesh(Client *client, const ItemDefinition &def,
+		AnimationInfo &animation_normal,
+		AnimationInfo &animation_overlay,
+		ItemMesh *result);

@@ -48,8 +48,9 @@ void drawItemStack(
 
 	bool draw_overlay = false;
 
-	const std::string inventory_image = item.getInventoryImage(idef);
-	const std::string inventory_overlay = item.getInventoryOverlay(idef);
+	// Null if inventory_image is empty
+	video::ITexture *inventory_texture = item_visuals->getInventoryTexture(item, client);
+	video::ITexture *inventory_overlay = item_visuals->getInventoryOverlayTexture(item, client);
 
 	bool has_mesh = false;
 	ItemMesh *imesh;
@@ -59,8 +60,8 @@ void drawItemStack(
 		viewrect.clipAgainst(*clip);
 
 	// Render as mesh if animated or no inventory image
-	if ((enable_animations && rotation_kind < IT_ROT_NONE) || inventory_image.empty()) {
-		imesh = item_visuals->getWieldMesh(item, client);
+	if ((enable_animations && rotation_kind < IT_ROT_NONE) || !inventory_texture) {
+		imesh = item_visuals->getItemMesh(item, client);
 		has_mesh = imesh && imesh->mesh;
 	}
 	if (has_mesh) {
@@ -152,36 +153,33 @@ void drawItemStack(
 		driver->setTransform(video::ETS_PROJECTION, oldProjMat);
 		driver->setViewPort(oldViewPort);
 
-		draw_overlay = def.type == ITEM_NODE && inventory_image.empty();
+		draw_overlay = def.type == ITEM_NODE && !inventory_texture;
 	} else { // Otherwise just draw as 2D
-		video::ITexture *texture = item_visuals->getInventoryTexture(item, client);
 		video::SColor color;
-		if (texture) {
+		if (inventory_texture) {
 			color = item_visuals->getItemstackColor(item, client);
 		} else {
 			color = video::SColor(255, 255, 255, 255);
 			ITextureSource *tsrc = client->getTextureSource();
-			texture = tsrc->getTexture("no_texture.png");
-			if (!texture)
+			inventory_texture = tsrc->getTexture("no_texture.png");
+			if (!inventory_texture)
 				return;
 		}
 
 		const video::SColor colors[] = { color, color, color, color };
 
-		draw2DImageFilterScaled(driver, texture, rect,
-			core::rect<s32>({0, 0}, core::dimension2di(texture->getOriginalSize())),
+		draw2DImageFilterScaled(driver, inventory_texture, rect,
+			core::rect<s32>({0, 0}, core::dimension2di(inventory_texture->getOriginalSize())),
 			clip, colors, true);
 
 		draw_overlay = true;
 	}
 
 	// draw the inventory_overlay
-	if (!inventory_overlay.empty() && draw_overlay) {
-		ITextureSource *tsrc = client->getTextureSource();
-		video::ITexture *overlay_texture = tsrc->getTexture(inventory_overlay);
-		core::dimension2d<u32> dimens = overlay_texture->getOriginalSize();
+	if (inventory_overlay && draw_overlay) {
+		core::dimension2d<u32> dimens = inventory_overlay->getOriginalSize();
 		core::rect<s32> srcrect(0, 0, dimens.Width, dimens.Height);
-		draw2DImageFilterScaled(driver, overlay_texture, rect, srcrect, clip, 0, true);
+		draw2DImageFilterScaled(driver, inventory_overlay, rect, srcrect, clip, 0, true);
 	}
 
 	if (def.type == ITEM_TOOL && item.wear != 0) {
