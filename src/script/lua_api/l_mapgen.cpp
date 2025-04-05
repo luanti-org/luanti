@@ -1643,10 +1643,10 @@ int ModApiMapgen::l_generate_biomes(lua_State *L)
 	mg.c_water_source       = ndef->getId("mapgen_water_source");
 	mg.c_river_water_source = ndef->getId("mapgen_river_water_source");
 
-	mg.vm   = checkObject<LuaVoxelManip>(L, 1)->vm;
-	mg.ndef = ndef;
-	mg.biomegen = mg_current->biomegen;
-	mg.biomemap = bgen->biomemap;
+	mg.vm          = checkObject<LuaVoxelManip>(L, 1)->vm;
+	mg.ndef        = ndef;
+	mg.biomegen    = mg_current->biomegen;
+	mg.biomemap    = bgen->biomemap;
 	mg.water_level = mg_current->water_level;
 
 	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) - v3s16(0,1,0) :
