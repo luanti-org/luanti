@@ -124,6 +124,12 @@ public:
 
 		TEST_GL_ERROR(Driver);
 
+		if (TextureType == GL_TEXTURE_2D_ARRAY) {
+			// init before upload
+			GL.TexImage3D(TextureType, 0, InternalFormat, Size.Width, Size.Height, srcImages.size(), 0, PixelFormat, PixelType, 0);
+			TEST_GL_ERROR(Driver);
+		}
+
 		for (size_t i = 0; i < tmpImages->size(); ++i)
 			uploadTexture(true, i, 0, (*tmpImages)[i]->getData());
 
@@ -157,6 +163,7 @@ public:
 			MipLevelStored(0), LegacyAutoGenerateMipMaps(false)
 	{
 		DriverType = Driver->getDriverType();
+		_IRR_DEBUG_BREAK_IF(Type == ETT_2D_ARRAY); // not supported by this constructor
 		TextureType = TextureTypeIrrToGL(Type);
 		HasMipMaps = false;
 		IsRenderTarget = true;
@@ -258,6 +265,9 @@ public:
 			GL.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
 			GL.TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
 			break;
+		default:
+			_IRR_DEBUG_BREAK_IF(1)
+			break;
 		}
 
 		if (!name.empty())
@@ -303,6 +313,9 @@ public:
 				LockImage->grab();
 			}
 		}
+
+		if (TextureType == GL_TEXTURE_2D_ARRAY && layer > 0)
+			fprintf(stderr, "unimplemented lock()\n");
 
 		if (!LockImage) {
 			core::dimension2d<u32> lockImageSize(IImage::getMipMapsSize(Size, MipLevelStored));
@@ -440,6 +453,11 @@ public:
 
 		const COpenGLCoreTexture *prevTexture = Driver->getCacheHandler()->getTextureCache().get(0);
 		Driver->getCacheHandler()->getTextureCache().set(0, this);
+
+		if (Type == ETT_2D_ARRAY && data) {
+			fprintf(stderr, "unimplemented regenerateMipMapLevels()\n");
+			data = 0;
+		}
 
 		if (data) {
 			u32 width = Size.Width;
@@ -619,6 +637,9 @@ protected:
 					GL.TexSubImage2D(tmpTextureType, level, 0, 0, width, height, PixelFormat, PixelType, tmpData);
 				TEST_GL_ERROR(Driver);
 				break;
+			case GL_TEXTURE_2D_ARRAY:
+				// cannot respect initTexture here
+				GL.TexSubImage3D(tmpTextureType, level, 0, 0, layer, width, height, 1, PixelFormat, PixelType, tmpData);
 			default:
 				break;
 			}
@@ -637,6 +658,7 @@ protected:
 				TEST_GL_ERROR(Driver);
 				break;
 			default:
+				_IRR_DEBUG_BREAK_IF(1)
 				break;
 			}
 		}
@@ -651,6 +673,8 @@ protected:
 			return GL_TEXTURE_2D_MULTISAMPLE;
 		case ETT_CUBEMAP:
 			return GL_TEXTURE_CUBE_MAP;
+		case ETT_2D_ARRAY:
+			return GL_TEXTURE_2D_ARRAY;
 		}
 
 		os::Printer::log("COpenGLCoreTexture::TextureTypeIrrToGL unknown texture type", ELL_WARNING);

@@ -347,7 +347,7 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 	tile = f.tiles[tileindex];
 	bool has_crack = p == data->m_crack_pos_relative;
 	for (TileLayer &layer : tile.layers) {
-		if (layer.texture_id == 0)
+		if (layer.empty())
 			continue;
 		if (!layer.has_color)
 			mn.getColor(f, &(layer.color));

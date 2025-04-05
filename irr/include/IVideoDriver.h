@@ -232,6 +232,8 @@ public:
 	information. */
 	virtual ITexture *addTexture(const io::path &name, IImage *image) = 0;
 
+	virtual ITexture *addArrayTexture(const io::path &name, IImage **images, u32 count) = 0;
+
 	//! Creates a cubemap texture from loaded IImages.
 	/** \param name A name for the texture. Later calls of getTexture() with this name will return this texture.
 	The name can _not_ be empty.

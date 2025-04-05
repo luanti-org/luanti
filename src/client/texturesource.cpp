@@ -281,16 +281,40 @@ u32 TextureSource::generateTexture(const std::string &name)
 
 	// passed into texture info for dynamic media tracking
 	std::set<std::string> source_image_names;
-	video::IImage *img = m_imagesource.generateImage(name, source_image_names);
-
 	video::ITexture *tex = nullptr;
 
+	if (str_starts_with(name, "array|")) {
+
+		auto aaa = str_split(name, '|');
+		aaa.erase(aaa.begin());
+		std::vector<video::IImage*> imgs;
+
+		for (auto &name2 : aaa) {
+			video::IImage *img = m_imagesource.generateImage(name2, source_image_names);
+			sanity_check(img); // can't have holes
+			imgs.push_back(img);
+		}
+
+		assert(imgs.size() > 0);
+		tex = driver->addArrayTexture(name.c_str(), imgs.data(), imgs.size());
+
+		for (auto *img : imgs)
+			img->drop();
+
+	} else {
+
+	video::IImage *img = m_imagesource.generateImage(name, source_image_names);
 	if (img) {
 		img = Align2Npot2(img, driver);
 		// Create texture from resulting image
-		tex = driver->addTexture(name.c_str(), img);
+		if (name.find("applyfiltersformesh") != std::string::npos)
+			tex = driver->addArrayTexture(name.c_str(), &img, 1);
+		else
+			tex = driver->addTexture(name.c_str(), img);
 		guiScalingCache(io::path(name.c_str()), driver, img);
 		img->drop();
+	}
+
 	}
 
 	// Add texture to caches (add NULL textures too)
@@ -466,6 +490,9 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 	assert(!ti.name.empty());
 	sanity_check(std::this_thread::get_id() == m_main_thread);
 
+	if (str_starts_with(ti.name, "array|"))
+		return;
+
 	// Replaces the previous sourceImages.
 	// Shouldn't really need to be done, but can't hurt.
 	std::set<std::string> source_image_names;
@@ -474,7 +501,10 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 	// Create texture from resulting image
 	video::ITexture *t = nullptr;
 	if (img) {
-		t = driver->addTexture(ti.name.c_str(), img);
+		if (ti.name.find("applyfiltersformesh") != std::string::npos)
+			t = driver->addArrayTexture(ti.name.c_str(), &img, 1);
+		else
+			t = driver->addTexture(ti.name.c_str(), img);
 		guiScalingCache(io::path(ti.name.c_str()), driver, img);
 		img->drop();
 	}

@@ -208,6 +208,8 @@ public:
 	//! Returns the maximum amount of primitives
 	u32 getMaximalPrimitiveCount() const override;
 
+	ITexture *addArrayTexture(const io::path &name, IImage **images, u32 count) override;
+
 	virtual ITexture *addRenderTargetTexture(const core::dimension2d<u32> &size,
 			const io::path &name, const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
 

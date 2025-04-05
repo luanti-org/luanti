@@ -84,6 +84,10 @@ public:
 
 	ITexture *addTexture(const io::path &name, IImage *image) override;
 
+	ITexture *addArrayTexture(const io::path &name, IImage **images, u32 count) override {
+		return 0;
+	}
+
 	virtual ITexture *addTextureCubemap(const io::path &name, IImage *imagePosX, IImage *imageNegX, IImage *imagePosY,
 			IImage *imageNegY, IImage *imagePosZ, IImage *imageNegZ) override;
 
