@@ -92,9 +92,13 @@ Additionally, you'll need to have an Internet connection available on the
 build system, as the Android build will download some source packages.
 
 ## Build
+
+_The following is a summary, the full compilation documentation can be found in the Luanti Documentation article, [Compiling Luanti for Android](https://docs.luanti.org/compiling/android/)._
+
 The new build system Luanti Android is fully functional and is designed to
 speed up and simplify the work, as well as adding the possibility of
 cross-platform build.
+
 You can use `./gradlew assemblerelease` or `./gradlew assembledebug` from the
 command line or use Android Studio and click the build button.
 
@@ -112,3 +116,5 @@ automatically. Or you can create a `local.properties` file and specify
 
   > key.store=<path to your keystore>
   > key.alias=Minetest
+
+* If you're compiling on Windows, you can use the `gradle` command, so long as you install the additional Unix dependency [gettext](https://www.gnu.org/software/gettext/). Both of these are verified to work when installed by [Scoop](https://scoop.sh).
