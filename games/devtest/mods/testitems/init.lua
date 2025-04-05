@@ -170,3 +170,61 @@ core.register_craftitem("testitems:tree_spawner_vmanip", {
 core.register_on_leaveplayer(function(player, timed_out)
 	vmanip_for_trees[player:get_player_name()] = nil
 end)
+
+core.register_craftitem("testitems:inventory_image_animation", {
+	description = S("Animated Test Item").."\n"..
+		S("Image animate from A to D in 4s cycle"),
+	inventory_image= "testnodes_anim.png",
+	inventory_image_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 4.0,
+	},
+})
+
+core.register_craftitem("testitems:inventory_image_animation_overlay", {
+	description = S("Animated Test Item With Overlay").."\n"..
+		S("Should be colored red and have green stripes that move").."\n"..
+		S("Image animate from A to D in 4s cycle"),
+	inventory_image= "testnodes_anim.png",
+	inventory_overlay="testitems_animation_overlay.png",
+	inventory_image_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 4.0,
+	},
+	color = "#ff0000",
+})
+
+core.register_craftitem("testitems:wield_image_animation", {
+	description = S("Wield Animated Test Item").."\n"..
+		S("Looks like the Animated Test Item,"..
+			"but only animated for the wield mesh."),
+	inventory_image= "testnodes_anim.png^[verticalframe:4:0",
+	wield_image= "testnodes_anim.png",
+	wield_image_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 4.0,
+	},
+})
+
+core.register_craftitem("testitems:wield_image_animation_overlay", {
+	description = S("Wield Animated Test Item With Overlay").."\n"..
+		S("Looks like the animated Test Item With Overlay,"..
+			"but only animated for the wield mesh."),
+	inventory_image= "testnodes_anim.png^[verticalframe:4:0",
+	inventory_overlay= "testitems_animation_overlay.png^[verticalframe:4:0",
+	wield_image= "testnodes_anim.png",
+	wield_overlay="testitems_animation_overlay.png",
+	wield_image_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 4.0,
+	},
+	color = "#ff0000",
+})
