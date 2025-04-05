@@ -115,15 +115,26 @@ public:
 	{
 		_IRR_DEBUG_BREAK_IF(index > 2) // access violation
 
-		return *(&X + index);
+		switch (index) {
+			case 0: return X;
+			case 1: return Y;
+			case 2: return Z;
+			default: IRR_CODE_UNREACHABLE();
+		}
 	}
 
 	const T &operator[](u32 index) const
 	{
 		_IRR_DEBUG_BREAK_IF(index > 2) // access violation
 
-		return *(&X + index);
+		switch (index) {
+			case 0: return X;
+			case 1: return Y;
+			case 2: return Z;
+			default: IRR_CODE_UNREACHABLE();
+		}
 	}
+
 
 	//! sort in order X, Y, Z.
 	constexpr bool operator<=(const vector3d<T> &other) const
