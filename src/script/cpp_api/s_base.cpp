@@ -405,17 +405,21 @@ void ScriptApiBase::setOriginFromTableRaw(int index, const char *fxn)
 /*
  * How ObjectRefs are handled in Lua:
  * When an active object is created, an ObjectRef is created on the Lua side
- * and stored in core.object_refs[id].
+ * and stored in core.object_refs[id] and in core.objects_by_guids[GUID].
  * Methods that require an ObjectRef to a certain object retrieve it from that
  * table instead of creating their own.(*)
  * When an active object is removed, the existing ObjectRef is invalidated
- * using ::set_null() and removed from the core.object_refs table.
+ * using ::set_null() and removed from the core.object_refs and
+ * core.object_by_guids tables.
  * (*) An exception to this are NULL ObjectRefs and anonymous ObjectRefs
  *     for objects without ID.
  *     It's unclear what the latter are needed for and their use is problematic
  *     since we lose control over the ref and the contained pointer.
+ *
+ *
+ * DEPRECATED
+ * core.object_regs[id] can be removed in future!!!
  */
-
 void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 {
 	SCRIPTAPI_PRECHECKHEADER
@@ -435,6 +439,17 @@ void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 	lua_pushinteger(L, cobj->getId()); // Push id
 	lua_pushvalue(L, object); // Copy object to top of stack
 	lua_settable(L, objectstable);
+
+	// Get core.objects_by_guid table
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "objects_by_guid");
+	luaL_checktype(L, -1, LUA_TTABLE);
+	objectstable = lua_gettop(L);
+
+	// objects_by_guid[GUID] = object
+	lua_pushstring(L, cobj->getGuid().text.c_str()); // Push GUID
+	lua_pushvalue(L, object); // Copy object to top of stack
+	lua_settable(L, objectstable);
 }
 
 void ScriptApiBase::removeObjectReference(ServerActiveObject *cobj)
@@ -444,6 +459,7 @@ void ScriptApiBase::removeObjectReference(ServerActiveObject *cobj)
 
 	// Get core.object_refs table
 	lua_getglobal(L, "core");
+	int core = lua_gettop(L);
 	lua_getfield(L, -1, "object_refs");
 	luaL_checktype(L, -1, LUA_TTABLE);
 	int objectstable = lua_gettop(L);
@@ -457,6 +473,16 @@ void ScriptApiBase::removeObjectReference(ServerActiveObject *cobj)
 
 	// Set object_refs[id] = nil
 	lua_pushinteger(L, cobj->getId()); // Push id
+	lua_pushnil(L);
+	lua_settable(L, objectstable);
+
+	// Get core.objects_by_guid
+	lua_getfield(L, core, "objects_by_guid");
+	luaL_checktype(L, -1, LUA_TTABLE);
+	objectstable = lua_gettop(L);
+
+	// Set objects_by_guid[GUID] = nil
+	lua_pushstring(L, cobj->getGuid().text.c_str()); // Push GUID
 	lua_pushnil(L);
 	lua_settable(L, objectstable);
 }

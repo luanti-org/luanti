@@ -11,7 +11,6 @@
 
 #include "profiler.h"
 
-
 class TestServerActiveObjectMgr : public TestBase
 {
 public:
