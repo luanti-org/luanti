@@ -5,7 +5,7 @@
 #pragma once
 
 #include <vector>
-#include "IMesh.h"
+#include "IAnimatedMesh.h"
 #include "IMeshBuffer.h"
 #include "aabbox3d.h"
 
@@ -14,7 +14,7 @@ namespace irr
 namespace scene
 {
 //! Simple implementation of the IMesh interface.
-struct SMesh final : public IMesh
+struct SMesh final : public IAnimatedMesh
 {
 	//! constructor
 	SMesh() {}
@@ -134,6 +134,15 @@ struct SMesh final : public IMesh
 
 	//! The bounding box of this mesh
 	core::aabbox3d<f32> BoundingBox{{0, 0, 0}};
+
+	// Implement animated mesh interface as a static mesh.
+	// Slightly hacky: Eventually should be consolidated with SSkinnedMesh,
+	// with all the animation-related parts behind an optional.
+
+	virtual f32 getMaxFrameNumber() const override { return 0.0f; }
+	virtual f32 getAnimationSpeed() const override { return 0.0f; }
+	virtual void setAnimationSpeed(f32 fps) override {}
+	E_ANIMATED_MESH_TYPE getMeshType() const override { return EAMT_STATIC; }
 };
 
 } // end namespace scene

@@ -12,34 +12,7 @@ namespace irr
 {
 namespace scene
 {
-enum E_JOINT_UPDATE_ON_RENDER
-{
-	//! do nothing
-	EJUOR_NONE = 0,
-
-	//! get joints positions from the mesh (for attached nodes, etc)
-	EJUOR_READ,
-
-	//! control joint positions in the mesh (eg. ragdolls, or set the animation from animateJoints() )
-	EJUOR_CONTROL
-};
-
 class IAnimatedMeshSceneNode;
-
-//! Callback interface for catching events of ended animations.
-/** Implement this interface and use
-IAnimatedMeshSceneNode::setAnimationEndCallback to be able to
-be notified if an animation playback has ended.
-**/
-class IAnimationEndCallBack : public virtual IReferenceCounted
-{
-public:
-	//! Will be called when the animation playback has ended.
-	/** See IAnimatedMeshSceneNode::setAnimationEndCallback for
-	more information.
-	\param node: Node of which the animation has ended. */
-	virtual void OnAnimationEnd(IAnimatedMeshSceneNode *node) = 0;
-};
 
 //! Scene node capable of displaying an animated mesh.
 class IAnimatedMeshSceneNode : public ISceneNode
@@ -120,11 +93,10 @@ public:
 	/** When true the animations are played looped */
 	virtual bool getLoopMode() const = 0;
 
-	//! Sets a callback interface which will be called if an animation playback has ended.
-	/** Set this to 0 to disable the callback again.
-	Please note that this will only be called when in non looped
-	mode, see IAnimatedMeshSceneNode::setLoopMode(). */
-	virtual void setAnimationEndCallback(IAnimationEndCallBack *callback = 0) = 0;
+	//! Will be called right after the joints have been animated,
+	//! but before the transforms have been propagated recursively to children.
+	virtual void setOnAnimateCallback(
+			const std::function<void(f32 dtime)> &cb) = 0;
 
 	//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
 	/** In this way it is possible to change the materials a mesh
@@ -139,20 +111,15 @@ public:
 	virtual void setMesh(IAnimatedMesh *mesh) = 0;
 
 	//! Returns the current mesh
-	virtual IAnimatedMesh *getMesh(void) = 0;
-
-	//! Set how the joints should be updated on render
-	virtual void setJointMode(E_JOINT_UPDATE_ON_RENDER mode) = 0;
+	virtual IAnimatedMesh *getMesh() = 0;
 
 	//! Sets the transition time in seconds
-	/** Note: This needs to enable joints, and setJointmode set to
-	EJUOR_CONTROL. You must call animateJoints(), or the mesh will
-	not animate. */
+	/** Note: You must call animateJoints(), or the mesh will not animate. */
 	virtual void setTransitionTime(f32 Time) = 0;
 
 	//! animates the joints in the mesh based on the current frame.
 	/** Also takes in to account transitions. */
-	virtual void animateJoints(bool CalculateAbsolutePositions = true) = 0;
+	virtual void animateJoints() = 0;
 
 	//! render mesh ignoring its transformation.
 	/** Culling is unaffected. */
