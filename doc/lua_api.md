@@ -4520,22 +4520,25 @@ textdomain match the mod name, but this isn't required.
 
 
 
-Perlin noise
-============
+Fractal value noise
+===================
 
-Perlin noise creates a continuously-varying value depending on the input values.
+Value noise creates a continuously-varying value depending on the input values.
+It is similar to Perlin noise, but may exhibit more geometric artifacts,
+as it interpolates between values and not between gradients as in Perlin noise.
+
 Usually in Luanti the input values are either 2D or 3D coordinates in nodes.
 The result is used during map generation to create the terrain shape, vary heat
 and humidity to distribute biomes, vary the density of decorations or vary the
 structure of ores.
 
-Structure of perlin noise
--------------------------
+Structure of fractal value noise
+--------------------------------
 
 An 'octave' is a simple noise generator that outputs a value between -1 and 1.
 The smooth wavy noise it generates has a single characteristic scale, almost
 like a 'wavelength', so on its own does not create fine detail.
-Due to this perlin noise combines several octaves to create variation on
+Due to this fractal value noise combines several octaves to create variation on
 multiple scales. Each additional octave has a smaller 'wavelength' than the
 previous.
 
@@ -4543,7 +4546,7 @@ This combination results in noise varying very roughly between -2.0 and 2.0 and
 with an average value of 0.0, so `scale` and `offset` are then used to multiply
 and offset the noise variation.
 
-The final perlin noise variation is created as follows:
+The final fractal value noise variation is created as follows:
 
 noise = offset + scale * (octave1 +
                           octave2 * persistence +
@@ -4661,7 +4664,7 @@ with restraint.
 #### `absvalue`
 
 The absolute value of each octave's noise variation is used when combining the
-octaves. The final perlin noise variation is created as follows:
+octaves. The final value noise variation is created as follows:
 
 noise = offset + scale * (abs(octave1) +
                           abs(octave2) * persistence +
@@ -4671,7 +4674,7 @@ noise = offset + scale * (abs(octave1) +
 
 ### Format example
 
-For 2D or 3D perlin noise or perlin noise maps:
+For 2D or 3D value noise or value noise maps:
 
 ```lua
 np_terrain = {
@@ -4706,13 +4709,13 @@ All default ores are of the uniformly-distributed scatter type.
 
 Randomly chooses a location and generates a cluster of ore.
 
-If `noise_params` is specified, the ore will be placed if the 3D perlin noise
+If `noise_params` is specified, the ore will be placed if the 3D value noise
 at that point is greater than the `noise_threshold`, giving the ability to
 create a non-equal distribution of ore.
 
 ### `sheet`
 
-Creates a sheet of ore in a blob shape according to the 2D perlin noise
+Creates a sheet of ore in a blob shape according to the 2D value noise
 described by `noise_params` and `noise_threshold`. This is essentially an
 improved version of the so-called "stratus" ore seen in some unofficial mods.
 
@@ -4745,14 +4748,14 @@ noise parameters `np_puff_top` and `np_puff_bottom`, respectively.
 
 ### `blob`
 
-Creates a deformed sphere of ore according to 3d perlin noise described by
+Creates a deformed sphere of ore according to 3d value noise described by
 `noise_params`. The maximum size of the blob is `clust_size`, and
 `clust_scarcity` has the same meaning as with the `scatter` type.
 
 ### `vein`
 
 Creates veins of ore varying in density by according to the intersection of two
-instances of 3d perlin noise with different seeds, both described by
+instances of 3d value noise with different seeds, both described by
 `noise_params`.
 
 `random_factor` varies the influence random chance has on placement of an ore
@@ -4787,8 +4790,8 @@ computationally expensive than any other ore.
 Creates a single undulating ore stratum that is continuous across mapchunk
 borders and horizontally spans the world.
 
-The 2D perlin noise described by `noise_params` defines the Y coordinate of
-the stratum midpoint. The 2D perlin noise described by `np_stratum_thickness`
+The 2D value noise described by `noise_params` defines the Y coordinate of
+the stratum midpoint. The 2D value noise described by `np_stratum_thickness`
 defines the stratum's vertical thickness (in units of nodes). Due to being
 continuous across mapchunk borders the stratum's vertical thickness is
 unlimited.
@@ -5036,7 +5039,7 @@ and the array index for a position p contained completely in p1..p2 is:
 `(p.Z - p1.Z) * Ny * Nx + (p.Y - p1.Y) * Nx + (p.X - p1.X) + 1`
 
 Note that this is the same "flat 3D array" format as
-`PerlinNoiseMap:get3dMap_flat()`.
+`ValueNoiseMap:get3dMap_flat()`.
 VoxelArea objects (see section [`VoxelArea`]) can be used to simplify calculation
 of the index for a single point in a flat VoxelManip array.
 
@@ -5227,7 +5230,7 @@ The coordinates are *inclusive*, like most other things in Luanti.
     * The position (x, y, z) is not checked for being inside the area volume,
       being outside can cause an incorrect index result.
     * Useful for things like `VoxelManip`, raw Schematic specifiers,
-      `PerlinNoiseMap:get2d`/`3dMap`, and so on.
+      `ValueNoiseMap:get2d`/`3dMap`, and so on.
 * `indexp(p)`: same functionality as `index(x, y, z)` but takes a vector.
     * As with `index(x, y, z)`, the components of `p` must be integers, and `p`
       is not checked for being inside the area volume.
@@ -6518,12 +6521,18 @@ Environment access
     * `nodenames`: e.g. `{"ignore", "group:tree"}` or `"default:dirt"`
     * Return value: Table with all node positions with a node air above
     * Area volume is limited to 150,000,000 nodes
-* `core.get_perlin(noiseparams)`
-    * Return world-specific perlin noise.
+* `core.get_value_noise(noiseparams)`
+    * Return world-specific value noise.
     * The actual seed used is the noiseparams seed plus the world seed.
+* `core.get_value_noise(seeddiff, octaves, persistence, spread)`
+    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
+    * Return world-specific value noise
+* `core.get_perlin(noiseparams)`
+    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
+    * Return world-specific value noise (was not Perlin noise)
 * `core.get_perlin(seeddiff, octaves, persistence, spread)`
-    * Deprecated: use `core.get_perlin(noiseparams)` instead.
-    * Return world-specific perlin noise.
+    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
+    * Return world-specific value noise (was not Perlin noise)
 * `core.get_voxel_manip([pos1, pos2])`
     * Return voxel manipulator object.
     * Loads the manipulator from the map if positions are passed.
@@ -7098,8 +7107,8 @@ Classes:
 
 * `AreaStore`
 * `ItemStack`
-* `PerlinNoise`
-* `PerlinNoiseMap`
+* `ValueNoise`
+* `ValueNoiseMap`
 * `PseudoRandom`
 * `PcgRandom`
 * `SecureRandom`
@@ -7111,8 +7120,8 @@ Classes:
 Class instances that can be transferred between environments:
 
 * `ItemStack`
-* `PerlinNoise`
-* `PerlinNoiseMap`
+* `ValueNoise`
+* `ValueNoiseMap`
 * `VoxelManip`
 
 Functions:
@@ -7178,8 +7187,8 @@ Classes:
 
 * `AreaStore`
 * `ItemStack`
-* `PerlinNoise`
-* `PerlinNoiseMap`
+* `ValueNoise`
+* `ValueNoiseMap`
 * `PseudoRandom`
 * `PcgRandom`
 * `SecureRandom`
@@ -9005,33 +9014,41 @@ offering very strong randomness.
 * `get_state()`: return generator state encoded in string
 * `set_state(state_string)`: restore generator state from encoded string
 
-`PerlinNoise`
+`ValueNoise`
 -------------
 
-A perlin noise generator.
-It can be created via `PerlinNoise()` or `core.get_perlin()`.
-For `core.get_perlin()`, the actual seed used is the noiseparams seed
+A value noise generator.
+It can be created via `ValueNoise()` or `core.get_value_noise()`.
+For legacy reasons, it can also be created via `PerlinNoise()` or `core.get_perlin()`,
+but the implemented noise is not Perlin noise.
+For `core.get_value_noise()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
-`PerlinNoise(noiseparams)`
-`PerlinNoise(seed, octaves, persistence, spread)` (Deprecated).
+* `ValueNoise(noiseparams)
+* `ValueNoise(seed, octaves, persistence, spread)` (Deprecated)
+* `PerlinNoise(noiseparams)` (Deprecated)
+* `PerlinNoise(seed, octaves, persistence, spread)` (Deprecated)
 
-`core.get_perlin(noiseparams)`
-`core.get_perlin(seeddiff, octaves, persistence, spread)` (Deprecated).
+* `core.get_value_noise(noiseparams)`
+* `core.get_value_noise(seeddiff, octaves, persistence, spread)` (Deprecated)
+* `core.get_perlin(noiseparams)` (Deprecated)
+* `core.get_perlin(seeddiff, octaves, persistence, spread)` (Deprecated)
 
 ### Methods
 
 * `get_2d(pos)`: returns 2D noise value at `pos={x=,y=}`
 * `get_3d(pos)`: returns 3D noise value at `pos={x=,y=,z=}`
 
-`PerlinNoiseMap`
+`ValueNoiseMap`
 ----------------
 
-A fast, bulk perlin noise generator.
+A fast, bulk noise generator.
 
-It can be created via `PerlinNoiseMap(noiseparams, size)` or
-`core.get_perlin_map(noiseparams, size)`.
-For `core.get_perlin_map()`, the actual seed used is the noiseparams seed
+It can be created via `ValueNoiseMap(noiseparams, size)` or
+`core.get_value_noise_map(noiseparams, size)`.
+For legacy reasons, it can also be created via `PerlinNoiseMap(noiseparams, size)`
+or `core.get_perlin_map(noiseparams, size)`, but it is not Perlin noise.
+For `core.get_value_noise_map()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
 Format of `size` is `{x=dimx, y=dimy, z=dimz}`. The `z` component is omitted
@@ -9058,7 +9075,7 @@ table.
 * `get_map_slice(slice_offset, slice_size, buffer)`: In the form of an array,
   returns a slice of the most recently computed noise results. The result slice
   begins at coordinates `slice_offset` and takes a chunk of `slice_size`.
-  E.g. to grab a 2-slice high horizontal 2d plane of noise starting at buffer
+  E.g., to grab a 2-slice high horizontal 2d plane of noise starting at buffer
   offset y = 20:
   `noisevals = noise:get_map_slice({y=20}, {y=2})`
   It is important to note that `slice_offset` offset coordinates begin at 1,
@@ -10746,7 +10763,7 @@ See [Ores] section above for essential information.
         octaves = 3,
         persistence = 0.7
     },
-    -- NoiseParams structure describing one of the perlin noises used for
+    -- NoiseParams structure describing one of the noises used for
     -- ore distribution.
     -- Needed by "sheet", "puff", "blob" and "vein" ores.
     -- Omit from "scatter" ore for a uniform ore distribution.
@@ -10933,7 +10950,7 @@ See [Decoration types]. Used by `core.register_decoration`.
         lacunarity = 2.0,
         flags = "absvalue"
     },
-    -- NoiseParams structure describing the perlin noise used for decoration
+    -- NoiseParams structure describing the noise used for decoration
     -- distribution.
     -- A noise value is calculated for each square division and determines
     -- 'decorations per surface node' within each division.
