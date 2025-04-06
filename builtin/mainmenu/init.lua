@@ -66,14 +66,6 @@ local tabs = {
 }
 
 --------------------------------------------------------------------------------
-local function main_event_handler(tabview, event)
-	if event == "MenuQuit" then
-		core.close()
-	end
-	return true
-end
-
---------------------------------------------------------------------------------
 local function init_globals()
 	-- Init gamedata
 	gamedata.worldindex = 0
@@ -106,7 +98,6 @@ local function init_globals()
 	tv_main:add(tabs.content)
 	tv_main:add(tabs.about)
 
-	tv_main:set_global_event_handler(main_event_handler)
 	tv_main:set_fixed_size(false)
 
 	local last_tab = core.settings:get("maintab_LAST")
