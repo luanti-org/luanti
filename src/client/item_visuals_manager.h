@@ -11,7 +11,7 @@
 #include "util/basic_macros.h"
 
 class Client;
-class ItemStack;
+struct ItemStack;
 typedef std::vector<video::SColor> Palette; // copied from src/client/texturesource.h
 namespace irr::video { class ITexture; }
 
