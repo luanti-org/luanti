@@ -157,7 +157,7 @@ local function preprocess_craft(itemdef)
 	if itemdef.inventory_image == nil and itemdef.image ~= nil then
 		core.log("deprecated", "The `image` field in craftitem definitions " ..
 			"is deprecated. Use `inventory_image` instead. " ..
-			"Craftitem name: " .. itemdef.name)
+			"Craftitem name: " .. itemdef.name, 3)
 		itemdef.inventory_image = itemdef.image
 	end
 	-- END Legacy stuff
@@ -170,7 +170,7 @@ local function preprocess_tool(tooldef)
 	if tooldef.inventory_image == nil and tooldef.image ~= nil then
 		core.log("deprecated", "The `image` field in tool definitions " ..
 			"is deprecated. Use `inventory_image` instead. " ..
-			"Tool name: " .. tooldef.name)
+			"Tool name: " .. tooldef.name, 3)
 		tooldef.inventory_image = tooldef.image
 	end
 
@@ -188,7 +188,7 @@ local function preprocess_tool(tooldef)
 	    tooldef.dd_cuttability ~= nil) then
 		core.log("deprecated", "Specifying tool capabilities directly in the tool " ..
 			"definition is deprecated. Use the `tool_capabilities` field instead. " ..
-			"Tool name: " .. tooldef.name)
+			"Tool name: " .. tooldef.name, 3)
 		tooldef.tool_capabilities = {
 			full_punch_interval = tooldef.full_punch_interval,
 			basetime = tooldef.basetime,
@@ -273,7 +273,7 @@ function core.register_item(name, itemdef)
 	if itemdef.cookresult_itemstring ~= nil and itemdef.cookresult_itemstring ~= "" then
 		core.log("deprecated", "The `cookresult_itemstring` item definition " ..
 			"field is deprecated. Use `core.register_craft` instead. " ..
-			"Item name: " .. itemdef.name)
+			"Item name: " .. itemdef.name, 2)
 		core.register_craft({
 			type="cooking",
 			output=itemdef.cookresult_itemstring,
@@ -284,7 +284,7 @@ function core.register_item(name, itemdef)
 	if itemdef.furnace_burntime ~= nil and itemdef.furnace_burntime >= 0 then
 		core.log("deprecated", "The `furnace_burntime` item definition " ..
 			"field is deprecated. Use `core.register_craft` instead. " ..
-			"Item name: " .. itemdef.name)
+			"Item name: " .. itemdef.name, 2)
 		core.register_craft({
 			type="fuel",
 			recipe=itemdef.name,
