@@ -129,7 +129,10 @@ enum E_TEXTURE_TYPE
 	ETT_2D_MS,
 
 	//! Cubemap texture.
-	ETT_CUBEMAP
+	ETT_CUBEMAP,
+
+	//! 2D array texture
+	ETT_2D_ARRAY
 };
 
 //! Interface of a Video Driver dependent Texture.

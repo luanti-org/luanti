@@ -124,6 +124,7 @@ void COpenGLES2Driver::initFeatures()
 	AnisotropicFilterSupported = queryExtension("GL_EXT_texture_filter_anisotropic");
 	BlendMinMaxSupported = (Version.Major >= 3) || FeatureAvailable[IRR_GL_EXT_blend_minmax];
 	TextureMultisampleSupported = isVersionAtLeast(3, 1);
+	Texture2DArraySupported = Version.Major >= 3 || queryExtension("GL_EXT_texture_array");
 	KHRDebugSupported = queryExtension("GL_KHR_debug");
 	if (KHRDebugSupported)
 		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
@@ -145,6 +146,8 @@ void COpenGLES2Driver::initFeatures()
 	if (Version.Major >= 3 || queryExtension("GL_EXT_draw_range_elements"))
 		MaxIndices = GetInteger(GL_MAX_ELEMENTS_INDICES);
 	MaxTextureSize = GetInteger(GL_MAX_TEXTURE_SIZE);
+	if (Texture2DArraySupported)
+		MaxArrayTextureLayers = GetInteger(GL_MAX_ARRAY_TEXTURE_LAYERS);
 	if (LODBiasSupported)
 		GL.GetFloatv(GL_MAX_TEXTURE_LOD_BIAS, &MaxTextureLODBias);
 	GL.GetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, DimAliasedLine);

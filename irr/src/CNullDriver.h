@@ -84,6 +84,8 @@ public:
 
 	ITexture *addTexture(const io::path &name, IImage *image) override;
 
+	ITexture *addArrayTexture(const io::path &name, IImage **images, u32 count) override;
+
 	virtual ITexture *addTextureCubemap(const io::path &name, IImage *imagePosX, IImage *imageNegX, IImage *imagePosY,
 			IImage *imageNegY, IImage *imagePosZ, IImage *imageNegZ) override;
 
@@ -549,9 +551,8 @@ protected:
 	//! adds a surface, not loaded or created by the Irrlicht Engine
 	void addTexture(ITexture *surface);
 
-	virtual ITexture *createDeviceDependentTexture(const io::path &name, IImage *image);
-
-	virtual ITexture *createDeviceDependentTextureCubemap(const io::path &name, const std::vector<IImage*> &image);
+	virtual ITexture *createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type,
+		const std::vector<IImage*> &images);
 
 	//! checks triangle count and print warning if wrong
 	bool checkPrimitiveCount(u32 prmcnt) const;

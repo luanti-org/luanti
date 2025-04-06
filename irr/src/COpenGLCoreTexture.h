@@ -110,7 +110,7 @@ public:
 		}
 		TEST_GL_ERROR(Driver);
 
-		initTexture();
+		initTexture(tmpImages->size());
 
 		for (size_t i = 0; i < tmpImages->size(); ++i)
 			uploadTexture(i, 0, (*tmpImages)[i]->getData());
@@ -142,6 +142,7 @@ public:
 			MipLevelStored(0)
 	{
 		DriverType = Driver->getDriverType();
+		_IRR_DEBUG_BREAK_IF(Type == ETT_2D_ARRAY) // not supported by this constructor
 		TextureType = TextureTypeIrrToGL(Type);
 		HasMipMaps = false;
 		IsRenderTarget = true;
@@ -208,7 +209,7 @@ public:
 			StatesCache.WrapW = ETC_CLAMP_TO_EDGE;
 		}
 
-		initTexture();
+		initTexture(0);
 
 		if (!name.empty())
 			Driver->irrGlObjectLabel(GL_TEXTURE, TextureName, name.c_str());
@@ -265,7 +266,19 @@ public:
 				const bool use_gl_impl = Driver->Version.Spec != OpenGLSpec::ES;
 #endif
 
-				if (use_gl_impl) {
+				if (Type == ETT_2D_ARRAY) {
+
+				// For OpenGL an array texture is basically just a 3D texture internally.
+				// So if we call glGetTexImage() we would download the entire array,
+				// except the caller only wants a single layer.
+				// To do this properly we could have to use glGetTextureSubImage() [4.5]
+				// or some trickery with glTextureView() [4.3].
+				// Also neither of those will work on GLES.
+
+				os::Printer::log("lock: read or read/write unimplemented for ETT_2D_ARRAY", ELL_WARNING);
+				passed = false;
+
+				} else if (use_gl_impl) {
 
 				IImage *tmpImage = LockImage;
 
@@ -495,7 +508,7 @@ protected:
 		Pitch = Size.Width * IImage::getBitsPerPixelFromFormat(ColorFormat) / 8;
 	}
 
-	void initTexture()
+	void initTexture(u32 layers)
 	{
 		// Compressed textures cannot be pre-allocated and are initialized on upload
 		if (IImage::isCompressedFormat(ColorFormat)) {
@@ -554,6 +567,16 @@ protected:
 				TEST_GL_ERROR(Driver);
 			}
 			break;
+		case ETT_2D_ARRAY:
+			if (Driver->getFeature().TexStorage) {
+				GL.TexStorage3D(TextureType, levels, InternalFormat,
+					Size.Width, Size.Height, layers);
+			} else {
+				GL.TexImage3D(TextureType, 0, InternalFormat,
+					Size.Width, Size.Height, layers, 0, PixelFormat, PixelType, 0);
+			}
+			TEST_GL_ERROR(Driver);
+			break;
 		default:
 			_IRR_DEBUG_BREAK_IF(1)
 			break;
@@ -591,12 +614,15 @@ protected:
 			case GL_TEXTURE_2D:
 			case GL_TEXTURE_CUBE_MAP:
 				GL.TexSubImage2D(tmpTextureType, level, 0, 0, width, height, PixelFormat, PixelType, tmpData);
-				TEST_GL_ERROR(Driver);
+				break;
+			case GL_TEXTURE_2D_ARRAY:
+				GL.TexSubImage3D(tmpTextureType, level, 0, 0, layer, width, height, 1, PixelFormat, PixelType, tmpData);
 				break;
 			default:
 				_IRR_DEBUG_BREAK_IF(1)
 				break;
 			}
+			TEST_GL_ERROR(Driver);
 
 			delete tmpImage;
 		} else {
@@ -606,12 +632,12 @@ protected:
 			case GL_TEXTURE_2D:
 			case GL_TEXTURE_CUBE_MAP:
 				Driver->irrGlCompressedTexImage2D(tmpTextureType, level, InternalFormat, width, height, 0, dataSize, data);
-				TEST_GL_ERROR(Driver);
 				break;
 			default:
 				_IRR_DEBUG_BREAK_IF(1)
 				break;
 			}
+			TEST_GL_ERROR(Driver);
 		}
 	}
 
@@ -624,6 +650,8 @@ protected:
 			return GL_TEXTURE_2D_MULTISAMPLE;
 		case ETT_CUBEMAP:
 			return GL_TEXTURE_CUBE_MAP;
+		case ETT_2D_ARRAY:
+			return GL_TEXTURE_2D_ARRAY;
 		}
 
 		os::Printer::log("COpenGLCoreTexture::TextureTypeIrrToGL unknown texture type", ELL_WARNING);

@@ -326,9 +326,7 @@ private:
 	//! inits the parts of the open gl driver used on all platforms
 	bool genericDriverInit();
 
-	ITexture *createDeviceDependentTexture(const io::path &name, IImage *image) override;
-
-	ITexture *createDeviceDependentTextureCubemap(const io::path &name, const std::vector<IImage *> &image) override;
+	ITexture *createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type, const std::vector<IImage*> &images) override;
 
 	//! creates a transposed matrix in supplied GLfloat array to pass to OpenGL
 	inline void getGLMatrix(GLfloat gl_matrix[16], const core::matrix4 &m);

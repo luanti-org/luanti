@@ -267,6 +267,7 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
 	DriverAttributes->setAttribute("MaxIndices", (s32)MaxIndices);
 	DriverAttributes->setAttribute("MaxTextureSize", (s32)MaxTextureSize);
+	DriverAttributes->setAttribute("MaxArrayTextureLayers", (s32)MaxArrayTextureLayers);
 	DriverAttributes->setAttribute("MaxTextureLODBias", MaxTextureLODBias);
 	DriverAttributes->setAttribute("Version", 100 * Version.Major + Version.Minor);
 	DriverAttributes->setAttribute("AntiAlias", AntiAlias);
@@ -1072,20 +1073,9 @@ void COpenGL3DriverBase::endDraw(const VertexType &vertexType)
 		GL.DisableVertexAttribArray(attr.Index);
 }
 
-ITexture *COpenGL3DriverBase::createDeviceDependentTexture(const io::path &name, IImage *image)
+ITexture *COpenGL3DriverBase::createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type, const std::vector<IImage*> &images)
 {
-	std::vector<IImage*> tmp { image };
-
-	COpenGL3Texture *texture = new COpenGL3Texture(name, tmp, ETT_2D, this);
-
-	return texture;
-}
-
-ITexture *COpenGL3DriverBase::createDeviceDependentTextureCubemap(const io::path &name, const std::vector<IImage*> &image)
-{
-	COpenGL3Texture *texture = new COpenGL3Texture(name, image, ETT_CUBEMAP, this);
-
-	return texture;
+	return new COpenGL3Texture(name, images, type, this);
 }
 
 // Same as COpenGLDriver::TextureFlipMatrix

@@ -71,6 +71,7 @@ void COpenGL3Driver::initFeatures()
 	LODBiasSupported = true;
 	BlendMinMaxSupported = true;
 	TextureMultisampleSupported = true;
+	Texture2DArraySupported = Version.Major >= 3 || queryExtension("GL_EXT_texture_array");
 	KHRDebugSupported = isVersionAtLeast(4, 6) || queryExtension("GL_KHR_debug");
 	if (KHRDebugSupported)
 		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
@@ -88,6 +89,8 @@ void COpenGL3Driver::initFeatures()
 		MaxAnisotropy = GetInteger(GL.MAX_TEXTURE_MAX_ANISOTROPY);
 	MaxIndices = GetInteger(GL_MAX_ELEMENTS_INDICES);
 	MaxTextureSize = GetInteger(GL_MAX_TEXTURE_SIZE);
+	if (Texture2DArraySupported)
+		MaxArrayTextureLayers = GetInteger(GL_MAX_ARRAY_TEXTURE_LAYERS);
 	GL.GetFloatv(GL_MAX_TEXTURE_LOD_BIAS, &MaxTextureLODBias);
 	GL.GetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, DimAliasedLine);
 	DimAliasedPoint[0] = 1.0f;

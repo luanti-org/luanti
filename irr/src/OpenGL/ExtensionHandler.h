@@ -76,6 +76,8 @@ public:
 			return StencilBuffer;
 		case EVDF_TEXTURE_MULTISAMPLE:
 			return TextureMultisampleSupported;
+		case EVDF_TEXTURE_2D_ARRAY:
+			return Texture2DArraySupported;
 		default:
 			return false;
 		};
@@ -176,6 +178,7 @@ public:
 	bool AnisotropicFilterSupported = false;
 	bool BlendMinMaxSupported = false;
 	bool TextureMultisampleSupported = false;
+	bool Texture2DArraySupported = false;
 	bool KHRDebugSupported = false;
 	u32 MaxLabelLength = 0;
 };
