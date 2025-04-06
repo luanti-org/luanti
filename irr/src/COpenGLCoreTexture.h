@@ -503,10 +503,22 @@ protected:
 			return;
 		}
 
+		u32 levels = 1;
+		if (HasMipMaps) {
+			levels = core::u32_log2(core::max_(Size.Width, Size.Height)) + 1;
+		}
+
+		// reference: <https://www.khronos.org/opengl/wiki/Texture_Storage>
+
 		switch (Type) {
 		case ETT_2D:
-			GL.TexImage2D(TextureType, 0, InternalFormat,
-				Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
+			if (Driver->getFeature().TexStorage) {
+				GL.TexStorage2D(TextureType, levels, InternalFormat,
+					Size.Width, Size.Height);
+			} else {
+				GL.TexImage2D(TextureType, 0, InternalFormat,
+					Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
+			}
 			TEST_GL_ERROR(Driver);
 			break;
 		case ETT_2D_MS: {
@@ -531,8 +543,14 @@ protected:
 		}
 		case ETT_CUBEMAP:
 			for (u32 i = 0; i < 6; i++) {
-				GL.TexImage2D(getTextureTarget(i), 0, InternalFormat,
-					Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
+				GLenum target = getTextureTarget(i);
+				if (Driver->getFeature().TexStorage) {
+					GL.TexStorage2D(target, levels, InternalFormat,
+						Size.Width, Size.Height);
+				} else {
+					GL.TexImage2D(target, 0, InternalFormat,
+						Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
+				}
 				TEST_GL_ERROR(Driver);
 			}
 			break;

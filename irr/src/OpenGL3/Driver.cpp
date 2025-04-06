@@ -78,6 +78,7 @@ void COpenGL3Driver::initFeatures()
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 16, "Only up to 16 textures are guaranteed");
 	Feature.BlendOperation = true;
+	Feature.TexStorage = isVersionAtLeast(4, 2) || queryExtension("GL_ARB_texture_storage");
 	Feature.ColorAttachment = GetInteger(GL_MAX_COLOR_ATTACHMENTS);
 	Feature.MaxTextureUnits = MATERIAL_MAX_TEXTURES;
 	Feature.MultipleRenderTarget = GetInteger(GL_MAX_DRAW_BUFFERS);

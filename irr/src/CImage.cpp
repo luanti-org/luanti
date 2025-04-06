@@ -363,7 +363,7 @@ inline SColor CImage::getPixelBox(s32 x, s32 y, s32 fx, s32 fy, s32 bias) const
 		}
 	}
 
-	s32 sdiv = s32_log2_s32(fx * fy);
+	s32 sdiv = core::u32_log2(fx * fy);
 
 	a = core::s32_clamp((a >> sdiv) + bias, 0, 255);
 	r = core::s32_clamp((r >> sdiv) + bias, 0, 255);

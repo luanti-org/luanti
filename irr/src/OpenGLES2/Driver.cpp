@@ -131,6 +131,7 @@ void COpenGLES2Driver::initFeatures()
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 8, "Only up to 8 textures are guaranteed");
 	Feature.BlendOperation = true;
+	Feature.TexStorage = Version.Major >= 3 || queryExtension("GL_ARB_texture_storage");
 	Feature.ColorAttachment = 1;
 	if (MRTSupported)
 		Feature.ColorAttachment = GetInteger(GL_MAX_COLOR_ATTACHMENTS);
