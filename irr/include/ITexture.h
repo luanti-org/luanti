@@ -166,9 +166,7 @@ public:
 	only mode or read from in write only mode.
 	Support for this feature depends on the driver, so don't rely on the
 	texture being write-protected when locking with read-only, etc.
-	\param mipmapLevel NOTE: Currently broken, sorry, we try if we can repair it for 1.9 release.
-	Number of the mipmapLevel to lock. 0 is main texture.
-	Non-existing levels will silently fail and return 0.
+	\param mipmapLevel Number of the mipmapLevel to lock. 0 is main texture.
 	\param layer It determines which cubemap face or texture array layer should be locked.
 	\param lockFlags See E_TEXTURE_LOCK_FLAGS documentation.
 	\return Returns a pointer to the pixel data. The format of the pixel can
@@ -184,14 +182,9 @@ public:
 
 	//! Regenerates the mip map levels of the texture.
 	/** Required after modifying the texture, usually after calling unlock().
-	\param data Optional parameter to pass in image data which will be
-	used instead of the previously stored or automatically generated mipmap
-	data. The data has to be a continuous pixel data for all mipmaps until
-	1x1 pixel. Each mipmap has to be half the width and height of the previous
-	level. At least one pixel will be always kept.
 	\param layer It informs a texture about which cubemap or texture array layer
 	needs mipmap regeneration. */
-	virtual void regenerateMipMapLevels(void *data = 0, u32 layer = 0) = 0;
+	virtual void regenerateMipMapLevels(u32 layer = 0) = 0;
 
 	//! Get original size of the texture.
 	/** The texture is usually scaled, if it was created with an unoptimal
