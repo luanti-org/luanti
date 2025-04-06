@@ -110,8 +110,10 @@ public:
 		}
 		TEST_GL_ERROR(Driver);
 
+		initTexture();
+
 		for (size_t i = 0; i < tmpImages->size(); ++i)
-			uploadTexture(true, i, 0, (*tmpImages)[i]->getData());
+			uploadTexture(i, 0, (*tmpImages)[i]->getData());
 
 		if (HasMipMaps) {
 			for (size_t i = 0; i < tmpImages->size(); ++i)
@@ -206,50 +208,13 @@ public:
 			StatesCache.WrapW = ETC_CLAMP_TO_EDGE;
 		}
 
-		switch (Type) {
-		case ETT_2D:
-			GL.TexImage2D(GL_TEXTURE_2D, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
-			break;
-		case ETT_2D_MS: {
-			// glTexImage2DMultisample is supported by OpenGL 3.2+
-			// glTexStorage2DMultisample is supported by OpenGL 4.3+ and OpenGL ES 3.1+
-#ifdef IRR_COMPILE_GL_COMMON // legacy driver
-			constexpr bool use_gl_impl = true;
-#else
-			const bool use_gl_impl = Driver->Version.Spec != OpenGLSpec::ES;
-#endif
-			GLint max_samples = 0;
-			GL.GetIntegerv(GL_MAX_SAMPLES, &max_samples);
-			MSAA = core::min_(MSAA, (u8)max_samples);
-
-			if (use_gl_impl)
-				GL.TexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA, InternalFormat, Size.Width, Size.Height, GL_TRUE);
-			else
-				GL.TexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA, InternalFormat, Size.Width, Size.Height, GL_TRUE);
-			break;
-		}
-		case ETT_CUBEMAP:
-			GL.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
-			GL.TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
-			GL.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
-			GL.TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
-			GL.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
-			GL.TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
-			break;
-		default:
-			_IRR_DEBUG_BREAK_IF(1)
-			break;
-		}
+		initTexture();
 
 		if (!name.empty())
 			Driver->irrGlObjectLabel(GL_TEXTURE, TextureName, name.c_str());
 
 		Driver->getCacheHandler()->getTextureCache().set(0, prevTexture);
-		if (TEST_GL_ERROR(Driver)) {
-			char msg[256];
-			snprintf_irr(msg, 256, "COpenGLCoreTexture: InternalFormat:0x%04x PixelFormat:0x%04x", (int)InternalFormat, (int)PixelFormat);
-			os::Printer::log(msg, ELL_ERROR);
-		}
+		TEST_GL_ERROR(Driver);
 	}
 
 	virtual ~COpenGLCoreTexture()
@@ -405,7 +370,7 @@ public:
 			const COpenGLCoreTexture *prevTexture = Driver->getCacheHandler()->getTextureCache().get(0);
 			Driver->getCacheHandler()->getTextureCache().set(0, this);
 
-			uploadTexture(false, LockLayer, MipLevelStored, LockImage->getData());
+			uploadTexture(LockLayer, MipLevelStored, LockImage->getData());
 
 			Driver->getCacheHandler()->getTextureCache().set(0, prevTexture);
 		}
@@ -530,7 +495,54 @@ protected:
 		Pitch = Size.Width * IImage::getBitsPerPixelFromFormat(ColorFormat) / 8;
 	}
 
-	void uploadTexture(bool initTexture, u32 layer, u32 level, void *data)
+	void initTexture()
+	{
+		// Compressed textures cannot be pre-allocated and are initialized on upload
+		if (IImage::isCompressedFormat(ColorFormat)) {
+			_IRR_DEBUG_BREAK_IF(IsRenderTarget)
+			return;
+		}
+
+		switch (Type) {
+		case ETT_2D:
+			GL.TexImage2D(TextureType, 0, InternalFormat,
+				Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
+			TEST_GL_ERROR(Driver);
+			break;
+		case ETT_2D_MS: {
+			GLint max_samples = 0;
+			GL.GetIntegerv(GL_MAX_SAMPLES, &max_samples);
+			MSAA = core::min_(MSAA, (u8)max_samples);
+
+			// glTexImage2DMultisample is supported by OpenGL 3.2+
+			// glTexStorage2DMultisample is supported by OpenGL 4.3+ and OpenGL ES 3.1+
+#ifdef IRR_COMPILE_GL_COMMON // legacy driver
+			constexpr bool use_gl_impl = true;
+#else
+			const bool use_gl_impl = Driver->Version.Spec != OpenGLSpec::ES;
+#endif
+
+			if (use_gl_impl)
+				GL.TexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA, InternalFormat, Size.Width, Size.Height, GL_TRUE);
+			else
+				GL.TexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA, InternalFormat, Size.Width, Size.Height, GL_TRUE);
+			TEST_GL_ERROR(Driver);
+			break;
+		}
+		case ETT_CUBEMAP:
+			for (u32 i = 0; i < 6; i++) {
+				GL.TexImage2D(getTextureTarget(i), 0, InternalFormat,
+					Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
+				TEST_GL_ERROR(Driver);
+			}
+			break;
+		default:
+			_IRR_DEBUG_BREAK_IF(1)
+			break;
+		}
+	}
+
+	void uploadTexture(u32 layer, u32 level, void *data)
 	{
 		if (!data)
 			return;
@@ -560,10 +572,7 @@ protected:
 			switch (TextureType) {
 			case GL_TEXTURE_2D:
 			case GL_TEXTURE_CUBE_MAP:
-				if (initTexture)
-					GL.TexImage2D(tmpTextureType, level, InternalFormat, width, height, 0, PixelFormat, PixelType, tmpData);
-				else
-					GL.TexSubImage2D(tmpTextureType, level, 0, 0, width, height, PixelFormat, PixelType, tmpData);
+				GL.TexSubImage2D(tmpTextureType, level, 0, 0, width, height, PixelFormat, PixelType, tmpData);
 				TEST_GL_ERROR(Driver);
 				break;
 			default:
@@ -578,10 +587,7 @@ protected:
 			switch (TextureType) {
 			case GL_TEXTURE_2D:
 			case GL_TEXTURE_CUBE_MAP:
-				if (initTexture)
-					Driver->irrGlCompressedTexImage2D(tmpTextureType, level, InternalFormat, width, height, 0, dataSize, data);
-				else
-					Driver->irrGlCompressedTexSubImage2D(tmpTextureType, level, 0, 0, width, height, PixelFormat, dataSize, data);
+				Driver->irrGlCompressedTexImage2D(tmpTextureType, level, InternalFormat, width, height, 0, dataSize, data);
 				TEST_GL_ERROR(Driver);
 				break;
 			default:
