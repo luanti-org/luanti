@@ -307,13 +307,7 @@ public:
 				Driver->getCacheHandler()->getTextureCache().set(0, this);
 				TEST_GL_ERROR(Driver);
 
-				GLenum tmpTextureType = TextureType;
-
-				if (tmpTextureType == GL_TEXTURE_CUBE_MAP) {
-					_IRR_DEBUG_BREAK_IF(layer > 5)
-
-					tmpTextureType = GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer;
-				}
+				GLenum tmpTextureType = getTextureTarget(layer);
 
 				GL.GetTexImage(tmpTextureType, MipLevelStored, PixelFormat, PixelType, tmpImage->getData());
 				TEST_GL_ERROR(Driver);
@@ -346,19 +340,30 @@ public:
 				Driver->getCacheHandler()->getFBO(prevFBO);
 				Driver->getCacheHandler()->setFBO(tmpFBO);
 
-				Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, getOpenGLTextureName(), 0);
+				GLenum tmpTextureType = getTextureTarget(layer);
 
-				IImage *tmpImage = Driver->createImage(ECF_A8R8G8B8, Size);
-				GL.ReadPixels(0, 0, Size.Width, Size.Height, GL_RGBA, GL_UNSIGNED_BYTE, tmpImage->getData());
+				// Warning: on GLES 2.0 this call will only work with mipmapLevel == 0
+				Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+					tmpTextureType, getOpenGLTextureName(), mipmapLevel);
+				TEST_GL_ERROR(Driver);
 
-				Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+				IImage *tmpImage = Driver->createImage(ECF_A8R8G8B8, lockImageSize);
+				GL.ReadPixels(0, 0, lockImageSize.Width, lockImageSize.Height,
+					GL_RGBA, GL_UNSIGNED_BYTE, tmpImage->getData());
+
+				Driver->irrGlFramebufferTexture2D(GL_FRAMEBUFFER,
+					GL_COLOR_ATTACHMENT0, tmpTextureType, 0, 0);
 
 				Driver->getCacheHandler()->setFBO(prevFBO);
 
 				Driver->irrGlDeleteFramebuffers(1, &tmpFBO);
 
+				TEST_GL_ERROR(Driver);
+
 				void *src = tmpImage->getData();
 				void *dest = LockImage->getData();
+
+				// FIXME: what about ETLF_FLIP_Y_UP_RTT
 
 				switch (ColorFormat) {
 				case ECF_A1R5G5B5:
@@ -386,8 +391,6 @@ public:
 					LockImage = 0;
 				}
 			}
-
-			TEST_GL_ERROR(Driver);
 		}
 
 		return (LockImage) ? LockImage->getData() : 0;
@@ -539,13 +542,7 @@ protected:
 		if (height < 1)
 			height = 1;
 
-		GLenum tmpTextureType = TextureType;
-
-		if (tmpTextureType == GL_TEXTURE_CUBE_MAP) {
-			_IRR_DEBUG_BREAK_IF(layer > 5)
-
-			tmpTextureType = GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer;
-		}
+		GLenum tmpTextureType = getTextureTarget(layer);
 
 		if (!IImage::isCompressedFormat(ColorFormat)) {
 			CImage *tmpImage = 0;
@@ -607,6 +604,16 @@ protected:
 
 		os::Printer::log("COpenGLCoreTexture::TextureTypeIrrToGL unknown texture type", ELL_WARNING);
 		return GL_TEXTURE_2D;
+	}
+
+	GLenum getTextureTarget(u32 layer) const
+	{
+		GLenum tmp = TextureType;
+		if (tmp == GL_TEXTURE_CUBE_MAP) {
+			_IRR_DEBUG_BREAK_IF(layer > 5)
+			tmp = GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer;
+		}
+		return tmp;
 	}
 
 	TOpenGLDriver *Driver;
