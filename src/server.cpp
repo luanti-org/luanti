@@ -567,8 +567,7 @@ void Server::start()
 {
 	init();
 
-	infostream << "Starting server on " << m_bind_addr.serializeString()
-			<< "..." << std::endl;
+	infostream << "Starting server thread..." << std::endl;
 
 	// Stop thread if already running
 	m_thread->stop();
@@ -967,6 +966,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		// We'll log the amount of each
 		Profiler prof;
 
+		size_t block_count = 0;
 		std::unordered_set<v3s16> node_meta_updates;
 
 		while (!m_unsent_map_edit_queue.empty()) {
@@ -1015,6 +1015,8 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 				break;
 			}
 
+			block_count += event->modified_blocks.size();
+
 			/*
 				Set blocks not sent to far players
 			*/
@@ -1026,11 +1028,9 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 			delete event;
 		}
 
-		if (event_count >= 5) {
-			infostream << "Server: MapEditEvents:" << std::endl;
-			prof.print(infostream);
-		} else if (event_count != 0) {
-			verbosestream << "Server: MapEditEvents:" << std::endl;
+		if (event_count != 0) {
+			verbosestream << "Server: MapEditEvents modified total "
+				<< block_count << " blocks:" << std::endl;
 			prof.print(verbosestream);
 		}
 
@@ -1310,9 +1310,7 @@ void Server::ProcessData(NetworkPacket *pkt)
 		}
 
 		if (m_clients.getClientState(peer_id) < CS_Active) {
-			if (command == TOSERVER_PLAYERPOS) return;
-
-			errorstream << "Server: Got packet command "
+			warningstream << "Server: Got packet command "
 					<< static_cast<unsigned>(command)
 					<< " for peer id " << peer_id
 					<< " but client isn't active yet. Dropping packet." << std::endl;
@@ -2166,10 +2164,6 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersa
 	}
 
 	Send(&pkt);
-
-	verbosestream << "Server::SendActiveObjectRemoveAdd(): "
-		<< removed_objects.size() << " removed, " << added_objects.size()
-		<< " added, packet size is " << pkt.getSize() << std::endl;
 }
 
 void Server::SendActiveObjectMessages(session_t peer_id, const std::string &datas,
@@ -3921,7 +3915,11 @@ std::string Server::getBuiltinLuaPath()
 
 void Server::setAsyncFatalError(const std::string &error)
 {
+	// print error right here in the thread that set it, for clearer logging
+	infostream << "setAsyncFatalError: " << error << std::endl;
+
 	m_async_fatal_error.set(error);
+
 	// make sure server steps stop happening immediately
 	if (m_thread)
 		m_thread->stop();

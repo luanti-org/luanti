@@ -472,28 +472,25 @@ void ServerEnvironment::loadMeta()
 	SANITY_CHECK(!m_meta_loaded);
 	m_meta_loaded = true;
 
+	// This has nothing to do with this method but it's nice to know
+	infostream << "ServerEnvironment: " << m_abms.size() << " ABMs are registered" << std::endl;
+
 	std::string path = m_server->getWorldPath() + DIR_DELIM "env_meta.txt";
 
 	// If file doesn't exist, load default environment metadata
 	if (!fs::PathExists(path)) {
-		infostream << "ServerEnvironment: Loading default environment metadata"
-			<< std::endl;
 		loadDefaultMeta();
 		return;
 	}
 
-	infostream << "ServerEnvironment: Loading environment metadata" << std::endl;
+	infostream << "ServerEnvironment: Loading environment metadata from file" << std::endl;
 
 	// Open file and deserialize
-	std::ifstream is(path.c_str(), std::ios_base::binary);
-	if (!is.good()) {
-		infostream << "ServerEnvironment::loadMeta(): Failed to open "
-			<< path << std::endl;
+	auto is = open_ifstream(path.c_str(), true);
+	if (!is.good())
 		throw SerializationError("Couldn't load env meta");
-	}
 
 	Settings args("EnvArgsEnd");
-
 	if (!args.parseConfigLines(is)) {
 		throw SerializationError("ServerEnvironment::loadMeta(): "
 			"EnvArgsEnd not found!");
@@ -503,32 +500,32 @@ void ServerEnvironment::loadMeta()
 		m_game_time = args.getU64("game_time");
 	} catch (SettingNotFoundException &e) {
 		// Getting this is crucial, otherwise timestamps are useless
-		throw SerializationError("Couldn't load env meta game_time");
+		throw SerializationError("Couldn't read game_time from env meta");
 	}
 
 	setTimeOfDay(args.exists("time_of_day") ?
-		// set day to early morning by default
+		// if it's missing for some reason, set early morning
 		args.getU64("time_of_day") : 5250);
 
 	m_last_clear_objects_time = args.exists("last_clear_objects_time") ?
 		// If missing, do as if clearObjects was never called
 		args.getU64("last_clear_objects_time") : 0;
 
+	m_day_count = args.exists("day_count") ? args.getU32("day_count") : 0;
+
 	std::string lbm_introduction_times;
 	try {
-		u64 ver = args.getU64("lbm_introduction_times_version");
+		u32 ver = args.getU32("lbm_introduction_times_version");
 		if (ver == 1) {
 			lbm_introduction_times = args.get("lbm_introduction_times");
 		} else {
-			infostream << "ServerEnvironment::loadMeta(): Non-supported"
+			warningstream << "ServerEnvironment::loadMeta(): Unsupported"
 				<< " introduction time version " << ver << std::endl;
 		}
 	} catch (SettingNotFoundException &e) {
 		// No problem, this is expected. Just continue with an empty string
 	}
 	m_lbm_mgr.loadIntroductionTimes(lbm_introduction_times, m_server, m_game_time);
-
-	m_day_count = args.exists("day_count") ? args.getU32("day_count") : 0;
 }
 
 /**
@@ -536,6 +533,8 @@ void ServerEnvironment::loadMeta()
  */
 void ServerEnvironment::loadDefaultMeta()
 {
+	infostream << "ServerEnvironment: Using default environment metadata"
+		<< std::endl;
 	m_lbm_mgr.loadIntroductionTimes("", m_server, m_game_time);
 }
 
@@ -1694,12 +1693,13 @@ void ServerEnvironment::deactivateFarObjects(const bool _force_delete)
 		if (!force_delete && still_active)
 			return false;
 
-		verbosestream << "ServerEnvironment::deactivateFarObjects(): "
-					  << "deactivating object id=" << id << " on inactive block "
-					  << blockpos_o << std::endl;
-
 		// If known by some client, don't immediately delete.
 		bool pending_delete = (obj->m_known_by_count > 0 && !force_delete);
+
+		verbosestream << "ServerEnvironment::deactivateFarObjects(): "
+					  << "deactivating object id=" << id << " on inactive block "
+					  << blockpos_o << (pending_delete ? " (pending)" : "")
+					  << std::endl;
 
 		/*
 			Update the static data
@@ -1759,17 +1759,9 @@ void ServerEnvironment::deactivateFarObjects(const bool _force_delete)
 		// This ensures that LuaEntity on_deactivate is always called.
 		obj->markForDeactivation();
 
-		/*
-			If known by some client, set pending deactivation.
-			Otherwise delete it immediately.
-		*/
-		if (pending_delete && !force_delete) {
-			verbosestream << "ServerEnvironment::deactivateFarObjects(): "
-						  << "object id=" << id << " is known by clients"
-						  << "; not deleting yet" << std::endl;
-
+		// If known by some client, don't delete yet.
+		if (pending_delete && !force_delete)
 			return false;
-		}
 
 		processActiveObjectRemove(obj);
 
