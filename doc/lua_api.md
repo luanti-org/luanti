@@ -2870,7 +2870,7 @@ Elements
 
 * When set to false, the formspec will not close when the user tries to close
   it with the Escape key or similar. Default true.
-* The formspec can still be closed with `button_exit[]` elements and
+* The formspec can still be closed with `*_exit[]` elements and
   `core.close_formspec()`, regardless of this setting.
 
 ### `container[<X>,<Y>]`
@@ -6176,7 +6176,7 @@ Call these functions only at load time!
           closed the form by mouse click, keypress or through a `button_exit[]`
           element.
         * Special case: `["try_quit"]="true"` is sent when the user tries to
-          close the formspec, but the the formspec used `allow_close[false]`.
+          close the formspec, but the formspec used `allow_close[false]`.
         * Special case: `["key_enter"]="true"` is sent when the user pressed
           the Enter key and the focus was either nowhere (causing the formspec
           to be closed) or on a button. If the focus was on a text field,
