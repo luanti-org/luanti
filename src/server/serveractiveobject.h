@@ -272,6 +272,7 @@ protected:
 		Queue of messages to be sent to the client
 	*/
 	std::queue<ActiveObjectMessage> m_messages_out;
+
 private:
 	v3f m_base_position; // setBasePosition updates index and MUST be called
 };

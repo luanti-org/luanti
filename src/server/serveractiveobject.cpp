@@ -15,7 +15,8 @@ ServerActiveObject::ServerActiveObject(ServerEnvironment *env, v3f pos):
 {
 }
 
-void ServerActiveObject::setBasePosition(v3f pos) {
+void ServerActiveObject::setBasePosition(v3f pos)
+{
 	bool changed = m_base_position != pos;
 	m_base_position = pos;
 	if (changed && getEnv()) {
