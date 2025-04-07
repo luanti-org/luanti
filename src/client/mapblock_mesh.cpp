@@ -648,9 +648,42 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 			p.applyTileColor();
 
 			// Generate animation data
-			// - Cracks
-			if (p.layer.material_flags & MATERIAL_FLAG_CRACK) {
-				// Find the texture name plus ^[crack:N:
+			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
+				// Using the current time avoids flickering before animate() gets called
+				auto animation_time = client->getAnimationTime();
+				assert(p.layer.frames);
+				if (p.layer.material_flags & MATERIAL_FLAG_CRACK) {
+					// - Texture animation with crack
+					std::vector<std::string> crack_frames{p.layer.frames->size()};
+					for (std::size_t j = 0; j < p.layer.frames->size(); j++) {
+						std::ostringstream os(std::ios::binary);
+						os << m_tsrc->getTextureName((*p.layer.frames)[j].texture_id) << "^[crack";
+						if (p.layer.material_flags & MATERIAL_FLAG_CRACK_OVERLAY)
+							os << "o";  // use ^[cracko
+						os << ":" << 1 << ":";
+
+						crack_frames[j] = os.str();
+					}
+					AnimationInfo animation_info = AnimationInfo(p.layer);
+					animation_info.needUpdate(animation_time); // Update current frame
+					// Replace tile texture with the cracked animated one
+					p.layer.texture = m_tsrc->getTextureForMesh(
+							crack_frames[animation_info.getCurrentFrame()] + "0",
+							&p.layer.texture_id);
+
+					m_animation_info_crack.emplace(std::make_pair(layer, i),
+							std::make_pair(std::move(animation_info), std::move(crack_frames)));
+				} else {
+					// - Texture animation
+					AnimationInfo animation_info = AnimationInfo(p.layer);
+					animation_info.needUpdate(animation_time); // Update current frame
+					// Replace tile texture with the current animation frame
+					p.layer.texture = (*p.layer.frames)[animation_info.getCurrentFrame()].texture;
+					// Add to MapBlockMesh in order to animate these tiles
+					m_animation_info.emplace(std::make_pair(layer, i), std::move(animation_info));
+				}
+			} else if (p.layer.material_flags & MATERIAL_FLAG_CRACK) {
+				// - Cracks
 				std::ostringstream os(std::ios::binary);
 				os << m_tsrc->getTextureName(p.layer.texture_id) << "^[crack";
 				if (p.layer.material_flags & MATERIAL_FLAG_CRACK_OVERLAY)
@@ -665,14 +698,6 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 				p.layer.texture = m_tsrc->getTextureForMesh(
 						os.str() + "0",
 						&p.layer.texture_id);
-			}
-			// - Texture animation
-			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
-				// Add to MapBlockMesh in order to animate these tiles
-				m_animation_info.emplace(std::make_pair(layer, i), AnimationInfo(p.layer));
-				// Replace tile texture with the first animation frame
-				assert(p.layer.frames);
-				p.layer.texture = (*p.layer.frames)[0].texture;
 			}
 
 			// Create material
@@ -723,7 +748,8 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	// Check if animation is required for this mesh
 	m_has_animation =
 		!m_crack_materials.empty() ||
-		!m_animation_info.empty();
+		!m_animation_info.empty() ||
+		!m_animation_info_crack.empty();
 }
 
 MapBlockMesh::~MapBlockMesh()
@@ -753,12 +779,6 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 	// Cracks
 	if (crack != m_last_crack) {
 		for (auto &crack_material : m_crack_materials) {
-
-			// TODO crack on animated tiles does not work
-			auto anim_it = m_animation_info.find(crack_material.first);
-			if (anim_it != m_animation_info.end())
-				continue;
-
 			scene::IMeshBuffer *buf = m_mesh[crack_material.first.first]->
 				getMeshBuffer(crack_material.first.second);
 
@@ -769,8 +789,6 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 					m_tsrc->getTextureForMesh(s, &new_texture_id);
 			buf->getMaterial().setTexture(0, new_texture);
 		}
-
-		m_last_crack = crack;
 	}
 
 	// Texture animation
@@ -780,6 +798,20 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 		it.second.updateTexture(material, time);
 	}
 
+	// Texture animation with crack
+	for (auto &it : m_animation_info_crack) {
+		if (crack != m_last_crack || it.second.first.needUpdate(time)) {
+			scene::IMeshBuffer *buf = m_mesh[it.first.first]->getMeshBuffer(it.first.second);
+
+			u16 frame = it.second.first.getCurrentFrame();
+			std::string s = it.second.second[frame] + itos(crack);
+			u32 new_texture_id = 0;
+			video::ITexture *new_texture = m_tsrc->getTextureForMesh(s, &new_texture_id);
+			buf->getMaterial().setTexture(0, new_texture);
+		}
+	}
+
+	m_last_crack = crack;
 	return true;
 }
 
