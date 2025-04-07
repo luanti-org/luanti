@@ -5747,6 +5747,8 @@ Utilities
       particle_blend_clip = true,
       -- The `match_meta` optional parameter is available for `InvRef:remove_item()` (5.12.0)
       remove_item_match_meta = true,
+      -- objects have get_guid method (5.12.0)
+      object_guids = true,
   }
   ```
 
@@ -7766,8 +7768,8 @@ Global tables
     * Values in this table may be modified directly.
       Note: changes to initial properties will only affect entities spawned afterwards,
       as they are only read when spawning.
-* `core.object_refs`
-    * Map of object references, indexed by active object id
+* `core.objects_by_guid`
+    * Map of object references, indexed by active object GUID
 * `core.luaentities`
     * Map of Lua entities, indexed by active object id
 * `core.registered_abms`
@@ -8465,6 +8467,9 @@ child will follow movement and rotation of that bone.
           -- Default: false
       }
       ```
+* `get_guid()`: returns a global unique identifier (a string)
+    * For players this is a player name.
+    * For Lua entities, it is a unique generated string.
 
 #### Lua entity only (no-op for other objects)
 

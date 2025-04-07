@@ -21,6 +21,7 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	u16 hp = 1;
 	v3f velocity;
 	v3f rotation;
+	GUId guid;
 
 	while (!data.empty()) { // breakable, run for one iteration
 		std::istringstream is(data, std::ios::binary);
@@ -50,6 +51,11 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 		rotation.X = readF1000(is);
 		rotation.Z = readF1000(is);
 
+		if (version2 < 2)
+			break;
+
+		guid.deSerialize(is);
+
 		// if (version2 < 2)
 		//     break;
 		// <read new values>
@@ -68,6 +74,14 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	m_hp = hp;
 	m_velocity = velocity;
 	m_rotation = rotation;
+	m_guid = guid;
+}
+
+LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &name,
+		const std::string &state) :
+		UnitSAO(env, pos),
+		m_init_name(name), m_init_state(state)
+{
 }
 
 LuaEntitySAO::~LuaEntitySAO()
@@ -98,6 +112,10 @@ void LuaEntitySAO::addedToEnvironment(u32 dtime_s)
 		// Activate entity, supplying serialized state
 		m_env->getScriptIface()->
 			luaentity_Activate(m_id, m_init_state, dtime_s);
+		// if Activate callback does not set guid, set it.
+		if (m_guid.text.empty()) {
+			getGuid();
+		}
 	} else {
 		// It's an unknown object
 		// Use entitystring as infotext for debugging
@@ -294,10 +312,12 @@ void LuaEntitySAO::getStaticData(std::string *result) const
 	writeF1000(os, m_rotation.Y);
 
 	// version2. Increase this variable for new values
-	writeU8(os, 1); // PROTOCOL_VERSION >= 37
+	writeU8(os, 2); // PROTOCOL_VERSION >= 37
 
 	writeF1000(os, m_rotation.X);
 	writeF1000(os, m_rotation.Z);
+
+	m_guid.serialize(os);
 
 	// <write new values>
 
@@ -412,6 +432,14 @@ void LuaEntitySAO::setHP(s32 hp, const PlayerHPChangeReason &reason)
 u16 LuaEntitySAO::getHP() const
 {
 	return m_hp;
+}
+
+const GUId& LuaEntitySAO::getGuid()
+{
+	if (m_guid.text.empty()) {
+		m_guid = m_env->getGUIdGenerator().next();
+	}
+	return m_guid;
 }
 
 void LuaEntitySAO::setVelocity(v3f velocity)

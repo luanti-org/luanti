@@ -63,6 +63,9 @@ ServerScripting::ServerScripting(Server* server):
 	lua_setfield(L, -2, "object_refs");
 
 	lua_newtable(L);
+	lua_setfield(L, -2, "objects_by_guid");
+
+	lua_newtable(L);
 	lua_setfield(L, -2, "luaentities");
 
 	// Initialize our lua_api modules
