@@ -21,11 +21,10 @@ class TestServerActiveObjectMgr {
 
 public:
 
-	u16 getFreeId() const {
-		return saomgr.getFreeId();
-	}
+	u16 getFreeId() const { return saomgr.getFreeId(); }
 
-	bool registerObject(std::unique_ptr<ServerActiveObject> obj) {
+	bool registerObject(std::unique_ptr<ServerActiveObject> obj)
+	{
 		auto *ptr = obj.get();
 		if (!saomgr.registerObject(std::move(obj)))
 			return false;
@@ -33,47 +32,52 @@ public:
 		return true;
 	}
 
-	void removeObject(u16 id) {
+	void removeObject(u16 id)
+	{
 		const auto it = std::find(ids.begin(), ids.end(), id);
 		REQUIRE(it != ids.end());
 		ids.erase(it);
 		saomgr.removeObject(id);
 	}
 
-	void updateObjectPos(u16 id, const v3f &pos) {
+	void updateObjectPos(u16 id, const v3f &pos)
+	{
 		auto *obj = saomgr.getActiveObject(id);
 		REQUIRE(obj != nullptr);
 		obj->setPos(pos);
 		saomgr.updateObjectPos(id, pos); // HACK work around m_env == nullptr
 	}
 
-	void clear() {
+	void clear()
+	{
 		saomgr.clear();
 		ids.clear();
 	}
 
-	ServerActiveObject *getActiveObject(u16 id) {
+	ServerActiveObject *getActiveObject(u16 id)
+	{
 		return saomgr.getActiveObject(id);
 	}
 
 	template<class T>
-	void getObjectsInsideRadius(T&& arg) {
+	void getObjectsInsideRadius(T&& arg)
+	{
 		saomgr.getObjectsInsideRadius(std::forward(arg));
 	}
 
 	template<class T>
-	void getAddedActiveObjectsAroundPos(T&& arg) {
+	void getAddedActiveObjectsAroundPos(T&& arg)
+	{
 		saomgr.getAddedActiveObjectsAroundPos(std::forward(arg));
 	}
 
 	// Testing
 
-	bool empty() {
-		return ids.empty();
-	}
+	bool empty() { return ids.empty(); }
 
 	template<class T>
-	u16 randomId(T &random) {
+	u16 randomId(T &random)
+	{
 		REQUIRE(!ids.empty());
 		std::uniform_int_distribution<u16> index(0, ids.size() - 1);
 		return ids[index(random)];
@@ -103,7 +107,8 @@ public:
 		return sao1->getId() < sao2->getId();
 	};
 
-	static void sortById(std::vector<ServerActiveObject *> &saos) {
+	static void sortById(std::vector<ServerActiveObject *> &saos)
+	{
 		std::sort(saos.begin(), saos.end(), compare_by_id);
 	}
 
@@ -144,181 +149,182 @@ public:
 };
 
 
-TEST_CASE("server active object manager")
-{
-	SECTION("free ID") {
-		TestServerActiveObjectMgr saomgr;
-		std::vector<u16> aoids;
+TEST_CASE("server active object manager") {
 
-		u16 aoid = saomgr.getFreeId();
-		// Ensure it's not the same id
-		REQUIRE(saomgr.getFreeId() != aoid);
+SECTION("free ID") {
+	TestServerActiveObjectMgr saomgr;
+	std::vector<u16> aoids;
 
-		aoids.push_back(aoid);
+	u16 aoid = saomgr.getFreeId();
+	// Ensure it's not the same id
+	REQUIRE(saomgr.getFreeId() != aoid);
 
-		// Register basic objects, ensure we never found
-		for (u8 i = 0; i < UINT8_MAX; i++) {
-			// Register an object
-			auto sao_u = std::make_unique<MockServerActiveObject>();
-			auto sao = sao_u.get();
-			saomgr.registerObject(std::move(sao_u));
-			aoids.push_back(sao->getId());
+	aoids.push_back(aoid);
 
-			// Ensure next id is not in registered list
-			REQUIRE(std::find(aoids.begin(), aoids.end(), saomgr.getFreeId()) ==
-					aoids.end());
-		}
-
-		saomgr.clear();
-	}
-
-	SECTION("register object") {
-		TestServerActiveObjectMgr saomgr;
+	// Register basic objects, ensure we never found
+	for (u8 i = 0; i < UINT8_MAX; i++) {
+		// Register an object
 		auto sao_u = std::make_unique<MockServerActiveObject>();
 		auto sao = sao_u.get();
-		REQUIRE(saomgr.registerObject(std::move(sao_u)));
+		saomgr.registerObject(std::move(sao_u));
+		aoids.push_back(sao->getId());
 
-		u16 id = sao->getId();
-
-		auto saoToCompare = saomgr.getActiveObject(id);
-		REQUIRE(saoToCompare->getId() == id);
-		REQUIRE(saoToCompare == sao);
-
-		sao_u = std::make_unique<MockServerActiveObject>();
-		sao = sao_u.get();
-		REQUIRE(saomgr.registerObject(std::move(sao_u)));
-		REQUIRE(saomgr.getActiveObject(sao->getId()) == sao);
-		REQUIRE(saomgr.getActiveObject(sao->getId()) != saoToCompare);
-
-		saomgr.clear();
+		// Ensure next id is not in registered list
+		REQUIRE(std::find(aoids.begin(), aoids.end(), saomgr.getFreeId()) ==
+				aoids.end());
 	}
 
-	SECTION("remove object") {
-		TestServerActiveObjectMgr saomgr;
-		auto sao_u = std::make_unique<MockServerActiveObject>();
-		auto sao = sao_u.get();
-		REQUIRE(saomgr.registerObject(std::move(sao_u)));
+	saomgr.clear();
+}
 
-		u16 id = sao->getId();
-		REQUIRE(saomgr.getActiveObject(id) != nullptr);
+SECTION("register object") {
+	TestServerActiveObjectMgr saomgr;
+	auto sao_u = std::make_unique<MockServerActiveObject>();
+	auto sao = sao_u.get();
+	REQUIRE(saomgr.registerObject(std::move(sao_u)));
 
-		saomgr.removeObject(sao->getId());
-		REQUIRE(saomgr.getActiveObject(id) == nullptr);
+	u16 id = sao->getId();
 
-		saomgr.clear();
+	auto saoToCompare = saomgr.getActiveObject(id);
+	REQUIRE(saoToCompare->getId() == id);
+	REQUIRE(saoToCompare == sao);
+
+	sao_u = std::make_unique<MockServerActiveObject>();
+	sao = sao_u.get();
+	REQUIRE(saomgr.registerObject(std::move(sao_u)));
+	REQUIRE(saomgr.getActiveObject(sao->getId()) == sao);
+	REQUIRE(saomgr.getActiveObject(sao->getId()) != saoToCompare);
+
+	saomgr.clear();
+}
+
+SECTION("remove object") {
+	TestServerActiveObjectMgr saomgr;
+	auto sao_u = std::make_unique<MockServerActiveObject>();
+	auto sao = sao_u.get();
+	REQUIRE(saomgr.registerObject(std::move(sao_u)));
+
+	u16 id = sao->getId();
+	REQUIRE(saomgr.getActiveObject(id) != nullptr);
+
+	saomgr.removeObject(sao->getId());
+	REQUIRE(saomgr.getActiveObject(id) == nullptr);
+
+	saomgr.clear();
+}
+
+SECTION("get objects inside radius") {
+	server::ActiveObjectMgr saomgr;
+	static const v3f sao_pos[] = {
+			v3f(10, 40, 10),
+			v3f(740, 100, -304),
+			v3f(-200, 100, -304),
+			v3f(740, -740, -304),
+			v3f(1500, -740, -304),
+	};
+
+	for (const auto &p : sao_pos) {
+		saomgr.registerObject(std::make_unique<MockServerActiveObject>(nullptr, p));
 	}
 
-	SECTION("get objects inside radius") {
-		server::ActiveObjectMgr saomgr;
-		static const v3f sao_pos[] = {
-				v3f(10, 40, 10),
-				v3f(740, 100, -304),
-				v3f(-200, 100, -304),
-				v3f(740, -740, -304),
-				v3f(1500, -740, -304),
-		};
+	std::vector<ServerActiveObject *> result;
+	saomgr.getObjectsInsideRadius(v3f(), 50, result, nullptr);
+	CHECK(result.size() == 1);
 
-		for (const auto &p : sao_pos) {
-			saomgr.registerObject(std::make_unique<MockServerActiveObject>(nullptr, p));
-		}
+	result.clear();
+	saomgr.getObjectsInsideRadius(v3f(), 750, result, nullptr);
+	CHECK(result.size() == 2);
 
-		std::vector<ServerActiveObject *> result;
-		saomgr.getObjectsInsideRadius(v3f(), 50, result, nullptr);
-		CHECK(result.size() == 1);
+	result.clear();
+	saomgr.getObjectsInsideRadius(v3f(), 750000, result, nullptr);
+	CHECK(result.size() == 5);
 
-		result.clear();
-		saomgr.getObjectsInsideRadius(v3f(), 750, result, nullptr);
-		CHECK(result.size() == 2);
+	result.clear();
+	auto include_obj_cb = [](ServerActiveObject *obj) {
+		return (obj->getBasePosition().X != 10);
+	};
 
-		result.clear();
-		saomgr.getObjectsInsideRadius(v3f(), 750000, result, nullptr);
-		CHECK(result.size() == 5);
+	saomgr.getObjectsInsideRadius(v3f(), 750000, result, include_obj_cb);
+	CHECK(result.size() == 4);
 
-		result.clear();
-		auto include_obj_cb = [](ServerActiveObject *obj) {
-			return (obj->getBasePosition().X != 10);
-		};
+	saomgr.clear();
+}
 
-		saomgr.getObjectsInsideRadius(v3f(), 750000, result, include_obj_cb);
-		CHECK(result.size() == 4);
+SECTION("get added active objects around pos") {
+	server::ActiveObjectMgr saomgr;
+	static const v3f sao_pos[] = {
+			v3f(10, 40, 10),
+			v3f(740, 100, -304),
+			v3f(-200, 100, -304),
+			v3f(740, -740, -304),
+			v3f(1500, -740, -304),
+	};
 
-		saomgr.clear();
+	for (const auto &p : sao_pos) {
+		saomgr.registerObject(std::make_unique<MockServerActiveObject>(nullptr, p));
 	}
 
-	SECTION("get added active objects around pos") {
-		server::ActiveObjectMgr saomgr;
-		static const v3f sao_pos[] = {
-				v3f(10, 40, 10),
-				v3f(740, 100, -304),
-				v3f(-200, 100, -304),
-				v3f(740, -740, -304),
-				v3f(1500, -740, -304),
-		};
+	std::vector<u16> result;
+	std::set<u16> cur_objects;
+	saomgr.getAddedActiveObjectsAroundPos(v3f(), "singleplayer", 100, 50, cur_objects, result);
+	CHECK(result.size() == 1);
 
-		for (const auto &p : sao_pos) {
-			saomgr.registerObject(std::make_unique<MockServerActiveObject>(nullptr, p));
+	result.clear();
+	cur_objects.clear();
+	saomgr.getAddedActiveObjectsAroundPos(v3f(), "singleplayer", 740, 50, cur_objects, result);
+	CHECK(result.size() == 2);
+
+	saomgr.clear();
+}
+
+SECTION("spatial index") {
+	TestServerActiveObjectMgr saomgr;
+	std::mt19937 gen(0xABCDEF);
+	std::uniform_int_distribution<s32> coordinate(-1000, 1000);
+	const auto random_pos = [&]() {
+		return v3f(coordinate(gen), coordinate(gen), coordinate(gen));
+	};
+
+	std::uniform_int_distribution<u32> percent(0, 99);
+	const auto modify = [&](u32 p_insert, u32 p_delete, u32 p_update) {
+		const auto p = percent(gen);
+		if (p < p_insert) {
+			saomgr.registerObject(std::make_unique<MockServerActiveObject>(nullptr, random_pos()));
+		} else if (p < p_insert + p_delete) {
+			if (!saomgr.empty())
+				saomgr.removeObject(saomgr.randomId(gen));
+		} else if (p < p_insert + p_delete + p_update) {
+			if (!saomgr.empty())
+				saomgr.updateObjectPos(saomgr.randomId(gen), random_pos());
 		}
+	};
 
-		std::vector<u16> result;
-		std::set<u16> cur_objects;
-		saomgr.getAddedActiveObjectsAroundPos(v3f(), "singleplayer", 100, 50, cur_objects, result);
-		CHECK(result.size() == 1);
+	const auto test_queries = [&]() {
+		std::uniform_real_distribution<f32> radius(0, 100);
+		saomgr.compareObjectsInsideRadius(random_pos(), radius(gen));
 
-		result.clear();
-		cur_objects.clear();
-		saomgr.getAddedActiveObjectsAroundPos(v3f(), "singleplayer", 740, 50, cur_objects, result);
-		CHECK(result.size() == 2);
+		aabb3f box(random_pos(), random_pos());
+		box.repair();
+		saomgr.compareObjectsInArea(box);
+	};
 
-		saomgr.clear();
+	// Grow: Insertion twice as likely as deletion
+	for (u32 i = 0; i < 3000; ++i) {
+		modify(50, 25, 25);
+		test_queries();
 	}
 
-	SECTION("spatial index") {
-		TestServerActiveObjectMgr saomgr;
-		std::mt19937 gen(0xABCDEF);
-		std::uniform_int_distribution<s32> coordinate(-1000, 1000);
-		const auto random_pos = [&]() {
-			return v3f(coordinate(gen), coordinate(gen), coordinate(gen));
-		};
-
-		std::uniform_int_distribution<u32> percent(0, 99);
-		const auto modify = [&](u32 p_insert, u32 p_delete, u32 p_update) {
-			const auto p = percent(gen);
-			if (p < p_insert) {
-				saomgr.registerObject(std::make_unique<MockServerActiveObject>(nullptr, random_pos()));
-			} else if (p < p_insert + p_delete) {
-				if (!saomgr.empty())
-					saomgr.removeObject(saomgr.randomId(gen));
-			} else if (p < p_insert + p_delete + p_update) {
-				if (!saomgr.empty())
-					saomgr.updateObjectPos(saomgr.randomId(gen), random_pos());
-			}
-		};
-
-		const auto test_queries = [&]() {
-			std::uniform_real_distribution<f32> radius(0, 100);
-			saomgr.compareObjectsInsideRadius(random_pos(), radius(gen));
-
-			aabb3f box(random_pos(), random_pos());
-			box.repair();
-			saomgr.compareObjectsInArea(box);
-		};
-
-		// Grow: Insertion twice as likely as deletion
-		for (u32 i = 0; i < 3000; ++i) {
-			modify(50, 25, 25);
-			test_queries();
-		}
-
-		// Stagnate: Insertion and deletion equally likely
-		for (u32 i = 0; i < 3000; ++i) {
-			modify(25, 25, 50);
-			test_queries();
-		}
-
-		// Shrink: Deletion twice as likely as insertion
-		while (!saomgr.empty()) {
-			modify(25, 50, 25);
-			test_queries();
-		}
+	// Stagnate: Insertion and deletion equally likely
+	for (u32 i = 0; i < 3000; ++i) {
+		modify(25, 25, 50);
+		test_queries();
 	}
+
+	// Shrink: Deletion twice as likely as insertion
+	while (!saomgr.empty()) {
+		modify(25, 50, 25);
+		test_queries();
+	}
+}
+
 }

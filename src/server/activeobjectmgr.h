@@ -39,6 +39,7 @@ public:
 			f32 radius, f32 player_radius,
 			const std::set<u16> &current_objects,
 			std::vector<u16> &added_objects);
+
 private:
 	k_d_tree::DynamicKdTrees<3, f32, u16> m_spatial_index;
 };

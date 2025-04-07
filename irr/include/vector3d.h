@@ -191,9 +191,7 @@ public:
 		return *this;
 	}
 
-	std::array<T, 3> toArray() const {
-		return {X, Y, Z};
-	}
+	std::array<T, 3> toArray() const { return {X, Y, Z}; }
 
 	//! Get length of the vector.
 	T getLength() const { return core::squareroot(X * X + Y * Y + Z * Z); }

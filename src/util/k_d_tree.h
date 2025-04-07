@@ -54,7 +54,8 @@ There are plenty variations that could be explored:
 * A special ray proximity query could be implemented. This is tricky however.
 */
 
-namespace k_d_tree {
+namespace k_d_tree
+{
 
 using Idx = uint16_t;
 
@@ -64,7 +65,8 @@ using Idx = uint16_t;
 // the core arrays still only store indices.
 
 template<uint8_t Dim, typename Component>
-class Points {
+class Points
+{
 public:
 	using Point = std::array<Component, Dim>;
 	//! Empty
@@ -72,69 +74,71 @@ public:
 	//! Allocating constructor; leaves coords uninitialized!
 	Points(size_t n) : n(n), coords(new Component[Dim * n]) {}
 	//! Copying constructor
-	Points(size_t n, const std::array<Component const *, Dim> &coords) : Points(n) {
+	Points(size_t n, const std::array<Component const *, Dim> &coords)
+		: Points(n)
+	{
 		for (uint8_t d = 0; d < Dim; ++d)
 			std::copy(coords[d], coords[d] + n, begin(d));
 	}
-	size_t size() const {
-		return n;
-	}
-	void assign(Idx start, const Points &from) {
+
+	size_t size() const { return n; }
+
+	void assign(Idx start, const Points &from)
+	{
 		for (uint8_t d = 0; d < Dim; ++d)
 			std::copy(from.begin(d), from.end(d), begin(d) + start);
 	}
-	Point getPoint(Idx i) const {
+
+	Point getPoint(Idx i) const
+	{
 		Point point;
 		for (uint8_t d = 0; d < Dim; ++d)
 			point[d] = begin(d)[i];
 		return point;
 	}
-	void setPoint(Idx i, const Point &point) {
+
+	void setPoint(Idx i, const Point &point)
+	{
 		for (uint8_t d = 0; d < Dim; ++d)
 			begin(d)[i] = point[d];
 	}
-	Component *begin(uint8_t d) {
-	 	return coords.get() + d * static_cast<std::size_t>(n);
-	}
-	Component *end(uint8_t d) {
-	 	return begin(d) + n;
-	}
-	const Component *begin(uint8_t d) const {
-	 	return coords.get() + d * static_cast<std::size_t>(n);
-	}
-	const Component *end(uint8_t d) const {
-	 	return begin(d) + n;
-	}
+
+	Component *begin(uint8_t d) { return coords.get() + d * n; }
+	Component *end(uint8_t d) { return begin(d) + n; }
+	const Component *begin(uint8_t d) const { return coords.get() + d * n; }
+	const Component *end(uint8_t d) const { return begin(d) + n; }
+
 private:
 	size_t n;
 	std::unique_ptr<Component[]> coords;
 };
 
 template<uint8_t Dim>
-class SortedIndices {
+class SortedIndices
+{
 public:
 	//! empty
 	SortedIndices() : indices() {}
 
 	//! uninitialized indices
-	static SortedIndices newUninitialized(size_t n) {
+	static SortedIndices newUninitialized(size_t n)
+	{
 		return SortedIndices(Points<Dim, Idx>(n));
 	}
 
 	//! Identity permutation on all axes
-	SortedIndices(size_t n) : indices(n) {
-		for (uint8_t d = 0; d < Dim; ++d)
-			for (Idx i = 0; i < n; ++i)
+	SortedIndices(size_t n)
+		: indices(n)
+	{
+		for (uint8_t d = 0; d < Dim; ++d) {
+			for (Idx i = 0; i < n; ++i) {
 				indices.begin(d)[i] = i;
+			}
+		}
 	}
 
-	size_t size() const {
-		return indices.size();
-	}
-
-	bool empty() const {
-		return size() == 0;
-	}
+	size_t size() const { return indices.size(); }
+	bool empty() const { return size() == 0; }
 
 	struct SplitResult {
 		SortedIndices left, right;
@@ -143,7 +147,8 @@ public:
 
 	//! Splits the sorted indices in the middle along the specified axis,
 	//! partitioning them into left (<=), the pivot, and right (>=).
-	SplitResult split(uint8_t axis, std::vector<bool> &markers) const {
+	SplitResult split(uint8_t axis, std::vector<bool> &markers) const
+	{
 		const auto begin = indices.begin(axis);
 		Idx left_n = indices.size() / 2;
 		const auto mid = begin + left_n;
@@ -179,30 +184,25 @@ public:
 		return SplitResult{std::move(left), std::move(right), *mid};
 	}
 
-	Idx *begin(uint8_t d) {
-		return indices.begin(d);
-	}
-	Idx *end(uint8_t d) {
-		return indices.end(d);
-	}
-	const Idx *begin(uint8_t d) const {
-		return indices.begin(d);
-	}
-	const Idx *end(uint8_t d) const {
-		return indices.end(d);
-	}
+	Idx *begin(uint8_t d) { return indices.begin(d); }
+	Idx *end(uint8_t d) { return indices.end(d); }
+	const Idx *begin(uint8_t d) const { return indices.begin(d); }
+	const Idx *end(uint8_t d) const { return indices.end(d); }
 private:
 	SortedIndices(Points<Dim, Idx> &&indices) : indices(std::move(indices)) {}
 	Points<Dim, Idx> indices;
 };
 
 template<uint8_t Dim, class Component>
-class SortedPoints {
+class SortedPoints
+{
 public:
 	SortedPoints() : points(), indices() {}
 
 	//! Single point
-	SortedPoints(const std::array<Component, Dim> &point) : points(1), indices(1) {
+	SortedPoints(const std::array<Component, Dim> &point)
+		: points(1), indices(1)
+	{
 		points.setPoint(0, point);
 	}
 
@@ -249,7 +249,8 @@ public:
 		}
 	}
 
-	size_t size() const {
+	size_t size() const
+	{
 		// technically redundant with indices.size(),
 		// but that is irrelevant
 		return points.size();
@@ -260,7 +261,8 @@ public:
 };
 
 template<uint8_t Dim, class Component, class Id>
-class KdTree {
+class KdTree
+{
 public:
 	using Point = std::array<Component, Dim>;
 
@@ -312,34 +314,33 @@ public:
 
 	template<typename F>
 	void rangeQuery(const Point &min, const Point &max,
-			const F &cb) const {
+			const F &cb) const
+	{
 		rangeQuery(0, 0, min, max, cb);
 	}
 
-	void remove(Idx internalIdx) {
+	void remove(Idx internalIdx)
+	{
 		assert(!deleted[internalIdx]);
 		deleted[internalIdx] = true;
 	}
 
 	template<class F>
-	void foreach(F cb) const {
-		for (Idx i = 0; i < cap(); ++i)
-			if (!deleted[i])
+	void foreach(F cb) const
+	{
+		for (Idx i = 0; i < cap(); ++i) {
+			if (!deleted[i]) {
 				cb(i, items.points.getPoint(i), ids[i]);
+			}
+		}
 	}
 
 	//! Capacity, not size, since some items may be marked as deleted
-	size_t cap() const {
-		return items.size();
-	}
-
-	//! "Empty" as in "never had anything"
-	bool empty() const {
-		return cap() == 0;
-	}
+	size_t cap() const { return items.size(); }
 
 private:
-	void init(Idx root, uint8_t axis, const SortedIndices<Dim> &sorted) {
+	void init(Idx root, uint8_t axis, const SortedIndices<Dim> &sorted)
+	{
 		// Temporarily abuse "deleted" marks as left/right marks
 		const auto split = sorted.split(axis, deleted);
 		tree[root] = split.pivot;
@@ -351,10 +352,11 @@ private:
 	}
 
 	template<typename F>
-	// Note: root is of type std::size_t to avoid issues with wraparound
-	void rangeQuery(std::size_t root, uint8_t split,
+	// Note: root is of type size_t to avoid issues with wraparound
+	void rangeQuery(size_t root, uint8_t split,
 			const Point &min, const Point &max,
-			const F &cb) const {
+			const F &cb) const
+	{
 		if (root >= cap())
 			return;
 		const auto ptid = tree[root];
@@ -385,11 +387,15 @@ private:
 };
 
 template<uint8_t Dim, class Component, class Id>
-class DynamicKdTrees {
+class DynamicKdTrees
+{
 	using Tree = KdTree<Dim, Component, Id>;
+
 public:
 	using Point = typename Tree::Point;
-	void insert(const std::array<Component, Dim> &point, Id id) {
+
+	void insert(const std::array<Component, Dim> &point, Id id)
+	{
 		Tree tree(point, id);
 		for (uint8_t tree_idx = 0;; ++tree_idx) {
 			if (tree_idx == trees.size()) {
@@ -397,7 +403,8 @@ public:
 				updateDelEntries(tree_idx);
 				break;
 			}
-			if (trees[tree_idx].empty()) {
+			// Can we use a free slot to "plant" the tree?
+			if (trees[tree_idx].cap() == 0) {
 				trees[tree_idx] = std::move(tree);
 				updateDelEntries(tree_idx);
 				break;
@@ -407,7 +414,9 @@ public:
 		}
 		++n_entries;
 	}
-	void remove(Id id) {
+
+	void remove(Id id)
+	{
 		const auto it = del_entries.find(id);
 		assert(it != del_entries.end());
 		trees.at(it->second.tree_idx).remove(it->second.in_tree);
@@ -416,27 +425,38 @@ public:
 		if (deleted >= (n_entries+1)/2) // "shift out" the last tree
 			shrink_to_half();
 	}
-	void update(const Point &newPos, Id id) {
+
+	void update(const Point &newPos, Id id)
+	{
 		remove(id);
 		insert(newPos, id);
 	}
+
 	template<typename F>
 	void rangeQuery(const Point &min, const Point &max,
-			const F &cb) const {
+			const F &cb) const
+	{
 		for (const auto &tree : trees)
 			tree.rangeQuery(min, max, cb);
 	}
-	size_t size() const {
+
+	size_t size() const
+	{
 		return n_entries - deleted;
 	}
+
 private:
-	void updateDelEntries(uint8_t tree_idx) {
+
+	void updateDelEntries(uint8_t tree_idx)
+	{
 		trees[tree_idx].foreach([&](Idx in_tree_idx, auto _, Id id) {
 			del_entries[id] = {tree_idx, in_tree_idx};
 		});
 	}
+
 	// Shrink to half the size, equivalent to shifting down the "bit pattern".
-	void shrink_to_half() {
+	void shrink_to_half()
+	{
 		assert(n_entries >= deleted);
 		assert(n_entries - deleted == (n_entries >> 1));
 		n_entries -= deleted;
@@ -467,7 +487,9 @@ private:
 			point_ptrs[d] = live_points.begin(d);
 		for (uint8_t tree_idx = 0; tree_idx < trees.size() - 1; ++tree_idx, n *= 2) {
 			Tree tree;
-			if (!trees[tree_idx+1].empty()) {
+			// If there was a tree at the next position, there should be
+			// a tree at this position after shifting the pattern.
+			if (trees[tree_idx+1].cap() > 0) {
 				tree = std::move(Tree(n, id_ptr, point_ptrs));
 				id_ptr += n;
 				for (uint8_t d = 0; d < Dim; ++d)
