@@ -1830,7 +1830,6 @@ void MapblockMeshGenerator::drawLodQuad(v3s16 direction, v3s16 node_coords[4], c
 }
 
 void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, f32 y_offset){
-    width = MYMIN((u16) data->m_side_length, width);
     u8 num_subblocks = data->m_side_length / width;
     core::vector2d<f32> uvs[4] = {
         core::vector2d<f32>{0, 0},
@@ -1924,14 +1923,16 @@ void MapblockMeshGenerator::generate()
     ZoneScoped;
 
     if(data->m_lod > 0) {
-        auto lodLambda = [this](NodeDrawType type, u16 width, f32 y_offset) {
-            return generateLod(type, width, y_offset);
-        };
-        u16 width = 1 << data->m_lod;
+        u16 width = 1 << MYMIN(data->m_lod, 15);
+        if(width > data->m_side_length){
+            width = data->m_side_length;
+        } else if(data->m_side_length % width != 0){
+            width = data->m_side_length / (data->m_side_length / width);
+        }
         f32 y_offset = BS * (data->m_lod - 1); // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
-        std::ignore = std::async(std::launch::async, lodLambda, NDT_LIQUID, data->m_side_length, 0.0f);
-        std::ignore = std::async(std::launch::async, lodLambda, NDT_ALLFACES, width / 2, 0.0f);
-        std::ignore = std::async(std::launch::async, lodLambda, NDT_NORMAL, width, -y_offset);
+        generateLod(NDT_LIQUID, data->m_side_length, 0.0f);
+        generateLod(NDT_ALLFACES, width / 2, 0.0f);
+        generateLod(NDT_NORMAL, width, -y_offset);
         return;
     }
 

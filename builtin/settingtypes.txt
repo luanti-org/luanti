@@ -265,8 +265,8 @@ viewing_range (Viewing range) int 190 20 4000
 #    Squared distance of blocks (chunks) when LODs should kick in.
 lod_threshold (LOD Threshold) int 100 4 2000
 
-#    Quality of LODs from 0.5 (low) to 2 (high). A higher number means that the LOD resolution will decerease slower, at a performance cost.
-lod_quality (LOD Quality) float 1.5 0.5 2
+#    Quality of LODs from 1 (low) to 2 (high). A higher number means that the LOD resolution will decerease slower, at a performance cost.
+lod_quality (LOD Quality) float 1.5 1 2
 
 #    Undersampling is similar to using a lower screen resolution, but it applies
 #    to the game world only, keeping the GUI intact.
