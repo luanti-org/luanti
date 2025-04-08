@@ -461,7 +461,7 @@ void Server::init()
 	m_mod_storage_database = openModStorageDatabase(m_path_world);
 	m_mod_storage_database->beginSave();
 
-	m_modmgr = std::make_unique<ServerModManager>(m_path_world);
+	m_modmgr = std::make_unique<ServerModManager>(m_path_world, m_gamespec);
 
 	// complain about mods with unsatisfied dependencies
 	if (!m_modmgr->isConsistent()) {

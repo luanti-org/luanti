@@ -15,15 +15,8 @@
  * All new calls to this class must be tested in test_servermodmanager.cpp
  */
 
-/**
- * Creates a ServerModManager which targets worldpath
- * @param worldpath
- */
-ServerModManager::ServerModManager(const std::string &worldpath):
-	configuration()
+ServerModManager::ServerModManager(const std::string &worldpath, SubgameSpec gamespec)
 {
-	SubgameSpec gamespec = findWorldSubgame(worldpath);
-
 	// Add all game mods and all world mods
 	configuration.addGameMods(gamespec);
 	configuration.addModsInPath(worldpath + DIR_DELIM + "worldmods", "worldmods");
