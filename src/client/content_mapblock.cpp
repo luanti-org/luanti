@@ -1788,7 +1788,7 @@ bool MapblockMeshGenerator::isVolumeAllAir(NodeDrawType type, core::vector3d<s16
 
 void MapblockMeshGenerator::drawLodQuad(v3s16 direction, v3s16 node_coords[4], core::vector3df vertices[4], core::vector2d<f32> uvs[4]){
     static const core::vector3df chode = core::vector3df{0};
-    static const video::SColor c(255, 255, 255, 255);
+    static const video::SColor c = encode_light(LightPair((u8) 255, (u8) 0), 0);
 
     video::S3DVertex v[4] = {
         video::S3DVertex(vertices[0], chode, c, uvs[0]),
