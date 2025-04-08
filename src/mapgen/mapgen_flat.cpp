@@ -172,7 +172,7 @@ int MapgenFlat::getSpawnLevelAtPoint(v2s16 p)
 		stone_level = ground_level - depress;
 	} else if ((spflags & MGFLAT_HILLS) && n_terrain > hill_threshold) {
 		s16 rise = (n_terrain - hill_threshold) * hill_steepness;
-	 	stone_level = ground_level + rise;
+		stone_level = ground_level + rise;
 	}
 
 	if (ground_level < water_level)
@@ -296,7 +296,7 @@ s16 MapgenFlat::generateTerrain()
 			stone_level = ground_level - depress;
 		} else if ((spflags & MGFLAT_HILLS) && n_terrain > hill_threshold) {
 			s16 rise = (n_terrain - hill_threshold) * hill_steepness;
-		 	stone_level = ground_level + rise;
+			stone_level = ground_level + rise;
 		}
 
 		u32 vi = vm->m_area.index(x, node_min.Y - 1, z);

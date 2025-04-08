@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-28 19:57+0100\n"
+"POT-Creation-Date: 2025-02-09 13:23+0100\n"
 "PO-Revision-Date: 2024-05-21 09:01+0000\n"
 "Last-Translator: Jamil Mohamad Alhussein <jamilmohamadalhoseen@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -78,6 +78,253 @@ msgstr ""
 #, fuzzy
 msgid "[all | <cmd>] [-t]"
 msgstr "[all | <cmd>]"
+
+#: builtin/common/settings/components.lua
+msgid "Browse"
+msgstr "استعرض"
+
+#: builtin/common/settings/components.lua
+msgid "Edit"
+msgstr "حرر"
+
+#: builtin/common/settings/components.lua
+msgid "Select directory"
+msgstr "إختر الدليل"
+
+#: builtin/common/settings/components.lua
+msgid "Select file"
+msgstr "إختر ملف"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Set"
+msgstr "Select"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "(No description of setting given)"
+msgstr "(الإعداد بدون وصف)"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "2D Noise"
+msgstr "ضوضاء 2D"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_overwrite.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_delete_content.lua
+#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
+#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+msgid "Cancel"
+msgstr "ألغِ"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Lacunarity"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Octaves"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Offset"
+msgstr "المُعادل"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#, fuzzy
+msgid "Persistence"
+msgstr "استمرار"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+msgid "Save"
+msgstr "إحفظ"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Scale"
+msgstr "تكبير/تصغير"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_create_world.lua
+msgid "Seed"
+msgstr "البذرة"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "X spread"
+msgstr "التوزع على محور X"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#, fuzzy
+msgid "Y spread"
+msgstr "التوزع على محور Y"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Z spread"
+msgstr "التوزع على محور Z"
+
+#. ~ "absvalue" is a noise parameter flag.
+#. It is short for "absolute value".
+#. It can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "absvalue"
+msgstr "القيمة المطلقة"
+
+#. ~ "defaults" is a noise parameter flag.
+#. It describes the default processing options
+#. for noise settings in the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "defaults"
+msgstr "إفتراضي"
+
+#. ~ "eased" is a noise parameter flag.
+#. It is used to make the map smoother and
+#. can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "eased"
+msgstr "مخفف"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "(The game will need to enable automatic exposure as well)"
+msgstr "(ستحتاج اللعبة إلى تمكين الظلال أيضًا)"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "(The game will need to enable bloom as well)"
+msgstr "(ستحتاج اللعبة إلى تمكين الظلال أيضًا)"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "(The game will need to enable volumetric lighting as well)"
+msgstr "(ستحتاج اللعبة إلى تمكين الظلال أيضًا)"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(Use system language)"
+msgstr "(استخدم لغة النظام)"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Accessibility"
+msgstr "إمكانية الوصول"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Auto"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Chat"
+msgstr "دردشة"
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Clear"
+msgstr "امسح"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "Controls"
+msgstr "التحكم"
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/common/settings/shadows_component.lua
+msgid "Disabled"
+msgstr "عطِّل"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Enabled"
+msgstr "مُفعل"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "General"
+msgstr "عام"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Movement"
+msgstr "حركة"
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+msgid "No results"
+msgstr "بدون نتائج"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Reset setting to default"
+msgstr "إستعِد الإفتراضي"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Reset setting to default ($1)"
+msgstr "إعادة تعيين الإعداد إلى الافتراضي (1$)"
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Search"
+msgstr "إبحث"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show advanced settings"
+msgstr "أظهر الاعدادات المتقدمة"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show technical names"
+msgstr "إعرض الأسماء التقنية"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Touchscreen layout"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "pause_menu"
+msgstr ""
+
+#: builtin/common/settings/settingtypes.lua
+#, fuzzy
+msgid "Client Mods"
+msgstr "اختر التعديلات"
+
+#: builtin/common/settings/settingtypes.lua
+msgid "Content: Games"
+msgstr "المحتوى: ألعاب"
+
+#: builtin/common/settings/settingtypes.lua
+msgid "Content: Mods"
+msgstr "المحتوى: تعديلات"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "(The game will need to enable shadows as well)"
+msgstr "(ستحتاج اللعبة إلى تمكين الظلال أيضًا)"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Custom"
+msgstr "مخصص"
+
+#: builtin/common/settings/shadows_component.lua
+#: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr "ظلال ديناميكية"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "High"
+msgstr "عالي"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Low"
+msgstr "منخفضة"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Medium"
+msgstr "واسطة"
+
+#: builtin/common/settings/shadows_component.lua
+#, fuzzy
+msgid "Very High"
+msgstr "عالية جدا"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Very Low"
+msgstr "منخفضة جدًا"
 
 #: builtin/fstk/ui.lua
 msgid "<none available>"
@@ -164,7 +411,6 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
 msgid "Back"
 msgstr "عُد"
 
@@ -200,11 +446,6 @@ msgstr "التعديلات"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "تعذر استيراد الحزم"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "No results"
-msgstr "بدون نتائج"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No updates"
@@ -250,18 +491,6 @@ msgstr "مثبت مسبقا"
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Base Game:"
 msgstr "اللعبة القاعدية :"
-
-#: builtin/mainmenu/content/dlg_install.lua
-#: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/dlg_delete_content.lua
-#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp src/gui/guiOpenURL.cpp
-#: src/gui/guiPasswordChange.cpp
-msgid "Cancel"
-msgstr "ألغِ"
 
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
@@ -391,6 +620,12 @@ msgstr "فشل تثبيت التعديل كـ $1"
 msgid "Unable to install a $1 as a texture pack"
 msgstr "فشل تثبيت $1 كحزمة إكساء"
 
+#: builtin/mainmenu/dlg_clients_list.lua
+msgid ""
+"This is the list of clients connected to\n"
+"$1"
+msgstr ""
+
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
 msgstr "(مفعل، به خطأ)"
@@ -454,12 +689,6 @@ msgstr "بدون إعتماديات إختيارية"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "الإعتماديات الإختيارية:"
-
-#: builtin/mainmenu/dlg_config_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Save"
-msgstr "إحفظ"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "World:"
@@ -612,11 +841,6 @@ msgid "Sea level rivers"
 msgstr "أنهار بمستوى البحر"
 
 #: builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Seed"
-msgstr "البذرة"
-
-#: builtin/mainmenu/dlg_create_world.lua
 msgid "Smooth transition between biomes"
 msgstr "تغيير سلس للمناطق البيئية"
 
@@ -758,6 +982,23 @@ msgid ""
 msgstr ""
 "اسم حزمة التعديلات هذه مصرح في modpack.conf لذا أي تسمية سيتم استبدالها."
 
+#: builtin/mainmenu/dlg_server_list_mods.lua
+#, fuzzy
+msgid "Expand all"
+msgstr "فعِل الكل"
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "Group by prefix"
+msgstr ""
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses a game called $2 and the following mods:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses the following mods:"
+msgstr ""
+
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
 msgstr "إصدار جديد ل 1$ متوفر"
@@ -786,7 +1027,7 @@ msgstr "أبدًا"
 msgid "Visit website"
 msgstr "زر الموقع"
 
-#: builtin/mainmenu/init.lua
+#: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "إعدادات"
 
@@ -797,234 +1038,6 @@ msgstr "قائمة الخوادم العمومية معطلة"
 #: builtin/mainmenu/serverlistmgr.lua
 msgid "Try reenabling public serverlist and check your internet connection."
 msgstr "جرب إعادة تمكين قائمة الحوادم العامة وتحقق من إتصالك بالانترنت."
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Browse"
-msgstr "استعرض"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Edit"
-msgstr "حرر"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Select directory"
-msgstr "إختر الدليل"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Select file"
-msgstr "إختر ملف"
-
-#: builtin/mainmenu/settings/components.lua
-#, fuzzy
-msgid "Set"
-msgstr "Select"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "(No description of setting given)"
-msgstr "(الإعداد بدون وصف)"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "2D Noise"
-msgstr "ضوضاء 2D"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Lacunarity"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Octaves"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Offset"
-msgstr "المُعادل"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
-msgid "Persistence"
-msgstr "استمرار"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Scale"
-msgstr "تكبير/تصغير"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr "التوزع على محور X"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
-msgid "Y spread"
-msgstr "التوزع على محور Y"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr "التوزع على محور Z"
-
-#. ~ "absvalue" is a noise parameter flag.
-#. It is short for "absolute value".
-#. It can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "absvalue"
-msgstr "القيمة المطلقة"
-
-#. ~ "defaults" is a noise parameter flag.
-#. It describes the default processing options
-#. for noise settings in the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "defaults"
-msgstr "إفتراضي"
-
-#. ~ "eased" is a noise parameter flag.
-#. It is used to make the map smoother and
-#. can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "eased"
-msgstr "مخفف"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "(The game will need to enable automatic exposure as well)"
-msgstr "(ستحتاج اللعبة إلى تمكين الظلال أيضًا)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "(The game will need to enable bloom as well)"
-msgstr "(ستحتاج اللعبة إلى تمكين الظلال أيضًا)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "(The game will need to enable volumetric lighting as well)"
-msgstr "(ستحتاج اللعبة إلى تمكين الظلال أيضًا)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(Use system language)"
-msgstr "(استخدم لغة النظام)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Accessibility"
-msgstr "إمكانية الوصول"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Auto"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchcontrols.cpp src/settings_translation_file.cpp
-msgid "Chat"
-msgstr "دردشة"
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Clear"
-msgstr "امسح"
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/client/game.cpp
-#: src/settings_translation_file.cpp
-msgid "Controls"
-msgstr "التحكم"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Disabled"
-msgstr "عطِّل"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Enabled"
-msgstr "مُفعل"
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/settings_translation_file.cpp
-msgid "General"
-msgstr "عام"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Movement"
-msgstr "حركة"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "Reset setting to default"
-msgstr "إستعِد الإفتراضي"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
-msgstr "إعادة تعيين الإعداد إلى الافتراضي (1$)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Search"
-msgstr "إبحث"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show advanced settings"
-msgstr "أظهر الاعدادات المتقدمة"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show technical names"
-msgstr "إعرض الأسماء التقنية"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-#, fuzzy
-msgid "Client Mods"
-msgstr "اختر التعديلات"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-msgid "Content: Games"
-msgstr "المحتوى: ألعاب"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-msgid "Content: Mods"
-msgstr "المحتوى: تعديلات"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Enable"
-msgstr "مُفعل"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Shaders are disabled."
-msgstr "تحديث الكاميرا معطل"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-msgid "This is not a recommended configuration."
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "(The game will need to enable shadows as well)"
-msgstr "(ستحتاج اللعبة إلى تمكين الظلال أيضًا)"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Custom"
-msgstr "مخصص"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr "ظلال ديناميكية"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "High"
-msgstr "عالي"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Low"
-msgstr "منخفضة"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Medium"
-msgstr "واسطة"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-#, fuzzy
-msgid "Very High"
-msgstr "عالية جدا"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Very Low"
-msgstr "منخفضة جدًا"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
@@ -1045,10 +1058,6 @@ msgstr "المطورون الرئيسيون"
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
 msgstr "الفريق الأساسي"
-
-#: builtin/mainmenu/tab_about.lua
-msgid "Irrlicht device:"
-msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Open User Data Directory"
@@ -1203,8 +1212,20 @@ msgid "You need to install a game before you can create a world."
 msgstr "يجب عليك تنزيل اللعبة قبل إضافة التعديلات"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Add favorite"
+msgstr "حذف المفضلة"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "عنوان"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Clients:\n"
+"$1"
+msgstr "عميل"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
@@ -1220,6 +1241,11 @@ msgid "Favorites"
 msgstr "المفضلة"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Game: $1"
+msgstr "اللعبة"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
 msgstr "خوادم غير متوافقة"
 
@@ -1232,7 +1258,23 @@ msgid "Login"
 msgstr "تسجيل الدخول"
 
 #: builtin/mainmenu/tab_online.lua
+msgid "Number of mods: $1"
+msgstr ""
+
+#: builtin/mainmenu/tab_online.lua
+msgid "Open server website"
+msgstr ""
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Ping"
+msgstr ""
+
+#: builtin/mainmenu/tab_online.lua
+msgid ""
+"Possible filters\n"
+"game:<name>\n"
+"mod:<name>\n"
+"player:<name>"
 msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
@@ -1321,23 +1363,6 @@ msgstr ""
 "راجع debug.txt لمزيد من التفاصيل."
 
 #: src/client/game.cpp
-msgid "- Mode: "
-msgstr "- النمط: "
-
-#: src/client/game.cpp
-msgid "- Public: "
-msgstr "- عام: "
-
-#. ~ PvP = Player versus Player
-#: src/client/game.cpp
-msgid "- PvP: "
-msgstr "- قتال اللاعبين: "
-
-#: src/client/game.cpp
-msgid "- Server Name: "
-msgstr "- اسم الخادم: "
-
-#: src/client/game.cpp
 #, fuzzy
 msgid "A serialization error occurred:"
 msgstr "حدث خطأ في التسلسل:"
@@ -1346,6 +1371,11 @@ msgstr "حدث خطأ في التسلسل:"
 #, c-format
 msgid "Access denied. Reason: %s"
 msgstr "رُفض النفاذ. السبب: %s"
+
+#: src/client/game.cpp
+#, fuzzy
+msgid "All debug info hidden"
+msgstr "معلومات التنقيح مرئية"
 
 #: src/client/game.cpp
 msgid "Automatic forward disabled"
@@ -1368,6 +1398,10 @@ msgid "Block bounds shown for nearby blocks"
 msgstr "حدود الكتل القريبة ظاهرة"
 
 #: src/client/game.cpp
+msgid "Bounding boxes shown"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Camera update disabled"
 msgstr "تحديث الكاميرا معطل"
 
@@ -1379,10 +1413,6 @@ msgstr "تحديث الكاميرا مفعل"
 #, fuzzy
 msgid "Can't show block bounds (disabled by game or mod)"
 msgstr "تعذر إظهار حدود الكتل (غير مفعل من طرف تعديل أو لعبة)"
-
-#: src/client/game.cpp
-msgid "Change Password"
-msgstr "غير كلمة المرور"
 
 #: src/client/game.cpp
 msgid "Cinematic mode disabled"
@@ -1413,39 +1443,6 @@ msgid "Connection failed for unknown reason"
 msgstr "فشل الاتصال لسبب مجهول"
 
 #: src/client/game.cpp
-msgid "Continue"
-msgstr "تابع"
-
-#: src/client/game.cpp
-#, fuzzy
-msgid ""
-"Controls:\n"
-"No menu open:\n"
-"- slide finger: look around\n"
-"- tap: place/punch/use (default)\n"
-"- long tap: dig/use (default)\n"
-"Menu/inventory open:\n"
-"- double tap (outside):\n"
-" --> close\n"
-"- touch stack, touch slot:\n"
-" --> move stack\n"
-"- touch&drag, tap 2nd finger\n"
-" --> place single item to slot\n"
-msgstr ""
-"اعدادات التحكم الافتراضية: \n"
-"بدون قائمة مرئية: \n"
-"- لمسة واحدة: زر تفعيل\n"
-"- لمسة مزدوجة: ضع/استخدم\n"
-"- تحريك إصبع: دوران\n"
-"المخزن أو قائمة مرئية: \n"
-"- لمسة مزدوجة (خارج القائمة): \n"
-" --> اغلق القائمة\n"
-"- لمس خانة أو تكديس: \n"
-" --> حرك التكديس\n"
-"- لمس وسحب, ولمس باصبع ثان: \n"
-" --> وضع عنصر واحد في خانة\n"
-
-#: src/client/game.cpp
 #, c-format
 msgid "Couldn't resolve address: %s"
 msgstr "تعذر تحليل العنوان:%s"
@@ -1459,29 +1456,13 @@ msgid "Creating server..."
 msgstr "ينشىء خادوما…"
 
 #: src/client/game.cpp
-msgid "Debug info and profiler graph hidden"
-msgstr "معلومات التنقيح ومنحنى محلل البيانات مخفيان"
-
-#: src/client/game.cpp
 msgid "Debug info shown"
 msgstr "معلومات التنقيح مرئية"
-
-#: src/client/game.cpp
-msgid "Debug info, profiler graph, and wireframe hidden"
-msgstr "معلومات التصحيح ، الرسم البياني لملف التعريف ، والإطار السلكي مخفي"
 
 #: src/client/game.cpp
 #, fuzzy, c-format
 msgid "Error creating client: %s"
 msgstr "ينشىء عميلا…"
-
-#: src/client/game.cpp
-msgid "Exit to Menu"
-msgstr "اخرج للقائمة"
-
-#: src/client/game.cpp
-msgid "Exit to OS"
-msgstr "اخرج لنظام التشغيل"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
@@ -1521,18 +1502,6 @@ msgid "Fog enabled by game or mod"
 msgstr "التكبير معطل من قبل لعبة أو تعديل"
 
 #: src/client/game.cpp
-msgid "Game info:"
-msgstr "معلومات اللعبة:"
-
-#: src/client/game.cpp
-msgid "Game paused"
-msgstr "اللعبة موقفة مؤقتا"
-
-#: src/client/game.cpp
-msgid "Hosting server"
-msgstr "استضافة خادوم"
-
-#: src/client/game.cpp
 msgid "Item definitions..."
 msgstr "تعريف العنصر…"
 
@@ -1569,14 +1538,6 @@ msgid "Node definitions..."
 msgstr "تعريفات العقدة..."
 
 #: src/client/game.cpp
-msgid "Off"
-msgstr "معطّل"
-
-#: src/client/game.cpp
-msgid "On"
-msgstr "مفعل"
-
-#: src/client/game.cpp
 msgid "Pitch move mode disabled"
 msgstr ""
 
@@ -1589,36 +1550,20 @@ msgid "Profiler graph shown"
 msgstr "منحنى محلل البيانات ظاهر"
 
 #: src/client/game.cpp
-msgid "Remote server"
-msgstr "خادوم بعيد"
-
-#: src/client/game.cpp
 msgid "Resolving address..."
 msgstr "يستورد العناوين…"
-
-#: src/client/game.cpp
-msgid "Respawn"
-msgstr "أعِد الإحياء"
 
 #: src/client/game.cpp
 msgid "Shutting down..."
 msgstr "يغلق…"
 
-#: src/client/game.cpp
+#: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "لاعب منفرد"
 
 #: src/client/game.cpp
-msgid "Sound Volume"
-msgstr "حجم الصوت"
-
-#: src/client/game.cpp
 msgid "Sound muted"
 msgstr "الصوت مكتوم"
-
-#: src/client/game.cpp
-msgid "Sound system is disabled"
-msgstr "نظام الصوت معطل"
 
 #: src/client/game.cpp
 msgid "Sound system is not supported on this build"
@@ -1699,16 +1644,114 @@ msgid "Volume changed to %d%%"
 msgstr "غُير الحجم الى %d%%"
 
 #: src/client/game.cpp
+msgid "Wireframe not supported by video driver"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Wireframe shown"
 msgstr "تم إظهار الإطار السلكي"
 
 #: src/client/game.cpp
-msgid "You died"
-msgstr "لقد مُتْ"
-
-#: src/client/game.cpp
 msgid "Zoom currently disabled by game or mod"
 msgstr "التكبير معطل من قبل لعبة أو تعديل"
+
+#: src/client/game_formspec.cpp
+msgid "- Mode: "
+msgstr "- النمط: "
+
+#: src/client/game_formspec.cpp
+msgid "- Public: "
+msgstr "- عام: "
+
+#. ~ PvP = Player versus Player
+#: src/client/game_formspec.cpp
+msgid "- PvP: "
+msgstr "- قتال اللاعبين: "
+
+#: src/client/game_formspec.cpp
+msgid "- Server Name: "
+msgstr "- اسم الخادم: "
+
+#: src/client/game_formspec.cpp
+msgid "Change Password"
+msgstr "غير كلمة المرور"
+
+#: src/client/game_formspec.cpp
+msgid "Continue"
+msgstr "تابع"
+
+#: src/client/game_formspec.cpp
+#, fuzzy
+msgid ""
+"Controls:\n"
+"No menu open:\n"
+"- slide finger: look around\n"
+"- tap: place/punch/use (default)\n"
+"- long tap: dig/use (default)\n"
+"Menu/inventory open:\n"
+"- double tap (outside):\n"
+" --> close\n"
+"- touch stack, touch slot:\n"
+" --> move stack\n"
+"- touch&drag, tap 2nd finger\n"
+" --> place single item to slot\n"
+msgstr ""
+"اعدادات التحكم الافتراضية: \n"
+"بدون قائمة مرئية: \n"
+"- لمسة واحدة: زر تفعيل\n"
+"- لمسة مزدوجة: ضع/استخدم\n"
+"- تحريك إصبع: دوران\n"
+"المخزن أو قائمة مرئية: \n"
+"- لمسة مزدوجة (خارج القائمة): \n"
+" --> اغلق القائمة\n"
+"- لمس خانة أو تكديس: \n"
+" --> حرك التكديس\n"
+"- لمس وسحب, ولمس باصبع ثان: \n"
+" --> وضع عنصر واحد في خانة\n"
+
+#: src/client/game_formspec.cpp
+msgid "Exit to Menu"
+msgstr "اخرج للقائمة"
+
+#: src/client/game_formspec.cpp
+msgid "Exit to OS"
+msgstr "اخرج لنظام التشغيل"
+
+#: src/client/game_formspec.cpp
+msgid "Game info:"
+msgstr "معلومات اللعبة:"
+
+#: src/client/game_formspec.cpp
+msgid "Game paused"
+msgstr "اللعبة موقفة مؤقتا"
+
+#: src/client/game_formspec.cpp
+msgid "Hosting server"
+msgstr "استضافة خادوم"
+
+#: src/client/game_formspec.cpp
+msgid "Off"
+msgstr "معطّل"
+
+#: src/client/game_formspec.cpp
+msgid "On"
+msgstr "مفعل"
+
+#: src/client/game_formspec.cpp
+msgid "Remote server"
+msgstr "خادوم بعيد"
+
+#: src/client/game_formspec.cpp
+msgid "Respawn"
+msgstr "أعِد الإحياء"
+
+#: src/client/game_formspec.cpp
+msgid "Sound Volume"
+msgstr "حجم الصوت"
+
+#: src/client/game_formspec.cpp
+msgid "You died"
+msgstr "لقد مُتْ"
 
 #: src/client/gameui.cpp
 #, fuzzy
@@ -2090,8 +2133,9 @@ msgid "Failed to compile the \"%s\" shader."
 msgstr "فشل فتح صفحة الويب"
 
 #: src/client/shader.cpp
-msgid "Shaders are enabled but GLSL is not supported by the driver."
-msgstr ""
+#, fuzzy
+msgid "GLSL is not supported by the driver"
+msgstr "نظام الصوت غير مدمج أثناء البناء"
 
 #. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
@@ -2144,7 +2188,7 @@ msgstr "المشي التلقائي"
 msgid "Automatic jumping"
 msgstr "القفز التلقائي"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Aux1"
 msgstr "Aux1"
 
@@ -2156,7 +2200,7 @@ msgstr "للخلف"
 msgid "Block bounds"
 msgstr "حدود الكتلة"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Change camera"
 msgstr "غير الكاميرا"
 
@@ -2180,7 +2224,7 @@ msgstr "قلل الحجم"
 msgid "Double tap \"jump\" to toggle fly"
 msgstr "اضغط مرتين على \"اقفز\" لتفعيل الطيران"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Drop"
 msgstr "اسقاط"
 
@@ -2196,11 +2240,11 @@ msgstr "زد المدى"
 msgid "Inc. volume"
 msgstr "زد الحجم"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Inventory"
 msgstr "المخزن"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Jump"
 msgstr "اقفز"
 
@@ -2232,7 +2276,7 @@ msgstr "العنصر التالي"
 msgid "Prev. item"
 msgstr "العنصر السابق"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "حدد المدى"
 
@@ -2245,7 +2289,7 @@ msgstr "Right"
 msgid "Screenshot"
 msgstr "صوّر الشاشة"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Sneak"
 msgstr "تسلل"
 
@@ -2253,15 +2297,15 @@ msgstr "تسلل"
 msgid "Toggle HUD"
 msgstr "بدّل عرض الواجهة"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle chat log"
 msgstr "بدّل عرض سجل المحادثة"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle fast"
 msgstr "بدّل وضع السرعة"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle fly"
 msgstr "بدّل حالة الطيران"
 
@@ -2269,11 +2313,11 @@ msgstr "بدّل حالة الطيران"
 msgid "Toggle fog"
 msgstr "بدّل ظهور الضباب"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle minimap"
 msgstr "بدّل ظهور الخريطة المصغرة"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle noclip"
 msgstr ""
 
@@ -2281,7 +2325,7 @@ msgstr ""
 msgid "Toggle pitchmove"
 msgstr ""
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Zoom"
 msgstr "كبِر"
 
@@ -2318,7 +2362,7 @@ msgstr "كلمة المرور القديمة"
 msgid "Passwords do not match!"
 msgstr "كلمتا المرور غير متطابقتين!"
 
-#: src/gui/guiVolumeChange.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
 msgid "Exit"
 msgstr "أخرج"
 
@@ -2331,15 +2375,46 @@ msgstr "مكتوم"
 msgid "Sound Volume: %d%%"
 msgstr "حجم الصوت: %d%%"
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Add button"
+msgstr "الزر الأوسط"
+
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Done"
+msgstr "تم!"
+
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Remove"
+msgstr "خادوم بعيد"
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Reset"
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Start dragging a button to add. Tap outside to cancel."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap a button to select it. Drag a button to move it."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap outside to deselect."
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
 msgstr ""
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "بدّل ظهور الضباب"
@@ -2539,8 +2614,7 @@ msgid ""
 "-    interlaced: odd/even line based polarization screen support.\n"
 "-    topbottom: split screen top/bottom.\n"
 "-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d\n"
-"Note that the interlaced mode requires shaders to be enabled."
+"-    crossview: Cross-eyed 3d"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2594,10 +2668,6 @@ msgid "Active object send range"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Adds particles when digging a node."
-msgstr "يضيف جزيئات عند حفر العقدة."
-
-#: src/settings_translation_file.cpp
 msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr "اضبط كثافة العرض المكتشفة المستخدمة لقياس عناصر واجهة المستخدم."
 
@@ -2625,6 +2695,16 @@ msgstr "ضمّن اسم العنصر"
 #: src/settings_translation_file.cpp
 msgid "Advanced"
 msgstr "متقدم"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"All mesh buffers with less than this number of vertices will be merged\n"
+"during map rendering. This improves rendering performance."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Allow clouds to look 3D instead of flat."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
@@ -3010,12 +3090,12 @@ msgid "Clouds"
 msgstr "سحاب"
 
 #: src/settings_translation_file.cpp
-msgid "Clouds are a client-side effect."
-msgstr "الغيوم هي تأثير من جانب العميل."
-
-#: src/settings_translation_file.cpp
 msgid "Clouds in menu"
 msgstr "سحب في القائمة"
+
+#: src/settings_translation_file.cpp
+msgid "Color depth for post-processing texture"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Colored fog"
@@ -3039,7 +3119,7 @@ msgid ""
 "as defined by the Free Software Foundation.\n"
 "You can also specify content ratings.\n"
 "These flags are independent from Luanti versions,\n"
-"so see a full list at https://content.minetest.net/help/content_flags/"
+"so see a full list at https://content.luanti.org/help/content_flags/"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3188,6 +3268,14 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Debugging"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Decide the color depth of the texture used for the post-processing "
+"pipeline.\n"
+"Reducing this can improve performance, but some effects (e.g. debanding)\n"
+"require more than 8 bits to work."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3343,17 +3431,9 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Desynchronize block animation"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Developer Options"
 msgstr "المطورون الرئيسيون"
-
-#: src/settings_translation_file.cpp
-msgid "Digging particles"
-msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -3380,6 +3460,14 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Double-tapping the jump key toggles fly mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Draw transparency sorted triangles grouped by their mesh buffers.\n"
+"This breaks transparency sorting between mesh buffers, but avoids "
+"situations\n"
+"where transparency sorting would be very slow otherwise."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3457,8 +3545,8 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Enable colored shadows.\n"
-"On true translucent nodes cast colored shadows. This is expensive."
+"Enable colored shadows for transculent nodes.\n"
+"This is expensive."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3531,8 +3619,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set.\n"
-"Needs enable_ipv6 to be enabled."
+"Ignored if bind_address is set."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3545,12 +3632,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Enables animation of inventory items."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Enables caching of facedir rotated meshes.\n"
-"This is only effective with shaders disabled."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3860,10 +3941,6 @@ msgid "GUI scaling filter"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "GUI scaling filter txr2img"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Gamepads"
 msgstr "الألعاب"
@@ -4109,12 +4186,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, account registration is separate from login in the UI.\n"
-"If disabled, new accounts will be registered automatically when logging in."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
 "If enabled, actions are recorded for rollback.\n"
 "This option is only read when server starts."
 msgstr ""
@@ -4129,6 +4200,13 @@ msgstr ""
 msgid ""
 "If enabled, players cannot join without a password or change theirs to an "
 "empty password."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, server account registration is separate from login in the UI.\n"
+"If disabled, connecting to a server will automatically register a new "
+"account."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4223,10 +4301,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Interval of sending time of day to clients, stated in seconds."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4851,10 +4925,6 @@ msgid "Maximum users"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Mesh cache"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr ""
 
@@ -4884,6 +4954,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Minimum limit of random number of small caves per mapchunk."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Minimum vertex count for mesh buffers"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4976,7 +5050,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Name of the player.\n"
-"When running a server, clients connecting with this name are admins.\n"
+"When running a server, a client connecting with this name is admin.\n"
 "When starting from the main menu, this is overridden."
 msgstr ""
 
@@ -5420,17 +5494,19 @@ msgid ""
 "* None - No antialiasing (default)\n"
 "\n"
 "* FSAA - Hardware-provided full-screen antialiasing\n"
-"(incompatible with Post Processing and Undersampling)\n"
 "A.K.A multi-sample antialiasing (MSAA)\n"
 "Smoothens out block edges but does not affect the insides of textures.\n"
-"A restart is required to change this option.\n"
 "\n"
-"* FXAA - Fast approximate antialiasing (requires shaders)\n"
+"If Post Processing is disabled, changing FSAA requires a restart.\n"
+"Also, if Post Processing is disabled, FSAA will not work together with\n"
+"undersampling or a non-default \"3d_mode\" setting.\n"
+"\n"
+"* FXAA - Fast approximate antialiasing\n"
 "Applies a post-processing filter to detect and smoothen high-contrast "
 "edges.\n"
 "Provides balance between speed and image quality.\n"
 "\n"
-"* SSAA - Super-sampling antialiasing (requires shaders)\n"
+"* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
 "the aliasing effects. This is the slowest and the most accurate method."
 msgstr ""
@@ -5629,16 +5705,6 @@ msgid "Shader path"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Shaders"
-msgstr "مُظللات"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Shaders are a fundamental part of rendering and enable advanced visual "
-"effects."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Shadow filter quality"
 msgstr ""
 
@@ -5803,10 +5869,9 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Spread a complete update of shadow map over given number of frames.\n"
+"Spread a complete update of the shadow map over a given number of frames.\n"
 "Higher values might make shadows laggy, lower values\n"
-"will consume more resources.\n"
-"Minimum value: 1; maximum value: 16"
+"will consume more resources."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6086,10 +6151,6 @@ msgid "Time of day when a new world is started, in millihours (0-23999)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Time send interval"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Time speed"
 msgstr ""
 
@@ -6148,6 +6209,10 @@ msgid "Transparency Sorting Distance"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Transparency Sorting Group by Buffers"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Trees noise"
 msgstr ""
 
@@ -6197,7 +6262,10 @@ msgid ""
 "to the game world only, keeping the GUI intact.\n"
 "It should give a significant performance boost at the cost of less detailed "
 "image.\n"
-"Higher values result in a less detailed image."
+"Higher values result in a less detailed image.\n"
+"Note: Undersampling is currently not supported if the \"3d_mode\" setting is "
+"set\n"
+"to a non-default value."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6221,15 +6289,13 @@ msgid "Upper Y limit of floatlands."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Use 3D cloud look instead of flat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Use a cloud animation for the main menu background."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Use anisotropic filtering when looking at textures from an angle."
+msgid ""
+"Use anisotropic filtering when looking at textures from an angle.\n"
+"This provides a significant improvement when used together with mipmapping."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6467,20 +6533,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"When gui_scaling_filter_txr2img is true, copy those images\n"
-"from hardware to software for scaling.  When false, fall back\n"
-"to the old scaling method, for video drivers that don't\n"
-"properly support downloading textures back from hardware."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"When using bilinear/trilinear/anisotropic filters, low-resolution textures\n"
-"can be blurred, so automatically upscale them with nearest-neighbor\n"
-"interpolation to preserve crisp pixels. This sets the minimum texture size\n"
-"for the upscaled textures; higher values look sharper, but require more\n"
-"memory. Powers of 2 are recommended. This setting is ONLY applied if\n"
-"bilinear/trilinear/anisotropic filtering is enabled.\n"
+"When using bilinear/trilinear filtering, low-resolution textures\n"
+"can be blurred, so this option automatically upscales them to preserve\n"
+"crisp pixels. This defines the minimum texture size for the upscaled "
+"textures;\n"
+"higher values look sharper, but require more memory.\n"
+"This setting is ONLY applied if any of the mentioned filters are enabled.\n"
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
@@ -6489,10 +6547,6 @@ msgstr ""
 msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Whether node texture animations should be desynchronized per mapblock."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6517,8 +6571,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Whether to mute sounds. You can unmute sounds at any time, unless the\n"
-"sound system is disabled (enable_sound=false).\n"
+"Whether to mute sounds. You can unmute sounds at any time.\n"
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
@@ -6673,6 +6726,9 @@ msgstr ""
 #~ "أدرك أن هذه القيمة ستُتجاوز إذا كان حقل العنوان في القائمة الرئيسية يحوي "
 #~ "عنوانًا."
 
+#~ msgid "Adds particles when digging a node."
+#~ msgstr "يضيف جزيئات عند حفر العقدة."
+
 #~ msgid ""
 #~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
 #~ "4k screens."
@@ -6733,6 +6789,9 @@ msgstr ""
 #~ msgid "Cinematic mode key"
 #~ msgstr "مفتاح الوضع السنيمائي"
 
+#~ msgid "Clouds are a client-side effect."
+#~ msgstr "الغيوم هي تأثير من جانب العميل."
+
 #~ msgid "Config mods"
 #~ msgstr "اضبط التعديلات"
 
@@ -6789,6 +6848,12 @@ msgstr ""
 #~ msgid "Damage enabled"
 #~ msgstr "الضرر ممكن"
 
+#~ msgid "Debug info and profiler graph hidden"
+#~ msgstr "معلومات التنقيح ومنحنى محلل البيانات مخفيان"
+
+#~ msgid "Debug info, profiler graph, and wireframe hidden"
+#~ msgstr "معلومات التصحيح ، الرسم البياني لملف التعريف ، والإطار السلكي مخفي"
+
 #~ msgid "Dec. volume key"
 #~ msgstr "مفتاح تقليل الحجم"
 
@@ -6820,6 +6885,10 @@ msgstr ""
 #~ msgid "Dynamic shadows:"
 #~ msgstr "ظلال ديناميكية:"
 
+#, fuzzy
+#~ msgid "Enable"
+#~ msgstr "مُفعل"
+
 #~ msgid "Enter "
 #~ msgstr "أدخل "
 
@@ -6834,9 +6903,6 @@ msgstr ""
 
 #~ msgid "Fog toggle key"
 #~ msgstr "مفتاح تبديل ظهور الضباب"
-
-#~ msgid "Game"
-#~ msgstr "اللعبة"
 
 #~ msgid "Generate Normal Maps"
 #~ msgstr "ولِد خرائط عادية"
@@ -7025,14 +7091,24 @@ msgstr ""
 #~ msgid "Screen:"
 #~ msgstr "الشاشة:"
 
+#~ msgid "Shaders"
+#~ msgstr "مُظللات"
+
 #~ msgid "Shaders (experimental)"
 #~ msgstr "المظللات (تجريبية)"
 
 #~ msgid "Shaders (unavailable)"
 #~ msgstr "مظللات (غير متوفر)"
 
+#, fuzzy
+#~ msgid "Shaders are disabled."
+#~ msgstr "تحديث الكاميرا معطل"
+
 #~ msgid "Simple Leaves"
 #~ msgstr "أوراق بسيطة"
+
+#~ msgid "Sound system is disabled"
+#~ msgstr "نظام الصوت معطل"
 
 #~ msgid "Special"
 #~ msgstr "خاص"

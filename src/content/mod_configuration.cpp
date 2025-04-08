@@ -47,7 +47,7 @@ void ModConfiguration::addMods(const std::vector<ModSpec> &new_mods)
 	}
 
 	// Add new mods
-	for (int want_from_modpack = 1; want_from_modpack >= 0; --want_from_modpack) {
+	for (bool want_from_modpack : {true, false}) {
 		// First iteration:
 		// Add all the mods that come from modpacks
 		// Second iteration:
@@ -56,8 +56,11 @@ void ModConfiguration::addMods(const std::vector<ModSpec> &new_mods)
 		std::set<std::string> seen_this_iteration;
 
 		for (const ModSpec &mod : new_mods) {
-			if (mod.part_of_modpack != (bool)want_from_modpack)
+			if (mod.part_of_modpack != want_from_modpack)
 				continue;
+
+			// unrelated to this code, but we want to assert it somewhere
+			assert(fs::IsPathAbsolute(mod.path));
 
 			if (existing_mods.count(mod.name) == 0) {
 				// GOOD CASE: completely new mod.

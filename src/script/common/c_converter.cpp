@@ -16,6 +16,7 @@ extern "C" {
 #include "constants.h"
 #include <set>
 #include <cmath>
+#include "common/c_types.h"
 
 
 #define CHECK_TYPE(index, name, type) do { \

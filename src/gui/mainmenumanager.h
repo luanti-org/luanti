@@ -11,10 +11,17 @@
 #include <cassert>
 #include <list>
 
+#include "IGUIEnvironment.h"
+
+namespace irr::gui {
+	class IGUIStaticText;
+}
+
 class IGameCallback
 {
 public:
 	virtual void exitToOS() = 0;
+	virtual void openSettings() = 0;
 	virtual void keyConfig() = 0;
 	virtual void disconnect() = 0;
 	virtual void changePassword() = 0;
@@ -109,6 +116,11 @@ public:
 		shutdown_requested = true;
 	}
 
+	void openSettings() override
+	{
+		settings_requested = true;
+	}
+
 	void disconnect() override
 	{
 		disconnect_requested = true;
@@ -145,6 +157,7 @@ public:
 	}
 
 	bool disconnect_requested = false;
+	bool settings_requested = false;
 	bool changepassword_requested = false;
 	bool changevolume_requested = false;
 	bool keyconfig_requested = false;

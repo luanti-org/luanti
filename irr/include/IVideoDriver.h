@@ -61,8 +61,8 @@ struct SFrameStats {
 	u32 PrimitivesDrawn = 0;
 	//! Number of hardware buffers uploaded (new or updated)
 	u32 HWBuffersUploaded = 0;
-	//! Sum of uploaded hardware buffer size
-	u32 HWBuffersUploadedSize = 0;
+	//! Number of active hardware buffers
+	u32 HWBuffersActive = 0;
 };
 
 //! Interface to driver which is able to perform 2d and 3d graphics functions.

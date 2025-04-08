@@ -70,6 +70,9 @@ public:
 	Camera(MapDrawControl &draw_control, Client *client, RenderingEngine *rendering_engine);
 	~Camera();
 
+	static void settingChangedCallback(const std::string &name, void *data);
+	void readSettings();
+
 	// Get camera scene node.
 	// It has the eye transformation, pitch and view bobbing applied.
 	inline scene::ICameraSceneNode* getCameraNode() const
@@ -146,6 +149,9 @@ public:
 
 	// Update the camera from the local player's position.
 	void update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio);
+
+	// Adjust the camera offset when needed
+	void updateOffset();
 
 	// Update render distance
 	void updateViewingRange();

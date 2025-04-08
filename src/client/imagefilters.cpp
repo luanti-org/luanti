@@ -148,17 +148,6 @@ static void imageCleanTransparentWithInlining(video::IImage *src, u32 threshold)
 	}
 }
 
-/* Fill in RGB values for transparent pixels, to correct for odd colors
- * appearing at borders when blending.  This is because many PNG optimizers
- * like to discard RGB values of transparent pixels, but when blending then
- * with non-transparent neighbors, their RGB values will show up nonetheless.
- *
- * This function modifies the original image in-place.
- *
- * Parameter "threshold" is the alpha level below which pixels are considered
- * transparent. Should be 127 when the texture is used with ALPHA_CHANNEL_REF,
- * 0 when alpha blending is used.
- */
 void imageCleanTransparent(video::IImage *src, u32 threshold)
 {
 	if (src->getColorFormat() == video::ECF_A8R8G8B8)
@@ -167,13 +156,109 @@ void imageCleanTransparent(video::IImage *src, u32 threshold)
 		imageCleanTransparentWithInlining<false>(src, threshold);
 }
 
-/* Scale a region of an image into another image, using nearest-neighbor with
- * anti-aliasing; treat pixels as crisp rectangles, but blend them at boundaries
- * to prevent non-integer scaling ratio artifacts.  Note that this may cause
- * some blending at the edges where pixels don't line up perfectly, but this
- * filter is designed to produce the most accurate results for both upscaling
- * and downscaling.
- */
+/**********************************/
+
+namespace {
+	// For more colorspace transformations, see for example
+	// <https://github.com/tobspr/GLSL-Color-Spaces/blob/master/ColorSpaces.inc.glsl>
+
+	inline float linear_to_srgb_component(float v)
+	{
+		if (v > 0.0031308f)
+			return 1.055f * powf(v, 1.0f / 2.4f) - 0.055f;
+		return 12.92f * v;
+	}
+	inline float srgb_to_linear_component(float v)
+	{
+		if (v > 0.04045f)
+			return powf((v + 0.055f) / 1.055f, 2.4f);
+		return v / 12.92f;
+	}
+
+	template <float (*F)(float)>
+	struct LUT8 {
+		std::array<float, 256> t;
+		LUT8() {
+			for (size_t i = 0; i < t.size(); i++)
+				t[i] = F(i / 255.0f);
+		}
+	};
+	LUT8<srgb_to_linear_component> srgb_to_linear_lut;
+
+	v3f srgb_to_linear(const video::SColor col_srgb)
+	{
+		v3f col(srgb_to_linear_lut.t[col_srgb.getRed()],
+			srgb_to_linear_lut.t[col_srgb.getGreen()],
+			srgb_to_linear_lut.t[col_srgb.getBlue()]);
+		return col;
+	}
+
+	video::SColor linear_to_srgb(const v3f col_linear)
+	{
+		v3f col;
+		// we can't LUT this without losing precision, but thankfully we call
+		// it just once :)
+		col.X = linear_to_srgb_component(col_linear.X);
+		col.Y = linear_to_srgb_component(col_linear.Y);
+		col.Z = linear_to_srgb_component(col_linear.Z);
+		col *= 255.0f;
+		col.X = core::clamp<float>(col.X, 0.0f, 255.0f);
+		col.Y = core::clamp<float>(col.Y, 0.0f, 255.0f);
+		col.Z = core::clamp<float>(col.Z, 0.0f, 255.0f);
+		return video::SColor(0xff, myround(col.X), myround(col.Y),
+			myround(col.Z));
+	}
+}
+
+template <bool IS_A8R8G8B8>
+static video::SColor imageAverageColorInline(const video::IImage *src)
+{
+	void *const src_data = src->getData();
+	const core::dimension2du dim = src->getDimension();
+
+	auto get_pixel = [=](u32 x, u32 y) -> video::SColor {
+		if constexpr (IS_A8R8G8B8) {
+			return reinterpret_cast<u32 *>(src_data)[y*dim.Width + x];
+		} else {
+			return src->getPixel(x, y);
+		}
+	};
+
+	u32 total = 0;
+	v3f col_acc;
+	// limit runtime cost
+	const u32 stepx = std::max(1U, dim.Width / 16),
+		stepy = std::max(1U, dim.Height / 16);
+	for (u32 x = 0; x < dim.Width; x += stepx) {
+		for (u32 y = 0; y < dim.Height; y += stepy) {
+			video::SColor c = get_pixel(x, y);
+			if (c.getAlpha() > 0) {
+				total++;
+				col_acc += srgb_to_linear(c);
+			}
+		}
+	}
+
+	video::SColor ret(0, 0, 0, 0);
+	if (total > 0) {
+		col_acc /= total;
+		ret = linear_to_srgb(col_acc);
+	}
+	ret.setAlpha(255);
+	return ret;
+}
+
+video::SColor imageAverageColor(const video::IImage *img)
+{
+	if (img->getColorFormat() == video::ECF_A8R8G8B8)
+		return imageAverageColorInline<true>(img);
+	else
+		return imageAverageColorInline<false>(img);
+}
+
+
+/**********************************/
+
 void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::IImage *dest)
 {
 	double sx, sy, minsx, maxsx, minsy, maxsy, area, ra, ga, ba, aa, pw, ph, pa;

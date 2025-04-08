@@ -21,16 +21,22 @@
 #include <algorithm>
 #include <cmath>
 #include "client/texturesource.h"
+#include <SMesh.h>
+#include <IMeshBuffer.h>
+#include <SMeshBuffer.h>
 
 /*
 	MeshMakeData
 */
 
-MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, u16 lod):
-	side_length(side_length),
-    lod(lod),
-    nodedef(ndef)
-{}
+MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, MeshGrid mesh_grid, u16 lod):
+    m_side_length(side_length),
+    m_mesh_grid(mesh_grid),
+    m_lod(lod),
+    m_nodedef(ndef)
+{
+    assert(m_side_length > 0);
+}
 
 void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
 {
@@ -39,8 +45,9 @@ void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
 	v3s16 blockpos_nodes = m_blockpos*MAP_BLOCKSIZE;
 
 	m_vmanip.clear();
+	// extra 1 block thick layer around the mesh
 	VoxelArea voxel_area(blockpos_nodes - v3s16(1,1,1) * MAP_BLOCKSIZE,
-			blockpos_nodes + v3s16(1,1,1) * (side_length + MAP_BLOCKSIZE /* extra layer of blocks around the mesh */) - v3s16(1,1,1));
+			blockpos_nodes + v3s16(1,1,1) * (m_side_length + MAP_BLOCKSIZE) - v3s16(1,1,1));
 	m_vmanip.addArea(voxel_area);
 }
 
@@ -53,15 +60,28 @@ void MeshMakeData::fillBlockData(const v3s16 &bp, MapNode *data)
 	m_vmanip.copyFrom(data, data_area, v3s16(0,0,0), blockpos_nodes, data_size);
 }
 
+void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
+{
+	m_blockpos = {0, 0, 0};
+
+	m_vmanip.clear();
+	// area around 0,0,0 so that this positon has neighbors
+	const s16 sz = 3;
+	m_vmanip.addArea({v3s16(-sz), v3s16(sz)});
+
+	u32 count = m_vmanip.m_area.getVolume();
+	for (u32 i = 0; i < count; i++) {
+		m_vmanip.m_data[i] = padding;
+		m_vmanip.m_flags[i] &= ~VOXELFLAG_NO_DATA;
+	}
+
+	m_vmanip.setNodeNoEmerge({0, 0, 0}, data);
+}
+
 void MeshMakeData::setCrack(int crack_level, v3s16 crack_pos)
 {
 	if (crack_level >= 0)
 		m_crack_pos_relative = crack_pos - m_blockpos*MAP_BLOCKSIZE;
-}
-
-void MeshMakeData::setSmoothLighting(bool smooth_lighting)
-{
-	m_smooth_lighting = smooth_lighting;
 }
 
 /*
@@ -134,7 +154,7 @@ u16 getFaceLight(MapNode n, MapNode n2, const NodeDefManager *ndef)
 static u16 getSmoothLightCombined(const v3s16 &p,
 	const std::array<v3s16,8> &dirs, MeshMakeData *data)
 {
-	const NodeDefManager *ndef = data->nodedef;
+	const NodeDefManager *ndef = data->m_nodedef;
 
 	u16 ambient_occlusion = 0;
 	u16 light_count = 0;
@@ -322,7 +342,7 @@ void final_color_blend(video::SColor *result,
 */
 void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, TileSpec &tile)
 {
-	const NodeDefManager *ndef = data->nodedef;
+    const NodeDefManager *ndef = data->m_nodedef;
     const ContentFeatures &f = ndef->get(mn);
 	tile = f.tiles[tileindex];
 	bool has_crack = p == data->m_crack_pos_relative;
@@ -342,7 +362,7 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 */
 void getNodeTile(MapNode mn, const v3s16 &p, const v3s16 &dir, MeshMakeData *data, TileSpec &tile)
 {
-	const NodeDefManager *ndef = data->nodedef;
+	const NodeDefManager *ndef = data->m_nodedef;
 
 	// Direction must be (1,0,0), (-1,0,0), (0,1,0), (0,-1,0),
 	// (0,0,1), (0,0,-1) or (0,0,0)
@@ -591,10 +611,10 @@ void PartialMeshBuffer::draw(video::IVideoDriver *driver) const
 	MapBlockMesh
 */
 
-MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offset):
+MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	m_tsrc(client->getTextureSource()),
 	m_shdrsrc(client->getShaderSource()),
-	m_bounding_sphere_center((data->side_length * 0.5f - 0.5f) * BS),
+	m_bounding_sphere_center((data->m_side_length * 0.5f - 0.5f) * BS),
 	m_animation_force_timer(0), // force initial animation
 	m_last_crack(-1)
 {
@@ -603,10 +623,12 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 	for (auto &m : m_mesh)
 		m = make_irr<scene::SMesh>();
 
-	auto mesh_grid = client->getMeshGrid();
+	auto mesh_grid = data->m_mesh_grid;
 	v3s16 bp = data->m_blockpos;
-	// Only generate minimap mapblocks at even coordinates.
-	if (mesh_grid.isMeshPos(bp) && client->getMinimap()) {
+	// Only generate minimap mapblocks at grid aligned coordinates.
+	// FIXME: ^ doesn't really make sense. and in practice, bp is always aligned
+	if (mesh_grid.isMeshPos(bp) && data->m_generate_minimap) {
+		// meshgen area always fits into a grid cell
 		m_minimap_mapblocks.resize(mesh_grid.getCellVolume(), nullptr);
 		v3s16 ofs;
 
@@ -623,26 +645,19 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 		}
 	}
 
+	// algin vertices to mesh grid, not meshgen area
 	v3f offset = intToFloat((data->m_blockpos - mesh_grid.getMeshPos(data->m_blockpos)) * MAP_BLOCKSIZE, BS);
-	MeshCollector collector(m_bounding_sphere_center, offset);
-	/*
-		Add special graphics:
-		- torches
-		- flowing water
-		- fences
-		- whatever
-	*/
 
-    {
+	MeshCollector collector(m_bounding_sphere_center, offset);
+
+	{
+        // Generate everything
 		MapblockMeshGenerator(data, &collector).generate();
 	}
 
 	/*
 		Convert MeshCollector to SMesh
 	*/
-
-	const bool desync_animations = g_settings->getBool(
-		"desynchronize_mapblock_texture_animation");
 
 	m_bounding_radius = std::sqrt(collector.m_bounding_radius_sq);
 
@@ -680,16 +695,6 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 				auto &info = m_animation_info[{layer, i}];
 				info.tile = p.layer;
 				info.frame = 0;
-				if (desync_animations) {
-					// Get starting position from noise
-					info.frame_offset =
-							100000 * (2.0 + noise3d(
-							data->m_blockpos.X, data->m_blockpos.Y,
-							data->m_blockpos.Z, 0));
-				} else {
-					// Play all synchronized
-					info.frame_offset = 0;
-				}
 				// Replace tile texture with the first animation frame
 				p.layer.texture = (*p.layer.frames)[0].texture;
 			}
@@ -703,6 +708,16 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 				tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
 				tex.MagFilter = video::ETMAGF_NEAREST;
 			});
+			/*
+			 * The second layer is for overlays, but uses the same vertex positions
+			 * as the first, which quickly leads to z-fighting.
+			 * To fix this we can offset the polygons in the direction of the camera.
+			 * This only affects the depth buffer and leads to no visual gaps in geometry.
+			 */
+			if (layer == 1) {
+				material.PolygonOffsetSlopeScale = -1;
+				material.PolygonOffsetDepthBias = -1;
+			}
 
 			{
 				material.MaterialType = m_shdrsrc->getShaderInfo(
@@ -739,7 +754,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offs
 		}
 	}
 
-	m_bsp_tree.buildTree(&m_transparent_triangles, data->side_length);
+	m_bsp_tree.buildTree(&m_transparent_triangles, data->m_side_length);
 
 	// Check if animation is required for this mesh
 	m_has_animation =
@@ -802,8 +817,8 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 	for (auto &it : m_animation_info) {
 		const TileLayer &tile = it.second.tile;
 		// Figure out current frame
-		int frameno = (int)(time * 1000 / tile.animation_frame_length_ms
-				+ it.second.frame_offset) % tile.animation_frame_count;
+		int frameno = (int)(time * 1000 / tile.animation_frame_length_ms) %
+			tile.animation_frame_count;
 		// If frame doesn't change, skip
 		if (frameno == it.second.frame)
 			continue;
@@ -948,21 +963,22 @@ video::SColor encode_light(u16 light, u8 emissive_light)
 
 u8 get_solid_sides(MeshMakeData *data)
 {
-	std::unordered_map<v3s16, u8> results;
 	v3s16 blockpos_nodes = data->m_blockpos * MAP_BLOCKSIZE;
-	const NodeDefManager *ndef = data->nodedef;
+	const NodeDefManager *ndef = data->m_nodedef;
 
-	u8 result = 0x3F; // all sides solid;
+	const u16 side = data->m_side_length;
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes + v3s16(side - 1)));
 
-	for (s16 i = 0; i < data->side_length && result != 0; i++)
-	for (s16 j = 0; j < data->side_length && result != 0; j++) {
+	u8 result = 0x3F; // all sides solid
+	for (s16 i = 0; i < side && result != 0; i++)
+	for (s16 j = 0; j < side && result != 0; j++) {
 		v3s16 positions[6] = {
 			v3s16(0, i, j),
-			v3s16(data->side_length - 1, i, j),
+			v3s16(side - 1, i, j),
 			v3s16(i, 0, j),
-			v3s16(i, data->side_length - 1, j),
+			v3s16(i, side - 1, j),
 			v3s16(i, j, 0),
-			v3s16(i, j, data->side_length - 1)
+			v3s16(i, j, side - 1)
 		};
 
 		for (u8 k = 0; k < 6; k++) {

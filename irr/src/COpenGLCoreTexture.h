@@ -137,6 +137,9 @@ public:
 			Images.clear();
 		}
 
+		if (!name.empty())
+			Driver->irrGlObjectLabel(GL_TEXTURE, TextureName, name.c_str());
+
 		Driver->getCacheHandler()->getTextureCache().set(0, prevTexture);
 
 		TEST_GL_ERROR(Driver);
@@ -229,7 +232,7 @@ public:
 #endif
 			GLint max_samples = 0;
 			GL.GetIntegerv(GL_MAX_SAMPLES, &max_samples);
-			MSAA = std::min(MSAA, (u8)max_samples);
+			MSAA = core::min_(MSAA, (u8)max_samples);
 
 			if (use_gl_impl)
 				GL.TexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA, InternalFormat, Size.Width, Size.Height, GL_TRUE);
@@ -246,6 +249,9 @@ public:
 			GL.TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, InternalFormat, Size.Width, Size.Height, 0, PixelFormat, PixelType, 0);
 			break;
 		}
+
+		if (!name.empty())
+			Driver->irrGlObjectLabel(GL_TEXTURE, TextureName, name.c_str());
 
 		Driver->getCacheHandler()->getTextureCache().set(0, prevTexture);
 		if (TEST_GL_ERROR(Driver)) {

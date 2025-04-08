@@ -50,8 +50,7 @@ void FpsControl::limit(IrrlichtDevice *device, f32 *dtime, bool assume_paused)
 
 	if (busy_time < frametime_min) {
 		sleep_time = frametime_min - busy_time;
-		if (sleep_time > 0)
-			sleep_us(sleep_time);
+		porting::preciseSleepUs(sleep_time);
 	} else {
 		sleep_time = 0;
 	}
@@ -376,8 +375,8 @@ std::vector<video::E_DRIVER_TYPE> RenderingEngine::getSupportedVideoDrivers()
 	// Only check these drivers. We do not support software and D3D in any capacity.
 	// ordered by preference (best first)
 	static const video::E_DRIVER_TYPE glDrivers[] = {
-		video::EDT_OPENGL3,
 		video::EDT_OPENGL,
+		video::EDT_OPENGL3,
 		video::EDT_OGLES2,
 		video::EDT_NULL,
 	};

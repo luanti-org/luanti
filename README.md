@@ -1,7 +1,7 @@
 Luanti (formerly Minetest)
 ==========================
 
-![Build Status](https://github.com/minetest/minetest/workflows/build/badge.svg)
+![Build Status](https://github.com/luanti-org/luanti/workflows/build/badge.svg)
 [![Translation status](https://hosted.weblate.org/widgets/minetest/-/svg-badge.svg)](https://hosted.weblate.org/engage/minetest/?utm_source=widget)
 [![License](https://img.shields.io/badge/license-LGPLv2.1%2B-blue.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
 
@@ -28,7 +28,7 @@ Further documentation
 - Website: https://www.luanti.org/
 - Wiki: https://wiki.luanti.org/
 - Forum: https://forum.luanti.org/
-- GitHub: https://github.com/minetest/minetest/
+- GitHub: https://github.com/luanti-org/luanti/
 - [Developer documentation](doc/developing/)
 - [doc/](doc/) directory of source distribution
 

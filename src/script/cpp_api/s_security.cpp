@@ -773,7 +773,7 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 		std::string path = readParam<std::string>(L, 1);
 		const std::string *contents = script->getClient()->getModFile(path);
 		if (!contents) {
-			std::string error_msg = "Coudln't find script called: " + path;
+			std::string error_msg = "Couldn't find script called: " + path;
 			lua_pushnil(L);
 			lua_pushstring(L, error_msg.c_str());
 			return 2;

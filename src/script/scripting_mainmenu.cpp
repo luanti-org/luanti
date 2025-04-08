@@ -9,6 +9,7 @@
 #include "lua_api/l_http.h"
 #include "lua_api/l_mainmenu.h"
 #include "lua_api/l_mainmenu_sound.h"
+#include "lua_api/l_menu_common.h"
 #include "lua_api/l_util.h"
 #include "lua_api/l_settings.h"
 #include "log.h"
@@ -53,12 +54,14 @@ void MainMenuScripting::initializeModApi(lua_State *L, int top)
 	registerLuaClasses(L, top);
 
 	// Initialize mod API modules
+	ModApiMenuCommon::Initialize(L, top);
 	ModApiMainMenu::Initialize(L, top);
 	ModApiUtil::Initialize(L, top);
 	ModApiMainMenuSound::Initialize(L, top);
 	ModApiHttp::Initialize(L, top);
 
 	asyncEngine.registerStateInitializer(registerLuaClasses);
+	asyncEngine.registerStateInitializer(ModApiMenuCommon::InitializeAsync);
 	asyncEngine.registerStateInitializer(ModApiMainMenu::InitializeAsync);
 	asyncEngine.registerStateInitializer(ModApiUtil::InitializeAsync);
 	asyncEngine.registerStateInitializer(ModApiHttp::InitializeAsync);

@@ -408,7 +408,16 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 		file:close()
 	end
 
-	if parse_mods then
+	-- TODO: Support game/mod settings in the pause menu too
+	-- Note that this will need to work different from how it's done in the
+	-- mainmenu:
+	-- * Only if in singleplayer / on local server, not on remote servers
+	-- * Only show settings for the active game and mods
+	--   (add API function to get them, can return nil if on a remote server)
+	--   (names are probably not enough, will need paths for uniqueness)
+	-- This means just making "pkgmgr.lua" work won't get you very far.
+
+	if INIT == "mainmenu" and parse_mods then
 		-- Parse games
 		local games_category_initialized = false
 		for _, game in ipairs(pkgmgr.games) do

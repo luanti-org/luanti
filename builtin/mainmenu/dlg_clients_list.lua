@@ -32,7 +32,7 @@ end
 
 local function clients_list_buttonhandler(this, fields)
 	if fields.quit then
-        this:delete()
+		this:delete()
 		return true
 	end
 	return false

@@ -10,7 +10,6 @@
 #include "IEventReceiver.h"
 #include "EGUIElementTypes.h"
 #include "EGUIAlignment.h"
-#include "IGUIEnvironment.h"
 #include <cassert>
 #include <list>
 #include <vector>
@@ -19,6 +18,8 @@ namespace irr
 {
 namespace gui
 {
+class IGUIEnvironment;
+
 //! Base class of all GUI elements.
 class IGUIElement : virtual public IReferenceCounted, public IEventReceiver
 {

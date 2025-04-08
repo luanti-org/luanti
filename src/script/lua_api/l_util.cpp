@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include "irrlichttypes_extrabloated.h"
 #include "lua_api/l_util.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_settings.h"

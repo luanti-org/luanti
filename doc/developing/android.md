@@ -2,7 +2,7 @@
 
 ## Sign the Android APK from CI
 
-The [Github Actions Workflow](https://github.com/minetest/minetest/actions?query=workflow%3Aandroid+event%3Apush)
+The [Github Actions Workflow](https://github.com/luanti-org/luanti/actions?query=workflow%3Aandroid+event%3Apush)
 automatically produces an APK for each architecture.
 Before installing them onto a device they however need to be signed.
 

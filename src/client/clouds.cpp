@@ -445,8 +445,8 @@ void Clouds::readSettings()
 	// chosen to avoid exactly that.
 	// refer to vertex_count in updateMesh()
 	m_enable_3d = g_settings->getBool("enable_3d_clouds");
-	const u16 maximum = m_enable_3d ? 62 : 25;
-	m_cloud_radius_i = rangelim(g_settings->getU16("cloud_radius"), 1, maximum);
+	const u16 maximum = !m_enable_3d ? 62 : 25;
+	m_cloud_radius_i = rangelim(g_settings->getU16("cloud_radius"), 8, maximum);
 
 	invalidateMesh();
 }

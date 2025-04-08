@@ -35,7 +35,6 @@ public:
 	void on_damage_taken(int32_t damage_amount);
 	void on_hp_modification(int32_t newhp);
 	void environment_step(float dtime);
-	void on_formspec_input(const std::string &formname, const StringMap &fields);
 
 	bool on_dignode(v3s16 p, MapNode node);
 	bool on_punchnode(v3s16 p, MapNode node);

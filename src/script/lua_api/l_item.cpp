@@ -445,13 +445,13 @@ int LuaItemStack::l_equals(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	LuaItemStack *o1 = checkObject<LuaItemStack>(L, 1);
 
- 	// checks for non-userdata argument
+	// checks for non-userdata argument
 	if (!lua_isuserdata(L, 2)) {
 		lua_pushboolean(L, false);
 		return 1;
 	}
 
- 	// check that the argument is an ItemStack
+	// check that the argument is an ItemStack
 	if (!lua_getmetatable(L, 2)) {
 		lua_pushboolean(L, false);
 		return 1;

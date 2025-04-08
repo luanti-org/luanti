@@ -170,9 +170,6 @@ public:
 			const core::position2d<s32> &end,
 			SColor color = SColor(255, 255, 255, 255)) override;
 
-	//! Draws a 3d box
-	void draw3DBox(const core::aabbox3d<f32> &box, SColor color = SColor(255, 255, 255, 255)) override;
-
 	//! Draws a 3d line.
 	virtual void draw3DLine(const core::vector3df &start,
 			const core::vector3df &end,
@@ -240,18 +237,13 @@ public:
 	//! Adds a new material renderer to the VideoDriver, using GLSL to render geometry.
 	virtual s32 addHighLevelShaderMaterial(
 			const c8 *vertexShaderProgram,
-			const c8 *vertexShaderEntryPointName,
-			E_VERTEX_SHADER_TYPE vsCompileTarget,
 			const c8 *pixelShaderProgram,
-			const c8 *pixelShaderEntryPointName,
-			E_PIXEL_SHADER_TYPE psCompileTarget,
 			const c8 *geometryShaderProgram,
-			const c8 *geometryShaderEntryPointName = "main",
-			E_GEOMETRY_SHADER_TYPE gsCompileTarget = EGST_GS_4_0,
+			const c8 *shaderName = nullptr,
 			scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 			scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 			u32 verticesOut = 0,
-			IShaderConstantSetCallBack *callback = 0,
+			IShaderConstantSetCallBack *callback = nullptr,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 			s32 userData = 0) override;
 

@@ -29,6 +29,7 @@
 #include "threading/mutex_auto_lock.h"
 #include "common/c_converter.h"
 #include "gui/guiOpenURL.h"
+#include "gettext.h"
 
 /******************************************************************************/
 std::string ModApiMainMenu::getTextData(lua_State *L, const std::string &name)
@@ -876,27 +877,6 @@ int ModApiMainMenu::l_download_file(lua_State *L)
 }
 
 /******************************************************************************/
-int ModApiMainMenu::l_get_video_drivers(lua_State *L)
-{
-	auto drivers = RenderingEngine::getSupportedVideoDrivers();
-
-	lua_newtable(L);
-	for (u32 i = 0; i != drivers.size(); i++) {
-		auto &info = RenderingEngine::getVideoDriverInfo(drivers[i]);
-
-		lua_newtable(L);
-		lua_pushstring(L, info.name.c_str());
-		lua_setfield(L, -2, "name");
-		lua_pushstring(L, info.friendly_name.c_str());
-		lua_setfield(L, -2, "friendly_name");
-
-		lua_rawseti(L, -2, i + 1);
-	}
-
-	return 1;
-}
-
-/******************************************************************************/
 int ModApiMainMenu::l_get_language(lua_State *L)
 {
 	std::string lang = gettext("LANG_CODE");
@@ -904,16 +884,6 @@ int ModApiMainMenu::l_get_language(lua_State *L)
 		lang = "";
 
 	lua_pushstring(L, lang.c_str());
-	return 1;
-}
-
-/******************************************************************************/
-int ModApiMainMenu::l_gettext(lua_State *L)
-{
-	const char *srctext = luaL_checkstring(L, 1);
-	const char *text = *srctext ? gettext(srctext) : "";
-	lua_pushstring(L, text);
-
 	return 1;
 }
 
@@ -949,14 +919,6 @@ int ModApiMainMenu::l_get_window_info(lua_State *L)
 }
 
 /******************************************************************************/
-int ModApiMainMenu::l_get_active_driver(lua_State *L)
-{
-	auto drivertype = RenderingEngine::get_video_driver()->getDriverType();
-	lua_pushstring(L, RenderingEngine::getVideoDriverInfo(drivertype).name.c_str());
-	return 1;
-}
-
-
 int ModApiMainMenu::l_get_active_renderer(lua_State *L)
 {
 	lua_pushstring(L, RenderingEngine::get_video_driver()->getName());
@@ -979,14 +941,6 @@ int ModApiMainMenu::l_get_active_irrlicht_device(lua_State *L)
 	lua_pushstring(L, device_name);
 	return 1;
 }
-
-/******************************************************************************/
-int ModApiMainMenu::l_irrlicht_device_supports_touch(lua_State *L)
-{
-	lua_pushboolean(L, RenderingEngine::get_raw_device()->supportsTouchEvents());
-	return 1;
-}
-
 
 /******************************************************************************/
 int ModApiMainMenu::l_get_min_supp_proto(lua_State *L)
@@ -1122,13 +1076,9 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(show_path_select_dialog);
 	API_FCT(download_file);
 	API_FCT(get_language);
-	API_FCT(gettext);
-	API_FCT(get_video_drivers);
 	API_FCT(get_window_info);
-	API_FCT(get_active_driver);
 	API_FCT(get_active_renderer);
 	API_FCT(get_active_irrlicht_device);
-	API_FCT(irrlicht_device_supports_touch);
 	API_FCT(get_min_supp_proto);
 	API_FCT(get_max_supp_proto);
 	API_FCT(get_formspec_version);
@@ -1165,5 +1115,4 @@ void ModApiMainMenu::InitializeAsync(lua_State *L, int top)
 	API_FCT(get_max_supp_proto);
 	API_FCT(get_formspec_version);
 	API_FCT(get_language);
-	API_FCT(gettext);
 }

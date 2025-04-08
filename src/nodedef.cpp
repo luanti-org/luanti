@@ -742,7 +742,7 @@ static void fillTileAttribs(ITextureSource *tsrc, TileLayer *layer,
 	}
 }
 
-bool isWorldAligned(AlignStyle style, WorldAlignMode mode, NodeDrawType drawtype)
+static bool isWorldAligned(AlignStyle style, WorldAlignMode mode, NodeDrawType drawtype)
 {
 	if (style == ALIGN_STYLE_WORLD)
 		return true;

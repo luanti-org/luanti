@@ -234,10 +234,10 @@ core.register_chatcommand("dump_wear_bar", {
 })
 
 core.register_chatcommand("set_saturation", {
-    params = "<saturation>",
-    description = "Set the saturation for current player.",
-    func = function(player_name, param)
-        local saturation = tonumber(param)
-        core.get_player_by_name(player_name):set_lighting({saturation = saturation })
-    end
+	params = "<saturation>",
+	description = "Set the saturation for current player.",
+	func = function(player_name, param)
+		local saturation = tonumber(param)
+		core.get_player_by_name(player_name):set_lighting({saturation = saturation })
+	end
 })

@@ -10,6 +10,7 @@
 #include "client/tile.h"
 #include "settings.h"
 #include "mt_opengl.h"
+#include <ISceneManager.h>
 
 PostProcessingStep::PostProcessingStep(u32 _shader_id, const std::vector<u8> &_texture_map) :
 	shader_id(_shader_id), texture_map(_texture_map)
@@ -21,7 +22,7 @@ PostProcessingStep::PostProcessingStep(u32 _shader_id, const std::vector<u8> &_t
 void PostProcessingStep::configureMaterial()
 {
 	material.UseMipMaps = false;
-	material.ZBuffer = true;
+	material.ZBuffer = video::ECFN_LESSEQUAL;
 	material.ZWriteEnable = video::EZW_ON;
 	for (u32 k = 0; k < texture_map.size(); ++k) {
 		material.TextureLayers[k].AnisotropicFilter = 0;
@@ -196,7 +197,7 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 		}
 
 		if (enable_volumetric_light) {
-			buffer->setTexture(TEXTURE_VOLUME, scale, "volume", color_format);
+			buffer->setTexture(TEXTURE_VOLUME, scale, "volume", bloom_format);
 
 			shader_id = client->getShaderSource()->getShaderRaw("volumetric_light");
 			auto volume = pipeline->addStep<PostProcessingStep>(shader_id, std::vector<u8> { source, TEXTURE_DEPTH });

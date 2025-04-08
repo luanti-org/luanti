@@ -4,14 +4,22 @@
 
 #pragma once
 
-#include <map>
-#include "irrlichttypes_extrabloated.h"
-#include "clientobject.h"
+#include "EMaterialTypes.h"
+#include "IDummyTransformationSceneNode.h"
+#include "irrlichttypes.h"
+
 #include "object_properties.h"
-#include "itemgroup.h"
+#include "clientobject.h"
 #include "constants.h"
+#include "itemgroup.h"
 #include <cassert>
+#include <map>
 #include <memory>
+
+namespace irr::scene {
+	class IMeshSceneNode;
+	class IBillboardSceneNode;
+}
 
 class Camera;
 class Client;

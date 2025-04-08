@@ -7,7 +7,6 @@
 #include "guiKeyChangeMenu.h"
 #include "debug.h"
 #include "guiButton.h"
-#include "serialization.h"
 #include <string>
 #include <IGUICheckBox.h>
 #include <IGUIEditBox.h>
@@ -16,7 +15,7 @@
 #include <IGUIFont.h>
 #include <IVideoDriver.h>
 #include "settings.h"
-#include <algorithm>
+#include "gettext.h"
 
 #include "mainmenumanager.h"  // for g_gamecallback
 

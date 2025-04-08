@@ -109,18 +109,20 @@ void CMeshSceneNode::render()
 	// for debug purposes only:
 	if (DebugDataVisible && PassCount == 1) {
 		video::SMaterial m;
-		m.AntiAliasing = 0;
+		m.AntiAliasing = video::EAAM_OFF;
+		m.ZBuffer = video::ECFN_DISABLED;
 		driver->setMaterial(m);
 
-		if (DebugDataVisible & scene::EDS_BBOX) {
-			driver->draw3DBox(Box, video::SColor(255, 255, 255, 255));
-		}
 		if (DebugDataVisible & scene::EDS_BBOX_BUFFERS) {
 			for (u32 g = 0; g < Mesh->getMeshBufferCount(); ++g) {
 				driver->draw3DBox(
 						Mesh->getMeshBuffer(g)->getBoundingBox(),
 						video::SColor(255, 190, 128, 128));
 			}
+		}
+
+		if (DebugDataVisible & scene::EDS_BBOX) {
+			driver->draw3DBox(Box, video::SColor(255, 255, 255, 255));
 		}
 
 		if (DebugDataVisible & scene::EDS_NORMALS) {

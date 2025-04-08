@@ -16,7 +16,7 @@ set(VERSION_PATCH 0)
 set(VERSION_EXTRA "" CACHE STRING "Stuff to append to version string")
 
 # Change to false for releases
-set(DEVELOPMENT_BUILD TRUE)
+set(DEVELOPMENT_BUILD FALSE)
 
 set(VERSION_STRING "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 if(VERSION_EXTRA)
@@ -48,7 +48,7 @@ endif()
 # - win32/gcc: fails to link
 # - win32/clang: works
 # - macOS on x86: seems to be fine
-# - macOS on ARM: crashes, see <https://github.com/minetest/minetest/issues/14397>
+# - macOS on ARM: crashes, see <https://github.com/luanti-org/luanti/issues/14397>
 # Note: since CMake has no easy architecture detection disabling for Mac entirely
 #### ####
 if((WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU") OR APPLE)

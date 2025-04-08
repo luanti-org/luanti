@@ -8,7 +8,6 @@
 #include <mutex>
 #include "network/networkprotocol.h"
 #include "irr_v3d.h"
-#include "util/container.h"
 #include "util/metricsbackend.h"
 #include "mapgen/mapgen.h" // for MapgenParams
 #include "map.h"

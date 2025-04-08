@@ -3,7 +3,6 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "mesh.h"
-#include "S3DVertex.h"
 #include "debug.h"
 #include "log.h"
 #include <cmath>
@@ -11,6 +10,9 @@
 #include <IAnimatedMesh.h>
 #include <SAnimatedMesh.h>
 #include <IAnimatedMeshSceneNode.h>
+#include "S3DVertex.h"
+#include "SMesh.h"
+#include "SMeshBuffer.h"
 
 inline static void applyShadeFactor(video::SColor& color, float factor)
 {

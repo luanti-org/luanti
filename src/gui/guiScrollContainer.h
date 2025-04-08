@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
-#include "util/string.h"
 #include "guiScrollBar.h"
 
 class GUIScrollContainer : public gui::IGUIElement

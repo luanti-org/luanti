@@ -41,10 +41,9 @@ bool MapSettingsManager::getMapSetting(
 }
 
 
-bool MapSettingsManager::getMapSettingNoiseParams(
+bool MapSettingsManager::getNoiseParams(
 	const std::string &name, NoiseParams *value_out) const
 {
-	// TODO: Rename to "getNoiseParams"
 	return m_map_settings->getNoiseParams(name, *value_out);
 }
 

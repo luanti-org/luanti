@@ -948,7 +948,7 @@ IGUIElement *CGUIEnvironment::getNextElement(bool reverse, bool group)
 			// this element is not part of the tab cycle,
 			// but its parent might be...
 			IGUIElement *el = Focus;
-			while (el && el->getParent() && startOrder == -1) {
+			while (el->getParent() && startOrder == -1) {
 				el = el->getParent();
 				startOrder = el->getTabOrder();
 			}

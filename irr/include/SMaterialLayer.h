@@ -45,7 +45,7 @@ static const char *const aTextureClampNames[] = {
 //! Texture minification filter.
 /** Used when scaling textures down. See the documentation on OpenGL's
 `GL_TEXTURE_MIN_FILTER` for more information. */
-enum E_TEXTURE_MIN_FILTER
+enum E_TEXTURE_MIN_FILTER : u8
 {
 	//! Aka nearest-neighbor.
 	ETMINF_NEAREST_MIPMAP_NEAREST = 0,
@@ -61,7 +61,7 @@ enum E_TEXTURE_MIN_FILTER
 /** Used when scaling textures up. See the documentation on OpenGL's
 `GL_TEXTURE_MAG_FILTER` for more information.
 Note that mipmaps are only used for minification, not for magnification. */
-enum E_TEXTURE_MAG_FILTER
+enum E_TEXTURE_MAG_FILTER : u8
 {
 	//! Aka nearest-neighbor.
 	ETMAGF_NEAREST = 0,

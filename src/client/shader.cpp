@@ -6,7 +6,6 @@
 #include <fstream>
 #include <iterator>
 #include "shader.h"
-#include "irrlichttypes_extrabloated.h"
 #include "irr_ptr.h"
 #include "debug.h"
 #include "filesys.h"
@@ -19,7 +18,6 @@
 #include <IMaterialRendererServices.h>
 #include <IShaderConstantSetCallBack.h>
 #include "client/renderingengine.h"
-#include <EShaderTypes.h>
 #include "gettext.h"
 #include "log.h"
 #include "gamedef.h"
@@ -615,9 +613,15 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		#define textureFlags texture2
 	)";
 
+	/// Unique name of this shader, for debug/logging
+	std::string log_name = name;
+
 	/* Define constants for node and object shaders */
 	const bool node_shader = drawtype != NodeDrawType_END;
 	if (node_shader) {
+
+	log_name.append(" mat=").append(itos(material_type))
+		.append(" draw=").append(itos(drawtype));
 
 	bool use_discard = fully_programmable;
 	if (!use_discard) {
@@ -682,11 +686,21 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
 		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
 		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-		case TILE_MATERIAL_LIQUID_TRANSPARENT:
 			shaders_header << "#define MATERIAL_WAVING_LIQUID 1\n";
 			break;
 		default:
 			shaders_header << "#define MATERIAL_WAVING_LIQUID 0\n";
+			break;
+	}
+	switch (material_type) {
+		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+		case TILE_MATERIAL_LIQUID_TRANSPARENT:
+			shaders_header << "#define MATERIAL_WATER_REFLECTIONS 1\n";
+			break;
+		default:
+			shaders_header << "#define MATERIAL_WATER_REFLECTIONS 0\n";
 			break;
 	}
 
@@ -762,18 +776,15 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		geometry_shader_ptr = geometry_shader.c_str();
 	}
 
-	irr_ptr<ShaderCallback> cb{new ShaderCallback(m_setter_factories)};
-	infostream<<"Compiling high level shaders for "<<name<<std::endl;
+	auto cb = make_irr<ShaderCallback>(m_setter_factories);
+	infostream << "Compiling high level shaders for " << log_name << std::endl;
 	s32 shadermat = gpu->addHighLevelShaderMaterial(
-		vertex_shader.c_str(), nullptr, video::EVST_VS_1_1,
-		fragment_shader.c_str(), nullptr, video::EPST_PS_1_1,
-		geometry_shader_ptr, nullptr, video::EGST_GS_4_0, scene::EPT_TRIANGLES, scene::EPT_TRIANGLES, 0,
-		cb.get(), shaderinfo.base_material,  1);
+		vertex_shader.c_str(), fragment_shader.c_str(), geometry_shader_ptr,
+		log_name.c_str(), scene::EPT_TRIANGLES, scene::EPT_TRIANGLES, 0,
+		cb.get(), shaderinfo.base_material);
 	if (shadermat == -1) {
-		errorstream<<"generate_shader(): "
-				"failed to generate \""<<name<<"\", "
-				"addHighLevelShaderMaterial failed."
-				<<std::endl;
+		errorstream << "generateShader(): failed to generate shaders for "
+			<< log_name << ", addHighLevelShaderMaterial failed." << std::endl;
 		dumpShaderProgram(warningstream, "Vertex", vertex_shader);
 		dumpShaderProgram(warningstream, "Fragment", fragment_shader);
 		dumpShaderProgram(warningstream, "Geometry", geometry_shader);

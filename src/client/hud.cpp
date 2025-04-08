@@ -874,7 +874,6 @@ void Hud::drawSelectionMesh()
 {
 	if (m_mode == HIGHLIGHT_NONE || (m_mode == HIGHLIGHT_HALO && !m_selection_mesh))
 		return;
-	const video::SMaterial oldmaterial = driver->getMaterial2D();
 	driver->setMaterial(m_selection_material);
 	const core::matrix4 oldtransform = driver->getTransform(video::ETS_WORLD);
 
@@ -910,7 +909,6 @@ void Hud::drawSelectionMesh()
 			driver->drawMeshBuffer(buf);
 		}
 	}
-	driver->setMaterial(oldmaterial);
 	driver->setTransform(video::ETS_WORLD, oldtransform);
 }
 
@@ -935,17 +933,11 @@ void Hud::drawBlockBounds()
 		return;
 	}
 
-	video::SMaterial old_material = driver->getMaterial2D();
 	driver->setMaterial(m_block_bounds_material);
 
 	u16 mesh_chunk_size = std::max<u16>(1, g_settings->getU16("client_mesh_chunk"));
 
-	v3s16 pos = player->getStandingNodePos();
-	v3s16 block_pos(
-		floorf((float) pos.X / MAP_BLOCKSIZE),
-		floorf((float) pos.Y / MAP_BLOCKSIZE),
-		floorf((float) pos.Z / MAP_BLOCKSIZE)
-	);
+	v3s16 block_pos = getContainerPos(player->getStandingNodePos(), MAP_BLOCKSIZE);
 
 	v3f cam_offset = intToFloat(client->getCamera()->getOffset(), BS);
 
@@ -988,8 +980,6 @@ void Hud::drawBlockBounds()
 			choose_color(block_pos.Y, block_pos.Z)
 		);
 	}
-
-	driver->setMaterial(old_material);
 }
 
 void Hud::updateSelectionMesh(const v3s16 &camera_offset)

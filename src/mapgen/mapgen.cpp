@@ -763,7 +763,7 @@ void MapgenBasic::generateBiomes()
 		// If no stone surface detected in mapchunk column and a water surface
 		// biome fallback exists, add it to the biomemap. This avoids water
 		// surface decorations failing in deep water.
- 		if (biomemap[index] == BIOME_NONE && water_biome_index != 0)
+		if (biomemap[index] == BIOME_NONE && water_biome_index != 0)
 			biomemap[index] = water_biome_index;
 	}
 }

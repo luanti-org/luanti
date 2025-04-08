@@ -417,7 +417,6 @@ set(independent_SRCS
 	hud.cpp
 	inventory.cpp
 	itemstackmetadata.cpp
-	lighting.cpp
 	log.cpp
 	metadata.cpp
 	modchannels.cpp

@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "util/container.h"
-#include <string>
-#include <queue>
 #include "irrlichttypes.h"
+#include "util/container.h" // MutexedQueue
+#include <string>
 
 enum ChatEventType {
 	CET_CHAT,

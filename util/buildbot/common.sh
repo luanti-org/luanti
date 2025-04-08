@@ -1,4 +1,4 @@
-CORE_GIT=https://github.com/minetest/minetest
+CORE_GIT=https://github.com/luanti-org/luanti
 CORE_BRANCH=master
 CORE_NAME=minetest
 
@@ -87,9 +87,6 @@ add_cmake_libs () {
 		-DJPEG_LIBRARY=$libdir/libjpeg/lib/libjpeg.dll.a
 		-DJPEG_INCLUDE_DIR=$libdir/libjpeg/include
 		-DJPEG_DLL="$(_dlls $libdir/libjpeg/bin/libjpeg*)"
-
-		-DCMAKE_PREFIX_PATH=$libdir/sdl2/lib/cmake
-		-DSDL2_DLL="$(_dlls $libdir/sdl2/bin/*)"
 
 		-DZLIB_INCLUDE_DIR=$libdir/zlib/include
 		-DZLIB_LIBRARY=$libdir/zlib/lib/libz.dll.a

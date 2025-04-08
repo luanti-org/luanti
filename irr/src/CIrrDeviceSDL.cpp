@@ -256,7 +256,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 	if (++SDLDeviceInstances == 1) {
 #ifdef __ANDROID__
 		// Blocking on pause causes problems with multiplayer.
-		// See https://github.com/minetest/minetest/issues/10842.
+		// see <https://github.com/luanti-org/luanti/issues/10842>
 		SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "0");
 		SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE_PAUSEAUDIO, "0");
 
@@ -270,7 +270,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
 
 		// Disabling the compositor is not a good idea in windowed mode.
-		// See https://github.com/minetest/minetest/issues/14596
+		// see <https://github.com/luanti-org/luanti/issues/14596>
 		SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
 
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
@@ -1246,6 +1246,15 @@ bool CIrrDeviceSDL::isWindowVisible() const
 bool CIrrDeviceSDL::supportsTouchEvents() const
 {
 	return true;
+}
+
+//! Checks whether windowing uses the Wayland protocol.
+bool CIrrDeviceSDL::isUsingWayland() const
+{
+	if (!Window)
+		return false;
+	auto *name = SDL_GetCurrentVideoDriver();
+	return name && !strcmp(name, "wayland");
 }
 
 //! returns if window is active. if not, nothing need to be drawn

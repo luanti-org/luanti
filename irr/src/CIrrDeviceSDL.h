@@ -96,6 +96,9 @@ public:
 	//! Checks if the Irrlicht device supports touch events.
 	bool supportsTouchEvents() const override;
 
+	//! Checks whether windowing uses the Wayland protocol.
+	bool isUsingWayland() const override;
+
 	//! Get the position of this window on screen
 	core::position2di getWindowPosition() override;
 

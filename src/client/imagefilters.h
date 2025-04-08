@@ -6,6 +6,7 @@
 
 #include "irrlichttypes.h"
 #include <rect.h>
+#include <SColor.h>
 
 namespace irr::video
 {
@@ -25,6 +26,10 @@ namespace irr::video
  * 0 when alpha blending is used.
  */
 void imageCleanTransparent(video::IImage *src, u32 threshold);
+
+/* Returns the gamma-correct average color of the image, with transparent pixels
+ * ignored. */
+video::SColor imageAverageColor(const video::IImage *img);
 
 /* Scale a region of an image into another image, using nearest-neighbor with
  * anti-aliasing; treat pixels as crisp rectangles, but blend them at boundaries

@@ -3892,7 +3892,7 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 							fields[name] = "CHG:" + itos(e->getPos());
 						else
 							fields[name] = "VAL:" + itos(e->getPos());
- 					}
+					}
 				} else if (s.ftype == f_AnimatedImage) {
 					// No dynamic cast possible due to some distributions shipped
 					// without rtti support in Irrlicht
@@ -5056,7 +5056,7 @@ double GUIFormSpecMenu::calculateImgsize(const parserData &data)
 {
 	// must stay in sync with ClientDynamicInfo::calculateMaxFSSize
 
-    const double screen_dpi = RenderingEngine::getDisplayDensity() * 96;
+	const double screen_dpi = RenderingEngine::getDisplayDensity() * 96;
 	const double gui_scaling = g_settings->getFloat("gui_scaling", 0.5f, 42.0f);
 
 	// Fixed-size mode

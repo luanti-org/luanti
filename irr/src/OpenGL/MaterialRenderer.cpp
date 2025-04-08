@@ -24,6 +24,7 @@ COpenGL3MaterialRenderer::COpenGL3MaterialRenderer(COpenGL3DriverBase *driver,
 		s32 &outMaterialTypeNr,
 		const c8 *vertexShaderProgram,
 		const c8 *pixelShaderProgram,
+		const c8 *debugName,
 		IShaderConstantSetCallBack *callback,
 		E_MATERIAL_TYPE baseMaterial,
 		s32 userData) :
@@ -45,7 +46,7 @@ COpenGL3MaterialRenderer::COpenGL3MaterialRenderer(COpenGL3DriverBase *driver,
 	if (CallBack)
 		CallBack->grab();
 
-	init(outMaterialTypeNr, vertexShaderProgram, pixelShaderProgram);
+	init(outMaterialTypeNr, vertexShaderProgram, pixelShaderProgram, debugName);
 }
 
 COpenGL3MaterialRenderer::COpenGL3MaterialRenderer(COpenGL3DriverBase *driver,
@@ -98,6 +99,7 @@ GLuint COpenGL3MaterialRenderer::getProgram() const
 void COpenGL3MaterialRenderer::init(s32 &outMaterialTypeNr,
 		const c8 *vertexShaderProgram,
 		const c8 *pixelShaderProgram,
+		const c8 *debugName,
 		bool addMaterial)
 {
 	outMaterialTypeNr = -1;
@@ -120,6 +122,9 @@ void COpenGL3MaterialRenderer::init(s32 &outMaterialTypeNr,
 
 	if (!linkProgram())
 		return;
+
+	if (debugName)
+		Driver->irrGlObjectLabel(GL_PROGRAM, Program, debugName);
 
 	if (addMaterial)
 		outMaterialTypeNr = Driver->addMaterialRenderer(this);

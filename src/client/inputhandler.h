@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrlichttypes.h"
+#include "irr_v2d.h"
 #include "joystick_controller.h"
 #include <list>
 #include "keycode.h"

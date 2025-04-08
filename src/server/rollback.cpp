@@ -224,7 +224,12 @@ bool RollbackManager::createTables()
 		"	FOREIGN KEY (`oldNode`)   REFERENCES `node`(`id`),\n"
 		"	FOREIGN KEY (`newNode`)   REFERENCES `node`(`id`)\n"
 		");\n"
-		"CREATE INDEX IF NOT EXISTS `actionIndex` ON `action`(`x`,`y`,`z`,`timestamp`,`actor`);\n",
+		// We run queries with the following filters:
+		// - `timestamp` >= ? AND `actor` = ?
+		// - `timestamp` >= ?
+		// - `timestamp` >= ? AND <range query on X, Y, Z>
+		"CREATE INDEX IF NOT EXISTS `actionIndex` ON `action`(`x`,`y`,`z`,`timestamp`,`actor`);\n"
+		"CREATE INDEX IF NOT EXISTS `actionTimestampActorIndex` ON `action`(`timestamp`,`actor`);\n",
 		NULL, NULL, NULL));
 	verbosestream << "SQL Rollback: SQLite3 database structure was created" << std::endl;
 

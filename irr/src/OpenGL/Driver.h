@@ -189,18 +189,13 @@ public:
 	//! Adds a new material renderer to the VideoDriver
 	virtual s32 addHighLevelShaderMaterial(
 			const c8 *vertexShaderProgram,
-			const c8 *vertexShaderEntryPointName = 0,
-			E_VERTEX_SHADER_TYPE vsCompileTarget = EVST_VS_1_1,
-			const c8 *pixelShaderProgram = 0,
-			const c8 *pixelShaderEntryPointName = 0,
-			E_PIXEL_SHADER_TYPE psCompileTarget = EPST_PS_1_1,
-			const c8 *geometryShaderProgram = 0,
-			const c8 *geometryShaderEntryPointName = "main",
-			E_GEOMETRY_SHADER_TYPE gsCompileTarget = EGST_GS_4_0,
+			const c8 *pixelShaderProgram,
+			const c8 *geometryShaderProgram = nullptr,
+			const c8 *shaderName = nullptr,
 			scene::E_PRIMITIVE_TYPE inType = scene::EPT_TRIANGLES,
 			scene::E_PRIMITIVE_TYPE outType = scene::EPT_TRIANGLE_STRIP,
 			u32 verticesOut = 0,
-			IShaderConstantSetCallBack *callback = 0,
+			IShaderConstantSetCallBack *callback = nullptr,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
 			s32 userData = 0) override;
 

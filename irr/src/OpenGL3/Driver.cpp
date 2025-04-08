@@ -69,8 +69,12 @@ void COpenGL3Driver::initFeatures()
 	TextureFormats[ECF_D24S8] = {GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8};
 
 	AnisotropicFilterSupported = isVersionAtLeast(4, 6) || queryExtension("GL_ARB_texture_filter_anisotropic") || queryExtension("GL_EXT_texture_filter_anisotropic");
+	LODBiasSupported = true;
 	BlendMinMaxSupported = true;
 	TextureMultisampleSupported = true;
+	KHRDebugSupported = isVersionAtLeast(4, 6) || queryExtension("GL_KHR_debug");
+	if (KHRDebugSupported)
+		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
 
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 16, "Only up to 16 textures are guaranteed");

@@ -1070,39 +1070,39 @@ void safe_print_string(std::ostream &os, std::string_view str)
 
 std::optional<v3f> str_to_v3f(std::string_view str)
 {
-    str = trim(str);
+	str = trim(str);
 
-    if (str.empty())
-        return std::nullopt;
+	if (str.empty())
+		return std::nullopt;
 
-    // Strip parentheses if they exist
-    if (str.front() == '(' && str.back() == ')') {
-        str.remove_prefix(1);
-        str.remove_suffix(1);
-        str = trim(str);
-    }
+	// Strip parentheses if they exist
+	if (str.front() == '(' && str.back() == ')') {
+		str.remove_prefix(1);
+		str.remove_suffix(1);
+		str = trim(str);
+	}
 
-    std::istringstream iss((std::string(str)));
+	std::istringstream iss((std::string(str)));
 
-    const auto expect_delimiter = [&]() {
-        const auto c = iss.get();
-        return c == ' ' || c == ',';
-    };
+	const auto expect_delimiter = [&]() {
+		const auto c = iss.get();
+		return c == ' ' || c == ',';
+	};
 
-    v3f value;
-    if (!(iss >> value.X))
-        return std::nullopt;
-    if (!expect_delimiter())
-        return std::nullopt;
-    if (!(iss >> value.Y))
-        return std::nullopt;
-    if (!expect_delimiter())
-        return std::nullopt;
-    if (!(iss >> value.Z))
-        return std::nullopt;
+	v3f value;
+	if (!(iss >> value.X))
+		return std::nullopt;
+	if (!expect_delimiter())
+		return std::nullopt;
+	if (!(iss >> value.Y))
+		return std::nullopt;
+	if (!expect_delimiter())
+		return std::nullopt;
+	if (!(iss >> value.Z))
+		return std::nullopt;
 
-    if (!iss.eof())
-        return std::nullopt;
+	if (!iss.eof())
+		return std::nullopt;
 
-    return value;
+	return value;
 }

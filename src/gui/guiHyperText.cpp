@@ -777,7 +777,7 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 										std::max(f.margin, p.margin);
 
 						} else if (f.rect.UpperLeftCorner.X - f.margin <= left &&
-							 	f.rect.LowerRightCorner.X + f.margin >= right) {
+								f.rect.LowerRightCorner.X + f.margin >= right) {
 							// float taking all space
 							left = right;
 						}

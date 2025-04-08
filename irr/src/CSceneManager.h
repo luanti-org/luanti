@@ -179,6 +179,11 @@ public:
 	//! Set current render time.
 	void setCurrentRenderPass(E_SCENE_NODE_RENDER_PASS nextPass) override { CurrentRenderPass = nextPass; }
 
+	void setGlobalDebugData(u16 setBits, u16 unsetBits) override {
+		DebugDataMask = ~unsetBits;
+		DebugDataBits = setBits;
+	}
+
 	//! returns if node is culled
 	bool isCulled(const ISceneNode *node) const override;
 
@@ -267,6 +272,9 @@ private:
 
 	//! Mesh cache
 	IMeshCache *MeshCache;
+
+	//! Global debug render state
+	u16 DebugDataMask = 0, DebugDataBits = 0;
 
 	E_SCENE_NODE_RENDER_PASS CurrentRenderPass;
 };

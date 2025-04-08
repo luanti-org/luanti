@@ -160,8 +160,8 @@ void PcgRandom::getState(u64 state[2]) const
 
 void PcgRandom::setState(const u64 state[2])
 {
-  m_state = state[0];
-  m_inc = state[1];
+	m_state = state[0];
+	m_inc = state[1];
 }
 
 ///////////////////////////////////////////////////////////////////////////////

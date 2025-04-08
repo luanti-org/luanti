@@ -9,6 +9,7 @@
 #include <IFileSystem.h>
 #include <json/json.h>
 #include "client.h"
+#include "client/fontengine.h"
 #include "network/clientopcodes.h"
 #include "network/connection.h"
 #include "network/networkpacket.h"
@@ -37,6 +38,7 @@
 #include "profiler.h"
 #include "shader.h"
 #include "gettext.h"
+#include "gettime.h"
 #include "clientdynamicinfo.h"
 #include "clientmap.h"
 #include "clientmedia.h"
@@ -360,6 +362,9 @@ Client::~Client()
 	for (auto &csp : m_sounds_client_to_server)
 		m_sound->freeId(csp.first);
 	m_sounds_client_to_server.clear();
+
+	// Go back to our mainmenu fonts
+	g_fontengine->clearMediaFonts();
 }
 
 void Client::connect(const Address &address, const std::string &address_name,
@@ -563,7 +568,8 @@ void Client::step(float dtime)
 			std::vector<MinimapMapblock*> minimap_mapblocks;
 			bool do_mapper_update = true;
 
-			MapSector *sector = m_env.getMap().emergeSector(v2s16(r.p.X, r.p.Z));
+			ClientMap &map = m_env.getClientMap();
+			MapSector *sector = map.emergeSector(v2s16(r.p.X, r.p.Z));
 
 			MapBlock *block = sector->getBlockNoCreateNoEx(r.p.Y);
 
@@ -575,6 +581,8 @@ void Client::step(float dtime)
 
 			if (block) {
 				// Delete the old mesh
+				if (block->mesh)
+					map.invalidateMapBlockMesh(block->mesh);
 				delete block->mesh;
 				block->mesh = nullptr;
 				block->solid_sides = r.solid_sides;
@@ -589,9 +597,9 @@ void Client::step(float dtime)
 						if (r.mesh->getMesh(l)->getMeshBufferCount() != 0)
 							is_empty = false;
 
-					if (is_empty)
+					if (is_empty) {
 						delete r.mesh;
-					else {
+					} else {
 						// Replace with the new mesh
 						block->mesh = r.mesh;
 						if (r.urgent)
@@ -830,6 +838,13 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 		TRACESTREAM(<< "Client: Loading translation: "
 				<< "\"" << filename << "\"" << std::endl);
 		g_client_translations->loadTranslation(filename, data);
+		return true;
+	}
+
+	const char *font_ext[] = {".ttf", ".woff", NULL};
+	name = removeStringEnd(filename, font_ext);
+	if (!name.empty()) {
+		g_fontengine->setMediaFont(name, data);
 		return true;
 	}
 
@@ -1744,11 +1759,6 @@ void Client::addUpdateMeshTaskForNode(v3s16 nodepos, bool ack_to_server, bool ur
 		addUpdateMeshTask(blockpos + v3s16(0, -1, 0), false, urgent);
 	if (nodepos.Z == blockpos_relative.Z)
 		addUpdateMeshTask(blockpos + v3s16(0, 0, -1), false, urgent);
-}
-
-void Client::updateCameraOffset(v3s16 camera_offset)
-{
-	m_mesh_update_manager->m_camera_offset = camera_offset;
 }
 
 ClientEvent *Client::getClientEvent()

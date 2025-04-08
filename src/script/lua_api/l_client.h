@@ -33,9 +33,6 @@ private:
 	// get_player_names()
 	static int l_get_player_names(lua_State *L);
 
-	// show_formspec(name, formspec)
-	static int l_show_formspec(lua_State *L);
-
 	// disconnect()
 	static int l_disconnect(lua_State *L);
 

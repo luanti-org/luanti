@@ -47,7 +47,7 @@ dofile(menupath .. DIR_DELIM .. "game_theme.lua")
 dofile(menupath .. DIR_DELIM .. "content" .. DIR_DELIM .. "init.lua")
 
 dofile(menupath .. DIR_DELIM .. "dlg_config_world.lua")
-dofile(menupath .. DIR_DELIM .. "settings" .. DIR_DELIM .. "init.lua")
+dofile(basepath .. "common" .. DIR_DELIM .. "settings" .. DIR_DELIM .. "init.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_create_world.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_delete_content.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_delete_world.lua")
@@ -56,6 +56,7 @@ dofile(menupath .. DIR_DELIM .. "dlg_rename_modpack.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_version_info.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_reinstall_mtg.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_clients_list.lua")
+dofile(menupath .. DIR_DELIM .. "dlg_server_list_mods.lua")
 
 local tabs = {
 	content  = dofile(menupath .. DIR_DELIM .. "tab_content.lua"),

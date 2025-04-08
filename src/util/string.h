@@ -753,9 +753,9 @@ inline std::string stringw_to_utf8(const irr::core::stringw &input)
 	return wide_to_utf8(sv);
 }
 
- /**
-  * Create an irr::core:stringw from a UTF8 std::string.
-  */
+/**
+ * Create an irr::core:stringw from a UTF8 std::string.
+ */
 inline irr::core::stringw utf8_to_stringw(std::string_view input)
 {
 	std::wstring str = utf8_to_wide(input);

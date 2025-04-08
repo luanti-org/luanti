@@ -15,8 +15,7 @@ class IItemDefManager;
 class ItemStackMetadata : public SimpleMetadata
 {
 public:
-	ItemStackMetadata():
-			toolcaps_overridden(false)
+	ItemStackMetadata()
 	{}
 
 	// Overrides
@@ -29,7 +28,7 @@ public:
 	const ToolCapabilities &getToolCapabilities(
 			const ToolCapabilities &default_caps) const
 	{
-		return toolcaps_overridden ? toolcaps_override : default_caps;
+		return toolcaps_override.has_value() ? *toolcaps_override : default_caps;
 	}
 
 	void setToolCapabilities(const ToolCapabilities &caps);
@@ -40,7 +39,6 @@ public:
 		return wear_bar_override;
 	}
 
-
 	void setWearBarParams(const WearBarParams &params);
 	void clearWearBarParams();
 
@@ -48,7 +46,6 @@ private:
 	void updateToolCapabilities();
 	void updateWearBarParams();
 
-	bool toolcaps_overridden;
-	ToolCapabilities toolcaps_override;
+	std::optional<ToolCapabilities> toolcaps_override;
 	std::optional<WearBarParams> wear_bar_override;
 };

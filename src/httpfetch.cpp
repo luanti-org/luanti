@@ -744,7 +744,7 @@ static void httpfetch_request_clear(u64 caller)
 bool httpfetch_sync_interruptible(const HTTPFetchRequest &fetch_request,
 		HTTPFetchResult &fetch_result, long interval)
 {
-	if (Thread *thread = Thread::getCurrentThread()) {
+	if (const Thread *thread = Thread::getCurrentThread()) {
 		HTTPFetchRequest req = fetch_request;
 		req.caller = httpfetch_caller_alloc_secure();
 		httpfetch_async(req);

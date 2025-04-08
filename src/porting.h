@@ -32,11 +32,15 @@
 	#define sleep_ms(x) Sleep(x)
 	#define sleep_us(x) Sleep((x)/1000)
 
+	#define SLEEP_ACCURACY_US 2000
+
 	#define setenv(n,v,o) _putenv_s(n,v)
 	#define unsetenv(n) _putenv_s(n,"")
 #else
 	#include <unistd.h>
 	#include <cstdlib> // setenv
+
+	#define SLEEP_ACCURACY_US 200
 
 	#define sleep_ms(x) usleep((x)*1000)
 	#define sleep_us(x) usleep(x)
@@ -63,9 +67,9 @@
 #ifndef _WIN32 // POSIX
 	#include <sys/time.h>
 	#include <ctime>
-    #if defined(__MACH__) && defined(__APPLE__)
-        #include <TargetConditionals.h>
-    #endif
+	#if defined(__MACH__) && defined(__APPLE__)
+		#include <TargetConditionals.h>
+	#endif
 #endif
 
 namespace porting
@@ -218,6 +222,21 @@ inline u64 getDeltaMs(u64 old_time_ms, u64 new_time_ms)
 	}
 
 	return (old_time_ms - new_time_ms);
+}
+
+inline void preciseSleepUs(u64 sleep_time)
+{
+	if (sleep_time > 0)
+	{
+		u64 target_time = porting::getTimeUs() + sleep_time;
+		if (sleep_time > SLEEP_ACCURACY_US)
+			sleep_us(sleep_time - SLEEP_ACCURACY_US);
+
+		// Busy-wait the remaining time to adjust for sleep inaccuracies
+		// The target - now > 0 construct will handle overflow gracefully (even though it should
+		// never happen)
+		while ((s64)(target_time - porting::getTimeUs()) > 0) {}
+	}
 }
 
 inline const char *getPlatformName()

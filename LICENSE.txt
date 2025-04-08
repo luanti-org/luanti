@@ -14,6 +14,9 @@ https://www.apache.org/licenses/LICENSE-2.0.html
 Textures by Zughy are under CC BY-SA 4.0
 https://creativecommons.org/licenses/by-sa/4.0/
 
+Textures by cx384 are under CC BY-SA 4.0
+https://creativecommons.org/licenses/by-sa/4.0/
+
 Media files by DS are under CC BY-SA 4.0
 https://creativecommons.org/licenses/by-sa/4.0/
 
@@ -64,7 +67,13 @@ Zughy:
   textures/base/pack/settings_info.png
   textures/base/pack/settings_reset.png
   textures/base/pack/server_url.png
+  textures/base/pack/server_url_unavailable.png
   textures/base/pack/server_view_clients.png
+  textures/base/pack/server_view_clients_unavailable.png
+
+cx384:
+  textures/base/pack/server_view_mods.png
+  textures/base/pack/server_view_mods_unavailable.png
 
 appgurueu:
   textures/base/pack/server_incompatible.png

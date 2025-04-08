@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Catalan (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-28 19:57+0100\n"
+"POT-Creation-Date: 2025-02-09 13:23+0100\n"
 "PO-Revision-Date: 2024-10-06 05:16+0000\n"
 "Last-Translator: Joaquín Villalba <joaco-mono@hotmail.com>\n"
 "Language-Team: Catalan <https://hosted.weblate.org/projects/minetest/"
@@ -78,6 +78,256 @@ msgstr ""
 #, fuzzy
 msgid "[all | <cmd>] [-t]"
 msgstr "[tot | <cmd>]"
+
+#: builtin/common/settings/components.lua
+msgid "Browse"
+msgstr "Navegar"
+
+#: builtin/common/settings/components.lua
+msgid "Edit"
+msgstr "Editar"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Select directory"
+msgstr "Selecciona el fitxer del mod:"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Select file"
+msgstr "Selecciona el fitxer del mod:"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Set"
+msgstr "Seleccionar"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "(No description of setting given)"
+msgstr "(Cap descripció d'ajustament donada)"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#, fuzzy
+msgid "2D Noise"
+msgstr "Soroll de cova #1"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_overwrite.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_delete_content.lua
+#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
+#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+msgid "Cancel"
+msgstr "Cancel·lar"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Lacunarity"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Octaves"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Offset"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Persistence"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+msgid "Save"
+msgstr "Guardar"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Scale"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_create_world.lua
+msgid "Seed"
+msgstr "Llavor"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "X spread"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Y spread"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Z spread"
+msgstr ""
+
+#. ~ "absvalue" is a noise parameter flag.
+#. It is short for "absolute value".
+#. It can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "absvalue"
+msgstr ""
+
+#. ~ "defaults" is a noise parameter flag.
+#. It describes the default processing options
+#. for noise settings in the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#, fuzzy
+msgid "defaults"
+msgstr "Joc per defecte"
+
+#. ~ "eased" is a noise parameter flag.
+#. It is used to make the map smoother and
+#. can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "eased"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(The game will need to enable automatic exposure as well)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(The game will need to enable bloom as well)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(The game will need to enable volumetric lighting as well)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(Use system language)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Accessibility"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Auto"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Chat"
+msgstr "Xat"
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Clear"
+msgstr "Netejar"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "Controls"
+msgstr "Controls"
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/common/settings/shadows_component.lua
+msgid "Disabled"
+msgstr "Desactivat"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Enabled"
+msgstr "Activat"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "General"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Movement"
+msgstr "Moviment ràpid"
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#, fuzzy
+msgid "No results"
+msgstr "Cap resultat"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Reset setting to default"
+msgstr "Restablir per defecte"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Reset setting to default ($1)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Search"
+msgstr "Buscar"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show advanced settings"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show technical names"
+msgstr "Mostrar els noms tècnics"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Touchscreen layout"
+msgstr "Llindar tàctil (px)"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "pause_menu"
+msgstr ""
+
+#: builtin/common/settings/settingtypes.lua
+#, fuzzy
+msgid "Client Mods"
+msgstr "Seleccionar un món:"
+
+#: builtin/common/settings/settingtypes.lua
+#, fuzzy
+msgid "Content: Games"
+msgstr "Continuar"
+
+#: builtin/common/settings/settingtypes.lua
+#, fuzzy
+msgid "Content: Mods"
+msgstr "Continuar"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "(The game will need to enable shadows as well)"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Custom"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
+#: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
+msgid "High"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Low"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Medium"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Very High"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Very Low"
+msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "<none available>"
@@ -171,7 +421,6 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
 msgid "Back"
 msgstr "Enrere"
 
@@ -208,12 +457,6 @@ msgstr "Mods"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "No s'ha pogut obtenir cap paquet"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "No results"
-msgstr "Cap resultat"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
@@ -265,18 +508,6 @@ msgstr "La tecla s'està utilitzant"
 #, fuzzy
 msgid "Base Game:"
 msgstr "Ocultar Joc"
-
-#: builtin/mainmenu/content/dlg_install.lua
-#: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/dlg_delete_content.lua
-#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp src/gui/guiOpenURL.cpp
-#: src/gui/guiPasswordChange.cpp
-msgid "Cancel"
-msgstr "Cancel·lar"
 
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
@@ -417,6 +648,12 @@ msgstr "Error al instal·lar $1 en $2"
 msgid "Unable to install a $1 as a texture pack"
 msgstr "Error al instal·lar $1 en $2"
 
+#: builtin/mainmenu/dlg_clients_list.lua
+msgid ""
+"This is the list of clients connected to\n"
+"$1"
+msgstr ""
+
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
 msgstr "(Habilitat, té algún error)"
@@ -484,12 +721,6 @@ msgstr "Dependències opcionals:"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "Dependències opcionals:"
-
-#: builtin/mainmenu/dlg_config_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Save"
-msgstr "Guardar"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "World:"
@@ -654,11 +885,6 @@ msgid "Sea level rivers"
 msgstr "Rius a nivell del mar"
 
 #: builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Seed"
-msgstr "Llavor"
-
-#: builtin/mainmenu/dlg_create_world.lua
 msgid "Smooth transition between biomes"
 msgstr "Transició suau entre els biomes"
 
@@ -800,6 +1026,23 @@ msgid ""
 "override any renaming here."
 msgstr ""
 
+#: builtin/mainmenu/dlg_server_list_mods.lua
+#, fuzzy
+msgid "Expand all"
+msgstr "Activar tot"
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "Group by prefix"
+msgstr ""
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses a game called $2 and the following mods:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses the following mods:"
+msgstr ""
+
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
 msgstr ""
@@ -824,7 +1067,7 @@ msgstr ""
 msgid "Visit website"
 msgstr ""
 
-#: builtin/mainmenu/init.lua
+#: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Configuració"
 
@@ -837,235 +1080,6 @@ msgid "Try reenabling public serverlist and check your internet connection."
 msgstr ""
 "Intenta tornar a habilitar la llista de servidors públics i comprovi la seva "
 "connexió a Internet ."
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Browse"
-msgstr "Navegar"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Edit"
-msgstr "Editar"
-
-#: builtin/mainmenu/settings/components.lua
-#, fuzzy
-msgid "Select directory"
-msgstr "Selecciona el fitxer del mod:"
-
-#: builtin/mainmenu/settings/components.lua
-#, fuzzy
-msgid "Select file"
-msgstr "Selecciona el fitxer del mod:"
-
-#: builtin/mainmenu/settings/components.lua
-#, fuzzy
-msgid "Set"
-msgstr "Seleccionar"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "(No description of setting given)"
-msgstr "(Cap descripció d'ajustament donada)"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
-msgid "2D Noise"
-msgstr "Soroll de cova #1"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Lacunarity"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Octaves"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Offset"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Persistence"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Scale"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr ""
-
-#. ~ "absvalue" is a noise parameter flag.
-#. It is short for "absolute value".
-#. It can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "absvalue"
-msgstr ""
-
-#. ~ "defaults" is a noise parameter flag.
-#. It describes the default processing options
-#. for noise settings in the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
-msgid "defaults"
-msgstr "Joc per defecte"
-
-#. ~ "eased" is a noise parameter flag.
-#. It is used to make the map smoother and
-#. can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "eased"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(The game will need to enable automatic exposure as well)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(The game will need to enable bloom as well)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(The game will need to enable volumetric lighting as well)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(Use system language)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Accessibility"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Auto"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchcontrols.cpp src/settings_translation_file.cpp
-msgid "Chat"
-msgstr "Xat"
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Clear"
-msgstr "Netejar"
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/client/game.cpp
-#: src/settings_translation_file.cpp
-msgid "Controls"
-msgstr "Controls"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Disabled"
-msgstr "Desactivat"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Enabled"
-msgstr "Activat"
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/settings_translation_file.cpp
-msgid "General"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "Movement"
-msgstr "Moviment ràpid"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "Reset setting to default"
-msgstr "Restablir per defecte"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Search"
-msgstr "Buscar"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show advanced settings"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show technical names"
-msgstr "Mostrar els noms tècnics"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-#, fuzzy
-msgid "Client Mods"
-msgstr "Seleccionar un món:"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-#, fuzzy
-msgid "Content: Games"
-msgstr "Continuar"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-#, fuzzy
-msgid "Content: Mods"
-msgstr "Continuar"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Enable"
-msgstr "Activat"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Shaders are disabled."
-msgstr "Tecla alternativa per a l'actualització de la càmera"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-msgid "This is not a recommended configuration."
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "(The game will need to enable shadows as well)"
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Custom"
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "High"
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Low"
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Medium"
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Very High"
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Very Low"
-msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
@@ -1086,10 +1100,6 @@ msgstr "Desenvolupadors del nucli"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
-msgstr ""
-
-#: builtin/mainmenu/tab_about.lua
-msgid "Irrlicht device:"
 msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
@@ -1252,8 +1262,20 @@ msgstr "Heu d'instal·lar un joc abans d'instal·lar un mod"
 
 #: builtin/mainmenu/tab_online.lua
 #, fuzzy
+msgid "Add favorite"
+msgstr "Esborra preferit"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
 msgid "Address"
 msgstr "Adreça BIND"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Clients:\n"
+"$1"
+msgstr "Client"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
@@ -1271,6 +1293,11 @@ msgid "Favorites"
 msgstr "Preferit"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Game: $1"
+msgstr "Joc"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
 msgstr ""
 
@@ -1284,8 +1311,25 @@ msgid "Login"
 msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
+msgid "Number of mods: $1"
+msgstr ""
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Open server website"
+msgstr "Pas de servidor dedicat"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
+
+#: builtin/mainmenu/tab_online.lua
+msgid ""
+"Possible filters\n"
+"game:<name>\n"
+"mod:<name>\n"
+"player:<name>"
+msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
 #, fuzzy
@@ -1377,24 +1421,6 @@ msgstr ""
 "Comprovi debug.txt per a detalls."
 
 #: src/client/game.cpp
-msgid "- Mode: "
-msgstr ""
-
-#: src/client/game.cpp
-#, fuzzy
-msgid "- Public: "
-msgstr "Públic"
-
-#. ~ PvP = Player versus Player
-#: src/client/game.cpp
-msgid "- PvP: "
-msgstr ""
-
-#: src/client/game.cpp
-msgid "- Server Name: "
-msgstr ""
-
-#: src/client/game.cpp
 #, fuzzy
 msgid "A serialization error occurred:"
 msgstr "Ha ocorregut un error:"
@@ -1403,6 +1429,11 @@ msgstr "Ha ocorregut un error:"
 #, c-format
 msgid "Access denied. Reason: %s"
 msgstr ""
+
+#: src/client/game.cpp
+#, fuzzy
+msgid "All debug info hidden"
+msgstr "Tecla alternativa per a la informació de la depuració"
 
 #: src/client/game.cpp
 #, fuzzy
@@ -1427,6 +1458,10 @@ msgid "Block bounds shown for nearby blocks"
 msgstr ""
 
 #: src/client/game.cpp
+msgid "Bounding boxes shown"
+msgstr ""
+
+#: src/client/game.cpp
 #, fuzzy
 msgid "Camera update disabled"
 msgstr "Tecla alternativa per a l'actualització de la càmera"
@@ -1439,10 +1474,6 @@ msgstr "Tecla alternativa per a l'actualització de la càmera"
 #: src/client/game.cpp
 msgid "Can't show block bounds (disabled by game or mod)"
 msgstr ""
-
-#: src/client/game.cpp
-msgid "Change Password"
-msgstr "Canviar contrasenya"
 
 #: src/client/game.cpp
 #, fuzzy
@@ -1476,39 +1507,6 @@ msgid "Connection failed for unknown reason"
 msgstr ""
 
 #: src/client/game.cpp
-msgid "Continue"
-msgstr "Continuar"
-
-#: src/client/game.cpp
-#, fuzzy
-msgid ""
-"Controls:\n"
-"No menu open:\n"
-"- slide finger: look around\n"
-"- tap: place/punch/use (default)\n"
-"- long tap: dig/use (default)\n"
-"Menu/inventory open:\n"
-"- double tap (outside):\n"
-" --> close\n"
-"- touch stack, touch slot:\n"
-" --> move stack\n"
-"- touch&drag, tap 2nd finger\n"
-" --> place single item to slot\n"
-msgstr ""
-"Controls predeterminats:\n"
-"Amb el menú ocult:\n"
-"- Toc simple: botó activar\n"
-"- Toc doble: posar / utilitzar\n"
-"- Lliscar dit: mirar al voltant\n"
-"Amb el menú / inventari visible:\n"
-"- Toc doble (fora):\n"
-"  -> tancar\n"
-"- Toc a la pila d'objectes:\n"
-"  -> moure la pila\n"
-"- Toc i arrossegar, toc amb 2 dits:\n"
-"  -> col·locar només un objecte\n"
-
-#: src/client/game.cpp
 #, c-format
 msgid "Couldn't resolve address: %s"
 msgstr ""
@@ -1522,30 +1520,14 @@ msgid "Creating server..."
 msgstr "Creant servidor ..."
 
 #: src/client/game.cpp
-msgid "Debug info and profiler graph hidden"
-msgstr ""
-
-#: src/client/game.cpp
 #, fuzzy
 msgid "Debug info shown"
 msgstr "Tecla alternativa per a la informació de la depuració"
 
 #: src/client/game.cpp
-msgid "Debug info, profiler graph, and wireframe hidden"
-msgstr ""
-
-#: src/client/game.cpp
 #, fuzzy, c-format
 msgid "Error creating client: %s"
 msgstr "Creant client ..."
-
-#: src/client/game.cpp
-msgid "Exit to Menu"
-msgstr "Eixir al menú"
-
-#: src/client/game.cpp
-msgid "Exit to OS"
-msgstr "Eixir al S.O"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
@@ -1588,20 +1570,6 @@ msgid "Fog enabled by game or mod"
 msgstr ""
 
 #: src/client/game.cpp
-msgid "Game info:"
-msgstr ""
-
-#: src/client/game.cpp
-#, fuzzy
-msgid "Game paused"
-msgstr "Jocs"
-
-#: src/client/game.cpp
-#, fuzzy
-msgid "Hosting server"
-msgstr "Creant servidor ..."
-
-#: src/client/game.cpp
 msgid "Item definitions..."
 msgstr "Definicions d'objectes ..."
 
@@ -1640,14 +1608,6 @@ msgid "Node definitions..."
 msgstr "Definicions dels nodes ..."
 
 #: src/client/game.cpp
-msgid "Off"
-msgstr ""
-
-#: src/client/game.cpp
-msgid "On"
-msgstr ""
-
-#: src/client/game.cpp
 msgid "Pitch move mode disabled"
 msgstr ""
 
@@ -1660,38 +1620,21 @@ msgid "Profiler graph shown"
 msgstr ""
 
 #: src/client/game.cpp
-#, fuzzy
-msgid "Remote server"
-msgstr "Anunciar servidor"
-
-#: src/client/game.cpp
 msgid "Resolving address..."
 msgstr "Resolent adreça ..."
-
-#: src/client/game.cpp
-msgid "Respawn"
-msgstr "Reaparèixer"
 
 #: src/client/game.cpp
 msgid "Shutting down..."
 msgstr "Tancant ..."
 
-#: src/client/game.cpp
+#: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "Un jugador"
-
-#: src/client/game.cpp
-msgid "Sound Volume"
-msgstr "Volum del so"
 
 #: src/client/game.cpp
 #, fuzzy
 msgid "Sound muted"
 msgstr "Volum del so"
-
-#: src/client/game.cpp
-msgid "Sound system is disabled"
-msgstr ""
 
 #: src/client/game.cpp
 msgid "Sound system is not supported on this build"
@@ -1766,16 +1709,118 @@ msgid "Volume changed to %d%%"
 msgstr ""
 
 #: src/client/game.cpp
+msgid "Wireframe not supported by video driver"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Wireframe shown"
 msgstr ""
 
 #: src/client/game.cpp
-msgid "You died"
-msgstr "Has mort"
-
-#: src/client/game.cpp
 msgid "Zoom currently disabled by game or mod"
 msgstr ""
+
+#: src/client/game_formspec.cpp
+msgid "- Mode: "
+msgstr ""
+
+#: src/client/game_formspec.cpp
+#, fuzzy
+msgid "- Public: "
+msgstr "Públic"
+
+#. ~ PvP = Player versus Player
+#: src/client/game_formspec.cpp
+msgid "- PvP: "
+msgstr ""
+
+#: src/client/game_formspec.cpp
+msgid "- Server Name: "
+msgstr ""
+
+#: src/client/game_formspec.cpp
+msgid "Change Password"
+msgstr "Canviar contrasenya"
+
+#: src/client/game_formspec.cpp
+msgid "Continue"
+msgstr "Continuar"
+
+#: src/client/game_formspec.cpp
+#, fuzzy
+msgid ""
+"Controls:\n"
+"No menu open:\n"
+"- slide finger: look around\n"
+"- tap: place/punch/use (default)\n"
+"- long tap: dig/use (default)\n"
+"Menu/inventory open:\n"
+"- double tap (outside):\n"
+" --> close\n"
+"- touch stack, touch slot:\n"
+" --> move stack\n"
+"- touch&drag, tap 2nd finger\n"
+" --> place single item to slot\n"
+msgstr ""
+"Controls predeterminats:\n"
+"Amb el menú ocult:\n"
+"- Toc simple: botó activar\n"
+"- Toc doble: posar / utilitzar\n"
+"- Lliscar dit: mirar al voltant\n"
+"Amb el menú / inventari visible:\n"
+"- Toc doble (fora):\n"
+"  -> tancar\n"
+"- Toc a la pila d'objectes:\n"
+"  -> moure la pila\n"
+"- Toc i arrossegar, toc amb 2 dits:\n"
+"  -> col·locar només un objecte\n"
+
+#: src/client/game_formspec.cpp
+msgid "Exit to Menu"
+msgstr "Eixir al menú"
+
+#: src/client/game_formspec.cpp
+msgid "Exit to OS"
+msgstr "Eixir al S.O"
+
+#: src/client/game_formspec.cpp
+msgid "Game info:"
+msgstr ""
+
+#: src/client/game_formspec.cpp
+#, fuzzy
+msgid "Game paused"
+msgstr "Jocs"
+
+#: src/client/game_formspec.cpp
+#, fuzzy
+msgid "Hosting server"
+msgstr "Creant servidor ..."
+
+#: src/client/game_formspec.cpp
+msgid "Off"
+msgstr ""
+
+#: src/client/game_formspec.cpp
+msgid "On"
+msgstr ""
+
+#: src/client/game_formspec.cpp
+#, fuzzy
+msgid "Remote server"
+msgstr "Anunciar servidor"
+
+#: src/client/game_formspec.cpp
+msgid "Respawn"
+msgstr "Reaparèixer"
+
+#: src/client/game_formspec.cpp
+msgid "Sound Volume"
+msgstr "Volum del so"
+
+#: src/client/game_formspec.cpp
+msgid "You died"
+msgstr "Has mort"
 
 #: src/client/gameui.cpp
 msgid "Chat currently disabled by game or mod"
@@ -2124,7 +2169,7 @@ msgid "Failed to compile the \"%s\" shader."
 msgstr "Error al instal·lar $1 en $2"
 
 #: src/client/shader.cpp
-msgid "Shaders are enabled but GLSL is not supported by the driver."
+msgid "GLSL is not supported by the driver"
 msgstr ""
 
 #. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
@@ -2176,7 +2221,7 @@ msgstr "Avant"
 msgid "Automatic jumping"
 msgstr ""
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Aux1"
 msgstr ""
 
@@ -2188,7 +2233,7 @@ msgstr "Arrere"
 msgid "Block bounds"
 msgstr ""
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Change camera"
 msgstr "Configurar controls"
@@ -2213,7 +2258,7 @@ msgstr ""
 msgid "Double tap \"jump\" to toggle fly"
 msgstr "Dos tocs \"botar\" per volar"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Drop"
 msgstr "Amollar"
 
@@ -2230,11 +2275,11 @@ msgstr ""
 msgid "Inc. volume"
 msgstr "Volum del so"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Inventory"
 msgstr "Inventari"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Jump"
 msgstr "Botar"
 
@@ -2268,7 +2313,7 @@ msgstr "Següent"
 msgid "Prev. item"
 msgstr ""
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "Seleccionar distancia"
 
@@ -2280,7 +2325,7 @@ msgstr "Dreta"
 msgid "Screenshot"
 msgstr ""
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Sneak"
 msgstr "Discreció"
 
@@ -2289,16 +2334,16 @@ msgstr "Discreció"
 msgid "Toggle HUD"
 msgstr "Activar volar"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle chat log"
 msgstr "Activar ràpid"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle fast"
 msgstr "Activar ràpid"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle fly"
 msgstr "Activar volar"
 
@@ -2307,12 +2352,12 @@ msgstr "Activar volar"
 msgid "Toggle fog"
 msgstr "Activar volar"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle minimap"
 msgstr "Activar noclip"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle noclip"
 msgstr "Activar noclip"
 
@@ -2321,7 +2366,7 @@ msgstr "Activar noclip"
 msgid "Toggle pitchmove"
 msgstr "Activar ràpid"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Zoom"
 msgstr "Zoom"
 
@@ -2358,7 +2403,7 @@ msgstr "Contrasenya vella"
 msgid "Passwords do not match!"
 msgstr "Les contrasenyes no coincideixen!"
 
-#: src/gui/guiVolumeChange.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
 msgid "Exit"
 msgstr "Tancar"
 
@@ -2372,15 +2417,46 @@ msgstr "Utilitza la tecla"
 msgid "Sound Volume: %d%%"
 msgstr "Volum de so: "
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Add button"
+msgstr "Botó del mig"
+
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Done"
+msgstr "Completat!"
+
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Remove"
+msgstr "Anunciar servidor"
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Reset"
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Start dragging a button to add. Tap outside to cancel."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap a button to select it. Drag a button to move it."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap outside to deselect."
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
 msgstr ""
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "Activar volar"
@@ -2587,8 +2663,7 @@ msgid ""
 "-    interlaced: odd/even line based polarization screen support.\n"
 "-    topbottom: split screen top/bottom.\n"
 "-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d\n"
-"Note that the interlaced mode requires shaders to be enabled."
+"-    crossview: Cross-eyed 3d"
 msgstr ""
 "Suport 3D.\n"
 "Currently supported:\n"
@@ -2657,10 +2732,6 @@ msgid "Active object send range"
 msgstr "Rang d'enviament de l'objecte actiu"
 
 #: src/settings_translation_file.cpp
-msgid "Adds particles when digging a node."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr ""
 
@@ -2682,6 +2753,16 @@ msgstr "Nom del món"
 #: src/settings_translation_file.cpp
 msgid "Advanced"
 msgstr "Avançat"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"All mesh buffers with less than this number of vertices will be merged\n"
+"during map rendering. This improves rendering performance."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Allow clouds to look 3D instead of flat."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
@@ -3076,13 +3157,12 @@ msgid "Clouds"
 msgstr "Núvols"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Clouds are a client-side effect."
-msgstr "Els núvols són un efecte de costat del client."
-
-#: src/settings_translation_file.cpp
 msgid "Clouds in menu"
 msgstr "Núvols en el menú"
+
+#: src/settings_translation_file.cpp
+msgid "Color depth for post-processing texture"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Colored fog"
@@ -3107,7 +3187,7 @@ msgid ""
 "as defined by the Free Software Foundation.\n"
 "You can also specify content ratings.\n"
 "These flags are independent from Luanti versions,\n"
-"so see a full list at https://content.minetest.net/help/content_flags/"
+"so see a full list at https://content.luanti.org/help/content_flags/"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3254,6 +3334,14 @@ msgstr "Nivell de registre de depuració"
 
 #: src/settings_translation_file.cpp
 msgid "Debugging"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Decide the color depth of the texture used for the post-processing "
+"pipeline.\n"
+"Reducing this can improve performance, but some effects (e.g. debanding)\n"
+"require more than 8 bits to work."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3410,18 +3498,9 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Desynchronize block animation"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Developer Options"
 msgstr "Informació del mod:"
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Digging particles"
-msgstr "Partícules"
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -3449,6 +3528,14 @@ msgstr "Polsar dues vegades \"botar\" per volar"
 #: src/settings_translation_file.cpp
 msgid "Double-tapping the jump key toggles fly mode."
 msgstr "Polsar dues vegades \"botar\" per alternar el mode de vol."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Draw transparency sorted triangles grouped by their mesh buffers.\n"
+"This breaks transparency sorting between mesh buffers, but avoids "
+"situations\n"
+"where transparency sorting would be very slow otherwise."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -3526,8 +3613,8 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Enable colored shadows.\n"
-"On true translucent nodes cast colored shadows. This is expensive."
+"Enable colored shadows for transculent nodes.\n"
+"This is expensive."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3601,8 +3688,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set.\n"
-"Needs enable_ipv6 to be enabled."
+"Ignored if bind_address is set."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3615,12 +3701,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Enables animation of inventory items."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Enables caching of facedir rotated meshes.\n"
-"This is only effective with shaders disabled."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3928,10 +4008,6 @@ msgid "GUI scaling filter"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "GUI scaling filter txr2img"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Gamepads"
 msgstr "Jocs"
@@ -4165,12 +4241,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, account registration is separate from login in the UI.\n"
-"If disabled, new accounts will be registered automatically when logging in."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
 "If enabled, actions are recorded for rollback.\n"
 "This option is only read when server starts."
 msgstr ""
@@ -4185,6 +4255,13 @@ msgstr ""
 msgid ""
 "If enabled, players cannot join without a password or change theirs to an "
 "empty password."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, server account registration is separate from login in the UI.\n"
+"If disabled, connecting to a server will automatically register a new "
+"account."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4279,10 +4356,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Interval of sending time of day to clients, stated in seconds."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4916,10 +4989,6 @@ msgid "Maximum users"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Mesh cache"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr ""
 
@@ -4950,6 +5019,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Minimum limit of random number of small caves per mapchunk."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Minimum vertex count for mesh buffers"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5042,7 +5115,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Name of the player.\n"
-"When running a server, clients connecting with this name are admins.\n"
+"When running a server, a client connecting with this name is admin.\n"
 "When starting from the main menu, this is overridden."
 msgstr ""
 
@@ -5492,17 +5565,19 @@ msgid ""
 "* None - No antialiasing (default)\n"
 "\n"
 "* FSAA - Hardware-provided full-screen antialiasing\n"
-"(incompatible with Post Processing and Undersampling)\n"
 "A.K.A multi-sample antialiasing (MSAA)\n"
 "Smoothens out block edges but does not affect the insides of textures.\n"
-"A restart is required to change this option.\n"
 "\n"
-"* FXAA - Fast approximate antialiasing (requires shaders)\n"
+"If Post Processing is disabled, changing FSAA requires a restart.\n"
+"Also, if Post Processing is disabled, FSAA will not work together with\n"
+"undersampling or a non-default \"3d_mode\" setting.\n"
+"\n"
+"* FXAA - Fast approximate antialiasing\n"
 "Applies a post-processing filter to detect and smoothen high-contrast "
 "edges.\n"
 "Provides balance between speed and image quality.\n"
 "\n"
-"* SSAA - Super-sampling antialiasing (requires shaders)\n"
+"* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
 "the aliasing effects. This is the slowest and the most accurate method."
 msgstr ""
@@ -5721,16 +5796,6 @@ msgid "Shader path"
 msgstr "Ombres"
 
 #: src/settings_translation_file.cpp
-msgid "Shaders"
-msgstr "Ombres"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Shaders are a fundamental part of rendering and enable advanced visual "
-"effects."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Shadow filter quality"
 msgstr ""
 
@@ -5899,10 +5964,9 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Spread a complete update of shadow map over given number of frames.\n"
+"Spread a complete update of the shadow map over a given number of frames.\n"
 "Higher values might make shadows laggy, lower values\n"
-"will consume more resources.\n"
-"Minimum value: 1; maximum value: 16"
+"will consume more resources."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6192,10 +6256,6 @@ msgid "Time of day when a new world is started, in millihours (0-23999)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Time send interval"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Time speed"
 msgstr ""
 
@@ -6260,6 +6320,10 @@ msgid "Transparency Sorting Distance"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Transparency Sorting Group by Buffers"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Trees noise"
 msgstr ""
 
@@ -6309,7 +6373,10 @@ msgid ""
 "to the game world only, keeping the GUI intact.\n"
 "It should give a significant performance boost at the cost of less detailed "
 "image.\n"
-"Higher values result in a less detailed image."
+"Higher values result in a less detailed image.\n"
+"Note: Undersampling is currently not supported if the \"3d_mode\" setting is "
+"set\n"
+"to a non-default value."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6334,15 +6401,13 @@ msgid "Upper Y limit of floatlands."
 msgstr "Límit absolut de cues emergents"
 
 #: src/settings_translation_file.cpp
-msgid "Use 3D cloud look instead of flat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Use a cloud animation for the main menu background."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Use anisotropic filtering when looking at textures from an angle."
+msgid ""
+"Use anisotropic filtering when looking at textures from an angle.\n"
+"This provides a significant improvement when used together with mipmapping."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6585,20 +6650,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"When gui_scaling_filter_txr2img is true, copy those images\n"
-"from hardware to software for scaling.  When false, fall back\n"
-"to the old scaling method, for video drivers that don't\n"
-"properly support downloading textures back from hardware."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"When using bilinear/trilinear/anisotropic filters, low-resolution textures\n"
-"can be blurred, so automatically upscale them with nearest-neighbor\n"
-"interpolation to preserve crisp pixels. This sets the minimum texture size\n"
-"for the upscaled textures; higher values look sharper, but require more\n"
-"memory. Powers of 2 are recommended. This setting is ONLY applied if\n"
-"bilinear/trilinear/anisotropic filtering is enabled.\n"
+"When using bilinear/trilinear filtering, low-resolution textures\n"
+"can be blurred, so this option automatically upscales them to preserve\n"
+"crisp pixels. This defines the minimum texture size for the upscaled "
+"textures;\n"
+"higher values look sharper, but require more memory.\n"
+"This setting is ONLY applied if any of the mentioned filters are enabled.\n"
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
@@ -6607,10 +6664,6 @@ msgstr ""
 msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Whether node texture animations should be desynchronized per mapblock."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6635,8 +6688,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Whether to mute sounds. You can unmute sounds at any time, unless the\n"
-"sound system is disabled (enable_sound=false).\n"
+"Whether to mute sounds. You can unmute sounds at any time.\n"
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
@@ -6898,6 +6950,10 @@ msgstr ""
 #~ msgid "Clean transparent textures"
 #~ msgstr "Netejar textures transparents"
 
+#, fuzzy
+#~ msgid "Clouds are a client-side effect."
+#~ msgstr "Els núvols són un efecte de costat del client."
+
 #~ msgid "Command key"
 #~ msgstr "Tecla comandament"
 
@@ -6993,6 +7049,10 @@ msgstr ""
 #~ msgstr "Tecla dreta"
 
 #, fuzzy
+#~ msgid "Digging particles"
+#~ msgstr "Partícules"
+
+#, fuzzy
 #~ msgid "Download a game, such as Minetest Game, from minetest.net"
 #~ msgstr ""
 #~ "Descarrega un subjoc, com per exemple minetest_game, des de minetest.net"
@@ -7003,6 +7063,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Downloading and installing $1, please wait..."
 #~ msgstr "Descarregant $1, si us plau esperi ..."
+
+#, fuzzy
+#~ msgid "Enable"
+#~ msgstr "Activat"
 
 #~ msgid "Enable VBO"
 #~ msgstr "Activar VBO"
@@ -7023,9 +7087,6 @@ msgstr ""
 
 #~ msgid "Forward key"
 #~ msgstr "Tecla Avançar"
-
-#~ msgid "Game"
-#~ msgstr "Joc"
 
 #, fuzzy
 #~ msgid "Generate Normal Maps"
@@ -7058,551 +7119,551 @@ msgstr ""
 
 #~ msgid ""
 #~ "Key for decreasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per disminuir el rang de visió.\n"
 #~ "Mira\n"
-#~ "http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for decreasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per disminuir el rang de visió.\n"
 #~ "Mira\n"
-#~ "http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for digging.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per botar.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for increasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per incrementar el rang de visió.\n"
 #~ "Mira\n"
-#~ "http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for increasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per incrementar el rang de visió.\n"
 #~ "Mira\n"
-#~ "http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for jumping.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per botar.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for moving the player backward.\n"
 #~ "Will also disable autoforward, when active.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per moure el jugador cap arrere.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player forward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per moure avant al jugador.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player left.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per moure el jugador cap a l'esquerra.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player right.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per moure el jugador cap a la dreta.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for muting the game.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per botar.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for opening the chat window to type local commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for opening the inventory.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for placing.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per botar.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 11th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 12th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 13th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 14th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 15th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 16th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 17th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 18th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 19th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 20th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 21st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 22nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 23rd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 24th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 25th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 26th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 27th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 28th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 29th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 30th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 31st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 32nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the eighth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the fifth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the first hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the fourth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the next item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the ninth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the previous item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the second hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the seventh hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the sixth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the tenth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the third hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per obrir el inventari.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling autoforward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per botar.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling pitch move mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per botar.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling the camera update. Only used for development\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per moure el jugador cap a l'esquerra.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling the display of chat.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per moure el jugador cap a la dreta.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling the display of fog.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per moure el jugador cap a l'esquerra.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling the display of the large chat console.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per moure el jugador cap a la dreta.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key to use view zoom when possible.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tecla per botar.\n"
-#~ "Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Veure http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
@@ -7704,6 +7765,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Select Package File:"
 #~ msgstr "Selecciona el fitxer del mod:"
+
+#~ msgid "Shaders"
+#~ msgstr "Ombres"
+
+#, fuzzy
+#~ msgid "Shaders are disabled."
+#~ msgstr "Tecla alternativa per a l'actualització de la càmera"
 
 #~ msgid "Simple Leaves"
 #~ msgstr "Fulles senzilles"

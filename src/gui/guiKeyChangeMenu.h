@@ -6,12 +6,11 @@
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
 #include "modalMenu.h"
-#include "gettext.h"
 #include "client/keycode.h"
 #include <string>
 #include <vector>
+#include <IGUIEnvironment.h>
 
 class ISimpleTextureSource;
 

@@ -490,13 +490,19 @@ void CSceneManager::drawAll()
 	// let all nodes register themselves
 	OnRegisterSceneNode();
 
+	const auto &render_node = [this] (ISceneNode *node) {
+		u32 flags = node->isDebugDataVisible();
+		node->setDebugDataVisible((flags & DebugDataMask) | DebugDataBits);
+		node->render();
+	};
+
 	// render camera scenes
 	{
 		CurrentRenderPass = ESNRP_CAMERA;
 		Driver->getOverrideMaterial().Enabled = ((Driver->getOverrideMaterial().EnablePasses & CurrentRenderPass) != 0);
 
 		for (auto *node : CameraList)
-			node->render();
+			render_node(node);
 
 		CameraList.clear();
 	}
@@ -507,7 +513,7 @@ void CSceneManager::drawAll()
 		Driver->getOverrideMaterial().Enabled = ((Driver->getOverrideMaterial().EnablePasses & CurrentRenderPass) != 0);
 
 		for (auto *node : SkyBoxList)
-			node->render();
+			render_node(node);
 
 		SkyBoxList.clear();
 	}
@@ -520,7 +526,7 @@ void CSceneManager::drawAll()
 		std::sort(SolidNodeList.begin(), SolidNodeList.end());
 
 		for (auto &it : SolidNodeList)
-			it.Node->render();
+			render_node(it.Node);
 
 		SolidNodeList.clear();
 	}
@@ -533,7 +539,7 @@ void CSceneManager::drawAll()
 		std::sort(TransparentNodeList.begin(), TransparentNodeList.end());
 
 		for (auto &it : TransparentNodeList)
-			it.Node->render();
+			render_node(it.Node);
 
 		TransparentNodeList.clear();
 	}
@@ -546,7 +552,7 @@ void CSceneManager::drawAll()
 		std::sort(TransparentEffectNodeList.begin(), TransparentEffectNodeList.end());
 
 		for (auto &it : TransparentEffectNodeList)
-			it.Node->render();
+			render_node(it.Node);
 
 		TransparentEffectNodeList.clear();
 	}
@@ -557,7 +563,7 @@ void CSceneManager::drawAll()
 		Driver->getOverrideMaterial().Enabled = ((Driver->getOverrideMaterial().EnablePasses & CurrentRenderPass) != 0);
 
 		for (auto *node : GuiNodeList)
-			node->render();
+			render_node(node);
 
 		GuiNodeList.clear();
 	}

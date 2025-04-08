@@ -4,8 +4,10 @@
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
+#include "IGUIElement.h"
+#include "irrlichttypes_bloated.h"
 #include "irr_ptr.h"
+
 #include "util/string.h"
 #ifdef __ANDROID__
 	#include <porting_android.h>

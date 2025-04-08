@@ -3,7 +3,7 @@
 // Copyright (C) 2022 x2048, Dmitry Kostenko <codeforsmile@gmail.com>
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
+#include "irrlichttypes_bloated.h"
 #include <IrrlichtDevice.h> // used in all render/*.cpp
 #include <IVideoDriver.h> // used in all render/*.cpp
 

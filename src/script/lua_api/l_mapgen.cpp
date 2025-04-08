@@ -552,24 +552,33 @@ int ModApiMapgen::l_get_biome_data(lua_State *L)
 	if (!biomegen)
 		return 0;
 
-	const Biome *biome = biomegen->calcBiomeAtPoint(pos);
-	if (!biome || biome->index == OBJDEF_INVALID_INDEX)
-		return 0;
-
-	lua_newtable(L);
-
-	lua_pushinteger(L, biome->index);
-	lua_setfield(L, -2, "biome");
-
 	if (biomegen->getType() == BIOMEGEN_ORIGINAL) {
 		float heat = ((BiomeGenOriginal*) biomegen)->calcHeatAtPoint(pos);
 		float humidity = ((BiomeGenOriginal*) biomegen)->calcHumidityAtPoint(pos);
+		const Biome *biome = ((BiomeGenOriginal*) biomegen)->calcBiomeFromNoise(heat, humidity, pos);
+		if (!biome || biome->index == OBJDEF_INVALID_INDEX)
+			return 0;
+
+		lua_newtable(L);
+
+		lua_pushinteger(L, biome->index);
+		lua_setfield(L, -2, "biome");
 
 		lua_pushnumber(L, heat);
 		lua_setfield(L, -2, "heat");
 
 		lua_pushnumber(L, humidity);
 		lua_setfield(L, -2, "humidity");
+
+	} else {
+		const Biome *biome = biomegen->calcBiomeAtPoint(pos);
+		if (!biome || biome->index == OBJDEF_INVALID_INDEX)
+			return 0;
+
+		lua_newtable(L);
+
+		lua_pushinteger(L, biome->index);
+		lua_setfield(L, -2, "biome");
 	}
 
 	return 1;
@@ -892,7 +901,7 @@ int ModApiMapgen::l_get_mapgen_setting_noiseparams(lua_State *L)
 		getEmergeManager(L)->map_settings_mgr;
 
 	const char *name = luaL_checkstring(L, 1);
-	if (!settingsmgr->getMapSettingNoiseParams(name, &np))
+	if (!settingsmgr->getNoiseParams(name, &np))
 		return 0;
 
 	push_noiseparams(L, &np);

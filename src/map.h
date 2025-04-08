@@ -298,9 +298,6 @@ protected:
 		u32 needed_count);
 };
 
-#define VMANIP_BLOCK_DATA_INEXIST     1
-#define VMANIP_BLOCK_CONTAINS_CIGNORE 2
-
 class MMVManip : public VoxelManipulator
 {
 public:
@@ -344,4 +341,8 @@ protected:
 		value = flags describing the block
 	*/
 	std::map<v3s16, u8> m_loaded_blocks;
+
+	enum : u8 {
+		VMANIP_BLOCK_DATA_INEXIST = 1 << 0,
+	};
 };

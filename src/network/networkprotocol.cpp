@@ -64,6 +64,7 @@
 		[scheduled bump for 5.11.0]
 */
 
+// Note: Also update core.protocol_versions in builtin when bumping
 const u16 LATEST_PROTOCOL_VERSION = 47;
 
 // See also formspec [Version History] in doc/lua_api.md

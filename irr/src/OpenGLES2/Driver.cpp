@@ -120,10 +120,13 @@ void COpenGLES2Driver::initFeatures()
 	}
 
 	const bool MRTSupported = Version.Major >= 3 || queryExtension("GL_EXT_draw_buffers");
+	LODBiasSupported = queryExtension("GL_EXT_texture_lod_bias");
 	AnisotropicFilterSupported = queryExtension("GL_EXT_texture_filter_anisotropic");
 	BlendMinMaxSupported = (Version.Major >= 3) || FeatureAvailable[IRR_GL_EXT_blend_minmax];
 	TextureMultisampleSupported = isVersionAtLeast(3, 1);
-	const bool TextureLODBiasSupported = queryExtension("GL_EXT_texture_lod_bias");
+	KHRDebugSupported = queryExtension("GL_KHR_debug");
+	if (KHRDebugSupported)
+		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
 
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 8, "Only up to 8 textures are guaranteed");
@@ -141,7 +144,7 @@ void COpenGLES2Driver::initFeatures()
 	if (Version.Major >= 3 || queryExtension("GL_EXT_draw_range_elements"))
 		MaxIndices = GetInteger(GL_MAX_ELEMENTS_INDICES);
 	MaxTextureSize = GetInteger(GL_MAX_TEXTURE_SIZE);
-	if (TextureLODBiasSupported)
+	if (LODBiasSupported)
 		GL.GetFloatv(GL_MAX_TEXTURE_LOD_BIAS, &MaxTextureLODBias);
 	GL.GetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, DimAliasedLine); // NOTE: this is not in the OpenGL ES 2.0 spec...
 	GL.GetFloatv(GL_ALIASED_POINT_SIZE_RANGE, DimAliasedPoint);

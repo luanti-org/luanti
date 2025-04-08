@@ -91,8 +91,7 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	init_args(start_data, cmd_args);
 
 #if USE_SOUND
-	if (g_settings->getBool("enable_sound"))
-		g_sound_manager_singleton = createSoundManagerSingleton();
+	g_sound_manager_singleton = createSoundManagerSingleton();
 #endif
 
 	if (!init_engine())

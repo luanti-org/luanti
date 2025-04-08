@@ -265,8 +265,8 @@ viewing_range (Viewing range) int 190 20 4000
 #    Squared distance of blocks (chunks) when LODs should kick in.
 lod_threshold (LOD Threshold) int 100 4 2000
 
-#    Quality of LODs. A higher number means that the LOD resolution will decerease slower, at a performance cost.
-lod_quality (LOD Quality) float 1.5 1 3
+#    Quality of LODs from 0.5 (low) to 2 (high). A higher number means that the LOD resolution will decerease slower, at a performance cost.
+lod_quality (LOD Quality) float 1.5 0.5 2
 
 #    Undersampling is similar to using a lower screen resolution, but it applies
 #    to the game world only, keeping the GUI intact.
@@ -383,17 +383,12 @@ fog_start (Fog start) float 0.4 0.0 0.99
 
 [**Clouds]
 
-#    Clouds are a client-side effect.
-enable_clouds (Clouds) bool true
-
-#    Use 3D cloud look instead of flat.
-#
-#    Requires: enable_clouds
+#    Allow clouds to look 3D instead of flat.
 enable_3d_clouds (3D clouds) bool true
 
 #   Use smooth cloud shading.
 #
-#   Requires: enable_3d_clouds, enable_clouds
+#   Requires: enable_3d_clouds
 soft_clouds (Soft clouds) bool false
 
 [**Filtering and Antialiasing]
@@ -412,6 +407,7 @@ bilinear_filter (Bilinear filtering) bool false
 trilinear_filter (Trilinear filtering) bool false
 
 #    Use anisotropic filtering when looking at textures from an angle.
+#    This provides a significant improvement when used together with mipmapping.
 anisotropic_filter (Anisotropic filtering) bool false
 
 #    Select the antialiasing method to apply.
@@ -476,9 +472,6 @@ smooth_lighting (Smooth lighting) bool true
 #    Enables tradeoffs that reduce CPU load or increase rendering performance
 #    at the expense of minor visual glitches that do not impact game playability.
 performance_tradeoffs (Tradeoffs for performance) bool false
-
-#    Adds particles when digging a node.
-enable_particles (Digging particles) bool true
 
 
 [**Waving Nodes]
@@ -551,8 +544,8 @@ shadow_map_texture_32bit (Shadow map texture in 32 bits) bool true
 #    Requires: enable_dynamic_shadows, opengl
 shadow_filters (Shadow filter quality) enum 1 0,1,2
 
-#    Enable colored shadows.
-#    On true translucent nodes cast colored shadows. This is expensive.
+#    Enable colored shadows for transculent nodes.
+#    This is expensive.
 #
 #    Requires: enable_dynamic_shadows, opengl
 shadow_map_color (Colored shadows) bool false
@@ -647,8 +640,7 @@ sound_volume (Volume) float 0.8 0.0 1.0
 #    Volume multiplier when the window is unfocused.
 sound_volume_unfocused (Volume when unfocused) float 0.3 0.0 1.0
 
-#    Whether to mute sounds. You can unmute sounds at any time, unless the
-#    sound system is disabled (enable_sound=false).
+#    Whether to mute sounds. You can unmute sounds at any time.
 #    In-game, you can toggle the mute state with the mute key or by using the
 #    pause menu.
 mute_sound (Mute sound) bool false
@@ -688,12 +680,6 @@ formspec_fullscreen_bg_color (Formspec Full-Screen Background Color) string (0,0
 #    filtered in software, but some images are generated directly
 #    to hardware (e.g. render-to-texture for nodes in inventory).
 gui_scaling_filter (GUI scaling filter) bool false
-
-#    When gui_scaling_filter_txr2img is true, copy those images
-#    from hardware to software for scaling.  When false, fall back
-#    to the old scaling method, for video drivers that don't
-#    properly support downloading textures back from hardware.
-gui_scaling_filter_txr2img (GUI scaling filter txr2img) bool true
 
 #    Delay showing tooltips, stated in milliseconds.
 tooltip_show_delay (Tooltip delay) int 400 0 18446744073709551615
@@ -780,18 +766,18 @@ enable_local_map_saving (Saving map received from server) bool false
 #    URL to the server list displayed in the Multiplayer Tab.
 serverlist_url (Serverlist URL) string https://servers.luanti.org
 
-#    If enabled, account registration is separate from login in the UI.
-#    If disabled, new accounts will be registered automatically when logging in.
+#    If enabled, server account registration is separate from login in the UI.
+#    If disabled, connecting to a server will automatically register a new account.
 enable_split_login_register (Enable split login/register) bool true
 
 #    URL to JSON file which provides information about the newest Luanti release.
 #    If this is empty the engine will never check for updates.
-update_information_url (Update information URL) string https://www.minetest.net/release_info.json
+update_information_url (Update information URL) string https://www.luanti.org/release_info.json
 
 [*Server]
 
 #    Name of the player.
-#    When running a server, clients connecting with this name are admins.
+#    When running a server, a client connecting with this name is admin.
 #    When starting from the main menu, this is overridden.
 name (Admin name) string
 
@@ -857,7 +843,8 @@ remote_media (Remote media) string
 
 #    Enable/disable running an IPv6 server.
 #    Ignored if bind_address is set.
-#    Needs enable_ipv6 to be enabled.
+#
+#    Requires: enable_ipv6
 ipv6_server (IPv6 server) bool false
 
 [*Server Security]
@@ -1849,10 +1836,7 @@ transparency_sorting_group_by_buffers (Transparency Sorting Group by Buffers) bo
 
 #    Radius of cloud area stated in number of 64 node cloud squares.
 #    Values larger than 26 will start to produce sharp cutoffs at cloud area corners.
-cloud_radius (Cloud radius) int 12 1 62
-
-#    Whether node texture animations should be desynchronized per mapblock.
-desynchronize_mapblock_texture_animation (Desynchronize block animation) bool false
+cloud_radius (Cloud radius) int 12 8 62
 
 #    Delay between mesh updates on the client in ms. Increasing this will slow
 #    down the rate of mesh updates, thus reducing jitter on slower clients.
@@ -1864,7 +1848,7 @@ mesh_generation_threads (Mapblock mesh generation threads) int 0 0 8
 
 #    All mesh buffers with less than this number of vertices will be merged
 #    during map rendering. This improves rendering performance.
-mesh_buffer_min_vertices (Minimum vertex count for mesh buffers) int 100 0 1000
+mesh_buffer_min_vertices (Minimum vertex count for mesh buffers) int 300 0 1000
 
 #    True = 256
 #    False = 128
@@ -1887,12 +1871,11 @@ world_aligned_mode (World-aligned textures mode) enum enable disable,enable,forc
 #    Warning: This option is EXPERIMENTAL!
 autoscale_mode (Autoscaling mode) enum disable disable,enable,force
 
-#    When using bilinear/trilinear/anisotropic filters, low-resolution textures
-#    can be blurred, so automatically upscale them with nearest-neighbor
-#    interpolation to preserve crisp pixels. This sets the minimum texture size
-#    for the upscaled textures; higher values look sharper, but require more
-#    memory. Powers of 2 are recommended. This setting is ONLY applied if
-#    bilinear/trilinear/anisotropic filtering is enabled.
+#    When using bilinear/trilinear filtering, low-resolution textures
+#    can be blurred, so this option automatically upscales them to preserve
+#    crisp pixels. This defines the minimum texture size for the upscaled textures;
+#    higher values look sharper, but require more memory.
+#    This setting is ONLY applied if any of the mentioned filters are enabled.
 #    This is also used as the base node texture size for world-aligned
 #    texture autoscaling.
 texture_min_size (Base texture size) int 64 1 32768
@@ -1905,8 +1888,8 @@ texture_min_size (Base texture size) int 64 1 32768
 client_mesh_chunk (Client Mesh Chunksize) int 1 1 16
 
 #    Decide the color depth of the texture used for the post-processing pipeline.
-#    Reducing this can improve performance, but might cause some effects (e.g. bloom)
-#    to not work.
+#    Reducing this can improve performance, but some effects (e.g. debanding)
+#    require more than 8 bits to work.
 #
 #    Requires: enable_post_processing
 post_processing_texture_bits (Color depth for post-processing texture) enum 16 8,10,16
@@ -1917,13 +1900,12 @@ post_processing_texture_bits (Color depth for post-processing texture) enum 16 8
 #    Requires: enable_dynamic_shadows, opengl
 shadow_poisson_filter (Poisson filtering) bool true
 
-#    Spread a complete update of shadow map over given number of frames.
+#    Spread a complete update of the shadow map over a given number of frames.
 #    Higher values might make shadows laggy, lower values
 #    will consume more resources.
-#    Minimum value: 1; maximum value: 16
 #
 #    Requires: enable_dynamic_shadows, opengl
-shadow_update_frames (Map shadows update frames) int 8 1 16
+shadow_update_frames (Map shadows update frames) int 16 1 32
 
 #    Set to true to render debugging breakdown of the bloom effect.
 #    In debug mode, the screen is split into 4 quadrants:
@@ -2107,9 +2089,6 @@ max_block_send_distance (Max block send distance) int 12 1 65535
 #    Set this to -1 to disable the limit.
 max_forceloaded_blocks (Maximum forceloaded blocks) int 16 -1
 
-#    Interval of sending time of day to clients, stated in seconds.
-time_send_interval (Time send interval) float 5.0 0.001
-
 #    Interval of saving important changes in the world, stated in seconds.
 server_map_save_interval (Map save interval) float 5.3 0.001
 
@@ -2118,7 +2097,7 @@ server_map_save_interval (Map save interval) float 5.3 0.001
 server_unload_unused_data_timeout (Unload unused server data) int 29 0 4294967295
 
 #    Maximum number of statically stored objects in a block.
-max_objects_per_block (Maximum objects per block) int 256 1 65535
+max_objects_per_block (Maximum objects per block) int 256 256 65535
 
 #    Length of time between active block management cycles, stated in seconds.
 active_block_mgmt_interval (Active block management interval) float 2.0 0.0
@@ -2336,12 +2315,6 @@ show_technical_names (Show technical names) bool false
 
 #    Controlled by a checkbox in the settings menu.
 show_advanced (Show advanced settings) bool false
-
-#    Enables the sound system.
-#    If disabled, this completely disables all sounds everywhere and the in-game
-#    sound controls will be non-functional.
-#    Changing this setting requires a restart.
-enable_sound (Sound) bool true
 
 #    Key for moving the player forward.
 keymap_forward (Forward key) key KEY_KEY_W

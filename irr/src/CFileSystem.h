@@ -91,7 +91,7 @@ public:
 
 private:
 	//! Currently used FileSystemType
-	EFileSystemType FileSystemType;
+	EFileSystemType FileSystemType = FILESYSTEM_NATIVE;
 	//! WorkingDirectory for Native and Virtual filesystems
 	io::path WorkingDirectory[2];
 	//! currently attached ArchiveLoaders

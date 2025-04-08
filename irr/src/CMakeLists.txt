@@ -1,6 +1,6 @@
 # When enabling SDL2 by default on macOS, don't forget to change
 # "NSHighResolutionCapable" to true in "Info.plist".
-if(NOT APPLE)
+if(ANDROID)
 	set(DEFAULT_SDL2 ON)
 endif()
 

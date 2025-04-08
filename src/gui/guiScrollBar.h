@@ -12,8 +12,9 @@ the arrow buttons where there is insufficient space.
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
 #include <optional>
+#include <IGUIElement.h>
+#include <IGUIEnvironment.h>
 
 class ISimpleTextureSource;
 

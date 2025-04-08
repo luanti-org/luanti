@@ -78,7 +78,7 @@ core.register_entity(":__builtin:falling_node", {
 		self.floats = core.get_item_group(node.name, "float") ~= 0
 
 		-- Save liquidtype for falling water
-        self.liquidtype = def.liquidtype
+		self.liquidtype = def.liquidtype
 
 		-- Set entity visuals
 		if def.drawtype == "torchlike" or def.drawtype == "signlike" then
@@ -308,23 +308,26 @@ core.register_entity(":__builtin:falling_node", {
 
 			core.remove_node(bcp)
 		else
+			-- We are placing on top so check what's there
 			np.y = np.y + 1
-		end
 
-		-- Check what's here
-		local n2 = core.get_node(np)
-		local nd = core.registered_nodes[n2.name]
-		-- If it's not air or liquid, remove node and replace it with
-		-- it's drops
-		if n2.name ~= "air" and (not nd or nd.liquidtype ~= "source") then
-			if nd and nd.buildable_to == false then
+			local n2 = core.get_node(np)
+			local nd = core.registered_nodes[n2.name]
+			if not nd or nd.buildable_to then
+				core.remove_node(np)
+			else
+				-- 'walkable' is used to mean "falling nodes can't replace this"
+				-- here. Normally we would collide with the walkable node itself
+				-- and place our node on top (so `n2.name == "air"`), but we
+				-- re-check this in case we ended up inside a node.
+				if not nd.diggable or nd.walkable then
+					return false
+				end
 				nd.on_dig(np, n2, nil)
 				-- If it's still there, it might be protected
 				if core.get_node(np).name == n2.name then
 					return false
 				end
-			else
-				core.remove_node(np)
 			end
 		end
 

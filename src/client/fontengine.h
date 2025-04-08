@@ -5,6 +5,9 @@
 #pragma once
 
 #include <map>
+#include <unordered_map>
+#include "irr_ptr.h"
+#include "irrlicht_changes/CGUITTFont.h"
 #include "util/basic_macros.h"
 #include "irrlichttypes.h"
 #include "irrString.h" // utf8_to_wide
@@ -66,7 +69,7 @@ public:
 	/** get text height for a specific font */
 	unsigned int getTextHeight(const FontSpec &spec);
 
-	/** get text width if a text for a specific font */
+	/** get text width of a text for a specific font */
 	unsigned int getTextHeight(
 			unsigned int font_size=FONT_SIZE_UNSPECIFIED,
 			FontMode mode=FM_Unspecified)
@@ -77,7 +80,7 @@ public:
 
 	unsigned int getTextWidth(const std::wstring &text, const FontSpec &spec);
 
-	/** get text width if a text for a specific font */
+	/** get text width of a text for a specific font */
 	unsigned int getTextWidth(const std::wstring& text,
 			unsigned int font_size=FONT_SIZE_UNSPECIFIED,
 			FontMode mode=FM_Unspecified)
@@ -118,11 +121,15 @@ public:
 	/** update internal parameters from settings */
 	void readSettings();
 
+	void setMediaFont(const std::string &name, const std::string &data);
+
+	void clearMediaFonts();
+
 private:
 	irr::gui::IGUIFont *getFont(FontSpec spec, bool may_fail);
 
 	/** update content of font cache in case of a setting change made it invalid */
-	void updateFontCache();
+	void updateCache();
 
 	/** initialize a new TTF font */
 	gui::IGUIFont *initFont(const FontSpec &spec);
@@ -130,8 +137,10 @@ private:
 	/** update current minetest skin with font changes */
 	void updateSkin();
 
-	/** clean cache */
-	void cleanCache();
+	void clearCache();
+
+	/** refresh after fonts have been changed */
+	void refresh();
 
 	/** pointer to irrlicht gui environment */
 	gui::IGUIEnvironment* m_env = nullptr;
@@ -141,6 +150,9 @@ private:
 
 	/** internal storage for caching fonts of different size */
 	std::map<unsigned int, irr::gui::IGUIFont*> m_font_cache[FM_MaxMode << 2];
+
+	/** media-provided faces, indexed by filename (without extension) */
+	std::unordered_map<std::string, irr_ptr<gui::SGUITTFace>> m_media_faces;
 
 	/** default font size to use */
 	unsigned int m_default_size[FM_MaxMode];

@@ -198,6 +198,9 @@ public:
 	or similar. */
 	virtual bool supportsTouchEvents() const { return false; }
 
+	//! Checks whether windowing uses the Wayland protocol.
+	virtual bool isUsingWayland() const { return false; }
+
 	//! Get the current color format of the window
 	/** \return Color format of the window. */
 	virtual video::ECOLOR_FORMAT getColorFormat() const = 0;

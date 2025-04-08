@@ -8,7 +8,9 @@
 #include <list>
 #include <unordered_map>
 #include <string>
-#include "irrlichttypes_extrabloated.h"
+#include <IGUIElement.h>
+#include <IGUIEnvironment.h>
+#include "irr_v3d.h"
 
 using namespace irr;
 

@@ -2,7 +2,10 @@ local scriptpath = core.get_builtin_path()
 local clientpath = scriptpath.."client"..DIR_DELIM
 local commonpath = scriptpath.."common"..DIR_DELIM
 
-dofile(clientpath .. "register.lua")
+local builtin_shared = {}
+
+assert(loadfile(commonpath .. "register.lua"))(builtin_shared)
+assert(loadfile(clientpath .. "register.lua"))(builtin_shared)
 dofile(commonpath .. "after.lua")
 dofile(commonpath .. "mod_storage.lua")
 dofile(commonpath .. "chatcommands.lua")

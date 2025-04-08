@@ -6,7 +6,7 @@
 #include "anaglyph.h"
 #include "client/camera.h"
 #include <IrrlichtDevice.h>
-
+#include <ISceneManager.h>
 
 /// SetColorMaskStep step
 
@@ -18,7 +18,7 @@ void SetColorMaskStep::run(PipelineContext &context)
 {
 	video::SOverrideMaterial &mat = context.device->getVideoDriver()->getOverrideMaterial();
 	mat.reset();
-	mat.Material.ColorMask = color_mask;
+	mat.Material.ColorMask = static_cast<video::E_COLOR_PLANE>(color_mask);
 	mat.EnableProps = video::EMP_COLOR_MASK;
 	mat.EnablePasses = scene::ESNRP_SKY_BOX | scene::ESNRP_SOLID |
 			   scene::ESNRP_TRANSPARENT | scene::ESNRP_TRANSPARENT_EFFECT;

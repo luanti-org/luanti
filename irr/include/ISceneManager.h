@@ -387,6 +387,14 @@ public:
 	pass currently is active they can render the correct part of their geometry. */
 	virtual E_SCENE_NODE_RENDER_PASS getSceneNodeRenderPass() const = 0;
 
+	/**
+	 * Sets debug data flags that will be set on every rendered scene node.
+	 * Refer to `E_DEBUG_SCENE_TYPE`.
+	 * @param setBits bit mask of types to enable
+	 * @param unsetBits bit mask of types to disable
+	 */
+	virtual void setGlobalDebugData(u16 setBits, u16 unsetBits) = 0;
+
 	//! Creates a new scene manager.
 	/** This can be used to easily draw and/or store two
 	independent scenes at the same time. The mesh cache will be

@@ -5,7 +5,6 @@
 #pragma once
 
 #include <memory>
-#include "debug.h"
 #include "util/container.h"
 #include "irrlichttypes.h"
 #include "util/basic_macros.h"

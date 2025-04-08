@@ -67,9 +67,6 @@ struct button_info
 		SECOND_TEXTURE
 	} toggleable = NOT_TOGGLEABLE;
 	std::string toggle_textures[2];
-
-	void emitAction(bool action, video::IVideoDriver *driver,
-			IEventReceiver *receiver, ISimpleTextureSource *tsrc);
 };
 
 
@@ -123,19 +120,31 @@ public:
 	bool isStatusTextOverriden() { return m_overflow_open; }
 	IGUIStaticText *getStatusText() { return m_status_text.get(); }
 
-	ButtonLayout getLayout() { return m_layout; }
-	void applyLayout(const ButtonLayout &layout);
-
 private:
 	IrrlichtDevice *m_device = nullptr;
 	IGUIEnvironment *m_guienv = nullptr;
 	IEventReceiver *m_receiver = nullptr;
 	ISimpleTextureSource *m_texturesource = nullptr;
+	bool m_visible = true;
+
+	// changes to these two values are handled in TouchControls::step
 	v2u32 m_screensize;
 	s32 m_button_size;
+
+	// cached settings
 	double m_touchscreen_threshold;
 	u16 m_long_tap_delay;
-	bool m_visible = true;
+	bool m_fixed_joystick;
+	bool m_joystick_triggers_aux1;
+
+	static void settingChangedCallback(const std::string &name, void *data);
+	void readSettings();
+
+	ButtonLayout m_layout;
+	void applyLayout(const ButtonLayout &layout);
+
+	// not read from a setting, but set by Game via setUseCrosshair
+	bool m_draw_crosshair = false;
 
 	std::unordered_map<u16, recti> m_hotbar_rects;
 	std::optional<u16> m_hotbar_selection = std::nullopt;
@@ -168,9 +177,6 @@ private:
 	float m_joystick_direction = 0.0f; // assume forward
 	float m_joystick_speed = 0.0f; // no movement
 	bool m_joystick_status_aux1 = false;
-	bool m_fixed_joystick = false;
-	bool m_joystick_triggers_aux1 = false;
-	bool m_draw_crosshair = false;
 	std::shared_ptr<IGUIImage> m_joystick_btn_off;
 	std::shared_ptr<IGUIImage> m_joystick_btn_bg;
 	std::shared_ptr<IGUIImage> m_joystick_btn_center;
@@ -185,6 +191,19 @@ private:
 	std::vector<recti> m_overflow_button_rects;
 
 	std::shared_ptr<IGUIStaticText> m_status_text;
+
+	// Note: TouchControls intentionally uses IGUIImage instead of IGUIButton
+	// for its buttons. We only want static image display, not interactivity,
+	// from Irrlicht.
+
+	void emitKeyboardEvent(EKEY_CODE keycode, bool pressed);
+
+	void loadButtonTexture(IGUIImage *gui_button, const std::string &path);
+	void buttonEmitAction(button_info &btn, bool action);
+
+	bool buttonsHandlePress(std::vector<button_info> &buttons, size_t pointer_id, IGUIElement *element);
+	bool buttonsHandleRelease(std::vector<button_info> &buttons, size_t pointer_id);
+	bool buttonsStep(std::vector<button_info> &buttons, float dtime);
 
 	void toggleOverflowMenu();
 	void updateVisibility();
@@ -227,8 +246,6 @@ private:
 
 	bool m_place_pressed = false;
 	u64 m_place_pressed_until = 0;
-
-	ButtonLayout m_layout;
 };
 
 extern TouchControls *g_touchcontrols;

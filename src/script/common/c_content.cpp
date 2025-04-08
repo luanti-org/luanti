@@ -32,6 +32,23 @@ struct EnumString es_TileAnimationType[] =
 	{0, nullptr},
 };
 
+struct EnumString es_ItemType[] =
+{
+	{ITEM_NONE, "none"},
+	{ITEM_NODE, "node"},
+	{ITEM_CRAFT, "craft"},
+	{ITEM_TOOL, "tool"},
+	{0, NULL},
+};
+
+struct EnumString es_TouchInteractionMode[] =
+{
+	{LONG_DIG_SHORT_PLACE, "long_dig_short_place"},
+	{SHORT_DIG_LONG_PLACE, "short_dig_long_place"},
+	{TouchInteractionMode_USER, "user"},
+	{0, NULL},
+};
+
 /******************************************************************************/
 void read_item_definition(lua_State* L, int index,
 		const ItemDefinition &default_def, ItemDefinition &def)
@@ -175,7 +192,7 @@ void push_item_definition(lua_State *L, const ItemDefinition &i)
 
 void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 {
-	std::string type(es_ItemType[(int)i.type].str);
+	std::string type(enum_to_string(es_ItemType, i.type));
 
 	lua_newtable(L);
 	lua_pushstring(L, i.name.c_str());
@@ -233,11 +250,11 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 
 	lua_createtable(L, 0, 3);
 	const TouchInteraction &inter = i.touch_interaction;
-	lua_pushstring(L, es_TouchInteractionMode[inter.pointed_nothing].str);
+	lua_pushstring(L, enum_to_string(es_TouchInteractionMode, inter.pointed_nothing));
 	lua_setfield(L, -2,"pointed_nothing");
-	lua_pushstring(L, es_TouchInteractionMode[inter.pointed_node].str);
+	lua_pushstring(L, enum_to_string(es_TouchInteractionMode, inter.pointed_node));
 	lua_setfield(L, -2,"pointed_node");
-	lua_pushstring(L, es_TouchInteractionMode[inter.pointed_object].str);
+	lua_pushstring(L, enum_to_string(es_TouchInteractionMode, inter.pointed_object));
 	lua_setfield(L, -2,"pointed_object");
 	lua_setfield(L, -2, "touch_interaction");
 }
@@ -902,7 +919,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	lua_getfield(L, index, "selection_box");
 	if(lua_istable(L, -1))
 		f.selection_box = read_nodebox(L, -1);
- 	lua_pop(L, 1);
+	lua_pop(L, 1);
 
 	lua_getfield(L, index, "collision_box");
 	if(lua_istable(L, -1))
@@ -955,10 +972,10 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 void push_content_features(lua_State *L, const ContentFeatures &c)
 {
-	std::string paramtype(ScriptApiNode::es_ContentParamType[(int)c.param_type].str);
-	std::string paramtype2(ScriptApiNode::es_ContentParamType2[(int)c.param_type_2].str);
-	std::string drawtype(ScriptApiNode::es_DrawType[(int)c.drawtype].str);
-	std::string liquid_type(ScriptApiNode::es_LiquidType[(int)c.liquid_type].str);
+	std::string paramtype(enum_to_string(ScriptApiNode::es_ContentParamType, c.param_type));
+	std::string paramtype2(enum_to_string(ScriptApiNode::es_ContentParamType2, c.param_type_2));
+	std::string drawtype(enum_to_string(ScriptApiNode::es_DrawType, c.drawtype));
+	std::string liquid_type(enum_to_string(ScriptApiNode::es_LiquidType, c.liquid_type));
 
 	/* Missing "tiles" because I don't see a usecase (at least not yet). */
 
@@ -1326,21 +1343,6 @@ int getenumfield(lua_State *L, int table,
 }
 
 /******************************************************************************/
-bool string_to_enum(const EnumString *spec, int &result,
-		const std::string &str)
-{
-	const EnumString *esp = spec;
-	while(esp->str){
-		if (!strcmp(str.c_str(), esp->str)) {
-			result = esp->num;
-			return true;
-		}
-		esp++;
-	}
-	return false;
-}
-
-/******************************************************************************/
 ItemStack read_item(lua_State* L, int index, IItemDefManager *idef)
 {
 	if(index < 0)
@@ -1456,7 +1458,7 @@ void push_wear_bar_params(lua_State *L,
 		const WearBarParams &params)
 {
 	lua_newtable(L);
-	setstringfield(L, -1, "blend", WearBarParams::es_BlendMode[params.blend].str);
+	setstringfield(L, -1, "blend", enum_to_string(WearBarParams::es_BlendMode, params.blend));
 
 	lua_newtable(L);
 	for (const std::pair<const f32, const video::SColor> item: params.colorStops) {
@@ -1594,7 +1596,7 @@ ToolCapabilities read_tool_capabilities(
 						// key at index -2 and value at index -1
 						int rating = luaL_checkinteger(L, -2);
 						float time = luaL_checknumber(L, -1);
-						groupcap.times[rating] = time;
+						groupcap.times.emplace_back(rating, time);
 						// removes value, keeps key for next iteration
 						lua_pop(L, 1);
 					}
@@ -2312,7 +2314,7 @@ void push_hud_element(lua_State *L, HudElement *elem)
 {
 	lua_newtable(L);
 
-	lua_pushstring(L, es_HudElementType[(u8)elem->type].str);
+	lua_pushstring(L, enum_to_string(es_HudElementType, elem->type));
 	lua_setfield(L, -2, "type");
 
 	push_v2f(L, elem->pos);

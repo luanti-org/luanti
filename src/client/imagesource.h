@@ -5,7 +5,7 @@
 #pragma once
 
 #include <IImage.h>
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 
@@ -28,7 +28,7 @@ public:
 	// Primarily fetches from cache, secondarily tries to read from filesystem.
 	video::IImage *getOrLoad(const std::string &name);
 private:
-	std::map<std::string, video::IImage*> m_images;
+	std::unordered_map<std::string, video::IImage*> m_images;
 };
 
 // Generates images using texture modifiers, and caches source images.
@@ -44,9 +44,6 @@ struct ImageSource {
 
 	// Insert a source image into the cache without touching the filesystem.
 	void insertSourceImage(const std::string &name, video::IImage *img, bool prefer_local);
-
-	// TODO should probably be moved elsewhere
-	static video::SColor getImageAverageColor(const video::IImage &image);
 
 private:
 

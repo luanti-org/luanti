@@ -6,25 +6,25 @@
 
 #include "irr_v3d.h"                   // for irrlicht datatypes
 
-#include "constants.h"
-#include "network/networkpacket.h"
-#include "network/networkprotocol.h"
 #include "network/address.h"
+#include "network/networkprotocol.h" // session_t
 #include "porting.h"
 #include "threading/mutex_auto_lock.h"
 #include "clientdynamicinfo.h"
 
 #include <list>
-#include <vector>
-#include <set>
-#include <unordered_map>
-#include <unordered_set>
 #include <memory>
 #include <mutex>
+#include <set>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
-class MapBlock;
-class ServerEnvironment;
 class EmergeManager;
+class MapBlock;
+class NetworkPacket;
+class ServerEnvironment;
 
 /*
  * State Transitions

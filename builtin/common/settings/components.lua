@@ -98,6 +98,7 @@ local function make_field(converter, validator, stringifier)
 				local fs = ("field[0,0.3;%f,0.8;%s;%s;%s]"):format(
 					avail_w - 1.5, setting.name, get_label(setting), core.formspec_escape(value))
 				fs = fs .. ("field_enter_after_edit[%s;true]"):format(setting.name)
+				fs = fs .. ("field_close_on_enter[%s;false]"):format(setting.name) -- for pause menu env
 				fs = fs .. ("button[%f,0.3;1.5,0.8;%s;%s]"):format(avail_w - 1.5, "set_" .. setting.name, fgettext("Set"))
 
 				return fs, 1.1
@@ -217,6 +218,8 @@ local function make_path(setting)
 
 			local fs = ("field[0,0.3;%f,0.8;%s;%s;%s]"):format(
 				avail_w - 3, setting.name, get_label(setting), core.formspec_escape(value))
+			fs = fs .. ("field_enter_after_edit[%s;true]"):format(setting.name)
+			fs = fs .. ("field_close_on_enter[%s;false]"):format(setting.name) -- for pause menu env
 			fs = fs .. ("button[%f,0.3;1.5,0.8;%s;%s]"):format(avail_w - 3, "pick_" .. setting.name, fgettext("Browse"))
 			fs = fs .. ("button[%f,0.3;1.5,0.8;%s;%s]"):format(avail_w - 1.5, "set_" .. setting.name, fgettext("Set"))
 
@@ -249,8 +252,11 @@ local function make_path(setting)
 	}
 end
 
-if PLATFORM == "Android" then
+if PLATFORM == "Android" or INIT == "pause_menu" then
 	-- The Irrlicht file picker doesn't work on Android.
+	-- Access to the Irrlicht file picker isn't implemented in the pause menu.
+	-- We want to delete the Irrlicht file picker anyway, so any time spent on
+	-- that would be wasted.
 	make.path = make.string
 	make.filepath = make.string
 else
@@ -281,6 +287,14 @@ function make.v3f(setting)
 				field_width + 0.25, field_width, setting.name .. "_y", "Y", value.y)
 			fs = fs .. ("field[%f,0.6;%f,0.8;%s;%s;%s]"):format(
 				2 * (field_width + 0.25), field_width, setting.name .. "_z", "Z", value.z)
+
+			fs = fs .. ("field_enter_after_edit[%s;true]"):format(setting.name .. "_x")
+			fs = fs .. ("field_enter_after_edit[%s;true]"):format(setting.name .. "_y")
+			fs = fs .. ("field_enter_after_edit[%s;true]"):format(setting.name .. "_z")
+			-- for pause menu env
+			fs = fs .. ("field_close_on_enter[%s;false]"):format(setting.name .. "_x")
+			fs = fs .. ("field_close_on_enter[%s;false]"):format(setting.name .. "_y")
+			fs = fs .. ("field_close_on_enter[%s;false]"):format(setting.name .. "_z")
 
 			fs = fs .. ("button[%f,0.6;1,0.8;%s;%s]"):format(avail_w, "set_" .. setting.name, fgettext("Set"))
 
@@ -428,8 +442,22 @@ local function make_noise_params(setting)
 	}
 end
 
-make.noise_params_2d = make_noise_params
-make.noise_params_3d = make_noise_params
+if INIT == "pause_menu" then
+	-- Making the noise parameter dialog work in the pause menu settings would
+	-- require porting "FSTK" (at least the dialog API) from the mainmenu formspec
+	-- API to the in-game formspec API.
+	-- There's no reason you'd want to adjust mapgen noise parameter settings
+	-- in-game (they only apply to new worlds), so there's no reason to implement
+	-- this.
+	local empty = function()
+		return { get_formspec = function() return "", 0 end }
+	end
+	make.noise_params_2d = empty
+	make.noise_params_3d = empty
+else
+	make.noise_params_2d = make_noise_params
+	make.noise_params_3d = make_noise_params
+end
 
 
 return make

@@ -782,7 +782,7 @@ inline CMatrix4<T> &CMatrix4<T>::setScale(const vector3d<T> &scale)
 	return *this;
 }
 
-//! Returns the absolute values of the scales of the matrix.
+//! Returns the absolute values of the scales of the 3x3 submatrix.
 /**
 Note: You only get back original values if the matrix only set the scale.
 Otherwise the result is a scale you can use to normalize the matrix axes,
@@ -791,19 +791,15 @@ but it's usually no longer what you did set with setScale.
 template <class T>
 inline vector3d<T> CMatrix4<T>::getScale() const
 {
-	// See http://www.robertblum.com/articles/2005/02/14/decomposing-matrices
-
-	// Deal with the 0 rotation case first
-	// Prior to Irrlicht 1.6, we always returned this value.
-	if (core::iszero(M[1]) && core::iszero(M[2]) &&
-			core::iszero(M[4]) && core::iszero(M[6]) &&
-			core::iszero(M[8]) && core::iszero(M[9]))
-		return vector3d<T>(M[0], M[5], M[10]);
-
-	// We have to do the full calculation.
-	return vector3d<T>(sqrtf(M[0] * M[0] + M[1] * M[1] + M[2] * M[2]),
-			sqrtf(M[4] * M[4] + M[5] * M[5] + M[6] * M[6]),
-			sqrtf(M[8] * M[8] + M[9] * M[9] + M[10] * M[10]));
+	auto row_vector_length = [this](int col) {
+		int i = 4 * col;
+		return sqrtf(M[i] * M[i] + M[i+1] * M[i+1] + M[i+2] * M[i+2]);
+	};
+	return {
+		row_vector_length(0),
+		row_vector_length(1),
+		row_vector_length(2),
+	};
 }
 
 template <class T>
@@ -891,7 +887,7 @@ inline core::vector3d<T> CMatrix4<T>::getRotationDegrees(const vector3d<T> &scal
 
 //! Returns a rotation that is equivalent to that set by setRotationDegrees().
 template <class T>
-inline core::vector3d<T> CMatrix4<T>::getRotationDegrees() const
+inline vector3d<T> CMatrix4<T>::getRotationDegrees() const
 {
 	// Note: Using getScale() here make it look like it could do matrix decomposition.
 	// It can't! It works (or should work) as long as rotation doesn't flip the handedness
@@ -899,21 +895,7 @@ inline core::vector3d<T> CMatrix4<T>::getRotationDegrees() const
 	// crossproduct of first 2 axes to direction of third axis, but TODO)
 	// And maybe it should also offer the solution for the simple calculation
 	// without regarding scaling as Irrlicht did before 1.7
-	core::vector3d<T> scale(getScale());
-
-	// We assume the matrix uses rotations instead of negative scaling 2 axes.
-	// Otherwise it fails even for some simple cases, like rotating around
-	// 2 axes by 180° which getScale thinks is a negative scaling.
-	if (scale.Y < 0 && scale.Z < 0) {
-		scale.Y = -scale.Y;
-		scale.Z = -scale.Z;
-	} else if (scale.X < 0 && scale.Z < 0) {
-		scale.X = -scale.X;
-		scale.Z = -scale.Z;
-	} else if (scale.X < 0 && scale.Y < 0) {
-		scale.X = -scale.X;
-		scale.Y = -scale.Y;
-	}
+	vector3d<T> scale(getScale());
 
 	return getRotationDegrees(scale);
 }
