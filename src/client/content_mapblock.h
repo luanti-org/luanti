@@ -46,8 +46,7 @@ class MapblockMeshGenerator
 {
 public:
 	MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output);
-	void generate();
-    void generateLod();
+    void generate();
 	void renderSingle(content_t node, u8 param2 = 0x00);
 
 private:
@@ -70,6 +69,8 @@ private:
 		TileSpec tile;
 		f32 scale;
 	} cur_node;
+
+    std::mutex lod_mutex;
 
 // lighting
 	void getSmoothLightFrame();
@@ -168,8 +169,13 @@ private:
 	void drawNodeboxNode();
 	void drawMeshNode();
 
+    void generateLod(NodeDrawType, u16);
+    v3s16 findFurthestSolidFrom(NodeDrawType, core::vector3d<s16>, core::vector3d<s16>, core::vector3d<s16>);
+    bool isVolumeAllAir(NodeDrawType, core::vector3d<s16>, core::vector3d<s16>);
+    void drawLodQuad(v3s16, v3s16[4], core::vector3df[4], core::vector2d<f32>[4]);
+    void drawSplitLodQuad(v3s16, v3s16[4], core::vector3df[4], core::vector2d<f32>[4]);
+
 // common
 	void errorUnknownDrawtype();
-	void drawNode();
-    MapNode generateFirstViable(v3s16 p, s16 width);
+    void drawNode();
 };

@@ -77,17 +77,17 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
     /*
      * Calculate LOD
      */
-    v3f cam_pos = m_client->getCamera()->getPosition() * 0.1 / MAP_BLOCKSIZE;
+    v3f cam_pos = m_client->getCamera()->getPosition() * 0.1 / MAP_BLOCKSIZE - 0.5;
     v3f d = v3f{cam_pos.X - mesh_position.X,
-                        cam_pos.Y - mesh_position.Y,
-                        cam_pos.Z - mesh_position.Z};
+                cam_pos.Y - mesh_position.Y,
+                cam_pos.Z - mesh_position.Z};
     u16 dist2 = d.X * d.X + d.Y * d.Y + d.Z * d.Z; // distance squared
-    u16 renderDist = g_settings->getU16("lod_threshold");;
+    u16 renderDist = g_settings->getU16("lod_threshold");
     u16 lod;
     if (dist2 < renderDist) {
-        lod = 1;
+        lod = 0;
     } else {
-        lod = (int) std::log2(dist2 / renderDist);
+        lod = 1 + (u16) (std::log2(dist2 / renderDist) / g_settings->getU16("lod_quality"));
     }
 
 	/*
@@ -105,9 +105,6 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
             if (q->lod != lod) {
                 q->lod = lod;
                 q->urgent = true;
-            } else if (lod > 1) {
-                // lod blocks only need to be updated if the resolution changes, not for any other reason
-                return true;
             } else {
                 q->urgent |= urgent;
             }

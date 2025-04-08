@@ -3,6 +3,7 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include <cmath>
+#include <future>
 #include <map>
 #include "content_mapblock.h"
 #include "util/basic_macros.h"
@@ -406,19 +407,13 @@ void MapblockMeshGenerator::drawSolidNode()
 	u16 lights[6];
     content_t n1 = cur_node.n.getContent();
     for (int face = 0; face < 6; face++) {
-        v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face] * data->lod;
-        MapNode neighbor;
-        s16 width = std::min(data->lod, data->side_length);
-        if (data->lod == 1)
-            neighbor = data->m_vmanip.getNodeNoEx(p2);
-        else
-            neighbor = generateFirstViable(p2, width);
+        v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face];
+        MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
         content_t n2 = neighbor.getContent();
         bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
         if (n2 == n1)
             continue;
-        // LODs make this iffy, since we arent checking the immediate neighbor anymore, so we just skip this step
-        if (n2 == CONTENT_IGNORE && data->lod == 1)
+        if (n2 == CONTENT_IGNORE)
             continue;
         if (n2 != CONTENT_AIR) {
             const ContentFeatures &f2 = nodedef->get(n2);
@@ -438,9 +433,7 @@ void MapblockMeshGenerator::drawSolidNode()
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_HORIZONTAL;
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_VERTICAL;
 		}
-        if (data->lod != 1) {
-            lights[face] = 255;
-        } else if (!data->m_smooth_lighting) {
+        if (!data->m_smooth_lighting) {
             lights[face] = getFaceLight(cur_node.n, neighbor, nodedef);
 		}
     }
@@ -450,10 +443,9 @@ void MapblockMeshGenerator::drawSolidNode()
     cur_node.origin = intToFloat(cur_node.p, BS);
     auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
     f32 texture_coord_buf[24];
+    box.MinEdge += cur_node.origin;
+    box.MaxEdge += cur_node.origin;
     generateCuboidTextureCoords(box, texture_coord_buf);
-    f32 nodeWidth = (data->lod - 1) * BS;
-    box.MinEdge += cur_node.origin - v3f{0, nodeWidth, 0};
-    box.MaxEdge += cur_node.origin + v3f{nodeWidth, 0, nodeWidth};
     if (data->m_smooth_lighting) {
 		LightPair lights[6][4];
 		for (int face = 0; face < 6; ++face) {
@@ -709,7 +701,7 @@ void MapblockMeshGenerator::drawLiquidSides()
 			if (data->m_smooth_lighting)
 				cur_node.color = blendLightColor(pos);
 			pos += cur_node.origin;
-			vertices[j] = video::S3DVertex(pos.X, pos.Y, pos.Z, face.dir.X, face.dir.Y, face.dir.Z, cur_node.color, vertex.u, v);
+            vertices[j] = video::S3DVertex(pos.X, pos.Y, pos.Z, face.dir.X, face.dir.Y, face.dir.Z, cur_node.color, vertex.u, v);
 		};
 		collector->append(cur_liquid.tile, vertices, 4, quad_indices, 6);
 	}
@@ -1108,7 +1100,7 @@ void MapblockMeshGenerator::drawSignlikeNode()
 void MapblockMeshGenerator::drawPlantlikeQuad(float rotation, float quad_offset,
 	bool offset_top_only)
 {
-    const f32 scale = cur_node.scale;// * data->lod; TODO
+    const f32 scale = cur_node.scale;
 	v3f vertices[4] = {
 		v3f(-scale, -BS / 2 + 2.0 * scale * cur_plant.plant_height, 0),
 		v3f( scale, -BS / 2 + 2.0 * scale * cur_plant.plant_height, 0),
@@ -1164,7 +1156,7 @@ void MapblockMeshGenerator::drawPlantlikeQuad(float rotation, float quad_offset,
 void MapblockMeshGenerator::drawPlantlike(bool is_rooted)
 {
 	cur_plant.draw_style = PLANT_STYLE_CROSS;
-    cur_node.scale = BS / 2 * cur_node.f->visual_scale * data->lod;
+    cur_node.scale = BS / 2 * cur_node.f->visual_scale;
 	cur_plant.offset = v3f(0, 0, 0);
 	cur_plant.rotate_degree = 0.0f;
 	cur_plant.random_offset_Y = false;
@@ -1212,10 +1204,7 @@ void MapblockMeshGenerator::drawPlantlike(bool is_rooted)
 				cur_plant.offset.Y +=  BS;
 				break;
 		}
-	}
-
-    f32 nodeWidth = (data->lod - 1) * BS * 0.5;
-    cur_plant.offset += v3f{nodeWidth, 0, nodeWidth};
+    }
 
 	switch (cur_plant.draw_style) {
 	case PLANT_STYLE_CROSS:
@@ -1758,101 +1747,149 @@ void MapblockMeshGenerator::drawNode()
 		case NDT_RAILLIKE:          drawRaillikeNode(); break;
 		case NDT_NODEBOX:           drawNodeboxNode(); break;
 		case NDT_MESH:              drawMeshNode(); break;
-		default:                    errorUnknownDrawtype(); break;
+        default:                    errorUnknownDrawtype(); break;
 	}
 }
 
-MapNode MapblockMeshGenerator::generateFirstViable(v3s16 p, s16 width)
-{
-    // for (s16 y = width - 1; y >= 0; y--)
-    // for (s16 x = 0; x < width; x++)
-    // for (s16 z = 0; z < width; z++) {
-    //     cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16{z, width - 1 - z, z});
-    //     if (cur_node.n.getContent() == CONTENT_AIR) { // AIR
-    //         continue;
-    //     }
-    //     cur_node.f = &nodedef->get(cur_node.n);
-    //     switch (cur_node.f->drawtype) {
-    //     // case NDT_PLANTLIKE:         drawPlantlikeNode(); return;
-    //     // case NDT_PLANTLIKE_ROOTED:  drawPlantlikeRootedNode(); return;
-    //     case NDT_NODEBOX:
-    //     case NDT_FLOWINGLIQUID:
-    //     case NDT_GLASSLIKE:
-    //     case NDT_GLASSLIKE_FRAMED:
-    //     case NDT_ALLFACES:
-    //     // case NDT_NORMAL:
-    //     case NDT_LIQUID:            drawSolidNode(); return;
-    //     default:                    continue;
-    //     }
-    // }
-    // cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p);
-    // if (cur_node.n.getContent() != CONTENT_AIR) { // AIR
-    //     cur_node.f = &nodedef->get(cur_node.n);
-    //     switch (cur_node.f->drawtype) {
-    //         case NDT_PLANTLIKE:         drawPlantlikeNode(); return;
-    //         case NDT_PLANTLIKE_ROOTED:  drawPlantlikeRootedNode(); return;
-    //         case NDT_NODEBOX:
-    //         case NDT_FLOWINGLIQUID:
-    //         case NDT_GLASSLIKE:
-    //         case NDT_GLASSLIKE_FRAMED:
-    //         case NDT_ALLFACES:
-    //         case NDT_NORMAL:            drawSolidNode(); return;
-    //         default:                    return;
-    //     }
-    // }
-    for (s16 i = 0; i < width; i++) {
-        MapNode n = data->m_vmanip.getNodeNoEx(p + v3s16{i, width - 1 - i, i});
-        if (n.getContent() == CONTENT_AIR) { // AIR
+v3s16 MapblockMeshGenerator::findFurthestSolidFrom(NodeDrawType type, core::vector3d<s16> base, core::vector3d<s16> from, core::vector3d<s16> to){
+    s16 max_dist = -1;
+    v3s16 out = v3s16{-1};
+    v3s16 p;
+    for (p.Z = from.Z; p.Z < to.Z; p.Z++)
+    for (p.Y = from.Y; p.Y < to.Y; p.Y++)
+    for (p.X = from.X; p.X < to.X; p.X++) {
+        u16 new_dist = base.getDistanceFromSQ(core::vector3d{p.X, p.Y, p.Z});
+        if (new_dist < max_dist)
             continue;
-        }
+
+        MapNode n = data->m_vmanip.getNodeNoEx(blockpos_nodes + p);
         const ContentFeatures *f = &nodedef->get(n);
-        switch (f->drawtype) {
-            case NDT_PLANTLIKE:         return n;
-            case NDT_PLANTLIKE_ROOTED:  return n;
-            case NDT_NODEBOX:
-            case NDT_FLOWINGLIQUID:
-            case NDT_GLASSLIKE:
-            case NDT_GLASSLIKE_FRAMED:
-            case NDT_ALLFACES:
-            case NDT_NORMAL:
-            case NDT_LIQUID:            return n;
-            default:                    continue;
+
+        if (f->drawtype == type) {
+            max_dist = new_dist;
+            out = v3s16{p};
         }
     }
-    return data->m_vmanip.getNodeNoEx(p);
+    return out;
 }
 
+bool MapblockMeshGenerator::isVolumeAllAir(NodeDrawType type, core::vector3d<s16> from, core::vector3d<s16> to){
+    v3s16 p;
+    for (p.Z = from.Z; p.Z < to.Z; p.Z++)
+    for (p.Y = from.Y; p.Y < to.Y; p.Y++)
+    for (p.X = from.X; p.X < to.X; p.X++) {
+        MapNode n = data->m_vmanip.getNodeNoEx(blockpos_nodes + p);
+        const ContentFeatures *f = &nodedef->get(n);
+        if(f->drawtype == type)
+            return false;
+    }
+    return true;
+}
 
-void MapblockMeshGenerator::generateLod()
-{
-    if (data->lod > data->side_length) {
-        u16 s = data->lod / data->side_length;
-        if (data->m_blockpos.X % s != 0 && data->m_blockpos.Y % s != 0 && data->m_blockpos.Z % s != 0) {
-            // if lod bigger than the block, only render every nth block
-            return;
-        }
+void MapblockMeshGenerator::drawLodQuad(v3s16 direction, v3s16 node_coords[4], core::vector3df vertices[4], core::vector2d<f32> uvs[4]){
+    static const core::vector3df chode = core::vector3df{0};
+    static const video::SColor c(255, 255, 255, 255);
+
+    video::S3DVertex v[4] = {
+        video::S3DVertex(vertices[0], chode, c, uvs[0]),
+        video::S3DVertex(vertices[1], chode, c, uvs[1]),
+        video::S3DVertex(vertices[2], chode, c, uvs[2]),
+        video::S3DVertex(vertices[3], chode, c, uvs[3]),
+    };
+
+    TileSpec tile;
+    MapNode n = data->m_vmanip.getNodeNoEx(blockpos_nodes + node_coords[0]);
+    getNodeTile(n, node_coords[0], direction, data, tile);
+    lod_mutex.lock();
+    collector->append(tile, v, 4, quad_indices, 6);
+    lod_mutex.unlock();
+}
+
+void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width){
+    u8 num_subblocks = data->side_length / width;
+    core::vector2d<f32> uvs[4] = {
+        core::vector2d<f32>{0, 0},
+        core::vector2d<f32>{0, (f32) width / 2},
+        core::vector2d<f32>{(f32) width / 2, 0},
+        core::vector2d<f32>{(f32) width / 2, (f32) width / 2},
+    };
+    std::vector<std::vector<std::vector<bool>>> is_sub_solid(num_subblocks, std::vector<std::vector<bool>>(num_subblocks, std::vector<bool>(num_subblocks)));
+    for (u8 x = 0; x < num_subblocks; x++)
+    for (u8 y = 0; y < num_subblocks; y++)
+    for (u8 z = 0; z < num_subblocks; z++){
+        core::vector3d<s16> from = core::vector3d<s16>{(s16) (x * width), (s16) (y * width), (s16) (z * width)};
+        core::vector3d<s16> to = from + width;
+        is_sub_solid[x][y][z] = !isVolumeAllAir(type, from, to);
     }
 
-    s16 width = std::min(data->lod, data->side_length);
-    for (cur_node.p.Z = 0; cur_node.p.Z < data->side_length; cur_node.p.Z += data->lod)
-    for (cur_node.p.Y = 0; cur_node.p.Y < data->side_length; cur_node.p.Y += data->lod)
-    for (cur_node.p.X = 0; cur_node.p.X < data->side_length; cur_node.p.X += data->lod) {
-        cur_node.n = generateFirstViable(blockpos_nodes + cur_node.p, width);
-        if (cur_node.n.getContent() == CONTENT_AIR) { // AIR
+    for (u8 x = 0; x < num_subblocks; x++)
+    for (u8 y = 0; y < num_subblocks; y++)
+    for (u8 z = 0; z < num_subblocks; z++){
+        // if there are no nodes in this subblock, skip rendering
+        if(!is_sub_solid[x][y][z])
             continue;
+
+        core::vector3d<s16> from = core::vector3d<s16>{(s16) (x * width), (s16) (y * width), (s16) (z * width)};
+        core::vector3d<s16> to = from + width;
+
+        v3s16 lxlylz = findFurthestSolidFrom(type, core::vector3d<s16>{x + 1, y + 1, z + 1} * width, from, to);
+        v3s16 lxlyhz = findFurthestSolidFrom(type, core::vector3d<s16>{x + 1, y + 1, z} * width, from, to);
+        v3s16 lxhylz = findFurthestSolidFrom(type, core::vector3d<s16>{x + 1, y, z + 1} * width, from, to);
+        v3s16 lxhyhz = findFurthestSolidFrom(type, core::vector3d<s16>{x + 1, y, z} * width, from, to);
+        v3s16 hxlylz = findFurthestSolidFrom(type, core::vector3d<s16>{x, y + 1, z + 1} * width, from, to);
+        v3s16 hxlyhz = findFurthestSolidFrom(type, core::vector3d<s16>{x, y + 1, z} * width, from, to);
+        v3s16 hxhylz = findFurthestSolidFrom(type, core::vector3d<s16>{x, y, z + 1} * width, from, to);
+        v3s16 hxhyhz = findFurthestSolidFrom(type, core::vector3d<s16>{x, y, z} * width, from, to);
+
+        core::vector3df lxlylz_f = core::vector3df{lxlylz.X * BS - BS / 2, lxlylz.Y * BS - BS / 2, lxlylz.Z * BS - BS / 2};
+        core::vector3df lxlyhz_f = core::vector3df{lxlyhz.X * BS - BS / 2, lxlyhz.Y * BS - BS / 2, lxlyhz.Z * BS + BS / 2};
+        core::vector3df lxhylz_f = core::vector3df{lxhylz.X * BS - BS / 2, lxhylz.Y * BS + BS / 2, lxhylz.Z * BS - BS / 2};
+        core::vector3df lxhyhz_f = core::vector3df{lxhyhz.X * BS - BS / 2, lxhyhz.Y * BS + BS / 2, lxhyhz.Z * BS + BS / 2};
+        core::vector3df hxlylz_f = core::vector3df{hxlylz.X * BS + BS / 2, hxlylz.Y * BS - BS / 2, hxlylz.Z * BS - BS / 2};
+        core::vector3df hxlyhz_f = core::vector3df{hxlyhz.X * BS + BS / 2, hxlyhz.Y * BS - BS / 2, hxlyhz.Z * BS + BS / 2};
+        core::vector3df hxhylz_f = core::vector3df{hxhylz.X * BS + BS / 2, hxhylz.Y * BS + BS / 2, hxhylz.Z * BS - BS / 2};
+        core::vector3df hxhyhz_f = core::vector3df{hxhyhz.X * BS + BS / 2, hxhyhz.Y * BS + BS / 2, hxhyhz.Z * BS + BS / 2};
+
+        {
+            // draw top
+            v3s16 node_coords[4] = {hxhyhz, hxhylz, lxhylz, lxhyhz};
+            core::vector3df vertices[4] = {hxhyhz_f, hxhylz_f, lxhylz_f, lxhyhz_f};
+            drawLodQuad(v3s16(0, 1, 0), node_coords, vertices, uvs);
         }
-        cur_node.f = &nodedef->get(cur_node.n);
-        switch (cur_node.f->drawtype) {
-            case NDT_PLANTLIKE:         drawPlantlikeNode(); continue;
-            case NDT_PLANTLIKE_ROOTED:  drawPlantlikeRootedNode(); continue;
-            case NDT_NODEBOX:
-            case NDT_FLOWINGLIQUID:
-            case NDT_GLASSLIKE:
-            case NDT_GLASSLIKE_FRAMED:
-            case NDT_ALLFACES:
-            case NDT_NORMAL:
-            case NDT_LIQUID:            drawSolidNode(); continue;
-            default:                    continue;
+
+        {
+            // draw bottom
+            v3s16 node_coords[4] = {lxlylz, hxlylz, hxlyhz, lxlyhz};
+            core::vector3df vertices[4] = {lxlylz_f, hxlylz_f, hxlyhz_f, lxlyhz_f};
+            drawLodQuad(v3s16(0, -1, 0), node_coords, vertices, uvs);
+        }
+
+        {
+            // draw front
+            v3s16 node_coords[4] = {lxlyhz, lxhyhz, lxhylz, lxlylz};
+            core::vector3df vertices[4] = {lxlyhz_f, lxhyhz_f, lxhylz_f, lxlylz_f};
+            drawLodQuad(v3s16(-1, 0, 0), node_coords, vertices, uvs);
+        }
+
+        {
+            // draw back
+            v3s16 node_coords[4] = {hxlylz, hxhylz, hxhyhz, hxlyhz};
+            core::vector3df vertices[4] = {hxlylz_f, hxhylz_f, hxhyhz_f, hxlyhz_f};
+            drawLodQuad(v3s16(1, 0, 0), node_coords, vertices, uvs);
+        }
+
+        {
+            // draw left
+            v3s16 node_coords[4] = {lxlylz, lxhylz, hxhylz, hxlylz};
+            core::vector3df vertices[4] = {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f};
+            drawLodQuad(v3s16(0, 0, -1), node_coords, vertices, uvs);
+        }
+
+        {
+            // draw right
+            v3s16 node_coords[4] = {hxlyhz, hxhyhz, lxhyhz, lxlyhz};
+            core::vector3df vertices[4] = {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f};
+            drawLodQuad(v3s16(0, 0, 1), node_coords, vertices, uvs);
         }
     }
 }
@@ -1861,8 +1898,14 @@ void MapblockMeshGenerator::generate()
 {
     ZoneScoped;
 
-    if(data->lod > 1) {
-        generateLod();
+    if(data->lod > 0) {
+        auto lodLambda = [this](NodeDrawType type, u16 width) {
+            return generateLod(type, width);
+        };
+        u16 width = MYMIN((u16) data->side_length, 1 << data->lod);
+        std::ignore = std::async(std::launch::async, lodLambda, NDT_LIQUID, data->side_length);
+        std::ignore = std::async(std::launch::async, lodLambda, NDT_ALLFACES, width / 2);
+        std::ignore = std::async(std::launch::async, lodLambda, NDT_NORMAL, width);
         return;
     }
 
