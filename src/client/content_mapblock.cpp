@@ -1812,30 +1812,26 @@ bool MapblockMeshGenerator::doesVolumeContainType(NodeDrawType type, v3s16 from,
 }
 
 void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vector2d<f32> uvs[4], f32 y_offset){
-    static const video::SColor c = encode_light(LightPair((u8) 255, (u8) 0), 0);
-    u8 num_subblocks = data->m_side_length / width;
-
-    for (u8 x = 0; x < num_subblocks; x++)
-    for (u8 y = 0; y < num_subblocks; y++)
-    for (u8 z = 0; z < num_subblocks; z++){
-        v3s16 from = v3s16(x, y, z) * width + blockpos_nodes;
+    for (u8 x = 0; x < data->m_side_length; x += width)
+    for (u8 y = 0; y < data->m_side_length; y += width)
+    for (u8 z = 0; z < data->m_side_length; z += width){
+        v3s16 from = v3s16(x, y, z) + blockpos_nodes;
         v3s16 to = from + width;
 
-        // if there are no nodes in this subblock, skip rendering
+        // if there are no fitting nodes in this subblock, skip rendering
         if(!doesVolumeContainType(type, from, to))
             continue;
 
-        // eg:
-        // lxhylz = corner of a block, where x and z are lowest and y is highest
+        // eg lxhylz = corner of a block, where x and z are lowest and y is highest
         // lxhylz is initialized with the values for the opposite corner, so high x and z, low y
-        v3s16 bounds[8] = {blockpos_nodes + v3s16(x * width + width, y * width + width, z * width + width), //   lxlylz
-                           blockpos_nodes + v3s16(x * width + width, y * width + width, z * width), //           lxlyhz
-                           blockpos_nodes + v3s16(x * width + width, y * width, z * width + width), //           lxhylz
-                           blockpos_nodes + v3s16(x * width + width, y * width, z * width), //                   lxhyhz
-                           blockpos_nodes + v3s16(x * width, y * width + width, z * width + width), //           hxlylz
-                           blockpos_nodes + v3s16(x * width, y * width + width, z * width), //                   hxlyhz
-                           blockpos_nodes + v3s16(x * width, y * width, z * width + width), //                   hxhylz
-                           blockpos_nodes + v3s16(x * width, y * width, z * width)}; //                          hxhyhz
+        v3s16 bounds[8] = {blockpos_nodes + v3s16(x + width, y + width, z + width), //   lxlylz
+                           blockpos_nodes + v3s16(x + width, y + width, z), //           lxlyhz
+                           blockpos_nodes + v3s16(x + width, y, z + width), //           lxhylz
+                           blockpos_nodes + v3s16(x + width, y, z), //                   lxhyhz
+                           blockpos_nodes + v3s16(x, y + width, z + width), //           hxlylz
+                           blockpos_nodes + v3s16(x, y + width, z), //                   hxlyhz
+                           blockpos_nodes + v3s16(x, y, z + width), //                   hxhylz
+                           blockpos_nodes + v3s16(x, y, z)}; //                          hxhyhz
         // updates bounds to contain the actual bounds of the LOD object, where the corners are the nodes furthest away from their previous value
         findFurthestSolidFrom(type, bounds, from, to);
 
@@ -1868,15 +1864,27 @@ void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vect
                                           {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
         TileSpec tile;
         for(u8 i = 0; i < 6; i++){
+            u8 day_light = 0;
+            u8 night_light = 0;
+            for (v3s16 p : node_coords[i]){
+                if (type == NDT_NORMAL)
+                    p += directions[i];
+                MapNode n = data->m_vmanip.getNodeNoEx(blockpos_nodes + p);
+                ContentLightingFlags f = nodedef->getLightingFlags(n);
+                day_light += n.getLightRaw(LIGHTBANK_DAY, f);
+                night_light += n.getLightRaw(LIGHTBANK_NIGHT, f);
+            }
+            MapNode n = data->m_vmanip.getNodeNoEx(blockpos_nodes + node_coords[i][0]);
+            video::SColor color = encode_light(LightPair(decode_light(day_light / 4), decode_light(night_light / 4)), nodedef->getLightingFlags(n).light_source);
+
             core::vector3df normal = core::vector3df(directions[i].X, directions[i].Y, directions[i].Z);
             core::vector3df normal01 = (vertices[i][0] - vertices[i][1]).crossProduct(vertices[i][2] - vertices[i][1]).normalize();
             core::vector3df normal10 = (vertices[i][0] - vertices[i][3]).crossProduct(vertices[i][2] - vertices[i][3]).normalize();
-            video::S3DVertex v[4] = {video::S3DVertex(vertices[i][0], normal, c, uvs[0]), // uvs are 0 0
-                                     video::S3DVertex(vertices[i][1], normal01, c, uvs[1]), // uvs are 0 1
-                                     video::S3DVertex(vertices[i][2], normal, c, uvs[2]), // uvs are 1 1
-                                     video::S3DVertex(vertices[i][3], normal10, c, uvs[3]), // uvs are 1 0
+            video::S3DVertex v[4] = {video::S3DVertex(vertices[i][0], normal, color, uvs[0]), //    uvs are 0 0
+                                     video::S3DVertex(vertices[i][1], normal01, color, uvs[1]), //  uvs are 0 1
+                                     video::S3DVertex(vertices[i][2], normal, color, uvs[2]), //    uvs are 1 1
+                                     video::S3DVertex(vertices[i][3], normal10, color, uvs[3]), //  uvs are 1 0
                                      };
-            MapNode n = data->m_vmanip.getNodeNoEx(blockpos_nodes + node_coords[i][0]);
             getNodeTile(n, node_coords[i][0], directions[i], data, tile);
             collector->append(tile, v, 4, quad_indices, 6);
         }
