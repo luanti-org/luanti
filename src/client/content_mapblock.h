@@ -5,7 +5,6 @@
 #pragma once
 
 #include "nodedef.h"
-#include <mutex>
 
 struct MeshMakeData;
 struct MeshCollector;
@@ -66,8 +65,6 @@ private:
 		LightFrame lframe; // smooth lighting
 		video::SColor lcolor; // unsmooth lighting
 	} cur_node;
-
-    std::mutex lod_mutex;
 
 // lighting
 	void getSmoothLightFrame();
@@ -168,11 +165,9 @@ private:
 	void drawNodeboxNode();
 	void drawMeshNode();
 
-    void generateLod(NodeDrawType, u16, f32);
-    v3s16 findFurthestSolidFrom(NodeDrawType, core::vector3d<s16>, core::vector3d<s16>, core::vector3d<s16>);
-    bool isVolumeAllAir(NodeDrawType, core::vector3d<s16>, core::vector3d<s16>);
-    void drawLodQuad(v3s16, v3s16[4], core::vector3df[4], core::vector2d<f32>[4]);
-    void drawSplitLodQuad(v3s16, v3s16[4], core::vector3df[4], core::vector2d<f32>[4]);
+    void generateLod(NodeDrawType, u16, core::vector2d<f32>[4], f32);
+    void findFurthestSolidFrom(NodeDrawType type, v3s16 (&bases)[8], v3s16 from, v3s16 to);
+    bool doesVolumeContainType(NodeDrawType type, v3s16 from, v3s16 too);
 
 // common
 	void errorUnknownDrawtype();
