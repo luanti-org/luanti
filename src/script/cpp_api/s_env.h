@@ -13,6 +13,7 @@
 class ServerEnvironment;
 class MapBlock;
 struct ScriptCallbackState;
+class LuaABM;
 
 class ScriptApiEnv : virtual public ScriptApiBase
 {
@@ -50,6 +51,7 @@ public:
 	void triggerLBM(int id, MapBlock *block,
 		const std::unordered_set<v3s16> &positions, float dtime_s);
 
+	static LuaABM *readABM(lua_State *L, int abm_index, int id);
 private:
 	void readABMs();
 
