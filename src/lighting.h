@@ -4,8 +4,7 @@
 
 #pragma once
 #include "SColor.h"
-
-using namespace irr;
+#include "irr_v3d.h"
 
 /**
  * Parameters for automatic exposure compensation
@@ -40,14 +39,49 @@ struct AutoExposure
 	{}
 };
 
+/**
+ * Parameters for vignette in post-processing
+ *
+ */
+struct Vignette {
+	/// @brief The darkest part of the vignette will be darkened/brightened by this factor.
+	float dark = 1.0f;
+	/// @brief The brightest part of the vignette will be darkened/brightened by this factor.
+	float bright = 1.0f;
+	/// @brief Describes the blending between dark and bright. Higher values mean darkening is more intense at the screen edges.
+	float power = 1.0f;
+};
+
+/**
+ * ASL CDL parameters
+ *
+ * Colors in ASL CDL follow the following equation:
+ *
+ * out = pow(in * slope + offset, power)
+ *
+ */
+struct ColorDecisionList {
+	v3f slope{1.0, 1.0, 1.0};
+	v3f offset{0.0, 0.0, 0.0};
+	v3f power{1.0, 1.0, 1.0};
+};
+
 /** Describes ambient light settings for a player
  */
 struct Lighting
 {
 	AutoExposure exposure;
+	Vignette vignette;
+	ColorDecisionList cdl;
 	float shadow_intensity {0.0f};
 	float saturation {1.0f};
 	float volumetric_light_strength {0.0f};
+	float foliage_translucency{1.5f};
+	float specular_intensity{1.5f};
+	// These factors are calculated based on expected value of scattering factor of 1e-5
+	// for Nitrogen at 532nm (green), 2e25 molecules/m3 in atmosphere
+	v3f volumetric_beta_r0{ 3.3362176e-01f, 8.753783e-01f, 1.9534237f };
+	video::SColor artificial_light_color{ 255, 133, 133, 133 };
 	video::SColor shadow_tint {255, 0, 0, 0};
 	float bloom_intensity {0.05f};
 	float bloom_strength_factor {1.0f};
