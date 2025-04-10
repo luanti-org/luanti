@@ -99,3 +99,7 @@
 #define SCREENSHOT_MAX_SERIAL_TRIES 1000
 
 #define TTF_DEFAULT_FONT_SIZE (16)
+
+// Resolution of clocks that SSCSM has access to, in us.
+// Used as countermeasure against side-channel attacks.
+#define SSCSM_CLOCK_RESOLUTION_US 20
