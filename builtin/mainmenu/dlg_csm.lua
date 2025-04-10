@@ -44,7 +44,7 @@ local function get_formspec(dlgview, name, tabdata)
 		local filename = core.get_clientmodpath() .. DIR_DELIM .. "mods.conf"
 		local conffile = Settings(filename)
 		local mods = conffile:to_table()
-	
+
 		for i = 1, #packages_raw do
 			local mod = packages_raw[i]
 			if mod.is_clientside then
@@ -60,37 +60,6 @@ local function get_formspec(dlgview, name, tabdata)
 				mods["load_mod_" .. mod.name] = nil
 			end
 		end
-		
-		-- Remove mods that are not present anymore
-		for key in pairs(mods) do
-			if key:sub(1, 9) == "load_mod_" then
-				conffile:remove(key)
-			end
-		end
-		if not conffile:write() then
-			core.log("error", "Failed to write clientmod config file")
-		end
-
-		local filename = core.get_clientmodpath() .. DIR_DELIM .. "mods.conf"
-
-		local conffile = Settings(filename)
-		local mods = conffile:to_table()
-
-		for i = 1, #packages_raw do
-			local mod = packages_raw[i]
-			if mod.is_clientside then
-				if modname_valid(mod.name) then
-					conffile:set("load_mod_" .. mod.name,
-						mod.enabled and "true" or "false")
-				elseif mod.enabled then
-					gamedata.errormessage = fgettext_ne("Failed to enable clientmo" ..
-						"d \"$1\" as it contains disallowed characters. " ..
-						"Only characters [a-z0-9_] are allowed.",
-						mod.name)
-				end
-				mods["load_mod_" .. mod.name] = nil
-			end
-		end
 
 		-- Remove mods that are not present anymore
 		for key in pairs(mods) do
@@ -98,7 +67,6 @@ local function get_formspec(dlgview, name, tabdata)
 				conffile:remove(key)
 			end
 		end
-
 		if not conffile:write() then
 			core.log("error", "Failed to write clientmod config file")
 		end
