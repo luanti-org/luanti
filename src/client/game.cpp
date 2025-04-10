@@ -1050,10 +1050,6 @@ void Game::shutdown()
 	if (g_touchcontrols)
 		g_touchcontrols->hide();
 
-	// only if the shutdown progress bar isn't shown yet
-	if (m_shutdown_progress == 0.0f)
-		showOverlayMessage(N_("Shutting down..."), 0, 0);
-
 	clouds.reset();
 
 	gui_chat_console.reset();
@@ -1064,6 +1060,10 @@ void Game::shutdown()
 	while (g_menumgr.menuCount() > 0) {
 		g_menumgr.deleteFront();
 	}
+
+	// only if the shutdown progress bar isn't shown yet
+	if (m_shutdown_progress == 0.0f)
+		showOverlayMessage(N_("Shutting down..."), 0, 0);
 
 	chat_backend->addMessage(L"", L"# Disconnected.");
 	chat_backend->addMessage(L"", L"");
