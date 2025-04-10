@@ -1896,9 +1896,13 @@ void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vect
                                      video::S3DVertex(vertices[i][3], normal, color2, uvs[3]), // uvs are 1 0
                                      };
             getNodeTile(n1, node_coords[i][0], directions[i], data, tile);
+            lod_mutex.lock();
             collector->append(tile, v, 4, trig1_indices, 3);
+            lod_mutex.unlock();
             getNodeTile(n2, node_coords[i][0], directions[i], data, tile);
+            lod_mutex.lock();
             collector->append(tile, v, 4, trig2_indices, 3);
+            lod_mutex.unlock();
         }
     }
 }
@@ -1928,10 +1932,21 @@ void MapblockMeshGenerator::generate()
                                       core::vector2d<f32>{(f32) width / 4, (f32) width / 4},
                                       };
 
+        auto lodLambda = [this](NodeDrawType type, u16 width, core::vector2d<f32> uvs[4], f32 y_offset) {
+            generateLod(type, width, uvs, y_offset);
+        };
+
         f32 y_offset = BS * (data->m_lod - 1); // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
+        auto f0 = std::async(std::launch::async, lodLambda, NDT_NORMAL, width, uvs, -y_offset);
+        auto f1 = std::async(std::launch::async, lodLambda, NDT_ALLFACES, width / 2, small_uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
+        // auto f1 = std::async(std::launch::async, lodLambda, NDT_LIQUID, width, uvs, 0.0f);
+
+        // generateLod(NDT_NORMAL, width, uvs, -y_offset);
         generateLod(NDT_LIQUID, width, uvs, 0.0f);
-        generateLod(NDT_ALLFACES, width / 2, small_uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
-        generateLod(NDT_NORMAL, width, uvs, -y_offset);
+        // generateLod(NDT_ALLFACES, width / 2, small_uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
+
+        f0.get();
+        f1.get();
         return;
     }
 

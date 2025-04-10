@@ -269,7 +269,7 @@ lod_threshold (LOD Threshold) int 10 5 20
 #    At 1, the quality decreases at every distance where the LOD Threshold is doubled.
 #    At 2, the quality decreases at every distance where the LOD Threshold is doubled twice.
 #    Since this setting interacts with LOD Threshold, a lower quality can still look good if the threshold is sufficiently high.
-lod_quality (LOD Quality) float 1.5 0.5 2
+lod_quality (LOD Quality) float 1.5 0.5 5
 
 #    Undersampling is similar to using a lower screen resolution, but it applies
 #    to the game world only, keeping the GUI intact.

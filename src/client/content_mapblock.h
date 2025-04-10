@@ -5,6 +5,7 @@
 #pragma once
 
 #include "nodedef.h"
+#include <mutex>
 
 struct MeshMakeData;
 struct MeshCollector;
@@ -55,6 +56,8 @@ private:
 	const NodeDefManager *const nodedef;
 
 	const v3s16 blockpos_nodes;
+
+    std::mutex lod_mutex;
 
 // current node
 	struct {
