@@ -262,11 +262,14 @@ fps_max_unfocused (FPS when unfocused or paused) int 20 1 4294967295
 #    View distance in nodes.
 viewing_range (Viewing range) int 190 20 4000
 
-#    Squared distance of blocks (chunks) when LODs should kick in.
-lod_threshold (LOD Threshold) int 100 4 2000
+#    Distance of blocks, when LODs should kick in.
+lod_threshold (LOD Threshold) int 10 5 20
 
-#    Quality of LODs from 1 (low) to 2 (high). A higher number means that the LOD resolution will decerease slower, at a performance cost.
-lod_quality (LOD Quality) float 1.5 1 2
+#    Quality of LODs from 1 (low) to 2 (high).
+#    At 1, the quality decreases at every distance where the LOD Threshold is doubled.
+#    At 2, the quality decreases at every distance where the LOD Threshold is doubled twice.
+#    Since this setting interacts with LOD Threshold, a lower quality can still look good if the threshold is sufficiently high.
+lod_quality (LOD Quality) float 1.5 0.5 2
 
 #    Undersampling is similar to using a lower screen resolution, but it applies
 #    to the game world only, keeping the GUI intact.

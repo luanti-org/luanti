@@ -1812,6 +1812,12 @@ bool MapblockMeshGenerator::doesVolumeContainType(NodeDrawType type, v3s16 from,
 }
 
 void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vector2d<f32> uvs[4], f32 y_offset){
+    static const u16 trig1_indices[3] = {0, 1, 2};
+    static const u16 trig2_indices[3] = {0, 2, 3};
+    static const v3s16 directions[6] = {v3s16(0, 1, 0), v3s16(0, -1, 0),
+                                        v3s16(-1, 0, 0), v3s16(1, 0, 0),
+                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
+
     for (u8 x = 0; x < data->m_side_length; x += width)
     for (u8 y = 0; y < data->m_side_length; y += width)
     for (u8 z = 0; z < data->m_side_length; z += width){
@@ -1835,31 +1841,31 @@ void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vect
         // updates bounds to contain the actual bounds of the LOD object, where the corners are the nodes furthest away from their previous value
         findFurthestSolidFrom(type, bounds, from, to);
 
-        v3s16 lxlylz = std::move(bounds[0]) - blockpos_nodes;
-        v3s16 lxlyhz = std::move(bounds[1]) - blockpos_nodes;
-        v3s16 lxhylz = std::move(bounds[2]) - blockpos_nodes;
-        v3s16 lxhyhz = std::move(bounds[3]) - blockpos_nodes;
-        v3s16 hxlylz = std::move(bounds[4]) - blockpos_nodes;
-        v3s16 hxlyhz = std::move(bounds[5]) - blockpos_nodes;
-        v3s16 hxhylz = std::move(bounds[6]) - blockpos_nodes;
-        v3s16 hxhyhz = std::move(bounds[7]) - blockpos_nodes;
+        // moving for legibility
+        v3s16 lxlylz = std::move(bounds[0]);
+        v3s16 lxlyhz = std::move(bounds[1]);
+        v3s16 lxhylz = std::move(bounds[2]);
+        v3s16 lxhyhz = std::move(bounds[3]);
+        v3s16 hxlylz = std::move(bounds[4]);
+        v3s16 hxlyhz = std::move(bounds[5]);
+        v3s16 hxhylz = std::move(bounds[6]);
+        v3s16 hxhyhz = std::move(bounds[7]);
 
-        core::vector3df lxlylz_f = core::vector3df{lxlylz.X * BS - BS / 2, lxlylz.Y * BS - BS / 2 + y_offset, lxlylz.Z * BS - BS / 2};
-        core::vector3df lxlyhz_f = core::vector3df{lxlyhz.X * BS - BS / 2, lxlyhz.Y * BS - BS / 2 + y_offset, lxlyhz.Z * BS + BS / 2};
-        core::vector3df lxhylz_f = core::vector3df{lxhylz.X * BS - BS / 2, lxhylz.Y * BS + BS / 2 + y_offset, lxhylz.Z * BS - BS / 2};
-        core::vector3df lxhyhz_f = core::vector3df{lxhyhz.X * BS - BS / 2, lxhyhz.Y * BS + BS / 2 + y_offset, lxhyhz.Z * BS + BS / 2};
-        core::vector3df hxlylz_f = core::vector3df{hxlylz.X * BS + BS / 2, hxlylz.Y * BS - BS / 2 + y_offset, hxlylz.Z * BS - BS / 2};
-        core::vector3df hxlyhz_f = core::vector3df{hxlyhz.X * BS + BS / 2, hxlyhz.Y * BS - BS / 2 + y_offset, hxlyhz.Z * BS + BS / 2};
-        core::vector3df hxhylz_f = core::vector3df{hxhylz.X * BS + BS / 2, hxhylz.Y * BS + BS / 2 + y_offset, hxhylz.Z * BS - BS / 2};
-        core::vector3df hxhyhz_f = core::vector3df{hxhyhz.X * BS + BS / 2, hxhyhz.Y * BS + BS / 2 + y_offset, hxhyhz.Z * BS + BS / 2};
+        // subtract blockpos_nodes again, as we need relative coords here. Multiplied by blocksize.
+        // Then add/subtract half a blocksize to move to the corners of the nodes
+        core::vector3df lxlylz_f = core::vector3df{(lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2};
+        core::vector3df lxlyhz_f = core::vector3df{(lxlyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2};
+        core::vector3df lxhylz_f = core::vector3df{(lxhylz.X - blockpos_nodes.X) * BS - BS / 2, (lxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxhylz.Z - blockpos_nodes.Z) * BS - BS / 2};
+        core::vector3df lxhyhz_f = core::vector3df{(lxhyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2};
+        core::vector3df hxlylz_f = core::vector3df{(hxlylz.X - blockpos_nodes.X) * BS + BS / 2, (hxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxlylz.Z - blockpos_nodes.Z) * BS - BS / 2};
+        core::vector3df hxlyhz_f = core::vector3df{(hxlyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2};
+        core::vector3df hxhylz_f = core::vector3df{(hxhylz.X - blockpos_nodes.X) * BS + BS / 2, (hxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhylz.Z - blockpos_nodes.Z) * BS - BS / 2};
+        core::vector3df hxhyhz_f = core::vector3df{(hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2};
 
-        v3s16 directions[6] = {v3s16(0, 1, 0), v3s16(0, -1, 0),
-                               v3s16(-1, 0, 0), v3s16(1, 0, 0),
-                               v3s16(0, 0, -1), v3s16(0, 0, 1)};
-        v3s16 node_coords[6][4] = {{hxhyhz, hxhylz, lxhylz, lxhyhz}, {lxlylz, hxlylz, hxlyhz, lxlyhz},
-                                   {lxlyhz, lxhyhz, lxhylz, lxlylz}, {hxlylz, hxhylz, hxhyhz, hxlyhz},
-                                   {lxlylz, lxhylz, hxhylz, hxlylz}, {hxlyhz, hxhyhz, lxhyhz, lxlyhz}};
-        core::vector3df vertices[6][4] = {{hxhyhz_f, hxhylz_f, lxhylz_f, lxhyhz_f}, {lxlylz_f, hxlylz_f, hxlyhz_f, lxlyhz_f},
+        v3s16 node_coords[6][4] = {{lxhylz, lxhyhz, hxhyhz, hxhylz}, {lxlylz, hxlylz, hxlyhz, lxlyhz}, //  top      bottom
+                                   {lxlyhz, lxhyhz, lxhylz, lxlylz}, {hxlylz, hxhylz, hxhyhz, hxlyhz}, //  left     right
+                                   {lxlylz, lxhylz, hxhylz, hxlylz}, {hxlyhz, hxhyhz, lxhyhz, lxlyhz}}; // front    back
+        core::vector3df vertices[6][4] = {{lxhylz_f, lxhyhz_f, hxhyhz_f, hxhylz_f}, {lxlylz_f, hxlylz_f, hxlyhz_f, lxlyhz_f},
                                           {lxlyhz_f, lxhyhz_f, lxhylz_f, lxlylz_f}, {hxlylz_f, hxhylz_f, hxhyhz_f, hxlyhz_f},
                                           {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
         TileSpec tile;
@@ -1869,24 +1875,30 @@ void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vect
             for (v3s16 p : node_coords[i]){
                 if (type == NDT_NORMAL)
                     p += directions[i];
-                MapNode n = data->m_vmanip.getNodeNoEx(blockpos_nodes + p);
+                MapNode n = data->m_vmanip.getNodeNoEx(p);
                 ContentLightingFlags f = nodedef->getLightingFlags(n);
-                day_light += n.getLightRaw(LIGHTBANK_DAY, f);
-                night_light += n.getLightRaw(LIGHTBANK_NIGHT, f);
+                day_light = MYMAX(day_light, n.getLightRaw(LIGHTBANK_DAY, f));
+                night_light = MYMAX(night_light, n.getLightRaw(LIGHTBANK_NIGHT, f));
             }
-            MapNode n = data->m_vmanip.getNodeNoEx(blockpos_nodes + node_coords[i][0]);
-            video::SColor color = encode_light(LightPair(decode_light(day_light / 4), decode_light(night_light / 4)), nodedef->getLightingFlags(n).light_source);
+            day_light = decode_light(day_light);
+            night_light = decode_light(night_light);
 
-            core::vector3df normal = core::vector3df(directions[i].X, directions[i].Y, directions[i].Z);
-            core::vector3df normal01 = (vertices[i][0] - vertices[i][1]).crossProduct(vertices[i][2] - vertices[i][1]).normalize();
-            core::vector3df normal10 = (vertices[i][0] - vertices[i][3]).crossProduct(vertices[i][2] - vertices[i][3]).normalize();
-            video::S3DVertex v[4] = {video::S3DVertex(vertices[i][0], normal, color, uvs[0]), //    uvs are 0 0
-                                     video::S3DVertex(vertices[i][1], normal01, color, uvs[1]), //  uvs are 0 1
-                                     video::S3DVertex(vertices[i][2], normal, color, uvs[2]), //    uvs are 1 1
-                                     video::S3DVertex(vertices[i][3], normal10, color, uvs[3]), //  uvs are 1 0
+            MapNode n1 = data->m_vmanip.getNodeNoEx(node_coords[i][1]);
+            MapNode n2 = data->m_vmanip.getNodeNoEx(node_coords[i][3]);
+            video::SColor color1 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n1).light_source);
+            video::SColor color2 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n2).light_source);
+
+            // core::vector3df normal(directions[i].X, directions[i].Y, directions[i].Z);
+            core::vector3df normal = (vertices[i][2] - vertices[i][1]).crossProduct(vertices[i][0] - vertices[i][1]).normalize();
+            video::S3DVertex v[4] = {video::S3DVertex(vertices[i][0], normal, color1, uvs[0]), // uvs are 0 1
+                                     video::S3DVertex(vertices[i][1], normal, color1, uvs[1]), // uvs are 0 0
+                                     video::S3DVertex(vertices[i][2], normal, color2, uvs[2]), // uvs are 1 1
+                                     video::S3DVertex(vertices[i][3], normal, color2, uvs[3]), // uvs are 1 0
                                      };
-            getNodeTile(n, node_coords[i][0], directions[i], data, tile);
-            collector->append(tile, v, 4, quad_indices, 6);
+            getNodeTile(n1, node_coords[i][0], directions[i], data, tile);
+            collector->append(tile, v, 4, trig1_indices, 3);
+            getNodeTile(n2, node_coords[i][0], directions[i], data, tile);
+            collector->append(tile, v, 4, trig2_indices, 3);
         }
     }
 }
@@ -1904,14 +1916,14 @@ void MapblockMeshGenerator::generate()
         }
 
         core::vector2d<f32> uvs[4] = {
-                                      core::vector2d<f32>{0, 0},
                                       core::vector2d<f32>{0, (f32) width / 2},
+                                      core::vector2d<f32>{0, 0},
                                       core::vector2d<f32>{(f32) width / 2, 0},
                                       core::vector2d<f32>{(f32) width / 2, (f32) width / 2},
                                       };
         core::vector2d<f32> small_uvs[4] = {
-                                      core::vector2d<f32>{0, 0},
                                       core::vector2d<f32>{0, (f32) width / 4},
+                                      core::vector2d<f32>{0, 0},
                                       core::vector2d<f32>{(f32) width / 4, 0},
                                       core::vector2d<f32>{(f32) width / 4, (f32) width / 4},
                                       };
