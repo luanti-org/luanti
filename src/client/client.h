@@ -46,6 +46,8 @@ class NodeDefManager;
 class ParticleManager;
 class RenderingEngine;
 class SingleMediaDownloader;
+class ClientScripting;
+class SSCSMController;
 struct ChatMessage;
 struct ClientDynamicInfo;
 struct ClientEvent;
@@ -56,8 +58,6 @@ struct MinimapMapblock;
 struct PlayerControl;
 struct PointedThing;
 struct ItemVisualsManager;
-class ClientScripting;
-class SSCSMController;
 struct ModVFS;
 
 namespace con {
