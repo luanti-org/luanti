@@ -27,6 +27,8 @@ struct ItemStack;
 class Client;
 class ITextureSource;
 struct ContentFeatures;
+struct ItemDefinition;
+struct TileAnimationParams;
 class ShadowRenderer;
 
 /*
@@ -57,6 +59,19 @@ public:
 	{}
 
 	ItemMeshBufferInfo(const TileLayer &layer);
+
+	ItemMeshBufferInfo(AnimationInfo *animation,
+			bool override = false, video::SColor color = {}) :
+		override_color(color), override_color_set(override),
+		animation_info(animation ? std::make_unique<AnimationInfo>(*animation) : nullptr)
+	{}
+
+	ItemMeshBufferInfo(std::vector<FrameSpec> *frames, u16 frame_length_ms,
+			bool override = false, video::SColor color = {}) :
+		override_color(color), override_color_set(override),
+		animation_info(std::make_unique<AnimationInfo>(frames, frame_length_ms))
+	{}
+
 
 	void applyOverride(video::SColor &dest) const {
 		if (override_color_set)
@@ -100,8 +115,8 @@ public:
 	WieldMeshSceneNode(scene::ISceneManager *mgr, s32 id = -1);
 	virtual ~WieldMeshSceneNode();
 
-	void setExtruded(const std::string &imagename, const std::string &overlay_image,
-			v3f wield_scale, ITextureSource *tsrc, u8 num_frames);
+	void setExtruded(video::ITexture *texture, video::ITexture *overlay_texture,
+			v3f wield_scale);
 	void setItem(const ItemStack &item, Client *client,
 			bool check_wield_image = true);
 
@@ -138,6 +153,11 @@ private:
 	 */
 	video::SColor m_base_color;
 
+	// nullptr if wield image is empty or not animated
+	// Owned by this class to get AnimationInfo for the mesh buffer info
+	std::unique_ptr<std::vector<FrameSpec>> m_wield_image_frames;
+	std::unique_ptr<std::vector<FrameSpec>> m_wield_overlay_frames;
+
 	// Bounding box culling is disabled for this type of scene node,
 	// so this variable is just required so we can implement
 	// getBoundingBox() and is set to an empty box.
@@ -146,7 +166,17 @@ private:
 	ShadowRenderer *m_shadow;
 };
 
-void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result);
+// Returns the animation frames and frame length in milliseconds
+std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
+		const std::string &image_name, const TileAnimationParams &animation,
+		int& result_frame_length_ms);
 
-scene::SMesh *getExtrudedMesh(ITextureSource *tsrc, const std::string &imagename,
-		const std::string &overlay_name);
+scene::SMesh *getExtrudedMesh(video::ITexture *texture,
+	video::ITexture *overlay_texture = nullptr);
+
+// This is only used to initially generate an ItemMesh
+// To get the mesh use IItemDefManager::getWieldMesh(item, client) instead
+void createItemMesh(Client *client, const ItemDefinition &def,
+		video::ITexture *inventory_texture, AnimationInfo* inventory_animation,
+		video::ITexture *inventory_overlay_texture, AnimationInfo* inventory_overlay_animation,
+		ItemMesh *result);
