@@ -88,7 +88,8 @@ local function get_formspec(tabview, name, tabdata)
 		pkgmgr.render_packagelist(packages, use_technical_names, update_icons),
 		";", tabdata.selected_pkg, "]",
 
-		"button[0.4,5.8;6.3,0.9;btn_contentdb;", contentdb_label, "]"
+		"button[0.4,5.8;3.1,0.9;btn_contentdb;", contentdb_label, "]",
+		"button[3.6,5.8;3.1,0.9;btn_csm;", fgettext("Client side mods"), "]"
 	}
 
 	local selected_pkg
@@ -226,6 +227,14 @@ local function handle_buttons(tabview, fields, tabname, tabdata)
 		tabview:hide()
 		dlg:show()
 		packages = nil
+		return true
+	end
+
+	if fields.btn_csm then
+		local dlg = create_csm_dlg()
+		dlg:set_parent(tabview)
+		tabview:hide()
+		dlg:show()
 		return true
 	end
 
