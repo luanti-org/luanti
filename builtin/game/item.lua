@@ -514,7 +514,7 @@ function core.node_dig(pos, node, digger)
 		.. node.name .. " at " .. core.pos_to_string(pos))
 
 	local wielded = digger and digger:get_wielded_item()
-	local drops = core.get_node_drops(node, wielded and wielded:get_name(), wielded, digger)
+	local drops = core.get_node_drops(node, wielded and wielded:get_name(), ItemStack(wielded), digger)
 
 	if wielded then
 		local wdef = wielded:get_definition()
