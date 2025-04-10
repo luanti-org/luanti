@@ -24,6 +24,77 @@
 #include "util/serialize.h"
 #include "util/basic_macros.h"
 
+// Like a std::unordered_map<content_t, content_t>, but faster.
+//
+// Unassigned entries are marked with 0xFFFF.
+//
+// The static memory requires about 65535 * 2 bytes RAM in order to be
+// sure we can handle all content ids.
+class IdIdMapping
+{
+	static_assert(sizeof(content_t) == 2, "content_t must be 16-bit");
+
+private:
+	std::unique_ptr<content_t[]> m_mapping;
+	std::vector<content_t> m_dirty;
+
+	static thread_local std::unique_ptr<content_t[]> tl_mapping;
+
+public:
+	IdIdMapping()
+	{
+		m_mapping = std::move(tl_mapping);
+		if (!m_mapping) {
+			m_mapping = std::make_unique<content_t[]>(CONTENT_MAX + 1);
+			memset(m_mapping.get(), 0xFF, (CONTENT_MAX + 1) * sizeof(content_t));
+		}
+	}
+
+	DISABLE_CLASS_COPY(IdIdMapping)
+
+	IdIdMapping(IdIdMapping &&other) noexcept :
+		m_mapping(std::move(other.m_mapping)), m_dirty(std::move(other.m_dirty))
+	{
+	}
+
+	IdIdMapping &operator=(IdIdMapping &&other) noexcept
+	{
+		if (&other == this)
+			return *this;
+		m_mapping = std::move(other.m_mapping);
+		m_dirty = std::move(other.m_dirty);
+		return *this;
+	}
+
+	content_t get(content_t k)
+	{
+		return m_mapping[k];
+	}
+
+	void set(content_t k, content_t v)
+	{
+		m_mapping[k] = v;
+		m_dirty.push_back(k);
+	}
+
+	void reset()
+	{
+		for (auto c : m_dirty)
+			m_mapping[c] = 0xFFFF;
+		m_dirty.clear();
+	}
+
+	~IdIdMapping()
+	{
+		if (!m_mapping)
+			return; // empty after move
+		reset();
+		tl_mapping = std::move(m_mapping);
+	}
+};
+
+thread_local std::unique_ptr<content_t[]> IdIdMapping::tl_mapping = nullptr;
+
 static const char *modified_reason_strings[] = {
 	"reallocate or initial",
 	"setIsUnderground",
@@ -212,16 +283,7 @@ void MapBlock::expireIsAirCache()
 static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 	const NodeDefManager *nodedef)
 {
-	// The static memory requires about 65535 * 2 bytes RAM in order to be
-	// sure we can handle all content ids. But it's absolutely worth it as it's
-	// a speedup of 4 for one of the major time consuming functions on storing
-	// mapblocks.
-	thread_local std::unique_ptr<content_t[]> mapping;
-	static_assert(sizeof(content_t) == 2, "content_t must be 16-bit");
-	if (!mapping)
-		mapping = std::make_unique<content_t[]>(CONTENT_MAX + 1);
-
-	memset(mapping.get(), 0xFF, (CONTENT_MAX + 1) * sizeof(content_t));
+	IdIdMapping mapping;
 
 	content_t id_counter = 0;
 	for (u32 i = 0; i < MapBlock::nodecount; i++) {
@@ -229,12 +291,12 @@ static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 		content_t id = CONTENT_IGNORE;
 
 		// Try to find an existing mapping
-		if (mapping[global_id] != 0xFFFF) {
-			id = mapping[global_id];
+		if (mapping.get(global_id) != 0xFFFF) {
+			id = mapping.get(global_id);
 		} else {
 			// We have to assign a new mapping
 			id = id_counter++;
-			mapping[global_id] = id;
+			mapping.set(global_id, id);
 
 			const auto &name = nodedef->get(global_id).name;
 			nimap->set(id, name);
