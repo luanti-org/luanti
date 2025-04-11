@@ -38,33 +38,14 @@ private:
 	std::unique_ptr<content_t[]> m_mapping;
 	std::vector<content_t> m_dirty;
 
-	static thread_local std::unique_ptr<content_t[]> tl_mapping;
-
 public:
 	IdIdMapping()
 	{
-		m_mapping = std::move(tl_mapping);
-		if (!m_mapping) {
-			m_mapping = std::make_unique<content_t[]>(CONTENT_MAX + 1);
-			memset(m_mapping.get(), 0xFF, (CONTENT_MAX + 1) * sizeof(content_t));
-		}
+		m_mapping = std::make_unique<content_t[]>(CONTENT_MAX + 1);
+		memset(m_mapping.get(), 0xFF, (CONTENT_MAX + 1) * sizeof(content_t));
 	}
 
 	DISABLE_CLASS_COPY(IdIdMapping)
-
-	IdIdMapping(IdIdMapping &&other) noexcept :
-		m_mapping(std::move(other.m_mapping)), m_dirty(std::move(other.m_dirty))
-	{
-	}
-
-	IdIdMapping &operator=(IdIdMapping &&other) noexcept
-	{
-		if (&other == this)
-			return *this;
-		m_mapping = std::move(other.m_mapping);
-		m_dirty = std::move(other.m_dirty);
-		return *this;
-	}
 
 	content_t get(content_t k)
 	{
@@ -84,16 +65,16 @@ public:
 		m_dirty.clear();
 	}
 
-	~IdIdMapping()
+	static IdIdMapping *giveMeThreadLocalInstance()
 	{
-		if (!m_mapping)
-			return; // empty after move
-		reset();
-		tl_mapping = std::move(m_mapping);
+		static thread_local std::unique_ptr<IdIdMapping> tl_ididmapping;
+		if (!tl_ididmapping) {
+			tl_ididmapping = std::make_unique<IdIdMapping>();
+		}
+		tl_ididmapping->reset();
+		return tl_ididmapping.get();
 	}
 };
-
-thread_local std::unique_ptr<content_t[]> IdIdMapping::tl_mapping = nullptr;
 
 static const char *modified_reason_strings[] = {
 	"reallocate or initial",
@@ -283,7 +264,7 @@ void MapBlock::expireIsAirCache()
 static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 	const NodeDefManager *nodedef)
 {
-	IdIdMapping mapping;
+	IdIdMapping *mapping = IdIdMapping::giveMeThreadLocalInstance();
 
 	content_t id_counter = 0;
 	for (u32 i = 0; i < MapBlock::nodecount; i++) {
@@ -291,12 +272,12 @@ static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 		content_t id = CONTENT_IGNORE;
 
 		// Try to find an existing mapping
-		if (auto found = mapping.get(global_id); found != 0xFFFF) {
+		if (auto found = mapping->get(global_id); found != 0xFFFF) {
 			id = found;
 		} else {
 			// We have to assign a new mapping
 			id = id_counter++;
-			mapping.set(global_id, id);
+			mapping->set(global_id, id);
 
 			const auto &name = nodedef->get(global_id).name;
 			nimap->set(id, name);
@@ -322,12 +303,12 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 	std::unordered_set<std::string> unallocatable_contents;
 
 	// Used to cache local to global id lookup.
-	IdIdMapping mapping_cache;
+	IdIdMapping *mapping_cache = IdIdMapping::giveMeThreadLocalInstance();
 
 	for (u32 i = 0; i < MapBlock::nodecount; i++) {
 		content_t local_id = nodes[i].getContent();
 
-		if (auto found = mapping_cache.get(local_id); found != 0xFFFF) {
+		if (auto found = mapping_cache->get(local_id); found != 0xFFFF) {
 			nodes[i].setContent(found);
 			continue;
 		}
@@ -349,7 +330,7 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 		nodes[i].setContent(global_id);
 
 		// Save previous node local_id & global_id result
-		mapping_cache.set(local_id, global_id);
+		mapping_cache->set(local_id, global_id);
 	}
 
 	for (const content_t c: unnamed_contents) {
