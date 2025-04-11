@@ -823,11 +823,11 @@ void Server::handleCommand_PlayerItem(NetworkPacket* pkt)
 
 	*pkt >> item;
 
-	if (item >= player->getMaxHotbarItemcount()) {
+	if (item >= player->hotbar_source.getMaxLength()) {
 		actionstream << "Player " << player->getName()
 			<< " tried to access item=" << item
-			<< " out of hotbar_itemcount="
-			<< player->getMaxHotbarItemcount()
+			<< " while max="
+			<< player->hotbar_source.getMaxLength()
 			<< "; ignoring." << std::endl;
 		return;
 	}
@@ -920,11 +920,11 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 	// Update wielded item
 
-	if (item_i >= player->getMaxHotbarItemcount()) {
+	if (item_i >= player->hotbar_source.getMaxLength()) {
 		actionstream << "Player " << player->getName()
 			<< " tried to access item=" << item_i
-			<< " out of hotbar_itemcount="
-			<< player->getMaxHotbarItemcount()
+			<< " while max="
+			<< player->hotbar_source.getMaxLength()
 			<< "; ignoring." << std::endl;
 		return;
 	}
