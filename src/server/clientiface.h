@@ -393,16 +393,6 @@ private:
 	std::unordered_map<v3s16, float> m_blocks_sending;
 
 	/*
-		Blocks that have been modified since blocks were
-		sent to the client last (getNextBlocks()).
-		This is used to reset the unsent distance, so that
-		modified blocks are resent to the client.
-
-		List of block positions.
-	*/
-	std::unordered_set<v3s16> m_blocks_modified;
-
-	/*
 		Count of excess GotBlocks().
 		There is an excess amount because the client sometimes
 		gets a block so late that the server sends it again,

@@ -195,13 +195,6 @@ void RemoteClient::GetNextBlocks (
 		m_last_camera_dir = camera_dir;
 		m_map_send_completion_timer = 0.0f;
 	}
-	if (m_nearest_unsent_d > 0) {
-		// make sure any blocks modified since the last time we sent blocks are resent
-		for (const v3s16 &p : m_blocks_modified) {
-			m_nearest_unsent_d = std::min(m_nearest_unsent_d, center.getDistanceFrom(p));
-		}
-	}
-	m_blocks_modified.clear();
 
 	s16 d_start = m_nearest_unsent_d;
 
@@ -445,22 +438,25 @@ void RemoteClient::SentBlock(v3s16 p)
 void RemoteClient::SetBlockNotSent(v3s16 p)
 {
 	m_nothing_to_send_pause_timer = 0;
-
 	// remove the block from sending and sent sets,
-	// and mark as modified if found
-	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0)
-		m_blocks_modified.insert(p);
+	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0) {
+		// calculate the distance from which we need to re-checks blocks
+		// it's OK to use m_last_center, as a center change will reset m_nearest_unsent_d to 0 anyway
+		m_nearest_unsent_d = std::max((s16)0, std::min(m_nearest_unsent_d, (s16)(m_last_center.getDistanceFrom(p) - 2)));
+	}
+
 }
 
 void RemoteClient::SetBlocksNotSent(const std::vector<v3s16> &blocks)
 {
 	m_nothing_to_send_pause_timer = 0;
-
 	for (v3s16 p : blocks) {
 		// remove the block from sending and sent sets,
-		// and mark as modified if found
-		if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0)
-			m_blocks_modified.insert(p);
+		if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0) {
+			// calculate the distance from which we need to re-checks blocks
+			// it's OK to use m_last_center, as a center change will reset m_nearest_unsent_d to 0 anyway
+			m_nearest_unsent_d = std::max((s16)0, std::min(m_nearest_unsent_d, (s16)(m_last_center.getDistanceFrom(p) - 2)));
+		}
 	}
 }
 
