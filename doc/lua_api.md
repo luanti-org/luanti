@@ -6829,13 +6829,14 @@ Item handling
       given `param2` value.
     * Returns `nil` if the given `paramtype2` does not contain color
       information.
-* `core.get_node_drops(node, toolname[, tool, digger])`
+* `core.get_node_drops(node, toolname[, tool, digger, pos])`
     * Returns list of itemstrings that are dropped by `node` when dug
       with the item `toolname` (not limited to tools).
     * `node`: node as table or node name
     * `toolname`: name of the item used to dig (can be `nil`)
     * `tool`: `ItemStack` used to dig (optional)
-    * `digger`: The ObjectRef that digs the node (optional)
+    * `digger`: the ObjectRef that digs the node (optional)
+    * `pos`: the pos of the dug node (optional)
 * `core.get_craft_result(input)`: returns `output, decremented_input`
     * `input.method` = `"normal"` or `"cooking"` or `"fuel"`
     * `input.width` = for example `3`
