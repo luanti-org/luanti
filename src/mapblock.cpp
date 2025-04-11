@@ -291,8 +291,8 @@ static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 		content_t id = CONTENT_IGNORE;
 
 		// Try to find an existing mapping
-		if (mapping.get(global_id) != 0xFFFF) {
-			id = mapping.get(global_id);
+		if (auto found = mapping.get(global_id); found != 0xFFFF) {
+			id = found;
 		} else {
 			// We have to assign a new mapping
 			id = id_counter++;
