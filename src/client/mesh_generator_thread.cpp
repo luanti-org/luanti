@@ -84,8 +84,9 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
                 cam_pos.Z - mesh_position.Z};
     u16 dist2 = d.X * d.X + d.Y * d.Y + d.Z * d.Z; // distance squared
     u16 renderDist = g_settings->getU16("lod_threshold");
+    renderDist *= renderDist;
     u16 lod;
-    if (dist2 < renderDist * renderDist) {
+    if (dist2 < renderDist) {
         lod = 0;
     } else {
         lod = 1 + (u16) (std::log2(dist2 / renderDist) / g_settings->getFloat("lod_quality"));

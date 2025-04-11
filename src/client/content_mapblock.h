@@ -6,6 +6,7 @@
 
 #include "nodedef.h"
 #include <mutex>
+#include <bitset>
 
 struct MeshMakeData;
 struct MeshCollector;
@@ -168,9 +169,11 @@ private:
 	void drawNodeboxNode();
 	void drawMeshNode();
 
-    void generateLod(NodeDrawType, u16, core::vector2d<f32>[4], f32);
-    void findFurthestSolidFrom(NodeDrawType type, v3s16 (&bases)[8], v3s16 from, v3s16 to);
-    bool doesVolumeContainType(NodeDrawType type, v3s16 from, v3s16 too);
+    void generateLod(std::bitset<19> types, u16, core::vector2d<f32>[4], f32);
+    void generateCloseLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset);
+    void findFurthestSolidFrom(std::bitset<19> types, v3s16 (&bases)[2], v3s16 from, v3s16 to);
+    void findFurthestSolidFrom(std::bitset<19> types, v3s16 (&bases)[8], v3s16 from, v3s16 to);
+    bool doesVolumeContainType(std::bitset<19> types, v3s16 from, v3s16 too);
 
 // common
 	void errorUnknownDrawtype();

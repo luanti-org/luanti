@@ -1775,7 +1775,7 @@ void MapblockMeshGenerator::drawNode()
 	}
 }
 
-void MapblockMeshGenerator::findFurthestSolidFrom(NodeDrawType type, v3s16 (&bases)[8], v3s16 from, v3s16 to){
+void MapblockMeshGenerator::findFurthestSolidFrom(std::bitset<19> types, v3s16 (&bases)[8], v3s16 from, v3s16 to){
     s16 max_dists[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
     v3s16 outs[8];
     v3s16 p;
@@ -1790,7 +1790,7 @@ void MapblockMeshGenerator::findFurthestSolidFrom(NodeDrawType type, v3s16 (&bas
         MapNode n = data->m_vmanip.getNodeNoEx(p);
         const ContentFeatures *f = &nodedef->get(n);
 
-        if (f->drawtype == type) {
+        if (types.test(f->drawtype)) {
             max_dists[i] = new_dist;
             outs[i] = p;
         }
@@ -1798,23 +1798,44 @@ void MapblockMeshGenerator::findFurthestSolidFrom(NodeDrawType type, v3s16 (&bas
     std::copy(std::make_move_iterator(std::begin(outs)), std::make_move_iterator(std::end(outs)), std::begin(bases));
 }
 
-bool MapblockMeshGenerator::doesVolumeContainType(NodeDrawType type, v3s16 from, v3s16 to){
+void MapblockMeshGenerator::findFurthestSolidFrom(std::bitset<19> types, v3s16 (&bases)[2], v3s16 from, v3s16 to){
+    s16 max_dists[2] = {-1, -1};
+    v3s16 outs[2];
+    v3s16 p;
+    for (p.Z = from.Z; p.Z < to.Z; p.Z++)
+    for (p.Y = from.Y; p.Y < to.Y; p.Y++)
+    for (p.X = from.X; p.X < to.X; p.X++)
+    for (u8 i = 0; i < 2; i++) { // calc distance for every corner
+        u16 new_dist = std::abs(bases[i].X - p.X) + std::abs(bases[i].Y - p.Y) + std::abs(bases[i].Z - p.Z);
+        if (new_dist <= max_dists[i])
+            continue;
+
+        MapNode n = data->m_vmanip.getNodeNoEx(p);
+        const ContentFeatures *f = &nodedef->get(n);
+
+        if (types.test(f->drawtype)) {
+            max_dists[i] = new_dist;
+            outs[i] = p;
+        }
+    }
+    std::copy(std::make_move_iterator(std::begin(outs)), std::make_move_iterator(std::end(outs)), std::begin(bases));
+}
+
+bool MapblockMeshGenerator::doesVolumeContainType(std::bitset<19> types, v3s16 from, v3s16 to){
     v3s16 p;
     for (p.Z = from.Z; p.Z < to.Z; p.Z++)
     for (p.Y = from.Y; p.Y < to.Y; p.Y++)
     for (p.X = from.X; p.X < to.X; p.X++) {
         MapNode n = data->m_vmanip.getNodeNoEx(p);
         const ContentFeatures *f = &nodedef->get(n);
-        if(f->drawtype == type)
+        if(types.test(f->drawtype))
             return true;
     }
     return false;
 }
 
-void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vector2d<f32> uvs[4], f32 y_offset){
-    static const u16 trig1_indices[3] = {0, 1, 2};
-    static const u16 trig2_indices[3] = {0, 2, 3};
-    static const v3s16 directions[6] = {v3s16(0, 1, 0), v3s16(0, -1, 0),
+void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset){
+    static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
                                         v3s16(-1, 0, 0), v3s16(1, 0, 0),
                                         v3s16(0, 0, -1), v3s16(0, 0, 1)};
 
@@ -1825,7 +1846,91 @@ void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vect
         v3s16 to = from + width;
 
         // if there are no fitting nodes in this subblock, skip rendering
-        if(!doesVolumeContainType(type, from, to))
+        if(!doesVolumeContainType(types, from, to))
+            continue;
+
+        v3s16 bounds[2] = { to, from };
+        findFurthestSolidFrom(types, bounds, from, to);
+
+        v3s16 lxlylz = std::move(bounds[0]);
+        v3s16 hxhyhz = std::move(bounds[1]);
+
+        if (lxlylz == hxhyhz)
+            continue;
+
+        v3s16 lxlyhz(lxlylz.X, lxlylz.Y, hxhyhz.Z);
+        v3s16 lxhylz(lxlylz.X, hxhyhz.Y, lxlylz.Z);
+        v3s16 lxhyhz(lxlylz.X, hxhyhz.Y, hxhyhz.Z);
+        v3s16 hxlylz(hxhyhz.X, lxlylz.Y, lxlylz.Z);
+        v3s16 hxlyhz(hxhyhz.X, lxlylz.Y, hxhyhz.Z);
+        v3s16 hxhylz(hxhyhz.X, hxhyhz.Y, lxlylz.Z);
+
+        core::vector3df lxlylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df lxlyhz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df lxhylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df lxhyhz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df hxlylz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df hxlyhz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df hxhylz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df hxhyhz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+
+        v3s16 node_coords[6][4] = {{lxlylz, hxlylz, hxlyhz, lxlyhz}, {lxhylz, lxhyhz, hxhyhz, hxhylz}, //  bottom   top
+                                   {lxlyhz, lxhyhz, lxhylz, lxlylz}, {hxlylz, hxhylz, hxhyhz, hxlyhz}, //  left     right
+                                   {lxlylz, lxhylz, hxhylz, hxlylz}, {hxlyhz, hxhyhz, lxhyhz, lxlyhz}}; // front    back
+        core::vector3df vertices[6][4] = {{lxlylz_f, hxlylz_f, hxlyhz_f, lxlyhz_f}, {lxhylz_f, lxhyhz_f, hxhyhz_f, hxhylz_f},
+                                          {lxlyhz_f, lxhyhz_f, lxhylz_f, lxlylz_f}, {hxlylz_f, hxhylz_f, hxhyhz_f, hxlyhz_f},
+                                          {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
+        TileSpec tile;
+        for(u8 i = 0; i < 6; i++){
+            if ((&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][0] + directions[i])))->drawtype == NDT_NORMAL &&
+                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][1] + directions[i])))->drawtype == NDT_NORMAL &&
+                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][2] + directions[i])))->drawtype == NDT_NORMAL &&
+                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][3] + directions[i])))->drawtype == NDT_NORMAL)
+                continue;
+            // u8 day_light = 0;
+            // u8 night_light = 0;
+            // for (v3s16 p : node_coords[i]){
+            //     if (type == NDT_NORMAL)
+            //         p += directions[i];
+            //     MapNode n = data->m_vmanip.getNodeNoEx(p);
+            //     ContentLightingFlags f = nodedef->getLightingFlags(n);
+            //     day_light = MYMAX(day_light, n.getLightRaw(LIGHTBANK_DAY, f));
+            //     night_light = MYMAX(night_light, n.getLightRaw(LIGHTBANK_NIGHT, f));
+            // }
+            // day_light = decode_light(day_light);
+            // night_light = decode_light(night_light);
+
+            MapNode n = data->m_vmanip.getNodeNoEx(hxhyhz);
+            video::SColor color = encode_light(LightPair((u8) 255, (u8) 0), nodedef->getLightingFlags(n).light_source);
+
+            core::vector3df normal(directions[i].X, directions[i].Y, directions[i].Z);
+            video::S3DVertex v[4] = {
+                video::S3DVertex(vertices[i][0], normal, color, uvs[0]), // uvs are 0 1
+                video::S3DVertex(vertices[i][1], normal, color, uvs[1]), // uvs are 0 0
+                video::S3DVertex(vertices[i][2], normal, color, uvs[2]), // uvs are 1 1
+                video::S3DVertex(vertices[i][3], normal, color, uvs[3]), // uvs are 1 0
+            };
+            getNodeTile(n, hxhyhz, directions[i], data, tile);
+            lod_mutex.lock();
+            collector->append(tile, v, 4, quad_indices, 6);
+            lod_mutex.unlock();
+        }
+    }
+}
+
+void MapblockMeshGenerator::generateLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset){
+    static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
+                                        v3s16(-1, 0, 0), v3s16(1, 0, 0),
+                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
+
+    for (u8 x = 0; x < data->m_side_length; x += width)
+    for (u8 y = 0; y < data->m_side_length; y += width)
+    for (u8 z = 0; z < data->m_side_length; z += width){
+        v3s16 from = v3s16(x, y, z) + blockpos_nodes;
+        v3s16 to = from + width;
+
+        // if there are no fitting nodes in this subblock, skip rendering
+        if(!doesVolumeContainType(types, from, to))
             continue;
 
         // eg lxhylz = corner of a block, where x and z are lowest and y is highest
@@ -1839,7 +1944,7 @@ void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vect
                            blockpos_nodes + v3s16(x, y, z + width), //                   hxhylz
                            blockpos_nodes + v3s16(x, y, z)}; //                          hxhyhz
         // updates bounds to contain the actual bounds of the LOD object, where the corners are the nodes furthest away from their previous value
-        findFurthestSolidFrom(type, bounds, from, to);
+        findFurthestSolidFrom(types, bounds, from, to);
 
         // moving for legibility
         v3s16 lxlylz = std::move(bounds[0]);
@@ -1851,29 +1956,38 @@ void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vect
         v3s16 hxhylz = std::move(bounds[6]);
         v3s16 hxhyhz = std::move(bounds[7]);
 
+        if (lxlylz == hxhyhz)
+            continue;
+
         // subtract blockpos_nodes again, as we need relative coords here. Multiplied by blocksize.
         // Then add/subtract half a blocksize to move to the corners of the nodes
-        core::vector3df lxlylz_f = core::vector3df{(lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2};
-        core::vector3df lxlyhz_f = core::vector3df{(lxlyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2};
-        core::vector3df lxhylz_f = core::vector3df{(lxhylz.X - blockpos_nodes.X) * BS - BS / 2, (lxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxhylz.Z - blockpos_nodes.Z) * BS - BS / 2};
-        core::vector3df lxhyhz_f = core::vector3df{(lxhyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2};
-        core::vector3df hxlylz_f = core::vector3df{(hxlylz.X - blockpos_nodes.X) * BS + BS / 2, (hxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxlylz.Z - blockpos_nodes.Z) * BS - BS / 2};
-        core::vector3df hxlyhz_f = core::vector3df{(hxlyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2};
-        core::vector3df hxhylz_f = core::vector3df{(hxhylz.X - blockpos_nodes.X) * BS + BS / 2, (hxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhylz.Z - blockpos_nodes.Z) * BS - BS / 2};
-        core::vector3df hxhyhz_f = core::vector3df{(hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2};
+        core::vector3df lxlylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df lxlyhz_f((lxlyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df lxhylz_f((lxhylz.X - blockpos_nodes.X) * BS - BS / 2, (lxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxhylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df lxhyhz_f((lxhyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df hxlylz_f((hxlylz.X - blockpos_nodes.X) * BS + BS / 2, (hxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df hxlyhz_f((hxlyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df hxhylz_f((hxhylz.X - blockpos_nodes.X) * BS + BS / 2, (hxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df hxhyhz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
 
-        v3s16 node_coords[6][4] = {{lxhylz, lxhyhz, hxhyhz, hxhylz}, {lxlylz, hxlylz, hxlyhz, lxlyhz}, //  top      bottom
+        v3s16 node_coords[6][4] = {{lxlylz, hxlylz, hxlyhz, lxlyhz}, {lxhylz, lxhyhz, hxhyhz, hxhylz}, //  bottom   top
                                    {lxlyhz, lxhyhz, lxhylz, lxlylz}, {hxlylz, hxhylz, hxhyhz, hxlyhz}, //  left     right
                                    {lxlylz, lxhylz, hxhylz, hxlylz}, {hxlyhz, hxhyhz, lxhyhz, lxlyhz}}; // front    back
-        core::vector3df vertices[6][4] = {{lxhylz_f, lxhyhz_f, hxhyhz_f, hxhylz_f}, {lxlylz_f, hxlylz_f, hxlyhz_f, lxlyhz_f},
+        core::vector3df vertices[6][4] = {{lxlylz_f, hxlylz_f, hxlyhz_f, lxlyhz_f}, {lxhylz_f, lxhyhz_f, hxhyhz_f, hxhylz_f},
                                           {lxlyhz_f, lxhyhz_f, lxhylz_f, lxlylz_f}, {hxlylz_f, hxhylz_f, hxhyhz_f, hxlyhz_f},
                                           {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
         TileSpec tile;
         for(u8 i = 0; i < 6; i++){
+            if ((&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][0] + directions[i])))->drawtype == NDT_NORMAL &&
+                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][1] + directions[i])))->drawtype == NDT_NORMAL &&
+                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][2] + directions[i])))->drawtype == NDT_NORMAL &&
+                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][3] + directions[i])))->drawtype == NDT_NORMAL)
+                continue;
+
             u8 day_light = 0;
             u8 night_light = 0;
             for (v3s16 p : node_coords[i]){
-                if (type == NDT_NORMAL)
+                if (types.test(NDT_NORMAL))
                     p += directions[i];
                 MapNode n = data->m_vmanip.getNodeNoEx(p);
                 ContentLightingFlags f = nodedef->getLightingFlags(n);
@@ -1888,7 +2002,6 @@ void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vect
             video::SColor color1 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n1).light_source);
             video::SColor color2 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n2).light_source);
 
-            // core::vector3df normal(directions[i].X, directions[i].Y, directions[i].Z);
             core::vector3df normal = (vertices[i][2] - vertices[i][1]).crossProduct(vertices[i][0] - vertices[i][1]).normalize();
             video::S3DVertex v[4] = {video::S3DVertex(vertices[i][0], normal, color1, uvs[0]), // uvs are 0 1
                                      video::S3DVertex(vertices[i][1], normal, color1, uvs[1]), // uvs are 0 0
@@ -1897,11 +2010,7 @@ void MapblockMeshGenerator::generateLod(NodeDrawType type, u16 width, core::vect
                                      };
             getNodeTile(n1, node_coords[i][0], directions[i], data, tile);
             lod_mutex.lock();
-            collector->append(tile, v, 4, trig1_indices, 3);
-            lod_mutex.unlock();
-            getNodeTile(n2, node_coords[i][0], directions[i], data, tile);
-            lod_mutex.lock();
-            collector->append(tile, v, 4, trig2_indices, 3);
+            collector->append(tile, v, 4, quad_indices, 6);
             lod_mutex.unlock();
         }
     }
@@ -1931,22 +2040,32 @@ void MapblockMeshGenerator::generate()
                                       core::vector2d<f32>{(f32) width / 4, 0},
                                       core::vector2d<f32>{(f32) width / 4, (f32) width / 4},
                                       };
+        f32 y_offset = BS * (data->m_lod - 1) + BS / 2; // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
 
-        auto lodLambda = [this](NodeDrawType type, u16 width, core::vector2d<f32> uvs[4], f32 y_offset) {
-            generateLod(type, width, uvs, y_offset);
+        auto lodLambda = [this](std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset) {
+            generateLod(types, width, uvs, y_offset);
         };
+        std::bitset<19> leaf_set;
+        leaf_set.set(NDT_ALLFACES);
+        auto leaves = std::async(std::launch::async, lodLambda, leaf_set, MYMAX(2, width / 2), small_uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
 
-        f32 y_offset = BS * (data->m_lod - 1); // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
-        auto f0 = std::async(std::launch::async, lodLambda, NDT_NORMAL, width, uvs, -y_offset);
-        auto f1 = std::async(std::launch::async, lodLambda, NDT_ALLFACES, width / 2, small_uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
-        // auto f1 = std::async(std::launch::async, lodLambda, NDT_LIQUID, width, uvs, 0.0f);
+        std::bitset<19> liqu_set;
+        liqu_set.set(NDT_LIQUID);
+        auto liquids = std::async(std::launch::async, lodLambda, liqu_set, width, uvs, 0.0f);
 
-        // generateLod(NDT_NORMAL, width, uvs, -y_offset);
-        generateLod(NDT_LIQUID, width, uvs, 0.0f);
-        // generateLod(NDT_ALLFACES, width / 2, small_uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
-
-        f0.get();
-        f1.get();
+        if (width < 16) {
+            std::bitset<19> types;
+            types.set(NDT_NORMAL);
+            types.set(NDT_NODEBOX);
+            generateCloseLod(types, width, uvs, -y_offset);
+        } else {
+            std::bitset<19> types;
+            types.set(NDT_NORMAL);
+            types.set(NDT_NODEBOX);
+            generateLod(types, width, uvs, -y_offset);
+        }
+        liquids.wait();
+        leaves.wait();
         return;
     }
 
