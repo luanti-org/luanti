@@ -109,7 +109,7 @@ int ObjectRef::l_get_guid(lua_State *L)
 	if (sao == nullptr)
 		return 0;
 
-	lua_pushstring(L, sao->getGuid().text.c_str());
+	lua_pushstring(L, sao->getGUID().text.c_str());
 	return 1;
 }
 

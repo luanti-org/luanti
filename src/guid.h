@@ -16,15 +16,15 @@ class ServerEnvironment;
  * It is global because it stays valid in a world forever.
  * It is unique because there are no collisions.
  */
-struct GUId {
+struct GUID {
 	std::string text;
 	u32 p1;
 	u16 p2, p3, p4;
 	u32 p5;
 	u16 p6;
 
-	GUId() = default;
-	GUId(const std::string &str);
+	GUID() = default;
+	GUID(const std::string &str);
 	void generateText();
 	void serialize(std::ostringstream &os) const;
 	void deSerialize(std::istream &is);
@@ -33,21 +33,21 @@ struct GUId {
 /**
  * Generates infinitely many guids.
  */
-class GUIdGenerator {
+class GUIDGenerator {
 public:
 	/**
 	 * Creates a new uninitialized generator.
 	 */
-	GUIdGenerator();
+	GUIDGenerator();
 
-	~GUIdGenerator() = default;
-	DISABLE_CLASS_COPY(GUIdGenerator)
+	~GUIDGenerator() = default;
+	DISABLE_CLASS_COPY(GUIDGenerator)
 
 	/**
 	 * Generates the next guid, which it will never return again.
 	 * @return the new guid
 	 */
-	GUId next();
+	GUID next();
 
 private:
 	void setServerEnvironment(ServerEnvironment *env) { m_env = env; }

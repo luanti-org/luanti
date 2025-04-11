@@ -21,7 +21,7 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	u16 hp = 1;
 	v3f velocity;
 	v3f rotation;
-	GUId guid;
+	GUID guid;
 
 	while (!data.empty()) { // breakable, run for one iteration
 		std::istringstream is(data, std::ios::binary);
@@ -114,7 +114,7 @@ void LuaEntitySAO::addedToEnvironment(u32 dtime_s)
 			luaentity_Activate(m_id, m_init_state, dtime_s);
 		// if Activate callback does not set guid, set it.
 		if (m_guid.text.empty()) {
-			getGuid();
+			getGUID();
 		}
 	} else {
 		// It's an unknown object
@@ -434,10 +434,10 @@ u16 LuaEntitySAO::getHP() const
 	return m_hp;
 }
 
-const GUId& LuaEntitySAO::getGuid()
+const GUID& LuaEntitySAO::getGUID()
 {
 	if (m_guid.text.empty()) {
-		m_guid = m_env->getGUIdGenerator().next();
+		m_guid = m_env->getGUIDGenerator().next();
 	}
 	return m_guid;
 }

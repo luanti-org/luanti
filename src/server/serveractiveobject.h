@@ -143,7 +143,7 @@ public:
 	{ return 0; }
 
 	// Returns always the same unique string for the same object.
-	virtual const GUId& getGuid() = 0;
+	virtual const GUID& getGUID() = 0;
 
 	virtual void setArmorGroups(const ItemGroupList &armor_groups)
 	{}

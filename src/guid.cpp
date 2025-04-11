@@ -8,12 +8,12 @@
 #include "serverenvironment.h"
 #include "util/serialize.h"
 
-GUId::GUId(const std::string &str) :
+GUID::GUID(const std::string &str) :
 	text(str)
 {
 }
 
-void GUId::generateText() {
+void GUID::generateText() {
 	std::stringstream s_guid;
 
 	s_guid << std::hex << std::setfill('0');
@@ -27,7 +27,7 @@ void GUId::generateText() {
 	text = s_guid.str();
 }
 
-void GUId::serialize(std::ostringstream &os) const {
+void GUID::serialize(std::ostringstream &os) const {
 	writeU32(os, p1);
 	writeU16(os, p2);
 	writeU16(os, p3);
@@ -36,7 +36,7 @@ void GUId::serialize(std::ostringstream &os) const {
 	writeU16(os, p6);
 }
 
-void GUId::deSerialize(std::istream &is) {
+void GUID::deSerialize(std::istream &is) {
 	p1 = readU32(is);
 	p2 = readU16(is);
 	p3 = readU16(is);
@@ -47,17 +47,17 @@ void GUId::deSerialize(std::istream &is) {
 	generateText();
 }
 
-GUIdGenerator::GUIdGenerator() :
+GUIDGenerator::GUIDGenerator() :
 	m_uniform(0, UINT64_MAX)
 {
 	if (m_rand.entropy() <= 0.010)
 		throw BaseException("The system's provided random generator does not match "
-				"the entropy requirements for the GUId generator.");
+				"the entropy requirements for the GUID generator.");
 }
 
-GUId GUIdGenerator::next()
+GUID GUIDGenerator::next()
 {
-	GUId result;
+	GUID result;
 
 	u64 rand1 = m_uniform(m_rand);
 	u64 rand2 = m_uniform(m_rand);

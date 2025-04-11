@@ -408,7 +408,7 @@ void PlayerSAO::setPlayerYaw(const float yaw)
 	UnitSAO::setRotation(rotation);
 }
 
-const GUId& PlayerSAO::getGuid()
+const GUID& PlayerSAO::getGUID()
 {
 	return m_guid;
 }

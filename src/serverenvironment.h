@@ -125,7 +125,7 @@ public:
 	float getSendRecommendedInterval()
 	{ return m_recommended_send_interval; }
 
-	GUIdGenerator & getGUIdGenerator()
+	GUIDGenerator & getGUIDGenerator()
 	{ return m_guid_generator; }
 
 	// Save players
@@ -362,7 +362,7 @@ private:
 	server::ActiveObjectMgr m_ao_manager;
 	// on_mapblocks_changed map event receiver
 	OnMapblocksChangedReceiver m_on_mapblocks_changed_receiver;
-	GUIdGenerator m_guid_generator;
+	GUIDGenerator m_guid_generator;
 	// Outgoing network message buffer for active objects
 	std::queue<ActiveObjectMessage> m_active_object_messages;
 	// Some timers
