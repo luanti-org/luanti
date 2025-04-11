@@ -35,11 +35,33 @@ int ModApiMenuCommon::l_irrlicht_device_supports_touch(lua_State *L)
 }
 
 
+int ModApiMenuCommon::l_are_keycodes_equal(lua_State *L)
+{
+	auto k1 = luaL_checkstring(L, 1);
+	auto k2 = luaL_checkstring(L, 2);
+	lua_pushboolean(L, KeyPress(k1) == KeyPress(k2));
+	return 1;
+}
+
+
+int ModApiMenuCommon::l_get_keycode_name(lua_State *L)
+{
+	KeyPress kp(luaL_checkstring(L, 1));
+	if (kp)
+		lua_pushstring(L, strgettext(kp.name()).c_str());
+	else
+		lua_pushnil(L);
+	return 1;
+}
+
+
 void ModApiMenuCommon::Initialize(lua_State *L, int top)
 {
 	API_FCT(gettext);
 	API_FCT(get_active_driver);
 	API_FCT(irrlicht_device_supports_touch);
+	API_FCT(are_keycodes_equal);
+	API_FCT(get_keycode_name);
 }
 
 

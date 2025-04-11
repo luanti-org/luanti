@@ -65,8 +65,6 @@ private:
 
 	//gui
 
-	static int l_show_keys_menu(lua_State *L);
-
 	static int l_show_touchscreen_layout(lua_State *L);
 
 	static int l_show_path_select_dialog(lua_State *L);

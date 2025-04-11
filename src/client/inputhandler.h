@@ -12,6 +12,8 @@
 #include <set>
 #include <unordered_map>
 #include "keycode.h"
+#include "settings.h"
+#include "util/string.h"
 
 class InputHandler;
 
@@ -132,6 +134,13 @@ private:
 class InputHandler
 {
 public:
+	InputHandler()
+	{
+		for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
+			if (str_starts_with(name, "keymap_"))
+				g_settings->registerChangedCallback(name, &settingChangedCallback, this);
+	}
+
 	virtual ~InputHandler() = default;
 
 	virtual bool isRandom() const
@@ -162,6 +171,11 @@ public:
 
 	virtual void clear() {}
 	virtual void releaseAllKeys() {}
+
+	static void settingChangedCallback(const std::string &name, void *data)
+	{
+		static_cast<InputHandler *>(data)->reloadKeybindings();
+	}
 
 	JoystickController joystick;
 };

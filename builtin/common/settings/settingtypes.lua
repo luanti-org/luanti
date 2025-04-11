@@ -249,9 +249,9 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 		if not default then
 			return "Invalid string setting"
 		end
-		if setting_type == "key" and not read_all then
-			-- ignore key type if read_all is false
-			return
+
+		if setting_type == "key" then
+			requires.keyboard_mouse = true
 		end
 
 		table.insert(settings, {
