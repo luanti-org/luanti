@@ -7821,8 +7821,11 @@ Global tables
     * Values in this table may be modified directly.
       Note: changes to initial properties will only affect entities spawned afterwards,
       as they are only read when spawning.
+* `core.object_refs`
+    * Map of active object references, indexed by active object id
+    * Prefer `core.objects_by_guid` because GUIDs are more useful
 * `core.objects_by_guid`
-    * Map of object references, indexed by active object GUID
+    * Map of active object references, indexed by object GUID
 * `core.luaentities`
     * Map of Lua entities, indexed by active object id
 * `core.registered_abms`
