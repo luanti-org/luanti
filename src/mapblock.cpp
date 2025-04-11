@@ -327,8 +327,8 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 	for (u32 i = 0; i < MapBlock::nodecount; i++) {
 		content_t local_id = nodes[i].getContent();
 
-		if (mapping_cache.get(local_id) != 0xFFFF) {
-			nodes[i].setContent(mapping_cache.get(local_id));
+		if (auto found = mapping_cache.get(local_id); found != 0xFFFF) {
+			nodes[i].setContent(found);
 			continue;
 		}
 
