@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2022 Minetest core developers & community
 
+#include "guid.h"
 #include <server/serveractiveobject.h>
 
 class MockServerActiveObject : public ServerActiveObject
@@ -14,7 +15,5 @@ public:
 	virtual bool getCollisionBox(aabb3f *toset) const { return false; }
 	virtual bool getSelectionBox(aabb3f *toset) const { return false; }
 	virtual bool collideWithObjects() const { return false; }
-	virtual const GUID& getGUID() { return m_guid; }
-private:
-	GUID m_guid;
+	virtual const std::string& getGUID() { assert(false); }
 };

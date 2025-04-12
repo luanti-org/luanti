@@ -209,8 +209,6 @@ ServerEnvironment::ServerEnvironment(std::unique_ptr<ServerMap> map,
 
 	m_active_object_gauge = mb->addGauge(
 		"minetest_env_active_objects", "Number of active objects");
-
-	m_guid_generator.setServerEnvironment(this);
 }
 
 void ServerEnvironment::init()

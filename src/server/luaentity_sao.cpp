@@ -51,8 +51,10 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 		rotation.X = readF1000(is);
 		rotation.Z = readF1000(is);
 
-		if (version2 < 2)
+		if (version2 < 2) {
+			guid = env->getGUIDGenerator().next();
 			break;
+		}
 
 		guid.deSerialize(is);
 
@@ -74,13 +76,14 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	m_hp = hp;
 	m_velocity = velocity;
 	m_rotation = rotation;
-	m_guid = guid;
+	m_guid = EntityGUID(guid);
 }
 
 LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &name,
 		const std::string &state) :
 		UnitSAO(env, pos),
-		m_init_name(name), m_init_state(state)
+		m_init_name(name), m_init_state(state),
+		m_guid(env->getGUIDGenerator().next())
 {
 }
 
@@ -112,10 +115,6 @@ void LuaEntitySAO::addedToEnvironment(u32 dtime_s)
 		// Activate entity, supplying serialized state
 		m_env->getScriptIface()->
 			luaentity_Activate(m_id, m_init_state, dtime_s);
-		// if Activate callback does not set guid, set it.
-		if (m_guid.text.empty()) {
-			getGUID();
-		}
 	} else {
 		// It's an unknown object
 		// Use entitystring as infotext for debugging
@@ -317,7 +316,7 @@ void LuaEntitySAO::getStaticData(std::string *result) const
 	writeF1000(os, m_rotation.X);
 	writeF1000(os, m_rotation.Z);
 
-	m_guid.serialize(os);
+	m_guid.raw.serialize(os);
 
 	// <write new values>
 
@@ -434,12 +433,9 @@ u16 LuaEntitySAO::getHP() const
 	return m_hp;
 }
 
-const GUID& LuaEntitySAO::getGUID()
+const std::string& LuaEntitySAO::getGUID()
 {
-	if (m_guid.text.empty()) {
-		m_guid = m_env->getGUIDGenerator().next();
-	}
-	return m_guid;
+	return m_guid.hex;
 }
 
 void LuaEntitySAO::setVelocity(v3f velocity)

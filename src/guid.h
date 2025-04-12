@@ -8,53 +8,38 @@
 #include "util/basic_macros.h"
 #include <random>
 #include <string>
+#include <array>
 
 class ServerEnvironment;
 
 /**
  * A global unique identifier.
- * It is global because it stays valid in a world forever.
+ * It is global because it stays valid forever.
  * It is unique because there are no collisions.
  */
 struct GUID {
-	std::string text;
-	u32 p1;
-	u16 p2, p3, p4;
-	u32 p5;
-	u16 p6;
+	std::array<char, 16> bytes;
 
-	GUID() = default;
-	GUID(const std::string &str);
-	void generateText();
+	std::string hex() const;
 	void serialize(std::ostringstream &os) const;
 	void deSerialize(std::istream &is);
 };
 
-/**
- * Generates infinitely many guids.
- */
 class GUIDGenerator {
-public:
-	/**
-	 * Creates a new uninitialized generator.
-	 */
-	GUIDGenerator();
-
-	~GUIDGenerator() = default;
 	DISABLE_CLASS_COPY(GUIDGenerator)
 
+public:
+
+	GUIDGenerator();
+
 	/**
-	 * Generates the next guid, which it will never return again.
-	 * @return the new guid
+	 * Generates the next GUID, which it will never return again.
+	 * @return the new GUID
 	 */
 	GUID next();
 
 private:
-	void setServerEnvironment(ServerEnvironment *env) { m_env = env; }
 
-	ServerEnvironment *m_env;
 	std::random_device m_rand;
 	std::uniform_int_distribution<u64> m_uniform;
-
-	friend class ServerEnvironment;
 };

@@ -438,7 +438,7 @@ void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 
 	// object_refs[id] = object
 	lua_pushinteger(L, cobj->getId()); // Push id
-	lua_pushvalue(L, object); // Copy object to top of stack
+	lua_pushvalue(L, object);
 	lua_settable(L, objectstable);
 
 	// Get core.objects_by_guid table
@@ -447,9 +447,9 @@ void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 	luaL_checktype(L, -1, LUA_TTABLE);
 	objectstable = lua_gettop(L);
 
-	// objects_by_guid[GUID] = object
-	lua_pushstring(L, cobj->getGUID().text.c_str()); // Push GUID
-	lua_pushvalue(L, object); // Copy object to top of stack
+	// objects_by_guid[guid] = object
+	lua_pushstring(L, cobj->getGUID().c_str());
+	lua_pushvalue(L, object);
 	lua_settable(L, objectstable);
 }
 
@@ -482,8 +482,8 @@ void ScriptApiBase::removeObjectReference(ServerActiveObject *cobj)
 	luaL_checktype(L, -1, LUA_TTABLE);
 	objectstable = lua_gettop(L);
 
-	// Set objects_by_guid[GUID] = nil
-	lua_pushstring(L, cobj->getGUID().text.c_str()); // Push GUID
+	// Set objects_by_guid[guid] = nil
+	lua_pushstring(L, cobj->getGUID().c_str());
 	lua_pushnil(L);
 	lua_settable(L, objectstable);
 }

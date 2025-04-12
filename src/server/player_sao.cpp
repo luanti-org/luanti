@@ -14,8 +14,8 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, RemotePlayer *player_, session_t p
 		bool is_singleplayer):
 	UnitSAO(env_, v3f(0,0,0)),
 	m_player(player_),
+	m_player_name(player_->getName()),
 	m_peer_id_initial(peer_id_),
-	m_guid(player_->getName()),
 	m_is_singleplayer(is_singleplayer)
 {
 	SANITY_CHECK(m_peer_id_initial != PEER_ID_INEXISTENT);
@@ -408,9 +408,9 @@ void PlayerSAO::setPlayerYaw(const float yaw)
 	UnitSAO::setRotation(rotation);
 }
 
-const GUID& PlayerSAO::getGUID()
+const std::string& PlayerSAO::getGUID()
 {
-	return m_guid;
+	return m_player_name;
 }
 
 void PlayerSAO::setFov(const float fov)

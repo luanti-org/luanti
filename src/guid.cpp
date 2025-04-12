@@ -3,48 +3,26 @@
 // Copyright (C) 2024 SFENCE
 
 #include "guid.h"
+#include <cstring>
 #include <sstream>
+#include <string_view>
 
-#include "serverenvironment.h"
-#include "util/serialize.h"
+#include "exceptions.h"
+#include "util/hex.h"
 
-GUID::GUID(const std::string &str) :
-	text(str)
+std::string GUID::hex() const
 {
+	return hex_encode(std::string_view(&bytes[0], bytes.size()));
 }
 
-void GUID::generateText() {
-	std::stringstream s_guid;
-
-	s_guid << std::hex << std::setfill('0');
-	s_guid << std::setw(8) << p1 << "-";
-	s_guid << std::setw(4) << p2 << "-";
-	s_guid << std::setw(4) << p3 << "-";
-	s_guid << std::setw(4) << p4 << "-";
-	s_guid << std::setw(8) << p5;
-	s_guid << std::setw(4) << p6;
-
-	text = s_guid.str();
+void GUID::serialize(std::ostringstream &os) const
+{
+	os.write(&bytes[0], bytes.size());
 }
 
-void GUID::serialize(std::ostringstream &os) const {
-	writeU32(os, p1);
-	writeU16(os, p2);
-	writeU16(os, p3);
-	writeU16(os, p4);
-	writeU32(os, p5);
-	writeU16(os, p6);
-}
-
-void GUID::deSerialize(std::istream &is) {
-	p1 = readU32(is);
-	p2 = readU16(is);
-	p3 = readU16(is);
-	p4 = readU16(is);
-	p5 = readU32(is);
-	p6 = readU16(is);
-
-	generateText();
+void GUID::deSerialize(std::istream &is)
+{
+	is.read(&bytes[0], bytes.size());
 }
 
 GUIDGenerator::GUIDGenerator() :
@@ -57,19 +35,11 @@ GUIDGenerator::GUIDGenerator() :
 
 GUID GUIDGenerator::next()
 {
-	GUID result;
-
 	u64 rand1 = m_uniform(m_rand);
 	u64 rand2 = m_uniform(m_rand);
 
-	result.p1 = rand1 & 0xFFFFFFFF;
-	result.p2 = (rand1 >> 32) & 0xFFFF;
-	result.p3 = (rand1 >> 48) & 0xFFFF;
-	result.p4 = rand2 & 0xFFFF;
-	result.p5 = (rand2 >> 16) & 0xFFFFFFFF;
-	result.p6 = (rand2 >> 48) & 0xFFFF;
-
-	result.generateText();
-
-	return result;
+	std::array<char, 16> bytes;
+	std::memcpy(&bytes[0], reinterpret_cast<char*>(&rand1), 8);
+	std::memcpy(&bytes[8], reinterpret_cast<char*>(&rand2), 8);
+	return GUID{bytes};
 }
