@@ -195,13 +195,6 @@ void RemoteClient::GetNextBlocks (
 		m_last_camera_dir = camera_dir;
 		m_map_send_completion_timer = 0.0f;
 	}
-	if (m_nearest_unsent_d > 0) {
-		// make sure any blocks modified since the last time we sent blocks are resent
-		for (const v3s16 &p : m_blocks_modified) {
-			m_nearest_unsent_d = std::min(m_nearest_unsent_d, center.getDistanceFrom(p));
-		}
-	}
-	m_blocks_modified.clear();
 
 	s16 d_start = m_nearest_unsent_d;
 
@@ -241,7 +234,6 @@ void RemoteClient::GetNextBlocks (
 	camera_fov = camera_fov / (1 + dot / 300.0f);
 
 	s32 nearest_emerged_d = -1;
-	s32 nearest_emergefull_d = -1;
 	s32 nearest_sent_d = -1;
 	//bool queue_is_full = false;
 
@@ -364,17 +356,12 @@ void RemoteClient::GetNextBlocks (
 				Add inexistent block to emerge queue.
 			*/
 			if (want_emerge) {
-				if (emerge->enqueueBlockEmerge(peer_id, p, generate)) {
-					if (nearest_emerged_d == -1)
-						nearest_emerged_d = d;
-				} else {
-					if (nearest_emergefull_d == -1)
-						nearest_emergefull_d = d;
+				if (nearest_emerged_d == -1)
+					nearest_emerged_d = d;
+				if (emerge->enqueueBlockEmerge(peer_id, p, generate))
+					continue;
+				else
 					goto queue_full_break;
-				}
-
-				// get next one.
-				continue;
 			}
 
 			if (nearest_sent_d == -1)
@@ -383,9 +370,7 @@ void RemoteClient::GetNextBlocks (
 			/*
 				Add block to send queue
 			*/
-			PrioritySortedBlockTransfer q((float)dist, p, peer_id);
-
-			dest.push_back(q);
+			dest.emplace_back((float)dist, p, peer_id);
 
 			num_blocks_selected += 1;
 		}
@@ -396,8 +381,6 @@ queue_full_break:
 	// emerging, continue next time browsing from here
 	if (nearest_emerged_d != -1) {
 		new_nearest_unsent_d = nearest_emerged_d;
-	} else if (nearest_emergefull_d != -1) {
-		new_nearest_unsent_d = nearest_emergefull_d;
 	} else {
 		if (d > full_d_max) {
 			new_nearest_unsent_d = 0;
@@ -423,8 +406,7 @@ queue_full_break:
 
 void RemoteClient::GotBlock(v3s16 p)
 {
-	if (m_blocks_sending.find(p) != m_blocks_sending.end()) {
-		m_blocks_sending.erase(p);
+	if (m_blocks_sending.erase(p) > 0) {
 		// only add to sent blocks if it actually was sending
 		// (it might have been modified since)
 		m_blocks_sent.insert(p);
@@ -435,9 +417,7 @@ void RemoteClient::GotBlock(v3s16 p)
 
 void RemoteClient::SentBlock(v3s16 p)
 {
-	if (m_blocks_sending.find(p) == m_blocks_sending.end())
-		m_blocks_sending[p] = 0.0f;
-	else
+	if (!m_blocks_sending.insert(p).second)
 		infostream<<"RemoteClient::SentBlock(): Sent block"
 				" already in m_blocks_sending"<<std::endl;
 }
@@ -447,20 +427,16 @@ void RemoteClient::SetBlockNotSent(v3s16 p)
 	m_nothing_to_send_pause_timer = 0;
 
 	// remove the block from sending and sent sets,
-	// and mark as modified if found
-	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0)
-		m_blocks_modified.insert(p);
+	// and reset the scan loop if found
+	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0) {
+		m_nearest_unsent_d = std::min(m_nearest_unsent_d, m_last_center.getDistanceFrom(p));
+	}
 }
 
 void RemoteClient::SetBlocksNotSent(const std::vector<v3s16> &blocks)
 {
-	m_nothing_to_send_pause_timer = 0;
-
 	for (v3s16 p : blocks) {
-		// remove the block from sending and sent sets,
-		// and mark as modified if found
-		if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0)
-			m_blocks_modified.insert(p);
+		SetBlockNotSent(p);
 	}
 }
 
