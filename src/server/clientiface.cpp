@@ -429,7 +429,16 @@ void RemoteClient::SetBlockNotSent(v3s16 p)
 	// remove the block from sending and sent sets,
 	// and reset the scan loop if found
 	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0) {
-		m_nearest_unsent_d = std::min(m_nearest_unsent_d, m_last_center.getDistanceFrom(p));
+		// Note that we do NOT use the euclidean distance here.
+		// getNextBlocks builds successive cube-surfaces in the send loop.
+		// This resets the distance to the maximum cube size that
+		// still guarantees that this block will be scanned again right away.
+		//
+		// Using m_last_center is OK, as a change in center
+		// will reset m_nearest_unsent_d to 0 anyway (see getNextBlocks).
+		p -= m_last_center;
+		s16 this_d = std::max({std::abs(p.X), std::abs(p.Y), std::abs(p.Z)});
+		m_nearest_unsent_d = std::min(m_nearest_unsent_d, this_d);
 	}
 }
 
