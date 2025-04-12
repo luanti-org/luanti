@@ -47,7 +47,7 @@ public:
 
 	DISABLE_CLASS_COPY(IdIdMapping)
 
-	content_t get(content_t k)
+	content_t get(content_t k) const
 	{
 		return m_mapping[k];
 	}
@@ -58,21 +58,18 @@ public:
 		m_dirty.push_back(k);
 	}
 
-	void reset()
+	void clear()
 	{
-		for (auto c : m_dirty)
-			m_mapping[c] = 0xFFFF;
+		for (auto k : m_dirty)
+			m_mapping[k] = 0xFFFF;
 		m_dirty.clear();
 	}
 
-	static IdIdMapping *giveMeThreadLocalInstance()
+	static IdIdMapping &giveClearedThreadLocalInstance()
 	{
-		static thread_local std::unique_ptr<IdIdMapping> tl_ididmapping;
-		if (!tl_ididmapping) {
-			tl_ididmapping = std::make_unique<IdIdMapping>();
-		}
-		tl_ididmapping->reset();
-		return tl_ididmapping.get();
+		static thread_local IdIdMapping tl_ididmapping;
+		tl_ididmapping.clear();
+		return tl_ididmapping;
 	}
 };
 
@@ -264,7 +261,7 @@ void MapBlock::expireIsAirCache()
 static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 	const NodeDefManager *nodedef)
 {
-	IdIdMapping *mapping = IdIdMapping::giveMeThreadLocalInstance();
+	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
 
 	content_t id_counter = 0;
 	for (u32 i = 0; i < MapBlock::nodecount; i++) {
@@ -272,12 +269,12 @@ static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 		content_t id = CONTENT_IGNORE;
 
 		// Try to find an existing mapping
-		if (auto found = mapping->get(global_id); found != 0xFFFF) {
+		if (auto found = mapping.get(global_id); found != 0xFFFF) {
 			id = found;
 		} else {
 			// We have to assign a new mapping
 			id = id_counter++;
-			mapping->set(global_id, id);
+			mapping.set(global_id, id);
 
 			const auto &name = nodedef->get(global_id).name;
 			nimap->set(id, name);
@@ -303,12 +300,12 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 	std::unordered_set<std::string> unallocatable_contents;
 
 	// Used to cache local to global id lookup.
-	IdIdMapping *mapping_cache = IdIdMapping::giveMeThreadLocalInstance();
+	IdIdMapping &mapping_cache = IdIdMapping::giveClearedThreadLocalInstance();
 
 	for (u32 i = 0; i < MapBlock::nodecount; i++) {
 		content_t local_id = nodes[i].getContent();
 
-		if (auto found = mapping_cache->get(local_id); found != 0xFFFF) {
+		if (auto found = mapping_cache.get(local_id); found != 0xFFFF) {
 			nodes[i].setContent(found);
 			continue;
 		}
@@ -330,7 +327,7 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 		nodes[i].setContent(global_id);
 
 		// Save previous node local_id & global_id result
-		mapping_cache->set(local_id, global_id);
+		mapping_cache.set(local_id, global_id);
 	}
 
 	for (const content_t c: unnamed_contents) {
