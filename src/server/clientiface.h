@@ -388,19 +388,8 @@ private:
 		- The size of this list is limited to some value
 		Block is added when it is sent with BLOCKDATA.
 		Block is removed when GOTBLOCKS is received.
-		Value is time from sending. (not used at the moment)
 	*/
-	std::unordered_map<v3s16, float> m_blocks_sending;
-
-	/*
-		Blocks that have been modified since blocks were
-		sent to the client last (getNextBlocks()).
-		This is used to reset the unsent distance, so that
-		modified blocks are resent to the client.
-
-		List of block positions.
-	*/
-	std::unordered_set<v3s16> m_blocks_modified;
+	std::unordered_set<v3s16> m_blocks_sending;
 
 	/*
 		Count of excess GotBlocks().
