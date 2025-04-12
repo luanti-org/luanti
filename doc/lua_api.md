@@ -6830,13 +6830,15 @@ Item handling
     * Returns `nil` if the given `paramtype2` does not contain color
       information.
 * `core.get_node_drops(node, toolname[, tool, digger, pos])`
-    * Returns list of itemstrings that are dropped by `node` when dug
-      with the item `toolname` (not limited to tools).
+    * Returns list of itemstrings that are dropped by `node` when dug with the
+      item `toolname` (not limited to tools). The default implementation doesn't
+      use `tool`, `digger`, and `pos`, but these are provided by `core.node_dig`
+      since 5.12.0 for games/mods implementing customized drops.
     * `node`: node as table or node name
     * `toolname`: name of the item used to dig (can be `nil`)
-    * `tool`: `ItemStack` used to dig (optional)
-    * `digger`: the ObjectRef that digs the node (optional)
-    * `pos`: the pos of the dug node (optional)
+    * `tool`: `ItemStack` used to dig (can be `nil`)
+    * `digger`: the ObjectRef that digs the node (can be `nil`)
+    * `pos`: the pos of the dug node (can be `nil`)
 * `core.get_craft_result(input)`: returns `output, decremented_input`
     * `input.method` = `"normal"` or `"cooking"` or `"fuel"`
     * `input.width` = for example `3`
