@@ -41,6 +41,7 @@ contentdb = {
 	REASON_DEPENDENCY = "dependency",
 }
 
+-- API documentation: https://content.luanti.org/help/api/
 
 local function get_download_url(package, reason)
 	local base_url = core.settings:get("contentdb_url")
