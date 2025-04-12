@@ -99,7 +99,7 @@ public class UnzipService extends IntentService {
 		}
 	}
 
-	// TODO: share code with GameActivity.setPlayingNowNotification
+	// TODO: share code with GameActivity.updateGameNotification
 	@NonNull
 	private Notification.Builder createNotification() {
 		if (mNotifyManager == null) {

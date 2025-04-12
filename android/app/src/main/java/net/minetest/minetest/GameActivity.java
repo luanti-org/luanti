@@ -30,6 +30,8 @@ import android.content.Intent;
 import android.content.ActivityNotFoundException;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -95,6 +97,7 @@ public class GameActivity extends SDLActivity {
 	}
 
 	private NotificationManager mNotifyManager;
+	private boolean gameNotificationShown = false;
 
 	public void showTextInputDialog(String hint, String current, int editType) {
 		runOnUiThread(() -> showTextInputDialogUI(hint, current, editType));
@@ -270,12 +273,12 @@ public class GameActivity extends SDLActivity {
 	}
 
 	// TODO: share code with UnzipService.createNotification
-	public void setPlayingNowNotification(boolean show) {
+	private void updateGameNotification() {
 		if (mNotifyManager == null) {
 			mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		}
 
-		if (!show) {
+		if (!gameNotificationShown) {
 			mNotifyManager.cancel(MainActivity.NOTIFICATION_ID_GAME);
 			return;
 		}
@@ -300,8 +303,29 @@ public class GameActivity extends SDLActivity {
 		builder.setContentTitle(getString(R.string.game_notification_title))
 			.setSmallIcon(R.mipmap.ic_launcher)
 			.setContentIntent(intent)
-			.setOngoing(true);
+			.setOngoing(true)
+			// This avoids a stuck notification after closing the app from the
+			// "Recents" screen while in-game.
+			// onStop is called too early to remove the notification and
+			// onDestroy is often not called, so there's this hack instead.
+			.setTimeoutAfter(11000);
 
 		mNotifyManager.notify(MainActivity.NOTIFICATION_ID_GAME, builder.build());
+
+		final Handler handler = new Handler(Looper.getMainLooper());
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if (gameNotificationShown) {
+					updateGameNotification();
+				}
+			}
+		}, 10000);
+	}
+
+
+	public void setPlayingNowNotification(boolean show) {
+		gameNotificationShown = show;
+		updateGameNotification();
 	}
 }
