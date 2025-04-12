@@ -269,14 +269,14 @@ public class GameActivity extends SDLActivity {
 		return getContext().getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS;
 	}
 
+	// TODO: share code with UnzipService.createNotification
 	public void setPlayingNowNotification(boolean show) {
 		if (mNotifyManager == null) {
 			mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		}
-		int notificationId = 2;
 
 		if (!show) {
-			mNotifyManager.cancel(notificationId);
+			mNotifyManager.cancel(MainActivity.NOTIFICATION_ID_GAME);
 			return;
 		}
 
@@ -288,7 +288,8 @@ public class GameActivity extends SDLActivity {
 		}
 
 		Intent notificationIntent = new Intent(this, GameActivity.class);
-		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+			| Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		int pendingIntentFlag = 0;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 			pendingIntentFlag = PendingIntent.FLAG_MUTABLE;
@@ -301,6 +302,6 @@ public class GameActivity extends SDLActivity {
 			.setContentIntent(intent)
 			.setOngoing(true);
 
-		mNotifyManager.notify(notificationId, builder.build());
+		mNotifyManager.notify(MainActivity.NOTIFICATION_ID_GAME, builder.build());
 	}
 }
