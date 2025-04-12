@@ -17,6 +17,7 @@ const FlagDesc flagdesc_ore[] = {
 	{"absheight",                 OREFLAG_ABSHEIGHT}, // Non-functional
 	{"puff_cliffs",               OREFLAG_PUFF_CLIFFS},
 	{"puff_additive_composition", OREFLAG_PUFF_ADDITIVE},
+	{"extended_scarcity",         OREFLAG_EXT_SCARCITY},
 	{NULL,                        0}
 };
 
@@ -144,7 +145,14 @@ void OreScatter::generate(MMVManip *vm, int mapseed, u32 blockseed,
 	u32 cvolume    = csize * csize * csize;
 	u32 nclusters = volume / clust_scarcity;
 
-	for (u32 i = 0; i != nclusters; i++) {
+	for (u32 i = 0; i <= nclusters; i++) {
+		// With OREFLAG_EXT_SCARCITY add an additional cluster with chance
+		// proportional to the truncated fractional part of nclusters
+		if (i == nclusters &&
+			!((flags & OREFLAG_EXT_SCARCITY) &&
+				(((u32) pr.range(1, clust_scarcity)) <= (volume % clust_scarcity))))
+			break;
+
 		int x0 = pr.range(nmin.X, nmax.X - csize + 1);
 		int y0 = pr.range(nmin.Y, nmax.Y - csize + 1);
 		int z0 = pr.range(nmin.Z, nmax.Z - csize + 1);
@@ -366,7 +374,14 @@ void OreBlob::generate(MMVManip *vm, int mapseed, u32 blockseed,
 	if (!noise)
 		noise = new Noise(&np, mapseed, csize, csize, csize);
 
-	for (u32 i = 0; i != nblobs; i++) {
+	for (u32 i = 0; i <= nblobs; i++) {
+		// With OREFLAG_EXT_SCARCITY add an additional blob with chance
+		// proportional to the truncated fractional part of nblobs
+		if (i == nblobs &&
+			!((flags & OREFLAG_EXT_SCARCITY) &&
+				(((u32) pr.range(1, clust_scarcity)) <= (volume % clust_scarcity))))
+			break;
+
 		int x0 = pr.range(nmin.X, nmax.X - csize + 1);
 		int y0 = pr.range(nmin.Y, nmax.Y - csize + 1);
 		int z0 = pr.range(nmin.Z, nmax.Z - csize + 1);

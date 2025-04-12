@@ -4852,7 +4852,7 @@ Ore attributes
 See section [Flag Specifier Format].
 
 Currently supported flags:
-`puff_cliffs`, `puff_additive_composition`.
+`puff_cliffs`, `puff_additive_composition`, `extended_scarcity`.
 
 ### `puff_cliffs`
 
@@ -4868,6 +4868,22 @@ this attribute set, puff ore generation will instead generate the absolute
 difference in noise displacement values. This flag has no effect for ore types
 other than `puff`.
 
+### `extended_scarcity`
+
+By default the number of scatter/blob ore clusters generated per volume is the
+quotient of the Euclidean division of the eligible volume (the chunk volume
+limited by `y_min` and `y_max` values of the ore def) by the `clust_scarcity`
+value of the ore def. This can cause ore generation to deviate significantly
+from the intuitive interpretation of the `clust_scarcity` value, especially
+when eligible volume gets small (because of a narrow y range potentially caused
+by a chunk border within the y range of the ore def), or `clust_scarcity` gets
+large for rare ores. If eligible volume gets smaller than `clust_scarcity` no
+ore nodes will be generated at all for that ore def. If this flag is set,
+scatter and blob ores may randomly generate an additional ore cluster in a
+volume. The chance for this additional cluster depends on the remainder of the
+division of eligible volume by `clust_scarcity` restoring the intuitive meaning
+of `clust_scarcity`. Setting this flag does not change the placement of the
+clusters that would be generated without this flag.
 
 
 
@@ -10772,7 +10788,11 @@ See [Ores] section above for essential information.
     clust_scarcity = 8 * 8 * 8,
     -- Ore has a 1 out of clust_scarcity chance of spawning in a node.
     -- If the desired average distance between ores is 'd', set this to
-    -- d * d * d.
+    -- d * d * d. Also see discussion of the flag `extended_scarcity` in
+    -- the 'Ore attributes' section above. Note that without that flag
+    -- the largest `clust_scarcity` to actually generate any ore nodes is
+    -- 80*80*<height of ore layer in chunk> when using the default
+    -- chunksize.
 
     clust_num_ores = 8,
     -- Number of ores in a cluster
