@@ -37,7 +37,7 @@ void showComboBoxDialog(const std::string *optionList, s32 listSize, s32 selecte
 void shareFileAndroid(const std::string &path);
 
 /**
- * Shows/hides notification that the player is playing in a world
+ * Shows/hides notification that the game is running
  *
  * @param show whether to show/hide the notification
  */

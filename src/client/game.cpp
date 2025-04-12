@@ -1021,11 +1021,11 @@ void Game::run()
 	const bool initial_window_maximized = !g_settings->getBool("fullscreen") &&
 			g_settings->getBool("window_maximized");
 
-	auto framemarker = FrameMarker("Game::run()-frame").started();
-
 #ifdef __ANDROID__
 	porting::setPlayingNowNotification(true);
 #endif
+
+	auto framemarker = FrameMarker("Game::run()-frame").started();
 
 	while (m_rendering_engine->run()
 			&& !(*kill || g_gamecallback->shutdown_requested
