@@ -7823,7 +7823,7 @@ Global tables
       as they are only read when spawning.
 * `core.object_refs`
     * Map of active object references, indexed by active object id
-    * Prefer `core.objects_by_guid` because GUIDs are more useful
+    * Deprecated: Use `core.objects_by_guid` instead.
 * `core.objects_by_guid`
     * Map of active object references, indexed by object GUID
 * `core.luaentities`

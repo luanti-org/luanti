@@ -416,10 +416,6 @@ void ScriptApiBase::setOriginFromTableRaw(int index, const char *fxn)
  *     for objects without ID.
  *     It's unclear what the latter are needed for and their use is problematic
  *     since we lose control over the ref and the contained pointer.
- *
- *
- * DEPRECATED
- * core.object_regs[id] can be removed in future!!!
  */
 void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 {
