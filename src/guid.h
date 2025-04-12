@@ -17,7 +17,7 @@ class ServerEnvironment;
  * It is global because it stays valid forever.
  * It is unique because there are no collisions.
  */
-struct GUID {
+struct MyGUID {
 	std::array<char, 16> bytes;
 
 	std::string hex() const;
@@ -36,7 +36,7 @@ public:
 	 * Generates the next GUID, which it will never return again.
 	 * @return the new GUID
 	 */
-	GUID next();
+	MyGUID next();
 
 private:
 

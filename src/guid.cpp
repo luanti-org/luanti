@@ -10,17 +10,17 @@
 #include "exceptions.h"
 #include "util/hex.h"
 
-std::string GUID::hex() const
+std::string MyGUID::hex() const
 {
 	return hex_encode(std::string_view(&bytes[0], bytes.size()));
 }
 
-void GUID::serialize(std::ostringstream &os) const
+void MyGUID::serialize(std::ostringstream &os) const
 {
 	os.write(&bytes[0], bytes.size());
 }
 
-void GUID::deSerialize(std::istream &is)
+void MyGUID::deSerialize(std::istream &is)
 {
 	is.read(&bytes[0], bytes.size());
 }
@@ -33,7 +33,7 @@ GUIDGenerator::GUIDGenerator() :
 				"the entropy requirements for the GUID generator.");
 }
 
-GUID GUIDGenerator::next()
+MyGUID GUIDGenerator::next()
 {
 	u64 rand1 = m_uniform(m_rand);
 	u64 rand2 = m_uniform(m_rand);
@@ -41,5 +41,5 @@ GUID GUIDGenerator::next()
 	std::array<char, 16> bytes;
 	std::memcpy(&bytes[0], reinterpret_cast<char*>(&rand1), 8);
 	std::memcpy(&bytes[8], reinterpret_cast<char*>(&rand2), 8);
-	return GUID{bytes};
+	return MyGUID{bytes};
 }

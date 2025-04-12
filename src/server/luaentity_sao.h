@@ -85,10 +85,10 @@ private:
 	bool m_registered = false;
 
 	struct EntityGUID {
-		GUID raw{{}};
+		MyGUID raw{{}};
 		std::string hex;
 		EntityGUID() {}
-		EntityGUID(GUID raw) : raw(raw) { hex = raw.hex(); }
+		EntityGUID(MyGUID raw) : raw(raw) { hex = raw.hex(); }
 	};
 	EntityGUID m_guid;
 

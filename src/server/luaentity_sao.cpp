@@ -21,7 +21,7 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	u16 hp = 1;
 	v3f velocity;
 	v3f rotation;
-	GUID guid;
+	MyGUID guid;
 
 	while (!data.empty()) { // breakable, run for one iteration
 		std::istringstream is(data, std::ios::binary);
