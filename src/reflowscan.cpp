@@ -121,41 +121,48 @@ void ReflowScan::scanColumn(int x, int z)
 	bool was_checked = false;
 	bool was_pushed = false;
 
-	// Scan through the whole block
-	for (s16 y = MAP_BLOCKSIZE - 1; y >= 0; y--) {
-		MapNode node = block->getNodeNoCheck(dx, y, dz);
-		const ContentFeatures &f = m_ndef->get(node);
-		bool is_ignore = node.getContent() == CONTENT_IGNORE;
-		bool is_liquid = f.isLiquid();
+	// if there is no liquid above and the current block is air
+	// we can skip scanning the block
+	if (!was_liquid && block->isAir()) {
+		// continue after the block with air
+		was_ignore = false;
+	} else {
+		// Scan through the whole block
+		for (s16 y = MAP_BLOCKSIZE - 1; y >= 0; y--) {
+			MapNode node = block->getNodeNoCheck(dx, y, dz);
+			const ContentFeatures &f = m_ndef->get(node);
+			bool is_ignore = node.getContent() == CONTENT_IGNORE;
+			bool is_liquid = f.isLiquid();
 
-		if (is_ignore || was_ignore || is_liquid == was_liquid) {
-			// Neither topmost node of liquid column nor topmost node below column
-			was_checked = false;
-			was_pushed = false;
-		} else if (is_liquid) {
-			// This is the topmost node in the column
-			bool is_pushed = false;
-			if (f.liquid_type == LIQUID_FLOWING ||
-					isLiquidHorizontallyFlowable(x, y, z)) {
-				m_liquid_queue->push_back(m_rel_block_pos + v3s16(x, y, z));
-				is_pushed = true;
+			if (is_ignore || was_ignore || is_liquid == was_liquid) {
+				// Neither topmost node of liquid column nor topmost node below column
+				was_checked = false;
+				was_pushed = false;
+			} else if (is_liquid) {
+				// This is the topmost node in the column
+				bool is_pushed = false;
+				if (f.liquid_type == LIQUID_FLOWING ||
+						isLiquidHorizontallyFlowable(x, y, z)) {
+					m_liquid_queue->push_back(m_rel_block_pos + v3s16(x, y, z));
+					is_pushed = true;
+				}
+				// Remember waschecked and waspushed to avoid repeated
+				// checks/pushes in case the column consists of only this node
+				was_checked = true;
+				was_pushed = is_pushed;
+			} else {
+				// This is the topmost node below a liquid column
+				if (!was_pushed && (f.floodable ||
+						(!was_checked && isLiquidHorizontallyFlowable(x, y + 1, z)))) {
+					// Activate the lowest node in the column which is one
+					// node above this one
+					m_liquid_queue->push_back(m_rel_block_pos + v3s16(x, y + 1, z));
+				}
 			}
-			// Remember waschecked and waspushed to avoid repeated
-			// checks/pushes in case the column consists of only this node
-			was_checked = true;
-			was_pushed = is_pushed;
-		} else {
-			// This is the topmost node below a liquid column
-			if (!was_pushed && (f.floodable ||
-					(!was_checked && isLiquidHorizontallyFlowable(x, y + 1, z)))) {
-				// Activate the lowest node in the column which is one
-				// node above this one
-				m_liquid_queue->push_back(m_rel_block_pos + v3s16(x, y + 1, z));
-			}
+
+			was_liquid = is_liquid;
+			was_ignore = is_ignore;
 		}
-
-		was_liquid = is_liquid;
-		was_ignore = is_ignore;
 	}
 
 	// Check the node below the current block

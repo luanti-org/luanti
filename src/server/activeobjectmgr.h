@@ -8,6 +8,7 @@
 #include <vector>
 #include "../activeobjectmgr.h"
 #include "serveractiveobject.h"
+#include "util/k_d_tree.h"
 
 namespace server
 {
@@ -25,16 +26,21 @@ public:
 
 	void invalidateActiveObjectObserverCaches();
 
-	void getObjectsInsideRadius(const v3f &pos, float radius,
+	void updateObjectPos(u16 id, v3f pos);
+
+	void getObjectsInsideRadius(v3f pos, float radius,
 			std::vector<ServerActiveObject *> &result,
 			std::function<bool(ServerActiveObject *obj)> include_obj_cb);
 	void getObjectsInArea(const aabb3f &box,
 			std::vector<ServerActiveObject *> &result,
 			std::function<bool(ServerActiveObject *obj)> include_obj_cb);
 	void getAddedActiveObjectsAroundPos(
-			const v3f &player_pos, const std::string &player_name,
+			v3f player_pos, const std::string &player_name,
 			f32 radius, f32 player_radius,
 			const std::set<u16> &current_objects,
 			std::vector<u16> &added_objects);
+
+private:
+	k_d_tree::DynamicKdTrees<3, f32, u16> m_spatial_index;
 };
 } // namespace server

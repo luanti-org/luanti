@@ -34,6 +34,8 @@ std::string ModConfiguration::getUnsatisfiedModsError() const
 
 void ModConfiguration::addModsInPath(const std::string &path, const std::string &virtual_path)
 {
+	verbosestream << "Adding mods from path " << path << " virtual=\""
+		<< virtual_path << "\"" << std::endl;
 	addMods(flattenMods(getModsInPath(path, virtual_path)));
 }
 

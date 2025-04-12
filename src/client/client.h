@@ -55,6 +55,7 @@ struct MeshMakeData;
 struct MinimapMapblock;
 struct PlayerControl;
 struct PointedThing;
+struct ItemVisualsManager;
 
 namespace con {
 class IConnection;
@@ -118,6 +119,7 @@ public:
 			ISoundManager *sound,
 			MtEventManager *event,
 			RenderingEngine *rendering_engine,
+			ItemVisualsManager *item_visuals,
 			ELoginRegister allow_login_or_register
 	);
 
@@ -140,8 +142,7 @@ public:
 
 	bool isShutdown();
 
-	void connect(const Address &address, const std::string &address_name,
-		bool is_local_server);
+	void connect(const Address &address, const std::string &address_name);
 
 	/*
 		Stuff that references the environment is valid only as
@@ -338,7 +339,16 @@ public:
 	u16 getProtoVersion() const
 	{ return m_proto_ver; }
 
+	// Whether the server is in "simple singleplayer mode".
+	// This implies "m_internal_server = true".
 	bool m_simple_singleplayer_mode;
+
+	// Whether the server is hosted by the same Luanti instance and singletons
+	// like g_settings are shared between client and server.
+	//
+	// This is intentionally *not* true if we're just connecting to a localhost
+	// server hosted by a different Luanti instance.
+	bool m_internal_server;
 
 	float mediaReceiveProgress();
 
@@ -374,6 +384,8 @@ public:
 	virtual scene::IAnimatedMesh* getMesh(const std::string &filename, bool cache = false);
 	const std::string* getModFile(std::string filename);
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
+
+	ItemVisualsManager *getItemVisualsManager() { return m_item_visuals_manager; }
 
 	// Migrates away old files-based mod storage if necessary
 	void migrateModStorage();
@@ -441,9 +453,7 @@ private:
 	void peerAdded(con::IPeer *peer) override;
 	void deletingPeer(con::IPeer *peer, bool timeout) override;
 
-	void initLocalMapSaving(const Address &address,
-			const std::string &hostname,
-			bool is_local_server);
+	void initLocalMapSaving(const Address &address, const std::string &hostname);
 
 	void ReceiveAll();
 
@@ -474,6 +484,7 @@ private:
 	ISoundManager *m_sound;
 	MtEventManager *m_event;
 	RenderingEngine *m_rendering_engine;
+	ItemVisualsManager *m_item_visuals_manager;
 
 
 	std::unique_ptr<MeshUpdateManager> m_mesh_update_manager;

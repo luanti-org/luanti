@@ -283,6 +283,17 @@ inline s32 s32_clamp(s32 value, s32 low, s32 high)
 	return clamp(value, low, high);
 }
 
+// integer log2 of an integer. returning 0 if denormal
+inline s32 u32_log2(u32 in)
+{
+	s32 ret = 0;
+	while (in > 1) {
+		in >>= 1;
+		ret++;
+	}
+	return ret;
+}
+
 /*
 	float IEEE-754 bit representation
 

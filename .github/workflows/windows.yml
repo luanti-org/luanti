@@ -106,10 +106,12 @@ jobs:
           vcpkgTriplet: ${{ matrix.config.vcpkg_triplet }}
 
       - name: CMake
+        # Note: See #15976 for why CMAKE_POLICY_VERSION_MINIMUM=3.5 is set.
         run: |
           cmake ${{matrix.config.generator}}  `
           -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake"  `
           -DCMAKE_BUILD_TYPE=Release  `
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5  `
           -DENABLE_POSTGRESQL=OFF  `
           -DENABLE_LUAJIT=TRUE  `
           -DREQUIRE_LUAJIT=TRUE  `

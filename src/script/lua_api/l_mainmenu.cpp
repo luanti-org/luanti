@@ -364,7 +364,8 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 		// being able to return type "unknown".
 		// TODO inspect call sites and make sure this is handled, then we can
 		// likely remove the warning.
-		warningstream << "Requested content info has type \"unknown\"" << std::endl;
+		warningstream << "Requested content info has type \"unknown\" "
+				<< "(at " << path << ")" << std::endl;
 	}
 
 	lua_newtable(L);

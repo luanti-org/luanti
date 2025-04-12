@@ -1609,20 +1609,9 @@ inline void COpenGLDriver::getGLTextureMatrix(GLfloat *o, const core::matrix4 &m
 	o[15] = 1.f;
 }
 
-ITexture *COpenGLDriver::createDeviceDependentTexture(const io::path &name, IImage *image)
+ITexture *COpenGLDriver::createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type, const std::vector<IImage*> &images)
 {
-	std::vector tmp { image };
-
-	COpenGLTexture *texture = new COpenGLTexture(name, tmp, ETT_2D, this);
-
-	return texture;
-}
-
-ITexture *COpenGLDriver::createDeviceDependentTextureCubemap(const io::path &name, const std::vector<IImage *> &image)
-{
-	COpenGLTexture *texture = new COpenGLTexture(name, image, ETT_CUBEMAP, this);
-
-	return texture;
+	return new COpenGLTexture(name, images, ETT_2D, this);
 }
 
 void COpenGLDriver::disableFeature(E_VIDEO_DRIVER_FEATURE feature, bool flag)

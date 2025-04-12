@@ -45,6 +45,12 @@ struct ImageSource {
 	// Insert a source image into the cache without touching the filesystem.
 	void insertSourceImage(const std::string &name, video::IImage *img, bool prefer_local);
 
+	// This was picked so that the image buffer size fits in an s32 (assuming 32bpp).
+	// The exact value is 23170 but this provides some leeway.
+	// In theory something like 33333x123 could be allowed, but there is no strong
+	// need or argument. Irrlicht also has the same limit.
+	static constexpr int MAX_IMAGE_DIMENSION = 23000;
+
 private:
 
 	// Generate image based on a string like "stone.png" or "[crack:1:0".

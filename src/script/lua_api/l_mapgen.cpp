@@ -428,7 +428,7 @@ size_t get_biome_list(lua_State *L, int index,
 	if (is_single) {
 		Biome *biome = get_or_load_biome(L, index, biomemgr);
 		if (!biome) {
-			infostream << "get_biome_list: failed to get biome '"
+			warningstream << "get_biome_list: failed to get biome '"
 				<< (lua_isstring(L, index) ? lua_tostring(L, index) : "")
 				<< "'." << std::endl;
 			return 1;
@@ -445,7 +445,7 @@ size_t get_biome_list(lua_State *L, int index,
 		Biome *biome = get_or_load_biome(L, -1, biomemgr);
 		if (!biome) {
 			fail_count++;
-			infostream << "get_biome_list: failed to get biome '"
+			warningstream << "get_biome_list: failed to get biome '"
 				<< (lua_isstring(L, -1) ? lua_tostring(L, -1) : "")
 				<< "'" << std::endl;
 			continue;

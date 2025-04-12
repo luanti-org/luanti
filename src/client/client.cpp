@@ -53,6 +53,7 @@
 #include "translation.h"
 #include "content/mod_configuration.h"
 #include "mapnode.h"
+#include "item_visuals_manager.h"
 
 extern gui::IGUIEnvironment* guienv;
 
@@ -95,6 +96,7 @@ Client::Client(
 		ISoundManager *sound,
 		MtEventManager *event,
 		RenderingEngine *rendering_engine,
+		ItemVisualsManager *item_visuals_manager,
 		ELoginRegister allow_login_or_register
 ):
 	m_tsrc(tsrc),
@@ -104,6 +106,7 @@ Client::Client(
 	m_sound(sound),
 	m_event(event),
 	m_rendering_engine(rendering_engine),
+	m_item_visuals_manager(item_visuals_manager),
 	m_mesh_update_manager(std::make_unique<MeshUpdateManager>(this)),
 	m_env(
 		make_irr<ClientMap>(this, rendering_engine, control, 666),
@@ -346,6 +349,8 @@ Client::~Client()
 	// cleanup 3d model meshes on client shutdown
 	m_rendering_engine->cleanupMeshCache();
 
+	m_item_visuals_manager->clear();
+
 	guiScalingCacheClear();
 
 	delete m_minimap;
@@ -367,8 +372,7 @@ Client::~Client()
 	g_fontengine->clearMediaFonts();
 }
 
-void Client::connect(const Address &address, const std::string &address_name,
-	bool is_local_server)
+void Client::connect(const Address &address, const std::string &address_name)
 {
 	if (m_con) {
 		// can't do this if the connection has entered auth phase
@@ -389,7 +393,7 @@ void Client::connect(const Address &address, const std::string &address_name,
 
 	m_con->Connect(address);
 
-	initLocalMapSaving(address, m_address_name, is_local_server);
+	initLocalMapSaving(address, m_address_name);
 }
 
 void Client::step(float dtime)
@@ -865,6 +869,8 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 	const char *font_ext[] = {".ttf", ".woff", NULL};
 	name = removeStringEnd(filename, font_ext);
 	if (!name.empty()) {
+		verbosestream<<"Client: Loading file as font: \""
+				<< filename << "\"" << std::endl;
 		g_fontengine->setMediaFont(name, data);
 		return true;
 	}
@@ -917,11 +923,9 @@ void Client::request_media(const std::vector<std::string> &file_requests)
 			<< pkt.getSize() << ")" << std::endl;
 }
 
-void Client::initLocalMapSaving(const Address &address,
-		const std::string &hostname,
-		bool is_local_server)
+void Client::initLocalMapSaving(const Address &address, const std::string &hostname)
 {
-	if (!g_settings->getBool("enable_local_map_saving") || is_local_server) {
+	if (!g_settings->getBool("enable_local_map_saving") || m_internal_server) {
 		return;
 	}
 	if (m_localdb) {

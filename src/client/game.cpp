@@ -60,6 +60,7 @@
 #include "clientdynamicinfo.h"
 #include <IAnimatedMeshSceneNode.h>
 #include "util/tracy_wrapper.h"
+#include "item_visuals_manager.h"
 
 #if USE_SOUND
 	#include "client/sound/sound_openal.h"
@@ -508,7 +509,7 @@ protected:
 	bool init(const std::string &map_dir, const std::string &address,
 			u16 port, const SubgameSpec &gamespec);
 	bool initSound();
-	bool createSingleplayerServer(const std::string &map_dir,
+	bool createServer(const std::string &map_dir,
 			const SubgameSpec &gamespec, u16 port);
 	void copyServerClientCache();
 
@@ -692,6 +693,7 @@ private:
 	// When created, these will be filled with data received from the server
 	IWritableItemDefManager *itemdef_manager = nullptr;
 	NodeDefManager *nodedef_manager = nullptr;
+	std::unique_ptr<ItemVisualsManager> m_item_visuals_manager;
 
 	std::unique_ptr<ISoundManager> sound_manager;
 	SoundMaker *soundmaker = nullptr;
@@ -908,7 +910,6 @@ bool Game::startup(bool *kill,
 
 	g_client_translations->clear();
 
-	// address can change if simple_singleplayer_mode
 	if (!init(start_data.world_spec.path, start_data.address,
 			start_data.socket_port, start_data.game_spec))
 		return false;
@@ -1126,6 +1127,8 @@ bool Game::init(
 	itemdef_manager = createItemDefManager();
 	nodedef_manager = createNodeDefManager();
 
+	m_item_visuals_manager = std::make_unique<ItemVisualsManager>();
+
 	eventmgr = new EventManager();
 	quicktune = new QuicktuneShortcutter();
 
@@ -1138,7 +1141,7 @@ bool Game::init(
 
 	// Create a server if not connecting to an existing one
 	if (address.empty()) {
-		if (!createSingleplayerServer(map_dir, gamespec, port))
+		if (!createServer(map_dir, gamespec, port))
 			return false;
 	}
 
@@ -1173,7 +1176,7 @@ bool Game::initSound()
 	return true;
 }
 
-bool Game::createSingleplayerServer(const std::string &map_dir,
+bool Game::createServer(const std::string &map_dir,
 		const SubgameSpec &gamespec, u16 port)
 {
 	showOverlayMessage(N_("Creating server..."), 0, 5);
@@ -1389,7 +1392,6 @@ bool Game::connectToServer(const GameStartData &start_data,
 {
 	*connect_ok = false;	// Let's not be overly optimistic
 	*connection_aborted = false;
-	bool local_server_mode = false;
 	const auto &address_name = start_data.address;
 
 	showOverlayMessage(N_("Resolving address..."), 0, 15);
@@ -1409,7 +1411,6 @@ bool Game::connectToServer(const GameStartData &start_data,
 			} else {
 				connect_address.setAddress(127, 0, 0, 1);
 			}
-			local_server_mode = true;
 		}
 	} catch (ResolveError &e) {
 		*error_message = fmtgettext("Couldn't resolve address: %s", e.what());
@@ -1446,6 +1447,7 @@ bool Game::connectToServer(const GameStartData &start_data,
 				*draw_control, texture_src, shader_src,
 				itemdef_manager, nodedef_manager, sound_manager.get(), eventmgr,
 				m_rendering_engine,
+				m_item_visuals_manager.get(),
 				start_data.allow_login_or_register);
 	} catch (const BaseException &e) {
 		*error_message = fmtgettext("Error creating client: %s", e.what());
@@ -1455,13 +1457,13 @@ bool Game::connectToServer(const GameStartData &start_data,
 
 	client->migrateModStorage();
 	client->m_simple_singleplayer_mode = simple_singleplayer_mode;
+	client->m_internal_server = !!server;
 
 	/*
 		Wait for server to accept connection
 	*/
 
-	client->connect(connect_address, address_name,
-		simple_singleplayer_mode || local_server_mode);
+	client->connect(connect_address, address_name);
 
 	try {
 		input->clear();
@@ -1508,12 +1510,11 @@ bool Game::connectToServer(const GameStartData &start_data,
 			}
 
 			wait_time += dtime;
-			if (local_server_mode) {
+			if (server) {
 				// never time out
 			} else if (wait_time > GAME_FALLBACK_TIMEOUT && !did_fallback) {
 				if (!client->hasServerReplied() && fallback_address.isValid()) {
-					client->connect(fallback_address, address_name,
-						simple_singleplayer_mode || local_server_mode);
+					client->connect(fallback_address, address_name);
 				}
 				did_fallback = true;
 			} else if (wait_time > GAME_CONNECTION_TIMEOUT) {
@@ -3637,6 +3638,7 @@ void Game::handlePointingAtObject(const PointedThing &pointed, const ItemStack &
 		if (do_punch) {
 			infostream << "Punched object" << std::endl;
 			runData.punching = true;
+			runData.nodig_delay_timer = std::max(0.15f, m_repeat_dig_time);
 		}
 
 		if (do_punch_damage) {

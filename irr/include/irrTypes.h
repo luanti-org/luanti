@@ -85,6 +85,22 @@ typedef char fschar_t;
 /** prefer to use the override keyword for new code */
 #define _IRR_OVERRIDE_ override
 
+// Invokes undefined behavior for unreachable code optimization
+// Note: an assert(false) is included first to catch this in debug builds
+#if defined(__cpp_lib_unreachable)
+#include <utility>
+#define IRR_CODE_UNREACHABLE() do { _IRR_DEBUG_BREAK_IF(1) std::unreachable(); } while(0)
+#elif defined(__has_builtin)
+#if __has_builtin(__builtin_unreachable)
+#define IRR_CODE_UNREACHABLE() do { _IRR_DEBUG_BREAK_IF(1) __builtin_unreachable(); } while(0)
+#endif
+#elif defined(_MSC_VER)
+#define IRR_CODE_UNREACHABLE() do { _IRR_DEBUG_BREAK_IF(1) __assume(false); } while(0)
+#endif
+#ifndef IRR_CODE_UNREACHABLE
+#define IRR_CODE_UNREACHABLE() (void)0
+#endif
+
 //! creates four CC codes used in Irrlicht for simple ids
 /** some compilers can create those by directly writing the
 code like 'code', but some generate warnings so we use this macro here */

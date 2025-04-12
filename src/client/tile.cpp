@@ -3,6 +3,19 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "tile.h"
+#include <cassert>
+
+void AnimationInfo::updateTexture(video::SMaterial &material, float animation_time)
+{
+	// Figure out current frame
+	u16 frame = (u16)(animation_time * 1000 / m_frame_length_ms) % m_frame_count;
+	// Only adjust if frame changed
+	if (frame != m_frame) {
+		m_frame = frame;
+		assert(m_frame < m_frames->size());
+		material.setTexture(0, (*m_frames)[m_frame].texture);
+	}
+};
 
 void TileLayer::applyMaterialOptions(video::SMaterial &material, int layer) const
 {

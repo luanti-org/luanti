@@ -111,6 +111,7 @@ local function load()
 		requires = {
 			keyboard_mouse = true,
 		},
+		context = "client",
 		get_formspec = function(self, avail_w)
 			local btn_w = math.min(avail_w, 3)
 			return ("button[0,0;%f,0.8;btn_change_keys;%s]"):format(btn_w, fgettext("Controls")), 0.8
@@ -127,6 +128,7 @@ local function load()
 		requires = {
 			touchscreen = true,
 		},
+		context = "client",
 		get_formspec = function(self, avail_w)
 			local btn_w = math.min(avail_w, 6)
 			return ("button[0,0;%f,0.8;btn_touch_layout;%s]"):format(btn_w, fgettext("Touchscreen layout")), 0.8
@@ -173,18 +175,24 @@ local function load()
 		table.insert(content, idx, shadows_component)
 
 		idx = table.indexof(content, "enable_auto_exposure") + 1
+		local setting_info = get_setting_info("enable_auto_exposure")
 		local note = component_funcs.note(fgettext_ne("(The game will need to enable automatic exposure as well)"))
-		note.requires = get_setting_info("enable_auto_exposure").requires
+		note.requires = setting_info.requires
+		note.context = setting_info.context
 		table.insert(content, idx, note)
 
 		idx = table.indexof(content, "enable_bloom") + 1
+		setting_info = get_setting_info("enable_bloom")
 		note = component_funcs.note(fgettext_ne("(The game will need to enable bloom as well)"))
-		note.requires = get_setting_info("enable_bloom").requires
+		note.requires = setting_info.requires
+		note.context = setting_info.context
 		table.insert(content, idx, note)
 
 		idx = table.indexof(content, "enable_volumetric_lighting") + 1
+		setting_info = get_setting_info("enable_volumetric_lighting")
 		note = component_funcs.note(fgettext_ne("(The game will need to enable volumetric lighting as well)"))
-		note.requires = get_setting_info("enable_volumetric_lighting").requires
+		note.requires = setting_info.requires
+		note.context = setting_info.context
 		table.insert(content, idx, note)
 	end
 
@@ -362,7 +370,18 @@ local function update_filtered_pages(query)
 end
 
 
-local function check_requirements(name, requires)
+local shown_contexts = {
+	common = true,
+	client = true,
+	server = INIT ~= "pause_menu" or core.is_internal_server(),
+	world_creation = INIT ~= "pause_menu",
+}
+
+local function check_requirements(name, requires, context)
+	if context and not shown_contexts[context] then
+		return false
+	end
+
 	if requires == nil then
 		return true
 	end
@@ -423,11 +442,11 @@ function page_has_contents(page, actual_content)
 		elseif type(item) == "string" then
 			local setting = get_setting_info(item)
 			assert(setting, "Unknown setting: " .. item)
-			if check_requirements(setting.name, setting.requires) then
+			if check_requirements(setting.name, setting.requires, setting.context) then
 				return true
 			end
 		elseif item.get_formspec then
-			if check_requirements(item.id, item.requires) then
+			if check_requirements(item.id, item.requires, item.context) then
 				return true
 			end
 		else
@@ -449,20 +468,22 @@ local function build_page_components(page)
 		elseif item.heading then
 			last_heading = item
 		else
-			local name, requires
+			local name, requires, context
 			if type(item) == "string" then
 				local setting = get_setting_info(item)
 				assert(setting, "Unknown setting: " .. item)
 				name = setting.name
 				requires = setting.requires
+				context = setting.context
 			elseif item.get_formspec then
 				name = item.id
 				requires = item.requires
+				context = item.context
 			else
 				error("Unknown content in page: " .. dump(item))
 			end
 
-			if check_requirements(name, requires) then
+			if check_requirements(name, requires, context) then
 				if last_heading then
 					content[#content + 1] = last_heading
 					last_heading = nil

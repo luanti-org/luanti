@@ -155,6 +155,9 @@ end
 local function preprocess_craft(itemdef)
 	-- BEGIN Legacy stuff
 	if itemdef.inventory_image == nil and itemdef.image ~= nil then
+		core.log("deprecated", "The `image` field in craftitem definitions " ..
+			"is deprecated. Use `inventory_image` instead. " ..
+			"Craftitem name: " .. itemdef.name, 3)
 		itemdef.inventory_image = itemdef.image
 	end
 	-- END Legacy stuff
@@ -165,6 +168,9 @@ local function preprocess_tool(tooldef)
 
 	-- BEGIN Legacy stuff
 	if tooldef.inventory_image == nil and tooldef.image ~= nil then
+		core.log("deprecated", "The `image` field in tool definitions " ..
+			"is deprecated. Use `inventory_image` instead. " ..
+			"Tool name: " .. tooldef.name, 3)
 		tooldef.inventory_image = tooldef.image
 	end
 
@@ -180,6 +186,9 @@ local function preprocess_tool(tooldef)
 	    tooldef.dd_crackiness ~= nil or
 	    tooldef.dd_crumbliness ~= nil or
 	    tooldef.dd_cuttability ~= nil) then
+		core.log("deprecated", "Specifying tool capabilities directly in the tool " ..
+			"definition is deprecated. Use the `tool_capabilities` field instead. " ..
+			"Tool name: " .. tooldef.name, 3)
 		tooldef.tool_capabilities = {
 			full_punch_interval = tooldef.full_punch_interval,
 			basetime = tooldef.basetime,
@@ -262,6 +271,9 @@ function core.register_item(name, itemdef)
 
 	-- BEGIN Legacy stuff
 	if itemdef.cookresult_itemstring ~= nil and itemdef.cookresult_itemstring ~= "" then
+		core.log("deprecated", "The `cookresult_itemstring` item definition " ..
+			"field is deprecated. Use `core.register_craft` instead. " ..
+			"Item name: " .. itemdef.name, 2)
 		core.register_craft({
 			type="cooking",
 			output=itemdef.cookresult_itemstring,
@@ -270,6 +282,9 @@ function core.register_item(name, itemdef)
 		})
 	end
 	if itemdef.furnace_burntime ~= nil and itemdef.furnace_burntime >= 0 then
+		core.log("deprecated", "The `furnace_burntime` item definition " ..
+			"field is deprecated. Use `core.register_craft` instead. " ..
+			"Item name: " .. itemdef.name, 2)
 		core.register_craft({
 			type="fuel",
 			recipe=itemdef.name,
@@ -331,7 +346,6 @@ function core.register_alias(name, convert_to)
 		core.log("warning", "Not registering alias, item with same name" ..
 			" is already defined: " .. name .. " -> " .. convert_to)
 	else
-		--core.log("Registering alias: " .. name .. " -> " .. convert_to)
 		core.registered_aliases[name] = convert_to
 		register_alias_raw(name, convert_to)
 	end
@@ -346,7 +360,6 @@ function core.register_alias_force(name, convert_to)
 		core.log("info", "Removed item " ..name..
 			" while attempting to force add an alias")
 	end
-	--core.log("Registering alias: " .. name .. " -> " .. convert_to)
 	core.registered_aliases[name] = convert_to
 	register_alias_raw(name, convert_to)
 end

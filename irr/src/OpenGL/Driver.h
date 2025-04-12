@@ -267,9 +267,8 @@ protected:
 
 	void chooseMaterial2D();
 
-	ITexture *createDeviceDependentTexture(const io::path &name, IImage *image) override;
-
-	ITexture *createDeviceDependentTextureCubemap(const io::path &name, const std::vector<IImage*> &image) override;
+	ITexture *createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type,
+		const std::vector<IImage*> &images) override;
 
 	//! Map Irrlicht wrap mode to OpenGL enum
 	GLint getTextureWrapMode(u8 clamp) const;

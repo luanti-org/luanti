@@ -151,6 +151,28 @@ struct TileLayer
 	bool has_color = false;
 };
 
+// Stores information for drawing an animated tile
+struct AnimationInfo {
+
+	AnimationInfo() = default;
+
+	AnimationInfo(const TileLayer &tile) :
+			m_frame_length_ms(tile.animation_frame_length_ms),
+			m_frame_count(tile.animation_frame_count),
+			m_frames(tile.frames)
+	{};
+
+	void updateTexture(video::SMaterial &material, float animation_time);
+
+private:
+	u16 m_frame = 0; // last animation frame
+	u16 m_frame_length_ms = 0;
+	u16 m_frame_count = 1;
+
+	/// @note not owned by this struct
+	std::vector<FrameSpec> *m_frames = nullptr;
+};
+
 enum class TileRotation: u8 {
 	None,
 	R90,

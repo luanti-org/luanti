@@ -33,7 +33,7 @@ function core.get_node(pos)
 	return core.vmanip:get_node_at(pos)
 end
 
-function core.get_perlin(seed, octaves, persist, spread)
+function core.get_value_noise(seed, octaves, persist, spread)
 	local params
 	if type(seed) == "table" then
 		params = table.copy(seed)
@@ -47,12 +47,18 @@ function core.get_perlin(seed, octaves, persist, spread)
 		}
 	end
 	params.seed = core.get_seed(params.seed) -- add mapgen seed
-	return PerlinNoise(params)
+	return ValueNoise(params)
 end
 
-
-function core.get_perlin_map(params, size)
+function core.get_value_noise_map(params, size)
 	local params2 = table.copy(params)
 	params2.seed = core.get_seed(params.seed) -- add mapgen seed
-	return PerlinNoiseMap(params2, size)
+	return ValueNoiseMap(params2, size)
 end
+
+-- deprecated as of 5.12, as it was not Perlin noise
+-- but with no warnings (yet) for compatibility
+core.get_perlin = core.get_value_noise
+core.get_perlin_map = core.get_value_noise_map
+PerlinNoise = ValueNoise
+PerlinNoiseMap = ValueNoiseMap
