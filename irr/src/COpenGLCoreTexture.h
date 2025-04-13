@@ -289,24 +289,8 @@ public:
 				GL.GetTexImage(tmpTextureType, MipLevelStored, PixelFormat, PixelType, tmpImage->getData());
 				TEST_GL_ERROR(Driver);
 
-				if (IsRenderTarget && lockFlags == ETLF_FLIP_Y_UP_RTT) {
-					const s32 pitch = tmpImage->getPitch();
-
-					u8 *srcA = static_cast<u8 *>(tmpImage->getData());
-					u8 *srcB = srcA + (tmpImage->getDimension().Height - 1) * pitch;
-
-					u8 *tmpBuffer = new u8[pitch];
-
-					for (u32 i = 0; i < tmpImage->getDimension().Height; i += 2) {
-						memcpy(tmpBuffer, srcA, pitch);
-						memcpy(srcA, srcB, pitch);
-						memcpy(srcB, tmpBuffer, pitch);
-						srcA += pitch;
-						srcB -= pitch;
-					}
-
-					delete[] tmpBuffer;
-				}
+				if (IsRenderTarget && lockFlags == ETLF_FLIP_Y_UP_RTT)
+					flipImageY(tmpImage);
 
 				} else {
 
@@ -337,10 +321,11 @@ public:
 
 				TEST_GL_ERROR(Driver);
 
+				if (IsRenderTarget && lockFlags == ETLF_FLIP_Y_UP_RTT)
+					flipImageY(tmpImage);
+
 				void *src = tmpImage->getData();
 				void *dest = LockImage->getData();
-
-				// FIXME: what about ETLF_FLIP_Y_UP_RTT
 
 				switch (ColorFormat) {
 				case ECF_A1R5G5B5:
@@ -505,6 +490,22 @@ protected:
 		Size = Size.getOptimalSize(!Driver->queryFeature(EVDF_TEXTURE_NPOT), needSquare, true, Driver->MaxTextureSize);
 
 		Pitch = Size.Width * IImage::getBitsPerPixelFromFormat(ColorFormat) / 8;
+	}
+
+	static void flipImageY(IImage *image)
+	{
+		const u32 pitch = image->getPitch();
+		u8 *srcA = static_cast<u8 *>(image->getData());
+		u8 *srcB = srcA + (image->getDimension().Height - 1) * pitch;
+
+		std::vector<u8> tmpBuffer(pitch);
+		for (u32 i = 0; i < image->getDimension().Height; i += 2) {
+			memcpy(tmpBuffer.data(), srcA, pitch);
+			memcpy(srcA, srcB, pitch);
+			memcpy(srcB, tmpBuffer.data(), pitch);
+			srcA += pitch;
+			srcB -= pitch;
+		}
 	}
 
 	void initTexture(u32 layers)
