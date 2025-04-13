@@ -200,7 +200,7 @@ core.register_craftitem("testitems:inventory_image_animation_overlay", {
 
 core.register_craftitem("testitems:wield_image_animation", {
 	description = S("Wield Animated Test Item").."\n"..
-		S("Looks like the Animated Test Item,"..
+		S("Looks like the Animated Test Item, "..
 			"but only animated for the wield mesh."),
 	inventory_image= "testnodes_anim.png^[verticalframe:4:0",
 	wield_image= "testnodes_anim.png",
@@ -214,7 +214,7 @@ core.register_craftitem("testitems:wield_image_animation", {
 
 core.register_craftitem("testitems:wield_image_animation_overlay", {
 	description = S("Wield Animated Test Item With Overlay").."\n"..
-		S("Looks like the animated Test Item With Overlay,"..
+		S("Looks like the animated Test Item With Overlay, "..
 			"but only animated for the wield mesh."),
 	inventory_image= "testnodes_anim.png^[verticalframe:4:0",
 	inventory_overlay= "testitems_animation_overlay.png^[verticalframe:4:0",
