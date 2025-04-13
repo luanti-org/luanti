@@ -38,6 +38,7 @@ void GUIButtonKey::sendKey()
 		e.GUIEvent.EventType = EGET_BUTTON_CLICKED;
 		Parent->OnEvent(e);
 	}
+	cancelCapture();
 }
 
 bool GUIButtonKey::OnEvent(const SEvent & event)
@@ -69,25 +70,53 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 		}
 		break;
 	case EET_MOUSE_INPUT_EVENT:
-		if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN) {
-			if (AbsoluteClippingRect.isPointInside(
+		switch (event.MouseInput.Event)
+		{
+		case EMIE_LMOUSE_LEFT_UP: [[fallthrough]];
+		case EMIE_MMOUSE_LEFT_UP: [[fallthrough]];
+		case EMIE_RMOUSE_LEFT_UP:
+			setPressed(false);
+			if (capturing) {
+				sendKey();
+				return true;
+			} if (AbsoluteClippingRect.isPointInside(
+						core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y))) {
+				startCapture();
+				return true;
+			}
+			break;
+		case EMIE_LMOUSE_PRESSED_DOWN:
+			if (capturing) {
+				setKey(LMBKey);
+				return true;
+			} else if (AbsoluteClippingRect.isPointInside(
 						core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y))) {
 				Environment->setFocus(this);
 				setPressed(true);
 				return true;
 			}
-		} else if (event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP) {
-			setPressed(false);
-			if (AbsoluteClippingRect.isPointInside(
-						core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y))) {
-				if (capturing)
-					cancelCapture();
-				else
-					startCapture();
+			break;
+		case EMIE_MMOUSE_PRESSED_DOWN:
+			if (capturing) {
+				setKey(MMBKey);
 				return true;
 			}
+			break;
+		case EMIE_RMOUSE_PRESSED_DOWN:
+			if (capturing) {
+				setKey(RMBKey);
+				return true;
+			}
+			break;
+		default:
+			break;
 		}
 		break;
+	case EET_GUI_EVENT:
+		if (event.GUIEvent.EventType == EGET_ELEMENT_FOCUS_LOST) {
+			if (capturing)
+				return true;
+		}
 	default:
 		break;
 	}
