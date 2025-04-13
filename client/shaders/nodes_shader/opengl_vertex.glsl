@@ -44,8 +44,6 @@ centroid varying float nightRatio;
 	varying float perspective_factor;
 #endif
 
-varying float area_enable_parallax;
-
 varying highp vec3 eyeVec;
 varying vec3 sunTint;
 varying float nightFactor;

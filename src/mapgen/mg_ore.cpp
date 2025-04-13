@@ -13,7 +13,7 @@
 #include <algorithm>
 
 
-FlagDesc flagdesc_ore[] = {
+const FlagDesc flagdesc_ore[] = {
 	{"absheight",                 OREFLAG_ABSHEIGHT}, // Non-functional
 	{"puff_cliffs",               OREFLAG_PUFF_CLIFFS},
 	{"puff_additive_composition", OREFLAG_PUFF_ADDITIVE},
@@ -150,7 +150,7 @@ void OreScatter::generate(MMVManip *vm, int mapseed, u32 blockseed,
 		int z0 = pr.range(nmin.Z, nmax.Z - csize + 1);
 
 		if ((flags & OREFLAG_USE_NOISE) &&
-			(NoisePerlin3D(&np, x0, y0, z0, mapseed) < nthresh))
+			(NoiseFractal3D(&np, x0, y0, z0, mapseed) < nthresh))
 			continue;
 
 		if (biomemap && !biomes.empty()) {
@@ -212,7 +212,7 @@ void OreSheet::generate(MMVManip *vm, int mapseed, u32 blockseed,
 		noise = new Noise(&np, 0, sx, sz);
 	}
 	noise->seed = mapseed + y_start;
-	noise->perlinMap2D(nmin.X, nmin.Z);
+	noise->noiseMap2D(nmin.X, nmin.Z);
 
 	size_t index = 0;
 	for (int z = nmin.Z; z <= nmax.Z; z++)
@@ -286,7 +286,7 @@ void OrePuff::generate(MMVManip *vm, int mapseed, u32 blockseed,
 	}
 
 	noise->seed = mapseed + y_start;
-	noise->perlinMap2D(nmin.X, nmin.Z);
+	noise->noiseMap2D(nmin.X, nmin.Z);
 	bool noise_generated = false;
 
 	size_t index = 0;
@@ -304,8 +304,8 @@ void OrePuff::generate(MMVManip *vm, int mapseed, u32 blockseed,
 
 		if (!noise_generated) {
 			noise_generated = true;
-			noise_puff_top->perlinMap2D(nmin.X, nmin.Z);
-			noise_puff_bottom->perlinMap2D(nmin.X, nmin.Z);
+			noise_puff_top->noiseMap2D(nmin.X, nmin.Z);
+			noise_puff_bottom->noiseMap2D(nmin.X, nmin.Z);
 		}
 
 		float ntop    = noise_puff_top->result[index];
@@ -324,7 +324,7 @@ void OrePuff::generate(MMVManip *vm, int mapseed, u32 blockseed,
 		int y1 = ymid + ntop;
 
 		if ((flags & OREFLAG_PUFF_ADDITIVE) && (y0 > y1))
-			SWAP(int, y0, y1);
+			std::swap(y0, y1);
 
 		for (int y = y0; y <= y1; y++) {
 			u32 i = vm->m_area.index(x, y, z);
@@ -393,7 +393,7 @@ void OreBlob::generate(MMVManip *vm, int mapseed, u32 blockseed,
 			// This simple optimization makes calls 6x faster on average
 			if (!noise_generated) {
 				noise_generated = true;
-				noise->perlinMap3D(x0, y0, z0);
+				noise->noiseMap3D(x0, y0, z0);
 			}
 
 			float noiseval = noise->result[index];
@@ -443,7 +443,7 @@ void OreVein::generate(MMVManip *vm, int mapseed, u32 blockseed,
 
 	int sizex = nmax.X - nmin.X + 1;
 	int sizey = nmax.Y - nmin.Y + 1;
-	// Because this ore uses 3D noise the perlinmap Y size can be different in
+	// Because this ore uses 3D noise the noisemap Y size can be different in
 	// different mapchunks due to ore Y limits. So recreate the noise objects
 	// if Y size has changed.
 	// Because these noise objects are created multiple times for this ore type
@@ -478,8 +478,8 @@ void OreVein::generate(MMVManip *vm, int mapseed, u32 blockseed,
 		// Same lazy generation optimization as in OreBlob
 		if (!noise_generated) {
 			noise_generated = true;
-			noise->perlinMap3D(nmin.X, nmin.Y, nmin.Z);
-			noise2->perlinMap3D(nmin.X, nmin.Y, nmin.Z);
+			noise->noiseMap3D(nmin.X, nmin.Y, nmin.Z);
+			noise2->noiseMap3D(nmin.X, nmin.Y, nmin.Z);
 		}
 
 		// randval ranges from -1..1
@@ -532,7 +532,7 @@ void OreStratum::generate(MMVManip *vm, int mapseed, u32 blockseed,
 			int sz = nmax.Z - nmin.Z + 1;
 			noise = new Noise(&np, 0, sx, sz);
 		}
-		noise->perlinMap2D(nmin.X, nmin.Z);
+		noise->noiseMap2D(nmin.X, nmin.Z);
 	}
 
 	if (flags & OREFLAG_USE_NOISE2) {
@@ -541,7 +541,7 @@ void OreStratum::generate(MMVManip *vm, int mapseed, u32 blockseed,
 			int sz = nmax.Z - nmin.Z + 1;
 			noise_stratum_thickness = new Noise(&np_stratum_thickness, 0, sx, sz);
 		}
-		noise_stratum_thickness->perlinMap2D(nmin.X, nmin.Z);
+		noise_stratum_thickness->noiseMap2D(nmin.X, nmin.Z);
 	}
 
 	size_t index = 0;

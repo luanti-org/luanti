@@ -669,7 +669,7 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 #if CHECK_CLIENT_BUILD()
 static void fillTileAttribs(ITextureSource *tsrc, TileLayer *layer,
 		const TileSpec &tile, const TileDef &tiledef, video::SColor color,
-		u8 material_type, u32 shader_id, bool backface_culling,
+		MaterialType material_type, u32 shader_id, bool backface_culling,
 		const TextureSettings &tsettings)
 {
 	layer->shader_id     = shader_id;
@@ -919,6 +919,8 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 			fillTileAttribs(tsrc, &tiles[j].layers[1], tiles[j], tdef_overlay[j],
 					color, overlay_material, overlay_shader,
 					tdef[j].backface_culling, tsettings);
+
+		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
 	}
 
 	MaterialType special_material = material_type;
@@ -1067,8 +1069,7 @@ void NodeDefManager::clear()
 
 bool NodeDefManager::getId(const std::string &name, content_t &result) const
 {
-	std::unordered_map<std::string, content_t>::const_iterator
-		i = m_name_id_mapping_with_aliases.find(name);
+	auto i = m_name_id_mapping_with_aliases.find(name);
 	if(i == m_name_id_mapping_with_aliases.end())
 		return false;
 	result = i->second;
@@ -1298,7 +1299,7 @@ content_t NodeDefManager::set(const std::string &name, const ContentFeatures &de
 		// Get new id
 		id = allocateId();
 		if (id == CONTENT_IGNORE) {
-			warningstream << "NodeDefManager: Absolute "
+			errorstream << "NodeDefManager: Absolute "
 				"limit reached" << std::endl;
 			return CONTENT_IGNORE;
 		}
@@ -1306,15 +1307,14 @@ content_t NodeDefManager::set(const std::string &name, const ContentFeatures &de
 		addNameIdMapping(id, name);
 	}
 
-	// If there is already ContentFeatures registered for this id, clear old groups
-	if (id < m_content_features.size())
-		eraseIdFromGroups(id);
+	// Clear old groups in case of re-registration
+	eraseIdFromGroups(id);
 
 	m_content_features[id] = def;
 	m_content_features[id].floats = itemgroup_get(def.groups, "float") != 0;
 	m_content_lighting_flag_cache[id] = def.getLightingFlags();
-	verbosestream << "NodeDefManager: registering content id \"" << id
-		<< "\": name=\"" << def.name << "\""<<std::endl;
+	verbosestream << "NodeDefManager: registering content id " << id
+		<< ": name=\"" << def.name << "\"" << std::endl;
 
 	getNodeBoxUnion(def.selection_box, def, &m_selection_box_union);
 	fixSelectionBoxIntUnion();
@@ -1348,9 +1348,9 @@ void NodeDefManager::removeNode(const std::string &name)
 	if (m_name_id_mapping.getId(name, id)) {
 		m_name_id_mapping.eraseName(name);
 		m_name_id_mapping_with_aliases.erase(name);
-	}
 
-	eraseIdFromGroups(id);
+		eraseIdFromGroups(id);
+	}
 }
 
 
@@ -1474,8 +1474,7 @@ void NodeDefManager::serialize(std::ostream &os, u16 protocol_version) const
 		os2<<serializeString16(wrapper_os.str());
 
 		// must not overflow
-		u16 next = count + 1;
-		FATAL_ERROR_IF(next < count, "Overflow");
+		FATAL_ERROR_IF(count == U16_MAX, "overflow");
 		count++;
 	}
 	writeU16(os, count);
@@ -1523,7 +1522,7 @@ void NodeDefManager::deSerialize(std::istream &is, u16 protocol_version)
 
 		// All is ok, add node definition with the requested ID
 		if (i >= m_content_features.size())
-			m_content_features.resize((u32)(i) + 1);
+			m_content_features.resize((size_t)(i) + 1);
 		m_content_features[i] = f;
 		m_content_features[i].floats = itemgroup_get(f.groups, "float") != 0;
 		m_content_lighting_flag_cache[i] = f.getLightingFlags();
@@ -1597,13 +1596,6 @@ void NodeDefManager::resetNodeResolveState()
 	m_pending_resolve_callbacks.clear();
 }
 
-static void removeDupes(std::vector<content_t> &list)
-{
-	std::sort(list.begin(), list.end());
-	auto new_end = std::unique(list.begin(), list.end());
-	list.erase(new_end, list.end());
-}
-
 void NodeDefManager::resolveCrossrefs()
 {
 	for (ContentFeatures &f : m_content_features) {
@@ -1618,7 +1610,7 @@ void NodeDefManager::resolveCrossrefs()
 		for (const std::string &name : f.connects_to) {
 			getIds(name, f.connects_to_ids);
 		}
-		removeDupes(f.connects_to_ids);
+		SORT_AND_UNIQUE(f.connects_to_ids);
 	}
 }
 

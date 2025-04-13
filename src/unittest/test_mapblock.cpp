@@ -325,7 +325,7 @@ void TestMapBlock::testLoadNonStd(IGameDef *gamedef)
 	 * 2176 IDs (but only the first 128 could use the full range of param2), and
 	 * finally 16-bit like today.
 	 * The content_width field in MapBlocks was used around that time during the
-	 * transition to 16-bit: <https://github.com/minetest/minetest/commit/ea62ee4b61371107ef3d693bda4c410ba02ca7e6>
+	 * transition to 16-bit: <https://github.com/luanti-org/luanti/commit/ea62ee4b61371107ef3d693bda4c410ba02ca7e6>
 	 * A content_width of 1 would normally never appear with a version > 24, but
 	 * it is in fact perfectly possible to serialize a block in todays format with
 	 * shortened IDs.

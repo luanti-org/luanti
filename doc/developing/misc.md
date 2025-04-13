@@ -9,7 +9,7 @@ To get usable results you need to build Luanti with debug symbols
 
 Run the client (or server) like this and do whatever you wanted to test:
 ```bash
-perf record -z --call-graph dwarf -- ./bin/minetest
+perf record -z --call-graph dwarf -- ./bin/luanti
 ```
 
 This will leave a file called "perf.data".

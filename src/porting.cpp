@@ -270,7 +270,7 @@ const std::string &get_sysinfo()
 }
 
 
-bool getCurrentWorkingDir(char *buf, size_t len)
+[[maybe_unused]] static bool getCurrentWorkingDir(char *buf, size_t len)
 {
 #ifdef _WIN32
 	DWORD ret = GetCurrentDirectory(len, buf);

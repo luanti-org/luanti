@@ -29,8 +29,8 @@ private:
 	// get_flags(self, key) -> key/value table
 	static int l_get_flags(lua_State *L);
 
-    // get_pos(self, key) -> vector or nil
-    static int l_get_pos(lua_State *L);
+	// get_pos(self, key) -> vector or nil
+	static int l_get_pos(lua_State *L);
 
 	// set(self, key, value)
 	static int l_set(lua_State *L);
@@ -41,8 +41,8 @@ private:
 	// set_np_group(self, key, value)
 	static int l_set_np_group(lua_State *L);
 
-    // set_pos(self, key, value)
-    static int l_set_pos(lua_State *L);
+	// set_pos(self, key, value)
+	static int l_set_pos(lua_State *L);
 
 	// remove(self, key) -> success
 	static int l_remove(lua_State *L);

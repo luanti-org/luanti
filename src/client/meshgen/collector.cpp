@@ -12,7 +12,7 @@ void MeshCollector::append(const TileSpec &tile, const video::S3DVertex *vertice
 {
 	for (int layernum = 0; layernum < MAX_TILE_LAYERS; layernum++) {
 		const TileLayer *layer = &tile.layers[layernum];
-		if (layer->texture_id == 0)
+		if (layer->empty())
 			continue;
 		append(*layer, vertices, numVertices, indices, numIndices, layernum,
 				tile.world_aligned);

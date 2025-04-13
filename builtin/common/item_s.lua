@@ -90,7 +90,7 @@ local facedir_to_dir_map = {
 	1, 4, 3, 2,
 }
 function core.facedir_to_dir(facedir)
-	return facedir_to_dir[facedir_to_dir_map[facedir % 32]]
+	return vector.copy(facedir_to_dir[facedir_to_dir_map[facedir % 32]])
 end
 
 function core.dir_to_fourdir(dir)
@@ -110,7 +110,7 @@ function core.dir_to_fourdir(dir)
 end
 
 function core.fourdir_to_dir(fourdir)
-	return facedir_to_dir[facedir_to_dir_map[fourdir % 4]]
+	return vector.copy(facedir_to_dir[facedir_to_dir_map[fourdir % 4]])
 end
 
 function core.dir_to_wallmounted(dir)
@@ -147,7 +147,7 @@ local wallmounted_to_dir = {
 	vector.new( 0, -1,  0),
 }
 function core.wallmounted_to_dir(wallmounted)
-	return wallmounted_to_dir[wallmounted % 8]
+	return vector.copy(wallmounted_to_dir[wallmounted % 8])
 end
 
 function core.dir_to_yaw(dir)

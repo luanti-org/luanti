@@ -14,6 +14,7 @@
 #include "network/networkprotocol.h"
 #include <iostream>
 #include <vector>
+#include <memory>
 #include <map>
 
 namespace con
@@ -24,7 +25,6 @@ class ConnectionSendThread;
 
 class Peer;
 
-// FIXME: Peer refcounting should generally be replaced by std::shared_ptr
 class PeerHelper
 {
 public:
@@ -256,7 +256,7 @@ protected:
 	UDPPeer*  createServerPeer(const Address& sender);
 	bool deletePeer(session_t peer_id, bool timeout);
 
-	void SetPeerID(session_t id) { m_peer_id = id; }
+	void SetPeerID(session_t id);
 
 	void doResendOne(session_t peer_id);
 

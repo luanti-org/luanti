@@ -24,6 +24,7 @@ std::string serializeString16(std::string_view plain)
 	std::string s;
 	char buf[2];
 
+	static_assert(STRING_MAX_LEN <= U16_MAX);
 	if (plain.size() > STRING_MAX_LEN)
 		throw SerializationError("String too long for serializeString16");
 	s.reserve(2 + plain.size());
@@ -51,7 +52,7 @@ std::string deSerializeString16(std::istream &is)
 	s.resize(s_size);
 	is.read(&s[0], s_size);
 	if (is.gcount() != s_size)
-		throw SerializationError("deSerializeString16: couldn't read all chars");
+		throw SerializationError("deSerializeString16: truncated");
 
 	return s;
 }
@@ -66,6 +67,7 @@ std::string serializeString32(std::string_view plain)
 	std::string s;
 	char buf[4];
 
+	static_assert(LONG_STRING_MAX_LEN <= U32_MAX);
 	if (plain.size() > LONG_STRING_MAX_LEN)
 		throw SerializationError("String too long for serializeLongString");
 	s.reserve(4 + plain.size());
@@ -98,9 +100,70 @@ std::string deSerializeString32(std::istream &is)
 	s.resize(s_size);
 	is.read(&s[0], s_size);
 	if ((u32)is.gcount() != s_size)
-		throw SerializationError("deSerializeLongString: couldn't read all chars");
+		throw SerializationError("deSerializeLongString: truncated");
 
 	return s;
+}
+
+////
+//// String Array
+////
+
+std::string serializeString16Array(const std::vector<std::string> &array)
+{
+	std::string ret;
+	const auto &at = [&] (size_t index) {
+		return reinterpret_cast<u8*>(&ret[index]);
+	};
+
+	if (array.size() > U32_MAX)
+		throw SerializationError("serializeString16Array: too many strings");
+	ret.resize(4 + array.size() * 2);
+	writeU32(at(0), array.size());
+
+	// Serialize lengths next to each other
+	size_t total = 0;
+	for (u32 i = 0; i < array.size(); i++) {
+		auto &s = array[i];
+		if (s.size() > STRING_MAX_LEN)
+			throw SerializationError("serializeString16Array: string too long");
+		writeU16(at(4 + 2*i), s.size());
+		total += s.size();
+	}
+
+	// Now the contents
+	ret.reserve(ret.size() + total);
+	for (auto &s : array)
+		ret.append(s);
+
+	return ret;
+}
+
+std::vector<std::string> deserializeString16Array(std::istream &is)
+{
+	std::vector<std::string> ret;
+
+	u32 count = readU32(is);
+	if (is.gcount() != 4)
+		throw SerializationError("deserializeString16Array: count not read");
+	ret.resize(count);
+
+	// prepare string buffers as we read the sizes
+	for (auto &sbuf : ret) {
+		u16 size = readU16(is);
+		if (is.gcount() != 2)
+			throw SerializationError("deserializeString16Array: size not read");
+		sbuf.resize(size);
+	}
+
+	// now extract the strings
+	for (auto &sbuf : ret) {
+		is.read(sbuf.data(), sbuf.size());
+		if (is.gcount() != (std::streamsize) sbuf.size())
+			throw SerializationError("deserializeString16Array: truncated");
+	}
+
+	return ret;
 }
 
 ////

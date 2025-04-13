@@ -4,10 +4,8 @@
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
 #include "gameparams.h"
 #include <string>
-#include <list>
 
 struct MainMenuDataForScript {
 
@@ -18,10 +16,13 @@ struct MainMenuDataForScript {
 	std::string errormessage = "";
 };
 
+// TODO: unify with GameStartData
 struct MainMenuData {
 	// Client options
 	std::string servername;
 	std::string serverdescription;
+	// If empty, we're hosting a server.
+	// This may or may not be in "simple singleplayer mode".
 	std::string address;
 	std::string port;
 	std::string name;
@@ -31,6 +32,7 @@ struct MainMenuData {
 
 	// Server options
 	int selected_world = 0;
+	// If true, we're hosting a server and *are* in "simple singleplayer mode".
 	bool simple_singleplayer_mode = false;
 
 	// Data to be passed to the script

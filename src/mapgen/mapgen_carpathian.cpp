@@ -24,7 +24,7 @@
 #include "mapgen_carpathian.h"
 
 
-FlagDesc flagdesc_mapgen_carpathian[] = {
+const FlagDesc flagdesc_mapgen_carpathian[] = {
 	{"caverns", MGCARPATHIAN_CAVERNS},
 	{"rivers",  MGCARPATHIAN_RIVERS},
 	{NULL,      0}
@@ -329,34 +329,34 @@ int MapgenCarpathian::getSpawnLevelAtPoint(v2s16 p)
 {
 	// If rivers are enabled, first check if in a river channel
 	if (spflags & MGCARPATHIAN_RIVERS) {
-		float river = std::fabs(NoisePerlin2D(&noise_rivers->np, p.X, p.Y, seed)) -
+		float river = std::fabs(NoiseFractal2D(&noise_rivers->np, p.X, p.Y, seed)) -
 			river_width;
 		if (river < 0.0f)
 			return MAX_MAP_GENERATION_LIMIT; // Unsuitable spawn point
 	}
 
-	float height1 = NoisePerlin2D(&noise_height1->np, p.X, p.Y, seed);
-	float height2 = NoisePerlin2D(&noise_height2->np, p.X, p.Y, seed);
-	float height3 = NoisePerlin2D(&noise_height3->np, p.X, p.Y, seed);
-	float height4 = NoisePerlin2D(&noise_height4->np, p.X, p.Y, seed);
+	float height1 = NoiseFractal2D(&noise_height1->np, p.X, p.Y, seed);
+	float height2 = NoiseFractal2D(&noise_height2->np, p.X, p.Y, seed);
+	float height3 = NoiseFractal2D(&noise_height3->np, p.X, p.Y, seed);
+	float height4 = NoiseFractal2D(&noise_height4->np, p.X, p.Y, seed);
 
-	float hterabs = std::fabs(NoisePerlin2D(&noise_hills_terrain->np, p.X, p.Y, seed));
-	float n_hills = NoisePerlin2D(&noise_hills->np, p.X, p.Y, seed);
+	float hterabs = std::fabs(NoiseFractal2D(&noise_hills_terrain->np, p.X, p.Y, seed));
+	float n_hills = NoiseFractal2D(&noise_hills->np, p.X, p.Y, seed);
 	float hill_mnt = hterabs * hterabs * hterabs * n_hills * n_hills;
 
-	float rterabs = std::fabs(NoisePerlin2D(&noise_ridge_terrain->np, p.X, p.Y, seed));
-	float n_ridge_mnt = NoisePerlin2D(&noise_ridge_mnt->np, p.X, p.Y, seed);
+	float rterabs = std::fabs(NoiseFractal2D(&noise_ridge_terrain->np, p.X, p.Y, seed));
+	float n_ridge_mnt = NoiseFractal2D(&noise_ridge_mnt->np, p.X, p.Y, seed);
 	float ridge_mnt = rterabs * rterabs * rterabs * (1.0f - std::fabs(n_ridge_mnt));
 
-	float sterabs = std::fabs(NoisePerlin2D(&noise_step_terrain->np, p.X, p.Y, seed));
-	float n_step_mnt = NoisePerlin2D(&noise_step_mnt->np, p.X, p.Y, seed);
+	float sterabs = std::fabs(NoiseFractal2D(&noise_step_terrain->np, p.X, p.Y, seed));
+	float n_step_mnt = NoiseFractal2D(&noise_step_mnt->np, p.X, p.Y, seed);
 	float step_mnt = sterabs * sterabs * sterabs * getSteps(n_step_mnt);
 
 	float valley = 1.0f;
 	float river = 0.0f;
 
 	if ((spflags & MGCARPATHIAN_RIVERS) && node_max.Y >= water_level - 16) {
-		river = std::fabs(NoisePerlin2D(&noise_rivers->np, p.X, p.Y, seed)) - river_width;
+		river = std::fabs(NoiseFractal2D(&noise_rivers->np, p.X, p.Y, seed)) - river_width;
 		if (river <= valley_width) {
 			// Within river valley
 			if (river < 0.0f) {
@@ -376,7 +376,7 @@ int MapgenCarpathian::getSpawnLevelAtPoint(v2s16 p)
 	u8 cons_non_solid = 0; // consecutive non-solid nodes
 
 	for (s16 y = water_level; y <= water_level + 32; y++) {
-		float mnt_var = NoisePerlin3D(&noise_mnt_var->np, p.X, y, p.Y, seed);
+		float mnt_var = NoiseFractal3D(&noise_mnt_var->np, p.X, y, p.Y, seed);
 		float hill1 = getLerp(height1, height2, mnt_var);
 		float hill2 = getLerp(height3, height4, mnt_var);
 		float hill3 = getLerp(height3, height2, mnt_var);
@@ -429,20 +429,20 @@ int MapgenCarpathian::generateTerrain()
 	MapNode mn_water(c_water_source);
 
 	// Calculate noise for terrain generation
-	noise_height1->perlinMap2D(node_min.X, node_min.Z);
-	noise_height2->perlinMap2D(node_min.X, node_min.Z);
-	noise_height3->perlinMap2D(node_min.X, node_min.Z);
-	noise_height4->perlinMap2D(node_min.X, node_min.Z);
-	noise_hills_terrain->perlinMap2D(node_min.X, node_min.Z);
-	noise_ridge_terrain->perlinMap2D(node_min.X, node_min.Z);
-	noise_step_terrain->perlinMap2D(node_min.X, node_min.Z);
-	noise_hills->perlinMap2D(node_min.X, node_min.Z);
-	noise_ridge_mnt->perlinMap2D(node_min.X, node_min.Z);
-	noise_step_mnt->perlinMap2D(node_min.X, node_min.Z);
-	noise_mnt_var->perlinMap3D(node_min.X, node_min.Y - 1, node_min.Z);
+	noise_height1->noiseMap2D(node_min.X, node_min.Z);
+	noise_height2->noiseMap2D(node_min.X, node_min.Z);
+	noise_height3->noiseMap2D(node_min.X, node_min.Z);
+	noise_height4->noiseMap2D(node_min.X, node_min.Z);
+	noise_hills_terrain->noiseMap2D(node_min.X, node_min.Z);
+	noise_ridge_terrain->noiseMap2D(node_min.X, node_min.Z);
+	noise_step_terrain->noiseMap2D(node_min.X, node_min.Z);
+	noise_hills->noiseMap2D(node_min.X, node_min.Z);
+	noise_ridge_mnt->noiseMap2D(node_min.X, node_min.Z);
+	noise_step_mnt->noiseMap2D(node_min.X, node_min.Z);
+	noise_mnt_var->noiseMap3D(node_min.X, node_min.Y - 1, node_min.Z);
 
 	if (spflags & MGCARPATHIAN_RIVERS)
-		noise_rivers->perlinMap2D(node_min.X, node_min.Z);
+		noise_rivers->noiseMap2D(node_min.X, node_min.Z);
 
 	//// Place nodes
 	const v3s32 &em = vm->m_area.getExtent();

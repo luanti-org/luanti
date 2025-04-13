@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
 #include "modalMenu.h"
 #include "chat.h"
-#include "config.h"
 #include "irr_ptr.h"
+#include <IGUIEnvironment.h>
 
 class Client;
 class GUIScrollBar;

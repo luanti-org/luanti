@@ -29,35 +29,27 @@ SOFTWARE.
 #include <cstdlib>
 #include <cassert>
 
+#define IN_SHA1_CPP
+
 #include "sha1.h"
 
-// print out memory in hexadecimal
-void SHA1::hexPrinter( unsigned char* c, int l )
-{
-	assert( c );
-	assert( l > 0 );
-	while( l > 0 )
-	{
-		printf( " %02x", *c );
-		l--;
-		c++;
-	}
-}
+namespace {
 
 // circular left bit rotation.  MSB wraps around to LSB
-Uint32 SHA1::lrot( Uint32 x, int bits )
+inline Uint32 lrot( Uint32 x, int bits )
 {
 	return (x<<bits) | (x>>(32 - bits));
-};
+}
 
 // Save a 32-bit unsigned integer to memory, in big-endian order
-void SHA1::storeBigEndianUint32( unsigned char* byte, Uint32 num )
+inline void storeBigEndianUint32( unsigned char* byte, Uint32 num )
 {
-	assert( byte );
 	byte[0] = (unsigned char)(num>>24);
 	byte[1] = (unsigned char)(num>>16);
 	byte[2] = (unsigned char)(num>>8);
 	byte[3] = (unsigned char)num;
+}
+
 }
 
 
@@ -81,7 +73,6 @@ SHA1::~SHA1()
 void SHA1::process()
 {
 	assert( unprocessedBytes == 64 );
-	//printf( "process: " ); hexPrinter( bytes, 64 ); printf( "\n" );
 	int t;
 	Uint32 a, b, c, d, e, K, f, W[80];
 	// starting values

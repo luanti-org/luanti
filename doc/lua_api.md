@@ -5,10 +5,10 @@ Luanti Lua Modding API Reference
 it's now called `core` due to the renaming of Luanti (formerly Minetest).
 `minetest` will keep existing as an alias, so that old code won't break.
 
-* More information at <http://www.minetest.net/>
-* Developer Wiki: <http://dev.minetest.net/>
+* More information at <http://www.luanti.org/>
+* Developer Wiki: <https://dev.luanti.org/>
 * (Unofficial) Minetest Modding Book by rubenwardy: <https://rubenwardy.com/minetest_modding_book/>
-* Modding tools: <https://github.com/minetest/modtools>
+* Modding tools: <https://github.com/luanti-org/modtools>
 
 Introduction
 ------------
@@ -194,7 +194,8 @@ Mod directory structure
     │   │   │   └── another_subfolder
     │   │   └── bar_subfolder
     │   ├── sounds
-    │   ├── media
+    │   ├── fonts
+    │   ├── media
     │   ├── locale
     │   └── <custom data>
     └── another
@@ -265,7 +266,7 @@ The main Lua script. Running this script should register everything it
 wants to register. Subsequent execution depends on Luanti calling the
 registered callbacks.
 
-### `textures`, `sounds`, `media`, `models`, `locale`
+### `textures`, `sounds`, `media`, `models`, `locale`, `fonts`
 
 Media files (textures, sounds, whatever) that will be transferred to the
 client and will be available for use by the mod and translation files for
@@ -278,6 +279,7 @@ Accepted formats are:
     images: .png, .jpg, .tga
     sounds: .ogg vorbis
     models: .x, .b3d, .obj, (since version 5.10:) .gltf, .glb
+    fonts: .ttf, .woff (both since version 5.11, see notes below)
 
 Other formats won't be sent to the client (e.g. you can store .blend files
 in a folder for convenience, without the risk that such files are transferred)
@@ -325,7 +327,7 @@ Many glTF features are not supported *yet*, including:
   * Double-sided materials don't work
 * Alternative means of supplying data
   * Embedded images. You can use `gltfutil.py` from the
-    [modding tools](https://github.com/minetest/modtools) to strip or extract embedded images.
+    [modding tools](https://github.com/luanti-org/modtools) to strip or extract embedded images.
   * References to files via URIs
 
 Textures are supplied solely via the same means as for the other model file formats:
@@ -341,6 +343,28 @@ The backwards compatibility guarantee does not extend to ignoring unsupported fe
 For example, if your model used an emissive material,
 you should expect that a future version of Luanti may respect this,
 and thus cause your model to render differently there.
+
+#### Custom fonts
+
+You can supply custom fonts in TrueType Font (`.ttf`) or Web Open Font Format (`.woff`) format.
+The former is supported primarily for convenience. The latter is preferred due to its compression.
+
+In the future, having multiple custom fonts and the ability to switch between them is planned,
+but for now this feature is limited to the ability to override Luanti's default fonts via mods.
+It is recommended that this only be used by game mods to set a look and feel.
+
+The stems (file names without extension) are self-explanatory:
+
+* Regular variants:
+  * `regular`
+  * `bold`
+  * `italic`
+  * `bold_italic`
+* Monospaced variants:
+  * `mono`
+  * `mono_bold`
+  * `mono_italic`
+  * `mono_bold_italic`
 
 Naming conventions
 ------------------
@@ -1460,8 +1484,6 @@ Node drawtypes
 
 There are a bunch of different looking node types.
 
-Look for examples in `games/devtest` or `games/minetest_game`.
-
 * `normal`
     * A node-sized cube.
 * `airlike`
@@ -1500,7 +1522,7 @@ Look for examples in `games/devtest` or `games/minetest_game`.
 * `allfaces`
     * Often used for partially-transparent nodes.
     * External sides of textures, and unlike other drawtypes, the external sides
-      of other blocks, are visible from the inside.
+      of other nodes, are visible from the inside.
 * `allfaces_optional`
     * Often used for leaves nodes.
     * This switches between `normal`, `glasslike` and `allfaces` according to
@@ -1574,7 +1596,8 @@ Look for examples in `games/devtest` or `games/minetest_game`.
 Node boxes
 ----------
 
-Node selection boxes are defined using "node boxes".
+Node selection boxes and collision boxes, and the appearance of the `nodebox`
+drawtype, are defined using "node boxes".
 
 A nodebox is defined as any of:
 
@@ -1659,7 +1682,9 @@ roughly 1x1x1 meters in size.
 
 A 'mapblock' (often abbreviated to 'block') is 16x16x16 nodes and is the
 fundamental region of a world that is stored in the world database, sent to
-clients and handled by many parts of the engine.
+clients and handled by many parts of the engine. This size is available as the
+constant `core.MAP_BLOCKSIZE` (=16).
+
 'mapblock' is preferred terminology to 'block' to help avoid confusion with
 'node', however 'block' often appears in the API.
 
@@ -1667,6 +1692,38 @@ A 'mapchunk' (sometimes abbreviated to 'chunk') is usually 5x5x5 mapblocks
 (80x80x80 nodes) and is the volume of world generated in one operation by
 the map generator.
 The size in mapblocks has been chosen to optimize map generation.
+
+### Mapblock status
+
+A mapblock being "loaded" means that is in memory. These are the mapblocks that
+API functions like `core.get_node` or `core.set_node` can operate on. To reach
+this state, the mapblock must first go through the process of being "emerged".
+This means that it is loaded from disk, and/or, if it isn't yet generated,
+generated by the map generator.
+
+Mapblocks are loaded in a broad area around each player. They become "unloaded"
+again if no player is close enough. The engine commonly represents the contents
+of unloaded mapblocks as `"ignore"` nodes.
+
+A mapblock being "active" means that it is not only in memory, but also affected
+by world simulation:
+
+* Entities are active
+    * They are in memory as `ServerActiveObject`, exposed to Lua as `ObjectRef`
+    * They exist in Lua as luaentity tables
+* ABMs are executed
+* Node timers are executed
+
+Also, when a mapblock is "activated", LBMs are executed. Mapblocks are active
+in a smaller area around each player, and are "deactivated" again if no player
+is close enough.
+
+Related API functions:
+
+* `core.compare_block_status`
+* `core.forceload_block`
+* `core.load_area`
+* `core.emerge_area`
 
 Coordinates
 -----------
@@ -1691,7 +1748,7 @@ node position (0,0,0) to node position (15,15,15).
 To calculate the blockpos of the mapblock that contains the node at 'nodepos',
 for each axis:
 
-* blockpos = math.floor(nodepos / 16)
+* blockpos = math.floor(nodepos / core.MAP_BLOCKSIZE)
 
 #### Converting blockpos to min/max node positions
 
@@ -1699,9 +1756,9 @@ To calculate the min/max node positions contained in the mapblock at 'blockpos',
 for each axis:
 
 * Minimum:
-  nodepos = blockpos * 16
+  nodepos = blockpos * core.MAP_BLOCKSIZE
 * Maximum:
-  nodepos = blockpos * 16 + 15
+  nodepos = (blockpos + 1) * core.MAP_BLOCKSIZE - 1
 
 
 
@@ -2001,6 +2058,21 @@ that acts as tool in a gameplay sense as a craftitem, and vice-versa.
 
 Craftitems can be used for items that neither need to be a node
 nor a tool.
+
+Special Items
+-------------
+The following items are predefined and have special properties.
+
+* `"unknown"`: An item that represents every item which has not been registered
+* `"air"`: The node which appears everywhere where no other node is
+* `"ignore"`: Mapblocks that are not loaded are represented using this node.
+    * Also used for nodes that have not yet been set by the map generator.
+    * This is also what appears outside of the map boundary.
+* `""`: The player's hand, which is in use whenever the player wields no item.
+    * Its range and tool capabilities are also used as a fallback for the wielded item.
+    * It can be overridden to change those properties:
+        * globally using `core.override_item`
+        * per-player using the special `"hand"` inventory list
 
 Amount and wear
 ---------------
@@ -3744,7 +3816,8 @@ Player Inventory lists
 * `craftresult`: list containing the crafted output
 * `hand`: list containing an override for the empty hand
     * Is not created automatically, use `InvRef:set_size`
-    * Is only used to enhance the empty hand's tool capabilities
+    * Players use the first item in this list as their hand
+    * It behaves as if the default hand `""` has been overridden for this specific player
 
 Custom lists can be added and deleted with `InvRef:set_size(name, size)` like
 any other inventory.
@@ -4120,6 +4193,11 @@ Helper functions
     * returns time with microsecond precision. May not return wall time.
 * `table.copy(table)`: returns a table
     * returns a deep copy of `table`
+    * strips metatables, but this may change in the future
+* `table.copy_with_metatables(table)`
+    * since 5.12
+    * `table` can also be non-table value, which will be returned as-is
+    * preserves metatables as they are
 * `table.indexof(list, val)`: returns the smallest numerical index containing
       the value `val` in the table `list`. Non-numerical indices are ignored.
       If `val` could not be found, `-1` is returned. `list` must not have
@@ -4346,7 +4424,7 @@ Hello @1, how are you today?=Hallo @1, wie geht es dir heute?
 ```
 
 For old translation files, consider using the script `mod_translation_updater.py`
-in the Luanti [modtools](https://github.com/minetest/modtools) repository to
+in the Luanti [modtools](https://github.com/luanti-org/modtools) repository to
 generate and update translation files automatically from the Lua sources.
 
 Gettext translation file format
@@ -4442,22 +4520,25 @@ textdomain match the mod name, but this isn't required.
 
 
 
-Perlin noise
-============
+Fractal value noise
+===================
 
-Perlin noise creates a continuously-varying value depending on the input values.
+Value noise creates a continuously-varying value depending on the input values.
+It is similar to Perlin noise, but may exhibit more geometric artifacts,
+as it interpolates between values and not between gradients as in Perlin noise.
+
 Usually in Luanti the input values are either 2D or 3D coordinates in nodes.
 The result is used during map generation to create the terrain shape, vary heat
 and humidity to distribute biomes, vary the density of decorations or vary the
 structure of ores.
 
-Structure of perlin noise
--------------------------
+Structure of fractal value noise
+--------------------------------
 
 An 'octave' is a simple noise generator that outputs a value between -1 and 1.
 The smooth wavy noise it generates has a single characteristic scale, almost
 like a 'wavelength', so on its own does not create fine detail.
-Due to this perlin noise combines several octaves to create variation on
+Due to this fractal value noise combines several octaves to create variation on
 multiple scales. Each additional octave has a smaller 'wavelength' than the
 previous.
 
@@ -4465,7 +4546,7 @@ This combination results in noise varying very roughly between -2.0 and 2.0 and
 with an average value of 0.0, so `scale` and `offset` are then used to multiply
 and offset the noise variation.
 
-The final perlin noise variation is created as follows:
+The final fractal value noise variation is created as follows:
 
 noise = offset + scale * (octave1 +
                           octave2 * persistence +
@@ -4583,7 +4664,7 @@ with restraint.
 #### `absvalue`
 
 The absolute value of each octave's noise variation is used when combining the
-octaves. The final perlin noise variation is created as follows:
+octaves. The final value noise variation is created as follows:
 
 noise = offset + scale * (abs(octave1) +
                           abs(octave2) * persistence +
@@ -4593,7 +4674,7 @@ noise = offset + scale * (abs(octave1) +
 
 ### Format example
 
-For 2D or 3D perlin noise or perlin noise maps:
+For 2D or 3D value noise or value noise maps:
 
 ```lua
 np_terrain = {
@@ -4628,13 +4709,13 @@ All default ores are of the uniformly-distributed scatter type.
 
 Randomly chooses a location and generates a cluster of ore.
 
-If `noise_params` is specified, the ore will be placed if the 3D perlin noise
+If `noise_params` is specified, the ore will be placed if the 3D value noise
 at that point is greater than the `noise_threshold`, giving the ability to
 create a non-equal distribution of ore.
 
 ### `sheet`
 
-Creates a sheet of ore in a blob shape according to the 2D perlin noise
+Creates a sheet of ore in a blob shape according to the 2D value noise
 described by `noise_params` and `noise_threshold`. This is essentially an
 improved version of the so-called "stratus" ore seen in some unofficial mods.
 
@@ -4667,14 +4748,14 @@ noise parameters `np_puff_top` and `np_puff_bottom`, respectively.
 
 ### `blob`
 
-Creates a deformed sphere of ore according to 3d perlin noise described by
+Creates a deformed sphere of ore according to 3d value noise described by
 `noise_params`. The maximum size of the blob is `clust_size`, and
 `clust_scarcity` has the same meaning as with the `scatter` type.
 
 ### `vein`
 
 Creates veins of ore varying in density by according to the intersection of two
-instances of 3d perlin noise with different seeds, both described by
+instances of 3d value noise with different seeds, both described by
 `noise_params`.
 
 `random_factor` varies the influence random chance has on placement of an ore
@@ -4709,8 +4790,8 @@ computationally expensive than any other ore.
 Creates a single undulating ore stratum that is continuous across mapchunk
 borders and horizontally spans the world.
 
-The 2D perlin noise described by `noise_params` defines the Y coordinate of
-the stratum midpoint. The 2D perlin noise described by `np_stratum_thickness`
+The 2D value noise described by `noise_params` defines the Y coordinate of
+the stratum midpoint. The 2D value noise described by `np_stratum_thickness`
 defines the stratum's vertical thickness (in units of nodes). Due to being
 continuous across mapchunk borders the stratum's vertical thickness is
 unlimited.
@@ -4958,7 +5039,7 @@ and the array index for a position p contained completely in p1..p2 is:
 `(p.Z - p1.Z) * Ny * Nx + (p.Y - p1.Y) * Nx + (p.X - p1.X) + 1`
 
 Note that this is the same "flat 3D array" format as
-`PerlinNoiseMap:get3dMap_flat()`.
+`ValueNoiseMap:get3dMap_flat()`.
 VoxelArea objects (see section [`VoxelArea`]) can be used to simplify calculation
 of the index for a single point in a flat VoxelManip array.
 
@@ -5149,7 +5230,7 @@ The coordinates are *inclusive*, like most other things in Luanti.
     * The position (x, y, z) is not checked for being inside the area volume,
       being outside can cause an incorrect index result.
     * Useful for things like `VoxelManip`, raw Schematic specifiers,
-      `PerlinNoiseMap:get2d`/`3dMap`, and so on.
+      `ValueNoiseMap:get2d`/`3dMap`, and so on.
 * `indexp(p)`: same functionality as `index(x, y, z)` but takes a vector.
     * As with `index(x, y, z)`, the components of `p` must be integers, and `p`
       is not checked for being inside the area volume.
@@ -5556,7 +5637,7 @@ Utilities
     * It's possible that multiple Luanti instances are running at the same
       time, which may lead to corruption if you are not careful.
 * `core.is_singleplayer()`
-* `core.features`: Table containing API feature flags
+* `core.features`: Table containing *server-side* API feature flags
 
   ```lua
   {
@@ -5667,10 +5748,13 @@ Utilities
       biome_weights = true,
       -- Particles can specify a "clip" blend mode (5.11.0)
       particle_blend_clip = true,
+      -- The `match_meta` optional parameter is available for `InvRef:remove_item()` (5.12.0)
+      remove_item_match_meta = true,
   }
   ```
 
 * `core.has_feature(arg)`: returns `boolean, missing_features`
+    * checks for *server-side* feature availability
     * `arg`: string or table in format `{foo=true, bar=true}`
     * `missing_features`: `{foo=true, bar=true}`
 * `core.get_player_information(player_name)`: Table containing information
@@ -5692,14 +5776,37 @@ Utilities
       min_jitter = 0.01,         -- minimum packet time jitter
       max_jitter = 0.5,          -- maximum packet time jitter
       avg_jitter = 0.03,         -- average packet time jitter
+
+      -- The version information is provided by the client and may be spoofed
+      -- or inconsistent in engine forks. You must not use this for checking
+      -- feature availability of clients. Instead, do use the fields
+      -- `protocol_version` and `formspec_version` where it matters.
+      -- Use `core.protocol_versions` to map Luanti versions to protocol versions.
+      -- This version string is only suitable for analysis purposes.
+      version_string = "0.4.9-git",   -- full version string
+
       -- the following information is available in a debug build only!!!
       -- DO NOT USE IN MODS
-      --ser_vers = 26,             -- serialization version used by client
-      --major = 0,                 -- major version number
-      --minor = 4,                 -- minor version number
-      --patch = 10,                -- patch version number
-      --vers_string = "0.4.9-git", -- full version string
-      --state = "Active"           -- current client state
+      --serialization_version = 26,     -- serialization version used by client
+      --major = 0,                      -- major version number
+      --minor = 4,                      -- minor version number
+      --patch = 10,                     -- patch version number
+      --state = "Active"                -- current client state
+  }
+  ```
+
+* `core.protocol_versions`:
+  * Table mapping Luanti versions to corresponding protocol versions for modder convenience.
+  * For example, to check whether a client has at least the feature set
+    of Luanti 5.8.0 or newer, you could do:
+    `core.get_player_information(player_name).protocol_version >= core.protocol_versions["5.8.0"]`
+  * (available since 5.11)
+
+  ```lua
+  {
+      [version string] = protocol version at time of release
+      -- every major and minor version has an entry
+      -- patch versions only for the first release whose protocol version is not already present in the table
   }
   ```
 
@@ -5840,16 +5947,23 @@ Call these functions only at load time!
 
 ### Environment
 
-* `core.register_node(name, node definition)`
-* `core.register_craftitem(name, item definition)`
-* `core.register_tool(name, item definition)`
+* `core.register_node(name, nodedef)`
+    * register a node with its definition
+    * Note: you must pass a clean table that hasn't already been used for
+      another registration to this function, as it will be modified.
+* `core.register_craftitem(name, itemdef)`
+    * register an item with its definition
+    * Note: (as above)
+* `core.register_tool(name, tooldef)`
+    * register a tool item with its definition
+    * Note: (as above)
 * `core.override_item(name, redefinition, del_fields)`
     * `redefinition` is a table of fields `[name] = new_value`,
       overwriting fields of or adding fields to the existing definition.
     * `del_fields` is a list of field names to be set
       to `nil` ("deleted from") the original definition.
     * Overrides fields of an item registered with register_node/tool/craftitem.
-    * Note: Item must already be defined, (opt)depend on the mod defining it.
+    * Note: Item must already be defined.
     * Example: `core.override_item("default:mese",
       {light_source=core.LIGHT_MAX}, {"sounds"})`:
       Overwrites the `light_source` field,
@@ -5857,7 +5971,7 @@ Call these functions only at load time!
 * `core.unregister_item(name)`
     * Unregisters the item from the engine, and deletes the entry with key
       `name` from `core.registered_items` and from the associated item table
-      according to its nature: `core.registered_nodes`, etc.
+      according to its nature (e.g. `core.registered_nodes`)
 * `core.register_entity(name, entity definition)`
 * `core.register_abm(abm definition)`
 * `core.register_lbm(lbm definition)`
@@ -6401,18 +6515,24 @@ Environment access
       first value: Table with all node positions
       second value: Table with the count of each node with the node name
       as index
-    * Area volume is limited to 4,096,000 nodes
+    * Area volume is limited to 150,000,000 nodes
 * `core.find_nodes_in_area_under_air(pos1, pos2, nodenames)`: returns a
   list of positions.
     * `nodenames`: e.g. `{"ignore", "group:tree"}` or `"default:dirt"`
     * Return value: Table with all node positions with a node air above
-    * Area volume is limited to 4,096,000 nodes
-* `core.get_perlin(noiseparams)`
-    * Return world-specific perlin noise.
+    * Area volume is limited to 150,000,000 nodes
+* `core.get_value_noise(noiseparams)`
+    * Return world-specific value noise.
     * The actual seed used is the noiseparams seed plus the world seed.
+* `core.get_value_noise(seeddiff, octaves, persistence, spread)`
+    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
+    * Return world-specific value noise
+* `core.get_perlin(noiseparams)`
+    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
+    * Return world-specific value noise (was not Perlin noise)
 * `core.get_perlin(seeddiff, octaves, persistence, spread)`
-    * Deprecated: use `core.get_perlin(noiseparams)` instead.
-    * Return world-specific perlin noise.
+    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
+    * Return world-specific value noise (was not Perlin noise)
 * `core.get_voxel_manip([pos1, pos2])`
     * Return voxel manipulator object.
     * Loads the manipulator from the map if positions are passed.
@@ -6889,8 +7009,13 @@ Defaults for the `on_place` and `on_drop` item definition functions
     * Parameters are the same as in `on_pickup`.
     * Returns the leftover itemstack.
 * `core.item_drop(itemstack, dropper, pos)`
-    * Drop the item
-    * returns the leftover itemstack
+    * Converts `itemstack` to an in-world Lua entity.
+    * `itemstack` (`ItemStack`) is modified (cleared) on success.
+      * In versions < 5.12.0, `itemstack` was cleared in all cases.
+    * `dropper` (`ObjectRef`) is optional.
+    * Returned values on success:
+      1. leftover itemstack
+      2. `ObjectRef` of the spawned object (provided since 5.12.0)
 * `core.item_eat(hp_change[, replace_with_item])`
     * Returns `function(itemstack, user, pointed_thing)` as a
       function wrapper for `core.do_item_eat`.
@@ -6982,8 +7107,8 @@ Classes:
 
 * `AreaStore`
 * `ItemStack`
-* `PerlinNoise`
-* `PerlinNoiseMap`
+* `ValueNoise`
+* `ValueNoiseMap`
 * `PseudoRandom`
 * `PcgRandom`
 * `SecureRandom`
@@ -6995,8 +7120,8 @@ Classes:
 Class instances that can be transferred between environments:
 
 * `ItemStack`
-* `PerlinNoise`
-* `PerlinNoiseMap`
+* `ValueNoise`
+* `ValueNoiseMap`
 * `VoxelManip`
 
 Functions:
@@ -7062,8 +7187,8 @@ Classes:
 
 * `AreaStore`
 * `ItemStack`
-* `PerlinNoise`
-* `PerlinNoiseMap`
+* `ValueNoise`
+* `ValueNoiseMap`
 * `PseudoRandom`
 * `PcgRandom`
 * `SecureRandom`
@@ -7408,7 +7533,8 @@ Misc.
     * This function can be overridden by mods to change the leave message.
 * `core.hash_node_position(pos)`: returns a 48-bit integer
     * `pos`: table {x=number, y=number, z=number},
-    * Gives a unique hash number for a node position (16+16+16=48bit)
+    * Gives a unique numeric encoding for a node position (16+16+16=48bit)
+    * Despite the name, this is not a hash function (so it doesn't mix or produce collisions).
 * `core.get_position_from_hash(hash)`: returns a position
     * Inverse transform of `core.hash_node_position`
 * `core.get_item_group(name, group)`: returns a rating
@@ -7568,6 +7694,8 @@ Misc.
 
 * `core.forceload_block(pos[, transient[, limit]])`
     * forceloads the position `pos`.
+    * this means that the mapblock containing `pos` will always be kept in the
+      `"active"` state, regardless of nearby players or server settings.
     * returns `true` if area could be forceloaded
     * If `transient` is `false` or absent, the forceload will be persistent
       (saved between server runs). If `true`, the forceload will be transient
@@ -7826,13 +7954,15 @@ An `InvRef` is a reference to an inventory.
   can be fully added to the list
 * `contains_item(listname, stack, [match_meta])`: returns `true` if
   the stack of items can be fully taken from the list.
-  If `match_meta` is false, only the items' names are compared
-  (default: `false`).
-* `remove_item(listname, stack)`: take as many items as specified from the
-  list, returns the items that were actually removed (as an `ItemStack`)
-  -- note that any item metadata is ignored, so attempting to remove a specific
-  unique item this way will likely remove the wrong one -- to do that use
-  `set_stack` with an empty `ItemStack`.
+    * If `match_meta` is `true`, item metadata is also considered when comparing
+      items. Otherwise, only the items names are compared. Default: `false`
+    * The method ignores wear.
+* `remove_item(listname, stack, [match_meta])`: take as many items as specified from the
+  list, returns the items that were actually removed (as an `ItemStack`).
+    * If `match_meta` is `true` (available since feature `remove_item_match_meta`),
+      item metadata is also considered when comparing items. Otherwise, only the
+      items names are compared. Default: `false`
+    * The method ignores wear.
 * `get_location()`: returns a location compatible to
   `core.get_inventory(location)`.
     * returns `{type="undefined"}` in case location is not known
@@ -8781,6 +8911,14 @@ child will follow movement and rotation of that bone.
       Same limits as for `thirdperson_back` apply.
       Defaults to `thirdperson_back` if unspecified.
 * `get_eye_offset()`: Returns camera offset vectors as set via `set_eye_offset`.
+* `set_camera(params)`: Sets camera parameters.
+    * `mode`: Defines the camera mode used
+      - `any`: free choice between all modes (default)
+      - `first`: first-person camera
+      - `third`: third-person camera
+      - `third_front`: third-person camera, looking opposite of movement direction
+    * Supported by client since 5.12.0.
+* `get_camera()`: Returns the camera parameters as a table as above.
 * `send_mapblock(blockpos)`:
     * Sends an already loaded mapblock to the player.
     * Returns `false` if nothing was sent (note that this can also mean that
@@ -8895,33 +9033,41 @@ offering very strong randomness.
 * `get_state()`: return generator state encoded in string
 * `set_state(state_string)`: restore generator state from encoded string
 
-`PerlinNoise`
+`ValueNoise`
 -------------
 
-A perlin noise generator.
-It can be created via `PerlinNoise()` or `core.get_perlin()`.
-For `core.get_perlin()`, the actual seed used is the noiseparams seed
+A value noise generator.
+It can be created via `ValueNoise()` or `core.get_value_noise()`.
+For legacy reasons, it can also be created via `PerlinNoise()` or `core.get_perlin()`,
+but the implemented noise is not Perlin noise.
+For `core.get_value_noise()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
-`PerlinNoise(noiseparams)`
-`PerlinNoise(seed, octaves, persistence, spread)` (Deprecated).
+* `ValueNoise(noiseparams)
+* `ValueNoise(seed, octaves, persistence, spread)` (Deprecated)
+* `PerlinNoise(noiseparams)` (Deprecated)
+* `PerlinNoise(seed, octaves, persistence, spread)` (Deprecated)
 
-`core.get_perlin(noiseparams)`
-`core.get_perlin(seeddiff, octaves, persistence, spread)` (Deprecated).
+* `core.get_value_noise(noiseparams)`
+* `core.get_value_noise(seeddiff, octaves, persistence, spread)` (Deprecated)
+* `core.get_perlin(noiseparams)` (Deprecated)
+* `core.get_perlin(seeddiff, octaves, persistence, spread)` (Deprecated)
 
 ### Methods
 
 * `get_2d(pos)`: returns 2D noise value at `pos={x=,y=}`
 * `get_3d(pos)`: returns 3D noise value at `pos={x=,y=,z=}`
 
-`PerlinNoiseMap`
+`ValueNoiseMap`
 ----------------
 
-A fast, bulk perlin noise generator.
+A fast, bulk noise generator.
 
-It can be created via `PerlinNoiseMap(noiseparams, size)` or
-`core.get_perlin_map(noiseparams, size)`.
-For `core.get_perlin_map()`, the actual seed used is the noiseparams seed
+It can be created via `ValueNoiseMap(noiseparams, size)` or
+`core.get_value_noise_map(noiseparams, size)`.
+For legacy reasons, it can also be created via `PerlinNoiseMap(noiseparams, size)`
+or `core.get_perlin_map(noiseparams, size)`, but it is not Perlin noise.
+For `core.get_value_noise_map()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
 Format of `size` is `{x=dimx, y=dimy, z=dimz}`. The `z` component is omitted
@@ -8948,7 +9094,7 @@ table.
 * `get_map_slice(slice_offset, slice_size, buffer)`: In the form of an array,
   returns a slice of the most recently computed noise results. The result slice
   begins at coordinates `slice_offset` and takes a chunk of `slice_size`.
-  E.g. to grab a 2-slice high horizontal 2d plane of noise starting at buffer
+  E.g., to grab a 2-slice high horizontal 2d plane of noise starting at buffer
   offset y = 20:
   `noisevals = noise:get_map_slice({y=20}, {y=2})`
   It is important to note that `slice_offset` offset coordinates begin at 1,
@@ -9194,7 +9340,7 @@ Player properties need to be saved manually.
     -- Clients older than 5.9.0 interpret `pointable = "blocking"` as `pointable = true`.
     -- Can be overridden by the `pointabilities` of the held item.
 
-    visual = "cube" / "sprite" / "upright_sprite" / "mesh" / "wielditem" / "item",
+    visual = "",
     -- "cube" is a node-sized cube.
     -- "sprite" is a flat texture always facing the player.
     -- "upright_sprite" is a vertical flat texture.
@@ -9216,6 +9362,8 @@ Player properties need to be saved manually.
     --   Wielditems are scaled a bit. If you want a wielditem to appear
     --   to be as large as a node, use `0.667` in `visual_size`
     -- "item" is similar to "wielditem" but ignores the 'wield_image' parameter.
+    -- "node" looks exactly like a node in-world (supported since 5.12.0)
+    --   Note that visual effects like waving or liquid reflections will not work.
 
     visual_size = {x = 1, y = 1, z = 1},
     -- Multipliers for the visual size. If `z` is not specified, `x` will be used
@@ -9225,7 +9373,7 @@ Player properties need to be saved manually.
     -- File name of mesh when using "mesh" visual
 
     textures = {},
-    -- Number of required textures depends on visual.
+    -- Number of required textures depends on visual:
     -- "cube" uses 6 textures just like a node, but all 6 must be defined.
     -- "sprite" uses 1 texture.
     -- "upright_sprite" uses 2 textures: {front, back}.
@@ -9233,13 +9381,16 @@ Player properties need to be saved manually.
     -- Deprecated usage of "wielditem" expects 'textures = {itemname}' (see 'visual' above).
 
     colors = {},
-    -- Number of required colors depends on visual
+    -- Currently unused.
+
+    node = {name = "ignore", param1=0, param2=0},
+    -- Node to show when using the "node" visual
 
     use_texture_alpha = false,
-    -- Use texture's alpha channel.
-    -- Excludes "upright_sprite" and "wielditem".
+    -- Use texture's alpha channel for transparency blending.
     -- Note: currently causes visual issues when viewed through other
     -- semi-transparent materials such as water.
+    -- Note: ignored for "item", "wielditem" and "node" visual.
 
     spritediv = {x = 1, y = 1},
     -- Used with spritesheet textures for animation and/or frame selection
@@ -9256,7 +9407,7 @@ Player properties need to be saved manually.
     -- If false, object is invisible and can't be pointed.
 
     makes_footstep_sound = false,
-    -- If true, is able to make footstep sounds of nodes
+    -- If true, object is able to make footstep sounds of nodes
     -- (see node sound definition for details).
 
     automatic_rotate = 0,
@@ -9279,6 +9430,7 @@ Player properties need to be saved manually.
 
     backface_culling = true,
     -- Set to false to disable backface_culling for model
+    -- Note: only used by "mesh" and "cube" visual
 
     glow = 0,
     -- Add this much extra lighting when calculating texture color.
@@ -9314,6 +9466,7 @@ Player properties need to be saved manually.
 
     shaded = true,
     -- Setting this to 'false' disables diffuse lighting of entity
+    -- Note: ignored for "item", "wielditem" and "node" visual
 
     show_on_minimap = false,
     -- Defaults to true for players, false for other entities.
@@ -9363,6 +9516,10 @@ ABM (ActiveBlockModifier) definition
 ------------------------------------
 
 Used by `core.register_abm`.
+
+An active block modifier (ABM) is used to define a function that is continously
+and randomly called for specific nodes (defined by `nodenames` and other conditions)
+in active mapblocks.
 
 ```lua
 {
@@ -9420,12 +9577,29 @@ Used by `core.register_lbm`.
 
 A loading block modifier (LBM) is used to define a function that is called for
 specific nodes (defined by `nodenames`) when a mapblock which contains such nodes
-gets activated (not loaded!).
+gets **activated** (**not loaded!**).
 
-Note: LBMs operate on a "snapshot" of node positions taken once before they are triggered.
+*Note*: LBMs operate on a "snapshot" of node positions taken once before they are triggered.
 That means if an LBM callback adds a node, it won't be taken into account.
-However the engine guarantees that when the callback is called that all given position(s)
-contain a matching node.
+However the engine guarantees that at the point in time when the callback is called
+that all given positions contain a matching node.
+
+For `run_at_every_load = false` to work, both mapblocks and LBMs have timestamps
+associated with them:
+
+* Each mapblock has a "last active" timestamp. It is also updated when the
+  mapblock is generated.
+* For each LBM, an introduction timestamp is stored in the world data, identified
+  by the LBM's `name` field. If an LBM disappears, the corresponding timestamp
+  is cleared.
+
+When a mapblock is activated, only LBMs whose introduction timestamp is newer
+than the mapblock's timestamp are run.
+
+*Note*: For maps generated in 5.11.0 or older, many newly generated mapblocks
+did not get a timestamp set. This means LBMs introduced between generation time
+and time of first activation will never run.
+Currently the only workaround is to use `run_at_every_load = true`.
 
 ```lua
 {
@@ -9442,14 +9616,17 @@ contain a matching node.
     -- will work as well.
 
     run_at_every_load = false,
-    -- Whether to run the LBM's action every time a block gets activated,
-    -- and not only the first time the block gets activated after the LBM
-    -- was introduced.
+    -- If `false`: The LBM only runs on mapblocks the first time they are
+    -- activated after the LBM was introduced.
+    -- It never runs on mapblocks generated after the LBM's introduction.
+    -- See above for details.
+    --
+    -- If `true`: The LBM runs every time a mapblock is activated.
 
     action = function(pos, node, dtime_s) end,
     -- Function triggered for each qualifying node.
-    -- `dtime_s` is the in-game time (in seconds) elapsed since the block
-    -- was last active.
+    -- `dtime_s` is the in-game time (in seconds) elapsed since the mapblock
+    -- was last active (available since 5.7.0).
 
     bulk_action = function(pos_list, dtime_s) end,
     -- Function triggered with a list of all applicable node positions at once.
@@ -10605,7 +10782,7 @@ See [Ores] section above for essential information.
         octaves = 3,
         persistence = 0.7
     },
-    -- NoiseParams structure describing one of the perlin noises used for
+    -- NoiseParams structure describing one of the noises used for
     -- ore distribution.
     -- Needed by "sheet", "puff", "blob" and "vein" ores.
     -- Omit from "scatter" ore for a uniform ore distribution.
@@ -10792,7 +10969,7 @@ See [Decoration types]. Used by `core.register_decoration`.
         lacunarity = 2.0,
         flags = "absvalue"
     },
-    -- NoiseParams structure describing the perlin noise used for decoration
+    -- NoiseParams structure describing the noise used for decoration
     -- distribution.
     -- A noise value is calculated for each square division and determines
     -- 'decorations per surface node' within each division.

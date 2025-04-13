@@ -276,29 +276,29 @@ treegen::error make_ltree(MMVManip &vmanip, v3s16 p0,
 
 	Key for Special L-System Symbols used in Axioms
 
-    G  - move forward one unit with the pen up
-    F  - move forward one unit with the pen down drawing trunks and branches
-    f  - move forward one unit with the pen down drawing leaves (100% chance)
-    T  - move forward one unit with the pen down drawing trunks only
-    R  - move forward one unit with the pen down placing fruit
-    A  - replace with rules set A
-    B  - replace with rules set B
-    C  - replace with rules set C
-    D  - replace with rules set D
-    a  - replace with rules set A, chance 90%
-    b  - replace with rules set B, chance 80%
-    c  - replace with rules set C, chance 70%
-    d  - replace with rules set D, chance 60%
-    +  - yaw the turtle right by angle degrees
-    -  - yaw the turtle left by angle degrees
-    &  - pitch the turtle down by angle degrees
-    ^  - pitch the turtle up by angle degrees
-    /  - roll the turtle to the right by angle degrees
-    *  - roll the turtle to the left by angle degrees
-    [  - save in stack current state info
-    ]  - recover from stack state info
+	  G  - move forward one unit with the pen up
+	  F  - move forward one unit with the pen down drawing trunks and branches
+	  f  - move forward one unit with the pen down drawing leaves (100% chance)
+	  T  - move forward one unit with the pen down drawing trunks only
+	  R  - move forward one unit with the pen down placing fruit
+	  A  - replace with rules set A
+	  B  - replace with rules set B
+	  C  - replace with rules set C
+	  D  - replace with rules set D
+	  a  - replace with rules set A, chance 90%
+	  b  - replace with rules set B, chance 80%
+	  c  - replace with rules set C, chance 70%
+	  d  - replace with rules set D, chance 60%
+	  +  - yaw the turtle right by angle degrees
+	  -  - yaw the turtle left by angle degrees
+	  &  - pitch the turtle down by angle degrees
+	  ^  - pitch the turtle up by angle degrees
+	  /  - roll the turtle to the right by angle degrees
+	  *  - roll the turtle to the left by angle degrees
+	  [  - save in stack current state info
+	  ]  - recover from stack state info
 
-    */
+	 */
 
 	s16 x,y,z;
 	for (s16 i = 0; i < (s16)axiom.size(); i++) {

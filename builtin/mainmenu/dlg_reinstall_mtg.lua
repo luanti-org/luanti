@@ -19,7 +19,7 @@
 -- This whole file can be removed after a while.
 -- It was only directly useful for upgrades from 5.7.0 to 5.8.0, but
 -- maybe some odd fellow directly upgrades from 5.6.1 to 5.9.0 in the future...
--- see <https://github.com/minetest/minetest/pull/13850> in case it's not obvious
+-- see <https://github.com/luanti-org/luanti/pull/13850> in case it's not obvious
 ---- ----
 
 local SETTING_NAME = "no_mtg_notification"

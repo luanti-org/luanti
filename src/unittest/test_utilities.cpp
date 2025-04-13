@@ -47,6 +47,7 @@ public:
 	void testIsBlockInSight();
 	void testColorizeURL();
 	void testSanitizeUntrusted();
+	void testReadSeed();
 };
 
 static TestUtilities g_test_instance;
@@ -82,6 +83,7 @@ void TestUtilities::runTests(IGameDef *gamedef)
 	TEST(testIsBlockInSight);
 	TEST(testColorizeURL);
 	TEST(testSanitizeUntrusted);
+	TEST(testReadSeed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -656,8 +658,6 @@ C apply_all(const C &co, F functor)
 	return ret;
 }
 
-#define cast_v3(T, other) T((other).X, (other).Y, (other).Z)
-
 void TestUtilities::testIsBlockInSight()
 {
 	const std::vector<v3s16> testdata1 = {
@@ -674,7 +674,7 @@ void TestUtilities::testIsBlockInSight()
 	auto test1 = [] (const std::vector<v3s16> &data) {
 		float range = BS * MAP_BLOCKSIZE * 4;
 		float fov = 72 * core::DEGTORAD;
-		v3f cam_pos = cast_v3(v3f, data[0]), cam_dir = cast_v3(v3f, data[1]);
+		v3f cam_pos = v3f::from(data[0]), cam_dir = v3f::from(data[1]);
 		UASSERT( isBlockInSight(data[2], cam_pos, cam_dir, fov, range));
 		UASSERT(!isBlockInSight(data[3], cam_pos, cam_dir, fov, range));
 		UASSERT(!isBlockInSight(data[4], cam_pos, cam_dir, fov, range));
@@ -754,4 +754,12 @@ void TestUtilities::testSanitizeUntrusted()
 		UASSERTEQ(auto, sanitize_untrusted("\x1b", keep), "");
 		UASSERTEQ(auto, sanitize_untrusted("\x1b(", keep), "(");
 	}
+}
+
+void TestUtilities::testReadSeed()
+{
+	UASSERTEQ(int, read_seed("123"), 123);
+	UASSERTEQ(int, read_seed("0x123"), 0x123);
+	// hashing should produce some non-zero number
+	UASSERT(read_seed("hello") != 0);
 }

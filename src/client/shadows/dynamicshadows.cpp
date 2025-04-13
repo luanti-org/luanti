@@ -32,11 +32,12 @@ void DirectionalLight::createSplitMatrices(const Camera *cam)
 	// adjusted frustum boundaries
 	float sfNear = future_frustum.zNear;
 	float sfFar = adjustDist(future_frustum.zFar, cam->getFovY());
+	assert(sfFar - sfNear > 0);
 
 	// adjusted camera positions
 	v3f cam_pos_world = cam->getPosition();
 
-	// if world position is less than 1 block away from the captured
+	// if world position is less than 1 node away from the captured
 	// world position then stick to the captured value, otherwise recapture.
 	if (cam_pos_world.getDistanceFromSQ(last_cam_pos_world) < BS * BS)
 		cam_pos_world = last_cam_pos_world;
@@ -74,7 +75,6 @@ void DirectionalLight::createSplitMatrices(const Camera *cam)
 	future_frustum.ViewMat.buildCameraLookAtMatrixLH(eye, center_scene, v3f(0.0f, 1.0f, 0.0f));
 	future_frustum.ProjOrthMat.buildProjectionMatrixOrthoLH(radius, radius,
 			0.0f, length, false);
-	future_frustum.camera_offset = cam->getOffset();
 }
 
 DirectionalLight::DirectionalLight(const u32 shadowMapResolution,
@@ -84,9 +84,18 @@ DirectionalLight::DirectionalLight(const u32 shadowMapResolution,
 		farPlane(farValue), mapRes(shadowMapResolution), pos(position)
 {}
 
-void DirectionalLight::update_frustum(const Camera *cam, Client *client, bool force)
+void DirectionalLight::updateCameraOffset(const Camera *cam)
 {
-	if (dirty && !force)
+	if (future_frustum.zFar == 0.0f) // not initialized
+		return;
+	createSplitMatrices(cam);
+	should_update_map_shadow = true;
+	dirty = true;
+}
+
+void DirectionalLight::updateFrustum(const Camera *cam, Client *client)
+{
+	if (dirty)
 		return;
 
 	float zNear = cam->getCameraNode()->getNearValue();
@@ -106,16 +115,6 @@ void DirectionalLight::update_frustum(const Camera *cam, Client *client, bool fo
 			getPosition(), getDirection(), future_frustum.radius, future_frustum.length);
 	should_update_map_shadow = true;
 	dirty = true;
-
-	// when camera offset changes, adjust the current frustum view matrix to avoid flicker
-	v3s16 cam_offset = cam->getOffset();
-	if (cam_offset != shadow_frustum.camera_offset) {
-		v3f rotated_offset = shadow_frustum.ViewMat.rotateAndScaleVect(
-				intToFloat(cam_offset - shadow_frustum.camera_offset, BS));
-		shadow_frustum.ViewMat.setTranslation(shadow_frustum.ViewMat.getTranslation() + rotated_offset);
-		shadow_frustum.player += intToFloat(shadow_frustum.camera_offset - cam->getOffset(), BS);
-		shadow_frustum.camera_offset = cam_offset;
-	}
 }
 
 void DirectionalLight::commitFrustum()

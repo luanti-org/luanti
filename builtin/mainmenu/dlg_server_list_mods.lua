@@ -76,7 +76,7 @@ end
 
 local function buttonhandler(this, fields)
 	if fields.quit then
-        this:delete()
+		this:delete()
 		return true
 	end
 

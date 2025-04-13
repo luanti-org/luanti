@@ -6,12 +6,24 @@
 #include "inventory.h"
 #include "inventorymanager.h"
 #include "constants.h" // BS
+#include "serverenvironment.h"
 
 ServerActiveObject::ServerActiveObject(ServerEnvironment *env, v3f pos):
 	ActiveObject(0),
 	m_env(env),
 	m_base_position(pos)
 {
+}
+
+void ServerActiveObject::setBasePosition(v3f pos)
+{
+	bool changed = m_base_position != pos;
+	m_base_position = pos;
+	if (changed && getEnv()) {
+		// getEnv() should never be null if the object is in an environment.
+		// It may however be null e.g. in tests or database migrations.
+		getEnv()->updateObjectPos(getId(), pos);
+	}
 }
 
 float ServerActiveObject::getMinimumSavedMovement()

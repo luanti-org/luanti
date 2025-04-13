@@ -10,6 +10,7 @@ ignore = {
 read_globals = {
 	"ItemStack",
 	"INIT",
+	"PLATFORM",
 	"DIR_DELIM",
 	"dump", "dump2",
 	"fgettext", "fgettext_ne",
@@ -18,10 +19,10 @@ read_globals = {
 	"VoxelManip",
 	"profiler",
 	"Settings",
-	"PerlinNoise", "PerlinNoiseMap",
+	"ValueNoise", "ValueNoiseMap",
 
 	string = {fields = {"split", "trim"}},
-	table  = {fields = {"copy", "getn", "indexof", "keyof", "insert_all"}},
+	table  = {fields = {"copy", "copy_with_metatables", "getn", "indexof", "keyof", "insert_all"}},
 	math   = {fields = {"hypot", "round"}},
 }
 
@@ -74,10 +75,6 @@ files["builtin/common/filterlist.lua"] = {
 files["builtin/mainmenu"] = {
 	globals = {
 		"gamedata",
-	},
-
-	read_globals = {
-		"PLATFORM",
 	},
 }
 

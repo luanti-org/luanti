@@ -949,9 +949,10 @@ static void imageTransform(u32 transform, video::IImage *src, video::IImage *dst
 
 #define CHECK_DIM(w, h) \
 	do { \
-		if ((w) <= 0 || (h) <= 0 || (w) >= 0xffff || (h) >= 0xffff) { \
-			COMPLAIN_INVALID("width or height"); \
-		} \
+		if ((w) <= 0 || (w) > MAX_IMAGE_DIMENSION) \
+			COMPLAIN_INVALID("width"); \
+		if ((h) <= 0 || (h) > MAX_IMAGE_DIMENSION) \
+			COMPLAIN_INVALID("height"); \
 	} while(0)
 
 bool ImageSource::generateImagePart(std::string_view part_of_name,
@@ -1350,6 +1351,8 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			v2u32 frame_size = baseimg->getDimension();
 			frame_size.Y /= frame_count;
+			if (frame_size.Y == 0)
+				frame_size.Y = 1;
 
 			video::IImage *img = driver->createImage(video::ECF_A8R8G8B8,
 					frame_size);
@@ -1498,11 +1501,13 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 					u32 w = scale * dim.Width;
 					u32 h = scale * dim.Height;
 					const core::dimension2d<u32> newdim(w, h);
-					video::IImage *newimg = driver->createImage(
-							baseimg->getColorFormat(), newdim);
-					baseimg->copyToScaling(newimg);
-					baseimg->drop();
-					baseimg = newimg;
+					if (w <= MAX_IMAGE_DIMENSION && h <= MAX_IMAGE_DIMENSION) {
+						video::IImage *newimg = driver->createImage(
+								baseimg->getColorFormat(), newdim);
+						baseimg->copyToScaling(newimg);
+						baseimg->drop();
+						baseimg = newimg;
+					}
 				}
 			}
 		}

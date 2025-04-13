@@ -25,7 +25,7 @@ class IImage : public virtual IReferenceCounted
 public:
 	//! constructor
 	IImage(ECOLOR_FORMAT format, const core::dimension2d<u32> &size, bool deleteMemory) :
-			Format(format), Size(size), Data(0), MipMapsData(0), BytesPerPixel(0), Pitch(0), DeleteMemory(deleteMemory), DeleteMipMapsMemory(false)
+			Format(format), Size(size), Data(0), BytesPerPixel(0), Pitch(0), DeleteMemory(deleteMemory)
 	{
 		BytesPerPixel = getBitsPerPixelFromFormat(Format) / 8;
 		Pitch = BytesPerPixel * Size.Width;
@@ -36,9 +36,6 @@ public:
 	{
 		if (DeleteMemory)
 			delete[] Data;
-
-		if (DeleteMipMapsMemory)
-			delete[] MipMapsData;
 	}
 
 	//! Returns the color format
@@ -56,7 +53,6 @@ public:
 	//! Returns bits per pixel.
 	u32 getBitsPerPixel() const
 	{
-
 		return getBitsPerPixelFromFormat(Format);
 	}
 
@@ -189,87 +185,6 @@ public:
 		return result;
 	}
 
-	//! Get mipmaps data.
-	/** Note that different mip levels are just behind each other in memory block.
-		So if you just get level 1 you also have the data for all other levels.
-		There is no level 0 - use getData to get the original image data.
-	*/
-	void *getMipMapsData(irr::u32 mipLevel = 1) const
-	{
-		if (MipMapsData && mipLevel > 0) {
-			size_t dataSize = 0;
-			core::dimension2du mipSize(Size);
-			u32 i = 1; // We want the start of data for this level, not end.
-
-			while (i != mipLevel) {
-				if (mipSize.Width > 1)
-					mipSize.Width >>= 1;
-
-				if (mipSize.Height > 1)
-					mipSize.Height >>= 1;
-
-				dataSize += getDataSizeFromFormat(Format, mipSize.Width, mipSize.Height);
-
-				++i;
-				if (mipSize.Width == 1 && mipSize.Height == 1 && i < mipLevel)
-					return 0;
-			}
-
-			return MipMapsData + dataSize;
-		}
-
-		return 0;
-	}
-
-	//! Set mipmaps data.
-	/** This method allows you to put custom mipmaps data for
-	image.
-	\param data A byte array with pixel color information
-	\param ownForeignMemory If true, the image will use the data
-	pointer directly and own it afterward. If false, the memory
-	will by copied internally.
-	\param deleteMemory Whether the memory is deallocated upon
-	destruction. */
-	void setMipMapsData(void *data, bool ownForeignMemory)
-	{
-		if (data != MipMapsData) {
-			if (DeleteMipMapsMemory) {
-				delete[] MipMapsData;
-
-				DeleteMipMapsMemory = false;
-			}
-
-			if (data) {
-				if (ownForeignMemory) {
-					MipMapsData = static_cast<u8 *>(data);
-
-					DeleteMipMapsMemory = false;
-				} else {
-					u32 dataSize = 0;
-					u32 width = Size.Width;
-					u32 height = Size.Height;
-
-					do {
-						if (width > 1)
-							width >>= 1;
-
-						if (height > 1)
-							height >>= 1;
-
-						dataSize += getDataSizeFromFormat(Format, width, height);
-					} while (width != 1 || height != 1);
-
-					MipMapsData = new u8[dataSize];
-					memcpy(MipMapsData, data, dataSize);
-
-					DeleteMipMapsMemory = true;
-				}
-			} else {
-				MipMapsData = 0;
-			}
-		}
-	}
-
 	//! Returns a pixel
 	virtual SColor getPixel(u32 x, u32 y) const = 0;
 
@@ -277,30 +192,24 @@ public:
 	virtual void setPixel(u32 x, u32 y, const SColor &color, bool blend = false) = 0;
 
 	//! Copies this surface into another, if it has the exact same size and format.
-	/**	NOTE: mipmaps are ignored
-	\return True if it was copied, false otherwise.
+	/**	\return True if it was copied, false otherwise.
 	*/
 	virtual bool copyToNoScaling(void *target, u32 width, u32 height, ECOLOR_FORMAT format = ECF_A8R8G8B8, u32 pitch = 0) const = 0;
 
 	//! Copies the image into the target, scaling the image to fit
-	/**	NOTE: mipmaps are ignored */
 	virtual void copyToScaling(void *target, u32 width, u32 height, ECOLOR_FORMAT format = ECF_A8R8G8B8, u32 pitch = 0) = 0;
 
 	//! Copies the image into the target, scaling the image to fit
-	/**	NOTE: mipmaps are ignored */
 	virtual void copyToScaling(IImage *target) = 0;
 
 	//! copies this surface into another
-	/**	NOTE: mipmaps are ignored */
 	virtual void copyTo(IImage *target, const core::position2d<s32> &pos = core::position2d<s32>(0, 0)) = 0;
 
 	//! copies this surface into another
-	/**	NOTE: mipmaps are ignored */
 	virtual void copyTo(IImage *target, const core::position2d<s32> &pos, const core::rect<s32> &sourceRect, const core::rect<s32> *clipRect = 0) = 0;
 
 	//! copies this surface into another, using the alpha mask and cliprect and a color to add with
-	/**	NOTE: mipmaps are ignored
-	\param combineAlpha - When true then combine alpha channels. When false replace target image alpha with source image alpha.
+	/**	\param combineAlpha - When true then combine alpha channels. When false replace target image alpha with source image alpha.
 	*/
 	virtual void copyToWithAlpha(IImage *target, const core::position2d<s32> &pos,
 			const core::rect<s32> &sourceRect, const SColor &color,
@@ -308,7 +217,6 @@ public:
 			bool combineAlpha = false) = 0;
 
 	//! copies this surface into another, scaling it to fit, applying a box filter
-	/**	NOTE: mipmaps are ignored */
 	virtual void copyToScalingBoxFilter(IImage *target, s32 bias = 0, bool blend = false) = 0;
 
 	//! fills the surface with given color
@@ -416,13 +324,11 @@ protected:
 	core::dimension2d<u32> Size;
 
 	u8 *Data;
-	u8 *MipMapsData;
 
 	u32 BytesPerPixel;
 	u32 Pitch;
 
 	bool DeleteMemory;
-	bool DeleteMipMapsMemory;
 };
 
 } // end namespace video

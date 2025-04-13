@@ -66,6 +66,15 @@ core.register_entity("testentities:mesh_unshaded", {
 	},
 })
 
+core.register_entity("testentities:node", {
+	initial_properties = {
+		visual = "node",
+		node = { name = "stairs:stair_stone" },
+	},
+})
+
+-- More complex meshes
+
 core.register_entity("testentities:sam", {
 	initial_properties = {
 		visual = "mesh",

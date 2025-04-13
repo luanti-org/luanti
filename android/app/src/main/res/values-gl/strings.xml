@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">Luanti</string>
+    <string name="loading">Cargando…</string>
+    <string name="notification_channel_name">Notificación xeral</string>
+    <string name="notification_channel_description">Notificacións de Luanti</string>
+    <string name="unzip_notification_title">Cargando Luanti</string>
+    <string name="unzip_notification_description">Menos de 1 minuto…</string>
+    <string name="ime_dialog_done">Feito</string>
+    <string name="no_web_browser">Non se atopou ningún navegador web</string>
+</resources>

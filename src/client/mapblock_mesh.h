@@ -170,19 +170,17 @@ private:
 /*
 	Holds a mesh for a mapblock.
 
-	Besides the SMesh*, this contains information used for animating
-	the vertex positions, colors and texture coordinates of the mesh.
+	Besides the SMesh*, this contains information used fortransparency sorting
+	and texture animation.
 	For example:
-	- cracks [implemented]
-	- day/night transitions [implemented]
-	- animated flowing liquids [not implemented]
-	- animating vertex positions for e.g. axles [not implemented]
+	- cracks
+	- day/night transitions
 */
 class MapBlockMesh
 {
 public:
 	// Builds the mesh given
-	MapBlockMesh(Client *client, MeshMakeData *data, v3s16 camera_offset);
+	MapBlockMesh(Client *client, MeshMakeData *data);
 	~MapBlockMesh();
 
 	// Main animation function, parameters:
@@ -193,13 +191,17 @@ public:
 	// Returns true if anything has been changed.
 	bool animate(bool faraway, float time, int crack, u32 daynight_ratio);
 
+	/// @warning ClientMap requires that the vertex and index data is not modified
 	scene::IMesh *getMesh()
 	{
 		return m_mesh[0].get();
 	}
 
+	/// @param layer layer index
+	/// @warning ClientMap requires that the vertex and index data is not modified
 	scene::IMesh *getMesh(u8 layer)
 	{
+		assert(layer < MAX_TILE_LAYERS);
 		return m_mesh[layer].get();
 	}
 
@@ -244,11 +246,6 @@ public:
 	}
 
 private:
-	struct AnimationInfo {
-		int frame; // last animation frame
-		int frame_offset;
-		TileLayer tile;
-	};
 
 	irr_ptr<scene::IMesh> m_mesh[MAX_TILE_LAYERS];
 	std::vector<MinimapMapblock*> m_minimap_mapblocks;

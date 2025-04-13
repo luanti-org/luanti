@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lojban (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-28 19:57+0100\n"
+"POT-Creation-Date: 2025-02-09 13:23+0100\n"
 "PO-Revision-Date: 2024-07-10 01:09+0000\n"
 "Last-Translator: Qimar <jbobaukensylitru@gmail.com>\n"
 "Language-Team: Lojban <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -76,6 +76,248 @@ msgstr ""
 #: builtin/common/chatcommands.lua
 msgid "[all | <cmd>] [-t]"
 msgstr ""
+
+#: builtin/common/settings/components.lua
+msgid "Browse"
+msgstr ""
+
+#: builtin/common/settings/components.lua
+msgid "Edit"
+msgstr "binxo"
+
+#: builtin/common/settings/components.lua
+msgid "Select directory"
+msgstr "cuxna fi lu'i le datnyveimei"
+
+#: builtin/common/settings/components.lua
+msgid "Select file"
+msgstr "cuxna fi lu'i le datnyvei"
+
+#: builtin/common/settings/components.lua
+msgid "Set"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "(No description of setting given)"
+msgstr "to'i no da ve skicu le te tcimi'e toi"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "2D Noise"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_overwrite.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_delete_content.lua
+#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
+#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+msgid "Cancel"
+msgstr "je'enai"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Lacunarity"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Octaves"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Offset"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Persistence"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+msgid "Save"
+msgstr "rejgau"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Scale"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_create_world.lua
+msgid "Seed"
+msgstr "cunso namcu"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "X spread"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Y spread"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Z spread"
+msgstr ""
+
+#. ~ "absvalue" is a noise parameter flag.
+#. It is short for "absolute value".
+#. It can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "absvalue"
+msgstr ""
+
+#. ~ "defaults" is a noise parameter flag.
+#. It describes the default processing options
+#. for noise settings in the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "defaults"
+msgstr ""
+
+#. ~ "eased" is a noise parameter flag.
+#. It is used to make the map smoother and
+#. can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "eased"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(The game will need to enable automatic exposure as well)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(The game will need to enable bloom as well)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(The game will need to enable volumetric lighting as well)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(Use system language)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Accessibility"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Auto"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Chat"
+msgstr "tavla"
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Clear"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "Controls"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/common/settings/shadows_component.lua
+msgid "Disabled"
+msgstr "ganda"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Enabled"
+msgstr "katci"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "General"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Movement"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+msgid "No results"
+msgstr ".i no da ckaji lo se sisku"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Reset setting to default"
+msgstr "xruti fi le zmiselcu'a"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Reset setting to default ($1)"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Search"
+msgstr "sisku"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show advanced settings"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show technical names"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Touchscreen layout"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "pause_menu"
+msgstr ""
+
+#: builtin/common/settings/settingtypes.lua
+#, fuzzy
+msgid "Client Mods"
+msgstr ".i ko cuxna fi lu'i le munje"
+
+#: builtin/common/settings/settingtypes.lua
+#, fuzzy
+msgid "Content: Games"
+msgstr "kakne le ka se samtcise'a"
+
+#: builtin/common/settings/settingtypes.lua
+#, fuzzy
+msgid "Content: Mods"
+msgstr "kakne le ka se samtcise'a"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "(The game will need to enable shadows as well)"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Custom"
+msgstr "steci"
+
+#: builtin/common/settings/shadows_component.lua
+#: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr "cenba ctino"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "High"
+msgstr "mutce"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Low"
+msgstr "milxe"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Medium"
+msgstr "no'e mutce"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Very High"
+msgstr "tcetce"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Very Low"
+msgstr "mlimli"
 
 #: builtin/fstk/ui.lua
 msgid "<none available>"
@@ -166,7 +408,6 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
 msgid "Back"
 msgstr "xruti"
 
@@ -201,11 +442,6 @@ msgstr "se samtcise'a"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr ".i na kakne le ka kibycpa pa bakfu"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "No results"
-msgstr ".i no da ckaji lo se sisku"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No updates"
@@ -253,18 +489,6 @@ msgstr "ba'o se ci'erse'a"
 #, fuzzy
 msgid "Base Game:"
 msgstr "cfari fa lo nu kelci"
-
-#: builtin/mainmenu/content/dlg_install.lua
-#: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/dlg_delete_content.lua
-#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp src/gui/guiOpenURL.cpp
-#: src/gui/guiPasswordChange.cpp
-msgid "Cancel"
-msgstr "je'enai"
 
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
@@ -398,6 +622,12 @@ msgstr ""
 msgid "Unable to install a $1 as a texture pack"
 msgstr ""
 
+#: builtin/mainmenu/dlg_clients_list.lua
+msgid ""
+"This is the list of clients connected to\n"
+"$1"
+msgstr ""
+
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
 msgstr ""
@@ -461,12 +691,6 @@ msgstr "noda se nitcu"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "no'e se nitcu"
-
-#: builtin/mainmenu/dlg_config_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Save"
-msgstr "rejgau"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "World:"
@@ -620,11 +844,6 @@ msgid "Sea level rivers"
 msgstr "xamsi nilga'u rirxe"
 
 #: builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Seed"
-msgstr "cunso namcu"
-
-#: builtin/mainmenu/dlg_create_world.lua
 msgid "Smooth transition between biomes"
 msgstr ""
 
@@ -761,6 +980,23 @@ msgid ""
 "override any renaming here."
 msgstr ""
 
+#: builtin/mainmenu/dlg_server_list_mods.lua
+#, fuzzy
+msgid "Expand all"
+msgstr "katci roda"
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "Group by prefix"
+msgstr ""
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses a game called $2 and the following mods:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses the following mods:"
+msgstr ""
+
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
 msgstr ""
@@ -785,7 +1021,7 @@ msgstr ""
 msgid "Visit website"
 msgstr ""
 
-#: builtin/mainmenu/init.lua
+#: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "te tcimi'e"
 
@@ -798,229 +1034,6 @@ msgid "Try reenabling public serverlist and check your internet connection."
 msgstr ""
 ".i ko troci lo nu za'u re'u samymo'i lo liste be lo'i samse'u .i ko cipcta "
 "lo do te samjo'e"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Browse"
-msgstr ""
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Edit"
-msgstr "binxo"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Select directory"
-msgstr "cuxna fi lu'i le datnyveimei"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Select file"
-msgstr "cuxna fi lu'i le datnyvei"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Set"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "(No description of setting given)"
-msgstr "to'i no da ve skicu le te tcimi'e toi"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "2D Noise"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Lacunarity"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Octaves"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Offset"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Persistence"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Scale"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr ""
-
-#. ~ "absvalue" is a noise parameter flag.
-#. It is short for "absolute value".
-#. It can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "absvalue"
-msgstr ""
-
-#. ~ "defaults" is a noise parameter flag.
-#. It describes the default processing options
-#. for noise settings in the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "defaults"
-msgstr ""
-
-#. ~ "eased" is a noise parameter flag.
-#. It is used to make the map smoother and
-#. can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "eased"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(The game will need to enable automatic exposure as well)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(The game will need to enable bloom as well)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(The game will need to enable volumetric lighting as well)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(Use system language)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Accessibility"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Auto"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchcontrols.cpp src/settings_translation_file.cpp
-msgid "Chat"
-msgstr "tavla"
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Clear"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/client/game.cpp
-#: src/settings_translation_file.cpp
-msgid "Controls"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Disabled"
-msgstr "ganda"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Enabled"
-msgstr "katci"
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/settings_translation_file.cpp
-msgid "General"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Movement"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "Reset setting to default"
-msgstr "xruti fi le zmiselcu'a"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Search"
-msgstr "sisku"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show advanced settings"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show technical names"
-msgstr ""
-
-#: builtin/mainmenu/settings/settingtypes.lua
-#, fuzzy
-msgid "Client Mods"
-msgstr ".i ko cuxna fi lu'i le munje"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-#, fuzzy
-msgid "Content: Games"
-msgstr "kakne le ka se samtcise'a"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-#, fuzzy
-msgid "Content: Mods"
-msgstr "kakne le ka se samtcise'a"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Enable"
-msgstr "katci"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Shaders are disabled."
-msgstr "na sutra klama kakne"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-msgid "This is not a recommended configuration."
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "(The game will need to enable shadows as well)"
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Custom"
-msgstr "steci"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr "cenba ctino"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "High"
-msgstr "mutce"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Low"
-msgstr "milxe"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Medium"
-msgstr "no'e mutce"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Very High"
-msgstr "tcetce"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Very Low"
-msgstr "mlimli"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
@@ -1041,10 +1054,6 @@ msgstr "liste lo'i ralju zbapla"
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
 msgstr "liste lo'i ralju bende"
-
-#: builtin/mainmenu/tab_about.lua
-msgid "Irrlicht device:"
-msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 #, fuzzy
@@ -1198,8 +1207,20 @@ msgid "You need to install a game before you can create a world."
 msgstr "sarcu fa lonu cpacu lo se kelci vau lonu samtcise'a"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Add favorite"
+msgstr "co'u cmima lu'i ro nelci se tcita"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "judri"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Clients:\n"
+"$1"
+msgstr "lo samtciselse'u"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
@@ -1216,6 +1237,11 @@ msgid "Favorites"
 msgstr "nelci se tcita"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Game: $1"
+msgstr "se kelci"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
 msgstr ""
 
@@ -1228,8 +1254,24 @@ msgid "Login"
 msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
+msgid "Number of mods: $1"
+msgstr ""
+
+#: builtin/mainmenu/tab_online.lua
+msgid "Open server website"
+msgstr ""
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr ".pin. temci"
+
+#: builtin/mainmenu/tab_online.lua
+msgid ""
+"Possible filters\n"
+"game:<name>\n"
+"mod:<name>\n"
+"player:<name>"
+msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1327,24 +1369,6 @@ msgstr ""
 ".i sarcu fa le nu do cipcta la'o zoi. debug.txt .zoi kei tu'a le tcila"
 
 #: src/client/game.cpp
-msgid "- Mode: "
-msgstr ""
-
-#: src/client/game.cpp
-msgid "- Public: "
-msgstr "- gubni: "
-
-#. ~ PvP = Player versus Player
-#: src/client/game.cpp
-#, fuzzy
-msgid "- PvP: "
-msgstr "- kakne le ka simxu le ka xrani: "
-
-#: src/client/game.cpp
-msgid "- Server Name: "
-msgstr "- cmene le samtcise'u: "
-
-#: src/client/game.cpp
 #, fuzzy
 msgid "A serialization error occurred:"
 msgstr ".i da nabmi"
@@ -1352,6 +1376,10 @@ msgstr ".i da nabmi"
 #: src/client/game.cpp
 #, c-format
 msgid "Access denied. Reason: %s"
+msgstr ""
+
+#: src/client/game.cpp
+msgid "All debug info hidden"
 msgstr ""
 
 #: src/client/game.cpp
@@ -1377,6 +1405,10 @@ msgid "Block bounds shown for nearby blocks"
 msgstr ""
 
 #: src/client/game.cpp
+msgid "Bounding boxes shown"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Camera update disabled"
 msgstr ""
 
@@ -1387,10 +1419,6 @@ msgstr ""
 #: src/client/game.cpp
 msgid "Can't show block bounds (disabled by game or mod)"
 msgstr ""
-
-#: src/client/game.cpp
-msgid "Change Password"
-msgstr "basti fi le ka lerpoijaspu"
 
 #: src/client/game.cpp
 #, fuzzy
@@ -1426,26 +1454,6 @@ msgid "Connection failed for unknown reason"
 msgstr ""
 
 #: src/client/game.cpp
-msgid "Continue"
-msgstr "ranji"
-
-#: src/client/game.cpp
-msgid ""
-"Controls:\n"
-"No menu open:\n"
-"- slide finger: look around\n"
-"- tap: place/punch/use (default)\n"
-"- long tap: dig/use (default)\n"
-"Menu/inventory open:\n"
-"- double tap (outside):\n"
-" --> close\n"
-"- touch stack, touch slot:\n"
-" --> move stack\n"
-"- touch&drag, tap 2nd finger\n"
-" --> place single item to slot\n"
-msgstr ""
-
-#: src/client/game.cpp
 #, c-format
 msgid "Couldn't resolve address: %s"
 msgstr ""
@@ -1459,29 +1467,13 @@ msgid "Creating server..."
 msgstr ".i ca'o cupra le samtcise'u"
 
 #: src/client/game.cpp
-msgid "Debug info and profiler graph hidden"
-msgstr ""
-
-#: src/client/game.cpp
 msgid "Debug info shown"
-msgstr ""
-
-#: src/client/game.cpp
-msgid "Debug info, profiler graph, and wireframe hidden"
 msgstr ""
 
 #: src/client/game.cpp
 #, fuzzy, c-format
 msgid "Error creating client: %s"
 msgstr ".i ca'o cupra le samtciselse'u"
-
-#: src/client/game.cpp
-msgid "Exit to Menu"
-msgstr "sisti tu'a le se kelci"
-
-#: src/client/game.cpp
-msgid "Exit to OS"
-msgstr "sisti tu'a le samtci"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
@@ -1519,18 +1511,6 @@ msgstr "jarco bumru"
 #, fuzzy
 msgid "Fog enabled by game or mod"
 msgstr "na curmi lonu jbiji'u"
-
-#: src/client/game.cpp
-msgid "Game info:"
-msgstr ".i datni le se kelci"
-
-#: src/client/game.cpp
-msgid "Game paused"
-msgstr ".i ca'o denpa fo le nu kelci"
-
-#: src/client/game.cpp
-msgid "Hosting server"
-msgstr ".i le samtci pe do cu samtcise'u"
 
 #: src/client/game.cpp
 #, fuzzy
@@ -1572,14 +1552,6 @@ msgid "Node definitions..."
 msgstr ".i ca'o samymo'i tu'a lo me la'o gy.node.gy."
 
 #: src/client/game.cpp
-msgid "Off"
-msgstr "ganda"
-
-#: src/client/game.cpp
-msgid "On"
-msgstr "katci"
-
-#: src/client/game.cpp
 msgid "Pitch move mode disabled"
 msgstr ""
 
@@ -1592,36 +1564,20 @@ msgid "Profiler graph shown"
 msgstr ""
 
 #: src/client/game.cpp
-msgid "Remote server"
-msgstr ".i da poi na du le samtci pe do cu samtcise'u"
-
-#: src/client/game.cpp
 msgid "Resolving address..."
 msgstr ".i ca'o sisku le ka se judri da kau"
-
-#: src/client/game.cpp
-msgid "Respawn"
-msgstr "tolcanci"
 
 #: src/client/game.cpp
 msgid "Shutting down..."
 msgstr ".i ca'o sisti"
 
-#: src/client/game.cpp
+#: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "nonselkansa"
 
 #: src/client/game.cpp
-msgid "Sound Volume"
-msgstr "ni sance"
-
-#: src/client/game.cpp
 msgid "Sound muted"
 msgstr "smaji"
-
-#: src/client/game.cpp
-msgid "Sound system is disabled"
-msgstr ""
 
 #: src/client/game.cpp
 msgid "Sound system is not supported on this build"
@@ -1695,16 +1651,102 @@ msgid "Volume changed to %d%%"
 msgstr ".i fe lo ni sance cu cenba fi li %d ce'i"
 
 #: src/client/game.cpp
+msgid "Wireframe not supported by video driver"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Wireframe shown"
 msgstr "ca'o jarco lo munje greku"
 
 #: src/client/game.cpp
-msgid "You died"
-msgstr ".i do morsi"
-
-#: src/client/game.cpp
 msgid "Zoom currently disabled by game or mod"
 msgstr "na curmi lonu jbiji'u"
+
+#: src/client/game_formspec.cpp
+msgid "- Mode: "
+msgstr ""
+
+#: src/client/game_formspec.cpp
+msgid "- Public: "
+msgstr "- gubni: "
+
+#. ~ PvP = Player versus Player
+#: src/client/game_formspec.cpp
+#, fuzzy
+msgid "- PvP: "
+msgstr "- kakne le ka simxu le ka xrani: "
+
+#: src/client/game_formspec.cpp
+msgid "- Server Name: "
+msgstr "- cmene le samtcise'u: "
+
+#: src/client/game_formspec.cpp
+msgid "Change Password"
+msgstr "basti fi le ka lerpoijaspu"
+
+#: src/client/game_formspec.cpp
+msgid "Continue"
+msgstr "ranji"
+
+#: src/client/game_formspec.cpp
+msgid ""
+"Controls:\n"
+"No menu open:\n"
+"- slide finger: look around\n"
+"- tap: place/punch/use (default)\n"
+"- long tap: dig/use (default)\n"
+"Menu/inventory open:\n"
+"- double tap (outside):\n"
+" --> close\n"
+"- touch stack, touch slot:\n"
+" --> move stack\n"
+"- touch&drag, tap 2nd finger\n"
+" --> place single item to slot\n"
+msgstr ""
+
+#: src/client/game_formspec.cpp
+msgid "Exit to Menu"
+msgstr "sisti tu'a le se kelci"
+
+#: src/client/game_formspec.cpp
+msgid "Exit to OS"
+msgstr "sisti tu'a le samtci"
+
+#: src/client/game_formspec.cpp
+msgid "Game info:"
+msgstr ".i datni le se kelci"
+
+#: src/client/game_formspec.cpp
+msgid "Game paused"
+msgstr ".i ca'o denpa fo le nu kelci"
+
+#: src/client/game_formspec.cpp
+msgid "Hosting server"
+msgstr ".i le samtci pe do cu samtcise'u"
+
+#: src/client/game_formspec.cpp
+msgid "Off"
+msgstr "ganda"
+
+#: src/client/game_formspec.cpp
+msgid "On"
+msgstr "katci"
+
+#: src/client/game_formspec.cpp
+msgid "Remote server"
+msgstr ".i da poi na du le samtci pe do cu samtcise'u"
+
+#: src/client/game_formspec.cpp
+msgid "Respawn"
+msgstr "tolcanci"
+
+#: src/client/game_formspec.cpp
+msgid "Sound Volume"
+msgstr "ni sance"
+
+#: src/client/game_formspec.cpp
+msgid "You died"
+msgstr ".i do morsi"
 
 #: src/client/gameui.cpp
 msgid "Chat currently disabled by game or mod"
@@ -2038,7 +2080,7 @@ msgid "Failed to compile the \"%s\" shader."
 msgstr ".i da nabmi fi le nu kibycpa la'o zoi. $1 .zoi"
 
 #: src/client/shader.cpp
-msgid "Shaders are enabled but GLSL is not supported by the driver."
+msgid "GLSL is not supported by the driver"
 msgstr ""
 
 #. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
@@ -2089,7 +2131,7 @@ msgstr "za'i ca'u muvdu"
 msgid "Automatic jumping"
 msgstr ""
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Aux1"
 msgstr ""
 
@@ -2101,7 +2143,7 @@ msgstr "ti'a muvdu"
 msgid "Block bounds"
 msgstr ""
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Change camera"
 msgstr "gafygau lo lerpoijaspu"
@@ -2126,7 +2168,7 @@ msgstr "jdikygau lo ni sance"
 msgid "Double tap \"jump\" to toggle fly"
 msgstr ""
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Drop"
 msgstr "falcru"
 
@@ -2142,11 +2184,11 @@ msgstr ""
 msgid "Inc. volume"
 msgstr "zengau lo ni sance"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Inventory"
 msgstr "sorcu"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Jump"
 msgstr "plipe"
 
@@ -2179,7 +2221,7 @@ msgstr "se lamli'e fi lu'i le dacti"
 msgid "Prev. item"
 msgstr "lamli'e fi lu'i le dacti"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "cuxna fi lu'i le se kuspe"
 
@@ -2191,7 +2233,7 @@ msgstr "ri'u muvdu"
 msgid "Screenshot"
 msgstr "vidnyxra"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Sneak"
 msgstr "masno cadzu"
 
@@ -2200,17 +2242,17 @@ msgstr "masno cadzu"
 msgid "Toggle HUD"
 msgstr "mu'e co'a jonai mo'u vofli"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle chat log"
 msgstr "mu'e co'a jonai mo'u sutra"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle fast"
 msgstr "mu'e co'a jonai mo'u sutra"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle fly"
 msgstr "mu'e co'a jonai mo'u vofli"
@@ -2220,12 +2262,12 @@ msgstr "mu'e co'a jonai mo'u vofli"
 msgid "Toggle fog"
 msgstr "mu'e co'a jonai mo'u vofli"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle minimap"
 msgstr "mu'e co'a jonai mo'u sutra"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle noclip"
 msgstr ""
 
@@ -2234,7 +2276,7 @@ msgstr ""
 msgid "Toggle pitchmove"
 msgstr "mu'e co'a jonai mo'u sutra"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Zoom"
 msgstr "jbiji'u"
 
@@ -2274,7 +2316,7 @@ msgstr "lo slabu lerpoijaspu"
 msgid "Passwords do not match!"
 msgstr ".i lu'i le re lerpoijaspu na simxu le ka mintu"
 
-#: src/gui/guiVolumeChange.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
 msgid "Exit"
 msgstr "sisti"
 
@@ -2288,15 +2330,46 @@ msgstr "ko da'ergau le batke"
 msgid "Sound Volume: %d%%"
 msgstr "lo ni sance "
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Add button"
+msgstr "midju sma'acu bo tekla"
+
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Done"
+msgstr ".i mulno"
+
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Remove"
+msgstr ".i da poi na du le samtci pe do cu samtcise'u"
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Reset"
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Start dragging a button to add. Tap outside to cancel."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap a button to select it. Drag a button to move it."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap outside to deselect."
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
 msgstr ""
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "mu'e co'a jonai mo'u vofli"
@@ -2496,8 +2569,7 @@ msgid ""
 "-    interlaced: odd/even line based polarization screen support.\n"
 "-    topbottom: split screen top/bottom.\n"
 "-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d\n"
-"Note that the interlaced mode requires shaders to be enabled."
+"-    crossview: Cross-eyed 3d"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2552,10 +2624,6 @@ msgid "Active object send range"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Adds particles when digging a node."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr ""
 
@@ -2576,6 +2644,16 @@ msgstr "cmene le munje"
 
 #: src/settings_translation_file.cpp
 msgid "Advanced"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"All mesh buffers with less than this number of vertices will be merged\n"
+"during map rendering. This improves rendering performance."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Allow clouds to look 3D instead of flat."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2954,13 +3032,13 @@ msgid "Clouds"
 msgstr "dilnu"
 
 #: src/settings_translation_file.cpp
-msgid "Clouds are a client-side effect."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Clouds in menu"
 msgstr "lo ralju"
+
+#: src/settings_translation_file.cpp
+msgid "Color depth for post-processing texture"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Colored fog"
@@ -2985,7 +3063,7 @@ msgid ""
 "as defined by the Free Software Foundation.\n"
 "You can also specify content ratings.\n"
 "These flags are independent from Luanti versions,\n"
-"so see a full list at https://content.minetest.net/help/content_flags/"
+"so see a full list at https://content.luanti.org/help/content_flags/"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3121,6 +3199,14 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Debugging"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Decide the color depth of the texture used for the post-processing "
+"pipeline.\n"
+"Reducing this can improve performance, but some effects (e.g. debanding)\n"
+"require more than 8 bits to work."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3275,17 +3361,9 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Desynchronize block animation"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Developer Options"
 msgstr "datni"
-
-#: src/settings_translation_file.cpp
-msgid "Digging particles"
-msgstr "kakpa kantu"
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -3312,6 +3390,14 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Double-tapping the jump key toggles fly mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Draw transparency sorted triangles grouped by their mesh buffers.\n"
+"This breaks transparency sorting between mesh buffers, but avoids "
+"situations\n"
+"where transparency sorting would be very slow otherwise."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3389,8 +3475,8 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Enable colored shadows.\n"
-"On true translucent nodes cast colored shadows. This is expensive."
+"Enable colored shadows for transculent nodes.\n"
+"This is expensive."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3463,8 +3549,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set.\n"
-"Needs enable_ipv6 to be enabled."
+"Ignored if bind_address is set."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3477,12 +3562,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Enables animation of inventory items."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Enables caching of facedir rotated meshes.\n"
-"This is only effective with shaders disabled."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3788,10 +3867,6 @@ msgid "GUI scaling filter"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "GUI scaling filter txr2img"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Gamepads"
 msgstr "se kelci"
@@ -4018,12 +4093,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, account registration is separate from login in the UI.\n"
-"If disabled, new accounts will be registered automatically when logging in."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
 "If enabled, actions are recorded for rollback.\n"
 "This option is only read when server starts."
 msgstr ""
@@ -4038,6 +4107,13 @@ msgstr ""
 msgid ""
 "If enabled, players cannot join without a password or change theirs to an "
 "empty password."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, server account registration is separate from login in the UI.\n"
+"If disabled, connecting to a server will automatically register a new "
+"account."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4132,10 +4208,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Interval of sending time of day to clients, stated in seconds."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4756,10 +4828,6 @@ msgid "Maximum users"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Mesh cache"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr ""
 
@@ -4789,6 +4857,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Minimum limit of random number of small caves per mapchunk."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Minimum vertex count for mesh buffers"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4880,7 +4952,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Name of the player.\n"
-"When running a server, clients connecting with this name are admins.\n"
+"When running a server, a client connecting with this name is admin.\n"
 "When starting from the main menu, this is overridden."
 msgstr ""
 
@@ -5325,17 +5397,19 @@ msgid ""
 "* None - No antialiasing (default)\n"
 "\n"
 "* FSAA - Hardware-provided full-screen antialiasing\n"
-"(incompatible with Post Processing and Undersampling)\n"
 "A.K.A multi-sample antialiasing (MSAA)\n"
 "Smoothens out block edges but does not affect the insides of textures.\n"
-"A restart is required to change this option.\n"
 "\n"
-"* FXAA - Fast approximate antialiasing (requires shaders)\n"
+"If Post Processing is disabled, changing FSAA requires a restart.\n"
+"Also, if Post Processing is disabled, FSAA will not work together with\n"
+"undersampling or a non-default \"3d_mode\" setting.\n"
+"\n"
+"* FXAA - Fast approximate antialiasing\n"
 "Applies a post-processing filter to detect and smoothen high-contrast "
 "edges.\n"
 "Provides balance between speed and image quality.\n"
 "\n"
-"* SSAA - Super-sampling antialiasing (requires shaders)\n"
+"* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
 "the aliasing effects. This is the slowest and the most accurate method."
 msgstr ""
@@ -5535,16 +5609,6 @@ msgid "Shader path"
 msgstr "judri le ti'orkemsamtci"
 
 #: src/settings_translation_file.cpp
-msgid "Shaders"
-msgstr "ti'orkemsamtci"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Shaders are a fundamental part of rendering and enable advanced visual "
-"effects."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Shadow filter quality"
 msgstr ""
 
@@ -5709,10 +5773,9 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Spread a complete update of shadow map over given number of frames.\n"
+"Spread a complete update of the shadow map over a given number of frames.\n"
 "Higher values might make shadows laggy, lower values\n"
-"will consume more resources.\n"
-"Minimum value: 1; maximum value: 16"
+"will consume more resources."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5992,10 +6055,6 @@ msgid "Time of day when a new world is started, in millihours (0-23999)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Time send interval"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Time speed"
 msgstr ""
 
@@ -6056,6 +6115,10 @@ msgid "Transparency Sorting Distance"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Transparency Sorting Group by Buffers"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Trees noise"
 msgstr ""
 
@@ -6106,7 +6169,10 @@ msgid ""
 "to the game world only, keeping the GUI intact.\n"
 "It should give a significant performance boost at the cost of less detailed "
 "image.\n"
-"Higher values result in a less detailed image."
+"Higher values result in a less detailed image.\n"
+"Note: Undersampling is currently not supported if the \"3d_mode\" setting is "
+"set\n"
+"to a non-default value."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6130,15 +6196,13 @@ msgid "Upper Y limit of floatlands."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Use 3D cloud look instead of flat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Use a cloud animation for the main menu background."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Use anisotropic filtering when looking at textures from an angle."
+msgid ""
+"Use anisotropic filtering when looking at textures from an angle.\n"
+"This provides a significant improvement when used together with mipmapping."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6382,20 +6446,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"When gui_scaling_filter_txr2img is true, copy those images\n"
-"from hardware to software for scaling.  When false, fall back\n"
-"to the old scaling method, for video drivers that don't\n"
-"properly support downloading textures back from hardware."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"When using bilinear/trilinear/anisotropic filters, low-resolution textures\n"
-"can be blurred, so automatically upscale them with nearest-neighbor\n"
-"interpolation to preserve crisp pixels. This sets the minimum texture size\n"
-"for the upscaled textures; higher values look sharper, but require more\n"
-"memory. Powers of 2 are recommended. This setting is ONLY applied if\n"
-"bilinear/trilinear/anisotropic filtering is enabled.\n"
+"When using bilinear/trilinear filtering, low-resolution textures\n"
+"can be blurred, so this option automatically upscales them to preserve\n"
+"crisp pixels. This defines the minimum texture size for the upscaled "
+"textures;\n"
+"higher values look sharper, but require more memory.\n"
+"This setting is ONLY applied if any of the mentioned filters are enabled.\n"
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
@@ -6404,10 +6460,6 @@ msgstr ""
 msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Whether node texture animations should be desynchronized per mapblock."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6432,8 +6484,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Whether to mute sounds. You can unmute sounds at any time, unless the\n"
-"sound system is disabled (enable_sound=false).\n"
+"Whether to mute sounds. You can unmute sounds at any time.\n"
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
@@ -6634,6 +6685,9 @@ msgstr ""
 #~ msgid "Dig key"
 #~ msgstr "za'i ri'u muvdu"
 
+#~ msgid "Digging particles"
+#~ msgstr "kakpa kantu"
+
 #, fuzzy
 #~ msgid "Disable anticheat"
 #~ msgstr "lo kantu"
@@ -6650,6 +6704,10 @@ msgstr ""
 #~ msgstr ".i ca'o kibycpa la'o zoi. $1 .zoi je cu samtcise'a ri .i ko denpa"
 
 #, fuzzy
+#~ msgid "Enable"
+#~ msgstr "katci"
+
+#, fuzzy
 #~ msgid "Enable VBO"
 #~ msgstr "selpli"
 
@@ -6660,9 +6718,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Forward key"
 #~ msgstr "za'i ca'u muvdu"
-
-#~ msgid "Game"
-#~ msgstr "se kelci"
 
 #, fuzzy
 #~ msgid "Hide: Temporary Settings"
@@ -6762,9 +6817,16 @@ msgstr ""
 #~ msgid "Server / Singleplayer"
 #~ msgstr "pa kelci"
 
+#~ msgid "Shaders"
+#~ msgstr "ti'orkemsamtci"
+
 #, fuzzy
 #~ msgid "Shaders (experimental)"
 #~ msgstr "ti'orkemsamtci to na kakne toi"
+
+#, fuzzy
+#~ msgid "Shaders are disabled."
+#~ msgstr "na sutra klama kakne"
 
 #, fuzzy
 #~ msgid "Simple Leaves"

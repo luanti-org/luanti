@@ -1,5 +1,4 @@
 local builtin_shared = ...
-local SCALE = 0.667
 
 local facedir_to_euler = {
 	{y = 0, x = 0, z = 0},
@@ -36,9 +35,7 @@ local gravity = tonumber(core.settings:get("movement_gravity")) or 9.81
 
 core.register_entity(":__builtin:falling_node", {
 	initial_properties = {
-		visual = "item",
-		visual_size = vector.new(SCALE, SCALE, SCALE),
-		textures = {},
+		visual = "node",
 		physical = true,
 		is_visible = false,
 		collide_with_objects = true,
@@ -78,43 +75,17 @@ core.register_entity(":__builtin:falling_node", {
 		self.floats = core.get_item_group(node.name, "float") ~= 0
 
 		-- Save liquidtype for falling water
-        self.liquidtype = def.liquidtype
+		self.liquidtype = def.liquidtype
 
-		-- Set entity visuals
-		if def.drawtype == "torchlike" or def.drawtype == "signlike" then
-			local textures
-			if def.tiles and def.tiles[1] then
-				local tile = def.tiles[1]
-				if type(tile) == "table" then
-					tile = tile.name
-				end
-				if def.drawtype == "torchlike" then
-					textures = { "("..tile..")^[transformFX", tile }
-				else
-					textures = { tile, "("..tile..")^[transformFX" }
-				end
-			end
-			local vsize
-			if def.visual_scale then
-				local s = def.visual_scale
-				vsize = vector.new(s, s, s)
-			end
-			self.object:set_properties({
-				is_visible = true,
-				visual = "upright_sprite",
-				visual_size = vsize,
-				textures = textures,
-				glow = def.light_source,
-			})
-		elseif def.drawtype ~= "airlike" then
-			local itemstring = node.name
-			if core.is_colored_paramtype(def.paramtype2) then
-				itemstring = core.itemstring_with_palette(itemstring, node.param2)
-			end
-			-- FIXME: solution needed for paramtype2 == "leveled"
+		-- Set up entity visuals
+		-- For compatibility with older clients we continue to use "item" visual
+		-- for simple situations.
+		local drawtypes = {normal=true, glasslike=true, allfaces=true, nodebox=true}
+		local p2types = {none=true, facedir=true, ["4dir"]=true}
+		if drawtypes[def.drawtype] and p2types[def.paramtype2] and def.use_texture_alpha ~= "blend" then
 			-- Calculate size of falling node
-			local s = {}
-			s.x = (def.visual_scale or 1) * SCALE
+			local s = vector.zero()
+			s.x = (def.visual_scale or 1) * 0.667
 			s.y = s.x
 			s.z = s.x
 			-- Compensate for wield_scale
@@ -125,8 +96,29 @@ core.register_entity(":__builtin:falling_node", {
 			end
 			self.object:set_properties({
 				is_visible = true,
-				wield_item = itemstring,
+				visual = "item",
+				wield_item = node.name,
 				visual_size = s,
+				glow = def.light_source,
+			})
+			-- Rotate as needed
+			if def.paramtype2 == "facedir" then
+				local fdir = node.param2 % 32 % 24
+				local euler = facedir_to_euler[fdir + 1]
+				if euler then
+					self.object:set_rotation(euler)
+				end
+			elseif def.paramtype2 == "4dir" then
+				local fdir = node.param2 % 4
+				local euler = facedir_to_euler[fdir + 1]
+				if euler then
+					self.object:set_rotation(euler)
+				end
+			end
+		elseif def.drawtype ~= "airlike" then
+			self.object:set_properties({
+				is_visible = true,
+				node = node,
 				glow = def.light_source,
 			})
 		end
@@ -146,111 +138,6 @@ core.register_entity(":__builtin:falling_node", {
 				self.object:set_properties({
 					collisionbox = box
 				})
-			end
-		end
-
-		-- Rotate entity
-		if def.drawtype == "torchlike" then
-			if (def.paramtype2 == "wallmounted" or def.paramtype2 == "colorwallmounted")
-					and node.param2 % 8 == 7 then
-				self.object:set_yaw(-math.pi*0.25)
-			else
-				self.object:set_yaw(math.pi*0.25)
-			end
-		elseif ((node.param2 ~= 0 or def.drawtype == "nodebox" or def.drawtype == "mesh")
-				and (def.wield_image == "" or def.wield_image == nil))
-				or def.drawtype == "signlike"
-				or def.drawtype == "mesh"
-				or def.drawtype == "normal"
-				or def.drawtype == "nodebox" then
-			if (def.paramtype2 == "facedir" or def.paramtype2 == "colorfacedir") then
-				local fdir = node.param2 % 32 % 24
-				-- Get rotation from a precalculated lookup table
-				local euler = facedir_to_euler[fdir + 1]
-				if euler then
-					self.object:set_rotation(euler)
-				end
-			elseif (def.paramtype2 == "4dir" or def.paramtype2 == "color4dir") then
-				local fdir = node.param2 % 4
-				-- Get rotation from a precalculated lookup table
-				local euler = facedir_to_euler[fdir + 1]
-				if euler then
-					self.object:set_rotation(euler)
-				end
-			elseif (def.drawtype ~= "plantlike" and def.drawtype ~= "plantlike_rooted" and
-					(def.paramtype2 == "wallmounted" or def.paramtype2 == "colorwallmounted" or def.drawtype == "signlike")) then
-				local rot = node.param2 % 8
-				if (def.drawtype == "signlike" and def.paramtype2 ~= "wallmounted" and def.paramtype2 ~= "colorwallmounted") then
-					-- Change rotation to "floor" by default for non-wallmounted paramtype2
-					rot = 1
-				end
-				local pitch, yaw, roll = 0, 0, 0
-				if def.drawtype == "nodebox" or def.drawtype == "mesh" then
-					if rot == 0 then
-						pitch, yaw = math.pi/2, 0
-					elseif rot == 1 then
-						pitch, yaw = -math.pi/2, math.pi
-					elseif rot == 2 then
-						pitch, yaw = 0, math.pi/2
-					elseif rot == 3 then
-						pitch, yaw = 0, -math.pi/2
-					elseif rot == 4 then
-						pitch, yaw = 0, math.pi
-					elseif rot == 6 then
-						pitch, yaw = math.pi/2, 0
-					elseif rot == 7 then
-						pitch, yaw = -math.pi/2, math.pi
-					end
-				else
-					if rot == 1 then
-						pitch, yaw = math.pi, math.pi
-					elseif rot == 2 then
-						pitch, yaw = math.pi/2, math.pi/2
-					elseif rot == 3 then
-						pitch, yaw = math.pi/2, -math.pi/2
-					elseif rot == 4 then
-						pitch, yaw = math.pi/2, math.pi
-					elseif rot == 5 then
-						pitch, yaw = math.pi/2, 0
-					elseif rot == 6 then
-						pitch, yaw = math.pi, -math.pi/2
-					elseif rot == 7 then
-						pitch, yaw = 0, -math.pi/2
-					end
-				end
-				if def.drawtype == "signlike" then
-					pitch = pitch - math.pi/2
-					if rot == 0 then
-						yaw = yaw + math.pi/2
-					elseif rot == 1 then
-						yaw = yaw - math.pi/2
-					elseif rot == 6 then
-						yaw = yaw - math.pi/2
-						pitch = pitch + math.pi
-					elseif rot == 7 then
-						yaw = yaw + math.pi/2
-						pitch = pitch + math.pi
-					end
-				elseif def.drawtype == "mesh" or def.drawtype == "normal" or def.drawtype == "nodebox" then
-					if rot == 0 or rot == 1 then
-						roll = roll + math.pi
-					elseif rot == 6 or rot == 7 then
-						if def.drawtype ~= "normal" then
-							roll = roll - math.pi/2
-						end
-					else
-						yaw = yaw + math.pi
-					end
-				end
-				self.object:set_rotation({x=pitch, y=yaw, z=roll})
-			elseif (def.drawtype == "mesh" and def.paramtype2 == "degrotate") then
-				local p2 = (node.param2 - (def.place_param2 or 0)) % 240
-				local yaw = (p2 / 240) * (math.pi * 2)
-				self.object:set_yaw(yaw)
-			elseif (def.drawtype == "mesh" and def.paramtype2 == "colordegrotate") then
-				local p2 = (node.param2 % 32 - (def.place_param2 or 0) % 32) % 24
-				local yaw = (p2 / 24) * (math.pi * 2)
-				self.object:set_yaw(yaw)
 			end
 		end
 	end,

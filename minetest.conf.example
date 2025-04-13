@@ -189,6 +189,8 @@
 #    to the game world only, keeping the GUI intact.
 #    It should give a significant performance boost at the cost of less detailed image.
 #    Higher values result in a less detailed image.
+#    Note: Undersampling is currently not supported if the "3d_mode" setting is set
+#    to a non-default value.
 #    type: int min: 1 max: 8
 # undersampling = 1
 
@@ -202,7 +204,6 @@
 #    -    topbottom: split screen top/bottom.
 #    -    sidebyside: split screen side by side.
 #    -    crossview: Cross-eyed 3d
-#    Note that the interlaced mode requires shaders to be enabled.
 #    type: enum values: none, anaglyph, interlaced, topbottom, sidebyside, crossview
 # 3d_mode = none
 
@@ -310,11 +311,7 @@
 
 ### Clouds
 
-#    Clouds are a client-side effect.
-#    type: bool
-# enable_clouds = true
-
-#    Use 3D cloud look instead of flat.
+#    Allow clouds to look 3D instead of flat.
 #    type: bool
 # enable_3d_clouds = true
 
@@ -341,6 +338,7 @@
 # trilinear_filter = false
 
 #    Use anisotropic filtering when looking at textures from an angle.
+#    This provides a significant improvement when used together with mipmapping.
 #    type: bool
 # anisotropic_filter = false
 
@@ -349,16 +347,18 @@
 #    * None - No antialiasing (default)
 #
 #    * FSAA - Hardware-provided full-screen antialiasing
-#    (incompatible with Post Processing and Undersampling)
 #    A.K.A multi-sample antialiasing (MSAA)
 #    Smoothens out block edges but does not affect the insides of textures.
-#    A restart is required to change this option.
 #
-#    * FXAA - Fast approximate antialiasing (requires shaders)
+#    If Post Processing is disabled, changing FSAA requires a restart.
+#    Also, if Post Processing is disabled, FSAA will not work together with
+#    undersampling or a non-default "3d_mode" setting.
+#
+#    * FXAA - Fast approximate antialiasing
 #    Applies a post-processing filter to detect and smoothen high-contrast edges.
 #    Provides balance between speed and image quality.
 #
-#    * SSAA - Super-sampling antialiasing (requires shaders)
+#    * SSAA - Super-sampling antialiasing
 #    Renders higher-resolution image of the scene, then scales down to reduce
 #    the aliasing effects. This is the slowest and the most accurate method.
 #    type: enum values: none, fsaa, fxaa, ssaa
@@ -411,10 +411,6 @@
 #    at the expense of minor visual glitches that do not impact game playability.
 #    type: bool
 # performance_tradeoffs = false
-
-#    Adds particles when digging a node.
-#    type: bool
-# enable_particles = true
 
 ### Waving Nodes
 
@@ -474,28 +470,16 @@
 #    type: bool
 # shadow_map_texture_32bit = true
 
-#    Enable Poisson disk filtering.
-#    On true uses Poisson disk to make "soft shadows". Otherwise uses PCF filtering.
-#    type: bool
-# shadow_poisson_filter = true
-
 #    Define shadow filtering quality.
 #    This simulates the soft shadows effect by applying a PCF or Poisson disk
 #    but also uses more resources.
 #    type: enum values: 0, 1, 2
 # shadow_filters = 1
 
-#    Enable colored shadows.
-#    On true translucent nodes cast colored shadows. This is expensive.
+#    Enable colored shadows for transculent nodes.
+#    This is expensive.
 #    type: bool
 # shadow_map_color = false
-
-#    Spread a complete update of shadow map over given number of frames.
-#    Higher values might make shadows laggy, lower values
-#    will consume more resources.
-#    Minimum value: 1; maximum value: 16
-#    type: int min: 1 max: 16
-# shadow_update_frames = 8
 
 #    Set the soft shadow radius size.
 #    Lower values mean sharper shadows, bigger values mean softer shadows.
@@ -579,8 +563,7 @@
 #    type: float min: 0 max: 1
 # sound_volume_unfocused = 0.3
 
-#    Whether to mute sounds. You can unmute sounds at any time, unless the
-#    sound system is disabled (enable_sound=false).
+#    Whether to mute sounds. You can unmute sounds at any time.
 #    In-game, you can toggle the mute state with the mute key or by using the
 #    pause menu.
 #    type: bool
@@ -629,13 +612,6 @@
 #    to hardware (e.g. render-to-texture for nodes in inventory).
 #    type: bool
 # gui_scaling_filter = false
-
-#    When gui_scaling_filter_txr2img is true, copy those images
-#    from hardware to software for scaling.  When false, fall back
-#    to the old scaling method, for video drivers that don't
-#    properly support downloading textures back from hardware.
-#    type: bool
-# gui_scaling_filter_txr2img = true
 
 #    Delay showing tooltips, stated in milliseconds.
 #    type: int min: 0 max: 1.844674407371e+19
@@ -708,7 +684,7 @@
 
 #    The URL for the content repository
 #    type: string
-# contentdb_url = https://content.minetest.net
+# contentdb_url = https://content.luanti.org
 
 #    If enabled and you have ContentDB packages installed, Luanti may contact ContentDB to
 #    check for package updates when opening the mainmenu.
@@ -720,7 +696,7 @@
 #    as defined by the Free Software Foundation.
 #    You can also specify content ratings.
 #    These flags are independent from Luanti versions,
-#    so see a full list at https://content.minetest.net/help/content_flags/
+#    so see a full list at https://content.luanti.org/help/content_flags/
 #    type: string
 # contentdb_flag_blacklist = nonfree, desktop_default
 
@@ -741,22 +717,22 @@
 
 #    URL to the server list displayed in the Multiplayer Tab.
 #    type: string
-# serverlist_url = servers.minetest.net
+# serverlist_url = https://servers.luanti.org
 
-#    If enabled, account registration is separate from login in the UI.
-#    If disabled, new accounts will be registered automatically when logging in.
+#    If enabled, server account registration is separate from login in the UI.
+#    If disabled, connecting to a server will automatically register a new account.
 #    type: bool
 # enable_split_login_register = true
 
 #    URL to JSON file which provides information about the newest Luanti release.
 #    If this is empty the engine will never check for updates.
 #    type: string
-# update_information_url = https://www.minetest.net/release_info.json
+# update_information_url = https://www.luanti.org/release_info.json
 
 ## Server
 
 #    Name of the player.
-#    When running a server, clients connecting with this name are admins.
+#    When running a server, a client connecting with this name is admin.
 #    When starting from the main menu, this is overridden.
 #    type: string
 # name =
@@ -773,11 +749,11 @@
 
 #    Domain name of server, to be displayed in the serverlist.
 #    type: string
-# server_address = game.minetest.net
+# server_address = game.example.net
 
 #    Homepage of server, to be displayed in the serverlist.
 #    type: string
-# server_url = https://minetest.net
+# server_url = https://game.example.net
 
 #    Automatically report to the serverlist.
 #    type: bool
@@ -789,7 +765,7 @@
 
 #    Announce to this serverlist.
 #    type: string
-# serverlist_url = servers.minetest.net
+# serverlist_url = https://servers.luanti.org
 
 #    Message of the day displayed to players connecting.
 #    type: string
@@ -838,7 +814,6 @@
 
 #    Enable/disable running an IPv6 server.
 #    Ignored if bind_address is set.
-#    Needs enable_ipv6 to be enabled.
 #    type: bool
 # ipv6_server = false
 
@@ -2737,9 +2712,9 @@
 
 ### Graphics
 
-#    Shaders are a fundamental part of rendering and enable advanced visual effects.
+#    Enables debug and error-checking in the OpenGL driver.
 #    type: bool
-# enable_shaders = true
+# opengl_debug = false
 
 #    Path to shader directory. If no path is defined, default location will be used.
 #    type: path
@@ -2757,19 +2732,16 @@
 #    type: int min: 0 max: 128
 # transparency_sorting_distance = 16
 
+#    Draw transparency sorted triangles grouped by their mesh buffers.
+#    This breaks transparency sorting between mesh buffers, but avoids situations
+#    where transparency sorting would be very slow otherwise.
+#    type: bool
+# transparency_sorting_group_by_buffers = true
+
 #    Radius of cloud area stated in number of 64 node cloud squares.
 #    Values larger than 26 will start to produce sharp cutoffs at cloud area corners.
-#    type: int min: 1 max: 62
+#    type: int min: 8 max: 62
 # cloud_radius = 12
-
-#    Whether node texture animations should be desynchronized per mapblock.
-#    type: bool
-# desynchronize_mapblock_texture_animation = false
-
-#    Enables caching of facedir rotated meshes.
-#    This is only effective with shaders disabled.
-#    type: bool
-# enable_mesh_cache = false
 
 #    Delay between mesh updates on the client in ms. Increasing this will slow
 #    down the rate of mesh updates, thus reducing jitter on slower clients.
@@ -2780,6 +2752,11 @@
 #    Value of 0 (default) will let Luanti autodetect the number of available threads.
 #    type: int min: 0 max: 8
 # mesh_generation_threads = 0
+
+#    All mesh buffers with less than this number of vertices will be merged
+#    during map rendering. This improves rendering performance.
+#    type: int min: 0 max: 1000
+# mesh_buffer_min_vertices = 300
 
 #    True = 256
 #    False = 128
@@ -2805,12 +2782,11 @@
 #    type: enum values: disable, enable, force
 # autoscale_mode = disable
 
-#    When using bilinear/trilinear/anisotropic filters, low-resolution textures
-#    can be blurred, so automatically upscale them with nearest-neighbor
-#    interpolation to preserve crisp pixels. This sets the minimum texture size
-#    for the upscaled textures; higher values look sharper, but require more
-#    memory. Powers of 2 are recommended. This setting is ONLY applied if
-#    bilinear/trilinear/anisotropic filtering is enabled.
+#    When using bilinear/trilinear filtering, low-resolution textures
+#    can be blurred, so this option automatically upscales them to preserve
+#    crisp pixels. This defines the minimum texture size for the upscaled textures;
+#    higher values look sharper, but require more memory.
+#    This setting is ONLY applied if any of the mentioned filters are enabled.
 #    This is also used as the base node texture size for world-aligned
 #    texture autoscaling.
 #    type: int min: 1 max: 32768
@@ -2824,9 +2800,22 @@
 #    type: int min: 1 max: 16
 # client_mesh_chunk = 1
 
-#    Enables debug and error-checking in the OpenGL driver.
+#    Decide the color depth of the texture used for the post-processing pipeline.
+#    Reducing this can improve performance, but some effects (e.g. debanding)
+#    require more than 8 bits to work.
+#    type: enum values: 8, 10, 16
+# post_processing_texture_bits = 16
+
+#    Enable Poisson disk filtering.
+#    On true uses Poisson disk to make "soft shadows". Otherwise uses PCF filtering.
 #    type: bool
-# opengl_debug = false
+# shadow_poisson_filter = true
+
+#    Spread a complete update of the shadow map over a given number of frames.
+#    Higher values might make shadows laggy, lower values
+#    will consume more resources.
+#    type: int min: 1 max: 32
+# shadow_update_frames = 16
 
 #    Set to true to render debugging breakdown of the bloom effect.
 #    In debug mode, the screen is split into 4 quadrants:
@@ -3057,10 +3046,6 @@
 #    type: int min: -1
 # max_forceloaded_blocks = 16
 
-#    Interval of sending time of day to clients, stated in seconds.
-#    type: float min: 0.001
-# time_send_interval = 5.0
-
 #    Interval of saving important changes in the world, stated in seconds.
 #    type: float min: 0.001
 # server_map_save_interval = 5.3
@@ -3071,7 +3056,7 @@
 # server_unload_unused_data_timeout = 29
 
 #    Maximum number of statically stored objects in a block.
-#    type: int min: 1 max: 65535
+#    type: int min: 256 max: 65535
 # max_objects_per_block = 256
 
 #    Length of time between active block management cycles, stated in seconds.
@@ -3337,13 +3322,6 @@
 #    Controlled by a checkbox in the settings menu.
 #    type: bool
 # show_advanced = false
-
-#    Enables the sound system.
-#    If disabled, this completely disables all sounds everywhere and the in-game
-#    sound controls will be non-functional.
-#    Changing this setting requires a restart.
-#    type: bool
-# enable_sound = true
 
 #    Key for moving the player forward.
 #    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h

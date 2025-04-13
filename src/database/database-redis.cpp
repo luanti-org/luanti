@@ -20,7 +20,7 @@
 /*
  * Redis is not a good fit for Minetest and only still supported for legacy as
  * well as advanced use case reasons, see:
- * <https://github.com/minetest/minetest/issues/14822>
+ * <https://github.com/luanti-org/luanti/issues/14822>
  *
  * Do NOT extend this backend with any new functionality.
  */

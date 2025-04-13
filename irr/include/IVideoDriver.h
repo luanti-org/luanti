@@ -232,6 +232,15 @@ public:
 	information. */
 	virtual ITexture *addTexture(const io::path &name, IImage *image) = 0;
 
+	/**
+	 * Creates an array texture from IImages.
+	 * @param name A name for the texture.
+	 * @param images Pointer to array of images
+	 * @param count Number of images (must be at least 1)
+	 * @return Pointer to the newly created texture
+	 */
+	virtual ITexture *addArrayTexture(const io::path &name, IImage **images, u32 count) = 0;
+
 	//! Creates a cubemap texture from loaded IImages.
 	/** \param name A name for the texture. Later calls of getTexture() with this name will return this texture.
 	The name can _not_ be empty.

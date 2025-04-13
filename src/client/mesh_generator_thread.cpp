@@ -145,8 +145,7 @@ QueuedMeshUpdate *MeshUpdateQueue::pop()
 		MutexAutoLock lock(m_mutex);
 
 		bool must_be_urgent = !m_urgents.empty();
-		for (std::vector<QueuedMeshUpdate*>::iterator i = m_queue.begin();
-				i != m_queue.end(); ++i) {
+		for (auto i = m_queue.begin(); i != m_queue.end(); ++i) {
 			QueuedMeshUpdate *q = *i;
 			if (must_be_urgent && m_urgents.count(q->p) == 0)
 				continue;
@@ -202,8 +201,8 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	MeshUpdateWorkerThread
 */
 
-MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, v3s16 *camera_offset) :
-		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager), m_camera_offset(camera_offset)
+MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager) :
+		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager)
 {
 	m_generation_interval = g_settings->getU16("mesh_generation_interval");
 	m_generation_interval = rangelim(m_generation_interval, 0, 50);
@@ -220,7 +219,7 @@ void MeshUpdateWorkerThread::doUpdate()
 
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
-		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, *m_camera_offset);
+		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
 
 		MeshUpdateResult r;
 		r.p = q->p;
@@ -254,7 +253,7 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 	infostream << "MeshUpdateManager: using " << number_of_threads << " threads" << std::endl;
 
 	for (int i = 0; i < number_of_threads; i++)
-		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this, &m_camera_offset));
+		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this));
 }
 
 void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
@@ -264,8 +263,8 @@ void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
 			g_settings->getBool("smooth_lighting")
 			&& !g_settings->getFlag("performance_tradeoffs");
 	if (!m_queue_in.addBlock(map, p, ack_block_to_server, urgent)) {
-		warningstream << "Update requested for non-existent block at ("
-				<< p.X << ", " << p.Y << ", " << p.Z << ")" << std::endl;
+		warningstream << "Update requested for non-existent block at "
+				<< p << std::endl;
 		return;
 	}
 	if (update_neighbors) {

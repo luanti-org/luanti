@@ -70,6 +70,7 @@ private:
 	void connect(Address address);
 	void disconnect();
 	void disconnect_peer(session_t peer_id);
+	void fix_peer_id(session_t own_peer_id);
 	void send(session_t peer_id, u8 channelnum, const SharedBuffer<u8> &data);
 	void sendReliable(ConnectionCommandPtr &c);
 	void sendToAll(u8 channelnum, const SharedBuffer<u8> &data);

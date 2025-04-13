@@ -313,6 +313,7 @@ public:
 	bool onObjectsActivation();
 	bool saveStaticObject(u16 id, const StaticObject &obj, u32 reason);
 
+	/// @note This method is only for Server, don't call it on client
 	void step(float dtime, const std::function<bool(v3s16, MapNode, f32)> &on_timer_cb);
 
 	////
@@ -337,6 +338,7 @@ public:
 		return m_timestamp;
 	}
 
+	/// @deprecated don't use in new code, unclear semantics.
 	inline u32 getDiskTimestamp()
 	{
 		return m_disk_timestamp;

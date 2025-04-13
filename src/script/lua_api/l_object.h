@@ -378,6 +378,12 @@ private:
 	// get_eye_offset(self)
 	static int l_get_eye_offset(lua_State *L);
 
+	// set_camera(self, {params})
+	static int l_set_camera(lua_State *L);
+
+	// get_camera(self)
+	static int l_get_camera(lua_State *L);
+
 	// set_nametag_attributes(self, attributes)
 	static int l_set_nametag_attributes(lua_State *L);
 

@@ -310,7 +310,11 @@ public:
 	\return The material at that index. */
 	virtual video::SMaterial &getMaterial(u32 num)
 	{
-		return video::IdentityMaterial;
+		// We return a default material since a reference can't be null,
+		// but note that writing to this is a mistake either by a child class
+		// or the caller, because getMaterialCount() is zero.
+		// Doing so will helpfully cause a segfault.
+		return const_cast<video::SMaterial&>(video::IdentityMaterial);
 	}
 
 	//! Get amount of materials used by this scene node.

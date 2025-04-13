@@ -71,18 +71,16 @@ void CGUIFont::setMaxHeight()
 
 void CGUIFont::pushTextureCreationFlags(bool (&flags)[3])
 {
-	flags[0] = Driver->getTextureCreationFlag(video::ETCF_ALLOW_NON_POWER_2);
+	flags[0] = false;
 	flags[1] = Driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
 	flags[2] = Driver->getTextureCreationFlag(video::ETCF_ALLOW_MEMORY_COPY);
 
-	Driver->setTextureCreationFlag(video::ETCF_ALLOW_NON_POWER_2, true);
 	Driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 	Driver->setTextureCreationFlag(video::ETCF_ALLOW_MEMORY_COPY, true);
 }
 
 void CGUIFont::popTextureCreationFlags(const bool (&flags)[3])
 {
-	Driver->setTextureCreationFlag(video::ETCF_ALLOW_NON_POWER_2, flags[0]);
 	Driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, flags[1]);
 	Driver->setTextureCreationFlag(video::ETCF_ALLOW_MEMORY_COPY, flags[2]);
 }

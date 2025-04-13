@@ -16,14 +16,13 @@
 #include "porting.h"
 #include "util/container.h"
 #include "util/thread.h"
+#include "util/numeric.h"
 #include "version.h"
 #include "settings.h"
-#include "noise.h"
 
 static std::mutex g_httpfetch_mutex;
 static std::unordered_map<u64, std::queue<HTTPFetchResult>>
 	g_httpfetch_results;
-static PcgRandom g_callerid_randomness;
 
 static std::string default_user_agent()
 {
@@ -78,18 +77,18 @@ u64 httpfetch_caller_alloc_secure()
 	// Generate random caller IDs and make sure they're not
 	// already used or reserved.
 	// Give up after 100 tries to prevent infinite loop
-	size_t tries = 100;
+	int tries = 100;
 	u64 caller;
 
 	do {
-		caller = (((u64) g_callerid_randomness.next()) << 32) |
-				g_callerid_randomness.next();
+		// Global RNG is seeded securely, so we can use it.
+		myrand_bytes(&caller, sizeof(caller));
 
 		if (--tries < 1) {
 			FATAL_ERROR("httpfetch_caller_alloc_secure: ran out of caller IDs");
 			return HTTPFETCH_DISCARD;
 		}
-	} while (caller >= HTTPFETCH_CID_START &&
+	} while (caller < HTTPFETCH_CID_START ||
 		g_httpfetch_results.find(caller) != g_httpfetch_results.end());
 
 	verbosestream << "httpfetch_caller_alloc_secure: allocating "
@@ -702,11 +701,6 @@ void httpfetch_init(int parallel_limit)
 	FATAL_ERROR_IF(res != CURLE_OK, "cURL init failed");
 
 	g_httpfetch_thread = std::make_unique<CurlFetchThread>(parallel_limit);
-
-	// Initialize g_callerid_randomness for httpfetch_caller_alloc_secure
-	u64 randbuf[2];
-	porting::secure_rand_fill_buf(randbuf, sizeof(u64) * 2);
-	g_callerid_randomness = PcgRandom(randbuf[0], randbuf[1]);
 }
 
 void httpfetch_cleanup()
@@ -744,7 +738,7 @@ static void httpfetch_request_clear(u64 caller)
 bool httpfetch_sync_interruptible(const HTTPFetchRequest &fetch_request,
 		HTTPFetchResult &fetch_result, long interval)
 {
-	if (Thread *thread = Thread::getCurrentThread()) {
+	if (const Thread *thread = Thread::getCurrentThread()) {
 		HTTPFetchRequest req = fetch_request;
 		req.caller = httpfetch_caller_alloc_secure();
 		httpfetch_async(req);

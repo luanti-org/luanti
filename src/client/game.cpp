@@ -60,6 +60,7 @@
 #include "clientdynamicinfo.h"
 #include <IAnimatedMeshSceneNode.h>
 #include "util/tracy_wrapper.h"
+#include "item_visuals_manager.h"
 
 #if USE_SOUND
 	#include "client/sound/sound_openal.h"
@@ -553,7 +554,7 @@ protected:
 	bool init(const std::string &map_dir, const std::string &address,
 			u16 port, const SubgameSpec &gamespec);
 	bool initSound();
-	bool createSingleplayerServer(const std::string &map_dir,
+	bool createServer(const std::string &map_dir,
 			const SubgameSpec &gamespec, u16 port);
 	void copyServerClientCache();
 
@@ -605,10 +606,13 @@ protected:
 
 	void updateCameraDirection(CameraOrientation *cam, float dtime);
 	void updateCameraOrientation(CameraOrientation *cam, float dtime);
+	bool getTogglableKeyState(GameKeyType key, bool toggling_enabled, bool prev_key_state);
 	void updatePlayerControl(const CameraOrientation &cam);
 	void updatePauseState();
 	void step(f32 dtime);
 	void processClientEvents(CameraOrientation *cam);
+	void updateCameraMode(); // call after changing it
+	void updateCameraOffset();
 	void updateCamera(f32 dtime);
 	void updateSound(f32 dtime);
 	void processPlayerInteraction(f32 dtime, bool show_hud);
@@ -634,7 +638,7 @@ protected:
 	void handlePointingAtNode(const PointedThing &pointed,
 			const ItemStack &selected_item, const ItemStack &hand_item, f32 dtime);
 	void handlePointingAtObject(const PointedThing &pointed, const ItemStack &playeritem,
-			const v3f &player_position, bool show_debug);
+			const ItemStack &hand_item, const v3f &player_position, bool show_debug);
 	void handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 			const ItemStack &selected_item, const ItemStack &hand_item, f32 dtime);
 	void updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
@@ -695,7 +699,8 @@ private:
 	void handleClientEvent_PlayerForceMove(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_DeathscreenLegacy(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation *cam);
-	void handleClientEvent_ShowLocalFormSpec(ClientEvent *event, CameraOrientation *cam);
+	void handleClientEvent_ShowCSMFormSpec(ClientEvent *event, CameraOrientation *cam);
+	void handleClientEvent_ShowPauseMenuFormSpec(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_HandleParticleEvent(ClientEvent *event,
 		CameraOrientation *cam);
 	void handleClientEvent_HudAdd(ClientEvent *event, CameraOrientation *cam);
@@ -708,6 +713,7 @@ private:
 	void handleClientEvent_OverrideDayNigthRatio(ClientEvent *event,
 		CameraOrientation *cam);
 	void handleClientEvent_CloudParams(ClientEvent *event, CameraOrientation *cam);
+	void handleClientEvent_UpdateCamera(ClientEvent *event, CameraOrientation *cam);
 
 	void updateChat(f32 dtime);
 
@@ -732,6 +738,7 @@ private:
 	// When created, these will be filled with data received from the server
 	IWritableItemDefManager *itemdef_manager = nullptr;
 	NodeDefManager *nodedef_manager = nullptr;
+	std::unique_ptr<ItemVisualsManager> m_item_visuals_manager;
 
 	std::unique_ptr<ISoundManager> sound_manager;
 	SoundMaker *soundmaker = nullptr;
@@ -787,6 +794,8 @@ private:
 	 *       a later release.
 	 */
 	bool m_cache_doubletap_jump;
+	bool m_cache_toggle_sneak_key;
+	bool m_cache_toggle_aux1_key;
 	bool m_cache_enable_joysticks;
 	bool m_cache_enable_fog;
 	bool m_cache_enable_noclip;
@@ -812,9 +821,10 @@ private:
 	bool m_is_paused = false;
 
 	bool m_touch_simulate_aux1 = false;
-	bool m_touch_use_crosshair;
-	inline bool isTouchCrosshairDisabled() {
-		return !m_touch_use_crosshair && camera->getCameraMode() == CAMERA_MODE_FIRST;
+	inline bool isTouchShootlineUsed()
+	{
+		return g_touchcontrols && g_touchcontrols->isShootlineAvailable() &&
+				camera->getCameraMode() == CAMERA_MODE_FIRST;
 	}
 #ifdef __ANDROID__
 	bool m_android_chat_open;
@@ -830,6 +840,10 @@ Game::Game() :
 	g_settings->registerChangedCallback("chat_log_level",
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("doubletap_jump",
+		&settingChangedCallback, this);
+	g_settings->registerChangedCallback("toggle_sneak_key",
+		&settingChangedCallback, this);
+	g_settings->registerChangedCallback("toggle_aux1_key",
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("enable_joysticks",
 		&settingChangedCallback, this);
@@ -918,7 +932,7 @@ bool Game::startup(bool *kill,
 	this->chat_backend        = chat_backend;
 	simple_singleplayer_mode  = start_data.isSinglePlayer();
 
-	input->keycache.populate();
+	input->reloadKeybindings();
 
 	driver = device->getVideoDriver();
 	smgr = m_rendering_engine->get_scene_manager();
@@ -939,11 +953,8 @@ bool Game::startup(bool *kill,
 
 	m_first_loop_after_window_activation = true;
 
-	m_touch_use_crosshair = g_settings->getBool("touch_use_crosshair");
-
 	g_client_translations->clear();
 
-	// address can change if simple_singleplayer_mode
 	if (!init(start_data.world_spec.path, start_data.address,
 			start_data.socket_port, start_data.game_spec))
 		return false;
@@ -1001,9 +1012,11 @@ void Game::run()
 		// Calculate dtime =
 		//    m_rendering_engine->run() from this iteration
 		//  + Sleep time until the wanted FPS are reached
-		draw_times.limit(device, &dtime, g_menumgr.pausesGame());
+		draw_times.limit(device, &dtime);
 
 		framemarker.start();
+
+		g_fontengine->handleReload();
 
 		const auto current_dynamic_info = ClientDynamicInfo::getCurrent();
 		if (!current_dynamic_info.equal(client_display_info)) {
@@ -1033,6 +1046,12 @@ void Game::run()
 		m_game_ui->clearInfoText();
 
 		updateProfilers(stats, draw_times, dtime);
+
+		// Update camera offset once before doing anything.
+		// In contrast to other updates the latency of this doesn't matter,
+		// since it's invisible to the user. But it needs to be consistent.
+		updateCameraOffset();
+
 		processUserInput(dtime);
 		// Update camera before player movement to avoid camera lag of one frame
 		updateCameraDirection(&cam_view_target, dtime);
@@ -1050,6 +1069,7 @@ void Game::run()
 
 		processClientEvents(&cam_view_target);
 		updateDebugState();
+		// Update camera here so it is in-sync with CAO position
 		updateCamera(dtime);
 		updateSound(dtime);
 		processPlayerInteraction(dtime, m_game_ui->m_flags.show_hud);
@@ -1152,6 +1172,8 @@ bool Game::init(
 	itemdef_manager = createItemDefManager();
 	nodedef_manager = createNodeDefManager();
 
+	m_item_visuals_manager = std::make_unique<ItemVisualsManager>();
+
 	eventmgr = new EventManager();
 	quicktune = new QuicktuneShortcutter();
 
@@ -1164,7 +1186,7 @@ bool Game::init(
 
 	// Create a server if not connecting to an existing one
 	if (address.empty()) {
-		if (!createSingleplayerServer(map_dir, gamespec, port))
+		if (!createServer(map_dir, gamespec, port))
 			return false;
 	}
 
@@ -1199,7 +1221,7 @@ bool Game::initSound()
 	return true;
 }
 
-bool Game::createSingleplayerServer(const std::string &map_dir,
+bool Game::createServer(const std::string &map_dir,
 		const SubgameSpec &gamespec, u16 port)
 {
 	showOverlayMessage(N_("Creating server..."), 0, 5);
@@ -1404,10 +1426,8 @@ bool Game::initGui()
 	gui_chat_console = make_irr<GUIChatConsole>(guienv, guienv->getRootGUIElement(),
 			-1, chat_backend, client, &g_menumgr);
 
-	if (shouldShowTouchControls()) {
+	if (shouldShowTouchControls())
 		g_touchcontrols = new TouchControls(device, texture_src);
-		g_touchcontrols->setUseCrosshair(!isTouchCrosshairDisabled());
-	}
 
 	return true;
 }
@@ -1417,7 +1437,6 @@ bool Game::connectToServer(const GameStartData &start_data,
 {
 	*connect_ok = false;	// Let's not be overly optimistic
 	*connection_aborted = false;
-	bool local_server_mode = false;
 	const auto &address_name = start_data.address;
 
 	showOverlayMessage(N_("Resolving address..."), 0, 15);
@@ -1437,7 +1456,6 @@ bool Game::connectToServer(const GameStartData &start_data,
 			} else {
 				connect_address.setAddress(127, 0, 0, 1);
 			}
-			local_server_mode = true;
 		}
 	} catch (ResolveError &e) {
 		*error_message = fmtgettext("Couldn't resolve address: %s", e.what());
@@ -1474,6 +1492,7 @@ bool Game::connectToServer(const GameStartData &start_data,
 				*draw_control, texture_src, shader_src,
 				itemdef_manager, nodedef_manager, sound_manager.get(), eventmgr,
 				m_rendering_engine,
+				m_item_visuals_manager.get(),
 				start_data.allow_login_or_register);
 	} catch (const BaseException &e) {
 		*error_message = fmtgettext("Error creating client: %s", e.what());
@@ -1483,13 +1502,13 @@ bool Game::connectToServer(const GameStartData &start_data,
 
 	client->migrateModStorage();
 	client->m_simple_singleplayer_mode = simple_singleplayer_mode;
+	client->m_internal_server = !!server;
 
 	/*
 		Wait for server to accept connection
 	*/
 
-	client->connect(connect_address, address_name,
-		simple_singleplayer_mode || local_server_mode);
+	client->connect(connect_address, address_name);
 
 	try {
 		input->clear();
@@ -1536,12 +1555,11 @@ bool Game::connectToServer(const GameStartData &start_data,
 			}
 
 			wait_time += dtime;
-			if (local_server_mode) {
+			if (server) {
 				// never time out
 			} else if (wait_time > GAME_FALLBACK_TIMEOUT && !did_fallback) {
 				if (!client->hasServerReplied() && fallback_address.isValid()) {
-					client->connect(fallback_address, address_name,
-						simple_singleplayer_mode || local_server_mode);
+					client->connect(fallback_address, address_name);
 				}
 				did_fallback = true;
 			} else if (wait_time > GAME_CONNECTION_TIMEOUT) {
@@ -1947,6 +1965,9 @@ void Game::processKeyInput()
 		toggleFog();
 	} else if (wasKeyDown(KeyType::TOGGLE_UPDATE_CAMERA)) {
 		toggleUpdateCamera();
+	} else if (wasKeyPressed(KeyType::CAMERA_MODE)) {
+		camera->toggleCameraMode();
+		updateCameraMode();
 	} else if (wasKeyPressed(KeyType::TOGGLE_DEBUG)) {
 		toggleDebug();
 	} else if (wasKeyPressed(KeyType::TOGGLE_PROFILER)) {
@@ -2432,8 +2453,10 @@ f32 Game::getSensitivityScaleFactor() const
 void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 {
 	if (g_touchcontrols) {
-		cam->camera_yaw   += g_touchcontrols->getYawChange();
-		cam->camera_pitch += g_touchcontrols->getPitchChange();
+		// User setting is already applied by TouchControls.
+		f32 sens_scale = getSensitivityScaleFactor();
+		cam->camera_yaw   += g_touchcontrols->getYawChange()   * sens_scale;
+		cam->camera_pitch += g_touchcontrols->getPitchChange() * sens_scale;
 	} else {
 		v2s32 center(driver->getScreenSize().Width / 2, driver->getScreenSize().Height / 2);
 		v2s32 dist = input->getMousePos() - center;
@@ -2457,13 +2480,28 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
 	}
 
-	cam->camera_pitch = rangelim(cam->camera_pitch, -89.5, 89.5);
+	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
+}
+
+
+// Get the state of an optionally togglable key
+bool Game::getTogglableKeyState(GameKeyType key, bool toggling_enabled, bool prev_key_state)
+{
+	if (!toggling_enabled)
+		return isKeyDown(key);
+	else
+		return prev_key_state ^ wasKeyPressed(key);
 }
 
 
 void Game::updatePlayerControl(const CameraOrientation &cam)
 {
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
+
+	// In free move (fly), the "toggle_sneak_key" setting would prevent precise
+	// up/down movements. Hence, enable the feature only during 'normal' movement.
+	const bool allow_sneak_toggle = m_cache_toggle_sneak_key &&
+		!player->getPlayerSettings().free_move;
 
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
@@ -2473,8 +2511,8 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		isKeyDown(KeyType::LEFT),
 		isKeyDown(KeyType::RIGHT),
 		isKeyDown(KeyType::JUMP) || player->getAutojump(),
-		isKeyDown(KeyType::AUX1),
-		isKeyDown(KeyType::SNEAK),
+		getTogglableKeyState(KeyType::AUX1,  m_cache_toggle_aux1_key, player->control.aux1),
+		getTogglableKeyState(KeyType::SNEAK, allow_sneak_toggle,      player->control.sneak),
 		isKeyDown(KeyType::ZOOM),
 		isKeyDown(KeyType::DIG),
 		isKeyDown(KeyType::PLACE),
@@ -2528,7 +2566,7 @@ inline void Game::step(f32 dtime)
 	ZoneScoped;
 
 	if (server) {
-		float fps_max = (!device->isWindowFocused() || g_menumgr.pausesGame()) ?
+		float fps_max = !device->isWindowFocused() && simple_singleplayer_mode ?
 				g_settings->getFloat("fps_max_unfocused") :
 				g_settings->getFloat("fps_max");
 		fps_max = std::max(fps_max, 1.0f);
@@ -2585,7 +2623,8 @@ const ClientEventHandler Game::clientEventHandler[CLIENTEVENT_MAX] = {
 	{&Game::handleClientEvent_PlayerForceMove},
 	{&Game::handleClientEvent_DeathscreenLegacy},
 	{&Game::handleClientEvent_ShowFormSpec},
-	{&Game::handleClientEvent_ShowLocalFormSpec},
+	{&Game::handleClientEvent_ShowCSMFormSpec},
+	{&Game::handleClientEvent_ShowPauseMenuFormSpec},
 	{&Game::handleClientEvent_HandleParticleEvent},
 	{&Game::handleClientEvent_HandleParticleEvent},
 	{&Game::handleClientEvent_HandleParticleEvent},
@@ -2598,6 +2637,7 @@ const ClientEventHandler Game::clientEventHandler[CLIENTEVENT_MAX] = {
 	{&Game::handleClientEvent_SetStars},
 	{&Game::handleClientEvent_OverrideDayNigthRatio},
 	{&Game::handleClientEvent_CloudParams},
+	{&Game::handleClientEvent_UpdateCamera},
 };
 
 void Game::handleClientEvent_None(ClientEvent *event, CameraOrientation *cam)
@@ -2653,9 +2693,18 @@ void Game::handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation 
 	delete event->show_formspec.formname;
 }
 
-void Game::handleClientEvent_ShowLocalFormSpec(ClientEvent *event, CameraOrientation *cam)
+void Game::handleClientEvent_ShowCSMFormSpec(ClientEvent *event, CameraOrientation *cam)
 {
-	m_game_formspec.showLocalFormSpec(*event->show_formspec.formspec,
+	m_game_formspec.showCSMFormSpec(*event->show_formspec.formspec,
+		*event->show_formspec.formname);
+
+	delete event->show_formspec.formspec;
+	delete event->show_formspec.formname;
+}
+
+void Game::handleClientEvent_ShowPauseMenuFormSpec(ClientEvent *event, CameraOrientation *cam)
+{
+	m_game_formspec.showPauseMenuFormSpec(*event->show_formspec.formspec,
 		*event->show_formspec.formname);
 
 	delete event->show_formspec.formspec;
@@ -2893,6 +2942,13 @@ void Game::handleClientEvent_CloudParams(ClientEvent *event, CameraOrientation *
 	clouds->setSpeed(v2f(event->cloud_params.speed_x, event->cloud_params.speed_y));
 }
 
+void Game::handleClientEvent_UpdateCamera(ClientEvent *event, CameraOrientation *cam)
+{
+	// no parameters to update here, this just makes sure the camera is in the
+	// state it should be after something was changed.
+	updateCameraMode();
+}
+
 void Game::processClientEvents(CameraOrientation *cam)
 {
 	while (client->hasClientEvents()) {
@@ -2946,70 +3002,81 @@ void Game::updateChat(f32 dtime)
 
 void Game::updateCamera(f32 dtime)
 {
-	LocalPlayer *player = client->getEnv().getLocalPlayer();
+	ClientEnvironment &env = client->getEnv();
+	LocalPlayer *player = env.getLocalPlayer();
 
-	/*
-		For interaction purposes, get info about the held item
-		- What item is it?
-		- Is it a usable item?
-		- Can it point to liquids?
-	*/
-	ItemStack playeritem;
+	// For interaction purposes, get info about the held item
+	ItemStack playeritem, hand;
 	{
-		ItemStack selected, hand;
+		ItemStack selected;
 		playeritem = player->getWieldedItem(&selected, &hand);
 	}
 
 	ToolCapabilities playeritem_toolcap =
-		playeritem.getToolCapabilities(itemdef_manager);
-
-	v3s16 old_camera_offset = camera->getOffset();
-
-	if (wasKeyPressed(KeyType::CAMERA_MODE)) {
-		GenericCAO *playercao = player->getCAO();
-
-		// If playercao not loaded, don't change camera
-		if (!playercao)
-			return;
-
-		camera->toggleCameraMode();
-
-		if (g_touchcontrols)
-			g_touchcontrols->setUseCrosshair(!isTouchCrosshairDisabled());
-
-		// Make the player visible depending on camera mode.
-		playercao->updateMeshCulling();
-		playercao->setChildrenVisible(camera->getCameraMode() > CAMERA_MODE_FIRST);
-	}
+		playeritem.getToolCapabilities(itemdef_manager, &hand);
 
 	float full_punch_interval = playeritem_toolcap.full_punch_interval;
 	float tool_reload_ratio = runData.time_from_last_punch / full_punch_interval;
 
-	tool_reload_ratio = MYMIN(tool_reload_ratio, 1.0);
+	tool_reload_ratio = std::min(tool_reload_ratio, 1.0f);
 	camera->update(player, dtime, tool_reload_ratio);
 	camera->step(dtime);
 
-	f32 camera_fov = camera->getFovMax();
-	v3s16 camera_offset = camera->getOffset();
-
-	m_camera_offset_changed = (camera_offset != old_camera_offset);
-
 	if (!m_flags.disable_camera_update) {
-		v3f camera_position = camera->getPosition();
-		v3f camera_direction = camera->getDirection();
-
-		client->getEnv().getClientMap().updateCamera(camera_position,
-				camera_direction, camera_fov, camera_offset, player->light_color);
-
-		if (m_camera_offset_changed) {
-			client->updateCameraOffset(camera_offset);
-			client->getEnv().updateCameraOffset(camera_offset);
-
-			clouds->updateCameraOffset(camera_offset);
-		}
+		client->getEnv().getClientMap().updateCamera(camera->getPosition(),
+			camera->getDirection(), camera->getFovMax(), camera->getOffset(),
+			player->light_color);
 	}
 }
 
+void Game::updateCameraMode()
+{
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
+
+	// Obey server choice
+	if (player->allowed_camera_mode != CAMERA_MODE_ANY)
+		camera->setCameraMode(player->allowed_camera_mode);
+
+	GenericCAO *playercao = player->getCAO();
+	if (playercao) {
+		// Make the player visible depending on camera mode.
+		playercao->updateMeshCulling();
+		playercao->setChildrenVisible(camera->getCameraMode() > CAMERA_MODE_FIRST);
+	}
+}
+
+void Game::updateCameraOffset()
+{
+	ClientEnvironment &env = client->getEnv();
+
+	v3s16 old_camera_offset = camera->getOffset();
+
+	camera->updateOffset();
+
+	v3s16 camera_offset = camera->getOffset();
+
+	m_camera_offset_changed = camera_offset != old_camera_offset;
+	if (!m_camera_offset_changed)
+		return;
+
+	if (!m_flags.disable_camera_update) {
+		auto *shadow = RenderingEngine::get_shadow_renderer();
+		if (shadow) {
+			shadow->getDirectionalLight().updateCameraOffset(camera);
+			// FIXME: I bet we can be smarter about this and don't need to redraw
+			// the shadow map at all, but this is for someone else to figure out.
+			if (!g_settings->getFlag("performance_tradeoffs"))
+				shadow->setForceUpdateShadowMap();
+		}
+
+		env.getClientMap().updateCamera(camera->getPosition(),
+			camera->getDirection(), camera->getFovMax(), camera_offset,
+			env.getLocalPlayer()->light_color);
+
+		env.updateCameraOffset(camera_offset);
+		clouds->updateCameraOffset(camera_offset);
+	}
+}
 
 void Game::updateSound(f32 dtime)
 {
@@ -3053,12 +3120,15 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	ItemStack selected_item, hand_item;
 	const ItemStack &tool_item = player->getWieldedItem(&selected_item, &hand_item);
 
-	const ItemDefinition &selected_def = selected_item.getDefinition(itemdef_manager);
-	f32 d = getToolRange(selected_item, hand_item, itemdef_manager);
+	const ItemDefinition &selected_def = tool_item.getDefinition(itemdef_manager);
+	f32 d = getToolRange(tool_item, hand_item, itemdef_manager);
 
 	core::line3d<f32> shootline;
 
 	switch (camera->getCameraMode()) {
+	case CAMERA_MODE_ANY:
+		assert(false);
+		break;
 	case CAMERA_MODE_FIRST:
 		// Shoot from camera position, with bobbing
 		shootline.start = camera->getPosition();
@@ -3075,7 +3145,7 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	}
 	shootline.end = shootline.start + camera_direction * BS * d;
 
-	if (g_touchcontrols && isTouchCrosshairDisabled()) {
+	if (isTouchShootlineUsed()) {
 		shootline = g_touchcontrols->getShootline();
 		// Scale shootline to the acual distance the player can reach
 		shootline.end = shootline.start +
@@ -3168,7 +3238,7 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	} else if (pointed.type == POINTEDTHING_OBJECT) {
 		v3f player_position  = player->getPosition();
 		bool basic_debug_allowed = client->checkPrivilege("debug") || (player->hud_flags & HUD_FLAG_BASIC_DEBUG);
-		handlePointingAtObject(pointed, tool_item, player_position,
+		handlePointingAtObject(pointed, tool_item, hand_item, player_position,
 				m_game_ui->m_flags.show_basic_debug && basic_debug_allowed);
 	} else if (isKeyDown(KeyType::DIG)) {
 		// When button is held down in air, show continuous animation
@@ -3234,9 +3304,10 @@ PointedThing Game::updatePointedThing(
 			hud->setSelectionPos(pos, camera_offset);
 			GenericCAO* gcao = dynamic_cast<GenericCAO*>(runData.selected_object);
 			if (gcao != nullptr && gcao->getProperties().rotate_selectionbox)
-				hud->setSelectionRotation(gcao->getSceneNode()->getAbsoluteTransformation().getRotationDegrees());
+				hud->setSelectionRotationRadians(gcao->getSceneNode()
+						->getAbsoluteTransformation().getRotationRadians());
 			else
-				hud->setSelectionRotation(v3f());
+				hud->setSelectionRotationRadians(v3f());
 		}
 		hud->setSelectedFaceNormal(result.raw_intersection_normal);
 	} else if (result.type == POINTEDTHING_NODE) {
@@ -3246,17 +3317,15 @@ PointedThing Game::updatePointedThing(
 		n.getSelectionBoxes(nodedef, &boxes,
 			n.getNeighbors(result.node_undersurface, &map));
 
-		f32 d = 0.002 * BS;
-		for (std::vector<aabb3f>::const_iterator i = boxes.begin();
-			i != boxes.end(); ++i) {
-			aabb3f box = *i;
+		f32 d = 0.002f * BS;
+		for (aabb3f box : boxes) {
 			box.MinEdge -= v3f(d, d, d);
 			box.MaxEdge += v3f(d, d, d);
 			selectionboxes->push_back(box);
 		}
 		hud->setSelectionPos(intToFloat(result.node_undersurface, BS),
 			camera_offset);
-		hud->setSelectionRotation(v3f());
+		hud->setSelectionRotationRadians(v3f());
 		hud->setSelectedFaceNormal(result.intersection_normal);
 	}
 
@@ -3451,9 +3520,8 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 			u8 predicted_param2 = dir.Y < 0 ? 1 : 0;
 			if (selected_def.wallmounted_rotate_vertical) {
 				bool rotate90 = false;
-				v3f fnodepos = v3f(neighborpos.X, neighborpos.Y, neighborpos.Z);
 				v3f ppos = client->getEnv().getLocalPlayer()->getPosition() / BS;
-				v3f pdir = fnodepos - ppos;
+				v3f pdir = v3f::from(neighborpos) - ppos;
 				switch (predicted_f.drawtype) {
 					case NDT_TORCHLIKE: {
 						rotate90 = !((pdir.X < 0 && pdir.Z > 0) ||
@@ -3584,8 +3652,8 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 	}
 }
 
-void Game::handlePointingAtObject(const PointedThing &pointed,
-		const ItemStack &tool_item, const v3f &player_position, bool show_debug)
+void Game::handlePointingAtObject(const PointedThing &pointed, const ItemStack &tool_item,
+		const ItemStack &hand_item, const v3f &player_position, bool show_debug)
 {
 	std::wstring infotext = unescape_translate(
 		utf8_to_wide(runData.selected_object->infoText()));
@@ -3615,6 +3683,7 @@ void Game::handlePointingAtObject(const PointedThing &pointed,
 		if (do_punch) {
 			infostream << "Punched object" << std::endl;
 			runData.punching = true;
+			runData.nodig_delay_timer = std::max(0.15f, m_repeat_dig_time);
 		}
 
 		if (do_punch_damage) {
@@ -3623,7 +3692,7 @@ void Game::handlePointingAtObject(const PointedThing &pointed,
 			v3f dir = (objpos - player_position).normalize();
 
 			bool disable_send = runData.selected_object->directReportPunch(
-					dir, &tool_item, runData.time_from_last_punch);
+					dir, &tool_item, &hand_item, runData.time_from_last_punch);
 			runData.time_from_last_punch = 0;
 
 			if (!disable_send)
@@ -3644,13 +3713,14 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 	ClientMap &map = client->getEnv().getClientMap();
 	MapNode n = map.getNode(nodepos);
 	const auto &features = nodedef_manager->get(n);
+	const ItemStack &tool_item = selected_item.name.empty() ? hand_item : selected_item;
 
 	// NOTE: Similar piece of code exists on the server side for
 	// cheat detection.
 	// Get digging parameters
 	DigParams params = getDigParams(features.groups,
-			&selected_item.getToolCapabilities(itemdef_manager),
-			selected_item.wear);
+			&tool_item.getToolCapabilities(itemdef_manager, &hand_item),
+			tool_item.wear);
 
 	// If can't dig, try hand
 	if (!params.diggable) {
@@ -3811,8 +3881,8 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		float old_brightness = sky->getBrightness();
 		direct_brightness = client->getEnv().getClientMap()
 				.getBackgroundBrightness(MYMIN(runData.fog_range * 1.2, 60 * BS),
-					daynight_ratio, (int)(old_brightness * 255.5), &sunlight_seen)
-				    / 255.0;
+						daynight_ratio, (int)(old_brightness * 255.5), &sunlight_seen)
+				/ 255.0;
 	}
 
 	float time_of_day_smooth = runData.time_of_day_smooth;
@@ -3894,7 +3964,8 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 	runData.update_draw_list_timer += dtime;
 	runData.touch_blocks_timer += dtime;
 
-	float update_draw_list_delta = 0.2f;
+	constexpr float update_draw_list_delta = 0.2f;
+	constexpr float touch_mapblock_delta = 4.0f;
 
 	v3f camera_direction = camera->getDirection();
 
@@ -3907,7 +3978,7 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		runData.update_draw_list_timer = 0;
 		client->getEnv().getClientMap().updateDrawList();
 		runData.update_draw_list_last_cam_dir = camera_direction;
-	} else if (runData.touch_blocks_timer > update_draw_list_delta) {
+	} else if (runData.touch_blocks_timer > touch_mapblock_delta) {
 		client->getEnv().getClientMap().touchMapBlocks();
 		runData.touch_blocks_timer = 0;
 	} else if (RenderingEngine::get_shadow_renderer()) {
@@ -3996,11 +4067,10 @@ void Game::updateShadows()
 	v3f light = is_day ? sky->getSunDirection() : sky->getMoonDirection();
 
 	v3f sun_pos = light * offset_constant;
-
 	shadow->getDirectionalLight().setDirection(sun_pos);
 	shadow->setTimeOfDay(in_timeofday);
 
-	shadow->getDirectionalLight().update_frustum(camera, client, m_camera_offset_changed);
+	shadow->getDirectionalLight().updateFrustum(camera, client);
 }
 
 void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
@@ -4049,7 +4119,7 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 			(player->hud_flags & HUD_FLAG_CROSSHAIR_VISIBLE) &&
 			(this->camera->getCameraMode() != CAMERA_MODE_THIRD_FRONT));
 
-	if (g_touchcontrols && isTouchCrosshairDisabled())
+	if (isTouchShootlineUsed())
 		draw_crosshair = false;
 
 	this->m_rendering_engine->draw_scene(sky_color, this->m_game_ui->m_flags.show_hud,
@@ -4105,6 +4175,8 @@ void Game::readSettings()
 	m_chat_log_buf.setLogLevel(chat_log_level);
 
 	m_cache_doubletap_jump               = g_settings->getBool("doubletap_jump");
+	m_cache_toggle_sneak_key             = g_settings->getBool("toggle_sneak_key");
+	m_cache_toggle_aux1_key              = g_settings->getBool("toggle_aux1_key");
 	m_cache_enable_joysticks             = g_settings->getBool("enable_joysticks");
 	m_cache_enable_fog                   = g_settings->getBool("enable_fog");
 	m_cache_mouse_sensitivity            = g_settings->getFloat("mouse_sensitivity", 0.001f, 10.0f);

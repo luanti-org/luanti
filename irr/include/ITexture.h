@@ -68,29 +68,11 @@ enum E_TEXTURE_CREATION_FLAG
 			 not recommended to enable this flag.	*/
 	ETCF_NO_ALPHA_CHANNEL = 0x00000020,
 
-	//! Allow the Driver to use Non-Power-2-Textures
-	/** BurningVideo can handle Non-Power-2 Textures in 2D (GUI), but not in 3D. */
-	ETCF_ALLOW_NON_POWER_2 = 0x00000040,
-
 	//! Allow the driver to keep a copy of the texture in memory
 	/** Enabling this makes calls to ITexture::lock a lot faster, but costs main memory.
 	This is disabled by default.
 	*/
 	ETCF_ALLOW_MEMORY_COPY = 0x00000080,
-
-	//! Enable automatic updating mip maps when the base texture changes.
-	/** Default is true.
-	This flag is only used when ETCF_CREATE_MIP_MAPS is also enabled and if the driver supports it.
-	Please note:
-	- On D3D (and maybe older OGL?) you can no longer manually set mipmap data when enabled
-	 (for example mips from image loading will be ignored).
-	- On D3D (and maybe older OGL?) texture locking for mipmap levels usually won't work anymore.
-	- On new OGL this flag is ignored.
-	- When disabled you do _not_ get hardware mipmaps on D3D, so mipmap generation can be slower.
-	- When disabled you can still update your mipmaps when the texture changed by manually calling regenerateMipMapLevels.
-	- You can still call regenerateMipMapLevels when this flag is enabled (it will be a hint on d3d to update mips immediately)
-	  */
-	ETCF_AUTO_GENERATE_MIP_MAPS = 0x00000100,
 
 	/** This flag is never used, it only forces the compiler to compile
 	these enumeration values to 32 bit. */
@@ -137,19 +119,6 @@ enum E_TEXTURE_LOCK_FLAGS
 	ETLF_FLIP_Y_UP_RTT = 1
 };
 
-//! Where did the last IVideoDriver::getTexture call find this texture
-enum E_TEXTURE_SOURCE
-{
-	//! IVideoDriver::getTexture was never called (texture created otherwise)
-	ETS_UNKNOWN,
-
-	//! Texture has been found in cache
-	ETS_FROM_CACHE,
-
-	//! Texture had to be loaded
-	ETS_FROM_FILE
-};
-
 //! Enumeration describing the type of ITexture.
 enum E_TEXTURE_TYPE
 {
@@ -160,7 +129,10 @@ enum E_TEXTURE_TYPE
 	ETT_2D_MS,
 
 	//! Cubemap texture.
-	ETT_CUBEMAP
+	ETT_CUBEMAP,
+
+	//! 2D array texture
+	ETT_2D_ARRAY
 };
 
 //! Interface of a Video Driver dependent Texture.
@@ -178,7 +150,7 @@ public:
 	//! constructor
 	ITexture(const io::path &name, E_TEXTURE_TYPE type) :
 			NamedPath(name), DriverType(EDT_NULL), OriginalColorFormat(ECF_UNKNOWN),
-			ColorFormat(ECF_UNKNOWN), Pitch(0), HasMipMaps(false), IsRenderTarget(false), Source(ETS_UNKNOWN), Type(type)
+			ColorFormat(ECF_UNKNOWN), Pitch(0), HasMipMaps(false), IsRenderTarget(false), Type(type)
 	{
 	}
 
@@ -197,9 +169,7 @@ public:
 	only mode or read from in write only mode.
 	Support for this feature depends on the driver, so don't rely on the
 	texture being write-protected when locking with read-only, etc.
-	\param mipmapLevel NOTE: Currently broken, sorry, we try if we can repair it for 1.9 release.
-	Number of the mipmapLevel to lock. 0 is main texture.
-	Non-existing levels will silently fail and return 0.
+	\param mipmapLevel Number of the mipmapLevel to lock. 0 is main texture.
 	\param layer It determines which cubemap face or texture array layer should be locked.
 	\param lockFlags See E_TEXTURE_LOCK_FLAGS documentation.
 	\return Returns a pointer to the pixel data. The format of the pixel can
@@ -215,14 +185,9 @@ public:
 
 	//! Regenerates the mip map levels of the texture.
 	/** Required after modifying the texture, usually after calling unlock().
-	\param data Optional parameter to pass in image data which will be
-	used instead of the previously stored or automatically generated mipmap
-	data. The data has to be a continuous pixel data for all mipmaps until
-	1x1 pixel. Each mipmap has to be half the width and height of the previous
-	level. At least one pixel will be always kept.
 	\param layer It informs a texture about which cubemap or texture array layer
 	needs mipmap regeneration. */
-	virtual void regenerateMipMapLevels(void *data = 0, u32 layer = 0) = 0;
+	virtual void regenerateMipMapLevels(u32 layer = 0) = 0;
 
 	//! Get original size of the texture.
 	/** The texture is usually scaled, if it was created with an unoptimal
@@ -275,12 +240,6 @@ public:
 	//! Get name of texture (in most cases this is the filename)
 	const io::SNamedPath &getName() const { return NamedPath; }
 
-	//! Check where the last IVideoDriver::getTexture found this texture
-	E_TEXTURE_SOURCE getSource() const { return Source; }
-
-	//! Used internally by the engine to update Source status on IVideoDriver::getTexture calls.
-	void updateSource(E_TEXTURE_SOURCE source) { Source = source; }
-
 	//! Returns if the texture has an alpha channel
 	bool hasAlpha() const
 	{
@@ -329,7 +288,6 @@ protected:
 	u32 Pitch;
 	bool HasMipMaps;
 	bool IsRenderTarget;
-	E_TEXTURE_SOURCE Source;
 	E_TEXTURE_TYPE Type;
 };
 

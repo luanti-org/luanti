@@ -7,7 +7,7 @@ following documents:
 
 * [What is Minetest?](http://c55.me/blog/?p=1491)
 * [celeron55's roadmap](https://forum.luanti.org/viewtopic.php?t=9177)
-* [celeron55's comment in "A clear mission statement for Minetest is missing"](https://github.com/minetest/minetest/issues/3476#issuecomment-167399287)
+* [celeron55's comment in "A clear mission statement for Minetest is missing"](https://github.com/luanti-org/luanti/issues/3476#issuecomment-167399287)
 * [Core developer to-do/wish lists](https://forum.luanti.org/viewforum.php?f=7)
 
 ## 2. Medium-term Roadmap
@@ -16,7 +16,7 @@ These are the current medium-term goals for Luanti development, in no
 particular order.
 
 These goals were created from the top points in a
-[roadmap brainstorm](https://github.com/minetest/minetest/issues/10461).
+[roadmap brainstorm](https://github.com/luanti-org/luanti/issues/10461).
 This should be reviewed approximately yearly, or when goals are achieved.
 
 Pull requests that address one of these goals will be labeled as "Roadmap".
@@ -32,9 +32,9 @@ Once that is done, fancier features can be worked on, such as water shaders,
 shadows, and improved lighting.
 
 Examples include
-[transparency sorting](https://github.com/minetest/minetest/issues/95),
-[particle performance](https://github.com/minetest/minetest/issues/1414),
-[general view distance](https://github.com/minetest/minetest/issues/7222).
+[transparency sorting](https://github.com/luanti-org/luanti/issues/95),
+[particle performance](https://github.com/luanti-org/luanti/issues/1414),
+[general view distance](https://github.com/luanti-org/luanti/issues/7222).
 
 This includes work on maintaining
 [our Irrlicht fork](https://github.com/minetest/irrlicht), and switching to
@@ -43,16 +43,16 @@ alternative libraries to replace Irrlicht functionality as needed
 ### 2.2 Internal code refactoring
 
 To ensure sustainable development, Luanti's code needs to be
-[refactored and improved](https://github.com/minetest/minetest/pulls?q=is%3Aopen+sort%3Aupdated-desc+label%3A%22Code+quality%22+).
+[refactored and improved](https://github.com/luanti-org/luanti/pulls?q=is%3Aopen+sort%3Aupdated-desc+label%3A%22Code+quality%22).
 This will remove code rot and allow for more efficient development.
 
 ### 2.3 UI Improvements
 
-A [formspec replacement](https://github.com/minetest/minetest/issues/6527) is
+A [formspec replacement](https://github.com/luanti-org/luanti/issues/6527) is
 needed to make GUIs better and easier to create. This replacement could also
 be a replacement for HUDs, allowing for a unified API.
 
-A [new mainmenu](https://github.com/minetest/minetest/issues/6733) is needed to
+A [new mainmenu](https://github.com/luanti-org/luanti/issues/6733) is needed to
 improve user experience. First impressions matter, and the current main menu
 doesn't do a very good job at selling Luanti or explaining what it is.
 A new main menu should promote games to users, allowing Minetest Game to no
@@ -65,5 +65,5 @@ an issue for any large changes before spending lots of time.
 
 There are still a significant number of issues with objects.
 Collisions,
-[performance](https://github.com/minetest/minetest/issues/6453),
+[performance](https://github.com/luanti-org/luanti/issues/6453),
 API convenience, and discrepancies between players and entities.

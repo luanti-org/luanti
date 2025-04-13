@@ -6,7 +6,6 @@
 #include <fstream>
 #include <iterator>
 #include "shader.h"
-#include "irrlichttypes_extrabloated.h"
 #include "irr_ptr.h"
 #include "debug.h"
 #include "filesys.h"
@@ -452,9 +451,6 @@ u32 ShaderSource::getShaderIdDirect(const std::string &name,
 	u32 id = m_shaderinfo_cache.size();
 	m_shaderinfo_cache.push_back(info);
 
-	infostream<<"getShaderIdDirect(): "
-			<<"Returning id="<<id<<" for name \""<<name<<"\""<<std::endl;
-
 	return id;
 }
 
@@ -803,7 +799,7 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		dumpShaderProgram(warningstream, "Fragment", fragment_shader);
 		dumpShaderProgram(warningstream, "Geometry", geometry_shader);
 		throw ShaderException(
-			fmtgettext("Failed to compile the \"%s\" shader.", name.c_str()) +
+			fmtgettext("Failed to compile the \"%s\" shader.", log_name.c_str()) +
 			strgettext("\nCheck debug.txt for details."));
 	}
 

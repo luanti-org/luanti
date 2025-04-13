@@ -24,6 +24,7 @@
 #include <SDL_syswm.h>
 
 #include <memory>
+#include <unordered_map>
 
 namespace irr
 {
@@ -286,6 +287,9 @@ private:
 	// Return the Char that should be sent to Irrlicht for the given key (either the one passed in or 0).
 	static int findCharToPassToIrrlicht(uint32_t sdlKey, EKEY_CODE irrlichtKey, bool numlock);
 
+	std::variant<u32, EKEY_CODE> getScancodeFromKey(const Keycode &key) const override;
+	Keycode getKeyFromScancode(const u32 scancode) const override;
+
 	// Check if a text box is in focus. Enable or disable SDL_TEXTINPUT events only if in focus.
 	void resetReceiveTextInputEvents();
 
@@ -319,25 +323,9 @@ private:
 
 	core::rect<s32> lastElemPos;
 
-	struct SKeyMap
-	{
-		SKeyMap() {}
-		SKeyMap(s32 x11, s32 win32) :
-				SDLKey(x11), Win32Key(win32)
-		{
-		}
-
-		s32 SDLKey;
-		s32 Win32Key;
-
-		bool operator<(const SKeyMap &o) const
-		{
-			return SDLKey < o.SDLKey;
-		}
-	};
-
-	core::array<SKeyMap> KeyMap;
-	SDL_SysWMinfo Info;
+	// TODO: This is only used for scancode/keycode conversion with EKEY_CODE (among other things, for Luanti
+	// to display keys to users). Drop this along with EKEY_CODE.
+	std::unordered_map<SDL_Keycode, EKEY_CODE> KeyMap;
 
 	s32 CurrentTouchCount;
 	bool IsInBackground;

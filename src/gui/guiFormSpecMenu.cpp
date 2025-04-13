@@ -25,7 +25,7 @@
 #include "client/renderingengine.h"
 #include "client/joystick_controller.h"
 #include "log.h"
-#include "client/hud.h" // drawItemStack
+#include "drawItemStack.h"
 #include "filesys.h"
 #include "gettime.h"
 #include "gettext.h"
@@ -695,7 +695,9 @@ void GUIFormSpecMenu::parseScrollBar(parserData* data, const std::string &elemen
 	e->setMax(max);
 	e->setMin(min);
 
-	e->setPos(stoi(value));
+	// Preserve for min/max values defined by `scroll_container[]`.
+	spec.aux_f32 = stoi(value); // scroll position
+	e->setPos(spec.aux_f32);
 
 	e->setSmallStep(data->scrollbar_options.small_step);
 	e->setLargeStep(data->scrollbar_options.large_step);
@@ -2198,7 +2200,6 @@ void GUIFormSpecMenu::parseItemImageButton(parserData* data, const std::string &
 
 	spec_btn.ftype = f_Button;
 	rect += data->basepos-padding;
-	spec_btn.rect = rect;
 	m_fields.push_back(spec_btn);
 }
 
@@ -3194,7 +3195,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	pos_offset = v2f32();
 
 	// used for formspec versions < 3
-	std::list<IGUIElement *>::iterator legacy_sort_start = std::prev(Children.end()); // last element
+	auto legacy_sort_start = std::prev(Children.end()); // last element
 
 	if (enable_prepends) {
 		// Backup the coordinates so that prepends can use the coordinates of choice.
@@ -3235,6 +3236,8 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		for (const std::pair<FieldSpec, GUIScrollBar *> &b : m_scrollbars) {
 			if (c.first == b.first.fname) {
 				c.second->setScrollBar(b.second);
+				b.second->setPos(b.first.aux_f32); // scroll position
+				c.second->updateScrolling();
 				break;
 			}
 		}
@@ -3308,7 +3311,7 @@ void GUIFormSpecMenu::legacySortElements(std::list<IGUIElement *>::iterator from
 	else
 		++from;
 
-	std::list<IGUIElement *>::iterator to = Children.end();
+	auto to = Children.end();
 	// 1: Copy into a sortable container
 	std::vector<IGUIElement *> elements(from, to);
 
@@ -3892,7 +3895,7 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 							fields[name] = "CHG:" + itos(e->getPos());
 						else
 							fields[name] = "VAL:" + itos(e->getPos());
- 					}
+					}
 				} else if (s.ftype == f_AnimatedImage) {
 					// No dynamic cast possible due to some distributions shipped
 					// without rtti support in Irrlicht
@@ -4899,8 +4902,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					if (s.ftype == f_Unknown &&
 							s.fid == event.GUIEvent.Caller->getID()) {
 						current_field_enter_pending = s.fname;
-						std::unordered_map<std::string, bool>::const_iterator it =
-							field_close_on_enter.find(s.fname);
+						auto it = field_close_on_enter.find(s.fname);
 						if (it != field_close_on_enter.end())
 							close_on_enter = (*it).second;
 
@@ -5056,7 +5058,7 @@ double GUIFormSpecMenu::calculateImgsize(const parserData &data)
 {
 	// must stay in sync with ClientDynamicInfo::calculateMaxFSSize
 
-    const double screen_dpi = RenderingEngine::getDisplayDensity() * 96;
+	const double screen_dpi = RenderingEngine::getDisplayDensity() * 96;
 	const double gui_scaling = g_settings->getFloat("gui_scaling", 0.5f, 42.0f);
 
 	// Fixed-size mode
@@ -5085,7 +5087,7 @@ double GUIFormSpecMenu::calculateImgsize(const parserData &data)
 				((15.0 / 13.0) * (0.85 + data.invsize.Y));
 	}
 
-	double prefer_imgsize = getImgsize(v2u32(padded_screensize.X, padded_screensize.Y),
+	double prefer_imgsize = getImgsize(v2u32::from(padded_screensize),
 			screen_dpi, gui_scaling);
 
 	// Try to use the preferred imgsize, but if that's bigger than the maximum

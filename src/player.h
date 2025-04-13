@@ -126,6 +126,17 @@ struct PlayerPhysicsOverride
 	}
 };
 
+/// @note numeric values are part of network protocol
+enum CameraMode {
+	// not a mode. indicates that any may be used.
+	CAMERA_MODE_ANY = 0,
+	CAMERA_MODE_FIRST,
+	CAMERA_MODE_THIRD,
+	CAMERA_MODE_THIRD_FRONT
+};
+
+extern const struct EnumString es_CameraMode[];
+
 class Map;
 struct HudElement;
 class Environment;
@@ -159,6 +170,8 @@ public:
 		}
 		return size;
 	}
+
+	CameraMode allowed_camera_mode = CAMERA_MODE_ANY;
 
 	v3f eye_offset_first;
 	v3f eye_offset_third;

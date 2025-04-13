@@ -7,8 +7,9 @@
 #include <string>
 #include <vector>
 #include <IrrlichtDevice.h>
-#include "irrlichttypes_extrabloated.h"
 #include "client/shadows/dynamicshadows.h"
+#include <ISceneNode.h>
+#include <ISceneManager.h>
 
 class ShadowDepthShaderCB;
 class shadowScreenQuad;
@@ -27,7 +28,8 @@ struct NodeToApply
 			E_SHADOW_MODE m = E_SHADOW_MODE::ESM_BOTH) :
 			node(n),
 			shadowMode(m){};
-	bool operator<(const NodeToApply &other) const { return node < other.node; };
+
+	bool operator==(scene::ISceneNode *n) const { return node == n; }
 
 	scene::ISceneNode *node;
 
@@ -67,6 +69,7 @@ public:
 	void removeNodeFromShadowList(scene::ISceneNode *node);
 
 	void update(video::ITexture *outputTarget = nullptr);
+	/// Force shadow map to be re-drawn in one go next frame
 	void setForceUpdateShadowMap() { m_force_update_shadow_map = true; }
 	void drawDebug();
 

@@ -63,9 +63,13 @@
 		Add particle blend mode "clip"
 		Add artificial light color, beta_r0, vignette, specular intensity, foliage translucency and cdl parameters to Lighting packets
 		[scheduled bump for 5.11.0]
+	PROTOCOL VERSION 48
+		Add compression to some existing packets
+		[scheduled bump for 5.12.0]
 */
 
-const u16 LATEST_PROTOCOL_VERSION = 47;
+// Note: Also update core.protocol_versions in builtin when bumping
+const u16 LATEST_PROTOCOL_VERSION = 48;
 
 // See also formspec [Version History] in doc/lua_api.md
 const u16 FORMSPEC_API_VERSION = 8;

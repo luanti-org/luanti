@@ -3,25 +3,24 @@
 // Copyright (C) 2010-2014 sapier <sapier at gmx dot net>
 
 #include "fontengine.h"
-#include <cmath>
+
 #include "client/renderingengine.h"
-#include "config.h"
-#include "porting.h"
-#include "filesys.h"
-#include "gettext.h"
 #include "settings.h"
 #include "irrlicht_changes/CGUITTFont.h"
 #include "util/numeric.h" // rangelim
 #include <IGUIEnvironment.h>
 #include <IGUIFont.h>
 
+#include <cmath>
+#include <cstring>
+#include <unordered_set>
+
 /** reference to access font engine, has to be initialized by main */
 FontEngine *g_fontengine = nullptr;
 
-/** callback to be used on change of font size setting */
-static void font_setting_changed(const std::string &name, void *userdata)
+void FontEngine::fontSettingChanged(const std::string &name, void *userdata)
 {
-	static_cast<FontEngine *>(userdata)->readSettings();
+	((FontEngine *)userdata)->m_needs_reload = true;
 }
 
 static const char *settings[] = {
@@ -35,7 +34,6 @@ static const char *settings[] = {
 	"dpi_change_notifier", "display_density_factor", "gui_scaling",
 };
 
-/******************************************************************************/
 FontEngine::FontEngine(gui::IGUIEnvironment* env) :
 	m_env(env)
 {
@@ -50,19 +48,17 @@ FontEngine::FontEngine(gui::IGUIEnvironment* env) :
 	readSettings();
 
 	for (auto name : settings)
-		g_settings->registerChangedCallback(name, font_setting_changed, this);
+		g_settings->registerChangedCallback(name, fontSettingChanged, this);
 }
 
-/******************************************************************************/
 FontEngine::~FontEngine()
 {
 	g_settings->deregisterAllChangedCallbacks(this);
 
-	cleanCache();
+	clearCache();
 }
 
-/******************************************************************************/
-void FontEngine::cleanCache()
+void FontEngine::clearCache()
 {
 	RecursiveMutexAutoLock l(m_font_mutex);
 
@@ -76,7 +72,6 @@ void FontEngine::cleanCache()
 	}
 }
 
-/******************************************************************************/
 irr::gui::IGUIFont *FontEngine::getFont(FontSpec spec)
 {
 	return getFont(spec, false);
@@ -85,7 +80,7 @@ irr::gui::IGUIFont *FontEngine::getFont(FontSpec spec)
 irr::gui::IGUIFont *FontEngine::getFont(FontSpec spec, bool may_fail)
 {
 	if (spec.mode == FM_Unspecified) {
-		spec.mode = m_currentMode;
+		spec.mode = s_default_font_mode;
 	} else if (spec.mode == _FM_Fallback) {
 		// Fallback font doesn't support these
 		spec.bold = false;
@@ -118,7 +113,6 @@ irr::gui::IGUIFont *FontEngine::getFont(FontSpec spec, bool may_fail)
 	return font;
 }
 
-/******************************************************************************/
 unsigned int FontEngine::getTextHeight(const FontSpec &spec)
 {
 	gui::IGUIFont *font = getFont(spec);
@@ -126,7 +120,6 @@ unsigned int FontEngine::getTextHeight(const FontSpec &spec)
 	return font->getDimension(L"Some unimportant example String").Height;
 }
 
-/******************************************************************************/
 unsigned int FontEngine::getTextWidth(const std::wstring &text, const FontSpec &spec)
 {
 	gui::IGUIFont *font = getFont(spec);
@@ -143,10 +136,9 @@ unsigned int FontEngine::getLineHeight(const FontSpec &spec)
 			+ font->getKerning(L'S').Y;
 }
 
-/******************************************************************************/
 unsigned int FontEngine::getDefaultFontSize()
 {
-	return m_default_size[m_currentMode];
+	return m_default_size[s_default_font_mode];
 }
 
 unsigned int FontEngine::getFontSize(FontMode mode)
@@ -157,7 +149,6 @@ unsigned int FontEngine::getFontSize(FontMode mode)
 	return m_default_size[mode];
 }
 
-/******************************************************************************/
 void FontEngine::readSettings()
 {
 	m_default_size[FM_Standard]  = rangelim(g_settings->getU16("font_size"), 5, 72);
@@ -167,12 +158,18 @@ void FontEngine::readSettings()
 	m_default_bold = g_settings->getBool("font_bold");
 	m_default_italic = g_settings->getBool("font_italic");
 
-	cleanCache();
-	updateFontCache();
-	updateSkin();
+	refresh();
 }
 
-/******************************************************************************/
+void FontEngine::handleReload()
+{
+	if (!m_needs_reload)
+		return;
+
+	m_needs_reload = false;
+	readSettings();
+}
+
 void FontEngine::updateSkin()
 {
 	gui::IGUIFont *font = getFont();
@@ -181,19 +178,57 @@ void FontEngine::updateSkin()
 	m_env->getSkin()->setFont(font);
 }
 
-/******************************************************************************/
-void FontEngine::updateFontCache()
+void FontEngine::updateCache()
 {
 	/* the only font to be initialized is default one,
 	 * all others are re-initialized on demand */
 	getFont(FONT_SIZE_UNSPECIFIED, FM_Unspecified);
 }
 
-/******************************************************************************/
-gui::IGUIFont *FontEngine::initFont(const FontSpec &spec)
+void FontEngine::refresh() {
+	clearCache();
+	updateCache();
+	updateSkin();
+}
+
+void FontEngine::setMediaFont(const std::string &name, const std::string &data)
+{
+	static std::unordered_set<std::string> valid_names {
+		"regular", "bold", "italic", "bold_italic",
+		"mono", "mono_bold", "mono_italic", "mono_bold_italic",
+	};
+	if (!valid_names.count(name)) {
+		warningstream << "Ignoring unrecognized media font: " << name << std::endl;
+		return;
+	}
+
+	constexpr char TTF_MAGIC[5] = {0, 1, 0, 0, 0};
+	if (data.size() < 5 || (memcmp(data.data(), "wOFF", 4) &&
+			memcmp(data.data(), TTF_MAGIC, 5))) {
+		warningstream << "Rejecting media font with unrecognized magic" << std::endl;
+		return;
+	}
+
+	std::string copy = data;
+	irr_ptr<gui::SGUITTFace> face(gui::SGUITTFace::createFace(std::move(copy)));
+	m_media_faces.emplace(name, face);
+	refresh();
+}
+
+void FontEngine::clearMediaFonts()
+{
+	RecursiveMutexAutoLock l(m_font_mutex);
+	m_media_faces.clear();
+	refresh();
+}
+
+gui::IGUIFont *FontEngine::initFont(FontSpec spec)
 {
 	assert(spec.mode != FM_Unspecified);
 	assert(spec.size != FONT_SIZE_UNSPECIFIED);
+
+	if (spec.mode == _FM_Fallback)
+		spec.allow_server_media = false;
 
 	std::string setting_prefix = "";
 	if (spec.mode == FM_Mono)
@@ -224,6 +259,42 @@ gui::IGUIFont *FontEngine::initFont(const FontSpec &spec)
 	g_settings->getU16NoEx(setting_prefix + "font_shadow_alpha",
 			font_shadow_alpha);
 
+	auto createFont = [&](gui::SGUITTFace *face) -> gui::CGUITTFont* {
+		auto *font = gui::CGUITTFont::createTTFont(m_env,
+				face, size, true, true, font_shadow,
+				font_shadow_alpha);
+
+		if (!font)
+			return nullptr;
+
+		if (spec.mode != _FM_Fallback) {
+			FontSpec spec2(spec);
+			spec2.mode = _FM_Fallback;
+			font->setFallback(getFont(spec2, true));
+		}
+
+		return font;
+	};
+
+	// Use the server-provided font media (if available)
+	if (spec.allow_server_media) {
+		std::string media_name = spec.mode == FM_Mono
+				? "mono" + setting_suffix
+				: (setting_suffix.empty() ? "" : setting_suffix.substr(1));
+		if (media_name.empty())
+			media_name = "regular";
+
+		auto it = m_media_faces.find(media_name);
+		if (it != m_media_faces.end()) {
+			auto *face = it->second.get();
+			if (auto *font = createFont(face))
+				return font;
+			errorstream << "FontEngine: Cannot load media font '" << media_name <<
+				"'. Falling back to client settings." << std::endl;
+		}
+	}
+
+	// Use the local font files specified by the settings
 	std::string path_setting;
 	if (spec.mode == _FM_Fallback)
 		path_setting = "fallback_font_path";
@@ -234,24 +305,19 @@ gui::IGUIFont *FontEngine::initFont(const FontSpec &spec)
 		g_settings->get(path_setting),
 		Settings::getLayer(SL_DEFAULTS)->get(path_setting)
 	};
-
 	for (const std::string &font_path : fallback_settings) {
-		gui::CGUITTFont *font = gui::CGUITTFont::createTTFont(m_env,
-				font_path.c_str(), size, true, true, font_shadow,
-				font_shadow_alpha);
+		infostream << "Creating new font: " << font_path.c_str()
+				<< " " << size << "pt" << std::endl;
 
-		if (!font) {
-			errorstream << "FontEngine: Cannot load '" << font_path <<
-				"'. Trying to fall back to another path." << std::endl;
-			continue;
+		// Grab the face.
+		if (auto *face = irr::gui::SGUITTFace::loadFace(font_path)) {
+			auto *font = createFont(face);
+			face->drop();
+			return font;
 		}
 
-		if (spec.mode != _FM_Fallback) {
-			FontSpec spec2(spec);
-			spec2.mode = _FM_Fallback;
-			font->setFallback(getFont(spec2, true));
-		}
-		return font;
+		errorstream << "FontEngine: Cannot load '" << font_path <<
+			"'. Trying to fall back to another path." << std::endl;
 	}
 	return nullptr;
 }

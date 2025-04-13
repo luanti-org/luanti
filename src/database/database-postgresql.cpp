@@ -97,7 +97,7 @@ void Database_PostgreSQL::ping()
 
 bool Database_PostgreSQL::initialized() const
 {
-	return (PQstatus(m_conn) == CONNECTION_OK);
+	return m_conn && PQstatus(m_conn) == CONNECTION_OK;
 }
 
 PGresult *Database_PostgreSQL::checkResults(PGresult *result, bool clear)

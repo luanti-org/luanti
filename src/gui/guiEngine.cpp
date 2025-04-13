@@ -27,6 +27,7 @@
 #include <IGUIStaticText.h>
 #include "client/imagefilters.h"
 #include "util/tracy_wrapper.h"
+#include "script/common/c_types.h" // LuaError
 
 #if USE_SOUND
 	#include "client/sound/sound_openal.h"
@@ -335,6 +336,8 @@ void GUIEngine::run()
 		framemarker.end();
 		fps_control.limit(device, &dtime);
 		framemarker.start();
+
+		g_fontengine->handleReload();
 
 		if (device->isWindowVisible()) {
 			// check if we need to update the "upper left corner"-text

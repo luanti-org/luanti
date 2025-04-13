@@ -15,15 +15,8 @@
  * All new calls to this class must be tested in test_servermodmanager.cpp
  */
 
-/**
- * Creates a ServerModManager which targets worldpath
- * @param worldpath
- */
-ServerModManager::ServerModManager(const std::string &worldpath):
-	configuration()
+ServerModManager::ServerModManager(const std::string &worldpath, SubgameSpec gamespec)
 {
-	SubgameSpec gamespec = findWorldSubgame(worldpath);
-
 	// Add all game mods and all world mods
 	configuration.addGameMods(gamespec);
 	configuration.addModsInPath(worldpath + DIR_DELIM + "worldmods", "worldmods");
@@ -42,21 +35,25 @@ void ServerModManager::loadMods(ServerScripting &script)
 	for (const ModSpec &mod : configuration.getMods()) {
 		infostream << mod.name << " ";
 	}
-
 	infostream << std::endl;
+
 	// Load and run "mod" scripts
+	auto t0 = porting::getTimeMs();
 	for (const ModSpec &mod : configuration.getMods()) {
 		mod.checkAndLog();
 
+		auto t1 = porting::getTimeMs();
 		std::string script_path = mod.path + DIR_DELIM + "init.lua";
-		auto t = porting::getTimeMs();
 		script.loadMod(script_path, mod.name);
 		infostream << "Mod \"" << mod.name << "\" loaded after "
-			<< (porting::getTimeMs() - t) << " ms" << std::endl;
+			<< (porting::getTimeMs() - t1) << " ms" << std::endl;
 	}
 
 	// Run a callback when mods are loaded
 	script.on_mods_loaded();
+
+	infostream << "All mods loaded after " << (porting::getTimeMs() - t0)
+		<< " ms" << std::endl;
 }
 
 const ModSpec *ServerModManager::getModSpec(const std::string &modname) const
@@ -87,5 +84,6 @@ void ServerModManager::getModsMediaPaths(std::vector<std::string> &paths) const
 		fs::GetRecursiveDirs(paths, spec.path + DIR_DELIM + "media");
 		fs::GetRecursiveDirs(paths, spec.path + DIR_DELIM + "models");
 		fs::GetRecursiveDirs(paths, spec.path + DIR_DELIM + "locale");
+		fs::GetRecursiveDirs(paths, spec.path + DIR_DELIM + "fonts");
 	}
 }

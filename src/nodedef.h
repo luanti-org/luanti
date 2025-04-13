@@ -7,6 +7,7 @@
 #include "irrlichttypes_bloated.h"
 #include <string>
 #include <iostream>
+#include <memory> // shared_ptr
 #include <map>
 #include "mapnode.h"
 #include "nameidmapping.h"

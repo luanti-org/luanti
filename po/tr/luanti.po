@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Turkish (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-28 19:57+0100\n"
-"PO-Revision-Date: 2024-03-24 17:01+0000\n"
-"Last-Translator: Oğuz Ersen <oguz@ersen.moe>\n"
+"POT-Creation-Date: 2025-02-09 13:23+0100\n"
+"PO-Revision-Date: 2025-01-07 17:01+0000\n"
+"Last-Translator: Siber <anonloxu@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/minetest/"
 "minetest/tr/>\n"
 "Language: tr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -71,13 +71,258 @@ msgstr "Komutlar için yardım alın"
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
 msgstr ""
-"Daha fazla bilgi almak için '.help <komut>' veya her şeyi listelemek için '."
-"help all' kullanın."
+"Daha fazla bilgi almak için '.help <komut>' veya her şeyi listelemek için "
+"'.help all' kullanın."
 
 #: builtin/common/chatcommands.lua
 #, fuzzy
 msgid "[all | <cmd>] [-t]"
 msgstr "[all | <komut>]"
+
+#: builtin/common/settings/components.lua
+msgid "Browse"
+msgstr "Gözat"
+
+#: builtin/common/settings/components.lua
+msgid "Edit"
+msgstr "Düzenle"
+
+#: builtin/common/settings/components.lua
+msgid "Select directory"
+msgstr "Dizin seç"
+
+#: builtin/common/settings/components.lua
+msgid "Select file"
+msgstr "Dosya seç"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Set"
+msgstr "Seç"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "(No description of setting given)"
+msgstr "(Ayarın verilen açıklaması yok)"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "2D Noise"
+msgstr "2D Gürültü"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_overwrite.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_delete_content.lua
+#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
+#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+msgid "Cancel"
+msgstr "İptal"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Lacunarity"
+msgstr "Aralılık"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Octaves"
+msgstr "Oktavlar"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Offset"
+msgstr "Kaydırma"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Persistence"
+msgstr "Süreklilik"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+msgid "Save"
+msgstr "Kaydet"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Scale"
+msgstr "Boyut"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_create_world.lua
+msgid "Seed"
+msgstr "Tohum"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "X spread"
+msgstr "X yayılması"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Y spread"
+msgstr "Y yayılması"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Z spread"
+msgstr "Z yayılması"
+
+#. ~ "absvalue" is a noise parameter flag.
+#. It is short for "absolute value".
+#. It can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "absvalue"
+msgstr "mutlak değer"
+
+#. ~ "defaults" is a noise parameter flag.
+#. It describes the default processing options
+#. for noise settings in the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "defaults"
+msgstr "öntanımlılar"
+
+#. ~ "eased" is a noise parameter flag.
+#. It is used to make the map smoother and
+#. can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "eased"
+msgstr "rahat"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "(The game will need to enable automatic exposure as well)"
+msgstr "(Oyunun gölgeleri de etkinleştirmesi gerekecektir)"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "(The game will need to enable bloom as well)"
+msgstr "(Oyunun gölgeleri de etkinleştirmesi gerekecektir)"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "(The game will need to enable volumetric lighting as well)"
+msgstr "(Oyunun gölgeleri de etkinleştirmesi gerekecektir)"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(Use system language)"
+msgstr "(Sistem dilini kullan)"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Accessibility"
+msgstr "Erişilebilirlik"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Auto"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Chat"
+msgstr "Sohbet"
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Clear"
+msgstr "Temizle"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "Controls"
+msgstr "Kontroller"
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/common/settings/shadows_component.lua
+msgid "Disabled"
+msgstr "Devre dışı"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Enabled"
+msgstr "Etkin"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "General"
+msgstr "Genel"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Movement"
+msgstr "Hareket"
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+msgid "No results"
+msgstr "Sonuç yok"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Reset setting to default"
+msgstr "Ayarı öntanımlıya sıfırla"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Reset setting to default ($1)"
+msgstr "Ayarı öntanımlı değere sıfırla ($1)"
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Search"
+msgstr "Ara"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show advanced settings"
+msgstr "Gelişmiş ayarları göster"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show technical names"
+msgstr "Teknik adları göster"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Touchscreen layout"
+msgstr "Dokunmatik ekran"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "pause_menu"
+msgstr "Duraklat menüsünde FPS"
+
+#: builtin/common/settings/settingtypes.lua
+msgid "Client Mods"
+msgstr "İstemci Modları"
+
+#: builtin/common/settings/settingtypes.lua
+msgid "Content: Games"
+msgstr "İçerik: Oyunlar"
+
+#: builtin/common/settings/settingtypes.lua
+msgid "Content: Mods"
+msgstr "İçerik: Modlar"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "(The game will need to enable shadows as well)"
+msgstr "(Oyunun gölgeleri de etkinleştirmesi gerekecektir)"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Custom"
+msgstr "Özel"
+
+#: builtin/common/settings/shadows_component.lua
+#: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr "Dinamik gölgeler"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "High"
+msgstr "Yüksek"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Low"
+msgstr "Düşük"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Medium"
+msgstr "Orta"
+
+#: builtin/common/settings/shadows_component.lua
+#, fuzzy
+msgid "Very High"
+msgstr "Çok Yüksek"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Very Low"
+msgstr "Çok Düşük"
 
 #: builtin/fstk/ui.lua
 msgid "<none available>"
@@ -160,11 +405,10 @@ msgstr "$1 indiriliyor..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "All"
-msgstr ""
+msgstr "Hepsi"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
 msgid "Back"
 msgstr "Geri"
 
@@ -179,7 +423,7 @@ msgstr "İndiriliyor..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
-msgstr ""
+msgstr "Özellikler"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -200,11 +444,6 @@ msgstr "Modlar"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "Paket alınamadı"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "No results"
-msgstr "Sonuç yok"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No updates"
@@ -252,25 +491,13 @@ msgid "Base Game:"
 msgstr "Yerel oyun:"
 
 #: builtin/mainmenu/content/dlg_install.lua
-#: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/dlg_delete_content.lua
-#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp src/gui/guiOpenURL.cpp
-#: src/gui/guiPasswordChange.cpp
-msgid "Cancel"
-msgstr "İptal"
-
-#: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Dependencies:"
 msgstr "Gereklilikler:"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Error getting dependencies for package $1"
-msgstr ""
+msgstr "$1 paketin bağımlılığını alırken hata oluştu"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Install"
@@ -316,16 +543,15 @@ msgstr "Sunucu Açıklaması"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
-msgstr ""
+msgstr "Bağış Yap"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
-msgstr ""
+msgstr "Forum Başlığı"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Information"
-msgstr "Bilgi:"
+msgstr "Bilgilendirme"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
@@ -334,15 +560,15 @@ msgstr "$1 kur"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
-msgstr ""
+msgstr "Sorun Gözlemcisi"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
-msgstr ""
+msgstr "Kaynak"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Translate"
-msgstr ""
+msgstr "Çevir"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
@@ -389,6 +615,12 @@ msgstr "$1, bir $2 olarak kurulamadı"
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Unable to install a $1 as a texture pack"
 msgstr "$1 bir doku paketi olarak kurulamadı"
+
+#: builtin/mainmenu/dlg_clients_list.lua
+msgid ""
+"This is the list of clients connected to\n"
+"$1"
+msgstr ""
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
@@ -453,12 +685,6 @@ msgstr "İsteğe bağlı bağımlılık yok"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "İsteğe bağlı bağımlılıklar:"
-
-#: builtin/mainmenu/dlg_config_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Save"
-msgstr "Kaydet"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "World:"
@@ -611,11 +837,6 @@ msgid "Sea level rivers"
 msgstr "Deniz seviyesi nehirleri"
 
 #: builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Seed"
-msgstr "Tohum"
-
-#: builtin/mainmenu/dlg_create_world.lua
 msgid "Smooth transition between biomes"
 msgstr "Biyomlar arası yumuşak geçiş"
 
@@ -757,8 +978,25 @@ msgid ""
 "This modpack has an explicit name given in its modpack.conf which will "
 "override any renaming here."
 msgstr ""
-"Bu mod paketinin buradaki yeniden adlandırmayı geçersiz kılacak, modpack."
-"conf dosyasında verilen açık bir adı var."
+"Bu mod paketinin buradaki yeniden adlandırmayı geçersiz kılacak, "
+"modpack.conf dosyasında verilen açık bir adı var."
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+#, fuzzy
+msgid "Expand all"
+msgstr "Hepsini etkinleştir"
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "Group by prefix"
+msgstr ""
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses a game called $2 and the following mods:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses the following mods:"
+msgstr ""
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
@@ -788,7 +1026,7 @@ msgstr "asla"
 msgid "Visit website"
 msgstr "siteyi ziyaret et"
 
-#: builtin/mainmenu/init.lua
+#: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Ayarlar"
 
@@ -801,230 +1039,6 @@ msgid "Try reenabling public serverlist and check your internet connection."
 msgstr ""
 "Herkese açık sunucu listesini tekrar etkinleştirmeyi deneyin ve internet "
 "bağlantınızı gözden geçirin."
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Browse"
-msgstr "Gözat"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Edit"
-msgstr "Düzenle"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Select directory"
-msgstr "Dizin seç"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Select file"
-msgstr "Dosya seç"
-
-#: builtin/mainmenu/settings/components.lua
-#, fuzzy
-msgid "Set"
-msgstr "Seç"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "(No description of setting given)"
-msgstr "(Ayarın verilen açıklaması yok)"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "2D Noise"
-msgstr "2D Gürültü"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Lacunarity"
-msgstr "Aralılık"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Octaves"
-msgstr "Oktavlar"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Offset"
-msgstr "Kaydırma"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Persistence"
-msgstr "Süreklilik"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Scale"
-msgstr "Boyut"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr "X yayılması"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
-msgstr "Y yayılması"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr "Z yayılması"
-
-#. ~ "absvalue" is a noise parameter flag.
-#. It is short for "absolute value".
-#. It can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "absvalue"
-msgstr "mutlak değer"
-
-#. ~ "defaults" is a noise parameter flag.
-#. It describes the default processing options
-#. for noise settings in the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "defaults"
-msgstr "öntanımlılar"
-
-#. ~ "eased" is a noise parameter flag.
-#. It is used to make the map smoother and
-#. can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "eased"
-msgstr "rahat"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "(The game will need to enable automatic exposure as well)"
-msgstr "(Oyunun gölgeleri de etkinleştirmesi gerekecektir)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "(The game will need to enable bloom as well)"
-msgstr "(Oyunun gölgeleri de etkinleştirmesi gerekecektir)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "(The game will need to enable volumetric lighting as well)"
-msgstr "(Oyunun gölgeleri de etkinleştirmesi gerekecektir)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(Use system language)"
-msgstr "(Sistem dilini kullan)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Accessibility"
-msgstr "Erişilebilirlik"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Auto"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchcontrols.cpp src/settings_translation_file.cpp
-msgid "Chat"
-msgstr "Sohbet"
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Clear"
-msgstr "Temizle"
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/client/game.cpp
-#: src/settings_translation_file.cpp
-msgid "Controls"
-msgstr "Kontroller"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Disabled"
-msgstr "Devre dışı"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Enabled"
-msgstr "Etkin"
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/settings_translation_file.cpp
-msgid "General"
-msgstr "Genel"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Movement"
-msgstr "Hareket"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Reset setting to default"
-msgstr "Ayarı öntanımlıya sıfırla"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
-msgstr "Ayarı öntanımlı değere sıfırla ($1)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Search"
-msgstr "Ara"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show advanced settings"
-msgstr "Gelişmiş ayarları göster"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show technical names"
-msgstr "Teknik adları göster"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-msgid "Client Mods"
-msgstr "İstemci Modları"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-msgid "Content: Games"
-msgstr "İçerik: Oyunlar"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-msgid "Content: Mods"
-msgstr "İçerik: Modlar"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Enable"
-msgstr "Etkin"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Shaders are disabled."
-msgstr "Kamera güncelleme devre dışı"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-msgid "This is not a recommended configuration."
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "(The game will need to enable shadows as well)"
-msgstr "(Oyunun gölgeleri de etkinleştirmesi gerekecektir)"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Custom"
-msgstr "Özel"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr "Dinamik gölgeler"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "High"
-msgstr "Yüksek"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Low"
-msgstr "Düşük"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Medium"
-msgstr "Orta"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-#, fuzzy
-msgid "Very High"
-msgstr "Çok Yüksek"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Very Low"
-msgstr "Çok Düşük"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
@@ -1045,10 +1059,6 @@ msgstr "Çekirdek Geliştiriciler"
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
 msgstr "Çekirdek Takım"
-
-#: builtin/mainmenu/tab_about.lua
-msgid "Irrlicht device:"
-msgstr "Irrlicht aygıtı:"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Open User Data Directory"
@@ -1199,8 +1209,20 @@ msgid "You need to install a game before you can create a world."
 msgstr "Bir mod kurabilmeniz için önce bir oyun kurmanız gerekir"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Add favorite"
+msgstr "Uzak port"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "Adres"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Clients:\n"
+"$1"
+msgstr "İstemci"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
@@ -1216,6 +1238,11 @@ msgid "Favorites"
 msgstr "Sık Kullanılanlar"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Game: $1"
+msgstr "Oyun"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
 msgstr "Uyumsuz Sunucular"
 
@@ -1228,8 +1255,26 @@ msgid "Login"
 msgstr "Giriş"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Number of mods: $1"
+msgstr "Emerge iş sayısı"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid "Open server website"
+msgstr "Adanmış sunucu adımı"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
+
+#: builtin/mainmenu/tab_online.lua
+msgid ""
+"Possible filters\n"
+"game:<name>\n"
+"mod:<name>\n"
+"player:<name>"
+msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1317,23 +1362,6 @@ msgstr ""
 "Hata ayrıntıları için debug.txt dosyasına bakın."
 
 #: src/client/game.cpp
-msgid "- Mode: "
-msgstr "- Kip: "
-
-#: src/client/game.cpp
-msgid "- Public: "
-msgstr "- Herkese Açık: "
-
-#. ~ PvP = Player versus Player
-#: src/client/game.cpp
-msgid "- PvP: "
-msgstr "- Savaş (PvP): "
-
-#: src/client/game.cpp
-msgid "- Server Name: "
-msgstr "- Sunucu Adı: "
-
-#: src/client/game.cpp
 msgid "A serialization error occurred:"
 msgstr "Serileştirme hatası oluştu:"
 
@@ -1341,6 +1369,11 @@ msgstr "Serileştirme hatası oluştu:"
 #, c-format
 msgid "Access denied. Reason: %s"
 msgstr "Erişim reddedildi. Neden: %s"
+
+#: src/client/game.cpp
+#, fuzzy
+msgid "All debug info hidden"
+msgstr "Hata ayıklama bilgisi gösteriliyor"
 
 #: src/client/game.cpp
 msgid "Automatic forward disabled"
@@ -1363,6 +1396,10 @@ msgid "Block bounds shown for nearby blocks"
 msgstr "Blok sınırları yakındaki bloklar için gösteriliyor"
 
 #: src/client/game.cpp
+msgid "Bounding boxes shown"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Camera update disabled"
 msgstr "Kamera güncelleme devre dışı"
 
@@ -1374,10 +1411,6 @@ msgstr "Kamera güncelleme etkin"
 #, fuzzy
 msgid "Can't show block bounds (disabled by game or mod)"
 msgstr "Blok sınırları gösterilemiyor ('basic_debug' ayrıcalığına ihtiyaç var)"
-
-#: src/client/game.cpp
-msgid "Change Password"
-msgstr "Parola Değiştir"
 
 #: src/client/game.cpp
 msgid "Cinematic mode disabled"
@@ -1408,39 +1441,6 @@ msgid "Connection failed for unknown reason"
 msgstr "Bilinmeyen bir nedenle bağlantı başarısız oldu"
 
 #: src/client/game.cpp
-msgid "Continue"
-msgstr "Devam et"
-
-#: src/client/game.cpp
-#, fuzzy
-msgid ""
-"Controls:\n"
-"No menu open:\n"
-"- slide finger: look around\n"
-"- tap: place/punch/use (default)\n"
-"- long tap: dig/use (default)\n"
-"Menu/inventory open:\n"
-"- double tap (outside):\n"
-" --> close\n"
-"- touch stack, touch slot:\n"
-" --> move stack\n"
-"- touch&drag, tap 2nd finger\n"
-" --> place single item to slot\n"
-msgstr ""
-"Öntanımlı Kontroller:\n"
-"Tüm menüler gizli:\n"
-"- tek tık: tuş etkin\n"
-"- çift tık: yerleştir/kullan\n"
-"- parmağı kaydır: etrafa bak\n"
-"Menü/Envanter görünür:\n"
-"- çift tık (dışarda):\n"
-" -->kapat\n"
-"- yığına dokun, bölmeye dokun:\n"
-" --> yığını taşı\n"
-"- dokun&sürükle, iki parmakla dokun\n"
-" --> bölmeye tek bir öge yerleştir\n"
-
-#: src/client/game.cpp
 #, c-format
 msgid "Couldn't resolve address: %s"
 msgstr "Adres çözümlenemedi: %s"
@@ -1454,29 +1454,13 @@ msgid "Creating server..."
 msgstr "Sunucu yaratılıyor..."
 
 #: src/client/game.cpp
-msgid "Debug info and profiler graph hidden"
-msgstr "Hata ayıklama bilgisi ve profilci grafiği gizli"
-
-#: src/client/game.cpp
 msgid "Debug info shown"
 msgstr "Hata ayıklama bilgisi gösteriliyor"
-
-#: src/client/game.cpp
-msgid "Debug info, profiler graph, and wireframe hidden"
-msgstr "Hata ayıklama bilgisi, profilci grafiği ve tel kafes gizli"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Error creating client: %s"
 msgstr "İstemci oluşturulurken hata: %s"
-
-#: src/client/game.cpp
-msgid "Exit to Menu"
-msgstr "Menüye Çık"
-
-#: src/client/game.cpp
-msgid "Exit to OS"
-msgstr "Oyundan Çık"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
@@ -1516,18 +1500,6 @@ msgid "Fog enabled by game or mod"
 msgstr "Yakınlaştırma şu anda oyun veya mod tarafından devre dışı"
 
 #: src/client/game.cpp
-msgid "Game info:"
-msgstr "Oyun Bilgisi:"
-
-#: src/client/game.cpp
-msgid "Game paused"
-msgstr "Oyun duraklatıldı"
-
-#: src/client/game.cpp
-msgid "Hosting server"
-msgstr "Sunucu barındırılıyor"
-
-#: src/client/game.cpp
 msgid "Item definitions..."
 msgstr "Öge tanımları..."
 
@@ -1564,14 +1536,6 @@ msgid "Node definitions..."
 msgstr "Nod tanımları..."
 
 #: src/client/game.cpp
-msgid "Off"
-msgstr "Kapalı"
-
-#: src/client/game.cpp
-msgid "On"
-msgstr "Açık"
-
-#: src/client/game.cpp
 msgid "Pitch move mode disabled"
 msgstr "Eğim hareket kipi devre dışı"
 
@@ -1584,36 +1548,20 @@ msgid "Profiler graph shown"
 msgstr "Profilci grafiği gösteriliyor"
 
 #: src/client/game.cpp
-msgid "Remote server"
-msgstr "Uzak sunucu"
-
-#: src/client/game.cpp
 msgid "Resolving address..."
 msgstr "Adres çözümleniyor..."
-
-#: src/client/game.cpp
-msgid "Respawn"
-msgstr "Yeniden Canlan"
 
 #: src/client/game.cpp
 msgid "Shutting down..."
 msgstr "Kapatılıyor..."
 
-#: src/client/game.cpp
+#: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "Tek oyunculu"
 
 #: src/client/game.cpp
-msgid "Sound Volume"
-msgstr "Ses Seviyesi"
-
-#: src/client/game.cpp
 msgid "Sound muted"
 msgstr "Ses kısık"
-
-#: src/client/game.cpp
-msgid "Sound system is disabled"
-msgstr "Ses sistemi devre dışı"
 
 #: src/client/game.cpp
 msgid "Sound system is not supported on this build"
@@ -1693,16 +1641,114 @@ msgid "Volume changed to %d%%"
 msgstr "Ses %d/100'e değişti"
 
 #: src/client/game.cpp
+msgid "Wireframe not supported by video driver"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Wireframe shown"
 msgstr "Telkafes gösteriliyor"
 
 #: src/client/game.cpp
-msgid "You died"
-msgstr "Öldün"
-
-#: src/client/game.cpp
 msgid "Zoom currently disabled by game or mod"
 msgstr "Yakınlaştırma şu anda oyun veya mod tarafından devre dışı"
+
+#: src/client/game_formspec.cpp
+msgid "- Mode: "
+msgstr "- Kip: "
+
+#: src/client/game_formspec.cpp
+msgid "- Public: "
+msgstr "- Herkese Açık: "
+
+#. ~ PvP = Player versus Player
+#: src/client/game_formspec.cpp
+msgid "- PvP: "
+msgstr "- Savaş (PvP): "
+
+#: src/client/game_formspec.cpp
+msgid "- Server Name: "
+msgstr "- Sunucu Adı: "
+
+#: src/client/game_formspec.cpp
+msgid "Change Password"
+msgstr "Parola Değiştir"
+
+#: src/client/game_formspec.cpp
+msgid "Continue"
+msgstr "Devam et"
+
+#: src/client/game_formspec.cpp
+#, fuzzy
+msgid ""
+"Controls:\n"
+"No menu open:\n"
+"- slide finger: look around\n"
+"- tap: place/punch/use (default)\n"
+"- long tap: dig/use (default)\n"
+"Menu/inventory open:\n"
+"- double tap (outside):\n"
+" --> close\n"
+"- touch stack, touch slot:\n"
+" --> move stack\n"
+"- touch&drag, tap 2nd finger\n"
+" --> place single item to slot\n"
+msgstr ""
+"Öntanımlı Kontroller:\n"
+"Tüm menüler gizli:\n"
+"- tek tık: tuş etkin\n"
+"- çift tık: yerleştir/kullan\n"
+"- parmağı kaydır: etrafa bak\n"
+"Menü/Envanter görünür:\n"
+"- çift tık (dışarda):\n"
+" -->kapat\n"
+"- yığına dokun, bölmeye dokun:\n"
+" --> yığını taşı\n"
+"- dokun&sürükle, iki parmakla dokun\n"
+" --> bölmeye tek bir öge yerleştir\n"
+
+#: src/client/game_formspec.cpp
+msgid "Exit to Menu"
+msgstr "Menüye Çık"
+
+#: src/client/game_formspec.cpp
+msgid "Exit to OS"
+msgstr "Oyundan Çık"
+
+#: src/client/game_formspec.cpp
+msgid "Game info:"
+msgstr "Oyun Bilgisi:"
+
+#: src/client/game_formspec.cpp
+msgid "Game paused"
+msgstr "Oyun duraklatıldı"
+
+#: src/client/game_formspec.cpp
+msgid "Hosting server"
+msgstr "Sunucu barındırılıyor"
+
+#: src/client/game_formspec.cpp
+msgid "Off"
+msgstr "Kapalı"
+
+#: src/client/game_formspec.cpp
+msgid "On"
+msgstr "Açık"
+
+#: src/client/game_formspec.cpp
+msgid "Remote server"
+msgstr "Uzak sunucu"
+
+#: src/client/game_formspec.cpp
+msgid "Respawn"
+msgstr "Yeniden Canlan"
+
+#: src/client/game_formspec.cpp
+msgid "Sound Volume"
+msgstr "Ses Seviyesi"
+
+#: src/client/game_formspec.cpp
+msgid "You died"
+msgstr "Öldün"
 
 #: src/client/gameui.cpp
 msgid "Chat currently disabled by game or mod"
@@ -2033,8 +2079,9 @@ msgid "Failed to compile the \"%s\" shader."
 msgstr "Web sayfası açılamadı"
 
 #: src/client/shader.cpp
-msgid "Shaders are enabled but GLSL is not supported by the driver."
-msgstr ""
+#, fuzzy
+msgid "GLSL is not supported by the driver"
+msgstr "Bu inşada ses sistemi desteklenmiyor"
 
 #. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
@@ -2085,7 +2132,7 @@ msgstr "Kendiliğinden-ileri"
 msgid "Automatic jumping"
 msgstr "Kendiliğinden zıplama"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Aux1"
 msgstr "Aux1"
 
@@ -2097,7 +2144,7 @@ msgstr "Geri"
 msgid "Block bounds"
 msgstr "Blok sınırları"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Change camera"
 msgstr "Kamera değiştir"
 
@@ -2121,7 +2168,7 @@ msgstr "Sesi alçalt"
 msgid "Double tap \"jump\" to toggle fly"
 msgstr "\"zıpla\" ya çift dokunarak uçmayı aç/kapa"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Drop"
 msgstr "At"
 
@@ -2137,11 +2184,11 @@ msgstr "Uzaklığı Azalt"
 msgid "Inc. volume"
 msgstr "Sesi yükselt"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Inventory"
 msgstr "Envanter"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Jump"
 msgstr "Zıpla"
 
@@ -2173,7 +2220,7 @@ msgstr "Sonraki öge"
 msgid "Prev. item"
 msgstr "Önceki öge"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "Uzaklık seçimi"
 
@@ -2185,7 +2232,7 @@ msgstr "Sağ"
 msgid "Screenshot"
 msgstr "Ekran yakala"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Sneak"
 msgstr "Sız"
 
@@ -2193,15 +2240,15 @@ msgstr "Sız"
 msgid "Toggle HUD"
 msgstr "HUD'ı aç/kapa"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle chat log"
 msgstr "Sohbet günlüğünü aç/kapa"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle fast"
 msgstr "Hızlıyı aç/kapa"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle fly"
 msgstr "Uçmayı aç/kapa"
 
@@ -2209,11 +2256,11 @@ msgstr "Uçmayı aç/kapa"
 msgid "Toggle fog"
 msgstr "Sisi aç/kapa"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle minimap"
 msgstr "Mini haritayı aç/kapa"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Toggle noclip"
 msgstr "Hayalet aç/kapa"
 
@@ -2221,7 +2268,7 @@ msgstr "Hayalet aç/kapa"
 msgid "Toggle pitchmove"
 msgstr "Eğim hareketi aç/kapa"
 
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
 msgid "Zoom"
 msgstr "Yakınlaştır"
 
@@ -2258,7 +2305,7 @@ msgstr "Eski Parola"
 msgid "Passwords do not match!"
 msgstr "Parolalar eşleşmiyor!"
 
-#: src/gui/guiVolumeChange.cpp src/gui/touchcontrols.cpp
+#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
 msgid "Exit"
 msgstr "Çıkış"
 
@@ -2271,16 +2318,47 @@ msgstr "Ses Kısık"
 msgid "Sound Volume: %d%%"
 msgstr "Ses Seviyesi: %%%d"
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Add button"
+msgstr "Orta Tuş"
+
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Done"
+msgstr "Tamam!"
+
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Remove"
+msgstr "Uzak sunucu"
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Reset"
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Start dragging a button to add. Tap outside to cancel."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap a button to select it. Drag a button to move it."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap outside to deselect."
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Joystick"
 msgstr "Joystick ID"
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "Sisi aç/kapa"
@@ -2505,8 +2583,7 @@ msgid ""
 "-    interlaced: odd/even line based polarization screen support.\n"
 "-    topbottom: split screen top/bottom.\n"
 "-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d\n"
-"Note that the interlaced mode requires shaders to be enabled."
+"-    crossview: Cross-eyed 3d"
 msgstr ""
 "3D desteği.\n"
 "Şu an desteklenen:\n"
@@ -2572,10 +2649,6 @@ msgid "Active object send range"
 msgstr "Etkin nesne gönderme uzaklığı"
 
 #: src/settings_translation_file.cpp
-msgid "Adds particles when digging a node."
-msgstr "Nodları kazarken parçacıklar ekler."
-
-#: src/settings_translation_file.cpp
 msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr ""
 "Kullanıcı arayüzü öğelerini ölçeklemek için kullanılan algılanan görüntü "
@@ -2603,6 +2676,17 @@ msgstr "Yönetici adı"
 #: src/settings_translation_file.cpp
 msgid "Advanced"
 msgstr "Gelişmiş"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"All mesh buffers with less than this number of vertices will be merged\n"
+"during map rendering. This improves rendering performance."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Allow clouds to look 3D instead of flat."
+msgstr "Düz yerine 3D bulut görünümünü kullanın."
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
@@ -3007,13 +3091,12 @@ msgid "Clouds"
 msgstr "Bulutlar"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Clouds are a client-side effect."
-msgstr "Bulutlar istemci tarafı bir efekttir."
-
-#: src/settings_translation_file.cpp
 msgid "Clouds in menu"
 msgstr "Ana menüde bulutlar"
+
+#: src/settings_translation_file.cpp
+msgid "Color depth for post-processing texture"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Colored fog"
@@ -3038,7 +3121,7 @@ msgid ""
 "as defined by the Free Software Foundation.\n"
 "You can also specify content ratings.\n"
 "These flags are independent from Luanti versions,\n"
-"so see a full list at https://content.minetest.net/help/content_flags/"
+"so see a full list at https://content.luanti.org/help/content_flags/"
 msgstr ""
 "İçerik deposunda gizlemek için bayrakların virgülle ayrılmış listesi.\n"
 "\"nonfree\" Özgür Yazılım Vakfının tanımına göre 'özgür yazılım' olarak\n"
@@ -3207,6 +3290,14 @@ msgstr "Hata ayıklama günlük düzeyi"
 #: src/settings_translation_file.cpp
 msgid "Debugging"
 msgstr "Hata ayıklama"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Decide the color depth of the texture used for the post-processing "
+"pipeline.\n"
+"Reducing this can improve performance, but some effects (e.g. debanding)\n"
+"require more than 8 bits to work."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Dedicated server step"
@@ -3384,16 +3475,8 @@ msgstr ""
 "'Snowbiomes' bayrağı etkinleştirildiğinde, bu yok sayılır."
 
 #: src/settings_translation_file.cpp
-msgid "Desynchronize block animation"
-msgstr "Blok animasyonlarını eşzamansız yap"
-
-#: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Geliştirici Seçenekleri"
-
-#: src/settings_translation_file.cpp
-msgid "Digging particles"
-msgstr "Kazı parçacıkları"
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -3421,6 +3504,14 @@ msgstr "Uçma için zıplamaya çift dokun"
 #: src/settings_translation_file.cpp
 msgid "Double-tapping the jump key toggles fly mode."
 msgstr "Zıplama tuşuna çift dokunmak uçma kipini açar/kapar."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Draw transparency sorted triangles grouped by their mesh buffers.\n"
+"This breaks transparency sorting between mesh buffers, but avoids "
+"situations\n"
+"where transparency sorting would be very slow otherwise."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -3505,9 +3596,10 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Enable colored shadows.\n"
-"On true translucent nodes cast colored shadows. This is expensive."
+"Enable colored shadows for transculent nodes.\n"
+"This is expensive."
 msgstr ""
 "Renkli gölgeleri etkinleştir.\n"
 "Doğru ise yarı saydam düğümlerde renkli gölgeler oluşturur. Bu fazla kaynak "
@@ -3593,10 +3685,10 @@ msgstr ""
 "Örneğin: 0 ise görüntü sallanması yok; 1.0 ise normal; 2.0 ise çift."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set.\n"
-"Needs enable_ipv6 to be enabled."
+"Ignored if bind_address is set."
 msgstr ""
 "IPv6 sunucu çalıştırmayı etkin/devre dışı kılar.\n"
 "Eğer bind_address ayarlı ise yok sayılır.\n"
@@ -3618,13 +3710,6 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Enables animation of inventory items."
 msgstr "Envanter ögelerinin animasyonunu etkinleştirir."
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid ""
-"Enables caching of facedir rotated meshes.\n"
-"This is only effective with shaders disabled."
-msgstr "Yüz yönü döndürülmüş kafeslerin önbelleklenmesini etkinleştirir."
 
 #: src/settings_translation_file.cpp
 msgid "Enables debug and error-checking in the OpenGL driver."
@@ -3961,10 +4046,6 @@ msgid "GUI scaling filter"
 msgstr "Arayüz boyutlandırma filtresi"
 
 #: src/settings_translation_file.cpp
-msgid "GUI scaling filter txr2img"
-msgstr "Arayüz boyutlandırma filtresi txr2img"
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Gamepads"
 msgstr "Oyunlar"
@@ -4232,15 +4313,6 @@ msgstr ""
 "için kullanılır."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid ""
-"If enabled, account registration is separate from login in the UI.\n"
-"If disabled, new accounts will be registered automatically when logging in."
-msgstr ""
-"Sunucuya bağlanırken kayıt onayını etkinleştir.\n"
-"Devre dışı bırakılırsa, yeni hesap kendiliğinden kaydedilir."
-
-#: src/settings_translation_file.cpp
 msgid ""
 "If enabled, actions are recorded for rollback.\n"
 "This option is only read when server starts."
@@ -4262,6 +4334,16 @@ msgid ""
 "If enabled, players cannot join without a password or change theirs to an "
 "empty password."
 msgstr "Etkinleştirilirse, yeni oyuncular boş bir parola ile katılamaz."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"If enabled, server account registration is separate from login in the UI.\n"
+"If disabled, connecting to a server will automatically register a new "
+"account."
+msgstr ""
+"Sunucuya bağlanırken kayıt onayını etkinleştir.\n"
+"Devre dışı bırakılırsa, yeni hesap kendiliğinden kaydedilir."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -4384,11 +4466,6 @@ msgstr "Kayıt sırasında varlık yöntemlerini belgele."
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
 msgstr "Dünyadaki önemli değişiklikleri kaydetme aralığı, saniye cinsinden."
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Interval of sending time of day to clients, stated in seconds."
-msgstr "Günün saatini istemcilere gönderme aralığı."
 
 #: src/settings_translation_file.cpp
 msgid "Inventory items animations"
@@ -5107,10 +5184,6 @@ msgid "Maximum users"
 msgstr "Maksimum kullanıcı"
 
 #: src/settings_translation_file.cpp
-msgid "Mesh cache"
-msgstr "Kafes önbelleği"
-
-#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "Günün iletisi"
 
@@ -5142,6 +5215,10 @@ msgstr "Her harita yığını için rastgele büyük mağara sayısının alt s�
 #: src/settings_translation_file.cpp
 msgid "Minimum limit of random number of small caves per mapchunk."
 msgstr "Her harita yığını için rastgele küçük mağara sayısının alt sınırı."
+
+#: src/settings_translation_file.cpp
+msgid "Minimum vertex count for mesh buffers"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Mipmapping"
@@ -5239,9 +5316,10 @@ msgstr ""
 "-    v7'nin isteğe bağlı yüzenkaraları (öntanımlı olarak devre dışı)."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Name of the player.\n"
-"When running a server, clients connecting with this name are admins.\n"
+"When running a server, a client connecting with this name is admin.\n"
 "When starting from the main menu, this is overridden."
 msgstr ""
 "Oyuncunun adı.\n"
@@ -5766,17 +5844,19 @@ msgid ""
 "* None - No antialiasing (default)\n"
 "\n"
 "* FSAA - Hardware-provided full-screen antialiasing\n"
-"(incompatible with Post Processing and Undersampling)\n"
 "A.K.A multi-sample antialiasing (MSAA)\n"
 "Smoothens out block edges but does not affect the insides of textures.\n"
-"A restart is required to change this option.\n"
 "\n"
-"* FXAA - Fast approximate antialiasing (requires shaders)\n"
+"If Post Processing is disabled, changing FSAA requires a restart.\n"
+"Also, if Post Processing is disabled, FSAA will not work together with\n"
+"undersampling or a non-default \"3d_mode\" setting.\n"
+"\n"
+"* FXAA - Fast approximate antialiasing\n"
 "Applies a post-processing filter to detect and smoothen high-contrast "
 "edges.\n"
 "Provides balance between speed and image quality.\n"
 "\n"
-"* SSAA - Super-sampling antialiasing (requires shaders)\n"
+"* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
 "the aliasing effects. This is the slowest and the most accurate method."
 msgstr ""
@@ -6028,16 +6108,6 @@ msgid "Shader path"
 msgstr "Gölgeleme konumu"
 
 #: src/settings_translation_file.cpp
-msgid "Shaders"
-msgstr "Gölgelemeler"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Shaders are a fundamental part of rendering and enable advanced visual "
-"effects."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Shadow filter quality"
 msgstr "Gölge filtresi kalitesi"
 
@@ -6222,10 +6292,9 @@ msgstr ""
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid ""
-"Spread a complete update of shadow map over given number of frames.\n"
+"Spread a complete update of the shadow map over a given number of frames.\n"
 "Higher values might make shadows laggy, lower values\n"
-"will consume more resources.\n"
-"Minimum value: 1; maximum value: 16"
+"will consume more resources."
 msgstr ""
 "Yumuşak gölge yarıçapı boyutunu ayarla.\n"
 "Daha düşük değerler daha keskin, daha büyük değerler daha yumuşak gölgeler "
@@ -6606,10 +6675,6 @@ msgstr ""
 "Yeni bir Dünya başlatıldığında, milisaat cinsinden (0-23999), günün saati."
 
 #: src/settings_translation_file.cpp
-msgid "Time send interval"
-msgstr "Zaman gönderme aralığı"
-
-#: src/settings_translation_file.cpp
 msgid "Time speed"
 msgstr "Zaman hızı"
 
@@ -6678,6 +6743,10 @@ msgid "Transparency Sorting Distance"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Transparency Sorting Group by Buffers"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Trees noise"
 msgstr "Ağaçlar gürültüsü"
 
@@ -6726,12 +6795,16 @@ msgid "Undersampling"
 msgstr "Aşağı örnekleme"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Undersampling is similar to using a lower screen resolution, but it applies\n"
 "to the game world only, keeping the GUI intact.\n"
 "It should give a significant performance boost at the cost of less detailed "
 "image.\n"
-"Higher values result in a less detailed image."
+"Higher values result in a less detailed image.\n"
+"Note: Undersampling is currently not supported if the \"3d_mode\" setting is "
+"set\n"
+"to a non-default value."
 msgstr ""
 "Alt örnekleme, daha düşük bir ekran çözünürlüğü kullanmaya benzer, ancak\n"
 "GUI'yi koruyarak, yalnızca oyun dünyasına uygulanır.\n"
@@ -6760,16 +6833,14 @@ msgid "Upper Y limit of floatlands."
 msgstr "Yüzenkaraların üst Y sınırı."
 
 #: src/settings_translation_file.cpp
-msgid "Use 3D cloud look instead of flat."
-msgstr "Düz yerine 3D bulut görünümünü kullanın."
-
-#: src/settings_translation_file.cpp
 msgid "Use a cloud animation for the main menu background."
 msgstr "Ana menü arka planı için bir bulut animasyonu kullan."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Use anisotropic filtering when looking at textures from an angle."
+msgid ""
+"Use anisotropic filtering when looking at textures from an angle.\n"
+"This provides a significant improvement when used together with mipmapping."
 msgstr "Dokulara bir açıdan bakarken anisotropik filtreleme kullan."
 
 #: src/settings_translation_file.cpp
@@ -7033,26 +7104,14 @@ msgstr ""
 "donanımda üretilir (ör: envanterdeki nodlar için dokuya-işleme)."
 
 #: src/settings_translation_file.cpp
-msgid ""
-"When gui_scaling_filter_txr2img is true, copy those images\n"
-"from hardware to software for scaling.  When false, fall back\n"
-"to the old scaling method, for video drivers that don't\n"
-"properly support downloading textures back from hardware."
-msgstr ""
-"gui_scaling_filter_txr2img true (doğru) olduğunda, görüntüleri\n"
-"boyutlandırmak için donanımdan yazılıma kopyala. False (yanlış) ise,\n"
-"dokuları donanımdan geri indirmeyi düzgün desteklemeyen video\n"
-"sürücüleri için, eski boyutlandırma yöntemini kullan."
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid ""
-"When using bilinear/trilinear/anisotropic filters, low-resolution textures\n"
-"can be blurred, so automatically upscale them with nearest-neighbor\n"
-"interpolation to preserve crisp pixels. This sets the minimum texture size\n"
-"for the upscaled textures; higher values look sharper, but require more\n"
-"memory. Powers of 2 are recommended. This setting is ONLY applied if\n"
-"bilinear/trilinear/anisotropic filtering is enabled.\n"
+"When using bilinear/trilinear filtering, low-resolution textures\n"
+"can be blurred, so this option automatically upscales them to preserve\n"
+"crisp pixels. This defines the minimum texture size for the upscaled "
+"textures;\n"
+"higher values look sharper, but require more memory.\n"
+"This setting is ONLY applied if any of the mentioned filters are enabled.\n"
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
@@ -7076,12 +7135,6 @@ msgid ""
 msgstr ""
 "Ad etiketi arka planlarının öntanımlı olarak gösterilip gösterilmeyileceği.\n"
 "Modlar yine de bir arka plan ayarlayabilir."
-
-#: src/settings_translation_file.cpp
-msgid "Whether node texture animations should be desynchronized per mapblock."
-msgstr ""
-"Harita bloğu başına nod doku animasyonlarının eşzamansız yapılıp "
-"yapılmayacağı."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7111,9 +7164,9 @@ msgid "Whether to fog out the end of the visible area."
 msgstr "Görünebilir alanın sonunun sislendirilip sislendirilmeyeceği."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Whether to mute sounds. You can unmute sounds at any time, unless the\n"
-"sound system is disabled (enable_sound=false).\n"
+"Whether to mute sounds. You can unmute sounds at any time.\n"
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
@@ -7298,6 +7351,9 @@ msgstr "cURL paralel sınırı"
 #~ "Yerel bir sunucu başlatmak için bunu boş bırakın.\n"
 #~ "Ana menüdeki adres alanının bu ayarı geçersiz kılacağını unutmayın."
 
+#~ msgid "Adds particles when digging a node."
+#~ msgstr "Nodları kazarken parçacıklar ekler."
+
 #~ msgid ""
 #~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
 #~ "4k screens."
@@ -7424,6 +7480,10 @@ msgstr "cURL paralel sınırı"
 #~ msgid "Clean transparent textures"
 #~ msgstr "Saydam dokuları temizle"
 
+#, fuzzy
+#~ msgid "Clouds are a client-side effect."
+#~ msgstr "Bulutlar istemci tarafı bir efekttir."
+
 #~ msgid "Command key"
 #~ msgstr "Komut tuşu"
 
@@ -7517,8 +7577,14 @@ msgstr "cURL paralel sınırı"
 #~ msgid "Darkness sharpness"
 #~ msgstr "Karanlık keskinliği"
 
+#~ msgid "Debug info and profiler graph hidden"
+#~ msgstr "Hata ayıklama bilgisi ve profilci grafiği gizli"
+
 #~ msgid "Debug info toggle key"
 #~ msgstr "Hata ayıklama bilgisi açma/kapama tuşu"
+
+#~ msgid "Debug info, profiler graph, and wireframe hidden"
+#~ msgstr "Hata ayıklama bilgisi, profilci grafiği ve tel kafes gizli"
 
 #~ msgid "Dec. volume key"
 #~ msgstr "Ses alçaltma tuşu"
@@ -7566,8 +7632,14 @@ msgstr "cURL paralel sınırı"
 #~ "sıvılarını tanımlayın ve bulun.\n"
 #~ "Büyük mağaralarda lav üst sınırının Y'si."
 
+#~ msgid "Desynchronize block animation"
+#~ msgstr "Blok animasyonlarını eşzamansız yap"
+
 #~ msgid "Dig key"
 #~ msgstr "Kazma tuşu"
+
+#~ msgid "Digging particles"
+#~ msgstr "Kazı parçacıkları"
 
 #~ msgid "Disable anticheat"
 #~ msgstr "Hile önleme devre dışı"
@@ -7593,6 +7665,10 @@ msgstr "cURL paralel sınırı"
 #, fuzzy
 #~ msgid "Dynamic shadows:"
 #~ msgstr "Dinamik gölgeler: "
+
+#, fuzzy
+#~ msgid "Enable"
+#~ msgstr "Etkin"
 
 #~ msgid "Enable VBO"
 #~ msgstr "VBO'yu etkinleştir"
@@ -7627,6 +7703,12 @@ msgstr "cURL paralel sınırı"
 #~ "paketi tarafından sağlanması\n"
 #~ "veya kendiliğinden üretilmesi gerekir\n"
 #~ "Gölgelemelerin etkin olmasını gerektirir."
+
+#, fuzzy
+#~ msgid ""
+#~ "Enables caching of facedir rotated meshes.\n"
+#~ "This is only effective with shaders disabled."
+#~ msgstr "Yüz yönü döndürülmüş kafeslerin önbelleklenmesini etkinleştirir."
 
 #~ msgid "Enables filmic tone mapping"
 #~ msgstr "Filmsel ton eşlemeyi etkinleştirir"
@@ -7669,9 +7751,6 @@ msgstr "cURL paralel sınırı"
 #~ msgstr ""
 #~ "Deneysel seçenek, 0'dan daha büyük bir sayıya ayarlandığında\n"
 #~ "bloklar arasında görünür boşluklara neden olabilir."
-
-#~ msgid "FPS in pause menu"
-#~ msgstr "Duraklat menüsünde FPS"
 
 #~ msgid "FSAA"
 #~ msgstr "FSAA"
@@ -7759,8 +7838,8 @@ msgstr "cURL paralel sınırı"
 #~ msgid "Full screen BPP"
 #~ msgstr "Tam ekran BPP"
 
-#~ msgid "Game"
-#~ msgstr "Oyun"
+#~ msgid "GUI scaling filter txr2img"
+#~ msgstr "Arayüz boyutlandırma filtresi txr2img"
 
 #~ msgid "Gamma"
 #~ msgstr "Gama"
@@ -7923,659 +8002,666 @@ msgstr "cURL paralel sınırı"
 #~ msgid "Instrumentation"
 #~ msgstr "Belgeleme"
 
+#, fuzzy
+#~ msgid "Interval of sending time of day to clients, stated in seconds."
+#~ msgstr "Günün saatini istemcilere gönderme aralığı."
+
 #~ msgid "Invalid gamespec."
 #~ msgstr "Geçersiz oyun özellikleri."
 
 #~ msgid "Inventory key"
 #~ msgstr "Envanter tuşu"
 
+#~ msgid "Irrlicht device:"
+#~ msgstr "Irrlicht aygıtı:"
+
 #~ msgid "Jump key"
 #~ msgstr "Zıplama tuşu"
 
 #~ msgid ""
 #~ "Key for decreasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Görüntüleme uzaklığını azaltma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for decreasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Ses alçaltma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for digging.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Kazma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for dropping the currently selected item.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "O anki seçili ögeyi atma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for increasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Görüntüleme uzaklığını artırma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for increasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Ses yükseltme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for jumping.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Zıplama tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving fast in fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Hızlı kipte hızlı hareket tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player backward.\n"
 #~ "Will also disable autoforward, when active.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Oyuncuyu geriye hareket ettirme tuşu.\n"
 #~ "Etkinken, kendiliğinden ileriyi de devre dışı kılar\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player forward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Oyuncuyu ileri hareket ettirme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player left.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Oyuncuyu sola hareket ettirme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player right.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Oyuncuyu sağa hareket ettirme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for muting the game.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Ses kısma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for opening the chat window to type commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Komut yazmak için sohbet penceresini açma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for opening the chat window to type local commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Yerel komutlar yazmak için sohbet penceresini açma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for opening the chat window.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Sohbet penceresini açma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for opening the inventory.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Envanteri açma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for placing.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Yerleştirme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 11th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "11. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 12th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "12. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 13th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "13. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 14th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "14. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 15th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "15. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 16th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "16. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 17th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "17. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 18th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "18. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 19th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "19. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 20th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "20. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 21st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "21. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 22nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "22. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 23rd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "23. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 24th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "24. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 25th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "25. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 26th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "26. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 27th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "27. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 28th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "28. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 29th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "29. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 30th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "30. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 31st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "31. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the 32nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "32. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the eighth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "8. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the fifth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "5. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the first hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "1. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the fourth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "4. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the next item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Hotbar'da sonraki ögeyi seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the ninth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "9. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the previous item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Hotbar'da önceki ögeyi seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the second hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "2. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the seventh hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "7. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the sixth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "6. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the tenth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "10. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the third hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "3. hotbar bölmesini seçme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for sneaking.\n"
 #~ "Also used for climbing down and descending in water if aux1_descends is "
 #~ "disabled.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Sızma tuşu.\n"
 #~ "Aynı zamanda aşağı inmek ve, aux1_descends kapalı ise, suda alçalmak için "
 #~ "kullanılır.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for switching between first- and third-person camera.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Birinci ve üçüncü kişi kamerası arası geçiş tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for taking screenshots.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Ekran yakalama tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling autoforward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Kendiliğinden ileriyi açma/kapama tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling cinematic mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Sinematik kipi açma/kapama tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling display of minimap.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Mini harita gösterme/gizleme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Hızlı kipi açma/kapama tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling flying.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Uçma açma/kapama tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling noclip mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Hayalet kipi açma/kapama tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling pitch move mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Eğim hareket kipi açma/kapama tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the camera update. Only used for development\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Kamera güncelleme açma/kapama tuşu. Yalnızca geliştirme için kullanılır.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the display of chat.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Sohbet gösterme/gizleme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the display of debug info.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Hata ayıklama bilgisi gösterme/gizleme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the display of fog.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Sis gösterme/gizleme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the display of the HUD.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "HUD gösterme/gizleme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the display of the large chat console.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Büyük sohbet konsolunu gösterme/gizleme tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the display of the profiler. Used for development.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Profilciyi gösterme/gizleme tuşu. Geliştirme için kullanılır.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling unlimited view range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Sınırsız görüş uzaklığı açma/kapama tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key to use view zoom when possible.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Mümkün olduğunda görünüm yakınlaştırmayı kullanma tuşu.\n"
-#~ "Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Bakın: http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
@@ -8639,6 +8725,9 @@ msgstr "cURL paralel sınırı"
 
 #~ msgid "Menus"
 #~ msgstr "Menüler"
+
+#~ msgid "Mesh cache"
+#~ msgstr "Kafes önbelleği"
 
 #~ msgid "Minimap"
 #~ msgstr "Mini harita"
@@ -8854,6 +8943,9 @@ msgstr "cURL paralel sınırı"
 #~ "anlamına gelir, ancak daha fazla kaynak tüketir.\n"
 #~ "En düşük değer 0,001 saniye, en yüksek değer 0,2 saniyedir"
 
+#~ msgid "Shaders"
+#~ msgstr "Gölgelemeler"
+
 #~ msgid "Shaders (experimental)"
 #~ msgstr "Gölgelendirme (deneysel)"
 
@@ -8870,6 +8962,10 @@ msgstr "cURL paralel sınırı"
 #~ "kartlarında performansı\n"
 #~ "artırabilir.\n"
 #~ "Bu yalnızca OpenGL video arka ucu ile çalışır."
+
+#, fuzzy
+#~ msgid "Shaders are disabled."
+#~ msgstr "Kamera güncelleme devre dışı"
 
 #~ msgid "Shadow limit"
 #~ msgstr "Gölge sınırı"
@@ -8901,6 +8997,9 @@ msgstr "cURL paralel sınırı"
 
 #~ msgid "Smooths rotation of camera. 0 to disable."
 #~ msgstr "Kamera dönüşünü yumuşatır. 0 devre dışı bırakır."
+
+#~ msgid "Sound system is disabled"
+#~ msgstr "Ses sistemi devre dışı"
 
 #~ msgid "Special"
 #~ msgstr "Özel"
@@ -8944,6 +9043,9 @@ msgstr "cURL paralel sınırı"
 
 #~ msgid "This font will be used for certain languages."
 #~ msgstr "Belirli diller için bu yazı tipi kullanılacak."
+
+#~ msgid "Time send interval"
+#~ msgstr "Zaman gönderme aralığı"
 
 #~ msgid "To enable shaders the OpenGL driver needs to be used."
 #~ msgstr "OpenGL sürücüleri seçilmeden gölgelemeler etkinleştirilemez."
@@ -9050,6 +9152,17 @@ msgstr "cURL paralel sınırı"
 #~ msgstr "Dalgalanan su"
 
 #~ msgid ""
+#~ "When gui_scaling_filter_txr2img is true, copy those images\n"
+#~ "from hardware to software for scaling.  When false, fall back\n"
+#~ "to the old scaling method, for video drivers that don't\n"
+#~ "properly support downloading textures back from hardware."
+#~ msgstr ""
+#~ "gui_scaling_filter_txr2img true (doğru) olduğunda, görüntüleri\n"
+#~ "boyutlandırmak için donanımdan yazılıma kopyala. False (yanlış) ise,\n"
+#~ "dokuları donanımdan geri indirmeyi düzgün desteklemeyen video\n"
+#~ "sürücüleri için, eski boyutlandırma yöntemini kullan."
+
+#~ msgid ""
 #~ "Whether FreeType fonts are used, requires FreeType support to be compiled "
 #~ "in.\n"
 #~ "If disabled, bitmap and XML vectors fonts are used instead."
@@ -9060,6 +9173,12 @@ msgstr "cURL paralel sınırı"
 
 #~ msgid "Whether dungeons occasionally project from the terrain."
 #~ msgstr "Zindanların bazen araziden yansıyıp yansımayacağı."
+
+#~ msgid ""
+#~ "Whether node texture animations should be desynchronized per mapblock."
+#~ msgstr ""
+#~ "Harita bloğu başına nod doku animasyonlarının eşzamansız yapılıp "
+#~ "yapılmayacağı."
 
 #~ msgid "Whether to allow players to damage and kill each other."
 #~ msgstr ""

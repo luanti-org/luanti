@@ -129,9 +129,9 @@ class GUIFormSpecMenu : public GUIModalMenu
 		bool is_exit;
 		// Draw priority for formspec version < 3
 		int priority;
-		core::rect<s32> rect;
 		gui::ECURSOR_ICON fcursor_icon;
 		std::string sound;
+		f32 aux_f32 = 0;
 	};
 
 	struct TooltipSpec

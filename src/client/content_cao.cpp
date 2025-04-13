@@ -12,6 +12,8 @@
 #include "client/sound.h"
 #include "client/texturesource.h"
 #include "client/mapblock_mesh.h"
+#include "client/content_mapblock.h"
+#include "client/meshgen/collector.h"
 #include "util/basic_macros.h"
 #include "util/numeric.h"
 #include "util/serialize.h"
@@ -33,6 +35,9 @@
 #include "client/shader.h"
 #include "client/minimap.h"
 #include <quaternion.h>
+#include <SMesh.h>
+#include <IMeshBuffer.h>
+#include <SMeshBuffer.h>
 
 class Settings;
 struct ToolCapabilities;
@@ -177,137 +182,53 @@ static void setColorParam(scene::ISceneNode *node, video::SColor color)
 		node->getMaterial(i).ColorParam = color;
 }
 
-/*
-	TestCAO
-*/
-
-class TestCAO : public ClientActiveObject
+static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
+	std::vector<MeshAnimationInfo> &animation)
 {
-public:
-	TestCAO(Client *client, ClientEnvironment *env);
-	virtual ~TestCAO() = default;
+	auto *ndef = client->ndef();
+	auto *shdsrc = client->getShaderSource();
 
-	ActiveObjectType getType() const
+	MeshCollector collector(v3f(0), v3f());
 	{
-		return ACTIVEOBJECT_TYPE_TEST;
+		MeshMakeData mmd(ndef, 1, MeshGrid{1});
+		n.setParam1(0xff);
+		mmd.fillSingleNode(n);
+		MapblockMeshGenerator(&mmd, &collector).generate();
 	}
 
-	static std::unique_ptr<ClientActiveObject> create(Client *client, ClientEnvironment *env);
+	auto mesh = make_irr<scene::SMesh>();
+	animation.clear();
+	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
+		for (PreMeshBuffer &p : collector.prebuffers[layer]) {
+			// reset the pre-computed light data stored in the vertex color,
+			// since we do that ourselves via updateLight().
+			for (auto &v : p.vertices)
+				v.Color.set(0xFFFFFFFF);
+			// but still apply the tile color
+			p.applyTileColor();
 
-	void addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr);
-	void removeFromScene(bool permanent);
-	void updateLight(u32 day_night_ratio);
-	void updateNodePos();
+			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
+				const FrameSpec &frame = (*p.layer.frames)[0];
+				p.layer.texture = frame.texture;
 
-	void step(float dtime, ClientEnvironment *env);
+				animation.emplace_back(MeshAnimationInfo{mesh->getMeshBufferCount(), 0, p.layer});
+			}
 
-	void processMessage(const std::string &data);
+			auto buf = make_irr<scene::SMeshBuffer>();
+			buf->append(&p.vertices[0], p.vertices.size(),
+					&p.indices[0], p.indices.size());
 
-	bool getCollisionBox(aabb3f *toset) const { return false; }
-private:
-	scene::IMeshSceneNode *m_node;
-	v3f m_position;
-};
+			// Set up material
+			auto &mat = buf->Material;
+			u32 shader_id = shdsrc->getShader("object_shader", p.layer.material_type, NDT_NORMAL);
+			mat.MaterialType = shdsrc->getShaderInfo(shader_id).material;
+			p.layer.applyMaterialOptions(mat, layer);
 
-// Prototype
-static TestCAO proto_TestCAO(nullptr, nullptr);
-
-TestCAO::TestCAO(Client *client, ClientEnvironment *env):
-	ClientActiveObject(0, client, env),
-	m_node(NULL),
-	m_position(v3f(0,10*BS,0))
-{
-	if (!client)
-		ClientActiveObject::registerType(getType(), create);
-}
-
-std::unique_ptr<ClientActiveObject> TestCAO::create(Client *client, ClientEnvironment *env)
-{
-	return std::make_unique<TestCAO>(client, env);
-}
-
-void TestCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
-{
-	if(m_node != NULL)
-		return;
-
-	//video::IVideoDriver* driver = smgr->getVideoDriver();
-
-	scene::SMesh *mesh = new scene::SMesh();
-	scene::IMeshBuffer *buf = new scene::SMeshBuffer();
-	video::SColor c(255,255,255,255);
-	video::S3DVertex vertices[4] =
-	{
-		video::S3DVertex(-BS/2,-BS/4,0, 0,0,0, c, 0,1),
-		video::S3DVertex(BS/2,-BS/4,0, 0,0,0, c, 1,1),
-		video::S3DVertex(BS/2,BS/4,0, 0,0,0, c, 1,0),
-		video::S3DVertex(-BS/2,BS/4,0, 0,0,0, c, 0,0),
-	};
-	u16 indices[] = {0,1,2,2,3,0};
-	buf->append(vertices, 4, indices, 6);
-	// Set material
-	buf->getMaterial().BackfaceCulling = false;
-	buf->getMaterial().TextureLayers[0].Texture = tsrc->getTextureForMesh("rat.png");
-	buf->getMaterial().TextureLayers[0].MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
-	buf->getMaterial().TextureLayers[0].MagFilter = video::ETMAGF_NEAREST;
-	buf->getMaterial().FogEnable = true;
-	buf->getMaterial().MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-	// Add to mesh
-	mesh->addMeshBuffer(buf);
-	buf->drop();
-	m_node = smgr->addMeshSceneNode(mesh, NULL);
-	mesh->drop();
-	updateNodePos();
-}
-
-void TestCAO::removeFromScene(bool permanent)
-{
-	if (!m_node)
-		return;
-
-	m_node->remove();
-	m_node = NULL;
-}
-
-void TestCAO::updateLight(u32 day_night_ratio)
-{
-}
-
-void TestCAO::updateNodePos()
-{
-	if (!m_node)
-		return;
-
-	m_node->setPosition(m_position);
-	//m_node->setRotation(v3f(0, 45, 0));
-}
-
-void TestCAO::step(float dtime, ClientEnvironment *env)
-{
-	if(m_node)
-	{
-		v3f rot = m_node->getRotation();
-		//infostream<<"dtime="<<dtime<<", rot.Y="<<rot.Y<<std::endl;
-		rot.Y += dtime * 180;
-		m_node->setRotation(rot);
+			mesh->addMeshBuffer(buf.get());
+		}
 	}
-}
-
-void TestCAO::processMessage(const std::string &data)
-{
-	infostream<<"TestCAO: Got data: "<<data<<std::endl;
-	std::istringstream is(data, std::ios::binary);
-	u16 cmd;
-	is>>cmd;
-	if(cmd == 0)
-	{
-		v3f newpos;
-		is>>newpos.X;
-		is>>newpos.Y;
-		is>>newpos.Z;
-		m_position = newpos;
-		updateNodePos();
-	}
+	mesh->recalculateBoundingBox();
+	return mesh.release();
 }
 
 /*
@@ -569,6 +490,8 @@ void GenericCAO::removeFromScene(bool permanent)
 		m_spritenode = nullptr;
 	}
 
+	m_meshnode_animation.clear();
+
 	if (m_matrixnode) {
 		m_matrixnode->remove();
 		m_matrixnode->drop();
@@ -597,10 +520,12 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 	if (!m_prop.is_visible)
 		return;
 
-	infostream << "GenericCAO::addToScene(): " << m_prop.visual << std::endl;
+	infostream << "GenericCAO::addToScene(): " <<
+		enum_to_string(es_ObjectVisual, m_prop.visual)<< std::endl;
 
-	m_material_type_param = 0.5f; // May cut off alpha < 128 depending on m_material_type
-
+	if (m_prop.visual != OBJECTVISUAL_NODE &&
+			m_prop.visual != OBJECTVISUAL_WIELDITEM &&
+			m_prop.visual != OBJECTVISUAL_ITEM)
 	{
 		IShaderSource *shader_source = m_client->getShaderSource();
 		MaterialType material_type;
@@ -614,15 +539,17 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 
 		u32 shader_id = shader_source->getShader("object_shader", material_type, NDT_NORMAL);
 		m_material_type = shader_source->getShaderInfo(shader_id).material;
+	} else {
+		// Not used, so make sure it's not valid
+		m_material_type = EMT_INVALID;
 	}
 
-	auto grabMatrixNode = [this] {
-		m_matrixnode = m_smgr->addDummyTransformationSceneNode();
-		m_matrixnode->grab();
-	};
+	m_matrixnode = m_smgr->addDummyTransformationSceneNode();
+	m_matrixnode->grab();
 
 	auto setMaterial = [this] (video::SMaterial &mat) {
-		mat.MaterialType = m_material_type;
+		if (m_material_type != EMT_INVALID)
+			mat.MaterialType = m_material_type;
 		mat.FogEnable = true;
 		mat.forEachTexture([] (auto &tex) {
 			tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
@@ -634,28 +561,8 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		node->forEachMaterial(setMaterial);
 	};
 
-	if (m_prop.visual == "sprite") {
-		grabMatrixNode();
-		m_spritenode = m_smgr->addBillboardSceneNode(
-				m_matrixnode, v2f(1, 1), v3f(0,0,0), -1);
-		m_spritenode->grab();
-		video::ITexture *tex = tsrc->getTextureForMesh("no_texture.png");
-		m_spritenode->forEachMaterial([tex] (auto &mat) {
-			mat.setTexture(0, tex);
-		});
-
-		setSceneNodeMaterials(m_spritenode);
-
-		m_spritenode->setSize(v2f(m_prop.visual_size.X,
-				m_prop.visual_size.Y) * BS);
-		{
-			const float txs = 1.0 / 1;
-			const float tys = 1.0 / 1;
-			setBillboardTextureMatrix(m_spritenode,
-					txs, tys, 0, 0);
-		}
-	} else if (m_prop.visual == "upright_sprite") {
-		grabMatrixNode();
+	switch(m_prop.visual) {
+	case OBJECTVISUAL_UPRIGHT_SPRITE: {
 		auto mesh = make_irr<scene::SMesh>();
 		f32 dx = BS * m_prop.visual_size.X / 2;
 		f32 dy = BS * m_prop.visual_size.Y / 2;
@@ -696,8 +603,8 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		mesh->recalculateBoundingBox();
 		m_meshnode = m_smgr->addMeshSceneNode(mesh.get(), m_matrixnode);
 		m_meshnode->grab();
-	} else if (m_prop.visual == "cube") {
-		grabMatrixNode();
+		break;
+	} case OBJECTVISUAL_CUBE: {
 		scene::IMesh *mesh = createCubeMesh(v3f(BS,BS,BS));
 		m_meshnode = m_smgr->addMeshSceneNode(mesh, m_matrixnode);
 		m_meshnode->grab();
@@ -710,8 +617,8 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		m_meshnode->forEachMaterial([this] (auto &mat) {
 			mat.BackfaceCulling = m_prop.backface_culling;
 		});
-	} else if (m_prop.visual == "mesh") {
-		grabMatrixNode();
+		break;
+	} case OBJECTVISUAL_MESH: {
 		scene::IAnimatedMesh *mesh = m_client->getMesh(m_prop.mesh, true);
 		if (mesh) {
 			if (!checkMeshNormals(mesh)) {
@@ -737,8 +644,10 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			});
 		} else
 			errorstream<<"GenericCAO::addToScene(): Could not load mesh "<<m_prop.mesh<<std::endl;
-	} else if (m_prop.visual == "wielditem" || m_prop.visual == "item") {
-		grabMatrixNode();
+		break;
+	}
+	case OBJECTVISUAL_WIELDITEM:
+	case OBJECTVISUAL_ITEM: {
 		ItemStack item;
 		if (m_prop.wield_item.empty()) {
 			// Old format, only textures are specified.
@@ -755,19 +664,46 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		}
 		m_wield_meshnode = new WieldMeshSceneNode(m_smgr, -1);
 		m_wield_meshnode->setItem(item, m_client,
-			(m_prop.visual == "wielditem"));
+			(m_prop.visual == OBJECTVISUAL_WIELDITEM));
 
 		m_wield_meshnode->setScale(m_prop.visual_size / 2.0f);
-	} else {
-		infostream<<"GenericCAO::addToScene(): \""<<m_prop.visual
-				<<"\" not supported"<<std::endl;
+		break;
+	} case OBJECTVISUAL_NODE: {
+		auto *mesh = generateNodeMesh(m_client, m_prop.node, m_meshnode_animation);
+		assert(mesh);
+
+		m_meshnode = m_smgr->addMeshSceneNode(mesh, m_matrixnode);
+		m_meshnode->setSharedMaterials(true);
+		m_meshnode->grab();
+		mesh->drop();
+
+		m_meshnode->setScale(m_prop.visual_size);
+
+		setSceneNodeMaterials(m_meshnode);
+		break;
+	} default:
+		m_spritenode = m_smgr->addBillboardSceneNode(m_matrixnode);
+		m_spritenode->grab();
+
+		setSceneNodeMaterials(m_spritenode);
+
+		m_spritenode->setSize(v2f(m_prop.visual_size.X,
+				m_prop.visual_size.Y) * BS);
+		setBillboardTextureMatrix(m_spritenode, 1, 1, 0, 0);
+
+		// This also serves as fallback for unknown visual types
+		if (m_prop.visual != OBJECTVISUAL_SPRITE) {
+			m_spritenode->getMaterial(0).setTexture(0,
+				tsrc->getTextureForMesh("unknown_object.png"));
+		}
+		break;
 	}
 
 	/* Set VBO hint */
 	// wieldmesh sets its own hint, no need to handle it
 	if (m_meshnode || m_animated_meshnode) {
 		// sprite uses vertex animation
-		if (m_meshnode && m_prop.visual != "upright_sprite")
+		if (m_meshnode && m_prop.visual != OBJECTVISUAL_UPRIGHT_SPRITE)
 			m_meshnode->getMesh()->setHardwareMappingHint(scene::EHM_STATIC);
 
 		if (m_animated_meshnode) {
@@ -786,8 +722,7 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		updateTextures(m_current_texture_modifier);
 
 	if (scene::ISceneNode *node = getSceneNode()) {
-		if (m_matrixnode)
-			node->setParent(m_matrixnode);
+		node->setParent(m_matrixnode);
 
 		if (auto shadow = RenderingEngine::get_shadow_renderer())
 			shadow->addNodeToShadowList(node);
@@ -858,8 +793,7 @@ void GenericCAO::updateLight(u32 day_night_ratio)
 	if (!pos_ok)
 		light_at_pos = LIGHT_SUN;
 
-	// Initialize with full alpha, otherwise entity won't be visible
-	video::SColor light{0xFFFFFFFF};
+	video::SColor light;
 
 	// Encode light into color, adding a small boost
 	// based on the entity glow.
@@ -873,9 +807,10 @@ void GenericCAO::updateLight(u32 day_night_ratio)
 
 void GenericCAO::setNodeLight(const video::SColor &light_color)
 {
-	if (m_prop.visual == "wielditem" || m_prop.visual == "item") {
+	if (m_prop.visual == OBJECTVISUAL_WIELDITEM || m_prop.visual == OBJECTVISUAL_ITEM) {
 		if (m_wield_meshnode)
-			m_wield_meshnode->setNodeLightColor(light_color);
+			m_wield_meshnode->setLightColorAndAnimation(light_color,
+					m_client->getAnimationTime());
 		return;
 	}
 
@@ -962,6 +897,7 @@ void GenericCAO::updateNodePos()
 	scene::ISceneNode *node = getSceneNode();
 
 	if (node) {
+		assert(m_matrixnode);
 		v3s16 camera_offset = m_env->getCameraOffset();
 		v3f pos = pos_translator.val_current -
 				intToFloat(camera_offset, BS);
@@ -1150,7 +1086,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 			m_anim_frame = 0;
 	}
 
-	updateTexturePos();
+	updateTextureAnim();
 
 	if(m_reset_textures_timer >= 0)
 	{
@@ -1211,7 +1147,7 @@ static void setMeshBufferTextureCoords(scene::IMeshBuffer *buf, const v2f *uv, u
 	buf->setDirty(scene::EBT_VERTEX);
 }
 
-void GenericCAO::updateTexturePos()
+void GenericCAO::updateTextureAnim()
 {
 	if(m_spritenode)
 	{
@@ -1259,7 +1195,7 @@ void GenericCAO::updateTexturePos()
 	}
 
 	else if (m_meshnode) {
-		if (m_prop.visual == "upright_sprite") {
+		if (m_prop.visual == OBJECTVISUAL_UPRIGHT_SPRITE) {
 			int row = m_tx_basepos.Y;
 			int col = m_tx_basepos.X;
 
@@ -1276,6 +1212,23 @@ void GenericCAO::updateTexturePos()
 			auto mesh = m_meshnode->getMesh();
 			setMeshBufferTextureCoords(mesh->getMeshBuffer(0), t, 4);
 			setMeshBufferTextureCoords(mesh->getMeshBuffer(1), t, 4);
+		} else if (m_prop.visual == OBJECTVISUAL_NODE) {
+			// same calculation as MapBlockMesh::animate() with a global timer
+			const float time = m_client->getAnimationTime();
+			for (auto &it : m_meshnode_animation) {
+				const TileLayer &tile = it.tile;
+				int frameno = (int)(time * 1000 / tile.animation_frame_length_ms)
+					% tile.animation_frame_count;
+
+				if (frameno == it.frame)
+					continue;
+				it.frame = frameno;
+
+				auto *buf = m_meshnode->getMesh()->getMeshBuffer(it.i);
+
+				const FrameSpec &frame = (*tile.frames)[frameno];
+				buf->getMaterial().setTexture(0, frame.texture);
+			}
 		}
 	}
 }
@@ -1293,7 +1246,7 @@ void GenericCAO::updateTextures(std::string mod)
 	m_current_texture_modifier = mod;
 
 	if (m_spritenode) {
-		if (m_prop.visual == "sprite") {
+		if (m_prop.visual == OBJECTVISUAL_SPRITE) {
 			std::string texturestring = "no_texture.png";
 			if (!m_prop.textures.empty())
 				texturestring = m_prop.textures[0];
@@ -1301,7 +1254,6 @@ void GenericCAO::updateTextures(std::string mod)
 
 			video::SMaterial &material = m_spritenode->getMaterial(0);
 			material.MaterialType = m_material_type;
-			material.MaterialTypeParam = m_material_type_param;
 			material.setTexture(0, tsrc->getTextureForMesh(texturestring));
 
 			material.forEachTexture([=] (auto &tex) {
@@ -1312,7 +1264,7 @@ void GenericCAO::updateTextures(std::string mod)
 	}
 
 	else if (m_animated_meshnode) {
-		if (m_prop.visual == "mesh") {
+		if (m_prop.visual == OBJECTVISUAL_MESH) {
 			for (u32 i = 0; i < m_animated_meshnode->getMaterialCount(); ++i) {
 				const auto texture_idx = m_animated_meshnode->getMesh()->getTextureSlot(i);
 				if (texture_idx >= m_prop.textures.size())
@@ -1330,7 +1282,6 @@ void GenericCAO::updateTextures(std::string mod)
 				// Set material flags and texture
 				video::SMaterial &material = m_animated_meshnode->getMaterial(i);
 				material.MaterialType = m_material_type;
-				material.MaterialTypeParam = m_material_type_param;
 				material.TextureLayers[0].Texture = texture;
 				material.BackfaceCulling = m_prop.backface_culling;
 
@@ -1350,7 +1301,7 @@ void GenericCAO::updateTextures(std::string mod)
 	}
 
 	else if (m_meshnode) {
-		if(m_prop.visual == "cube")
+		if(m_prop.visual == OBJECTVISUAL_CUBE)
 		{
 			for (u32 i = 0; i < 6; ++i)
 			{
@@ -1362,7 +1313,6 @@ void GenericCAO::updateTextures(std::string mod)
 				// Set material flags and texture
 				video::SMaterial &material = m_meshnode->getMaterial(i);
 				material.MaterialType = m_material_type;
-				material.MaterialTypeParam = m_material_type_param;
 				material.setTexture(0, tsrc->getTextureForMesh(texturestring));
 				material.getTextureMatrix(0).makeIdentity();
 
@@ -1371,7 +1321,7 @@ void GenericCAO::updateTextures(std::string mod)
 							use_anisotropic_filter);
 				});
 			}
-		} else if (m_prop.visual == "upright_sprite") {
+		} else if (m_prop.visual == OBJECTVISUAL_UPRIGHT_SPRITE) {
 			scene::IMesh *mesh = m_meshnode->getMesh();
 			{
 				std::string tname = "no_texture.png";
@@ -1404,8 +1354,8 @@ void GenericCAO::updateTextures(std::string mod)
 				});
 			}
 			// Set mesh color (only if lighting is disabled)
-			if (!m_prop.colors.empty() && m_prop.glow < 0)
-				setMeshColor(mesh, m_prop.colors[0]);
+			if (m_prop.glow < 0)
+				setMeshColor(mesh, {255, 255, 255, 255});
 		}
 	}
 	// Prevent showing the player after changing texture
@@ -1459,34 +1409,6 @@ void GenericCAO::updateBones(f32 dtime)
 		bone->setScale(props.getScale(bone->getScale()));
 	}
 
-	// search through bones to find mistakenly rotated bones due to bug in Irrlicht
-	for (u32 i = 0; i < m_animated_meshnode->getJointCount(); ++i) {
-		scene::IBoneSceneNode *bone = m_animated_meshnode->getJointNode(i);
-		if (!bone)
-			continue;
-
-		//If bone is manually positioned there is no need to perform the bug check
-		bool skip = false;
-		for (auto &it : m_bone_override) {
-			if (it.first == bone->getName()) {
-				skip = true;
-				break;
-			}
-		}
-		if (skip)
-			continue;
-
-		// Workaround for Irrlicht bug
-		// We check each bone to see if it has been rotated ~180deg from its expected position due to a bug in Irricht
-		// when using EJUOR_CONTROL joint control. If the bug is detected we update the bone to the proper position
-		// and update the bones transformation.
-		v3f bone_rot = bone->getRelativeTransformation().getRotationDegrees();
-		float offset = fabsf(bone_rot.X - bone->getRotation().X);
-		if (offset > 179.9f && offset < 180.1f) {
-			bone->setRotation(bone_rot);
-			bone->updateAbsolutePosition();
-		}
-	}
 	// The following is needed for set_bone_pos to propagate to
 	// attached objects correctly.
 	// Irrlicht ought to do this, but doesn't when using EJUOR_CONTROL.
@@ -1557,19 +1479,20 @@ bool GenericCAO::visualExpiryRequired(const ObjectProperties &new_) const
 	/* Visuals do not need to be expired for:
 	 * - nametag props: handled by updateNametag()
 	 * - textures:      handled by updateTextures()
-	 * - sprite props:  handled by updateTexturePos()
+	 * - sprite props:  handled by updateTextureAnim()
 	 * - glow:          handled by updateLight()
 	 * - any other properties that do not change appearance
 	 */
 
 	bool uses_legacy_texture = new_.wield_item.empty() &&
-		(new_.visual == "wielditem" || new_.visual == "item");
+		(new_.visual == OBJECTVISUAL_WIELDITEM || new_.visual == OBJECTVISUAL_ITEM);
 	// Ordered to compare primitive types before std::vectors
 	return old.backface_culling != new_.backface_culling ||
 		old.is_visible != new_.is_visible ||
-		old.mesh != new_.mesh ||
 		old.shaded != new_.shaded ||
 		old.use_texture_alpha != new_.use_texture_alpha ||
+		old.node != new_.node ||
+		old.mesh != new_.mesh ||
 		old.visual != new_.visual ||
 		old.visual_size != new_.visual_size ||
 		old.wield_item != new_.wield_item ||
@@ -1680,7 +1603,7 @@ void GenericCAO::processMessage(const std::string &data)
 		m_anim_framelength = framelength;
 		m_tx_select_horiz_by_yawpitch = select_horiz_by_yawpitch;
 
-		updateTexturePos();
+		updateTextureAnim();
 	} else if (cmd == AO_CMD_SET_PHYSICS_OVERRIDE) {
 		float override_speed = readF32(is);
 		float override_jump = readF32(is);
@@ -1889,11 +1812,11 @@ void GenericCAO::processMessage(const std::string &data)
 /* \pre punchitem != NULL
  */
 bool GenericCAO::directReportPunch(v3f dir, const ItemStack *punchitem,
-		float time_from_last_punch)
+	const ItemStack *hand_item, float time_from_last_punch)
 {
 	assert(punchitem);	// pre-condition
 	const ToolCapabilities *toolcap =
-			&punchitem->getToolCapabilities(m_client->idef());
+			&punchitem->getToolCapabilities(m_client->idef(), hand_item);
 	PunchDamageResult result = getPunchDamage(
 			m_armor_groups,
 			toolcap,
@@ -1954,7 +1877,7 @@ void GenericCAO::updateMeshCulling()
 	if (!node)
 		return;
 
-	if (m_prop.visual == "upright_sprite") {
+	if (m_prop.visual ==  OBJECTVISUAL_UPRIGHT_SPRITE) {
 		// upright sprite has no backface culling
 		node->forEachMaterial([=] (auto &mat) {
 			mat.FrontfaceCulling = hidden;

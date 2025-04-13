@@ -6,7 +6,7 @@
 #include "anaglyph.h"
 #include "client/camera.h"
 #include <IrrlichtDevice.h>
-
+#include <ISceneManager.h>
 
 /// SetColorMaskStep step
 

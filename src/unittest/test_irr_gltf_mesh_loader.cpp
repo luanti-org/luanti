@@ -414,7 +414,7 @@ SECTION("simple skin")
 		CHECK(child->Animatedrotation == irr::core::quaternion());
 		CHECK(child->Animatedscale == v3f(1, 1, 1));
 		irr::core::matrix4 inverseBindMatrix;
-		inverseBindMatrix.setInverseTranslation(childTranslation);
+		inverseBindMatrix.setTranslation(-childTranslation);
 		CHECK(child->GlobalInversedMatrix == inverseBindMatrix);
 	}
 

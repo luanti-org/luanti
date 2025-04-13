@@ -118,12 +118,10 @@ static inline void checkArea(const VoxelArea &a)
 	// won't overflow since cbrt(2^64) > 2^16
 	u64 real_volume = static_cast<u64>(a.getExtent().X) * a.getExtent().Y * a.getExtent().Z;
 
-	// Volume limit equal to 8 default mapchunks, (80 * 2) ^ 3 = 4,096,000
-	// Note: the hard limit is somewhere around 2^31 due to s32 type
-	constexpr u64 MAX_ALLOWED = 4096000;
-	if (real_volume > MAX_ALLOWED) {
+	static_assert(MAX_WORKING_VOLUME < S32_MAX); // hard limit is somewhere here
+	if (real_volume > MAX_WORKING_VOLUME) {
 		throw BaseException("VoxelManipulator: "
-			"Area volume exceeds allowed value of " + std::to_string(MAX_ALLOWED));
+			"Area volume exceeds allowed value of " + std::to_string(MAX_WORKING_VOLUME));
 	}
 }
 

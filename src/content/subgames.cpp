@@ -12,6 +12,7 @@
 #include "defaultsettings.h" // for set_default_settings
 #include "map_settings_manager.h"
 #include "util/string.h"
+#include "exceptions.h"
 
 // The maximum number of identical world names allowed
 #define MAX_WORLD_NAMES 100

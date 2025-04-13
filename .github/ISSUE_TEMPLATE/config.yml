@@ -1,7 +1,7 @@
 blank_issues_enabled: true
 contact_links:
   - name: Submit issues about Minetest Game
-    url: https://github.com/minetest/minetest_game/issues/new/choose
+    url: https://github.com/luanti-org/minetest_game/issues/new
     about: Only submit issues of the engine in this repository's issue tracker. Submit those of Minetest Game in its own issue tracker.
   - name: Search for issue trackers of third-party games
     url: https://content.luanti.org/packages/?type=game

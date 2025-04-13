@@ -2,8 +2,26 @@
 #
 # General format:
 #    name (Readable name) type type_args
+#    name (Readable name) [context] type type_args
 #
 # Note that the parts are separated by exactly one space
+#
+# `context` (optional) is used to document where the setting is read. It can be:
+#    - common: Read by both client and server.
+#    - client: Read by the client.
+#      (Includes settings read by the mainmenu.)
+#    - server: Read by the server.
+#    - world_creation: Read at world creation, thus only applied to new worlds.
+#      (Worlds are commonly created in the mainmenu (part of the client), but
+#      world creation is conceptually a server-side thing...)
+# If not specified, the value is inherited from the context value of the containing
+# category instead.
+# For the builtin/settingtypes.txt file, every setting needs to have a context defined,
+# either via a category containing it or via the setting itself. In game/mod-provided
+# settingtypes.txt files, context annotations are invalid.
+# Note: For context annotations, it's irrelevant whether changes to a setting
+# after startup/game-join will be read. A separate mechanism for declaring that
+# is needed.
 #
 # `type` can be:
 #    - int
@@ -77,6 +95,8 @@
 # Sections are marked by a single line in the format: [Section Name]
 # Sub-section are marked by adding * in front of the section name: [*Sub-section]
 # Sub-sub-sections have two * etc.
+# A context (see above) can be specified optionally: [Section Name] [context]
+# Context annotations on categories cannot be nested.
 # There shouldn't be too many settings per category.
 #
 # The top-level categories "Advanced", "Client and Server" and "Mapgen" are
@@ -84,7 +104,7 @@
 # They contain settings not intended for the "average user".
 
 
-[Controls]
+[Controls] [client]
 
 [*General]
 
@@ -110,6 +130,13 @@ doubletap_jump (Double tap jump for fly) bool false
 #    If disabled, "Aux1" key is used to fly fast if both fly and fast mode are
 #    enabled.
 always_fly_fast (Always fly fast) bool true
+
+#    If enabled, the "Sneak" key will toggle when pressed.
+#    This functionality is ignored when fly is enabled.
+toggle_sneak_key (Toggle Sneak key) bool false
+
+#    If enabled, the "Aux1" key will toggle when pressed.
+toggle_aux1_key (Toggle Aux1 key) bool false
 
 #    The time in seconds it takes between repeated node placements when holding
 #    the place button.
@@ -160,6 +187,36 @@ invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 #    Requires: touch_support
 touch_controls (Touchscreen controls) enum auto auto,true,false
 
+#    The kind of digging/placing controls used.
+#
+#    * Tap
+#      Long/short tap anywhere on the screen to interact.
+#      Interaction happens at finger position.
+#
+#    * Tap with crosshair
+#      Long/short tap anywhere on the screen to interact.
+#      Interaction happens at crosshair position.
+#
+#    * Buttons with crosshair
+#      Use dedicated dig/place buttons to interact.
+#      Interaction happens at crosshair position.
+#
+#    Requires: touchscreen
+touch_interaction_style (Interaction style) enum tap tap,tap_crosshair,buttons_crosshair
+
+#    The gesture for punching players/entities.
+#    This can be overridden by games and mods.
+#
+#    * Short tap
+#      Easy to use and well-known from other games that shall not be named.
+#
+#    * Long tap
+#      Known from the classic Luanti mobile controls.
+#      Combat is more or less impossible.
+#
+#    Requires: touchscreen, touch_interaction_style_tap
+touch_punch_gesture (Punch gesture) enum short_tap short_tap,long_tap
+
 #    Touchscreen sensitivity multiplier.
 #
 #    Requires: touchscreen
@@ -175,12 +232,6 @@ touchscreen_threshold (Movement threshold) int 20 0 100
 #    Requires: touchscreen
 touch_long_tap_delay (Threshold for long taps) int 400 100 1000
 
-#    Use crosshair to select object instead of whole screen.
-#    If enabled, a crosshair will be shown and will be used for selecting object.
-#
-#    Requires: touchscreen
-touch_use_crosshair (Use crosshair for touch screen) bool false
-
 #    Fixes the position of virtual joystick.
 #    If disabled, virtual joystick will center to first-touch's position.
 #
@@ -193,21 +244,7 @@ fixed_virtual_joystick (Fixed virtual joystick) bool false
 #    Requires: touchscreen
 virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool false
 
-#    The gesture for punching players/entities.
-#    This can be overridden by games and mods.
-#
-#    * short_tap
-#      Easy to use and well-known from other games that shall not be named.
-#
-#    * long_tap
-#      Known from the classic Luanti mobile controls.
-#      Combat is more or less impossible.
-#
-#    Requires: touchscreen
-touch_punch_gesture (Punch gesture) enum short_tap short_tap,long_tap
-
-
-[Graphics and Audio]
+[Graphics and Audio] [client]
 
 [*Graphics]
 
@@ -256,8 +293,8 @@ fps_max (Maximum FPS) int 60 1 4294967295
 #    Vertical screen synchronization. Your system may still force VSync on even if this is disabled.
 vsync (VSync) bool false
 
-#    Maximum FPS when the window is not focused, or when the game is paused.
-fps_max_unfocused (FPS when unfocused or paused) int 20 1 4294967295
+#    Maximum FPS when the window is not focused.
+fps_max_unfocused (FPS when unfocused) int 10 1 4294967295
 
 #    View distance in nodes.
 viewing_range (Viewing range) int 190 20 4000
@@ -294,10 +331,6 @@ arm_inertia (Arm inertia) bool true
 #    Enable view bobbing and amount of view bobbing.
 #    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
 view_bobbing_amount (View bobbing factor) float 1.0 0.0 7.9
-
-#    Multiplier for fall bobbing.
-#    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
-fall_bobbing_amount (Fall bobbing factor) float 0.03 0.0 100.0
 
 [**Camera]
 
@@ -541,8 +574,8 @@ shadow_map_texture_32bit (Shadow map texture in 32 bits) bool true
 #    Requires: enable_dynamic_shadows, opengl
 shadow_filters (Shadow filter quality) enum 1 0,1,2
 
-#    Enable colored shadows.
-#    On true translucent nodes cast colored shadows. This is expensive.
+#    Enable colored shadows for transculent nodes.
+#    This is expensive.
 #
 #    Requires: enable_dynamic_shadows, opengl
 shadow_map_color (Colored shadows) bool false
@@ -742,9 +775,6 @@ console_color (Console color) string (0,0,0)
 #    In-game chat console background alpha (opaqueness, between 0 and 255).
 console_alpha (Console alpha) int 200 0 255
 
-#    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
-clickable_chat_weblinks (Chat weblinks) bool true
-
 #    Optional override for chat weblink color.
 chat_weblink_color (Weblink color) string #8888FF
 
@@ -777,26 +807,26 @@ contentdb_max_concurrent_downloads (ContentDB Max Concurrent Downloads) int 3 1
 
 [Client and Server]
 
-[*Client]
+[*Client] [client]
 
 #    Save the map received by the client on disk.
 enable_local_map_saving (Saving map received from server) bool false
 
 #    URL to the server list displayed in the Multiplayer Tab.
-serverlist_url (Serverlist URL) string https://servers.luanti.org
+serverlist_url (Serverlist URL) [common] string https://servers.luanti.org
 
-#    If enabled, account registration is separate from login in the UI.
-#    If disabled, new accounts will be registered automatically when logging in.
+#    If enabled, server account registration is separate from login in the UI.
+#    If disabled, connecting to a server will automatically register a new account.
 enable_split_login_register (Enable split login/register) bool true
 
 #    URL to JSON file which provides information about the newest Luanti release.
 #    If this is empty the engine will never check for updates.
-update_information_url (Update information URL) string https://www.minetest.net/release_info.json
+update_information_url (Update information URL) string https://www.luanti.org/release_info.json
 
-[*Server]
+[*Server] [server]
 
 #    Name of the player.
-#    When running a server, clients connecting with this name are admins.
+#    When running a server, a client connecting with this name is admin.
 #    When starting from the main menu, this is overridden.
 name (Admin name) string
 
@@ -821,7 +851,7 @@ server_announce (Announce server) bool false
 server_announce_send_players (Send player names to the server list) bool true
 
 #    Announce to this serverlist.
-serverlist_url (Serverlist URL) string https://servers.luanti.org
+serverlist_url (Serverlist URL) [common] string https://servers.luanti.org
 
 #    Message of the day displayed to players connecting.
 motd (Message of the day) string
@@ -860,12 +890,14 @@ protocol_version_min (Protocol version minimum) int 1 1 65535
 #    Files that are not present will be fetched the usual way.
 remote_media (Remote media) string
 
-#    Enable/disable running an IPv6 server.
+#    Enable IPv6 support for server.
+#    Note that clients will be able to connect with both IPv4 and IPv6.
 #    Ignored if bind_address is set.
-#    Needs enable_ipv6 to be enabled.
-ipv6_server (IPv6 server) bool false
+#
+#    Requires: enable_ipv6
+ipv6_server (IPv6 server) bool true
 
-[*Server Security]
+[*Server Security] [server]
 
 #    New users need to input this password.
 default_password (Default password) string
@@ -925,7 +957,7 @@ chat_message_limit_per_10sec (Chat message count limit) float 8.0 1.0
 #    Kick players who sent more than X messages per 10 seconds.
 chat_message_limit_trigger_kick (Chat message kick threshold) int 50 1 65535
 
-[*Server Gameplay]
+[*Server Gameplay] [server]
 
 #    Controls length of day/night cycle.
 #    Examples:
@@ -933,7 +965,7 @@ chat_message_limit_trigger_kick (Chat message kick threshold) int 50 1 65535
 time_speed (Time speed) int 72 0
 
 #    Time of day when a new world is started, in millihours (0-23999).
-world_start_time (World start time) int 6125 0 23999
+world_start_time (World start time) [world_creation] int 6125 0 23999
 
 #    Time in seconds for item entity (dropped items) to live.
 #    Setting it to -1 disables the feature.
@@ -988,7 +1020,7 @@ movement_liquid_sink (Liquid sinking) float 10.0
 movement_gravity (Gravity) float 9.81
 
 
-[Mapgen]
+[Mapgen] [world_creation]
 
 #    A chosen map seed for a new map, leave empty for random.
 #    Will be overridden when creating a new world in the main menu.
@@ -1004,7 +1036,7 @@ mg_name (Mapgen name) enum v7 v7,valleys,carpathian,v5,flat,fractal,singlenode,v
 water_level (Water level) int 1 -31000 31000
 
 #    From how far blocks are generated for clients, stated in mapblocks (16 nodes).
-max_block_generate_distance (Max block generate distance) int 10 1 32767
+max_block_generate_distance (Max block generate distance) [server] int 10 1 32767
 
 #    Limit of map generation, in nodes, in all 6 directions from (0, 0, 0).
 #    Only mapchunks completely within the mapgen limit are generated.
@@ -1717,12 +1749,12 @@ mgvalleys_np_dungeons (Dungeon noise) noise_params_3d 0.9, 0.5, (500, 500, 500),
 
 #    Enable Lua modding support on client.
 #    This support is experimental and API can change.
-enable_client_modding (Client modding) bool false
+enable_client_modding (Client modding) [client] bool false
 
 #    Replaces the default main menu with a custom one.
-main_menu_script (Main menu script) string
+main_menu_script (Main menu script) [client] string
 
-[**Mod Security]
+[**Mod Security] [server]
 
 #    Prevent mods from doing insecure things like running shell commands.
 secure.enable_security (Enable mod security) bool true
@@ -1746,33 +1778,33 @@ secure.http_mods (HTTP mods) string
 #    -    info
 #    -    verbose
 #    -    trace
-debug_log_level (Debug log level) enum action ,none,error,warning,action,info,verbose,trace
+debug_log_level (Debug log level) [common] enum action ,none,error,warning,action,info,verbose,trace
 
 #    If the file size of debug.txt exceeds the number of megabytes specified in
 #    this setting when it is opened, the file is moved to debug.txt.1,
 #    deleting an older debug.txt.1 if it exists.
 #    debug.txt is only moved if this setting is positive.
-debug_log_size_max (Debug log file size threshold) int 50 1
+debug_log_size_max (Debug log file size threshold) [common] int 50 1
 
 #    Minimal level of logging to be written to chat.
-chat_log_level (Chat log level) enum error ,none,error,warning,action,info,verbose,trace
+chat_log_level (Chat log level) [client] enum error ,none,error,warning,action,info,verbose,trace
 
 #    Handling for deprecated Lua API calls:
 #    -    none: Do not log deprecated calls
 #    -    log: mimic and log backtrace of deprecated call (default).
 #    -    error: abort on usage of deprecated call (suggested for mod developers).
-deprecated_lua_api_handling (Deprecated Lua API handling) enum log none,log,error
+deprecated_lua_api_handling (Deprecated Lua API handling) [common] enum log none,log,error
 
 #    Enable random user input (only used for testing).
-random_input (Random input) bool false
+random_input (Random input) [client] bool false
 
 #    Enable random mod loading (mainly used for testing).
-random_mod_load_order (Random mod load order) bool false
+random_mod_load_order (Random mod load order) [server] bool false
 
 #    Enable mod channels support.
-enable_mod_channels (Mod channels) bool false
+enable_mod_channels (Mod channels) [server] bool false
 
-[**Mod Profiler]
+[**Mod Profiler] [server]
 
 #    Load the game profiler to collect game profiling data.
 #    Provides a /profiler command to access the compiled profile.
@@ -1812,7 +1844,7 @@ instrument.builtin (Builtin) bool false
 #     * Instrument the sampler being used to update the statistics.
 instrument.profiler (Profiler) bool false
 
-[**Engine Profiler]
+[**Engine Profiler] [common]
 
 #    Print the engine's profiling data in regular intervals (in seconds).
 #    0 = disable. Useful for developers.
@@ -1821,15 +1853,7 @@ profiler_print_interval (Engine profiling data print interval) int 0 0
 
 [*Advanced]
 
-#    Enable IPv6 support (for both client and server).
-#    Required for IPv6 connections to work at all.
-enable_ipv6 (IPv6) bool true
-
-#    If enabled, invalid world data won't cause the server to shut down.
-#    Only enable this if you know what you are doing.
-ignore_world_load_errors (Ignore world errors) bool false
-
-[**Graphics]
+[**Graphics] [client]
 
 #    Enables debug and error-checking in the OpenGL driver.
 opengl_debug (OpenGL debug) bool false
@@ -1866,7 +1890,7 @@ mesh_generation_threads (Mapblock mesh generation threads) int 0 0 8
 
 #    All mesh buffers with less than this number of vertices will be merged
 #    during map rendering. This improves rendering performance.
-mesh_buffer_min_vertices (Minimum vertex count for mesh buffers) int 100 0 1000
+mesh_buffer_min_vertices (Minimum vertex count for mesh buffers) int 300 0 1000
 
 #    True = 256
 #    False = 128
@@ -1906,8 +1930,8 @@ texture_min_size (Base texture size) int 64 1 32768
 client_mesh_chunk (Client Mesh Chunksize) int 1 1 16
 
 #    Decide the color depth of the texture used for the post-processing pipeline.
-#    Reducing this can improve performance, but might cause some effects (e.g. bloom)
-#    to not work.
+#    Reducing this can improve performance, but some effects (e.g. debanding)
+#    require more than 8 bits to work.
 #
 #    Requires: enable_post_processing
 post_processing_texture_bits (Color depth for post-processing texture) enum 16 8,10,16
@@ -1918,10 +1942,9 @@ post_processing_texture_bits (Color depth for post-processing texture) enum 16 8
 #    Requires: enable_dynamic_shadows, opengl
 shadow_poisson_filter (Poisson filtering) bool true
 
-#    Spread a complete update of shadow map over given number of frames.
+#    Spread a complete update of the shadow map over a given number of frames.
 #    Higher values might make shadows laggy, lower values
 #    will consume more resources.
-#    Minimum value: 1; maximum value: 16
 #
 #    Requires: enable_dynamic_shadows, opengl
 shadow_update_frames (Map shadows update frames) int 16 1 32
@@ -1934,12 +1957,12 @@ shadow_update_frames (Map shadows update frames) int 16 1 32
 #    Requires: enable_post_processing, enable_bloom
 enable_bloom_debug (Enable Bloom Debug) bool false
 
-[**Sound]
+[**Sound] [client]
 #    Comma-separated list of AL and ALC extensions that should not be used.
 #    Useful for testing. See al_extensions.[h,cpp] for details.
 sound_extensions_blacklist (Sound Extensions Blacklist) string
 
-[**Font]
+[**Font] [client]
 
 font_bold (Font bold by default) bool false
 
@@ -1989,7 +2012,7 @@ mono_font_path_bold_italic (Bold and italic monospace font path) filepath fonts/
 #    This font will be used for certain languages or if the default font is unavailable.
 fallback_font_path (Fallback font path) filepath fonts/DroidSansFallbackFull.ttf
 
-[**Lighting]
+[**Lighting] [client]
 
 #    Gradient of light curve at minimum light level.
 #    Controls the contrast of the lowest light levels.
@@ -2015,43 +2038,49 @@ lighting_boost_spread (Light curve boost spread) float 0.2 0.0 0.4
 
 [**Networking]
 
+#    Enable IPv6 support (for both client and server).
+#    Required for IPv6 connections to work at all.
+enable_ipv6 (IPv6) [common] bool true
+
 #    Prometheus listener address.
 #    If Luanti is compiled with ENABLE_PROMETHEUS option enabled,
 #    enable metrics listener for Prometheus on that address.
 #    Metrics can be fetched on http://127.0.0.1:30000/metrics
-prometheus_listener_address (Prometheus listener address) string 127.0.0.1:30000
+prometheus_listener_address (Prometheus listener address) [server] string 127.0.0.1:30000
 
-#    Maximum size of the outgoing chat queue.
+#    Maximum size of the client's outgoing chat queue.
 #    0 to disable queueing and -1 to make the queue size unlimited.
-max_out_chat_queue_size (Maximum size of the outgoing chat queue) int 20 -1 32767
+max_out_chat_queue_size (Maximum size of the client's outgoing chat queue) [client] int 20 -1 32767
 
 #    Timeout for client to remove unused map data from memory, in seconds.
-client_unload_unused_data_timeout (Mapblock unload timeout) float 600.0 0.0
+client_unload_unused_data_timeout (Mapblock unload timeout) [client] float 600.0 0.0
 
 #    Maximum number of mapblocks for client to be kept in memory.
-#    Set to -1 for unlimited amount.
-client_mapblock_limit (Mapblock limit) int 7500 -1 2147483647
+#    Note that there is an internal dynamic minimum number of blocks that
+#    won't be deleted, depending on the current view range.
+#    Set to -1 for no limit.
+client_mapblock_limit (Mapblock limit) [client] int 7500 -1 2147483647
 
 #    Maximum number of blocks that are simultaneously sent per client.
 #    The maximum total count is calculated dynamically:
 #    max_total = ceil((#clients + max_users) * per_client / 4)
-max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) int 40 1 4294967295
+max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 40 1 4294967295
 
 #    To reduce lag, block transfers are slowed down when a player is building something.
 #    This determines how long they are slowed down after placing or removing a node.
-full_block_send_enable_min_time_from_building (Delay in sending blocks after building) float 2.0 0.0
+full_block_send_enable_min_time_from_building (Delay in sending blocks after building) [server] float 2.0 0.0
 
 #    Maximum number of packets sent per send step in the low-level networking code.
 #    You generally don't need to change this, however busy servers may benefit from a higher number.
-max_packets_per_iteration (Max. packets per iteration) int 1024 1 65535
+max_packets_per_iteration (Max. packets per iteration) [common] int 1024 1 65535
 
 #    Compression level to use when sending mapblocks to the client.
 #    -1 - use default compression level
 #     0 - least compression, fastest
 #     9 - best compression, slowest
-map_compression_level_net (Map Compression Level for Network Transfer) int -1 -1 9
+map_compression_level_net (Map Compression Level for Network Transfer) [server] int -1 -1 9
 
-[**Server]
+[**Server] [server]
 
 #    Format of player chat messages. The following strings are valid placeholders:
 #    @name, @message, @timestamp (optional)
@@ -2071,7 +2100,7 @@ kick_msg_crash (Crash message) string This server has experienced an internal er
 #    Set this to true if your server is set up to restart automatically.
 ask_reconnect_on_crash (Ask to reconnect after crash) bool false
 
-[**Server/Env Performance]
+[**Server/Env Performance] [server]
 
 #    Length of a server tick (the interval at which everything is generally updated),
 #    stated in seconds.
@@ -2122,14 +2151,14 @@ max_objects_per_block (Maximum objects per block) int 256 256 65535
 active_block_mgmt_interval (Active block management interval) float 2.0 0.0
 
 #    Length of time between Active Block Modifier (ABM) execution cycles, stated in seconds.
-abm_interval (ABM interval) float 1.0 0.0
+abm_interval (ABM interval) float 1.0 0.1 30.0
 
 #    The time budget allowed for ABMs to execute on each step
 #    (as a fraction of the ABM Interval)
 abm_time_budget (ABM time budget) float 0.2 0.1 0.9
 
 #    Length of time between NodeTimer execution cycles, stated in seconds.
-nodetimer_interval (NodeTimer interval) float 0.2 0.0
+nodetimer_interval (NodeTimer interval) float 0.2 0.1 1.0
 
 #    Max liquids processed per step.
 liquid_loop_max (Liquid loop max) int 100000 1 4294967295
@@ -2164,7 +2193,7 @@ server_side_occlusion_culling (Server-side occlusion culling) bool true
 #    Stated in MapBlocks (16 nodes).
 block_cull_optimize_distance (Block cull optimize distance) int 25 2 2047
 
-[**Mapgen]
+[**Mapgen] [server]
 
 #    Size of mapchunks generated by mapgen, stated in mapblocks (16 nodes).
 #    WARNING: There is no benefit, and there are several dangers, in
@@ -2172,7 +2201,7 @@ block_cull_optimize_distance (Block cull optimize distance) int 25 2 2047
 #    Reducing this value increases cave and dungeon density.
 #    Altering this value is for special usage, leaving it unchanged is
 #    recommended.
-chunksize (Chunk size) int 5 1 10
+chunksize (Chunk size) [world_creation] int 5 1 10
 
 #    Dump the mapgen debug information.
 enable_mapgen_debug_info (Mapgen debug) bool false
@@ -2200,7 +2229,7 @@ emergequeue_limit_generate (Per-player limit of queued blocks to generate) int 1
 #    'on_generated'. For many users the optimum setting may be '1'.
 num_emerge_threads (Number of emerge threads) int 1 0 32767
 
-[**cURL]
+[**cURL] [common]
 
 #    Maximum time an interactive request (e.g. server list fetch) may take, stated in milliseconds.
 curl_timeout (cURL interactive timeout) int 20000 1000 2147483647
@@ -2217,42 +2246,49 @@ curl_file_download_timeout (cURL file download timeout) int 300000 5000 21474836
 
 [**Miscellaneous]
 
+#    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
+clickable_chat_weblinks (Chat weblinks) [client] bool true
+
+#    If enabled, invalid world data won't cause the server to shut down.
+#    Only enable this if you know what you are doing.
+ignore_world_load_errors (Ignore world errors) [server] bool false
+
 #    Adjust the detected display density, used for scaling UI elements.
-display_density_factor (Display Density Scaling Factor) float 1 0.5 5.0
+display_density_factor (Display Density Scaling Factor) [client] float 1 0.5 5.0
 
 #    Windows systems only: Start Luanti with the command line window in the background.
 #    Contains the same information as the file debug.txt (default name).
-enable_console (Enable console window) bool false
+enable_console (Enable console window) [common] bool false
 
 #    Number of extra blocks that can be loaded by /clearobjects at once.
 #    This is a trade-off between SQLite transaction overhead and
 #    memory consumption (4096=100MB, as a rule of thumb).
-max_clearobjects_extra_loaded_blocks (Max. clearobjects extra blocks) int 4096 0 4294967295
+max_clearobjects_extra_loaded_blocks (Max. clearobjects extra blocks) [server] int 4096 0 4294967295
 
 #    World directory (everything in the world is stored here).
 #    Not needed if starting from the main menu.
-map-dir (Map directory) path
+map-dir (Map directory) [server] path
 
 #    See https://www.sqlite.org/pragma.html#pragma_synchronous
-sqlite_synchronous (Synchronous SQLite) enum 2 0,1,2
+sqlite_synchronous (Synchronous SQLite) [server] enum 2 0,1,2
 
 #    Compression level to use when saving mapblocks to disk.
 #    -1 - use default compression level
 #     0 - least compression, fastest
 #     9 - best compression, slowest
-map_compression_level_disk (Map Compression Level for Disk Storage) int -1 -1 9
+map_compression_level_disk (Map Compression Level for Disk Storage) [server] int -1 -1 9
 
 #    Enable usage of remote media server (if provided by server).
 #    Remote servers offer a significantly faster way to download media (e.g. textures)
 #    when connecting to the server.
-enable_remote_media_server (Connect to external media server) bool true
+enable_remote_media_server (Connect to external media server) [client] bool true
 
 #    File in client/serverlist/ that contains your favorite servers displayed in the
 #    Multiplayer Tab.
-serverlist_file (Serverlist file) string favoriteservers.json
+serverlist_file (Serverlist file) [client] string favoriteservers.json
 
 
-[*Gamepads]
+[*Gamepads] [client]
 
 #    Enable joysticks. Requires a restart to take effect
 enable_joysticks (Enable joysticks) bool false
@@ -2275,7 +2311,7 @@ joystick_deadzone (Joystick dead zone) int 2048 0 65535
 joystick_frustum_sensitivity (Joystick frustum sensitivity) float 170.0 0.001
 
 
-[*Hide: Temporary Settings]
+[*Hide: Temporary Settings] [common]
 
 #    Path to texture directory. All textures are first searched from here.
 texture_path (Texture path) path

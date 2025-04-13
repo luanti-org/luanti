@@ -492,6 +492,39 @@ int ObjectRef::l_get_eye_offset(lua_State *L)
 	return 3;
 }
 
+int ObjectRef::l_set_camera(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	luaL_checktype(L, 2, LUA_TTABLE);
+
+	lua_getfield(L, -1, "mode");
+	if (lua_isstring(L, -1))
+		string_to_enum(es_CameraMode, player->allowed_camera_mode, lua_tostring(L, -1));
+	lua_pop(L, 1);
+
+	getServer(L)->SendCamera(player->getPeerId(), player);
+	return 0;
+}
+
+int ObjectRef::l_get_camera(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	lua_newtable(L);
+	setstringfield(L, -1, "mode", enum_to_string(es_CameraMode, player->allowed_camera_mode));
+
+	return 1;
+}
+
 // send_mapblock(self, pos)
 int ObjectRef::l_send_mapblock(lua_State *L)
 {
@@ -2964,6 +2997,8 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod(ObjectRef, respawn),
 	luamethod(ObjectRef, set_flags),
 	luamethod(ObjectRef, get_flags),
+	luamethod(ObjectRef, set_camera),
+	luamethod(ObjectRef, get_camera),
 
 	{0,0}
 };

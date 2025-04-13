@@ -16,7 +16,7 @@
 
 class BiomeManager;
 
-extern FlagDesc flagdesc_mapgen_v7[];
+extern const FlagDesc flagdesc_mapgen_v7[];
 
 
 struct MapgenV7Params : public MapgenParams {

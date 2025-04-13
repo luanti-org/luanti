@@ -54,7 +54,8 @@ function builtin_shared.make_registration()
 	local registerfunc = function(func)
 		t[#t + 1] = func
 		core.callback_origins[func] = {
-			mod = core.get_current_modname() or "??",
+			-- may be nil or return nil
+			mod = core.get_current_modname and core.get_current_modname() or "??",
 			name = debug.getinfo(1, "n").name or "??"
 		}
 	end
@@ -66,7 +67,8 @@ function builtin_shared.make_registration_reverse()
 	local registerfunc = function(func)
 		table.insert(t, 1, func)
 		core.callback_origins[func] = {
-			mod = core.get_current_modname() or "??",
+			-- may be nil or return nil
+			mod = core.get_current_modname and core.get_current_modname() or "??",
 			name = debug.getinfo(1, "n").name or "??"
 		}
 	end

@@ -16,7 +16,12 @@ class Database
 public:
 	virtual void beginSave() = 0;
 	virtual void endSave() = 0;
+
+	/// @return true if database connection is open
 	virtual bool initialized() const { return true; }
+
+	/// Open and initialize the database if needed
+	virtual void verifyDatabase() {};
 };
 
 class MapDatabase : public Database

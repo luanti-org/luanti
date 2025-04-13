@@ -34,9 +34,9 @@ void FpsControl::reset()
 	last_time = porting::getTimeUs();
 }
 
-void FpsControl::limit(IrrlichtDevice *device, f32 *dtime, bool assume_paused)
+void FpsControl::limit(IrrlichtDevice *device, f32 *dtime)
 {
-	const float fps_limit = (device->isWindowFocused() && !assume_paused)
+	const float fps_limit = device->isWindowFocused()
 			? g_settings->getFloat("fps_max")
 			: g_settings->getFloat("fps_max_unfocused");
 	const u64 frametime_min = 1000000.0f / std::max(fps_limit, 1.0f);
@@ -375,8 +375,8 @@ std::vector<video::E_DRIVER_TYPE> RenderingEngine::getSupportedVideoDrivers()
 	// Only check these drivers. We do not support software and D3D in any capacity.
 	// ordered by preference (best first)
 	static const video::E_DRIVER_TYPE glDrivers[] = {
-		video::EDT_OPENGL3,
 		video::EDT_OPENGL,
+		video::EDT_OPENGL3,
 		video::EDT_OGLES2,
 		video::EDT_NULL,
 	};
