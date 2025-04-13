@@ -286,7 +286,8 @@ void main(void)
 				(1.0 - mtsmoothstep(0.762, 0.792, f_timeofday));
 			nightFactor = adj_shadow_strength / f_shadow_strength;
 #ifdef ENABLE_TINTED_SUNLIGHT
-			sunTint = mix(vec3(1.0), getDirectLightScatteringAtGround(v_LightDirection), adj_shadow_strength / f_shadow_strength);
+			float tint_strength = 1.0 - mtsmoothstep(0.792, 0.5, f_timeofday) * mtsmoothstep(0.208, 0.5, f_timeofday);
+			sunTint = mix(vec3(1.0), getDirectLightScatteringAtGround(v_LightDirection), nightFactor * tint_strength);
 #endif
 		}
 	}

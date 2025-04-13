@@ -53,6 +53,8 @@ centroid varying float nightRatio;
 varying highp vec3 eyeVec;
 varying float nightFactor;
 
+#define PI 3.141592653589
+
 #ifdef ENABLE_DYNAMIC_SHADOWS
 #if (MATERIAL_WAVING_LIQUID && defined(ENABLE_WATER_REFLECTIONS))
 vec4 perm(vec4 x)
@@ -526,7 +528,7 @@ void main(void)
 		vec3 reflection_color = mix(vec3(max(fogColor.r, max(fogColor.g, fogColor.b))), fogColor.rgb, f_shadow_strength);
 
 		// Sky reflection
-		col.rgb += reflection_color * pow(fresnel_factor, 2.0) * 0.5 * brightness_factor;
+		col.rgb += reflection_color * pow(fresnel_factor, 2.0) * 0.3 * brightness_factor;
 
 		vec3 water_reflect_color =
 			1.5 * specular_intensity * sunTint * dayLight * fresnel_factor * max(1.0 - shadow_uncorrected, 0.0) *
@@ -539,14 +541,28 @@ void main(void)
 #if (defined(ENABLE_NODE_SPECULAR) && !MATERIAL_WATER_REFLECTIONS)
 		// Apply specular to blocks.
 		if (dot(v_LightDirection, vNormal) < 0.0) {
-			// This intensity is a placeholder and should be replaced by proper specular maps.
-			float intensity = specular_intensity * min(1.0, length(varColor.rgb * base.rgb));
-			const float specular_exponent = 5.0;
-			const float fresnel_exponent =  4.0;
+			// This intensity/roughness is a placeholder and should be replaced by proper specular maps.
+			float intensity = 0.35 * min(1.0, length(varColor.rgb * base.rgb));
+			float roughness = 0.5;
+
+			float rms = 1.0 / (1.0 - roughness) - 1.0;
+			vec3 half_vector = normalize(viewVec + v_LightDirection);
+			const float F0 = 0.04;
+
+			float HV = dot(viewVec, half_vector);
+			float HN = dot(fNormal, half_vector);
+			float VN = dot(viewVec, normalize(fNormal));
+			float LN = dot(v_LightDirection, fNormal);
+
+			float HN2 = HN*HN;
+
+			float beckmann = exp((HN2 - 1.0) / (rms * rms * HN2)) / (PI * rms * rms * HN2*HN2);
+			float geometry = min(min(1.0, 2.0 * HN * VN / HV), 2.0 * HN * LN / HV);
+			float fresnel_schlick = F0 + (1.0 - F0) * pow(1.0 - HV, 5.0);
 
 			col.rgb +=
-				sunTint * intensity * f_shadow_factor * dayLight * (1.0 - nightRatio) * (1.0 - shadow_uncorrected) *
-				pow(max(dot(reflect_ray, viewVec), 0.0), fresnel_exponent) * pow(1.0 - abs(dot(viewVec, fNormal)), specular_exponent);
+				sunTint * specular_intensity * f_shadow_factor * dayLight * (1.0 - nightRatio) * (1.0 - shadow_uncorrected) *
+				intensity * beckmann * geometry * fresnel_schlick / (VN * LN * PI);
 		}
 #endif
 
