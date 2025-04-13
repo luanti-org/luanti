@@ -276,6 +276,39 @@ keymap_drop (Drop item) key KEY_KEY_Q
 #    Key to use view zoom when possible.
 keymap_zoom (Zoom) key KEY_KEY_Z
 
+#    Key for toggling the display of the HUD.
+keymap_toggle_hud (Toggle HUD) key KEY_F1
+
+#    Key for toggling the display of chat.
+keymap_toggle_chat (Toggle chat log) key KEY_F2
+
+#    Key for toggling the display of the large chat console.
+keymap_console (Large chat console) key KEY_F10
+
+#    Key for toggling the display of fog.
+keymap_toggle_fog (Toggle fog) key KEY_F3
+
+#    Key for toggling the camera update. Only usable with 'debug' privilege.
+keymap_toggle_update_camera (Toggle camera update) key
+
+#    Key for toggling the display of debug info.
+keymap_toggle_debug (Toggle debug info) key KEY_F5
+
+#    Key for toggling the display of the profiler. Used for development.
+keymap_toggle_profiler (Toggle profiler) key KEY_F6
+
+#    Key for toggling the display of mapblock boundaries.
+keymap_toggle_block_bounds (Toggle block bounds) key
+
+#    Key for switching between first- and third-person camera.
+keymap_camera_mode (Toggle camera mode) key KEY_KEY_C
+
+#    Key for increasing the viewing range.
+keymap_increase_viewing_range_min (Increase view range) key +
+
+#    Key for decreasing the viewing range.
+keymap_decrease_viewing_range_min (Decrease view range) key -
+
 #    Key for selecting the first hotbar slot.
 keymap_slot1 (Hotbar slot 1) key KEY_KEY_1
 
@@ -371,39 +404,6 @@ keymap_slot31 (Hotbar slot 31) key
 
 #    Key for selecting the 32nd hotbar slot.
 keymap_slot32 (Hotbar slot 32) key
-
-#    Key for toggling the display of the HUD.
-keymap_toggle_hud (Toggle HUD) key KEY_F1
-
-#    Key for toggling the display of chat.
-keymap_toggle_chat (Toggle chat log) key KEY_F2
-
-#    Key for toggling the display of the large chat console.
-keymap_console (Large chat console) key KEY_F10
-
-#    Key for toggling the display of fog.
-keymap_toggle_fog (Toggle fog) key KEY_F3
-
-#    Key for toggling the camera update. Only usable with 'debug' privilege.
-keymap_toggle_update_camera (Toggle camera update) key
-
-#    Key for toggling the display of debug info.
-keymap_toggle_debug (Toggle debug info) key KEY_F5
-
-#    Key for toggling the display of the profiler. Used for development.
-keymap_toggle_profiler (Toggle profiler) key KEY_F6
-
-#    Key for toggling the display of mapblock boundaries.
-keymap_toggle_block_bounds (Toggle block bounds) key
-
-#    Key for switching between first- and third-person camera.
-keymap_camera_mode (Toggle camera mode) key KEY_KEY_C
-
-#    Key for increasing the viewing range.
-keymap_increase_viewing_range_min (Increase view range) key +
-
-#    Key for decreasing the viewing range.
-keymap_decrease_viewing_range_min (Decrease view range) key -
 
 [*Touchscreen]
 
