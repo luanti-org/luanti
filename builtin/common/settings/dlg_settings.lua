@@ -821,10 +821,7 @@ else
 			-- case it's a no-op
 			core.show_formspec("__builtin:settings", "")
 		end
-		dialog.show = function()
-			core.show_formspec("__builtin:settings", get_formspec(dialog.data))
-		end
 
-		dialog:show()
+		core.show_formspec("__builtin:settings", get_formspec(dialog.data))
 	end
 end

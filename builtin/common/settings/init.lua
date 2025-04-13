@@ -19,7 +19,6 @@ local path = core.get_builtin_path() .. "common" .. DIR_DELIM .. "settings" .. D
 
 dofile(path .. "settingtypes.lua")
 dofile(path .. "dlg_change_mapgen_flags.lua")
-dofile(path .. "dlg_change_keybinding.lua")
 dofile(path .. "dlg_settings.lua")
 
 -- Uncomment to generate 'minetest.conf.example' and 'settings_translation_file.cpp'.
