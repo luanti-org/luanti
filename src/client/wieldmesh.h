@@ -61,14 +61,14 @@ public:
 	ItemMeshBufferInfo(const TileLayer &layer);
 
 	ItemMeshBufferInfo(AnimationInfo *animation,
-			bool override = false, video::SColor color = {}) :
-		override_color(color), override_color_set(override),
+			bool override_c = false, video::SColor color = {}) :
+		override_color(color), override_color_set(override_c),
 		animation_info(animation ? std::make_unique<AnimationInfo>(*animation) : nullptr)
 	{}
 
 	ItemMeshBufferInfo(std::vector<FrameSpec> *frames, u16 frame_length_ms,
-			bool override = false, video::SColor color = {}) :
-		override_color(color), override_color_set(override),
+			bool override_c = false, video::SColor color = {}) :
+		override_color(color), override_color_set(override_c),
 		animation_info(std::make_unique<AnimationInfo>(frames, frame_length_ms))
 	{}
 
@@ -153,10 +153,10 @@ private:
 	 */
 	video::SColor m_base_color;
 
-	// nullptr if wield image is empty or not animated
+	// Empty if wield image is empty or not animated
 	// Owned by this class to get AnimationInfo for the mesh buffer info
-	std::unique_ptr<std::vector<FrameSpec>> m_wield_image_frames;
-	std::unique_ptr<std::vector<FrameSpec>> m_wield_overlay_frames;
+	std::vector<FrameSpec> m_wield_image_frames;
+	std::vector<FrameSpec> m_wield_overlay_frames;
 
 	// Bounding box culling is disabled for this type of scene node,
 	// so this variable is just required so we can implement
