@@ -20,9 +20,6 @@ namespace gui
 CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
 : SpriteBank(0), Driver(driver), Type(type)
 {
-	#ifdef _DEBUG
-	setDebugName("GUISkin");
-	#endif
 	Colors[EGDC_3D_DARK_SHADOW]     = video::SColor(101,50,50,50);
 	Colors[EGDC_3D_SHADOW]          = video::SColor(101,130,130,130);
 	Colors[EGDC_3D_FACE]            = video::SColor(220,70,70,70);
