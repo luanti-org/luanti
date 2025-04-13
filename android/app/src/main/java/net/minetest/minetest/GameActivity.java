@@ -304,10 +304,11 @@ public class GameActivity extends SDLActivity {
 			.setSmallIcon(R.mipmap.ic_launcher)
 			.setContentIntent(intent)
 			.setOngoing(true)
-			// This avoids a stuck notification after closing the app from the
-			// "Recents" screen while in-game.
+			// This avoids a stuck notification if the app is killed while
+			// in-game: (1) if the user closes the app from the "Recents" screen
+			// or (2) if the system kills the app while it is in background.
 			// onStop is called too early to remove the notification and
-			// onDestroy is often not called, so there's this hack instead.
+			// onDestroy is often not called at all, so there's this hack instead.
 			.setTimeoutAfter(11000);
 
 		mNotifyManager.notify(MainActivity.NOTIFICATION_ID_GAME, builder.build());
