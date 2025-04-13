@@ -61,13 +61,20 @@ private:
 		ItemMesh item_mesh;
 		Palette *palette;
 
-		// Null if non animated
 		// ItemVisuals owns the frames vector of the inventory and overlay image,
 		// and stores an AnimationInfo to draw animated non-mesh items,
-		using OwnedAnimationInfo = std::unique_ptr<std::pair<AnimationInfo,
-				std::vector<FrameSpec>>>;
-		OwnedAnimationInfo inventory_animation;
-		OwnedAnimationInfo inventory_overlay_animation;
+		struct OwnedAnimationInfo {
+			AnimationInfo info;
+			std::vector<FrameSpec> frames;
+
+			OwnedAnimationInfo(std::vector<FrameSpec> &&f, u16 frame_length_ms) : frames(f) {
+				info = AnimationInfo(&frames, frame_length_ms);
+			};
+		};
+
+		// Null if non animated
+		std::unique_ptr<OwnedAnimationInfo> inventory_animation;
+		std::unique_ptr<OwnedAnimationInfo> inventory_overlay_animation;
 
 		ItemVisuals():
 			inventory_texture(nullptr),
