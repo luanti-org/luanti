@@ -165,9 +165,8 @@ public:
 		}
 
 #ifndef IRR_COMPILE_GL_COMMON
-		// On GLES 3.0 we must use sized internal formats for textures in certain
-		// cases (e.g. with ETT_2D_MS). However ECF_A8R8G8B8 is mapped to GL_BGRA
-		// (an unsized format).
+		// On GLES 3.0 we must use sized internal formats for textures when calling
+		// glTexStorage. But ECF_A8R8G8B8 might be mapped to GL_BGRA (an unsized format).
 		// Since we don't upload to RTT we can safely pick a different combo that works.
 		if (InternalFormat == GL_BGRA && Driver->Version.Major >= 3) {
 			InternalFormat = GL_RGBA8;
@@ -271,7 +270,7 @@ public:
 				// For OpenGL an array texture is basically just a 3D texture internally.
 				// So if we call glGetTexImage() we would download the entire array,
 				// except the caller only wants a single layer.
-				// To do this properly we could have to use glGetTextureSubImage() [4.5]
+				// To do this properly we could use glGetTextureSubImage() [4.5]
 				// or some trickery with glTextureView() [4.3].
 				// Also neither of those will work on GLES.
 
@@ -522,10 +521,18 @@ protected:
 		}
 
 		// reference: <https://www.khronos.org/opengl/wiki/Texture_Storage>
+		bool use_tex_storage = Driver->getFeature().TexStorage;
+
+#ifndef IRR_COMPILE_GL_COMMON
+		// On GLES 3.0 if we don't have a sized format suitable for glTexStorage,
+		// just avoid using it. Only affects the extension that provides BGRA.
+		if (InternalFormat == GL_BGRA && Driver->Version.Major >= 3)
+			use_tex_storage = false;
+#endif
 
 		switch (Type) {
 		case ETT_2D:
-			if (Driver->getFeature().TexStorage) {
+			if (use_tex_storage) {
 				GL.TexStorage2D(TextureType, levels, InternalFormat,
 					Size.Width, Size.Height);
 			} else {
@@ -541,6 +548,7 @@ protected:
 
 			// glTexImage2DMultisample is supported by OpenGL 3.2+
 			// glTexStorage2DMultisample is supported by OpenGL 4.3+ and OpenGL ES 3.1+
+			// so pick the most compatible one
 #ifdef IRR_COMPILE_GL_COMMON // legacy driver
 			constexpr bool use_gl_impl = true;
 #else
@@ -557,7 +565,7 @@ protected:
 		case ETT_CUBEMAP:
 			for (u32 i = 0; i < 6; i++) {
 				GLenum target = getTextureTarget(i);
-				if (Driver->getFeature().TexStorage) {
+				if (use_tex_storage) {
 					GL.TexStorage2D(target, levels, InternalFormat,
 						Size.Width, Size.Height);
 				} else {
@@ -568,7 +576,7 @@ protected:
 			}
 			break;
 		case ETT_2D_ARRAY:
-			if (Driver->getFeature().TexStorage) {
+			if (use_tex_storage) {
 				GL.TexStorage3D(TextureType, levels, InternalFormat,
 					Size.Width, Size.Height, layers);
 			} else {
