@@ -120,6 +120,11 @@ namespace {
 	inline T subtract_or_zero(T a, T b) {
 		return b >= a ? T(0) : (a - b);
 	}
+
+	// file-scope thread-local instances of the above two data structures, because
+	// allocating memory in a hot path can be expensive.
+	thread_local MeshBufListMaps tl_meshbuflistmaps;
+	thread_local DrawDescriptorList tl_drawdescriptorlist;
 }
 
 void CachedMeshBuffer::drop()
@@ -978,8 +983,10 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	*/
 	TimeTaker tt_collect("");
 
-	MeshBufListMaps grouped_buffers;
-	DrawDescriptorList draw_order;
+	MeshBufListMaps &grouped_buffers = tl_meshbuflistmaps;
+	DrawDescriptorList &draw_order = tl_drawdescriptorlist;
+	grouped_buffers.clear();
+	draw_order.clear();
 
 	auto is_frustum_culled = m_client->getCamera()->getFrustumCuller();
 
@@ -1375,8 +1382,10 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 		return intToFloat(mesh_grid.getMeshPos(pos) * MAP_BLOCKSIZE - m_camera_offset, BS);
 	};
 
-	MeshBufListMaps grouped_buffers;
-	DrawDescriptorList draw_order;
+	MeshBufListMaps &grouped_buffers = tl_meshbuflistmaps;
+	DrawDescriptorList &draw_order = tl_drawdescriptorlist;
+	grouped_buffers.clear();
+	draw_order.clear();
 
 	std::size_t count = 0;
 	std::size_t meshes_per_frame = m_drawlist_shadow.size() / total_frames + 1;
