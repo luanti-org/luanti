@@ -342,6 +342,8 @@ struct ContentFeatures
 	u16 variant_count = 1;
 	// Node variant offset
 	u16 variant_offset = 0;
+	// Number of node variants
+	bool variant_pos = false;
 	// Bit field for variant in param2
 	BitField<u8> param2_variant;
 

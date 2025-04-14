@@ -403,7 +403,7 @@ void Minimap::blitMinimapPixelsToImageSurface(
 		MinimapPixel *mmpixel = &data->minimap_scan[x + z * data->mode.map_size];
 
 		const ContentFeatures &f = m_ndef->get(mmpixel->n);
-		u16 v = mmpixel->n.getVariant(f);
+		u16 v = mmpixel->n.getVariant(v3s16(x, 0, z), f); // We don't have y here
 		const TileDef *tile = &f.tiledef[v][0];
 		video::SColor minimap_color = f.minimap_color[v];
 

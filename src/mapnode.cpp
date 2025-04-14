@@ -38,12 +38,35 @@ void MapNode::getColor(const ContentFeatures &f, video::SColor *color) const
 	*color = f.color;
 }
 
-u16 MapNode::getVariant(const ContentFeatures &f) const
+#define rotl32(b, n)  ((b << n) | (b >> (32-n)))
+u16 MapNode::getVariant(const v3s16 &p, const ContentFeatures &f) const
 {
-	if (f.variant_count > 1)
-		return (f.param2_variant.get(param2) + f.variant_offset) % f.variant_count;
-	return 0;
+	if (f.variant_count <= 1) return 0;
+	if (f.variant_pos) {
+		u32 hash = 0; // could use world seed
+		// this is "almost Murmur3", but we trimmed it down to less
+		// instructions that still give the desired effect
+		// double cast, as float to unsigned int is not well specified
+		// u32 hX = totl32(((u16)(s16)p.X) * (u32) 0xcc9e2d51, 15);
+		// u32 hY = rotl32(((u16)(s16)p.Y) * (u32) 0xcc9e2d51, 15);
+		// u32 hZ = rotl32(((u16)(s16)p.Z) * (u32) 0xcc9e2d51, 15);
+		u32 hX = ((u16)(s16)p.X) * 0xcc9e2d51;
+		u32 hY = ((u16)(s16)p.Y) * 0xcc9e2d51;
+		u32 hZ = ((u16)(s16)p.Z) * 0xcc9e2d51;
+		hash = rotl32(hash ^ hX, 13); // * 5 + 0xe6546b64;
+		hash = rotl32(hash ^ hY, 13); // * 5 + 0xe6546b64;
+		hash = rotl32(hash ^ hZ, 13); // * 5 + 0xe6546b64;
+		// partial Murmur3 finalizer for avalanching
+		hash ^= hash >> 16;
+		hash *= 0x85ebca6b;
+		hash ^= hash >> 13;
+		//hash *= 0xc2b2ae35;
+		//hash ^= hash >> 16;
+		return hash % f.variant_count;
+	}
+	return (f.param2_variant.get(param2) + f.variant_offset) % f.variant_count;
 }
+#undef rotl32
 
 u8 MapNode::getFaceDir(const NodeDefManager *nodemgr,
 	bool allow_wallmounted) const

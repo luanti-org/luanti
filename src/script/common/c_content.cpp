@@ -738,6 +738,8 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	f.param2_variant = read_bitfield<u8>(L, -1);
 	lua_pop(L, 1);
 
+	getboolfield(L, index, "variant_pos", f.variant_pos);
+
 	/* Cache existence of some callbacks */
 	lua_getfield(L, index, "on_construct");
 	if(!lua_isnil(L, -1)) f.has_on_construct = true;
@@ -1043,6 +1045,8 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	lua_setfield(L, -2, "variant_count");
 	push_bitfield(L, c.param2_variant);
 	lua_setfield(L, -2, "param2_variant");
+	lua_pushboolean(L, c.variant_pos);
+	lua_setfield(L, -2, "variant_pos");
 	lua_pushboolean(L, c.has_on_construct);
 	lua_setfield(L, -2, "has_on_construct");
 	lua_pushboolean(L, c.has_on_destruct);

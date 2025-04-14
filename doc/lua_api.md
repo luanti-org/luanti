@@ -1152,6 +1152,11 @@ Example node with variants:
     })
 
 
+Alternatively, variants can depend on the position. This is convenient for minor variations
+in textures such as stone or grass that solely serve the purpose of making the world look
+more interesting. In this case, the variant cannot be controlled by the user, but it is
+computed using `hash(pos) % variant_count`. To enable this, set `variant_pos = true`.
+
 
 Sounds
 ======

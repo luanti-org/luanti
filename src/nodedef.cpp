@@ -371,6 +371,7 @@ void ContentFeatures::reset()
 	param_type_2 = CPT2_NONE;
 	variant_count = 1;
 	variant_offset = 0;
+	variant_pos = false;
 	param2_variant = BitField<u8>();
 	is_ground_content = false;
 	light_propagates = false;
@@ -556,6 +557,7 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 		for (const TileDef &td : tiledef_special[v])
 			td.serialize(os, protocol_version);
 	}
+	writeU8(os, variant_pos);
 }
 
 void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
@@ -723,6 +725,10 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 			for (TileDef &td : tiledef_special[v])
 				td.deSerialize(is, drawtype, protocol_version);
 		}
+
+		variant_pos  = readU8(is);
+		if (is.eof())
+			throw SerializationError("");
 	} catch (SerializationError &e) {};
 }
 

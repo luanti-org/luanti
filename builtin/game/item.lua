@@ -643,6 +643,7 @@ core.nodedef_default = {
 	description = "",
 	groups = {},
 	variant_count = 1,
+	variant_pos = false,
 	inventory_image = "",
 	wield_image = "",
 	wield_scale = vector.new(1, 1, 1),

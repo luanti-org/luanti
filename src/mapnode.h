@@ -198,9 +198,10 @@ struct alignas(u32) MapNode
 
 	/*!
 	 * Returns the variant of the node.
+	 * \param p position of this node
 	 * \param f content features of this node
 	 */
-	u16 getVariant(const ContentFeatures &f) const;
+	u16 getVariant(const v3s16 &p, const ContentFeatures &f) const;
 
 	inline void setLight(LightBank bank, u8 a_light, ContentLightingFlags f) noexcept
 	{

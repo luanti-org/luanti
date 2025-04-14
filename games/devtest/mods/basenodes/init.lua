@@ -12,6 +12,13 @@ core.register_node("basenodes:stone", {
 	description = "Stone",
 	tiles = {"default_stone.png"},
 	groups = {cracky=3},
+	variant_count = 4,
+	variants = {
+		{ tiles = { "default_stone.png^[transformR180" } },
+		{ tiles = { "default_stone.png^[transformFX" } },
+		{ tiles = { "default_stone.png^[transformFY" } },
+	},
+	variant_pos = true,
 })
 
 core.register_node("basenodes:desert_stone", {
@@ -32,6 +39,25 @@ core.register_node("basenodes:dirt_with_grass", {
 		{name = "default_grass_side.png", tileable_vertical = false},
 	},
 	groups = {crumbly=3, soil=1},
+	variant_count = 4,
+	variants = {
+		{ tiles = { "default_dirt.png^[transform1" },
+		  overlay_tiles = { "default_grass.png^[transform1",
+			  "basenodes_dirt_with_grass_bottom.png^[transform1",
+			  {name = "default_grass_side.png^[transformFX", tileable_vertical = false} },
+		},
+		{ tiles = { "default_dirt.png^[transform2" },
+		  overlay_tiles = { "default_grass.png^[transform2",
+			  "basenodes_dirt_with_grass_bottom.png^[transform2",
+			  {name = "default_grass_side.png", tileable_vertical = false} },
+		},
+		{ tiles = { "default_dirt.png^[transform3" },
+		  overlay_tiles = { "default_grass.png^[transform3",
+			  "basenodes_dirt_with_grass_bottom.png^[transform3",
+			  {name = "default_grass_side.png^[transformFX", tileable_vertical = false} },
+		},
+	},
+	variant_pos = true,
 })
 
 core.register_node("basenodes:dirt_with_snow", {
@@ -47,6 +73,17 @@ core.register_node("basenodes:dirt_with_snow", {
 core.register_node("basenodes:dirt", {
 	description = "Dirt",
 	tiles ={"default_dirt.png"},
+	variant_count = 8,
+	variants = {
+		{tiles ={"default_dirt.png^[transform1"},},
+		{tiles ={"default_dirt.png^[transform2"},},
+		{tiles ={"default_dirt.png^[transform3"},},
+		{tiles ={"default_dirt.png^[transform4"},},
+		{tiles ={"default_dirt.png^[transform5"},},
+		{tiles ={"default_dirt.png^[transform6"},},
+		{tiles ={"default_dirt.png^[transform7"},},
+	},
+	variant_pos = true,
 	groups = {crumbly=3, soil=1},
 })
 
