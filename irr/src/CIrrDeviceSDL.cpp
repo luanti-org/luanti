@@ -834,23 +834,44 @@ bool CIrrDeviceSDL::run()
 					MouseButtonStates &= ~irr::EMBSM_MIDDLE;
 				}
 				break;
+
+			// Since Irrlicht does not have event types for X1/X2 buttons, we simply pass
+			// those as keycodes instead. This is relatively hacky but avoids the effort of
+			// adding more mouse events that will be discarded anyway once we switch to SDL
+			case SDL_BUTTON_X1:
+				irrevent.EventType = irr::EET_KEY_INPUT_EVENT;
+				irrevent.KeyInput.Key = irr::KEY_XBUTTON1;
+				break;
+
+			case SDL_BUTTON_X2:
+				irrevent.EventType = irr::EET_KEY_INPUT_EVENT;
+				irrevent.KeyInput.Key = irr::KEY_XBUTTON2;
+				break;
 			}
 
-			irrevent.MouseInput.ButtonStates = MouseButtonStates;
+			if (irrevent.EventType == irr::EET_MOUSE_INPUT_EVENT) {
+				irrevent.MouseInput.ButtonStates = MouseButtonStates;
 
-			if (irrevent.MouseInput.Event != irr::EMIE_MOUSE_MOVED) {
-				postEventFromUser(irrevent);
+				if (irrevent.MouseInput.Event != irr::EMIE_MOUSE_MOVED) {
+					postEventFromUser(irrevent);
 
-				if (irrevent.MouseInput.Event >= EMIE_LMOUSE_PRESSED_DOWN && irrevent.MouseInput.Event <= EMIE_MMOUSE_PRESSED_DOWN) {
-					u32 clicks = checkSuccessiveClicks(irrevent.MouseInput.X, irrevent.MouseInput.Y, irrevent.MouseInput.Event);
-					if (clicks == 2) {
-						irrevent.MouseInput.Event = (EMOUSE_INPUT_EVENT)(EMIE_LMOUSE_DOUBLE_CLICK + irrevent.MouseInput.Event - EMIE_LMOUSE_PRESSED_DOWN);
-						postEventFromUser(irrevent);
-					} else if (clicks == 3) {
-						irrevent.MouseInput.Event = (EMOUSE_INPUT_EVENT)(EMIE_LMOUSE_TRIPLE_CLICK + irrevent.MouseInput.Event - EMIE_LMOUSE_PRESSED_DOWN);
-						postEventFromUser(irrevent);
+					if (irrevent.MouseInput.Event >= EMIE_LMOUSE_PRESSED_DOWN && irrevent.MouseInput.Event <= EMIE_MMOUSE_PRESSED_DOWN) {
+						u32 clicks = checkSuccessiveClicks(irrevent.MouseInput.X, irrevent.MouseInput.Y, irrevent.MouseInput.Event);
+						if (clicks == 2) {
+							irrevent.MouseInput.Event = (EMOUSE_INPUT_EVENT)(EMIE_LMOUSE_DOUBLE_CLICK + irrevent.MouseInput.Event - EMIE_LMOUSE_PRESSED_DOWN);
+							postEventFromUser(irrevent);
+						} else if (clicks == 3) {
+							irrevent.MouseInput.Event = (EMOUSE_INPUT_EVENT)(EMIE_LMOUSE_TRIPLE_CLICK + irrevent.MouseInput.Event - EMIE_LMOUSE_PRESSED_DOWN);
+							postEventFromUser(irrevent);
+						}
 					}
 				}
+			} else { // key event
+				irrevent.KeyInput.Char = 0;
+				irrevent.KeyInput.PressedDown = SDL_event.type == SDL_MOUSEBUTTONDOWN;
+				irrevent.KeyInput.Shift = (keymod & KMOD_SHIFT) != 0;
+				irrevent.KeyInput.Control = (keymod & KMOD_CTRL) != 0;
+				postEventFromUser(irrevent);
 			}
 			break;
 		}
