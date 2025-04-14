@@ -11311,7 +11311,8 @@ The `PlayerHPChangeReason` table specifies a reason for player health changes.
     * `node_damage`: `damage_per_second` from a neighboring node.
 		     `reason.node` will hold the node name or nil.
 		     `reason.node_pos` will hold the position of the node
-    * `drown`: Drowning damage.
+    * `drown`: Drowning damage from a node with the `drowning` field set.
+               `reason.node` and `reason.node_pos` are same as for `node_damage`
     * `respawn`: HP restored by respawning.
 * The `detail` field may optionally be used to provide a more detailed reason
     as a string. It's recommended to follow the `modname:detail` naming convention.
