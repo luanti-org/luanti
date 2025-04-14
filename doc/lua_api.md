@@ -6222,25 +6222,13 @@ Call these functions only at load time!
         calculating the HP change. This clamping has been removed as of
         version 5.10.0
     * `reason`: a PlayerHPChangeReason table.
-        * The `type` field will have one of the following values:
-            * `set_hp`: A mod or the engine called `set_hp` without
-                        giving a type - use this for custom damage types.
-            * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
-            * `fall`
-            * `node_damage`: `damage_per_second` from a neighboring node.
-                             `reason.node` will hold the node name or nil.
-                             `reason.node_pos` will hold the position of the node
-            * `drown`
-            * `respawn`
-        * Any of the above types may have additional fields from mods.
-        * `reason.from` will be `mod` or `engine`.
     * `modifier`: when true, the function should return the actual `hp_change`.
        Note: modifiers only get a temporary `hp_change` that can be modified by later modifiers.
        Modifiers can return true as a second argument to stop the execution of further functions.
        Non-modifiers receive the final HP change calculated by the modifiers.
 * `core.register_on_dieplayer(function(ObjectRef, reason))`
     * Called when a player dies
-    * `reason`: a PlayerHPChangeReason table, see register_on_player_hpchange
+    * `reason`: a `PlayerHPChangeReason` table
     * For customizing the death screen, see `core.show_death_screen`.
 * `core.register_on_respawnplayer(function(ObjectRef))`
     * Called when player is to be respawned
@@ -8490,7 +8478,7 @@ child will follow movement and rotation of that bone.
     * note: this is called `right_click` for historical reasons only
 * `get_hp()`: returns number of health points
 * `set_hp(hp, reason)`: set number of health points
-    * See reason in register_on_player_hpchange
+    * reason: A PlayerHPChangeReason table (optional)
     * Is limited to the range of 0 ... 65535 (2^16 - 1)
     * For players: HP are also limited by `hp_max` specified in object properties
 * `get_inventory()`: returns an `InvRef` for players, otherwise returns `nil`
@@ -11308,6 +11296,35 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     -- See section [L-system trees] for more details.
 }
 ```
+
+PlayerHPChangeReason table definition
+-------------------------------------
+
+The `PlayerHPChangeReason` table specifies a reason for player health changes.
+
+* The `type` field will have one of the following values:
+    * `set_hp`: A mod or the engine called `set_hp`, either without
+		giving a reason, or by setting `set_hp` as damage type
+                explicitly
+    * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
+    * `fall`: Fall damage.
+    * `node_damage`: `damage_per_second` from a neighboring node.
+		     `reason.node` will hold the node name or nil.
+		     `reason.node_pos` will hold the position of the node
+    * `drown`: Drowning damage.
+    * `respawn`: HP restored by respawning.
+* The `detail` field may optionally be used to provide a more detailed reason
+    as a string. It's recommended to follow the `modname:detail` naming convention.
+    These detail names exist by default:
+    * `__builtin:item_eat`: HP change caused by `core.do_item_eat`
+    * `__builtin:kill_command`: `/kill` command
+* The `from` field denotes the origin of the HP change:
+    * `engine`: Engine
+    * `mod`: Mod or builtin
+* Mods may add additional fields
+
+Note: The `from` field doesn't need to be provided in the `set_hp` method,
+the engine will automatically set it to `mod`.
 
 Chat command definition
 -----------------------
