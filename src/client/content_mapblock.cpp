@@ -1776,7 +1776,7 @@ void MapblockMeshGenerator::drawNode()
 }
 
 void MapblockMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::vector<v3s16> &bases, v3s16 from, v3s16 to){
-    std::vector<s16> max_dists(bases.size(), S16_MAX);
+    std::vector<s16> min_dists(bases.size(), S16_MAX);
     std::vector<v3s16> outs(bases.size());
     v3s16 p;
     for (p.Z = from.Z; p.Z < to.Z; p.Z++)
@@ -1789,9 +1789,12 @@ void MapblockMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::vecto
         if (!types.test(f->drawtype))
             continue;
         for (u8 i = 0; i < bases.size(); i++) { // calc distance for every corner
-            u16 new_dist = std::abs(bases[i].X - p.X) + std::abs(bases[i].Y - p.Y) + std::abs(bases[i].Z - p.Z);
-            if (new_dist < max_dists[i]) {
-                max_dists[i] = new_dist;
+            u16 dx = bases[i].X - p.X;
+            u16 dy = bases[i].Y - p.Y;
+            u16 dz = bases[i].Z - p.Z;
+            u16 new_dist = dx*dx + dy*dy + dz*dz;
+            if (new_dist < min_dists[i]) {
+                min_dists[i] = new_dist;
                 outs[i] = p;
             }
         }
@@ -1829,11 +1832,29 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
         if(!doesVolumeContainType(types, from, to))
             continue;
 
-        std::vector<v3s16> bounds = { from, to };
-        findClosestOfTypes(types, bounds, from, to);
-
-        v3s16 lxlylz = std::move(bounds[0]);
-        v3s16 hxhyhz = std::move(bounds[1]);
+        v3s16 lxlylz = v3s16(S16_MAX);
+        v3s16 hxhyhz = v3s16(S16_MIN);
+        MapNode main_node;
+        v3s16 main_point;
+        v3s16 p;
+        for (p.Y = from.Y; p.Y < to.Y; p.Y++)
+        for (p.Z = from.Z; p.Z < to.Z; p.Z++)
+        for (p.X = from.X; p.X < to.X; p.X++){
+            MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
+            if (n.getContent() == CONTENT_IGNORE)
+                continue;
+            const ContentFeatures *f = &nodedef->get(n);
+            if (!types.test(f->drawtype))
+                continue;
+            main_node = n;
+            main_point = p;
+            lxlylz.X = MYMIN(lxlylz.X , p.X);
+            lxlylz.Y = MYMIN(lxlylz.Y , p.Y);
+            lxlylz.Z = MYMIN(lxlylz.Z , p.Z);
+            hxhyhz.X = MYMAX(hxhyhz.X , p.X);
+            hxhyhz.Y = MYMAX(hxhyhz.Y , p.Y);
+            hxhyhz.Z = MYMAX(hxhyhz.Z , p.Z);
+        }
 
         if (lxlylz == hxhyhz)
             continue;
@@ -1844,8 +1865,6 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
         v3s16 hxlylz(hxhyhz.X, lxlylz.Y, lxlylz.Z);
         v3s16 hxlyhz(hxhyhz.X, lxlylz.Y, hxhyhz.Z);
         v3s16 hxhylz(hxhyhz.X, hxhyhz.Y, lxlylz.Z);
-
-        MapNode hxhyhz_n = data->m_vmanip.getNodeNoExNoEmerge(hxhyhz);
 
         core::vector3df lxlylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
         core::vector3df lxlyhz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
@@ -1864,10 +1883,10 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
                                           {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
         TileSpec tile;
         for(u8 i = 0; i < 6; i++){
-            if ((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])))->drawtype == NDT_NORMAL &&
-                (&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])))->drawtype == NDT_NORMAL &&
-                (&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])))->drawtype == NDT_NORMAL &&
-                (&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])))->drawtype == NDT_NORMAL)
+            if (types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])))->drawtype))
                 continue;
 
             u8 day_light = 0;
@@ -1883,19 +1902,16 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
             day_light = decode_light(day_light);
             night_light = decode_light(night_light);
 
-            MapNode n1 = data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1]);
-            MapNode n2 = data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3]);
-            video::SColor color1 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n1).light_source);
-            video::SColor color2 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n2).light_source);
-
+            video::SColor color = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(main_node).light_source);
             core::vector3df normal(directions[i].X, directions[i].Y, directions[i].Z);
+
             video::S3DVertex v[4] = {
-                video::S3DVertex(vertices[i][0], normal, color1, uvs[0]), // uvs are 0 1
-                video::S3DVertex(vertices[i][1], normal, color1, uvs[1]), // uvs are 0 0
-                video::S3DVertex(vertices[i][2], normal, color2, uvs[2]), // uvs are 1 1
-                video::S3DVertex(vertices[i][3], normal, color2, uvs[3]), // uvs are 1 0
+                video::S3DVertex(vertices[i][0], normal, color, uvs[0]), // uvs are 0 1
+                video::S3DVertex(vertices[i][1], normal, color, uvs[1]), // uvs are 0 0
+                video::S3DVertex(vertices[i][2], normal, color, uvs[2]), // uvs are 1 1
+                video::S3DVertex(vertices[i][3], normal, color, uvs[3]), // uvs are 1 0
             };
-            getNodeTile(hxhyhz_n, hxhyhz, directions[i], data, tile);
+            getNodeTile(main_node, main_point, directions[i], data, tile);
             lod_mutex.lock();
             collector->append(tile, v, 4, quad_indices, 6);
             lod_mutex.unlock();
