@@ -1775,47 +1775,25 @@ void MapblockMeshGenerator::drawNode()
 	}
 }
 
-void MapblockMeshGenerator::findFurthestSolidFrom(std::bitset<19> types, v3s16 (&bases)[8], v3s16 from, v3s16 to){
-    s16 max_dists[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
-    v3s16 outs[8];
+void MapblockMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::vector<v3s16> &bases, v3s16 from, v3s16 to){
+    std::vector<s16> max_dists(bases.size(), S16_MAX);
+    std::vector<v3s16> outs(bases.size());
     v3s16 p;
     for (p.Z = from.Z; p.Z < to.Z; p.Z++)
     for (p.Y = from.Y; p.Y < to.Y; p.Y++)
-    for (p.X = from.X; p.X < to.X; p.X++)
-    for (u8 i = 0; i < 8; i++) { // calc distance for every corner
-        u16 new_dist = std::abs(bases[i].X - p.X) + std::abs(bases[i].Y - p.Y) + std::abs(bases[i].Z - p.Z);
-        if (new_dist <= max_dists[i])
+    for (p.X = from.X; p.X < to.X; p.X++){
+        MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
+        if (n.getContent() == CONTENT_IGNORE)
             continue;
-
-        MapNode n = data->m_vmanip.getNodeNoEx(p);
         const ContentFeatures *f = &nodedef->get(n);
-
-        if (types.test(f->drawtype)) {
-            max_dists[i] = new_dist;
-            outs[i] = p;
-        }
-    }
-    std::copy(std::make_move_iterator(std::begin(outs)), std::make_move_iterator(std::end(outs)), std::begin(bases));
-}
-
-void MapblockMeshGenerator::findFurthestSolidFrom(std::bitset<19> types, v3s16 (&bases)[2], v3s16 from, v3s16 to){
-    s16 max_dists[2] = {-1, -1};
-    v3s16 outs[2];
-    v3s16 p;
-    for (p.Z = from.Z; p.Z < to.Z; p.Z++)
-    for (p.Y = from.Y; p.Y < to.Y; p.Y++)
-    for (p.X = from.X; p.X < to.X; p.X++)
-    for (u8 i = 0; i < 2; i++) { // calc distance for every corner
-        u16 new_dist = std::abs(bases[i].X - p.X) + std::abs(bases[i].Y - p.Y) + std::abs(bases[i].Z - p.Z);
-        if (new_dist <= max_dists[i])
+        if (!types.test(f->drawtype))
             continue;
-
-        MapNode n = data->m_vmanip.getNodeNoEx(p);
-        const ContentFeatures *f = &nodedef->get(n);
-
-        if (types.test(f->drawtype)) {
-            max_dists[i] = new_dist;
-            outs[i] = p;
+        for (u8 i = 0; i < bases.size(); i++) { // calc distance for every corner
+            u16 new_dist = std::abs(bases[i].X - p.X) + std::abs(bases[i].Y - p.Y) + std::abs(bases[i].Z - p.Z);
+            if (new_dist < max_dists[i]) {
+                max_dists[i] = new_dist;
+                outs[i] = p;
+            }
         }
     }
     std::copy(std::make_move_iterator(std::begin(outs)), std::make_move_iterator(std::end(outs)), std::begin(bases));
@@ -1826,7 +1804,9 @@ bool MapblockMeshGenerator::doesVolumeContainType(std::bitset<19> types, v3s16 f
     for (p.Z = from.Z; p.Z < to.Z; p.Z++)
     for (p.Y = from.Y; p.Y < to.Y; p.Y++)
     for (p.X = from.X; p.X < to.X; p.X++) {
-        MapNode n = data->m_vmanip.getNodeNoEx(p);
+        MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
+        if (n.getContent() == CONTENT_IGNORE)
+            continue;
         const ContentFeatures *f = &nodedef->get(n);
         if(types.test(f->drawtype))
             return true;
@@ -1849,8 +1829,8 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
         if(!doesVolumeContainType(types, from, to))
             continue;
 
-        v3s16 bounds[2] = { to, from };
-        findFurthestSolidFrom(types, bounds, from, to);
+        std::vector<v3s16> bounds = { from, to };
+        findClosestOfTypes(types, bounds, from, to);
 
         v3s16 lxlylz = std::move(bounds[0]);
         v3s16 hxhyhz = std::move(bounds[1]);
@@ -1864,6 +1844,8 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
         v3s16 hxlylz(hxhyhz.X, lxlylz.Y, lxlylz.Z);
         v3s16 hxlyhz(hxhyhz.X, lxlylz.Y, hxhyhz.Z);
         v3s16 hxhylz(hxhyhz.X, hxhyhz.Y, lxlylz.Z);
+
+        MapNode hxhyhz_n = data->m_vmanip.getNodeNoExNoEmerge(hxhyhz);
 
         core::vector3df lxlylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
         core::vector3df lxlyhz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
@@ -1882,35 +1864,38 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
                                           {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
         TileSpec tile;
         for(u8 i = 0; i < 6; i++){
-            if ((&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][0] + directions[i])))->drawtype == NDT_NORMAL &&
-                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][1] + directions[i])))->drawtype == NDT_NORMAL &&
-                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][2] + directions[i])))->drawtype == NDT_NORMAL &&
-                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][3] + directions[i])))->drawtype == NDT_NORMAL)
+            if ((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])))->drawtype == NDT_NORMAL &&
+                (&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])))->drawtype == NDT_NORMAL &&
+                (&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])))->drawtype == NDT_NORMAL &&
+                (&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])))->drawtype == NDT_NORMAL)
                 continue;
-            // u8 day_light = 0;
-            // u8 night_light = 0;
-            // for (v3s16 p : node_coords[i]){
-            //     if (type == NDT_NORMAL)
-            //         p += directions[i];
-            //     MapNode n = data->m_vmanip.getNodeNoEx(p);
-            //     ContentLightingFlags f = nodedef->getLightingFlags(n);
-            //     day_light = MYMAX(day_light, n.getLightRaw(LIGHTBANK_DAY, f));
-            //     night_light = MYMAX(night_light, n.getLightRaw(LIGHTBANK_NIGHT, f));
-            // }
-            // day_light = decode_light(day_light);
-            // night_light = decode_light(night_light);
 
-            MapNode n = data->m_vmanip.getNodeNoEx(hxhyhz);
-            video::SColor color = encode_light(LightPair((u8) 255, (u8) 0), nodedef->getLightingFlags(n).light_source);
+            u8 day_light = 0;
+            u8 night_light = 0;
+            for (v3s16 p : node_coords[i]){
+                MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
+                if ((&nodedef->get(n))->drawtype == NDT_NORMAL)
+                    n = data->m_vmanip.getNodeNoExNoEmerge(p + directions[i]);
+                ContentLightingFlags f = nodedef->getLightingFlags(n);
+                day_light = MYMAX(day_light, n.getLightRaw(LIGHTBANK_DAY, f));
+                night_light = MYMAX(night_light, n.getLightRaw(LIGHTBANK_NIGHT, f));
+            }
+            day_light = decode_light(day_light);
+            night_light = decode_light(night_light);
+
+            MapNode n1 = data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1]);
+            MapNode n2 = data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3]);
+            video::SColor color1 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n1).light_source);
+            video::SColor color2 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n2).light_source);
 
             core::vector3df normal(directions[i].X, directions[i].Y, directions[i].Z);
             video::S3DVertex v[4] = {
-                video::S3DVertex(vertices[i][0], normal, color, uvs[0]), // uvs are 0 1
-                video::S3DVertex(vertices[i][1], normal, color, uvs[1]), // uvs are 0 0
-                video::S3DVertex(vertices[i][2], normal, color, uvs[2]), // uvs are 1 1
-                video::S3DVertex(vertices[i][3], normal, color, uvs[3]), // uvs are 1 0
+                video::S3DVertex(vertices[i][0], normal, color1, uvs[0]), // uvs are 0 1
+                video::S3DVertex(vertices[i][1], normal, color1, uvs[1]), // uvs are 0 0
+                video::S3DVertex(vertices[i][2], normal, color2, uvs[2]), // uvs are 1 1
+                video::S3DVertex(vertices[i][3], normal, color2, uvs[3]), // uvs are 1 0
             };
-            getNodeTile(n, hxhyhz, directions[i], data, tile);
+            getNodeTile(hxhyhz_n, hxhyhz, directions[i], data, tile);
             lod_mutex.lock();
             collector->append(tile, v, 4, quad_indices, 6);
             lod_mutex.unlock();
@@ -1918,7 +1903,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
     }
 }
 
-void MapblockMeshGenerator::generateLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset){
+void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset){
     static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
                                         v3s16(-1, 0, 0), v3s16(1, 0, 0),
                                         v3s16(0, 0, -1), v3s16(0, 0, 1)};
@@ -1935,16 +1920,18 @@ void MapblockMeshGenerator::generateLod(std::bitset<19> types, u16 width, core::
 
         // eg lxhylz = corner of a block, where x and z are lowest and y is highest
         // lxhylz is initialized with the values for the opposite corner, so high x and z, low y
-        v3s16 bounds[8] = {blockpos_nodes + v3s16(x + width, y + width, z + width), //   lxlylz
-                           blockpos_nodes + v3s16(x + width, y + width, z), //           lxlyhz
-                           blockpos_nodes + v3s16(x + width, y, z + width), //           lxhylz
-                           blockpos_nodes + v3s16(x + width, y, z), //                   lxhyhz
-                           blockpos_nodes + v3s16(x, y + width, z + width), //           hxlylz
-                           blockpos_nodes + v3s16(x, y + width, z), //                   hxlyhz
-                           blockpos_nodes + v3s16(x, y, z + width), //                   hxhylz
-                           blockpos_nodes + v3s16(x, y, z)}; //                          hxhyhz
+        std::vector<v3s16> bounds = {
+            blockpos_nodes + v3s16(x, y, z), //                          hxhyhz
+            blockpos_nodes + v3s16(x, y, z + width), //                  hxhylz
+            blockpos_nodes + v3s16(x, y + width, z), //                  hxlyhz
+            blockpos_nodes + v3s16(x, y + width, z + width), //          hxlylz
+            blockpos_nodes + v3s16(x + width, y, z), //                  lxhyhz
+            blockpos_nodes + v3s16(x + width, y, z + width), //          lxhylz
+            blockpos_nodes + v3s16(x + width, y + width, z), //          lxlyhz
+            blockpos_nodes + v3s16(x + width, y + width, z + width), //  lxlylz
+        };
         // updates bounds to contain the actual bounds of the LOD object, where the corners are the nodes furthest away from their previous value
-        findFurthestSolidFrom(types, bounds, from, to);
+        findClosestOfTypes(types, bounds, from, to);
 
         // moving for legibility
         v3s16 lxlylz = std::move(bounds[0]);
@@ -1978,10 +1965,10 @@ void MapblockMeshGenerator::generateLod(std::bitset<19> types, u16 width, core::
                                           {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
         TileSpec tile;
         for(u8 i = 0; i < 6; i++){
-            if ((&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][0] + directions[i])))->drawtype == NDT_NORMAL &&
-                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][1] + directions[i])))->drawtype == NDT_NORMAL &&
-                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][2] + directions[i])))->drawtype == NDT_NORMAL &&
-                (&nodedef->get(data->m_vmanip.getNodeNoEx(node_coords[i][3] + directions[i])))->drawtype == NDT_NORMAL)
+            if (types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])))->drawtype))
                 continue;
 
             u8 day_light = 0;
@@ -1989,7 +1976,7 @@ void MapblockMeshGenerator::generateLod(std::bitset<19> types, u16 width, core::
             for (v3s16 p : node_coords[i]){
                 if (types.test(NDT_NORMAL))
                     p += directions[i];
-                MapNode n = data->m_vmanip.getNodeNoEx(p);
+                MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
                 ContentLightingFlags f = nodedef->getLightingFlags(n);
                 day_light = MYMAX(day_light, n.getLightRaw(LIGHTBANK_DAY, f));
                 night_light = MYMAX(night_light, n.getLightRaw(LIGHTBANK_NIGHT, f));
@@ -1997,8 +1984,8 @@ void MapblockMeshGenerator::generateLod(std::bitset<19> types, u16 width, core::
             day_light = decode_light(day_light);
             night_light = decode_light(night_light);
 
-            MapNode n1 = data->m_vmanip.getNodeNoEx(node_coords[i][1]);
-            MapNode n2 = data->m_vmanip.getNodeNoEx(node_coords[i][3]);
+            MapNode n1 = data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1]);
+            MapNode n2 = data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3]);
             video::SColor color1 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n1).light_source);
             video::SColor color2 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n2).light_source);
 
@@ -2040,10 +2027,10 @@ void MapblockMeshGenerator::generate()
                                       core::vector2d<f32>{(f32) width / 4, 0},
                                       core::vector2d<f32>{(f32) width / 4, (f32) width / 4},
                                       };
-        f32 y_offset = BS * (data->m_lod - 1) + BS / 2; // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
+        f32 y_offset = BS * (data->m_lod - 1); // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
 
         auto lodLambda = [this](std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset) {
-            generateLod(types, width, uvs, y_offset);
+            generateDetailLod(types, width, uvs, y_offset);
         };
         std::bitset<19> leaf_set;
         leaf_set.set(NDT_ALLFACES);
@@ -2062,7 +2049,7 @@ void MapblockMeshGenerator::generate()
             std::bitset<19> types;
             types.set(NDT_NORMAL);
             types.set(NDT_NODEBOX);
-            generateLod(types, width, uvs, -y_offset);
+            generateDetailLod(types, width, uvs, -y_offset);
         }
         liquids.wait();
         leaves.wait();

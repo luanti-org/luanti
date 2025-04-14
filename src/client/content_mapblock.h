@@ -169,10 +169,9 @@ private:
 	void drawNodeboxNode();
 	void drawMeshNode();
 
-    void generateLod(std::bitset<19> types, u16, core::vector2d<f32>[4], f32);
+    void generateDetailLod(std::bitset<19> types, u16, core::vector2d<f32>[4], f32);
     void generateCloseLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset);
-    void findFurthestSolidFrom(std::bitset<19> types, v3s16 (&bases)[2], v3s16 from, v3s16 to);
-    void findFurthestSolidFrom(std::bitset<19> types, v3s16 (&bases)[8], v3s16 from, v3s16 to);
+    void findClosestOfTypes(std::bitset<19> types, std::vector<v3s16> &bases, v3s16 from, v3s16 to);
     bool doesVolumeContainType(std::bitset<19> types, v3s16 from, v3s16 too);
 
 // common
