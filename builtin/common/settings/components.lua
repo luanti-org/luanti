@@ -37,6 +37,7 @@ local make = {}
 --     * `fs` is a string for the formspec.
 --       Components should be relative to `0,0`, and not exceed `avail_w` or the returned `used_height`.
 --     * `used_height` is the space used by components in `fs`.
+-- * `spacing`: (Optional) the vertical margin to be added before the component (default 0.25)
 -- * `on_submit = function(self, fields, parent)`:
 --     * `fields`: submitted formspec fields
 --     * `parent`: the fstk element for the settings UI, use to show dialogs
@@ -462,6 +463,7 @@ function make.key(setting)
 	return {
 		info_text = setting.comment,
 		setting = setting,
+		spacing = 0.1,
 
 		get_formspec = function(self, avail_w)
 			self.resettable = core.settings:has(setting.name)

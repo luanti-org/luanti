@@ -646,7 +646,13 @@ local function get_formspec(dialogdata)
 		fs[#fs + 1] = "container_end[]"
 
 		if used_h > 0 then
-			y = y + used_h + 0.25
+			local spacing = 0.25
+			local next_comp = dialogdata.components[i + 1]
+			if next_comp and next_comp.spacing then
+				spacing = next_comp.spacing
+			end
+
+			y = y + used_h + spacing
 		end
 	end
 
