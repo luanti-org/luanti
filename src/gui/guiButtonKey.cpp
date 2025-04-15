@@ -47,13 +47,14 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 	{
 	case EET_KEY_INPUT_EVENT:
 		if (!event.KeyInput.PressedDown) {
+			bool wasPressed = isPressed();
 			setPressed(false);
 			if (capturing) {
 				cancelCapture();
 				if (event.KeyInput.Key != KEY_ESCAPE)
 					sendKey();
 				return true;
-			} else if (isPressed() && (event.KeyInput.Key == KEY_RETURN || event.KeyInput.Key == KEY_SPACE)) {
+			} else if (wasPressed && (event.KeyInput.Key == KEY_RETURN || event.KeyInput.Key == KEY_SPACE)) {
 				startCapture();
 				return true;
 			}
