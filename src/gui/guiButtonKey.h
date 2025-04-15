@@ -46,7 +46,7 @@ public:
 	void startCapture()
 	{
 		capturing = true;
-		super::setText(wstrgettext("Press Key").c_str());
+		super::setText(wstrgettext("Press Button").c_str());
 	}
 
 	//! Cancel key capture
