@@ -79,7 +79,7 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 			if (capturing) {
 				sendKey();
 				return true;
-			} if (AbsoluteClippingRect.isPointInside(
+			} else if (AbsoluteClippingRect.isPointInside(
 						core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y))) {
 				startCapture();
 				return true;
