@@ -48,14 +48,20 @@ private:
 	//! Start key capture
 	void startCapture()
 	{
+		if (nostart) {
+			nostart = false;
+			return;
+		}
 		capturing = true;
 		super::setText(wstrgettext("Press Button").c_str());
 	}
 
 	//! Cancel key capture
-	void cancelCapture()
+	// inhibit_restart: whether the next call to startCapture should be inhibited
+	void cancelCapture(bool inhibit_restart = false)
 	{
 		capturing = false;
+		nostart |= inhibit_restart;
 		super::setText(wstrgettext(key_value.name()).c_str());
 	}
 
@@ -63,6 +69,7 @@ private:
 	void setKey(KeyPress key);
 
 	bool capturing = false;
+	bool nostart = false;
 	KeyPress key_value = {};
 	std::wstring keysym;
 };

@@ -78,21 +78,26 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 			if (!capturing && in_rect) {
 				setPressed(false);
 				startCapture();
-				nostart = false;
 				return true;
 			}
+			nostart = false;
 			[[fallthrough]];
 		case EMIE_MMOUSE_LEFT_UP: [[fallthrough]];
 		case EMIE_RMOUSE_LEFT_UP:
 			setPressed(false);
 			if (capturing) {
-				sendKey();
+				cancelCapture();
+				if (!event.MouseInput.Simulated)
+					sendKey();
 				return true;
 			}
 			break;
 		case EMIE_LMOUSE_PRESSED_DOWN:
 			if (capturing) {
-				setKey(LMBKey);
+				if (event.MouseInput.Simulated)
+					cancelCapture(true);
+				else
+					setKey(LMBKey);
 				return true;
 			} else if (in_rect) {
 				Environment->setFocus(this);
