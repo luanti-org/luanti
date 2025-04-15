@@ -31,6 +31,16 @@ void ActiveObjectMgr::clearIf(const std::function<bool(ServerActiveObject *, u16
 	}
 }
 
+void ActiveObjectMgr::clearIf(const std::function<bool(ServerActiveObject *, u16, ClearObjectsConfig &)> &cb, ClearObjectsConfig &config)
+{
+	for (auto &it : m_active_objects.iter()) {
+		if (cb(it.second.get(), it.first, config)) {
+			// Remove reference from m_active_objects
+			m_active_objects.remove(it.first);
+		}
+	}
+}
+
 void ActiveObjectMgr::step(
 		float dtime, const std::function<void(ServerActiveObject *)> &f)
 {

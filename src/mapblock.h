@@ -21,6 +21,7 @@ class NodeMetadataList;
 class IGameDef;
 class MapBlockMesh;
 class VoxelManipulator;
+struct ClearObjectsConfig;
 
 #define BLOCK_TIMESTAMP_UNDEFINED 0xffffffff
 
@@ -425,7 +426,7 @@ public:
 
 	bool storeActiveObject(u16 id);
 	// clearObject and return removed objects count
-	u32 clearObjects();
+	u32 clearObjects(ClearObjectsConfig &config);
 
 	static const u32 ystride = MAP_BLOCKSIZE;
 	static const u32 zstride = MAP_BLOCKSIZE * MAP_BLOCKSIZE;

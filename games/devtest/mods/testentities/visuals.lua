@@ -53,6 +53,7 @@ core.register_entity("testentities:mesh", {
 			"testnodes_mesh_stripes2.png"
 		},
 	},
+	prevent_soft_clearobjects = true,
 })
 
 core.register_entity("testentities:mesh_unshaded", {
