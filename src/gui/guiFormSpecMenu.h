@@ -204,6 +204,11 @@ public:
 		m_text_dst = text_dst;
 	}
 
+	void defaultAllowClose(bool value)
+	{
+		m_default_allowclose = value;
+	}
+
 	void setDebugView(bool value)
 	{
 		m_show_debug = value;
@@ -359,6 +364,7 @@ protected:
 	u64 m_hovered_time = 0;
 	s32 m_old_tooltip_id = -1;
 
+	bool m_default_allowclose = true;
 	bool m_allowclose = true;
 	bool m_lock = false;
 	v2u32 m_lockscreensize;

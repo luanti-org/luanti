@@ -192,10 +192,6 @@ Passed to `HTTPApiTable.fetch` callback. Returned by
 Formspec
 --------
 
-Note that all main menu formspecs should include an `allow_close[false]`
-element; otherwise, the formspec can be closed, leaving a blank window that the
-user can't interact with except to close.
-
 * `core.update_formspec(formspec)`
 * `core.get_table_index(tablename)` -> index
   * can also handle textlists

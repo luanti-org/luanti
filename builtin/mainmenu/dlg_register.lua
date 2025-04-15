@@ -27,7 +27,6 @@ local function register_formspec(dialogdata)
 	local retval = {
 		"formspec_version[4]",
 		"size[8,", tostring(buttons_y + 1.175), "]",
-		"allow_close[false]",
 		"set_focus[", (dialogdata.name ~= "" and "password" or "name"), "]",
 		"label[0.375,0.8;", title, "]",
 		"field[0.375,1.575;7.25,0.8;name;", core.formspec_escape(fgettext("Name")), ";",

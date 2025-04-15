@@ -125,7 +125,6 @@ local function get_formspec(data)
 
 	local retval =
 		"size[11.5,7.5,true]" ..
-		"allow_close[false]" ..
 		"label[0.5,0;" .. fgettext("World:") .. "]" ..
 		"label[1.75,0;" .. core.formspec_escape(data.worldspec.name) .. "]"
 

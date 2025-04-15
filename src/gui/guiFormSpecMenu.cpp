@@ -3008,7 +3008,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	field_close_on_enter.clear();
 	m_dropdown_index_event.clear();
 
-	m_allowclose = true;
+	m_allowclose = m_default_allowclose;
 	m_bgnonfullscreen = true;
 	m_bgfullscreen = false;
 

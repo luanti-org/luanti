@@ -29,7 +29,6 @@ local function get_loading_formspec()
 		"formspec_version[3]",
 		"size[", w, ",9.05]",
 		TOUCH_GUI and "padding[0.01,0.01]" or "position[0.5,0.55]",
-		"allow_close[false]",
 		"label[3,4.525;", fgettext("Loading..."), "]",
 	}
 	return table.concat(formspec)
@@ -123,7 +122,6 @@ local function get_formspec(data)
 		"formspec_version[3]",
 		"size[", w, ",9.05]",
 		TOUCH_GUI and "padding[0.01,0.01]" or "position[0.5,0.55]",
-		"allow_close[false]",
 		"style[title;border=false]",
 		"box[0,0;", w, ",0.8;#3333]",
 		"button[0,0;", w, ",0.8;title;", fgettext("Install $1", package.title) , "]",

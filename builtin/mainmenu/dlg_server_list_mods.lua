@@ -61,7 +61,6 @@ local function get_formspec(dialogdata)
 		"formspec_version[8]",
 		"size[8,9.5]",
 		TOUCH_GUI and "padding[0.01,0.01]" or "",
-		"allow_close[false]",
 		"hypertext[0,0;8,1.5;;<global margin=5 halign=center valign=middle>", heading, "]",
 		"tablecolumns[", group_by_prefix and
 			(expand_all and "indent;text" or "tree;text") or "text", "]",

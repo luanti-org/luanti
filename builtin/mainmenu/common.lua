@@ -285,7 +285,6 @@ end
 
 function confirmation_formspec(message, confirm_id, confirm_label, cancel_id, cancel_label)
 	return "size[10,2.5,true]" ..
-			"allow_close[false]" ..
 			"label[0.5,0.5;" .. message .. "]" ..
 			"style[" .. confirm_id .. ";bgcolor=red]" ..
 			"button[0.5,1.5;2.5,0.5;" .. confirm_id .. ";" .. confirm_label .. "]" ..

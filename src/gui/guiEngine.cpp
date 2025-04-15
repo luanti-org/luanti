@@ -168,6 +168,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 			"",
 			false);
 
+	m_menu->defaultAllowClose(false);
 	m_menu->lockSize(true,v2u32(800,600));
 
 	// Initialize scripting
