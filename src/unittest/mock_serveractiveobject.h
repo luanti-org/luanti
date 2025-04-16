@@ -14,7 +14,7 @@ public:
 		ServerActiveObject(env, p)
 	{
 		if (env)
-			m_guid = env->getGUIDGenerator().next().hex();
+			m_guid = "mock:" + env->getGUIDGenerator().next().base64();
 	}
 
 	virtual ActiveObjectType getType() const { return ACTIVEOBJECT_TYPE_TEST; }

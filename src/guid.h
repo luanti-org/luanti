@@ -20,7 +20,7 @@ class ServerEnvironment;
 struct MyGUID {
 	std::array<char, 16> bytes;
 
-	std::string hex() const;
+	std::string base64() const;
 	void serialize(std::ostringstream &os) const;
 	void deSerialize(std::istream &is);
 };

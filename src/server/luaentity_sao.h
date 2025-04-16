@@ -86,9 +86,14 @@ private:
 
 	struct EntityGUID {
 		MyGUID raw{{}};
-		std::string hex;
+		std::string text;
 		EntityGUID() {}
-		EntityGUID(MyGUID raw) : raw(raw) { hex = raw.hex(); }
+		EntityGUID(MyGUID raw) : raw(raw)
+		{
+			// The "@" ensures that entity GUIDs are easily recognizable
+			// and makes it obvious that they can't collide with player names.
+			text = "@" + raw.base64();
+		}
 	};
 	EntityGUID m_guid;
 

@@ -8,11 +8,11 @@
 #include <string_view>
 
 #include "exceptions.h"
-#include "util/hex.h"
+#include "util/base64.h"
 
-std::string MyGUID::hex() const
+std::string MyGUID::base64() const
 {
-	return hex_encode(std::string_view(&bytes[0], bytes.size()));
+	return base64_encode(std::string_view(&bytes[0], bytes.size()));
 }
 
 void MyGUID::serialize(std::ostringstream &os) const

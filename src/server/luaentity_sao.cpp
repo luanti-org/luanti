@@ -435,7 +435,7 @@ u16 LuaEntitySAO::getHP() const
 
 const std::string& LuaEntitySAO::getGUID()
 {
-	return m_guid.hex;
+	return m_guid.text;
 }
 
 void LuaEntitySAO::setVelocity(v3f velocity)
