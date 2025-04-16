@@ -1407,11 +1407,11 @@ The function of `param2` is determined by `paramtype2` in node definition.
 * `paramtype2 = "leveled"`
     * Only valid for "nodebox" with 'type = "leveled"', and "plantlike_rooted".
         * Leveled nodebox:
-            * The level of the top face of the nodebox is stored in `param2`.
-            * The other faces are defined by 'fixed = {}' like 'type = "fixed"'
-              nodeboxes.
-            * The nodebox height is (`param2` / 64) nodes.
+            * Nodebox `type` must be set to `"leveled"`
+            * The height of the top face of all boxes in the `fixed` table
+              will be set to (`param2` / 64).
             * The maximum accepted value of `param2` is 127.
+            * Boxes in `leveled_fixed` will not be modified and used as-is.
         * Rooted plantlike:
             * The height of the 'plantlike' section is stored in `param2`.
             * The height is (`param2` / 16) nodes.
@@ -1616,8 +1616,10 @@ A nodebox is defined as any of:
     -- by the node parameter 'leveled = ', or if 'paramtype2 == "leveled"'
     -- by param2.
     -- Other faces are defined by 'fixed = {}' as with 'type = "fixed"'.
+    -- Optionally add 'leveled_fixed = {}' for static boxes.
     type = "leveled",
-    fixed = box OR {box1, box2, ...}
+    fixed = box OR {box1, box2, ...} -- top face is variable
+    leveled_fixed = box OR {box1, box2, ...} -- never changes
 }
 {
     -- A box like the selection box for torches
