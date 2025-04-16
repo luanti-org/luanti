@@ -205,6 +205,9 @@ void GameFormSpec::init(Client *client, RenderingEngine *rendering_engine, Input
 	m_input = input;
 	m_pause_script = std::make_unique<PauseMenuScripting>(client);
 	m_pause_script->loadBuiltin();
+
+	// Make sure any remaining game callback requests are cleared out.
+	*g_gamecallback = MainGameCallback();
 }
 
 void GameFormSpec::deleteFormspec()

@@ -4025,16 +4025,11 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 {
 	if (event.EventType==EET_KEY_INPUT_EVENT) {
 		KeyPress kp(event.KeyInput);
-		if (event.KeyInput.PressedDown) {
-			if (kp == EscapeKey && event.KeyInput.Control) {
-				m_text_dst->gotText(L"MenuQuit");
-				g_gamecallback->disconnect();
-				return true;
-			} else if (kp == EscapeKey ||
-					(m_client != nullptr && kp == getKeySetting("keymap_inventory"))) {
-				tryClose();
-				return true;
-			}
+		if (event.KeyInput.PressedDown && (
+				(kp == EscapeKey) ||
+				((m_client != NULL) && (kp == getKeySetting("keymap_inventory"))))) {
+			tryClose();
+			return true;
 		}
 
 		if (m_client != NULL && event.KeyInput.PressedDown &&
