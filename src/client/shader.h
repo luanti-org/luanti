@@ -40,7 +40,7 @@ struct ShaderInfo {
 };
 
 /*
-	Setter of constants for shaders
+	Abstraction for updating uniforms used by shaders
 */
 
 namespace irr::video {
@@ -48,19 +48,19 @@ namespace irr::video {
 }
 
 
-class IShaderConstantSetter {
+class IShaderUniformSetter {
 public:
-	virtual ~IShaderConstantSetter() = default;
-	virtual void onSetConstants(video::IMaterialRendererServices *services) = 0;
+	virtual ~IShaderUniformSetter() = default;
+	virtual void onSetUniforms(video::IMaterialRendererServices *services) = 0;
 	virtual void onSetMaterial(const video::SMaterial& material)
 	{ }
 };
 
 
-class IShaderConstantSetterFactory {
+class IShaderUniformSetterFactory {
 public:
-	virtual ~IShaderConstantSetterFactory() = default;
-	virtual IShaderConstantSetter* create() = 0;
+	virtual ~IShaderUniformSetterFactory() = default;
+	virtual IShaderUniformSetter* create() = 0;
 };
 
 
@@ -236,7 +236,7 @@ public:
 	virtual void rebuildShaders()=0;
 
 	/// @note Takes ownership of @p setter.
-	virtual void addShaderConstantSetterFactory(IShaderConstantSetterFactory *setter) = 0;
+	virtual void addShaderUniformSetterFactory(IShaderUniformSetterFactory *setter) = 0;
 };
 
 IWritableShaderSource *createShaderSource();

@@ -188,7 +188,7 @@ public:
 typedef s32 SamplerLayer_t;
 
 
-class GameGlobalShaderConstantSetter : public IShaderConstantSetter
+class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 {
 	Sky *m_sky;
 	Client *m_client;
@@ -247,12 +247,12 @@ public:
 
 	static void settingsCallback(const std::string &name, void *userdata)
 	{
-		reinterpret_cast<GameGlobalShaderConstantSetter*>(userdata)->onSettingsChange(name);
+		reinterpret_cast<GameGlobalShaderUniformSetter*>(userdata)->onSettingsChange(name);
 	}
 
 	void setSky(Sky *sky) { m_sky = sky; }
 
-	GameGlobalShaderConstantSetter(Sky *sky, Client *client) :
+	GameGlobalShaderUniformSetter(Sky *sky, Client *client) :
 		m_sky(sky),
 		m_client(client)
 	{
@@ -264,12 +264,12 @@ public:
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
 	}
 
-	~GameGlobalShaderConstantSetter()
+	~GameGlobalShaderUniformSetter()
 	{
 		g_settings->deregisterAllChangedCallbacks(this);
 	}
 
-	void onSetConstants(video::IMaterialRendererServices *services) override
+	void onSetUniforms(video::IMaterialRendererServices *services) override
 	{
 		u32 daynight_ratio = (float)m_client->getEnv().getDayNightRatio();
 		video::SColorf sunlight;
@@ -395,28 +395,28 @@ public:
 };
 
 
-class GameGlobalShaderConstantSetterFactory : public IShaderConstantSetterFactory
+class GameGlobalShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 	Sky *m_sky = nullptr;
 	Client *m_client;
-	std::vector<GameGlobalShaderConstantSetter *> created_nosky;
+	std::vector<GameGlobalShaderUniformSetter *> created_nosky;
 public:
-	GameGlobalShaderConstantSetterFactory(Client *client) :
+	GameGlobalShaderUniformSetterFactory(Client *client) :
 		m_client(client)
 	{}
 
 	void setSky(Sky *sky)
 	{
 		m_sky = sky;
-		for (GameGlobalShaderConstantSetter *ggscs : created_nosky) {
+		for (GameGlobalShaderUniformSetter *ggscs : created_nosky) {
 			ggscs->setSky(m_sky);
 		}
 		created_nosky.clear();
 	}
 
-	virtual IShaderConstantSetter* create()
+	virtual IShaderUniformSetter* create()
 	{
-		auto *scs = new GameGlobalShaderConstantSetter(m_sky, m_client);
+		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_client);
 		if (!m_sky)
 			created_nosky.push_back(scs);
 		return scs;
@@ -1289,11 +1289,11 @@ bool Game::createClient(const GameStartData &start_data)
 		return false;
 	}
 
-	auto *scsf = new GameGlobalShaderConstantSetterFactory(client);
-	shader_src->addShaderConstantSetterFactory(scsf);
+	auto *scsf = new GameGlobalShaderUniformSetterFactory(client);
+	shader_src->addShaderUniformSetterFactory(scsf);
 
-	shader_src->addShaderConstantSetterFactory(
-		new FogShaderConstantSetterFactory());
+	shader_src->addShaderUniformSetterFactory(
+		new FogShaderUniformSetterFactory());
 
 	ShadowRenderer::preInit(shader_src);
 

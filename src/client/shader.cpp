@@ -159,7 +159,7 @@ private:
 
 class ShaderCallback : public video::IShaderConstantSetCallBack
 {
-	std::vector<std::unique_ptr<IShaderConstantSetter>> m_setters;
+	std::vector<std::unique_ptr<IShaderUniformSetter>> m_setters;
 
 public:
 	template <typename Factories>
@@ -175,7 +175,7 @@ public:
 	virtual void OnSetConstants(video::IMaterialRendererServices *services, s32 userData) override
 	{
 		for (auto &&setter : m_setters)
-			setter->onSetConstants(services);
+			setter->onSetUniforms(services);
 	}
 
 	virtual void OnSetMaterial(const video::SMaterial& material) override
@@ -187,10 +187,10 @@ public:
 
 
 /*
-	MainShaderConstantSetter: Set basic constants required for almost everything
+	MainShaderUniformSetter: Set basic uniforms required for almost everything
 */
 
-class MainShaderConstantSetter : public IShaderConstantSetter
+class MainShaderUniformSetter : public IShaderUniformSetter
 {
 	CachedVertexShaderSetting<f32, 16> m_world_view_proj{"mWorldViewProj"};
 	CachedVertexShaderSetting<f32, 16> m_world{"mWorld"};
@@ -205,14 +205,14 @@ class MainShaderConstantSetter : public IShaderConstantSetter
 	CachedPixelShaderSetting<float, 4> m_material_color_setting{"materialColor"};
 
 public:
-	~MainShaderConstantSetter() = default;
+	~MainShaderUniformSetter() = default;
 
 	virtual void onSetMaterial(const video::SMaterial& material) override
 	{
 		m_material_color = material.ColorParam;
 	}
 
-	virtual void onSetConstants(video::IMaterialRendererServices *services) override
+	virtual void onSetUniforms(video::IMaterialRendererServices *services) override
 	{
 		video::IVideoDriver *driver = services->getVideoDriver();
 		assert(driver);
@@ -243,11 +243,11 @@ public:
 };
 
 
-class MainShaderConstantSetterFactory : public IShaderConstantSetterFactory
+class MainShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
-	virtual IShaderConstantSetter* create()
-		{ return new MainShaderConstantSetter(); }
+	virtual IShaderUniformSetter* create()
+		{ return new MainShaderUniformSetter(); }
 };
 
 
@@ -306,9 +306,9 @@ public:
 	// Shall be called from the main thread.
 	void rebuildShaders() override;
 
-	void addShaderConstantSetterFactory(IShaderConstantSetterFactory *setter) override
+	void addShaderUniformSetterFactory(IShaderUniformSetterFactory *setter) override
 	{
-		m_setter_factories.emplace_back(setter);
+		m_uniform_factories.emplace_back(setter);
 	}
 
 private:
@@ -331,8 +331,8 @@ private:
 	RequestQueue<std::string, u32, u8, u8> m_get_shader_queue;
 #endif
 
-	// Global constant setter factories
-	std::vector<std::unique_ptr<IShaderConstantSetterFactory>> m_setter_factories;
+	// Global uniform setter factories
+	std::vector<std::unique_ptr<IShaderUniformSetterFactory>> m_uniform_factories;
 
 	// Generate shader given the shader name.
 	ShaderInfo generateShader(const std::string &name,
@@ -352,7 +352,7 @@ ShaderSource::ShaderSource()
 	m_shaderinfo_cache.emplace_back();
 
 	// Add main global constant setter
-	addShaderConstantSetterFactory(new MainShaderConstantSetterFactory());
+	addShaderUniformSetterFactory(new MainShaderUniformSetterFactory());
 }
 
 ShaderSource::~ShaderSource()
@@ -773,7 +773,7 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		geometry_shader_ptr = geometry_shader.c_str();
 	}
 
-	auto cb = make_irr<ShaderCallback>(m_setter_factories);
+	auto cb = make_irr<ShaderCallback>(m_uniform_factories);
 	infostream << "Compiling high level shaders for " << log_name << std::endl;
 	s32 shadermat = gpu->addHighLevelShaderMaterial(
 		vertex_shader.c_str(), fragment_shader.c_str(), geometry_shader_ptr,

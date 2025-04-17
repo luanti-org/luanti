@@ -107,7 +107,7 @@ void ShadowRenderer::disable()
 void ShadowRenderer::preInit(IWritableShaderSource *shsrc)
 {
 	if (g_settings->getBool("enable_dynamic_shadows")) {
-		shsrc->addShaderConstantSetterFactory(new ShadowConstantSetterFactory());
+		shsrc->addShaderUniformSetterFactory(new ShadowUniformSetterFactory());
 	}
 }
 

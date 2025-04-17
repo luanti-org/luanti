@@ -67,14 +67,14 @@ void FpsControl::limit(IrrlichtDevice *device, f32 *dtime)
 	last_time = time;
 }
 
-class FogShaderConstantSetter : public IShaderConstantSetter
+class FogShaderUniformSetter : public IShaderUniformSetter
 {
 	CachedPixelShaderSetting<float, 4> m_fog_color{"fogColor"};
 	CachedPixelShaderSetting<float> m_fog_distance{"fogDistance"};
 	CachedPixelShaderSetting<float> m_fog_shading_parameter{"fogShadingParameter"};
 
 public:
-	void onSetConstants(video::IMaterialRendererServices *services) override
+	void onSetUniforms(video::IMaterialRendererServices *services) override
 	{
 		auto *driver = services->getVideoDriver();
 		assert(driver);
@@ -101,9 +101,9 @@ public:
 	}
 };
 
-IShaderConstantSetter *FogShaderConstantSetterFactory::create()
+IShaderUniformSetter *FogShaderUniformSetterFactory::create()
 {
-	return new FogShaderConstantSetter();
+	return new FogShaderUniformSetter();
 }
 
 /* Other helpers */

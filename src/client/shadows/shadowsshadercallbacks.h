@@ -9,7 +9,7 @@
 
 // Used by main game rendering
 
-class ShadowConstantSetter : public IShaderConstantSetter
+class ShadowUniformSetter : public IShaderUniformSetter
 {
 	CachedPixelShaderSetting<f32, 16> m_shadow_view_proj{"m_ShadowViewProj"};
 	CachedPixelShaderSetting<f32, 3> m_light_direction{"v_LightDirection"};
@@ -33,17 +33,17 @@ class ShadowConstantSetter : public IShaderConstantSetter
 	CachedPixelShaderSetting<f32> m_perspective_zbias_pixel{"zPerspectiveBias"};
 
 public:
-	ShadowConstantSetter() = default;
-	~ShadowConstantSetter() = default;
+	ShadowUniformSetter() = default;
+	~ShadowUniformSetter() = default;
 
-	virtual void onSetConstants(video::IMaterialRendererServices *services) override;
+	virtual void onSetUniforms(video::IMaterialRendererServices *services) override;
 };
 
-class ShadowConstantSetterFactory : public IShaderConstantSetterFactory
+class ShadowUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
-	virtual IShaderConstantSetter *create() {
-		return new ShadowConstantSetter();
+	virtual IShaderUniformSetter *create() {
+		return new ShadowUniformSetter();
 	}
 };
 
