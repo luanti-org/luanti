@@ -766,8 +766,7 @@ bool CIrrDeviceSDL::run()
 			SDL_Keymod keymod = SDL_GetModState();
 
 			irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-
-			irrevent.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
+			irrevent.MouseInput.Event = irr::EMIE_MOUSE_MOVED; // value to be ignored
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 			// Handle mouselocking in emscripten in Windowed mode.
