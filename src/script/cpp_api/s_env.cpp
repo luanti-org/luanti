@@ -17,76 +17,68 @@
 	LuaABM & LuaLBM
 */
 
-class LuaABM : public ActiveBlockModifier {
-private:
-	const int m_id;
+LuaABM::LuaABM(int id,
+		const std::string &name,
+		const std::vector<std::string> &trigger_contents,
+		const std::vector<std::string> &required_neighbors,
+		const std::vector<std::string> &without_neighbors,
+		float trigger_interval, u32 trigger_chance, bool simple_catch_up,
+		s16 min_y, s16 max_y):
+	m_id(id),
+	m_name(name),
+	m_trigger_contents(trigger_contents),
+	m_required_neighbors(required_neighbors),
+	m_without_neighbors(without_neighbors),
+	m_trigger_interval(trigger_interval),
+	m_trigger_chance(trigger_chance),
+	m_simple_catch_up(simple_catch_up),
+	m_min_y(min_y),
+	m_max_y(max_y)
+{
+}
+const std::string &LuaABM::getName() const
+{
+	return m_name;
+}
+const std::vector<std::string> &LuaABM::getTriggerContents() const
+{
+	return m_trigger_contents;
+}
+const std::vector<std::string> &LuaABM::getRequiredNeighbors() const
+{
+	return m_required_neighbors;
+}
+const std::vector<std::string> &LuaABM::getWithoutNeighbors() const
+{
+	return m_without_neighbors;
+}
+float LuaABM::getTriggerInterval()
+{
+	return m_trigger_interval;
+}
+u32 LuaABM::getTriggerChance()
+{
+	return m_trigger_chance;
+}
+bool LuaABM::getSimpleCatchUp()
+{
+	return m_simple_catch_up;
+}
+s16 LuaABM::getMinY()
+{
+	return m_min_y;
+}
+s16 LuaABM::getMaxY()
+{
+	return m_max_y;
+}
 
-	std::vector<std::string> m_trigger_contents;
-	std::vector<std::string> m_required_neighbors;
-	std::vector<std::string> m_without_neighbors;
-	float m_trigger_interval;
-	u32 m_trigger_chance;
-	bool m_simple_catch_up;
-	s16 m_min_y;
-	s16 m_max_y;
-public:
-	LuaABM(int id,
-			const std::vector<std::string> &trigger_contents,
-			const std::vector<std::string> &required_neighbors,
-			const std::vector<std::string> &without_neighbors,
-			float trigger_interval, u32 trigger_chance, bool simple_catch_up,
-			s16 min_y, s16 max_y):
-		m_id(id),
-		m_trigger_contents(trigger_contents),
-		m_required_neighbors(required_neighbors),
-		m_without_neighbors(without_neighbors),
-		m_trigger_interval(trigger_interval),
-		m_trigger_chance(trigger_chance),
-		m_simple_catch_up(simple_catch_up),
-		m_min_y(min_y),
-		m_max_y(max_y)
-	{
-	}
-	virtual const std::vector<std::string> &getTriggerContents() const
-	{
-		return m_trigger_contents;
-	}
-	virtual const std::vector<std::string> &getRequiredNeighbors() const
-	{
-		return m_required_neighbors;
-	}
-	virtual const std::vector<std::string> &getWithoutNeighbors() const
-	{
-		return m_without_neighbors;
-	}
-	virtual float getTriggerInterval()
-	{
-		return m_trigger_interval;
-	}
-	virtual u32 getTriggerChance()
-	{
-		return m_trigger_chance;
-	}
-	virtual bool getSimpleCatchUp()
-	{
-		return m_simple_catch_up;
-	}
-	virtual s16 getMinY()
-	{
-		return m_min_y;
-	}
-	virtual s16 getMaxY()
-	{
-		return m_max_y;
-	}
-
-	virtual void trigger(ServerEnvironment *env, v3s16 p, MapNode n,
-			u32 active_object_count, u32 active_object_count_wider)
-	{
-		auto *script = env->getScriptIface();
-		script->triggerABM(m_id, p, n, active_object_count, active_object_count_wider);
-	}
-};
+void LuaABM::trigger(ServerEnvironment *env, v3s16 p, MapNode n,
+		u32 active_object_count, u32 active_object_count_wider)
+{
+	auto *script = env->getScriptIface();
+	script->triggerABM(m_id, p, n, active_object_count, active_object_count_wider);
+}
 
 class LuaLBM : public LoadingBlockModifierDef
 {
@@ -192,6 +184,50 @@ bool ScriptApiEnv::read_nodenames(lua_State *L, int idx, std::vector<std::string
 	return true;
 }
 
+LuaABM *ScriptApiEnv::readABM(lua_State *L, int abm_index, int id)
+{
+	std::string name;
+	getstringfield(L, abm_index, "name", name);
+
+	std::vector<std::string> trigger_contents;
+	lua_getfield(L, abm_index, "nodenames");
+	read_nodenames(L, -1, trigger_contents);
+	lua_pop(L, 1);
+
+	std::vector<std::string> required_neighbors;
+	lua_getfield(L, abm_index, "neighbors");
+	read_nodenames(L, -1, required_neighbors);
+	lua_pop(L, 1);
+
+	std::vector<std::string> without_neighbors;
+	lua_getfield(L, abm_index, "without_neighbors");
+	read_nodenames(L, -1, without_neighbors);
+	lua_pop(L, 1);
+
+	float trigger_interval = 10.0;
+	getfloatfield(L, abm_index, "interval", trigger_interval);
+
+	int trigger_chance = 50;
+	getintfield(L, abm_index, "chance", trigger_chance);
+
+	bool simple_catch_up = true;
+	getboolfield(L, abm_index, "catch_up", simple_catch_up);
+
+	s16 min_y = INT16_MIN;
+	getintfield(L, abm_index, "min_y", min_y);
+
+	s16 max_y = INT16_MAX;
+	getintfield(L, abm_index, "max_y", max_y);
+
+	lua_getfield(L, abm_index, "action");
+	luaL_checktype(L, abm_index + 1, LUA_TFUNCTION);
+	lua_pop(L, 1);
+
+	return new LuaABM(id, name, trigger_contents, required_neighbors,
+		without_neighbors, trigger_interval, trigger_chance,
+		simple_catch_up, min_y, max_y);
+}
+
 void ScriptApiEnv::readABMs()
 {
 	SCRIPTAPI_PRECHECKHEADER
@@ -212,45 +248,10 @@ void ScriptApiEnv::readABMs()
 		int id = lua_tonumber(L, -2);
 		int current_abm = lua_gettop(L);
 
-		std::vector<std::string> trigger_contents;
-		lua_getfield(L, current_abm, "nodenames");
-		read_nodenames(L, -1, trigger_contents);
-		lua_pop(L, 1);
-
-		std::vector<std::string> required_neighbors;
-		lua_getfield(L, current_abm, "neighbors");
-		read_nodenames(L, -1, required_neighbors);
-		lua_pop(L, 1);
-
-		std::vector<std::string> without_neighbors;
-		lua_getfield(L, current_abm, "without_neighbors");
-		read_nodenames(L, -1, without_neighbors);
-		lua_pop(L, 1);
-
-		float trigger_interval = 10.0;
-		getfloatfield(L, current_abm, "interval", trigger_interval);
-
-		int trigger_chance = 50;
-		getintfield(L, current_abm, "chance", trigger_chance);
-
-		bool simple_catch_up = true;
-		getboolfield(L, current_abm, "catch_up", simple_catch_up);
-
-		s16 min_y = INT16_MIN;
-		getintfield(L, current_abm, "min_y", min_y);
-
-		s16 max_y = INT16_MAX;
-		getintfield(L, current_abm, "max_y", max_y);
-
-		lua_getfield(L, current_abm, "action");
-		luaL_checktype(L, current_abm + 1, LUA_TFUNCTION);
-		lua_pop(L, 1);
-
-		LuaABM *abm = new LuaABM(id, trigger_contents, required_neighbors,
-			without_neighbors, trigger_interval, trigger_chance,
-			simple_catch_up, min_y, max_y);
-
-		env->addActiveBlockModifier(abm);
+		LuaABM *abm = readABM(L, current_abm, id);
+		if (abm != nullptr) {
+			env->addActiveBlockModifier(abm);
+		}
 
 		// removes value, keeps key for next iteration
 		lua_pop(L, 1);
