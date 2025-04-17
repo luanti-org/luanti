@@ -76,6 +76,10 @@ elseif INIT == "async_game" then
 	dofile(asyncpath .. "game.lua")
 elseif INIT == "client" then
 	dofile(scriptdir .. "client" .. DIR_DELIM .. "init.lua")
+elseif INIT == "sscsm" and core.get_current_modname() == "*client_builtin*" then
+	dofile(scriptdir .. "sscsm_client" .. DIR_DELIM .. "init.lua")
+elseif INIT == "sscsm" and core.get_current_modname() == "*server_builtin*" then
+	dofile(scriptdir .. "sscsm_server" .. DIR_DELIM .. "init.lua")
 elseif INIT == "emerge" then
 	dofile(scriptdir .. "emerge" .. DIR_DELIM .. "init.lua")
 elseif INIT == "pause_menu" then
