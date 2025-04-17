@@ -80,7 +80,7 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 				startCapture();
 				return true;
 			}
-			nostart = false;
+			nostart = false; // lift nostart restriction if "mouse" (finger) is released outside the button
 			[[fallthrough]];
 		case EMIE_MMOUSE_LEFT_UP: [[fallthrough]];
 		case EMIE_RMOUSE_LEFT_UP:
