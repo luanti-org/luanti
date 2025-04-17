@@ -711,6 +711,53 @@ function pkgmgr.preparemodlist(data)
 	return retval
 end
 
+function pkgmgr.prepareclientmodlist(data)
+	local retval = {}
+
+	local clientmods = {}
+
+	--read clientmods
+	local modpath = core.get_clientmodpath()
+
+	if modpath ~= nil and modpath ~= "" then
+		pkgmgr.get_mods(modpath, "clientmods", clientmods)
+	end
+
+	for i=1,#clientmods,1 do
+		clientmods[i].type = "mod"
+		clientmods[i].loc = "global"
+		clientmods[i].is_clientside = true
+		retval[#retval + 1] = clientmods[i]
+	end
+
+	--read mods configuration
+	local filename = modpath ..
+				DIR_DELIM .. "mods.conf"
+
+	local conffile = Settings(filename)
+
+	for key,value in pairs(conffile:to_table()) do
+		if key:sub(1, 9) == "load_mod_" then
+			key = key:sub(10)
+			local element = nil
+			for i=1,#retval,1 do
+				if retval[i].name == key and
+					not retval[i].is_modpack then
+					element = retval[i]
+					break
+				end
+			end
+			if element ~= nil then
+				element.enabled = value ~= "false" and value ~= "nil" and value
+			else
+				core.log("info", "Clientmod: " .. key .. " " .. dump(value) .. " but not found")
+			end
+		end
+	end
+
+	return retval
+end
+
 function pkgmgr.compare_package(a, b)
 	return a and b and a.name == b.name and a.path == b.path
 end
@@ -748,6 +795,8 @@ function pkgmgr.reload_global_mods()
 		end
 	end
 	pkgmgr.global_mods = filterlist.create(pkgmgr.preparemodlist,
+			pkgmgr.comparemod, is_equal, nil, {})
+	pkgmgr.clientmods = filterlist.create(pkgmgr.prepareclientmodlist,
 			pkgmgr.comparemod, is_equal, nil, {})
 	pkgmgr.global_mods:add_sort_mechanism("alphabetic", sort_mod_list)
 	pkgmgr.global_mods:set_sortmode("alphabetic")
