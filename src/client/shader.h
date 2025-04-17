@@ -8,9 +8,9 @@
 #include "irrlichttypes_bloated.h"
 #include <IMaterialRendererServices.h>
 #include <string>
+#include <map>
+#include <variant>
 #include "nodedef.h"
-
-class IGameDef;
 
 /*
 	shader.{h,cpp}: Shader handling stuff.
@@ -37,6 +37,25 @@ struct ShaderInfo {
 
 	ShaderInfo() = default;
 	virtual ~ShaderInfo() = default;
+};
+
+/*
+	Abstraction for pushing constants (or what we pretend is) into
+	shaders. These end up as `#define` prepended to the shader source.
+*/
+
+// Shader constants are either an int or a float in GLSL
+typedef std::map<std::string, std::variant<int, float>> ShaderConstants;
+
+class IShaderConstantSetter {
+public:
+	virtual ~IShaderConstantSetter() = default;
+	/**
+	 * Called when the final shader source is being generated
+	 * @param name name of the shader
+	 * @param constants current set of constants, free to modify
+	 */
+	virtual void onGenerate(const std::string &name, ShaderConstants &constants) = 0;
 };
 
 /*
@@ -234,6 +253,9 @@ public:
 	virtual void insertSourceShader(const std::string &name_of_shader,
 		const std::string &filename, const std::string &program)=0;
 	virtual void rebuildShaders()=0;
+
+	/// @note Takes ownership of @p setter.
+	virtual void addShaderConstantSetter(IShaderConstantSetter *setter) = 0;
 
 	/// @note Takes ownership of @p setter.
 	virtual void addShaderUniformSetterFactory(IShaderUniformSetterFactory *setter) = 0;

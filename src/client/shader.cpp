@@ -187,6 +187,154 @@ public:
 
 
 /*
+	MainShaderConstantSetter: Set some random general constants
+	NodeShaderConstantSetter: Set constants for node rendering
+*/
+
+class MainShaderConstantSetter : public IShaderConstantSetter
+{
+public:
+	MainShaderConstantSetter() = default;
+	~MainShaderConstantSetter() = default;
+
+	void onGenerate(const std::string &name, ShaderConstants &constants) override
+	{
+		constants["ENABLE_TONE_MAPPING"] = g_settings->getBool("tone_mapping") ? 1 : 0;
+
+		if (g_settings->getBool("enable_dynamic_shadows")) {
+			constants["ENABLE_DYNAMIC_SHADOWS"] = 1;
+			if (g_settings->getBool("shadow_map_color"))
+				constants["COLORED_SHADOWS"] = 1;
+
+			if (g_settings->getBool("shadow_poisson_filter"))
+				constants["POISSON_FILTER"] = 1;
+
+			if (g_settings->getBool("enable_water_reflections"))
+				constants["ENABLE_WATER_REFLECTIONS"] = 1;
+
+			if (g_settings->getBool("enable_translucent_foliage"))
+				constants["ENABLE_TRANSLUCENT_FOLIAGE"] = 1;
+
+			if (g_settings->getBool("enable_node_specular"))
+				constants["ENABLE_NODE_SPECULAR"] = 1;
+
+			s32 shadow_filter = g_settings->getS32("shadow_filters");
+			constants["SHADOW_FILTER"] = shadow_filter;
+
+			float shadow_soft_radius = std::max(1.f,
+				g_settings->getFloat("shadow_soft_radius"));
+			constants["SOFTSHADOWRADIUS"] = shadow_soft_radius;
+		}
+
+		if (g_settings->getBool("enable_bloom")) {
+			constants["ENABLE_BLOOM"] = 1;
+			if (g_settings->getBool("enable_bloom_debug"))
+				constants["ENABLE_BLOOM_DEBUG"] = 1;
+		}
+
+		if (g_settings->getBool("enable_auto_exposure"))
+			constants["ENABLE_AUTO_EXPOSURE"] = 1;
+
+		if (g_settings->get("antialiasing") == "ssaa") {
+			constants["ENABLE_SSAA"] = 1;
+			u16 ssaa_scale = std::max<u16>(2, g_settings->getU16("fsaa"));
+			constants["SSAA_SCALE"] = ssaa_scale;
+		}
+
+		if (g_settings->getBool("debanding"))
+			constants["ENABLE_DITHERING"] = 1;
+
+		if (g_settings->getBool("enable_volumetric_lighting"))
+			constants["VOLUMETRIC_LIGHT"] = 1;
+	}
+};
+
+
+class NodeShaderConstantSetter : public IShaderConstantSetter
+{
+public:
+	NodeShaderConstantSetter() = default;
+	~NodeShaderConstantSetter() = default;
+
+	void onGenerate(const std::string &name, ShaderConstants &constants) override
+	{
+		if (constants.find("DRAWTYPE") == constants.end())
+			return; // not a node shader
+		[[maybe_unused]] const auto drawtype =
+			static_cast<NodeDrawType>(std::get<int>(constants["DRAWTYPE"]));
+		[[maybe_unused]] const auto material_type =
+			static_cast<MaterialType>(std::get<int>(constants["MATERIAL_TYPE"]));
+
+#define PROVIDE(constant) constants[ #constant ] = (int)constant
+
+		PROVIDE(NDT_NORMAL);
+		PROVIDE(NDT_AIRLIKE);
+		PROVIDE(NDT_LIQUID);
+		PROVIDE(NDT_FLOWINGLIQUID);
+		PROVIDE(NDT_GLASSLIKE);
+		PROVIDE(NDT_ALLFACES);
+		PROVIDE(NDT_ALLFACES_OPTIONAL);
+		PROVIDE(NDT_TORCHLIKE);
+		PROVIDE(NDT_SIGNLIKE);
+		PROVIDE(NDT_PLANTLIKE);
+		PROVIDE(NDT_FENCELIKE);
+		PROVIDE(NDT_RAILLIKE);
+		PROVIDE(NDT_NODEBOX);
+		PROVIDE(NDT_GLASSLIKE_FRAMED);
+		PROVIDE(NDT_FIRELIKE);
+		PROVIDE(NDT_GLASSLIKE_FRAMED_OPTIONAL);
+		PROVIDE(NDT_PLANTLIKE_ROOTED);
+
+		PROVIDE(TILE_MATERIAL_BASIC);
+		PROVIDE(TILE_MATERIAL_ALPHA);
+		PROVIDE(TILE_MATERIAL_LIQUID_TRANSPARENT);
+		PROVIDE(TILE_MATERIAL_LIQUID_OPAQUE);
+		PROVIDE(TILE_MATERIAL_WAVING_LEAVES);
+		PROVIDE(TILE_MATERIAL_WAVING_PLANTS);
+		PROVIDE(TILE_MATERIAL_OPAQUE);
+		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_BASIC);
+		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
+		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_OPAQUE);
+		PROVIDE(TILE_MATERIAL_PLAIN);
+		PROVIDE(TILE_MATERIAL_PLAIN_ALPHA);
+
+#undef PROVIDE
+
+		bool enable_waving_water = g_settings->getBool("enable_waving_water");
+		constants["ENABLE_WAVING_WATER"] = enable_waving_water ? 1 : 0;
+		if (enable_waving_water) {
+			constants["WATER_WAVE_HEIGHT"] = g_settings->getFloat("water_wave_height");
+			constants["WATER_WAVE_LENGTH"] = g_settings->getFloat("water_wave_length");
+			constants["WATER_WAVE_SPEED"] = g_settings->getFloat("water_wave_speed");
+		}
+		switch (material_type) {
+			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+				constants["MATERIAL_WAVING_LIQUID"] = 1;
+				break;
+			default:
+				constants["MATERIAL_WAVING_LIQUID"] = 0;
+				break;
+		}
+		switch (material_type) {
+			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+			case TILE_MATERIAL_LIQUID_TRANSPARENT:
+				constants["MATERIAL_WATER_REFLECTIONS"] = 1;
+				break;
+			default:
+				constants["MATERIAL_WATER_REFLECTIONS"] = 0;
+				break;
+		}
+
+		constants["ENABLE_WAVING_LEAVES"] = g_settings->getBool("enable_waving_leaves") ? 1 : 0;
+		constants["ENABLE_WAVING_PLANTS"] = g_settings->getBool("enable_waving_plants") ? 1 : 0;
+	}
+};
+
+/*
 	MainShaderUniformSetter: Set basic uniforms required for almost everything
 */
 
@@ -306,6 +454,11 @@ public:
 	// Shall be called from the main thread.
 	void rebuildShaders() override;
 
+	void addShaderConstantSetter(IShaderConstantSetter *setter) override
+	{
+		m_constant_setters.emplace_back(setter);
+	}
+
 	void addShaderUniformSetterFactory(IShaderUniformSetterFactory *setter) override
 	{
 		m_uniform_factories.emplace_back(setter);
@@ -331,6 +484,9 @@ private:
 	RequestQueue<std::string, u32, u8, u8> m_get_shader_queue;
 #endif
 
+	// Global constant setter factories
+	std::vector<std::unique_ptr<IShaderConstantSetter>> m_constant_setters;
+
 	// Global uniform setter factories
 	std::vector<std::unique_ptr<IShaderUniformSetterFactory>> m_uniform_factories;
 
@@ -351,7 +507,9 @@ ShaderSource::ShaderSource()
 	// Add a dummy ShaderInfo as the first index, named ""
 	m_shaderinfo_cache.emplace_back();
 
-	// Add main global constant setter
+	// Add global stuff
+	addShaderConstantSetter(new MainShaderConstantSetter());
+	addShaderConstantSetter(new NodeShaderConstantSetter());
 	addShaderUniformSetterFactory(new MainShaderUniformSetterFactory());
 }
 
@@ -613,12 +771,16 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 	/// Unique name of this shader, for debug/logging
 	std::string log_name = name;
 
-	/* Define constants for node and object shaders */
-	const bool node_shader = drawtype != NodeDrawType_END;
-	if (node_shader) {
+	ShaderConstants constants;
 
-	log_name.append(" mat=").append(itos(material_type))
-		.append(" draw=").append(itos(drawtype));
+	// Temporary plumbing <-> NodeShaderConstantSetter
+	if (drawtype != NodeDrawType_END) {
+		constants["DRAWTYPE"] = (int)drawtype;
+		constants["MATERIAL_TYPE"] = (int)material_type;
+
+		log_name.append(" mat=").append(itos(material_type))
+			.append(" draw=").append(itos(drawtype));
+	}
 
 	bool use_discard = fully_programmable;
 	if (!use_discard) {
@@ -629,133 +791,25 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 	}
 	if (use_discard) {
 		if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL)
-			shaders_header << "#define USE_DISCARD 1\n";
+			constants["USE_DISCARD"] = 1;
 		else if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF)
-			shaders_header << "#define USE_DISCARD_REF 1\n";
+			constants["USE_DISCARD_REF"] = 1;
 	}
 
-#define PROVIDE(constant) shaders_header << "#define " #constant " " << (int)constant << "\n"
-
-	PROVIDE(NDT_NORMAL);
-	PROVIDE(NDT_AIRLIKE);
-	PROVIDE(NDT_LIQUID);
-	PROVIDE(NDT_FLOWINGLIQUID);
-	PROVIDE(NDT_GLASSLIKE);
-	PROVIDE(NDT_ALLFACES);
-	PROVIDE(NDT_ALLFACES_OPTIONAL);
-	PROVIDE(NDT_TORCHLIKE);
-	PROVIDE(NDT_SIGNLIKE);
-	PROVIDE(NDT_PLANTLIKE);
-	PROVIDE(NDT_FENCELIKE);
-	PROVIDE(NDT_RAILLIKE);
-	PROVIDE(NDT_NODEBOX);
-	PROVIDE(NDT_GLASSLIKE_FRAMED);
-	PROVIDE(NDT_FIRELIKE);
-	PROVIDE(NDT_GLASSLIKE_FRAMED_OPTIONAL);
-	PROVIDE(NDT_PLANTLIKE_ROOTED);
-
-	PROVIDE(TILE_MATERIAL_BASIC);
-	PROVIDE(TILE_MATERIAL_ALPHA);
-	PROVIDE(TILE_MATERIAL_LIQUID_TRANSPARENT);
-	PROVIDE(TILE_MATERIAL_LIQUID_OPAQUE);
-	PROVIDE(TILE_MATERIAL_WAVING_LEAVES);
-	PROVIDE(TILE_MATERIAL_WAVING_PLANTS);
-	PROVIDE(TILE_MATERIAL_OPAQUE);
-	PROVIDE(TILE_MATERIAL_WAVING_LIQUID_BASIC);
-	PROVIDE(TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
-	PROVIDE(TILE_MATERIAL_WAVING_LIQUID_OPAQUE);
-	PROVIDE(TILE_MATERIAL_PLAIN);
-	PROVIDE(TILE_MATERIAL_PLAIN_ALPHA);
-
-#undef PROVIDE
-
-	shaders_header << "#define MATERIAL_TYPE " << (int)material_type << "\n";
-	shaders_header << "#define DRAW_TYPE " << (int)drawtype << "\n";
-
-	bool enable_waving_water = g_settings->getBool("enable_waving_water");
-	shaders_header << "#define ENABLE_WAVING_WATER " << enable_waving_water << "\n";
-	if (enable_waving_water) {
-		shaders_header << "#define WATER_WAVE_HEIGHT " << g_settings->getFloat("water_wave_height") << "\n";
-		shaders_header << "#define WATER_WAVE_LENGTH " << g_settings->getFloat("water_wave_length") << "\n";
-		shaders_header << "#define WATER_WAVE_SPEED " << g_settings->getFloat("water_wave_speed") << "\n";
-	}
-	switch (material_type) {
-		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-			shaders_header << "#define MATERIAL_WAVING_LIQUID 1\n";
-			break;
-		default:
-			shaders_header << "#define MATERIAL_WAVING_LIQUID 0\n";
-			break;
-	}
-	switch (material_type) {
-		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-		case TILE_MATERIAL_LIQUID_TRANSPARENT:
-			shaders_header << "#define MATERIAL_WATER_REFLECTIONS 1\n";
-			break;
-		default:
-			shaders_header << "#define MATERIAL_WATER_REFLECTIONS 0\n";
-			break;
+	/* Let the constant setters do their job and emit constants */
+	for (auto &setter : m_constant_setters) {
+		setter->onGenerate(name, constants);
 	}
 
-	shaders_header << "#define ENABLE_WAVING_LEAVES " << g_settings->getBool("enable_waving_leaves") << "\n";
-	shaders_header << "#define ENABLE_WAVING_PLANTS " << g_settings->getBool("enable_waving_plants") << "\n";
-
-	}
-
-	/* Other constants */
-
-	shaders_header << "#define ENABLE_TONE_MAPPING " << g_settings->getBool("tone_mapping") << "\n";
-
-	if (g_settings->getBool("enable_dynamic_shadows")) {
-		shaders_header << "#define ENABLE_DYNAMIC_SHADOWS 1\n";
-		if (g_settings->getBool("shadow_map_color"))
-			shaders_header << "#define COLORED_SHADOWS 1\n";
-
-		if (g_settings->getBool("shadow_poisson_filter"))
-			shaders_header << "#define POISSON_FILTER 1\n";
-
-		if (g_settings->getBool("enable_water_reflections"))
-			shaders_header << "#define ENABLE_WATER_REFLECTIONS 1\n";
-
-		if (g_settings->getBool("enable_translucent_foliage"))
-			shaders_header << "#define ENABLE_TRANSLUCENT_FOLIAGE 1\n";
-
-		if (g_settings->getBool("enable_node_specular"))
-			shaders_header << "#define ENABLE_NODE_SPECULAR 1\n";
-
-		s32 shadow_filter = g_settings->getS32("shadow_filters");
-		shaders_header << "#define SHADOW_FILTER " << shadow_filter << "\n";
-
-		float shadow_soft_radius = g_settings->getFloat("shadow_soft_radius");
-		if (shadow_soft_radius < 1.0f)
-			shadow_soft_radius = 1.0f;
-		shaders_header << "#define SOFTSHADOWRADIUS " << shadow_soft_radius << "\n";
-	}
-
-	if (g_settings->getBool("enable_bloom")) {
-		shaders_header << "#define ENABLE_BLOOM 1\n";
-		if (g_settings->getBool("enable_bloom_debug"))
-			shaders_header << "#define ENABLE_BLOOM_DEBUG 1\n";
-	}
-
-	if (g_settings->getBool("enable_auto_exposure"))
-		shaders_header << "#define ENABLE_AUTO_EXPOSURE 1\n";
-
-	if (g_settings->get("antialiasing") == "ssaa") {
-		shaders_header << "#define ENABLE_SSAA 1\n";
-		u16 ssaa_scale = MYMAX(2, g_settings->getU16("fsaa"));
-		shaders_header << "#define SSAA_SCALE " << ssaa_scale << ".\n";
-	}
-
-	if (g_settings->getBool("debanding"))
-		shaders_header << "#define ENABLE_DITHERING 1\n";
-
-	if (g_settings->getBool("enable_volumetric_lighting")) {
-		shaders_header << "#define VOLUMETRIC_LIGHT 1\n";
+	for (auto &it : constants) {
+		// spaces could cause duplicates
+		assert(trim(it.first) == it.first);
+		shaders_header << "#define " << it.first << ' ';
+		if (auto *ival = std::get_if<int>(&it.second); ival)
+			shaders_header << *ival;
+		else
+			shaders_header << std::get<float>(it.second);
+		shaders_header << '\n';
 	}
 
 	std::string common_header = shaders_header.str();
