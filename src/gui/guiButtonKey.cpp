@@ -98,6 +98,7 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 					if (in_rect)
 						return true;
 				} else {
+					setPressed(true);
 					setKey(LMBKey);
 					return true;
 				}
@@ -109,12 +110,14 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 			break;
 		case EMIE_MMOUSE_PRESSED_DOWN:
 			if (capturing) {
+				setPressed(true);
 				setKey(MMBKey);
 				return true;
 			}
 			break;
 		case EMIE_RMOUSE_PRESSED_DOWN:
 			if (capturing) {
+				setPressed(true);
 				setKey(RMBKey);
 				return true;
 			}
