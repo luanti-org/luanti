@@ -410,14 +410,13 @@ public:
 	~ShaderSource() override;
 
 	/*
-		- If shader material specified by name is found from cache,
-		  return the cached id.
+		- If shader material is found from cache, return the cached id.
 		- Otherwise generate the shader material, add to cache and return id.
 
 		The id 0 points to a null shader. Its material is EMT_SOLID.
 	*/
-	u32 getShaderIdDirect(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype);
+	u32 getShaderIdDirect(const std::string &name, const ShaderConstants &input_const,
+		video::E_MATERIAL_TYPE base_mat);
 
 	/*
 		If shader specified by the name pointed by the id doesn't
@@ -427,19 +426,10 @@ public:
 		and not found in cache, the call is queued to the main thread
 		for processing.
 	*/
-	u32 getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype) override;
+	u32 getShader(const std::string &name, const ShaderConstants &input_const,
+		video::E_MATERIAL_TYPE base_mat) override;
 
-	u32 getShaderRaw(const std::string &name, bool blendAlpha) override
-	{
-		// TODO: the shader system should be refactored to be much more generic.
-		// Just let callers pass arbitrary constants, this would also deal with
-		// runtime changes cleanly.
-		return getShader(name, blendAlpha ? TILE_MATERIAL_ALPHA : TILE_MATERIAL_BASIC,
-			NodeDrawType_END);
-	}
-
-	ShaderInfo getShaderInfo(u32 id) override;
+	const ShaderInfo &getShaderInfo(u32 id) override;
 
 	// Processes queued shader requests from other threads.
 	// Shall be called from the main thread.
@@ -492,7 +482,16 @@ private:
 
 	// Generate shader given the shader name.
 	ShaderInfo generateShader(const std::string &name,
-			MaterialType material_type, NodeDrawType drawtype);
+		const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat);
+
+	/// @brief outputs a constant to an ostream
+	inline void putConstant(std::ostream &os, const ShaderConstants::mapped_type &it)
+	{
+		if (auto *ival = std::get_if<int>(&it); ival)
+			os << *ival;
+		else
+			os << std::get<float>(it);
+	}
 };
 
 IWritableShaderSource *createShaderSource()
@@ -520,22 +519,27 @@ ShaderSource::~ShaderSource()
 	// Delete materials
 	auto *gpu = RenderingEngine::get_video_driver()->getGPUProgrammingServices();
 	assert(gpu);
+	u32 n = 0;
 	for (ShaderInfo &i : m_shaderinfo_cache) {
-		if (!i.name.empty())
+		if (!i.name.empty()) {
 			gpu->deleteShaderMaterial(i.material);
+			n++;
+		}
 	}
 	m_shaderinfo_cache.clear();
+
+	infostream << "~ShaderSource() cleaned up " << n << " materials" << std::endl;
 }
 
 u32 ShaderSource::getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype)
+	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat)
 {
 	/*
 		Get shader
 	*/
 
 	if (std::this_thread::get_id() == m_main_thread) {
-		return getShaderIdDirect(name, material_type, drawtype);
+		return getShaderIdDirect(name, input_const, base_mat);
 	}
 
 	errorstream << "ShaderSource::getShader(): getting from "
@@ -573,7 +577,7 @@ u32 ShaderSource::getShader(const std::string &name,
 	This method generates all the shaders
 */
 u32 ShaderSource::getShaderIdDirect(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype)
+	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat)
 {
 	// Empty name means shader 0
 	if (name.empty()) {
@@ -582,10 +586,10 @@ u32 ShaderSource::getShaderIdDirect(const std::string &name,
 	}
 
 	// Check if already have such instance
-	for(u32 i=0; i<m_shaderinfo_cache.size(); i++){
-		ShaderInfo *info = &m_shaderinfo_cache[i];
-		if(info->name == name && info->material_type == material_type &&
-			info->drawtype == drawtype)
+	for (u32 i = 0; i < m_shaderinfo_cache.size(); i++) {
+		auto &info = m_shaderinfo_cache[i];
+		if (info.name == name && info.base_material == base_mat &&
+			info.input_constants == input_const)
 			return i;
 	}
 
@@ -598,7 +602,7 @@ u32 ShaderSource::getShaderIdDirect(const std::string &name,
 		return 0;
 	}
 
-	ShaderInfo info = generateShader(name, material_type, drawtype);
+	ShaderInfo info = generateShader(name, input_const, base_mat);
 
 	/*
 		Add shader to caches (add dummy shaders too)
@@ -607,19 +611,19 @@ u32 ShaderSource::getShaderIdDirect(const std::string &name,
 	MutexAutoLock lock(m_shaderinfo_cache_mutex);
 
 	u32 id = m_shaderinfo_cache.size();
-	m_shaderinfo_cache.push_back(info);
-
+	m_shaderinfo_cache.push_back(std::move(info));
 	return id;
 }
 
 
-ShaderInfo ShaderSource::getShaderInfo(u32 id)
+const ShaderInfo &ShaderSource::getShaderInfo(u32 id)
 {
 	MutexAutoLock lock(m_shaderinfo_cache_mutex);
 
-	if(id >= m_shaderinfo_cache.size())
-		return ShaderInfo();
-
+	if (id >= m_shaderinfo_cache.size()) {
+		static ShaderInfo empty;
+		return empty;
+	}
 	return m_shaderinfo_cache[id];
 }
 
@@ -655,46 +659,31 @@ void ShaderSource::rebuildShaders()
 		}
 	}
 
+	infostream << "ShaderSource: recreating " << m_shaderinfo_cache.size()
+			<< " shaders" << std::endl;
+
 	// Recreate shaders
 	for (ShaderInfo &i : m_shaderinfo_cache) {
 		ShaderInfo *info = &i;
 		if (!info->name.empty()) {
-			*info = generateShader(info->name, info->material_type, info->drawtype);
+			*info = generateShader(info->name, info->input_constants, info->base_material);
 		}
 	}
 }
 
 
 ShaderInfo ShaderSource::generateShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype)
+	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat)
 {
 	ShaderInfo shaderinfo;
 	shaderinfo.name = name;
-	shaderinfo.material_type = material_type;
-	shaderinfo.drawtype = drawtype;
-	switch (material_type) {
-	case TILE_MATERIAL_OPAQUE:
-	case TILE_MATERIAL_LIQUID_OPAQUE:
-	case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-		shaderinfo.base_material = video::EMT_SOLID;
-		break;
-	case TILE_MATERIAL_ALPHA:
-	case TILE_MATERIAL_PLAIN_ALPHA:
-	case TILE_MATERIAL_LIQUID_TRANSPARENT:
-	case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-		shaderinfo.base_material = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-		break;
-	case TILE_MATERIAL_BASIC:
-	case TILE_MATERIAL_PLAIN:
-	case TILE_MATERIAL_WAVING_LEAVES:
-	case TILE_MATERIAL_WAVING_PLANTS:
-	case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-		shaderinfo.base_material = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
-		break;
-	}
+	shaderinfo.input_constants = input_const;
+	// fixed pipeline materials don't make sense here
+	assert(base_mat != video::EMT_TRANSPARENT_VERTEX_ALPHA && base_mat != video::EMT_ONETEXTURE_BLEND);
+	shaderinfo.base_material = base_mat;
 	shaderinfo.material = shaderinfo.base_material;
 
-	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
+	auto *driver = RenderingEngine::get_video_driver();
 	// The null driver doesn't support shaders (duh), but we can pretend it does.
 	if (driver->getDriverType() == video::EDT_NULL)
 		return shaderinfo;
@@ -770,17 +759,17 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 
 	/// Unique name of this shader, for debug/logging
 	std::string log_name = name;
-
-	ShaderConstants constants;
-
-	// Temporary plumbing <-> NodeShaderConstantSetter
-	if (drawtype != NodeDrawType_END) {
-		constants["DRAWTYPE"] = (int)drawtype;
-		constants["MATERIAL_TYPE"] = (int)material_type;
-
-		log_name.append(" mat=").append(itos(material_type))
-			.append(" draw=").append(itos(drawtype));
+	for (auto &it : input_const) {
+		if (log_name.size() > 60) { // it shouldn't be too long
+			log_name.append("...");
+			break;
+		}
+		std::ostringstream oss;
+		putConstant(oss, it.second);
+		log_name.append(" ").append(it.first).append("=").append(oss.str());
 	}
+
+	ShaderConstants constants = input_const;
 
 	bool use_discard = fully_programmable;
 	if (!use_discard) {
@@ -805,10 +794,7 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		// spaces could cause duplicates
 		assert(trim(it.first) == it.first);
 		shaders_header << "#define " << it.first << ' ';
-		if (auto *ival = std::get_if<int>(&it.second); ival)
-			shaders_header << *ival;
-		else
-			shaders_header << std::get<float>(it.second);
+		putConstant(shaders_header, it.second);
 		shaders_header << '\n';
 	}
 
@@ -847,6 +833,39 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 	// Apply the newly created material type
 	shaderinfo.material = (video::E_MATERIAL_TYPE) shadermat;
 	return shaderinfo;
+}
+
+/*
+	Other functions and helpers
+*/
+
+u32 IShaderSource::getShader(const std::string &name,
+	MaterialType material_type, NodeDrawType drawtype)
+{
+	ShaderConstants input_const;
+	input_const["MATERIAL_TYPE"] = (int)material_type;
+	input_const["DRAWTYPE"] = (int)drawtype;
+
+	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
+	switch (material_type) {
+		case TILE_MATERIAL_ALPHA:
+		case TILE_MATERIAL_PLAIN_ALPHA:
+		case TILE_MATERIAL_LIQUID_TRANSPARENT:
+		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+			break;
+		case TILE_MATERIAL_BASIC:
+		case TILE_MATERIAL_PLAIN:
+		case TILE_MATERIAL_WAVING_LEAVES:
+		case TILE_MATERIAL_WAVING_PLANTS:
+		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
+			break;
+		default:
+			break;
+	}
+
+	return getShader(name, input_const, base_mat);
 }
 
 void dumpShaderProgram(std::ostream &output_stream,
