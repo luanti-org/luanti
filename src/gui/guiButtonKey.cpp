@@ -93,11 +93,14 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 			break;
 		case EMIE_LMOUSE_PRESSED_DOWN:
 			if (capturing) {
-				if (event.MouseInput.Simulated)
+				if (event.MouseInput.Simulated) {
 					cancelCapture(true);
-				else
+					if (in_rect)
+						return true;
+				} else {
 					setKey(LMBKey);
-				return true;
+					return true;
+				}
 			} else if (in_rect) {
 				Environment->setFocus(this);
 				setPressed(true);
