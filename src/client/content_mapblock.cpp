@@ -1904,7 +1904,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
 
             video::SColor color = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(main_node).light_source);
             core::vector3df normal(directions[i].X, directions[i].Y, directions[i].Z);
-
+            applyFacesShading(color, normal);
             video::S3DVertex v[4] = {
                 video::S3DVertex(vertices[i][0], normal, color, uvs[0]), // uvs are 0 1
                 video::S3DVertex(vertices[i][1], normal, color, uvs[1]), // uvs are 0 0
@@ -2006,6 +2006,8 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
             video::SColor color2 = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(n2).light_source);
 
             core::vector3df normal = (vertices[i][2] - vertices[i][1]).crossProduct(vertices[i][0] - vertices[i][1]).normalize();
+            applyFacesShading(color1, normal);
+            applyFacesShading(color2, normal);
             video::S3DVertex v[4] = {video::S3DVertex(vertices[i][0], normal, color1, uvs[0]), // uvs are 0 1
                                      video::S3DVertex(vertices[i][1], normal, color1, uvs[1]), // uvs are 0 0
                                      video::S3DVertex(vertices[i][2], normal, color2, uvs[2]), // uvs are 1 1
@@ -2019,56 +2021,65 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
     }
 }
 
+void MapblockMeshGenerator::generateLod() {
+    u16 width = 1 << MYMIN(data->m_lod, 15);
+
+    if(width > data->m_side_length){
+        width = data->m_side_length;
+    } else if(data->m_side_length % width != 0){
+        width = data->m_side_length / (data->m_side_length / width);
+    }
+
+    core::vector2d<f32> uvs[4] = {
+                                  core::vector2d<f32>{0, (f32) width},
+                                  core::vector2d<f32>{0, 0},
+                                  core::vector2d<f32>{(f32) width, 0},
+                                  core::vector2d<f32>{(f32) width, (f32) width},
+                                  };
+    core::vector2d<f32> small_uvs[4] = {
+                                        core::vector2d<f32>{0, (f32) width / 2},
+                                        core::vector2d<f32>{0, 0},
+                                        core::vector2d<f32>{(f32) width / 2, 0},
+                                        core::vector2d<f32>{(f32) width / 2, (f32) width / 2},
+                                        };
+    f32 y_offset = BS * (data->m_lod - 1) + 0.1; // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
+
+    auto detailLodLambda = [this](std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset) {
+        generateDetailLod(types, width, uvs, y_offset);
+    };
+
+    // liquids are always rendered slanted
+    std::bitset<19> liqu_set;
+    liqu_set.set(NDT_LIQUID);
+    auto liquids = std::async(std::launch::async, detailLodLambda, liqu_set, width, uvs, 0.0f);
+
+    if (width > 16) {
+        std::bitset<19> leaf_set;
+        leaf_set.set(NDT_NODEBOX);
+        auto leaves = std::async(std::launch::async, detailLodLambda, leaf_set, MYMAX(2, width / 2), small_uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
+
+        std::bitset<19> solid_set;
+        solid_set.set(NDT_NORMAL);
+        solid_set.set(NDT_NODEBOX);
+        generateDetailLod(solid_set, width, uvs, -y_offset);
+
+        leaves.wait();
+    } else {
+        std::bitset<19> types;
+        types.set(NDT_NORMAL);
+        types.set(NDT_NODEBOX);
+        types.set(NDT_ALLFACES);
+        generateCloseLod(types, width, uvs, -y_offset);
+    }
+    liquids.wait();
+}
+
 void MapblockMeshGenerator::generate()
 {
     ZoneScoped;
 
     if(data->m_lod > 0) {
-        u16 width = 1 << MYMIN(data->m_lod, 15);
-        if(width > data->m_side_length){
-            width = data->m_side_length;
-        } else if(data->m_side_length % width != 0){
-            width = data->m_side_length / (data->m_side_length / width);
-        }
-
-        core::vector2d<f32> uvs[4] = {
-                                      core::vector2d<f32>{0, (f32) width / 2},
-                                      core::vector2d<f32>{0, 0},
-                                      core::vector2d<f32>{(f32) width / 2, 0},
-                                      core::vector2d<f32>{(f32) width / 2, (f32) width / 2},
-                                      };
-        core::vector2d<f32> small_uvs[4] = {
-                                      core::vector2d<f32>{0, (f32) width / 4},
-                                      core::vector2d<f32>{0, 0},
-                                      core::vector2d<f32>{(f32) width / 4, 0},
-                                      core::vector2d<f32>{(f32) width / 4, (f32) width / 4},
-                                      };
-        f32 y_offset = BS * (data->m_lod - 1); // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
-
-        auto lodLambda = [this](std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset) {
-            generateDetailLod(types, width, uvs, y_offset);
-        };
-        std::bitset<19> leaf_set;
-        leaf_set.set(NDT_ALLFACES);
-        auto leaves = std::async(std::launch::async, lodLambda, leaf_set, MYMAX(2, width / 2), small_uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
-
-        std::bitset<19> liqu_set;
-        liqu_set.set(NDT_LIQUID);
-        auto liquids = std::async(std::launch::async, lodLambda, liqu_set, width, uvs, 0.0f);
-
-        if (width < 16) {
-            std::bitset<19> types;
-            types.set(NDT_NORMAL);
-            types.set(NDT_NODEBOX);
-            generateCloseLod(types, width, uvs, -y_offset);
-        } else {
-            std::bitset<19> types;
-            types.set(NDT_NORMAL);
-            types.set(NDT_NODEBOX);
-            generateDetailLod(types, width, uvs, -y_offset);
-        }
-        liquids.wait();
-        leaves.wait();
+        generateLod();
         return;
     }
 

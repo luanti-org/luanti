@@ -78,11 +78,10 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
     /*
      * Calculate LOD
      */
-    v3f cam_pos = m_client->getCamera()->getPosition() * 0.1 / MAP_BLOCKSIZE - 0.5;
-    v3f d = v3f{cam_pos.X - mesh_position.X,
-                cam_pos.Y - mesh_position.Y,
-                cam_pos.Z - mesh_position.Z};
-    u16 dist2 = d.X * d.X + d.Y * d.Y + d.Z * d.Z; // distance squared
+    v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / 16 - 8;
+    u16 dist2 = (cam_pos.X - mesh_position.X) * (cam_pos.X - mesh_position.X)
+                + (cam_pos.Y - mesh_position.Y) * (cam_pos.Y - mesh_position.Y)
+                + (cam_pos.Z - mesh_position.Z) * (cam_pos.Z - mesh_position.Z); // distance squared
     u16 renderDist = g_settings->getU16("lod_threshold");
     renderDist *= renderDist;
     u16 lod;
@@ -97,34 +96,34 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 		If it is, update the data and quit.
 	*/
 	for (QueuedMeshUpdate *q : m_queue) {
-		if (q->p == mesh_position) {
-			// NOTE: We are not adding a new position to the queue, thus
-			//       refcount_from_queue stays the same.
-			if(ack_block_to_server)
-				q->ack_list.push_back(p);
-			q->crack_level = m_client->getCrackLevel();
-			q->crack_pos = m_client->getCrackPos();
-            if (q->lod != lod) {
+        if (q->p == mesh_position) {
+            // NOTE: We are not adding a new position to the queue, thus
+            //       refcount_from_queue stays the same.
+            if(ack_block_to_server)
+                q->ack_list.push_back(p);
+            q->crack_level = m_client->getCrackLevel();
+            q->crack_pos = m_client->getCrackPos();
+            if (q->lod > lod) {
                 q->lod = lod;
                 q->urgent = true;
             } else {
                 q->urgent |= urgent;
             }
-			v3s16 pos;
-			int i = 0;
-			for (pos.X = q->p.X - 1; pos.X <= q->p.X + mesh_grid.cell_size; pos.X++)
-			for (pos.Z = q->p.Z - 1; pos.Z <= q->p.Z + mesh_grid.cell_size; pos.Z++)
-			for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
-				if (!q->map_blocks[i]) {
-					MapBlock *block = map->getBlockNoCreateNoEx(pos);
-					if (block) {
-						block->refGrab();
-						q->map_blocks[i] = block;
-					}
-				}
-				i++;
-			}
-			return true;
+            v3s16 pos;
+            int i = 0;
+            for (pos.X = q->p.X - 1; pos.X <= q->p.X + mesh_grid.cell_size; pos.X++)
+            for (pos.Z = q->p.Z - 1; pos.Z <= q->p.Z + mesh_grid.cell_size; pos.Z++)
+            for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
+                if (!q->map_blocks[i]) {
+                    MapBlock *block = map->getBlockNoCreateNoEx(pos);
+                    if (block) {
+                        block->refGrab();
+                        q->map_blocks[i] = block;
+                    }
+                }
+                i++;
+            }
+            return true;
 		}
 	}
 
