@@ -87,8 +87,7 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 			setPressed(false);
 			if (capturing) {
 				cancelCapture();
-				if (!event.MouseInput.Simulated)
-					sendKey();
+				sendKey();
 				return true;
 			}
 			break;
