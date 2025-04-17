@@ -716,6 +716,13 @@ void ClientMap::updateDrawList()
 	g_profiler->avg("MapBlocks drawn [#]", m_drawlist.size());
 }
 
+void ClientMap::callOverDrawList(const std::function<void(v3s16, MapBlock *)> &cb)
+{
+	for (auto &i : m_drawlist) {
+		cb(i.first, i.second);
+	}
+}
+
 void ClientMap::touchMapBlocks()
 {
 	if (m_control.range_all || m_loops_occlusion_culler)
