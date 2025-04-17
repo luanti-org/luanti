@@ -246,7 +246,7 @@ void set_default_settings()
 	settings->setDefault("undersampling", "1");
 	settings->setDefault("world_aligned_mode", "enable");
 	settings->setDefault("autoscale_mode", "disable");
-	settings->setDefault("texture_min_size", "64");
+	settings->setDefault("texture_min_size", std::to_string(TEXTURE_FILTER_MIN_SIZE));
 	settings->setDefault("enable_fog", "true");
 	settings->setDefault("fog_start", "0.4");
 	settings->setDefault("3d_mode", "none");

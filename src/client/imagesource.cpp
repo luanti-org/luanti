@@ -1479,21 +1479,28 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			/* Upscale textures to user's requested minimum size.  This is a trick to make
 			 * filters look as good on low-res textures as on high-res ones, by making
-			 * low-res textures BECOME high-res ones.  This is helpful for worlds that
+			 * low-res textures BECOME high-res ones. This is helpful for worlds that
 			 * mix high- and low-res textures, or for mods with least-common-denominator
 			 * textures that don't have the resources to offer high-res alternatives.
+			 *
+			 * Q: why not just enable/disable filtering depending on texture size?
+			 * A: large texture resolutions apparently allow getting rid of the Moire
+			 *    effect way better than anisotropic filtering alone could.
+			 *    see <https://github.com/luanti-org/luanti/issues/15604> and related
+			 *    linked discussions.
 			 */
 			const bool filter = m_setting_trilinear_filter || m_setting_bilinear_filter;
-			const s32 scaleto = filter ? g_settings->getU16("texture_min_size") : 1;
-			if (scaleto > 1) {
-				const core::dimension2d<u32> dim = baseimg->getDimension();
+			if (filter) {
+				const f32 scaleto = rangelim(g_settings->getU16("texture_min_size"),
+					TEXTURE_FILTER_MIN_SIZE, 16384);
 
-				/* Calculate scaling needed to make the shortest texture dimension
-				 * equal to the target minimum.  If e.g. this is a vertical frames
-				 * animation, the short dimension will be the real size.
+				/* Calculate integer-scaling needed to make the shortest texture
+				 * dimension equal to the target minimum. If this is e.g. a
+				 * vertical frames animation, the short dimension will be the real size.
 				 */
-				u32 xscale = scaleto / dim.Width;
-				u32 yscale = scaleto / dim.Height;
+				const auto &dim = baseimg->getDimension();
+				u32 xscale = std::ceil(scaleto / dim.Width);
+				u32 yscale = std::ceil(scaleto / dim.Height);
 				const s32 scale = std::max(xscale, yscale);
 
 				// Never downscale; only scale up by 2x or more.
