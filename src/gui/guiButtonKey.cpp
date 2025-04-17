@@ -38,7 +38,6 @@ void GUIButtonKey::sendKey()
 		e.GUIEvent.EventType = EGET_BUTTON_CLICKED;
 		Parent->OnEvent(e);
 	}
-	cancelCapture();
 }
 
 bool GUIButtonKey::OnEvent(const SEvent & event)
