@@ -1883,7 +1883,7 @@ world_aligned_mode (World-aligned textures mode) enum enable disable,enable,forc
 #    World-aligned textures may be scaled to span several nodes. However,
 #    the server may not send the scale you want, especially if you use
 #    a specially-designed texture pack; with this option, the client tries
-#    to determine the scale automatically basing on the texture size.
+#    to determine the scale automatically based on the texture size.
 #    See also texture_min_size.
 #    Warning: This option is EXPERIMENTAL!
 autoscale_mode (Autoscaling mode) enum disable disable,enable,force
@@ -1895,7 +1895,7 @@ autoscale_mode (Autoscaling mode) enum disable disable,enable,force
 #    This setting is ONLY applied if any of the mentioned filters are enabled.
 #    This is also used as the base node texture size for world-aligned
 #    texture autoscaling.
-texture_min_size (Base texture size) int 64 1 32768
+texture_min_size (Base texture size) int 192 192 16384
 
 #    Side length of a cube of map blocks that the client will consider together
 #    when generating meshes.
