@@ -43,6 +43,8 @@ import static net.minetest.minetest.UnzipService.*;
 
 public class MainActivity extends AppCompatActivity {
 	public static final String NOTIFICATION_CHANNEL_ID = "Minetest channel";
+	public static final int NOTIFICATION_ID_UNZIP = 1;
+	public static final int NOTIFICATION_ID_GAME = 2;
 
 	private final static int versionCode = BuildConfig.VERSION_CODE;
 	private static final String SETTINGS = "MinetestSettings";
