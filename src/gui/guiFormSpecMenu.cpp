@@ -1781,10 +1781,37 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 	if (!font)
 		font = m_font;
 
+	auto add_label = [&](core::rect<s32> rect, const EnrichedString &text,
+			EGUI_ALIGNMENT align_h, EGUI_ALIGNMENT align_v, bool word_wrap) {
+		FieldSpec spec(
+			"",
+			L"",
+			L"",
+			258 + m_fields.size(),
+			4
+		);
+		gui::IGUIStaticText *e = gui::StaticText::add(Environment,
+				text, rect, false, false, data->current_parent,
+				spec.fid);
+		e->setTextAlignment(align_h, align_v);
+		e->setWordWrap(word_wrap);
+
+		e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+		e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
+		e->setOverrideFont(font);
+
+		m_fields.push_back(spec);
+
+		// labels should let events through
+		e->grab();
+		m_clickthrough_elements.push_back(e);
+	};
+
 	EnrichedString str(unescape_string(utf8_to_wide(parts[has_size ? 2 : 1])));
 
 	if (geom == v2s32()) {
 		size_t str_pos = 0;
+
 		for (size_t i = 0; str_pos < str.size(); ++i) {
 			EnrichedString line = str.getNextLine(&str_pos);
 
@@ -1829,59 +1856,16 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 					pos.Y + m_btn_height);
 			}
 
-			FieldSpec spec(
-				"",
-				L"",
-				L"",
-				258 + m_fields.size(),
-				4
-			);
-			gui::IGUIStaticText *e = gui::StaticText::add(Environment,
-					line, rect, false, false, data->current_parent,
-					spec.fid);
-			e->setTextAlignment(gui::EGUIA_UPPERLEFT, gui::EGUIA_CENTER);
-
-			e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-			e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-			e->setOverrideFont(font);
-
-			m_fields.push_back(spec);
-
-			// labels should let events through
-			e->grab();
-			m_clickthrough_elements.push_back(e);
+			add_label(rect, line, gui::EGUIA_UPPERLEFT, gui::EGUIA_CENTER, false);
 		}
 	} else {
-		core::rect<s32> rect;
-
 		v2s32 pos = getRealCoordinateBasePos(v_pos);
-		rect = core::rect<s32>(
+		core::rect<s32> rect = core::rect<s32>(
 				pos.X, pos.Y,
 				pos.X + geom.X,
 				pos.Y + geom.Y);
 
-		FieldSpec spec(
-				"",
-				L"",
-				L"",
-				258 + m_fields.size(),
-				4
-		);
-		gui::IGUIStaticText *e = gui::StaticText::add(Environment,
-				str, rect, false, false, data->current_parent,
-				spec.fid);
-		e->setTextAlignment(gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT);
-
-		e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-		e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-		e->setWordWrap(true);
-		e->setOverrideFont(font);
-
-		m_fields.push_back(spec);
-
-		// labels should let events through
-		e->grab();
-		m_clickthrough_elements.push_back(e);
+		add_label(rect, str, gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT, true);
 	}
 }
 
