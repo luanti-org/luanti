@@ -5,6 +5,7 @@
 
 #include "test.h"
 #include "config.h"
+#include "log.h"
 
 #include <stdexcept>
 
@@ -82,7 +83,13 @@ void TestLua::testLuaDestructors()
 	}, &did_destruct);
 	lua_close(L);
 
+#ifdef IGNORE_LUA_DESTRUCTOR_TEST_FAILURE
+	if (!did_destruct) {
+		warningstream << "The Lua destructor test has failed and you have elected to ignore it. You should know what you're doing. Memory leaks, deadlocks, and other nasty things are possible." << std::endl;
+	}
+#else
 	UASSERT(did_destruct);
+#endif
 }
 
 namespace {

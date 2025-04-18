@@ -486,6 +486,12 @@ if(ANDROID)
 	list(APPEND common_SRCS porting_android.cpp)
 endif()
 
+option(IGNORE_LUA_DESTRUCTOR_TEST_FAILURE "Ignore failures in Lua destructor test" FALSE)
+
+if(IGNORE_LUA_DESTRUCTOR_TEST_FAILURE)
+	add_compile_definitions(IGNORE_LUA_DESTRUCTOR_TEST_FAILURE)
+endif()
+
 if(BUILD_UNITTESTS)
 	add_subdirectory(unittest)
 	list(APPEND common_SRCS ${UNITTEST_SRCS})
