@@ -1326,6 +1326,5 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 	db->endSave();
 
 	actionstream << "Done, " << count << " blocks were recompressed." << std::endl;
-
 	return true;
 }
