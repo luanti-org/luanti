@@ -78,7 +78,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
     /*
      * Calculate LOD
      */
-    v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / 16 - 8;
+    v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE - MAP_BLOCKSIZE / 2;
     u16 dist2 = (cam_pos.X - mesh_position.X) * (cam_pos.X - mesh_position.X)
                 + (cam_pos.Y - mesh_position.Y) * (cam_pos.Y - mesh_position.Y)
                 + (cam_pos.Z - mesh_position.Z) * (cam_pos.Z - mesh_position.Z); // distance squared
@@ -199,8 +199,8 @@ void MeshUpdateQueue::done(v3s16 pos)
 
 void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
-	auto mesh_grid = m_client->getMeshGrid();
-	MeshMakeData *data = new MeshMakeData(m_client->ndef(),
+    MeshGrid mesh_grid = m_client->getMeshGrid();
+    MeshMakeData *data = new MeshMakeData(m_client->ndef(),
             MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid, q->lod);
 	q->data = data;
 

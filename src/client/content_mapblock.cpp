@@ -1817,7 +1817,7 @@ bool MapblockMeshGenerator::doesVolumeContainType(std::bitset<19> types, v3s16 f
     return false;
 }
 
-void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset){
+void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f32 y_offset){
     static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
                                         v3s16(-1, 0, 0), v3s16(1, 0, 0),
                                         v3s16(0, 0, -1), v3s16(0, 0, 1)};
@@ -1866,6 +1866,10 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
         v3s16 hxlyhz(hxhyhz.X, lxlylz.Y, hxhyhz.Z);
         v3s16 hxhylz(hxhyhz.X, hxhyhz.Y, lxlylz.Z);
 
+        f32 w = hxhyhz.X - lxlylz.X + 1;
+        f32 h = hxhyhz.Y - lxlylz.Y + 1;
+        f32 d = hxhyhz.Z - lxlylz.Z + 1;
+
         core::vector3df lxlylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
         core::vector3df lxlyhz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
         core::vector3df lxhylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
@@ -1881,20 +1885,23 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
         core::vector3df vertices[6][4] = {{lxlylz_f, hxlylz_f, hxlyhz_f, lxlyhz_f}, {lxhylz_f, lxhyhz_f, hxhyhz_f, hxhylz_f},
                                           {lxlyhz_f, lxhyhz_f, lxhylz_f, lxlylz_f}, {hxlylz_f, hxhylz_f, hxhyhz_f, hxlyhz_f},
                                           {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
+        f32 uvs2[6][2] = {{w, d}, {w, d},
+                          {d, h}, {d, h},
+                          {w, h}, {w, h}};
         TileSpec tile;
-        for(u8 i = 0; i < 6; i++){
-            if (types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])))->drawtype) &&
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])))->drawtype) &&
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])))->drawtype) &&
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])))->drawtype))
+        for(u8 side = 0; side < 6; side++){
+            if (types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][0] + directions[side])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][1] + directions[side])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][2] + directions[side])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][3] + directions[side])))->drawtype))
                 continue;
 
             u8 day_light = 0;
             u8 night_light = 0;
-            for (v3s16 p : node_coords[i]){
+            for (v3s16 p : node_coords[side]){
                 MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
                 if ((&nodedef->get(n))->drawtype == NDT_NORMAL)
-                    n = data->m_vmanip.getNodeNoExNoEmerge(p + directions[i]);
+                    n = data->m_vmanip.getNodeNoExNoEmerge(p + directions[side]);
                 ContentLightingFlags f = nodedef->getLightingFlags(n);
                 day_light = MYMAX(day_light, n.getLightRaw(LIGHTBANK_DAY, f));
                 night_light = MYMAX(night_light, n.getLightRaw(LIGHTBANK_NIGHT, f));
@@ -1903,15 +1910,16 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, c
             night_light = decode_light(night_light);
 
             video::SColor color = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(main_node).light_source);
-            core::vector3df normal(directions[i].X, directions[i].Y, directions[i].Z);
+            core::vector3df normal(directions[side].X, directions[side].Y, directions[side].Z);
             applyFacesShading(color, normal);
+
             video::S3DVertex v[4] = {
-                video::S3DVertex(vertices[i][0], normal, color, uvs[0]), // uvs are 0 1
-                video::S3DVertex(vertices[i][1], normal, color, uvs[1]), // uvs are 0 0
-                video::S3DVertex(vertices[i][2], normal, color, uvs[2]), // uvs are 1 1
-                video::S3DVertex(vertices[i][3], normal, color, uvs[3]), // uvs are 1 0
+                video::S3DVertex(vertices[side][0], normal, color, core::vector2d<f32>{0, uvs2[side][1]}),
+                video::S3DVertex(vertices[side][1], normal, color, core::vector2d<f32>{0, 0}),
+                video::S3DVertex(vertices[side][2], normal, color, core::vector2d<f32>{uvs2[side][0], 0}),
+                video::S3DVertex(vertices[side][3], normal, color, core::vector2d<f32>{uvs2[side][0], uvs2[side][1]}),
             };
-            getNodeTile(main_node, main_point, directions[i], data, tile);
+            getNodeTile(main_node, main_point, directions[side], data, tile);
             lod_mutex.lock();
             collector->append(tile, v, 4, quad_indices, 6);
             lod_mutex.unlock();
@@ -2023,6 +2031,7 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
 
 void MapblockMeshGenerator::generateLod() {
     u16 width = 1 << MYMIN(data->m_lod, 15);
+    // floatToInt(client->getCamera()->getPosition(), BS);
 
     if(width > data->m_side_length){
         width = data->m_side_length;
@@ -2036,12 +2045,6 @@ void MapblockMeshGenerator::generateLod() {
                                   core::vector2d<f32>{(f32) width, 0},
                                   core::vector2d<f32>{(f32) width, (f32) width},
                                   };
-    core::vector2d<f32> small_uvs[4] = {
-                                        core::vector2d<f32>{0, (f32) width / 2},
-                                        core::vector2d<f32>{0, 0},
-                                        core::vector2d<f32>{(f32) width / 2, 0},
-                                        core::vector2d<f32>{(f32) width / 2, (f32) width / 2},
-                                        };
     f32 y_offset = BS * (data->m_lod - 1) + 0.1; // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
 
     auto detailLodLambda = [this](std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset) {
@@ -2056,7 +2059,7 @@ void MapblockMeshGenerator::generateLod() {
     if (width > 16) {
         std::bitset<19> leaf_set;
         leaf_set.set(NDT_NODEBOX);
-        auto leaves = std::async(std::launch::async, detailLodLambda, leaf_set, MYMAX(2, width / 2), small_uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
+        auto leaves = std::async(std::launch::async, detailLodLambda, leaf_set, MYMAX(2, width / 2), uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
 
         std::bitset<19> solid_set;
         solid_set.set(NDT_NORMAL);
@@ -2069,7 +2072,7 @@ void MapblockMeshGenerator::generateLod() {
         types.set(NDT_NORMAL);
         types.set(NDT_NODEBOX);
         types.set(NDT_ALLFACES);
-        generateCloseLod(types, width, uvs, -y_offset);
+        generateCloseLod(types, width, -y_offset);
     }
     liquids.wait();
 }
