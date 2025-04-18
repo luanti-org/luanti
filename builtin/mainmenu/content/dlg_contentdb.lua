@@ -347,8 +347,12 @@ local function get_formspec(dlgdata)
 
 			"label[", img_w + 0.25, ",0.75;", cell_w - img_w - 0.25, ",", cell_h - 0.75, ";",
 				core.formspec_escape(package.short_description), "]",
+
+			-- Add a tooltip in case the label overflows and the text is cut off.
 			"tooltip[", img_w + 0.25, ",0.75;", cell_w - img_w - 0.25, ",", cell_h - 0.75, ";",
-				core.formspec_escape(package.short_description), "]",
+				-- Text in tooltips doesn't wrap automatically, so we do it manually to
+				-- avoid everything being one long line.
+				core.formspec_escape(core.wrap_text(package.short_description, 80)), "]",
 
 			"style[view_", i, ";border=false]",
 			"style[view_", i, ":hovered;bgimg=", core.formspec_escape(defaulttexturedir .. "button_hover_semitrans.png"), "]",
