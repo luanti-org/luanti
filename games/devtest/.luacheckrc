@@ -31,8 +31,9 @@ read_globals = {
 	"PcgRandom",
 
 	string = {fields = {"split", "trim"}},
-	table  = {fields = {"copy", "getn", "indexof", "insert_all", "key_value_swap"}},
-	math   = {fields = {"hypot", "round"}},
+	table = {fields = {"copy", "getn", "indexof", "insert_all", "key_value_swap"}},
+	math = {fields = {"hypot", "round"}},
+	package = {fields = {"loaders", "unload", "set"}}
 }
 
 globals = {
