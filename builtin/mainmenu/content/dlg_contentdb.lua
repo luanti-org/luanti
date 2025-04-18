@@ -323,9 +323,17 @@ local function get_formspec(dlgdata)
 	})
 	local img_w = cell_h * 3 / 2
 
+	-- Use as much of the available space as possible (so no padding on the
+	-- right/bottom), but don't quite allow the text to touch the border.
+	local text_w = cell_w - img_w - 0.25 - 0.025
+	local text_h = cell_h - 0.25 - 0.025
+
 	local start_idx = (cur_page - 1) * num_per_page + 1
 	for i=start_idx, math.min(#contentdb.packages, start_idx+num_per_page-1) do
 		local package = contentdb.packages[i]
+		local text = core.colorize(mt_color_green, package.title) ..
+			core.colorize("#BFBFBF", " by " .. package.author) .. "\n" ..
+			package.short_description
 
 		table.insert_all(formspec, {
 			"container[",
@@ -340,13 +348,14 @@ local function get_formspec(dlgdata)
 			"image[0,0;", img_w, ",", cell_h, ";",
 				core.formspec_escape(get_screenshot(package, package.thumbnail, 2)), "]",
 
-			"label[", img_w + 0.25 + 0.05, ",0.5;",
-				core.formspec_escape(
-					core.colorize(mt_color_green, package.title) ..
-							core.colorize("#BFBFBF", " by " .. package.author)), "]",
+			"label[", img_w + 0.25, ",0.25;", text_w, ",", text_h, ";",
+				core.formspec_escape(text), "]",
 
-			"textarea[", img_w + 0.25, ",0.75;", cell_w - img_w - 0.25, ",", cell_h - 0.75, ";;;",
-				core.formspec_escape(package.short_description), "]",
+			-- Add a tooltip in case the label overflows and the short description is cut off.
+			"tooltip[", img_w + 0.25, ",0.25;", text_w, ",", text_h, ";",
+				-- Text in tooltips doesn't wrap automatically, so we do it manually to
+				-- avoid everything being one long line.
+				core.formspec_escape(core.wrap_text(package.short_description, 80)), "]",
 
 			"style[view_", i, ";border=false]",
 			"style[view_", i, ":hovered;bgimg=", core.formspec_escape(defaulttexturedir .. "button_hover_semitrans.png"), "]",
@@ -362,7 +371,7 @@ local function get_formspec(dlgdata)
 		end
 
 		table.insert_all(formspec, {
-			"container[", cell_w - 0.625,",", 0.25, "]",
+			"container[", cell_w - 0.625,",", 0.125, "]",
 		})
 
 		if package.downloading then
