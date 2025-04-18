@@ -17,8 +17,8 @@ namespace irr
 namespace gui
 {
 
-CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
-: SpriteBank(0), Driver(driver), Type(type)
+CGUISkin::CGUISkin(video::IVideoDriver* driver)
+: SpriteBank(0), Driver(driver)
 {
 	Colors[EGDC_3D_DARK_SHADOW]     = video::SColor(101,50,50,50);
 	Colors[EGDC_3D_SHADOW]          = video::SColor(101,130,130,130);
@@ -855,12 +855,6 @@ void CGUISkin::drawColoredIcon(IGUIElement* element, EGUI_DEFAULT_ICON icon,
 			colors[gray? EGDC_GRAY_WINDOW_SYMBOL : EGDC_WINDOW_SYMBOL], starttime, currenttime, loop, true);
 }
 // END PATCH
-
-
-EGUI_SKIN_TYPE CGUISkin::getType() const
-{
-	return Type;
-}
 
 
 //! draws a 2d rectangle.
