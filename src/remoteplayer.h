@@ -9,8 +9,11 @@
 #include "skyparams.h"
 #include "lighting.h"
 #include "network/networkprotocol.h" // session_t
+#include "mapnode.h" // content_t
 
 class PlayerSAO;
+class NodeDefManager;
+struct NodeVisual;
 
 enum RemotePlayerChatResult
 {
@@ -27,7 +30,8 @@ class RemotePlayer : public Player
 	friend class PlayerDatabaseFiles;
 
 public:
-	RemotePlayer(const std::string &name, IItemDefManager *idef);
+	RemotePlayer(const std::string &name, IItemDefManager *idef,
+		NodeDefManager *ndef);
 	virtual ~RemotePlayer();
 
 	PlayerSAO *getPlayerSAO() { return m_sao; }
@@ -116,6 +120,10 @@ public:
 
 	const Lighting& getLighting() const { return m_lighting; }
 
+	void setNodeVisual(const std::string &node_name, const NodeVisual &node_visual);
+
+	void getNodeVisual(const std::string &node_name, NodeVisual &node_visual);
+
 	void setDirty(bool dirty) { m_dirty = true; }
 
 	u16 protocol_version = 0;
@@ -153,6 +161,9 @@ private:
 	StarParams m_star_params;
 
 	Lighting m_lighting;
+
+	NodeDefManager *m_ndef;
+	std::map<content_t, NodeVisual> m_node_visuals;
 
 	session_t m_peer_id = PEER_ID_INEXISTENT;
 };
