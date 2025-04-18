@@ -386,6 +386,32 @@ void GenericCAO::setChildrenVisible(bool toset)
 void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
 		v3f position, v3f rotation, bool force_visible)
 {
+	// Do checks to avoid circular references
+	// See similar check in `UnitSAO::setAttachment` (but with different types).
+	{
+		auto *obj = m_env->getActiveObject(parent_id);
+		if (obj == this) {
+			assert(false);
+			return;
+		}
+		bool problem = false;
+		if (obj) {
+			// The chain of wanted parent must not refer or contain "this"
+			for (obj = obj->getParent(); obj; obj = obj->getParent()) {
+				if (obj == this) {
+					problem = true;
+					break;
+				}
+			}
+		}
+		if (problem) {
+			warningstream << "Network or mod bug: "
+				<< "Attempted to attach object " << m_id << " to parent "
+				<< parent_id << " but former is an (in)direct parent of latter." << std::endl;
+			return;
+		}
+	}
+
 	const auto old_parent = m_attachment_parent_id;
 	m_attachment_parent_id = parent_id;
 	m_attachment_bone = bone;
