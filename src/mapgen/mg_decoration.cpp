@@ -163,7 +163,7 @@ void Decoration::placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
 				deco_count = deco_count_f;
 			} else if (deco_count_f > 0.0f) {
 				// For very low density calculate a chance for 1 decoration
-				if (ps.range(1000) <= deco_count_f * 1000.0f)
+				if (ps.next() <= deco_count_f * static_cast<float>(PcgRandom::RANDOM_RANGE))
 					deco_count = 1;
 			}
 		}

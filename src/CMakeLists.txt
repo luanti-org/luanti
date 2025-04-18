@@ -591,9 +591,12 @@ if(USE_CURL)
 endif()
 
 
-# When cross-compiling assume the user doesn't want to run the executable anyway,
-# otherwise place it in <source dir>/bin/ since Luanti can only run from there.
-if(NOT CMAKE_CROSSCOMPILING)
+# When cross-compiling place the executable in <build dir>/bin so that multiple
+# targets can be built from the same source folder. Otherwise, place it in
+# <source dir>/bin/ since Luanti can only run from there.
+if(CMAKE_CROSSCOMPILING)
+	set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+else()
 	set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 endif()
 
