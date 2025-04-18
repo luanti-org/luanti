@@ -2056,7 +2056,13 @@ void MapblockMeshGenerator::generateLod() {
     liqu_set.set(NDT_LIQUID);
     auto liquids = std::async(std::launch::async, detailLodLambda, liqu_set, width, uvs, 0.0f);
 
-    if (width > 16) {
+    if (width < g_settings->getU16("lod_slant_threshold")) {
+        std::bitset<19> types;
+        types.set(NDT_NORMAL);
+        types.set(NDT_NODEBOX);
+        types.set(NDT_ALLFACES);
+        generateCloseLod(types, width, -y_offset);
+    } else {
         std::bitset<19> leaf_set;
         leaf_set.set(NDT_NODEBOX);
         auto leaves = std::async(std::launch::async, detailLodLambda, leaf_set, MYMAX(2, width / 2), uvs, 0.0f); // allfaces (leaves) are rendered at a higher resolution, so canopies look better
@@ -2067,12 +2073,6 @@ void MapblockMeshGenerator::generateLod() {
         generateDetailLod(solid_set, width, uvs, -y_offset);
 
         leaves.wait();
-    } else {
-        std::bitset<19> types;
-        types.set(NDT_NORMAL);
-        types.set(NDT_NODEBOX);
-        types.set(NDT_ALLFACES);
-        generateCloseLod(types, width, -y_offset);
     }
     liquids.wait();
 }

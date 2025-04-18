@@ -246,6 +246,7 @@ void set_default_settings()
 	settings->setDefault("fps_max_unfocused", "20");
 	settings->setDefault("viewing_range", "190");
     settings->setDefault("lod_threshold", "10");
+    settings->setDefault("lod_slant_threshold", "16");
     settings->setDefault("lod_quality", "1.5");
 	settings->setDefault("client_mesh_chunk", "1");
 	settings->setDefault("screen_w", "1024");
