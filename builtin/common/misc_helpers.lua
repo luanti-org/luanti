@@ -634,6 +634,10 @@ if core.gettext then -- for client and mainmenu
 	function fgettext(text, ...)
 		return core.formspec_escape(fgettext_ne(text, ...))
 	end
+
+	function hgettext(text, ...)
+		return core.hypertext_escape(fgettext_ne(text, ...))
+	end
 end
 
 local ESCAPE_CHAR = string.char(0x1b)

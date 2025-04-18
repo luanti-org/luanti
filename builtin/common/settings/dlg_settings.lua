@@ -778,11 +778,11 @@ end
 
 
 if INIT == "mainmenu" then
-	function create_settings_dlg()
+	function create_settings_dlg(page_id)
 		load()
 		local dlg = dialog_create("dlg_settings", get_formspec, buttonhandler, eventhandler)
 
-		dlg.data.page_id = update_filtered_pages("")
+		dlg.data.page_id = page_id or update_filtered_pages("")
 
 		return dlg
 	end

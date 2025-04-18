@@ -58,6 +58,7 @@ xgettext --package-name=luanti \
 	--keyword=fwgettext \
 	--keyword=fgettext \
 	--keyword=fgettext_ne \
+	--keyword=hgettext \
 	--keyword=strgettext \
 	--keyword=wstrgettext \
 	--keyword=core.gettext \
