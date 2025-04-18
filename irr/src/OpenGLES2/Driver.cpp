@@ -126,6 +126,7 @@ void COpenGLES2Driver::initFeatures()
 	TextureMultisampleSupported = isVersionAtLeast(3, 1);
 	Texture2DArraySupported = Version.Major >= 3 || queryExtension("GL_EXT_texture_array");
 	KHRDebugSupported = queryExtension("GL_KHR_debug");
+	KHRDebugSupported = isVersionAtLeast(3, 2) || queryExtension("GL_KHR_debug");
 	if (KHRDebugSupported)
 		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
 

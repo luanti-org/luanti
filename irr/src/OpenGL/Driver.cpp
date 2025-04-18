@@ -162,7 +162,7 @@ COpenGL3DriverBase::COpenGL3DriverBase(const SIrrlichtCreationParameters &params
 	ContextManager->generateContext();
 	ExposedData = ContextManager->getContext();
 	ContextManager->activateContext(ExposedData, false);
-	GL.LoadAllProcedures(ContextManager);
+	GL.LoadAllProcedures(ContextManager, params.DriverType == video::EDT_OGLES2);
 
 	TEST_GL_ERROR(this);
 }
