@@ -9,6 +9,7 @@
 
 #include "exceptions.h"
 #include "util/base64.h"
+#include "log.h"
 
 std::string MyGUID::base64() const
 {
@@ -28,9 +29,11 @@ void MyGUID::deSerialize(std::istream &is)
 GUIDGenerator::GUIDGenerator() :
 	m_uniform(0, UINT64_MAX)
 {
-	if (m_rand.entropy() <= 0.010)
-		throw BaseException("The system's provided random generator does not match "
-				"the entropy requirements for the GUID generator.");
+	if (m_rand.entropy() <= 0.01)
+		warningstream <<
+				"The system's provided random generator reports low entropy."
+				"GUID generator can be affected. Suggest a system upgrade."
+				<< std::endl;
 }
 
 MyGUID GUIDGenerator::next()
