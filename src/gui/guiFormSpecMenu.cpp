@@ -1860,7 +1860,7 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 		}
 	} else {
 		v2s32 pos = getRealCoordinateBasePos(v_pos);
-		core::rect<s32> rect = core::rect<s32>(
+		core::rect<s32> rect(
 				pos.X, pos.Y,
 				pos.X + geom.X,
 				pos.Y + geom.Y);
