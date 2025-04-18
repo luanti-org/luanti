@@ -204,10 +204,6 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedVertexShaderSetting<float, 3> m_camera_offset_vertex{"cameraOffset"};
 	CachedPixelShaderSetting<float, 3> m_camera_position_pixel{ "cameraPosition" };
 	CachedVertexShaderSetting<float, 3> m_camera_position_vertex{ "cameraPosition" };
-	CachedPixelShaderSetting<SamplerLayer_t> m_texture0{"texture0"};
-	CachedPixelShaderSetting<SamplerLayer_t> m_texture1{"texture1"};
-	CachedPixelShaderSetting<SamplerLayer_t> m_texture2{"texture2"};
-	CachedPixelShaderSetting<SamplerLayer_t> m_texture3{"texture3"};
 	CachedVertexShaderSetting<float, 2> m_texel_size0_vertex{"texelSize0"};
 	CachedPixelShaderSetting<float, 2> m_texel_size0_pixel{"texelSize0"};
 	v2f m_texel_size0;
@@ -297,16 +293,6 @@ public:
 		v3f camera_position = m_client->getCamera()->getPosition();
 		m_camera_position_pixel.set(camera_position, services);
 		m_camera_position_pixel.set(camera_position, services);
-
-		SamplerLayer_t tex_id;
-		tex_id = 0;
-		m_texture0.set(&tex_id, services);
-		tex_id = 1;
-		m_texture1.set(&tex_id, services);
-		tex_id = 2;
-		m_texture2.set(&tex_id, services);
-		tex_id = 3;
-		m_texture3.set(&tex_id, services);
 
 		m_texel_size0_vertex.set(m_texel_size0, services);
 		m_texel_size0_pixel.set(m_texel_size0, services);
@@ -420,6 +406,90 @@ public:
 		if (!m_sky)
 			created_nosky.push_back(scs);
 		return scs;
+	}
+};
+
+class NodeShaderConstantSetter : public IShaderConstantSetter
+{
+public:
+	NodeShaderConstantSetter() = default;
+	~NodeShaderConstantSetter() = default;
+
+	void onGenerate(const std::string &name, ShaderConstants &constants) override
+	{
+		if (constants.find("DRAWTYPE") == constants.end())
+			return; // not a node shader
+		[[maybe_unused]] const auto drawtype =
+			static_cast<NodeDrawType>(std::get<int>(constants["DRAWTYPE"]));
+		[[maybe_unused]] const auto material_type =
+			static_cast<MaterialType>(std::get<int>(constants["MATERIAL_TYPE"]));
+
+#define PROVIDE(constant) constants[ #constant ] = (int)constant
+
+		PROVIDE(NDT_NORMAL);
+		PROVIDE(NDT_AIRLIKE);
+		PROVIDE(NDT_LIQUID);
+		PROVIDE(NDT_FLOWINGLIQUID);
+		PROVIDE(NDT_GLASSLIKE);
+		PROVIDE(NDT_ALLFACES);
+		PROVIDE(NDT_ALLFACES_OPTIONAL);
+		PROVIDE(NDT_TORCHLIKE);
+		PROVIDE(NDT_SIGNLIKE);
+		PROVIDE(NDT_PLANTLIKE);
+		PROVIDE(NDT_FENCELIKE);
+		PROVIDE(NDT_RAILLIKE);
+		PROVIDE(NDT_NODEBOX);
+		PROVIDE(NDT_GLASSLIKE_FRAMED);
+		PROVIDE(NDT_FIRELIKE);
+		PROVIDE(NDT_GLASSLIKE_FRAMED_OPTIONAL);
+		PROVIDE(NDT_PLANTLIKE_ROOTED);
+
+		PROVIDE(TILE_MATERIAL_BASIC);
+		PROVIDE(TILE_MATERIAL_ALPHA);
+		PROVIDE(TILE_MATERIAL_LIQUID_TRANSPARENT);
+		PROVIDE(TILE_MATERIAL_LIQUID_OPAQUE);
+		PROVIDE(TILE_MATERIAL_WAVING_LEAVES);
+		PROVIDE(TILE_MATERIAL_WAVING_PLANTS);
+		PROVIDE(TILE_MATERIAL_OPAQUE);
+		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_BASIC);
+		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
+		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_OPAQUE);
+		PROVIDE(TILE_MATERIAL_PLAIN);
+		PROVIDE(TILE_MATERIAL_PLAIN_ALPHA);
+
+#undef PROVIDE
+
+		bool enable_waving_water = g_settings->getBool("enable_waving_water");
+		constants["ENABLE_WAVING_WATER"] = enable_waving_water ? 1 : 0;
+		if (enable_waving_water) {
+			constants["WATER_WAVE_HEIGHT"] = g_settings->getFloat("water_wave_height");
+			constants["WATER_WAVE_LENGTH"] = g_settings->getFloat("water_wave_length");
+			constants["WATER_WAVE_SPEED"] = g_settings->getFloat("water_wave_speed");
+		}
+		switch (material_type) {
+			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+				constants["MATERIAL_WAVING_LIQUID"] = 1;
+				break;
+			default:
+				constants["MATERIAL_WAVING_LIQUID"] = 0;
+				break;
+		}
+		switch (material_type) {
+			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+			case TILE_MATERIAL_LIQUID_TRANSPARENT:
+				constants["MATERIAL_WATER_REFLECTIONS"] = 1;
+				break;
+			default:
+				constants["MATERIAL_WATER_REFLECTIONS"] = 0;
+				break;
+		}
+
+		constants["ENABLE_WAVING_LEAVES"] = g_settings->getBool("enable_waving_leaves") ? 1 : 0;
+		constants["ENABLE_WAVING_PLANTS"] = g_settings->getBool("enable_waving_plants") ? 1 : 0;
 	}
 };
 
@@ -836,11 +906,6 @@ Game::Game() :
 	readSettings();
 }
 
-
-
-/****************************************************************************
- MinetestApp Public
- ****************************************************************************/
 
 Game::~Game()
 {
@@ -1288,6 +1353,8 @@ bool Game::createClient(const GameStartData &start_data)
 		}
 		return false;
 	}
+
+	shader_src->addShaderConstantSetter(new NodeShaderConstantSetter());
 
 	auto *scsf = new GameGlobalShaderUniformSetterFactory(client);
 	shader_src->addShaderUniformSetterFactory(scsf);

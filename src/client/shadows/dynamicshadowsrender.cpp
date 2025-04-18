@@ -514,6 +514,9 @@ void ShadowRenderer::mixShadowsQuad()
  * Shaders system with custom IShaderConstantSetCallBack without messing up the
  * code too much. If anyone knows how to integrate this with the standard MT
  * shaders, please feel free to change it.
+ *
+ * TODO: as of now (2025) it should be possible to hook these up to the normal
+ * shader system.
  */
 
 void ShadowRenderer::createShaders()
