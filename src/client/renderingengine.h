@@ -54,11 +54,11 @@ struct FpsControl {
 };
 
 // Populates fogColor, fogDistance, fogShadingParameter with values from Irrlicht
-class FogShaderConstantSetterFactory : public IShaderConstantSetterFactory
+class FogShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
-	FogShaderConstantSetterFactory() {};
-	virtual IShaderConstantSetter *create();
+	FogShaderUniformSetterFactory() {};
+	virtual IShaderUniformSetter *create();
 };
 
 /* Rendering engine class */
