@@ -1,10 +1,8 @@
-# When enabling SDL2 by default on macOS, don't forget to change
-# "NSHighResolutionCapable" to true in "Info.plist".
-if(NOT APPLE)
-	set(DEFAULT_SDL2 ON)
-endif()
+set(DEFAULT_SDL2 ON)
 
 option(USE_SDL2 "Use the SDL2 backend" ${DEFAULT_SDL2})
+
+option(USE_SDL2_STATIC "Link with SDL2 static libraries" FALSE)
 
 # Compiler flags
 
@@ -228,7 +226,11 @@ endif()
 if(ENABLE_OPENGL)
 	find_package(OpenGL REQUIRED)
 endif()
+set(USE_SDL2_SHARED FALSE)
 if(USE_SDL2)
+	if(NOT USE_SDL2_STATIC)
+		set(USE_SDL2_SHARED TRUE)
+	endif()
 	if(NOT ANDROID)
 		find_package(SDL2 REQUIRED)
 	else()
@@ -364,14 +366,14 @@ endif()
 if(ENABLE_OPENGL3)
 	set(IRRDRVROBJ
 		${IRRDRVROBJ}
-		OpenGL3/Driver.cpp
+		OpenGL3/DriverGL3.cpp
 	)
 endif()
 
 if(ENABLE_GLES2)
 	set(IRRDRVROBJ
 		${IRRDRVROBJ}
-		OpenGLES2/Driver.cpp
+		OpenGLES2/DriverGLES2.cpp
 	)
 endif()
 
@@ -505,7 +507,8 @@ target_link_libraries(IrrlichtMt PRIVATE
 	${ZLIB_LIBRARY}
 	${JPEG_LIBRARY}
 	${PNG_LIBRARY}
-	"$<$<BOOL:${USE_SDL2}>:SDL2::SDL2>"
+	"$<$<BOOL:${USE_SDL2_SHARED}>:SDL2::SDL2>"
+	"$<$<BOOL:${USE_SDL2_STATIC}>:SDL2::SDL2-static>"
 
 	"$<$<BOOL:${OPENGL_DIRECT_LINK}>:${OPENGL_LIBRARIES}>"
 	${EGL_LIBRARY}

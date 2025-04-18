@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "irr_v3d.h"
 #include "mapnode.h"
