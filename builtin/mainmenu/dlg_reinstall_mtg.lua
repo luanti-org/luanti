@@ -54,10 +54,10 @@ end
 
 local function get_formspec(dialogdata)
 	local markup = table.concat({
-		"<big>", fgettext("Minetest Game is no longer installed by default"), "</big>\n",
-		fgettext("For a long time, Luanti shipped with a default game called \"Minetest Game\". " ..
+		"<big>", hgettext("Minetest Game is no longer installed by default"), "</big>\n",
+		hgettext("For a long time, Luanti shipped with a default game called \"Minetest Game\". " ..
 				"Since version 5.8.0, Luanti ships without a default game."), "\n",
-		fgettext("If you want to continue playing in your Minetest Game worlds, you need to reinstall Minetest Game."),
+		hgettext("If you want to continue playing in your Minetest Game worlds, you need to reinstall Minetest Game."),
 	})
 
 	return table.concat({

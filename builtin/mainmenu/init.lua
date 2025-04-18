@@ -35,6 +35,7 @@ dofile(menupath .. DIR_DELIM .. "dlg_register.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_rename_modpack.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_version_info.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_reinstall_mtg.lua")
+dofile(menupath .. DIR_DELIM .. "dlg_rebind_keys.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_clients_list.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_server_list_mods.lua")
 
@@ -112,6 +113,7 @@ local function init_globals()
 	ui.update()
 
 	check_reinstall_mtg()
+	migrate_keybindings()
 	check_new_version()
 end
 
