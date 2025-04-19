@@ -174,7 +174,7 @@ end)
 core.register_craftitem("testitems:inventory_image_animation", {
 	description = S("Animated Test Item").."\n"..
 		S("Image animate from A to D in 4s cycle"),
-	inventory_image= "testnodes_anim.png",
+	inventory_image= "testnodes_anim.png^[invert:rgb",
 	inventory_image_animation = {
 		type = "vertical_frames",
 		aspect_w = 16,
@@ -187,7 +187,7 @@ core.register_craftitem("testitems:inventory_image_animation_overlay", {
 	description = S("Animated Test Item With Overlay").."\n"..
 		S("Should be colored red and have green stripes that move").."\n"..
 		S("Image animate from A to D in 4s cycle"),
-	inventory_image= "testnodes_anim.png",
+	inventory_image= "testnodes_anim.png^[invert:rgb",
 	inventory_overlay="testitems_animation_overlay.png",
 	inventory_image_animation = {
 		type = "vertical_frames",
@@ -202,13 +202,13 @@ core.register_craftitem("testitems:wield_image_animation", {
 	description = S("Wield Animated Test Item").."\n"..
 		S("Looks like the Animated Test Item, "..
 			"but only animated for the wield mesh."),
-	inventory_image= "testnodes_anim.png^[verticalframe:4:0",
-	wield_image= "testnodes_anim.png",
+	inventory_image= "testnodes_anim.png^[invert:rgb^[verticalframe:4:0",
+	wield_image= "testnodes_anim.png^[invert:rgb",
 	wield_image_animation = {
-		type = "vertical_frames",
-		aspect_w = 16,
-		aspect_h = 16,
-		length = 4.0,
+		type = "sheet_2d",
+		frames_w = 1,
+		frames_h = 4,
+		frame_length = 1.0,
 	},
 })
 
@@ -216,15 +216,15 @@ core.register_craftitem("testitems:wield_image_animation_overlay", {
 	description = S("Wield Animated Test Item With Overlay").."\n"..
 		S("Looks like the animated Test Item With Overlay, "..
 			"but only animated for the wield mesh."),
-	inventory_image= "testnodes_anim.png^[verticalframe:4:0",
+	inventory_image= "testnodes_anim.png^[invert:rgb^[verticalframe:4:0",
 	inventory_overlay= "testitems_animation_overlay.png^[verticalframe:4:0",
-	wield_image= "testnodes_anim.png",
+	wield_image= "testnodes_anim.png^[invert:rgb",
 	wield_overlay="testitems_animation_overlay.png",
 	wield_image_animation = {
-		type = "vertical_frames",
-		aspect_w = 16,
-		aspect_h = 16,
-		length = 4.0,
+		type = "sheet_2d",
+		frames_w = 1,
+		frames_h = 4,
+		frame_length = 1.0,
 	},
 	color = "#ff0000",
 })

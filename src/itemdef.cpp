@@ -185,14 +185,26 @@ void ItemDefinition::reset()
 
 void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 {
+	// Use first frame if animation is not supported
+	std::string inventory_image_to_send = inventory_image;
+	std::string wield_image_to_send = wield_image;
+	std::string inventory_overlay_to_send = inventory_overlay;
+	std::string wield_overlay_to_send = wield_overlay;
+	if (protocol_version < 48) {
+		inventory_image_animation.extractFirstFrame(inventory_image_to_send);
+		wield_image_animation.extractFirstFrame(wield_image_to_send);
+		inventory_image_animation.extractFirstFrame(inventory_overlay_to_send);
+		wield_image_animation.extractFirstFrame(wield_overlay_to_send);
+	}
+
 	// protocol_version >= 37
 	u8 version = 6;
 	writeU8(os, version);
 	writeU8(os, type);
 	os << serializeString16(name);
 	os << serializeString16(description);
-	os << serializeString16(inventory_image);
-	os << serializeString16(wield_image);
+	os << serializeString16(inventory_image_to_send);
+	os << serializeString16(wield_image_to_send);
 	writeV3F32(os, wield_scale);
 	writeS16(os, stack_max);
 	writeU8(os, usable);
@@ -221,8 +233,8 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	writeF32(os, range);
 	os << serializeString16(palette_image);
 	writeARGB8(os, color);
-	os << serializeString16(inventory_overlay);
-	os << serializeString16(wield_overlay);
+	os << serializeString16(inventory_overlay_to_send);
+	os << serializeString16(wield_overlay_to_send);
 
 	os << serializeString16(short_description);
 
