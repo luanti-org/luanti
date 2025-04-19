@@ -1799,7 +1799,7 @@ void MapblockMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::vecto
             }
         }
     }
-    std::copy(std::make_move_iterator(std::begin(outs)), std::make_move_iterator(std::end(outs)), std::begin(bases));
+    bases = std::move(outs);
 }
 
 bool MapblockMeshGenerator::doesVolumeContainType(std::bitset<19> types, v3s16 from, v3s16 to){
@@ -1855,9 +1855,6 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
             hxhyhz.Y = MYMAX(hxhyhz.Y , p.Y);
             hxhyhz.Z = MYMAX(hxhyhz.Z , p.Z);
         }
-
-        if (lxlylz == hxhyhz)
-            continue;
 
         v3s16 lxlyhz(lxlylz.X, lxlylz.Y, hxhyhz.Z);
         v3s16 lxhylz(lxlylz.X, hxhyhz.Y, lxlylz.Z);
