@@ -104,7 +104,7 @@ void read_item_definition(lua_State* L, int index,
 	} else if (lua_isstring(L, -1)) {
 		video::SColor color;
 		read_color(L, -1, &color);
-		def.wear_bar_params = WearBarParams({{0.0, color}},
+		def.wear_bar_params = WearBarParams({{0.0f, color}},
 				WearBarParams::BLEND_MODE_CONSTANT);
 	}
 

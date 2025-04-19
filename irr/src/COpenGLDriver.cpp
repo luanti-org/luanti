@@ -710,7 +710,7 @@ void COpenGLDriver::drawVertexPrimitiveList(const void *vertices, u32 vertexCoun
 			}
 		} else {
 			// avoid passing broken pointer to OpenGL
-			_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+			assert(!ColorBuffer.empty());
 			glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 		}
 	}
@@ -983,7 +983,7 @@ void COpenGLDriver::draw2DVertexPrimitiveList(const void *vertices, u32 vertexCo
 			}
 		} else {
 			// avoid passing broken pointer to OpenGL
-			_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+			assert(!ColorBuffer.empty());
 			glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 		}
 	}
@@ -1124,7 +1124,7 @@ void COpenGLDriver::draw2DImage(const video::ITexture *texture, const core::posi
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 
@@ -1204,7 +1204,7 @@ void COpenGLDriver::draw2DImage(const video::ITexture *texture, const core::rect
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 
@@ -1352,7 +1352,7 @@ void COpenGLDriver::draw2DImageBatch(const video::ITexture *texture,
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 
@@ -1519,7 +1519,7 @@ void COpenGLDriver::draw2DRectangle(const core::rect<s32> &position,
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 
@@ -1555,7 +1555,7 @@ void COpenGLDriver::draw2DLine(const core::position2d<s32> &start,
 		if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 			glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 		else {
-			_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+			assert(!ColorBuffer.empty());
 			glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 		}
 
@@ -2478,7 +2478,7 @@ void COpenGLDriver::draw3DLine(const core::vector3df &start,
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 

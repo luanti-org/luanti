@@ -25,7 +25,7 @@ constexpr f64 ROUNDING_ERROR_f64 = 0.00000001;
 #undef PI
 #endif
 //! Constant for PI.
-constexpr f32 PI = M_PI;
+constexpr f32 PI = static_cast<f32>(M_PI);
 
 #ifdef PI64 // make sure we don't collide with a define
 #undef PI64

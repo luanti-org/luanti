@@ -704,8 +704,8 @@ void Minimap::updateActiveMarkers()
 			continue;
 		}
 
-		m_active_markers.emplace_back(((float)pos.X / (float)MINIMAP_MAX_SX) - 0.5,
-			(1.0 - (float)pos.Z / (float)MINIMAP_MAX_SY) - 0.5);
+		m_active_markers.emplace_back(((float)pos.X / (float)MINIMAP_MAX_SX) - 0.5f,
+			(1.0f - (float)pos.Z / (float)MINIMAP_MAX_SY) - 0.5f);
 	}
 }
 

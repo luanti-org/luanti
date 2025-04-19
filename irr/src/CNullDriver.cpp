@@ -17,6 +17,8 @@
 #include "IReferenceCounted.h"
 #include "IRenderTarget.h"
 
+#include <cassert>
+
 namespace irr
 {
 namespace video
@@ -1092,7 +1094,7 @@ void CNullDriver::drawBuffers(const scene::IVertexBuffer *vb,
 
 	if (vb->getHWBuffer() || ib->getHWBuffer()) {
 		// subclass is supposed to override this if it supports hw buffers
-		_IRR_DEBUG_BREAK_IF(1);
+		assert(false);
 	}
 
 	drawVertexPrimitiveList(vb->getData(), vb->getCount(), ib->getData(),
@@ -1138,7 +1140,7 @@ CNullDriver::SHWBufferLink *CNullDriver::getBufferLink(const scene::IIndexBuffer
 
 void CNullDriver::registerHardwareBuffer(SHWBufferLink *HWBuffer)
 {
-	_IRR_DEBUG_BREAK_IF(!HWBuffer)
+	assert(HWBuffer);
 	HWBuffer->ListPosition = HWBufferList.size();
 	HWBufferList.push_back(HWBuffer);
 }
@@ -1168,7 +1170,7 @@ void CNullDriver::deleteHardwareBuffer(SHWBufferLink *HWBuffer)
 	if (!HWBuffer)
 		return;
 	const size_t pos = HWBuffer->ListPosition;
-	_IRR_DEBUG_BREAK_IF(HWBufferList.at(pos) != HWBuffer)
+	assert(HWBufferList.at(pos) == HWBuffer);
 	if (HWBufferList.size() < 2 || pos == HWBufferList.size() - 1) {
 		HWBufferList.erase(HWBufferList.begin() + pos);
 	} else {

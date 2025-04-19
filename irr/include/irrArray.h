@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
+#include <cassert>
 
 #include "irrTypes.h"
 #include "irrMath.h"
@@ -108,7 +109,7 @@ public:
 	\param index: Where position to insert the new element. */
 	void insert(const T &element, u32 index = 0)
 	{
-		_IRR_DEBUG_BREAK_IF(index > m_data.size()) // access violation
+		assert(index <= m_data.size());
 		auto pos = std::next(m_data.begin(), index);
 		m_data.insert(pos, element);
 		is_sorted = false;
@@ -190,32 +191,28 @@ public:
 	//! Direct access operator
 	T &operator[](u32 index)
 	{
-		_IRR_DEBUG_BREAK_IF(index >= m_data.size()) // access violation
-
+		assert(index < m_data.size());
 		return m_data[index];
 	}
 
 	//! Direct const access operator
 	const T &operator[](u32 index) const
 	{
-		_IRR_DEBUG_BREAK_IF(index >= m_data.size()) // access violation
-
+		assert(index < m_data.size());
 		return m_data[index];
 	}
 
 	//! Gets last element.
 	T &getLast()
 	{
-		_IRR_DEBUG_BREAK_IF(m_data.empty()) // access violation
-
+		assert(!m_data.empty());
 		return m_data.back();
 	}
 
 	//! Gets last element
 	const T &getLast() const
 	{
-		_IRR_DEBUG_BREAK_IF(m_data.empty()) // access violation
-
+		assert(!m_data.empty());
 		return m_data.back();
 	}
 
@@ -365,7 +362,7 @@ public:
 	\param index: Index of element to be erased. */
 	void erase(u32 index)
 	{
-		_IRR_DEBUG_BREAK_IF(index >= m_data.size()) // access violation
+		assert(index < m_data.size());
 		auto it = std::next(m_data.begin(), index);
 		m_data.erase(it);
 	}

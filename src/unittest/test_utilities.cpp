@@ -320,7 +320,7 @@ void TestUtilities::testUTF8()
 	// try to check that the conversion function does not accidentally keep
 	// its internal state across invocations.
 	// \xC4\x81 is UTF-8 for \u0101
-	utf8_to_wide("\xC4");
+	static_cast<void>(utf8_to_wide("\xC4"));
 	UASSERT(utf8_to_wide("\x81") != L"\u0101");
 }
 

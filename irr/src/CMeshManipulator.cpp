@@ -9,6 +9,8 @@
 #include "SAnimatedMesh.h"
 #include "os.h"
 
+#include <cassert>
+
 namespace irr
 {
 namespace scene
@@ -118,14 +120,14 @@ void CMeshManipulator::recalculateNormals(scene::IMesh *mesh, bool smooth, bool 
 template <typename T>
 void copyVertices(const scene::IVertexBuffer *src, scene::CVertexBuffer<T> *dst)
 {
-	_IRR_DEBUG_BREAK_IF(T::getType() != src->getType());
+	assert(T::getType() == src->getType());
 	auto *data = static_cast<const T*>(src->getData());
 	dst->Data.assign(data, data + src->getCount());
 }
 
 static void copyIndices(const scene::IIndexBuffer *src, scene::SIndexBuffer *dst)
 {
-	_IRR_DEBUG_BREAK_IF(src->getType() != video::EIT_16BIT);
+	assert(src->getType() == video::EIT_16BIT);
 	auto *data = static_cast<const u16*>(src->getData());
 	dst->Data.assign(data, data + src->getCount());
 }

@@ -166,7 +166,7 @@ public:
 	inline void irrGlObjectLabel(GLenum identifier, GLuint name, const char *label)
 	{
 		if (KHRDebugSupported) {
-			u32 len = strlen(label);
+			u32 len = static_cast<u32>(strlen(label));
 			// Since our texture strings can get quite long we also truncate
 			// to a hardcoded limit of 82
 			len = std::min(len, std::min(MaxLabelLength, 82U));

@@ -124,7 +124,7 @@ private:
 	video::SColor m_shadow_tint;
 	float m_shadow_strength_gamma;
 	float m_shadow_map_max_distance;
-	float m_shadow_map_texture_size;
+	u32 m_shadow_map_texture_size;
 	float m_time_day;
 	int m_shadow_samples;
 	bool m_shadow_map_texture_32bit;

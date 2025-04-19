@@ -16,10 +16,12 @@
 #include "irrString.h"
 #include "Keycodes.h"
 #include "COSOperator.h"
-#include <cstdio>
-#include <cstdlib>
 #include "SIrrCreationParameters.h"
 #include <SDL_video.h>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 #include <emscripten.h>
@@ -599,7 +601,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 		break;
 	default:
-		_IRR_DEBUG_BREAK_IF(1);
+		assert(false);
 	}
 
 	if (CreationParams.DriverDebug) {

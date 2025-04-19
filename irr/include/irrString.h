@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cwchar>
+#include <cassert>
 
 /* HACK: import these string methods from MT's util/string.h */
 extern std::wstring utf8_to_wide(std::string_view input);
@@ -174,9 +175,9 @@ public:
 		}
 
 		if constexpr (sizeof(T) != sizeof(B)) {
-			_IRR_DEBUG_BREAK_IF(
-				(uintptr_t)c >= (uintptr_t)(str.data()) &&
-				(uintptr_t)c <  (uintptr_t)(str.data() + str.size()));
+			assert(
+				(uintptr_t)c < (uintptr_t)(str.data()) ||
+				(uintptr_t)c >=  (uintptr_t)(str.data() + str.size()));
 		}
 
 		if ((void *)c == (void *)c_str())

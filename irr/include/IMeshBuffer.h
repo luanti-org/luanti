@@ -11,6 +11,7 @@
 #include "IIndexBuffer.h"
 #include "EHardwareBufferFlags.h"
 #include "EPrimitiveTypes.h"
+#include <cassert>
 
 namespace irr
 {
@@ -121,7 +122,7 @@ public:
 	/** \return Pointer to indices array. */
 	inline const u16 *getIndices() const
 	{
-		_IRR_DEBUG_BREAK_IF(getIndexBuffer()->getType() != video::EIT_16BIT);
+		assert(getIndexBuffer()->getType() == video::EIT_16BIT);
 		return static_cast<const u16*>(getIndexBuffer()->getData());
 	}
 
@@ -129,7 +130,7 @@ public:
 	/** \return Pointer to indices array. */
 	inline u16 *getIndices()
 	{
-		_IRR_DEBUG_BREAK_IF(getIndexBuffer()->getType() != video::EIT_16BIT);
+		assert(getIndexBuffer()->getType() == video::EIT_16BIT);
 		return static_cast<u16*>(getIndexBuffer()->getData());
 	}
 
