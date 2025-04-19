@@ -22,7 +22,6 @@ local component_funcs =  dofile(path .. "components.lua")
 local shadows_component =  dofile(path .. "shadows_component.lua")
 
 local loaded = false
-local full_settings
 local info_icon_path = core.formspec_escape(defaulttexturedir .. "settings_info.png")
 local reset_icon_path = core.formspec_escape(defaulttexturedir .. "settings_reset.png")
 local all_pages = {}
@@ -32,7 +31,7 @@ local filtered_page_by_id = page_by_id
 
 
 local function get_setting_info(name)
-	for _, entry in ipairs(full_settings) do
+	for _, entry in ipairs(core.full_settingtypes) do
 		if entry.type ~= "category" and entry.name == name then
 			return entry
 		end
@@ -70,7 +69,7 @@ local function load_settingtypes()
 		end
 	end
 
-	for _, entry in ipairs(full_settings) do
+	for _, entry in ipairs(core.full_settingtypes) do
 		if entry.type == "category" then
 			if entry.level == 0 then
 				section = entry.name
@@ -104,24 +103,7 @@ local function load()
 	end
 	loaded = true
 
-	full_settings = settingtypes.parse_config_file(false, true)
-
-	local change_keys = {
-		query_text = "Controls",
-		requires = {
-			keyboard_mouse = true,
-		},
-		context = "client",
-		get_formspec = function(self, avail_w)
-			local btn_w = math.min(avail_w, 3)
-			return ("button[0,0;%f,0.8;btn_change_keys;%s]"):format(btn_w, fgettext("Controls")), 0.8
-		end,
-		on_submit = function(self, fields)
-			if fields.btn_change_keys then
-				core.show_keys_menu()
-			end
-		end,
-	}
+	core.full_settingtypes = settingtypes.parse_config_file(false, true)
 
 	local touchscreen_layout = {
 		query_text = "Touchscreen layout",
@@ -166,7 +148,6 @@ local function load()
 
 	load_settingtypes()
 
-	table.insert(page_by_id.controls_keyboard_and_mouse.content, 1, change_keys)
 	-- insert after "touch_controls"
 	table.insert(page_by_id.controls_touchscreen.content, 2, touchscreen_layout)
 	do
@@ -665,7 +646,13 @@ local function get_formspec(dialogdata)
 		fs[#fs + 1] = "container_end[]"
 
 		if used_h > 0 then
-			y = y + used_h + 0.25
+			local spacing = 0.25
+			local next_comp = dialogdata.components[i + 1]
+			if next_comp and next_comp.spacing then
+				spacing = next_comp.spacing
+			end
+
+			y = y + used_h + spacing
 		end
 	end
 

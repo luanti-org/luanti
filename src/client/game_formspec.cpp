@@ -16,7 +16,6 @@
 #include "gui/touchcontrols.h"
 #include "gui/touchscreeneditor.h"
 #include "gui/guiPasswordChange.h"
-#include "gui/guiKeyChangeMenu.h"
 #include "gui/guiPasswordChange.h"
 #include "gui/guiOpenURL.h"
 #include "gui/guiVolumeChange.h"
@@ -538,12 +537,6 @@ bool GameFormSpec::handleCallbacks()
 		g_gamecallback->changevolume_requested = false;
 	}
 
-	if (g_gamecallback->keyconfig_requested) {
-		(void)make_irr<GUIKeyChangeMenu>(guienv, guiroot, -1,
-				      &g_menumgr, texture_src);
-		g_gamecallback->keyconfig_requested = false;
-	}
-
 	if (g_gamecallback->touchscreenlayout_requested) {
 		(new GUITouchscreenLayout(guienv, guiroot, -1,
 				     &g_menumgr, texture_src))->drop();
@@ -554,11 +547,6 @@ bool GameFormSpec::handleCallbacks()
 		(void)make_irr<GUIOpenURLMenu>(guienv, guiroot, -1,
 				 &g_menumgr, texture_src, g_gamecallback->show_open_url_dialog);
 		g_gamecallback->show_open_url_dialog.clear();
-	}
-
-	if (g_gamecallback->keyconfig_changed) {
-		m_input->reloadKeybindings(); // update the cache with new settings
-		g_gamecallback->keyconfig_changed = false;
 	}
 
 	return true;
