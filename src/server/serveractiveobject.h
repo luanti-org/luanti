@@ -10,6 +10,7 @@
 #include "irrlichttypes_bloated.h"
 #include "activeobject.h"
 #include "itemgroup.h"
+#include "guid.h"
 #include "util/container.h"
 
 
@@ -140,6 +141,9 @@ public:
 	{}
 	virtual u16 getHP() const
 	{ return 0; }
+
+	/// Always returns the same unique string for the same object.
+	virtual const std::string& getGUID() = 0;
 
 	virtual void setArmorGroups(const ItemGroupList &armor_groups)
 	{}

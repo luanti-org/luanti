@@ -21,6 +21,7 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	u16 hp = 1;
 	v3f velocity;
 	v3f rotation;
+	MyGUID guid;
 
 	while (!data.empty()) { // breakable, run for one iteration
 		std::istringstream is(data, std::ios::binary);
@@ -50,6 +51,13 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 		rotation.X = readF1000(is);
 		rotation.Z = readF1000(is);
 
+		if (version2 < 2) {
+			guid = env->getGUIDGenerator().next();
+			break;
+		}
+
+		guid.deSerialize(is);
+
 		// if (version2 < 2)
 		//     break;
 		// <read new values>
@@ -68,6 +76,15 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	m_hp = hp;
 	m_velocity = velocity;
 	m_rotation = rotation;
+	m_guid = EntityGUID(guid);
+}
+
+LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &name,
+		const std::string &state) :
+		UnitSAO(env, pos),
+		m_init_name(name), m_init_state(state),
+		m_guid(env->getGUIDGenerator().next())
+{
 }
 
 LuaEntitySAO::~LuaEntitySAO()
@@ -294,10 +311,12 @@ void LuaEntitySAO::getStaticData(std::string *result) const
 	writeF1000(os, m_rotation.Y);
 
 	// version2. Increase this variable for new values
-	writeU8(os, 1); // PROTOCOL_VERSION >= 37
+	writeU8(os, 2); // PROTOCOL_VERSION >= 37
 
 	writeF1000(os, m_rotation.X);
 	writeF1000(os, m_rotation.Z);
+
+	m_guid.raw.serialize(os);
 
 	// <write new values>
 
@@ -412,6 +431,11 @@ void LuaEntitySAO::setHP(s32 hp, const PlayerHPChangeReason &reason)
 u16 LuaEntitySAO::getHP() const
 {
 	return m_hp;
+}
+
+const std::string& LuaEntitySAO::getGUID()
+{
+	return m_guid.text;
 }
 
 void LuaEntitySAO::setVelocity(v3f velocity)
