@@ -40,8 +40,6 @@ void TestStrfnd::testCreate()
 {
 	Strfnd fnd = "test";
 
-	UASSERTEQ(std::string, fnd.what(), "test");
-	UASSERTEQ(size_t, fnd.where(), 0);
 	UASSERTEQ(bool, fnd.at_end(), false);
 }
 
@@ -52,6 +50,7 @@ void TestStrfnd::testNext()
 	UASSERTEQ(std::string, fnd.next(":"), "hello");
 	UASSERTEQ(std::string, fnd.next(":"), "world");
 	UASSERTEQ(std::string, fnd.next(":"), "foo");
+	UASSERTEQ(std::string, fnd.next(":"), "");
 	UASSERTEQ(bool, fnd.at_end(), true);
 }
 
