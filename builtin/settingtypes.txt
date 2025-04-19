@@ -288,9 +288,6 @@ keymap_console (Large chat console) key KEY_F10
 #    Key for toggling the display of fog.
 keymap_toggle_fog (Toggle fog) key KEY_F3
 
-#    Key for toggling the camera update. Only usable with 'debug' privilege.
-keymap_toggle_update_camera (Toggle camera update) key
-
 #    Key for toggling the display of debug info.
 keymap_toggle_debug (Toggle debug info) key KEY_F5
 
@@ -2052,6 +2049,22 @@ instrument.profiler (Profiler) bool false
 #    0 = disable. Useful for developers.
 profiler_print_interval (Engine profiling data print interval) int 0 0
 
+[*Advanced Controls] [common]
+
+#    Key for toggling the camera update. Only usable with 'debug' privilege.
+keymap_toggle_update_camera (Toggle camera update) key
+
+#    Key for switching to the previous entry in Quicktune.
+keymap_quicktune_prev (Quicktune: Previous) key
+
+#    Key for switching to the next entry in Quicktune.
+keymap_quicktune_next (Quicktune: Next) key
+
+#    Key for decrementing the selected value in Quicktune.
+keymap_quicktune_dec (Quicktune: Decrement) key
+
+#    Key for incrementing the selected value in Quicktune.
+keymap_quicktune_inc (Quicktune: Increment) key
 
 [*Advanced]
 
