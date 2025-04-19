@@ -6,13 +6,13 @@
 #include "util/strfnd.h"
 
 TEST_CASE("strfnd") {
-SECTION("strfnd create") {
+SECTION("create") {
 	Strfnd fnd = "test";
 
 	CHECK(fnd.at_end() == false);
 }
 
-SECTION("strfnd next") {
+SECTION("next") {
 	Strfnd fnd = "hello:world:foo";
 
 	CHECK(fnd.next(":") == "hello");
@@ -22,7 +22,7 @@ SECTION("strfnd next") {
 	CHECK(fnd.at_end() == true);
 }
 
-SECTION("strfnd start") {
+SECTION("start") {
 	Strfnd fnd = "test foo bar d";
 
 	fnd.start("Hello world");
@@ -30,7 +30,7 @@ SECTION("strfnd start") {
 	CHECK(fnd.next("d") == "Hello worl");
 }
 
-SECTION("strfnd next_esc") {
+SECTION("next_esc") {
 	Strfnd fnd = "hello\\:world:foo\\:bar:baz";
 
 	CHECK(fnd.next_esc(":") == "hello\\:world");
@@ -40,13 +40,13 @@ SECTION("strfnd next_esc") {
 	CHECK(fnd.at_end() == true);
 }
 
-SECTION("strfnd skip_over") {
+SECTION("skip_over") {
 	Strfnd fnd = "   hello world";
 	fnd.skip_over(" ");
 	CHECK(fnd.next(" ") == "hello");
 }
 
-SECTION("strfnd to") {
+SECTION("to") {
 	Strfnd fnd = "abcdef qwerty";
 	fnd.skip_over("abcdef");
 	fnd.to(1);
