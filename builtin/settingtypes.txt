@@ -2049,23 +2049,6 @@ instrument.profiler (Profiler) bool false
 #    0 = disable. Useful for developers.
 profiler_print_interval (Engine profiling data print interval) int 0 0
 
-[*Advanced Controls] [common]
-
-#    Key for toggling the camera update. Only usable with 'debug' privilege.
-keymap_toggle_update_camera (Toggle camera update) key
-
-#    Key for switching to the previous entry in Quicktune.
-keymap_quicktune_prev (Quicktune: select previous entry) key
-
-#    Key for switching to the next entry in Quicktune.
-keymap_quicktune_next (Quicktune: select next entry) key
-
-#    Key for decrementing the selected value in Quicktune.
-keymap_quicktune_dec (Quicktune: decrement value) key
-
-#    Key for incrementing the selected value in Quicktune.
-keymap_quicktune_inc (Quicktune: increment value) key
-
 [*Advanced]
 
 [**Graphics] [client]
@@ -2458,6 +2441,23 @@ curl_parallel_limit (cURL parallel limit) int 8 1 2147483647
 
 #    Maximum time a file download (e.g. a mod download) may take, stated in milliseconds.
 curl_file_download_timeout (cURL file download timeout) int 300000 5000 2147483647
+
+[**Client Debugging] [client]
+
+#    Key for toggling the camera update. Only usable with 'debug' privilege.
+keymap_toggle_update_camera (Toggle camera update) key
+
+#    Key for switching to the previous entry in Quicktune.
+keymap_quicktune_prev (Quicktune: select previous entry) key
+
+#    Key for switching to the next entry in Quicktune.
+keymap_quicktune_next (Quicktune: select next entry) key
+
+#    Key for decrementing the selected value in Quicktune.
+keymap_quicktune_dec (Quicktune: decrement value) key
+
+#    Key for incrementing the selected value in Quicktune.
+keymap_quicktune_inc (Quicktune: increment value) key
 
 [**Miscellaneous]
 
