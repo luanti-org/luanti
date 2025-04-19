@@ -35,6 +35,8 @@ void TestStrfnd::runTests(IGameDef *gamedef)
 	TEST(testNextEsc);
 
 	TEST(testSkipOver);
+
+	TEST(testTo);
 }
 
 void TestStrfnd::testCreate()
