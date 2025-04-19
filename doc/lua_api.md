@@ -2833,6 +2833,9 @@ Version History
   * Add field_enter_after_edit[] (experimental)
 * Formspec version 8 (5.10.0)
   * scroll_container[]: content padding parameter
+* Formspec version 9 (5.12.0)
+  * Add allow_close[]
+  * label[]: Add "area label" variant
 
 Elements
 --------
@@ -3145,9 +3148,11 @@ Elements
 ### `textarea[<X>,<Y>;<W>,<H>;<name>;<label>;<default>]`
 
 * Same as fields above, but with multi-line input
+* Text is wrapped to fit within the given bounds.
 * If the text overflows, a vertical scrollbar is added.
 * If the name is empty, the textarea is read-only and
   the background is not shown, which corresponds to a multi-line label.
+  See also `label[<X>,<Y>;<W>,<H>;<label>]` for an alternative.
 
 ### `label[<X>,<Y>;<label>]`
 
@@ -3164,9 +3169,12 @@ Elements
 
 ### `label[<X>,<Y>;<W>,<H>;<label>]`
 
-* The label formspec element displays the text set in `label`
+* The "area label" formspec element displays the text set in `label`
   at the specified position and size.
 * Text is wrapped to fit within the given bounds.
+* If the text is overflows, it is currently simply truncated, but this behavior
+  is subject to change. There is no scrollbar.
+* See also `textarea` for an alternative.
 * Only available with the new coordinate system.
 
 ### `hypertext[<X>,<Y>;<W>,<H>;<name>;<text>]`
