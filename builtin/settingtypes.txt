@@ -2055,16 +2055,16 @@ profiler_print_interval (Engine profiling data print interval) int 0 0
 keymap_toggle_update_camera (Toggle camera update) key
 
 #    Key for switching to the previous entry in Quicktune.
-keymap_quicktune_prev (Quicktune: Previous) key
+keymap_quicktune_prev (Quicktune: select previous entry) key
 
 #    Key for switching to the next entry in Quicktune.
-keymap_quicktune_next (Quicktune: Next) key
+keymap_quicktune_next (Quicktune: select next entry) key
 
 #    Key for decrementing the selected value in Quicktune.
-keymap_quicktune_dec (Quicktune: Decrement) key
+keymap_quicktune_dec (Quicktune: decrement value) key
 
 #    Key for incrementing the selected value in Quicktune.
-keymap_quicktune_inc (Quicktune: Increment) key
+keymap_quicktune_inc (Quicktune: increment value) key
 
 [*Advanced]
 
