@@ -1,94 +1,56 @@
 // Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-#include "test.h"
+#include "catch.h"
 
 #include "util/strfnd.h"
 
-class TestStrfnd : public TestBase
-{
-public:
-	TestStrfnd() { TestManager::registerTestModule(this); }
-	const char *getName() { return "TestStrfnd"; }
-
-	void runTests(IGameDef *gamedef);
-
-private:
-	void testCreate();
-	void testNext();
-	void testStart();
-	void testNextEsc();
-	void testSkipOver();
-	void testTo();
-};
-
-static TestStrfnd g_test_instance;
-
-void TestStrfnd::runTests(IGameDef *gamedef)
-{
-	TEST(testCreate);
-
-	TEST(testNext);
-
-	TEST(testStart);
-
-	TEST(testNextEsc);
-
-	TEST(testSkipOver);
-
-	TEST(testTo);
-}
-
-void TestStrfnd::testCreate()
-{
+TEST_CASE("strfnd") {
+SECTION("strfnd create") {
 	Strfnd fnd = "test";
 
-	UASSERTEQ(bool, fnd.at_end(), false);
+	CHECK(fnd.at_end() == false);
 }
 
-void TestStrfnd::testNext()
-{
+SECTION("strfnd next") {
 	Strfnd fnd = "hello:world:foo";
 
-	UASSERTEQ(std::string, fnd.next(":"), "hello");
-	UASSERTEQ(std::string, fnd.next(":"), "world");
-	UASSERTEQ(std::string, fnd.next(":"), "foo");
-	UASSERTEQ(std::string, fnd.next(":"), "");
-	UASSERTEQ(bool, fnd.at_end(), true);
+	CHECK(fnd.next(":") == "hello");
+	CHECK(fnd.next(":") == "world");
+	CHECK(fnd.next(":") == "foo");
+	CHECK(fnd.next(":") == "");
+	CHECK(fnd.at_end() == true);
 }
 
-void TestStrfnd::testStart()
-{
+SECTION("strfnd start") {
 	Strfnd fnd = "test foo bar d";
 
 	fnd.start("Hello world");
 
-	UASSERTEQ(std::string, fnd.next("d"), "Hello worl");
+	CHECK(fnd.next("d") == "Hello worl");
 }
 
-void TestStrfnd::testNextEsc()
-{
+SECTION("strfnd next_esc") {
 	Strfnd fnd = "hello\\:world:foo\\:bar:baz";
 
-	UASSERTEQ(std::string, fnd.next_esc(":"), "hello\\:world");
-	UASSERTEQ(std::string, fnd.next_esc(":"), "foo\\:bar");
-	UASSERTEQ(std::string, fnd.next_esc(":"), "baz");
+	CHECK(fnd.next_esc(":") == "hello\\:world");
+	CHECK(fnd.next_esc(":") == "foo\\:bar");
+	CHECK(fnd.next_esc(":") == "baz");
 
-	UASSERTEQ(bool, fnd.at_end(), true);
+	CHECK(fnd.at_end() == true);
 }
 
-void TestStrfnd::testSkipOver()
-{
+SECTION("strfnd skip_over") {
 	Strfnd fnd = "   hello world";
 	fnd.skip_over(" ");
-	UASSERTEQ(std::string, fnd.next(" "), "hello");
+	CHECK(fnd.next(" ") == "hello");
 }
 
-void TestStrfnd::testTo()
-{
+SECTION("strfnd to") {
 	Strfnd fnd = "abcdef qwerty";
 	fnd.skip_over("abcdef");
 	fnd.to(1);
 
-	UASSERTEQ(std::string, fnd.next("def"), "bc");
+	CHECK(fnd.next("def") == "bc");
+}
 }
