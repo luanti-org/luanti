@@ -19,6 +19,7 @@ private:
 	void testStart();
 	void testNextEsc();
 	void testSkipOver();
+	void testTo();
 };
 
 static TestStrfnd g_test_instance;
@@ -79,4 +80,13 @@ void TestStrfnd::testSkipOver()
 	Strfnd fnd = "   hello world";
 	fnd.skip_over(" ");
 	UASSERTEQ(std::string, fnd.next(" "), "hello");
+}
+
+void TestStrfnd::testTo()
+{
+	Strfnd fnd = "abcdef qwerty";
+	fnd.skip_over("abcdef");
+	fnd.to(1);
+
+	UASSERTEQ(std::string, fnd.next("def"), "bc");
 }
