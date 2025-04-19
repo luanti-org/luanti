@@ -518,6 +518,14 @@ stripping out the file extension:
 
 Supported texture formats are PNG (`.png`), JPEG (`.jpg`) and Targa (`.tga`).
 
+Luanti generally uses nearest-neighbor upscaling for textures to preserve the crisp
+look of pixel art (low-res textures).
+Users can optionally enable bilinear and/or trilinear filtering, however filtering
+will currently not be enabled for textures smaller than 192px to avoid everything
+becoming blurry.
+This is subject to change to move more control to the Lua API, but you can rely on
+low-res textures not suddenly becoming filtered.
+
 Texture modifiers
 -----------------
 
