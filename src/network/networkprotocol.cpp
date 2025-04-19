@@ -64,6 +64,7 @@
 		[scheduled bump for 5.11.0]
 	PROTOCOL VERSION 48
 		Add compression to some existing packets
+		Only send first frame of animated item/wield images to older client
 		[scheduled bump for 5.12.0]
 */
 
