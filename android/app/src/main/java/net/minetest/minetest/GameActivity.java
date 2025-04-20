@@ -309,10 +309,12 @@ public class GameActivity extends SDLActivity {
 			// or (2) if the system kills the app while it is in background.
 			// onStop is called too early to remove the notification and
 			// onDestroy is often not called at all, so there's this hack instead.
-			.setTimeoutAfter(11000);
+			.setTimeoutAfter(16000);
 
 		mNotifyManager.notify(MainActivity.NOTIFICATION_ID_GAME, builder.build());
 
+		// Replace the notification just before it expires as long as the app is.
+		// still running.
 		final Handler handler = new Handler(Looper.getMainLooper());
 		handler.postDelayed(new Runnable() {
 			@Override
@@ -321,7 +323,7 @@ public class GameActivity extends SDLActivity {
 					updateGameNotification();
 				}
 			}
-		}, 10000);
+		}, 15000);
 	}
 
 
