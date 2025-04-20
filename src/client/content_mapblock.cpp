@@ -1917,9 +1917,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
                 video::S3DVertex(vertices[side][3], normal, color, core::vector2d<f32>{uvs2[side][0], uvs2[side][1]}),
             };
             getNodeTile(main_node, main_point, directions[side], data, tile);
-            lod_mutex.lock();
             collector->append(tile, v, 4, quad_indices, 6);
-            lod_mutex.unlock();
         }
     }
 }
@@ -2019,9 +2017,7 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
                                      video::S3DVertex(vertices[i][3], normal, color2, uvs[3]), // uvs are 1 0
                                      };
             getNodeTile(n1, node_coords[i][0], directions[i], data, tile);
-            lod_mutex.lock();
             collector->append(tile, v, 4, quad_indices, 6);
-            lod_mutex.unlock();
         }
     }
 }
@@ -2044,14 +2040,10 @@ void MapblockMeshGenerator::generateLod() {
                                   };
     f32 y_offset = BS * (data->m_lod - 1) + 0.1; // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
 
-    auto detailLodLambda = [this](std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset) {
-        generateDetailLod(types, width, uvs, y_offset);
-    };
-
     // liquids are always rendered slanted
     std::bitset<19> liqu_set;
     liqu_set.set(NDT_LIQUID);
-    auto liquids = std::async(std::launch::async, detailLodLambda, liqu_set, width, uvs, 0.0f);
+    generateDetailLod(liqu_set, width, uvs, 0.0f);
 
     if (width < g_settings->getU16("lod_slant_threshold")) {
         std::bitset<19> types;
@@ -2066,7 +2058,6 @@ void MapblockMeshGenerator::generateLod() {
         types.set(NDT_ALLFACES);
         generateDetailLod(types, width, uvs, -y_offset);
     }
-    liquids.wait();
 }
 
 void MapblockMeshGenerator::generate()
