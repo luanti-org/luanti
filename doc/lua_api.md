@@ -8524,8 +8524,13 @@ child will follow movement and rotation of that bone.
       }
       ```
 * `get_guid()`: returns a global unique identifier (a string)
-    * For players this is a player name.
-    * For Lua entities, it is a unique generated string.
+    * For players, this is a player name.
+    * For Lua entities, this is a uniquely generated string, guaranteed not to collide with player names.
+      * Example: `@bGh3p2AbRE29Mb4biqX6OA`
+    * GUIDs only use printable ASCII characters.
+    * GUIDs are persisted internally between object reloads; their format is guaranteed not to change.
+      Thus you can store GUIDs to identify objects persistently.
+
 
 #### Lua entity only (no-op for other objects)
 
