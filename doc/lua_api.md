@@ -3172,8 +3172,8 @@ Elements
 * The "area label" formspec element displays the text set in `label`
   at the specified position and size.
 * Text is wrapped to fit within the given bounds.
-* If the text is overflows, it is currently simply truncated, but this behavior
-  is subject to change. There is no scrollbar.
+* If the text overflows, it is currently simply truncated, but this behavior is
+  subject to change. There is no scrollbar.
 * See also `textarea` for an alternative.
 * Only available with the new coordinate system.
 
