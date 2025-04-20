@@ -408,11 +408,6 @@ void PlayerSAO::setPlayerYaw(const float yaw)
 	UnitSAO::setRotation(rotation);
 }
 
-const std::string& PlayerSAO::getGUID()
-{
-	return m_player_name;
-}
-
 void PlayerSAO::setFov(const float fov)
 {
 	if (m_player && fov != m_fov)

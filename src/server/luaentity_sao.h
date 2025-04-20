@@ -44,7 +44,7 @@ public:
 
 	void setHP(s32 hp, const PlayerHPChangeReason &reason);
 	u16 getHP() const;
-	const std::string& getGUID() override;
+	std::string getGUID() override;
 
 	/* LuaEntitySAO-specific */
 	void setVelocity(v3f velocity);
@@ -84,18 +84,7 @@ private:
 	std::string m_init_state;
 	bool m_registered = false;
 
-	struct EntityGUID {
-		MyGUID raw{{}};
-		std::string text;
-		EntityGUID() {}
-		EntityGUID(MyGUID raw) : raw(raw)
-		{
-			// The "@" ensures that entity GUIDs are easily recognizable
-			// and makes it obvious that they can't collide with player names.
-			text = "@" + raw.base64();
-		}
-	};
-	EntityGUID m_guid;
+	MyGUID m_guid;
 
 	v3f m_velocity;
 	v3f m_acceleration;

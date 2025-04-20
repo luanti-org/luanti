@@ -143,7 +143,8 @@ public:
 	{ return 0; }
 
 	/// Always returns the same unique string for the same object.
-	virtual const std::string& getGUID() = 0;
+	/// Because these strings are very short, copying them is not expensive.
+	virtual std::string getGUID() = 0;
 
 	virtual void setArmorGroups(const ItemGroupList &armor_groups)
 	{}

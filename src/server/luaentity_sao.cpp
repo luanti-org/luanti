@@ -21,7 +21,6 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	u16 hp = 1;
 	v3f velocity;
 	v3f rotation;
-	MyGUID guid;
 
 	while (!data.empty()) { // breakable, run for one iteration
 		std::istringstream is(data, std::ios::binary);
@@ -52,11 +51,11 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 		rotation.Z = readF1000(is);
 
 		if (version2 < 2) {
-			guid = env->getGUIDGenerator().next();
+			m_guid = env->getGUIDGenerator().next();
 			break;
 		}
 
-		guid.deSerialize(is);
+		m_guid.deSerialize(is);
 
 		// if (version2 < 3)
 		//     break;
@@ -76,7 +75,6 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 	m_hp = hp;
 	m_velocity = velocity;
 	m_rotation = rotation;
-	m_guid = EntityGUID(guid);
 }
 
 LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &name,
@@ -316,7 +314,7 @@ void LuaEntitySAO::getStaticData(std::string *result) const
 	writeF1000(os, m_rotation.X);
 	writeF1000(os, m_rotation.Z);
 
-	m_guid.raw.serialize(os);
+	m_guid.serialize(os);
 
 	// <write new values>
 
@@ -433,9 +431,11 @@ u16 LuaEntitySAO::getHP() const
 	return m_hp;
 }
 
-const std::string& LuaEntitySAO::getGUID()
+std::string LuaEntitySAO::getGUID()
 {
-	return m_guid.text;
+	// The "@" ensures that entity GUIDs are easily recognizable
+	// and makes it obvious that they can't collide with player names.
+	return "@" + m_guid.base64();
 }
 
 void LuaEntitySAO::setVelocity(v3f velocity)
