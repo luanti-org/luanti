@@ -113,7 +113,7 @@ public:
 	std::string getVersionString() const override
 	{
 		SDL_version ver;
-		SDL_GetVersion(&ver); // TODO: SDL3 returns this directly instead of using a pointer
+		SDL_GetVersion(&ver);
 		return std::to_string(ver.major) + "." + std::to_string(ver.minor) + "." + std::to_string(ver.patch);
 	}
 
