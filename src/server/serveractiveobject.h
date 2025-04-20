@@ -10,7 +10,6 @@
 #include "irrlichttypes_bloated.h"
 #include "activeobject.h"
 #include "itemgroup.h"
-#include "guid.h"
 #include "util/container.h"
 
 
