@@ -109,6 +109,14 @@ public:
 		return EIDT_SDL;
 	}
 
+	//! Get the SDL version
+	std::string getVersionString() const override
+	{
+		SDL_version ver;
+		SDL_GetVersion(&ver); // TODO: SDL3 returns this directly instead of using a pointer
+		return std::to_string(ver.major) + "." + std::to_string(ver.minor) + "." + std::to_string(ver.patch);
+	}
+
 	//! Get the display density in dots per inch.
 	float getDisplayDensity() const override;
 

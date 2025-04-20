@@ -16,6 +16,7 @@
 #include "IrrCompileConfig.h"
 #include "position2d.h"
 #include "SColor.h" // video::ECOLOR_FORMAT
+#include <string>
 #include <variant>
 
 namespace irr
@@ -331,6 +332,12 @@ public:
 	/** This allows the user to check which windowing system is currently being
 	used. */
 	virtual E_DEVICE_TYPE getType() const = 0;
+
+	//! Get the version string of the underlying system (e.g. SDL)
+	virtual std::string getVersionString() const
+	{
+		return "";
+	}
 
 	//! Get the display density in dots per inch.
 	//! Returns 0.0f on failure.
