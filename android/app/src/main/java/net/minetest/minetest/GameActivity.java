@@ -313,7 +313,7 @@ public class GameActivity extends SDLActivity {
 
 		mNotifyManager.notify(MainActivity.NOTIFICATION_ID_GAME, builder.build());
 
-		// Replace the notification just before it expires as long as the app is.
+		// Replace the notification just before it expires as long as the app is
 		// still running.
 		final Handler handler = new Handler(Looper.getMainLooper());
 		handler.postDelayed(new Runnable() {
