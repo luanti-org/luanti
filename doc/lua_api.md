@@ -9258,7 +9258,7 @@ The settings have the format `key = value`. Example:
 `StorageRef`
 ------------
 
-Mod metadata: per mod metadata, saved automatically.
+Mod metadata: per mod and world metadata, saved automatically.
 Can be obtained via `core.get_mod_storage()` during load time.
 
 WARNING: This storage backend is incapable of saving raw binary data due
