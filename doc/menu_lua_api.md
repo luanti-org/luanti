@@ -25,6 +25,8 @@ Callbacks
 * `core.event_handler(event)`
   * `event`: `"MenuQuit"`, `"KeyEnter"`, `"ExitButton"`, `"EditBoxEnter"` or
     `"FullscreenChange"`
+* `core.on_before_close()`: called before the menu is closed, either to exit or
+  to join a game
 
 
 Gamedata
