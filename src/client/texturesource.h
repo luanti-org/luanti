@@ -69,6 +69,17 @@ public:
 
 	/// @brief Return average color of a texture string
 	virtual video::SColor getTextureAverageColor(const std::string &name)=0;
+
+	// Note: this method is here because caching is the decision of the
+	// API user, even if his access is read-only.
+
+	/**
+	 * Enables or disables the caching of finished texture images.
+	 * This can be useful if you want to call getTextureAverageColor without
+	 * duplicating work.
+	 * @note Disabling caching will flush the cache.
+	 */
+	virtual void setImageCaching(bool enabled) {};
 };
 
 class IWritableTextureSource : public ITextureSource
@@ -88,8 +99,8 @@ public:
 
 	/**
 	 * Rebuilds all textures (in case-source images have changed)
-	 * @note This won't invalidate old ITexture's, but you have to retrieve them
-	 * again to see changes.
+	 * @note This won't invalidate old ITexture's, but may or may not reuse them.
+	 * So you have to re-get all textures anyway.
 	 */
 	virtual void rebuildImagesAndTextures()=0;
 };
