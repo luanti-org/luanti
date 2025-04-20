@@ -14,6 +14,10 @@
 #include <matrix4.h>
 #include <cmath>
 #include <algorithm>
+#include <climits>
+#if _MSC_VER
+#include <intrin.h> // For popcnt
+#endif
 
 // Like std::clamp but allows mismatched types
 template <typename T, typename T2, typename T3>
@@ -276,6 +280,53 @@ inline void set_bits(u32 *x, u32 pos, u32 len, u32 val)
 	*x &= ~(mask << pos);
 	*x |= (val & mask) << pos;
 }
+
+inline unsigned popcount(unsigned b)
+{
+#if _MSC_VER
+	return __popcnt(b);
+#else
+	return __builtin_popcount(b);
+#endif
+}
+
+template<typename T>
+class BitField {
+public:
+	static_assert(static_cast<T>(-1) > static_cast<T>(0),
+			"Bit fields only work with unsigned integer types");
+
+	BitField(): m_mask(0), m_offset(0) {}
+
+	BitField(u8 width, u8 offset)
+	{
+		// Truncate to the type width to avoid undefined behavior.
+		unsigned bit_count = sizeof(T) * CHAR_BIT;
+		offset = MYMIN(offset, bit_count);
+		width = MYMIN(width, bit_count - offset);
+		m_mask = ((width < bit_count ? 1 << width : 0) - 1) << (offset % bit_count);
+		m_offset = offset % bit_count;
+	}
+
+	inline u8 getWidth() const { return popcount(m_mask); }
+	inline u8 getOffset() const { return m_offset; }
+
+	inline T get(T bits) const
+	{
+		return (bits & m_mask) >> m_offset;
+	}
+
+	inline T set(T bits, T value) const
+	{
+		bits &= ~m_mask;
+		bits |= (value << m_offset) & m_mask;
+		return bits;
+	}
+
+private:
+	T m_mask;
+	u8 m_offset;
+};
 
 inline u32 calc_parity(u32 v)
 {
