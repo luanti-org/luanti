@@ -10437,6 +10437,16 @@ table format. The accepted parameters are listed below.
 
 Recipe input items can either be specified by item name (item count = 1)
 or by group (see "Groups in crafting recipes" for details).
+Only the item name (and groups) matter for matching a recipe, i.e. meta and count
+are ignored.
+
+If multiple recipes match the input of a craft grid, one of them is chosen by the
+following priority rules:
+
+* Shaped recipes are preferred over shapeless recipes, which in turn are preferred
+  over tool repair.
+* Otherwise, recipes without groups are preferred over recipes with groups.
+* Otherwise, earlier registered recipes are preferred.
 
 The following sections describe the types and syntaxes of recipes.
 
@@ -10455,6 +10465,10 @@ For example, for a 3x3 recipe, the `recipes` table must have
 
 In order to craft the recipe, the players' crafting grid must
 have equal or larger dimensions (both width and height).
+
+Empty slots outside of the recipe's extents are ignored, e.g. a 3x3
+recipe where only the bottom right 2x2 slots are filled is the same
+as the corresponding 2x2 recipe without the empty slots.
 
 Parameters:
 
