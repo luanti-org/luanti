@@ -86,7 +86,11 @@ public:
 	 */
 	virtual void insertSourceImage(const std::string &name, video::IImage *img)=0;
 
-	/// @brief rebuilds all textures (in case-source images have changed)
+	/**
+	 * Rebuilds all textures (in case-source images have changed)
+	 * @note This won't invalidate old ITexture's, but you have to retrieve them
+	 * again to see changes.
+	 */
 	virtual void rebuildImagesAndTextures()=0;
 };
 

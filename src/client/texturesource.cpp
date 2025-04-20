@@ -191,8 +191,7 @@ TextureSource::TextureSource()
 TextureSource::~TextureSource()
 {
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
-
-	unsigned int textures_before = driver->getTextureCount();
+	u32 textures_before = driver->getTextureCount();
 
 	for (const auto &iter : m_textureinfo_cache) {
 		// cleanup texture
@@ -474,22 +473,37 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 	assert(!ti.name.empty());
 	sanity_check(std::this_thread::get_id() == m_main_thread);
 
-	// Replaces the previous sourceImages.
-	// Shouldn't really need to be done, but can't hurt.
 	std::set<std::string> source_image_names;
 	video::IImage *img = m_imagesource.generateImage(ti.name, source_image_names);
+
 	// Create texture from resulting image
-	video::ITexture *t = nullptr;
-	if (img) {
+	video::ITexture *t = nullptr, *t_old = ti.texture;
+	if (!img) {
+		// new texture becomes null
+	} else if (t_old && t_old->getColorFormat() == img->getColorFormat() && t_old->getSize() == img->getDimension()) {
+		// can replace texture in-place
+		std::swap(t, t_old);
+		void *ptr = t->lock(video::ETLM_WRITE_ONLY);
+		if (ptr) {
+			memcpy(ptr, img->getData(), img->getImageDataSizeInBytes());
+			t->unlock();
+			t->regenerateMipMapLevels();
+		} else {
+			warningstream << "TextureSource::rebuildTexture(): lock failed for \""
+				<< ti.name << "\"" << std::endl;
+		}
+	} else {
+		// create new one
 		t = driver->addTexture(ti.name.c_str(), img);
-		guiScalingCache(io::path(ti.name.c_str()), driver, img);
-		img->drop();
 	}
-	video::ITexture *t_old = ti.texture;
-	// Replace texture
+	if (img)
+		guiScalingCache(io::path(ti.name.c_str()), driver, img);
+
+	// Replace texture info
+	if (img)
+		img->drop();
 	ti.texture = t;
 	ti.sourceImages = std::move(source_image_names);
-
 	if (t_old)
 		m_texture_trash.push_back(t_old);
 }
