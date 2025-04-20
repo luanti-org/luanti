@@ -64,7 +64,7 @@ MenuTextureSource::~MenuTextureSource()
 video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 {
 	if (id)
-		*id = 0;
+		*id = 1;
 
 	if (name.empty())
 		return NULL;
@@ -78,7 +78,6 @@ video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 	if (!image)
 		return NULL;
 
-	image = Align2Npot2(image, m_driver);
 	retval = m_driver->addTexture(name.c_str(), image);
 	image->drop();
 

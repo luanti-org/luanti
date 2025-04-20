@@ -344,38 +344,3 @@ void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::I
 		dest->setPixel(dx, dy, pxl);
 	}
 }
-
-/* Check and align image to npot2 if required by hardware
- * @param image image to check for npot2 alignment
- * @param driver driver to use for image operations
- * @return image or copy of image aligned to npot2
- */
-video::IImage *Align2Npot2(video::IImage *image, video::IVideoDriver *driver)
-{
-	if (image == nullptr)
-		return image;
-
-	if (driver->queryFeature(video::EVDF_TEXTURE_NPOT))
-		return image;
-
-	core::dimension2d<u32> dim = image->getDimension();
-	unsigned int height = npot2(dim.Height);
-	unsigned int width  = npot2(dim.Width);
-
-	if (dim.Height == height && dim.Width == width)
-		return image;
-
-	if (dim.Height > height)
-		height *= 2;
-	if (dim.Width > width)
-		width *= 2;
-
-	video::IImage *targetimage =
-			driver->createImage(video::ECF_A8R8G8B8,
-					core::dimension2d<u32>(width, height));
-
-	if (targetimage != nullptr)
-		image->copyToScaling(targetimage);
-	image->drop();
-	return targetimage;
-}

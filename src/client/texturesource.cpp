@@ -147,7 +147,7 @@ private:
 	// The first position contains a NULL texture.
 	std::vector<TextureInfo> m_textureinfo_cache;
 	// Maps a texture name to an index in the former.
-	std::map<std::string, u32> m_name_to_id;
+	std::unordered_map<std::string, u32> m_name_to_id;
 	// The two former containers are behind this mutex
 	std::mutex m_textureinfo_cache_mutex;
 
@@ -286,7 +286,6 @@ u32 TextureSource::generateTexture(const std::string &name)
 	video::ITexture *tex = nullptr;
 
 	if (img) {
-		img = Align2Npot2(img, driver);
 		// Create texture from resulting image
 		tex = driver->addTexture(name.c_str(), img);
 		guiScalingCache(io::path(name.c_str()), driver, img);
@@ -447,6 +446,13 @@ void TextureSource::rebuildImagesAndTextures()
 {
 	MutexAutoLock lock(m_textureinfo_cache_mutex);
 
+	/*
+	 * Note: While it may become useful in the future, it's not clear what the
+	 * current purpose of this function is. The client loads all media into a
+	 * freshly created texture source, so the only two textures that will ever be
+	 * rebuilt are 'progress_bar.png' and 'progress_bar_bg.png'.
+	 */
+
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	sanity_check(driver);
 
@@ -459,6 +465,8 @@ void TextureSource::rebuildImagesAndTextures()
 			continue; // Skip dummy entry
 		rebuildTexture(driver, ti);
 	}
+
+	// FIXME: we should rebuild palettes too
 }
 
 void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
@@ -470,7 +478,6 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 	// Shouldn't really need to be done, but can't hurt.
 	std::set<std::string> source_image_names;
 	video::IImage *img = m_imagesource.generateImage(ti.name, source_image_names);
-	img = Align2Npot2(img, driver);
 	// Create texture from resulting image
 	video::ITexture *t = nullptr;
 	if (img) {
