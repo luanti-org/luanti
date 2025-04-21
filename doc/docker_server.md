@@ -22,13 +22,12 @@ mkdir -p ~/luanti/{data,conf}
 # Download proper configuration file (REQUIRED)
 wget https://raw.githubusercontent.com/luanti-org/luanti/master/minetest.conf.example -O ~/luanti/conf/minetest.conf
 
-# Add your admin username to the configuration
-echo "name = AdminUser" >> ~/luanti/conf/minetest.conf
-
 # Download and extract a game (if you don't have one already)
 mkdir -p ~/luanti/games
 wget https://content.luanti.org/packages/Wuzzy/mineclone2/releases/30536/download/ -O ~/luanti/mineclone2.zip
 unzip ~/luanti/mineclone2.zip -d ~/luanti/games/
+
+sudo chown -R 30000:30000 ~/luanti/{data,conf,games}
 
 # Run the server
 docker run -d \
