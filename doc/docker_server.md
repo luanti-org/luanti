@@ -13,37 +13,137 @@ See [here](https://github.com/luanti-org/luanti/pkgs/container/luanti) for all a
 Versions released before the project was renamed are available with the same tag scheme at `ghcr.io/minetest/minetest`.
 See [here](https://github.com/orgs/minetest/packages/container/package/minetest) for all available tags.
 
-For a quick test you can easily run:
+## Quick Start - Complete Working Example
 
 ```shell
-docker run ghcr.io/luanti-org/luanti:master
+# Create directories
+mkdir -p ~/luanti/{data,conf}
+
+# Download proper configuration file (REQUIRED)
+wget https://raw.githubusercontent.com/luanti-org/luanti/master/minetest.conf.example -O ~/luanti/conf/minetest.conf
+
+# Add your admin username to the configuration
+echo "name = AdminUser" >> ~/luanti/conf/minetest.conf
+
+# Download and extract a game (if you don't have one already)
+mkdir -p ~/luanti/games
+wget https://content.luanti.org/packages/Wuzzy/mineclone2/releases/30536/download/ -O ~/luanti/mineclone2.zip
+unzip ~/luanti/mineclone2.zip -d ~/luanti/games/
+
+# Run the server
+docker run -d \
+  -v ~/luanti/data:/var/lib/minetest \
+  -v ~/luanti/conf:/etc/minetest \
+  -v ~/luanti/games/mineclone2:/usr/local/share/luanti/games/mineclone2 \
+  -p 30000:30000/udp \
+  -p 30000:30000/tcp \
+  --restart always \
+  --name luanti_server \
+  ghcr.io/luanti-org/luanti:master \
+  --gameid mineclone2 --port 30000
 ```
 
-To use it in a production environment, you should use volumes bound to the Docker host to persist data and modify the configuration:
+## Important Directory Paths
 
-```shell
-docker create -v /home/minetest/data/:/var/lib/minetest/ -v /home/minetest/conf/:/etc/minetest/ ghcr.io/luanti-org/luanti:master
-```
+The Docker image expects specific paths:
 
-You may also want to use [Docker Compose](https://docs.docker.com/compose):
+- `/var/lib/minetest/` - Data directory for worlds and player info
+- `/etc/minetest/` - Configuration directory for `minetest.conf`
+- `/usr/local/share/luanti/games/` - **Game directory** (not included in image)
+
+## Game Installation
+
+⚠️ The container does NOT include any games by default. You must:
+
+1. Download a game (e.g., from [ContentDB](https://content.luanti.org/))
+2. Mount the game to `/usr/local/share/luanti/games/<game_name>`
+3. Use `--gameid <game_name>` parameter to select the game
+
+The game directory must contain a valid `game.conf` file at its root.
+
+## Docker Compose Setup
 
 ```yaml
----
 version: "2"
 services:
-  minetest_server:
+  luanti_server:
     image: ghcr.io/luanti-org/luanti:master
     restart: always
-    networks:
-      - default
     volumes:
-      - /home/minetest/data/:/var/lib/minetest/
-      - /home/minetest/conf/:/etc/minetest/
+      - ~/luanti/data:/var/lib/minetest
+      - ~/luanti/conf:/etc/minetest
+      - ~/luanti/games/mineclone2:/usr/local/share/luanti/games/mineclone2
     ports:
       - "30000:30000/udp"
-      - "127.0.0.1:30000:30000/tcp"
+      - "30000:30000/tcp"
+    command: --gameid mineclone2 --port 30000
 ```
 
-Data will be written to `/home/minetest/data` on the host, and configuration will be read from `/home/minetest/conf/minetest.conf`.
+## Server Configuration
+
+⚠️ **CRITICAL**: The server requires a valid configuration file to run properly.
+
+Download the example configuration file and customize it:
+
+```shell
+# Download the example config file
+wget https://raw.githubusercontent.com/luanti-org/luanti/master/minetest.conf.example -O ~/luanti/conf/minetest.conf
+
+# Edit the file to add your settings
+nano ~/luanti/conf/minetest.conf
+```
+
+At minimum, add or update these settings:
+
+```
+# Set admin username (required to grant privileges)
+name = YourAdminUsername
+
+# Server settings
+server_name = My Luanti Server
+server_description = My awesome server
+port = 30000
+```
+
+Without a proper configuration file, the server will crash on startup.
+
+## Permissions and Technical Details
+
+- The container runs as user `minetest` with UID 30000
+- Fix permission issues with: `sudo chown -R 30000:30000 ~/luanti/{data,conf}`
+- Entrypoint is `/usr/local/bin/luantiserver`
+- Default command arguments: `--config /etc/minetest/minetest.conf`
+
+## Troubleshooting
+
+### Common Errors
+
+#### "Game not found" Error
+
+If you get an error like `ERROR[Main]: Game "mineclone2" not found`, check:
+
+1. The game directory is mounted to `/usr/local/share/luanti/games/<game_name>`
+2. The `--gameid` parameter matches the game directory name exactly
+3. The game directory contains a valid `game.conf` file
+
+#### Server Crashes on Startup
+
+If the server crashes immediately, it's often due to a missing or invalid configuration file. Always ensure:
+
+1. You've downloaded the example config file: `minetest.conf.example`
+2. You've mounted it correctly to `/etc/minetest/minetest.conf`
+3. The file has appropriate permissions
+
+### Listing Available Games
+
+To check which games are available to the server:
+
+```shell
+docker run --rm \
+  --entrypoint /bin/sh \
+  -v ~/luanti/games/mineclone2:/usr/local/share/luanti/games/mineclone2 \
+  ghcr.io/luanti-org/luanti:master \
+  -c "/usr/local/bin/luantiserver --gameid list"
+```
 
 **Note:** If you don't understand the previous commands please read the [official Docker documentation](https://docs.docker.com) before use.
