@@ -190,7 +190,33 @@ local function serialize(value, write)
 	dump(value)
 end
 
+-- Whether `value` recursively contains a function
+local function contains_function(value)
+	local seen = {}
+	local function check(val)
+		if type(val) == "function" then
+			return true
+		end
+		if type(val) == "table" then
+			if seen[val] then
+				return false
+			end
+			seen[val] = true
+			for k, v in pairs(val) do
+				if check(k) or check(v) then
+					return true
+				end
+			end
+		end
+		return false
+	end
+	return check(value)
+end
+
 function core.serialize(value)
+	if contains_function(value) then
+		core.log("deprecated", "Support for dumping functions in `core.serialize` is deprecated.")
+	end
 	local rope = {}
 	serialize(value, function(text)
 		 -- Faster than table.insert(rope, text) on PUC Lua 5.1

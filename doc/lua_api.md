@@ -7588,14 +7588,19 @@ Misc.
 * `core.serialize(table)`: returns a string
     * Convert a table containing tables, strings, numbers, booleans and `nil`s
       into string form readable by `core.deserialize`
+    * Support for dumping function bytecode is **deprecated**.
     * Example: `serialize({foo="bar"})`, returns `'return { ["foo"] = "bar" }'`
 * `core.deserialize(string[, safe])`: returns a table
     * Convert a string returned by `core.serialize` into a table
     * `string` is loaded in an empty sandbox environment.
-    * Will load functions if safe is false or omitted. Although these functions
-      cannot directly access the global environment, they could bypass this
-      restriction with maliciously crafted Lua bytecode if mod security is
-      disabled.
+    * Will load functions if `safe` is `false` or omitted.
+      Although these functions cannot directly access the global environment,
+      they could bypass this restriction with maliciously crafted Lua bytecode
+      if mod security is disabled.
+    * Will silently strip functions embedded via calls to `loadstring`
+      (typically bytecode dumped by `core.serialize`) if `safe` is `true`.
+      You should not rely on this if possible.
+      * Example: `core.deserialize("return loadstring''", true)` will be `nil`.
     * This function should not be used on untrusted data, regardless of the
      value of `safe`. It is fine to serialize then deserialize user-provided
      data, but directly providing user input to deserialize is always unsafe.

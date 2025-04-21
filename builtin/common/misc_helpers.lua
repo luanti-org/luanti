@@ -14,11 +14,6 @@ local function basic_dump(o)
 		return tostring(o)
 	elseif tp == "nil" then
 		return "nil"
-	-- Uncomment for full function dumping support.
-	-- Not currently enabled because bytecode isn't very human-readable and
-	-- dump's output is intended for humans.
-	--elseif tp == "function" then
-	--	return string.format("loadstring(%q)", string.dump(o))
 	elseif tp == "userdata" then
 		return tostring(o)
 	else
