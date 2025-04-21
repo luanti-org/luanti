@@ -58,13 +58,13 @@ MeshUpdateQueue::~MeshUpdateQueue()
 
 bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool urgent)
 {
-	MapBlock *main_block = map->getBlockNoCreateNoEx(p);
+    MapBlock *main_block = map->getBlockNoCreateNoEx(p);
 	if (!main_block)
 		return false;
 
 	MutexAutoLock lock(m_mutex);
 
-	MeshGrid mesh_grid = m_client->getMeshGrid();
+    MeshGrid mesh_grid = m_client->getMeshGrid();
 
 	// Mesh is placed at the corner block of a chunk
 	// (where all coordinate are divisible by the chunk size)
@@ -78,7 +78,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
     /*
      * Calculate LOD
      */
-    v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE - MAP_BLOCKSIZE / 2;
+    v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE - mesh_grid.cell_size / 2;
     u16 dist2 = (cam_pos.X - mesh_position.X) * (cam_pos.X - mesh_position.X)
                 + (cam_pos.Y - mesh_position.Y) * (cam_pos.Y - mesh_position.Y)
                 + (cam_pos.Z - mesh_position.Z) * (cam_pos.Z - mesh_position.Z); // distance squared
@@ -87,6 +87,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
     u16 lod;
     if (dist2 < renderDist) {
         lod = 0;
+        urgent = true;
     } else {
         lod = 1 + (u16) (std::log2(dist2 / renderDist) / g_settings->getFloat("lod_quality"));
     }
@@ -127,34 +128,34 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 		}
 	}
 
-	/*
-		Make a list of blocks necessary for mesh generation and lock the blocks in memory.
-	*/
-	std::vector<MapBlock *> map_blocks;
-	map_blocks.reserve((mesh_grid.cell_size+2)*(mesh_grid.cell_size+2)*(mesh_grid.cell_size+2));
-	v3s16 pos;
-	for (pos.X = mesh_position.X - 1; pos.X <= mesh_position.X + mesh_grid.cell_size; pos.X++)
-	for (pos.Z = mesh_position.Z - 1; pos.Z <= mesh_position.Z + mesh_grid.cell_size; pos.Z++)
-	for (pos.Y = mesh_position.Y - 1; pos.Y <= mesh_position.Y + mesh_grid.cell_size; pos.Y++) {
-		MapBlock *block = map->getBlockNoCreateNoEx(pos);
-		map_blocks.push_back(block);
-		if (block)
-			block->refGrab();
+    /*
+        Make a list of blocks necessary for mesh generation and lock the blocks in memory.
+    */
+    std::vector<MapBlock *> map_blocks;
+    map_blocks.reserve((mesh_grid.cell_size+2)*(mesh_grid.cell_size+2)*(mesh_grid.cell_size+2));
+    v3s16 pos;
+    for (pos.X = mesh_position.X - 1; pos.X <= mesh_position.X + mesh_grid.cell_size; pos.X++)
+    for (pos.Z = mesh_position.Z - 1; pos.Z <= mesh_position.Z + mesh_grid.cell_size; pos.Z++)
+    for (pos.Y = mesh_position.Y - 1; pos.Y <= mesh_position.Y + mesh_grid.cell_size; pos.Y++) {
+        MapBlock *block = map->getBlockNoCreateNoEx(pos);
+        map_blocks.push_back(block);
+        if (block)
+            block->refGrab();
     }
 
-	/*
-		Add the block
-	*/
-	QueuedMeshUpdate *q = new QueuedMeshUpdate;
-	q->p = mesh_position;
-	if(ack_block_to_server)
-		q->ack_list.push_back(p);
-	q->crack_level = m_client->getCrackLevel();
-	q->crack_pos = m_client->getCrackPos();
-	q->urgent = urgent;
-	q->map_blocks = std::move(map_blocks);
+    /*
+        Add the block
+    */
+    QueuedMeshUpdate *q = new QueuedMeshUpdate;
+    q->p = mesh_position;
+    if(ack_block_to_server)
+        q->ack_list.push_back(p);
+    q->crack_level = m_client->getCrackLevel();
+    q->crack_pos = m_client->getCrackPos();
+    q->urgent = urgent;
+    q->map_blocks = std::move(map_blocks);
     q->lod = lod;
-	m_queue.push_back(q);
+    m_queue.push_back(q);
 
 	return true;
 }
@@ -202,7 +203,7 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
     MeshGrid mesh_grid = m_client->getMeshGrid();
     MeshMakeData *data = new MeshMakeData(m_client->ndef(),
             MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid, q->lod);
-	q->data = data;
+    q->data = data;
 
 	data->fillBlockDataBegin(q->p);
 
@@ -210,8 +211,8 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	int i = 0;
 	for (pos.X = q->p.X - 1; pos.X <= q->p.X + mesh_grid.cell_size; pos.X++)
 	for (pos.Z = q->p.Z - 1; pos.Z <= q->p.Z + mesh_grid.cell_size; pos.Z++)
-	for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
-		MapBlock *block = q->map_blocks[i++];
+    for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
+        MapBlock *block = q->map_blocks[i++];
 		data->fillBlockData(pos, block ? block->getData() : block_placeholder.data);
 	}
 
