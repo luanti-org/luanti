@@ -7600,7 +7600,7 @@ Misc.
     * Will silently strip functions embedded via calls to `loadstring`
       (typically bytecode dumped by `core.serialize`) if `safe` is `true`.
       You should not rely on this if possible.
-      * Example: `core.deserialize("return loadstring''", true)` will be `nil`.
+      * Example: `core.deserialize("return loadstring('')", true)` will be `nil`.
     * This function should not be used on untrusted data, regardless of the
      value of `safe`. It is fine to serialize then deserialize user-provided
      data, but directly providing user input to deserialize is always unsafe.
