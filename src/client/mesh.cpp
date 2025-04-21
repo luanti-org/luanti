@@ -418,17 +418,17 @@ scene::IMesh* convertNodeboxesToMesh(const std::vector<aabb3f> &boxes,
 
 		f32 txc_default[24] = {
 			// up
-			tx1, 1 - tz2, tx2, 1 - tz1,
+			tx1, - tz2, tx2, - tz1,
 			// down
 			tx1, tz1, tx2, tz2,
 			// right
-			tz1, 1 - ty2, tz2, 1 - ty1,
+			tz1, - ty2, tz2, - ty1,
 			// left
-			1 - tz2, 1 - ty2, 1 - tz1, 1 - ty1,
+			- tz2, - ty2, - tz1, - ty1,
 			// back
-			1 - tx2, 1 - ty2, 1 - tx1, 1 - ty1,
+			- tx2, - ty2, - tx1, - ty1,
 			// front
-			tx1, 1 - ty2, tx2, 1 - ty1,
+			tx1, - ty2, tx2, - ty1,
 		};
 
 		// use default texture UV mapping if not provided
