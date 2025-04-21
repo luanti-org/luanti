@@ -24,6 +24,8 @@ varying mediump vec2 varTexCoord;
 centroid varying vec2 varTexCoord;
 #endif
 
+uniform vec3 beta_r0_l;
+
 const float far = 1000.;
 float mapDepth(float depth)
 {
@@ -46,9 +48,16 @@ float sampleVolumetricLight(vec2 uv, vec3 lightVec, float rawDepth)
 		if (min(samplepos.x, samplepos.y) > 0. && max(samplepos.x, samplepos.y) < 1.)
 			result += texture2D(depthmap, samplepos).r < 1. ? 0.0 : 1.0;
 	}
+
+#ifdef VOLUMETRIC_DEPTH_ATTENUATION
 	// We use the depth map to approximate the effect of depth on the light intensity.
 	// The exponent was chosen based on aesthetic preference.
+	// To make this phsyically accurate, the brightness here should scale linearly with depth,
+	// but this would make the godrays either too faint or too strong in many cases.
 	return result / samples * pow(texture2D(depthmap, uv).r, 128.0);
+#else
+	return result / samples;
+#endif
 }
 
 vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
@@ -56,13 +65,10 @@ vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
 	// Based on talk at 2002 Game Developers Conference by Naty Hoffman and Arcot J. Preetham
 	const float beta_r0 = 1e-5; // Rayleigh scattering beta
 
-	// These factors are calculated based on expected value of scattering factor of 1e-5
-	// for Nitrogen at 532nm (green), 2e25 molecules/m3 in atmosphere
-	const vec3 beta_r0_l = vec3(3.3362176e-01, 8.75378289198826e-01, 1.95342379700656) * beta_r0; // wavelength-dependent scattering
-
 	const float atmosphere_height = 15000.; // height of the atmosphere in meters
 	// sun/moon light at the ground level, after going through the atmosphere
-	return exp(-beta_r0_l * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
+
+	return exp(-beta_r0_l * beta_r0 * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
 }
 
 vec3 applyVolumetricLight(vec3 color, vec2 uv, float rawDepth)
