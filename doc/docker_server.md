@@ -83,40 +83,21 @@ services:
 
 ⚠️ **CRITICAL**: The server requires a valid configuration file to run properly.
 
-Download the example configuration file and customize it:
+Download the example configuration file and optionally customize it:
 
 ```shell
 # Download the example config file
 wget https://raw.githubusercontent.com/luanti-org/luanti/master/minetest.conf.example -O ~/luanti/conf/minetest.conf
-
-# Edit the file to add your settings
-nano ~/luanti/conf/minetest.conf
 ```
 
-At minimum, add or update these settings:
-
-```
-# Set admin username (required to grant privileges)
-name = YourAdminUsername
-
-# Server settings
-server_name = My Luanti Server
-server_description = My awesome server
-port = 30000
-```
-
-Without a proper configuration file, the server will crash on startup.
+If no config file is present, the server will crash on startup.
 
 ## Permissions and Technical Details
 
 - The container runs as user `minetest` with UID 30000
-- Fix permission issues with: `sudo chown -R 30000:30000 ~/luanti/{data,conf}`
+- Fix permission issues with: `sudo chown -R 30000:30000 ~/luanti/{data,conf,games}`
 - Entrypoint is `/usr/local/bin/luantiserver`
 - Default command arguments: `--config /etc/minetest/minetest.conf`
-
-## Troubleshooting
-
-### Common Errors
 
 #### "Game not found" Error
 
@@ -133,17 +114,5 @@ If the server crashes immediately, it's often due to a missing or invalid config
 1. You've downloaded the example config file: `minetest.conf.example`
 2. You've mounted it correctly to `/etc/minetest/minetest.conf`
 3. The file has appropriate permissions
-
-### Listing Available Games
-
-To check which games are available to the server:
-
-```shell
-docker run --rm \
-  --entrypoint /bin/sh \
-  -v ~/luanti/games/mineclone2:/usr/local/share/luanti/games/mineclone2 \
-  ghcr.io/luanti-org/luanti:master \
-  -c "/usr/local/bin/luantiserver --gameid list"
-```
 
 **Note:** If you don't understand the previous commands please read the [official Docker documentation](https://docs.docker.com) before use.
