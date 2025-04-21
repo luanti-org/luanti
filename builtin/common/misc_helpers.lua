@@ -7,7 +7,15 @@ local math = math
 local function basic_dump(o)
 	local tp = type(o)
 	if tp == "number" then
-		return tostring(o)
+		local s = tostring(o)
+		if tonumber(s) == o then
+			return s
+		end
+		-- Prefer an exact representation over a compact representation.
+		-- e.g. basic_dump(0.3) == "0.3",
+		-- but basic_dump(0.1 + 0.2) == "0.30000000000000004"
+		-- so the user can see that 0.1 + 0.2 ~= 0.3
+		return string.format("%.17g", o)
 	elseif tp == "string" then
 		return string.format("%q", o)
 	elseif tp == "boolean" then
