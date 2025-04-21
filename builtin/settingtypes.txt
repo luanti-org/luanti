@@ -2241,9 +2241,10 @@ lighting_boost_spread (Light curve boost spread) float 0.2 0.0 0.4
 enable_ipv6 (IPv6) [common] bool true
 
 #    Prometheus listener address.
-#    If Luanti is compiled with ENABLE_PROMETHEUS option enabled,
-#    enable metrics listener for Prometheus on that address.
-#    Metrics can be fetched on http://127.0.0.1:30000/metrics
+#    If Luanti is compiled with Prometheus support, this setting
+#    enables the metrics listener for Prometheus on that address.
+#    By default you can fetch metrics from http://127.0.0.1:30000/metrics.
+#    An empty value disables the metrics listener.
 prometheus_listener_address (Prometheus listener address) [server] string 127.0.0.1:30000
 
 #    Maximum size of the client's outgoing chat queue.
