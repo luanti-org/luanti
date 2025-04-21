@@ -308,12 +308,12 @@ void MapblockMeshGenerator::generateCuboidTextureCoords(const aabb3f &box, f32 *
 	f32 ty2 = (box.MaxEdge.Y / BS) + 0.5;
 	f32 tz2 = (box.MaxEdge.Z / BS) + 0.5;
 	f32 txc[24] = {
-		    tx1, 1 - tz2,     tx2, 1 - tz1, // up
+		    tx1,   - tz2,     tx2,   - tz1, // up
 		    tx1,     tz1,     tx2,     tz2, // down
-		    tz1, 1 - ty2,     tz2, 1 - ty1, // right
-		1 - tz2, 1 - ty2, 1 - tz1, 1 - ty1, // left
-		1 - tx2, 1 - ty2, 1 - tx1, 1 - ty1, // back
-		    tx1, 1 - ty2,     tx2, 1 - ty1, // front
+		    tz1,   - ty2,     tz2,   - ty1, // right
+		  - tz2,   - ty2,   - tz1,   - ty1, // left
+		  - tx2,   - ty2,   - tx1,   - ty1, // back
+		    tx1,   - ty2,     tx2,   - ty1, // front
 	};
 	for (int i = 0; i != 24; ++i)
 		coords[i] = txc[i];
