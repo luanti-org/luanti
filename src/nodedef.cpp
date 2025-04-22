@@ -910,6 +910,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 	u32 overlay_shader = shdsrc->getShader("nodes_shader", overlay_material, drawtype);
 
 	// Tiles (fill in f->tiles[])
+	bool any_polygon_offset = false;
 	for (u16 j = 0; j < 6; j++) {
 		tiles[j].world_aligned = isWorldAligned(tdef[j].align_style,
 				tsettings.world_aligned_mode, drawtype);
@@ -922,6 +923,17 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 					tdef[j].backface_culling, tsettings);
 
 		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
+		any_polygon_offset |= tiles[j].layers[0].need_polygon_offset;
+	}
+
+	if (drawtype == NDT_MESH && any_polygon_offset) {
+		// Our per-tile polygon offset enablement workaround works fine for normal
+		// nodes and anything else, where we know that different tiles are different
+		// faces that couldn't possibly conflict with each other.
+		// We can't assume this for mesh nodes, so apply it to all tiles (= materials)
+		// then.
+		for (u16 j = 0; j < 6; j++)
+			tiles[j].layers[0].need_polygon_offset = true;
 	}
 
 	MaterialType special_material = material_type;
