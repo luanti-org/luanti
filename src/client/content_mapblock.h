@@ -86,7 +86,7 @@ private:
 	template <typename Fn>
 	void drawCuboid(const aabb3f &box, const TileSpec *tiles, int tilecount,
 			const f32 *txc, u8 mask, Fn &&face_lighter);
-	void generateCuboidTextureCoords(aabb3f const &box, f32 *coords);
+	void generateCuboidTextureCoords(aabb3f const &box, f32 *coords, const TileSpec *tiles = nullptr);
 	void drawAutoLightedCuboid(aabb3f box, const TileSpec &tile, f32 const *txc	= nullptr, u8 mask = 0);
 	void drawAutoLightedCuboid(aabb3f box, const TileSpec *tiles, int tile_count, f32 const *txc = nullptr, u8 mask = 0);
 	u8 getNodeBoxMask(aabb3f box, u8 solid_neighbors, u8 sametype_neighbors) const;

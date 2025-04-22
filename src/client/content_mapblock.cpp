@@ -299,7 +299,7 @@ video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos,
 	return color;
 }
 
-void MapblockMeshGenerator::generateCuboidTextureCoords(const aabb3f &box, f32 *coords)
+void MapblockMeshGenerator::generateCuboidTextureCoords(const aabb3f &box, f32 *coords, const TileSpec *tiles)
 {
 	f32 tx1 = (box.MinEdge.X / BS) + 0.5;
 	f32 ty1 = (box.MinEdge.Y / BS) + 0.5;
@@ -307,13 +307,26 @@ void MapblockMeshGenerator::generateCuboidTextureCoords(const aabb3f &box, f32 *
 	f32 tx2 = (box.MaxEdge.X / BS) + 0.5;
 	f32 ty2 = (box.MaxEdge.Y / BS) + 0.5;
 	f32 tz2 = (box.MaxEdge.Z / BS) + 0.5;
+
+	// Add scale to preserve bounds after mirroring
+	f32 su, sr, sl, sb, sf;
+	if (tiles) {
+		su = tiles[0].layers[0].scale;
+		sr = tiles[2].layers[0].scale;
+		sl = tiles[3].layers[0].scale;
+		sb = tiles[4].layers[0].scale;
+		sf = tiles[5].layers[0].scale;
+	} else {
+		su = sr = sl = sb = sf = 1;
+	}
+
 	f32 txc[24] = {
-		    tx1,   - tz2,     tx2,   - tz1, // up
-		    tx1,     tz1,     tx2,     tz2, // down
-		    tz1,   - ty2,     tz2,   - ty1, // right
-		  - tz2,   - ty2,   - tz1,   - ty1, // left
-		  - tx2,   - ty2,   - tx1,   - ty1, // back
-		    tx1,   - ty2,     tx2,   - ty1, // front
+		     tx1, su - tz2,      tx2, su - tz1, // up
+		     tx1,      tz1,      tx2,      tz2, // down
+		     tz1, sr - ty2,      tz2, sr - ty1, // right
+		sl - tz2, sl - ty2, sl - tz1, sl - ty1, // left
+		sb - tx2, sb - ty2, sb - tx1, sb - ty1, // back
+		     tx1, sf - ty2,      tx2, sf - ty1, // front
 	};
 	for (int i = 0; i != 24; ++i)
 		coords[i] = txc[i];
@@ -445,7 +458,7 @@ void MapblockMeshGenerator::drawSolidNode()
 	f32 texture_coord_buf[24];
 	box.MinEdge += cur_node.origin;
 	box.MaxEdge += cur_node.origin;
-	generateCuboidTextureCoords(box, texture_coord_buf);
+	generateCuboidTextureCoords(box, texture_coord_buf, tiles);
 	if (data->m_smooth_lighting) {
 		LightPair lights[6][4];
 		for (int face = 0; face < 6; ++face) {
