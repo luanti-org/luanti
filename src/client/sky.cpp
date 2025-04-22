@@ -93,6 +93,45 @@ void Sky::OnRegisterSceneNode()
 	scene::ISceneNode::OnRegisterSceneNode();
 }
 
+void Sky::renderTextures(video::IVideoDriver *driver)
+{
+	const f32 t = 1.0f;
+	const f32 o = 0.0f;
+	static const u16 indices[6] = {0, 1, 2, 0, 2, 3};
+	video::S3DVertex vertices[4];
+
+	for (u32 j = 5; j < 11; j++) {
+		video::SColor c(255, 255, 255, 255);
+		driver->setMaterial(m_materials[j]);
+		// Use 1.05 rather than 1.0 to avoid colliding with the
+		// sun, moon and stars, as this is a background skybox.
+		vertices[0] = video::S3DVertex(-1.05, -1.05, -1.05, 0, 0, 1, c, t, t);
+		vertices[1] = video::S3DVertex( 1.05, -1.05, -1.05, 0, 0, 1, c, o, t);
+		vertices[2] = video::S3DVertex( 1.05,  1.05, -1.05, 0, 0, 1, c, o, o);
+		vertices[3] = video::S3DVertex(-1.05,  1.05, -1.05, 0, 0, 1, c, t, o);
+		for (video::S3DVertex &vertex : vertices) {
+			if (j == 5) { // Top texture
+				vertex.Pos.rotateYZBy(90);
+				vertex.Pos.rotateXZBy(90);
+			} else if (j == 6) { // Bottom texture
+				vertex.Pos.rotateYZBy(-90);
+				vertex.Pos.rotateXZBy(90);
+			} else if (j == 7) { // Left texture
+				vertex.Pos.rotateXZBy(90);
+			} else if (j == 8) { // Right texture
+				vertex.Pos.rotateXZBy(-90);
+			} else if (j == 9) { // Front texture, do nothing
+				// Irrlicht doesn't like it when vertexes are left
+				// alone and not rotated for some reason.
+				vertex.Pos.rotateXZBy(0);
+			} else {// Back texture
+				vertex.Pos.rotateXZBy(180);
+			}
+		}
+		driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
+	}
+}
+
 void Sky::render()
 {
 	video::IVideoDriver *driver = SceneManager->getVideoDriver();
@@ -171,39 +210,9 @@ void Sky::render()
 		if (m_in_clouds)
 			return;
 
-		// Draw the six sided skybox,
-		if (has_tex) {
-			for (u32 j = 5; j < 11; j++) {
-				video::SColor c(255, 255, 255, 255);
-				driver->setMaterial(m_materials[j]);
-				// Use 1.05 rather than 1.0 to avoid colliding with the
-				// sun, moon and stars, as this is a background skybox.
-				vertices[0] = video::S3DVertex(-1.05, -1.05, -1.05, 0, 0, 1, c, t, t);
-				vertices[1] = video::S3DVertex( 1.05, -1.05, -1.05, 0, 0, 1, c, o, t);
-				vertices[2] = video::S3DVertex( 1.05,  1.05, -1.05, 0, 0, 1, c, o, o);
-				vertices[3] = video::S3DVertex(-1.05,  1.05, -1.05, 0, 0, 1, c, t, o);
-				for (video::S3DVertex &vertex : vertices) {
-					if (j == 5) { // Top texture
-						vertex.Pos.rotateYZBy(90);
-						vertex.Pos.rotateXZBy(90);
-					} else if (j == 6) { // Bottom texture
-						vertex.Pos.rotateYZBy(-90);
-						vertex.Pos.rotateXZBy(90);
-					} else if (j == 7) { // Left texture
-						vertex.Pos.rotateXZBy(90);
-					} else if (j == 8) { // Right texture
-						vertex.Pos.rotateXZBy(-90);
-					} else if (j == 9) { // Front texture, do nothing
-						// Irrlicht doesn't like it when vertexes are left
-						// alone and not rotated for some reason.
-						vertex.Pos.rotateXZBy(0);
-					} else {// Back texture
-						vertex.Pos.rotateXZBy(180);
-					}
-				}
-				driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
-			}
-		}
+		// Draw the six sided skybox, in the background.
+		if(has_tex && !m_textures_front)
+			renderTextures(driver);
 
 		// Draw far cloudy fog thing blended with skycolor
 		// Disabled when using a textured skybox to prevent clipping
@@ -306,6 +315,10 @@ void Sky::render()
 			vertices[3] = video::S3DVertex(-1, -1.0, 1, 0, 1, 0, c, t, o);
 			driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
 		}
+
+		// Draw the six sided skybox, in the foreground.
+		if(has_tex && m_textures_front)
+			renderTextures(driver);
 	}
 }
 

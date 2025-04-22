@@ -2850,6 +2850,7 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 	sky->setVisible(false);
 	// Whether clouds are visible in front of a custom skybox.
 	sky->setCloudsEnabled(event->set_sky->clouds);
+	sky->setTexturesFront(event->set_sky->textures_front);
 
 	// Clear the old textures out in case we switch rendering type.
 	sky->clearSkyboxTextures();

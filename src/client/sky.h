@@ -33,6 +33,7 @@ public:
 	virtual void OnRegisterSceneNode();
 
 	//! renders the node.
+	virtual void renderTextures(video::IVideoDriver *driver);
 	virtual void render();
 
 	virtual const aabb3f &getBoundingBox() const { return m_box; }
@@ -103,6 +104,7 @@ public:
 	void setHorizonTint(video::SColor sun_tint, video::SColor moon_tint,
 		const std::string &use_sun_tint);
 	void setInClouds(bool clouds) { m_in_clouds = clouds; }
+	void setTexturesFront(bool textures_front) { m_textures_front = textures_front; }
 	void clearSkyboxTextures() { m_sky_params.textures.clear(); }
 	void addTextureToSkybox(const std::string &texture, int material_id,
 		ITextureSource *tsrc);
@@ -174,6 +176,7 @@ private:
 	bool m_clouds_enabled = true; // Initialised to true, reset only by set_sky API
 	bool m_directional_colored_fog;
 	bool m_in_clouds = true; // Prevent duplicating bools to remember old values
+	bool m_textures_front = false; // Whether textures are rendered behind the default sky
 
 	video::SColorf m_bgcolor_bright_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);
 	video::SColorf m_skycolor_bright_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);

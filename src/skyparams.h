@@ -29,6 +29,7 @@ struct SkyboxParams
 	video::SColor bgcolor;
 	std::string type;
 	std::vector<std::string> textures;
+	bool textures_front;
 	bool clouds;
 	SkyColor sky_color;
 	video::SColor fog_sun_tint;
@@ -89,6 +90,7 @@ public:
 		SkyboxParams sky;
 		sky.bgcolor = video::SColor(255, 255, 255, 255);
 		sky.type = "regular";
+		sky.textures_front = false;
 		sky.clouds = true;
 		sky.sky_color = getSkyColorDefaults();
 		sky.fog_sun_tint = video::SColor(255, 244, 125, 29);

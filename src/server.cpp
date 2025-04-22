@@ -1857,10 +1857,11 @@ void Server::SendSetSky(session_t peer_id, const SkyboxParams &params)
 		for (const std::string& texture : params.textures)
 			pkt << texture;
 
+		pkt << false;
 		pkt << params.clouds;
 	} else { // Handle current clients and future clients
 		pkt << params.bgcolor << params.type
-			<< params.clouds << params.fog_sun_tint
+			<< params.textures_front << params.clouds << params.fog_sun_tint
 			<< params.fog_moon_tint << params.fog_tint_type;
 
 		if (params.type == "skybox") {

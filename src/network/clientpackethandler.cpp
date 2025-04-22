@@ -1295,6 +1295,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		for (size_t i = 0; i < count; i++)
 			skybox.textures.emplace_back(deSerializeString16(is));
 
+		skybox.textures_front = false;
 		skybox.clouds = readU8(is) != 0;
 
 		// Use default skybox settings:
@@ -1340,7 +1341,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 
 	SkyboxParams skybox;
 
-	*pkt >> skybox.bgcolor >> skybox.type >> skybox.clouds >>
+	*pkt >> skybox.bgcolor >> skybox.type >> skybox.textures_front >> skybox.clouds >>
 		skybox.fog_sun_tint >> skybox.fog_moon_tint >> skybox.fog_tint_type;
 
 	if (skybox.type == "skybox") {

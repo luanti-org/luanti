@@ -2061,6 +2061,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 		if (sky_params.textures.size() != 6 && !sky_params.textures.empty())
 			throw LuaError("Skybox expects 6 textures!");
 
+		sky_params.textures_front = getboolfield_default(L, 2, "textures_front", sky_params.textures_front);
 		sky_params.clouds = getboolfield_default(L, 2, "clouds", sky_params.clouds);
 
 		lua_getfield(L, 2, "sky_color");
@@ -2250,6 +2251,8 @@ int ObjectRef::l_get_sky(lua_State *L)
 		lua_rawseti(L, -2, i++);
 	}
 	lua_setfield(L, -2, "textures");
+	lua_pushboolean(L, skybox_params.textures_front);
+	lua_setfield(L, -2, "textures_front");
 	lua_pushboolean(L, skybox_params.clouds);
 	lua_setfield(L, -2, "clouds");
 
