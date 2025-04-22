@@ -210,8 +210,8 @@ void Sky::render()
 		if (m_in_clouds)
 			return;
 
-		// Draw the six sided skybox, in the background.
-		if(has_tex && !m_textures_front)
+		// Draw the six sided skybox, solid or transparent background.
+		if(has_tex && (m_transparency == "solid" || m_transparency == "transparent_back"))
 			renderTextures(driver);
 
 		// Draw far cloudy fog thing blended with skycolor
@@ -316,8 +316,8 @@ void Sky::render()
 			driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
 		}
 
-		// Draw the six sided skybox, in the foreground.
-		if(has_tex && m_textures_front)
+		// Draw the six sided skybox, transparent foreground.
+		if(has_tex && m_transparency == "transparent_front")
 			renderTextures(driver);
 	}
 }
@@ -886,7 +886,7 @@ void Sky::setHorizonTint(video::SColor sun_tint, video::SColor moon_tint,
 }
 
 void Sky::addTextureToSkybox(const std::string &texture, int material_id,
-		ITextureSource *tsrc)
+		ITextureSource *tsrc, bool transparent)
 {
 	// Sanity check for more than six textures.
 	if (material_id + 5 >= SKY_MATERIAL_COUNT)
@@ -896,7 +896,7 @@ void Sky::addTextureToSkybox(const std::string &texture, int material_id,
 	video::ITexture *result = tsrc->getTextureForMesh(texture);
 	m_materials[material_id+5] = baseMaterial();
 	m_materials[material_id+5].setTexture(0, result);
-	m_materials[material_id+5].MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+	m_materials[material_id+5].MaterialType = transparent ? video::EMT_TRANSPARENT_ALPHA_CHANNEL : video::EMT_SOLID;
 }
 
 float getWickedTimeOfDay(float time_of_day)

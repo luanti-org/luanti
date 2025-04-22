@@ -85,6 +85,7 @@ public:
 	void setVisible(bool visible) { m_visible = visible; }
 
 	// Set only from set_sky API
+	void setTransparency(std::string transparency) { m_transparency = transparency; }
 	void setCloudsEnabled(bool clouds_enabled) { m_clouds_enabled = clouds_enabled; }
 	void setFallbackBgColor(video::SColor fallback_bg_color)
 	{
@@ -104,10 +105,9 @@ public:
 	void setHorizonTint(video::SColor sun_tint, video::SColor moon_tint,
 		const std::string &use_sun_tint);
 	void setInClouds(bool clouds) { m_in_clouds = clouds; }
-	void setTexturesFront(bool textures_front) { m_textures_front = textures_front; }
 	void clearSkyboxTextures() { m_sky_params.textures.clear(); }
 	void addTextureToSkybox(const std::string &texture, int material_id,
-		ITextureSource *tsrc);
+		ITextureSource *tsrc, bool transparent);
 
 	// Note: the Sky class doesn't use these values. It just stores them.
 	void setFogDistance(s16 fog_distance) { m_sky_params.fog_distance = fog_distance; }
@@ -176,7 +176,7 @@ private:
 	bool m_clouds_enabled = true; // Initialised to true, reset only by set_sky API
 	bool m_directional_colored_fog;
 	bool m_in_clouds = true; // Prevent duplicating bools to remember old values
-	bool m_textures_front = false; // Whether textures are rendered behind the default sky
+	std::string m_transparency = "solid"; // Type of transparency used
 
 	video::SColorf m_bgcolor_bright_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);
 	video::SColorf m_skycolor_bright_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);

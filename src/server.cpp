@@ -1852,16 +1852,15 @@ void Server::SendSetSky(session_t peer_id, const SkyboxParams &params)
 
 	// Handle prior clients here
 	if (m_clients.getProtocolVersion(peer_id) < 39) {
-		pkt << params.bgcolor << params.type << (u16) params.textures.size();
+		pkt << params.bgcolor << params.type << std::string("solid") << (u16) params.textures.size();
 
 		for (const std::string& texture : params.textures)
 			pkt << texture;
 
-		pkt << false;
 		pkt << params.clouds;
 	} else { // Handle current clients and future clients
-		pkt << params.bgcolor << params.type
-			<< params.textures_front << params.clouds << params.fog_sun_tint
+		pkt << params.bgcolor << params.type << params.transparency
+			<< params.clouds << params.fog_sun_tint
 			<< params.fog_moon_tint << params.fog_tint_type;
 
 		if (params.type == "skybox") {

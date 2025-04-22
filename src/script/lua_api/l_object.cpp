@@ -2044,6 +2044,11 @@ int ObjectRef::l_set_sky(lua_State *L)
 			sky_params.type = luaL_checkstring(L, -1);
 		lua_pop(L, 1);
 
+		lua_getfield(L, 2, "transparency");
+		if (!lua_isnil(L, -1))
+			sky_params.transparency = luaL_checkstring(L, -1);
+		lua_pop(L, 1);
+
 		lua_getfield(L, 2, "textures");
 		sky_params.textures.clear();
 		if (lua_istable(L, -1) && sky_params.type == "skybox") {
@@ -2061,7 +2066,6 @@ int ObjectRef::l_set_sky(lua_State *L)
 		if (sky_params.textures.size() != 6 && !sky_params.textures.empty())
 			throw LuaError("Skybox expects 6 textures!");
 
-		sky_params.textures_front = getboolfield_default(L, 2, "textures_front", sky_params.textures_front);
 		sky_params.clouds = getboolfield_default(L, 2, "clouds", sky_params.clouds);
 
 		lua_getfield(L, 2, "sky_color");
@@ -2239,6 +2243,8 @@ int ObjectRef::l_get_sky(lua_State *L)
 	lua_setfield(L, -2, "base_color");
 	lua_pushlstring(L, skybox_params.type.c_str(), skybox_params.type.size());
 	lua_setfield(L, -2, "type");
+	lua_pushlstring(L, skybox_params.transparency.c_str(), skybox_params.transparency.size());
+	lua_setfield(L, -2, "transparency");
 
 	if (skybox_params.body_orbit_tilt != SkyboxParams::INVALID_SKYBOX_TILT) {
 		lua_pushnumber(L, skybox_params.body_orbit_tilt);
@@ -2251,8 +2257,6 @@ int ObjectRef::l_get_sky(lua_State *L)
 		lua_rawseti(L, -2, i++);
 	}
 	lua_setfield(L, -2, "textures");
-	lua_pushboolean(L, skybox_params.textures_front);
-	lua_setfield(L, -2, "textures_front");
 	lua_pushboolean(L, skybox_params.clouds);
 	lua_setfield(L, -2, "clouds");
 

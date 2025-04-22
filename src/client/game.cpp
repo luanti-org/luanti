@@ -2850,7 +2850,7 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 	sky->setVisible(false);
 	// Whether clouds are visible in front of a custom skybox.
 	sky->setCloudsEnabled(event->set_sky->clouds);
-	sky->setTexturesFront(event->set_sky->textures_front);
+	sky->setTransparency(event->set_sky->transparency);
 
 	// Clear the old textures out in case we switch rendering type.
 	sky->clearSkyboxTextures();
@@ -2867,10 +2867,17 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 		);
 	} else if (event->set_sky->type == "skybox" &&
 			event->set_sky->textures.size() == 6) {
-		// Shows the mesh skybox
-		sky->setVisible(true);
-		// Update mesh based skybox colours if applicable.
-		sky->setSkyColors(event->set_sky->sky_color);
+		const bool transparent = event->set_sky->transparency != "solid";
+
+		// Show the mesh and sky colors only if transparency is used.
+		if(transparent) {
+			sky->setVisible(true);
+			sky->setSkyColors(event->set_sky->sky_color);
+		} else {
+			sky->setVisible(false);
+			sky->setFallbackBgColor(event->set_sky->bgcolor);
+		}
+		// Set sunrise and sunset fog tinting:
 		sky->setHorizonTint(
 			event->set_sky->fog_sun_tint,
 			event->set_sky->fog_moon_tint,
@@ -2878,7 +2885,7 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 		);
 		// Add textures to skybox.
 		for (int i = 0; i < 6; i++)
-			sky->addTextureToSkybox(event->set_sky->textures[i], i, texture_src);
+			sky->addTextureToSkybox(event->set_sky->textures[i], i, texture_src, transparent);
 	} else {
 		// Handle everything else as plain color.
 		if (event->set_sky->type != "plain")

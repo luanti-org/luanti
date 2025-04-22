@@ -1290,12 +1290,12 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		SkyboxParams skybox;
 		skybox.bgcolor = video::SColor(readARGB8(is));
 		skybox.type = std::string(deSerializeString16(is));
+		skybox.transparency = std::string("solid");
 		u16 count = readU16(is);
 
 		for (size_t i = 0; i < count; i++)
 			skybox.textures.emplace_back(deSerializeString16(is));
 
-		skybox.textures_front = false;
 		skybox.clouds = readU8(is) != 0;
 
 		// Use default skybox settings:
@@ -1341,7 +1341,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 
 	SkyboxParams skybox;
 
-	*pkt >> skybox.bgcolor >> skybox.type >> skybox.textures_front >> skybox.clouds >>
+	*pkt >> skybox.bgcolor >> skybox.type >> skybox.transparency >> skybox.clouds >>
 		skybox.fog_sun_tint >> skybox.fog_moon_tint >> skybox.fog_tint_type;
 
 	if (skybox.type == "skybox") {
