@@ -123,17 +123,18 @@ int ModApiBase::l_deprecated_function(lua_State *L, const char *good, const char
 
 	u64 start_time = porting::getTimeUs();
 	lua_Debug ar;
+	std::string backtrace;
 
 	// Get caller name with line and script backtrace
-	if (!lua_getstack(L, 1, &ar) || !lua_getinfo(L, "Sl", &ar)) {
-		errorstream << __func__ << ": lua_getstack or lua_getinfo for call '" <<
-			bad << "' failed. " << script_get_backtrace(L) << std::endl;
-		return func(L);
+	if (lua_getstack(L, 1, &ar) && lua_getinfo(L, "Sl", &ar)) {
+		// Get backtrace and hash it to reduce the warning flood
+		backtrace = ar.short_src;
+		backtrace.append(":").append(std::to_string(ar.currentline));
+	} else {
+		backtrace = "<tail call optimized coroutine> ";
+		backtrace.append(script_get_backtrace(L));
 	}
 
-	// Get backtrace and hash it to reduce the warning flood
-	std::string backtrace = ar.short_src;
-	backtrace.append(":").append(std::to_string(ar.currentline));
 	u64 hash = murmur_hash_64_ua(backtrace.data(), backtrace.length(), 0xBADBABE);
 
 	if (std::find(deprecated_logged.begin(), deprecated_logged.end(), hash)
