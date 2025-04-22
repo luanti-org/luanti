@@ -2140,7 +2140,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 
 		// Preserve old behavior of the sun, moon and stars
 		// when using the old set_sky call.
-		if (sky_params.type == "regular") {
+		if (sky_params.type == "regular" || sky_params.type == "skybox") {
 			sun_params.visible = true;
 			sun_params.sunrise_visible = true;
 			moon_params.visible = true;
@@ -2181,7 +2181,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 static void push_sky_color(lua_State *L, const SkyboxParams &params)
 {
 	lua_newtable(L);
-	if (params.type == "regular") {
+	if (params.type == "regular" || params.type == "skybox") {
 		push_ARGB8(L, params.sky_color.day_sky);
 		lua_setfield(L, -2, "day_sky");
 		push_ARGB8(L, params.sky_color.day_horizon);

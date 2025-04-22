@@ -158,6 +158,7 @@ void Sky::render()
 
 		const f32 t = 1.0f;
 		const f32 o = 0.0f;
+		const bool has_tex = m_sky_params.textures.size() == 6;
 		static const u16 indices[6] = {0, 1, 2, 0, 2, 3};
 		video::S3DVertex vertices[4];
 
@@ -171,7 +172,7 @@ void Sky::render()
 			return;
 
 		// Draw the six sided skybox,
-		if (m_sky_params.textures.size() == 6) {
+		if (has_tex) {
 			for (u32 j = 5; j < 11; j++) {
 				video::SColor c(255, 255, 255, 255);
 				driver->setMaterial(m_materials[j]);
@@ -205,7 +206,8 @@ void Sky::render()
 		}
 
 		// Draw far cloudy fog thing blended with skycolor
-		if (m_visible) {
+		// Disabled when using a textured skybox to prevent clipping
+		if (m_visible && !has_tex) {
 			driver->setMaterial(m_materials[1]);
 			for (u32 j = 0; j < 4; j++) {
 				vertices[0] = video::S3DVertex(-1, -0.02, -1, 0, 0, 1, m_bgcolor, t, t);
@@ -268,9 +270,9 @@ void Sky::render()
 		if (m_moon_params.visible)
 			draw_moon(driver, mooncolor, mooncolor2, wicked_time_of_day);
 
-		// Draw far cloudy fog thing below all horizons in front of sun, moon
-		// and stars.
-		if (m_visible) {
+		// Draw far cloudy fog thing below all horizons in front of sun, moon and stars.
+		// Disabled when using a textured skybox to prevent clipping
+		if (m_visible && !has_tex) {
 			driver->setMaterial(m_materials[1]);
 
 			for (u32 j = 0; j < 4; j++) {
@@ -881,7 +883,7 @@ void Sky::addTextureToSkybox(const std::string &texture, int material_id,
 	video::ITexture *result = tsrc->getTextureForMesh(texture);
 	m_materials[material_id+5] = baseMaterial();
 	m_materials[material_id+5].setTexture(0, result);
-	m_materials[material_id+5].MaterialType = video::EMT_SOLID;
+	m_materials[material_id+5].MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 }
 
 float getWickedTimeOfDay(float time_of_day)
