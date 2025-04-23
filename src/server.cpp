@@ -1852,7 +1852,7 @@ void Server::SendSetSky(session_t peer_id, const SkyboxParams &params)
 
 	// Handle prior clients here
 	if (m_clients.getProtocolVersion(peer_id) < 39) {
-		pkt << params.bgcolor << params.type << std::string("solid") << (u16) params.textures.size();
+		pkt << params.bgcolor << params.type << (u16) params.textures.size();
 
 		for (const std::string& texture : params.textures)
 			pkt << texture;
@@ -1869,7 +1869,7 @@ void Server::SendSetSky(session_t peer_id, const SkyboxParams &params)
 			for (const std::string &texture : params.textures)
 				pkt << texture;
 		}
-		if (params.type == "regular" || params.type == "skybox" ||
+		if (params.type == "regular" ||
 			params.type == "skybox_back" || params.type == "skybox_front") {
 			auto &c = params.sky_color;
 			pkt << c.day_sky << c.day_horizon << c.dawn_sky << c.dawn_horizon

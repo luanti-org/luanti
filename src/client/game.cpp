@@ -2867,8 +2867,8 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 		);
 	} else if ((event->set_sky->type == "skybox" || event->set_sky->type == "skybox_back" ||
 		event->set_sky->type == "skybox_front") && event->set_sky->textures.size() == 6) {
-		// Show the mesh and sky colors only if transparency is used.
 		const bool transparent = event->set_sky->type == "skybox_back" || event->set_sky->type == "skybox_front";
+		// Show the mesh and sky colors only if transparency is used.
 		if(transparent) {
 			sky->setVisible(true);
 			sky->setSkyColors(event->set_sky->sky_color);

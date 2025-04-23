@@ -1302,8 +1302,8 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		MoonParams moon = SkyboxDefaults::getMoonDefaults();
 		StarParams stars = SkyboxDefaults::getStarDefaults();
 
-		// Fix for "regular" and "skybox" skies, as color isn't kept:
-		if (skybox.type == "regular" || skybox.type == "skybox" ||
+		// Fix for "regular", "skybox_back", "skybox_front" skies as color isn't kept:
+		if (skybox.type == "regular" ||
 			skybox.type == "skybox_back" || skybox.type == "skybox_front") {
 			skybox.sky_color = SkyboxDefaults::getSkyColorDefaults();
 			skybox.fog_tint_type = "default";
@@ -1354,7 +1354,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 			skybox.textures.emplace_back(texture);
 		}
 	}
-	if (skybox.type == "regular" || skybox.type == "skybox" ||
+	if (skybox.type == "regular" ||
 		skybox.type == "skybox_back" || skybox.type == "skybox_front") {
 		auto &c = skybox.sky_color;
 		*pkt >> c.day_sky >> c.day_horizon >> c.dawn_sky >> c.dawn_horizon
