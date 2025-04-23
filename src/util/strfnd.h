@@ -15,8 +15,8 @@ class BasicStrfnd {
 	StringView str;
 	size_t pos;
 public:
-	BasicStrfnd(const StringView &sv) { start(sv); }
 	BasicStrfnd(const String &s) { start(s); }
+	BasicStrfnd(StringView sv) { start(sv); }
 	BasicStrfnd(const T *ptr) { start(ptr); }
 
 	void start(const StringView &sv) { str = sv; pos = 0; }
