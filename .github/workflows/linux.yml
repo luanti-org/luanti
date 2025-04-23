@@ -49,12 +49,16 @@ jobs:
         env:
           CC: gcc-9
           CXX: g++-9
-          # Test fallback SHA implementations
-          CMAKE_FLAGS: '-DENABLE_OPENSSL=0'
+          CMAKE_FLAGS: '-DCMAKE_C_FLAGS="-fsanitize=address" -DCMAKE_CXX_FLAGS="-fsanitize=address"'
 
-      - name: Test
+      - name: Unittest
         run: |
           ./bin/luanti --run-unittests
+
+      # Do this here because we have ASan and error paths are sensitive to dangling pointers
+      - name: Test error cases
+        run: |
+          ./util/test_error_cases.sh
 
   # Current gcc version
   gcc_14:
@@ -88,7 +92,7 @@ jobs:
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps clang-11 llvm-11
+          install_linux_deps clang-11
 
       - name: Build
         run: |
@@ -96,16 +100,12 @@ jobs:
         env:
           CC: clang-11
           CXX: clang++-11
-          CMAKE_FLAGS: '-DCMAKE_C_FLAGS="-fsanitize=address" -DCMAKE_CXX_FLAGS="-fsanitize=address"'
+          # Test fallback SHA implementations
+          CMAKE_FLAGS: '-DENABLE_OPENSSL=0'
 
-      - name: Unittest
+      - name: Test
         run: |
           ./bin/luanti --run-unittests
-
-      # Do this here because we have ASan and error paths are sensitive to dangling pointers
-      - name: Test error cases
-        run: |
-          ./util/test_error_cases.sh
 
   # Current clang version
   clang_18:
