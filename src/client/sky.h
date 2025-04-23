@@ -83,9 +83,9 @@ public:
 	const video::SColorf &getCloudColor() const { return m_cloudcolor_f; }
 
 	void setVisible(bool visible) { m_visible = visible; }
+	void setType(std::string type) { m_type = type; }
 
 	// Set only from set_sky API
-	void setTransparency(std::string transparency) { m_transparency = transparency; }
 	void setCloudsEnabled(bool clouds_enabled) { m_clouds_enabled = clouds_enabled; }
 	void setFallbackBgColor(video::SColor fallback_bg_color)
 	{
@@ -164,6 +164,7 @@ private:
 	}
 
 	bool m_visible = true;
+	std::string m_type = "regular";
 	// Used when m_visible=false
 	video::SColor m_fallback_bg_color = video::SColor(255, 255, 255, 255);
 	bool m_first_update = true; // Set before the sky is updated for the first time
@@ -176,7 +177,6 @@ private:
 	bool m_clouds_enabled = true; // Initialised to true, reset only by set_sky API
 	bool m_directional_colored_fog;
 	bool m_in_clouds = true; // Prevent duplicating bools to remember old values
-	std::string m_transparency = "solid"; // Type of transparency used
 
 	video::SColorf m_bgcolor_bright_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);
 	video::SColorf m_skycolor_bright_f = video::SColorf(1.0f, 1.0f, 1.0f, 1.0f);

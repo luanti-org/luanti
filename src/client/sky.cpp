@@ -211,7 +211,7 @@ void Sky::render()
 			return;
 
 		// Draw the six sided skybox, solid or transparent background.
-		if(has_tex && (m_transparency == "solid" || m_transparency == "transparent_back"))
+		if(has_tex && (m_type == "skybox" || m_type == "skybox_back"))
 			renderTextures(driver);
 
 		// Draw far cloudy fog thing blended with skycolor
@@ -317,7 +317,7 @@ void Sky::render()
 		}
 
 		// Draw the six sided skybox, transparent foreground.
-		if(has_tex && m_transparency == "transparent_front")
+		if(has_tex && m_type == "skybox_front")
 			renderTextures(driver);
 	}
 }

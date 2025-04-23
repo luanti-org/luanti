@@ -8781,6 +8781,8 @@ child will follow movement and rotation of that bone.
         * `type`: Available types:
             * `"regular"`: Uses 0 textures, `base_color` ignored
             * `"skybox"`: Uses 6 textures, `base_color` used as fog.
+            * `"skybox_back"`: Uses 6 textures, `sky_color` used as fog, stars / sun / moon in foreground.
+            * `"skybox_front"`: Uses 6 textures, `sky_color` used as fog, stars / sun / moon in background.
             * `"plain"`: Uses 0 textures, `base_color` used as both fog and sky.
             (default: `"regular"`)
         * `textures`: A table containing up to six textures in the following
@@ -8789,13 +8791,9 @@ child will follow movement and rotation of that bone.
             bottom texture and the bottom edge of the top texture touch the east face).
             Some top and bottom textures expect to be aligned with the north face and will need to be rotated
             by -90 and 90 degrees, respectively, to fit the eastward orientation.
-        * `transparency`: Used by the `"skybox"` type. The type of transparency to use. (default: `"solid"`)
-            * `"solid"`: For textures without an alpha channel, `sky_color` is not used.
-            * `"transparent_back"`: Show stars / sun / moon over the alpha channel, `sky_color` is used.
-            * `"transparent_front"`: Show stars / sun / moon behind the alpha channel, `sky_color` is used.
         * `clouds`: Boolean for whether clouds appear. (default: `true`)
-        * `sky_color`: A table used in `"regular"` and `"skybox"` types only. If used with the later,
-            the `textures` should have an alpha channel. Contains the following values (alpha is ignored):
+        * `sky_color`: A table used in `"regular"`, `"skybox_back"`, `"skybox_front"` types only. For a skybox
+           the `textures` should have an alpha channel. Contains the following values (alpha is ignored):
             * `day_sky`: ColorSpec, for the top half of the sky during the day.
               (default: `#61b5f5`)
             * `day_horizon`: ColorSpec, for the bottom half of the sky during the day.

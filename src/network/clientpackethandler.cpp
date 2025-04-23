@@ -1290,7 +1290,6 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		SkyboxParams skybox;
 		skybox.bgcolor = video::SColor(readARGB8(is));
 		skybox.type = std::string(deSerializeString16(is));
-		skybox.transparency = std::string("solid");
 		u16 count = readU16(is);
 
 		for (size_t i = 0; i < count; i++)
@@ -1304,7 +1303,8 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		StarParams stars = SkyboxDefaults::getStarDefaults();
 
 		// Fix for "regular" and "skybox" skies, as color isn't kept:
-		if (skybox.type == "regular" || skybox.type == "skybox") {
+		if (skybox.type == "regular" || skybox.type == "skybox" ||
+			skybox.type == "skybox_back" || skybox.type == "skybox_front") {
 			skybox.sky_color = SkyboxDefaults::getSkyColorDefaults();
 			skybox.fog_tint_type = "default";
 			skybox.fog_moon_tint = video::SColor(255, 255, 255, 255);
@@ -1341,10 +1341,11 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 
 	SkyboxParams skybox;
 
-	*pkt >> skybox.bgcolor >> skybox.type >> skybox.transparency >> skybox.clouds >>
+	*pkt >> skybox.bgcolor >> skybox.type >> skybox.clouds >>
 		skybox.fog_sun_tint >> skybox.fog_moon_tint >> skybox.fog_tint_type;
 
-	if (skybox.type == "skybox") {
+	if (skybox.type == "skybox" ||
+		skybox.type == "skybox_back" || skybox.type == "skybox_front") {
 		u16 texture_count;
 		std::string texture;
 		*pkt >> texture_count;
@@ -1353,7 +1354,8 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 			skybox.textures.emplace_back(texture);
 		}
 	}
-	if (skybox.type == "regular" || skybox.type == "skybox") {
+	if (skybox.type == "regular" || skybox.type == "skybox" ||
+		skybox.type == "skybox_back" || skybox.type == "skybox_front") {
 		auto &c = skybox.sky_color;
 		*pkt >> c.day_sky >> c.day_horizon >> c.dawn_sky >> c.dawn_horizon
 			>> c.night_sky >> c.night_horizon >> c.indoors;

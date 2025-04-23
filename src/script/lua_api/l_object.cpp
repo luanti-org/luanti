@@ -2044,14 +2044,10 @@ int ObjectRef::l_set_sky(lua_State *L)
 			sky_params.type = luaL_checkstring(L, -1);
 		lua_pop(L, 1);
 
-		lua_getfield(L, 2, "transparency");
-		if (!lua_isnil(L, -1))
-			sky_params.transparency = luaL_checkstring(L, -1);
-		lua_pop(L, 1);
-
 		lua_getfield(L, 2, "textures");
 		sky_params.textures.clear();
-		if (lua_istable(L, -1) && sky_params.type == "skybox") {
+		if (lua_istable(L, -1) && (sky_params.type == "skybox" ||
+			sky_params.type == "skybox_back" || sky_params.type == "skybox_front")) {
 			lua_pushnil(L);
 			while (lua_next(L, -2) != 0) {
 				// Key is at index -2 and value at index -1
@@ -2186,7 +2182,8 @@ int ObjectRef::l_set_sky(lua_State *L)
 static void push_sky_color(lua_State *L, const SkyboxParams &params)
 {
 	lua_newtable(L);
-	if (params.type == "regular" || params.type == "skybox") {
+	if (params.type == "regular" || params.type == "skybox" ||
+		params.type == "skybox_back" || params.type == "skybox_front") {
 		push_ARGB8(L, params.sky_color.day_sky);
 		lua_setfield(L, -2, "day_sky");
 		push_ARGB8(L, params.sky_color.day_horizon);
@@ -2243,8 +2240,6 @@ int ObjectRef::l_get_sky(lua_State *L)
 	lua_setfield(L, -2, "base_color");
 	lua_pushlstring(L, skybox_params.type.c_str(), skybox_params.type.size());
 	lua_setfield(L, -2, "type");
-	lua_pushlstring(L, skybox_params.transparency.c_str(), skybox_params.transparency.size());
-	lua_setfield(L, -2, "transparency");
 
 	if (skybox_params.body_orbit_tilt != SkyboxParams::INVALID_SKYBOX_TILT) {
 		lua_pushnumber(L, skybox_params.body_orbit_tilt);
