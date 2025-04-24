@@ -108,65 +108,133 @@ function dump2(o, name, dumped)
 	return string.format("%s = {}\n%s", name, table.concat(t))
 end
 
---------------------------------------------------------------------------------
--- This dumps values in a one-statement format.
+
+-- This dumps values in a human-readable expression format.
+-- If possible, the resulting string should evaluate to an equivalent value if loaded and executed.
 -- For example, {test = {"Testing..."}} becomes:
 -- [[{
 -- 	test = {
 -- 		"Testing..."
 -- 	}
 -- }]]
--- This supports tables as keys, but not circular references.
--- It performs poorly with multiple references as it writes out the full
--- table each time.
--- The indent field specifies a indentation string, it defaults to a tab.
--- Use the empty string to disable indentation.
--- The dumped and level arguments are internal-only.
-
-function dump(o, indent, nested, level)
-	local t = type(o)
-	if not level and t == "userdata" then
-		-- when userdata (e.g. player) is passed directly, print its metatable:
-		return "userdata metatable: " .. dump(getmetatable(o))
-	end
-	if t ~= "table" then
-		return basic_dump(o)
-	end
-
-	-- Contains table -> true/nil of currently nested tables
-	nested = nested or {}
-	if nested[o] then
-		return "<circular reference>"
-	end
-	nested[o] = true
+function dump(value, indent)
 	indent = indent or "\t"
-	level = level or 1
+	local newline = indent == "" and "" or "\n"
 
-	local ret = {}
-	local dumped_indexes = {}
-	for i, v in ipairs(o) do
-		ret[#ret + 1] = dump(v, indent, nested, level + 1)
-		dumped_indexes[i] = true
+	local rope = {}
+	local function write(str)
+		table.insert(rope, str)
 	end
-	for k, v in pairs(o) do
-		if not dumped_indexes[k] then
-			if type(k) ~= "string" or not is_valid_identifier(k) then
-				k = "["..dump(k, indent, nested, level + 1).."]"
-			end
-			v = dump(v, indent, nested, level + 1)
-			ret[#ret + 1] = k.." = "..v
+
+	local n_refs = {}
+	local function count_refs(val)
+		if type(val) ~= "table" then
+			return
+		end
+		local tbl = val
+		if n_refs[tbl] then
+			n_refs[tbl] = n_refs[tbl] + 1
+			return
+		end
+		n_refs[tbl] = 1
+		for k, v in pairs(tbl) do
+			count_refs(k)
+			count_refs(v)
 		end
 	end
-	nested[o] = nil
-	if indent ~= "" then
-		local indent_str = "\n"..string.rep(indent, level)
-		local end_indent_str = "\n"..string.rep(indent, level - 1)
-		return string.format("{%s%s%s}",
-				indent_str,
-				table.concat(ret, ","..indent_str),
-				end_indent_str)
+	count_refs(value)
+
+	local refs = {}
+	local cur_ref = 1
+	local function write_value(val, level)
+		if type(val) ~= "table" then
+			write(basic_dump(val))
+			return
+		end
+
+		local tbl = val
+		if refs[tbl] then
+			write(refs[tbl])
+			return
+		end
+
+		if n_refs[val] > 1 then
+			refs[val] = ("getref(%d)"):format(cur_ref)
+			write(("setref(%d)"):format(cur_ref))
+			cur_ref = cur_ref + 1
+		end
+		write("{")
+		if next(tbl) == nil then
+			write("}")
+			return
+		end
+		write(newline)
+
+		local function write_entry(k, v)
+			write(indent:rep(level))
+			write("[")
+			write_value(k, level + 1)
+			write("] = ")
+			write_value(v, level + 1)
+			write(",")
+			write(newline)
+		end
+
+		local keys = {string = {}, number = {}}
+		for k in pairs(tbl) do
+			local t = type(k)
+			if keys[t] then
+				table.insert(keys[t], k)
+			end
+		end
+
+		-- Write string-keyed entries
+		table.sort(keys.string)
+		for _, k in ipairs(keys.string) do
+			local v = val[k]
+			if is_valid_identifier(k) then
+				write(indent:rep(level))
+				write(k)
+				write(" = ")
+				write_value(v, level + 1)
+				write(",")
+				write(newline)
+			else
+				write_entry(k, v)
+			end
+		end
+
+		-- Write number-keyed entries
+		local len = 0
+		for i in ipairs(tbl) do
+			len = i
+		end
+		if #keys.number == len then -- table is a list
+			for _, v in ipairs(tbl) do
+				write(indent:rep(level))
+				write_value(v, level + 1)
+				write(",")
+				write(newline)
+			end
+		else -- table harbors arbitrary number keys
+			table.sort(keys.number)
+			for _, k in ipairs(keys.number) do
+				write_entry(k, tbl[k])
+			end
+		end
+
+		-- Write all remaining entries
+		for k, v in pairs(val) do
+			if not keys[type(k)] then
+				write_entry(k, v)
+			end
+		end
+
+		write(indent:rep(level - 1))
+		write("}")
 	end
-	return "{"..table.concat(ret, ", ").."}"
+	write_value(value, 1)
+	return table.concat(rope)
 end
 
 --------------------------------------------------------------------------------

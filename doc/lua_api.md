@@ -4162,9 +4162,11 @@ Helper functions
     * `obj`: arbitrary variable
     * `name`: string, default: `"_"`
     * `dumped`: table, default: `{}`
-* `dump(obj, dumped)`: returns a string which makes `obj` human-readable
-    * `obj`: arbitrary variable
-    * `dumped`: table, default: `{}`
+* `dump(value, indent)`: returns a string which makes `value` human-readable
+    * `value`: arbitrary value
+      * Circular references are supported. Every table is dumped only once.
+    * `indent`: string to use for indentation, default: `"\t"`
+      * `""` disables indentation & line breaks (compact output)
 * `math.hypot(x, y)`
     * Get the hypotenuse of a triangle with legs x and y.
       Useful for distance calculation.
@@ -7609,9 +7611,10 @@ Misc.
     * Example: `write_json({10, {a = false}})`,
       returns `'[10, {"a": false}]'`
 * `core.serialize(table)`: returns a string
-    * Convert a table containing tables, strings, numbers, booleans and `nil`s
-      into string form readable by `core.deserialize`
+    * Convert a value into string form readable by `core.deserialize`.
+    * Supports tables, strings, numbers, booleans and `nil`.
     * Support for dumping function bytecode is **deprecated**.
+    * Note: To obtain a human-readable representation of a value, use `dump` instead.
     * Example: `serialize({foo="bar"})`, returns `'return { ["foo"] = "bar" }'`
 * `core.deserialize(string[, safe])`: returns a table
     * Convert a string returned by `core.serialize` into a table
