@@ -1828,10 +1828,6 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
         v3s16 from = v3s16(x, y, z) + blockpos_nodes;
         v3s16 to = from + width;
 
-        // if there are no fitting nodes in this subblock, skip rendering
-        if(!doesVolumeContainType(types, from, to))
-            continue;
-
         v3s16 lxlylz = v3s16(S16_MAX);
         v3s16 hxhyhz = v3s16(S16_MIN);
         MapNode main_node;
@@ -1855,6 +1851,9 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
             hxhyhz.Y = MYMAX(hxhyhz.Y , p.Y);
             hxhyhz.Z = MYMAX(hxhyhz.Z , p.Z);
         }
+
+        if (lxlylz.X == S16_MAX)
+            continue;
 
         v3s16 lxlyhz(lxlylz.X, lxlylz.Y, hxhyhz.Z);
         v3s16 lxhylz(lxlylz.X, hxhyhz.Y, lxlylz.Z);
@@ -2040,18 +2039,19 @@ void MapblockMeshGenerator::generateLod() {
                                   };
     f32 y_offset = BS * (data->m_lod - 1) + 0.1; // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
 
-    // liquids are always rendered slanted
-    std::bitset<19> liqu_set;
-    liqu_set.set(NDT_LIQUID);
-    generateDetailLod(liqu_set, width, uvs, 0.0f);
-
     if (width < g_settings->getU16("lod_slant_threshold")) {
         std::bitset<19> types;
         types.set(NDT_NORMAL);
         types.set(NDT_NODEBOX);
         types.set(NDT_ALLFACES);
+        types.set(NDT_LIQUID);
         generateCloseLod(types, width, -y_offset);
     } else {
+        // liquids are always rendered slanted
+        std::bitset<19> liqu_set;
+        liqu_set.set(NDT_LIQUID);
+        generateDetailLod(liqu_set, width, uvs, 0.0f);
+
         std::bitset<19> types;
         types.set(NDT_NORMAL);
         types.set(NDT_NODEBOX);
