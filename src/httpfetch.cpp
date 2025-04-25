@@ -300,12 +300,14 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 			break;
 		}
 		if (request.method != HTTP_GET) {
-			if (!request.raw_data.empty()) {
+			if (request.fields.empty()) {
+				// Note that we need to set this to an empty buffer (not NULL)
+				// even if no data is to be sent.
 				curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE,
 						request.raw_data.size());
 				curl_easy_setopt(curl, CURLOPT_POSTFIELDS,
 						request.raw_data.c_str());
-			} else if (!request.fields.empty()) {
+			} else {
 				std::string str;
 				for (auto &field : request.fields) {
 					if (!str.empty())
@@ -314,10 +316,8 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 					str += "=";
 					str += urlencode(field.second);
 				}
-				curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE,
-						str.size());
-				curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS,
-						str.c_str());
+				curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, str.size());
+				curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, str.c_str());
 			}
 		}
 	}
