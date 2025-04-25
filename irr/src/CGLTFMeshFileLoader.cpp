@@ -426,7 +426,10 @@ void SelfType::MeshExtractor::addPrimitive(
 		throw std::runtime_error("too many vertices");
 
 	// Apply the global transform along the parent chain.
-	transformVertices(*vertices, parent->GlobalMatrix);
+	// "Only the joint transforms are applied to the skinned mesh;
+	// the transform of the skinned mesh node MUST be ignored."
+	if (!skinIdx)
+		transformVertices(*vertices, parent->GlobalMatrix);
 
 	auto maybeIndices = getIndices(primitive);
 	std::vector<u16> indices;
