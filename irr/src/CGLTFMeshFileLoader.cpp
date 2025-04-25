@@ -364,18 +364,6 @@ IAnimatedMesh* SelfType::createMesh(io::IReadFile* file)
 	return nullptr;
 }
 
-static void transformVertices(std::vector<video::S3DVertex> &vertices, const core::matrix4 &transform)
-{
-	for (auto &vertex : vertices) {
-		// Apply scaling, rotation and rotation (in that order) to the position.
-		transform.transformVect(vertex.Pos);
-		// For the normal, we do not want to apply the translation.
-		vertex.Normal = transform.rotateAndScaleVect(vertex.Normal);
-		// Renormalize (length might have been affected by scaling).
-		vertex.Normal.normalize();
-	}
-}
-
 static void checkIndices(const std::vector<u16> &indices, const std::size_t nVerts)
 {
 	for (u16 index : indices) {
@@ -425,12 +413,6 @@ void SelfType::MeshExtractor::addPrimitive(
 	if (n_vertices >= std::numeric_limits<u16>::max())
 		throw std::runtime_error("too many vertices");
 
-	// Apply the global transform along the parent chain.
-	// "Only the joint transforms are applied to the skinned mesh;
-	// the transform of the skinned mesh node MUST be ignored."
-	if (!skinIdx)
-		transformVertices(*vertices, parent->GlobalMatrix);
-
 	auto maybeIndices = getIndices(primitive);
 	std::vector<u16> indices;
 	if (maybeIndices.has_value()) {
@@ -441,10 +423,9 @@ void SelfType::MeshExtractor::addPrimitive(
 		indices = generateIndices(vertices->size());
 	}
 
-	m_irr_model->addMeshBuffer(
-			new SSkinMeshBuffer(std::move(*vertices), std::move(indices)));
+	auto *meshbuf = new SSkinMeshBuffer(std::move(*vertices), std::move(indices));
+	m_irr_model->addMeshBuffer(meshbuf);
 	const auto meshbufNr = m_irr_model->getMeshBufferCount() - 1;
-	auto *meshbuf = m_irr_model->getMeshBuffer(meshbufNr);
 
 	if (primitive.material.has_value()) {
 		const auto &material = m_gltf_model.materials->at(*primitive.material);
@@ -463,16 +444,16 @@ void SelfType::MeshExtractor::addPrimitive(
 		}
 	}
 
-	if (!skinIdx.has_value()) {
-		// No skin => all vertices belong entirely to their parent
-		for (std::size_t v = 0; v < n_vertices; ++v) {
-			auto *weight = m_irr_model->addWeight(parent);
-			weight->buffer_id = meshbufNr;
-			weight->vertex_id = v;
-			weight->strength = 1.0f;
-		}
+	if (!skinIdx) {
+		// Apply the global transform along the parent chain.
+		meshbuf->Transformation = parent->GlobalMatrix;
+		// Set up rigid animation
+		parent->AttachedMeshes.push_back(meshbufNr);
 		return;
 	}
+
+	// Otherwise: "Only the joint transforms are applied to the skinned mesh;
+	// the transform of the skinned mesh node MUST be ignored."
 
 	const auto &skin = m_gltf_model.skins->at(*skinIdx);
 
