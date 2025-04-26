@@ -2039,14 +2039,8 @@ void MapblockMeshGenerator::generateLod() {
                                   };
     f32 y_offset = BS * (data->m_lod - 1) + 0.1; // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
 
+
     if (width < g_settings->getU16("lod_slant_threshold")) {
-        std::bitset<19> types;
-        types.set(NDT_NORMAL);
-        types.set(NDT_NODEBOX);
-        types.set(NDT_ALLFACES);
-        types.set(NDT_LIQUID);
-        generateCloseLod(types, width, -y_offset);
-    } else {
         // liquids are always rendered slanted
         std::bitset<19> liqu_set;
         liqu_set.set(NDT_LIQUID);
@@ -2056,6 +2050,13 @@ void MapblockMeshGenerator::generateLod() {
         types.set(NDT_NORMAL);
         types.set(NDT_NODEBOX);
         types.set(NDT_ALLFACES);
+        generateCloseLod(types, width, -y_offset);
+    } else {
+        std::bitset<19> types;
+        types.set(NDT_NORMAL);
+        types.set(NDT_NODEBOX);
+        types.set(NDT_ALLFACES);
+        types.set(NDT_LIQUID);
         generateDetailLod(types, width, uvs, -y_offset);
     }
 }
