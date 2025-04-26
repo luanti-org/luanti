@@ -10,6 +10,10 @@
 #include "map.h"
 #include "server.h"
 #include "util/basic_macros.h"
+#include <cstdio>
+#include <lauxlib.h>
+#include <limits>
+#include <lua.h>
 
 MetaDataRef *MetaDataRef::checkAnyMetadata(lua_State *L, int narg)
 {
@@ -166,10 +170,37 @@ int MetaDataRef::l_get_float(lua_State *L)
 
 	std::string str_;
 	const std::string &str = meta->getString(name, &str_);
-	// Convert with Lua, as is done in set_float.
 	lua_pushlstring(L, str.data(), str.size());
-	lua_pushnumber(L, lua_tonumber(L, -1));
+	f64 number;
+	// We can't be sure that Lua's `tonumber` handles nan / (-)inf properly
+	if (str == "nan") {
+		number = std::numeric_limits<f64>::quiet_NaN();;
+	} else if (str == "inf") {
+		number = std::numeric_limits<f64>::infinity();
+	} else if (str == "-inf") {
+		number = -std::numeric_limits<f64>::infinity();
+	} else {
+		number = lua_tonumber(L, -1);
+	}
+	lua_pushnumber(L, number);
 	return 1;
+}
+
+static inline std::string double_to_string(f64 number)
+{
+	// Do not use Lua to convert number to string, since that may lose precision.
+	if (std::isfinite(number)) {
+		char buf[64];
+		snprintf(buf, sizeof(buf), "%.17g", number);
+		return buf;
+	}
+	// We can't be sure of how %g formats these, so do it ourselves.
+	if (number < 0)
+		return "-inf";
+	if (number > 0)
+		return "inf";
+	return "nan";
+
 }
 
 // set_float(self, name, var)
@@ -179,12 +210,10 @@ int MetaDataRef::l_set_float(lua_State *L)
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
 	std::string name = luaL_checkstring(L, 2);
-	luaL_checknumber(L, 3);
-	// Convert number to string with Lua as it gives good precision.
-	std::string str = readParam<std::string>(L, 3);
+	f64 number = luaL_checknumber(L, 3);
 
 	IMetadata *meta = ref->getmeta(true);
-	if (meta != NULL && meta->setString(name, str))
+	if (meta != NULL && meta->setString(name, double_to_string(number)))
 		ref->reportMetadataChange(&name);
 	return 0;
 }
@@ -289,8 +318,11 @@ bool MetaDataRef::handleFromTable(lua_State *L, int table, IMetadata *meta)
 		while (lua_next(L, fieldstable) != 0) {
 			// key at index -2 and value at index -1
 			std::string name = readParam<std::string>(L, -2);
-			auto value = readParam<std::string_view>(L, -1);
-			meta->setString(name, value);
+			if (lua_type(L, -1) == LUA_TNUMBER) {
+				log_deprecated(L, "Passing `fields` with number values "
+					"is deprecated and may result in loss of precision.");
+			}
+			meta->setString(name, readParam<std::string_view>(L, -1));
 			lua_pop(L, 1); // Remove value, keep key for next iteration
 		}
 		lua_pop(L, 1);

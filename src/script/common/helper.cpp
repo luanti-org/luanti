@@ -13,6 +13,7 @@ extern "C" {
 #include <string_view>
 #include "c_converter.h"
 #include "c_types.h"
+#include "common/c_internal.h"
 
 /*
  * Read template functions
