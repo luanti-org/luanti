@@ -950,8 +950,9 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		// Read the mesh and apply scale
 		mesh_ptr = client->getMesh(mesh);
 		if (mesh_ptr) {
-			v3f scale = v3f(BS) * visual_scale;
-			scaleMesh(mesh_ptr, scale);
+			auto *skinned_mesh = dynamic_cast<scene::SkinnedMesh *>(mesh_ptr);
+			// Compatibility: Do not apply BS scaling to skinned meshes. See #15811.
+			scaleMesh(mesh_ptr, v3f(skinned_mesh ? 1.0f : BS) * visual_scale);
 			recalculateBoundingBox(mesh_ptr);
 			if (!checkMeshNormals(mesh_ptr)) {
 				infostream << "ContentFeatures: recalculating normals for mesh "
@@ -961,8 +962,8 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 				// Animation is not supported, but we need to reset it to
 				// default state if it is animated.
 				// Note: recalculateNormals() also does this hence the else-block
-				if (mesh_ptr->getMeshType() == scene::EAMT_SKINNED)
-					((scene::SkinnedMesh*) mesh_ptr)->resetAnimation();
+				if (skinned_mesh)
+					skinned_mesh->resetAnimation();
 			}
 		}
 	}

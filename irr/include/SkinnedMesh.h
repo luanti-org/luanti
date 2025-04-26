@@ -162,12 +162,13 @@ public:
 		//! Weight Strength/Percentage (0-1)
 		f32 strength;
 
+		core::vector3df StaticPos;
+		core::vector3df StaticNormal;
+
 	private:
 		//! Internal members used by SkinnedMesh
 		friend class SkinnedMesh;
 		char *Moved;
-		core::vector3df StaticPos;
-		core::vector3df StaticNormal;
 	};
 
 	template <class T>

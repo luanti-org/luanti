@@ -3,6 +3,7 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "mesh.h"
+#include "SkinnedMesh.h"
 #include "debug.h"
 #include "log.h"
 #include <cmath>
@@ -103,7 +104,7 @@ scene::IAnimatedMesh* createCubeMesh(v3f scale)
 }
 
 template<typename F>
-void transformVertices(scene::IMesh *mesh, const F &transform_vertex)
+static void transformVertices(scene::IMesh *mesh, const F &transform_vertex_pos)
 {
 	aabb3f bbox{{0.0f, 0.0f, 0.0f}};
 
@@ -114,7 +115,7 @@ void transformVertices(scene::IMesh *mesh, const F &transform_vertex)
 		u32 vertex_count = buf->getVertexCount();
 		u8 *vertices = (u8 *)buf->getVertices();
 		for (u32 i = 0; i < vertex_count; i++)
-			transform_vertex((video::S3DVertex *)(vertices + i * stride));
+			transform_vertex_pos(((video::S3DVertex *)(vertices + i * stride))->Pos);
 
 		buf->setDirty(scene::EBT_VERTEX);
 		buf->recalculateBoundingBox();
@@ -125,20 +126,23 @@ void transformVertices(scene::IMesh *mesh, const F &transform_vertex)
 		else
 			bbox.addInternalBox(buf->getBoundingBox());
 	}
+	// Skinned meshes store static pose vertex coordinates in weights.
+	// The overall handling of skinned meshes in this function is however still dubious.
+	if (auto *smesh = dynamic_cast<scene::SkinnedMesh *>(mesh)) {
+		for (auto *joint : smesh->getAllJoints()) {
+			for (auto &weight : joint->Weights)
+				transform_vertex_pos(weight.StaticPos);
+		}
+	}
 	mesh->setBoundingBox(bbox);
 }
 
+// FIXME this does not correctly transform normals if scale is non-uniform
+// (however, this is not an issue with cube normals)
 void scaleMesh(scene::IMesh *mesh, v3f scale)
 {
-	transformVertices(mesh, [scale](auto *vertex) {
-		vertex->Pos *= scale;
-	});
-}
-
-void translateMesh(scene::IMesh *mesh, v3f vec)
-{
-	transformVertices(mesh, [vec](auto *vertex) {
-		vertex->Pos += vec;
+	transformVertices(mesh, [scale](v3f &pos) {
+		pos *= scale;
 	});
 }
 

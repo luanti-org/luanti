@@ -39,11 +39,6 @@ scene::IAnimatedMesh* createCubeMesh(v3f scale);
 */
 void scaleMesh(scene::IMesh *mesh, v3f scale);
 
-/*
-	Translate each vertex coordinate by the specified vector.
-*/
-void translateMesh(scene::IMesh *mesh, v3f vec);
-
 /*!
  * Sets a constant color for all vertices in the mesh buffer.
  */
