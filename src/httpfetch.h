@@ -31,8 +31,10 @@ namespace {
 enum HttpMethod : u8
 {
 	HTTP_GET,
+	HTTP_HEAD,
 	HTTP_POST,
 	HTTP_PUT,
+	HTTP_PATCH,
 	HTTP_DELETE,
 };
 

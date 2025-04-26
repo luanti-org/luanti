@@ -282,20 +282,28 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 	case HTTP_GET:
 		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
 		break;
+	case HTTP_HEAD:
+		// This is kinda pointless right now, since we don't return response headers (TODO?)
+		curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+		break;
 	case HTTP_POST:
 		curl_easy_setopt(curl, CURLOPT_POST, 1);
 		break;
 	case HTTP_PUT:
 		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
 		break;
+	case HTTP_PATCH:
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+		break;
 	case HTTP_DELETE:
 		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
 		break;
 	}
+	const bool has_request_body = request.method != HTTP_GET && request.method != HTTP_HEAD;
 
 	// Set data from fields or raw_data
 	if (request.multipart) {
-		assert(request.method != HTTP_GET);
+		assert(has_request_body);
 		multipart_mime = curl_mime_init(curl);
 		for (auto &it : request.fields) {
 			curl_mimepart *part = curl_mime_addpart(multipart_mime);
@@ -303,7 +311,7 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 			curl_mime_data(part, it.second.c_str(), it.second.size());
 		}
 		curl_easy_setopt(curl, CURLOPT_MIMEPOST, multipart_mime);
-	} else if (request.method != HTTP_GET) {
+	} else if (has_request_body) {
 		if (request.fields.empty()) {
 			// Note that we need to set this to an empty buffer (not NULL)
 			// even if no data is to be sent.

@@ -5780,6 +5780,8 @@ Utilities
       particle_blend_clip = true,
       -- The `match_meta` optional parameter is available for `InvRef:remove_item()` (5.12.0)
       remove_item_match_meta = true,
+      -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
+      httpfetch_additional_methods = true,
   }
   ```
 
@@ -11824,22 +11826,22 @@ Used by `HTTPApiTable.fetch` and `HTTPApiTable.fetch_async`.
 
 ```lua
 {
-    url = "http://example.org",
+    url = "https://example.org",
 
     timeout = 10,
     -- Timeout for request to be completed in seconds. Default depends on engine settings.
 
-    method = "GET", "POST", "PUT" or "DELETE"
+    method = "GET", "HEAD", "POST", "PUT", "PATCH" or "DELETE"
     -- The http method to use. Defaults to "GET".
 
-    data = "Raw request data string" OR {field1 = "data1", field2 = "data2"},
-    -- Data for the POST, PUT or DELETE request.
+    data = "Raw request data string" or {field1 = "data1", field2 = "data2"},
+    -- Data for the POST, PUT, PATCH or DELETE request.
     -- Accepts both a string and a table. If a table is specified, encodes
     -- table as x-www-form-urlencoded key-value pairs.
 
     user_agent = "ExampleUserAgent",
     -- Optional, if specified replaces the default Luanti user agent with
-    -- given string
+    -- given string.
 
     extra_headers = { "Accept-Language: en-us", "Accept-Charset: utf-8" },
     -- Optional, if specified adds additional headers to the HTTP request.
@@ -11849,7 +11851,7 @@ Used by `HTTPApiTable.fetch` and `HTTPApiTable.fetch_async`.
     multipart = boolean
     -- Optional, if true performs a multipart HTTP request.
     -- Default is false.
-    -- Not allowed for GET method and `data` must be a table.
+    -- Not allowed for GET or HEAD method and `data` must be a table.
 
     post_data = "Raw POST request data string" OR {field1 = "data1", field2 = "data2"},
     -- Deprecated, use `data` instead. Forces `method = "POST"`.
@@ -11877,7 +11879,8 @@ Passed to `HTTPApiTable.fetch` callback. Returned by
     code = 200,
     -- HTTP status code
 
-    data = "response"
+    data = "",
+    -- Response body
 }
 ```
 
