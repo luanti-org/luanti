@@ -102,11 +102,9 @@ scene::IAnimatedMesh* createCubeMesh(v3f scale)
 	return anim_mesh;
 }
 
-void scaleMesh(scene::IMesh *mesh, v3f scale)
+template<typename F>
+void transformVertices(scene::IMesh *mesh, const F &transform_vertex)
 {
-	if (mesh == NULL)
-		return;
-
 	aabb3f bbox{{0.0f, 0.0f, 0.0f}};
 
 	u32 mc = mesh->getMeshBufferCount();
@@ -116,7 +114,7 @@ void scaleMesh(scene::IMesh *mesh, v3f scale)
 		u32 vertex_count = buf->getVertexCount();
 		u8 *vertices = (u8 *)buf->getVertices();
 		for (u32 i = 0; i < vertex_count; i++)
-			((video::S3DVertex *)(vertices + i * stride))->Pos *= scale;
+			transform_vertex((video::S3DVertex *)(vertices + i * stride));
 
 		buf->setDirty(scene::EBT_VERTEX);
 		buf->recalculateBoundingBox();
@@ -130,32 +128,18 @@ void scaleMesh(scene::IMesh *mesh, v3f scale)
 	mesh->setBoundingBox(bbox);
 }
 
+void scaleMesh(scene::IMesh *mesh, v3f scale)
+{
+	transformVertices(mesh, [scale](auto *vertex) {
+		vertex->Pos *= scale;
+	});
+}
+
 void translateMesh(scene::IMesh *mesh, v3f vec)
 {
-	if (mesh == NULL)
-		return;
-
-	aabb3f bbox{{0.0f, 0.0f, 0.0f}};
-
-	u32 mc = mesh->getMeshBufferCount();
-	for (u32 j = 0; j < mc; j++) {
-		scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
-		const u32 stride = getVertexPitchFromType(buf->getVertexType());
-		u32 vertex_count = buf->getVertexCount();
-		u8 *vertices = (u8 *)buf->getVertices();
-		for (u32 i = 0; i < vertex_count; i++)
-			((video::S3DVertex *)(vertices + i * stride))->Pos += vec;
-
-		buf->setDirty(scene::EBT_VERTEX);
-		buf->recalculateBoundingBox();
-
-		// calculate total bounding box
-		if (j == 0)
-			bbox = buf->getBoundingBox();
-		else
-			bbox.addInternalBox(buf->getBoundingBox());
-	}
-	mesh->setBoundingBox(bbox);
+	transformVertices(mesh, [vec](auto *vertex) {
+		vertex->Pos += vec;
+	});
 }
 
 void setMeshBufferColor(scene::IMeshBuffer *buf, const video::SColor color)
