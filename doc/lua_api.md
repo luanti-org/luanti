@@ -9398,7 +9398,8 @@ Player properties need to be saved manually.
     -- to scale the entity along both horizontal axes.
 
     mesh = "model.obj",
-    -- File name of mesh when using "mesh" visual
+    -- File name of mesh when using "mesh" visual.
+    -- For legacy reasons, this uses a 10x scale for meshes: 10 units = 1 node.
 
     textures = {},
     -- Number of required textures depends on visual:
@@ -10170,6 +10171,10 @@ Used by `core.register_node`.
 
     mesh = "",
     -- File name of mesh when using "mesh" drawtype
+    -- The center of the node is the model origin.
+    -- For legacy reasons, models in OBJ format use a scale of 1 node = 1 unit;
+    -- all other model file formats use a scale of 1 node = 10 units,
+    -- consistent with the scale used for entities.
 
     selection_box = {
         -- see [Node boxes] for possibilities
