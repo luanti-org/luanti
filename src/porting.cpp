@@ -449,8 +449,7 @@ bool setSystemPaths()
 		// Use "C:\Users\<user>\AppData\Roaming\<PROJECT_NAME_C>"
 		len = GetEnvironmentVariable("APPDATA", buf, sizeof(buf));
 		FATAL_ERROR_IF(len == 0 || len > sizeof(buf), "Failed to get APPDATA");
-		// TODO: Luanti with migration
-		path_user = std::string(buf) + DIR_DELIM + "Minetest";
+		path_user = std::string(buf) + DIR_DELIM PROJECT_NAME_C;
 	} else {
 		path_user = std::string(buf);
 	}
@@ -466,7 +465,7 @@ bool setSystemPaths()
 extern bool setSystemPaths(); // defined in porting_android.cpp
 
 
-//// Linux
+//// XDG systems
 #elif defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 
 bool setSystemPaths()
@@ -515,9 +514,12 @@ bool setSystemPaths()
 	if (minetest_user_path && minetest_user_path[0] != '\0') {
 		path_user = std::string(minetest_user_path);
 	} else {
-		// TODO: luanti with migration
-		path_user = std::string(getHomeOrFail()) + DIR_DELIM "."
-			+ "minetest";
+		const char *const xdg_data = getenv("XDG_DATA_HOME");
+		if (xdg_data) {
+			path_user = std::string(xdg_data);
+		} else {
+			path_user = std::string(getHomeOrFail()) + DIR_DELIM ".local" DIR_DELIM "share" DIR_DELIM PROJECT_NAME;
+		}
 	}
 
 	return true;
@@ -544,10 +546,9 @@ bool setSystemPaths()
 	if (minetest_user_path && minetest_user_path[0] != '\0') {
 		path_user = std::string(minetest_user_path);
 	} else {
-		// TODO: luanti with migration
 		path_user = std::string(getHomeOrFail())
 			+ "/Library/Application Support/"
-			+ "minetest";
+			PROJECT_NAME;
 	}
 	return true;
 }
@@ -562,9 +563,7 @@ bool setSystemPaths()
 	if (minetest_user_path && minetest_user_path[0] != '\0') {
 		path_user = std::string(minetest_user_path);
 	} else {
-		// TODO: luanti with migration
-		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "."
-			+ "minetest";
+		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "." PROJECT_NAME;
 	}
 	return true;
 }
@@ -670,13 +669,10 @@ void initializePaths()
 	const char *cache_dir = getenv("XDG_CACHE_HOME");
 	const char *home_dir = getenv("HOME");
 	if (cache_dir && cache_dir[0] != '\0') {
-		// TODO: luanti with migration
-		path_cache = std::string(cache_dir) + DIR_DELIM + "minetest";
+		path_cache = std::string(cache_dir) + DIR_DELIM PROJECT_NAME;
 	} else if (home_dir) {
 		// Then try $HOME/.cache/PROJECT_NAME
-		// TODO: luanti with migration
-		path_cache = std::string(home_dir) + DIR_DELIM + ".cache"
-			+ DIR_DELIM + "minetest";
+		path_cache = std::string(home_dir) + DIR_DELIM ".cache" DIR_DELIM PROJECT_NAME;
 	} else {
 		// If neither works, use $PATH_USER/cache
 		path_cache = path_user + DIR_DELIM + "cache";
