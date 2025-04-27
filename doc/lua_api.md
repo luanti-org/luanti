@@ -1884,6 +1884,11 @@ Displays a horizontal bar made up of half-images with an optional background.
 * `direction`: Direction the list will be displayed in
 * `offset`: offset in pixels from position.
 * `alignment`: The alignment of the inventory.
+* `world_pos`: Inventory of the hotbar depending on `hotbar_source`
+    `x` the index of the `hotbar_source` table to be used, if 0 use all next to each other
+        if not 0, ignores the `hud_hotbar_max_width` setting
+    `y` an additional length to clamp the size, if 0 use whole length as defined in `hotbar_source`
+    `z` an additional offset to adjust where the displayed inventory starts
 
 ### `waypoint`
 
@@ -5780,6 +5785,8 @@ Utilities
       particle_blend_clip = true,
       -- The `match_meta` optional parameter is available for `InvRef:remove_item()` (5.12.0)
       remove_item_match_meta = true,
+      -- Hotbar HUD element definitions make use of the `world_pos` field (5.12.0)
+      hud_element_hotbar_partitioning = true,
   }
   ```
 
@@ -8381,7 +8388,7 @@ child will follow movement and rotation of that bone.
 * `get_inventory()`: returns an `InvRef` for players, otherwise returns `nil`
 * `get_wield_list()`: returns the name of the inventory list the wielded item
    is in.
-* `get_wield_index()`: returns the wield list index of the wielded item (starting with 1)
+* `get_wield_index()`: returns the index of the wielded item in the wield list
 * `get_wielded_item()`: returns a copy of the wielded item as an `ItemStack`
 * `set_wielded_item(item)`: replaces the wielded item, returns `true` if
   successful.
@@ -8743,8 +8750,16 @@ child will follow movement and rotation of that bone.
 * `hud_set_hotbar_itemcount(count)`: sets number of items in builtin hotbar
     * `count`: number of items, must be between `1` and `32`
     * If `count` exceeds the `"main"` list size, the list size will be used instead.
-* `hud_get_hotbar_itemcount()`: returns number of visible items
-    * This value is also clamped by the `"main"` list size.
+    * equal `set_hotbar_source({{list = "main", length = count}})`
+* `hud_get_hotbar_itemcount()`: returns number of selectable items
+* `get_hotbar_source()` returns used `hotbar_source`
+* `set_hotbar_source({{list = "main", length = 6, offset = 24}, {list = "bag1", length = 4}, ...})`
+    * Sets inventory lists for the player to use in hotbar(s) and to select the wield item from.
+      `list` is a player inventory list
+      `length` is the amount of inventory slots
+      `offset` adjusts starting inventory position, 0 if not specified
+    * Note: Do not use this together with mods that relay on a fixed wield list and list size.
+      All mods should use `get_wield_list()` and `get_wield_index()` to get the wield position.
 * `hud_set_hotbar_image(texturename)`
     * sets background image for hotbar
 * `hud_get_hotbar_image()`: returns texturename

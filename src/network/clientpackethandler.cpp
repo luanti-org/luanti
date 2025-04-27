@@ -1264,18 +1264,27 @@ void Client::handleCommand_HudSetParam(NetworkPacket* pkt)
 	*pkt >> param >> value;
 
 	LocalPlayer *player = m_env.getLocalPlayer();
-	assert(player != NULL);
+	assert(player != nullptr);
 
-	if (param == HUD_PARAM_HOTBAR_ITEMCOUNT && value.size() == 4) {
+	switch(param) {
+	case HUD_PARAM_HOTBAR_ITEMCOUNT: {
+		if (value.size() != 4)
+			break;
 		s32 hotbar_itemcount = readS32((u8*) value.c_str());
-		if (hotbar_itemcount > 0 && hotbar_itemcount <= HUD_HOTBAR_ITEMCOUNT_MAX)
-			player->hud_hotbar_itemcount = hotbar_itemcount;
-	}
-	else if (param == HUD_PARAM_HOTBAR_IMAGE) {
+		player->hotbar_source.setHotbarItemcountLegacy(hotbar_itemcount);
+		break; }
+	case HUD_PARAM_HOTBAR_IMAGE:
 		player->hotbar_image = value;
-	}
-	else if (param == HUD_PARAM_HOTBAR_SELECTED_IMAGE) {
+		break;
+	case HUD_PARAM_HOTBAR_SELECTED_IMAGE:
 		player->hotbar_selected_image = value;
+		break;
+	case HUD_PARAM_HOTBAR_SOURCE: {
+		std::istringstream is(value);
+		player->hotbar_source.deSerialize(is);
+		break; }
+	default:
+		break;
 	}
 }
 
