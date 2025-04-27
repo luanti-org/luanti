@@ -7,12 +7,54 @@
 #include "cpp_api/s_base.h"
 #include "irr_v3d.h"
 #include "mapnode.h"
+#include "server/blockmodifier.h"
 #include <unordered_set>
 #include <vector>
 
 class ServerEnvironment;
 class MapBlock;
 struct ScriptCallbackState;
+
+/*
+	LuaABM
+*/
+
+class LuaABM : public ActiveBlockModifier {
+private:
+	const int m_id;
+
+	std::string m_name;
+	std::vector<std::string> m_trigger_contents;
+	std::vector<std::string> m_required_neighbors;
+	std::vector<std::string> m_without_neighbors;
+	float m_trigger_interval;
+	u32 m_trigger_chance;
+	bool m_simple_catch_up;
+	s16 m_min_y;
+	s16 m_max_y;
+
+public:
+	LuaABM(int id,
+			const std::string &name,
+			const std::vector<std::string> &trigger_contents,
+			const std::vector<std::string> &required_neighbors,
+			const std::vector<std::string> &without_neighbors,
+			float trigger_interval, u32 trigger_chance, bool simple_catch_up,
+			s16 min_y, s16 max_y);
+
+	virtual const std::string &getName() const;
+	virtual const std::vector<std::string> &getTriggerContents() const;
+	virtual const std::vector<std::string> &getRequiredNeighbors() const;
+	virtual const std::vector<std::string> &getWithoutNeighbors() const;
+	virtual float getTriggerInterval();
+	virtual u32 getTriggerChance();
+	virtual bool getSimpleCatchUp();
+	virtual s16 getMinY();
+	virtual s16 getMaxY();
+
+	virtual void trigger(ServerEnvironment *env, v3s16 p, MapNode n,
+			u32 active_object_count, u32 active_object_count_wider);
+};
 
 class ScriptApiEnv : virtual public ScriptApiBase
 {
@@ -50,6 +92,7 @@ public:
 	void triggerLBM(int id, MapBlock *block,
 		const std::unordered_set<v3s16> &positions, float dtime_s);
 
+	static LuaABM *readABM(lua_State *L, int abm_index, int id);
 private:
 	void readABMs();
 
