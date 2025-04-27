@@ -31,6 +31,7 @@ public:
 	bool isStaticAllowed() const { return m_prop.static_save; }
 	bool shouldUnload() const { return true; }
 	void getStaticData(std::string *result) const;
+	void getClearObjectsStaticData(std::string &static_data) const;
 
 	u32 punch(v3f dir, const ToolCapabilities *toolcap = nullptr,
 			ServerActiveObject *puncher = nullptr,
@@ -43,6 +44,7 @@ public:
 	void moveTo(v3f pos, bool continuous);
 	float getMinimumSavedMovement();
 
+	const std::string &getInitName() const { return m_init_name; }
 	std::string getDescription();
 
 	void setHP(s32 hp, const PlayerHPChangeReason &reason);
