@@ -90,29 +90,6 @@ bool ModApiBase::registerFunction(lua_State *L, const char *name,
 	return true;
 }
 
-void ModApiBase::registerClass(lua_State *L, const char *name,
-		const luaL_Reg *methods,
-		const luaL_Reg *metamethods)
-{
-	luaL_newmetatable(L, name);
-	luaL_register(L, NULL, metamethods);
-	int metatable = lua_gettop(L);
-
-	lua_newtable(L);
-	luaL_register(L, NULL, methods);
-	int methodtable = lua_gettop(L);
-
-	lua_pushvalue(L, methodtable);
-	lua_setfield(L, metatable, "__index");
-
-	// Protect the real metatable.
-	lua_pushvalue(L, methodtable);
-	lua_setfield(L, metatable, "__metatable");
-
-	// Pop methodtable and metatable.
-	lua_pop(L, 2);
-}
-
 int ModApiBase::l_deprecated_function(lua_State *L, const char *good, const char *bad, lua_CFunction func)
 {
 	thread_local std::vector<u64> deprecated_logged;

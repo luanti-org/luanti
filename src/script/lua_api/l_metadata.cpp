@@ -312,20 +312,3 @@ int MetaDataRef::l_equals(lua_State *L)
 		lua_pushboolean(L, *data1 == *data2);
 	return 1;
 }
-
-void MetaDataRef::registerMetadataClass(lua_State *L, const char *name,
-		const luaL_Reg *methods)
-{
-	const luaL_Reg metamethods[] = {
-		{"__eq", l_equals},
-		{"__gc", gc_object},
-		{0, 0}
-	};
-	registerClass(L, name, methods, metamethods);
-
-	// Set metadata_class in the metatable for MetaDataRef::checkAnyMetadata.
-	luaL_getmetatable(L, name);
-	lua_pushstring(L, name);
-	lua_setfield(L, -2, "metadata_class");
-	lua_pop(L, 1);
-}

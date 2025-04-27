@@ -524,7 +524,7 @@ void LuaItemStack::Register(lua_State *L)
 		{"__eq", l_equals},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaItemStack>(L, methods, metamethods);
 
 	// Can be created from Lua (ItemStack(itemstack or itemstring or table or nil))
 	lua_register(L, className, create_object);
