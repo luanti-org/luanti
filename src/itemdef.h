@@ -16,6 +16,7 @@
 #include "tool.h"
 #include "util/pointabilities.h"
 #include "util/pointedthing.h"
+#include "tileanimation.h"
 
 struct ToolCapabilities;
 
@@ -75,6 +76,8 @@ struct ItemDefinition
 	std::string palette_image; // If specified, the item will be colorized based on this
 	video::SColor color; // The fallback color of the node.
 	v3f wield_scale;
+	TileAnimationParams inventory_image_animation;
+	TileAnimationParams wield_image_animation;
 
 	/*
 		Item stack and interaction properties

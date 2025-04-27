@@ -112,6 +112,8 @@ ItemDefinition& ItemDefinition::operator=(const ItemDefinition &def)
 	wield_image = def.wield_image;
 	wield_overlay = def.wield_overlay;
 	wield_scale = def.wield_scale;
+	inventory_image_animation = def.inventory_image_animation;
+	wield_image_animation = def.wield_image_animation;
 	stack_max = def.stack_max;
 	usable = def.usable;
 	liquids_pointable = def.liquids_pointable;
@@ -160,6 +162,8 @@ void ItemDefinition::reset()
 	palette_image.clear();
 	color = video::SColor(0xFFFFFFFF);
 	wield_scale = v3f(1.0, 1.0, 1.0);
+	inventory_image_animation.type = TileAnimationType::TAT_NONE;
+	wield_image_animation.type = TileAnimationType::TAT_NONE;
 	stack_max = 99;
 	usable = false;
 	liquids_pointable = false;
@@ -181,14 +185,26 @@ void ItemDefinition::reset()
 
 void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 {
+	// Use first frame if animation is not supported
+	std::string inventory_image_to_send = inventory_image;
+	std::string wield_image_to_send = wield_image;
+	std::string inventory_overlay_to_send = inventory_overlay;
+	std::string wield_overlay_to_send = wield_overlay;
+	if (protocol_version < 48) {
+		inventory_image_animation.extractFirstFrame(inventory_image_to_send);
+		wield_image_animation.extractFirstFrame(wield_image_to_send);
+		inventory_image_animation.extractFirstFrame(inventory_overlay_to_send);
+		wield_image_animation.extractFirstFrame(wield_overlay_to_send);
+	}
+
 	// protocol_version >= 37
 	u8 version = 6;
 	writeU8(os, version);
 	writeU8(os, type);
 	os << serializeString16(name);
 	os << serializeString16(description);
-	os << serializeString16(inventory_image);
-	os << serializeString16(wield_image);
+	os << serializeString16(inventory_image_to_send);
+	os << serializeString16(wield_image_to_send);
 	writeV3F32(os, wield_scale);
 	writeS16(os, stack_max);
 	writeU8(os, usable);
@@ -217,8 +233,8 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	writeF32(os, range);
 	os << serializeString16(palette_image);
 	writeARGB8(os, color);
-	os << serializeString16(inventory_overlay);
-	os << serializeString16(wield_overlay);
+	os << serializeString16(inventory_overlay_to_send);
+	os << serializeString16(wield_overlay_to_send);
 
 	os << serializeString16(short_description);
 
@@ -254,6 +270,9 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	} else {
 		writeU8(os, 0);
 	}
+
+	inventory_image_animation.serialize(os, protocol_version);
+	wield_image_animation.serialize(os, protocol_version);
 }
 
 void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
@@ -340,6 +359,10 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 		if (readU8(is)) {
 			wear_bar_params = WearBarParams::deserialize(is);
 		}
+
+		inventory_image_animation.deSerialize(is, protocol_version);
+		wield_image_animation.deSerialize(is, protocol_version);
+
 	} catch(SerializationError &e) {};
 }
 
