@@ -457,6 +457,17 @@ bool setSystemPaths()
 	return true;
 }
 
+void migrateLegacyDirs() {
+	char buf[BUFSIZ];
+
+	DWORD len = GetEnvironmentVariable("APPDATA", buf, sizeof(buf));
+	FATAL_ERROR_IF(len == 0 || len > sizeof(buf), "Failed to get APPDATA");
+	std::string legacy_path_user = std::string(buf) + DIR_DELIM LEGACY_PROJECT_NAME_C;
+	std::string new_path_user = std::string(buf) + DIR_DELIM PROJECT_NAME_C;
+
+	if (fs::PathExists(legacy_path_user))
+		fs::MoveDir(legacy_path_user, new_path_user);
+}
 
 //// Android
 
@@ -525,6 +536,21 @@ bool setSystemPaths()
 	return true;
 }
 
+void migrateLegacyDirs() {
+	const char *const xdg_data = getenv("XDG_DATA_HOME");
+	std::string legacy_path_user;
+	std::string new_path_user;
+
+	legacy_path_user = std::string(getHomeOrFail()) + DIR_DELIM "." LEGACY_PROJECT_NAME;
+	if (xdg_data) {
+		new_path_user = std::string(xdg_data);
+	} else {
+		new_path_user = std::string(getHomeOrFail()) + DIR_DELIM ".local" DIR_DELIM "share" DIR_DELIM PROJECT_NAME;
+	}
+
+	if (fs::PathExists(legacy_path_user))
+		fs::MoveDir(legacy_path_user, new_path_user);
+}
 
 //// Mac OS X
 #elif defined(__APPLE__)
@@ -553,6 +579,18 @@ bool setSystemPaths()
 	return true;
 }
 
+void migrateLegacyDirs() {
+	std::string legacy_path_user = std::string(getHomeOrFail())
+			+ "/Library/Application Support/"
+			LEGACY_PROJECT_NAME;
+
+	std::string new_path_user = std::string(getHomeOrFail())
+			+ "/Library/Application Support/"
+			PROJECT_NAME;
+
+	if (fs::PathExists(legacy_path_user))
+		fs::MoveDir(legacy_path_user, new_path_user);
+}
 
 #else
 
@@ -566,6 +604,15 @@ bool setSystemPaths()
 		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "." PROJECT_NAME;
 	}
 	return true;
+}
+
+void migrateLegacyDirs() {
+	std::string legacy_path_user = std::string(getHomeOrFail()) + DIR_DELIM "." LEGACY_PROJECT_NAME;
+
+	std::string new_path_user = std::string(getHomeOrFail()) + DIR_DELIM "." PROJECT_NAME;
+
+	if (fs::PathExists(legacy_path_user))
+		fs::MoveDir(legacy_path_user, new_path_user);
 }
 
 
@@ -681,6 +728,8 @@ void initializePaths()
 
 	// Migrate cache folder to new location if possible
 	migrateCachePath();
+
+	migrateLegacyDirs();
 
 #endif // RUN_IN_PLACE
 

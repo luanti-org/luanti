@@ -119,6 +119,8 @@ std::string getDataPath(const char *subpath);
 */
 void initializePaths();
 
+void migrateLegacyDirs();
+
 /*
 	Return system information
 	e.g. "Linux/3.12.7 x86_64"
