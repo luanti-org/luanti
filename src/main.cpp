@@ -60,8 +60,8 @@ extern "C" {
 #error ==================================
 #endif
 
-// TODO: luanti.conf with migration
-#define CONFIGFILE "minetest.conf"
+#define CONFIGFILE "luanti.conf"
+#define LEGACY_CONFIGFILE "minetest.conf"
 #define DEBUGFILE "debug.txt"
 #define DEFAULT_SERVER_PORT 30000
 
@@ -742,10 +742,28 @@ static void startup_message()
 		<< std::endl;
 }
 
+
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+static std::string xdg_get_config_dir() {
+	const char *const xdg_config_home = getenv("XDG_CONFIG_HOME");
+	if (xdg_config_home)
+		return std::string(xdg_config_home) + DIR_DELIM "luanti";
+
+	const char *const home = getenv("HOME");
+	// In rare cases the HOME environment variable may be unset
+	FATAL_ERROR_IF(!home,
+		"Required environment variable HOME is not set");
+	return std::string(home) + DIR_DELIM ".config" DIR_DELIM "luanti";
+}
+#endif
+
 static bool read_config_file(const Settings &cmd_args)
 {
 	// Path of configuration file in use
 	sanity_check(g_settings_path.empty());	// Sanity check
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+	fs::CreateAllDirs(xdg_get_config_dir());
+#endif
 
 	if (cmd_args.exists("config")) {
 		bool r = g_settings->readConfigFile(cmd_args.get("config").c_str());
@@ -757,10 +775,14 @@ static bool read_config_file(const Settings &cmd_args)
 		g_settings_path = cmd_args.get("config");
 	} else {
 		std::vector<std::string> filenames;
-		filenames.push_back(porting::path_user + DIR_DELIM + CONFIGFILE);
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+		filenames.push_back(xdg_get_config_dir() + DIR_DELIM CONFIGFILE);
+#endif
 		// Legacy configuration file location
+		filenames.push_back(porting::path_user + DIR_DELIM + LEGACY_CONFIGFILE);
+		// Very legacy configuration file location
 		filenames.push_back(porting::path_user +
-				DIR_DELIM + ".." + DIR_DELIM + CONFIGFILE);
+				DIR_DELIM + ".." + DIR_DELIM + LEGACY_CONFIGFILE);
 
 #if RUN_IN_PLACE
 		// Try also from a lower level (to aid having the same configuration
