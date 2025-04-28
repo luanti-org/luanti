@@ -11,6 +11,7 @@
 #include "map.h"
 #include "util/directiontables.h"
 #include "porting.h"
+#include <fstream>
 
 // Data placeholder used for copying from non-existent blocks
 static struct BlockPlaceholder {
@@ -244,7 +245,25 @@ void MeshUpdateWorkerThread::doUpdate()
 
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
-		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
+        MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
+
+        // warningstream << "mesh size: " << result.mesh->getMesh()->getMeshBufferCount() << std::endl;
+        // if (q->lod == 2){
+            // for (u32 mesh_id = 0; mesh_id < mesh_new->getMesh()->getMeshBufferCount(); mesh_id++){
+                // std::ofstream os("/dev/shm/example.bin", std::ios::out | std::ios::binary | std::ios::app);
+                // auto *mesh = mesh_new->getMesh()->getMeshBuffer(mesh_id);
+                // os.write(reinterpret_cast<const char*>(mesh), sizeof(*mesh));
+
+                // warningstream << "=========" << std::endl;
+                // warningstream << "mesh: " << mesh << std::endl;
+                // std::ifstream is("/dev/shm/example.bin", std::ios::in | std::ios::binary);
+                // warningstream << "mesh: " << os.str() << std::endl;
+                // is.read(reinterpret_cast<char*>(mesh), sizeof(mesh));
+                // warningstream << "mesh: " << mesh << std::endl;
+            // }
+            // delete q;
+            // return;
+        // }
 
 		MeshUpdateResult r;
 		r.p = q->p;

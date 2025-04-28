@@ -1789,10 +1789,7 @@ void MapblockMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::vecto
         if (!types.test(f->drawtype))
             continue;
         for (u8 i = 0; i < bases.size(); i++) { // calc distance for every corner
-            u16 dx = bases[i].X - p.X;
-            u16 dy = bases[i].Y - p.Y;
-            u16 dz = bases[i].Z - p.Z;
-            u16 new_dist = dx*dx + dy*dy + dz*dz;
+            u16 new_dist = bases[i].getDistanceFromSQ(p);
             if (new_dist < min_dists[i]) {
                 min_dists[i] = new_dist;
                 outs[i] = p;
@@ -1822,15 +1819,23 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
                                         v3s16(-1, 0, 0), v3s16(1, 0, 0),
                                         v3s16(0, 0, -1), v3s16(0, 0, 1)};
 
-    for (u8 x = 0; x < data->m_side_length; x += width)
-    for (u8 y = 0; y < data->m_side_length; y += width)
-    for (u8 z = 0; z < data->m_side_length; z += width){
-        v3s16 from = v3s16(x, y, z) + blockpos_nodes;
+    // too tiny lods should be skipped
+    // but to avoid holes in the world, we need to track which volumes got skipped
+    u8 num = data->m_side_length / width;
+    std::vector<std::vector<std::vector<bool>>> skipped_volumes(num, std::vector(num, std::vector(num, false)));
+    // track this as well, to avoid recomputing
+    std::vector<std::vector<std::vector<v3s16>>> volume_points(num, std::vector(num, std::vector(num, v3s16(S16_MAX))));
+    std::vector<std::vector<std::vector<irr::core::aabbox3d<s16>>>>
+        volumes(num, std::vector(num, std::vector(num, irr::core::aabbox3d<s16>(v3s16(S16_MAX), v3s16(S16_MIN)))));
+
+    for (u8 x = 0; x < num; x++)
+    for (u8 y = 0; y < num; y++)
+    for (u8 z = 0; z < num; z++){
+        v3s16 from = v3s16(x, y, z) * width + blockpos_nodes;
         v3s16 to = from + width;
 
-        v3s16 lxlylz = v3s16(S16_MAX);
-        v3s16 hxhyhz = v3s16(S16_MIN);
-        MapNode main_node;
+        v3s16 lxlylz = std::move(volumes[x][y][z].MinEdge);
+        v3s16 hxhyhz = std::move(volumes[x][y][z].MaxEdge);
         v3s16 main_point;
         v3s16 p;
         for (p.Y = from.Y; p.Y < to.Y; p.Y++)
@@ -1842,7 +1847,6 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
             const ContentFeatures *f = &nodedef->get(n);
             if (!types.test(f->drawtype))
                 continue;
-            main_node = n;
             main_point = p;
             lxlylz.X = MYMIN(lxlylz.X , p.X);
             lxlylz.Y = MYMIN(lxlylz.Y , p.Y);
@@ -1852,8 +1856,23 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
             hxhyhz.Z = MYMAX(hxhyhz.Z , p.Z);
         }
 
-        if (lxlylz.X == S16_MAX)
+        volume_points[x][y][z] = main_point;
+        // skip if LOD is too small
+        skipped_volumes[x][y][z] = lxlylz.getDistanceFromSQ(hxhyhz) < width;
+        volumes[x][y][z].MinEdge = std::move(lxlylz);
+        volumes[x][y][z].MaxEdge = std::move(hxhyhz);
+    }
+
+    for (u8 x = 0; x < num; x++)
+    for (u8 y = 0; y < num; y++)
+    for (u8 z = 0; z < num; z++){
+        v3s16 lxlylz = volumes[x][y][z].MinEdge;
+        v3s16 hxhyhz = volumes[x][y][z].MaxEdge;
+
+        // skip empty or too small meshes
+        if (lxlylz.X == S16_MAX || skipped_volumes[x][y][z]){
             continue;
+        }
 
         v3s16 lxlyhz(lxlylz.X, lxlylz.Y, hxhyhz.Z);
         v3s16 lxhylz(lxlylz.X, hxhyhz.Y, lxlylz.Z);
@@ -1885,8 +1904,14 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
                           {d, h}, {d, h},
                           {w, h}, {w, h}};
         TileSpec tile;
+        MapNode main_node = data->m_vmanip.getNodeNoExNoEmerge(volume_points[x][y][z]);
         for(u8 side = 0; side < 6; side++){
-            if (types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][0] + directions[side])))->drawtype) &&
+            s16 neigh_x = x + directions[side].X;
+            s16 neigh_y = y + directions[side].Y;
+            s16 neigh_z = z + directions[side].Z;
+            bool is_in_bounds = neigh_x >= 0 && neigh_y >= 0 && neigh_z >= 0 && neigh_x < num && neigh_y < num && neigh_z < num;
+            if ((!is_in_bounds || is_in_bounds && !skipped_volumes[neigh_x][neigh_y][neigh_z]) && // TODO if in bounds, check volumes instead of below
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][0] + directions[side])))->drawtype) &&
                 types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][1] + directions[side])))->drawtype) &&
                 types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][2] + directions[side])))->drawtype) &&
                 types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][3] + directions[side])))->drawtype))
@@ -1915,7 +1940,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
                 video::S3DVertex(vertices[side][2], normal, color, core::vector2d<f32>{uvs2[side][0], 0}),
                 video::S3DVertex(vertices[side][3], normal, color, core::vector2d<f32>{uvs2[side][0], uvs2[side][1]}),
             };
-            getNodeTile(main_node, main_point, directions[side], data, tile);
+            getNodeTile(main_node, volume_points[x][y][z], directions[side], data, tile);
             collector->append(tile, v, 4, quad_indices, 6);
         }
     }
@@ -1961,7 +1986,8 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
         v3s16 hxhylz = std::move(bounds[6]);
         v3s16 hxhyhz = std::move(bounds[7]);
 
-        if (lxlylz == hxhyhz)
+        // exclude too small meshes
+        if (lxlylz.getDistanceFromSQ(hxhyhz) < width)
             continue;
 
         // subtract blockpos_nodes again, as we need relative coords here. Multiplied by blocksize.
