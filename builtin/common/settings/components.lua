@@ -447,11 +447,23 @@ local function make_noise_params(setting)
 	}
 end
 
+local function has_keybinding_conflict(t1, t2)
+	for _, v1 in pairs(t1) do
+		for _, v2 in pairs(t2) do
+			if core.are_keycodes_equal(v1, v2) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 function make.key(setting)
 	local btn_bind = "bind_" .. setting.name
+	local btn_edit = "edit_" .. setting.name
 	local btn_clear = "unbind_" .. setting.name
 	local function add_conflict_warnings(fs, height)
-		local value = core.settings:get(setting.name)
+		local value = core.settings:get(setting.name):split("|")
 		if value == "" then
 			return height
 		end
@@ -464,7 +476,7 @@ function make.key(setting)
 
 		for _, o in ipairs(core.full_settingtypes) do
 			if o.type == "key" and o.name ~= setting.name and
-					core.are_keycodes_equal(core.settings:get(o.name), value) then
+					has_keybinding_conflict(core.settings:get(o.name):split("|"), value) then
 
 				local is_current_close_world = setting.name == "keymap_close_world"
 				local is_other_close_world = o.name == "keymap_close_world"
@@ -489,17 +501,22 @@ function make.key(setting)
 		get_formspec = function(self, avail_w)
 			self.resettable = core.settings:has(setting.name)
 			local btn_bind_width = math.max(2.5, avail_w / 2)
-			local value = core.settings:get(setting.name)
+			local value = core.settings:get(setting.name):split("|")
 			local fs = {
 				("label[0,0.4;%s]"):format(get_label(setting)),
-				("button_key[%f,0;%f,0.8;%s;%s]"):format(
-						btn_bind_width, btn_bind_width - 0.8,
-						btn_bind, core.formspec_escape(value)),
 				("image_button[%f,0;0.8,0.8;%s;%s;]"):format(avail_w - 0.8,
-						core.formspec_escape(defaulttexturedir .. "clear.png"),
-						btn_clear),
+						core.formspec_escape(defaulttexturedir .. "clear.png"), btn_clear),
 				("tooltip[%s;%s]"):format(btn_clear, fgettext("Remove keybinding")),
 			}
+			if #value < 2 then
+				table.insert(fs, ("button_key[%f,0;%f,0.8;%s;%s]"):format(
+						btn_bind_width, btn_bind_width-0.8,
+						btn_bind, core.formspec_escape(value[1] or "")))
+			else
+				table.insert(fs, ("button[%f,0;%f,0.8;%s;%s]"):format(
+						btn_bind_width, btn_bind_width-0.8,
+						btn_edit, fgettext("Edit")))
+			end
 			local height = 0.8
 			height = add_conflict_warnings(fs, height)
 			return table.concat(fs), height
