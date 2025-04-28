@@ -7,13 +7,167 @@
 #include "IMeshBuffer.h"
 #include "CVertexBuffer.h"
 #include "CIndexBuffer.h"
+#include "IVertexBuffer.h"
 #include "S3DVertex.h"
+#include "irrTypes.h"
+#include "vector3d.h"
 #include <cassert>
+#include <cstddef>
+#include <cstring>
+#include <vector>
 
 namespace irr
 {
 namespace scene
 {
+
+struct MorphTargetDelta
+{
+	std::vector<core::vector3df> positions;
+	std::vector<core::vector3df> normals;
+	std::vector<core::vector2df> texcoords;
+
+	void add(IVertexBuffer *buf, f32 weight)
+	{
+		size_t n = buf->getCount();
+		void *data = buf->getData();
+		switch (buf->getType()) {
+		case video::EVT_TANGENTS:
+			add<video::S3DVertexTangents>(data, n, weight);
+		case video::EVT_2TCOORDS:
+			add<video::S3DVertex2TCoords>(data, n, weight);
+		case video::EVT_STANDARD:
+		default:
+			add<video::S3DVertex>(data, n, weight);
+		}
+		buf->setDirty();
+	}
+
+	void set(IVertexBuffer *buf)
+	{
+		size_t n = buf->getCount();
+		void *data = buf->getData();
+		switch (buf->getType()) {
+		case video::EVT_TANGENTS:
+			set<video::S3DVertexTangents>(data, n);
+		case video::EVT_2TCOORDS:
+			set<video::S3DVertex2TCoords>(data, n);
+		case video::EVT_STANDARD:
+		default:
+			set<video::S3DVertex>(data, n);
+		}
+		buf->setDirty();
+	}
+
+	struct Flags {
+		bool positions = false;
+		bool normals = false;
+		bool texcoords = false;
+	};
+	void get(IVertexBuffer *buf, Flags flags)
+	{
+		size_t n = buf->getCount();
+		void *data = buf->getData();
+		switch (buf->getType()) {
+		case video::EVT_TANGENTS:
+			get<video::S3DVertexTangents>(data, n, flags);
+		case video::EVT_2TCOORDS:
+			get<video::S3DVertex2TCoords>(data, n, flags);
+		case video::EVT_STANDARD:
+		default:
+			get<video::S3DVertex>(data, n, flags);
+		}
+	}
+
+private:
+
+	template<class VertexType>
+	void add(void *vertex_data, size_t n, f32 weight)
+	{
+		auto *vertices = static_cast<VertexType *>(vertex_data);
+		if (!positions.empty()) {
+			add<VertexType, core::vector3df>(&VertexType::Pos,
+					vertices, positions.data(), n, weight);
+		}
+		if (!normals.empty()) {
+			add<VertexType, core::vector3df>(&VertexType::Normal,
+					vertices, normals.data(), n, weight);
+		}
+		if (!texcoords.empty()) {
+			add<VertexType, core::vector2df>(&VertexType::TCoords,
+					vertices, texcoords.data(), n, weight);
+		}
+	}
+
+	template<class VertexType, class AttributeType>
+	static void add(AttributeType VertexType::* attribute, VertexType *vertex_data,
+			AttributeType *deltas, size_t n, f32 weight)
+	{
+		auto *vertices = static_cast<VertexType *>(vertex_data);
+		for (size_t i = 0; i < n; ++i) {
+			vertices[i].*attribute += weight * deltas[i];
+		}
+	}
+
+	template<class VertexType>
+	void set(void *vertex_data, size_t n)
+	{
+		auto *vertices = static_cast<VertexType *>(vertex_data);
+		if (!positions.empty()) {
+			set<VertexType, core::vector3df>(&VertexType::Pos,
+					vertices, positions.data(), n);
+		}
+		if (!normals.empty()) {
+			set<VertexType, core::vector3df>(&VertexType::Normal,
+					vertices, normals.data(), n);
+		}
+		if (!texcoords.empty()) {
+			set<VertexType, core::vector2df>(&VertexType::TCoords,
+					vertices, texcoords.data(), n);
+		}
+	}
+
+	template<class VertexType>
+	void get(void *vertex_data, size_t n, Flags flags)
+	{
+		auto *vertices = static_cast<VertexType *>(vertex_data);
+		if (flags.positions) {
+			positions.reserve(n);
+			get<VertexType, core::vector3df>(&VertexType::Pos,
+					vertices, positions, n);
+		}
+		if (flags.normals) {
+			normals.reserve(n);
+			get<VertexType, core::vector3df>(&VertexType::Normal,
+					vertices, normals, n);
+		}
+		if (flags.texcoords) {
+			texcoords.reserve(n);
+			get<VertexType, core::vector2df>(&VertexType::TCoords,
+					vertices, texcoords, n);
+		}
+	}
+
+	template<class VertexType, class AttributeType>
+	static void set(AttributeType VertexType::* attribute, VertexType *vertex_data,
+			AttributeType *deltas, size_t n)
+	{
+		auto *vertices = static_cast<VertexType *>(vertex_data);
+		for (size_t i = 0; i < n; ++i) {
+			vertices[i].*attribute = deltas[i];
+		}
+	}
+
+	template<class VertexType, class AttributeType>
+	static void get(AttributeType VertexType::* attribute, VertexType *vertex_data,
+			std::vector<AttributeType> &deltas, size_t n)
+	{
+		auto *vertices = static_cast<VertexType *>(vertex_data);
+		for (size_t i = 0; i < n; ++i) {
+			deltas.push_back(vertices[i].*attribute);
+		}
+	}
+};
 
 //! A mesh buffer able to choose between S3DVertex2TCoords, S3DVertex and S3DVertexTangents at runtime
 struct SSkinMeshBuffer final : public IMeshBuffer
@@ -217,7 +371,25 @@ public:
 	}
 
 	//! Call this after changing the positions of any vertex.
-	void boundingBoxNeedsRecalculated(void) { BoundingBoxNeedsRecalculated = true; }
+	void boundingBoxNeedsRecalculated() { BoundingBoxNeedsRecalculated = true; }
+
+	void morph(const std::vector<f32> &weights)
+	{
+		assert(weights.size() == MorphTargets.size());
+		resetMorph();
+		for (size_t i = 0; i < weights.size(); ++i) {
+			MorphTargets[i].add(getVertexBuffer(), weights[i]);
+			if (!MorphTargets[i].positions.empty())
+				boundingBoxNeedsRecalculated();
+		}
+	}
+
+	void resetMorph()
+	{
+		MorphStaticPose.set(getVertexBuffer());
+		if (!MorphStaticPose.positions.empty())
+			boundingBoxNeedsRecalculated();
+	}
 
 	SVertexBufferTangents *Vertices_Tangents;
 	SVertexBufferLightMap *Vertices_2TCoords;
@@ -225,6 +397,10 @@ public:
 	SIndexBuffer *Indices;
 
 	core::matrix4 Transformation;
+
+	// TODO consolidate with Static(Pos|Normal) in weights
+	MorphTargetDelta MorphStaticPose;
+	std::vector<MorphTargetDelta> MorphTargets;
 
 	video::SMaterial Material;
 	video::E_VERTEX_TYPE VertexType;

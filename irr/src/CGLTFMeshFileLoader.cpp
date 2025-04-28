@@ -4,6 +4,7 @@
 #include "CGLTFMeshFileLoader.h"
 
 #include "SMaterialLayer.h"
+#include "SSkinMeshBuffer.h"
 #include "coreutil.h"
 #include "SkinnedMesh.h"
 #include "IAnimatedMesh.h"
@@ -175,6 +176,16 @@ SelfType::Accessor<T>::make(const tiniergltf::GlTF &model, std::size_t accessorI
 	}
 
 	return base;
+}
+
+template <class T>
+std::vector<T> SelfType::Accessor<T>::toVector() const
+{
+	std::vector<T> vec;
+	vec.reserve(getCount());
+	for (size_t i = 0; i < getCount(); ++i)
+		vec.push_back(get(i));
+	return vec;
 }
 
 #define ACCESSOR_TYPES(T, U, V)                                                             \
@@ -400,6 +411,7 @@ static video::E_TEXTURE_CLAMP convertTextureWrap(const Wrap wrap) {
 
 void SelfType::MeshExtractor::addPrimitive(
 		const tiniergltf::MeshPrimitive &primitive,
+		const std::optional<std::vector<f64>> &morphWeights,
 		const std::optional<std::size_t> skinIdx,
 		SkinnedMesh::SJoint *parent)
 {
@@ -426,6 +438,64 @@ void SelfType::MeshExtractor::addPrimitive(
 	auto *meshbuf = new SSkinMeshBuffer(std::move(*vertices), std::move(indices));
 	m_irr_model->addMeshBuffer(meshbuf);
 	const auto meshbufNr = m_irr_model->getMeshBufferCount() - 1;
+
+	if (auto morphTargets = primitive.targets) {
+		MorphTargetDelta::Flags used;
+		std::vector<MorphTargetDelta> deltas;
+		deltas.reserve(morphTargets->size());
+		for (const auto &morphTarget : *morphTargets) {
+			MorphTargetDelta delta;
+			if (morphTarget.position) {
+				used.positions = true;
+				delta.positions = Accessor<core::vector3df>::make(
+						m_gltf_model, *morphTarget.position).toVector();
+				if (delta.positions.size() != n_vertices)
+					throw std::runtime_error("wrong number of morph target positions");
+			}
+			if (morphTarget.normal) {
+				used.normals = true;
+				delta.normals = Accessor<core::vector3df>::make(
+						m_gltf_model, *morphTarget.normal).toVector();
+				if (delta.normals.size() != n_vertices)
+					throw std::runtime_error("wrong number of morph target normals");
+			}
+			if (morphTarget.texcoord) {
+				used.texcoords = true;
+				const size_t accessorIdx = morphTarget.texcoord->at(0);
+				const auto componentType = m_gltf_model.accessors->at(accessorIdx).componentType;
+				if (componentType == tiniergltf::Accessor::ComponentType::FLOAT) {
+					// If floats are used, they need not be normalized: Wrapping may take effect.
+					const auto accessor = Accessor<std::array<f32, 2>>::make(m_gltf_model, accessorIdx);
+					delta.texcoords.reserve(accessor.getCount());
+					for (std::size_t i = 0; i < accessor.getCount(); ++i) {
+						delta.texcoords.emplace_back(accessor.get(i));
+					}
+				} else {
+					const auto accessor = createNormalizedValuesAccessor<2>(m_gltf_model, accessorIdx);
+					const auto count = std::visit([](auto &&a) { return a.getCount(); }, accessor);
+					delta.texcoords.reserve(count);
+					for (std::size_t i = 0; i < count; ++i) {
+						delta.texcoords.emplace_back(getNormalizedValues(accessor, i));
+					}
+				}
+				if (delta.texcoords.size() != n_vertices)
+					throw std::runtime_error("wrong number of morph target texcoords");
+			}
+			deltas.emplace_back(std::move(delta));
+		}
+		// Save all morphed attributes in unmorphed pose
+		meshbuf->MorphStaticPose.get(meshbuf->getVertexBuffer(), used);
+		meshbuf->MorphTargets = std::move(deltas);
+		// Apply default weights
+		if (morphWeights) {
+			std::vector<f32> weights;
+			weights.reserve(morphWeights->size());
+			for (f64 weight : *morphWeights)
+				weights.push_back(static_cast<f32>(weight));
+			// TODO does some unnecessary work - resets what we just read
+			meshbuf->morph(weights);
+		}
+	}
 
 	if (primitive.material.has_value()) {
 		const auto &material = m_gltf_model.materials->at(*primitive.material);
@@ -525,8 +595,9 @@ void SelfType::MeshExtractor::deferAddMesh(
 {
 	m_mesh_loaders.emplace_back([=] {
 		for (std::size_t pi = 0; pi < getPrimitiveCount(meshIdx); ++pi) {
-			const auto &primitive = m_gltf_model.meshes->at(meshIdx).primitives.at(pi);
-			addPrimitive(primitive, skinIdx, parent);
+			const auto &mesh = m_gltf_model.meshes->at(meshIdx);
+			const auto &primitive = mesh.primitives.at(pi);
+			addPrimitive(primitive, mesh.weights, skinIdx, parent);
 		}
 	});
 }
@@ -797,7 +868,7 @@ std::optional<std::vector<u16>> SelfType::MeshExtractor::getIndices(
  * Create a vector of video::S3DVertex (model data) from a mesh & primitive index.
  */
 std::optional<std::vector<video::S3DVertex>> SelfType::MeshExtractor::getVertices(
-		const tiniergltf::MeshPrimitive &primitive) const
+		const tiniergltf::MeshPrimitive &primitive)
 {
 	const auto &attributes = primitive.attributes;
 	const auto positionAccessorIdx = attributes.position;
@@ -819,6 +890,8 @@ std::optional<std::vector<video::S3DVertex>> SelfType::MeshExtractor::getVertice
 
 	const auto &texcoords = attributes.texcoord;
 	if (texcoords.has_value()) {
+		if (texcoords->size() > 1)
+			warn("Multiple texture coordinate sets are not supported yet");
 		const auto tCoordAccessorIdx = texcoords->at(0);
 		copyTCoords(tCoordAccessorIdx, vertices);
 	}

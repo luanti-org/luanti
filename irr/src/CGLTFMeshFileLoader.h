@@ -65,6 +65,8 @@ private:
 		std::size_t getCount() const { return count; }
 		T get(std::size_t i) const;
 
+		std::vector<T> toVector() const;
+
 	private:
 		Accessor(const char *ptr, std::size_t byteStride, std::size_t count) :
 				source(BufferSource{ptr, byteStride}), count(count) {}
@@ -111,7 +113,7 @@ private:
 				const tiniergltf::MeshPrimitive &primitive) const;
 
 		std::optional<std::vector<video::S3DVertex>> getVertices(
-				const tiniergltf::MeshPrimitive &primitive) const;
+				const tiniergltf::MeshPrimitive &primitive);
 
 		std::size_t getMeshCount() const;
 
@@ -144,6 +146,7 @@ private:
 				std::vector<video::S3DVertex>& vertices) const;
 
 		void addPrimitive(const tiniergltf::MeshPrimitive &primitive,
+				const std::optional<std::vector<f64>> &morphWeights,
 				const std::optional<std::size_t> skinIdx,
 				SkinnedMesh::SJoint *parent);
 
