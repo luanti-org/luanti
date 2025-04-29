@@ -280,6 +280,9 @@ public:
 	AuthDatabase *getAuthDatabase() { return m_auth_database; }
 	static bool migrateAuthDatabase(const GameParams &game_params,
 			const Settings &cmd_args);
+	void setFastActiveBlockDivider(int val) {
+		m_fast_active_block_divider = rangelim(val, 1, 10);
+	}
 private:
 
 	/**

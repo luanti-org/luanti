@@ -434,7 +434,7 @@ std::unique_ptr<PlayerSAO> ServerEnvironment::loadPlayer(RemotePlayer *player, s
 	}
 
 	// Update active blocks quickly for a bit so objects in those blocks appear on the client
-	m_fast_active_block_divider = 10;
+	setFastActiveBlockDivider(10);
 
 	return playersao;
 }
