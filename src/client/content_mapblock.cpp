@@ -1662,12 +1662,12 @@ void MapblockMeshGenerator::drawNodeboxNode()
 		u8 mask = getNodeBoxMask(box, solid_neighbors, sametype_neighbors);
 
 		// Get texture coords for nodebox uv mapping
-		f32 tx1 = (box.MinEdge.X / BS) + 0.5;
-		f32 ty1 = (box.MinEdge.Y / BS) + 0.5;
-		f32 tz1 = (box.MinEdge.Z / BS) + 0.5;
-		f32 tx2 = (box.MaxEdge.X / BS) + 0.5;
-		f32 ty2 = (box.MaxEdge.Y / BS) + 0.5;
-		f32 tz2 = (box.MaxEdge.Z / BS) + 0.5;
+		f32 tx1 = (box.MinEdge.X / BS) + 0.5f;
+		f32 ty1 = (box.MinEdge.Y / BS) + 0.5f;
+		f32 tz1 = (box.MinEdge.Z / BS) + 0.5f;
+		f32 tx2 = (box.MaxEdge.X / BS) + 0.5f;
+		f32 ty2 = (box.MaxEdge.Y / BS) + 0.5f;
+		f32 tz2 = (box.MaxEdge.Z / BS) + 0.5f;
 		f32 txc[24] = {
 			    tx1, 1 - tz2,     tx2, 1 - tz1, // up
 			    tx1,     tz1,     tx2,     tz2, // down
