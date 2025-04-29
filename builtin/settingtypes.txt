@@ -265,8 +265,8 @@ viewing_range (Viewing range) int 190 20 4000
 #    Distance of blocks, when LODs should kick in.
 lod_threshold (LOD Threshold) int 10 5 25
 
-#    Width of the LOD nodes at which they switch from blocks to their slanted representation.
-lod_slant_threshold (LOD Slant Threshold) int 16 4 64
+#    LOD at which they switch from blocks to their slanted representation.
+lod_slant_threshold (LOD Slant Threshold) int 4 1 10
 
 #    Quality of LODs from 1 (low) to 2 (high).
 #    At 1, the quality decreases at every distance where the LOD Threshold is doubled.

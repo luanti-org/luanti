@@ -1858,7 +1858,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
 
         volume_points[x][y][z] = main_point;
         // skip if LOD is too small
-        skipped_volumes[x][y][z] = lxlylz.getDistanceFromSQ(hxhyhz) < width;
+        skipped_volumes[x][y][z] = lxlylz.getDistanceFromSQ(hxhyhz) + 1 < width / 2;
         volumes[x][y][z].MinEdge = std::move(lxlylz);
         volumes[x][y][z].MaxEdge = std::move(hxhyhz);
     }
@@ -1910,7 +1910,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
             s16 neigh_y = y + directions[side].Y;
             s16 neigh_z = z + directions[side].Z;
             bool is_in_bounds = neigh_x >= 0 && neigh_y >= 0 && neigh_z >= 0 && neigh_x < num && neigh_y < num && neigh_z < num;
-            if ((!is_in_bounds || is_in_bounds && !skipped_volumes[neigh_x][neigh_y][neigh_z]) && // TODO if in bounds, check volumes instead of below
+            if ((!is_in_bounds || (is_in_bounds && !skipped_volumes[neigh_x][neigh_y][neigh_z])) && // TODO if in bounds, check volumes instead of below
                 types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][0] + directions[side])))->drawtype) &&
                 types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][1] + directions[side])))->drawtype) &&
                 types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][2] + directions[side])))->drawtype) &&
@@ -1919,20 +1919,24 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
 
             u8 day_light = 0;
             u8 night_light = 0;
+            ContentLightingFlags f;
             for (v3s16 p : node_coords[side]){
                 MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
                 if ((&nodedef->get(n))->drawtype == NDT_NORMAL)
                     n = data->m_vmanip.getNodeNoExNoEmerge(p + directions[side]);
-                ContentLightingFlags f = nodedef->getLightingFlags(n);
+                f = nodedef->getLightingFlags(n);
                 day_light = MYMAX(day_light, n.getLightRaw(LIGHTBANK_DAY, f));
                 night_light = MYMAX(night_light, n.getLightRaw(LIGHTBANK_NIGHT, f));
+                if (day_light)
+                    break;
             }
             day_light = decode_light(day_light);
             night_light = decode_light(night_light);
 
-            video::SColor color = encode_light(LightPair(day_light, night_light), nodedef->getLightingFlags(main_node).light_source);
+            video::SColor color = encode_light(LightPair(day_light, night_light), f.light_source);
             core::vector3df normal(directions[side].X, directions[side].Y, directions[side].Z);
-            applyFacesShading(color, normal);
+            if (!f.light_source)
+                applyFacesShading(color, normal);
 
             video::S3DVertex v[4] = {
                 video::S3DVertex(vertices[side][0], normal, color, core::vector2d<f32>{0, uvs2[side][1]}),
@@ -2065,8 +2069,7 @@ void MapblockMeshGenerator::generateLod() {
                                   };
     f32 y_offset = BS * (data->m_lod - 1) + 0.1; // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
 
-
-    if (width < g_settings->getU16("lod_slant_threshold")) {
+    if (data->m_lod < g_settings->getU16("lod_slant_threshold")) {
         // liquids are always rendered slanted
         std::bitset<19> liqu_set;
         liqu_set.set(NDT_LIQUID);
@@ -2078,12 +2081,20 @@ void MapblockMeshGenerator::generateLod() {
         types.set(NDT_ALLFACES);
         generateCloseLod(types, width, -y_offset);
     } else {
-        std::bitset<19> types;
-        types.set(NDT_NORMAL);
-        types.set(NDT_NODEBOX);
-        types.set(NDT_ALLFACES);
-        types.set(NDT_LIQUID);
-        generateDetailLod(types, width, uvs, -y_offset);
+        std::bitset<19> solids;
+        solids.set(NDT_NORMAL);
+        solids.set(NDT_NODEBOX);
+
+        std::bitset<19> other;
+        other.set(NDT_LIQUID);
+
+        if (g_settings->get("leaves_style") == "opaque")
+            solids.set(NDT_ALLFACES);
+        else
+            other.set(NDT_ALLFACES);
+
+        generateDetailLod(solids, width, uvs, -y_offset);
+        generateDetailLod(other, width, uvs, 0);
     }
 }
 
