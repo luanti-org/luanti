@@ -8,6 +8,8 @@
 #include "IAnimatedMeshSceneNode.h"
 #include "SSkinMeshBuffer.h"
 #include "os.h"
+#include <bitset>
+#include <unordered_set>
 #include <vector>
 #include <cassert>
 
@@ -73,6 +75,9 @@ void SkinnedMesh::animateMesh(f32 frame)
 	LastAnimatedFrame = frame;
 	SkinnedLastFrame = false;
 
+	// TODO do something if there are too many mesh buffers
+	std::bitset<256> morphed_buffers;
+
 	for (auto *joint : AllJoints) {
 		// The joints can be animated here with no input from their
 		// parents, but for setAnimationMode extra checks are needed
@@ -81,6 +86,17 @@ void SkinnedMesh::animateMesh(f32 frame)
 				joint->Animatedposition,
 				joint->Animatedrotation,
 				joint->Animatedscale);
+		auto weights = joint->keys.weights.get(frame);
+		for (size_t meshbufIdx : joint->MorphedMeshes) {
+			LocalBuffers[meshbufIdx]->setMorph(weights);
+			morphed_buffers.set(meshbufIdx);
+		}
+	}
+
+	for (size_t meshbufIdx : SkinnedBuffers) {
+		if (!morphed_buffers.test(meshbufIdx)) {
+			LocalBuffers[meshbufIdx]->setMorph(std::nullopt);
+		}
 	}
 
 	// Note:
@@ -226,11 +242,13 @@ void SkinnedMesh::skinJoint(SJoint *joint, SJoint *parentJoint)
 
 		// Skin Vertices Positions and Normals...
 		for (const auto &weight : joint->Weights) {
+			auto *buf = buffersUsed[weight.buffer_id];
 			// Pull this vertex...
-			jointVertexPull.transformVect(thisVertexMove, weight.StaticPos);
+			auto *vertex = buf->getVertex(weight.vertex_id);
+			jointVertexPull.transformVect(thisVertexMove, vertex->Pos);
 
 			if (AnimateNormals) {
-				thisNormalMove = jointVertexPull.rotateAndScaleVect(weight.StaticNormal);
+				thisNormalMove = jointVertexPull.rotateAndScaleVect(vertex->Normal);
 				thisNormalMove.normalize(); // must renormalize after potentially scaling
 			}
 
@@ -345,12 +363,8 @@ bool SkinnedMesh::setHardwareSkinning(bool on)
 
 			// set mesh to static pose...
 			for (auto *joint : AllJoints) {
-				for (const auto &weight : joint->Weights) {
-					const u16 buffer_id = weight.buffer_id;
-					const u32 vertex_id = weight.vertex_id;
-					LocalBuffers[buffer_id]->getVertex(vertex_id)->Pos = weight.StaticPos;
-					LocalBuffers[buffer_id]->getVertex(vertex_id)->Normal = weight.StaticNormal;
-					LocalBuffers[buffer_id]->boundingBoxNeedsRecalculated();
+				for (auto buf_id : joint->MorphedMeshes) {
+					LocalBuffers[buf_id]->setMorph(std::nullopt);
 				}
 			}
 		}
@@ -360,15 +374,14 @@ bool SkinnedMesh::setHardwareSkinning(bool on)
 	return HardwareSkinning;
 }
 
+// TODO the only usage of this only needs to refresh normals
 void SkinnedMesh::refreshJointCache()
 {
 	// copy cache from the mesh...
 	for (auto *joint : AllJoints) {
-		for (auto &weight : joint->Weights) {
-			const u16 buffer_id = weight.buffer_id;
-			const u32 vertex_id = weight.vertex_id;
-			weight.StaticPos = LocalBuffers[buffer_id]->getVertex(vertex_id)->Pos;
-			weight.StaticNormal = LocalBuffers[buffer_id]->getVertex(vertex_id)->Normal;
+		for (auto buf_id : joint->MorphedMeshes) {
+			auto *buf = LocalBuffers[buf_id];
+			buf->MorphStaticPose.get(buf->getVertexBuffer(), {true, true, false});
 		}
 	}
 }
@@ -377,11 +390,8 @@ void SkinnedMesh::resetAnimation()
 {
 	// copy from the cache to the mesh...
 	for (auto *joint : AllJoints) {
-		for (const auto &weight : joint->Weights) {
-			const u16 buffer_id = weight.buffer_id;
-			const u32 vertex_id = weight.vertex_id;
-			LocalBuffers[buffer_id]->getVertex(vertex_id)->Pos = weight.StaticPos;
-			LocalBuffers[buffer_id]->getVertex(vertex_id)->Normal = weight.StaticNormal;
+		for (auto buf_id : joint->MorphedMeshes) {
+			LocalBuffers[buf_id]->setMorph(std::nullopt);
 		}
 	}
 	SkinnedLastFrame = false;
@@ -449,6 +459,8 @@ void SkinnedMesh::checkForAnimation()
 	if (HasAnimation && !PreparedForSkinning) {
 		PreparedForSkinning = true;
 
+		std::unordered_set<u16> bufs;
+
 		// check for bugs:
 		for (auto *joint : AllJoints) {
 			for (auto &weight : joint->Weights) {
@@ -463,6 +475,8 @@ void SkinnedMesh::checkForAnimation()
 					os::Printer::log("Skinned Mesh: Weight vertex id too large", ELL_WARNING);
 					weight.buffer_id = weight.vertex_id = 0;
 				}
+
+				bufs.insert(weight.buffer_id);
 			}
 		}
 
@@ -472,18 +486,20 @@ void SkinnedMesh::checkForAnimation()
 			for (u32 j = 0; j < Vertices_Moved[i].size(); ++j)
 				Vertices_Moved[i][j] = false;
 
-		// For skinning: cache weight values for speed
+		for (auto id : bufs) {
+			SkinnedBuffers.emplace_back(id);
+			auto &msp = LocalBuffers[id]->MorphStaticPose;
+			// Make sure we have static pose data for positions & normals
+			msp.get(LocalBuffers[id]->getVertexBuffer(), {
+				msp.positions.empty(),
+				msp.normals.empty(),
+				false,
+			});
+		}
 
 		for (auto *joint : AllJoints) {
 			for (auto &weight : joint->Weights) {
-				const u16 buffer_id = weight.buffer_id;
-				const u32 vertex_id = weight.vertex_id;
-
-				weight.Moved = &Vertices_Moved[buffer_id][vertex_id];
-				weight.StaticPos = LocalBuffers[buffer_id]->getVertex(vertex_id)->Pos;
-				weight.StaticNormal = LocalBuffers[buffer_id]->getVertex(vertex_id)->Normal;
-
-				// weight._Pos=&Buffers[buffer_id]->getVertex(vertex_id)->Pos;
+				weight.Moved = &Vertices_Moved[weight.buffer_id][weight.vertex_id];
 			}
 		}
 

@@ -14,6 +14,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstring>
+#include <optional>
 #include <vector>
 
 namespace irr
@@ -373,10 +374,15 @@ public:
 	//! Call this after changing the positions of any vertex.
 	void boundingBoxNeedsRecalculated() { BoundingBoxNeedsRecalculated = true; }
 
-	void morph(const std::vector<f32> &weights)
+	void setMorph(const std::optional<std::vector<f32>> &weights)
+	{
+		resetMorph();
+		addMorph(weights.value_or(DefaultWeights));
+	}
+
+	void addMorph(const std::vector<f32> &weights)
 	{
 		assert(weights.size() == MorphTargets.size());
-		resetMorph();
 		for (size_t i = 0; i < weights.size(); ++i) {
 			MorphTargets[i].add(getVertexBuffer(), weights[i]);
 			if (!MorphTargets[i].positions.empty())
@@ -401,6 +407,7 @@ public:
 	// TODO consolidate with Static(Pos|Normal) in weights
 	MorphTargetDelta MorphStaticPose;
 	std::vector<MorphTargetDelta> MorphTargets;
+	std::vector<f32> DefaultWeights;
 
 	video::SMaterial Material;
 	video::E_VERTEX_TYPE VertexType;

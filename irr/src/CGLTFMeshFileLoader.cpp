@@ -440,6 +440,7 @@ void SelfType::MeshExtractor::addPrimitive(
 	const auto meshbufNr = m_irr_model->getMeshBufferCount() - 1;
 
 	if (auto morphTargets = primitive.targets) {
+		parent->MorphedMeshes.push_back(meshbufNr);
 		MorphTargetDelta::Flags used;
 		std::vector<MorphTargetDelta> deltas;
 		deltas.reserve(morphTargets->size());
@@ -492,8 +493,8 @@ void SelfType::MeshExtractor::addPrimitive(
 			weights.reserve(morphWeights->size());
 			for (f64 weight : *morphWeights)
 				weights.push_back(static_cast<f32>(weight));
-			// TODO does some unnecessary work - resets what we just read
-			meshbuf->morph(weights);
+			meshbuf->DefaultWeights = weights;
+			meshbuf->addMorph(weights);
 		}
 	}
 
@@ -520,6 +521,11 @@ void SelfType::MeshExtractor::addPrimitive(
 		// Set up rigid animation
 		parent->AttachedMeshes.push_back(meshbufNr);
 		return;
+	}
+
+	if (!primitive.targets) {
+		// We use morphing to reset to static pose.
+		parent->MorphedMeshes.push_back(meshbufNr);
 	}
 
 	// Otherwise: "Only the joint transforms are applied to the skinned mesh;
@@ -708,6 +714,18 @@ void SelfType::MeshExtractor::loadSkins()
 	}
 }
 
+static size_t countMorphTargets(const tiniergltf::GlTF &gltfModel, size_t nodeIdx)
+{
+	const auto &node = gltfModel.nodes->at(nodeIdx);
+	const auto &mesh = gltfModel.meshes->at(node.mesh.value());
+	size_t morph_targets = 0;
+	for (const auto &primitive : mesh.primitives) {
+		if (primitive.targets)
+			morph_targets = std::max(morph_targets, primitive.targets->size());
+	}
+	return morph_targets;
+}
+
 void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 {
 	const auto &anim = m_gltf_model.animations->at(animIdx);
@@ -731,8 +749,9 @@ void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 
 		if (!channel.target.node.has_value())
 			throw std::runtime_error("no animated node");
+		size_t targetNodeIdx = *channel.target.node;
 
-		auto *joint = m_loaded_nodes.at(*channel.target.node);
+		auto *joint = m_loaded_nodes.at(targetNodeIdx);
 		switch (channel.target.path) {
 		case tiniergltf::AnimationChannelTarget::Path::TRANSLATION: {
 			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
@@ -767,8 +786,24 @@ void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 			}
 			break;
 		}
-		case tiniergltf::AnimationChannelTarget::Path::WEIGHTS:
-			throw std::runtime_error("no support for morph animations");
+		case tiniergltf::AnimationChannelTarget::Path::WEIGHTS: {
+			// FIXME support normalized bytes and stuff
+			const auto outputAccessor = Accessor<f32>::make(m_gltf_model, sampler.output);
+			const size_t count = outputAccessor.getCount();
+			auto &channel = joint->keys.weights;
+			channel.n_weights = countMorphTargets(m_gltf_model, targetNodeIdx);
+			if (channel.n_weights == 0)
+				throw std::runtime_error("missing morph targets for morph animation");
+			if (count % channel.n_weights != 0)
+				throw std::runtime_error("wrong number of values in morph weight accessor");
+			for (size_t i = 0; i < count / channel.n_weights; ++i) {
+				channel.timestamps.push_back(inputAccessor.get(i));
+				for (size_t j = 0; j < channel.n_weights; ++j) {
+					channel.weights.push_back(outputAccessor.get(i * channel.n_weights + j));
+				}
+			}
+			break;
+		}
 		}
 	}
 }
