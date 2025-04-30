@@ -40,6 +40,32 @@ core.register_entity("gltf:morph", {
 	},
 })
 
+core.register_entity("gltf:morph_animated", {
+	initial_properties = {
+		visual = "mesh",
+		mesh = "gltf_morph_animated.glb",
+		textures = {},
+		backface_culling = false,
+		visual_size = vector.new(100, 100, 100),
+	},
+	on_activate = function(self)
+		self.object:set_animation({x = 0, y = 5}, 1)
+	end
+})
+
+core.register_entity("gltf:morph_animated2", {
+	initial_properties = {
+		visual = "mesh",
+		mesh = "gltf_morph_animated2.gltf",
+		textures = {},
+		backface_culling = false,
+		visual_size = vector.new(1, 1, 1),
+	},
+	on_activate = function(self)
+		self.object:set_animation({x = 0, y = 5}, 1)
+	end
+})
+
 core.register_entity("gltf:spider_animated", {
 	initial_properties = {
 		visual = "mesh",

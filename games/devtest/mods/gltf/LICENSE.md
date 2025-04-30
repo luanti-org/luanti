@@ -12,3 +12,6 @@ The glTF test models (and corresponding textures) in this mod are all licensed f
 * Minimal triangle, triangle without indices (`gltf_minimal_triangle.gltf`, `gltf_triangle_without_indices.gltf`)
   * From [the glTF sample model collection](https://github.com/KhronosGroup/glTF-Sample-Models)
   * Licensed under CC0 / public domain
+
+<!-- TODO detail -->
+Morph stuff is from https://github.com/KhronosGroup/glTF-Sample-Assets/
