@@ -170,37 +170,9 @@ int MetaDataRef::l_get_float(lua_State *L)
 
 	std::string str_;
 	const std::string &str = meta->getString(name, &str_);
-	lua_pushlstring(L, str.data(), str.size());
-	f64 number;
-	// We can't be sure that Lua's `tonumber` handles nan / (-)inf properly
-	if (str == "nan") {
-		number = std::numeric_limits<f64>::quiet_NaN();;
-	} else if (str == "inf") {
-		number = std::numeric_limits<f64>::infinity();
-	} else if (str == "-inf") {
-		number = -std::numeric_limits<f64>::infinity();
-	} else {
-		number = lua_tonumber(L, -1);
-	}
+	f64 number = my_lua_string_to_double(L, str);
 	lua_pushnumber(L, number);
 	return 1;
-}
-
-static inline std::string double_to_string(f64 number)
-{
-	// Do not use Lua to convert number to string, since that may lose precision.
-	if (std::isfinite(number)) {
-		char buf[64];
-		snprintf(buf, sizeof(buf), "%.17g", number);
-		return buf;
-	}
-	// We can't be sure of how %g formats these, so do it ourselves.
-	if (number < 0)
-		return "-inf";
-	if (number > 0)
-		return "inf";
-	return "nan";
-
 }
 
 // set_float(self, name, var)
@@ -213,7 +185,7 @@ int MetaDataRef::l_set_float(lua_State *L)
 	f64 number = luaL_checknumber(L, 3);
 
 	IMetadata *meta = ref->getmeta(true);
-	if (meta != NULL && meta->setString(name, double_to_string(number)))
+	if (meta != NULL && meta->setString(name, my_lua_double_to_string(number)))
 		ref->reportMetadataChange(&name);
 	return 0;
 }

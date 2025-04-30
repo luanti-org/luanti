@@ -78,3 +78,31 @@ std::string LuaHelper::readParam(lua_State *L, int index)
 	auto sv = readParam<std::string_view>(L, index);
 	return std::string(sv); // a copy
 }
+
+double LuaHelper::my_lua_string_to_double(lua_State *L, std::string_view sv)
+{
+	if (sv == "nan")
+		return std::numeric_limits<double>::quiet_NaN();
+	if (sv == "inf")
+		return std::numeric_limits<double>::infinity();
+	if (sv == "-inf")
+		return -std::numeric_limits<double>::infinity();
+	lua_pushlstring(L, sv.data(), sv.size());
+	return lua_tonumber(L, -1);
+}
+
+std::string LuaHelper::my_lua_double_to_string(double number)
+{
+	// Do not use Lua to convert number to string, since that may lose precision.
+	if (std::isfinite(number)) {
+		char buf[64];
+		snprintf(buf, sizeof(buf), "%.17g", number);
+		return buf;
+	}
+	// We can't be sure of how %g formats these, so do it ourselves.
+	if (number < 0)
+		return "-inf";
+	if (number > 0)
+		return "inf";
+	return "nan";
+}
