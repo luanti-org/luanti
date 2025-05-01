@@ -11,7 +11,6 @@
 #include "server.h"
 #include "util/basic_macros.h"
 #include "util/string.h"
-#include <lua.h>
 
 MetaDataRef *MetaDataRef::checkAnyMetadata(lua_State *L, int narg)
 {

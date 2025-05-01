@@ -1065,3 +1065,28 @@ std::optional<v3f> str_to_v3f(std::string_view str)
 
 	return value;
 }
+
+std::string my_double_to_string(double number)
+{
+	if (std::isfinite(number)) {
+		char buf[64];
+		snprintf(buf, sizeof(buf), "%.17g", number);
+		return buf;
+	}
+	if (number < 0)
+		return "-inf";
+	if (number > 0)
+		return "inf";
+	return "nan";
+}
+
+std::optional<double> my_string_to_double(std::string_view s)
+{
+	if (s.empty())
+		return std::nullopt;
+	char *end = nullptr;
+	double number = std::strtod(s.begin(), &end);
+	if (end != s.end())
+		return std::nullopt;
+	return number;
+}
