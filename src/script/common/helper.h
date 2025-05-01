@@ -5,7 +5,6 @@
 #pragma once
 
 #include <string_view>
-#include <string>
 
 extern "C" {
 #include <lua.h>
@@ -39,12 +38,6 @@ protected:
 	{
 		return lua_isnoneornil(L, index) ? default_value : readParam<T>(L, index);
 	}
-
-	/// Like lua_tonumber, but is guaranteed to handle nan, inf and -inf properly.
-	static double my_lua_string_to_double(lua_State *L, std::string_view sv);
-
-	/// Convert a double to string, handling nan, inf and -inf properly.
-	static std::string my_lua_double_to_string(double number);
 };
 
 // (only declared for documentation purposes:)

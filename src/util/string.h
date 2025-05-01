@@ -21,6 +21,7 @@
 #include <cwctype>
 #include <unordered_map>
 #include <optional>
+#include <charconv>
 
 class Translations;
 
@@ -465,6 +466,37 @@ inline std::string ftos(float f)
 	return oss.str();
 }
 
+inline std::string my_double_to_string(double number)
+{
+	if (std::isfinite(number)) {
+		char buf[64];
+		auto res = std::to_chars(&buf[0], &buf[sizeof(buf) - 2], number);
+		*res.ptr = '\0';
+		return buf;
+	}
+	if (number < 0)
+		return "-inf";
+	if (number > 0)
+		return "inf";
+	return "nan";
+}
+
+inline std::optional<double> my_string_to_double(std::string_view s)
+{
+	if (s.empty())
+		return std::nullopt;
+	if (s == "nan")
+		return std::numeric_limits<double>::quiet_NaN();
+	if (s == "-inf")
+		return -std::numeric_limits<double>::infinity();
+	if (s == "inf")
+		return std::numeric_limits<double>::infinity();
+	double number = 0.0;
+	auto res = std::from_chars(s.begin(), s.end(), number);
+	if (res.ptr != s.end())
+		return std::nullopt;
+	return number;
+}
 
 /**
  * Replace all occurrences of \p pattern in \p str with \p replacement.

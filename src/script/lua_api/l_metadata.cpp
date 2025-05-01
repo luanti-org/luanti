@@ -10,9 +10,7 @@
 #include "map.h"
 #include "server.h"
 #include "util/basic_macros.h"
-#include <cstdio>
-#include <lauxlib.h>
-#include <limits>
+#include "util/string.h"
 #include <lua.h>
 
 MetaDataRef *MetaDataRef::checkAnyMetadata(lua_State *L, int narg)
@@ -170,7 +168,8 @@ int MetaDataRef::l_get_float(lua_State *L)
 
 	std::string str_;
 	const std::string &str = meta->getString(name, &str_);
-	f64 number = my_lua_string_to_double(L, str);
+	// TODO this silently produces 0.0 if conversion fails, which is a footgun
+	f64 number = my_string_to_double(str).value_or(0.0);
 	lua_pushnumber(L, number);
 	return 1;
 }
@@ -185,7 +184,8 @@ int MetaDataRef::l_set_float(lua_State *L)
 	f64 number = luaL_checknumber(L, 3);
 
 	IMetadata *meta = ref->getmeta(true);
-	if (meta != NULL && meta->setString(name, my_lua_double_to_string(number)))
+	// Note: Do not use Lua's tostring for the conversion - it rounds.
+	if (meta != NULL && meta->setString(name, my_double_to_string(number)))
 		ref->reportMetadataChange(&name);
 	return 0;
 }

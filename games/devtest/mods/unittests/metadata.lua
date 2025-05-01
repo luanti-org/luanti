@@ -8,7 +8,7 @@ compare_meta:from_table({
 		c = "3",
 		d = "4",
 		e = "e",
-		["0.3"] = "0.29999999999999999",
+		["0.3"] = "0.3",
 		["0.1+0.2"] = "0.30000000000000004",
 	},
 })
@@ -34,7 +34,7 @@ local function test_metadata(meta)
 	assert(tab.fields.c == "3")
 	assert(tab.fields.d == "4")
 	assert(tab.fields.e == "e")
-	assert(tab.fields["0.3"] == "0.29999999999999999")
+	assert(tab.fields["0.3"] == "0.3")
 	assert(tab.fields["0.1+0.2"] == "0.30000000000000004")
 
 	local keys = meta:get_keys()
