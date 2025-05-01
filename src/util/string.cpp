@@ -1080,13 +1080,15 @@ std::string my_double_to_string(double number)
 	return "nan";
 }
 
-std::optional<double> my_string_to_double(std::string_view s)
+std::optional<double> my_string_to_double(const std::string &s)
 {
 	if (s.empty())
 		return std::nullopt;
 	char *end = nullptr;
-	double number = std::strtod(s.begin(), &end);
-	if (end != s.end())
+	errno = 0;
+	// Note: this also supports hexadecimal notation like "0x1.0p+1"
+	double number = std::strtod(s.data(), &end);
+	if (end != &*s.end())
 		return std::nullopt;
 	return number;
 }
