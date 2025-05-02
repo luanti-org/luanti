@@ -784,7 +784,8 @@ void TestUtilities::testMyDoubleStringConversions()
 	expect_double("1", 1.0);
 	expect_double("42", 42.0);
 	expect_double("42.25", 42.25);
-	expect_double("0xff", 255);
+	expect_double("3e3", 3000.0);
+	expect_double("0xff", 255.0);
 	expect_double("0x1.0p+1", 2.0);
 
 	UASSERT(std::isnan(my_string_to_double(my_double_to_string(
