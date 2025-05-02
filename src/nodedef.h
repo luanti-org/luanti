@@ -392,6 +392,8 @@ struct ContentFeatures
 	bool diggable;
 	// Player can climb these
 	bool climbable;
+	// Climb speed factor
+	f32 climb_factor;
 	// Player can build on these
 	bool buildable_to;
 	// Player cannot build to these (placement prediction disabled)
