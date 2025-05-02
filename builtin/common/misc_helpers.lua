@@ -122,8 +122,16 @@ function dump(value, indent)
 	local newline = indent == "" and "" or "\n"
 
 	local rope = {}
-	local function write(str)
-		table.insert(rope, str)
+	local write
+	do
+		-- Keeping the length of the table as a local variable is *much*
+		-- faster than invoking the length operator.
+		-- See https://gitspartv.github.io/LuaJIT-Benchmarks/#test12.
+		local i = 0
+		function write(str)
+			i = i + 1
+			rope[i] = str
+		end
 	end
 
 	local n_refs = {}
