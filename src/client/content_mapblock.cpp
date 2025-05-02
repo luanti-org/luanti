@@ -2079,6 +2079,9 @@ void MapblockMeshGenerator::generateLod() {
         types.set(NDT_NORMAL);
         types.set(NDT_NODEBOX);
         types.set(NDT_ALLFACES);
+        if (g_settings->get("leaves_style") == "simple")
+            types.set(NDT_GLASSLIKE);
+
         generateCloseLod(types, width, -y_offset);
     } else {
         std::bitset<19> solids;
@@ -2086,15 +2089,24 @@ void MapblockMeshGenerator::generateLod() {
         solids.set(NDT_NODEBOX);
 
         std::bitset<19> other;
-        other.set(NDT_LIQUID);
 
         if (g_settings->get("leaves_style") == "opaque")
             solids.set(NDT_ALLFACES);
-        else
+        else{
             other.set(NDT_ALLFACES);
+            if (g_settings->get("leaves_style") == "simple")
+                other.set(NDT_GLASSLIKE);
+        }
+
+        if (g_settings->getBool("translucent_liquids"))
+            other.set(NDT_LIQUID);
+        else
+            solids.set(NDT_LIQUID);
+
 
         generateDetailLod(solids, width, uvs, -y_offset);
-        generateDetailLod(other, width, uvs, 0);
+        if (other.any())
+            generateDetailLod(other, width, uvs, 0);
     }
 }
 
