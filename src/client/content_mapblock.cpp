@@ -1814,7 +1814,7 @@ bool MapblockMeshGenerator::doesVolumeContainType(std::bitset<19> types, v3s16 f
     return false;
 }
 
-void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f32 y_offset){
+void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f32 y_offset, u8 min_size){
     static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
                                         v3s16(-1, 0, 0), v3s16(1, 0, 0),
                                         v3s16(0, 0, -1), v3s16(0, 0, 1)};
@@ -1858,7 +1858,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
 
         volume_points[x][y][z] = main_point;
         // skip if LOD is too small
-        skipped_volumes[x][y][z] = lxlylz.getDistanceFromSQ(hxhyhz) + 1 < width / 2;
+        skipped_volumes[x][y][z] = lxlylz.getDistanceFromSQ(hxhyhz) < min_size;
         volumes[x][y][z].MinEdge = std::move(lxlylz);
         volumes[x][y][z].MaxEdge = std::move(hxhyhz);
     }
@@ -1950,7 +1950,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
     }
 }
 
-void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset){
+void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset, u8 min_size){
     static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
                                         v3s16(-1, 0, 0), v3s16(1, 0, 0),
                                         v3s16(0, 0, -1), v3s16(0, 0, 1)};
@@ -1991,7 +1991,7 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
         v3s16 hxhyhz = std::move(bounds[7]);
 
         // exclude too small meshes
-        if (lxlylz.getDistanceFromSQ(hxhyhz) < width)
+        if (lxlylz.getDistanceFromSQ(hxhyhz) < min_size)
             continue;
 
         // subtract blockpos_nodes again, as we need relative coords here. Multiplied by blocksize.
@@ -2060,6 +2060,8 @@ void MapblockMeshGenerator::generateLod() {
     } else if(data->m_side_length % width != 0){
         width = data->m_side_length / (data->m_side_length / width);
     }
+    u8 min_size = MYMAX(width * g_settings->getFloat("lod_size_threshold"), 1);
+    min_size = min_size * min_size - 1;
 
     core::vector2d<f32> uvs[4] = {
                                   core::vector2d<f32>{0, (f32) width},
@@ -2073,7 +2075,7 @@ void MapblockMeshGenerator::generateLod() {
         // liquids are always rendered slanted
         std::bitset<19> liqu_set;
         liqu_set.set(NDT_LIQUID);
-        generateDetailLod(liqu_set, width, uvs, 0.0f);
+        generateDetailLod(liqu_set, width, uvs, 0.0f, min_size);
 
         std::bitset<19> types;
         types.set(NDT_NORMAL);
@@ -2082,7 +2084,7 @@ void MapblockMeshGenerator::generateLod() {
         if (g_settings->get("leaves_style") == "simple")
             types.set(NDT_GLASSLIKE);
 
-        generateCloseLod(types, width, -y_offset);
+        generateCloseLod(types, width, -y_offset, min_size);
     } else {
         std::bitset<19> solids;
         solids.set(NDT_NORMAL);
@@ -2104,9 +2106,9 @@ void MapblockMeshGenerator::generateLod() {
             solids.set(NDT_LIQUID);
 
 
-        generateDetailLod(solids, width, uvs, -y_offset);
+        generateDetailLod(solids, width, uvs, -y_offset, min_size);
         if (other.any())
-            generateDetailLod(other, width, uvs, 0);
+            generateDetailLod(other, width, uvs, 0, min_size);
     }
 }
 
