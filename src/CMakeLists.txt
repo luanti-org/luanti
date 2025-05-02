@@ -1117,20 +1117,17 @@ elseif (USE_GETTEXT)
 		set_mo_paths(MO_BUILD_PATH MO_DEST_PATH ${LOCALE})
 		set(MO_FILE_PATH "${MO_BUILD_PATH}/${PROJECT_NAME}.mo")
 
-		add_custom_command(OUTPUT ${MO_BUILD_PATH}
-			COMMAND ${CMAKE_COMMAND} -E make_directory ${MO_BUILD_PATH}
-			COMMENT "mo-update [${LOCALE}]: Creating locale directory.")
-
 		add_custom_command(
 			OUTPUT ${MO_FILE_PATH}
+			COMMAND ${CMAKE_COMMAND} -E make_directory ${MO_BUILD_PATH}
 			COMMAND ${GETTEXT_MSGFMT} -o ${MO_FILE_PATH} ${PO_FILE_PATH}
-			DEPENDS ${MO_BUILD_PATH} ${PO_FILE_PATH}
+			DEPENDS ${PO_FILE_PATH}
 			WORKING_DIRECTORY "${GETTEXT_PO_PATH}/${LOCALE}"
-			COMMENT "mo-update [${LOCALE}]: Creating mo file."
+			COMMENT "mo-update [${LOCALE}]: Creating mo file"
 			)
 
 		list(APPEND MO_FILES ${MO_FILE_PATH})
 	endforeach()
 
-	add_custom_target(translations ALL COMMENT "mo update" DEPENDS ${MO_FILES})
+	add_custom_target(translations ALL COMMENT "mo-update" DEPENDS ${MO_FILES})
 endif()
