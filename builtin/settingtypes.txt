@@ -262,8 +262,18 @@ fps_max_unfocused (FPS when unfocused or paused) int 20 1 4294967295
 #    View distance in nodes.
 viewing_range (Viewing range) int 190 20 4000
 
+#    Undersampling is similar to using a lower screen resolution, but it applies
+#    to the game world only, keeping the GUI intact.
+#    It should give a significant performance boost at the cost of less detailed image.
+#    Higher values result in a less detailed image.
+#    Note: Undersampling is currently not supported if the "3d_mode" setting is set
+#    to a non-default value.
+undersampling (Undersampling) int 1 1 8
+
+[**LOD]
+
 #    Distance of blocks, when LODs should kick in.
-lod_threshold (LOD Threshold) int 10 5 25
+lod_threshold (LOD Threshold) int 20 10 50
 
 #    LOD at which they switch from blocks to their slanted representation.
 lod_slant_threshold (LOD Slant Threshold) int 4 1 10
@@ -274,16 +284,9 @@ lod_slant_threshold (LOD Slant Threshold) int 4 1 10
 #    Since this setting interacts with LOD Threshold, a lower quality can still look good if the threshold is sufficiently high.
 lod_quality (LOD Quality) float 1.5 0.5 5
 
-#	TODO
-lod_size_threshold (LOD min. size) float 0.5 0.01 1
-
-#    Undersampling is similar to using a lower screen resolution, but it applies
-#    to the game world only, keeping the GUI intact.
-#    It should give a significant performance boost at the cost of less detailed image.
-#    Higher values result in a less detailed image.
-#    Note: Undersampling is currently not supported if the "3d_mode" setting is set
-#    to a non-default value.
-undersampling (Undersampling) int 1 1 8
+#	Any LODs which are smaller then this fraction of their maximum size will not get rendered.
+#	Too high values can result in holes in the world.
+lod_size_threshold (LOD min. size) float 0.25 0.01 1
 
 [**3D]
 
