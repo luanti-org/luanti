@@ -1821,17 +1821,18 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
 
     // too tiny lods should be skipped
     // but to avoid holes in the world, we need to track which volumes got skipped
-    u8 num = data->m_side_length / width;
+    u8 num = data->m_side_length / width + 2;
     std::vector<std::vector<std::vector<bool>>> skipped_volumes(num, std::vector(num, std::vector(num, false)));
     // track this as well, to avoid recomputing
     std::vector<std::vector<std::vector<v3s16>>> volume_points(num, std::vector(num, std::vector(num, v3s16(S16_MAX))));
+    std::vector<std::vector<std::vector<std::bitset<6>>>> faces(num, std::vector(num, std::vector<std::bitset<6>>(num)));
     std::vector<std::vector<std::vector<irr::core::aabbox3d<s16>>>>
         volumes(num, std::vector(num, std::vector(num, irr::core::aabbox3d<s16>(v3s16(S16_MAX), v3s16(S16_MIN)))));
 
     for (u8 x = 0; x < num; x++)
     for (u8 y = 0; y < num; y++)
     for (u8 z = 0; z < num; z++){
-        v3s16 from = v3s16(x, y, z) * width + blockpos_nodes;
+        v3s16 from = v3s16(x - 1, y - 1, z - 1) * width + blockpos_nodes;
         v3s16 to = from + width;
 
         v3s16 lxlylz = std::move(volumes[x][y][z].MinEdge);
@@ -1858,19 +1859,58 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
 
         volume_points[x][y][z] = main_point;
         // skip if LOD is too small
-        skipped_volumes[x][y][z] = lxlylz.getDistanceFromSQ(hxhyhz) < min_size;
+        skipped_volumes[x][y][z] = lxlylz.X == S16_MAX || lxlylz.getDistanceFromSQ(hxhyhz) < min_size;
         volumes[x][y][z].MinEdge = std::move(lxlylz);
         volumes[x][y][z].MaxEdge = std::move(hxhyhz);
     }
 
-    for (u8 x = 0; x < num; x++)
-    for (u8 y = 0; y < num; y++)
-    for (u8 z = 0; z < num; z++){
+    num--;
+
+    for (u8 x = 1; x < num; x++)
+    for (u8 y = 1; y < num; y++)
+    for (u8 z = 1; z < num; z++){
+        if (skipped_volumes[x][y][z])
+            continue;
+
+        irr::core::aabbox3d<s16> cur = volumes[x][y][z];
+
+        faces[x][y][z].set(0, skipped_volumes[x][y-1][z] || volumes[x][y-1][z].MaxEdge.Y+1 < cur.MinEdge.Y ||
+            volumes[x][y-1][z].MinEdge.X != cur.MinEdge.X || volumes[x][y-1][z].MinEdge.Z != cur.MinEdge.Z ||
+            volumes[x][y-1][z].MaxEdge.X != cur.MaxEdge.X || volumes[x][y-1][z].MaxEdge.Z != cur.MaxEdge.Z);
+
+        faces[x][y][z].set(1, skipped_volumes[x][y+1][z] || volumes[x][y+1][z].MinEdge.Y > cur.MaxEdge.Y+1 ||
+            volumes[x][y+1][z].MinEdge.X != cur.MinEdge.X || volumes[x][y+1][z].MinEdge.Z != cur.MinEdge.Z ||
+            volumes[x][y+1][z].MaxEdge.X != cur.MaxEdge.X || volumes[x][y+1][z].MaxEdge.Z != cur.MaxEdge.Z);
+
+        faces[x][y][z].set(2, skipped_volumes[x-1][y][z] || volumes[x-1][y][z].MaxEdge.X+1 < cur.MinEdge.X ||
+            volumes[x-1][y][z].MinEdge.Y != cur.MinEdge.Y || volumes[x-1][y][z].MinEdge.Z != cur.MinEdge.Z ||
+            volumes[x-1][y][z].MaxEdge.Y != cur.MaxEdge.Y || volumes[x-1][y][z].MaxEdge.Z != cur.MaxEdge.Z);
+
+        faces[x][y][z].set(3, skipped_volumes[x+1][y][z] || volumes[x+1][y][z].MinEdge.X > cur.MaxEdge.X+1 ||
+            volumes[x+1][y][z].MinEdge.Y != cur.MinEdge.Y || volumes[x+1][y][z].MinEdge.Z != cur.MinEdge.Z ||
+            volumes[x+1][y][z].MaxEdge.Y != cur.MaxEdge.Y || volumes[x+1][y][z].MaxEdge.Z != cur.MaxEdge.Z);
+
+        faces[x][y][z].set(4, skipped_volumes[x][y][z-1] || volumes[x][y][z-1].MaxEdge.Z+1 < cur.MinEdge.Z ||
+            volumes[x][y][z-1].MinEdge.X != cur.MinEdge.X || volumes[x][y][z-1].MinEdge.Y != cur.MinEdge.Y ||
+            volumes[x][y][z-1].MaxEdge.X != cur.MaxEdge.X || volumes[x][y][z-1].MaxEdge.Y != cur.MaxEdge.Y);
+
+        faces[x][y][z].set(5, skipped_volumes[x][y][z+1] || volumes[x][y][z+1].MinEdge.Z > cur.MaxEdge.Z+1 ||
+            volumes[x][y][z+1].MinEdge.X != cur.MinEdge.X || volumes[x][y][z+1].MinEdge.Y != cur.MinEdge.Y ||
+            volumes[x][y][z+1].MaxEdge.X != cur.MaxEdge.X || volumes[x][y][z+1].MaxEdge.Y != cur.MaxEdge.Y);
+    }
+    for (u8 x = 1; x < num; x++)
+    for (u8 y = 1; y < num; y++)
+    for (u8 z = 1; z < num; z++)
+        skipped_volumes[x][y][z] = skipped_volumes[x][y][z] || faces[x][y][z].none();
+
+    for (u8 x = 1; x < num; x++)
+    for (u8 y = 1; y < num; y++)
+    for (u8 z = 1; z < num; z++){
         v3s16 lxlylz = volumes[x][y][z].MinEdge;
         v3s16 hxhyhz = volumes[x][y][z].MaxEdge;
 
         // skip empty or too small meshes
-        if (lxlylz.X == S16_MAX || skipped_volumes[x][y][z]){
+        if (skipped_volumes[x][y][z]){
             continue;
         }
 
@@ -1904,17 +1944,8 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
                           {d, h}, {d, h},
                           {w, h}, {w, h}};
         TileSpec tile;
-        MapNode main_node = data->m_vmanip.getNodeNoExNoEmerge(volume_points[x][y][z]);
         for(u8 side = 0; side < 6; side++){
-            s16 neigh_x = x + directions[side].X;
-            s16 neigh_y = y + directions[side].Y;
-            s16 neigh_z = z + directions[side].Z;
-            bool is_in_bounds = neigh_x >= 0 && neigh_y >= 0 && neigh_z >= 0 && neigh_x < num && neigh_y < num && neigh_z < num;
-            if ((!is_in_bounds || (is_in_bounds && !skipped_volumes[neigh_x][neigh_y][neigh_z])) && // TODO if in bounds, check volumes instead of below
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][0] + directions[side])))->drawtype) &&
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][1] + directions[side])))->drawtype) &&
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][2] + directions[side])))->drawtype) &&
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[side][3] + directions[side])))->drawtype))
+            if (!faces[x][y][z].test(side))
                 continue;
 
             u8 day_light = 0;
@@ -1944,7 +1975,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
                 video::S3DVertex(vertices[side][2], normal, color, core::vector2d<f32>{uvs2[side][0], 0}),
                 video::S3DVertex(vertices[side][3], normal, color, core::vector2d<f32>{uvs2[side][0], uvs2[side][1]}),
             };
-            getNodeTile(main_node, volume_points[x][y][z], directions[side], data, tile);
+            getNodeTile(data->m_vmanip.getNodeNoExNoEmerge(volume_points[x][y][z]), volume_points[x][y][z], directions[side], data, tile);
             collector->append(tile, v, 4, quad_indices, 6);
         }
     }
@@ -2053,7 +2084,6 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
 
 void MapblockMeshGenerator::generateLod() {
     u16 width = 1 << MYMIN(data->m_lod, 15);
-    // floatToInt(client->getCamera()->getPosition(), BS);
 
     if(width > data->m_side_length){
         width = data->m_side_length;
@@ -2075,7 +2105,7 @@ void MapblockMeshGenerator::generateLod() {
         // liquids are always rendered slanted
         std::bitset<19> liqu_set;
         liqu_set.set(NDT_LIQUID);
-        generateDetailLod(liqu_set, width, uvs, 0.0f, min_size);
+        generateDetailLod(liqu_set, width, uvs, 0, min_size);
 
         std::bitset<19> types;
         types.set(NDT_NORMAL);
