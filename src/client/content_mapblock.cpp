@@ -341,6 +341,27 @@ video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos,
 	return color;
 }
 
+void MapblockMeshGenerator::generateCuboidTextureCoords(const aabb3f &box, f32 *coords)
+{
+	// Generate texture coords which are aligned to coords of a solid nodes
+	f32 tx1 = (box.MinEdge.X / BS) + 0.5f;
+	f32 ty1 = (box.MinEdge.Y / BS) + 0.5f;
+	f32 tz1 = (box.MinEdge.Z / BS) + 0.5f;
+	f32 tx2 = (box.MaxEdge.X / BS) + 0.5f;
+	f32 ty2 = (box.MaxEdge.Y / BS) + 0.5f;
+	f32 tz2 = (box.MaxEdge.Z / BS) + 0.5f;
+	f32 txc[24] = {
+		    tx1, 1 - tz2,     tx2, 1 - tz1, // up
+		    tx1,     tz1,     tx2,     tz2, // down
+		    tz1, 1 - ty2,     tz2, 1 - ty1, // right
+		1 - tz2, 1 - ty2, 1 - tz1, 1 - ty1, // left
+		1 - tx2, 1 - ty2, 1 - tx1, 1 - ty1, // back
+		    tx1, 1 - ty2,     tx2, 1 - ty1, // front
+	};
+	for (int i = 0; i != 24; ++i)
+		coords[i] = txc[i];
+}
+
 static inline int lightDiff(LightPair a, LightPair b)
 {
 	return abs(a.lightDay - b.lightDay) + abs(a.lightNight - b.lightNight);
@@ -963,7 +984,10 @@ void MapblockMeshGenerator::drawGlasslikeFramedNode()
 			edge_invisible = nb[nb_triplet[edge][0]] ^ nb[nb_triplet[edge][1]];
 		if (edge_invisible)
 			continue;
-		drawAutoLightedCuboid(frame_edges[edge], tiles[1]);
+
+		f32 txc[24];
+		generateCuboidTextureCoords(frame_edges[edge], txc);
+		drawAutoLightedCuboid(frame_edges[edge], tiles[1], txc);
 	}
 
 	for (int face = 0; face < 6; face++) {
@@ -1007,16 +1031,17 @@ void MapblockMeshGenerator::drawGlasslikeFramedNode()
 		float vlev = (param2 / 63.0f) * 2.0f - 1.0f;
 		TileSpec tile;
 		getSpecialTile(0, &tile);
-		drawAutoLightedCuboid(
-			aabb3f(
-				-(nb[5] ? g : b),
-				-(nb[4] ? g : b),
-				-(nb[3] ? g : b),
-				 (nb[2] ? g : b),
-				 (nb[1] ? g : b) * vlev,
-				 (nb[0] ? g : b)
-			),
-			tile);
+		aabb3f box(
+			-(nb[5] ? g : b),
+			-(nb[4] ? g : b),
+			-(nb[3] ? g : b),
+			 (nb[2] ? g : b),
+			 (nb[1] ? g : b) * vlev,
+			 (nb[0] ? g : b)
+		);
+		f32 txc[24];
+		generateCuboidTextureCoords(box, txc);
+		drawAutoLightedCuboid(box, tile, txc);
 	}
 }
 
@@ -1661,22 +1686,8 @@ void MapblockMeshGenerator::drawNodeboxNode()
 	for (auto &box : boxes) {
 		u8 mask = getNodeBoxMask(box, solid_neighbors, sametype_neighbors);
 
-		// Get texture coords for nodebox uv mapping
-		f32 tx1 = (box.MinEdge.X / BS) + 0.5f;
-		f32 ty1 = (box.MinEdge.Y / BS) + 0.5f;
-		f32 tz1 = (box.MinEdge.Z / BS) + 0.5f;
-		f32 tx2 = (box.MaxEdge.X / BS) + 0.5f;
-		f32 ty2 = (box.MaxEdge.Y / BS) + 0.5f;
-		f32 tz2 = (box.MaxEdge.Z / BS) + 0.5f;
-		f32 txc[24] = {
-			    tx1, 1 - tz2,     tx2, 1 - tz1, // up
-			    tx1,     tz1,     tx2,     tz2, // down
-			    tz1, 1 - ty2,     tz2, 1 - ty1, // right
-			1 - tz2, 1 - ty2, 1 - tz1, 1 - ty1, // left
-			1 - tx2, 1 - ty2, 1 - tx1, 1 - ty1, // back
-			    tx1, 1 - ty2,     tx2, 1 - ty1, // front
-		};
-
+		f32 txc[24];
+		generateCuboidTextureCoords(box, txc);
 		drawAutoLightedCuboid(box, tiles, 6, txc, mask);
 	}
 }
