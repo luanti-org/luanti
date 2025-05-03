@@ -146,7 +146,7 @@ static std::array<video::S3DVertex, 24> setupCuboidVertices(const aabb3f &box,
 	f32 uniform_txc[24];
 	if (!txc) {
 		for (int i = 0; i != 24; ++i) {
-			uniform_txc[i] = (i % 4 < 2) ? 0 : 1;
+			uniform_txc[i] = (i % 4 < 2) ? 0.0f : 1.0f;
 		}
 		txc = uniform_txc;
 	}
