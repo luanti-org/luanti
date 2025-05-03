@@ -9664,29 +9664,95 @@ Currently the only workaround is to use `run_at_every_load = true`.
 Tile definition
 ---------------
 
-* `"image.png"`
-* `{name="image.png", animation={Tile Animation definition}}`
-* `{name="image.png", backface_culling=bool, align_style="node"/"world"/"user", scale=int}`
-    * backface culling enabled by default for most nodes
-    * align style determines whether the texture will be rotated with the node
-      or kept aligned with its surroundings. "user" means that client
-      setting will be used, similar to `glasslike_framed_optional`.
-      Note: supported by solid nodes and nodeboxes only.
-    * scale is used to make texture span several (exactly `scale`) nodes,
-      instead of just one, in each direction. Works for world-aligned
-      textures only.
-      Note that as the effect is applied on per-mapblock basis, `16` should
-      be equally divisible by `scale` or you may get wrong results.
-* `{name="image.png", color=ColorSpec}`
-    * the texture's color will be multiplied with this color.
-    * the tile's color overrides the owning node's color in all cases.
-* deprecated, yet still supported field names:
-    * `image` (name)
+Short form:
+
+```lua
+"mymod_image.png"
+-- Equivalent to `{name = "mymod_image.png"}`.
+```
+
+Long form:
+
+```lua
+{
+    name = "mymod_image.png",
+    -- Texture for the tile, see [Textures].
+
+    image = "mymod_image.png",
+    -- Deprecated. Alternative to `name`.
+
+    backface_culling = bool,
+    -- If `true`, faces will only be drawn from one side.
+    --
+    -- Default:
+    -- * `false` for drawtypes `plantlike`, `firelike`, `mesh`, and `liquid`.
+    -- * `false` for `special_tiles` of drawtype `plantlike_rooted`.
+    -- * `true` otherwise.
+
+    tileable_horizontal = bool,
+    tileable_vertical = bool,
+    -- Decides how textures are sampled out-of-bounds.
+    --
+    -- If `true`, pixels are repeated, if `false`, values are clamped to edge.
+    --
+    -- `tileable_horizontal` and `tileable_vertical` apply to texture coordinates
+    -- horizontal and vertical respecitively in uv space, not world space.
+    --
+    -- Default (for both):
+    -- * `false` for drawtypes `plantlike`, and `firelike`.
+    -- * `false` for `special_tiles` of drawtype `plantlike_rooted`.
+    -- * `true` otherwise.
+
+    align_style = "node",
+    -- Determines whether the texture will be rotated with the node or kept
+    -- aligned with its surroundings.
+    --
+    -- The tile for a face of a node is still chosen by the node's rotation. This
+    -- option only applies to the rotation within the face's plane.
+    --
+    -- One of:
+    -- * "node" (default): Rotated with node.
+    -- * "world": Always default rotation.
+    -- * "user": Client setting `world_aligned_mode` will be used, similar to
+    --   `glasslike_framed_optional`.
+    --
+    -- Supported by solid (TODO: what's solid?) nodes and nodeboxes only.
+    --
+    -- Setting a different value in `overlay_tiles` is not supported. (TODO: test)
+
+    scale = int,
+    -- Make the tile span several (exactly `scale`) nodes, instead of just one,
+    -- in each direction. Works for world-aligned tiles only.
+    --
+    -- `0` (default) to disable.
+    --
+    -- Note that as the effect is applied on a per-mapblock (TODO: meshchunk?)
+    -- basis, `16` should be equally divisible by `scale` or you may get wrong
+    -- results. (TODO: easy to fix?.)
+    --
+    -- Not supported if used with `visual_scale ~= 1`. (TODO: test)
+
+    color = ColorSpec,
+    -- The texture's color will be multiplied with this color.
+    --
+    -- Overrides the owning node's color in all cases (`color` nodedef field and
+    -- node palette color (? TODO)).
+
+    animation = Tile animation definition,
+    -- If given, tile will be animated over time.
+    --
+    -- See [Tile animation definition].
+}
+```
 
 Tile animation definition
 -------------------------
 
 ```lua
+{
+    type = "none",
+}
+
 {
     type = "vertical_frames",
 
@@ -9697,7 +9763,7 @@ Tile animation definition
     -- Height of a frame in pixels
 
     length = 3.0,
-    -- Full loop length
+    -- Full loop length in seconds
 }
 
 {
@@ -9710,7 +9776,7 @@ Tile animation definition
     -- Height in number of frames
 
     frame_length = 0.5,
-    -- Length of a single frame
+    -- Length of a single frame in seconds
 }
 ```
 
@@ -9975,8 +10041,12 @@ Used by `core.register_node`.
     -- on the node.
 
     tiles = {tile definition 1, def2, def3, def4, def5, def6},
-    -- Textures of node; +Y, -Y, +X, -X, +Z, -Z
+    -- Textures of node.
+    -- UV mapping depends on drawtype, see [Node drawtypes].
+    -- For `normal` nodes: +Y, -Y, +X, -X, +Z, -Z
     -- List can be shortened to needed length.
+    -- 6 is maximum.
+    -- See [Tile definition].
 
     overlay_tiles = {tile definition 1, def2, def3, def4, def5, def6},
     -- Same as `tiles`, but these textures are drawn on top of the base
