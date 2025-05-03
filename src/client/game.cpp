@@ -5,7 +5,6 @@
 #include "game.h"
 
 #include <cmath>
-#include "IAttributes.h"
 #include "client/renderingengine.h"
 #include "camera.h"
 #include "client.h"
@@ -958,8 +957,6 @@ bool Game::startup(bool *kill,
 	smgr = m_rendering_engine->get_scene_manager();
 
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, g_settings->getBool("mip_map"));
-
-	smgr->getParameters()->setAttribute(scene::OBJ_LOADER_IGNORE_MATERIAL_FILES, true);
 
 	// Reinit runData
 	runData = GameRunData();

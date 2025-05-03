@@ -9,7 +9,6 @@
 #include "IGPUProgrammingServices.h"
 #include "irrArray.h"
 #include "irrString.h"
-#include "IAttributes.h"
 #include "IMesh.h"
 #include "IMeshBuffer.h"
 #include "IMeshSceneNode.h"
@@ -49,9 +48,6 @@ public:
 
 	//! queries the features of the driver, returns true if feature is available
 	bool queryFeature(E_VIDEO_DRIVER_FEATURE feature) const override;
-
-	//! Get attributes of the actual video driver
-	const io::IAttributes &getDriverAttributes() const override;
 
 	//! sets transformation
 	void setTransform(E_TRANSFORMATION_STATE state, const core::matrix4 &mat) override;
@@ -716,8 +712,6 @@ protected:
 	f32 FogDensity;
 	SColor FogColor;
 	SExposedVideoData ExposedData;
-
-	io::IAttributes *DriverAttributes;
 
 	SOverrideMaterial OverrideMaterial;
 	SMaterial OverrideMaterial2D;

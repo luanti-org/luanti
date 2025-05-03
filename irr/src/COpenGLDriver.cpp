@@ -116,18 +116,6 @@ bool COpenGLDriver::genericDriverInit()
 		os::Printer::log("GLSL version", buf, ELL_INFORMATION);
 	} else
 		os::Printer::log("GLSL not available.", ELL_INFORMATION);
-	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
-	DriverAttributes->setAttribute("MaxAuxBuffers", MaxAuxBuffers);
-	DriverAttributes->setAttribute("MaxMultipleRenderTargets", (s32)Feature.MultipleRenderTarget);
-	DriverAttributes->setAttribute("MaxIndices", (s32)MaxIndices);
-	DriverAttributes->setAttribute("MaxTextureSize", (s32)MaxTextureSize);
-	DriverAttributes->setAttribute("MaxGeometryVerticesOut", (s32)MaxGeometryVerticesOut);
-	DriverAttributes->setAttribute("MaxTextureLODBias", MaxTextureLODBias);
-	DriverAttributes->setAttribute("Version", Version);
-	DriverAttributes->setAttribute("ShaderLanguageVersion", ShaderLanguageVersion);
-	DriverAttributes->setAttribute("AntiAlias", AntiAlias);
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 

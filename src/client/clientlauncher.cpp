@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include "IAttributes.h"
 #include "gui/mainmenumanager.h"
 #include "clouds.h"
 #include "gui/touchcontrols.h"
@@ -110,9 +109,6 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	m_rendering_engine->setResizable(true);
 
 	init_input();
-
-	m_rendering_engine->get_scene_manager()->getParameters()->
-		setAttribute(scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
 
 	guienv = m_rendering_engine->get_gui_env();
 	config_guienv();

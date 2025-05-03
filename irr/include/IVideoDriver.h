@@ -25,7 +25,6 @@ namespace irr
 {
 namespace io
 {
-class IAttributes;
 class IReadFile;
 class IWriteFile;
 } // end namespace io
@@ -126,23 +125,6 @@ public:
 	\param feature Feature to disable.
 	\param flag When true the feature is disabled, otherwise it is enabled. */
 	virtual void disableFeature(E_VIDEO_DRIVER_FEATURE feature, bool flag = true) = 0;
-
-	//! Get attributes of the actual video driver
-	/** The following names can be queried for the given types:
-	MaxTextures (int) The maximum number of simultaneous textures supported by the driver. This can be less than the supported number of textures of the driver. Use _IRR_MATERIAL_MAX_TEXTURES_ to adapt the number.
-	MaxSupportedTextures (int) The maximum number of simultaneous textures supported by the fixed function pipeline of the (hw) driver. The actual supported number of textures supported by the engine can be lower.
-	MaxAnisotropy (int) Number of anisotropy levels supported for filtering. At least 1, max is typically at 16 or 32.
-	MaxAuxBuffers (int) Special render buffers, which are currently not really usable inside Irrlicht. Only supported by OpenGL
-	MaxMultipleRenderTargets (int) Number of render targets which can be bound simultaneously. Rendering to MRTs is done via shaders.
-	MaxIndices (int) Number of indices which can be used in one render call (i.e. one mesh buffer).
-	MaxTextureSize (int) Dimension that a texture may have, both in width and height.
-	MaxGeometryVerticesOut (int) Number of vertices the geometry shader can output in one pass. Only OpenGL so far.
-	MaxTextureLODBias (float) Maximum value for LOD bias. Is usually at around 16, but can be lower on some systems.
-	Version (int) Version of the driver. Should be Major*100+Minor
-	ShaderLanguageVersion (int) Version of the high level shader language. Should be Major*100+Minor.
-	AntiAlias (int) Number of Samples the driver uses for each pixel. 0 and 1 means anti aliasing is off, typical values are 2,4,8,16,32
-	*/
-	virtual const io::IAttributes &getDriverAttributes() const = 0;
 
 	//! Sets transformation matrices.
 	/** \param state Transformation type to be set, e.g. view,
@@ -1132,7 +1114,6 @@ public:
 
 	//! Only used by the engine internally.
 	/** Passes the global material flag AllowZWriteOnTransparent.
-	Use the SceneManager attribute to set this value from your app.
 	\param flag Default behavior is to disable ZWrite, i.e. false. */
 	virtual void setAllowZWriteOnTransparent(bool flag) = 0;
 
