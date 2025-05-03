@@ -635,11 +635,6 @@ void GUITable::setDynamicData(const DynamicData &dyndata)
 	m_scrollbar->setPos(dyndata.scrollpos);
 }
 
-const c8* GUITable::getTypeName() const
-{
-	return "GUITable";
-}
-
 void GUITable::updateAbsolutePosition()
 {
 	IGUIElement::updateAbsolutePosition();

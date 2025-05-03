@@ -10,9 +10,11 @@
 #include <limits>
 #include <sstream>
 #include "guiFormSpecMenu.h"
+#include "EGUIElementTypes.h"
 #include "constants.h"
 #include "gamedef.h"
 #include "client/keycode.h"
+#include "gui/guiTable.h"
 #include "util/strfnd.h"
 #include <IGUIButton.h>
 #include <IGUICheckBox.h>
@@ -198,7 +200,7 @@ void GUIFormSpecMenu::setInitialFocus()
 
 	// 3. first table
 	for (gui::IGUIElement *it : children) {
-		if (it->getTypeName() == std::string("GUITable")) {
+		if (it->getType() == gui::EGUIET_TABLE) {
 			Environment->setFocus(it);
 			return;
 		}
