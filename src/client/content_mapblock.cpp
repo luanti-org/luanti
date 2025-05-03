@@ -1776,7 +1776,7 @@ void MapblockMeshGenerator::drawNode()
 }
 
 void MapblockMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::vector<v3s16> &bases, v3s16 from, v3s16 to){
-    std::vector<s16> min_dists(bases.size(), S16_MAX);
+    std::vector<u16> min_dists(bases.size(), U16_MAX);
     std::vector<v3s16> outs(bases.size());
     v3s16 p;
     for (p.Z = from.Z; p.Z < to.Z; p.Z++)
@@ -1985,11 +1985,12 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
     static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
                                         v3s16(-1, 0, 0), v3s16(1, 0, 0),
                                         v3s16(0, 0, -1), v3s16(0, 0, 1)};
+    u8 num = data->m_side_length / width;
 
-    for (u8 x = 0; x < data->m_side_length; x += width)
-    for (u8 y = 0; y < data->m_side_length; y += width)
-    for (u8 z = 0; z < data->m_side_length; z += width){
-        v3s16 from = v3s16(x, y, z) + blockpos_nodes;
+    for (u8 x = 0; x < num; x++)
+    for (u8 y = 0; y < num; y++)
+    for (u8 z = 0; z < num; z++){
+        v3s16 from = v3s16(x, y, z) * width + blockpos_nodes;
         v3s16 to = from + width;
 
         // if there are no fitting nodes in this subblock, skip rendering
@@ -1999,14 +2000,14 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
         // eg lxhylz = corner of a block, where x and z are lowest and y is highest
         // lxhylz is initialized with the values for the opposite corner, so high x and z, low y
         std::vector<v3s16> bounds = {
-            blockpos_nodes + v3s16(x, y, z), //                          hxhyhz
-            blockpos_nodes + v3s16(x, y, z + width), //                  hxhylz
-            blockpos_nodes + v3s16(x, y + width, z), //                  hxlyhz
-            blockpos_nodes + v3s16(x, y + width, z + width), //          hxlylz
-            blockpos_nodes + v3s16(x + width, y, z), //                  lxhyhz
-            blockpos_nodes + v3s16(x + width, y, z + width), //          lxhylz
-            blockpos_nodes + v3s16(x + width, y + width, z), //          lxlyhz
-            blockpos_nodes + v3s16(x + width, y + width, z + width), //  lxlylz
+            v3s16(from.X, from.Y, from.Z), // lxlylz
+            v3s16(from.X, from.Y, to.Z), //   lxlyhz
+            v3s16(from.X, to.Y, from.Z), //   lxhylz
+            v3s16(from.X, to.Y, to.Z), //     lxhyhz
+            v3s16(to.X, from.Y, from.Z), //   hxlylz
+            v3s16(to.X, from.Y, to.Z), //     hxlyhz
+            v3s16(to.X, to.Y, from.Z), //     hxhylz
+            v3s16(to.X, to.Y, to.Z), //       hxhyhz
         };
         // updates bounds to contain the actual bounds of the LOD object, where the corners are the nodes furthest away from their previous value
         findClosestOfTypes(types, bounds, from, to);
