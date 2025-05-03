@@ -274,6 +274,9 @@ lod_slant_threshold (LOD Slant Threshold) int 4 1 10
 #    Since this setting interacts with LOD Threshold, a lower quality can still look good if the threshold is sufficiently high.
 lod_quality (LOD Quality) float 1.5 0.5 5
 
+#	TODO
+lod_size_threshold (LOD min. size) float 0.5 0.01 1
+
 #    Undersampling is similar to using a lower screen resolution, but it applies
 #    to the game world only, keeping the GUI intact.
 #    It should give a significant performance boost at the cost of less detailed image.
