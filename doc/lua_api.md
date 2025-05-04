@@ -9684,7 +9684,7 @@ Long form:
     -- If `true`, faces will only be drawn from one side.
     --
     -- Default:
-    -- * `false` for drawtypes `plantlike`, `firelike`, `mesh`, and `liquid`.
+    -- * `false` for drawtypes `plantlike`, `firelike`, `mesh`, and `liquid`. TODO: flowingliquid?
     -- * `false` for `special_tiles` of drawtype `plantlike_rooted`.
     -- * `true` otherwise.
 
@@ -9715,7 +9715,29 @@ Long form:
     -- * "user": Client setting `world_aligned_mode` will be used, similar to
     --   `glasslike_framed_optional`.
     --
-    -- Only supported by drawtypes made of cuboids.
+    -- Only supported by the following drawtypes:
+    --
+    -- * `normal`
+    -- * `liquid` (but not `flowingliquid`)
+    -- * `glasslike_framed`: Only frame (tile 1).  With `paramtype2`
+    --   `glasslikeliquidlevel`, `special_tiles` also don't support this.
+    -- * `glasslike_framed_optional`: Same limitations as for `glasslike_framed`.
+    --   And if the `connected_glass` setting is disabled, it may be drawn like
+    --   `scale` TODO.
+    -- * `allfaces` TODO?
+    -- * `allfaces_optional` TODO?
+    -- * `torchlike` TODO?
+    -- * `signlike` TODO?
+    -- * `plantlike` TODO?
+    -- * `firelike` TODO?
+    -- * `fencelike` TODO?
+    -- * `raillike` TODO?
+    -- * `nodebox` TODO?
+    -- * `mesh` TODO?
+    -- * `plantlike_rooted` (only the cube part)
+    --
+    -- If a drawtype (or part of it) is not supported, don't use this feature,
+    -- as support may be added in the future.
     --
     -- Setting a different value in the corresponding `overlay_tiles` tile is not
     -- supported.
