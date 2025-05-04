@@ -64,6 +64,7 @@
 		[scheduled bump for 5.11.0]
 	PROTOCOL VERSION 48
 		Add compression to some existing packets
+		Send HUD_PARAM_HOTBAR_SOURCE instead of HUD_PARAM_HOTBAR_ITEMCOUNT
 		[scheduled bump for 5.12.0]
 */
 
