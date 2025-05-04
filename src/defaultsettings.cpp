@@ -340,7 +340,6 @@ void set_default_settings()
 	settings->setDefault("enable_volumetric_lighting", "false");
 	settings->setDefault("enable_water_reflections", "false");
 	settings->setDefault("enable_translucent_foliage", "false");
-	settings->setDefault("enable_node_specular", "false");
 
 	// Effects Shadows
 	settings->setDefault("enable_dynamic_shadows", "false");

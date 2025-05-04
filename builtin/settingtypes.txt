@@ -872,11 +872,6 @@ enable_volumetric_lighting (Volumetric lighting) bool false
 #   Requires: enable_dynamic_shadows
 enable_translucent_foliage (Translucent foliage) bool false
 
-#   Apply specular shading to nodes.
-#
-#   Requires: enable_dynamic_shadows
-enable_node_specular (Node specular) bool false
-
 #   When enabled, liquid reflections are simulated.
 #
 #   Requires: enable_waving_water, enable_dynamic_shadows
