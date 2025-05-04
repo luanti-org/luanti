@@ -41,14 +41,36 @@ core.register_node("tiled:tiled_liquid", {
 	tiles = {scaled_tile},
 	groups = {cracky=3},
 	waving = 3,
-	liquidtype = "none",
+	liquidtype = "source",
+	liquid_alternative_flowing = "tiled:tiled_flowingliquid",
+	liquid_alternative_source = "tiled:tiled_liquid",
+	liquid_renewable = false,
 	buildable_to = true,
 })
 
-core.register_node("tiled:tiled_glasslike", { -- broken
+core.register_node("tiled:tiled_flowingliquid", {
+	description =
+		"Tiled 'flowingliquid' Node (world-aligned)".."\n"..
+		"Broken".."\n"..
+		"(waving = 3)",
+	paramtype = "light",
+	paramtype2 = "flowingliquid",
+	drawtype = "flowingliquid",
+	tiles = {scaled_tile},
+	special_tiles = {scaled_tile, scaled_tile},
+	groups = {cracky=3},
+	waving = 3,
+	liquidtype = "flowing",
+	liquid_alternative_flowing = "tiled:tiled_flowingliquid",
+	liquid_alternative_source = "tiled:tiled_liquid",
+	liquid_renewable = false,
+	buildable_to = true,
+})
+
+core.register_node("tiled:tiled_glasslike", {
 	description =
 		"Tiled 'glasslike' Node (world-aligned)".."\n"..
-		align_help,
+		"Broken",
 	paramtype = "light",
 	paramtype2 = "facedir",
 	drawtype = "glasslike",
@@ -66,24 +88,36 @@ core.register_node("tiled:tiled_glasslike_framed", {
 	groups = {cracky=3},
 })
 
-core.register_node("tiled:tiled_glasslike_framed", {
-	description =
-		"Tiled 'glasslike_framed' Node (world-aligned)".."\n"..
-		align_help,
-	paramtype = "light",
-	drawtype = "glasslike_framed",
-	tiles = {scaled_tile, "testnodes_glasslike_detail.png"},
-	groups = {cracky=3},
-})
-
 core.register_node("tiled:tiled_glasslike_framed_optional", {
 	description =
 		"Tiled 'glasslike_framed_optional' Node (world-aligned)".."\n"..
 		align_help,
 	paramtype = "light",
 	drawtype = "glasslike_framed_optional",
-	tiles = {scaled_tile, "testnodes_glasslike_detail.png"},
+	tiles = {scaled_tile, "testnodes_glasslike_detail.png"}, --TODO: tiled detail png
 	groups = {cracky=3},
+})
+
+core.register_node("tiled:tiled_allfaces", {
+	description =
+		"Tiled 'allfaces' Node (world-aligned)".."\n"..
+		align_help.."\n",
+	paramtype = "light",
+	drawtype = "allfaces",
+	tiles = {scaled_tile},
+	groups = {cracky=3},
+})
+
+core.register_node("tiled:tiled_allfaces_optional", {
+	description =
+		"Tiled 'allfaces_optional' Node (world-aligned)".."\n"..
+		"Broken for leaves_style = simple".."\n"..
+		"(waving = 2)",
+	paramtype = "light",
+	drawtype = "allfaces_optional",
+	tiles = {scaled_tile},
+	groups = {cracky=3},
+	waving = 2,
 })
 
 core.register_node("tiled:tiled_rooted", {

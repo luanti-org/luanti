@@ -9719,21 +9719,16 @@ Long form:
     --
     -- * `normal`
     -- * `liquid` (but not `flowingliquid`)
+    -- * `flowingliquid`: no, TODO
+    -- * `glasslike`: no, TODO
     -- * `glasslike_framed`: Only frame (tile 1).  With `paramtype2`
     --   `glasslikeliquidlevel`, `special_tiles` also don't support this.
     -- * `glasslike_framed_optional`: Same limitations as for `glasslike_framed`.
     --   And if the `connected_glass` setting is disabled, it may be drawn like
-    --   `scale` TODO.
-    -- * `allfaces` TODO?
-    -- * `allfaces_optional` TODO?
-    -- * `torchlike` TODO?
-    -- * `signlike` TODO?
-    -- * `plantlike` TODO?
-    -- * `firelike` TODO?
-    -- * `fencelike` TODO?
-    -- * `raillike` TODO?
-    -- * `nodebox` TODO?
-    -- * `mesh` TODO?
+    --   only the `1/scale` base tile is drawn. TODO: just support glasslike
+    -- * `allfaces`
+    -- * `allfaces_optional`: no, because of leaves_style simple
+    -- * `nodebox`
     -- * `plantlike_rooted` (only the cube part)
     --
     -- If a drawtype (or part of it) is not supported, don't use this feature,
