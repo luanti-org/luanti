@@ -55,15 +55,14 @@ static void fillRadiusBlock(v3s16 p0, s16 r, std::set<v3s16> &list)
 {
 	v3s16 p;
 	for(p.X=p0.X-r; p.X<=p0.X+r; p.X++)
-		for(p.Y=p0.Y-r; p.Y<=p0.Y+r; p.Y++)
-			for(p.Z=p0.Z-r; p.Z<=p0.Z+r; p.Z++)
-			{
-				// limit to a sphere
-				if (p.getDistanceFrom(p0) <= r) {
-					// Set in list
-					list.insert(p);
-				}
-			}
+	for(p.Y=p0.Y-r; p.Y<=p0.Y+r; p.Y++)
+	for(p.Z=p0.Z-r; p.Z<=p0.Z+r; p.Z++) {
+		// limit to a sphere
+		if (p.getDistanceFrom(p0) <= r) {
+			// Set in list
+			list.insert(p);
+		}
+	}
 }
 
 static void fillViewConeBlock(v3s16 p0,
@@ -119,30 +118,23 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 
 	m_abm_list = newlist;
 
-	/*
-		Find out which blocks on the new list are not on the old list
-	*/
+	// 1. Find out which blocks on the new list are not on the old list
+	std::set_difference(newlist.begin(), newlist.end(), m_list.begin(), m_list.end(),
+			std::inserter(blocks_added, blocks_added.end()));
+
+	// 2. remove duplicate blocks from the extra list
 	for (v3s16 p : newlist) {
-		// also remove duplicate blocks from the extra list
 		extralist.erase(p);
-		// If not on old list, it's been added
-		if (m_list.find(p) == m_list.end())
-			blocks_added.insert(p);
-	}
-	/*
-		Find out which blocks on the extra list are not on the old list
-	*/
-	for (v3s16 p : extralist) {
-		// also make sure newlist has all blocks
-		newlist.insert(p);
-		// If not on old list, it's been added
-		if (m_list.find(p) == m_list.end())
-			extra_blocks_added.insert(p);
 	}
 
-	/*
-		Find out which blocks on the old list are not on the new + extra list
-	*/
+	// 3. Find out which blocks on the extra list are not on the old list
+	std::set_difference(extralist.begin(), extralist.end(), m_list.begin(), m_list.end(),
+			std::inserter(extra_blocks_added, extra_blocks_added.end()));
+
+	// 4. make sure newlist has all new block
+	newlist.insert(extralist.begin(), extralist.end());
+
+	// 5. Find out which blocks on the old list are not on the new + extra list
 	std::set_difference(m_list.begin(), m_list.end(), newlist.begin(), newlist.end(),
 			std::inserter(blocks_removed, blocks_removed.end()));
 
@@ -167,9 +159,7 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 		assert(m_list.count(*blocks_removed.begin()) > 0);
 	}
 
-	/*
-		Update m_list
-	*/
+	// Update m_list
 	m_list = std::move(newlist);
 }
 
