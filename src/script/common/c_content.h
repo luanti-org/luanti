@@ -138,7 +138,7 @@ u32 read_flags_table(lua_State *L, int table,
 
 void push_items(lua_State *L, const std::vector<ItemStack> &items);
 
-std::vector<ItemStack> read_items(lua_State *L, int index, IGameDef* gdef);
+std::vector<ItemStack> read_items(lua_State *L, int index, IItemDefManager *idef);
 
 void push_simplesoundspec(lua_State *L, const SoundSpec &spec);
 
