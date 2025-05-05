@@ -113,6 +113,7 @@ local function init_globals()
 	ui.update()
 
 	check_reinstall_mtg()
+	adjust_keybinding_defaults()
 	migrate_keybindings()
 	check_new_version()
 end

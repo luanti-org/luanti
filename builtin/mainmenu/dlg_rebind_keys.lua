@@ -69,6 +69,32 @@ local function create_rebind_keys_dlg()
 	return dlg
 end
 
+function adjust_keybinding_defaults()
+	local has_key = {}
+	local default_settings = core.default_settings:to_table()
+	for name, value in pairs(default_settings) do
+		-- assume keydefault settings are normalized
+		if name:match("^keymap_") and value ~= "" then
+			has_key[value] = name
+		end
+	end
+	for name, value in pairs {
+		keymap_zoom = "KEY_KEY_Z",
+		keymap_chat = "KEY_KEY_T",
+		keymap_cmd = "/",
+		keymap_cmd_local = ".",
+		keymap_mute = "KEY_KEY_M",
+		keymap_camera_mode = "KEY_KEY_C",
+	} do
+		local normalized = core.normalize_keycode(value)
+		if normalized ~= "" and not has_key[normalized] then
+			has_key[default_settings[name]] = nil
+			has_key[normalized] = name
+			core.default_settings:set(name, value)
+		end
+	end
+end
+
 function migrate_keybindings()
 	local has_migration = false
 	local settings = core.settings:to_table()

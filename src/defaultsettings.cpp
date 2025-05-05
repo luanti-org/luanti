@@ -129,6 +129,8 @@ void set_default_settings()
 	settings->setDefault("chat_weblink_color", "#8888FF");
 
 	// Keymap
+	// Note: keycode-based keybinding defaults are adjusted later by the
+	// mainmenu code as the Irrlicht device is then available.
 #if USE_SDL2
 #define USEKEY2(name, value, _) settings->setDefault(name, value)
 #else

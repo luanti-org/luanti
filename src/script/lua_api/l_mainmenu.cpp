@@ -3,6 +3,7 @@
 // Copyright (C) 2013 sapier
 
 #include "lua_api/l_mainmenu.h"
+#include "lua_api/l_settings.h"
 #include "lua_api/l_internal.h"
 #include "common/c_content.h"
 #include "cpp_api/s_async.h"
@@ -1089,6 +1090,9 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_dir);
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
+
+	LuaSettings::create(L, Settings::getLayer(SL_DEFAULTS), "");
+	lua_setfield(L, top, "default_settings");
 }
 
 /******************************************************************************/
