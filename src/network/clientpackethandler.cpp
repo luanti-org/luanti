@@ -383,6 +383,9 @@ void Client::handleCommand_ChatMessage(NetworkPacket *pkt)
 
 	chatMessage->type = (ChatMessageType) message_type;
 
+	// log the chat message
+	actionstream << "[Chat] " << wide_to_utf8(chatMessage->message) << std::endl;
+
 	// @TODO send this to CSM using ChatMessage object
 	if (modsLoaded() && m_script->on_receiving_message(
 			wide_to_utf8(chatMessage->message))) {
