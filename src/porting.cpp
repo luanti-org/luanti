@@ -474,6 +474,7 @@ void migrateLegacyDirs() {
 #elif defined(__ANDROID__)
 
 extern bool setSystemPaths(); // defined in porting_android.cpp
+extern void migrateLegacyDirs(); // defined in porting_android.cpp
 
 
 //// XDG systems
@@ -1013,6 +1014,30 @@ void TriggerMemoryTrim()
 	}
 }
 
+#endif
+
+#if defined(__ANDROID__)
+std::optional<std::string> getPlatformSpecificConfigFile() {
+	return std::nullopt;
+}
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+static std::string xdg_get_config_dir() {
+	const char *const xdg_config_home = getenv("XDG_CONFIG_HOME");
+	if (xdg_config_home)
+		return std::string(xdg_config_home) + DIR_DELIM "luanti";
+	return std::string(getHomeOrFail()) + DIR_DELIM ".config" DIR_DELIM "luanti";
+}
+
+std::optional<std::string> getPlatformSpecificConfigFile() {
+	std::string config_home = xdg_get_config_dir();
+	fs::CreateAllDirs(config_home);
+	return config_home + DIR_DELIM CONFIGFILE;
+}
+
+#else
+std::optional<std::string> getPlatformSpecificConfigFile() {
+	return std::nullopt;
+}
 #endif
 
 } //namespace porting

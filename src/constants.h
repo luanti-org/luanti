@@ -105,3 +105,8 @@
 // The intent is to ensure that the rendering doesn't turn terribly blurry
 // when filtering is enabled.
 #define TEXTURE_FILTER_MIN_SIZE 192U
+
+
+// Luanti config filenames
+#define CONFIGFILE "luanti.conf"
+#define LEGACY_CONFIGFILE "minetest.conf"
