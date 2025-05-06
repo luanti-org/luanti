@@ -11,6 +11,7 @@
 #include "porting.h"
 #include "threading/mutex_auto_lock.h"
 #include "clientdynamicinfo.h"
+#include "util/pointedthing.h"
 
 #include <list>
 #include <memory>
@@ -255,12 +256,17 @@ public:
 	void SetBlocksNotSent(const std::vector<v3s16> &blocks, bool low_priority = false);
 
 	/**
-	 * tell client about this block being modified right now.
-	 * this information is required to requeue the block in case it's "on wire"
-	 * while modification is processed by server
-	 * @param p position of modified block
+	 * Trigger block sending to undo client-side predicted node changes
+	 *
+	 * \param action The interact action to determine which predictions the
+	 *   client could have made
+	 * \param pointed The positions where the client has interacted
+	 * \param prediction_success If true, assume that the client has made a
+	 *   correct prediction and send the mapblock only if an outdated mapblock
+	 *   is currently "on wire", which can erroneously override the prediction
 	 */
-	void ResendBlockIfOnWire(v3s16 p);
+	void respondToInteraction(InteractAction action,
+		const PointedThing &pointed, bool prediction_success);
 
 	u32 getSendingCount() const { return m_blocks_sending.size(); }
 
