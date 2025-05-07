@@ -1676,7 +1676,7 @@ void MapblockMeshGenerator::drawMeshNode()
 
 	if (cur_node.f->mesh_ptr) {
 		// clone and rotate mesh
-		mesh = cloneMesh(cur_node.f->mesh_ptr);
+		mesh = cloneStaticMesh(cur_node.f->mesh_ptr);
 		bool modified = true;
 		if (facedir)
 			rotateMeshBy6dFacedir(mesh, facedir);
