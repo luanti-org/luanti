@@ -29,7 +29,7 @@ void MeshCollector::append(const TileLayer &layer, const video::S3DVertex *verti
 	if (use_scale)
 		scale = 1.0f / layer.scale;
 
-    u32 vertex_count = p.vertices.size();
+	u32 vertex_count = p.vertices.size();
 	for (u32 i = 0; i < numVertices; i++) {
 		p.vertices.emplace_back(vertices[i].Pos + offset, vertices[i].Normal,
 				vertices[i].Color, scale * vertices[i].TCoords);

@@ -46,8 +46,8 @@ struct LightFrame {
 class MapblockMeshGenerator
 {
 public:
-    MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output);
-    void generate();
+	MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output);
+	void generate();
 
 private:
 	MeshMakeData *const data;
@@ -55,7 +55,7 @@ private:
 
 	const NodeDefManager *const nodedef;
 
-    const v3s16 blockpos_nodes;
+	const v3s16 blockpos_nodes;
 
 // current node
 	struct {
@@ -166,13 +166,29 @@ private:
 	void drawNodeboxNode();
 	void drawMeshNode();
 
-    void generateLod();
-    void generateDetailLod(std::bitset<19> types, u16, core::vector2d<f32>[4], f32, u8);
-    void generateCloseLod(std::bitset<19> types, u16 width, f32 y_offset, u8);
-    void findClosestOfTypes(std::bitset<19> types, std::vector<v3s16> &bases, v3s16 from, v3s16 to);
-    bool doesVolumeContainType(std::bitset<19> types, v3s16 from, v3s16 too);
-
 // common
 	void errorUnknownDrawtype();
-    void drawNode();
+	void drawNode();
+};
+
+class LodMeshGenerator
+{
+public:
+    LodMeshGenerator(MeshMakeData *input, MeshCollector *output);
+    void generate();
+
+private:
+    MeshMakeData *const data;
+    MeshCollector *const collector;
+    const NodeDefManager *const nodedef;
+    const v3s16 blockpos_nodes;
+
+    static constexpr v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
+                                        v3s16(-1, 0, 0), v3s16(1, 0, 0),
+                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
+
+    void generateDetailLod(std::bitset<19> types, u32, core::vector2d<f32>[4], f32, u8);
+    void generateCloseLod(std::bitset<19> types, u32 width, f32 y_offset, u8);
+    void findClosestOfTypes(std::bitset<19> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const;
+    bool doesVolumeContainType(std::bitset<19> types, v3s16 from, v3s16 too) const;
 };

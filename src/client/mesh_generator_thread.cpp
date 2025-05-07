@@ -11,7 +11,6 @@
 #include "map.h"
 #include "util/directiontables.h"
 #include "porting.h"
-#include <fstream>
 
 // Data placeholder used for copying from non-existent blocks
 static struct BlockPlaceholder {
@@ -59,13 +58,13 @@ MeshUpdateQueue::~MeshUpdateQueue()
 
 bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool urgent)
 {
-    MapBlock *main_block = map->getBlockNoCreateNoEx(p);
+	MapBlock *main_block = map->getBlockNoCreateNoEx(p);
 	if (!main_block)
 		return false;
 
 	MutexAutoLock lock(m_mutex);
 
-    MeshGrid mesh_grid = m_client->getMeshGrid();
+	MeshGrid mesh_grid = m_client->getMeshGrid();
 
 	// Mesh is placed at the corner block of a chunk
 	// (where all coordinate are divisible by the chunk size)
@@ -85,7 +84,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
                 + (cam_pos.Z - mesh_position.Z) * (cam_pos.Z - mesh_position.Z); // distance squared
     u16 renderDist = g_settings->getU16("lod_threshold");
     renderDist *= renderDist;
-    u16 lod;
+    u16 lod = 0;
     if (dist2 < renderDist) {
         lod = 0;
         urgent = true;
@@ -129,34 +128,34 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 		}
 	}
 
-    /*
-        Make a list of blocks necessary for mesh generation and lock the blocks in memory.
-    */
-    std::vector<MapBlock *> map_blocks;
-    map_blocks.reserve((mesh_grid.cell_size+2)*(mesh_grid.cell_size+2)*(mesh_grid.cell_size+2));
-    v3s16 pos;
-    for (pos.X = mesh_position.X - 1; pos.X <= mesh_position.X + mesh_grid.cell_size; pos.X++)
-    for (pos.Z = mesh_position.Z - 1; pos.Z <= mesh_position.Z + mesh_grid.cell_size; pos.Z++)
-    for (pos.Y = mesh_position.Y - 1; pos.Y <= mesh_position.Y + mesh_grid.cell_size; pos.Y++) {
-        MapBlock *block = map->getBlockNoCreateNoEx(pos);
-        map_blocks.push_back(block);
-        if (block)
-            block->refGrab();
-    }
+	/*
+		Make a list of blocks necessary for mesh generation and lock the blocks in memory.
+	*/
+	std::vector<MapBlock *> map_blocks;
+	map_blocks.reserve((mesh_grid.cell_size+2)*(mesh_grid.cell_size+2)*(mesh_grid.cell_size+2));
+	v3s16 pos;
+	for (pos.X = mesh_position.X - 1; pos.X <= mesh_position.X + mesh_grid.cell_size; pos.X++)
+	for (pos.Z = mesh_position.Z - 1; pos.Z <= mesh_position.Z + mesh_grid.cell_size; pos.Z++)
+	for (pos.Y = mesh_position.Y - 1; pos.Y <= mesh_position.Y + mesh_grid.cell_size; pos.Y++) {
+		MapBlock *block = map->getBlockNoCreateNoEx(pos);
+		map_blocks.push_back(block);
+		if (block)
+			block->refGrab();
+	}
 
-    /*
-        Add the block
-    */
-    QueuedMeshUpdate *q = new QueuedMeshUpdate;
-    q->p = mesh_position;
-    if(ack_block_to_server)
-        q->ack_list.push_back(p);
-    q->crack_level = m_client->getCrackLevel();
-    q->crack_pos = m_client->getCrackPos();
-    q->urgent = urgent;
-    q->map_blocks = std::move(map_blocks);
+	/*
+		Add the block
+	*/
+	QueuedMeshUpdate *q = new QueuedMeshUpdate;
+	q->p = mesh_position;
+	if(ack_block_to_server)
+		q->ack_list.push_back(p);
+	q->crack_level = m_client->getCrackLevel();
+	q->crack_pos = m_client->getCrackPos();
+	q->urgent = urgent;
+	q->map_blocks = std::move(map_blocks);
     q->lod = lod;
-    m_queue.push_back(q);
+	m_queue.push_back(q);
 
 	return true;
 }
@@ -212,15 +211,15 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	int i = 0;
 	for (pos.X = q->p.X - 1; pos.X <= q->p.X + mesh_grid.cell_size; pos.X++)
 	for (pos.Z = q->p.Z - 1; pos.Z <= q->p.Z + mesh_grid.cell_size; pos.Z++)
-    for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
-        MapBlock *block = q->map_blocks[i++];
+	for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
+		MapBlock *block = q->map_blocks[i++];
 		data->fillBlockData(pos, block ? block->getData() : block_placeholder.data);
 	}
 
-    data->setCrack(q->crack_level, q->crack_pos);
+	data->setCrack(q->crack_level, q->crack_pos);
 	data->m_generate_minimap = !!m_client->getMinimap();
 	data->m_smooth_lighting = m_cache_smooth_lighting;
-    data->m_enable_water_reflections = m_cache_enable_water_reflections;
+	data->m_enable_water_reflections = m_cache_enable_water_reflections;
 }
 
 /*
@@ -245,25 +244,7 @@ void MeshUpdateWorkerThread::doUpdate()
 
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
-        MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
-
-        // warningstream << "mesh size: " << result.mesh->getMesh()->getMeshBufferCount() << std::endl;
-        // if (q->lod == 2){
-            // for (u32 mesh_id = 0; mesh_id < mesh_new->getMesh()->getMeshBufferCount(); mesh_id++){
-                // std::ofstream os("/dev/shm/example.bin", std::ios::out | std::ios::binary | std::ios::app);
-                // auto *mesh = mesh_new->getMesh()->getMeshBuffer(mesh_id);
-                // os.write(reinterpret_cast<const char*>(mesh), sizeof(*mesh));
-
-                // warningstream << "=========" << std::endl;
-                // warningstream << "mesh: " << mesh << std::endl;
-                // std::ifstream is("/dev/shm/example.bin", std::ios::in | std::ios::binary);
-                // warningstream << "mesh: " << os.str() << std::endl;
-                // is.read(reinterpret_cast<char*>(mesh), sizeof(mesh));
-                // warningstream << "mesh: " << mesh << std::endl;
-            // }
-            // delete q;
-            // return;
-        // }
+		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
 
 		MeshUpdateResult r;
 		r.p = q->p;
@@ -294,7 +275,7 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 
 	// use at least one thread
 	number_of_threads = MYMAX(1, number_of_threads);
-    infostream << "MeshUpdateManager: using " << number_of_threads << " threads" << std::endl;
+	infostream << "MeshUpdateManager: using " << number_of_threads << " threads" << std::endl;
 
 	for (int i = 0; i < number_of_threads; i++)
 		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this));

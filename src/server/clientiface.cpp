@@ -203,7 +203,7 @@ void RemoteClient::GetNextBlocks (
 	}
 	m_blocks_modified.clear();
 
-    s16 d_start = m_nearest_unsent_d;
+	s16 d_start = m_nearest_unsent_d;
 
 	// Distrust client-sent FOV and get server-set player object property
 	// zoom FOV (degrees) as a check to avoid hacked clients using FOV to load
@@ -228,7 +228,7 @@ void RemoteClient::GetNextBlocks (
 	s16 d_max = full_d_max;
 
 	// Don't loop very much at a time
-    s16 max_d_increment_at_time = 3;
+	s16 max_d_increment_at_time = 2;
 	if (d_max > d_start + max_d_increment_at_time)
 		d_max = d_start + max_d_increment_at_time;
 

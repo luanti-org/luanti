@@ -3,8 +3,6 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include <cmath>
-#include <future>
-#include <map>
 #include "content_mapblock.h"
 #include "util/basic_macros.h"
 #include "util/numeric.h"
@@ -94,7 +92,7 @@ void MapblockMeshGenerator::getTile(int index, TileSpec *tile_ret)
 // Returns a tile, ready for use, rotated according to the node facedir.
 void MapblockMeshGenerator::getTile(v3s16 direction, TileSpec *tile_ret)
 {
-    getNodeTile(cur_node.n, cur_node.p, direction, data, *tile_ret);
+	getNodeTile(cur_node.n, cur_node.p, direction, data, *tile_ret);
 }
 
 // Returns a special tile, ready for use, non-rotated.
@@ -120,12 +118,12 @@ void MapblockMeshGenerator::drawQuad(const TileSpec &tile, v3f *coords, const v3
 	float vertical_tiling)
 {
 	const v2f tcoords[4] = {v2f(0.0, 0.0), v2f(1.0, 0.0),
-        v2f(1.0, vertical_tiling), v2f(0.0, vertical_tiling)};
+		v2f(1.0, vertical_tiling), v2f(0.0, vertical_tiling)};
 	video::S3DVertex vertices[4];
 	bool shade_face = !cur_node.f->light_source && (normal != v3s16(0, 0, 0));
 	v3f normal2(normal.X, normal.Y, normal.Z);
 	for (int j = 0; j < 4; j++) {
-        vertices[j].Pos = coords[j] + cur_node.origin;
+		vertices[j].Pos = coords[j] + cur_node.origin;
 		vertices[j].Normal = normal2;
 		if (data->m_smooth_lighting)
 			vertices[j].Color = blendLightColor(coords[j]);
@@ -231,8 +229,8 @@ void MapblockMeshGenerator::drawCuboid(const aabb3f &box,
 	for (int k = 0; k < 6; ++k) {
 		if (mask & (1 << k))
 			continue;
-        QuadDiagonal diagonal = face_lighter(k, &vertices[4 * k]);
-        const u16 *indices = diagonal == QuadDiagonal::Diag13 ? quad_indices_13 : quad_indices_02;
+		QuadDiagonal diagonal = face_lighter(k, &vertices[4 * k]);
+		const u16 *indices = diagonal == QuadDiagonal::Diag13 ? quad_indices_13 : quad_indices_02;
 		int tileindex = MYMIN(k, tilecount - 1);
 		collector->append(tiles[tileindex], &vertices[4 * k], 4, indices, 6);
 	}
@@ -348,12 +346,11 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 			generateCuboidTextureCoords(box, texture_coord_buf);
 			txc = texture_coord_buf;
 		}
-        box.MinEdge *= cur_node.f->visual_scale;
-        box.MaxEdge *= cur_node.f->visual_scale;
-    }
-
-    box.MinEdge += cur_node.origin;
-    box.MaxEdge += cur_node.origin;
+		box.MinEdge *= cur_node.f->visual_scale;
+		box.MaxEdge *= cur_node.f->visual_scale;
+	}
+	box.MinEdge += cur_node.origin;
+	box.MaxEdge += cur_node.origin;
 	if (!txc) {
 		generateCuboidTextureCoords(box, texture_coord_buf);
 		txc = texture_coord_buf;
@@ -408,48 +405,48 @@ void MapblockMeshGenerator::drawSolidNode()
 	};
 	TileSpec tiles[6];
 	u16 lights[6];
-    content_t n1 = cur_node.n.getContent();
-    for (int face = 0; face < 6; face++) {
-        v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face];
-        MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
-        content_t n2 = neighbor.getContent();
-        bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
-        if (n2 == n1)
-            continue;
-        if (n2 == CONTENT_IGNORE)
-            continue;
-        if (n2 != CONTENT_AIR) {
-            const ContentFeatures &f2 = nodedef->get(n2);
-            if (f2.solidness == 2)
-                continue;
-            if (cur_node.f->drawtype == NDT_LIQUID) {
-                if (cur_node.f->sameLiquidRender(f2))
-                    continue;
-                backface_culling = f2.solidness || f2.visual_solidness;
-            }
-        }
-        faces |= 1 << face;
-        getTile(tile_dirs[face], &tiles[face]);
+	content_t n1 = cur_node.n.getContent();
+	for (int face = 0; face < 6; face++) {
+		v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face];
+		MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
+		content_t n2 = neighbor.getContent();
+		bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
+		if (n2 == n1)
+			continue;
+		if (n2 == CONTENT_IGNORE)
+			continue;
+		if (n2 != CONTENT_AIR) {
+			const ContentFeatures &f2 = nodedef->get(n2);
+			if (f2.solidness == 2)
+				continue;
+			if (cur_node.f->drawtype == NDT_LIQUID) {
+				if (cur_node.f->sameLiquidRender(f2))
+					continue;
+				backface_culling = f2.solidness || f2.visual_solidness;
+			}
+		}
+		faces |= 1 << face;
+		getTile(tile_dirs[face], &tiles[face]);
 		for (auto &layer : tiles[face].layers) {
-            if (backface_culling)
-                layer.material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
+			if (backface_culling)
+				layer.material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_HORIZONTAL;
 			layer.material_flags |= MATERIAL_FLAG_TILEABLE_VERTICAL;
 		}
-        if (!data->m_smooth_lighting) {
-            lights[face] = getFaceLight(cur_node.n, neighbor, nodedef);
+		if (!data->m_smooth_lighting) {
+			lights[face] = getFaceLight(cur_node.n, neighbor, nodedef);
 		}
-    }
+	}
 	if (!faces)
-        return;
-    u8 mask = faces ^ 0b0011'1111; // k-th bit is set if k-th face is to be *omitted*, as expected by cuboid drawing functions.
-    cur_node.origin = intToFloat(cur_node.p, BS);
-    auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
-    f32 texture_coord_buf[24];
-    box.MinEdge += cur_node.origin;
-    box.MaxEdge += cur_node.origin;
-    generateCuboidTextureCoords(box, texture_coord_buf);
-    if (data->m_smooth_lighting) {
+		return;
+	u8 mask = faces ^ 0b0011'1111; // k-th bit is set if k-th face is to be *omitted*, as expected by cuboid drawing functions.
+	cur_node.origin = intToFloat(cur_node.p, BS);
+	auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
+	f32 texture_coord_buf[24];
+	box.MinEdge += cur_node.origin;
+	box.MaxEdge += cur_node.origin;
+	generateCuboidTextureCoords(box, texture_coord_buf);
+	if (data->m_smooth_lighting) {
 		LightPair lights[6][4];
 		for (int face = 0; face < 6; ++face) {
 			if (mask & (1 << face))
@@ -466,8 +463,8 @@ void MapblockMeshGenerator::drawSolidNode()
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
 				vertex.Color = encode_light(final_lights[j], cur_node.f->light_source);
-                if (!cur_node.f->light_source)
-                    applyFacesShading(vertex.Color, vertex.Normal);
+				if (!cur_node.f->light_source)
+					applyFacesShading(vertex.Color, vertex.Normal);
 			}
 			if (lightDiff(final_lights[1], final_lights[3]) < lightDiff(final_lights[0], final_lights[2]))
 				return QuadDiagonal::Diag13;
@@ -475,9 +472,9 @@ void MapblockMeshGenerator::drawSolidNode()
 		});
 	} else {
 		drawCuboid(box, tiles, 6, texture_coord_buf, mask, [&] (int face, video::S3DVertex vertices[4]) {
-            video::SColor color = encode_light(lights[face], cur_node.f->light_source);
-            if (!cur_node.f->light_source)
-                applyFacesShading(color, vertices[0].Normal);
+			video::SColor color = encode_light(lights[face], cur_node.f->light_source);
+			if (!cur_node.f->light_source)
+				applyFacesShading(color, vertices[0].Normal);
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
 				vertex.Color = color;
@@ -708,12 +705,12 @@ void MapblockMeshGenerator::drawLiquidSides()
 			else
 				color = cur_node.lcolor;
 
-            pos += cur_node.origin;
+			pos += cur_node.origin;
 
 			vertices[j] = video::S3DVertex(pos.X, pos.Y, pos.Z,
 					face.dir.X, face.dir.Y, face.dir.Z,
 					color,
-                    vertex.u, v);
+					vertex.u, v);
 		};
 		collector->append(cur_liquid.tile, vertices, 4, quad_indices, 6);
 	}
@@ -837,7 +834,7 @@ void MapblockMeshGenerator::drawGlasslikeNode()
 	for (int face = 0; face < 6; face++) {
 		// Check this neighbor
 		v3s16 dir = g_6dirs[face];
-        v3s16 neighbor_pos = blockpos_nodes + cur_node.p + dir;
+		v3s16 neighbor_pos = blockpos_nodes + cur_node.p + dir;
 		MapNode neighbor = data->m_vmanip.getNodeNoExNoEmerge(neighbor_pos);
 		// Don't make face if neighbor is of same type
 		if (neighbor.getContent() == cur_node.n.getContent())
@@ -1115,7 +1112,7 @@ void MapblockMeshGenerator::drawSignlikeNode()
 void MapblockMeshGenerator::drawPlantlikeQuad(const TileSpec &tile,
 		float rotation, float quad_offset, bool offset_top_only)
 {
-    const f32 scale = cur_plant.scale;
+	const f32 scale = cur_plant.scale;
 	v3f vertices[4] = {
 		v3f(-scale, -BS / 2 + 2.0 * scale * cur_plant.plant_height, 0),
 		v3f( scale, -BS / 2 + 2.0 * scale * cur_plant.plant_height, 0),
@@ -1170,7 +1167,7 @@ void MapblockMeshGenerator::drawPlantlikeQuad(const TileSpec &tile,
 
 void MapblockMeshGenerator::drawPlantlike(const TileSpec &tile, bool is_rooted)
 {
-    cur_plant.draw_style = PLANT_STYLE_CROSS;
+	cur_plant.draw_style = PLANT_STYLE_CROSS;
 	cur_plant.offset = v3f(0, 0, 0);
 	cur_plant.scale = BS / 2 * cur_node.f->visual_scale;
 	cur_plant.rotate_degree = 0.0f;
@@ -1203,7 +1200,7 @@ void MapblockMeshGenerator::drawPlantlike(const TileSpec &tile, bool is_rooted)
 
 	default:
 		break;
-    }
+	}
 
 	if (is_rooted) {
 		u8 wall = cur_node.n.getWallMounted(nodedef);
@@ -1219,7 +1216,7 @@ void MapblockMeshGenerator::drawPlantlike(const TileSpec &tile, bool is_rooted)
 				cur_plant.offset.Y +=  BS;
 				break;
 		}
-    }
+	}
 
 	switch (cur_plant.draw_style) {
 	case PLANT_STYLE_CROSS:
@@ -1543,9 +1540,9 @@ void MapblockMeshGenerator::drawAllfacesNode()
 	TileSpec tiles[6];
 	for (int face = 0; face < 6; face++)
 		getTile(nodebox_tile_dirs[face], &tiles[face]);
-    if (data->m_smooth_lighting)
+	if (data->m_smooth_lighting)
 		getSmoothLightFrame();
-    drawAutoLightedCuboid(box, tiles, 6);
+	drawAutoLightedCuboid(box, tiles, 6);
 }
 
 void MapblockMeshGenerator::drawNodeboxNode()
@@ -1596,7 +1593,7 @@ void MapblockMeshGenerator::drawNodeboxNode()
 	}
 
 	std::vector<aabb3f> boxes;
-    cur_node.n.getNodeBoxes(nodedef, &boxes, neighbors_set);
+	cur_node.n.getNodeBoxes(nodedef, &boxes, neighbors_set);
 
 	bool isTransparent = false;
 
@@ -1650,7 +1647,7 @@ void MapblockMeshGenerator::drawNodeboxNode()
 		}
 	}
 
-    for (aabb3f &box : boxes) {
+	for (auto &box : boxes) {
 		u8 mask = getNodeBoxMask(box, solid_neighbors, sametype_neighbors);
 		drawAutoLightedCuboid(box, tiles, 6, nullptr, mask);
 	}
@@ -1748,8 +1745,7 @@ void MapblockMeshGenerator::drawNode()
 			return;
 		default:
 			break;
-    }
-
+	}
 	cur_node.origin = intToFloat(cur_node.p, BS);
 	if (data->m_smooth_lighting) {
 		getSmoothLightFrame();
@@ -1771,24 +1767,45 @@ void MapblockMeshGenerator::drawNode()
 		case NDT_RAILLIKE:          drawRaillikeNode(); break;
 		case NDT_NODEBOX:           drawNodeboxNode(); break;
 		case NDT_MESH:              drawMeshNode(); break;
-        default:                    errorUnknownDrawtype(); break;
+		default:                    errorUnknownDrawtype(); break;
 	}
 }
 
-void MapblockMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::vector<v3s16> &bases, v3s16 from, v3s16 to){
-    std::vector<u16> min_dists(bases.size(), U16_MAX);
-    std::vector<v3s16> outs(bases.size());
+void MapblockMeshGenerator::generate()
+{
+	ZoneScoped;
+
+	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
+	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
+	for (cur_node.p.X = 0; cur_node.p.X < data->m_side_length; cur_node.p.X++) {
+		cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p);
+		cur_node.f = &nodedef->get(cur_node.n);
+		drawNode();
+	}
+}
+
+LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output):
+    data(input),
+    collector(output),
+    nodedef(data->m_nodedef),
+    blockpos_nodes(data->m_blockpos * MAP_BLOCKSIZE)
+{
+}
+
+void LodMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const
+{
+    std::vector<u16> min_dists(8, U16_MAX);
+    std::array<v3s16, 8> outs;
     v3s16 p;
     for (p.Z = from.Z; p.Z < to.Z; p.Z++)
     for (p.Y = from.Y; p.Y < to.Y; p.Y++)
     for (p.X = from.X; p.X < to.X; p.X++){
         MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
         if (n.getContent() == CONTENT_IGNORE)
+            return;
+        if (!types.test((&nodedef->get(n))->drawtype))
             continue;
-        const ContentFeatures *f = &nodedef->get(n);
-        if (!types.test(f->drawtype))
-            continue;
-        for (u8 i = 0; i < bases.size(); i++) { // calc distance for every corner
+        for (u8 i = 0; i < 8; i++) { // calc distance for every corner
             u16 new_dist = bases[i].getDistanceFromSQ(p);
             if (new_dist < min_dists[i]) {
                 min_dists[i] = new_dist;
@@ -1796,44 +1813,33 @@ void MapblockMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::vecto
             }
         }
     }
-    bases = std::move(outs);
+    bases = outs;
 }
 
-bool MapblockMeshGenerator::doesVolumeContainType(std::bitset<19> types, v3s16 from, v3s16 to){
-    v3s16 p;
-    for (p.Z = from.Z; p.Z < to.Z; p.Z++)
-    for (p.Y = from.Y; p.Y < to.Y; p.Y++)
-    for (p.X = from.X; p.X < to.X; p.X++) {
-        MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
-        if (n.getContent() == CONTENT_IGNORE)
-            continue;
-        const ContentFeatures *f = &nodedef->get(n);
-        if(types.test(f->drawtype))
-            return true;
-    }
-    return false;
-}
-
-void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f32 y_offset, u8 min_size){
-    static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
-                                        v3s16(-1, 0, 0), v3s16(1, 0, 0),
-                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
-
+void LodMeshGenerator::generateCloseLod(std::bitset<19> types, u32 width, f32 y_offset, u8 min_size){
     // too tiny lods should be skipped
     // but to avoid holes in the world, we need to track which volumes got skipped
     u8 num = data->m_side_length / width + 2;
-    std::vector<std::vector<std::vector<bool>>> skipped_volumes(num, std::vector(num, std::vector(num, false)));
+    std::vector skipped_volumes(num, std::vector(num, std::vector(num, false)));
     // track this as well, to avoid recomputing
-    std::vector<std::vector<std::vector<v3s16>>> volume_points(num, std::vector(num, std::vector(num, v3s16(S16_MAX))));
-    std::vector<std::vector<std::vector<std::bitset<6>>>> faces(num, std::vector(num, std::vector<std::bitset<6>>(num)));
-    std::vector<std::vector<std::vector<irr::core::aabbox3d<s16>>>>
-        volumes(num, std::vector(num, std::vector(num, irr::core::aabbox3d<s16>(v3s16(S16_MAX), v3s16(S16_MIN)))));
+    std::vector volume_points(num, std::vector(num, std::vector(num, v3s16(S16_MAX))));
+    std::vector faces(num, std::vector(num, std::vector<std::bitset<6>>(num)));
+    std::vector volumes(num, std::vector(num, std::vector(num, irr::core::aabbox3d(v3s16(S16_MAX), v3s16(S16_MIN)))));
 
     for (u8 x = 0; x < num; x++)
     for (u8 y = 0; y < num; y++)
     for (u8 z = 0; z < num; z++){
         v3s16 from = v3s16(x - 1, y - 1, z - 1) * width + blockpos_nodes;
         v3s16 to = from + width;
+
+        if (width > MAP_BLOCKSIZE) {
+            if (x == 0) from.X += width - MAP_BLOCKSIZE;
+            if (y == 0) from.Y += width - MAP_BLOCKSIZE;
+            if (z == 0) from.Z += width - MAP_BLOCKSIZE;
+            if (x == num-1) to.X -= width - MAP_BLOCKSIZE;
+            if (y == num-1) to.Y -= width - MAP_BLOCKSIZE;
+            if (z == num-1) to.Z -= width - MAP_BLOCKSIZE;
+        }
 
         v3s16 lxlylz = std::move(volumes[x][y][z].MinEdge);
         v3s16 hxhyhz = std::move(volumes[x][y][z].MaxEdge);
@@ -1843,8 +1849,10 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
         for (p.Z = from.Z; p.Z < to.Z; p.Z++)
         for (p.X = from.X; p.X < to.X; p.X++){
             MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
-            if (n.getContent() == CONTENT_IGNORE)
-                continue;
+            if (n.getContent() == CONTENT_IGNORE){
+                skipped_volumes[x][y][z] = true;
+                goto next_node;
+            }
             const ContentFeatures *f = &nodedef->get(n);
             if (!types.test(f->drawtype))
                 continue;
@@ -1862,6 +1870,7 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
         skipped_volumes[x][y][z] = lxlylz.X == S16_MAX || lxlylz.getDistanceFromSQ(hxhyhz) < min_size;
         volumes[x][y][z].MinEdge = std::move(lxlylz);
         volumes[x][y][z].MaxEdge = std::move(hxhyhz);
+        next_node:
     }
 
     num--;
@@ -1981,26 +1990,32 @@ void MapblockMeshGenerator::generateCloseLod(std::bitset<19> types, u16 width, f
     }
 }
 
-void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, core::vector2d<f32> uvs[4], f32 y_offset, u8 min_size){
-    static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
-                                        v3s16(-1, 0, 0), v3s16(1, 0, 0),
-                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
-    u8 num = data->m_side_length / width;
+void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core::vector2d<f32> uvs[4], f32 y_offset, u8 min_size){
+    // too tiny lods should be skipped
+    // but to avoid holes in the world, we need to track which volumes got skipped
+    u8 num = data->m_side_length / width + 2;
+    std::vector skipped_volumes(num, std::vector(num, std::vector(num, false)));
+    std::vector faces(num, std::vector(num, std::vector<std::bitset<6>>(num)));
+    using Hexahedron = std::array<v3s16, 8>;
+    std::vector volumes(num, std::vector(num, std::vector<Hexahedron>(num)));
 
     for (u8 x = 0; x < num; x++)
     for (u8 y = 0; y < num; y++)
-    for (u8 z = 0; z < num; z++){
-        v3s16 from = v3s16(x, y, z) * width + blockpos_nodes;
+    for (u8 z = 0; z < num; z++) {
+        v3s16 from = v3s16(x-1, y-1, z-1) * width + blockpos_nodes;
         v3s16 to = from + width;
 
-        // if there are no fitting nodes in this subblock, skip rendering
-        if(!doesVolumeContainType(types, from, to))
-            continue;
+        if (width > MAP_BLOCKSIZE) {
+            if (x == 0) from.X += width - MAP_BLOCKSIZE;
+            if (y == 0) from.Y += width - MAP_BLOCKSIZE;
+            if (z == 0) from.Z += width - MAP_BLOCKSIZE;
+            if (x == num-1) to.X -= width - MAP_BLOCKSIZE;
+            if (y == num-1) to.Y -= width - MAP_BLOCKSIZE;
+            if (z == num-1) to.Z -= width - MAP_BLOCKSIZE;
+        }
 
-        // eg lxhylz = corner of a block, where x and z are lowest and y is highest
-        // lxhylz is initialized with the values for the opposite corner, so high x and z, low y
-        std::vector<v3s16> bounds = {
-            v3s16(from.X, from.Y, from.Z), // lxlylz
+        volumes[x][y][z] = {
+            v3s16(from.X - 1, from.Y, from.Z), // lxlylz
             v3s16(from.X, from.Y, to.Z), //   lxlyhz
             v3s16(from.X, to.Y, from.Z), //   lxhylz
             v3s16(from.X, to.Y, to.Z), //     lxhyhz
@@ -2010,21 +2025,68 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
             v3s16(to.X, to.Y, to.Z), //       hxhyhz
         };
         // updates bounds to contain the actual bounds of the LOD object, where the corners are the nodes furthest away from their previous value
-        findClosestOfTypes(types, bounds, from, to);
+        findClosestOfTypes(types, volumes[x][y][z], from, to);
+
+        skipped_volumes[x][y][z] = volumes[x][y][z][0].X == from.X - 1 |
+            volumes[x][y][z][0].getDistanceFromSQ(volumes[x][y][z][7]) < min_size;
+    }
+    num--;
+
+  //   for (u8 x = 0; x < num; x++)
+  //   for (u8 y = 0; y < num; y++)
+  //   for (u8 z = 0; z < num; z++){
+  //       if (skipped_volumes[x][y][z])
+  //           continue;
+  //
+  //       Hexahedron cur = volumes[x][y][z];
+  //
+        // for (u8 d = 1; d < 6; d += 2){
+        // 	v3s16 direction = directions[d];
+        // 	bool face_displayed = ?;
+        // 	faces[x][y][z].set(d, skipped);
+        // 	faces[x+direction.X][y+direction.Y][z+direction.Z].set(d-1, skipped);
+        // }
+  //
+  //       faces[x][y][z].set(0, skipped_volumes[x][y-1][z] || volumes[x][y-1][z].MaxEdge.Y+1 < cur.MinEdge.Y ||
+  //           volumes[x][y-1][z].MinEdge.X != cur.MinEdge.X || volumes[x][y-1][z].MinEdge.Z != cur.MinEdge.Z ||
+  //           volumes[x][y-1][z].MaxEdge.X != cur.MaxEdge.X || volumes[x][y-1][z].MaxEdge.Z != cur.MaxEdge.Z);
+  //
+  //       faces[x][y][z].set(1, skipped_volumes[x][y+1][z] || volumes[x][y+1][z].MinEdge.Y > cur.MaxEdge.Y+1 ||
+  //           volumes[x][y+1][z].MinEdge.X != cur.MinEdge.X || volumes[x][y+1][z].MinEdge.Z != cur.MinEdge.Z ||
+  //           volumes[x][y+1][z].MaxEdge.X != cur.MaxEdge.X || volumes[x][y+1][z].MaxEdge.Z != cur.MaxEdge.Z);
+  //
+  //       faces[x][y][z].set(2, skipped_volumes[x-1][y][z] || volumes[x-1][y][z].MaxEdge.X+1 < cur.MinEdge.X ||
+  //           volumes[x-1][y][z].MinEdge.Y != cur.MinEdge.Y || volumes[x-1][y][z].MinEdge.Z != cur.MinEdge.Z ||
+  //           volumes[x-1][y][z].MaxEdge.Y != cur.MaxEdge.Y || volumes[x-1][y][z].MaxEdge.Z != cur.MaxEdge.Z);
+  //
+  //       faces[x][y][z].set(3, skipped_volumes[x+1][y][z] || volumes[x+1][y][z].MinEdge.X > cur.MaxEdge.X+1 ||
+  //           volumes[x+1][y][z].MinEdge.Y != cur.MinEdge.Y || volumes[x+1][y][z].MinEdge.Z != cur.MinEdge.Z ||
+  //           volumes[x+1][y][z].MaxEdge.Y != cur.MaxEdge.Y || volumes[x+1][y][z].MaxEdge.Z != cur.MaxEdge.Z);
+  //
+  //       faces[x][y][z].set(4, skipped_volumes[x][y][z-1] || volumes[x][y][z-1].MaxEdge.Z+1 < cur.MinEdge.Z ||
+  //           volumes[x][y][z-1].MinEdge.X != cur.MinEdge.X || volumes[x][y][z-1].MinEdge.Y != cur.MinEdge.Y ||
+  //           volumes[x][y][z-1].MaxEdge.X != cur.MaxEdge.X || volumes[x][y][z-1].MaxEdge.Y != cur.MaxEdge.Y);
+  //
+  //       faces[x][y][z].set(5, skipped_volumes[x][y][z+1] || volumes[x][y][z+1].MinEdge.Z > cur.MaxEdge.Z+1 ||
+  //           volumes[x][y][z+1].MinEdge.X != cur.MinEdge.X || volumes[x][y][z+1].MinEdge.Y != cur.MinEdge.Y ||
+  //           volumes[x][y][z+1].MaxEdge.X != cur.MaxEdge.X || volumes[x][y][z+1].MaxEdge.Y != cur.MaxEdge.Y);
+  //   }
+
+    for (u8 x = 0; x < num; x++)
+    for (u8 y = 0; y < num; y++)
+    for (u8 z = 0; z < num; z++){
+        if (skipped_volumes[x][y][z])
+            continue;
 
         // moving for legibility
-        v3s16 lxlylz = std::move(bounds[0]);
-        v3s16 lxlyhz = std::move(bounds[1]);
-        v3s16 lxhylz = std::move(bounds[2]);
-        v3s16 lxhyhz = std::move(bounds[3]);
-        v3s16 hxlylz = std::move(bounds[4]);
-        v3s16 hxlyhz = std::move(bounds[5]);
-        v3s16 hxhylz = std::move(bounds[6]);
-        v3s16 hxhyhz = std::move(bounds[7]);
-
-        // exclude too small meshes
-        if (lxlylz.getDistanceFromSQ(hxhyhz) < min_size)
-            continue;
+        v3s16 lxlylz = volumes[x][y][z][0];
+        v3s16 lxlyhz = volumes[x][y][z][1];
+        v3s16 lxhylz = volumes[x][y][z][2];
+        v3s16 lxhyhz = volumes[x][y][z][3];
+        v3s16 hxlylz = volumes[x][y][z][4];
+        v3s16 hxlyhz = volumes[x][y][z][5];
+        v3s16 hxhylz = volumes[x][y][z][6];
+        v3s16 hxhyhz = volumes[x][y][z][7];
 
         // subtract blockpos_nodes again, as we need relative coords here. Multiplied by blocksize.
         // Then add/subtract half a blocksize to move to the corners of the nodes
@@ -2083,8 +2145,8 @@ void MapblockMeshGenerator::generateDetailLod(std::bitset<19> types, u16 width, 
     }
 }
 
-void MapblockMeshGenerator::generateLod() {
-    u16 width = 1 << MYMIN(data->m_lod, 15);
+void LodMeshGenerator::generate() {
+    u32 width = 1 << MYMIN(data->m_lod, 31);
 
     if(width > data->m_side_length){
         width = data->m_side_length;
@@ -2141,22 +2203,4 @@ void MapblockMeshGenerator::generateLod() {
         if (other.any())
             generateDetailLod(other, width, uvs, 0, min_size);
     }
-}
-
-void MapblockMeshGenerator::generate()
-{
-    ZoneScoped;
-
-    if(data->m_lod > 0) {
-        generateLod();
-        return;
-    }
-
-    for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
-    for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
-    for (cur_node.p.X = 0; cur_node.p.X < data->m_side_length; cur_node.p.X++) {
-		cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p);
-		cur_node.f = &nodedef->get(cur_node.n);
-		drawNode();
-	}
 }

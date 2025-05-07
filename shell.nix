@@ -22,5 +22,13 @@ pkgs.mkShell {
     freetype
     sqlite
     irrlicht
+
+    mangohud
+    python313
+    python313Packages.fire
+    python313Packages.matplotlib
+    python313Packages.numpy
+    python313Packages.pandas
+    python313Packages.scipy
   ];
 }

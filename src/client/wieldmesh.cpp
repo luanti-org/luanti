@@ -289,7 +289,7 @@ void WieldMeshSceneNode::setExtruded(const std::string &imagename,
 static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 	std::vector<ItemPartColor> *colors, const ContentFeatures &f)
 {
-    n.setParam1(0xff);
+	n.setParam1(0xff);
 	if (n.getParam2()) {
 		// keep it
 	} else if (f.param_type_2 == CPT2_WALLMOUNTED ||
