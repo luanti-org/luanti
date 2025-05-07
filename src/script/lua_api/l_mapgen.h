@@ -108,6 +108,9 @@ private:
 	// clear_registered_decorations()
 	static int l_clear_registered_decorations(lua_State *L);
 
+	// clear_decoration()
+	static int l_clear_decoration(lua_State *L);
+
 	// clear_registered_schematics()
 	static int l_clear_registered_schematics(lua_State *L);
 

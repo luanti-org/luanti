@@ -1520,6 +1520,20 @@ int ModApiMapgen::l_clear_registered_decorations(lua_State *L)
 }
 
 
+// clear_decoration(name)
+int ModApiMapgen::l_clear_decoration(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	luaL_checktype(L, 1, LUA_TSTRING);
+	const char *name = lua_tostring(L, 1);
+
+	DecorationManager *dmgr =
+		getServer(L)->getEmergeManager()->getWritableDecorationManager();
+	dmgr->clearByName(name);
+	return 0;
+}
+
+
 // clear_registered_ores()
 int ModApiMapgen::l_clear_registered_ores(lua_State *L)
 {
@@ -2042,6 +2056,7 @@ void ModApiMapgen::Initialize(lua_State *L, int top)
 
 	API_FCT(clear_registered_biomes);
 	API_FCT(clear_registered_decorations);
+	API_FCT(clear_decoration);
 	API_FCT(clear_registered_ores);
 	API_FCT(clear_registered_schematics);
 
