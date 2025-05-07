@@ -11,6 +11,7 @@
 #include "quaternion.h"
 #include "vector3d.h"
 
+#include <cstddef>
 #include <optional>
 #include <string>
 
@@ -166,8 +167,6 @@ public:
 		//! Internal members used by SkinnedMesh
 		friend class SkinnedMesh;
 		char *Moved;
-		core::vector3df StaticPos;
-		core::vector3df StaticNormal;
 	};
 
 	template <class T>
@@ -252,26 +251,98 @@ public:
 		}
 	};
 
+	struct WeightChannel
+	{
+		std::vector<f32> timestamps;
+		std::vector<f32> weights;
+		bool interpolate = true;
+		size_t n_weights;
+
+		bool empty() const {
+			return timestamps.empty();
+		}
+
+		f32 getEndFrame() const {
+			return timestamps.empty() ? 0 : timestamps.back();
+		}
+
+		void reserve(size_t n) {
+			timestamps.reserve(n);
+			weights.reserve(n);
+		}
+
+		void cleanup() {
+			timestamps.shrink_to_fit();
+			weights.shrink_to_fit();
+		}
+
+		static core::vector3df interpolateValue(core::vector3df from, core::vector3df to, f32 time) {
+			// Note: `from` and `to` are swapped here compared to quaternion slerp
+			return to.getInterpolated(from, time);
+		}
+
+		std::optional<std::vector<f32>> get(f32 time) const {
+			if (empty())
+				return std::nullopt;
+
+			const size_t i = std::distance(timestamps.begin(),
+					std::lower_bound(timestamps.begin(), timestamps.end(), time));
+			if (i == 0)
+				return getWeightsVec(0);
+			if (i == timestamps.size())
+				return getWeightsVec(i - 1);
+
+			auto res = getWeightsVec(i - 1);
+			if (!interpolate)
+				return res;
+
+			f32 prev_time = timestamps[i - 1];
+			f32 next_time = timestamps[i];
+			f32 progress = (time - prev_time) / (next_time - prev_time);
+			for (size_t j = 0; j < n_weights; ++j) {
+				res[j] = progress * *(getWeights(i) + j) + (1.0f - progress) * res[j];
+			}
+			return res;
+		}
+
+private:
+		std::vector<f32>::const_iterator getWeights(size_t i) const
+		{
+			return weights.begin() + i * n_weights;
+		}
+
+		std::vector<f32> getWeightsVec(size_t i) const
+		{
+			std::vector<f32> res;
+			res.insert(res.begin(), getWeights(i), getWeights(i + 1));
+			return res;
+		}
+	};
+
 	struct Keys {
 		Channel<core::vector3df> position;
 		Channel<core::quaternion> rotation;
 		Channel<core::vector3df> scale;
+		WeightChannel weights;
 
 		bool empty() const {
-			return position.empty() && rotation.empty() && scale.empty();
+			return position.empty() && rotation.empty() && scale.empty() && weights.empty();
 		}
 
 		void append(const Keys &other) {
 			position.append(other.position);
 			rotation.append(other.rotation);
 			scale.append(other.scale);
+			// This is only used by .x, which has no morph animation
+			assert(other.weights.empty());
 		}
 
 		f32 getEndFrame() const {
 			return std::max({
 				position.getEndFrame(),
 				rotation.getEndFrame(),
-				scale.getEndFrame()
+				scale.getEndFrame(),
+				weights.getEndFrame(),
 			});
 		}
 
@@ -290,6 +361,7 @@ public:
 			position.cleanup();
 			rotation.cleanup();
 			scale.cleanup();
+			weights.cleanup();
 		}
 	};
 
@@ -306,6 +378,9 @@ public:
 
 		//! List of child joints
 		std::vector<SJoint *> Children;
+
+		//! List of meshes which may be affected by morph animations targeting this joint
+		std::vector<size_t> MorphedMeshes;
 
 		//! List of attached meshes
 		std::vector<u32> AttachedMeshes;
@@ -360,6 +435,9 @@ protected:
 	std::vector<SSkinMeshBuffer *> *SkinningBuffers; // Meshbuffer to skin, default is to skin localBuffers
 
 	std::vector<SSkinMeshBuffer *> LocalBuffers;
+	//! Buffers involved in skinning.
+	//! These have a MorphStaticPose which can be used to reset positions & normals.
+	std::vector<u32> SkinnedBuffers;
 	//! Mapping from meshbuffer number to bindable texture slot
 	std::vector<u32> TextureSlots;
 
