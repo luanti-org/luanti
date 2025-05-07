@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-    <id>net.minetest.minetest</id>
+    <id>org.luanti.luanti</id>
+    <provides>
+        <id>net.minetest.minetest</id>
+    </provides>
+    <replaces>
+        <id>net.minetest.minetest</id>
+    </replaces>
 
     <name>Luanti</name>
     <summary>Block-based multiplayer game platform</summary>
@@ -10,7 +16,7 @@
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>LGPL-2.1+ AND CC-BY-SA-3.0 AND MIT AND Apache-2.0</project_license>
 
-    <developer id="net.minetest">
+    <developer id="org.luanti">
         <name>Luanti Team</name>
     </developer>
 
@@ -119,7 +125,7 @@
         </ul>
     </description>
 
-    <launchable type="desktop-id">net.minetest.minetest.desktop</launchable>
+    <launchable type="desktop-id">org.luanti.luanti.desktop</launchable>
     <screenshots>
         <screenshot type="default">
             <image>https://www.luanti.org/media/gallery/1.jpg</image>
