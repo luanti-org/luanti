@@ -38,6 +38,7 @@ void NodeBox::reset()
 	type = NODEBOX_REGULAR;
 	// default is empty
 	fixed.clear();
+	leveled_fixed.clear();
 	// default is sign/ladder-like
 	wall_top = aabb3f(-BS/2, BS/2-BS/16., -BS/2, BS/2, BS/2, BS/2);
 	wall_bottom = aabb3f(-BS/2, -BS/2, -BS/2, BS/2, -BS/2+BS/16., BS/2);
@@ -51,8 +52,8 @@ void NodeBox::serialize(std::ostream &os, u16 protocol_version) const
 	writeU8(os, 6); // version. Protocol >= 36
 
 	switch (type) {
-	case NODEBOX_LEVELED:
 	case NODEBOX_FIXED:
+	case NODEBOX_LEVELED: {
 		writeU8(os, type);
 
 		writeU16(os, fixed.size());
@@ -60,7 +61,15 @@ void NodeBox::serialize(std::ostream &os, u16 protocol_version) const
 			writeV3F32(os, nodebox.MinEdge);
 			writeV3F32(os, nodebox.MaxEdge);
 		}
+		if (type == NODEBOX_LEVELED) {
+			writeU16(os, leveled_fixed.size());
+			for (const aabb3f &nodebox : leveled_fixed) {
+				writeV3F32(os, nodebox.MinEdge);
+				writeV3F32(os, nodebox.MaxEdge);
+			}
+		}
 		break;
+	}
 	case NODEBOX_WALLMOUNTED:
 		writeU8(os, type);
 
@@ -125,6 +134,15 @@ void NodeBox::deSerialize(std::istream &is)
 				box.MinEdge = readV3F32(is);
 				box.MaxEdge = readV3F32(is);
 				fixed.push_back(box);
+			}
+			if (type == NODEBOX_LEVELED) {
+				u16 leveled_fixed_count = readU16(is); // 0 if missing
+				while (leveled_fixed_count--) {
+					aabb3f box{{0.0f, 0.0f, 0.0f}};
+					box.MinEdge = readV3F32(is);
+					box.MaxEdge = readV3F32(is);
+					leveled_fixed.push_back(box);
+				}
 			}
 			break;
 		}
