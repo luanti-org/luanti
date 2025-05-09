@@ -26,6 +26,8 @@
 #include <IGUIFont.h>
 #include <IVideoDriver.h>
 
+using namespace irr;
+
 static constexpr f32 CAMERA_OFFSET_STEP = 200;
 
 #define WIELDMESH_OFFSET_X 55.0f

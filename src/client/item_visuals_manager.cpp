@@ -10,6 +10,8 @@
 #include "itemdef.h"
 #include "inventory.h"
 
+using namespace irr;
+
 ItemVisualsManager::ItemVisuals::~ItemVisuals() {
 	if (wield_mesh.mesh)
 		wield_mesh.mesh->drop();

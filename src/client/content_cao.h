@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "EMaterialTypes.h"
-#include "IDummyTransformationSceneNode.h"
 #include "irrlichttypes.h"
 
 #include "object_properties.h"
@@ -16,6 +14,13 @@
 #include <cassert>
 #include <map>
 #include <memory>
+//irr includes
+#include <EMaterialTypes.h>
+#include <IDummyTransformationSceneNode.h>
+
+namespace core = irr::core;
+namespace scene = irr::scene;
+namespace video = irr::video;
 
 namespace irr::scene {
 	class IMeshSceneNode;

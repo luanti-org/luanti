@@ -3,13 +3,8 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 // Copyright (C) 2020 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
-#include <cmath>
 #include "sky.h"
-#include <ITexture.h>
-#include <IVideoDriver.h>
-#include <ISceneManager.h>
-#include <ICameraSceneNode.h>
-#include <S3DVertex.h>
+#include <cmath>
 #include "client/mesh.h"
 #include "client/tile.h"
 #include "noise.h" // easeCurve
@@ -19,8 +14,14 @@
 #include "client/texturesource.h"
 #include "settings.h"
 #include "camera.h" // CameraModes
+// irr includes
+#include <ITexture.h>
+#include <IVideoDriver.h>
+#include <ISceneManager.h>
+#include <ICameraSceneNode.h>
+#include <S3DVertex.h>
 
-using namespace irr::core;
+using namespace irr;
 
 static video::SMaterial baseMaterial()
 {
@@ -649,9 +650,9 @@ void Sky::draw_stars(video::IVideoDriver * driver, float wicked_time_of_day)
 	// to time 4000.
 
 	float tod = wicked_time_of_day < 0.5f ? wicked_time_of_day : (1.0f - wicked_time_of_day);
-	float day_opacity = clamp(m_star_params.day_opacity, 0.0f, 1.0f);
+	float day_opacity = irr::core::clamp(m_star_params.day_opacity, 0.0f, 1.0f);
 	float starbrightness = (0.25f - std::abs(tod)) * 20.0f;
-	float alpha = clamp(starbrightness, day_opacity, 1.0f);
+	float alpha = irr::core::clamp(starbrightness, day_opacity, 1.0f);
 
 	video::SColorf color(m_star_params.starcolor);
 	color.a *= alpha;

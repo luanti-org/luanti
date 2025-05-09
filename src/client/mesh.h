@@ -4,9 +4,15 @@
 
 #pragma once
 
-#include "SColor.h"
-#include "SMaterialLayer.h"
 #include "nodedef.h"
+// irr includes
+#include <SColor.h>
+#include <SMaterialLayer.h>
+#include <SMesh.h>
+#include <SAnimatedMesh.h>
+
+namespace scene = irr::scene;
+namespace video = irr::video;
 
 namespace irr {
 	namespace scene {
@@ -16,7 +22,7 @@ namespace irr {
 	}
 }
 
-using namespace irr;
+using namespace irr; // TODO: remove "using namespace" from headers
 
 /*!
  * Applies shading to a color based on the surface's

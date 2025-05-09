@@ -4,15 +4,17 @@
 
 #pragma once
 
+#include "irr_v3d.h"
+#include "irr_aabb3d.h"
+#include "tile.h"
 #include <string>
 #include <vector>
-#include "irr_aabb3d.h"
-#include "irr_v3d.h"
+#include <memory>
+// irr includes
 #include <EMaterialTypes.h>
 #include <IMeshSceneNode.h>
 #include <SColor.h>
-#include <memory>
-#include "tile.h"
+#include <SMesh.h>
 
 namespace irr::scene
 {
@@ -21,7 +23,10 @@ namespace irr::scene
 	struct SMesh;
 }
 
-using namespace irr;
+namespace scene = irr::scene;
+namespace video = irr::video;
+
+using namespace irr; // TODO: remove "using namespace irr" from headers
 
 struct ItemStack;
 class Client;

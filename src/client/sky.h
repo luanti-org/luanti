@@ -5,14 +5,18 @@
 #pragma once
 
 #include "irrlichttypes_bloated.h"
-#include <ISceneNode.h>
-#include <SMeshBuffer.h>
 #include <array>
 #include "camera.h" // CameraMode
-#include "irr_ptr.h"
 #include "skyparams.h"
+// irr includes
+#include <ISceneNode.h>
+#include <CMeshBuffer.h>
+#include <irr_ptr.h>
 
 #define SKY_MATERIAL_COUNT 12
+
+namespace scene = irr::scene;
+namespace video = irr::video;
 
 namespace irr::video
 {

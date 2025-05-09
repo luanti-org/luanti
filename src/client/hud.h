@@ -6,12 +6,17 @@
 #pragma once
 
 #include <vector>
-#include <IGUIFont.h>
-#include <SMaterial.h>
-#include <SMeshBuffer.h>
-#include "irr_ptr.h"
 #include "irr_aabb3d.h"
 #include "../hud.h"
+//irr includes
+#include <IGUIFont.h>
+#include <IMesh.h>
+#include <SMaterial.h>
+#include <CMeshBuffer.h>
+#include <irr_ptr.h>
+
+namespace scene = irr::scene;
+namespace video = irr::video;
 
 class Client;
 class ITextureSource;

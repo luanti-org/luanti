@@ -11,6 +11,8 @@
 #include "wieldmesh.h" // ItemMesh
 #include "util/basic_macros.h"
 
+namespace video = irr::video;
+
 class Client;
 struct ItemStack;
 typedef std::vector<video::SColor> Palette; // copied from src/client/texturesource.h

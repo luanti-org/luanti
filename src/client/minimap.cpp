@@ -13,6 +13,8 @@
 #include "client/texturesource.h"
 #include "gettext.h"
 
+using namespace irr;
+
 ////
 //// MinimapUpdateThread
 ////

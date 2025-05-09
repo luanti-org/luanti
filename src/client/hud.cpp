@@ -28,6 +28,8 @@
 #include "irrlicht_changes/CGUITTFont.h"
 #include "gui/drawItemStack.h"
 
+using namespace irr;
+
 #define OBJECT_CROSSHAIR_LINE_SIZE 8
 #define CROSSHAIR_LINE_SIZE 10
 
