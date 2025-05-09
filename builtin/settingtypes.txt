@@ -211,10 +211,10 @@ keymap_dig (Dig/punch/use) key KEY_LBUTTON
 keymap_place (Place/use) key KEY_RBUTTON
 
 #    Key for opening the inventory.
-keymap_inventory (Open inventory) key KEY_KEY_I
+keymap_inventory (Open inventory) key KEY_KEY_E
 
 #    Key for moving fast in fast mode.
-keymap_aux1 (Aux1) key KEY_KEY_E
+keymap_aux1 (Aux1) key KEY_KEY_F
 
 #    Key for opening the chat window.
 keymap_chat (Open chat) key KEY_KEY_T

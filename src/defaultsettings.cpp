@@ -150,8 +150,8 @@ void set_default_settings()
 	settings->setDefault("keymap_place", "KEY_RBUTTON");
 	USEKEY2("keymap_drop", "SYSTEM_SCANCODE_20", "KEY_KEY_Q");
 	USEKEY2("keymap_zoom", "SYSTEM_SCANCODE_29", "KEY_KEY_Z");
-	USEKEY2("keymap_inventory", "SYSTEM_SCANCODE_12", "KEY_KEY_I");
-	USEKEY2("keymap_aux1", "SYSTEM_SCANCODE_8", "KEY_KEY_E");
+	USEKEY2("keymap_inventory", "SYSTEM_SCANCODE_8", "KEY_KEY_E");
+	USEKEY2("keymap_aux1", "SYSTEM_SCANCODE_9", "KEY_KEY_F");
 	USEKEY2("keymap_chat", "SYSTEM_SCANCODE_23", "KEY_KEY_T");
 	USEKEY2("keymap_cmd", "SYSTEM_SCANCODE_56", "/");
 	USEKEY2("keymap_cmd_local", "SYSTEM_SCANCODE_55", ".");
