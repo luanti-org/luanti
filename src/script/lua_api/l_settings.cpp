@@ -60,7 +60,8 @@ static inline int checkSettingSecurity(lua_State* L, const std::string &name)
 
 LuaSettings::LuaSettings(Settings *settings, const std::string &filename) :
 	m_settings(settings),
-	m_filename(filename)
+	m_filename(filename),
+	m_write_allowed(!filename.empty())
 {
 }
 
