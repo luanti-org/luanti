@@ -60,8 +60,6 @@ extern "C" {
 #error ==================================
 #endif
 
-// TODO: luanti.conf with migration
-#define CONFIGFILE "minetest.conf"
 #define DEBUGFILE "debug.txt"
 #define DEFAULT_SERVER_PORT 30000
 
@@ -742,11 +740,11 @@ static void startup_message()
 		<< std::endl;
 }
 
+
 static bool read_config_file(const Settings &cmd_args)
 {
 	// Path of configuration file in use
 	sanity_check(g_settings_path.empty());	// Sanity check
-
 	if (cmd_args.exists("config")) {
 		bool r = g_settings->readConfigFile(cmd_args.get("config").c_str());
 		if (!r) {
@@ -757,10 +755,14 @@ static bool read_config_file(const Settings &cmd_args)
 		g_settings_path = cmd_args.get("config");
 	} else {
 		std::vector<std::string> filenames;
-		filenames.push_back(porting::path_user + DIR_DELIM + CONFIGFILE);
+		std::optional<std::string> platform_specific_filename = porting::getPlatformSpecificConfigFile();
+		if (platform_specific_filename != std::nullopt)
+			filenames.push_back(platform_specific_filename.value());
 		// Legacy configuration file location
+		filenames.push_back(porting::path_user + DIR_DELIM + LEGACY_CONFIGFILE);
+		// Very legacy configuration file location
 		filenames.push_back(porting::path_user +
-				DIR_DELIM + ".." + DIR_DELIM + CONFIGFILE);
+				DIR_DELIM + ".." + DIR_DELIM + LEGACY_CONFIGFILE);
 
 #if RUN_IN_PLACE
 		// Try also from a lower level (to aid having the same configuration
