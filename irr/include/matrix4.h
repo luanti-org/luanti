@@ -276,6 +276,8 @@ public:
 	/** \param out: where result matrix is written to. */
 	bool getInversePrimitive(CMatrix4<T> &out) const;
 
+	T determinant() const;
+
 	//! Gets the inverse matrix of this one
 	/** \param out: where result matrix is written to.
 	\return Returns false if there is no inverse matrix. */
@@ -1068,6 +1070,19 @@ inline void CMatrix4<T>::translateVect(vector3df &vect) const
 }
 
 template <class T>
+inline T CMatrix4<T>::determinant() const
+{
+	// Calculates the determinant using the rule of Sarrus.
+	const CMatrix4<T> &m = *this;
+	return (m[0] * m[5] - m[1] * m[4]) * (m[10] * m[15] - m[11] * m[14]) -
+			(m[0] * m[6] - m[2] * m[4]) * (m[9] * m[15] - m[11] * m[13]) +
+			(m[0] * m[7] - m[3] * m[4]) * (m[9] * m[14] - m[10] * m[13]) +
+			(m[1] * m[6] - m[2] * m[5]) * (m[8] * m[15] - m[11] * m[12]) -
+			(m[1] * m[7] - m[3] * m[5]) * (m[8] * m[14] - m[10] * m[12]) +
+			(m[2] * m[7] - m[3] * m[6]) * (m[8] * m[13] - m[9] * m[12]);
+}
+
+template <class T>
 inline bool CMatrix4<T>::getInverse(CMatrix4<T> &out) const
 {
 	/// Calculates the inverse of this Matrix
@@ -1076,12 +1091,7 @@ inline bool CMatrix4<T>::getInverse(CMatrix4<T> &out) const
 
 	const CMatrix4<T> &m = *this;
 
-	f32 d = (m[0] * m[5] - m[1] * m[4]) * (m[10] * m[15] - m[11] * m[14]) -
-			(m[0] * m[6] - m[2] * m[4]) * (m[9] * m[15] - m[11] * m[13]) +
-			(m[0] * m[7] - m[3] * m[4]) * (m[9] * m[14] - m[10] * m[13]) +
-			(m[1] * m[6] - m[2] * m[5]) * (m[8] * m[15] - m[11] * m[12]) -
-			(m[1] * m[7] - m[3] * m[5]) * (m[8] * m[14] - m[10] * m[12]) +
-			(m[2] * m[7] - m[3] * m[6]) * (m[8] * m[13] - m[9] * m[12]);
+	f32 d = determinant();
 
 	if (iszero(d, FLT_MIN))
 		return false;
