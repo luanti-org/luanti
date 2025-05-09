@@ -214,7 +214,9 @@ public:
 			if (g_settings->getBool("enable_translucent_foliage"))
 				constants["ENABLE_TRANSLUCENT_FOLIAGE"] = 1;
 
-			if (g_settings->getBool("enable_node_specular"))
+			// FIXME: The node specular effect is currently disabled due to mixed in-game
+			// results. This shader should not be applied to all nodes equally. See #15898
+			if (false)
 				constants["ENABLE_NODE_SPECULAR"] = 1;
 
 			s32 shadow_filter = g_settings->getS32("shadow_filters");
