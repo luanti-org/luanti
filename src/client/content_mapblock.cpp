@@ -137,10 +137,19 @@ void MapblockMeshGenerator::drawQuad(const TileSpec &tile, v3f *coords, const v3
 }
 
 static std::array<video::S3DVertex, 24> setupCuboidVertices(const aabb3f &box,
-		const f32 *txc, const TileSpec *tiles, int tilecount)
+		const f32 *txc, const TileSpec *tiles, int tilecount, v3s16 alignment)
 {
 	v3f min = box.MinEdge;
 	v3f max = box.MaxEdge;
+
+	// Texture coords are [0,1] if not specified otherwise
+	f32 uniform_txc[24];
+	if (!txc) {
+		for (int i = 0; i != 24; ++i) {
+			uniform_txc[i] = (i % 4 < 2) ? 0.0f : 1.0f;
+		}
+		txc = uniform_txc;
+	}
 
 	std::array<video::S3DVertex, 24> vertices = {{
 		// top
@@ -185,14 +194,46 @@ static std::array<video::S3DVertex, 24> setupCuboidVertices(const aabb3f &box,
 			case TileRotation::None:
 				break;
 			case TileRotation::R90:
-				tcoords.set(-tcoords.Y, tcoords.X);
+				tcoords.set(1 - tcoords.Y, tcoords.X);
 				break;
 			case TileRotation::R180:
-				tcoords.set(-tcoords.X, -tcoords.Y);
+				tcoords.set(1 - tcoords.X, 1 - tcoords.Y);
 				break;
 			case TileRotation::R270:
-				tcoords.set(tcoords.Y, -tcoords.X);
+				tcoords.set(tcoords.Y, 1 - tcoords.X);
 				break;
+			}
+
+			if (tile.world_aligned) {
+				// Maps uv dimension of every face to world dimension xyz
+				constexpr int coord_dim[12] = {
+					0, 2, // up
+					0, 2, // down
+					2, 1, // right
+					2, 1, // left
+					0, 1, // back
+					0, 1, // front
+				};
+
+				auto scale = tile.layers[0].scale;
+				f32 scale_factor = 1.0f / scale;
+
+				float x = alignment[coord_dim[face*2]] % scale;
+				float y = alignment[coord_dim[face*2 + 1]] % scale;
+
+				// Faces grow in different directions
+				if (face != 1) {
+					y = tcoords.Y + ((scale-1)-y);
+				} else {
+					y = tcoords.Y + y;
+				}
+				if (face == 3 || face == 4) {
+					x = tcoords.X + ((scale-1)-x);
+				} else {
+					x = tcoords.X + x;
+				}
+
+				tcoords.set(x * scale_factor, y * scale_factor);
 			}
 		}
 	}
@@ -212,6 +253,7 @@ enum class QuadDiagonal {
 //              for the opposite corners of each face - therefore, there
 //              should be (2+2)*6=24 values in the list. The order of
 //              the faces in the list is up-down-right-left-back-front
+//              if nullptr use standard [0,1] coords
 //              (compatible with ContentFeatures).
 //  mask      - a bit mask that suppresses drawing of tiles.
 //              tile i will not be drawn if mask & (1 << i) is 1
@@ -224,7 +266,7 @@ void MapblockMeshGenerator::drawCuboid(const aabb3f &box,
 {
 	assert(tilecount >= 1 && tilecount <= 6); // pre-condition
 
-	auto vertices = setupCuboidVertices(box, txc, tiles, tilecount);
+	auto vertices = setupCuboidVertices(box, txc, tiles, tilecount, cur_node.p);
 
 	for (int k = 0; k < 6; ++k) {
 		if (mask & (1 << k))
@@ -301,12 +343,13 @@ video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos,
 
 void MapblockMeshGenerator::generateCuboidTextureCoords(const aabb3f &box, f32 *coords)
 {
-	f32 tx1 = (box.MinEdge.X / BS) + 0.5;
-	f32 ty1 = (box.MinEdge.Y / BS) + 0.5;
-	f32 tz1 = (box.MinEdge.Z / BS) + 0.5;
-	f32 tx2 = (box.MaxEdge.X / BS) + 0.5;
-	f32 ty2 = (box.MaxEdge.Y / BS) + 0.5;
-	f32 tz2 = (box.MaxEdge.Z / BS) + 0.5;
+	// Generate texture coords which are aligned to coords of a solid nodes
+	f32 tx1 = (box.MinEdge.X / BS) + 0.5f;
+	f32 ty1 = (box.MinEdge.Y / BS) + 0.5f;
+	f32 tz1 = (box.MinEdge.Z / BS) + 0.5f;
+	f32 tx2 = (box.MaxEdge.X / BS) + 0.5f;
+	f32 ty2 = (box.MaxEdge.Y / BS) + 0.5f;
+	f32 tz2 = (box.MaxEdge.Z / BS) + 0.5f;
 	f32 txc[24] = {
 		    tx1, 1 - tz2,     tx2, 1 - tz1, // up
 		    tx1,     tz1,     tx2,     tz2, // down
@@ -334,7 +377,6 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 		const TileSpec *tiles, int tile_count, const f32 *txc, u8 mask)
 {
 	bool scale = std::fabs(cur_node.f->visual_scale - 1.0f) > 1e-3f;
-	f32 texture_coord_buf[24];
 	f32 dx1 = box.MinEdge.X;
 	f32 dy1 = box.MinEdge.Y;
 	f32 dz1 = box.MinEdge.Z;
@@ -342,19 +384,11 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 	f32 dy2 = box.MaxEdge.Y;
 	f32 dz2 = box.MaxEdge.Z;
 	if (scale) {
-		if (!txc) { // generate texture coords before scaling
-			generateCuboidTextureCoords(box, texture_coord_buf);
-			txc = texture_coord_buf;
-		}
 		box.MinEdge *= cur_node.f->visual_scale;
 		box.MaxEdge *= cur_node.f->visual_scale;
 	}
 	box.MinEdge += cur_node.origin;
 	box.MaxEdge += cur_node.origin;
-	if (!txc) {
-		generateCuboidTextureCoords(box, texture_coord_buf);
-		txc = texture_coord_buf;
-	}
 	if (data->m_smooth_lighting) {
 		LightInfo lights[8];
 		for (int j = 0; j < 8; ++j) {
@@ -442,10 +476,8 @@ void MapblockMeshGenerator::drawSolidNode()
 	u8 mask = faces ^ 0b0011'1111; // k-th bit is set if k-th face is to be *omitted*, as expected by cuboid drawing functions.
 	cur_node.origin = intToFloat(cur_node.p, BS);
 	auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
-	f32 texture_coord_buf[24];
 	box.MinEdge += cur_node.origin;
 	box.MaxEdge += cur_node.origin;
-	generateCuboidTextureCoords(box, texture_coord_buf);
 	if (data->m_smooth_lighting) {
 		LightPair lights[6][4];
 		for (int face = 0; face < 6; ++face) {
@@ -458,7 +490,7 @@ void MapblockMeshGenerator::drawSolidNode()
 			}
 		}
 
-		drawCuboid(box, tiles, 6, texture_coord_buf, mask, [&] (int face, video::S3DVertex vertices[4]) {
+		drawCuboid(box, tiles, 6, nullptr, mask, [&] (int face, video::S3DVertex vertices[4]) {
 			auto final_lights = lights[face];
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
@@ -471,7 +503,7 @@ void MapblockMeshGenerator::drawSolidNode()
 			return QuadDiagonal::Diag02;
 		});
 	} else {
-		drawCuboid(box, tiles, 6, texture_coord_buf, mask, [&] (int face, video::S3DVertex vertices[4]) {
+		drawCuboid(box, tiles, 6, nullptr, mask, [&] (int face, video::S3DVertex vertices[4]) {
 			video::SColor color = encode_light(lights[face], cur_node.f->light_source);
 			if (!cur_node.f->light_source)
 				applyFacesShading(color, vertices[0].Normal);
@@ -952,7 +984,10 @@ void MapblockMeshGenerator::drawGlasslikeFramedNode()
 			edge_invisible = nb[nb_triplet[edge][0]] ^ nb[nb_triplet[edge][1]];
 		if (edge_invisible)
 			continue;
-		drawAutoLightedCuboid(frame_edges[edge], tiles[1]);
+
+		f32 txc[24];
+		generateCuboidTextureCoords(frame_edges[edge], txc);
+		drawAutoLightedCuboid(frame_edges[edge], tiles[1], txc);
 	}
 
 	for (int face = 0; face < 6; face++) {
@@ -996,16 +1031,17 @@ void MapblockMeshGenerator::drawGlasslikeFramedNode()
 		float vlev = (param2 / 63.0f) * 2.0f - 1.0f;
 		TileSpec tile;
 		getSpecialTile(0, &tile);
-		drawAutoLightedCuboid(
-			aabb3f(
-				-(nb[5] ? g : b),
-				-(nb[4] ? g : b),
-				-(nb[3] ? g : b),
-				 (nb[2] ? g : b),
-				 (nb[1] ? g : b) * vlev,
-				 (nb[0] ? g : b)
-			),
-			tile);
+		aabb3f box(
+			-(nb[5] ? g : b),
+			-(nb[4] ? g : b),
+			-(nb[3] ? g : b),
+			 (nb[2] ? g : b),
+			 (nb[1] ? g : b) * vlev,
+			 (nb[0] ? g : b)
+		);
+		f32 txc[24];
+		generateCuboidTextureCoords(box, txc);
+		drawAutoLightedCuboid(box, tile, txc);
 	}
 }
 
@@ -1649,7 +1685,10 @@ void MapblockMeshGenerator::drawNodeboxNode()
 
 	for (auto &box : boxes) {
 		u8 mask = getNodeBoxMask(box, solid_neighbors, sametype_neighbors);
-		drawAutoLightedCuboid(box, tiles, 6, nullptr, mask);
+
+		f32 txc[24];
+		generateCuboidTextureCoords(box, txc);
+		drawAutoLightedCuboid(box, tiles, 6, txc, mask);
 	}
 }
 
