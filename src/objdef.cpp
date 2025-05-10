@@ -9,6 +9,7 @@
 #include "porting.h" // strcasecmp
 
 #include <cassert>
+#include <strings.h>
 
 ObjDefManager::ObjDefManager(IGameDef *gamedef, ObjDefType type)
 {
