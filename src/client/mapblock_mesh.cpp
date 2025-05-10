@@ -29,10 +29,10 @@
 	MeshMakeData
 */
 
-MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, MeshGrid mesh_grid, u16 lod):
+MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, MeshGrid mesh_grid/*, u16 lod*/):
     m_side_length(side_length),
     m_mesh_grid(mesh_grid),
-    m_lod(lod),
+    // m_lod(lod),
     m_nodedef(ndef)
 {
 	assert(m_side_length > 0);
@@ -611,7 +611,7 @@ void PartialMeshBuffer::draw(video::IVideoDriver *driver) const
 	MapBlockMesh
 */
 
-MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
+MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 	m_tsrc(client->getTextureSource()),
 	m_shdrsrc(client->getShaderSource()),
 	m_bounding_sphere_center((data->m_side_length * 0.5f - 0.5f) * BS),
@@ -652,10 +652,10 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 
 	{
         // Generate everything
-        if (data->m_lod == 0)
+        if (lod == 0)
 			MapblockMeshGenerator(data, &collector).generate();
         else
-            LodMeshGenerator(data, &collector).generate();
+	        LodMeshGenerator(data, &collector).generate(lod);
 	}
 
 	/*

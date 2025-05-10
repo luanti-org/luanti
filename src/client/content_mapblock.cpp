@@ -1841,8 +1841,6 @@ void LodMeshGenerator::generateCloseLod(std::bitset<19> types, u32 width, f32 y_
             if (z == num-1) to.Z -= width - MAP_BLOCKSIZE;
         }
 
-        v3s16 lxlylz = std::move(volumes[x][y][z].MinEdge);
-        v3s16 hxhyhz = std::move(volumes[x][y][z].MaxEdge);
         v3s16 main_point;
         v3s16 p;
         for (p.Y = from.Y; p.Y < to.Y; p.Y++)
@@ -1857,19 +1855,18 @@ void LodMeshGenerator::generateCloseLod(std::bitset<19> types, u32 width, f32 y_
             if (!types.test(f->drawtype))
                 continue;
             main_point = p;
-            lxlylz.X = MYMIN(lxlylz.X , p.X);
-            lxlylz.Y = MYMIN(lxlylz.Y , p.Y);
-            lxlylz.Z = MYMIN(lxlylz.Z , p.Z);
-            hxhyhz.X = MYMAX(hxhyhz.X , p.X);
-            hxhyhz.Y = MYMAX(hxhyhz.Y , p.Y);
-            hxhyhz.Z = MYMAX(hxhyhz.Z , p.Z);
+            volumes[x][y][z].MinEdge.X = MYMIN(volumes[x][y][z].MinEdge.X , p.X);
+            volumes[x][y][z].MinEdge.Y = MYMIN(volumes[x][y][z].MinEdge.Y , p.Y);
+            volumes[x][y][z].MinEdge.Z = MYMIN(volumes[x][y][z].MinEdge.Z , p.Z);
+            volumes[x][y][z].MaxEdge.X = MYMAX(volumes[x][y][z].MaxEdge.X , p.X);
+            volumes[x][y][z].MaxEdge.Y = MYMAX(volumes[x][y][z].MaxEdge.Y , p.Y);
+            volumes[x][y][z].MaxEdge.Z = MYMAX(volumes[x][y][z].MaxEdge.Z , p.Z);
         }
 
         volume_points[x][y][z] = main_point;
         // skip if LOD is too small
-        skipped_volumes[x][y][z] = lxlylz.X == S16_MAX || lxlylz.getDistanceFromSQ(hxhyhz) < min_size;
-        volumes[x][y][z].MinEdge = std::move(lxlylz);
-        volumes[x][y][z].MaxEdge = std::move(hxhyhz);
+        skipped_volumes[x][y][z] = volumes[x][y][z].MinEdge.X == S16_MAX || //
+        	volumes[x][y][z].MinEdge.getDistanceFromSQ(volumes[x][y][z].MaxEdge) < min_size;
         next_node:
     }
 
@@ -1884,28 +1881,28 @@ void LodMeshGenerator::generateCloseLod(std::bitset<19> types, u32 width, f32 y_
         irr::core::aabbox3d<s16> cur = volumes[x][y][z];
 
         faces[x][y][z].set(0, skipped_volumes[x][y-1][z] || volumes[x][y-1][z].MaxEdge.Y+1 < cur.MinEdge.Y ||
-            volumes[x][y-1][z].MinEdge.X != cur.MinEdge.X || volumes[x][y-1][z].MinEdge.Z != cur.MinEdge.Z ||
-            volumes[x][y-1][z].MaxEdge.X != cur.MaxEdge.X || volumes[x][y-1][z].MaxEdge.Z != cur.MaxEdge.Z);
+            volumes[x][y-1][z].MinEdge.X > cur.MinEdge.X || volumes[x][y-1][z].MinEdge.Z > cur.MinEdge.Z ||
+            volumes[x][y-1][z].MaxEdge.X < cur.MaxEdge.X || volumes[x][y-1][z].MaxEdge.Z < cur.MaxEdge.Z);
 
         faces[x][y][z].set(1, skipped_volumes[x][y+1][z] || volumes[x][y+1][z].MinEdge.Y > cur.MaxEdge.Y+1 ||
-            volumes[x][y+1][z].MinEdge.X != cur.MinEdge.X || volumes[x][y+1][z].MinEdge.Z != cur.MinEdge.Z ||
-            volumes[x][y+1][z].MaxEdge.X != cur.MaxEdge.X || volumes[x][y+1][z].MaxEdge.Z != cur.MaxEdge.Z);
+            volumes[x][y+1][z].MinEdge.X > cur.MinEdge.X || volumes[x][y+1][z].MinEdge.Z > cur.MinEdge.Z ||
+            volumes[x][y+1][z].MaxEdge.X < cur.MaxEdge.X || volumes[x][y+1][z].MaxEdge.Z < cur.MaxEdge.Z);
 
         faces[x][y][z].set(2, skipped_volumes[x-1][y][z] || volumes[x-1][y][z].MaxEdge.X+1 < cur.MinEdge.X ||
-            volumes[x-1][y][z].MinEdge.Y != cur.MinEdge.Y || volumes[x-1][y][z].MinEdge.Z != cur.MinEdge.Z ||
-            volumes[x-1][y][z].MaxEdge.Y != cur.MaxEdge.Y || volumes[x-1][y][z].MaxEdge.Z != cur.MaxEdge.Z);
+            volumes[x-1][y][z].MinEdge.Y > cur.MinEdge.Y || volumes[x-1][y][z].MinEdge.Z > cur.MinEdge.Z ||
+            volumes[x-1][y][z].MaxEdge.Y < cur.MaxEdge.Y || volumes[x-1][y][z].MaxEdge.Z < cur.MaxEdge.Z);
 
         faces[x][y][z].set(3, skipped_volumes[x+1][y][z] || volumes[x+1][y][z].MinEdge.X > cur.MaxEdge.X+1 ||
-            volumes[x+1][y][z].MinEdge.Y != cur.MinEdge.Y || volumes[x+1][y][z].MinEdge.Z != cur.MinEdge.Z ||
-            volumes[x+1][y][z].MaxEdge.Y != cur.MaxEdge.Y || volumes[x+1][y][z].MaxEdge.Z != cur.MaxEdge.Z);
+            volumes[x+1][y][z].MinEdge.Y > cur.MinEdge.Y || volumes[x+1][y][z].MinEdge.Z > cur.MinEdge.Z ||
+            volumes[x+1][y][z].MaxEdge.Y < cur.MaxEdge.Y || volumes[x+1][y][z].MaxEdge.Z < cur.MaxEdge.Z);
 
         faces[x][y][z].set(4, skipped_volumes[x][y][z-1] || volumes[x][y][z-1].MaxEdge.Z+1 < cur.MinEdge.Z ||
-            volumes[x][y][z-1].MinEdge.X != cur.MinEdge.X || volumes[x][y][z-1].MinEdge.Y != cur.MinEdge.Y ||
-            volumes[x][y][z-1].MaxEdge.X != cur.MaxEdge.X || volumes[x][y][z-1].MaxEdge.Y != cur.MaxEdge.Y);
+            volumes[x][y][z-1].MinEdge.X > cur.MinEdge.X || volumes[x][y][z-1].MinEdge.Y > cur.MinEdge.Y ||
+            volumes[x][y][z-1].MaxEdge.X < cur.MaxEdge.X || volumes[x][y][z-1].MaxEdge.Y < cur.MaxEdge.Y);
 
         faces[x][y][z].set(5, skipped_volumes[x][y][z+1] || volumes[x][y][z+1].MinEdge.Z > cur.MaxEdge.Z+1 ||
-            volumes[x][y][z+1].MinEdge.X != cur.MinEdge.X || volumes[x][y][z+1].MinEdge.Y != cur.MinEdge.Y ||
-            volumes[x][y][z+1].MaxEdge.X != cur.MaxEdge.X || volumes[x][y][z+1].MaxEdge.Y != cur.MaxEdge.Y);
+            volumes[x][y][z+1].MinEdge.X > cur.MinEdge.X || volumes[x][y][z+1].MinEdge.Y > cur.MinEdge.Y ||
+            volumes[x][y][z+1].MaxEdge.X < cur.MaxEdge.X || volumes[x][y][z+1].MaxEdge.Y < cur.MaxEdge.Y);
     }
     for (u8 x = 1; x < num; x++)
     for (u8 y = 1; y < num; y++)
@@ -1990,7 +1987,7 @@ void LodMeshGenerator::generateCloseLod(std::bitset<19> types, u32 width, f32 y_
     }
 }
 
-void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core::vector2d<f32> uvs[4], f32 y_offset, u8 min_size){
+void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core::vector2d<f32> uvs[4], u8 min_size){
     // too tiny lods should be skipped
     // but to avoid holes in the world, we need to track which volumes got skipped
     u8 num = data->m_side_length / width + 2;
@@ -2090,14 +2087,14 @@ void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core:
 
         // subtract blockpos_nodes again, as we need relative coords here. Multiplied by blocksize.
         // Then add/subtract half a blocksize to move to the corners of the nodes
-        core::vector3df lxlylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-        core::vector3df lxlyhz_f((lxlyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-        core::vector3df lxhylz_f((lxhylz.X - blockpos_nodes.X) * BS - BS / 2, (lxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxhylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-        core::vector3df lxhyhz_f((lxhyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-        core::vector3df hxlylz_f((hxlylz.X - blockpos_nodes.X) * BS + BS / 2, (hxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-        core::vector3df hxlyhz_f((hxlyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-        core::vector3df hxhylz_f((hxhylz.X - blockpos_nodes.X) * BS + BS / 2, (hxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-        core::vector3df hxhyhz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df lxlylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df lxlyhz_f((lxlyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2, (lxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df lxhylz_f((lxhylz.X - blockpos_nodes.X) * BS - BS / 2, (lxhylz.Y - blockpos_nodes.Y) * BS + BS / 2, (lxhylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df lxhyhz_f((lxhyhz.X - blockpos_nodes.X) * BS - BS / 2, (lxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2, (lxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df hxlylz_f((hxlylz.X - blockpos_nodes.X) * BS + BS / 2, (hxlylz.Y - blockpos_nodes.Y) * BS - BS / 2, (hxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df hxlyhz_f((hxlyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2, (hxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
+        core::vector3df hxhylz_f((hxhylz.X - blockpos_nodes.X) * BS + BS / 2, (hxhylz.Y - blockpos_nodes.Y) * BS + BS / 2, (hxhylz.Z - blockpos_nodes.Z) * BS - BS / 2);
+        core::vector3df hxhyhz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
 
         v3s16 node_coords[6][4] = {{lxlylz, hxlylz, hxlyhz, lxlyhz}, {lxhylz, lxhyhz, hxhyhz, hxhylz}, //  bottom   top
                                    {lxlyhz, lxhyhz, lxhylz, lxlylz}, {hxlylz, hxhylz, hxhyhz, hxlyhz}, //  left     right
@@ -2107,10 +2104,10 @@ void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core:
                                           {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
         TileSpec tile;
         for(u8 i = 0; i < 6; i++){
-            if (types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])))->drawtype) &&
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])))->drawtype) &&
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])))->drawtype) &&
-                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])))->drawtype))
+            if (types.test(nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])).drawtype) &&
+                types.test(nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])).drawtype) &&
+                types.test(nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])).drawtype) &&
+                types.test(nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])).drawtype))
                 continue;
 
             u8 day_light = 0;
@@ -2145,8 +2142,8 @@ void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core:
     }
 }
 
-void LodMeshGenerator::generate() {
-    u32 width = 1 << MYMIN(data->m_lod, 31);
+void LodMeshGenerator::generate(u8 lod) {
+    u32 width = 1 << MYMIN(lod, 31);
 
     if(width > data->m_side_length){
         width = data->m_side_length;
@@ -2162,22 +2159,23 @@ void LodMeshGenerator::generate() {
                                   core::vector2d<f32>{(f32) width, 0},
                                   core::vector2d<f32>{(f32) width, (f32) width},
                                   };
-    f32 y_offset = BS * (data->m_lod - 1) + 0.1; // make the ground curve away with distance to prevent z-fighting and imply curvature. its a feature not a bug ;)
 
-    if (data->m_lod < g_settings->getU16("lod_slant_threshold")) {
+    if (lod < g_settings->getU16("lod_slant_threshold")) {
         // liquids are always rendered slanted
         std::bitset<19> liqu_set;
         liqu_set.set(NDT_LIQUID);
-        generateDetailLod(liqu_set, width, uvs, 0, min_size);
+        generateDetailLod(liqu_set, MYMAX(8, width), uvs, min_size);
 
         std::bitset<19> types;
         types.set(NDT_NORMAL);
         types.set(NDT_NODEBOX);
         types.set(NDT_ALLFACES);
+        // types.set(NDT_LIQUID);
         if (g_settings->get("leaves_style") == "simple")
             types.set(NDT_GLASSLIKE);
 
-        generateCloseLod(types, width, -y_offset, min_size);
+    	// shift these down a bit, to prevent z fighting with the water
+        generateCloseLod(types, width, -0.1, min_size);
     } else {
         std::bitset<19> solids;
         solids.set(NDT_NORMAL);
@@ -2199,8 +2197,8 @@ void LodMeshGenerator::generate() {
             solids.set(NDT_LIQUID);
 
 
-        generateDetailLod(solids, width, uvs, -y_offset, min_size);
+        generateDetailLod(solids, width, uvs, min_size);
         if (other.any())
-            generateDetailLod(other, width, uvs, 0, min_size);
+            generateDetailLod(other, width, uvs, min_size);
     }
 }

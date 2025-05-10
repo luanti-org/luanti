@@ -75,23 +75,6 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	if (urgent)
 		m_urgents.insert(mesh_position);
 
-    /*
-     * Calculate LOD
-     */
-    v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE - mesh_grid.cell_size / 2;
-    u16 dist2 = (cam_pos.X - mesh_position.X) * (cam_pos.X - mesh_position.X)
-                + (cam_pos.Y - mesh_position.Y) * (cam_pos.Y - mesh_position.Y)
-                + (cam_pos.Z - mesh_position.Z) * (cam_pos.Z - mesh_position.Z); // distance squared
-    u16 renderDist = g_settings->getU16("lod_threshold");
-    renderDist *= renderDist;
-    u16 lod = 0;
-    if (dist2 < renderDist) {
-        lod = 0;
-        urgent = true;
-    } else {
-        lod = 1 + (u16) (std::log2(dist2 / renderDist) / g_settings->getFloat("lod_quality"));
-    }
-
 	/*
 		Find if block is already in queue.
 		If it is, update the data and quit.
@@ -104,12 +87,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
                 q->ack_list.push_back(p);
             q->crack_level = m_client->getCrackLevel();
             q->crack_pos = m_client->getCrackPos();
-            if (q->lod > lod) {
-                q->lod = lod;
-                q->urgent = true;
-            } else {
-                q->urgent |= urgent;
-            }
+        	q->urgent |= urgent;
             v3s16 pos;
             int i = 0;
             for (pos.X = q->p.X - 1; pos.X <= q->p.X + mesh_grid.cell_size; pos.X++)
@@ -154,7 +132,6 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
 	q->map_blocks = std::move(map_blocks);
-    q->lod = lod;
 	m_queue.push_back(q);
 
 	return true;
@@ -202,7 +179,7 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
     MeshGrid mesh_grid = m_client->getMeshGrid();
     MeshMakeData *data = new MeshMakeData(m_client->ndef(),
-            MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid, q->lod);
+            MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid/*, q->lod*/);
     q->data = data;
 
 	data->fillBlockDataBegin(q->p);
@@ -244,7 +221,21 @@ void MeshUpdateWorkerThread::doUpdate()
 
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
-		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
+		// /*
+		//  * Calculate LOD
+		//  */
+		v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE // current player block
+						// other block positions are on the corner, so offset this position as well for dist calcs
+						- m_client->getMeshGrid().cell_size / 2;
+		u16 dist2 = (cam_pos.X - q->p.X) * (cam_pos.X - q->p.X)
+		            + (cam_pos.Y - q->p.Y) * (cam_pos.Y - q->p.Y)
+		            + (cam_pos.Z - q->p.Z) * (cam_pos.Z - q->p.Z); // distance squared
+		u16 renderDist = g_settings->getU16("lod_threshold");
+		renderDist *= renderDist;
+		const u16 lod = dist2 < renderDist ? 0 :
+		1 + static_cast<u16>(std::log2(dist2 / renderDist) / g_settings->getFloat("lod_quality"));
+
+		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, lod);
 
 		MeshUpdateResult r;
 		r.p = q->p;

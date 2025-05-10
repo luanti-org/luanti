@@ -175,7 +175,7 @@ class LodMeshGenerator
 {
 public:
     LodMeshGenerator(MeshMakeData *input, MeshCollector *output);
-    void generate();
+    void generate(u8 lod);
 
 private:
     MeshMakeData *const data;
@@ -184,10 +184,10 @@ private:
     const v3s16 blockpos_nodes;
 
     static constexpr v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
-                                        v3s16(-1, 0, 0), v3s16(1, 0, 0),
-                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
+	                                        v3s16(-1, 0, 0), v3s16(1, 0, 0),
+	                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
 
-    void generateDetailLod(std::bitset<19> types, u32, core::vector2d<f32>[4], f32, u8);
+    void generateDetailLod(std::bitset<19> types, u32, core::vector2d<f32>[4], u8);
     void generateCloseLod(std::bitset<19> types, u32 width, f32 y_offset, u8);
     void findClosestOfTypes(std::bitset<19> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const;
     bool doesVolumeContainType(std::bitset<19> types, v3s16 from, v3s16 too) const;

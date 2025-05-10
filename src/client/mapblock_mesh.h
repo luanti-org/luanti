@@ -51,11 +51,10 @@ struct MeshMakeData
 	bool m_generate_minimap = false;
 	bool m_smooth_lighting = false;
 	bool m_enable_water_reflections = false;
-    u16 m_lod;
 
 	const NodeDefManager *m_nodedef;
 
-    MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid, u16 lod);
+    MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid/*, u16 lod*/);
 
 	/*
 		Copy block data manually (to allow optimizations by the caller)
@@ -181,7 +180,7 @@ class MapBlockMesh
 {
 public:
 	// Builds the mesh given
-	MapBlockMesh(Client *client, MeshMakeData *data);
+	MapBlockMesh(Client *client, MeshMakeData *data, u8 lod);
 	~MapBlockMesh();
 
 	// Main animation function, parameters:
