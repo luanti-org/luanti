@@ -96,6 +96,22 @@ SECTION("matrix-quaternion roundtrip") {
 	});
 }
 
+SECTION("matrix-quaternion roundtrip") {
+	v3f rad(0, 0, irr::core::PI / 2);
+	// test_euler_angles_rad([](v3f rad) {
+		quaternion q;
+		q.set(rad);
+		matrix4 mat;
+		q.getMatrix(mat);
+		quaternion q2(mat);
+		// q2.makeInverse();
+		matrix4 mat2;
+		q2.getMatrix(mat2);
+		CHECK(matrix_equals(mat, mat2));
+		// CHECK(q.angleTo(q2) < 1e-4);
+	// });
+}
+
 SECTION("matrix-euler roundtrip") {
 	test_euler_angles_rad([](v3f rad) {
 		matrix4 mat, mat2;

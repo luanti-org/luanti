@@ -3,6 +3,8 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "scripting_server.h"
+#include "lua_api/l_rotation.h"
+#include "lua_api/l_matrix4.h"
 #include "server.h"
 #include "log.h"
 #include "settings.h"
@@ -141,6 +143,8 @@ void ServerScripting::InitializeModApi(lua_State *L, int top)
 	LuaRaycast::Register(L);
 	LuaSecureRandom::Register(L);
 	LuaVoxelManip::Register(L);
+	LuaRotation::Register(L);
+	LuaMatrix4::Register(L);
 	NodeMetaRef::Register(L);
 	NodeTimerRef::Register(L);
 	ObjectRef::Register(L);
@@ -179,6 +183,8 @@ void ServerScripting::InitializeAsync(lua_State *L, int top)
 	LuaSecureRandom::Register(L);
 	LuaVoxelManip::Register(L);
 	LuaSettings::Register(L);
+	LuaRotation::Register(L);
+	LuaMatrix4::Register(L);
 
 	// globals data
 	auto *data = ModApiBase::getServer(L)->m_lua_globals_data.get();

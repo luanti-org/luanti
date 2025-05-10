@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2018 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
+#include "irrTypes.h"
 extern "C" {
 #include <lauxlib.h>
 }
@@ -36,13 +37,44 @@ int LuaHelper::readParam(lua_State *L, int index)
 }
 
 template <>
-float LuaHelper::readParam(lua_State *L, int index)
+f32 LuaHelper::readParam(lua_State *L, int index)
 {
-	lua_Number v = luaL_checknumber(L, index);
-	if (std::isnan(v) && std::isinf(v))
-		throw LuaError("Invalid float value (NaN or infinity)");
+	f64 v = luaL_checknumber(L, index);
+	return static_cast<f32>(v);
+}
 
-	return static_cast<float>(v);
+template <>
+f64 LuaHelper::readParam(lua_State *L, int index)
+{
+	return luaL_checknumber(L, index);
+}
+
+template <>
+LuaHelper::Finite<f32> LuaHelper::readParam(lua_State *L, int index)
+{
+	f64 original_value = luaL_checknumber(L, index);
+	f32 v = static_cast<f32>(original_value);
+	if (std::isfinite(v))
+		return {v};
+	if (std::isnan(original_value))
+		luaL_argerror(L, index, "number is NaN");
+	if (!std::isfinite(original_value))
+		luaL_argerror(L, index, "number is not finite");
+	assert(!std::isfinite(v));
+	luaL_argerror(L, index, "number is out-of-bounds for a 32-bit float");
+	IRR_CODE_UNREACHABLE();
+}
+
+template <>
+LuaHelper::Finite<f64> LuaHelper::readParam(lua_State *L, int index)
+{
+	f64 v = luaL_checknumber(L, index);
+	if (std::isfinite(v))
+		return {v};
+	if (std::isnan(v))
+		luaL_argerror(L, index, "number is NaN");
+	luaL_argerror(L, index, "number is not finite");
+	IRR_CODE_UNREACHABLE();
 }
 
 template <>

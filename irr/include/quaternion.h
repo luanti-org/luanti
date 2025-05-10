@@ -91,6 +91,12 @@ public:
 	//! Calculates the dot product
 	inline f32 dotProduct(const quaternion &other) const;
 
+	//! Calculates the (unsigned) angle between two quaternions
+	inline f32 angleTo(const quaternion &other) const
+	{
+		return acosf(std::abs(dotProduct(other)));
+	}
+
 	//! Sets new quaternion
 	inline quaternion &set(f32 x, f32 y, f32 z, f32 w);
 
