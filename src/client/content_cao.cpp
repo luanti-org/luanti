@@ -16,6 +16,7 @@
 #include "client/meshgen/collector.h"
 #include "util/basic_macros.h"
 #include "util/numeric.h"
+#include "util/rotation_matrix.h"
 #include "util/serialize.h"
 #include "camera.h" // CameraModes
 #include "collision.h"
@@ -955,7 +956,7 @@ void GenericCAO::updateNodePos()
 		getPosRotMatrix().setTranslation(pos);
 		if (node != m_spritenode) { // rotate if not a sprite
 			v3f rot = m_is_local_player ? -m_rotation : -rot_translator.val_current;
-			setPitchYawRoll(getPosRotMatrix(), rot);
+			setPitchYawRollRad(getPosRotMatrix(), rot * core::RADTODEG);
 		}
 	}
 }

@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#include "irrMath.h"
 #include "test.h"
 
 #include <cmath>
 #include <limits>
 #include "util/enriched_string.h"
 #include "util/numeric.h"
+#include "util/rotation_matrix.h"
 #include "util/string.h"
 #include "util/base64.h"
 #include "util/colorize.h"
@@ -459,11 +461,11 @@ static bool within(const core::matrix4 &m1, const core::matrix4 &m2,
 	return true;
 }
 
-static bool roundTripsDeg(const v3f &v, const f32 precision)
+static bool roundTripsRad(const v3f &v, const f32 precision)
 {
 	core::matrix4 m;
-	setPitchYawRoll(m, v);
-	return within(v, getPitchYawRoll(m), precision);
+	setPitchYawRollRad(m, v);
+	return within(v, getPitchYawRollRad(m), precision);
 }
 
 void TestUtilities::testEulerConversion()
@@ -484,12 +486,8 @@ void TestUtilities::testEulerConversion()
 	// produce the same results. Check also that the conversion
 	// works both ways for these values.
 	v1 = v3f(M_PI/3.0, M_PI/5.0, M_PI/4.0);
-	v2 = v3f(60.0f, 36.0f, 45.0f);
 	setPitchYawRollRad(m1, v1);
-	setPitchYawRoll(m2, v2);
-	UASSERT(within(m1, m2, tolL));
 	UASSERT(within(getPitchYawRollRad(m1), v1, tolL));
-	UASSERT(within(getPitchYawRoll(m2), v2, tolH));
 
 	// Check the rotation matrix produced.
 	UASSERT(within(M1[0], 0.932004869f, tolL));
@@ -535,17 +533,17 @@ void TestUtilities::testEulerConversion()
 	UASSERT(within(M1[10], M2[0], tolL));
 
 	// Check that Eulers that produce near gimbal-lock still round-trip
-	UASSERT(roundTripsDeg(v3f(89.9999f, 17.f, 0.f), tolH));
-	UASSERT(roundTripsDeg(v3f(89.9999f, 0.f, 19.f), tolH));
-	UASSERT(roundTripsDeg(v3f(89.9999f, 17.f, 19.f), tolH));
+	UASSERT(roundTripsRad(core::DEGTORAD * v3f(89.9999f, 17.f, 0.f), tolH));
+	UASSERT(roundTripsRad(core::DEGTORAD * v3f(89.9999f, 0.f, 19.f), tolH));
+	UASSERT(roundTripsRad(core::DEGTORAD * v3f(89.9999f, 17.f, 19.f), tolH));
 
 	// Check that Eulers at an angle > 90 degrees may not round-trip...
-	v1 = v3f(90.00001f, 1.f, 1.f);
-	setPitchYawRoll(m1, v1);
-	v2 = getPitchYawRoll(m1);
+	v1 = core::DEGTORAD * v3f(90.00001f, 1.f, 1.f);
+	setPitchYawRollRad(m1, v1);
+	v2 = getPitchYawRollRad(m1);
 	//UASSERT(within(v1, v2, tolL)); // this is typically false
 	// ... however the rotation matrix is the same for both
-	setPitchYawRoll(m2, v2);
+	setPitchYawRollRad(m2, v2);
 	UASSERT(within(m1, m2, tolL));
 }
 

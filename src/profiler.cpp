@@ -4,6 +4,7 @@
 
 #include "profiler.h"
 #include "porting.h"
+#include <cstring>
 
 static Profiler main_profiler;
 Profiler *g_profiler = &main_profiler;

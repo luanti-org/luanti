@@ -8,7 +8,7 @@
 #include "object_properties.h"
 #include "serveractiveobject.h"
 #include <quaternion.h>
-#include "util/numeric.h"
+#include "util/rotation_matrix.h"
 
 class UnitSAO : public ServerActiveObject
 {
@@ -26,7 +26,7 @@ public:
 	const v3f getTotalRotation() const {
 		// This replicates what happens clientside serverside
 		core::matrix4 rot;
-		setPitchYawRoll(rot, -m_rotation);
+		setPitchYawRollRad(rot, -m_rotation * core::DEGTORAD);
 		v3f res;
 		// First rotate by m_rotation, then rotate by the automatic rotate yaw
 		(core::quaternion(v3f(0, -m_rotation_add_yaw * core::DEGTORAD, 0))

@@ -11,7 +11,6 @@
 #include "irr_v3d.h"
 #include "irr_aabb3d.h"
 #include "SColor.h"
-#include <matrix4.h>
 #include <cmath>
 #include <algorithm>
 
@@ -476,20 +475,6 @@ inline void wrappedApproachShortest(T &current, const T target, const T stepsize
 	} else {
 		current = target;
 	}
-}
-
-void setPitchYawRollRad(core::matrix4 &m, v3f rot);
-
-inline void setPitchYawRoll(core::matrix4 &m, v3f rot)
-{
-	setPitchYawRollRad(m, rot * core::DEGTORAD);
-}
-
-v3f getPitchYawRollRad(const core::matrix4 &m);
-
-inline v3f getPitchYawRoll(const core::matrix4 &m)
-{
-	return getPitchYawRollRad(m) * core::RADTODEG;
 }
 
 // Muliply the RGB value of a color linearly, and clamp to black/white
