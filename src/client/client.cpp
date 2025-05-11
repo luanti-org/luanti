@@ -367,9 +367,6 @@ Client::~Client()
 	for (auto &csp : m_sounds_client_to_server)
 		m_sound->freeId(csp.first);
 	m_sounds_client_to_server.clear();
-
-	// Go back to our mainmenu fonts
-	g_fontengine->clearMediaFonts();
 }
 
 void Client::connect(const Address &address, const std::string &address_name)

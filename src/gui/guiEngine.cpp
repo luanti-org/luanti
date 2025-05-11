@@ -117,6 +117,10 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 	m_data(data),
 	m_kill(kill)
 {
+	// Go back to our mainmenu fonts
+	// Delayed until mainmenu initialization because of #15883
+	g_fontengine->clearMediaFonts();
+
 	// initialize texture pointers
 	for (image_definition &texture : m_textures) {
 		texture.texture = NULL;

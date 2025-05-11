@@ -531,6 +531,16 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 {
 	bool *kill = porting::signal_handler_killstatus();
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
+	auto *device = m_rendering_engine->get_raw_device();
+
+	// Wait until app is in foreground because of #15883
+	infostream << "Waiting for app to be in foreground" << std::endl;
+	while (m_rendering_engine->run() && !*kill) {
+		if (device->isWindowVisible())
+			break;
+		sleep_ms(25);
+	}
+	infostream << "Waited for app to be in foreground" << std::endl;
 
 	infostream << "Waiting for other menus" << std::endl;
 	auto framemarker = FrameMarker("ClientLauncher::main_menu()-wait-frame").started();
@@ -548,7 +558,7 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	framemarker.end();
 	infostream << "Waited for other menus" << std::endl;
 
-	auto *cur_control = m_rendering_engine->get_raw_device()->getCursorControl();
+	auto *cur_control = device->getCursorControl();
 	if (cur_control) {
 		// Cursor can be non-visible when coming from the game
 		cur_control->setVisible(true);
