@@ -166,6 +166,10 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 core.button_handler = function(fields)
+	if fields["try_quit"] and ui.overridden then
+		core.event_handler("MenuQuit")
+		return
+	end
 	if fields["btn_reconnect_yes"] then
 		gamedata.reconnect_requested = false
 		gamedata.errormessage = nil
