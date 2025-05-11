@@ -166,13 +166,9 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 core.button_handler = function(fields)
-	if fields["try_quit"] then
-		for name, value in pairs(ui.childlist) do
-			if value.type == "toplevel" and name ~= ui.default then
-				core.event_handler("MenuQuit")
-				return
-			end
-		end
+	if fields["try_quit"] and not fields["key_enter"] then
+		core.event_handler("MenuQuit")
+		return
 	end
 	if fields["btn_reconnect_yes"] then
 		gamedata.reconnect_requested = false
