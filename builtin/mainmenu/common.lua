@@ -5,6 +5,9 @@
 -- Global menu data
 menudata = {}
 
+-- Check for first run by looking for the presence of the user cache
+is_first_run = table.indexof(core.get_dir_list(core.get_cache_path()), "common.conf") == -1
+
 -- located in user cache path, for remembering this like e.g. last update check
 cache_settings = Settings(core.get_cache_path() .. DIR_DELIM .. "common.conf")
 

@@ -69,8 +69,11 @@ local function create_rebind_keys_dlg()
 	return dlg
 end
 
+local SETTING_NAME = "no_keycode_migration_warning"
 function migrate_keybindings()
-	local has_migration = false
+	local has_migration = not (is_first_run or cache_settings:get_bool(SETTING_NAME))
+	cache_settings:set_bool(SETTING_NAME, true)
+
 	local settings = core.settings:to_table()
 	for name, value in pairs(settings) do
 		if name:match("^keymap_") then
