@@ -71,6 +71,8 @@ end
 
 local SETTING_NAME = "no_keycode_migration_warning"
 function migrate_keybindings()
+	-- Show migration dialog if the user upgraded from an earlier version
+	-- and this has not yet been shown before
 	local has_migration = not (is_first_run or cache_settings:get_bool(SETTING_NAME))
 	cache_settings:set_bool(SETTING_NAME, true)
 
