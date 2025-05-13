@@ -10,6 +10,8 @@
 #include "activeobject.h"
 #include "environment.h"
 #include "servermap.h"
+#include "guid.h"
+#include "map.h"
 #include "settings.h"
 #include "server/activeobjectmgr.h"
 #include "server/blockmodifier.h"
@@ -122,6 +124,9 @@ public:
 
 	float getSendRecommendedInterval()
 	{ return m_recommended_send_interval; }
+
+	GUIDGenerator & getGUIDGenerator()
+	{ return m_guid_generator; }
 
 	// Save players
 	void saveLoadedPlayers(bool force = false);
@@ -357,6 +362,7 @@ private:
 	server::ActiveObjectMgr m_ao_manager;
 	// on_mapblocks_changed map event receiver
 	OnMapblocksChangedReceiver m_on_mapblocks_changed_receiver;
+	GUIDGenerator m_guid_generator;
 	// Outgoing network message buffer for active objects
 	std::queue<ActiveObjectMessage> m_active_object_messages;
 	// Some timers

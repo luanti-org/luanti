@@ -5784,6 +5784,8 @@ Utilities
       remove_item_match_meta = true,
       -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
       httpfetch_additional_methods = true,
+      -- objects have get_guid method (5.12.0)
+      object_guids = true,
   }
   ```
 
@@ -7823,7 +7825,11 @@ Global tables
       Note: changes to initial properties will only affect entities spawned afterwards,
       as they are only read when spawning.
 * `core.object_refs`
-    * Map of object references, indexed by active object id
+    * Map of active object references, indexed by active object id
+    * Obsolete: Use `core.objects_by_guid` instead.
+      GUIDs are strictly more useful than active object IDs.
+* `core.objects_by_guid`
+    * Map of active object references, indexed by object GUID
 * `core.luaentities`
     * Map of Lua entities, indexed by active object id
 * `core.registered_abms`
@@ -8521,6 +8527,14 @@ child will follow movement and rotation of that bone.
           -- Default: false
       }
       ```
+* `get_guid()`: returns a global unique identifier (a string)
+    * For players, this is a player name.
+    * For Lua entities, this is a uniquely generated string, guaranteed not to collide with player names.
+      * Example: `@bGh3p2AbRE29Mb4biqX6OA`
+    * GUIDs only use printable ASCII characters.
+    * GUIDs are persisted internally between object reloads; their format is guaranteed not to change.
+      Thus you can store GUIDs to identify objects persistently.
+
 
 #### Lua entity only (no-op for other objects)
 
