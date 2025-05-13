@@ -76,6 +76,7 @@ function migrate_keybindings()
 	local has_migration = not (is_first_run or cache_settings:get_bool(SETTING_NAME))
 	cache_settings:set_bool(SETTING_NAME, true)
 
+	-- normalize all existing key settings, this converts them from KEY_KEY_C to SYSTEM_SCANCODE_6
 	local settings = core.settings:to_table()
 	for name, value in pairs(settings) do
 		if name:match("^keymap_") then
