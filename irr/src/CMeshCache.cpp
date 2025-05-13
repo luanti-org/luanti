@@ -35,7 +35,7 @@ void CMeshCache::removeMesh(const IMesh *const mesh)
 	if (!mesh)
 		return;
 	for (u32 i = 0; i < Meshes.size(); ++i) {
-		if (Meshes[i].Mesh == mesh || (Meshes[i].Mesh && Meshes[i].Mesh->getMesh(0) == mesh)) {
+		if (Meshes[i].Mesh == mesh) {
 			Meshes[i].Mesh->drop();
 			Meshes.erase(i);
 			return;
@@ -53,7 +53,7 @@ u32 CMeshCache::getMeshCount() const
 s32 CMeshCache::getMeshIndex(const IMesh *const mesh) const
 {
 	for (u32 i = 0; i < Meshes.size(); ++i) {
-		if (Meshes[i].Mesh == mesh || (Meshes[i].Mesh && Meshes[i].Mesh->getMesh(0) == mesh))
+		if (Meshes[i].Mesh == mesh)
 			return (s32)i;
 	}
 
@@ -93,7 +93,7 @@ const io::SNamedPath &CMeshCache::getMeshName(const IMesh *const mesh) const
 		return emptyNamedPath;
 
 	for (u32 i = 0; i < Meshes.size(); ++i) {
-		if (Meshes[i].Mesh == mesh || (Meshes[i].Mesh && Meshes[i].Mesh->getMesh(0) == mesh))
+		if (Meshes[i].Mesh == mesh)
 			return Meshes[i].NamedPath;
 	}
 
@@ -115,7 +115,7 @@ bool CMeshCache::renameMesh(u32 index, const io::path &name)
 bool CMeshCache::renameMesh(const IMesh *const mesh, const io::path &name)
 {
 	for (u32 i = 0; i < Meshes.size(); ++i) {
-		if (Meshes[i].Mesh == mesh || (Meshes[i].Mesh && Meshes[i].Mesh->getMesh(0) == mesh)) {
+		if (Meshes[i].Mesh == mesh) {
 			Meshes[i].NamedPath.setPath(name);
 			Meshes.sort();
 			return true;
