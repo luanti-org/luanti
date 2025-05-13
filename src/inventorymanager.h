@@ -109,7 +109,8 @@ public:
 enum class IAction : u16 {
 	Move,
 	Drop,
-	Craft
+	Craft,
+	HotbarSlotSelected,
 };
 
 struct InventoryAction
@@ -247,3 +248,35 @@ struct ICraftAction : public InventoryAction
 bool getCraftingResult(Inventory *inv, ItemStack &result,
 		std::vector<ItemStack> &output_replacements,
 		bool decrementInput, IGameDef *gamedef);
+
+struct IHotbarSlotSelectedAction : public InventoryAction
+{
+	InventoryLocation inv;
+	std::string list;
+	s16 selected_slot = -1;
+	s16 prev_selected_slot = -1;
+	bool from_scroll = false;
+
+	IHotbarSlotSelectedAction() = default;
+
+	IHotbarSlotSelectedAction(std::istream& is);
+
+	IAction getType() const
+	{
+		return IAction::HotbarSlotSelected;
+	}
+
+	void serialize(std::ostream& os) const
+	{
+		os<<"HotbarSlotSelected ";
+		os<<inv.dump()<<" ";
+		os<<list<<" ";
+		os<<selected_slot<<" ";
+		os<<prev_selected_slot<<" ";
+		os<<(from_scroll ? "1" : "0");
+	}
+
+	void apply(InventoryManager* mgr, ServerActiveObject* player, IGameDef* gamedef);
+
+	void clientApply(InventoryManager* mgr, IGameDef* gamedef);
+};

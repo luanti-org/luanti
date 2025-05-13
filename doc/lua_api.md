@@ -6331,6 +6331,14 @@ Call these functions only at load time!
       The set is a table where the keys are hashes and the values are `true`.
     * `modified_block_count` is the number of entries in the set.
     * Note: callbacks must be registered at mod load time.
+* `core.register_on_hotbar_slot_selected(function(player, inventory, list_name, hotbar_slot, prev_hotbar_slot, is_from_scrolling))`
+    * Called when the player selects a hotbar slot, including re-selecting current slot
+    * `player`: `ObjectRef` - Player that selected their hotbar slot
+    * `inventory`: type `InvRef`
+    * `list_name`: string - the name of the hotbar list
+    * `hotbar_slot`: integer - the newly selected hotbar slot
+    * `prev_hotbar_slot`: integer - the previously selected hotbar slot, can be the same as `hotbar_slot` if the player selected the same slot
+    * `is_from_scrolling`: boolean - true if the input came from a scroll action, or the prev/next slot input keys
 
 Setting-related
 ---------------
@@ -7890,6 +7898,7 @@ For historical reasons, the use of an -s suffix in these names is inconsistent.
 * `core.registered_on_modchannel_message`
 * `core.registered_on_liquid_transformed`
 * `core.registered_on_mapblocks_changed`
+* `core.registered_on_hotbar_slot_selected`
 
 Class reference
 ===============
