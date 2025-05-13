@@ -78,7 +78,7 @@ end
 function migrate_keybindings()
 	-- Show migration dialog if the user upgraded from an earlier version
 	-- and this has not yet been shown before
-	if is_first_run then
+	if core.is_first_run then
 		cache_settings:set_bool(SETTING_NAME, true)
 	end
 	local has_migration = not cache_settings:get_bool(SETTING_NAME)

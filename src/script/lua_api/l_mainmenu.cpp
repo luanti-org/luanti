@@ -1089,6 +1089,9 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_dir);
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
+
+	lua_pushboolean(L, g_first_run);
+	lua_setfield(L, top, "is_first_run");
 }
 
 /******************************************************************************/
