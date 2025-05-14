@@ -20,8 +20,7 @@ local function get_formspec(dialogdata)
 		"size[12,7]",
 		"hypertext[0.5,0.5;11,4.7;text;", core.formspec_escape(markup), "]",
 		"container[0.5,5.7]",
-		"style[dismiss;bgcolor=red]",
-		"button[0,0;4,0.8;dismiss;", fgettext("Dismiss"), "]",
+		"button[0,0;4,0.8;dismiss;", fgettext("Close"), "]",
 		"button[4.5,0;6.5,0.8;reconfigure;", fgettext("Open settings"), "]",
 		"container_end[]",
 	})
