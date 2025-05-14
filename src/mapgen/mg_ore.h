@@ -23,6 +23,7 @@ class MMVManip;
 #define OREFLAG_PUFF_ADDITIVE 0x04
 #define OREFLAG_USE_NOISE     0x08
 #define OREFLAG_USE_NOISE2    0x10
+#define OREFLAG_EXT_SCARCITY  0x20
 
 enum OreType {
 	ORE_SCATTER,
