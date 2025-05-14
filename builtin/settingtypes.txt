@@ -183,24 +183,24 @@ invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 [**Keybindings]
 
 #    Key for moving the player forward.
-keymap_forward (Move forward) key KEY_KEY_W
+keymap_forward (Move forward) key SYSTEM_SCANCODE_26
 
 #    Key for moving the player backward.
 #    Will also disable autoforward, when active.
-keymap_backward (Move backward) key KEY_KEY_S
+keymap_backward (Move backward) key SYSTEM_SCANCODE_22
 
 #    Key for moving the player left.
-keymap_left (Move left) key KEY_KEY_A
+keymap_left (Move left) key SYSTEM_SCANCODE_4
 
 #    Key for moving the player right.
-keymap_right (Move right) key KEY_KEY_D
+keymap_right (Move right) key SYSTEM_SCANCODE_7
 
 #    Key for jumping.
-keymap_jump (Jump) key KEY_SPACE
+keymap_jump (Jump) key SYSTEM_SCANCODE_44
 
 #    Key for sneaking.
 #    Also used for climbing down and descending in water if aux1_descends is disabled.
-keymap_sneak (Sneak) key KEY_LSHIFT
+keymap_sneak (Sneak) key SYSTEM_SCANCODE_225
 
 #    Key for digging, punching or using something.
 #    (Note: The actual meaning might vary on a per-game basis.)
@@ -211,43 +211,43 @@ keymap_dig (Dig/punch/use) key KEY_LBUTTON
 keymap_place (Place/use) key KEY_RBUTTON
 
 #    Key for opening the inventory.
-keymap_inventory (Open inventory) key KEY_KEY_I
+keymap_inventory (Open inventory) key SYSTEM_SCANCODE_12
 
 #    Key for moving fast in fast mode.
-keymap_aux1 (Aux1) key KEY_KEY_E
+keymap_aux1 (Aux1) key SYSTEM_SCANCODE_8
 
 #    Key for opening the chat window.
-keymap_chat (Open chat) key KEY_KEY_T
+keymap_chat (Open chat) key SYSTEM_SCANCODE_23
 
 #    Key for opening the chat window to type commands.
-keymap_cmd (Command) key /
+keymap_cmd (Command) key SYSTEM_SCANCODE_56
 
 #    Key for opening the chat window to type local commands.
-keymap_cmd_local (Local command) key .
+keymap_cmd_local (Local command) key SYSTEM_SCANCODE_55
 
 #    Key for toggling unlimited view range.
 keymap_rangeselect (Range select) key
 
 #    Key for toggling flying.
-keymap_freemove (Toggle fly) key KEY_KEY_K
+keymap_freemove (Toggle fly) key SYSTEM_SCANCODE_14
 
 #    Key for toggling pitch move mode.
 keymap_pitchmove (Toggle pitchmove) key
 
 #    Key for toggling fast mode.
-keymap_fastmove (Toggle fast) key KEY_KEY_J
+keymap_fastmove (Toggle fast) key SYSTEM_SCANCODE_13
 
 #    Key for toggling noclip mode.
-keymap_noclip (Toggle noclip) key KEY_KEY_H
+keymap_noclip (Toggle noclip) key SYSTEM_SCANCODE_11
 
 #    Key for selecting the next item in the hotbar.
-keymap_hotbar_next (Hotbar: select next item) key KEY_KEY_N
+keymap_hotbar_next (Hotbar: select next item) key SYSTEM_SCANCODE_17
 
 #    Key for selecting the previous item in the hotbar.
-keymap_hotbar_previous (Hotbar: select previous item) key KEY_KEY_B
+keymap_hotbar_previous (Hotbar: select previous item) key SYSTEM_SCANCODE_5
 
 #    Key for muting the game.
-keymap_mute (Mute) key KEY_KEY_M
+keymap_mute (Mute) key SYSTEM_SCANCODE_16
 
 #    Key for increasing the volume.
 keymap_increase_volume (Increase volume) key
@@ -262,79 +262,79 @@ keymap_autoforward (Toggle automatic forward) key
 keymap_cinematic (Toggle cinematic mode) key
 
 #    Key for toggling display of minimap.
-keymap_minimap (Toggle minimap) key KEY_KEY_V
+keymap_minimap (Toggle minimap) key SYSTEM_SCANCODE_25
 
 #    Key for taking screenshots.
-keymap_screenshot (Screenshot) key KEY_F12
+keymap_screenshot (Screenshot) key SYSTEM_SCANCODE_69
 
 #    Key for toggling fullscreen mode.
-keymap_fullscreen (Toggle fullscreen) key KEY_F11
+keymap_fullscreen (Toggle fullscreen) key SYSTEM_SCANCODE_68
 
 #    Key for dropping the currently selected item.
-keymap_drop (Drop item) key KEY_KEY_Q
+keymap_drop (Drop item) key SYSTEM_SCANCODE_20
 
 #    Key to use view zoom when possible.
-keymap_zoom (Zoom) key KEY_KEY_Z
+keymap_zoom (Zoom) key SYSTEM_SCANCODE_29
 
 #    Key for toggling the display of the HUD.
-keymap_toggle_hud (Toggle HUD) key KEY_F1
+keymap_toggle_hud (Toggle HUD) key SYSTEM_SCANCODE_58
 
 #    Key for toggling the display of chat.
-keymap_toggle_chat (Toggle chat log) key KEY_F2
+keymap_toggle_chat (Toggle chat log) key SYSTEM_SCANCODE_59
 
 #    Key for toggling the display of the large chat console.
-keymap_console (Large chat console) key KEY_F10
+keymap_console (Large chat console) key SYSTEM_SCANCODE_67
 
 #    Key for toggling the display of fog.
-keymap_toggle_fog (Toggle fog) key KEY_F3
+keymap_toggle_fog (Toggle fog) key SYSTEM_SCANCODE_60
 
 #    Key for toggling the display of debug info.
-keymap_toggle_debug (Toggle debug info) key KEY_F5
+keymap_toggle_debug (Toggle debug info) key SYSTEM_SCANCODE_62
 
 #    Key for toggling the display of the profiler. Used for development.
-keymap_toggle_profiler (Toggle profiler) key KEY_F6
+keymap_toggle_profiler (Toggle profiler) key SYSTEM_SCANCODE_63
 
 #    Key for toggling the display of mapblock boundaries.
 keymap_toggle_block_bounds (Toggle block bounds) key
 
 #    Key for switching between first- and third-person camera.
-keymap_camera_mode (Toggle camera mode) key KEY_KEY_C
+keymap_camera_mode (Toggle camera mode) key SYSTEM_SCANCODE_6
 
 #    Key for increasing the viewing range.
-keymap_increase_viewing_range_min (Increase view range) key +
+keymap_increase_viewing_range_min (Increase view range) key SYSTEM_SCANCODE_46
 
 #    Key for decreasing the viewing range.
-keymap_decrease_viewing_range_min (Decrease view range) key -
+keymap_decrease_viewing_range_min (Decrease view range) key SYSTEM_SCANCODE_45
 
 #    Key for selecting the first hotbar slot.
-keymap_slot1 (Hotbar slot 1) key KEY_KEY_1
+keymap_slot1 (Hotbar slot 1) key SYSTEM_SCANCODE_30
 
 #    Key for selecting the second hotbar slot.
-keymap_slot2 (Hotbar slot 2) key KEY_KEY_2
+keymap_slot2 (Hotbar slot 2) key SYSTEM_SCANCODE_31
 
 #    Key for selecting the third hotbar slot.
-keymap_slot3 (Hotbar slot 3) key KEY_KEY_3
+keymap_slot3 (Hotbar slot 3) key SYSTEM_SCANCODE_32
 
 #    Key for selecting the fourth hotbar slot.
-keymap_slot4 (Hotbar slot 4) key KEY_KEY_4
+keymap_slot4 (Hotbar slot 4) key SYSTEM_SCANCODE_33
 
 #    Key for selecting the fifth hotbar slot.
-keymap_slot5 (Hotbar slot 5) key KEY_KEY_5
+keymap_slot5 (Hotbar slot 5) key SYSTEM_SCANCODE_34
 
 #    Key for selecting the sixth hotbar slot.
-keymap_slot6 (Hotbar slot 6) key KEY_KEY_6
+keymap_slot6 (Hotbar slot 6) key SYSTEM_SCANCODE_35
 
 #    Key for selecting the seventh hotbar slot.
-keymap_slot7 (Hotbar slot 7) key KEY_KEY_7
+keymap_slot7 (Hotbar slot 7) key SYSTEM_SCANCODE_36
 
 #    Key for selecting the eighth hotbar slot.
-keymap_slot8 (Hotbar slot 8) key KEY_KEY_8
+keymap_slot8 (Hotbar slot 8) key SYSTEM_SCANCODE_37
 
 #    Key for selecting the ninth hotbar slot.
-keymap_slot9 (Hotbar slot 9) key KEY_KEY_9
+keymap_slot9 (Hotbar slot 9) key SYSTEM_SCANCODE_38
 
 #    Key for selecting the tenth hotbar slot.
-keymap_slot10 (Hotbar slot 10) key KEY_KEY_0
+keymap_slot10 (Hotbar slot 10) key SYSTEM_SCANCODE_39
 
 #    Key for selecting the 11th hotbar slot.
 keymap_slot11 (Hotbar slot 11) key
