@@ -734,6 +734,14 @@ void Server::handleCommand_InventoryAction(NetworkPacket* pkt)
 
 		if (!check_inv_access(ca->craft_inv))
 			return;
+	}
+	/*
+		Handle HotbarSlotSelected action special cases
+	*/
+	else if (a->getType() == IAction::HotbarSlotSelected) {
+		IHotbarSlotSelectedAction *ha = (IHotbarSlotSelectedAction*)a.get();
+		ha->inv.applyCurrentPlayer(player->getName());
+		// Note: `IHotbarSlotSelectedAction::clientApply` is empty, thus nothing to revert.
 	} else {
 		// Unknown action. Ignored.
 		return;

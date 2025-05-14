@@ -2036,6 +2036,9 @@ void Game::processItemSelection(u16 *new_playeritem)
 	if (max_item == 0)
 		return;
 	max_item -= 1;
+	u16 prev_playeritem = *new_playeritem;
+	bool player_input_happened = false;
+	bool change_was_from_scrolling = false;
 
 	/* Item selection using mouse wheel
 	 */
@@ -2053,6 +2056,10 @@ void Game::processItemSelection(u16 *new_playeritem)
 	if (wasKeyDown(KeyType::HOTBAR_PREV))
 		dir = 1;
 
+	if (dir != 0) {
+		player_input_happened = true;
+		change_was_from_scrolling = true;
+	}
 	if (dir < 0)
 		*new_playeritem = *new_playeritem < max_item ? *new_playeritem + 1 : 0;
 	else if (dir > 0)
@@ -2064,18 +2071,37 @@ void Game::processItemSelection(u16 *new_playeritem)
 	for (u16 i = 0; i <= max_item; i++) {
 		if (wasKeyDown((GameKeyType) (KeyType::SLOT_1 + i))) {
 			*new_playeritem = i;
+			player_input_happened = true;
+			change_was_from_scrolling = false;
 			break;
 		}
 	}
 
 	if (g_touchcontrols) {
 		std::optional<u16> selection = g_touchcontrols->getHotbarSelection();
-		if (selection)
+		if (selection) {
 			*new_playeritem = *selection;
+			player_input_happened = true;
+			change_was_from_scrolling = false;
+		}
 	}
 
 	// Clamp selection again in case it wasn't changed but max_item was
 	*new_playeritem = MYMIN(*new_playeritem, max_item);
+
+	if (player_input_happened) {
+		if (prev_playeritem != *new_playeritem) {
+			client->setPlayerItem(*new_playeritem);
+		}
+		// notify server of hotbar item selected
+		IHotbarSlotSelectedAction* a = new IHotbarSlotSelectedAction();
+		a->inv.setCurrentPlayer();
+		a->list = "main";
+		a->selected_slot = *new_playeritem;
+		a->prev_selected_slot = prev_playeritem;
+		a->from_scroll = change_was_from_scrolling;
+		client->inventoryAction(a);
+	}
 }
 
 
