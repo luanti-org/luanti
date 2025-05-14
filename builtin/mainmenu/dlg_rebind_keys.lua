@@ -77,7 +77,7 @@ end
 
 function migrate_keybindings()
 	-- Show migration dialog if the user upgraded from an earlier version
-	-- and this has not yet been shown before
+	-- and this has not yet been shown before, *or* if keys settings had to be changed
 	if core.is_first_run then
 		cache_settings:set_bool(SETTING_NAME, true)
 	end
