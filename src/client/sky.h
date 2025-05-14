@@ -33,6 +33,7 @@ public:
 	virtual void OnRegisterSceneNode();
 
 	//! renders the node.
+	virtual void renderTextures(video::IVideoDriver *driver);
 	virtual void render();
 
 	virtual const aabb3f &getBoundingBox() const { return m_box; }
@@ -82,6 +83,7 @@ public:
 	const video::SColorf &getCloudColor() const { return m_cloudcolor_f; }
 
 	void setVisible(bool visible) { m_visible = visible; }
+	void setType(std::string type) { m_type = type; }
 
 	// Set only from set_sky API
 	void setCloudsEnabled(bool clouds_enabled) { m_clouds_enabled = clouds_enabled; }
@@ -105,7 +107,7 @@ public:
 	void setInClouds(bool clouds) { m_in_clouds = clouds; }
 	void clearSkyboxTextures() { m_sky_params.textures.clear(); }
 	void addTextureToSkybox(const std::string &texture, int material_id,
-		ITextureSource *tsrc);
+		ITextureSource *tsrc, bool transparent);
 
 	// Note: the Sky class doesn't use these values. It just stores them.
 	void setFogDistance(s16 fog_distance) { m_sky_params.fog_distance = fog_distance; }
@@ -162,6 +164,7 @@ private:
 	}
 
 	bool m_visible = true;
+	std::string m_type = "regular";
 	// Used when m_visible=false
 	video::SColor m_fallback_bg_color = video::SColor(255, 255, 255, 255);
 	bool m_first_update = true; // Set before the sky is updated for the first time

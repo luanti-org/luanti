@@ -2853,6 +2853,7 @@ void Game::handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *ca
 void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 {
 	sky->setVisible(false);
+	sky->setType(event->set_sky->type);
 	// Whether clouds are visible in front of a custom skybox.
 	sky->setCloudsEnabled(event->set_sky->clouds);
 
@@ -2869,12 +2870,17 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 			event->set_sky->fog_moon_tint,
 			event->set_sky->fog_tint_type
 		);
-	} else if (event->set_sky->type == "skybox" &&
-			event->set_sky->textures.size() == 6) {
-		// Disable the dyanmic mesh skybox:
-		sky->setVisible(false);
-		// Set fog colors:
-		sky->setFallbackBgColor(event->set_sky->bgcolor);
+	} else if ((event->set_sky->type == "skybox" || event->set_sky->type == "skybox_back" ||
+		event->set_sky->type == "skybox_front") && event->set_sky->textures.size() == 6) {
+		const bool transparent = event->set_sky->type == "skybox_back" || event->set_sky->type == "skybox_front";
+		// Show the mesh and sky colors only if transparency is used.
+		if(transparent) {
+			sky->setVisible(true);
+			sky->setSkyColors(event->set_sky->sky_color);
+		} else {
+			sky->setVisible(false);
+			sky->setFallbackBgColor(event->set_sky->bgcolor);
+		}
 		// Set sunrise and sunset fog tinting:
 		sky->setHorizonTint(
 			event->set_sky->fog_sun_tint,
@@ -2883,7 +2889,7 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 		);
 		// Add textures to skybox.
 		for (int i = 0; i < 6; i++)
-			sky->addTextureToSkybox(event->set_sky->textures[i], i, texture_src);
+			sky->addTextureToSkybox(event->set_sky->textures[i], i, texture_src, transparent);
 	} else {
 		// Handle everything else as plain color.
 		if (event->set_sky->type != "plain")
