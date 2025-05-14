@@ -783,7 +783,8 @@ static bool read_config_file(const Settings &cmd_args)
 			g_first_run = true;
 		}
 	}
-	infostream << "Global configuration file: " << g_settings_path << std::endl;
+	infostream << "Global configuration file: " << g_settings_path
+		<< (g_first_run ? " (first run)" : "") << std::endl;
 
 	return true;
 }
