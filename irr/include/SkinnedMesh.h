@@ -339,6 +339,10 @@ public:
 		return AllJoints;
 	}
 
+	//! Whether the mesh originated from a glTF file.
+	//! This is important for legacy reasons.
+	bool isGltf() const { return IsGltf; }
+
 protected:
 	void checkForAnimation();
 
@@ -382,12 +386,14 @@ protected:
 	bool PreparedForSkinning;
 	bool AnimateNormals;
 	bool HardwareSkinning;
+
+	bool IsGltf = false;
 };
 
 // Interface for mesh loaders
 class SkinnedMeshBuilder : public SkinnedMesh {
 public:
-	SkinnedMeshBuilder() : SkinnedMesh() {}
+	SkinnedMeshBuilder(bool is_gltf = false) : SkinnedMesh() { IsGltf = is_gltf; }
 
 	//! loaders should call this after populating the mesh
 	// returns *this, so do not try to drop the mesh builder instance

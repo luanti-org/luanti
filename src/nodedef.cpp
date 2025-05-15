@@ -4,6 +4,7 @@
 
 #include "nodedef.h"
 
+#include "SAnimatedMesh.h"
 #include "itemdef.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/mesh.h"
@@ -962,17 +963,28 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 	if (drawtype == NDT_MESH && !mesh.empty()) {
 		// Note: By freshly reading, we get an unencumbered mesh.
 		if (scene::IMesh *src_mesh = client->getMesh(mesh)) {
-			f32 mesh_scale = 1.0f;
-			if (auto *static_mesh = dynamic_cast<scene::SMesh *>(src_mesh)) {
-				mesh_ptr = static_mesh;
-				// Compatibility: Only apply BS scaling to static meshes (.obj). See #15811.
-				mesh_scale = 10.0f;
-			} else {
+			bool apply_bs = false;
+			// Unpack the possible matrjoshka of frame-animated meshes
+			while (auto *src_meshes = dynamic_cast<scene::SAnimatedMesh *>(src_mesh)) {
+				src_mesh = src_meshes->getMesh(0);
+				src_mesh->grab();
+				src_meshes->drop();
+			}
+			if (auto *skinned_mesh = dynamic_cast<scene::SkinnedMesh *>(src_mesh)) {
+				// Compatibility: Animated meshes, as well as static gltf meshes, are not scaled by BS.
+				// See https://github.com/luanti-org/luanti/pull/16112#issuecomment-2881860329
+				apply_bs = skinned_mesh->isStatic() && !skinned_mesh->isGltf();
 				// We only want to consider static meshes from here on.
 				mesh_ptr = cloneStaticMesh(src_mesh);
 				src_mesh->drop();
+			} else {
+				auto *static_mesh = dynamic_cast<scene::SMesh *>(src_mesh);
+				assert(static_mesh);
+				mesh_ptr = static_mesh;
+				// Compatibility: Apply BS scaling to static meshes (.obj). See #15811.
+				apply_bs = true;
 			}
-			scaleMesh(mesh_ptr, v3f(mesh_scale * visual_scale));
+			scaleMesh(mesh_ptr, v3f((apply_bs ? BS : 1.0f) * visual_scale));
 			recalculateBoundingBox(mesh_ptr);
 			if (!checkMeshNormals(mesh_ptr)) {
 				// TODO this should be done consistently when the mesh is loaded
