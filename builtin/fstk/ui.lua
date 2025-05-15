@@ -57,6 +57,12 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+core.set_formspec_prepend(
+	"style_type[button,image_button;bgimg_middle=2,2,-2,-2;bgimg=" .. defaulttexturedir .. "/button_normal.png]" ..
+	"style_type[button:hovered,image_button:hovered;bgimg_middle=2,2,-2,-2;bgimg=" .. defaulttexturedir .. "/button_hovered.png]" ..
+	"style_type[button:pressed,image_button:pressed;bgimg_middle=2,2,-2,-2;bgimg=" .. defaulttexturedir .. "/button_pressed.png]"
+)
+
 function ui.update()
 	ui.overridden = false
 	local formspec = {}
