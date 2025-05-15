@@ -6,7 +6,7 @@ from collections import defaultdict
 codefiles = r"(\.[ch](pp)?|\.lua|\.md|\.cmake|\.java|\.gradle|Makefile|CMakeLists\.txt)$"
 
 # two minor versions back, for "Active Contributors"
-REVS_ACTIVE = "5.9.0..HEAD"
+REVS_ACTIVE = "5.10.0..HEAD"
 # all time, for "Previous Contributors"
 REVS_PREVIOUS = "HEAD"
 
