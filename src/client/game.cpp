@@ -1114,8 +1114,12 @@ void Game::run()
 
 void Game::shutdown()
 {
-	// Clear text when exiting.
+	// Delete text and menus first
 	m_game_ui->clearText();
+	m_game_formspec.reset();
+	while (g_menumgr.menuCount() > 0) {
+		g_menumgr.deleteFront();
+	}
 
 	if (g_touchcontrols)
 		g_touchcontrols->hide();
@@ -1125,11 +1129,6 @@ void Game::shutdown()
 	gui_chat_console.reset();
 
 	sky.reset();
-
-	/* cleanup menus */
-	while (g_menumgr.menuCount() > 0) {
-		g_menumgr.deleteFront();
-	}
 
 	// only if the shutdown progress bar isn't shown yet
 	if (m_shutdown_progress == 0.0f)
