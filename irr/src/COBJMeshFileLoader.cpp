@@ -6,7 +6,7 @@
 #include "IMeshManipulator.h"
 #include "IVideoDriver.h"
 #include "SMesh.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 #include "SAnimatedMesh.h"
 #include "IReadFile.h"
 #include "fast_atof.h"

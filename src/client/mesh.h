@@ -7,6 +7,14 @@
 #include "SColor.h"
 #include "SMaterialLayer.h"
 #include "nodedef.h"
+// irr includes
+#include <SColor.h>
+#include <SMaterialLayer.h>
+#include <SMesh.h>
+#include <SAnimatedMesh.h>
+
+namespace scene = irr::scene;
+namespace video = irr::video;
 
 namespace irr {
 	namespace scene {

@@ -5,9 +5,6 @@
 #pragma once
 
 #include "irrlichttypes.h"
-#include "irr_ptr.h"
-#include "rect.h"
-#include "SMeshBuffer.h"
 
 #include "../hud.h"
 #include "mapnode.h"
@@ -15,6 +12,13 @@
 #include <map>
 #include <string>
 #include <vector>
+// irr includes
+#include <irr_ptr.h>
+#include <rect.h>
+#include <CMeshBuffer.h>
+
+namespace scene = irr::scene;
+namespace video = irr::video;
 
 namespace irr {
 	namespace video {
