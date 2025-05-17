@@ -4061,6 +4061,34 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 {
 	if (event.EventType==EET_KEY_INPUT_EVENT) {
 		KeyPress kp(event.KeyInput);
+		if (event.KeyInput.PressedDown) {
+			bool ctrl = event.KeyInput.Control;
+			bool shift = event.KeyInput.Shift;
+			if (event.KeyInput.Key == KEY_TAB && ctrl) {
+				// Try to find a tab control among our elements
+				for (const FieldSpec &s : m_fields) {
+					if (s.ftype == f_TabHeader) {
+						IGUIElement *element = getElementFromId(s.fid, true);
+						if (element && element->getType() == gui::EGUIET_TAB_CONTROL) {
+							gui::IGUITabControl *tabs = static_cast<gui::IGUITabControl *>(element);
+							s32 num_tabs = tabs->getTabCount();
+							s32 active = tabs->getActiveTab();
+							if (num_tabs > 1) {
+								s32 new_idx;
+								if (shift)
+									new_idx = (active - 1 + num_tabs) % num_tabs;
+								else
+									new_idx = (active + 1) % num_tabs;
+								tabs->setActiveTab(new_idx);
+								// Simulate a tab change event if necessary
+								// Optionally: trigger formspec callbacks if needed
+								return true; // handled
+							}
+						}
+					}
+				}
+			}
+		}
 		if (event.KeyInput.PressedDown && (
 				(kp == EscapeKey) ||
 				((m_client != NULL) && (kp == getKeySetting("keymap_inventory"))))) {
