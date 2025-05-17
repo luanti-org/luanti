@@ -191,8 +191,6 @@ struct TileSpec
 	bool world_aligned = false;
 	//! Tile rotation.
 	TileRotation rotation = TileRotation::None;
-	//! This much light does the tile emit.
-	u8 emissive_light = 0;
 	//! The first is base texture, the second is overlay.
 	TileLayer layers[MAX_TILE_LAYERS];
 };
