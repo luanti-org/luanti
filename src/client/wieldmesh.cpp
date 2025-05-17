@@ -255,7 +255,7 @@ void WieldMeshSceneNode::setExtruded(const std::string &imagename,
 		dim = core::dimension2d<u32>(dim.Width, frame_height);
 	}
 	scene::IMesh *original = g_extrusion_mesh_cache->create(dim);
-	scene::SMesh *mesh = cloneMesh(original);
+	scene::SMesh *mesh = cloneStaticMesh(original);
 	original->drop();
 	//set texture
 	mesh->getMeshBuffer(0)->getMaterial().setTexture(0,
@@ -639,7 +639,7 @@ scene::SMesh *getExtrudedMesh(ITextureSource *tsrc,
 	// get mesh
 	core::dimension2d<u32> dim = texture->getSize();
 	scene::IMesh *original = g_extrusion_mesh_cache->create(dim);
-	scene::SMesh *mesh = cloneMesh(original);
+	scene::SMesh *mesh = cloneStaticMesh(original);
 	original->drop();
 
 	//set texture
