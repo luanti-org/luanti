@@ -217,10 +217,11 @@ void GameFormSpec::deleteFormspec()
 	}
 }
 
-GameFormSpec::~GameFormSpec() {
+void GameFormSpec::reset()
+{
 	if (m_formspec)
 		m_formspec->quitMenu();
-	this->deleteFormspec();
+	deleteFormspec();
 }
 
 bool GameFormSpec::handleEmptyFormspec(const std::string &formspec, const std::string &formname)
