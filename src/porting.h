@@ -14,6 +14,7 @@
 
 // Be mindful of what you include here!
 #include <string>
+#include <optional>
 #include "config.h"
 #include "irrlichttypes.h" // u64
 #include "debug.h"
@@ -118,6 +119,10 @@ std::string getDataPath(const char *subpath);
 	Initialize path_*.
 */
 void initializePaths();
+
+void migrateLegacyDirs();
+
+std::optional<std::string> getPlatformSpecificConfigFile();
 
 /*
 	Return system information
