@@ -158,10 +158,10 @@
 
     <url type="homepage">https://www.luanti.org</url>
     <url type="bugtracker">https://www.luanti.org/get-involved/#reporting-issues</url>
-    <url type="translate">https://dev.luanti.org/Translation/</url>
+    <url type="translate">https://docs.luanti.org/for-creators/translation/</url>
     <url type="donation">https://www.luanti.org/get-involved/#donate</url>
-    <url type="faq">https://wiki.luanti.org/FAQ</url>
-    <url type="help">https://wiki.luanti.org</url>
+    <url type="faq">https://docs.luanti.org/about/faq</url>
+    <url type="help">https://docs.luanti.org</url>
     <url type="vcs-browser">https://github.com/luanti-org/luanti</url>
     <url type="contribute">https://www.luanti.org/get-involved</url>
 
