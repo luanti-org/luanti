@@ -4053,7 +4053,6 @@ void GUIFormSpecMenu::tryClose()
 		quitMenu();
 	} else {
 		acceptInput(quit_mode_try);
-		m_text_dst->gotText(L"MenuQuit");
 	}
 }
 
