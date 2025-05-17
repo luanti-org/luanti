@@ -231,6 +231,24 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 	// Copy from VoxelManipulator to data
 	src.copyTo(data, data_area, v3s16(0,0,0),
 			getPosRelative(), data_size);
+
+	MapNode n = data[0];
+	bool is_mono_block = true;
+	for (u32 i=1; i<nodecount; i++) {
+		if (n != data[i]) {
+			is_mono_block = false;
+			break;
+		}
+	}
+
+	if (is_mono_block) {
+		m_is_mono_block = true;
+		reallocate(1, n);
+		if (n.getContent() == CONTENT_AIR) {
+			m_is_air = true;
+			m_is_air_expired = false;
+		}
+	}
 }
 
 void MapBlock::actuallyUpdateIsAir()
