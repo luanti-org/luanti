@@ -73,15 +73,12 @@ public:
 		m_orphan = true;
 	}
 
-	void reallocate()
-	{
-		for (u32 i = 0; i < nodecount; i++)
-			data[i] = MapNode(CONTENT_IGNORE);
-		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_REALLOCATE);
-	}
-
 	MapNode* getData()
 	{
+		if (m_is_mono_block) {
+			reallocate(nodecount, data[0]);
+			m_is_mono_block = false;
+		}
 		return data;
 	}
 
@@ -236,7 +233,10 @@ public:
 		if (!*valid_position)
 			return {CONTENT_IGNORE};
 
-		return data[z * zstride + y * ystride + x];
+		if (m_is_mono_block)
+			return data[0];
+		else
+			return data[z * zstride + y * ystride + x];
 	}
 
 	inline MapNode getNode(v3s16 p, bool *valid_position)
@@ -255,6 +255,10 @@ public:
 		if (!isValidPosition(x, y, z))
 			throw InvalidPositionException();
 
+		if (m_is_mono_block) {
+			reallocate(nodecount, data[0]);
+			m_is_mono_block = false;
+		}
 		data[z * zstride + y * ystride + x] = n;
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_SET_NODE);
 	}
@@ -270,7 +274,10 @@ public:
 
 	inline MapNode getNodeNoCheck(s16 x, s16 y, s16 z)
 	{
-		return data[z * zstride + y * ystride + x];
+		if (m_is_mono_block)
+			return data[0];
+		else
+			return data[z * zstride + y * ystride + x];
 	}
 
 	inline MapNode getNodeNoCheck(v3s16 p)
@@ -280,6 +287,10 @@ public:
 
 	inline void setNodeNoCheck(s16 x, s16 y, s16 z, MapNode n)
 	{
+		if (m_is_mono_block) {
+			reallocate(nodecount, data[0]);
+			m_is_mono_block = false;
+		}
 		data[z * zstride + y * ystride + x] = n;
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_SET_NODE);
 	}
@@ -439,6 +450,14 @@ private:
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
 
+	void reallocate(u32 c, MapNode n)
+	{
+		delete[] data;
+		data = new MapNode[c];
+		for (u32 i = 0; i < c; i++)
+			data[i] = n;
+	}
+
 	/*
 	 * PLEASE NOTE: When adding something here be mindful of position and size
 	 * of member variables! This is also the reason for the weird public-private
@@ -457,6 +476,7 @@ public:
 private:
 	// see isOrphan()
 	bool m_orphan = false;
+	bool m_is_mono_block = false;
 
 	// Position in blocks on parent
 	v3s16 m_pos;
@@ -480,7 +500,7 @@ private:
 	 * heap fragmentation (the array is exactly 16K), CPU caches and/or
 	 * optimizability of algorithms working on this array.
 	 */
-	MapNode *const data; // of `nodecount` elements
+	MapNode * data = nullptr; // of `nodecount` elements
 
 	// provides the item and node definitions
 	IGameDef *m_gamedef;
