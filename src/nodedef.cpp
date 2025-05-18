@@ -964,9 +964,10 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		// Note: By freshly reading, we get an unencumbered mesh.
 		if (scene::IMesh *src_mesh = client->getMesh(mesh)) {
 			bool apply_bs = false;
-			// Unpack the possible matrjoshka of frame-animated meshes
+			// For frame-animated meshes, always get the first frame,
+			// which holds a model for which we can eventually get the static pose.
 			while (auto *src_meshes = dynamic_cast<scene::SAnimatedMesh *>(src_mesh)) {
-				src_mesh = src_meshes->getMesh(0);
+				src_mesh = src_meshes->getMesh(0.0f);
 				src_mesh->grab();
 				src_meshes->drop();
 			}
@@ -974,7 +975,9 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 				// Compatibility: Animated meshes, as well as static gltf meshes, are not scaled by BS.
 				// See https://github.com/luanti-org/luanti/pull/16112#issuecomment-2881860329
 				apply_bs = skinned_mesh->isStatic() && !skinned_mesh->isGltf();
-				// We only want to consider static meshes from here on.
+				// Nodes do not support mesh animation, so we clone the static pose.
+				// This simplifies working with the mesh: We can just scale the vertices
+				// as transformations have already been applied.
 				mesh_ptr = cloneStaticMesh(src_mesh);
 				src_mesh->drop();
 			} else {
