@@ -232,6 +232,13 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 	src.copyTo(data, data_area, v3s16(0,0,0),
 			getPosRelative(), data_size);
 
+	checkForMonoblock();
+}
+
+void MapBlock::checkForMonoblock() {
+	if (m_is_mono_block)
+		return;
+
 	MapNode n = data[0];
 	bool is_mono_block = true;
 	for (u32 i=1; i<nodecount; i++) {
@@ -628,8 +635,7 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 		}
 
 		if (nimap.size() == 1) {
-			m_is_mono_block = true;
-			reallocate(1, data[0]);
+			checkForMonoblock();
 			u16 dummy;
 			if (nimap.getId("air", dummy)) {
 				m_is_air = true;
