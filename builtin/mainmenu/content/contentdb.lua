@@ -169,6 +169,7 @@ function contentdb.get_package_by_id(id)
 	return contentdb.package_by_id[id]
 end
 
+
 local function strip_game_suffix(type, name)
 	if (type == nil or type == "game") and #name > 5 and name:sub(#name - 4) == "_game" then
 		return name:sub(1, #name - 5)
