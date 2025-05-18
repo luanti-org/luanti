@@ -1,6 +1,6 @@
 # Developer documentation
 
-## Wiki
+## Luanti Documentation
 
 Some important development docs are found in the Luanti Documentation: https://docs.luanti.org/
 
