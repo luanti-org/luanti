@@ -176,7 +176,6 @@ local function strip_game_suffix(type, name)
 		return name
 	end
 end
-	
 
 function contentdb.calculate_package_id(type, author, name)
 	return author:lower() .. "/" .. strip_game_suffix(type, name)
