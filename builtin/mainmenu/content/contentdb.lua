@@ -433,7 +433,6 @@ function contentdb.set_packages_from_api(packages)
 			end
 		end
 	end
-	print(dump(contentdb.aliases))
 
 	contentdb.load_ok = true
 	contentdb.load_error = false
