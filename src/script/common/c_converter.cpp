@@ -18,6 +18,8 @@ extern "C" {
 #include <cmath>
 #include "common/c_types.h"
 
+static v3d read_v3d(lua_State *L, int index);
+static v3d check_v3d(lua_State *L, int index);
 
 #define CHECK_TYPE(index, name, type) do { \
 		int t = lua_type(L, (index)); \
@@ -28,6 +30,13 @@ extern "C" {
 		} \
 	} while(0)
 
+#define CHECK_NOT_NIL(index, name) do { \
+		if (lua_isnoneornil(L, (index))) { \
+			throw LuaError(std::string("Invalid ") + (name) + \
+				" (value is nil)."); \
+		} \
+	} while(0)
+
 #define CHECK_FLOAT(value, name) do {\
 		if (std::isnan(value) || std::isinf(value)) { \
 			throw LuaError("Invalid float value for '" name \
@@ -35,7 +44,13 @@ extern "C" {
 		} \
 	} while (0)
 
+// strictly check type of coordinate
+// (this won't permit string-to-int conversion, so maybe not the best idea?)
 #define CHECK_POS_COORD(index, name) CHECK_TYPE(index, "vector coordinate " name, LUA_TNUMBER)
+// loosely check type of coordinate
+#define CHECK_POS_COORD2(index, name) CHECK_NOT_NIL(index, "vector coordinate " name)
+
+// Note: not needed when using read_v3_aux
 #define CHECK_POS_TAB(index) CHECK_TYPE(index, "vector", LUA_TTABLE)
 
 
@@ -44,6 +59,7 @@ extern "C" {
  */
 static void read_v3_aux(lua_State *L, int index)
 {
+	// TODO: someone find out if it's faster to have the type check in Lua too
 	CHECK_POS_TAB(index);
 	lua_pushvalue(L, index);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_READ_VECTOR);
@@ -87,24 +103,12 @@ void push_v2f(lua_State *L, v2f p)
 
 v2s16 read_v2s16(lua_State *L, int index)
 {
-	v2s16 p;
-	CHECK_POS_TAB(index);
-	lua_getfield(L, index, "x");
-	p.X = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	lua_getfield(L, index, "y");
-	p.Y = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	return p;
+	return v2s16::from(read_v2f(L, index));
 }
 
 void push_v2s16(lua_State *L, v2s16 p)
 {
-	lua_createtable(L, 0, 2);
-	lua_pushinteger(L, p.X);
-	lua_setfield(L, -2, "x");
-	lua_pushinteger(L, p.Y);
-	lua_setfield(L, -2, "y");
+	push_v2s32(L, v2s32::from(p));
 }
 
 void push_v2s32(lua_State *L, v2s32 p)
@@ -127,15 +131,7 @@ void push_v2u32(lua_State *L, v2u32 p)
 
 v2s32 read_v2s32(lua_State *L, int index)
 {
-	v2s32 p;
-	CHECK_POS_TAB(index);
-	lua_getfield(L, index, "x");
-	p.X = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	lua_getfield(L, index, "y");
-	p.Y = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	return p;
+	return v2s32::from(read_v2f(L, index));
 }
 
 v2f read_v2f(lua_State *L, int index)
@@ -143,9 +139,11 @@ v2f read_v2f(lua_State *L, int index)
 	v2f p;
 	CHECK_POS_TAB(index);
 	lua_getfield(L, index, "x");
+	CHECK_POS_COORD2(-1, "x");
 	p.X = lua_tonumber(L, -1);
 	lua_pop(L, 1);
 	lua_getfield(L, index, "y");
+	CHECK_POS_COORD2(-1, "y");
 	p.Y = lua_tonumber(L, -1);
 	lua_pop(L, 1);
 	return p;
@@ -170,30 +168,20 @@ v2f check_v2f(lua_State *L, int index)
 
 v3f read_v3f(lua_State *L, int index)
 {
-	read_v3_aux(L, index);
-	float x = lua_tonumber(L, -3);
-	float y = lua_tonumber(L, -2);
-	float z = lua_tonumber(L, -1);
-	lua_pop(L, 3);
-	return v3f(x, y, z);
+	return v3f::from(read_v3d(L, index));
 }
 
 v3f check_v3f(lua_State *L, int index)
 {
-	read_v3_aux(L, index);
-	CHECK_POS_COORD(-3, "x");
-	CHECK_POS_COORD(-2, "y");
-	CHECK_POS_COORD(-1, "z");
-	float x = lua_tonumber(L, -3);
-	float y = lua_tonumber(L, -2);
-	float z = lua_tonumber(L, -1);
-	lua_pop(L, 3);
-	return v3f(x, y, z);
+	return v3f::from(check_v3d(L, index));
 }
 
 v3d read_v3d(lua_State *L, int index)
 {
 	read_v3_aux(L, index);
+	CHECK_POS_COORD2(-3, "x");
+	CHECK_POS_COORD2(-2, "y");
+	CHECK_POS_COORD2(-1, "z");
 	double x = lua_tonumber(L, -3);
 	double y = lua_tonumber(L, -2);
 	double z = lua_tonumber(L, -1);
@@ -286,18 +274,23 @@ video::SColor read_ARGB8(lua_State *L, int index)
 		return std::fmax(0.0, std::fmin(255.0, c));
 	};
 
+	// FIXME: maybe we should have strict type checks here. compare to is_color_table()
+
 	video::SColor color(0);
 	CHECK_TYPE(index, "ARGB color", LUA_TTABLE);
 	lua_getfield(L, index, "a");
 	color.setAlpha(lua_isnumber(L, -1) ? clamp_col(lua_tonumber(L, -1)) : 0xFF);
 	lua_pop(L, 1);
 	lua_getfield(L, index, "r");
+	CHECK_NOT_NIL(-1, "color component R");
 	color.setRed(clamp_col(lua_tonumber(L, -1)));
 	lua_pop(L, 1);
 	lua_getfield(L, index, "g");
+	CHECK_NOT_NIL(-1, "color component G");
 	color.setGreen(clamp_col(lua_tonumber(L, -1)));
 	lua_pop(L, 1);
 	lua_getfield(L, index, "b");
+	CHECK_NOT_NIL(-1, "color component B");
 	color.setBlue(clamp_col(lua_tonumber(L, -1)));
 	lua_pop(L, 1);
 	return color;
