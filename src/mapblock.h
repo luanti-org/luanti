@@ -449,6 +449,7 @@ private:
 	*/
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
+	void checkForMonoblock();
 
 	void reallocate(u32 c, MapNode n)
 	{
