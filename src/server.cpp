@@ -65,6 +65,8 @@
 #include "gettext.h"
 #include "util/tracy_wrapper.h"
 
+#include <csignal>
+
 class ClientNotFoundException : public BaseException
 {
 public:
@@ -4105,7 +4107,7 @@ std::unique_ptr<PlayerSAO> Server::emergePlayer(const char *name, session_t peer
 	return playersao;
 }
 
-void dedicated_server_loop(Server &server, bool &kill)
+void dedicated_server_loop(Server &server, volatile std::sig_atomic_t &kill)
 {
 	verbosestream<<"dedicated_server_loop()"<<std::endl;
 

@@ -60,6 +60,7 @@
 #include "util/string.h"
 #include "util/tracy_wrapper.h"
 #include <vector>
+#include <csignal>
 #include <cstdarg>
 #include <cstdio>
 #include <signal.h>
@@ -81,24 +82,27 @@ namespace porting
 	Signal handler (grabs Ctrl-C on POSIX systems)
 */
 
-static bool g_killed = false;
+volatile static std::sig_atomic_t g_killed = false;
 
-bool *signal_handler_killstatus()
+volatile std::sig_atomic_t *signal_handler_killstatus()
 {
 	return &g_killed;
 }
 
 #if !defined(_WIN32) // POSIX
+#define STDOUT 1
 
 static void signal_handler(int sig)
 {
 	if (!g_killed) {
 		if (sig == SIGINT) {
-			dstream << "INFO: signal_handler(): "
-				<< "Ctrl-C pressed, shutting down." << std::endl;
+			const char *dbg_text{"INFO: signal_handler(): "
+				"Ctrl-C pressed, shutting down.\n"};
+			write(STDOUT, dbg_text, strlen(dbg_text) + 1);
 		} else if (sig == SIGTERM) {
-			dstream << "INFO: signal_handler(): "
-				<< "got SIGTERM, shutting down." << std::endl;
+			const char *dbg_text{"INFO: signal_handler(): "
+				"got SIGTERM, shutting down.\n"};
+			write(STDOUT, dbg_text, strlen(dbg_text) + 1);
 		}
 
 		// Comment out for less clutter when testing scripts
