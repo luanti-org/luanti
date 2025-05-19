@@ -180,4 +180,17 @@ void TestScriptApi::testVectorReadMix(MyScriptApi *script)
 		EXCEPTION_CHECK(LuaError, check_v3s16(L, -1));
 		lua_pop(L, 1);
 	}
+
+	// same but even the result is undefined
+	const char *errs2[] = {
+		"return {x=0, y=0, z=0/0}", // nan
+		"return {x=0, y=0, z=math.huge}", // inf
+	};
+	for (auto &it : errs2) {
+		infostream << it << std::endl;
+		run(L, it, 1);
+		(void)read_v3s16(L, -1);
+		EXCEPTION_CHECK(LuaError, check_v3s16(L, -1));
+		lua_pop(L, 1);
+	}
 }

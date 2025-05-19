@@ -199,6 +199,9 @@ v3d check_v3d(lua_State *L, int index)
 	double y = lua_tonumber(L, -2);
 	double z = lua_tonumber(L, -1);
 	lua_pop(L, 3);
+	CHECK_FLOAT(x, "x");
+	CHECK_FLOAT(y, "y");
+	CHECK_FLOAT(z, "z");
 	return v3d(x, y, z);
 }
 
