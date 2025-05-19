@@ -46,8 +46,6 @@ extern "C" {
 #endif
 }
 
-#include <csignal>
-
 #if !defined(__cpp_rtti) || !defined(__cpp_exceptions)
 #error Luanti cannot be built without exceptions or RTTI
 #endif
@@ -1140,7 +1138,7 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 			return false;
 		}
 		ChatInterface iface;
-		volatile std::sig_atomic_t &kill = *porting::signal_handler_killstatus();
+		volatile auto &kill = *porting::signal_handler_killstatus();
 
 		try {
 			// Create server
@@ -1183,7 +1181,7 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 			server.start();
 
 			// Run server
-			volatile std::sig_atomic_t &kill = *porting::signal_handler_killstatus();
+			volatile auto &kill = *porting::signal_handler_killstatus();
 			dedicated_server_loop(server, kill);
 
 		} catch (const ModError &e) {
@@ -1228,7 +1226,7 @@ static bool migrate_map_database(const GameParams &game_params, const Settings &
 
 	u32 count = 0;
 	u64 last_update_time = 0;
-	volatile std::sig_atomic_t &kill = *porting::signal_handler_killstatus();
+	volatile auto &kill = *porting::signal_handler_killstatus();
 
 	std::vector<v3s16> blocks;
 	old_db->listAllLoadableBlocks(blocks);
@@ -1282,7 +1280,7 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 
 	u32 count = 0;
 	u64 last_update_time = 0;
-	volatile std::sig_atomic_t &kill = *porting::signal_handler_killstatus();
+	volatile auto &kill = *porting::signal_handler_killstatus();
 	const u8 serialize_as_ver = SER_FMT_VER_HIGHEST_WRITE;
 	const s16 map_compression_level = rangelim(g_settings->getS16("map_compression_level_disk"), -1, 9);
 

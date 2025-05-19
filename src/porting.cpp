@@ -90,7 +90,7 @@ volatile std::sig_atomic_t *signal_handler_killstatus()
 }
 
 #if !defined(_WIN32) // POSIX
-#define STDOUT 1
+#define STDERR_FILENO 2
 
 static void signal_handler(int sig)
 {
@@ -98,18 +98,12 @@ static void signal_handler(int sig)
 		if (sig == SIGINT) {
 			const char *dbg_text{"INFO: signal_handler(): "
 				"Ctrl-C pressed, shutting down.\n"};
-			write(STDOUT, dbg_text, strlen(dbg_text) + 1);
+			write(STDERR_FILENO, dbg_text, strlen(dbg_text));
 		} else if (sig == SIGTERM) {
 			const char *dbg_text{"INFO: signal_handler(): "
 				"got SIGTERM, shutting down.\n"};
-			write(STDOUT, dbg_text, strlen(dbg_text) + 1);
+			write(STDERR_FILENO, dbg_text, strlen(dbg_text));
 		}
-
-		// Comment out for less clutter when testing scripts
-		/*dstream << "INFO: sigint_handler(): "
-				<< "Printing debug stacks" << std::endl;
-		debug_stacks_print();*/
-
 		g_killed = true;
 	} else {
 		(void)signal(sig, SIG_DFL);
