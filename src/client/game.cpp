@@ -65,6 +65,8 @@
 	#include "client/sound/sound_openal.h"
 #endif
 
+#include <csignal>
+
 class NodeDugEvent : public MtEvent
 {
 public:
@@ -561,7 +563,7 @@ public:
 	Game();
 	~Game();
 
-	bool startup(bool *kill,
+	bool startup(volatile std::sig_atomic_t *kill,
 			InputHandler *input,
 			RenderingEngine *rendering_engine,
 			const GameStartData &game_params,
@@ -793,14 +795,14 @@ private:
 	   This class does take ownership/responsibily for cleaning up etc of any of
 	   these items (e.g. device)
 	*/
-	IrrlichtDevice *device;
-	RenderingEngine *m_rendering_engine;
-	video::IVideoDriver *driver;
-	scene::ISceneManager *smgr;
-	bool *kill;
-	std::string *error_message;
-	bool *reconnect_requested;
-	PausedNodesList paused_animated_nodes;
+	IrrlichtDevice             *device;
+	RenderingEngine            *m_rendering_engine;
+	video::IVideoDriver        *driver;
+	scene::ISceneManager       *smgr;
+	volatile std::sig_atomic_t *kill;
+	std::string                *error_message;
+	bool                       *reconnect_requested;
+	PausedNodesList             paused_animated_nodes;
 
 	bool simple_singleplayer_mode;
 	/* End 'cache' */
@@ -932,7 +934,7 @@ Game::~Game()
 		m_rendering_engine->finalize();
 }
 
-bool Game::startup(bool *kill,
+bool Game::startup(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,
@@ -4235,7 +4237,7 @@ void Game::readSettings()
  ****************************************************************************/
 /****************************************************************************/
 
-void the_game(bool *kill,
+void the_game(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,

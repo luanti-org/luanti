@@ -33,6 +33,8 @@
 	#include "client/sound/sound_openal.h"
 #endif
 
+#include <csignal>
+
 
 /******************************************************************************/
 void TextDestGuiEngine::gotText(const StringMap &fields)
@@ -109,7 +111,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 		RenderingEngine *rendering_engine,
 		IMenuManager *menumgr,
 		MainMenuData *data,
-		bool &kill) :
+		volatile std::sig_atomic_t &kill) :
 	m_rendering_engine(rendering_engine),
 	m_parent(parent),
 	m_menumanager(menumgr),
