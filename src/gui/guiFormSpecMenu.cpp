@@ -111,6 +111,8 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 
 	m_tooltip_show_delay = (u32)g_settings->getS32("tooltip_show_delay");
 	m_tooltip_append_itemname = g_settings->getBool("tooltip_append_itemname");
+
+	setThemeFromSettings();
 }
 
 GUIFormSpecMenu::~GUIFormSpecMenu()
@@ -2615,15 +2617,8 @@ void GUIFormSpecMenu::parsePadding(parserData *data, const std::string &element)
 			<< "'" << std::endl;
 }
 
-void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
+void GUIFormSpecMenu::parseStyleToMap(StyleSpecMap &out, const std::string &element)
 {
-	if (data->type != "style" && data->type != "style_type") {
-		errorstream << "Invalid style element type: '" << data->type << "'" << std::endl;
-		return;
-	}
-
-	bool style_type = (data->type == "style_type");
-
 	std::vector<std::string> parts = split(element, ';');
 
 	if (parts.size() < 2) {
@@ -2702,11 +2697,7 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 			continue;
 		}
 
-		if (style_type) {
-			theme_by_type[selector].push_back(selector_spec);
-		} else {
-			theme_by_name[selector].push_back(selector_spec);
-		}
+		out[selector].push_back(selector_spec);
 
 		// Backwards-compatibility for existing _hovered/_pressed properties
 		if (selector_spec.hasProperty(StyleSpec::BGCOLOR_HOVERED)
@@ -2725,11 +2716,7 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 				hover_spec.set(StyleSpec::FGIMG, selector_spec.get(StyleSpec::FGIMG_HOVERED, ""));
 			}
 
-			if (style_type) {
-				theme_by_type[selector].push_back(hover_spec);
-			} else {
-				theme_by_name[selector].push_back(hover_spec);
-			}
+			out[selector].push_back(hover_spec);
 		}
 		if (selector_spec.hasProperty(StyleSpec::BGCOLOR_PRESSED)
 				|| selector_spec.hasProperty(StyleSpec::BGIMG_PRESSED)
@@ -2747,15 +2734,21 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 				press_spec.set(StyleSpec::FGIMG, selector_spec.get(StyleSpec::FGIMG_PRESSED, ""));
 			}
 
-			if (style_type) {
-				theme_by_type[selector].push_back(press_spec);
-			} else {
-				theme_by_name[selector].push_back(press_spec);
-			}
+			out[selector].push_back(press_spec);
 		}
 	}
+}
 
-	return;
+void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
+{
+	if (data->type != "style" && data->type != "style_type") {
+		errorstream << "Invalid style element type: '" << data->type << "'" << std::endl;
+		return;
+	}
+
+	bool style_type = (data->type == "style_type");
+
+	parseStyleToMap(style_type ? theme_by_type : theme_by_name, element);
 }
 
 void GUIFormSpecMenu::parseSetFocus(parserData*, const std::string &element)
@@ -2976,6 +2969,21 @@ void GUIFormSpecMenu::parseElement(parserData* data, const std::string &element)
 			<< std::endl;
 }
 
+void GUIFormSpecMenu::setThemeFromSettings()
+{
+	const std::string settingspath = g_settings->get("texture_path") + DIR_DELIM + "texture_pack.conf";
+	Settings settings;
+	if (!settings.readConfigFile(settingspath.c_str()))
+		return;
+	if (!settings.exists("formspec_theme"))
+		return;
+
+	auto splits = split(settings.get("formspec_theme"), '\n');
+	for (const std::string &s : splits) {
+		parseStyleToMap(theme_by_type_default, s);
+	}
+}
+
 void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 {
 	// Useless to regenerate without a screensize
@@ -3038,7 +3046,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	m_dropdowns.clear();
 	m_scroll_containers.clear();
 	theme_by_name.clear();
-	theme_by_type.clear();
+	theme_by_type = theme_by_type_default;
 	m_clickthrough_elements.clear();
 	field_enter_after_edit.clear();
 	field_close_on_enter.clear();

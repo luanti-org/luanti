@@ -256,6 +256,8 @@ public:
 		m_hovered_item_tooltips.emplace_back(name);
 	}
 
+	void setThemeFromSettings();
+
 	/*
 		Remove and re-add (or reposition) stuff
 	*/
@@ -304,8 +306,9 @@ protected:
 	bool precheckElement(const std::string &name, const std::string &element,
 		size_t args_min, size_t args_max, std::vector<std::string> &parts);
 
-	std::unordered_map<std::string, std::vector<StyleSpec>> theme_by_type;
-	std::unordered_map<std::string, std::vector<StyleSpec>> theme_by_name;
+	using StyleSpecMap = std::unordered_map<std::string, std::vector<StyleSpec>>;
+	StyleSpecMap theme_by_type, theme_by_name,
+		theme_by_type_default;
 	std::unordered_set<std::string> property_warned;
 
 	StyleSpec getDefaultStyleForElement(const std::string &type,
@@ -485,6 +488,7 @@ private:
 	void parseAnchor(parserData *data, const std::string &element);
 	bool parsePaddingDirect(parserData *data, const std::string &element);
 	void parsePadding(parserData *data, const std::string &element);
+	void parseStyleToMap(StyleSpecMap &out, const std::string &element);
 	void parseStyle(parserData *data, const std::string &element);
 	void parseSetFocus(parserData *, const std::string &element);
 	void parseModel(parserData *data, const std::string &element);

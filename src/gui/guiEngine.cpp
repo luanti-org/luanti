@@ -8,6 +8,7 @@
 #include "client/guiscalingfilter.h"
 #include "client/renderingengine.h"
 #include "client/shader.h"
+#include "client/texturepaths.h"
 #include "client/tile.h"
 #include "clientdynamicinfo.h"
 #include "config.h"
@@ -74,7 +75,12 @@ video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 	if (retval)
 		return retval;
 
-	video::IImage *image = m_driver->createImageFromFile(name.c_str());
+	// Try to find the texture in the active texture pack
+	std::string path;
+	if (!fs::IsPathAbsolute(name))
+		path = getTexturePath(name, nullptr);
+
+	video::IImage *image = m_driver->createImageFromFile(!path.empty() ? path.c_str() : name.c_str());
 	if (!image)
 		return NULL;
 
