@@ -195,6 +195,9 @@ private:
 	// clear all objects in the environment
 	static int l_clear_objects(lua_State *L);
 
+	// blocks_callback()
+	static int l_blocks_callback(lua_State *L);
+
 	// spawn_tree(pos, treedef)
 	static int l_spawn_tree(lua_State *L);
 
