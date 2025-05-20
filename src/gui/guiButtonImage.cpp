@@ -24,6 +24,18 @@ GUIButtonImage::GUIButtonImage(gui::IGUIEnvironment *environment,
 	sendToBack(m_image.get());
 }
 
+void GUIButtonImage::draw()
+{
+	if (isDrawingBorder()) {
+		// `GUIButton` also allows drawing different textures depending on
+		// `EGUI_BUTTON_STATE` --> Skip everything if the border is disabled (else case).
+		GUIButton::draw();
+	} else {
+		IGUIElement::draw();
+	}
+}
+
+
 void GUIButtonImage::setForegroundImage(irr_ptr<video::ITexture> image,
 		const core::rect<s32> &middle)
 {
