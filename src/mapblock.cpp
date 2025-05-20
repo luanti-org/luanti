@@ -117,7 +117,8 @@ MapBlock::~MapBlock()
 #endif
 
 	delete[] data;
-	porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
+	if (!m_is_mono_block)
+		porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
 }
 
 static inline size_t get_max_objects_per_block()
