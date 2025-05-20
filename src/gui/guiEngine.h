@@ -74,7 +74,7 @@ public:
 	 * default constructor
 	 * @param driver the video driver to load textures from
 	 */
-	MenuTextureSource(video::IVideoDriver *driver) : m_driver(driver) {};
+	MenuTextureSource(video::IVideoDriver *driver);
 
 	/**
 	 * destructor, removes all loaded textures
@@ -89,6 +89,12 @@ public:
 	video::ITexture *getTexture(const std::string &name, u32 *id = NULL);
 
 private:
+	/** Unloads all textures in `m_to_delete` */
+	void cleanupTextures();
+
+	/** Update the texture cache */
+	static void onTxpSettingChanged(const std::string &name, void *data);
+
 	/** driver to get textures from */
 	video::IVideoDriver *m_driver = nullptr;
 	/** set of textures to delete */

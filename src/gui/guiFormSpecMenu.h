@@ -302,9 +302,13 @@ protected:
 	bool precheckElement(const std::string &name, const std::string &element,
 		size_t args_min, size_t args_max, std::vector<std::string> &parts);
 
-	std::unordered_map<std::string, std::vector<StyleSpec>> theme_by_type;
-	std::unordered_map<std::string, std::vector<StyleSpec>> theme_by_name;
+	using StyleSpecMap = std::unordered_map<std::string, std::vector<StyleSpec>>;
+	StyleSpecMap theme_by_type, theme_by_name,
+		theme_by_type_default;
 	std::unordered_set<std::string> property_warned;
+
+	void setThemeFromSettings();
+	static void onTxpSettingChanged(const std::string &name, void *data);
 
 	StyleSpec getDefaultStyleForElement(const std::string &type,
 			const std::string &name="", const std::string &parent_type="");
@@ -483,6 +487,8 @@ private:
 	void parseAnchor(parserData *data, const std::string &element);
 	bool parsePaddingDirect(parserData *data, const std::string &element);
 	void parsePadding(parserData *data, const std::string &element);
+	static void parse_style_to_map(StyleSpecMap &out, const std::string &element,
+		std::unordered_set<std::string> *prop_warned);
 	void parseStyle(parserData *data, const std::string &element);
 	void parseSetFocus(parserData *, const std::string &element);
 	void parseModel(parserData *data, const std::string &element);

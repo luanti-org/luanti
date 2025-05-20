@@ -8,6 +8,7 @@
 #include "client/guiscalingfilter.h"
 #include "client/renderingengine.h"
 #include "client/shader.h"
+#include "client/texturepaths.h"
 #include "client/tile.h"
 #include "clientdynamicinfo.h"
 #include "config.h"
@@ -41,14 +42,18 @@ void TextDestGuiEngine::gotText(const StringMap &fields)
 }
 
 /******************************************************************************/
+MenuTextureSource::MenuTextureSource(video::IVideoDriver* driver) :
+	m_driver(driver)
+{
+	g_settings->registerChangedCallback("texture_path", onTxpSettingChanged, this);
+}
+
 MenuTextureSource::~MenuTextureSource()
 {
-	u32 before = m_driver->getTextureCount();
+	g_settings->deregisterAllChangedCallbacks(this);
 
-	for (const auto &it: m_to_delete) {
-		m_driver->removeTexture(it);
-	}
-	m_to_delete.clear();
+	u32 before = m_driver->getTextureCount();
+	cleanupTextures();
 
 	infostream << "~MenuTextureSource() before cleanup: "<< before
 			<< " after: " << m_driver->getTextureCount() << std::endl;
@@ -68,8 +73,14 @@ video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 	if (retval)
 		return retval;
 
-	verbosestream << "MenuTextureSource: loading " << name << std::endl;
-	video::IImage *image = m_driver->createImageFromFile(name.c_str());
+	// Try to find the texture in the active texture pack
+	std::string path;
+	if (!fs::IsPathAbsolute(name))
+		path = getTexturePath(name, nullptr);
+
+	const char *filepath = path.empty() ? name.c_str() : path.c_str();
+	verbosestream << "MenuTextureSource: loading " << filepath << std::endl;
+	video::IImage *image = m_driver->createImageFromFile(filepath);
 	if (!image)
 		return NULL;
 
@@ -79,6 +90,20 @@ video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 	if (retval)
 		m_to_delete.push_back(retval);
 	return retval;
+}
+
+void MenuTextureSource::cleanupTextures()
+{
+	for (const auto &it: m_to_delete) {
+		m_driver->removeTexture(it);
+	}
+	m_to_delete.clear();
+}
+
+void MenuTextureSource::onTxpSettingChanged(const std::string &name, void *data)
+{
+	((MenuTextureSource *)data)->cleanupTextures();
+	clearTextureNameCache();
 }
 
 /******************************************************************************/

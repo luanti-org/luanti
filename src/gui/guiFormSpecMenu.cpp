@@ -114,10 +114,15 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 
 	m_tooltip_show_delay = (u32)g_settings->getS32("tooltip_show_delay");
 	m_tooltip_append_itemname = g_settings->getBool("tooltip_append_itemname");
+
+	g_settings->registerChangedCallback("texture_path", onTxpSettingChanged, this);
+	setThemeFromSettings();
 }
 
 GUIFormSpecMenu::~GUIFormSpecMenu()
 {
+	g_settings->deregisterAllChangedCallbacks(this);
+
 	removeAll();
 
 	delete m_selected_item;
@@ -2618,15 +2623,9 @@ void GUIFormSpecMenu::parsePadding(parserData *data, const std::string &element)
 			<< "'" << std::endl;
 }
 
-void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
+void GUIFormSpecMenu::parse_style_to_map(StyleSpecMap &out, const std::string &element,
+		std::unordered_set<std::string> *prop_warned)
 {
-	if (data->type != "style" && data->type != "style_type") {
-		errorstream << "Invalid style element type: '" << data->type << "'" << std::endl;
-		return;
-	}
-
-	bool style_type = (data->type == "style_type");
-
 	std::vector<std::string> parts = split(element, ';');
 
 	if (parts.size() < 2) {
@@ -2653,11 +2652,11 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 
 		StyleSpec::Property prop = StyleSpec::GetPropertyByName(propname);
 		if (prop == StyleSpec::NONE) {
-			if (property_warned.find(propname) != property_warned.end()) {
+			if (prop_warned && prop_warned->find(propname) != prop_warned->end()) {
 				warningstream << "Invalid style element (Unknown property " << propname << "): '"
 						<< element
 						<< "'" << std::endl;
-				property_warned.insert(propname);
+				prop_warned->insert(propname);
 			}
 			continue;
 		}
@@ -2705,11 +2704,7 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 			continue;
 		}
 
-		if (style_type) {
-			theme_by_type[selector].push_back(selector_spec);
-		} else {
-			theme_by_name[selector].push_back(selector_spec);
-		}
+		out[selector].push_back(selector_spec);
 
 		// Backwards-compatibility for existing _hovered/_pressed properties
 		if (selector_spec.hasProperty(StyleSpec::BGCOLOR_HOVERED)
@@ -2728,11 +2723,7 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 				hover_spec.set(StyleSpec::FGIMG, selector_spec.get(StyleSpec::FGIMG_HOVERED, ""));
 			}
 
-			if (style_type) {
-				theme_by_type[selector].push_back(hover_spec);
-			} else {
-				theme_by_name[selector].push_back(hover_spec);
-			}
+			out[selector].push_back(hover_spec);
 		}
 		if (selector_spec.hasProperty(StyleSpec::BGCOLOR_PRESSED)
 				|| selector_spec.hasProperty(StyleSpec::BGIMG_PRESSED)
@@ -2750,15 +2741,22 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 				press_spec.set(StyleSpec::FGIMG, selector_spec.get(StyleSpec::FGIMG_PRESSED, ""));
 			}
 
-			if (style_type) {
-				theme_by_type[selector].push_back(press_spec);
-			} else {
-				theme_by_name[selector].push_back(press_spec);
-			}
+			out[selector].push_back(press_spec);
 		}
 	}
+}
 
-	return;
+void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
+{
+	if (data->type != "style" && data->type != "style_type") {
+		errorstream << "Invalid style element type: '" << data->type << "'" << std::endl;
+		return;
+	}
+
+	bool style_type = (data->type == "style_type");
+
+	parse_style_to_map(style_type ? theme_by_type : theme_by_name,
+		element, &property_warned);
 }
 
 void GUIFormSpecMenu::parseSetFocus(parserData*, const std::string &element)
@@ -3041,7 +3039,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	m_dropdowns.clear();
 	m_scroll_containers.clear();
 	theme_by_name.clear();
-	theme_by_type.clear();
+	theme_by_type = theme_by_type_default;
 	m_clickthrough_elements.clear();
 	field_enter_after_edit.clear();
 	field_close_on_enter.clear();
@@ -5026,6 +5024,40 @@ std::wstring GUIFormSpecMenu::getLabelByID(s32 id)
 			return spec.flabel;
 	}
 	return L"";
+}
+
+
+void GUIFormSpecMenu::setThemeFromSettings()
+{
+	theme_by_type_default.clear();
+
+	const std::string settingspath = g_settings->get("texture_path") + DIR_DELIM + "texture_pack.conf";
+	Settings settings;
+	if (!settings.readConfigFile(settingspath.c_str()))
+		return;
+	if (!settings.exists("formspec_theme"))
+		return;
+
+	std::unordered_set<std::string> *prop_warned = nullptr;
+	{
+		u16 fs_ver = FORMSPEC_API_VERSION;
+		settings.getU16NoEx("formspec_version_theme", fs_ver);
+		if (fs_ver <= FORMSPEC_API_VERSION)
+			prop_warned = &property_warned;
+		// else: silence
+	}
+
+	auto splits = split(settings.get("formspec_theme"), '\n');
+	for (const std::string &s : splits) {
+		parse_style_to_map(theme_by_type_default, s, prop_warned);
+	}
+}
+
+void GUIFormSpecMenu::onTxpSettingChanged(const std::string &name, void *data)
+{
+	GUIFormSpecMenu *me = (GUIFormSpecMenu *)data;
+	me->setThemeFromSettings();
+	me->regenerateGui(me->m_screensize_old);
 }
 
 StyleSpec GUIFormSpecMenu::getDefaultStyleForElement(const std::string &type,
