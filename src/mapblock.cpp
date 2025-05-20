@@ -421,7 +421,8 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 			tmp_nodes = new MapNode[1];
 			tmp_nodes[0] = data[0];
 		}
-		else {
+		else
+		{
 			tmp_nodes = new MapNode[nodecount];
 			memcpy(tmp_nodes, data, nodecount * sizeof(MapNode));
 		}
