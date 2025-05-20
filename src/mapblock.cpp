@@ -297,12 +297,12 @@ void MapBlock::expireIsAirCache()
 // Note that there's no technical reason why we *have to* renumber the IDs,
 // but we do it anyway as it also helps compressability.
 static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
-	const NodeDefManager *nodedef, bool is_mono_block)
+	const NodeDefManager *nodedef, u32 nodecount)
 {
 	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
 
 	content_t id_counter = 0;
-	for (u32 i = 0; i < (is_mono_block ? 1 : MapBlock::nodecount); i++) {
+	for (u32 i = 0; i < nodecount; i++) {
 		content_t global_id = nodes[i].getContent();
 		content_t id = CONTENT_IGNORE;
 
@@ -424,7 +424,7 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 			tmp_nodes = new MapNode[nodecount];
 			memcpy(tmp_nodes, data, nodecount * sizeof(MapNode));
 		}
-		getBlockNodeIdMapping(&nimap, tmp_nodes, m_gamedef->ndef(), m_is_mono_block);
+		getBlockNodeIdMapping(&nimap, tmp_nodes, m_gamedef->ndef(), m_is_mono_block ? 1 : nodecount);
 
 		buf = MapNode::serializeBulk(version, tmp_nodes, nodecount,
 				content_width, params_width, m_is_mono_block);
