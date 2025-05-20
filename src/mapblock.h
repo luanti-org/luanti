@@ -440,6 +440,9 @@ private:
 	void reallocate(u32 c, MapNode n)
 	{
 		delete[] data;
+		if (c == 1)
+			porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
+
 		data = new MapNode[c];
 		for (u32 i = 0; i < c; i++)
 			data[i] = n;
