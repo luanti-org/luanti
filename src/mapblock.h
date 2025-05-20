@@ -230,10 +230,7 @@ public:
 		if (!*valid_position)
 			return {CONTENT_IGNORE};
 
-		if (m_is_mono_block)
-			return data[0];
-		else
-			return data[z * zstride + y * ystride + x];
+		return data[m_is_mono_block ? 0 : z * zstride + y * ystride + x];
 	}
 
 	inline MapNode getNode(v3s16 p, bool *valid_position)
@@ -268,10 +265,7 @@ public:
 
 	inline MapNode getNodeNoCheck(s16 x, s16 y, s16 z)
 	{
-		if (m_is_mono_block)
-			return data[0];
-		else
-			return data[z * zstride + y * ystride + x];
+		return data[m_is_mono_block ? 0 : z * zstride + y * ystride + x];
 	}
 
 	inline MapNode getNodeNoCheck(v3s16 p)
