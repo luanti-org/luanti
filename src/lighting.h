@@ -80,8 +80,8 @@ struct Lighting
 	float specular_intensity{0.0f};
 	// These factors are calculated based on expected value of scattering factor of 1e-5
 	// for Nitrogen at 532nm (green), 2e25 molecules/m3 in atmosphere
-	v3f volumetric_beta_r0{ 3.3362176e-01f, 8.753783e-01f, 1.9534237f };
-	video::SColor artificial_light_color{ 255, 133, 133, 133 };
+	v3f scattering_coefficients{ 3.3362176e-01f, 8.753783e-01f, 1.9534237f };
+	video::SColorf artificial_light_color{ 1.0f, 1.04f, 1.04f, 1.04f };
 	video::SColor shadow_tint {255, 0, 0, 0};
 	float bloom_intensity {0.05f};
 	float bloom_strength_factor {1.0f};

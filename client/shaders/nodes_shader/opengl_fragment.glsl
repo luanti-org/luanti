@@ -539,7 +539,7 @@ void main(void)
 #endif
 
 #if (defined(ENABLE_NODE_SPECULAR) && !MATERIAL_WATER_REFLECTIONS)
-		// Apply specular to blocks.
+		// Apply specular to nodes.
 		if (dot(v_LightDirection, vNormal) < 0.0) {
 			// This intensity/roughness is a placeholder and should be replaced by proper specular maps.
 			float intensity = 0.35 * min(1.0, length(varColor.rgb * base.rgb));

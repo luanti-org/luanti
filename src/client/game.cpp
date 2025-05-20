@@ -217,7 +217,6 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 		}};
 	float m_user_exposure_compensation;
 	bool m_bloom_enabled;
-	bool m_color_grading_enabled;
 	CachedPixelShaderSetting<float> m_bloom_intensity_pixel{"bloomIntensity"};
 	CachedPixelShaderSetting<float> m_bloom_strength_pixel{"bloomStrength"};
 	CachedPixelShaderSetting<float> m_bloom_radius_pixel{"bloomRadius"};
@@ -234,9 +233,9 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float>
 		m_volumetric_light_strength_pixel{"volumetricLightStrength"};
 	CachedPixelShaderSetting<float, 3>
-		m_volumetric_beta_r0_pixel{ "beta_r0_l" };
+		m_atmospheric_scattering_coefficients_pixel{ "scattering_coefficients" };
 	CachedVertexShaderSetting<float, 3>
-		m_volumetric_beta_r0_vertex{ "beta_r0_l" };
+		m_atmospheric_scattering_coefficients_vertex{ "scattering_coefficients" };
 	CachedPixelShaderSetting<float, 3> m_cdl_slope_pixel{"cdl_slope"};
 	CachedPixelShaderSetting<float, 3> m_cdl_offset_pixel{"cdl_offset"};
 	CachedPixelShaderSetting<float, 3> m_cdl_power_pixel{"cdl_power"};
@@ -275,7 +274,6 @@ public:
 		m_bloom_enabled = g_settings->getBool("enable_bloom");
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
 		m_gamma = g_settings->getFloat("secondstage_gamma");
-		m_color_grading_enabled = g_settings->getBool("enable_color_grading");
 	}
 
 	~GameGlobalShaderUniformSetter()
@@ -356,12 +354,10 @@ public:
 		m_foliage_translucency_pixel.set(&lighting.foliage_translucency, services);
 		m_specular_intensity_pixel.set(&lighting.specular_intensity, services);
 
-		if (m_color_grading_enabled) {
-			const ColorDecisionList& cdl_params = lighting.cdl;
-			m_cdl_slope_pixel.set(cdl_params.slope, services);
-			m_cdl_offset_pixel.set(cdl_params.offset, services);
-			m_cdl_power_pixel.set(cdl_params.power, services);
-		}
+		const ColorDecisionList& cdl_params = lighting.cdl;
+		m_cdl_slope_pixel.set(cdl_params.slope, services);
+		m_cdl_offset_pixel.set(cdl_params.offset, services);
+		m_cdl_power_pixel.set(cdl_params.power, services);
 
 		if (m_volumetric_light_enabled) {
 			// Map directional light to screen space
@@ -407,9 +403,9 @@ public:
 			m_volumetric_light_strength_pixel.set(&volumetric_light_strength, services);
 		}
 
-		v3f beta_r0 = lighting.volumetric_beta_r0;
-		m_volumetric_beta_r0_vertex.set(beta_r0, services);
-		m_volumetric_beta_r0_pixel.set(beta_r0, services);
+		v3f scattering_coefficients = lighting.scattering_coefficients;
+		m_atmospheric_scattering_coefficients_vertex.set(scattering_coefficients, services);
+		m_atmospheric_scattering_coefficients_pixel.set(scattering_coefficients, services);
 	}
 
 	void onSetMaterial(const video::SMaterial &material) override
@@ -504,8 +500,9 @@ public:
 #undef PROVIDE
 
 		bool enable_waving_water = g_settings->getBool("enable_waving_water");
+		bool enable_water_reflections = g_settings->getBool("enable_water_reflections");
 		constants["ENABLE_WAVING_WATER"] = enable_waving_water ? 1 : 0;
-		if (enable_waving_water) {
+		if (enable_waving_water || enable_water_reflections) {
 			constants["WATER_WAVE_HEIGHT"] = g_settings->getFloat("water_wave_height");
 			constants["WATER_WAVE_LENGTH"] = g_settings->getFloat("water_wave_length");
 			constants["WATER_WAVE_SPEED"] = g_settings->getFloat("water_wave_speed");

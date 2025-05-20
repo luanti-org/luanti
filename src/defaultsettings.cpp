@@ -333,7 +333,6 @@ void set_default_settings()
 	settings->setDefault("enable_waving_plants", "false");
 	settings->setDefault("exposure_compensation", "0.0");
 	settings->setDefault("enable_auto_exposure", "false");
-	settings->setDefault("enable_color_grading", "false");
 	settings->setDefault("secondstage_gamma", "1.6");
 	settings->setDefault("debanding", "true");
 	settings->setDefault("antialiasing", "none");
@@ -343,7 +342,6 @@ void set_default_settings()
 	settings->setDefault("enable_volumetric_depth_attenuation", "false");
 	settings->setDefault("enable_water_reflections", "false");
 	settings->setDefault("enable_translucent_foliage", "false");
-	settings->setDefault("enable_node_specular", "false");
 	settings->setDefault("enable_tinted_fog", "false");
 
 	// Effects Shadows

@@ -57,7 +57,7 @@ uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
 
 #ifdef ENABLE_TINTED_SUNLIGHT
-	uniform vec3 beta_r0_l;
+	uniform vec3 scattering_coefficients;
 #endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
@@ -155,11 +155,11 @@ float snoise(vec3 p)
 vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
 {
 	// Based on talk at 2002 Game Developers Conference by Naty Hoffman and Arcot J. Preetham
-	const float beta_r0 = 1e-5; // Rayleigh scattering beta
+	const float unit_conversion = 1e-5; // Rayleigh scattering beta
 
 	const float atmosphere_height = 15000.; // height of the atmosphere in meters
 	// sun/moon light at the ground level, after going through the atmosphere
-	return exp(-beta_r0_l * beta_r0 * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
+	return exp(-scattering_coefficients * unit_conversion * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
 }
 #endif
 
@@ -221,7 +221,7 @@ void main(void)
 	// The alpha gives the ratio of sunlight in the incoming light.
 	nightRatio = 1.0 - color.a;
 	color.rgb = color.rgb * (color.a * dayLight.rgb +
-		nightRatio * 2.0 * artificialLight.rgb) * 2.0;
+		nightRatio * max(artificialLight.rgb, vec3(0.0))) * 2.0;
 	color.a = 1.0;
 
 	// Emphase blue a bit in darker places

@@ -9029,7 +9029,7 @@ child will follow movement and rotation of that bone.
             * Currently, bloom `intensity` and `strength_factor` affect volumetric
               lighting `strength` and vice versa. This behavior is to be changed
               in the future, do not rely on it.
-        * `beta_r0`: the scattering coefficient that controls the tint of sunlight during sunrise and sunset.
+        * `scattering_coefficients`: the scattering coefficients that control the tint of sunlight during sunrise and sunset.
             * Defaults to { x = 3.3362176e-01, y = 8.75378289198826e-01, z = 1.95342379700656} which is physically accurate.
             * This may be used to create effects like differently colored sunsets on alien planets.
             * Setting all components to zero effectively disables tinted sunlight.
@@ -9044,6 +9044,9 @@ child will follow movement and rotation of that bone.
         * `slope`: "Tints" the scene, affects brighter colors more (default: `{x=1.2, y=1.0, z=0.8}`)
         * `offset`: This can be used to brighten or darken the scene (default: `{x=0.0, y=0.0, z=0.0}`)
         * `power`: Tints mostly the darker parts of the scene (default: `{x=1.25, y=1.0, z=0.9}`)
+      * `artificial_light`: is a table that controls the color of artificial light (torches etc.).
+        * Values should be positive and vaguely around `1.0`, but can be higher or lower.
+        * Default: `{r=1.04, g=1.04, b=1.04}`
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.

@@ -225,6 +225,9 @@ public:
 			float shadow_soft_radius = std::max(1.f,
 				g_settings->getFloat("shadow_soft_radius"));
 			constants["SOFTSHADOWRADIUS"] = shadow_soft_radius;
+
+			if (g_settings->getBool("enable_sun_tint"))
+				constants["ENABLE_TINTED_SUNLIGHT"] = 1;
 		}
 
 		if (g_settings->getBool("enable_bloom")) {

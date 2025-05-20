@@ -24,7 +24,7 @@ varying mediump vec2 varTexCoord;
 centroid varying vec2 varTexCoord;
 #endif
 
-uniform vec3 beta_r0_l;
+uniform vec3 scattering_coefficients;
 
 const float far = 1000.;
 float mapDepth(float depth)
@@ -63,12 +63,11 @@ float sampleVolumetricLight(vec2 uv, vec3 lightVec, float rawDepth)
 vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
 {
 	// Based on talk at 2002 Game Developers Conference by Naty Hoffman and Arcot J. Preetham
-	const float beta_r0 = 1e-5; // Rayleigh scattering beta
+	const float unit_conversion = 1e-5; // Rayleigh scattering beta
 
 	const float atmosphere_height = 15000.; // height of the atmosphere in meters
 	// sun/moon light at the ground level, after going through the atmosphere
-
-	return exp(-beta_r0_l * beta_r0 * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
+	return exp(-scattering_coefficients * unit_conversion * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
 }
 
 vec3 applyVolumetricLight(vec3 color, vec2 uv, float rawDepth)

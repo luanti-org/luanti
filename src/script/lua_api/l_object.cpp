@@ -2660,8 +2660,10 @@ int ObjectRef::l_set_lighting(lua_State *L)
 		lighting = player->getLighting();
 
 		lua_getfield(L, 2, "artificial_light");
-		if (!lua_isnil(L, -1)) {
-			read_color(L, -1, &lighting.artificial_light_color);
+		if (lua_istable(L, -1)) {
+			getfloatfield(L, -1, "r", lighting.artificial_light_color.r);
+			getfloatfield(L, -1, "g", lighting.artificial_light_color.g);
+			getfloatfield(L, -1, "b", lighting.artificial_light_color.b);
 		}
 		lua_pop(L, 1); // artificial_light
 
@@ -2694,11 +2696,11 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			getfloatfield(L, -1, "strength", lighting.volumetric_light_strength);
 			lighting.volumetric_light_strength = rangelim(lighting.volumetric_light_strength, 0.0f, 1.0f);
 
-			lua_getfield(L, -1, "beta_r0");
+			lua_getfield(L, -1, "scattering_coefficients");
 			if (!lua_isnil(L, -1)) {
-				lighting.volumetric_beta_r0 = read_v3f(L, -1);
+				lighting.scattering_coefficients = read_v3f(L, -1);
 			}
-			lua_pop(L, 1); // beta_r0
+			lua_pop(L, 1); // scattering_coefficients
 		}
 		lua_pop(L, 1); // volumetric_light
 
@@ -2752,7 +2754,13 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	const Lighting &lighting = player->getLighting();
 
 	lua_newtable(L); // result
-	push_ARGB8(L, lighting.artificial_light_color);
+	lua_newtable(L); // artificial_light
+	lua_pushnumber(L, lighting.artificial_light_color.r);
+	lua_setfield(L, -2, "r");
+	lua_pushnumber(L, lighting.artificial_light_color.g);
+	lua_setfield(L, -2, "g");
+	lua_pushnumber(L, lighting.artificial_light_color.b);
+	lua_setfield(L, -2, "b");
 	lua_setfield(L, -2, "artificial_light");
 	lua_pushnumber(L, lighting.foliage_translucency);
 	lua_setfield(L, -2, "foliage_translucency");
@@ -2783,8 +2791,8 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_newtable(L); // "volumetric_light"
 	lua_pushnumber(L, lighting.volumetric_light_strength);
 	lua_setfield(L, -2, "strength");
-	push_v3f(L, lighting.volumetric_beta_r0);
-	lua_setfield(L, -2, "beta_r0");
+	push_v3f(L, lighting.scattering_coefficients);
+	lua_setfield(L, -2, "scattering_coefficients");
 	lua_setfield(L, -2, "volumetric_light");
 	lua_newtable(L); // "bloom"
 	lua_pushnumber(L, lighting.bloom_intensity);

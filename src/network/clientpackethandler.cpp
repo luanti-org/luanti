@@ -1795,8 +1795,10 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.bloom_radius;
 	}
 	if (pkt->getRemainingBytes() >= 72) {
-		*pkt >> lighting.artificial_light_color;
-		*pkt >> lighting.volumetric_beta_r0;
+		*pkt >> lighting.artificial_light_color.r
+			>> lighting.artificial_light_color.g
+			>> lighting.artificial_light_color.b;
+		*pkt >> lighting.scattering_coefficients;
 		*pkt >> lighting.vignette.dark
 				>> lighting.vignette.bright
 				>> lighting.vignette.power;

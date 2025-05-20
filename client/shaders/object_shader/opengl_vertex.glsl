@@ -42,6 +42,10 @@ uniform float xyPerspectiveBias0;
 uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
 
+#ifdef ENABLE_TINTED_SUNLIGHT
+	uniform vec3 scattering_coefficients;
+#endif
+
 #ifdef ENABLE_DYNAMIC_SHADOWS
 
 vec4 getRelativePosition(in vec4 position)
@@ -90,19 +94,17 @@ float directional_ambient(vec3 normal)
 	return dot(v, vec3(0.670820, 1.000000, 0.836660));
 }
 
-vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
-{
-	// Based on talk at 2002 Game Developers Conference by Naty Hoffman and Arcot J. Preetham
-	const float beta_r0 = 1e-5; // Rayleigh scattering beta
+#ifdef ENABLE_TINTED_SUNLIGHT
+	vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
+	{
+		// Based on talk at 2002 Game Developers Conference by Naty Hoffman and Arcot J. Preetham
+		const float unit_conversion = 1e-5; // Rayleigh scattering beta
 
-	// These factors are calculated based on expected value of scattering factor of 1e-5
-	// for Nitrogen at 532nm (green), 2e25 molecules/m3 in atmosphere
-	const vec3 beta_r0_l = vec3(3.3362176e-01, 8.75378289198826e-01, 1.95342379700656) * beta_r0; // wavelength-dependent scattering
-
-	const float atmosphere_height = 15000.; // height of the atmosphere in meters
-	// sun/moon light at the ground level, after going through the atmosphere
-	return exp(-beta_r0_l * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
-}
+		const float atmosphere_height = 15000.; // height of the atmosphere in meters
+		// sun/moon light at the ground level, after going through the atmosphere
+		return exp(-scattering_coefficients * unit_conversion * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
+	}
+#endif
 
 void main(void)
 {
@@ -131,7 +133,7 @@ void main(void)
 	// The alpha gives the ratio of sunlight in the incoming light.
 	nightRatio = 1.0 - color.a;
 	color.rgb = color.rgb * (color.a * dayLight.rgb +
-		nightRatio * 2.0 * artificialLight.rgb) * 2.0;
+		nightRatio * max(artificialLight.rgb, vec3(0.0))) * 2.0;
 	color.a = 1.0;
 
 	// Emphase blue a bit in darker places
@@ -174,6 +176,7 @@ void main(void)
 		perspective_factor = pFactor;
 
 		// The sun rises at 5:00 and sets at 19:00, which corresponds to 5/24=0.208 and 19/24 = 0.792.
+		float nightFactor = 0.;
 		sunTint = vec3(1.0);
 		if (f_timeofday < 0.208) {
 			adj_shadow_strength = f_shadow_strength * 0.5 *
@@ -185,6 +188,7 @@ void main(void)
 			adj_shadow_strength = f_shadow_strength *
 				mtsmoothstep(0.208, 0.238, f_timeofday) *
 				(1.0 - mtsmoothstep(0.762, 0.792, f_timeofday));
+			nightFactor = adj_shadow_strength / f_shadow_strength;
 #ifdef ENABLE_TINTED_SUNLIGHT
 			float tint_strength = 1.0 - mtsmoothstep(0.792, 0.5, f_timeofday) * mtsmoothstep(0.208, 0.5, f_timeofday);
 			sunTint = mix(vec3(1.0), getDirectLightScatteringAtGround(v_LightDirection), nightFactor * tint_strength);
