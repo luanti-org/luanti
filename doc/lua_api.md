@@ -518,6 +518,15 @@ stripping out the file extension:
 
 Supported texture formats are PNG (`.png`), JPEG (`.jpg`) and Targa (`.tga`).
 
+Luanti generally uses nearest-neighbor upscaling for textures to preserve the crisp
+look of pixel art (low-res textures).
+Users can optionally enable bilinear and/or trilinear filtering. However, to avoid
+everything becoming blurry, textures smaller than 192px will either not be filtered,
+or will be upscaled to that minimum resolution first without filtering.
+
+This is subject to change to move more control to the Lua API, but you can rely on
+low-res textures not suddenly becoming filtered.
+
 Texture modifiers
 -----------------
 
@@ -2833,6 +2842,9 @@ Version History
   * Add field_enter_after_edit[] (experimental)
 * Formspec version 8 (5.10.0)
   * scroll_container[]: content padding parameter
+* Formspec version 9 (5.12.0)
+  * Add allow_close[]
+  * label[]: Add "area label" variant
 
 Elements
 --------
@@ -2902,6 +2914,13 @@ Elements
   They must enable it explicitly.
 * For information on converting forms to the new coordinate system, see `Migrating
   to Real Coordinates`.
+
+### `allow_close[<bool>]`
+
+* When set to false, the formspec will not close when the user tries to close
+  it with the Escape key or similar. Default true.
+* The formspec can still be closed with `*_exit[]` elements and
+  `core.close_formspec()`, regardless of this setting.
 
 ### `container[<X>,<Y>]`
 
@@ -3138,9 +3157,11 @@ Elements
 ### `textarea[<X>,<Y>;<W>,<H>;<name>;<label>;<default>]`
 
 * Same as fields above, but with multi-line input
+* Text is wrapped to fit within the given bounds.
 * If the text overflows, a vertical scrollbar is added.
 * If the name is empty, the textarea is read-only and
   the background is not shown, which corresponds to a multi-line label.
+  See also `label[<X>,<Y>;<W>,<H>;<label>]` for an alternative.
 
 ### `label[<X>,<Y>;<label>]`
 
@@ -3154,6 +3175,16 @@ Elements
 * **Note**: With the new coordinate system, newlines are spaced with
   half a coordinate.  With the old system, newlines are spaced 2/5 of
   an inventory slot.
+
+### `label[<X>,<Y>;<W>,<H>;<label>]`
+
+* The "area label" formspec element displays the text set in `label`
+  at the specified position and size.
+* Text is wrapped to fit within the given bounds.
+* If the text overflows, it is currently simply truncated, but this behavior is
+  subject to change. There is no scrollbar.
+* See also `textarea` for an alternative.
+* Only available with the new coordinate system.
 
 ### `hypertext[<X>,<Y>;<W>,<H>;<name>;<text>]`
 * Displays a static formatted text with hyperlinks.
@@ -4131,9 +4162,11 @@ Helper functions
     * `obj`: arbitrary variable
     * `name`: string, default: `"_"`
     * `dumped`: table, default: `{}`
-* `dump(obj, dumped)`: returns a string which makes `obj` human-readable
-    * `obj`: arbitrary variable
-    * `dumped`: table, default: `{}`
+* `dump(value, indent)`: returns a string which makes `value` human-readable
+    * `value`: arbitrary value
+      * Circular references are supported. Every table is dumped only once.
+    * `indent`: string to use for indentation, default: `"\t"`
+      * `""` disables indentation & line breaks (compact output)
 * `math.hypot(x, y)`
     * Get the hypotenuse of a triangle with legs x and y.
       Useful for distance calculation.
@@ -5564,7 +5597,6 @@ provided by the Luanti engine and can be used by mods:
       * `fly`: can use "fly mode" to move freely above the ground without falling.
       * `noclip`: can use "noclip mode" to fly through solid nodes (e.g. walls).
       * `teleport`: can use `/teleport` command to move to any point in the world.
-      * `creative`: can access creative inventory.
       * `bring`: can teleport other players to oneself.
       * `give`: can use `/give` and `/giveme` commands to give any item
         in the game to oneself or others.
@@ -5750,6 +5782,8 @@ Utilities
       particle_blend_clip = true,
       -- The `match_meta` optional parameter is available for `InvRef:remove_item()` (5.12.0)
       remove_item_match_meta = true,
+      -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
+      httpfetch_additional_methods = true,
   }
   ```
 
@@ -6206,8 +6240,10 @@ Call these functions only at load time!
         * `table`: See `core.explode_table_event`
         * `scrollbar`: See `core.explode_scrollbar_event`
         * Special case: `["quit"]="true"` is sent when the user actively
-          closed the form by mouse click, keypress or through a button_exit[]
+          closed the form by mouse click, keypress or through a `button_exit[]`
           element.
+        * Special case: `["try_quit"]="true"` is sent when the user tries to
+          close the formspec, but the formspec used `allow_close[false]`.
         * Special case: `["key_enter"]="true"` is sent when the user pressed
           the Enter key and the focus was either nowhere (causing the formspec
           to be closed) or on a button. If the focus was on a text field,
@@ -6901,11 +6937,16 @@ Item handling
       given `param2` value.
     * Returns `nil` if the given `paramtype2` does not contain color
       information.
-* `core.get_node_drops(node, toolname)`
-    * Returns list of itemstrings that are dropped by `node` when dug
-      with the item `toolname` (not limited to tools).
+* `core.get_node_drops(node, toolname[, tool, digger, pos])`
+    * Returns list of itemstrings that are dropped by `node` when dug with the
+      item `toolname` (not limited to tools). The default implementation doesn't
+      use `tool`, `digger`, and `pos`, but these are provided by `core.node_dig`
+      since 5.12.0 for games/mods implementing customized drops.
     * `node`: node as table or node name
     * `toolname`: name of the item used to dig (can be `nil`)
+    * `tool`: `ItemStack` used to dig (can be `nil`)
+    * `digger`: the ObjectRef that digs the node (can be `nil`)
+    * `pos`: the pos of the dug node (can be `nil`)
 * `core.get_craft_result(input)`: returns `output, decremented_input`
     * `input.method` = `"normal"` or `"cooking"` or `"fuel"`
     * `input.width` = for example `3`
@@ -7572,16 +7613,22 @@ Misc.
     * Example: `write_json({10, {a = false}})`,
       returns `'[10, {"a": false}]'`
 * `core.serialize(table)`: returns a string
-    * Convert a table containing tables, strings, numbers, booleans and `nil`s
-      into string form readable by `core.deserialize`
+    * Convert a value into string form readable by `core.deserialize`.
+    * Supports tables, strings, numbers, booleans and `nil`.
+    * Support for dumping function bytecode is **deprecated**.
+    * Note: To obtain a human-readable representation of a value, use `dump` instead.
     * Example: `serialize({foo="bar"})`, returns `'return { ["foo"] = "bar" }'`
 * `core.deserialize(string[, safe])`: returns a table
     * Convert a string returned by `core.serialize` into a table
     * `string` is loaded in an empty sandbox environment.
-    * Will load functions if safe is false or omitted. Although these functions
-      cannot directly access the global environment, they could bypass this
-      restriction with maliciously crafted Lua bytecode if mod security is
-      disabled.
+    * Will load functions if `safe` is `false` or omitted.
+      Although these functions cannot directly access the global environment,
+      they could bypass this restriction with maliciously crafted Lua bytecode
+      if mod security is disabled.
+    * Will silently strip functions embedded via calls to `loadstring`
+      (typically bytecode dumped by `core.serialize`) if `safe` is `true`.
+      You should not rely on this if possible.
+      * Example: `core.deserialize("return loadstring('')", true)` will be `nil`.
     * This function should not be used on untrusted data, regardless of the
      value of `safe`. It is fine to serialize then deserialize user-provided
      data, but directly providing user input to deserialize is always unsafe.
@@ -8124,8 +8171,8 @@ of the `${k}` syntax in formspecs is not deprecated.
       The value will be converted into a string when stored.
 * `get_int(key)`: Returns `0` if key not present.
 * `set_float(key, value)`
-    * The range for the value is system-dependent (usually 32 bits).
-      The value will be converted into a string when stored.
+    * Store a number (a 64-bit float) exactly.
+    * The value will be converted into a string when stored.
 * `get_float(key)`: Returns `0` if key not present.
 * `get_keys()`: returns a list of all keys in the metadata.
 * `to_table()`:
@@ -9271,7 +9318,7 @@ The settings have the format `key = value`. Example:
 `StorageRef`
 ------------
 
-Mod metadata: per mod metadata, saved automatically.
+Mod metadata: per mod and world metadata, saved automatically.
 Can be obtained via `core.get_mod_storage()` during load time.
 
 WARNING: This storage backend is incapable of saving raw binary data due
@@ -9372,7 +9419,8 @@ Player properties need to be saved manually.
     -- to scale the entity along both horizontal axes.
 
     mesh = "model.obj",
-    -- File name of mesh when using "mesh" visual
+    -- File name of mesh when using "mesh" visual.
+    -- For legacy reasons, this uses a 10x scale for meshes: 10 units = 1 node.
 
     textures = {},
     -- Number of required textures depends on visual:
@@ -10144,6 +10192,13 @@ Used by `core.register_node`.
 
     mesh = "",
     -- File name of mesh when using "mesh" drawtype
+    -- The center of the node is the model origin.
+    -- For legacy reasons, this uses a different scale depending on the mesh:
+    -- 1. For glTF models: 10 units = 1 node (consistent with the scale for entities).
+    -- 2. For obj models: 1 unit = 1 node.
+    -- 3. For b3d and x models: 1 unit = 1 node if static, otherwise 10 units = 1 node.
+    -- Using static glTF or obj models is recommended.
+    -- You can use the `visual_scale` multiplier to achieve the expected scale.
 
     selection_box = {
         -- see [Node boxes] for possibilities
@@ -10450,6 +10505,16 @@ table format. The accepted parameters are listed below.
 
 Recipe input items can either be specified by item name (item count = 1)
 or by group (see "Groups in crafting recipes" for details).
+Only the item name (and groups) matter for matching a recipe, i.e. meta and count
+are ignored.
+
+If multiple recipes match the input of a craft grid, one of them is chosen by the
+following priority rules:
+
+* Shaped recipes are preferred over shapeless recipes, which in turn are preferred
+  over tool repair.
+* Otherwise, recipes without groups are preferred over recipes with groups.
+* Otherwise, earlier registered recipes are preferred.
 
 The following sections describe the types and syntaxes of recipes.
 
@@ -10468,6 +10533,10 @@ For example, for a 3x3 recipe, the `recipes` table must have
 
 In order to craft the recipe, the players' crafting grid must
 have equal or larger dimensions (both width and height).
+
+Empty slots outside of the recipe's extents are ignored, e.g. a 3x3
+recipe where only the bottom right 2x2 slots are filled is the same
+as the corresponding 2x2 recipe without the empty slots.
 
 Parameters:
 
@@ -11789,22 +11858,22 @@ Used by `HTTPApiTable.fetch` and `HTTPApiTable.fetch_async`.
 
 ```lua
 {
-    url = "http://example.org",
+    url = "https://example.org",
 
     timeout = 10,
     -- Timeout for request to be completed in seconds. Default depends on engine settings.
 
-    method = "GET", "POST", "PUT" or "DELETE"
+    method = "GET", "HEAD", "POST", "PUT", "PATCH" or "DELETE"
     -- The http method to use. Defaults to "GET".
 
-    data = "Raw request data string" OR {field1 = "data1", field2 = "data2"},
-    -- Data for the POST, PUT or DELETE request.
+    data = "Raw request data string" or {field1 = "data1", field2 = "data2"},
+    -- Data for the POST, PUT, PATCH or DELETE request.
     -- Accepts both a string and a table. If a table is specified, encodes
     -- table as x-www-form-urlencoded key-value pairs.
 
     user_agent = "ExampleUserAgent",
     -- Optional, if specified replaces the default Luanti user agent with
-    -- given string
+    -- given string.
 
     extra_headers = { "Accept-Language: en-us", "Accept-Charset: utf-8" },
     -- Optional, if specified adds additional headers to the HTTP request.
@@ -11814,7 +11883,7 @@ Used by `HTTPApiTable.fetch` and `HTTPApiTable.fetch_async`.
     multipart = boolean
     -- Optional, if true performs a multipart HTTP request.
     -- Default is false.
-    -- Post only, data must be array
+    -- Not allowed for GET or HEAD method and `data` must be a table.
 
     post_data = "Raw POST request data string" OR {field1 = "data1", field2 = "data2"},
     -- Deprecated, use `data` instead. Forces `method = "POST"`.
@@ -11842,7 +11911,8 @@ Passed to `HTTPApiTable.fetch` callback. Returned by
     code = 200,
     -- HTTP status code
 
-    data = "response"
+    data = "",
+    -- Response body
 }
 ```
 

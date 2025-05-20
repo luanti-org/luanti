@@ -10,7 +10,6 @@
 #include "EMaterialTypes.h" // IWYU pragma: export
 #include "EMaterialProps.h" // IWYU pragma: export
 #include "SMaterialLayer.h"
-#include "IrrCompileConfig.h" // for IRRLICHT_API
 
 namespace irr
 {
@@ -472,7 +471,7 @@ public:
 };
 
 //! global const identity Material
-IRRLICHT_API extern const SMaterial IdentityMaterial;
+extern const SMaterial IdentityMaterial;
 
 } // end namespace video
 } // end namespace irr

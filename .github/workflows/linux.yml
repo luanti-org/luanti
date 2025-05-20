@@ -34,27 +34,31 @@ env:
 
 jobs:
   # Older gcc version (should be close to our minimum supported version)
-  gcc_7:
-    runs-on: ubuntu-20.04
+  gcc_9:
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps g++-7
+          install_linux_deps g++-9
 
       - name: Build
         run: |
           ./util/ci/build.sh
         env:
-          CC: gcc-7
-          CXX: g++-7
-          # Test fallback SHA implementations
-          CMAKE_FLAGS: '-DENABLE_OPENSSL=0'
+          CC: gcc-9
+          CXX: g++-9
+          CMAKE_FLAGS: '-DCMAKE_C_FLAGS="-fsanitize=address" -DCMAKE_CXX_FLAGS="-fsanitize=address"'
 
-      - name: Test
+      - name: Unittest
         run: |
           ./bin/luanti --run-unittests
+
+      # Do this here because we have ASan and error paths are sensitive to dangling pointers
+      - name: Test error cases
+        run: |
+          ./util/test_error_cases.sh
 
   # Current gcc version
   gcc_14:
@@ -81,31 +85,27 @@ jobs:
           ../bin/luanti --run-unittests
 
   # Older clang version (should be close to our minimum supported version)
-  clang_7:
-    runs-on: ubuntu-20.04
+  clang_11:
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps clang-7 llvm-7
+          install_linux_deps clang-11
 
       - name: Build
         run: |
           ./util/ci/build.sh
         env:
-          CC: clang-7
-          CXX: clang++-7
-          CMAKE_FLAGS: '-DCMAKE_C_FLAGS="-fsanitize=address" -DCMAKE_CXX_FLAGS="-fsanitize=address"'
+          CC: clang-11
+          CXX: clang++-11
+          # Test fallback SHA implementations
+          CMAKE_FLAGS: '-DENABLE_OPENSSL=0'
 
-      - name: Unittest
+      - name: Test
         run: |
           ./bin/luanti --run-unittests
-
-      # Do this here because we have ASan and error paths are sensitive to dangling pointers
-      - name: Test error cases
-        run: |
-          ./util/test_error_cases.sh
 
   # Current clang version
   clang_18:

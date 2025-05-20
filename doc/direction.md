@@ -5,7 +5,7 @@
 The long-term roadmaps, aims, and guiding philosophies are set out using the
 following documents:
 
-* [What is Minetest?](http://c55.me/blog/?p=1491)
+* [What is Minetest? (archived)](https://web.archive.org/web/20160328054721/http://c55.me/blog/?p=1491)
 * [celeron55's roadmap](https://forum.luanti.org/viewtopic.php?t=9177)
 * [celeron55's comment in "A clear mission statement for Minetest is missing"](https://github.com/luanti-org/luanti/issues/3476#issuecomment-167399287)
 * [Core developer to-do/wish lists](https://forum.luanti.org/viewforum.php?f=7)

@@ -72,4 +72,4 @@
 const u16 LATEST_PROTOCOL_VERSION = 48;
 
 // See also formspec [Version History] in doc/lua_api.md
-const u16 FORMSPEC_API_VERSION = 8;
+const u16 FORMSPEC_API_VERSION = 9;

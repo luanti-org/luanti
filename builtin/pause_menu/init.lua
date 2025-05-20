@@ -8,5 +8,6 @@ defaulttexturedir = ""
 local builtin_shared = {}
 
 assert(loadfile(commonpath .. "register.lua"))(builtin_shared)
+assert(loadfile(commonpath .. "menu.lua"))(builtin_shared)
 assert(loadfile(pausepath .. "register.lua"))(builtin_shared)
 dofile(commonpath .. "settings" .. DIR_DELIM .. "init.lua")

@@ -39,11 +39,3 @@ video::SColor imageAverageColor(const video::IImage *img);
  * and downscaling.
  */
 void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::IImage *dest);
-
-/* Check and align image to npot2 if required by hardware
- * @param image image to check for npot2 alignment
- * @param driver driver to use for image operations
- * @return image or copy of image aligned to npot2
- */
-video::IImage *Align2Npot2(video::IImage *image, video::IVideoDriver *driver);
-

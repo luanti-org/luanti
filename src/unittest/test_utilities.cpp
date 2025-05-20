@@ -5,6 +5,7 @@
 #include "test.h"
 
 #include <cmath>
+#include <limits>
 #include "util/enriched_string.h"
 #include "util/numeric.h"
 #include "util/string.h"
@@ -48,6 +49,7 @@ public:
 	void testColorizeURL();
 	void testSanitizeUntrusted();
 	void testReadSeed();
+	void testMyDoubleStringConversions();
 };
 
 static TestUtilities g_test_instance;
@@ -84,6 +86,7 @@ void TestUtilities::runTests(IGameDef *gamedef)
 	TEST(testColorizeURL);
 	TEST(testSanitizeUntrusted);
 	TEST(testReadSeed);
+	TEST(testMyDoubleStringConversions);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,7 +323,7 @@ void TestUtilities::testUTF8()
 	// try to check that the conversion function does not accidentally keep
 	// its internal state across invocations.
 	// \xC4\x81 is UTF-8 for \u0101
-	utf8_to_wide("\xC4");
+	static_cast<void>(utf8_to_wide("\xC4"));
 	UASSERT(utf8_to_wide("\x81") != L"\u0101");
 }
 
@@ -762,4 +765,38 @@ void TestUtilities::testReadSeed()
 	UASSERTEQ(int, read_seed("0x123"), 0x123);
 	// hashing should produce some non-zero number
 	UASSERT(read_seed("hello") != 0);
+}
+
+void TestUtilities::testMyDoubleStringConversions()
+{
+	const auto expect_parse_failure = [](const std::string &s) {
+		UASSERT(!my_string_to_double(s).has_value());
+	};
+	expect_parse_failure("");
+	expect_parse_failure("helloworld");
+	expect_parse_failure("42x");
+
+	const auto expect_double = [](const std::string &s, double expected) {
+		auto got = my_string_to_double(s);
+		UASSERT(got.has_value());
+		UASSERTEQ(double, *got, expected);
+	};
+	expect_double("1", 1.0);
+	expect_double("42", 42.0);
+	expect_double("42.25", 42.25);
+	expect_double("3e3", 3000.0);
+	expect_double("0xff", 255.0);
+	expect_double("0x1.0p+1", 2.0);
+
+	UASSERT(std::isnan(my_string_to_double(my_double_to_string(
+			std::numeric_limits<double>::quiet_NaN())).value()));
+	const auto test_round_trip = [](double number) {
+		auto got = my_string_to_double(my_double_to_string(number));
+		UASSERT(got.has_value());
+		UASSERTEQ(double, *got, number);
+	};
+	test_round_trip(std::numeric_limits<double>::infinity());
+	test_round_trip(-std::numeric_limits<double>::infinity());
+	test_round_trip(0.3);
+	test_round_trip(0.1 + 0.2);
 }

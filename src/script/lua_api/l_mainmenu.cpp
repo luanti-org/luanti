@@ -9,7 +9,6 @@
 #include "scripting_mainmenu.h"
 #include "gui/guiEngine.h"
 #include "gui/guiMainMenu.h"
-#include "gui/guiKeyChangeMenu.h"
 #include "gui/guiPathSelectMenu.h"
 #include "gui/touchscreeneditor.h"
 #include "version.h"
@@ -539,22 +538,6 @@ int ModApiMainMenu::l_get_content_translation(lua_State *L)
 }
 
 /******************************************************************************/
-int ModApiMainMenu::l_show_keys_menu(lua_State *L)
-{
-	GUIEngine *engine = getGuiEngine(L);
-	sanity_check(engine != NULL);
-
-	GUIKeyChangeMenu *kmenu = new GUIKeyChangeMenu(
-			engine->m_rendering_engine->get_gui_env(),
-			engine->m_parent,
-			-1,
-			engine->m_menumanager,
-			engine->m_texture_source.get());
-	kmenu->drop();
-	return 0;
-}
-
-/******************************************************************************/
 int ModApiMainMenu::l_show_touchscreen_layout(lua_State *L)
 {
 	GUIEngine *engine = getGuiEngine(L);
@@ -945,8 +928,9 @@ int ModApiMainMenu::l_get_active_renderer(lua_State *L)
 /******************************************************************************/
 int ModApiMainMenu::l_get_active_irrlicht_device(lua_State *L)
 {
-	const char *device_name = [] {
-		switch (RenderingEngine::get_raw_device()->getType()) {
+	auto device = RenderingEngine::get_raw_device();
+	std::string device_name = [device] {
+		switch (device->getType()) {
 		case EIDT_WIN32: return "WIN32";
 		case EIDT_X11: return "X11";
 		case EIDT_OSX: return "OSX";
@@ -955,7 +939,9 @@ int ModApiMainMenu::l_get_active_irrlicht_device(lua_State *L)
 		default: return "Unknown";
 		}
 	}();
-	lua_pushstring(L, device_name);
+	if (auto version = device->getVersionString(); !version.empty())
+		device_name.append(" " + version);
+	lua_pushstring(L, device_name.c_str());
 	return 1;
 }
 
@@ -1067,7 +1053,6 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(get_content_translation);
 	API_FCT(start);
 	API_FCT(close);
-	API_FCT(show_keys_menu);
 	API_FCT(show_touchscreen_layout);
 	API_FCT(create_world);
 	API_FCT(delete_world);
@@ -1104,6 +1089,9 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_dir);
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
+
+	lua_pushboolean(L, g_first_run);
+	lua_setfield(L, top, "is_first_run");
 }
 
 /******************************************************************************/

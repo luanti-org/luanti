@@ -5,7 +5,6 @@
 #include "game.h"
 
 #include <cmath>
-#include "IAttributes.h"
 #include "client/renderingengine.h"
 #include "camera.h"
 #include "client.h"
@@ -188,7 +187,7 @@ public:
 typedef s32 SamplerLayer_t;
 
 
-class GameGlobalShaderConstantSetter : public IShaderConstantSetter
+class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 {
 	Sky *m_sky;
 	Client *m_client;
@@ -206,10 +205,6 @@ class GameGlobalShaderConstantSetter : public IShaderConstantSetter
 	CachedPixelShaderSetting<float, 3> m_camera_offset_pixel{ "cameraOffset" };
 	CachedVertexShaderSetting<float, 3> m_camera_position_vertex{"cameraPosition"};
 	CachedPixelShaderSetting<float, 3> m_camera_position_pixel{"cameraPosition"};
-	CachedPixelShaderSetting<SamplerLayer_t> m_texture0{"texture0"};
-	CachedPixelShaderSetting<SamplerLayer_t> m_texture1{"texture1"};
-	CachedPixelShaderSetting<SamplerLayer_t> m_texture2{"texture2"};
-	CachedPixelShaderSetting<SamplerLayer_t> m_texture3{"texture3"};
 	CachedVertexShaderSetting<float, 2> m_texel_size0_vertex{"texelSize0"};
 	CachedPixelShaderSetting<float, 2> m_texel_size0_pixel{"texelSize0"};
 	v2f m_texel_size0;
@@ -264,12 +259,12 @@ public:
 
 	static void settingsCallback(const std::string &name, void *userdata)
 	{
-		reinterpret_cast<GameGlobalShaderConstantSetter*>(userdata)->onSettingsChange(name);
+		reinterpret_cast<GameGlobalShaderUniformSetter*>(userdata)->onSettingsChange(name);
 	}
 
 	void setSky(Sky *sky) { m_sky = sky; }
 
-	GameGlobalShaderConstantSetter(Sky *sky, Client *client) :
+	GameGlobalShaderUniformSetter(Sky *sky, Client *client) :
 		m_sky(sky),
 		m_client(client)
 	{
@@ -283,12 +278,12 @@ public:
 		m_color_grading_enabled = g_settings->getBool("enable_color_grading");
 	}
 
-	~GameGlobalShaderConstantSetter()
+	~GameGlobalShaderUniformSetter()
 	{
 		g_settings->deregisterAllChangedCallbacks(this);
 	}
 
-	void onSetConstants(video::IMaterialRendererServices *services) override
+	void onSetUniforms(video::IMaterialRendererServices *services) override
 	{
 		u32 daynight_ratio = (float)m_client->getEnv().getDayNightRatio();
 		video::SColorf sunlight;
@@ -318,16 +313,6 @@ public:
 		v3f camera_position = m_client->getCamera()->getPosition();
 		m_camera_position_vertex.set(camera_position, services);
 		m_camera_position_pixel.set(camera_position, services);
-
-		SamplerLayer_t tex_id;
-		tex_id = 0;
-		m_texture0.set(&tex_id, services);
-		tex_id = 1;
-		m_texture1.set(&tex_id, services);
-		tex_id = 2;
-		m_texture2.set(&tex_id, services);
-		tex_id = 3;
-		m_texture3.set(&tex_id, services);
 
 		m_texel_size0_vertex.set(m_texel_size0, services);
 		m_texel_size0_pixel.set(m_texel_size0, services);
@@ -440,31 +425,115 @@ public:
 };
 
 
-class GameGlobalShaderConstantSetterFactory : public IShaderConstantSetterFactory
+class GameGlobalShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 	Sky *m_sky = nullptr;
 	Client *m_client;
-	std::vector<GameGlobalShaderConstantSetter *> created_nosky;
+	std::vector<GameGlobalShaderUniformSetter *> created_nosky;
 public:
-	GameGlobalShaderConstantSetterFactory(Client *client) :
+	GameGlobalShaderUniformSetterFactory(Client *client) :
 		m_client(client)
 	{}
 
 	void setSky(Sky *sky)
 	{
 		m_sky = sky;
-		for (GameGlobalShaderConstantSetter *ggscs : created_nosky) {
+		for (GameGlobalShaderUniformSetter *ggscs : created_nosky) {
 			ggscs->setSky(m_sky);
 		}
 		created_nosky.clear();
 	}
 
-	virtual IShaderConstantSetter* create()
+	virtual IShaderUniformSetter* create()
 	{
-		auto *scs = new GameGlobalShaderConstantSetter(m_sky, m_client);
+		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_client);
 		if (!m_sky)
 			created_nosky.push_back(scs);
 		return scs;
+	}
+};
+
+class NodeShaderConstantSetter : public IShaderConstantSetter
+{
+public:
+	NodeShaderConstantSetter() = default;
+	~NodeShaderConstantSetter() = default;
+
+	void onGenerate(const std::string &name, ShaderConstants &constants) override
+	{
+		if (constants.find("DRAWTYPE") == constants.end())
+			return; // not a node shader
+		[[maybe_unused]] const auto drawtype =
+			static_cast<NodeDrawType>(std::get<int>(constants["DRAWTYPE"]));
+		[[maybe_unused]] const auto material_type =
+			static_cast<MaterialType>(std::get<int>(constants["MATERIAL_TYPE"]));
+
+#define PROVIDE(constant) constants[ #constant ] = (int)constant
+
+		PROVIDE(NDT_NORMAL);
+		PROVIDE(NDT_AIRLIKE);
+		PROVIDE(NDT_LIQUID);
+		PROVIDE(NDT_FLOWINGLIQUID);
+		PROVIDE(NDT_GLASSLIKE);
+		PROVIDE(NDT_ALLFACES);
+		PROVIDE(NDT_ALLFACES_OPTIONAL);
+		PROVIDE(NDT_TORCHLIKE);
+		PROVIDE(NDT_SIGNLIKE);
+		PROVIDE(NDT_PLANTLIKE);
+		PROVIDE(NDT_FENCELIKE);
+		PROVIDE(NDT_RAILLIKE);
+		PROVIDE(NDT_NODEBOX);
+		PROVIDE(NDT_GLASSLIKE_FRAMED);
+		PROVIDE(NDT_FIRELIKE);
+		PROVIDE(NDT_GLASSLIKE_FRAMED_OPTIONAL);
+		PROVIDE(NDT_PLANTLIKE_ROOTED);
+
+		PROVIDE(TILE_MATERIAL_BASIC);
+		PROVIDE(TILE_MATERIAL_ALPHA);
+		PROVIDE(TILE_MATERIAL_LIQUID_TRANSPARENT);
+		PROVIDE(TILE_MATERIAL_LIQUID_OPAQUE);
+		PROVIDE(TILE_MATERIAL_WAVING_LEAVES);
+		PROVIDE(TILE_MATERIAL_WAVING_PLANTS);
+		PROVIDE(TILE_MATERIAL_OPAQUE);
+		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_BASIC);
+		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
+		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_OPAQUE);
+		PROVIDE(TILE_MATERIAL_PLAIN);
+		PROVIDE(TILE_MATERIAL_PLAIN_ALPHA);
+
+#undef PROVIDE
+
+		bool enable_waving_water = g_settings->getBool("enable_waving_water");
+		constants["ENABLE_WAVING_WATER"] = enable_waving_water ? 1 : 0;
+		if (enable_waving_water) {
+			constants["WATER_WAVE_HEIGHT"] = g_settings->getFloat("water_wave_height");
+			constants["WATER_WAVE_LENGTH"] = g_settings->getFloat("water_wave_length");
+			constants["WATER_WAVE_SPEED"] = g_settings->getFloat("water_wave_speed");
+		}
+		switch (material_type) {
+			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+				constants["MATERIAL_WAVING_LIQUID"] = 1;
+				break;
+			default:
+				constants["MATERIAL_WAVING_LIQUID"] = 0;
+				break;
+		}
+		switch (material_type) {
+			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+			case TILE_MATERIAL_LIQUID_TRANSPARENT:
+				constants["MATERIAL_WATER_REFLECTIONS"] = 1;
+				break;
+			default:
+				constants["MATERIAL_WATER_REFLECTIONS"] = 0;
+				break;
+		}
+
+		constants["ENABLE_WAVING_LEAVES"] = g_settings->getBool("enable_waving_leaves") ? 1 : 0;
+		constants["ENABLE_WAVING_PLANTS"] = g_settings->getBool("enable_waving_plants") ? 1 : 0;
 	}
 };
 
@@ -882,11 +951,6 @@ Game::Game() :
 }
 
 
-
-/****************************************************************************
- MinetestApp Public
- ****************************************************************************/
-
 Game::~Game()
 {
 	delete client;
@@ -938,8 +1002,6 @@ bool Game::startup(bool *kill,
 	smgr = m_rendering_engine->get_scene_manager();
 
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, g_settings->getBool("mip_map"));
-
-	smgr->getParameters()->setAttribute(scene::OBJ_LOADER_IGNORE_MATERIAL_FILES, true);
 
 	// Reinit runData
 	runData = GameRunData();
@@ -1000,6 +1062,10 @@ void Game::run()
 		);
 	const bool initial_window_maximized = !g_settings->getBool("fullscreen") &&
 			g_settings->getBool("window_maximized");
+
+#ifdef __ANDROID__
+	porting::setPlayingNowNotification(true);
+#endif
 
 	auto framemarker = FrameMarker("Game::run()-frame").started();
 
@@ -1083,21 +1149,25 @@ void Game::run()
 
 	framemarker.end();
 
+#ifdef __ANDROID__
+	porting::setPlayingNowNotification(false);
+#endif
+
 	RenderingEngine::autosaveScreensizeAndCo(initial_screen_size, initial_window_maximized);
 }
 
 
 void Game::shutdown()
 {
-	// Clear text when exiting.
+	// Delete text and menus first
 	m_game_ui->clearText();
+	m_game_formspec.reset();
+	while (g_menumgr.menuCount() > 0) {
+		g_menumgr.deleteFront();
+	}
 
 	if (g_touchcontrols)
 		g_touchcontrols->hide();
-
-	// only if the shutdown progress bar isn't shown yet
-	if (m_shutdown_progress == 0.0f)
-		showOverlayMessage(N_("Shutting down..."), 0, 0);
 
 	clouds.reset();
 
@@ -1105,10 +1175,9 @@ void Game::shutdown()
 
 	sky.reset();
 
-	/* cleanup menus */
-	while (g_menumgr.menuCount() > 0) {
-		g_menumgr.deleteFront();
-	}
+	// only if the shutdown progress bar isn't shown yet
+	if (m_shutdown_progress == 0.0f)
+		showOverlayMessage(N_("Shutting down..."), 0, 0);
 
 	chat_backend->addMessage(L"", L"# Disconnected.");
 	chat_backend->addMessage(L"", L"");
@@ -1334,11 +1403,13 @@ bool Game::createClient(const GameStartData &start_data)
 		return false;
 	}
 
-	auto *scsf = new GameGlobalShaderConstantSetterFactory(client);
-	shader_src->addShaderConstantSetterFactory(scsf);
+	shader_src->addShaderConstantSetter(new NodeShaderConstantSetter());
 
-	shader_src->addShaderConstantSetterFactory(
-		new FogShaderConstantSetterFactory());
+	auto *scsf = new GameGlobalShaderUniformSetterFactory(client);
+	shader_src->addShaderUniformSetterFactory(scsf);
+
+	shader_src->addShaderUniformSetterFactory(
+		new FogShaderUniformSetterFactory());
 
 	ShadowRenderer::preInit(shader_src);
 

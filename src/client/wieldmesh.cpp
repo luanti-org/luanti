@@ -255,7 +255,7 @@ void WieldMeshSceneNode::setExtruded(const std::string &imagename,
 		dim = core::dimension2d<u32>(dim.Width, frame_height);
 	}
 	scene::IMesh *original = g_extrusion_mesh_cache->create(dim);
-	scene::SMesh *mesh = cloneMesh(original);
+	scene::SMesh *mesh = cloneStaticMesh(original);
 	original->drop();
 	//set texture
 	mesh->getMeshBuffer(0)->getMaterial().setTexture(0,
@@ -281,12 +281,11 @@ void WieldMeshSceneNode::setExtruded(const std::string &imagename,
 		material.MaterialType = m_material_type;
 		material.MaterialTypeParam = 0.5f;
 		material.BackfaceCulling = true;
-		// Enable bi/trilinear filtering only for high resolution textures
-		bool bilinear_filter = dim.Width > 32 && m_bilinear_filter;
-		bool trilinear_filter = dim.Width > 32 && m_trilinear_filter;
+		// don't filter low-res textures, makes them look blurry
+		bool f_ok = std::min(dim.Width, dim.Height) >= TEXTURE_FILTER_MIN_SIZE;
 		material.forEachTexture([=] (auto &tex) {
-			setMaterialFilters(tex, bilinear_filter, trilinear_filter,
-					m_anisotropic_filter);
+			setMaterialFilters(tex, m_bilinear_filter && f_ok,
+				m_trilinear_filter && f_ok, m_anisotropic_filter);
 		});
 		// mipmaps cause "thin black line" artifacts
 		material.UseMipMaps = false;
@@ -640,7 +639,7 @@ scene::SMesh *getExtrudedMesh(ITextureSource *tsrc,
 	// get mesh
 	core::dimension2d<u32> dim = texture->getSize();
 	scene::IMesh *original = g_extrusion_mesh_cache->create(dim);
-	scene::SMesh *mesh = cloneMesh(original);
+	scene::SMesh *mesh = cloneStaticMesh(original);
 	original->drop();
 
 	//set texture

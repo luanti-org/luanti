@@ -1680,10 +1680,10 @@ const c8 *CIrrDeviceLinux::getTextFromSelection(Atom selection, core::stringc &t
 			},
 			(XPointer)&args);
 
-	_IRR_DEBUG_BREAK_IF(!(event_ret.type == SelectionNotify &&
+	assert(event_ret.type == SelectionNotify &&
 						  event_ret.xselection.requestor == XWindow &&
 						  event_ret.xselection.selection == selection &&
-						  event_ret.xselection.target == X_ATOM_UTF8_STRING));
+						  event_ret.xselection.target == X_ATOM_UTF8_STRING);
 
 	Atom property_set = event_ret.xselection.property;
 	if (event_ret.xselection.property == None) {

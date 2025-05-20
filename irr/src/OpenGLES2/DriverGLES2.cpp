@@ -2,7 +2,7 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
-#include "Driver.h"
+#include "DriverGLES2.h"
 #include <stdexcept>
 #include <cassert>
 #include "mt_opengl.h"
@@ -63,8 +63,8 @@ void COpenGLES2Driver::initFeatures()
 		TextureFormats[ECF_D24S8] = {GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8};
 
 		// NOTE a recent (2024) revision of EXT_texture_format_BGRA8888 also
-		// adds a sized format GL_BGRA8_EXT. We have a workaround in place to
-		// fix up the InternalFormat in case of render targets.
+		// adds a sized format GL_BGRA8_EXT. Because we can't rely on that we
+		// have stupid workarounds in place on texture creation...
 		if (FeatureAvailable[IRR_GL_EXT_texture_format_BGRA8888] || FeatureAvailable[IRR_GL_APPLE_texture_format_BGRA8888])
 			TextureFormats[ECF_A8R8G8B8] = {GL_BGRA, GL_BGRA, GL_UNSIGNED_BYTE};
 

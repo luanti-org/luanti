@@ -77,7 +77,7 @@ void ModChannelRef::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<ModChannelRef>(L, methods, metamethods);
 }
 
 void ModChannelRef::create(lua_State *L, const std::string &channel)

@@ -10,7 +10,6 @@
 #include "dimension2d.h"
 #include "SColor.h"
 #include "ESceneNodeTypes.h"
-#include "SceneParameters.h" // IWYU pragma: export
 
 namespace irr
 {
@@ -20,7 +19,6 @@ struct SEvent;
 namespace io
 {
 class IReadFile;
-class IAttributes;
 class IWriteFile;
 class IFileSystem;
 } // end namespace io
@@ -372,11 +370,6 @@ public:
 	//! Clears the whole scene.
 	/** All scene nodes are removed. */
 	virtual void clear() = 0;
-
-	//! Get interface to the parameters set in this scene.
-	/** String parameters can be used by plugins and mesh loaders.
-	See	COLLADA_CREATE_SCENE_INSTANCES and DMF_USE_MATERIALS_DIRS */
-	virtual io::IAttributes *getParameters() = 0;
 
 	//! Get current render pass.
 	/** All scene nodes are being rendered in a specific order.

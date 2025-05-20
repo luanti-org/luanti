@@ -144,6 +144,31 @@ void SmoothTranslatorWrappedv3f::translate(f32 dtime)
 	Other stuff
 */
 
+static bool setMaterialTextureAndFilters(video::SMaterial &material,
+	const std::string &texturestring, ITextureSource *tsrc)
+{
+	bool use_trilinear_filter = g_settings->getBool("trilinear_filter");
+	bool use_bilinear_filter = g_settings->getBool("bilinear_filter");
+	bool use_anisotropic_filter = g_settings->getBool("anisotropic_filter");
+
+	video::ITexture *texture = tsrc->getTextureForMesh(texturestring);
+	if (!texture)
+		return false;
+
+	material.setTexture(0, texture);
+
+	// don't filter low-res textures, makes them look blurry
+	const core::dimension2d<u32> &size = texture->getOriginalSize();
+	if (std::min(size.Width, size.Height) < TEXTURE_FILTER_MIN_SIZE)
+		use_trilinear_filter = use_bilinear_filter = false;
+
+	material.forEachTexture([=] (auto &tex) {
+		setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
+				use_anisotropic_filter);
+	});
+	return true;
+}
+
 static void setBillboardTextureMatrix(scene::IBillboardSceneNode *bill,
 		float txs, float tys, int col, int row)
 {
@@ -386,6 +411,32 @@ void GenericCAO::setChildrenVisible(bool toset)
 void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
 		v3f position, v3f rotation, bool force_visible)
 {
+	// Do checks to avoid circular references
+	// See similar check in `UnitSAO::setAttachment` (but with different types).
+	{
+		auto *obj = m_env->getActiveObject(parent_id);
+		if (obj == this) {
+			assert(false);
+			return;
+		}
+		bool problem = false;
+		if (obj) {
+			// The chain of wanted parent must not refer or contain "this"
+			for (obj = obj->getParent(); obj; obj = obj->getParent()) {
+				if (obj == this) {
+					problem = true;
+					break;
+				}
+			}
+		}
+		if (problem) {
+			warningstream << "Network or mod bug: "
+				<< "Attempted to attach object " << m_id << " to parent "
+				<< parent_id << " but former is an (in)direct parent of latter." << std::endl;
+			return;
+		}
+	}
+
 	const auto old_parent = m_attachment_parent_id;
 	m_attachment_parent_id = parent_id;
 	m_attachment_bone = bone;
@@ -1238,10 +1289,6 @@ void GenericCAO::updateTextures(std::string mod)
 {
 	ITextureSource *tsrc = m_client->tsrc();
 
-	bool use_trilinear_filter = g_settings->getBool("trilinear_filter");
-	bool use_bilinear_filter = g_settings->getBool("bilinear_filter");
-	bool use_anisotropic_filter = g_settings->getBool("anisotropic_filter");
-
 	m_previous_texture_modifier = m_current_texture_modifier;
 	m_current_texture_modifier = mod;
 
@@ -1254,12 +1301,7 @@ void GenericCAO::updateTextures(std::string mod)
 
 			video::SMaterial &material = m_spritenode->getMaterial(0);
 			material.MaterialType = m_material_type;
-			material.setTexture(0, tsrc->getTextureForMesh(texturestring));
-
-			material.forEachTexture([=] (auto &tex) {
-				setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-						use_anisotropic_filter);
-			});
+			setMaterialTextureAndFilters(material, texturestring, tsrc);
 		}
 	}
 
@@ -1273,29 +1315,12 @@ void GenericCAO::updateTextures(std::string mod)
 				if (texturestring.empty())
 					continue; // Empty texture string means don't modify that material
 				texturestring += mod;
-				video::ITexture *texture = tsrc->getTextureForMesh(texturestring);
-				if (!texture) {
-					errorstream<<"GenericCAO::updateTextures(): Could not load texture "<<texturestring<<std::endl;
-					continue;
-				}
 
 				// Set material flags and texture
 				video::SMaterial &material = m_animated_meshnode->getMaterial(i);
 				material.MaterialType = m_material_type;
-				material.TextureLayers[0].Texture = texture;
 				material.BackfaceCulling = m_prop.backface_culling;
-
-				// don't filter low-res textures, makes them look blurry
-				// player models have a res of 64
-				const core::dimension2d<u32> &size = texture->getOriginalSize();
-				const u32 res = std::min(size.Height, size.Width);
-				use_trilinear_filter &= res > 64;
-				use_bilinear_filter &= res > 64;
-
-				material.forEachTexture([=] (auto &tex) {
-					setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-							use_anisotropic_filter);
-				});
+				setMaterialTextureAndFilters(material, texturestring, tsrc);
 			}
 		}
 	}
@@ -1313,13 +1338,7 @@ void GenericCAO::updateTextures(std::string mod)
 				// Set material flags and texture
 				video::SMaterial &material = m_meshnode->getMaterial(i);
 				material.MaterialType = m_material_type;
-				material.setTexture(0, tsrc->getTextureForMesh(texturestring));
-				material.getTextureMatrix(0).makeIdentity();
-
-				material.forEachTexture([=] (auto &tex) {
-					setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-							use_anisotropic_filter);
-				});
+				setMaterialTextureAndFilters(material, texturestring, tsrc);
 			}
 		} else if (m_prop.visual == OBJECTVISUAL_UPRIGHT_SPRITE) {
 			scene::IMesh *mesh = m_meshnode->getMesh();
@@ -1330,12 +1349,7 @@ void GenericCAO::updateTextures(std::string mod)
 				tname += mod;
 
 				auto &material = m_meshnode->getMaterial(0);
-				material.setTexture(0, tsrc->getTextureForMesh(tname));
-
-				material.forEachTexture([=] (auto &tex) {
-					setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-							use_anisotropic_filter);
-				});
+				setMaterialTextureAndFilters(material, tname, tsrc);
 			}
 			{
 				std::string tname = "no_texture.png";
@@ -1346,12 +1360,7 @@ void GenericCAO::updateTextures(std::string mod)
 				tname += mod;
 
 				auto &material = m_meshnode->getMaterial(1);
-				material.setTexture(0, tsrc->getTextureForMesh(tname));
-
-				material.forEachTexture([=] (auto &tex) {
-					setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-							use_anisotropic_filter);
-				});
+				setMaterialTextureAndFilters(material, tname, tsrc);
 			}
 			// Set mesh color (only if lighting is disabled)
 			if (m_prop.glow < 0)

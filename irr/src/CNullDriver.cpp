@@ -3,9 +3,10 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "CNullDriver.h"
+#include "IVideoDriver.h"
+#include "SMaterial.h"
 #include "os.h"
 #include "CImage.h"
-#include "CAttributes.h"
 #include "IReadFile.h"
 #include "IWriteFile.h"
 #include "IImageLoader.h"
@@ -16,6 +17,8 @@
 #include "CColorConverter.h"
 #include "IReferenceCounted.h"
 #include "IRenderTarget.h"
+
+#include <cassert>
 
 namespace irr
 {
@@ -53,20 +56,6 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 		ViewPort(0, 0, 0, 0), ScreenSize(screenSize), MinVertexCountForVBO(500),
 		TextureCreationFlags(0), OverrideMaterial2DEnabled(false), AllowZWriteOnTransparent(false)
 {
-	DriverAttributes = new io::CAttributes();
-	DriverAttributes->addInt("MaxTextures", MATERIAL_MAX_TEXTURES);
-	DriverAttributes->addInt("MaxSupportedTextures", MATERIAL_MAX_TEXTURES);
-	DriverAttributes->addInt("MaxAnisotropy", 1);
-	//	DriverAttributes->addInt("MaxAuxBuffers", 0);
-	DriverAttributes->addInt("MaxMultipleRenderTargets", 1);
-	DriverAttributes->addInt("MaxIndices", -1);
-	DriverAttributes->addInt("MaxTextureSize", -1);
-	//	DriverAttributes->addInt("MaxGeometryVerticesOut", 0);
-	//	DriverAttributes->addFloat("MaxTextureLODBias", 0.f);
-	DriverAttributes->addInt("Version", 1);
-	//	DriverAttributes->addInt("ShaderLanguageVersion", 0);
-	//	DriverAttributes->addInt("AntiAlias", 0);
-
 	setFog();
 
 	setTextureCreationFlag(ETCF_ALWAYS_32_BIT, true);
@@ -111,9 +100,6 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 //! destructor
 CNullDriver::~CNullDriver()
 {
-	if (DriverAttributes)
-		DriverAttributes->drop();
-
 	if (FileSystem)
 		FileSystem->drop();
 
@@ -232,12 +218,6 @@ void CNullDriver::disableFeature(E_VIDEO_DRIVER_FEATURE feature, bool flag)
 bool CNullDriver::queryFeature(E_VIDEO_DRIVER_FEATURE feature) const
 {
 	return false;
-}
-
-//! Get attributes of the actual video driver
-const io::IAttributes &CNullDriver::getDriverAttributes() const
-{
-	return *DriverAttributes;
 }
 
 //! sets transformation
@@ -1092,7 +1072,7 @@ void CNullDriver::drawBuffers(const scene::IVertexBuffer *vb,
 
 	if (vb->getHWBuffer() || ib->getHWBuffer()) {
 		// subclass is supposed to override this if it supports hw buffers
-		_IRR_DEBUG_BREAK_IF(1);
+		assert(false);
 	}
 
 	drawVertexPrimitiveList(vb->getData(), vb->getCount(), ib->getData(),
@@ -1138,7 +1118,7 @@ CNullDriver::SHWBufferLink *CNullDriver::getBufferLink(const scene::IIndexBuffer
 
 void CNullDriver::registerHardwareBuffer(SHWBufferLink *HWBuffer)
 {
-	_IRR_DEBUG_BREAK_IF(!HWBuffer)
+	assert(HWBuffer);
 	HWBuffer->ListPosition = HWBufferList.size();
 	HWBufferList.push_back(HWBuffer);
 }
@@ -1168,7 +1148,7 @@ void CNullDriver::deleteHardwareBuffer(SHWBufferLink *HWBuffer)
 	if (!HWBuffer)
 		return;
 	const size_t pos = HWBuffer->ListPosition;
-	_IRR_DEBUG_BREAK_IF(HWBufferList.at(pos) != HWBuffer)
+	assert(HWBufferList.at(pos) == HWBuffer);
 	if (HWBufferList.size() < 2 || pos == HWBufferList.size() - 1) {
 		HWBufferList.erase(HWBufferList.begin() + pos);
 	} else {

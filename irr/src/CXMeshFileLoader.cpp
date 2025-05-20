@@ -54,7 +54,7 @@ IAnimatedMesh *CXMeshFileLoader::createMesh(io::IReadFile *file)
 	u32 time = os::Timer::getRealTime();
 #endif
 
-	AnimatedMesh = new SkinnedMeshBuilder();
+	AnimatedMesh = new SkinnedMeshBuilder(SkinnedMesh::SourceFormat::X);
 
 	SkinnedMesh *res = nullptr;
 	if (load(file)) {

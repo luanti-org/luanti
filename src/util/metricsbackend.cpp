@@ -11,6 +11,7 @@
 #include <prometheus/gauge.h>
 #include "log.h"
 #include "settings.h"
+#include "exceptions.h"
 #endif
 
 /* Plain implementation */
@@ -183,7 +184,16 @@ MetricsBackend *createPrometheusMetricsBackend()
 {
 	std::string addr;
 	g_settings->getNoEx("prometheus_listener_address", addr);
-	return new PrometheusMetricsBackend(addr);
+	if (addr.empty())
+		return nullptr;
+	infostream << "Starting Prometheus metrics on " << addr << std::endl;
+	try {
+		return new PrometheusMetricsBackend(addr);
+	} catch (std::exception &e) {
+		errorstream << "Error while starting Prometheus metrics on " << addr
+			<< ":\n" << e.what() << std::endl;
+		throw e;
+	}
 }
 
 #endif

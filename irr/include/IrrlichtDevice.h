@@ -13,9 +13,9 @@
 #include "ITimer.h"
 #include "IOSOperator.h"
 #include "irrArray.h"
-#include "IrrCompileConfig.h"
 #include "position2d.h"
 #include "SColor.h" // video::ECOLOR_FORMAT
+#include <string>
 #include <variant>
 
 namespace irr
@@ -44,7 +44,7 @@ class IContextManager;
 class IImage;
 class ITexture;
 class IVideoDriver;
-extern "C" IRRLICHT_API bool IRRCALLCONV isDriverSupported(E_DRIVER_TYPE driver);
+extern "C" bool isDriverSupported(E_DRIVER_TYPE driver);
 } // end namespace video
 
 //! The Irrlicht device. You can create it with createDevice() or createDeviceEx().
@@ -331,6 +331,12 @@ public:
 	/** This allows the user to check which windowing system is currently being
 	used. */
 	virtual E_DEVICE_TYPE getType() const = 0;
+
+	//! Get the version string of the underlying system (e.g. SDL)
+	virtual std::string getVersionString() const
+	{
+		return "";
+	}
 
 	//! Get the display density in dots per inch.
 	//! Returns 0.0f on failure.

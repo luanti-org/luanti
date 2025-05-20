@@ -10,9 +10,11 @@
 #include <limits>
 #include <sstream>
 #include "guiFormSpecMenu.h"
+#include "EGUIElementTypes.h"
 #include "constants.h"
 #include "gamedef.h"
 #include "client/keycode.h"
+#include "gui/guiTable.h"
 #include "util/strfnd.h"
 #include <IGUIButton.h>
 #include <IGUICheckBox.h>
@@ -47,6 +49,7 @@
 #include "guiButton.h"
 #include "guiButtonImage.h"
 #include "guiButtonItemImage.h"
+#include "guiButtonKey.h"
 #include "guiEditBoxWithScrollbar.h"
 #include "guiInventoryList.h"
 #include "guiItemImage.h"
@@ -105,7 +108,6 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 	current_keys_pending.key_down = false;
 	current_keys_pending.key_up = false;
 	current_keys_pending.key_enter = false;
-	current_keys_pending.key_escape = false;
 
 	m_tooltip_show_delay = (u32)g_settings->getS32("tooltip_show_delay");
 	m_tooltip_append_itemname = g_settings->getBool("tooltip_append_itemname");
@@ -198,7 +200,7 @@ void GUIFormSpecMenu::setInitialFocus()
 
 	// 3. first table
 	for (gui::IGUIElement *it : children) {
-		if (it->getTypeName() == std::string("GUITable")) {
+		if (it->getType() == gui::EGUIET_TABLE) {
 			Environment->setFocus(it);
 			return;
 		}
@@ -1026,8 +1028,16 @@ void GUIFormSpecMenu::parseButton(parserData* data, const std::string &element)
 	if (data->type == "button_url" || data->type == "button_url_exit")
 		spec.url = url;
 
-	GUIButton *e = GUIButton::addButton(Environment, rect, m_tsrc,
-			data->current_parent, spec.fid, spec.flabel.c_str());
+	GUIButton *e;
+
+	if (data->type == "button_key") {
+		spec.ftype = f_Unknown;
+		e = GUIButtonKey::addButton(Environment, rect, m_tsrc,
+				data->current_parent, spec.fid, spec.flabel.c_str());
+	} else {
+		e = GUIButton::addButton(Environment, rect, m_tsrc,
+				data->current_parent, spec.fid, spec.flabel.c_str());
+	}
 
 	auto style = getStyleForElement(data->type, name, (data->type != "button") ? "button" : "");
 
@@ -1760,12 +1770,19 @@ void GUIFormSpecMenu::parseHyperText(parserData *data, const std::string &elemen
 void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 {
 	std::vector<std::string> parts;
-	if (!precheckElement("label", element, 2, 2, parts))
+	if (!precheckElement("label", element, 2, data->real_coordinates ? 3 : 2, parts))
 		return;
 
-	std::vector<std::string> v_pos = split(parts[0],',');
+	std::vector<std::string> v_pos = split(parts[0], ',');
+	MY_CHECKPOS("label", 0);
 
-	MY_CHECKPOS("label",0);
+	bool has_size = parts.size() >= 3;
+	v2s32 geom;
+	if (has_size) {
+		std::vector<std::string> v_geom = split(parts[1], ',');
+		MY_CHECKGEOM("label", 1);
+		geom = getRealCoordinateGeometry(v_geom);
+	}
 
 	if(!data->explicit_size)
 		warningstream<<"invalid use of label without a size[] element"<<std::endl;
@@ -1775,53 +1792,8 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 	if (!font)
 		font = m_font;
 
-	EnrichedString str(unescape_string(utf8_to_wide(parts[1])));
-	size_t str_pos = 0;
-
-	for (size_t i = 0; str_pos < str.size(); ++i) {
-		EnrichedString line = str.getNextLine(&str_pos);
-
-		core::rect<s32> rect;
-
-		if (data->real_coordinates) {
-			// Lines are spaced at the distance of 1/2 imgsize.
-			// This alows lines that line up with the new elements
-			// easily without sacrificing good line distance.  If
-			// it was one whole imgsize, it would have too much
-			// spacing.
-			v2s32 pos = getRealCoordinateBasePos(v_pos);
-
-			// Labels are positioned by their center, not their top.
-			pos.Y += (((float) imgsize.Y) / -2) + (((float) imgsize.Y) * i / 2);
-
-			rect = core::rect<s32>(
-				pos.X, pos.Y,
-				pos.X + font->getDimension(line.c_str()).Width,
-				pos.Y + imgsize.Y);
-
-		} else {
-			// Lines are spaced at the nominal distance of
-			// 2/5 inventory slot, even if the font doesn't
-			// quite match that.  This provides consistent
-			// form layout, at the expense of sometimes
-			// having sub-optimal spacing for the font.
-			// We multiply by 2 and then divide by 5, rather
-			// than multiply by 0.4, to get exact results
-			// in the integer cases: 0.4 is not exactly
-			// representable in binary floating point.
-
-			v2s32 pos = getElementBasePos(nullptr);
-			pos.X += stof(v_pos[0]) * spacing.X;
-			pos.Y += (stof(v_pos[1]) + 7.0f / 30.0f) * spacing.Y;
-
-			pos.Y += ((float) i) * spacing.Y * 2.0 / 5.0;
-
-			rect = core::rect<s32>(
-				pos.X, pos.Y - m_btn_height,
-				pos.X + font->getDimension(line.c_str()).Width,
-				pos.Y + m_btn_height);
-		}
-
+	auto add_label = [&](core::rect<s32> rect, const EnrichedString &text,
+			EGUI_ALIGNMENT align_h, EGUI_ALIGNMENT align_v, bool word_wrap) {
 		FieldSpec spec(
 			"",
 			L"",
@@ -1830,9 +1802,10 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 			4
 		);
 		gui::IGUIStaticText *e = gui::StaticText::add(Environment,
-				line, rect, false, false, data->current_parent,
+				text, rect, false, false, data->current_parent,
 				spec.fid);
-		e->setTextAlignment(gui::EGUIA_UPPERLEFT, gui::EGUIA_CENTER);
+		e->setTextAlignment(align_h, align_v);
+		e->setWordWrap(word_wrap);
 
 		e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 		e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
@@ -1843,6 +1816,67 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 		// labels should let events through
 		e->grab();
 		m_clickthrough_elements.push_back(e);
+	};
+
+	EnrichedString str(unescape_string(utf8_to_wide(parts[has_size ? 2 : 1])));
+
+	if (geom == v2s32()) {
+		size_t str_pos = 0;
+
+		for (size_t i = 0; str_pos < str.size(); ++i) {
+			EnrichedString line = str.getNextLine(&str_pos);
+
+			core::rect<s32> rect;
+
+			if (data->real_coordinates) {
+				// Lines are spaced at the distance of 1/2 imgsize.
+				// This alows lines that line up with the new elements
+				// easily without sacrificing good line distance.  If
+				// it was one whole imgsize, it would have too much
+				// spacing.
+				v2s32 pos = getRealCoordinateBasePos(v_pos);
+
+				// Labels are positioned by their center, not their top.
+				pos.Y += (((float) imgsize.Y) / -2) + (((float) imgsize.Y) * i / 2);
+
+				rect = core::rect<s32>(
+					pos.X, pos.Y,
+					pos.X + font->getDimension(line.c_str()).Width,
+					pos.Y + imgsize.Y);
+
+			} else {
+				// Lines are spaced at the nominal distance of
+				// 2/5 inventory slot, even if the font doesn't
+				// quite match that.  This provides consistent
+				// form layout, at the expense of sometimes
+				// having sub-optimal spacing for the font.
+				// We multiply by 2 and then divide by 5, rather
+				// than multiply by 0.4, to get exact results
+				// in the integer cases: 0.4 is not exactly
+				// representable in binary floating point.
+
+				v2s32 pos = getElementBasePos(nullptr);
+				pos.X += stof(v_pos[0]) * spacing.X;
+				pos.Y += (stof(v_pos[1]) + 7.0f / 30.0f) * spacing.Y;
+
+				pos.Y += ((float) i) * spacing.Y * 2.0 / 5.0;
+
+				rect = core::rect<s32>(
+					pos.X, pos.Y - m_btn_height,
+					pos.X + font->getDimension(line.c_str()).Width,
+					pos.Y + m_btn_height);
+			}
+
+			add_label(rect, line, gui::EGUIA_UPPERLEFT, gui::EGUIA_CENTER, false);
+		}
+	} else {
+		v2s32 pos = getRealCoordinateBasePos(v_pos);
+		core::rect<s32> rect(
+				pos.X, pos.Y,
+				pos.X + geom.X,
+				pos.Y + geom.Y);
+
+		add_label(rect, str, gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT, true);
 	}
 }
 
@@ -2833,6 +2867,11 @@ void GUIFormSpecMenu::parseModel(parserData *data, const std::string &element)
 	m_fields.push_back(spec);
 }
 
+void GUIFormSpecMenu::parseAllowClose(parserData *data, const std::string &element)
+{
+	m_allowclose = is_yes(element);
+}
+
 void GUIFormSpecMenu::removeAll()
 {
 	// Remove children
@@ -2869,6 +2908,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"button_exit",            &GUIFormSpecMenu::parseButton},
 		{"button_url",             &GUIFormSpecMenu::parseButton},
 		{"button_url_exit",        &GUIFormSpecMenu::parseButton},
+		{"button_key",             &GUIFormSpecMenu::parseButton},
 		{"background",             &GUIFormSpecMenu::parseBackground},
 		{"background9",            &GUIFormSpecMenu::parseBackground},
 		{"tableoptions",           &GUIFormSpecMenu::parseTableOptions},
@@ -2901,6 +2941,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"scroll_container_end",   &GUIFormSpecMenu::parseScrollContainerEnd},
 		{"set_focus",              &GUIFormSpecMenu::parseSetFocus},
 		{"model",                  &GUIFormSpecMenu::parseModel},
+		{"allow_close",            &GUIFormSpecMenu::parseAllowClose},
 };
 
 
@@ -3003,6 +3044,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	field_close_on_enter.clear();
 	m_dropdown_index_event.clear();
 
+	m_allowclose = m_default_allowclose;
 	m_bgnonfullscreen = true;
 	m_bgfullscreen = false;
 
@@ -3788,12 +3830,12 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 
 		if (quitmode == quit_mode_accept) {
 			fields["quit"] = "true";
-		}
-
-		if (quitmode == quit_mode_cancel) {
+		} else if (quitmode == quit_mode_cancel) {
 			fields["quit"] = "true";
 			m_text_dst->gotText(fields);
 			return;
+		} else if (quitmode == quit_mode_try) {
+			fields["try_quit"] = "true";
 		}
 
 		if (current_keys_pending.key_down) {
@@ -3814,11 +3856,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 		if (!current_field_enter_pending.empty()) {
 			fields["key_enter_field"] = current_field_enter_pending;
 			current_field_enter_pending.clear();
-		}
-
-		if (current_keys_pending.key_escape) {
-			fields["key_escape"] = "true";
-			current_keys_pending.key_escape = false;
 		}
 
 		for (const GUIFormSpecMenu::FieldSpec &s : m_fields) {
@@ -3997,6 +4034,8 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 				if (m_allowclose) {
 					acceptInput(quit_mode_accept);
 					quitMenu();
+				} else {
+					acceptInput(quit_mode_try);
 				}
 			}
 		}
@@ -4013,7 +4052,7 @@ void GUIFormSpecMenu::tryClose()
 		acceptInput(quit_mode_cancel);
 		quitMenu();
 	} else {
-		m_text_dst->gotText(L"MenuQuit");
+		acceptInput(quit_mode_try);
 	}
 }
 
@@ -4059,9 +4098,13 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					FATAL_ERROR("Reached a source line that can't ever been reached");
 					break;
 			}
-			if (current_keys_pending.key_enter && m_allowclose) {
-				acceptInput(quit_mode_accept);
-				quitMenu();
+			if (current_keys_pending.key_enter) {
+				if (m_allowclose) {
+					acceptInput(quit_mode_accept);
+					quitMenu();
+				} else {
+					acceptInput(quit_mode_try);
+				}
 			} else {
 				acceptInput();
 			}
@@ -4806,14 +4849,9 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			s32 caller_id = event.GUIEvent.Caller->getID();
 
 			if (caller_id == 257) {
-				if (m_allowclose) {
-					acceptInput(quit_mode_accept);
-					quitMenu();
-				} else {
-					acceptInput();
-					m_text_dst->gotText(L"ExitButton");
-				}
-				// quitMenu deallocates menu
+				acceptInput(quit_mode_accept);
+				m_text_dst->gotText(L"ExitButton");
+				quitMenu();
 				return true;
 			}
 
@@ -4842,12 +4880,9 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					}
 
 					if (s.is_exit) {
-						if (m_allowclose) {
-							acceptInput(quit_mode_accept);
-							quitMenu();
-						} else {
-							m_text_dst->gotText(L"ExitButton");
-						}
+						acceptInput(quit_mode_accept);
+						m_text_dst->gotText(L"ExitButton");
+						quitMenu();
 						return true;
 					}
 
@@ -4910,15 +4945,18 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					}
 				}
 
-				if (m_allowclose && close_on_enter) {
-					current_keys_pending.key_enter = true;
-					acceptInput(quit_mode_accept);
-					quitMenu();
+				current_keys_pending.key_enter = true;
+
+				if (close_on_enter) {
+					if (m_allowclose) {
+						acceptInput(quit_mode_accept);
+						quitMenu();
+					} else {
+						acceptInput(quit_mode_try);
+					}
 				} else {
-					current_keys_pending.key_enter = true;
 					acceptInput();
 				}
-				// quitMenu deallocates menu
 				return true;
 			}
 		}

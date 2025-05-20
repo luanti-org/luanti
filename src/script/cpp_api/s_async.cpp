@@ -24,6 +24,11 @@ extern "C" {
 #endif
 #include "lua_api/l_base.h"
 
+// if a job is waiting for this duration, an additional thread will be spawned
+static constexpr int AUTOSCALE_DELAY_MS = 1000;
+// if jobs are waiting for this duration, a warning is printed
+static constexpr int STUCK_DELAY_MS = 11500;
+
 /******************************************************************************/
 AsyncEngine::~AsyncEngine()
 {
@@ -156,6 +161,7 @@ void AsyncEngine::step(lua_State *L)
 {
 	stepJobResults(L);
 	stepAutoscale();
+	stepStuckWarning();
 }
 
 void AsyncEngine::stepJobResults(lua_State *L)
@@ -203,11 +209,9 @@ void AsyncEngine::stepAutoscale()
 	if (autoscaleTimer && porting::getTimeMs() >= autoscaleTimer) {
 		autoscaleTimer = 0;
 		// Determine overlap with previous snapshot
-		unsigned int n = 0;
-		for (const auto &it : jobQueue)
-			n += autoscaleSeenJobs.count(it.id);
-		autoscaleSeenJobs.clear();
-		infostream << "AsyncEngine: " << n << " jobs were still waiting after 1s" << std::endl;
+		size_t n = compareJobs(autoscaleSeenJobs);
+		infostream << "AsyncEngine: " << n << " jobs were still waiting after "
+			<< AUTOSCALE_DELAY_MS << "ms, adding more threads." << std::endl;
 		// Start this many new threads
 		while (workerThreads.size() < autoscaleMaxWorkers && n > 0) {
 			addWorkerThread();
@@ -216,13 +220,34 @@ void AsyncEngine::stepAutoscale()
 		return;
 	}
 
-	// 1) Check if there's anything in the queue
+	// 1) Check queue contents
 	if (!autoscaleTimer && !jobQueue.empty()) {
-		// Take a snapshot of all jobs we have seen
-		for (const auto &it : jobQueue)
-			autoscaleSeenJobs.emplace(it.id);
-		// and set a timer for 1 second
-		autoscaleTimer = porting::getTimeMs() + 1000;
+		autoscaleSeenJobs.clear();
+		snapshotJobs(autoscaleSeenJobs);
+		autoscaleTimer = porting::getTimeMs() + AUTOSCALE_DELAY_MS;
+	}
+}
+
+void AsyncEngine::stepStuckWarning()
+{
+	MutexAutoLock autolock(jobQueueMutex);
+
+	// 2) If the timer elapsed, check again
+	if (stuckTimer && porting::getTimeMs() >= stuckTimer) {
+		stuckTimer = 0;
+		size_t n = compareJobs(stuckSeenJobs);
+		if (n > 0) {
+			warningstream << "AsyncEngine: " << n << " jobs seem to be stuck in queue"
+				" (" << workerThreads.size() << " workers active)" << std::endl;
+		}
+		// fallthrough
+	}
+
+	// 1) Check queue contents
+	if (!stuckTimer && !jobQueue.empty()) {
+		stuckSeenJobs.clear();
+		snapshotJobs(stuckSeenJobs);
+		stuckTimer = porting::getTimeMs() + STUCK_DELAY_MS;
 	}
 }
 

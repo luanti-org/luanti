@@ -8,7 +8,6 @@
 #include <IAnimatedMeshSceneNode.h>
 #include <IVideoDriver.h>
 #include <ISceneManager.h>
-#include "IAttributes.h"
 #include "porting.h"
 #include "client/mesh.h"
 
@@ -21,8 +20,6 @@ GUIScene::GUIScene(gui::IGUIEnvironment *env, scene::ISceneManager *smgr,
 
 	m_cam = m_smgr->addCameraSceneNode(0, v3f(0.f, 0.f, -100.f), v3f(0.f));
 	m_cam->setFOV(30.f * core::DEGTORAD);
-
-	m_smgr->getParameters()->setAttribute(scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
 }
 
 GUIScene::~GUIScene()

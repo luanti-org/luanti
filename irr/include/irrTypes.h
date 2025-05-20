@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cassert>
 
 namespace irr
 {
@@ -65,37 +66,17 @@ typedef char fschar_t;
 
 } // end namespace irr
 
-//! define a break macro for debugging.
-#if defined(_DEBUG)
-#if defined(_IRR_WINDOWS_API_) && defined(_MSC_VER)
-#include <crtdbg.h>
-#define _IRR_DEBUG_BREAK_IF(_CONDITION_) \
-	if (_CONDITION_) {                   \
-		_CrtDbgBreak();                  \
-	}
-#else
-#include <assert.h>
-#define _IRR_DEBUG_BREAK_IF(_CONDITION_) assert(!(_CONDITION_));
-#endif
-#else
-#define _IRR_DEBUG_BREAK_IF(_CONDITION_)
-#endif
-
-//! deprecated macro for virtual function override
-/** prefer to use the override keyword for new code */
-#define _IRR_OVERRIDE_ override
-
 // Invokes undefined behavior for unreachable code optimization
 // Note: an assert(false) is included first to catch this in debug builds
 #if defined(__cpp_lib_unreachable)
 #include <utility>
-#define IRR_CODE_UNREACHABLE() do { _IRR_DEBUG_BREAK_IF(1) std::unreachable(); } while(0)
+#define IRR_CODE_UNREACHABLE() do { assert(false); std::unreachable(); } while(0)
 #elif defined(__has_builtin)
 #if __has_builtin(__builtin_unreachable)
-#define IRR_CODE_UNREACHABLE() do { _IRR_DEBUG_BREAK_IF(1) __builtin_unreachable(); } while(0)
+#define IRR_CODE_UNREACHABLE() do { assert(false); __builtin_unreachable(); } while(0)
 #endif
 #elif defined(_MSC_VER)
-#define IRR_CODE_UNREACHABLE() do { _IRR_DEBUG_BREAK_IF(1) __assume(false); } while(0)
+#define IRR_CODE_UNREACHABLE() do { assert(false); __assume(false); } while(0)
 #endif
 #ifndef IRR_CODE_UNREACHABLE
 #define IRR_CODE_UNREACHABLE() (void)0

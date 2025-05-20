@@ -7,6 +7,7 @@
 #include <string>
 #include <map>
 #include <thread>
+#include <unordered_map>
 #include "wieldmesh.h" // ItemMesh
 #include "util/basic_macros.h"
 

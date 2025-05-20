@@ -61,7 +61,7 @@ local function create_minetest_conf_example(settings)
 				end
 			end
 			if entry.type == "key" then
-				local line = "See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h"
+				local line = "See https://docs.luanti.org/for-players/controls/"
 				insert(result, "#    " .. line .. "\n")
 			end
 			insert(result, "#    type: " .. entry.type)

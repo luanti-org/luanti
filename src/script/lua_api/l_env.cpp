@@ -124,7 +124,7 @@ void LuaRaycast::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaRaycast>(L, methods, metamethods);
 
 	lua_register(L, className, create_object);
 }

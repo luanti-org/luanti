@@ -275,8 +275,35 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &result.data);
 	}
 
+	// Configure the method
+	switch (request.method) {
+	default:
+		assert(false);
+	case HTTP_GET:
+		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+		break;
+	case HTTP_HEAD:
+		// This is kinda pointless right now, since we don't return response headers (TODO?)
+		curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+		break;
+	case HTTP_POST:
+		curl_easy_setopt(curl, CURLOPT_POST, 1);
+		break;
+	case HTTP_PUT:
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+		break;
+	case HTTP_PATCH:
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+		break;
+	case HTTP_DELETE:
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+		break;
+	}
+	const bool has_request_body = request.method != HTTP_GET && request.method != HTTP_HEAD;
+
 	// Set data from fields or raw_data
 	if (request.multipart) {
+		assert(has_request_body);
 		multipart_mime = curl_mime_init(curl);
 		for (auto &it : request.fields) {
 			curl_mimepart *part = curl_mime_addpart(multipart_mime);
@@ -284,46 +311,31 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 			curl_mime_data(part, it.second.c_str(), it.second.size());
 		}
 		curl_easy_setopt(curl, CURLOPT_MIMEPOST, multipart_mime);
-	} else {
-		switch (request.method) {
-		case HTTP_GET:
-			curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
-			break;
-		case HTTP_POST:
-			curl_easy_setopt(curl, CURLOPT_POST, 1);
-			break;
-		case HTTP_PUT:
-			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-			break;
-		case HTTP_DELETE:
-			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-			break;
-		}
-		if (request.method != HTTP_GET) {
-			if (!request.raw_data.empty()) {
-				curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE,
-						request.raw_data.size());
-				curl_easy_setopt(curl, CURLOPT_POSTFIELDS,
-						request.raw_data.c_str());
-			} else if (!request.fields.empty()) {
-				std::string str;
-				for (auto &field : request.fields) {
-					if (!str.empty())
-						str += "&";
-					str += urlencode(field.first);
-					str += "=";
-					str += urlencode(field.second);
-				}
-				curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE,
-						str.size());
-				curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS,
-						str.c_str());
+	} else if (has_request_body) {
+		if (request.fields.empty()) {
+			// Note that we need to set this to an empty buffer (not NULL)
+			// even if no data is to be sent.
+			curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE,
+					request.raw_data.size());
+			curl_easy_setopt(curl, CURLOPT_POSTFIELDS,
+					request.raw_data.c_str());
+		} else {
+			std::string str;
+			for (auto &field : request.fields) {
+				if (!str.empty())
+					str += "&";
+				str += urlencode(field.first);
+				str += "=";
+				str += urlencode(field.second);
 			}
+			curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, str.size());
+			curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, str.c_str());
 		}
 	}
+
 	// Set additional HTTP headers
-	for (const std::string &extra_header : request.extra_headers) {
-		http_header = curl_slist_append(http_header, extra_header.c_str());
+	for (const auto &s : request.extra_headers) {
+		http_header = curl_slist_append(http_header, s.c_str());
 	}
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, http_header);
 

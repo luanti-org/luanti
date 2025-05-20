@@ -261,16 +261,6 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 
 	StencilBuffer = stencilBuffer;
 
-	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
-	DriverAttributes->setAttribute("MaxIndices", (s32)MaxIndices);
-	DriverAttributes->setAttribute("MaxTextureSize", (s32)MaxTextureSize);
-	DriverAttributes->setAttribute("MaxArrayTextureLayers", (s32)MaxArrayTextureLayers);
-	DriverAttributes->setAttribute("MaxTextureLODBias", MaxTextureLODBias);
-	DriverAttributes->setAttribute("Version", 100 * Version.Major + Version.Minor);
-	DriverAttributes->setAttribute("AntiAlias", AntiAlias);
-
 	GL.PixelStorei(GL_PACK_ALIGNMENT, 1);
 
 	for (s32 i = 0; i < ETS_COUNT; ++i)

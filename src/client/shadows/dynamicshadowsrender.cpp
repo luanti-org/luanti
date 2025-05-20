@@ -36,7 +36,7 @@ ShadowRenderer::ShadowRenderer(IrrlichtDevice *device, Client *client) :
 
 	m_shadow_map_max_distance = g_settings->getFloat("shadow_map_max_distance");
 
-	m_shadow_map_texture_size = g_settings->getFloat("shadow_map_texture_size");
+	m_shadow_map_texture_size = g_settings->getU32("shadow_map_texture_size");
 
 	m_shadow_map_texture_32bit = g_settings->getBool("shadow_map_texture_32bit");
 	m_shadow_map_colored = g_settings->getBool("shadow_map_color");
@@ -107,7 +107,7 @@ void ShadowRenderer::disable()
 void ShadowRenderer::preInit(IWritableShaderSource *shsrc)
 {
 	if (g_settings->getBool("enable_dynamic_shadows")) {
-		shsrc->addShaderConstantSetterFactory(new ShadowConstantSetterFactory());
+		shsrc->addShaderUniformSetterFactory(new ShadowUniformSetterFactory());
 	}
 }
 
@@ -273,7 +273,7 @@ void ShadowRenderer::updateSMTextures()
 			// Static shader values.
 			for (auto cb : {m_shadow_depth_cb, m_shadow_depth_entity_cb, m_shadow_depth_trans_cb}) {
 				if (cb) {
-					cb->MapRes = (f32)m_shadow_map_texture_size;
+					cb->MapRes = (u32)m_shadow_map_texture_size;
 					cb->MaxFar = (f32)m_shadow_map_max_distance * BS;
 					cb->PerspectiveBiasXY = getPerspectiveBiasXY();
 					cb->PerspectiveBiasZ = getPerspectiveBiasZ();
@@ -514,6 +514,9 @@ void ShadowRenderer::mixShadowsQuad()
  * Shaders system with custom IShaderConstantSetCallBack without messing up the
  * code too much. If anyone knows how to integrate this with the standard MT
  * shaders, please feel free to change it.
+ *
+ * TODO: as of now (2025) it should be possible to hook these up to the normal
+ * shader system.
  */
 
 void ShadowRenderer::createShaders()
