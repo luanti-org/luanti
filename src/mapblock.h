@@ -75,10 +75,7 @@ public:
 
 	MapNode* getData()
 	{
-		if (m_is_mono_block) {
-			reallocate(nodecount, data[0]);
-			m_is_mono_block = false;
-		}
+		deconvertMonoblock();
 		return data;
 	}
 
@@ -255,10 +252,7 @@ public:
 		if (!isValidPosition(x, y, z))
 			throw InvalidPositionException();
 
-		if (m_is_mono_block) {
-			reallocate(nodecount, data[0]);
-			m_is_mono_block = false;
-		}
+		deconvertMonoblock();
 		data[z * zstride + y * ystride + x] = n;
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_SET_NODE);
 	}
@@ -287,10 +281,7 @@ public:
 
 	inline void setNodeNoCheck(s16 x, s16 y, s16 z, MapNode n)
 	{
-		if (m_is_mono_block) {
-			reallocate(nodecount, data[0]);
-			m_is_mono_block = false;
-		}
+		deconvertMonoblock();
 		data[z * zstride + y * ystride + x] = n;
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_SET_NODE);
 	}
@@ -449,7 +440,8 @@ private:
 	*/
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
-	void checkForMonoblock();
+	void tryConvertToMonoblock();
+	void deconvertMonoblock();
 
 	void reallocate(u32 c, MapNode n)
 	{
@@ -497,11 +489,11 @@ private:
 	short m_refcount = 0;
 
 	/*
-	 * Note that this is not an inline array because that has implications for
-	 * heap fragmentation (the array is exactly 16K), CPU caches and/or
-	 * optimizability of algorithms working on this array.
+	 * Note that this is not an inline array because that has implications for heap
+	 * fragmentation (the array is exactly 16K, or exactly 4 bytes for a "monoblock"),
+	 * CPU caches and/or optimizability of algorithms working on this array.
 	 */
-	MapNode * data = nullptr; // of `nodecount` elements
+	MapNode * data = nullptr;
 
 	// provides the item and node definitions
 	IGameDef *m_gamedef;
