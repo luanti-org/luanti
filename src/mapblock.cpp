@@ -210,10 +210,7 @@ void MapBlock::copyTo(VoxelManipulator &dst)
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
 	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
 
-	if (m_is_mono_block) {
-		reallocate(nodecount, data[0]);
-		m_is_mono_block = false;
-	}
+	deconvertMonoblock();
 	// Copy from data to VoxelManipulator
 	dst.copyFrom(data, data_area, v3s16(0,0,0),
 			getPosRelative(), data_size);
@@ -224,18 +221,16 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
 	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
 
-	if (m_is_mono_block) {
-		reallocate(nodecount, data[0]);
-		m_is_mono_block = false;
-	}
+	deconvertMonoblock();
 	// Copy from VoxelManipulator to data
 	src.copyTo(data, data_area, v3s16(0,0,0),
 			getPosRelative(), data_size);
 
-	checkForMonoblock();
+	tryConvertToMonoblock();
 }
 
-void MapBlock::checkForMonoblock() {
+void MapBlock::tryConvertToMonoblock()
+{
 	if (m_is_mono_block)
 		return;
 
@@ -255,6 +250,14 @@ void MapBlock::checkForMonoblock() {
 			m_is_air = true;
 			m_is_air_expired = false;
 		}
+	}
+}
+
+void MapBlock::deconvertMonoblock()
+{
+	if (m_is_mono_block) {
+		reallocate(nodecount, data[0]);
+		m_is_mono_block = false;
 	}
 }
 
@@ -635,7 +638,7 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 		}
 
 		if (nimap.size() == 1) {
-			checkForMonoblock();
+			tryConvertToMonoblock();
 			u16 dummy;
 			if (nimap.getId("air", dummy)) {
 				m_is_air = true;
