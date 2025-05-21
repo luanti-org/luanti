@@ -7,7 +7,7 @@ Comment[fr]=Plate-forme de jeu multijoueurs à base de blocs
 Exec=luanti
 Icon=luanti
 Terminal=false
-PrefersNonDefaultGPU=true
+# Note: don't add PrefersNonDefaultGPU here, see #16095
 Type=Application
 Categories=Game;Simulation;
 StartupNotify=false

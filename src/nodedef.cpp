@@ -4,6 +4,7 @@
 
 #include "nodedef.h"
 
+#include "SAnimatedMesh.h"
 #include "itemdef.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/mesh.h"
@@ -13,6 +14,7 @@
 #include "client/texturesource.h"
 #include "client/tile.h"
 #include <IMeshManipulator.h>
+#include <SMesh.h>
 #include <SkinnedMesh.h>
 #endif
 #include "log.h"
@@ -959,23 +961,44 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		palette = tsrc->getPalette(palette_name);
 
 	if (drawtype == NDT_MESH && !mesh.empty()) {
-		// Read the mesh and apply scale
-		mesh_ptr = client->getMesh(mesh);
-		if (mesh_ptr) {
-			v3f scale = v3f(BS) * visual_scale;
-			scaleMesh(mesh_ptr, scale);
+		// Note: By freshly reading, we get an unencumbered mesh.
+		if (scene::IMesh *src_mesh = client->getMesh(mesh)) {
+			bool apply_bs = false;
+			// For frame-animated meshes, always get the first frame,
+			// which holds a model for which we can eventually get the static pose.
+			while (auto *src_meshes = dynamic_cast<scene::SAnimatedMesh *>(src_mesh)) {
+				src_mesh = src_meshes->getMesh(0.0f);
+				src_mesh->grab();
+				src_meshes->drop();
+			}
+			if (auto *skinned_mesh = dynamic_cast<scene::SkinnedMesh *>(src_mesh)) {
+				// Compatibility: Animated meshes, as well as static gltf meshes, are not scaled by BS.
+				// See https://github.com/luanti-org/luanti/pull/16112#issuecomment-2881860329
+				bool is_gltf = skinned_mesh->getSourceFormat() ==
+						scene::SkinnedMesh::SourceFormat::GLTF;
+				apply_bs = skinned_mesh->isStatic() && !is_gltf;
+				// Nodes do not support mesh animation, so we clone the static pose.
+				// This simplifies working with the mesh: We can just scale the vertices
+				// as transformations have already been applied.
+				mesh_ptr = cloneStaticMesh(src_mesh);
+				src_mesh->drop();
+			} else {
+				auto *static_mesh = dynamic_cast<scene::SMesh *>(src_mesh);
+				assert(static_mesh);
+				mesh_ptr = static_mesh;
+				// Compatibility: Apply BS scaling to static meshes (.obj). See #15811.
+				apply_bs = true;
+			}
+			scaleMesh(mesh_ptr, v3f((apply_bs ? BS : 1.0f) * visual_scale));
 			recalculateBoundingBox(mesh_ptr);
 			if (!checkMeshNormals(mesh_ptr)) {
+				// TODO this should be done consistently when the mesh is loaded
 				infostream << "ContentFeatures: recalculating normals for mesh "
 					<< mesh << std::endl;
 				meshmanip->recalculateNormals(mesh_ptr, true, false);
-			} else {
-				// Animation is not supported, but we need to reset it to
-				// default state if it is animated.
-				// Note: recalculateNormals() also does this hence the else-block
-				if (mesh_ptr->getMeshType() == scene::EAMT_SKINNED)
-					((scene::SkinnedMesh*) mesh_ptr)->resetAnimation();
 			}
+		} else {
+			mesh_ptr = nullptr;
 		}
 	}
 }

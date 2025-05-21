@@ -776,7 +776,6 @@ bool GUITable::OnEvent(const SEvent &event)
 	}
 
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
-		
 		if (event.KeyInput.PressedDown && (
 				event.KeyInput.Key == KEY_DOWN ||
 				event.KeyInput.Key == KEY_UP   ||

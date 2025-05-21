@@ -347,7 +347,8 @@ IAnimatedMesh* SelfType::createMesh(io::IReadFile* file)
 	const char *filename = file->getFileName().c_str();
 	try {
 		tiniergltf::GlTF model = parseGLTF(file);
-		irr_ptr<SkinnedMeshBuilder> mesh(new SkinnedMeshBuilder());
+		irr_ptr<SkinnedMeshBuilder> mesh(new SkinnedMeshBuilder(
+				SkinnedMesh::SourceFormat::GLTF));
 		MeshExtractor extractor(std::move(model), mesh.get());
 		try {
 			extractor.load();

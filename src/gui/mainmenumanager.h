@@ -59,6 +59,8 @@ public:
 		if(!m_stack.empty()) {
 			m_stack.back()->setVisible(true);
 			guienv->setFocus(m_stack.back());
+		} else {
+			guienv->removeFocus(menu);
 		}
 	}
 

@@ -26,7 +26,7 @@ struct GameFormSpec
 {
 	void init(Client *client, RenderingEngine *rendering_engine, InputHandler *input);
 
-	~GameFormSpec();
+	~GameFormSpec() { reset(); }
 
 	void showFormSpec(const std::string &formspec, const std::string &formname);
 	void showCSMFormSpec(const std::string &formspec, const std::string &formname);
@@ -43,6 +43,7 @@ struct GameFormSpec
 	void disableDebugView();
 
 	bool handleCallbacks();
+	void reset();
 
 #ifdef __ANDROID__
 	// Returns false if no formspec open

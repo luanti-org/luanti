@@ -10172,9 +10172,12 @@ Used by `core.register_node`.
     mesh = "",
     -- File name of mesh when using "mesh" drawtype
     -- The center of the node is the model origin.
-    -- For legacy reasons, models in OBJ format use a scale of 1 node = 1 unit;
-    -- all other model file formats use a scale of 1 node = 10 units,
-    -- consistent with the scale used for entities.
+    -- For legacy reasons, this uses a different scale depending on the mesh:
+    -- 1. For glTF models: 10 units = 1 node (consistent with the scale for entities).
+    -- 2. For obj models: 1 unit = 1 node.
+    -- 3. For b3d and x models: 1 unit = 1 node if static, otherwise 10 units = 1 node.
+    -- Using static glTF or obj models is recommended.
+    -- You can use the `visual_scale` multiplier to achieve the expected scale.
 
     selection_box = {
         -- see [Node boxes] for possibilities
