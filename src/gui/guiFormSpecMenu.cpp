@@ -3989,16 +3989,18 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		}
 	}
 
-	// Fix Esc/Return key being eaten by checkboxen and tables
+	// Fix Esc/Return/Ctrl+Tab key being eaten by checkboxen and tables
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
 			KeyPress kp(event.KeyInput);
 		if (kp == EscapeKey
 				|| kp == getKeySetting("keymap_inventory")
-				|| event.KeyInput.Key==KEY_RETURN) {
+				|| event.KeyInput.Key==KEY_RETURN
+				|| (event.KeyInput.Key==KEY_TAB && event.KeyInput.Control)) {
 			gui::IGUIElement *focused = Environment->getFocus();
 			if (focused && isMyChild(focused) &&
 					(focused->getType() == gui::EGUIET_LIST_BOX ||
-					focused->getType() == gui::EGUIET_CHECK_BOX) &&
+					focused->getType() == gui::EGUIET_CHECK_BOX ||
+					focused->getType() == gui::EGUIET_TABLE) &&
 					(focused->getParent()->getType() != gui::EGUIET_COMBO_BOX ||
 					event.KeyInput.Key != KEY_RETURN)) {
 				OnEvent(event);

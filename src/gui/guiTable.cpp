@@ -770,7 +770,13 @@ bool GUITable::OnEvent(const SEvent &event)
 	if (!isEnabled())
 		return IGUIElement::OnEvent(event);
 
+	// Pass key events with Control modifier to parent
+	if (event.EventType == EET_KEY_INPUT_EVENT && event.KeyInput.Control) {
+		return IGUIElement::OnEvent(event);
+	}
+
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
+		
 		if (event.KeyInput.PressedDown && (
 				event.KeyInput.Key == KEY_DOWN ||
 				event.KeyInput.Key == KEY_UP   ||
@@ -830,8 +836,7 @@ bool GUITable::OnEvent(const SEvent &event)
 			sendTableEvent(0, true);
 			return true;
 		}
-		else if (event.KeyInput.Key == KEY_ESCAPE ||
-				event.KeyInput.Key == KEY_SPACE) {
+		else if (event.KeyInput.Key == KEY_ESCAPE) {
 			// pass to parent
 		}
 		else if (event.KeyInput.PressedDown && event.KeyInput.Char) {
