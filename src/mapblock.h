@@ -21,6 +21,9 @@ class NodeMetadataList;
 class IGameDef;
 class MapBlockMesh;
 class VoxelManipulator;
+#if BUILD_UNITTESTS
+class TestMapBlock;
+#endif
 
 #define BLOCK_TIMESTAMP_UNDEFINED 0xffffffff
 
@@ -429,6 +432,11 @@ public:
 	static const u32 nodecount = MAP_BLOCKSIZE * MAP_BLOCKSIZE * MAP_BLOCKSIZE;
 
 private:
+#if BUILD_UNITTESTS
+	// access to data, tryConvertToMonoBlock, deconvertMonoblock
+	friend class TestMapBlock;
+#endif
+
 	/*
 		Private methods
 	*/
@@ -436,17 +444,7 @@ private:
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
 	void tryConvertToMonoblock();
 	void deconvertMonoblock();
-
-	void reallocate(u32 c, MapNode n)
-	{
-		delete[] data;
-		if (c == 1)
-			porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
-
-		data = new MapNode[c];
-		for (u32 i = 0; i < c; i++)
-			data[i] = n;
-	}
+	void reallocate(u32 c, MapNode n);
 
 	/*
 	 * PLEASE NOTE: When adding something here be mindful of position and size
