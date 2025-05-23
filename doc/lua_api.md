@@ -6565,13 +6565,10 @@ Environment access
     * The actual seed used is the noiseparams seed plus the world seed.
 * `core.get_value_noise(seeddiff, octaves, persistence, spread)`
     * Deprecated: use `core.get_value_noise(noiseparams)` instead.
-    * Return world-specific value noise
 * `core.get_perlin(noiseparams)`
-    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
-    * Return world-specific value noise (was not Perlin noise)
+    * Deprecated: renamed to `core.get_value_noise` in version 5.12.0.
 * `core.get_perlin(seeddiff, octaves, persistence, spread)`
-    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
-    * Return world-specific value noise (was not Perlin noise)
+    * Deprecated: renamed to `core.get_value_noise` in version 5.12.0.
 * `core.get_voxel_manip([pos1, pos2])`
     * Return voxel manipulator object.
     * Loads the manipulator from the map if positions are passed.
@@ -9243,20 +9240,17 @@ to restrictions of JSON.
 
 A value noise generator.
 It can be created via `ValueNoise()` or `core.get_value_noise()`.
-For legacy reasons, it can also be created via `PerlinNoise()` or `core.get_perlin()`,
-but the implemented noise is not Perlin noise.
 For `core.get_value_noise()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
-* `ValueNoise(noiseparams)
-* `ValueNoise(seed, octaves, persistence, spread)` (Deprecated)
-* `PerlinNoise(noiseparams)` (Deprecated)
-* `PerlinNoise(seed, octaves, persistence, spread)` (Deprecated)
-
+* `ValueNoise(noiseparams)`
+* `ValueNoise(seed, octaves, persistence, spread)` (deprecated)
 * `core.get_value_noise(noiseparams)`
-* `core.get_value_noise(seeddiff, octaves, persistence, spread)` (Deprecated)
-* `core.get_perlin(noiseparams)` (Deprecated)
-* `core.get_perlin(seeddiff, octaves, persistence, spread)` (Deprecated)
+* `core.get_value_noise(seeddiff, octaves, persistence, spread)` (deprecated)
+
+These were previously called `PerlinNoise()` and `core.get_perlin()`, but the
+implemented noise was not Perlin noise. They were renamed in 5.12.0. The old
+names still exist as aliases.
 
 ### Methods
 
@@ -9270,10 +9264,12 @@ A fast, bulk noise generator.
 
 It can be created via `ValueNoiseMap(noiseparams, size)` or
 `core.get_value_noise_map(noiseparams, size)`.
-For legacy reasons, it can also be created via `PerlinNoiseMap(noiseparams, size)`
-or `core.get_perlin_map(noiseparams, size)`, but it is not Perlin noise.
 For `core.get_value_noise_map()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
+
+These were previously called `PerlinNoiseMap()` and `core.get_perlin_map()`,
+but the implemented noise was not Perlin noise. They were renamed in 5.12.0.
+The old names still exist as aliases.
 
 Format of `size` is `{x=dimx, y=dimy, z=dimz}`. The `z` component is omitted
 for 2D noise, and it must be larger than 1 for 3D noise (otherwise
