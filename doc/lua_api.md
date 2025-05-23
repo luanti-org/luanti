@@ -4584,11 +4584,13 @@ and offset the noise variation.
 
 The final fractal value noise variation is created as follows:
 
+```
 noise = offset + scale * (octave1 +
                           octave2 * persistence +
                           octave3 * persistence ^ 2 +
                           octave4 * persistence ^ 3 +
                           ...)
+```
 
 Noise Parameters
 ----------------
@@ -4702,11 +4704,13 @@ with restraint.
 The absolute value of each octave's noise variation is used when combining the
 octaves. The final value noise variation is created as follows:
 
+```
 noise = offset + scale * (abs(octave1) +
                           abs(octave2) * persistence +
                           abs(octave3) * persistence ^ 2 +
                           abs(octave4) * persistence ^ 3 +
                           ...)
+```
 
 ### Format example
 
@@ -9296,15 +9300,19 @@ table.
   returns a slice of the most recently computed noise results. The result slice
   begins at coordinates `slice_offset` and takes a chunk of `slice_size`.
   E.g., to grab a 2-slice high horizontal 2d plane of noise starting at buffer
-  offset y = 20:
-  `noisevals = noise:get_map_slice({y=20}, {y=2})`
+  offset `y = 20`:
+  ```lua
+  noisevals = noise:get_map_slice({y=20}, {y=2})
+  ```
   It is important to note that `slice_offset` offset coordinates begin at 1,
   and are relative to the starting position of the most recently calculated
   noise.
   To grab a single vertical column of noise starting at map coordinates
-  x = 1023, y=1000, z = 1000:
-  `noise:calc_3d_map({x=1000, y=1000, z=1000})`
-  `noisevals = noise:get_map_slice({x=24, z=1}, {x=1, z=1})`
+  `x = 1023, y=1000, z = 1000`:
+  ```lua
+  noise:calc_3d_map({x=1000, y=1000, z=1000})
+  noisevals = noise:get_map_slice({x=24, z=1}, {x=1, z=1})
+  ```
 
 
 
