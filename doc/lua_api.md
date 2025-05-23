@@ -5,8 +5,11 @@ Luanti Lua Modding API Reference
 it's now called `core` due to the renaming of Luanti (formerly Minetest).
 `minetest` will keep existing as an alias, so that old code won't break.
 
+Note that `core` has already existed since version 0.4.10, so you can use it
+safely without breaking backwards compatibility.
+
 * More information at <http://www.luanti.org/>
-* Developer Wiki: <https://dev.luanti.org/>
+* Additional documentation: <https://docs.luanti.org/>
 * (Unofficial) Minetest Modding Book by rubenwardy: <https://rubenwardy.com/minetest_modding_book/>
 * Modding tools: <https://github.com/luanti-org/modtools>
 
