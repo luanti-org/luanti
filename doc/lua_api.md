@@ -9116,14 +9116,17 @@ end
 The map is loaded as the ray advances. If the map is modified after the
 `Raycast` is created, the changes may or may not have an effect on the object.
 
-It can be created via `Raycast(pos1, pos2, objects, liquids)` or
-`core.raycast(pos1, pos2, objects, liquids)` where:
+It can be created via `Raycast(pos1, pos2, objects, liquids, pointabilities)`
+or `core.raycast(pos1, pos2, objects, liquids, pointabilities)` where:
 
 * `pos1`: start of the ray
 * `pos2`: end of the ray
-* `objects`: if false, only nodes will be returned. Default is true.
+* `objects`: if false, only nodes will be returned. Default is `true`.
 * `liquids`: if false, liquid nodes (`liquidtype ~= "none"`) won't be
-             returned. Default is false.
+             returned. Default is `false`.
+* `pointabilities`: Allows overriding the `pointable` property of
+  nodes and objects. Uses the same format as the `pointabilities` property
+  of item definitions. Default is `nil`.
 
 ### Limitations
 
