@@ -581,9 +581,13 @@ ItemStack PlayerSAO::getWieldedItem(ItemStack *selected, ItemStack *hand) const
 
 bool PlayerSAO::setWieldedItem(const ItemStack &item)
 {
-	InventoryList *mlist = m_player->inventory.getList(getWieldList());
-	if (mlist) {
-		mlist->changeItem(m_player->getWieldIndex(), item);
+	std::string list;
+	u16 index;
+	if (m_player->hotbar_source.getInventoryFromWieldIndex(getWieldIndex(), list, index)) {
+		InventoryList *mlist = m_player->inventory.getList(list);
+		if (!mlist)
+			return false;
+		mlist->changeItem(index, item);
 		return true;
 	}
 	return false;
