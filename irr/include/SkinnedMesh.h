@@ -8,11 +8,18 @@
 #include "ISceneManager.h"
 #include "SMeshBuffer.h"
 #include "SSkinMeshBuffer.h"
+#include "aabbox3d.h"
+#include "irrMath.h"
+#include "irrTypes.h"
+#include "matrix4.h"
 #include "quaternion.h"
 #include "vector3d.h"
+#include "Transform.h"
 
 #include <optional>
 #include <string>
+#include <variant>
+#include <vector>
 
 namespace irr
 {
@@ -37,9 +44,8 @@ public:
 	//! constructor
 	SkinnedMesh(SourceFormat src_format) :
 		EndFrame(0.f), FramesPerSecond(25.f),
-		LastAnimatedFrame(-1), SkinnedLastFrame(false),
 		HasAnimation(false), PreparedForSkinning(false),
-		AnimateNormals(true), HardwareSkinning(false),
+		AnimateNormals(true),
 		SrcFormat(src_format)
 	{
 		SkinningBuffers = &LocalBuffers;
@@ -64,14 +70,12 @@ public:
 	The actual speed is set in the scene node the mesh is instantiated in.*/
 	void setAnimationSpeed(f32 fps) override;
 
-	//! returns the animated mesh for the given frame
-	IMesh *getMesh(f32) override;
+	//! Turns the given array of local matrices into an array of global matrices
+	//! by multiplying with respective parent matrices.
+	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const;
 
-	//! Animates joints based on frame input
-	void animateMesh(f32 frame);
-
-	//! Performs a software skin on this mesh based of joint positions
-	void skinMesh();
+	//! Performs a software skin on this mesh based on the given joint matrices
+	void skinMesh(const std::vector<core::matrix4> &animated_transforms);
 
 	//! returns amount of mesh buffers.
 	u32 getMeshBufferCount() const override;
@@ -89,14 +93,15 @@ public:
 
 	void setTextureSlot(u32 meshbufNr, u32 textureSlot);
 
-	//! returns an axis aligned bounding box
+	//! Returns bounding box of the mesh *in static pose*.
 	const core::aabbox3d<f32> &getBoundingBox() const override {
-		return BoundingBox;
+		// TODO ideally we shouldn't be forced to implement this
+		return StaticPoseBox;
 	}
 
-	//! set user axis aligned bounding box
+	//! Set bounding box of the mesh *in static pose*.
 	void setBoundingBox(const core::aabbox3df &box) override {
-		BoundingBox = box;
+		StaticPoseBox = box;
 	}
 
 	//! set the hardware mapping hint, for driver
@@ -140,28 +145,15 @@ public:
 		return !HasAnimation;
 	}
 
-	//! Allows to enable hardware skinning.
-	/* This feature is not implemented in Irrlicht yet */
-	bool setHardwareSkinning(bool on);
-
 	//! Refreshes vertex data cached in joints such as positions and normals
 	void refreshJointCache();
 
 	//! Moves the mesh into static position.
 	void resetAnimation();
 
-	void updateBoundingBox();
-
-	//! Recovers the joints from the mesh
-	void recoverJointsFromMesh(std::vector<IBoneSceneNode *> &jointChildSceneNodes);
-
-	//! Transfers the joint data to the mesh
-	void transferJointsToMesh(const std::vector<IBoneSceneNode *> &jointChildSceneNodes);
-
 	//! Creates an array of joints from this mesh as children of node
-	void addJoints(std::vector<IBoneSceneNode *> &jointChildSceneNodes,
-			IAnimatedMeshSceneNode *node,
-			ISceneManager *smgr);
+	std::vector<IBoneSceneNode *> addJoints(
+			IAnimatedMeshSceneNode *node, ISceneManager *smgr);
 
 	//! A vertex weight
 	struct SWeight
@@ -236,7 +228,7 @@ public:
 
 		static core::quaternion interpolateValue(core::quaternion from, core::quaternion to, f32 time) {
 			core::quaternion result;
-			result.slerp(from, to, time, 0.001f);
+			result.slerp(from, to, time);
 			return result;
 		}
 
@@ -288,15 +280,14 @@ public:
 			});
 		}
 
-		void updateTransform(f32 frame,
-				core::vector3df &t, core::quaternion &r, core::vector3df &s) const
+		void updateTransform(f32 frame, core::Transform &transform) const
 		{
 			if (auto pos = position.get(frame))
-				t = *pos;
+				transform.translation = *pos;
 			if (auto rot = rotation.get(frame))
-				r = *rot;
+				transform.rotation = *rot;
 			if (auto scl = scale.get(frame))
-				s = *scl;
+				transform.scale = *scl;
 		}
 
 		void cleanup() {
@@ -309,16 +300,34 @@ public:
 	//! Joints
 	struct SJoint
 	{
-		SJoint() : GlobalSkinningSpace(false) {}
+		SJoint() {}
 
 		//! The name of this joint
 		std::optional<std::string> Name;
 
-		//! Local matrix of this joint
-		core::matrix4 LocalMatrix;
+		//! Local transformation to be set by loaders. Mutated by animation.
+		using VariantTransform = std::variant<core::Transform, core::matrix4>;
+		VariantTransform transform{core::Transform{}};
 
-		//! List of child joints
-		std::vector<SJoint *> Children;
+		VariantTransform animate(f32 frame) const {
+			if (keys.empty())
+				return transform;
+
+			if (std::holds_alternative<core::matrix4>(transform)) {
+				// .x lets animations override matrix transforms entirely,
+				// which is what we implement here.
+				// .gltf does not allow animation of nodes using matrix transforms.
+				// Note that a decomposition into a TRS transform need not exist!
+				core::Transform trs;
+				keys.updateTransform(frame, trs);
+				return {trs};
+			}
+
+			auto trs = std::get<core::Transform>(transform);
+			keys.updateTransform(frame, trs);
+			return {trs};
+		}
+
 
 		//! List of attached meshes
 		std::vector<u32> AttachedMeshes;
@@ -329,41 +338,48 @@ public:
 		//! Skin weights
 		std::vector<SWeight> Weights;
 
+		//! Bounding box of all affected vertices, in local space
+		core::aabbox3df LocalBoundingBox{{0, 0, 0}};
+
 		//! Unnecessary for loaders, will be overwritten on finalize
 		core::matrix4 GlobalMatrix; // loaders may still choose to set this (temporarily) to calculate absolute vertex data.
-		core::matrix4 GlobalAnimatedMatrix;
-		core::matrix4 LocalAnimatedMatrix;
-
-		//! These should be set by loaders.
-		core::vector3df Animatedposition;
-		core::vector3df Animatedscale;
-		core::quaternion Animatedrotation;
 
 		// The .x and .gltf formats pre-calculate this
 		std::optional<core::matrix4> GlobalInversedMatrix;
-	private:
-		//! Internal members used by SkinnedMesh
-		friend class SkinnedMesh;
 
-		bool GlobalSkinningSpace;
+		void setParent(SJoint *parent) {
+			ParentJointID = parent ? parent->JointID : std::optional<u16>{};
+		}
+
+		u16 JointID; // TODO refactor away: pointers -> IDs (problem: .x loader abuses SJoint)
+		std::optional<u16> ParentJointID;
 	};
+
+	//! Animates joints based on frame input
+	std::vector<SJoint::VariantTransform> animateMesh(f32 frame);
+
+	//! Calculates a bounding box given an animation in the form of global joint transforms.
+	core::aabbox3df calculateBoundingBox(
+			const std::vector<core::matrix4> &global_transforms);
+
+	void recalculateBaseBoundingBoxes();
 
 	const std::vector<SJoint *> &getAllJoints() const {
 		return AllJoints;
 	}
 
 protected:
-	void checkForAnimation();
+	bool checkForAnimation() const;
+
+	void topoSortJoints();
+
+	void prepareForSkinning();
+
+	void calculateStaticBoundingBox();
+	void calculateJointBoundingBoxes();
+	void calculateBufferBoundingBoxes();
 
 	void normalizeWeights();
-
-	void buildAllLocalAnimatedMatrices();
-
-	void buildAllGlobalAnimatedMatrices(SJoint *Joint = 0, SJoint *ParentJoint = 0);
-
-	void calculateGlobalMatrices(SJoint *Joint, SJoint *ParentJoint);
-
-	void skinJoint(SJoint *Joint, SJoint *ParentJoint);
 
 	void calculateTangents(core::vector3df &normal,
 			core::vector3df &tangent, core::vector3df &binormal,
@@ -376,25 +392,25 @@ protected:
 	//! Mapping from meshbuffer number to bindable texture slot
 	std::vector<u32> TextureSlots;
 
+	//! Joints, topologically sorted (parents come before their children).
 	std::vector<SJoint *> AllJoints;
-	std::vector<SJoint *> RootJoints;
 
 	// bool can't be used here because std::vector<bool>
 	// doesn't allow taking a reference to individual elements.
 	std::vector<std::vector<char>> Vertices_Moved;
 
-	core::aabbox3d<f32> BoundingBox{{0, 0, 0}};
+	//! Bounding box of just the static parts of the mesh
+	core::aabbox3df StaticPartsBox{{0, 0, 0}};
+
+	//! Bounding box of the mesh in static pose
+	core::aabbox3df StaticPoseBox{{0, 0, 0}};
 
 	f32 EndFrame;
 	f32 FramesPerSecond;
 
-	f32 LastAnimatedFrame;
-	bool SkinnedLastFrame;
-
 	bool HasAnimation;
 	bool PreparedForSkinning;
 	bool AnimateNormals;
-	bool HardwareSkinning;
 
 	SourceFormat SrcFormat;
 };
