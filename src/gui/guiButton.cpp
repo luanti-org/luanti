@@ -314,7 +314,7 @@ void GUIButton::draw()
 					sourceRect, &AbsoluteClippingRect,
 					image_colors, UseAlphaChannel);
 		} else if (DrawBorder) {
-			// 9-slice border button
+			// The background image is 9-slice --> use as new border style
 			draw2DImage9Slice(driver, texture,
 					ScaleImage ? AbsoluteRect : core::rect<s32>(pos, sourceRect.getSize()),
 					sourceRect, BgMiddle, &AbsoluteClippingRect, image_colors);
