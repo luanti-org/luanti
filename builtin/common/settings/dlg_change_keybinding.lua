@@ -24,7 +24,7 @@ local function get_formspec(dialogdata)
 
 	local cells = {}
 	for _, key in ipairs(value) do
-		table.insert(cells, core.formspec_escape(key))
+		table.insert(cells, core.formspec_escape(core.get_key_description(key)))
 	end
 	table.insert(fs, ("textlist[0.5,1.3;5,4;keylist;%s;%d;false]"):format(table.concat(cells, ","), selection))
 
