@@ -106,8 +106,8 @@ public:
 	std::vector<content_t> c_nodes;
 	u32 flags = 0;
 	v3s16 size;
-	MapNode *schemdata = nullptr;
-	u8 *slice_probs = nullptr;
+	std::vector<MapNode> schemdata;
+	std::vector<u8> slice_probs;
 
 private:
 	// Counterpart to the node resolver: Condense content_t to a sequential "m_nodenames" list

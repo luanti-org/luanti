@@ -76,7 +76,7 @@ public:
 		m_orphan = true;
 	}
 
-	MapNode* getData()
+	std::vector<MapNode> &getData()
 	{
 		deconvertMonoblock();
 		return data;
@@ -485,10 +485,10 @@ private:
 
 	/*
 	 * Note that this is not an inline array because that has implications for heap
-	 * fragmentation (the array is exactly 16K, or exactly 4 bytes for a "monoblock"),
+	 * fragmentation (the data is exactly 16K, or exactly 4 bytes for a "monoblock"),
 	 * CPU caches and/or optimizability of algorithms working on this array.
 	 */
-	MapNode * data = nullptr;
+	std::vector<MapNode> data;
 
 	// provides the item and node definitions
 	IGameDef *m_gamedef;

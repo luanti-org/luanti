@@ -27,12 +27,12 @@ void VoxelManipulator::clear()
 	// Reset area to empty volume
 	VoxelArea old;
 	std::swap(m_area, old);
-	delete[] m_data;
-	m_data = nullptr;
-	delete[] m_flags;
-	m_flags = nullptr;
+	m_data.clear();
+	m_data.shrink_to_fit();
+	m_flags.clear();
+	m_flags.shrink_to_fit();
 
-	porting::TrackFreedMemory((sizeof(*m_data) + sizeof(*m_flags)) * old.getVolume());
+	porting::TrackFreedMemory((sizeof(MapNode) + sizeof(u8)) * old.getVolume());
 }
 
 void VoxelManipulator::print(std::ostream &o, const NodeDefManager *ndef,
@@ -144,11 +144,8 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 	u32 new_size = new_area.getVolume();
 
 	// Allocate new data and clear flags
-	MapNode *new_data = new MapNode[new_size];
-	assert(new_data);
-	u8 *new_flags = new u8[new_size];
-	assert(new_flags);
-	memset(new_flags, VOXELFLAG_NO_DATA, new_size);
+	std::vector<MapNode> new_data(new_size);
+	std::vector<u8> new_flags(new_size, VOXELFLAG_NO_DATA);
 
 	// Copy old data
 	u32 old_x_width = m_area.getExtent().X;
@@ -166,19 +163,12 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 
 	// Replace area, data and flags
 
-	m_area = new_area;
-
-	MapNode *old_data = m_data;
-	u8 *old_flags = m_flags;
-
-	m_data = new_data;
-	m_flags = new_flags;
-
-	delete[] old_data;
-	delete[] old_flags;
+	m_area = std::move(new_area);
+	m_data = std::move(new_data);
+	m_flags = std::move(new_flags);
 }
 
-void VoxelManipulator::copyFrom(MapNode *src, const VoxelArea& src_area,
+void VoxelManipulator::copyFrom(std::vector<MapNode> &src, const VoxelArea& src_area,
 		v3s16 from_pos, v3s16 to_pos, const v3s16 &size)
 {
 	/* The reason for this optimised code is that we're a member function
@@ -217,7 +207,7 @@ void VoxelManipulator::copyFrom(MapNode *src, const VoxelArea& src_area,
 
 	for (s16 z = 0; z < size.Z; z++) {
 		for (s16 y = 0; y < size.Y; y++) {
-			memcpy(&m_data[i_local], &src[i_src], size.X * sizeof(*m_data));
+			memcpy(&m_data[i_local], &src[i_src], size.X * sizeof(MapNode));
 			memset(&m_flags[i_local], 0, size.X);
 			i_src += src_step;
 			i_local += dest_step;
@@ -226,7 +216,7 @@ void VoxelManipulator::copyFrom(MapNode *src, const VoxelArea& src_area,
 	}
 }
 
-void VoxelManipulator::copyTo(MapNode *dst, const VoxelArea& dst_area,
+void VoxelManipulator::copyTo(std::vector<MapNode> &dst, const VoxelArea& dst_area,
 		v3s16 dst_pos, v3s16 from_pos, const v3s16 &size) const
 {
 	for(s16 z=0; z<size.Z; z++)
