@@ -68,7 +68,7 @@ core.register_globalstep(function()
 				hud_ids[pname] = hud_id or player:hud_add({
 					type = "text",  -- See HUD element types
 					position = {x=0.5, y=0.5},
-			        text = "X",
+					text = "X",
 					number = 0xFF0000,
 					alignment = {x=0, y=0},
 				})

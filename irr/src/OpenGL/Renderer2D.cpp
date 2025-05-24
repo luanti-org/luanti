@@ -23,8 +23,8 @@ COpenGL3Renderer2D::COpenGL3Renderer2D(const c8 *vertexShaderProgram, const c8 *
 		WithTexture(withTexture)
 {
 	int Temp = 0;
-
-	init(Temp, vertexShaderProgram, pixelShaderProgram, false);
+	init(Temp, vertexShaderProgram, pixelShaderProgram,
+		withTexture ? "2DTexture" : "2DNoTexture", false);
 
 	COpenGL3CacheHandler *cacheHandler = Driver->getCacheHandler();
 

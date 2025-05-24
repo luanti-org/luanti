@@ -6,7 +6,6 @@
 
 #include <sstream>
 
-#include "irrlichttypes_extrabloated.h"
 #include "log.h"
 #include "serialization.h"
 #include "nodedef.h"

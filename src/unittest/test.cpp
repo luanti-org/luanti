@@ -212,8 +212,6 @@ bool run_tests()
 	u64 t1 = porting::getTimeMs();
 	TestGameDef gamedef;
 
-	g_logger.setLevelSilenced(LL_ERROR, true);
-
 	u32 num_modules_failed     = 0;
 	u32 num_total_tests_failed = 0;
 	u32 num_total_tests_run    = 0;
@@ -243,11 +241,9 @@ bool run_tests()
 
 	u64 tdiff = porting::getTimeMs() - t1;
 
-	g_logger.setLevelSilenced(LL_ERROR, false);
-
 	const char *overall_status = (num_modules_failed == 0) ? "PASSED" : "FAILED";
 
-	rawstream
+	rawstream << "\n"
 		<< "++++++++++++++++++++++++++++++++++++++++"
 		<< "++++++++++++++++++++++++++++++++++++++++" << std::endl
 		<< "Unit Test Results: " << overall_status << std::endl
@@ -283,17 +279,15 @@ bool run_tests(const std::string &module_name)
 		return catch_test_failures == 0;
 	}
 
-	g_logger.setLevelSilenced(LL_ERROR, true);
 	u64 t1 = porting::getTimeMs();
 
 	bool ok = testmod->testModule(&gamedef);
 
 	u64 tdiff = porting::getTimeMs() - t1;
-	g_logger.setLevelSilenced(LL_ERROR, false);
 
 	const char *overall_status = ok ? "PASSED" : "FAILED";
 
-	rawstream
+	rawstream << "\n"
 		<< "++++++++++++++++++++++++++++++++++++++++"
 		<< "++++++++++++++++++++++++++++++++++++++++" << std::endl
 		<< "Unit Test Results: " << overall_status << std::endl

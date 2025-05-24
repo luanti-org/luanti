@@ -24,6 +24,7 @@
 #include "chatmessage.h"
 #include "sound.h"
 #include "translation.h"
+#include "script/common/c_types.h" // LuaError
 #include <atomic>
 #include <string>
 #include <list>
@@ -45,6 +46,7 @@ class BanManager;
 class Inventory;
 class ModChannelMgr;
 class RemotePlayer;
+class Player;
 class PlayerSAO;
 struct PlayerHPChangeReason;
 class IRollbackManager;
@@ -89,7 +91,7 @@ enum ClientDeletionReason {
 struct MediaInfo
 {
 	std::string path;
-	std::string sha1_digest; // base64-encoded
+	std::string sha1_digest;
 	// true = not announced in TOCLIENT_ANNOUNCE_MEDIA (at player join)
 	bool no_announce;
 	// does what it says. used by some cases of dynamic media.
@@ -345,8 +347,7 @@ public:
 	void setStepSettings(StepSettings spdata) { m_step_settings.store(spdata); }
 	StepSettings getStepSettings() { return m_step_settings.load(); }
 
-	inline void setAsyncFatalError(const std::string &error)
-			{ m_async_fatal_error.set(error); }
+	void setAsyncFatalError(const std::string &error);
 	inline void setAsyncFatalError(const LuaError &e)
 	{
 		setAsyncFatalError(std::string("Lua: ") + e.what());
@@ -410,6 +411,7 @@ public:
 	void SendMovePlayerRel(session_t peer_id, const v3f &added_pos);
 	void SendPlayerSpeed(session_t peer_id, const v3f &added_vel);
 	void SendPlayerFov(session_t peer_id);
+	void SendCamera(session_t peer_id, Player *player);
 
 	void SendMinimapModes(session_t peer_id,
 			std::vector<MinimapMode> &modes,
@@ -547,6 +549,7 @@ private:
 	void SendCloudParams(session_t peer_id, const CloudParams &params);
 	void SendOverrideDayNightRatio(session_t peer_id, bool do_override, float ratio);
 	void SendSetLighting(session_t peer_id, const Lighting &lighting);
+
 	void broadcastModChannelMessage(const std::string &channel,
 			const std::string &message, session_t from_peer);
 

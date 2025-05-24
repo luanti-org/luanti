@@ -22,7 +22,8 @@ enum ClientEventType : u8
 	CE_PLAYER_FORCE_MOVE,
 	CE_DEATHSCREEN_LEGACY,
 	CE_SHOW_FORMSPEC,
-	CE_SHOW_LOCAL_FORMSPEC,
+	CE_SHOW_CSM_FORMSPEC,
+	CE_SHOW_PAUSE_MENU_FORMSPEC,
 	CE_SPAWN_PARTICLE,
 	CE_ADD_PARTICLESPAWNER,
 	CE_DELETE_PARTICLESPAWNER,
@@ -35,6 +36,7 @@ enum ClientEventType : u8
 	CE_SET_STARS,
 	CE_OVERRIDE_DAY_NIGHT_RATIO,
 	CE_CLOUD_PARAMS,
+	CE_UPDATE_CAMERA,
 	CLIENTEVENT_MAX,
 };
 
@@ -65,11 +67,14 @@ struct ClientEventHudChange
 
 struct ClientEvent
 {
+	// TODO: should get rid of this ctor
+	ClientEvent() : type(CE_NONE) {}
+
+	ClientEvent(ClientEventType type) : type(type) {}
+
 	ClientEventType type;
 	union
 	{
-		// struct{
-		//} none;
 		struct
 		{
 			u16 amount;
@@ -85,8 +90,6 @@ struct ClientEvent
 			std::string *formspec;
 			std::string *formname;
 		} show_formspec;
-		// struct{
-		//} textures_updated;
 		ParticleParameters *spawn_particle;
 		struct
 		{

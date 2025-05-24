@@ -204,10 +204,10 @@ private:
 	which affected only 32-bit MinGW. It was caused by incorrect calling convention
 	and fixed in GCC in 2020.
 
-	Occurrences in Minetest:
-	* <https://github.com/minetest/minetest/issues/10137> (2020)
-	* <https://github.com/minetest/minetest/issues/12022> (2022)
-	* <https://github.com/minetest/minetest/issues/14140> (2023)
+	Occurrences in Luanti:
+	* <https://github.com/luanti-org/luanti/issues/10137> (2020)
+	* <https://github.com/luanti-org/luanti/issues/12022> (2022)
+	* <https://github.com/luanti-org/luanti/issues/14140> (2023)
 */
 void TestThreading::testTLS()
 {

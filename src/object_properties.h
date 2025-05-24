@@ -10,18 +10,35 @@
 #include <iostream>
 #include <vector>
 #include "util/pointabilities.h"
+#include "mapnode.h"
+
+struct EnumString;
+
+enum ObjectVisual : u8 {
+	OBJECTVISUAL_UNKNOWN,
+	OBJECTVISUAL_SPRITE,
+	OBJECTVISUAL_UPRIGHT_SPRITE,
+	OBJECTVISUAL_CUBE,
+	OBJECTVISUAL_MESH,
+	OBJECTVISUAL_ITEM,
+	OBJECTVISUAL_WIELDITEM,
+	OBJECTVISUAL_NODE,
+};
+
+extern const EnumString es_ObjectVisual[];
+
 
 struct ObjectProperties
 {
 	/* member variables ordered roughly by size */
 
 	std::vector<std::string> textures;
-	std::vector<video::SColor> colors;
+	std::vector<video::SColor> colors; // Currently unused
 	// Values are BS=1
 	aabb3f collisionbox = aabb3f(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
 	// Values are BS=1
 	aabb3f selectionbox = aabb3f(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
-	std::string visual = "sprite";
+	ObjectVisual visual = OBJECTVISUAL_SPRITE;
 	std::string mesh;
 	std::string damage_texture_modifier = "^[brighten";
 	std::string nametag;
@@ -39,6 +56,7 @@ struct ObjectProperties
 	f32 automatic_face_movement_max_rotation_per_sec = -1.0f;
 	float eye_height = 1.625f;
 	float zoom_fov = 0.0f;
+	MapNode node = MapNode(CONTENT_IGNORE);
 	u16 hp_max = 1;
 	u16 breath_max = 0;
 	s8 glow = 0;

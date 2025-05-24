@@ -15,6 +15,7 @@
 #include "common/c_internal.h"
 #include "cpp_api/s_base.h"
 #include "threading/mutex_auto_lock.h"
+#include "common/c_types.h"
 
 #ifdef SCRIPTAPI_LOCK_DEBUG
 #include <cassert>

@@ -30,8 +30,9 @@
 static inline int checkSettingSecurity(lua_State* L, const std::string &name)
 {
 #if CHECK_CLIENT_BUILD()
-	// Main menu is allowed everything
-	if (ModApiBase::getGuiEngine(L) != nullptr)
+	// Main menu and pause menu are allowed everything
+	auto context = ModApiBase::getScriptApiBase(L)->getType();
+	if (context == ScriptingType::MainMenu || context == ScriptingType::PauseMenu)
 		return 0;
 #endif
 
@@ -181,16 +182,16 @@ int LuaSettings::l_get_flags(lua_State *L)
 // get_pos(self, key) -> vector or nil
 int LuaSettings::l_get_pos(lua_State *L)
 {
-    NO_MAP_LOCK_REQUIRED;
-    LuaSettings *o = checkObject<LuaSettings>(L, 1);
-    std::string key = luaL_checkstring(L, 2);
+	NO_MAP_LOCK_REQUIRED;
+	LuaSettings *o = checkObject<LuaSettings>(L, 1);
+	std::string key = luaL_checkstring(L, 2);
 
-    std::optional<v3f> pos;
-    if (o->m_settings->getV3FNoEx(key, pos) && pos.has_value())
-        push_v3f(L, *pos);
-    else
-        lua_pushnil(L);
-    return 1;
+	std::optional<v3f> pos;
+	if (o->m_settings->getV3FNoEx(key, pos) && pos.has_value())
+		push_v3f(L, *pos);
+	else
+		lua_pushnil(L);
+	return 1;
 }
 
 // set(self, key, value)
@@ -246,17 +247,17 @@ int LuaSettings::l_set_np_group(lua_State *L)
 // set_pos(self, key, value)
 int LuaSettings::l_set_pos(lua_State *L)
 {
-    NO_MAP_LOCK_REQUIRED;
-    LuaSettings *o = checkObject<LuaSettings>(L, 1);
+	NO_MAP_LOCK_REQUIRED;
+	LuaSettings *o = checkObject<LuaSettings>(L, 1);
 
-    std::string key = luaL_checkstring(L, 2);
-    v3f value = check_v3f(L, 3);
+	std::string key = luaL_checkstring(L, 2);
+	v3f value = check_v3f(L, 3);
 
-    CHECK_SETTING_SECURITY(L, key);
+	CHECK_SETTING_SECURITY(L, key);
 
-    o->m_settings->setV3F(key, value);
+	o->m_settings->setV3F(key, value);
 
-    return 0;
+	return 0;
 }
 
 // remove(self, key) -> success
@@ -361,7 +362,7 @@ void LuaSettings::Register(lua_State* L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaSettings>(L, methods, metamethods);
 
 	// Can be created from Lua (Settings(filename))
 	lua_register(L, className, create_object);
@@ -388,11 +389,11 @@ const luaL_Reg LuaSettings::methods[] = {
 	luamethod(LuaSettings, get_bool),
 	luamethod(LuaSettings, get_np_group),
 	luamethod(LuaSettings, get_flags),
-    luamethod(LuaSettings, get_pos),
+	luamethod(LuaSettings, get_pos),
 	luamethod(LuaSettings, set),
 	luamethod(LuaSettings, set_bool),
 	luamethod(LuaSettings, set_np_group),
-    luamethod(LuaSettings, set_pos),
+	luamethod(LuaSettings, set_pos),
 	luamethod(LuaSettings, remove),
 	luamethod(LuaSettings, get_names),
 	luamethod(LuaSettings, has),

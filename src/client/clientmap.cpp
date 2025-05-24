@@ -120,6 +120,18 @@ namespace {
 	inline T subtract_or_zero(T a, T b) {
 		return b >= a ? T(0) : (a - b);
 	}
+
+	// file-scope thread-local instances of the above two data structures, because
+	// allocating memory in a hot path can be expensive.
+	thread_local MeshBufListMaps tl_meshbuflistmaps;
+	thread_local DrawDescriptorList tl_drawdescriptorlist;
+}
+
+void CachedMeshBuffer::drop()
+{
+	for (auto *it : buf)
+		it->drop();
+	buf.clear();
 }
 
 /*
@@ -191,10 +203,14 @@ void ClientMap::onSettingChanged(std::string_view name, bool all)
 ClientMap::~ClientMap()
 {
 	g_settings->deregisterAllChangedCallbacks(this);
+
+	for (auto &it : m_dynamic_buffers)
+		it.second.drop();
 }
 
 void ClientMap::updateCamera(v3f pos, v3f dir, f32 fov, v3s16 offset, video::SColor light_color)
 {
+	v3s16 previous_camera_offset = m_camera_offset;
 	v3s16 previous_node = floatToInt(m_camera_position, BS) + m_camera_offset;
 	v3s16 previous_block = getContainerPos(previous_node, MAP_BLOCKSIZE);
 
@@ -214,6 +230,13 @@ void ClientMap::updateCamera(v3f pos, v3f dir, f32 fov, v3s16 offset, video::SCo
 	// reorder transparent meshes when camera crosses node boundary
 	if (previous_node != current_node)
 		m_needs_update_transparent_meshes = true;
+
+	// drop merged mesh cache when camera offset changes
+	if (previous_camera_offset != m_camera_offset) {
+		for (auto &it : m_dynamic_buffers)
+			it.second.drop();
+		m_dynamic_buffers.clear();
+	}
 }
 
 MapSector * ClientMap::emergeSector(v2s16 p2d)
@@ -782,33 +805,51 @@ void MeshBufListMaps::addFromBlock(v3s16 block_pos, MapBlockMesh *block_mesh,
 	}
 }
 
+namespace {
+	// there is no convenient scope this would fit, so it's global
+	struct {
+		u32 total = 0, cache_miss = 0;
+
+		inline void increment(bool hit)
+		{
+			total++;
+			cache_miss += hit ? 0 : 1;
+		}
+		inline void commit(Profiler *profiler)
+		{
+			if (total == 0)
+				return;
+			float rate = (total - cache_miss) / (float)total;
+			profiler->avg("CM::transformBuffers...: cache hit rate [%]", 100 * rate);
+			*this = {0, 0};
+		}
+	} buffer_transform_stats;
+}
+
 /**
  * Copy a list of mesh buffers into the draw order, while potentially
  * merging some.
  * @param src buffer list
  * @param dst draw order
  * @param get_world_pos returns translation for a buffer
- * @param buffer_trash output container for temporary mesh buffers
+ * @param dynamic_buffers cache structure for merged buffers
  * @return number of buffers that were merged
  */
-template <typename F, typename C>
+template <typename F>
 static u32 transformBuffersToDrawOrder(
 	const MeshBufListMaps::MeshBufList &src, DrawDescriptorList &draw_order,
-		F get_world_pos, C &buffer_trash)
+		F get_world_pos, CachedMeshBuffers &dynamic_buffers)
 {
 	/**
 	 * This is a tradeoff between time spent merging buffers and time spent
 	 * due to excess drawcalls.
 	 * Testing has shown that the ideal value is in the low hundreds, as extra
-	 * CPU work quickly eats up the benefits.
+	 * CPU work quickly eats up the benefits (though alleviated by a cache).
 	 * In MTG landscape scenes this was found to save around 20-40% of drawcalls.
 	 *
 	 * NOTE: if you attempt to test this with quicktune, it won't give you valid
 	 * results since HW buffers stick around and Irrlicht handles large amounts
 	 * inefficiently.
-	 *
-	 * TODO: as a next step we should cache merged meshes, so they do not need
-	 * to be re-built *and* can be kept in GPU memory.
 	 */
 	const u32 target_min_vertices = g_settings->getU32("mesh_buffer_min_vertices");
 
@@ -826,23 +867,8 @@ static u32 transformBuffersToDrawOrder(
 		}
 	}
 
-	scene::SMeshBuffer *tmp = nullptr;
-	const auto &finish_buf = [&] () {
-		if (tmp) {
-			draw_order.emplace_back(v3f(0), tmp);
-			total_vtx = subtract_or_zero(total_vtx, tmp->getVertexCount());
-			total_idx = subtract_or_zero(total_idx, tmp->getIndexCount());
-
-			// Upload buffer here explicitly to give the driver some
-			// extra time to get it ready before drawing.
-			tmp->setHardwareMappingHint(scene::EHM_STREAM);
-			driver->updateHardwareBuffer(tmp->getVertexBuffer());
-			driver->updateHardwareBuffer(tmp->getIndexBuffer());
-		}
-		tmp = nullptr;
-	};
-
 	// iterate in reverse to get closest blocks first
+	std::vector<std::pair<v3f, scene::IMeshBuffer*>> to_merge;
 	for (auto it = src.rbegin(); it != src.rend(); ++it) {
 		v3f translate = get_world_pos(it->first);
 		auto *buf = it->second;
@@ -850,25 +876,83 @@ static u32 transformBuffersToDrawOrder(
 			draw_order.emplace_back(translate, buf);
 			continue;
 		}
-
-		bool new_buffer = false;
-		if (!tmp)
-			new_buffer = true;
-		else if (tmp->getVertexCount() + buf->getVertexCount() > U16_MAX)
-			new_buffer = true;
-		if (new_buffer) {
-			finish_buf();
-			tmp = new scene::SMeshBuffer();
-			buffer_trash.push_back(tmp);
-			assert(tmp->getPrimitiveType() == buf->getPrimitiveType());
-			tmp->Material = buf->getMaterial();
-			// preallocate
-			tmp->Vertices->Data.reserve(total_vtx);
-			tmp->Indices->Data.reserve(total_idx);
-		}
-		appendToMeshBuffer(tmp, buf, translate);
+		to_merge.emplace_back(translate, buf);
 	}
-	finish_buf();
+
+	/*
+	 * Tracking buffers, their contents and modifications would be quite complicated
+	 * so we opt for something simple here: We identify buffers by their location
+	 * in memory.
+	 * This imposes the following assumptions:
+	 * - buffers don't move in memory
+	 * - vertex and index data is immutable
+	 * - we know when to invalidate (invalidateMapBlockMesh does this)
+	 */
+	std::sort(to_merge.begin(), to_merge.end(), [] (const auto &l, const auto &r) {
+		return static_cast<void*>(l.second) < static_cast<void*>(r.second);
+	});
+	// cache key is a string of sorted raw pointers
+	std::string key;
+	key.reserve(sizeof(void*) * to_merge.size());
+	for (auto &it : to_merge)
+		key.append(reinterpret_cast<const char*>(&it.second), sizeof(void*));
+
+	// try to take from cache
+	auto it2 = dynamic_buffers.find(key);
+	if (it2 != dynamic_buffers.end()) {
+		buffer_transform_stats.increment(true);
+		const auto &use_mat = to_merge.front().second->getMaterial();
+		assert(!it2->second.buf.empty());
+		for (auto *buf : it2->second.buf) {
+			// material is not part of the cache key, so make sure it still matches
+			buf->getMaterial() = use_mat;
+			draw_order.emplace_back(v3f(0), buf);
+		}
+		it2->second.age = 0;
+	} else if (!key.empty()) {
+		buffer_transform_stats.increment(false);
+		// merge and save to cache
+		auto &put_buffers = dynamic_buffers[key];
+		scene::SMeshBuffer *tmp = nullptr;
+		const auto &finish_buf = [&] () {
+			if (tmp) {
+				draw_order.emplace_back(v3f(0), tmp);
+				total_vtx = subtract_or_zero(total_vtx, tmp->getVertexCount());
+				total_idx = subtract_or_zero(total_idx, tmp->getIndexCount());
+
+				// Upload buffer here explicitly to give the driver some
+				// extra time to get it ready before drawing.
+				tmp->setHardwareMappingHint(scene::EHM_STREAM);
+				driver->updateHardwareBuffer(tmp->getVertexBuffer());
+				driver->updateHardwareBuffer(tmp->getIndexBuffer());
+			}
+			tmp = nullptr;
+		};
+
+		for (auto &it : to_merge) {
+			v3f translate = it.first;
+			auto *buf = it.second;
+
+			bool new_buffer = false;
+			if (!tmp)
+				new_buffer = true;
+			else if (tmp->getVertexCount() + buf->getVertexCount() > U16_MAX)
+				new_buffer = true;
+			if (new_buffer) {
+				finish_buf();
+				tmp = new scene::SMeshBuffer();
+				put_buffers.buf.push_back(tmp);
+				assert(tmp->getPrimitiveType() == buf->getPrimitiveType());
+				tmp->Material = buf->getMaterial();
+				// preallocate approximately
+				tmp->Vertices->Data.reserve(MYMIN(U16_MAX, total_vtx));
+				tmp->Indices->Data.reserve(total_idx);
+			}
+			appendToMeshBuffer(tmp, buf, translate);
+		}
+		finish_buf();
+		assert(!put_buffers.buf.empty());
+	}
 
 	// first call needs to set the material
 	if (draw_order.size() > draw_order_pre)
@@ -920,9 +1004,10 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	*/
 	TimeTaker tt_collect("");
 
-	MeshBufListMaps grouped_buffers;
-	std::vector<scene::IMeshBuffer*> buffer_trash;
-	DrawDescriptorList draw_order;
+	MeshBufListMaps &grouped_buffers = tl_meshbuflistmaps;
+	DrawDescriptorList &draw_order = tl_drawdescriptorlist;
+	grouped_buffers.clear();
+	draw_order.clear();
 
 	auto is_frustum_culled = m_client->getCamera()->getFrustumCuller();
 
@@ -979,7 +1064,7 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	for (auto &map : grouped_buffers.maps) {
 		for (auto &list : map) {
 			merged_count += transformBuffersToDrawOrder(
-				list.second, draw_order, get_block_wpos, buffer_trash);
+				list.second, draw_order, get_block_wpos, m_dynamic_buffers);
 		}
 	}
 
@@ -1036,6 +1121,22 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	if (pass == scene::ESNRP_SOLID) {
 		g_profiler->avg("renderMap(): animated meshes [#]", mesh_animate_count);
 		g_profiler->avg(prefix + "merged buffers [#]", merged_count);
+
+		u32 cached_count = 0;
+		for (auto it = m_dynamic_buffers.begin(); it != m_dynamic_buffers.end(); ) {
+			// prune aggressively since every new/changed block or camera
+			// rotation can have big effects
+			if (++it->second.age > 1) {
+				it->second.drop();
+				it = m_dynamic_buffers.erase(it);
+			} else {
+				cached_count += it->second.buf.size();
+				it++;
+			}
+		}
+		g_profiler->avg(prefix + "merged buffers in cache [#]", cached_count);
+
+		buffer_transform_stats.commit(g_profiler);
 	}
 
 	if (pass == scene::ESNRP_TRANSPARENT) {
@@ -1045,9 +1146,51 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	g_profiler->avg(prefix + "vertices drawn [#]", vertex_count);
 	g_profiler->avg(prefix + "drawcalls [#]", drawcall_count);
 	g_profiler->avg(prefix + "material swaps [#]", material_swaps);
+}
 
-	for (auto &x : buffer_trash)
-		x->drop();
+void ClientMap::invalidateMapBlockMesh(MapBlockMesh *mesh)
+{
+	// find all buffers for this block
+	MeshBufListMaps tmp;
+	tmp.addFromBlock(v3s16(), mesh, getSceneManager()->getVideoDriver());
+
+	std::vector<void*> to_delete;
+	void *maxp = 0;
+	for (auto &it : tmp.maps) {
+		for (auto &it2 : it) {
+			for (auto &it3 : it2.second) {
+				void *const p = it3.second; // explicit downcast
+				to_delete.push_back(p);
+				maxp = std::max(maxp, p);
+			}
+		}
+	}
+	if (to_delete.empty())
+		return;
+
+	// we know which buffers were used to produce a merged buffer
+	// so go through the cache and drop any entries that match
+	const auto &match_any = [&] (const std::string &key) {
+		assert(key.size() % sizeof(void*) == 0);
+		void *v;
+		for (size_t off = 0; off < key.size(); off += sizeof(void*)) {
+			// no alignment guarantee so *(void**)&key[off] is not allowed!
+			memcpy(&v, &key[off], sizeof(void*));
+			if (v > maxp) // early exit, since it's sorted
+				break;
+			if (CONTAINS(to_delete, v))
+				return true;
+		}
+		return false;
+	};
+	for (auto it = m_dynamic_buffers.begin(); it != m_dynamic_buffers.end(); ) {
+		if (match_any(it->first)) {
+			it->second.drop();
+			it = m_dynamic_buffers.erase(it);
+		} else {
+			it++;
+		}
+	}
 }
 
 static bool getVisibleBrightness(Map *map, const v3f &p0, v3f dir, float step,
@@ -1262,9 +1405,10 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 		return intToFloat(mesh_grid.getMeshPos(pos) * MAP_BLOCKSIZE - m_camera_offset, BS);
 	};
 
-	MeshBufListMaps grouped_buffers;
-	std::vector<scene::IMeshBuffer*> buffer_trash;
-	DrawDescriptorList draw_order;
+	MeshBufListMaps &grouped_buffers = tl_meshbuflistmaps;
+	DrawDescriptorList &draw_order = tl_drawdescriptorlist;
+	grouped_buffers.clear();
+	draw_order.clear();
 
 	std::size_t count = 0;
 	std::size_t meshes_per_frame = m_drawlist_shadow.size() / total_frames + 1;
@@ -1308,7 +1452,7 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	for (auto &map : grouped_buffers.maps) {
 		for (auto &list : map) {
 			transformBuffersToDrawOrder(
-				list.second, draw_order, get_block_wpos, buffer_trash);
+				list.second, draw_order, get_block_wpos, m_dynamic_buffers);
 		}
 	}
 
@@ -1373,9 +1517,6 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	g_profiler->avg(prefix + "vertices drawn [#]", vertex_count);
 	g_profiler->avg(prefix + "drawcalls [#]", drawcall_count);
 	g_profiler->avg(prefix + "material swaps [#]", material_swaps);
-
-	for (auto &x : buffer_trash)
-		x->drop();
 }
 
 /*

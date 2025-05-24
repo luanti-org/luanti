@@ -5,7 +5,8 @@
 #pragma once
 
 #include "util/container.h"
-#include "irrlichttypes_bloated.h"
+#include "irrlichttypes.h"
+#include "irr_v3d.h"
 
 class NodeDefManager;
 class Map;

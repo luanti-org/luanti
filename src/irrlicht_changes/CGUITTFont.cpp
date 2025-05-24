@@ -31,43 +31,105 @@
    john@suckerfreegames.com
 */
 
-#include <iostream>
+#include "CGUITTFont.h"
+
+#include "irr_ptr.h"
 #include "log.h"
 #include "filesys.h"
 #include "debug.h"
-
-#include "CGUITTFont.h"
 #include "IFileSystem.h"
 #include "IGUIEnvironment.h"
+
+#include <cstdlib>
+#include <iostream>
 
 namespace irr
 {
 namespace gui
 {
 
-// Manages the FT_Face cache.
-struct SGUITTFace : public irr::IReferenceCounted
+std::map<io::path, SGUITTFace*> SGUITTFace::faces;
+FT_Library SGUITTFace::freetype_library = nullptr;
+std::size_t SGUITTFace::n_faces = 0;
+
+FT_Library SGUITTFace::getFreeTypeLibrary()
 {
-	SGUITTFace()
-	{
-		memset((void*)&face, 0, sizeof(FT_Face));
+	if (freetype_library)
+		return freetype_library;
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+		FATAL_ERROR("initializing freetype failed");
+	freetype_library = ft;
+	return freetype_library;
+}
+
+SGUITTFace::SGUITTFace(std::string &&buffer) : face_buffer(std::move(buffer))
+{
+	memset((void*)&face, 0, sizeof(FT_Face));
+	n_faces++;
+}
+
+SGUITTFace::~SGUITTFace()
+{
+	FT_Done_Face(face);
+	n_faces--;
+	// If there are no more faces referenced by FreeType, clean up.
+	if (n_faces == 0) {
+		assert(freetype_library);
+		FT_Done_FreeType(freetype_library);
+		freetype_library = nullptr;
+	}
+}
+
+SGUITTFace* SGUITTFace::createFace(std::string &&buffer)
+{
+	irr_ptr<SGUITTFace> face(new SGUITTFace(std::move(buffer)));
+	auto ft = getFreeTypeLibrary();
+	if (!ft)
+		return nullptr;
+	return (FT_New_Memory_Face(ft,
+			reinterpret_cast<const FT_Byte*>(face->face_buffer.data()),
+			face->face_buffer.size(), 0, &face->face))
+			? nullptr : face.release();
+}
+
+SGUITTFace* SGUITTFace::loadFace(const io::path &filename)
+{
+	auto it = faces.find(filename);
+	if (it != faces.end()) {
+		it->second->grab();
+		return it->second;
 	}
 
-	~SGUITTFace()
-	{
-		FT_Done_Face(face);
+	std::string buffer;
+	if (!fs::ReadFile(filename.c_str(), buffer, true)) {
+		errorstream << "CGUITTFont: Reading file " << filename.c_str() << " failed." << std::endl;
+		return nullptr;
 	}
 
-	FT_Face face;
-	std::string face_buffer;
-};
+	auto *face = SGUITTFace::createFace(std::move(buffer));
+	if (!face) {
+		errorstream << "CGUITTFont: FT_New_Memory_Face failed." << std::endl;
+		return nullptr;
+	}
+	faces.emplace(filename, face);
+	return face;
+}
 
-// Static variables.
-FT_Library CGUITTFont::c_library;
-std::map<io::path, SGUITTFace*> CGUITTFont::c_faces;
-bool CGUITTFont::c_libraryLoaded = false;
+void SGUITTFace::dropFilename()
+{
+	if (!filename.has_value())
+		return;
 
-//
+	auto it = faces.find(*filename);
+	if (it == faces.end())
+		return;
+
+	SGUITTFace* f = it->second;
+	// Drop our face.  If this was the last face, the destructor will clean up.
+	if (f->drop())
+		faces.erase(*filename);
+}
 
 video::IImage* SGUITTGlyph::createGlyphImage(const FT_Bitmap& bits, video::IVideoDriver* driver) const
 {
@@ -203,17 +265,12 @@ void SGUITTGlyph::unload()
 
 //////////////////////
 
-CGUITTFont* CGUITTFont::createTTFont(IGUIEnvironment *env, const io::path& filename, const u32 size, const bool antialias, const bool transparency, const u32 shadow, const u32 shadow_alpha)
+CGUITTFont* CGUITTFont::createTTFont(IGUIEnvironment *env,
+		SGUITTFace *face, u32 size, bool antialias,
+		bool transparency, u32 shadow, u32 shadow_alpha)
 {
-	if (!c_libraryLoaded)
-	{
-		if (FT_Init_FreeType(&c_library))
-			return 0;
-		c_libraryLoaded = true;
-	}
-
 	CGUITTFont* font = new CGUITTFont(env);
-	bool ret = font->load(filename, size, antialias, transparency);
+	bool ret = font->load(face, size, antialias, transparency);
 	if (!ret)
 	{
 		font->drop();
@@ -246,54 +303,20 @@ shadow_offset(0), shadow_alpha(0), fallback(0)
 	setInvisibleCharacters(L" ");
 }
 
-bool CGUITTFont::load(const io::path& filename, const u32 size, const bool antialias, const bool transparency)
+bool CGUITTFont::load(SGUITTFace *face, const u32 size, const bool antialias, const bool transparency)
 {
-	// Some sanity checks.
-	if (!Driver) return false;
-	if (size == 0) return false;
-	if (filename.empty()) return false;
+	if (!Driver || size == 0 || !face)
+		return false;
 
 	this->size = size;
-	this->filename = filename;
 
 	// Update the font loading flags when the font is first loaded.
 	this->use_monochrome = !antialias;
 	this->use_transparency = transparency;
 	update_load_flags();
 
-	infostream << "CGUITTFont: Creating new font: " << filename.c_str() << " "
-		<< size << "pt " << (antialias ? "+antialias " : "-antialias ")
-		<< (transparency ? "+transparency" : "-transparency") << std::endl;
-
-	// Grab the face.
-	SGUITTFace* face = nullptr;
-	auto node = c_faces.find(filename);
-	if (node == c_faces.end()) {
-		face = new SGUITTFace();
-
-		if (!fs::ReadFile(filename.c_str(), face->face_buffer, true)) {
-			delete face;
-			return false;
-		}
-
-		// Create the face.
-		if (FT_New_Memory_Face(c_library,
-			reinterpret_cast<const FT_Byte*>(face->face_buffer.data()),
-			face->face_buffer.size(), 0, &face->face))
-		{
-			errorstream << "CGUITTFont: FT_New_Memory_Face failed." << std::endl;
-			delete face;
-			return false;
-		}
-
-		c_faces.emplace(filename, face);
-	} else {
-		// Using another instance of this face.
-		face = node->second;
-		face->grab();
-	}
-
 	// Store our face.
+	face->grab();
 	tt_face = face->face;
 
 	// Store font metrics.
@@ -321,24 +344,6 @@ CGUITTFont::~CGUITTFont()
 	// Delete the glyphs and glyph pages.
 	reset_images();
 	Glyphs.clear();
-
-	// We aren't using this face anymore.
-	auto n = c_faces.find(filename);
-	if (n != c_faces.end())
-	{
-		SGUITTFace* f = n->second;
-
-		// Drop our face.  If this was the last face, the destructor will clean up.
-		if (f->drop())
-			c_faces.erase(filename);
-
-		// If there are no more faces referenced by FreeType, clean up.
-		if (c_faces.empty())
-		{
-			FT_Done_FreeType(c_library);
-			c_libraryLoaded = false;
-		}
-	}
 
 	// Drop our driver now.
 	if (Driver)
@@ -892,6 +897,8 @@ video::IImage* CGUITTFont::createTextureFromChar(const char32_t& ch)
 
 	// Acquire a read-only lock of the corresponding page texture.
 	void* ptr = tex->lock(video::ETLM_READ_ONLY);
+	if (!ptr)
+		return nullptr;
 
 	video::ECOLOR_FORMAT format = tex->getColorFormat();
 	core::dimension2du tex_size = tex->getOriginalSize();

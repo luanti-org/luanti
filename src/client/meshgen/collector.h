@@ -18,6 +18,21 @@ struct PreMeshBuffer
 
 	PreMeshBuffer() = default;
 	explicit PreMeshBuffer(const TileLayer &layer) : layer(layer) {}
+
+	/// @brief Colorizes vertices as indicated by tile layer
+	void applyTileColor()
+	{
+		video::SColor tc = layer.color;
+		if (tc == video::SColor(0xFFFFFFFF))
+			return;
+		for (auto &vertex : vertices) {
+			video::SColor *c = &vertex.Color;
+			c->set(c->getAlpha(),
+				c->getRed() * tc.getRed() / 255U,
+				c->getGreen() * tc.getGreen() / 255U,
+				c->getBlue() * tc.getBlue() / 255U);
+		}
+	}
 };
 
 struct MeshCollector
@@ -35,21 +50,12 @@ struct MeshCollector
 	void append(const TileSpec &material,
 			const video::S3DVertex *vertices, u32 numVertices,
 			const u16 *indices, u32 numIndices);
-	void append(const TileSpec &material,
-			const video::S3DVertex *vertices, u32 numVertices,
-			const u16 *indices, u32 numIndices,
-			v3f pos, video::SColor c, u8 light_source);
 
 private:
 	void append(const TileLayer &material,
 			const video::S3DVertex *vertices, u32 numVertices,
 			const u16 *indices, u32 numIndices,
-			u8 layernum, bool use_scale = false);
-	void append(const TileLayer &material,
-			const video::S3DVertex *vertices, u32 numVertices,
-			const u16 *indices, u32 numIndices,
-			v3f pos, video::SColor c, u8 light_source,
-			u8 layernum, bool use_scale = false);
+			u8 layernum);
 
 	PreMeshBuffer &findBuffer(const TileLayer &layer, u8 layernum, u32 numVertices);
 };

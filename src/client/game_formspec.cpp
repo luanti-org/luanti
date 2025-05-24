@@ -9,13 +9,13 @@
 #include "renderingengine.h"
 #include "client.h"
 #include "scripting_client.h"
+#include "cpp_api/s_client_common.h"
 #include "clientmap.h"
 #include "gui/guiFormSpecMenu.h"
 #include "gui/mainmenumanager.h"
 #include "gui/touchcontrols.h"
 #include "gui/touchscreeneditor.h"
 #include "gui/guiPasswordChange.h"
-#include "gui/guiKeyChangeMenu.h"
 #include "gui/guiPasswordChange.h"
 #include "gui/guiOpenURL.h"
 #include "gui/guiVolumeChange.h"
@@ -70,69 +70,73 @@ struct TextDestPlayerInventory : public TextDest
 	Client *m_client;
 };
 
-struct LocalFormspecHandler : public TextDest
+struct LocalScriptingFormspecHandler : public TextDest
 {
-	LocalFormspecHandler(const std::string &formname)
+	LocalScriptingFormspecHandler(const std::string &formname, ScriptApiClientCommon *script)
 	{
 		m_formname = formname;
-	}
-
-	LocalFormspecHandler(const std::string &formname, Client *client):
-		m_client(client)
-	{
-		m_formname = formname;
+		m_script = script;
 	}
 
 	void gotText(const StringMap &fields)
 	{
-		if (m_formname == "MT_PAUSE_MENU") {
-			if (fields.find("btn_sound") != fields.end()) {
-				g_gamecallback->changeVolume();
-				return;
-			}
+		m_script->on_formspec_input(m_formname, fields);
+	}
 
-			if (fields.find("btn_key_config") != fields.end()) {
-				g_gamecallback->keyConfig();
-				return;
-			}
+	ScriptApiClientCommon *m_script = nullptr;
+};
 
-			if (fields.find("btn_touchscreen_layout") != fields.end()) {
-				g_gamecallback->touchscreenLayout();
-				return;
-			}
+struct HardcodedPauseFormspecHandler : public TextDest
+{
+	HardcodedPauseFormspecHandler()
+	{
+		m_formname = "MT_PAUSE_MENU";
+	}
 
-			if (fields.find("btn_exit_menu") != fields.end()) {
-				g_gamecallback->disconnect();
-				return;
-			}
+	void gotText(const StringMap &fields)
+	{
+		if (fields.find("btn_settings") != fields.end()) {
+			g_gamecallback->openSettings();
+			return;
+		}
 
-			if (fields.find("btn_exit_os") != fields.end()) {
-				g_gamecallback->exitToOS();
+		if (fields.find("btn_sound") != fields.end()) {
+			g_gamecallback->changeVolume();
+			return;
+		}
+
+		if (fields.find("btn_exit_menu") != fields.end()) {
+			g_gamecallback->disconnect();
+			return;
+		}
+
+		if (fields.find("btn_exit_os") != fields.end()) {
+			g_gamecallback->exitToOS();
 #ifndef __ANDROID__
-				RenderingEngine::get_raw_device()->closeDevice();
+			RenderingEngine::get_raw_device()->closeDevice();
 #endif
-				return;
-			}
-
-			if (fields.find("btn_change_password") != fields.end()) {
-				g_gamecallback->changePassword();
-				return;
-			}
-
 			return;
 		}
 
-		if (m_formname == "MT_DEATH_SCREEN") {
-			assert(m_client != nullptr);
-
-			if (fields.find("quit") != fields.end())
-				m_client->sendRespawnLegacy();
-
+		if (fields.find("btn_change_password") != fields.end()) {
+			g_gamecallback->changePassword();
 			return;
 		}
+	}
+};
 
-		if (m_client->modsLoaded())
-			m_client->getScript()->on_formspec_input(m_formname, fields);
+struct LegacyDeathFormspecHandler : public TextDest
+{
+	LegacyDeathFormspecHandler(Client *client)
+	{
+		m_formname = "MT_DEATH_SCREEN";
+		m_client = client;
+	}
+
+	void gotText(const StringMap &fields)
+	{
+		if (fields.find("quit") != fields.end())
+			m_client->sendRespawnLegacy();
 	}
 
 	Client *m_client = nullptr;
@@ -193,48 +197,103 @@ public:
 
 //// GameFormSpec
 
+void GameFormSpec::init(Client *client, RenderingEngine *rendering_engine, InputHandler *input)
+{
+	m_client = client;
+	m_rendering_engine = rendering_engine;
+	m_input = input;
+	m_pause_script = std::make_unique<PauseMenuScripting>(client);
+	m_pause_script->loadBuiltin();
+
+	// Make sure any remaining game callback requests are cleared out.
+	*g_gamecallback = MainGameCallback();
+}
+
 void GameFormSpec::deleteFormspec()
 {
 	if (m_formspec) {
 		m_formspec->drop();
 		m_formspec = nullptr;
 	}
-	m_formname.clear();
 }
 
-GameFormSpec::~GameFormSpec() {
+void GameFormSpec::reset()
+{
 	if (m_formspec)
 		m_formspec->quitMenu();
-	this->deleteFormspec();
+	deleteFormspec();
+}
+
+bool GameFormSpec::handleEmptyFormspec(const std::string &formspec, const std::string &formname)
+{
+	if (formspec.empty()) {
+		GUIModalMenu *menu = g_menumgr.tryGetTopMenu();
+		if (menu && (formname.empty() || formname == menu->getName())) {
+			// `m_formspec` will be fixed up in `GameFormSpec::update()`
+			menu->quitMenu();
+		}
+		return true;
+	}
+	return false;
 }
 
 void GameFormSpec::showFormSpec(const std::string &formspec, const std::string &formname)
 {
-	if (formspec.empty()) {
-		if (m_formspec && (formname.empty() || formname == m_formname)) {
-			m_formspec->quitMenu();
-		}
-	} else {
-		FormspecFormSource *fs_src =
-			new FormspecFormSource(formspec);
-		TextDestPlayerInventory *txt_dst =
-			new TextDestPlayerInventory(m_client, formname);
+	if (handleEmptyFormspec(formspec, formname))
+		return;
 
-		m_formname = formname;
-		GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
-			&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
-			m_client->getSoundManager());
-	}
+	FormspecFormSource *fs_src =
+		new FormspecFormSource(formspec);
+	TextDestPlayerInventory *txt_dst =
+		new TextDestPlayerInventory(m_client, formname);
+
+	// Replace the currently open formspec
+	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
+		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
+		m_client->getSoundManager());
+	m_formspec->setName(formname);
 }
 
-void GameFormSpec::showLocalFormSpec(const std::string &formspec, const std::string &formname)
+void GameFormSpec::showCSMFormSpec(const std::string &formspec, const std::string &formname)
 {
+	if (handleEmptyFormspec(formspec, formname))
+		return;
+
 	FormspecFormSource *fs_src = new FormspecFormSource(formspec);
-	LocalFormspecHandler *txt_dst =
-		new LocalFormspecHandler(formname, m_client);
+	LocalScriptingFormspecHandler *txt_dst =
+		new LocalScriptingFormspecHandler(formname, m_client->getScript());
+
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 			&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
 			m_client->getSoundManager());
+	m_formspec->setName(formname);
+}
+
+void GameFormSpec::showPauseMenuFormSpec(const std::string &formspec, const std::string &formname)
+{
+	// The pause menu env is a trusted context like the mainmenu env and provides
+	// the in-game settings formspec.
+	// Neither CSM nor the server must be allowed to mess with it.
+
+	// If we send updated formspec contents, we can either (1) recycle the old
+	// GUIFormSpecMenu or (2) close the old and open a new one. This is option 2.
+	(void)handleEmptyFormspec("", formname);
+	if (formspec.empty())
+		return;
+
+	FormspecFormSource *fs_src = new FormspecFormSource(formspec);
+	LocalScriptingFormspecHandler *txt_dst =
+		new LocalScriptingFormspecHandler(formname, m_pause_script.get());
+
+	GUIFormSpecMenu *fs = nullptr;
+	GUIFormSpecMenu::create(fs, m_client, m_rendering_engine->get_gui_env(),
+			// Ignore formspec prepend.
+			&m_input->joystick, fs_src, txt_dst, "",
+			m_client->getSoundManager());
+
+	fs->setName(formname);
+	fs->doPause = true;
+	fs->drop(); // 1 reference held by `g_menumgr`
 }
 
 void GameFormSpec::showNodeFormspec(const std::string &formspec, const v3s16 &nodepos)
@@ -248,7 +307,6 @@ void GameFormSpec::showNodeFormspec(const std::string &formspec, const v3s16 &no
 		&m_client->getEnv().getClientMap(), nodepos);
 	TextDest *txt_dst = new TextDestNodeMetadata(nodepos, m_client);
 
-	m_formname = "";
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
 		m_client->getSoundManager());
@@ -285,7 +343,7 @@ void GameFormSpec::showPlayerInventory()
 	}
 
 	TextDest *txt_dst = new TextDestPlayerInventory(m_client);
-	m_formname = "";
+
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
 		m_client->getSoundManager());
@@ -325,27 +383,22 @@ void GameFormSpec::showPauseMenu()
 		<< strgettext("Continue") << "]";
 
 	if (!simple_singleplayer_mode) {
-		os << "button_exit[4," << (ypos++) << ";3,0.5;btn_change_password;"
+		os << "button[4," << (ypos++) << ";3,0.5;btn_change_password;"
 			<< strgettext("Change Password") << "]";
 	} else {
 		os << "field[4.95,0;5,1.5;;" << strgettext("Game paused") << ";]";
 	}
 
+	os	<< "button[4," << (ypos++) << ";3,0.5;btn_settings;"
+		<< strgettext("Settings") << "]";
+
 #ifndef __ANDROID__
 #if USE_SOUND
-	if (g_settings->getBool("enable_sound")) {
-		os << "button_exit[4," << (ypos++) << ";3,0.5;btn_sound;"
-			<< strgettext("Sound Volume") << "]";
-	}
+	os << "button[4," << (ypos++) << ";3,0.5;btn_sound;"
+		<< strgettext("Sound Volume") << "]";
 #endif
 #endif
-	if (g_touchcontrols) {
-		os << "button_exit[4," << (ypos++) << ";3,0.5;btn_touchscreen_layout;"
-			<< strgettext("Touchscreen Layout")  << "]";
-	} else {
-		os << "button_exit[4," << (ypos++) << ";3,0.5;btn_key_config;"
-			<< strgettext("Controls")  << "]";
-	}
+
 	os		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_exit_menu;"
 		<< strgettext("Exit to Menu") << "]";
 	os		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_exit_os;"
@@ -395,13 +448,13 @@ void GameFormSpec::showPauseMenu()
 	/* Note: FormspecFormSource and LocalFormspecHandler  *
 	 * are deleted by guiFormSpecMenu                     */
 	FormspecFormSource *fs_src = new FormspecFormSource(os.str());
-	LocalFormspecHandler *txt_dst = new LocalFormspecHandler("MT_PAUSE_MENU");
+	HardcodedPauseFormspecHandler *txt_dst = new HardcodedPauseFormspecHandler();
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 			&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
 			m_client->getSoundManager());
 	m_formspec->setFocus("btn_continue");
-	// game will be paused in next step, if in singleplayer (see m_is_paused)
+	// game will be paused in next step, if in singleplayer (see Game::m_is_paused)
 	m_formspec->doPause = true;
 }
 
@@ -419,7 +472,7 @@ void GameFormSpec::showDeathFormspecLegacy()
 	/* Note: FormspecFormSource and LocalFormspecHandler  *
 	 * are deleted by guiFormSpecMenu                     */
 	FormspecFormSource *fs_src = new FormspecFormSource(formspec_str);
-	LocalFormspecHandler *txt_dst = new LocalFormspecHandler("MT_DEATH_SCREEN", m_client);
+	LegacyDeathFormspecHandler *txt_dst = new LegacyDeathFormspecHandler(m_client);
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
@@ -474,6 +527,11 @@ bool GameFormSpec::handleCallbacks()
 		return false;
 	}
 
+	if (g_gamecallback->settings_requested) {
+		m_pause_script->open_settings();
+		g_gamecallback->settings_requested = false;
+	}
+
 	if (g_gamecallback->changepassword_requested) {
 		(void)make_irr<GUIPasswordChange>(guienv, guiroot, -1,
 				       &g_menumgr, m_client, texture_src);
@@ -486,12 +544,6 @@ bool GameFormSpec::handleCallbacks()
 		g_gamecallback->changevolume_requested = false;
 	}
 
-	if (g_gamecallback->keyconfig_requested) {
-		(void)make_irr<GUIKeyChangeMenu>(guienv, guiroot, -1,
-				      &g_menumgr, texture_src);
-		g_gamecallback->keyconfig_requested = false;
-	}
-
 	if (g_gamecallback->touchscreenlayout_requested) {
 		(new GUITouchscreenLayout(guienv, guiroot, -1,
 				     &g_menumgr, texture_src))->drop();
@@ -502,11 +554,6 @@ bool GameFormSpec::handleCallbacks()
 		(void)make_irr<GUIOpenURLMenu>(guienv, guiroot, -1,
 				 &g_menumgr, texture_src, g_gamecallback->show_open_url_dialog);
 		g_gamecallback->show_open_url_dialog.clear();
-	}
-
-	if (g_gamecallback->keyconfig_changed) {
-		m_input->keycache.populate(); // update the cache with new settings
-		g_gamecallback->keyconfig_changed = false;
 	}
 
 	return true;

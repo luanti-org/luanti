@@ -4,7 +4,9 @@
 // Copyright (C) 2017 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
 #pragma once
-#include "irrlichttypes_extrabloated.h"
+
+#include "irr_v2d.h"
+#include <SColor.h>
 
 namespace irr
 {

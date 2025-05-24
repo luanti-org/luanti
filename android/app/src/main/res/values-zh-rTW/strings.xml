@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loading">載入中…</string>
+    <string name="notification_channel_name">一般通知</string>
+    <string name="notification_channel_description">Luanti 的通知</string>
+    <string name="unzip_notification_description">不到1分鐘…</string>
+    <string name="ime_dialog_done">完畢</string>
+    <string name="no_web_browser">未找到任何網頁瀏覽器</string>
+    <string name="label">Luanti</string>
+    <string name="unzip_notification_title">載入Luanti中</string>
+</resources>

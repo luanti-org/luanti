@@ -476,6 +476,11 @@ void ConnectionSendThread::processNonReliableCommand(ConnectionCommandPtr &c_ptr
 				<< " UDP processing CONNCMD_DISCONNECT_PEER" << std::endl);
 			disconnect_peer(c.peer_id);
 			return;
+		case CONNCMD_PEER_ID_SET:
+			LOG(dout_con << m_connection->getDesc()
+				<< " UDP processing CONNCMD_PEER_ID_SET" << std::endl);
+			fix_peer_id(c.peer_id);
+			return;
 		case CONNCMD_SEND:
 			LOG(dout_con << m_connection->getDesc()
 				<< " UDP processing CONNCMD_SEND" << std::endl);
@@ -577,6 +582,26 @@ void ConnectionSendThread::disconnect_peer(session_t peer_id)
 	}
 
 	dynamic_cast<UDPPeer *>(&peer)->m_pending_disconnect = true;
+}
+
+void ConnectionSendThread::fix_peer_id(session_t own_peer_id)
+{
+	auto peer_ids = m_connection->getPeerIDs();
+	for (const session_t peer_id : peer_ids) {
+		PeerHelper peer = m_connection->getPeerNoEx(peer_id);
+		if (!peer)
+			continue;
+
+		auto *udp_peer = dynamic_cast<UDPPeer*>(&peer);
+		if (!udp_peer)
+			continue;
+
+		for (int ch = 0; ch < CHANNEL_COUNT; ch++) {
+			auto &channel = udp_peer->channels[ch];
+
+			channel.outgoing_reliables_sent.fixPeerId(own_peer_id);
+		}
+	}
 }
 
 void ConnectionSendThread::send(session_t peer_id, u8 channelnum,

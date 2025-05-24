@@ -12,8 +12,20 @@
 
 #include "IGUIFont.h"
 #include "IGUIStaticText.h"
+#include "util/enum_string.h"
+
+const struct EnumString es_TouchInteractionStyle[] =
+{
+	{TAP, "tap"},
+	{TAP_CROSSHAIR, "tap_crosshair"},
+	{BUTTONS_CROSSHAIR, "buttons_crosshair"},
+	{0, NULL},
+};
 
 const char *button_names[] = {
+	"dig",
+	"place",
+
 	"jump",
 	"sneak",
 	"zoom",
@@ -41,6 +53,9 @@ const char *button_names[] = {
 
 // compare with GUIKeyChangeMenu::init_keys
 const char *button_titles[] = {
+	N_("Dig/punch/use"),
+	N_("Place/use"),
+
 	N_("Jump"),
 	N_("Sneak"),
 	N_("Zoom"),
@@ -67,6 +82,9 @@ const char *button_titles[] = {
 };
 
 const char *button_image_names[] = {
+	"dig_btn.png",
+	"place_btn.png",
+
 	"jump_btn.png",
 	"down.png",
 	"zoom.png",
@@ -121,10 +139,21 @@ void ButtonMeta::setPos(v2s32 pos, v2u32 screensize, s32 button_size)
 	offset.Y = (pos.Y - (position.Y * screensize.Y)) / button_size;
 }
 
-bool ButtonLayout::isButtonAllowed(touch_gui_button_id id)
+bool ButtonLayout::isButtonValid(touch_gui_button_id id)
 {
 	return id != joystick_off_id && id != joystick_bg_id && id != joystick_center_id &&
-			id != touch_gui_button_id_END;
+			id < touch_gui_button_id_END;
+}
+
+static const char *buttons_crosshair = enum_to_string(es_TouchInteractionStyle, BUTTONS_CROSSHAIR);
+
+bool ButtonLayout::isButtonAllowed(touch_gui_button_id id)
+{
+	if (id == dig_id || id == place_id)
+		return g_settings->get("touch_interaction_style") == buttons_crosshair;
+	if (id == aux1_id)
+		return !g_settings->getBool("virtual_joystick_triggers_aux1");
+	return true;
 }
 
 bool ButtonLayout::isButtonRequired(touch_gui_button_id id)
@@ -139,7 +168,15 @@ s32 ButtonLayout::getButtonSize(v2u32 screensize)
 					g_settings->getFloat("hud_scaling"));
 }
 
-const ButtonLayout ButtonLayout::predefined {{
+const ButtonLayout::ButtonMap ButtonLayout::default_data {
+	{dig_id, {
+		v2f(1.0f, 1.0f),
+		v2f(-2.0f, -2.75f),
+	}},
+	{place_id, {
+		v2f(1.0f, 1.0f),
+		v2f(-2.0f, -4.25f),
+	}},
 	{jump_id, {
 		v2f(1.0f, 1.0f),
 		v2f(-1.0f, -0.5f),
@@ -160,28 +197,40 @@ const ButtonLayout ButtonLayout::predefined {{
 		v2f(1.0f, 1.0f),
 		v2f(-0.75f, -5.0f),
 	}},
-}};
+};
+
+ButtonLayout ButtonLayout::postProcessLoaded(const ButtonMap &data)
+{
+	ButtonLayout layout;
+	for (const auto &[id, meta] : data) {
+		assert(isButtonValid(id));
+		if (isButtonAllowed(id))
+			layout.layout.emplace(id, meta);
+		else
+			layout.preserved_disallowed.emplace(id, meta);
+	}
+	return layout;
+}
+
+ButtonLayout ButtonLayout::loadDefault()
+{
+	return postProcessLoaded(default_data);
+}
 
 ButtonLayout ButtonLayout::loadFromSettings()
 {
-	bool restored = false;
-	ButtonLayout layout;
-
 	std::string str = g_settings->get("touch_layout");
 	if (!str.empty()) {
 		std::istringstream iss(str);
 		try {
-			layout.deserializeJson(iss);
-			restored = true;
+			ButtonMap data = deserializeJson(iss);
+			return postProcessLoaded(data);
 		} catch (const Json::Exception &e) {
 			warningstream << "Could not parse touchscreen layout: " << e.what() << std::endl;
 		}
 	}
 
-	if (!restored)
-		return predefined;
-
-	return layout;
+	return loadDefault();
 }
 
 std::unordered_map<touch_gui_button_id, irr_ptr<video::ITexture>> ButtonLayout::texture_cache;
@@ -224,7 +273,7 @@ std::vector<touch_gui_button_id> ButtonLayout::getMissingButtons()
 	std::vector<touch_gui_button_id> missing_buttons;
 	for (u8 i = 0; i < touch_gui_button_id_END; i++) {
 		touch_gui_button_id btn = (touch_gui_button_id)i;
-		if (isButtonAllowed(btn) && layout.count(btn) == 0)
+		if (isButtonValid(btn) && isButtonAllowed(btn) && layout.count(btn) == 0)
 			missing_buttons.push_back(btn);
 	}
 	return missing_buttons;
@@ -233,16 +282,19 @@ std::vector<touch_gui_button_id> ButtonLayout::getMissingButtons()
 void ButtonLayout::serializeJson(std::ostream &os) const
 {
 	Json::Value root = Json::objectValue;
+	root["version"] = 1;
 	root["layout"] = Json::objectValue;
 
-	for (const auto &[id, meta] : layout) {
-		Json::Value button = Json::objectValue;
-		button["position_x"] = meta.position.X;
-		button["position_y"] = meta.position.Y;
-		button["offset_x"] = meta.offset.X;
-		button["offset_y"] = meta.offset.Y;
+	for (const auto &list : {layout, preserved_disallowed}) {
+		for (const auto &[id, meta] : list) {
+			Json::Value button = Json::objectValue;
+			button["position_x"] = meta.position.X;
+			button["position_y"] = meta.position.Y;
+			button["offset_x"] = meta.offset.X;
+			button["offset_y"] = meta.offset.Y;
 
-		root["layout"][button_names[id]] = button;
+			root["layout"][button_names[id]] = button;
+		}
 	}
 
 	fastWriteJson(root, os);
@@ -257,12 +309,18 @@ static touch_gui_button_id button_name_to_id(const std::string &name)
 	return touch_gui_button_id_END;
 }
 
-void ButtonLayout::deserializeJson(std::istream &is)
+ButtonLayout::ButtonMap ButtonLayout::deserializeJson(std::istream &is)
 {
-	layout.clear();
+	ButtonMap data;
 
 	Json::Value root;
 	is >> root;
+
+	u8 version;
+	if (root["version"].isUInt())
+		version = root["version"].asUInt();
+	else
+		version = 0;
 
 	if (!root["layout"].isObject())
 		throw Json::RuntimeError("invalid type for layout");
@@ -271,7 +329,7 @@ void ButtonLayout::deserializeJson(std::istream &is)
 	Json::ValueIterator iter;
 	for (iter = obj.begin(); iter != obj.end(); iter++) {
 		touch_gui_button_id id = button_name_to_id(iter.name());
-		if (!isButtonAllowed(id))
+		if (!isButtonValid(id))
 			throw Json::RuntimeError("invalid button name");
 
 		Json::Value &value = *iter;
@@ -290,8 +348,20 @@ void ButtonLayout::deserializeJson(std::istream &is)
 		meta.offset.X = value["offset_x"].asFloat();
 		meta.offset.Y = value["offset_y"].asFloat();
 
-		layout.emplace(id, meta);
+		data.emplace(id, meta);
 	}
+
+	if (version < 1) {
+		// Version 0 did not have dig/place buttons, so add them in.
+		// Otherwise, the missing buttons would cause confusion if the user
+		// switches to "touch_interaction_style = buttons_crosshair".
+		// This may result in overlapping buttons (could be fixed by resolving
+		// collisions in postProcessLoaded).
+		data.emplace(dig_id, default_data.at(dig_id));
+		data.emplace(place_id, default_data.at(place_id));
+	}
+
+	return data;
 }
 
 void layout_button_grid(v2u32 screensize, ISimpleTextureSource *tsrc,

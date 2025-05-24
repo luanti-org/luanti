@@ -22,7 +22,6 @@ struct shadowFrustum
 	core::matrix4 ViewMat;
 	v3f position;
 	v3f player;
-	v3s16 camera_offset;
 };
 
 class DirectionalLight
@@ -34,9 +33,9 @@ public:
 			f32 farValue = 100.0f);
 	~DirectionalLight() = default;
 
-	//DISABLE_CLASS_COPY(DirectionalLight)
+	void updateCameraOffset(const Camera *cam);
 
-	void update_frustum(const Camera *cam, Client *client, bool force = false);
+	void updateFrustum(const Camera *cam, Client *client);
 
 	// when set direction is updated to negative normalized(direction)
 	void setDirection(v3f dir);
@@ -85,6 +84,7 @@ public:
 		return mapRes;
 	}
 
+	/// If true, shadow map needs to be invalidated due to frustum change
 	bool should_update_map_shadow{true};
 
 	void commitFrustum();

@@ -14,6 +14,9 @@ https://www.apache.org/licenses/LICENSE-2.0.html
 Textures by Zughy are under CC BY-SA 4.0
 https://creativecommons.org/licenses/by-sa/4.0/
 
+Textures by cx384 are under CC BY-SA 4.0
+https://creativecommons.org/licenses/by-sa/4.0/
+
 Media files by DS are under CC BY-SA 4.0
 https://creativecommons.org/licenses/by-sa/4.0/
 
@@ -64,7 +67,13 @@ Zughy:
   textures/base/pack/settings_info.png
   textures/base/pack/settings_reset.png
   textures/base/pack/server_url.png
+  textures/base/pack/server_url_unavailable.png
   textures/base/pack/server_view_clients.png
+  textures/base/pack/server_view_clients_unavailable.png
+
+cx384:
+  textures/base/pack/server_view_mods.png
+  textures/base/pack/server_view_mods_unavailable.png
 
 appgurueu:
   textures/base/pack/server_incompatible.png
@@ -93,6 +102,14 @@ grorp:
     using the font "undefined medium" (https://undefined-medium.com/),
     which is licensed under the SIL Open Font License, Version 1.1
     modified by DS
+  textures/base/pack/dig_btn.png
+  textures/base/pack/place_btn.png
+    derived by editing the text in aux1_btn.svg
+
+Material Design, Google (Apache license v2.0):
+  textures/base/pack/contentdb_thumb_up.png
+  textures/base/pack/contentdb_thumb_down.png
+  textures/base/pack/contentdb_neutral.png
 
 License of Luanti source code
 -------------------------------

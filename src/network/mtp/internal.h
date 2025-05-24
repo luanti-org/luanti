@@ -33,7 +33,7 @@ channel:
 /*
 Packet types:
 
-CONTROL: This is a packet used by the protocol.
+PACKET_TYPE_CONTROL: This is a packet used by the protocol.
 - When this is processed, nothing is handed to the user.
 	Header (2 byte):
 	[0] u8 type
@@ -48,25 +48,18 @@ controltype and data description:
 	  packet to get a reply
 	CONTROLTYPE_DISCO
 */
-enum ControlType : u8 {
-	CONTROLTYPE_ACK = 0,
-	CONTROLTYPE_SET_PEER_ID = 1,
-	CONTROLTYPE_PING = 2,
-	CONTROLTYPE_DISCO = 3,
-};
 
 /*
-ORIGINAL: This is a plain packet with no control and no error
+PACKET_TYPE_ORIGINAL: This is a plain packet with no control and no error
 checking at all.
 - When this is processed, it is directly handed to the user.
 	Header (1 byte):
 	[0] u8 type
 */
-//#define TYPE_ORIGINAL 1
 #define ORIGINAL_HEADER_SIZE 1
 
 /*
-SPLIT: These are sequences of packets forming one bigger piece of
+PACKET_TYPE_SPLIT: These are sequences of packets forming one bigger piece of
 data.
 - When processed and all the packet_nums 0...packet_count-1 are
   present (this should be buffered), the resulting data shall be
@@ -80,10 +73,9 @@ data.
 	[3] u16 chunk_count
 	[5] u16 chunk_num
 */
-//#define TYPE_SPLIT 2
 
 /*
-RELIABLE: Delivery of all RELIABLE packets shall be forced by ACKs,
+PACKET_TYPE_RELIABLE: Delivery of all RELIABLE packets shall be forced by ACKs,
 and they shall be delivered in the same order as sent. This is done
 with a buffer in the receiving and transmitting end.
 - When this is processed, the contents of each packet is recursively
@@ -93,14 +85,28 @@ with a buffer in the receiving and transmitting end.
 	[1] u16 seqnum
 
 */
-//#define TYPE_RELIABLE 3
 #define RELIABLE_HEADER_SIZE 3
 #define SEQNUM_INITIAL 65500
 #define SEQNUM_MAX 65535
 
+/****/
+
+template<typename T>
+class ConstSharedPtr {
+public:
+	ConstSharedPtr(T *ptr) : ptr(ptr) {}
+	ConstSharedPtr(const std::shared_ptr<T> &ptr) : ptr(ptr) {}
+
+	const T* get() const noexcept { return ptr.get(); }
+	const T& operator*() const noexcept { return *ptr.get(); }
+	const T* operator->() const noexcept { return ptr.get(); }
+
+private:
+	std::shared_ptr<T> ptr;
+};
+
 namespace con
 {
-
 
 enum PacketType : u8 {
 	PACKET_TYPE_CONTROL = 0,
@@ -108,6 +114,13 @@ enum PacketType : u8 {
 	PACKET_TYPE_SPLIT = 2,
 	PACKET_TYPE_RELIABLE = 3,
 	PACKET_TYPE_MAX
+};
+
+enum ControlType : u8 {
+	CONTROLTYPE_ACK = 0,
+	CONTROLTYPE_SET_PEER_ID = 1,
+	CONTROLTYPE_PING = 2,
+	CONTROLTYPE_DISCO = 3,
 };
 
 inline bool seqnum_higher(u16 totest, u16 base)
@@ -187,6 +200,7 @@ struct BufferedPacket {
 	DISABLE_CLASS_COPY(BufferedPacket)
 
 	u16 getSeqnum() const;
+	void setSenderPeerId(session_t id);
 
 	inline size_t size() const { return m_data.size(); }
 
@@ -250,6 +264,8 @@ public:
 	BufferedPacketPtr popFirst();
 	BufferedPacketPtr popSeqnum(u16 seqnum);
 	void insert(BufferedPacketPtr &p_ptr, u16 next_expected);
+	/// Adjusts the sender peer ID for all packets
+	void fixPeerId(session_t id);
 
 	void incrementTimeouts(float dtime);
 	u32 getTimedOuts(float timeout);
@@ -307,7 +323,8 @@ enum ConnectionCommandType{
 	CONNCMD_SEND_TO_ALL,
 	CONCMD_ACK,
 	CONCMD_CREATE_PEER,
-	CONNCMD_RESEND_ONE
+	CONNCMD_RESEND_ONE,
+	CONNCMD_PEER_ID_SET
 };
 
 // This is very similar to ConnectionEvent
@@ -328,6 +345,7 @@ struct ConnectionCommand
 	static ConnectionCommandPtr disconnect();
 	static ConnectionCommandPtr disconnect_peer(session_t peer_id);
 	static ConnectionCommandPtr resend_one(session_t peer_id);
+	static ConnectionCommandPtr peer_id_set(session_t own_peer_id);
 	static ConnectionCommandPtr send(session_t peer_id, u8 channelnum, NetworkPacket *pkt, bool reliable);
 	static ConnectionCommandPtr ack(session_t peer_id, u8 channelnum, const Buffer<u8> &data);
 	static ConnectionCommandPtr createPeer(session_t peer_id, const Buffer<u8> &data);

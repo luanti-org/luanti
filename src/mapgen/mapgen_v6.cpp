@@ -25,7 +25,7 @@
 #include "mapgen_v6.h"
 
 
-FlagDesc flagdesc_mapgen_v6[] = {
+const FlagDesc flagdesc_mapgen_v6[] = {
 	{"jungles",    MGV6_JUNGLES},
 	{"biomeblend", MGV6_BIOMEBLEND},
 	{"mudflow",    MGV6_MUDFLOW},
@@ -289,13 +289,13 @@ float MapgenV6::baseTerrainLevelFromNoise(v2s16 p)
 	if (spflags & MGV6_FLAT)
 		return water_level;
 
-	float terrain_base   = NoisePerlin2D_PO(&noise_terrain_base->np,
+	float terrain_base   = NoiseFractal2D_PO(&noise_terrain_base->np,
 							p.X, 0.5, p.Y, 0.5, seed);
-	float terrain_higher = NoisePerlin2D_PO(&noise_terrain_higher->np,
+	float terrain_higher = NoiseFractal2D_PO(&noise_terrain_higher->np,
 							p.X, 0.5, p.Y, 0.5, seed);
-	float steepness      = NoisePerlin2D_PO(&noise_steepness->np,
+	float steepness      = NoiseFractal2D_PO(&noise_steepness->np,
 							p.X, 0.5, p.Y, 0.5, seed);
-	float height_select  = NoisePerlin2D_PO(&noise_height_select->np,
+	float height_select  = NoiseFractal2D_PO(&noise_height_select->np,
 							p.X, 0.5, p.Y, 0.5, seed);
 
 	return baseTerrainLevel(terrain_base, terrain_higher,
@@ -355,7 +355,7 @@ BiomeV6Type MapgenV6::getBiome(v2s16 p)
 
 float MapgenV6::getHumidity(v2s16 p)
 {
-	/*double noise = noise2d_perlin(
+	/*double noise = noise2d_fractal(
 		0.5+(float)p.X/500, 0.5+(float)p.Y/500,
 		seed+72384, 4, 0.66);
 	noise = (noise + 1.0)/2.0;*/
@@ -374,11 +374,11 @@ float MapgenV6::getHumidity(v2s16 p)
 
 float MapgenV6::getTreeAmount(v2s16 p)
 {
-	/*double noise = noise2d_perlin(
+	/*double noise = noise2d_fractal(
 			0.5+(float)p.X/125, 0.5+(float)p.Y/125,
 			seed+2, 4, 0.66);*/
 
-	float noise = NoisePerlin2D(np_trees, p.X, p.Y, seed);
+	float noise = NoiseFractal2D(np_trees, p.X, p.Y, seed);
 	float zeroval = -0.39;
 	if (noise < zeroval)
 		return 0;
@@ -389,11 +389,11 @@ float MapgenV6::getTreeAmount(v2s16 p)
 
 bool MapgenV6::getHaveAppleTree(v2s16 p)
 {
-	/*is_apple_tree = noise2d_perlin(
+	/*is_apple_tree = noise2d_fractal(
 		0.5+(float)p.X/100, 0.5+(float)p.Z/100,
 		data->seed+342902, 3, 0.45) > 0.2;*/
 
-	float noise = NoisePerlin2D(np_apple_trees, p.X, p.Y, seed);
+	float noise = NoiseFractal2D(np_apple_trees, p.X, p.Y, seed);
 
 	return noise > 0.2;
 }
@@ -404,7 +404,7 @@ float MapgenV6::getMudAmount(int index)
 	if (spflags & MGV6_FLAT)
 		return MGV6_AVERAGE_MUD_AMOUNT;
 
-	/*return ((float)AVERAGE_MUD_AMOUNT + 2.0 * noise2d_perlin(
+	/*return ((float)AVERAGE_MUD_AMOUNT + 2.0 * noise2d_fractal(
 			0.5+(float)p.X/200, 0.5+(float)p.Y/200,
 			seed+91013, 3, 0.55));*/
 
@@ -415,7 +415,7 @@ float MapgenV6::getMudAmount(int index)
 bool MapgenV6::getHaveBeach(int index)
 {
 	// Determine whether to have sand here
-	/*double sandnoise = noise2d_perlin(
+	/*double sandnoise = noise2d_fractal(
 			0.2+(float)p2d.X/250, 0.7+(float)p2d.Y/250,
 			seed+59420, 3, 0.50);*/
 
@@ -427,7 +427,7 @@ bool MapgenV6::getHaveBeach(int index)
 BiomeV6Type MapgenV6::getBiome(int index, v2s16 p)
 {
 	// Just do something very simple as for now
-	/*double d = noise2d_perlin(
+	/*double d = noise2d_fractal(
 			0.6+(float)p2d.X/250, 0.2+(float)p2d.Y/250,
 			seed+9130, 3, 0.50);*/
 
@@ -547,7 +547,7 @@ void MapgenV6::makeChunk(BlockMakeData *data)
 	if ((flags & MG_DUNGEONS) && stone_surface_max_y >= node_min.Y &&
 			full_node_min.Y >= dungeon_ymin && full_node_max.Y <= dungeon_ymax) {
 		u16 num_dungeons = std::fmax(std::floor(
-			NoisePerlin3D(&np_dungeons, node_min.X, node_min.Y, node_min.Z, seed)), 0.0f);
+			NoiseFractal3D(&np_dungeons, node_min.X, node_min.Y, node_min.Z, seed)), 0.0f);
 
 		if (num_dungeons >= 1) {
 			PseudoRandom ps(blockseed + 4713);
@@ -633,17 +633,17 @@ void MapgenV6::calculateNoise()
 	int fz = full_node_min.Z;
 
 	if (!(spflags & MGV6_FLAT)) {
-		noise_terrain_base->perlinMap2D_PO(x, 0.5, z, 0.5);
-		noise_terrain_higher->perlinMap2D_PO(x, 0.5, z, 0.5);
-		noise_steepness->perlinMap2D_PO(x, 0.5, z, 0.5);
-		noise_height_select->perlinMap2D_PO(x, 0.5, z, 0.5);
-		noise_mud->perlinMap2D_PO(x, 0.5, z, 0.5);
+		noise_terrain_base->noiseMap2D_PO(x, 0.5, z, 0.5);
+		noise_terrain_higher->noiseMap2D_PO(x, 0.5, z, 0.5);
+		noise_steepness->noiseMap2D_PO(x, 0.5, z, 0.5);
+		noise_height_select->noiseMap2D_PO(x, 0.5, z, 0.5);
+		noise_mud->noiseMap2D_PO(x, 0.5, z, 0.5);
 	}
 
-	noise_beach->perlinMap2D_PO(x, 0.2, z, 0.7);
+	noise_beach->noiseMap2D_PO(x, 0.2, z, 0.7);
 
-	noise_biome->perlinMap2D_PO(fx, 0.6, fz, 0.2);
-	noise_humidity->perlinMap2D_PO(fx, 0.0, fz, 0.0);
+	noise_biome->noiseMap2D_PO(fx, 0.6, fz, 0.2);
+	noise_humidity->noiseMap2D_PO(fx, 0.0, fz, 0.0);
 	// Humidity map does not need range limiting 0 to 1,
 	// only humidity at point does
 }
@@ -1075,7 +1075,7 @@ void MapgenV6::growGrass() // Add surface nodes
 
 void MapgenV6::generateCaves(int max_stone_y)
 {
-	float cave_amount = NoisePerlin2D(np_cave, node_min.X, node_min.Y, seed);
+	float cave_amount = NoiseFractal2D(np_cave, node_min.X, node_min.Y, seed);
 	int volume_nodes = (node_max.X - node_min.X + 1) *
 					   (node_max.Y - node_min.Y + 1) * MAP_BLOCKSIZE;
 	cave_amount = MYMAX(0.0, cave_amount);

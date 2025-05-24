@@ -3,9 +3,8 @@
 // Copyright (C) 2018 rubenwardy <rw@rubenwardy.com>
 
 #pragma once
-#include "config.h"
-#include "convert_json.h"
 #include "irrlichttypes.h"
+#include <string>
 
 enum class ContentType
 {

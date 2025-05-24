@@ -74,9 +74,15 @@ public:
 
 	v3f getSelectionPos() const { return m_selection_pos; }
 
-	void setSelectionRotation(v3f rotation) { m_selection_rotation = rotation; }
+	void setSelectionRotationRadians(v3f rotation)
+	{
+		m_selection_rotation_radians = rotation;
+	}
 
-	v3f getSelectionRotation() const { return m_selection_rotation; }
+	v3f getSelectionRotationRadians() const
+	{
+		return m_selection_rotation_radians;
+	}
 
 	void setSelectionMeshColor(const video::SColor &color)
 	{
@@ -129,7 +135,7 @@ private:
 	std::vector<aabb3f> m_halo_boxes;
 	v3f m_selection_pos;
 	v3f m_selection_pos_with_offset;
-	v3f m_selection_rotation;
+	v3f m_selection_rotation_radians;
 
 	scene::IMesh *m_selection_mesh = nullptr;
 	video::SColor m_selection_mesh_color;
@@ -147,32 +153,3 @@ private:
 		HIGHLIGHT_NONE
 	} m_mode;
 };
-
-enum ItemRotationKind
-{
-	IT_ROT_SELECTED,
-	IT_ROT_HOVERED,
-	IT_ROT_DRAGGED,
-	IT_ROT_OTHER,
-	IT_ROT_NONE, // Must be last, also serves as number
-};
-
-void drawItemStack(video::IVideoDriver *driver,
-		gui::IGUIFont *font,
-		const ItemStack &item,
-		const core::rect<s32> &rect,
-		const core::rect<s32> *clip,
-		Client *client,
-		ItemRotationKind rotation_kind);
-
-void drawItemStack(
-		video::IVideoDriver *driver,
-		gui::IGUIFont *font,
-		const ItemStack &item,
-		const core::rect<s32> &rect,
-		const core::rect<s32> *clip,
-		Client *client,
-		ItemRotationKind rotation_kind,
-		const v3s16 &angle,
-		const v3s16 &rotation_speed);
-

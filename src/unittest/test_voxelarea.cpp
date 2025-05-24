@@ -98,10 +98,12 @@ void TestVoxelArea::test_addarea()
 void TestVoxelArea::test_pad()
 {
 	VoxelArea v1(v3s16(-1447, -9547, -875), v3s16(-147, 8854, 669));
+	auto old_extent = v1.getExtent();
 	v1.pad(v3s16(100, 200, 300));
 
 	UASSERT(v1.MinEdge == v3s16(-1547, -9747, -1175));
 	UASSERT(v1.MaxEdge == v3s16(-47, 9054, 969));
+	UASSERT(v1.getExtent() > old_extent);
 }
 
 void TestVoxelArea::test_extent()
@@ -165,6 +167,12 @@ void TestVoxelArea::test_contains_point()
 	UASSERTEQ(bool, v1.contains(v3s16(-100, 100, 10000)), false);
 	UASSERTEQ(bool, v1.contains(v3s16(-100, 100, -10000)), false);
 	UASSERTEQ(bool, v1.contains(v3s16(10000, 100, 10)), false);
+
+	VoxelArea v2;
+	UASSERTEQ(bool, v2.contains(v3s16(-200, 10, 10)), false);
+	UASSERTEQ(bool, v2.contains(v3s16(0, 0, 0)), false);
+	UASSERTEQ(bool, v2.contains(v3s16(1, 1, 1)), false);
+	UASSERTEQ(bool, v2.contains(v3s16(-1, -1, -1)), false);
 }
 
 void TestVoxelArea::test_contains_i()
@@ -180,6 +188,12 @@ void TestVoxelArea::test_contains_i()
 	UASSERTEQ(bool, v2.contains(10), true);
 	UASSERTEQ(bool, v2.contains(0), true);
 	UASSERTEQ(bool, v2.contains(-1), false);
+
+	VoxelArea v3;
+	UASSERTEQ(bool, v3.contains(0), false);
+	UASSERTEQ(bool, v3.contains(-1), false);
+	UASSERTEQ(bool, v3.contains(1), false);
+	UASSERTEQ(bool, v3.contains(2), false);
 }
 
 void TestVoxelArea::test_equal()
@@ -244,6 +258,7 @@ void TestVoxelArea::test_intersect()
 	VoxelArea v3({11, 11, 11}, {11, 11, 11});
 	VoxelArea v4({-11, -2, -10}, {10, 2, 11});
 	UASSERT(v2.intersect(v1) == v2);
+	UASSERT(!v2.intersect(v1).hasEmptyExtent());
 	UASSERT(v1.intersect(v2) == v2.intersect(v1));
 	UASSERT(v1.intersect(v3).hasEmptyExtent());
 	UASSERT(v3.intersect(v1) == v1.intersect(v3));

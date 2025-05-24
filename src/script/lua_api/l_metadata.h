@@ -29,7 +29,22 @@ protected:
 	virtual void handleToTable(lua_State *L, IMetadata *meta);
 	virtual bool handleFromTable(lua_State *L, int table, IMetadata *meta);
 
-	static void registerMetadataClass(lua_State *L, const char *name, const luaL_Reg *methods);
+	template<class T>
+	static void registerMetadataClass(lua_State *L, const luaL_Reg *methods)
+	{
+		const luaL_Reg metamethods[] = {
+			{"__eq", l_equals},
+			{"__gc", gc_object},
+			{0, 0}
+		};
+		registerClass<T>(L, methods, metamethods);
+
+		// Set metadata_class in the metatable for MetaDataRef::checkAnyMetadata.
+		luaL_getmetatable(L, T::className);
+		lua_pushstring(L, T::className);
+		lua_setfield(L, -2, "metadata_class");
+		lua_pop(L, 1);
+	}
 
 	// Exported functions
 

@@ -18,7 +18,6 @@ extern "C" {
 }
 
 #include "irrlichttypes.h"
-#include "common/c_types.h"
 #include "common/c_internal.h"
 #include "debug.h"
 #include "config.h"
@@ -47,7 +46,8 @@ enum class ScriptingType: u8 {
 	Client,
 	MainMenu,
 	Server,
-	Emerge
+	Emerge,
+	PauseMenu,
 };
 
 class Server;

@@ -693,11 +693,11 @@ bool InventoryList::containsItem(const ItemStack &item, bool match_meta) const
 	return false;
 }
 
-ItemStack InventoryList::removeItem(const ItemStack &item)
+ItemStack InventoryList::removeItem(const ItemStack &item, bool match_meta)
 {
 	ItemStack removed;
 	for (auto i = m_items.rbegin(); i != m_items.rend(); ++i) {
-		if (i->name == item.name) {
+		if (i->name == item.name && (!match_meta || i->metadata == item.metadata)) {
 			u32 still_to_remove = item.count - removed.count;
 			ItemStack leftover = removed.addItem(i->takeItem(still_to_remove),
 					m_itemdef);

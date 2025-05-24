@@ -18,47 +18,38 @@ namespace core
 
 //! Rounding error constant often used when comparing f32 values.
 
-const f32 ROUNDING_ERROR_f32 = 0.000001f;
-const f64 ROUNDING_ERROR_f64 = 0.00000001;
+constexpr f32 ROUNDING_ERROR_f32 = 0.000001f;
+constexpr f64 ROUNDING_ERROR_f64 = 0.00000001;
 
 #ifdef PI // make sure we don't collide with a define
 #undef PI
 #endif
 //! Constant for PI.
-const f32 PI = 3.14159265359f;
-
-//! Constant for reciprocal of PI.
-const f32 RECIPROCAL_PI = 1.0f / PI;
-
-//! Constant for half of PI.
-const f32 HALF_PI = PI / 2.0f;
+constexpr f32 PI = static_cast<f32>(M_PI);
 
 #ifdef PI64 // make sure we don't collide with a define
 #undef PI64
 #endif
 //! Constant for 64bit PI.
-const f64 PI64 = 3.1415926535897932384626433832795028841971693993751;
-
-//! Constant for 64bit reciprocal of PI.
-const f64 RECIPROCAL_PI64 = 1.0 / PI64;
+constexpr f64 PI64 = M_PI;
 
 //! 32bit Constant for converting from degrees to radians
-const f32 DEGTORAD = PI / 180.0f;
+constexpr f32 DEGTORAD = PI / 180.0f;
 
 //! 32bit constant for converting from radians to degrees (formally known as GRAD_PI)
-const f32 RADTODEG = 180.0f / PI;
+constexpr f32 RADTODEG = 180.0f / PI;
 
 //! 64bit constant for converting from degrees to radians (formally known as GRAD_PI2)
-const f64 DEGTORAD64 = PI64 / 180.0;
+constexpr f64 DEGTORAD64 = PI64 / 180.0;
 
 //! 64bit constant for converting from radians to degrees
-const f64 RADTODEG64 = 180.0 / PI64;
+constexpr f64 RADTODEG64 = 180.0 / PI64;
 
 //! Utility function to convert a radian value to degrees
 /** Provided as it can be clearer to write radToDeg(X) than RADTODEG * X
 \param radians The radians value to convert to degrees.
 */
-inline f32 radToDeg(f32 radians)
+inline constexpr f32 radToDeg(f32 radians)
 {
 	return RADTODEG * radians;
 }
@@ -67,7 +58,7 @@ inline f32 radToDeg(f32 radians)
 /** Provided as it can be clearer to write radToDeg(X) than RADTODEG * X
 \param radians The radians value to convert to degrees.
 */
-inline f64 radToDeg(f64 radians)
+inline constexpr f64 radToDeg(f64 radians)
 {
 	return RADTODEG64 * radians;
 }
@@ -76,7 +67,7 @@ inline f64 radToDeg(f64 radians)
 /** Provided as it can be clearer to write degToRad(X) than DEGTORAD * X
 \param degrees The degrees value to convert to radians.
 */
-inline f32 degToRad(f32 degrees)
+inline constexpr f32 degToRad(f32 degrees)
 {
 	return DEGTORAD * degrees;
 }
@@ -85,44 +76,44 @@ inline f32 degToRad(f32 degrees)
 /** Provided as it can be clearer to write degToRad(X) than DEGTORAD * X
 \param degrees The degrees value to convert to radians.
 */
-inline f64 degToRad(f64 degrees)
+inline constexpr f64 degToRad(f64 degrees)
 {
 	return DEGTORAD64 * degrees;
 }
 
-//! returns minimum of two values. Own implementation to get rid of the STL (VS6 problems)
+//! returns minimum of two values.
 template <class T>
 inline const T &min_(const T &a, const T &b)
 {
 	return a < b ? a : b;
 }
 
-//! returns minimum of three values. Own implementation to get rid of the STL (VS6 problems)
+//! returns minimum of three values.
 template <class T>
 inline const T &min_(const T &a, const T &b, const T &c)
 {
 	return a < b ? min_(a, c) : min_(b, c);
 }
 
-//! returns maximum of two values. Own implementation to get rid of the STL (VS6 problems)
+//! returns maximum of two values.
 template <class T>
 inline const T &max_(const T &a, const T &b)
 {
 	return a < b ? b : a;
 }
 
-//! returns maximum of three values. Own implementation to get rid of the STL (VS6 problems)
+//! returns maximum of three values.
 template <class T>
 inline const T &max_(const T &a, const T &b, const T &c)
 {
 	return a < b ? max_(b, c) : max_(a, c);
 }
 
-//! returns abs of two values. Own implementation to get rid of STL (VS6 problems)
+//! returns abs of two values.
 template <class T>
 inline T abs_(const T &a)
 {
-	return a < (T)0 ? -a : a;
+	return std::abs(a);
 }
 
 //! returns linear interpolation of a and b with ratio t
@@ -138,19 +129,6 @@ template <class T>
 inline const T clamp(const T &value, const T &low, const T &high)
 {
 	return min_(max_(value, low), high);
-}
-
-//! swaps the content of the passed parameters
-// Note: We use the same trick as boost and use two template arguments to
-// avoid ambiguity when swapping objects of an Irrlicht type that has not
-// it's own swap overload. Otherwise we get conflicts with some compilers
-// in combination with stl.
-template <class T1, class T2>
-inline void swap(T1 &a, T2 &b)
-{
-	T1 c(a);
-	a = b;
-	b = c;
 }
 
 template <class T>
@@ -303,6 +281,17 @@ inline s32 s32_max(s32 a, s32 b)
 inline s32 s32_clamp(s32 value, s32 low, s32 high)
 {
 	return clamp(value, low, high);
+}
+
+// integer log2 of an integer. returning 0 if denormal
+inline s32 u32_log2(u32 in)
+{
+	s32 ret = 0;
+	while (in > 1) {
+		in >>= 1;
+		ret++;
+	}
+	return ret;
 }
 
 /*

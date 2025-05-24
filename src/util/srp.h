@@ -55,6 +55,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 struct SRPVerifier;
 struct SRPUser;
 

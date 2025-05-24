@@ -61,8 +61,8 @@ void CavesNoiseIntersection::generateCaves(MMVManip *vm,
 	assert(vm);
 	assert(biomemap);
 
-	noise_cave1->perlinMap3D(nmin.X, nmin.Y - 1, nmin.Z);
-	noise_cave2->perlinMap3D(nmin.X, nmin.Y - 1, nmin.Z);
+	noise_cave1->noiseMap3D(nmin.X, nmin.Y - 1, nmin.Z);
+	noise_cave2->noiseMap3D(nmin.X, nmin.Y - 1, nmin.Z);
 
 	const v3s32 &em = vm->m_area.getExtent();
 	u32 index2d = 0;  // Biomemap index
@@ -218,7 +218,7 @@ bool CavernsNoise::generateCaverns(MMVManip *vm, v3s16 nmin, v3s16 nmax)
 	assert(vm);
 
 	// Calculate noise
-	noise_cavern->perlinMap3D(nmin.X, nmin.Y - 1, nmin.Z);
+	noise_cavern->noiseMap3D(nmin.X, nmin.Y - 1, nmin.Z);
 
 	// Cache cavern_amp values
 	float *cavern_amp = new float[m_csize.Y + 1];
@@ -532,7 +532,7 @@ void CavesRandomWalk::carveRoute(v3f vec, float f, bool randomize_xz)
 			// If cave liquid not defined by biome, fallback to old hardcoded behavior.
 			// TODO 'np_caveliquids' is deprecated and should eventually be removed.
 			// Cave liquids are now defined and located using biome definitions.
-			float nval = NoisePerlin3D(np_caveliquids, startp.X,
+			float nval = NoiseFractal3D(np_caveliquids, startp.X,
 				startp.Y, startp.Z, seed);
 			liquidnode = (nval < 0.40f && node_max.Y < water_level - 256) ?
 				lavanode : waternode;

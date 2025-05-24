@@ -54,7 +54,7 @@ IAnimatedMesh *CXMeshFileLoader::createMesh(io::IReadFile *file)
 	u32 time = os::Timer::getRealTime();
 #endif
 
-	AnimatedMesh = new SkinnedMeshBuilder();
+	AnimatedMesh = new SkinnedMeshBuilder(SkinnedMesh::SourceFormat::X);
 
 	SkinnedMesh *res = nullptr;
 	if (load(file)) {
@@ -1525,8 +1525,6 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 				os::Printer::log("No finishing semicolon after matrix animation key in x file", ELL_WARNING);
 				os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 			}
-
-			// core::vector3df rotation = mat.getRotationDegrees();
 
 			AnimatedMesh->addRotationKey(joint, time, core::quaternion(mat.getTransposed()));
 			AnimatedMesh->addPositionKey(joint, time, mat.getTranslation());

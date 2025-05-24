@@ -25,7 +25,7 @@ struct ModSpec
 {
 	std::string name;
 	std::string author;
-	std::string path;
+	std::string path; // absolute path on disk
 	std::string desc;
 	int release = 0;
 
@@ -78,7 +78,7 @@ struct ModSpec
  *
  * @returns false if not a mod
  */
-bool parseModContents(ModSpec &mod);
+[[nodiscard]] bool parseModContents(ModSpec &mod);
 
 /**
  * Gets a list of all mods and modpacks in path

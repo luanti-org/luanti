@@ -32,11 +32,15 @@
 	#define sleep_ms(x) Sleep(x)
 	#define sleep_us(x) Sleep((x)/1000)
 
+	#define SLEEP_ACCURACY_US 2000
+
 	#define setenv(n,v,o) _putenv_s(n,v)
 	#define unsetenv(n) _putenv_s(n,"")
 #else
 	#include <unistd.h>
 	#include <cstdlib> // setenv
+
+	#define SLEEP_ACCURACY_US 200
 
 	#define sleep_ms(x) usleep((x)*1000)
 	#define sleep_us(x) usleep(x)
@@ -51,11 +55,6 @@
 	#define strncasecmp(x, y, n) strnicmp(x, y, n)
 #endif
 
-#ifdef __MINGW32__
-	// was broken in 2013, unclear if still needed
-	#define strtok_r(x, y, z) mystrtok_r(x, y, z)
-#endif
-
 #if !HAVE_STRLCPY
 	#define strlcpy(d, s, n) mystrlcpy(d, s, n)
 #endif
@@ -63,9 +62,9 @@
 #ifndef _WIN32 // POSIX
 	#include <sys/time.h>
 	#include <ctime>
-    #if defined(__MACH__) && defined(__APPLE__)
-        #include <TargetConditionals.h>
-    #endif
+	#if defined(__MACH__) && defined(__APPLE__)
+		#include <TargetConditionals.h>
+	#endif
 #endif
 
 namespace porting
@@ -78,7 +77,7 @@ namespace porting
 void signal_handler_init();
 // Returns a pointer to a bool.
 // When the bool is true, program should quit.
-bool * signal_handler_killstatus();
+[[nodiscard]] bool *signal_handler_killstatus();
 
 /*
 	Path of static data directory.
@@ -106,11 +105,13 @@ extern std::string path_cache;
 /*
 	Gets the path of our executable.
 */
+[[nodiscard]]
 bool getCurrentExecPath(char *buf, size_t len);
 
 /*
 	Concatenate subpath to path_share.
 */
+[[nodiscard]]
 std::string getDataPath(const char *subpath);
 
 /*
@@ -220,6 +221,21 @@ inline u64 getDeltaMs(u64 old_time_ms, u64 new_time_ms)
 	return (old_time_ms - new_time_ms);
 }
 
+inline void preciseSleepUs(u64 sleep_time)
+{
+	if (sleep_time > 0)
+	{
+		u64 target_time = porting::getTimeUs() + sleep_time;
+		if (sleep_time > SLEEP_ACCURACY_US)
+			sleep_us(sleep_time - SLEEP_ACCURACY_US);
+
+		// Busy-wait the remaining time to adjust for sleep inaccuracies
+		// The target - now > 0 construct will handle overflow gracefully (even though it should
+		// never happen)
+		while ((s64)(target_time - porting::getTimeUs()) > 0) {}
+	}
+}
+
 inline const char *getPlatformName()
 {
 	return
@@ -266,7 +282,8 @@ inline const char *getPlatformName()
 	;
 }
 
-bool secure_rand_fill_buf(void *buf, size_t len);
+// Securely fills buffer with bytes from system's random source
+[[nodiscard]] bool secure_rand_fill_buf(void *buf, size_t len);
 
 // Call once near beginning of main function.
 void osSpecificInit();
@@ -294,10 +311,10 @@ static inline void TriggerMemoryTrim() { (void)0; }
 
 #ifdef _WIN32
 // Quotes an argument for use in a CreateProcess() commandline (not cmd.exe!!)
-std::string QuoteArgv(const std::string &arg);
+[[nodiscard]] std::string QuoteArgv(const std::string &arg);
 
 // Convert an error code (e.g. from GetLastError()) into a string.
-std::string ConvertError(DWORD error_code);
+[[nodiscard]] std::string ConvertError(DWORD error_code);
 #endif
 
 // snprintf wrapper

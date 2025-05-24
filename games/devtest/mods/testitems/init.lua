@@ -110,15 +110,15 @@ core.register_craftitem("testitems:telescope_stick", {
 -- Tree spawners
 
 local tree_def={
-    axiom="Af",
-    rules_a="TT[&GB][&+GB][&++GB][&+++GB]A",
-    rules_b="[+GB]fB",
-    trunk="basenodes:tree",
-    leaves="basenodes:leaves",
-    angle=90,
-    iterations=4,
-    trunk_type="single",
-    thin_branches=true,
+	axiom="Af",
+	rules_a="TT[&GB][&+GB][&++GB][&+++GB]A",
+	rules_b="[+GB]fB",
+	trunk="basenodes:tree",
+	leaves="basenodes:leaves",
+	angle=90,
+	iterations=4,
+	trunk_type="single",
+	thin_branches=true,
 }
 
 core.register_craftitem("testitems:tree_spawner", {

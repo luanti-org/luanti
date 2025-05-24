@@ -7,6 +7,7 @@
 #include "client/client.h"
 #include "cpp_api/s_internal.h"
 #include "lua_api/l_client.h"
+#include "lua_api/l_client_common.h"
 #include "lua_api/l_env.h"
 #include "lua_api/l_item.h"
 #include "lua_api/l_itemstackmeta.h"
@@ -63,6 +64,7 @@ void ClientScripting::InitializeModApi(lua_State *L, int top)
 	ClientSoundHandle::Register(L);
 
 	ModApiUtil::InitializeClient(L, top);
+	ModApiClientCommon::Initialize(L, top);
 	ModApiClient::Initialize(L, top);
 	ModApiItem::InitializeClient(L, top);
 	ModApiStorage::Initialize(L, top);

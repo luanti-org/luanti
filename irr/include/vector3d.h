@@ -7,6 +7,8 @@
 #include "irrMath.h"
 
 #include <functional>
+#include <array>
+#include <cassert>
 
 namespace irr
 {
@@ -32,6 +34,15 @@ public:
 	//! Constructor with the same value for all elements
 	explicit constexpr vector3d(T n) :
 			X(n), Y(n), Z(n) {}
+	//! Array - vector conversion
+	constexpr vector3d(const std::array<T, 3> &arr) :
+			X(arr[0]), Y(arr[1]), Z(arr[2]) {}
+
+	template <class U>
+	constexpr static vector3d<T> from(const vector3d<U> &other)
+	{
+		return {static_cast<T>(other.X), static_cast<T>(other.Y), static_cast<T>(other.Z)};
+	}
 
 	// operators
 
@@ -107,16 +118,22 @@ public:
 
 	T &operator[](u32 index)
 	{
-		_IRR_DEBUG_BREAK_IF(index > 2) // access violation
-
-		return *(&X + index);
+		switch (index) {
+			case 0: return X;
+			case 1: return Y;
+			case 2: return Z;
+			default: IRR_CODE_UNREACHABLE();
+		}
 	}
 
 	const T &operator[](u32 index) const
 	{
-		_IRR_DEBUG_BREAK_IF(index > 2) // access violation
-
-		return *(&X + index);
+		switch (index) {
+			case 0: return X;
+			case 1: return Y;
+			case 2: return Z;
+			default: IRR_CODE_UNREACHABLE();
+		}
 	}
 
 	//! sort in order X, Y, Z.
@@ -180,6 +197,8 @@ public:
 		Z = p.Z;
 		return *this;
 	}
+
+	std::array<T, 3> toArray() const { return {X, Y, Z}; }
 
 	//! Get length of the vector.
 	T getLength() const { return core::squareroot(X * X + Y * Y + Z * Z); }
@@ -450,26 +469,6 @@ public:
 				(T)(forwards.X * pseudoMatrix[2] +
 						forwards.Y * pseudoMatrix[5] +
 						forwards.Z * pseudoMatrix[8]));
-	}
-
-	//! Fills an array of 4 values with the vector data (usually floats).
-	/** Useful for setting in shader constants for example. The fourth value
-	will always be 0. */
-	void getAs4Values(T *array) const
-	{
-		array[0] = X;
-		array[1] = Y;
-		array[2] = Z;
-		array[3] = 0;
-	}
-
-	//! Fills an array of 3 values with the vector data (usually floats).
-	/** Useful for setting in shader constants for example.*/
-	void getAs3Values(T *array) const
-	{
-		array[0] = X;
-		array[1] = Y;
-		array[2] = Z;
 	}
 
 	//! X coordinate of the vector

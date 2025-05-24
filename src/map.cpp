@@ -292,12 +292,13 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 
 	// If there is no practical limit, we spare creation of mapblock_queue
 	if (max_loaded_blocks < 0) {
+		MapBlockVect blocks;
 		for (auto &sector_it : m_sectors) {
 			MapSector *sector = sector_it.second;
 
 			bool all_blocks_deleted = true;
 
-			MapBlockVect blocks;
+			blocks.clear();
 			sector->getBlocks(blocks);
 
 			for (MapBlock *block : blocks) {
@@ -336,10 +337,11 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 		}
 	} else {
 		std::priority_queue<TimeOrderedMapBlock> mapblock_queue;
+		MapBlockVect blocks;
 		for (auto &sector_it : m_sectors) {
 			MapSector *sector = sector_it.second;
 
-			MapBlockVect blocks;
+			blocks.clear();
 			sector->getBlocks(blocks);
 
 			for (MapBlock *block : blocks) {
@@ -417,16 +419,16 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 
 void Map::unloadUnreferencedBlocks(std::vector<v3s16> *unloaded_blocks)
 {
-	timerUpdate(0.0, -1.0, 0, unloaded_blocks);
+	timerUpdate(0, -1, 0, unloaded_blocks);
 }
 
-void Map::deleteSectors(std::vector<v2s16> &sectorList)
+void Map::deleteSectors(const std::vector<v2s16> &sectorList)
 {
 	for (v2s16 j : sectorList) {
 		MapSector *sector = m_sectors[j];
 		// If sector is in sector cache, remove it from there
-		if(m_sector_cache == sector)
-			m_sector_cache = NULL;
+		if (m_sector_cache == sector)
+			m_sector_cache = nullptr;
 		// Remove from map and delete
 		m_sectors.erase(j);
 		delete sector;
@@ -752,16 +754,11 @@ MMVManip::MMVManip(Map *map):
 	assert(map);
 }
 
-void MMVManip::initialEmerge(v3s16 blockpos_min, v3s16 blockpos_max,
-	bool load_if_inexistent)
+void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 {
 	TimeTaker timer1("initialEmerge", &emerge_time);
 
 	assert(m_map);
-
-	// Units of these are MapBlocks
-	v3s16 p_min = blockpos_min;
-	v3s16 p_max = blockpos_max;
 
 	VoxelArea block_area_nodes
 			(p_min*MAP_BLOCKSIZE, (p_max+1)*MAP_BLOCKSIZE-v3s16(1,1,1));
@@ -775,6 +772,7 @@ void MMVManip::initialEmerge(v3s16 blockpos_min, v3s16 blockpos_max,
 		infostream<<std::endl;
 	}
 
+	const bool all_new = m_area.hasEmptyExtent() || block_area_nodes.contains(m_area);
 	addArea(block_area_nodes);
 
 	for(s32 z=p_min.Z; z<=p_max.Z; z++)
@@ -812,16 +810,12 @@ void MMVManip::initialEmerge(v3s16 blockpos_min, v3s16 blockpos_max,
 				setFlags(a, VOXELFLAG_NO_DATA);
 			}
 		}
-		/*else if (block->getNode(0, 0, 0).getContent() == CONTENT_IGNORE)
-		{
-			// Mark that block was loaded as blank
-			flags |= VMANIP_BLOCK_CONTAINS_CIGNORE;
-		}*/
 
 		m_loaded_blocks[p] = flags;
 	}
 
-	m_is_dirty = false;
+	if (all_new)
+		m_is_dirty = false;
 }
 
 void MMVManip::blitBackAll(std::map<v3s16, MapBlock*> *modified_blocks,
@@ -834,6 +828,7 @@ void MMVManip::blitBackAll(std::map<v3s16, MapBlock*> *modified_blocks,
 	/*
 		Copy data of all blocks
 	*/
+	assert(!m_loaded_blocks.empty());
 	for (auto &loaded_block : m_loaded_blocks) {
 		v3s16 p = loaded_block.first;
 		MapBlock *block = m_map->getBlockNoCreateNoEx(p);

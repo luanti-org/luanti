@@ -215,7 +215,6 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 void GameUI::initFlags()
 {
 	m_flags = GameUI::Flags();
-	m_flags.show_minimal_debug = g_settings->getBool("show_debug");
 }
 
 void GameUI::showTranslatedStatusText(const char *str)

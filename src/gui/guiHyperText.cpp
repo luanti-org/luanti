@@ -5,7 +5,7 @@
 #include "guiHyperText.h"
 #include "guiScrollBar.h"
 #include "client/fontengine.h"
-#include "client/hud.h" // drawItemStack
+#include "drawItemStack.h"
 #include "IVideoDriver.h"
 #include "client/client.h"
 #include "client/renderingengine.h"
@@ -734,7 +734,7 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 		ymargin = p.margin;
 
 		// Place non floating stuff
-		std::vector<ParsedText::Element>::iterator el = p.elements.begin();
+		auto el = p.elements.begin();
 
 		while (el != p.elements.end()) {
 			// Determine line width and y pos
@@ -777,7 +777,7 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 										std::max(f.margin, p.margin);
 
 						} else if (f.rect.UpperLeftCorner.X - f.margin <= left &&
-							 	f.rect.LowerRightCorner.X + f.margin >= right) {
+								f.rect.LowerRightCorner.X + f.margin >= right) {
 							// float taking all space
 							left = right;
 						}
@@ -807,8 +807,8 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 				el++;
 			}
 
-			std::vector<ParsedText::Element>::iterator linestart = el;
-			std::vector<ParsedText::Element>::iterator lineend = p.elements.end();
+			auto linestart = el;
+			auto lineend = p.elements.end();
 
 			// First pass, find elements fitting into line
 			// (or at least one element)

@@ -16,6 +16,7 @@
 #include "gettext.h"
 #include "irrlicht_changes/CGUITTFont.h"
 #include "util/string.h"
+#include "guiScrollBar.h"
 #include <string>
 
 inline u32 clamp_u8(s32 value)
@@ -26,6 +27,11 @@ inline u32 clamp_u8(s32 value)
 inline bool isInCtrlKeys(const irr::EKEY_CODE& kc)
 {
 	return kc == KEY_LCONTROL || kc == KEY_RCONTROL || kc == KEY_CONTROL;
+}
+
+inline u32 getScrollbarSize(IGUIEnvironment* env)
+{
+	return env->getSkin()->getSize(gui::EGDS_SCROLLBAR_SIZE);
 }
 
 GUIChatConsole::GUIChatConsole(
@@ -62,15 +68,14 @@ GUIChatConsole::GUIChatConsole(
 	}
 
 	const u16 chat_font_size = g_settings->getU16("chat_font_size");
-	m_font = g_fontengine->getFont(chat_font_size != 0 ?
-		rangelim(chat_font_size, 5, 72) : FONT_SIZE_UNSPECIFIED, FM_Mono);
+	m_font.grab(g_fontengine->getFont(chat_font_size != 0 ?
+		rangelim(chat_font_size, 5, 72) : FONT_SIZE_UNSPECIFIED, FM_Mono));
 
 	if (!m_font) {
 		errorstream << "GUIChatConsole: Unable to load mono font" << std::endl;
 	} else {
 		core::dimension2d<u32> dim = m_font->getDimension(L"M");
 		m_fontsize = v2u32(dim.Width, dim.Height);
-		m_font->grab();
 	}
 	m_fontsize.X = MYMAX(m_fontsize.X, 1);
 	m_fontsize.Y = MYMAX(m_fontsize.Y, 1);
@@ -81,12 +86,11 @@ GUIChatConsole::GUIChatConsole(
 	// track ctrl keys for mouse event
 	m_is_ctrl_down = false;
 	m_cache_clickable_chat_weblinks = g_settings->getBool("clickable_chat_weblinks");
-}
 
-GUIChatConsole::~GUIChatConsole()
-{
-	if (m_font)
-		m_font->drop();
+	m_scrollbar.reset(new GUIScrollBar(env, this, -1, core::rect<s32>(0, 0, 30, m_height), false, true, tsrc));
+	m_scrollbar->setSubElement(true);
+	m_scrollbar->setLargeStep(1);
+	m_scrollbar->setSmallStep(1);
 }
 
 void GUIChatConsole::openConsole(f32 scale)
@@ -121,6 +125,7 @@ void GUIChatConsole::closeConsole()
 	m_open = false;
 	Environment->removeFocus(this);
 	m_menumgr->deletingMenu(this);
+	m_scrollbar->setVisible(false);
 }
 
 void GUIChatConsole::closeConsoleAtOnce()
@@ -180,6 +185,10 @@ void GUIChatConsole::draw()
 		m_screensize = screensize;
 		m_desired_height = m_desired_height_fraction * m_screensize.Y;
 		reformatConsole();
+	} else if (!m_scrollbar->getAbsolutePosition().isPointInside(core::vector2di(screensize.X, m_height))) {
+		// the height of the chat window is no longer the height of the scrollbar
+		// happens while opening/closing the window
+		updateScrollbar(true);
 	}
 
 	// Animation
@@ -204,6 +213,9 @@ void GUIChatConsole::reformatConsole()
 	s32 rows = m_desired_height / m_fontsize.Y - 1; // make room for the input prompt
 	if (cols <= 0 || rows <= 0)
 		cols = rows = 0;
+
+	updateScrollbar(true);
+
 	recalculateConsolePosition();
 	m_chat_backend->reformat(cols, rows);
 }
@@ -293,10 +305,17 @@ void GUIChatConsole::drawBackground()
 
 void GUIChatConsole::drawText()
 {
-	if (m_font == NULL)
+	if (!m_font)
 		return;
 
 	ChatBuffer& buf = m_chat_backend->getConsoleBuffer();
+
+	core::recti rect;
+	if (m_scrollbar->isVisible())
+		rect = core::rect<s32> (0, 0, m_screensize.X - getScrollbarSize(Environment), m_height);
+	else
+		rect = AbsoluteClippingRect;
+
 	for (u32 row = 0; row < buf.getRows(); ++row)
 	{
 		const ChatFormattedLine& line = buf.getFormattedLine(row);
@@ -315,13 +334,13 @@ void GUIChatConsole::drawText()
 
 			if (m_font->getType() == irr::gui::EGFT_CUSTOM) {
 				// Draw colored text if possible
-				gui::CGUITTFont *tmp = static_cast<gui::CGUITTFont*>(m_font);
+				auto *tmp = static_cast<gui::CGUITTFont*>(m_font.get());
 				tmp->draw(
 					fragment.text,
 					destrect,
 					false,
 					false,
-					&AbsoluteClippingRect);
+					&rect);
 			} else {
 				// Otherwise use standard text
 				m_font->draw(
@@ -330,10 +349,12 @@ void GUIChatConsole::drawText()
 					video::SColor(255, 255, 255, 255),
 					false,
 					false,
-					&AbsoluteClippingRect);
+					&rect);
 			}
 		}
 	}
+
+	updateScrollbar();
 }
 
 void GUIChatConsole::drawPrompt()
@@ -680,6 +701,11 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 		prompt.input(std::wstring(event.StringInput.Str->c_str()));
 		return true;
 	}
+	else if (event.EventType == EET_GUI_EVENT && event.GUIEvent.EventType == EGET_SCROLL_BAR_CHANGED &&
+			(void*) event.GUIEvent.Caller == (void*) m_scrollbar.get())
+	{
+		m_chat_backend->getConsoleBuffer().scrollAbsolute(m_scrollbar->getPos());
+	}
 
 	return Parent ? Parent->OnEvent(event) : false;
 }
@@ -692,6 +718,7 @@ void GUIChatConsole::setVisible(bool visible)
 		m_height = 0;
 		recalculateConsolePosition();
 	}
+	m_scrollbar->setVisible(visible);
 }
 
 bool GUIChatConsole::weblinkClick(s32 col, s32 row)
@@ -762,4 +789,19 @@ void GUIChatConsole::updatePrimarySelection()
 	std::wstring wselected = m_chat_backend->getPrompt().getSelection();
 	std::string selected = wide_to_utf8(wselected);
 	Environment->getOSOperator()->copyToPrimarySelection(selected.c_str());
+}
+
+void GUIChatConsole::updateScrollbar(bool update_size)
+{
+	ChatBuffer &buf = m_chat_backend->getConsoleBuffer();
+	m_scrollbar->setMin(buf.getTopScrollPos());
+	m_scrollbar->setMax(buf.getBottomScrollPos());
+	m_scrollbar->setPos(buf.getScrollPosition());
+	m_scrollbar->setPageSize(m_fontsize.Y * buf.getLineCount());
+	m_scrollbar->setVisible(m_scrollbar->getMin() != m_scrollbar->getMax());
+
+	if (update_size) {
+		const core::rect<s32> rect (m_screensize.X - getScrollbarSize(Environment), 0, m_screensize.X, m_height);
+		m_scrollbar->setRelativePosition(rect);
+	}
 }

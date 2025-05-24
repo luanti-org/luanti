@@ -12,7 +12,6 @@
 #include "util/serialize.h"
 #include "util/numeric.h"
 #include "util/hex.h"
-#include "common/c_content.h"
 #include <json/json.h>
 
 
@@ -235,7 +234,7 @@ void WearBarParams::serializeJson(std::ostream &os) const
 		color_stops[ftos(item.first)] = encodeHexColorString(item.second);
 	}
 	root["color_stops"] = color_stops;
-	root["blend"] = WearBarParams::es_BlendMode[blend].str;
+	root["blend"] = enum_to_string(WearBarParams::es_BlendMode, blend);
 
 	fastWriteJson(root, os);
 }

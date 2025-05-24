@@ -13,7 +13,7 @@
 */
 
 /*
-    Connection
+    Network Protocol
 */
 
 #define PEER_ID_INEXISTENT 0
@@ -60,14 +60,15 @@
 // Use floatToInt(p, BS) and intToFloat(p, BS).
 #define BS 10.0f
 
-// Dimension of a MapBlock
+// Dimension of a MapBlock in nodes
 #define MAP_BLOCKSIZE 16
-// This makes mesh updates too slow, as many meshes are updated during
-// the main loop (related to TempMods and day/night)
-//#define MAP_BLOCKSIZE 32
 
 // Player step height in nodes
 #define PLAYER_DEFAULT_STEPHEIGHT 0.6f
+
+// Arbitrary volume limit for working with contiguous areas (in nodes)
+// needs to safely fit in the VoxelArea class; used by e.g. VManips
+#define MAX_WORKING_VOLUME 150000000UL
 
 /*
     Old stuff that shouldn't be hardcoded
@@ -82,6 +83,10 @@
 // Default maximal breath of a player
 #define PLAYER_MAX_BREATH_DEFAULT 10
 
+/*
+    Misc
+*/
+
 // Number of different files to try to save a player to if the first fails
 // (because of a case-insensitive filesystem)
 // TODO: Use case-insensitive player names instead of this hack.
@@ -93,8 +98,10 @@
 // the file attempting to ensure a unique filename
 #define SCREENSHOT_MAX_SERIAL_TRIES 1000
 
-/*
-    GUI related things
-*/
-
 #define TTF_DEFAULT_FONT_SIZE (16)
+
+// Minimum texture size enforced/checked for enabling linear filtering
+// This serves as the minimum for `texture_min_size`.
+// The intent is to ensure that the rendering doesn't turn terribly blurry
+// when filtering is enabled.
+#define TEXTURE_FILTER_MIN_SIZE 192U

@@ -1,0 +1,26 @@
+name: png_file_checks
+
+# Check whether all png files are in a valid format
+on:
+  push:
+    paths:
+      - '**.png'
+      - '.github/workflows/**.yml'
+  pull_request:
+    paths:
+      - '**.png'
+      - '.github/workflows/**.yml'
+
+jobs:
+  png_optimized:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt install -y optipng
+
+      - name: Check whether all png files are optimized
+        run: |
+          ./util/ci/check_png_optimized.sh

@@ -59,6 +59,7 @@ inline std::wstring wstrgettext(const std::string &str)
  * @tparam Args Template parameter for format args
  * @param src Translation source string
  * @param args Variable format args
+ * @warning No dynamic sizing! string will be cut off if longer than 255 chars.
  * @return translated string
  */
 template <typename ...Args>
@@ -81,14 +82,19 @@ inline std::wstring fwgettext(const char *src, Args&&... args)
 template <typename ...Args>
 inline std::string fmtgettext(const char *format, Args&&... args)
 {
-	std::string buf;
-	std::size_t buf_size = 256;
-	buf.resize(buf_size);
-
 	format = gettext(format);
 
-	int len = porting::mt_snprintf(&buf[0], buf_size, format, std::forward<Args>(args)...);
-	if (len <= 0) throw std::runtime_error("gettext format error: " + std::string(format));
+	std::string buf;
+	{
+		size_t default_size = strlen(format);
+		if (default_size < 256)
+			default_size = 256;
+		buf.resize(default_size);
+	}
+
+	int len = porting::mt_snprintf(&buf[0], buf.size(), format, std::forward<Args>(args)...);
+	if (len <= 0)
+		throw std::runtime_error("gettext format error: " + std::string(format));
 	if ((size_t)len >= buf.size()) {
 		buf.resize(len+1); // extra null byte
 		porting::mt_snprintf(&buf[0], buf.size(), format, std::forward<Args>(args)...);

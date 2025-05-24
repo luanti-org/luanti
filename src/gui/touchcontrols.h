@@ -16,6 +16,7 @@
 #include "itemdef.h"
 #include "touchscreenlayout.h"
 #include "util/basic_macros.h"
+#include "client/keycode.h"
 
 namespace irr
 {
@@ -56,8 +57,9 @@ enum class TapState
 
 struct button_info
 {
+	touch_gui_button_id id;
 	float repeat_counter;
-	EKEY_CODE keycode;
+	KeyPress keypress;
 	std::vector<size_t> pointer_ids;
 	std::shared_ptr<IGUIImage> gui_button = nullptr;
 
@@ -93,6 +95,8 @@ public:
 		return res;
 	}
 
+	bool isShootlineAvailable() { return m_interaction_style == TAP; }
+
 	/**
 	 * Returns a line which describes what the player is pointing at.
 	 * The starting point and looking direction are significant,
@@ -100,6 +104,9 @@ public:
 	 * the player can reach.
 	 * The line starts at the camera and ends on the camera's far plane.
 	 * The coordinates do not contain the camera offset.
+	 *
+	 * This may only be used if isShootlineAvailable returns true.
+	 * Otherwise, the normal crosshair must be used.
 	 */
 	line3d<f32> getShootline() { return m_shootline; }
 
@@ -107,7 +114,6 @@ public:
 	float getJoystickSpeed() { return m_joystick_speed; }
 
 	void step(float dtime);
-	inline void setUseCrosshair(bool use_crosshair) { m_draw_crosshair = use_crosshair; }
 
 	void setVisible(bool visible);
 	void hide();
@@ -120,19 +126,29 @@ public:
 	bool isStatusTextOverriden() { return m_overflow_open; }
 	IGUIStaticText *getStatusText() { return m_status_text.get(); }
 
-	ButtonLayout getLayout() { return m_layout; }
-	void applyLayout(const ButtonLayout &layout);
-
 private:
 	IrrlichtDevice *m_device = nullptr;
 	IGUIEnvironment *m_guienv = nullptr;
 	IEventReceiver *m_receiver = nullptr;
 	ISimpleTextureSource *m_texturesource = nullptr;
+	bool m_visible = true;
+
+	// changes to these two values are handled in TouchControls::step
 	v2u32 m_screensize;
 	s32 m_button_size;
+
+	// cached settings
+	TouchInteractionStyle m_interaction_style;
 	double m_touchscreen_threshold;
 	u16 m_long_tap_delay;
-	bool m_visible = true;
+	bool m_fixed_joystick;
+	bool m_joystick_triggers_aux1;
+
+	static void settingChangedCallback(const std::string &name, void *data);
+	void readSettings();
+
+	ButtonLayout m_layout;
+	void applyLayout(const ButtonLayout &layout);
 
 	std::unordered_map<u16, recti> m_hotbar_rects;
 	std::optional<u16> m_hotbar_selection = std::nullopt;
@@ -145,6 +161,8 @@ private:
 	 * A line starting at the camera and pointing towards the selected object.
 	 * The line ends on the camera's far plane.
 	 * The coordinates do not contain the camera offset.
+	 *
+	 * Only used for m_interaction_style == TAP
 	 */
 	line3d<f32> m_shootline;
 
@@ -152,7 +170,9 @@ private:
 	size_t m_move_id;
 	bool m_move_has_really_moved = false;
 	u64 m_move_downtime = 0;
-	// m_move_pos stays valid even after m_move_id has been released.
+	// m_move_pos stays valid even after the m_move_id pointer has been
+	// released and m_pointer_pos[m_move_id] has been erased
+	// (or even overwritten by a new pointer reusing the same id).
 	v2s32 m_move_pos;
 	// This is needed so that we don't miss if m_has_move_id is true for less
 	// than one client step, i.e. press and release happen in the same step.
@@ -165,9 +185,6 @@ private:
 	float m_joystick_direction = 0.0f; // assume forward
 	float m_joystick_speed = 0.0f; // no movement
 	bool m_joystick_status_aux1 = false;
-	bool m_fixed_joystick = false;
-	bool m_joystick_triggers_aux1 = false;
-	bool m_draw_crosshair = false;
 	std::shared_ptr<IGUIImage> m_joystick_btn_off;
 	std::shared_ptr<IGUIImage> m_joystick_btn_bg;
 	std::shared_ptr<IGUIImage> m_joystick_btn_center;
@@ -187,7 +204,7 @@ private:
 	// for its buttons. We only want static image display, not interactivity,
 	// from Irrlicht.
 
-	void emitKeyboardEvent(EKEY_CODE keycode, bool pressed);
+	void emitKeyboardEvent(KeyPress keycode, bool pressed);
 
 	void loadButtonTexture(IGUIImage *gui_button, const std::string &path);
 	void buttonEmitAction(button_info &btn, bool action);
@@ -227,8 +244,8 @@ private:
 	// map to store the IDs and positions of currently pressed pointers
 	std::unordered_map<size_t, v2s32> m_pointer_pos;
 
-	v2s32 getPointerPos();
-	void emitMouseEvent(EMOUSE_INPUT_EVENT type);
+	// The following are not used if m_interaction_style == BUTTONS_CROSSHAIR
+
 	TouchInteractionMode m_last_mode = TouchInteractionMode_END;
 	TapState m_tap_state = TapState::None;
 
@@ -237,8 +254,6 @@ private:
 
 	bool m_place_pressed = false;
 	u64 m_place_pressed_until = 0;
-
-	ButtonLayout m_layout;
 };
 
 extern TouchControls *g_touchcontrols;

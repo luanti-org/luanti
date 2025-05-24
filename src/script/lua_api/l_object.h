@@ -6,6 +6,7 @@
 
 #include "lua_api/l_base.h"
 #include "irrlichttypes.h"
+#include <lua.h>
 
 class ServerActiveObject;
 class LuaEntitySAO;
@@ -47,6 +48,9 @@ private:
 	static RemotePlayer *getplayer(ObjectRef *ref);
 
 	// Exported functions
+
+	// __tostring metamethod
+	static int mt_tostring(lua_State *L);
 
 	// garbage collector
 	static int gc_object(lua_State *L);
@@ -377,6 +381,12 @@ private:
 
 	// get_eye_offset(self)
 	static int l_get_eye_offset(lua_State *L);
+
+	// set_camera(self, {params})
+	static int l_set_camera(lua_State *L);
+
+	// get_camera(self)
+	static int l_get_camera(lua_State *L);
 
 	// set_nametag_attributes(self, attributes)
 	static int l_set_nametag_attributes(lua_State *L);

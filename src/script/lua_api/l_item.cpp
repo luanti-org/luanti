@@ -445,13 +445,13 @@ int LuaItemStack::l_equals(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	LuaItemStack *o1 = checkObject<LuaItemStack>(L, 1);
 
- 	// checks for non-userdata argument
+	// checks for non-userdata argument
 	if (!lua_isuserdata(L, 2)) {
 		lua_pushboolean(L, false);
 		return 1;
 	}
 
- 	// check that the argument is an ItemStack
+	// check that the argument is an ItemStack
 	if (!lua_getmetatable(L, 2)) {
 		lua_pushboolean(L, false);
 		return 1;
@@ -524,7 +524,7 @@ void LuaItemStack::Register(lua_State *L)
 		{"__eq", l_equals},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaItemStack>(L, methods, metamethods);
 
 	// Can be created from Lua (ItemStack(itemstack or itemstring or table or nil))
 	lua_register(L, className, create_object);

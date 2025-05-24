@@ -129,7 +129,7 @@ void TestMapSettingsManager::testMapSettingsManager()
 
 	{
 		NoiseParams dummy;
-		mgr.getMapSettingNoiseParams("mgv5_np_factor", &dummy);
+		mgr.getNoiseParams("mgv5_np_factor", &dummy);
 		check_noise_params(&dummy, &script_np_factor);
 	}
 

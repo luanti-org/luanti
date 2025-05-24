@@ -1065,6 +1065,10 @@ public:
 	void irrGlCompressedTexSubImage2D(GLenum target, GLint level,
 			GLint xoffset, GLint yoffset, GLsizei width, GLsizei height,
 			GLenum format, GLsizei imageSize, const void *data);
+	inline void irrGlObjectLabel(GLenum identifier, GLuint name, const char *label)
+	{
+		// unimplemented
+	}
 
 	// shader programming
 	void extGlGenPrograms(GLsizei n, GLuint *programs);

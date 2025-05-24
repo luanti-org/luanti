@@ -4,6 +4,8 @@
 
 #include "hashing.h"
 
+#define IN_HASHING_CPP
+
 #include "debug.h"
 #include "config.h"
 #if USE_OPENSSL

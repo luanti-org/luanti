@@ -67,8 +67,6 @@ private:
 
 	static int l_get_language(lua_State *L);
 
-	static int l_gettext(lua_State *L);
-
 	//packages
 
 	static int l_get_games(lua_State *L);
@@ -80,8 +78,6 @@ private:
 	static int l_get_content_translation(lua_State *L);
 
 	//gui
-
-	static int l_show_keys_menu(lua_State *L);
 
 	static int l_show_touchscreen_layout(lua_State *L);
 
@@ -103,13 +99,9 @@ private:
 
 	static int l_get_window_info(lua_State *L);
 
-	static int l_get_active_driver(lua_State *L);
-
 	static int l_get_active_renderer(lua_State *L);
 
 	static int l_get_active_irrlicht_device(lua_State *L);
-
-	static int l_irrlicht_device_supports_touch(lua_State *L);
 
 	//filesystem
 
@@ -146,8 +138,6 @@ private:
 	static int l_may_modify_path(lua_State *L);
 
 	static int l_download_file(lua_State *L);
-
-	static int l_get_video_drivers(lua_State *L);
 
 	//version compatibility
 	static int l_get_min_supp_proto(lua_State *L);

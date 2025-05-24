@@ -28,6 +28,7 @@ public:
 			s32 &outMaterialTypeNr,
 			const c8 *vertexShaderProgram = 0,
 			const c8 *pixelShaderProgram = 0,
+			const c8 *debugName = nullptr,
 			IShaderConstantSetCallBack *callback = 0,
 			E_MATERIAL_TYPE baseMaterial = EMT_SOLID,
 			s32 userData = 0);
@@ -66,7 +67,9 @@ protected:
 			E_MATERIAL_TYPE baseMaterial = EMT_SOLID,
 			s32 userData = 0);
 
-	void init(s32 &outMaterialTypeNr, const c8 *vertexShaderProgram, const c8 *pixelShaderProgram, bool addMaterial = true);
+	void init(s32 &outMaterialTypeNr, const c8 *vertexShaderProgram,
+		const c8 *pixelShaderProgram, const c8 *debugName = nullptr,
+		bool addMaterial = true);
 
 	bool createShader(GLenum shaderType, const char *shader);
 	bool linkProgram();

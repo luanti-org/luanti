@@ -57,8 +57,6 @@ struct Nametag
 	}
 };
 
-enum CameraMode {CAMERA_MODE_FIRST, CAMERA_MODE_THIRD, CAMERA_MODE_THIRD_FRONT};
-
 /*
 	Client camera class, manages the player and camera scene nodes, the viewing distance
 	and performs view bobbing etc. It also displays the wielded tool in front of the
@@ -69,6 +67,9 @@ class Camera
 public:
 	Camera(MapDrawControl &draw_control, Client *client, RenderingEngine *rendering_engine);
 	~Camera();
+
+	static void settingChangedCallback(const std::string &name, void *data);
+	void readSettings();
 
 	// Get camera scene node.
 	// It has the eye transformation, pitch and view bobbing applied.
@@ -147,6 +148,9 @@ public:
 	// Update the camera from the local player's position.
 	void update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio);
 
+	// Adjust the camera offset when needed
+	void updateOffset();
+
 	// Update render distance
 	void updateViewingRange();
 
@@ -163,7 +167,8 @@ public:
 	void drawWieldedTool(irr::core::matrix4* translation=NULL);
 
 	// Toggle the current camera mode
-	void toggleCameraMode() {
+	void toggleCameraMode()
+	{
 		if (m_camera_mode == CAMERA_MODE_FIRST)
 			m_camera_mode = CAMERA_MODE_THIRD;
 		else if (m_camera_mode == CAMERA_MODE_THIRD)
@@ -179,7 +184,7 @@ public:
 	}
 
 	//read the current camera mode
-	inline CameraMode getCameraMode()
+	inline CameraMode getCameraMode() const
 	{
 		return m_camera_mode;
 	}
@@ -251,8 +256,6 @@ private:
 	s32 m_view_bobbing_state = 0;
 	// Speed of view bobbing animation
 	f32 m_view_bobbing_speed = 0.0f;
-	// Fall view bobbing
-	f32 m_view_bobbing_fall = 0.0f;
 
 	// Digging animation frame (0 <= m_digging_anim < 1)
 	f32 m_digging_anim = 0.0f;
@@ -267,7 +270,6 @@ private:
 
 	CameraMode m_camera_mode = CAMERA_MODE_FIRST;
 
-	f32 m_cache_fall_bobbing_amount;
 	f32 m_cache_view_bobbing_amount;
 	bool m_arm_inertia;
 

@@ -164,7 +164,7 @@ bool Thread::wait()
 
 
 
-bool Thread::getReturnValue(void **ret)
+bool Thread::getReturnValue(void **ret) const
 {
 	if (m_running)
 		return false;

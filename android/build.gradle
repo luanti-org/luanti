@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 project.ext.set("versionMajor", 5)      // Version Major
-project.ext.set("versionMinor", 11)     // Version Minor
+project.ext.set("versionMinor", 13)     // Version Minor
 project.ext.set("versionPatch", 0)      // Version Patch
 // ^ keep in sync with cmake
 

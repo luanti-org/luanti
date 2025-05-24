@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Polish (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-28 19:57+0100\n"
-"PO-Revision-Date: 2024-09-05 22:09+0000\n"
-"Last-Translator: nauta-turbidus <wiktor-t@hotmail.com>\n"
+"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"PO-Revision-Date: 2025-05-04 20:14+0000\n"
+"Last-Translator: Karol1165 <kutkarol1165@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/minetest/minetest/"
 "pl/>\n"
 "Language: pl\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -77,6 +77,276 @@ msgstr ""
 #: builtin/common/chatcommands.lua
 msgid "[all | <cmd>] [-t]"
 msgstr "[wszystko | <cmd>] [-t]"
+
+#: builtin/common/settings/components.lua
+msgid "Browse"
+msgstr "Przeglądaj"
+
+#: builtin/common/settings/components.lua
+msgid "Conflicts with \"$1\""
+msgstr ""
+
+#: builtin/common/settings/components.lua
+msgid "Edit"
+msgstr "Edytuj"
+
+#: builtin/common/settings/components.lua
+msgid "Remove keybinding"
+msgstr "Usuń przypisanie klawiszy"
+
+#: builtin/common/settings/components.lua
+msgid "Select directory"
+msgstr "Wybierz katalog"
+
+#: builtin/common/settings/components.lua
+msgid "Select file"
+msgstr "Wybierz plik"
+
+#: builtin/common/settings/components.lua
+msgid "Set"
+msgstr "Ustaw"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "(No description of setting given)"
+msgstr "(Brak opisu ustawienia)"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "2D Noise"
+msgstr "Szum 2d"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_overwrite.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_delete_content.lua
+#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
+#: src/gui/guiPasswordChange.cpp
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Lacunarity"
+msgstr "Lakunarność"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Octaves"
+msgstr "Oktawy"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Offset"
+msgstr "Margines"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Persistence"
+msgstr "Trwałość"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_config_world.lua
+msgid "Save"
+msgstr "Zapisz"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: src/settings_translation_file.cpp
+msgid "Scale"
+msgstr "Skaluj"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+#: builtin/mainmenu/dlg_create_world.lua
+msgid "Seed"
+msgstr "Ziarno losowości"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "X spread"
+msgstr "Rozrzut X"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Y spread"
+msgstr "Rozrzut Y"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Z spread"
+msgstr "Rozrzut Z"
+
+#. ~ "absvalue" is a noise parameter flag.
+#. It is short for "absolute value".
+#. It can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "absvalue"
+msgstr "wartość bezwzględna"
+
+#. ~ "defaults" is a noise parameter flag.
+#. It describes the default processing options
+#. for noise settings in the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "defaults"
+msgstr "domyślne"
+
+#. ~ "eased" is a noise parameter flag.
+#. It is used to make the map smoother and
+#. can be enabled in noise settings in
+#. the settings menu.
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "eased"
+msgstr "wygładzony"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(The game will need to enable automatic exposure as well)"
+msgstr "(Gra również musi obsługiwać automatyczną regulację ekspozycji)"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(The game will need to enable bloom as well)"
+msgstr "(Gra również musi obsługiwać efekt bloom)"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(The game will need to enable volumetric lighting as well)"
+msgstr "(Gra również musi obsługiwać światło wolumetryczne)"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "(Use system language)"
+msgstr "(Użyj języka systemowego)"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Accessibility"
+msgstr "Dostępność"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Auto"
+msgstr "Automatyczny"
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+msgid "Back"
+msgstr "Backspace"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Buttons with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
+#: src/settings_translation_file.cpp
+msgid "Chat"
+msgstr "Czat"
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Clear"
+msgstr "Delete"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "Controls"
+msgstr "Sterowanie"
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/common/settings/shadows_component.lua
+msgid "Disabled"
+msgstr "Wyłączone"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Enabled"
+msgstr "Włączone"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+msgid "General"
+msgstr "Ogólne"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Long tap"
+msgstr "Długie przytrzymanie"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Movement"
+msgstr "Poruszanie się"
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+msgid "No results"
+msgstr "Brak wyników"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Reset setting to default"
+msgstr "Przywróć wartość domyślną"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Reset setting to default ($1)"
+msgstr "Przywróć wartość domyślną ($1)"
+
+#: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
+msgid "Search"
+msgstr "Wyszukaj"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Short tap"
+msgstr "Krótkie dotknięcie"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show advanced settings"
+msgstr "Pokaż ustawienia zaawansowane"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Show technical names"
+msgstr "Pokaż nazwy techniczne"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Tap"
+msgstr "Tab"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Tap with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Touchscreen layout"
+msgstr "Ekran dotykowy"
+
+#: builtin/common/settings/settingtypes.lua
+msgid "Client Mods"
+msgstr "Mody klienta"
+
+#: builtin/common/settings/settingtypes.lua
+msgid "Content: Games"
+msgstr "Zawartość: Gry"
+
+#: builtin/common/settings/settingtypes.lua
+msgid "Content: Mods"
+msgstr "Zawartość: Mody"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "(The game will need to enable shadows as well)"
+msgstr "(Gra również musi obsługiwać cienie)"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Custom"
+msgstr "Niestandardowe"
+
+#: builtin/common/settings/shadows_component.lua
+#: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr "Cienie dynamiczne"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "High"
+msgstr "Wysokie"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Low"
+msgstr "Niskie"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Medium"
+msgstr "Średnie"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Very High"
+msgstr "Bardzo wysokie"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Very Low"
+msgstr "Bardzo niskie"
 
 #: builtin/fstk/ui.lua
 msgid "<none available>"
@@ -159,27 +429,23 @@ msgid "$1 downloading..."
 msgstr "Pobieranie $1..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
+#, fuzzy
 msgid "All"
-msgstr ""
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Back"
-msgstr "Backspace"
+msgstr "Wszystko"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
-msgstr "ContentDB nie jest dostępne gdy Minetest był zbudowany bez cURL"
+msgstr "ContentDB nie jest dostępny gdy Luanti był skompilowany bez cURL"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Downloading..."
 msgstr "Pobieranie..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
+#, fuzzy
 msgid "Featured"
-msgstr ""
+msgstr "Wyróżnione"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -197,14 +463,8 @@ msgid "Mods"
 msgstr "Modyfikacje"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "Nie można pobrać pakietów"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "No results"
-msgstr "Brak wyników"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No updates"
@@ -215,9 +475,8 @@ msgid "Queued"
 msgstr "W kolejce"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "Texture Packs"
-msgstr "Paczki zasobów"
+msgstr "Paczki tekstur"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "The package $1 was not found."
@@ -252,18 +511,6 @@ msgid "Base Game:"
 msgstr "Gra podstawowa:"
 
 #: builtin/mainmenu/content/dlg_install.lua
-#: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/dlg_delete_content.lua
-#: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp src/gui/guiOpenURL.cpp
-#: src/gui/guiPasswordChange.cpp
-msgid "Cancel"
-msgstr "Anuluj"
-
-#: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Dependencies:"
 msgstr "Zależności:"
@@ -271,7 +518,7 @@ msgstr "Zależności:"
 #: builtin/mainmenu/content/dlg_install.lua
 #, fuzzy
 msgid "Error getting dependencies for package $1"
-msgstr "Błąd przy pobieraniu zależności dla pakietu"
+msgstr "Błąd przy pobieraniu zależności dla pakietu $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Install"
@@ -306,44 +553,53 @@ msgid "Overwrite"
 msgstr "Nadpisz"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "ContentDB page"
 msgstr "Adres URL ContentDB"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Description"
 msgstr "Opis serwera"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
-msgstr ""
+msgstr "Przekaż darowiznę"
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading package information"
+msgstr "Błąd przy ładowaniu informacji o pakiecie"
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "Error loading reviews"
+msgstr "Błąd tworzenia klienta: %s"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
-msgstr ""
+msgstr "Temat forum"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Information"
-msgstr "Informacja:"
+msgstr "Informacja"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Install [$1]"
 msgstr "Zainstaluj $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
+msgstr "Lista błędów"
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Reviews"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
-msgstr ""
+msgstr "Kod źródłowy"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Translate"
-msgstr ""
+msgstr "Przetłumacz"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
@@ -354,13 +610,13 @@ msgid "Update"
 msgstr "Aktualizuj"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Website"
-msgstr "Odwiedź stronę"
+msgstr "Strona internetowa"
 
 #: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
-msgstr ""
+msgstr "Przez $1  —  $2 pobrań  —  +$3 / $4 / -$5"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 (Enabled)"
@@ -389,6 +645,14 @@ msgstr "Nie można zainstalować $1 jako $2"
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Unable to install a $1 as a texture pack"
 msgstr "Nie można zainstalować $1 jako paczki tekstur"
+
+#: builtin/mainmenu/dlg_clients_list.lua
+msgid ""
+"Players connected to\n"
+"$1"
+msgstr ""
+"Gracze połączeni do\n"
+"$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
@@ -453,12 +717,6 @@ msgstr "Brak dodatkowych zależności"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "Dodatkowe zależności:"
-
-#: builtin/mainmenu/dlg_config_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Save"
-msgstr "Zapisz"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "World:"
@@ -615,11 +873,6 @@ msgid "Sea level rivers"
 msgstr "Rzeki na poziomie morza"
 
 #: builtin/mainmenu/dlg_create_world.lua
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Seed"
-msgstr "Ziarno losowości"
-
-#: builtin/mainmenu/dlg_create_world.lua
 msgid "Smooth transition between biomes"
 msgstr "Płynne przejście między biomami"
 
@@ -688,6 +941,32 @@ msgstr "pkgmgr: nieprawidłowa ścieżka \"$1\""
 msgid "Delete World \"$1\"?"
 msgstr "Usunąć świat \"$1\"?"
 
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Keybindings changed"
+msgstr "Przypisanie klawiszy."
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Open settings"
+msgstr "Ustawienia"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr ""
+
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
 msgstr "Potwierdź hasło"
@@ -723,14 +1002,13 @@ msgid "Dismiss"
 msgstr "Odrzuć"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
-#, fuzzy
 msgid ""
 "For a long time, Luanti shipped with a default game called \"Minetest "
 "Game\". Since version 5.8.0, Luanti ships without a default game."
 msgstr ""
-"Przez dłuższy czas, razem z silnikiem Minetest dostarczana była domyślna gra "
-"o nazwie \"Minetest Game\". Od wersji 5.8.0, Minetest jest rozpowszechniany "
-"bez domyślnej gry."
+"Przez dłuższy czas, razem z silnikiem Luanti dostarczana była domyślna gra o "
+"nazwie \"Minetest Game\". Od wersji 5.8.0, Luanti jest rozpowszechniany bez "
+"domyślnej gry."
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid ""
@@ -764,6 +1042,24 @@ msgstr ""
 "Ten mod ma sprecyzowaną nazwę nadaną w pliku konfiguracyjnym modpack.conf, "
 "która nadpisze każdą zmienioną tutaj nazwę."
 
+#: builtin/mainmenu/dlg_server_list_mods.lua
+#, fuzzy
+msgid "Expand all"
+msgstr "Włącz wszystkie"
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+#, fuzzy
+msgid "Group by prefix"
+msgstr "Grupuj poprzez prefiks"
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses a game called $2 and the following mods:"
+msgstr "Serwer $1 używa gry nazwanej $2 i następujących modów:"
+
+#: builtin/mainmenu/dlg_server_list_mods.lua
+msgid "The $1 server uses the following mods:"
+msgstr "Serwer $1 używa następujących modyfikacji:"
+
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
 msgstr "Nowa wersja $1 jest dostępna"
@@ -792,7 +1088,7 @@ msgstr "Nigdy"
 msgid "Visit website"
 msgstr "Odwiedź stronę"
 
-#: builtin/mainmenu/init.lua
+#: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Ustawienia"
 
@@ -805,228 +1101,6 @@ msgid "Try reenabling public serverlist and check your internet connection."
 msgstr ""
 "Spróbuj ponownie włączyć publiczną listę serwerów i sprawdź swoje połączenie "
 "z siecią Internet."
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Browse"
-msgstr "Przeglądaj"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Edit"
-msgstr "Edytuj"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Select directory"
-msgstr "Wybierz katalog"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Select file"
-msgstr "Wybierz plik"
-
-#: builtin/mainmenu/settings/components.lua
-msgid "Set"
-msgstr "Ustaw"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "(No description of setting given)"
-msgstr "(Brak opisu ustawienia)"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "2D Noise"
-msgstr "Szum 2d"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Lacunarity"
-msgstr "Lakunarność"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Octaves"
-msgstr "Oktawy"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Offset"
-msgstr "Margines"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Persistence"
-msgstr "Trwałość"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-#: src/settings_translation_file.cpp
-msgid "Scale"
-msgstr "Skaluj"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr "Rozrzut X"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
-msgstr "Rozrzut Y"
-
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr "Rozrzut Z"
-
-#. ~ "absvalue" is a noise parameter flag.
-#. It is short for "absolute value".
-#. It can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "absvalue"
-msgstr "wartość bezwzględna"
-
-#. ~ "defaults" is a noise parameter flag.
-#. It describes the default processing options
-#. for noise settings in the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "defaults"
-msgstr "domyślne"
-
-#. ~ "eased" is a noise parameter flag.
-#. It is used to make the map smoother and
-#. can be enabled in noise settings in
-#. the settings menu.
-#: builtin/mainmenu/settings/dlg_change_mapgen_flags.lua
-msgid "eased"
-msgstr "wygładzony"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "(The game will need to enable automatic exposure as well)"
-msgstr "(Gra również musi obsługiwać cienie)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "(The game will need to enable bloom as well)"
-msgstr "(Gra również musi obsługiwać cienie)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#, fuzzy
-msgid "(The game will need to enable volumetric lighting as well)"
-msgstr "(Gra również musi obsługiwać cienie)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "(Use system language)"
-msgstr "(Użyj języka systemowego)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Accessibility"
-msgstr "Dostępność"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Auto"
-msgstr ""
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchcontrols.cpp src/settings_translation_file.cpp
-msgid "Chat"
-msgstr "Czat"
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Clear"
-msgstr "Delete"
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/client/game.cpp
-#: src/settings_translation_file.cpp
-msgid "Controls"
-msgstr "Sterowanie"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Disabled"
-msgstr "Wyłączone"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Enabled"
-msgstr "Włączone"
-
-#: builtin/mainmenu/settings/dlg_settings.lua src/settings_translation_file.cpp
-msgid "General"
-msgstr "Ogólne"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Movement"
-msgstr "Poruszanie się"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Reset setting to default"
-msgstr "Przywróć wartość domyślną"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
-msgstr "Przywróć wartość domyślną ($1)"
-
-#: builtin/mainmenu/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
-msgid "Search"
-msgstr "Wyszukaj"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show advanced settings"
-msgstr "Pokaż ustawienia zaawansowane"
-
-#: builtin/mainmenu/settings/dlg_settings.lua
-msgid "Show technical names"
-msgstr "Pokaż nazwy techniczne"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-msgid "Client Mods"
-msgstr "Mody klienta"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-msgid "Content: Games"
-msgstr "Zawartość: Gry"
-
-#: builtin/mainmenu/settings/settingtypes.lua
-msgid "Content: Mods"
-msgstr "Zawartość: Mody"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Enable"
-msgstr "Włączone"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-#, fuzzy
-msgid "Shaders are disabled."
-msgstr "Aktualizowanie kamery wyłączone"
-
-#: builtin/mainmenu/settings/shader_warning_component.lua
-msgid "This is not a recommended configuration."
-msgstr ""
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "(The game will need to enable shadows as well)"
-msgstr "(Gra również musi obsługiwać cienie)"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Custom"
-msgstr "Niestandardowe"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr "Cienie dynamiczne"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "High"
-msgstr "Wysokie"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Low"
-msgstr "Niskie"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Medium"
-msgstr "Średnie"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Very High"
-msgstr "Bardzo wysokie"
-
-#: builtin/mainmenu/settings/shadows_component.lua
-msgid "Very Low"
-msgstr "Bardzo niskie"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
@@ -1047,10 +1121,6 @@ msgstr "Główni twórcy"
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
 msgstr "Główny zespół"
-
-#: builtin/mainmenu/tab_about.lua
-msgid "Irrlicht device:"
-msgstr "Urządzenie Irrlicht:"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Open User Data Directory"
@@ -1154,17 +1224,15 @@ msgid "Install games from ContentDB"
 msgstr "Instaluj gry z ContentDB"
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid "Luanti doesn't come with a game by default."
-msgstr "Minetest nie ma domyślnie zainstalowanej gry."
+msgstr "Luanti nie ma domyślnie zainstalowanej gry."
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid ""
 "Luanti is a game-creation platform that allows you to play many different "
 "games."
 msgstr ""
-"Minetest to platforma tworzenia gier, która pozwala Ci grać w wiele różnych "
+"Luanti to platforma tworzenia gier, która pozwala Ci grać w wiele różnych "
 "gier."
 
 #: builtin/mainmenu/tab_local.lua
@@ -1204,6 +1272,10 @@ msgid "You need to install a game before you can create a world."
 msgstr "Musisz zainstalować grę, zanim będziesz mógł stworzyć świat."
 
 #: builtin/mainmenu/tab_online.lua
+msgid "Add favorite"
+msgstr "Dodaj do ulubionych"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "Adres"
 
@@ -1221,6 +1293,10 @@ msgid "Favorites"
 msgstr "Ulubione"
 
 #: builtin/mainmenu/tab_online.lua
+msgid "Game: $1"
+msgstr "Gra: $1"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
 msgstr "Niekompatybilne serwery"
 
@@ -1233,8 +1309,36 @@ msgid "Login"
 msgstr "Zaloguj się"
 
 #: builtin/mainmenu/tab_online.lua
+msgid "Number of mods: $1"
+msgstr "Liczba modyfikacji: $1"
+
+#: builtin/mainmenu/tab_online.lua
+msgid "Open server website"
+msgstr "Otwórz stronę internetową serwera"
+
+#: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
+
+#: builtin/mainmenu/tab_online.lua
+msgid ""
+"Players:\n"
+"$1"
+msgstr ""
+"Gracze:\n"
+"$1"
+
+#: builtin/mainmenu/tab_online.lua
+msgid ""
+"Possible filters\n"
+"game:<name>\n"
+"mod:<name>\n"
+"player:<name>"
+msgstr ""
+"Możliwe filtry\n"
+"game:<nazwa>\n"
+"mod:<nazwa>\n"
+"player:<nazwa>"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1321,23 +1425,6 @@ msgstr ""
 "Sprawdź plik debug.txt by uzyskać więcej informacji."
 
 #: src/client/game.cpp
-msgid "- Mode: "
-msgstr "- Tryb: "
-
-#: src/client/game.cpp
-msgid "- Public: "
-msgstr "- Publiczne: "
-
-#. ~ PvP = Player versus Player
-#: src/client/game.cpp
-msgid "- PvP: "
-msgstr "Gracz przeciwko graczowi: "
-
-#: src/client/game.cpp
-msgid "- Server Name: "
-msgstr "- Nazwa serwera: "
-
-#: src/client/game.cpp
 msgid "A serialization error occurred:"
 msgstr "Wystąpił błąd serializacji:"
 
@@ -1345,6 +1432,10 @@ msgstr "Wystąpił błąd serializacji:"
 #, c-format
 msgid "Access denied. Reason: %s"
 msgstr "Odmowa dostępu. Powód: %s"
+
+#: src/client/game.cpp
+msgid "All debug info hidden"
+msgstr "Wszystkie informacje debugowania ukryte"
 
 #: src/client/game.cpp
 msgid "Automatic forward disabled"
@@ -1367,6 +1458,10 @@ msgid "Block bounds shown for nearby blocks"
 msgstr "Granice bloków pokazane dla pobliskich bloków"
 
 #: src/client/game.cpp
+msgid "Bounding boxes shown"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Camera update disabled"
 msgstr "Aktualizowanie kamery wyłączone"
 
@@ -1377,10 +1472,6 @@ msgstr "Aktualizowanie kamery włączone"
 #: src/client/game.cpp
 msgid "Can't show block bounds (disabled by game or mod)"
 msgstr "Nie można wyświetlić granic bloków (wyłączone przez grę lub mod)"
-
-#: src/client/game.cpp
-msgid "Change Password"
-msgstr "Zmień hasło"
 
 #: src/client/game.cpp
 msgid "Cinematic mode disabled"
@@ -1411,38 +1502,6 @@ msgid "Connection failed for unknown reason"
 msgstr "Połączenie nie powiodło się z nieznanego powodu"
 
 #: src/client/game.cpp
-msgid "Continue"
-msgstr "Kontynuuj"
-
-#: src/client/game.cpp
-msgid ""
-"Controls:\n"
-"No menu open:\n"
-"- slide finger: look around\n"
-"- tap: place/punch/use (default)\n"
-"- long tap: dig/use (default)\n"
-"Menu/inventory open:\n"
-"- double tap (outside):\n"
-" --> close\n"
-"- touch stack, touch slot:\n"
-" --> move stack\n"
-"- touch&drag, tap 2nd finger\n"
-" --> place single item to slot\n"
-msgstr ""
-"Domyślne sterowanie:\n"
-"Brak widocznego menu:\n"
-"- przejechanie palcem: rozglądanie się\n"
-"- dotknięcie: postaw/uderz/użyj (domyślnie)\n"
-"- długie dotknięcie: kop/użyj (domyślnie)\n"
-"Menu/Ekwipunek widoczny:\n"
-"- potwójne dotknięcie poza menu:\n"
-" -->zamknij\n"
-"- dotknięcie stosu, dotknięcie miejsca:\n"
-" --> przenieś stos\n"
-"- dotknięcie i przeciągnięcie, dotknięcie drugim palcem\n"
-" --> umieść pojedynczy przedmiot w miejscu\n"
-
-#: src/client/game.cpp
 #, c-format
 msgid "Couldn't resolve address: %s"
 msgstr "Nie można rozwiązać adresu: %s"
@@ -1456,29 +1515,13 @@ msgid "Creating server..."
 msgstr "Tworzenie serwera...."
 
 #: src/client/game.cpp
-msgid "Debug info and profiler graph hidden"
-msgstr "Informacje debugu oraz wykresy są ukryte"
-
-#: src/client/game.cpp
 msgid "Debug info shown"
 msgstr "Informacje debugu widoczne"
-
-#: src/client/game.cpp
-msgid "Debug info, profiler graph, and wireframe hidden"
-msgstr "Informacje debugu, wykresy oraz tryb siatki są ukryte"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Error creating client: %s"
 msgstr "Błąd tworzenia klienta: %s"
-
-#: src/client/game.cpp
-msgid "Exit to Menu"
-msgstr "Wyjście do menu"
-
-#: src/client/game.cpp
-msgid "Exit to OS"
-msgstr "Wyjście z gry"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
@@ -1517,18 +1560,6 @@ msgid "Fog enabled by game or mod"
 msgstr "Mgła włączona przez grę lub mod"
 
 #: src/client/game.cpp
-msgid "Game info:"
-msgstr "Informacje o grze:"
-
-#: src/client/game.cpp
-msgid "Game paused"
-msgstr "Gra wstrzymana"
-
-#: src/client/game.cpp
-msgid "Hosting server"
-msgstr "Tworzenie serwera"
-
-#: src/client/game.cpp
 msgid "Item definitions..."
 msgstr "Definicje przedmiotów..."
 
@@ -1565,14 +1596,6 @@ msgid "Node definitions..."
 msgstr "Definicje bloków..."
 
 #: src/client/game.cpp
-msgid "Off"
-msgstr "Wyłącz"
-
-#: src/client/game.cpp
-msgid "On"
-msgstr "Włącz"
-
-#: src/client/game.cpp
 msgid "Pitch move mode disabled"
 msgstr "Tryb nachylenia ruchu wyłączony"
 
@@ -1585,36 +1608,20 @@ msgid "Profiler graph shown"
 msgstr "Wykresy profilera widoczne"
 
 #: src/client/game.cpp
-msgid "Remote server"
-msgstr "Serwer zdalny"
-
-#: src/client/game.cpp
 msgid "Resolving address..."
 msgstr "Sprawdzanie adresu..."
-
-#: src/client/game.cpp
-msgid "Respawn"
-msgstr "Wróć do gry"
 
 #: src/client/game.cpp
 msgid "Shutting down..."
 msgstr "Wyłączanie..."
 
-#: src/client/game.cpp
+#: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "Pojedynczy gracz"
 
 #: src/client/game.cpp
-msgid "Sound Volume"
-msgstr "Głośność"
-
-#: src/client/game.cpp
 msgid "Sound muted"
 msgstr "Głośność wyciszona"
-
-#: src/client/game.cpp
-msgid "Sound system is disabled"
-msgstr "System dźwiękowy jest wyłączony"
 
 #: src/client/game.cpp
 msgid "Sound system is not supported on this build"
@@ -1694,16 +1701,114 @@ msgid "Volume changed to %d%%"
 msgstr "Zmieniono poziom głośności na %d%%"
 
 #: src/client/game.cpp
+#, fuzzy
+msgid "Wireframe not supported by video driver"
+msgstr "Shadery są włączone, ale GLSL nie jest wspierany przez sterownik."
+
+#: src/client/game.cpp
 msgid "Wireframe shown"
 msgstr "Siatka widoczna"
 
 #: src/client/game.cpp
-msgid "You died"
-msgstr "Nie żyjesz"
-
-#: src/client/game.cpp
 msgid "Zoom currently disabled by game or mod"
 msgstr "Powiększenie jest obecnie wyłączone przez grę lub mod"
+
+#: src/client/game_formspec.cpp
+msgid "- Mode: "
+msgstr "- Tryb: "
+
+#: src/client/game_formspec.cpp
+msgid "- Public: "
+msgstr "- Publiczne: "
+
+#. ~ PvP = Player versus Player
+#: src/client/game_formspec.cpp
+msgid "- PvP: "
+msgstr "Gracz przeciwko graczowi: "
+
+#: src/client/game_formspec.cpp
+msgid "- Server Name: "
+msgstr "- Nazwa serwera: "
+
+#: src/client/game_formspec.cpp
+msgid "Change Password"
+msgstr "Zmień hasło"
+
+#: src/client/game_formspec.cpp
+msgid "Continue"
+msgstr "Kontynuuj"
+
+#: src/client/game_formspec.cpp
+msgid ""
+"Controls:\n"
+"No menu open:\n"
+"- slide finger: look around\n"
+"- tap: place/punch/use (default)\n"
+"- long tap: dig/use (default)\n"
+"Menu/inventory open:\n"
+"- double tap (outside):\n"
+" --> close\n"
+"- touch stack, touch slot:\n"
+" --> move stack\n"
+"- touch&drag, tap 2nd finger\n"
+" --> place single item to slot\n"
+msgstr ""
+"Domyślne sterowanie:\n"
+"Brak widocznego menu:\n"
+"- przejechanie palcem: rozglądanie się\n"
+"- dotknięcie: postaw/uderz/użyj (domyślnie)\n"
+"- długie dotknięcie: kop/użyj (domyślnie)\n"
+"Menu/Ekwipunek widoczny:\n"
+"- potwójne dotknięcie poza menu:\n"
+" -->zamknij\n"
+"- dotknięcie stosu, dotknięcie miejsca:\n"
+" --> przenieś stos\n"
+"- dotknięcie i przeciągnięcie, dotknięcie drugim palcem\n"
+" --> umieść pojedynczy przedmiot w miejscu\n"
+
+#: src/client/game_formspec.cpp
+msgid "Exit to Menu"
+msgstr "Wyjście do menu"
+
+#: src/client/game_formspec.cpp
+msgid "Exit to OS"
+msgstr "Wyjście z gry"
+
+#: src/client/game_formspec.cpp
+msgid "Game info:"
+msgstr "Informacje o grze:"
+
+#: src/client/game_formspec.cpp
+msgid "Game paused"
+msgstr "Gra wstrzymana"
+
+#: src/client/game_formspec.cpp
+msgid "Hosting server"
+msgstr "Tworzenie serwera"
+
+#: src/client/game_formspec.cpp
+msgid "Off"
+msgstr "Wyłącz"
+
+#: src/client/game_formspec.cpp
+msgid "On"
+msgstr "Włącz"
+
+#: src/client/game_formspec.cpp
+msgid "Remote server"
+msgstr "Serwer zdalny"
+
+#: src/client/game_formspec.cpp
+msgid "Respawn"
+msgstr "Wróć do gry"
+
+#: src/client/game_formspec.cpp
+msgid "Sound Volume"
+msgstr "Głośność"
+
+#: src/client/game_formspec.cpp
+msgid "You died"
+msgstr "Nie żyjesz"
 
 #: src/client/gameui.cpp
 msgid "Chat currently disabled by game or mod"
@@ -2028,11 +2133,11 @@ msgstr "Minimapa w trybie teksturowym"
 #: src/client/shader.cpp
 #, c-format
 msgid "Failed to compile the \"%s\" shader."
-msgstr "Nie udało się skompilować shadera \"%s\""
+msgstr "Nie udało się skompilować shadera \"%s\"."
 
 #: src/client/shader.cpp
-msgid "Shaders are enabled but GLSL is not supported by the driver."
-msgstr "Shadery są włączone, ale GLSL nie jest wspierany przez sterownik."
+msgid "GLSL is not supported by the driver"
+msgstr "GLSL nie jest wspierany przez sterownik"
 
 #. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
@@ -2059,6 +2164,10 @@ msgstr ""
 msgid "Some mods have unsatisfied dependencies:"
 msgstr "Niektóre modyfikacje mają niespełnione zależności:"
 
+#: src/gui/guiButtonKey.h
+msgid "Press Button"
+msgstr "Naciśnij przycisk"
+
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
 msgstr "Nie udało się otworzyć strony internetowej"
@@ -2070,162 +2179,6 @@ msgstr "Otwieram stronę internetową"
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
 msgstr "Kontynuuj"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "\"Aux1\" = climb down"
-msgstr "\"Aux1\" = schodź"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Autoforward"
-msgstr "Automatyczne chodzenie do przodu"
-
-#: src/gui/guiKeyChangeMenu.cpp src/settings_translation_file.cpp
-msgid "Automatic jumping"
-msgstr "Automatyczne skoki"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Aux1"
-msgstr "Aux1"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Backward"
-msgstr "Tył"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Block bounds"
-msgstr "Granice bloków"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Change camera"
-msgstr "Zmień kamerę"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Command"
-msgstr "Komenda"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Console"
-msgstr "Konsola"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. range"
-msgstr "Zmniejsz pole widzenia"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. volume"
-msgstr "Zmniejsz głośność"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Double tap \"jump\" to toggle fly"
-msgstr "Wciśnij dwukrotnie \"Skok\" by włączyć tryb latania"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Drop"
-msgstr "Upuść"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Forward"
-msgstr "Przód"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. range"
-msgstr "Zwiększ pole widzenia"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. volume"
-msgstr "Zwiększ głośność"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Inventory"
-msgstr "Ekwipunek"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Jump"
-msgstr "Skok"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Key already in use"
-msgstr "Klawisz już zdefiniowany"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Keybindings."
-msgstr "Przypisanie klawiszy."
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Left"
-msgstr "Lewo"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Local command"
-msgstr "Lokalne polecenie"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Mute"
-msgstr "Wycisz"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Next item"
-msgstr "Następny przedmiot"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Prev. item"
-msgstr "Poprzedni przedmiot"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Range select"
-msgstr "Zasięg widzenia"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Right"
-msgstr "Prawo"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Screenshot"
-msgstr "Zrzut ekranu"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Sneak"
-msgstr "Skradanie"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle HUD"
-msgstr "Przełącz HUD"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Toggle chat log"
-msgstr "Przełącz historię czatu"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Toggle fast"
-msgstr "Przełącz tryb szybki"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Toggle fly"
-msgstr "Przełącz tryb latania"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle fog"
-msgstr "Przełącz mgłę"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Toggle minimap"
-msgstr "Przełącz minimapę"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Toggle noclip"
-msgstr "Przełącz tryb noclip"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle pitchmove"
-msgstr "Przełączanie przemieszczania"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchcontrols.cpp
-msgid "Zoom"
-msgstr "Zoom"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "press key"
-msgstr "naciśnij klawisz"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
@@ -2255,10 +2208,6 @@ msgstr "Stare hasło"
 msgid "Passwords do not match!"
 msgstr "Hasła nie są jednakowe!"
 
-#: src/gui/guiVolumeChange.cpp src/gui/touchcontrols.cpp
-msgid "Exit"
-msgstr "Wyjście"
-
 #: src/gui/guiVolumeChange.cpp
 msgid "Muted"
 msgstr "Wyciszony"
@@ -2268,38 +2217,132 @@ msgstr "Wyciszony"
 msgid "Sound Volume: %d%%"
 msgstr "Głośność: %d%%"
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreeneditor.cpp
+msgid "Add button"
+msgstr "Dodaj przycisk"
+
+#: src/gui/touchscreeneditor.cpp
+#, fuzzy
+msgid "Done"
+msgstr "Gotowe!"
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Remove"
+msgstr "Usuń"
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Reset"
+msgstr "Resetuj"
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Start dragging a button to add. Tap outside to cancel."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap a button to select it. Drag a button to move it."
+msgstr ""
+
+#: src/gui/touchscreeneditor.cpp
+msgid "Tap outside to deselect."
+msgstr "Naciśnij na zewnątrz, aby anulować wybór"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Aux1"
+msgstr "Aux1"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Change camera"
+msgstr "Zmień kamerę"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Dig/punch/use"
+msgstr "Kop/uderz/użyj"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Drop"
+msgstr "Upuść"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "Wyjście"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Inventory"
+msgstr "Ekwipunek"
+
+#: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Joystick"
 msgstr "Identyfikator Joystick-a"
 
-#: src/gui/touchcontrols.cpp
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Jump"
+msgstr "Skok"
+
+#: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
 
-#: src/gui/touchcontrols.cpp
-#, fuzzy
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Place/use"
+msgstr "Postaw/użyj"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Range select"
+msgstr "Zasięg widzenia"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Sneak"
+msgstr "Skradanie"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle chat log"
+msgstr "Przełącz historię czatu"
+
+#: src/gui/touchscreenlayout.cpp
 msgid "Toggle debug"
-msgstr "Przełącz mgłę"
+msgstr "Przełącz debugowanie"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fast"
+msgstr "Przełącz tryb szybki"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fly"
+msgstr "Przełącz tryb latania"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle minimap"
+msgstr "Przełącz minimapę"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle noclip"
+msgstr "Przełącz tryb noclip"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Zoom"
+msgstr "Zoom"
 
 #: src/network/clientpackethandler.cpp
+#, fuzzy
 msgid ""
 "Another client is connected with this name.  If your client closed "
 "unexpectedly, try again in a minute."
 msgstr ""
+"Inny klient jest połączony z taką nazwą.   Jeśli Twój klient zamknął się w "
+"wyniku niespodziewanego błędu, spróbuj jeszcze raz za minutę."
 
 #: src/network/clientpackethandler.cpp
 msgid "Empty passwords are disallowed.  Set a password and try again."
-msgstr ""
+msgstr "Puste hasła są niedozwolone.  Ustaw hasło i spróbuj jeszcze raz."
 
 #: src/network/clientpackethandler.cpp
 msgid "Internal server error"
-msgstr ""
+msgstr "Wewnętrzny błąd serwera"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Invalid password"
-msgstr "Stare hasło"
+msgstr "Nieprawidłowe hasło"
 
 #. ~ DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
@@ -2321,47 +2364,54 @@ msgid "Name is taken. Please choose another name"
 msgstr "Nazwa jest zajęta. Wybierz inną nazwę"
 
 #: src/network/clientpackethandler.cpp
+#, fuzzy
 msgid "Player name contains disallowed characters"
-msgstr ""
+msgstr "Nazwa gracza zawiera niedozwolone znaki"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Player name not allowed"
-msgstr "Nazwa gracza jest za długa."
+msgstr "Nazwa gracza niedozwolona"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Server shutting down"
 msgstr "Wyłączanie..."
 
 #: src/network/clientpackethandler.cpp
+#, fuzzy
 msgid ""
 "The server has experienced an internal error.  You will now be disconnected."
-msgstr ""
+msgstr "Serwer napotkał błąd wewnętrzny.   Zostaniesz teraz rozłączony."
 
 #: src/network/clientpackethandler.cpp
 msgid "The server is running in singleplayer mode.  You cannot connect."
 msgstr ""
+"Serwer działa w trybie dla pojedynczego gracza.   Nie możesz się połączyć."
 
 #: src/network/clientpackethandler.cpp
 msgid "Too many users"
-msgstr ""
+msgstr "Zbyt wielu użytkowników"
 
 #: src/network/clientpackethandler.cpp
 msgid "Unknown disconnect reason."
-msgstr ""
+msgstr "Nieznana przyczyna rozłączenia użytkownika."
 
 #: src/network/clientpackethandler.cpp
+#, fuzzy
 msgid ""
 "Your client sent something the server didn't expect.  Try reconnecting or "
 "updating your client."
 msgstr ""
+"Twój klient wysłał serwerowi coś, czego ten się nie spodziewał. Spróbuj "
+"połączyć się ponownie lub zaktualizować klienta."
 
 #: src/network/clientpackethandler.cpp
+#, fuzzy
 msgid ""
 "Your client's version is not supported.\n"
 "Please contact the server administrator."
 msgstr ""
+"Wersja Twojego klienta nie jest wspierana.\n"
+"Skontaktuj się z administratorem serwera."
 
 #: src/server.cpp
 #, c-format
@@ -2494,6 +2544,7 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "Szum 3D, który wpływa na liczbę lochów na jeden mapchunk."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
@@ -2502,8 +2553,7 @@ msgid ""
 "-    interlaced: odd/even line based polarization screen support.\n"
 "-    topbottom: split screen top/bottom.\n"
 "-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d\n"
-"Note that the interlaced mode requires shaders to be enabled."
+"-    crossview: Cross-eyed 3d"
 msgstr ""
 "Wsparcie 3D\n"
 "Aktualnie wspierane:\n"
@@ -2572,10 +2622,6 @@ msgid "Active object send range"
 msgstr "Zasięg wysyłania aktywnego obiektu"
 
 #: src/settings_translation_file.cpp
-msgid "Adds particles when digging a node."
-msgstr "Dodaje efekty cząstkowe podczas wykopywania bloków."
-
-#: src/settings_translation_file.cpp
 msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr ""
 "Dostosuj wykrytą gęstość wyświetlania, używaną do skalowania elementów UI."
@@ -2603,6 +2649,17 @@ msgstr "Nazwa administratora"
 #: src/settings_translation_file.cpp
 msgid "Advanced"
 msgstr "Zaawansowane"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"All mesh buffers with less than this number of vertices will be merged\n"
+"during map rendering. This improves rendering performance."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Allow clouds to look 3D instead of flat."
+msgstr "Włącz chmury 3D zamiast płaskich."
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
@@ -2656,11 +2713,11 @@ msgstr "Metoda antyaliasingu"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat flags"
-msgstr ""
+msgstr "Flagi anticheata"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat movement tolerance"
-msgstr ""
+msgstr "Tolerancja ruchu anticheata"
 
 #: src/settings_translation_file.cpp
 msgid "Append item name"
@@ -2693,8 +2750,9 @@ msgstr ""
 "liczb zmiennoprzecinkowych i może mieć większy wpływ na wydajność."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Apply specular shading to nodes."
-msgstr ""
+msgstr "Zastosuj cieniowanie lustrzane do bloków."
 
 #: src/settings_translation_file.cpp
 msgid "Arm inertia"
@@ -2757,6 +2815,10 @@ msgid "Audio"
 msgstr "Dźwięk"
 
 #: src/settings_translation_file.cpp
+msgid "Automatic jumping"
+msgstr "Automatyczne skoki"
+
+#: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
 msgstr "Automatycznie przeskakuj jedno-blokowe przeszkody."
 
@@ -2813,9 +2875,8 @@ msgid "Biome noise"
 msgstr "Szum biomu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Block bounds HUD radius"
-msgstr "Granice bloków"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Block cull optimize distance"
@@ -2970,6 +3031,10 @@ msgid "Client"
 msgstr "Klient"
 
 #: src/settings_translation_file.cpp
+msgid "Client Debugging"
+msgstr "Debugowanie klienta"
+
+#: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
 msgstr "Rozmiar modelu chunka na kliencie"
 
@@ -3006,12 +3071,12 @@ msgid "Clouds"
 msgstr "Chmury 3D"
 
 #: src/settings_translation_file.cpp
-msgid "Clouds are a client-side effect."
-msgstr "Chmury są efektem po stronie klienta."
-
-#: src/settings_translation_file.cpp
 msgid "Clouds in menu"
 msgstr "Chmury w menu"
+
+#: src/settings_translation_file.cpp
+msgid "Color depth for post-processing texture"
+msgstr "Głębia koloru dla przetwarzania tekstury"
 
 #: src/settings_translation_file.cpp
 msgid "Colored fog"
@@ -3039,15 +3104,15 @@ msgid ""
 "as defined by the Free Software Foundation.\n"
 "You can also specify content ratings.\n"
 "These flags are independent from Luanti versions,\n"
-"so see a full list at https://content.minetest.net/help/content_flags/"
+"so see a full list at https://content.luanti.org/help/content_flags/"
 msgstr ""
 "Lista oddzielonych przecinkami flag do ukrycia w repozytorium treści.\n"
 "„niewolne” może służyć do ukrywania pakietów, które nie kwalifikują się jako "
 "„wolne oprogramowanie”,\n"
 "zgodnie z definicją Free Software Foundation.\n"
 "Możesz także określić oceny treści.\n"
-"Te flagi są niezależne od wersji Minetest,\n"
-"więc zobacz pełną listę na https://content.minetest.net/help/content_flags/"
+"Te flagi są niezależne od wersji Luanti,\n"
+"zobacz więc pełną listę na https://content.minetest.net/help/content_flags/"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3064,6 +3129,10 @@ msgid ""
 msgstr ""
 "Lista oddzielona przecinkiem zaufanych modów które mają dostęp\n"
 "do niebezpiecznych funkcji nawet gdy zabezpieczenie modów jest włączone."
+
+#: src/settings_translation_file.cpp
+msgid "Command"
+msgstr "Komenda"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3208,6 +3277,24 @@ msgid "Debugging"
 msgstr "Debugowanie"
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Decide the color depth of the texture used for the post-processing "
+"pipeline.\n"
+"Reducing this can improve performance, but some effects (e.g. debanding)\n"
+"require more than 8 bits to work."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease view range"
+msgstr "Zmniejsz pole widzenia"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease volume"
+msgstr "Zmniejsz głośność"
+
+#: src/settings_translation_file.cpp
 msgid "Dedicated server step"
 msgstr "Krok serwera dedykowanego"
 
@@ -3251,7 +3338,6 @@ msgstr ""
 "ale także zużywa więcej zasobów."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Define the oldest clients allowed to connect.\n"
 "Older clients are compatible in the sense that they will not crash when "
@@ -3267,10 +3353,10 @@ msgstr ""
 "Starsze klienty mogą być kompatybilne w tym sensie, że nie będą się "
 "zawieszać,\n"
 "kiedy łączą się z nowym serwerem, ale mogą nie wspierać wszystkich nowych "
-"funkcjonalności., których się spodziewasz.\n"
+"funkcjonalności, których się spodziewasz.\n"
 "To pozwala na bardziej szczegółowe rozróżnianie niż "
 "strict_protocol_version_checking.\n"
-"Minetest i tak wymusza swoje własne, wewnętrzne minimum, a włączenie\n"
+"Luanti i tak wymusza swoje własne, wewnętrzne minimum, a włączenie\n"
 "strict_protocol_version_checking efektywnie nadpisze skutki tego ustawienia."
 
 #: src/settings_translation_file.cpp
@@ -3386,16 +3472,8 @@ msgstr ""
 "Kiedy flaga 'snowbiomes' jest włączona, ta wartość jest ignorowana."
 
 #: src/settings_translation_file.cpp
-msgid "Desynchronize block animation"
-msgstr "Odsynchronizuj animację bloków"
-
-#: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Opcje deweloperskie"
-
-#: src/settings_translation_file.cpp
-msgid "Digging particles"
-msgstr "Włącz efekty cząsteczkowe"
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -3412,9 +3490,10 @@ msgid ""
 "Use this to limit the performance impact of transparency depth sorting.\n"
 "Set to 0 to disable it entirely."
 msgstr ""
-"Odległość w blokach, przy której sortowanie przezroczystości jest włączone\n"
+"Odległość w blokach, przy której sortowanie przezroczystości jest włączone.\n"
 "Użyj tego ustawienia, aby zmniejszyć spadek wydajności związany z "
-"sortowaniem przezroczystości"
+"sortowaniem przezroczystości.\n"
+"Ustaw wartość na 0, aby wyłączyć je całkowicie."
 
 #: src/settings_translation_file.cpp
 msgid "Domain name of server, to be displayed in the serverlist."
@@ -3427,6 +3506,19 @@ msgstr "Wciśnij dwukrotnie \"Skok\" by włączyć tryb latania"
 #: src/settings_translation_file.cpp
 msgid "Double-tapping the jump key toggles fly mode."
 msgstr "Wciśnij dwukrotnie \"Skok\" by włączyć tryb latania."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Draw transparency sorted triangles grouped by their mesh buffers.\n"
+"This breaks transparency sorting between mesh buffers, but avoids "
+"situations\n"
+"where transparency sorting would be very slow otherwise."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Drop item"
+msgstr "Klawisz wyrzucenia przedmiotu"
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -3445,7 +3537,6 @@ msgid "Dungeon noise"
 msgstr "Szum generowania lochów"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Effects"
 msgstr "Efekty graficzne"
 
@@ -3475,6 +3566,13 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Enable IPv6 support for server.\n"
+"Note that clients will be able to connect with both IPv4 and IPv6.\n"
+"Ignored if bind_address is set."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Enable Lua modding support on client.\n"
 "This support is experimental and API can change."
 msgstr ""
@@ -3497,7 +3595,7 @@ msgstr "Włącz Post Processing"
 
 #: src/settings_translation_file.cpp
 msgid "Enable Raytraced Culling"
-msgstr "Włącz culling oparty o śledzenie promieni"
+msgstr "Włącz pomijanie przysłoniętych bloków oparte o śledzenie promieni"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3512,9 +3610,10 @@ msgstr ""
 "oka ludzkiego."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Enable colored shadows.\n"
-"On true translucent nodes cast colored shadows. This is expensive."
+"Enable colored shadows for transculent nodes.\n"
+"This is expensive."
 msgstr ""
 "Włącza kolorowe cienie. \n"
 "Jeśli aktywne, półprzezroczyste bloki rzucają kolorowe cienie. To zużywa "
@@ -3553,11 +3652,8 @@ msgid "Enable random user input (only used for testing)."
 msgstr "Włącz losowe wejście użytkownika (tylko dla testowania)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable smooth lighting with simple ambient occlusion."
-msgstr ""
-"Włącz gładkie oświetlenie z prostym efektem ambient occlusion.\n"
-"Wyłącz dla szybkości lub wyglądu."
+msgstr "Włącz gładkie oświetlenie z prostym efektem ambient occlusion."
 
 #: src/settings_translation_file.cpp
 msgid "Enable split login/register"
@@ -3578,8 +3674,9 @@ msgstr ""
 "spodziewanych funkcjonalności."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Enable updates available indicator on content tab"
-msgstr ""
+msgstr "Włącz wskaźnik dostępnych aktualizacji w oknie zawartości"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3603,16 +3700,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set.\n"
-"Needs enable_ipv6 to be enabled."
-msgstr ""
-"Włącza/wyłącza uruchamianie serwera IPv6.\n"
-"Ignorowane jeśli ustawiony jest bind_address.\n"
-"Wymaga włączenia enable_ipv6."
-
-#: src/settings_translation_file.cpp
-msgid ""
 "Enables Hable's 'Uncharted 2' filmic tone mapping.\n"
 "Simulates the tone curve of photographic film and how this approximates the\n"
 "appearance of high dynamic range images. Mid-range contrast is slightly\n"
@@ -3629,32 +3716,31 @@ msgid "Enables animation of inventory items."
 msgstr "Włącz animację inwentarza przedmiotów."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid ""
-"Enables caching of facedir rotated meshes.\n"
-"This is only effective with shaders disabled."
-msgstr "Włącza cachowanie facedir obracanych meshów."
-
-#: src/settings_translation_file.cpp
 msgid "Enables debug and error-checking in the OpenGL driver."
 msgstr "Włącza debug i sprawdzanie błędów w sterowniku OpenGL."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Enables smooth scrolling."
-msgstr "Włącz Post Processing"
+msgstr "Włącza płynne przewijanie."
 
 #: src/settings_translation_file.cpp
 msgid "Enables the post processing pipeline."
 msgstr "Włącza potok post-processimgu."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Enables the touchscreen controls, allowing you to play the game with a "
 "touchscreen.\n"
 "\"auto\" means that the touchscreen controls will be enabled and disabled\n"
 "automatically depending on the last used input method."
 msgstr ""
+"Włącza sterowanie ekranu dotykowego, co pozwala Ci na granie w grę na "
+"ekranie dotykowym.\n"
+"„auto” oznacza, że sterowanie ekranu dotykowego zostanie włączone lub "
+"wyłączone\n"
+"automatycznie w zależności od ostatnio użytych danych wejściowych."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3703,16 +3789,13 @@ msgid "FPS"
 msgstr "FPS"
 
 #: src/settings_translation_file.cpp
-msgid "FPS when unfocused or paused"
+#, fuzzy
+msgid "FPS when unfocused"
 msgstr "Maksymalna ilość klatek na sekundę gdy gra zapauzowana bądź nieaktywna"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
 msgstr "Współczynnik szumu"
-
-#: src/settings_translation_file.cpp
-msgid "Fall bobbing factor"
-msgstr "Skala drgań głowy podczas upadania"
 
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
@@ -3984,10 +4067,6 @@ msgid "GUI scaling filter"
 msgstr "Filtr skalowania GUI"
 
 #: src/settings_translation_file.cpp
-msgid "GUI scaling filter txr2img"
-msgstr "Filtr skalowania GUI txr2img"
-
-#: src/settings_translation_file.cpp
 msgid "Gamepads"
 msgstr "Kontrolery"
 
@@ -4154,12 +4233,182 @@ msgstr ""
 "w blokach na sekundę do kwadratu."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 1"
+msgstr "Przycisk 1 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 10"
+msgstr "Przycisk 10 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 11"
+msgstr "Przycisk 11 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 12"
+msgstr "Przycisk 12 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 13"
+msgstr "Przycisk 13 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 14"
+msgstr "Przycisk 14 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 15"
+msgstr "Przycisk 15 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 16"
+msgstr "Przycisk 16 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 17"
+msgstr "Przycisk 17 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 18"
+msgstr "Przycisk 18 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 19"
+msgstr "Przycisk 19 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 2"
+msgstr "Przycisk 2 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 20"
+msgstr "Przycisk 20 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 21"
+msgstr "Przycisk 21 miejsca paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 22"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 23"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 24"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 25"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 26"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 27"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 28"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 29"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 3"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 30"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 31"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 32"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 4"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 5"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 6"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 7"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 8"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 9"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
 msgstr "Hotbar: Włącz użycie kółka myszy do wyboru"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
 msgstr "Hotbar: Odwróć kierunek kółka myszy"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select next item"
+msgstr "Następny klawisz paska działań"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select previous item"
+msgstr "Poprzedni klawisz paska działań"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4232,11 +4481,15 @@ msgstr ""
 "włączony."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "If enabled and you have ContentDB packages installed, Luanti may contact "
 "ContentDB to\n"
 "check for package updates when opening the mainmenu."
 msgstr ""
+"Jeśli jest włączone i posiadasz zainstalowane paczki ContentDB, to Luanti "
+"skontaktuje się z ContentDB, aby\n"
+"sprawdzić aktualizacje paczek podczas otwierania menu głównego."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4247,14 +4500,6 @@ msgstr ""
 "Po włączeniu, klawisz \"użycia\" będzie służył do schodzenia w dół i "
 "opadania\n"
 "zamiast klawisza \"skradania\"."
-
-#: src/settings_translation_file.cpp
-msgid ""
-"If enabled, account registration is separate from login in the UI.\n"
-"If disabled, new accounts will be registered automatically when logging in."
-msgstr ""
-"Po włączeniu, rejestracja konta zostanie oddzielona od logowania w UI.\n"
-"Po wyłączeniu, nowe konta będą rejestrowane automatycznie przy logowaniu."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4280,6 +4525,26 @@ msgid ""
 msgstr ""
 "Po włączeniu, gracze nie mogą dołączyć do gry z pustym hasłem ani zmienić "
 "swojego hasła na puste."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"If enabled, server account registration is separate from login in the UI.\n"
+"If disabled, connecting to a server will automatically register a new "
+"account."
+msgstr ""
+"Po włączeniu, rejestracja konta zostanie oddzielona od logowania w UI.\n"
+"Po wyłączeniu, nowe konta będą rejestrowane automatycznie przy logowaniu."
+
+#: src/settings_translation_file.cpp
+msgid "If enabled, the \"Aux1\" key will toggle when pressed."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, the \"Sneak\" key will toggle when pressed.\n"
+"This functionality is ignored when fly is enabled."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4358,6 +4623,16 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "Przeźroczystość konsoli w grze (od 0.0 do 1.0)."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase view range"
+msgstr "Zwiększ pole widzenia"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase volume"
+msgstr "Zwiększ głośność"
+
+#: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
 msgstr "Początkowa prędkość pionowa podczas skoku, w blokach na sekundę."
 
@@ -4380,7 +4655,7 @@ msgid ""
 "(anything you pass to a core.register_*() function)"
 msgstr ""
 "Mierz globalne funkcje zwrotne przy rejestracji.\n"
-"(wszystko co prześlesz do funkcji minetest.register_*() )"
+"(wszystko, co prześlesz do funkcji core.register_*())"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4401,12 +4676,13 @@ msgid "Instrument the methods of entities on registration."
 msgstr "Mierz metody bytów przy rejestracji."
 
 #: src/settings_translation_file.cpp
-msgid "Interval of saving important changes in the world, stated in seconds."
-msgstr "Interwał zapisywania ważnych zmian w świecie, w sekundach."
+#, fuzzy
+msgid "Interaction style"
+msgstr "Iteracje"
 
 #: src/settings_translation_file.cpp
-msgid "Interval of sending time of day to clients, stated in seconds."
-msgstr "Interwał wysyłania czasu gry do klientów, w sekundach."
+msgid "Interval of saving important changes in the world, stated in seconds."
+msgstr "Interwał zapisywania ważnych zmian w świecie, w sekundach."
 
 #: src/settings_translation_file.cpp
 msgid "Inventory items animations"
@@ -4501,13 +4777,15 @@ msgstr ""
 "Zakres to w przybliżeniu -2 do 2."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Julia set only.\n"
 "Y component of hypercomplex constant.\n"
 "Alters the shape of the fractal.\n"
 "Range roughly -2 to 2."
 msgstr ""
-"Wyłącznie dla Zbioru Julii: komponent Y stałej hiperzespolonej, \n"
+"Wyłącznie dla Zbioru Julii.\n"
+"Komponent Y stałej hiperzespolonej, \n"
 "która determinuje kształt fraktali.\n"
 "Zakres to w przybliżeniu -2 do 2."
 
@@ -4542,6 +4820,343 @@ msgstr "Julia z"
 #: src/settings_translation_file.cpp
 msgid "Jumping speed"
 msgstr "Szybkość skoku"
+
+#: src/settings_translation_file.cpp
+msgid "Key for decreasing the viewing range."
+msgstr "Klawisz do zmniejszania zasięgu widzenia."
+
+#: src/settings_translation_file.cpp
+msgid "Key for decreasing the volume."
+msgstr "Klawisz do zmniejszania głośności."
+
+#: src/settings_translation_file.cpp
+msgid "Key for decrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for digging, punching or using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for dropping the currently selected item."
+msgstr "Klawisz do wyrzucania aktualnie wybranego przedmiotu."
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the viewing range."
+msgstr "Klawisz do zwiększenia zasięgu widzenia."
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the volume."
+msgstr "Klawisz do zwiększenia głośności."
+
+#: src/settings_translation_file.cpp
+msgid "Key for incrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for jumping."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving fast in fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for moving the player backward.\n"
+"Will also disable autoforward, when active."
+msgstr ""
+"Klawisz poruszania się wstecz.\n"
+"Gdy jest aktywny to wyłącza również automatyczne chodzenie do przodu.\n"
+"Zobacz http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player forward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player left."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player right."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for muting the game."
+msgstr "Klawisz do wyciszenia gry."
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type commands."
+msgstr "Klawisz do otwierania czatu, aby wpisać komendę."
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type local commands."
+msgstr "Klawisz do otwierania czatu, aby wpisać lokalne komendy."
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window."
+msgstr "Klawisz do otwierania czatu."
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the inventory."
+msgstr "Klawisz do otwierania ekwipunku."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for placing an item/block or for using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 11th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 12th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 13th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 14th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 15th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 16th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 17th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 18th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 19th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 20th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 21st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 22nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 23rd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 24th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 25th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 26th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 27th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 28th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 29th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 30th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 31st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 32nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the eighth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fifth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the first hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fourth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the next item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the ninth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the previous item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the second hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the seventh hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the sixth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the tenth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the third hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for sneaking.\n"
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"Klawisz skradania.\n"
+"Także używany do schodzenia w dół i opadania w wodzie jeżeli aux1_descends "
+"jest wyłączone.\n"
+"Zobacz http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching between first- and third-person camera."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the next entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the previous entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for taking screenshots."
+msgstr "Format zrzutu ekranu."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling autoforward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling cinematic mode."
+msgstr "Wygładzanie kamery w trybie cinematic"
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling display of minimap."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling flying."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling fullscreen mode."
+msgstr "Tryb pełnoekranowy."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling noclip mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling pitch move mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of chat."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of debug info."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of fog."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of mapblock boundaries."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the HUD."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the large chat console."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the profiler. Used for development."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling unlimited view range."
+msgstr "Wyłączono nieskończony zasięg widoczności"
+
+#: src/settings_translation_file.cpp
+msgid "Key to use view zoom when possible."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keybindings"
+msgstr "Przypisanie klawiszy."
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -4581,11 +5196,15 @@ msgid "Large cave proportion flooded"
 msgstr "Zalana część dużej jaskini"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Large chat console"
+msgstr "Klawisz wielkiej konsoli"
+
+#: src/settings_translation_file.cpp
 msgid "Leaves style"
 msgstr "Styl liści"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Leaves style:\n"
 "-   Fancy:  all faces visible\n"
@@ -4594,8 +5213,8 @@ msgid ""
 msgstr ""
 "Style liści:\n"
 "-   Fancy:  wszystkie ściany widoczne\n"
-"-   Simple: tylko zewnętrzene ściany, jeżeli special_tiles jest użyty\n"
-"-   Opaque: wyłącza przeźroczystość"
+"-   Simple: tylko zewnętrzne ściany\n"
+"-   Opaque: wyłącza przezroczystość"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -4607,10 +5226,13 @@ msgid ""
 "This is a lower bound, i.e. server steps may not be shorter than this, but\n"
 "they are often longer."
 msgstr ""
-"Długość interwału czasowego serwera (w trakcie którego wszystko jest na "
-"ogół\n"
-"aktualizowane), wyrażony w sekundach.\n"
-"Nie ma zastosowania w sesjach hostowanych z menu klienta."
+"Długość interwału czasowego serwera (w trakcie którego wszystko jest na ogół "
+"aktualizowane), \n"
+"wyrażony w sekundach.\n"
+"Nie ma zastosowania w sesjach hostowanych z menu klienta.\n"
+"To dolna granica, kroki serwera nie mogą być na przykład krótsze niż ta "
+"wartość, ale\n"
+"zwykle są dłuższe."
 
 #: src/settings_translation_file.cpp
 msgid "Length of liquid waves."
@@ -4727,9 +5349,8 @@ msgid "Liquid queue purge time"
 msgstr "Czas kolejki czyszczenia cieczy"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Liquid reflections"
-msgstr "Płynność cieczy"
+msgstr "Odbicia cieczy"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid sinking"
@@ -4760,6 +5381,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
 msgstr "Modyfikatory Ładowania Bloków (LBM)"
+
+#: src/settings_translation_file.cpp
+msgid "Local command"
+msgstr "Lokalne polecenie"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -4980,7 +5605,8 @@ msgid "Maximum FPS"
 msgstr "Maksymalny FPS"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum FPS when the window is not focused, or when the game is paused."
+#, fuzzy
+msgid "Maximum FPS when the window is not focused."
 msgstr "Maksymalny FPS gdy przełączono poza okno gry lub gra jest zapauzowana."
 
 #: src/settings_translation_file.cpp
@@ -5056,18 +5682,23 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of mapblocks for client to be kept in memory.\n"
-"Set to -1 for unlimited amount."
+"Note that there is an internal dynamic minimum number of blocks that\n"
+"won't be deleted, depending on the current view range.\n"
+"Set to -1 for no limit."
 msgstr ""
-"Maksymalna liczba bloków mapy, które mają być trzymane w pamięci klienta.\n"
-"Ustaw -1 dla nieskończonej liczby."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Maximum number of packets sent per send step in the low-level networking "
 "code.\n"
 "You generally don't need to change this, however busy servers may benefit "
 "from a higher number."
 msgstr ""
+"Maksymalna liczba pakietów przesyłanych na jeden krok w sieciowym kodzie "
+"niskopoziomowym.\n"
+"Ogólnie nie musisz go zmieniać, jednakże obciążone serwery mogą działać "
+"lepiej, gdy ta liczba będzie wyższa."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of players that can be connected simultaneously."
@@ -5098,12 +5729,14 @@ msgid "Maximum simultaneous block sends per client"
 msgstr "Maksymalny jednoczesny blok wysłany, na każdego klienta"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum size of the outgoing chat queue"
+#, fuzzy
+msgid "Maximum size of the client's outgoing chat queue"
 msgstr "Maksymalny rozmiar kolejki wychodzących wiadomości czatu"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Maximum size of the outgoing chat queue.\n"
+"Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
 "Maksymalny rozmiar kolejki wychodzących wiadomości czatu\n"
@@ -5126,10 +5759,6 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Maksymalna ilość użytkowników"
-
-#: src/settings_translation_file.cpp
-msgid "Mesh cache"
-msgstr "Pamięć podręczna siatki"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -5162,6 +5791,10 @@ msgstr "Dolna granica losowej liczby dużych jaskiń na mapchunk."
 #: src/settings_translation_file.cpp
 msgid "Minimum limit of random number of small caves per mapchunk."
 msgstr "Dolna granica losowej liczby małych jaskiń na mapchunk."
+
+#: src/settings_translation_file.cpp
+msgid "Minimum vertex count for mesh buffers"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Mipmapping"
@@ -5224,6 +5857,25 @@ msgid "Mouse sensitivity multiplier."
 msgstr "Mnożnik czułości myszy."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move backward"
+msgstr "Tył"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move forward"
+msgstr "Automatyczne chodzenie do przodu"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move left"
+msgstr "Poruszanie się"
+
+#: src/settings_translation_file.cpp
+msgid "Move right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Movement threshold"
 msgstr "Próg ruchu"
 
@@ -5232,12 +5884,8 @@ msgid "Mud noise"
 msgstr "Szum błota"
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Multiplier for fall bobbing.\n"
-"For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-msgstr ""
-"Mnożnik dla drgań upadku.\n"
-"Przykład: 0 dla braku drgań widoku; 1.0 dla normalnych; 2.0 dla podwójnych."
+msgid "Mute"
+msgstr "Wycisz"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5256,9 +5904,10 @@ msgstr ""
 "- Opcjonalne latające wyspy z v7 (domyślnie wyłączone)."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Name of the player.\n"
-"When running a server, clients connecting with this name are admins.\n"
+"When running a server, a client connecting with this name is admin.\n"
 "When starting from the main menu, this is overridden."
 msgstr ""
 "Nazwa gracza.\n"
@@ -5296,8 +5945,9 @@ msgid "Node highlighting"
 msgstr "Podświetlanie bloków"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Node specular"
-msgstr ""
+msgstr "Odbicie bloku"
 
 #: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
@@ -5359,8 +6009,8 @@ msgid ""
 "Value of 0 (default) will let Luanti autodetect the number of available "
 "threads."
 msgstr ""
-"Liczba wątków do użycia do generacji modeli.\n"
-"Wartość 0 (domyślna) sprawi, że Minetest automatycznie wykryje liczbę "
+"Liczba wątków do użycia do generacji siatki.\n"
+"Wartość 0 (domyślna) sprawi, że Luanti automatycznie wykryje liczbę "
 "dostępnych wątków."
 
 #: src/settings_translation_file.cpp
@@ -5369,7 +6019,7 @@ msgstr "Occlusion Culler"
 
 #: src/settings_translation_file.cpp
 msgid "Occlusion Culling"
-msgstr "Pomijanie przesłoniętych modeli po stronie serwera"
+msgstr "Pomijanie przesłoniętych bloków"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5377,6 +6027,16 @@ msgid ""
 msgstr ""
 "Nieprzezroczystość (alfa) cienia za domyślną czcionką, w zakresie od 0 do "
 "255."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open chat"
+msgstr "Otwórz"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open inventory"
+msgstr "Ekwipunek"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5395,16 +6055,15 @@ msgstr "Debug OpenGL"
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Optimize GUI for touchscreens"
-msgstr "Użyj celownika do ekranu dotykowego"
+msgstr "Optymalizuj GUI dla ekranów dotykowych"
 
 #: src/settings_translation_file.cpp
 msgid "Optional override for chat weblink color."
 msgstr "Opcjonalna zmiana koloru łącza internetowego na czacie."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Other Effects"
-msgstr "Efekty graficzne"
+msgstr "Inne efekty"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5523,14 +6182,15 @@ msgstr "Adres listenera Prometheusa"
 #, fuzzy
 msgid ""
 "Prometheus listener address.\n"
-"If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
-"enable metrics listener for Prometheus on that address.\n"
-"Metrics can be fetched on http://127.0.0.1:30000/metrics"
+"If Luanti is compiled with Prometheus support, this setting\n"
+"enables the metrics listener for Prometheus on that address.\n"
+"By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
+"An empty value disables the metrics listener."
 msgstr ""
 "Adres listenera Prometheusa.\n"
-"Jeśli Minetest jest skompilowany z włączoną opcją ENABLE_PROMETHEUS,\n"
+"Jeśli Luanti jest skompilowany z włączoną opcją ENABLE_PROMETHEUS, to\n"
 "włącz listener metryk dla Prometheusa na tym adresie.\n"
-"Metryki mogą być ładowane na http://127.0.0.1:30000/metrics"
+"Metryki mogą być pobrane na stronie http://127.0.0.1:30000/metrics"
 
 #: src/settings_translation_file.cpp
 msgid "Proportion of large caves that contain liquid."
@@ -5545,6 +6205,22 @@ msgid "Punch gesture"
 msgstr "Gest uderzenia"
 
 #: src/settings_translation_file.cpp
+msgid "Quicktune: decrement value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: increment value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select next entry"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select previous entry"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Radius of cloud area stated in number of 64 node cloud squares.\n"
 "Values larger than 26 will start to produce sharp cutoffs at cloud area "
@@ -5554,8 +6230,11 @@ msgstr ""
 "Wartości większe niż 26 skutkują ostrym odcięciem w rogach chmur."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Radius to use when the block bounds HUD feature is set to near blocks."
 msgstr ""
+"Zasięg użycia, gdy funkcja granic bloków HUD jest ustawiona na najbliższe "
+"bloki."
 
 #: src/settings_translation_file.cpp
 msgid "Raises terrain to make valleys around the rivers."
@@ -5738,6 +6417,10 @@ msgid "Screen width"
 msgstr "Szerokość ekranu"
 
 #: src/settings_translation_file.cpp
+msgid "Screenshot"
+msgstr "Zrzut ekranu"
+
+#: src/settings_translation_file.cpp
 msgid "Screenshot folder"
 msgstr "Folder zrzutu ekranu"
 
@@ -5782,23 +6465,26 @@ msgid "See https://www.sqlite.org/pragma.html#pragma_synchronous"
 msgstr "Sprawdź http://www.sqlite.org/pragma.html#pragma_synchronous"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Select the antialiasing method to apply.\n"
 "\n"
 "* None - No antialiasing (default)\n"
 "\n"
 "* FSAA - Hardware-provided full-screen antialiasing\n"
-"(incompatible with Post Processing and Undersampling)\n"
 "A.K.A multi-sample antialiasing (MSAA)\n"
 "Smoothens out block edges but does not affect the insides of textures.\n"
-"A restart is required to change this option.\n"
 "\n"
-"* FXAA - Fast approximate antialiasing (requires shaders)\n"
+"If Post Processing is disabled, changing FSAA requires a restart.\n"
+"Also, if Post Processing is disabled, FSAA will not work together with\n"
+"undersampling or a non-default \"3d_mode\" setting.\n"
+"\n"
+"* FXAA - Fast approximate antialiasing\n"
 "Applies a post-processing filter to detect and smoothen high-contrast "
 "edges.\n"
 "Provides balance between speed and image quality.\n"
 "\n"
-"* SSAA - Super-sampling antialiasing (requires shaders)\n"
+"* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
 "the aliasing effects. This is the slowest and the most accurate method."
 msgstr ""
@@ -5834,7 +6520,6 @@ msgid "Selection box width"
 msgstr "Długość zaznaczenia"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Selects one of 18 fractal types.\n"
 "1 = 4D \"Roundy\" Mandelbrot set.\n"
@@ -5856,7 +6541,7 @@ msgid ""
 "17 = 4D \"Mandelbulb\" Mandelbrot set.\n"
 "18 = 4D \"Mandelbulb\" Julia set."
 msgstr ""
-"Wybór 18 fraktali z 9 formuł.\n"
+"Wybiera jeden z 18 typów fraktali.\n"
 "1 = 4D \"Roundy\" zbiór Mandelbrota .\n"
 "2 = 4D \"Roundy\" zbiór Julii.\n"
 "3 = 4D \"Squarry\" zbiór Mandelbrota.\n"
@@ -5877,15 +6562,18 @@ msgstr ""
 "18 = 4D \"Mandelbulb\" zbiór Julii."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Send names of online players to the serverlist. If disabled only the player "
 "count is revealed."
 msgstr ""
+"Przesyła nazwy użytkowników sieciowych liście serwera. Jeśli jest wyłączona, "
+"to tylko liczba graczy zostanie ujawniona."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Send player names to the server list"
-msgstr "Rozgłoś listę serwerów."
+msgstr "Prześlij nazwy graczy na listę serwerów"
 
 #: src/settings_translation_file.cpp
 msgid "Server"
@@ -5908,11 +6596,15 @@ msgid "Server address"
 msgstr "Adres serwera"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Server anticheat configuration.\n"
 "Flags are positive. Uncheck the flag to disable corresponding anticheat "
 "module."
 msgstr ""
+"Konfiguracja anticheata na serwerze.\n"
+"Flagi mają ustawioną wartość dodatnią. Odznacz flagę, by wyłączyć moduł "
+"anticheata."
 
 #: src/settings_translation_file.cpp
 msgid "Server description"
@@ -5929,7 +6621,7 @@ msgstr "Port Serwera"
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Server-side occlusion culling"
-msgstr "Occulusion culling po stronie serwera"
+msgstr "Pomijanie przesłoniętych bloków po stronie serwera"
 
 #: src/settings_translation_file.cpp
 msgid "Server/Env Performance"
@@ -5955,24 +6647,20 @@ msgid ""
 "Value of 0 means no tilt / vertical orbit."
 msgstr ""
 "Ustaw nachylenie orbity Słońca/Księżyca w stopniach.\n"
-"Wartość 0 oznacza brak nachylenia / orbitę pionową.\n"
-"Wartość minimalna: 0.0; wartość maksymalna: 60.0"
+"Gry mogą zmieniać nachylenie orbity poprzez API.\n"
+"Wartość 0 oznacza brak nachylenia / orbitę pionową."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Set the exposure compensation in EV units.\n"
 "Value of 0.0 (default) means no exposure compensation.\n"
 "Range: from -1 to 1.0"
 msgstr ""
-"Ustaw współczynnik kompensacji ekspozycji.\n"
-"Ten współczynnik jest aplikowany na liniową wartość koloru\n"
-"przed wszystkimi innymi efektami przetwarzania końcowego.\n"
-"Wartość 1.0 (domyślna) oznacza brak kompensacji ekspozycji.\n"
-"Zakres: od 0.1 do 10.0"
+"Ustaw współczynnik kompensacji ekspozycji w jednostkach EV.\n"
+"Wartość 0.0 (domyślna) oznacza brak kompensacji ekspozycji.\n"
+"Zakres: od -1 do 1.0"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Set the language. By default, the system language is used.\n"
 "A restart is required after changing this."
@@ -5988,13 +6676,13 @@ msgstr ""
 "klientów."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Set the shadow strength gamma.\n"
 "Adjusts the intensity of in-game dynamic shadows.\n"
 "Lower value means lighter shadows, higher value means darker shadows."
 msgstr ""
 "Ustaw siłę cienia.\n"
+"Dostosowuje intensywność dynamicznych cieni w grze.\n"
 "Niższa wartość oznacza jaśniejsze cienie, wyższa wartość oznacza ciemniejsze "
 "cienie."
 
@@ -6013,9 +6701,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Set to true to enable Shadow Mapping."
-msgstr ""
-"Ustawienie wartości pozytywnej włącza drganie liści.\n"
-"Do włączenia wymagane są shadery."
+msgstr "Ustaw wartość pozytywną, by włączyć odwzorowanie cieni."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6028,45 +6714,42 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable volumetric lighting effect (a.k.a. \"Godrays\")."
 msgstr ""
+"Ustaw wartość pozytywną by włączyć efekt światła wolumetrycznego (znanego "
+"również jako \"Boskie promienie\")."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Set to true to enable waving leaves."
-msgstr ""
-"Ustawienie wartości pozytywnej włącza drganie liści.\n"
-"Do włączenia wymagane są shadery."
+msgstr "Ustawienie wartości pozytywnej włącza drganie liści."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Set to true to enable waving liquids (like water)."
-msgstr ""
-"Ustawienie wartości pozytywnej włącza falowanie wody.\n"
-"Wymaga shaderów."
+msgstr "Ustawienie wartości pozytywnej włącza falowanie cieczy (tak jak woda)."
+
+#: src/settings_translation_file.cpp
+msgid "Set to true to enable waving plants."
+msgstr "Ustawienie pozytywnej wartości włącza falowanie roślin."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Set to true to enable waving plants."
-msgstr ""
-"Ustawienie pozytywnej wartości włącza falowanie roślin.\n"
-"Wymaga shaderów."
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Set to true to render debugging breakdown of the bloom effect.\n"
 "In debug mode, the screen is split into 4 quadrants:\n"
 "top-left - processed base image, top-right - final image\n"
 "bottom-left - raw base image, bottom-right - bloom texture."
 msgstr ""
+"Ustaw wartość pozytywną, by renderować analizę debugowania efektu bloom.\n"
+"W trybie debugowania ekran jest podzielony na 4 ćwiartki:\n"
+"Lewa górna- przetwarzany podstawowy obraz, prawa górna- ostateczny obraz\n"
+"lewa dolna- surowy, podstawowy obraz, prawa dolna- tekstura z efektem bloom."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Sets shadow texture quality to 32 bits.\n"
 "On false, 16 bits texture will be used.\n"
 "This can cause much more artifacts in the shadow."
 msgstr ""
 "Ustawia jakość tekstury cienia na 32 bity.\n"
-"Jeśli wartość jest fałszywa, używana będzie tekstura 16-bitowa.\n"
+"Jeśli wartość jest negatywna, używana będzie tekstura 16-bitowa.\n"
 "Może to powodować znacznie więcej artefaktów w cieniu."
 
 #: src/settings_translation_file.cpp
@@ -6074,44 +6757,31 @@ msgid "Shader path"
 msgstr "Shadery"
 
 #: src/settings_translation_file.cpp
-msgid "Shaders"
-msgstr "Shadery"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Shaders are a fundamental part of rendering and enable advanced visual "
-"effects."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Shadow filter quality"
-msgstr "Jakość zrzutu ekranu"
+msgstr "Jakość filtru cienia"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Shadow map max distance in nodes to render shadows"
-msgstr "Maksymalna odległość mapy cieni w węzłach do renderowania cieni"
+msgstr "Maksymalna odległość mapy cieni w blokach do renderowania cieni"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Shadow map texture in 32 bits"
 msgstr "Tekstura mapy cieni w 32 bitach"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Shadow map texture size"
-msgstr "Minimalna wielkość tekstury dla filtrów"
+msgstr "Minimalna wielkość tekstury mapy cieni"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Shadow offset (in pixels) of the default font. If 0, then shadow will not be "
 "drawn."
-msgstr "Offset cienia czcionki, jeżeli 0 to cień nie będzie rysowany."
+msgstr ""
+"Offset cienia (w pikselach) domyślnej czcionki. Jeżeli 0, to cień nie będzie "
+"rysowany."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Shadow strength gamma"
 msgstr "Siła cienia"
 
@@ -6129,11 +6799,10 @@ msgid ""
 "Show entity selection boxes\n"
 "A restart is required after changing this."
 msgstr ""
-"Ustaw język. Zostaw puste pole, aby użyć języka systemowego.\n"
+"Pokaż pola wyboru jednostki.\n"
 "Wymagany restart po zmianie ustawienia."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Show name tag backgrounds by default"
 msgstr "Domyślnie wyświetlaj tła znaczników imiennych"
 
@@ -6142,6 +6811,7 @@ msgid "Shutdown message"
 msgstr "Komunikat zamknięcia serwera"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Side length of a cube of map blocks that the client will consider together\n"
 "when generating meshes.\n"
@@ -6149,13 +6819,23 @@ msgid ""
 "draw calls, benefiting especially high-end GPUs.\n"
 "Systems with a low-end GPU (or no GPU) would benefit from smaller values."
 msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
-msgstr ""
+"Boczna długość sześcianu bloków mapy, które klient będzie łącznie brał pod "
+"uwagę,\n"
+"podczas generowania siatek.\n"
+"Wyższe wartości zwiększają użycie procesora GPU poprzez zmniejszenie liczby\n"
+"wywoływań rysowania, skorzystają na tym zwłaszcza procesory GPU wyższej "
+"klasy,\n"
+"Systemy z procesorami GPU niższej klasy (lub bez procesora GPU) "
+"skorzystałyby z mniejszych wartości."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Simulate translucency when looking at foliage in the sunlight."
+msgstr ""
+"Symuluj półprzezroczystość podczas patrzenia na listowie w świetle "
+"słonecznym."
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Size of mapchunks generated by mapgen, stated in mapblocks (16 nodes).\n"
 "WARNING: There is no benefit, and there are several dangers, in\n"
@@ -6165,15 +6845,15 @@ msgid ""
 "recommended."
 msgstr ""
 "Rozmiar mapchunków generowanych przez mapgen, podany w mapblockach (16 "
-"węzłów).\n"
-"UWAGA!: Nie ma z tego żadnego pożytku, ale występuje kilka zagrożeń, przy\n"
-"zwiększaniu tej wartości powyżej 5.\n"
+"bloków).\n"
+"UWAGA: Nie ma z tego żadnego pożytku, ale przy zwiększaniu tej wartości "
+"powyżej 5\n"
+"występuje kilka zagrożeń.\n"
 "Zmniejszenie tej wartości podnosi gęstość jaskiń i lochów.\n"
 "Zmiana tej wartości ma specjalne zastosowanie, zalecane jest pozostawienie\n"
-"jej nietkniętą."
+"jej nietkniętej."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Sky Body Orbit Tilt"
 msgstr "Pochylenie orbity ciała niebieskiego"
 
@@ -6182,17 +6862,14 @@ msgid "Slice w"
 msgstr "Kawałek w"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Slope and fill work together to modify the heights."
 msgstr "Zbocze oraz wypełnienie działają razem, aby zmodyfikować wysokości."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Small cave maximum number"
 msgstr "Maksymalna ilość małych jaskiń"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Small cave minimum number"
 msgstr "Minimalna ilość małych jaskiń"
 
@@ -6211,53 +6888,48 @@ msgstr "Płynne oświetlenie"
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Smooth scrolling"
-msgstr "Płynne oświetlenie"
+msgstr "Płynne przewijanie"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Smooths rotation of camera when in cinematic mode, 0 to disable. Enter "
 "cinematic mode by using the key set in Controls."
 msgstr ""
-"Wygładza obracanie widoku kamery w trybie kinowym. Wartość 0 wyłącza tą "
-"funkcję."
+"Wygładza obracanie widoku kamery w trybie kinowym. Wartość 0 wyłącza tę "
+"funkcję. Wejdź w tryb kinowy, używając klawisza ustawionego w opcjach "
+"Sterowania."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Smooths rotation of camera, also called look or mouse smoothing. 0 to "
 "disable."
 msgstr ""
-"Wygładza obracanie widoku kamery w trybie kinowym. Wartość 0 wyłącza tą "
-"funkcję."
+"Wygładza obracanie widoku kamery, nazywa się to również patrzeniem lub "
+"wygładzaniem myszki. Wartość 0 wyłącza tę funkcję."
 
 #: src/settings_translation_file.cpp
 msgid "Sneaking speed"
 msgstr "Szybkość skradania"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Sneaking speed, in nodes per second."
 msgstr "Prędkość skradania, w blokach na sekundę."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Soft clouds"
-msgstr "Chmury 3D"
+msgstr "Łagodne chmury"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Soft shadow radius"
-msgstr "Przeźroczystość cienia czcionki"
+msgstr "Obszar gładkiego cienia"
 
 #: src/settings_translation_file.cpp
 msgid "Sound"
 msgstr "Dźwięk"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Sound Extensions Blacklist"
-msgstr "Flaga czarnej listy ContentDB"
+msgstr "Flaga czarnej listy rozszerzeń głosowych"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6284,12 +6956,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid ""
-"Spread a complete update of shadow map over given number of frames.\n"
+"Spread a complete update of the shadow map over a given number of frames.\n"
 "Higher values might make shadows laggy, lower values\n"
-"will consume more resources.\n"
-"Minimum value: 1; maximum value: 16"
+"will consume more resources."
 msgstr ""
-"Rozszerz pełną aktualizację mapy cieni na określoną ilość klatek.\n"
+"Rozprowadź pełną aktualizację mapy cieni na określoną ilość klatek.\n"
 "Wyższe wartości mogą sprawić, że cienie będą lagować,\n"
 "niższe wartości powodują zużycie większej ilości zasobów.\n"
 "Minimalna wartość: 1; maksymalna wartość: 16"
@@ -6305,7 +6976,6 @@ msgstr ""
 "Standardowe zniekształcenie gaussowego przyśpieszenia środkowego."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Static spawn point"
 msgstr "Statyczny punkt spawnu"
 
@@ -6314,19 +6984,16 @@ msgid "Steepness noise"
 msgstr "Szum stromości"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Step mountain size noise"
-msgstr "Szum góry"
+msgstr "Rozmiar szumu góry"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Step mountain spread noise"
-msgstr "Szum góry"
+msgstr "Rozmiar rozrzutu szumu góry"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Strength of 3D mode parallax."
-msgstr "Siła paralaksy."
+msgstr "Siła paralaksy trybu 3D."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6343,7 +7010,6 @@ msgid "Strict protocol checking"
 msgstr "Sztywne sprawdzanie protokołu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Strip color codes"
 msgstr "Usuń kody kolorów"
 
@@ -6385,9 +7051,8 @@ msgid "Temperature variation for biomes."
 msgstr "Zmienność temperatury biomów."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Terrain alternative noise"
-msgstr "Szum wysokości terenu"
+msgstr "Szum innego terenu"
 
 #: src/settings_translation_file.cpp
 msgid "Terrain base noise"
@@ -6430,7 +7095,6 @@ msgid "Terrain persistence noise"
 msgstr "Stały szum terenu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Texture size to render the shadow map on.\n"
 "This must be a power of two.\n"
@@ -6441,7 +7105,6 @@ msgstr ""
 "Większe liczby tworzą lepsze cienie, ale jest to również kosztowniejsze."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Textures on a node may be aligned either to the node or to the world.\n"
 "The former mode suits better things like machines, furniture, etc., while\n"
@@ -6450,25 +7113,23 @@ msgid ""
 "this option allows enforcing it for certain node types. Note though that\n"
 "that is considered EXPERIMENTAL and may not work properly."
 msgstr ""
-"Tekstury na węźle mogą być dopasowane albo do niego albo do świata.\n"
+"Tekstury na bloku mogą być dopasowane albo do niego, albo do świata.\n"
 "Ten pierwszy tryb bardziej pasuje do rzeczy takich jak maszyny, meble, itp.\n"
 "ten drugi sprawia, że schody i mikrobloki lepiej komponują się z "
 "otoczeniem.\n"
 "Z uwagi na to, że ta możliwość jest nowa, nie może być wykorzystywana przez "
 "starsze serwery,\n"
-"opcja ta pozwala na wymuszenie jej dla określonych typów węzłów. Zwróć "
+"opcja ta pozwala na wymuszenie jej dla określonych typów bloków. Zwróć "
 "uwagę, że\n"
 "to opcja EKSPERYMENTALNA i może nie działać zbyt poprawnie."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "The URL for the content repository"
 msgstr "Adres URL repozytorium zawartości"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "The dead zone of the joystick"
-msgstr "Identyfikator użycia joysticka"
+msgstr "Zakres nieczułości joysticka"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6479,13 +7140,15 @@ msgstr ""
 "gdy wpisujemy `/ profiler save [format]` bez określonego formatu."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "The delay in milliseconds after which a touch interaction is considered a "
 "long tap."
 msgstr ""
+"Opóźnienie w milisekundach, po którym dotknięcie jest uznawane za długie "
+"stuknięcie."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The file path relative to your world path in which profiles will be saved to."
 msgstr ""
@@ -6493,31 +7156,57 @@ msgstr ""
 "profile."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
 "\n"
-"* short_tap\n"
+"* Short tap\n"
 "Easy to use and well-known from other games that shall not be named.\n"
 "\n"
-"* long_tap\n"
+"* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
+"Gest uderzania graczy/jednostek.\n"
+"Można to nadpisać przez mody oraz gry.\n"
+"\n"
+"* short_tap\n"
+"Łatwe w użyciu i dobrze znane z innych gier, które nie powinny być tu "
+"wymieniane.\n"
+"\n"
+"*long_tap\n"
+"Znany ze sterowania mobilnego w klasycznym Luanti.\n"
+"Walka jest mniej lub bardziej niemożliwa."
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
 msgstr "Identyfikator użycia joysticka"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
-"The length in pixels after which a touch interaction is considered movement."
+"The kind of digging/placing controls used.\n"
+"\n"
+"* Tap\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at finger position.\n"
+"\n"
+"* Tap with crosshair\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at crosshair position.\n"
+"\n"
+"* Buttons with crosshair\n"
+"Use dedicated dig/place buttons to interact.\n"
+"Interaction happens at crosshair position."
 msgstr ""
-"Długość w pikselach wymagana do wejścia w interakcję z ekranem dotykowym."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid ""
+"The length in pixels after which a touch interaction is considered movement."
+msgstr "Długość w pikselach, po której dotknięcie jest uznawane za ruch."
+
+#: src/settings_translation_file.cpp
 msgid ""
 "The maximum height of the surface of waving liquids.\n"
 "4.0 = Wave height is two nodes.\n"
@@ -6525,10 +7214,9 @@ msgid ""
 "Default is 1.0 (1/2 node)."
 msgstr ""
 "Maksymalna wysokość powierzchni falujących cieczy.\n"
-"4,0 = wysokość fali wynosi dwa węzły.\n"
+"4,0 = wysokość fali wynosi dwa bloki.\n"
 "0.0 = Fala w ogóle się nie porusza.\n"
-"Wartość domyślna to 1.0 (1/2 węzła).\n"
-"Wymaga włączenia falujących cieczy."
+"Wartość domyślna to 1.0 (1/2 bloku)."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -6536,8 +7224,9 @@ msgid ""
 "The minimum time in seconds it takes between digging nodes when holding\n"
 "the dig button."
 msgstr ""
-"Czas w sekundach między kolejnymi położeniem węzłów po przytrzymaniu\n"
-"przycisku umieszczania.."
+"Minimalny czas w sekundach, który upływa między wykopywaniem bloków po "
+"przytrzymaniu\n"
+"przycisku wykopywania."
 
 #: src/settings_translation_file.cpp
 msgid "The network interface that the server listens on."
@@ -6552,6 +7241,7 @@ msgstr ""
 "Sprawdź /privs w celu wyświetlenia ich listy oraz ustawień modów na serwerze."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "The radius of the volume of blocks around every player that is subject to "
 "the\n"
@@ -6562,8 +7252,8 @@ msgid ""
 "This should be configured together with active_object_send_range_blocks."
 msgstr ""
 "Promień objętości bloków wokół każdego gracza, który podlega\n"
-"aktywne bloki, określone w mapblocks (16 węzłów).\n"
-"W aktywnych blokach ładowane są obiekty i uruchamiane ABM.\n"
+"aktywnym blokom, określonym w mapblocks (16 bloków).\n"
+"W aktywnych blokach ładowane są obiekty i uruchamiany jest ABM.\n"
 "Jest to również minimalny zakres, w którym utrzymywane są obiekty aktywne "
 "(moby).\n"
 "Należy to skonfigurować razem z active_object_send_range_blocks."
@@ -6576,12 +7266,9 @@ msgid ""
 "OpenGL is the default for desktop, and OGLES2 for Android."
 msgstr ""
 "Zaplecze renderowania.\n"
-"Po zmianie wymagane jest ponowne uruchomienie.\n"
-"Uwaga: w Androidzie trzymaj się OGLES1, jeśli nie masz pewności! W "
-"przeciwnym razie aplikacja może się nie uruchomić.\n"
-"Na innych platformach zalecany jest OpenGL.\n"
-"Shadery są obsługiwane przez OpenGL (tylko komputery stacjonarne) i OGLES2 "
-"(eksperymentalne)"
+"Uwaga: po zmianie wymagane jest ponowne uruchomienie!\n"
+"OpenGL jest domyślnie dla komputerów stacjonarnych, a OGLES2 dla systemu "
+"Android."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6645,17 +7332,16 @@ msgid "The type of joystick"
 msgstr "Typ joysticka"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
 "'altitude_dry' is enabled."
 msgstr ""
-"Odległość w pionie, powyżej której ciepło spada o 20, jeśli funkcja "
+"Odległość w pionie, powyżej której ciepło spada o 20, jeśli opcja "
 "„altitude_chill” jest\n"
-"włączona. Również odległość w pionie, na której wilgotność spada o 10, "
+"włączona. Również odległość w pionie, powyżej której wilgotność spada o 10, "
 "jeśli\n"
-"„altitude_dry” jest włączony."
+"„altitude_dry” jest włączona."
 
 #: src/settings_translation_file.cpp
 msgid "Third of 4 2D noises that together define hill/mountain range height."
@@ -6664,8 +7350,9 @@ msgstr ""
 "górskich."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Threshold for long taps"
-msgstr ""
+msgstr "Próg długich stuknięć"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6678,10 +7365,6 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Time of day when a new world is started, in millihours (0-23999)."
 msgstr "Pora dnia, gdy stworzono nowy świat, w mili-godzinach (0-23999)."
-
-#: src/settings_translation_file.cpp
-msgid "Time send interval"
-msgstr "Interwał czasu wysyłania"
 
 #: src/settings_translation_file.cpp
 msgid "Time speed"
@@ -6705,10 +7388,75 @@ msgstr ""
 "Określa to jak długo są spowalniane po postawieniu lub usunięciu bloku."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Aux1 key"
+msgstr "Klawisz Aux1"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle HUD"
+msgstr "Przełącz HUD"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Sneak key"
+msgstr "Klawisz przełączania trybu widoku kamery"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle automatic forward"
+msgstr "Klawisz automatycznego poruszania się do przodu"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle block bounds"
+msgstr "Granice bloków"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera mode"
+msgstr "Klawisz przełączania trybu widoku kamery"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera update"
+msgstr "Klawisz przełączania trybu widoku kamery"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle cinematic mode"
+msgstr "Przełącz na tryb Cinematic"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle debug info"
+msgstr "Przełącz debugowanie"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fog"
+msgstr "Przełącz mgłę"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle fullscreen"
+msgstr "Przełącz tryb latania"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle pitchmove"
+msgstr "Przełączanie przemieszczania"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle profiler"
+msgstr "Przełącz tryb latania"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Tolerance of movement cheat detector.\n"
 "Increase the value if players experience stuttery movement."
 msgstr ""
+"Tolerancja ruchu wykrywacza oszustw.\n"
+"Zwiększ tę wartość, jeśli gracze doświadczają zacięć w poruszaniu."
 
 #: src/settings_translation_file.cpp
 msgid "Tooltip delay"
@@ -6719,36 +7467,36 @@ msgid "Touchscreen"
 msgstr "Ekran dotykowy"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen controls"
-msgstr "Próg ekranu dotykowego"
+msgstr "Sterowanie ekranu dotykowego"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen sensitivity"
-msgstr "Czułość myszy"
+msgstr "Czułość ekranu dotykowego"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen sensitivity multiplier."
-msgstr "Mnożnik czułości myszy."
+msgstr "Mnożnik czułości ekranu dotykowego."
 
 #: src/settings_translation_file.cpp
 msgid "Tradeoffs for performance"
 msgstr "Kompromisy dla wydajności"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Translucent foliage"
-msgstr "Nieprzeźroczyste ciecze"
+msgstr "Półprzezroczyste listowie"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Translucent liquids"
-msgstr "Nieprzeźroczyste ciecze"
+msgstr "Półprzezroczyste ciecze"
 
 #: src/settings_translation_file.cpp
 msgid "Transparency Sorting Distance"
+msgstr "Odległość sortowania przezroczystości"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Transparency Sorting Group by Buffers"
 msgstr "Odległość sortowania przezroczystości"
 
 #: src/settings_translation_file.cpp
@@ -6760,7 +7508,6 @@ msgid "Trilinear filtering"
 msgstr "Filtrowanie trójliniowe"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "True = 256\n"
 "False = 128\n"
@@ -6775,6 +7522,7 @@ msgid "Trusted mods"
 msgstr "Zaufane mody"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Type of occlusion_culler\n"
 "\n"
@@ -6783,6 +7531,15 @@ msgid ""
 "\n"
 "This setting should only be changed if you have performance problems."
 msgstr ""
+"Rodzaj occlusion_culler\n"
+"\n"
+"„loops” to przestarzały algorytm z zagnieżdżonymi pętlami i złożonością O "
+"(n³)\n"
+"„bfs” to nowy algorytm na podstawie przeszukiwania wszerz oraz bocznego "
+"usuwania przysłoniętych bloków\n"
+"\n"
+"To ustawienie powinno być zmieniane tylko wtedy, gdy masz problemy z "
+"wydajnością."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -6791,7 +7548,9 @@ msgid ""
 "release.\n"
 "If this is empty the engine will never check for updates."
 msgstr ""
-"Link do pliku JSON zawierającego informacje o najnowszym wydaniu Minetest"
+"Link do pliku JSON zawierającego informacje o najnowszym wydaniu Luanti.\n"
+"Jeśli to pole jest puste, to silnik nigdy nie będzie sprawdzał aktualizacji "
+"do pobrania."
 
 #: src/settings_translation_file.cpp
 msgid "URL to the server list displayed in the Multiplayer Tab."
@@ -6808,12 +7567,16 @@ msgid ""
 "to the game world only, keeping the GUI intact.\n"
 "It should give a significant performance boost at the cost of less detailed "
 "image.\n"
-"Higher values result in a less detailed image."
+"Higher values result in a less detailed image.\n"
+"Note: Undersampling is currently not supported if the \"3d_mode\" setting is "
+"set\n"
+"to a non-default value."
 msgstr ""
-"Niedopróbkowanie jest podobne do użycia niższej rozdzielczości ekranu, ale "
-"stosuje się tylko do świata gry, zachowując nietknięty GUI.\n"
+"Niedopróbkowanie jest podobne do użycia niższej rozdzielczości ekranu, ale \n"
+"ma to zastosowanie tylko do świata gry, zachowując nietknięte GUI.\n"
 "Daje to znaczne przyśpieszenie wydajności kosztem mniej szczegółowych "
-"obrazów."
+"obrazów.\n"
+"Wyższe wartości powodują mniej szczegółowe obrazy."
 
 #: src/settings_translation_file.cpp
 msgid "Unlimited player transfer distance"
@@ -6836,32 +7599,19 @@ msgid "Upper Y limit of floatlands."
 msgstr "Górna granica Y latających wysp."
 
 #: src/settings_translation_file.cpp
-msgid "Use 3D cloud look instead of flat."
-msgstr "Włącz chmury 3D zamiast płaskich."
-
-#: src/settings_translation_file.cpp
 msgid "Use a cloud animation for the main menu background."
 msgstr "Włącz animację chmur w tle menu głównego."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Use anisotropic filtering when looking at textures from an angle."
-msgstr "Włącz filtrowanie anizotropowe dla oglądania tekstur pod kątem."
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Use bilinear filtering when scaling textures."
-msgstr "Użyj filtrowania tri-linearnego podczas skalowania tekstur."
-
-#: src/settings_translation_file.cpp
-msgid "Use crosshair for touch screen"
-msgstr "Użyj celownika do ekranu dotykowego"
-
-#: src/settings_translation_file.cpp
 msgid ""
-"Use crosshair to select object instead of whole screen.\n"
-"If enabled, a crosshair will be shown and will be used for selecting object."
-msgstr ""
+"Use anisotropic filtering when looking at textures from an angle.\n"
+"This provides a significant improvement when used together with mipmapping."
+msgstr "Użyj filtrowania anizotropowego dla oglądania tekstur pod kątem."
+
+#: src/settings_translation_file.cpp
+msgid "Use bilinear filtering when scaling textures."
+msgstr "Użyj filtrowania bilinearnego podczas skalowania tekstur."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -6872,19 +7622,26 @@ msgid ""
 msgstr ""
 "Użyj mip mappingu przy skalowaniu tekstur. Może nieznacznie zwiększyć "
 "wydajność,\n"
-"zwłaszcza przy korzystaniu z tekstur wysokiej rozdzielczości.\n"
-"Gamma correct dowscaling nie jest wspierany."
+"zwłaszcza przy korzystaniu z paczek tekstur wysokiej rozdzielczości.\n"
+"Zmniejszanie korekcji gamma nie jest wspierane."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Use raytraced occlusion culling in the new culler.\n"
 "This flag enables use of raytraced occlusion culling test for\n"
 "client mesh sizes smaller than 4x4x4 map blocks."
 msgstr ""
+"Użyj pomijania przesłoniętych bloków opartego na śledzeniu promieni w nowym "
+"pomijaniu.\n"
+"Ta flaga włącza użycie opartego na śledzeniu promieni testu pomijania "
+"przysłoniętych bloków \n"
+"siatek klienta w rozmiarach mniejszych niż bloki mapy 4x4x4."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Use smooth cloud shading."
-msgstr ""
+msgstr "Użyj gładkiego cieniowania chmur."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6892,16 +7649,19 @@ msgid ""
 "If both bilinear and trilinear filtering are enabled, trilinear filtering\n"
 "is applied."
 msgstr ""
+"Użyj filtrowania trójliniowego podczas skalowania tekstur.\n"
+"Jeśli zarówno filtrowanie trójliniowe jak i filtrowanie dwuliniowe są "
+"włączone, to filtrowanie trójliniowe\n"
+"ma zastosowanie."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Use virtual joystick to trigger \"Aux1\" button.\n"
 "If enabled, virtual joystick will also tap \"Aux1\" button when out of main "
 "circle."
 msgstr ""
-"(Android) Użyj wirtualnego joysticka, aby aktywować przycisk \"Aux1\".\n"
-"Gdy jest włączone to wirtualny joystick również naciśnie przycisk \"Aux1\", "
+"(Android) Użyj wirtualnego joysticka, aby aktywować przycisk „Aux1”.\n"
+"Gdy jest włączone, to wirtualny joystick również naciśnie przycisk „Aux1”, "
 "gdy znajduje się poza głównym okręgiem."
 
 #: src/settings_translation_file.cpp
@@ -6965,15 +7725,17 @@ msgid "Varies steepness of cliffs."
 msgstr "Kontroluje stromość/wysokość gór."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Vertical climbing speed, in nodes per second."
 msgstr "Pionowa prędkość wchodzenia, w blokach na sekundę."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Vertical screen synchronization. Your system may still force VSync on even "
 "if this is disabled."
 msgstr ""
+"Pionowa synchronizacja ekranu. Twój system może wciąż ją wymuszać, nawet gdy "
+"ta opcja jest wyłączona."
 
 #: src/settings_translation_file.cpp
 msgid "Video driver"
@@ -6992,36 +7754,33 @@ msgid "Viewing range"
 msgstr "Zasięg widoczności"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Virtual joystick triggers Aux1 button"
-msgstr "Joystick wirtualny aktywuje przycisk aux"
+msgstr "Joystick wirtualny aktywuje przycisk Aux1"
 
 #: src/settings_translation_file.cpp
 msgid "Volume"
 msgstr "Głośność"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Volume multiplier when the window is unfocused."
-msgstr ""
+msgstr "Mnożnik głośności, gdy okno jest nieaktywne."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Volume of all sounds.\n"
 "Requires the sound system to be enabled."
 msgstr ""
-"Włącza mapowanie paralaksy.\n"
-"Wymaga włączenia shaderów."
+"Głośność wszystkich dźwięków.\n"
+"Wymaga włączenia systemu dźwiękowego."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volume when unfocused"
-msgstr "Maksymalna ilość klatek na sekundę gdy gra zapauzowana bądź nieaktywna"
+msgstr "Głośność, gdy okno jest nieaktywne"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric lighting"
-msgstr "Płynne oświetlenie"
+msgstr "Światło wolumetryczne"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7038,7 +7797,6 @@ msgstr ""
 "Zasięg około -2 do 2."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Walking and flying speed, in nodes per second."
 msgstr "Prędkość chodzenia i latania, w blokach na sekundę."
 
@@ -7047,7 +7805,6 @@ msgid "Walking speed"
 msgstr "Szybkość chodzenia"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Walking, flying and climbing speed in fast mode, in nodes per second."
 msgstr ""
 "Prędkość chodzenia, latania i wchodzenia w trybie szybkiego chodzenia, w "
@@ -7070,43 +7827,42 @@ msgid "Waving leaves"
 msgstr "Falujące liście"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Waving liquids"
-msgstr "Falujące bloki"
+msgstr "Falujące ciecze"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Waving liquids wave height"
-msgstr "Wysokość fal wodnych"
+msgstr "Wysokość falujących cieczy"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Waving liquids wave speed"
-msgstr "Szybkość fal wodnych"
+msgstr "Szybkość falujących cieczy"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Waving liquids wavelength"
-msgstr "Długość fal wodnych"
+msgstr "Długość falujących cieczy"
 
 #: src/settings_translation_file.cpp
 msgid "Waving plants"
 msgstr "Falujące rośliny"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Weblink color"
-msgstr "Kolor zaznaczenia"
+msgstr "Kolor zaznaczenia linku"
 
 #: src/settings_translation_file.cpp
 msgid "When enabled, liquid reflections are simulated."
-msgstr ""
+msgstr "Gdy jest włączona, to odbicia cieczy są symulowane."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "When enabled, the GUI is optimized to be more usable on touchscreens.\n"
 "Whether this is enabled by default depends on your hardware form-factor."
 msgstr ""
+"Gdy włączona, to GUI jest optymalizowany, by być bardziej przydatnym na "
+"ekranach dotykowych.\n"
+"To czy jest włączona domyślnie, zależy od współczynnika kształtu sprzętu."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7119,42 +7875,29 @@ msgstr ""
 "sprzęt ( np. renderuj tekstury do bloków ekwipunku)."
 
 #: src/settings_translation_file.cpp
-msgid ""
-"When gui_scaling_filter_txr2img is true, copy those images\n"
-"from hardware to software for scaling.  When false, fall back\n"
-"to the old scaling method, for video drivers that don't\n"
-"properly support downloading textures back from hardware."
-msgstr ""
-"Gdy gui_scaling_filter_txr2img jest aktywny, to kopiuj obrazy z komputera \n"
-"do Minetesta, żeby je przeskalować. Kiedy jest nieaktywny, użyj starej "
-"metody \n"
-"skalowania sterowników graficznych, które nieprawidłowo \n"
-"wspierają pobieranie tekstur z komputera."
-
-#: src/settings_translation_file.cpp
 #, fuzzy
 msgid ""
-"When using bilinear/trilinear/anisotropic filters, low-resolution textures\n"
-"can be blurred, so automatically upscale them with nearest-neighbor\n"
-"interpolation to preserve crisp pixels. This sets the minimum texture size\n"
-"for the upscaled textures; higher values look sharper, but require more\n"
-"memory. Powers of 2 are recommended. This setting is ONLY applied if\n"
-"bilinear/trilinear/anisotropic filtering is enabled.\n"
+"When using bilinear/trilinear filtering, low-resolution textures\n"
+"can be blurred, so this option automatically upscales them to preserve\n"
+"crisp pixels. This defines the minimum texture size for the upscaled "
+"textures;\n"
+"higher values look sharper, but require more memory.\n"
+"This setting is ONLY applied if any of the mentioned filters are enabled.\n"
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
-"Podczas używania filtrów bilinearnych/ tri-linearnych/ anizotropowych, "
+"Podczas używania filtrów dwuliniowych/ trójliniowych/ anizotropowych, "
 "tekstury niskiej rozdzielczości \n"
 "mogą zostać rozmazane, więc automatycznie przeskaluj je z najbliższą "
 "interpolacją, \n"
 "aby zapobiec poszarpanym pikselom. Określa to minimalny rozmiar tekstur\n"
 "do przeskalowania; wyższe wartości wyglądają lepiej, ale wymagają\n"
-"więcej pamięci. Zalecane użycie potęg liczby 2. Ustawienie wartości wyższej "
-"niż 1\n"
-"może nie dawać widocznych rezultatów chyba, że filtrowanie bilinearne/ tri-"
-"linearne/ anizotropowe jest włączone.\n"
+"więcej pamięci. Zalecane użycie potęg liczby 2. Ta opcja ma zastosowanie "
+"tylko wtedy \n"
+"gdy filtrowanie dwuliniowe/ trójliniowe/ anizotropowe jest włączone.\n"
 "Używa się tego również jako rozmiaru tekstur podstawowych bloków "
-"przypisanych dla świata przy autoskalowaniu tekstur."
+"przypisanych dla świata \n"
+"przy automatycznym skalowaniu tekstur."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7163,10 +7906,6 @@ msgid ""
 msgstr ""
 "Czy tła tagów nazw mają być domyślnie pokazywane.\n"
 "Mody mogą nadal tworzyć tło."
-
-#: src/settings_translation_file.cpp
-msgid "Whether node texture animations should be desynchronized per mapblock."
-msgstr "Określ kiedy animacje tekstur na blok powinny być niesynchronizowane."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7178,7 +7917,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Whether the window is maximized."
-msgstr "Kiedy okno jest zmaksymalizowane"
+msgstr "Kiedy okno jest zmaksymalizowane."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7193,9 +7932,9 @@ msgid "Whether to fog out the end of the visible area."
 msgstr "Określ brak widoczności mgły."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Whether to mute sounds. You can unmute sounds at any time, unless the\n"
-"sound system is disabled (enable_sound=false).\n"
+"Whether to mute sounds. You can unmute sounds at any time.\n"
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
@@ -7212,12 +7951,10 @@ msgstr ""
 "Wyświetlanie efektów debugowania klienta(klawisz F5 ma tą samą funkcję)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Width component of the initial window size."
-msgstr "Rozdzielczość pionowa rozmiaru okna gry."
+msgstr "Składnik szerokości początkowego rozmiaru okna gry."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Width of the selection box lines around nodes."
 msgstr "Szerokość linii zaznaczenia bloków."
 
@@ -7226,13 +7963,12 @@ msgid "Window maximized"
 msgstr "Okno zmaksymalizowane"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Windows systems only: Start Luanti with the command line window in the "
 "background.\n"
 "Contains the same information as the file debug.txt (default name)."
 msgstr ""
-"Tylko dla systemu Windows: uruchom Minetest z wierszem poleceń w tle.\n"
+"Tylko dla systemu Windows: uruchom Luanti z wierszem poleceń w tle.\n"
 "Zawiera te same informacje co plik debug.txt (domyślna nazwa)."
 
 #: src/settings_translation_file.cpp
@@ -7248,11 +7984,12 @@ msgid "World start time"
 msgstr "Dokładny czas stworzenia świata"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
 "a specially-designed texture pack; with this option, the client tries\n"
-"to determine the scale automatically basing on the texture size.\n"
+"to determine the scale automatically based on the texture size.\n"
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
@@ -7273,7 +8010,6 @@ msgid "Y of flat ground."
 msgstr "Y płaskiego podłoża."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Y of mountain density gradient zero level. Used to shift mountains "
 "vertically."
@@ -7332,13 +8068,15 @@ msgid "cURL file download timeout"
 msgstr "Limit czasu pobierania pliku cURL"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "cURL interactive timeout"
-msgstr "Limit czasu cURL"
+msgstr "Interaktywny limit czasu oczekiwania cURL"
 
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr "Limit żądań równoległych cURL"
+
+#~ msgid "\"Aux1\" = climb down"
+#~ msgstr "\"Aux1\" = schodź"
 
 #~ msgid "(game support required)"
 #~ msgstr "(wymagana obsługa gry)"
@@ -7391,6 +8129,9 @@ msgstr "Limit żądań równoległych cURL"
 #~ "Adres połączenia.\n"
 #~ "Pozostaw pusty aby utworzyć lokalny serwer.\n"
 #~ "Zauważ że pole adresu w głównym menu nadpisuje te ustawienie."
+
+#~ msgid "Adds particles when digging a node."
+#~ msgstr "Dodaje efekty cząstkowe podczas wykopywania bloków."
 
 #~ msgid ""
 #~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
@@ -7452,14 +8193,8 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Are you sure to reset your singleplayer world?"
 #~ msgstr "Jesteś pewny że chcesz zresetować świat singleplayer?"
 
-#~ msgid "Automatic forward key"
-#~ msgstr "Klawisz automatycznego poruszania się do przodu"
-
 #~ msgid "Autosave Screen Size"
 #~ msgstr "Automatyczny zapis rozmiaru okienka"
-
-#~ msgid "Aux1 key"
-#~ msgstr "Klawisz Aux1"
 
 #~ msgid "Back to Main Menu"
 #~ msgstr "Powrót do menu głównego"
@@ -7556,6 +8291,9 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Clean transparent textures"
 #~ msgstr "Czyste przeźroczyste tekstury"
 
+#~ msgid "Clouds are a client-side effect."
+#~ msgstr "Chmury są efektem po stronie klienta."
+
 #~ msgid "Command key"
 #~ msgstr "Klawisz komend"
 
@@ -7570,6 +8308,9 @@ msgstr "Limit żądań równoległych cURL"
 
 #~ msgid "Connected Glass"
 #~ msgstr "Szkło połączone"
+
+#~ msgid "Console"
+#~ msgstr "Konsola"
 
 #~ msgid "Continuous forward"
 #~ msgstr "Ciągle na przód"
@@ -7649,8 +8390,14 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Darkness sharpness"
 #~ msgstr "Ostrość ciemności"
 
+#~ msgid "Debug info and profiler graph hidden"
+#~ msgstr "Informacje debugu oraz wykresy są ukryte"
+
 #~ msgid "Debug info toggle key"
 #~ msgstr "Klawisz przełączania informacji debugowania"
+
+#~ msgid "Debug info, profiler graph, and wireframe hidden"
+#~ msgstr "Informacje debugu, wykresy oraz tryb siatki są ukryte"
 
 #~ msgid "Dec. volume key"
 #~ msgstr "Klawisz zmniejszania głośności"
@@ -7705,15 +8452,21 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Del. Favorite"
 #~ msgstr "Usuń ulubiony"
 
+#~ msgid "Desynchronize block animation"
+#~ msgstr "Odsynchronizuj animację bloków"
+
 #, fuzzy
 #~ msgid "Dig key"
 #~ msgstr "Klawisz kopania"
 
+#~ msgid "Digging particles"
+#~ msgstr "Włącz efekty cząsteczkowe"
+
 #~ msgid "Disable anticheat"
 #~ msgstr "Wyłącz anticheat"
 
-#~ msgid "Disabled unlimited viewing range"
-#~ msgstr "Wyłączono nieskończony zasięg widoczności"
+#~ msgid "Double tap \"jump\" to toggle fly"
+#~ msgstr "Wciśnij dwukrotnie \"Skok\" by włączyć tryb latania"
 
 #~ msgid "Down"
 #~ msgstr "Dół"
@@ -7727,11 +8480,11 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Downloading and installing $1, please wait..."
 #~ msgstr "Pobieranie i instalowanie $1, proszę czekaj..."
 
-#~ msgid "Drop item key"
-#~ msgstr "Klawisz wyrzucenia przedmiotu"
-
 #~ msgid "Dynamic shadows:"
 #~ msgstr "Cienie dynamiczne:"
+
+#~ msgid "Enable"
+#~ msgstr "Włącz"
 
 #~ msgid "Enable VBO"
 #~ msgstr "Włącz VBO"
@@ -7756,6 +8509,15 @@ msgstr "Limit żądań równoległych cURL"
 #~ "Zezwala na korzystanie z VBO (obiektów bufora wierzchołków).\n"
 #~ "Powinno to znacznie polepszyć wydajność karty graficznej."
 
+#, fuzzy
+#~ msgid ""
+#~ "Enable/disable running an IPv6 server.\n"
+#~ "Ignored if bind_address is set."
+#~ msgstr ""
+#~ "Włącza/wyłącza uruchamianie serwera IPv6.\n"
+#~ "Ignorowane jeśli ustawiony jest bind_address.\n"
+#~ "Wymaga włączenia enable_ipv6."
+
 #~ msgid ""
 #~ "Enables bumpmapping for textures. Normalmaps need to be supplied by the "
 #~ "texture pack\n"
@@ -7766,6 +8528,14 @@ msgstr "Limit żądań równoległych cURL"
 #~ "w paczce tekstur\n"
 #~ "lub muszą być automatycznie wygenerowane.\n"
 #~ "Wymaga włączonych shaderów."
+
+#, fuzzy
+#~ msgid ""
+#~ "Enables caching of facedir rotated meshes.\n"
+#~ "This is only effective with shaders disabled."
+#~ msgstr ""
+#~ "Włącza cachowanie facedir obracanych meshów.\n"
+#~ "Działa tylko z wyłączonymi shaderami."
 
 #~ msgid "Enables filmic tone mapping"
 #~ msgstr "Włącz filmic tone mapping"
@@ -7816,11 +8586,11 @@ msgstr "Limit żądań równoległych cURL"
 #~ "Eksperymentalna opcja, może powodować widoczne przestrzenie\n"
 #~ "pomiędzy blokami kiedy ustawiona powyżej 0."
 
-#~ msgid "FPS in pause menu"
-#~ msgstr "FPS podczas pauzy w menu"
-
 #~ msgid "FSAA"
 #~ msgstr "FSAA"
+
+#~ msgid "Fall bobbing factor"
+#~ msgstr "Skala drgań głowy podczas upadania"
 
 #~ msgid "Fallback font shadow"
 #~ msgstr "Zastępczy cień czcionki"
@@ -7893,6 +8663,9 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Formspec default background opacity (between 0 and 255)."
 #~ msgstr "Kanał alfa konsoli w grze (od 0 do 255)."
 
+#~ msgid "Forward"
+#~ msgstr "Przód"
+
 #~ msgid "Forward key"
 #~ msgstr "Do przodu"
 
@@ -7902,8 +8675,8 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Full screen BPP"
 #~ msgstr "Głębia koloru w trybie pełnoekranowym"
 
-#~ msgid "Game"
-#~ msgstr "Gra"
+#~ msgid "GUI scaling filter txr2img"
+#~ msgstr "Filtr skalowania GUI txr2img"
 
 #~ msgid "Gamma"
 #~ msgstr "Gamma"
@@ -7926,140 +8699,6 @@ msgstr "Limit żądań równoległych cURL"
 
 #~ msgid "High-precision FPU"
 #~ msgstr "FPU Wysokiej precyzji"
-
-#~ msgid "Hotbar next key"
-#~ msgstr "Następny klawisz paska działań"
-
-#~ msgid "Hotbar previous key"
-#~ msgstr "Poprzedni klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 1 key"
-#~ msgstr "Przycisk 1 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 10 key"
-#~ msgstr "Przycisk 10 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 11 key"
-#~ msgstr "Przycisk 11 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 12 key"
-#~ msgstr "Przycisk 12 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 13 key"
-#~ msgstr "Przycisk 13 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 14 key"
-#~ msgstr "Przycisk 14 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 15 key"
-#~ msgstr "Przycisk 15 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 16 key"
-#~ msgstr "Przycisk 16 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 17 key"
-#~ msgstr "Przycisk 17 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 18 key"
-#~ msgstr "Przycisk 18 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 19 key"
-#~ msgstr "Przycisk 19 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 2 key"
-#~ msgstr "Przycisk 2 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 20 key"
-#~ msgstr "Przycisk 20 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 21 key"
-#~ msgstr "Przycisk 21 miejsca paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 22 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 23 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 24 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 25 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 26 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 27 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 28 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 29 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 3 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 30 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 31 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 32 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 4 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 5 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 6 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 7 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 8 key"
-#~ msgstr "Następny klawisz paska działań"
-
-#, fuzzy
-#~ msgid "Hotbar slot 9 key"
-#~ msgstr "Następny klawisz paska działań"
 
 #~ msgid "IPv6 support."
 #~ msgstr "Wsparcie IPv6."
@@ -8099,710 +8738,691 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Instrumentation"
 #~ msgstr "Instrukcja"
 
+#~ msgid "Interval of sending time of day to clients, stated in seconds."
+#~ msgstr "Interwał wysyłania czasu gry do klientów, w sekundach."
+
 #~ msgid "Invalid gamespec."
 #~ msgstr "Nieprawidłowa specyfikacja trybu gry."
 
 #~ msgid "Inventory key"
 #~ msgstr "Ekwipunek"
 
+#~ msgid "Irrlicht device:"
+#~ msgstr "Urządzenie Irrlicht:"
+
 #~ msgid "Jump key"
 #~ msgstr "Skok"
 
+#~ msgid "Key already in use"
+#~ msgstr "Klawisz już zdefiniowany"
+
 #~ msgid ""
 #~ "Key for decreasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz zmniejszania zasięgu widzenia.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for decreasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz zmniejszania głośności.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for digging.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz skakania.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for dropping the currently selected item.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyrzucenia aktualnie wybranego przedmiotu.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for increasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz zwiększania zasięgu widzenia.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for increasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz zwiększania głośności.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for jumping.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz skakania.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving fast in fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz szybkiego poruszania się w trybie \"fast\"\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#, fuzzy
-#~ msgid ""
-#~ "Key for moving the player backward.\n"
-#~ "Will also disable autoforward, when active.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Klawisz poruszania się wstecz.\n"
-#~ "Gdy jest aktywny to wyłącza również automatyczne chodzenie do przodu.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player forward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz poruszania się na przód,\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player left.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz poruszania się w lewo.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for moving the player right.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz poruszania się w prawo.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for muting the game.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyciszania gry.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for opening the chat window to type commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz otwierania okna czatu aby wpisać komendę.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for opening the chat window to type local commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz otwierania okna czatu aby wpisać komendę.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for opening the chat window.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz otwierania okna czatu.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for opening the inventory.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz otwierania inwentarza.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for placing.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz skakania.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 11th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 12th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 13th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 14th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 15th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 16th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 17th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 18th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 19th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 20th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 21st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 22nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 23rd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 24th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 25th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 26th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 27th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 28th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 29th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 30th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 31st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the 32nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the eighth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the fifth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the first hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the fourth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru poprzedniej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the next item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the ninth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for selecting the previous item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru poprzedniej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the second hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the seventh hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the sixth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the tenth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for selecting the third hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyboru następnej pozycji na pasku akcji.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for sneaking.\n"
-#~ "Also used for climbing down and descending in water if aux1_descends is "
-#~ "disabled.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Klawisz skradania.\n"
-#~ "Także używany do schodzenia w dół i opadania w wodzie jeżeli "
-#~ "aux1_descends jest wyłączone.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for switching between first- and third-person camera.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania pomiedzy kamerą z pierwszej i trzeciej osoby.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for taking screenshots.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz do zrobienia zrzutu ekranu.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling autoforward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania trybu szybkiego.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling cinematic mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania trybu cinematic.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling display of minimap.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania wyświetlania minimapy.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania trybu szybkiego.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling flying.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania latania.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling noclip mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania trybu noclip.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling pitch move mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania trybu noclip.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the camera update. Only used for development\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania aktualizacji kamery. Przydatne tylko dla "
 #~ "deweloperów.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling the display of chat.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania wyświetlania czatu.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the display of debug info.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania informacji debugowania.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling the display of fog.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania wyświetlania mgły\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the display of the HUD.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania wyświetlania HUD.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #, fuzzy
 #~ msgid ""
 #~ "Key for toggling the display of the large chat console.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania wyświetlania czatu.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling the display of the profiler. Used for development.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania wyświetlania profilera. Przydatne dla deweloperów.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key for toggling unlimited view range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz przełączania nieograniczonego pola widzenia.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Key to use view zoom when possible.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "See http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Klawisz wyświetlania zoom kiedy to możliwe.\n"
-#~ "Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-#~ "html#a54da2a0e231901735e3da1b0edf72eb3"
+#~ "Zobacz http://irrlicht.sourceforge.net/docu/"
+#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
 #~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
 #~ msgstr ""
 #~ "Zdefiniowane klawisze. (Jeżeli to menu nie działa, usuń skonfigurowane "
 #~ "klawisze z pliku minetest.conf)"
-
-#~ msgid "Large chat console key"
-#~ msgstr "Klawisz wielkiej konsoli"
 
 #~ msgid "Last known version update"
 #~ msgstr "Ostatnia znana aktualizacja wersji"
@@ -8814,6 +9434,9 @@ msgstr "Limit żądań równoległych cURL"
 #, fuzzy
 #~ msgid "Lava depth"
 #~ msgstr "Głębia dużej jaskini"
+
+#~ msgid "Left"
+#~ msgstr "Lewo"
 
 #~ msgid "Left key"
 #~ msgstr "W lewo"
@@ -8860,6 +9483,14 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgstr "Wielkość pamięci podręcznej generatora siatki bloków Mapblock w MB"
 
 #~ msgid ""
+#~ "Maximum number of mapblocks for client to be kept in memory.\n"
+#~ "Set to -1 for unlimited amount."
+#~ msgstr ""
+#~ "Maksymalna liczba bloków mapy, które mają być trzymane w pamięci "
+#~ "klienta.\n"
+#~ "Ustaw -1 dla nieskończonej liczby."
+
+#~ msgid ""
 #~ "Maximum number of packets sent per send step, if you have a slow "
 #~ "connection\n"
 #~ "try reducing it, but don't reduce it to a number below double of "
@@ -8874,6 +9505,9 @@ msgstr "Limit żądań równoległych cURL"
 
 #~ msgid "Menus"
 #~ msgstr "Menu"
+
+#~ msgid "Mesh cache"
+#~ msgstr "Pamięć podręczna siatki"
 
 #~ msgid "Minimap"
 #~ msgstr "Minimapa"
@@ -8902,6 +9536,14 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Misc"
 #~ msgstr "Różne"
 
+#~ msgid ""
+#~ "Multiplier for fall bobbing.\n"
+#~ "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
+#~ msgstr ""
+#~ "Mnożnik dla drgań upadku.\n"
+#~ "Przykład: 0 dla braku drgań widoku; 1.0 dla normalnych; 2.0 dla "
+#~ "podwójnych."
+
 #~ msgid "Mute key"
 #~ msgstr "Klawisz wyciszenia"
 
@@ -8914,6 +9556,9 @@ msgstr "Limit żądań równoległych cURL"
 #, fuzzy
 #~ msgid "Near plane"
 #~ msgstr "Najbliższy wymiar"
+
+#~ msgid "Next item"
+#~ msgstr "Następny przedmiot"
 
 #~ msgid "No"
 #~ msgstr "Nie"
@@ -9009,10 +9654,6 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Pitch move mode"
 #~ msgstr "Tryb nachylenia ruchu włączony"
 
-#, fuzzy
-#~ msgid "Place key"
-#~ msgstr "Klawisz latania"
-
 #~ msgid ""
 #~ "Player is able to fly without being affected by gravity.\n"
 #~ "This requires the \"fly\" privilege on the server."
@@ -9040,6 +9681,9 @@ msgstr "Limit żądań równoległych cURL"
 #~ "Port do połączeń (UDP).\n"
 #~ "Pole portu w menu głównym nadpisuje te ustawienie."
 
+#~ msgid "Prev. item"
+#~ msgstr "Poprzedni przedmiot"
+
 #~ msgid "Profiler toggle key"
 #~ msgstr "Klawisza przełączania profilera"
 
@@ -9061,6 +9705,9 @@ msgstr "Limit żądań równoległych cURL"
 
 #~ msgid "Reset singleplayer world"
 #~ msgstr "Resetuj świat pojedynczego gracza"
+
+#~ msgid "Right"
+#~ msgstr "Prawo"
 
 #~ msgid "Right key"
 #~ msgstr "W prawo"
@@ -9084,6 +9731,9 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Server / Singleplayer"
 #~ msgstr "Pojedynczy gracz"
 
+#~ msgid "Shaders"
+#~ msgstr "Shadery"
+
 #~ msgid "Shaders (experimental)"
 #~ msgstr "Shadery (eksperymentalne)"
 
@@ -9100,6 +9750,17 @@ msgstr "Limit żądań równoległych cURL"
 #~ "wydajność niektórych kart\n"
 #~ "graficznych.\n"
 #~ "Działa tylko z zapleczem wideo OpenGL ."
+
+#, fuzzy
+#~ msgid ""
+#~ "Shaders are a fundamental part of rendering and enable advanced visual "
+#~ "effects."
+#~ msgstr ""
+#~ "Shadery są podstawową częścią renderowania i włączają zaawansowane efekty "
+#~ "wizualne."
+
+#~ msgid "Shaders are disabled."
+#~ msgstr "Shadery wyłączone."
 
 #~ msgid "Shadow limit"
 #~ msgstr "Limit cieni"
@@ -9130,6 +9791,9 @@ msgstr "Limit żądań równoległych cURL"
 
 #~ msgid "Smooths rotation of camera. 0 to disable."
 #~ msgstr "Wygładza obracanie widoku kamery. Wartość 0 wyłącza tą funkcję."
+
+#~ msgid "Sound system is disabled"
+#~ msgstr "System dźwiękowy jest wyłączony"
 
 #~ msgid "Special"
 #~ msgstr "Specialne"
@@ -9175,14 +9839,15 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "This font will be used for certain languages."
 #~ msgstr "Ta czcionka zostanie użyta w niektórych językach."
 
+#, fuzzy
+#~ msgid "This is not a recommended configuration."
+#~ msgstr "To nie jest zalecana konfiguracja."
+
+#~ msgid "Time send interval"
+#~ msgstr "Interwał czasu wysyłania"
+
 #~ msgid "To enable shaders the OpenGL driver needs to be used."
 #~ msgstr "Sterownik OpenGL jest wymagany aby włączyć shadery."
-
-#~ msgid "Toggle Cinematic"
-#~ msgstr "Przełącz na tryb Cinematic"
-
-#~ msgid "Toggle camera mode key"
-#~ msgstr "Klawisz przełączania trybu widoku kamery"
 
 #~ msgid "Tone Mapping"
 #~ msgstr "Tone Mapping"
@@ -9214,6 +9879,19 @@ msgstr "Limit żądań równoległych cURL"
 #, fuzzy
 #~ msgid "Use bilinear filtering when scaling textures down."
 #~ msgstr "Włącz filtrowanie bilinearne podczas skalowania tekstur."
+
+#~ msgid "Use crosshair for touch screen"
+#~ msgstr "Użyj celownika do ekranu dotykowego"
+
+#, fuzzy
+#~ msgid ""
+#~ "Use crosshair to select object instead of whole screen.\n"
+#~ "If enabled, a crosshair will be shown and will be used for selecting "
+#~ "object."
+#~ msgstr ""
+#~ "Użyj celownika, by zaznaczyć obiekt zamiast całego ekranu.\n"
+#~ "Jeśli włączona, to celownik się pokaże i używany będzie do zaznaczania "
+#~ "obiektów."
 
 #~ msgid ""
 #~ "Use multi-sample antialiasing (MSAA) to smooth out block edges.\n"
@@ -9277,6 +9955,19 @@ msgstr "Limit żądań równoległych cURL"
 #~ msgid "Waving water"
 #~ msgstr "Falująca woda"
 
+#~ msgid ""
+#~ "When gui_scaling_filter_txr2img is true, copy those images\n"
+#~ "from hardware to software for scaling.  When false, fall back\n"
+#~ "to the old scaling method, for video drivers that don't\n"
+#~ "properly support downloading textures back from hardware."
+#~ msgstr ""
+#~ "Gdy gui_scaling_filter_txr2img jest aktywny, to kopiuj obrazy z "
+#~ "komputera \n"
+#~ "do Minetesta, żeby je przeskalować. Kiedy jest nieaktywny, użyj starej "
+#~ "metody \n"
+#~ "skalowania sterowników graficznych, które nieprawidłowo \n"
+#~ "wspierają pobieranie tekstur z komputera."
+
 #, fuzzy
 #~ msgid ""
 #~ "Whether FreeType fonts are used, requires FreeType support to be compiled "
@@ -9288,6 +9979,11 @@ msgstr "Limit żądań równoległych cURL"
 
 #~ msgid "Whether dungeons occasionally project from the terrain."
 #~ msgstr "Określa czy lochy mają być czasem przez generowane teren."
+
+#~ msgid ""
+#~ "Whether node texture animations should be desynchronized per mapblock."
+#~ msgstr ""
+#~ "Określ kiedy animacje tekstur na blok powinny być niesynchronizowane."
 
 #~ msgid "Whether to allow players to damage and kill each other."
 #~ msgstr "Określ możliwość atakowania oraz zabijania innych graczy."
@@ -9341,3 +10037,10 @@ msgstr "Limit żądań równoległych cURL"
 
 #~ msgid "ok"
 #~ msgstr "ok"
+
+#, fuzzy
+#~ msgid "pause_menu"
+#~ msgstr "FPS podczas pauzy w menu"
+
+#~ msgid "press key"
+#~ msgstr "naciśnij klawisz"

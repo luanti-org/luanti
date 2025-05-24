@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unzip_notification_description">کمتر از 1 دقیقه…</string>
+    <string name="loading">در حال بارگذاری…</string>
+    <string name="ime_dialog_done">انجام شد</string>
+    <string name="label">لوآنتی</string>
+    <string name="unzip_notification_title">در حال بارگذاری لوآنتی</string>
+    <string name="notification_channel_name">نوتیفیکیشن عمومی</string>
+    <string name="notification_channel_description">نوتیفیکیشن از لوآنتی</string>
+    <string name="no_web_browser">هیچ مرورگری یافت نشد</string>
+</resources>

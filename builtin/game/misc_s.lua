@@ -36,7 +36,7 @@ end
 
 
 function core.setting_get_pos(name)
-    return core.settings:get_pos(name)
+	return core.settings:get_pos(name)
 end
 
 
@@ -112,3 +112,26 @@ if core.set_push_moveresult1 then
 	end)
 	core.set_push_moveresult1 = nil
 end
+
+-- Protocol version table
+-- see also src/network/networkprotocol.cpp
+core.protocol_versions = {
+	["5.0.0"] = 37,
+	["5.1.0"] = 38,
+	["5.2.0"] = 39,
+	["5.3.0"] = 39,
+	["5.4.0"] = 39,
+	["5.5.0"] = 40,
+	["5.6.0"] = 41,
+	["5.7.0"] = 42,
+	["5.8.0"] = 43,
+	["5.9.0"] = 44,
+	["5.9.1"] = 45,
+	["5.10.0"] = 46,
+	["5.11.0"] = 47,
+	["5.12.0"] = 48,
+}
+
+setmetatable(core.protocol_versions, {__newindex = function()
+	error("core.protocol_versions is read-only")
+end})

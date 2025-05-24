@@ -13,6 +13,7 @@
 class ISimpleTextureSource;
 namespace irr::gui
 {
+	class IGUIButton;
 	class IGUIImage;
 }
 
@@ -20,8 +21,8 @@ class GUITouchscreenLayout : public GUIModalMenu
 {
 public:
 	GUITouchscreenLayout(gui::IGUIEnvironment* env,
-            gui::IGUIElement* parent, s32 id,
-            IMenuManager *menumgr, ISimpleTextureSource *tsrc);
+			gui::IGUIElement* parent, s32 id,
+			IMenuManager *menumgr, ISimpleTextureSource *tsrc);
 	~GUITouchscreenLayout();
 
 	void regenerateGui(v2u32 screensize);

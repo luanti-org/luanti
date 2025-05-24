@@ -76,6 +76,8 @@ public:
 			return StencilBuffer;
 		case EVDF_TEXTURE_MULTISAMPLE:
 			return TextureMultisampleSupported;
+		case EVDF_TEXTURE_2D_ARRAY:
+			return Texture2DArraySupported;
 		default:
 			return false;
 		};
@@ -161,10 +163,24 @@ public:
 		GL.BlendEquation(mode);
 	}
 
+	inline void irrGlObjectLabel(GLenum identifier, GLuint name, const char *label)
+	{
+		if (KHRDebugSupported) {
+			u32 len = static_cast<u32>(strlen(label));
+			// Since our texture strings can get quite long we also truncate
+			// to a hardcoded limit of 82
+			len = std::min(len, std::min(MaxLabelLength, 82U));
+			GL.ObjectLabel(identifier, name, len, label);
+		}
+	}
+
 	bool LODBiasSupported = false;
 	bool AnisotropicFilterSupported = false;
 	bool BlendMinMaxSupported = false;
 	bool TextureMultisampleSupported = false;
+	bool Texture2DArraySupported = false;
+	bool KHRDebugSupported = false;
+	u32 MaxLabelLength = 0;
 };
 
 }

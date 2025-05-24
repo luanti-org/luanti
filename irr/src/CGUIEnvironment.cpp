@@ -52,7 +52,7 @@ CGUIEnvironment::CGUIEnvironment(io::IFileSystem *fs, video::IVideoDriver *drive
 
 	loadBuiltInFont();
 
-	IGUISkin *skin = createSkin(gui::EGST_WINDOWS_METALLIC);
+	IGUISkin *skin = createSkin();
 	setSkin(skin);
 	skin->drop();
 
@@ -584,13 +584,13 @@ void CGUIEnvironment::setSkin(IGUISkin *skin)
 		CurrentSkin->grab();
 }
 
-//! Creates a new GUI Skin based on a template.
+//! Creates a new GUI Skin.
 /** \return Returns a pointer to the created skin.
 If you no longer need the skin, you should call IGUISkin::drop().
 See IReferenceCounted::drop() for more information. */
-IGUISkin *CGUIEnvironment::createSkin(EGUI_SKIN_TYPE type)
+IGUISkin *CGUIEnvironment::createSkin()
 {
-	IGUISkin *skin = new CGUISkin(type, Driver);
+	IGUISkin *skin = new CGUISkin(Driver);
 
 	IGUIFont *builtinfont = getBuiltInFont();
 	IGUIFontBitmap *bitfont = 0;
@@ -948,7 +948,7 @@ IGUIElement *CGUIEnvironment::getNextElement(bool reverse, bool group)
 			// this element is not part of the tab cycle,
 			// but its parent might be...
 			IGUIElement *el = Focus;
-			while (el && el->getParent() && startOrder == -1) {
+			while (el->getParent() && startOrder == -1) {
 				el = el->getParent();
 				startOrder = el->getTabOrder();
 			}

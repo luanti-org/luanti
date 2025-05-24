@@ -8,9 +8,7 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <iostream>
 
-#include "irrlichttypes_extrabloated.h"
 #include "guiScrollBar.h"
 
 class ISimpleTextureSource;
@@ -119,9 +117,6 @@ public:
 
 	/* Set selection, scroll position and opened (sub)trees */
 	void setDynamicData(const DynamicData &dyndata);
-
-	/* Returns "GUITable" */
-	virtual const c8* getTypeName() const;
 
 	/* Must be called when position or size changes */
 	virtual void updateAbsolutePosition();

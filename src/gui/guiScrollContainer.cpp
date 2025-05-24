@@ -92,8 +92,6 @@ void GUIScrollContainer::setScrollBar(GUIScrollBar *scrollbar)
 
 		m_scrollbar->setPageSize((total_content_px * scrollbar_px) / visible_content_px);
 	}
-
-	updateScrolling();
 }
 
 void GUIScrollContainer::updateScrolling()

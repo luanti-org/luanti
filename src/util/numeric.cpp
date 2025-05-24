@@ -6,8 +6,7 @@
 
 #include "log.h"
 #include "constants.h" // BS, MAP_BLOCKSIZE
-#include "noise.h" // PseudoRandom, PcgRandom
-#include "threading/mutex_auto_lock.h"
+#include "noise.h" // PcgRandom
 #include <cstring>
 #include <cmath>
 
@@ -21,7 +20,7 @@ u32 myrand()
 	return g_pcgrand.next();
 }
 
-void mysrand(unsigned int seed)
+void mysrand(u64 seed)
 {
 	g_pcgrand.seed(seed);
 }
@@ -48,10 +47,7 @@ float myrand_range(float min, float max)
 }
 
 
-/*
-	64-bit unaligned version of MurmurHash
-*/
-u64 murmur_hash_64_ua(const void *key, int len, unsigned int seed)
+u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed)
 {
 	const u64 m = 0xc6a4a7935bd1e995ULL;
 	const int r = 47;
@@ -73,15 +69,14 @@ u64 murmur_hash_64_ua(const void *key, int len, unsigned int seed)
 		h *= m;
 	}
 
-	const unsigned char *data2 = (const unsigned char *)data;
 	switch (len & 7) {
-		case 7: h ^= (u64)data2[6] << 48; [[fallthrough]];
-		case 6: h ^= (u64)data2[5] << 40; [[fallthrough]];
-		case 5: h ^= (u64)data2[4] << 32; [[fallthrough]];
-		case 4: h ^= (u64)data2[3] << 24; [[fallthrough]];
-		case 3: h ^= (u64)data2[2] << 16; [[fallthrough]];
-		case 2: h ^= (u64)data2[1] << 8;  [[fallthrough]];
-		case 1: h ^= (u64)data2[0];
+		case 7: h ^= (u64)data[6] << 48; [[fallthrough]];
+		case 6: h ^= (u64)data[5] << 40; [[fallthrough]];
+		case 5: h ^= (u64)data[4] << 32; [[fallthrough]];
+		case 4: h ^= (u64)data[3] << 24; [[fallthrough]];
+		case 3: h ^= (u64)data[2] << 16; [[fallthrough]];
+		case 2: h ^= (u64)data[1] << 8;  [[fallthrough]];
+		case 1: h ^= (u64)data[0];
 				h *= m;
 	}
 
@@ -92,24 +87,14 @@ u64 murmur_hash_64_ua(const void *key, int len, unsigned int seed)
 	return h;
 }
 
-/*
-	blockpos_b: position of block in block coordinates
-	camera_pos: position of camera in nodes
-	camera_dir: an unit vector pointing to camera direction
-	range: viewing range
-	distance_ptr: return location for distance from the camera
-*/
+
 bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 		f32 camera_fov, f32 range, f32 *distance_ptr)
 {
 	v3s16 blockpos_nodes = blockpos_b * MAP_BLOCKSIZE;
 
 	// Block center position
-	v3f blockpos(
-			((float)blockpos_nodes.X + MAP_BLOCKSIZE/2) * BS,
-			((float)blockpos_nodes.Y + MAP_BLOCKSIZE/2) * BS,
-			((float)blockpos_nodes.Z + MAP_BLOCKSIZE/2) * BS
-	);
+	v3f blockpos = v3f::from(blockpos_nodes + MAP_BLOCKSIZE / 2) * BS;
 
 	// Block position relative to camera
 	v3f blockpos_relative = blockpos - camera_pos;
@@ -154,6 +139,7 @@ bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 
 	return true;
 }
+
 
 inline float adjustDist(float dist, float zoom_fov)
 {

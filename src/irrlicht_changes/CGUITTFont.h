@@ -3,6 +3,7 @@
    Copyright (c) 2009-2010 John Norman
    Copyright (c) 2016 Nathanaëlle Courant
    Copyright (c) 2023 Caleb Butler
+   Copyright (c) 2024 Luanti contributors
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -32,23 +33,52 @@
 
 #pragma once
 
-#include <map>
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include <freetype/freetype.h>
 
 #include "IGUIEnvironment.h"
 #include "IGUIFont.h"
 #include "IVideoDriver.h"
 #include "IrrlichtDevice.h"
-#include "SMesh.h"
 #include "util/enriched_string.h"
 #include "util/basic_macros.h"
+
+#include <map>
+#include <optional>
 
 namespace irr
 {
 namespace gui
 {
-	struct SGUITTFace;
+	// Manages the FT_Face cache.
+	struct SGUITTFace : public irr::IReferenceCounted
+	{
+	private:
+
+		static std::map<io::path, SGUITTFace*> faces;
+		static FT_Library freetype_library;
+		static std::size_t n_faces;
+
+		static FT_Library getFreeTypeLibrary();
+
+	public:
+
+		SGUITTFace(std::string &&buffer);
+
+		~SGUITTFace();
+
+		std::optional<std::string> filename;
+
+		FT_Face face;
+		/// Must not be deallocated until we are done with the face!
+		std::string face_buffer;
+
+		static SGUITTFace* createFace(std::string &&buffer);
+
+		static SGUITTFace* loadFace(const io::path &filename);
+
+		void dropFilename();
+	};
 	class CGUITTFont;
 
 	//! Structure representing a single TrueType glyph.
@@ -170,9 +200,13 @@ namespace gui
 			//! Updates the texture atlas with new glyphs.
 			void updateTexture()
 			{
-				if (!dirty) return;
+				if (!dirty)
+					return;
 
 				void* ptr = texture->lock();
+				if (!ptr)
+					return;
+
 				video::ECOLOR_FORMAT format = texture->getColorFormat();
 				core::dimension2du size = texture->getOriginalSize();
 				video::IImage* pageholder = driver->createImageFromData(format, size, ptr, true, false);
@@ -215,12 +249,13 @@ namespace gui
 		public:
 			//! Creates a new TrueType font and returns a pointer to it.  The pointer must be drop()'ed when finished.
 			//! \param env The IGUIEnvironment the font loads out of.
-			//! \param filename The filename of the font.
 			//! \param size The size of the font glyphs in pixels.  Since this is the size of the individual glyphs, the true height of the font may change depending on the characters used.
 			//! \param antialias set the use_monochrome (opposite to antialias) flag
 			//! \param transparency set the use_transparency flag
 			//! \return Returns a pointer to a CGUITTFont.  Will return 0 if the font failed to load.
-			static CGUITTFont* createTTFont(IGUIEnvironment *env, const io::path& filename, const u32 size, const bool antialias = true, const bool transparency = true, const u32 shadow = 0, const u32 shadow_alpha = 255);
+			static CGUITTFont* createTTFont(IGUIEnvironment *env,
+				SGUITTFace *face, u32 size, bool antialias = true,
+				bool transparency = true, u32 shadow = 0, u32 shadow_alpha = 255);
 
 			//! Destructor
 			virtual ~CGUITTFont();
@@ -329,11 +364,6 @@ namespace gui
 			core::dimension2du max_page_texture_size;
 
 		private:
-			// Manages the FreeType library.
-			static FT_Library c_library;
-			static std::map<io::path, SGUITTFace*> c_faces;
-			static bool c_libraryLoaded;
-
 			// Helper functions for the same-named public member functions above
 			// (Since std::u32string is nicer to work with than wchar_t *)
 			core::dimension2d<u32> getDimension(const std::u32string& text) const;
@@ -343,7 +373,7 @@ namespace gui
 			std::u32string convertWCharToU32String(const wchar_t* const) const;
 
 			CGUITTFont(IGUIEnvironment *env);
-			bool load(const io::path& filename, const u32 size, const bool antialias, const bool transparency);
+			bool load(SGUITTFace *face, const u32 size, const bool antialias, const bool transparency);
 			void reset_images();
 			void update_glyph_pages() const;
 			void update_load_flags()
@@ -361,7 +391,7 @@ namespace gui
 			core::vector2di getKerning(const char32_t thisLetter, const char32_t previousLetter) const;
 
 			video::IVideoDriver* Driver;
-			io::path filename;
+			std::optional<io::path> filename;
 			FT_Face tt_face;
 			FT_Size_Metrics font_metrics;
 			FT_Int32 load_flags;

@@ -183,7 +183,7 @@ const ClientCommandFactory clientCommandFactoryTable[TOCLIENT_NUM_MSG_TYPES] =
 	{ "TOCLIENT_MOVEMENT",                 0, true }, // 0x45
 	{ "TOCLIENT_SPAWN_PARTICLE",           0, true }, // 0x46
 	{ "TOCLIENT_ADD_PARTICLESPAWNER",      0, true }, // 0x47
-	null_command_factory, // 0x48
+	{ "TOCLIENT_CAMERA",                   0, true }, // 0x48
 	{ "TOCLIENT_HUDADD",                   1, true }, // 0x49
 	{ "TOCLIENT_HUDRM",                    1, true }, // 0x4a
 	{ "TOCLIENT_HUDCHANGE",                1, true }, // 0x4b

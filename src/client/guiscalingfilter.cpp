@@ -94,8 +94,7 @@ video::ITexture *guiScalingResizeCached(video::IVideoDriver *driver,
 	auto it_img = g_imgCache.find(origname);
 	video::IImage *srcimg = (it_img != g_imgCache.end()) ? it_img->second : nullptr;
 	if (!srcimg) {
-		if (!g_settings->getBool("gui_scaling_filter_txr2img"))
-			return src;
+		// Download image from GPU
 		srcimg = driver->createImageFromData(src->getColorFormat(),
 			src->getSize(), src->lock(video::ETLM_READ_ONLY), false);
 		src->unlock();

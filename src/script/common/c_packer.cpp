@@ -13,6 +13,7 @@
 #include "log.h"
 #include "debug.h"
 #include "threading/mutex_auto_lock.h"
+#include "common/c_types.h" // LuaError
 
 extern "C" {
 #include <lauxlib.h>

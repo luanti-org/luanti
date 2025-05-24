@@ -113,6 +113,18 @@ void VoxelManipulator::print(std::ostream &o, const NodeDefManager *ndef,
 	}
 }
 
+static inline void checkArea(const VoxelArea &a)
+{
+	// won't overflow since cbrt(2^64) > 2^16
+	u64 real_volume = static_cast<u64>(a.getExtent().X) * a.getExtent().Y * a.getExtent().Z;
+
+	static_assert(MAX_WORKING_VOLUME < S32_MAX); // hard limit is somewhere here
+	if (real_volume > MAX_WORKING_VOLUME) {
+		throw BaseException("VoxelManipulator: "
+			"Area volume exceeds allowed value of " + std::to_string(MAX_WORKING_VOLUME));
+	}
+}
+
 void VoxelManipulator::addArea(const VoxelArea &area)
 {
 	// Cancel if requested area has zero volume
@@ -124,18 +136,10 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 		return;
 
 	// Calculate new area
-	VoxelArea new_area;
-	// New area is the requested area if m_area has zero volume
-	if(m_area.hasEmptyExtent())
-	{
-		new_area = area;
-	}
-	// Else add requested area to m_area
-	else
-	{
-		new_area = m_area;
-		new_area.addArea(area);
-	}
+	VoxelArea new_area = m_area;
+	new_area.addArea(area);
+
+	checkArea(new_area);
 
 	u32 new_size = new_area.getVolume();
 

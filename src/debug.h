@@ -6,8 +6,7 @@
 
 #include <exception>
 #include <cassert>
-#include "gettime.h"
-#include "log.h"
+#include "log.h" // unused. for convenience.
 
 #ifdef _MSC_VER
 	#define FUNCTION_NAME __FUNCTION__

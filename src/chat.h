@@ -112,7 +112,8 @@ public:
 
 	void resize(u32 scrollback);
 
-protected:
+	// Get the current scroll position
+	s32 getScrollPosition() const { return m_scroll; }
 	s32 getTopScrollPos() const;
 	s32 getBottomScrollPos() const;
 

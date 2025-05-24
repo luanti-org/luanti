@@ -26,18 +26,31 @@ class ISceneManager;
 class SkinnedMesh : public IAnimatedMesh
 {
 public:
+
+	enum class SourceFormat {
+		B3D,
+		X,
+		GLTF,
+		OTHER,
+	};
+
 	//! constructor
-	SkinnedMesh() :
+	SkinnedMesh(SourceFormat src_format) :
 		EndFrame(0.f), FramesPerSecond(25.f),
 		LastAnimatedFrame(-1), SkinnedLastFrame(false),
 		HasAnimation(false), PreparedForSkinning(false),
-		AnimateNormals(true), HardwareSkinning(false)
+		AnimateNormals(true), HardwareSkinning(false),
+		SrcFormat(src_format)
 	{
 		SkinningBuffers = &LocalBuffers;
 	}
 
 	//! destructor
 	virtual ~SkinnedMesh();
+
+	//! The source (file) format the mesh was loaded from.
+	//! Important for legacy reasons pertaining to different mesh loader behavior.
+	SourceFormat getSourceFormat() const { return SrcFormat; }
 
 	//! If the duration is 0, it is a static (=non animated) mesh.
 	f32 getMaxFrameNumber() const override;
@@ -382,12 +395,14 @@ protected:
 	bool PreparedForSkinning;
 	bool AnimateNormals;
 	bool HardwareSkinning;
+
+	SourceFormat SrcFormat;
 };
 
 // Interface for mesh loaders
 class SkinnedMeshBuilder : public SkinnedMesh {
 public:
-	SkinnedMeshBuilder() : SkinnedMesh() {}
+	SkinnedMeshBuilder(SourceFormat src_format) : SkinnedMesh(src_format) {}
 
 	//! loaders should call this after populating the mesh
 	// returns *this, so do not try to drop the mesh builder instance

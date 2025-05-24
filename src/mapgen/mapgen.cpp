@@ -37,7 +37,7 @@
 #include "cavegen.h"
 #include "dungeongen.h"
 
-FlagDesc flagdesc_mapgen[] = {
+const FlagDesc flagdesc_mapgen[] = {
 	{"caves",       MG_CAVES},
 	{"dungeons",    MG_DUNGEONS},
 	{"light",       MG_LIGHT},
@@ -47,7 +47,7 @@ FlagDesc flagdesc_mapgen[] = {
 	{NULL,          0}
 };
 
-FlagDesc flagdesc_gennotify[] = {
+const FlagDesc flagdesc_gennotify[] = {
 	{"dungeon",          1 << GENNOTIFY_DUNGEON},
 	{"temple",           1 << GENNOTIFY_TEMPLE},
 	{"cave_begin",       1 << GENNOTIFY_CAVE_BEGIN},
@@ -632,7 +632,7 @@ void MapgenBasic::generateBiomes()
 	const v3s32 &em = vm->m_area.getExtent();
 	u32 index = 0;
 
-	noise_filler_depth->perlinMap2D(node_min.X, node_min.Z);
+	noise_filler_depth->noiseMap2D(node_min.X, node_min.Z);
 
 	for (s16 z = node_min.Z; z <= node_max.Z; z++)
 	for (s16 x = node_min.X; x <= node_max.X; x++, index++) {
@@ -763,7 +763,7 @@ void MapgenBasic::generateBiomes()
 		// If no stone surface detected in mapchunk column and a water surface
 		// biome fallback exists, add it to the biomemap. This avoids water
 		// surface decorations failing in deep water.
- 		if (biomemap[index] == BIOME_NONE && water_biome_index != 0)
+		if (biomemap[index] == BIOME_NONE && water_biome_index != 0)
 			biomemap[index] = water_biome_index;
 	}
 }
@@ -897,7 +897,7 @@ void MapgenBasic::generateDungeons(s16 max_stone_y)
 		return;
 
 	u16 num_dungeons = std::fmax(std::floor(
-		NoisePerlin3D(&np_dungeons, node_min.X, node_min.Y, node_min.Z, seed)), 0.0f);
+		NoiseFractal3D(&np_dungeons, node_min.X, node_min.Y, node_min.Z, seed)), 0.0f);
 	if (num_dungeons == 0)
 		return;
 

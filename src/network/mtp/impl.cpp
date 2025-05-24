@@ -53,6 +53,15 @@ u16 BufferedPacket::getSeqnum() const
 	return readU16(&data[BASE_HEADER_SIZE + 1]);
 }
 
+void BufferedPacket::setSenderPeerId(session_t id)
+{
+	if (size() < BASE_HEADER_SIZE) {
+		assert(false); // should never happen
+		return;
+	}
+	writeU16(&data[4], id);
+}
+
 BufferedPacketPtr makePacket(const Address &address, const SharedBuffer<u8> &data,
 		u32 protocol_id, session_t sender_peer_id, u8 channel)
 {
@@ -337,6 +346,13 @@ void ReliablePacketBuffer::insert(BufferedPacketPtr &p_ptr, u16 next_expected)
 	m_oldest_non_answered_ack = m_list.front()->getSeqnum();
 }
 
+void ReliablePacketBuffer::fixPeerId(session_t new_id)
+{
+	MutexAutoLock listlock(m_list_mutex);
+	for (auto &packet : m_list)
+		packet->setSenderPeerId(new_id);
+}
+
 void ReliablePacketBuffer::incrementTimeouts(float dtime)
 {
 	MutexAutoLock listlock(m_list_mutex);
@@ -566,6 +582,13 @@ ConnectionCommandPtr ConnectionCommand::resend_one(session_t peer_id)
 	c->peer_id = peer_id;
 	c->channelnum = 0; // must be same as createPeer
 	c->reliable = true;
+	return c;
+}
+
+ConnectionCommandPtr ConnectionCommand::peer_id_set(session_t own_peer_id)
+{
+	auto c = create(CONNCMD_PEER_ID_SET);
+	c->peer_id = own_peer_id;
 	return c;
 }
 
@@ -1613,6 +1636,14 @@ const std::string Connection::getDesc()
 void Connection::DisconnectPeer(session_t peer_id)
 {
 	putCommand(ConnectionCommand::disconnect_peer(peer_id));
+}
+
+void Connection::SetPeerID(session_t id)
+{
+	m_peer_id = id;
+	// fix peer id in existing queued reliable packets
+	if (id != PEER_ID_INEXISTENT)
+		putCommand(ConnectionCommand::peer_id_set(id));
 }
 
 void Connection::doResendOne(session_t peer_id)

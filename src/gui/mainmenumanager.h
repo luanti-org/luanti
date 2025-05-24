@@ -11,16 +11,21 @@
 #include <cassert>
 #include <list>
 
+#include "IGUIEnvironment.h"
+
+namespace irr::gui {
+	class IGUIStaticText;
+}
+
 class IGameCallback
 {
 public:
 	virtual void exitToOS() = 0;
-	virtual void keyConfig() = 0;
+	virtual void openSettings() = 0;
 	virtual void disconnect() = 0;
 	virtual void changePassword() = 0;
 	virtual void changeVolume() = 0;
 	virtual void showOpenURLDialog(const std::string &url) = 0;
-	virtual void signalKeyConfigChange() = 0;
 	virtual void touchscreenLayout() = 0;
 };
 
@@ -54,6 +59,8 @@ public:
 		if(!m_stack.empty()) {
 			m_stack.back()->setVisible(true);
 			guienv->setFocus(m_stack.back());
+		} else {
+			guienv->removeFocus(menu);
 		}
 	}
 
@@ -69,6 +76,13 @@ public:
 	size_t menuCount() const
 	{
 		return m_stack.size();
+	}
+
+	GUIModalMenu *tryGetTopMenu() const
+	{
+		if (m_stack.empty())
+			return nullptr;
+		return dynamic_cast<GUIModalMenu *>(m_stack.back());
 	}
 
 	void deleteFront()
@@ -109,6 +123,11 @@ public:
 		shutdown_requested = true;
 	}
 
+	void openSettings() override
+	{
+		settings_requested = true;
+	}
+
 	void disconnect() override
 	{
 		disconnect_requested = true;
@@ -124,16 +143,6 @@ public:
 		changevolume_requested = true;
 	}
 
-	void keyConfig() override
-	{
-		keyconfig_requested = true;
-	}
-
-	void signalKeyConfigChange() override
-	{
-		keyconfig_changed = true;
-	}
-
 	void touchscreenLayout() override
 	{
 		touchscreenlayout_requested = true;
@@ -145,12 +154,11 @@ public:
 	}
 
 	bool disconnect_requested = false;
+	bool settings_requested = false;
 	bool changepassword_requested = false;
 	bool changevolume_requested = false;
-	bool keyconfig_requested = false;
 	bool touchscreenlayout_requested = false;
 	bool shutdown_requested = false;
-	bool keyconfig_changed = false;
 	std::string show_open_url_dialog = "";
 };
 

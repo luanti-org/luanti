@@ -7,7 +7,7 @@
 #include "irrlichttypes.h"
 #include "itemgroup.h"
 #include "json-forwards.h"
-#include "common/c_types.h"
+#include "util/enum_string.h"
 #include <SColor.h>
 
 #include <string>

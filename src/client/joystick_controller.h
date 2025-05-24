@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "irrlichttypes_extrabloated.h"
+#include <IEventReceiver.h>
+#include "irrlichttypes.h"
+
 #include "keys.h"
 #include <bitset>
 #include <vector>

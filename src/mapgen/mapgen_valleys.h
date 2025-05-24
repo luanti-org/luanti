@@ -24,7 +24,7 @@ Licensing changed by permission of Gael de Sailly.
 class BiomeManager;
 class BiomeGenOriginal;
 
-extern FlagDesc flagdesc_mapgen_valleys[];
+extern const FlagDesc flagdesc_mapgen_valleys[];
 
 
 struct MapgenValleysParams : public MapgenParams {

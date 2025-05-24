@@ -10,6 +10,7 @@
 #include "porting.h"
 #include "settings.h"
 #include <algorithm> // std::find
+#include "common/c_types.h" // LuaError
 
 std::string script_get_backtrace(lua_State *L)
 {

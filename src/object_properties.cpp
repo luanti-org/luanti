@@ -8,15 +8,28 @@
 #include "exceptions.h"
 #include "log.h"
 #include "util/serialize.h"
+#include "util/enum_string.h"
 #include <sstream>
 #include <tuple>
 
 static const video::SColor NULL_BGCOLOR{0, 1, 1, 1};
 
+const struct EnumString es_ObjectVisual[] =
+{
+	{OBJECTVISUAL_UNKNOWN, "unknown"},
+	{OBJECTVISUAL_SPRITE, "sprite"},
+	{OBJECTVISUAL_UPRIGHT_SPRITE, "upright_sprite"},
+	{OBJECTVISUAL_CUBE, "cube"},
+	{OBJECTVISUAL_MESH, "mesh"},
+	{OBJECTVISUAL_ITEM, "item"},
+	{OBJECTVISUAL_WIELDITEM, "wielditem"},
+	{OBJECTVISUAL_NODE, "node"},
+	{0, nullptr},
+};
+
 ObjectProperties::ObjectProperties()
 {
 	textures.emplace_back("no_texture.png");
-	colors.emplace_back(255,255,255,255);
 }
 
 std::string ObjectProperties::dump() const
@@ -27,7 +40,7 @@ std::string ObjectProperties::dump() const
 	os << ", physical=" << physical;
 	os << ", collideWithObjects=" << collideWithObjects;
 	os << ", collisionbox=" << collisionbox.MinEdge << "," << collisionbox.MaxEdge;
-	os << ", visual=" << visual;
+	os << ", visual=" << enum_to_string(es_ObjectVisual, visual);
 	os << ", mesh=" << mesh;
 	os << ", visual_size=" << visual_size;
 	os << ", textures=[";
@@ -64,6 +77,8 @@ std::string ObjectProperties::dump() const
 	os << ", static_save=" << static_save;
 	os << ", eye_height=" << eye_height;
 	os << ", zoom_fov=" << zoom_fov;
+	os << ", node=(" << (int)node.getContent() << ", " << (int)node.getParam1()
+		<< ", " << (int)node.getParam2() << ")";
 	os << ", use_texture_alpha=" << use_texture_alpha;
 	os << ", damage_texture_modifier=" << damage_texture_modifier;
 	os << ", shaded=" << shaded;
@@ -80,8 +95,8 @@ static auto tie(const ObjectProperties &o)
 	o.nametag_color, o.nametag_bgcolor, o.spritediv, o.initial_sprite_basepos,
 	o.stepheight, o.automatic_rotate, o.automatic_face_movement_dir_offset,
 	o.automatic_face_movement_max_rotation_per_sec, o.eye_height, o.zoom_fov,
-	o.hp_max, o.breath_max, o.glow, o.pointable, o.physical, o.collideWithObjects,
-	o.rotate_selectionbox, o.is_visible, o.makes_footstep_sound,
+	o.node, o.hp_max, o.breath_max, o.glow, o.pointable, o.physical,
+	o.collideWithObjects, o.rotate_selectionbox, o.is_visible, o.makes_footstep_sound,
 	o.automatic_face_movement_dir, o.backface_culling, o.static_save, o.use_texture_alpha,
 	o.shaded, o.show_on_minimap
 	);
@@ -136,7 +151,10 @@ void ObjectProperties::serialize(std::ostream &os) const
 	writeV3F32(os, selectionbox.MinEdge);
 	writeV3F32(os, selectionbox.MaxEdge);
 	Pointabilities::serializePointabilityType(os, pointable);
-	os << serializeString16(visual);
+
+	// Convert to string for compatibility
+	os << serializeString16(enum_to_string(es_ObjectVisual, visual));
+
 	writeV3F32(os, visual_size);
 	writeU16(os, textures.size());
 	for (const std::string &texture : textures) {
@@ -171,6 +189,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 	writeU8(os, shaded);
 	writeU8(os, show_on_minimap);
 
+	// use special value to tell apart nil, fully transparent and other colors
 	if (!nametag_bgcolor)
 		writeARGB8(os, NULL_BGCOLOR);
 	else if (nametag_bgcolor.value().getAlpha() == 0)
@@ -179,8 +198,31 @@ void ObjectProperties::serialize(std::ostream &os) const
 		writeARGB8(os, nametag_bgcolor.value());
 
 	writeU8(os, rotate_selectionbox);
+	writeU16(os, node.getContent());
+	writeU8(os, node.getParam1());
+	writeU8(os, node.getParam2());
+
 	// Add stuff only at the bottom.
-	// Never remove anything, because we don't want new versions of this
+	// Never remove anything, because we don't want new versions of this!
+}
+
+namespace {
+	// Type-safe wrapper for bools as u8
+	inline bool readBool(std::istream &is)
+	{
+		return readU8(is) != 0;
+	}
+
+	// Wrapper for primitive reading functions that don't throw (awful)
+	template <typename T, T (reader)(std::istream& is)>
+	bool tryRead(T& val, std::istream& is)
+	{
+		T tmp = reader(is);
+		if (is.eof())
+			return false;
+		val = tmp;
+		return true;
+	}
 }
 
 void ObjectProperties::deSerialize(std::istream &is)
@@ -197,7 +239,14 @@ void ObjectProperties::deSerialize(std::istream &is)
 	selectionbox.MinEdge = readV3F32(is);
 	selectionbox.MaxEdge = readV3F32(is);
 	pointable = Pointabilities::deSerializePointabilityType(is);
-	visual = deSerializeString16(is);
+
+	std::string visual_string{deSerializeString16(is)};
+	if (!string_to_enum(es_ObjectVisual, visual, visual_string)) {
+		infostream << "ObjectProperties::deSerialize(): visual \"" << visual_string
+				<< "\" not supported" << std::endl;
+		visual = OBJECTVISUAL_UNKNOWN;
+	}
+
 	visual_size = readV3F32(is);
 	textures.clear();
 	u32 texture_count = readU16(is);
@@ -230,26 +279,32 @@ void ObjectProperties::deSerialize(std::istream &is)
 	eye_height = readF32(is);
 	zoom_fov = readF32(is);
 	use_texture_alpha = readU8(is);
+
 	try {
 		damage_texture_modifier = deSerializeString16(is);
-		u8 tmp = readU8(is);
-		if (is.eof())
-			return;
-		shaded = tmp;
-		tmp = readU8(is);
-		if (is.eof())
-			return;
-		show_on_minimap = tmp;
+	} catch (SerializationError &e) {
+		return;
+	}
 
-		auto bgcolor = readARGB8(is);
-		if (bgcolor != NULL_BGCOLOR)
-			nametag_bgcolor = bgcolor;
-		else
-			nametag_bgcolor = std::nullopt;
+	if (!tryRead<bool, readBool>(shaded, is))
+		return;
 
-		tmp = readU8(is);
-		if (is.eof())
-			return;
-		rotate_selectionbox = tmp;
-	} catch (SerializationError &e) {}
+	if (!tryRead<bool, readBool>(show_on_minimap, is))
+		return;
+
+	auto bgcolor = readARGB8(is);
+	if (bgcolor != NULL_BGCOLOR)
+		nametag_bgcolor = bgcolor;
+	else
+		nametag_bgcolor = std::nullopt;
+
+	if (!tryRead<bool, readBool>(rotate_selectionbox, is))
+		return;
+
+	if (!tryRead<content_t, readU16>(node.param0, is))
+		return;
+	node.param1 = readU8(is);
+	node.param2 = readU8(is);
+
+	// Add new properties down here and remember to use either tryRead<> or a try-catch.
 }

@@ -3,42 +3,24 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "tile.h"
+#include <cassert>
 
-// Sets everything else except the texture in the material
-void TileLayer::applyMaterialOptions(video::SMaterial &material) const
+void AnimationInfo::updateTexture(video::SMaterial &material, float animation_time)
 {
-	switch (material_type) {
-	case TILE_MATERIAL_OPAQUE:
-	case TILE_MATERIAL_LIQUID_OPAQUE:
-	case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-		material.MaterialType = video::EMT_SOLID;
-		break;
-	case TILE_MATERIAL_BASIC:
-	case TILE_MATERIAL_WAVING_LEAVES:
-	case TILE_MATERIAL_WAVING_PLANTS:
-	case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-		material.MaterialTypeParam = 0.5;
-		material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
-		break;
-	case TILE_MATERIAL_ALPHA:
-	case TILE_MATERIAL_LIQUID_TRANSPARENT:
-	case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-		material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-		break;
-	default:
-		break;
+	// Figure out current frame
+	u16 frame = (u16)(animation_time * 1000 / m_frame_length_ms) % m_frame_count;
+	// Only adjust if frame changed
+	if (frame != m_frame) {
+		m_frame = frame;
+		assert(m_frame < m_frames->size());
+		material.setTexture(0, (*m_frames)[m_frame].texture);
 	}
-	material.BackfaceCulling = (material_flags & MATERIAL_FLAG_BACKFACE_CULLING) != 0;
-	if (!(material_flags & MATERIAL_FLAG_TILEABLE_HORIZONTAL)) {
-		material.TextureLayers[0].TextureWrapU = video::ETC_CLAMP_TO_EDGE;
-	}
-	if (!(material_flags & MATERIAL_FLAG_TILEABLE_VERTICAL)) {
-		material.TextureLayers[0].TextureWrapV = video::ETC_CLAMP_TO_EDGE;
-	}
-}
+};
 
-void TileLayer::applyMaterialOptionsWithShaders(video::SMaterial &material) const
+void TileLayer::applyMaterialOptions(video::SMaterial &material, int layer) const
 {
+	material.setTexture(0, texture);
+
 	material.BackfaceCulling = (material_flags & MATERIAL_FLAG_BACKFACE_CULLING) != 0;
 	if (!(material_flags & MATERIAL_FLAG_TILEABLE_HORIZONTAL)) {
 		material.TextureLayers[0].TextureWrapU = video::ETC_CLAMP_TO_EDGE;
@@ -47,5 +29,21 @@ void TileLayer::applyMaterialOptionsWithShaders(video::SMaterial &material) cons
 	if (!(material_flags & MATERIAL_FLAG_TILEABLE_VERTICAL)) {
 		material.TextureLayers[0].TextureWrapV = video::ETC_CLAMP_TO_EDGE;
 		material.TextureLayers[1].TextureWrapV = video::ETC_CLAMP_TO_EDGE;
+	}
+
+	/*
+	 * The second layer is for overlays, but uses the same vertex positions
+	 * as the first, which easily leads to Z-fighting.
+	 * To fix this we offset the polygons of the *first layer* away from the camera.
+	 * This only affects the depth buffer and leads to no visual gaps in geometry.
+	 *
+	 * However, doing so intrudes the "Z space" of the overlay of the next node
+	 * so that leads to inconsistent Z-sorting again. :(
+	 * HACK: For lack of a better approach we restrict this to cases where
+	 * an overlay is actually present.
+	 */
+	if (need_polygon_offset) {
+		material.PolygonOffsetSlopeScale = 1;
+		material.PolygonOffsetDepthBias = 1;
 	}
 }

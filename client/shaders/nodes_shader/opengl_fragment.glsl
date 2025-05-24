@@ -51,7 +51,7 @@ centroid varying float nightRatio;
 varying highp vec3 eyeVec;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
-#if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WAVING_LIQUID && ENABLE_WAVING_WATER)
+#if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)
 vec4 perm(vec4 x)
 {
 	return mod(((x * 34.0) + 1.0) * x, 289.0);
@@ -502,7 +502,7 @@ void main(void)
 		vec3 viewVec = normalize(worldPosition + cameraOffset - cameraPosition);
 
 		// Water reflections
-#if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WAVING_LIQUID && ENABLE_WAVING_WATER)
+#if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)
 		vec3 wavePos = worldPosition * vec3(2.0, 0.0, 2.0);
 		float off = animationTimer * WATER_WAVE_SPEED * 10.0;
 		wavePos.x /= WATER_WAVE_LENGTH * 3.0;
@@ -530,7 +530,7 @@ void main(void)
 		col.rgb += water_reflect_color * f_adj_shadow_strength * brightness_factor;
 #endif
 
-#if (defined(ENABLE_NODE_SPECULAR) && !MATERIAL_WAVING_LIQUID)
+#if (defined(ENABLE_NODE_SPECULAR) && !MATERIAL_WATER_REFLECTIONS)
 		// Apply specular to blocks.
 		if (dot(v_LightDirection, vNormal) < 0.0) {
 			float intensity = 2.0 * (1.0 - (base.r * varColor.r));

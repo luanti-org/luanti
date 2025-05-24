@@ -15,19 +15,25 @@ public:
 
 	void runTests(IGameDef *gamedef);
 
+	/* TODO: Re-introduce unittests after fully switching to SDL.
 	void testCreateFromString();
 	void testCreateFromSKeyInput();
 	void testCompare();
+	*/
 };
 
 static TestKeycode g_test_instance;
 
 void TestKeycode::runTests(IGameDef *gamedef)
 {
+	/*
 	TEST(testCreateFromString);
 	TEST(testCreateFromSKeyInput);
 	TEST(testCompare);
+	*/
 }
+
+#if 0
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -112,3 +118,5 @@ void TestKeycode::testCompare()
 	in2.Char = L';';
 	UASSERT(KeyPress(in) == KeyPress(in2));
 }
+
+#endif

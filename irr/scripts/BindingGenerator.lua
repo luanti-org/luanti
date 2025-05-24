@@ -349,7 +349,6 @@ f:write[[
 
 #include <string>
 #include <unordered_set>
-#include "IrrCompileConfig.h" // for IRRLICHT_API
 #include "IContextManager.h"
 #include <KHR/khrplatform.h>
 
@@ -415,7 +414,7 @@ f:write[[
 ]];
 f:write( "};\n" );
 f:write( "\n// Global GL procedures object.\n" );
-f:write( "IRRLICHT_API extern OpenGLProcedures GL;\n" );
+f:write( "extern OpenGLProcedures GL;\n" );
 f:close();
 
 -- Write loader implementation

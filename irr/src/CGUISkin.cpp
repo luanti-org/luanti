@@ -10,106 +10,56 @@
 #include "IGUISpriteBank.h"
 #include "IGUIElement.h"
 #include "IVideoDriver.h"
-#include "IAttributes.h"
 
 namespace irr
 {
 namespace gui
 {
 
-CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
-: SpriteBank(0), Driver(driver), Type(type)
+CGUISkin::CGUISkin(video::IVideoDriver* driver)
+: SpriteBank(0), Driver(driver)
 {
-	if ((Type == EGST_WINDOWS_CLASSIC) || (Type == EGST_WINDOWS_METALLIC))
-	{
-		Colors[EGDC_3D_DARK_SHADOW]     = video::SColor(101,50,50,50);
-		Colors[EGDC_3D_SHADOW]          = video::SColor(101,130,130,130);
-		Colors[EGDC_3D_FACE]            = video::SColor(220,100,100,100);
-		Colors[EGDC_3D_HIGH_LIGHT]      = video::SColor(101,255,255,255);
-		Colors[EGDC_3D_LIGHT]           = video::SColor(101,210,210,210);
-		Colors[EGDC_ACTIVE_BORDER]      = video::SColor(101,16,14,115);
-		Colors[EGDC_ACTIVE_CAPTION]     = video::SColor(255,255,255,255);
-		Colors[EGDC_APP_WORKSPACE]      = video::SColor(101,100,100,100);
-		Colors[EGDC_BUTTON_TEXT]        = video::SColor(240,10,10,10);
-		Colors[EGDC_GRAY_TEXT]          = video::SColor(240,130,130,130);
-		Colors[EGDC_HIGH_LIGHT]         = video::SColor(101,8,36,107);
-		Colors[EGDC_HIGH_LIGHT_TEXT]    = video::SColor(240,255,255,255);
-		Colors[EGDC_INACTIVE_BORDER]    = video::SColor(101,165,165,165);
-		Colors[EGDC_INACTIVE_CAPTION]   = video::SColor(255,30,30,30);
-		Colors[EGDC_TOOLTIP]            = video::SColor(200,0,0,0);
-		Colors[EGDC_TOOLTIP_BACKGROUND] = video::SColor(200,255,255,225);
-		Colors[EGDC_SCROLLBAR]          = video::SColor(101,230,230,230);
-		Colors[EGDC_WINDOW]             = video::SColor(101,255,255,255);
-		Colors[EGDC_WINDOW_SYMBOL]      = video::SColor(200,10,10,10);
-		Colors[EGDC_ICON]               = video::SColor(200,255,255,255);
-		Colors[EGDC_ICON_HIGH_LIGHT]    = video::SColor(200,8,36,107);
-		Colors[EGDC_GRAY_WINDOW_SYMBOL] = video::SColor(240,100,100,100);
-		Colors[EGDC_EDITABLE] 			= video::SColor(255,255,255,255);
-		Colors[EGDC_GRAY_EDITABLE]		= video::SColor(255,120,120,120);
-		Colors[EGDC_FOCUSED_EDITABLE]	= video::SColor(255,240,240,255);
+	Colors[EGDC_3D_DARK_SHADOW]     = video::SColor(101,50,50,50);
+	Colors[EGDC_3D_SHADOW]          = video::SColor(101,130,130,130);
+	Colors[EGDC_3D_FACE]            = video::SColor(185,85,85,85);
+	Colors[EGDC_3D_HIGH_LIGHT]      = video::SColor(101,255,255,255);
+	Colors[EGDC_3D_LIGHT]           = video::SColor(101,210,210,210);
+	Colors[EGDC_ACTIVE_BORDER]      = video::SColor(101,16,14,115);
+	Colors[EGDC_ACTIVE_CAPTION]     = video::SColor(255,255,255,255);
+	Colors[EGDC_APP_WORKSPACE]      = video::SColor(101,100,100,100);
+	Colors[EGDC_BUTTON_TEXT]        = video::SColor(240,10,10,10);
+	Colors[EGDC_GRAY_TEXT]          = video::SColor(240,130,130,130);
+	Colors[EGDC_HIGH_LIGHT]         = video::SColor(101,8,36,107);
+	Colors[EGDC_HIGH_LIGHT_TEXT]    = video::SColor(240,255,255,255);
+	Colors[EGDC_INACTIVE_BORDER]    = video::SColor(101,165,165,165);
+	Colors[EGDC_INACTIVE_CAPTION]   = video::SColor(255,30,30,30);
+	Colors[EGDC_TOOLTIP]            = video::SColor(200,0,0,0);
+	Colors[EGDC_TOOLTIP_BACKGROUND] = video::SColor(200,255,255,225);
+	Colors[EGDC_SCROLLBAR]          = video::SColor(101,230,230,230);
+	Colors[EGDC_WINDOW]             = video::SColor(101,255,255,255);
+	Colors[EGDC_WINDOW_SYMBOL]      = video::SColor(200,10,10,10);
+	Colors[EGDC_ICON]               = video::SColor(200,255,255,255);
+	Colors[EGDC_ICON_HIGH_LIGHT]    = video::SColor(200,8,36,107);
+	Colors[EGDC_GRAY_WINDOW_SYMBOL] = video::SColor(240,100,100,100);
+	Colors[EGDC_EDITABLE] 			= video::SColor(255,255,255,255);
+	Colors[EGDC_GRAY_EDITABLE]		= video::SColor(255,120,120,120);
+	Colors[EGDC_FOCUSED_EDITABLE]	= video::SColor(255,240,240,255);
 
 
-		Sizes[EGDS_SCROLLBAR_SIZE] = 14;
-		Sizes[EGDS_MENU_HEIGHT] = 30;
-		Sizes[EGDS_WINDOW_BUTTON_WIDTH] = 15;
-		Sizes[EGDS_CHECK_BOX_WIDTH] = 18;
-		Sizes[EGDS_MESSAGE_BOX_WIDTH] = 500;
-		Sizes[EGDS_MESSAGE_BOX_HEIGHT] = 200;
-		Sizes[EGDS_BUTTON_WIDTH] = 80;
-		Sizes[EGDS_BUTTON_HEIGHT] = 30;
+	Sizes[EGDS_SCROLLBAR_SIZE] = 14;
+	Sizes[EGDS_MENU_HEIGHT] = 30;
+	Sizes[EGDS_WINDOW_BUTTON_WIDTH] = 15;
+	Sizes[EGDS_CHECK_BOX_WIDTH] = 18;
+	Sizes[EGDS_MESSAGE_BOX_WIDTH] = 500;
+	Sizes[EGDS_MESSAGE_BOX_HEIGHT] = 200;
+	Sizes[EGDS_BUTTON_WIDTH] = 80;
+	Sizes[EGDS_BUTTON_HEIGHT] = 30;
 
-		Sizes[EGDS_TEXT_DISTANCE_X] = 2;
-		Sizes[EGDS_TEXT_DISTANCE_Y] = 0;
+	Sizes[EGDS_TEXT_DISTANCE_X] = 2;
+	Sizes[EGDS_TEXT_DISTANCE_Y] = 0;
 
-		Sizes[EGDS_TITLEBARTEXT_DISTANCE_X] = 2;
-		Sizes[EGDS_TITLEBARTEXT_DISTANCE_Y] = 0;
-	}
-	else
-	{
-		//0x80a6a8af
-		Colors[EGDC_3D_DARK_SHADOW] 	=	0x60767982;
-		//Colors[EGDC_3D_FACE]			=	0xc0c9ccd4;		// tab background
-		Colors[EGDC_3D_FACE]			=	0xc0cbd2d9;		// tab background
-		Colors[EGDC_3D_SHADOW]			=	0x50e4e8f1;		// tab background, and left-top highlight
-		Colors[EGDC_3D_HIGH_LIGHT]		=	0x40c7ccdc;
-		Colors[EGDC_3D_LIGHT]			=	0x802e313a;
-		Colors[EGDC_ACTIVE_BORDER]		=	0x80404040;		// window title
-		Colors[EGDC_ACTIVE_CAPTION] 	=	0xffd0d0d0;
-		Colors[EGDC_APP_WORKSPACE]		=	0xc0646464;		// unused
-		Colors[EGDC_BUTTON_TEXT]		=	0xd0161616;
-		Colors[EGDC_GRAY_TEXT]			=	0x3c141414;
-		Colors[EGDC_HIGH_LIGHT]			=	0x6c606060;
-		Colors[EGDC_HIGH_LIGHT_TEXT]	=	0xd0e0e0e0;
-		Colors[EGDC_INACTIVE_BORDER]	=	0xf0a5a5a5;
-		Colors[EGDC_INACTIVE_CAPTION]	=	0xffd2d2d2;
-		Colors[EGDC_TOOLTIP]			=	0xf00f2033;
-		Colors[EGDC_TOOLTIP_BACKGROUND]	= 	0xc0cbd2d9;
-		Colors[EGDC_SCROLLBAR]			= 	0xf0e0e0e0;
-		Colors[EGDC_WINDOW]				= 	0xf0f0f0f0;
-		Colors[EGDC_WINDOW_SYMBOL]		= 	0xd0161616;
-		Colors[EGDC_ICON]				= 	0xd0161616;
-		Colors[EGDC_ICON_HIGH_LIGHT]	= 	0xd0606060;
-		Colors[EGDC_GRAY_WINDOW_SYMBOL] = 	0x3c101010;
-		Colors[EGDC_EDITABLE] 			= 	0xf0ffffff;
-		Colors[EGDC_GRAY_EDITABLE]		= 	0xf0cccccc;
-		Colors[EGDC_FOCUSED_EDITABLE]	= 	0xf0fffff0;
-
-		Sizes[EGDS_SCROLLBAR_SIZE] = 14;
-		Sizes[EGDS_MENU_HEIGHT] = 48;
-		Sizes[EGDS_WINDOW_BUTTON_WIDTH] = 15;
-		Sizes[EGDS_CHECK_BOX_WIDTH] = 18;
-		Sizes[EGDS_MESSAGE_BOX_WIDTH] = 500;
-		Sizes[EGDS_MESSAGE_BOX_HEIGHT] = 200;
-		Sizes[EGDS_BUTTON_WIDTH] = 80;
-		Sizes[EGDS_BUTTON_HEIGHT] = 30;
-
-		Sizes[EGDS_TEXT_DISTANCE_X] = 3;
-		Sizes[EGDS_TEXT_DISTANCE_Y] = 2;
-
-		Sizes[EGDS_TITLEBARTEXT_DISTANCE_X] = 3;
-		Sizes[EGDS_TITLEBARTEXT_DISTANCE_Y] = 2;
-	}
-
+	Sizes[EGDS_TITLEBARTEXT_DISTANCE_X] = 2;
+	Sizes[EGDS_TITLEBARTEXT_DISTANCE_Y] = 0;
 	Sizes[EGDS_MESSAGE_BOX_GAP_SPACE] = 15;
 	Sizes[EGDS_MESSAGE_BOX_MIN_TEXT_WIDTH] = 0;
 	Sizes[EGDS_MESSAGE_BOX_MAX_TEXT_WIDTH] = 500;
@@ -157,8 +107,6 @@ CGUISkin::CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver)
 
 	for (u32 i=0; i<EGDF_COUNT; ++i)
 		Fonts[i] = 0;
-
-	UseGradient = (Type == EGST_WINDOWS_METALLIC) || (Type == EGST_BURNING_SKIN) ;
 }
 
 
@@ -320,18 +268,6 @@ void CGUISkin::drawColored3DButtonPaneStandard(IGUIElement* element,
 
 	core::rect<s32> rect = r;
 
-	if ( Type == EGST_BURNING_SKIN )
-	{
-		rect.UpperLeftCorner.X -= 1;
-		rect.UpperLeftCorner.Y -= 1;
-		rect.LowerRightCorner.X += 1;
-		rect.LowerRightCorner.Y += 1;
-		draw3DSunkenPane(element,
-					colors[ EGDC_WINDOW ].getInterpolated( 0xFFFFFFFF, 0.9f )
-					,false, true, rect, clip);
-		return;
-	}
-
 	Driver->draw2DRectangle(colors[EGDC_3D_DARK_SHADOW], rect, clip);
 
 	rect.LowerRightCorner.X -= 1;
@@ -345,16 +281,7 @@ void CGUISkin::drawColored3DButtonPaneStandard(IGUIElement* element,
 	rect.LowerRightCorner.X -= 1;
 	rect.LowerRightCorner.Y -= 1;
 
-	if (!UseGradient)
-	{
-		Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
-	}
-	else
-	{
-		const video::SColor c1 = colors[EGDC_3D_FACE];
-		const video::SColor c2 = c1.getInterpolated(colors[EGDC_3D_DARK_SHADOW], 0.4f);
-		Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
-	}
+	Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
 }
 // END PATCH
 
@@ -394,16 +321,8 @@ void CGUISkin::drawColored3DButtonPanePressed(IGUIElement* element,
 	rect.UpperLeftCorner.X += 1;
 	rect.UpperLeftCorner.Y += 1;
 
-	if (!UseGradient)
-	{
-		Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
-	}
-	else
-	{
-		const video::SColor c1 = colors[EGDC_3D_FACE];
-		const video::SColor c2 = c1.getInterpolated(colors[EGDC_3D_DARK_SHADOW], 0.4f);
-		Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
-	}
+	Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
+
 }
 // END PATCH
 
@@ -597,23 +516,7 @@ core::rect<s32> CGUISkin::drawColored3DWindowBackground(IGUIElement* element,
 
 	if ( !checkClientArea )
 	{
-		if (!UseGradient)
-		{
-			Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
-		}
-		else if ( Type == EGST_BURNING_SKIN )
-		{
-			const video::SColor c1 = colors[EGDC_WINDOW].getInterpolated ( 0xFFFFFFFF, 0.9f );
-			const video::SColor c2 = colors[EGDC_WINDOW].getInterpolated ( 0xFFFFFFFF, 0.8f );
-
-			Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
-		}
-		else
-		{
-			const video::SColor c2 = colors[EGDC_3D_SHADOW];
-			const video::SColor c1 = colors[EGDC_3D_FACE];
-			Driver->draw2DRectangle(rect, c1, c1, c1, c2, clip);
-		}
+		Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
 	}
 
 	// title bar
@@ -632,19 +535,7 @@ core::rect<s32> CGUISkin::drawColored3DWindowBackground(IGUIElement* element,
 		else
 		{
 			// draw title bar
-			//if (!UseGradient)
-			//	Driver->draw2DRectangle(titleBarColor, rect, clip);
-			//else
-			if ( Type == EGST_BURNING_SKIN )
-			{
-				const video::SColor c = titleBarColor.getInterpolated( video::SColor(titleBarColor.getAlpha(),255,255,255), 0.8f);
-				Driver->draw2DRectangle(rect, titleBarColor, titleBarColor, c, c, clip);
-			}
-			else
-			{
-				const video::SColor c = titleBarColor.getInterpolated(video::SColor(titleBarColor.getAlpha(),0,0,0), 0.2f);
-				Driver->draw2DRectangle(rect, titleBarColor, c, titleBarColor, c, clip);
-			}
+			Driver->draw2DRectangle(titleBarColor, rect, clip);
 		}
 	}
 
@@ -674,13 +565,6 @@ void CGUISkin::drawColored3DMenuPane(IGUIElement* element,
 		colors = Colors;
 
 	core::rect<s32> rect = r;
-
-	if ( Type == EGST_BURNING_SKIN )
-	{
-		rect.UpperLeftCorner.Y -= 3;
-		draw3DButtonPaneStandard(element, rect, clip);
-		return;
-	}
 
 	// in this skin, this is exactly what non pressed buttons look like,
 	// so we could simply call
@@ -727,14 +611,7 @@ void CGUISkin::drawColored3DMenuPane(IGUIElement* element,
 	rect.LowerRightCorner.X -= 2;
 	rect.LowerRightCorner.Y -= 2;
 
-	if (!UseGradient)
-		Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
-	else
-	{
-		const video::SColor c1 = colors[EGDC_3D_FACE];
-		const video::SColor c2 = colors[EGDC_3D_SHADOW];
-		Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
-	}
+	Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
 }
 // END PATCH
 
@@ -769,25 +646,7 @@ void CGUISkin::drawColored3DToolBar(IGUIElement* element,
 	rect = r;
 	rect.LowerRightCorner.Y -= 1;
 
-	if (!UseGradient)
-	{
-		Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
-	}
-	else
-	if ( Type == EGST_BURNING_SKIN )
-	{
-		const video::SColor c1 = 0xF0000000 | colors[EGDC_3D_FACE].color;
-		const video::SColor c2 = 0xF0000000 | colors[EGDC_3D_SHADOW].color;
-
-		rect.LowerRightCorner.Y += 1;
-		Driver->draw2DRectangle(rect, c1, c2, c1, c2, clip);
-	}
-	else
-	{
-		const video::SColor c1 = colors[EGDC_3D_FACE];
-		const video::SColor c2 = colors[EGDC_3D_SHADOW];
-		Driver->draw2DRectangle(rect, c1, c1, c2, c2, clip);
-	}
+	Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
 }
 // END PATCH
 
@@ -961,14 +820,7 @@ void CGUISkin::drawColored3DTabBody(IGUIElement* element, bool border, bool back
 			//tr.UpperLeftCorner.X += 1;
 		}
 
-		if (!UseGradient)
-			Driver->draw2DRectangle(colors[EGDC_3D_FACE], tr, clip);
-		else
-		{
-			video::SColor c1 = colors[EGDC_3D_FACE];
-			video::SColor c2 = colors[EGDC_3D_SHADOW];
-			Driver->draw2DRectangle(tr, c1, c1, c2, c2, clip);
-		}
+		Driver->draw2DRectangle(colors[EGDC_3D_FACE], tr, clip);
 	}
 }
 // END PATCH
@@ -1002,12 +854,6 @@ void CGUISkin::drawColoredIcon(IGUIElement* element, EGUI_DEFAULT_ICON icon,
 			colors[gray? EGDC_GRAY_WINDOW_SYMBOL : EGDC_WINDOW_SYMBOL], starttime, currenttime, loop, true);
 }
 // END PATCH
-
-
-EGUI_SKIN_TYPE CGUISkin::getType() const
-{
-	return Type;
-}
 
 
 //! draws a 2d rectangle.

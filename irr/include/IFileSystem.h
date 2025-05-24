@@ -19,7 +19,6 @@ namespace io
 class IReadFile;
 class IWriteFile;
 class IFileList;
-class IAttributes;
 
 //! The FileSystem manages files and archives and provides access to them.
 /** It manages where files are, so that modules which use the the IO do not

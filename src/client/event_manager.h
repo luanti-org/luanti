@@ -33,7 +33,7 @@ public:
 
 	void put(MtEvent *e) override
 	{
-		std::map<MtEvent::Type, Dest>::iterator i = m_dest.find(e->getType());
+		auto i = m_dest.find(e->getType());
 		if (i != m_dest.end()) {
 			std::list<FuncSpec> &funcs = i->second.funcs;
 			for (FuncSpec &func : funcs) {
@@ -44,7 +44,7 @@ public:
 	}
 	void reg(MtEvent::Type type, event_receive_func f, void *data) override
 	{
-		std::map<MtEvent::Type, Dest>::iterator i = m_dest.find(type);
+		auto i = m_dest.find(type);
 		if (i != m_dest.end()) {
 			i->second.funcs.emplace_back(f, data);
 		} else {

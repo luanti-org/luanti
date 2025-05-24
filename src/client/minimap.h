@@ -4,18 +4,35 @@
 
 #pragma once
 
-#include "../hud.h"
-#include "irrlichttypes_extrabloated.h"
+#include "irrlichttypes.h"
 #include "irr_ptr.h"
+#include "rect.h"
+#include "SMeshBuffer.h"
+
+#include "../hud.h"
+#include "mapnode.h"
 #include "util/thread.h"
-#include "voxel.h"
 #include <map>
 #include <string>
 #include <vector>
 
+namespace irr {
+	namespace video {
+		class IVideoDriver;
+		class IImage;
+		class ITexture;
+	}
+
+	namespace scene {
+		class ISceneNode;
+	}
+}
+
 class Client;
+class NodeDefManager;
 class ITextureSource;
 class IShaderSource;
+class VoxelManipulator;
 
 #define MINIMAP_MAX_SX 512
 #define MINIMAP_MAX_SY 512

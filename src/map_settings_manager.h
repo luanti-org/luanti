@@ -37,7 +37,7 @@ public:
 
 	bool getMapSetting(const std::string &name, std::string *value_out) const;
 
-	bool getMapSettingNoiseParams(const std::string &name,
+	bool getNoiseParams(const std::string &name,
 		NoiseParams *value_out) const;
 
 	// Note: Map config becomes read-only after makeMapgenParams() gets called

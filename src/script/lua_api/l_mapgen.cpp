@@ -250,7 +250,7 @@ bool read_schematic_def(lua_State *L, int index,
 		u8 param2 = getintfield_default(L, -1, "param2", 0);
 
 		//// Find or add new nodename-to-ID mapping
-		std::unordered_map<std::string, content_t>::iterator it = name_id_map.find(name);
+		auto it = name_id_map.find(name);
 		content_t name_index;
 		if (it != name_id_map.end()) {
 			name_index = it->second;
@@ -428,7 +428,7 @@ size_t get_biome_list(lua_State *L, int index,
 	if (is_single) {
 		Biome *biome = get_or_load_biome(L, index, biomemgr);
 		if (!biome) {
-			infostream << "get_biome_list: failed to get biome '"
+			warningstream << "get_biome_list: failed to get biome '"
 				<< (lua_isstring(L, index) ? lua_tostring(L, index) : "")
 				<< "'." << std::endl;
 			return 1;
@@ -445,7 +445,7 @@ size_t get_biome_list(lua_State *L, int index,
 		Biome *biome = get_or_load_biome(L, -1, biomemgr);
 		if (!biome) {
 			fail_count++;
-			infostream << "get_biome_list: failed to get biome '"
+			warningstream << "get_biome_list: failed to get biome '"
 				<< (lua_isstring(L, -1) ? lua_tostring(L, -1) : "")
 				<< "'" << std::endl;
 			continue;
@@ -552,24 +552,33 @@ int ModApiMapgen::l_get_biome_data(lua_State *L)
 	if (!biomegen)
 		return 0;
 
-	const Biome *biome = biomegen->calcBiomeAtPoint(pos);
-	if (!biome || biome->index == OBJDEF_INVALID_INDEX)
-		return 0;
-
-	lua_newtable(L);
-
-	lua_pushinteger(L, biome->index);
-	lua_setfield(L, -2, "biome");
-
 	if (biomegen->getType() == BIOMEGEN_ORIGINAL) {
 		float heat = ((BiomeGenOriginal*) biomegen)->calcHeatAtPoint(pos);
 		float humidity = ((BiomeGenOriginal*) biomegen)->calcHumidityAtPoint(pos);
+		const Biome *biome = ((BiomeGenOriginal*) biomegen)->calcBiomeFromNoise(heat, humidity, pos);
+		if (!biome || biome->index == OBJDEF_INVALID_INDEX)
+			return 0;
+
+		lua_newtable(L);
+
+		lua_pushinteger(L, biome->index);
+		lua_setfield(L, -2, "biome");
 
 		lua_pushnumber(L, heat);
 		lua_setfield(L, -2, "heat");
 
 		lua_pushnumber(L, humidity);
 		lua_setfield(L, -2, "humidity");
+
+	} else {
+		const Biome *biome = biomegen->calcBiomeAtPoint(pos);
+		if (!biome || biome->index == OBJDEF_INVALID_INDEX)
+			return 0;
+
+		lua_newtable(L);
+
+		lua_pushinteger(L, biome->index);
+		lua_setfield(L, -2, "biome");
 	}
 
 	return 1;
@@ -892,7 +901,7 @@ int ModApiMapgen::l_get_mapgen_setting_noiseparams(lua_State *L)
 		getEmergeManager(L)->map_settings_mgr;
 
 	const char *name = luaL_checkstring(L, 1);
-	if (!settingsmgr->getMapSettingNoiseParams(name, &np))
+	if (!settingsmgr->getNoiseParams(name, &np))
 		return 0;
 
 	push_noiseparams(L, &np);

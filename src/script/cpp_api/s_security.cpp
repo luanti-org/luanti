@@ -659,6 +659,13 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 		}
 	}
 
+	// Allow read-only access to builtin
+	if (!write_required) {
+		str = fs::AbsolutePath(Server::getBuiltinLuaPath());
+		if (!str.empty() && fs::PathStartsWith(abs_path, str))
+			return true;
+	}
+
 	// Allow read-only access to game directory
 	if (!write_required) {
 		const SubgameSpec *game_spec = gamedef->getGameSpec();
@@ -773,7 +780,7 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 		std::string path = readParam<std::string>(L, 1);
 		const std::string *contents = script->getClient()->getModFile(path);
 		if (!contents) {
-			std::string error_msg = "Coudln't find script called: " + path;
+			std::string error_msg = "Couldn't find script called: " + path;
 			lua_pushnil(L);
 			lua_pushstring(L, error_msg.c_str());
 			return 2;

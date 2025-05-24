@@ -45,6 +45,15 @@
 #    type: bool
 # always_fly_fast = true
 
+#    If enabled, the "Sneak" key will toggle when pressed.
+#    This functionality is ignored when fly is enabled.
+#    type: bool
+# toggle_sneak_key = false
+
+#    If enabled, the "Aux1" key will toggle when pressed.
+#    type: bool
+# toggle_aux1_key = false
+
 #    The time in seconds it takes between repeated node placements when holding
 #    the place button.
 #    type: float min: 0.16 max: 2
@@ -83,6 +92,372 @@
 #    type: bool
 # invert_hotbar_mouse_wheel = false
 
+### Keybindings
+
+#    Key for moving the player forward.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_forward = SYSTEM_SCANCODE_26
+
+#    Key for moving the player backward.
+#    Will also disable autoforward, when active.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_backward = SYSTEM_SCANCODE_22
+
+#    Key for moving the player left.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_left = SYSTEM_SCANCODE_4
+
+#    Key for moving the player right.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_right = SYSTEM_SCANCODE_7
+
+#    Key for jumping.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_jump = SYSTEM_SCANCODE_44
+
+#    Key for sneaking.
+#    Also used for climbing down and descending in water if aux1_descends is disabled.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_sneak = SYSTEM_SCANCODE_225
+
+#    Key for digging, punching or using something.
+#    (Note: The actual meaning might vary on a per-game basis.)
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_dig = KEY_LBUTTON
+
+#    Key for placing an item/block or for using something.
+#    (Note: The actual meaning might vary on a per-game basis.)
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_place = KEY_RBUTTON
+
+#    Key for opening the inventory.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_inventory = SYSTEM_SCANCODE_12
+
+#    Key for moving fast in fast mode.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_aux1 = SYSTEM_SCANCODE_8
+
+#    Key for opening the chat window.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_chat = SYSTEM_SCANCODE_23
+
+#    Key for opening the chat window to type commands.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_cmd = SYSTEM_SCANCODE_56
+
+#    Key for opening the chat window to type local commands.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_cmd_local = SYSTEM_SCANCODE_55
+
+#    Key for toggling unlimited view range.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_rangeselect =
+
+#    Key for toggling flying.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_freemove = SYSTEM_SCANCODE_14
+
+#    Key for toggling pitch move mode.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_pitchmove =
+
+#    Key for toggling fast mode.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_fastmove = SYSTEM_SCANCODE_13
+
+#    Key for toggling noclip mode.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_noclip = SYSTEM_SCANCODE_11
+
+#    Key for selecting the next item in the hotbar.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_hotbar_next = SYSTEM_SCANCODE_17
+
+#    Key for selecting the previous item in the hotbar.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_hotbar_previous = SYSTEM_SCANCODE_5
+
+#    Key for muting the game.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_mute = SYSTEM_SCANCODE_16
+
+#    Key for increasing the volume.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_increase_volume =
+
+#    Key for decreasing the volume.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_decrease_volume =
+
+#    Key for toggling autoforward.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_autoforward =
+
+#    Key for toggling cinematic mode.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_cinematic =
+
+#    Key for toggling display of minimap.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_minimap = SYSTEM_SCANCODE_25
+
+#    Key for taking screenshots.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_screenshot = SYSTEM_SCANCODE_69
+
+#    Key for toggling fullscreen mode.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_fullscreen = SYSTEM_SCANCODE_68
+
+#    Key for dropping the currently selected item.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_drop = SYSTEM_SCANCODE_20
+
+#    Key to use view zoom when possible.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_zoom = SYSTEM_SCANCODE_29
+
+#    Key for toggling the display of the HUD.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_toggle_hud = SYSTEM_SCANCODE_58
+
+#    Key for toggling the display of chat.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_toggle_chat = SYSTEM_SCANCODE_59
+
+#    Key for toggling the display of the large chat console.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_console = SYSTEM_SCANCODE_67
+
+#    Key for toggling the display of fog.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_toggle_fog = SYSTEM_SCANCODE_60
+
+#    Key for toggling the display of debug info.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_toggle_debug = SYSTEM_SCANCODE_62
+
+#    Key for toggling the display of the profiler. Used for development.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_toggle_profiler = SYSTEM_SCANCODE_63
+
+#    Key for toggling the display of mapblock boundaries.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_toggle_block_bounds =
+
+#    Key for switching between first- and third-person camera.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_camera_mode = SYSTEM_SCANCODE_6
+
+#    Key for increasing the viewing range.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_increase_viewing_range_min = SYSTEM_SCANCODE_46
+
+#    Key for decreasing the viewing range.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_decrease_viewing_range_min = SYSTEM_SCANCODE_45
+
+#    Key for selecting the first hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot1 = SYSTEM_SCANCODE_30
+
+#    Key for selecting the second hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot2 = SYSTEM_SCANCODE_31
+
+#    Key for selecting the third hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot3 = SYSTEM_SCANCODE_32
+
+#    Key for selecting the fourth hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot4 = SYSTEM_SCANCODE_33
+
+#    Key for selecting the fifth hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot5 = SYSTEM_SCANCODE_34
+
+#    Key for selecting the sixth hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot6 = SYSTEM_SCANCODE_35
+
+#    Key for selecting the seventh hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot7 = SYSTEM_SCANCODE_36
+
+#    Key for selecting the eighth hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot8 = SYSTEM_SCANCODE_37
+
+#    Key for selecting the ninth hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot9 = SYSTEM_SCANCODE_38
+
+#    Key for selecting the tenth hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot10 = SYSTEM_SCANCODE_39
+
+#    Key for selecting the 11th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot11 =
+
+#    Key for selecting the 12th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot12 =
+
+#    Key for selecting the 13th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot13 =
+
+#    Key for selecting the 14th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot14 =
+
+#    Key for selecting the 15th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot15 =
+
+#    Key for selecting the 16th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot16 =
+
+#    Key for selecting the 17th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot17 =
+
+#    Key for selecting the 18th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot18 =
+
+#    Key for selecting the 19th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot19 =
+
+#    Key for selecting the 20th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot20 =
+
+#    Key for selecting the 21st hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot21 =
+
+#    Key for selecting the 22nd hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot22 =
+
+#    Key for selecting the 23rd hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot23 =
+
+#    Key for selecting the 24th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot24 =
+
+#    Key for selecting the 25th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot25 =
+
+#    Key for selecting the 26th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot26 =
+
+#    Key for selecting the 27th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot27 =
+
+#    Key for selecting the 28th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot28 =
+
+#    Key for selecting the 29th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot29 =
+
+#    Key for selecting the 30th hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot30 =
+
+#    Key for selecting the 31st hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot31 =
+
+#    Key for selecting the 32nd hotbar slot.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_slot32 =
+
 ## Touchscreen
 
 #    Enables the touchscreen controls, allowing you to play the game with a touchscreen.
@@ -90,6 +465,34 @@
 #    automatically depending on the last used input method.
 #    type: enum values: auto, true, false
 # touch_controls = auto
+
+#    The kind of digging/placing controls used.
+#
+#    * Tap
+#    Long/short tap anywhere on the screen to interact.
+#    Interaction happens at finger position.
+#
+#    * Tap with crosshair
+#    Long/short tap anywhere on the screen to interact.
+#    Interaction happens at crosshair position.
+#
+#    * Buttons with crosshair
+#    Use dedicated dig/place buttons to interact.
+#    Interaction happens at crosshair position.
+#    type: enum values: tap, tap_crosshair, buttons_crosshair
+# touch_interaction_style = tap
+
+#    The gesture for punching players/entities.
+#    This can be overridden by games and mods.
+#
+#    * Short tap
+#    Easy to use and well-known from other games that shall not be named.
+#
+#    * Long tap
+#    Known from the classic Luanti mobile controls.
+#    Combat is more or less impossible.
+#    type: enum values: short_tap, long_tap
+# touch_punch_gesture = short_tap
 
 #    Touchscreen sensitivity multiplier.
 #    type: float min: 0.001 max: 10
@@ -103,11 +506,6 @@
 #    type: int min: 100 max: 1000
 # touch_long_tap_delay = 400
 
-#    Use crosshair to select object instead of whole screen.
-#    If enabled, a crosshair will be shown and will be used for selecting object.
-#    type: bool
-# touch_use_crosshair = false
-
 #    Fixes the position of virtual joystick.
 #    If disabled, virtual joystick will center to first-touch's position.
 #    type: bool
@@ -117,18 +515,6 @@
 #    If enabled, virtual joystick will also tap "Aux1" button when out of main circle.
 #    type: bool
 # virtual_joystick_triggers_aux1 = false
-
-#    The gesture for punching players/entities.
-#    This can be overridden by games and mods.
-#
-#    * short_tap
-#    Easy to use and well-known from other games that shall not be named.
-#
-#    * long_tap
-#    Known from the classic Luanti mobile controls.
-#    Combat is more or less impossible.
-#    type: enum values: short_tap, long_tap
-# touch_punch_gesture = short_tap
 
 #
 # Graphics and Audio
@@ -177,9 +563,9 @@
 #    type: bool
 # vsync = false
 
-#    Maximum FPS when the window is not focused, or when the game is paused.
+#    Maximum FPS when the window is not focused.
 #    type: int min: 1 max: 4294967295
-# fps_max_unfocused = 20
+# fps_max_unfocused = 10
 
 #    View distance in nodes.
 #    type: int min: 20 max: 4000
@@ -189,6 +575,8 @@
 #    to the game world only, keeping the GUI intact.
 #    It should give a significant performance boost at the cost of less detailed image.
 #    Higher values result in a less detailed image.
+#    Note: Undersampling is currently not supported if the "3d_mode" setting is set
+#    to a non-default value.
 #    type: int min: 1 max: 8
 # undersampling = 1
 
@@ -202,7 +590,6 @@
 #    -    topbottom: split screen top/bottom.
 #    -    sidebyside: split screen side by side.
 #    -    crossview: Cross-eyed 3d
-#    Note that the interlaced mode requires shaders to be enabled.
 #    type: enum values: none, anaglyph, interlaced, topbottom, sidebyside, crossview
 # 3d_mode = none
 
@@ -221,11 +608,6 @@
 #    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
 #    type: float min: 0 max: 7.9
 # view_bobbing_amount = 1.0
-
-#    Multiplier for fall bobbing.
-#    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
-#    type: float min: 0 max: 100
-# fall_bobbing_amount = 0.03
 
 ### Camera
 
@@ -310,11 +692,7 @@
 
 ### Clouds
 
-#    Clouds are a client-side effect.
-#    type: bool
-# enable_clouds = true
-
-#    Use 3D cloud look instead of flat.
+#    Allow clouds to look 3D instead of flat.
 #    type: bool
 # enable_3d_clouds = true
 
@@ -341,6 +719,7 @@
 # trilinear_filter = false
 
 #    Use anisotropic filtering when looking at textures from an angle.
+#    This provides a significant improvement when used together with mipmapping.
 #    type: bool
 # anisotropic_filter = false
 
@@ -349,16 +728,18 @@
 #    * None - No antialiasing (default)
 #
 #    * FSAA - Hardware-provided full-screen antialiasing
-#    (incompatible with Post Processing and Undersampling)
 #    A.K.A multi-sample antialiasing (MSAA)
 #    Smoothens out block edges but does not affect the insides of textures.
-#    A restart is required to change this option.
 #
-#    * FXAA - Fast approximate antialiasing (requires shaders)
+#    If Post Processing is disabled, changing FSAA requires a restart.
+#    Also, if Post Processing is disabled, FSAA will not work together with
+#    undersampling or a non-default "3d_mode" setting.
+#
+#    * FXAA - Fast approximate antialiasing
 #    Applies a post-processing filter to detect and smoothen high-contrast edges.
 #    Provides balance between speed and image quality.
 #
-#    * SSAA - Super-sampling antialiasing (requires shaders)
+#    * SSAA - Super-sampling antialiasing
 #    Renders higher-resolution image of the scene, then scales down to reduce
 #    the aliasing effects. This is the slowest and the most accurate method.
 #    type: enum values: none, fsaa, fxaa, ssaa
@@ -411,10 +792,6 @@
 #    at the expense of minor visual glitches that do not impact game playability.
 #    type: bool
 # performance_tradeoffs = false
-
-#    Adds particles when digging a node.
-#    type: bool
-# enable_particles = true
 
 ### Waving Nodes
 
@@ -474,28 +851,16 @@
 #    type: bool
 # shadow_map_texture_32bit = true
 
-#    Enable Poisson disk filtering.
-#    On true uses Poisson disk to make "soft shadows". Otherwise uses PCF filtering.
-#    type: bool
-# shadow_poisson_filter = true
-
 #    Define shadow filtering quality.
 #    This simulates the soft shadows effect by applying a PCF or Poisson disk
 #    but also uses more resources.
 #    type: enum values: 0, 1, 2
 # shadow_filters = 1
 
-#    Enable colored shadows.
-#    On true translucent nodes cast colored shadows. This is expensive.
+#    Enable colored shadows for transculent nodes.
+#    This is expensive.
 #    type: bool
 # shadow_map_color = false
-
-#    Spread a complete update of shadow map over given number of frames.
-#    Higher values might make shadows laggy, lower values
-#    will consume more resources.
-#    Minimum value: 1; maximum value: 16
-#    type: int min: 1 max: 16
-# shadow_update_frames = 8
 
 #    Set the soft shadow radius size.
 #    Lower values mean sharper shadows, bigger values mean softer shadows.
@@ -560,10 +925,6 @@
 #    type: bool
 # enable_translucent_foliage = false
 
-#    Apply specular shading to nodes.
-#    type: bool
-# enable_node_specular = false
-
 #    When enabled, liquid reflections are simulated.
 #    type: bool
 # enable_water_reflections = false
@@ -579,8 +940,7 @@
 #    type: float min: 0 max: 1
 # sound_volume_unfocused = 0.3
 
-#    Whether to mute sounds. You can unmute sounds at any time, unless the
-#    sound system is disabled (enable_sound=false).
+#    Whether to mute sounds. You can unmute sounds at any time.
 #    In-game, you can toggle the mute state with the mute key or by using the
 #    pause menu.
 #    type: bool
@@ -629,13 +989,6 @@
 #    to hardware (e.g. render-to-texture for nodes in inventory).
 #    type: bool
 # gui_scaling_filter = false
-
-#    When gui_scaling_filter_txr2img is true, copy those images
-#    from hardware to software for scaling.  When false, fall back
-#    to the old scaling method, for video drivers that don't
-#    properly support downloading textures back from hardware.
-#    type: bool
-# gui_scaling_filter_txr2img = true
 
 #    Delay showing tooltips, stated in milliseconds.
 #    type: int min: 0 max: 1.844674407371e+19
@@ -691,10 +1044,6 @@
 #    type: int min: 0 max: 255
 # console_alpha = 200
 
-#    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
-#    type: bool
-# clickable_chat_weblinks = true
-
 #    Optional override for chat weblink color.
 #    type: string
 # chat_weblink_color = #8888FF
@@ -708,7 +1057,7 @@
 
 #    The URL for the content repository
 #    type: string
-# contentdb_url = https://content.minetest.net
+# contentdb_url = https://content.luanti.org
 
 #    If enabled and you have ContentDB packages installed, Luanti may contact ContentDB to
 #    check for package updates when opening the mainmenu.
@@ -720,7 +1069,7 @@
 #    as defined by the Free Software Foundation.
 #    You can also specify content ratings.
 #    These flags are independent from Luanti versions,
-#    so see a full list at https://content.minetest.net/help/content_flags/
+#    so see a full list at https://content.luanti.org/help/content_flags/
 #    type: string
 # contentdb_flag_blacklist = nonfree, desktop_default
 
@@ -741,22 +1090,22 @@
 
 #    URL to the server list displayed in the Multiplayer Tab.
 #    type: string
-# serverlist_url = servers.minetest.net
+# serverlist_url = https://servers.luanti.org
 
-#    If enabled, account registration is separate from login in the UI.
-#    If disabled, new accounts will be registered automatically when logging in.
+#    If enabled, server account registration is separate from login in the UI.
+#    If disabled, connecting to a server will automatically register a new account.
 #    type: bool
 # enable_split_login_register = true
 
 #    URL to JSON file which provides information about the newest Luanti release.
 #    If this is empty the engine will never check for updates.
 #    type: string
-# update_information_url = https://www.minetest.net/release_info.json
+# update_information_url = https://www.luanti.org/release_info.json
 
 ## Server
 
 #    Name of the player.
-#    When running a server, clients connecting with this name are admins.
+#    When running a server, a client connecting with this name is admin.
 #    When starting from the main menu, this is overridden.
 #    type: string
 # name =
@@ -773,11 +1122,11 @@
 
 #    Domain name of server, to be displayed in the serverlist.
 #    type: string
-# server_address = game.minetest.net
+# server_address = game.example.net
 
 #    Homepage of server, to be displayed in the serverlist.
 #    type: string
-# server_url = https://minetest.net
+# server_url = https://game.example.net
 
 #    Automatically report to the serverlist.
 #    type: bool
@@ -789,7 +1138,7 @@
 
 #    Announce to this serverlist.
 #    type: string
-# serverlist_url = servers.minetest.net
+# serverlist_url = https://servers.luanti.org
 
 #    Message of the day displayed to players connecting.
 #    type: string
@@ -836,11 +1185,11 @@
 #    type: string
 # remote_media =
 
-#    Enable/disable running an IPv6 server.
+#    Enable IPv6 support for server.
+#    Note that clients will be able to connect with both IPv4 and IPv6.
 #    Ignored if bind_address is set.
-#    Needs enable_ipv6 to be enabled.
 #    type: bool
-# ipv6_server = false
+# ipv6_server = true
 
 ## Server Security
 
@@ -2725,21 +3074,11 @@
 
 ## Advanced
 
-#    Enable IPv6 support (for both client and server).
-#    Required for IPv6 connections to work at all.
-#    type: bool
-# enable_ipv6 = true
-
-#    If enabled, invalid world data won't cause the server to shut down.
-#    Only enable this if you know what you are doing.
-#    type: bool
-# ignore_world_load_errors = false
-
 ### Graphics
 
-#    Shaders are a fundamental part of rendering and enable advanced visual effects.
+#    Enables debug and error-checking in the OpenGL driver.
 #    type: bool
-# enable_shaders = true
+# opengl_debug = false
 
 #    Path to shader directory. If no path is defined, default location will be used.
 #    type: path
@@ -2757,19 +3096,16 @@
 #    type: int min: 0 max: 128
 # transparency_sorting_distance = 16
 
+#    Draw transparency sorted triangles grouped by their mesh buffers.
+#    This breaks transparency sorting between mesh buffers, but avoids situations
+#    where transparency sorting would be very slow otherwise.
+#    type: bool
+# transparency_sorting_group_by_buffers = true
+
 #    Radius of cloud area stated in number of 64 node cloud squares.
 #    Values larger than 26 will start to produce sharp cutoffs at cloud area corners.
-#    type: int min: 1 max: 62
+#    type: int min: 8 max: 62
 # cloud_radius = 12
-
-#    Whether node texture animations should be desynchronized per mapblock.
-#    type: bool
-# desynchronize_mapblock_texture_animation = false
-
-#    Enables caching of facedir rotated meshes.
-#    This is only effective with shaders disabled.
-#    type: bool
-# enable_mesh_cache = false
 
 #    Delay between mesh updates on the client in ms. Increasing this will slow
 #    down the rate of mesh updates, thus reducing jitter on slower clients.
@@ -2780,6 +3116,11 @@
 #    Value of 0 (default) will let Luanti autodetect the number of available threads.
 #    type: int min: 0 max: 8
 # mesh_generation_threads = 0
+
+#    All mesh buffers with less than this number of vertices will be merged
+#    during map rendering. This improves rendering performance.
+#    type: int min: 0 max: 1000
+# mesh_buffer_min_vertices = 300
 
 #    True = 256
 #    False = 128
@@ -2799,22 +3140,21 @@
 #    World-aligned textures may be scaled to span several nodes. However,
 #    the server may not send the scale you want, especially if you use
 #    a specially-designed texture pack; with this option, the client tries
-#    to determine the scale automatically basing on the texture size.
+#    to determine the scale automatically based on the texture size.
 #    See also texture_min_size.
 #    Warning: This option is EXPERIMENTAL!
 #    type: enum values: disable, enable, force
 # autoscale_mode = disable
 
-#    When using bilinear/trilinear/anisotropic filters, low-resolution textures
-#    can be blurred, so automatically upscale them with nearest-neighbor
-#    interpolation to preserve crisp pixels. This sets the minimum texture size
-#    for the upscaled textures; higher values look sharper, but require more
-#    memory. Powers of 2 are recommended. This setting is ONLY applied if
-#    bilinear/trilinear/anisotropic filtering is enabled.
+#    When using bilinear/trilinear filtering, low-resolution textures
+#    can be blurred, so this option automatically upscales them to preserve
+#    crisp pixels. This defines the minimum texture size for the upscaled textures;
+#    higher values look sharper, but require more memory.
+#    This setting is ONLY applied if any of the mentioned filters are enabled.
 #    This is also used as the base node texture size for world-aligned
 #    texture autoscaling.
-#    type: int min: 1 max: 32768
-# texture_min_size = 64
+#    type: int min: 192 max: 16384
+# texture_min_size = 192
 
 #    Side length of a cube of map blocks that the client will consider together
 #    when generating meshes.
@@ -2824,9 +3164,22 @@
 #    type: int min: 1 max: 16
 # client_mesh_chunk = 1
 
-#    Enables debug and error-checking in the OpenGL driver.
+#    Decide the color depth of the texture used for the post-processing pipeline.
+#    Reducing this can improve performance, but some effects (e.g. debanding)
+#    require more than 8 bits to work.
+#    type: enum values: 8, 10, 16
+# post_processing_texture_bits = 16
+
+#    Enable Poisson disk filtering.
+#    On true uses Poisson disk to make "soft shadows". Otherwise uses PCF filtering.
 #    type: bool
-# opengl_debug = false
+# shadow_poisson_filter = true
+
+#    Spread a complete update of the shadow map over a given number of frames.
+#    Higher values might make shadows laggy, lower values
+#    will consume more resources.
+#    type: int min: 1 max: 32
+# shadow_update_frames = 16
 
 #    Set to true to render debugging breakdown of the bloom effect.
 #    In debug mode, the screen is split into 4 quadrants:
@@ -2944,14 +3297,20 @@
 
 ### Networking
 
+#    Enable IPv6 support (for both client and server).
+#    Required for IPv6 connections to work at all.
+#    type: bool
+# enable_ipv6 = true
+
 #    Prometheus listener address.
-#    If Luanti is compiled with ENABLE_PROMETHEUS option enabled,
-#    enable metrics listener for Prometheus on that address.
-#    Metrics can be fetched on http://127.0.0.1:30000/metrics
+#    If Luanti is compiled with Prometheus support, this setting
+#    enables the metrics listener for Prometheus on that address.
+#    By default you can fetch metrics from http://127.0.0.1:30000/metrics.
+#    An empty value disables the metrics listener.
 #    type: string
 # prometheus_listener_address = 127.0.0.1:30000
 
-#    Maximum size of the outgoing chat queue.
+#    Maximum size of the client's outgoing chat queue.
 #    0 to disable queueing and -1 to make the queue size unlimited.
 #    type: int min: -1 max: 32767
 # max_out_chat_queue_size = 20
@@ -2961,7 +3320,9 @@
 # client_unload_unused_data_timeout = 600.0
 
 #    Maximum number of mapblocks for client to be kept in memory.
-#    Set to -1 for unlimited amount.
+#    Note that there is an internal dynamic minimum number of blocks that
+#    won't be deleted, depending on the current view range.
+#    Set to -1 for no limit.
 #    type: int min: -1 max: 2147483647
 # client_mapblock_limit = 7500
 
@@ -3057,10 +3418,6 @@
 #    type: int min: -1
 # max_forceloaded_blocks = 16
 
-#    Interval of sending time of day to clients, stated in seconds.
-#    type: float min: 0.001
-# time_send_interval = 5.0
-
 #    Interval of saving important changes in the world, stated in seconds.
 #    type: float min: 0.001
 # server_map_save_interval = 5.3
@@ -3071,7 +3428,7 @@
 # server_unload_unused_data_timeout = 29
 
 #    Maximum number of statically stored objects in a block.
-#    type: int min: 1 max: 65535
+#    type: int min: 256 max: 65535
 # max_objects_per_block = 256
 
 #    Length of time between active block management cycles, stated in seconds.
@@ -3079,7 +3436,7 @@
 # active_block_mgmt_interval = 2.0
 
 #    Length of time between Active Block Modifier (ABM) execution cycles, stated in seconds.
-#    type: float min: 0
+#    type: float min: 0.1 max: 30
 # abm_interval = 1.0
 
 #    The time budget allowed for ABMs to execute on each step
@@ -3088,7 +3445,7 @@
 # abm_time_budget = 0.2
 
 #    Length of time between NodeTimer execution cycles, stated in seconds.
-#    type: float min: 0
+#    type: float min: 0.1 max: 1
 # nodetimer_interval = 0.2
 
 #    Max liquids processed per step.
@@ -3190,7 +3547,43 @@
 #    type: int min: 5000 max: 2147483647
 # curl_file_download_timeout = 300000
 
+### Client Debugging
+
+#    Key for toggling the camera update. Only usable with 'debug' privilege.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_toggle_update_camera =
+
+#    Key for switching to the previous entry in Quicktune.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_quicktune_prev =
+
+#    Key for switching to the next entry in Quicktune.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_quicktune_next =
+
+#    Key for decrementing the selected value in Quicktune.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_quicktune_dec =
+
+#    Key for incrementing the selected value in Quicktune.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_quicktune_inc =
+
 ### Miscellaneous
+
+#    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
+#    type: bool
+# clickable_chat_weblinks = true
+
+#    If enabled, invalid world data won't cause the server to shut down.
+#    Only enable this if you know what you are doing.
+#    type: bool
+# ignore_world_load_errors = false
 
 #    Adjust the detected display density, used for scaling UI elements.
 #    type: float min: 0.5 max: 5
@@ -3337,380 +3730,4 @@
 #    Controlled by a checkbox in the settings menu.
 #    type: bool
 # show_advanced = false
-
-#    Enables the sound system.
-#    If disabled, this completely disables all sounds everywhere and the in-game
-#    sound controls will be non-functional.
-#    Changing this setting requires a restart.
-#    type: bool
-# enable_sound = true
-
-#    Key for moving the player forward.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_forward = KEY_KEY_W
-
-#    Key for moving the player backward.
-#    Will also disable autoforward, when active.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_backward = KEY_KEY_S
-
-#    Key for moving the player left.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_left = KEY_KEY_A
-
-#    Key for moving the player right.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_right = KEY_KEY_D
-
-#    Key for jumping.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_jump = KEY_SPACE
-
-#    Key for sneaking.
-#    Also used for climbing down and descending in water if aux1_descends is disabled.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_sneak = KEY_LSHIFT
-
-#    Key for digging, punching or using something.
-#    (Note: The actual meaning might vary on a per-game basis.)
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_dig = KEY_LBUTTON
-
-#    Key for placing an item/block or for using something.
-#    (Note: The actual meaning might vary on a per-game basis.)
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_place = KEY_RBUTTON
-
-#    Key for opening the inventory.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_inventory = KEY_KEY_I
-
-#    Key for moving fast in fast mode.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_aux1 = KEY_KEY_E
-
-#    Key for opening the chat window.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_chat = KEY_KEY_T
-
-#    Key for opening the chat window to type commands.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_cmd = /
-
-#    Key for opening the chat window to type local commands.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_cmd_local = .
-
-#    Key for toggling unlimited view range.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_rangeselect =
-
-#    Key for toggling flying.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_freemove = KEY_KEY_K
-
-#    Key for toggling pitch move mode.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_pitchmove =
-
-#    Key for toggling fast mode.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_fastmove = KEY_KEY_J
-
-#    Key for toggling noclip mode.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_noclip = KEY_KEY_H
-
-#    Key for selecting the next item in the hotbar.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_hotbar_next = KEY_KEY_N
-
-#    Key for selecting the previous item in the hotbar.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_hotbar_previous = KEY_KEY_B
-
-#    Key for muting the game.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_mute = KEY_KEY_M
-
-#    Key for increasing the volume.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_increase_volume =
-
-#    Key for decreasing the volume.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_decrease_volume =
-
-#    Key for toggling autoforward.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_autoforward =
-
-#    Key for toggling cinematic mode.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_cinematic =
-
-#    Key for toggling display of minimap.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_minimap = KEY_KEY_V
-
-#    Key for taking screenshots.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_screenshot = KEY_F12
-
-#    Key for toggling fullscreen mode.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_fullscreen = KEY_F11
-
-#    Key for dropping the currently selected item.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_drop = KEY_KEY_Q
-
-#    Key to use view zoom when possible.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_zoom = KEY_KEY_Z
-
-#    Key for selecting the first hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot1 = KEY_KEY_1
-
-#    Key for selecting the second hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot2 = KEY_KEY_2
-
-#    Key for selecting the third hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot3 = KEY_KEY_3
-
-#    Key for selecting the fourth hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot4 = KEY_KEY_4
-
-#    Key for selecting the fifth hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot5 = KEY_KEY_5
-
-#    Key for selecting the sixth hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot6 = KEY_KEY_6
-
-#    Key for selecting the seventh hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot7 = KEY_KEY_7
-
-#    Key for selecting the eighth hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot8 = KEY_KEY_8
-
-#    Key for selecting the ninth hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot9 = KEY_KEY_9
-
-#    Key for selecting the tenth hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot10 = KEY_KEY_0
-
-#    Key for selecting the 11th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot11 =
-
-#    Key for selecting the 12th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot12 =
-
-#    Key for selecting the 13th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot13 =
-
-#    Key for selecting the 14th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot14 =
-
-#    Key for selecting the 15th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot15 =
-
-#    Key for selecting the 16th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot16 =
-
-#    Key for selecting the 17th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot17 =
-
-#    Key for selecting the 18th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot18 =
-
-#    Key for selecting the 19th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot19 =
-
-#    Key for selecting the 20th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot20 =
-
-#    Key for selecting the 21st hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot21 =
-
-#    Key for selecting the 22nd hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot22 =
-
-#    Key for selecting the 23rd hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot23 =
-
-#    Key for selecting the 24th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot24 =
-
-#    Key for selecting the 25th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot25 =
-
-#    Key for selecting the 26th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot26 =
-
-#    Key for selecting the 27th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot27 =
-
-#    Key for selecting the 28th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot28 =
-
-#    Key for selecting the 29th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot29 =
-
-#    Key for selecting the 30th hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot30 =
-
-#    Key for selecting the 31st hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot31 =
-
-#    Key for selecting the 32nd hotbar slot.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_slot32 =
-
-#    Key for toggling the display of the HUD.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_toggle_hud = KEY_F1
-
-#    Key for toggling the display of chat.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_toggle_chat = KEY_F2
-
-#    Key for toggling the display of the large chat console.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_console = KEY_F10
-
-#    Key for toggling the display of fog.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_toggle_fog = KEY_F3
-
-#    Key for toggling the camera update. Only usable with 'debug' privilege.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_toggle_update_camera =
-
-#    Key for toggling the display of debug info.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_toggle_debug = KEY_F5
-
-#    Key for toggling the display of the profiler. Used for development.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_toggle_profiler = KEY_F6
-
-#    Key for toggling the display of mapblock boundaries.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_toggle_block_bounds =
-
-#    Key for switching between first- and third-person camera.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_camera_mode = KEY_KEY_C
-
-#    Key for increasing the viewing range.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_increase_viewing_range_min = +
-
-#    Key for decreasing the viewing range.
-#    See https://github.com/minetest/irrlicht/blob/master/include/Keycodes.h
-#    type: key
-# keymap_decrease_viewing_range_min = -
 

@@ -44,7 +44,7 @@ void PlayerMetaRef::create(lua_State *L, ServerEnvironment *env, std::string_vie
 
 void PlayerMetaRef::Register(lua_State *L)
 {
-	registerMetadataClass(L, className, methods);
+	registerMetadataClass<PlayerMetaRef>(L, methods);
 }
 
 const char PlayerMetaRef::className[] = "PlayerMetaRef";

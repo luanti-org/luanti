@@ -16,16 +16,33 @@
 #include "irrString.h"
 #include "Keycodes.h"
 #include "COSOperator.h"
-#include <cstdio>
-#include <cstdlib>
 #include "SIrrCreationParameters.h"
 #include <SDL_video.h>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 #include <emscripten.h>
 #endif
 
 #include "CSDLManager.h"
+
+// Since SDL doesn't have mouse keys as keycodes we need to fall back to EKEY_CODE in some cases.
+static inline bool is_fake_key(irr::EKEY_CODE key) {
+	switch (key) {
+	case irr::KEY_LBUTTON:
+	case irr::KEY_MBUTTON:
+	case irr::KEY_RBUTTON:
+	case irr::KEY_XBUTTON1:
+	case irr::KEY_XBUTTON2:
+		return true;
+
+	default:
+		return false;
+	}
+}
 
 static int SDLDeviceInstances = 0;
 
@@ -220,6 +237,35 @@ int CIrrDeviceSDL::findCharToPassToIrrlicht(uint32_t sdlKey, EKEY_CODE irrlichtK
 	}
 }
 
+std::variant<u32, EKEY_CODE> CIrrDeviceSDL::getScancodeFromKey(const Keycode &key) const
+{
+	u32 keynum = 0;
+	if (const auto *keycode = std::get_if<EKEY_CODE>(&key)) {
+		// Fake keys (e.g. mouse buttons): use EKEY_CODE since there is no corresponding scancode.
+		if (is_fake_key(*keycode))
+			return *keycode;
+		// Try to convert the EKEY_CODE to a SDL scancode.
+		for (const auto &entry: KeyMap) {
+			if (entry.second == *keycode) {
+				keynum = entry.first;
+				break;
+			}
+		}
+	} else {
+		keynum = std::get<wchar_t>(key);
+	}
+	return (u32)SDL_GetScancodeFromKey(keynum);
+}
+
+Keycode CIrrDeviceSDL::getKeyFromScancode(const u32 scancode) const
+{
+	auto keycode = SDL_GetKeyFromScancode((SDL_Scancode)scancode);
+	const auto &keyentry = KeyMap.find(keycode);
+	auto irrcode = keyentry != KeyMap.end() ? keyentry->second : KEY_UNKNOWN;
+	auto keychar = findCharToPassToIrrlicht(keycode, irrcode, false);
+	return Keycode(irrcode, keychar);
+}
+
 void CIrrDeviceSDL::resetReceiveTextInputEvents()
 {
 	gui::IGUIElement *elem = GUIEnvironment->getFocus();
@@ -256,7 +302,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 	if (++SDLDeviceInstances == 1) {
 #ifdef __ANDROID__
 		// Blocking on pause causes problems with multiplayer.
-		// See https://github.com/minetest/minetest/issues/10842.
+		// see <https://github.com/luanti-org/luanti/issues/10842>
 		SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "0");
 		SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE_PAUSEAUDIO, "0");
 
@@ -270,7 +316,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
 
 		// Disabling the compositor is not a good idea in windowed mode.
-		// See https://github.com/minetest/minetest/issues/14596
+		// see <https://github.com/luanti-org/luanti/issues/14596>
 		SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
 
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
@@ -308,8 +354,6 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		if (SDL_Init(flags) < 0) {
 			os::Printer::log("Unable to initialize SDL", SDL_GetError(), ELL_ERROR);
 			Close = true;
-		} else {
-			os::Printer::log("SDL initialized", ELL_INFORMATION);
 		}
 	}
 
@@ -324,21 +368,27 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		}
 	}
 
-	SDL_VERSION(&Info.version);
+	core::stringc sdlver = "SDL ";
+	{
+		SDL_version v{};
+		SDL_GetVersion(&v);
+		sdlver += v.major;
+		sdlver += ".";
+		sdlver += v.minor;
+		sdlver += ".";
+		sdlver += v.patch;
+		// the SDL team seems to intentionally number sdl2-compat this way:
+		// <https://github.com/libsdl-org/sdl2-compat/tags>
+		if (v.patch >= 50)
+			sdlver += " (compat)";
 
-#ifndef _IRR_EMSCRIPTEN_PLATFORM_
-	SDL_GetWindowWMInfo(Window, &Info);
-#endif //_IRR_EMSCRIPTEN_PLATFORM_
-	core::stringc sdlversion = "SDL Version ";
-	sdlversion += Info.version.major;
-	sdlversion += ".";
-	sdlversion += Info.version.minor;
-	sdlversion += ".";
-	sdlversion += Info.version.patch;
+		sdlver += " on ";
+		sdlver += SDL_GetPlatform();
+	}
 
-	Operator = new COSOperator(sdlversion);
+	Operator = new COSOperator(sdlver);
 	if (SDLDeviceInstances == 1) {
-		os::Printer::log(sdlversion.c_str(), ELL_INFORMATION);
+		os::Printer::log(sdlver.c_str(), ELL_INFORMATION);
 	}
 
 	// create cursor control
@@ -551,7 +601,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 		break;
 	default:
-		_IRR_DEBUG_BREAK_IF(1);
+		assert(false);
 	}
 
 	if (CreationParams.DriverDebug) {
@@ -706,6 +756,10 @@ bool CIrrDeviceSDL::run()
 			irrevent.MouseInput.X = MouseX;
 			irrevent.MouseInput.Y = MouseY;
 
+			// wheel y can be 0 if scrolling sideways
+			if (irrevent.MouseInput.Wheel == 0.0f)
+				break;
+
 			postEventFromUser(irrevent);
 			break;
 		}
@@ -714,12 +768,7 @@ bool CIrrDeviceSDL::run()
 			SDL_Keymod keymod = SDL_GetModState();
 
 			irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			irrevent.MouseInput.X = static_cast<s32>(SDL_event.button.x * ScaleX);
-			irrevent.MouseInput.Y = static_cast<s32>(SDL_event.button.y * ScaleY);
-			irrevent.MouseInput.Shift = (keymod & KMOD_SHIFT) != 0;
-			irrevent.MouseInput.Control = (keymod & KMOD_CTRL) != 0;
-
-			irrevent.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
+			irrevent.MouseInput.Event = irr::EMIE_MOUSE_MOVED; // value to be ignored
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 			// Handle mouselocking in emscripten in Windowed mode.
@@ -782,11 +831,29 @@ bool CIrrDeviceSDL::run()
 					MouseButtonStates &= ~irr::EMBSM_MIDDLE;
 				}
 				break;
+
+			// Since Irrlicht does not have event types for X1/X2 buttons, we simply pass
+			// those as keycodes instead. This is relatively hacky but avoids the effort of
+			// adding more mouse events that will be discarded anyway once we switch to SDL
+			case SDL_BUTTON_X1:
+				irrevent.EventType = irr::EET_KEY_INPUT_EVENT;
+				irrevent.KeyInput.Key = irr::KEY_XBUTTON1;
+				break;
+
+			case SDL_BUTTON_X2:
+				irrevent.EventType = irr::EET_KEY_INPUT_EVENT;
+				irrevent.KeyInput.Key = irr::KEY_XBUTTON2;
+				break;
 			}
 
-			irrevent.MouseInput.ButtonStates = MouseButtonStates;
-
-			if (irrevent.MouseInput.Event != irr::EMIE_MOUSE_MOVED) {
+			bool shift = (keymod & KMOD_SHIFT) != 0;
+			bool control = (keymod & KMOD_CTRL) != 0;
+			if (irrevent.EventType == irr::EET_MOUSE_INPUT_EVENT && irrevent.MouseInput.Event != irr::EMIE_MOUSE_MOVED) {
+				irrevent.MouseInput.ButtonStates = MouseButtonStates;
+				irrevent.MouseInput.X = static_cast<s32>(SDL_event.button.x * ScaleX);
+				irrevent.MouseInput.Y = static_cast<s32>(SDL_event.button.y * ScaleY);
+				irrevent.MouseInput.Shift = shift;
+				irrevent.MouseInput.Control = control;
 				postEventFromUser(irrevent);
 
 				if (irrevent.MouseInput.Event >= EMIE_LMOUSE_PRESSED_DOWN && irrevent.MouseInput.Event <= EMIE_MMOUSE_PRESSED_DOWN) {
@@ -799,6 +866,12 @@ bool CIrrDeviceSDL::run()
 						postEventFromUser(irrevent);
 					}
 				}
+			} else if (irrevent.EventType == irr::EET_KEY_INPUT_EVENT) {
+				irrevent.KeyInput.Char = 0;
+				irrevent.KeyInput.PressedDown = SDL_event.type == SDL_MOUSEBUTTONDOWN;
+				irrevent.KeyInput.Shift = shift;
+				irrevent.KeyInput.Control = control;
+				postEventFromUser(irrevent);
 			}
 			break;
 		}
@@ -814,18 +887,20 @@ bool CIrrDeviceSDL::run()
 
 		case SDL_KEYDOWN:
 		case SDL_KEYUP: {
-			SKeyMap mp;
-			mp.SDLKey = SDL_event.key.keysym.sym;
-			s32 idx = KeyMap.binary_search(mp);
+			auto keysym = SDL_event.key.keysym.sym;
+			auto scancode = SDL_event.key.keysym.scancode;
 
-			EKEY_CODE key;
-			if (idx == -1)
-				key = (EKEY_CODE)0;
-			else
-				key = (EKEY_CODE)KeyMap[idx].Win32Key;
+			// Treat AC_BACK as the Escape key
+			if (scancode == SDL_SCANCODE_AC_BACK) {
+				scancode = SDL_SCANCODE_ESCAPE;
+				keysym = SDLK_ESCAPE;
+			}
 
-			if (key == (EKEY_CODE)0)
-				os::Printer::log("keycode not mapped", core::stringc(mp.SDLKey), ELL_DEBUG);
+			const auto &entry = KeyMap.find(keysym);
+			auto key = entry == KeyMap.end() ? KEY_UNKNOWN : entry->second;
+
+			if (!Keycode::isValid(key))
+				os::Printer::log("keycode not mapped", core::stringc(keysym), ELL_DEBUG);
 
 			// Make sure to only input special characters if something is in focus, as SDL_TEXTINPUT handles normal unicode already
 			if (SDL_IsTextInputActive() && !keyIsKnownSpecial(key) && (SDL_event.key.keysym.mod & KMOD_CTRL) == 0)
@@ -836,8 +911,10 @@ bool CIrrDeviceSDL::run()
 			irrevent.KeyInput.PressedDown = (SDL_event.type == SDL_KEYDOWN);
 			irrevent.KeyInput.Shift = (SDL_event.key.keysym.mod & KMOD_SHIFT) != 0;
 			irrevent.KeyInput.Control = (SDL_event.key.keysym.mod & KMOD_CTRL) != 0;
-			irrevent.KeyInput.Char = findCharToPassToIrrlicht(mp.SDLKey, key,
+			irrevent.KeyInput.Char = findCharToPassToIrrlicht(keysym, key,
 					(SDL_event.key.keysym.mod & KMOD_NUM) != 0);
+			irrevent.KeyInput.SystemKeyCode = scancode;
+
 			postEventFromUser(irrevent);
 		} break;
 
@@ -1302,142 +1379,135 @@ void CIrrDeviceSDL::createKeyMap()
 	// the lookuptable, but I'll leave it like that until
 	// I find a better version.
 
-	KeyMap.reallocate(105);
-
 	// buttons missing
 
-	// Android back button = ESC
-	KeyMap.push_back(SKeyMap(SDLK_AC_BACK, KEY_ESCAPE));
-
-	KeyMap.push_back(SKeyMap(SDLK_BACKSPACE, KEY_BACK));
-	KeyMap.push_back(SKeyMap(SDLK_TAB, KEY_TAB));
-	KeyMap.push_back(SKeyMap(SDLK_CLEAR, KEY_CLEAR));
-	KeyMap.push_back(SKeyMap(SDLK_RETURN, KEY_RETURN));
+	KeyMap.emplace(SDLK_BACKSPACE, KEY_BACK);
+	KeyMap.emplace(SDLK_TAB, KEY_TAB);
+	KeyMap.emplace(SDLK_CLEAR, KEY_CLEAR);
+	KeyMap.emplace(SDLK_RETURN, KEY_RETURN);
 
 	// combined modifiers missing
 
-	KeyMap.push_back(SKeyMap(SDLK_PAUSE, KEY_PAUSE));
-	KeyMap.push_back(SKeyMap(SDLK_CAPSLOCK, KEY_CAPITAL));
+	KeyMap.emplace(SDLK_PAUSE, KEY_PAUSE);
+	KeyMap.emplace(SDLK_CAPSLOCK, KEY_CAPITAL);
 
 	// asian letter keys missing
 
-	KeyMap.push_back(SKeyMap(SDLK_ESCAPE, KEY_ESCAPE));
+	KeyMap.emplace(SDLK_ESCAPE, KEY_ESCAPE);
 
 	// asian letter keys missing
 
-	KeyMap.push_back(SKeyMap(SDLK_SPACE, KEY_SPACE));
-	KeyMap.push_back(SKeyMap(SDLK_PAGEUP, KEY_PRIOR));
-	KeyMap.push_back(SKeyMap(SDLK_PAGEDOWN, KEY_NEXT));
-	KeyMap.push_back(SKeyMap(SDLK_END, KEY_END));
-	KeyMap.push_back(SKeyMap(SDLK_HOME, KEY_HOME));
-	KeyMap.push_back(SKeyMap(SDLK_LEFT, KEY_LEFT));
-	KeyMap.push_back(SKeyMap(SDLK_UP, KEY_UP));
-	KeyMap.push_back(SKeyMap(SDLK_RIGHT, KEY_RIGHT));
-	KeyMap.push_back(SKeyMap(SDLK_DOWN, KEY_DOWN));
+	KeyMap.emplace(SDLK_SPACE, KEY_SPACE);
+	KeyMap.emplace(SDLK_PAGEUP, KEY_PRIOR);
+	KeyMap.emplace(SDLK_PAGEDOWN, KEY_NEXT);
+	KeyMap.emplace(SDLK_END, KEY_END);
+	KeyMap.emplace(SDLK_HOME, KEY_HOME);
+	KeyMap.emplace(SDLK_LEFT, KEY_LEFT);
+	KeyMap.emplace(SDLK_UP, KEY_UP);
+	KeyMap.emplace(SDLK_RIGHT, KEY_RIGHT);
+	KeyMap.emplace(SDLK_DOWN, KEY_DOWN);
 
 	// select missing
-	KeyMap.push_back(SKeyMap(SDLK_PRINTSCREEN, KEY_PRINT));
+	KeyMap.emplace(SDLK_PRINTSCREEN, KEY_PRINT);
 	// execute missing
-	KeyMap.push_back(SKeyMap(SDLK_PRINTSCREEN, KEY_SNAPSHOT));
+	KeyMap.emplace(SDLK_PRINTSCREEN, KEY_SNAPSHOT);
 
-	KeyMap.push_back(SKeyMap(SDLK_INSERT, KEY_INSERT));
-	KeyMap.push_back(SKeyMap(SDLK_DELETE, KEY_DELETE));
-	KeyMap.push_back(SKeyMap(SDLK_HELP, KEY_HELP));
+	KeyMap.emplace(SDLK_INSERT, KEY_INSERT);
+	KeyMap.emplace(SDLK_DELETE, KEY_DELETE);
+	KeyMap.emplace(SDLK_HELP, KEY_HELP);
 
-	KeyMap.push_back(SKeyMap(SDLK_0, KEY_KEY_0));
-	KeyMap.push_back(SKeyMap(SDLK_1, KEY_KEY_1));
-	KeyMap.push_back(SKeyMap(SDLK_2, KEY_KEY_2));
-	KeyMap.push_back(SKeyMap(SDLK_3, KEY_KEY_3));
-	KeyMap.push_back(SKeyMap(SDLK_4, KEY_KEY_4));
-	KeyMap.push_back(SKeyMap(SDLK_5, KEY_KEY_5));
-	KeyMap.push_back(SKeyMap(SDLK_6, KEY_KEY_6));
-	KeyMap.push_back(SKeyMap(SDLK_7, KEY_KEY_7));
-	KeyMap.push_back(SKeyMap(SDLK_8, KEY_KEY_8));
-	KeyMap.push_back(SKeyMap(SDLK_9, KEY_KEY_9));
+	KeyMap.emplace(SDLK_0, KEY_KEY_0);
+	KeyMap.emplace(SDLK_1, KEY_KEY_1);
+	KeyMap.emplace(SDLK_2, KEY_KEY_2);
+	KeyMap.emplace(SDLK_3, KEY_KEY_3);
+	KeyMap.emplace(SDLK_4, KEY_KEY_4);
+	KeyMap.emplace(SDLK_5, KEY_KEY_5);
+	KeyMap.emplace(SDLK_6, KEY_KEY_6);
+	KeyMap.emplace(SDLK_7, KEY_KEY_7);
+	KeyMap.emplace(SDLK_8, KEY_KEY_8);
+	KeyMap.emplace(SDLK_9, KEY_KEY_9);
 
-	KeyMap.push_back(SKeyMap(SDLK_a, KEY_KEY_A));
-	KeyMap.push_back(SKeyMap(SDLK_b, KEY_KEY_B));
-	KeyMap.push_back(SKeyMap(SDLK_c, KEY_KEY_C));
-	KeyMap.push_back(SKeyMap(SDLK_d, KEY_KEY_D));
-	KeyMap.push_back(SKeyMap(SDLK_e, KEY_KEY_E));
-	KeyMap.push_back(SKeyMap(SDLK_f, KEY_KEY_F));
-	KeyMap.push_back(SKeyMap(SDLK_g, KEY_KEY_G));
-	KeyMap.push_back(SKeyMap(SDLK_h, KEY_KEY_H));
-	KeyMap.push_back(SKeyMap(SDLK_i, KEY_KEY_I));
-	KeyMap.push_back(SKeyMap(SDLK_j, KEY_KEY_J));
-	KeyMap.push_back(SKeyMap(SDLK_k, KEY_KEY_K));
-	KeyMap.push_back(SKeyMap(SDLK_l, KEY_KEY_L));
-	KeyMap.push_back(SKeyMap(SDLK_m, KEY_KEY_M));
-	KeyMap.push_back(SKeyMap(SDLK_n, KEY_KEY_N));
-	KeyMap.push_back(SKeyMap(SDLK_o, KEY_KEY_O));
-	KeyMap.push_back(SKeyMap(SDLK_p, KEY_KEY_P));
-	KeyMap.push_back(SKeyMap(SDLK_q, KEY_KEY_Q));
-	KeyMap.push_back(SKeyMap(SDLK_r, KEY_KEY_R));
-	KeyMap.push_back(SKeyMap(SDLK_s, KEY_KEY_S));
-	KeyMap.push_back(SKeyMap(SDLK_t, KEY_KEY_T));
-	KeyMap.push_back(SKeyMap(SDLK_u, KEY_KEY_U));
-	KeyMap.push_back(SKeyMap(SDLK_v, KEY_KEY_V));
-	KeyMap.push_back(SKeyMap(SDLK_w, KEY_KEY_W));
-	KeyMap.push_back(SKeyMap(SDLK_x, KEY_KEY_X));
-	KeyMap.push_back(SKeyMap(SDLK_y, KEY_KEY_Y));
-	KeyMap.push_back(SKeyMap(SDLK_z, KEY_KEY_Z));
+	KeyMap.emplace(SDLK_a, KEY_KEY_A);
+	KeyMap.emplace(SDLK_b, KEY_KEY_B);
+	KeyMap.emplace(SDLK_c, KEY_KEY_C);
+	KeyMap.emplace(SDLK_d, KEY_KEY_D);
+	KeyMap.emplace(SDLK_e, KEY_KEY_E);
+	KeyMap.emplace(SDLK_f, KEY_KEY_F);
+	KeyMap.emplace(SDLK_g, KEY_KEY_G);
+	KeyMap.emplace(SDLK_h, KEY_KEY_H);
+	KeyMap.emplace(SDLK_i, KEY_KEY_I);
+	KeyMap.emplace(SDLK_j, KEY_KEY_J);
+	KeyMap.emplace(SDLK_k, KEY_KEY_K);
+	KeyMap.emplace(SDLK_l, KEY_KEY_L);
+	KeyMap.emplace(SDLK_m, KEY_KEY_M);
+	KeyMap.emplace(SDLK_n, KEY_KEY_N);
+	KeyMap.emplace(SDLK_o, KEY_KEY_O);
+	KeyMap.emplace(SDLK_p, KEY_KEY_P);
+	KeyMap.emplace(SDLK_q, KEY_KEY_Q);
+	KeyMap.emplace(SDLK_r, KEY_KEY_R);
+	KeyMap.emplace(SDLK_s, KEY_KEY_S);
+	KeyMap.emplace(SDLK_t, KEY_KEY_T);
+	KeyMap.emplace(SDLK_u, KEY_KEY_U);
+	KeyMap.emplace(SDLK_v, KEY_KEY_V);
+	KeyMap.emplace(SDLK_w, KEY_KEY_W);
+	KeyMap.emplace(SDLK_x, KEY_KEY_X);
+	KeyMap.emplace(SDLK_y, KEY_KEY_Y);
+	KeyMap.emplace(SDLK_z, KEY_KEY_Z);
 
-	KeyMap.push_back(SKeyMap(SDLK_LGUI, KEY_LWIN));
-	KeyMap.push_back(SKeyMap(SDLK_RGUI, KEY_RWIN));
+	KeyMap.emplace(SDLK_LGUI, KEY_LWIN);
+	KeyMap.emplace(SDLK_RGUI, KEY_RWIN);
 	// apps missing
-	KeyMap.push_back(SKeyMap(SDLK_POWER, KEY_SLEEP)); //??
+	KeyMap.emplace(SDLK_POWER, KEY_SLEEP); //??
 
-	KeyMap.push_back(SKeyMap(SDLK_KP_0, KEY_NUMPAD0));
-	KeyMap.push_back(SKeyMap(SDLK_KP_1, KEY_NUMPAD1));
-	KeyMap.push_back(SKeyMap(SDLK_KP_2, KEY_NUMPAD2));
-	KeyMap.push_back(SKeyMap(SDLK_KP_3, KEY_NUMPAD3));
-	KeyMap.push_back(SKeyMap(SDLK_KP_4, KEY_NUMPAD4));
-	KeyMap.push_back(SKeyMap(SDLK_KP_5, KEY_NUMPAD5));
-	KeyMap.push_back(SKeyMap(SDLK_KP_6, KEY_NUMPAD6));
-	KeyMap.push_back(SKeyMap(SDLK_KP_7, KEY_NUMPAD7));
-	KeyMap.push_back(SKeyMap(SDLK_KP_8, KEY_NUMPAD8));
-	KeyMap.push_back(SKeyMap(SDLK_KP_9, KEY_NUMPAD9));
-	KeyMap.push_back(SKeyMap(SDLK_KP_MULTIPLY, KEY_MULTIPLY));
-	KeyMap.push_back(SKeyMap(SDLK_KP_PLUS, KEY_ADD));
-	KeyMap.push_back(SKeyMap(SDLK_KP_ENTER, KEY_RETURN));
-	KeyMap.push_back(SKeyMap(SDLK_KP_MINUS, KEY_SUBTRACT));
-	KeyMap.push_back(SKeyMap(SDLK_KP_PERIOD, KEY_DECIMAL));
-	KeyMap.push_back(SKeyMap(SDLK_KP_DIVIDE, KEY_DIVIDE));
+	KeyMap.emplace(SDLK_KP_0, KEY_NUMPAD0);
+	KeyMap.emplace(SDLK_KP_1, KEY_NUMPAD1);
+	KeyMap.emplace(SDLK_KP_2, KEY_NUMPAD2);
+	KeyMap.emplace(SDLK_KP_3, KEY_NUMPAD3);
+	KeyMap.emplace(SDLK_KP_4, KEY_NUMPAD4);
+	KeyMap.emplace(SDLK_KP_5, KEY_NUMPAD5);
+	KeyMap.emplace(SDLK_KP_6, KEY_NUMPAD6);
+	KeyMap.emplace(SDLK_KP_7, KEY_NUMPAD7);
+	KeyMap.emplace(SDLK_KP_8, KEY_NUMPAD8);
+	KeyMap.emplace(SDLK_KP_9, KEY_NUMPAD9);
+	KeyMap.emplace(SDLK_KP_MULTIPLY, KEY_MULTIPLY);
+	KeyMap.emplace(SDLK_KP_PLUS, KEY_ADD);
+	KeyMap.emplace(SDLK_KP_ENTER, KEY_RETURN);
+	KeyMap.emplace(SDLK_KP_MINUS, KEY_SUBTRACT);
+	KeyMap.emplace(SDLK_KP_PERIOD, KEY_DECIMAL);
+	KeyMap.emplace(SDLK_KP_DIVIDE, KEY_DIVIDE);
 
-	KeyMap.push_back(SKeyMap(SDLK_F1, KEY_F1));
-	KeyMap.push_back(SKeyMap(SDLK_F2, KEY_F2));
-	KeyMap.push_back(SKeyMap(SDLK_F3, KEY_F3));
-	KeyMap.push_back(SKeyMap(SDLK_F4, KEY_F4));
-	KeyMap.push_back(SKeyMap(SDLK_F5, KEY_F5));
-	KeyMap.push_back(SKeyMap(SDLK_F6, KEY_F6));
-	KeyMap.push_back(SKeyMap(SDLK_F7, KEY_F7));
-	KeyMap.push_back(SKeyMap(SDLK_F8, KEY_F8));
-	KeyMap.push_back(SKeyMap(SDLK_F9, KEY_F9));
-	KeyMap.push_back(SKeyMap(SDLK_F10, KEY_F10));
-	KeyMap.push_back(SKeyMap(SDLK_F11, KEY_F11));
-	KeyMap.push_back(SKeyMap(SDLK_F12, KEY_F12));
-	KeyMap.push_back(SKeyMap(SDLK_F13, KEY_F13));
-	KeyMap.push_back(SKeyMap(SDLK_F14, KEY_F14));
-	KeyMap.push_back(SKeyMap(SDLK_F15, KEY_F15));
+	KeyMap.emplace(SDLK_F1, KEY_F1);
+	KeyMap.emplace(SDLK_F2, KEY_F2);
+	KeyMap.emplace(SDLK_F3, KEY_F3);
+	KeyMap.emplace(SDLK_F4, KEY_F4);
+	KeyMap.emplace(SDLK_F5, KEY_F5);
+	KeyMap.emplace(SDLK_F6, KEY_F6);
+	KeyMap.emplace(SDLK_F7, KEY_F7);
+	KeyMap.emplace(SDLK_F8, KEY_F8);
+	KeyMap.emplace(SDLK_F9, KEY_F9);
+	KeyMap.emplace(SDLK_F10, KEY_F10);
+	KeyMap.emplace(SDLK_F11, KEY_F11);
+	KeyMap.emplace(SDLK_F12, KEY_F12);
+	KeyMap.emplace(SDLK_F13, KEY_F13);
+	KeyMap.emplace(SDLK_F14, KEY_F14);
+	KeyMap.emplace(SDLK_F15, KEY_F15);
 	// no higher F-keys
 
-	KeyMap.push_back(SKeyMap(SDLK_NUMLOCKCLEAR, KEY_NUMLOCK));
-	KeyMap.push_back(SKeyMap(SDLK_SCROLLLOCK, KEY_SCROLL));
-	KeyMap.push_back(SKeyMap(SDLK_LSHIFT, KEY_LSHIFT));
-	KeyMap.push_back(SKeyMap(SDLK_RSHIFT, KEY_RSHIFT));
-	KeyMap.push_back(SKeyMap(SDLK_LCTRL, KEY_LCONTROL));
-	KeyMap.push_back(SKeyMap(SDLK_RCTRL, KEY_RCONTROL));
-	KeyMap.push_back(SKeyMap(SDLK_LALT, KEY_LMENU));
-	KeyMap.push_back(SKeyMap(SDLK_RALT, KEY_RMENU));
+	KeyMap.emplace(SDLK_NUMLOCKCLEAR, KEY_NUMLOCK);
+	KeyMap.emplace(SDLK_SCROLLLOCK, KEY_SCROLL);
+	KeyMap.emplace(SDLK_LSHIFT, KEY_LSHIFT);
+	KeyMap.emplace(SDLK_RSHIFT, KEY_RSHIFT);
+	KeyMap.emplace(SDLK_LCTRL, KEY_LCONTROL);
+	KeyMap.emplace(SDLK_RCTRL, KEY_RCONTROL);
+	KeyMap.emplace(SDLK_LALT, KEY_LMENU);
+	KeyMap.emplace(SDLK_RALT, KEY_RMENU);
 
-	KeyMap.push_back(SKeyMap(SDLK_PLUS, KEY_PLUS));
-	KeyMap.push_back(SKeyMap(SDLK_COMMA, KEY_COMMA));
-	KeyMap.push_back(SKeyMap(SDLK_MINUS, KEY_MINUS));
-	KeyMap.push_back(SKeyMap(SDLK_PERIOD, KEY_PERIOD));
+	KeyMap.emplace(SDLK_PLUS, KEY_PLUS);
+	KeyMap.emplace(SDLK_COMMA, KEY_COMMA);
+	KeyMap.emplace(SDLK_MINUS, KEY_MINUS);
+	KeyMap.emplace(SDLK_PERIOD, KEY_PERIOD);
 
 	// some special keys missing
-
-	KeyMap.sort();
 }
 
 void CIrrDeviceSDL::CCursorControl::initCursors()

@@ -139,16 +139,6 @@ std::string wide_to_utf8(std::wstring_view input)
 	return out;
 }
 
-void wide_add_codepoint(std::wstring &result, char32_t codepoint)
-{
-	if ((0xD800 <= codepoint && codepoint <= 0xDFFF) || (0x10FFFF < codepoint)) {
-		// Invalid codepoint, replace with unicode replacement character
-		result.push_back(0xFFFD);
-		return;
-	}
-	result.push_back(codepoint);
-}
-
 #else // _WIN32
 
 std::wstring utf8_to_wide(std::string_view input)
@@ -175,66 +165,61 @@ std::string wide_to_utf8(std::wstring_view input)
 	return out;
 }
 
+#endif // _WIN32
+
 void wide_add_codepoint(std::wstring &result, char32_t codepoint)
 {
-	if (codepoint < 0x10000) {
-		if (0xD800 <= codepoint && codepoint <= 0xDFFF) {
-			// Invalid codepoint, part of a surrogate pair
-			// Replace with unicode replacement character
-			result.push_back(0xFFFD);
-			return;
-		}
-		result.push_back((wchar_t) codepoint);
-		return;
-	}
-	codepoint -= 0x10000;
-	if (codepoint >= 0x100000) {
-		// original codepoint was above 0x10FFFF, so invalid
-		// replace with unicode replacement character
+	if ((0xD800 <= codepoint && codepoint <= 0xDFFF) || codepoint > 0x10FFFF) {
+		// Invalid codepoint, replace with unicode replacement character
 		result.push_back(0xFFFD);
 		return;
 	}
-	result.push_back((wchar_t) ((codepoint >> 10) | 0xD800));
-	result.push_back((wchar_t) ((codepoint & 0x3FF) | 0xDC00));
+	if constexpr (sizeof(wchar_t) == 2) { // Surrogate encoding needed?
+		if (codepoint > 0xffff) {
+			result.push_back((wchar_t) ((codepoint >> 10) | 0xD800));
+			result.push_back((wchar_t) ((codepoint & 0x3FF) | 0xDC00));
+			return;
+		}
+	}
+	result.push_back((wchar_t) codepoint);
 }
-
-#endif // _WIN32
-
 
 std::string urlencode(std::string_view str)
 {
 	// Encodes reserved URI characters by a percent sign
 	// followed by two hex digits. See RFC 3986, section 2.3.
 	static const char url_hex_chars[] = "0123456789ABCDEF";
-	std::ostringstream oss(std::ios::binary);
+	std::string ret;
+	ret.reserve(str.size());
 	for (unsigned char c : str) {
 		if (isalnum(c) || c == '-' || c == '.' || c == '_' || c == '~') {
-			oss << c;
+			ret.push_back(c);
 		} else {
-			oss << "%"
-				<< url_hex_chars[(c & 0xf0) >> 4]
-				<< url_hex_chars[c & 0x0f];
+			ret.push_back('%');
+			ret.push_back(url_hex_chars[(c & 0xf0) >> 4]);
+			ret.push_back(url_hex_chars[c & 0x0f]);
 		}
 	}
-	return oss.str();
+	return ret;
 }
 
 std::string urldecode(std::string_view str)
 {
 	// Inverse of urlencode
-	std::ostringstream oss(std::ios::binary);
+	std::string ret;
+	ret.reserve(str.size());
 	for (u32 i = 0; i < str.size(); i++) {
 		unsigned char highvalue, lowvalue;
-		if (str[i] == '%' &&
+		if (str[i] == '%' && i+2 < str.size() &&
 				hex_digit_decode(str[i+1], highvalue) &&
 				hex_digit_decode(str[i+2], lowvalue)) {
-			oss << (char) ((highvalue << 4) | lowvalue);
+			ret.push_back(static_cast<char>((highvalue << 4) | lowvalue));
 			i += 2;
 		} else {
-			oss << str[i];
+			ret.push_back(str[i]);
 		}
 	}
-	return oss.str();
+	return ret;
 }
 
 u32 readFlagString(std::string str, const FlagDesc *flagdesc, u32 *flagmask)
@@ -307,35 +292,9 @@ size_t mystrlcpy(char *dst, const char *src, size_t size) noexcept
 	return srclen;
 }
 
-char *mystrtok_r(char *s, const char *sep, char **lasts) noexcept
-{
-	char *t;
-
-	if (!s)
-		s = *lasts;
-
-	while (*s && strchr(sep, *s))
-		s++;
-
-	if (!*s)
-		return nullptr;
-
-	t = s;
-	while (*t) {
-		if (strchr(sep, *t)) {
-			*t++ = '\0';
-			break;
-		}
-		t++;
-	}
-
-	*lasts = t;
-	return s;
-}
-
 u64 read_seed(const char *str)
 {
-	char *endptr;
+	char *endptr = nullptr;
 	u64 num;
 
 	if (str[0] == '0' && str[1] == 'x')
@@ -344,7 +303,7 @@ u64 read_seed(const char *str)
 		num = strtoull(str, &endptr, 10);
 
 	if (*endptr)
-		num = murmur_hash_64_ua(str, (int)strlen(str), 0x1337);
+		num = murmur_hash_64_ua(str, strlen(str), 0x1337);
 
 	return num;
 }
@@ -1070,39 +1029,65 @@ void safe_print_string(std::ostream &os, std::string_view str)
 
 std::optional<v3f> str_to_v3f(std::string_view str)
 {
-    str = trim(str);
+	str = trim(str);
 
-    if (str.empty())
-        return std::nullopt;
+	if (str.empty())
+		return std::nullopt;
 
-    // Strip parentheses if they exist
-    if (str.front() == '(' && str.back() == ')') {
-        str.remove_prefix(1);
-        str.remove_suffix(1);
-        str = trim(str);
-    }
+	// Strip parentheses if they exist
+	if (str.front() == '(' && str.back() == ')') {
+		str.remove_prefix(1);
+		str.remove_suffix(1);
+		str = trim(str);
+	}
 
-    std::istringstream iss((std::string(str)));
+	std::istringstream iss((std::string(str)));
 
-    const auto expect_delimiter = [&]() {
-        const auto c = iss.get();
-        return c == ' ' || c == ',';
-    };
+	const auto expect_delimiter = [&]() {
+		const auto c = iss.get();
+		return c == ' ' || c == ',';
+	};
 
-    v3f value;
-    if (!(iss >> value.X))
-        return std::nullopt;
-    if (!expect_delimiter())
-        return std::nullopt;
-    if (!(iss >> value.Y))
-        return std::nullopt;
-    if (!expect_delimiter())
-        return std::nullopt;
-    if (!(iss >> value.Z))
-        return std::nullopt;
+	v3f value;
+	if (!(iss >> value.X))
+		return std::nullopt;
+	if (!expect_delimiter())
+		return std::nullopt;
+	if (!(iss >> value.Y))
+		return std::nullopt;
+	if (!expect_delimiter())
+		return std::nullopt;
+	if (!(iss >> value.Z))
+		return std::nullopt;
 
-    if (!iss.eof())
-        return std::nullopt;
+	if (!iss.eof())
+		return std::nullopt;
 
-    return value;
+	return value;
+}
+
+std::string my_double_to_string(double number)
+{
+	if (std::isfinite(number)) {
+		char buf[64];
+		snprintf(buf, sizeof(buf), "%.17g", number);
+		return buf;
+	}
+	if (number < 0)
+		return "-inf";
+	if (number > 0)
+		return "inf";
+	return "nan";
+}
+
+std::optional<double> my_string_to_double(const std::string &s)
+{
+	if (s.empty())
+		return std::nullopt;
+	char *end = nullptr;
+	// Note: this also supports hexadecimal notation like "0x1.0p+1"
+	double number = std::strtod(s.c_str(), &end);
+	if (end != &*s.end())
+		return std::nullopt;
+	return number;
 }

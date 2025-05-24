@@ -51,8 +51,8 @@ extern "C" {
 #endif
 
 #if defined(__MINGW32__) && !defined(__clang__)
-// see https://github.com/minetest/minetest/issues/14140 or
-// https://github.com/minetest/minetest/issues/10137 for one of the various issues we had
+// see <https://github.com/luanti-org/luanti/issues/14140> or
+// <https://github.com/luanti-org/luanti/issues/10137> for some of the issues we had
 #error ==================================
 #error MinGW gcc has a broken TLS implementation and is not supported for building \
 	Luanti. Look at testTLS() in test_threading.cpp and see for yourself. \
@@ -700,12 +700,18 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 	init_log_streams(cmd_args);
 
 	// Initialize random seed
-	{
-		u32 seed = static_cast<u32>(time(nullptr)) << 16;
-		seed |= porting::getTimeUs() & 0xffff;
-		srand(seed);
-		mysrand(seed);
+	u64 seed;
+	if (!porting::secure_rand_fill_buf(&seed, sizeof(seed))) {
+		verbosestream << "Secure randomness not available to seed global RNG." << std::endl;
+		std::ostringstream oss;
+		// some stuff that's hard to predict:
+		oss << time(nullptr) << porting::getTimeUs() << argc << g_settings_path;
+		print_version(oss);
+		std::string data = oss.str();
+		seed = murmur_hash_64_ua(data.c_str(), data.size(), 0xc0ffee);
 	}
+	srand(seed);
+	mysrand(seed);
 
 	// Initialize HTTP fetcher
 	httpfetch_init(g_settings->getS32("curl_parallel_limit"));
@@ -730,9 +736,8 @@ static void uninit_common()
 static void startup_message()
 {
 	print_version(infostream);
-	infostream << "SER_FMT_VER_HIGHEST_READ=" <<
-		TOSTRING(SER_FMT_VER_HIGHEST_READ) <<
-		" LATEST_PROTOCOL_VERSION=" << LATEST_PROTOCOL_VERSION
+	infostream << "SER_FMT_VER_HIGHEST_READ=" << (int)SER_FMT_VER_HIGHEST_READ
+		<< " LATEST_PROTOCOL_VERSION=" << (int)LATEST_PROTOCOL_VERSION
 		<< std::endl;
 }
 
@@ -772,10 +777,13 @@ static bool read_config_file(const Settings &cmd_args)
 		}
 
 		// If no path found, use the first one (menu creates the file)
-		if (g_settings_path.empty())
+		if (g_settings_path.empty()) {
 			g_settings_path = filenames[0];
+			g_first_run = true;
+		}
 	}
-	infostream << "Global configuration file: " << g_settings_path << std::endl;
+	infostream << "Global configuration file: " << g_settings_path
+		<< (g_first_run ? " (first run)" : "") << std::endl;
 
 	return true;
 }
@@ -830,9 +838,7 @@ static bool game_configure(GameParams *game_params, const Settings &cmd_args)
 		return false;
 	}
 
-	game_configure_subgame(game_params, cmd_args);
-
-	return true;
+	return game_configure_subgame(game_params, cmd_args);
 }
 
 static void game_configure_port(GameParams *game_params, const Settings &cmd_args)
@@ -1014,17 +1020,25 @@ static bool determine_subgame(GameParams *game_params)
 		if (game_params->game_spec.isValid()) {
 			gamespec = game_params->game_spec;
 			infostream << "Using commanded gameid [" << gamespec.id << "]" << std::endl;
-		} else {
-			if (game_params->is_dedicated_server) {
-				std::string contentdb_url = g_settings->get("contentdb_url");
+		} else if (game_params->is_dedicated_server) {
+			auto games = getAvailableGameIds();
+			// If there's exactly one obvious choice then do the right thing
+			if (games.size() > 1)
+				games.erase("devtest");
+			if (games.size() == 1) {
+				gamespec = findSubgame(*games.begin());
+				infostream << "Automatically selecting gameid [" << gamespec.id << "]" << std::endl;
+			} else {
+				// Else, force the user to choose
+				auto &url = g_settings->get("contentdb_url");
 
-				// If this is a dedicated server and no gamespec has been specified,
-				// print a friendly error pointing to ContentDB.
-				errorstream << "To run a " PROJECT_NAME_C " server, you need to select a game using the '--gameid' argument." << std::endl
-				            << "Check out " << contentdb_url << " for a selection of games to pick from and download." << std::endl;
+				errorstream << "To run a " PROJECT_NAME_C " server, you need to select a game using the '--gameid' argument." << std::endl;
+				if (games.empty())
+					errorstream << "Check out " << url << " for a selection of games to pick from and download." << std::endl;
+				else
+					errorstream << "Use '--gameid list' to print a list of all installed games." << std::endl;
+				return false;
 			}
-
-			return false;
 		}
 	} else { // World exists
 		std::string world_gameid = getWorldGameId(game_params->world_path, false);
@@ -1045,6 +1059,8 @@ static bool determine_subgame(GameParams *game_params)
 	}
 
 	if (!gamespec.isValid()) {
+		if (!game_params->is_dedicated_server)
+			return true; // not an error, this would prevent the main menu from running
 		errorstream << "Game [" << gamespec.id << "] could not be found."
 		            << std::endl;
 		return false;
@@ -1215,7 +1231,7 @@ static bool migrate_map_database(const GameParams &game_params, const Settings &
 	std::vector<v3s16> blocks;
 	old_db->listAllLoadableBlocks(blocks);
 	new_db->beginSave();
-	for (std::vector<v3s16>::const_iterator it = blocks.begin(); it != blocks.end(); ++it) {
+	for (auto it = blocks.begin(); it != blocks.end(); ++it) {
 		if (kill) return false;
 
 		std::string data;
@@ -1266,6 +1282,7 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 	u64 last_update_time = 0;
 	bool &kill = *porting::signal_handler_killstatus();
 	const u8 serialize_as_ver = SER_FMT_VER_HIGHEST_WRITE;
+	const s16 map_compression_level = rangelim(g_settings->getS16("map_compression_level_disk"), -1, 9);
 
 	// This is ok because the server doesn't actually run
 	std::vector<v3s16> blocks;
@@ -1293,7 +1310,7 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 			oss.str("");
 			oss.clear();
 			writeU8(oss, serialize_as_ver);
-			mb.serialize(oss, serialize_as_ver, true, -1);
+			mb.serialize(oss, serialize_as_ver, true, map_compression_level);
 		}
 
 		db->saveBlock(*it, oss.str());

@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <string>
 #include <string_view>
 
 extern "C" {
@@ -19,7 +20,7 @@ extern "C" {
 }
 
 #include "config.h"
-#include "common/c_types.h"
+#include "util/enum_string.h"
 
 
 /*

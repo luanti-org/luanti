@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include "irrlichttypes_extrabloated.h"
 #include "lua_api/l_util.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_settings.h"
@@ -55,7 +54,13 @@ int ModApiUtil::l_log(lua_State *L)
 		auto name = readParam<std::string_view>(L, 1);
 		text = readParam<std::string_view>(L, 2);
 		if (name == "deprecated") {
-			log_deprecated(L, text, 2);
+			// core.log("deprecated", message [, stack_level])
+			// Level 1 - immediate caller of core.log (probably engine code);
+			// Level 2 - caller of the function that called core.log, and so on
+			int stack_level = readParam<int>(L, 3, 2);
+			if (stack_level < 1)
+				throw LuaError("invalid stack level");
+			log_deprecated(L, text, stack_level);
 			return 0;
 		}
 		level = Logger::stringToLevel(name);

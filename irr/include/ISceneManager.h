@@ -10,7 +10,6 @@
 #include "dimension2d.h"
 #include "SColor.h"
 #include "ESceneNodeTypes.h"
-#include "SceneParameters.h" // IWYU pragma: export
 
 namespace irr
 {
@@ -20,7 +19,6 @@ struct SEvent;
 namespace io
 {
 class IReadFile;
-class IAttributes;
 class IWriteFile;
 class IFileSystem;
 } // end namespace io
@@ -373,11 +371,6 @@ public:
 	/** All scene nodes are removed. */
 	virtual void clear() = 0;
 
-	//! Get interface to the parameters set in this scene.
-	/** String parameters can be used by plugins and mesh loaders.
-	See	COLLADA_CREATE_SCENE_INSTANCES and DMF_USE_MATERIALS_DIRS */
-	virtual io::IAttributes *getParameters() = 0;
-
 	//! Get current render pass.
 	/** All scene nodes are being rendered in a specific order.
 	First lights, cameras, sky boxes, solid geometry, and then transparent
@@ -386,6 +379,14 @@ public:
 	twice, once for transparent geometry and once for solid. When knowing what rendering
 	pass currently is active they can render the correct part of their geometry. */
 	virtual E_SCENE_NODE_RENDER_PASS getSceneNodeRenderPass() const = 0;
+
+	/**
+	 * Sets debug data flags that will be set on every rendered scene node.
+	 * Refer to `E_DEBUG_SCENE_TYPE`.
+	 * @param setBits bit mask of types to enable
+	 * @param unsetBits bit mask of types to disable
+	 */
+	virtual void setGlobalDebugData(u16 setBits, u16 unsetBits) = 0;
 
 	//! Creates a new scene manager.
 	/** This can be used to easily draw and/or store two

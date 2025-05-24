@@ -5,6 +5,7 @@
 #include "cpp_api/s_base.h"
 #include "cpp_api/s_internal.h"
 #include "cpp_api/s_security.h"
+#include "debug.h"
 #include "lua_api/l_object.h"
 #include "common/c_converter.h"
 #include "server/player_sao.h"
@@ -203,9 +204,13 @@ void ScriptApiBase::checkSetByBuiltin()
 {
 	lua_State *L = getStack();
 
-	if (m_gamedef) {
-		CHECK(CUSTOM_RIDX_READ_VECTOR, "read_vector");
-		CHECK(CUSTOM_RIDX_PUSH_VECTOR, "push_vector");
+	CHECK(CUSTOM_RIDX_READ_VECTOR, "read_vector");
+	CHECK(CUSTOM_RIDX_PUSH_VECTOR, "push_vector");
+
+	if (getType() == ScriptingType::Server ||
+			(getType() == ScriptingType::Async && m_gamedef) ||
+			getType() == ScriptingType::Emerge ||
+			getType() == ScriptingType::Client) {
 		CHECK(CUSTOM_RIDX_READ_NODE, "read_node");
 		CHECK(CUSTOM_RIDX_PUSH_NODE, "push_node");
 	}
@@ -463,12 +468,8 @@ void ScriptApiBase::objectrefGetOrCreate(lua_State *L, ServerActiveObject *cobj)
 	if (!cobj) {
 		ObjectRef::create(L, nullptr); // dummy reference
 	} else if (cobj->getId() == 0) {
-		// TODO after 5.10.0: convert this to a FATAL_ERROR
-		errorstream << "ScriptApiBase::objectrefGetOrCreate(): "
-				<< "Pushing orphan ObjectRef. Please open a bug report for this."
-				<< std::endl;
-		assert(0);
-		ObjectRef::create(L, cobj);
+		FATAL_ERROR("ScriptApiBase::objectrefGetOrCreate(): "
+				"Pushing orphan ObjectRef. Please open a bug report for this.");
 	} else {
 		push_objectRef(L, cobj->getId());
 		if (cobj->isGone())
