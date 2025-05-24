@@ -448,9 +448,7 @@ local function make_noise_params(setting)
 end
 
 function make.key(setting)
-	local btn_bind = "bind_" .. setting.name
 	local btn_edit = "edit_" .. setting.name
-	local btn_clear = "unbind_" .. setting.name
 	local function add_conflict_warnings(fs, height)
 		local value = core.settings:get(setting.name):split("|")
 		if value == "" then
@@ -493,33 +491,22 @@ function make.key(setting)
 			local value = core.settings:get(setting.name):split("|")
 			local fs = {
 				("label[0,0.4;%s]"):format(get_label(setting)),
-				("image_button[%f,0;0.8,0.8;%s;%s;]"):format(avail_w - 0.8,
-						core.formspec_escape(defaulttexturedir .. "clear.png"), btn_clear),
-				("tooltip[%s;%s]"):format(btn_clear, fgettext("Remove keybinding")),
 			}
-			if #value < 2 then
-				table.insert(fs, ("button_key[%f,0;%f,0.8;%s;%s]"):format(
-						btn_bind_width, btn_bind_width-0.8,
-						btn_bind, core.formspec_escape(value[1] or "")))
-			else
-				table.insert(fs, ("button[%f,0;%f,0.8;%s;%s]"):format(
-						btn_bind_width, btn_bind_width-0.8,
-						btn_edit, fgettext("Edit")))
+			local edit_label = fgettext("Edit")
+			if #value <= 1 then
+				edit_label = core.formspec_escape(core.get_keycode_name(value[1] or ""))
 			end
+			table.insert(fs, ("button[%f,0;%f,0.8;%s;%s]"):format(
+					btn_bind_width, btn_bind_width,
+					btn_edit, edit_label))
 			local height = 0.8
 			height = add_conflict_warnings(fs, height)
 			return table.concat(fs), height
 		end,
 
 		on_submit = function(self, fields, tabview)
-			if fields[btn_bind] then
-				core.settings:set(setting.name, fields[btn_bind])
-				return true
-			elseif fields[btn_edit] then
+			if fields[btn_edit] then
 				return show_change_keybinding_dlg(setting, tabview)
-			elseif fields[btn_clear] then
-				core.settings:set(setting.name, "")
-				return true
 			end
 		end,
 	}
