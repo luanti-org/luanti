@@ -588,8 +588,8 @@ void MapNode::deSerialize(const u8 *source, u8 version)
 }
 
 Buffer<u8> MapNode::serializeBulk(int version,
-		const MapNode *nodes, u32 nodecount,
-		u8 content_width, u8 params_width)
+		const std::vector<MapNode> &nodes, u32 nodecount,
+		u8 content_width, u8 params_width, bool is_mono_block)
 {
 	if (!ser_ver_supported_write(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
@@ -602,20 +602,20 @@ Buffer<u8> MapNode::serializeBulk(int version,
 	// Writing to the buffer linearly is faster
 	u8 *p = &databuf[0];
 	for (u32 i = 0; i < nodecount; i++, p += 2)
-		writeU16(p, nodes[i].param0);
+		writeU16(p, nodes[is_mono_block ? 0 : i].param0);
 
 	for (u32 i = 0; i < nodecount; i++, p++)
-		writeU8(p, nodes[i].param1);
+		writeU8(p, nodes[is_mono_block ? 0 : i].param1);
 
 	for (u32 i = 0; i < nodecount; i++, p++)
-		writeU8(p, nodes[i].param2);
+		writeU8(p, nodes[is_mono_block ? 0 : i].param2);
 
 	return databuf;
 }
 
 // Deserialize bulk node data
 void MapNode::deSerializeBulk(std::istream &is, int version,
-		MapNode *nodes, u32 nodecount,
+		std::vector<MapNode> &nodes, u32 nodecount,
 		u8 content_width, u8 params_width)
 {
 	if (!ser_ver_supported_read(version))

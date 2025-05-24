@@ -10,6 +10,7 @@
 #include "serialization.h"
 #include "noise.h"
 #include "inventory.h"
+#include "voxel.h"
 
 class TestMapBlock : public TestBase
 {
@@ -33,6 +34,9 @@ public:
 
 	// Tests loading a non-standard MapBlock
 	void testLoadNonStd(IGameDef *gamedef);
+
+	// Tests blocks with a single node recurring node
+	void testMonoblock(IGameDef *gamedef);
 };
 
 static TestMapBlock g_test_instance;
@@ -45,9 +49,75 @@ void TestMapBlock::runTests(IGameDef *gamedef)
 	TEST(testLoad29, gamedef);
 	TEST(testLoad20, gamedef);
 	TEST(testLoadNonStd, gamedef);
+	TEST(testMonoblock, gamedef);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+static const u32 nodecount = MAP_BLOCKSIZE * MAP_BLOCKSIZE * MAP_BLOCKSIZE;
+
+void TestMapBlock::testMonoblock(IGameDef *gamedef)
+{
+	MapBlock block({}, gamedef);
+	UASSERT(!block.m_is_mono_block);
+	for (size_t i = 0; i < MapBlock::nodecount; ++i) {
+		block.data[i] = MapNode(CONTENT_AIR);
+	}
+	// covert to monoblock
+	block.tryConvertToMonoblock();
+	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+	UASSERT(block.data[0].param0 == CONTENT_AIR);
+
+	// get the data(), should deconvert the block
+	block.getData();
+	UASSERT(!block.m_is_mono_block);
+
+	// covert back to mono block
+	block.tryConvertToMonoblock();
+	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+
+	// deconvert explicitly
+	block.deconvertMonoblock();
+	UASSERT(!block.m_is_mono_block && block.data.size() == nodecount);
+
+	// covert back to mono block
+	block.tryConvertToMonoblock();
+	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+
+	// set a node, should deconvert the block
+	block.setNode(5,5,5, MapNode(42));
+	UASSERT(!block.m_is_mono_block && block.data.size() == nodecount);
+
+	// cannot covert to mono block
+	block.tryConvertToMonoblock();
+	UASSERT(!block.m_is_mono_block && block.data.size() == nodecount);
+
+	// set all nodes to 42
+	for (size_t i = 0; i < MapBlock::nodecount; ++i) {
+		block.data[i] = MapNode(42);
+	}
+
+	// can covert to mono block
+	block.tryConvertToMonoblock();
+	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+	UASSERT(block.data[0].param0 == 42);
+
+	VoxelManipulator vmm;
+	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
+	vmm.addArea(VoxelArea(block.getPosRelative(), block.getPosRelative() + data_size + v3s16(1,1,1)));
+	block.copyTo(vmm);
+	UASSERT(block.m_is_mono_block);
+	UASSERT(vmm.getNode({5,5,5}).param0 == 42);
+
+	block.setNode(5,5,5,MapNode(23));
+
+	block.copyFrom(vmm);
+	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+	UASSERT(block.data[0].param0 == 42);
+
+	vmm.setNode({5,5,5}, MapNode(23));
+	block.copyFrom(vmm);
+	UASSERT(!block.m_is_mono_block && block.data.size() == nodecount);
+}
 
 void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)
 {
