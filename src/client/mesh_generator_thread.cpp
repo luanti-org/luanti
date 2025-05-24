@@ -13,13 +13,9 @@
 
 // Data placeholder used for copying from non-existent blocks
 static struct BlockPlaceholder {
-	MapNode data[MapBlock::nodecount];
+	std::vector<MapNode> data;
 
-	BlockPlaceholder()
-	{
-		for (std::size_t i = 0; i < MapBlock::nodecount; i++)
-			data[i] = MapNode(CONTENT_IGNORE);
-	}
+	BlockPlaceholder() : data(MapBlock::nodecount, MapNode(CONTENT_IGNORE)) {}
 
 } block_placeholder;
 

@@ -63,8 +63,6 @@ void SchematicManager::clear()
 
 Schematic::~Schematic()
 {
-	delete []schemdata;
-	delete []slice_probs;
 	u32 nodecount = size.X * size.Y * size.Z;
 	porting::TrackFreedMemory(nodecount * sizeof(MapNode));
 }
@@ -78,12 +76,9 @@ ObjDef *Schematic::clone() const
 	def->c_nodes = c_nodes;
 	def->flags = flags;
 	def->size = size;
-	FATAL_ERROR_IF(!schemdata, "Schematic can only be cloned after loading");
-	u32 nodecount = size.X * size.Y * size.Z;
-	def->schemdata = new MapNode[nodecount];
-	memcpy(def->schemdata, schemdata, sizeof(MapNode) * nodecount);
-	def->slice_probs = new u8[size.Y];
-	memcpy(def->slice_probs, slice_probs, sizeof(u8) * size.Y);
+	FATAL_ERROR_IF(schemdata.empty(), "Schematic can only be cloned after loading");
+	def->schemdata = schemdata;
+	def->slice_probs = slice_probs;
 
 	return def;
 }
@@ -110,7 +105,7 @@ void Schematic::resolveNodeNames()
 
 void Schematic::blitToVManip(MMVManip *vm, v3s16 p, Rotation rot, bool force_place)
 {
-	assert(schemdata && slice_probs);
+	assert(!schemdata.empty() && !slice_probs.empty());
 	sanity_check(m_ndef != NULL);
 
 	int xstride = 1;
@@ -195,7 +190,7 @@ bool Schematic::placeOnVManip(MMVManip *vm, v3s16 p, u32 flags,
 	Rotation rot, bool force_place)
 {
 	assert(vm != NULL);
-	assert(schemdata && slice_probs);
+	assert(!schemdata.empty() && !slice_probs.empty());
 	sanity_check(m_ndef != NULL);
 
 	//// Determine effective rotation and effective schematic dimensions
@@ -224,7 +219,7 @@ void Schematic::placeOnMap(ServerMap *map, v3s16 p, u32 flags,
 	std::map<v3s16, MapBlock *> modified_blocks;
 
 	assert(map != NULL);
-	assert(schemdata != NULL);
+	assert(!schemdata.empty());
 	sanity_check(m_ndef != NULL);
 
 	//// Determine effective rotation and effective schematic dimensions
@@ -291,8 +286,7 @@ bool Schematic::deserializeFromMts(std::istream *is)
 	size = readV3S16(ss);
 
 	//// Read Y-slice probability values
-	delete []slice_probs;
-	slice_probs = new u8[size.Y];
+	slice_probs = std::vector<u8>(size.Y);
 	for (int y = 0; y != size.Y; y++)
 		slice_probs[y] = (version >= 3) ? readU8(ss) : MTSCHEM_PROB_ALWAYS_OLD;
 
@@ -320,8 +314,7 @@ bool Schematic::deserializeFromMts(std::istream *is)
 	//// Read node data
 	size_t nodecount = size.X * size.Y * size.Z;
 
-	delete []schemdata;
-	schemdata = new MapNode[nodecount];
+	schemdata = std::vector<MapNode>(nodecount);
 
 	std::stringstream d_ss(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
 	decompress(ss, d_ss, MTSCHEM_MAPNODE_SER_FMT_VER);
@@ -531,31 +524,29 @@ bool Schematic::saveSchematicToFile(const std::string &filename,
 
 bool Schematic::getSchematicFromMap(Map *map, v3s16 p1, v3s16 p2)
 {
-	MMVManip *vm = new MMVManip(map);
+	MMVManip vm(map);
 
 	v3s16 bp1 = getNodeBlockPos(p1);
 	v3s16 bp2 = getNodeBlockPos(p2);
-	vm->initialEmerge(bp1, bp2);
+	vm.initialEmerge(bp1, bp2);
 
 	size = p2 - p1 + 1;
 
-	slice_probs = new u8[size.Y];
+	slice_probs = std::vector<u8>(size.Y);
 	for (s16 y = 0; y != size.Y; y++)
 		slice_probs[y] = MTSCHEM_PROB_ALWAYS;
 
-	schemdata = new MapNode[size.X * size.Y * size.Z];
+	schemdata = std::vector<MapNode>(size.X * size.Y * size.Z);
 
 	u32 i = 0;
 	for (s16 z = p1.Z; z <= p2.Z; z++)
 	for (s16 y = p1.Y; y <= p2.Y; y++) {
-		u32 vi = vm->m_area.index(p1.X, y, z);
+		u32 vi = vm.m_area.index(p1.X, y, z);
 		for (s16 x = p1.X; x <= p2.X; x++, i++, vi++) {
-			schemdata[i] = vm->m_data[vi];
+			schemdata[i] = vm.m_data[vi];
 			schemdata[i].param1 = MTSCHEM_PROB_ALWAYS;
 		}
 	}
-
-	delete vm;
 
 	// Reset and mark as complete
 	NodeResolver::reset(true);

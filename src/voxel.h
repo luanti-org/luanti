@@ -483,11 +483,11 @@ public:
 		Copy data and set flags to 0
 		dst_area.getExtent() <= src_area.getExtent()
 	*/
-	void copyFrom(MapNode *src, const VoxelArea& src_area,
+	void copyFrom(std::vector<MapNode> &src, const VoxelArea& src_area,
 			v3s16 from_pos, v3s16 to_pos, const v3s16 &size);
 
 	// Copy data
-	void copyTo(MapNode *dst, const VoxelArea& dst_area,
+	void copyTo(std::vector<MapNode> &dst, const VoxelArea& dst_area,
 			v3s16 dst_pos, v3s16 from_pos, const v3s16 &size) const;
 
 	/*
@@ -504,12 +504,12 @@ public:
 		nullptr if data size is 0 (empty extent)
 		Data is stored as [z*h*w + y*h + x]
 	*/
-	MapNode *m_data = nullptr;
+	std::vector<MapNode> m_data;
 
 	/*
 		Flags of all nodes
 	*/
-	u8 *m_flags = nullptr;
+	std::vector<u8> m_flags;
 
 	static const MapNode ContentIgnoreNode;
 };
