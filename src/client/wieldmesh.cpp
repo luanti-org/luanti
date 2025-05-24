@@ -18,12 +18,13 @@
 #include "log.h"
 #include "util/numeric.h"
 #include <map>
-#include <IMeshManipulator.h>
 #include "client/renderingengine.h"
-#include <SMesh.h>
-#include <IMeshBuffer.h>
-#include <SMeshBuffer.h>
 #include "item_visuals_manager.h"
+// irr includes
+#include <IMeshManipulator.h>
+#include <CMeshBuffer.h>
+
+using namespace irr;
 
 #define WIELD_SCALE_FACTOR 30.0f
 #define WIELD_SCALE_FACTOR_EXTRUDED 40.0f

@@ -3,10 +3,6 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "content_cao.h"
-#include <IBillboardSceneNode.h>
-#include <ICameraSceneNode.h>
-#include <IMeshManipulator.h>
-#include <IAnimatedMeshSceneNode.h>
 #include "client/client.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
@@ -34,10 +30,17 @@
 #include <cmath>
 #include "client/shader.h"
 #include "client/minimap.h"
+//irr includes
+#include <IBillboardSceneNode.h>
+#include <ICameraSceneNode.h>
+#include <IMeshManipulator.h>
+#include <IAnimatedMeshSceneNode.h>
 #include <quaternion.h>
 #include <SMesh.h>
 #include <IMeshBuffer.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
+
+using namespace irr;
 
 class Settings;
 struct ToolCapabilities;

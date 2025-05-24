@@ -5,9 +5,6 @@
 #pragma once
 
 #include "irrlichttypes.h"
-#include "irr_ptr.h"
-#include "IMesh.h"
-#include "SMeshBuffer.h"
 
 #include "util/numeric.h"
 #include "client/tile.h"
@@ -15,6 +12,13 @@
 #include <array>
 #include <map>
 #include <unordered_map>
+// irr includes
+#include <irr_ptr.h>
+#include <IMesh.h>
+#include <CMeshBuffer.h>
+
+namespace scene = irr::scene;
+namespace video = irr::video;
 
 namespace irr::video {
 	class IVideoDriver;

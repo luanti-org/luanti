@@ -5,16 +5,20 @@
 #pragma once
 
 #include "irrlichttypes_bloated.h"
-#include "irr_ptr.h"
-#include "ISceneNode.h"
-#include "S3DVertex.h"
-#include "SMeshBuffer.h"
 
+#include "../particles.h"
 #include <mutex>
 #include <memory>
 #include <vector>
 #include <unordered_map>
-#include "../particles.h"
+// irr includes
+#include <irr_ptr.h>
+#include <ISceneNode.h>
+#include <S3DVertex.h>
+#include <CMeshBuffer.h>
+
+namespace scene = irr::scene;
+namespace video = irr::video;
 
 namespace irr::video {
 	class ITexture;
