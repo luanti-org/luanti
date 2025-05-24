@@ -104,6 +104,8 @@ InventoryAction *InventoryAction::deSerialize(std::istream &is)
 		a = new IDropAction(is);
 	} else if (type == "Craft") {
 		a = new ICraftAction(is);
+	} else if (type == "HotbarSlotSelected") {
+		a = new IHotbarSlotSelectedAction(is);
 	}
 
 	return a;
@@ -1017,3 +1019,54 @@ bool getCraftingResult(Inventory *inv, ItemStack &result,
 	return found;
 }
 
+/*
+	IHotbarSlotSelectedAction
+*/
+
+IHotbarSlotSelectedAction::IHotbarSlotSelectedAction(std::istream& is)
+{
+	std::string ts;
+
+	std::getline(is, ts, ' ');
+	inv.deSerialize(ts);
+
+	std::getline(is, list, ' ');
+
+	std::getline(is, ts, ' ');
+	selected_slot = stoi(ts);
+
+	std::getline(is, ts, ' ');
+	prev_selected_slot = stoi(ts);
+
+	std::getline(is, ts, ' ');
+	from_scroll = stoi(ts);
+}
+
+void IHotbarSlotSelectedAction::apply(InventoryManager* mgr, ServerActiveObject* player, IGameDef* gamedef)
+{
+	Inventory* inv_hotbar = mgr->getInventory(inv);
+
+	if (!inv_hotbar) {
+		warningstream << "IHotbarSlotSelectedAction::apply(): FAIL: source inventory not found: "
+			<< "inv=\"" << inv.dump() << "\"" << std::endl;
+		return;
+	}
+
+	InventoryList* list_wield = inv_hotbar->getList(list);
+
+	/*
+		If the list doesn't exist
+	*/
+	if (!list_wield) {
+		warningstream << "IHotbarSlotSelectedAction::apply(): FAIL: source list not found: "
+			<< "list=\"" << list << "\"" << std::endl;
+		return;
+	}
+	ServerScripting* sa = PLAYER_TO_SA(player);
+	sa->on_hotbar_slot_selected(player, inv, list, selected_slot, prev_selected_slot, from_scroll);
+}
+
+void IHotbarSlotSelectedAction::clientApply(InventoryManager* mgr, IGameDef* gamedef)
+{
+	// Optional operation that is run on the client to make lag less apparent.
+}
