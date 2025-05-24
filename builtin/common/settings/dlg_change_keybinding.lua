@@ -18,6 +18,7 @@ local function get_formspec(dialogdata)
 		("button_key[0.5,6.7;4.2,0.8;btn_bind;%s]"):format(core.formspec_escape(value[selection] or "")),
 		("image_button[4.6,6.7;0.8,0.8;%s;btn_clear;]"):format(
 						core.formspec_escape(defaulttexturedir .. "clear.png")),
+		("tooltip[btn_clear;%s]"):format(fgettext("Remove keybinding")),
 		("button[3.1,7.7;2.4,0.8;btn_close;%s]"):format(fgettext("Cancel")),
 		("button[0.5,7.7;2.4,0.8;btn_save;%s]"):format(fgettext("Save")),
 	}
@@ -31,7 +32,7 @@ local function get_formspec(dialogdata)
 					and has_keybinding_conflict(core.settings:get(o.name):split("|"), key) then
 				prefix = mt_color_orange
 				if idx == selection then
-					warning = core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext(o.readable_name)))
+					warning = core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext_ne(o.readable_name)))
 				end
 				break
 			end
