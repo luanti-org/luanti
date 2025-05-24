@@ -42,6 +42,14 @@ int ModApiMenuCommon::l_normalize_keycode(lua_State *L)
 	return 1;
 }
 
+int ModApiMenuCommon::l_get_keycode_name(lua_State *L)
+{
+	auto keystr = luaL_checkstring(L, 1);
+	auto name = KeyPress(keystr).name();
+	lua_pushstring(L, name.empty() ? "" : gettext(name.c_str()));
+	return 1;
+}
+
 
 void ModApiMenuCommon::Initialize(lua_State *L, int top)
 {
@@ -49,6 +57,7 @@ void ModApiMenuCommon::Initialize(lua_State *L, int top)
 	API_FCT(get_active_driver);
 	API_FCT(irrlicht_device_supports_touch);
 	API_FCT(normalize_keycode);
+	API_FCT(get_keycode_name);
 }
 
 
