@@ -22,11 +22,24 @@ local function get_formspec(dialogdata)
 		("button[0.5,7.7;2.4,0.8;btn_save;%s]"):format(fgettext("Save")),
 	}
 
+	local warning = ""
 	local cells = {}
-	for _, key in ipairs(value) do
-		table.insert(cells, core.formspec_escape(core.get_keycode_name(key)))
+	for idx, key in ipairs(value) do
+		local prefix = ""
+		for _, o in ipairs(core.full_settingtypes) do
+			if o.type == "key" and o.name ~= name
+					and has_keybinding_conflict(core.settings:get(o.name):split("|"), key) then
+				prefix = mt_color_orange
+				if idx == selection then
+					warning = core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext(o.readable_name)))
+				end
+				break
+			end
+		end
+		table.insert(cells, core.formspec_escape(prefix .. core.get_keycode_name(key)))
 	end
-	table.insert(fs, ("textlist[0.5,1.3;5,4;keylist;%s;%d;false]"):format(table.concat(cells, ","), selection))
+	table.insert(fs, ("textlist[0.5,1.3;5,3.8;keylist;%s;%d;false]"):format(table.concat(cells, ","), selection))
+	table.insert(fs, ("label[0.5,5.4;%s]"):format(warning))
 
 	return table.concat(fs)
 end
@@ -120,4 +133,25 @@ function show_change_keybinding_dlg(setting, tabview)
 	dlg:show()
 
 	return is_mainmenu
+end
+
+function has_keybinding_conflict(t1, t2) -- not local as it is also used by the make.key component
+	if type(t2) == "string" then
+		if type(t1) == "string" then
+			return core.are_keycodes_equal(t1, t2)
+		else
+			for _, v1 in pairs(t1) do
+				if core.are_keycodes_equal(v1, t2) then
+					return true
+				end
+			end
+		end
+	else
+		for _, v2 in pairs(t2) do
+			if has_keybinding_conflict(t1, v2) then
+				return true
+			end
+		end
+	end
+	return false
 end
