@@ -522,10 +522,12 @@ function make.key(setting)
 			return table.concat(fs), height
 		end,
 
-		on_submit = function(self, fields)
+		on_submit = function(self, fields, tabview)
 			if fields[btn_bind] then
 				core.settings:set(setting.name, fields[btn_bind])
 				return true
+			elseif fields[btn_edit] then
+				return show_change_keybinding_dlg(setting, tabview)
 			elseif fields[btn_clear] then
 				core.settings:set(setting.name, "")
 				return true
