@@ -430,17 +430,6 @@ local function make_noise_params(setting)
 	}
 end
 
-local function has_keybinding_conflict(t1, t2)
-	for _, v1 in pairs(t1) do
-		for _, v2 in pairs(t2) do
-			if core.are_keycodes_equal(v1, v2) then
-				return true
-			end
-		end
-	end
-	return false
-end
-
 function make.key(setting)
 	local btn_bind = "bind_" .. setting.name
 	local btn_edit = "edit_" .. setting.name
