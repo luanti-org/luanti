@@ -105,7 +105,7 @@ void MenuMusicFetcher::addThePaths(const std::string &name,
 /******************************************************************************/
 /** GUIEngine                                                                 */
 /******************************************************************************/
-GUIEngine::GUIEngine(JoystickController *joystick,
+GUIEngine::GUIEngine(GamepadController *joystick,
 		gui::IGUIElement *parent,
 		RenderingEngine *rendering_engine,
 		IMenuManager *menumgr,

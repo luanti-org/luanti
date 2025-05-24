@@ -10,11 +10,11 @@
 #include "client.h"
 #include "client/clientevent.h"
 #include "client/gameui.h"
+#include "client/input/inputhandler.h"
 #include "client/game_formspec.h"
-#include "client/inputhandler.h"
 #include "client/texturepaths.h"
-#include "client/keys.h"
-#include "client/joystick_controller.h"
+#include "client/input/keys.h"
+#include "client/input/gamepad_controller.h"
 #include "client/mapblock_mesh.h"
 #include "client/sound.h"
 #include "clientmap.h"
@@ -1066,6 +1066,14 @@ void Game::run()
 
 		m_game_ui->clearInfoText();
 
+		input->joystick.update(dtime, isMenuActive());
+		if (isMenuActive()) {
+			v2f32 look = input->joystick.getLookRotation();
+
+			auto cursor = device->getCursorControl();
+			cursor->setPosition(cursor->getPosition() + v2s32(-1000 * dtime * look.X, 1000 * dtime * look.Y));
+		}
+
 		updateProfilers(stats, draw_times, dtime);
 
 		// Update camera offset once before doing anything.
@@ -1851,7 +1859,7 @@ void Game::updateStats(RunStats *stats, const FpsControl &draw_times,
 
 /****************************************************************************
  Input handling
- ****************************************************************************/
+ *********************************************i*******************************/
 
 void Game::processUserInput(f32 dtime)
 {
@@ -1865,7 +1873,8 @@ void Game::processUserInput(f32 dtime)
 	}
 
 	// Reset input if window not active or some menu is active
-	if (!device->isWindowActive() || isMenuActive() || guienv->hasFocus(gui_chat_console.get())) {
+	input->isInMenu = !device->isWindowActive() || isMenuActive() || guienv->hasFocus(gui_chat_console.get());
+	if (input->isInMenu) {
 		if (m_game_focused) {
 			m_game_focused = false;
 			infostream << "Game lost focus" << std::endl;
@@ -2502,8 +2511,10 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 	if (m_cache_enable_joysticks) {
 		f32 sens_scale = getSensitivityScaleFactor();
 		f32 c = m_cache_joystick_frustum_sensitivity * dtime * sens_scale;
-		cam->camera_yaw -= input->joystick.getAxisWithoutDead(JA_FRUSTUM_HORIZONTAL) * c;
-		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
+
+		auto look_rotation = input->joystick.getLookRotation() * c;
+		cam->camera_yaw += look_rotation.X;
+		cam->camera_pitch += look_rotation.Y;
 	}
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
