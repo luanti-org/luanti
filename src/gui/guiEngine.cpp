@@ -48,14 +48,19 @@ void TextDestGuiEngine::gotText(const std::wstring &text)
 }
 
 /******************************************************************************/
+MenuTextureSource::MenuTextureSource(video::IVideoDriver* driver) :
+	m_driver(driver)
+{
+	g_settings->registerChangedCallback("texture_path", onTxpSettingChanged, this);
+}
+
+
 MenuTextureSource::~MenuTextureSource()
 {
-	u32 before = m_driver->getTextureCount();
+	g_settings->deregisterAllChangedCallbacks(this);
 
-	for (const auto &it: m_to_delete) {
-		m_driver->removeTexture(it);
-	}
-	m_to_delete.clear();
+	u32 before = m_driver->getTextureCount();
+	cleanupTextures();
 
 	infostream << "~MenuTextureSource() before cleanup: "<< before
 			<< " after: " << m_driver->getTextureCount() << std::endl;
@@ -90,6 +95,20 @@ video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 	if (retval)
 		m_to_delete.push_back(retval);
 	return retval;
+}
+
+void MenuTextureSource::cleanupTextures()
+{
+	for (const auto &it: m_to_delete) {
+		m_driver->removeTexture(it);
+	}
+	m_to_delete.clear();
+}
+
+void MenuTextureSource::onTxpSettingChanged(const std::string &name, void *data)
+{
+	((MenuTextureSource *)data)->cleanupTextures();
+	clearTextureNameCache();
 }
 
 /******************************************************************************/

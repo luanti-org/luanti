@@ -112,11 +112,14 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 	m_tooltip_show_delay = (u32)g_settings->getS32("tooltip_show_delay");
 	m_tooltip_append_itemname = g_settings->getBool("tooltip_append_itemname");
 
+	g_settings->registerChangedCallback("texture_path", onTxpSettingChanged, this);
 	setThemeFromSettings();
 }
 
 GUIFormSpecMenu::~GUIFormSpecMenu()
 {
+	g_settings->deregisterAllChangedCallbacks(this);
+
 	removeAll();
 
 	delete m_selected_item;
@@ -2971,30 +2974,6 @@ void GUIFormSpecMenu::parseElement(parserData* data, const std::string &element)
 			<< std::endl;
 }
 
-void GUIFormSpecMenu::setThemeFromSettings()
-{
-	const std::string settingspath = g_settings->get("texture_path") + DIR_DELIM + "texture_pack.conf";
-	Settings settings;
-	if (!settings.readConfigFile(settingspath.c_str()))
-		return;
-	if (!settings.exists("formspec_theme"))
-		return;
-
-	std::unordered_set<std::string> *prop_warned = nullptr;
-	{
-		u16 fs_ver = FORMSPEC_API_VERSION;
-		settings.getU16NoEx("formspec_version_theme", fs_ver);
-		if (fs_ver <= FORMSPEC_API_VERSION)
-			prop_warned = &property_warned;
-		// else: silence
-	}
-
-	auto splits = split(settings.get("formspec_theme"), '\n');
-	for (const std::string &s : splits) {
-		parse_style_to_map(theme_by_type_default, s, prop_warned);
-	}
-}
-
 void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 {
 	// Useless to regenerate without a screensize
@@ -5040,6 +5019,40 @@ std::wstring GUIFormSpecMenu::getLabelByID(s32 id)
 			return spec.flabel;
 	}
 	return L"";
+}
+
+
+void GUIFormSpecMenu::setThemeFromSettings()
+{
+	theme_by_type_default.clear();
+
+	const std::string settingspath = g_settings->get("texture_path") + DIR_DELIM + "texture_pack.conf";
+	Settings settings;
+	if (!settings.readConfigFile(settingspath.c_str()))
+		return;
+	if (!settings.exists("formspec_theme"))
+		return;
+
+	std::unordered_set<std::string> *prop_warned = nullptr;
+	{
+		u16 fs_ver = FORMSPEC_API_VERSION;
+		settings.getU16NoEx("formspec_version_theme", fs_ver);
+		if (fs_ver <= FORMSPEC_API_VERSION)
+			prop_warned = &property_warned;
+		// else: silence
+	}
+
+	auto splits = split(settings.get("formspec_theme"), '\n');
+	for (const std::string &s : splits) {
+		parse_style_to_map(theme_by_type_default, s, prop_warned);
+	}
+}
+
+void GUIFormSpecMenu::onTxpSettingChanged(const std::string &name, void *data)
+{
+	GUIFormSpecMenu *me = (GUIFormSpecMenu *)data;
+	me->setThemeFromSettings();
+	me->regenerateGui(me->m_screensize_old);
 }
 
 StyleSpec GUIFormSpecMenu::getDefaultStyleForElement(const std::string &type,

@@ -256,8 +256,6 @@ public:
 		m_hovered_item_tooltips.emplace_back(name);
 	}
 
-	void setThemeFromSettings();
-
 	/*
 		Remove and re-add (or reposition) stuff
 	*/
@@ -310,6 +308,9 @@ protected:
 	StyleSpecMap theme_by_type, theme_by_name,
 		theme_by_type_default;
 	std::unordered_set<std::string> property_warned;
+
+	void setThemeFromSettings();
+	static void onTxpSettingChanged(const std::string &name, void *data);
 
 	StyleSpec getDefaultStyleForElement(const std::string &type,
 			const std::string &name="", const std::string &parent_type="");
