@@ -488,7 +488,8 @@ private:
 	void parseAnchor(parserData *data, const std::string &element);
 	bool parsePaddingDirect(parserData *data, const std::string &element);
 	void parsePadding(parserData *data, const std::string &element);
-	void parseStyleToMap(StyleSpecMap &out, const std::string &element);
+	static void parse_style_to_map(StyleSpecMap &out, const std::string &element,
+		std::unordered_set<std::string> *prop_warned);
 	void parseStyle(parserData *data, const std::string &element);
 	void parseSetFocus(parserData *, const std::string &element);
 	void parseModel(parserData *data, const std::string &element);

@@ -2617,7 +2617,8 @@ void GUIFormSpecMenu::parsePadding(parserData *data, const std::string &element)
 			<< "'" << std::endl;
 }
 
-void GUIFormSpecMenu::parseStyleToMap(StyleSpecMap &out, const std::string &element)
+void GUIFormSpecMenu::parse_style_to_map(StyleSpecMap &out, const std::string &element,
+		std::unordered_set<std::string> *prop_warned)
 {
 	std::vector<std::string> parts = split(element, ';');
 
@@ -2645,11 +2646,11 @@ void GUIFormSpecMenu::parseStyleToMap(StyleSpecMap &out, const std::string &elem
 
 		StyleSpec::Property prop = StyleSpec::GetPropertyByName(propname);
 		if (prop == StyleSpec::NONE) {
-			if (property_warned.find(propname) != property_warned.end()) {
+			if (prop_warned && prop_warned->find(propname) != prop_warned->end()) {
 				warningstream << "Invalid style element (Unknown property " << propname << "): '"
 						<< element
 						<< "'" << std::endl;
-				property_warned.insert(propname);
+				prop_warned->insert(propname);
 			}
 			continue;
 		}
@@ -2748,7 +2749,8 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 
 	bool style_type = (data->type == "style_type");
 
-	parseStyleToMap(style_type ? theme_by_type : theme_by_name, element);
+	parse_style_to_map(style_type ? theme_by_type : theme_by_name,
+		element, &property_warned);
 }
 
 void GUIFormSpecMenu::parseSetFocus(parserData*, const std::string &element)
@@ -2978,9 +2980,18 @@ void GUIFormSpecMenu::setThemeFromSettings()
 	if (!settings.exists("formspec_theme"))
 		return;
 
+	std::unordered_set<std::string> *prop_warned = nullptr;
+	{
+		u16 fs_ver = FORMSPEC_API_VERSION;
+		settings.getU16NoEx("formspec_version_theme", fs_ver);
+		if (fs_ver <= FORMSPEC_API_VERSION)
+			prop_warned = &property_warned;
+		// else: silence
+	}
+
 	auto splits = split(settings.get("formspec_theme"), '\n');
 	for (const std::string &s : splits) {
-		parseStyleToMap(theme_by_type_default, s);
+		parse_style_to_map(theme_by_type_default, s, prop_warned);
 	}
 }
 
