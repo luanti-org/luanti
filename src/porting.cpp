@@ -449,8 +449,7 @@ bool setSystemPaths()
 		// Use "C:\Users\<user>\AppData\Roaming\<PROJECT_NAME_C>"
 		len = GetEnvironmentVariable("APPDATA", buf, sizeof(buf));
 		FATAL_ERROR_IF(len == 0 || len > sizeof(buf), "Failed to get APPDATA");
-		// TODO: Luanti with migration
-		path_user = std::string(buf) + DIR_DELIM + "Minetest";
+		path_user = std::string(buf) + DIR_DELIM PROJECT_NAME_C;
 	} else {
 		path_user = std::string(buf);
 	}
@@ -458,15 +457,27 @@ bool setSystemPaths()
 	return true;
 }
 
+void migrateLegacyDirs() {
+	char buf[BUFSIZ];
+
+	DWORD len = GetEnvironmentVariable("APPDATA", buf, sizeof(buf));
+	FATAL_ERROR_IF(len == 0 || len > sizeof(buf), "Failed to get APPDATA");
+	std::string legacy_path_user = std::string(buf) + DIR_DELIM LEGACY_PROJECT_NAME_C;
+	std::string new_path_user = std::string(buf) + DIR_DELIM PROJECT_NAME_C;
+
+	if (fs::PathExists(legacy_path_user))
+		fs::MoveDir(legacy_path_user, new_path_user);
+}
 
 //// Android
 
 #elif defined(__ANDROID__)
 
 extern bool setSystemPaths(); // defined in porting_android.cpp
+extern void migrateLegacyDirs(); // defined in porting_android.cpp
 
 
-//// Linux
+//// XDG systems
 #elif defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 
 bool setSystemPaths()
@@ -515,14 +526,32 @@ bool setSystemPaths()
 	if (minetest_user_path && minetest_user_path[0] != '\0') {
 		path_user = std::string(minetest_user_path);
 	} else {
-		// TODO: luanti with migration
-		path_user = std::string(getHomeOrFail()) + DIR_DELIM "."
-			+ "minetest";
+		const char *const xdg_data = getenv("XDG_DATA_HOME");
+		if (xdg_data) {
+			path_user = std::string(xdg_data);
+		} else {
+			path_user = std::string(getHomeOrFail()) + DIR_DELIM ".local" DIR_DELIM "share" DIR_DELIM PROJECT_NAME;
+		}
 	}
 
 	return true;
 }
 
+void migrateLegacyDirs() {
+	const char *const xdg_data = getenv("XDG_DATA_HOME");
+	std::string legacy_path_user;
+	std::string new_path_user;
+
+	legacy_path_user = std::string(getHomeOrFail()) + DIR_DELIM "." LEGACY_PROJECT_NAME;
+	if (xdg_data) {
+		new_path_user = std::string(xdg_data);
+	} else {
+		new_path_user = std::string(getHomeOrFail()) + DIR_DELIM ".local" DIR_DELIM "share" DIR_DELIM PROJECT_NAME;
+	}
+
+	if (fs::PathExists(legacy_path_user))
+		fs::MoveDir(legacy_path_user, new_path_user);
+}
 
 //// Mac OS X
 #elif defined(__APPLE__)
@@ -544,14 +573,25 @@ bool setSystemPaths()
 	if (minetest_user_path && minetest_user_path[0] != '\0') {
 		path_user = std::string(minetest_user_path);
 	} else {
-		// TODO: luanti with migration
 		path_user = std::string(getHomeOrFail())
 			+ "/Library/Application Support/"
-			+ "minetest";
+			PROJECT_NAME;
 	}
 	return true;
 }
 
+void migrateLegacyDirs() {
+	std::string legacy_path_user = std::string(getHomeOrFail())
+			+ "/Library/Application Support/"
+			LEGACY_PROJECT_NAME;
+
+	std::string new_path_user = std::string(getHomeOrFail())
+			+ "/Library/Application Support/"
+			PROJECT_NAME;
+
+	if (fs::PathExists(legacy_path_user))
+		fs::MoveDir(legacy_path_user, new_path_user);
+}
 
 #else
 
@@ -562,11 +602,18 @@ bool setSystemPaths()
 	if (minetest_user_path && minetest_user_path[0] != '\0') {
 		path_user = std::string(minetest_user_path);
 	} else {
-		// TODO: luanti with migration
-		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "."
-			+ "minetest";
+		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "." PROJECT_NAME;
 	}
 	return true;
+}
+
+void migrateLegacyDirs() {
+	std::string legacy_path_user = std::string(getHomeOrFail()) + DIR_DELIM "." LEGACY_PROJECT_NAME;
+
+	std::string new_path_user = std::string(getHomeOrFail()) + DIR_DELIM "." PROJECT_NAME;
+
+	if (fs::PathExists(legacy_path_user))
+		fs::MoveDir(legacy_path_user, new_path_user);
 }
 
 
@@ -670,13 +717,10 @@ void initializePaths()
 	const char *cache_dir = getenv("XDG_CACHE_HOME");
 	const char *home_dir = getenv("HOME");
 	if (cache_dir && cache_dir[0] != '\0') {
-		// TODO: luanti with migration
-		path_cache = std::string(cache_dir) + DIR_DELIM + "minetest";
+		path_cache = std::string(cache_dir) + DIR_DELIM PROJECT_NAME;
 	} else if (home_dir) {
 		// Then try $HOME/.cache/PROJECT_NAME
-		// TODO: luanti with migration
-		path_cache = std::string(home_dir) + DIR_DELIM + ".cache"
-			+ DIR_DELIM + "minetest";
+		path_cache = std::string(home_dir) + DIR_DELIM ".cache" DIR_DELIM PROJECT_NAME;
 	} else {
 		// If neither works, use $PATH_USER/cache
 		path_cache = path_user + DIR_DELIM + "cache";
@@ -685,6 +729,8 @@ void initializePaths()
 
 	// Migrate cache folder to new location if possible
 	migrateCachePath();
+
+	migrateLegacyDirs();
 
 #endif // RUN_IN_PLACE
 
@@ -968,6 +1014,30 @@ void TriggerMemoryTrim()
 	}
 }
 
+#endif
+
+#if defined(__ANDROID__)
+std::optional<std::string> getPlatformSpecificConfigFile() {
+	return std::nullopt;
+}
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+static std::string xdg_get_config_dir() {
+	const char *const xdg_config_home = getenv("XDG_CONFIG_HOME");
+	if (xdg_config_home)
+		return std::string(xdg_config_home) + DIR_DELIM "luanti";
+	return std::string(getHomeOrFail()) + DIR_DELIM ".config" DIR_DELIM "luanti";
+}
+
+std::optional<std::string> getPlatformSpecificConfigFile() {
+	std::string config_home = xdg_get_config_dir();
+	fs::CreateAllDirs(config_home);
+	return config_home + DIR_DELIM CONFIGFILE;
+}
+
+#else
+std::optional<std::string> getPlatformSpecificConfigFile() {
+	return std::nullopt;
+}
 #endif
 
 } //namespace porting
