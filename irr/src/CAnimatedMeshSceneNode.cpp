@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <optional>
+#include <cassert>
 
 namespace irr
 {
@@ -191,7 +192,7 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	if (auto *skinnedMesh = dynamic_cast<SkinnedMesh*>(Mesh)) {
 		for (u16 i = 0; i < PerJoint.SceneNodes.size(); ++i)
 			PerJoint.GlobalMatrices[i] = PerJoint.SceneNodes[i]->getRelativeTransformation();
-		_IRR_DEBUG_BREAK_IF(PerJoint.GlobalMatrices.size() != skinnedMesh->getJointCount());
+		assert(PerJoint.GlobalMatrices.size() == skinnedMesh->getJointCount());
 		skinnedMesh->calculateGlobalMatrices(PerJoint.GlobalMatrices);
 		Box = skinnedMesh->calculateBoundingBox(PerJoint.GlobalMatrices);
 	} else {
@@ -213,7 +214,7 @@ void CAnimatedMeshSceneNode::render()
 	++PassCount;
 
 	scene::IMesh *m = getMeshForCurrentFrame();
-	_IRR_DEBUG_BREAK_IF(!m);
+	assert(m);
 
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
@@ -552,7 +553,7 @@ void CAnimatedMeshSceneNode::addJoints()
 		ISceneNode *parent = this;
 		if (joint->ParentJointID)
 			parent = PerJoint.SceneNodes.at(*joint->ParentJointID); // exists because of topo. order
-		_IRR_DEBUG_BREAK_IF(!parent);
+		assert(parent);
 		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
 		PerJoint.SceneNodes.push_back(new CBoneSceneNode(
 				parent, SceneManager, 0, i, joint->Name,

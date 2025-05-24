@@ -12,7 +12,6 @@
 #include "aabbox3d.h"
 #include "rect.h"
 #include <cassert>
-#include "IrrCompileConfig.h" // for IRRLICHT_API
 
 namespace irr
 {

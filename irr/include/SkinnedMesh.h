@@ -411,14 +411,8 @@ protected:
 	bool HasAnimation;
 	bool PreparedForSkinning;
 	bool AnimateNormals;
-<<<<<<< HEAD
-	bool HardwareSkinning;
 
 	SourceFormat SrcFormat;
-||||||| parent of 44f1cd940 (progress)
-	bool HardwareSkinning;
-=======
->>>>>>> 44f1cd940 (progress)
 };
 
 // Interface for mesh loaders
