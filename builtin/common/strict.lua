@@ -19,12 +19,14 @@ function meta:__newindex(name, value)
 		return
 	end
 	local info = getinfo(2, "Sl")
-	local desc = ("%s:%d"):format(info.short_src, info.currentline)
-	local warn_key = ("%s\0%d\0%s"):format(info.source, info.currentline, name)
-	if not warned[warn_key] and info.what ~= "main" and info.what ~= "C" then
-		core.log("warning", ("Assignment to undeclared global %q inside a function at %s.")
-				:format(name, desc))
-		warned[warn_key] = true
+	if info ~= nil then
+		local desc = ("%s:%d"):format(info.short_src, info.currentline)
+		local warn_key = ("%s\0%d\0%s"):format(info.source, info.currentline, name)
+		if not warned[warn_key] and info.what ~= "main" and info.what ~= "C" then
+			core.log("warning", ("Assignment to undeclared global %q inside a function at %s.")
+					:format(name, desc))
+			warned[warn_key] = true
+		end
 	end
 	declared[name] = true
 end
@@ -35,6 +37,9 @@ function meta:__index(name)
 		return
 	end
 	local info = getinfo(2, "Sl")
+	if info == nil then
+		return
+	end
 	local warn_key = ("%s\0%d\0%s"):format(info.source, info.currentline, name)
 	if not warned[warn_key] and info.what ~= "C" then
 		core.log("warning", ("Undeclared global variable %q accessed at %s:%s")
