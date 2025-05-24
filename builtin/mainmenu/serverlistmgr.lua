@@ -9,7 +9,7 @@ serverlistmgr = {
 	-- list of locally favorites servers
 	favorites = nil,
 
-	-- list of servers fetched from public list
+	-- list of servers fetched from public list and local servers
 	servers = nil,
 }
 
@@ -140,6 +140,14 @@ local function fetch_geoip()
 end
 
 function serverlistmgr.sync()
+	if minetest.settings:get("serverlist_lan") then
+		if core.ask_lan_servers then --This checks if the function exists before running it.
+			core.ask_lan_servers();
+		else
+			print("core.ask_lan_servers isn't defined.")
+		end
+	end
+
 	if not serverlistmgr.servers then
 		serverlistmgr.servers = {{
 			name = fgettext("Loading..."),

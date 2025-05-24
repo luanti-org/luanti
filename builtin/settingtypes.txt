@@ -1044,6 +1044,9 @@ server_announce (Announce server) bool false
 #    Send names of online players to the serverlist. If disabled only the player count is revealed.
 server_announce_send_players (Send player names to the server list) bool true
 
+#    Make local servers visible to local clients.
+serverlist_lan (Show local servers) bool true
+
 #    Announce to this serverlist.
 serverlist_url (Serverlist URL) [common] string https://servers.luanti.org
 
