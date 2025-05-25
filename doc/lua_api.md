@@ -4998,7 +4998,8 @@ A VoxelManip object can be created any time using either:
 If the optional position parameters are present for either of these routines,
 the specified region will be pre-loaded into the VoxelManip object on creation.
 Otherwise, the area of map you wish to manipulate must first be loaded into the
-VoxelManip object using `VoxelManip:read_from_map()`.
+VoxelManip object using `VoxelManip:read_from_map()`, or an empty one created
+with `VoxelManip:initialize()`.
 
 Note that `VoxelManip:read_from_map()` returns two position vectors. The region
 formed by these positions indicate the minimum and maximum (respectively)
@@ -5009,14 +5010,14 @@ be queried any time after loading map data with `VoxelManip:get_emerged_area()`.
 Now that the VoxelManip object is populated with map data, your mod can fetch a
 copy of this data using either of two methods. `VoxelManip:get_node_at()`,
 which retrieves an individual node in a MapNode formatted table at the position
-requested is the simplest method to use, but also the slowest.
+requested. This is the simplest method to use, but also the slowest.
 
 Nodes in a VoxelManip object may also be read in bulk to a flat array table
 using:
 
 * `VoxelManip:get_data()` for node content (in Content ID form, see section
   [Content IDs]),
-* `VoxelManip:get_light_data()` for node light levels, and
+* `VoxelManip:get_light_data()` for node param (usually light levels), and
 * `VoxelManip:get_param2_data()` for the node type-dependent "param2" values.
 
 See section [Flat array format] for more details.
@@ -5031,17 +5032,16 @@ internal state unless otherwise explicitly stated.
 Once the bulk data has been edited to your liking, the internal VoxelManip
 state can be set using:
 
-* `VoxelManip:set_data()` for node content (in Content ID form, see section
-  [Content IDs]),
-* `VoxelManip:set_light_data()` for node light levels, and
-* `VoxelManip:set_param2_data()` for the node type-dependent `param2` values.
+* `VoxelManip:set_data()` or
+* `VoxelManip:set_light_data()` or
+* `VoxelManip:set_param2_data()`
 
 The parameter to each of the above three functions can use any table at all in
 the same flat array format as produced by `get_data()` etc. and is not required
 to be a table retrieved from `get_data()`.
 
 Once the internal VoxelManip state has been modified to your liking, the
-changes can be committed back to the map by calling `VoxelManip:write_to_map()`
+changes can be committed back to the map by calling `VoxelManip:write_to_map()`.
 
 ### Flat array format
 
@@ -5173,15 +5173,22 @@ inside the VoxelManip.
 Methods
 -------
 
-* `read_from_map(p1, p2)`: Loads a chunk of map into the VoxelManip object
+* `read_from_map(p1, p2)`: Loads a part of the map into the VoxelManip object
   containing the region formed by `p1` and `p2`.
-    * returns actual emerged `pmin`, actual emerged `pmax`
+    * returns actual emerged `pmin`, actual emerged `pmax` (MapBlock-aligned)
     * Note that calling this multiple times will *add* to the area loaded in the
       VoxelManip, and not reset it.
+* `initialize(p1, p2, [node])`: Clears and resizes the VoxelManip object to
+  comprise the region formed by `p1` and `p2`.
+   * **No data** is read from the map, so you can use this to treat `VoxelManip`
+     objects as general containers of node data.
+   * `node`: if present the data will be filled with this node; if not it will
+     be uninitialized
+   * returns actual emerged `pmin`, actual emerged `pmax` (MapBlock-aligned)
+   * (introduced in 5.13.0)
 * `write_to_map([light])`: Writes the data loaded from the `VoxelManip` back to
   the map.
-    * **important**: data must be set using `VoxelManip:set_data()` before
-      calling this.
+    * **important**: you should call `set_data()` before this, or nothing will change.
     * if `light` is true, then lighting is automatically recalculated.
       The default value is true.
       If `light` is false, no light calculations happen, and you should correct
@@ -5242,6 +5249,8 @@ Methods
    where the engine will keep the map and the VM in sync automatically.
    * Note: this doesn't do what you think it does and is subject to removal. Don't use it!
 * `get_emerged_area()`: Returns actual emerged minimum and maximum positions.
+   * "Emerged" does not imply that this region was actually loaded from the map,
+      if `initialize()` has been used.
 * `close()`: Frees the data buffers associated with the VoxelManip object.
    It will become empty.
    * Since Lua's garbage collector is not aware of the potentially significant
