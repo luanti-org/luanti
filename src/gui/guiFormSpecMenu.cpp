@@ -1235,9 +1235,13 @@ void GUIFormSpecMenu::parseTable(parserData* data, const std::string &element)
 		item = wide_to_utf8(unescape_translate(utf8_to_wide(unescape_string(item))));
 	}
 
-	//now really show table
 	GUITable *e = new GUITable(Environment, data->current_parent, spec.fid,
 			rect, m_tsrc);
+
+	// Apply styling before calculating the cell sizes
+	auto style = getDefaultStyleForElement("table", name);
+	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+	e->setOverrideFont(style.getFont());
 
 	if (spec.fname == m_focused_element) {
 		Environment->setFocus(e);
@@ -1251,10 +1255,6 @@ void GUIFormSpecMenu::parseTable(parserData* data, const std::string &element)
 
 	if (!str_initial_selection.empty() && str_initial_selection != "0")
 		e->setSelected(stoi(str_initial_selection));
-
-	auto style = getDefaultStyleForElement("table", name);
-	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-	e->setOverrideFont(style.getFont());
 
 	m_tables.emplace_back(spec, e);
 	m_fields.push_back(spec);
