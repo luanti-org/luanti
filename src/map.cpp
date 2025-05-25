@@ -772,7 +772,7 @@ void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 		infostream<<std::endl;
 	}
 
-	const bool all_new = m_area.hasEmptyExtent() || block_area_nodes.contains(m_area);
+	const bool all_new = m_area.hasEmptyExtent();
 	addArea(block_area_nodes);
 
 	for(s32 z=p_min.Z; z<=p_max.Z; z++)
@@ -798,9 +798,9 @@ void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 
 		if(block_data_inexistent)
 		{
-
 			if (load_if_inexistent && !blockpos_over_max_limit(p)) {
 				block = m_map->emergeBlock(p, true);
+				assert(block);
 				block->copyTo(*this);
 			} else {
 				flags |= VMANIP_BLOCK_DATA_INEXIST;
