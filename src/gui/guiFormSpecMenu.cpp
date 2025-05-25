@@ -2754,9 +2754,13 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 	}
 
 	bool style_type = (data->type == "style_type");
+	bool do_warn = m_formspec_version <= FORMSPEC_API_VERSION;
 
-	parse_style_to_map(style_type ? theme_by_type : theme_by_name,
-		element, &property_warned);
+	parse_style_to_map(
+		style_type ? theme_by_type : theme_by_name,
+		element,
+		do_warn ? &property_warned : nullptr
+	);
 }
 
 void GUIFormSpecMenu::parseSetFocus(parserData*, const std::string &element)
@@ -2895,8 +2899,8 @@ void GUIFormSpecMenu::removeAll()
 		scroll_container_it.second->drop();
 }
 
-const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFormSpecMenu::parserData *data,
-	const std::string &description)>> GUIFormSpecMenu::element_parsers = {
+const std::unordered_map<std::string, GUIFormSpecMenu::parser_function_t>
+	GUIFormSpecMenu::element_parsers = {
 		{"container",              &GUIFormSpecMenu::parseContainer},
 		{"container_end",          &GUIFormSpecMenu::parseContainerEnd},
 		{"list",                   &GUIFormSpecMenu::parseList},
@@ -2945,14 +2949,20 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"allow_close",            &GUIFormSpecMenu::parseAllowClose},
 };
 
+// Formspec elements allowed for themes
+const std::unordered_map<std::string, GUIFormSpecMenu::parser_function_t>
+	GUIFormSpecMenu::element_parsers_theme = {
+		{"bgcolor",                &GUIFormSpecMenu::parseBackgroundColor},
+		{"style_type",             &GUIFormSpecMenu::parseStyle},
+};
 
-void GUIFormSpecMenu::parseElement(parserData* data, const std::string &element)
+void GUIFormSpecMenu::parseElement(parserData *data, const std::string &element, bool is_theme)
 {
 	//some prechecks
 	if (element.empty())
 		return;
 
-	if (parseVersionDirect(element))
+	if (!is_theme && parseVersionDirect(element))
 		return;
 
 	size_t pos = element.find('[');
@@ -2965,8 +2975,9 @@ void GUIFormSpecMenu::parseElement(parserData* data, const std::string &element)
 	// They remain here due to bool flags, for now
 	data->type = type;
 
-	auto it = element_parsers.find(type);
-	if (it != element_parsers.end()) {
+	auto &parser_lut = is_theme ? element_parsers_theme : element_parsers;
+	auto it = parser_lut.find(type);
+	if (it != parser_lut.end()) {
 		it->second(this, data, description);
 		return;
 	}
@@ -3039,7 +3050,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	m_dropdowns.clear();
 	m_scroll_containers.clear();
 	theme_by_name.clear();
-	theme_by_type = theme_by_type_default;
+	theme_by_type.clear();
 	m_clickthrough_elements.clear();
 	field_enter_after_edit.clear();
 	field_close_on_enter.clear();
@@ -3236,6 +3247,16 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 			this, -1, background_parent_rect));
 
 	pos_offset = v2f32();
+
+	if (!m_theme_elements.empty()) {
+		// Formspec theming
+
+		const u16 version_backup = m_formspec_version;
+		m_formspec_version = m_theme_formspec_version;
+		for (const std::string &element : m_theme_elements)
+			parseElement(&mydata, element, true);
+		m_formspec_version = version_backup;
+	}
 
 	// used for formspec versions < 3
 	auto legacy_sort_start = std::prev(Children.end()); // last element
@@ -5029,7 +5050,7 @@ std::wstring GUIFormSpecMenu::getLabelByID(s32 id)
 
 void GUIFormSpecMenu::setThemeFromSettings()
 {
-	theme_by_type_default.clear();
+	m_theme_elements.clear();
 
 	const std::string settingspath = g_settings->get("texture_path") + DIR_DELIM + "texture_pack.conf";
 	Settings settings;
@@ -5038,19 +5059,8 @@ void GUIFormSpecMenu::setThemeFromSettings()
 	if (!settings.exists("formspec_theme"))
 		return;
 
-	std::unordered_set<std::string> *prop_warned = nullptr;
-	{
-		u16 fs_ver = FORMSPEC_API_VERSION;
-		settings.getU16NoEx("formspec_version_theme", fs_ver);
-		if (fs_ver <= FORMSPEC_API_VERSION)
-			prop_warned = &property_warned;
-		// else: silence
-	}
-
-	auto splits = split(settings.get("formspec_theme"), '\n');
-	for (const std::string &s : splits) {
-		parse_style_to_map(theme_by_type_default, s, prop_warned);
-	}
+	settings.getU16NoEx("formspec_version_theme", m_theme_formspec_version);
+	m_theme_elements = split(settings.get("formspec_theme"), ']');
 }
 
 void GUIFormSpecMenu::onTxpSettingChanged(const std::string &name, void *data)

@@ -303,10 +303,12 @@ protected:
 		size_t args_min, size_t args_max, std::vector<std::string> &parts);
 
 	using StyleSpecMap = std::unordered_map<std::string, std::vector<StyleSpec>>;
-	StyleSpecMap theme_by_type, theme_by_name,
-		theme_by_type_default;
+	StyleSpecMap theme_by_type, theme_by_name;
 	std::unordered_set<std::string> property_warned;
 
+	// Texturepack-definied formspec theming support
+	std::vector<std::string> m_theme_elements;
+	u16 m_theme_formspec_version;
 	void setThemeFromSettings();
 	static void onTxpSettingChanged(const std::string &name, void *data);
 
@@ -423,7 +425,9 @@ private:
 		std::string type;
 	};
 
-	static const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFormSpecMenu::parserData *data, const std::string &description)>> element_parsers;
+	using parser_function_t = std::function<void(GUIFormSpecMenu*, parserData *, const std::string &)>;
+	static const std::unordered_map<std::string, parser_function_t>
+			element_parsers, element_parsers_theme;
 
 	struct fs_key_pending {
 		bool key_up;
@@ -437,7 +441,7 @@ private:
 
 	void removeAll();
 
-	void parseElement(parserData* data, const std::string &element);
+	void parseElement(parserData* data, const std::string &element, bool is_theme = false);
 
 	void parseSize(parserData* data, const std::string &element);
 	void parseContainer(parserData* data, const std::string &element);
