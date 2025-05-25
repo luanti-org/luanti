@@ -132,16 +132,16 @@ jobs:
         run: |
           ./util/test_multiplayer.sh
 
-  # Build with prometheus-cpp (server-only)
-  clang_11_prometheus:
-    name: "clang_11 (PROMETHEUS=1)"
-    runs-on: ubuntu-22.04
+  # Build with prometheus-cpp (server-only), also runs on ARM64
+  clang_prometheus_arm:
+    name: "clang (with Prometheus, ARM64)"
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps clang-11
+          install_linux_deps --headless clang libluajit-5.1-dev
 
       - name: Build prometheus-cpp
         run: ./util/ci/build_prometheus_cpp.sh
@@ -150,8 +150,8 @@ jobs:
         run: |
           ./util/ci/build.sh
         env:
-          CC: clang-11
-          CXX: clang++-11
+          CC: clang
+          CXX: clang++
           CMAKE_FLAGS: "-DENABLE_PROMETHEUS=1 -DBUILD_CLIENT=0 -DENABLE_CURSES=0"
 
       - name: Test
