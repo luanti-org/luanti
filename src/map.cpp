@@ -789,20 +789,10 @@ void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 		if (auto it = had_blocks.find(p); it != had_blocks.end() && it->second)
 			continue;
 
-		MapBlock *block;
-		bool block_data_inexistent = false;
-		{
-			TimeTaker timer2("emerge load", &emerge_load_time);
-
-			block = m_map->getBlockNoCreateNoEx(p);
-			if (!block)
-				block_data_inexistent = true;
-			else
-				block->copyTo(*this);
-		}
-
-		if(block_data_inexistent)
-		{
+		MapBlock *block = m_map->getBlockNoCreateNoEx(p);
+		if (block) {
+			block->copyTo(*this);
+		} else {
 			if (load_if_inexistent && !blockpos_over_max_limit(p)) {
 				block = m_map->emergeBlock(p, true);
 				assert(block);
@@ -862,6 +852,8 @@ void MMVManip::blitBackAll(std::map<v3s16, MapBlock*> *modified_blocks,
 		return;
 	assert(m_map);
 
+	size_t nload = 0;
+
 	// Copy all the blocks with data back to the map
 	const auto loaded_blocks = getCoveredBlocks();
 	for (auto &it : loaded_blocks) {
@@ -869,7 +861,18 @@ void MMVManip::blitBackAll(std::map<v3s16, MapBlock*> *modified_blocks,
 			continue;
 		v3s16 p = it.first;
 		MapBlock *block = m_map->getBlockNoCreateNoEx(p);
-		if (!block || (!overwrite_generated && block->isGenerated()))
+		if (!block) {
+			if (!blockpos_over_max_limit(p)) {
+				block = m_map->emergeBlock(p, true);
+				nload++;
+			}
+		}
+		if (!block) {
+			warningstream << "blitBackAll: Couldn't load block " << p
+				<< " to write data to map" << std::endl;
+			continue;
+		}
+		if (!overwrite_generated && block->isGenerated())
 			continue;
 
 		block->copyFrom(*this);
@@ -878,6 +881,10 @@ void MMVManip::blitBackAll(std::map<v3s16, MapBlock*> *modified_blocks,
 
 		if(modified_blocks)
 			(*modified_blocks)[p] = block;
+	}
+
+	if (nload > 0) {
+		verbosestream << "blitBackAll: " << nload << " blocks had to be loaded for writing" << std::endl;
 	}
 }
 
