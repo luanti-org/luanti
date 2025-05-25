@@ -5242,6 +5242,13 @@ Methods
    where the engine will keep the map and the VM in sync automatically.
    * Note: this doesn't do what you think it does and is subject to removal. Don't use it!
 * `get_emerged_area()`: Returns actual emerged minimum and maximum positions.
+* `close()`: Frees the data buffers associated with the VoxelManip object.
+   It will become empty.
+   * Since Lua's garbage collector is not aware of the potentially significant
+     memory behind a VoxelManip, frequent VoxelManip usage can cause the server to
+     run out of RAM. Therefore it's recommend to call this method once you're done
+     with the VoxelManip.
+   * (introduced in 5.13.0)
 
 `VoxelArea`
 -----------

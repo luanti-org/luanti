@@ -344,6 +344,19 @@ int LuaVoxelManip::l_get_emerged_area(lua_State *L)
 	return 2;
 }
 
+int LuaVoxelManip::l_close(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	LuaVoxelManip *o = checkObject<LuaVoxelManip>(L, 1);
+
+	if (o->is_mapgen_vm)
+		throw LuaError("Cannot dispose of mapgen VoxelManip object");
+	o->vm->clear();
+
+	return 0;
+}
+
 LuaVoxelManip::LuaVoxelManip(MMVManip *mmvm, bool is_mg_vm) :
 	is_mapgen_vm(is_mg_vm),
 	vm(mmvm)
@@ -451,5 +464,6 @@ const luaL_Reg LuaVoxelManip::methods[] = {
 	luamethod(LuaVoxelManip, set_param2_data),
 	luamethod(LuaVoxelManip, was_modified),
 	luamethod(LuaVoxelManip, get_emerged_area),
+	luamethod(LuaVoxelManip, close),
 	{0,0}
 };
