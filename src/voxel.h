@@ -469,7 +469,7 @@ public:
 		Control
 	*/
 
-	virtual void clear();
+	void clear();
 
 	void print(std::ostream &o, const NodeDefManager *nodemgr,
 			VoxelPrintMode mode=VOXELPRINT_MATERIAL) const;

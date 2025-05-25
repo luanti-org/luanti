@@ -772,6 +772,11 @@ void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 		infostream<<std::endl;
 	}
 
+	std::map<v3s16, bool> had_blocks;
+	// we can skip this calculation if the areas are disjoint
+	if (!m_area.intersect(block_area_nodes).hasEmptyExtent())
+		had_blocks = getCoveredBlocks();
+
 	const bool all_new = m_area.hasEmptyExtent();
 	addArea(block_area_nodes);
 
@@ -779,12 +784,12 @@ void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 	for(s32 y=p_min.Y; y<=p_max.Y; y++)
 	for(s32 x=p_min.X; x<=p_max.X; x++)
 	{
-		u8 flags = 0;
-		MapBlock *block;
 		v3s16 p(x,y,z);
-		if (m_loaded_blocks.count(p) > 0)
+		// if this block was already in the vmanip and it has data, skip
+		if (auto it = had_blocks.find(p); it != had_blocks.end() && it->second)
 			continue;
 
+		MapBlock *block;
 		bool block_data_inexistent = false;
 		{
 			TimeTaker timer2("emerge load", &emerge_load_time);
@@ -803,19 +808,51 @@ void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 				assert(block);
 				block->copyTo(*this);
 			} else {
-				flags |= VMANIP_BLOCK_DATA_INEXIST;
-
 				// Mark area inexistent
 				VoxelArea a(p*MAP_BLOCKSIZE, (p+1)*MAP_BLOCKSIZE-v3s16(1,1,1));
 				setFlags(a, VOXELFLAG_NO_DATA);
 			}
 		}
-
-		m_loaded_blocks[p] = flags;
 	}
 
 	if (all_new)
 		m_is_dirty = false;
+}
+
+std::map<v3s16, bool> MMVManip::getCoveredBlocks() const
+{
+	std::map<v3s16, bool> ret;
+	if (m_area.hasEmptyExtent())
+		return ret;
+
+	// Figure out if *any* node in this block has data according to m_flags
+	const auto &check_block = [this] (v3s16 bp) -> bool {
+		v3s16 pmin = bp * MAP_BLOCKSIZE;
+		v3s16 pmax = pmin + v3s16(MAP_BLOCKSIZE-1);
+		for(s16 z=pmin.Z; z<=pmax.Z; z++)
+		for(s16 y=pmin.Y; y<=pmax.Y; y++)
+		for(s16 x=pmin.X; x<=pmax.X; x++) {
+			if (!(m_flags[m_area.index(x,y,z)] & VOXELFLAG_NO_DATA))
+				return true;
+		}
+		return false;
+	};
+
+	v3s16 bpmin = getNodeBlockPos(m_area.MinEdge);
+	v3s16 bpmax = getNodeBlockPos(m_area.MaxEdge);
+
+	if (bpmin * MAP_BLOCKSIZE != m_area.MinEdge)
+		throw BaseException("MMVManip not block-aligned");
+	if ((bpmax+1) * MAP_BLOCKSIZE - v3s16(1) != m_area.MaxEdge)
+		throw BaseException("MMVManip not block-aligned");
+
+	for(s16 z=bpmin.Z; z<=bpmax.Z; z++)
+	for(s16 y=bpmin.Y; y<=bpmax.Y; y++)
+	for(s16 x=bpmin.X; x<=bpmax.X; x++) {
+		v3s16 bp(x,y,z);
+		ret[bp] = check_block(bp);
+	}
+	return ret;
 }
 
 void MMVManip::blitBackAll(std::map<v3s16, MapBlock*> *modified_blocks,
@@ -825,16 +862,14 @@ void MMVManip::blitBackAll(std::map<v3s16, MapBlock*> *modified_blocks,
 		return;
 	assert(m_map);
 
-	/*
-		Copy data of all blocks
-	*/
-	assert(!m_loaded_blocks.empty());
-	for (auto &loaded_block : m_loaded_blocks) {
-		v3s16 p = loaded_block.first;
+	// Copy all the blocks with data back to the map
+	const auto loaded_blocks = getCoveredBlocks();
+	for (auto &it : loaded_blocks) {
+		if (!it.second)
+			continue;
+		v3s16 p = it.first;
 		MapBlock *block = m_map->getBlockNoCreateNoEx(p);
-		bool existed = !(loaded_block.second & VMANIP_BLOCK_DATA_INEXIST);
-		if (!existed || (block == NULL) ||
-			(!overwrite_generated && block->isGenerated()))
+		if (!block || (!overwrite_generated && block->isGenerated()))
 			continue;
 
 		block->copyFrom(*this);
@@ -860,11 +895,7 @@ MMVManip *MMVManip::clone() const
 		ret->m_flags = new u8[size];
 		memcpy(ret->m_flags, m_flags, size * sizeof(u8));
 	}
-
 	ret->m_is_dirty = m_is_dirty;
-	// Even if the copy is disconnected from a map object keep the information
-	// needed to write it back to one
-	ret->m_loaded_blocks = m_loaded_blocks;
 
 	return ret;
 }
