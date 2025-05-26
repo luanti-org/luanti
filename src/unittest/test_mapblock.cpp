@@ -53,43 +53,53 @@ void TestMapBlock::runTests(IGameDef *gamedef)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static const u32 nodecount = MAP_BLOCKSIZE * MAP_BLOCKSIZE * MAP_BLOCKSIZE;
 
 void TestMapBlock::testMonoblock(IGameDef *gamedef)
 {
 	MapBlock block({}, gamedef);
 	UASSERT(!block.m_is_mono_block);
+	MapNode *t = block.data;
 	for (size_t i = 0; i < MapBlock::nodecount; ++i) {
 		block.data[i] = MapNode(CONTENT_AIR);
 	}
 	// covert to monoblock
 	block.tryConvertToMonoblock();
-	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+	UASSERT(block.m_is_mono_block);
 	UASSERT(block.data[0].param0 == CONTENT_AIR);
+	UASSERT(block.data != t);
+	t = block.data;
 
 	// get the data(), should deconvert the block
-	block.getData();
+	MapNode *d1 = block.getData();
 	UASSERT(!block.m_is_mono_block);
+	UASSERT(block.data != t);
+	UASSERT(block.data == d1);
 
 	// covert back to mono block
 	block.tryConvertToMonoblock();
-	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+	UASSERT(block.m_is_mono_block);
+	t = block.data;
 
 	// deconvert explicitly
 	block.deconvertMonoblock();
-	UASSERT(!block.m_is_mono_block && block.data.size() == nodecount);
+	UASSERT(!block.m_is_mono_block);
+	UASSERT(block.data != t);
 
 	// covert back to mono block
 	block.tryConvertToMonoblock();
-	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+	UASSERT(block.m_is_mono_block);
+	t = block.data;
 
 	// set a node, should deconvert the block
 	block.setNode(5,5,5, MapNode(42));
-	UASSERT(!block.m_is_mono_block && block.data.size() == nodecount);
+	UASSERT(!block.m_is_mono_block);
+	UASSERT(block.data != t);
+	t = block.data;
 
 	// cannot covert to mono block
 	block.tryConvertToMonoblock();
-	UASSERT(!block.m_is_mono_block && block.data.size() == nodecount);
+	UASSERT(!block.m_is_mono_block);
+	UASSERT(block.data == t);
 
 	// set all nodes to 42
 	for (size_t i = 0; i < MapBlock::nodecount; ++i) {
@@ -98,8 +108,10 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 
 	// can covert to mono block
 	block.tryConvertToMonoblock();
-	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+	UASSERT(block.m_is_mono_block);
 	UASSERT(block.data[0].param0 == 42);
+	UASSERT(block.data != t);
+	t = block.data;
 
 	VoxelManipulator vmm;
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
@@ -109,14 +121,15 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	UASSERT(vmm.getNode({5,5,5}).param0 == 42);
 
 	block.setNode(5,5,5,MapNode(23));
+	t = block.data;
 
 	block.copyFrom(vmm);
-	UASSERT(block.m_is_mono_block && block.data.size() == 1);
+	UASSERT(block.m_is_mono_block);
 	UASSERT(block.data[0].param0 == 42);
 
 	vmm.setNode({5,5,5}, MapNode(23));
 	block.copyFrom(vmm);
-	UASSERT(!block.m_is_mono_block && block.data.size() == nodecount);
+	UASSERT(!block.m_is_mono_block);
 }
 
 void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)

@@ -850,9 +850,16 @@ MMVManip *MMVManip::clone() const
 {
 	MMVManip *ret = new MMVManip();
 
+	const u32 size = m_area.getVolume();
 	ret->m_area = m_area;
-	ret->m_data = m_data;
-	ret->m_flags = m_flags;
+	if (m_data) {
+		ret->m_data = new MapNode[size];
+		memcpy(ret->m_data, m_data, size * sizeof(MapNode));
+	}
+	if (m_flags) {
+		ret->m_flags = new u8[size];
+		memcpy(ret->m_flags, m_flags, size * sizeof(u8));
+	}
 
 	ret->m_is_dirty = m_is_dirty;
 	// Even if the copy is disconnected from a map object keep the information

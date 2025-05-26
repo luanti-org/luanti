@@ -102,9 +102,9 @@ static const char *modified_reason_strings[] = {
 MapBlock::MapBlock(v3s16 pos, IGameDef *gamedef):
 		m_pos(pos),
 		m_pos_relative(pos * MAP_BLOCKSIZE),
-		data(nodecount, MapNode(CONTENT_IGNORE)),
 		m_gamedef(gamedef)
 {
+	reallocate(nodecount, MapNode(CONTENT_IGNORE));
 }
 
 MapBlock::~MapBlock()
@@ -116,6 +116,7 @@ MapBlock::~MapBlock()
 	}
 #endif
 
+	delete[] data;
 	if (!m_is_mono_block)
 		porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
 }
@@ -233,10 +234,13 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 
 void MapBlock::reallocate(u32 c, MapNode n)
 {
-	if (data.size() > c)
-		porting::TrackFreedMemory(sizeof(MapNode) * (data.size() - c));
+	delete[] data;
+	if (c == 1)
+		porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
 
-	data = std::vector<MapNode>(c, n);
+	data = new MapNode[c];
+	for (u32 i = 0; i < c; i++)
+		data[i] = n;
 }
 
 void MapBlock::tryConvertToMonoblock()
@@ -306,14 +310,14 @@ void MapBlock::expireIsAirCache()
 // Renumbers the content IDs (starting at 0 and incrementing)
 // Note that there's no technical reason why we *have to* renumber the IDs,
 // but we do it anyway as it also helps compressability.
-static void getBlockNodeIdMapping(NameIdMapping *nimap, std::vector<MapNode> &nodes,
-	const NodeDefManager *nodedef)
+static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
+	const NodeDefManager *nodedef, u32 nodecount)
 {
 	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
 
 	content_t id_counter = 0;
-	for (auto &node : nodes) {
-		content_t global_id = node.getContent();
+	for (u32 i = 0; i < nodecount; i++) {
+		content_t global_id = nodes[i].getContent();
 		content_t id = CONTENT_IGNORE;
 
 		// Try to find an existing mapping
@@ -329,14 +333,14 @@ static void getBlockNodeIdMapping(NameIdMapping *nimap, std::vector<MapNode> &no
 		}
 
 		// Update the MapNode
-		node.setContent(id);
+		nodes[i].setContent(id);
 	}
 }
 
 // Correct ids in the block to match nodedef based on names.
 // Unknown ones are added to nodedef.
 // Will not update itself to match id-name pairs in nodedef.
-static void correctBlockNodeIds(const NameIdMapping *nimap, std::vector<MapNode> &nodes,
+static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 		IGameDef *gamedef)
 {
 	const NodeDefManager *nodedef = gamedef->ndef();
@@ -425,11 +429,21 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 	const u8 params_width = 2;
 	if(disk)
 	{
-		std::vector<MapNode> tmp_nodes = data;
-		getBlockNodeIdMapping(&nimap, tmp_nodes, m_gamedef->ndef());
+		MapNode *tmp_nodes;
+		if (m_is_mono_block) {
+			tmp_nodes = new MapNode[1];
+			tmp_nodes[0] = data[0];
+		}
+		else
+		{
+			tmp_nodes = new MapNode[nodecount];
+			memcpy(tmp_nodes, data, nodecount * sizeof(MapNode));
+		}
+		getBlockNodeIdMapping(&nimap, tmp_nodes, m_gamedef->ndef(), m_is_mono_block ? 1 : nodecount);
 
 		buf = MapNode::serializeBulk(version, tmp_nodes, nodecount,
 				content_width, params_width, m_is_mono_block);
+		delete[] tmp_nodes;
 
 		// write timestamp and node/id mapping first
 		if (version >= 29) {

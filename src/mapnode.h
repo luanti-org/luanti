@@ -306,10 +306,10 @@ struct alignas(u32) MapNode
 	//   params_width = the number of bytes of params per node
 	//   compressed = true to zlib-compress output
 	static Buffer<u8> serializeBulk(int version,
-			const std::vector<MapNode> &nodes, u32 nodecount,
+			const MapNode *nodes, u32 nodecount,
 			u8 content_width, u8 params_width, bool is_mono_block = false);
 	static void deSerializeBulk(std::istream &is, int version,
-			std::vector<MapNode> &nodes, u32 nodecount,
+			MapNode *nodes, u32 nodecount,
 			u8 content_width, u8 params_width);
 
 private:

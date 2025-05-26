@@ -225,7 +225,7 @@ bool read_schematic_def(lua_State *L, int index,
 	luaL_checktype(L, -1, LUA_TTABLE);
 
 	u32 numnodes = size.X * size.Y * size.Z;
-	schem->schemdata = std::vector<MapNode>(numnodes);
+	schem->schemdata = new MapNode[numnodes];
 
 	size_t names_base = names->size();
 	std::unordered_map<std::string, content_t> name_id_map;
@@ -277,7 +277,7 @@ bool read_schematic_def(lua_State *L, int index,
 	}
 
 	//// Get Y-slice probability values (if present)
-	schem->slice_probs = std::vector<u8>(size.Y);
+	schem->slice_probs = new u8[size.Y];
 	for (i = 0; i != (u32) size.Y; i++)
 		schem->slice_probs[i] = MTSCHEM_PROB_ALWAYS;
 

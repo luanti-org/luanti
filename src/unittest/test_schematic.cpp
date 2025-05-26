@@ -62,8 +62,8 @@ void TestSchematic::testMtsSerializeDeserialize(const NodeDefManager *ndef)
 
 	schem.flags       = 0;
 	schem.size        = size;
-	schem.schemdata   = std::vector<MapNode>(volume);
-	schem.slice_probs = std::vector<u8>(size.Y);
+	schem.schemdata   = new MapNode[volume];
+	schem.slice_probs = new u8[size.Y];
 	for (size_t i = 0; i != volume; i++)
 		schem.schemdata[i] = MapNode(test_schem1_data[i], MTSCHEM_PROB_ALWAYS, 0);
 	for (s16 y = 0; y != size.Y; y++)
@@ -102,8 +102,8 @@ void TestSchematic::testLuaTableSerialize(const NodeDefManager *ndef)
 
 	schem.flags       = 0;
 	schem.size        = size;
-	schem.schemdata   = std::vector<MapNode>(volume);
-	schem.slice_probs = std::vector<u8>(size.Y);
+	schem.schemdata   = new MapNode[volume];
+	schem.slice_probs = new u8[size.Y];
 	for (size_t i = 0; i != volume; i++)
 		schem.schemdata[i] = MapNode(test_schem2_data[i], test_schem2_prob[i], 0);
 	for (s16 y = 0; y != size.Y; y++)
@@ -143,8 +143,8 @@ void TestSchematic::testFileSerializeDeserialize(const NodeDefManager *ndef)
 	//// Construct the schematic to save
 	schem1.flags          = 0;
 	schem1.size           = size;
-	schem1.schemdata      = std::vector<MapNode>(volume);
-	schem1.slice_probs    = std::vector<u8>(size.Y);
+	schem1.schemdata      = new MapNode[volume];
+	schem1.slice_probs    = new u8[size.Y];
 	schem1.slice_probs[0] = 80;
 	schem1.slice_probs[1] = 160;
 	schem1.slice_probs[2] = 240;

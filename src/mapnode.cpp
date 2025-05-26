@@ -588,7 +588,7 @@ void MapNode::deSerialize(const u8 *source, u8 version)
 }
 
 Buffer<u8> MapNode::serializeBulk(int version,
-		const std::vector<MapNode> &nodes, u32 nodecount,
+		const MapNode *nodes, u32 nodecount,
 		u8 content_width, u8 params_width, bool is_mono_block)
 {
 	if (!ser_ver_supported_write(version))
@@ -615,7 +615,7 @@ Buffer<u8> MapNode::serializeBulk(int version,
 
 // Deserialize bulk node data
 void MapNode::deSerializeBulk(std::istream &is, int version,
-		std::vector<MapNode> &nodes, u32 nodecount,
+		MapNode *nodes, u32 nodecount,
 		u8 content_width, u8 params_width)
 {
 	if (!ser_ver_supported_read(version))
