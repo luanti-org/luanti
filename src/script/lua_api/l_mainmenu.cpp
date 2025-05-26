@@ -1130,8 +1130,7 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
 	API_FCT(ask_lan_servers);
-  	API_FCT(get_lan_servers);
-
+	API_FCT(get_lan_servers);
 	lua_pushboolean(L, g_first_run);
 	lua_setfield(L, top, "is_first_run");
 }
