@@ -1792,7 +1792,7 @@ LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output):
 {
 }
 
-void LodMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const
+void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const
 {
     std::vector<u16> min_dists(8, U16_MAX);
     std::array<v3s16, 8> outs;
@@ -1816,202 +1816,208 @@ void LodMeshGenerator::findClosestOfTypes(std::bitset<19> types, std::array<v3s1
     bases = outs;
 }
 
-void LodMeshGenerator::generateCloseLod(std::bitset<19> types, u32 width, f32 y_offset, u8 min_size){
-    // too tiny lods should be skipped
-    // but to avoid holes in the world, we need to track which volumes got skipped
-    u8 num = data->m_side_length / width + 2;
-    std::vector skipped_volumes(num, std::vector(num, std::vector(num, false)));
-    // track this as well, to avoid recomputing
-    std::vector volume_points(num, std::vector(num, std::vector(num, v3s16(S16_MAX))));
-    std::vector faces(num, std::vector(num, std::vector<std::bitset<6>>(num)));
-    std::vector volumes(num, std::vector(num, std::vector(num, irr::core::aabbox3d(v3s16(S16_MAX), v3s16(S16_MIN)))));
+void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width, u8 min_size){
+	u8 num = data->m_side_length / width + 2;
+	// for now, assume chunk size is <= 8
+	std::bitset<66> all_set_nodes[3][66][66];
+	std::unordered_map<content_t, MapNode> node_types;
+	std::unordered_map<content_t, std::bitset<66>[3][66][66]> set_nodes;
 
-    for (u8 x = 0; x < num; x++)
-    for (u8 y = 0; y < num; y++)
-    for (u8 z = 0; z < num; z++){
-        v3s16 from = v3s16(x - 1, y - 1, z - 1) * width + blockpos_nodes;
-        v3s16 to = from + width;
+	MapNode main_node;
 
-        if (width > MAP_BLOCKSIZE) {
-            if (x == 0) from.X += width - MAP_BLOCKSIZE;
-            if (y == 0) from.Y += width - MAP_BLOCKSIZE;
-            if (z == 0) from.Z += width - MAP_BLOCKSIZE;
-            if (x == num-1) to.X -= width - MAP_BLOCKSIZE;
-            if (y == num-1) to.Y -= width - MAP_BLOCKSIZE;
-            if (z == num-1) to.Z -= width - MAP_BLOCKSIZE;
-        }
+    for (s8 x = 0; x < num; x++)
+    for (s8 y = 0; y < num; y++)
+    for (s8 z = 0; z < num; z++){
+        v3s16 from = v3s16(blockpos_nodes.X + (x == 0 ? -1 : (x - 1) * width),
+        				   blockpos_nodes.Y + (y == 0 ? -1 : (y - 1) * width),
+        				   blockpos_nodes.Z + (z == 0 ? -1 : (z - 1) * width));
+        v3s16 to = v3s16(from.X + (x == num-1 ? 1 : width),
+                         from.Y + (y == num-1 ? 1 : width),
+                         from.Z + (z == num-1 ? 1 : width));
 
-        v3s16 main_point;
         v3s16 p;
-        for (p.Y = from.Y; p.Y < to.Y; p.Y++)
+    	content_t node_type;
+    	core::aabbox3d bounds(v3s16(S16_MAX), v3s16(S16_MIN));
         for (p.Z = from.Z; p.Z < to.Z; p.Z++)
+        for (p.Y = from.Y; p.Y < to.Y; p.Y++)
         for (p.X = from.X; p.X < to.X; p.X++){
             MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
             if (n.getContent() == CONTENT_IGNORE){
-                skipped_volumes[x][y][z] = true;
-                goto next_node;
+                goto next_volume;
             }
             const ContentFeatures *f = &nodedef->get(n);
             if (!types.test(f->drawtype))
                 continue;
-            main_point = p;
-            volumes[x][y][z].MinEdge.X = MYMIN(volumes[x][y][z].MinEdge.X , p.X);
-            volumes[x][y][z].MinEdge.Y = MYMIN(volumes[x][y][z].MinEdge.Y , p.Y);
-            volumes[x][y][z].MinEdge.Z = MYMIN(volumes[x][y][z].MinEdge.Z , p.Z);
-            volumes[x][y][z].MaxEdge.X = MYMAX(volumes[x][y][z].MaxEdge.X , p.X);
-            volumes[x][y][z].MaxEdge.Y = MYMAX(volumes[x][y][z].MaxEdge.Y , p.Y);
-            volumes[x][y][z].MaxEdge.Z = MYMAX(volumes[x][y][z].MaxEdge.Z , p.Z);
+            bounds.MinEdge.X = MYMIN(bounds.MinEdge.X , p.X);
+            bounds.MinEdge.Y = MYMIN(bounds.MinEdge.Y , p.Y);
+            bounds.MinEdge.Z = MYMIN(bounds.MinEdge.Z , p.Z);
+            bounds.MaxEdge.X = MYMAX(bounds.MaxEdge.X , p.X);
+            bounds.MaxEdge.Y = MYMAX(bounds.MaxEdge.Y , p.Y);
+            bounds.MaxEdge.Z = MYMAX(bounds.MaxEdge.Z , p.Z);
+        	main_node = n;
         }
 
-        volume_points[x][y][z] = main_point;
-        // skip if LOD is too small
-        skipped_volumes[x][y][z] = volumes[x][y][z].MinEdge.X == S16_MAX || //
-        	volumes[x][y][z].MinEdge.getDistanceFromSQ(volumes[x][y][z].MaxEdge) < min_size;
-        next_node:
+        // skip if volume is empty or too small
+        if (bounds.MinEdge.X == S16_MAX || //
+        	bounds.MinEdge.getDistanceFromSQ(bounds.MaxEdge) < min_size)
+        	continue;
+
+    	bounds.MinEdge -= blockpos_nodes - 1;
+    	bounds.MaxEdge -= blockpos_nodes - 1;
+
+    	node_type = main_node.getContent();
+    	node_types[node_type] = main_node;
+        for (p.Z = bounds.MinEdge.Z; p.Z <= bounds.MaxEdge.Z; p.Z++)
+    	for (p.Y = bounds.MinEdge.Y; p.Y <= bounds.MaxEdge.Y; p.Y++)
+    	for (p.X = bounds.MinEdge.X; p.X <= bounds.MaxEdge.X; p.X++) {
+    		all_set_nodes[0][p.Y][p.Z].set(p.X);// x axis
+    		all_set_nodes[1][p.X][p.Z].set(p.Y);// y axis
+    		all_set_nodes[2][p.X][p.Y].set(p.Z);// z axis
+
+    		set_nodes[node_type][0][p.Y][p.Z].set(p.X);// x axis
+    		set_nodes[node_type][1][p.X][p.Z].set(p.Y);// y axis
+    		set_nodes[node_type][2][p.X][p.Y].set(p.Z);// z axis
+    	}
+        next_volume:
     }
+    num -= 2;
 
-    num--;
+	for (auto [key, value] : set_nodes) {
+		std::bitset<66> nodes_faces[6][64][64]; // -x, +x, -y, +y, -z, +z
 
-    for (u8 x = 1; x < num; x++)
-    for (u8 y = 1; y < num; y++)
-    for (u8 z = 1; z < num; z++){
-        if (skipped_volumes[x][y][z])
-            continue;
+		for (u8 u = 0; u < data->m_side_length; u++)
+		for (u8 v = 0; v < data->m_side_length; v++) {
+			// last shifts to remove padding
+			nodes_faces[0][u][v] = value[0][u+1][v+1] & (all_set_nodes[0][u+1][v+1] << 1).flip();
+			nodes_faces[1][u][v] = value[0][u+1][v+1] & (all_set_nodes[0][u+1][v+1] >> 1).flip();
+			nodes_faces[2][u][v] = value[1][u+1][v+1] & (all_set_nodes[1][u+1][v+1] << 1).flip();
+			nodes_faces[3][u][v] = value[1][u+1][v+1] & (all_set_nodes[1][u+1][v+1] >> 1).flip();
+			nodes_faces[4][u][v] = value[2][u+1][v+1] & (all_set_nodes[2][u+1][v+1] << 1).flip();
+			nodes_faces[5][u][v] = value[2][u+1][v+1] & (all_set_nodes[2][u+1][v+1] >> 1).flip();
+		}
 
-        irr::core::aabbox3d<s16> cur = volumes[x][y][z];
+		std::bitset<64> slices[6][64][64];
+		for (u8 direction = 0; direction < 6; direction++)
+		for (u8 u = 0; u < data->m_side_length; u++)
+		for (u8 v = 0; v < data->m_side_length; v++) {
+			u64 column = ((nodes_faces[direction][u][v] << 1) >> 2).to_ullong();
+			while (column) {
+				const u8 first_filled = std::__countr_zero(column);
+				slices[direction][first_filled][u].set(v);
+				column &= column - 1;
+			}
+		}
 
-        faces[x][y][z].set(0, skipped_volumes[x][y-1][z] || volumes[x][y-1][z].MaxEdge.Y+1 < cur.MinEdge.Y ||
-            volumes[x][y-1][z].MinEdge.X > cur.MinEdge.X || volumes[x][y-1][z].MinEdge.Z > cur.MinEdge.Z ||
-            volumes[x][y-1][z].MaxEdge.X < cur.MaxEdge.X || volumes[x][y-1][z].MaxEdge.Z < cur.MaxEdge.Z);
-
-        faces[x][y][z].set(1, skipped_volumes[x][y+1][z] || volumes[x][y+1][z].MinEdge.Y > cur.MaxEdge.Y+1 ||
-            volumes[x][y+1][z].MinEdge.X > cur.MinEdge.X || volumes[x][y+1][z].MinEdge.Z > cur.MinEdge.Z ||
-            volumes[x][y+1][z].MaxEdge.X < cur.MaxEdge.X || volumes[x][y+1][z].MaxEdge.Z < cur.MaxEdge.Z);
-
-        faces[x][y][z].set(2, skipped_volumes[x-1][y][z] || volumes[x-1][y][z].MaxEdge.X+1 < cur.MinEdge.X ||
-            volumes[x-1][y][z].MinEdge.Y > cur.MinEdge.Y || volumes[x-1][y][z].MinEdge.Z > cur.MinEdge.Z ||
-            volumes[x-1][y][z].MaxEdge.Y < cur.MaxEdge.Y || volumes[x-1][y][z].MaxEdge.Z < cur.MaxEdge.Z);
-
-        faces[x][y][z].set(3, skipped_volumes[x+1][y][z] || volumes[x+1][y][z].MinEdge.X > cur.MaxEdge.X+1 ||
-            volumes[x+1][y][z].MinEdge.Y > cur.MinEdge.Y || volumes[x+1][y][z].MinEdge.Z > cur.MinEdge.Z ||
-            volumes[x+1][y][z].MaxEdge.Y < cur.MaxEdge.Y || volumes[x+1][y][z].MaxEdge.Z < cur.MaxEdge.Z);
-
-        faces[x][y][z].set(4, skipped_volumes[x][y][z-1] || volumes[x][y][z-1].MaxEdge.Z+1 < cur.MinEdge.Z ||
-            volumes[x][y][z-1].MinEdge.X > cur.MinEdge.X || volumes[x][y][z-1].MinEdge.Y > cur.MinEdge.Y ||
-            volumes[x][y][z-1].MaxEdge.X < cur.MaxEdge.X || volumes[x][y][z-1].MaxEdge.Y < cur.MaxEdge.Y);
-
-        faces[x][y][z].set(5, skipped_volumes[x][y][z+1] || volumes[x][y][z+1].MinEdge.Z > cur.MaxEdge.Z+1 ||
-            volumes[x][y][z+1].MinEdge.X > cur.MinEdge.X || volumes[x][y][z+1].MinEdge.Y > cur.MinEdge.Y ||
-            volumes[x][y][z+1].MaxEdge.X < cur.MaxEdge.X || volumes[x][y][z+1].MaxEdge.Y < cur.MaxEdge.Y);
-    }
-    for (u8 x = 1; x < num; x++)
-    for (u8 y = 1; y < num; y++)
-    for (u8 z = 1; z < num; z++)
-        skipped_volumes[x][y][z] = skipped_volumes[x][y][z] || faces[x][y][z].none();
-
-    for (u8 x = 1; x < num; x++)
-    for (u8 y = 1; y < num; y++)
-    for (u8 z = 1; z < num; z++){
-        v3s16 lxlylz = volumes[x][y][z].MinEdge;
-        v3s16 hxhyhz = volumes[x][y][z].MaxEdge;
-
-        // skip empty or too small meshes
-        if (skipped_volumes[x][y][z]){
-            continue;
-        }
-
-        v3s16 lxlyhz(lxlylz.X, lxlylz.Y, hxhyhz.Z);
-        v3s16 lxhylz(lxlylz.X, hxhyhz.Y, lxlylz.Z);
-        v3s16 lxhyhz(lxlylz.X, hxhyhz.Y, hxhyhz.Z);
-        v3s16 hxlylz(hxhyhz.X, lxlylz.Y, lxlylz.Z);
-        v3s16 hxlyhz(hxhyhz.X, lxlylz.Y, hxhyhz.Z);
-        v3s16 hxhylz(hxhyhz.X, hxhyhz.Y, lxlylz.Z);
-
-        f32 w = hxhyhz.X - lxlylz.X + 1;
-        f32 h = hxhyhz.Y - lxlylz.Y + 1;
-        f32 d = hxhyhz.Z - lxlylz.Z + 1;
-
-        core::vector3df lxlylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-        core::vector3df lxlyhz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-        core::vector3df lxhylz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-        core::vector3df lxhyhz_f((lxlylz.X - blockpos_nodes.X) * BS - BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-        core::vector3df hxlylz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-        core::vector3df hxlyhz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-        core::vector3df hxhylz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-        core::vector3df hxhyhz_f((hxhyhz.X - blockpos_nodes.X) * BS + BS / 2, (hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + y_offset, (hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-
-        v3s16 node_coords[6][4] = {{lxlylz, hxlylz, hxlyhz, lxlyhz}, {lxhylz, lxhyhz, hxhyhz, hxhylz}, //  bottom   top
-                                   {lxlyhz, lxhyhz, lxhylz, lxlylz}, {hxlylz, hxhylz, hxhyhz, hxlyhz}, //  left     right
-                                   {lxlylz, lxhylz, hxhylz, hxlylz}, {hxlyhz, hxhyhz, lxhyhz, lxlyhz}}; // front    back
-        core::vector3df vertices[6][4] = {{lxlylz_f, hxlylz_f, hxlyhz_f, lxlyhz_f}, {lxhylz_f, lxhyhz_f, hxhyhz_f, hxhylz_f},
-                                          {lxlyhz_f, lxhyhz_f, lxhylz_f, lxlylz_f}, {hxlylz_f, hxhylz_f, hxhyhz_f, hxlyhz_f},
-                                          {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
-        f32 uvs2[6][2] = {{w, d}, {w, d},
-                          {d, h}, {d, h},
-                          {w, h}, {w, h}};
-        TileSpec tile;
-        for(u8 side = 0; side < 6; side++){
-            if (!faces[x][y][z].test(side))
-                continue;
-
-            u8 day_light = 0;
-            u8 night_light = 0;
-            ContentLightingFlags f;
-            for (v3s16 p : node_coords[side]){
-                MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
-                if ((&nodedef->get(n))->drawtype == NDT_NORMAL)
-                    n = data->m_vmanip.getNodeNoExNoEmerge(p + directions[side]);
-                f = nodedef->getLightingFlags(n);
-                day_light = MYMAX(day_light, n.getLightRaw(LIGHTBANK_DAY, f));
-                night_light = MYMAX(night_light, n.getLightRaw(LIGHTBANK_NIGHT, f));
-                if (day_light)
-                    break;
-            }
-            day_light = decode_light(day_light);
-            night_light = decode_light(night_light);
-
-            video::SColor color = encode_light(LightPair(day_light, night_light), f.light_source);
-            core::vector3df normal(directions[side].X, directions[side].Y, directions[side].Z);
-            if (!f.light_source)
-                applyFacesShading(color, normal);
-
-            video::S3DVertex v[4] = {
-                video::S3DVertex(vertices[side][0], normal, color, core::vector2d<f32>{0, uvs2[side][1]}),
-                video::S3DVertex(vertices[side][1], normal, color, core::vector2d<f32>{0, 0}),
-                video::S3DVertex(vertices[side][2], normal, color, core::vector2d<f32>{uvs2[side][0], 0}),
-                video::S3DVertex(vertices[side][3], normal, color, core::vector2d<f32>{uvs2[side][0], uvs2[side][1]}),
-            };
-            getNodeTile(data->m_vmanip.getNodeNoExNoEmerge(volume_points[x][y][z]), volume_points[x][y][z], directions[side], data, tile);
-            collector->append(tile, v, 4, quad_indices, 6);
-        }
-    }
+		for (u8 direction = 0; direction < 6; direction++)
+		for (u8 slice_i = 0; slice_i < data->m_side_length; slice_i++) {
+			for (u8 u = 0; u < data->m_side_length; u++) {
+				u64 column = slices[direction][slice_i][u].to_ullong();
+				while (column) {
+					u32 v0 = std::__countr_zero(column);
+					u32 v1 = std::__countr_one(column >> v0);
+					const u64 mask = v1 == 64 ? U64_MAX : ((static_cast<u64>(1) << v1) - 1) << v0;
+					column ^= mask;
+					u32 u1 = 1;
+					while (u + u1 < data->m_side_length && // while still in current chunk
+						(slices[direction][slice_i][u+u1].to_ullong() & mask) == mask) { // and next column shares faces
+						slices[direction][slice_i][u+u1] ^= mask;
+						u1++;
+					}
+					const core::vector2d<f32> uvs[4] = {
+						core::vector2d<f32>{0, static_cast<f32>(v1)},
+						core::vector2d<f32>{0, 0},
+						core::vector2d<f32>{static_cast<f32>(u1), 0},
+						core::vector2d<f32>{static_cast<f32>(u1), static_cast<f32>(v1)}
+					};
+					u1 = (u + u1) * BS;
+					v1 = (v0 + v1) * BS;
+					u32 u0 = u * BS;
+					v0 *= BS;
+					const s32 w = BS * slice_i - BS / 2
+						+ (direction % 2 == 0 ? 0 : BS );
+					static constexpr v3s16 direction_vectors[6] = {
+						v3s16(-1, 0, 0), v3s16(1, 0, 0),
+						v3s16(0, -1, 0), v3s16(0, 1, 0),
+						v3s16(0, 0, -1), v3s16(0, 0, 1)};
+					static constexpr core::vector3df normals[6] = {
+						core::vector3df(-1, 0, 0), core::vector3df(1, 0, 0),
+						core::vector3df(0, -1, 0), core::vector3df(0, 1, 0),
+						core::vector3df(0, 0, -1), core::vector3df(0, 0, 1)};
+					core::vector3df vertices[4];
+					switch (direction) {
+						case 0:
+							vertices[3] = core::vector3df(w, u0 - BS / 2, v0 - BS / 2);
+							vertices[0] = core::vector3df(w, u0 - BS / 2, v1 - BS / 2);
+							vertices[1] = core::vector3df(w, u1 - BS / 2, v1 - BS / 2);
+							vertices[2] = core::vector3df(w, u1 - BS / 2, v0 - BS / 2);
+							break;
+						case 1:
+							vertices[0] = core::vector3df(w, u0 - BS / 2, v0 - BS / 2);
+							vertices[1] = core::vector3df(w, u0 - BS / 2, v1 - BS / 2);
+							vertices[2] = core::vector3df(w, u1 - BS / 2, v1 - BS / 2);
+							vertices[3] = core::vector3df(w, u1 - BS / 2, v0 - BS / 2);
+							break;
+						case 2:
+						case 3:
+							vertices[0] = core::vector3df(u0 - BS / 2, w, v0 - BS / 2);
+							vertices[1] = core::vector3df(u1 - BS / 2, w, v0 - BS / 2);
+							vertices[2] = core::vector3df(u1 - BS / 2, w, v1 - BS / 2);
+							vertices[3] = core::vector3df(u0 - BS / 2, w, v1 - BS / 2);
+							break;
+						case 4:
+							vertices[3] = core::vector3df(u1 - BS / 2, v0 - BS / 2, w);
+							vertices[0] = core::vector3df(u0 - BS / 2, v0 - BS / 2, w);
+							vertices[1] = core::vector3df(u0 - BS / 2, v1 - BS / 2, w);
+							vertices[2] = core::vector3df(u1 - BS / 2, v1 - BS / 2, w);
+							break;
+						default:
+							vertices[0] = core::vector3df(u1 - BS / 2, v0 - BS / 2, w);
+							vertices[1] = core::vector3df(u0 - BS / 2, v0 - BS / 2, w);
+							vertices[2] = core::vector3df(u0 - BS / 2, v1 - BS / 2, w);
+							vertices[3] = core::vector3df(u1 - BS / 2, v1 - BS / 2, w);
+							break;
+					}
+					video::SColor color(255, 255, 255, 255);
+					TileSpec tile;
+					video::S3DVertex irr_vertices[4];
+					switch (direction) {
+					case 0:
+					case 2:
+					case 4:
+						irr_vertices[0] = video::S3DVertex(vertices[0], normals[direction], color, uvs[0]);
+						irr_vertices[1] = video::S3DVertex(vertices[1], normals[direction], color, uvs[1]);
+						irr_vertices[2] = video::S3DVertex(vertices[2], normals[direction], color, uvs[2]);
+						irr_vertices[3] = video::S3DVertex(vertices[3], normals[direction], color, uvs[3]);
+						break;
+					default:
+						irr_vertices[0] = video::S3DVertex(vertices[0], normals[direction], color, uvs[0]);
+						irr_vertices[1] = video::S3DVertex(vertices[3], normals[direction], color, uvs[1]);
+						irr_vertices[2] = video::S3DVertex(vertices[2], normals[direction], color, uvs[2]);
+						irr_vertices[3] = video::S3DVertex(vertices[1], normals[direction], color, uvs[3]);
+					}
+					getNodeTile(node_types[key], blockpos_nodes, direction_vectors[direction], data, tile);
+					collector->append(tile, irr_vertices, 4, quad_indices, 6);
+				}
+			}
+		}
+	}
 }
 
-void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core::vector2d<f32> uvs[4], u8 min_size){
-    // too tiny lods should be skipped
-    // but to avoid holes in the world, we need to track which volumes got skipped
-    u8 num = data->m_side_length / width + 2;
-    std::vector skipped_volumes(num, std::vector(num, std::vector(num, false)));
-    std::vector faces(num, std::vector(num, std::vector<std::bitset<6>>(num)));
-    using Hexahedron = std::array<v3s16, 8>;
-    std::vector volumes(num, std::vector(num, std::vector<Hexahedron>(num)));
+void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u32 width, core::vector2d<f32> uvs[4], u8 min_size){
+    static const v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
+                                        v3s16(-1, 0, 0), v3s16(1, 0, 0),
+                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
+    u8 num = data->m_side_length / width;
 
     for (u8 x = 0; x < num; x++)
     for (u8 y = 0; y < num; y++)
-    for (u8 z = 0; z < num; z++) {
-        v3s16 from = v3s16(x-1, y-1, z-1) * width + blockpos_nodes;
+    for (u8 z = 0; z < num; z++){
+        v3s16 from = v3s16(x, y, z) * width + blockpos_nodes;
         v3s16 to = from + width;
 
-        if (width > MAP_BLOCKSIZE) {
-            if (x == 0) from.X += width - MAP_BLOCKSIZE;
-            if (y == 0) from.Y += width - MAP_BLOCKSIZE;
-            if (z == 0) from.Z += width - MAP_BLOCKSIZE;
-            if (x == num-1) to.X -= width - MAP_BLOCKSIZE;
-            if (y == num-1) to.Y -= width - MAP_BLOCKSIZE;
-            if (z == num-1) to.Z -= width - MAP_BLOCKSIZE;
-        }
-
-        volumes[x][y][z] = {
+        // eg lxhylz = corner of a block, where x and z are lowest and y is highest
+        // lxhylz is initialized with the values for the opposite corner, so high x and z, low y
+        std::array<v3s16, 8> bounds = {
             v3s16(from.X - 1, from.Y, from.Z), // lxlylz
             v3s16(from.X, from.Y, to.Z), //   lxlyhz
             v3s16(from.X, to.Y, from.Z), //   lxhylz
@@ -2022,68 +2028,22 @@ void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core:
             v3s16(to.X, to.Y, to.Z), //       hxhyhz
         };
         // updates bounds to contain the actual bounds of the LOD object, where the corners are the nodes furthest away from their previous value
-        findClosestOfTypes(types, volumes[x][y][z], from, to);
+        findClosestOfTypes(types, bounds, from, to);
 
-        skipped_volumes[x][y][z] = volumes[x][y][z][0].X == from.X - 1 |
-            volumes[x][y][z][0].getDistanceFromSQ(volumes[x][y][z][7]) < min_size;
-    }
-    num--;
-
-  //   for (u8 x = 0; x < num; x++)
-  //   for (u8 y = 0; y < num; y++)
-  //   for (u8 z = 0; z < num; z++){
-  //       if (skipped_volumes[x][y][z])
-  //           continue;
-  //
-  //       Hexahedron cur = volumes[x][y][z];
-  //
-        // for (u8 d = 1; d < 6; d += 2){
-        // 	v3s16 direction = directions[d];
-        // 	bool face_displayed = ?;
-        // 	faces[x][y][z].set(d, skipped);
-        // 	faces[x+direction.X][y+direction.Y][z+direction.Z].set(d-1, skipped);
-        // }
-  //
-  //       faces[x][y][z].set(0, skipped_volumes[x][y-1][z] || volumes[x][y-1][z].MaxEdge.Y+1 < cur.MinEdge.Y ||
-  //           volumes[x][y-1][z].MinEdge.X != cur.MinEdge.X || volumes[x][y-1][z].MinEdge.Z != cur.MinEdge.Z ||
-  //           volumes[x][y-1][z].MaxEdge.X != cur.MaxEdge.X || volumes[x][y-1][z].MaxEdge.Z != cur.MaxEdge.Z);
-  //
-  //       faces[x][y][z].set(1, skipped_volumes[x][y+1][z] || volumes[x][y+1][z].MinEdge.Y > cur.MaxEdge.Y+1 ||
-  //           volumes[x][y+1][z].MinEdge.X != cur.MinEdge.X || volumes[x][y+1][z].MinEdge.Z != cur.MinEdge.Z ||
-  //           volumes[x][y+1][z].MaxEdge.X != cur.MaxEdge.X || volumes[x][y+1][z].MaxEdge.Z != cur.MaxEdge.Z);
-  //
-  //       faces[x][y][z].set(2, skipped_volumes[x-1][y][z] || volumes[x-1][y][z].MaxEdge.X+1 < cur.MinEdge.X ||
-  //           volumes[x-1][y][z].MinEdge.Y != cur.MinEdge.Y || volumes[x-1][y][z].MinEdge.Z != cur.MinEdge.Z ||
-  //           volumes[x-1][y][z].MaxEdge.Y != cur.MaxEdge.Y || volumes[x-1][y][z].MaxEdge.Z != cur.MaxEdge.Z);
-  //
-  //       faces[x][y][z].set(3, skipped_volumes[x+1][y][z] || volumes[x+1][y][z].MinEdge.X > cur.MaxEdge.X+1 ||
-  //           volumes[x+1][y][z].MinEdge.Y != cur.MinEdge.Y || volumes[x+1][y][z].MinEdge.Z != cur.MinEdge.Z ||
-  //           volumes[x+1][y][z].MaxEdge.Y != cur.MaxEdge.Y || volumes[x+1][y][z].MaxEdge.Z != cur.MaxEdge.Z);
-  //
-  //       faces[x][y][z].set(4, skipped_volumes[x][y][z-1] || volumes[x][y][z-1].MaxEdge.Z+1 < cur.MinEdge.Z ||
-  //           volumes[x][y][z-1].MinEdge.X != cur.MinEdge.X || volumes[x][y][z-1].MinEdge.Y != cur.MinEdge.Y ||
-  //           volumes[x][y][z-1].MaxEdge.X != cur.MaxEdge.X || volumes[x][y][z-1].MaxEdge.Y != cur.MaxEdge.Y);
-  //
-  //       faces[x][y][z].set(5, skipped_volumes[x][y][z+1] || volumes[x][y][z+1].MinEdge.Z > cur.MaxEdge.Z+1 ||
-  //           volumes[x][y][z+1].MinEdge.X != cur.MinEdge.X || volumes[x][y][z+1].MinEdge.Y != cur.MinEdge.Y ||
-  //           volumes[x][y][z+1].MaxEdge.X != cur.MaxEdge.X || volumes[x][y][z+1].MaxEdge.Y != cur.MaxEdge.Y);
-  //   }
-
-    for (u8 x = 0; x < num; x++)
-    for (u8 y = 0; y < num; y++)
-    for (u8 z = 0; z < num; z++){
-        if (skipped_volumes[x][y][z])
-            continue;
+    	// exclude too small meshes
+    	if (bounds[0].X == from.X - 1 ||
+    		bounds[0].getDistanceFromSQ(bounds[7]) < min_size)
+    		continue;
 
         // moving for legibility
-        v3s16 lxlylz = volumes[x][y][z][0];
-        v3s16 lxlyhz = volumes[x][y][z][1];
-        v3s16 lxhylz = volumes[x][y][z][2];
-        v3s16 lxhyhz = volumes[x][y][z][3];
-        v3s16 hxlylz = volumes[x][y][z][4];
-        v3s16 hxlyhz = volumes[x][y][z][5];
-        v3s16 hxhylz = volumes[x][y][z][6];
-        v3s16 hxhyhz = volumes[x][y][z][7];
+        v3s16 lxlylz = bounds[0];
+        v3s16 lxlyhz = bounds[1];
+        v3s16 lxhylz = bounds[2];
+        v3s16 lxhyhz = bounds[3];
+        v3s16 hxlylz = bounds[4];
+        v3s16 hxlyhz = bounds[5];
+        v3s16 hxhylz = bounds[6];
+        v3s16 hxhyhz = bounds[7];
 
         // subtract blockpos_nodes again, as we need relative coords here. Multiplied by blocksize.
         // Then add/subtract half a blocksize to move to the corners of the nodes
@@ -2104,10 +2064,10 @@ void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core:
                                           {lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}};
         TileSpec tile;
         for(u8 i = 0; i < 6; i++){
-            if (types.test(nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])).drawtype) &&
-                types.test(nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])).drawtype) &&
-                types.test(nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])).drawtype) &&
-                types.test(nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])).drawtype))
+            if (types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])))->drawtype) &&
+                types.test((&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])))->drawtype))
                 continue;
 
             u8 day_light = 0;
@@ -2143,6 +2103,8 @@ void LodMeshGenerator::generateDetailLod(std::bitset<19> types, u32 width, core:
 }
 
 void LodMeshGenerator::generate(u8 lod) {
+	ZoneScoped;
+
     u32 width = 1 << MYMIN(lod, 31);
 
     if(width > data->m_side_length){
@@ -2162,11 +2124,11 @@ void LodMeshGenerator::generate(u8 lod) {
 
     if (lod < g_settings->getU16("lod_slant_threshold")) {
         // liquids are always rendered slanted
-        std::bitset<19> liqu_set;
+        std::bitset<NodeDrawType_END> liqu_set;
         liqu_set.set(NDT_LIQUID);
         generateDetailLod(liqu_set, MYMAX(8, width), uvs, min_size);
 
-        std::bitset<19> types;
+        std::bitset<NodeDrawType_END> types;
         types.set(NDT_NORMAL);
         types.set(NDT_NODEBOX);
         types.set(NDT_ALLFACES);
@@ -2175,13 +2137,13 @@ void LodMeshGenerator::generate(u8 lod) {
             types.set(NDT_GLASSLIKE);
 
     	// shift these down a bit, to prevent z fighting with the water
-        generateCloseLod(types, width, -0.1, min_size);
+        generateCloseLod(types, width, min_size);
     } else {
-        std::bitset<19> solids;
+        std::bitset<NodeDrawType_END> solids;
         solids.set(NDT_NORMAL);
         solids.set(NDT_NODEBOX);
 
-        std::bitset<19> other;
+        std::bitset<NodeDrawType_END> other;
 
         if (g_settings->get("leaves_style") == "opaque")
             solids.set(NDT_ALLFACES);
