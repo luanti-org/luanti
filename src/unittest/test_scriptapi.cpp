@@ -144,10 +144,6 @@ void TestScriptApi::testVectorReadErr(MyScriptApi *script)
 
 	// both methods should reject these
 	const char *errs1[] = {
-		"return {y=1, z=3}",
-		"return {x=1, z=3}",
-		"return {x=1, y=3}",
-		"return {}",
 		"return 'bamboo'",
 		"return function() end",
 		"return nil",
@@ -167,6 +163,10 @@ void TestScriptApi::testVectorReadMix(MyScriptApi *script)
 
 	// read_v3s16 should allow these, but check_v3s16 should not
 	const std::pair<const char*, v3s16> pairs2[] = {
+		{"return {}",                         {0, 0, 0}},
+		{"return {y=1, z=3}",                 {0, 1, 3}},
+		{"return {x=1, z=3}",                 {1, 0, 3}},
+		{"return {x=1, y=3}",                 {1, 3, 0}},
 		{"return {x='3', y='2.9', z=3}",      {3, 3, 3}},
 		{"return {x=false, y=0, z=0}",        {0, 0, 0}},
 		{"return {x='?', y=0, z=0}",          {0, 0, 0}},

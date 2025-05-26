@@ -30,10 +30,13 @@ static v3d check_v3d(lua_State *L, int index);
 		} \
 	} while(0)
 
+// TODO: this should be turned into an error in 2026.
+// Just revert the commit that added this line.
 #define CHECK_NOT_NIL(index, name) do { \
 		if (lua_isnoneornil(L, (index))) { \
-			throw LuaError(std::string("Invalid ") + (name) + \
-				" (value is nil)."); \
+			auto msg = std::string("Invalid ") + (name) + \
+				" (value is nil)."; \
+			log_deprecated(L, msg, 1, true); \
 		} \
 	} while(0)
 
