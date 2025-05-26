@@ -74,6 +74,7 @@ video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 	if (retval)
 		return retval;
 
+	verbosestream << "MenuTextureSource: loading " << name << std::endl;
 	video::IImage *image = m_driver->createImageFromFile(name.c_str());
 	if (!image)
 		return NULL;
@@ -597,26 +598,16 @@ void GUIEngine::drawFooter(video::IVideoDriver *driver)
 bool GUIEngine::setTexture(texture_layer layer, const std::string &texturepath,
 		bool tile_image, unsigned int minsize)
 {
-	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
+	m_textures[layer].texture = nullptr;
 
-	if (m_textures[layer].texture) {
-		driver->removeTexture(m_textures[layer].texture);
-		m_textures[layer].texture = NULL;
-	}
-
-	if (texturepath.empty() || !fs::PathExists(texturepath)) {
+	if (texturepath.empty() || !fs::PathExists(texturepath))
 		return false;
-	}
 
-	m_textures[layer].texture = driver->getTexture(texturepath.c_str());
+	m_textures[layer].texture = m_texture_source->getTexture(texturepath);
 	m_textures[layer].tile    = tile_image;
 	m_textures[layer].minsize = minsize;
 
-	if (!m_textures[layer].texture) {
-		return false;
-	}
-
-	return true;
+	return m_textures[layer].texture != nullptr;
 }
 
 /******************************************************************************/
