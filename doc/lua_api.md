@@ -6,7 +6,7 @@ it's now called `core` due to the renaming of Luanti (formerly Minetest).
 `minetest` will keep existing as an alias, so that old code won't break.
 
 * More information at <http://www.luanti.org/>
-* Developer Wiki: <https://dev.luanti.org/>
+* Luanti Documentation: <https://docs.luanti.org/>
 * (Unofficial) Minetest Modding Book by rubenwardy: <https://rubenwardy.com/minetest_modding_book/>
 * Modding tools: <https://github.com/luanti-org/modtools>
 
