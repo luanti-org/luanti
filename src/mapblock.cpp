@@ -429,17 +429,10 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 	const u8 params_width = 2;
 	if(disk)
 	{
-		MapNode *tmp_nodes;
-		if (m_is_mono_block) {
-			tmp_nodes = new MapNode[1];
-			tmp_nodes[0] = data[0];
-		}
-		else
-		{
-			tmp_nodes = new MapNode[nodecount];
-			memcpy(tmp_nodes, data, nodecount * sizeof(MapNode));
-		}
-		getBlockNodeIdMapping(&nimap, tmp_nodes, m_gamedef->ndef(), m_is_mono_block ? 1 : nodecount);
+		const int size = m_is_mono_block ? 1 : nodecount;
+		MapNode *tmp_nodes = new MapNode[size];
+		memcpy(tmp_nodes, data, size * sizeof(MapNode));
+		getBlockNodeIdMapping(&nimap, tmp_nodes, m_gamedef->ndef(), size);
 
 		buf = MapNode::serializeBulk(version, tmp_nodes, nodecount,
 				content_width, params_width, m_is_mono_block);
