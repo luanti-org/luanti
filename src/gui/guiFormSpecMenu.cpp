@@ -4849,9 +4849,14 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			s32 caller_id = event.GUIEvent.Caller->getID();
 
 			if (caller_id == 257) {
-				acceptInput(quit_mode_accept);
-				m_text_dst->gotText(L"ExitButton");
-				quitMenu();
+				if (m_allowclose) {
+					acceptInput(quit_mode_accept);
+					quitMenu();
+				}
+				else {
+					acceptInput();
+					m_text_dst->gotText(L"ExitButton");
+				}
 				return true;
 			}
 
