@@ -47,7 +47,7 @@ const char *ClientInterface::statenames[] = {
 	"SudoMode",
 };
 
-std::string ClientInterface::state2Name(ClientState state)
+const char *ClientInterface::state2Name(ClientState state)
 {
 	return statenames[state];
 }
@@ -703,16 +703,13 @@ void ClientInterface::step(float dtime)
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
 	for (const auto &it : m_clients) {
 		auto state = it.second->getState();
-		if (state >= CS_HelloSent)
+		if (state >= CS_InitDone)
 			continue;
 		if (it.second->uptime() <= LINGER_TIMEOUT)
 			continue;
-		// CS_Created means nobody has even noticed the client is there
-		//            (this is before on_prejoinplayer runs)
-		// CS_Invalid should not happen
-		// -> log those as warning, the rest as info
-		std::ostream &os = state == CS_Created || state == CS_Invalid ?
-			warningstream : infostream;
+		// Complain louder if this situation is unexpected
+		auto &os = state == CS_Disconnecting || state == CS_Denied ?
+			infostream : warningstream;
 		try {
 			Address addr = m_con->GetPeerAddress(it.second->peer_id);
 			os << "Disconnecting lingering client from "

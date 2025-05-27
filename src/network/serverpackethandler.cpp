@@ -302,6 +302,7 @@ void Server::handleCommand_Init2(NetworkPacket* pkt)
 	sendMediaAnnouncement(peer_id, lang);
 
 	RemoteClient *client = getClient(peer_id, CS_InitDone);
+	assert(client);
 
 	// Keep client language for server translations
 	client->setLangCode(lang);

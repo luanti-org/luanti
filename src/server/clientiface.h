@@ -495,7 +495,8 @@ public:
 		m_env = env;
 	}
 
-	static std::string state2Name(ClientState state);
+	static const char *state2Name(ClientState state);
+
 protected:
 	class AutoLock {
 	public:
@@ -526,5 +527,7 @@ private:
 
 	static const char *statenames[];
 
-	static constexpr int LINGER_TIMEOUT = 10;
+	// Note that this puts a fixed timeout on the init & auth phase for a client.
+	// (lingering is enforced until CS_InitDone)
+	static constexpr int LINGER_TIMEOUT = 12;
 };
