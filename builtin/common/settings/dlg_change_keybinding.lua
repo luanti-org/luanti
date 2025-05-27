@@ -16,7 +16,7 @@ local function get_formspec(dialogdata)
 		("label[0.5,0.8;%s]"):format(readable_name),
 		("button[0.5,5.7;5,0.8;btn_add;%s]"):format(fgettext("Add keybinding")),
 		("button_key[0.5,6.7;4.2,0.8;btn_bind;%s]"):format(core.formspec_escape(value[selection] or "")),
-		("image_button[4.6,6.7;0.8,0.8;%s;btn_clear;]"):format(
+		("image_button[4.7,6.7;0.8,0.8;%s;btn_clear;]"):format(
 						core.formspec_escape(defaulttexturedir .. "clear.png")),
 		("tooltip[btn_clear;%s]"):format(fgettext("Remove keybinding")),
 		("button[3.1,7.7;2.4,0.8;btn_close;%s]"):format(fgettext("Cancel")),
