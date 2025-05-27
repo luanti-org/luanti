@@ -49,6 +49,8 @@ namespace ui
 		Elem *m_parent;
 		std::vector<Elem *> m_children;
 
+		std::string m_label;
+
 		Box m_main_box;
 		u64 m_hovered_box = Box::NO_ID; // Persistent
 		u64 m_pressed_box = Box::NO_ID; // Persistent

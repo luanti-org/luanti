@@ -8,6 +8,7 @@
 #include "util/serialize.h"
 
 #include <dimension2d.h>
+#include <IGUIFont.h>
 #include <ITexture.h>
 #include <rect.h>
 #include <vector2d.h>

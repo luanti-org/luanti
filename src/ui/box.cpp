@@ -7,6 +7,7 @@
 #include "debug.h"
 #include "log.h"
 #include "porting.h"
+#include "client/fontengine.h"
 #include "ui/elem.h"
 #include "ui/manager.h"
 #include "ui/window.h"
@@ -29,11 +30,16 @@ namespace ui
 	void Box::reset()
 	{
 		m_content.clear();
+		m_label = "";
+
 		m_style.reset();
 
 		for (State i = 0; i < m_style_refs.size(); i++) {
 			m_style_refs[i] = NO_STYLE;
 		}
+
+		m_text = L"";
+		m_font = nullptr;
 	}
 
 	void Box::read(std::istream &full_is)
@@ -93,6 +99,15 @@ namespace ui
 			}
 		}
 
+		// Now that we have updated text style properties, we can update our
+		// cached text string and font object.
+		m_text = utf8_to_wide(m_style.text.prepend) + utf8_to_wide(m_label) +
+			utf8_to_wide(m_style.text.append);
+
+		FontSpec spec(m_style.text.size, m_style.text.mono ? FM_Mono : FM_Standard,
+			m_style.text.bold, m_style.text.italic);
+		m_font = g_fontengine->getFont(spec);
+
 		// Since our box has been restyled, the previously computed layout
 		// information is no longer valid.
 		m_min_layout = SizeF();
@@ -140,7 +155,7 @@ namespace ui
 	{
 		if (m_style.display != DisplayMode::HIDDEN) {
 			drawBox();
-			drawIcon();
+			drawItems();
 		}
 
 		for (Box *box : m_content) {
@@ -294,6 +309,11 @@ namespace ui
 
 	void Box::resizeBox()
 	{
+		// First, we need to expand the minimum size of the box to accommodate
+		// the size of any text it might contain.
+		SizeF text_size = getWindow().getTextSize(m_font, m_text);
+		m_min_content = m_min_content.max(text_size);
+
 		// If the box is set to clip its contents in either dimension, we can
 		// set the minimum content size to zero for that coordinate.
 		if (m_style.layout.clip == DirFlags::X || m_style.layout.clip == DirFlags::BOTH) {
@@ -627,13 +647,19 @@ namespace ui
 		}
 	}
 
-	void Box::drawIcon()
+	void Box::drawItems()
 	{
 		// The icon rect is computed while the box is being laid out, so we
 		// just need to draw it with the fill color behind it.
 		getWindow().drawRect(m_icon_rect, m_clip_rect, m_style.icon.fill);
 		getWindow().drawTexture(m_icon_rect, m_clip_rect, m_style.icon.image,
 			getLayerSource(m_style.icon), m_style.icon.tint);
+
+		// The window handles all the complicated text layout, so we can just
+		// draw the text with all the appropriate styling.
+		getWindow().drawText(m_content_rect, m_clip_rect, m_font, m_text,
+			m_style.text.color, m_style.text.mark,
+			m_style.text.align, m_style.text.valign);
 	}
 
 	bool Box::isHovered() const

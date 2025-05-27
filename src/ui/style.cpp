@@ -43,6 +43,14 @@ namespace ui
 		return (IconPlace)place;
 	}
 
+	static Align toAlign(u8 align)
+	{
+		if (align > (u8)Align::MAX) {
+			return Align::CENTER;
+		}
+		return (Align)align;
+	}
+
 	void Layout::reset()
 	{
 		type = LayoutType::PLACE;
@@ -134,6 +142,50 @@ namespace ui
 			frame_time = std::max(readU32(is), 1U);
 	}
 
+	void Text::reset()
+	{
+		prepend = "";
+		append = "";
+
+		color = WHITE;
+		mark = BLANK;
+		size = 16;
+
+		mono = false;
+		italic = false;
+		bold = false;
+
+		align = Align::CENTER;
+		valign = Align::CENTER;
+	}
+
+	void Text::read(std::istream &full_is)
+	{
+		auto is = newIs(readStr16(full_is));
+		u32 set_mask = readU32(is);
+
+		if (testShift(set_mask))
+			prepend = readStr16(is);
+		if (testShift(set_mask))
+			append = readStr16(is);
+
+		if (testShift(set_mask))
+			color = readARGB8(is);
+		if (testShift(set_mask))
+			mark = readARGB8(is);
+		if (testShift(set_mask))
+			size = std::clamp(readU32(is), 1U, 999U);
+
+		testShiftBool(set_mask, mono);
+		testShiftBool(set_mask, italic);
+		testShiftBool(set_mask, bold);
+
+		if (testShift(set_mask))
+			align = toAlign(readU8(is));
+		if (testShift(set_mask))
+			valign = toAlign(readU8(is));
+	}
+
 	void Style::reset()
 	{
 		layout.reset();
@@ -150,6 +202,8 @@ namespace ui
 		icon_place = IconPlace::CENTER;
 		icon_gutter = 0.0f;
 		icon_overlap = false;
+
+		text.reset();
 	}
 
 	void Style::read(std::istream &is)
@@ -181,5 +235,8 @@ namespace ui
 		if (testShift(set_mask))
 			icon_gutter = readF32(is);
 		testShiftBool(set_mask, icon_overlap);
+
+		if (testShift(set_mask))
+			text.read(is);
 	}
 }
