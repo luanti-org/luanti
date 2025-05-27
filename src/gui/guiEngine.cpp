@@ -53,6 +53,7 @@ MenuTextureSource::~MenuTextureSource()
 
 	for (const auto &it: m_to_delete) {
 		m_driver->removeTexture(it);
+		it->drop();
 	}
 	m_to_delete.clear();
 
@@ -82,8 +83,10 @@ video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 	retval = m_driver->addTexture(name.c_str(), image);
 	image->drop();
 
-	if (retval)
+	if (retval) {
+		retval->grab();
 		m_to_delete.push_back(retval);
+	}
 	return retval;
 }
 
