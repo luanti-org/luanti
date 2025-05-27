@@ -53,6 +53,16 @@ namespace ui
 		MAX = BOTTOM,
 	};
 
+	// Serialized enum; do not change order of entries.
+	enum class Align : u8
+	{
+		START,
+		CENTER,
+		END,
+
+		MAX = END,
+	};
+
 	struct Layout
 	{
 		LayoutType type;
@@ -101,6 +111,28 @@ namespace ui
 		void read(std::istream &is);
 	};
 
+	struct Text
+	{
+		std::string prepend;
+		std::string append;
+
+		video::SColor color;
+		video::SColor mark;
+		u32 size;
+
+		bool mono;
+		bool italic;
+		bool bold;
+
+		Align align;
+		Align valign;
+
+		Text() { reset(); }
+
+		void reset();
+		void read(std::istream &is);
+	};
+
 	struct Style
 	{
 		Layout layout;
@@ -117,6 +149,8 @@ namespace ui
 		IconPlace icon_place;
 		float icon_gutter;
 		bool icon_overlap;
+
+		Text text;
 
 		Style() { reset(); }
 

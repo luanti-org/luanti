@@ -162,6 +162,41 @@ namespace ui
 		return PosF(x, y) / getScale();
 	}
 
+	SizeF Window::getTextSize(gui::IGUIFont *font, std::wstring_view text)
+	{
+		// If we have an empty string, we want it to take up no space. IGUIFont
+		// measures the dimensions of an empty string as having the normal line
+		// height rather than no space.
+		if (text.empty()) {
+			return SizeF();
+		}
+
+		// IGUIFont measures the height of text with newlines incorrectly, so
+		// we have to measure each line in the string individually.
+		SizeF text_size = SizeF();
+		size_t start = 0;
+
+		while (start <= text.size()) {
+			// Get the line spanning from the start of this line to the next
+			// newline, or the end of the string if there are no more newlines.
+			size_t end = std::min(text.find(L'\n', start), text.size());
+			std::wstring line(text.substr(start, end - start));
+
+			// Get the dimensions of the line. Since fonts are already scaled,
+			// we have to reverse the scaling factor to get the right size.
+			SizeF line_size = SizeF(font->getDimension(
+				unescape_enriched(line).c_str())) / getScale();
+
+			text_size.W = std::max(text_size.W, line_size.W);
+			text_size.H += line_size.H;
+
+			// Move the start of the current line to after the end of this one.
+			start = end + 1;
+		}
+
+		return text_size;
+	}
+
 	void Window::drawRect(RectF dst, RectF clip, video::SColor color)
 	{
 		if (dst.intersectWith(clip).empty() || color.getAlpha() == 0) {
@@ -187,6 +222,81 @@ namespace ui
 
 		RenderingEngine::get_video_driver()->draw2DImage(texture, dst * getScale(),
 			src * DispF(getTextureSize(texture)), &scaled_clip, colors, true);
+	}
+
+	void Window::drawText(RectF dst, RectF clip, gui::IGUIFont *font,
+			std::wstring_view text, video::SColor color, video::SColor mark,
+			Align align, Align valign)
+	{
+		if (dst.intersectWith(clip).empty() || font == nullptr || text.empty()) {
+			return;
+		}
+
+		// We count the number of lines in the text to find the total height.
+		size_t num_lines = std::count(text.begin(), text.end(), L'\n') + 1;
+
+		// Get the height of a single line, and use this with the vertical
+		// alignment to find the vertical position of the first line.
+		float height = font->getDimension(L"").Height / getScale();
+		float top;
+
+		switch (valign) {
+		case Align::START:
+			top = dst.T;
+			break;
+		case Align::CENTER:
+			top = (dst.T + dst.B - (height * num_lines)) / 2.0f;
+			break;
+		case Align::END:
+			top = dst.B - (height * num_lines);
+			break;
+		}
+
+		core::recti scaled_clip = clip * getScale();
+
+		// Like getTextSize(), we loop over each line in the string.
+		size_t start = 0;
+
+		while (start <= text.size()) {
+			size_t end = std::min(text.find(L'\n', start), text.size());
+			std::wstring line(text.substr(start, end - start));
+
+			// Get the width of this line of text. Just like the height, we use
+			// the alignment to find the horizontal position for this line.
+			float width = font->getDimension(
+				unescape_enriched(line).c_str()).Width / getScale();
+			float left;
+
+			switch (align) {
+			case Align::START:
+				left = dst.L;
+				break;
+			case Align::CENTER:
+				left = (dst.L + dst.R - width) / 2.0f;
+				break;
+			case Align::END:
+				left = dst.R - width;
+				break;
+			}
+
+			// This gives us the destination rect for this line of the text,
+			// which we scale appropriately.
+			RectF line_rect = RectF(PosF(left, top), SizeF(width, height)) * getScale();
+
+			// If we have a highlight color for the text, draw the highlight
+			// before we draw the line.
+			if (mark.getAlpha() != 0) {
+				RenderingEngine::get_video_driver()->draw2DRectangle(
+					mark, line_rect, &scaled_clip);
+			}
+
+			// Then draw the text itself using the provided font.
+			font->draw(line.c_str(), line_rect, color, false, false, &scaled_clip);
+
+			// Finally, advance to the next line.
+			top += height;
+			start = end + 1;
+		}
 	}
 
 	void Window::drawAll()

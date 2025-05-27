@@ -45,6 +45,8 @@ function ui.Elem:new(param)
 end
 
 function ui.Elem:_init(props)
+	self._label = ui._opt(props.label, "string")
+
 	self._groups = {}
 	self._children = {}
 
@@ -112,6 +114,10 @@ function ui.Elem:_encode_fields()
 		end
 
 		ui._encode_flag(fl, "Z", ui._encode_array("z", child_ids))
+	end
+
+	if ui._shift_flag(fl, self._label) then
+		ui._encode_flag(fl, "s", self._label)
 	end
 
 	self:_encode_box(fl, self._boxes.main)

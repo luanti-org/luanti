@@ -58,9 +58,14 @@ namespace ui
 		u32 m_item;
 
 		std::vector<Box *> m_content;
+		std::string_view m_label;
 
 		Style m_style;
 		std::array<u32, NUM_STATES> m_style_refs;
+
+		// We cache the font and text content every time the box is restyled.
+		std::wstring m_text;
+		gui::IGUIFont *m_font;
 
 		// Cached information about the layout of the box, which is cleared in
 		// restyle() and recomputed in resize() and relayout().
@@ -97,6 +102,9 @@ namespace ui
 		const std::vector<Box *> &getContent() const { return m_content; }
 		void setContent(std::vector<Box *> content) { m_content = std::move(content); }
 
+		std::string_view getLabel() const { return m_label; }
+		void setLabel(std::string_view label) { m_label = label; }
+
 		void reset();
 		void read(std::istream &is);
 
@@ -125,7 +133,7 @@ namespace ui
 		void relayoutPlace();
 
 		void drawBox();
-		void drawIcon();
+		void drawItems();
 
 		bool isHovered() const;
 		bool isPressed() const;

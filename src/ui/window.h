@@ -98,9 +98,14 @@ namespace ui
 		SizeF getScreenSize() const;
 		PosF getPointerPos() const;
 
+		SizeF getTextSize(gui::IGUIFont *font, std::wstring_view text);
+
 		void drawRect(RectF dst, RectF clip, video::SColor color);
 		void drawTexture(RectF dst, RectF clip, video::ITexture *texture,
 				RectF src = RectF(0.0f, 0.0f, 1.0f, 1.0f), video::SColor tint = WHITE);
+		void drawText(RectF dst, RectF clip, gui::IGUIFont *font, std::wstring_view text,
+				video::SColor color = WHITE, video::SColor mark = BLANK,
+				Align align = Align::START, Align valign = Align::START);
 
 		void drawAll();
 

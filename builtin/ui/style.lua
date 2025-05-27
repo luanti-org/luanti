@@ -82,6 +82,18 @@ local icon_place_map = {
 	bottom = 4,
 }
 
+local align_map = {
+	left = 0,
+	center = 1,
+	right = 2,
+}
+
+local valign_map = {
+	top = 0,
+	center = 1,
+	bottom = 2,
+}
+
 local function opt_color(val, def)
 	assert(val == nil or core.colorspec_to_int(val))
 	return val or def
@@ -130,6 +142,22 @@ local function cascade_layer(new, add, props, p)
 			ui._opt(add[p.."_frame_time"], "number", props[p.."_frame_time"])
 end
 
+local function cascade_text(new, add, props)
+	new.prepend = ui._opt(add.prepend, "string", props.prepend)
+	new.append = ui._opt(add.append, "string", props.append)
+
+	new.text_color = opt_color(add.text_color, props.text_color)
+	new.text_mark = opt_color(add.text_mark, props.text_mark)
+	new.text_size = ui._opt(add.text_size, "number", props.text_size)
+
+	new.text_mono = ui._opt(add.text_mono, "boolean", props.text_mono)
+	new.text_italic = ui._opt(add.text_italic, "boolean", props.text_italic)
+	new.text_bold = ui._opt(add.text_bold, "boolean", props.text_bold)
+
+	new.text_align = ui._opt_enum(add.text_align, align_map, props.text_align)
+	new.text_valign = ui._opt_enum(add.text_valign, valign_map, props.text_valign)
+end
+
 function ui._cascade_props(add, props)
 	local new = {}
 
@@ -147,6 +175,8 @@ function ui._cascade_props(add, props)
 	new.icon_place = ui._opt_enum(add.icon_place, icon_place_map, props.icon_place)
 	new.icon_gutter = ui._opt(add.icon_gutter, "number", props.icon_gutter)
 	new.icon_overlap = ui._opt(add.icon_overlap, "boolean", props.icon_overlap)
+
+	cascade_text(new, add, props)
 
 	return new
 end
@@ -243,6 +273,40 @@ local function encode_layer(props, p)
 	return fl
 end
 
+local function encode_text(props)
+	local fl = ui._make_flags()
+
+	if ui._shift_flag(fl, props.prepend) then
+		ui._encode_flag(fl, "s", props.prepend)
+	end
+	if ui._shift_flag(fl, props.append) then
+		ui._encode_flag(fl, "s", props.append)
+	end
+
+	if ui._shift_flag(fl, props.text_color) then
+		ui._encode_flag(fl, "I", core.colorspec_to_int(props.text_color))
+	end
+	if ui._shift_flag(fl, props.text_mark) then
+		ui._encode_flag(fl, "I", core.colorspec_to_int(props.text_mark))
+	end
+	if ui._shift_flag(fl, props.text_size) then
+		ui._encode_flag(fl, "I", props.text_size)
+	end
+
+	ui._shift_flag_bool(fl, props.text_mono)
+	ui._shift_flag_bool(fl, props.text_italic)
+	ui._shift_flag_bool(fl, props.text_bold)
+
+	if ui._shift_flag(fl, props.text_align) then
+		ui._encode_flag(fl, "B", align_map[props.text_align])
+	end
+	if ui._shift_flag(fl, props.text_valign) then
+		ui._encode_flag(fl, "B", valign_map[props.text_valign])
+	end
+
+	return fl
+end
+
 local function encode_subflags(fl, sub_fl)
 	if ui._shift_flag(fl, sub_fl.flags ~= 0) then
 		ui._encode_flag(fl, "s", ui._encode_flags(sub_fl))
@@ -276,6 +340,8 @@ function ui._encode_props(props)
 		ui._encode_flag(fl, "f", props.icon_gutter)
 	end
 	ui._shift_flag_bool(fl, props.icon_overlap)
+
+	encode_subflags(fl, encode_text(props))
 
 	return ui._encode("s", ui._encode_flags(fl))
 end
