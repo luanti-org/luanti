@@ -458,7 +458,7 @@ public:
 	void sendCustom(session_t peer_id, u8 channel, NetworkPacket *pkt, bool reliable);
 
 	/* send to all clients */
-	void sendToAll(NetworkPacket *pkt);
+	void sendToAll(NetworkPacket *pkt, ClientState state_min = CS_Active);
 
 	/* delete a client */
 	void DeleteClient(session_t peer_id);
