@@ -659,7 +659,7 @@ std::vector<session_t> ClientInterface::getClientIDs(ClientState min_state)
 {
 	std::vector<session_t> reply;
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-
+	reply.reserve(m_clients.size());
 	for (const auto &m_client : m_clients) {
 		if (m_client.second->getState() >= min_state)
 			reply.push_back(m_client.second->peer_id);
@@ -677,14 +677,10 @@ void ClientInterface::markBlocksNotSent(const std::vector<v3s16> &positions, boo
 	}
 }
 
-/**
- * Verify if user limit was reached.
- * User limit count all clients from HelloSent state (MT protocol user) to Active state
- * @return true if user limit was reached
- */
 bool ClientInterface::isUserLimitReached()
 {
-	return getClientIDs(CS_HelloSent).size() >= g_settings->getU16("max_users");
+	// Note that this only counts clients that have fully joined
+	return getClientIDs().size() >= g_settings->getU16("max_users");
 }
 
 void ClientInterface::step(float dtime)
@@ -812,16 +808,6 @@ ClientState ClientInterface::getClientState(session_t peer_id)
 	return n->second->getState();
 }
 
-void ClientInterface::setPlayerName(session_t peer_id, const std::string &name)
-{
-	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-	RemoteClientMap::iterator n = m_clients.find(peer_id);
-	// The client may not exist; clients are immediately removed if their
-	// access is denied, and this event occurs later then.
-	if (n != m_clients.end())
-		n->second->setName(name);
-}
-
 void ClientInterface::DeleteClient(session_t peer_id)
 {
 	RecursiveMutexAutoLock conlock(m_clients_mutex);
@@ -901,19 +887,4 @@ u16 ClientInterface::getProtocolVersion(session_t peer_id)
 		return 0;
 
 	return n->second->net_proto_version;
-}
-
-void ClientInterface::setClientVersion(session_t peer_id, u8 major, u8 minor, u8 patch,
-		const std::string &full)
-{
-	RecursiveMutexAutoLock conlock(m_clients_mutex);
-
-	// Error check
-	RemoteClientMap::iterator n = m_clients.find(peer_id);
-
-	// No client to set versions
-	if (n == m_clients.end())
-		return;
-
-	n->second->setVersionInfo(major, minor, patch, full);
 }
