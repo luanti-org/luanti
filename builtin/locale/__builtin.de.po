@@ -1,0 +1,756 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luanti builtin component\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-27 12:13+0000\n"
+"PO-Revision-Date: 2025-05-27 12:13+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: ltt_convert 0.2.1\n"
+
+msgid "Invalid parameters (see /help @1)."
+msgstr "Ungültige Parameter (siehe „/help @1“)."
+
+msgid "Too many arguments, try using just /help <command>"
+msgstr "Zu viele Argumente. Probieren Sie es mit „/help <Befehl>“"
+
+msgid "Available commands: @1"
+msgstr "Verfügbare Befehle: @1"
+
+msgid "Use '/help <cmd>' to get more information, or '/help all' to list everything."
+msgstr "„/help <Befehl>“ benutzen, um mehr Informationen zu erhalten, oder „/help all“, um alles aufzulisten."
+
+msgid "Available commands:"
+msgstr "Verfügbare Befehle:"
+
+msgid "Command not available: @1"
+msgstr "Befehl nicht verfügbar: @1"
+
+msgid "[all | privs | <cmd>] [-t]"
+msgstr "[all | privs | <Befehl>] [-t]"
+
+msgid "Get help for commands or list privileges (-t: output in chat)"
+msgstr "Hilfe für Befehle erhalten oder Privilegien auflisten (-t: Ausgabe im Chat)"
+
+msgid "Available privileges:"
+msgstr "Verfügbare Privilegien:"
+
+msgid "Command"
+msgstr "Befehl"
+
+msgid "Parameters"
+msgstr "Parameter"
+
+msgid "For more information, click on any entry in the list."
+msgstr "Für mehr Informationen klicken Sie auf einen beliebigen Eintrag in der Liste."
+
+msgid "Double-click to copy the entry to the chat history."
+msgstr "Doppelklicken, um den Eintrag in die Chathistorie einzufügen."
+
+msgid "Command: @1 @2"
+msgstr "Befehl: @1 @2"
+
+msgid "Available commands: (see also: /help <cmd>)"
+msgstr "Verfügbare Befehle: (siehe auch: /help <Befehl>)"
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Privilege"
+msgstr "Privileg"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Empty command."
+msgstr "Leerer Befehl."
+
+msgid "Invalid command: @1"
+msgstr "Ungültiger Befehl: @1"
+
+msgid "Invalid command usage."
+msgstr "Ungültige Befehlsverwendung."
+
+msgid " (@1 s)"
+msgstr " (@1 s)"
+
+msgid "Command execution took @1 s"
+msgstr "Befehlsausführung brauchte @1 s"
+
+msgid "You don't have permission to run this command (missing privileges: @1)."
+msgstr "Sie haben keine Erlaubnis, diesen Befehl auszuführen (fehlende Privilegien: @1)."
+
+msgid "Unable to get position of player @1."
+msgstr "Konnte Position vom Spieler @1 nicht ermitteln."
+
+msgid "Incorrect area format. Expected: (x1,y1,z1) (x2,y2,z2)"
+msgstr "Ungültiges Gebietsformat. Erwartet: (x1,y1,z1) (x2,y2,z2)"
+
+msgid "<action>"
+msgstr "<Aktion>"
+
+msgid "Show chat action (e.g., '/me orders a pizza' displays '<player name> orders a pizza')"
+msgstr "Chataktion zeigen (z.B. wird „/me isst Pizza“ zu „<Spielername> isst Pizza“)"
+
+msgid "Show the name of the server owner"
+msgstr "Den Namen des Servereigentümers zeigen"
+
+msgid "The administrator of this server is @1."
+msgstr "Der Administrator dieses Servers ist @1."
+
+msgid "There's no administrator named in the config file."
+msgstr "In der Konfigurationsdatei wurde kein Administrator angegeben."
+
+msgid "@1 does not have any privileges."
+msgstr "@1 hat keine Privilegien."
+
+msgid "Privileges of @1: @2"
+msgstr "Privilegien von @1: @2"
+
+msgid "[<name>]"
+msgstr "[<Name>]"
+
+msgid "Show privileges of yourself or another player"
+msgstr "Ihre eigenen Privilegien oder die eines anderen Spielers anzeigen"
+
+msgid "Player @1 does not exist."
+msgstr "Spieler @1 existiert nicht."
+
+msgid "<privilege>"
+msgstr "<Privileg>"
+
+msgid "Return list of all online players with privilege"
+msgstr "Liste aller Spieler mit einem Privileg ausgeben"
+
+msgid "Invalid parameters (see /help haspriv)."
+msgstr "Ungültige Parameter (siehe „/help haspriv“)."
+
+msgid "Unknown privilege!"
+msgstr "Unbekanntes Privileg!"
+
+msgid "No online player has the \"@1\" privilege."
+msgstr "Kein online spielender Spieler hat das „@1“-Privileg."
+
+msgid "Players online with the \"@1\" privilege: @2"
+msgstr "Derzeit online spielende Spieler mit dem „@1“-Privileg: @2"
+
+msgid "Your privileges are insufficient."
+msgstr "Ihre Privilegien sind unzureichend."
+
+msgid "Your privileges are insufficient. '@1' only allows you to grant: @2"
+msgstr "Ihre Privilegien sind unzureichend. Mit „@1“ können Sie nur folgendes gewähren: @2"
+
+msgid "Unknown privilege: @1"
+msgstr "Unbekanntes Privileg: @1"
+
+msgid "@1 granted you privileges: @2"
+msgstr "@1 gewährte Ihnen Privilegien: @2"
+
+msgid "<name> (<privilege> [, <privilege2> [<...>]] | all)"
+msgstr "<Name> (<Privileg> [, <Privileg2> [<...>]] | all)"
+
+msgid "Give privileges to player"
+msgstr "Privileg an Spieler vergeben"
+
+msgid "Invalid parameters (see /help grant)."
+msgstr "Ungültige Parameter (siehe „/help grant“)."
+
+msgid "<privilege> [, <privilege2> [<...>]] | all"
+msgstr "<Privileg> [, <Privileg2> [<...>]] | all"
+
+msgid "Grant privileges to yourself"
+msgstr "Privilegien an Ihnen selbst vergeben"
+
+msgid "Invalid parameters (see /help grantme)."
+msgstr "Ungültige Parameter (siehe „/help grantme“)."
+
+msgid "Your privileges are insufficient. '@1' only allows you to revoke: @2"
+msgstr "Ihre Privilegien sind unzureichend. Mit „@1“ können Sie nur folgendes entziehen: @2"
+
+msgid "Note: Cannot revoke in singleplayer: @1"
+msgstr "Anmerkung: Im Einzelspielermodus kann man folgendes nicht entziehen: @1"
+
+msgid "Note: Cannot revoke from admin: @1"
+msgstr "Anmerkung: Vom Admin kann man folgendes nicht entziehen: @1"
+
+msgid "No privileges were revoked."
+msgstr "Es wurden keine Privilegien entzogen."
+
+msgid "@1 revoked privileges from you: @2"
+msgstr "@1 entfernte Privilegien von Ihnen: @2"
+
+msgid "Remove privileges from player"
+msgstr "Privilegien von Spieler entfernen"
+
+msgid "Invalid parameters (see /help revoke)."
+msgstr "Ungültige Parameter (siehe „/help revoke“)."
+
+msgid "Revoke privileges from yourself"
+msgstr "Privilegien von Ihnen selbst entfernen"
+
+msgid "Invalid parameters (see /help revokeme)."
+msgstr "Ungültige Parameter (siehe „/help revokeme“)."
+
+msgid "<name> <password>"
+msgstr "<Name> <Passwort>"
+
+msgid "Set player's password (sent unencrypted, thus insecure)"
+msgstr "Spielerpasswort setzen (unverschlüsselt gesendet, also unsicher)"
+
+msgid "Name field required."
+msgstr "Namensfeld benötigt."
+
+msgid "Your password was cleared by @1."
+msgstr "Ihr Passwort wurde von @1 geleert."
+
+msgid "Password of player \"@1\" cleared."
+msgstr "Passwort von Spieler „@1“ geleert."
+
+msgid "Your password was set by @1."
+msgstr "Ihr Passwort wurde von @1 gesetzt."
+
+msgid "Password of player \"@1\" set."
+msgstr "Passwort von Spieler „@1“ gesetzt."
+
+msgid "<name>"
+msgstr "<Name>"
+
+msgid "Set empty password for a player"
+msgstr "Leeres Passwort für einen Spieler setzen"
+
+msgid "Reload authentication data"
+msgstr "Authentifizierungsdaten erneut laden"
+
+msgid "Done."
+msgstr "Fertig."
+
+msgid "Failed."
+msgstr "Fehlgeschlagen."
+
+msgid "Remove a player's data"
+msgstr "Daten eines Spielers löschen"
+
+msgid "Player \"@1\" removed."
+msgstr "Spieler „@1“ gelöscht."
+
+msgid "No such player \"@1\" to remove."
+msgstr "Es gibt keinen Spieler „@1“, der gelöscht werden könnte."
+
+msgid "Player \"@1\" is connected, cannot remove."
+msgstr "Spieler „@1“ ist verbunden, er kann nicht gelöscht werden."
+
+msgid "Unhandled remove_player return code @1."
+msgstr "Nicht berücksichtigter remove_player-Rückgabewert @1."
+
+msgid "Cannot teleport out of map bounds!"
+msgstr "Eine Teleportation außerhalb der Kartengrenzen ist nicht möglich!"
+
+msgid "Cannot get player with name @1."
+msgstr "Spieler mit Namen @1 kann nicht gefunden werden."
+
+msgid "Cannot teleport, @1 is attached to an object!"
+msgstr "Teleportation nicht möglich, @1 ist an einem Objekt befestigt!"
+
+msgid "Teleporting @1 to @2."
+msgstr "Teleportation von @1 nach @2"
+
+msgid "One does not teleport to oneself."
+msgstr "Man teleportiert sich doch nicht zu sich selbst."
+
+msgid "Cannot get teleportee with name @1."
+msgstr "Der zu teleportierende Spieler mit Namen @1 kann nicht gefunden werden."
+
+msgid "Cannot get target player with name @1."
+msgstr "Zielspieler mit Namen @1 kann nicht gefunden werden."
+
+msgid "Teleporting @1 to @2 at @3."
+msgstr "Teleportation von @1 zu @2 bei @3"
+
+msgid "<X>,<Y>,<Z> | <to_name> | <name> <X>,<Y>,<Z> | <name> <to_name>"
+msgstr "<X>,<Y>,<Z> | <zu_Name> | <Name> <X>,<Y>,<Z> | <Name> <zu_Name>"
+
+msgid "Teleport to position or player"
+msgstr "Zu Position oder Spieler teleportieren"
+
+msgid "You don't have permission to teleport other players (missing privilege: @1)."
+msgstr "Sie haben nicht die Erlaubnis, andere Spieler zu teleportieren (fehlendes Privileg: @1)."
+
+msgid "([-n] <name> <value>) | <name>"
+msgstr "([-n] <Name> <Wert>) | <Name>"
+
+msgid "Set or read server configuration setting"
+msgstr "Serverkonfigurationseinstellung setzen oder lesen"
+
+msgid "Failed. Cannot modify secure settings. Edit the settings file manually."
+msgstr "Fehlgeschlagen. Sicherheitseinstellungen können nicht modifiziert werden. Bearbeiten Sie die Einstellungsdatei manuell."
+
+msgid "Failed. Use '/set -n <name> <value>' to create a new setting."
+msgstr "Fehlgeschlagen. Benutzen Sie „/set -n <Name> <Wert>“, um eine neue Einstellung zu erstellen."
+
+msgid "@1 = @2"
+msgstr "@1 = @2"
+
+msgid "<not set>"
+msgstr "<nicht gesetzt>"
+
+msgid "Invalid parameters (see /help set)."
+msgstr "Ungültige Parameter (siehe „/help set“)."
+
+msgid "Finished emerging @1 blocks in @2ms."
+msgstr "Fertig mit Erzeugung von @1 Blöcken in @2 ms."
+
+msgid "emergeblocks update: @1/@2 blocks emerged (@3%)"
+msgstr "emergeblocks-Update: @1/@2 Kartenblöcke geladen (@3%)"
+
+msgid "(here [<radius>]) | (<pos1> <pos2>)"
+msgstr "(here [<Radius>]) | (<Pos1> <Pos2>)"
+
+msgid "Load (or, if nonexistent, generate) map blocks contained in area pos1 to pos2 (<pos1> and <pos2> must be in parentheses)"
+msgstr "Lade (oder, wenn nicht existent, generiere) Kartenblöcke im Gebiet zwischen Pos1 und Pos2 (<Pos1> und <Pos2> müssen in Klammern stehen)"
+
+msgid "Started emerge of area ranging from @1 to @2."
+msgstr "Start des Ladevorgangs des Gebiets zwischen @1 und @2."
+
+msgid "Delete map blocks contained in area pos1 to pos2 (<pos1> and <pos2> must be in parentheses)"
+msgstr "Kartenblöcke innerhalb des Gebiets zwischen Pos1 und Pos2 löschen (<Pos1> und <Pos2> müssen in Klammern stehen)"
+
+msgid "Successfully cleared area ranging from @1 to @2."
+msgstr "Gebiet zwischen @1 und @2 erfolgreich geleert."
+
+msgid "Failed to clear one or more blocks in area."
+msgstr "Fehlgeschlagen: Ein oder mehrere Kartenblöcke im Gebiet konnten nicht geleert werden."
+
+msgid "Resets lighting in the area between pos1 and pos2 (<pos1> and <pos2> must be in parentheses)"
+msgstr "Setzt das Licht im Gebiet zwischen Pos1 und Pos2 zurück (<Pos1> und <Pos2> müssen in Klammern stehen)"
+
+msgid "Successfully reset light in the area ranging from @1 to @2."
+msgstr "Das Licht im Gebiet zwischen @1 und @2 wurde erfolgreich zurückgesetzt."
+
+msgid "Failed to load one or more blocks in area."
+msgstr "Fehlgeschlagen: Ein oder mehrere Kartenblöcke im Gebiet konnten nicht geladen werden."
+
+msgid "List mods installed on the server"
+msgstr "Installierte Mods auf dem Server auflisten"
+
+msgid "No mods installed."
+msgstr "Es sind keine Mods installiert."
+
+msgid "Cannot give an empty item."
+msgstr "Ein leerer Gegenstand kann nicht gegeben werden."
+
+msgid "Cannot give an unknown item."
+msgstr "Ein unbekannter Gegenstand kann nicht gegeben werden."
+
+msgid "Giving 'ignore' is not allowed."
+msgstr "„ignore“ darf nicht gegeben werden."
+
+msgid "@1 is not a known player."
+msgstr "@1 ist kein bekannter Spieler."
+
+msgid "@1 partially added to inventory."
+msgstr "@1 teilweise ins Inventar eingefügt."
+
+msgid "@1 could not be added to inventory."
+msgstr "@1 konnte nicht ins Inventar eingefügt werden."
+
+msgid "@1 added to inventory."
+msgstr "@1 zum Inventar hinzugefügt."
+
+msgid "@1 partially added to inventory of @2."
+msgstr "@1 teilweise ins Inventar von @2 eingefügt."
+
+msgid "@1 could not be added to inventory of @2."
+msgstr "@1 konnte nicht ins Inventar von @2 eingefügt werden."
+
+msgid "@1 added to inventory of @2."
+msgstr "@1 ins Inventar von @2 eingefügt."
+
+msgid "<name> <ItemString> [<count> [<wear>]]"
+msgstr "<Name> <ItemString> [<Anzahl> [<Abnutzung>]]"
+
+msgid "Give item to player"
+msgstr "Gegenstand an Spieler geben"
+
+msgid "Name and ItemString required."
+msgstr "Name und ItemString benötigt."
+
+msgid "<ItemString> [<count> [<wear>]]"
+msgstr "<ItemString> [<Anzahl> [<Abnutzung>]]"
+
+msgid "Give item to yourself"
+msgstr "Gegenstand Ihnen selbst geben"
+
+msgid "ItemString required."
+msgstr "ItemString benötigt."
+
+msgid "<EntityName> [<X>,<Y>,<Z>]"
+msgstr "<EntityName> [<X>,<Y>,<Z>]"
+
+msgid "Spawn entity at given (or your) position"
+msgstr "Entity an angegebener (oder Ihrer eigenen) Position spawnen"
+
+msgid "EntityName required."
+msgstr "EntityName benötigt."
+
+msgid "Unable to spawn entity, player is nil."
+msgstr "Entity konnte nicht gespawnt werden, Spieler ist nil."
+
+msgid "Cannot spawn an unknown entity."
+msgstr "Ein unbekanntes Entity kann nicht gespawnt werden."
+
+msgid "Invalid parameters (@1)."
+msgstr "Ungültige Parameter (@1)."
+
+msgid "@1 spawned."
+msgstr "@1 gespawnt."
+
+msgid "@1 failed to spawn."
+msgstr "@1 konnte nicht gespawnt werden."
+
+msgid "Destroy item in hand"
+msgstr "Gegenstand in der Hand zerstören"
+
+msgid "Unable to pulverize, no player."
+msgstr "Konnte nicht pulverisieren, kein Spieler."
+
+msgid "Unable to pulverize, no item in hand."
+msgstr "Konnte nicht pulverisieren, kein Gegenstand in der Hand."
+
+msgid "An item was pulverized."
+msgstr "Ein Gegenstand wurde pulverisiert."
+
+msgid "[<range>] [<seconds>] [<limit>]"
+msgstr "[<Reichweite>] [<Sekunden>] [<Limit>]"
+
+msgid "Check who last touched a node or a node near it within the time specified by <seconds>. Default: range = 0, seconds = 86400 = 24h, limit = 5. Set <seconds> to inf for no time limit"
+msgstr "Überprüfen, wer als letztes einen Node oder einen Node in der Nähe innerhalb der in <Sekunden> angegebenen Zeitspanne angefasst hat. Standard: Reichweite = 0, Sekunden = 86400 = 24h, Limit = 5. <Sekunden> auf „inf“ setzen, um Zeitlimit zu deaktivieren."
+
+msgid "Rollback functions are disabled."
+msgstr "Rollback-Funktionen sind deaktiviert."
+
+msgid "That limit is too high!"
+msgstr "Dieses Limit ist zu hoch!"
+
+msgid "Checking @1 ..."
+msgstr "Überprüfe @1 ..."
+
+msgid "Nobody has touched the specified location in @1 seconds."
+msgstr "Niemand hat die angegebene Position seit @1 Sekunden angefasst."
+
+msgid "@1 @2 @3 -> @4 @5 seconds ago."
+msgstr "@1 @2 @3 -> @4 vor @5 Sekunden."
+
+msgid "Punch a node (range=@1, seconds=@2, limit=@3)."
+msgstr "Hauen Sie einen Node (Reichweite=@1, Sekunden=@2, Limit=@3)."
+
+msgid "(<name> [<seconds>]) | (:<actor> [<seconds>])"
+msgstr "(<Name> [<Sekunden>]) | (:<Akteur> [<Sekunden>])"
+
+msgid "Revert actions of a player. Default for <seconds> is 60. Set <seconds> to inf for no time limit"
+msgstr "Aktionen eines Spielers zurückrollen. Standard für <Sekunden> ist 60. <Sekunden> auf „inf“ setzen, um Zeitlimit zu deaktivieren"
+
+msgid "Invalid parameters. See /help rollback and /help rollback_check."
+msgstr "Ungültige Parameter. Siehe /help rollback und /help rollback_check."
+
+msgid "Reverting actions of player '@1' since @2 seconds."
+msgstr "Die Aktionen des Spielers „@1“ seit @2 Sekunden werden rückgängig gemacht."
+
+msgid "Reverting actions of @1 since @2 seconds."
+msgstr "Die Aktionen von @1 seit @2 Sekunden werden rückgängig gemacht."
+
+msgid "(log is too long to show)"
+msgstr "(Protokoll ist zu lang für die Anzeige)"
+
+msgid "Reverting actions succeeded."
+msgstr "Die Aktionen wurden erfolgreich rückgängig gemacht."
+
+msgid "Reverting actions FAILED."
+msgstr "FEHLGESCHLAGEN: Die Aktionen konnten nicht rückgängig gemacht werden."
+
+msgid "Show server status"
+msgstr "Serverstatus anzeigen"
+
+msgid "This command was disabled by a mod or game."
+msgstr "Dieser Befehl wurde von einer Mod oder einem Spiel deaktiviert."
+
+msgid "[<0..23>:<0..59> | <0..24000>]"
+msgstr "[<0..23>:<0..59> | <0..24000>]"
+
+msgid "Show or set time of day"
+msgstr "Tageszeit anzeigen oder setzen"
+
+msgid "Current time is @1:@2."
+msgstr "Es ist jetzt @1:@2 Uhr."
+
+msgid "You don't have permission to run this command (missing privilege: @1)."
+msgstr "Sie haben nicht die Erlaubnis, diesen Befehl auszuführen (fehlendes Privileg: @1)."
+
+msgid "Invalid time (must be between 0 and 24000)."
+msgstr "Ungültige Zeit (muss zwischen 0 und 24000 liegen)."
+
+msgid "Time of day changed."
+msgstr "Tageszeit geändert."
+
+msgid "Invalid hour (must be between 0 and 23 inclusive)."
+msgstr "Ungültige Stunde (muss zwischen 0 und 23 inklusive liegen)."
+
+msgid "Invalid minute (must be between 0 and 59 inclusive)."
+msgstr "Ungültige Minute (muss zwischen 0 und 59 inklusive liegen)."
+
+msgid "Show day count since world creation"
+msgstr "Anzahl Tage seit der Erschaffung der Welt anzeigen"
+
+msgid "Current day is @1."
+msgstr "Aktueller Tag ist @1."
+
+msgid "[<delay_in_seconds> | -1] [-r] [<message>]"
+msgstr "[<Verzögerung_in_Sekunden> | -1] [-r] [<Nachricht>]"
+
+msgid "Shutdown server (-1 cancels a delayed shutdown, -r allows players to reconnect)"
+msgstr "Server herunterfahren (-1 bricht einen verzögerten Abschaltvorgang ab, -r erlaubt Spielern, sich wiederzuverbinden)"
+
+msgid "Server shutting down (operator request)."
+msgstr "Server wird heruntergefahren (Betreiberanfrage)."
+
+msgid "Ban the IP of a player or show the ban list"
+msgstr "Die IP eines Spielers verbannen oder die Bannliste anzeigen"
+
+msgid "The ban list is empty."
+msgstr "Die Bannliste ist leer."
+
+msgid "Ban list: @1"
+msgstr "Bannliste: @1"
+
+msgid "You cannot ban players in singleplayer!"
+msgstr "Im Einzelspielermodus können Sie keine Spieler verbannen!"
+
+msgid "Player is not online."
+msgstr "Spieler ist nicht online."
+
+msgid "Failed to ban player."
+msgstr "Konnte Spieler nicht verbannen."
+
+msgid "Banned @1."
+msgstr "@1 verbannt."
+
+msgid "<name> | <IP_address>"
+msgstr "<Name> | <IP_Adresse>"
+
+msgid "Remove IP ban belonging to a player/IP"
+msgstr "Einen IP-Bann auf einen Spieler zurücknehmen"
+
+msgid "Failed to unban player/IP."
+msgstr "Konnte Bann auf Spieler/IP nicht zurücknehmen."
+
+msgid "Unbanned @1."
+msgstr "Bann auf @1 zurückgenommen."
+
+msgid "<name> [<reason>]"
+msgstr "<Name> [<Grund>]"
+
+msgid "Kick a player"
+msgstr "Spieler hinauswerfen"
+
+msgid "Failed to kick player @1."
+msgstr "Spieler @1 konnte nicht hinausgeworfen werden."
+
+msgid "Kicked @1."
+msgstr "@1 hinausgeworfen."
+
+msgid "[full | quick]"
+msgstr "[full | quick]"
+
+msgid "Clear all objects in world"
+msgstr "Alle Objekte in der Welt löschen"
+
+msgid "Invalid usage, see /help clearobjects."
+msgstr "Ungültige Verwendung, siehe /help clearobjects."
+
+msgid "Clearing all objects. This may take a long time. You may experience a timeout. (by @1)"
+msgstr "Lösche alle Objekte. Dies kann eine lange Zeit dauern. Eine Netzwerkzeitüberschreitung könnte für Sie auftreten. (von @1)"
+
+msgid "Cleared all objects."
+msgstr "Alle Objekte gelöscht."
+
+msgid "<name> <message>"
+msgstr "<Name> <Nachricht>"
+
+msgid "Send a direct message to a player"
+msgstr "Eine Direktnachricht an einen Spieler senden"
+
+msgid "Invalid usage, see /help msg."
+msgstr "Ungültige Verwendung, siehe /help msg."
+
+msgid "The player @1 is not online."
+msgstr "Der Spieler @1 ist nicht online."
+
+msgid "DM from @1: @2"
+msgstr "DN von @1: @2"
+
+msgid "DM sent to @1: @2"
+msgstr ""
+
+msgid "Get the last login time of a player or yourself"
+msgstr "Den letzten Loginzeitpunkt eines Spielers oder Ihren eigenen anfragen"
+
+msgid "@1's last login time was @2."
+msgstr "Letzter Loginzeitpunkt von @1 war @2."
+
+msgid "@1's last login time is unknown."
+msgstr "Letzter Loginzeitpunkt von @1 ist unbekannt."
+
+msgid "Clear the inventory of yourself or another player"
+msgstr "Das Inventar von Ihnen oder einem anderen Spieler leeren"
+
+msgid "You don't have permission to clear another player's inventory (missing privilege: @1)."
+msgstr "Sie haben nicht die Erlaubnis, das Inventar eines anderen Spielers zu leeren (fehlendes Privileg: @1)."
+
+msgid "@1 cleared your inventory."
+msgstr "@1 hat Ihr Inventar geleert."
+
+msgid "Cleared @1's inventory."
+msgstr "Inventar von @1 geleert."
+
+msgid "Player must be online to clear inventory!"
+msgstr "Spieler muss online sein, um das Inventar leeren zu können!"
+
+msgid "Players can't be killed, damage has been disabled."
+msgstr "Spieler können nicht getötet werden, Schaden ist deaktiviert."
+
+msgid "Player @1 is not online."
+msgstr "Spieler @1 ist nicht online."
+
+msgid "You are already dead."
+msgstr "Sie sind schon tot."
+
+msgid "@1 is already dead."
+msgstr "@1 ist bereits tot."
+
+msgid "@1 has been killed."
+msgstr "@1 wurde getötet."
+
+msgid "Kill player or yourself"
+msgstr "Einen Spieler oder Sie selbst töten"
+
+msgid "You died"
+msgstr "Sie sind gestorben"
+
+msgid "Respawn"
+msgstr "Wiederbeleben"
+
+msgid "@1 joined the game."
+msgstr "@1 ist dem Spiel beigetreten."
+
+msgid "@1 left the game."
+msgstr "@1 hat das Spiel verlassen."
+
+msgid "@1 left the game (timed out)."
+msgstr "@1 hat das Spiel verlassen (Netzwerkzeitüberschreitung)."
+
+msgid "(no description)"
+msgstr "(keine Beschreibung)"
+
+msgid "Can interact with things and modify the world"
+msgstr "Kann mit Dingen interagieren und die Welt verändern"
+
+msgid "Can speak in chat"
+msgstr "Kann im Chat sprechen"
+
+msgid "Can modify basic privileges (@1)"
+msgstr "Kann grundlegende Privilegien anpassen (@1)"
+
+msgid "Can modify privileges"
+msgstr "Kann Privilegien anpassen"
+
+msgid "Can teleport self"
+msgstr "Kann sich selbst teleportieren"
+
+msgid "Can teleport other players"
+msgstr "Kann andere Spieler teleportieren"
+
+msgid "Can set the time of day using /time"
+msgstr "Kann die Tageszeit mit /time setzen"
+
+msgid "Can do server maintenance stuff"
+msgstr "Kann Serverwartungsdinge machen"
+
+msgid "Can bypass node protection in the world"
+msgstr "Kann den Schutz auf Blöcken in der Welt umgehen"
+
+msgid "Can ban and unban players"
+msgstr "Kann Spieler verbannen und entbannen"
+
+msgid "Can kick players"
+msgstr "Kann Spieler hinauswerfen"
+
+msgid "Can use /give and /giveme"
+msgstr "Kann /give und /giveme benutzen"
+
+msgid "Can use /setpassword and /clearpassword"
+msgstr "Kann /setpassword und /clearpassword benutzen"
+
+msgid "Can use fly mode"
+msgstr "Kann den Flugmodus benutzen"
+
+msgid "Can use fast mode"
+msgstr "Kann den Schnellmodus benutzen"
+
+msgid "Can fly through solid nodes using noclip mode"
+msgstr "Kann durch feste Blöcke mit dem Geistmodus fliegen"
+
+msgid "Can use the rollback functionality"
+msgstr "Kann die Rollback-Funktionalität benutzen"
+
+msgid "Can enable wireframe"
+msgstr "Kann Drahtmodell aktivieren"
+
+msgid "Unknown Item"
+msgstr "Unbekannter Gegenstand"
+
+msgid "Air"
+msgstr "Luft"
+
+msgid "Ignore"
+msgstr "Ignorieren"
+
+msgid "You can't place 'ignore' nodes!"
+msgstr "Sie können keine „ignore“-Blöcke platzieren!"
+
+msgid "print [<filter>] | dump [<filter>] | save [<format> [<filter>]] | reset"
+msgstr "print [<Filter>] | dump [<Filter>] | save [<Format> [<Filter>]] | reset"
+
+msgid "Handle the profiler and profiling data"
+msgstr "Den Profiler und Profilingdaten verwalten"
+
+msgid "Statistics written to action log."
+msgstr "Statistiken zum Aktionsprotokoll geschrieben."
+
+msgid "Statistics were reset."
+msgstr "Statistiken wurden zurückgesetzt."
+
+msgid "Usage: @1"
+msgstr "Verwendung: @1"
+
+msgid "Format can be one of txt, csv, lua, json, json_pretty (structures may be subject to change)."
+msgstr "Format kann entweder „txt“, „csv“, „lua“, „json“ oder „json_pretty“ sein (die Struktur kann sich in Zukunft ändern)."
+
+msgid "Values below show absolute/relative times spend per server step by the instrumented function."
+msgstr "Die unten angegebenen Werte zeigen absolute/relative Zeitspannen, die je Server-Step von der instrumentierten Funktion in Anspruch genommen wurden."
+
+msgid "A total of @1 sample(s) were taken."
+msgstr "Es wurden insgesamt @1 Datenpunkt(e) aufgezeichnet."
+
+msgid "The output is limited to '@1'."
+msgstr "Die Ausgabe ist beschränkt auf „@1“."
+
+msgid "Saving of profile failed: @1"
+msgstr "Speichern des Profils fehlgeschlagen: @1"
+
+msgid "Profile saved to @1"
+msgstr "Profil abgespeichert nach @1"
+
