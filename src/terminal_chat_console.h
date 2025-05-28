@@ -9,6 +9,8 @@
 #include "util/container.h"
 #include "log.h"
 #include "log_internal.h"
+
+#include <csignal>
 #include <set>
 #include <sstream>
 
@@ -45,7 +47,7 @@ public:
 
 	void setup(
 		ChatInterface *iface,
-		bool *kill_requested,
+		volatile std::sig_atomic_t *kill_requested,
 		const std::string &nick)
 	{
 		m_nick = nick;
@@ -96,9 +98,9 @@ private:
 	int m_rows;
 	bool m_can_draw_text;
 
-	bool *m_kill_requested = nullptr;
-	ChatBackend m_chat_backend;
-	ChatInterface *m_chat_interface;
+	volatile std::sig_atomic_t *m_kill_requested = nullptr;
+	ChatBackend                 m_chat_backend;
+	ChatInterface              *m_chat_interface;
 
 	TermLogOutput m_log_output;
 

@@ -13,6 +13,7 @@
 #endif
 
 // Be mindful of what you include here!
+#include <csignal>
 #include <string>
 #include "config.h"
 #include "irrlichttypes.h" // u64
@@ -77,7 +78,7 @@ namespace porting
 void signal_handler_init();
 // Returns a pointer to a bool.
 // When the bool is true, program should quit.
-[[nodiscard]] bool *signal_handler_killstatus();
+[[nodiscard]] volatile std::sig_atomic_t *signal_handler_killstatus();
 
 /*
 	Path of static data directory.
