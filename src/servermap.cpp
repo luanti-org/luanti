@@ -246,6 +246,7 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 				bool ug = m_emerge->isBlockUnderground(p);
 				block->setIsUnderground(ug);
 			}
+			block->refGrab ();
 		}
 	}
 
@@ -307,16 +308,31 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 	}
 
 	// Note: this does not apply to the extra border area
-	for (s16 x = bpmin.X; x <= bpmax.X; x++)
-	for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
-	for (s16 y = bpmin.Y; y <= bpmax.Y; y++) {
+	for (s16 x = bpmin.X - 1; x <= bpmax.X + 1; x++)
+	for (s16 z = bpmin.Z - 1; z <= bpmax.Z + 1; z++)
+	for (s16 y = bpmin.Y - 1; y <= bpmax.Y + 1; y++) {
 		MapBlock *block = getBlockNoCreateNoEx(v3s16(x, y, z));
 		if (!block)
-			continue;
+		  {
+		    warningstream
+		      << v3s16 (x, y, z)
+		      << " was modified by generation but is not available"
+		      << std::endl;
+		    continue;
+		  }
 
-		block->setGenerated(true);
-		// Set timestamp to ensure correct application of LBMs and other stuff
-		block->setTimestampNoChangedFlag(now);
+		block->refDrop ();
+
+		/* Blocks near the border are grabbed during
+		   generation but mustn't be marked generated.  */
+		if (x >= bpmin.X && x <= bpmax.X
+		    && y >= bpmin.Y && y <= bpmax.Y
+		    && z >= bpmin.Z && z <= bpmax.Z)
+		  {
+		    block->setGenerated(true);
+		    // Set timestamp to ensure correct application of LBMs and other stuff
+		    block->setTimestampNoChangedFlag(now);
+		  }
 	}
 
 	m_chunks_in_progress.erase(bpmin);
