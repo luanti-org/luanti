@@ -3928,6 +3928,28 @@ The following functions provide escape sequences:
     * Removes all color escape sequences.
 
 
+Coordinate System
+=================
+
+Luanti uses a **left-handed** coordinate system: Y is "up", X is "right", Z is "forward".
+This is the convention used by Unity, DirectX and Irrlicht.
+It means that when you're pointing in +Z direction in-game ("forward"), +X is to your right; +Y is up.
+
+Consistently, rotation is **left-handed** as well:
+When your thumb points in the direction of the rotation axis,
+your curled fingers point in the direction the rotation goes.
+The rotation order is XYZ: First rotation around the X-axis is applied, then Y, then Z.
+(Note: As a product of rotation matrices, this will be written in reverse, so ZYX.)
+
+Attachment and bone override rotations both use these conventions.
+
+There is an exception, however: Object rotation (`ObjectRef:set_rotation`, `ObjectRef:get_rotation`, `automatic_rotate`)
+**does not** use left-handed XYZ rotations. Instead, it uses **right-handed ZXY** rotations:
+First roll (Z) is applied, then pitch (X); yaw (Y) is applied last.
+
+See [Scratchapixel](https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/coordinate-systems.html)
+or [Wikipedia](https://en.wikipedia.org/wiki/Cartesian_coordinate_system#Orientation_and_handedness)
+for a more detailed and pictorial explanation of these terms.
 
 
 Spatial Vectors
@@ -8461,9 +8483,9 @@ child will follow movement and rotation of that bone.
         * `interpolation`: The old and new overrides are interpolated over this timeframe (in seconds).
         * `absolute`: If set to `false` (which is the default),
           the override will be relative to the animated property:
-            * Translation in the case of `position`;
-            * Composition in the case of `rotation`;
-            * Per-axis multiplication in the case of `scale`
+          * Translation in the case of `position`;
+          * Composition in the case of `rotation`;
+          * Per-axis multiplication in the case of `scale`
     * `property = nil` is equivalent to no override on that property
     * **Note:** Unlike `set_bone_position`, the rotation is in radians, not degrees.
     * Compatibility note: Clients prior to 5.9.0 only support absolute position and rotation.
@@ -8536,9 +8558,10 @@ child will follow movement and rotation of that bone.
     * `acc` is a vector
 * `get_acceleration()`: returns the acceleration, a vector
 * `set_rotation(rot)`
-    * Sets the rotation
     * `rot` is a vector (radians). X is pitch (elevation), Y is yaw (heading)
       and Z is roll (bank).
+    * Sets the **right-handed ZXY** rotation:
+      First roll (Z) is applied, then pitch (X); yaw (Y) is applied last.
     * Does not reset rotation incurred through `automatic_rotate`.
       Remove & re-add your objects to force a certain rotation.
 * `get_rotation()`: returns the rotation, a vector (radians)
@@ -9440,7 +9463,7 @@ Player properties need to be saved manually.
     -- (see node sound definition for details).
 
     automatic_rotate = 0,
-    -- Set constant rotation in radians per second, positive or negative.
+    -- Set constant right-handed rotation in radians per second, positive or negative.
     -- Object rotates along the local Y-axis, and works with set_rotation.
     -- Set to 0 to disable constant rotation.
 
