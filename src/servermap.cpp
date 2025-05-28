@@ -244,6 +244,7 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 				bool ug = m_emerge->isBlockUnderground(p);
 				block->setIsUnderground(ug);
 			}
+			block->refGrab();
 		}
 	}
 
@@ -259,6 +260,20 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 
 	// Data is ready now.
 	return true;
+}
+
+void ServerMap::cancelBlockMake(BlockMakeData *data)
+{
+	assert(data->vmanip); // no vmanip = initBlockMake did not complete (caller mistake)
+	v3s16 bpmin = data->blockpos_min;
+	v3s16 bpmax = data->blockpos_max;
+	for (s16 x = bpmin.X - 1; x <= bpmax.X + 1; x++)
+	for (s16 z = bpmin.Z - 1; z <= bpmax.Z + 1; z++)
+	for (s16 y = bpmin.Y - 1; y <= bpmax.Y + 1; y++) {
+		MapBlock *block = getBlockNoCreateNoEx(v3s16(x, y, z));
+		if (block)
+			block->refDrop();
+	}
 }
 
 void ServerMap::finishBlockMake(BlockMakeData *data,
@@ -304,17 +319,27 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 			MOD_REASON_EXPIRE_IS_AIR);
 	}
 
-	// Note: this does not apply to the extra border area
-	for (s16 x = bpmin.X; x <= bpmax.X; x++)
-	for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
-	for (s16 y = bpmin.Y; y <= bpmax.Y; y++) {
-		MapBlock *block = getBlockNoCreateNoEx(v3s16(x, y, z));
-		if (!block)
+	v3s16 bp;
+	for (bp.X = bpmin.X - 1; bp.X <= bpmax.X + 1; bp.X++)
+	for (bp.Z = bpmin.Z - 1; bp.Z <= bpmax.Z + 1; bp.Z++)
+	for (bp.Y = bpmin.Y - 1; bp.Y <= bpmax.Y + 1; bp.Y++) {
+		MapBlock *block = getBlockNoCreateNoEx(bp);
+		if (!block) {
+			warningstream << "ServerMap::finishBlockMake: block " << bp
+				<< " disappeared during generation" << std::endl;
 			continue;
+		}
 
-		block->setGenerated(true);
-		// Set timestamp to ensure correct application of LBMs and other stuff
-		block->setTimestampNoChangedFlag(now);
+		block->refDrop();
+
+		/* Blocks near the border are grabbed during
+		   generation but mustn't be marked generated. */
+		if (bp >= bpmin && bp <= bpmax) {
+			block->setGenerated(true);
+			// Set timestamp to ensure correct application
+			// of LBMs and other stuff.
+			block->setTimestampNoChangedFlag(now);
+		}
 	}
 
 	m_chunks_in_progress.erase(bpmin);

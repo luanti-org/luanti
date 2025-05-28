@@ -68,6 +68,7 @@ public:
 	/// @param now current game time
 	void finishBlockMake(BlockMakeData *data,
 		std::map<v3s16, MapBlock*> *changed_blocks, u32 now);
+	void cancelBlockMake(BlockMakeData *data);
 
 	/*
 		Get a block from somewhere.
