@@ -4821,12 +4821,18 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 	}
 
 	if (event.EventType == EET_GUI_EVENT) {
-		if (event.GUIEvent.EventType == gui::EGET_TAB_CHANGED
-				&& isVisible()) {
-			// find the element that was clicked
+		const s32 caller_id = event.GUIEvent.Caller->getID();
+		bool close_on_enter;
+
+		switch (event.GUIEvent.EventType) {
+		case gui::EGET_TAB_CHANGED:
+			if (!isVisible())
+				break;
+
+				// find the element that was clicked
 			for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
-				if ((s.ftype == f_TabHeader) &&
-						(s.fid == event.GUIEvent.Caller->getID())) {
+				if (s.ftype == f_TabHeader &&
+						s.fid == caller_id) {
 					if (!s.sound.empty() && m_sound_manager)
 						m_sound_manager->playSound(0, SoundSpec(s.sound, 1.0f));
 					s.send = true;
@@ -4835,22 +4841,24 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					return true;
 				}
 			}
-		}
-		if (event.GUIEvent.EventType == gui::EGET_ELEMENT_FOCUS_LOST
-				&& isVisible()) {
+			break;
+
+		case gui::EGET_ELEMENT_FOCUS_LOST:
+			if (!isVisible())
+				break;
+
 			if (!canTakeFocus(event.GUIEvent.Element)) {
 				infostream<<"GUIFormSpecMenu: Not allowing focus change."
 						<<std::endl;
 				// Returning true disables focus change
 				return true;
 			}
-		}
-		if ((event.GUIEvent.EventType == gui::EGET_BUTTON_CLICKED) ||
-				(event.GUIEvent.EventType == gui::EGET_CHECKBOX_CHANGED) ||
-				(event.GUIEvent.EventType == gui::EGET_COMBO_BOX_CHANGED) ||
-				(event.GUIEvent.EventType == gui::EGET_SCROLL_BAR_CHANGED)) {
-			s32 caller_id = event.GUIEvent.Caller->getID();
+			break;
 
+		case gui::EGET_BUTTON_CLICKED:
+		case gui::EGET_CHECKBOX_CHANGED:
+		case gui::EGET_COMBO_BOX_CHANGED:
+		case gui::EGET_SCROLL_BAR_CHANGED:
 			if (caller_id == ID_PROCEED_BTN) {
 				trySubmitClose();
 				return true;
@@ -4922,55 +4930,57 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					s.send = false;
 				}
 			}
-		}
 
-		if (event.GUIEvent.EventType == gui::EGET_SCROLL_BAR_CHANGED) {
-			// move scroll_containers
-			for (const std::pair<std::string, GUIScrollContainer *> &c : m_scroll_containers)
-				c.second->onScrollEvent(event.GUIEvent.Caller);
-		}
+			if (event.GUIEvent.EventType == gui::EGET_SCROLL_BAR_CHANGED) {
+				// move scroll_containers
+				for (const std::pair<std::string, GUIScrollContainer *> &c : m_scroll_containers)
+					c.second->onScrollEvent(event.GUIEvent.Caller);
+			}
+			break;
 
-		if (event.GUIEvent.EventType == gui::EGET_EDITBOX_ENTER) {
-			if (event.GUIEvent.Caller->getID() > ID_PROCEED_BTN) {
-				bool close_on_enter = true;
-				for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
-					if (s.ftype == f_Unknown &&
-							s.fid == event.GUIEvent.Caller->getID()) {
-						current_field_enter_pending = s.fname;
-						auto it = field_close_on_enter.find(s.fname);
-						if (it != field_close_on_enter.end())
-							close_on_enter = (*it).second;
+		case gui::EGET_EDITBOX_ENTER:
+			if (caller_id <= ID_PROCEED_BTN)
+				break;
 
-						break;
-					}
+			close_on_enter = true;
+			for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
+				if (s.ftype == f_Unknown &&
+						s.fid == caller_id) {
+					current_field_enter_pending = s.fname;
+					auto it = field_close_on_enter.find(s.fname);
+					if (it != field_close_on_enter.end())
+						close_on_enter = (*it).second;
+
+					break;
 				}
+			}
 
-				current_keys_pending.key_enter = true;
+			current_keys_pending.key_enter = true;
 
-				if (close_on_enter) {
-					trySubmitClose();
-				} else {
+			if (close_on_enter)
+				trySubmitClose();
+			else
+				acceptInput();
+			return true;
+
+		case gui::EGET_TABLE_CHANGED:
+			if (caller_id <= ID_PROCEED_BTN)
+				break;
+
+			// find the element that was clicked
+			for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
+				// if it's a table, set the send field
+				// so lua knows which table was changed
+				if (s.ftype == f_Table && s.fid == caller_id) {
+					s.send = true;
 					acceptInput();
+					s.send = false;
 				}
-				return true;
 			}
-		}
+			return true;
 
-		if (event.GUIEvent.EventType == gui::EGET_TABLE_CHANGED) {
-			int current_id = event.GUIEvent.Caller->getID();
-			if (current_id > ID_PROCEED_BTN) {
-				// find the element that was clicked
-				for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
-					// if it's a table, set the send field
-					// so lua knows which table was changed
-					if ((s.ftype == f_Table) && (s.fid == current_id)) {
-						s.send = true;
-						acceptInput();
-						s.send=false;
-					}
-				}
-				return true;
-			}
+		default:
+			break;
 		}
 	}
 
