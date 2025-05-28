@@ -61,6 +61,9 @@ private:
 	// is_valid(self)
 	static int l_is_valid(lua_State *L);
 
+	// get_guid()
+	static int l_get_guid(lua_State *L);
+
 	// get_pos(self)
 	static int l_get_pos(lua_State *L);
 
