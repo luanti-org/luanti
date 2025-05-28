@@ -77,6 +77,9 @@
 		return; \
 	}
 
+// Element ID of the "Proceed" button shown for sizeless formspecs
+constexpr s32 ID_PROCEED_BTN = 257;
+
 /*
 	GUIFormSpecMenu
 */
@@ -2998,7 +3001,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		gui::IGUIElement *focused_element = Environment->getFocus();
 		if (focused_element && focused_element->getParent() == this) {
 			s32 focused_id = focused_element->getID();
-			if (focused_id > 257) {
+			if (focused_id > ID_PROCEED_BTN) {
 				for (const GUIFormSpecMenu::FieldSpec &field : m_fields) {
 					if (field.fid == focused_id) {
 						m_focused_element = field.fname;
@@ -3308,7 +3311,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 					size.X / 2 - 70,       pos.Y,
 					size.X / 2 - 70 + 140, pos.Y + m_btn_height * 2
 			);
-			GUIButton::addButton(Environment, mydata.rect, m_tsrc, this, 257,
+			GUIButton::addButton(Environment, mydata.rect, m_tsrc, this, ID_PROCEED_BTN,
 					wstrgettext("Proceed").c_str());
 		}
 	}
@@ -4031,12 +4034,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 			if (m_joystick->wasKeyDown(KeyType::ESC)) {
 				tryClose();
 			} else if (m_joystick->wasKeyDown(KeyType::JUMP)) {
-				if (m_allowclose) {
-					acceptInput(quit_mode_accept);
-					quitMenu();
-				} else {
-					acceptInput(quit_mode_try);
-				}
+				trySubmitClose();
 			}
 		}
 		return handled;
@@ -4050,6 +4048,16 @@ void GUIFormSpecMenu::tryClose()
 	if (m_allowclose) {
 		doPause = false;
 		acceptInput(quit_mode_cancel);
+		quitMenu();
+	} else {
+		acceptInput(quit_mode_try);
+	}
+}
+
+void GUIFormSpecMenu::trySubmitClose()
+{
+	if (m_allowclose) {
+		acceptInput(quit_mode_accept);
 		quitMenu();
 	} else {
 		acceptInput(quit_mode_try);
@@ -4099,12 +4107,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					break;
 			}
 			if (current_keys_pending.key_enter) {
-				if (m_allowclose) {
-					acceptInput(quit_mode_accept);
-					quitMenu();
-				} else {
-					acceptInput(quit_mode_try);
-				}
+				trySubmitClose();
 			} else {
 				acceptInput();
 			}
@@ -4848,10 +4851,8 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 				(event.GUIEvent.EventType == gui::EGET_SCROLL_BAR_CHANGED)) {
 			s32 caller_id = event.GUIEvent.Caller->getID();
 
-			if (caller_id == 257) {
-				acceptInput(quit_mode_accept);
-				m_text_dst->gotText(L"ExitButton");
-				quitMenu();
+			if (caller_id == ID_PROCEED_BTN) {
+				trySubmitClose();
 				return true;
 			}
 
@@ -4881,7 +4882,6 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 					if (s.is_exit) {
 						acceptInput(quit_mode_accept);
-						m_text_dst->gotText(L"ExitButton");
 						quitMenu();
 						return true;
 					}
@@ -4931,7 +4931,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		}
 
 		if (event.GUIEvent.EventType == gui::EGET_EDITBOX_ENTER) {
-			if (event.GUIEvent.Caller->getID() > 257) {
+			if (event.GUIEvent.Caller->getID() > ID_PROCEED_BTN) {
 				bool close_on_enter = true;
 				for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
 					if (s.ftype == f_Unknown &&
@@ -4948,12 +4948,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 				current_keys_pending.key_enter = true;
 
 				if (close_on_enter) {
-					if (m_allowclose) {
-						acceptInput(quit_mode_accept);
-						quitMenu();
-					} else {
-						acceptInput(quit_mode_try);
-					}
+					trySubmitClose();
 				} else {
 					acceptInput();
 				}
@@ -4963,7 +4958,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 		if (event.GUIEvent.EventType == gui::EGET_TABLE_CHANGED) {
 			int current_id = event.GUIEvent.Caller->getID();
-			if (current_id > 257) {
+			if (current_id > ID_PROCEED_BTN) {
 				// find the element that was clicked
 				for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
 					// if it's a table, set the send field
