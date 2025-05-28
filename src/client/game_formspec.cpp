@@ -31,16 +31,6 @@ struct TextDestNodeMetadata : public TextDest
 		m_p = p;
 		m_client = client;
 	}
-	// This is deprecated I guess? -celeron55
-	void gotText(const std::wstring &text)
-	{
-		std::string ntext = wide_to_utf8(text);
-		infostream << "Submitting 'text' field of node at (" << m_p.X << ","
-			   << m_p.Y << "," << m_p.Z << "): " << ntext << std::endl;
-		StringMap fields;
-		fields["text"] = ntext;
-		m_client->sendNodemetaFields(m_p, "", fields);
-	}
 	void gotText(const StringMap &fields)
 	{
 		m_client->sendNodemetaFields(m_p, "", fields);
