@@ -3,7 +3,7 @@
 // Copyright (C) 2025 grorp
 
 #include "l_pause_menu.h"
-#include "client/keycode.h"
+#include "client/input/keycode.h"
 #include "gui/mainmenumanager.h"
 #include "lua_api/l_internal.h"
 #include "client/client.h"

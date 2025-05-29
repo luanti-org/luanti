@@ -125,7 +125,7 @@ public:
 	 * @param smgr scene manager to add scene elements to
 	 * @param data struct to transfer data to main game handling
 	 */
-	GUIEngine(JoystickController *joystick,
+	GUIEngine(GamepadController *joystick,
 			gui::IGUIElement *parent,
 			RenderingEngine *rendering_engine,
 			IMenuManager *menumgr,

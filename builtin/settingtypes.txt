@@ -468,6 +468,25 @@ fixed_virtual_joystick (Fixed virtual joystick) bool false
 #    Requires: touchscreen
 virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool false
 
+[*Gamepads] [client]
+
+#    Enable joysticks. Requires a restart to take effect
+enable_joysticks (Enable joysticks) bool false
+
+#    The identifier of the joystick to use
+joystick_id (Joystick ID) int 0 0 255
+
+#    The time in seconds it takes between repeated events
+#    when holding down a joystick button combination.
+repeat_joystick_button_time (Joystick button repetition interval) float 0.17 0.001
+
+#    The dead zone of the joystick
+joystick_deadzone (Joystick dead zone) int 2048 0 65535
+
+#    The sensitivity of the joystick axes for moving the
+#    in-game view frustum around.
+joystick_frustum_sensitivity (Joystick frustum sensitivity) float 170.0 0.001
+
 [Graphics and Audio] [client]
 
 [*Graphics]
@@ -2497,30 +2516,6 @@ enable_remote_media_server (Connect to external media server) [client] bool true
 #    File in client/serverlist/ that contains your favorite servers displayed in the
 #    Multiplayer Tab.
 serverlist_file (Serverlist file) [client] string favoriteservers.json
-
-
-[*Gamepads] [client]
-
-#    Enable joysticks. Requires a restart to take effect
-enable_joysticks (Enable joysticks) bool false
-
-#    The identifier of the joystick to use
-joystick_id (Joystick ID) int 0 0 255
-
-#    The type of joystick
-joystick_type (Joystick type) enum auto auto,generic,xbox,dragonrise_gamecube
-
-#    The time in seconds it takes between repeated events
-#    when holding down a joystick button combination.
-repeat_joystick_button_time (Joystick button repetition interval) float 0.17 0.001
-
-#    The dead zone of the joystick
-joystick_deadzone (Joystick dead zone) int 2048 0 65535
-
-#    The sensitivity of the joystick axes for moving the
-#    in-game view frustum around.
-joystick_frustum_sensitivity (Joystick frustum sensitivity) float 170.0 0.001
-
 
 [*Hide: Temporary Settings] [common]
 
