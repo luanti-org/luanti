@@ -1663,14 +1663,16 @@ inline void CMatrix4<T>::getTransposed(CMatrix4<T> &o) const
 template <class T>
 std::ostream& operator<<(std::ostream& os, const CMatrix4<T>& matrix)
 {
-    for (int row = 0; row < 4; ++row) {
+	os << "(\n";
+	for (int row = 0; row < 4; ++row) {
 		for (int col = 0; col < 4; ++col) {
 			os << "\t";
 			os << matrix(row, col);
 		}
 		os << "\n";
 	}
-    return os;
+	os << ")";
+	return os;
 }
 
 // used to scale <-1,-1><1,1> to viewport

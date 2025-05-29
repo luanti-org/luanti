@@ -13,7 +13,6 @@ extern "C" {
 #include <irr_v3d.h>
 #include <string_view>
 #include "c_converter.h"
-#include "c_types.h"
 
 /*
  * Read template functions
@@ -50,12 +49,12 @@ f64 LuaHelper::readParam(lua_State *L, int index)
 }
 
 template <>
-LuaHelper::Finite<f32> LuaHelper::readParam(lua_State *L, int index)
+f32 LuaHelper::readFiniteParam(lua_State *L, int index)
 {
 	f64 original_value = luaL_checknumber(L, index);
 	f32 v = static_cast<f32>(original_value);
 	if (std::isfinite(v))
-		return {v};
+		return v;
 	if (std::isnan(original_value))
 		luaL_argerror(L, index, "number is NaN");
 	if (!std::isfinite(original_value))
@@ -66,11 +65,11 @@ LuaHelper::Finite<f32> LuaHelper::readParam(lua_State *L, int index)
 }
 
 template <>
-LuaHelper::Finite<f64> LuaHelper::readParam(lua_State *L, int index)
+f64 LuaHelper::readFiniteParam(lua_State *L, int index)
 {
 	f64 v = luaL_checknumber(L, index);
 	if (std::isfinite(v))
-		return {v};
+		return v;
 	if (std::isnan(v))
 		luaL_argerror(L, index, "number is NaN");
 	luaL_argerror(L, index, "number is not finite");

@@ -4154,19 +4154,22 @@ For example:
 Rotations
 =========
 
-As abusing vectors of euler angles is discouraged as error-prone,
 Luanti provides a proper helper class for working with 3d rotations.
+Using vectors of euler angles instead is discouraged as it is error-prone.
 
-You must not rely on the specific type or imprecision of the current implementation.
+The precision of the implementation may change (improve) in the future.
+
+Adhering to Luanti and Irrlicht conventions, rotations use **left-handed** conventions
+with a rotation order of **XYZ** (X first, then Y, then Z).
 
 Constructors
 ------------
 
 * `Rotation.identity()`: Constructs a no-op rotation.
 * `Rotation.quaternion(x, y, z, w)`:
-  Constructs a rotation from a quaternion (which need not be normalized)
+  Constructs a rotation from a quaternion (which need not be normalized).
 * `Rotation.axis_angle(axis, angle)`:
-  Constructs a rotation around the given axis by the given angle
+  Constructs a rotation around the given axis by the given angle.
   * `axis` is a vector, which need not be normalized
   * `angle` is in radians
   * Shorthands for rotations around the respective axes:
@@ -4175,16 +4178,15 @@ Constructors
     * `Rotation.z(roll)`
 * `Rotation.euler_angles(pitch, yaw, roll)`
   * All angles in radians.
-  * Rotation order is ZYX: First pitch is applied, then yaw, then roll. Equivalent to
-    `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
-  * Consistent with the euler angles that can be used for bones.
+  * Mathematically equivalent to `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
+  * Consistent with the euler angles that can be used for bones or attachments.
 
 Conversions
 -----------
 
-Corresponding to the constructors, quaternions can be converted
+Corresponding to the constructors, rotations can be converted
 to different representations; note that you need not get the same values out -
-you merely get values that produce the same rotation when passed to the corresponding constructor:
+you merely get values that produce a (roughly) equivalent rotation when passed to the corresponding constructor:
 
 * `x, y, z, w = Rotation:to_quaternion()`
   * Returns the normalized quaternion representation.
@@ -4194,8 +4196,8 @@ you merely get values that produce the same rotation when passed to the correspo
 * `pitch, yaw, roll = Rotation:to_euler_angles()`
   * Angles are all in radians.
   * `pitch`, `yaw`, `roll`: Rotation around the X-, Y-, and Z-axis respectively.
-  * Rotation order is ZYX: First pitch is applied, then yaw, then roll.
-  * Coordinate system is right-handed <!-- TODO -->
+
+Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
 
 Methods
 -------
@@ -4212,11 +4214,14 @@ Methods
 * `Rotation:angle_to(other)`: Returns the absolute angle between two quaternions.
   * Useful to measure similarity.
 
+Rotations implement `__tostring`. The format is only intended for human-readability,
+not serialization, and may thus change.
+
 
 Matrices
 ========
 
-Luanti uses 4x4 matrices to represent transformations of 3d vectors.
+Luanti uses 4x4 matrices to represent transformations of 3d vectors (embedded into 4d space).
 The matrices use row-major conventions:
 The first row is the image of the vector (1, 0, 0, 0),
 the second row is the image of (0, 1, 0, 0), and so on.
@@ -4230,6 +4235,8 @@ e.g. they may be implemented in pure Lua as a table in the future.
 Matrices are very suitable for constructing, composing and applying
 linear transformations; they are not so useful for exact storage of transformations,
 decomposition into rotation and scale will not be exact.
+
+Row and column indices range from `1` to `4`.
 
 Constructors
 ------------
@@ -4250,31 +4257,34 @@ Methods
 
 Storage:
 
-* `Matrix4:get(row, col)`: Get an entry.
-  * `row` and `col` range from 1 to 4
-* `Matrix4:set(row, col, element)`: Set an entry.
-  * `row` and `col` range from 1 to 4
+* `Matrix4:get(row, col)`
+* `Matrix4:set(row, col, number)`
 * `x, y, z, w = Matrix4:get_row(row)`
 * `Matrix4:set_row(row, x, y, z, w)`
 * `x, y, z, w = Matrix4:get_column(col)`
 * `Matrix4:set_column(col, x, y, z, w)`
-* `Matrix4:copy()`: Copy the matrix.
-* `... = Matrix4:unpack()`: Get the entries of the matrix in row-major order.
+* `Matrix4:copy()`
+* `... = Matrix4:unpack()`: Get the 16 numbers in the matrix in row-major order
+  (inverse of `Matrix4.new`).
 
 Linear algebra:
 
+* Vector transformations:
+  * `x, y, z, w = Matrix4:transform_4d(x, y, z, w)`: Apply the matrix to a 4d vector.
+  * `Matrix4:transform_position(pos)`:
+    * Apply the matrix to a vector representing a position.
+    * Applies the transformation as if w = 1 and discards the resulting w component.
+  * `Matrix4:transform_direction(dir)`:
+    * Apply the matrix to a vector representing a direction.
+    * Ignores the fourth row and column; does not apply the translation (w = 0).
 * `Matrix4.compose(...)`: Returns the composition of the given matrices.
-* `Matrix4:transpose()`: Returns the transpose of the matrix.
-* `Matrix4:invert()`: Returns the inverse, or `nil` if the matrix is (close to being) singular.
-* `x, y, z, w = Matrix4:transform_4d(x, y, z, w)`: Apply the matrix to a 4d vector.
-* `Matrix4:transform_position(pos)`:
-  * Apply the matrix to a vector representing a position.
-  * Applies the transformation as if w = 1 and discards the resulting w component.
-* `Matrix4:transform_direction(dir)`:
-  * Apply the matrix to a vector representing a direction.
-  * Ignores the fourth row and column; does not apply the translation (w = 0).
+  If `...` is empty, this is just the identity.
+* `Matrix4:determinant()`: Returns the determinant.
+* `Matrix4:invert()`: Returns a newly created inverse, or `nil` if the matrix is (close to being) singular.
+* `Matrix4:transpose()`: Returns a transposed copy of the matrix.
 * `Matrix4:equals(other, [tolerance = 0])`:
   Returns whether all components differ in absolute value at most by the given tolerance.
+  * `m1 == m2`: Returns whether `m1` and `m2` are identical (`tolerance = 0`).
 * `Matrix4:is_affine_transform([tolerance = 0])`:
   Whether the matrix is an affine transformation in 3d space,
   meaning it is a 3d linear transformation plus a translation.
@@ -4282,34 +4292,31 @@ Linear algebra:
 
 For working with affine transforms, the following methods are available:
 
-* `Matrix4:get_translation()`:
-  Returns the translation as a vector.
-* `Matrix4:set_translation(vec)`
+* `Matrix4:get_translation()`: Returns the translation as a vector.
+* `Matrix4:set_translation(vec)`: Sets (overwrites) the translation in the last row.
 
 For TRS transforms specifically,
 let `self = Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
 Then we can decompose `self` further. Note that `self` must not shear or reflect.
 
 * `rotation, scale = Matrix4:get_rs()`:
-  Extracts a `Rotation` equivalent to `r`.
+  Extracts a `Rotation` equivalent to `r`,
   along with the corresponding component-wise scaling factors as a vector.
-
 
 Operators
 ---------
 
-Similar to vectors, matrices define some arithmetic operators:
+Similar to vectors, matrices define some element-wise arithmetic operators:
 
-* `m1 == m2`: Returns whether `m1` and `m2` are identical.
-* `-m`: Returns the additive inverse.
 * `m1 + m2`: Returns the sum of both matrices.
 * `m1 - m2`: Shorthand for `m1 + (-m2)`.
+* `-m`: Returns the additive inverse.
 * `m * s` or `s * m`: Returns the matrix `m` scaled by the scalar `s`.
-  * Note: *All* entries are scaled, including the last row.
+  * Note: *All* entries are scaled, including the last column:
+    The matrix may not be an affine transform afterwards.
 
 Matrices also define a `__tostring` metamethod.
 This is only intended for human readability and not for serialization.
-
 
 
 Helper functions

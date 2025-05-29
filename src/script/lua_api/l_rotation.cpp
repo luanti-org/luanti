@@ -10,10 +10,9 @@
 #include "irr_v3d.h"
 #include "quaternion.h"
 
-#include <cmath>
-#include <cstring>
 #include <lauxlib.h>
 #include <lua.h>
+#include <sstream>
 
 core::quaternion &LuaRotation::check(lua_State *L, int index)
 {
@@ -38,12 +37,10 @@ int LuaRotation::l_identity(lua_State *L)
 
 int LuaRotation::l_quaternion(lua_State *L)
 {
-	// TODO be more strict.
-	f64 x = luaL_checknumber(L, 1);
-	f64 y = luaL_checknumber(L, 2);
-	f64 z = luaL_checknumber(L, 3);
-	f64 w = luaL_checknumber(L, 4);
-	// Note: Converted to f32
+	f32 x = readFiniteParam<f32>(L, 1);
+	f32 y = readFiniteParam<f32>(L, 2);
+	f32 z = readFiniteParam<f32>(L, 3);
+	f32 w = readFiniteParam<f32>(L, 4);
 	core::quaternion q(x, y, z, w);
 	q.normalize();
 	create(L, q);
@@ -53,9 +50,8 @@ int LuaRotation::l_quaternion(lua_State *L)
 int LuaRotation::l_axis_angle(lua_State *L)
 {
 	v3f axis = readParam<v3f>(L, 1);
-	f64 angle = luaL_checknumber(L, 2);
+	f32 angle = readFiniteParam<f32>(L, 2);
 	core::quaternion quaternion;
-	// Note: Axis converted to f32
 	axis.normalize();
 	quaternion.fromAngleAxis(angle, axis);
 	create(L, quaternion);
@@ -65,8 +61,7 @@ int LuaRotation::l_axis_angle(lua_State *L)
 template<float v3f::* C>
 int LuaRotation::l_fixed_axis_angle(lua_State *L)
 {
-	f64 angle = luaL_checknumber(L, 1);
-	// Note: Angle converted to f32
+	f32 angle = readFiniteParam<f32>(L, 1);
 	v3f axis;
 	axis.*C = 1.0f;
 	create(L, core::quaternion().fromAngleAxis(angle, axis));
@@ -77,7 +72,6 @@ int LuaRotation::l_euler_angles(lua_State *L)
 {
 	v3f euler = readParam<v3f>(L, 1);
 	core::quaternion quaternion;
-	// Note: Euler angles converted to f32
 	quaternion.set(euler.X, euler.Y, euler.Z);
 	create(L, quaternion);
 	return 1;
@@ -148,7 +142,7 @@ int LuaRotation::l_slerp(lua_State *L)
 {
 	const auto &from = check(L, 1);
 	const auto &to = check(L, 2);
-	f32 time = readParam<Finite<f32>>(L, 3).value;
+	f32 time = readFiniteParam<f32>(L, 3);
 	core::quaternion result;
 	result.slerp(from, to, time);
 	create(L, result);
@@ -169,7 +163,10 @@ int LuaRotation::l_angle_to(lua_State *L)
 int LuaRotation::mt_tostring(lua_State *L)
 {
 	const auto &q = check(L, 1);
-	lua_pushfstring(L, "(%f\t%f\t%f\t%f)", q.X, q.Y, q.Z, q.W);
+	std::stringstream ss;
+	ss << q;
+	std::string str = ss.str();
+	lua_pushlstring(L, str.c_str(), str.size());
 	return 1;
 }
 
