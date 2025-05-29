@@ -33,13 +33,13 @@ end
 
 local function buttonhandler(this, fields)
 	if fields.reconfigure then
+		local parent = this.parent
+
 		close_dialog(this)
 
-		local maintab = ui.find_by_name("maintab")
-
 		local dlg = create_settings_dlg("controls_keyboard_and_mouse")
-		dlg:set_parent(maintab)
-		maintab:hide()
+		dlg:set_parent(parent)
+		parent:hide()
 		dlg:show()
 
 		return true
@@ -74,7 +74,7 @@ local function create_rebind_keys_dlg()
 	return dlg
 end
 
-function migrate_keybindings()
+function migrate_keybindings(parent)
 	-- Show migration dialog if the user upgraded from an earlier version
 	-- and this has not yet been shown before, *or* if keys settings had to be changed
 	if core.is_first_run then
@@ -95,14 +95,14 @@ function migrate_keybindings()
 	end
 
 	if not has_migration then
-		return
+		return parent
 	end
 
-	local maintab = ui.find_by_name("maintab")
-
 	local dlg = create_rebind_keys_dlg()
-	dlg:set_parent(maintab)
-	maintab:hide()
+	dlg:set_parent(parent)
+	parent:hide()
 	dlg:show()
 	ui.update()
+
+	return dlg
 end
