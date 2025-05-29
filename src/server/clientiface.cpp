@@ -194,6 +194,7 @@ void RemoteClient::GetNextBlocks (
 		m_nearest_unsent_d = 0;
 		m_last_camera_dir = camera_dir;
 		m_map_send_completion_timer = 0.0f;
+		env->setFastActiveBlockDivider(4);
 	}
 
 	s16 d_start = m_nearest_unsent_d;
