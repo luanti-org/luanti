@@ -38,6 +38,10 @@ A key-value config file with the following keys:
 * `textdomain`: Textdomain used to translate title and description.
   Defaults to the texture pack name.
   See [Translating content meta](lua_api.md#translating-content-meta).
+* `formspec_theme`: optional. Formspec elements that define the defaut style.
+  * Allowed elements: `bgcolor`, `style_type`
+* `formspec_version_theme`: optional. Indicates the minimal [formspec version](lua_api.md)
+  needed to properly display `formspec_theme`. On older clients, this suppresses warnings.
 
 ### `description.txt`
 **Deprecated**, you should use texture_pack.conf instead.

@@ -380,11 +380,23 @@ public:
 
 	StyleSpec &operator|=(const StyleSpec &other)
 	{
+		u32 props_set = 0;
+		static_assert(sizeof(props_set) * 8 > NUM_PROPERTIES);
+
 		for (size_t i = 0; i < NUM_PROPERTIES; i++) {
 			auto prop = (Property)i;
 			if (other.hasProperty(prop)) {
+				props_set |= (1 << i);
 				set(prop, other.get(prop, ""));
 			}
+		}
+		if ((props_set & (1 << FGIMG | 1 << FGIMG_MIDDLE)) == (1 << FGIMG)) {
+			// Image was specified without 9-slice. Reset to non-9-slice.
+			set(FGIMG_MIDDLE, "");
+		}
+		if ((props_set & (1 << BGIMG | 1 << BGIMG_MIDDLE)) == (1 << BGIMG)) {
+			// Image was specified without 9-slice. Reset to non-9-slice.
+			set(BGIMG_MIDDLE, "");
 		}
 
 		return *this;

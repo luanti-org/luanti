@@ -3632,9 +3632,9 @@ Some types may inherit styles from parent types.
     * bgimg - standard background image. Defaults to none.
     * bgimg_hovered - background image when hovered. Defaults to bgimg when not provided.
         * This is deprecated, use states instead.
-    * bgimg_middle - Makes the bgimg textures render in 9-sliced mode and defines the middle rect.
+    * bgimg_middle - Replaces the default border. Defines the middle rect for 9-sliced mode.
                      See background9[] documentation for more details. This property also pads the
-                     button's content when set.
+                     button's content when set. When `border` is set to false
     * bgimg_pressed - background image when pressed. Defaults to bgimg when not provided.
         * This is deprecated, use states instead.
     * font - Sets font type. This is a comma separated list of options. Valid options:
