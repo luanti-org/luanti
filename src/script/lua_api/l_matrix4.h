@@ -100,6 +100,9 @@ private:
 	static void *packIn(lua_State *L, int idx);
 	static void packOut(lua_State *L, void *ptr);
 
+	template<int max = 4>
+	static int readIndex(lua_State *L, int index);
+
 public:
 
 	// Constructor. Leaves the value on top of the stack.

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <cmath>
 #include <string_view>
 
 extern "C" {
@@ -25,11 +24,12 @@ protected:
 	template <typename T>
 	static T readParam(lua_State *L, int index);
 
-	/// Type to represent a restriction to finite floats
-	template<typename T>
-	struct Finite {
-		T value;
-	};
+	/**
+	 * @brief Read a value, but restrict to finite floats.
+	 * @see readParam
+	 */
+	template <typename T>
+	static T readFiniteParam(lua_State *L, int index);
 
 	/**
 	 * Read a value using a template type T from Lua state L at index
