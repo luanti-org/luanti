@@ -14,19 +14,18 @@
 #include "quaternion.h"
 
 #include <cmath>
-#include <cstring>
 #include <lauxlib.h>
 #include <lua.h>
 #include <luajit-2.1/lauxlib.h>
 #include <sstream>
 
-template<int max = 4>
-static int read_index(lua_State *L, int index)
+template<int MAX>
+int LuaMatrix4::readIndex(lua_State *L, int index)
 {
-	f64 value = luaL_checknumber(L, index);
+	f64 value = readParam<f64>(L, index);
 	if (std::floor(value) != value)
 		luaL_argerror(L, index, "index must be integer");
-	if (value < 1 || value > max)
+	if (value < 1 || value > MAX)
 		luaL_argerror(L, index, "index out of range");
 	return static_cast<int>(value) - 1;
 }
@@ -52,7 +51,7 @@ int LuaMatrix4::l_identity(lua_State *L)
 
 int LuaMatrix4::l_all(lua_State *L)
 {
-	f32	v = luaL_checknumber(L, 1);
+	f32	v = readParam<f32>(L, 1);
 	create(L) = v;
 	return 1;
 }
@@ -63,7 +62,7 @@ int LuaMatrix4::l_new(lua_State *L)
 		luaL_error(L, "expected 16 arguments");
 	core::matrix4 &matrix = create(L);
 	for (int i = 0; i < 16; ++i)
-		matrix[i] = luaL_checknumber(L, 1 + i);
+		matrix[i] = readParam<f32>(L, 1 + i);
 	return 1;
 }
 
@@ -118,8 +117,8 @@ int LuaMatrix4::l_reflection(lua_State *L)
 int LuaMatrix4::l_get(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
-	int row = read_index(L, 2);
-	int col = read_index(L, 3);
+	int row = readIndex(L, 2);
+	int col = readIndex(L, 3);
 	lua_pushnumber(L, matrix(row, col));
 	return 1;
 }
@@ -127,9 +126,9 @@ int LuaMatrix4::l_get(lua_State *L)
 int LuaMatrix4::l_set(lua_State *L)
 {
 	auto &matrix = check(L, 1);
-	int row = read_index(L, 2);
-	int col = read_index(L, 3);
-	f64 value = luaL_checknumber(L, 4);
+	int row = readIndex(L, 2);
+	int col = readIndex(L, 3);
+	f64 value = readParam<f64>(L, 4);
 	matrix(row, col) = value;
 	return 0;
 }
@@ -137,7 +136,7 @@ int LuaMatrix4::l_set(lua_State *L)
 int LuaMatrix4::l_get_row(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
-	int row = read_index(L, 2);
+	int row = readIndex(L, 2);
 	for (int col = 0; col < 4; ++col)
 		lua_pushnumber(L, matrix(row, col));
 	return 4;
@@ -146,11 +145,11 @@ int LuaMatrix4::l_get_row(lua_State *L)
 int LuaMatrix4::l_set_row(lua_State *L)
 {
 	auto &matrix = check(L, 1);
-	int row = read_index(L, 2);
-	f32 x = luaL_checknumber(L, 3);
-	f32 y = luaL_checknumber(L, 4);
-	f32 z = luaL_checknumber(L, 5);
-	f32 w = luaL_checknumber(L, 6);
+	int row = readIndex(L, 2);
+	f32 x = readParam<f32>(L, 3);
+	f32 y = readParam<f32>(L, 4);
+	f32 z = readParam<f32>(L, 5);
+	f32 w = readParam<f32>(L, 6);
 	matrix(row, 0) = x;
 	matrix(row, 1) = y;
 	matrix(row, 2) = z;
@@ -161,7 +160,7 @@ int LuaMatrix4::l_set_row(lua_State *L)
 int LuaMatrix4::l_get_column(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
-	int col = read_index(L, 2);
+	int col = readIndex(L, 2);
 	for (int row = 0; row < 4; ++row)
 		lua_pushnumber(L, matrix(row, col));
 	return 4;
@@ -170,11 +169,11 @@ int LuaMatrix4::l_get_column(lua_State *L)
 int LuaMatrix4::l_set_column(lua_State *L)
 {
 	auto &matrix = check(L, 1);
-	int col = read_index(L, 2);
-	f32 x = luaL_checknumber(L, 3);
-	f32 y = luaL_checknumber(L, 4);
-	f32 z = luaL_checknumber(L, 5);
-	f32 w = luaL_checknumber(L, 6);
+	int col = readIndex(L, 2);
+	f32 x = readParam<f32>(L, 3);
+	f32 y = readParam<f32>(L, 4);
+	f32 z = readParam<f32>(L, 5);
+	f32 w = readParam<f32>(L, 6);
 	matrix(0, col) = x;
 	matrix(1, col) = y;
 	matrix(2, col) = z;
@@ -205,7 +204,7 @@ int LuaMatrix4::l_transform_4d(lua_State *L)
 	const auto &matrix = check(L, 1);
 	f32 vec4[4];
 	for (int i = 0; i < 4; ++i)
-		vec4[i] = luaL_checknumber(L, i + 2);
+		vec4[i] = readParam<f32>(L, i + 2);
 	f32 res[4];
 	matrix.transformVec4(res, vec4);
 	for (int i = 0; i < 4; ++i)
@@ -354,12 +353,12 @@ int LuaMatrix4::mt_unm(lua_State *L)
 int LuaMatrix4::mt_mul(lua_State *L)
 {
 	if (lua_isnumber(L, 1)) {
-		f32 scalar = luaL_checknumber(L, 1);
+		f32 scalar = readParam<f32>(L, 1);
 		const auto &matrix = check(L, 2);
 		create(L) = scalar * matrix;
 	} else {
 		const auto &matrix = check(L, 1);
-		f32 scalar = luaL_checknumber(L, 2);
+		f32 scalar = readParam<f32>(L, 2);
 		create(L) = matrix * scalar;
 	}
 	return 1;
