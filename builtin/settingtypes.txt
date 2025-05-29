@@ -1889,7 +1889,7 @@ enable_client_modding (Client modding) [client] bool false
 
 #    Where to enable server-sent client-side modding (SSCSM).
 #    Warning: Experimental.
-enable_sscsm (Enable SSCSM) enum nowhere nowhere,singleplayer,localhost,lan,everywhere
+enable_sscsm (Enable SSCSM) [client] enum nowhere nowhere,singleplayer,localhost,lan,everywhere
 
 #    Replaces the default main menu with a custom one.
 main_menu_script (Main menu script) [client] string
