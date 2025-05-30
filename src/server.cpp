@@ -586,14 +586,16 @@ void Server::start()
 		R"(| | |_| | (_| | | | | |_| |)",
 		R"(|_|\__,_|\__,_|_| |_|\__|_|)",
 	};
-
 	if (!m_admin_chat) {
 		// we're not printing to rawstream to avoid it showing up in the logs.
 		// however it would then mess up the ncurses terminal (m_admin_chat),
 		// so we skip it in that case.
-		for (auto line : art)
-			std::cerr << line << std::endl;
+		for (size_t i = 0; i < ARRLEN(art); ++i)
+			std::cerr << art[i] << (i == ARRLEN(art) - 1 ? "" : "\n");
+		// add a "tail" with the engine version
+		std::cerr << "  ___ " << g_version_hash << std::endl;
 	}
+
 	actionstream << "World at [" << m_path_world << "]" << std::endl;
 	actionstream << "Server for gameid=\"" << m_gamespec.id
 			<< "\" listening on ";
