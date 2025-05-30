@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "lua_api/l_base.h"
 #include "matrix4.h"
-#include <lua.h>
+
+#include "lua_api/l_base.h"
 
 class LuaMatrix4 : public ModApiBase
 {
