@@ -5,6 +5,9 @@ uniform lowp vec4 fogColor;
 uniform float fogDistance;
 uniform float fogShadingParameter;
 
+// Only used for the wieldhand. 0 otherwise.
+uniform vec4 wield_posteffect_color;
+
 // The cameraOffset is the current center of the visible world.
 uniform highp vec3 cameraOffset;
 uniform float animationTimer;
@@ -457,6 +460,13 @@ void main(void)
 	// fog color's brightest value. We then blend our base color with this to make the fog.
 	col = mix(fogColor * pow(fogColor / fogColorMax, vec4(2.0 * clarity)), col, clarity);
 	col = vec4(col.rgb, base.a);
+
+	// Apply posteffect color for the wieldhand, by blending it above this
+	// fragment.
+	// The alpha channel is not blended. The posteffect geometry behind the
+	// wieldhand already makes the image less transparent.
+	// wield_posteffect_color.rgb is premultiplied.
+	col.rgb = col.rgb * (1.0 - wield_posteffect_color.a) + wield_posteffect_color.rgb;
 
 	gl_FragData[0] = col;
 }
