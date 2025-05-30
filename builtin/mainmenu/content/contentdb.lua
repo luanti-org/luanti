@@ -623,7 +623,7 @@ end
 
 contentdb.get_full_package_info = get_package_info("full_info", "/for-client/")
 contentdb.get_package_reviews = get_package_info("reviews", "/for-client/reviews/")
-
+contentdb.get_package_releases = get_package_info("releases", "/releases/")
 
 function contentdb.get_formspec_padding()
 	-- Padding is increased on Android to account for notches
