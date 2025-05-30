@@ -571,6 +571,10 @@ msgid "Description"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Releases"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Information"
 msgstr ""
 
@@ -604,6 +608,14 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading reviews"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading releases"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "$1 downloads"
 msgstr ""
 
 #: builtin/mainmenu/content/pkgmgr.lua
