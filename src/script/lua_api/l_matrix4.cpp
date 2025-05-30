@@ -2,21 +2,20 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2025 Lars Müller
 
-#include "common/c_converter.h"
 #include "irrTypes.h"
 #include "irr_v3d.h"
-#include "lua_api/l_rotation.h"
 #include "matrix4.h"
+#include "quaternion.h"
 
 #include "lua_api/l_matrix4.h"
-#include "common/c_packer.h"
+#include "lua_api/l_rotation.h"
 #include "lua_api/l_internal.h"
-#include "quaternion.h"
+#include "common/c_packer.h"
+#include "common/c_converter.h"
 
 #include <cmath>
 #include <lauxlib.h>
 #include <lua.h>
-#include <luajit-2.1/lauxlib.h>
 #include <sstream>
 
 template<int MAX>
