@@ -1,0 +1,756 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luanti builtin component\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-27 12:13+0000\n"
+"PO-Revision-Date: 2025-05-27 12:13+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: eo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: ltt_convert 0.2.1\n"
+
+msgid "Invalid parameters (see /help @1)."
+msgstr "Nevalidaj parametroj (kontrolu /help @1)"
+
+msgid "Too many arguments, try using just /help <command>"
+msgstr "Tro da parametroj, eble provu /help <ordono>"
+
+msgid "Available commands: @1"
+msgstr "Nunaj ordonoj: @1"
+
+msgid "Use '/help <cmd>' to get more information, or '/help all' to list everything."
+msgstr "Uzu «/help <ordono>» por specifa informo, aŭ «/help all» por listigi ĉion."
+
+msgid "Available commands:"
+msgstr "Nunaj ordonoj:"
+
+msgid "Command not available: @1"
+msgstr "Ordono neuzebla: @1"
+
+msgid "[all | privs | <cmd>] [-t]"
+msgstr "[all | privs | <ordono>]"
+
+msgid "Get help for commands or list privileges (-t: output in chat)"
+msgstr "Listigi helpon pri ordonoj («all» aŭ <ordono>) aŭ rajtoj («privs») (kun -t: presu en babilejo)"
+
+msgid "Available privileges:"
+msgstr "Nunaj rajtoj:"
+
+msgid "Command"
+msgstr "Ordono"
+
+msgid "Parameters"
+msgstr "Parametroj"
+
+msgid "For more information, click on any entry in the list."
+msgstr "Por pliaj informoj, klaku ajnan listeron."
+
+msgid "Double-click to copy the entry to the chat history."
+msgstr "Dufoje-klaku por kopii listeron al la babilejo."
+
+msgid "Command: @1 @2"
+msgstr "Ordono: @1 @2"
+
+msgid "Available commands: (see also: /help <cmd>)"
+msgstr "Nunaj ordonoj: (vidu ankaŭ: /help <ordono>)"
+
+msgid "Close"
+msgstr "Fermi"
+
+msgid "Privilege"
+msgstr "Rajto"
+
+msgid "Description"
+msgstr "Priskribo"
+
+msgid "Empty command."
+msgstr "Malplena ordono."
+
+msgid "Invalid command: @1"
+msgstr "Nevalida ordono: @1"
+
+msgid "Invalid command usage."
+msgstr "Nevalida ordonouzo."
+
+msgid " (@1 s)"
+msgstr " (@1 s)"
+
+msgid "Command execution took @1 s"
+msgstr "Ruliĝo de ordono postulis @1 s"
+
+msgid "You don't have permission to run this command (missing privileges: @1)."
+msgstr "Vi ne rajtas uzi tiun ĉi ordonon (mankataj rajtoj: @1)"
+
+msgid "Unable to get position of player @1."
+msgstr "Ne povis akiri pozicion de ludanto @1."
+
+msgid "Incorrect area format. Expected: (x1,y1,z1) (x2,y2,z2)"
+msgstr "Nevalida loko-formo. Atendis: (x1,y1,z1) (x2,y2,z2)"
+
+msgid "<action>"
+msgstr "<ago>"
+
+msgid "Show chat action (e.g., '/me orders a pizza' displays '<player name> orders a pizza')"
+msgstr "Roli agon en la babilejo (ekz., «/me mendas picon» montras «<ludanto> mendas picon»)"
+
+msgid "Show the name of the server owner"
+msgstr "Montri nomon de la serviladministranto"
+
+msgid "The administrator of this server is @1."
+msgstr "La adminstranto de tiu ĉi servilo estas @1."
+
+msgid "There's no administrator named in the config file."
+msgstr "Estas neniu agordita administranto en la agordodosiero."
+
+msgid "@1 does not have any privileges."
+msgstr "@1 havas neniun rajton."
+
+msgid "Privileges of @1: @2"
+msgstr "Rajtoj de @1: @2"
+
+msgid "[<name>]"
+msgstr "[<nomo>]"
+
+msgid "Show privileges of yourself or another player"
+msgstr "Montri rajtojn de vi aŭ alia ludanto"
+
+msgid "Player @1 does not exist."
+msgstr "Ludanto @1 ne ekzistas."
+
+msgid "<privilege>"
+msgstr "<rajto>"
+
+msgid "Return list of all online players with privilege"
+msgstr "Listi ĉeretan ludanton kun specifa rajto"
+
+msgid "Invalid parameters (see /help haspriv)."
+msgstr "Nevalidaj parametroj (vidu /help haspriv)."
+
+msgid "Unknown privilege!"
+msgstr "Nekonata rajto!"
+
+msgid "No online player has the \"@1\" privilege."
+msgstr "Neniu ĉeretulo havas la rajton «@1»."
+
+msgid "Players online with the \"@1\" privilege: @2"
+msgstr "Ĉeretuloj kun la rajto «@1»: @2"
+
+msgid "Your privileges are insufficient."
+msgstr "Viaj rajtoj ne sufiĉas."
+
+msgid "Your privileges are insufficient. '@1' only allows you to grant: @2"
+msgstr "Viaj rajtoj ne sufiĉas. «@1» sole lasas vin doni: @2"
+
+msgid "Unknown privilege: @1"
+msgstr "Nekonata rajto: @1"
+
+msgid "@1 granted you privileges: @2"
+msgstr "@1 donis al vi rajtojn: @2"
+
+msgid "<name> (<privilege> [, <privilege2> [<...>]] | all)"
+msgstr "<nomo> (<rajto> [, <rajto2> [<...>]] | all)"
+
+msgid "Give privileges to player"
+msgstr "Doni rajtojn al ludanto, aŭ aparte, aŭ ĉiun kune («all»)"
+
+msgid "Invalid parameters (see /help grant)."
+msgstr "Nevalidaj parametroj (vidu /help grant)."
+
+msgid "<privilege> [, <privilege2> [<...>]] | all"
+msgstr "<rajto> [, <rajto2> [<...>]] | all"
+
+msgid "Grant privileges to yourself"
+msgstr "Doni rajtojn al vi mem, aŭ aparte, aŭ ĉiun kune («all»)"
+
+msgid "Invalid parameters (see /help grantme)."
+msgstr "Nevalidaj parametroj (vidu /help grantme)"
+
+msgid "Your privileges are insufficient. '@1' only allows you to revoke: @2"
+msgstr "Viaj rajtoj ne sufiĉas. «@1» sole lasas vin repreni: @2"
+
+msgid "Note: Cannot revoke in singleplayer: @1"
+msgstr "Rimarko: Neeblas repreni rajton sole: @1"
+
+msgid "Note: Cannot revoke from admin: @1"
+msgstr "Rimarko: Neeblas repreni rajnton de administranto: @1"
+
+msgid "No privileges were revoked."
+msgstr "Neniu rajto reprenita."
+
+msgid "@1 revoked privileges from you: @2"
+msgstr "@1 reprenis rajtojn de vi: @2"
+
+msgid "Remove privileges from player"
+msgstr "Repreni rajtojn de ludanto, aŭ aparte, aŭ ĉiun kune («all»)"
+
+msgid "Invalid parameters (see /help revoke)."
+msgstr "Nevalidaj parametroj (vidu /help revoke)"
+
+msgid "Revoke privileges from yourself"
+msgstr "Repreni rajtojn de vi mem, aŭ aparte, aŭ ĉiun kune («all»)"
+
+msgid "Invalid parameters (see /help revokeme)."
+msgstr "Nevalidaj parametroj (vidu /help revokeme)."
+
+msgid "<name> <password>"
+msgstr "<nomo> <pasvorto>"
+
+msgid "Set player's password (sent unencrypted, thus insecure)"
+msgstr "Agordi pasvorton de ludanto (sendute senĉifre, kaj tiel malsekure)"
+
+msgid "Name field required."
+msgstr "Nomo bezonata."
+
+msgid "Your password was cleared by @1."
+msgstr "Via pasvorto forviŝiĝis de @1."
+
+msgid "Password of player \"@1\" cleared."
+msgstr "Pasvorto de ludanto «@1» forviŝita."
+
+msgid "Your password was set by @1."
+msgstr "Via pasvorto agordiĝis de @1."
+
+msgid "Password of player \"@1\" set."
+msgstr "Pasvorto de ludanto «@1» agordita."
+
+msgid "<name>"
+msgstr "<nomo>"
+
+msgid "Set empty password for a player"
+msgstr "Forviŝi pasvorton de ludanto"
+
+msgid "Reload authentication data"
+msgstr "Reenlegi aŭtentigajn datumojn"
+
+msgid "Done."
+msgstr "Finite."
+
+msgid "Failed."
+msgstr "Malsukcese.."
+
+msgid "Remove a player's data"
+msgstr "Forviŝi datumojn de ludanto"
+
+msgid "Player \"@1\" removed."
+msgstr "Ludanto «@1» forigita."
+
+msgid "No such player \"@1\" to remove."
+msgstr "Neniu ekzistanta ludanto «@1» forigebla."
+
+msgid "Player \"@1\" is connected, cannot remove."
+msgstr "Ludanto «@1» ĉeretas, do ne forigeblas."
+
+msgid "Unhandled remove_player return code @1."
+msgstr "Netraktata remove_player redonkodo @1."
+
+msgid "Cannot teleport out of map bounds!"
+msgstr "Neeblas teleporti ekstermonden!"
+
+msgid "Cannot get player with name @1."
+msgstr "Neeblas trovi ludanton nomitan «@1»."
+
+msgid "Cannot teleport, @1 is attached to an object!"
+msgstr "Ne povas teleporti @1, ĝi estas ligita al objekto!"
+
+msgid "Teleporting @1 to @2."
+msgstr "Teleportante @1 al @2."
+
+msgid "One does not teleport to oneself."
+msgstr "Oni kutimas ne teleportu al si mem."
+
+msgid "Cannot get teleportee with name @1."
+msgstr "Ne trovis alteleportaton nomitan @1."
+
+msgid "Cannot get target player with name @1."
+msgstr "Ne trovis celatan ludanton nomitan @1."
+
+msgid "Teleporting @1 to @2 at @3."
+msgstr "Teleportante @1 al @2 ĉe @3."
+
+msgid "<X>,<Y>,<Z> | <to_name> | <name> <X>,<Y>,<Z> | <name> <to_name>"
+msgstr "<X>,<Y>,<Z> | <al_nomo> | <nomo> <X>,<Y>,<Z> | <nomo> <al_nomo>"
+
+msgid "Teleport to position or player"
+msgstr "Teleportiĝi al pozicio aŭ ludanto"
+
+msgid "You don't have permission to teleport other players (missing privilege: @1)."
+msgstr "Vi ne rajtas teleporti aliajn ludantojn (mankas rajto: @1)."
+
+msgid "([-n] <name> <value>) | <name>"
+msgstr "([-n] <nomo> <valoro>) | <nomo>"
+
+msgid "Set or read server configuration setting"
+msgstr "Agordi aŭ vidi servilan agordon"
+
+msgid "Failed. Cannot modify secure settings. Edit the settings file manually."
+msgstr "Malsukcese. Neeblas redakti sekurajn agordojn. Redaktu la agordodosieron permane."
+
+msgid "Failed. Use '/set -n <name> <value>' to create a new setting."
+msgstr "Malsukcese. Uzu «/set -n <nomo> <valoro>» por krei novan agordon."
+
+msgid "@1 = @2"
+msgstr "@1 = @2"
+
+msgid "<not set>"
+msgstr "<ne agordita>"
+
+msgid "Invalid parameters (see /help set)."
+msgstr "Nevalidaj parametroj (vidu /help set)."
+
+msgid "Finished emerging @1 blocks in @2ms."
+msgstr "Finenlegis @1 monderojn dum @2ms."
+
+msgid "emergeblocks update: @1/@2 blocks emerged (@3%)"
+msgstr "emergeblocks ĝisdatigo: @1/@2 monderoj enlegitaj (@3%)"
+
+msgid "(here [<radius>]) | (<pos1> <pos2>)"
+msgstr "(here [<radius>]) | (<pos1> <pos2>)"
+
+msgid "Load (or, if nonexistent, generate) map blocks contained in area pos1 to pos2 (<pos1> and <pos2> must be in parentheses)"
+msgstr "Enlegi (aŭ, laŭnecese, krei) mondopecojn inter la pozicioj poz1 kaj pos2 (<poz1> kaj <poz2> devas esti inter krampoj)"
+
+msgid "Started emerge of area ranging from @1 to @2."
+msgstr "Ekenlegis mondpecojn inter @1 kaj @2."
+
+msgid "Delete map blocks contained in area pos1 to pos2 (<pos1> and <pos2> must be in parentheses)"
+msgstr "Forigi mondpecojn inter la pozicioj poz1 kaj poz2 (<poz1> kaj <poz2> devas esti inter krampoj)"
+
+msgid "Successfully cleared area ranging from @1 to @2."
+msgstr "Sukcese forigis mondpecojn inter @1 kaj @2."
+
+msgid "Failed to clear one or more blocks in area."
+msgstr "Malsukcesis forigi unu aŭ pli da mondpecoj."
+
+msgid "Resets lighting in the area between pos1 and pos2 (<pos1> and <pos2> must be in parentheses)"
+msgstr "Reŝarĝas lumojn inter la pozicioj poz1 kaj poz2 (<poz1> kaj <poz2> devas esti inter krampoj)"
+
+msgid "Successfully reset light in the area ranging from @1 to @2."
+msgstr "Sukcesis reŝarĝi lumojn inter @1 kaj @2."
+
+msgid "Failed to load one or more blocks in area."
+msgstr "Malsukcesis enlegante unu aŭ pli da monderoj."
+
+msgid "List mods installed on the server"
+msgstr "Listigi modifaĵojn instalitajn de la servilo."
+
+msgid "No mods installed."
+msgstr "Neniu modifaĵ instalita."
+
+msgid "Cannot give an empty item."
+msgstr "Neeblas doni neniun portaĵon."
+
+msgid "Cannot give an unknown item."
+msgstr "Neeblas doni nekonatan portaĵon."
+
+msgid "Giving 'ignore' is not allowed."
+msgstr "Doni «ignore» estas ne permesita."
+
+msgid "@1 is not a known player."
+msgstr "@1 ne estas konata ludanto."
+
+msgid "@1 partially added to inventory."
+msgstr "@1 parte enmetiĝis al portaĵujon."
+
+msgid "@1 could not be added to inventory."
+msgstr "@1 ne enmetiĝis al portaĵujon."
+
+msgid "@1 added to inventory."
+msgstr "@1 enmetiĝis al portaĵujon."
+
+msgid "@1 partially added to inventory of @2."
+msgstr "@1 parte enmetiĝis al portaĵujon de @2."
+
+msgid "@1 could not be added to inventory of @2."
+msgstr "@1 ne enmetiĝis al portaĵujon de @2."
+
+msgid "@1 added to inventory of @2."
+msgstr "@1 enmetiĝis al portaĵujon de @2."
+
+msgid "<name> <ItemString> [<count> [<wear>]]"
+msgstr "<nomo> <PortaĵNomo> [<kvanto> <portu>]]"
+
+msgid "Give item to player"
+msgstr "Doni portaĵon al ludanto"
+
+msgid "Name and ItemString required."
+msgstr "Nomo kaj PortaĵNomo postualtaj."
+
+msgid "<ItemString> [<count> [<wear>]]"
+msgstr "<PortaĵNomo> [<kvanto> [<portu>]]"
+
+msgid "Give item to yourself"
+msgstr "Doni portaĵon al vi mem."
+
+msgid "ItemString required."
+msgstr "PortaĵNomo postulata."
+
+msgid "<EntityName> [<X>,<Y>,<Z>]"
+msgstr "<EstaĵoNomo> [<X>, <Y>, <Z>]"
+
+msgid "Spawn entity at given (or your) position"
+msgstr "Estigi estaĵon ĉe la donita (aŭ la via) pozicio"
+
+msgid "EntityName required."
+msgstr "EstaĵNomo postulata."
+
+msgid "Unable to spawn entity, player is nil."
+msgstr "Ne povis estigi estaĵon, ĉar ludanto estas nil."
+
+msgid "Cannot spawn an unknown entity."
+msgstr "Neeblas estigi nekonatan estaĵon."
+
+msgid "Invalid parameters (@1)."
+msgstr "Nevalidaj parametroj (@1)."
+
+msgid "@1 spawned."
+msgstr "@1 naskiĝis."
+
+msgid "@1 failed to spawn."
+msgstr "@1 ne naskiĝis."
+
+msgid "Destroy item in hand"
+msgstr "Detrui portaĵon enmanan"
+
+msgid "Unable to pulverize, no player."
+msgstr "Ne povis detrui, neniu ludanto."
+
+msgid "Unable to pulverize, no item in hand."
+msgstr "Ne povis detrui, ĉar nenio estas tenata."
+
+msgid "An item was pulverized."
+msgstr "Portaĵo detruiĝis."
+
+msgid "[<range>] [<seconds>] [<limit>]"
+msgstr "[<intertempo>] [<sekundoj>] [<limo>]"
+
+msgid "Check who last touched a node or a node near it within the time specified by <seconds>. Default: range = 0, seconds = 86400 = 24h, limit = 5. Set <seconds> to inf for no time limit"
+msgstr "Kontroli kiu lastafoje tuŝis monderon aŭ monderon proksiman al ĝi dum"
+
+msgid "Rollback functions are disabled."
+msgstr "Malfaraj funkcioj estas malŝaltitaj."
+
+msgid "That limit is too high!"
+msgstr "Tiu limo troaltas!"
+
+msgid "Checking @1 ..."
+msgstr "Kontrolas @1…"
+
+msgid "Nobody has touched the specified location in @1 seconds."
+msgstr "Neniu tuŝis tiun lokon dum @1 sekundoj."
+
+msgid "@1 @2 @3 -> @4 @5 seconds ago."
+msgstr "@1 @2 @3 -> @4 @5 sekundoj antaŭe."
+
+msgid "Punch a node (range=@1, seconds=@2, limit=@3)."
+msgstr "Frapi monderon (intertempo=@1, sekundoj=@2, limo=@3)."
+
+msgid "(<name> [<seconds>]) | (:<actor> [<seconds>])"
+msgstr "(<nomo> [<sekundoj>]) | (:<aganto> [<sekundoj>])"
+
+msgid "Revert actions of a player. Default for <seconds> is 60. Set <seconds> to inf for no time limit"
+msgstr "Malfari agojn de ludanto. Implicita valoro de <sekundoj> estas 60. Metu <sekundoj> kiel «inf» por neniu tempolimo"
+
+msgid "Invalid parameters. See /help rollback and /help rollback_check."
+msgstr "Nevalidaj parametroj. Vidu /help rollback kaj /help rollback_check."
+
+msgid "Reverting actions of player '@1' since @2 seconds."
+msgstr "Malfaras agojn de ludanto «@1» ekde @2 sekundoj antaŭ nun."
+
+msgid "Reverting actions of @1 since @2 seconds."
+msgstr "Malfaras agojn de @1 ekde @2 sekundoj antaŭ nun."
+
+msgid "(log is too long to show)"
+msgstr "(protokolo trolongas por montri)"
+
+msgid "Reverting actions succeeded."
+msgstr "Sukcesis malfari agojn."
+
+msgid "Reverting actions FAILED."
+msgstr "MALsukcesis malfari agojn."
+
+msgid "Show server status"
+msgstr "Montri staton de servilon."
+
+msgid "This command was disabled by a mod or game."
+msgstr "Tiun ordonon malŝaltis modifaĵo aŭ ludo."
+
+msgid "[<0..23>:<0..59> | <0..24000>]"
+msgstr "[<0..23>:<0..59> | <0..24000>]"
+
+msgid "Show or set time of day"
+msgstr "Montri aŭ ŝanĝi la horon"
+
+msgid "Current time is @1:@2."
+msgstr "Nun estas @1:@2."
+
+msgid "You don't have permission to run this command (missing privilege: @1)."
+msgstr "Vi ne rajtas rulu tiun orodnon (mankata rajto: @1)."
+
+msgid "Invalid time (must be between 0 and 24000)."
+msgstr "Nevalida tempo (estu inter 0 kaj 24000)"
+
+msgid "Time of day changed."
+msgstr "Horo ŝanĝita."
+
+msgid "Invalid hour (must be between 0 and 23 inclusive)."
+msgstr "Nevalida horo (estu inter 0 kaj 23, inkluzive)."
+
+msgid "Invalid minute (must be between 0 and 59 inclusive)."
+msgstr "Nevalida minuto (estu inter 0 kaj 59, inkluzive)."
+
+msgid "Show day count since world creation"
+msgstr "Montri pasitajn tagojn ekde mondokreo"
+
+msgid "Current day is @1."
+msgstr "Nuna tago estas @1."
+
+msgid "[<delay_in_seconds> | -1] [-r] [<message>]"
+msgstr "[<prokrasto_sekunde> | -1] [-r] [<mesaĝo>]"
+
+msgid "Shutdown server (-1 cancels a delayed shutdown, -r allows players to reconnect)"
+msgstr "Malŝalti servilon (-1 nuligas planitan malŝalton, -r lasas ludantojn rekonektiĝi)"
+
+msgid "Server shutting down (operator request)."
+msgstr "Servilo malŝaltiĝas (laŭ prizorganta peto)"
+
+msgid "Ban the IP of a player or show the ban list"
+msgstr "Forbari la IP-adreson de ludanto, aŭ listigi forbaritojn"
+
+msgid "The ban list is empty."
+msgstr "La forbaritolisto malplenas."
+
+msgid "Ban list: @1"
+msgstr "Forbaritoj: @1"
+
+msgid "You cannot ban players in singleplayer!"
+msgstr "Vi ne povas forbari ludantojn en unuludanta reĝimo!"
+
+msgid "Player is not online."
+msgstr "Ludanto ne ĉeretas."
+
+msgid "Failed to ban player."
+msgstr "Malsukcesis forbari ludanton."
+
+msgid "Banned @1."
+msgstr "Forbaris @1."
+
+msgid "<name> | <IP_address>"
+msgstr "<nomo> | <IP_adreso>"
+
+msgid "Remove IP ban belonging to a player/IP"
+msgstr "Nuligi IP-forbaron de ludanto/IP"
+
+msgid "Failed to unban player/IP."
+msgstr "Malsukcesis nuligi forbaron de ludanto/IP-adreso"
+
+msgid "Unbanned @1."
+msgstr "Malforbaris @1."
+
+msgid "<name> [<reason>]"
+msgstr "<nomo> [<kialo>]"
+
+msgid "Kick a player"
+msgstr "Elĵeti ludanton"
+
+msgid "Failed to kick player @1."
+msgstr "Malsukcesis elĵeti ludanton @1."
+
+msgid "Kicked @1."
+msgstr "Elĵetis @1."
+
+msgid "[full | quick]"
+msgstr "[full | quick]"
+
+msgid "Clear all objects in world"
+msgstr "Forigu ĉiujn lasitajn portaĵojn en la mondo"
+
+msgid "Invalid usage, see /help clearobjects."
+msgstr "Nevalida uzo, vidu /help clearobjects."
+
+msgid "Clearing all objects. This may take a long time. You may experience a timeout. (by @1)"
+msgstr "Forigante ĉiun lasitan portaĵon. Tio ĉi eble postulos longan tempon. Vi eble malkonektiĝos pro tempo-elĉerpo. (de @1)"
+
+msgid "Cleared all objects."
+msgstr "Forigis ĉiun lasitan portaĵon."
+
+msgid "<name> <message>"
+msgstr "<nomo> <mesaĝo>"
+
+msgid "Send a direct message to a player"
+msgstr "Sendu rekte privatan mesaĝon al ludanto"
+
+msgid "Invalid usage, see /help msg."
+msgstr "Nevalida uzo, vidu /help msg."
+
+msgid "The player @1 is not online."
+msgstr "La ludanto @1 ne ĉeretas."
+
+msgid "DM from @1: @2"
+msgstr "Privata mesaĝo de @1: @2"
+
+msgid "DM sent to @1: @2"
+msgstr ""
+
+msgid "Get the last login time of a player or yourself"
+msgstr "Vidi la lastan salutotempon de ludanto, aŭ vi mem"
+
+msgid "@1's last login time was @2."
+msgstr "Lasta salutotempo de @1 estas @2."
+
+msgid "@1's last login time is unknown."
+msgstr "Lasta salutotempo de @1 estas nesciata."
+
+msgid "Clear the inventory of yourself or another player"
+msgstr "Malplenigi la portaĵujon de vi aŭ alia ludanto."
+
+msgid "You don't have permission to clear another player's inventory (missing privilege: @1)."
+msgstr "Vi ne rajtas malplenigi portaĵujon de alia ludanto (mankata rajto: @1)."
+
+msgid "@1 cleared your inventory."
+msgstr "@1 malplenigis vian portaĵujon."
+
+msgid "Cleared @1's inventory."
+msgstr "Malplenigis portaĵujon de @1."
+
+msgid "Player must be online to clear inventory!"
+msgstr "Por malplenigi onian portaĵujon, tiu devas ĉereti!"
+
+msgid "Players can't be killed, damage has been disabled."
+msgstr "Nemortigeblas ludantoj, ĉar vundado estas malŝaltita."
+
+msgid "Player @1 is not online."
+msgstr "Ludanto @1 ne ĉeretas."
+
+msgid "You are already dead."
+msgstr "Vi jam estas mortinta."
+
+msgid "@1 is already dead."
+msgstr "@1 estas mortinta."
+
+msgid "@1 has been killed."
+msgstr "@1 estas murdita."
+
+msgid "Kill player or yourself"
+msgstr "Mortigi ludanton aŭ vin mem"
+
+msgid "You died"
+msgstr "Vi mortis"
+
+msgid "Respawn"
+msgstr "Renaskiĝi"
+
+msgid "@1 joined the game."
+msgstr "@1 aliĝis la ludon."
+
+msgid "@1 left the game."
+msgstr "@1 foriris de la ludo."
+
+msgid "@1 left the game (timed out)."
+msgstr "@1 foriris de la ludo (tempo-elĉerpo)"
+
+msgid "(no description)"
+msgstr "(neniu priskribo)"
+
+msgid "Can interact with things and modify the world"
+msgstr "Povas interfaci kaj redakti la mondon"
+
+msgid "Can speak in chat"
+msgstr "Povas paroli babileje"
+
+msgid "Can modify basic privileges (@1)"
+msgstr "Povas redakti bazajn rajtojn (@1)"
+
+msgid "Can modify privileges"
+msgstr "Povas redakti rajtojn"
+
+msgid "Can teleport self"
+msgstr "Povas teleporti sin"
+
+msgid "Can teleport other players"
+msgstr "Povas teleporti aliajn ludantojn"
+
+msgid "Can set the time of day using /time"
+msgstr "Povas ŝanĝi la tempon per /time"
+
+msgid "Can do server maintenance stuff"
+msgstr "Povas fari servilestrajn aferojn"
+
+msgid "Can bypass node protection in the world"
+msgstr "Povas malatenti monderajn protektojn de la mondo"
+
+msgid "Can ban and unban players"
+msgstr "Povas forbari kaj malforbari ludantojn"
+
+msgid "Can kick players"
+msgstr "Povas elĵeti ludantojn"
+
+msgid "Can use /give and /giveme"
+msgstr "Povas uzi /give kaj /giveme"
+
+msgid "Can use /setpassword and /clearpassword"
+msgstr "Povas uzi /setpassword kaj /clearpassword"
+
+msgid "Can use fly mode"
+msgstr "Povas ŝalti flugan reĝimon"
+
+msgid "Can use fast mode"
+msgstr "Povas ŝalti rapidegan reĝimon"
+
+msgid "Can fly through solid nodes using noclip mode"
+msgstr "Povas traflugi monderojn per trapasa reĝimo"
+
+msgid "Can use the rollback functionality"
+msgstr "Povas uzi malfarajn funkciojn"
+
+msgid "Can enable wireframe"
+msgstr "Povas ŝalti ĉirkaŭkadron"
+
+msgid "Unknown Item"
+msgstr "Nekonata portaĵo"
+
+msgid "Air"
+msgstr "Aero"
+
+msgid "Ignore"
+msgstr "Malatenti"
+
+msgid "You can't place 'ignore' nodes!"
+msgstr "Vi ne povas meti «malatentajn» monderojn!"
+
+msgid "print [<filter>] | dump [<filter>] | save [<format> [<filter>]] | reset"
+msgstr "print [<filtrilo>] | dump [<filtrilo>] | save [<formo> [<filtrilo>]] | reset"
+
+msgid "Handle the profiler and profiling data"
+msgstr "Trakti la analizilon kaj analizajn datumojn"
+
+msgid "Statistics written to action log."
+msgstr "Analizoj skribitaj al agoprotokolo."
+
+msgid "Statistics were reset."
+msgstr "Analizoj forviŝitaj."
+
+msgid "Usage: @1"
+msgstr "Uzado: @1"
+
+msgid "Format can be one of txt, csv, lua, json, json_pretty (structures may be subject to change)."
+msgstr "Formo povas estas txt, csv, lua, json, aŭ json_pretty (struktuoj eble iam ŝanĝiĝos)."
+
+msgid "Values below show absolute/relative times spend per server step by the instrumented function."
+msgstr "Valoroj subaj montras la malrelativan/relativan tempon pasigitan de la servilo je ĉiu paŝo de la funkcio."
+
+msgid "A total of @1 sample(s) were taken."
+msgstr "Sume @1 ekzemplero(j) konserviĝis."
+
+msgid "The output is limited to '@1'."
+msgstr "La eligo estas limigita al «@1»."
+
+msgid "Saving of profile failed: @1"
+msgstr "Konservado de profilo malsukcesis: @1"
+
+msgid "Profile saved to @1"
+msgstr "Profilo konservita al @1"
+

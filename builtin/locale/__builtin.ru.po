@@ -1,0 +1,756 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luanti builtin component\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-27 12:13+0000\n"
+"PO-Revision-Date: 2025-05-27 12:13+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: ltt_convert 0.2.1\n"
+
+msgid "Invalid parameters (see /help @1)."
+msgstr "Недопустимые параметры (см. /help @1)."
+
+msgid "Too many arguments, try using just /help <command>"
+msgstr "Слишком много аргументов, попробуйте использовать просто /help <команда>"
+
+msgid "Available commands: @1"
+msgstr "Доступные команды: @1"
+
+msgid "Use '/help <cmd>' to get more information, or '/help all' to list everything."
+msgstr "Используйте '/help <команда>', чтобы получить дополнительную информацию, или '/help all', чтобы перечислить все."
+
+msgid "Available commands:"
+msgstr "Доступные команды:"
+
+msgid "Command not available: @1"
+msgstr "Команда недоступна: @1"
+
+msgid "[all | privs | <cmd>] [-t]"
+msgstr "[all | privs | <команда>] [-t]"
+
+msgid "Get help for commands or list privileges (-t: output in chat)"
+msgstr "Получить справку по командам или списку привилегий (-t: вывод в чате)"
+
+msgid "Available privileges:"
+msgstr "Доступные привилегии:"
+
+msgid "Command"
+msgstr "Команда"
+
+msgid "Parameters"
+msgstr "Параметры"
+
+msgid "For more information, click on any entry in the list."
+msgstr "Для получения дополнительной информации нажмите на любую запись в списке."
+
+msgid "Double-click to copy the entry to the chat history."
+msgstr "Дважды щелкните, чтобы скопировать запись в историю чата."
+
+msgid "Command: @1 @2"
+msgstr "Команда: @1 @2"
+
+msgid "Available commands: (see also: /help <cmd>)"
+msgstr "Доступные команды: (смотрите также: /help <команда>)"
+
+msgid "Close"
+msgstr "Закрыть"
+
+msgid "Privilege"
+msgstr "Привилегия"
+
+msgid "Description"
+msgstr "Описание"
+
+msgid "Empty command."
+msgstr "Пустая команда."
+
+msgid "Invalid command: @1"
+msgstr "Недопустимая команда: @1"
+
+msgid "Invalid command usage."
+msgstr "Недопустимое использование команды."
+
+msgid " (@1 s)"
+msgstr " (@1 с)"
+
+msgid "Command execution took @1 s"
+msgstr "Выполнение команды заняло @1 с"
+
+msgid "You don't have permission to run this command (missing privileges: @1)."
+msgstr "У вас нет разрешения на запуск этой команды (отсутствуют привилегии: @1)."
+
+msgid "Unable to get position of player @1."
+msgstr "Не удалось получить позицию игрока @1."
+
+msgid "Incorrect area format. Expected: (x1,y1,z1) (x2,y2,z2)"
+msgstr "Неправильный формат области. Ожидаемое: (x1,y1,z1) (x2,y2,z2)"
+
+msgid "<action>"
+msgstr "<действие>"
+
+msgid "Show chat action (e.g., '/me orders a pizza' displays '<player name> orders a pizza')"
+msgstr "Показать действие в чате (например, '/me заказывает пиццу' отображает '<имя игрока> заказывает пиццу')"
+
+msgid "Show the name of the server owner"
+msgstr "Показать имя владельца сервера"
+
+msgid "The administrator of this server is @1."
+msgstr "Администратором этого сервера является @1."
+
+msgid "There's no administrator named in the config file."
+msgstr "В конфигурационном файле нет имени администратора."
+
+msgid "@1 does not have any privileges."
+msgstr "@1 не имеет никаких привилегий."
+
+msgid "Privileges of @1: @2"
+msgstr "Привилегии @1: @2"
+
+msgid "[<name>]"
+msgstr "[<имя>]"
+
+msgid "Show privileges of yourself or another player"
+msgstr "Показать ваши привилегии или привилегии другого игрока"
+
+msgid "Player @1 does not exist."
+msgstr "Игрок @1 не существует."
+
+msgid "<privilege>"
+msgstr "<привилегия>"
+
+msgid "Return list of all online players with privilege"
+msgstr "Возвращает список всех онлайн-игроков, имеющих указанную привилегию"
+
+msgid "Invalid parameters (see /help haspriv)."
+msgstr "Недопустимые параметры (см. /help haspriv)."
+
+msgid "Unknown privilege!"
+msgstr "Неизвестная привилегия!"
+
+msgid "No online player has the \"@1\" privilege."
+msgstr "Ни один онлайн-игрок не имеет привилегии \"@1\"."
+
+msgid "Players online with the \"@1\" privilege: @2"
+msgstr "Игроки онлайн с привилегией \"@1\": @2"
+
+msgid "Your privileges are insufficient."
+msgstr "Ваших привилегий недостаточно."
+
+msgid "Your privileges are insufficient. '@1' only allows you to grant: @2"
+msgstr "Ваших привилегий недостаточно. '@1' позволяет вам предоставлять только: @2"
+
+msgid "Unknown privilege: @1"
+msgstr "Неизвестная привилегия: @1"
+
+msgid "@1 granted you privileges: @2"
+msgstr "@1 предоставил(а) вам привилегии: @2"
+
+msgid "<name> (<privilege> [, <privilege2> [<...>]] | all)"
+msgstr "<имя> (<привилегия> [, <привилегия2> [<...>]] | all)"
+
+msgid "Give privileges to player"
+msgstr "Предоставить привилегии игроку"
+
+msgid "Invalid parameters (see /help grant)."
+msgstr "Недопустимые параметры (см. /help grant)."
+
+msgid "<privilege> [, <privilege2> [<...>]] | all"
+msgstr "<привилегия> [, <привилегия2> [<...>]] | all"
+
+msgid "Grant privileges to yourself"
+msgstr "Предоставить привилегии себе"
+
+msgid "Invalid parameters (see /help grantme)."
+msgstr "Недопустимые параметры (см. /help grantme)."
+
+msgid "Your privileges are insufficient. '@1' only allows you to revoke: @2"
+msgstr "Ваших привилегий недостаточно. '@1' позволяет вам отозвать только: @2"
+
+msgid "Note: Cannot revoke in singleplayer: @1"
+msgstr "Примечание: Невозможно отозвать в одиночной игре: @1"
+
+msgid "Note: Cannot revoke from admin: @1"
+msgstr "Примечание: Невозможно отозвать у администратора: @1"
+
+msgid "No privileges were revoked."
+msgstr "Никакие привилегии не были отозваны."
+
+msgid "@1 revoked privileges from you: @2"
+msgstr "@1 отозвал у вас привилегии: @2"
+
+msgid "Remove privileges from player"
+msgstr "Отозвать привилегии у игрока"
+
+msgid "Invalid parameters (see /help revoke)."
+msgstr "Недопустимые параметры (см. /help revoke)."
+
+msgid "Revoke privileges from yourself"
+msgstr "Отозвать привилегии у себя"
+
+msgid "Invalid parameters (see /help revokeme)."
+msgstr "Недопустимые параметры (см. /help revokeme)."
+
+msgid "<name> <password>"
+msgstr "<имя> <пароль>"
+
+msgid "Set player's password (sent unencrypted, thus insecure)"
+msgstr "Установить пароль игрока (отправка в незашифрованном виде, следовательно, небезопасно)"
+
+msgid "Name field required."
+msgstr "Обязательное поле \"Имя\"."
+
+msgid "Your password was cleared by @1."
+msgstr "@1 сбросил ваш пароль."
+
+msgid "Password of player \"@1\" cleared."
+msgstr "Пароль игрока \"@1\" сброшен."
+
+msgid "Your password was set by @1."
+msgstr "@1 установил вам пароль."
+
+msgid "Password of player \"@1\" set."
+msgstr "Установлен пароль игрока \"@1\"."
+
+msgid "<name>"
+msgstr "<имя>"
+
+msgid "Set empty password for a player"
+msgstr "Установить пустой пароль для игрока"
+
+msgid "Reload authentication data"
+msgstr "Перезагрузить аутентификационные данные"
+
+msgid "Done."
+msgstr "Готово."
+
+msgid "Failed."
+msgstr "Не удалось."
+
+msgid "Remove a player's data"
+msgstr "Удалить данные игрока"
+
+msgid "Player \"@1\" removed."
+msgstr "Игрок \"@1\" удален."
+
+msgid "No such player \"@1\" to remove."
+msgstr "Нет такого игрока \"@1\", которого можно было бы удалить."
+
+msgid "Player \"@1\" is connected, cannot remove."
+msgstr "Игрок \"@1\" сейчас в игре, удалить его невозможно."
+
+msgid "Unhandled remove_player return code @1."
+msgstr "Необработанный код возврата remove_player @1."
+
+msgid "Cannot teleport out of map bounds!"
+msgstr "Невозможно телепортироваться за пределы карты!"
+
+msgid "Cannot get player with name @1."
+msgstr "Не удается получить игрока с именем @1."
+
+msgid "Cannot teleport, @1 is attached to an object!"
+msgstr "Невозможно телепортироваться, @1 привязан к объекту!"
+
+msgid "Teleporting @1 to @2."
+msgstr "Телепортация @1 в @2."
+
+msgid "One does not teleport to oneself."
+msgstr "Игрок не может телепортироваться к самому себе."
+
+msgid "Cannot get teleportee with name @1."
+msgstr "Не удается найти телепортирующегося с именем @1."
+
+msgid "Cannot get target player with name @1."
+msgstr "Не удается найти целевого игрока с именем @1."
+
+msgid "Teleporting @1 to @2 at @3."
+msgstr "Телепортация @1 к @2 в @3."
+
+msgid "<X>,<Y>,<Z> | <to_name> | <name> <X>,<Y>,<Z> | <name> <to_name>"
+msgstr "<X>,<Y>,<Z> | <имя_к_кому> | <имя> <X>,<Y>,<Z> | <имя> <имя_к_кому>"
+
+msgid "Teleport to position or player"
+msgstr "Телепортироваться на позицию или к игроку"
+
+msgid "You don't have permission to teleport other players (missing privilege: @1)."
+msgstr "У вас нет разрешения на телепортацию других игроков (отсутствует привилегия: @1)."
+
+msgid "([-n] <name> <value>) | <name>"
+msgstr "([-n] <имя> <значение>) | <имя>"
+
+msgid "Set or read server configuration setting"
+msgstr "Установить или прочитать настройки конфигурации сервера"
+
+msgid "Failed. Cannot modify secure settings. Edit the settings file manually."
+msgstr "Ошибка. Не удается изменить настройки безопасности. Отредактируйте файл настроек вручную."
+
+msgid "Failed. Use '/set -n <name> <value>' to create a new setting."
+msgstr "Ошибка. Используйте '/set -n <имя> <значение>', чтобы создать новую настройку."
+
+msgid "@1 = @2"
+msgstr "@1 = @2"
+
+msgid "<not set>"
+msgstr "<не задано>"
+
+msgid "Invalid parameters (see /help set)."
+msgstr "Недопустимые параметры (см. /help set)."
+
+msgid "Finished emerging @1 blocks in @2ms."
+msgstr "Загрузка/генерация @1 map-блоков завершена за @2мс."
+
+msgid "emergeblocks update: @1/@2 blocks emerged (@3%)"
+msgstr "обновление emergeblocks: загружено/сгенерировано: @1 из @2 блоков (@3%)"
+
+msgid "(here [<radius>]) | (<pos1> <pos2>)"
+msgstr "(here [<радиус>]) | (<позиция1> <позиция2>)"
+
+msgid "Load (or, if nonexistent, generate) map blocks contained in area pos1 to pos2 (<pos1> and <pos2> must be in parentheses)"
+msgstr "Загрузить (или сгенерировать, если не существуют) map-блоки, содержащиеся в области с позиции1 по позицию2 (<позиция1> и <позиция2> должны быть в круглых скобках)"
+
+msgid "Started emerge of area ranging from @1 to @2."
+msgstr "Загрузка/генерация области в диапазоне от @1 до @2 начата."
+
+msgid "Delete map blocks contained in area pos1 to pos2 (<pos1> and <pos2> must be in parentheses)"
+msgstr "Удалить map-блоки, содержащиеся в области с позиции1 по позицию2 (<позиция1> и <позиция2> должны быть заключены в круглые скобки)"
+
+msgid "Successfully cleared area ranging from @1 to @2."
+msgstr "Успешно очищена область в диапазоне от @1 до @2."
+
+msgid "Failed to clear one or more blocks in area."
+msgstr "Не удалось очистить один или несколько блоков в области."
+
+msgid "Resets lighting in the area between pos1 and pos2 (<pos1> and <pos2> must be in parentheses)"
+msgstr "Сбрасывает освещение в области с позиции1 по позицию2 (<позиция1> и <позиция2> должны быть заключены в круглые скобки)"
+
+msgid "Successfully reset light in the area ranging from @1 to @2."
+msgstr "Успешно сброшено освещение в диапазоне от @1 до @2."
+
+msgid "Failed to load one or more blocks in area."
+msgstr "Не удалось загрузить один или несколько блоков в области."
+
+msgid "List mods installed on the server"
+msgstr "Список модов, установленных на сервере"
+
+msgid "No mods installed."
+msgstr "Моды не установлены."
+
+msgid "Cannot give an empty item."
+msgstr "Вы должны указать предмет."
+
+msgid "Cannot give an unknown item."
+msgstr "Неизвестный предмет."
+
+msgid "Giving 'ignore' is not allowed."
+msgstr "Выдача 'ignore' не допускается."
+
+msgid "@1 is not a known player."
+msgstr "Неизвестный игрок: @1."
+
+msgid "@1 partially added to inventory."
+msgstr "@1 частично добавлен в инвентарь."
+
+msgid "@1 could not be added to inventory."
+msgstr "@1 не удалось добавить в инвентарь."
+
+msgid "@1 added to inventory."
+msgstr "@1 добавлено в инвентарь."
+
+msgid "@1 partially added to inventory of @2."
+msgstr "@1 частично добавлен в инвентарь @2."
+
+msgid "@1 could not be added to inventory of @2."
+msgstr "@1 не удалось добавить в инвентарь @2."
+
+msgid "@1 added to inventory of @2."
+msgstr "@1 добавлен в инвентарь @2."
+
+msgid "<name> <ItemString> [<count> [<wear>]]"
+msgstr "<имя> <ItemString> [<количество> [<износ>]]"
+
+msgid "Give item to player"
+msgstr "Добавить предмет в инвентарь игрока"
+
+msgid "Name and ItemString required."
+msgstr "Требуется <имя> игрока и название предмета <ItemString>."
+
+msgid "<ItemString> [<count> [<wear>]]"
+msgstr "<ItemString> [<количество> [<износ>]]"
+
+msgid "Give item to yourself"
+msgstr "Добавить предмет в свой инвентарь"
+
+msgid "ItemString required."
+msgstr "Требуется название предмета <ItemString>."
+
+msgid "<EntityName> [<X>,<Y>,<Z>]"
+msgstr "<EntityName> [<X>,<Y>,<Z>]"
+
+msgid "Spawn entity at given (or your) position"
+msgstr "Спаун сущности (моб/стрела/...) в заданной (или вашей) позиции"
+
+msgid "EntityName required."
+msgstr "Требуется имя сущности <EntityName>."
+
+msgid "Unable to spawn entity, player is nil."
+msgstr "Не удается создать сущность, игрок не найден."
+
+msgid "Cannot spawn an unknown entity."
+msgstr "Не удается создать неизвестную сущность."
+
+msgid "Invalid parameters (@1)."
+msgstr "Недопустимые параметры (@1)."
+
+msgid "@1 spawned."
+msgstr "Сущность @1 создана."
+
+msgid "@1 failed to spawn."
+msgstr "Сущность @1 не удалось создать."
+
+msgid "Destroy item in hand"
+msgstr "Уничтожить предмет, который у вас в руках"
+
+msgid "Unable to pulverize, no player."
+msgstr "Невозможно уничтожить предмет, нет игрока."
+
+msgid "Unable to pulverize, no item in hand."
+msgstr "Невозможно уничтожить предмет, в руках нет предмета."
+
+msgid "An item was pulverized."
+msgstr "Предмет был уничтожен."
+
+msgid "[<range>] [<seconds>] [<limit>]"
+msgstr "[<диапазон>] [<секунды>] [<ограничение>]"
+
+msgid "Check who last touched a node or a node near it within the time specified by <seconds>. Default: range = 0, seconds = 86400 = 24h, limit = 5. Set <seconds> to inf for no time limit"
+msgstr "Проверить кто в последний раз прикасался к ноде или нодам рядом в течение времени, указанного в <секундах>. По умолчанию: диапазон = 0, секунды = 86400 = 24 часа, ограничение = 5. Установите <секунды> в значение inf для отключения ограничения по времени"
+
+msgid "Rollback functions are disabled."
+msgstr "Функции отката отключены."
+
+msgid "That limit is too high!"
+msgstr "Это <ограничение> слишком велико!"
+
+msgid "Checking @1 ..."
+msgstr "Проверка @1 ..."
+
+msgid "Nobody has touched the specified location in @1 seconds."
+msgstr "Никто не прикасался к указанному местоположению в течение @1 секунд(ы)."
+
+msgid "@1 @2 @3 -> @4 @5 seconds ago."
+msgstr "@1 @2 @3 -> @4 @5 секунд назад."
+
+msgid "Punch a node (range=@1, seconds=@2, limit=@3)."
+msgstr "Ударьте по ноде (диапазон=@1, секунды=@2, предел =@3)."
+
+msgid "(<name> [<seconds>]) | (:<actor> [<seconds>])"
+msgstr "(<имя> [<секунды>]) | (:<игрок> [<секунды>])"
+
+msgid "Revert actions of a player. Default for <seconds> is 60. Set <seconds> to inf for no time limit"
+msgstr "Отменяет действия игрока. Значение по умолчанию для <секунд> равно 60. Установите <секунды> в значение inf для отключения ограничения по времени"
+
+msgid "Invalid parameters. See /help rollback and /help rollback_check."
+msgstr "Недопустимые параметры. Смотрите /help rollback и /help rollback_check."
+
+msgid "Reverting actions of player '@1' since @2 seconds."
+msgstr "Отмена действия игрока \"@1\" за последние @2 секунд(у/ы)."
+
+msgid "Reverting actions of @1 since @2 seconds."
+msgstr "Отмена действий @1 за последние @2 секунд(у/ы)."
+
+msgid "(log is too long to show)"
+msgstr "(журнал слишком длинный для отображения)"
+
+msgid "Reverting actions succeeded."
+msgstr "Отмена действий завершилась успешно."
+
+msgid "Reverting actions FAILED."
+msgstr "Отменить действия НЕ УДАЛОСЬ."
+
+msgid "Show server status"
+msgstr "Показать статус сервера"
+
+msgid "This command was disabled by a mod or game."
+msgstr "Эта команда была отключена модом или игрой."
+
+msgid "[<0..23>:<0..59> | <0..24000>]"
+msgstr "[<0..23>:<0..59> | <0..24000>]"
+
+msgid "Show or set time of day"
+msgstr "Показать или установить время суток"
+
+msgid "Current time is @1:@2."
+msgstr "Текущее время @1:@2."
+
+msgid "You don't have permission to run this command (missing privilege: @1)."
+msgstr "У вас нет разрешения на выполнение этой команды (отсутствует привилегия: @1)."
+
+msgid "Invalid time (must be between 0 and 24000)."
+msgstr "Недопустимое время (должно быть в диапазоне от 0 до 24000)."
+
+msgid "Time of day changed."
+msgstr "Время суток изменено."
+
+msgid "Invalid hour (must be between 0 and 23 inclusive)."
+msgstr "Недопустимый час (должно быть от 0 до 23 включительно)."
+
+msgid "Invalid minute (must be between 0 and 59 inclusive)."
+msgstr "Недопустимая минута (должно быть от 0 до 59 включительно)."
+
+msgid "Show day count since world creation"
+msgstr "Показать количество дней с момента сотворения мира"
+
+msgid "Current day is @1."
+msgstr "Текущий день: @1."
+
+msgid "[<delay_in_seconds> | -1] [-r] [<message>]"
+msgstr "[<задержка_в_секундах> | -1] [-r] [<сообщение>]"
+
+msgid "Shutdown server (-1 cancels a delayed shutdown, -r allows players to reconnect)"
+msgstr "Завершение работы сервера (-1 отменяет отложенное завершение работы, -r позволяет игрокам повторно подключиться)"
+
+msgid "Server shutting down (operator request)."
+msgstr "Завершение работы сервера (по запросу администрации)."
+
+msgid "Ban the IP of a player or show the ban list"
+msgstr "Заблокировать IP игрока или показать список заблокированных"
+
+msgid "The ban list is empty."
+msgstr "Список заблокированных пуст."
+
+msgid "Ban list: @1"
+msgstr "Список заблокированных: @1"
+
+msgid "You cannot ban players in singleplayer!"
+msgstr "Вы не можете забанить игроков в одиночной игре!"
+
+msgid "Player is not online."
+msgstr "Игрок не подключен к Сети."
+
+msgid "Failed to ban player."
+msgstr "Не удалось забанить игрока."
+
+msgid "Banned @1."
+msgstr "@1 забанен."
+
+msgid "<name> | <IP_address>"
+msgstr "<имя> | <IP_адрес>"
+
+msgid "Remove IP ban belonging to a player/IP"
+msgstr "Удалить IP-бан, принадлежащий игроку/IP-адресу"
+
+msgid "Failed to unban player/IP."
+msgstr "Не удалось разбанить игрока/IP."
+
+msgid "Unbanned @1."
+msgstr "@1 разбанен."
+
+msgid "<name> [<reason>]"
+msgstr "<имя> [<причина>]"
+
+msgid "Kick a player"
+msgstr "Кикнуть игрока"
+
+msgid "Failed to kick player @1."
+msgstr "Не удалось кикнуть @1."
+
+msgid "Kicked @1."
+msgstr "@1 кикнут."
+
+msgid "[full | quick]"
+msgstr "[full | quick]"
+
+msgid "Clear all objects in world"
+msgstr "Удалить ВСЕ объекты/сущности во ВСЁМ мире"
+
+msgid "Invalid usage, see /help clearobjects."
+msgstr "Недопустимое использование, см. /help clearobjects."
+
+msgid "Clearing all objects. This may take a long time. You may experience a timeout. (by @1)"
+msgstr "Удаление всех объектов. Это может занять много времени. Ваш клиент может отключиться из-за тайм-аута. (запущено: @1)"
+
+msgid "Cleared all objects."
+msgstr "Все объекты удалены."
+
+msgid "<name> <message>"
+msgstr "<имя> <сообщение>"
+
+msgid "Send a direct message to a player"
+msgstr "Отправить прямое сообщение игроку"
+
+msgid "Invalid usage, see /help msg."
+msgstr "Недопустимое использование, см. /help msg."
+
+msgid "The player @1 is not online."
+msgstr "Игрок @1 не находится в игре."
+
+msgid "DM from @1: @2"
+msgstr "DM от @1: @2"
+
+msgid "DM sent to @1: @2"
+msgstr ""
+
+msgid "Get the last login time of a player or yourself"
+msgstr "Вывести время последнего входа игрока или своё"
+
+msgid "@1's last login time was @2."
+msgstr "Время последнего входа @1: @2."
+
+msgid "@1's last login time is unknown."
+msgstr "Время последнего входа @1 неизвестно."
+
+msgid "Clear the inventory of yourself or another player"
+msgstr "Очистить свой инвентарь или инвентарь другого игрока"
+
+msgid "You don't have permission to clear another player's inventory (missing privilege: @1)."
+msgstr "У вас нет разрешения на очистку инвентаря другого игрока (отсутствует привилегия: @1)."
+
+msgid "@1 cleared your inventory."
+msgstr "@1 очистил ваш инвентарь."
+
+msgid "Cleared @1's inventory."
+msgstr "Инвентарь @1 очищен."
+
+msgid "Player must be online to clear inventory!"
+msgstr "Игрок должен быть онлайн, чтобы очистить его инвентарь!"
+
+msgid "Players can't be killed, damage has been disabled."
+msgstr "Игроки не могут быть убиты, урон отключен."
+
+msgid "Player @1 is not online."
+msgstr "Игрок @1 не находится в игре."
+
+msgid "You are already dead."
+msgstr "Ты уже мертв."
+
+msgid "@1 is already dead."
+msgstr "@1 уже мертв."
+
+msgid "@1 has been killed."
+msgstr "@1 был убит."
+
+msgid "Kill player or yourself"
+msgstr "Убить игрока или себя"
+
+msgid "You died"
+msgstr "Вы умерли"
+
+msgid "Respawn"
+msgstr "Возродиться"
+
+msgid "@1 joined the game."
+msgstr "@1 присоединился к игре."
+
+msgid "@1 left the game."
+msgstr "@1 вышел из игры."
+
+msgid "@1 left the game (timed out)."
+msgstr "@1 вышел из игры (тайм-аут)."
+
+msgid "(no description)"
+msgstr "(без описания)"
+
+msgid "Can interact with things and modify the world"
+msgstr "Может взаимодействовать (с объектами/игроками/...) и изменять мир"
+
+msgid "Can speak in chat"
+msgstr "Может общаться в чате"
+
+msgid "Can modify basic privileges (@1)"
+msgstr "Может изменять базовые привилегии (@1)"
+
+msgid "Can modify privileges"
+msgstr "Может изменять привилегии"
+
+msgid "Can teleport self"
+msgstr "Может самостоятельно телепортироваться"
+
+msgid "Can teleport other players"
+msgstr "Может телепортировать других игроков"
+
+msgid "Can set the time of day using /time"
+msgstr "Может устанавливать время суток с помощью /time"
+
+msgid "Can do server maintenance stuff"
+msgstr "Может заниматься обслуживанием сервера"
+
+msgid "Can bypass node protection in the world"
+msgstr "Может обходить защиту нод во всем мире"
+
+msgid "Can ban and unban players"
+msgstr "Может банить и разбанивать игроков"
+
+msgid "Can kick players"
+msgstr "Может кикать игроков"
+
+msgid "Can use /give and /giveme"
+msgstr "Может использовать /give и /giveme"
+
+msgid "Can use /setpassword and /clearpassword"
+msgstr "Может использовать /setpassword и /clearpassword"
+
+msgid "Can use fly mode"
+msgstr "Может использовать режим полета"
+
+msgid "Can use fast mode"
+msgstr "Может использовать быстрый режим (ускорение)"
+
+msgid "Can fly through solid nodes using noclip mode"
+msgstr "Может пролетать сквозь ноды, используя режим noclip"
+
+msgid "Can use the rollback functionality"
+msgstr "Может использовать функцию отката"
+
+msgid "Can enable wireframe"
+msgstr "Может использовать режим каркаса в отладке"
+
+msgid "Unknown Item"
+msgstr "Неизвестный предмет"
+
+msgid "Air"
+msgstr "Воздух"
+
+msgid "Ignore"
+msgstr "Игнорируемая встроенная нода (\":ignore\")"
+
+msgid "You can't place 'ignore' nodes!"
+msgstr "Вы не можете установить ноду 'ignore'!"
+
+msgid "print [<filter>] | dump [<filter>] | save [<format> [<filter>]] | reset"
+msgstr "print [<filter>] | dump [<filter>] | save [<format> [<filter>]] | reset"
+
+msgid "Handle the profiler and profiling data"
+msgstr "Работа с профайлером и данными профилирования"
+
+msgid "Statistics written to action log."
+msgstr "Статистика записывается в журнал действий."
+
+msgid "Statistics were reset."
+msgstr "Статистика была сброшена."
+
+msgid "Usage: @1"
+msgstr "Использование: @1"
+
+msgid "Format can be one of txt, csv, lua, json, json_pretty (structures may be subject to change)."
+msgstr "Формат может быть одним из txt, csv, lua, json, json_pretty (структуры могут быть изменены)."
+
+msgid "Values below show absolute/relative times spend per server step by the instrumented function."
+msgstr "Приведенные ниже значения показывают абсолютное/относительное время, затрачиваемое функцией на каждый шаг сервера."
+
+msgid "A total of @1 sample(s) were taken."
+msgstr "Всего было взято @1 образец(ов)."
+
+msgid "The output is limited to '@1'."
+msgstr "Вывод ограничен значением '@1'."
+
+msgid "Saving of profile failed: @1"
+msgstr "Не удалось сохранить данные профилирования: @1"
+
+msgid "Profile saved to @1"
+msgstr "Данные профилирования сохранены в @1"
+
