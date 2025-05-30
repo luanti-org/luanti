@@ -1661,7 +1661,7 @@ inline void CMatrix4<T>::getTransposed(CMatrix4<T> &o) const
 }
 
 template <class T>
-std::ostream& operator<<(std::ostream& os, const CMatrix4<T>& matrix)
+inline std::ostream& operator<<(std::ostream& os, const CMatrix4<T>& matrix)
 {
 	os << "(\n";
 	for (int row = 0; row < 4; ++row) {

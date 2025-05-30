@@ -217,7 +217,7 @@ public:
 	f32 W; // real part
 };
 
-std::ostream& operator<<(std::ostream& os, const quaternion& q)
+inline std::ostream& operator<<(std::ostream& os, const quaternion& q)
 {
 	os << q.X << "\t" << q.Y << "\t" << q.Z << "\t" << q.W;
 	return os;
