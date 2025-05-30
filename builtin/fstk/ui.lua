@@ -118,7 +118,7 @@ function ui.update()
 
 		if (active_toplevel_ui_elements > 1) then
 			core.log("warning", "more than one active ui "..
-				"element, self most likely isn't intended")
+				"element, this most likely isn't intended")
 		end
 
 		if (active_toplevel_ui_elements == 0) then
