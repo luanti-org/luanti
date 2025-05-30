@@ -74,34 +74,35 @@ function unittests.run_one(idx, counters, out_callback, player, pos)
 	end
 
 	local tbegin = core.get_us_time()
-	local function done(status, err)
+	local function done(err)
 		local tend = core.get_us_time()
 		local ms_taken = (tend - tbegin) / 1000
 
-		if not status then
+		if err then
 			core.log("error", err)
 		end
-		printf("[%s] %s - %dms", status and "PASS" or "FAIL", def.name, ms_taken)
-		if seed and not status then
+		printf("[%s] %s - %dms", err and "FAIL" or "PASS", def.name, ms_taken)
+		if seed and err then
 			printf("Random was seeded to %d", seed)
 		end
 		counters.time = counters.time + ms_taken
 		counters.total = counters.total + 1
-		if status then
-			counters.passed = counters.passed + 1
-		end
+		counters.passed = counters.passed + (err and 0 or 1)
 	end
 
 	if def.async then
 		core.log("info", "[unittest] running " .. def.name .. " (async)")
 		def.func(function(err)
-			done(err == nil, err)
+			done(err)
 			out_callback(true)
 		end, player, pos)
 	else
 		core.log("info", "[unittest] running " .. def.name)
-		local status, err = pcall(def.func, player, pos)
-		done(status, err)
+		local err
+		xpcall(function() return def.func(player, pos) end, function(e)
+			err = e .. "\n" .. debug.traceback()
+		end)
+		done(err)
 		out_callback(true)
 	end
 
@@ -201,7 +202,9 @@ dofile(modpath .. "/inventory.lua")
 dofile(modpath .. "/load_time.lua")
 dofile(modpath .. "/on_shutdown.lua")
 dofile(modpath .. "/color.lua")
-dofile(modpath .. "/matrix4.lua")
+
+local bustitute = dofile(modpath .. "/bustitute.lua")
+bustitute.register("matrix4")
 
 --------------
 
