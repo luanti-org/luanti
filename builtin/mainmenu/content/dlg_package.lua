@@ -244,7 +244,7 @@ local function get_formspec(data)
 				ui.update()
 			end)
 		end
-		
+
 		local function markup(text)
 			text = text:gsub("(%*%*)([^%s][^*]-[^%s])%*%*", "<b>%2</b>")
 			text = text:gsub("(%*)([^%s][^*]-[^%s])%*", "<i>%2</i>")
@@ -268,9 +268,8 @@ local function get_formspec(data)
 							:gsub("[\r\n]+$", ""))
 						.."\n"
 				end
-				
-				hypertext = hypertext..
-					"\n"
+
+				hypertext = hypertext.."\n"
 			end
 		elseif data.releases_error then
 			table.insert_all(formspec, {"label[2,2;", fgettext("Error loading releases"), "]"} )
