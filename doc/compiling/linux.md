@@ -1,4 +1,4 @@
-# Compiling on GNU/Linux
+# Compiling on Linux
 
 ## Dependencies
 
