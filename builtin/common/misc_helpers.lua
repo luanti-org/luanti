@@ -568,6 +568,15 @@ function table.copy_with_metatables(value)
 	return table_copy(value, true)
 end
 
+function table.shallow_copy(t)
+	local new = {}
+	for k, v in pairs(t) do
+		new[k] = v
+	end
+	return new
+end
+
+
 function table.insert_all(t, other)
 	if table.move then -- LuaJIT
 		return table.move(other, 1, #other, #t + 1, t)
@@ -576,6 +585,15 @@ function table.insert_all(t, other)
 		t[#t + 1] = other[i]
 	end
 	return t
+end
+
+
+function table.merge(...)
+	local new = {}
+	for _, t in ipairs{...} do
+		table.insert_all(new, t)
+	end
+	return new
 end
 
 
@@ -871,4 +889,46 @@ function core.parse_coordinates(x, y, z, relative_to)
 	local ry = core.parse_relative_number(y, relative_to.y)
 	local rz = core.parse_relative_number(z, relative_to.z)
 	return rx and ry and rz and { x = rx, y = ry, z = rz }
+end
+
+local function call(class, ...)
+	local obj = setmetatable({}, class)
+
+	if obj.new then
+		local val = obj:new(...)
+		if val ~= nil then
+			return val
+		end
+	end
+
+	return obj
+end
+
+function core.class(super)
+	local class = setmetatable({}, {__call = call, __index = super})
+	class.__index = class
+
+	return class
+end
+
+function core.super(class)
+	local meta = getmetatable(class)
+	return meta and meta.__index
+end
+
+function core.is_instance(obj, class)
+	if type(obj) ~= "table" then
+		return false
+	end
+
+	local super = getmetatable(obj)
+
+	while super ~= nil do
+		if super == class then
+			return true
+		end
+		super = core.super(super)
+	end
+
+	return false
 end
