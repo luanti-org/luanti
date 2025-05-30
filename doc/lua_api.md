@@ -315,6 +315,9 @@ due to their space savings.
 
 Bone weights should be normalized, e.g. using ["normalize all" in Blender](https://docs.blender.org/manual/en/4.2/grease_pencil/modes/weight_paint/weights_menu.html#normalize-all).
 
+Note that nodes using matrix transforms must not be animated.
+This also extends to bone overrides, which must not be applied to them.
+
 You can use the [Khronos glTF validator](https://github.com/KhronosGroup/glTF-Validator)
 to check whether a model is a valid glTF file.
 
