@@ -6,12 +6,16 @@
 
 #include "irrlichttypes_bloated.h"
 #include "constants.h"
-#include "irr_ptr.h"
 #include "skyparams.h"
 #include <iostream>
+//irr includes
+#include <irr_ptr.h>
 #include <ISceneNode.h>
 #include <SMaterial.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
+
+namespace scene = irr::scene;
+namespace video = irr::video;
 
 class IShaderSource;
 
