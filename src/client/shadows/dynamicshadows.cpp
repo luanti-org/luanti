@@ -32,6 +32,7 @@ void DirectionalLight::createSplitMatrices(const Camera *cam)
 	// adjusted frustum boundaries
 	float sfNear = future_frustum.zNear;
 	float sfFar = adjustDist(future_frustum.zFar, cam->getFovY());
+	assert(sfFar - sfNear > 0);
 
 	// adjusted camera positions
 	v3f cam_pos_world = cam->getPosition();
@@ -74,7 +75,6 @@ void DirectionalLight::createSplitMatrices(const Camera *cam)
 	future_frustum.ViewMat.buildCameraLookAtMatrixLH(eye, center_scene, v3f(0.0f, 1.0f, 0.0f));
 	future_frustum.ProjOrthMat.buildProjectionMatrixOrthoLH(radius, radius,
 			0.0f, length, false);
-	future_frustum.camera_offset = cam->getOffset();
 }
 
 DirectionalLight::DirectionalLight(const u32 shadowMapResolution,
@@ -86,6 +86,8 @@ DirectionalLight::DirectionalLight(const u32 shadowMapResolution,
 
 void DirectionalLight::updateCameraOffset(const Camera *cam)
 {
+	if (future_frustum.zFar == 0.0f) // not initialized
+		return;
 	createSplitMatrices(cam);
 	should_update_map_shadow = true;
 	dirty = true;

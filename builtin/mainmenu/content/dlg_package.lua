@@ -1,19 +1,6 @@
---Luanti
---Copyright (C) 2018-24 rubenwardy
---
---This program is free software; you can redistribute it and/or modify
---it under the terms of the GNU Lesser General Public License as published by
---the Free Software Foundation; either version 2.1 of the License, or
---(at your option) any later version.
---
---This program is distributed in the hope that it will be useful,
---but WITHOUT ANY WARRANTY; without even the implied warranty of
---MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---GNU Lesser General Public License for more details.
---
---You should have received a copy of the GNU Lesser General Public License along
---with this program; if not, write to the Free Software Foundation, Inc.,
---51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+-- Luanti
+-- Copyright (C) 2018-24 rubenwardy
+-- SPDX-License-Identifier: LGPL-2.1-or-later
 
 
 local function get_info_formspec(size, padding, text)
@@ -32,6 +19,7 @@ end
 
 
 local function get_formspec(data)
+	local package = data.package
 	local window_padding =  contentdb.get_formspec_padding()
 	local size = contentdb.get_formspec_size()
 	size.x = math.min(size.x, 20)
@@ -42,7 +30,7 @@ local function get_formspec(data)
 		if not data.loading and not data.loading_error then
 			data.loading = true
 
-			contentdb.get_full_package_info(data.package, function(info)
+			contentdb.get_full_package_info(package, function(info)
 				data.loading = false
 
 				if info == nil then
@@ -61,7 +49,7 @@ local function get_formspec(data)
 		-- check to see if that happened
 		if not data.info then
 			if data.loading_error then
-				return get_info_formspec(size, window_padding, fgettext("No packages could be retrieved"))
+				return get_info_formspec(size, window_padding, fgettext("Error loading package information"))
 			end
 			return get_info_formspec(size, window_padding, fgettext("Loading..."))
 		end
@@ -103,15 +91,15 @@ local function get_formspec(data)
 
 	local left_button_rect = "0,0;2.875,1"
 	local right_button_rect = "3.125,0;2.875,1"
-	if data.package.downloading then
+	if package.downloading then
 		formspec[#formspec + 1] = "animated_image[5,0;1,1;downloading;"
 		formspec[#formspec + 1] = core.formspec_escape(defaulttexturedir)
 		formspec[#formspec + 1] = "cdb_downloading.png;3;400;]"
-	elseif data.package.queued then
+	elseif package.queued then
 		formspec[#formspec + 1] = "style[queued;border=false]"
 		formspec[#formspec + 1] = "image_button[5,0;1,1;" .. core.formspec_escape(defaulttexturedir)
 		formspec[#formspec + 1] = "cdb_queued.png;queued;]"
-	elseif not data.package.path then
+	elseif not package.path then
 		formspec[#formspec + 1] = "style[install;bgcolor=green]"
 		formspec[#formspec + 1] = "button["
 		formspec[#formspec + 1] = right_button_rect
@@ -119,7 +107,7 @@ local function get_formspec(data)
 		formspec[#formspec + 1] = fgettext("Install [$1]", info.download_size)
 		formspec[#formspec + 1] = "]"
 	else
-		if data.package.installed_release < data.package.release then
+		if package.installed_release < package.release then
 			-- The install_ action also handles updating
 			formspec[#formspec + 1] = "style[install;bgcolor=#28ccdf]"
 			formspec[#formspec + 1] = "button["
@@ -137,10 +125,12 @@ local function get_formspec(data)
 		formspec[#formspec + 1] = "]"
 	end
 
+	local review_count = info.reviews.positive + info.reviews.neutral + info.reviews.negative
 	local current_tab = data.current_tab or 1
 	local tab_titles = {
 		fgettext("Description"),
 		fgettext("Information"),
+		fgettext("Reviews") .. core.formspec_escape(" [" .. review_count .. "]"),
 	}
 
 	local tab_body_height = bottom_buttons_y - 2.8
@@ -162,8 +152,8 @@ local function get_formspec(data)
 		local winfo = core.get_window_info()
 		local fs_to_px = winfo.size.x / winfo.max_formspec_size.x
 		for i, ss in ipairs(info.screenshots) do
-			local path = get_screenshot(data.package, ss.url, 2)
-			hypertext = hypertext .. "<action name=\"ss_" .. i .. "\"><img name=\"" ..
+			local path = get_screenshot(package, ss.url, 2)
+			hypertext = hypertext .. "<action name=\"ss_".. i .. "\"><img name=\"" ..
 					core.hypertext_escape(path) .. "\" width=" .. (3 * fs_to_px) ..
 					" height=" .. (2 * fs_to_px) .. "></action>"
 			if i ~= #info.screenshots then
@@ -194,22 +184,54 @@ local function get_formspec(data)
 
 		hypertext = hypertext .. "\n\n" .. info.long_description.body
 
+		-- Fix the path to blank.png. This is needed for bullet indentation.
 		hypertext = hypertext:gsub("<img name=\"?blank.png\"? ",
 				"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "blank.png\" ")
 
 		table.insert_all(formspec, {
 			"hypertext[0,0;", W, ",", tab_body_height - 0.375,
 			";desc;", core.formspec_escape(hypertext), "]",
-
 		})
 
 	elseif current_tab == 2 then
 		local hypertext = info.info_hypertext.head .. info.info_hypertext.body
-
 		table.insert_all(formspec, {
 			"hypertext[0,0;", W, ",", tab_body_height - 0.375,
 			";info;", core.formspec_escape(hypertext), "]",
 		})
+	elseif current_tab == 3 then
+		if not package.reviews and not data.reviews_error and not data.reviews_loading then
+			data.reviews_loading = true
+
+			contentdb.get_package_reviews(package, function(reviews)
+				if not reviews then
+					data.reviews_error = true
+				end
+				ui.update()
+			end)
+		end
+
+		if package.reviews then
+			local hypertext = package.reviews.head .. package.reviews.body
+			-- Provide correct path to blank.png image. This is needed for bullet indentation.
+			hypertext = hypertext:gsub("<img name=\"?blank.png\"? ",
+					"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "blank.png\" ")
+			-- Placeholders in reviews hypertext for icons
+			hypertext = hypertext:gsub("<thumbsup>",
+					"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "contentdb_thumb_up.png\" width=24>")
+			hypertext = hypertext:gsub("<thumbsdown>",
+					"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "contentdb_thumb_down.png\" width=24>")
+			hypertext = hypertext:gsub("<neutral>",
+					"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "contentdb_neutral.png\" width=24>")
+			table.insert_all(formspec, {
+				"hypertext[0,0;", W, ",", tab_body_height - 0.375,
+				";reviews;", core.formspec_escape(hypertext), "]",
+			})
+		elseif data.reviews_error then
+			table.insert_all(formspec, {"label[2,2;", fgettext("Error loading reviews"), "]"} )
+		else
+			table.insert_all(formspec, {"label[2,2;", fgettext("Loading..."), "]"} )
+		end
 	else
 		error("Unknown tab " .. current_tab)
 	end
@@ -269,9 +291,10 @@ local function handle_submit(this, fields)
 	end
 
 	if fields.open_contentdb then
-		local url = ("%s/packages/%s/?protocol_version=%d"):format(
-			core.settings:get("contentdb_url"), package.url_part,
-			core.get_max_supp_proto())
+		local version = core.get_version()
+		local url = core.settings:get("contentdb_url") .. "/packages/" .. package.url_part ..
+				"/?protocol_version=" .. core.urlencode(core.get_max_supp_proto()) ..
+				"&engine_version=" .. core.urlencode(version.string)
 		core.open_url(url)
 		return true
 	end
@@ -295,7 +318,8 @@ local function handle_submit(this, fields)
 	end
 
 	if handle_hypertext_event(this, fields.desc, info.long_description) or
-			handle_hypertext_event(this, fields.info, info.info_hypertext) then
+			handle_hypertext_event(this, fields.info, info.info_hypertext) or
+			(package.reviews and handle_hypertext_event(this, fields.reviews, package.reviews)) then
 		return true
 	end
 end

@@ -12,6 +12,22 @@
 #include "util/pointabilities.h"
 #include "mapnode.h"
 
+struct EnumString;
+
+enum ObjectVisual : u8 {
+	OBJECTVISUAL_UNKNOWN,
+	OBJECTVISUAL_SPRITE,
+	OBJECTVISUAL_UPRIGHT_SPRITE,
+	OBJECTVISUAL_CUBE,
+	OBJECTVISUAL_MESH,
+	OBJECTVISUAL_ITEM,
+	OBJECTVISUAL_WIELDITEM,
+	OBJECTVISUAL_NODE,
+};
+
+extern const EnumString es_ObjectVisual[];
+
+
 struct ObjectProperties
 {
 	/* member variables ordered roughly by size */
@@ -22,7 +38,7 @@ struct ObjectProperties
 	aabb3f collisionbox = aabb3f(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
 	// Values are BS=1
 	aabb3f selectionbox = aabb3f(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
-	std::string visual = "sprite";
+	ObjectVisual visual = OBJECTVISUAL_SPRITE;
 	std::string mesh;
 	std::string damage_texture_modifier = "^[brighten";
 	std::string nametag;

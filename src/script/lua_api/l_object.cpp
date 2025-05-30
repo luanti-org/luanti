@@ -69,8 +69,27 @@ RemotePlayer *ObjectRef::getplayer(ObjectRef *ref)
 
 // Exported functions
 
+int ObjectRef::mt_tostring(lua_State *L)
+{
+	auto *ref = checkObject<ObjectRef>(L, 1);
+	if (getobject(ref)) {
+		if (auto *player = getplayer(ref)) {
+			lua_pushfstring(L, "ObjectRef (player): %s", player->getName().c_str());
+		} else if (auto *entitysao = getluaobject(ref)) {
+			lua_pushfstring(L, "ObjectRef (entity): %s (id: %d)",
+					entitysao->getName().c_str(), entitysao->getId());
+		} else {
+			lua_pushfstring(L, "ObjectRef (?): %p", ref);
+		}
+	} else {
+		lua_pushfstring(L, "ObjectRef (invalid): %p", ref);
+	}
+	return 1;
+}
+
 // garbage collector
-int ObjectRef::gc_object(lua_State *L) {
+int ObjectRef::gc_object(lua_State *L)
+{
 	ObjectRef *obj = *(ObjectRef **)(lua_touserdata(L, 1));
 	delete obj;
 	return 0;
@@ -2806,9 +2825,10 @@ void ObjectRef::Register(lua_State *L)
 {
 	static const luaL_Reg metamethods[] = {
 		{"__gc", gc_object},
+		{"__tostring", mt_tostring},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<ObjectRef>(L, methods, metamethods);
 }
 
 const char ObjectRef::className[] = "ObjectRef";

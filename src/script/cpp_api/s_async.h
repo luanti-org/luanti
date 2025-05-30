@@ -139,6 +139,11 @@ protected:
 	void stepAutoscale();
 
 	/**
+	 * Print warning message if too many jobs are stuck
+	 */
+	void stepStuckWarning();
+
+	/**
 	 * Initialize environment with current registred functions
 	 *  this function adds all functions registred by registerFunction to the
 	 *  passed lua stack
@@ -149,6 +154,21 @@ protected:
 	bool prepareEnvironment(lua_State* L, int top);
 
 private:
+	template <typename T>
+	inline void snapshotJobs(T &to)
+	{
+		for (const auto &it : jobQueue)
+			to.emplace(it.id);
+	}
+	template <typename T>
+	inline size_t compareJobs(const T &from)
+	{
+		size_t overlap = 0;
+		for (const auto &it : jobQueue)
+			overlap += from.count(it.id);
+		return overlap;
+	}
+
 	// Variable locking the engine against further modification
 	bool initDone = false;
 
@@ -157,6 +177,9 @@ private:
 	unsigned int autoscaleMaxWorkers = 0;
 	u64 autoscaleTimer = 0;
 	std::unordered_set<u32> autoscaleSeenJobs;
+
+	u64 stuckTimer = 0;
+	std::unordered_set<u32> stuckSeenJobs;
 
 	// Only set for the server async environment (duh)
 	Server *server = nullptr;

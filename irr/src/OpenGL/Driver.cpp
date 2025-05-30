@@ -104,8 +104,7 @@ static const VertexType &getVertexTypeDescription(E_VERTEX_TYPE type)
 	case EVT_TANGENTS:
 		return vtTangents;
 	default:
-		assert(false);
-		CODE_UNREACHABLE();
+		IRR_CODE_UNREACHABLE();
 	}
 }
 
@@ -212,6 +211,7 @@ void COpenGL3DriverBase::initQuadsIndices(u32 max_vertex_count)
 	}
 	QuadIndexVBO.upload(QuadsIndices.data(), QuadsIndices.size() * sizeof(u16),
 		0, GL_STATIC_DRAW, true);
+	assert(QuadIndexVBO.exists());
 }
 
 void COpenGL3DriverBase::initVersion()
@@ -260,15 +260,6 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 	CacheHandler = new COpenGL3CacheHandler(this);
 
 	StencilBuffer = stencilBuffer;
-
-	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
-	DriverAttributes->setAttribute("MaxIndices", (s32)MaxIndices);
-	DriverAttributes->setAttribute("MaxTextureSize", (s32)MaxTextureSize);
-	DriverAttributes->setAttribute("MaxTextureLODBias", MaxTextureLODBias);
-	DriverAttributes->setAttribute("Version", 100 * Version.Major + Version.Minor);
-	DriverAttributes->setAttribute("AntiAlias", AntiAlias);
 
 	GL.PixelStorei(GL_PACK_ALIGNMENT, 1);
 
@@ -626,6 +617,7 @@ void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
 	const void *vertices = vb->getData();
 	if (hwvert) {
 		assert(hwvert->IsVertex);
+		assert(hwvert->Vbo.exists());
 		GL.BindBuffer(GL_ARRAY_BUFFER, hwvert->Vbo.getName());
 		vertices = nullptr;
 	}
@@ -633,6 +625,7 @@ void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
 	const void *indexList = ib->getData();
 	if (hwidx) {
 		assert(!hwidx->IsVertex);
+		assert(hwidx->Vbo.exists());
 		GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, hwidx->Vbo.getName());
 		indexList = nullptr;
 	}
@@ -864,21 +857,25 @@ void COpenGL3DriverBase::draw2DImageBatch(const video::ITexture *texture,
 	std::vector<S3DVertex> vtx;
 	vtx.reserve(drawCount * 4);
 
+	// texcoords need to be flipped horizontally for RTTs
+	const bool isRTT = texture->isRenderTarget();
+	const core::dimension2du ss = texture->getOriginalSize();
+	const f32 invW = 1.f / static_cast<f32>(ss.Width);
+	const f32 invH = 1.f / static_cast<f32>(ss.Height);
+
 	for (u32 i = 0; i < drawCount; i++) {
-		core::position2d<s32> targetPos = positions[i];
-		core::position2d<s32> sourcePos = sourceRects[i].UpperLeftCorner;
-		// This needs to be signed as it may go negative.
-		core::dimension2d<s32> sourceSize(sourceRects[i].getSize());
+		const core::position2d<s32> targetPos = positions[i];
+		const core::rect<s32> sourceRect = sourceRects[i];
 
 		// now draw it.
 
-		core::rect<f32> tcoords;
-		tcoords.UpperLeftCorner.X = (((f32)sourcePos.X)) / texture->getOriginalSize().Width;
-		tcoords.UpperLeftCorner.Y = (((f32)sourcePos.Y)) / texture->getOriginalSize().Height;
-		tcoords.LowerRightCorner.X = tcoords.UpperLeftCorner.X + ((f32)(sourceSize.Width) / texture->getOriginalSize().Width);
-		tcoords.LowerRightCorner.Y = tcoords.UpperLeftCorner.Y + ((f32)(sourceSize.Height) / texture->getOriginalSize().Height);
+		const core::rect<f32> tcoords(
+			sourceRect.UpperLeftCorner.X * invW,
+			(isRTT ? sourceRect.LowerRightCorner.Y : sourceRect.UpperLeftCorner.Y) * invH,
+			sourceRect.LowerRightCorner.X * invW,
+			(isRTT ? sourceRect.UpperLeftCorner.Y : sourceRect.LowerRightCorner.Y) * invH);
 
-		const core::rect<s32> poss(targetPos, sourceSize);
+		const core::rect<s32> poss(targetPos, sourceRect.getSize());
 
 		f32 left  = (f32)poss.UpperLeftCorner.X;
 		f32 right = (f32)poss.LowerRightCorner.X;
@@ -1065,21 +1062,18 @@ void COpenGL3DriverBase::endDraw(const VertexType &vertexType)
 		GL.DisableVertexAttribArray(attr.Index);
 }
 
-ITexture *COpenGL3DriverBase::createDeviceDependentTexture(const io::path &name, IImage *image)
+ITexture *COpenGL3DriverBase::createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type, const std::vector<IImage*> &images)
 {
-	std::vector<IImage*> tmp { image };
-
-	COpenGL3Texture *texture = new COpenGL3Texture(name, tmp, ETT_2D, this);
-
-	return texture;
+	return new COpenGL3Texture(name, images, type, this);
 }
 
-ITexture *COpenGL3DriverBase::createDeviceDependentTextureCubemap(const io::path &name, const std::vector<IImage*> &image)
-{
-	COpenGL3Texture *texture = new COpenGL3Texture(name, image, ETT_CUBEMAP, this);
-
-	return texture;
-}
+// Same as COpenGLDriver::TextureFlipMatrix
+static const core::matrix4 s_texture_flip_matrix = {
+	1,  0, 0, 0,
+	0, -1, 0, 0,
+	0,  1, 1, 0,
+	0,  0, 0, 1
+};
 
 //! Sets a material.
 void COpenGL3DriverBase::setMaterial(const SMaterial &material)
@@ -1091,7 +1085,11 @@ void COpenGL3DriverBase::setMaterial(const SMaterial &material)
 		auto *texture = material.getTexture(i);
 		CacheHandler->getTextureCache().set(i, texture);
 		if (texture) {
-			setTransform((E_TRANSFORMATION_STATE)(ETS_TEXTURE_0 + i), material.getTextureMatrix(i));
+			setTransform((E_TRANSFORMATION_STATE)(ETS_TEXTURE_0 + i),
+				texture->isRenderTarget()
+					? material.getTextureMatrix(i) * s_texture_flip_matrix
+					: material.getTextureMatrix(i)
+			);
 		}
 	}
 }

@@ -162,7 +162,7 @@ private:
 		{
 			u32 id = in.getIdentifier();
 
-			std::map<u32, Area>::iterator itr = m_store->areas_map.find(id);
+			auto itr = m_store->areas_map.find(id);
 			assert(itr != m_store->areas_map.end());
 			m_result->push_back(&itr->second);
 		}

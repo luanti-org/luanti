@@ -60,9 +60,37 @@ public:
 			lua_CFunction func,
 			int top);
 
-	static void registerClass(lua_State *L, const char *name,
+	template<typename T>
+	static void registerClass(lua_State *L,
 			const luaL_Reg *methods,
-			const luaL_Reg *metamethods);
+			const luaL_Reg *metamethods)
+	{
+		luaL_newmetatable(L, T::className);
+		luaL_register(L, NULL, metamethods);
+		int metatable = lua_gettop(L);
+
+		lua_newtable(L);
+		luaL_register(L, NULL, methods);
+		int methodtable = lua_gettop(L);
+
+		lua_pushvalue(L, methodtable);
+		lua_setfield(L, metatable, "__index");
+
+		lua_getfield(L, metatable, "__tostring");
+		bool default_tostring = lua_isnil(L, -1);
+		lua_pop(L, 1);
+		if (default_tostring) {
+			lua_pushcfunction(L, ModApiBase::defaultToString<T>);
+			lua_setfield(L, metatable, "__tostring");
+		}
+
+		// Protect the real metatable.
+		lua_pushvalue(L, methodtable);
+		lua_setfield(L, metatable, "__metatable");
+
+		// Pop methodtable and metatable.
+		lua_pop(L, 2);
+	}
 
 	template<typename T>
 	static inline T *checkObject(lua_State *L, int narg)
@@ -84,4 +112,14 @@ public:
 	 * @return value from `func`
 	 */
 	static int l_deprecated_function(lua_State *L, const char *good, const char *bad, lua_CFunction func);
+
+private:
+
+	template<typename T>
+	static int defaultToString(lua_State *L)
+	{
+		auto *t = checkObject<T>(L, 1);
+		lua_pushfstring(L, "%s: %p", T::className, t);
+		return 1;
+	}
 };

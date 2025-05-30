@@ -7,6 +7,7 @@
 #include "irrlichttypes_bloated.h"
 #include <string>
 #include <iostream>
+#include <memory> // shared_ptr
 #include <map>
 #include "mapnode.h"
 #include "nameidmapping.h"
@@ -341,7 +342,7 @@ struct ContentFeatures
 	enum NodeDrawType drawtype;
 	std::string mesh;
 #if CHECK_CLIENT_BUILD()
-	scene::IMesh *mesh_ptr; // mesh in case of mesh node
+	scene::SMesh *mesh_ptr; // mesh in case of mesh node
 	video::SColor minimap_color;
 #endif
 	float visual_scale; // Misc. scale parameter

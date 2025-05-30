@@ -24,6 +24,55 @@
 #include "util/serialize.h"
 #include "util/basic_macros.h"
 
+// Like a std::unordered_map<content_t, content_t>, but faster.
+//
+// Unassigned entries are marked with 0xFFFF.
+//
+// The static memory requires about 65535 * 2 bytes RAM in order to be
+// sure we can handle all content ids.
+class IdIdMapping
+{
+	static_assert(sizeof(content_t) == 2, "content_t must be 16-bit");
+
+private:
+	std::unique_ptr<content_t[]> m_mapping;
+	std::vector<content_t> m_dirty;
+
+public:
+	IdIdMapping()
+	{
+		m_mapping = std::make_unique<content_t[]>(CONTENT_MAX + 1);
+		memset(m_mapping.get(), 0xFF, (CONTENT_MAX + 1) * sizeof(content_t));
+	}
+
+	DISABLE_CLASS_COPY(IdIdMapping)
+
+	content_t get(content_t k) const
+	{
+		return m_mapping[k];
+	}
+
+	void set(content_t k, content_t v)
+	{
+		m_mapping[k] = v;
+		m_dirty.push_back(k);
+	}
+
+	void clear()
+	{
+		for (auto k : m_dirty)
+			m_mapping[k] = 0xFFFF;
+		m_dirty.clear();
+	}
+
+	static IdIdMapping &giveClearedThreadLocalInstance()
+	{
+		static thread_local IdIdMapping tl_ididmapping;
+		tl_ididmapping.clear();
+		return tl_ididmapping;
+	}
+};
+
 static const char *modified_reason_strings[] = {
 	"reallocate or initial",
 	"setIsUnderground",
@@ -120,20 +169,19 @@ bool MapBlock::saveStaticObject(u16 id, const StaticObject &obj, u32 reason)
 	return true;
 }
 
-// This method is only for Server, don't call it on client
 void MapBlock::step(float dtime, const std::function<bool(v3s16, MapNode, f32)> &on_timer_cb)
 {
-	// Run script callbacks for elapsed node_timers
+	// Run callbacks for elapsed node_timers
 	std::vector<NodeTimer> elapsed_timers = m_node_timers.step(dtime);
-	if (!elapsed_timers.empty()) {
-		MapNode n;
-		v3s16 p;
-		for (const NodeTimer &elapsed_timer : elapsed_timers) {
-			n = getNodeNoEx(elapsed_timer.position);
-			p = elapsed_timer.position + getPosRelative();
-			if (on_timer_cb(p, n, elapsed_timer.elapsed))
-				setNodeTimer(NodeTimer(elapsed_timer.timeout, 0, elapsed_timer.position));
-		}
+	MapNode n;
+	v3s16 p;
+	for (const auto &it : elapsed_timers) {
+		n = getNodeNoEx(it.position);
+		p = it.position + getPosRelative();
+		if (on_timer_cb(p, n, it.elapsed))
+			setNodeTimer(NodeTimer(it.timeout, 0, it.position));
+		if (isOrphan())
+			return;
 	}
 }
 
@@ -213,16 +261,7 @@ void MapBlock::expireIsAirCache()
 static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 	const NodeDefManager *nodedef)
 {
-	// The static memory requires about 65535 * 2 bytes RAM in order to be
-	// sure we can handle all content ids. But it's absolutely worth it as it's
-	// a speedup of 4 for one of the major time consuming functions on storing
-	// mapblocks.
-	thread_local std::unique_ptr<content_t[]> mapping;
-	static_assert(sizeof(content_t) == 2, "content_t must be 16-bit");
-	if (!mapping)
-		mapping = std::make_unique<content_t[]>(CONTENT_MAX + 1);
-
-	memset(mapping.get(), 0xFF, (CONTENT_MAX + 1) * sizeof(content_t));
+	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
 
 	content_t id_counter = 0;
 	for (u32 i = 0; i < MapBlock::nodecount; i++) {
@@ -230,12 +269,12 @@ static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 		content_t id = CONTENT_IGNORE;
 
 		// Try to find an existing mapping
-		if (mapping[global_id] != 0xFFFF) {
-			id = mapping[global_id];
+		if (auto found = mapping.get(global_id); found != 0xFFFF) {
+			id = found;
 		} else {
 			// We have to assign a new mapping
 			id = id_counter++;
-			mapping[global_id] = id;
+			mapping.set(global_id, id);
 
 			const auto &name = nodedef->get(global_id).name;
 			nimap->set(id, name);
@@ -260,25 +299,20 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 	std::unordered_set<content_t> unnamed_contents;
 	std::unordered_set<std::string> unallocatable_contents;
 
-	bool previous_exists = false;
-	content_t previous_local_id = CONTENT_IGNORE;
-	content_t previous_global_id = CONTENT_IGNORE;
+	// Used to cache local to global id lookup.
+	IdIdMapping &mapping_cache = IdIdMapping::giveClearedThreadLocalInstance();
 
 	for (u32 i = 0; i < MapBlock::nodecount; i++) {
 		content_t local_id = nodes[i].getContent();
-		// If previous node local_id was found and same than before, don't lookup maps
-		// apply directly previous resolved id
-		// This permits to massively improve loading performance when nodes are similar
-		// example: default:air, default:stone are massively present
-		if (previous_exists && local_id == previous_local_id) {
-			nodes[i].setContent(previous_global_id);
+
+		if (auto found = mapping_cache.get(local_id); found != 0xFFFF) {
+			nodes[i].setContent(found);
 			continue;
 		}
 
 		std::string name;
 		if (!nimap->getName(local_id, name)) {
 			unnamed_contents.insert(local_id);
-			previous_exists = false;
 			continue;
 		}
 
@@ -287,16 +321,13 @@ static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 			global_id = gamedef->allocateUnknownNodeId(name);
 			if (global_id == CONTENT_IGNORE) {
 				unallocatable_contents.insert(name);
-				previous_exists = false;
 				continue;
 			}
 		}
 		nodes[i].setContent(global_id);
 
 		// Save previous node local_id & global_id result
-		previous_local_id = local_id;
-		previous_global_id = global_id;
-		previous_exists = true;
+		mapping_cache.set(local_id, global_id);
 	}
 
 	for (const content_t c: unnamed_contents) {

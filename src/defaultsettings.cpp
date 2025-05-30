@@ -82,6 +82,7 @@ void set_default_settings()
 
 	// Client
 	settings->setDefault("address", "");
+	settings->setDefault("remote_port", "30000");
 #if defined(__unix__) && !defined(__APPLE__) && !defined (__ANDROID__)
 	// On Linux+X11 (not Linux+Wayland or Linux+XWayland), I've encountered a bug
 	// where fake mouse events were generated from touch events if in relative
@@ -112,7 +113,7 @@ void set_default_settings()
 	settings->setDefault("screenshot_format", "png");
 	settings->setDefault("screenshot_quality", "0");
 	settings->setDefault("client_unload_unused_data_timeout", "600");
-	settings->setDefault("client_mapblock_limit", "7500");
+	settings->setDefault("client_mapblock_limit", "7500"); // about 120 MB
 	settings->setDefault("enable_build_where_you_stand", "false");
 	settings->setDefault("curl_timeout", "20000");
 	settings->setDefault("curl_parallel_limit", "8");
@@ -128,65 +129,74 @@ void set_default_settings()
 	settings->setDefault("chat_weblink_color", "#8888FF");
 
 	// Keymap
-	settings->setDefault("remote_port", "30000");
-	settings->setDefault("keymap_forward", "KEY_KEY_W");
+#if USE_SDL2
+#define USEKEY2(name, value, _) settings->setDefault(name, value)
+#else
+#define USEKEY2(name, _, value) settings->setDefault(name, value)
+#endif
+	USEKEY2("keymap_forward", "SYSTEM_SCANCODE_26", "KEY_KEY_W");
 	settings->setDefault("keymap_autoforward", "");
-	settings->setDefault("keymap_backward", "KEY_KEY_S");
-	settings->setDefault("keymap_left", "KEY_KEY_A");
-	settings->setDefault("keymap_right", "KEY_KEY_D");
-	settings->setDefault("keymap_jump", "KEY_SPACE");
-	settings->setDefault("keymap_sneak", "KEY_LSHIFT");
+	USEKEY2("keymap_backward", "SYSTEM_SCANCODE_22", "KEY_KEY_S");
+	USEKEY2("keymap_left", "SYSTEM_SCANCODE_4", "KEY_KEY_A");
+	USEKEY2("keymap_right", "SYSTEM_SCANCODE_7", "KEY_KEY_D");
+	USEKEY2("keymap_jump", "SYSTEM_SCANCODE_44", "KEY_SPACE");
+#if !USE_SDL2 && defined(__MACH__) && defined(__APPLE__)
+	// Altered settings for CIrrDeviceOSX
+	settings->setDefault("keymap_sneak", "KEY_SHIFT");
+#else
+	USEKEY2("keymap_sneak", "SYSTEM_SCANCODE_225", "KEY_LSHIFT");
+#endif
 	settings->setDefault("keymap_dig", "KEY_LBUTTON");
 	settings->setDefault("keymap_place", "KEY_RBUTTON");
-	settings->setDefault("keymap_drop", "KEY_KEY_Q");
-	settings->setDefault("keymap_zoom", "KEY_KEY_Z");
-	settings->setDefault("keymap_inventory", "KEY_KEY_I");
-	settings->setDefault("keymap_aux1", "KEY_KEY_E");
-	settings->setDefault("keymap_chat", "KEY_KEY_T");
-	settings->setDefault("keymap_cmd", "/");
-	settings->setDefault("keymap_cmd_local", ".");
-	settings->setDefault("keymap_minimap", "KEY_KEY_V");
-	settings->setDefault("keymap_console", "KEY_F10");
+	USEKEY2("keymap_drop", "SYSTEM_SCANCODE_20", "KEY_KEY_Q");
+	USEKEY2("keymap_zoom", "SYSTEM_SCANCODE_29", "KEY_KEY_Z");
+	USEKEY2("keymap_inventory", "SYSTEM_SCANCODE_12", "KEY_KEY_I");
+	USEKEY2("keymap_aux1", "SYSTEM_SCANCODE_8", "KEY_KEY_E");
+	USEKEY2("keymap_chat", "SYSTEM_SCANCODE_23", "KEY_KEY_T");
+	USEKEY2("keymap_cmd", "SYSTEM_SCANCODE_56", "/");
+	USEKEY2("keymap_cmd_local", "SYSTEM_SCANCODE_55", ".");
+	USEKEY2("keymap_minimap", "SYSTEM_SCANCODE_25", "KEY_KEY_V");
+	USEKEY2("keymap_console", "SYSTEM_SCANCODE_67", "KEY_F10");
 
 	// see <https://github.com/luanti-org/luanti/issues/12792>
-	settings->setDefault("keymap_rangeselect", has_touch ? "KEY_KEY_R" : "");
+	USEKEY2("keymap_rangeselect", has_touch ? "SYSTEM_SCANCODE_21" : "", has_touch ? "KEY_KEY_R" : "");
 
-	settings->setDefault("keymap_freemove", "KEY_KEY_K");
+	USEKEY2("keymap_freemove", "SYSTEM_SCANCODE_14", "KEY_KEY_K");
 	settings->setDefault("keymap_pitchmove", "");
-	settings->setDefault("keymap_fastmove", "KEY_KEY_J");
-	settings->setDefault("keymap_noclip", "KEY_KEY_H");
-	settings->setDefault("keymap_hotbar_next", "KEY_KEY_N");
-	settings->setDefault("keymap_hotbar_previous", "KEY_KEY_B");
-	settings->setDefault("keymap_mute", "KEY_KEY_M");
+	USEKEY2("keymap_fastmove", "SYSTEM_SCANCODE_13", "KEY_KEY_J");
+	USEKEY2("keymap_noclip", "SYSTEM_SCANCODE_11", "KEY_KEY_H");
+	USEKEY2("keymap_hotbar_next", "SYSTEM_SCANCODE_17", "KEY_KEY_N");
+	USEKEY2("keymap_hotbar_previous", "SYSTEM_SCANCODE_5", "KEY_KEY_B");
+	USEKEY2("keymap_mute", "SYSTEM_SCANCODE_16", "KEY_KEY_M");
 	settings->setDefault("keymap_increase_volume", "");
 	settings->setDefault("keymap_decrease_volume", "");
 	settings->setDefault("keymap_cinematic", "");
 	settings->setDefault("keymap_toggle_block_bounds", "");
-	settings->setDefault("keymap_toggle_hud", "KEY_F1");
-	settings->setDefault("keymap_toggle_chat", "KEY_F2");
-	settings->setDefault("keymap_toggle_fog", "KEY_F3");
+	USEKEY2("keymap_toggle_hud", "SYSTEM_SCANCODE_58", "KEY_F1");
+	USEKEY2("keymap_toggle_chat", "SYSTEM_SCANCODE_59", "KEY_F2");
+	USEKEY2("keymap_toggle_fog", "SYSTEM_SCANCODE_60", "KEY_F3");
 #ifndef NDEBUG
-	settings->setDefault("keymap_toggle_update_camera", "KEY_F4");
+	USEKEY2("keymap_toggle_update_camera", "SYSTEM_SCANCODE_61", "KEY_F4");
 #else
 	settings->setDefault("keymap_toggle_update_camera", "");
 #endif
-	settings->setDefault("keymap_toggle_debug", "KEY_F5");
-	settings->setDefault("keymap_toggle_profiler", "KEY_F6");
-	settings->setDefault("keymap_camera_mode", "KEY_KEY_C");
-	settings->setDefault("keymap_screenshot", "KEY_F12");
-	settings->setDefault("keymap_fullscreen", "KEY_F11");
-	settings->setDefault("keymap_increase_viewing_range_min", "+");
-	settings->setDefault("keymap_decrease_viewing_range_min", "-");
-	settings->setDefault("keymap_slot1", "KEY_KEY_1");
-	settings->setDefault("keymap_slot2", "KEY_KEY_2");
-	settings->setDefault("keymap_slot3", "KEY_KEY_3");
-	settings->setDefault("keymap_slot4", "KEY_KEY_4");
-	settings->setDefault("keymap_slot5", "KEY_KEY_5");
-	settings->setDefault("keymap_slot6", "KEY_KEY_6");
-	settings->setDefault("keymap_slot7", "KEY_KEY_7");
-	settings->setDefault("keymap_slot8", "KEY_KEY_8");
-	settings->setDefault("keymap_slot9", "KEY_KEY_9");
-	settings->setDefault("keymap_slot10", "KEY_KEY_0");
+	USEKEY2("keymap_toggle_debug", "SYSTEM_SCANCODE_62", "KEY_F5");
+	USEKEY2("keymap_toggle_profiler", "SYSTEM_SCANCODE_63", "KEY_F6");
+	USEKEY2("keymap_camera_mode", "SYSTEM_SCANCODE_6", "KEY_KEY_C");
+	USEKEY2("keymap_screenshot", "SYSTEM_SCANCODE_69", "KEY_F12");
+	USEKEY2("keymap_fullscreen", "SYSTEM_SCANCODE_68", "KEY_F11");
+	USEKEY2("keymap_increase_viewing_range_min", "SYSTEM_SCANCODE_46", "+");
+	USEKEY2("keymap_decrease_viewing_range_min", "SYSTEM_SCANCODE_45", "-");
+	USEKEY2("keymap_slot1", "SYSTEM_SCANCODE_30", "KEY_KEY_1");
+	USEKEY2("keymap_slot2", "SYSTEM_SCANCODE_31", "KEY_KEY_2");
+	USEKEY2("keymap_slot3", "SYSTEM_SCANCODE_32", "KEY_KEY_3");
+	USEKEY2("keymap_slot4", "SYSTEM_SCANCODE_33", "KEY_KEY_4");
+	USEKEY2("keymap_slot5", "SYSTEM_SCANCODE_34", "KEY_KEY_5");
+	USEKEY2("keymap_slot6", "SYSTEM_SCANCODE_35", "KEY_KEY_6");
+	USEKEY2("keymap_slot7", "SYSTEM_SCANCODE_36", "KEY_KEY_7");
+	USEKEY2("keymap_slot8", "SYSTEM_SCANCODE_37", "KEY_KEY_8");
+	USEKEY2("keymap_slot9", "SYSTEM_SCANCODE_38", "KEY_KEY_9");
+	USEKEY2("keymap_slot10", "SYSTEM_SCANCODE_39", "KEY_KEY_0");
 	settings->setDefault("keymap_slot11", "");
 	settings->setDefault("keymap_slot12", "");
 	settings->setDefault("keymap_slot13", "");
@@ -212,16 +222,17 @@ void set_default_settings()
 
 #ifndef NDEBUG
 	// Default keybinds for quicktune in debug builds
-	settings->setDefault("keymap_quicktune_prev", "KEY_HOME");
-	settings->setDefault("keymap_quicktune_next", "KEY_END");
-	settings->setDefault("keymap_quicktune_dec", "KEY_NEXT");
-	settings->setDefault("keymap_quicktune_inc", "KEY_PRIOR");
+	USEKEY2("keymap_quicktune_prev", "SYSTEM_SCANCODE_74", "KEY_HOME");
+	USEKEY2("keymap_quicktune_next", "SYSTEM_SCANCODE_77", "KEY_END");
+	USEKEY2("keymap_quicktune_dec", "SYSTEM_SCANCODE_81", "KEY_NEXT");
+	USEKEY2("keymap_quicktune_inc", "SYSTEM_SCANCODE_82", "KEY_PRIOR");
 #else
 	settings->setDefault("keymap_quicktune_prev", "");
 	settings->setDefault("keymap_quicktune_next", "");
 	settings->setDefault("keymap_quicktune_dec", "");
 	settings->setDefault("keymap_quicktune_inc", "");
 #endif
+#undef USEKEY2
 
 	// Visuals
 #ifdef NDEBUG
@@ -235,7 +246,7 @@ void set_default_settings()
 	settings->setDefault("undersampling", "1");
 	settings->setDefault("world_aligned_mode", "enable");
 	settings->setDefault("autoscale_mode", "disable");
-	settings->setDefault("texture_min_size", "64");
+	settings->setDefault("texture_min_size", std::to_string(TEXTURE_FILTER_MIN_SIZE));
 	settings->setDefault("enable_fog", "true");
 	settings->setDefault("fog_start", "0.4");
 	settings->setDefault("3d_mode", "none");
@@ -270,7 +281,6 @@ void set_default_settings()
 	settings->setDefault("camera_smoothing", "0.0");
 	settings->setDefault("cinematic_camera_smoothing", "0.7");
 	settings->setDefault("view_bobbing_amount", "1.0");
-	settings->setDefault("fall_bobbing_amount", "0.03");
 	settings->setDefault("enable_3d_clouds", "true");
 	settings->setDefault("soft_clouds", "false");
 	settings->setDefault("cloud_radius", "12");
@@ -330,7 +340,6 @@ void set_default_settings()
 	settings->setDefault("enable_volumetric_lighting", "false");
 	settings->setDefault("enable_water_reflections", "false");
 	settings->setDefault("enable_translucent_foliage", "false");
-	settings->setDefault("enable_node_specular", "false");
 
 	// Effects Shadows
 	settings->setDefault("enable_dynamic_shadows", "false");
@@ -357,6 +366,8 @@ void set_default_settings()
 	settings->setDefault("aux1_descends", "false");
 	settings->setDefault("doubletap_jump", "false");
 	settings->setDefault("always_fly_fast", "true");
+	settings->setDefault("toggle_sneak_key", "false");
+	settings->setDefault("toggle_aux1_key", "false");
 	settings->setDefault("autojump", bool_to_cstr(has_touch));
 	settings->setDefault("continuous_forward", "false");
 	settings->setDefault("enable_joysticks", "false");
@@ -533,20 +544,16 @@ void set_default_settings()
 	settings->setDefault("display_density_factor", "1");
 	settings->setDefault("dpi_change_notifier", "0");
 
-	// Altered settings for CIrrDeviceOSX
-#if !USE_SDL2 && defined(__MACH__) && defined(__APPLE__)
-	settings->setDefault("keymap_sneak", "KEY_SHIFT");
-#endif
-
 	settings->setDefault("touch_layout", "");
 	settings->setDefault("touchscreen_sensitivity", "0.2");
 	settings->setDefault("touchscreen_threshold", "20");
 	settings->setDefault("touch_long_tap_delay", "400");
-	settings->setDefault("touch_use_crosshair", "false");
 	settings->setDefault("fixed_virtual_joystick", "false");
 	settings->setDefault("virtual_joystick_triggers_aux1", "false");
+	settings->setDefault("touch_interaction_style", "tap");
 	settings->setDefault("touch_punch_gesture", "short_tap");
 	settings->setDefault("clickable_chat_weblinks", "true");
+
 	// Altered settings for Android
 #ifdef __ANDROID__
 	settings->setDefault("screen_w", "0");
@@ -558,9 +565,9 @@ void set_default_settings()
 	settings->setDefault("max_block_generate_distance", "5");
 	settings->setDefault("sqlite_synchronous", "1");
 	settings->setDefault("server_map_save_interval", "15");
-	settings->setDefault("client_mapblock_limit", "1000");
+	settings->setDefault("client_mapblock_limit", "1500");
 	settings->setDefault("active_block_range", "2");
-	settings->setDefault("viewing_range", "50");
+	settings->setDefault("viewing_range", "70");
 	settings->setDefault("leaves_style", "simple");
 	// Note: OpenGL ES 2.0 is not guaranteed to provide depth textures,
 	// which we would need for PP.
@@ -568,6 +575,7 @@ void set_default_settings()
 	// still set these two settings in case someone wants to enable it
 	settings->setDefault("debanding", "false");
 	settings->setDefault("post_processing_texture_bits", "8");
+	// We don't have working certificate verification...
 	settings->setDefault("curl_verify_cert", "false");
 
 	// Apply settings according to screen size

@@ -24,9 +24,6 @@ enum EGUI_ELEMENT_TYPE
 	//! A combo box (IGUIComboBox)
 	EGUIET_COMBO_BOX,
 
-	//! A context menu (IGUIContextMenu)
-	EGUIET_CONTEXT_MENU,
-
 	//! A menu (IGUIMenu)
 	EGUIET_MENU,
 
@@ -36,35 +33,20 @@ enum EGUI_ELEMENT_TYPE
 	//! A file open dialog (IGUIFileOpenDialog)
 	EGUIET_FILE_OPEN_DIALOG,
 
-	//! A color select open dialog (IGUIColorSelectDialog)
-	EGUIET_COLOR_SELECT_DIALOG,
-
-	//! A in/out fader (IGUIInOutFader)
-	EGUIET_IN_OUT_FADER,
-
 	//! An image (IGUIImage)
 	EGUIET_IMAGE,
 
 	//! A list box (IGUIListBox)
 	EGUIET_LIST_BOX,
 
-	//! A mesh viewer (IGUIMeshViewer)
-	EGUIET_MESH_VIEWER,
-
-	//! A message box (IGUIWindow)
-	EGUIET_MESSAGE_BOX,
-
-	//! A modal screen
-	EGUIET_MODAL_SCREEN,
-
 	//! A scroll bar (IGUIScrollBar)
 	EGUIET_SCROLL_BAR,
 
-	//! A spin box (IGUISpinBox)
-	EGUIET_SPIN_BOX,
-
 	//! A static text (IGUIStaticText)
 	EGUIET_STATIC_TEXT,
+
+	//! A table (GUITable)
+	EGUIET_TABLE,
 
 	//! A tab (IGUITab)
 	EGUIET_TAB,
@@ -72,17 +54,8 @@ enum EGUI_ELEMENT_TYPE
 	//! A tab control
 	EGUIET_TAB_CONTROL,
 
-	//! A Table
-	EGUIET_TABLE,
-
 	//! A tool bar (IGUIToolBar)
 	EGUIET_TOOL_BAR,
-
-	//! A Tree View
-	EGUIET_TREE_VIEW,
-
-	//! A window
-	EGUIET_WINDOW,
 
 	//! Unknown type.
 	EGUIET_ELEMENT,
@@ -97,37 +70,6 @@ enum EGUI_ELEMENT_TYPE
 	EGUIET_FORCE_32_BIT = 0x7fffffff
 
 };
-
-//! Names for built-in element types
-const c8 *const GUIElementTypeNames[] = {
-		"button",
-		"checkBox",
-		"comboBox",
-		"contextMenu",
-		"menu",
-		"editBox",
-		"fileOpenDialog",
-		"colorSelectDialog",
-		"inOutFader",
-		"image",
-		"listBox",
-		"meshViewer",
-		"messageBox",
-		"modalScreen",
-		"scrollBar",
-		"spinBox",
-		"staticText",
-		"tab",
-		"tabControl",
-		"table",
-		"toolBar",
-		"treeview",
-		"window",
-		"element",
-		"root",
-		"profiler",
-		0,
-	};
 
 } // end namespace gui
 } // end namespace irr

@@ -1,13 +1,15 @@
-Luanti (formerly Minetest)
-==========================
-
-![Build Status](https://github.com/luanti-org/luanti/workflows/build/badge.svg)
-[![Translation status](https://hosted.weblate.org/widgets/minetest/-/svg-badge.svg)](https://hosted.weblate.org/engage/minetest/?utm_source=widget)
-[![License](https://img.shields.io/badge/license-LGPLv2.1%2B-blue.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
+<div align="center">
+    <img src="textures/base/pack/logo.png" width="32%">
+    <h1>Luanti (formerly Minetest)</h1>
+    <img src="https://github.com/luanti-org/luanti/workflows/build/badge.svg" alt="Build Status">
+    <a href="https://hosted.weblate.org/engage/minetest/?utm_source=widget"><img src="https://hosted.weblate.org/widgets/minetest/-/svg-badge.svg" alt="Translation status"></a>
+    <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html"><img src="https://img.shields.io/badge/license-LGPLv2.1%2B-blue.svg" alt="License"></a>
+</div>
+<br>
 
 Luanti is a free open-source voxel game engine with easy modding and game creation.
 
-Copyright (C) 2010-2024 Perttu Ahola <celeron55@gmail.com>
+Copyright (C) 2010-2025 Perttu Ahola <celeron55@gmail.com>
 and contributors (see source file comments and the version control log)
 
 Table of Contents
@@ -55,6 +57,7 @@ Some can be changed in the key config dialog in the settings tab.
 | T                             | Chat                                                           |
 | /                             | Command                                                        |
 | Esc                           | Pause menu/abort/exit (pauses only singleplayer game)          |
+| Shift + Esc                   | Exit directly to main menu from anywhere, bypassing pause menu |
 | +                             | Increase view range                                            |
 | -                             | Decrease view range                                            |
 | K                             | Enable/disable fly mode (needs fly privilege)                  |

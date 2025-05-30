@@ -193,7 +193,7 @@ void Particle::updateVertices(ClientEnvironment *env, video::SColor color)
 	video::S3DVertex *vertices = m_buffer->getVertices(m_index);
 
 	if (m_texture.tex != nullptr)
-		scale = m_texture.tex -> scale.blend(m_time / (m_expiration+0.1));
+		scale = m_texture.tex -> scale.blend(m_time / (m_expiration+0.1f));
 	else
 		scale = v2f(1.f, 1.f);
 
@@ -203,7 +203,7 @@ void Particle::updateVertices(ClientEnvironment *env, video::SColor color)
 		v2u32 framesize;
 		texcoord = m_p.animation.getTextureCoords(texsize, m_animation_frame);
 		m_p.animation.determineParams(texsize, NULL, NULL, &framesize);
-		framesize_f = v2f(framesize.X / (float) texsize.X, framesize.Y / (float) texsize.Y);
+		framesize_f = v2f::from(framesize) / v2f::from(texsize);
 
 		tx0 = m_texpos.X + texcoord.X;
 		tx1 = m_texpos.X + texcoord.X + framesize_f.X * m_texsize.X;

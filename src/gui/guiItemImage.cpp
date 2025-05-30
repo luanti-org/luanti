@@ -4,7 +4,7 @@
 
 #include "guiItemImage.h"
 #include "client/client.h"
-#include "client/hud.h" // drawItemStack
+#include "drawItemStack.h"
 #include "inventory.h"
 #include <IGUIFont.h>
 

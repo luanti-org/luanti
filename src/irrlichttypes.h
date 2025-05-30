@@ -4,12 +4,7 @@
 
 #pragma once
 
-/*
- * IrrlichtMt already includes stdint.h in irrTypes.h. This works everywhere
- * we need it to (including recent MSVC), so should be fine here too.
- */
 #include <cstdint>
-
 #include <irrTypes.h>
 
 using namespace irr;

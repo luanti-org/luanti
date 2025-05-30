@@ -78,7 +78,7 @@ struct ModSpec
  *
  * @returns false if not a mod
  */
-bool parseModContents(ModSpec &mod);
+[[nodiscard]] bool parseModContents(ModSpec &mod);
 
 /**
  * Gets a list of all mods and modpacks in path

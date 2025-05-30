@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-    <id>net.minetest.minetest</id>
+    <id>org.luanti.luanti</id>
+    <provides>
+        <id>net.minetest.minetest</id>
+    </provides>
+    <replaces>
+        <id>net.minetest.minetest</id>
+    </replaces>
 
     <name>Luanti</name>
     <summary>Block-based multiplayer game platform</summary>
@@ -10,7 +16,7 @@
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>LGPL-2.1+ AND CC-BY-SA-3.0 AND MIT AND Apache-2.0</project_license>
 
-    <developer id="net.minetest">
+    <developer id="org.luanti">
         <name>Luanti Team</name>
     </developer>
 
@@ -25,11 +31,30 @@
         <display_length compare="ge">360</display_length>
     </requires>
 
-    <content_rating type="oars-1.0">
+    <content_rating type="oars-1.1">
         <content_attribute id="violence-cartoon">mild</content_attribute>
         <content_attribute id="violence-fantasy">mild</content_attribute>
+        <content_attribute id="violence-realistic">none</content_attribute>
+        <content_attribute id="violence-bloodshed">none</content_attribute>
+        <content_attribute id="violence-sexual">none</content_attribute>
+        <content_attribute id="violence-desecration">none</content_attribute>
+        <content_attribute id="violence-slavery">none</content_attribute>
+        <content_attribute id="drugs-alcohol">none</content_attribute>
+        <content_attribute id="drugs-narcotics">none</content_attribute>
+        <content_attribute id="drugs-tobacco">none</content_attribute>
+        <content_attribute id="sex-nudity">none</content_attribute>
+        <content_attribute id="sex-themes">none</content_attribute>
+        <content_attribute id="language-profanity">none</content_attribute>
+        <content_attribute id="language-humor">none</content_attribute>
+        <content_attribute id="language-discrimination">none</content_attribute>
         <content_attribute id="social-chat">intense</content_attribute>
         <content_attribute id="social-info">mild</content_attribute>
+        <content_attribute id="social-audio">none</content_attribute>
+        <content_attribute id="social-location">none</content_attribute>
+        <content_attribute id="social-contacts">none</content_attribute>
+        <content_attribute id="money-purchasing">none</content_attribute>
+        <content_attribute id="money-advertising">none</content_attribute>
+        <content_attribute id="money-gambling">none</content_attribute>
     </content_rating>
 
     <description>
@@ -100,7 +125,7 @@
         </ul>
     </description>
 
-    <launchable type="desktop-id">net.minetest.minetest.desktop</launchable>
+    <launchable type="desktop-id">org.luanti.luanti.desktop</launchable>
     <screenshots>
         <screenshot type="default">
             <image>https://www.luanti.org/media/gallery/1.jpg</image>
@@ -149,6 +174,6 @@
     <update_contact>celeron55@gmail.com</update_contact>
 
     <releases>
-        <release date="2025-02-14" version="5.11.0"/>
+        <release date="2025-05-23" version="5.12.0"/>
     </releases>
 </component>

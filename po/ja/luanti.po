@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Japanese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 13:23+0100\n"
-"PO-Revision-Date: 2024-11-04 01:00+0000\n"
-"Last-Translator: BreadW <toshiharu.uno@gmail.com>\n"
+"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"PO-Revision-Date: 2025-03-17 02:51+0000\n"
+"Last-Translator: Jun Nogata <nogajun@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/minetest/"
 "minetest/ja/>\n"
 "Language: ja\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.8.2\n"
+"X-Generator: Weblate 5.11-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -82,8 +82,17 @@ msgid "Browse"
 msgstr "参照"
 
 #: builtin/common/settings/components.lua
+msgid "Conflicts with \"$1\""
+msgstr ""
+
+#: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "編集"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Remove keybinding"
+msgstr "キーに対する機能の割り当てです。"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -111,8 +120,8 @@ msgstr "2Dノイズ"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
+#: src/gui/guiPasswordChange.cpp
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -134,7 +143,7 @@ msgid "Persistence"
 msgstr "永続性"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "Save"
 msgstr "保存"
 
@@ -207,8 +216,18 @@ msgstr "アクセシビリティ"
 msgid "Auto"
 msgstr "自動"
 
-#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+msgid "Back"
+msgstr "戻る"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Buttons with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
+#: src/settings_translation_file.cpp
 msgid "Chat"
 msgstr "チャット"
 
@@ -234,6 +253,10 @@ msgid "General"
 msgstr "一般"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Long tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
 msgstr "動き"
 
@@ -255,6 +278,10 @@ msgid "Search"
 msgstr "検索"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Short tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
 msgstr "高度な設定を表示"
 
@@ -264,13 +291,16 @@ msgstr "技術名称を表示"
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "Touchscreen layout"
-msgstr "タッチスクリーン"
+msgid "Tap"
+msgstr "Tab"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
-msgid "pause_menu"
-msgstr "ポーズメニューでのFPS"
+msgid "Tap with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Touchscreen layout"
+msgstr "タッチスクリーンレイアウト"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -402,11 +432,6 @@ msgid "All"
 msgstr "すべて"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Back"
-msgstr "戻る"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr "LuantiがcURLなしでコンパイルされたとき、コンテンツDBは利用できません"
 
@@ -431,10 +456,9 @@ msgstr "読み込み中..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Mods"
-msgstr "MOD"
+msgstr "Mod"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "パッケージを取得できませんでした"
 
@@ -536,6 +560,15 @@ msgid "Donate"
 msgstr "寄付"
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading package information"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "Error loading reviews"
+msgstr "クライアント作成中にエラー: %s"
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
 msgstr "フォーラムトピック"
 
@@ -550,6 +583,10 @@ msgstr "入手 [$1]"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
 msgstr "問題追跡"
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Reviews"
+msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -605,7 +642,7 @@ msgstr "$1をテクスチャパックとしてインストールすることが�
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
-"This is the list of clients connected to\n"
+"Players connected to\n"
 "$1"
 msgstr ""
 
@@ -893,6 +930,32 @@ msgstr "pkgmgr: パス「$1」は無効"
 msgid "Delete World \"$1\"?"
 msgstr "ワールド「$1」を削除しますか？"
 
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Keybindings changed"
+msgstr "キーに対する機能の割り当てです。"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Open settings"
+msgstr "設定"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr ""
+
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
 msgstr "パスワードの確認"
@@ -968,21 +1031,20 @@ msgstr ""
 "更をすべて上書きします。"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
-#, fuzzy
 msgid "Expand all"
-msgstr "すべて有効化"
+msgstr "すべて展開"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
-msgstr ""
+msgstr "接頭辞でグループ化"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "The $1 server uses a game called $2 and the following mods:"
-msgstr ""
+msgstr "$1 サーバーは $2 と呼ばれるゲームと、次の Mod を使用:"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "The $1 server uses the following mods:"
-msgstr ""
+msgstr "$1 サーバーは、次の Mod を使用:"
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
@@ -1026,7 +1088,7 @@ msgstr "インターネット接続を確認し、公開サーバー一覧を再
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
-msgstr "私たちについて"
+msgstr "情報"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Active Contributors"
@@ -1192,20 +1254,12 @@ msgid "You need to install a game before you can create a world."
 msgstr "ワールドを作る前に、ゲームをインストールする必要があります。"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Add favorite"
-msgstr "お気に入りを削除"
+msgstr "お気に入りに追加"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "アドレス"
-
-#: builtin/mainmenu/tab_online.lua
-#, fuzzy
-msgid ""
-"Clients:\n"
-"$1"
-msgstr "クライアント"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
@@ -1221,9 +1275,8 @@ msgid "Favorites"
 msgstr "お気に入り"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Game: $1"
-msgstr "ゲーム"
+msgstr "ゲーム: $1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
@@ -1238,18 +1291,25 @@ msgid "Login"
 msgstr "ログイン"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Number of mods: $1"
-msgstr "出現するスレッド数"
+msgstr "Modの数: $1"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Open server website"
-msgstr "専用サーバーステップ"
+msgstr "サーバーのウェブサイトを開く"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "応答速度"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Players:\n"
+"$1"
+msgstr ""
+"クライアント:\n"
+"$1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid ""
@@ -1258,6 +1318,10 @@ msgid ""
 "mod:<name>\n"
 "player:<name>"
 msgstr ""
+"可能なフィルター\n"
+"game:<name>\n"
+"mod:<name>\n"
+"player:<name>"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1353,9 +1417,8 @@ msgid "Access denied. Reason: %s"
 msgstr "アクセスが拒否されました。理由: %s"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "All debug info hidden"
-msgstr "デバッグ情報 表示"
+msgstr "すべてのデバッグ情報 非表示"
 
 #: src/client/game.cpp
 msgid "Automatic forward disabled"
@@ -1379,7 +1442,7 @@ msgstr "近くのブロックにブロック境界を表示"
 
 #: src/client/game.cpp
 msgid "Bounding boxes shown"
-msgstr ""
+msgstr "ブロック境界線 表示"
 
 #: src/client/game.cpp
 msgid "Camera update disabled"
@@ -1615,9 +1678,8 @@ msgid "Volume changed to %d%%"
 msgstr "音量を %d%% に変更"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Wireframe not supported by video driver"
-msgstr "シェーダーは有効ですが、このドライバはGLSLをサポートしていません。"
+msgstr "ワイヤーフレームはビデオドライバーでサポートされていない"
 
 #: src/client/game.cpp
 msgid "Wireframe shown"
@@ -2050,9 +2112,8 @@ msgid "Failed to compile the \"%s\" shader."
 msgstr "「%s」シェーダーをコンパイルできませんでした。"
 
 #: src/client/shader.cpp
-#, fuzzy
 msgid "GLSL is not supported by the driver"
-msgstr "シェーダーは有効ですが、このドライバはGLSLをサポートしていません。"
+msgstr "ドライバーがGLSLをサポートしていない"
 
 #. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
@@ -2079,6 +2140,11 @@ msgstr ""
 msgid "Some mods have unsatisfied dependencies:"
 msgstr "一部のMODは満たされていない依存関係があります:"
 
+#: src/gui/guiButtonKey.h
+#, fuzzy
+msgid "Press Button"
+msgstr "左ボタン"
+
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
 msgstr "ウェブページを開けませんでした"
@@ -2090,162 +2156,6 @@ msgstr "ウェブページを開いています"
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
 msgstr "決定"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "\"Aux1\" = climb down"
-msgstr "「スペシャル」= 降りる"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Autoforward"
-msgstr "自動前進"
-
-#: src/gui/guiKeyChangeMenu.cpp src/settings_translation_file.cpp
-msgid "Automatic jumping"
-msgstr "自動ジャンプ"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Aux1"
-msgstr "Aux1"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Backward"
-msgstr "後退"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Block bounds"
-msgstr "ブロック境界線表示切替"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Change camera"
-msgstr "視点変更"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Command"
-msgstr "コマンド"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Console"
-msgstr "コンソール"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. range"
-msgstr "視野を縮小"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. volume"
-msgstr "音量を下げる"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Double tap \"jump\" to toggle fly"
-msgstr "「ジャンプ」2回で飛行モード切替"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Drop"
-msgstr "落とす"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Forward"
-msgstr "前進"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. range"
-msgstr "視野を拡大"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. volume"
-msgstr "音量を上げる"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Inventory"
-msgstr "インベントリ"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Jump"
-msgstr "ジャンプ"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Key already in use"
-msgstr "キーが重複しています"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Keybindings."
-msgstr "キーに対する機能の割り当てです。"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Left"
-msgstr "左移動"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Local command"
-msgstr "ローカルコマンド"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Mute"
-msgstr "消音"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Next item"
-msgstr "次のアイテム"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Prev. item"
-msgstr "前のアイテム"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Range select"
-msgstr "視野の選択"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Right"
-msgstr "右移動"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Screenshot"
-msgstr "スクリーンショット"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Sneak"
-msgstr "スニーク"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle HUD"
-msgstr "HUD表示切替"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle chat log"
-msgstr "チャット表示切替"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fast"
-msgstr "高速移動モード切替"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fly"
-msgstr "飛行モード切替"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle fog"
-msgstr "霧表示切替"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle minimap"
-msgstr "ミニマップ表示切替"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle noclip"
-msgstr "すり抜けモード切替"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle pitchmove"
-msgstr "ピッチ移動モード切替"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Zoom"
-msgstr "ズーム"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "press key"
-msgstr "キー入力待ち"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
@@ -2275,10 +2185,6 @@ msgstr "古いパスワード"
 msgid "Passwords do not match!"
 msgstr "パスワードが一致しません！"
 
-#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
-msgid "Exit"
-msgstr "閉じる"
-
 #: src/gui/guiVolumeChange.cpp
 msgid "Muted"
 msgstr "消音"
@@ -2289,47 +2195,109 @@ msgid "Sound Volume: %d%%"
 msgstr "音量: %d%%"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Add button"
-msgstr "中ボタン"
+msgstr "ボタンを追加"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Done"
-msgstr "完了！"
+msgstr "完了"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Remove"
-msgstr "リモートサーバー"
+msgstr "削除"
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Reset"
-msgstr ""
+msgstr "リセット"
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Start dragging a button to add. Tap outside to cancel."
-msgstr ""
+msgstr "ボタンをドラッグして追加します。外側をタップしてキャンセルします。"
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Tap a button to select it. Drag a button to move it."
-msgstr ""
+msgstr "ボタンをタップして選択します。ボタンをドラッグして移動します。"
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Tap outside to deselect."
+msgstr "外側をタップして選択解除します。"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Aux1"
+msgstr "Aux1"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Change camera"
+msgstr "視点変更"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Dig/punch/use"
 msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Drop"
+msgstr "落とす"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "閉じる"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Inventory"
+msgstr "インベントリ"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
 msgstr "ジョイスティック"
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Jump"
+msgstr "ジャンプ"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr "オーバーフローメニュー"
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#, fuzzy
+msgid "Place/use"
+msgstr "設置キー"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Range select"
+msgstr "視野の選択"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Sneak"
+msgstr "スニーク"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle chat log"
+msgstr "チャット表示切替"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Toggle debug"
 msgstr "デバッグ切替"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fast"
+msgstr "高速移動モード切替"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fly"
+msgstr "飛行モード切替"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle minimap"
+msgstr "ミニマップ表示切替"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle noclip"
+msgstr "すり抜けモード切替"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Zoom"
+msgstr "ズーム"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2543,7 +2511,6 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "マップチャンクごとのダンジョンの数を決定する3Dノイズ。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
@@ -2558,11 +2525,10 @@ msgstr ""
 "現在のサポート:\n"
 "-    none: 3D出力を行いません。\n"
 "-    anaglyph: シアン/マゼンタ色による3Dです。\n"
-"-    interlaced: 奇数/偶数のラインをベースで偏光式スクリーンに対応。\n"
-"-    topbottom: 画面を上下で分割します。\n"
-"-    sidebyside: 画面を左右で分割します。\n"
-"-    crossview: クロスアイ 3D\n"
-"interlacedはシェーダーが有効である必要があることに注意してください。"
+"-    interlaced: 奇数/偶数のラインをベースで偏光式スクリーンに対応します。\n"
+"-    topbottom: 画面を上下に分割します。\n"
+"-    sidebyside: 画面を左右に分割します。\n"
+"-    crossview: クロスアイ 3D"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2649,11 +2615,12 @@ msgid ""
 "All mesh buffers with less than this number of vertices will be merged\n"
 "during map rendering. This improves rendering performance."
 msgstr ""
+"この数より少ない頂点を持つすべてのメッシュバッファは、マップの\n"
+"レンダリング中にマージされます。これによりパフォーマンスが向上します。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Allow clouds to look 3D instead of flat."
-msgstr "平らではなく立体な雲を使用します。"
+msgstr "雲が平らではなく3Dに見えるようにします。"
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
@@ -2807,6 +2774,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Audio"
 msgstr "オーディオ"
+
+#: src/settings_translation_file.cpp
+msgid "Automatic jumping"
+msgstr "自動ジャンプ"
 
 #: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
@@ -3021,6 +2992,11 @@ msgid "Client"
 msgstr "クライアント"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Client Debugging"
+msgstr "デバッグ"
+
+#: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
 msgstr "クライアント メッシュ チャンクサイズ"
 
@@ -3062,7 +3038,7 @@ msgstr "メニューに雲"
 
 #: src/settings_translation_file.cpp
 msgid "Color depth for post-processing texture"
-msgstr ""
+msgstr "加工後のテクスチャの色深度"
 
 #: src/settings_translation_file.cpp
 msgid "Colored fog"
@@ -3081,7 +3057,6 @@ msgstr ""
 "テストのために有用です。 詳細は al_extensions.[h,cpp] を参照してください。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Comma-separated list of flags to hide in the content repository.\n"
 "\"nonfree\" can be used to hide packages which do not qualify as 'free "
@@ -3095,8 +3070,8 @@ msgstr ""
 "『nonfree』を使用すると、フリーソフトウェア財団によって定義されている\n"
 "「フリーソフトウェア」として認定されていないパッケージを非表示にできます。\n"
 "コンテンツの評価を指定することもできます。\n"
-"これらのフラグはLuantiのバージョンとは無関係です。完全なリストについては\n"
-"https://content.minetest.net/help/content_flags/ を参照してください。"
+"これらのフラグはLuantiのバージョンとは無関係で、完全なリストについては\n"
+"https://content.minetest.net/help/content_flags/ 参照"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3114,6 +3089,10 @@ msgstr ""
 "MODのセキュリティが有効の場合でも (request_insecure_environment() \n"
 "を介して) 安全でない機能へのアクセスが許可されている信頼できる\n"
 "MODのカンマ区切りリストです。"
+
+#: src/settings_translation_file.cpp
+msgid "Command"
+msgstr "コマンド"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3262,6 +3241,19 @@ msgid ""
 "Reducing this can improve performance, but some effects (e.g. debanding)\n"
 "require more than 8 bits to work."
 msgstr ""
+"後処理パイプラインに使用されるテクスチャの色深度を決定します。\n"
+"これを減らすとパフォーマンスは向上しますが、\n"
+"一部の効果(バンディング除去など)は8 ビット以上を必要とします。"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease view range"
+msgstr "視野を縮小"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease volume"
+msgstr "音量を下げる"
 
 #: src/settings_translation_file.cpp
 msgid "Dedicated server step"
@@ -3479,6 +3471,14 @@ msgid ""
 "situations\n"
 "where transparency sorting would be very slow otherwise."
 msgstr ""
+"メッシュバッファごとにグループ化された透明度ソートされた三角形を\n"
+"描画します。これにより、メッシュバッファ間の透明度ソートが中断されますが、\n"
+"透明度ソートが非常に遅くなる状況を回避できます。"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Drop item"
+msgstr "アイテムを落とすキー"
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -3526,6 +3526,13 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Enable IPv6 support for server.\n"
+"Note that clients will be able to connect with both IPv4 and IPv6.\n"
+"Ignored if bind_address is set."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Enable Lua modding support on client.\n"
 "This support is experimental and API can change."
 msgstr ""
@@ -3562,13 +3569,12 @@ msgstr ""
 "人間の目の振る舞いをシミュレートします。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Enable colored shadows for transculent nodes.\n"
 "This is expensive."
 msgstr ""
-"色つきの影を有効にします。\n"
-"有効にすると半透明ノードでは色つきの影を落とします。これは負荷が大きいです。"
+"半透明ノードに色付きの影を有効にします。\n"
+"これは負荷が大きいです。"
 
 #: src/settings_translation_file.cpp
 msgid "Enable console window"
@@ -3646,16 +3652,6 @@ msgid ""
 msgstr ""
 "移動時の上下の揺れと移動時の上下の揺れの量を有効にします。\n"
 "例: 0 揺れなし; 1.0 標準の揺れ; 2.0 標準の倍の揺れ。"
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid ""
-"Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set."
-msgstr ""
-"IPv6サーバーの実行を有効/無効にします。\n"
-"bind_address が設定されている場合は無視されます。\n"
-"enable_ipv6 を有効にする必要があります。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3743,16 +3739,13 @@ msgid "FPS"
 msgstr "FPS"
 
 #: src/settings_translation_file.cpp
-msgid "FPS when unfocused or paused"
+#, fuzzy
+msgid "FPS when unfocused"
 msgstr "非アクティブまたはポーズメニュー表示中のFPS"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
 msgstr "係数ノイズ"
-
-#: src/settings_translation_file.cpp
-msgid "Fall bobbing factor"
-msgstr "落下時の上下の揺れ係数"
 
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
@@ -4179,12 +4172,182 @@ msgstr ""
 "1秒あたりのノード数/秒です。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 1"
+msgstr "ホットバースロット1キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 10"
+msgstr "ホットバースロット10キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 11"
+msgstr "ホットバースロット11キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 12"
+msgstr "ホットバースロット12キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 13"
+msgstr "ホットバースロット13キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 14"
+msgstr "ホットバースロット14キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 15"
+msgstr "ホットバースロット15キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 16"
+msgstr "ホットバースロット16キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 17"
+msgstr "ホットバースロット17キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 18"
+msgstr "ホットバースロット18キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 19"
+msgstr "ホットバースロット19キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 2"
+msgstr "ホットバースロット2キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 20"
+msgstr "ホットバースロット20キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 21"
+msgstr "ホットバースロット21キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 22"
+msgstr "ホットバースロット22キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 23"
+msgstr "ホットバースロット23キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 24"
+msgstr "ホットバースロット24キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 25"
+msgstr "ホットバースロット25キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 26"
+msgstr "ホットバースロット26キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 27"
+msgstr "ホットバースロット27キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 28"
+msgstr "ホットバースロット28キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 29"
+msgstr "ホットバースロット29キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 3"
+msgstr "ホットバースロット3キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 30"
+msgstr "ホットバースロット30キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 31"
+msgstr "ホットバースロット31キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 32"
+msgstr "ホットバースロット32キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 4"
+msgstr "ホットバースロット4キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 5"
+msgstr "ホットバースロット5キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 6"
+msgstr "ホットバースロット6キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 7"
+msgstr "ホットバースロット7キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 8"
+msgstr "ホットバースロット8キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 9"
+msgstr "ホットバースロット9キー"
+
+#: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
 msgstr "ホットバー: マウスホイールによる選択が有効"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
 msgstr "ホットバー: マウスホイールの方向を反転"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select next item"
+msgstr "ホットバー次へキー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select previous item"
+msgstr "ホットバー前へキー"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4302,14 +4465,23 @@ msgstr ""
 "ることはできません。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "If enabled, server account registration is separate from login in the UI.\n"
 "If disabled, connecting to a server will automatically register a new "
 "account."
 msgstr ""
-"有効にした場合、アカウント登録はログインとは別になります。\n"
-"無効にした場合、新しいアカウントはログイン時に自動的に登録されます。"
+"有効にすると、アカウントの登録はログインとは別になります。\n"
+"無効にすると、サーバーに接続すると新しいアカウントが自動的に登録されます。"
+
+#: src/settings_translation_file.cpp
+msgid "If enabled, the \"Aux1\" key will toggle when pressed."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, the \"Sneak\" key will toggle when pressed.\n"
+"This functionality is ignored when fly is enabled."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4382,6 +4554,16 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "ゲーム内チャットコンソールの高さ、0.1 (10%) ～ 1.0 (100%) の間。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase view range"
+msgstr "視野を拡大"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase volume"
+msgstr "音量を上げる"
+
+#: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
 msgstr "ジャンプ時の初期垂直速度、1秒あたりのノード数です。"
 
@@ -4422,6 +4604,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
 msgstr "エンティティの方式を登録するとすぐに計測します。"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Interaction style"
+msgstr "繰り返し"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
@@ -4563,6 +4750,343 @@ msgid "Jumping speed"
 msgstr "ジャンプ時の速度"
 
 #: src/settings_translation_file.cpp
+msgid "Key for decreasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decreasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for digging, punching or using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for dropping the currently selected item."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for incrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for jumping."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving fast in fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for moving the player backward.\n"
+"Will also disable autoforward, when active."
+msgstr ""
+"プレイヤーを後方へ移動するキーです。\n"
+"自動前進中に押すと自動前進を停止します。\n"
+"参照 http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player forward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player left."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player right."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for muting the game."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type local commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the inventory."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for placing an item/block or for using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 11th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 12th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 13th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 14th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 15th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 16th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 17th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 18th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 19th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 20th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 21st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 22nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 23rd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 24th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 25th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 26th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 27th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 28th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 29th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 30th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 31st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 32nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the eighth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fifth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the first hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fourth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the next item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the ninth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the previous item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the second hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the seventh hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the sixth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the tenth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the third hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for sneaking.\n"
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"スニークするキーです。\n"
+"aux1_descends が無効になっている場合は、降りるときや水中を潜るためにも使用さ"
+"れます。\n"
+"参照 http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching between first- and third-person camera."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the next entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the previous entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for taking screenshots."
+msgstr "スクリーンショットのファイル形式です。"
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling autoforward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling cinematic mode."
+msgstr "シネマティックモードでのカメラの滑らかさ"
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling display of minimap."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling flying."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling fullscreen mode."
+msgstr "全画面表示モードです。"
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling noclip mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling pitch move mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of chat."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of debug info."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of fog."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of mapblock boundaries."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the HUD."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the large chat console."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the profiler. Used for development."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling unlimited view range."
+msgstr "視野無制限 無効"
+
+#: src/settings_translation_file.cpp
+msgid "Key to use view zoom when possible."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keybindings"
+msgstr "キーに対する機能の割り当てです。"
+
+#: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
 msgstr "キーボードとマウス"
 
@@ -4597,6 +5121,11 @@ msgstr "大きな洞窟の最小数"
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr "大きな洞窟の浸水割合"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Large chat console"
+msgstr "大型チャットコンソールキー"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -4773,6 +5302,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
 msgstr "ローディングブロックモディファイヤー (LBM)"
+
+#: src/settings_translation_file.cpp
+msgid "Local command"
+msgstr "ローカルコマンド"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -4990,7 +5523,8 @@ msgid "Maximum FPS"
 msgstr "最大FPS"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum FPS when the window is not focused, or when the game is paused."
+#, fuzzy
+msgid "Maximum FPS when the window is not focused."
 msgstr ""
 "ウィンドウにフォーカスが合っていないとき、またはポーズメニュー表示中の最大"
 "FPS。"
@@ -5064,10 +5598,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of mapblocks for client to be kept in memory.\n"
-"Set to -1 for unlimited amount."
+"Note that there is an internal dynamic minimum number of blocks that\n"
+"won't be deleted, depending on the current view range.\n"
+"Set to -1 for no limit."
 msgstr ""
-"クライアントがメモリに保持する最大マップブロック数。\n"
-"無制限の金額の場合は -1 に設定します。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5110,12 +5644,14 @@ msgid "Maximum simultaneous block sends per client"
 msgstr "クライアントあたりの最大同時ブロック送信数"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum size of the outgoing chat queue"
+#, fuzzy
+msgid "Maximum size of the client's outgoing chat queue"
 msgstr "アウトチャットキューの最大サイズ"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Maximum size of the outgoing chat queue.\n"
+"Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
 "アウトチャットキューの最大サイズです。\n"
@@ -5175,7 +5711,7 @@ msgstr "マップチャンクあたりの小さな洞窟の乱数の最小値。
 
 #: src/settings_translation_file.cpp
 msgid "Minimum vertex count for mesh buffers"
-msgstr ""
+msgstr "メッシュバッファの最小頂点数"
 
 #: src/settings_translation_file.cpp
 msgid "Mipmapping"
@@ -5238,6 +5774,25 @@ msgid "Mouse sensitivity multiplier."
 msgstr "マウス感度の倍率。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move backward"
+msgstr "後退"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move forward"
+msgstr "自動前進"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move left"
+msgstr "動き"
+
+#: src/settings_translation_file.cpp
+msgid "Move right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Movement threshold"
 msgstr "動きのしきい値"
 
@@ -5246,12 +5801,8 @@ msgid "Mud noise"
 msgstr "泥ノイズ"
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Multiplier for fall bobbing.\n"
-"For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-msgstr ""
-"落下時の上下の揺れ乗数。\n"
-"例: 0 揺れなし; 1.0 標準の揺れ; 2.0 標準の倍の揺れ。"
+msgid "Mute"
+msgstr "消音"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5270,7 +5821,6 @@ msgstr ""
 "-    v7の浮遊大陸 (既定では無効)。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Name of the player.\n"
 "When running a server, a client connecting with this name is admin.\n"
@@ -5278,8 +5828,7 @@ msgid ""
 msgstr ""
 "プレイヤーの名前です。\n"
 "サーバーを実行している場合、この名前で接続しているクライアントは\n"
-"管理者です。\n"
-"メインメニューから起動すると、これは上書きされます。"
+"管理者です。メインメニューから起動すると、これは上書きされます。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5385,6 +5934,16 @@ msgstr "オクルージョンカリング"
 msgid ""
 "Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
 msgstr "既定のフォントの影の不透明度 (透過) は0から255の間です。"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open chat"
+msgstr "開く"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open inventory"
+msgstr "インベントリ"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5521,11 +6080,13 @@ msgid "Prometheus listener address"
 msgstr "プロメテウスリスナーのアドレス"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Prometheus listener address.\n"
-"If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
-"enable metrics listener for Prometheus on that address.\n"
-"Metrics can be fetched on http://127.0.0.1:30000/metrics"
+"If Luanti is compiled with Prometheus support, this setting\n"
+"enables the metrics listener for Prometheus on that address.\n"
+"By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
+"An empty value disables the metrics listener."
 msgstr ""
 "プロメテウスリスナーのアドレスです。\n"
 "Luantiが ENABLE_PROMETHEUS オプションを有効にしてコンパイルされている場合、\n"
@@ -5543,6 +6104,22 @@ msgstr "プロトコルバージョンの最小限"
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
 msgstr "パンチのジェスチャー"
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: decrement value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: increment value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select next entry"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select previous entry"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5734,6 +6311,10 @@ msgid "Screen width"
 msgstr "画面の幅"
 
 #: src/settings_translation_file.cpp
+msgid "Screenshot"
+msgstr "スクリーンショット"
+
+#: src/settings_translation_file.cpp
 msgid "Screenshot folder"
 msgstr "スクリーンショットのフォルダ"
 
@@ -5776,7 +6357,6 @@ msgid "See https://www.sqlite.org/pragma.html#pragma_synchronous"
 msgstr "参照 https://www.sqlite.org/pragma.html#pragma_synchronous"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Select the antialiasing method to apply.\n"
 "\n"
@@ -5801,23 +6381,23 @@ msgid ""
 msgstr ""
 "適用するアンチエイリアシング方式を選択します。\n"
 "\n"
-"* 必須なし - アンチエイリアシングなし (既定)\n"
+"* None - アンチエイリアシングなし (既定)\n"
 "\n"
 "* FSAA - ハードウェアによるフルスクリーンアンチエイリアシング\n"
-"(後処理およびアンダーサンプリングと互換性なし)\n"
 "別名 マルチサンプルアンチエイリアシング(MSAA)\n"
 "ブロックの縁を滑らかにしますが、テクスチャの内部には影響しません。\n"
-"このオプションを変更するには再起動が必要です。\n"
 "\n"
-"* FXAA - 高速近似アンチエイリアシング(シェーダーが必要)\n"
-"高コントラストのエッジを検出し、滑らかにするために後処理フィルターを適用しま"
-"す。\n"
-"処理速度と画質のバランスをとります。\n"
+"後処理が無効になっている場合、FSAA を変更するには再起動が必要です。\n"
+"また、後処理が無効になっている場合、FSAA はアンダーサンプリングや\n"
+"デフォルト以外の「3d_mode」設定では機能しません。\n"
 "\n"
-"* SSAA - スーパーサンプリングアンチエイリアシング(シェーダーが必要)\n"
-"シーンの高解像度画像をレンダリングした後、スケールダウンしてエイリアシング効"
-"果を\n"
-"軽減します。これは最も遅く、最も正確な方式です。"
+"* FXAA - 高速近似アンチエイリアシング\n"
+"高コントラストのエッジを検出し、滑らかにするために後処理フィルターを\n"
+"適用します。処理速度と画質のバランスをとります。\n"
+"\n"
+"* SSAA - スーパーサンプリングアンチエイリアシング\n"
+"シーンの高解像度画像をレンダリングした後、スケールダウンして\n"
+"エイリアシング効果を軽減します。これは最も遅く、最も正確な方式です。"
 
 #: src/settings_translation_file.cpp
 msgid "Selection box border color (R,G,B)."
@@ -6241,16 +6821,14 @@ msgstr ""
 "明示的に設定する場合があることに注意してください。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Spread a complete update of the shadow map over a given number of frames.\n"
 "Higher values might make shadows laggy, lower values\n"
 "will consume more resources."
 msgstr ""
-"影の描画の完全な更新を指定されたフレーム数に広げます。\n"
+"影の描画の完全な更新を、指定されたフレーム数に分散します。\n"
 "値を大きくすると影の描画が遅延することがあり、\n"
-"値を小さくするとより多くのリソースを消費します。\n"
-"最小値: 1、最大値: 16"
+"値を小さくするとより多くのリソースを消費します。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6431,14 +7009,15 @@ msgid ""
 msgstr "観測記録が保存されるワールドパスに対する相対的なファイルパスです。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
 "\n"
-"* short_tap\n"
+"* Short tap\n"
 "Easy to use and well-known from other games that shall not be named.\n"
 "\n"
-"* long_tap\n"
+"* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
@@ -6455,6 +7034,23 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
 msgstr "使用するジョイスティックの識別子"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The kind of digging/placing controls used.\n"
+"\n"
+"* Tap\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at finger position.\n"
+"\n"
+"* Tap with crosshair\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at crosshair position.\n"
+"\n"
+"* Buttons with crosshair\n"
+"Use dedicated dig/place buttons to interact.\n"
+"Interaction happens at crosshair position."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6627,6 +7223,68 @@ msgstr ""
 "す。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Aux1 key"
+msgstr "Aux1キー"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle HUD"
+msgstr "HUD表示切替"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Sneak key"
+msgstr "視点変更キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle automatic forward"
+msgstr "自動前進キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle block bounds"
+msgstr "ブロック境界線表示切替"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera mode"
+msgstr "視点変更キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera update"
+msgstr "視点変更キー"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle cinematic mode"
+msgstr "映画風モード切替"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle debug info"
+msgstr "デバッグ切替"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fog"
+msgstr "霧表示切替"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle fullscreen"
+msgstr "飛行モード切替"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle pitchmove"
+msgstr "ピッチ移動モード切替"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle profiler"
+msgstr "飛行モード切替"
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Tolerance of movement cheat detector.\n"
 "Increase the value if players experience stuttery movement."
@@ -6671,9 +7329,8 @@ msgid "Transparency Sorting Distance"
 msgstr "透明度の並べ替え距離"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Transparency Sorting Group by Buffers"
-msgstr "透明度の並べ替え距離"
+msgstr "バッファによる透明度の並べ替えグループ"
 
 #: src/settings_translation_file.cpp
 msgid "Trees noise"
@@ -6731,7 +7388,6 @@ msgid "Undersampling"
 msgstr "アンダーサンプリング"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Undersampling is similar to using a lower screen resolution, but it applies\n"
 "to the game world only, keeping the GUI intact.\n"
@@ -6742,10 +7398,13 @@ msgid ""
 "set\n"
 "to a non-default value."
 msgstr ""
-"アンダーサンプリングは低い画面解像度を使用するのと似ていますが、\n"
-"GUIをそのままにしてゲームのワールドにのみ適用されます。\n"
-"より詳細なイメージを犠牲にしてパフォーマンスをかなり高めるでしょう。\n"
-"値を大きくすると、画像の詳細が少なくなります。"
+"アンダーサンプリングは画面解像度を低くするのと似ていますが、\n"
+"ゲーム ワールドにのみ適用され、GUI はそのまま残ります。\n"
+"これによって、画像の詳細度は低下しますが、パフォーマンスが大幅に向上しま"
+"す。\n"
+"値を大きくすると、画像の詳細度は低下します。\n"
+"注: 「3d_mode」設定がデフォルト以外の値に設定されている場合、\n"
+"アンダーサンプリングは現在サポートされていません。"
 
 #: src/settings_translation_file.cpp
 msgid "Unlimited player transfer distance"
@@ -6772,27 +7431,16 @@ msgid "Use a cloud animation for the main menu background."
 msgstr "メインメニューの背景には雲のアニメーションを使用します。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Use anisotropic filtering when looking at textures from an angle.\n"
 "This provides a significant improvement when used together with mipmapping."
-msgstr "ある角度からテクスチャを見るときに異方性フィルタリングを使用します。"
+msgstr ""
+"ある角度からテクスチャを見るときに異方性フィルタリングを使用します。\n"
+"これをミップマッピングと併用すると、大幅な改善が実現します。"
 
 #: src/settings_translation_file.cpp
 msgid "Use bilinear filtering when scaling textures."
 msgstr "テクスチャを拡大縮小するときはバイリニアフィルタリングを使用します。"
-
-#: src/settings_translation_file.cpp
-msgid "Use crosshair for touch screen"
-msgstr "タッチスクリーンに十字カーソルを使用する"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Use crosshair to select object instead of whole screen.\n"
-"If enabled, a crosshair will be shown and will be used for selecting object."
-msgstr ""
-"画面全体ではなく、十字カーソルを使用してオブジェクトを選択します。\n"
-"有効にすると、十字カーソルが表示されオブジェクトの選択に使用されます。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7046,7 +7694,6 @@ msgstr ""
 "テクスチャへのレンダリング)。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "When using bilinear/trilinear filtering, low-resolution textures\n"
 "can be blurred, so this option automatically upscales them to preserve\n"
@@ -7057,17 +7704,17 @@ msgid ""
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
-"バイリニア/トライリニア/異方性フィルタを使用すると、低解像度の\n"
-"テクスチャがぼやける可能性があるため、鮮明なピクセルを保持するために\n"
-"最近傍補間を使用して自動的にそれらを拡大します。これは拡大されたテクスチャ"
-"の\n"
-"ための最小テクスチャサイズを設定します。より高い値はよりシャープに見えます"
-"が、\n"
-"より多くのメモリを必要とします。2の累乗が推奨されます。この設定は、\n"
-"バイリニア/トライリニア/異方性フィルタリングが有効の場合にのみ適用されま"
-"す。\n"
-"これは整列テクスチャの自動スケーリング用の基準ノードテクスチャサイズと\n"
-"しても使用されます。"
+"バイリニア/トライリニアフィルタリングを使用すると、低解像度のテクスチャが\n"
+"ぼやける可能性があるため、このオプションでは、鮮明なピクセルを維持するため"
+"に\n"
+"テクスチャを自動的にアップスケールします。これは、アップスケールされた\n"
+"テクスチャの最小テクスチャサイズを定義します。\n"
+"値が高いほど鮮明になりますが、より多くのメモリが必要になります。この設定"
+"は、\n"
+"上記のフィルターのいずれかが有効になっている場合にのみ適用されます。これ"
+"は、\n"
+"整列テクスチャ自動スケーリングのベースノード テクスチャサイズとしても使用され"
+"ます。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7103,15 +7750,13 @@ msgid "Whether to fog out the end of the visible area."
 msgstr "可視領域の端に霧を表示するかどうかの設定です。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Whether to mute sounds. You can unmute sounds at any time.\n"
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
-"音をミュートするかどうか。サウンドシステムが無効になっていない限り\n"
-"(enable_sound = false)、いつでもミュートを解除できます。\n"
-"ゲーム内ではミュートキーを使用するかポーズメニューを使用して、\n"
+"音をミュートするかどうか。音のミュートはいつでも解除できます。\n"
+"ゲーム内では、ミュート キーまたはポーズメニューを使用して\n"
 "ミュート状態を切り替えることができます。"
 
 #: src/settings_translation_file.cpp
@@ -7157,11 +7802,12 @@ msgid "World start time"
 msgstr "ワールド開始時刻"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
 "a specially-designed texture pack; with this option, the client tries\n"
-"to determine the scale automatically basing on the texture size.\n"
+"to determine the scale automatically based on the texture size.\n"
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
@@ -7243,6 +7889,9 @@ msgstr "cURL インタラクティブタイムアウト"
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr "cURL並行処理制限"
+
+#~ msgid "\"Aux1\" = climb down"
+#~ msgstr "「スペシャル」= 降りる"
 
 #~ msgid "(game support required)"
 #~ msgstr "(ゲームサポート必須)"
@@ -7352,14 +8001,8 @@ msgstr "cURL並行処理制限"
 #~ msgid "Are you sure to reset your singleplayer world?"
 #~ msgstr "シングルプレイヤーのワールドをリセットしてよろしいですか？"
 
-#~ msgid "Automatic forward key"
-#~ msgstr "自動前進キー"
-
 #~ msgid "Autosave Screen Size"
 #~ msgstr "大きさを自動保存"
-
-#~ msgid "Aux1 key"
-#~ msgstr "Aux1キー"
 
 #~ msgid "Back to Main Menu"
 #~ msgstr "メインメニューへ"
@@ -7470,6 +8113,9 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "Connected Glass"
 #~ msgstr "ガラスを繋げる"
+
+#~ msgid "Console"
+#~ msgstr "コンソール"
 
 #~ msgid "Continuous forward"
 #~ msgstr "自動前進"
@@ -7633,11 +8279,11 @@ msgstr "cURL並行処理制限"
 #~ msgid "Disable anticheat"
 #~ msgstr "対チート機関無効化"
 
-#~ msgid "Disabled unlimited viewing range"
-#~ msgstr "視野無制限 無効"
-
 #~ msgid "Don't show \"reinstall Minetest Game\" notification"
 #~ msgstr "「Minetest Gameを再インストール」通知を表示しない"
+
+#~ msgid "Double tap \"jump\" to toggle fly"
+#~ msgstr "「ジャンプ」2回で飛行モード切替"
 
 #~ msgid "Down"
 #~ msgstr "Down"
@@ -7651,9 +8297,6 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "Downloading and installing $1, please wait..."
 #~ msgstr "$1をインストールしています、お待ちください..."
-
-#~ msgid "Drop item key"
-#~ msgstr "アイテムを落とすキー"
 
 #~ msgid "Dynamic shadows:"
 #~ msgstr "動的な影:"
@@ -7682,6 +8325,13 @@ msgstr "cURL並行処理制限"
 #~ msgstr ""
 #~ "頂点バッファオブジェクトを有効にします。\n"
 #~ "これにより、グラフィックスのパフォーマンスが大幅に向上します。"
+
+#~ msgid ""
+#~ "Enable/disable running an IPv6 server.\n"
+#~ "Ignored if bind_address is set."
+#~ msgstr ""
+#~ "IPv6サーバーの実行を有効/無効にします。\n"
+#~ "bind_address が設定されている場合は無視されます。"
 
 #~ msgid ""
 #~ "Enables bumpmapping for textures. Normalmaps need to be supplied by the "
@@ -7751,6 +8401,9 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "FSAA"
 #~ msgstr "フルスクリーンアンチエイリアシング"
+
+#~ msgid "Fall bobbing factor"
+#~ msgstr "落下時の上下の揺れ係数"
 
 #~ msgid "Fallback font shadow"
 #~ msgstr "フォールバックフォントの影"
@@ -7823,6 +8476,9 @@ msgstr "cURL並行処理制限"
 #~ msgid "Formspec default background opacity (between 0 and 255)."
 #~ msgstr "フォームスペックの既定の背景不透明度 (0～255の間)。"
 
+#~ msgid "Forward"
+#~ msgstr "前進"
+
 #~ msgid "Forward key"
 #~ msgstr "前進キー"
 
@@ -7855,108 +8511,6 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "High-precision FPU"
 #~ msgstr "高精度FPU"
-
-#~ msgid "Hotbar next key"
-#~ msgstr "ホットバー次へキー"
-
-#~ msgid "Hotbar previous key"
-#~ msgstr "ホットバー前へキー"
-
-#~ msgid "Hotbar slot 1 key"
-#~ msgstr "ホットバースロット1キー"
-
-#~ msgid "Hotbar slot 10 key"
-#~ msgstr "ホットバースロット10キー"
-
-#~ msgid "Hotbar slot 11 key"
-#~ msgstr "ホットバースロット11キー"
-
-#~ msgid "Hotbar slot 12 key"
-#~ msgstr "ホットバースロット12キー"
-
-#~ msgid "Hotbar slot 13 key"
-#~ msgstr "ホットバースロット13キー"
-
-#~ msgid "Hotbar slot 14 key"
-#~ msgstr "ホットバースロット14キー"
-
-#~ msgid "Hotbar slot 15 key"
-#~ msgstr "ホットバースロット15キー"
-
-#~ msgid "Hotbar slot 16 key"
-#~ msgstr "ホットバースロット16キー"
-
-#~ msgid "Hotbar slot 17 key"
-#~ msgstr "ホットバースロット17キー"
-
-#~ msgid "Hotbar slot 18 key"
-#~ msgstr "ホットバースロット18キー"
-
-#~ msgid "Hotbar slot 19 key"
-#~ msgstr "ホットバースロット19キー"
-
-#~ msgid "Hotbar slot 2 key"
-#~ msgstr "ホットバースロット2キー"
-
-#~ msgid "Hotbar slot 20 key"
-#~ msgstr "ホットバースロット20キー"
-
-#~ msgid "Hotbar slot 21 key"
-#~ msgstr "ホットバースロット21キー"
-
-#~ msgid "Hotbar slot 22 key"
-#~ msgstr "ホットバースロット22キー"
-
-#~ msgid "Hotbar slot 23 key"
-#~ msgstr "ホットバースロット23キー"
-
-#~ msgid "Hotbar slot 24 key"
-#~ msgstr "ホットバースロット24キー"
-
-#~ msgid "Hotbar slot 25 key"
-#~ msgstr "ホットバースロット25キー"
-
-#~ msgid "Hotbar slot 26 key"
-#~ msgstr "ホットバースロット26キー"
-
-#~ msgid "Hotbar slot 27 key"
-#~ msgstr "ホットバースロット27キー"
-
-#~ msgid "Hotbar slot 28 key"
-#~ msgstr "ホットバースロット28キー"
-
-#~ msgid "Hotbar slot 29 key"
-#~ msgstr "ホットバースロット29キー"
-
-#~ msgid "Hotbar slot 3 key"
-#~ msgstr "ホットバースロット3キー"
-
-#~ msgid "Hotbar slot 30 key"
-#~ msgstr "ホットバースロット30キー"
-
-#~ msgid "Hotbar slot 31 key"
-#~ msgstr "ホットバースロット31キー"
-
-#~ msgid "Hotbar slot 32 key"
-#~ msgstr "ホットバースロット32キー"
-
-#~ msgid "Hotbar slot 4 key"
-#~ msgstr "ホットバースロット4キー"
-
-#~ msgid "Hotbar slot 5 key"
-#~ msgstr "ホットバースロット5キー"
-
-#~ msgid "Hotbar slot 6 key"
-#~ msgstr "ホットバースロット6キー"
-
-#~ msgid "Hotbar slot 7 key"
-#~ msgstr "ホットバースロット7キー"
-
-#~ msgid "Hotbar slot 8 key"
-#~ msgstr "ホットバースロット8キー"
-
-#~ msgid "Hotbar slot 9 key"
-#~ msgstr "ホットバースロット9キー"
 
 #~ msgid "IPv6 support."
 #~ msgstr "IPv6 サポート。"
@@ -8015,6 +8569,9 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "Jump key"
 #~ msgstr "ジャンプキー"
+
+#~ msgid "Key already in use"
+#~ msgstr "キーが重複しています"
 
 #~ msgid ""
 #~ "Key for decreasing the viewing range.\n"
@@ -8085,17 +8642,6 @@ msgstr "cURL並行処理制限"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "高速移動モード中に高速移動するキーです。\n"
-#~ "参照 http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player backward.\n"
-#~ "Will also disable autoforward, when active.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "プレイヤーを後方へ移動するキーです。\n"
-#~ "自動前進中に押すと自動前進を停止します。\n"
 #~ "参照 http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
@@ -8487,19 +9033,6 @@ msgstr "cURL並行処理制限"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
-#~ "Key for sneaking.\n"
-#~ "Also used for climbing down and descending in water if aux1_descends is "
-#~ "disabled.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "スニークするキーです。\n"
-#~ "aux1_descends が無効になっている場合は、降りるときや水中を潜るためにも使用"
-#~ "されます。\n"
-#~ "参照 http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
 #~ "Key for switching between first- and third-person camera.\n"
 #~ "See http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
@@ -8667,9 +9200,6 @@ msgstr "cURL並行処理制限"
 #~ "キー設定です。 (このメニューで失敗する場合は minetest.conf から該当する設"
 #~ "定を削除してください)"
 
-#~ msgid "Large chat console key"
-#~ msgstr "大型チャットコンソールキー"
-
 #~ msgid "Last known version update"
 #~ msgstr "最終バージョンアップ"
 
@@ -8678,6 +9208,9 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "Lava depth"
 #~ msgstr "溶岩の深さ"
+
+#~ msgid "Left"
+#~ msgstr "左移動"
 
 #~ msgid "Left key"
 #~ msgstr "左キー"
@@ -8719,6 +9252,13 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "Mapblock mesh generator's MapBlock cache size in MB"
 #~ msgstr "メッシュ生成のマップブロックキャッシュサイズ(MB)"
+
+#~ msgid ""
+#~ "Maximum number of mapblocks for client to be kept in memory.\n"
+#~ "Set to -1 for unlimited amount."
+#~ msgstr ""
+#~ "クライアントがメモリに保持する最大マップブロック数。\n"
+#~ "無制限の金額の場合は -1 に設定します。"
 
 #~ msgid ""
 #~ "Maximum number of packets sent per send step, if you have a slow "
@@ -8764,6 +9304,13 @@ msgstr "cURL並行処理制限"
 #~ msgid "Misc"
 #~ msgstr "その他"
 
+#~ msgid ""
+#~ "Multiplier for fall bobbing.\n"
+#~ "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
+#~ msgstr ""
+#~ "落下時の上下の揺れ乗数。\n"
+#~ "例: 0 揺れなし; 1.0 標準の揺れ; 2.0 標準の倍の揺れ。"
+
 #~ msgid "Mute key"
 #~ msgstr "消音キー"
 
@@ -8775,6 +9322,9 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "Near plane"
 #~ msgstr "近くの面"
+
+#~ msgid "Next item"
+#~ msgstr "次のアイテム"
 
 #~ msgid "No"
 #~ msgstr "いいえ"
@@ -8871,9 +9421,6 @@ msgstr "cURL並行処理制限"
 #~ msgid "Pitch move mode"
 #~ msgstr "ピッチ移動モード"
 
-#~ msgid "Place key"
-#~ msgstr "設置キー"
-
 #~ msgid ""
 #~ "Player is able to fly without being affected by gravity.\n"
 #~ "This requires the \"fly\" privilege on the server."
@@ -8900,6 +9447,9 @@ msgstr "cURL並行処理制限"
 #~ "(UDP) に接続するポート。\n"
 #~ "メインメニューのポート欄はこの設定を上書きすることに注意してください。"
 
+#~ msgid "Prev. item"
+#~ msgstr "前のアイテム"
+
 #~ msgid "Profiler toggle key"
 #~ msgstr "観測記録表示切替キー"
 
@@ -8920,6 +9470,9 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "Reset singleplayer world"
 #~ msgstr "ワールドをリセット"
+
+#~ msgid "Right"
+#~ msgstr "右移動"
 
 #~ msgid "Right key"
 #~ msgstr "右キー"
@@ -9064,18 +9617,19 @@ msgstr "cURL並行処理制限"
 #~ msgid "This is not a recommended configuration."
 #~ msgstr "推奨されている設定ではありません。"
 
+#~ msgid ""
+#~ "This is the list of clients connected to\n"
+#~ "$1"
+#~ msgstr ""
+#~ "接続するクライアントの一覧です\n"
+#~ "$1"
+
 #~ msgid "Time send interval"
 #~ msgstr "時刻送信間隔"
 
 #~ msgid "To enable shaders the OpenGL driver needs to be used."
 #~ msgstr ""
 #~ "シェーダーを有効にするにはOpenGLのドライバを使用する必要があります。"
-
-#~ msgid "Toggle Cinematic"
-#~ msgstr "映画風モード切替"
-
-#~ msgid "Toggle camera mode key"
-#~ msgstr "視点変更キー"
 
 #~ msgid "Tone Mapping"
 #~ msgstr "トーンマッピング"
@@ -9111,6 +9665,17 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "Use bilinear filtering when scaling textures down."
 #~ msgstr "テクスチャを縮小するときはバイリニアフィルタリングを使用します。"
+
+#~ msgid "Use crosshair for touch screen"
+#~ msgstr "タッチスクリーンに十字カーソルを使用する"
+
+#~ msgid ""
+#~ "Use crosshair to select object instead of whole screen.\n"
+#~ "If enabled, a crosshair will be shown and will be used for selecting "
+#~ "object."
+#~ msgstr ""
+#~ "画面全体ではなく、十字カーソルを使用してオブジェクトを選択します。\n"
+#~ "有効にすると、十字カーソルが表示されオブジェクトの選択に使用されます。"
 
 #~ msgid ""
 #~ "Use multi-sample antialiasing (MSAA) to smooth out block edges.\n"
@@ -9267,3 +9832,9 @@ msgstr "cURL並行処理制限"
 
 #~ msgid "ok"
 #~ msgstr "決定"
+
+#~ msgid "pause_menu"
+#~ msgstr "ポーズ_メニュー"
+
+#~ msgid "press key"
+#~ msgstr "キー入力待ち"

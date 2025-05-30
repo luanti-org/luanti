@@ -145,8 +145,7 @@ QueuedMeshUpdate *MeshUpdateQueue::pop()
 		MutexAutoLock lock(m_mutex);
 
 		bool must_be_urgent = !m_urgents.empty();
-		for (std::vector<QueuedMeshUpdate*>::iterator i = m_queue.begin();
-				i != m_queue.end(); ++i) {
+		for (auto i = m_queue.begin(); i != m_queue.end(); ++i) {
 			QueuedMeshUpdate *q = *i;
 			if (must_be_urgent && m_urgents.count(q->p) == 0)
 				continue;
@@ -264,8 +263,8 @@ void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
 			g_settings->getBool("smooth_lighting")
 			&& !g_settings->getFlag("performance_tradeoffs");
 	if (!m_queue_in.addBlock(map, p, ack_block_to_server, urgent)) {
-		warningstream << "Update requested for non-existent block at ("
-				<< p.X << ", " << p.Y << ", " << p.Z << ")" << std::endl;
+		warningstream << "Update requested for non-existent block at "
+				<< p << std::endl;
 		return;
 	}
 	if (update_neighbors) {

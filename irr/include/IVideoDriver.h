@@ -25,7 +25,6 @@ namespace irr
 {
 namespace io
 {
-class IAttributes;
 class IReadFile;
 class IWriteFile;
 } // end namespace io
@@ -127,23 +126,6 @@ public:
 	\param flag When true the feature is disabled, otherwise it is enabled. */
 	virtual void disableFeature(E_VIDEO_DRIVER_FEATURE feature, bool flag = true) = 0;
 
-	//! Get attributes of the actual video driver
-	/** The following names can be queried for the given types:
-	MaxTextures (int) The maximum number of simultaneous textures supported by the driver. This can be less than the supported number of textures of the driver. Use _IRR_MATERIAL_MAX_TEXTURES_ to adapt the number.
-	MaxSupportedTextures (int) The maximum number of simultaneous textures supported by the fixed function pipeline of the (hw) driver. The actual supported number of textures supported by the engine can be lower.
-	MaxAnisotropy (int) Number of anisotropy levels supported for filtering. At least 1, max is typically at 16 or 32.
-	MaxAuxBuffers (int) Special render buffers, which are currently not really usable inside Irrlicht. Only supported by OpenGL
-	MaxMultipleRenderTargets (int) Number of render targets which can be bound simultaneously. Rendering to MRTs is done via shaders.
-	MaxIndices (int) Number of indices which can be used in one render call (i.e. one mesh buffer).
-	MaxTextureSize (int) Dimension that a texture may have, both in width and height.
-	MaxGeometryVerticesOut (int) Number of vertices the geometry shader can output in one pass. Only OpenGL so far.
-	MaxTextureLODBias (float) Maximum value for LOD bias. Is usually at around 16, but can be lower on some systems.
-	Version (int) Version of the driver. Should be Major*100+Minor
-	ShaderLanguageVersion (int) Version of the high level shader language. Should be Major*100+Minor.
-	AntiAlias (int) Number of Samples the driver uses for each pixel. 0 and 1 means anti aliasing is off, typical values are 2,4,8,16,32
-	*/
-	virtual const io::IAttributes &getDriverAttributes() const = 0;
-
 	//! Sets transformation matrices.
 	/** \param state Transformation type to be set, e.g. view,
 	world, or projection.
@@ -190,7 +172,7 @@ public:
 	\return Pointer to the texture, or 0 if the texture
 	could not be loaded. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual ITexture *getTexture(const io::path &filename) = 0;
+	[[deprecated]] virtual ITexture *getTexture(const io::path &filename) = 0;
 
 	//! Get access to a named texture.
 	/** Loads the texture from disk if it is not
@@ -202,7 +184,7 @@ public:
 	\return Pointer to the texture, or 0 if the texture
 	could not be loaded. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual ITexture *getTexture(io::IReadFile *file) = 0;
+	[[deprecated]] virtual ITexture *getTexture(io::IReadFile *file) = 0;
 
 	//! Returns amount of textures currently loaded
 	/** \return Amount of textures currently loaded */
@@ -231,6 +213,15 @@ public:
 	should not be dropped. See IReferenceCounted::drop() for more
 	information. */
 	virtual ITexture *addTexture(const io::path &name, IImage *image) = 0;
+
+	/**
+	 * Creates an array texture from IImages.
+	 * @param name A name for the texture.
+	 * @param images Pointer to array of images
+	 * @param count Number of images (must be at least 1)
+	 * @return Pointer to the newly created texture
+	 */
+	virtual ITexture *addArrayTexture(const io::path &name, IImage **images, u32 count) = 0;
 
 	//! Creates a cubemap texture from loaded IImages.
 	/** \param name A name for the texture. Later calls of getTexture() with this name will return this texture.
@@ -1123,7 +1114,6 @@ public:
 
 	//! Only used by the engine internally.
 	/** Passes the global material flag AllowZWriteOnTransparent.
-	Use the SceneManager attribute to set this value from your app.
 	\param flag Default behavior is to disable ZWrite, i.e. false. */
 	virtual void setAllowZWriteOnTransparent(bool flag) = 0;
 

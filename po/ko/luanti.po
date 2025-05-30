@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Korean (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 13:23+0100\n"
+"POT-Creation-Date: 2025-05-14 23:02+0200\n"
 "PO-Revision-Date: 2025-02-02 12:01+0000\n"
 "Last-Translator: alasa ala <dave.stop.stop@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -86,8 +86,17 @@ msgid "Browse"
 msgstr "열기"
 
 #: builtin/common/settings/components.lua
+msgid "Conflicts with \"$1\""
+msgstr ""
+
+#: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "수정"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Remove keybinding"
+msgstr "원격 미디어"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -116,8 +125,8 @@ msgstr "2차원 소음"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
+#: src/gui/guiPasswordChange.cpp
 msgid "Cancel"
 msgstr "취소"
 
@@ -140,7 +149,7 @@ msgid "Persistence"
 msgstr "플레이어 전송 거리"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "Save"
 msgstr "저장"
 
@@ -213,8 +222,18 @@ msgstr ""
 msgid "Auto"
 msgstr ""
 
-#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+msgid "Back"
+msgstr "뒤로"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Buttons with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
+#: src/settings_translation_file.cpp
 msgid "Chat"
 msgstr "채팅"
 
@@ -240,6 +259,10 @@ msgid "General"
 msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Long tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
 msgstr "빠른 이동"
 
@@ -262,6 +285,10 @@ msgid "Search"
 msgstr "찾기"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Short tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
 msgstr ""
 
@@ -271,13 +298,17 @@ msgstr "기술적 이름 보기"
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "Touchscreen layout"
-msgstr "터치임계값 (픽셀)"
+msgid "Tap"
+msgstr "탭"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Tap with crosshair"
+msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "pause_menu"
-msgstr "일시정지 메뉴에서 FPS"
+msgid "Touchscreen layout"
+msgstr "터치임계값 (픽셀)"
 
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
@@ -416,11 +447,6 @@ msgid "All"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Back"
-msgstr "뒤로"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr "cURL 없이 Minetest를 컴파일한 경우 ContentDB를 사용할 수 없습니다"
@@ -449,7 +475,6 @@ msgid "Mods"
 msgstr "모드"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "검색할 수 있는 패키지가 없습니다"
 
@@ -557,6 +582,15 @@ msgid "Donate"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading package information"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "Error loading reviews"
+msgstr "클라이언트 만드는 중..."
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
 msgstr ""
 
@@ -572,6 +606,10 @@ msgstr "설치"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Reviews"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
@@ -631,7 +669,7 @@ msgstr "$1을 텍스쳐팩으로 설치할 수 없습니다"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
-"This is the list of clients connected to\n"
+"Players connected to\n"
 "$1"
 msgstr ""
 
@@ -917,6 +955,31 @@ msgstr "pkgmgr: 잘못된 경로\"$1\""
 #: builtin/mainmenu/dlg_delete_world.lua
 msgid "Delete World \"$1\"?"
 msgstr "\"$1\"을(를) 삭제하시겠습니까?"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Keybindings changed"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Open settings"
+msgstr "설정"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr ""
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1229,13 +1292,6 @@ msgid "Address"
 msgstr "- 주소: "
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
-msgid ""
-"Clients:\n"
-"$1"
-msgstr "클라이언트"
-
-#: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
 msgstr "크리에이티브 모드"
 
@@ -1279,6 +1335,13 @@ msgstr "전용 서버 단계"
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "핑"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Players:\n"
+"$1"
+msgstr "클라이언트"
 
 #: builtin/mainmenu/tab_online.lua
 msgid ""
@@ -2132,6 +2195,11 @@ msgstr ""
 msgid "Some mods have unsatisfied dependencies:"
 msgstr "요구사항 없음"
 
+#: src/gui/guiButtonKey.h
+#, fuzzy
+msgid "Press Button"
+msgstr "왼쪽 버튼"
+
 #: src/gui/guiChatConsole.cpp
 #, fuzzy
 msgid "Failed to open webpage"
@@ -2144,163 +2212,6 @@ msgstr ""
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
 msgstr "계속하기"
-
-#: src/gui/guiKeyChangeMenu.cpp
-#, fuzzy
-msgid "\"Aux1\" = climb down"
-msgstr "\"특별함\" = 아래로 타고 내려가기"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Autoforward"
-msgstr "자동전진"
-
-#: src/gui/guiKeyChangeMenu.cpp src/settings_translation_file.cpp
-msgid "Automatic jumping"
-msgstr "자동 점프"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Aux1"
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Backward"
-msgstr "뒤로"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Block bounds"
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Change camera"
-msgstr "카메라 변경"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Command"
-msgstr "명령어"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Console"
-msgstr "콘솔"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. range"
-msgstr "범위 감소"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. volume"
-msgstr "볼륨 줄이기"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Double tap \"jump\" to toggle fly"
-msgstr "\"점프\"를 두번 탭하여 비행"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Drop"
-msgstr "드롭하기"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Forward"
-msgstr "앞으로"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. range"
-msgstr "범위 증가"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. volume"
-msgstr "볼륨 늘리기"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Inventory"
-msgstr "인벤토리"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Jump"
-msgstr "점프"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Key already in use"
-msgstr "이미 사용하고 있는 키입니다"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Keybindings."
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Left"
-msgstr "왼쪽"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Local command"
-msgstr "지역 명령어"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Mute"
-msgstr "음소거"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Next item"
-msgstr "다음 아이템"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Prev. item"
-msgstr "이전.아이템"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Range select"
-msgstr "범위 선택"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Right"
-msgstr "오른쪽"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Screenshot"
-msgstr "스크린샷"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Sneak"
-msgstr "살금살금"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle HUD"
-msgstr "HUD 토글"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle chat log"
-msgstr "채팅 기록 토글"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fast"
-msgstr "고속 스위치"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fly"
-msgstr "비행 스위치"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle fog"
-msgstr "안개 토글"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle minimap"
-msgstr "미니맵 토글"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle noclip"
-msgstr "자유시점 스위치"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle pitchmove"
-msgstr "피치 이동 토글"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Zoom"
-msgstr "확대/축소"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "press key"
-msgstr "키를 누르세요"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
@@ -2330,10 +2241,6 @@ msgstr "현재 비밀번호"
 #: src/gui/guiPasswordChange.cpp
 msgid "Passwords do not match!"
 msgstr "비밀번호가 맞지 않습니다!"
-
-#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
-msgid "Exit"
-msgstr "나가기"
 
 #: src/gui/guiVolumeChange.cpp
 msgid "Muted"
@@ -2375,18 +2282,83 @@ msgstr ""
 msgid "Tap outside to deselect."
 msgstr ""
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Aux1"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Change camera"
+msgstr "카메라 변경"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Dig/punch/use"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Drop"
+msgstr "드롭하기"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "나가기"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Inventory"
+msgstr "인벤토리"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
 msgstr ""
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Jump"
+msgstr "점프"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#, fuzzy
+msgid "Place/use"
+msgstr "비행 키"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Range select"
+msgstr "범위 선택"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Sneak"
+msgstr "살금살금"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle chat log"
+msgstr "채팅 기록 토글"
+
 #: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "안개 토글"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fast"
+msgstr "고속 스위치"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fly"
+msgstr "비행 스위치"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle minimap"
+msgstr "미니맵 토글"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle noclip"
+msgstr "자유시점 스위치"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Zoom"
+msgstr "확대/축소"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2861,6 +2833,10 @@ msgid "Audio"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Automatic jumping"
+msgstr "자동 점프"
+
+#: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
 msgstr "단일 노드 장애물에 대한 자동 점프."
 
@@ -3080,6 +3056,11 @@ msgid "Client"
 msgstr "클라이언트"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Client Debugging"
+msgstr "클라이언트 모딩"
+
+#: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
 msgstr ""
 
@@ -3175,6 +3156,10 @@ msgstr ""
 "mod 보안이 켜져있는 경우에도 안전하지 않은 기능에 액세스 할 수있는 쉼표로 구"
 "분 된 신뢰 할 수 있는 모드의 목록입니다\n"
 "(request_insecure_environment ()를 통해)."
+
+#: src/settings_translation_file.cpp
+msgid "Command"
+msgstr "명령어"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3310,6 +3295,16 @@ msgid ""
 "Reducing this can improve performance, but some effects (e.g. debanding)\n"
 "require more than 8 bits to work."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease view range"
+msgstr "범위 감소"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease volume"
+msgstr "볼륨 줄이기"
 
 #: src/settings_translation_file.cpp
 msgid "Dedicated server step"
@@ -3508,6 +3503,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Drop item"
+msgstr "아이템 드랍 키"
+
+#: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
 msgstr "Mapgen 디버그 정보를 덤프 합니다."
 
@@ -3550,6 +3550,13 @@ msgstr "데미지 활성화"
 msgid ""
 "Enable IPv6 support (for both client and server).\n"
 "Required for IPv6 connections to work at all."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Enable IPv6 support for server.\n"
+"Note that clients will be able to connect with both IPv4 and IPv6.\n"
+"Ignored if bind_address is set."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3666,16 +3673,6 @@ msgstr ""
 "예 : 0은 화면 흔들림 없음; 1.0은 노멀; 2.0은 더블."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid ""
-"Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set."
-msgstr ""
-"IPv6 서버를 실행 활성화/비활성화.\n"
-"IPv6 서버는 IPv6 클라이언트 시스템 구성에 따라 제한 될 수 있습니다.\n"
-"만약 Bind_address가 설정 된 경우 무시 됩니다."
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Enables Hable's 'Uncharted 2' filmic tone mapping.\n"
 "Simulates the tone curve of photographic film and how this approximates the\n"
@@ -3747,16 +3744,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "FPS when unfocused or paused"
+msgid "FPS when unfocused"
 msgstr "게임이 일시정지될때의 최대 FPS."
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
 msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Fall bobbing factor"
-msgstr "낙하 흔들림"
 
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
@@ -4145,11 +4138,180 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 1"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 10"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 11"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 12"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 13"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 14"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 15"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 16"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 17"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 18"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 19"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 2"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 20"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 21"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 22"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 23"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 24"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 25"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 26"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 27"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 28"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 29"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 3"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 30"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 31"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 32"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 4"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 5"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 6"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 7"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 8"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 9"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select next item"
+msgstr "핫바 슬롯 키 12"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar: select previous item"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4256,6 +4418,16 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "If enabled, the \"Aux1\" key will toggle when pressed."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, the \"Sneak\" key will toggle when pressed.\n"
+"This functionality is ignored when fly is enabled."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4315,6 +4487,16 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "게임 내에서 채팅 콘솔 배경 알파 (불투명 함, 0와 255 사이)."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase view range"
+msgstr "범위 증가"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase volume"
+msgstr "볼륨 늘리기"
+
+#: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
 msgstr ""
 
@@ -4346,6 +4528,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Interaction style"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4466,6 +4652,342 @@ msgid "Jumping speed"
 msgstr "점프 속도"
 
 #: src/settings_translation_file.cpp
+msgid "Key for decreasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decreasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for digging, punching or using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for dropping the currently selected item."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for incrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for jumping."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving fast in fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for moving the player backward.\n"
+"Will also disable autoforward, when active."
+msgstr ""
+"플레이어가 \n"
+"뒤쪽으로 움직이는 키입니다.\n"
+"Http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3 참조"
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player forward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player left."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player right."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for muting the game."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type local commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the inventory."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for placing an item/block or for using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 11th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 12th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 13th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 14th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 15th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 16th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 17th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 18th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 19th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 20th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 21st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 22nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 23rd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 24th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 25th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 26th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 27th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 28th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 29th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 30th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 31st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 32nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the eighth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fifth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the first hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fourth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the next item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the ninth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the previous item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the second hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the seventh hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the sixth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the tenth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the third hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for sneaking.\n"
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"살금살금걷기 키입니다.\n"
+"만약 aux1_descends를 사용할 수 없는 경우에 물에서 내려가거나 올라올 수 있습니"
+"다.\n"
+"Http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3 참조"
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching between first- and third-person camera."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the next entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the previous entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for taking screenshots."
+msgstr "Screenshots의 형식입니다."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling autoforward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling cinematic mode."
+msgstr "시네마틱 모드에서 카메라 부드럽게"
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling display of minimap."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling flying."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling fullscreen mode."
+msgstr "전체 화면 모드."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling noclip mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling pitch move mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of chat."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of debug info."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of fog."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of mapblock boundaries."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the HUD."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the large chat console."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the profiler. Used for development."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling unlimited view range."
+msgstr "제한없는 시야 범위 비활성화"
+
+#: src/settings_translation_file.cpp
+msgid "Key to use view zoom when possible."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Keybindings"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
 msgstr ""
 
@@ -4500,6 +5022,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Large chat console"
+msgstr "큰 채팅 콘솔 키"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -4655,6 +5182,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Local command"
+msgstr "지역 명령어"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -4853,7 +5384,7 @@ msgstr "최대 FPS"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Maximum FPS when the window is not focused, or when the game is paused."
+msgid "Maximum FPS when the window is not focused."
 msgstr "게임이 일시정지될때의 최대 FPS."
 
 #: src/settings_translation_file.cpp
@@ -4915,7 +5446,9 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of mapblocks for client to be kept in memory.\n"
-"Set to -1 for unlimited amount."
+"Note that there is an internal dynamic minimum number of blocks that\n"
+"won't be deleted, depending on the current view range.\n"
+"Set to -1 for no limit."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4955,12 +5488,12 @@ msgid "Maximum simultaneous block sends per client"
 msgstr "클라이언트 당 최대 동시 블록 전송"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum size of the outgoing chat queue"
+msgid "Maximum size of the client's outgoing chat queue"
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Maximum size of the outgoing chat queue.\n"
+"Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
 
@@ -5085,6 +5618,25 @@ msgstr "마우스 감도 멀티플라이어."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Move backward"
+msgstr "뒤로"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move forward"
+msgstr "자동전진"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move left"
+msgstr "빠른 이동"
+
+#: src/settings_translation_file.cpp
+msgid "Move right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Movement threshold"
 msgstr "동굴 임계치"
 
@@ -5093,12 +5645,8 @@ msgid "Mud noise"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Multiplier for fall bobbing.\n"
-"For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-msgstr ""
-"낙하 흔들림 멀티플라이어\n"
-"예 : 0은 화면 흔들림 없음; 1.0은 노말; 2.0은 더블."
+msgid "Mute"
+msgstr "음소거"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5213,6 +5761,15 @@ msgstr ""
 msgid ""
 "Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Open chat"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open inventory"
+msgstr "인벤토리"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5340,9 +5897,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Prometheus listener address.\n"
-"If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
-"enable metrics listener for Prometheus on that address.\n"
-"Metrics can be fetched on http://127.0.0.1:30000/metrics"
+"If Luanti is compiled with Prometheus support, this setting\n"
+"enables the metrics listener for Prometheus on that address.\n"
+"By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
+"An empty value disables the metrics listener."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5356,6 +5914,22 @@ msgstr "프로토콜 버전이 알맞지 않습니다. "
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: decrement value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: increment value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select next entry"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select previous entry"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5526,6 +6100,10 @@ msgstr "화면 높이"
 #: src/settings_translation_file.cpp
 msgid "Screen width"
 msgstr "화면 너비"
+
+#: src/settings_translation_file.cpp
+msgid "Screenshot"
+msgstr "스크린샷"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot folder"
@@ -6152,16 +6730,33 @@ msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
 "\n"
-"* short_tap\n"
+"* Short tap\n"
 "Easy to use and well-known from other games that shall not be named.\n"
 "\n"
-"* long_tap\n"
+"* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The kind of digging/placing controls used.\n"
+"\n"
+"* Tap\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at finger position.\n"
+"\n"
+"* Tap with crosshair\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at crosshair position.\n"
+"\n"
+"* Buttons with crosshair\n"
+"Use dedicated dig/place buttons to interact.\n"
+"Interaction happens at crosshair position."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6304,6 +6899,67 @@ msgid ""
 msgstr ""
 "플레이어가 무엇을 건설할 때 렉을 줄이기 위해 블럭 전송이 느려집니다.\n"
 "이것은 node가 배치되거나 제거된 후 얼마나 오래 느려지는지를 결정합니다."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Aux1 key"
+msgstr "점프 키"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle HUD"
+msgstr "HUD 토글"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Sneak key"
+msgstr "카메라모드 스위치 키"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle automatic forward"
+msgstr "자동 전진 키"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle block bounds"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera mode"
+msgstr "카메라모드 스위치 키"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera update"
+msgstr "카메라모드 스위치 키"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle cinematic mode"
+msgstr "시네마틱 스위치"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle debug info"
+msgstr "안개 토글"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fog"
+msgstr "안개 토글"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle fullscreen"
+msgstr "비행 스위치"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle pitchmove"
+msgstr "피치 이동 토글"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle profiler"
+msgstr "비행 스위치"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6451,16 +7107,6 @@ msgstr "각도에 따라 텍스처를 볼 때 이방성 필터링을 사용 합�
 #, fuzzy
 msgid "Use bilinear filtering when scaling textures."
 msgstr "삼중 선형 필터링은 질감 스케일링을 할 때 사용 합니다."
-
-#: src/settings_translation_file.cpp
-msgid "Use crosshair for touch screen"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Use crosshair to select object instead of whole screen.\n"
-"If enabled, a crosshair will be shown and will be used for selecting object."
-msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6793,7 +7439,7 @@ msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
 "a specially-designed texture pack; with this option, the client tries\n"
-"to determine the scale automatically basing on the texture size.\n"
+"to determine the scale automatically based on the texture size.\n"
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
@@ -6864,6 +7510,10 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
+#, fuzzy
+#~ msgid "\"Aux1\" = climb down"
+#~ msgstr "\"특별함\" = 아래로 타고 내려가기"
+
 #~ msgid "- Address: "
 #~ msgstr "- 주소: "
 
@@ -6929,15 +7579,8 @@ msgstr ""
 #~ msgid "Are you sure to reset your singleplayer world?"
 #~ msgstr "싱글 플레이어 월드를 리셋하겠습니까?"
 
-#~ msgid "Automatic forward key"
-#~ msgstr "자동 전진 키"
-
 #~ msgid "Autosave Screen Size"
 #~ msgstr "스크린 크기 자동 저장"
-
-#, fuzzy
-#~ msgid "Aux1 key"
-#~ msgstr "점프 키"
 
 #~ msgid "Back to Main Menu"
 #~ msgstr "주 메뉴로 돌아가기"
@@ -7036,6 +7679,9 @@ msgstr ""
 
 #~ msgid "Connected Glass"
 #~ msgstr "연결된 유리"
+
+#~ msgid "Console"
+#~ msgstr "콘솔"
 
 #~ msgid "Continuous forward"
 #~ msgstr "연속 전진"
@@ -7155,8 +7801,8 @@ msgstr ""
 #~ msgid "Disable anticheat"
 #~ msgstr "Anticheat를 사용 안함"
 
-#~ msgid "Disabled unlimited viewing range"
-#~ msgstr "제한없는 시야 범위 비활성화"
+#~ msgid "Double tap \"jump\" to toggle fly"
+#~ msgstr "\"점프\"를 두번 탭하여 비행"
 
 #~ msgid "Down"
 #~ msgstr "아래"
@@ -7170,9 +7816,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Downloading and installing $1, please wait..."
 #~ msgstr "$1 를(을) 다운로드중입니다. 기다려주세요..."
-
-#~ msgid "Drop item key"
-#~ msgstr "아이템 드랍 키"
 
 #, fuzzy
 #~ msgid "Dynamic shadows:"
@@ -7195,6 +7838,15 @@ msgstr ""
 #, fuzzy
 #~ msgid "Enable touchscreen"
 #~ msgstr "터치임계값 (픽셀)"
+
+#, fuzzy
+#~ msgid ""
+#~ "Enable/disable running an IPv6 server.\n"
+#~ "Ignored if bind_address is set."
+#~ msgstr ""
+#~ "IPv6 서버를 실행 활성화/비활성화.\n"
+#~ "IPv6 서버는 IPv6 클라이언트 시스템 구성에 따라 제한 될 수 있습니다.\n"
+#~ "만약 Bind_address가 설정 된 경우 무시 됩니다."
 
 #~ msgid ""
 #~ "Enables bumpmapping for textures. Normalmaps need to be supplied by the "
@@ -7225,6 +7877,9 @@ msgstr ""
 
 #~ msgid "Enter "
 #~ msgstr "들어가기 "
+
+#~ msgid "Fall bobbing factor"
+#~ msgstr "낙하 흔들림"
 
 #~ msgid "Fallback font shadow"
 #~ msgstr "대체 글꼴 그림자"
@@ -7270,6 +7925,9 @@ msgstr ""
 #~ msgid "Formspec default background opacity (between 0 and 255)."
 #~ msgstr "게임 내에서 채팅 콘솔 배경 알파 (불투명 함, 0와 255 사이)."
 
+#~ msgid "Forward"
+#~ msgstr "앞으로"
+
 #~ msgid "Forward key"
 #~ msgstr "앞으로 가는 키"
 
@@ -7298,9 +7956,6 @@ msgstr ""
 #~ msgid "Hide: Temporary Settings"
 #~ msgstr "설정"
 
-#~ msgid "Hotbar slot 12 key"
-#~ msgstr "핫바 슬롯 키 12"
-
 #~ msgid "If enabled, disable cheat prevention in multiplayer."
 #~ msgstr "적용할 경우, 멀티플레이어에서 치트 방지를 해제합니다."
 
@@ -7328,6 +7983,9 @@ msgstr ""
 
 #~ msgid "Jump key"
 #~ msgstr "점프 키"
+
+#~ msgid "Key already in use"
+#~ msgstr "이미 사용하고 있는 키입니다"
 
 #~ msgid ""
 #~ "Key for decreasing the viewing range.\n"
@@ -7399,17 +8057,6 @@ msgstr ""
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "고속 모드에서 빠르게 이동하는 키입니다.\n"
-#~ "Http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3 참조"
-
-#~ msgid ""
-#~ "Key for moving the player backward.\n"
-#~ "Will also disable autoforward, when active.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "플레이어가 \n"
-#~ "뒤쪽으로 움직이는 키입니다.\n"
 #~ "Http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3 참조"
 
@@ -7802,19 +8449,6 @@ msgstr ""
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3 참조"
 
 #~ msgid ""
-#~ "Key for sneaking.\n"
-#~ "Also used for climbing down and descending in water if aux1_descends is "
-#~ "disabled.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "살금살금걷기 키입니다.\n"
-#~ "만약 aux1_descends를 사용할 수 없는 경우에 물에서 내려가거나 올라올 수 있"
-#~ "습니다.\n"
-#~ "Http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3 참조"
-
-#~ msgid ""
 #~ "Key for switching between first- and third-person camera.\n"
 #~ "See http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
@@ -7973,12 +8607,12 @@ msgstr ""
 #~ "Keybindings. (이 메뉴를 고정하려면 minetest.cof에서 stuff를 제거해야합니"
 #~ "다.)"
 
-#~ msgid "Large chat console key"
-#~ msgstr "큰 채팅 콘솔 키"
-
 #, fuzzy
 #~ msgid "Lava depth"
 #~ msgstr "큰 동굴 깊이"
+
+#~ msgid "Left"
+#~ msgstr "왼쪽"
 
 #~ msgid ""
 #~ "Length of liquid waves.\n"
@@ -8029,6 +8663,13 @@ msgstr ""
 #~ msgid "Mipmap + Aniso. Filter"
 #~ msgstr "밉맵 + Aniso. 필터"
 
+#~ msgid ""
+#~ "Multiplier for fall bobbing.\n"
+#~ "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
+#~ msgstr ""
+#~ "낙하 흔들림 멀티플라이어\n"
+#~ "예 : 0은 화면 흔들림 없음; 1.0은 노말; 2.0은 더블."
+
 #~ msgid "Mute key"
 #~ msgstr "음소거 키"
 
@@ -8037,6 +8678,9 @@ msgstr ""
 
 #~ msgid "Name/Password"
 #~ msgstr "이름/비밀번호"
+
+#~ msgid "Next item"
+#~ msgstr "다음 아이템"
 
 #~ msgid "No"
 #~ msgstr "아니오"
@@ -8125,10 +8769,6 @@ msgstr ""
 #~ msgid "Pitch move key"
 #~ msgstr "피치 이동 키"
 
-#, fuzzy
-#~ msgid "Place key"
-#~ msgstr "비행 키"
-
 #~ msgid ""
 #~ "Player is able to fly without being affected by gravity.\n"
 #~ "This requires the \"fly\" privilege on the server."
@@ -8155,6 +8795,9 @@ msgstr ""
 #~ "(UDP)에 연결 하는 포트.\n"
 #~ "참고 주 메뉴의 포트 필트는 이 설정으로 재정의 됩니다."
 
+#~ msgid "Prev. item"
+#~ msgstr "이전.아이템"
+
 #~ msgid "Profiler toggle key"
 #~ msgstr "프로파일러 토글 키"
 
@@ -8172,6 +8815,9 @@ msgstr ""
 
 #~ msgid "Reset singleplayer world"
 #~ msgstr "싱글 플레이어 월드 초기화"
+
+#~ msgid "Right"
+#~ msgstr "오른쪽"
 
 #~ msgid "Right key"
 #~ msgstr "오른쪽 키"
@@ -8281,12 +8927,6 @@ msgstr ""
 #~ msgid "To enable shaders the OpenGL driver needs to be used."
 #~ msgstr "쉐이더를 사용하려면 OpenGL 드라이버를 사용할 필요가 있습니다."
 
-#~ msgid "Toggle Cinematic"
-#~ msgstr "시네마틱 스위치"
-
-#~ msgid "Toggle camera mode key"
-#~ msgstr "카메라모드 스위치 키"
-
 #~ msgid "Tone Mapping"
 #~ msgstr "톤 매핑"
 
@@ -8388,3 +9028,10 @@ msgstr ""
 
 #~ msgid "ok"
 #~ msgstr "확인"
+
+#, fuzzy
+#~ msgid "pause_menu"
+#~ msgstr "일시정지 메뉴에서 FPS"
+
+#~ msgid "press key"
+#~ msgstr "키를 누르세요"

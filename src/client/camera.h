@@ -256,8 +256,6 @@ private:
 	s32 m_view_bobbing_state = 0;
 	// Speed of view bobbing animation
 	f32 m_view_bobbing_speed = 0.0f;
-	// Fall view bobbing
-	f32 m_view_bobbing_fall = 0.0f;
 
 	// Digging animation frame (0 <= m_digging_anim < 1)
 	f32 m_digging_anim = 0.0f;
@@ -272,7 +270,6 @@ private:
 
 	CameraMode m_camera_mode = CAMERA_MODE_FIRST;
 
-	f32 m_cache_fall_bobbing_amount;
 	f32 m_cache_view_bobbing_amount;
 	bool m_arm_inertia;
 

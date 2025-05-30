@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "catch.h"
+#include "catch_amalgamated.hpp"
 #include "irrMath.h"
 #include "matrix4.h"
 #include "irr_v3d.h"
@@ -80,6 +81,42 @@ SECTION("getScale") {
 			v3f(4, 5, 6).getLength(),
 			v3f(7, 8, 9).getLength()
 		)));
+	}
+}
+
+SECTION("getRotationRadians") {
+	auto test_rotation_degrees = [](v3f rad, v3f scale) {
+		matrix4 S;
+		S.setScale(scale);
+		matrix4 R;
+		R.setRotationRadians(rad);
+		v3f rot = (R * S).getRotationRadians();
+		matrix4 B;
+		B.setRotationRadians(rot);
+		CHECK(matrix_equals(R, B));
+	};
+	SECTION("returns a rotation equivalent to the original rotation") {
+		test_rotation_degrees({1.0f, 2.0f, 3.0f}, v3f(1));
+		Catch::Generators::RandomFloatingGenerator<f32> gen_angle(0.0f, 2 * core::PI, Catch::getSeed());
+		Catch::Generators::RandomFloatingGenerator<f32> gen_scale(0.1f, 10, Catch::getSeed());
+		auto draw = [](auto gen) {
+			f32 f = gen.get();
+			gen.next();
+			return f;
+		};
+		auto draw_v3f = [&](auto gen) {
+			return v3f{draw(gen), draw(gen), draw(gen)};
+		};
+		for (int i = 0; i < 1000; ++i)
+			test_rotation_degrees(draw_v3f(gen_angle), draw_v3f(gen_scale));
+		for (f32 i = 0; i < 4; ++i)
+		for (f32 j = 0; j < 4; ++j)
+		for (f32 k = 0; k < 4; ++k) {
+			v3f rad = core::PI / 4.0f * v3f(i, j, k);
+			for (int l = 0; l < 100; ++l) {
+				test_rotation_degrees(rad, draw_v3f(gen_scale));
+			}
+		}
 	}
 }
 

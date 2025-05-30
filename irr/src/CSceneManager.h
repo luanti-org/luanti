@@ -11,7 +11,6 @@
 #include "irrString.h"
 #include "irrArray.h"
 #include "IMeshLoader.h"
-#include "CAttributes.h"
 
 namespace irr
 {
@@ -158,9 +157,6 @@ public:
 	//! Removes all children of this scene node
 	void removeAll() override;
 
-	//! Returns interface to the parameters set in this scene.
-	io::IAttributes *getParameters() override;
-
 	//! Returns current render pass.
 	E_SCENE_NODE_RENDER_PASS getSceneNodeRenderPass() const override;
 
@@ -265,10 +261,6 @@ private:
 	//! current active camera
 	ICameraSceneNode *ActiveCamera;
 	core::vector3df camWorldPos; // Position of camera for transparent nodes.
-
-	//! String parameters
-	// NOTE: Attributes are slow and should only be used for debug-info and not in release
-	io::CAttributes *Parameters;
 
 	//! Mesh cache
 	IMeshCache *MeshCache;

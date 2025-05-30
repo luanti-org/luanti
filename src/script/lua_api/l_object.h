@@ -6,6 +6,7 @@
 
 #include "lua_api/l_base.h"
 #include "irrlichttypes.h"
+#include <lua.h>
 
 class ServerActiveObject;
 class LuaEntitySAO;
@@ -47,6 +48,9 @@ private:
 	static RemotePlayer *getplayer(ObjectRef *ref);
 
 	// Exported functions
+
+	// __tostring metamethod
+	static int mt_tostring(lua_State *L);
 
 	// garbage collector
 	static int gc_object(lua_State *L);

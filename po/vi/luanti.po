@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Vietnamese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 13:23+0100\n"
+"POT-Creation-Date: 2025-05-14 23:02+0200\n"
 "PO-Revision-Date: 2022-08-26 10:18+0000\n"
 "Last-Translator: Văn Chí <chiv8331@gmail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/minetest/"
@@ -84,8 +84,17 @@ msgid "Browse"
 msgstr "Duyệt"
 
 #: builtin/common/settings/components.lua
+msgid "Conflicts with \"$1\""
+msgstr ""
+
+#: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "Chỉnh sửa"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Remove keybinding"
+msgstr "Liên kết phím."
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -113,8 +122,8 @@ msgstr "Nhiễu 2D"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
+#: src/gui/guiPasswordChange.cpp
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -137,7 +146,7 @@ msgid "Persistence"
 msgstr "Sự bền bỉ"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "Save"
 msgstr "Lưu"
 
@@ -210,8 +219,19 @@ msgstr ""
 msgid "Auto"
 msgstr ""
 
-#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+#, fuzzy
+msgid "Back"
+msgstr "Lùi xuống"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Buttons with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
+#: src/settings_translation_file.cpp
 msgid "Chat"
 msgstr "Trò chuyện"
 
@@ -234,6 +254,10 @@ msgstr "Đã kích hoạt"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Long tap"
 msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
@@ -260,6 +284,10 @@ msgid "Search"
 msgstr "Tìm kiếm"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Short tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
 msgstr ""
 
@@ -269,12 +297,17 @@ msgstr "Hiển thị tên kỹ thuật"
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "Touchscreen layout"
-msgstr "Độ nhạy chuột"
+msgid "Tap"
+msgstr "Tab"
 
 #: builtin/common/settings/dlg_settings.lua
-msgid "pause_menu"
+msgid "Tap with crosshair"
 msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Touchscreen layout"
+msgstr "Độ nhạy chuột"
 
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
@@ -407,12 +440,6 @@ msgid "All"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
-msgid "Back"
-msgstr "Lùi xuống"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr "ContentDB không có sẵn khi Minetest được biên dịch mà không có cURL"
@@ -442,7 +469,6 @@ msgid "Mods"
 msgstr "Sửa đổi"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "Không nhận được gói nào"
 
@@ -547,6 +573,15 @@ msgid "Donate"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading package information"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "Error loading reviews"
+msgstr "Đã xảy ra lỗi khi tạo máy khách: %s"
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
 msgstr ""
 
@@ -562,6 +597,10 @@ msgstr "Cài đặt $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Reviews"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
@@ -622,7 +661,7 @@ msgstr "Không thể cài đặt $1 dưới dạng gói kết cấu"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
-"This is the list of clients connected to\n"
+"Players connected to\n"
 "$1"
 msgstr ""
 
@@ -911,6 +950,32 @@ msgstr "pkgmgr: đường dẫn \"$1\" không hợp lệ"
 #: builtin/mainmenu/dlg_delete_world.lua
 msgid "Delete World \"$1\"?"
 msgstr "Xóa thế giới \"$1\"?"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Keybindings changed"
+msgstr "Liên kết phím."
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Open settings"
+msgstr "Cài đặt"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr ""
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1221,13 +1286,6 @@ msgid "Address"
 msgstr "Địa chỉ"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
-msgid ""
-"Clients:\n"
-"$1"
-msgstr "Máy khách"
-
-#: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
 msgstr "Chế độ sáng tạo"
 
@@ -1268,6 +1326,13 @@ msgstr ""
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Players:\n"
+"$1"
+msgstr "Máy khách"
 
 #: builtin/mainmenu/tab_online.lua
 msgid ""
@@ -2116,6 +2181,11 @@ msgstr ""
 msgid "Some mods have unsatisfied dependencies:"
 msgstr "Không có phần phụ thuộc bắt buộc nào"
 
+#: src/gui/guiButtonKey.h
+#, fuzzy
+msgid "Press Button"
+msgstr "Nút trái"
+
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
 msgstr "Đã xảy ra lỗi khi mở trang web"
@@ -2127,162 +2197,6 @@ msgstr "Đang mở trang web"
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
 msgstr "Tiến hành"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "\"Aux1\" = climb down"
-msgstr "\"Aux1\" = leo xuống"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Autoforward"
-msgstr "Tự động tiến"
-
-#: src/gui/guiKeyChangeMenu.cpp src/settings_translation_file.cpp
-msgid "Automatic jumping"
-msgstr "Tự động nhảy"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Aux1"
-msgstr "Aux1"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Backward"
-msgstr "Lùi xuống"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Block bounds"
-msgstr "Ranh giới khối"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Change camera"
-msgstr "Thay đổi camera"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Command"
-msgstr "Lệnh"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Console"
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. range"
-msgstr "Giảm phạm vi"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. volume"
-msgstr "Giảm âm lượng"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Double tap \"jump\" to toggle fly"
-msgstr "Nhấn đúp nút \"nhảy\" để chuyển đổi chế độ bay"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Drop"
-msgstr "Thả"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Forward"
-msgstr "Tiến lên"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. range"
-msgstr "Tăng phạm vi"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. volume"
-msgstr "Tăng âm lượng"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Inventory"
-msgstr "Túi đồ"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Jump"
-msgstr "Nhảy"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Key already in use"
-msgstr "Phím đã được sử dụng"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Keybindings."
-msgstr "Liên kết phím."
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Left"
-msgstr "Sang trái"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Local command"
-msgstr "Lệnh cục bộ"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Mute"
-msgstr "Tắt tiếng"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Next item"
-msgstr "Vật phẩm tiếp theo"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Prev. item"
-msgstr "Vật phẩm trước"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Range select"
-msgstr "Lựa chọn phạm vi"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Right"
-msgstr "Sang phải"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Screenshot"
-msgstr "Chụp màn hình"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Sneak"
-msgstr "Đi rón rén"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle HUD"
-msgstr "Chuyển đổi HUD"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle chat log"
-msgstr "Chuyển đổi nhật kí trò chuyện"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fast"
-msgstr "Chuyển đổi chạy nhanh"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fly"
-msgstr "Chuyển đổi bay"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle fog"
-msgstr "Chuyển đổi sương mù"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle minimap"
-msgstr "Chuyển đổi minimap"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle noclip"
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle pitchmove"
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Zoom"
-msgstr "Thu phóng"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "press key"
-msgstr "bấm phím"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
@@ -2312,10 +2226,6 @@ msgstr "Mật khẩu cũ"
 #: src/gui/guiPasswordChange.cpp
 msgid "Passwords do not match!"
 msgstr "Mật khẩu không khớp!"
-
-#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
-msgid "Exit"
-msgstr "Thoát"
 
 #: src/gui/guiVolumeChange.cpp
 msgid "Muted"
@@ -2357,18 +2267,82 @@ msgstr ""
 msgid "Tap outside to deselect."
 msgstr ""
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Aux1"
+msgstr "Aux1"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Change camera"
+msgstr "Thay đổi camera"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Dig/punch/use"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Drop"
+msgstr "Thả"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "Thoát"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Inventory"
+msgstr "Túi đồ"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
 msgstr ""
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Jump"
+msgstr "Nhảy"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Place/use"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Range select"
+msgstr "Lựa chọn phạm vi"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Sneak"
+msgstr "Đi rón rén"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle chat log"
+msgstr "Chuyển đổi nhật kí trò chuyện"
+
 #: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "Chuyển đổi sương mù"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fast"
+msgstr "Chuyển đổi chạy nhanh"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fly"
+msgstr "Chuyển đổi bay"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle minimap"
+msgstr "Chuyển đổi minimap"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle noclip"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Zoom"
+msgstr "Thu phóng"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2785,6 +2759,10 @@ msgid "Audio"
 msgstr "Âm thanh"
 
 #: src/settings_translation_file.cpp
+msgid "Automatic jumping"
+msgstr "Tự động nhảy"
+
+#: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
 msgstr ""
 
@@ -2996,6 +2974,11 @@ msgid "Client"
 msgstr "Máy khách"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Client Debugging"
+msgstr "Gỡ lỗi"
+
+#: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
 msgstr ""
 
@@ -3075,6 +3058,10 @@ msgid ""
 "Comma-separated list of trusted mods that are allowed to access insecure\n"
 "functions even when mod security is on (via request_insecure_environment())."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Command"
+msgstr "Lệnh"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3210,6 +3197,16 @@ msgid ""
 "Reducing this can improve performance, but some effects (e.g. debanding)\n"
 "require more than 8 bits to work."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease view range"
+msgstr "Giảm phạm vi"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease volume"
+msgstr "Giảm âm lượng"
 
 #: src/settings_translation_file.cpp
 msgid "Dedicated server step"
@@ -3411,6 +3408,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Drop item"
+msgstr "Phím thả vật phẩm"
+
+#: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
 msgstr ""
 
@@ -3455,6 +3457,13 @@ msgid ""
 msgstr ""
 "Kích hoạt hỗ trợ IPv6 (cho cả máy khách và máy chủ).\n"
 "Cần để việc kết nối IPv6 hoạt động."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Enable IPv6 support for server.\n"
+"Note that clients will be able to connect with both IPv4 and IPv6.\n"
+"Ignored if bind_address is set."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3570,12 +3579,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
 "Enables Hable's 'Uncharted 2' filmic tone mapping.\n"
 "Simulates the tone curve of photographic film and how this approximates the\n"
 "appearance of high dynamic range images. Mid-range contrast is slightly\n"
@@ -3644,15 +3647,12 @@ msgid "FPS"
 msgstr "FPS"
 
 #: src/settings_translation_file.cpp
-msgid "FPS when unfocused or paused"
+#, fuzzy
+msgid "FPS when unfocused"
 msgstr "FPS khi cửa sổ đang hiện hoạt hoặc tạm dừng"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Fall bobbing factor"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4035,11 +4035,147 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Hotbar slot 1"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 10"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 11"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 12"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 13"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 14"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 15"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 16"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 17"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 18"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 19"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 2"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 20"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 21"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 22"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 23"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 24"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 25"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 26"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 27"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 28"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 29"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 3"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 30"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 31"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 32"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 4"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 5"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 6"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 7"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 8"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 9"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar: select next item"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar: select previous item"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4141,6 +4277,16 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "If enabled, the \"Aux1\" key will toggle when pressed."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, the \"Sneak\" key will toggle when pressed.\n"
+"This functionality is ignored when fly is enabled."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4197,6 +4343,16 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase view range"
+msgstr "Tăng phạm vi"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase volume"
+msgstr "Tăng âm lượng"
+
+#: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
 msgstr ""
 
@@ -4228,6 +4384,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Interaction style"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4348,6 +4508,330 @@ msgid "Jumping speed"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Key for decreasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decreasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for digging, punching or using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for dropping the currently selected item."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for incrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for jumping."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving fast in fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for moving the player backward.\n"
+"Will also disable autoforward, when active."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player forward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player left."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player right."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for muting the game."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type local commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the inventory."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for placing an item/block or for using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 11th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 12th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 13th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 14th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 15th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 16th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 17th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 18th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 19th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 20th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 21st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 22nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 23rd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 24th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 25th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 26th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 27th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 28th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 29th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 30th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 31st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 32nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the eighth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fifth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the first hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fourth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the next item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the ninth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the previous item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the second hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the seventh hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the sixth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the tenth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the third hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for sneaking.\n"
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching between first- and third-person camera."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the next entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the previous entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for taking screenshots."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling autoforward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling cinematic mode."
+msgstr "Máy ảnh mượt mà trong chế độ điện ảnh"
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling display of minimap."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling flying."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling fullscreen mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling noclip mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling pitch move mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of chat."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of debug info."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of fog."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of mapblock boundaries."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the HUD."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the large chat console."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the profiler. Used for development."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling unlimited view range."
+msgstr "Đã tắt phạm vi nhìn không giới hạn"
+
+#: src/settings_translation_file.cpp
+msgid "Key to use view zoom when possible."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keybindings"
+msgstr "Liên kết phím."
+
+#: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
 msgstr ""
 
@@ -4381,6 +4865,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Large chat console"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4528,6 +5016,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Local command"
+msgstr "Lệnh cục bộ"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -4724,7 +5216,7 @@ msgid "Maximum FPS"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Maximum FPS when the window is not focused, or when the game is paused."
+msgid "Maximum FPS when the window is not focused."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4789,7 +5281,9 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of mapblocks for client to be kept in memory.\n"
-"Set to -1 for unlimited amount."
+"Note that there is an internal dynamic minimum number of blocks that\n"
+"won't be deleted, depending on the current view range.\n"
+"Set to -1 for no limit."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4828,12 +5322,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Maximum size of the outgoing chat queue"
+msgid "Maximum size of the client's outgoing chat queue"
 msgstr "Xóa hàng đợi trò chuyện"
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Maximum size of the outgoing chat queue.\n"
+"Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
 
@@ -4951,6 +5445,25 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Move backward"
+msgstr "Lùi xuống"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move forward"
+msgstr "Tự động tiến"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move left"
+msgstr "Đi nhanh"
+
+#: src/settings_translation_file.cpp
+msgid "Move right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Movement threshold"
 msgstr "Ngưỡng chạm (px):"
 
@@ -4959,10 +5472,8 @@ msgid "Mud noise"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Multiplier for fall bobbing.\n"
-"For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-msgstr ""
+msgid "Mute"
+msgstr "Tắt tiếng"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5072,6 +5583,15 @@ msgstr ""
 msgid ""
 "Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Open chat"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open inventory"
+msgstr "Túi đồ"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5192,9 +5712,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Prometheus listener address.\n"
-"If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
-"enable metrics listener for Prometheus on that address.\n"
-"Metrics can be fetched on http://127.0.0.1:30000/metrics"
+"If Luanti is compiled with Prometheus support, this setting\n"
+"enables the metrics listener for Prometheus on that address.\n"
+"By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
+"An empty value disables the metrics listener."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5208,6 +5729,22 @@ msgstr "Phiên bản giao thức không khớp. "
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: decrement value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: increment value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select next entry"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select previous entry"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5376,6 +5913,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Screen width"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Screenshot"
+msgstr "Chụp màn hình"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot folder"
@@ -5954,16 +6495,33 @@ msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
 "\n"
-"* short_tap\n"
+"* Short tap\n"
 "Easy to use and well-known from other games that shall not be named.\n"
 "\n"
-"* long_tap\n"
+"* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The kind of digging/placing controls used.\n"
+"\n"
+"* Tap\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at finger position.\n"
+"\n"
+"* Tap with crosshair\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at crosshair position.\n"
+"\n"
+"* Buttons with crosshair\n"
+"Use dedicated dig/place buttons to interact.\n"
+"Interaction happens at crosshair position."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6096,6 +6654,67 @@ msgid ""
 "This determines how long they are slowed down after placing or removing a "
 "node."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Aux1 key"
+msgstr "Phím Aux1"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle HUD"
+msgstr "Chuyển đổi HUD"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Sneak key"
+msgstr "Chuyển đổi bay"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle automatic forward"
+msgstr "Phím tự động tiến"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle block bounds"
+msgstr "Ranh giới khối"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera mode"
+msgstr "Chuyển đổi nhật kí trò chuyện"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle camera update"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle cinematic mode"
+msgstr "Chế độ điện ảnh"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle debug info"
+msgstr "Chuyển đổi sương mù"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fog"
+msgstr "Chuyển đổi sương mù"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle fullscreen"
+msgstr "Chuyển đổi bay"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle pitchmove"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle profiler"
+msgstr "Chuyển đổi bay"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6234,16 +6853,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Use bilinear filtering when scaling textures."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Use crosshair for touch screen"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Use crosshair to select object instead of whole screen.\n"
-"If enabled, a crosshair will be shown and will be used for selecting object."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6554,7 +7163,7 @@ msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
 "a specially-designed texture pack; with this option, the client tries\n"
-"to determine the scale automatically basing on the texture size.\n"
+"to determine the scale automatically based on the texture size.\n"
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
@@ -6625,6 +7234,9 @@ msgstr "Hết thời gian tương tác với cURL"
 msgid "cURL parallel limit"
 msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 
+#~ msgid "\"Aux1\" = climb down"
+#~ msgstr "\"Aux1\" = leo xuống"
+
 #~ msgid "- Address: "
 #~ msgstr "- Địa chỉ: "
 
@@ -6668,14 +7280,8 @@ msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 #~ msgid "All packages"
 #~ msgstr "Tất cả các gói"
 
-#~ msgid "Automatic forward key"
-#~ msgstr "Phím tự động tiến"
-
 #~ msgid "Autosave Screen Size"
 #~ msgstr "Tự động lưu kích cỡ màn hình"
-
-#~ msgid "Aux1 key"
-#~ msgstr "Phím Aux1"
 
 #~ msgid "Back to Main Menu"
 #~ msgstr "Trở về màn hình chính"
@@ -6708,9 +7314,6 @@ msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 
 #~ msgid "Chat toggle key"
 #~ msgstr "Phím chuyển đổi trò chuyện"
-
-#~ msgid "Cinematic mode"
-#~ msgstr "Chế độ điện ảnh"
 
 #~ msgid "Cinematic mode key"
 #~ msgstr "Phím chế độ điện ảnh"
@@ -6806,8 +7409,8 @@ msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 #~ msgid "Disable anticheat"
 #~ msgstr "Vô hiệu trình chống gian lận"
 
-#~ msgid "Disabled unlimited viewing range"
-#~ msgstr "Đã tắt phạm vi nhìn không giới hạn"
+#~ msgid "Double tap \"jump\" to toggle fly"
+#~ msgstr "Nhấn đúp nút \"nhảy\" để chuyển đổi chế độ bay"
 
 #~ msgid "Down"
 #~ msgstr "Xuống"
@@ -6818,9 +7421,6 @@ msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 
 #~ msgid "Download one from minetest.net"
 #~ msgstr "Tải xuống một trò chơi từ minetest.net"
-
-#~ msgid "Drop item key"
-#~ msgstr "Phím thả vật phẩm"
 
 #~ msgid "Dynamic shadows:"
 #~ msgstr "Bóng kiểu động lực học:"
@@ -6860,6 +7460,9 @@ msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 #~ msgid "Flying"
 #~ msgstr "Bay"
 
+#~ msgid "Forward"
+#~ msgstr "Tiến lên"
+
 #, fuzzy
 #~ msgid "Hide: Temporary Settings"
 #~ msgstr "Cài đặt"
@@ -6874,11 +7477,20 @@ msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 #~ msgid "Invalid gamespec."
 #~ msgstr "Gamespec không hợp lệ."
 
+#~ msgid "Key already in use"
+#~ msgstr "Phím đã được sử dụng"
+
+#~ msgid "Left"
+#~ msgstr "Sang trái"
+
 #~ msgid "Mipmap"
 #~ msgstr "Mipmap"
 
 #~ msgid "Mipmap + Aniso. Filter"
 #~ msgstr "Mipmap + Bộ lọc bất đẳng hướng"
+
+#~ msgid "Next item"
+#~ msgstr "Vật phẩm tiếp theo"
 
 #~ msgid "No Filter"
 #~ msgstr "Không dùng bộ lọc"
@@ -6910,6 +7522,12 @@ msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 
 #~ msgid "Please enter a valid number."
 #~ msgstr "Vui lòng nhập một số hợp lệ."
+
+#~ msgid "Prev. item"
+#~ msgstr "Vật phẩm trước"
+
+#~ msgid "Right"
+#~ msgstr "Sang phải"
 
 #~ msgid "Screen:"
 #~ msgstr "Màn hình:"
@@ -6997,3 +7615,6 @@ msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 
 #~ msgid "ok"
 #~ msgstr "OK"
+
+#~ msgid "press key"
+#~ msgstr "bấm phím"

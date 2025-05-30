@@ -80,7 +80,7 @@ void TestRandom::testPseudoRandomRange()
 		s32 min = (pr.next() % 3000) - 500;
 		s32 max = (pr.next() % 3000) - 500;
 		if (min > max)
-			SWAP(s32, min, max);
+			std::swap(min, max);
 
 		s32 randval = pr.range(min, max);
 		UASSERT(randval >= min);
@@ -120,7 +120,7 @@ void TestRandom::testPcgRandomRange()
 		s32 min = (pr.next() % 3000) - 500;
 		s32 max = (pr.next() % 3000) - 500;
 		if (min > max)
-			SWAP(s32, min, max);
+			std::swap(min, max);
 
 		s32 randval = pr.range(min, max);
 		UASSERT(randval >= min);

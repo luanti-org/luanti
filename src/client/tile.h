@@ -73,7 +73,8 @@ struct TileLayer
 			material_flags == other.material_flags &&
 			has_color == other.has_color &&
 			color == other.color &&
-			scale == other.scale;
+			scale == other.scale &&
+			need_polygon_offset == other.need_polygon_offset;
 	}
 
 	/*!
@@ -91,6 +92,12 @@ struct TileLayer
 	 * @param layer index of this layer in the `TileSpec`
 	 */
 	void applyMaterialOptions(video::SMaterial &material, int layer) const;
+
+	/// @return is this layer uninitalized?
+	bool empty() const
+	{
+		return !shader_id && !texture_id;
+	}
 
 	/// @return is this layer semi-transparent?
 	bool isTransparent() const
@@ -125,6 +132,12 @@ struct TileLayer
 		MATERIAL_FLAG_TILEABLE_HORIZONTAL|
 		MATERIAL_FLAG_TILEABLE_VERTICAL;
 
+	u8 scale = 1;
+
+	/// does this tile need to have a positive polygon offset set?
+	/// @see TileLayer::applyMaterialOptions
+	bool need_polygon_offset = false;
+
 	/// @note not owned by this struct
 	std::vector<FrameSpec> *frames = nullptr;
 
@@ -136,8 +149,28 @@ struct TileLayer
 
 	//! If true, the tile has its own color.
 	bool has_color = false;
+};
 
-	u8 scale = 1;
+// Stores information for drawing an animated tile
+struct AnimationInfo {
+
+	AnimationInfo() = default;
+
+	AnimationInfo(const TileLayer &tile) :
+			m_frame_length_ms(tile.animation_frame_length_ms),
+			m_frame_count(tile.animation_frame_count),
+			m_frames(tile.frames)
+	{};
+
+	void updateTexture(video::SMaterial &material, float animation_time);
+
+private:
+	u16 m_frame = 0; // last animation frame
+	u16 m_frame_length_ms = 0;
+	u16 m_frame_count = 1;
+
+	/// @note not owned by this struct
+	std::vector<FrameSpec> *m_frames = nullptr;
 };
 
 enum class TileRotation: u8 {
@@ -158,8 +191,6 @@ struct TileSpec
 	bool world_aligned = false;
 	//! Tile rotation.
 	TileRotation rotation = TileRotation::None;
-	//! This much light does the tile emit.
-	u8 emissive_light = 0;
 	//! The first is base texture, the second is overlay.
 	TileLayer layers[MAX_TILE_LAYERS];
 };

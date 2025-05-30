@@ -12,7 +12,7 @@
 
 class BiomeManager;
 
-extern FlagDesc flagdesc_mapgen_carpathian[];
+extern const FlagDesc flagdesc_mapgen_carpathian[];
 
 
 struct MapgenCarpathianParams : public MapgenParams

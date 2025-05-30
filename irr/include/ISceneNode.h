@@ -16,6 +16,7 @@
 #include <list>
 #include <optional>
 #include <string>
+#include <cassert>
 
 namespace irr
 {
@@ -268,7 +269,7 @@ public:
 			return false;
 
 		// The iterator must be set since the parent is not null.
-		_IRR_DEBUG_BREAK_IF(!child->ThisIterator.has_value());
+		assert(child->ThisIterator.has_value());
 		auto it = *child->ThisIterator;
 		child->ThisIterator = std::nullopt;
 		child->Parent = nullptr;
@@ -310,7 +311,11 @@ public:
 	\return The material at that index. */
 	virtual video::SMaterial &getMaterial(u32 num)
 	{
-		return video::IdentityMaterial;
+		// We return a default material since a reference can't be null,
+		// but note that writing to this is a mistake either by a child class
+		// or the caller, because getMaterialCount() is zero.
+		// Doing so will helpfully cause a segfault.
+		return const_cast<video::SMaterial&>(video::IdentityMaterial);
 	}
 
 	//! Get amount of materials used by this scene node.

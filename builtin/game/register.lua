@@ -61,7 +61,7 @@ local function check_modname_prefix(name)
 		return name:sub(2)
 	else
 		-- Enforce that the name starts with the correct mod name.
-		local expected_prefix = core.get_current_modname() .. ":"
+		local expected_prefix = (core.get_current_modname() or "") .. ":"
 		if name:sub(1, #expected_prefix) ~= expected_prefix then
 			error("Name " .. name .. " does not follow naming conventions: " ..
 				"\"" .. expected_prefix .. "\" or \":\" prefix required")
@@ -95,6 +95,7 @@ function core.register_abm(spec)
 	check_node_list(spec.nodenames, "nodenames")
 	check_node_list(spec.neighbors, "neighbors")
 	assert(type(spec.action) == "function", "Required field 'action' of type function")
+
 	core.registered_abms[#core.registered_abms + 1] = spec
 	spec.mod_origin = core.get_current_modname() or "??"
 end
@@ -128,127 +129,51 @@ function core.register_entity(name, prototype)
 	prototype.mod_origin = core.get_current_modname() or "??"
 end
 
-function core.register_item(name, itemdef)
-	-- Check name
-	if name == nil then
-		error("Unable to register item: Name is nil")
+local function preprocess_node(nodedef)
+	-- Use the nodebox as selection box if it's not set manually
+	if nodedef.drawtype == "nodebox" and not nodedef.selection_box then
+		nodedef.selection_box = nodedef.node_box
+	elseif nodedef.drawtype == "fencelike" and not nodedef.selection_box then
+		nodedef.selection_box = {
+			type = "fixed",
+			fixed = {-1/8, -1/2, -1/8, 1/8, 1/2, 1/8},
+		}
 	end
-	name = check_modname_prefix(tostring(name))
-	if forbidden_item_names[name] then
-		error("Unable to register item: Name is forbidden: " .. name)
-	end
-	itemdef.name = name
 
-	-- Apply defaults and add to registered_* table
-	if itemdef.type == "node" then
-		-- Use the nodebox as selection box if it's not set manually
-		if itemdef.drawtype == "nodebox" and not itemdef.selection_box then
-			itemdef.selection_box = itemdef.node_box
-		elseif itemdef.drawtype == "fencelike" and not itemdef.selection_box then
-			itemdef.selection_box = {
-				type = "fixed",
-				fixed = {-1/8, -1/2, -1/8, 1/8, 1/2, 1/8},
-			}
-		end
-		if itemdef.light_source and itemdef.light_source > core.LIGHT_MAX then
-			itemdef.light_source = core.LIGHT_MAX
-			core.log("warning", "Node 'light_source' value exceeds maximum," ..
-				" limiting to maximum: " ..name)
-		end
-		setmetatable(itemdef, {__index = core.nodedef_default})
-		core.registered_nodes[itemdef.name] = itemdef
-	elseif itemdef.type == "craft" then
-		setmetatable(itemdef, {__index = core.craftitemdef_default})
-		core.registered_craftitems[itemdef.name] = itemdef
-	elseif itemdef.type == "tool" then
-		setmetatable(itemdef, {__index = core.tooldef_default})
-		core.registered_tools[itemdef.name] = itemdef
-	elseif itemdef.type == "none" then
-		setmetatable(itemdef, {__index = core.noneitemdef_default})
-	else
-		error("Unable to register item: Type is invalid: " .. dump(itemdef))
+	if nodedef.light_source and nodedef.light_source > core.LIGHT_MAX then
+		nodedef.light_source = core.LIGHT_MAX
+		core.log("warning", "Node 'light_source' value exceeds maximum," ..
+			" limiting it: " .. nodedef.name)
 	end
 
 	-- Flowing liquid uses param2
-	if itemdef.type == "node" and itemdef.liquidtype == "flowing" then
-		itemdef.paramtype2 = "flowingliquid"
+	if nodedef.liquidtype == "flowing" then
+		nodedef.paramtype2 = "flowingliquid"
 	end
+end
 
+local function preprocess_craft(itemdef)
 	-- BEGIN Legacy stuff
-	if itemdef.cookresult_itemstring ~= nil and itemdef.cookresult_itemstring ~= "" then
-		core.register_craft({
-			type="cooking",
-			output=itemdef.cookresult_itemstring,
-			recipe=itemdef.name,
-			cooktime=itemdef.furnace_cooktime
-		})
-	end
-	if itemdef.furnace_burntime ~= nil and itemdef.furnace_burntime >= 0 then
-		core.register_craft({
-			type="fuel",
-			recipe=itemdef.name,
-			burntime=itemdef.furnace_burntime
-		})
+	if itemdef.inventory_image == nil and itemdef.image ~= nil then
+		core.log("deprecated", "The `image` field in craftitem definitions " ..
+			"is deprecated. Use `inventory_image` instead. " ..
+			"Craftitem name: " .. itemdef.name, 3)
+		itemdef.inventory_image = itemdef.image
 	end
 	-- END Legacy stuff
-
-	itemdef.mod_origin = core.get_current_modname() or "??"
-
-	-- Disable all further modifications
-	getmetatable(itemdef).__newindex = {}
-
-	--core.log("Registering item: " .. itemdef.name)
-	core.registered_items[itemdef.name] = itemdef
-	core.registered_aliases[itemdef.name] = nil
-	register_item_raw(itemdef)
 end
 
-function core.unregister_item(name)
-	if not core.registered_items[name] then
-		core.log("warning", "Not unregistering item " ..name..
-			" because it doesn't exist.")
-		return
-	end
-	-- Erase from registered_* table
-	local type = core.registered_items[name].type
-	if type == "node" then
-		core.registered_nodes[name] = nil
-	elseif type == "craft" then
-		core.registered_craftitems[name] = nil
-	elseif type == "tool" then
-		core.registered_tools[name] = nil
-	end
-	core.registered_items[name] = nil
-
-
-	unregister_item_raw(name)
-end
-
-function core.register_node(name, nodedef)
-	nodedef.type = "node"
-	core.register_item(name, nodedef)
-end
-
-function core.register_craftitem(name, craftitemdef)
-	craftitemdef.type = "craft"
-
-	-- BEGIN Legacy stuff
-	if craftitemdef.inventory_image == nil and craftitemdef.image ~= nil then
-		craftitemdef.inventory_image = craftitemdef.image
-	end
-	-- END Legacy stuff
-
-	core.register_item(name, craftitemdef)
-end
-
-function core.register_tool(name, tooldef)
-	tooldef.type = "tool"
+local function preprocess_tool(tooldef)
 	tooldef.stack_max = 1
 
 	-- BEGIN Legacy stuff
 	if tooldef.inventory_image == nil and tooldef.image ~= nil then
+		core.log("deprecated", "The `image` field in tool definitions " ..
+			"is deprecated. Use `inventory_image` instead. " ..
+			"Tool name: " .. tooldef.name, 3)
 		tooldef.inventory_image = tooldef.image
 	end
+
 	if tooldef.tool_capabilities == nil and
 	   (tooldef.full_punch_interval ~= nil or
 	    tooldef.basetime ~= nil or
@@ -261,6 +186,9 @@ function core.register_tool(name, tooldef)
 	    tooldef.dd_crackiness ~= nil or
 	    tooldef.dd_crumbliness ~= nil or
 	    tooldef.dd_cuttability ~= nil) then
+		core.log("deprecated", "Specifying tool capabilities directly in the tool " ..
+			"definition is deprecated. Use the `tool_capabilities` field instead. " ..
+			"Tool name: " .. tooldef.name, 3)
 		tooldef.tool_capabilities = {
 			full_punch_interval = tooldef.full_punch_interval,
 			basetime = tooldef.basetime,
@@ -277,7 +205,7 @@ function core.register_tool(name, tooldef)
 	end
 	-- END Legacy stuff
 
-	-- This isn't just legacy, but more of a convenience feature
+	-- Automatically set punch_attack_uses as a convenience feature
 	local toolcaps = tooldef.tool_capabilities
 	if toolcaps and toolcaps.punch_attack_uses == nil then
 		for _, cap in pairs(toolcaps.groupcaps or {}) do
@@ -288,8 +216,126 @@ function core.register_tool(name, tooldef)
 			end
 		end
 	end
+end
 
-	core.register_item(name, tooldef)
+local default_tables = {
+	node = core.nodedef_default,
+	craft = core.craftitemdef_default,
+	tool = core.tooldef_default,
+	none = core.noneitemdef_default,
+}
+
+local preprocess_fns = {
+	node = preprocess_node,
+	craft = preprocess_craft,
+	tool = preprocess_tool,
+}
+
+function core.register_item(name, itemdef)
+	-- Check name
+	if name == nil then
+		error("Unable to register item: Name is nil")
+	end
+	name = check_modname_prefix(tostring(name))
+	if forbidden_item_names[name] then
+		error("Unable to register item: Name is forbidden: " .. name)
+	end
+
+	itemdef.name = name
+
+	-- Compatibility stuff depending on type
+	local fn = preprocess_fns[itemdef.type]
+	if fn then
+		fn(itemdef)
+	end
+
+	-- Apply defaults
+	local defaults = default_tables[itemdef.type]
+	if defaults == nil then
+		error("Unable to register item: Type is invalid: " .. dump(itemdef))
+	end
+	local old_mt = getmetatable(itemdef)
+	-- TODO most of these checks should become an error after a while (maybe in 2026?)
+	if old_mt ~= nil and next(old_mt) ~= nil then
+		-- Note that even registering multiple identical items with the same table
+		-- is not allowed, due to the 'name' property.
+		if old_mt.__index == defaults then
+			core.log("warning", "Item definition table was reused between registrations. "..
+				"This is unsupported and broken: " .. name)
+		else
+			core.log("warning", "Item definition has a metatable, this is "..
+				"unsupported and it will be overwritten: " .. name)
+		end
+	end
+	setmetatable(itemdef, {__index = defaults})
+
+	-- BEGIN Legacy stuff
+	if itemdef.cookresult_itemstring ~= nil and itemdef.cookresult_itemstring ~= "" then
+		core.log("deprecated", "The `cookresult_itemstring` item definition " ..
+			"field is deprecated. Use `core.register_craft` instead. " ..
+			"Item name: " .. itemdef.name, 2)
+		core.register_craft({
+			type="cooking",
+			output=itemdef.cookresult_itemstring,
+			recipe=itemdef.name,
+			cooktime=itemdef.furnace_cooktime
+		})
+	end
+	if itemdef.furnace_burntime ~= nil and itemdef.furnace_burntime >= 0 then
+		core.log("deprecated", "The `furnace_burntime` item definition " ..
+			"field is deprecated. Use `core.register_craft` instead. " ..
+			"Item name: " .. itemdef.name, 2)
+		core.register_craft({
+			type="fuel",
+			recipe=itemdef.name,
+			burntime=itemdef.furnace_burntime
+		})
+	end
+	-- END Legacy stuff
+
+	itemdef.mod_origin = core.get_current_modname() or "??"
+
+	-- Ignore new keys as a failsafe to prevent mistakes
+	getmetatable(itemdef).__newindex = function() end
+
+	-- Add to registered_* tables
+	if itemdef.type == "node" then
+		core.registered_nodes[itemdef.name] = itemdef
+	elseif itemdef.type == "craft" then
+		core.registered_craftitems[itemdef.name] = itemdef
+	elseif itemdef.type == "tool" then
+		core.registered_tools[itemdef.name] = itemdef
+	end
+	core.registered_items[itemdef.name] = itemdef
+	core.registered_aliases[itemdef.name] = nil
+
+	register_item_raw(itemdef)
+end
+
+local function make_register_item_wrapper(the_type)
+	return function(name, itemdef)
+		itemdef.type = the_type
+		return core.register_item(name, itemdef)
+	end
+end
+
+core.register_node = make_register_item_wrapper("node")
+core.register_craftitem = make_register_item_wrapper("craft")
+core.register_tool = make_register_item_wrapper("tool")
+
+function core.unregister_item(name)
+	if not core.registered_items[name] then
+		core.log("warning", "Not unregistering item " ..name..
+			" because it doesn't exist.")
+		return
+	end
+	-- Erase from registered_* table
+	core.registered_nodes[name] = nil
+	core.registered_craftitems[name] = nil
+	core.registered_tools[name] = nil
+	core.registered_items[name] = nil
+
+	unregister_item_raw(name)
 end
 
 function core.register_alias(name, convert_to)
@@ -300,7 +346,6 @@ function core.register_alias(name, convert_to)
 		core.log("warning", "Not registering alias, item with same name" ..
 			" is already defined: " .. name .. " -> " .. convert_to)
 	else
-		--core.log("Registering alias: " .. name .. " -> " .. convert_to)
 		core.registered_aliases[name] = convert_to
 		register_alias_raw(name, convert_to)
 	end
@@ -315,7 +360,6 @@ function core.register_alias_force(name, convert_to)
 		core.log("info", "Removed item " ..name..
 			" while attempting to force add an alias")
 	end
-	--core.log("Registering alias: " .. name .. " -> " .. convert_to)
 	core.registered_aliases[name] = convert_to
 	register_alias_raw(name, convert_to)
 end
@@ -406,6 +450,7 @@ core.register_item(":", {
 	groups = {not_in_creative_inventory=1},
 })
 
+local itemdefs_finalized = false
 
 function core.override_item(name, redefinition, del_fields)
 	if redefinition.name ~= nil then
@@ -418,10 +463,16 @@ function core.override_item(name, redefinition, del_fields)
 	if not item then
 		error("Attempt to override non-existent item "..name, 2)
 	end
+	if itemdefs_finalized then
+		-- TODO: it's not clear if this needs to be allowed at all?
+		core.log("warning", "Overriding item " .. name .. " after server startup. " ..
+			"This is unsupported and can cause problems related to data inconsistency.")
+	end
 	for k, v in pairs(redefinition) do
 		rawset(item, k, v)
 	end
 	for _, field in ipairs(del_fields or {}) do
+		assert(field ~= "name" and field ~= "type")
 		rawset(item, field, nil)
 	end
 	register_item_raw(item)
@@ -568,13 +619,57 @@ core.registered_on_rightclickplayers, core.register_on_rightclickplayer = make_r
 core.registered_on_liquid_transformed, core.register_on_liquid_transformed = make_registration()
 core.registered_on_mapblocks_changed, core.register_on_mapblocks_changed = make_registration()
 
+-- A bunch of registrations are read by the C++ side once on env init, so we cannot
+-- allow them to change afterwards (see s_env.cpp).
+-- Nodes and items do not have this problem but there are obvious consistency
+-- problems if this would be allowed.
+
+local function freeze_table(t)
+	-- Freezing a Lua table is not actually possible without some very intrusive
+	-- metatable hackery, but we can trivially prevent new additions.
+	local mt = table.copy(getmetatable(t) or {})
+	mt.__newindex = function()
+		error("modification forbidden")
+	end
+	setmetatable(t, mt)
+end
+
+local function generic_reg_error(what)
+	return function(something)
+		local described = what
+		if type(something) == "table" and type(something.name) == "string" then
+			described = what .. " " .. something.name
+		elseif type(something) == "string" then
+			described = what .. " " .. something
+		end
+		error("Tried to register " .. described .. " after load time!")
+	end
+end
+
 core.register_on_mods_loaded(function()
 	core.after(0, function()
-		setmetatable(core.registered_on_mapblocks_changed, {
-			__newindex = function()
-				error("on_mapblocks_changed callbacks must be registered at load time")
-			end,
-		})
+		itemdefs_finalized = true
+
+		-- prevent direct modification
+		freeze_table(core.registered_abms)
+		freeze_table(core.registered_lbms)
+		freeze_table(core.registered_items)
+		freeze_table(core.registered_nodes)
+		freeze_table(core.registered_craftitems)
+		freeze_table(core.registered_tools)
+		freeze_table(core.registered_aliases)
+		freeze_table(core.registered_on_mapblocks_changed)
+
+		-- neutralize registration functions
+		core.register_abm = generic_reg_error("ABM")
+		core.register_lbm = generic_reg_error("LBM")
+		core.register_item = generic_reg_error("item")
+		core.unregister_item = function(name)
+			error("Refusing to unregister item " .. name .. " after load time")
+		end
+		core.register_alias = generic_reg_error("alias")
+		core.register_alias_force = generic_reg_error("alias")
+		core.register_on_mapblocks_changed = generic_reg_error("on_mapblocks_changed callback")
 	end)
 end)
 

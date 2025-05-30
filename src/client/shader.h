@@ -8,9 +8,9 @@
 #include "irrlichttypes_bloated.h"
 #include <IMaterialRendererServices.h>
 #include <string>
+#include <map>
+#include <variant>
 #include "nodedef.h"
-
-class IGameDef;
 
 /*
 	shader.{h,cpp}: Shader handling stuff.
@@ -28,19 +28,27 @@ class IGameDef;
 std::string getShaderPath(const std::string &name_of_shader,
 		const std::string &filename);
 
-struct ShaderInfo {
-	std::string name = "";
-	video::E_MATERIAL_TYPE base_material = video::EMT_SOLID;
-	video::E_MATERIAL_TYPE material = video::EMT_SOLID;
-	NodeDrawType drawtype = NDT_NORMAL;
-	MaterialType material_type = TILE_MATERIAL_BASIC;
+/*
+	Abstraction for pushing constants (or what we pretend is) into
+	shaders. These end up as `#define` prepended to the shader source.
+*/
 
-	ShaderInfo() = default;
-	virtual ~ShaderInfo() = default;
+// Shader constants are either an int or a float in GLSL
+typedef std::map<std::string, std::variant<int, float>> ShaderConstants;
+
+class IShaderConstantSetter {
+public:
+	virtual ~IShaderConstantSetter() = default;
+	/**
+	 * Called when the final shader source is being generated
+	 * @param name name of the shader
+	 * @param constants current set of constants, free to modify
+	 */
+	virtual void onGenerate(const std::string &name, ShaderConstants &constants) = 0;
 };
 
 /*
-	Setter of constants for shaders
+	Abstraction for updating uniforms used by shaders
 */
 
 namespace irr::video {
@@ -48,19 +56,19 @@ namespace irr::video {
 }
 
 
-class IShaderConstantSetter {
+class IShaderUniformSetter {
 public:
-	virtual ~IShaderConstantSetter() = default;
-	virtual void onSetConstants(video::IMaterialRendererServices *services) = 0;
+	virtual ~IShaderUniformSetter() = default;
+	virtual void onSetUniforms(video::IMaterialRendererServices *services) = 0;
 	virtual void onSetMaterial(const video::SMaterial& material)
 	{ }
 };
 
 
-class IShaderConstantSetterFactory {
+class IShaderUniformSetterFactory {
 public:
-	virtual ~IShaderConstantSetterFactory() = default;
-	virtual IShaderConstantSetter* create() = 0;
+	virtual ~IShaderUniformSetterFactory() = default;
+	virtual IShaderUniformSetter* create() = 0;
 };
 
 
@@ -199,7 +207,18 @@ using CachedStructPixelShaderSetting = CachedStructShaderSetting<T, count, cache
 
 	A "shader" could more precisely be called a "shader material" and comprises
 	a vertex, fragment and optional geometry shader.
+	It is uniquely identified by a name, base material and the input constants.
 */
+
+struct ShaderInfo {
+	std::string name;
+	video::E_MATERIAL_TYPE base_material = video::EMT_SOLID;
+	// Material ID the shader has received from Irrlicht
+	video::E_MATERIAL_TYPE material = video::EMT_SOLID;
+	// Input constants
+	ShaderConstants input_constants;
+};
+
 class IShaderSource {
 public:
 	IShaderSource() = default;
@@ -210,19 +229,38 @@ public:
 	 *
 	 * Use this to get the material ID to plug into `video::SMaterial`.
 	 */
-	virtual ShaderInfo getShaderInfo(u32 id) = 0;
-
-	/// @brief Generates or gets a shader suitable for nodes and entities
-	virtual u32 getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL) = 0;
+	virtual const ShaderInfo &getShaderInfo(u32 id) = 0;
 
 	/**
-	 * Generates or gets a shader for general use.
+	 * Generates or gets a shader.
+	 *
+	 * Note that the input constants are not for passing the entire world into
+	 * the shader. Use `IShaderConstantSetter` to handle user settings.
 	 * @param name name of the shader (directory on disk)
+	 * @param input_const primary key constants for this shader
+	 * @param base_mat base material to use
+	 * @return shader ID
+	 * @note `base_material` only controls alpha behavior
+	 */
+	virtual u32 getShader(const std::string &name,
+		const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat) = 0;
+
+	/// @brief Helper: Generates or gets a shader suitable for nodes and entities
+	u32 getShader(const std::string &name,
+		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL);
+
+	/**
+	 * Helper: Generates or gets a shader for common, general use.
+	 * @param name name of the shader
 	 * @param blendAlpha enable alpha blending for this material?
 	 * @return shader ID
 	 */
-	virtual u32 getShaderRaw(const std::string &name, bool blendAlpha = false) = 0;
+	inline u32 getShaderRaw(const std::string &name, bool blendAlpha = false)
+	{
+		auto base_mat = blendAlpha ? video::EMT_TRANSPARENT_ALPHA_CHANNEL :
+			video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
+		return getShader(name, ShaderConstants(), base_mat);
+	}
 };
 
 class IWritableShaderSource : public IShaderSource {
@@ -236,7 +274,10 @@ public:
 	virtual void rebuildShaders()=0;
 
 	/// @note Takes ownership of @p setter.
-	virtual void addShaderConstantSetterFactory(IShaderConstantSetterFactory *setter) = 0;
+	virtual void addShaderConstantSetter(IShaderConstantSetter *setter) = 0;
+
+	/// @note Takes ownership of @p setter.
+	virtual void addShaderUniformSetterFactory(IShaderUniformSetterFactory *setter) = 0;
 };
 
 IWritableShaderSource *createShaderSource();
