@@ -23,6 +23,7 @@
 #include <IGUISpriteBank.h>
 #include <ICameraSceneNode.h>
 #include <unordered_map>
+#include "server/serverlist.h"
 
 #if USE_SOUND
 	#include "sound/sound_openal.h"
@@ -540,6 +541,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 
 void ClientLauncher::main_menu(MainMenuData *menudata)
 {
+	ServerList::lan_get();
 	bool *kill = porting::signal_handler_killstatus();
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
 	auto *device = m_rendering_engine->get_raw_device();

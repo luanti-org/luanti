@@ -63,7 +63,9 @@
 #include "gameparams.h"
 #include "particles.h"
 #include "gettext.h"
+#include "network/lan.h"
 #include "util/tracy_wrapper.h"
+
 
 class ClientNotFoundException : public BaseException
 {
@@ -427,6 +429,17 @@ Server::~Server()
 		delete m_unsent_map_edit_queue.front();
 		m_unsent_map_edit_queue.pop();
 	}
+
+	if (g_settings->getBool("serverlist_lan")) {
+		lan_adv_server.stop();
+
+		while (lan_adv_server.isRunning()) {
+			// Wait until the lan_adv_server thread has finished.
+			// This is so that its thread destructor doesn't kill the thread
+			// before it sends the 'shutdown' command to remove this server's
+			// server info from the serverlist of local clients.
+		}
+	}
 }
 
 void Server::init()
@@ -577,6 +590,10 @@ void Server::start()
 
 	// Start thread
 	m_thread->start();
+
+	if (!m_simple_singleplayer_mode && g_settings->getBool("serverlist_lan")) {
+		lan_adv_server.serve(m_bind_addr.getPort());
+	};
 
 	// ASCII art for the win!
 	const char *art[] = {
@@ -801,6 +818,10 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		counter += dtime;
 	}
 #endif
+
+	if (!isSingleplayer() && g_settings->getBool("serverlist_lan")) {
+		lan_adv_server.clients_num = m_clients.getPlayerNames().size();
+	};
 
 	/*
 		Check added and deleted active objects
