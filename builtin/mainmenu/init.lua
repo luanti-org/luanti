@@ -49,7 +49,36 @@ local tabs = {
 --------------------------------------------------------------------------------
 local function main_event_handler(tabview, event)
 	if event == "MenuQuit" then
-		core.close()
+		if not ui.childlist["mainmenu_quit_confirm"] then
+			tabview:hide()
+			local dlg = dialog_create(
+				"mainmenu_quit_confirm",
+				function()
+					return confirmation_formspec(
+						fgettext("Are you sure you want to quit?"),
+						"btn_quit_confirm_yes", fgettext("Quit"),
+						"btn_quit_confirm_cancel", fgettext("Cancel")
+					)
+				end,
+				function(this, fields)
+					if fields.btn_quit_confirm_yes then
+						this:delete()
+						core.close()
+						return true
+					elseif fields.btn_quit_confirm_cancel or fields.key_escape or fields.quit then
+						this:delete()
+						if tabview and tabview.show then
+							tabview:show()
+						end
+						return true
+					end
+				end,
+				nil
+			)
+			dlg:set_parent(tabview)
+			dlg:show()
+		end
+		return true
 	end
 	return true
 end
