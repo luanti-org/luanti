@@ -253,23 +253,26 @@ local function get_formspec(data)
 			return text
 		end
 
-		local hypertext = ""
+		local hypertext = {}
+		local insert = table.insert
 		if package.releases then
 			for _, def in pairs(package.releases) do
-				hypertext = hypertext..
-					"<b>"..def.title.."</b> ("..def.release_date:gsub("T.*", "")..")\n"..
+				insert(hypertext,
+					"<b>"..core.hypertext_escape(def.title).."</b> ("..def.release_date:gsub("T.*", "")..")\n"..
 					fgettext("$1 downloads",
 						def.downloads)..".\n"
+				)
 
-				if def["release_notes"] then
-					hypertext = hypertext..
-						markup((def["release_notes"]
-							:gsub("<!--.*", ""))
+				if def.release_notes then
+					insert(hypertext, core.hypertext_escape(
+						markup((def.release_notes
+							:gsub("<!--.-%-%->", ""
 							:trim())
 						.."\n"
+					))
 				end
 
-				hypertext = hypertext.."\n"
+				insert(hypertext, "\n")
 			end
 		elseif data.releases_error then
 			table.insert_all(formspec, {"label[2,2;", fgettext("Error loading releases"), "]"} )
@@ -278,7 +281,7 @@ local function get_formspec(data)
 		end
 		table.insert_all(formspec, {
 			"hypertext[0,0;", W, ",", tab_body_height - 0.375,
-			";release;", core.formspec_escape(hypertext), "]",
+			";release;", core.formspec_escape(table.concat(hypertext)), "]",
 		})
 	else
 		error("Unknown tab " .. current_tab)
