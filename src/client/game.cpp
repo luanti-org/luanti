@@ -2851,67 +2851,51 @@ void Game::handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *ca
 
 void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 {
-	sky->setVisible(false);
+	// Handle invalid sky type.
+	if (!event->set_sky->isSkybox() && !event->set_sky->isTransparent() && event->set_sky->type != "plain")
+		infostream << "Unknown sky type: " << (event->set_sky->type) << std::endl;
+
+	// Show the mesh sky if transparent.
+	sky->setVisible(event->set_sky->isTransparent());
 	sky->setType(event->set_sky->type);
 	// Whether clouds are visible in front of a custom skybox.
 	sky->setCloudsEnabled(event->set_sky->clouds);
 
-	// Clear the old textures out in case we switch rendering type.
-	sky->clearSkyboxTextures();
-	// Handle according to type
-	if (event->set_sky->type == "regular") {
-		// Shows the mesh skybox
-		sky->setVisible(true);
-		// Update mesh based skybox colours if applicable.
+	// Show the mesh sky and use skybox colours if transparent.
+	if (event->set_sky->isTransparent())
 		sky->setSkyColors(event->set_sky->sky_color);
-		sky->setHorizonTint(
-			event->set_sky->fog_sun_tint,
-			event->set_sky->fog_moon_tint,
-			event->set_sky->fog_tint_type
-		);
-	} else if ((event->set_sky->type == "skybox" || event->set_sky->type == "skybox_back" ||
-		event->set_sky->type == "skybox_front") && event->set_sky->textures.size() == 6) {
-		const bool transparent = event->set_sky->type == "skybox_back" || event->set_sky->type == "skybox_front";
-		// Show the mesh and sky colors only if transparency is used.
-		if(transparent) {
-			sky->setVisible(true);
-			sky->setSkyColors(event->set_sky->sky_color);
-		} else {
-			sky->setVisible(false);
-			sky->setFallbackBgColor(event->set_sky->bgcolor);
-		}
-		// Set sunrise and sunset fog tinting:
-		sky->setHorizonTint(
-			event->set_sky->fog_sun_tint,
-			event->set_sky->fog_moon_tint,
-			event->set_sky->fog_tint_type
-		);
-		// Add textures to skybox.
-		for (int i = 0; i < 6; i++)
-			sky->addTextureToSkybox(event->set_sky->textures[i], i, texture_src, transparent);
-	} else {
-		// Handle everything else as plain color.
-		if (event->set_sky->type != "plain")
-			infostream << "Unknown sky type: "
-				<< (event->set_sky->type) << std::endl;
-		sky->setVisible(false);
+	else
 		sky->setFallbackBgColor(event->set_sky->bgcolor);
-		// Disable directional sun/moon tinting on plain or invalid skyboxes.
+
+	// Use horizon tint for regular or skybox skies.
+	if (event->set_sky->isSkybox() || event->set_sky->isTransparent())
+		sky->setHorizonTint(
+			event->set_sky->fog_sun_tint,
+			event->set_sky->fog_moon_tint,
+			event->set_sky->fog_tint_type
+		);
+	else
 		sky->setHorizonTint(
 			event->set_sky->bgcolor,
 			event->set_sky->bgcolor,
 			"custom"
 		);
+
+	// Clear the old textures out in case we switch rendering type.
+	sky->clearSkyboxTextures();
+	// Add textures to skybox.
+	if(event->set_sky->isSkybox()) {
+		for (int i = 0; i < 6; i++)
+			sky->addTextureToSkybox(event->set_sky->textures[i], i, texture_src, event->set_sky->isTransparent());
 	}
 
 	// Orbit Tilt:
 	sky->setBodyOrbitTilt(event->set_sky->body_orbit_tilt);
 
-	// fog
-	// do not override a potentially smaller client setting.
+	// Fog, do not override a potentially smaller client setting.
 	sky->setFogDistance(event->set_sky->fog_distance);
 
-	// if the fog distance is reset, switch back to the client's viewing_range
+	// If the fog distance is reset, switch back to the client's viewing_range
 	if (event->set_sky->fog_distance < 0)
 		draw_control->wanted_range = g_settings->getS16("viewing_range");
 

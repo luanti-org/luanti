@@ -1865,14 +1865,12 @@ void Server::SendSetSky(session_t peer_id, const SkyboxParams &params)
 			<< params.clouds << params.fog_sun_tint
 			<< params.fog_moon_tint << params.fog_tint_type;
 
-		if (params.type == "skybox" ||
-			params.type == "skybox_back" || params.type == "skybox_front") {
+		if (params.isSkybox()) {
 			pkt << (u16) params.textures.size();
 			for (const std::string &texture : params.textures)
 				pkt << texture;
 		}
-		if (params.type == "regular" ||
-			params.type == "skybox_back" || params.type == "skybox_front") {
+		if (params.isTransparent()) {
 			auto &c = params.sky_color;
 			pkt << c.day_sky << c.day_horizon << c.dawn_sky << c.dawn_horizon
 				<< c.night_sky << c.night_horizon << c.indoors;

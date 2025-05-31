@@ -33,7 +33,6 @@ public:
 	virtual void OnRegisterSceneNode();
 
 	//! renders the node.
-	virtual void renderTextures(video::IVideoDriver *driver);
 	virtual void render();
 
 	virtual const aabb3f &getBoundingBox() const { return m_box; }
@@ -83,7 +82,7 @@ public:
 	const video::SColorf &getCloudColor() const { return m_cloudcolor_f; }
 
 	void setVisible(bool visible) { m_visible = visible; }
-	void setType(std::string type) { m_type = type; }
+	void setType(std::string type) { m_sky_params.type = type; }
 
 	// Set only from set_sky API
 	void setCloudsEnabled(bool clouds_enabled) { m_clouds_enabled = clouds_enabled; }
@@ -126,6 +125,8 @@ public:
 private:
 	aabb3f m_box{{0.0f, 0.0f, 0.0f}};
 	video::SMaterial m_materials[SKY_MATERIAL_COUNT];
+	virtual void renderTextures(video::IVideoDriver *driver);
+
 	// How much sun & moon transition should affect horizon color
 	float m_horizon_blend()
 	{
@@ -164,7 +165,6 @@ private:
 	}
 
 	bool m_visible = true;
-	std::string m_type = "regular";
 	// Used when m_visible=false
 	video::SColor m_fallback_bg_color = video::SColor(255, 255, 255, 255);
 	bool m_first_update = true; // Set before the sky is updated for the first time

@@ -197,7 +197,6 @@ void Sky::render()
 
 		const f32 t = 1.0f;
 		const f32 o = 0.0f;
-		const bool has_tex = m_sky_params.textures.size() == 6;
 		static const u16 indices[6] = {0, 1, 2, 0, 2, 3};
 		video::S3DVertex vertices[4];
 
@@ -211,12 +210,12 @@ void Sky::render()
 			return;
 
 		// Draw the six sided skybox, solid or transparent background.
-		if(has_tex && (m_type == "skybox" || m_type == "skybox_back"))
+		if (m_sky_params.type == "skybox" || m_sky_params.type == "skybox_back")
 			renderTextures(driver);
 
 		// Draw far cloudy fog thing blended with skycolor
 		// Disabled when using a textured skybox to prevent clipping
-		if (m_visible && !has_tex) {
+		if (m_visible && !m_sky_params.isSkybox()) {
 			driver->setMaterial(m_materials[1]);
 			for (u32 j = 0; j < 4; j++) {
 				vertices[0] = video::S3DVertex(-1, -0.02, -1, 0, 0, 1, m_bgcolor, t, t);
@@ -281,7 +280,7 @@ void Sky::render()
 
 		// Draw far cloudy fog thing below all horizons in front of sun, moon and stars.
 		// Disabled when using a textured skybox to prevent clipping
-		if (m_visible && !has_tex) {
+		if (m_visible && !m_sky_params.isSkybox()) {
 			driver->setMaterial(m_materials[1]);
 
 			for (u32 j = 0; j < 4; j++) {
@@ -317,7 +316,7 @@ void Sky::render()
 		}
 
 		// Draw the six sided skybox, transparent foreground.
-		if(has_tex && m_type == "skybox_front")
+		if (m_sky_params.type == "skybox_front")
 			renderTextures(driver);
 	}
 }
