@@ -4209,7 +4209,7 @@ Methods
   `Rotation.compose()` is an alias for `Rotation.identity()`,
   `Rotation:compose()` copies the rotation.
 * `Rotation:invert()`: Returns the inverse rotation.
-* `Rotation:slerp(from, to, time)`: Interpolate from one rotation to another.
+* `Rotation.slerp(from, to, time)`: Interpolate from one rotation to another.
   * `time = 0` is all `from`, `time = 1` is all `to`.
 * `Rotation:angle_to(other)`: Returns the absolute angle between two quaternions.
   * Useful to measure similarity.
