@@ -140,11 +140,11 @@ void ServerScripting::InitializeModApi(lua_State *L, int top)
 	LuaValueNoiseMap::Register(L);
 	LuaPseudoRandom::Register(L);
 	LuaPcgRandom::Register(L);
-	LuaRaycast::Register(L);
 	LuaSecureRandom::Register(L);
-	LuaVoxelManip::Register(L);
 	LuaRotation::Register(L);
 	LuaMatrix4::Register(L);
+	LuaRaycast::Register(L);
+	LuaVoxelManip::Register(L);
 	NodeMetaRef::Register(L);
 	NodeTimerRef::Register(L);
 	ObjectRef::Register(L);
