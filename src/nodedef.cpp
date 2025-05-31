@@ -374,6 +374,7 @@ void ContentFeatures::reset()
 	pointable = PointabilityType::POINTABLE;
 	diggable = true;
 	climbable = false;
+	climb_factor = 1.0f;
 	buildable_to = false;
 	floodable = false;
 	rightclickable = true;
@@ -536,6 +537,7 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 	writeU8(os, move_resistance);
 	writeU8(os, liquid_move_physics);
 	writeU8(os, post_effect_color_shaded);
+	writeF32(os, climb_factor);
 }
 
 void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
@@ -666,6 +668,11 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 		if (is.eof())
 			throw SerializationError("");
 		post_effect_color_shaded = tmp;
+
+		f32 ftmp = readF32(is);
+		if (is.eof())
+			throw SerializationError("");
+		climb_factor = ftmp;
 	} catch (SerializationError &e) {};
 }
 
