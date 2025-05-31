@@ -403,4 +403,3 @@ function create_package_dialog(package)
 	data.current_tab = 1
 	return dlg
 end
-м
