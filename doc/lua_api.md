@@ -11972,6 +11972,23 @@ Functions: bit.tobit, bit.tohex, bit.bnot, bit.band, bit.bor, bit.bxor, bit.lshi
 
 See http://bitop.luajit.org/ for advanced information.
 
+UTF-8 Library
+-------------
+
+Constants:
+
+* `utf8.charpattern`
+
+Functions:
+
+* `utf8.char(...)`
+* `utf8.codes(s [, lax])`
+* `utf8.codepoint(s [, i [, j [, lax]]])`
+* `utf8.len(s [, i [, j [, lax]]])`
+* `utf8.offset(s, n [, i])`
+
+See [the Lua 5.4 reference manual](https://www.lua.org/manual/5.4/manual.html#6.5) for more information.
+
 Tracy Profiler
 --------------
 

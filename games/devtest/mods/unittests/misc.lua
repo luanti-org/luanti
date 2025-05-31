@@ -341,3 +341,8 @@ local function test_ipc_poll(cb)
 	print("delta: " .. (core.get_us_time() - t0) .. "us")
 end
 unittests.register("test_ipc_poll", test_ipc_poll)
+
+local function test_utf8()
+	assert(utf8.char(0x11, 0x22, 0x10ABCD) == string.char(0x11, 0x22, 0xf4, 0x8a, 0xaf, 0x8d))
+end
+unittests.register("test_utf8", test_utf8)
