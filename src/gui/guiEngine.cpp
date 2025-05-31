@@ -41,12 +41,6 @@ void TextDestGuiEngine::gotText(const StringMap &fields)
 }
 
 /******************************************************************************/
-void TextDestGuiEngine::gotText(const std::wstring &text)
-{
-	m_engine->getScriptIface()->handleMainMenuEvent(wide_to_utf8(text));
-}
-
-/******************************************************************************/
 MenuTextureSource::~MenuTextureSource()
 {
 	u32 before = m_driver->getTextureCount();

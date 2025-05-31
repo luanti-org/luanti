@@ -1572,7 +1572,8 @@ void Server::SendChatMessage(session_t peer_id, const ChatMessage &message)
 	if (peer_id != PEER_ID_INEXISTENT) {
 		Send(&pkt);
 	} else {
-		m_clients.sendToAll(&pkt);
+		// If a client has completed auth but is still joining, still send chat
+		m_clients.sendToAll(&pkt, CS_InitDone);
 	}
 }
 
@@ -3183,9 +3184,7 @@ std::wstring Server::handleChat(const std::string &name,
 
 	ChatMessage chatmsg(line);
 
-	std::vector<session_t> clients = m_clients.getClientIDs();
-	for (u16 cid : clients)
-		SendChatMessage(cid, chatmsg);
+	SendChatMessage(PEER_ID_INEXISTENT, chatmsg);
 
 	return L"";
 }
@@ -3357,6 +3356,15 @@ bool Server::denyIfBanned(session_t peer_id)
 	return false;
 }
 
+bool Server::checkUserLimit(const std::string &player_name, const std::string &addr_s)
+{
+	if (!m_clients.isUserLimitReached())
+		return false;
+	if (player_name == g_settings->get("name")) // admin can always join
+		return false;
+	return !m_script->can_bypass_userlimit(player_name, addr_s);
+}
+
 void Server::notifyPlayer(const char *name, const std::wstring &msg)
 {
 	// m_env will be NULL if the server is initializing
@@ -3490,7 +3498,6 @@ void Server::hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &
 
 Address Server::getPeerAddress(session_t peer_id)
 {
-	// Note that this is only set after Init was received in Server::handleCommand_Init
 	return getClient(peer_id, CS_Invalid)->getAddress();
 }
 

@@ -61,12 +61,6 @@ public:
 	 */
 	void gotText(const StringMap &fields);
 
-	/**
-	 * receive text/events transmitted by guiFormSpecMenu
-	 * @param text textual representation of event
-	 */
-	void gotText(const std::wstring &text);
-
 private:
 	/** target to transmit data to */
 	GUIEngine *m_engine = nullptr;
