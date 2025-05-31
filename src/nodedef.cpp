@@ -4,6 +4,7 @@
 
 #include "nodedef.h"
 
+#include "SAnimatedMesh.h"
 #include "itemdef.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/mesh.h"
@@ -13,6 +14,7 @@
 #include "client/texturesource.h"
 #include "client/tile.h"
 #include <IMeshManipulator.h>
+#include <SMesh.h>
 #include <SkinnedMesh.h>
 #endif
 #include "log.h"
@@ -761,10 +763,6 @@ static bool isWorldAligned(AlignStyle style, WorldAlignMode mode, NodeDrawType d
 void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
 	scene::IMeshManipulator *meshmanip, Client *client, const TextureSettings &tsettings)
 {
-	// minimap pixel color - the average color of a texture
-	if (tsettings.enable_minimap && !tiledef[0].name.empty())
-		minimap_color = tsrc->getTextureAverageColor(tiledef[0].name);
-
 	// Figure out the actual tiles to use
 	TileDef tdef[6];
 	for (u32 j = 0; j < 6; j++) {
@@ -909,7 +907,12 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 
 	u32 overlay_shader = shdsrc->getShader("nodes_shader", overlay_material, drawtype);
 
+	// minimap pixel color = average color of top tile
+	if (tsettings.enable_minimap && !tdef[0].name.empty() && drawtype != NDT_AIRLIKE)
+		minimap_color = tsrc->getTextureAverageColor(tdef[0].name);
+
 	// Tiles (fill in f->tiles[])
+	bool any_polygon_offset = false;
 	for (u16 j = 0; j < 6; j++) {
 		tiles[j].world_aligned = isWorldAligned(tdef[j].align_style,
 				tsettings.world_aligned_mode, drawtype);
@@ -922,6 +925,17 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 					tdef[j].backface_culling, tsettings);
 
 		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
+		any_polygon_offset |= tiles[j].layers[0].need_polygon_offset;
+	}
+
+	if (drawtype == NDT_MESH && any_polygon_offset) {
+		// Our per-tile polygon offset enablement workaround works fine for normal
+		// nodes and anything else, where we know that different tiles are different
+		// faces that couldn't possibly conflict with each other.
+		// We can't assume this for mesh nodes, so apply it to all tiles (= materials)
+		// then.
+		for (u16 j = 0; j < 6; j++)
+			tiles[j].layers[0].need_polygon_offset = true;
 	}
 
 	MaterialType special_material = material_type;
@@ -947,23 +961,44 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		palette = tsrc->getPalette(palette_name);
 
 	if (drawtype == NDT_MESH && !mesh.empty()) {
-		// Read the mesh and apply scale
-		mesh_ptr = client->getMesh(mesh);
-		if (mesh_ptr) {
-			v3f scale = v3f(BS) * visual_scale;
-			scaleMesh(mesh_ptr, scale);
+		// Note: By freshly reading, we get an unencumbered mesh.
+		if (scene::IMesh *src_mesh = client->getMesh(mesh)) {
+			bool apply_bs = false;
+			// For frame-animated meshes, always get the first frame,
+			// which holds a model for which we can eventually get the static pose.
+			while (auto *src_meshes = dynamic_cast<scene::SAnimatedMesh *>(src_mesh)) {
+				src_mesh = src_meshes->getMesh(0.0f);
+				src_mesh->grab();
+				src_meshes->drop();
+			}
+			if (auto *skinned_mesh = dynamic_cast<scene::SkinnedMesh *>(src_mesh)) {
+				// Compatibility: Animated meshes, as well as static gltf meshes, are not scaled by BS.
+				// See https://github.com/luanti-org/luanti/pull/16112#issuecomment-2881860329
+				bool is_gltf = skinned_mesh->getSourceFormat() ==
+						scene::SkinnedMesh::SourceFormat::GLTF;
+				apply_bs = skinned_mesh->isStatic() && !is_gltf;
+				// Nodes do not support mesh animation, so we clone the static pose.
+				// This simplifies working with the mesh: We can just scale the vertices
+				// as transformations have already been applied.
+				mesh_ptr = cloneStaticMesh(src_mesh);
+				src_mesh->drop();
+			} else {
+				auto *static_mesh = dynamic_cast<scene::SMesh *>(src_mesh);
+				assert(static_mesh);
+				mesh_ptr = static_mesh;
+				// Compatibility: Apply BS scaling to static meshes (.obj). See #15811.
+				apply_bs = true;
+			}
+			scaleMesh(mesh_ptr, v3f((apply_bs ? BS : 1.0f) * visual_scale));
 			recalculateBoundingBox(mesh_ptr);
 			if (!checkMeshNormals(mesh_ptr)) {
+				// TODO this should be done consistently when the mesh is loaded
 				infostream << "ContentFeatures: recalculating normals for mesh "
 					<< mesh << std::endl;
 				meshmanip->recalculateNormals(mesh_ptr, true, false);
-			} else {
-				// Animation is not supported, but we need to reset it to
-				// default state if it is animated.
-				// Note: recalculateNormals() also does this hence the else-block
-				if (mesh_ptr->getMeshType() == scene::EAMT_SKINNED)
-					((scene::SkinnedMesh*) mesh_ptr)->resetAnimation();
 			}
+		} else {
+			mesh_ptr = nullptr;
 		}
 	}
 }
@@ -1445,13 +1480,16 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 	TextureSettings tsettings;
 	tsettings.readSettings();
 
-	u32 size = m_content_features.size();
+	tsrc->setImageCaching(true);
 
+	u32 size = m_content_features.size();
 	for (u32 i = 0; i < size; i++) {
 		ContentFeatures *f = &(m_content_features[i]);
 		f->updateTextures(tsrc, shdsrc, meshmanip, client, tsettings);
 		client->showUpdateProgressTexture(progress_callback_args, i, size);
 	}
+
+	tsrc->setImageCaching(false);
 #endif
 }
 

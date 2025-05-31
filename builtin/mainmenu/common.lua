@@ -21,7 +21,6 @@ function check_cache_age(key, max_age)
 end
 
 function core.on_before_close()
-	-- called before the menu is closed, either exit or to join a game
 	cache_settings:write()
 end
 

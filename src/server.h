@@ -368,6 +368,7 @@ public:
 	void hudSetHotbarImage(RemotePlayer *player, const std::string &name);
 	void hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &name);
 
+	/// @note this is only available for client state >= CS_HelloSent
 	Address getPeerAddress(session_t peer_id);
 
 	void setLocalPlayerAnimations(RemotePlayer *player, v2f animation_frames[4],
@@ -610,6 +611,10 @@ private:
 	bool checkInteractDistance(RemotePlayer *player, const f32 d, const std::string &what);
 
 	void handleChatInterfaceEvent(ChatEvent *evt);
+
+	/// @brief Checks if user limit allows a potential client to join
+	/// @return true if the client can NOT join
+	bool checkUserLimit(const std::string &player_name, const std::string &addr_s);
 
 	// This returns the answer to the sender of wmessage, or "" if there is none
 	std::wstring handleChat(const std::string &name, std::wstring wmessage_input,

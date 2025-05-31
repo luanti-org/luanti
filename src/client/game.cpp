@@ -5,7 +5,6 @@
 #include "game.h"
 
 #include <cmath>
-#include "IAttributes.h"
 #include "client/renderingengine.h"
 #include "camera.h"
 #include "client.h"
@@ -959,8 +958,6 @@ bool Game::startup(bool *kill,
 
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, g_settings->getBool("mip_map"));
 
-	smgr->getParameters()->setAttribute(scene::OBJ_LOADER_IGNORE_MATERIAL_FILES, true);
-
 	// Reinit runData
 	runData = GameRunData();
 	runData.time_from_last_punch = 10.0;
@@ -1020,6 +1017,10 @@ void Game::run()
 		);
 	const bool initial_window_maximized = !g_settings->getBool("fullscreen") &&
 			g_settings->getBool("window_maximized");
+
+#ifdef __ANDROID__
+	porting::setPlayingNowNotification(true);
+#endif
 
 	auto framemarker = FrameMarker("Game::run()-frame").started();
 
@@ -1103,14 +1104,22 @@ void Game::run()
 
 	framemarker.end();
 
+#ifdef __ANDROID__
+	porting::setPlayingNowNotification(false);
+#endif
+
 	RenderingEngine::autosaveScreensizeAndCo(initial_screen_size, initial_window_maximized);
 }
 
 
 void Game::shutdown()
 {
-	// Clear text when exiting.
+	// Delete text and menus first
 	m_game_ui->clearText();
+	m_game_formspec.reset();
+	while (g_menumgr.menuCount() > 0) {
+		g_menumgr.deleteFront();
+	}
 
 	if (g_touchcontrols)
 		g_touchcontrols->hide();
@@ -1120,11 +1129,6 @@ void Game::shutdown()
 	gui_chat_console.reset();
 
 	sky.reset();
-
-	/* cleanup menus */
-	while (g_menumgr.menuCount() > 0) {
-		g_menumgr.deleteFront();
-	}
 
 	// only if the shutdown progress bar isn't shown yet
 	if (m_shutdown_progress == 0.0f)

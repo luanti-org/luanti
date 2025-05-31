@@ -68,8 +68,6 @@ struct TextDest
 {
 	virtual ~TextDest() = default;
 
-	// This is deprecated I guess? -celeron55
-	virtual void gotText(const std::wstring &text) {}
 	virtual void gotText(const StringMap &fields) = 0;
 
 	std::string m_formname;
@@ -206,7 +204,10 @@ public:
 
 	void defaultAllowClose(bool value)
 	{
+		// Also set m_allowclose here in order to have the correct value if
+		// escape is pressed before regenerateGui() is called.
 		m_default_allowclose = value;
+		m_allowclose = value;
 	}
 
 	void setDebugView(bool value)
@@ -490,6 +491,7 @@ private:
 	bool parseMiddleRect(const std::string &value, core::rect<s32> *parsed_rect);
 
 	void tryClose();
+	void trySubmitClose();
 
 	void showTooltip(const std::wstring &text, const irr::video::SColor &color,
 		const irr::video::SColor &bgcolor);

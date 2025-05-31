@@ -518,7 +518,7 @@ local function get_formspec(dialogdata)
 
 		("button[0,%f;%f,0.8;back;%s]"):format(
 				tabsize.height + 0.2, back_w,
-				INIT == "pause_menu" and fgettext("Exit") or fgettext("Back")),
+				fgettext("Back")),
 
 		("box[%f,%f;%f,0.8;#0000008C]"):format(
 			back_w + 0.2, tabsize.height + 0.2, checkbox_w),
@@ -778,11 +778,11 @@ end
 
 
 if INIT == "mainmenu" then
-	function create_settings_dlg()
+	function create_settings_dlg(page_id)
 		load()
 		local dlg = dialog_create("dlg_settings", get_formspec, buttonhandler, eventhandler)
 
-		dlg.data.page_id = update_filtered_pages("")
+		dlg.data.page_id = page_id or update_filtered_pages("")
 
 		return dlg
 	end

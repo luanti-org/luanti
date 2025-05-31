@@ -151,7 +151,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 			fullscreen_is_down = event.KeyInput.PressedDown;
 			return true;
 		} else if (keyCode == EscapeKey &&
-				event.KeyInput.PressedDown && event.KeyInput.Control) {
+				event.KeyInput.PressedDown && event.KeyInput.Shift) {
 			g_gamecallback->disconnect();
 			return true;
 		}

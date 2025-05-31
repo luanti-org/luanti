@@ -13,7 +13,6 @@
 #include "ITimer.h"
 #include "IOSOperator.h"
 #include "irrArray.h"
-#include "IrrCompileConfig.h"
 #include "position2d.h"
 #include "SColor.h" // video::ECOLOR_FORMAT
 #include <string>
@@ -45,7 +44,7 @@ class IContextManager;
 class IImage;
 class ITexture;
 class IVideoDriver;
-extern "C" IRRLICHT_API bool IRRCALLCONV isDriverSupported(E_DRIVER_TYPE driver);
+extern "C" bool isDriverSupported(E_DRIVER_TYPE driver);
 } // end namespace video
 
 //! The Irrlicht device. You can create it with createDevice() or createDeviceEx().

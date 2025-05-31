@@ -57,7 +57,7 @@ Some can be changed in the key config dialog in the settings tab.
 | T                             | Chat                                                           |
 | /                             | Command                                                        |
 | Esc                           | Pause menu/abort/exit (pauses only singleplayer game)          |
-| Ctrl + Esc                    | Exit directly to main menu from anywhere, bypassing pause menu |
+| Shift + Esc                   | Exit directly to main menu from anywhere, bypassing pause menu |
 | +                             | Increase view range                                            |
 | -                             | Decrease view range                                            |
 | K                             | Enable/disable fly mode (needs fly privilege)                  |

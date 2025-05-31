@@ -465,6 +465,10 @@ inline std::string ftos(float f)
 	return oss.str();
 }
 
+/// @brief Converts double to string. Handles high precision and inf/nan.
+std::string my_double_to_string(double number);
+/// @brief Converts string to double. Handles high precision and inf/nan.
+std::optional<double> my_string_to_double(const std::string &s);
 
 /**
  * Replace all occurrences of \p pattern in \p str with \p replacement.

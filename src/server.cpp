@@ -284,12 +284,12 @@ Server::Server(
 		throw ServerError("Supplied invalid gamespec");
 
 #if USE_PROMETHEUS
-	if (!simple_singleplayer_mode)
-		m_metrics_backend = std::unique_ptr<MetricsBackend>(createPrometheusMetricsBackend());
-	else
-#else
-	if (true)
+	if (!simple_singleplayer_mode) {
+		// Note: may return null
+		m_metrics_backend.reset(createPrometheusMetricsBackend());
+	}
 #endif
+	if (!m_metrics_backend)
 		m_metrics_backend = std::make_unique<MetricsBackend>();
 
 	m_uptime_counter = m_metrics_backend->addCounter("minetest_core_server_uptime", "Server uptime (in seconds)");
@@ -755,6 +755,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
 			event.type = MEET_OTHER;
+			event.low_priority = true;
 			event.setModifiedBlocks(modified_blocks);
 			m_env->getMap().dispatchEvent(event);
 		}
@@ -1006,7 +1007,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 			}
 			case MEET_OTHER:
 				prof.add("MEET_OTHER", 1);
-				m_clients.markBlocksNotSent(event->modified_blocks);
+				m_clients.markBlocksNotSent(event->modified_blocks, event->low_priority);
 				break;
 			default:
 				prof.add("unknown", 1);
@@ -1022,7 +1023,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 			*/
 			for (const u16 far_player : far_players) {
 				if (RemoteClient *client = getClient(far_player))
-					client->SetBlocksNotSent(event->modified_blocks);
+					client->SetBlocksNotSent(event->modified_blocks, event->low_priority);
 			}
 
 			delete event;
@@ -1571,7 +1572,8 @@ void Server::SendChatMessage(session_t peer_id, const ChatMessage &message)
 	if (peer_id != PEER_ID_INEXISTENT) {
 		Send(&pkt);
 	} else {
-		m_clients.sendToAll(&pkt);
+		// If a client has completed auth but is still joining, still send chat
+		m_clients.sendToAll(&pkt, CS_InitDone);
 	}
 }
 
@@ -3185,9 +3187,7 @@ std::wstring Server::handleChat(const std::string &name,
 
 	ChatMessage chatmsg(line);
 
-	std::vector<session_t> clients = m_clients.getClientIDs();
-	for (u16 cid : clients)
-		SendChatMessage(cid, chatmsg);
+	SendChatMessage(PEER_ID_INEXISTENT, chatmsg);
 
 	return L"";
 }
@@ -3359,6 +3359,15 @@ bool Server::denyIfBanned(session_t peer_id)
 	return false;
 }
 
+bool Server::checkUserLimit(const std::string &player_name, const std::string &addr_s)
+{
+	if (!m_clients.isUserLimitReached())
+		return false;
+	if (player_name == g_settings->get("name")) // admin can always join
+		return false;
+	return !m_script->can_bypass_userlimit(player_name, addr_s);
+}
+
 void Server::notifyPlayer(const char *name, const std::wstring &msg)
 {
 	// m_env will be NULL if the server is initializing
@@ -3492,7 +3501,6 @@ void Server::hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &
 
 Address Server::getPeerAddress(session_t peer_id)
 {
-	// Note that this is only set after Init was received in Server::handleCommand_Init
 	return getClient(peer_id, CS_Invalid)->getAddress();
 }
 

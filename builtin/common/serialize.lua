@@ -190,11 +190,41 @@ local function serialize(value, write)
 	dump(value)
 end
 
+-- Whether `value` recursively contains a function
+local function contains_function(value)
+	local seen = {}
+	local function check(val)
+		if type(val) == "function" then
+			return true
+		end
+		if type(val) == "table" then
+			if seen[val] then
+				return false
+			end
+			seen[val] = true
+			for k, v in pairs(val) do
+				if check(k) or check(v) then
+					return true
+				end
+			end
+		end
+		return false
+	end
+	return check(value)
+end
+
 function core.serialize(value)
+	if contains_function(value) then
+		core.log("deprecated", "Support for dumping functions in `core.serialize` is deprecated.")
+	end
 	local rope = {}
+	-- Keeping the length of the table as a local variable is *much*
+	-- faster than invoking the length operator.
+	-- See https://gitspartv.github.io/LuaJIT-Benchmarks/#test12.
+	local i = 0
 	serialize(value, function(text)
-		 -- Faster than table.insert(rope, text) on PUC Lua 5.1
-		rope[#rope + 1] = text
+		i = i + 1
+		rope[i] = text
 	end)
 	return table_concat(rope)
 end

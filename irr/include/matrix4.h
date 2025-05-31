@@ -11,7 +11,6 @@
 #include "plane3d.h"
 #include "aabbox3d.h"
 #include "rect.h"
-#include "IrrCompileConfig.h" // for IRRLICHT_API
 #include <cassert>
 
 namespace irr
@@ -1899,7 +1898,7 @@ inline CMatrix4<T> operator*(const T scalar, const CMatrix4<T> &mat)
 typedef CMatrix4<f32> matrix4;
 
 //! global const identity matrix
-IRRLICHT_API extern const matrix4 IdentityMatrix;
+extern const matrix4 IdentityMatrix;
 
 } // end namespace core
 } // end namespace irr

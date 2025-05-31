@@ -91,6 +91,20 @@ SECTION("minimal triangle") {
 	}
 }
 
+auto check_cube_vertices = [](auto *meshbuf) {
+	REQUIRE(meshbuf->getVertexCount() == 24);
+	auto vertices = static_cast<const irr::video::S3DVertex *>(
+			meshbuf->getVertices());
+	CHECK(vertices[0].Pos == v3f{-1.0f, -1.0f, -1.0f});
+	CHECK(vertices[3].Pos == v3f{-1.0f, 1.0f, -1.0f});
+	CHECK(vertices[6].Pos == v3f{-1.0f, -1.0f, 1.0f});
+	CHECK(vertices[9].Pos == v3f{-1.0f, 1.0f, 1.0f});
+	CHECK(vertices[12].Pos == v3f{1.0f, -1.0f, -1.0f});
+	CHECK(vertices[15].Pos == v3f{1.0f, 1.0f, -1.0f});
+	CHECK(vertices[18].Pos == v3f{1.0f, -1.0f, 1.0f});
+	CHECK(vertices[21].Pos == v3f{1.0f, 1.0f, 1.0f});
+};
+
 SECTION("blender cube") {
 	const auto path = GENERATE(
 		model_stem + "blender_cube.gltf",
@@ -98,24 +112,20 @@ SECTION("blender cube") {
 	const auto mesh = loadMesh(path);
 	REQUIRE(mesh);
 	REQUIRE(mesh->getMeshBufferCount() == 1);
+	auto *meshbuf = dynamic_cast<irr::scene::SSkinMeshBuffer *>(
+				mesh->getMeshBuffer(0));
+	REQUIRE(meshbuf);
 	SECTION("vertex coordinates are correct") {
-		REQUIRE(mesh->getMeshBuffer(0)->getVertexCount() == 24);
-		auto vertices = static_cast<const irr::video::S3DVertex *>(
-				mesh->getMeshBuffer(0)->getVertices());
-		CHECK(vertices[0].Pos == v3f{-10.0f, -10.0f, -10.0f});
-		CHECK(vertices[3].Pos == v3f{-10.0f, 10.0f, -10.0f});
-		CHECK(vertices[6].Pos == v3f{-10.0f, -10.0f, 10.0f});
-		CHECK(vertices[9].Pos == v3f{-10.0f, 10.0f, 10.0f});
-		CHECK(vertices[12].Pos == v3f{10.0f, -10.0f, -10.0f});
-		CHECK(vertices[15].Pos == v3f{10.0f, 10.0f, -10.0f});
-		CHECK(vertices[18].Pos == v3f{10.0f, -10.0f, 10.0f});
-		CHECK(vertices[21].Pos == v3f{10.0f, 10.0f, 10.0f});
+		core::matrix4 scale;
+		scale.setScale(v3f(10.0f));
+		REQUIRE(meshbuf->Transformation == scale);
+		check_cube_vertices(meshbuf);
 	}
 
 	SECTION("vertex indices are correct") {
-		REQUIRE(mesh->getMeshBuffer(0)->getIndexCount() == 36);
+		REQUIRE(meshbuf->getIndexCount() == 36);
 		auto indices = static_cast<const irr::u16 *>(
-				mesh->getMeshBuffer(0)->getIndices());
+				meshbuf->getIndices());
 		CHECK(indices[0] == 16);
 		CHECK(indices[1] == 5);
 		CHECK(indices[2] == 22);
@@ -123,9 +133,9 @@ SECTION("blender cube") {
 	}
 
 	SECTION("vertex normals are correct") {
-		REQUIRE(mesh->getMeshBuffer(0)->getVertexCount() == 24);
+		REQUIRE(meshbuf->getVertexCount() == 24);
 		auto vertices = static_cast<const irr::video::S3DVertex *>(
-				mesh->getMeshBuffer(0)->getVertices());
+				meshbuf->getVertices());
 		CHECK(vertices[0].Normal == v3f{-1.0f, 0.0f, 0.0f});
 		CHECK(vertices[1].Normal == v3f{0.0f, -1.0f, 0.0f});
 		CHECK(vertices[2].Normal == v3f{0.0f, 0.0f, -1.0f});
@@ -136,9 +146,9 @@ SECTION("blender cube") {
 	}
 
 	SECTION("texture coords are correct") {
-		REQUIRE(mesh->getMeshBuffer(0)->getVertexCount() == 24);
+		REQUIRE(meshbuf->getVertexCount() == 24);
 		auto vertices = static_cast<const irr::video::S3DVertex *>(
-				mesh->getMeshBuffer(0)->getVertices());
+				meshbuf->getVertices());
 		CHECK(vertices[0].TCoords == v2f{0.375f, 1.0f});
 		CHECK(vertices[1].TCoords == v2f{0.125f, 0.25f});
 		CHECK(vertices[2].TCoords == v2f{0.375f, 0.0f});
@@ -151,20 +161,15 @@ SECTION("blender cube scaled") {
 	const auto mesh = loadMesh(model_stem + "blender_cube_scaled.gltf");
 	REQUIRE(mesh);
 	REQUIRE(mesh->getMeshBufferCount() == 1);
+	auto *meshbuf = dynamic_cast<irr::scene::SSkinMeshBuffer *>(
+			mesh->getMeshBuffer(0));
+	REQUIRE(meshbuf);
 
 	SECTION("Scaling is correct") {
-		REQUIRE(mesh->getMeshBuffer(0)->getVertexCount() == 24);
-		auto vertices = static_cast<const irr::video::S3DVertex *>(
-				mesh->getMeshBuffer(0)->getVertices());
-
-		CHECK(vertices[0].Pos == v3f{-150.0f, -1.0f, -21.5f});
-		CHECK(vertices[3].Pos == v3f{-150.0f, 1.0f, -21.5f});
-		CHECK(vertices[6].Pos == v3f{-150.0f, -1.0f, 21.5f});
-		CHECK(vertices[9].Pos == v3f{-150.0f, 1.0f, 21.5f});
-		CHECK(vertices[12].Pos == v3f{150.0f, -1.0f, -21.5f});
-		CHECK(vertices[15].Pos == v3f{150.0f, 1.0f, -21.5f});
-		CHECK(vertices[18].Pos == v3f{150.0f, -1.0f, 21.5f});
-		CHECK(vertices[21].Pos == v3f{150.0f, 1.0f, 21.5f});
+		core::matrix4 scale;
+		scale.setScale(v3f{150.0f, 1.0f, 21.5f});
+		REQUIRE(meshbuf->Transformation == scale);
+		check_cube_vertices(meshbuf);
 	}
 }
 
@@ -174,14 +179,17 @@ SECTION("blender cube matrix transform") {
 	REQUIRE(mesh->getMeshBufferCount() == 1);
 
 	SECTION("Transformation is correct") {
-		REQUIRE(mesh->getMeshBuffer(0)->getVertexCount() == 24);
+		auto *meshbuf = dynamic_cast<irr::scene::SSkinMeshBuffer *>(
+				mesh->getMeshBuffer(0));
+		REQUIRE(meshbuf);
+		REQUIRE(meshbuf->getVertexCount() == 24);
 		auto vertices = static_cast<const irr::video::S3DVertex *>(
-				mesh->getMeshBuffer(0)->getVertices());
+				meshbuf->getVertices());
 		const auto checkVertex = [&](const std::size_t i, v3f vec) {
 			// The transform scales by (1, 2, 3) and translates by (4, 5, 6).
-			CHECK(vertices[i].Pos == vec * v3f{1, 2, 3}
-					// The -6 is due to the coordinate system conversion.
-					+ v3f{4, 5, -6});
+			// The -6 is due to the coordinate system conversion.
+			CHECK(meshbuf->Transformation.transformVect(vertices[i].Pos)
+					== vec * v3f{1, 2, 3} + v3f{4, 5, -6});
 		};
 		checkVertex(0, v3f{-1, -1, -1});
 		checkVertex(3, v3f{-1, 1, -1});

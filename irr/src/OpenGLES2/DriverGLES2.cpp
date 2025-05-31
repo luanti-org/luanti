@@ -2,7 +2,7 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
-#include "Driver.h"
+#include "DriverGLES2.h"
 #include <stdexcept>
 #include <cassert>
 #include "mt_opengl.h"
