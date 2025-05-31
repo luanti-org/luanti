@@ -246,7 +246,7 @@ local function get_formspec(data)
 		end
 
 		local function markup(text)
-			text = text:gsub("(%*%*)([^%s][^*]-[^%s])%*%*", "<b>%2</b>")
+			text = text:gsub("%*%*([^%s][^*]-[^%s])%*%*", "<b>%1</b>")
 			text = text:gsub("(%*)([^%s][^*]-[^%s])%*", "<i>%2</i>")
 			text = text:gsub("* ", "<b>•</b> ")
 			text = text:gsub("- ", "<b>•</b> ")
