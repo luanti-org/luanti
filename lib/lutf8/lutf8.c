@@ -1,25 +1,21 @@
-/*
-** $Id: lutf8lib.c $
-** Standard library for UTF-8 manipulation
-** See Copyright Notice in lua.h
-*/
+// PUC Lua UTF-8 library, with minor modifications for integration in Luanti.
+// Taken from https://github.com/lua/lua/blob/c15543b9afa31ab5dc564511ae11acd808405e8f/lutf8lib.c
+// MIT-licensed, see LICENSE.txt
 
 #define lutf8lib_c
 #define LUA_LIB
 
-#include "lprefix.h"
-
+#include "lutf8.h"
 
 #include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "lua.h"
 
 #include "lauxlib.h"
-#include "lualib.h"
-#include "llimits.h"
 
 
 #define MAXUNICODE	0x10FFFFu
@@ -33,6 +29,9 @@
 #define iscont(c)	(((c) & 0xC0) == 0x80)
 #define iscontp(p)	iscont(*(p))
 
+
+typedef uint32_t l_uint32;
+typedef uint64_t lua_Unsigned;
 
 /* from strlib */
 /* translate a relative string position: negative means back from end */
@@ -99,11 +98,11 @@ static int utflen (lua_State *L) {
   while (posi <= posj) {
     const char *s1 = utf8_decode(s + posi, NULL, !lax);
     if (s1 == NULL) {  /* conversion error? */
-      luaL_pushfail(L);  /* return fail ... */
+      lua_pushnil(L);  /* return fail ... */
       lua_pushinteger(L, posi + 1);  /* ... and current position */
       return 2;
     }
-    posi = ct_diff2S(s1 - s);
+    posi = (size_t)(s1 - s);
     n++;
   }
   lua_pushinteger(L, n);
@@ -137,17 +136,37 @@ static int codepoint (lua_State *L) {
     s = utf8_decode(s, &code, !lax);
     if (s == NULL)
       return luaL_error(L, MSGInvalid);
-    lua_pushinteger(L, l_castU2S(code));
+    lua_pushinteger(L, code);
     n++;
   }
   return n;
 }
 
+#define UTF8BUFFSZ 8
+
+// Taken from https://github.com/lua/lua/blob/c15543b9afa31ab5dc564511ae11acd808405e8f/lobject.c#L385-L400
+static int luaO_utf8esc(char *buff, l_uint32 x) {
+  int n = 1;  /* number of bytes put in buffer (backwards) */
+  if (x < 0x80)  /* ascii? */
+    buff[UTF8BUFFSZ - 1] = (char)(x);
+  else {  /* need continuation bytes */
+    unsigned int mfb = 0x3f;  /* maximum that fits in first byte */
+    do {  /* add continuation bytes */
+      buff[UTF8BUFFSZ - (n++)] = (char)(0x80 | (x & 0x3f));
+      x >>= 6;  /* remove added bits */
+      mfb >>= 1;  /* now there is one less bit available in first byte */
+    } while (x > mfb);  /* still needs continuation byte? */
+    buff[UTF8BUFFSZ - n] = (char)((~mfb << 1) | x);  /* add first byte */
+  }
+  return n;
+}
 
 static void pushutfchar (lua_State *L, int arg) {
   lua_Unsigned code = (lua_Unsigned)luaL_checkinteger(L, arg);
   luaL_argcheck(L, code <= MAXUTF, arg, "value out of range");
-  lua_pushfstring(L, "%U", (long)code);
+  char bf[UTF8BUFFSZ];
+  int len = luaO_utf8esc(bf, (l_uint32)code);
+  lua_pushlstring(L, &bf[UTF8BUFFSZ - len], len);
 }
 
 
@@ -180,7 +199,7 @@ static int byteoffset (lua_State *L) {
   size_t len;
   const char *s = luaL_checklstring(L, 1, &len);
   lua_Integer n  = luaL_checkinteger(L, 2);
-  lua_Integer posi = (n >= 0) ? 1 : cast_st2S(len) + 1;
+  lua_Integer posi = (n >= 0) ? 1 : (lua_Integer)(len + 1);
   posi = u_posrelat(luaL_optinteger(L, 3, posi), len);
   luaL_argcheck(L, 1 <= posi && --posi <= (lua_Integer)len, 3,
                    "position out of bounds");
@@ -210,7 +229,7 @@ static int byteoffset (lua_State *L) {
     }
   }
   if (n != 0) {  /* did not find given character? */
-    luaL_pushfail(L);
+    lua_pushnil(L);
     return 1;
   }
   lua_pushinteger(L, posi + 1);  /* initial position */
@@ -239,8 +258,8 @@ static int iter_aux (lua_State *L, int strict) {
     const char *next = utf8_decode(s + n, &code, strict);
     if (next == NULL || iscontp(next))
       return luaL_error(L, MSGInvalid);
-    lua_pushinteger(L, l_castU2S(n + 1));
-    lua_pushinteger(L, l_castU2S(code));
+    lua_pushinteger(L, (lua_Integer)(n + 1));
+    lua_pushinteger(L, (lua_Integer)code);
     return 2;
   }
 }
@@ -267,7 +286,7 @@ static int iter_codes (lua_State *L) {
 
 
 /* pattern to match a single UTF-8 character */
-#define UTF8PATT	"[\0-\x7F\xC2-\xFD][\x80-\xBF]*"
+#define UTF8PATT	"[%z-\x7F\xC2-\xFD][\x80-\xBF]*"
 
 
 static const luaL_Reg funcs[] = {
@@ -276,14 +295,12 @@ static const luaL_Reg funcs[] = {
   {"char", utfchar},
   {"len", utflen},
   {"codes", iter_codes},
-  /* placeholders */
-  {"charpattern", NULL},
   {NULL, NULL}
 };
 
 
-LUAMOD_API int luaopen_utf8 (lua_State *L) {
-  luaL_newlib(L, funcs);
+LUALIB_API int luaopen_utf8 (lua_State *L) {
+  luaL_register(L, LUA_UTF8LIBNAME, funcs);
   lua_pushlstring(L, UTF8PATT, sizeof(UTF8PATT)/sizeof(char) - 1);
   lua_setfield(L, -2, "charpattern");
   return 1;

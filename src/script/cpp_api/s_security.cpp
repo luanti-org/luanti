@@ -3,6 +3,7 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "cpp_api/s_security.h"
+#include "log.h"
 #include "lua_api/l_base.h"
 #include "filesys.h"
 #include "porting.h"
@@ -38,6 +39,7 @@ static void shallow_copy_table(lua_State *L, int from=-2, int to=-1)
 	if (from < 0) from = lua_gettop(L) + from + 1;
 	if (to   < 0) to   = lua_gettop(L) + to   + 1;
 	lua_pushnil(L);
+	assert(lua_istable(L, from));
 	while (lua_next(L, from) != 0) {
 		assert(lua_type(L, -1) != LUA_TTABLE);
 		// duplicate key and value for lua_rawset
@@ -96,6 +98,7 @@ void ScriptApiSecurity::initializeSecurity()
 		"table",
 		"math",
 		"bit",
+		"utf8",
 		// Not sure if completely safe. But if someone enables tracy, they'll
 		// know what they do.
 #if BUILD_WITH_TRACY
@@ -296,6 +299,7 @@ void ScriptApiSecurity::initializeSecurityClient()
 		"table",
 		"math",
 		"bit",
+		"utf8",
 		// Not sure if completely safe. But if someone enables tracy, they'll
 		// know what they do.
 #if BUILD_WITH_TRACY

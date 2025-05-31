@@ -29,6 +29,7 @@ extern "C" {
 #else
 	#include "bit.h"
 #endif
+#include "lutf8.h"
 }
 
 #include <cstdio>
@@ -83,6 +84,10 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 	lua_pushcfunction(m_luastack, luaopen_bit);
 	lua_pushstring(m_luastack, LUA_BITLIBNAME);
 	lua_call(m_luastack, 1, 0);
+
+	// Load utf8 library
+	lua_pushcfunction(m_luastack, luaopen_utf8);
+	lua_call(m_luastack, 0, 0);
 
 #if BUILD_WITH_TRACY
 	// Load tracy lua bindings
