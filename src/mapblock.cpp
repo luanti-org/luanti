@@ -4,6 +4,7 @@
 
 #include "mapblock.h"
 
+#include <memory>
 #include <sstream>
 #include "map.h"
 #include "light.h"
@@ -102,11 +103,9 @@ static const char *modified_reason_strings[] = {
 MapBlock::MapBlock(v3s16 pos, IGameDef *gamedef):
 		m_pos(pos),
 		m_pos_relative(pos * MAP_BLOCKSIZE),
-		data(new MapNode[nodecount]),
 		m_gamedef(gamedef)
 {
-	reallocate();
-	assert(m_modified > MOD_STATE_CLEAN);
+	reallocate(nodecount, MapNode(CONTENT_IGNORE));
 }
 
 MapBlock::~MapBlock()
@@ -119,7 +118,8 @@ MapBlock::~MapBlock()
 #endif
 
 	delete[] data;
-	porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
+	if (!m_is_mono_block)
+		porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
 }
 
 static inline size_t get_max_objects_per_block()
@@ -212,9 +212,13 @@ void MapBlock::copyTo(VoxelManipulator &dst)
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
 	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
 
+	bool was_mono_block = m_is_mono_block;
+	deconvertMonoblock();
 	// Copy from data to VoxelManipulator
 	dst.copyFrom(data, data_area, v3s16(0,0,0),
 			getPosRelative(), data_size);
+	if (was_mono_block)
+		tryConvertToMonoblock();
 }
 
 void MapBlock::copyFrom(const VoxelManipulator &src)
@@ -222,9 +226,54 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
 	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
 
+	deconvertMonoblock();
 	// Copy from VoxelManipulator to data
 	src.copyTo(data, data_area, v3s16(0,0,0),
 			getPosRelative(), data_size);
+	tryConvertToMonoblock();
+}
+
+void MapBlock::reallocate(u32 c, MapNode n)
+{
+	delete[] data;
+	if (c == 1)
+		porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
+
+	data = new MapNode[c];
+	for (u32 i = 0; i < c; i++)
+		data[i] = n;
+}
+
+void MapBlock::tryConvertToMonoblock()
+{
+	if (m_is_mono_block)
+		return;
+
+	MapNode n = data[0];
+	bool is_mono_block = true;
+	for (u32 i=1; i<nodecount; i++) {
+		if (n != data[i]) {
+			is_mono_block = false;
+			break;
+		}
+	}
+
+	if (is_mono_block) {
+		m_is_mono_block = true;
+		reallocate(1, n);
+		if (n.getContent() == CONTENT_AIR) {
+			m_is_air = true;
+			m_is_air_expired = false;
+		}
+	}
+}
+
+void MapBlock::deconvertMonoblock()
+{
+	if (m_is_mono_block) {
+		reallocate(nodecount, data[0]);
+		m_is_mono_block = false;
+	}
 }
 
 void MapBlock::actuallyUpdateIsAir()
@@ -232,6 +281,10 @@ void MapBlock::actuallyUpdateIsAir()
 	// Running this function un-expires m_is_air
 	m_is_air_expired = false;
 
+	if (m_is_mono_block) {
+		m_is_air = data[0].getContent() == CONTENT_AIR;
+		return;
+	}
 	bool only_air = true;
 	for (u32 i = 0; i < nodecount; i++) {
 		MapNode &n = data[i];
@@ -258,13 +311,13 @@ void MapBlock::expireIsAirCache()
 // Renumbers the content IDs (starting at 0 and incrementing)
 // Note that there's no technical reason why we *have to* renumber the IDs,
 // but we do it anyway as it also helps compressability.
-static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
-	const NodeDefManager *nodedef)
+static void getBlockNodeIdMapping(NameIdMapping *nimap, const std::unique_ptr<MapNode[]> &nodes,
+	const NodeDefManager *nodedef, u32 nodecount)
 {
 	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
 
 	content_t id_counter = 0;
-	for (u32 i = 0; i < MapBlock::nodecount; i++) {
+	for (u32 i = 0; i < nodecount; i++) {
 		content_t global_id = nodes[i].getContent();
 		content_t id = CONTENT_IGNORE;
 
@@ -377,13 +430,13 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 	const u8 params_width = 2;
 	if(disk)
 	{
-		MapNode *tmp_nodes = new MapNode[nodecount];
-		memcpy(tmp_nodes, data, nodecount * sizeof(MapNode));
-		getBlockNodeIdMapping(&nimap, tmp_nodes, m_gamedef->ndef());
+		const size_t size = m_is_mono_block ? 1 : nodecount;
+		auto tmp_nodes = std::make_unique<MapNode[]>(size);
+		std::copy(data, data+size, tmp_nodes.get());
+		getBlockNodeIdMapping(&nimap, tmp_nodes, m_gamedef->ndef(), size);
 
-		buf = MapNode::serializeBulk(version, tmp_nodes, nodecount,
-				content_width, params_width);
-		delete[] tmp_nodes;
+		buf = MapNode::serializeBulk(version, tmp_nodes.get(), nodecount,
+				content_width, params_width, m_is_mono_block);
 
 		// write timestamp and node/id mapping first
 		if (version >= 29) {
@@ -395,7 +448,7 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 	else
 	{
 		buf = MapNode::serializeBulk(version, data, nodecount,
-				content_width, params_width);
+				content_width, params_width, m_is_mono_block);
 	}
 
 	writeU8(os, content_width);
@@ -592,9 +645,14 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 			m_node_timers.deSerialize(is, version);
 		}
 
-		u16 dummy;
-		m_is_air = nimap.size() == 1 && nimap.getId("air", dummy);
-		m_is_air_expired = false;
+		if (nimap.size() == 1) {
+			tryConvertToMonoblock();
+			u16 dummy;
+			if (nimap.getId("air", dummy)) {
+				m_is_air = true;
+				m_is_air_expired = false;
+			}
+		}
 	}
 
 	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
