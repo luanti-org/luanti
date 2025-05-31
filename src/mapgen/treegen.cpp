@@ -5,8 +5,8 @@
 // Copyright (C) 2015-2018 paramat
 
 #include <stack>
+#include <matrix4.h>
 #include "treegen.h"
-#include "irr_v3d.h"
 #include "util/pointer.h"
 #include "util/numeric.h"
 #include "servermap.h"
