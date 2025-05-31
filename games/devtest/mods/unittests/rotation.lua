@@ -1,14 +1,24 @@
-local function describe(_, func)
-	func()
+local function assert_close(expected, got)
+	if expected:angle_to(got) > 1e-3 then
+		error("expected +-" .. tostring(expected) .. " got " .. tostring(got))
+	end
 end
 
-local function it(section_name, func)
-	print("Running test: " .. section_name)
-	func()
+local function assert_close_vec(expected, got)
+	if expected:distance(got) > 1e-4 then
+		error("expected " .. tostring(expected) .. " got " .. tostring(got))
+	end
 end
 
-local function assert_close(expected, actual)
-	assert(expected:angle_to(actual) < 1e-4)
+local function srandom(n)
+	if n == 0 then
+		return
+	end
+	return 2 * math.random() - 1, srandom(n - 1)
+end
+
+local function random_rotation()
+	return Rotation.quaternion(srandom(4))
 end
 
 describe("constructors", function()
@@ -17,13 +27,37 @@ describe("constructors", function()
 		assert.same({0, 0, 0, 1}, {rot:to_quaternion()})
 	end)
 	it("quaternion", function()
-		local rot = Rotation.quaternion(0, 0, 0, 1)
-		assert_close(rot, Rotation.identity())
+		assert_close(Rotation.identity(), Rotation.quaternion(0, 0, 0, 1))
 	end)
-	it("axis angle", function() end)
+	it("axis-angle", function()
+		assert_close(Rotation.quaternion(1, 1, 1, 0),
+				Rotation.axis_angle(vector.new(1, 1, 1), math.pi))
+	end)
 	it("axis-angle shorthands", function()
-
+		local angle = math.pi
+		assert_close(Rotation.quaternion(1, 0, 0, 0), Rotation.x(angle))
+		assert_close(Rotation.quaternion(0, 1, 0, 0), Rotation.y(angle))
+		assert_close(Rotation.quaternion(0, 0, 1, 0), Rotation.z(angle))
 	end)
+	it("euler angles", function()
+		local pitch, yaw, roll = 1, 2, 3
+		assert_close(Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch)),
+				Rotation.euler_angles(pitch, yaw, roll))
+	end)
+end)
+
+describe("conversions", function()
+	local function test_roundtrip(name)
+		it(name, function()
+			for _ = 1, 100 do
+				local rot = random_rotation()
+				assert_close(rot, Rotation[name](rot["to_" .. name](rot)))
+			end
+		end)
+	end
+	test_roundtrip("quaternion")
+	test_roundtrip("axis_angle")
+	test_roundtrip("euler_angles")
 end)
 
 describe("composition", function()
@@ -35,33 +69,29 @@ describe("composition", function()
 		assert_close(rot, rot:compose())
 	end)
 	it("is consistent with application", function()
-
+		for _ = 1, 100 do
+			local r1, r2 = random_rotation(), random_rotation()
+			local v = vector.new(srandom(3))
+			assert_close_vec(r1:apply(r2:apply(v)), r1:compose(r2):apply(v))
+		end
 	end)
 end)
 
-local function random_quaternion()
-	local x = math.random()
-	local y = math.random()
-	local z = math.random()
-	local w = math.random()
-	return Rotation.quaternion(x, y, z, w)
-end
+it("application", function()
+	assert_close_vec(vector.new(-2, 1, 3), Rotation.z(math.pi / 2):apply(vector.new(1, 2, 3)))
+end)
 
-describe("inversion", function()
-	it("random quaternions", function()
-		for _ = 1, 100 do
-			local rot = random_quaternion()
-			assert_close(Rotation.identity(), rot:inverse():compose(rot))
-			assert_close(Rotation.identity(), rot:compose(rot:inverse()))
-		end
-	end)
-	it("inverts the angle", function()
-		for _ = 1, 100 do
-			local rot = random_quaternion()
-			local axis, angle = rot:axis_angle()
-			local inv_axis, inv_angle = rot:inverse():axis_angle()
-			assert(axis:distance(inv_axis) < 1e-4)
-			assert(math.abs(angle + inv_angle) < 1e-4)
-		end
-	end)
+it("inversion", function()
+	assert_close(Rotation.x(-math.pi / 2), Rotation.x(math.pi / 2):invert())
+end)
+
+it("slerp", function()
+	local from, to = Rotation.identity(), Rotation.x(2)
+	assert_close(Rotation.identity(), from:slerp(to, 0))
+	assert_close(Rotation.x(1), from:slerp(to, 0.5))
+	assert_close(Rotation.x(2), from:slerp(to, 1))
+end)
+
+it("tostring", function()
+	assert(type(tostring(Rotation.identity())) == "string")
 end)
