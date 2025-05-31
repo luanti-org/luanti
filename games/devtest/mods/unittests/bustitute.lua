@@ -50,7 +50,7 @@ end
 
 function test_env.it(name, func)
 	table.insert(full_test_name, name)
-	unittests.register(table.concat(full_test_name, " "), func, {})
+	unittests.register(table.concat(full_test_name, " "), func, {random = true})
 	table.remove(full_test_name)
 end
 

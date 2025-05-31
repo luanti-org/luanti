@@ -207,6 +207,7 @@ dofile(modpath .. "/matrix4.lua")
 
 local bustitute = dofile(modpath .. "/bustitute.lua")
 bustitute.register("matrix4")
+bustitute.register("rotation")
 
 --------------
 

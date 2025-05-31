@@ -70,9 +70,11 @@ int LuaRotation::l_fixed_axis_angle(lua_State *L)
 
 int LuaRotation::l_euler_angles(lua_State *L)
 {
-	v3f euler = readParam<v3f>(L, 1);
+	f32 pitch = readFiniteParam<f32>(L, 1);
+	f32 yaw = readFiniteParam<f32>(L, 2);
+	f32 roll = readFiniteParam<f32>(L, 3);
 	core::quaternion quaternion;
-	quaternion.set(euler.X, euler.Y, euler.Z);
+	quaternion.set(pitch, yaw, roll);
 	create(L, quaternion);
 	return 1;
 }
