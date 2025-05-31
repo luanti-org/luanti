@@ -265,10 +265,11 @@ local function get_formspec(data)
 
 				if def.release_notes then
 					insert(hypertext, core.hypertext_escape(
-						markup((def.release_notes
-							:gsub("<!--.-%-%->", ""
-							:trim())
-						.."\n"
+							markup((def.release_notes
+								:gsub("<!--.-%-%->", ""
+								:trim())
+							.."\n"
+						))
 					))
 				end
 
