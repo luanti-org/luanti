@@ -55,7 +55,7 @@ it("copy", function()
 end)
 
 it("unpack", function()
-    assert.equals(mat1, Matrix4.new(mat1:unpack()))
+	assert.equals(mat1, Matrix4.new(mat1:unpack()))
 end)
 
 describe("transform", function()
