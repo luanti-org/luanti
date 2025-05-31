@@ -770,11 +770,6 @@ bool GUITable::OnEvent(const SEvent &event)
 	if (!isEnabled())
 		return IGUIElement::OnEvent(event);
 
-	// Pass key events with Control modifier to parent
-	if (event.EventType == EET_KEY_INPUT_EVENT && event.KeyInput.Control) {
-		return IGUIElement::OnEvent(event);
-	}
-
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
 		if (event.KeyInput.PressedDown && (
 				event.KeyInput.Key == KEY_DOWN ||
@@ -835,8 +830,11 @@ bool GUITable::OnEvent(const SEvent &event)
 			sendTableEvent(0, true);
 			return true;
 		}
-		else if (event.KeyInput.Key == KEY_ESCAPE) {
+		else if (event.KeyInput.Key == KEY_ESCAPE ||
+					event.KeyInput.Key == KEY_SPACE ||
+			        (event.KeyInput.Key == KEY_TAB && event.KeyInput.Control)) {
 			// pass to parent
+			return IGUIElement::OnEvent(event);
 		}
 		else if (event.KeyInput.PressedDown && event.KeyInput.Char) {
 			// change selection based on text as it is typed

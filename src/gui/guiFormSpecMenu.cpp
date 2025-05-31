@@ -3999,8 +3999,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 			gui::IGUIElement *focused = Environment->getFocus();
 			if (focused && isMyChild(focused) &&
 					(focused->getType() == gui::EGUIET_LIST_BOX ||
-					focused->getType() == gui::EGUIET_CHECK_BOX ||
-					focused->getType() == gui::EGUIET_TABLE) &&
+					focused->getType() == gui::EGUIET_CHECK_BOX) &&
 					(focused->getParent()->getType() != gui::EGUIET_COMBO_BOX ||
 					event.KeyInput.Key != KEY_RETURN)) {
 				OnEvent(event);
@@ -4084,8 +4083,6 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 				// Shift: Previous tab, No shift: Next tab
 				active = (active + (shift ? -1 : 1) + num_tabs) % num_tabs;
 				tabs->setActiveTab(active);
-				// Simulate a tab change event if necessary
-				// Optionally: trigger formspec callbacks if needed
 				return true; // handled
 			}
 		}
