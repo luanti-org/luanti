@@ -265,7 +265,7 @@ local function get_formspec(data)
 					hypertext = hypertext..
 						markup((def["release_notes"]
 							:gsub("<!--.*", ""))
-							:gsub("[\r\n]+$", ""))
+							:trim())
 						.."\n"
 				end
 
