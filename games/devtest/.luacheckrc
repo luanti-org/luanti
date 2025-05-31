@@ -35,19 +35,14 @@ read_globals = {
 	string = {fields = {"split", "trim"}},
 	table  = {fields = {"copy", "getn", "indexof", "insert_all", "key_value_swap"}},
 	math   = {fields = {"hypot", "round"}},
-}
 
--- Busted-style unit testing
-local bustitute = {
+	-- Busted-style unit testing
 	read_globals = {
 		"describe",
 		"it",
 		assert = {fields = {"same", "equals"}},
 	},
 }
-
-files["mods/unittests/matrix4.lua"] = bustitute
-files["mods/unittests/rotation.lua"] = bustitute
 
 globals = {
 	"aborted",
@@ -56,4 +51,3 @@ globals = {
 	os = { fields = { "tempfolder" } },
 	"_",
 }
-
