@@ -21,9 +21,7 @@ class NodeMetadataList;
 class IGameDef;
 class MapBlockMesh;
 class VoxelManipulator;
-#if BUILD_UNITTESTS
 class TestMapBlock;
-#endif
 
 #define BLOCK_TIMESTAMP_UNDEFINED 0xffffffff
 
@@ -442,7 +440,9 @@ private:
 	*/
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
+	// check if all nodes are identical, if so store them as a single node
 	void tryConvertToMonoblock();
+	// if only a single node is stored, expand storage back to the full array
 	void deconvertMonoblock();
 	void reallocate(u32 c, MapNode n);
 

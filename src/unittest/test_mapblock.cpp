@@ -121,7 +121,6 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	UASSERT(vmm.getNode({5,5,5}).param0 == 42);
 
 	block.setNode(5,5,5,MapNode(23));
-	t = block.data;
 
 	block.copyFrom(vmm);
 	UASSERT(block.m_is_mono_block);
@@ -130,6 +129,34 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	vmm.setNode({5,5,5}, MapNode(23));
 	block.copyFrom(vmm);
 	UASSERT(!block.m_is_mono_block);
+
+	vmm.setNode({5,5,5}, MapNode(42,1,0));
+	block.copyFrom(vmm);
+	UASSERT(!block.m_is_mono_block);
+
+	vmm.setNode({5,5,5}, MapNode(42,0,1));
+	block.copyFrom(vmm);
+	UASSERT(!block.m_is_mono_block);
+
+	vmm.setNode({5,5,5}, MapNode(42));
+	block.copyFrom(vmm);
+	UASSERT(block.m_is_mono_block);
+
+	block.setNode(5,5,5,MapNode(23));
+	block.tryConvertToMonoblock();
+	UASSERT(!block.m_is_mono_block);
+
+	block.setNode(5,5,5,MapNode(42, 1, 0));
+	block.tryConvertToMonoblock();
+	UASSERT(!block.m_is_mono_block);
+
+	block.setNode(5,5,5,MapNode(42, 0, 1));
+	block.tryConvertToMonoblock();
+	UASSERT(!block.m_is_mono_block);
+
+	block.setNode(5,5,5,MapNode(42));
+	block.tryConvertToMonoblock();
+	UASSERT(block.m_is_mono_block);
 }
 
 void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)
