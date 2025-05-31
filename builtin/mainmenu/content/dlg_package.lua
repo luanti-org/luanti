@@ -266,8 +266,8 @@ local function get_formspec(data)
 				if def.release_notes then
 					insert(hypertext, core.hypertext_escape(
 							markup((def.release_notes
-								:gsub("<!--.-%-%->", ""
-								:trim())
+								:gsub("<!--.-%-%->", "")
+								:trim()
 							.."\n"
 						))
 					))
@@ -403,3 +403,4 @@ function create_package_dialog(package)
 	data.current_tab = 1
 	return dlg
 end
+м
