@@ -44,7 +44,7 @@ inline core::matrix4 &LuaMatrix4::create(lua_State *L)
 
 int LuaMatrix4::l_identity(lua_State *L)
 {
-	create(L) = core::IdentityMatrix;
+	create(L) = core::matrix4();
 	return 1;
 }
 
@@ -69,7 +69,7 @@ int LuaMatrix4::l_translation(lua_State *L)
 {
 	v3f translation = readParam<v3f>(L, 1);
 	core::matrix4 &matrix = create(L);
-	matrix = core::IdentityMatrix;
+	matrix = core::matrix4();
 	matrix.setTranslation(translation);
 	return 1;
 }
@@ -86,7 +86,7 @@ int LuaMatrix4::l_scale(lua_State *L)
 {
 	v3f scale = readParam<v3f>(L, 1);
 	core::matrix4 &matrix = create(L);
-	matrix = core::IdentityMatrix;
+	matrix = core::matrix4();
 	matrix.setScale(scale);
 	return 1;
 }
@@ -96,7 +96,7 @@ int LuaMatrix4::l_reflection(lua_State *L)
 	v3f normal = readParam<v3f>(L, 1);
 	normal.normalize();
 	core::matrix4 &matrix = create(L);
-	matrix = core::IdentityMatrix;
+	matrix = core::matrix4();
 	// TODO move to CMatrix4
 	f32 factor = 2.0f / normal.getLengthSQ();
 	auto subtract_scaled_row = [&](int i, f32 scalar) {
