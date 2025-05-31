@@ -3632,9 +3632,9 @@ Some types may inherit styles from parent types.
     * bgimg - standard background image. Defaults to none.
     * bgimg_hovered - background image when hovered. Defaults to bgimg when not provided.
         * This is deprecated, use states instead.
-    * bgimg_middle - Replaces the default border. Defines the middle rect for 9-sliced mode.
+    * bgimg_middle - Makes the bgimg textures render in 9-sliced mode and defines the middle rect.
                      See background9[] documentation for more details. This property also pads the
-                     button's content when set. When `border` is set to false
+                     button's content when set.
     * bgimg_pressed - background image when pressed. Defaults to bgimg when not provided.
         * This is deprecated, use states instead.
     * font - Sets font type. This is a comma separated list of options. Valid options:
@@ -3650,6 +3650,8 @@ Some types may inherit styles from parent types.
       * `+<number>`/`-<number>`: Offsets default font size by `number` points.
       * `*<number>`: Multiplies default font size by `number`, similar to CSS `em`.
     * border - boolean, draw border. Set to false to hide the bevelled button pane. Default true.
+    * border_img - string, a texture that overrides the border style.
+    * border_img_middle - rect, to render `border_img` in 9-sliced mode. Refer to `background9[...]`.
     * content_offset - 2d vector, shifts the position of the button's content without resizing it.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * padding - rect, adds space between the edges of the button and the content. This value is
