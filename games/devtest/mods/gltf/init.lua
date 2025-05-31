@@ -30,6 +30,41 @@ end
 
 register_entity("snow_man", {"gltf_snow_man.png"})
 register_entity("spider", {"gltf_spider.png"})
+core.register_entity("gltf:morph", {
+	initial_properties = {
+		visual = "mesh",
+		mesh = "gltf_morph_static.glb",
+		textures = {"gltf_morph_static.jpg"},
+		backface_culling = false,
+		visual_size = vector.new(5, 5, 5),
+	},
+})
+
+core.register_entity("gltf:morph_animated", {
+	initial_properties = {
+		visual = "mesh",
+		mesh = "gltf_morph_animated.glb",
+		textures = {},
+		backface_culling = false,
+		visual_size = vector.new(100, 100, 100),
+	},
+	on_activate = function(self)
+		self.object:set_animation({x = 0, y = 5}, 1)
+	end
+})
+
+core.register_entity("gltf:morph_animated2", {
+	initial_properties = {
+		visual = "mesh",
+		mesh = "gltf_morph_animated2.gltf",
+		textures = {},
+		backface_culling = false,
+		visual_size = vector.new(1, 1, 1),
+	},
+	on_activate = function(self)
+		self.object:set_animation({x = 0, y = 5}, 1)
+	end
+})
 
 core.register_entity("gltf:spider_animated", {
 	initial_properties = {
