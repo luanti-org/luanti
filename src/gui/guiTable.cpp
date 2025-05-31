@@ -832,7 +832,7 @@ bool GUITable::OnEvent(const SEvent &event)
 		}
 		else if (event.KeyInput.Key == KEY_ESCAPE ||
 				event.KeyInput.Key == KEY_SPACE ||
-		        (event.KeyInput.Key == KEY_TAB && event.KeyInput.Control)) {
+				(event.KeyInput.Key == KEY_TAB && event.KeyInput.Control)) {
 			// pass to parent
 			return IGUIElement::OnEvent(event);
 		}
