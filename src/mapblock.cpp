@@ -4,6 +4,7 @@
 
 #include "mapblock.h"
 
+#include <memory>
 #include <sstream>
 #include "map.h"
 #include "light.h"
@@ -310,7 +311,7 @@ void MapBlock::expireIsAirCache()
 // Renumbers the content IDs (starting at 0 and incrementing)
 // Note that there's no technical reason why we *have to* renumber the IDs,
 // but we do it anyway as it also helps compressability.
-static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
+static void getBlockNodeIdMapping(NameIdMapping *nimap, const std::unique_ptr<MapNode[]> &nodes,
 	const NodeDefManager *nodedef, u32 nodecount)
 {
 	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
@@ -430,13 +431,12 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 	if(disk)
 	{
 		const size_t size = m_is_mono_block ? 1 : nodecount;
-		MapNode *tmp_nodes = new MapNode[size];
-		memcpy(tmp_nodes, data, size * sizeof(MapNode));
+		auto tmp_nodes = std::make_unique<MapNode[]>(size);
+		std::copy(data, data+size, tmp_nodes.get());
 		getBlockNodeIdMapping(&nimap, tmp_nodes, m_gamedef->ndef(), size);
 
-		buf = MapNode::serializeBulk(version, tmp_nodes, nodecount,
+		buf = MapNode::serializeBulk(version, tmp_nodes.get(), nodecount,
 				content_width, params_width, m_is_mono_block);
-		delete[] tmp_nodes;
 
 		// write timestamp and node/id mapping first
 		if (version >= 29) {
