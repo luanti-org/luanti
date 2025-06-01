@@ -914,6 +914,7 @@ bool CIrrDeviceLinux::run()
 				} else {
 					// we assume it's a user message
 					irrevent.EventType = irr::EET_USER_EVENT;
+					irrevent.UserEvent.code = 0;
 					irrevent.UserEvent.UserData1 = static_cast<size_t>(event.xclient.data.l[0]);
 					irrevent.UserEvent.UserData2 = static_cast<size_t>(event.xclient.data.l[1]);
 					postEventFromUser(irrevent);

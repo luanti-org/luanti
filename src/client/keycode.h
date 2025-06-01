@@ -30,6 +30,8 @@ public:
 
 	KeyPress(const irr::SEvent::SKeyInput &in);
 
+	KeyPress(GameKeyType key) : scancode(key) {}
+
 	// Get a string representation that is suitable for use in minetest.conf
 	std::string sym() const;
 
