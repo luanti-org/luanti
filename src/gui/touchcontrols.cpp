@@ -335,7 +335,7 @@ bool TouchControls::mayAddButton(touch_gui_button_id id)
 	assert(ButtonLayout::isButtonValid(id));
 	assert(ButtonLayout::isButtonAllowed(id));
 	// The overflow button doesn't need a keycode to be valid.
-	return id == overflow_id || id_to_action(id) >= KeyType::INTERNAL_ENUM_COUNT;
+	return id == overflow_id || id_to_action(id) < KeyType::INTERNAL_ENUM_COUNT;
 }
 
 void TouchControls::addButton(std::vector<button_info> &buttons, touch_gui_button_id id,
