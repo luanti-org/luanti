@@ -13,13 +13,6 @@
 #include <unordered_map>
 #include <vector>
 
-struct table_key {
-	std::string Name; // An EKEY_CODE 'symbol' name as a string
-	EKEY_CODE Key;
-	wchar_t Char; // L'\0' means no character assigned
-	std::string LangName; // empty string means it doesn't have a human description
-};
-
 #define DEFINEKEY1(x, lang) /* Irrlicht key without character */ \
 	{ #x, x, L'\0', lang },
 #define DEFINEKEY2(x, ch, lang) /* Irrlicht key with character */ \
@@ -33,7 +26,7 @@ struct table_key {
 
 #define N_(text) text
 
-static std::vector<table_key> table = {
+std::vector<KeyPress::table_key> KeyPress::keycode_table = {
 	// Keys that can be reliably mapped between Char and Key
 	DEFINEKEY3(0)
 	DEFINEKEY3(1)
@@ -224,18 +217,17 @@ static std::vector<table_key> table = {
 	DEFINEKEY5("^")
 	DEFINEKEY5("_")
 };
-
-static const table_key invalid_key = {"", KEY_UNKNOWN, L'\0', ""};
+const KeyPress::table_key KeyPress::invalid_key = {"", KEY_UNKNOWN, L'\0', ""};
 
 #undef N_
 
 
-static const table_key &lookup_keychar(wchar_t Char)
+const KeyPress::table_key &KeyPress::lookupKeychar(wchar_t Char)
 {
 	if (Char == L'\0')
 		return invalid_key;
 
-	for (const auto &table_key : table) {
+	for (const auto &table_key : keycode_table) {
 		if (table_key.Char == Char)
 			return table_key;
 	}
@@ -243,15 +235,15 @@ static const table_key &lookup_keychar(wchar_t Char)
 	// Create a new entry in the lookup table if one is not available.
 	auto newsym = wide_to_utf8(std::wstring_view(&Char, 1));
 	table_key new_key {newsym, KEY_KEY_CODES_COUNT, Char, newsym};
-	return table.emplace_back(std::move(new_key));
+	return keycode_table.emplace_back(std::move(new_key));
 }
 
-static const table_key &lookup_keykey(EKEY_CODE key)
+const KeyPress::table_key &KeyPress::lookupKeykey(EKEY_CODE key)
 {
 	if (!Keycode::isValid(key))
 		return invalid_key;
 
-	for (const auto &table_key : table) {
+	for (const auto &table_key : keycode_table) {
 		if (table_key.Key == key)
 			return table_key;
 	}
@@ -259,12 +251,12 @@ static const table_key &lookup_keykey(EKEY_CODE key)
 	return invalid_key;
 }
 
-static const table_key &lookup_keyname(std::string_view name)
+const KeyPress::table_key &KeyPress::lookupKeyname(std::string_view name)
 {
 	if (name.empty())
 		return invalid_key;
 
-	for (const auto &table_key : table) {
+	for (const auto &table_key : keycode_table) {
 		if (table_key.Name == name)
 			return table_key;
 	}
@@ -272,34 +264,43 @@ static const table_key &lookup_keyname(std::string_view name)
 	auto wname = utf8_to_wide(name);
 	if (wname.empty())
 		return invalid_key;
-	return lookup_keychar(wname[0]);
+	return lookupKeychar(wname[0]);
 }
 
-static const table_key &lookup_scancode(const u32 scancode)
+const KeyPress::table_key &KeyPress::lookupScancode(const u32 scancode)
 {
 	auto key = RenderingEngine::get_raw_device()->getKeyFromScancode(scancode);
 	return std::holds_alternative<EKEY_CODE>(key) ?
-		lookup_keykey(std::get<EKEY_CODE>(key)) :
-		lookup_keychar(std::get<wchar_t>(key));
+		lookupKeykey(std::get<EKEY_CODE>(key)) :
+		lookupKeychar(std::get<wchar_t>(key));
 }
 
-static const table_key &lookup_scancode(const std::variant<u32, EKEY_CODE> &scancode)
+const KeyPress::table_key &KeyPress::lookupScancode() const
 {
-	return std::holds_alternative<EKEY_CODE>(scancode) ?
-		lookup_keykey(std::get<EKEY_CODE>(scancode)) :
-		lookup_scancode(std::get<u32>(scancode));
+	switch (getType()) {
+		case KeyPress::KEYCODE_INPUT:
+			return lookupKeykey(std::get<EKEY_CODE>(scancode));
+		case KeyPress::SCANCODE_INPUT:
+			return lookupScancode(std::get<u32>(scancode));
+		default:
+			return invalid_key;
+	}
 }
 
 void KeyPress::loadFromKey(EKEY_CODE keycode, wchar_t keychar)
 {
-	scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+	auto irr_scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+	if (std::holds_alternative<EKEY_CODE>(irr_scancode))
+		scancode.emplace<EKEY_CODE>(std::get<EKEY_CODE>(irr_scancode));
+	else
+		scancode.emplace<u32>(std::get<u32>(irr_scancode));
 }
 
 KeyPress::KeyPress(const std::string &name)
 {
 	if (loadFromScancode(name))
 		return;
-	const auto &key = lookup_keyname(name);
+	const auto &key = lookupKeyname(name);
 	loadFromKey(key.Key, key.Char);
 }
 
@@ -320,7 +321,7 @@ std::string KeyPress::formatScancode() const
 
 std::string KeyPress::sym() const
 {
-	std::string name = lookup_scancode(scancode).Name;
+	std::string name = lookupScancode().Name;
 	if (auto newname = formatScancode(); !newname.empty())
 		return newname;
 	return name;
@@ -328,7 +329,7 @@ std::string KeyPress::sym() const
 
 std::string KeyPress::name() const
 {
-	const auto &name = lookup_scancode(scancode).LangName;
+	const auto &name = lookupScancode().LangName;
 	if (!name.empty())
 		return name;
 	return formatScancode();
@@ -336,12 +337,12 @@ std::string KeyPress::name() const
 
 EKEY_CODE KeyPress::getKeycode() const
 {
-	return lookup_scancode(scancode).Key;
+	return lookupScancode().Key;
 }
 
 wchar_t KeyPress::getKeychar() const
 {
-	return lookup_scancode(scancode).Char;
+	return lookupScancode().Char;
 }
 
 bool KeyPress::loadFromScancode(const std::string &name)
@@ -363,6 +364,20 @@ KeyPress KeyPress::getSpecialKey(const std::string &name)
 	if (!key)
 		key = KeyPress(name);
 	return key;
+}
+
+KeyPress::operator bool() const
+{
+	switch (getType()) {
+		case KeyPress::SCANCODE_INPUT:
+			return std::get<u32>(scancode) != 0;
+		case KeyPress::KEYCODE_INPUT:
+			return Keycode::isValid(std::get<EKEY_CODE>(scancode));
+		case KeyPress::GAME_ACTION_INPUT:
+			return std::get<GameKeyType>(scancode) < KeyType::INTERNAL_ENUM_COUNT;
+		default:
+			return false;
+	}
 }
 
 /*

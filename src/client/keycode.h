@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrlichttypes.h"
+#include "keys.h"
 #include <Keycodes.h>
 #include <IEventReceiver.h>
 #include <string>
@@ -17,6 +18,12 @@
 class KeyPress
 {
 public:
+	enum InputType {
+		SCANCODE_INPUT, // Keyboard input (scancodes)
+		KEYCODE_INPUT, // (Deprecated) EKEY_CODE-based keyboard and mouse input
+		GAME_ACTION_INPUT, // GameKeyType input passed by touchscreen buttons
+	};
+
 	KeyPress() = default;
 
 	KeyPress(const std::string &name);
@@ -55,18 +62,32 @@ public:
 		return scancode < o.scancode;
 	}
 
-	// Check whether the keypress is valid
-	operator bool() const
-	{
-		return std::holds_alternative<EKEY_CODE>(scancode) ?
-			Keycode::isValid(std::get<EKEY_CODE>(scancode)) :
-			std::get<u32>(scancode) != 0;
+	InputType getType() const {
+		return static_cast<InputType>(scancode.index());
 	}
+
+	// Check whether the keypress is valid
+	operator bool() const;
 
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
-	using value_type = std::variant<u32, EKEY_CODE>;
+	struct table_key { // internal keycode lookup table
+		std::string Name; // An EKEY_CODE 'symbol' name as a string
+		EKEY_CODE Key;
+		wchar_t Char; // L'\0' means no character assigned
+		std::string LangName; // empty string means it doesn't have a human description
+	};
+	static const table_key invalid_key;
+	static std::vector<table_key> keycode_table;
+	static const table_key &lookupKeychar(wchar_t Char);
+	static const table_key &lookupKeykey(EKEY_CODE key);
+	static const table_key &lookupKeyname(std::string_view name);
+	static const table_key &lookupScancode(const u32 scancode);
+	const table_key &lookupScancode() const;
+
+	using value_type = std::variant<u32, EKEY_CODE, GameKeyType>;
+
 	bool loadFromScancode(const std::string &name);
 	void loadFromKey(EKEY_CODE keycode, wchar_t keychar);
 	std::string formatScancode() const;
