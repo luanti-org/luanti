@@ -76,9 +76,11 @@ void MyEventReceiver::reloadKeybindings()
 	// First clear all keys, then re-add the ones we listen for
 	keysListenedFor.clear();
 	for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
+		GameKeyType game_key = static_cast<GameKeyType>(i);
 		for (auto key: keybindings[i]) {
-			listenForKey(key, static_cast<GameKeyType>(i));
+			listenForKey(key, game_key);
 		}
+		listenForKey(game_key, game_key);
 	}
 }
 
@@ -224,6 +226,10 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		default:
 			break;
 		}
+	} else if (event.EventType == EET_USER_EVENT && event.UserEvent.code == USER_EVENT_GAME_KEY) {
+		KeyPress keyCode(static_cast<GameKeyType>(event.UserEvent.UserData1));
+		setKeyDown(keyCode, event.UserEvent.UserData2);
+		return true;
 	}
 
 	// tell Irrlicht to continue processing this event

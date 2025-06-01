@@ -86,6 +86,17 @@ enum EEVENT_TYPE
 
 };
 
+//! Enumeration for "user" event types.
+enum UserEventType: s32
+{
+	//! In-game touch buttons.
+	/** This event is currently only fired by the in-game touch controller.
+	UserData1: The GameKeyType of the button.
+	UserData2: Whether the button is pressed or released.
+	*/
+	USER_EVENT_GAME_KEY = 1
+};
+
 //! Enumeration for all mouse input events
 enum EMOUSE_INPUT_EVENT
 {
@@ -510,6 +521,9 @@ struct SEvent
 	//! Any kind of user event.
 	struct SUserEvent
 	{
+		//! Event code
+		s32 code;
+
 		//! Some user specified data as int
 		size_t UserData1;
 
