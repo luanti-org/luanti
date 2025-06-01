@@ -77,10 +77,10 @@ void MyEventReceiver::reloadKeybindings()
 	keysListenedFor.clear();
 	for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
 		GameKeyType game_key = static_cast<GameKeyType>(i);
+		keybindings[i].emplace_back(game_key);
 		for (auto key: keybindings[i]) {
 			listenForKey(key, game_key);
 		}
-		listenForKey(game_key, game_key);
 	}
 }
 
