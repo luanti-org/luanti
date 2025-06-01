@@ -212,13 +212,9 @@ void MapBlock::copyTo(VoxelManipulator &dst)
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
 	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
 
-	bool was_mono_block = m_is_mono_block;
-	deconvertMonoblock();
 	// Copy from data to VoxelManipulator
-	dst.copyFrom(data, data_area, v3s16(0,0,0),
+	dst.copyFrom(data, m_is_mono_block ? 1 : nodecount, data_area, v3s16(0,0,0),
 			getPosRelative(), data_size);
-	if (was_mono_block)
-		tryConvertToMonoblock();
 }
 
 void MapBlock::copyFrom(const VoxelManipulator &src)
