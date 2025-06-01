@@ -31,16 +31,13 @@
 
 TouchControls *g_touchcontrols;
 
-void TouchControls::emitKeyboardEvent(KeyPress key, bool pressed)
+void TouchControls::emitGameKeyEvent(GameKeyType key, bool pressed)
 {
 	SEvent e{};
-	e.EventType              = EET_KEY_INPUT_EVENT;
-	e.KeyInput.Key           = key.getKeycode();
-	e.KeyInput.Control       = false;
-	e.KeyInput.Shift         = false;
-	e.KeyInput.Char          = key.getKeychar();
-	e.KeyInput.SystemKeyCode = key.getScancode();
-	e.KeyInput.PressedDown   = pressed;
+	e.EventType           = EET_USER_EVENT;
+	e.UserEvent.code      = USER_EVENT_GAME_KEY;
+	e.UserEvent.UserData1 = static_cast<size_t>(key);
+	e.UserEvent.UserData2 = pressed;
 	m_receiver->OnEvent(e);
 }
 
@@ -55,10 +52,10 @@ void TouchControls::loadButtonTexture(IGUIImage *gui_button, const std::string &
 
 void TouchControls::buttonEmitAction(button_info &btn, bool action)
 {
-	if (!btn.keypress)
+	if (!btn.game_key)
 		return;
 
-	emitKeyboardEvent(btn.keypress, action);
+	emitGameKeyEvent(btn.game_key, action);
 
 	if (action) {
 		if (btn.toggleable == button_info::FIRST_TEXTURE) {
@@ -142,83 +139,48 @@ bool TouchControls::buttonsStep(std::vector<button_info> &buttons, float dtime)
 	return has_pointers;
 }
 
-static std::string id_to_setting(touch_gui_button_id id)
+static GameKeyType id_to_action(touch_gui_button_id id)
 {
-	std::string key = "";
 	switch (id) {
+		case exit_id:
+			return KeyType::ESC;
 		case dig_id:
-			key = "dig";
-			break;
+			return KeyType::DIG;
 		case place_id:
-			key = "place";
-			break;
+			return KeyType::PLACE;
 		case jump_id:
-			key = "jump";
-			break;
+			return KeyType::JUMP;
 		case sneak_id:
-			key = "sneak";
-			break;
+			return KeyType::SNEAK;
 		case zoom_id:
-			key = "zoom";
-			break;
+			return KeyType::ZOOM;
 		case aux1_id:
-			key = "aux1";
-			break;
+			return KeyType::AUX1;
 		case fly_id:
-			key = "freemove";
-			break;
+			return KeyType::FREEMOVE;
 		case noclip_id:
-			key = "noclip";
-			break;
+			return KeyType::NOCLIP;
 		case fast_id:
-			key = "fastmove";
-			break;
+			return KeyType::FASTMOVE;
 		case debug_id:
-			key = "toggle_debug";
-			break;
+			return KeyType::TOGGLE_DEBUG;
 		case camera_id:
-			key = "camera_mode";
-			break;
+			return KeyType::CAMERA_MODE;
 		case range_id:
-			key = "rangeselect";
-			break;
+			return KeyType::RANGESELECT;
 		case minimap_id:
-			key = "minimap";
-			break;
+			return KeyType::MINIMAP;
 		case toggle_chat_id:
-			key = "toggle_chat";
-			break;
+			return KeyType::TOGGLE_CHAT;
 		case chat_id:
-			key = "chat";
-			break;
+			return KeyType::CHAT;
 		case inventory_id:
-			key = "inventory";
-			break;
+			return KeyType::INVENTORY;
 		case drop_id:
-			key = "drop";
-			break;
+			return KeyType::DROP;
 		default:
-			break;
+			return KeyType::INTERNAL_ENUM_COUNT;
 	}
-	return key.empty() ? key : "keymap_" + key;
-}
-
-static KeyPress id_to_keypress(touch_gui_button_id id)
-{
-	// ESC isn't part of the keymap.
-	if (id == exit_id)
-		return EscapeKey;
-
-	auto setting_name = id_to_setting(id);
-
-	assert(!setting_name.empty());
-	const auto &keylist = getKeySetting(setting_name);
-	if (keylist.empty()) {
-		warningstream << "TouchControls: Unbound or invalid key for "
-				<< setting_name << ", hiding button." << std::endl;
-		return KeyPress();
-	}
-	return keylist[0];
 }
 
 
@@ -241,11 +203,6 @@ TouchControls::TouchControls(IrrlichtDevice *device, ISimpleTextureSource *tsrc)
 	readSettings();
 	for (auto name : setting_names)
 		g_settings->registerChangedCallback(name, settingChangedCallback, this);
-
-	// Also update layout when keybindings change (e.g. for convertibles)
-	for (u8 id = 0; id < touch_gui_button_id_END; id++)
-		if (auto name = id_to_setting((touch_gui_button_id)id); !name.empty())
-			g_settings->registerChangedCallback(name, settingChangedCallback, this);
 }
 
 void TouchControls::settingChangedCallback(const std::string &name, void *data)
@@ -378,7 +335,7 @@ bool TouchControls::mayAddButton(touch_gui_button_id id)
 	assert(ButtonLayout::isButtonValid(id));
 	assert(ButtonLayout::isButtonAllowed(id));
 	// The overflow button doesn't need a keycode to be valid.
-	return id == overflow_id || id_to_keypress(id);
+	return id == overflow_id || id_to_action(id) >= KeyType::INTERNAL_ENUM_COUNT;
 }
 
 void TouchControls::addButton(std::vector<button_info> &buttons, touch_gui_button_id id,
@@ -390,7 +347,7 @@ void TouchControls::addButton(std::vector<button_info> &buttons, touch_gui_butto
 
 	button_info &btn = buttons.emplace_back();
 	btn.id = id;
-	btn.keypress = id_to_keypress(id);
+	btn.game_key = id_to_action(id);
 	btn.gui_button = grab_gui_element<IGUIImage>(btn_gui_button);
 }
 
@@ -657,10 +614,10 @@ void TouchControls::translateEvent(const SEvent &event)
 void TouchControls::applyJoystickStatus()
 {
 	if (m_joystick_triggers_aux1) {
-		auto key = id_to_keypress(aux1_id);
-		emitKeyboardEvent(key, false);
+		auto key = id_to_action(aux1_id);
+		emitGameKeyEvent(key, false);
 		if (m_joystick_status_aux1)
-			emitKeyboardEvent(key, true);
+			emitGameKeyEvent(key, true);
 	}
 }
 
@@ -766,11 +723,11 @@ void TouchControls::releaseAll()
 	// Release those manually too since the change initiated by
 	// handleReleaseEvent will only be applied later by applyContextControls.
 	if (m_dig_pressed) {
-		emitKeyboardEvent(id_to_keypress(dig_id), false);
+		emitGameKeyEvent(id_to_action(dig_id), false);
 		m_dig_pressed = false;
 	}
 	if (m_place_pressed) {
-		emitKeyboardEvent(id_to_keypress(place_id), false);
+		emitGameKeyEvent(id_to_action(place_id), false);
 		m_place_pressed = false;
 	}
 }
@@ -854,20 +811,20 @@ void TouchControls::applyContextControls(const TouchInteractionMode &mode)
 	target_place_pressed |= now < m_place_pressed_until;
 
 	if (target_dig_pressed && !m_dig_pressed) {
-		emitKeyboardEvent(id_to_keypress(dig_id), true);
+		emitGameKeyEvent(id_to_action(dig_id), true);
 		m_dig_pressed = true;
 
 	} else if (!target_dig_pressed && m_dig_pressed) {
-		emitKeyboardEvent(id_to_keypress(dig_id), false);
+		emitGameKeyEvent(id_to_action(dig_id), false);
 		m_dig_pressed = false;
 	}
 
 	if (target_place_pressed && !m_place_pressed) {
-		emitKeyboardEvent(id_to_keypress(place_id), true);
+		emitGameKeyEvent(id_to_action(place_id), true);
 		m_place_pressed = true;
 
 	} else if (!target_place_pressed && m_place_pressed) {
-		emitKeyboardEvent(id_to_keypress(place_id), false);
+		emitGameKeyEvent(id_to_action(place_id), false);
 		m_place_pressed = false;
 	}
 }
