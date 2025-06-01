@@ -6,7 +6,7 @@
 
 #include "IAnimatedMesh.h"
 #include "ISceneManager.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 #include "SSkinMeshBuffer.h"
 #include "quaternion.h"
 #include "vector3d.h"

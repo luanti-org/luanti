@@ -9,12 +9,12 @@
 #include "log.h"
 #include <cmath>
 #include <iostream>
-#include <IAnimatedMesh.h>
-#include <SAnimatedMesh.h>
+// irr includes
 #include <IAnimatedMeshSceneNode.h>
-#include "S3DVertex.h"
-#include "SMesh.h"
-#include "SMeshBuffer.h"
+#include <S3DVertex.h>
+#include <CMeshBuffer.h>
+
+using namespace irr;
 
 inline static void applyShadeFactor(video::SColor& color, float factor)
 {
