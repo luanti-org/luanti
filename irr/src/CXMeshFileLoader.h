@@ -111,7 +111,7 @@ private:
 
 	bool parseDataObjectAnimation();
 
-	bool parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint);
+	bool parseDataObjectAnimationKey(SkinnedMesh::Keys &keys);
 
 	bool parseDataObjectTextureFilename(core::stringc &texturename);
 
@@ -156,7 +156,12 @@ private:
 	bool readRGB(video::SColor &color);
 	bool readRGBA(video::SColor &color);
 
+	SkinnedMesh::SJoint *addJoint(SkinnedMesh::SJoint *parent, std::string name);
+	void addKeys(SkinnedMesh::SJoint *joint, SkinnedMesh::Keys &&keys);
+
 	SkinnedMeshBuilder AnimatedMesh;
+	/// Mapping from joint ID to index in joint keys
+	std::vector<std::optional<u16>> JointKeysIdx;
 
 	c8 *Buffer;
 	const c8 *P;
