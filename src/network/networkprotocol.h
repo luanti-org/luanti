@@ -559,10 +559,11 @@ enum ToClientCommand : u16
 
 	TOCLIENT_LOCAL_PLAYER_ANIMATIONS = 0x51,
 	/*
-		v2s32 stand/idle
-		v2s32 walk
-		v2s32 dig
-		v2s32 walk+dig
+		typedef v2x = v2f if protocol version >= 46, else v2s16
+		v2x stand/idle
+		v2x walk
+		v2x dig
+		v2x walk+dig
 		f1000 frame_speed
 	*/
 

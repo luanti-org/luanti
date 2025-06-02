@@ -13,16 +13,19 @@
 #include "matrix4.h"
 #include "path.h"
 #include "quaternion.h"
+#include "tiniergltf.hpp"
 #include "vector2d.h"
 #include "vector3d.h"
 #include "os.h"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstring>
 #include <cassert>
 #include <limits>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <stdexcept>
 #include <tuple>
@@ -622,72 +625,108 @@ void SelfType::MeshExtractor::loadSkins()
 	}
 }
 
+void SelfType::MeshExtractor::loadChannel(SkinnedMesh::Keys &keys,
+		const tiniergltf::AnimationChannel &channel,
+		const tiniergltf::AnimationSampler &sampler)
+{
+	bool interpolate = ([&]() {
+		switch (sampler.interpolation) {
+			case tiniergltf::AnimationSampler::Interpolation::STEP:
+				return false;
+			case tiniergltf::AnimationSampler::Interpolation::LINEAR:
+				return true;
+			default:
+				throw std::runtime_error("Only STEP and LINEAR keyframe interpolation are supported");
+		}
+	})();
+
+	const auto inputAccessor = Accessor<f32>::make(m_gltf_model, sampler.input);
+	const auto n_frames = inputAccessor.getCount();
+
+	switch (channel.target.path) {
+	case tiniergltf::AnimationChannelTarget::Path::TRANSLATION: {
+		const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
+		auto &channel = keys.position;
+		if (!channel.frames.empty()) {
+			warn("multiple translation channels for one joint, ignoring all but the first");
+			return;
+		}
+		channel.interpolate = interpolate;
+		for (std::size_t i = 0; i < n_frames; ++i) {
+			f32 frame = inputAccessor.get(i);
+			core::vector3df position = outputAccessor.get(i);
+			channel.pushBack(frame, convertHandedness(position));
+		}
+		break;
+	}
+	case tiniergltf::AnimationChannelTarget::Path::ROTATION: {
+		const auto outputAccessor = Accessor<core::quaternion>::make(m_gltf_model, sampler.output);
+		auto &channel = keys.rotation;
+		if (!channel.frames.empty()) {
+			warn("multiple rotation channels for one joint, ignoring all but the first");
+			return;
+		}
+		channel.interpolate = interpolate;
+		for (std::size_t i = 0; i < n_frames; ++i) {
+			f32 frame = inputAccessor.get(i);
+			core::quaternion rotation = outputAccessor.get(i);
+			channel.pushBack(frame, convertHandedness(rotation));
+		}
+		break;
+	}
+	case tiniergltf::AnimationChannelTarget::Path::SCALE: {
+		const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
+		auto &channel = keys.scale;
+		if (!channel.frames.empty()) {
+			warn("multiple scale channels for one joint, ignoring all but the first");
+			return;
+		}
+		channel.interpolate = interpolate;
+		for (std::size_t i = 0; i < n_frames; ++i) {
+			f32 frame = inputAccessor.get(i);
+			core::vector3df scale = outputAccessor.get(i);
+			channel.pushBack(frame, scale);
+		}
+		break;
+	}
+	case tiniergltf::AnimationChannelTarget::Path::WEIGHTS:
+		throw std::runtime_error("no support for morph animations");
+	}
+}
+
 void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 {
 	const auto &anim = m_gltf_model.animations->at(animIdx);
-	for (const auto &channel : anim.channels) {
-		const auto &sampler = anim.samplers.at(channel.sampler);
+	auto &irr_anim = m_irr_model.getAnimation(m_irr_model.addAnimation());
+	irr_anim.name = anim.name.value_or("");
 
-		bool interpolate = ([&]() {
-			switch (sampler.interpolation) {
-				case tiniergltf::AnimationSampler::Interpolation::STEP:
-					return false;
-				case tiniergltf::AnimationSampler::Interpolation::LINEAR:
-					return true;
-				default:
-					throw std::runtime_error("Only STEP and LINEAR keyframe interpolation are supported");
-			}
-		})();
-
-		const auto inputAccessor = Accessor<f32>::make(m_gltf_model, sampler.input);
-		const auto n_frames = inputAccessor.getCount();
-
-		if (!channel.target.node.has_value())
+	for (const auto &chan : anim.channels) {
+		if (!chan.target.node.has_value())
 			throw std::runtime_error("no animated node");
+	}
 
-		auto *joint = m_loaded_nodes.at(*channel.target.node);
+	std::vector<decltype(anim.channels)::const_iterator> chan_its(anim.channels.size());
+	std::iota(chan_its.begin(), chan_its.end(), anim.channels.cbegin());
+	// Group by target node
+	std::sort(chan_its.begin(), chan_its.end(),
+			[&](auto it1, auto it2) {
+				return it1->target.node < it2->target.node;
+			});
+
+	for (auto it = chan_its.begin(); it != chan_its.end();) {
+		const std::size_t target_node = *((*it)->target.node);
+		const auto *joint = m_loaded_nodes.at(target_node);
 		if (std::holds_alternative<core::matrix4>(joint->transform)) {
 			warn("nodes using matrix transforms must not be animated");
 			continue;
 		}
-
-		switch (channel.target.path) {
-		case tiniergltf::AnimationChannelTarget::Path::TRANSLATION: {
-			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
-			auto &channel = joint->keys.position;
-			channel.interpolate = interpolate;
-			for (std::size_t i = 0; i < n_frames; ++i) {
-				f32 frame = inputAccessor.get(i);
-				core::vector3df position = outputAccessor.get(i);
-				channel.pushBack(frame, convertHandedness(position));
-			}
-			break;
+		SkinnedMesh::Keys keys;
+		for (; it != chan_its.end() && *((*it)->target.node) == target_node; ++it) {
+			const auto &sampler = anim.samplers.at((*it)->sampler);
+			loadChannel(keys, **it, sampler);
 		}
-		case tiniergltf::AnimationChannelTarget::Path::ROTATION: {
-			const auto outputAccessor = Accessor<core::quaternion>::make(m_gltf_model, sampler.output);
-			auto &channel = joint->keys.rotation;
-			channel.interpolate = interpolate;
-			for (std::size_t i = 0; i < n_frames; ++i) {
-				f32 frame = inputAccessor.get(i);
-				core::quaternion rotation = outputAccessor.get(i);
-				channel.pushBack(frame, convertHandedness(rotation));
-			}
-			break;
-		}
-		case tiniergltf::AnimationChannelTarget::Path::SCALE: {
-			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
-			auto &channel = joint->keys.scale;
-			channel.interpolate = interpolate;
-			for (std::size_t i = 0; i < n_frames; ++i) {
-				f32 frame = inputAccessor.get(i);
-				core::vector3df scale = outputAccessor.get(i);
-				channel.pushBack(frame, scale);
-			}
-			break;
-		}
-		case tiniergltf::AnimationChannelTarget::Path::WEIGHTS:
-			throw std::runtime_error("no support for morph animations");
-		}
+		irr_anim.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
+				joint->JointID, std::move(keys)});
 	}
 }
 
@@ -699,7 +738,6 @@ SkinnedMesh *SelfType::MeshExtractor::load()
 	if (!(m_gltf_model.buffers.has_value()
 			&& m_gltf_model.bufferViews.has_value()
 			&& m_gltf_model.accessors.has_value()
-			&& m_gltf_model.meshes.has_value()
 			&& m_gltf_model.nodes.has_value())) {
 		throw std::runtime_error("missing required fields");
 	}
@@ -713,12 +751,10 @@ SkinnedMesh *SelfType::MeshExtractor::load()
 			load_mesh();
 		}
 		loadSkins();
-		// Load the first animation, if there is one.
 		if (m_gltf_model.animations.has_value()) {
-			if (m_gltf_model.animations->size() > 1)
-				warn("multiple animations are not supported");
-
-			loadAnimation(0);
+			size_t n_anims = m_gltf_model.animations->size();
+			for (size_t i = 0; i < n_anims; ++i)
+				loadAnimation(i);
 		}
 		return std::move(m_irr_model).finalize();
 	} catch (const std::out_of_range &e) {

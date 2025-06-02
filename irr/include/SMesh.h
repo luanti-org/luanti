@@ -137,9 +137,12 @@ struct SMesh final : public IAnimatedMesh
 	// Slightly hacky: Eventually should be consolidated with SSkinnedMesh,
 	// with all the animation-related parts behind an optional.
 
-	f32 getMaxFrameNumber() const override { return 0.0f; }
 	void prepareForAnimation(u16 max_hw_joints) override {}
 	bool needsHwSkinning() const override { return false; }
+	std::optional<u16> getTrackNumber(
+			const std::string &track_name) const override
+	{ return std::nullopt; }
+	f32 getMaxFrameNumber(u16) const override { return 0.0f; }
 	E_ANIMATED_MESH_TYPE getMeshType() const override { return EAMT_STATIC; }
 };
 

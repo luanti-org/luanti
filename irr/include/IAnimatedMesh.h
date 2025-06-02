@@ -5,6 +5,8 @@
 #pragma once
 
 #include "IMesh.h"
+#include <string>
+#include <optional>
 
 namespace scene
 {
@@ -16,8 +18,11 @@ You might want to use scene::SMesh, scene::SMeshBuffer etc.
 class IAnimatedMesh : public IMesh
 {
 public:
+
+	virtual std::optional<u16> getTrackNumber(const std::string &track_name) const = 0;
+
 	//! Gets the maximum frame number, 0 if the mesh is static.
-	virtual f32 getMaxFrameNumber() const = 0;
+	virtual f32 getMaxFrameNumber(u16 track) const = 0;
 
 	virtual void prepareForAnimation(u16 max_hw_joints) = 0;
 
@@ -25,7 +30,7 @@ public:
 	virtual bool needsHwSkinning() const = 0;
 
 	//! Returns the type of the animated mesh. Useful for safe downcasts.
-	E_ANIMATED_MESH_TYPE getMeshType() const = 0;
+	E_ANIMATED_MESH_TYPE getMeshType() const override = 0;
 };
 
 } // end namespace scene

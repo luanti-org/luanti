@@ -37,32 +37,62 @@ const ItemGroupList &UnitSAO::getArmorGroups() const
 	return m_armor_groups;
 }
 
-void UnitSAO::setAnimation(
-		v2f frame_range, float frame_speed, float frame_blend, bool frame_loop)
+void UnitSAO::setAnimation(const scene::TrackId &track, scene::TrackAnimSpec anim_spec)
 {
 	// Note: Always resend (even if parameters are unchanged) to restart animations.
-	m_animation_range = frame_range;
-	m_animation_speed = frame_speed;
-	m_animation_blend = frame_blend;
-	m_animation_loop = frame_loop;
-	m_animation_sent = false;
+	auto &track_info = m_animation.tracks[track];
+	track_info.spec = anim_spec;
+	track_info.state = TrackAnimation::State::NEEDS_RESEND;
 }
 
-void UnitSAO::getAnimation(v2f *frame_range, float *frame_speed, float *frame_blend,
-		bool *frame_loop)
+void UnitSAO::stopAnimation(const scene::TrackId &track)
 {
-	*frame_range = m_animation_range;
-	*frame_speed = m_animation_speed;
-	*frame_blend = m_animation_blend;
-	*frame_loop = m_animation_loop;
-}
-
-void UnitSAO::setAnimationSpeed(float frame_speed)
-{
-	if (m_animation_speed == frame_speed)
+	auto it = m_animation.tracks.find(track);
+	if (it == m_animation.tracks.end())
 		return;
-	m_animation_speed = frame_speed;
-	m_animation_speed_sent = false;
+	it->second.spec = {};
+	it->second.state = TrackAnimation::State::STOPPED;
+}
+
+std::optional<scene::TrackAnimSpec> UnitSAO::getAnimation(const scene::TrackId &track) const
+{
+	auto it = m_animation.tracks.find(track);
+	if (it == m_animation.tracks.end())
+		return std::nullopt;
+
+	if (it->second.state != TrackAnimation::State::STOPPED)
+		return std::nullopt;
+
+	return it->second.spec;
+}
+
+std::vector<std::pair<scene::TrackId, scene::TrackAnimSpec>>
+UnitSAO::getAllAnimations() const
+{
+	std::vector<std::pair<scene::TrackId, scene::TrackAnimSpec>> result;
+	for (const auto &[track_id, track_info] : m_animation.tracks) {
+		if (track_info.state == TrackAnimation::State::STOPPED)
+			continue;
+		result.emplace_back(track_id, track_info.spec);
+	}
+	return result;
+}
+
+void UnitSAO::setAnimationSpeed(const scene::TrackId &track, float frame_speed)
+{
+	auto it = m_animation.tracks.find(track);
+	if (it == m_animation.tracks.end())
+		return;
+	it->second.spec.fps = frame_speed;
+	switch (it->second.state) {
+	case TrackAnimation::State::NEEDS_SPEED_RESEND:
+	case TrackAnimation::State::NEEDS_RESEND:
+	case TrackAnimation::State::STOPPED:
+		break;
+	case TrackAnimation::State::SENT:
+		it->second.state = TrackAnimation::State::NEEDS_SPEED_RESEND;
+		break;
+	}
 }
 
 void UnitSAO::setBoneOverride(const std::string &bone, const BoneOverride &props)
@@ -88,14 +118,21 @@ void UnitSAO::sendOutdatedData()
 		m_messages_out.emplace(getId(), true, generateUpdateArmorGroupsCommand());
 	}
 
-	if (!m_animation_sent) {
-		m_animation_sent = true;
-		m_animation_speed_sent = true;
-		m_messages_out.emplace(getId(), true, generateUpdateAnimationCommand());
-	} else if (!m_animation_speed_sent) {
-		// Animation speed is also sent when 'm_animation_sent == false'
-		m_animation_speed_sent = true;
-		m_messages_out.emplace(getId(), true, generateUpdateAnimationSpeedCommand());
+	for (auto &[track, anim_spec] : m_animation.tracks) {
+		switch (anim_spec.state) {
+		case TrackAnimation::State::SENT:
+			break;
+		case TrackAnimation::State::NEEDS_RESEND:
+			m_messages_out.emplace(getId(), true, generateUpdateAnimationCommand(track));
+			break;
+		case TrackAnimation::State::NEEDS_SPEED_RESEND:
+			m_messages_out.emplace(getId(), true, generateUpdateAnimationSpeedCommand(track));
+			break;
+		case TrackAnimation::State::STOPPED:
+			m_messages_out.emplace(getId(), true, generateStopAnimationCommand(track));
+			break;
+		}
+		anim_spec.state = TrackAnimation::State::SENT;
 	}
 
 	if (!m_bone_override_sent) {
@@ -321,27 +358,56 @@ std::string UnitSAO::generateUpdateBoneOverrideCommand(
 	return os.str();
 }
 
-std::string UnitSAO::generateUpdateAnimationSpeedCommand() const
+// c.f. readTrackIdentifier
+static void writeTrackIdentifier(std::ostream &os,
+		const scene::TrackId &track)
+{
+	if (const auto *str = std::get_if<std::string>(&track)) {
+		writeU16(os, 0);
+		os << serializeString16(*str);
+	} else {
+		writeU16(os, std::get<u16>(track) + 1);
+	}
+}
+
+std::string UnitSAO::generateUpdateAnimationSpeedCommand(const scene::TrackId &track) const
 {
 	std::ostringstream os(std::ios::binary);
 	// command
 	writeU8(os, AO_CMD_SET_ANIMATION_SPEED);
 	// parameters
-	writeF32(os, m_animation_speed);
+	writeF32(os, m_animation.tracks.at(track).spec.fps);
+	writeTrackIdentifier(os, track);
 	return os.str();
 }
 
-std::string UnitSAO::generateUpdateAnimationCommand() const
+std::string UnitSAO::generateUpdateAnimationCommand(const scene::TrackId &track) const
 {
 	std::ostringstream os(std::ios::binary);
 	// command
 	writeU8(os, AO_CMD_SET_ANIMATION);
 	// parameters
-	writeV2F32(os, m_animation_range);
-	writeF32(os, m_animation_speed);
-	writeF32(os, m_animation_blend);
+	const auto &anim = m_animation.tracks.at(track).spec;
+	writeF32(os, anim.min_frame);
+	writeF32(os, anim.max_frame);
+	writeF32(os, anim.fps);
+	writeF32(os, anim.blend);
 	// these are sent inverted so we get true when the server sends nothing
-	writeU8(os, !m_animation_loop);
+	writeU8(os, !anim.loop);
+
+	writeTrackIdentifier(os, track);
+	writeS32(os, anim.priority);
+
+	return os.str();
+}
+
+std::string UnitSAO::generateStopAnimationCommand(const scene::TrackId &track) const
+{
+	std::ostringstream os(std::ios::binary);
+	// command
+	writeU8(os, AO_CMD_STOP_ANIMATION);
+	// parameters
+	writeTrackIdentifier(os, track);
 	return os.str();
 }
 

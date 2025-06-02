@@ -4,7 +4,10 @@
 
 #include "lua_api/l_object.h"
 #include <cmath>
+#include <lauxlib.h>
 #include <lua.h>
+#include "AnimSpec.h"
+#include "irrTypes.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_inventory.h"
 #include "lua_api/l_item.h"
@@ -416,7 +419,14 @@ int ObjectRef::l_set_animation(lua_State *L)
 	float frame_blend = readParam<float>(L, 4, 0.0f);
 	bool frame_loop   = readParam<bool>(L, 5, true);
 
-	sao->setAnimation(frame_range, frame_speed, frame_blend, frame_loop);
+	scene::TrackAnimSpec anim_spec;
+	anim_spec.min_frame = frame_range.X;
+	anim_spec.max_frame = frame_range.Y;
+	anim_spec.fps = frame_speed;
+	anim_spec.blend = frame_blend;
+	anim_spec.loop = frame_loop;
+
+	sao->setAnimation((u16) 0, anim_spec);
 	return 0;
 }
 
@@ -434,12 +444,162 @@ int ObjectRef::l_get_animation(lua_State *L)
 	float frame_blend = 0;
 	bool frame_loop = true;
 
-	sao->getAnimation(&frames, &frame_speed, &frame_blend, &frame_loop);
+	if (const auto &spec = sao->getAnimation((u16) 0)) {
+		frames = v2f(spec->min_frame, spec->max_frame);
+		frame_speed = spec->fps;
+		frame_blend = spec->blend;
+		frame_loop = spec->loop;
+	}
+
 	push_v2f(L, frames);
 	lua_pushnumber(L, frame_speed);
 	lua_pushnumber(L, frame_blend);
 	lua_pushboolean(L, frame_loop);
 	return 4;
+}
+
+static scene::TrackId readTrackId(lua_State *L, int index)
+{
+	if (lua_type(L, index) == LUA_TSTRING) {
+		return luaL_checkstring(L, index);
+	}
+
+	int track = luaL_checkint(L, index);
+	if (track < 1 || track > U16_MAX + 1) {
+		throw LuaError("Track number out of range (1 to "
+				+ std::to_string(U16_MAX + 1) + ")");
+	}
+	return static_cast<u16>(track - 1);
+}
+
+static void pushTrackId(lua_State *L, const scene::TrackId &track)
+{
+	if (const auto *str = std::get_if<std::string>(&track)) {
+		lua_pushlstring(L, str->c_str(), str->size());
+	} else {
+		int res = std::get<u16>(track);
+		lua_pushinteger(L, res + 1);
+	}
+}
+
+static void readTrackAnimSpec(lua_State *L, int tidx,
+		scene::TrackAnimSpec &anim)
+{
+	luaL_checktype(L, tidx, LUA_TTABLE);
+
+	anim.min_frame = getfloatfield_default(L, tidx, "min_frame", 0.0f);
+	anim.max_frame = getfloatfield_default(L, tidx, "max_frame",
+			std::numeric_limits<f32>::infinity());
+	anim.fps = getfloatfield_default(L, tidx, "speed", 1.0f);
+	anim.blend = getfloatfield_default(L, tidx, "blend", 0.0f);
+	anim.loop = getboolfield_default(L, tidx, "loop", true);
+	anim.priority = getintfield_default(L, tidx, "priority", 0);
+}
+
+static void pushTrackAnimSpec(lua_State *L,
+		const scene::TrackAnimSpec &anim)
+{
+	lua_newtable(L);
+	setfloatfield(L, -1, "min_frame", anim.min_frame);
+	setfloatfield(L, -1, "max_frame", anim.max_frame);
+	setfloatfield(L, -1, "speed", anim.fps);
+	setfloatfield(L, -1, "blend", anim.blend);
+	setboolfield(L, -1, "loop", anim.loop);
+	setintfield(L, -1, "priority", anim.priority);
+}
+
+int ObjectRef::l_play_animation(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		throw LuaError("Invalid ObjectRef");
+
+	scene::TrackId track = readTrackId(L, 2);
+	scene::TrackAnimSpec anim;
+	anim.max_frame = std::numeric_limits<f32>::infinity();
+	if (!lua_isnoneornil(L, 3)) {
+		readTrackAnimSpec(L, 3, anim);
+	}
+	sao->setAnimation(track, anim);
+	return 0;
+}
+
+int ObjectRef::l_update_animation(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		throw LuaError("Invalid ObjectRef");
+
+	scene::TrackId track = readTrackId(L, 2);
+	if (!lua_isnoneornil(L, 3)) {
+		float speed = 0.0f;
+		if (getfloatfield(L, 3, "speed", speed)) {
+			sao->setAnimationSpeed(track, speed);
+		}
+	}
+	return 0;
+}
+
+int ObjectRef::l_stop_animation(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		throw LuaError("Invalid ObjectRef");
+
+	if (lua_isnoneornil(L, 2)) {
+		// Stop all animations
+		auto animations = sao->getAllAnimations();
+		for (const auto &[track_id, _] : animations) {
+			sao->stopAnimation(track_id);
+		}
+	} else {
+		scene::TrackId track = readTrackId(L, 2);
+		sao->stopAnimation(track);
+	}
+	return 0;
+}
+
+int ObjectRef::l_get_animations(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		throw LuaError("Invalid ObjectRef");
+
+	lua_newtable(L);
+	for (const auto &[track_id, anim] : sao->getAllAnimations()) {
+		pushTrackId(L, track_id);
+		pushTrackAnimSpec(L, anim);
+		lua_rawset(L, -3);
+	}
+
+	return 1;
+}
+
+// set_animation_frame_speed(self, frame_speed, [track])
+int ObjectRef::l_set_animation_frame_speed(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		return 0;
+
+	if (!lua_isnoneornil(L, 2)) {
+		f32 frame_speed = readParam<f32>(L, 2);
+		sao->setAnimationSpeed((u16) 0, frame_speed);
+		lua_pushboolean(L, true);
+	} else {
+		lua_pushboolean(L, false);
+	}
+	return 1;
 }
 
 // set_local_animation(self, idle, walk, dig, walk_while_dig, frame_speed)
@@ -573,25 +733,6 @@ int ObjectRef::l_send_mapblock(lua_State *L)
 	bool r = getServer(L)->SendBlock(peer_id, pos);
 
 	lua_pushboolean(L, r);
-	return 1;
-}
-
-// set_animation_frame_speed(self, frame_speed)
-int ObjectRef::l_set_animation_frame_speed(lua_State *L)
-{
-	NO_MAP_LOCK_REQUIRED;
-	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
-	ServerActiveObject *sao = getobject(ref);
-	if (sao == nullptr)
-		return 0;
-
-	if (!lua_isnil(L, 2)) {
-		float frame_speed = readParam<float>(L, 2);
-		sao->setAnimationSpeed(frame_speed);
-		lua_pushboolean(L, true);
-	} else {
-		lua_pushboolean(L, false);
-	}
 	return 1;
 }
 
@@ -2874,9 +3015,16 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod(ObjectRef, set_wielded_item),
 	luamethod(ObjectRef, set_armor_groups),
 	luamethod(ObjectRef, get_armor_groups),
+
 	luamethod(ObjectRef, set_animation),
 	luamethod(ObjectRef, get_animation),
 	luamethod(ObjectRef, set_animation_frame_speed),
+
+	luamethod(ObjectRef, play_animation),
+	luamethod(ObjectRef, update_animation),
+	luamethod(ObjectRef, stop_animation),
+	luamethod(ObjectRef, get_animations),
+
 	luamethod(ObjectRef, set_bone_position),
 	luamethod(ObjectRef, get_bone_position),
 	luamethod(ObjectRef, set_bone_override),
