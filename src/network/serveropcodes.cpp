@@ -72,7 +72,7 @@ const ToServerCommandHandler toServerCommandTable[TOSERVER_NUM_MSG_TYPES] =
 	{ "TOSERVER_REMOVED_SOUNDS",           TOSERVER_STATE_INGAME, &Server::handleCommand_RemovedSounds }, // 0x3a
 	{ "TOSERVER_NODEMETA_FIELDS",          TOSERVER_STATE_INGAME, &Server::handleCommand_NodeMetaFields }, // 0x3b
 	{ "TOSERVER_INVENTORY_FIELDS",         TOSERVER_STATE_INGAME, &Server::handleCommand_InventoryFields }, // 0x3c
-	null_command_handler, // 0x3d
+	{ "TOSERVER_UI_MESSAGE",               TOSERVER_STATE_INGAME, &Server::handleCommand_UiMessage }, // 0x3d
 	null_command_handler, // 0x3e
 	null_command_handler, // 0x3f
 	{ "TOSERVER_REQUEST_MEDIA",            TOSERVER_STATE_STARTUP, &Server::handleCommand_RequestMedia }, // 0x40
@@ -205,7 +205,7 @@ const ClientCommandFactory clientCommandFactoryTable[TOCLIENT_NUM_MSG_TYPES] =
 	{ "TOCLIENT_SET_MOON",                 0, true }, // 0x5b
 	{ "TOCLIENT_SET_STARS",                0, true }, // 0x5c
 	{ "TOCLIENT_MOVE_PLAYER_REL",          0, true }, // 0x5d
-	null_command_factory, // 0x5e
+	{ "TOCLIENT_UI_MESSAGE",               0, true }, // 0x5e
 	null_command_factory, // 0x5f
 	{ "TOCLIENT_SRP_BYTES_S_B",            0, true }, // 0x60
 	{ "TOCLIENT_FORMSPEC_PREPEND",         0, true }, // 0x61

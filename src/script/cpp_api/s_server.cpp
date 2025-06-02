@@ -245,3 +245,18 @@ void ScriptApiServer::on_dynamic_media_added(u32 token, const std::string &playe
 	lua_pushstring(L, playername.c_str());
 	PCALL_RES(lua_pcall(L, 1, 0, error_handler));
 }
+
+void ScriptApiServer::receive_ui_message(const char *name, const std::string &data)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	int error_handler = PUSH_ERROR_HANDLER(L);
+
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "receive_ui_message");
+
+	lua_pushstring(L, name);
+	lua_pushlstring(L, data.c_str(), data.size());
+
+	PCALL_RES(lua_pcall(L, 2, 0, error_handler));
+}
