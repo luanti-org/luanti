@@ -455,6 +455,7 @@ set(common_SRCS
 	environment.cpp
 	filesys.cpp
 	gettext.cpp
+	guid.cpp
 	inventorymanager.cpp
 	itemdef.cpp
 	light.cpp
