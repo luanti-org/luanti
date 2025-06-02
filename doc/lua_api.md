@@ -4203,17 +4203,17 @@ Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
 Methods
 -------
 
-* `Rotation:apply(vec)`: Returns the result of applying the rotation to the given vector.
+* `rot:apply(vec)`: Returns the result of applying the rotation to the given vector.
 * `Rotation.compose(...)`: Returns the composition of the given rotations.
   * `Rotation.compose()` is an alias for `Rotation.identity()`.
   * `Rotation.compose(rot)` copies the rotation.
   * `rot:compose(...)` is shorthand for `Rotation.compose(rot, ...)`.
   * Right-to-left order: `second:compose(first):apply(v)`
     is equivalent to `second:apply(first:apply(v))`.
-* `Rotation:invert()`: Returns the inverse rotation.
-* `Rotation.slerp(from, to, time)`: Interpolate from one rotation to another.
+* `rot:invert()`: Returns the inverse rotation.
+* `from:slerp(to, time)`: Interpolate from one rotation to another.
   * `time = 0` is all `from`, `time = 1` is all `to`.
-* `Rotation:angle_to(other)`: Returns the absolute angle between two quaternions.
+* `rot:angle_to(other)`: Returns the absolute angle between two quaternions.
   * Useful to measure similarity.
 
 Rotations implement `__tostring`. The format is only intended for human-readability,
@@ -4260,24 +4260,24 @@ Methods
 
 Storage:
 
-* `Matrix4:get(row, col)`
-* `Matrix4:set(row, col, number)`
-* `x, y, z, w = Matrix4:get_row(row)`
-* `Matrix4:set_row(row, x, y, z, w)`
+* `mat:get(row, col)`
+* `mat:set(row, col, number)`
+* `x, y, z, w = mat:get_row(row)`
+* `mat:set_row(row, x, y, z, w)`
 * `x, y, z, w = Matrix4:get_column(col)`
-* `Matrix4:set_column(col, x, y, z, w)`
-* `Matrix4:copy()`
-* `... = Matrix4:unpack()`: Get the 16 numbers in the matrix in row-major order
+* `mat:set_column(col, x, y, z, w)`
+* `mat:copy()`
+* `... = mat:unpack()`: Get the 16 numbers in the matrix in row-major order
   (inverse of `Matrix4.new`).
 
 Linear algebra:
 
 * Vector transformations:
-  * `x, y, z, w = Matrix4:transform_4d(x, y, z, w)`: Apply the matrix to a 4d vector.
-  * `Matrix4:transform_position(pos)`:
+  * `x, y, z, w = mat:transform_4d(x, y, z, w)`: Apply the matrix to a 4d vector.
+  * `mat:transform_position(pos)`:
     * Apply the matrix to a vector representing a position.
     * Applies the transformation as if w = 1 and discards the resulting w component.
-  * `Matrix4:transform_direction(dir)`:
+  * `mat:transform_direction(dir)`:
     * Apply the matrix to a vector representing a direction.
     * Ignores the fourth row and column; does not apply the translation (w = 0).
 * `Matrix4.compose(...)`: Returns the composition of the given matrices.
@@ -4286,27 +4286,27 @@ Linear algebra:
   * `mat:compose(...)` is shorthand for `Matrix4.compose(mat, ...)`.
   * Right-to-left order: `second:compose(first):apply(v)`
     is equivalent to `second:apply(first:apply(v))`.
-* `Matrix4:determinant()`: Returns the determinant.
-* `Matrix4:invert()`: Returns a newly created inverse, or `nil` if the matrix is (close to being) singular.
-* `Matrix4:transpose()`: Returns a transposed copy of the matrix.
-* `Matrix4:equals(other, [tolerance = 0])`:
+* `mat:determinant()`: Returns the determinant.
+* `mat:invert()`: Returns a newly created inverse, or `nil` if the matrix is (close to being) singular.
+* `mat:transpose()`: Returns a transposed copy of the matrix.
+* `mat:equals(other, [tolerance = 0])`:
   Returns whether all components differ in absolute value at most by the given tolerance.
   * `m1 == m2`: Returns whether `m1` and `m2` are identical (`tolerance = 0`).
-* `Matrix4:is_affine_transform([tolerance = 0])`:
+* `mat:is_affine_transform([tolerance = 0])`:
   Whether the matrix is an affine transformation in 3d space,
   meaning it is a 3d linear transformation plus a translation.
   (This is the case if the last column is approximately 0, 0, 0, 1.)
 
 For working with affine transforms, the following methods are available:
 
-* `Matrix4:get_translation()`: Returns the translation as a vector.
-* `Matrix4:set_translation(vec)`: Sets (overwrites) the translation in the last row.
+* `mat:get_translation()`: Returns the translation as a vector.
+* `mat:set_translation(vec)`: Sets (overwrites) the translation in the last row.
 
 For TRS transforms specifically,
 let `self = Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
 Then we can decompose `self` further. Note that `self` must not shear or reflect.
 
-* `rotation, scale = Matrix4:get_rs()`:
+* `rotation, scale = mat:get_rs()`:
   Extracts a `Rotation` equivalent to `r`,
   along with the corresponding component-wise scaling factors as a vector.
 
