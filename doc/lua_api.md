@@ -896,6 +896,41 @@ embedding a whole image, this may vary by use case.
 
 *See notes: `TEXMOD_UPSCALE`*
 
+#### `[text:<encoded text>:<w>x<h>:<x>,<y>`
+
+* `<w>`: width
+* `<h>`: height
+* `<x>`: x position
+* `<y>`: y position
+* `<encoded text>`: a formatted text encoded with base64
+
+Creates a texture containing rendered texture, optionally with an `<x>,<y>`
+position and `<w>x<h>` size.
+
+To avoid potential conflict between text and grammar of texture modifiers,
+text must be encoded with base64 encoding. Global properties of text
+is detected from global styles of hypertext, such as alignment and background
+color. Most of the tags in hypertext is supported, except for item image and
+interaction feature `<action>`.
+
+The optional `<x>,<y>` position is used if provided, no matter whether the
+`[text` is being overlaid onto another texture with '^' or not.
+
+When `[text` is overlaid onto another texture, it will not upscale or change
+the resolution of the texture, the base texture will determine the output
+resolution. In such case, `<w>x<h>` could be optional, and size of base
+texture is considered as the size of typesetted text.
+
+In contrast, if `[text` is not overlaid onto another texture, `<w>x<h>` size
+must be provided, and size of output texture is determined from provided size.
+
+Examples:
+
+    [text:SGVsbG8gd29ybGQ=:64x64
+    texture.png^[text:SGVsbG8gd29ybGQ=
+    texture.png^[text:SGVsbG8gd29ybGQ=:50x50:4,4
+
+
 Hardware coloring
 -----------------
 
