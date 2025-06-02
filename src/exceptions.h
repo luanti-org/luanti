@@ -87,6 +87,11 @@ public:
 	ModError(const std::string &s): BaseException(s) {}
 };
 
+class MisbehavedSSCSMException : public BaseException {
+public:
+	MisbehavedSSCSMException(const std::string &s): BaseException(s) {}
+};
+
 
 /*
 	Some "old-style" interrupts:
