@@ -30,37 +30,70 @@ SkinnedMesh::~SkinnedMesh()
 	}
 }
 
-f32 SkinnedMesh::getMaxFrameNumber() const
+std::optional<u16> SkinnedMesh::getTrackNumber(const std::string &track_name) const
 {
-	return EndFrame;
+	// TODO maybe keep index?
+	for (u16 i = 0; i < animations.size(); ++i) {
+		const auto &anim = animations[i];
+		if (anim.name == track_name)
+			return i;
+	}
+	return std::nullopt;
 }
 
-//! Gets the default animation speed of the animated mesh.
-/** \return Amount of frames per second. If the amount is 0, it is a static, non animated mesh. */
-f32 SkinnedMesh::getAnimationSpeed() const
+f32 SkinnedMesh::getMaxFrameNumber(u16 track) const
 {
-	return FramesPerSecond;
-}
-
-//! Gets the frame count of the animated mesh.
-/** \param fps Frames per second to play the animation with. If the amount is 0, it is not animated.
-The actual speed is set in the scene node the mesh is instantiated in.*/
-void SkinnedMesh::setAnimationSpeed(f32 fps)
-{
-	FramesPerSecond = fps;
+	return animations.at(track).end_frame;
 }
 
 // Keyframe Animation
 
 
 using VariantTransform = SkinnedMesh::SJoint::VariantTransform;
-std::vector<VariantTransform> SkinnedMesh::animateMesh(f32 frame)
+std::vector<VariantTransform> SkinnedMesh::animateMesh(
+		const std::vector<AnimationProgress> &progresses,
+		const std::vector<std::optional<core::Transform>> &old_transforms) const
 {
 	assert(HasAnimation);
-	std::vector<VariantTransform> result;
-	result.reserve(AllJoints.size());
-	for (auto *joint : AllJoints)
-		result.push_back(joint->animate(frame));
+
+	std::vector<bool> animated_joints(AllJoints.size(), false);
+	std::vector<VariantTransform> result(AllJoints.size());
+	for (const auto &progress : progresses) {
+		const auto &anim = animations.at(progress.track);
+		assert(progress.frame >= 0 && progress.frame <= anim.end_frame);
+		for (const auto &joint_keys : anim.joint_keys) {
+			const auto joint_id = joint_keys.joint_id;
+			if (animated_joints[joint_id])
+				continue; // higher priority track already animated this joint
+
+			const auto *joint = AllJoints[joint_id];
+			core::Transform trs;
+			if (std::holds_alternative<core::Transform>(joint->transform)) {
+				trs = std::get<core::Transform>(joint->transform);
+			}
+			// Otherwise we have a matrix.
+			// .x lets animations override matrix transforms entirely, which is what we implement here.
+			// .gltf does not allow animation of nodes using matrix transforms.
+			// Note that a decomposition into a TRS transform need not exist!
+
+			joint_keys.keys.updateTransform(progress.frame, trs);
+			if (progress.blend < 1.0f && old_transforms[joint_id].has_value()) {
+				// Blend with old transform
+				const auto &old_transform = *old_transforms[joint_id];
+				trs = old_transform.interpolate(trs, progress.blend);
+			}
+			result[joint_id] = {trs};
+			animated_joints[joint_id] = true;
+		}
+	}
+
+	// Copy transforms of non-animated joints
+	for (size_t i = 0; i < AllJoints.size(); ++i) {
+		if (!animated_joints[i]) {
+			result[i] = AllJoints[i]->transform;
+		}
+	}
+
 	return result;
 }
 
@@ -270,14 +303,16 @@ void SkinnedMesh::calculateGlobalMatrices(std::vector<core::matrix4> &matrices) 
 
 bool SkinnedMesh::checkForAnimation() const
 {
-	for (auto *joint : AllJoints) {
-		if (!joint->keys.empty()) {
-			return true;
+	for (const auto &anim : animations) {
+		for (const auto &joint_keys : anim.joint_keys) {
+			if (!joint_keys.keys.empty()) {
+				return true;
+			}
 		}
 	}
 
 	// meshes with weights are animatable
-	for (auto *joint : AllJoints) {
+	for (const auto *joint : AllJoints) {
 		if (!joint->Weights.empty()) {
 			return true;
 		}
@@ -294,9 +329,12 @@ void SkinnedMesh::prepareForSkinning()
 
 	PreparedForSkinning = true;
 
-	EndFrame = 0.0f;
-	for (const auto *joint : AllJoints) {
-		EndFrame = std::max(EndFrame, joint->keys.getEndFrame());
+	for (auto &animation : animations) {
+		for (auto &joint_keys : animation.joint_keys) {
+			auto &keys = joint_keys.keys;
+			keys.cleanup();
+			animation.end_frame = std::max(animation.end_frame, keys.getEndFrame());
+		}
 	}
 
 	for (auto *joint : AllJoints) {
@@ -332,10 +370,6 @@ void SkinnedMesh::prepareForSkinning()
 	}
 
 	normalizeWeights();
-
-	for (auto *joint : AllJoints) {
-		joint->keys.cleanup();
-	}
 }
 
 void SkinnedMesh::calculateStaticBoundingBox()
@@ -440,6 +474,12 @@ void SkinnedMesh::topoSortJoints()
 		if (auto pjid = AllJoints[i]->ParentJointID)
 			assert(*pjid < i);
 	}
+
+	for (auto &animation : animations) {
+		for (auto &joint_keys : animation.joint_keys) {
+			joint_keys.joint_id = old_to_new_id[joint_keys.joint_id];
+		}
+	}
 }
 
 //! called by loader after populating with mesh and bone data
@@ -508,24 +548,6 @@ SkinnedMesh::SJoint *SkinnedMeshBuilder::addJoint(SJoint *parent)
 	AllJoints.push_back(joint);
 
 	return joint;
-}
-
-void SkinnedMeshBuilder::addPositionKey(SJoint *joint, f32 frame, core::vector3df pos)
-{
-	assert(joint);
-	joint->keys.position.pushBack(frame, pos);
-}
-
-void SkinnedMeshBuilder::addScaleKey(SJoint *joint, f32 frame, core::vector3df scale)
-{
-	assert(joint);
-	joint->keys.scale.pushBack(frame, scale);
-}
-
-void SkinnedMeshBuilder::addRotationKey(SJoint *joint, f32 frame, core::quaternion rot)
-{
-	assert(joint);
-	joint->keys.rotation.pushBack(frame, rot);
 }
 
 SkinnedMesh::SWeight *SkinnedMeshBuilder::addWeight(SJoint *joint)

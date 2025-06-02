@@ -83,7 +83,16 @@ struct ClientEventHandler
 	void (Game::*handler)(ClientEvent *, CameraOrientation *);
 };
 
-using PausedNodesList = std::vector<std::pair<irr_ptr<scene::AnimatedMeshSceneNode>, float>>;
+struct PausedNode {
+	irr_ptr<scene::AnimatedMeshSceneNode> node;
+	struct Track {
+		u16 id;
+		f32 fps;
+	};
+	std::vector<Track> tracks;
+};
+
+using PausedNodesList = std::vector<PausedNode>;
 
 /* This is not intended to be a public class. If a public class becomes
  * desirable then it may be better to create another 'wrapper' class that

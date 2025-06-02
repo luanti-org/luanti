@@ -7,6 +7,7 @@
 #include "EMaterialTypes.h"
 #include "IDummyTransformationSceneNode.h"
 #include "irrlichttypes.h"
+#include "AnimSpec.h"
 
 #include "object_properties.h"
 #include "clientobject.h"
@@ -113,18 +114,17 @@ private:
 	SmoothTranslatorWrappedv3f rot_translator;
 
 	// Spritesheet stuff
+	// TODO pack up into a struct
 	v2f m_tx_size = v2f(1,1);
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set = false;
 	bool m_tx_select_horiz_by_yawpitch = false;
-	bool m_animation_loop = true;
-	v2f m_animation_range;
-	float m_animation_speed = 15.0f;
-	float m_animation_blend = 0.0f;
 	int m_anim_frame = 0;
 	int m_anim_num_frames = 1;
 	float m_anim_framelength = 0.2f;
 	float m_anim_timer = 0.0f;
+
+	scene::AnimSpec m_animation;
 
 	// stores position and rotation for each bone name
 	BoneOverrideMap m_bone_override;
@@ -283,9 +283,10 @@ public:
 	// Reason: updateTextures(m_previous_texture_modifier);
 	void updateTextures(std::string mod);
 
-	void updateAnimation();
+	void updateAnimation(u16 track);
 
-	void updateAnimationSpeed();
+	//! Read a track number, default to 0 if missing or invalid
+	u16 readTrackNumber(std::istringstream &is);
 
 	void processMessage(const std::string &data) override;
 

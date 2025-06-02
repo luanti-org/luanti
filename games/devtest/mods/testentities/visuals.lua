@@ -133,7 +133,37 @@ core.register_entity("testentities:cool_guy", {
 		},
 	},
 	on_activate = function(self)
-		self.object:set_animation({x = 0, y = 29}, 30, 0, true)
+
+	end,
+})
+
+core.register_entity("testentities:multi_track", {
+	initial_properties = {
+		visual = "mesh",
+		mesh = "multi_track_anim.glb",
+		textures = { "no_texture.png" },
+	},
+	on_activate = function(self)
+		self.object:play_animation("bone1_spin")
+		self.object:play_animation("bone2_spin")
+		local animations = self.object:get_animations()
+		assert(animations.bone1_spin ~= nil)
+		assert(animations.bone2_spin ~= nil)
+		local anim1 = animations.bone1_spin
+		assert(anim1.min_frame == 0)
+		assert(anim1.max_frame == math.huge)
+		assert(anim1.speed == 1)
+		assert(anim1.blend == 0)
+		self._frame_speed = { 1, 1 }
+		self.object:set_armor_groups({punch_operable=1, immortal=1})
+	end,
+	on_punch = function(self)
+		self._frame_speed[1] = 1 - self._frame_speed[1]
+		self.object:update_animation("bone1_spin", {speed = self._frame_speed[1]})
+	end,
+	on_rightclick = function(self)
+		self._frame_speed[2] = 1 - self._frame_speed[2]
+		self.object:update_animation("bone2_spin", {speed = self._frame_speed[2]})
 	end,
 })
 

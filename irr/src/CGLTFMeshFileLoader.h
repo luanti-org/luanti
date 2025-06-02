@@ -154,6 +154,10 @@ private:
 
 		void loadSkins();
 
+		void loadChannel(SkinnedMesh::Keys &keys,
+				const tiniergltf::AnimationChannel &channel,
+				const tiniergltf::AnimationSampler &sampler);
+
 		void loadAnimation(const std::size_t animIdx);
 	};
 
