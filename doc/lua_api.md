@@ -4277,8 +4277,11 @@ Linear algebra:
   * `Matrix4:transform_direction(dir)`:
     * Apply the matrix to a vector representing a direction.
     * Ignores the fourth row and column; does not apply the translation (w = 0).
-* `Matrix4.compose(...)`: Returns the composition of the given matrices.
+* `Matrix4.compose(...)`: Returns the composition of the given matrices
+  in right-to-left order: `second:compose(first):apply(v)`
+  is equivalent to `second:apply(first:apply(v))`.
   If `...` is empty, this is just the identity.
+  `Matrix4:compose()` copies the matrix.
 * `Matrix4:determinant()`: Returns the determinant.
 * `Matrix4:invert()`: Returns a newly created inverse, or `nil` if the matrix is (close to being) singular.
 * `Matrix4:transpose()`: Returns a transposed copy of the matrix.
