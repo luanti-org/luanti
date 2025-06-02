@@ -4180,6 +4180,7 @@ Constructors
   * All angles in radians.
   * Mathematically equivalent to `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
   * Consistent with the euler angles that can be used for bones or attachments.
+* `Rotation.compose(...)`: See methods below.
 
 Conversions
 -----------
@@ -4203,11 +4204,12 @@ Methods
 -------
 
 * `Rotation:apply(vec)`: Returns the result of applying the rotation to the given vector.
-* `Rotation.compose(...)`: Returns the composition of the given rotations,
-  in right-to-left order: `second:compose(first):apply(v)`
-  is equivalent to `second:apply(first:apply(v))`.
-  `Rotation.compose()` is an alias for `Rotation.identity()`,
-  `Rotation:compose()` copies the rotation.
+* `Rotation.compose(...)`: Returns the composition of the given rotations.
+  * `Rotation.compose()` is an alias for `Rotation.identity()`.
+  * `Rotation.compose(rot)` copies the rotation.
+  * `rot:compose(...)` is shorthand for `Rotation.compose(rot, ...)`.
+  * Right-to-left order: `second:compose(first):apply(v)`
+    is equivalent to `second:apply(first:apply(v))`.
 * `Rotation:invert()`: Returns the inverse rotation.
 * `Rotation.slerp(from, to, time)`: Interpolate from one rotation to another.
   * `time = 0` is all `from`, `time = 1` is all `to`.
@@ -4251,6 +4253,7 @@ Constructors
   component-wise scaling factors to vectors.
 * `Matrix4.reflection(normal)`: Constructs a matrix that reflects vectors
   at the plane with the given plane normal vector (which need not be normalized).
+* `Matrix4.compose(...)`: See methods below.
 
 Methods
 -------
@@ -4277,11 +4280,12 @@ Linear algebra:
   * `Matrix4:transform_direction(dir)`:
     * Apply the matrix to a vector representing a direction.
     * Ignores the fourth row and column; does not apply the translation (w = 0).
-* `Matrix4.compose(...)`: Returns the composition of the given matrices
-  in right-to-left order: `second:compose(first):apply(v)`
-  is equivalent to `second:apply(first:apply(v))`.
-  If `...` is empty, this is just the identity.
-  `Matrix4:compose()` copies the matrix.
+* `Matrix4.compose(...)`: Returns the composition of the given matrices.
+  * `Matrix4.compose()` is equivalent to `Matrix4.identity()`.
+  * `Matrix4.compose(mat)` is equivalent to `mat:copy()`.
+  * `mat:compose(...)` is shorthand for `Matrix4.compose(mat, ...)`.
+  * Right-to-left order: `second:compose(first):apply(v)`
+    is equivalent to `second:apply(first:apply(v))`.
 * `Matrix4:determinant()`: Returns the determinant.
 * `Matrix4:invert()`: Returns a newly created inverse, or `nil` if the matrix is (close to being) singular.
 * `Matrix4:transpose()`: Returns a transposed copy of the matrix.
