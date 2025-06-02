@@ -28,7 +28,7 @@ public:
 	static void create(lua_State *L, ServerActiveObject *object);
 
 	// Clear the pointer in the ObjectRef (at -1).
-	// Throws an fatal error if the object pointer wasn't `expect`.
+	// Throws a fatal error if the object pointer wasn't `expect`.
 	static void set_null(lua_State *L, void *expect);
 
 	static void Register(lua_State *L);
@@ -115,14 +115,25 @@ private:
 	// get_physics_override(self)
 	static int l_get_physics_override(lua_State *L);
 
+	// Old animation API:
+
 	// set_animation(self, frame_range, frame_speed, frame_blend, frame_loop)
 	static int l_set_animation(lua_State *L);
-
-	// set_animation_frame_speed(self, frame_speed)
+	// set_animation_frame_speed(self, [track], frame_speed)
 	static int l_set_animation_frame_speed(lua_State *L);
-
 	// get_animation(self)
 	static int l_get_animation(lua_State *L);
+
+	// New animation API:
+
+	// play_animation(self, track, [animation])
+	static int l_play_animation(lua_State *L);
+	// update_animation(self, track, update)
+	static int l_update_animation(lua_State *L);
+	// stop_animation(self, [track])
+	static int l_stop_animation(lua_State *L);
+	// get_animations(self)
+	static int l_get_animations(lua_State *L);
 
 	// set_bone_position(self, bone, position, rotation)
 	static int l_set_bone_position(lua_State *L);
