@@ -13,7 +13,6 @@
 #include "client/clientmedia.h"
 #include "log.h"
 #include "servermap.h"
-#include "mapsector.h"
 #include "client/minimap.h"
 #include "modchannels.h"
 #include "nodedef.h"
@@ -285,15 +284,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 	std::string datastring(pkt->getRemainingString(), pkt->getRemainingBytes());
 	std::istringstream istr(datastring, std::ios_base::binary);
 
-	MapSector *sector;
-	MapBlock *block;
-
-	v2s16 p2d(p.X, p.Z);
-	sector = m_env.getMap().emergeSector(p2d);
-
-	assert(sector->getPos() == p2d);
-
-	block = sector->getBlockNoCreateNoEx(p.Y);
+	MapBlock *block = m_env.getMap().getBlockNoCreateNoEx(p);
 	if (block) {
 		/*
 			Update an existing block
@@ -305,7 +296,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 		/*
 			Create a new block
 		*/
-		block = sector->createBlankBlock(p.Y);
+		block = m_env.getMap().createBlankBlock(p);
 		block->deSerialize(istr, m_server_ser_ver, false);
 		block->deSerializeNetworkSpecific(istr);
 	}

@@ -239,7 +239,6 @@ void MapDatabaseSQLite3::createDatabase()
 			// Declaring a primary key automatically creates an index and the
 			// order largely dictates which range operations can be sped up.
 			// see also: <https://www.sqlite.org/optoverview.html#skipscan>
-			// Putting XZ before Y matches our MapSector abstraction.
 			"PRIMARY KEY (`x`, `z`, `y`)"
 		");\n"
 	;

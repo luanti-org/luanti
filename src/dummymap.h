@@ -5,7 +5,6 @@
 #pragma once
 
 #include "map.h"
-#include "mapsector.h"
 
 class DummyMap : public Map
 {
@@ -13,12 +12,9 @@ public:
 	DummyMap(IGameDef *gamedef, v3s16 bpmin, v3s16 bpmax): Map(gamedef)
 	{
 		for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
-		for (s16 x = bpmin.X; x <= bpmax.X; x++) {
-			v2s16 p2d(x, z);
-			MapSector *sector = new MapSector(this, p2d, gamedef);
-			m_sectors[p2d] = sector;
-			for (s16 y = bpmin.Y; y <= bpmax.Y; y++)
-				sector->createBlankBlock(y);
+		for (s16 x = bpmin.X; x <= bpmax.X; x++)
+		for (s16 y = bpmin.Y; y <= bpmax.Y; y++) {
+			createBlankBlock(v3s16(x, y, z));
 		}
 	}
 

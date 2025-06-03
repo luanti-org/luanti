@@ -31,7 +31,6 @@
 #include "filesys.h"
 #include "mapblock_mesh.h"
 #include "mapblock.h"
-#include "mapsector.h"
 #include "minimap.h"
 #include "modchannels.h"
 #include "content/mods.h"
@@ -589,15 +588,14 @@ void Client::step(float dtime)
 			bool do_mapper_update = true;
 
 			ClientMap &map = m_env.getClientMap();
-			MapSector *sector = map.emergeSector(v2s16(r.p.X, r.p.Z));
 
-			MapBlock *block = sector->getBlockNoCreateNoEx(r.p.Y);
+			MapBlock *block = map.getBlockNoCreateNoEx(r.p);
 
 			// The block in question is not visible (perhaps it is culled at the server),
 			// create a blank block just to hold the chunk's mesh.
 			// If the block becomes visible later it will replace the blank block.
 			if (!block && r.mesh)
-				block = sector->createBlankBlock(r.p.Y);
+				block = map.createBlankBlock(r.p);
 
 			if (block) {
 				// Delete the old mesh
