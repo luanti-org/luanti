@@ -9,7 +9,6 @@
 #include <IMaterialRenderer.h>
 #include <IVideoDriver.h>
 #include <matrix4.h>
-#include "mapsector.h"
 #include "mapblock.h"
 #include "nodedef.h"
 #include "profiler.h"
@@ -239,20 +238,6 @@ void ClientMap::updateCamera(v3f pos, v3f dir, f32 fov, v3s16 offset, video::SCo
 	}
 }
 
-MapSector * ClientMap::emergeSector(v2s16 p2d)
-{
-	// Check that it doesn't exist already
-	MapSector *sector = getSectorNoGenerate(p2d);
-
-	// Create it if it does not exist yet
-	if (!sector) {
-		sector = new MapSector(this, p2d, m_gamedef);
-		m_sectors[p2d] = sector;
-	}
-
-	return sector;
-}
-
 void ClientMap::OnRegisterSceneNode()
 {
 	if(IsVisible)
@@ -409,91 +394,75 @@ void ClientMap::updateDrawList()
 	 frustum and display them.
 	 */
 	if (m_control.range_all || m_loops_occlusion_culler) {
-		// Number of blocks currently loaded by the client
-		u32 blocks_loaded = 0;
 		// Number of blocks with mesh in rendering range
 		u32 blocks_in_range_with_mesh = 0;
 
-		MapBlockVect sectorblocks;
+		// Loop through all blocks
+		for (const auto &entry : m_blocks) {
+			MapBlock *block = entry.second;
+			MapBlockMesh *mesh = block->mesh;
 
-		for (auto &sector_it : m_sectors) {
-			const MapSector *sector = sector_it.second;
-			v2s16 sp = sector->getPos();
+			// Calculate the coordinates for range and frustum culling
+			v3f mesh_sphere_center;
+			f32 mesh_sphere_radius;
 
-			blocks_loaded += sector->size();
-			if (!m_control.range_all) {
-				if (sp.X < p_blocks_min.X || sp.X > p_blocks_max.X ||
-						sp.Y < p_blocks_min.Z || sp.Y > p_blocks_max.Z)
-					continue;
+			v3s16 block_pos_nodes = block->getPosRelative();
+
+			if (mesh) {
+				mesh_sphere_center = intToFloat(block_pos_nodes, BS)
+						+ mesh->getBoundingSphereCenter();
+				mesh_sphere_radius = mesh->getBoundingRadius();
+			} else {
+				mesh_sphere_center = intToFloat(block_pos_nodes, BS)
+						+ v3f((MAP_BLOCKSIZE * 0.5f - 0.5f) * BS);
+				mesh_sphere_radius = 0.0f;
 			}
 
-			// Loop through blocks in sector
-			for (const auto &entry : sector->getBlocks()) {
-				MapBlock *block = entry.second.get();
-				MapBlockMesh *mesh = block->mesh;
+			// First, perform a simple distance check.
+			if (!m_control.range_all &&
+				mesh_sphere_center.getDistanceFrom(m_camera_position) >
+					m_control.wanted_range * BS + mesh_sphere_radius)
+				continue; // Out of range, skip.
 
-				// Calculate the coordinates for range and frustum culling
-				v3f mesh_sphere_center;
-				f32 mesh_sphere_radius;
+			// Keep the block alive as long as it is in range.
+			block->resetUsageTimer();
+			blocks_in_range_with_mesh++;
 
-				v3s16 block_pos_nodes = block->getPosRelative();
+			// Frustum culling
+			// Only do coarse culling here, to account for fast camera movement.
+			// This is needed because this function is not called every frame.
+			float frustum_cull_extra_radius = 300.0f;
+			if (is_frustum_culled(mesh_sphere_center,
+					mesh_sphere_radius + frustum_cull_extra_radius)) {
+				blocks_frustum_culled++;
+				continue;
+			}
 
-				if (mesh) {
-					mesh_sphere_center = intToFloat(block_pos_nodes, BS)
-							+ mesh->getBoundingSphereCenter();
-					mesh_sphere_radius = mesh->getBoundingRadius();
-				} else {
-					mesh_sphere_center = intToFloat(block_pos_nodes, BS)
-							+ v3f((MAP_BLOCKSIZE * 0.5f - 0.5f) * BS);
-					mesh_sphere_radius = 0.0f;
-				}
+			// Raytraced occlusion culling - send rays from the camera to the block's corners
+			if (!m_control.range_all && occlusion_culling_enabled && m_enable_raytraced_culling &&
+					mesh &&
+					isMeshOccluded(block, mesh_grid.cell_size, cam_pos_nodes)) {
+				blocks_occlusion_culled++;
+				continue;
+			}
 
-				// First, perform a simple distance check.
-				if (!m_control.range_all &&
-					mesh_sphere_center.getDistanceFrom(m_camera_position) >
-						m_control.wanted_range * BS + mesh_sphere_radius)
-					continue; // Out of range, skip.
-
-				// Keep the block alive as long as it is in range.
-				block->resetUsageTimer();
-				blocks_in_range_with_mesh++;
-
-				// Frustum culling
-				// Only do coarse culling here, to account for fast camera movement.
-				// This is needed because this function is not called every frame.
-				float frustum_cull_extra_radius = 300.0f;
-				if (is_frustum_culled(mesh_sphere_center,
-						mesh_sphere_radius + frustum_cull_extra_radius)) {
-					blocks_frustum_culled++;
-					continue;
-				}
-
-				// Raytraced occlusion culling - send rays from the camera to the block's corners
-				if (!m_control.range_all && occlusion_culling_enabled && m_enable_raytraced_culling &&
-						mesh &&
-						isMeshOccluded(block, mesh_grid.cell_size, cam_pos_nodes)) {
-					blocks_occlusion_culled++;
-					continue;
-				}
-
-				if (mesh_grid.cell_size > 1) {
-					// Block meshes are stored in the corner block of a chunk
-					// (where all coordinate are divisible by the chunk size)
-					// Add them to the de-dup set.
-					shortlist.emplace(mesh_grid.getMeshPos(block->getPos()));
-					// All other blocks we can grab and add to the keeplist right away.
-					m_keeplist.push_back(block);
-					block->refGrab();
-				} else if (mesh) {
-					// without mesh chunking we can add the block to the drawlist
-					block->refGrab();
-					m_drawlist.emplace(block->getPos(), block);
-				}
+			if (mesh_grid.cell_size > 1) {
+				// Block meshes are stored in the corner block of a chunk
+				// (where all coordinate are divisible by the chunk size)
+				// Add them to the de-dup set.
+				shortlist.emplace(mesh_grid.getMeshPos(block->getPos()));
+				// All other blocks we can grab and add to the keeplist right away.
+				m_keeplist.push_back(block);
+				block->refGrab();
+			} else if (mesh) {
+				// without mesh chunking we can add the block to the drawlist
+				block->refGrab();
+				m_drawlist.emplace(block->getPos(), block);
 			}
 		}
 
 		g_profiler->avg("MapBlock meshes in range [#]", blocks_in_range_with_mesh);
-		g_profiler->avg("MapBlocks loaded [#]", blocks_loaded);
+		g_profiler->avg("MapBlocks loaded [#]", m_blocks.size());
 	} else {
 		// Blocks visited by the algorithm
 		u32 blocks_visited = 0;
@@ -529,10 +498,7 @@ void ClientMap::updateDrawList()
 
 			blocks_visited++;
 
-			// Get the sector, block and mesh
-			MapSector *sector = this->getSectorNoGenerate(v2s16(block_coord.X, block_coord.Z));
-
-			MapBlock *block = sector ? sector->getBlockNoCreateNoEx(block_coord.Y) : nullptr;
+			MapBlock *block = getBlockNoCreateNoEx(block_coord);
 
 			MapBlockMesh *mesh = block ? block->mesh : nullptr;
 
@@ -729,60 +695,42 @@ void ClientMap::touchMapBlocks()
 	v3s16 p_blocks_max;
 	getBlocksInViewRange(cam_pos_nodes, &p_blocks_min, &p_blocks_max);
 
-	// Number of blocks currently loaded by the client
-	u32 blocks_loaded = 0;
 	// Number of blocks with mesh in rendering range
 	u32 blocks_in_range_with_mesh = 0;
 
-	for (const auto &sector_it : m_sectors) {
-		const MapSector *sector = sector_it.second;
-		v2s16 sp = sector->getPos();
+	for (const auto &entry : m_blocks) {
+		MapBlock *block = entry.second;
+		MapBlockMesh *mesh = block->mesh;
 
-		blocks_loaded += sector->size();
-		if (!m_control.range_all) {
-			if (sp.X < p_blocks_min.X || sp.X > p_blocks_max.X ||
-					sp.Y < p_blocks_min.Z || sp.Y > p_blocks_max.Z)
-				continue;
+		// Calculate the coordinates for range and frustum culling
+		v3f mesh_sphere_center;
+		f32 mesh_sphere_radius;
+
+		v3s16 block_pos_nodes = block->getPosRelative();
+
+		if (mesh) {
+			mesh_sphere_center = intToFloat(block_pos_nodes, BS)
+					+ mesh->getBoundingSphereCenter();
+			mesh_sphere_radius = mesh->getBoundingRadius();
+		} else {
+			mesh_sphere_center = intToFloat(block_pos_nodes, BS)
+					+ v3f((MAP_BLOCKSIZE * 0.5f - 0.5f) * BS);
+			mesh_sphere_radius = 0.0f;
 		}
 
-		/*
-			Loop through blocks in sector
-		*/
+		// First, perform a simple distance check.
+		if (!m_control.range_all &&
+			mesh_sphere_center.getDistanceFrom(m_camera_position) >
+				m_control.wanted_range * BS + mesh_sphere_radius)
+			continue; // Out of range, skip.
 
-		for (const auto &entry : sector->getBlocks()) {
-			MapBlock *block = entry.second.get();
-			MapBlockMesh *mesh = block->mesh;
-
-			// Calculate the coordinates for range and frustum culling
-			v3f mesh_sphere_center;
-			f32 mesh_sphere_radius;
-
-			v3s16 block_pos_nodes = block->getPosRelative();
-
-			if (mesh) {
-				mesh_sphere_center = intToFloat(block_pos_nodes, BS)
-						+ mesh->getBoundingSphereCenter();
-				mesh_sphere_radius = mesh->getBoundingRadius();
-			} else {
-				mesh_sphere_center = intToFloat(block_pos_nodes, BS)
-						+ v3f((MAP_BLOCKSIZE * 0.5f - 0.5f) * BS);
-				mesh_sphere_radius = 0.0f;
-			}
-
-			// First, perform a simple distance check.
-			if (!m_control.range_all &&
-				mesh_sphere_center.getDistanceFrom(m_camera_position) >
-					m_control.wanted_range * BS + mesh_sphere_radius)
-				continue; // Out of range, skip.
-
-			// Keep the block alive as long as it is in range.
-			block->resetUsageTimer();
-			blocks_in_range_with_mesh++;
-		}
+		// Keep the block alive as long as it is in range.
+		block->resetUsageTimer();
+		blocks_in_range_with_mesh++;
 	}
 
 	g_profiler->avg("MapBlock meshes in range [#]", blocks_in_range_with_mesh);
-	g_profiler->avg("MapBlocks loaded [#]", blocks_loaded);
+	g_profiler->avg("MapBlocks loaded [#]", m_blocks.size());
 }
 
 void MeshBufListMaps::addFromBlock(v3s16 block_pos, MapBlockMesh *block_mesh,
@@ -1532,48 +1480,36 @@ void ClientMap::updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir,
 	}
 	m_drawlist_shadow.clear();
 
-	// Number of blocks currently loaded by the client
-	u32 blocks_loaded = 0;
 	// Number of blocks with mesh in rendering range
 	u32 blocks_in_range_with_mesh = 0;
 
-	for (auto &sector_it : m_sectors) {
-		const MapSector *sector = sector_it.second;
-		if (!sector)
+	for (const auto &entry : m_blocks) {
+		MapBlock *block = entry.second;
+		MapBlockMesh *mesh = block->mesh;
+		if (!mesh) {
+			// Ignore if mesh doesn't exist
 			continue;
-		blocks_loaded += sector->size();
+		}
 
-		/*
-			Loop through blocks in sector
-		*/
-		for (const auto &entry : sector->getBlocks()) {
-			MapBlock *block = entry.second.get();
-			MapBlockMesh *mesh = block->mesh;
-			if (!mesh) {
-				// Ignore if mesh doesn't exist
-				continue;
-			}
+		v3f block_pos = intToFloat(block->getPosRelative(), BS) + mesh->getBoundingSphereCenter();
+		v3f projection = shadow_light_pos + shadow_light_dir * shadow_light_dir.dotProduct(block_pos - shadow_light_pos);
+		if (projection.getDistanceFrom(block_pos) > (radius + mesh->getBoundingRadius()))
+			continue;
 
-			v3f block_pos = intToFloat(block->getPosRelative(), BS) + mesh->getBoundingSphereCenter();
-			v3f projection = shadow_light_pos + shadow_light_dir * shadow_light_dir.dotProduct(block_pos - shadow_light_pos);
-			if (projection.getDistanceFrom(block_pos) > (radius + mesh->getBoundingRadius()))
-				continue;
+		blocks_in_range_with_mesh++;
 
-			blocks_in_range_with_mesh++;
+		// This block is in range. Reset usage timer.
+		block->resetUsageTimer();
 
-			// This block is in range. Reset usage timer.
-			block->resetUsageTimer();
-
-			// Add to set
-			if (m_drawlist_shadow.emplace(block->getPos(), block).second) {
-				block->refGrab();
-			}
+		// Add to set
+		if (m_drawlist_shadow.emplace(block->getPos(), block).second) {
+			block->refGrab();
 		}
 	}
 
 	g_profiler->avg("SHADOW MapBlock meshes in range [#]", blocks_in_range_with_mesh);
 	g_profiler->avg("SHADOW MapBlocks drawn [#]", m_drawlist_shadow.size());
-	g_profiler->avg("SHADOW MapBlocks loaded [#]", blocks_loaded);
+	g_profiler->avg("SHADOW MapBlocks loaded [#]", m_blocks.size());
 }
 
 void ClientMap::reportMetrics(u64 save_time_us, u32 saved_blocks, u32 all_blocks)

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <set>
 #include <map>
+#include <memory>
 
 #include "irrlichttypes_bloated.h"
 #include "mapblock.h"
@@ -18,7 +19,6 @@
 #include "nodetimer.h"
 #include "debug.h"
 
-class MapSector;
 class NodeMetadata;
 class IGameDef;
 class IRollbackManager;
@@ -113,21 +113,19 @@ public:
 	// event shall be deleted by caller after the call.
 	void dispatchEvent(const MapEditEvent &event);
 
-	// On failure returns NULL
-	MapSector * getSectorNoGenerateNoLock(v2s16 p2d);
-	// Same as the above (there exists no lock anymore)
-	MapSector * getSectorNoGenerate(v2s16 p2d);
-
-	/*
-		This is overloaded by ClientMap and ServerMap to allow
-		their differing fetch methods.
-	*/
-	virtual MapSector * emergeSector(v2s16 p){ return NULL; }
-
 	// Returns InvalidPositionException if not found
 	MapBlock * getBlockNoCreate(v3s16 p);
 	// Returns NULL if not found
 	MapBlock * getBlockNoCreateNoEx(v3s16 p);
+
+	MapBlock* createBlankBlockNoInsert(v3s16 p);
+	MapBlock *createBlankBlock(v3s16 p);
+	void insertBlock(MapBlock *block);
+
+	void deleteBlockImmediate(MapBlock *block);
+	// Remove a block from the map without deleting it
+	// Returns an owning ptr to block.
+	std::unique_ptr<MapBlock> detachBlock(MapBlock *block);
 
 	/* Server overrides */
 	virtual MapBlock * emergeBlock(v3s16 p, bool create_blank=true)
@@ -179,7 +177,7 @@ public:
 	virtual bool deleteBlock(v3s16 blockpos) { return false; }
 
 	/*
-		Updates usage timers and unloads unused blocks and sectors.
+		Updates usage timers and unloads unused blocks.
 		Saves modified blocks before unloading if possible.
 	*/
 	void timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
@@ -190,11 +188,6 @@ public:
 		Saves modified blocks before unloading if possible.
 	*/
 	void unloadUnreferencedBlocks(std::vector<v3s16> *unloaded_blocks=NULL);
-
-	// Deletes sectors and their blocks from memory
-	// Takes cache into account
-	// If deleted sector is in sector cache, clears cache
-	void deleteSectors(const std::vector<v2s16> &list);
 
 	// For debug printing. Prints "Map: ", "ServerMap: " or "ClientMap: "
 	virtual void PrintInfo(std::ostream &out);
@@ -248,7 +241,6 @@ public:
 		for (s16 bz = bpmin.Z; bz <= bpmax.Z; bz++)
 		for (s16 bx = bpmin.X; bx <= bpmax.X; bx++)
 		for (s16 by = bpmin.Y; by <= bpmax.Y; by++) {
-			// y is iterated innermost to make use of the sector cache.
 			v3s16 bp(bx, by, bz);
 			MapBlock *block = getBlockNoCreateNoEx(bp);
 			v3s16 basep = bp * MAP_BLOCKSIZE;
@@ -282,11 +274,7 @@ protected:
 
 	std::set<MapEventReceiver*> m_event_receivers;
 
-	std::unordered_map<v2s16, MapSector*> m_sectors;
-
-	// Be sure to set this to NULL when the cached sector is deleted
-	MapSector *m_sector_cache = nullptr;
-	v2s16 m_sector_cache_p;
+	std::unordered_map<v3s16, MapBlock*> m_blocks;
 
 	// This stores the properties of the nodes on the map.
 	const NodeDefManager *m_nodedef;

@@ -3,7 +3,6 @@
 // Copyright (C) 2010-2024 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "map.h"
-#include "mapsector.h"
 #include "filesys.h"
 #include "voxel.h"
 #include "voxelalgorithms.h"
@@ -228,24 +227,18 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 		Create the whole area of this and the neighboring blocks
 	*/
 	for (s16 x = full_bpmin.X; x <= full_bpmax.X; x++)
-	for (s16 z = full_bpmin.Z; z <= full_bpmax.Z; z++) {
-		v2s16 sectorpos(x, z);
-		// Sector metadata is loaded from disk if not already loaded.
-		MapSector *sector = createSector(sectorpos);
-		FATAL_ERROR_IF(sector == NULL, "createSector() failed");
+	for (s16 z = full_bpmin.Z; z <= full_bpmax.Z; z++)
+	for (s16 y = full_bpmin.Y; y <= full_bpmax.Y; y++) {
+		v3s16 p(x, y, z);
 
-		for (s16 y = full_bpmin.Y; y <= full_bpmax.Y; y++) {
-			v3s16 p(x, y, z);
+		MapBlock *block = emergeBlock(p, false);
+		if (block == NULL) {
+			block = createBlock(p);
 
-			MapBlock *block = emergeBlock(p, false);
-			if (block == NULL) {
-				block = createBlock(p);
-
-				// Block gets sunlight if this is true.
-				// Refer to the map generator heuristics.
-				bool ug = m_emerge->isBlockUnderground(p);
-				block->setIsUnderground(ug);
-			}
+			// Block gets sunlight if this is true.
+			// Refer to the map generator heuristics.
+			bool ug = m_emerge->isBlockUnderground(p);
+			block->setIsUnderground(ug);
 		}
 	}
 
@@ -322,61 +315,15 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 	m_chunks_in_progress.erase(bpmin);
 }
 
-MapSector *ServerMap::createSector(v2s16 p2d)
-{
-	/*
-		Check if it exists already in memory
-	*/
-	MapSector *sector = getSectorNoGenerate(p2d);
-	if (sector)
-		return sector;
-
-	/*
-		Do not create over max mapgen limit
-	*/
-	if (blockpos_over_max_limit(v3s16(p2d.X, 0, p2d.Y)))
-		throw InvalidPositionException("createSector(): pos over max mapgen limit");
-
-	/*
-		Generate blank sector
-	*/
-	sector = new MapSector(this, p2d, m_gamedef);
-
-	/*
-		Insert to container
-	*/
-	m_sectors[p2d] = sector;
-
-	return sector;
-}
-
 MapBlock * ServerMap::createBlock(v3s16 p)
 {
-	v2s16 p2d(p.X, p.Z);
-	s16 block_y = p.Y;
-
-	/*
-		This will create or load a sector if not found in memory.
-	*/
-	MapSector *sector;
-	try {
-		sector = createSector(p2d);
-	} catch (InvalidPositionException &e) {
-		infostream<<"createBlock: createSector() failed"<<std::endl;
-		throw e;
-	}
-
-	/*
-		Try to get a block from the sector
-	*/
-
-	MapBlock *block = sector->getBlockNoCreateNoEx(block_y);
+	MapBlock *block = getBlockNoCreateNoEx(p);
 	if (block)
 		return block;
 
 	// Create blank
 	try {
-		block = sector->createBlankBlock(block_y);
+		block = createBlankBlock(p);
 	} catch (InvalidPositionException &e) {
 		infostream << "createBlock: createBlankBlock() failed" << std::endl;
 		throw e;
@@ -401,8 +348,7 @@ MapBlock * ServerMap::emergeBlock(v3s16 p, bool create_blank)
 
 	if (create_blank) {
 		try {
-			MapSector *sector = createSector(v2s16(p.X, p.Z));
-			return sector->createBlankBlock(p.Y);
+			return createBlankBlock(p);
 		} catch (InvalidPositionException &e) {}
 	}
 
@@ -502,27 +448,21 @@ void ServerMap::save(ModifiedState save_level)
 	// Don't do anything with sqlite unless something is really saved
 	bool save_started = false;
 
-	for (auto &sector_it : m_sectors) {
-		MapSector *sector = sector_it.second;
+	for (auto &entry : m_blocks) {
+		MapBlock *block = entry.second;
+		block_count_all++;
 
-		MapBlockVect blocks;
-		sector->getBlocks(blocks);
-
-		for (MapBlock *block : blocks) {
-			block_count_all++;
-
-			if(block->getModified() >= (u32)save_level) {
-				// Lazy beginSave()
-				if(!save_started) {
-					beginSave();
-					save_started = true;
-				}
-
-				modprofiler.add(block->getModifiedReasonString(), 1);
-
-				saveBlock(block);
-				block_count++;
+		if(block->getModified() >= (u32)save_level) {
+			// Lazy beginSave()
+			if(!save_started) {
+				beginSave();
+				save_started = true;
 			}
+
+			modprofiler.add(block->getModifiedReasonString(), 1);
+
+			saveBlock(block);
+			block_count++;
 		}
 	}
 
@@ -557,16 +497,10 @@ void ServerMap::listAllLoadableBlocks(std::vector<v3s16> &dst)
 
 void ServerMap::listAllLoadedBlocks(std::vector<v3s16> &dst)
 {
-	for (auto &sector_it : m_sectors) {
-		MapSector *sector = sector_it.second;
-
-		MapBlockVect blocks;
-		sector->getBlocks(blocks);
-
-		for (MapBlock *block : blocks) {
-			v3s16 p = block->getPos();
-			dst.push_back(p);
-		}
+	for (auto &entry : m_blocks) {
+		MapBlock *block = entry.second;
+		v3s16 p = block->getPos();
+		dst.push_back(p);
 	}
 }
 
@@ -666,14 +600,11 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 	bool created_new = false;
 
 	try {
-		v2s16 p2d(p3d.X, p3d.Z);
-		MapSector *sector = createSector(p2d);
-
-		std::unique_ptr<MapBlock> block_created_new;
-		block = sector->getBlockNoCreateNoEx(p3d.Y);
+		MapBlock* block_created_new = nullptr;
+		block = getBlockNoCreateNoEx(p3d);
 		if (!block) {
-			block_created_new = sector->createBlankBlockNoInsert(p3d.Y);
-			block = block_created_new.get();
+			block_created_new = createBlankBlockNoInsert(p3d);
+			block = block_created_new;
 		}
 
 		{
@@ -683,7 +614,7 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 
 		// If it's a new block, insert it to the map
 		if (block_created_new) {
-			sector->insertBlock(std::move(block_created_new));
+			insertBlock(block_created_new);
 			created_new = true;
 		}
 	} catch (SerializationError &e) {
@@ -751,13 +682,9 @@ bool ServerMap::deleteBlock(v3s16 blockpos)
 
 	MapBlock *block = getBlockNoCreateNoEx(blockpos);
 	if (block) {
-		v2s16 p2d(blockpos.X, blockpos.Z);
-		MapSector *sector = getSectorNoGenerate(p2d);
-		if (!sector)
-			return false;
 		// It may not be safe to delete the block from memory at the moment
 		// (pointers to it could still be in use)
-		m_detached_blocks.push_back(sector->detachBlock(block));
+		m_detached_blocks.push_back(detachBlock(block));
 	}
 
 	return true;
