@@ -6839,7 +6839,7 @@ You can find mod channels communication scheme in `doc/mod_channels.png`.
     * Server joins channel `channel_name`, and creates it if necessary. You
       should listen for incoming messages with
       `core.register_on_modchannel_message`
-    * This returns a ModChannelRef object. You can learn how to use this in the [ModChannel](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md#modchannel) section.
+    * This returns a [ModChannel] object.
 
 Inventory
 ---------
