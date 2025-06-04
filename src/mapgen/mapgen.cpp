@@ -769,6 +769,18 @@ void MapgenBasic::generateBiomes()
 }
 
 
+void MapgenBasic::removeOvergeneratedCStone()
+{
+	for (s16 z = node_min.Z; z <= node_max.Z; z++)
+	for (s16 x = node_min.X; x <= node_max.X; x++) {
+		u32 vi = vm->m_area.index(x, node_max.Y + 1, z); // top
+		vm->m_data[vi].setContent(CONTENT_IGNORE);
+		vi = vm->m_area.index(x, node_min.Y - 1, z);     // bottom
+		vm->m_data[vi].setContent(CONTENT_IGNORE);
+	}
+}
+
+
 void MapgenBasic::dustTopNodes()
 {
 	if (node_max.Y < water_level)
@@ -954,7 +966,6 @@ void MapgenBasic::generateDungeons(s16 max_stone_y)
 	DungeonGen dgen(ndef, &gennotify, &dp);
 	dgen.generate(vm, blockseed, full_node_min, full_node_max);
 }
-
 
 ////
 //// GenerateNotifier

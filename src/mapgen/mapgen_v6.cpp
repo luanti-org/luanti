@@ -620,8 +620,21 @@ void MapgenV6::makeChunk(BlockMakeData *data)
 		calcLighting(node_min - v3s16(1, 1, 1) * MAP_BLOCKSIZE,
 			node_max + v3s16(1, 0, 1) * MAP_BLOCKSIZE,
 			full_node_min, full_node_max);
+	
+	removeOvergeneratedCStone();
 
 	this->generating = false;
+}
+
+void MapgenV6::removeOvergeneratedCStone()
+{
+	for (s16 z = node_min.Z; z <= node_max.Z; z++)
+	for (s16 x = node_min.X; x <= node_max.X; x++) {
+		u32 vi = vm->m_area.index(x, node_max.Y + 1, z); // top
+		vm->m_data[vi].setContent(CONTENT_IGNORE);
+		vi = vm->m_area.index(x, node_min.Y - 1, z);     // bottom
+		vm->m_data[vi].setContent(CONTENT_IGNORE);
+	}
 }
 
 
