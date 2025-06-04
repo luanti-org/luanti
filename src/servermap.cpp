@@ -449,7 +449,7 @@ void ServerMap::save(ModifiedState save_level)
 	bool save_started = false;
 
 	for (auto &entry : m_blocks) {
-		MapBlock *block = entry.second;
+		MapBlock *block = entry.second.get();
 		block_count_all++;
 
 		if(block->getModified() >= (u32)save_level) {
@@ -498,7 +498,7 @@ void ServerMap::listAllLoadableBlocks(std::vector<v3s16> &dst)
 void ServerMap::listAllLoadedBlocks(std::vector<v3s16> &dst)
 {
 	for (auto &entry : m_blocks) {
-		MapBlock *block = entry.second;
+		MapBlock *block = entry.second.get();
 		v3s16 p = block->getPos();
 		dst.push_back(p);
 	}
@@ -600,11 +600,11 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 	bool created_new = false;
 
 	try {
-		MapBlock* block_created_new = nullptr;
+		std::unique_ptr<MapBlock> block_created_new;
 		block = getBlockNoCreateNoEx(p3d);
 		if (!block) {
 			block_created_new = createBlankBlockNoInsert(p3d);
-			block = block_created_new;
+			block = block_created_new.get();
 		}
 
 		{
@@ -614,7 +614,7 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 
 		// If it's a new block, insert it to the map
 		if (block_created_new) {
-			insertBlock(block_created_new);
+			insertBlock(std::move(block_created_new));
 			created_new = true;
 		}
 	} catch (SerializationError &e) {

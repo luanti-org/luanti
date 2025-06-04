@@ -118,9 +118,9 @@ public:
 	// Returns NULL if not found
 	MapBlock * getBlockNoCreateNoEx(v3s16 p);
 
-	MapBlock* createBlankBlockNoInsert(v3s16 p);
+	std::unique_ptr<MapBlock> createBlankBlockNoInsert(v3s16 p);
 	MapBlock *createBlankBlock(v3s16 p);
-	void insertBlock(MapBlock *block);
+	void insertBlock(std::unique_ptr<MapBlock> block);
 
 	void deleteBlockImmediate(MapBlock *block);
 	// Remove a block from the map without deleting it
@@ -274,7 +274,7 @@ protected:
 
 	std::set<MapEventReceiver*> m_event_receivers;
 
-	std::unordered_map<v3s16, MapBlock*> m_blocks;
+	std::unordered_map<v3s16, std::unique_ptr<MapBlock>> m_blocks;
 
 	// This stores the properties of the nodes on the map.
 	const NodeDefManager *m_nodedef;
