@@ -1897,39 +1897,38 @@ float Client::getCurRate()
 
 void Client::makeScreenshot()
 {
-	irr::video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
-	irr::video::IImage* const raw_image = driver->createScreenShot();
+	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
+	video::IImage* const raw_image = driver->createScreenShot();
 
-	if (!raw_image)
+	if (!raw_image) {
+		errorstream << "Could not take screenshot" << std::endl;
 		return;
+	}
 
 	const struct tm tm = mt_localtime();
 
-	char timetstamp_c[64];
-	strftime(timetstamp_c, sizeof(timetstamp_c), "%Y%m%d_%H%M%S", &tm);
+	char timestamp_c[64];
+	strftime(timestamp_c, sizeof(timestamp_c), "%Y%m%d_%H%M%S", &tm);
 
-	std::string screenshot_dir;
-
-	if (fs::IsPathAbsolute(g_settings->get("screenshot_path")))
-		screenshot_dir = g_settings->get("screenshot_path");
-	else
-		screenshot_dir = porting::path_user + DIR_DELIM + g_settings->get("screenshot_path");
+	std::string screenshot_dir = g_settings->get("screenshot_path");
+	if (!fs::IsPathAbsolute(screenshot_dir))
+		screenshot_dir = porting::path_user + DIR_DELIM + screenshot_dir;
 
 	std::string filename_base = screenshot_dir
 			+ DIR_DELIM
 			+ std::string("screenshot_")
-			+ std::string(timetstamp_c);
+			+ timestamp_c;
 	std::string filename_ext = "." + g_settings->get("screenshot_format");
-	std::string filename;
 
 	// Create the directory if it doesn't already exist.
 	// Otherwise, saving the screenshot would fail.
-	fs::CreateDir(screenshot_dir);
+	fs::CreateAllDirs(screenshot_dir);
 
 	u32 quality = (u32)g_settings->getS32("screenshot_quality");
-	quality = MYMIN(MYMAX(quality, 0), 100) / 100.0 * 255;
+	quality = rangelim(quality, 0, 100) / 100.0f * 255;
 
 	// Try to find a unique filename
+	std::string filename;
 	unsigned serial = 0;
 
 	while (serial < SCREENSHOT_MAX_SERIAL_TRIES) {
@@ -1940,23 +1939,23 @@ void Client::makeScreenshot()
 	}
 
 	if (serial == SCREENSHOT_MAX_SERIAL_TRIES) {
-		infostream << "Could not find suitable filename for screenshot" << std::endl;
+		errorstream << "Could not find suitable filename for screenshot" << std::endl;
 	} else {
-		irr::video::IImage* const image =
+		video::IImage* const image =
 				driver->createImage(video::ECF_R8G8B8, raw_image->getDimension());
 
 		if (image) {
 			raw_image->copyTo(image);
 
-			std::ostringstream sstr;
+			std::string msg;
 			if (driver->writeImageToFile(image, filename.c_str(), quality)) {
-				sstr << "Saved screenshot to '" << filename << "'";
+				msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
 			} else {
-				sstr << "Failed to save screenshot '" << filename << "'";
+				msg = fmtgettext("Failed to save screenshot to \"%s\"", filename.c_str());
 			}
 			pushToChatQueue(new ChatMessage(CHATMESSAGE_TYPE_SYSTEM,
-					utf8_to_wide(sstr.str())));
-			infostream << sstr.str() << std::endl;
+					utf8_to_wide(msg)));
+			infostream << msg << std::endl;
 			image->drop();
 		}
 	}
