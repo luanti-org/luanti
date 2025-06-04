@@ -399,7 +399,7 @@ void ClientMap::updateDrawList()
 
 		// Loop through all blocks
 		for (const auto &entry : m_blocks) {
-			MapBlock *block = entry.second;
+			MapBlock *block = entry.second.get();
 			MapBlockMesh *mesh = block->mesh;
 
 			// Calculate the coordinates for range and frustum culling
@@ -699,7 +699,7 @@ void ClientMap::touchMapBlocks()
 	u32 blocks_in_range_with_mesh = 0;
 
 	for (const auto &entry : m_blocks) {
-		MapBlock *block = entry.second;
+		MapBlock *block = entry.second.get();
 		MapBlockMesh *mesh = block->mesh;
 
 		// Calculate the coordinates for range and frustum culling
@@ -1484,7 +1484,7 @@ void ClientMap::updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir,
 	u32 blocks_in_range_with_mesh = 0;
 
 	for (const auto &entry : m_blocks) {
-		MapBlock *block = entry.second;
+		MapBlock *block = entry.second.get();
 		MapBlockMesh *mesh = block->mesh;
 		if (!mesh) {
 			// Ignore if mesh doesn't exist
