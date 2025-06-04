@@ -1393,49 +1393,21 @@ void Client::sendPlayerPos()
 	if (!player)
 		return;
 
-	// Save bandwidth by only updating position when
-	// player is not dead and something changed
-
+	// Don't send anything when player is dead:
+	// The server would ignore it anyways
 	if (m_activeobjects_received && player->isDead())
 		return;
 
-	ClientMap &map = m_env.getClientMap();
-	u8 camera_fov   = std::fmin(255.0f, map.getCameraFov() * 80.0f);
-	u8 wanted_range = std::fmin(255.0f,
-			std::ceil(map.getWantedRange() * (1.0f / MAP_BLOCKSIZE)));
-
-	u32 keyPressed = player->control.getKeysPressed();
 	bool camera_inverted = m_camera->getCameraMode() == CAMERA_MODE_THIRD_FRONT;
-	f32 movement_speed = player->control.movement_speed;
-	f32 movement_dir = player->control.movement_direction;
-
-	if (
-			player->last_position        == player->getPosition() &&
-			player->last_speed           == player->getSpeed()    &&
-			player->last_pitch           == player->getPitch()    &&
-			player->last_yaw             == player->getYaw()      &&
-			player->last_keyPressed      == keyPressed            &&
-			player->last_camera_fov      == camera_fov            &&
-			player->last_camera_inverted == camera_inverted       &&
-			player->last_wanted_range    == wanted_range          &&
-			player->last_movement_speed  == movement_speed        &&
-			player->last_movement_dir    == movement_dir)
-		return;
 
 	player->last_position        = player->getPosition();
 	player->last_speed           = player->getSpeed();
 	player->last_pitch           = player->getPitch();
 	player->last_yaw             = player->getYaw();
-	player->last_keyPressed      = keyPressed;
-	player->last_camera_fov      = camera_fov;
-	player->last_camera_inverted = camera_inverted;
-	player->last_wanted_range    = wanted_range;
-	player->last_movement_speed  = movement_speed;
-	player->last_movement_dir    = movement_dir;
 
 	NetworkPacket pkt(TOSERVER_PLAYERPOS, 12 + 12 + 4 + 4 + 4 + 1 + 1 + 1 + 4 + 4);
 
-	writePlayerPos(player, &map, &pkt, camera_inverted);
+	writePlayerPos(player, &m_env.getClientMap(), &pkt, camera_inverted);
 
 	Send(&pkt);
 }
