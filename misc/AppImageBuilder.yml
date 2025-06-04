@@ -56,5 +56,3 @@ script: |
     # Is a backup icon location in case
     mkdir -p AppDir/usr/share/luanti/misc
     cp AppDir/usr/share/icons/hicolor/128x128/apps/luanti.png AppDir/usr/share/luanti/misc/luanti-xorg-icon-128.png
-    # Validation issues
-    sed -i '/PrefersNonDefaultGPU/d' AppDir/usr/share/applications/org.luanti.luanti.desktop

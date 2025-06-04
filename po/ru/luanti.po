@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Russian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-05-03 05:01+0000\n"
-"Last-Translator: Nana_M <sab.pyrope@gmail.com>\n"
+"PO-Revision-Date: 2025-05-16 16:16+0000\n"
+"Last-Translator: BlackImpostor <SkyBuilderOFFICAL@yandex.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/minetest/"
 "minetest/ru/>\n"
 "Language: ru\n"
@@ -934,29 +934,27 @@ msgstr "Удалить мир «$1»?"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "В результате ваши привязки клавиш, возможно, были изменены."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Ознакомьтесь с настройками клавиш или обратитесь к документации:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Закрыть"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Привязки клавиш"
+msgstr "Изменены привязки клавиш"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Настройки"
+msgstr "Открыть настройки"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
-msgstr ""
+msgstr "Система обработки входных данных была переработана в Luanti 5.12.0."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -2250,7 +2248,7 @@ msgstr "Бросить"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Exit"
-msgstr "Закрыть"
+msgstr "Выйти"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Inventory"

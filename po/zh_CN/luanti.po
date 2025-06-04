@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Chinese (Simplified) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-02-24 16:36+0000\n"
-"Last-Translator: BX Zhang <zbx1425@outlook.com>\n"
+"PO-Revision-Date: 2025-05-15 23:02+0000\n"
+"Last-Translator: y5nw <y5nw@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/minetest/minetest/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.10.1-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -82,16 +82,15 @@ msgstr "浏览"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "与“$1”冲突"
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "编辑"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Remove keybinding"
-msgstr "按键绑定。"
+msgstr "移除按键绑定"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -253,7 +252,7 @@ msgstr "通用"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
-msgstr ""
+msgstr "长按"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
@@ -558,12 +557,11 @@ msgstr "捐赠"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
-msgstr ""
+msgstr "无法获取软件包信息"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Error loading reviews"
-msgstr "创建客户端出错：%s"
+msgstr "无法加载评价"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
@@ -583,7 +581,7 @@ msgstr "问题跟踪器"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr ""
+msgstr "评价"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -638,10 +636,11 @@ msgid "Unable to install a $1 as a texture pack"
 msgstr "无法将$1安装为材质包"
 
 #: builtin/mainmenu/dlg_clients_list.lua
+#, fuzzy
 msgid ""
 "Players connected to\n"
 "$1"
-msgstr ""
+msgstr "连接到$1的玩家"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
@@ -924,25 +923,23 @@ msgstr "删除世界“$1”？"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "您的一些按键绑定有可能已被更改。"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "请查看按键绑定设置或参考文档："
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "关闭"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "按键绑定。"
+msgstr "按键绑定已被更改"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "设置"
+msgstr "打开设置"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
@@ -1292,12 +1289,11 @@ msgid "Ping"
 msgstr "ping值"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid ""
 "Players:\n"
 "$1"
 msgstr ""
-"客户端:\n"
+"玩家：:\n"
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
@@ -2247,7 +2243,7 @@ msgstr "溢出菜单"
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 #, fuzzy
 msgid "Place/use"
-msgstr "放置键"
+msgstr "放置或使用"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Range select"
@@ -2262,9 +2258,8 @@ msgid "Toggle chat log"
 msgstr "启用/禁用聊天记录"
 
 #: src/gui/touchscreenlayout.cpp
-#, fuzzy
 msgid "Toggle debug"
-msgstr "启用/禁用雾"
+msgstr "显示/隐藏调试信息"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle fast"
@@ -2301,9 +2296,8 @@ msgid "Internal server error"
 msgstr "内部服务器错误"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Invalid password"
-msgstr "旧密码"
+msgstr "密码错误"
 
 #. ~ DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
@@ -2977,9 +2971,8 @@ msgid "Client"
 msgstr "客户端"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client Debugging"
-msgstr "调试"
+msgstr "客户端调试"
 
 #: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
@@ -3233,7 +3226,6 @@ msgid "Decrease view range"
 msgstr "减少可视范围"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease volume"
 msgstr "减小音量"
 
@@ -3446,9 +3438,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Drop item"
-msgstr "丢弃物品键"
+msgstr "丢弃物品"
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -4133,164 +4124,132 @@ msgstr ""
 "单位为方块每二次方秒。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 1"
-msgstr "快捷栏1键"
+msgstr "快捷栏第1项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 10"
-msgstr "快捷栏10键"
+msgstr "快捷栏第10项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 11"
-msgstr "快捷栏11键"
+msgstr "快捷栏第11项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 12"
-msgstr "快捷栏12键"
+msgstr "快捷栏第12项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 13"
-msgstr "快捷栏13键"
+msgstr "快捷栏第13项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 14"
-msgstr "快捷栏14键"
+msgstr "快捷栏第14项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 15"
-msgstr "快捷栏15键"
+msgstr "快捷栏第15项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 16"
-msgstr "快捷栏16键"
+msgstr "快捷栏第16项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 17"
-msgstr "快捷栏17键"
+msgstr "快捷栏第17项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 18"
-msgstr "快捷栏18键"
+msgstr "快捷栏第18项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 19"
-msgstr "快捷栏19键"
+msgstr "快捷栏第19项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 2"
-msgstr "快捷栏2键"
+msgstr "快捷栏第2项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 20"
-msgstr "快捷栏20键"
+msgstr "快捷栏第20项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 21"
-msgstr "快捷栏21键"
+msgstr "快捷栏第21项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 22"
-msgstr "快捷栏22键"
+msgstr "快捷栏第22项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 23"
-msgstr "快捷栏23键"
+msgstr "快捷栏第23项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 24"
-msgstr "快捷栏24键"
+msgstr "快捷栏第24项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 25"
-msgstr "快捷栏25键"
+msgstr "快捷栏第25项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 26"
-msgstr "快捷栏26键"
+msgstr "快捷栏第26项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 27"
-msgstr "快捷栏27键"
+msgstr "快捷栏第27项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 28"
-msgstr "快捷栏28键"
+msgstr "快捷栏第28项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 29"
-msgstr "快捷栏29键"
+msgstr "快捷栏第29项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 3"
-msgstr "快捷栏3键"
+msgstr "快捷栏第3项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 30"
-msgstr "快捷栏30键"
+msgstr "快捷栏第30项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 31"
-msgstr "快捷栏31键"
+msgstr "快捷栏第31项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 32"
-msgstr "快捷栏32键"
+msgstr "快捷栏第32项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 4"
-msgstr "快捷栏4键"
+msgstr "快捷栏第4项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 5"
-msgstr "快捷栏5键"
+msgstr "快捷栏第5项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 6"
-msgstr "快捷栏6键"
+msgstr "快捷栏第6项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 7"
-msgstr "快捷栏7键"
+msgstr "快捷栏第7项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 8"
-msgstr "快捷栏8键"
+msgstr "快捷栏第8项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 9"
-msgstr "快捷栏9键"
+msgstr "快捷栏第9项"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
@@ -4301,14 +4260,12 @@ msgid "Hotbar: Invert mouse wheel direction"
 msgstr "快捷栏：反转鼠标滚轮方向"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select next item"
-msgstr "快捷栏下一个键"
+msgstr "选择快捷栏下一项"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select previous item"
-msgstr "快捷栏上一个键"
+msgstr "选择快捷栏上一项"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4513,7 +4470,6 @@ msgid "Increase view range"
 msgstr "增加可视范围"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase volume"
 msgstr "增大音量"
 
@@ -5031,9 +4987,8 @@ msgid "Key to use view zoom when possible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keybindings"
-msgstr "按键绑定。"
+msgstr "按键绑定"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -5072,9 +5027,8 @@ msgid "Large cave proportion flooded"
 msgstr "大型洞穴淹没比"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Large chat console"
-msgstr "大型聊天控制台键"
+msgstr "大型聊天控制台"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -5714,23 +5668,20 @@ msgid "Mouse sensitivity multiplier."
 msgstr "鼠标灵敏度倍数。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move backward"
-msgstr "向后"
+msgstr "后退"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move forward"
-msgstr "自动向前"
+msgstr "前进"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move left"
-msgstr "移动"
+msgstr "往左移动"
 
 #: src/settings_translation_file.cpp
 msgid "Move right"
-msgstr ""
+msgstr "往右移动"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -5879,14 +5830,12 @@ msgid ""
 msgstr "默认字体后阴影的透明度（alpha），取值范围0～255。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Open chat"
-msgstr "打开"
+msgstr "打开聊天室"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Open inventory"
-msgstr "物品栏"
+msgstr "打开物品栏"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7174,14 +7123,12 @@ msgid "Toggle Sneak key"
 msgstr "启用/禁用拍照模式键"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle automatic forward"
-msgstr "自动前进键"
+msgstr "启用/禁用自动前进"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle block bounds"
-msgstr "地图块边界"
+msgstr "显示/隐藏地图块边界"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7199,18 +7146,16 @@ msgid "Toggle cinematic mode"
 msgstr "切换电影模式"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle debug info"
-msgstr "启用/禁用雾"
+msgstr "显示/隐藏调试信息"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle fog"
 msgstr "启用/禁用雾"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle fullscreen"
-msgstr "启用/禁用飞行模式"
+msgstr "切换全屏模式"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
@@ -7238,9 +7183,8 @@ msgid "Touchscreen"
 msgstr "触摸屏"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen controls"
-msgstr "触屏阈值"
+msgstr "触屏控制"
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen sensitivity"

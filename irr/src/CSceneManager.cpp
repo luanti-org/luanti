@@ -8,7 +8,6 @@
 #include "CSceneManager.h"
 #include "IVideoDriver.h"
 #include "IFileSystem.h"
-#include "SAnimatedMesh.h"
 #include "CMeshCache.h"
 #include "IGUIEnvironment.h"
 #include "IMaterialRenderer.h"
@@ -762,7 +761,7 @@ ISceneManager *CSceneManager::createNewSceneManager(bool cloneContent)
 //! Get a skinned mesh, which is not available as header-only code
 SkinnedMesh *CSceneManager::createSkinnedMesh()
 {
-	return new SkinnedMesh();
+	return new SkinnedMesh(SkinnedMesh::SourceFormat::OTHER);
 }
 
 // creates a scenemanager

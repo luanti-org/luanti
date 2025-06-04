@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2022-04-29 20:12+0000\n"
-"Last-Translator: JonAnder Oier <jonanderetaoier@gmail.com>\n"
+"PO-Revision-Date: 2025-05-21 10:48+0000\n"
+"Last-Translator: Josu Igoa <josuigoa@ni.eus>\n"
 "Language-Team: Basque <https://hosted.weblate.org/projects/minetest/minetest/"
 "eu/>\n"
 "Language: eu\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.12.1\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -23,9 +23,8 @@ msgid "Empty command."
 msgstr "Agindu hutsa."
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Exit to main menu"
-msgstr "Itzuli menu nagusira"
+msgstr "Irten menu nagusira"
 
 #: builtin/client/chatcommands.lua
 msgid "Invalid command: "
@@ -64,9 +63,8 @@ msgid "Command not available: "
 msgstr "Komandoa ez dago eskuragarri: "
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Get help for commands (-t: output in chat)"
-msgstr "Eskuratu laguntza komandoetarako"
+msgstr "Eskuratu laguntza komandoetarako (-t: irteera txat-ean)"
 
 #: builtin/common/chatcommands.lua
 msgid ""
@@ -76,9 +74,8 @@ msgstr ""
 "zerrendatzeko."
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "[all | <cmd>] [-t]"
-msgstr "[guztia | <cmd>]"
+msgstr "[all | <cmd>] [-t]"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"

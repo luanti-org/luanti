@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Italian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2024-01-18 07:31+0000\n"
-"Last-Translator: Filippo Alfieri <firealphat0mb@gmail.com>\n"
+"PO-Revision-Date: 2025-05-23 15:04+0000\n"
+"Last-Translator: Francesco Rossi <zhu.gamedev@tutanota.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/minetest/"
 "minetest/it/>\n"
 "Language: it\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -85,16 +85,15 @@ msgstr "Esplora"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "Va in conflitto con \"$1\""
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "Modifica"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Remove keybinding"
-msgstr "Mappatura dei tasti."
+msgstr "Rimuovi questa mappatura."
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -219,7 +218,7 @@ msgstr "Accessibilità"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Auto"
-msgstr ""
+msgstr "Automatico"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
@@ -229,7 +228,7 @@ msgstr "Indietro"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
-msgstr ""
+msgstr "Pulsanti e mirino"
 
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
@@ -259,7 +258,7 @@ msgstr "Generale"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
-msgstr ""
+msgstr "Tocco prolungato"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
@@ -284,7 +283,7 @@ msgstr "Ricerca"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
-msgstr ""
+msgstr "Tocco rapido"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
@@ -301,7 +300,7 @@ msgstr "Tab"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
-msgstr ""
+msgstr "Tocco con mirino"
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
@@ -436,7 +435,7 @@ msgstr "Scaricando $1..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "All"
-msgstr ""
+msgstr "Tutto"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
@@ -449,7 +448,7 @@ msgstr "Scaricamento..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
-msgstr ""
+msgstr "In evidenza"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -522,7 +521,7 @@ msgstr "Dipendenze:"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Error getting dependencies for package $1"
-msgstr ""
+msgstr "Errore nell'ottenere le dipendenze per il pacchetto $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Install"
@@ -546,7 +545,7 @@ msgstr "Per favore, controlla che il gioco di base sia corretto."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "You need to install a game before you can install a mod"
-msgstr "Devi installare un gioco prima di poter installare un mod"
+msgstr "Devi installare un gioco prima di poter installare un modulo"
 
 #: builtin/mainmenu/content/dlg_overwrite.lua
 msgid "\"$1\" already exists. Would you like to overwrite it?"
@@ -568,20 +567,19 @@ msgstr "Descrizione del Server"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
-msgstr ""
+msgstr "Dona"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
-msgstr ""
+msgstr "Errore nel caricare le informazioni del pacchetto"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Error loading reviews"
-msgstr "Errore di creazione del client: %s"
+msgstr "Errore nel caricare le recensioni"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
-msgstr ""
+msgstr "Discussione sul forum"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
@@ -595,19 +593,19 @@ msgstr "Installa $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
-msgstr ""
+msgstr "Segnalazioni"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr ""
+msgstr "Recensioni"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
-msgstr ""
+msgstr "Sorgente"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Translate"
-msgstr ""
+msgstr "Traduci"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
@@ -624,7 +622,7 @@ msgstr "Visita il sito Web"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
-msgstr ""
+msgstr "di $1  —  $2 scaricamenti  —  +$3 / $4 / -$5"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 (Enabled)"
@@ -632,7 +630,7 @@ msgstr "$1 (Attivato)"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 mods"
-msgstr "$1 mod"
+msgstr "$1 moduli"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Failed to install $1 to $2"
@@ -646,11 +644,11 @@ msgstr ""
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Unable to find a valid mod, modpack, or game"
-msgstr "Impossibile trovare un mod o un pacchetto mod validi"
+msgstr "Impossibile trovare un modulo o un pacchetto moduli validi"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Unable to install a $1 as a $2"
-msgstr "Impossibile installare una mod come un $1"
+msgstr "Impossibile installare $1 come se fosse $2"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Unable to install a $1 as a texture pack"
@@ -661,6 +659,8 @@ msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
+"Giocanti connessɜ a\n"
+"$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
@@ -676,7 +676,7 @@ msgstr "Disattiva tutto"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Disable modpack"
-msgstr "Disattiva pacchetto mod"
+msgstr "Disattiva pacchetto moduli"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Enable all"
@@ -684,14 +684,14 @@ msgstr "Attiva tutto"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Enable modpack"
-msgstr "Attiva pacchetto mod"
+msgstr "Attiva pacchetto moduli"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid ""
 "Failed to enable mod \"$1\" as it contains disallowed characters. Only "
 "characters [a-z0-9_] are allowed."
 msgstr ""
-"Impossibile abilitare la mod \"$1\" poiché contiene caratteri non "
+"Impossibile abilitare il modulo \"$1\" poiché contiene caratteri non "
 "consentiti. Sono ammessi solo caratteri [a-z0-9_]."
 
 #: builtin/mainmenu/dlg_config_world.lua
@@ -716,7 +716,7 @@ msgstr "Nessuna dipendenza necessaria"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No modpack description provided."
-msgstr "Non è stata fornita alcuna descrizione per il pacchetto mod."
+msgstr "Non è stata fornita alcuna descrizione per il pacchetto moduli."
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No optional dependencies"
@@ -776,7 +776,7 @@ msgstr "Decorazioni"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Desert temples"
-msgstr ""
+msgstr "Templi del deserto"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Development Test is meant for developers."
@@ -947,20 +947,19 @@ msgstr "Eliminare il mondo \"$1\"?"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "Di conseguenza, la mappatura dei tuoi tasti potrebbe essere cambiata."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Dài un occhio alle impostazioni dei tasti o consulta la documentazione:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Chiudi"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Mappatura dei tasti."
+msgstr "Mappatura dei tasti cambiata"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 #, fuzzy
@@ -970,6 +969,7 @@ msgstr "Impostazioni"
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
 msgstr ""
+"Il sistema di gestione degli input è stato rivisitato nella 5.12.0 di Luanti."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1038,14 +1038,14 @@ msgstr "Conferma"
 
 #: builtin/mainmenu/dlg_rename_modpack.lua
 msgid "Rename Modpack:"
-msgstr "Rinomina il pacchetto mod:"
+msgstr "Rinomina il pacchetto moduli:"
 
 #: builtin/mainmenu/dlg_rename_modpack.lua
 msgid ""
 "This modpack has an explicit name given in its modpack.conf which will "
 "override any renaming here."
 msgstr ""
-"Questo pacchetto mod esplicita un nome fornito in modpack.conf che "
+"Questo pacchetto moduli esplicita un nome fornito in modpack.conf che "
 "sovrascriverà ogni modifica del nome qui effettuata."
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
@@ -1055,15 +1055,15 @@ msgstr "Attiva tutto"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
-msgstr ""
+msgstr "Raggruppa per prefisso"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "The $1 server uses a game called $2 and the following mods:"
-msgstr ""
+msgstr "Il server $1 usa un gioco chiamato $2 e i seguenti moduli:"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "The $1 server uses the following mods:"
-msgstr ""
+msgstr "Il server $1 usa i seguenti moduli:"
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
@@ -1136,7 +1136,7 @@ msgid ""
 "Opens the directory that contains user-provided worlds, games, mods,\n"
 "and texture packs in a file manager / explorer."
 msgstr ""
-"Apre la cartella contenente mondi, giochi, mod e pacchetti\n"
+"Apre la cartella contenente mondi, giochi, moduli e pacchetti\n"
 "texture forniti dall'utente in un gestore / visualizzatore di file ."
 
 #: builtin/mainmenu/tab_about.lua
@@ -1228,16 +1228,16 @@ msgid "Install games from ContentDB"
 msgstr "Installa giochi da ContentDB"
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid "Luanti doesn't come with a game by default."
-msgstr ""
-"Il gioco Minetest Game non è più installato per impostazione predefinita"
+msgstr "Di base, Luanti non viene fornito con giochi già installati."
 
 #: builtin/mainmenu/tab_local.lua
 msgid ""
 "Luanti is a game-creation platform that allows you to play many different "
 "games."
 msgstr ""
+"Luanti è una piattaforma di gioco che permette di giocare a tanti titoli "
+"differenti."
 
 #: builtin/mainmenu/tab_local.lua
 msgid "New"
@@ -1272,9 +1272,8 @@ msgid "Start Game"
 msgstr "Gioca"
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid "You need to install a game before you can create a world."
-msgstr "Devi installare un gioco prima di poter installare un mod"
+msgstr "Devi installare un gioco prima di poter creare un mondo."
 
 #: builtin/mainmenu/tab_online.lua
 #, fuzzy
@@ -1316,9 +1315,8 @@ msgid "Login"
 msgstr "Accedi"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Number of mods: $1"
-msgstr "Numero di thread emerge"
+msgstr "Numero di moduli: $1"
 
 #: builtin/mainmenu/tab_online.lua
 #, fuzzy
@@ -1330,11 +1328,12 @@ msgid "Ping"
 msgstr "Ping"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid ""
 "Players:\n"
 "$1"
-msgstr "Client"
+msgstr ""
+"Giocatori:\n"
+"$1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid ""
@@ -1343,6 +1342,10 @@ msgid ""
 "mod:<name>\n"
 "player:<name>"
 msgstr ""
+"Possibili filtri\n"
+"game:<name>\n"
+"mod:<name>\n"
+"player:<name>"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1475,9 +1478,9 @@ msgid "Camera update enabled"
 msgstr "Aggiornamento telecamera abilitato"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Can't show block bounds (disabled by game or mod)"
-msgstr "Impossibile mostrare i limiti del blocco (disabilitato da mod o gioco)"
+msgstr ""
+"Impossibile mostrare i limiti del blocco (disabilitato da modulo o gioco)"
 
 #: src/client/game.cpp
 msgid "Cinematic mode disabled"
@@ -1489,11 +1492,11 @@ msgstr "Modalità cinematica attiva"
 
 #: src/client/game.cpp
 msgid "Client disconnected"
-msgstr "Client disconnesso"
+msgstr "Cliente disconnesso"
 
 #: src/client/game.cpp
 msgid "Client side scripting is disabled"
-msgstr "Scripting su lato client disabilitato"
+msgstr "Gli script lato cliente sono disabilitati"
 
 #: src/client/game.cpp
 msgid "Connecting to server..."
@@ -1514,7 +1517,7 @@ msgstr "Impossibile risolvere l'indirizzo: %s"
 
 #: src/client/game.cpp
 msgid "Creating client..."
-msgstr "Creazione del client..."
+msgstr "Creazione del cliente..."
 
 #: src/client/game.cpp
 msgid "Creating server..."
@@ -1527,7 +1530,7 @@ msgstr "Info debug mostrate"
 #: src/client/game.cpp
 #, c-format
 msgid "Error creating client: %s"
-msgstr "Errore di creazione del client: %s"
+msgstr "Errore di creazione del cliente: %s"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
@@ -1562,9 +1565,8 @@ msgid "Fog enabled"
 msgstr "Nebbia attivata"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Fog enabled by game or mod"
-msgstr "Ingrandimento attualmente disabilitato dal gioco o da un mod"
+msgstr "Nebbia abilitata dal gioco o da un modulo"
 
 #: src/client/game.cpp
 msgid "Item definitions..."
@@ -1580,7 +1582,7 @@ msgstr "MiB/s"
 
 #: src/client/game.cpp
 msgid "Minimap currently disabled by game or mod"
-msgstr "Minimappa attualmente disabilitata dal gioco o da una mod"
+msgstr "Minimappa attualmente disabilitata dal gioco o da un modulo"
 
 #: src/client/game.cpp
 msgid "Multiplayer"
@@ -1604,15 +1606,15 @@ msgstr "Definizione dei nodi..."
 
 #: src/client/game.cpp
 msgid "Pitch move mode disabled"
-msgstr "Modalità inclinazione movimento disabilitata"
+msgstr "Beccheggio disabilitato"
 
 #: src/client/game.cpp
 msgid "Pitch move mode enabled"
-msgstr "Modalità inclinazione movimento abilitata"
+msgstr "Beccheggio abilitato"
 
 #: src/client/game.cpp
 msgid "Profiler graph shown"
-msgstr "Grafico profiler visualizzato"
+msgstr "Profilatore visualizzato"
 
 #: src/client/game.cpp
 msgid "Resolving address..."
@@ -1665,7 +1667,8 @@ msgstr "Raggio visivo illimitato abilitato"
 
 #: src/client/game.cpp
 msgid "Unlimited viewing range enabled, but forbidden by game or mod"
-msgstr "Raggio visivo illimitato abilitato, ma vietato dal gioco o dal mod"
+msgstr ""
+"Raggio visivo illimitato abilitato, ma è bloccato dal gioco o da un modulo"
 
 #: src/client/game.cpp
 #, fuzzy, c-format
@@ -1676,8 +1679,8 @@ msgstr "Il raggio visivo è al minimo: %d"
 #, c-format
 msgid "Viewing changed to %d (the minimum), but limited to %d by game or mod"
 msgstr ""
-"Raggio visivo modificato a %d (il minimo), ma limitato a %d dal gioco o dal "
-"mod"
+"Raggio visivo modificato a %d (il minimo), ma limitato a %d dal gioco o da "
+"un modulo"
 
 #: src/client/game.cpp
 #, c-format
@@ -1694,13 +1697,13 @@ msgstr "Raggio visivo cambiato a %d"
 msgid ""
 "Viewing range changed to %d (the maximum), but limited to %d by game or mod"
 msgstr ""
-"Raggio visivo modificato a %d (il massimo), ma limitato a %d dal gioco o dal "
-"mod"
+"Raggio visivo modificato a %d (il massimo), ma limitato a %d dal gioco o da "
+"un modulo"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing range changed to %d, but limited to %d by game or mod"
-msgstr "Raggio visivo cambiato a %d"
+msgstr "Raggio visivo cambiato a %d, ma limitato a %d dal gioco o da un modulo"
 
 #: src/client/game.cpp
 #, c-format
@@ -1717,7 +1720,7 @@ msgstr "Struttura a fili visualizzata"
 
 #: src/client/game.cpp
 msgid "Zoom currently disabled by game or mod"
-msgstr "Ingrandimento attualmente disabilitato dal gioco o da un mod"
+msgstr "Zoom attualmente disabilitato dal gioco o da un modulo"
 
 #: src/client/game_formspec.cpp
 msgid "- Mode: "
@@ -1819,7 +1822,7 @@ msgstr "Sei morto"
 
 #: src/client/gameui.cpp
 msgid "Chat currently disabled by game or mod"
-msgstr "Chat attualmente disabilitata dal gioco o da un mod"
+msgstr "Chat attualmente disabilitata dal gioco o da un modulo"
 
 #: src/client/gameui.cpp
 msgid "Chat hidden"
@@ -2170,7 +2173,7 @@ msgstr "%s mancante:"
 msgid ""
 "Install and enable the required mods, or disable the mods causing errors."
 msgstr ""
-"Installa e abilita le mod richieste o disabilita le mod che causano errori."
+"Installa e abilita i moduli richiesti o disabilita quelli che causano errori."
 
 #: src/content/mod_configuration.cpp
 msgid ""
@@ -2178,11 +2181,11 @@ msgid ""
 "the mods."
 msgstr ""
 "Nota: questo potrebbe essere causato da un ciclo di dipendenza, nel qual "
-"caso prova ad aggiornare le mod."
+"caso prova ad aggiornare i moduli."
 
 #: src/content/mod_configuration.cpp
 msgid "Some mods have unsatisfied dependencies:"
-msgstr "Alcune mod hanno dipendenze non soddisfatte:"
+msgstr "Alcuni moduli hanno dipendenze non soddisfatte:"
 
 #: src/gui/guiButtonKey.h
 #, fuzzy
@@ -2203,11 +2206,11 @@ msgstr "Prosegui"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
-msgstr ""
+msgstr "Apri"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open URL?"
-msgstr ""
+msgstr "Apri URL?"
 
 #: src/gui/guiOpenURL.cpp
 #, fuzzy
@@ -2250,13 +2253,12 @@ msgid "Done"
 msgstr "Fatto!"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Remove"
-msgstr "Server remoto"
+msgstr "Rimuovi"
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Reset"
-msgstr ""
+msgstr "Ripristina"
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Start dragging a button to add. Tap outside to cancel."
@@ -2264,11 +2266,11 @@ msgstr ""
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Tap a button to select it. Drag a button to move it."
-msgstr ""
+msgstr "Tocca un pulsante per selezionarlo. Trascinalo per spostarlo."
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Tap outside to deselect."
-msgstr ""
+msgstr "Tocca fuori per deselezionare."
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Aux1"
@@ -2280,7 +2282,7 @@ msgstr "Cambia vista"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Dig/punch/use"
-msgstr ""
+msgstr "Scava/colpisci/usa"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Drop"
@@ -2301,16 +2303,15 @@ msgstr "ID del joystick"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Jump"
-msgstr "Salta"
+msgstr "Salto"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
-#, fuzzy
 msgid "Place/use"
-msgstr "Tasto piazza"
+msgstr "Piazza/usa"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Range select"
@@ -2325,13 +2326,12 @@ msgid "Toggle chat log"
 msgstr "Log chat sì/no"
 
 #: src/gui/touchscreenlayout.cpp
-#, fuzzy
 msgid "Toggle debug"
-msgstr "Nebbia sì/no"
+msgstr "Debug sì/no"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle fast"
-msgstr "Corsa sì/no"
+msgstr "Veloce sì/no"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle fly"
@@ -2354,14 +2354,16 @@ msgid ""
 "Another client is connected with this name.  If your client closed "
 "unexpectedly, try again in a minute."
 msgstr ""
+"C'è già un altro cliente connesso con questo nome.  Se è stato il tuo a "
+"chiudersi di colpo, riprova tra un minuto."
 
 #: src/network/clientpackethandler.cpp
 msgid "Empty passwords are disallowed.  Set a password and try again."
-msgstr ""
+msgstr "Non sono permesse password vuote.  Imposta una password e riprova."
 
 #: src/network/clientpackethandler.cpp
 msgid "Internal server error"
-msgstr ""
+msgstr "Errore interno del server"
 
 #: src/network/clientpackethandler.cpp
 #, fuzzy
@@ -2389,7 +2391,7 @@ msgstr "Nome già in uso. Scegli un altro nome, per favore"
 
 #: src/network/clientpackethandler.cpp
 msgid "Player name contains disallowed characters"
-msgstr ""
+msgstr "Il nome contiene caratteri non permessi"
 
 #: src/network/clientpackethandler.cpp
 #, fuzzy
@@ -2404,31 +2406,35 @@ msgstr "Uscita dal gioco..."
 #: src/network/clientpackethandler.cpp
 msgid ""
 "The server has experienced an internal error.  You will now be disconnected."
-msgstr ""
+msgstr "Il server ha avuto un errore interno.  Sei statə scollegatə."
 
 #: src/network/clientpackethandler.cpp
 msgid "The server is running in singleplayer mode.  You cannot connect."
-msgstr ""
+msgstr "Il server è in modalità giocatore singolo.  Non puoi connetterti."
 
 #: src/network/clientpackethandler.cpp
 msgid "Too many users"
-msgstr ""
+msgstr "Troppɜ utenti"
 
 #: src/network/clientpackethandler.cpp
 msgid "Unknown disconnect reason."
-msgstr ""
+msgstr "Motivo della disconnessione: sconosciuto."
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "Your client sent something the server didn't expect.  Try reconnecting or "
 "updating your client."
 msgstr ""
+"Il server ha ricevuto qualcosa di inaspettato dal tuo cliente.  Prova a "
+"riconnetterti o ad aggiornare Luanti."
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "Your client's version is not supported.\n"
 "Please contact the server administrator."
 msgstr ""
+"La versione del tuo cliente non è supportata.\n"
+"Contatta un amministratore del server."
 
 #: src/server.cpp
 #, fuzzy, c-format
@@ -2601,12 +2607,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "A message to be displayed to all clients when the server crashes."
-msgstr ""
-"Un messaggio da mostrare a tutti i client quando il server va in crash."
+msgstr "Un messaggio da mostrare a tutti i clienti quando il server crasha."
 
 #: src/settings_translation_file.cpp
 msgid "A message to be displayed to all clients when the server shuts down."
-msgstr "Un messaggio da mostrare a tutti i client quando il server chiude."
+msgstr ""
+"Un messaggio da mostrare a tutti i clienti quando il server viene spento."
 
 #: src/settings_translation_file.cpp
 msgid "ABM interval"
@@ -2688,7 +2694,7 @@ msgstr "Usare l'aspetto 3D per le nuvole invece di quello piatto."
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
-msgstr ""
+msgstr "Attiva la traslucenza sui liquidi."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2741,11 +2747,11 @@ msgstr "Anti-Scalettatura:"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat flags"
-msgstr ""
+msgstr "Segnalini dell'anticheat"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat movement tolerance"
-msgstr ""
+msgstr "Tolleranza di movimento dell'anticheat"
 
 #: src/settings_translation_file.cpp
 msgid "Append item name"
@@ -2791,7 +2797,6 @@ msgid "Ask to reconnect after crash"
 msgstr "Chiedi di riconnettersi dopo un crash"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "At this distance the server will aggressively optimize which blocks are sent "
 "to\n"
@@ -2804,17 +2809,14 @@ msgid ""
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
 "A questa distanza il server ottimizzerà aggressivamente quali blocchi sono\n"
-"inviati ai client.\n"
+"inviati ai clienti.\n"
 "Potenzialmente valori piccoli migliorano molto le prestazioni, al costo di\n"
-"difetti di disegno visibili (alcuni blocchi non saranno disegnati sott'acqua "
-"e\n"
-"nelle grotte, come a volte sul terreno).\n"
+"difetti di renderizzazione (con alcuni blocchi nelle grotte).\n"
 "Impostarla a un valore maggiore di max_block_send_distance disabilita\n"
 "questa ottimizzazione.\n"
 "Fissata in blocchi mappa (16 nodi)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "At this distance the server will perform a simpler and cheaper occlusion "
 "check.\n"
@@ -2824,14 +2826,10 @@ msgid ""
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
-"A questa distanza il server ottimizzerà aggressivamente quali blocchi sono\n"
-"inviati ai client.\n"
+"A questa distanza il server ottimizzerà aggressivamente l'occlusione.\n"
 "Potenzialmente valori piccoli migliorano molto le prestazioni, al costo di\n"
-"difetti di disegno visibili (alcuni blocchi non saranno disegnati sott'acqua "
-"e\n"
-"nelle grotte, come a volte sul terreno).\n"
-"Impostarla a un valore maggiore di max_block_send_distance disabilita\n"
-"questa ottimizzazione.\n"
+"difetti di renderizzazione (blocchi mancanti).\n"
+"Torna utile soprattutto con un raggio di visione molto alto (sopra i 500).\n"
 "Fissata in blocchi mappa (16 nodi)."
 
 #: src/settings_translation_file.cpp
@@ -2844,7 +2842,7 @@ msgstr "Salto automatico"
 
 #: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
-msgstr "Salta automaticamente su ostacoli di un nodo singolo."
+msgstr "Salta automaticamente su ostacoli alti un nodo."
 
 #: src/settings_translation_file.cpp
 msgid "Automatically report to the serverlist."
@@ -2852,7 +2850,7 @@ msgstr "Fa rapporto automatico all'elenco dei server."
 
 #: src/settings_translation_file.cpp
 msgid "Autoscaling mode"
-msgstr "Modalità scalamento automatico"
+msgstr "Scalatura automatica"
 
 #: src/settings_translation_file.cpp
 msgid "Aux1 key for climbing/descending"
@@ -2953,7 +2951,7 @@ msgstr "Fluidità della telecamera"
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
-msgstr "Fluidità della telecamera in modalità cinematic"
+msgstr "Fluidità della telecamera in modalità cinematica"
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3059,7 +3057,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Client"
-msgstr "Client"
+msgstr "Cliente"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -3068,29 +3066,27 @@ msgstr "Debugging"
 
 #: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
-msgstr "Grandezza Client della Mesh del Chunk"
+msgstr "Grandezza dei pezzi di mappa del cliente"
 
 #: src/settings_translation_file.cpp
 msgid "Client and Server"
-msgstr "Client e server"
+msgstr "Cliente e server"
 
 #: src/settings_translation_file.cpp
 msgid "Client modding"
-msgstr "Modifica del client"
+msgstr "Moddaggio del cliente"
 
 #: src/settings_translation_file.cpp
 msgid "Client side modding restrictions"
-msgstr "Restrizioni delle modifiche del client"
+msgstr "Restrizioni del moddaggio del cliente"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client-side Modding"
-msgstr "Mod lato client"
+msgstr "Mod lato cliente"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client-side node lookup range restriction"
-msgstr "Restrizione dell'area di ricerca dei nodi su lato client"
+msgstr "Restrizione dell'area di ricerca dei nodi lato cliente"
 
 #: src/settings_translation_file.cpp
 msgid "Climbing speed"
@@ -3153,17 +3149,19 @@ msgid ""
 "Comma-separated list of mods that are allowed to access HTTP APIs, which\n"
 "allow them to upload and download data to/from the internet."
 msgstr ""
-"Elenco separato da virgole di mod a cui è permesso l'accesso alle API HTTP,\n"
-"che gli permettono di caricare e scaricare dati su/da internet."
+"Elenco, separato da virgole, di moduli a cui è permesso l'accesso alle API "
+"HTTP,\n"
+"le quali permettono a tali moduli di caricare e scaricare dati su/da "
+"internet."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Comma-separated list of trusted mods that are allowed to access insecure\n"
 "functions even when mod security is on (via request_insecure_environment())."
 msgstr ""
-"Elenco separato da virgole delle mod fidate ai quali è permesso l'accesso a "
+"Elenco separato da virgole dei moduli fidati ai quali è permesso l'accesso a "
 "funzioni non sicure\n"
-"anche quando la sicurezza mod è attiva (tramite "
+"anche quando la sicurezza moduli è attiva (tramite "
 "request_insecure_environment())."
 
 #: src/settings_translation_file.cpp
@@ -3191,7 +3189,7 @@ msgid ""
 "9 - best compression, slowest"
 msgstr ""
 "Livello di compressione da utilizzare per l'invio dei blocchi-mappa al "
-"client.\n"
+"cliente.\n"
 "-1 - utilizza il livello di compressione predefinito\n"
 "0 - compressione minima, più veloce\n"
 "9 - compressione migliore, più lento"
@@ -3323,9 +3321,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease view range"
-msgstr "Diminuisci raggio"
+msgstr "Diminuisci raggio visivo"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -3376,7 +3373,6 @@ msgstr ""
 "ma utilizza più risorse."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Define the oldest clients allowed to connect.\n"
 "Older clients are compatible in the sense that they will not crash when "
@@ -3388,11 +3384,11 @@ msgid ""
 "Luanti still enforces its own internal minimum, and enabling\n"
 "strict_protocol_version_checking will effectively override this."
 msgstr ""
-"Abilitare per impedire ai client obsoleti di connettersi.\n"
-"I client più vecchi sono compatibili nel senso che non andranno in crash "
-"alla connessione\n"
+"Abilitare per impedire ai clienti obsoleti di connettersi.\n"
+"I clienti più vecchi sono compatibili nel senso che non crasheranno al "
+"connettersi\n"
 "ai nuovi server, ma potrebbero non supportare tutte le nuove caratteristiche "
-"che ti aspetti."
+"che ci si aspetta."
 
 #: src/settings_translation_file.cpp
 msgid "Defines areas where trees have apples."
@@ -3466,9 +3462,9 @@ msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
 "down the rate of mesh updates, thus reducing jitter on slower clients."
 msgstr ""
-"Ritardo in ms tra gli aggiornamenti delle mesh sul client. Aumentandolo si\n"
+"Ritardo in ms degli aggiornamenti delle mesh lato cliente. Aumentandolo si\n"
 "ritarderà il ritmo di aggiornamento delle mesh, riducendo così lo sfarfallio "
-"sui client più lenti."
+"sui clienti più lenti."
 
 #: src/settings_translation_file.cpp
 msgid "Delay in sending blocks after building"
@@ -3539,12 +3535,11 @@ msgstr "Nome di dominio del server, da mostrarsi nell'elenco dei server."
 
 #: src/settings_translation_file.cpp
 msgid "Double tap jump for fly"
-msgstr "Doppio \"salta\" per volare"
+msgstr "Premi due volte salto per volare"
 
 #: src/settings_translation_file.cpp
 msgid "Double-tapping the jump key toggles fly mode."
-msgstr ""
-"Premendo due volte il tasto di salto si (dis)attiva la modalità di volo."
+msgstr "Premendo due volte il tasto salto si (dis)attiva la modalità volo."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3555,9 +3550,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Drop item"
-msgstr "Tasto butta oggetto"
+msgstr "Getta oggetto"
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -3602,7 +3596,7 @@ msgid ""
 "Enable IPv6 support (for both client and server).\n"
 "Required for IPv6 connections to work at all."
 msgstr ""
-"Abilitare il supporto IPv6 (sia per il client che per il server).\n"
+"Abilitare il supporto IPv6 (sia per il cliente che per il server).\n"
 "Necessario per il funzionamento delle connessioni IPv6."
 
 #: src/settings_translation_file.cpp
@@ -3611,13 +3605,17 @@ msgid ""
 "Note that clients will be able to connect with both IPv4 and IPv6.\n"
 "Ignored if bind_address is set."
 msgstr ""
+"Abilita il supporto per IPv6 sul server.\n"
+"Notare che i clienti saranno in grado di connettersi sia tramite IPv4 che "
+"IPv6.\n"
+"Ignorato se bind_address è definito."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Enable Lua modding support on client.\n"
 "This support is experimental and API can change."
 msgstr ""
-"Abilita il supporto per le modifiche tramite Lua sul client.\n"
+"Abilita il supporto per il moddaggio tramite Lua sul cliente.\n"
 "Questo supporto è sperimentale e l'API potrebbe cambiare."
 
 #: src/settings_translation_file.cpp
@@ -3674,24 +3672,23 @@ msgstr "Abilita i joystick. Richiede un riavvio del gioco per avere effetto"
 
 #: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
-msgstr "Abilita il supporto canali mod."
+msgstr "Abilita il supporto canali per i moduli."
 
 #: src/settings_translation_file.cpp
 msgid "Enable mod security"
-msgstr "Abilita la sicurezza mod"
+msgstr "Abilita la sicurezza moduli"
 
 #: src/settings_translation_file.cpp
 msgid "Enable mouse wheel (scroll) for item selection in hotbar."
 msgstr ""
 "Abilita lo scorrimento della rotellina del mouse per la selezione degli "
-"oggetti nella hotbar."
+"oggetti nella barra delle azioni."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable random mod loading (mainly used for testing)."
 msgstr ""
-"Abilita l'ingresso di dati casuali da parte dell'utente (utilizzato solo per "
-"i test)."
+"Abilita il caricamento casuale di moduli (usando principalmente per fare dei "
+"test)."
 
 #: src/settings_translation_file.cpp
 msgid "Enable random user input (only used for testing)."
@@ -3718,11 +3715,11 @@ msgid ""
 "to new servers, but they may not support all new features that you are "
 "expecting."
 msgstr ""
-"Abilitare per impedire ai client obsoleti di connettersi.\n"
-"I client più vecchi sono compatibili nel senso che non andranno in crash "
-"alla connessione\n"
+"Abilitare per impedire ai clienti obsoleti di connettersi.\n"
+"I clienti più vecchi sono compatibili nel senso che non crasheranno al "
+"connettersi\n"
 "ai nuovi server, ma potrebbero non supportare tutte le nuove caratteristiche "
-"che ti aspetti."
+"che ci si aspetta."
 
 #: src/settings_translation_file.cpp
 msgid "Enable updates available indicator on content tab"
@@ -3852,11 +3849,11 @@ msgstr "Percorso del carattere di ripiego"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
-msgstr "Accelerazione della modalità veloce"
+msgstr "Accelerazione in modalità veloce"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode speed"
-msgstr "Velocità della modalità veloce"
+msgstr "Velocità in modalità veloce"
 
 #: src/settings_translation_file.cpp
 msgid "Field of view"
@@ -3872,7 +3869,7 @@ msgid ""
 "the\n"
 "Multiplayer Tab."
 msgstr ""
-"File in client/serverlist/ contenente i vostri server preferiti mostrati "
+"File in client/serverlist/ contenente i tuoi server preferiti mostrati "
 "nella\n"
 "scheda di gioco in rete."
 
@@ -4018,9 +4015,9 @@ msgstr ""
 "divisibili per questo\n"
 "valore, in pixel, in caso di caratteri in stile pixel che non vengono "
 "ridimensionati correttamente.\n"
-"Per esempio, un carattere pixelato alto 16 pixels richiederebbe che questo "
+"Per esempio, un carattere pixelato alto 16 pixel richiederebbe che questo "
 "sia 16, così sarà sempre\n"
-"solo grande 16, 32, 48, etc., e una mod che richiede una grandezza di 25 "
+"solo grande 16, 32, 48, etc., e un modulo che richiede una grandezza di 25 "
 "otterrà 32."
 
 #: src/settings_translation_file.cpp
@@ -4074,15 +4071,15 @@ msgid ""
 "From how far blocks are generated for clients, stated in mapblocks (16 "
 "nodes)."
 msgstr ""
-"Da che distanza vengono generati i blocchi per i client, fissata in blocchi "
+"Da che distanza vengono generati i blocchi per i clienti, fissata in blocchi "
 "mappa (16 nodi)."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "From how far blocks are sent to clients, stated in mapblocks (16 nodes)."
 msgstr ""
-"Da che distanza i blocchi sono inviati ai client, fissata in blocchi mappa "
-"(16 nodi)."
+"Da che distanza i blocchi sono inviati ai clienti, fissata in blocchi mappa ("
+"16 nodi)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4092,7 +4089,7 @@ msgid ""
 "to maintain active objects up to this distance in the direction the\n"
 "player is looking. (This can avoid mobs suddenly disappearing from view)"
 msgstr ""
-"Da che distanza il client sa degli oggetti, fissata in blocchi mappa (16 "
+"Da che distanza il cliente rileva gli oggetti, fissata in blocchi mappa (16 "
 "nodi).\n"
 "\n"
 "Impostarla maggiore di active_block_range provocherà il mantenimento\n"
@@ -4106,7 +4103,7 @@ msgstr "Schermo intero"
 
 #: src/settings_translation_file.cpp
 msgid "Fullscreen mode."
-msgstr "Modalità a schermo intero."
+msgstr "Schermo intero."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -4179,7 +4176,7 @@ msgstr "Rumore del terreno"
 
 #: src/settings_translation_file.cpp
 msgid "HTTP mods"
-msgstr "Mod HTTP"
+msgstr "Moduli HTTP"
 
 #: src/settings_translation_file.cpp
 msgid "HUD"
@@ -4198,10 +4195,10 @@ msgid ""
 msgstr ""
 "Gestione delle chiamate API Lua deprecate:\n"
 "- none (nessuno): non registra le chiamate obsolete\n"
-"- log (registro): imita e registra il backtrace di una chiamata obsoleta "
-"(impostazione predefinita).\n"
-"- error (errore): interrompe l'utilizzo della chiamata deprecata "
-"(consigliata per gli sviluppatori di mod)."
+"- log (registro): imita e registra il backtrace di una chiamata obsoleta ("
+"impostazione predefinita).\n"
+"- error (errore): interrompe l'utilizzo della chiamata deprecata ("
+"consigliata per chi sviluppa moduli)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4211,7 +4208,7 @@ msgid ""
 "call).\n"
 "* Instrument the sampler being used to update the statistics."
 msgstr ""
-"Fare in modo che il generatore di profili si predisponga da sé:\n"
+"Fare in modo che il profilatore si predisponga da sé:\n"
 "* Predisporre una funzione vuota.\n"
 "Ciò stima il sovraccarico che la predisposizione aggiunge (+1 chiamata di "
 "funzione).\n"
@@ -4226,11 +4223,8 @@ msgid "Heat noise"
 msgstr "Rumore del calore"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Height component of the initial window size."
-msgstr ""
-"Componente altezza della dimensione iniziale della finestra. Ignorata in "
-"modalità a schermo intero."
+msgstr "Componente altezza della dimensione iniziale della finestra."
 
 #: src/settings_translation_file.cpp
 msgid "Height noise"
@@ -4293,196 +4287,160 @@ msgstr ""
 "in nodi al secondo per secondo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 1"
-msgstr "Tasto riquadro 1 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 1"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 10"
-msgstr "Tasto riquadro 10 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 10"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 11"
-msgstr "Tasto riquadro 11 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 11"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 12"
-msgstr "Tasto riquadro 12 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 12"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 13"
-msgstr "Tasto riquadro 13 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 13"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 14"
-msgstr "Tasto riquadro 14 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 14"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 15"
-msgstr "Tasto riquadro 15 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 15"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 16"
-msgstr "Tasto riquadro 16 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 16"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 17"
-msgstr "Tasto riquadro 17 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 17"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 18"
-msgstr "Tasto riquadro 18 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 18"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 19"
-msgstr "Tasto riquadro 19 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 19"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 2"
-msgstr "Tasto riquadro 2 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 2"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 20"
-msgstr "Tasto riquadro 20 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 20"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 21"
-msgstr "Tasto riquadro 21 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 21"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 22"
-msgstr "Tasto riquadro 22 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 22"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 23"
-msgstr "Tasto riquadro 23 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 23"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 24"
-msgstr "Tasto riquadro 24 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 24"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 25"
-msgstr "Tasto riquadro 25 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 25"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 26"
-msgstr "Tasto riquadro 26 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 26"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 27"
-msgstr "Tasto riquadro 27 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 27"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 28"
-msgstr "Tasto riquadro 28 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 28"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 29"
-msgstr "Tasto riquadro 29 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 29"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 3"
-msgstr "Tasto riquadro 3 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 3"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 30"
-msgstr "Tasto riquadro 30 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 30"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 31"
-msgstr "Tasto riquadro 31 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 31"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 32"
-msgstr "Tasto riquadro 32 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 32"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 4"
-msgstr "Tasto riquadro 4 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 4"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 5"
-msgstr "Tasto riquadro 5 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 5"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 6"
-msgstr "Tasto riquadro 6 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 6"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 7"
-msgstr "Tasto riquadro 7 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 7"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 8"
-msgstr "Tasto riquadro 8 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 8"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 9"
-msgstr "Tasto riquadro 9 della barra di scelta rapida"
+msgstr "Barra delle azioni, casella 9"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
-msgstr "Hotbar: attiva la rotellina del mouse per la selezione"
+msgstr "Barra delle azioni: attiva la rotellina del mouse per la selezione"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
-msgstr "Hotbar: inverti la direzione della rotellina del mouse"
+msgstr "Barra delle azioni: inverti la direzione della rotellina del mouse"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select next item"
-msgstr "Tasto successivo della barra di scelta rapida"
+msgstr "Barra delle azioni: seleziona prossimo oggetto"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select previous item"
-msgstr "Tasto precedente della barra di scelta rapida"
+msgstr "Barra delle azioni: seleziona oggetto precedente"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
 msgstr "Quanto fare profondi i fiumi."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "How fast liquid waves will move. Higher = faster.\n"
 "If negative, liquid waves will move backwards."
 msgstr ""
 "A quale velocità si muovono le onde dei liquidi. Maggiore = più veloce.\n"
-"Se negativa, le onde dei liquidi si sposteranno all'indietro.\n"
-"Richiede l'abilitazione dei liquidi ondeggianti."
+"Se negativa, le onde dei liquidi si sposteranno all'indietro."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4500,7 +4458,7 @@ msgid ""
 "How much you are slowed down when moving inside a liquid.\n"
 "Decrease this to increase liquid resistance to movement."
 msgstr ""
-"Quanto sei rallentato mentre ti muovi dentro un liquido.\n"
+"Quanto sei rallentatə mentre ti muovi dentro un liquido.\n"
 "Riducila per aumentare la resistenza del liquido al movimento."
 
 #: src/settings_translation_file.cpp
@@ -4550,6 +4508,10 @@ msgid ""
 "ContentDB to\n"
 "check for package updates when opening the mainmenu."
 msgstr ""
+"Se abilitato e si hanno pacchetti provenienti da ContentDB installati, "
+"Luanti potrebbe contattare\n"
+"ContentDB per controllare eventuali aggiornamenti quando viene aperto il "
+"menù principale."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4600,16 +4562,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "If enabled, the \"Aux1\" key will toggle when pressed."
-msgstr ""
+msgstr "Se abilitato, il tasto \"Aux1\" si azionerà quando premuto."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the \"Sneak\" key will toggle when pressed.\n"
 "This functionality is ignored when fly is enabled."
 msgstr ""
+"Se abilitato, il tasto \"Furtivo\" si azionerà quando premuto.\n"
+"Questa funzionalità è ignorata quando la modalità volo è abilitata."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4620,7 +4583,7 @@ msgstr ""
 "basandosi\n"
 "sulla posizione degli occhi del giocatore. Questo può ridurre del 50-80% il "
 "numero dei blocchi\n"
-"inviati al client. Il client non riceverà più la maggior parte degli "
+"inviati al cliente. Il cliente non riceverà più la maggior parte degli "
 "invisibili\n"
 "cosicché l'utilità della modalità incorporea è ridotta."
 
@@ -4661,7 +4624,7 @@ msgid ""
 "deleting an older debug.txt.1 if it exists.\n"
 "debug.txt is only moved if this setting is positive."
 msgstr ""
-"Se la dimensione del file debug.txt supera il numero di Mb indicati in\n"
+"Se la dimensione del file debug.txt supera il numero di MB indicati in\n"
 "questa impostazione quando viene aperto, il file viene rinominato in "
 "debug.txt.1,\n"
 "eliminando un eventuale debug.txt.1 più vecchio.\n"
@@ -4690,9 +4653,8 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "Altezza della console di chat nel gioco, tra 0.1 (10%) e 1.0 (100%)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase view range"
-msgstr "Aumenta raggio"
+msgstr "Aumenta raggio visivo"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -4759,13 +4721,13 @@ msgstr "Animazioni degli oggetti dell'inventario"
 
 #: src/settings_translation_file.cpp
 msgid "Invert mouse"
-msgstr "Invertire il mouse"
+msgstr "Mouse invertito"
 
 #: src/settings_translation_file.cpp
 msgid "Invert mouse wheel (scroll) direction for item selection in hotbar."
 msgstr ""
-"Inverte la direzione di scorrimento della rotellina del mouse per la "
-"selezione degli oggetti nella hotbar."
+"Inverte lo scorrimento della rotellina del mouse per la selezione degli "
+"oggetti nella barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Invert vertical mouse movement."
@@ -4892,15 +4854,15 @@ msgstr "Velocità di salto"
 
 #: src/settings_translation_file.cpp
 msgid "Key for decreasing the viewing range."
-msgstr ""
+msgstr "Tasto per diminuire il raggio visivo."
 
 #: src/settings_translation_file.cpp
 msgid "Key for decreasing the volume."
-msgstr ""
+msgstr "Tasto per abbassare il volume."
 
 #: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
-msgstr ""
+msgstr "Tasto per diminuire il valore di Quicktune."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4910,27 +4872,27 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Key for dropping the currently selected item."
-msgstr ""
+msgstr "Tasto per gettare l'oggetto che si ha in mano."
 
 #: src/settings_translation_file.cpp
 msgid "Key for increasing the viewing range."
-msgstr ""
+msgstr "Tasto per aumentare il raggio visivo."
 
 #: src/settings_translation_file.cpp
 msgid "Key for increasing the volume."
-msgstr ""
+msgstr "Tasto per alzare il volume."
 
 #: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
-msgstr ""
+msgstr "Tasto per aumentare il valore di Quicktune."
 
 #: src/settings_translation_file.cpp
 msgid "Key for jumping."
-msgstr ""
+msgstr "Tasto per saltare."
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
+msgstr "Tasto per muoversi rapidamente in modalità veloce."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -4945,35 +4907,36 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving the player forward."
-msgstr ""
+msgstr "Tasto per muovere il giocatore in avanti."
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving the player left."
-msgstr ""
+msgstr "Tasto per muovere il giocatore a sinistra."
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving the player right."
-msgstr ""
+msgstr "Tasto per muovere il giocatore a destra."
 
 #: src/settings_translation_file.cpp
 msgid "Key for muting the game."
-msgstr ""
+msgstr "Tasto per mutare il gioco."
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type commands."
-msgstr ""
+msgstr "Tasto per aprire la finestra della chat, pronta per scrivere comandi."
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type local commands."
 msgstr ""
+"Tasto per aprire la finestra della chat, pronta per scrivere comandi locali."
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window."
-msgstr ""
+msgstr "Tasto per aprire la finestra della chat."
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the inventory."
-msgstr ""
+msgstr "Tasto per aprire l'inventario."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4983,139 +4946,139 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 11th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare l'11° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 12th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 12° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 13th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 13° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 14th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 14° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 15th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 15° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 16th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 16° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 17th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 17° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 18th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 18° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 19th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 19° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 20th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 20° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 21st hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 21° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 22nd hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 22° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 23rd hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 23° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 24th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 24° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 25th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 25° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 26th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 26° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 27th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 27° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 28th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 28° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 29th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 29° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 30th hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 30° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 31st hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 31° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 32nd hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 32° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the eighth hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare l'8° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the fifth hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 5° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the first hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 1° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the fourth hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 4° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the next item in the hotbar."
-msgstr ""
+msgstr "Tasto per selezionare il prossimo oggetto nella barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the ninth hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 9° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the previous item in the hotbar."
-msgstr ""
+msgstr "Tasto per selezionare l'oggetto precedente nella barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the second hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 2° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the seventh hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 7° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the sixth hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 6° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the tenth hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 10° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the third hotbar slot."
-msgstr ""
+msgstr "Tasto per selezionare la 3° casella della barra delle azioni."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -5132,7 +5095,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching between first- and third-person camera."
-msgstr ""
+msgstr "Tasto per ruotare tra prima e terza persona."
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the next entry in Quicktune."
@@ -5149,37 +5112,35 @@ msgstr "Formato degli screenshot."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling autoforward."
-msgstr ""
+msgstr "Tasto per (dis)attivare l'avanzamento automatico."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for toggling cinematic mode."
-msgstr "Fluidità della telecamera in modalità cinematic"
+msgstr "Tasto per attivare e disattivare la modalità cinematica."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling display of minimap."
-msgstr ""
+msgstr "Tasto per (dis)attivare la minimappa."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling fast mode."
-msgstr ""
+msgstr "Tasto per attivare e disattivare la modalità veloce."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling flying."
-msgstr ""
+msgstr "Tasto per (dis)attivare il volo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for toggling fullscreen mode."
-msgstr "Modalità a schermo intero."
+msgstr "Tasto per attivare e disattivare la modalità a schermo intero."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling noclip mode."
-msgstr ""
+msgstr "Tasto per attivare e disattivare la modalità incorporea."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling pitch move mode."
-msgstr ""
+msgstr "Tasto per attivare e disattivare il beccheggio."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
@@ -5212,20 +5173,20 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
 msgstr ""
+"Tasto per alternare la visualizzazione del profilatore. Usato per fini di "
+"sviluppo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for toggling unlimited view range."
-msgstr "Raggio visivo illimitato disabilitato"
+msgstr "Tasto per (dis)attivare il raggio visivo illimitato."
 
 #: src/settings_translation_file.cpp
 msgid "Key to use view zoom when possible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keybindings"
-msgstr "Mappatura dei tasti."
+msgstr "Mappatura dei tasti"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -5265,9 +5226,8 @@ msgid "Large cave proportion flooded"
 msgstr "Proporzione inondata della grotta grande"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Large chat console"
-msgstr "Tasto console grande di chat"
+msgstr "Console"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -5401,7 +5361,8 @@ msgstr ""
 "-    Recupero dei file multimediali se il server usa l'impostazione "
 "remote_media.\n"
 "-    Scaricamento dell'elenco dei server e annuncio del server.\n"
-"-    Scaricamenti effettuati dal menu principale (per es. il gestore mod.).\n"
+"-    Scaricamenti effettuati dal menu principale (per es. il gestore "
+"moduli.).\n"
 "Ha effetto solo se compilato con cURL."
 
 #: src/settings_translation_file.cpp
@@ -5439,7 +5400,7 @@ msgstr "Scatto di aggiornamento del liquido"
 
 #: src/settings_translation_file.cpp
 msgid "Load the game profiler"
-msgstr "Caricare il generatore di profili del gioco"
+msgstr "Caricare il profilatore del gioco"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5447,10 +5408,9 @@ msgid ""
 "Provides a /profiler command to access the compiled profile.\n"
 "Useful for mod developers and server operators."
 msgstr ""
-"Carica il generatore di profili per raccogliere i dati di profilazione del "
-"gioco.\n"
+"Carica il profilatore per raccogliere i dati di profilazione del gioco.\n"
 "Fornisce un comando /profiler per accedere al profilo compilato.\n"
-"Utile per sviluppatori di moduli e operatori di server."
+"Utile per chi sviluppa moduli e chi opera dei server."
 
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
@@ -5699,7 +5659,7 @@ msgstr "Numero massimo di blocchi caricati a forza"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum hotbar width"
-msgstr "Larghezza massima della barra di scelta rapida"
+msgstr "Larghezza massima della barra delle azioni"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum limit of random number of large caves per mapchunk."
@@ -5724,9 +5684,9 @@ msgid ""
 "The maximum total count is calculated dynamically:\n"
 "max_total = ceil((#clients + max_users) * per_client / 4)"
 msgstr ""
-"Numero massimo di blocchi inviati simultaneamente per client.\n"
+"Numero massimo di blocchi inviati simultaneamente per clientecliente.\n"
 "Il conto totale massimo è calcolato dinamicamente:\n"
-"tot_max = arrotonda((N°client + max_utenti) * per_client / 4)"
+"tot_max = arrotonda((N°clienti + max_utenti) * per_cliente / 4)"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of blocks that can be queued for loading."
@@ -5797,13 +5757,13 @@ msgid ""
 "Maximum proportion of current window to be used for hotbar.\n"
 "Useful if there's something to be displayed right or left of hotbar."
 msgstr ""
-"Porzione massima della finestra attuale da usarsi per la barra di scelta "
-"rapida.\n"
+"Porzione massima della finestra attuale da usarsi per la barra delle azioni."
+"\n"
 "Utile se c'è qualcosa da mostrare a destra o sinistra della barra."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum simultaneous block sends per client"
-msgstr "Invii simultanei massimi di blocchi per client"
+msgstr "Invii simultanei massimi di blocchi per cliente"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -5825,8 +5785,8 @@ msgid ""
 "Maximum time a file download (e.g. a mod download) may take, stated in "
 "milliseconds."
 msgstr ""
-"Tempo massimo in millisecondi che può richiedere lo scaricamento di un file "
-"(es. un mod)."
+"Tempo massimo in millisecondi che può richiedere lo scaricamento di un file ("
+"es. un modulo)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5896,7 +5856,7 @@ msgstr "Sicurezza Mod"
 
 #: src/settings_translation_file.cpp
 msgid "Mod channels"
-msgstr "Canali mod"
+msgstr "Canali per i moduli"
 
 #: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
@@ -5939,28 +5899,24 @@ msgid "Mouse sensitivity multiplier."
 msgstr "Moltiplicatore della sensibilità del mouse."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move backward"
-msgstr "Indietreggia"
+msgstr "Indietro"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move forward"
-msgstr "Avanzam. autom."
+msgstr "Avanti"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move left"
-msgstr "Movimento"
+msgstr "Sinistra"
 
 #: src/settings_translation_file.cpp
 msgid "Move right"
-msgstr ""
+msgstr "Destra"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Movement threshold"
-msgstr "Soglia della caverna"
+msgstr "Soglia di movimento"
 
 #: src/settings_translation_file.cpp
 msgid "Mud noise"
@@ -5987,14 +5943,13 @@ msgstr ""
 "-    'floatlands' in v7 (disabilitato per impostazione predefinita)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Name of the player.\n"
 "When running a server, a client connecting with this name is admin.\n"
 "When starting from the main menu, this is overridden."
 msgstr ""
 "Nome del giocatore.\n"
-"Quando si esegue un server, i client che si connettono con questo nome sono "
+"Quando si esegue un server, i clienti che si connettono con questo nome sono "
 "amministratori.\n"
 "Quando si avvia dal menu principale, questo viene scavalcato."
 
@@ -6118,7 +6073,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Open chat"
-msgstr ""
+msgstr "Apri chat"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -6149,9 +6104,8 @@ msgid "Optional override for chat weblink color."
 msgstr "Sovrascrittura opzionale per i colori dei link web in chat."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Other Effects"
-msgstr "Effetti grafici"
+msgstr "Altri effetti"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6247,7 +6201,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Prevent mods from doing insecure things like running shell commands."
 msgstr ""
-"Impedisce che i mod facciano cose non sicure come eseguire comandi della "
+"Impedisce che i moduli facciano cose non sicure come eseguire comandi della "
 "shell."
 
 #: src/settings_translation_file.cpp
@@ -6265,7 +6219,7 @@ msgstr "Privilegi che i giocatori con basic_privs possono concedere"
 
 #: src/settings_translation_file.cpp
 msgid "Profiler"
-msgstr "Generatore di profili"
+msgstr "Profilatore"
 
 #: src/settings_translation_file.cpp
 msgid "Prometheus listener address"
@@ -6339,7 +6293,7 @@ msgstr "Dati in ingresso casuali"
 
 #: src/settings_translation_file.cpp
 msgid "Random mod load order"
-msgstr ""
+msgstr "Ordine casuale di caricamento moduli"
 
 #: src/settings_translation_file.cpp
 msgid "Recent Chat Messages"
@@ -6363,7 +6317,7 @@ msgid ""
 "Remove color codes from incoming chat messages\n"
 "Use this to stop players from being able to use color in their messages"
 msgstr ""
-"Leva i codici di colore dai messaggi di chat in arrivo\n"
+"Rimuove i codici di colore dai messaggi di chat in arrivo\n"
 "Usalo per impedire ai giocatori di usare i colori nei loro messaggi"
 
 #: src/settings_translation_file.cpp
@@ -6387,18 +6341,17 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
-"Restringe l'accesso di certe funzioni lato-client sui server.\n"
+"Restringe l'accesso di certe funzioni lato cliente sui server.\n"
 "Combina i valori byte sottostanti per restringere le caratteristiche\n"
-"lato-client, o imposta a 0 per nessuna restrizione:\n"
-"LOAD_CLIENT_MODS: 1 (disabilita il caricamento di mod forniti dal client)\n"
-"CHAT_MESSAGES: 2 (disabilita la chiamata di send_chat_message su lato-"
-"client)\n"
-"READ_ITEMDEFS: 4 (disabilita la chiamata di get_item_def su lato-client)\n"
-"READ_NODEDEFS: 8 (disabilita la chiamata di get_node_def su lato-client)\n"
-"LOOKUP_NODES_LIMIT: 16 (limita la chiamata get_node su lato-client a\n"
+"lato cliente, o imposta a 0 per nessuna restrizione:\n"
+"LOAD_CLIENT_MODS: 1 (disabilita il caricamento di moduli forniti dal cliente)"
+"\n"
+"CHAT_MESSAGES: 2 (disabilita la chiamata di send_chat_message lato cliente)\n"
+"READ_ITEMDEFS: 4 (disabilita la chiamata di get_item_def lato cliente)\n"
+"READ_NODEDEFS: 8 (disabilita la chiamata di get_node_def lato cliente)\n"
+"LOOKUP_NODES_LIMIT: 16 (limita la chiamata get_node lato cliente a\n"
 "csm_restriction_noderange)\n"
-"READ_PLAYERINFO: 32 (disabilita la chiamata di get_player_names su lato-"
-"client)"
+"READ_PLAYERINFO: 32 (disabilita la chiamata di get_player_names lato cliente)"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6463,7 +6416,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Save the map received by the client on disk."
-msgstr "Salvare su disco la mappa ricevuta dal client."
+msgstr "Salvare su disco la mappa ricevuta dal cliente."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6765,7 +6718,7 @@ msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
 msgstr ""
 "Imposta la lunghezza massima (in caratteri) di un messaggio di chat inviato "
-"dai client."
+"dai clienti."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6919,7 +6872,7 @@ msgid ""
 "draw calls, benefiting especially high-end GPUs.\n"
 "Systems with a low-end GPU (or no GPU) would benefit from smaller values."
 msgstr ""
-"Lunghezza del lato di un cubo di blocchi mappa che il client considererà "
+"Lunghezza del lato di un cubo di blocchi mappa che il cliente considererà "
 "assieme\n"
 "durante la generazione delle mesh.\n"
 "Valori maggiori aumentano l'utilizzo della GPU riducendo il numero di\n"
@@ -7040,7 +6993,7 @@ msgid ""
 "(obviously, remote_media should end with a slash).\n"
 "Files that are not present will be fetched the usual way."
 msgstr ""
-"Specifica l'URL da cui il client recupera i file multimediali invece di "
+"Specifica l'URL da cui il cliente recupera i file multimediali invece di "
 "usare UDP.\n"
 "$filename dovrebbe essere accessibile da $remote_media$filename tramite\n"
 "cURL (ovviamente, remote_media dovrebbe finire con una barra).\n"
@@ -7053,7 +7006,7 @@ msgid ""
 "items."
 msgstr ""
 "Fissa la dimensione predefinita della pila di nodi, oggetti e strumenti.\n"
-"Si noti che mod o giochi possono impostare esplicitamente una pila per "
+"Si noti che moduli o giochi possono impostare esplicitamente una pila per "
 "alcuni (o tutti) gli oggetti."
 
 #: src/settings_translation_file.cpp
@@ -7271,6 +7224,16 @@ msgid ""
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
+"L'azione per prendere a pugni giocanti/entità.\n"
+"Può essere sovrascritto da giochi e moduli.\n"
+"\n"
+"* Tocco rapido\n"
+"Facile da usare e diffuso su altri giochi che non possono essere nominati.\n"
+"\n"
+"* Tocco prolungato\n"
+"Conosciuto dalla comunità di Luanti in quanto è stato il controllo "
+"predefinito da telefono.\n"
+"Combattere è pressoché impossibile."
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
@@ -7294,13 +7257,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The length in pixels after which a touch interaction is considered movement."
-msgstr "La distanza in pixel richiesta per avviare l'interazione touch screen."
+msgstr "La distanza in pixel dopo la quale un tocco è considerato movimento."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The maximum height of the surface of waving liquids.\n"
 "4.0 = Wave height is two nodes.\n"
@@ -7310,8 +7271,7 @@ msgstr ""
 "L'altezza massima della superficie dei liquidi ondulanti.\n"
 "4.0 = L'altezza dell'onda è di due nodi.\n"
 "0.0 = L'onda non si muove affatto.\n"
-"Il valore predefinito è 1.0 (1/2 nodo).\n"
-"Richiede l'abilitazione dei liquidi ondulanti."
+"Il valore predefinito è 1.0 (1/2 nodo)."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7334,7 +7294,7 @@ msgid ""
 msgstr ""
 "I privilegi ricevuti automaticamente dai nuovi utenti.\n"
 "Si veda /privs in gioco per un elenco completo sul vostro server e la "
-"configurazione dei mod."
+"configurazione dei moduli."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7458,7 +7418,7 @@ msgid ""
 "Setting it to -1 disables the feature."
 msgstr ""
 "Tempo di vita in secondi per le entità oggetto (oggetti buttati).\n"
-"Impostandola a -1 disabilita la caratteristica."
+"Imposta a -1 per disabilitare la funzionalità."
 
 #: src/settings_translation_file.cpp
 msgid "Time of day when a new world is started, in millihours (0-23999)."
@@ -7473,8 +7433,8 @@ msgstr "Velocità del tempo"
 #: src/settings_translation_file.cpp
 msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr ""
-"Scadenza per il client per rimuovere dalla memoria dati mappa inutilizzati, "
-"in secondi."
+"Scadenza per il cliente per rimuovere dalla memoria i dati della mappa "
+"inutilizzati, in secondi."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7489,72 +7449,64 @@ msgstr ""
 "rimosso un nodo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Aux1 key"
-msgstr "Tasto Speciale"
+msgstr "Taso Aux1 sì/no"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle HUD"
 msgstr "HUD sì/no"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Sneak key"
-msgstr "Tasto di (dis)attivazione della modalità telecamera"
+msgstr "Furtivo sì/no"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle automatic forward"
-msgstr "Tasto di avanzamento automatico"
+msgstr "Avanzamento automatico sì/no"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle block bounds"
-msgstr "Limiti del blocco nascosto"
+msgstr "Limiti del blocco sì/no"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera mode"
-msgstr "Tasto di (dis)attivazione della modalità telecamera"
+msgstr "Cambia inquadratura"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera update"
-msgstr "Tasto di (dis)attivazione della modalità telecamera"
+msgstr "Aggiornamento telecamera sì/no"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle cinematic mode"
-msgstr "Scegli cinematica"
+msgstr "Cinematica sì/no"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle debug info"
-msgstr "Nebbia sì/no"
+msgstr "Mostra informazioni di debug"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle fog"
 msgstr "Nebbia sì/no"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle fullscreen"
-msgstr "Volo sì/no"
+msgstr "Schermo intero sì/no"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "Beccheggio sì/no"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle profiler"
-msgstr "Volo sì/no"
+msgstr "Profilatore sì/no"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Tolerance of movement cheat detector.\n"
 "Increase the value if players experience stuttery movement."
 msgstr ""
+"Tolleranza del rilevatore di cheat di movimento.\n"
+"Aumentane il valore se i giocatori vivono un'esperienza a scatti."
 
 #: src/settings_translation_file.cpp
 msgid "Tooltip delay"
@@ -7622,7 +7574,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Trusted mods"
-msgstr "Mod fidate"
+msgstr "Moduli fidati"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -8010,14 +7962,14 @@ msgid ""
 msgstr ""
 "Se lo sfondo dell'etichetta del nome debba essere mostrato per impostazione "
 "predefinita.\n"
-"Le mod possono comunque impostare uno sfondo."
+"I moduli possono comunque impostare uno sfondo."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Whether players are shown to clients without any range limit.\n"
 "Deprecated, use the setting player_transfer_distance instead."
 msgstr ""
-"Se i giocatori vengono mostrati ai client senza alcun limite di raggio.\n"
+"Se i giocatori vengono mostrati ai clienti senza alcun limite di raggio.\n"
 "Deprecata, usa invece l'impostazione player_transfer_distance."
 
 #: src/settings_translation_file.cpp
@@ -8029,7 +7981,7 @@ msgid ""
 "Whether to ask clients to reconnect after a (Lua) crash.\n"
 "Set this to true if your server is set up to restart automatically."
 msgstr ""
-"Se chiedere ai client di riconnettersi dopo un crash (Lua).\n"
+"Se chiedere ai clienti di riconnettersi dopo un crash (Lua).\n"
 "Impostatela su Vero se il vostro server è configurato per riavviarsi "
 "automaticamente."
 
@@ -8038,23 +7990,21 @@ msgid "Whether to fog out the end of the visible area."
 msgstr "Se annebbiare o meno la fine dell'area visibile."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Whether to mute sounds. You can unmute sounds at any time.\n"
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
 "Se silenziare i suoni. È possibile de-silenziare i suoni in qualsiasi "
-"momento, a meno che\n"
-"il sistema audio non sia disabilitato (enable_sound=false).\n"
-"Nel gioco, puoi alternare lo stato silenziato col tasto muta o usando\n"
+"momento.\n"
+"In partita puoi mutare e smutare il gioco col tasto muta o usando\n"
 "il menu di pausa."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Whether to show the client debug info (has the same effect as hitting F5)."
 msgstr ""
-"Se mostrare le informazioni di debug del client (ha lo stesso effetto di "
+"Se mostrare le informazioni di debug del cliente (ha lo stesso effetto di "
 "premere F5)."
 
 #: src/settings_translation_file.cpp
@@ -8096,7 +8046,6 @@ msgid "World start time"
 msgstr "Ora di avvio del mondo"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
@@ -8110,7 +8059,7 @@ msgstr ""
 "Tuttavia, il server potrebbe non inviare le dimensioni desiderate, "
 "specialmente se è in uso un\n"
 "pacchetto texture progettato in modo specifico; con questa opzione, il "
-"client prova a stabilire\n"
+"cliente prova a stabilire\n"
 "automaticamente le dimensioni basandosi sulla grandezza della texture.\n"
 "Si veda anche texture_min_size.\n"
 "Avviso: questa opzione è SPERIMENTALE!"

@@ -2,12 +2,19 @@
 
 # Linux build only
 install_linux_deps() {
+	local graphics=1
+	if [[ "$1" == "--headless" ]]; then
+		graphics=
+		shift
+	fi
 	local pkgs=(
 		cmake gettext postgresql
+		libsqlite3-dev libhiredis-dev libogg-dev libgmp-dev libpq-dev
+		libleveldb-dev libcurl4-openssl-dev libzstd-dev libssl-dev
+	)
+	[ -n "$graphics" ] && pkgs+=(
 		libpng-dev libjpeg-dev libgl1-mesa-dev libsdl2-dev libfreetype-dev
-		libsqlite3-dev libhiredis-dev libogg-dev libgmp-dev libvorbis-dev
-		libopenal-dev libpq-dev libleveldb-dev libcurl4-openssl-dev libzstd-dev
-		libssl-dev
+		libogg-dev libvorbis-dev libopenal-dev
 	)
 
 	sudo apt-get update

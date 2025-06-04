@@ -170,14 +170,16 @@ function contentdb.get_package_by_id(id)
 end
 
 
-function contentdb.calculate_package_id(type, author, name)
-	local id = author:lower() .. "/"
+local function strip_game_suffix(type, name)
 	if (type == nil or type == "game") and #name > 5 and name:sub(#name - 4) == "_game" then
-		id = id .. name:sub(1, #name - 5)
+		return name:sub(1, #name - 5)
 	else
-		id = id .. name
+		return name
 	end
-	return id
+end
+
+function contentdb.calculate_package_id(type, author, name)
+	return author:lower() .. "/" .. strip_game_suffix(type, name)
 end
 
 
@@ -427,7 +429,7 @@ function contentdb.set_packages_from_api(packages)
 				-- We currently don't support name changing
 				local suffix = "/" .. package.name
 				if alias:sub(-#suffix) == suffix then
-					contentdb.aliases[alias:lower()] = package.id
+					contentdb.aliases[strip_game_suffix(packages.type, alias:lower())] = package.id
 				end
 			end
 		end

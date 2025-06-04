@@ -95,366 +95,366 @@
 ### Keybindings
 
 #    Key for moving the player forward.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_forward = KEY_KEY_W
+# keymap_forward = SYSTEM_SCANCODE_26
 
 #    Key for moving the player backward.
 #    Will also disable autoforward, when active.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_backward = KEY_KEY_S
+# keymap_backward = SYSTEM_SCANCODE_22
 
 #    Key for moving the player left.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_left = KEY_KEY_A
+# keymap_left = SYSTEM_SCANCODE_4
 
 #    Key for moving the player right.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_right = KEY_KEY_D
+# keymap_right = SYSTEM_SCANCODE_7
 
 #    Key for jumping.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_jump = KEY_SPACE
+# keymap_jump = SYSTEM_SCANCODE_44
 
 #    Key for sneaking.
 #    Also used for climbing down and descending in water if aux1_descends is disabled.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_sneak = KEY_LSHIFT
+# keymap_sneak = SYSTEM_SCANCODE_225
 
 #    Key for digging, punching or using something.
 #    (Note: The actual meaning might vary on a per-game basis.)
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_dig = KEY_LBUTTON
 
 #    Key for placing an item/block or for using something.
 #    (Note: The actual meaning might vary on a per-game basis.)
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_place = KEY_RBUTTON
 
 #    Key for opening the inventory.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_inventory = KEY_KEY_I
+# keymap_inventory = SYSTEM_SCANCODE_12
 
 #    Key for moving fast in fast mode.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_aux1 = KEY_KEY_E
+# keymap_aux1 = SYSTEM_SCANCODE_8
 
 #    Key for opening the chat window.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_chat = KEY_KEY_T
+# keymap_chat = SYSTEM_SCANCODE_23
 
 #    Key for opening the chat window to type commands.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_cmd = /
+# keymap_cmd = SYSTEM_SCANCODE_56
 
 #    Key for opening the chat window to type local commands.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_cmd_local = .
+# keymap_cmd_local = SYSTEM_SCANCODE_55
 
 #    Key for toggling unlimited view range.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_rangeselect =
 
 #    Key for toggling flying.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_freemove = KEY_KEY_K
+# keymap_freemove = SYSTEM_SCANCODE_14
 
 #    Key for toggling pitch move mode.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_pitchmove =
 
 #    Key for toggling fast mode.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_fastmove = KEY_KEY_J
+# keymap_fastmove = SYSTEM_SCANCODE_13
 
 #    Key for toggling noclip mode.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_noclip = KEY_KEY_H
+# keymap_noclip = SYSTEM_SCANCODE_11
 
 #    Key for selecting the next item in the hotbar.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_hotbar_next = KEY_KEY_N
+# keymap_hotbar_next = SYSTEM_SCANCODE_17
 
 #    Key for selecting the previous item in the hotbar.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_hotbar_previous = KEY_KEY_B
+# keymap_hotbar_previous = SYSTEM_SCANCODE_5
 
 #    Key for muting the game.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_mute = KEY_KEY_M
+# keymap_mute = SYSTEM_SCANCODE_16
 
 #    Key for increasing the volume.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_increase_volume =
 
 #    Key for decreasing the volume.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_decrease_volume =
 
 #    Key for toggling autoforward.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_autoforward =
 
 #    Key for toggling cinematic mode.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_cinematic =
 
 #    Key for toggling display of minimap.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_minimap = KEY_KEY_V
+# keymap_minimap = SYSTEM_SCANCODE_25
 
 #    Key for taking screenshots.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_screenshot = KEY_F12
+# keymap_screenshot = SYSTEM_SCANCODE_69
 
 #    Key for toggling fullscreen mode.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_fullscreen = KEY_F11
+# keymap_fullscreen = SYSTEM_SCANCODE_68
 
 #    Key for dropping the currently selected item.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_drop = KEY_KEY_Q
+# keymap_drop = SYSTEM_SCANCODE_20
 
 #    Key to use view zoom when possible.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_zoom = KEY_KEY_Z
+# keymap_zoom = SYSTEM_SCANCODE_29
 
 #    Key for toggling the display of the HUD.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_toggle_hud = KEY_F1
+# keymap_toggle_hud = SYSTEM_SCANCODE_58
 
 #    Key for toggling the display of chat.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_toggle_chat = KEY_F2
+# keymap_toggle_chat = SYSTEM_SCANCODE_59
 
 #    Key for toggling the display of the large chat console.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_console = KEY_F10
+# keymap_console = SYSTEM_SCANCODE_67
 
 #    Key for toggling the display of fog.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_toggle_fog = KEY_F3
+# keymap_toggle_fog = SYSTEM_SCANCODE_60
 
 #    Key for toggling the display of debug info.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_toggle_debug = KEY_F5
+# keymap_toggle_debug = SYSTEM_SCANCODE_62
 
 #    Key for toggling the display of the profiler. Used for development.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_toggle_profiler = KEY_F6
+# keymap_toggle_profiler = SYSTEM_SCANCODE_63
 
 #    Key for toggling the display of mapblock boundaries.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_toggle_block_bounds =
 
 #    Key for switching between first- and third-person camera.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_camera_mode = KEY_KEY_C
+# keymap_camera_mode = SYSTEM_SCANCODE_6
 
 #    Key for increasing the viewing range.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_increase_viewing_range_min = +
+# keymap_increase_viewing_range_min = SYSTEM_SCANCODE_46
 
 #    Key for decreasing the viewing range.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_decrease_viewing_range_min = -
+# keymap_decrease_viewing_range_min = SYSTEM_SCANCODE_45
 
 #    Key for selecting the first hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot1 = KEY_KEY_1
+# keymap_slot1 = SYSTEM_SCANCODE_30
 
 #    Key for selecting the second hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot2 = KEY_KEY_2
+# keymap_slot2 = SYSTEM_SCANCODE_31
 
 #    Key for selecting the third hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot3 = KEY_KEY_3
+# keymap_slot3 = SYSTEM_SCANCODE_32
 
 #    Key for selecting the fourth hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot4 = KEY_KEY_4
+# keymap_slot4 = SYSTEM_SCANCODE_33
 
 #    Key for selecting the fifth hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot5 = KEY_KEY_5
+# keymap_slot5 = SYSTEM_SCANCODE_34
 
 #    Key for selecting the sixth hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot6 = KEY_KEY_6
+# keymap_slot6 = SYSTEM_SCANCODE_35
 
 #    Key for selecting the seventh hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot7 = KEY_KEY_7
+# keymap_slot7 = SYSTEM_SCANCODE_36
 
 #    Key for selecting the eighth hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot8 = KEY_KEY_8
+# keymap_slot8 = SYSTEM_SCANCODE_37
 
 #    Key for selecting the ninth hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot9 = KEY_KEY_9
+# keymap_slot9 = SYSTEM_SCANCODE_38
 
 #    Key for selecting the tenth hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
-# keymap_slot10 = KEY_KEY_0
+# keymap_slot10 = SYSTEM_SCANCODE_39
 
 #    Key for selecting the 11th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot11 =
 
 #    Key for selecting the 12th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot12 =
 
 #    Key for selecting the 13th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot13 =
 
 #    Key for selecting the 14th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot14 =
 
 #    Key for selecting the 15th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot15 =
 
 #    Key for selecting the 16th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot16 =
 
 #    Key for selecting the 17th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot17 =
 
 #    Key for selecting the 18th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot18 =
 
 #    Key for selecting the 19th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot19 =
 
 #    Key for selecting the 20th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot20 =
 
 #    Key for selecting the 21st hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot21 =
 
 #    Key for selecting the 22nd hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot22 =
 
 #    Key for selecting the 23rd hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot23 =
 
 #    Key for selecting the 24th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot24 =
 
 #    Key for selecting the 25th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot25 =
 
 #    Key for selecting the 26th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot26 =
 
 #    Key for selecting the 27th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot27 =
 
 #    Key for selecting the 28th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot28 =
 
 #    Key for selecting the 29th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot29 =
 
 #    Key for selecting the 30th hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot30 =
 
 #    Key for selecting the 31st hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot31 =
 
 #    Key for selecting the 32nd hotbar slot.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot32 =
 
@@ -924,10 +924,6 @@
 #    Simulate translucency when looking at foliage in the sunlight.
 #    type: bool
 # enable_translucent_foliage = false
-
-#    Apply specular shading to nodes.
-#    type: bool
-# enable_node_specular = false
 
 #    When enabled, liquid reflections are simulated.
 #    type: bool
@@ -3554,27 +3550,27 @@
 ### Client Debugging
 
 #    Key for toggling the camera update. Only usable with 'debug' privilege.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_toggle_update_camera =
 
 #    Key for switching to the previous entry in Quicktune.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_quicktune_prev =
 
 #    Key for switching to the next entry in Quicktune.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_quicktune_next =
 
 #    Key for decrementing the selected value in Quicktune.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_quicktune_dec =
 
 #    Key for incrementing the selected value in Quicktune.
-#    See https://github.com/luanti-org/luanti/blob/master/irr/include/Keycodes.h
+#    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_quicktune_inc =
 

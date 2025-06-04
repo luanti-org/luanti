@@ -7,7 +7,6 @@
 #include "IVideoDriver.h"
 #include "SMesh.h"
 #include "SMeshBuffer.h"
-#include "SAnimatedMesh.h"
 #include "IReadFile.h"
 #include "fast_atof.h"
 #include "coreutil.h"
@@ -272,23 +271,19 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 		}
 	}
 
-	// Create the Animated mesh if there's anything in the mesh
-	SAnimatedMesh *animMesh = 0;
-	if (0 != mesh->getMeshBufferCount()) {
-		mesh->recalculateBoundingBox();
-		animMesh = new SAnimatedMesh();
-		animMesh->Type = EAMT_OBJ;
-		animMesh->addMesh(mesh);
-		animMesh->recalculateBoundingBox();
-	}
-
 	// Clean up the allocate obj file contents
 	delete[] buf;
 	// more cleaning up
 	cleanUp();
-	mesh->drop();
 
-	return animMesh;
+	// Nothing in the mesh
+	if (mesh->getMeshBufferCount() == 0) {
+		mesh->drop();
+		return nullptr;
+	}
+
+	mesh->recalculateBoundingBox();
+	return mesh;
 }
 
 //! Read RGB color

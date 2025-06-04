@@ -5,9 +5,12 @@ Luanti Lua Modding API Reference
 it's now called `core` due to the renaming of Luanti (formerly Minetest).
 `minetest` will keep existing as an alias, so that old code won't break.
 
+Note that `core` has already existed since version 0.4.10, so you can use it
+safely without breaking backwards compatibility.
+
 * More information at <http://www.luanti.org/>
-* Luanti Documentation: <https://docs.luanti.org/>
-* (Unofficial) Minetest Modding Book by rubenwardy: <https://rubenwardy.com/minetest_modding_book/>
+* Additional documentation: <https://docs.luanti.org/>
+* (Unofficial) Luanti Modding Book by rubenwardy: <https://rubenwardy.com/minetest_modding_book/>
 * Modding tools: <https://github.com/luanti-org/modtools>
 
 Introduction
@@ -311,6 +314,9 @@ Binary glTF (`.glb`) files are supported and recommended over `.gltf` files
 due to their space savings.
 
 Bone weights should be normalized, e.g. using ["normalize all" in Blender](https://docs.blender.org/manual/en/4.2/grease_pencil/modes/weight_paint/weights_menu.html#normalize-all).
+
+Note that nodes using matrix transforms must not be animated.
+This also extends to bone overrides, which must not be applied to them.
 
 You can use the [Khronos glTF validator](https://github.com/KhronosGroup/glTF-Validator)
 to check whether a model is a valid glTF file.
@@ -4581,11 +4587,13 @@ and offset the noise variation.
 
 The final fractal value noise variation is created as follows:
 
+```
 noise = offset + scale * (octave1 +
                           octave2 * persistence +
                           octave3 * persistence ^ 2 +
                           octave4 * persistence ^ 3 +
                           ...)
+```
 
 Noise Parameters
 ----------------
@@ -4699,11 +4707,13 @@ with restraint.
 The absolute value of each octave's noise variation is used when combining the
 octaves. The final value noise variation is created as follows:
 
+```
 noise = offset + scale * (abs(octave1) +
                           abs(octave2) * persistence +
                           abs(octave3) * persistence ^ 2 +
                           abs(octave4) * persistence ^ 3 +
                           ...)
+```
 
 ### Format example
 
@@ -4998,7 +5008,8 @@ A VoxelManip object can be created any time using either:
 If the optional position parameters are present for either of these routines,
 the specified region will be pre-loaded into the VoxelManip object on creation.
 Otherwise, the area of map you wish to manipulate must first be loaded into the
-VoxelManip object using `VoxelManip:read_from_map()`.
+VoxelManip object using `VoxelManip:read_from_map()`, or an empty one created
+with `VoxelManip:initialize()`.
 
 Note that `VoxelManip:read_from_map()` returns two position vectors. The region
 formed by these positions indicate the minimum and maximum (respectively)
@@ -5009,14 +5020,14 @@ be queried any time after loading map data with `VoxelManip:get_emerged_area()`.
 Now that the VoxelManip object is populated with map data, your mod can fetch a
 copy of this data using either of two methods. `VoxelManip:get_node_at()`,
 which retrieves an individual node in a MapNode formatted table at the position
-requested is the simplest method to use, but also the slowest.
+requested. This is the simplest method to use, but also the slowest.
 
 Nodes in a VoxelManip object may also be read in bulk to a flat array table
 using:
 
 * `VoxelManip:get_data()` for node content (in Content ID form, see section
   [Content IDs]),
-* `VoxelManip:get_light_data()` for node light levels, and
+* `VoxelManip:get_light_data()` for node param (usually light levels), and
 * `VoxelManip:get_param2_data()` for the node type-dependent "param2" values.
 
 See section [Flat array format] for more details.
@@ -5031,17 +5042,16 @@ internal state unless otherwise explicitly stated.
 Once the bulk data has been edited to your liking, the internal VoxelManip
 state can be set using:
 
-* `VoxelManip:set_data()` for node content (in Content ID form, see section
-  [Content IDs]),
-* `VoxelManip:set_light_data()` for node light levels, and
-* `VoxelManip:set_param2_data()` for the node type-dependent `param2` values.
+* `VoxelManip:set_data()` or
+* `VoxelManip:set_light_data()` or
+* `VoxelManip:set_param2_data()`
 
 The parameter to each of the above three functions can use any table at all in
 the same flat array format as produced by `get_data()` etc. and is not required
 to be a table retrieved from `get_data()`.
 
 Once the internal VoxelManip state has been modified to your liking, the
-changes can be committed back to the map by calling `VoxelManip:write_to_map()`
+changes can be committed back to the map by calling `VoxelManip:write_to_map()`.
 
 ### Flat array format
 
@@ -5173,15 +5183,22 @@ inside the VoxelManip.
 Methods
 -------
 
-* `read_from_map(p1, p2)`: Loads a chunk of map into the VoxelManip object
+* `read_from_map(p1, p2)`: Loads a part of the map into the VoxelManip object
   containing the region formed by `p1` and `p2`.
-    * returns actual emerged `pmin`, actual emerged `pmax`
+    * returns actual emerged `pmin`, actual emerged `pmax` (MapBlock-aligned)
     * Note that calling this multiple times will *add* to the area loaded in the
       VoxelManip, and not reset it.
+* `initialize(p1, p2, [node])`: Clears and resizes the VoxelManip object to
+  comprise the region formed by `p1` and `p2`.
+   * **No data** is read from the map, so you can use this to treat `VoxelManip`
+     objects as general containers of node data.
+   * `node`: if present the data will be filled with this node; if not it will
+     be uninitialized
+   * returns actual emerged `pmin`, actual emerged `pmax` (MapBlock-aligned)
+   * (introduced in 5.13.0)
 * `write_to_map([light])`: Writes the data loaded from the `VoxelManip` back to
   the map.
-    * **important**: data must be set using `VoxelManip:set_data()` before
-      calling this.
+    * **important**: you should call `set_data()` before this, or nothing will change.
     * if `light` is true, then lighting is automatically recalculated.
       The default value is true.
       If `light` is false, no light calculations happen, and you should correct
@@ -5242,6 +5259,15 @@ Methods
    where the engine will keep the map and the VM in sync automatically.
    * Note: this doesn't do what you think it does and is subject to removal. Don't use it!
 * `get_emerged_area()`: Returns actual emerged minimum and maximum positions.
+   * "Emerged" does not imply that this region was actually loaded from the map,
+      if `initialize()` has been used.
+* `close()`: Frees the data buffers associated with the VoxelManip object.
+   It will become empty.
+   * Since Lua's garbage collector is not aware of the potentially significant
+     memory behind a VoxelManip, frequent VoxelManip usage can cause the server to
+     run out of RAM. Therefore it's recommend to call this method once you're done
+     with the VoxelManip.
+   * (introduced in 5.13.0)
 
 `VoxelArea`
 -----------
@@ -6562,13 +6588,10 @@ Environment access
     * The actual seed used is the noiseparams seed plus the world seed.
 * `core.get_value_noise(seeddiff, octaves, persistence, spread)`
     * Deprecated: use `core.get_value_noise(noiseparams)` instead.
-    * Return world-specific value noise
 * `core.get_perlin(noiseparams)`
-    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
-    * Return world-specific value noise (was not Perlin noise)
+    * Deprecated: renamed to `core.get_value_noise` in version 5.12.0.
 * `core.get_perlin(seeddiff, octaves, persistence, spread)`
-    * Deprecated: use `core.get_value_noise(noiseparams)` instead.
-    * Return world-specific value noise (was not Perlin noise)
+    * Deprecated: renamed to `core.get_value_noise` in version 5.12.0.
 * `core.get_voxel_manip([pos1, pos2])`
     * Return voxel manipulator object.
     * Loads the manipulator from the map if positions are passed.
@@ -9061,78 +9084,6 @@ offering very strong randomness.
 * `get_state()`: return generator state encoded in string
 * `set_state(state_string)`: restore generator state from encoded string
 
-`ValueNoise`
--------------
-
-A value noise generator.
-It can be created via `ValueNoise()` or `core.get_value_noise()`.
-For legacy reasons, it can also be created via `PerlinNoise()` or `core.get_perlin()`,
-but the implemented noise is not Perlin noise.
-For `core.get_value_noise()`, the actual seed used is the noiseparams seed
-plus the world seed, to create world-specific noise.
-
-* `ValueNoise(noiseparams)
-* `ValueNoise(seed, octaves, persistence, spread)` (Deprecated)
-* `PerlinNoise(noiseparams)` (Deprecated)
-* `PerlinNoise(seed, octaves, persistence, spread)` (Deprecated)
-
-* `core.get_value_noise(noiseparams)`
-* `core.get_value_noise(seeddiff, octaves, persistence, spread)` (Deprecated)
-* `core.get_perlin(noiseparams)` (Deprecated)
-* `core.get_perlin(seeddiff, octaves, persistence, spread)` (Deprecated)
-
-### Methods
-
-* `get_2d(pos)`: returns 2D noise value at `pos={x=,y=}`
-* `get_3d(pos)`: returns 3D noise value at `pos={x=,y=,z=}`
-
-`ValueNoiseMap`
-----------------
-
-A fast, bulk noise generator.
-
-It can be created via `ValueNoiseMap(noiseparams, size)` or
-`core.get_value_noise_map(noiseparams, size)`.
-For legacy reasons, it can also be created via `PerlinNoiseMap(noiseparams, size)`
-or `core.get_perlin_map(noiseparams, size)`, but it is not Perlin noise.
-For `core.get_value_noise_map()`, the actual seed used is the noiseparams seed
-plus the world seed, to create world-specific noise.
-
-Format of `size` is `{x=dimx, y=dimy, z=dimz}`. The `z` component is omitted
-for 2D noise, and it must be larger than 1 for 3D noise (otherwise
-`nil` is returned).
-
-For each of the functions with an optional `buffer` parameter: If `buffer` is
-not nil, this table will be used to store the result instead of creating a new
-table.
-
-### Methods
-
-* `get_2d_map(pos)`: returns a `<size.x>` times `<size.y>` 2D array of 2D noise
-  with values starting at `pos={x=,y=}`
-* `get_3d_map(pos)`: returns a `<size.x>` times `<size.y>` times `<size.z>`
-  3D array of 3D noise with values starting at `pos={x=,y=,z=}`.
-* `get_2d_map_flat(pos, buffer)`: returns a flat `<size.x * size.y>` element
-  array of 2D noise with values starting at `pos={x=,y=}`
-* `get_3d_map_flat(pos, buffer)`: Same as `get2dMap_flat`, but 3D noise
-* `calc_2d_map(pos)`: Calculates the 2d noise map starting at `pos`. The result
-  is stored internally.
-* `calc_3d_map(pos)`: Calculates the 3d noise map starting at `pos`. The result
-  is stored internally.
-* `get_map_slice(slice_offset, slice_size, buffer)`: In the form of an array,
-  returns a slice of the most recently computed noise results. The result slice
-  begins at coordinates `slice_offset` and takes a chunk of `slice_size`.
-  E.g., to grab a 2-slice high horizontal 2d plane of noise starting at buffer
-  offset y = 20:
-  `noisevals = noise:get_map_slice({y=20}, {y=2})`
-  It is important to note that `slice_offset` offset coordinates begin at 1,
-  and are relative to the starting position of the most recently calculated
-  noise.
-  To grab a single vertical column of noise starting at map coordinates
-  x = 1023, y=1000, z = 1000:
-  `noise:calc_3d_map({x=1000, y=1000, z=1000})`
-  `noisevals = noise:get_map_slice({x=24, z=1}, {x=1, z=1})`
-
 `PlayerMetaRef`
 ---------------
 
@@ -9184,14 +9135,17 @@ end
 The map is loaded as the ray advances. If the map is modified after the
 `Raycast` is created, the changes may or may not have an effect on the object.
 
-It can be created via `Raycast(pos1, pos2, objects, liquids)` or
-`core.raycast(pos1, pos2, objects, liquids)` where:
+It can be created via `Raycast(pos1, pos2, objects, liquids, pointabilities)`
+or `core.raycast(pos1, pos2, objects, liquids, pointabilities)` where:
 
 * `pos1`: start of the ray
 * `pos2`: end of the ray
-* `objects`: if false, only nodes will be returned. Default is true.
+* `objects`: if false, only nodes will be returned. Default is `true`.
 * `liquids`: if false, liquid nodes (`liquidtype ~= "none"`) won't be
-             returned. Default is false.
+             returned. Default is `false`.
+* `pointabilities`: Allows overriding the `pointable` property of
+  nodes and objects. Uses the same format as the `pointabilities` property
+  of item definitions. Default is `nil`.
 
 ### Limitations
 
@@ -9306,6 +9260,81 @@ to restrictions of JSON.
 ### Methods
 
 * All methods in MetaDataRef
+
+`ValueNoise`
+-------------
+
+A value noise generator.
+It can be created via `ValueNoise()` or `core.get_value_noise()`.
+For `core.get_value_noise()`, the actual seed used is the noiseparams seed
+plus the world seed, to create world-specific noise.
+
+* `ValueNoise(noiseparams)`
+* `ValueNoise(seed, octaves, persistence, spread)` (deprecated)
+* `core.get_value_noise(noiseparams)`
+* `core.get_value_noise(seeddiff, octaves, persistence, spread)` (deprecated)
+
+These were previously called `PerlinNoise()` and `core.get_perlin()`, but the
+implemented noise was not Perlin noise. They were renamed in 5.12.0. The old
+names still exist as aliases.
+
+### Methods
+
+* `get_2d(pos)`: returns 2D noise value at `pos={x=,y=}`
+* `get_3d(pos)`: returns 3D noise value at `pos={x=,y=,z=}`
+
+`ValueNoiseMap`
+----------------
+
+A fast, bulk noise generator.
+
+It can be created via `ValueNoiseMap(noiseparams, size)` or
+`core.get_value_noise_map(noiseparams, size)`.
+For `core.get_value_noise_map()`, the actual seed used is the noiseparams seed
+plus the world seed, to create world-specific noise.
+
+These were previously called `PerlinNoiseMap()` and `core.get_perlin_map()`,
+but the implemented noise was not Perlin noise. They were renamed in 5.12.0.
+The old names still exist as aliases.
+
+Format of `size` is `{x=dimx, y=dimy, z=dimz}`. The `z` component is omitted
+for 2D noise, and it must be larger than 1 for 3D noise (otherwise
+`nil` is returned).
+
+For each of the functions with an optional `buffer` parameter: If `buffer` is
+not nil, this table will be used to store the result instead of creating a new
+table.
+
+### Methods
+
+* `get_2d_map(pos)`: returns a `<size.x>` times `<size.y>` 2D array of 2D noise
+  with values starting at `pos={x=,y=}`
+* `get_3d_map(pos)`: returns a `<size.x>` times `<size.y>` times `<size.z>`
+  3D array of 3D noise with values starting at `pos={x=,y=,z=}`.
+* `get_2d_map_flat(pos, buffer)`: returns a flat `<size.x * size.y>` element
+  array of 2D noise with values starting at `pos={x=,y=}`
+* `get_3d_map_flat(pos, buffer)`: Same as `get2dMap_flat`, but 3D noise
+* `calc_2d_map(pos)`: Calculates the 2d noise map starting at `pos`. The result
+  is stored internally.
+* `calc_3d_map(pos)`: Calculates the 3d noise map starting at `pos`. The result
+  is stored internally.
+* `get_map_slice(slice_offset, slice_size, buffer)`: In the form of an array,
+  returns a slice of the most recently computed noise results. The result slice
+  begins at coordinates `slice_offset` and takes a chunk of `slice_size`.
+  E.g., to grab a 2-slice high horizontal 2d plane of noise starting at buffer
+  offset `y = 20`:
+  ```lua
+  noisevals = noise:get_map_slice({y=20}, {y=2})
+  ```
+  It is important to note that `slice_offset` offset coordinates begin at 1,
+  and are relative to the starting position of the most recently calculated
+  noise.
+  To grab a single vertical column of noise starting at map coordinates
+  `x = 1023, y=1000, z = 1000`:
+  ```lua
+  noise:calc_3d_map({x=1000, y=1000, z=1000})
+  noisevals = noise:get_map_slice({x=24, z=1}, {x=1, z=1})
+  ```
 
 
 
@@ -10172,9 +10201,12 @@ Used by `core.register_node`.
     mesh = "",
     -- File name of mesh when using "mesh" drawtype
     -- The center of the node is the model origin.
-    -- For legacy reasons, models in OBJ format use a scale of 1 node = 1 unit;
-    -- all other model file formats use a scale of 1 node = 10 units,
-    -- consistent with the scale used for entities.
+    -- For legacy reasons, this uses a different scale depending on the mesh:
+    -- 1. For glTF models: 10 units = 1 node (consistent with the scale for entities).
+    -- 2. For obj models: 1 unit = 1 node.
+    -- 3. For b3d and x models: 1 unit = 1 node if static, otherwise 10 units = 1 node.
+    -- Using static glTF or obj models is recommended.
+    -- You can use the `visual_scale` multiplier to achieve the expected scale.
 
     selection_box = {
         -- see [Node boxes] for possibilities

@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: German (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-04-25 19:50+0000\n"
-"Last-Translator: Wuzzy <Wuzzy@disroot.org>\n"
+"PO-Revision-Date: 2025-05-16 10:31+0000\n"
+"Last-Translator: sfan5 <sfan5@live.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/minetest/minetest/"
 "de/>\n"
 "Language: de\n"
@@ -937,29 +937,27 @@ msgstr "Die Welt „$1“ löschen?"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "Aufgrund dessen könnte sich Ihre Tastenbelegung geändert haben."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Schauen Sie sich die Einstellungen oder die Dokumentation an:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Tastenbelegung"
+msgstr "Geänderte Tastenbelegung"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Einstellungen"
+msgstr "Einstellungen öffnen"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
-msgstr ""
+msgstr "Das Steuerungssystem wurde in Luanti 5.12.0 überarbeitet."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -4660,7 +4658,7 @@ msgid ""
 "Instrument global callback functions on registration.\n"
 "(anything you pass to a core.register_*() function)"
 msgstr ""
-"Globale Rückruffunktionen bei ihrer Registrierung instrumentieren\n"
+"Globale Rückruffunktionen bei ihrer Registrierung instrumentieren.\n"
 "(alles, was man einer Funktion wie core.register_*() übergibt)."
 
 #: src/settings_translation_file.cpp

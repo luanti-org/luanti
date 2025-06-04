@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Portuguese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-05-12 16:41+0000\n"
-"Last-Translator: Felipe Amaral <contato.feamaral@gmail.com>\n"
+"PO-Revision-Date: 2025-05-18 15:01+0000\n"
+"Last-Translator: Ian Pedras <ian@pedras.org>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/minetest/"
 "minetest/pt/>\n"
 "Language: pt\n"
@@ -934,30 +934,29 @@ msgid "Delete World \"$1\"?"
 msgstr "Eliminar mundo \"$1\"?"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "Como resultado, os seus comandos foram mudados."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Veja as configurações ou refera a decumentação:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Fechar"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Combinações de teclas."
+msgstr "Combinações de teclas mudadas"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Definições"
+msgstr "Abrir Definições"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
-msgstr ""
+msgstr "O sistema de combinações de teclas foi remodelado no Luanti 5.12.0."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -2058,7 +2057,7 @@ msgstr "Scroll Lock"
 #. ~ Key name
 #: src/client/keycode.cpp
 msgid "Select"
-msgstr "Seleccionar"
+msgstr "Selecionar"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
@@ -2115,14 +2114,14 @@ msgid "Minimap in texture mode"
 msgstr "Minimapa em modo de textura"
 
 #: src/client/shader.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to compile the \"%s\" shader."
-msgstr "Falha ao abrir página da web"
+msgstr "Falha ao compilar o \"%s\" shader."
 
 #: src/client/shader.cpp
 #, fuzzy
 msgid "GLSL is not supported by the driver"
-msgstr "Som do sistema não é suportado nesta versão"
+msgstr "GLSL não é suportado pelo seu sistema"
 
 #. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
@@ -2168,11 +2167,11 @@ msgstr "Continuar"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
-msgstr ""
+msgstr "Abrir"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open URL?"
-msgstr ""
+msgstr "Abrir URL?"
 
 #: src/gui/guiOpenURL.cpp
 #, fuzzy
@@ -2207,33 +2206,34 @@ msgstr "Volume do som: %d%%"
 #: src/gui/touchscreeneditor.cpp
 #, fuzzy
 msgid "Add button"
-msgstr "Roda do Rato"
+msgstr "Adicionar botão"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Done"
-msgstr "Feito!"
+msgstr "Feito"
 
 #: src/gui/touchscreeneditor.cpp
 #, fuzzy
 msgid "Remove"
-msgstr "Servidor remoto"
+msgstr "Remover"
 
 #: src/gui/touchscreeneditor.cpp
+#, fuzzy
 msgid "Reset"
-msgstr ""
+msgstr "Refazer"
 
 #: src/gui/touchscreeneditor.cpp
+#, fuzzy
 msgid "Start dragging a button to add. Tap outside to cancel."
-msgstr ""
+msgstr "Começe a arrastar um botão para adicionar. Clique fora para cancelar."
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Tap a button to select it. Drag a button to move it."
-msgstr ""
+msgstr "Clique num botão para selecioná-lo. Arraste o botão para movê-lo."
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Tap outside to deselect."
-msgstr ""
+msgstr "Click fora para desselecionar."
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Aux1"
@@ -2245,7 +2245,7 @@ msgstr "Mudar camera"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Dig/punch/use"
-msgstr ""
+msgstr "Escavar/Attacar/Usar"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Drop"
@@ -2370,27 +2370,32 @@ msgstr ""
 
 #: src/network/clientpackethandler.cpp
 msgid "The server is running in singleplayer mode.  You cannot connect."
-msgstr ""
+msgstr "Este servidor está a correr no modo uni jogador. Não se pode connectar."
 
 #: src/network/clientpackethandler.cpp
 msgid "Too many users"
-msgstr ""
+msgstr "Demasiados utilizadores"
 
 #: src/network/clientpackethandler.cpp
 msgid "Unknown disconnect reason."
-msgstr ""
+msgstr "Razão de desconecto desconhecido."
 
 #: src/network/clientpackethandler.cpp
+#, fuzzy
 msgid ""
 "Your client sent something the server didn't expect.  Try reconnecting or "
 "updating your client."
 msgstr ""
+"O seu cliente mandou algo que o servidor não esperava. Tente reconectar ou "
+"atualizar o seu cliente."
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "Your client's version is not supported.\n"
 "Please contact the server administrator."
 msgstr ""
+"A versão do seu cliente não é supportado.\n"
+"Por favor contacte o administrador do servidor."
 
 #: src/server.cpp
 #, c-format
@@ -2465,7 +2470,7 @@ msgstr "Ruído 2D que localiza os vales e canais dos rios."
 
 #: src/settings_translation_file.cpp
 msgid "3D"
-msgstr ""
+msgstr "3D"
 
 #: src/settings_translation_file.cpp
 msgid "3D clouds"
@@ -2638,13 +2643,13 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Allow clouds to look 3D instead of flat."
 msgstr "Usar nuvens 3D em vez de planas."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Allows liquids to be translucent."
-msgstr ""
+msgstr "Permitir liquidos semi transparentes."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2697,8 +2702,9 @@ msgid "Anticheat flags"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Anticheat movement tolerance"
-msgstr ""
+msgstr "Tolerância de movimentos anti-batota"
 
 #: src/settings_translation_file.cpp
 msgid "Append item name"
@@ -2724,8 +2730,9 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Apply specular shading to nodes."
-msgstr ""
+msgstr "Aplicar shading especular aos nodes."
 
 #: src/settings_translation_file.cpp
 msgid "Arm inertia"
@@ -2824,9 +2831,8 @@ msgid "Base terrain height."
 msgstr "Altura base do terreno."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Base texture size"
-msgstr "Tamanho mínimo da textura"
+msgstr "Tamanho base da textura"
 
 #: src/settings_translation_file.cpp
 msgid "Basic privileges"
@@ -2849,9 +2855,8 @@ msgid "Bind address"
 msgstr "Endereço de bind"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Biome API"
-msgstr "Biomas"
+msgstr "API de Biomas"
 
 #: src/settings_translation_file.cpp
 msgid "Biome noise"
@@ -3016,13 +3021,12 @@ msgid "Client"
 msgstr "Cliente"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client Debugging"
-msgstr "Debugging"
+msgstr "Debugging de cliente"
 
 #: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
-msgstr ""
+msgstr "Tamhãnho do Client Mesh Chunksize"
 
 #: src/settings_translation_file.cpp
 msgid "Client and Server"
@@ -3063,7 +3067,7 @@ msgstr "Nuvens no menu"
 
 #: src/settings_translation_file.cpp
 msgid "Color depth for post-processing texture"
-msgstr ""
+msgstr "Profundidade da cor para a textura post-processing"
 
 #: src/settings_translation_file.cpp
 msgid "Colored fog"

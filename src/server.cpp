@@ -65,6 +65,8 @@
 #include "gettext.h"
 #include "util/tracy_wrapper.h"
 
+#include <csignal>
+
 class ClientNotFoundException : public BaseException
 {
 public:
@@ -586,14 +588,16 @@ void Server::start()
 		R"(| | |_| | (_| | | | | |_| |)",
 		R"(|_|\__,_|\__,_|_| |_|\__|_|)",
 	};
-
 	if (!m_admin_chat) {
 		// we're not printing to rawstream to avoid it showing up in the logs.
 		// however it would then mess up the ncurses terminal (m_admin_chat),
 		// so we skip it in that case.
-		for (auto line : art)
-			std::cerr << line << std::endl;
+		for (size_t i = 0; i < ARRLEN(art); ++i)
+			std::cerr << art[i] << (i == ARRLEN(art) - 1 ? "" : "\n");
+		// add a "tail" with the engine version
+		std::cerr << "  ___ " << g_version_hash << std::endl;
 	}
+
 	actionstream << "World at [" << m_path_world << "]" << std::endl;
 	actionstream << "Server for gameid=\"" << m_gamespec.id
 			<< "\" listening on ";
@@ -1572,7 +1576,8 @@ void Server::SendChatMessage(session_t peer_id, const ChatMessage &message)
 	if (peer_id != PEER_ID_INEXISTENT) {
 		Send(&pkt);
 	} else {
-		m_clients.sendToAll(&pkt);
+		// If a client has completed auth but is still joining, still send chat
+		m_clients.sendToAll(&pkt, CS_InitDone);
 	}
 }
 
@@ -3183,9 +3188,7 @@ std::wstring Server::handleChat(const std::string &name,
 
 	ChatMessage chatmsg(line);
 
-	std::vector<session_t> clients = m_clients.getClientIDs();
-	for (u16 cid : clients)
-		SendChatMessage(cid, chatmsg);
+	SendChatMessage(PEER_ID_INEXISTENT, chatmsg);
 
 	return L"";
 }
@@ -3357,6 +3360,15 @@ bool Server::denyIfBanned(session_t peer_id)
 	return false;
 }
 
+bool Server::checkUserLimit(const std::string &player_name, const std::string &addr_s)
+{
+	if (!m_clients.isUserLimitReached())
+		return false;
+	if (player_name == g_settings->get("name")) // admin can always join
+		return false;
+	return !m_script->can_bypass_userlimit(player_name, addr_s);
+}
+
 void Server::notifyPlayer(const char *name, const std::wstring &msg)
 {
 	// m_env will be NULL if the server is initializing
@@ -3490,7 +3502,6 @@ void Server::hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &
 
 Address Server::getPeerAddress(session_t peer_id)
 {
-	// Note that this is only set after Init was received in Server::handleCommand_Init
 	return getClient(peer_id, CS_Invalid)->getAddress();
 }
 
@@ -4105,7 +4116,7 @@ std::unique_ptr<PlayerSAO> Server::emergePlayer(const char *name, session_t peer
 	return playersao;
 }
 
-void dedicated_server_loop(Server &server, bool &kill)
+void dedicated_server_loop(Server &server, volatile std::sig_atomic_t &kill)
 {
 	verbosestream<<"dedicated_server_loop()"<<std::endl;
 

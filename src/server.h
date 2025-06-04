@@ -25,6 +25,7 @@
 #include "translation.h"
 #include "script/common/c_types.h" // LuaError
 #include <atomic>
+#include <csignal>
 #include <string>
 #include <list>
 #include <map>
@@ -368,6 +369,7 @@ public:
 	void hudSetHotbarImage(RemotePlayer *player, const std::string &name);
 	void hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &name);
 
+	/// @note this is only available for client state >= CS_HelloSent
 	Address getPeerAddress(session_t peer_id);
 
 	void setLocalPlayerAnimations(RemotePlayer *player, v2f animation_frames[4],
@@ -611,6 +613,10 @@ private:
 
 	void handleChatInterfaceEvent(ChatEvent *evt);
 
+	/// @brief Checks if user limit allows a potential client to join
+	/// @return true if the client can NOT join
+	bool checkUserLimit(const std::string &player_name, const std::string &addr_s);
+
 	// This returns the answer to the sender of wmessage, or "" if there is none
 	std::wstring handleChat(const std::string &name, std::wstring wmessage_input,
 		bool check_shout_priv = false, RemotePlayer *player = nullptr);
@@ -794,4 +800,4 @@ private:
 
 	Shuts down when kill is set to true.
 */
-void dedicated_server_loop(Server &server, bool &kill);
+void dedicated_server_loop(Server &server, volatile std::sig_atomic_t &kill);
