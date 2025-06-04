@@ -32,9 +32,7 @@ Map::~Map()
 	/*
 		Free all MapBlocks
 	*/
-	for (auto &entry : m_blocks) {
-		delete entry.second;
-	}
+	m_blocks.clear();
 }
 
 void Map::addEventReceiver(MapEventReceiver *event_receiver)
@@ -54,19 +52,20 @@ void Map::dispatchEvent(const MapEditEvent &event)
 	}
 }
 
-MapBlock* Map::createBlankBlockNoInsert(v3s16 p)
+std::unique_ptr<MapBlock> Map::createBlankBlockNoInsert(v3s16 p)
 {
 	if (blockpos_over_max_limit(v3s16(p)))
 		throw InvalidPositionException("createBlankBlockNoInsert(): pos over max mapgen limit");
 
-	return new MapBlock(p, m_gamedef);
+	return std::make_unique<MapBlock>(p, m_gamedef);
 }
 
 MapBlock *Map::createBlankBlock(v3s16 p)
 {
-	MapBlock *block = createBlankBlockNoInsert(p);
+	std::unique_ptr<MapBlock> block_u = createBlankBlockNoInsert(p);
+	MapBlock *block = block_u.get();
 
-	m_blocks[p] = block;
+	m_blocks[p] = std::move(block_u);
 
 	return block;
 }
@@ -82,7 +81,7 @@ std::unique_ptr<MapBlock> Map::detachBlock(MapBlock *block)
 	// Remove from container
 	auto it = m_blocks.find(block->getPos());
 	assert(it != m_blocks.end());
-	std::unique_ptr<MapBlock> ret(it->second);
+	std::unique_ptr<MapBlock> ret = std::move(it->second);
 	assert(ret.get() == block);
 	m_blocks.erase(it);
 
@@ -92,7 +91,7 @@ std::unique_ptr<MapBlock> Map::detachBlock(MapBlock *block)
 	return ret;
 }
 
-void Map::insertBlock(MapBlock *block)
+void Map::insertBlock(std::unique_ptr<MapBlock> block)
 {
 	v3s16 pos = block->getPos();
 
@@ -102,13 +101,13 @@ void Map::insertBlock(MapBlock *block)
 	}
 
 	// Insert into container
-	m_blocks[pos] = block;
+	m_blocks[pos] = std::move(block);
 }
 
 MapBlock *Map::getBlockNoCreateNoEx(v3s16 p3d)
 {
 	auto it = m_blocks.find(p3d);
-	return it != m_blocks.end() ? it->second : nullptr;
+	return it != m_blocks.end() ? it->second.get() : nullptr;
 }
 
 MapBlock *Map::getBlockNoCreate(v3s16 p3d)
@@ -310,7 +309,7 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 	// If there is no practical limit, we spare creation of mapblock_queue
 	if (max_loaded_blocks < 0) {
 		for (auto it = m_blocks.begin(); it != m_blocks.end();) {
-			MapBlock *block = it->second;
+			MapBlock *block = it->second.get();
 			block->incrementUsageTimer(dtime);
 
 			if (block->refGet() == 0
@@ -330,7 +329,6 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 
 				// Delete directly from container
 				it = m_blocks.erase(it);
-				delete block;
 
 				if (unloaded_blocks)
 					unloaded_blocks->push_back(p);
@@ -344,7 +342,7 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 	} else {
 		std::priority_queue<TimeOrderedMapBlock> mapblock_queue;
 		for (auto &entry : m_blocks) {
-			MapBlock *block = entry.second;
+			MapBlock *block = entry.second.get();
 			block->incrementUsageTimer(dtime);
 			mapblock_queue.push(TimeOrderedMapBlock(block));
 		}
