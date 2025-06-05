@@ -464,8 +464,6 @@ void MapblockMeshGenerator::drawSolidNode()
 		for (auto &layer : tiles[face].layers) {
 			if (backface_culling)
 				layer.material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
-			layer.material_flags |= MATERIAL_FLAG_TILEABLE_HORIZONTAL;
-			layer.material_flags |= MATERIAL_FLAG_TILEABLE_VERTICAL;
 		}
 		if (!data->m_smooth_lighting) {
 			lights[face] = getFaceLight(cur_node.n, neighbor, nodedef);
