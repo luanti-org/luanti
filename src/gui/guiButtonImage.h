@@ -19,9 +19,6 @@ public:
 			s32 id, core::rect<s32> rectangle, ISimpleTextureSource *tsrc,
 			bool noclip = false);
 
-	//! draws the element and its children
-	virtual void draw() override;
-
 	void setForegroundImage(irr_ptr<video::ITexture> image = nullptr,
 			const core::rect<s32> &middle = core::rect<s32>());
 

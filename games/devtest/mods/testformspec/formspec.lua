@@ -235,7 +235,7 @@ local style_fs = [[
 	style[one_btn15;border=false;bgcolor=#1cc;bgimg=testformspec_bg.png;bgimg_hovered=testformspec_bg_hovered.png;bgimg_pressed=testformspec_bg_pressed.png]
 	item_image_button[1.25,9.6;1,1;testformspec:item;one_btn15;Bg]
 
-	style[one_btn16;bgimg=testformspec_bg_9slice.png;bgimg_middle=4,6;padding=5,7;fgimg=testformspec_bg.png;fgimg_middle=1]
+	style[one_btn16;border=false;bgimg=testformspec_bg_9slice.png;bgimg_middle=4,6;padding=5,7;fgimg=testformspec_bg.png;fgimg_middle=1]
 	style[one_btn16:hovered;bgimg=testformspec_bg_9slice_hovered.png;fgimg=testformspec_bg_hovered.png]
 	style[one_btn16:pressed;bgimg=testformspec_bg_9slice_pressed.png;fgimg=testformspec_bg_pressed.png]
 	style[one_btn16:focused;bgimg=testformspec_bg_9slice_focused.png;fgimg=testformspec_bg_focused.png]

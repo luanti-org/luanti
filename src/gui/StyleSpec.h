@@ -13,6 +13,9 @@
 #include <array>
 #include <vector>
 
+class StyleSpec;
+
+using StyleSpecMap = std::unordered_map<std::string, std::vector<StyleSpec>>;
 
 class StyleSpec
 {

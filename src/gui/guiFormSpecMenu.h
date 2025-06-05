@@ -302,7 +302,6 @@ protected:
 	bool precheckElement(const std::string &name, const std::string &element,
 		size_t args_min, size_t args_max, std::vector<std::string> &parts);
 
-	using StyleSpecMap = std::unordered_map<std::string, std::vector<StyleSpec>>;
 	StyleSpecMap theme_by_type, theme_by_name;
 	std::unordered_set<std::string> property_warned;
 

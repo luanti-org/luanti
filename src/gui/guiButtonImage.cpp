@@ -24,11 +24,6 @@ GUIButtonImage::GUIButtonImage(gui::IGUIEnvironment *environment,
 	sendToBack(m_image.get());
 }
 
-void GUIButtonImage::draw()
-{
-	GUIButton::draw();
-}
-
 void GUIButtonImage::setForegroundImage(irr_ptr<video::ITexture> image,
 		const core::rect<s32> &middle)
 {

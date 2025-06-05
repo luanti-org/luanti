@@ -255,10 +255,9 @@ void GUIButton::draw()
 
 	video::IVideoDriver* driver = Environment->getVideoDriver();
 	IGUISkin *skin = Environment->getSkin();
-	const bool is_9_slice_border = BgMiddle.getArea() > 0;
 	// END PATCH
 
-	if (DrawBorder && !is_9_slice_border)
+	if (DrawBorder)
 	{
 		if (!Pressed)
 		{
@@ -307,14 +306,14 @@ void GUIButton::draw()
 		// FIXME: Vertices can only be darkened because [0, 255] is normalized to [0, 1]
 		// For reference: irr/src/OpenGL/Driver.cpp -> `vt2DImage`
 		video::SColor image_colors[] = { BgColor, BgColor, BgColor, BgColor };
-		if (!is_9_slice_border) {
+		if (BgMiddle.getArea() == 0) {
 			// Regular image button
 			driver->draw2DImage(texture,
 					ScaleImage? AbsoluteRect : core::rect<s32>(pos, sourceRect.getSize()),
 					sourceRect, &AbsoluteClippingRect,
 					image_colors, UseAlphaChannel);
-		} else if (DrawBorder) {
-			// The background image is 9-slice --> use as new border style
+		} else {
+			// This is generally used to replace the default border style
 			draw2DImage9Slice(driver, texture,
 					ScaleImage ? AbsoluteRect : core::rect<s32>(pos, sourceRect.getSize()),
 					sourceRect, BgMiddle, &AbsoluteClippingRect, image_colors);
