@@ -56,6 +56,7 @@
 #include "guiScrollContainer.h"
 #include "guiHyperText.h"
 #include "guiScene.h"
+#include "guiSkin.h"
 
 #define MY_CHECKPOS(a,b)													\
 	if (v_pos.size() != 2) {												\
@@ -2756,8 +2757,13 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 	bool style_type = (data->type == "style_type");
 	bool do_warn = m_formspec_version <= FORMSPEC_API_VERSION;
 
+	StyleSpecMap *map = style_type ? &theme_by_type : &theme_by_name;
+	if (data->reading_theme) {
+		GUISkin *skin = (GUISkin *)Environment->getSkin();
+		map = &skin->getThemeRef();
+	}
 	parse_style_to_map(
-		style_type ? theme_by_type : theme_by_name,
+		*map,
 		element,
 		do_warn ? &property_warned : nullptr
 	);
@@ -3247,16 +3253,6 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 			this, -1, background_parent_rect));
 
 	pos_offset = v2f32();
-
-	if (!m_theme_elements.empty()) {
-		// Formspec theming
-
-		const u16 version_backup = m_formspec_version;
-		m_formspec_version = m_theme_formspec_version;
-		for (const std::string &element : m_theme_elements)
-			parseElement(&mydata, element, true);
-		m_formspec_version = version_backup;
-	}
 
 	// used for formspec versions < 3
 	auto legacy_sort_start = std::prev(Children.end()); // last element
@@ -5050,7 +5046,9 @@ std::wstring GUIFormSpecMenu::getLabelByID(s32 id)
 
 void GUIFormSpecMenu::setThemeFromSettings()
 {
-	m_theme_elements.clear();
+	GUISkin *skin = (GUISkin *)Environment->getSkin();
+	skin->getThemeRef().clear();
+	skin->setTextureSource(m_tsrc);
 
 	const std::string settingspath = g_settings->get("texture_path") + DIR_DELIM + "texture_pack.conf";
 	Settings settings;
@@ -5060,7 +5058,16 @@ void GUIFormSpecMenu::setThemeFromSettings()
 		return;
 
 	settings.getU16NoEx("formspec_version_theme", m_theme_formspec_version);
-	m_theme_elements = split(settings.get("formspec_theme"), ']');
+	auto theme_elements = split(settings.get("formspec_theme"), ']');
+
+	parserData mydata;
+	mydata.reading_theme = true;
+
+	const u16 version_backup = m_formspec_version;
+	m_formspec_version = m_theme_formspec_version;
+	for (const std::string &element : theme_elements)
+		parseElement(&mydata, element, true);
+	m_formspec_version = version_backup;
 }
 
 void GUIFormSpecMenu::onTxpSettingChanged(const std::string &name, void *data)

@@ -62,6 +62,8 @@ public:
 		STATE_INVALID = 1 << 4,
 	};
 
+	using StateMap = std::array<StyleSpec, NUM_STATES>;
+
 private:
 	std::array<bool, NUM_PROPERTIES> property_set{};
 	std::array<std::string, NUM_PROPERTIES> properties;

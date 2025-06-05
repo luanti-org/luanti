@@ -291,7 +291,7 @@ namespace gui
 		//! gets the colors
 		virtual void getColors(video::SColor* colors); // ::PATCH:
 
-	private:
+	protected:
 
 		float Scale = 1.0f;
 		video::SColor Colors[EGDC_COUNT];

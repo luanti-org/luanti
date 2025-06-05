@@ -306,7 +306,6 @@ protected:
 	std::unordered_set<std::string> property_warned;
 
 	// Texturepack-definied formspec theming support
-	std::vector<std::string> m_theme_elements;
 	u16 m_theme_formspec_version;
 	void setThemeFromSettings();
 	static void onTxpSettingChanged(const std::string &name, void *data);
@@ -392,8 +391,9 @@ private:
 	bool                       m_show_debug = false;
 
 	struct parserData {
-		bool explicit_size;
-		bool real_coordinates;
+		bool explicit_size = false;
+		bool real_coordinates = false;
+		bool reading_theme = false;
 		u8 simple_field_count;
 		v2f invsize;
 		v2s32 size;
