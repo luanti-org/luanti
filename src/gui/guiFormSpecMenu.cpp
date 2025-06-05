@@ -56,6 +56,7 @@
 #include "guiScrollContainer.h"
 #include "guiHyperText.h"
 #include "guiScene.h"
+#include "guiSkin.h"
 
 #define MY_CHECKPOS(a,b)													\
 	if (v_pos.size() != 2) {												\
@@ -114,10 +115,15 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 
 	m_tooltip_show_delay = (u32)g_settings->getS32("tooltip_show_delay");
 	m_tooltip_append_itemname = g_settings->getBool("tooltip_append_itemname");
+
+	g_settings->registerChangedCallback("texture_path", onTxpSettingChanged, this);
+	setThemeFromSettings();
 }
 
 GUIFormSpecMenu::~GUIFormSpecMenu()
 {
+	g_settings->deregisterAllChangedCallbacks(this);
+
 	removeAll();
 
 	delete m_selected_item;
@@ -2618,15 +2624,9 @@ void GUIFormSpecMenu::parsePadding(parserData *data, const std::string &element)
 			<< "'" << std::endl;
 }
 
-void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
+void GUIFormSpecMenu::parse_style_to_map(StyleSpecMap &out, const std::string &element,
+		std::unordered_set<std::string> *prop_warned)
 {
-	if (data->type != "style" && data->type != "style_type") {
-		errorstream << "Invalid style element type: '" << data->type << "'" << std::endl;
-		return;
-	}
-
-	bool style_type = (data->type == "style_type");
-
 	std::vector<std::string> parts = split(element, ';');
 
 	if (parts.size() < 2) {
@@ -2653,11 +2653,11 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 
 		StyleSpec::Property prop = StyleSpec::GetPropertyByName(propname);
 		if (prop == StyleSpec::NONE) {
-			if (property_warned.find(propname) != property_warned.end()) {
+			if (prop_warned && prop_warned->find(propname) != prop_warned->end()) {
 				warningstream << "Invalid style element (Unknown property " << propname << "): '"
 						<< element
 						<< "'" << std::endl;
-				property_warned.insert(propname);
+				prop_warned->insert(propname);
 			}
 			continue;
 		}
@@ -2705,11 +2705,7 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 			continue;
 		}
 
-		if (style_type) {
-			theme_by_type[selector].push_back(selector_spec);
-		} else {
-			theme_by_name[selector].push_back(selector_spec);
-		}
+		out[selector].push_back(selector_spec);
 
 		// Backwards-compatibility for existing _hovered/_pressed properties
 		if (selector_spec.hasProperty(StyleSpec::BGCOLOR_HOVERED)
@@ -2728,11 +2724,7 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 				hover_spec.set(StyleSpec::FGIMG, selector_spec.get(StyleSpec::FGIMG_HOVERED, ""));
 			}
 
-			if (style_type) {
-				theme_by_type[selector].push_back(hover_spec);
-			} else {
-				theme_by_name[selector].push_back(hover_spec);
-			}
+			out[selector].push_back(hover_spec);
 		}
 		if (selector_spec.hasProperty(StyleSpec::BGCOLOR_PRESSED)
 				|| selector_spec.hasProperty(StyleSpec::BGIMG_PRESSED)
@@ -2750,15 +2742,31 @@ void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
 				press_spec.set(StyleSpec::FGIMG, selector_spec.get(StyleSpec::FGIMG_PRESSED, ""));
 			}
 
-			if (style_type) {
-				theme_by_type[selector].push_back(press_spec);
-			} else {
-				theme_by_name[selector].push_back(press_spec);
-			}
+			out[selector].push_back(press_spec);
 		}
 	}
+}
 
-	return;
+void GUIFormSpecMenu::parseStyle(parserData *data, const std::string &element)
+{
+	if (data->type != "style" && data->type != "style_type") {
+		errorstream << "Invalid style element type: '" << data->type << "'" << std::endl;
+		return;
+	}
+
+	bool style_type = (data->type == "style_type");
+	bool do_warn = m_formspec_version <= FORMSPEC_API_VERSION;
+
+	StyleSpecMap *map = style_type ? &theme_by_type : &theme_by_name;
+	if (data->reading_theme) {
+		GUISkin *skin = (GUISkin *)Environment->getSkin();
+		map = &skin->getThemeRef();
+	}
+	parse_style_to_map(
+		*map,
+		element,
+		do_warn ? &property_warned : nullptr
+	);
 }
 
 void GUIFormSpecMenu::parseSetFocus(parserData*, const std::string &element)
@@ -2897,8 +2905,8 @@ void GUIFormSpecMenu::removeAll()
 		scroll_container_it.second->drop();
 }
 
-const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFormSpecMenu::parserData *data,
-	const std::string &description)>> GUIFormSpecMenu::element_parsers = {
+const std::unordered_map<std::string, GUIFormSpecMenu::parser_function_t>
+	GUIFormSpecMenu::element_parsers = {
 		{"container",              &GUIFormSpecMenu::parseContainer},
 		{"container_end",          &GUIFormSpecMenu::parseContainerEnd},
 		{"list",                   &GUIFormSpecMenu::parseList},
@@ -2947,14 +2955,20 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"allow_close",            &GUIFormSpecMenu::parseAllowClose},
 };
 
+// Formspec elements allowed for themes
+const std::unordered_map<std::string, GUIFormSpecMenu::parser_function_t>
+	GUIFormSpecMenu::element_parsers_theme = {
+		{"bgcolor",                &GUIFormSpecMenu::parseBackgroundColor},
+		{"style_type",             &GUIFormSpecMenu::parseStyle},
+};
 
-void GUIFormSpecMenu::parseElement(parserData* data, const std::string &element)
+void GUIFormSpecMenu::parseElement(parserData *data, const std::string &element, bool is_theme)
 {
 	//some prechecks
 	if (element.empty())
 		return;
 
-	if (parseVersionDirect(element))
+	if (!is_theme && parseVersionDirect(element))
 		return;
 
 	size_t pos = element.find('[');
@@ -2967,8 +2981,9 @@ void GUIFormSpecMenu::parseElement(parserData* data, const std::string &element)
 	// They remain here due to bool flags, for now
 	data->type = type;
 
-	auto it = element_parsers.find(type);
-	if (it != element_parsers.end()) {
+	auto &parser_lut = is_theme ? element_parsers_theme : element_parsers;
+	auto it = parser_lut.find(type);
+	if (it != parser_lut.end()) {
 		it->second(this, data, description);
 		return;
 	}
@@ -5026,6 +5041,40 @@ std::wstring GUIFormSpecMenu::getLabelByID(s32 id)
 			return spec.flabel;
 	}
 	return L"";
+}
+
+
+void GUIFormSpecMenu::setThemeFromSettings()
+{
+	GUISkin *skin = (GUISkin *)Environment->getSkin();
+	skin->getThemeRef().clear();
+	skin->setTextureSource(m_tsrc);
+
+	const std::string settingspath = g_settings->get("texture_path") + DIR_DELIM + "texture_pack.conf";
+	Settings settings;
+	if (!settings.readConfigFile(settingspath.c_str()))
+		return;
+	if (!settings.exists("formspec_theme"))
+		return;
+
+	settings.getU16NoEx("formspec_version_theme", m_theme_formspec_version);
+	auto theme_elements = split(settings.get("formspec_theme"), ']');
+
+	parserData mydata;
+	mydata.reading_theme = true;
+
+	const u16 version_backup = m_formspec_version;
+	m_formspec_version = m_theme_formspec_version;
+	for (const std::string &element : theme_elements)
+		parseElement(&mydata, element, true);
+	m_formspec_version = version_backup;
+}
+
+void GUIFormSpecMenu::onTxpSettingChanged(const std::string &name, void *data)
+{
+	GUIFormSpecMenu *me = (GUIFormSpecMenu *)data;
+	me->setThemeFromSettings();
+	me->regenerateGui(me->m_screensize_old);
 }
 
 StyleSpec GUIFormSpecMenu::getDefaultStyleForElement(const std::string &type,
