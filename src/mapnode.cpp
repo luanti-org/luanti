@@ -601,14 +601,21 @@ Buffer<u8> MapNode::serializeBulk(int version,
 
 	// Writing to the buffer linearly is faster
 	u8 *p = &databuf[0];
-	for (u32 i = 0; i < nodecount; i++, p += 2)
-		writeU16(p, nodes[is_mono_block ? 0 : i].param0);
-
-	for (u32 i = 0; i < nodecount; i++, p++)
-		writeU8(p, nodes[is_mono_block ? 0 : i].param1);
-
-	for (u32 i = 0; i < nodecount; i++, p++)
-		writeU8(p, nodes[is_mono_block ? 0 : i].param2);
+	if (is_mono_block) {
+		for (u32 i = 0; i < nodecount; i++, p += 2)
+			writeU16(p, nodes[0].param0);
+		for (u32 i = 0; i < nodecount; i++, p++)
+			writeU8(p, nodes[0].param1);
+		for (u32 i = 0; i < nodecount; i++, p++)
+			writeU8(p, nodes[0].param2);
+	} else {
+		for (u32 i = 0; i < nodecount; i++, p += 2)
+			writeU16(p, nodes[i].param0);
+		for (u32 i = 0; i < nodecount; i++, p++)
+			writeU8(p, nodes[i].param1);
+		for (u32 i = 0; i < nodecount; i++, p++)
+			writeU8(p, nodes[i].param2);
+	}
 
 	return databuf;
 }
