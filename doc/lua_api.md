@@ -6586,7 +6586,7 @@ Environment access
 * `core.get_value_noise(noiseparams)`
     * Return world-specific value noise.
     * The actual seed used is the noiseparams seed plus the world seed.
-    * **Warning**: Requires the mapgen enviorment to be initalized, do not use at load time.
+    * **Important**: Requires the mapgen environment to be initalized, do not use at load time.
 * `core.get_value_noise(seeddiff, octaves, persistence, spread)`
     * Deprecated: use `core.get_value_noise(noiseparams)` instead.
 * `core.get_perlin(noiseparams)`
@@ -9270,7 +9270,7 @@ It can be created via `ValueNoise()` or `core.get_value_noise()`.
 For `core.get_value_noise()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
-**Warning** These require the mapgen enviorment to be initalized, do not use at load time.
+**Important** These require the mapgen environment to be initalized, do not use at load time.
 
 * `ValueNoise(noiseparams)`
 * `ValueNoise(seed, octaves, persistence, spread)` (deprecated)
@@ -9308,7 +9308,7 @@ For each of the functions with an optional `buffer` parameter: If `buffer` is
 not nil, this table will be used to store the result instead of creating a new
 table.
 
-**Warning** These require the mapgen enviorment to be initalized, do not use at load time.
+**Important** These require the mapgen environment to be initalized, do not use at load time.
 
 ### Methods
 
