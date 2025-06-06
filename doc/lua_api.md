@@ -9270,7 +9270,7 @@ It can be created via `ValueNoise()` or `core.get_value_noise()`.
 For `core.get_value_noise()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
-**Important** These require the mapgen environment to be initalized, do not use at load time.
+**Important**: These require the mapgen environment to be initalized, do not use at load time.
 
 * `ValueNoise(noiseparams)`
 * `ValueNoise(seed, octaves, persistence, spread)` (deprecated)
@@ -9308,7 +9308,7 @@ For each of the functions with an optional `buffer` parameter: If `buffer` is
 not nil, this table will be used to store the result instead of creating a new
 table.
 
-**Important** These require the mapgen environment to be initalized, do not use at load time.
+**Important**: These require the mapgen environment to be initalized, do not use at load time.
 
 ### Methods
 
