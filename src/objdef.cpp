@@ -6,9 +6,10 @@
 #include "util/numeric.h"
 #include "log.h"
 #include "gamedef.h"
-#include "porting.h" // strcasecmp
+#include "porting.h" // strcasecmp for Windows
 
 #include <cassert>
+#include <cstring> // strcasecmp for everything else
 
 ObjDefManager::ObjDefManager(IGameDef *gamedef, ObjDefType type)
 {

@@ -9,6 +9,7 @@ set(util_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/ieee_float.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/metricsbackend.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/numeric.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/rotation_matrix.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pointedthing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pointabilities.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/quicktune.cpp
