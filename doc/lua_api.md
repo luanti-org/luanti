@@ -84,6 +84,9 @@ The game directory can contain the following files:
       When both `allowed_mapgens` and `disallowed_mapgens` are
       specified, `allowed_mapgens` is applied before
       `disallowed_mapgens`.
+    * `default_mapgen`
+      e.g. `default_mapgen = valleys`
+      Set default mapgen for game, this will be the default selection when creating a new world.
     * `disallowed_mapgen_settings= <comma-separated mapgen settings>`
       e.g. `disallowed_mapgen_settings = mgv5_spflags`
       These mapgen settings are hidden for this game in the world creation
