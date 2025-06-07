@@ -243,6 +243,7 @@ public:
 		EmergeParams *emerge);
 	static MapgenParams *createMapgenParams(MapgenType mgtype);
 	static void getMapgenNames(std::vector<const char *> *mgnames, bool include_hidden);
+	static void getMapgenDescriptions(std::vector<const char *> *mgdescriptions, bool include_hidden);
 	static void setDefaultSettings(Settings *settings);
 
 private:

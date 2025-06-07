@@ -660,6 +660,22 @@ int ModApiMainMenu::l_get_mapgen_names(lua_State *L)
 	return 1;
 }
 
+/******************************************************************************/
+int ModApiMainMenu::l_get_mapgen_descriptions(lua_State *L)
+{
+	std::vector<const char *> descriptions;
+	bool include_hidden = lua_isboolean(L, 1) && readParam<bool>(L, 1);
+	Mapgen::getMapgenDescriptions(&descriptions, include_hidden);
+
+	lua_newtable(L);
+	for (size_t i = 0; i != descriptions.size(); i++) {
+		lua_pushstring(L, descriptions[i]);
+		lua_rawseti(L, -2, i + 1);
+	}
+
+	return 1;
+}
+
 
 /******************************************************************************/
 int ModApiMainMenu::l_get_user_path(lua_State *L)
@@ -1059,6 +1075,7 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(set_background);
 	API_FCT(set_topleft_text);
 	API_FCT(get_mapgen_names);
+	API_FCT(get_mapgen_descriptions);
 	API_FCT(get_user_path);
 	API_FCT(get_modpath);
 	API_FCT(get_modpaths);

@@ -82,6 +82,7 @@ local function create_world_formspec(dialogdata)
 
 	local current_mg = dialogdata.mg
 	local mapgens = core.get_mapgen_names()
+	local mapgens_descriptions = core.get_mapgen_descriptions()
 
 	local flags = dialogdata.flags
 
@@ -109,6 +110,7 @@ local function create_world_formspec(dialogdata)
 		if #allowed_mapgens > 0 then
 			for i = #mapgens, 1, -1 do
 				if table.indexof(allowed_mapgens, mapgens[i]) == -1 then
+					table.remove(mapgens_descriptions, i)
 					table.remove(mapgens, i)
 				end
 			end
@@ -117,6 +119,7 @@ local function create_world_formspec(dialogdata)
 		if #disallowed_mapgens > 0 then
 			for i = #mapgens, 1, -1 do
 				if table.indexof(disallowed_mapgens, mapgens[i]) > 0 then
+					table.remove(mapgens_descriptions, i)
 					table.remove(mapgens, i)
 				end
 			end
@@ -129,6 +132,7 @@ local function create_world_formspec(dialogdata)
 	end
 
 	local mglist = ""
+	local mgdescription = ""
 	local selindex
 	do -- build the list of mapgens
 		local i = 1
@@ -138,6 +142,7 @@ local function create_world_formspec(dialogdata)
 				first_mg = v
 			end
 			if current_mg == v then
+				mgdescription = mapgens_descriptions[k]
 				selindex = i
 			end
 			i = i + 1
@@ -287,12 +292,13 @@ local function create_world_formspec(dialogdata)
 
 	retval = retval ..
 		"label[0,2;" .. fgettext("Mapgen") .. "]"..
-		"dropdown[0,2.5;6.3;dd_mapgen;" .. mglist .. ";" .. selindex .. "]"
+		"dropdown[0,2.5;6.3;dd_mapgen;" .. mglist .. ";" .. selindex .. "]"..
+		"textarea[0.5,3.2;6,2;;;" .. core.formspec_escape(fgettext(mgdescription)) .. "]"
 
 	-- Warning when making a devtest world
 	if game.id == "devtest" then
 		retval = retval ..
-			"container[0,3.5]" ..
+			"container[0,4.7]" ..
 			"box[0,0;5.8,1.7;#ff8800]" ..
 			"textarea[0.4,0.1;6,1.8;;;"..
 			fgettext("Development Test is meant for developers.") .. "]" ..
