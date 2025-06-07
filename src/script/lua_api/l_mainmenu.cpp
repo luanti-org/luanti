@@ -1117,6 +1117,7 @@ void ModApiMainMenu::InitializeAsync(lua_State *L, int top)
 	API_FCT(get_worlds);
 	API_FCT(get_games);
 	API_FCT(get_mapgen_names);
+	API_FCT(get_mapgen_descriptions);
 	API_FCT(get_user_path);
 	API_FCT(get_modpath);
 	API_FCT(get_modpaths);
