@@ -618,6 +618,7 @@ core.registered_allow_player_inventory_actions, core.register_allow_player_inven
 core.registered_on_rightclickplayers, core.register_on_rightclickplayer = make_registration()
 core.registered_on_liquid_transformed, core.register_on_liquid_transformed = make_registration()
 core.registered_on_mapblocks_changed, core.register_on_mapblocks_changed = make_registration()
+core.registered_on_hotbar_slot_selected, core.register_on_hotbar_slot_selected = make_registration()
 
 -- A bunch of registrations are read by the C++ side once on env init, so we cannot
 -- allow them to change afterwards (see s_env.cpp).
