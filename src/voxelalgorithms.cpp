@@ -753,13 +753,13 @@ void update_block_border_lighting(Map *map, MapBlock *block,
 /*!
  * Resets the lighting of the given VoxelManipulator to
  * complete darkness and full sunlight.
- * Operates in one map sector.
+ * Operates in one map column.
  *
  * \param offset contains the least x and z node coordinates
- * of the map sector.
+ * of the map column.
  * \param light incoming sunlight, light[x][z] is true if there
  * is sunlight above the voxel manipulator at the given x-z coordinates.
- * The array's indices are relative node coordinates in the sector.
+ * The array's indices are relative node coordinates in the column.
  * After the procedure returns, this contains outgoing light at
  * the bottom of the voxel manipulator.
  */
