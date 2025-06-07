@@ -246,3 +246,9 @@ else
 		end,
 	})
 end
+
+local t = {}
+unittests.register("test_mod_require", function()
+	assert(require("unittests") == t)
+end)
+return t
