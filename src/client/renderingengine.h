@@ -66,8 +66,6 @@ public:
 class RenderingEngine
 {
 public:
-	static const video::SColor MENU_SKY_COLOR;
-
 	RenderingEngine(MyEventReceiver *eventReceiver);
 	~RenderingEngine();
 
@@ -140,6 +138,11 @@ public:
 		return m_device->run();
 	}
 
+	void setMenuSkyColor(video::SColor &color);
+	void setMenuCloudsColor(video::SColor &color);
+	const video::SColor getMenuSkyColor();
+	const video::SColor getMenuCloudsColor();
+
 	// FIXME: this is still global when it shouldn't be
 	static ShadowRenderer *get_shadow_renderer()
 	{
@@ -160,6 +163,9 @@ public:
 	}
 
 private:
+	video::SColor m_menu_sky_color = video::SColor(255, 140, 186, 250);
+	video::SColor m_menu_clouds_color = video::SColor(255, 240, 240, 255);
+
 	static void settingChangedCallback(const std::string &name, void *data);
 	v2u32 _getWindowSize() const;
 
