@@ -10,7 +10,7 @@ safely without breaking backwards compatibility.
 
 * More information at <http://www.luanti.org/>
 * Additional documentation: <https://docs.luanti.org/>
-* (Unofficial) Minetest Modding Book by rubenwardy: <https://rubenwardy.com/minetest_modding_book/>
+* (Unofficial) Luanti Modding Book by rubenwardy: <https://rubenwardy.com/minetest_modding_book/>
 * Modding tools: <https://github.com/luanti-org/modtools>
 
 Introduction
