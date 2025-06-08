@@ -461,7 +461,6 @@ function create_create_world_dlg()
 		worldname = "",
 		-- settings the world is created with:
 		seed = core.settings:get("fixed_map_seed") or "",
-		mg = nil,
 		flags = {
 			main = core.settings:get_flags("mg_flags"),
 			v5 = core.settings:get_flags("mgv5_spflags"),
