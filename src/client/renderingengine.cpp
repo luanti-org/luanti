@@ -20,6 +20,8 @@
 #include "renderingengine.h"
 #include "render/core.h"
 #include "render/factory.h"
+#include "input/inputhandler.h"
+#include "gettext.h"
 #include "filesys.h"
 #include "irrlicht_changes/static_text.h"
 #include "irr_ptr.h"
