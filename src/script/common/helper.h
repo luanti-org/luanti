@@ -25,6 +25,13 @@ protected:
 	static T readParam(lua_State *L, int index);
 
 	/**
+	 * @brief Read a value, but restrict to finite floats.
+	 * @see readParam
+	 */
+	template <typename T>
+	static T readFiniteParam(lua_State *L, int index);
+
+	/**
 	 * Read a value using a template type T from Lua state L at index
 	 *
 	 * @tparam T type to read from Lua
