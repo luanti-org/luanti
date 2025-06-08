@@ -241,3 +241,48 @@ core.register_chatcommand("set_saturation", {
 		core.get_player_by_name(player_name):set_lighting({saturation = saturation })
 	end
 })
+
+local stars_enabled = {}
+
+minetest.register_chatcommand("toggle_stars", {
+    description = "Toggle custom shooting stars",
+    privs = { interact = true },
+    func = function(name)
+        local player = minetest.get_player_by_name(name)
+        if not player then
+            return false, "Player not found."
+        end
+
+        if stars_enabled[name] then
+            -- Disable shooting stars
+            player:set_stars({
+                shooting_stars_enabled = false,
+                visible = false
+            })
+            stars_enabled[name] = false
+            return true, "Shooting stars disabled."
+        else
+            -- Enable shooting stars with custom settings
+            player:set_stars({
+                visible = true,
+                count = 1000,
+                scale = 1.0,
+                day_opacity = 0.0,
+                shooting_stars_enabled = true,
+                shooting_star_chance = 100.0,
+                shooting_star_speed = 0.5,
+                shooting_star_size = 1.0,
+                shooting_star_colors = {
+                    "#FFFFFF",
+                    "#B4DCFF",
+                    "#FFE0B4",
+                    "#B4FFD0",
+                    "#FFB4B4"
+                }
+            })
+            stars_enabled[name] = true
+            return true, "Shooting stars enabled!"
+        end
+    end
+})
+

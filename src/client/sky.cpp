@@ -230,9 +230,15 @@ void Sky::render()
 			}
 		}
 
+		float dtime = m_last_update_time > 0.0f ? m_last_update_time : 0.016f;
+
 		// Draw stars before sun and moon to be behind them
 		if (m_star_params.visible)
 			draw_stars(driver, wicked_time_of_day);
+
+		if (m_star_params.shooting_stars_enabled && m_star_params.visible) {
+			draw_shooting_stars(driver, wicked_time_of_day, dtime);
+		};
 
 		// Draw sunrise/sunset horizon glow texture
 		// (textures/base/pack/sunrisebg.png)
@@ -896,4 +902,277 @@ float getWickedTimeOfDay(float time_of_day)
 	else
 		wicked_time_of_day = 1.0f - ((1.0f - time_of_day) / wn * 0.25f);
 	return wicked_time_of_day;
+}
+
+void Sky::draw_shooting_stars(video::IVideoDriver *driver, float wicked_time_of_day, float dtime)
+{
+
+	// Only spawn shooting stars at night
+	float tod = wicked_time_of_day < 0.5f ? wicked_time_of_day : (1.0f - wicked_time_of_day);
+	if (tod > 0.2f)
+		return;
+
+	// Track shooting stars between frames
+	static bool star_active[5] = {false, false, false, false, false};
+	static float star_lifetime[5] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+	static float star_progress[5] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+	static v3f star_direction[5];
+	static float star_angle1[5], star_angle2[5];
+	static video::SColor star_color[5];
+	static float star_size[5];
+	static std::vector<v3f> tail_positions[5];
+
+	// Maximum lifetime of a shooting star in seconds
+	const float MAX_STAR_LIFETIME = 3.5f; // Increased from 2.0f to 3.5f for longer duration
+
+	// Count active stars
+	int active_stars = 0;
+	for (int s = 0; s < 5; s++) {
+		if (star_active[s])
+			active_stars++;
+	}
+
+	// Try to spawn a new star if we haven't reached the limit
+	if (active_stars < 5) {
+		// Find an inactive slot
+		int new_star_index = -1;
+		for (int s = 0; s < 5; s++) {
+			if (!star_active[s]) {
+				new_star_index = s;
+				break;
+			}
+		}
+
+		// Chance to spawn a new shooting star - reduced for rarity
+		float spawn_chance = m_star_params.shooting_star_chance * dtime * 0.02f;
+		if (new_star_index >= 0 && myrand_float() < spawn_chance) {
+			// Initialize a new shooting star
+			star_active[new_star_index] = true;
+			star_lifetime[new_star_index] = 0.0f;
+			star_progress[new_star_index] = 0.0f;
+
+			// Random position and direction - allow for full sky coverage
+			// Generate random angles for position in the sky hemisphere
+			star_angle1[new_star_index] = myrand_range(0.0f, 360.0f); // Horizontal angle (full 360 degrees)
+			star_angle2[new_star_index] = myrand_range(10.0f, 80.0f); // Vertical angle (avoid too close to horizon or zenith)
+
+			// Direction vector - more horizontal for a streak effect
+			// Use a different direction than just the default south-facing one
+			float dir_angle1 = myrand_range(0.0f, 360.0f); // Random direction in 360 degrees
+			float dir_angle2 = myrand_range(20.0f, 60.0f); // Angle from horizontal plane
+
+			star_direction[new_star_index] = v3f(
+				cos(dir_angle1 * M_PI / 180.0f) * sin(dir_angle2 * M_PI / 180.0f),
+				cos(dir_angle2 * M_PI / 180.0f) * 0.05f, // Small vertical component
+				sin(dir_angle1 * M_PI / 180.0f) * sin(dir_angle2 * M_PI / 180.0f)
+			);
+
+			// Size of the shooting star - use the size parameter directly
+			// Make sure it has a reasonable default if not set or out of range (0.5 to 2.0)
+			float size_param = m_star_params.shooting_star_size;
+			if (size_param < 0.5f || size_param > 2.0f) {
+				size_param = 1.0f;
+			}
+			star_size[new_star_index] = 0.0025f * size_param;
+
+			// Brightness variation - some stars will be fainter
+			float brightness = myrand_range(0.3f, 1.0f); // Random brightness between 30% and 100%
+
+			// Initial color - randomly choose one color for the entire lifecycle
+            if (!m_star_params.shooting_star_colors.empty()) {
+                int color_index = myrand_range(0, m_star_params.shooting_star_colors.size() - 1);
+                video::SColor base_color = m_star_params.shooting_star_colors[color_index];
+
+                // Apply brightness variation
+                star_color[new_star_index] = video::SColor(
+                    base_color.getAlpha() * brightness,
+                    base_color.getRed() * brightness,
+                    base_color.getGreen() * brightness,
+                    base_color.getBlue() * brightness
+                );
+            } else {
+                // Fallback to white if no colors defined
+                star_color[new_star_index] = video::SColor(255 * brightness,
+                    255 * brightness, 255 * brightness, 255 * brightness);
+            }
+
+			// Clear tail positions
+			tail_positions[new_star_index].clear();
+		}
+	}
+
+	// Update and draw active stars
+	static const u16 indices[] = {0, 1, 2, 0, 2, 3};
+
+	for (int s = 0; s < 5; s++) {
+		if (star_active[s]) {
+			// Update existing shooting star
+            star_lifetime[s] += dtime;
+
+			// Progress from 0.0 to 1.0 over the lifetime
+			star_progress[s] = star_lifetime[s] / MAX_STAR_LIFETIME;
+
+			// End the shooting star when it completes its journey
+			if (star_lifetime[s] >= MAX_STAR_LIFETIME) {
+				star_active[s] = false;
+				continue;
+			}
+
+			// Calculate fade-out effect near the end of lifetime
+			float alpha_multiplier = 1.0f;
+			if (star_progress[s] > 0.8f) {
+				// Start fading out at 80% of lifetime
+				alpha_multiplier = 1.0f - ((star_progress[s] - 0.8f) * 5.0f); // Linear fade from 1.0 to 0.0
+			}
+
+			// Apply fade-out to star color
+			video::SColor current_color = star_color[s];
+			current_color.setAlpha(current_color.getAlpha() * alpha_multiplier);
+
+			// Calculate current position based on progress
+			// For a straight path, we'll use linear interpolation between start and end points
+
+			// Starting position (at progress = 0)
+			std::array<video::S3DVertex, 4> start_vertices;
+			draw_sky_body(start_vertices, -star_size[s], star_size[s], star_color[s]);
+			place_sky_body(start_vertices, star_angle2[s], star_angle1[s]);
+
+			// Ending position (at progress = 1)
+			std::array<video::S3DVertex, 4> end_vertices;
+			draw_sky_body(end_vertices, -star_size[s], star_size[s], star_color[s]);
+			place_sky_body(end_vertices, star_angle2[s], star_angle1[s] + 120.0f);
+
+			// Current position by linear interpolation
+			std::array<video::S3DVertex, 4> vertices;
+			for (int i = 0; i < 4; i++) {
+				vertices[i].Pos = start_vertices[i].Pos + (end_vertices[i].Pos - start_vertices[i].Pos) * star_progress[s];
+				vertices[i].Color = current_color;
+			}
+
+			// Store current head position for tail
+			v3f current_pos = (vertices[0].Pos + vertices[1].Pos + vertices[2].Pos + vertices[3].Pos) / 4.0f;
+			tail_positions[s].insert(tail_positions[s].begin(), current_pos);
+
+			// Limit tail length
+			const size_t MAX_TAIL_POINTS = 30;
+			if (tail_positions[s].size() > MAX_TAIL_POINTS)
+				tail_positions[s].resize(MAX_TAIL_POINTS);
+
+			// Draw tail as a connected ribbon with improved visuals
+			if (tail_positions[s].size() > 2) {
+				// Create a ribbon-like tail
+				std::vector<video::S3DVertex> tail_vertices;
+				std::vector<u16> tail_indices;
+
+				// Width of the tail at the head - based on star size and speed
+				float head_width = star_size[s] * 1.5f;
+
+				// Create orthogonal vector for width
+				v3f forward = star_direction[s];
+				forward.normalize();
+				v3f up(0, 1, 0);
+				v3f right = forward.crossProduct(up);
+				right.normalize();
+
+				// For each point in the tail
+				for (size_t i = 0; i < tail_positions[s].size(); i++) {
+					// Calculate width at this point (tapers off)
+					float width_factor = pow(1.0f - (float)i / tail_positions[s].size(), 0.7f); // Non-linear tapering
+					float point_width = head_width * width_factor;
+
+					// Calculate alpha at this point (fades out)
+					float alpha_factor = pow(1.0f - (float)i / tail_positions[s].size(), 0.5f); // Non-linear fading
+					u32 alpha = 255 * alpha_factor * alpha_multiplier;
+
+					// Create a gradient effect along the tail
+					video::SColor point_color = star_color[s];
+
+					// Adjust color for a more fiery/comet-like appearance
+					if (i > 0) {
+						float t = (float)i / tail_positions[s].size();
+						// Shift color towards yellow/orange for middle of tail
+						if (t < 0.5f) {
+							float blend = t * 2.0f;
+							point_color.setRed(point_color.getRed() + (255 - point_color.getRed()) * blend * 0.7f);
+							point_color.setGreen(point_color.getGreen() + (200 - point_color.getGreen()) * blend * 0.5f);
+						}
+						// Shift color towards red/dark for end of tail
+						else {
+							float blend = (t - 0.5f) * 2.0f;
+							point_color.setRed(point_color.getRed() * (1.0f - blend * 0.5f));
+							point_color.setGreen(point_color.getGreen() * (1.0f - blend * 0.7f));
+							point_color.setBlue(point_color.getBlue() * (1.0f - blend * 0.9f));
+						}
+					}
+
+					point_color.setAlpha(alpha);
+
+					// Add two vertices for this point (left and right sides of ribbon)
+					video::S3DVertex v1, v2;
+					v1.Pos = tail_positions[s][i] + (right * point_width);
+					v2.Pos = tail_positions[s][i] - (right * point_width);
+					v1.Color = v2.Color = point_color;
+
+					tail_vertices.push_back(v1);
+					tail_vertices.push_back(v2);
+
+					// Add indices to form triangles (except for the first point)
+					if (i > 0) {
+						size_t base = (i - 1) * 2;
+						// First triangle
+						tail_indices.push_back(base);
+						tail_indices.push_back(base + 1);
+						tail_indices.push_back(base + 2);
+						// Second triangle
+						tail_indices.push_back(base + 1);
+						tail_indices.push_back(base + 3);
+						tail_indices.push_back(base + 2);
+					}
+				}
+
+				// Set material for smooth rendering with additive blending
+				video::SMaterial tail_material = m_materials[0];
+				// Fix for EMT_TRANSPARENT_ADD_COLOR not existing
+				tail_material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+				driver->setMaterial(tail_material);
+
+				// Draw the tail
+				if (!tail_vertices.empty() && !tail_indices.empty()) {
+					driver->drawIndexedTriangleList(
+						&tail_vertices[0], tail_vertices.size(),
+						&tail_indices[0], tail_indices.size() / 3
+					);
+				}
+
+				// Add a glow effect around the head of the shooting star
+				if (tail_positions[s].size() > 0) {
+					video::SMaterial glow_material = m_materials[0];
+					// Fix for EMT_TRANSPARENT_ADD_COLOR not existing
+					glow_material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+					driver->setMaterial(glow_material);
+
+					// Create a larger, semi-transparent quad for the glow
+					float glow_size = star_size[s] * 1.0f;
+					std::array<video::S3DVertex, 4> glow_vertices;
+					draw_sky_body(glow_vertices, -glow_size, glow_size, video::SColor(
+						100 * alpha_multiplier,
+						current_color.getRed(),
+						current_color.getGreen(),
+						current_color.getBlue()
+					));
+
+					// Position the glow at the head of the shooting star
+					for (int i = 0; i < 4; i++) {
+						glow_vertices[i].Pos = vertices[i].Pos;
+					}
+
+					driver->drawIndexedTriangleList(&glow_vertices[0], 4, indices, 2);
+				}
+			}
+
+			// Draw the star head AFTER the tail so it appears on top
+			driver->setMaterial(m_materials[0]);
+			driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
+		}
+	}
 }

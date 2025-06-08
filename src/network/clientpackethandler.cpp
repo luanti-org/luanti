@@ -1409,6 +1409,22 @@ void Client::handleCommand_HudSetStars(NetworkPacket *pkt)
 		>> stars.starcolor >> stars.scale;
 	try {
 		*pkt >> stars.day_opacity;
+		*pkt >> stars.shooting_stars_enabled
+			 >> stars.shooting_star_chance
+			 >> stars.shooting_star_speed
+			 >> stars.shooting_star_size;
+
+		// Read color count
+		u16 color_count;
+		*pkt >> color_count;
+
+		// Clear default colors and read new ones
+		stars.shooting_star_colors.clear();
+		for (u16 i = 0; i < color_count; i++) {
+			video::SColor color;
+			*pkt >> color;
+			stars.shooting_star_colors.push_back(color);
+		}
 	} catch (PacketError &e) {};
 
 	ClientEvent *event = new ClientEvent();

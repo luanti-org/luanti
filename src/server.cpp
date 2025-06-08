@@ -1910,7 +1910,20 @@ void Server::SendSetStars(session_t peer_id, const StarParams &params)
 
 	pkt << params.visible << params.count
 		<< params.starcolor << params.scale
-		<< params.day_opacity;
+		<< params.day_opacity
+		<< params.shooting_stars_enabled
+		<< params.shooting_star_chance
+		<< params.shooting_star_speed
+		<< params.shooting_star_size;
+
+	// Send the number of colors first
+	u16 color_count = params.shooting_star_colors.size();
+	pkt << color_count;
+
+	// Then send each color
+	for (const auto &color : params.shooting_star_colors) {
+		pkt << color;
+	}
 
 	Send(&pkt);
 }
