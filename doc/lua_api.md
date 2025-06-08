@@ -3653,6 +3653,8 @@ Some types may inherit styles from parent types.
       * `+<number>`/`-<number>`: Offsets default font size by `number` points.
       * `*<number>`: Multiplies default font size by `number`, similar to CSS `em`.
     * border - boolean, draw border. Set to false to hide the bevelled button pane. Default true.
+    * border_img - string, a texture that overrides the border style.
+    * border_img_middle - rect, to render `border_img` in 9-sliced mode. Refer to `background9[...]`.
     * content_offset - 2d vector, shifts the position of the button's content without resizing it.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * padding - rect, adds space between the edges of the button and the content. This value is
