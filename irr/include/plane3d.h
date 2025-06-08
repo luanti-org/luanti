@@ -165,7 +165,7 @@ public:
 	bool existsIntersection(const plane3d<T> &other) const
 	{
 		vector3d<T> cross = other.Normal.crossProduct(Normal);
-		return cross.getLength() > core::ROUNDING_ERROR_f32;
+		return cross.getLength() > ROUNDING_ERROR_f32;
 	}
 
 	//! Intersects this plane with another.
