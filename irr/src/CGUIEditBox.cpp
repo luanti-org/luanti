@@ -234,6 +234,10 @@ bool CGUIEditBox::OnEvent(const SEvent &event)
 			inputString(*event.StringInput.Str);
 			return true;
 			break;
+		case EET_STRING_COMPOSITION_EVENT:
+			composeString(*event.StringComposition.Str);
+			return true;
+			break;
 		default:
 			break;
 		}
@@ -1262,10 +1266,10 @@ void CGUIEditBox::inputChar(wchar_t c)
 	inputString(s);
 }
 
-void CGUIEditBox::inputString(const core::stringw &str)
+bool CGUIEditBox::insertString(const core::stringw &str)
 {
 	if (!isEnabled())
-		return;
+		return false;
 
 	core::stringw s;
 	u32 len = str.size();
@@ -1324,7 +1328,25 @@ void CGUIEditBox::inputString(const core::stringw &str)
 	}
 
 	BlinkStartTime = os::Timer::getTime();
+	return true;
+}
+
+void CGUIEditBox::inputString(const core::stringw &str)
+{
+	if (!insertString(str))
+		return;
 	setTextMarkers(0, 0);
+
+	breakText();
+	calculateScrollPos();
+	sendGuiEvent(EGET_EDITBOX_CHANGED);
+}
+
+void CGUIEditBox::composeString(const core::stringw &str)
+{
+	if (!insertString(str))
+		return;
+	setTextMarkers(CursorPos-str.size(), CursorPos);
 
 	breakText();
 	calculateScrollPos();
