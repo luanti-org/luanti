@@ -4,15 +4,21 @@
 
 #pragma once
 
-#include <functional>
-#include <exception>
-#include <sstream>
-#include <vector>
-
+#include "dummygamedef.h"
 #include "irrlichttypes_bloated.h"
-#include "porting.h"
 #include "filesys.h"
 #include "mapnode.h"
+#include "modchannels.h"
+#include "porting.h"
+
+#include <cstdio>
+#include <functional>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 class TestFailedException { // don’t derive from std::exception to avoid accidental catch
 public:
@@ -103,6 +109,25 @@ public:
 	{
 		getTestModules().push_back(module);
 	}
+};
+
+class TestGameDef : public DummyGameDef {
+public:
+	TestGameDef();
+	~TestGameDef() = default;
+
+	void defineSomeNodes();
+
+	bool joinModChannel(const std::string &channel);
+	bool leaveModChannel(const std::string &channel);
+	bool sendModChannelMessage(const std::string &channel, const std::string &message);
+	ModChannel *getModChannel(const std::string &channel)
+	{
+		return m_modchannel_mgr->getModChannel(channel);
+	}
+
+private:
+	std::unique_ptr<ModChannelMgr> m_modchannel_mgr;
 };
 
 // A few item and node definitions for those tests that need them
