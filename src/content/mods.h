@@ -37,6 +37,9 @@ struct ModSpec
 	bool part_of_modpack = false;
 	bool is_modpack = false;
 
+	// lua-defined mapgen
+	bool is_mapgen = false;
+
 	/**
 	 * A constructed canonical path to represent this mod's location.
 	 * This intended to be used as an identifier for a modpath that tolerates file movement,

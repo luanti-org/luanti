@@ -67,6 +67,15 @@ public:
 			const std::unordered_map<std::string, std::string> &modPaths);
 
 	/**
+	 * Adds mods specified by a world.mt config
+	 *
+	 * @param settings_path Path to world.mt
+	 * @param mapgenPaths Map from virtual name to mapgen path
+	 */
+	void addMapgenFromConfig(const std::string &settings_path,
+			const std::unordered_map<std::string, std::string> &mapgenPaths);
+			
+	/**
 	 * Call this function once all mods have been added
 	 */
 	void checkConflictsAndDeps();

@@ -80,8 +80,17 @@ local mgv6_biomes = {
 
 local function create_world_formspec(dialogdata)
 
-	local current_mg = dialogdata.mg
+	local current_mapgen = dialogdata.mg
 	local mapgens = core.get_mapgen_names()
+	local lua_mapgens = core.get_lua_mapgen_descriptions()
+	for k, v in pairs(lua_mapgens) do
+		mapgens[#mapgens+1] = k
+	end
+
+	local current_mapgen_internal = dialogdata.mg
+	if lua_mapgens[current_mapgen_internal] then
+		current_mapgen_internal = "singlenode"
+	end
 
 	local flags = dialogdata.flags
 
@@ -137,7 +146,7 @@ local function create_world_formspec(dialogdata)
 			if not first_mg then
 				first_mg = v
 			end
-			if current_mg == v then
+			if current_mapgen == v then
 				selindex = i
 			end
 			i = i + 1
@@ -145,7 +154,7 @@ local function create_world_formspec(dialogdata)
 		end
 		if not selindex then
 			selindex = 1
-			current_mg = first_mg
+			current_mapgen = first_mg
 		end
 		mglist = mglist:sub(1, -2)
 	end
@@ -254,7 +263,7 @@ local function create_world_formspec(dialogdata)
 	local str_flags, str_spflags
 	local label_flags, label_spflags = "", ""
 	y = y + 0.3
-	str_flags, y = mg_main_flags(current_mg, y)
+	str_flags, y = mg_main_flags(current_mapgen_internal, y)
 	if str_flags ~= "" then
 		label_flags = "label[0,"..y_start..";" .. fgettext("Mapgen flags") .. "]"
 		y_start = y + 0.4
@@ -262,7 +271,7 @@ local function create_world_formspec(dialogdata)
 		y_start = 0.0
 	end
 	y = y_start + 0.3
-	str_spflags = mg_specific_flags(current_mg, y)
+	str_spflags = mg_specific_flags(current_mapgen_internal, y)
 	if str_spflags ~= "" then
 		label_spflags = "label[0,"..y_start..";" .. fgettext("Mapgen-specific flags") .. "]"
 	end
@@ -370,11 +379,20 @@ local function create_world_buttonhandler(this, fields)
 		if message == nil then
 			this.data.seed = fields["te_seed"] or ""
 			this.data.mg = fields["dd_mapgen"]
+			local mapgen_internal = this.data.mg
+			local mapgen = nil
+
+			local lua_mapgens = core.get_lua_mapgen_descriptions()
+			if lua_mapgens[this.data.mg] then
+				mapgen_internal = "singlenode"
+				mapgen = this.data.mg
+			end
 
 			-- actual names as used by engine
 			local settings = {
 				fixed_map_seed = this.data.seed,
-				mg_name = this.data.mg,
+				mg_name = mapgen_internal,
+				lua_mapgen = mapgen,
 				mg_flags = table_to_flags(this.data.flags.main),
 				mgv5_spflags = table_to_flags(this.data.flags.v5),
 				mgv6_spflags = table_to_flags(this.data.flags.v6),

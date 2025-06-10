@@ -23,6 +23,7 @@ ServerModManager::ServerModManager(const std::string &worldpath, SubgameSpec gam
 
 	// Load normal mods
 	std::string worldmt = worldpath + DIR_DELIM + "world.mt";
+	configuration.addMapgenFromConfig(worldmt, gamespec.mapgen_paths);
 	configuration.addModsFromConfig(worldmt, gamespec.addon_mods_paths);
 	configuration.checkConflictsAndDeps();
 }

@@ -81,7 +81,8 @@ std::string getSubgamePathEnv()
 
 static SubgameSpec getSubgameSpec(const std::string &game_id,
 		const std::string &game_path,
-		const std::unordered_map<std::string, std::string> &mods_paths)
+		const std::unordered_map<std::string, std::string> &mods_paths,
+		const std::unordered_map<std::string, std::string> &mapgen_paths)
 {
 	const auto gamemods_path = game_path + DIR_DELIM + "mods";
 	// Get meta
@@ -113,8 +114,12 @@ static SubgameSpec getSubgameSpec(const std::string &game_id,
 	if (conf.exists("last_mod"))
 		last_mod = conf.get("last_mod");
 
+	std::string mapgen;
+	if (conf.exists("mapgen"))
+		mapgen = conf.get("mapgen");
+
 	SubgameSpec spec(game_id, game_path, gamemods_path, mods_paths, game_title,
-			game_author, game_release, first_mod, last_mod);
+			game_author, game_release, first_mod, last_mod, mapgen, mapgen_paths);
 
 	if (conf.exists("name") && !conf.exists("title"))
 		spec.deprecation_msgs.push_back("\"name\" setting in game.conf is deprecated, please use \"title\" instead");
@@ -167,6 +172,14 @@ SubgameSpec findSubgame(const std::string &id)
 
 	// Find mod directories
 	std::unordered_map<std::string, std::string> mods_paths;
+	std::unordered_map<std::string, std::string> mapgen_paths;
+
+	// Find mapgen directories
+	mapgen_paths["mapgens"] = user + DIR_DELIM + "mapgens";
+	if (!user_game && user != share)
+		mapgen_paths["mapgens_share"] = share + DIR_DELIM + "mapgens";
+
+	// Find mod directories
 	mods_paths["mods"] = user + DIR_DELIM + "mods";
 	if (!user_game && user != share)
 		mods_paths["share"] = share + DIR_DELIM + "mods";
@@ -175,7 +188,7 @@ SubgameSpec findSubgame(const std::string &id)
 		mods_paths[fs::AbsolutePath(mod_path)] = mod_path;
 	}
 
-	return getSubgameSpec(id, game_path, mods_paths);
+	return getSubgameSpec(id, game_path, mods_paths, mapgen_paths);
 }
 
 SubgameSpec findWorldSubgame(const std::string &world_path)
@@ -184,7 +197,7 @@ SubgameSpec findWorldSubgame(const std::string &world_path)
 	// See if world contains an embedded game; if so, use it.
 	std::string world_gamepath = world_path + DIR_DELIM + "game";
 	if (fs::PathExists(world_gamepath))
-		return getSubgameSpec(world_gameid, world_gamepath, {});
+		return getSubgameSpec(world_gameid, world_gamepath, {}, {});
 	return findSubgame(world_gameid);
 }
 
@@ -330,7 +343,7 @@ std::vector<WorldSpec> getAvailableWorlds()
 }
 
 void loadGameConfAndInitWorld(const std::string &path, const std::string &name,
-		const SubgameSpec &gamespec, bool create_world)
+		const SubgameSpec &gamespec, bool create_world, const std::string &lua_mapgen)
 {
 	std::string final_path = path;
 
@@ -379,6 +392,9 @@ void loadGameConfAndInitWorld(const std::string &path, const std::string &name,
 			backend = "dummy";
 		}
 		conf.set("backend", backend);
+
+		if (lua_mapgen != "")
+			conf.set("mapgen", lua_mapgen);
 
 		conf.set("player_backend", "sqlite3");
 		conf.set("auth_backend", "sqlite3");

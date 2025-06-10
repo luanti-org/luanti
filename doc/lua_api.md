@@ -403,6 +403,40 @@ Any mod can redefine `experimental:tnt` by using the name
 when registering it. For this to work correctly, that mod must have
 `experimental` as a dependency.
 
+Lua-defined Mapgens
+====
+
+Except what is refrenced here, lua-defined mapgens are identical to mods.
+
+mapgen load path
+-------------
+
+Paths are relative to the directories listed in the [Paths] section above.
+* `mapgens/`
+
+Mapgen directory structure
+-----------------------
+
+    mapgens
+    ├── mapgenname
+    │   ├── mapgen.conf
+    │   ├── init.lua
+    │   └── <custom data and code>
+    └── another
+
+### mapgen.conf
+
+A `Settings` file that provides meta information about the mapgen.
+
+* `name`: The mapgen name. Allows Luanti to determine the mapgen name even if the
+          folder is wrongly named.
+* `title`: A human-readable title to address the mapgen. See [Translating content meta](#translating-content-meta).
+* `description`: Description of mapgen. See [Translating content meta](#translating-content-meta).
+* `author`: The author's ContentDB username.
+* `release`: Ignore this: Should only ever be set by ContentDB, as it is an
+             internal ID used to track versions.
+* `textdomain`: Textdomain used to translate title and description. Defaults to mapgen.
+  See [Translating content meta](#translating-content-meta).
 
 
 
