@@ -137,6 +137,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	// This is separate from other keyboard handling so that it also works in menus.
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
 		KeyPress keyCode(event.KeyInput);
+
 		if (keyCode == getKeySetting("keymap_fullscreen")) {
 			if (event.KeyInput.PressedDown && !fullscreen_is_down) {
 				IrrlichtDevice *device = RenderingEngine::get_raw_device();
@@ -150,8 +151,15 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 			}
 			fullscreen_is_down = event.KeyInput.PressedDown;
 			return true;
-		} else if (keyCode == EscapeKey &&
-				event.KeyInput.PressedDown && event.KeyInput.Shift) {
+
+		} else if (keyCode == getKeySetting("keymap_close_world")) {
+			close_world_down = event.KeyInput.PressedDown;
+
+		} else if (keyCode == EscapeKey) {
+			esc_down = event.KeyInput.PressedDown;
+		}
+
+		if (esc_down && close_world_down) {
 			g_gamecallback->disconnect();
 			return true;
 		}
