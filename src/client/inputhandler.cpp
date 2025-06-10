@@ -73,6 +73,8 @@ void MyEventReceiver::reloadKeybindings()
 		keybindings[KeyType::SLOT_1 + i] = getKeySetting(slot_key_name.c_str());
 	}
 
+	keybindings[KeyType::CLOSE_GAME] = getKeySetting("keymap_close_game");
+
 	// First clear all keys, then re-add the ones we listen for
 	keysListenedFor.clear();
 	for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
@@ -150,8 +152,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 			}
 			fullscreen_is_down = event.KeyInput.PressedDown;
 			return true;
-		} else if (keyCode == EscapeKey &&
-				event.KeyInput.PressedDown && event.KeyInput.Shift) {
+		} else if (keyCode == getKeySetting("keymap_close_game") && event.KeyInput.PressedDown) {
 			g_gamecallback->disconnect();
 			return true;
 		}

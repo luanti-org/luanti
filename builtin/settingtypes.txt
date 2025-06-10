@@ -182,6 +182,8 @@ invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 
 [**Keybindings]
 
+keymap_close_game (Close game) key
+
 keymap_forward (Move forward) key SYSTEM_SCANCODE_26
 
 #    Will also disable autoforward, when active.
