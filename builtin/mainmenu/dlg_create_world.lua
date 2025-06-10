@@ -87,11 +87,6 @@ local function create_world_formspec(dialogdata)
 		mapgens[#mapgens+1] = k
 	end
 
-	local current_mapgen_internal = dialogdata.mg
-	if lua_mapgens[current_mapgen_internal] then
-		current_mapgen_internal = "singlenode"
-	end
-
 	local flags = dialogdata.flags
 
 	local game = pkgmgr.find_by_gameid(core.settings:get("menu_last_game"))
@@ -157,6 +152,11 @@ local function create_world_formspec(dialogdata)
 			current_mapgen = first_mg
 		end
 		mglist = mglist:sub(1, -2)
+	end
+
+	local current_mapgen_internal = current_mapgen
+	if lua_mapgens[current_mapgen_internal] and current_mapgen == dialogdata.mg then
+		current_mapgen_internal = "singlenode"
 	end
 
 	-- The logic of the flag element IDs is as follows:
