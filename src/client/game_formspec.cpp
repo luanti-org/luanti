@@ -178,6 +178,10 @@ public:
 	const std::string &getForm() const
 	{
 		LocalPlayer *player = m_client->getEnv().getLocalPlayer();
+
+		if (!player->inventory_formspec_override.empty())
+			return player->inventory_formspec_override;
+
 		return player->inventory_formspec;
 	}
 
@@ -304,7 +308,7 @@ void GameFormSpec::showNodeFormspec(const std::string &formspec, const v3s16 &no
 	m_formspec->setFormSpec(formspec, inventoryloc);
 }
 
-void GameFormSpec::showPlayerInventory()
+void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 {
 	/*
 	 * Don't permit to open inventory is CAO or player doesn't exists.
@@ -327,10 +331,13 @@ void GameFormSpec::showPlayerInventory()
 		return;
 	}
 
-	if (fs_src->getForm().empty()) {
+	const std::string &formspec = fs_override ? *fs_override : fs_src->getForm();
+	if (formspec.empty()) {
 		delete fs_src;
 		return;
 	}
+	if (fs_override)
+		player->inventory_formspec_override = *fs_override;
 
 	TextDest *txt_dst = new TextDestPlayerInventory(m_client);
 
@@ -338,7 +345,7 @@ void GameFormSpec::showPlayerInventory()
 		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
 		m_client->getSoundManager());
 
-	m_formspec->setFormSpec(fs_src->getForm(), inventoryloc);
+	m_formspec->setFormSpec(formspec, inventoryloc);
 }
 
 #define SIZE_TAG "size[11,5.5,true]" // Fixed size (ignored in touchscreen mode)

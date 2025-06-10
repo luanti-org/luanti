@@ -1925,7 +1925,7 @@ void Game::processKeyInput()
 		if (g_settings->getBool("continuous_forward"))
 			toggleAutoforward();
 	} else if (wasKeyDown(KeyType::INVENTORY)) {
-		m_game_formspec.showPlayerInventory();
+		m_game_formspec.showPlayerInventory(nullptr);
 	} else if (input->cancelPressed()) {
 #ifdef __ANDROID__
 		m_android_chat_open = false;
@@ -2717,11 +2717,7 @@ void Game::handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation 
 	auto &fs = event->show_formspec;
 
 	if (fs.formname->empty() && !fs.formspec->empty()) {
-		// Overwrite the inventory formspec
-		LocalPlayer *player = client->getEnv().getLocalPlayer();
-		player->inventory_formspec = *fs.formspec;
-
-		m_game_formspec.showPlayerInventory();
+		m_game_formspec.showPlayerInventory(fs.formspec);
 	} else {
 		m_game_formspec.showFormSpec(*fs.formspec,
 			*fs.formname);
