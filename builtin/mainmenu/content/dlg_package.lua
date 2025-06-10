@@ -197,12 +197,14 @@ local function get_formspec(data)
 		})
 
 	elseif current_tab == 2 then
+		assert(info)
 		local hypertext = info.info_hypertext.head .. info.info_hypertext.body
 		table.insert_all(formspec, {
 			"hypertext[0,0;", W, ",", tab_body_height - 0.375,
 			";info;", core.formspec_escape(hypertext), "]",
 		})
 	elseif current_tab == 3 then
+		assert(info)
 		if not package.reviews and not data.reviews_error and not data.reviews_loading then
 			data.reviews_loading = true
 
