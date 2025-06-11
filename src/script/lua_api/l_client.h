@@ -71,4 +71,5 @@ private:
 
 public:
 	static void Initialize(lua_State *L, int top);
+	static void InitializeSSCSM(lua_State *L, int top);
 };
