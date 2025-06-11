@@ -9,6 +9,7 @@
 #include "rect.h"
 #include "SMeshBuffer.h"
 
+#include "mapblock_mesh.h"
 #include "../hud.h"
 #include "mapnode.h"
 #include "util/thread.h"
@@ -66,7 +67,7 @@ struct MinimapPixel {
 };
 
 struct MinimapMapblock {
-	void getMinimapNodes(VoxelManipulator *vmanip, const v3s16 &pos);
+	void getMinimapNodes(MeshMakeData *data, const v3s16 &pos);
 
 	MinimapPixel data[MAP_BLOCKSIZE * MAP_BLOCKSIZE];
 };

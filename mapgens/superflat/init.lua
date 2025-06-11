@@ -1,0 +1,1 @@
+core.register_mapgen_script(core.get_modpath("superflat") .. "/mapgen.lua")
