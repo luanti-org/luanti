@@ -134,7 +134,6 @@ void set_default_settings()
 #else
 #define USEKEY2(name, _, value) settings->setDefault(name, value)
 #endif
-	settings->setDefault("keymap_close_game", "");
 	USEKEY2("keymap_forward", "SYSTEM_SCANCODE_26", "KEY_KEY_W");
 	settings->setDefault("keymap_autoforward", "");
 	USEKEY2("keymap_backward", "SYSTEM_SCANCODE_22", "KEY_KEY_S");
@@ -220,6 +219,7 @@ void set_default_settings()
 	settings->setDefault("keymap_slot30", "");
 	settings->setDefault("keymap_slot31", "");
 	settings->setDefault("keymap_slot32", "");
+	USEKEY2("keymap_close_world", "SYSTEM_SCANCODE_225", "KEY_LSHIFT");
 
 #ifndef NDEBUG
 	// Default keybinds for quicktune in debug builds

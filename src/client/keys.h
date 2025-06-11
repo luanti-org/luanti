@@ -97,7 +97,6 @@ public:
 		SLOT_32,
 
 		// Fake keycode for array size and internal checks
-		CLOSE_GAME,
 		INTERNAL_ENUM_COUNT
 
 	};

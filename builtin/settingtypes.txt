@@ -182,8 +182,6 @@ invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 
 [**Keybindings]
 
-keymap_close_game (Close game) key
-
 keymap_forward (Move forward) key SYSTEM_SCANCODE_26
 
 #    Will also disable autoforward, when active.
@@ -338,6 +336,10 @@ keymap_slot30 (Hotbar slot 30) key
 keymap_slot31 (Hotbar slot 31) key
 
 keymap_slot32 (Hotbar slot 32) key
+
+#    Modifier key bind for closing your world.
+#    Requires ESC + the selected key to work.
+keymap_close_world (Return to Main Menu) key SYSTEM_SCANCODE_225
 
 [*Touchscreen]
 
