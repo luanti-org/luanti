@@ -134,7 +134,7 @@ void set_default_settings()
 #else
 #define USEKEY2(name, _, value) settings->setDefault(name, value)
 #endif
-	settings->setDefault("keymap_close_game", "");
+	settings->setDefault("keymap_close_world", "");
 	USEKEY2("keymap_forward", "SYSTEM_SCANCODE_26", "KEY_KEY_W");
 	settings->setDefault("keymap_autoforward", "");
 	USEKEY2("keymap_backward", "SYSTEM_SCANCODE_22", "KEY_KEY_S");
