@@ -175,7 +175,7 @@ local function create_world_formspec(dialogdata)
 	if not is_internal_mapgen then
 		-- Select singlenode if using lua-defined mapgen
 		-- Here we have to make sure it doesn't override an internal mapgen
-		if lua_mapgens[current_mapgen_internal] ~= nil and 
+		if lua_mapgens[current_mapgen_internal] ~= nil and
 			(current_mapgen == dialogdata.mg or lua_mapgens[current_mapgen_internal].title == dialogdata.mg) then
 			current_mapgen_internal = "singlenode"
 		end
