@@ -24,6 +24,7 @@ public:
 		PLACE,
 
 		ESC,
+		CLOSE_WORLD,
 
 		// Other
 		DROP,
@@ -97,7 +98,6 @@ public:
 		SLOT_32,
 
 		// Fake keycode for array size and internal checks
-		CLOSE_WORLD,
 		INTERNAL_ENUM_COUNT
 
 	};

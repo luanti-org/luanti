@@ -136,10 +136,6 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		return true;
 	}
 
-	// This is separate from other keyboard handling so that it also works in menus.
-	static bool close_world_down = false;
-	static bool esc_down = false;
-
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
 		KeyPress keyCode(event.KeyInput);
 
@@ -148,6 +144,8 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 				IrrlichtDevice *device = RenderingEngine::get_raw_device();
 
 				bool new_fullscreen = !device->isFullscreen();
+				// Only update the setting if toggling succeeds - it always fails
+				// if Minetest was built without SDL.
 				if (device->setFullscreen(new_fullscreen)) {
 					g_settings->setBool("fullscreen", new_fullscreen);
 				}
@@ -158,18 +156,13 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		} else if (keyCode == getKeySetting("keymap_close_world")) {
 			close_world_down = event.KeyInput.PressedDown;
 
-			if (close_world_down && esc_down) {
-				g_gamecallback->disconnect();
-				return true;
-			}
-
 		} else if (keyCode == EscapeKey) {
 			esc_down = event.KeyInput.PressedDown;
+		}
 
-			if (esc_down && close_world_down) {
-				g_gamecallback->disconnect();
-				return true;
-			}
+		if (esc_down && close_world_down) {
+			g_gamecallback->disconnect();
+			return true;
 		}
 	}
 

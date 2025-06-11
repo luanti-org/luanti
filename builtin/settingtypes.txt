@@ -182,6 +182,7 @@ invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 
 [**Keybindings]
 
+#    Secondary key bind for closing your world. Requires ESC + the selected key to work.
 keymap_close_world (Return to Main Menu) key SYSTEM_SCANCODE_224
 
 keymap_forward (Move forward) key SYSTEM_SCANCODE_26

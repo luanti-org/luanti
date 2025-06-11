@@ -1082,8 +1082,6 @@ fake_function() {
 	gettext("Chat message format");
 	gettext("Format of player chat messages. The following strings are valid placeholders:\n@name, @message, @timestamp (optional)");
 	gettext("Chat command time message threshold");
-	gettext("Close world");
-	gettext("Key for closing the world directly.");
 }
 	gettext("If the execution of a chat command takes longer than this specified time in\nseconds, add the time information to the chat command message");
 	gettext("Shutdown message");
