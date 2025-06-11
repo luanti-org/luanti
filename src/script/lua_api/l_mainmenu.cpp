@@ -685,7 +685,7 @@ int ModApiMainMenu::l_get_lua_mapgen_descriptions_and_title(lua_State *L)
 			if (mod.title != "")
 				lua_pushstring(L, mod.desc.c_str());
 			else
-				lua_pushnil(L);			
+				lua_pushnil(L);
 			lua_settable(L, top_lvl2);
 
 			lua_pushstring(L, "title");
