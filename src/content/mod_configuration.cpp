@@ -132,17 +132,22 @@ void ModConfiguration::addMapgenFromConfig(
 	 *
 	 * If the mod is enabled, add it to `mapgen_mod` and break
 	 */
+	bool mapgen_found = false;
 	for (const auto &mapgenPath : mapgenPaths) {
 		std::vector<ModSpec> addon_mods_in_path = flattenMods(getModsInPath(mapgenPath.second, mapgenPath.first));
 		for (const auto &mod : addon_mods_in_path) {
 			if (mod.name == mapgen) {
 				mapgen_mod.push_back(mod);
+				mapgen_found = true;
 				break;
 			}
 		}
 	}
 
-	addMods(mapgen_mod);
+	if (!mapgen_found) {
+		throw ModError("This world is configured to use a lua-defined mapgen: '" + mapgen + "' must be installed to load this world.");
+	} else
+		addMods(mapgen_mod);
 }
 
 void ModConfiguration::addModsFromConfig(
