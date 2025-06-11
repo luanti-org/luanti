@@ -109,8 +109,8 @@ of manually putting one, as different OSs use different delimiters. E.g.
 * `handle:stop()` or `core.sound_stop(handle)`
 * `core.get_mapgen_names([include_hidden=false])` -> table of map generator algorithms
     registered in the core (possible in async calls)
-* `core.get_lua_mapgen_descriptions()` -> map of `[mapgen_name] = mapgen_description` as listed
-    in `mapgen.conf`.
+* `core.get_lua_mapgen_descriptions_and_title()` -> map of `[mapgen_name] = {desc = <mapgen_description>, title = <title>}` as listed
+    in `mapgen.conf`, and `nil` if they don't exist.
 * `core.get_cache_path()` -> path of cache
 * `core.get_temp_path([param])` (possible in async calls)
   * `param`=true: returns path to a newly created temporary file

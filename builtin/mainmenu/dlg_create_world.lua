@@ -79,11 +79,22 @@ local mgv6_biomes = {
 }
 
 local function create_world_formspec(dialogdata)
-
 	local current_mapgen = dialogdata.mg
 	local mapgens = core.get_mapgen_names()
-	local lua_mapgens = core.get_lua_mapgen_descriptions()
+
+	-- This is used to make sure that the internal mapgens are never overwritten by an ill-playing mapgen
+	local is_internal_mapgen = false
+	for _, mg in pairs(mapgens) do
+		if mg == current_mapgen then
+			is_internal_mapgen = true
+		end
+	end
+
+	local lua_mapgens = core.get_lua_mapgen_descriptions_and_title()
 	for k, v in pairs(lua_mapgens) do
+		if not is_internal_mapgen and v.title == dialogdata.mg then
+			current_mapgen = k
+		end
 		mapgens[#mapgens+1] = k
 	end
 
@@ -145,7 +156,13 @@ local function create_world_formspec(dialogdata)
 				selindex = i
 			end
 			i = i + 1
-			mglist = mglist .. core.formspec_escape(v) .. ","
+
+			local mapgen_title = (lua_mapgens[v] or {}).title
+			if not mapgen_title then
+				mapgen_title = v
+			end
+
+			mglist = mglist .. core.formspec_escape(mapgen_title) .. ","
 		end
 		if not selindex then
 			selindex = 1
@@ -155,8 +172,12 @@ local function create_world_formspec(dialogdata)
 	end
 
 	local current_mapgen_internal = current_mapgen
-	if lua_mapgens[current_mapgen_internal] and current_mapgen == dialogdata.mg then
-		current_mapgen_internal = "singlenode"
+	if not is_internal_mapgen then
+		-- Select singlenode if using lua-defined mapgen
+		-- Here we have to make sure it doesn't override an internal mapgen
+		if lua_mapgens[current_mapgen_internal] ~= nil and (current_mapgen == dialogdata.mg or lua_mapgens[current_mapgen_internal].title == dialogdata.mg) then
+			current_mapgen_internal = "singlenode"
+		end
 	end
 
 	-- The logic of the flag element IDs is as follows:
@@ -382,10 +403,24 @@ local function create_world_buttonhandler(this, fields)
 			local mapgen_internal = this.data.mg
 			local mapgen = nil
 
-			local lua_mapgens = core.get_lua_mapgen_descriptions()
-			if lua_mapgens[this.data.mg] then
-				mapgen_internal = "singlenode"
-				mapgen = this.data.mg
+			-- This is used to make sure that the internal mapgens are never overwritten by an ill-playing mapgen
+			local internal_mapgens = core.get_mapgen_names()
+			local is_internal_mapgen = false
+			for _, mg in pairs(internal_mapgens) do
+				if mg == this.data.mg then
+					is_internal_mapgen = true
+				end
+			end
+
+			if not is_internal_mapgen then
+				local lua_mapgens = core.get_lua_mapgen_descriptions_and_title()
+				for name, v in pairs(lua_mapgens) do
+					if v.title == this.data.mg or (v.title == nil and name == this.data.mg) then
+						mapgen_internal = "singlenode"
+						mapgen = name
+						break
+					end
+				end
 			end
 
 			-- actual names as used by engine

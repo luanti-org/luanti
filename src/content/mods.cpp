@@ -88,6 +88,9 @@ bool parseModContents(ModSpec &spec)
 	else
 		spec.deprecation_msgs.push_back("Mods not having a mod.conf file with the name is deprecated.");
 
+	if (info.exists("title"))
+		spec.title = info.get("title");
+
 	if (info.exists("author"))
 		spec.author = info.get("author");
 

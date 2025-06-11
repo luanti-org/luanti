@@ -27,6 +27,7 @@ struct ModSpec
 	std::string author;
 	std::string path; // absolute path on disk
 	std::string desc;
+	std::string title;
 	int release = 0;
 
 	// if normal mod:

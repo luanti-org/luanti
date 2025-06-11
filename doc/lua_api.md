@@ -421,6 +421,7 @@ Mapgen directory structure
     ├── mapgenname
     │   ├── mapgen.conf
     │   ├── init.lua
+    │   ├── locale/
     │   └── <custom data and code>
     └── another
 
