@@ -73,8 +73,6 @@ void MyEventReceiver::reloadKeybindings()
 		keybindings[KeyType::SLOT_1 + i] = getKeySetting(slot_key_name.c_str());
 	}
 
-	keybindings[KeyType::CLOSE_WORLD] = getKeySetting("keymap_close_world");
-
 	// First clear all keys, then re-add the ones we listen for
 	keysListenedFor.clear();
 	for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
@@ -136,6 +134,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		return true;
 	}
 
+	// This is separate from other keyboard handling so that it also works in menus.
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
 		KeyPress keyCode(event.KeyInput);
 

@@ -24,7 +24,6 @@ public:
 		PLACE,
 
 		ESC,
-		CLOSE_WORLD,
 
 		// Other
 		DROP,
