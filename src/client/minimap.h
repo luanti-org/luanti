@@ -9,7 +9,6 @@
 #include "rect.h"
 #include "SMeshBuffer.h"
 
-#include "mapblock_mesh.h"
 #include "../hud.h"
 #include "mapnode.h"
 #include "util/thread.h"
