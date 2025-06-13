@@ -593,7 +593,10 @@ int ModApiMainMenu::l_create_world(lua_State *L)
 
 	// Create world if it doesn't exist
 	try {
-		loadGameConfAndInitWorld(path, name, *game_it, true);
+		std::string lua_mapgen = "";
+		if (use_settings.find("lua_mapgen") != use_settings.end())
+			lua_mapgen = use_settings["lua_mapgen"];
+		loadGameConfAndInitWorld(path, name, *game_it, true, lua_mapgen);
 		lua_pushnil(L);
 	} catch (const BaseException &e) {
 		auto err = std::string("Failed to initialize world: ") + e.what();
@@ -660,6 +663,52 @@ int ModApiMainMenu::l_get_mapgen_names(lua_State *L)
 	return 1;
 }
 
+/******************************************************************************/
+int ModApiMainMenu::l_get_lua_mapgen_descriptions_and_title(lua_State *L)
+{
+	std::vector<ModSpec> mapgens_in_path = flattenMods(getModsInPath(porting::path_share + DIR_DELIM + "mapgens" + DIR_DELIM, "mapgen/"));
+
+	lua_newtable(L);
+	int top = lua_gettop(L);
+
+	// If more than one mapgen use the same title.
+	std::map<std::string, int> mapgen_title_counts;
+
+	for (const auto &mod : mapgens_in_path) {
+		if (mod.is_mapgen) {
+			lua_pushstring(L, mod.name.c_str());
+
+			lua_newtable(L);
+			int top_lvl2 = lua_gettop(L);
+
+			lua_pushstring(L, "desc");
+			if (mod.title != "")
+				lua_pushstring(L, mod.desc.c_str());
+			else
+				lua_pushnil(L);
+			lua_settable(L, top_lvl2);
+
+			lua_pushstring(L, "title");
+			if (mod.title != "") {
+				std::string mapgen_tite = mod.title;
+				if (mapgen_title_counts.find(mod.title) == mapgen_title_counts.end()) {
+					mapgen_title_counts[mod.title] = 0;
+				} else {
+					mapgen_title_counts[mod.title]++;
+					mapgen_tite = mapgen_tite + " (" + mod.name + ")";
+				}
+
+				lua_pushstring(L, mapgen_tite.c_str());
+			} else {
+				lua_pushnil(L);
+			}
+			lua_settable(L, top_lvl2);
+
+			lua_settable(L, top);
+		}
+	}
+	return 1;
+}
 
 /******************************************************************************/
 int ModApiMainMenu::l_get_user_path(lua_State *L)
@@ -1059,6 +1108,7 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(set_background);
 	API_FCT(set_topleft_text);
 	API_FCT(get_mapgen_names);
+	API_FCT(get_lua_mapgen_descriptions_and_title);
 	API_FCT(get_user_path);
 	API_FCT(get_modpath);
 	API_FCT(get_modpaths);
@@ -1100,6 +1150,7 @@ void ModApiMainMenu::InitializeAsync(lua_State *L, int top)
 	API_FCT(get_worlds);
 	API_FCT(get_games);
 	API_FCT(get_mapgen_names);
+	API_FCT(get_lua_mapgen_descriptions_and_title);
 	API_FCT(get_user_path);
 	API_FCT(get_modpath);
 	API_FCT(get_modpaths);
