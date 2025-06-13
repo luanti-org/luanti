@@ -463,7 +463,6 @@ set(common_SRCS
 	map.cpp
 	mapblock.cpp
 	mapnode.cpp
-	mapsector.cpp
 	nodedef.cpp
 	pathfinder.cpp
 	player.cpp
