@@ -1,16 +1,16 @@
 # Developer documentation
 
-## Wiki
+## Luanti Documentation
 
-Some important development docs are found in the wiki: https://dev.luanti.org/
+Some important development docs are found in the Luanti Documentation: https://docs.luanti.org/
 
 Notable pages:
 
-- [Releasing Luanti](https://dev.luanti.org/Releasing_Luanti)
-- [Engine translations](https://dev.luanti.org/Translation#Maintaining_engine_translations)
-- [Changelog](https://dev.luanti.org/Changelog)
-- [Organisation](https://dev.luanti.org/Organisation)
-- [Code style guidelines](https://dev.luanti.org/Code_style_guidelines)
+- [Releasing Luanti](https://docs.luanti.org/for-engine-devs/releasing-luanti/)
+- [Engine translations](https://docs.luanti.org/for-creators/translation/)
+- [Changelog](https://docs.luanti.org/about/changelog/)
+- [Organisation](https://docs.luanti.org/for-engine-devs/organization/)
+- [Code style guidelines](https://docs.luanti.org/for-engine-devs/code-style-guidelines/)
 
 ## In this folder
 
@@ -23,4 +23,4 @@ Notable pages:
 
 Oftentimes knowledge hasn't been written down (yet) and your best bet is to ask someone experienced and/or the core developers.
 
-Feel free to join the [#minetest-dev IRC](https://wiki.luanti.org/IRC) and ask questions related to **engine development**.
+Feel free to join the [#luanti-dev IRC](https://docs.luanti.org/about/irc/) and ask questions related to **engine development**.

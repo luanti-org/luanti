@@ -25,16 +25,16 @@ Contributions are welcome! Here's how you can help:
    the work, to avoid disappointment.
 
    You may also benefit from discussing on our IRC development channel
-   [#luanti-dev](http://www.luanti.org/irc/). Note that a proper IRC client
+   [#luanti-dev](https://docs.luanti.org/about/irc/). Note that a proper IRC client
    is required to speak on this channel.
 
 3. Start coding!
     - Refer to the
       [Lua API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md),
-      [Developer Wiki](https://dev.luanti.org/) and other
+      [Luanti Documentation](https://docs.luanti.org/) and other
       [documentation](https://github.com/luanti-org/luanti/tree/master/doc).
-    - Follow the [C/C++](https://dev.luanti.org/Code_style_guidelines) and
-      [Lua](https://dev.luanti.org/Lua_code_style_guidelines) code style guidelines.
+    - Follow the [C/C++](https://docs.luanti.org/for-engine-devs/code-style-guidelines/) and
+      [Lua](https://docs.luanti.org/for-engine-devs/lua-code-style-guidelines/) code style guidelines.
     - Check your code works as expected and document any changes to the Lua API.
     - To avoid conflicting changes between contributions, do not do the following manually. They will be done before each release.
       - Run `updatepo.sh` or update `luanti.po{,t}` even if your code adds new translatable strings.
@@ -64,8 +64,8 @@ Contributions are welcome! Here's how you can help:
    picture of the project.
 2. It works.
 3. It follows the code style for
-   [C/C++](https://dev.luanti.org/Code_style_guidelines) or
-   [Lua](https://dev.luanti.org/Lua_code_style_guidelines).
+   [C/C++](https://docs.luanti.org/for-engine-devs/code-style-guidelines/) or
+   [Lua](https://docs.luanti.org/for-engine-devs/lua-code-style-guidelines/).
 4. The code's interfaces are well designed, regardless of other aspects that
    might need more work in the future.
 5. It uses protocols and formats which include the required compatibility.
@@ -106,7 +106,7 @@ the project page with a list of current languages
 Builtin (the component which contains things like server messages, chat command
 descriptions, privilege descriptions) is translated separately; it needs to be
 translated by editing a `.tr` text file. See
-[Translation](https://dev.luanti.org/Translation) for more information.
+[Translation](https://docs.luanti.org/for-creators/translation/) for more information.
 
 ## Donations
 
@@ -116,11 +116,11 @@ methods on [our website](http://www.luanti.org/development/#donate).
 # Maintaining
 
 * This is a concise version of the
-  [Rules & Guidelines](https://dev.luanti.org/engine-dev-process/) on the developer wiki.*
+  [Rules & Guidelines](https://docs.luanti.org/for-engine-devs/) on the Luanti Documentation.*
 
 These notes are for those who have push access Luanti (core developers / maintainers).
 
-- See the [project organisation](https://dev.luanti.org/Organisation) for the people involved.
+- See the [project organisation](https://docs.luanti.org/for-engine-devs/organization/) for the people involved.
 
 ## Concept approvals and roadmaps
 
@@ -169,4 +169,4 @@ Submit a :+1: (+1) or "Looks good" comment to show you believe the pull-request 
 
 ## Releasing a new version
 
-*Refer to [dev.luanti.org/Releasing_Luanti](https://dev.luanti.org/Releasing_Luanti)*
+*Refer to [docs.luanti.org/for-engine-devs/releasing-luanti](https://docs.luanti.org/for-engine-devs/releasing-luanti/)*

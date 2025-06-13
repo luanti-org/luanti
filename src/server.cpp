@@ -4285,7 +4285,7 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &world_path
 		warningstream << "/!\\ You are using the old mod storage files backend. "
 			<< "This backend is deprecated and may be removed in a future release /!\\"
 			<< std::endl << "Switching to SQLite3 is advised, "
-			<< "please read https://wiki.luanti.org/Database_backends." << std::endl;
+			<< "please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
 
 	return openModStorageDatabase(backend, world_path, world_mt);
 }
