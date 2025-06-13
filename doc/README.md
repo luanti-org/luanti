@@ -6,7 +6,7 @@ The following is a list of documentation files and a brief description, if
 
 ## Lua
 
-- [Builtin Entities](builtin_entities.md): Internal predefined engine entities.
+- [Builtin Entities](builtin_entities.md): Doc for predefined engine entities, i.e. dropped items and falling nodes.
 - [Client-side API](client_lua_api.md): Client side enviorment's Lua API.
 - [Formspec Toolkit API](fst_api.txt)
 - [Menu API](menu_lua_api.md): Lua API for the creation of engine menus, not the
