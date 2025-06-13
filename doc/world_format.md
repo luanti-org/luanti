@@ -482,6 +482,8 @@ Timestamp and node ID mappings come here if map format version >= 29.
             * `s32` timeout * 1000
             * `s32` elapsed * 1000
 
+* Map format version >= 25: see below
+
 `u8` static object version:
 * Always 0
 
@@ -508,7 +510,7 @@ Before map format version 29:
         * `u16` `name_len`
         * `u8[name_len]` `name`
 
-Since map format version 25:
+Since map format version 25, node timers come here:
     * `u8` length of the data of a single timer (always 2+4+4=10)
     * `u16` `num_of_timers`
     * foreach `num_of_timers`:
