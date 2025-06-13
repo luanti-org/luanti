@@ -101,11 +101,12 @@ static const char *modified_reason_strings[] = {
 */
 
 MapBlock::MapBlock(v3s16 pos, IGameDef *gamedef):
+		m_is_mono_block(true),
 		m_pos(pos),
 		m_pos_relative(pos * MAP_BLOCKSIZE),
 		m_gamedef(gamedef)
 {
-	reallocate(nodecount, MapNode(CONTENT_IGNORE));
+	reallocate(1, MapNode(CONTENT_IGNORE));
 }
 
 MapBlock::~MapBlock()
@@ -222,25 +223,27 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
 	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
 
-	deconvertMonoblock();
+	expandNodesIfNeeded();
 	// Copy from VoxelManipulator to data
 	src.copyTo(data, data_area, v3s16(0,0,0),
 			getPosRelative(), data_size);
-	tryConvertToMonoblock();
+	tryShrinkNodes();
 }
 
 void MapBlock::reallocate(u32 c, MapNode n)
 {
 	delete[] data;
-	if (c == 1)
+	if (!m_is_mono_block && c == 1)
 		porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
 
 	data = new MapNode[c];
 	for (u32 i = 0; i < c; i++)
 		data[i] = n;
+
+	m_is_mono_block = (c == 1);
 }
 
-void MapBlock::tryConvertToMonoblock()
+void MapBlock::tryShrinkNodes()
 {
 	if (m_is_mono_block)
 		return;
@@ -255,7 +258,6 @@ void MapBlock::tryConvertToMonoblock()
 	}
 
 	if (is_mono_block) {
-		m_is_mono_block = true;
 		reallocate(1, n);
 		if (n.getContent() == CONTENT_AIR) {
 			m_is_air = true;
@@ -264,11 +266,10 @@ void MapBlock::tryConvertToMonoblock()
 	}
 }
 
-void MapBlock::deconvertMonoblock()
+void MapBlock::expandNodesIfNeeded()
 {
 	if (m_is_mono_block) {
 		reallocate(nodecount, data[0]);
-		m_is_mono_block = false;
 	}
 }
 
@@ -513,6 +514,7 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()<<std::endl);
 
 	m_is_air_expired = true;
+	expandNodesIfNeeded();
 
 	if(version <= 21)
 	{
@@ -642,7 +644,7 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 		}
 
 		if (nimap.size() == 1) {
-			tryConvertToMonoblock();
+			tryShrinkNodes();
 			u16 dummy;
 			if (nimap.getId("air", dummy)) {
 				m_is_air = true;

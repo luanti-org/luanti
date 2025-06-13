@@ -76,7 +76,7 @@ public:
 
 	MapNode* getData()
 	{
-		deconvertMonoblock();
+		expandNodesIfNeeded();
 		return data;
 	}
 
@@ -250,7 +250,7 @@ public:
 		if (!isValidPosition(x, y, z))
 			throw InvalidPositionException();
 
-		deconvertMonoblock();
+		expandNodesIfNeeded();
 		data[z * zstride + y * ystride + x] = n;
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_SET_NODE);
 	}
@@ -276,7 +276,7 @@ public:
 
 	inline void setNodeNoCheck(s16 x, s16 y, s16 z, MapNode n)
 	{
-		deconvertMonoblock();
+		expandNodesIfNeeded();
 		data[z * zstride + y * ystride + x] = n;
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_SET_NODE);
 	}
@@ -441,9 +441,9 @@ private:
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
 	// check if all nodes are identical, if so store them as a single node
-	void tryConvertToMonoblock();
+	void tryShrinkNodes();
 	// if only a single node is stored, expand storage back to the full array
-	void deconvertMonoblock();
+	void expandNodesIfNeeded();
 	void reallocate(u32 c, MapNode n);
 
 	/*
@@ -464,7 +464,7 @@ public:
 private:
 	// see isOrphan()
 	bool m_orphan = false;
-	bool m_is_mono_block = false;
+	bool m_is_mono_block;
 
 	// Position in blocks on parent
 	v3s16 m_pos;
