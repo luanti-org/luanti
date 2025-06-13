@@ -32,7 +32,6 @@ Further documentation
 - Forum: https://forum.luanti.org/
 - GitHub: https://github.com/luanti-org/luanti/
 - [Developer documentation](doc/developing/)
-- [Documentation index](doc/README.md)
 - [doc/](doc/) directory of source distribution
 
 Default controls
