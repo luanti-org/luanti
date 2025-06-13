@@ -19,40 +19,56 @@ FloatType g_serialize_f32_type = FLOATTYPE_UNKNOWN;
 //// String
 ////
 
-std::string serializeString16(std::string_view plain)
+std::string serializeString16(std::string_view plain, bool truncate)
 {
 	std::string s;
-	char buf[2];
+	size_t size = plain.size();
 
 	static_assert(STRING_MAX_LEN <= U16_MAX);
-	if (plain.size() > STRING_MAX_LEN)
-		throw SerializationError("String too long for serializeString16");
-	s.reserve(2 + plain.size());
 
-	writeU16((u8 *)&buf[0], plain.size());
-	s.append(buf, 2);
+	if (size > STRING_MAX_LEN) {
+		if (truncate) {
+			size = STRING_MAX_LEN;
+		} else {
+			throw SerializationError("String too long for serializeString16");
+		}
+	}
 
-	s.append(plain);
+	char size_buf[2];
+	writeU16((u8 *)size_buf, size);
+
+	s.reserve(2 + size);
+	s.append(size_buf, 2);
+	s.append(plain.substr(0, size));
+
 	return s;
 }
 
-std::string deSerializeString16(std::istream &is)
+std::string deSerializeString16(std::istream &is, bool truncate)
 {
 	std::string s;
-	char buf[2];
+	char size_buf[2];
 
-	is.read(buf, 2);
-	if (is.gcount() != 2)
+	is.read(size_buf, 2);
+	if (is.gcount() != 2) {
+		if (truncate) {
+			return s;
+		}
 		throw SerializationError("deSerializeString16: size not read");
+	}
 
-	u16 s_size = readU16((u8 *)buf);
-	if (s_size == 0)
+	u16 size = readU16((u8 *)size_buf);
+	if (size == 0) {
 		return s;
+	}
 
-	s.resize(s_size);
-	is.read(&s[0], s_size);
-	if (is.gcount() != s_size)
+	s.resize(size);
+	is.read(&s[0], size);
+	if (truncate) {
+		s.resize(is.gcount());
+	} else if (is.gcount() != size) {
 		throw SerializationError("deSerializeString16: truncated");
+	}
 
 	return s;
 }
@@ -62,45 +78,74 @@ std::string deSerializeString16(std::istream &is)
 //// Long String
 ////
 
-std::string serializeString32(std::string_view plain)
+std::string serializeString32(std::string_view plain, bool truncate)
 {
 	std::string s;
-	char buf[4];
+	size_t size = plain.size();
 
 	static_assert(LONG_STRING_MAX_LEN <= U32_MAX);
-	if (plain.size() > LONG_STRING_MAX_LEN)
-		throw SerializationError("String too long for serializeLongString");
-	s.reserve(4 + plain.size());
 
-	writeU32((u8*)&buf[0], plain.size());
-	s.append(buf, 4);
-	s.append(plain);
+	if (size > LONG_STRING_MAX_LEN) {
+		if (truncate) {
+			size = LONG_STRING_MAX_LEN;
+		} else {
+			throw SerializationError("String too long for serializeString32");
+		}
+	}
+
+	char size_buf[4];
+	writeU32((u8 *)size_buf, size);
+
+	s.reserve(4 + size);
+	s.append(size_buf, 4);
+	s.append(plain.substr(0, size));
+
 	return s;
 }
 
-std::string deSerializeString32(std::istream &is)
+std::string deSerializeString32(std::istream &is, bool truncate)
 {
 	std::string s;
-	char buf[4];
+	char size_buf[4];
 
-	is.read(buf, 4);
-	if (is.gcount() != 4)
-		throw SerializationError("deSerializeLongString: size not read");
-
-	u32 s_size = readU32((u8 *)buf);
-	if (s_size == 0)
-		return s;
-
-	// We don't really want a remote attacker to force us to allocate 4GB...
-	if (s_size > LONG_STRING_MAX_LEN) {
-		throw SerializationError("deSerializeLongString: "
-			"string too long: " + itos(s_size) + " bytes");
+	is.read(size_buf, 4);
+	if (is.gcount() != 4) {
+		if (truncate) {
+			return s;
+		}
+		throw SerializationError("deSerializeString32: size not read");
 	}
 
-	s.resize(s_size);
-	is.read(&s[0], s_size);
-	if ((u32)is.gcount() != s_size)
-		throw SerializationError("deSerializeLongString: truncated");
+	u32 size = readU32((u8 *)size_buf);
+	u32 ignore = 0;
+	if (size == 0) {
+		return s;
+	}
+
+	if (size > LONG_STRING_MAX_LEN) {
+		if (truncate) {
+			ignore = size - LONG_STRING_MAX_LEN;
+			size = LONG_STRING_MAX_LEN;
+		} else {
+			// We don't really want a remote attacker to force us to allocate 4GB...
+			throw SerializationError("deSerializeString32: "
+				"string too long: " + itos(size) + " bytes");
+		}
+	}
+
+	s.resize(size);
+	is.read(&s[0], size);
+	if (truncate) {
+		s.resize(is.gcount());
+	} else if (is.gcount() != size) {
+		throw SerializationError("deSerializeString32: truncated");
+	}
+
+	// If the string was truncated due to exceeding the string max length, we
+	// need to ignore the rest of the characters.
+	if (truncate) {
+		is.seekg(ignore, std::ios_base::cur);
+	}
 
 	return s;
 }

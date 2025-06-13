@@ -2,6 +2,7 @@
 local scriptpath = core.get_builtin_path()
 local commonpath = scriptpath .. "common" .. DIR_DELIM
 local gamepath   = scriptpath .. "game".. DIR_DELIM
+local uipath     = scriptpath .. "ui" .. DIR_DELIM
 
 -- Shared between builtin files, but
 -- not exposed to outer context
@@ -39,6 +40,7 @@ dofile(gamepath .. "hud.lua")
 dofile(gamepath .. "knockback.lua")
 dofile(gamepath .. "async.lua")
 dofile(gamepath .. "death_screen.lua")
+dofile(uipath .. "init.lua")
 
 core.after(0, builtin_shared.cache_content_ids)
 

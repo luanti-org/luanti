@@ -21,7 +21,7 @@ RenderingCore::~RenderingCore()
 	delete shadow_renderer;
 }
 
-void RenderingCore::draw(video::SColor _skycolor, bool _show_hud,
+void RenderingCore::draw(video::SColor _skycolor, bool _show_hud, bool _show_chat,
 		bool _draw_wield_tool, bool _draw_crosshair)
 {
 	v2u32 screensize = device->getVideoDriver()->getScreenSize();
@@ -31,6 +31,7 @@ void RenderingCore::draw(video::SColor _skycolor, bool _show_hud,
 	context.draw_crosshair = _draw_crosshair;
 	context.draw_wield_tool = _draw_wield_tool;
 	context.show_hud = _show_hud;
+	context.show_chat = _show_chat;
 
 	pipeline->reset(context);
 	pipeline->run(context);
