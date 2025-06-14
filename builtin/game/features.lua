@@ -47,6 +47,7 @@ core.features = {
 	particle_blend_clip = true,
 	remove_item_match_meta = true,
 	httpfetch_additional_methods = true,
+	vision_color_transform = true,
 }
 
 function core.has_feature(arg)
