@@ -131,6 +131,7 @@ local function get_formspec(data)
 		fgettext("Description"),
 		fgettext("Information"),
 		fgettext("Reviews") .. core.formspec_escape(" [" .. review_count .. "]"),
+		fgettext("Releases"),
 	}
 
 	local tab_body_height = bottom_buttons_y - 2.8
@@ -232,6 +233,57 @@ local function get_formspec(data)
 		else
 			table.insert_all(formspec, {"label[2,2;", fgettext("Loading..."), "]"} )
 		end
+	elseif current_tab == 4 then
+		if not package.releases and not data.releases_error and not data.releases_loading then
+			data.releases_loading = true
+
+			contentdb.get_package_releases(package, function(releases)
+				if not releases then
+					data.releases_error = true
+				end
+				ui.update()
+			end)
+		end
+
+		local function markup(text)
+			text = text:gsub("%*%*([^%s][^*]-[^%s])%*%*", "<b>%1</b>")
+			text = text:gsub("%*([^%s][^*]-[^%s])%*", "<i>%1</i>")
+			text = text:gsub("* ", "<b>•</b> ")
+			text = text:gsub("- ", "<b>•</b> ")
+			return text
+		end
+
+		local hypertext = {}
+		local insert = table.insert
+		if package.releases then
+			for _, def in pairs(package.releases) do
+				insert(hypertext,
+					"<b>"..core.hypertext_escape(def.title).."</b> ("..def.release_date:gsub("T.*", "")..")\n"..
+					fgettext("$1 downloads",
+						def.downloads)..".\n"
+				)
+
+				if def.release_notes then
+					insert(hypertext, core.hypertext_escape(
+							markup((def.release_notes
+								:gsub("<!--.-%-%->", "")
+								:trim()
+							.."\n"
+						))
+					))
+				end
+
+				insert(hypertext, "\n")
+			end
+		elseif data.releases_error then
+			table.insert_all(formspec, {"label[2,2;", fgettext("Error loading releases"), "]"} )
+		else
+			table.insert_all(formspec, {"label[2,2;", fgettext("Loading..."), "]"} )
+		end
+		table.insert_all(formspec, {
+			"hypertext[0,0;", W, ",", tab_body_height - 0.375,
+			";release;", core.formspec_escape(table.concat(hypertext)), "]",
+		})
 	else
 		error("Unknown tab " .. current_tab)
 	end
