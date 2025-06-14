@@ -114,6 +114,12 @@ public:
 	void setFogStart(float fog_start) { m_sky_params.fog_start = fog_start; }
 	float getFogStart() const { return m_sky_params.fog_start; }
 
+	void setShootingStarsEnabled(bool enabled) { m_star_params.shooting_stars_enabled = enabled; }
+	void setShootingStarChance(f32 chance) { m_star_params.shooting_star_chance = chance; }
+	void setShootingStarSpeed(f32 speed) { m_star_params.shooting_star_speed = speed; }
+	void setShootingStarSize(f32 size) { m_star_params.shooting_star_size = size; }
+	void setShootingStarColors(const std::vector<video::SColor> &colors) { m_star_params.shooting_star_colors = colors; }
+
 	void setFogColor(video::SColor v) { m_sky_params.fog_color = v; }
 	video::SColor getFogColor() const {
 		if (m_sky_params.fog_color.getAlpha() > 0)
@@ -215,8 +221,12 @@ private:
 	void draw_sky_body(std::array<video::S3DVertex, 4> &vertices,
 		float pos_1, float pos_2, const video::SColor &c);
 	void draw_stars(video::IVideoDriver *driver, float wicked_time_of_day);
+	void draw_shooting_stars(video::IVideoDriver *driver, float wicked_time_of_day, float dtime);
 	void place_sky_body(std::array<video::S3DVertex, 4> &vertices,
 		float horizon_position,	float day_position);
+
+	float m_last_update_time = 0.0f;
+	float dtime;
 };
 
 // calculates value for sky body positions for the given observed time of day

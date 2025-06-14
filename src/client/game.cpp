@@ -2948,6 +2948,14 @@ void Game::handleClientEvent_SetStars(ClientEvent *event, CameraOrientation *cam
 	sky->setStarColor(event->star_params->starcolor);
 	sky->setStarScale(event->star_params->scale);
 	sky->setStarDayOpacity(event->star_params->day_opacity);
+
+	// Set shooting star parameters
+	sky->setShootingStarsEnabled(event->star_params->shooting_stars_enabled);
+	sky->setShootingStarChance(event->star_params->shooting_star_chance);
+	sky->setShootingStarSpeed(event->star_params->shooting_star_speed);
+	sky->setShootingStarSize(event->star_params->shooting_star_size);
+	sky->setShootingStarColors(event->star_params->shooting_star_colors);
+
 	delete event->star_params;
 }
 

@@ -2435,6 +2435,31 @@ int ObjectRef::l_set_stars(lua_State *L)
 			"scale", star_params.scale);
 		star_params.day_opacity = getfloatfield_default(L, 2,
 			"day_opacity", star_params.day_opacity);
+
+		// Get shooting star parameters
+		star_params.shooting_stars_enabled = getboolfield_default(L, 2,
+			"shooting_stars_enabled", star_params.shooting_stars_enabled);
+		star_params.shooting_star_chance = getfloatfield_default(L, 2,
+			"shooting_star_chance", star_params.shooting_star_chance);
+		star_params.shooting_star_speed = getfloatfield_default(L, 2,
+			"shooting_star_speed", star_params.shooting_star_speed);
+		star_params.shooting_star_size = getfloatfield_default(L, 2,
+			"shooting_star_size", star_params.shooting_star_size);
+
+		// Get shooting star colors
+		lua_getfield(L, 2, "shooting_star_colors");
+		if (lua_istable(L, -1)) {
+			star_params.shooting_star_colors.clear();
+			int colors_table = lua_gettop(L);
+			lua_pushnil(L);
+			while (lua_next(L, colors_table) != 0) {
+				video::SColor color;
+				if (read_color(L, -1, &color))
+					star_params.shooting_star_colors.push_back(color);
+				lua_pop(L, 1);
+			}
+		}
+		lua_pop(L, 1);
 	}
 
 	getServer(L)->setStars(player, star_params);
@@ -2463,6 +2488,12 @@ int ObjectRef::l_get_stars(lua_State *L)
 	lua_setfield(L, -2, "scale");
 	lua_pushnumber(L, star_params.day_opacity);
 	lua_setfield(L, -2, "day_opacity");
+	lua_pushboolean(L, star_params.shooting_stars_enabled);
+	lua_setfield(L, -2, "shooting_stars_enabled");
+	lua_pushnumber(L, star_params.shooting_star_chance);
+	lua_setfield(L, -2, "shooting_star_chance");
+	lua_pushnumber(L, star_params.shooting_star_speed);
+	lua_setfield(L, -2, "shooting_star_speed");
 	return 1;
 }
 
