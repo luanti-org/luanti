@@ -902,6 +902,7 @@ void Client::handleCommand_InventoryFormSpec(NetworkPacket* pkt)
 
 	// Store formspec in LocalPlayer
 	player->inventory_formspec = pkt->readLongString();
+	player->inventory_formspec_override.clear();
 }
 
 void Client::handleCommand_DetachedInventory(NetworkPacket* pkt)
