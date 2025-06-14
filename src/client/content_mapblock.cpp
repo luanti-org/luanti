@@ -98,7 +98,7 @@ void MapblockMeshGenerator::getTile(v3s16 direction, TileSpec *tile_ret)
 // Returns a special tile, ready for use, non-rotated.
 void MapblockMeshGenerator::getSpecialTile(int index, TileSpec *tile_ret, bool apply_crack)
 {
-	*tile_ret = cur_node.f->special_tiles[index];
+	*tile_ret = cur_node.f->special_tiles[cur_node.n.getVariant(*cur_node.f)][index];
 	TileLayer *top_layer = nullptr;
 
 	for (auto &layernum : tile_ret->layers) {
@@ -1023,7 +1023,7 @@ void MapblockMeshGenerator::drawGlasslikeFramedNode()
 	// Optionally render internal liquid level defined by param2
 	// Liquid is textured with 1 tile defined in nodedef 'special_tiles'
 	if (param2 > 0 && cur_node.f->param_type_2 == CPT2_GLASSLIKE_LIQUID_LEVEL &&
-			cur_node.f->special_tiles[0].layers[0].texture) {
+			cur_node.f->special_tiles[cur_node.n.getVariant(*cur_node.f)][0].layers[0].texture) {
 		// Internal liquid level has param2 range 0 .. 63,
 		// convert it to -0.5 .. 0.5
 		float vlev = (param2 / 63.0f) * 2.0f - 1.0f;

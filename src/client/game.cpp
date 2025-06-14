@@ -3648,6 +3648,14 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 		}
 	}
 
+	// Apply variant
+	if (!place_param2 && predicted_f.variant_count > 1) {
+		u16 variant = mystoi(selected_item.metadata.getString("variant"),
+				0, predicted_f.variant_count - 1);
+		predicted_node.setParam2(
+				predicted_f.param2_variant.set(predicted_node.getParam2(), variant));
+	}
+
 	// Add node to client map
 	try {
 		LocalPlayer *player = client->getEnv().getLocalPlayer();

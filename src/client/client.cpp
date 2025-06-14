@@ -1761,6 +1761,18 @@ void Client::addUpdateMeshTaskForNode(v3s16 nodepos, bool ack_to_server, bool ur
 		addUpdateMeshTask(blockpos + v3s16(0, 0, -1), false, urgent);
 }
 
+void Client::updateDrawListBlocks(bool ack_to_server, bool urgent)
+{
+	Map *map = &m_env.getMap();
+	ClientMap *client_map = dynamic_cast<ClientMap*>(map);
+
+	auto cb_updateBlock = [this, map, ack_to_server, urgent] (v3s16 block_pos, MapBlock *map_block) {
+		m_mesh_update_manager->updateBlock(map, block_pos, ack_to_server, urgent);
+	};
+
+	client_map->callOverDrawList(cb_updateBlock);
+}
+
 ClientEvent *Client::getClientEvent()
 {
 	FATAL_ERROR_IF(m_client_event_queue.empty(),

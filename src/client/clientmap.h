@@ -90,6 +90,7 @@ public:
 	void getBlocksInViewRange(v3s16 cam_pos_nodes,
 		v3s16 *p_blocks_min, v3s16 *p_blocks_max, float range=-1.0f);
 	void updateDrawList();
+	void callOverDrawList(const std::function<void(v3s16, MapBlock *)> &cb);
 	// @brief Calculate statistics about the map and keep the blocks alive
 	void touchMapBlocks();
 	void updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir, float radius, float length);

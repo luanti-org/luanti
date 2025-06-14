@@ -204,3 +204,12 @@ local function run_player_hotbar_clamp_tests(player)
 	player:hud_set_hotbar_itemcount(old_bar_size)
 end
 unittests.register("test_player_hotbar_clamp", run_player_hotbar_clamp_tests, {player=true})
+
+unittests.register("test_player_node_visual", function (player)
+		local visual = player:get_node_visual("testnodes:variant_facedir")
+		player:set_node_visual("testnodes:variant_facedir",
+				{variant_offset = 5})
+		local set_visual = player:get_node_visual("testnodes:variant_facedir")
+		assert(set_visual.variant_offset == 5)
+		player:set_node_visual("testnodes:variant_facedir", visual)
+	end, {player = true})

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory> // shared_ptr
 #include <map>
+#include <array>
 #include "mapnode.h"
 #include "nameidmapping.h"
 #if CHECK_CLIENT_BUILD()
@@ -22,6 +23,7 @@ class Client;
 #include "texture_override.h" // TextureOverride
 #include "tileanimation.h"
 #include "util/pointabilities.h"
+#include "util/numeric.h"
 
 class IItemDefManager;
 class ITextureSource;
@@ -308,9 +310,9 @@ struct ContentFeatures
 #if CHECK_CLIENT_BUILD()
 	// 0     1     2     3     4     5
 	// up    down  right left  back  front
-	TileSpec tiles[6];
+	std::vector<std::array<TileSpec, 6> > tiles; // Length is variant count
 	// Special tiles
-	TileSpec special_tiles[CF_SPECIAL_COUNT];
+	std::vector<std::array<TileSpec, CF_SPECIAL_COUNT> > special_tiles;
 	u8 solidness; // Used when choosing which face is drawn
 	u8 visual_solidness; // When solidness=0, this tells how it looks like
 	bool backface_culling;
@@ -336,6 +338,12 @@ struct ContentFeatures
 	ContentParamType param_type;
 	// Type of MapNode::param2
 	ContentParamType2 param_type_2;
+	// Number of node variants
+	u16 variant_count = 1;
+	// Node variant offset
+	u16 variant_offset = 0;
+	// Bit field for variant in param2
+	BitField<u8> param2_variant;
 
 	// --- VISUAL PROPERTIES ---
 
@@ -343,13 +351,13 @@ struct ContentFeatures
 	std::string mesh;
 #if CHECK_CLIENT_BUILD()
 	scene::SMesh *mesh_ptr; // mesh in case of mesh node
-	video::SColor minimap_color;
+	std::vector<video::SColor> minimap_color; // Length is variant count
 #endif
 	float visual_scale; // Misc. scale parameter
-	TileDef tiledef[6];
+	std::vector<std::array<TileDef, 6> > tiledef; // Length is variant count
 	// These will be drawn over the base tiles.
-	TileDef tiledef_overlay[6];
-	TileDef tiledef_special[CF_SPECIAL_COUNT]; // eg. flowing liquid
+	std::vector<std::array<TileDef, 6> > tiledef_overlay; // Length is variant count
+	std::vector<std::array<TileDef, CF_SPECIAL_COUNT> > tiledef_special; // eg. flowing liquid
 	AlphaMode alpha;
 	// The color of the node.
 	video::SColor color;
@@ -516,6 +524,15 @@ private:
 	u8 getAlphaForLegacy() const;
 };
 
+struct NodeVisual {
+	u16 variant_offset = 0;
+
+	NodeVisual();
+	NodeVisual(const ContentFeatures &f);
+
+	void from_contentFeature(const ContentFeatures &f);
+};
+
 /*!
  * @brief This class is for getting the actual properties of nodes from their
  * content ID.
@@ -610,6 +627,20 @@ public:
 	inline core::aabbox3d<s16> getSelectionBoxIntUnion() const {
 		return m_selection_box_int_union;
 	}
+
+	/*!
+	 * Get NodeVisual object of node
+	 * @param name a node name
+	 * @param node_visual NodeVisual object to be set
+	 */
+	void getNodeVisual(const std::string &name, NodeVisual &node_visual) const;
+
+	/*!
+	 * Apply NodeVisual object to node
+	 * @param name a node name
+	 * @param node_visual NodeVisual object to be applied to node
+	 */
+	void applyNodeVisual(const std::string &name, const NodeVisual &node_visual);
 
 	/*!
 	 * Checks whether a node connects to an adjacent node.

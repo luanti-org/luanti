@@ -18,6 +18,7 @@
 #include "remoteplayer.h"
 #include "server.h"
 #include "hud.h"
+#include "nodedef.h"
 #include "scripting_server.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
@@ -2749,6 +2750,50 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	return 1;
 }
 
+// set_node_visual(self, node_name, node_visual)
+int ObjectRef::l_set_node_visual(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	std::string node_name = readParam<std::string>(L, 2);
+
+	NodeVisual node_visual;
+	player->getNodeVisual(node_name, node_visual);
+	NodeVisual new_visual = node_visual;
+
+	if (!lua_isnoneornil(L, 3)) {
+		luaL_checktype(L, 3, LUA_TTABLE);
+		new_visual.variant_offset = getfloatfield_default(L, -1, "variant_offset", node_visual.variant_offset);
+	}
+
+	getServer(L)->setNodeVisual(player, node_name, new_visual);
+	return 0;
+}
+
+// get_node_visual(self, node_name)
+int ObjectRef::l_get_node_visual(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	std::string node_name = readParam<std::string>(L, 2);
+
+	NodeVisual node_visual;
+	player->getNodeVisual(node_name, node_visual);
+
+	lua_newtable(L); // result
+	lua_pushnumber(L, node_visual.variant_offset);
+	lua_setfield(L, -2, "variant_offset");
+	return 1;
+}
+
 // respawn(self)
 int ObjectRef::l_respawn(lua_State *L)
 {
@@ -2950,6 +2995,8 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod(ObjectRef, set_minimap_modes),
 	luamethod(ObjectRef, set_lighting),
 	luamethod(ObjectRef, get_lighting),
+	luamethod(ObjectRef, set_node_visual),
+	luamethod(ObjectRef, get_node_visual),
 	luamethod(ObjectRef, respawn),
 	luamethod(ObjectRef, set_flags),
 	luamethod(ObjectRef, get_flags),
