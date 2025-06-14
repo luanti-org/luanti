@@ -189,6 +189,10 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
 		MapBlock *block = q->map_blocks[i++];
 		data->fillBlockData(pos, block ? block->getData() : block_placeholder.data);
+
+		if (block) {
+			data->m_render_cache[pos] = std::move(block->m_node_metadata.getRenderCache());
+		}
 	}
 
 	data->setCrack(q->crack_level, q->crack_pos);

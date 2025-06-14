@@ -6,6 +6,7 @@
 #include "exceptions.h"
 #include "gamedef.h"
 #include "inventory.h"
+#include "nodedef.h"
 #include "irrlicht_changes/printing.h"
 #include "log.h"
 #include "debug.h"
@@ -222,6 +223,9 @@ void NodeMetadataList::remove(v3s16 p)
 		}
 		m_data.erase(p);
 	}
+#ifndef SERVER
+	m_render_cache.erase(p);
+#endif
 }
 
 void NodeMetadataList::set(v3s16 p, NodeMetadata *d)
@@ -237,6 +241,9 @@ void NodeMetadataList::clear()
 			delete it->second;
 	}
 	m_data.clear();
+#ifndef SERVER
+	m_render_cache.clear();
+#endif
 }
 
 int NodeMetadataList::countNonEmpty() const
@@ -248,3 +255,31 @@ int NodeMetadataList::countNonEmpty() const
 	}
 	return n;
 }
+
+#ifndef SERVER
+void NodeMetadataList::set(v3s16 p, NodeMetadata *d, const ContentFeatures *f, const NodeDefManager *ndef)
+{
+	remove(p);
+	m_data.emplace(p, d);
+	if (d && f)
+		setRenderCacheRaw(p, d, f, ndef);
+}
+void NodeMetadataList::setRenderCache(v3s16 p, const ContentFeatures *f, const NodeDefManager *ndef)
+{
+	NodeMetadata *d = m_data[p];
+	if (d && f)
+		setRenderCacheRaw(p, d, f, ndef);
+}
+void NodeMetadataList::setRenderCacheRaw(v3s16 p, NodeMetadata *d, const ContentFeatures *f, const NodeDefManager *ndef)
+{
+	// check if something should be cached
+	if ((f->drawtype == NDT_SUNKEN) || (f->drawtype == NDT_COVERED)) {
+		RenderCachedMetadata cached;
+		const std::string &inner_node = d->getString("inner_node");
+		const std::string &inner_param2 = d->getString("inner_param2");
+		cached.inner_id = ndef->getId(inner_node);;
+		cached.inner_param2 = stoi(inner_param2) & 0xFF;
+		m_render_cache.emplace(p, cached);
+	}
+}
+#endif

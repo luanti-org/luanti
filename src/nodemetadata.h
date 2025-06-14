@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <map>
 #include "metadata.h"
+#include "mapnode.h"
 
 /*
 	NodeMetadata stores arbitary amounts of data for special blocks.
@@ -19,6 +20,8 @@
 
 class Inventory;
 class IItemDefManager;
+class NodeDefManager;
+struct ContentFeatures;
 
 class NodeMetadata : public SimpleMetadata
 {
@@ -54,12 +57,20 @@ private:
 	std::unordered_set<std::string> m_privatevars;
 };
 
+struct RenderCachedMetadata
+{
+	// sunken/covered
+	content_t inner_id;
+	u8 inner_param2;
+};
+
 
 /*
 	List of metadata of all the nodes of a block
 */
 
 typedef std::map<v3s16, NodeMetadata *> NodeMetadataMap;
+typedef std::map<v3s16, RenderCachedMetadata> RenderCachedMetadataMap;
 
 class NodeMetadataList
 {
@@ -98,9 +109,24 @@ public:
 		return m_data.end();
 	}
 
+#ifndef SERVER // Only on client
+	// return copy of render cache
+	RenderCachedMetadataMap getRenderCache() { return m_render_cache; }
+	// clear render cache
+	void clearRenderCache() { m_render_cache.clear(); }
+	// Deletes old data and sets a new one with render cache update
+	void set(v3s16 p, NodeMetadata *d, const ContentFeatures *f, const NodeDefManager *ndef);
+	// set render cache for data
+	void setRenderCache(v3s16 p, const ContentFeatures *f, const NodeDefManager *ndef);
+private:
+	void setRenderCacheRaw(v3s16 p, NodeMetadata *d, const ContentFeatures *f, const NodeDefManager *ndef);
+#endif
 private:
 	int countNonEmpty() const;
 
 	bool m_is_metadata_owner;
 	NodeMetadataMap m_data;
+#ifndef SERVER // Only on client
+	RenderCachedMetadataMap m_render_cache;
+#endif
 };
