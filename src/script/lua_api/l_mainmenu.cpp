@@ -593,7 +593,10 @@ int ModApiMainMenu::l_create_world(lua_State *L)
 
 	// Create world if it doesn't exist
 	try {
-		loadGameConfAndInitWorld(path, name, *game_it, true, g_settings->get("lua_mapgen"));
+		std::string lua_mapgen = "";
+		if (use_settings.find("lua_mapgen") != use_settings.end())
+			lua_mapgen = use_settings["lua_mapgen"];
+		loadGameConfAndInitWorld(path, name, *game_it, true, lua_mapgen);
 		lua_pushnil(L);
 	} catch (const BaseException &e) {
 		auto err = std::string("Failed to initialize world: ") + e.what();
