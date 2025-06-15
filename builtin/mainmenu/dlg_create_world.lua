@@ -412,7 +412,7 @@ local function create_world_buttonhandler(this, fields)
 			this.data.seed = fields["te_seed"] or ""
 			this.data.mg = fields["dd_mapgen"]
 			local mapgen_internal = this.data.mg
-			local mapgen = nil
+			local lua_mapgen = nil
 
 			-- This is used to make sure that the internal mapgens are never overwritten by an ill-playing mapgen
 			local internal_mapgens = core.get_mapgen_names()
@@ -428,7 +428,7 @@ local function create_world_buttonhandler(this, fields)
 				for name, v in pairs(lua_mapgens) do
 					if v.title == this.data.mg or (v.title == nil and name == this.data.mg) then
 						mapgen_internal = "singlenode"
-						mapgen = name
+						lua_mapgen = name
 						break
 					end
 				end
@@ -438,7 +438,7 @@ local function create_world_buttonhandler(this, fields)
 			local settings = {
 				fixed_map_seed = this.data.seed,
 				mg_name = mapgen_internal,
-				lua_mapgen = mapgen,
+				lua_mapgen = lua_mapgen,
 				mg_flags = table_to_flags(this.data.flags.main),
 				mgv5_spflags = table_to_flags(this.data.flags.v5),
 				mgv6_spflags = table_to_flags(this.data.flags.v6),
