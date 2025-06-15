@@ -8513,6 +8513,7 @@ child will follow movement and rotation of that bone.
     * Returns `0` (no bits set) if the object is not a player.
 * `set_physics_override(override_table)`
     * Overrides the physics attributes of the player
+    * `core.DEFAULT_PHYSICS` contains the default values.
     * `override_table` is a table with the following fields:
         * `speed`: multiplier to *all* movement speed (`speed_*`) and
                    acceleration (`acceleration_*`) values (default: `1`)
