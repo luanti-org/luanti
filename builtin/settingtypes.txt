@@ -337,6 +337,10 @@ keymap_slot31 (Hotbar slot 31) key
 
 keymap_slot32 (Hotbar slot 32) key
 
+#    Modifier key bind for closing your world.
+#    Requires ESC + the selected key to work.
+keymap_close_world (Return to Main Menu) key SYSTEM_SCANCODE_225
+
 [*Touchscreen]
 
 #    Enables the touchscreen controls, allowing you to play the game with a touchscreen.
