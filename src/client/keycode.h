@@ -5,10 +5,12 @@
 #pragma once
 
 #include "irrlichttypes.h"
+#include "keys.h"
 #include <Keycodes.h>
 #include <IEventReceiver.h>
 #include <string>
 #include <variant>
+#include <vector>
 
 /* A key press, consisting of a scancode or a keycode.
  * This fits into 64 bits, so prefer passing this by value.
@@ -16,11 +18,19 @@
 class KeyPress
 {
 public:
+	enum InputType {
+		SCANCODE_INPUT, // Keyboard input (scancodes)
+		KEYCODE_INPUT, // (Deprecated) irr::EKEY_CODE-based keyboard and mouse input
+		GAME_ACTION_INPUT, // GameKeyType input passed by touchscreen buttons
+	};
+
 	KeyPress() = default;
 
 	KeyPress(const std::string &name);
 
 	KeyPress(const irr::SEvent::SKeyInput &in);
+
+	KeyPress(GameKeyType key) : scancode(key) {}
 
 	// Get a string representation that is suitable for use in minetest.conf
 	std::string sym() const;
@@ -54,18 +64,32 @@ public:
 		return scancode < o.scancode;
 	}
 
-	// Check whether the keypress is valid
-	operator bool() const
-	{
-		return std::holds_alternative<irr::EKEY_CODE>(scancode) ?
-			Keycode::isValid(std::get<irr::EKEY_CODE>(scancode)) :
-			std::get<u32>(scancode) != 0;
+	InputType getType() const {
+		return static_cast<InputType>(scancode.index());
 	}
+
+	// Check whether the keypress is valid
+	operator bool() const;
 
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
-	using value_type = std::variant<u32, irr::EKEY_CODE>;
+	struct table_key { // internal keycode lookup table
+		std::string Name; // An EKEY_CODE 'symbol' name as a string
+		irr::EKEY_CODE Key;
+		wchar_t Char; // L'\0' means no character assigned
+		std::string LangName; // empty string means it doesn't have a human description
+	};
+	static const table_key invalid_key;
+	static std::vector<table_key> keycode_table;
+	static const table_key &lookupKeychar(wchar_t Char);
+	static const table_key &lookupKeykey(irr::EKEY_CODE key);
+	static const table_key &lookupKeyname(std::string_view name);
+	static const table_key &lookupScancode(const u32 scancode);
+	const table_key &lookupScancode() const;
+
+	using value_type = std::variant<u32, irr::EKEY_CODE, GameKeyType>;
+
 	bool loadFromScancode(const std::string &name);
 	void loadFromKey(irr::EKEY_CODE keycode, wchar_t keychar);
 	std::string formatScancode() const;
@@ -92,7 +116,13 @@ struct std::hash<KeyPress>
 #define RMBKey KeyPress::getSpecialKey("KEY_RBUTTON")
 
 // Key configuration getter
-KeyPress getKeySetting(const std::string &settingname);
+// Note that the reference may be invalidated by a next call to getKeySetting
+// or a related function, so the value should either be used immediately or
+// copied elsewhere before calling this again.
+const std::vector<KeyPress> &getKeySetting(const std::string &settingname);
+
+// Check whether the key setting includes a key.
+bool keySettingHasMatch(const std::string &settingname, KeyPress kp);
 
 // Clear fast lookup cache
 void clearKeyCache();
