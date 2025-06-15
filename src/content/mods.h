@@ -27,6 +27,7 @@ struct ModSpec
 	std::string author;
 	std::string path; // absolute path on disk
 	std::string desc;
+	std::string title;
 	int release = 0;
 
 	// if normal mod:
@@ -36,6 +37,10 @@ struct ModSpec
 
 	bool part_of_modpack = false;
 	bool is_modpack = false;
+
+	// lua-defined mapgen only
+	bool is_mapgen = false;
+	std::unordered_set<std::string> mapgen_flags;
 
 	/**
 	 * A constructed canonical path to represent this mod's location.
