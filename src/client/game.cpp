@@ -632,6 +632,7 @@ protected:
 
 	void updateCameraDirection(CameraOrientation *cam, float dtime);
 	void updateCameraOrientation(CameraOrientation *cam, float dtime);
+	float getInvertedCameraState(float dir);
 	bool getTogglableKeyState(GameKeyType key, bool toggling_enabled, bool prev_key_state);
 	void updatePlayerControl(const CameraOrientation &cam);
 	void updatePauseState();
@@ -832,7 +833,8 @@ private:
 	f32  m_repeat_dig_time;
 	f32  m_cache_cam_smoothing;
 
-	bool m_invert_mouse;
+	bool m_invert_camera;
+	bool m_invert_third_person_front;
 	bool m_enable_hotbar_mouse_wheel;
 	bool m_invert_hotbar_mouse_wheel;
 
@@ -895,7 +897,9 @@ Game::Game() :
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("camera_smoothing",
 		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("invert_mouse",
+	g_settings->registerChangedCallback("invert_camera",
+		&settingChangedCallback, this);
+	g_settings->registerChangedCallback("invert_third_person_front",
 		&settingChangedCallback, this);
 	g_settings->registerChangedCallback("enable_hotbar_mouse_wheel",
 		&settingChangedCallback, this);
@@ -2484,18 +2488,14 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		// User setting is already applied by TouchControls.
 		f32 sens_scale = getSensitivityScaleFactor();
 		cam->camera_yaw   += g_touchcontrols->getYawChange()   * sens_scale;
-		cam->camera_pitch += g_touchcontrols->getPitchChange() * sens_scale;
+		cam->camera_pitch += getInvertedCameraState(g_touchcontrols->getPitchChange()) * sens_scale;
 	} else {
 		v2s32 center(driver->getScreenSize().Width / 2, driver->getScreenSize().Height / 2);
 		v2s32 dist = input->getMousePos() - center;
 
-		if (m_invert_mouse || camera->getCameraMode() == CAMERA_MODE_THIRD_FRONT) {
-			dist.Y = -dist.Y;
-		}
-
 		f32 sens_scale = getSensitivityScaleFactor();
 		cam->camera_yaw   -= dist.X * m_cache_mouse_sensitivity * sens_scale;
-		cam->camera_pitch += dist.Y * m_cache_mouse_sensitivity * sens_scale;
+		cam->camera_pitch += getInvertedCameraState(dist.Y) * m_cache_mouse_sensitivity * sens_scale;
 
 		if (dist.X != 0 || dist.Y != 0)
 			input->setMousePos(center.X, center.Y);
@@ -2505,12 +2505,24 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		f32 sens_scale = getSensitivityScaleFactor();
 		f32 c = m_cache_joystick_frustum_sensitivity * dtime * sens_scale;
 		cam->camera_yaw -= input->joystick.getAxisWithoutDead(JA_FRUSTUM_HORIZONTAL) * c;
-		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
+		cam->camera_pitch += getInvertedCameraState(input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL)) * c;
 	}
-
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
 }
 
+float Game::getInvertedCameraState(float dir)
+{
+	if (m_invert_camera) {
+		dir = -dir;
+	}
+
+	if (m_invert_third_person_front) {
+		if (camera->getCameraMode() == CAMERA_MODE_THIRD_FRONT) {
+			dir = -dir;
+		}
+	}
+	return dir;
+}
 
 // Get the state of an optionally togglable key
 bool Game::getTogglableKeyState(GameKeyType key, bool toggling_enabled, bool prev_key_state)
@@ -4224,7 +4236,8 @@ void Game::readSettings()
 	m_cache_cam_smoothing = rangelim(m_cache_cam_smoothing, 0.01f, 1.0f);
 	m_cache_mouse_sensitivity = rangelim(m_cache_mouse_sensitivity, 0.001, 100.0);
 
-	m_invert_mouse = g_settings->getBool("invert_mouse");
+	m_invert_camera = g_settings->getBool("invert_camera");
+	m_invert_third_person_front = g_settings->getBool("invert_third_person_front");
 	m_enable_hotbar_mouse_wheel = g_settings->getBool("enable_hotbar_mouse_wheel");
 	m_invert_hotbar_mouse_wheel = g_settings->getBool("invert_hotbar_mouse_wheel");
 
