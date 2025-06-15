@@ -326,18 +326,20 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 	InventoryLocation inventoryloc;
 	inventoryloc.setCurrentPlayer();
 
+	if (fs_override)
+		player->inventory_formspec_override = *fs_override;
+	else
+		player->inventory_formspec_override.clear();
+
 	if (m_client->modsLoaded() && m_client->getScript()->on_inventory_open(m_client->getInventory(inventoryloc))) {
 		delete fs_src;
 		return;
 	}
 
-	const std::string &formspec = fs_override ? *fs_override : fs_src->getForm();
-	if (formspec.empty()) {
+	if (fs_src->getForm().empty() || (fs_override && fs_override->empty())) {
 		delete fs_src;
 		return;
 	}
-	if (fs_override)
-		player->inventory_formspec_override = *fs_override;
 
 	TextDest *txt_dst = new TextDestPlayerInventory(m_client);
 
@@ -345,7 +347,7 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
 		m_client->getSoundManager());
 
-	m_formspec->setFormSpec(formspec, inventoryloc);
+	m_formspec->setFormSpec(fs_src->getForm(), inventoryloc);
 }
 
 #define SIZE_TAG "size[11,5.5,true]" // Fixed size (ignored in touchscreen mode)
