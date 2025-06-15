@@ -40,6 +40,18 @@ struct AutoExposure
 	{}
 };
 
+struct VisionEffects
+{
+	std::array<float, 9> color_transform_matrix;
+
+	constexpr VisionEffects()
+		: color_transform_matrix{
+				1.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, 1.0f}
+	{}
+};
+
 /** Describes ambient light settings for a player
  */
 struct Lighting
@@ -52,4 +64,5 @@ struct Lighting
 	float bloom_intensity {0.05f};
 	float bloom_strength_factor {1.0f};
 	float bloom_radius {1.0f};
+	VisionEffects vision_effects;
 };
