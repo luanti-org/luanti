@@ -157,13 +157,13 @@ protected:
 class TextDrawer
 {
 public:
-	TextDrawer(const wchar_t *text, Client *client, gui::IGUIEnvironment *environment,
-			ISimpleTextureSource *tsrc);
+	TextDrawer(const wchar_t *text,
+			const std::function<video::ITexture*(const std::string&)>& texture_getter);
 
 	void place(const core::rect<s32> &dest_rect);
 	inline s32 getHeight() { return m_height; };
 	void draw(const core::rect<s32> &clip_rect,
-			const core::position2d<s32> &dest_offset);
+			const core::position2d<s32> dest_offset, video::IVideoDriver* driver, Client *client);
 	ParsedText::Element *getElementAt(core::position2d<s32> pos);
 	ParsedText::Tag *m_hovertag;
 
@@ -175,9 +175,7 @@ protected:
 	};
 
 	ParsedText m_text;
-	Client *m_client; ///< null in the mainmenu
-	ISimpleTextureSource *m_tsrc;
-	gui::IGUIEnvironment *m_guienv;
+	std::function<video::ITexture*(const std::string&)> m_texture_getter;
 	s32 m_height;
 	s32 m_voffset;
 	std::vector<RectWithMargin> m_floating;
@@ -204,7 +202,7 @@ public:
 
 protected:
 	// GUI members
-	ISimpleTextureSource *m_tsrc;
+	Client *m_client;
 	GUIScrollBar *m_vscrollbar;
 	TextDrawer m_drawer;
 

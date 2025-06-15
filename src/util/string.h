@@ -302,6 +302,36 @@ inline std::vector<std::basic_string<T> > str_split(
 	return parts;
 }
 
+/**
+ * Splits a string_view into its component parts separated by the character
+ * \p delimiter.
+ *
+ * @return An std::vector<std::basic_string<T> > of the component parts
+ */
+template <typename T>
+inline std::vector<std::basic_string_view<T> > str_split(
+		const std::basic_string_view<T> &strv,
+		T delimiter)
+{
+	std::vector<std::basic_string_view<T>> output;
+	size_t first = 0;
+
+	while (first < strv.size())
+	{
+		const auto second = strv.find_first_of(delimiter, first);
+
+		if (first != second)
+			output.push_back(strv.substr(first, second - first));
+
+		if (second == std::string_view::npos)
+			break;
+
+		first = second + 1;
+	}
+
+	return output;
+}
+
 
 /**
  * @param str
