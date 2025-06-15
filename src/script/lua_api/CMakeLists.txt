@@ -24,6 +24,8 @@ set(common_SCRIPT_LUA_API_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/l_storage.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_util.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_vmanip.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/l_rotation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/l_matrix4.cpp
 	PARENT_SCOPE)
 
 set(client_SCRIPT_LUA_API_SRCS
