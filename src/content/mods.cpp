@@ -146,6 +146,15 @@ bool parseModContents(ModSpec &spec)
 				}
 			}
 		}
+	} else {
+		if (info.exists("mapgen_flags")) {
+			std::string dep = info.get("mapgen_flags");
+			dep.erase(std::remove_if(dep.begin(), dep.end(),
+					static_cast<int (*)(int)>(&std::isspace)), dep.end());
+			for (const auto &flag : str_split(dep, ',')) {
+				spec.mapgen_flags.insert(flag);
+			}
+		}
 	}
 
 	if (info.exists("description"))

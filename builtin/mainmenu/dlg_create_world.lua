@@ -90,10 +90,12 @@ local function create_world_formspec(dialogdata)
 		end
 	end
 
-	local lua_mapgens = core.get_lua_mapgen_descriptions_and_title()
+	local lua_mapgens = core.get_lua_mapgens()
+	local is_lua_mapgen = false
 	for k, v in pairs(lua_mapgens) do
 		if not is_internal_mapgen and v.title == dialogdata.mg then
 			current_mapgen = k
+			is_lua_mapgen = true
 		end
 		mapgens[#mapgens+1] = k
 	end
@@ -181,6 +183,11 @@ local function create_world_formspec(dialogdata)
 		end
 	end
 
+	local allowed_lua_mapgen_settings = {}
+	if is_lua_mapgen and lua_mapgens[current_mapgen].mapgen_flags then
+		allowed_lua_mapgen_settings = lua_mapgens[current_mapgen].mapgen_flags
+	end
+
 	-- The logic of the flag element IDs is as follows:
 	-- "flag_main_foo-bar-baz" controls dialogdata.flags["main"]["foo_bar_baz"]
 	-- see the buttonhandler for the implementation of this
@@ -190,6 +197,9 @@ local function create_world_formspec(dialogdata)
 			return "", y
 		end
 		if disallowed_mapgen_settings["mg_flags"] then
+			return "", y
+		end
+		if is_lua_mapgen and not allowed_lua_mapgen_settings["mg_flags"] then
 			return "", y
 		end
 
@@ -285,7 +295,7 @@ local function create_world_formspec(dialogdata)
 	local str_flags, str_spflags
 	local label_flags, label_spflags = "", ""
 	y = y + 0.3
-	str_flags, y = mg_main_flags(current_mapgen_internal, y)
+	str_flags, y = mg_main_flags(current_mapgen, y)
 	if str_flags ~= "" then
 		label_flags = "label[0,"..y_start..";" .. fgettext("Mapgen flags") .. "]"
 		y_start = y + 0.4
@@ -414,7 +424,7 @@ local function create_world_buttonhandler(this, fields)
 			end
 
 			if not is_internal_mapgen then
-				local lua_mapgens = core.get_lua_mapgen_descriptions_and_title()
+				local lua_mapgens = core.get_lua_mapgens()
 				for name, v in pairs(lua_mapgens) do
 					if v.title == this.data.mg or (v.title == nil and name == this.data.mg) then
 						mapgen_internal = "singlenode"

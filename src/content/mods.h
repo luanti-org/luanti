@@ -38,8 +38,9 @@ struct ModSpec
 	bool part_of_modpack = false;
 	bool is_modpack = false;
 
-	// lua-defined mapgen
+	// lua-defined mapgen only
 	bool is_mapgen = false;
+	std::unordered_set<std::string> mapgen_flags;
 
 	/**
 	 * A constructed canonical path to represent this mod's location.

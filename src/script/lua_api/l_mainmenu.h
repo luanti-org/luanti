@@ -51,7 +51,7 @@ private:
 
 	static int l_get_mapgen_names(lua_State *L);
 
-	static int l_get_lua_mapgen_descriptions_and_title(lua_State *L);
+	static int l_get_lua_mapgens(lua_State *L);
 
 	static int l_get_language(lua_State *L);
 
