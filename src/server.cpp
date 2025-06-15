@@ -1595,11 +1595,10 @@ void Server::SendShowFormspecMessage(session_t peer_id, const std::string &forms
 				(it->second == formname || formname.empty())) {
 			m_formspec_state_data.erase(peer_id);
 		}
-		pkt.putLongString("");
 	} else {
 		m_formspec_state_data[peer_id] = formname;
-		pkt.putLongString(formspec);
 	}
+	pkt.putLongString(formspec);
 	pkt << formname;
 
 	Send(&pkt);
@@ -3396,6 +3395,9 @@ bool Server::showFormspec(const char *playername, const std::string &formspec,
 	RemotePlayer *player = m_env->getPlayer(playername);
 	if (!player)
 		return false;
+
+	// To allow re-sending the same inventory formspec.
+	player->inventory_formspec_overridden = formname.empty() && !formspec.empty();
 
 	SendShowFormspecMessage(player->getPeerId(), formspec, formname);
 	return true;

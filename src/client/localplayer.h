@@ -99,6 +99,7 @@ public:
 
 	std::string hotbar_image = "";
 	std::string hotbar_selected_image = "";
+	std::string inventory_formspec_override;
 
 	video::SColor light_color = video::SColor(255, 255, 255, 255);
 

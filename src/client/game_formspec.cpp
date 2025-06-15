@@ -178,6 +178,10 @@ public:
 	const std::string &getForm() const
 	{
 		LocalPlayer *player = m_client->getEnv().getLocalPlayer();
+
+		if (!player->inventory_formspec_override.empty())
+			return player->inventory_formspec_override;
+
 		return player->inventory_formspec;
 	}
 
@@ -304,7 +308,7 @@ void GameFormSpec::showNodeFormspec(const std::string &formspec, const v3s16 &no
 	m_formspec->setFormSpec(formspec, inventoryloc);
 }
 
-void GameFormSpec::showPlayerInventory()
+void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 {
 	/*
 	 * Don't permit to open inventory is CAO or player doesn't exists.
@@ -322,12 +326,17 @@ void GameFormSpec::showPlayerInventory()
 	InventoryLocation inventoryloc;
 	inventoryloc.setCurrentPlayer();
 
+	if (fs_override)
+		player->inventory_formspec_override = *fs_override;
+	else
+		player->inventory_formspec_override.clear();
+
 	if (m_client->modsLoaded() && m_client->getScript()->on_inventory_open(m_client->getInventory(inventoryloc))) {
 		delete fs_src;
 		return;
 	}
 
-	if (fs_src->getForm().empty()) {
+	if (fs_src->getForm().empty() || (fs_override && fs_override->empty())) {
 		delete fs_src;
 		return;
 	}
