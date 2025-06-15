@@ -160,11 +160,6 @@ safe_dig_and_place (Safe digging and placing) bool false
 
 [*Keyboard and Mouse]
 
-#    Invert vertical mouse movement.
-#
-#    Requires: keyboard_mouse
-invert_mouse (Invert mouse) bool false
-
 #    Mouse sensitivity multiplier.
 #
 #    Requires: keyboard_mouse
@@ -492,6 +487,12 @@ arm_inertia (Arm inertia) bool true
 view_bobbing_amount (View bobbing factor) float 1.0 0.0 7.9
 
 [**Camera]
+
+#    Invert vertical camera movement.
+invert_camera (Invert camera) bool false
+
+#    Inverts the 3rd person front-facing camera.
+invert_third_person_front (Invert 3rd person front) bool true
 
 #    Field of view in degrees.
 fov (Field of view) int 72 45 160

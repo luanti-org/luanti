@@ -263,6 +263,8 @@ void set_default_settings()
 	settings->setDefault("autosave_screensize", "true");
 	settings->setDefault("fullscreen", bool_to_cstr(has_touch));
 	settings->setDefault("vsync", "false");
+	settings->setDefault("invert_camera", "false");
+	settings->setDefault("invert_third_person_front", "true");
 	settings->setDefault("fov", "72");
 	settings->setDefault("leaves_style", "fancy");
 	settings->setDefault("connected_glass", "false");
@@ -355,7 +357,6 @@ void set_default_settings()
 	settings->setDefault("shadow_sky_body_orbit_tilt", "0.0");
 
 	// Input
-	settings->setDefault("invert_mouse", "false");
 	settings->setDefault("enable_hotbar_mouse_wheel", "true");
 	settings->setDefault("invert_hotbar_mouse_wheel", "false");
 	settings->setDefault("mouse_sensitivity", "0.2");
