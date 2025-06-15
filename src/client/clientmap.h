@@ -70,11 +70,6 @@ public:
 	void updateCamera(v3f pos, v3f dir, f32 fov, v3s16 offset, video::SColor light_color);
 
 	/*
-		Forcefully get a sector from somewhere
-	*/
-	MapSector * emergeSector(v2s16 p) override;
-
-	/*
 		ISceneNode methods
 	*/
 
