@@ -78,12 +78,15 @@ void Map::deleteBlockImmediate(MapBlock *block)
 
 std::unique_ptr<MapBlock> Map::detachBlock(MapBlock *block)
 {
+	v3s16 p = block->getPos();
 	// Remove from container
-	auto it = m_blocks.find(block->getPos());
+	auto it = m_blocks.find(p);
 	assert(it != m_blocks.end());
 	std::unique_ptr<MapBlock> ret = std::move(it->second);
 	assert(ret.get() == block);
 	m_blocks.erase(it);
+	if (m_block_cache_p == p)
+		m_block_cache = nullptr;
 
 	// Mark as removed
 	block->makeOrphan();
@@ -106,8 +109,19 @@ void Map::insertBlock(std::unique_ptr<MapBlock> block)
 
 MapBlock *Map::getBlockNoCreateNoEx(v3s16 p3d)
 {
+	if(m_block_cache && p3d == m_block_cache_p){
+		return m_block_cache;
+	}
+
 	auto it = m_blocks.find(p3d);
-	return it != m_blocks.end() ? it->second.get() : nullptr;
+	if (it == m_blocks.end())
+		return nullptr;
+
+	MapBlock *block = it->second.get();
+	m_block_cache = block;
+	m_block_cache_p = p3d;
+
+	return block;
 }
 
 MapBlock *Map::getBlockNoCreate(v3s16 p3d)
@@ -329,6 +343,8 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 
 				// Delete directly from container
 				it = m_blocks.erase(it);
+				if (m_block_cache_p == p)
+					m_block_cache = nullptr;
 
 				if (unloaded_blocks)
 					unloaded_blocks->push_back(p);

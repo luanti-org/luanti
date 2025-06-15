@@ -276,6 +276,11 @@ protected:
 
 	std::unordered_map<v3s16, std::unique_ptr<MapBlock>> m_blocks;
 
+	// Last-used block is cached here for quicker access.
+	// Be sure to set this to nullptr when the cached block is deleted
+	MapBlock *m_block_cache = nullptr;
+	v3s16 m_block_cache_p;
+
 	// This stores the properties of the nodes on the map.
 	const NodeDefManager *m_nodedef;
 
