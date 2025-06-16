@@ -6873,7 +6873,7 @@ Formspec
     * `playername`: name of player to show formspec
     * `formname`: name passed to `on_player_receive_fields` callbacks.
         * It should follow the `"modname:<whatever>"` naming convention.
-        * If empty: Shows an inventory formspec. Use
+        * If empty: Shows a custom, temporary inventory formspec. Use
           `ObjectRef:set_inventory_formspec` to change it for future opens.
           Supported if server AND client are both of version >= 5.13.0.
     * `formspec`: formspec to display
@@ -8654,9 +8654,12 @@ child will follow movement and rotation of that bone.
     * Returns `nil` if no attribute found.
 * `get_meta()`: Returns metadata associated with the player (a PlayerMetaRef).
 * `set_inventory_formspec(formspec)`
-    * Redefine player's inventory form. This sends an update to the player.
-    * Should usually be called in `on_joinplayer`
+    * Redefines the player's inventory formspec.
+    * Should usually be called at least once in the `on_joinplayer` callback.
     * If `formspec` is `""`, the player's inventory is disabled.
+    * If the inventory formspec is currently open on the client, it is
+      updated immediately.
+    * See also: `core.register_on_player_receive_fields`
 * `get_inventory_formspec()`: returns a formspec string
 * `set_formspec_prepend(formspec)`:
     * the formspec string will be added to every formspec shown to the user,

@@ -321,33 +321,35 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 
 	infostream << "Game: Launching inventory" << std::endl;
 
-	PlayerInventoryFormSource *fs_src = new PlayerInventoryFormSource(m_client);
+	auto fs_src = std::make_unique<PlayerInventoryFormSource>(m_client);
 
 	InventoryLocation inventoryloc;
 	inventoryloc.setCurrentPlayer();
 
-	if (fs_override)
+	if (fs_override) {
+		// Temporary overwrite for this specific formspec.
 		player->inventory_formspec_override = *fs_override;
-	else
+	} else {
+		// Show the regular inventory formspec
 		player->inventory_formspec_override.clear();
-
-	if (m_client->modsLoaded() && m_client->getScript()->on_inventory_open(m_client->getInventory(inventoryloc))) {
-		delete fs_src;
-		return;
 	}
 
-	if (fs_src->getForm().empty() || (fs_override && fs_override->empty())) {
-		delete fs_src;
+	// If preventedd by Client-Side Mods
+	if (m_client->modsLoaded() && m_client->getScript()->on_inventory_open(m_client->getInventory(inventoryloc)))
 		return;
-	}
+
+	// Empty formspec -> do not show.
+	if (fs_src->getForm().empty())
+		return;
 
 	TextDest *txt_dst = new TextDestPlayerInventory(m_client);
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
-		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
+		&m_input->joystick, fs_src.get(), txt_dst, m_client->getFormspecPrepend(),
 		m_client->getSoundManager());
 
 	m_formspec->setFormSpec(fs_src->getForm(), inventoryloc);
+	fs_src.release(); // owned by GUIFormSpecMenu
 }
 
 #define SIZE_TAG "size[11,5.5,true]" // Fixed size (ignored in touchscreen mode)
