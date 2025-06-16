@@ -116,6 +116,7 @@ core.register_chatcommand("bench_bulk_set_node", {
 			((middle_time - start_time)) / 1000,
 			((end_time - middle_time)) / 1000
 		)
+		print(msg)
 		return true, msg
 	end,
 })
@@ -131,14 +132,11 @@ core.register_chatcommand("bench_bulk_get_node", {
 		local pos_list = get_positions_cube(player:get_pos())
 		local function bench()
 			local start_time = core.get_us_time()
+			local dummy = 0
 			for i=1,#pos_list do
 				local n = core.get_node(pos_list[i])
-				-- Make sure the name lookup is never optimized away.
-				-- Table allocation might still be omitted. But only accessing
-				-- the name of a node is a common pattern anyways.
-				if n.name == "benchmarks:nonexistent_node" then
-					error("should never happen")
-				end
+				-- Make sure the name lookup is not optimized away
+				dummy = dummy + #n.name
 			end
 			return core.get_us_time() - start_time
 		end
@@ -151,11 +149,12 @@ core.register_chatcommand("bench_bulk_get_node", {
 
 		local msg = string.format("Benchmark results: core.get_node loop 1: %.2f ms",
 				result_us / 1000)
+		print(msg)
 		return true, msg
 	end,
 })
 
-core.register_chatcommand("bench_bulk_swap_node", {
+core.register_chatcommand("bench_bulk_get_node_raw", {
 	params = "",
 	description = "Benchmark: Bulk-get 99×99×99 nodes with raw API",
 	func = function(name, param)
@@ -166,15 +165,12 @@ core.register_chatcommand("bench_bulk_swap_node", {
 		local pos_list = get_positions_cube(player:get_pos())
 		local function bench()
 			local start_time = core.get_us_time()
+			local dummy = 0
 			for i=1,#pos_list do
 				local pos_i = pos_list[i]
 				local nid = core.get_node_raw(pos_i.x, pos_i.y, pos_i.z)
-				-- Make sure the name lookup is never optimized away.
-				-- Table allocation might still be omitted. But only accessing
-				-- the name of a node is a common pattern anyways.
-				if nid == -42 then
-					error("should never happen")
-				end
+				-- Make sure the result is not optimized away
+				dummy = dummy + nid
 			end
 			return core.get_us_time() - start_time
 		end
@@ -187,11 +183,12 @@ core.register_chatcommand("bench_bulk_swap_node", {
 
 		local msg = string.format("Benchmark results: core.get_node_raw loop 1: %.2f ms",
 				result_us / 1000)
+		print(msg)
 		return true, msg
 	end,
 })
 
-core.register_chatcommand("bench_bulk_get_node_raw_lookup", {
+core.register_chatcommand("bench_bulk_get_node_raw2", {
 	params = "",
 	description = "Benchmark: Bulk-get 99×99×99 nodes with raw API and lookup names",
 	func = function(name, param)
@@ -202,16 +199,13 @@ core.register_chatcommand("bench_bulk_get_node_raw_lookup", {
 		local pos_list = get_positions_cube(player:get_pos())
 		local function bench()
 			local start_time = core.get_us_time()
+			local dummy = 0
 			for i=1,#pos_list do
 				local pos_i = pos_list[i]
 				local nid = core.get_node_raw(pos_i.x, pos_i.y, pos_i.z)
 				local name = core.get_name_from_content_id(nid)
-				-- Make sure the name lookup is never optimized away.
-				-- Table allocation might still be omitted. But only accessing
-				-- the name of a node is a common pattern anyways.
-				if name == "benchmarks:nonexistent_node" then
-					error("should never happen")
-				end
+				-- Make sure the name lookup is not optimized away
+				dummy = dummy + #name
 			end
 			return core.get_us_time() - start_time
 		end
@@ -224,11 +218,12 @@ core.register_chatcommand("bench_bulk_get_node_raw_lookup", {
 
 		local msg = string.format("Benchmark results: core.get_node_raw+get_name_from_content_id loop 1: %.2f ms",
 				result_us / 1000)
+		print(msg)
 		return true, msg
 	end,
 })
 
-core.register_chatcommand("bench_bulk_get_node_vmanip", {
+core.register_chatcommand("bench_bulk_get_node_vm", {
 	params = "",
 	description = "Benchmark: Bulk-get 99×99×99 nodes with voxel manipulator",
 	func = function(name, param)
@@ -242,14 +237,11 @@ core.register_chatcommand("bench_bulk_get_node_vmanip", {
 			local vm = core.get_voxel_manip(pos:offset(1,1,1), pos:offset(100,100,100))
 			local data = vm:get_data()
 			local mid_time = core.get_us_time()
+			local dummy = 0
 			for i=1,99*99*99 do
 				local nid = data[i]
-				-- Make sure the name lookup is never optimized away.
-				-- Table allocation might still be omitted. But only accessing
-				-- the name of a node is a common pattern anyways.
-				if nid == -42 then
-					error("should never happen")
-				end
+				-- Make sure the table lookup is not optimized away
+				dummy = dummy + nid
 			end
 			return core.get_us_time() - start_time, mid_time - start_time
 		end
@@ -262,6 +254,7 @@ core.register_chatcommand("bench_bulk_get_node_vmanip", {
 
 		local msg = string.format("Benchmark results: core.get_voxel_vmanip+get_data+loop loop 1: %.2f ms of which get_data() %.2f ms",
 				result_us / 1000, get_data_us / 1000)
+		print(msg)
 		return true, msg
 	end,
 })
@@ -295,6 +288,7 @@ core.register_chatcommand("bench_bulk_swap_node", {
 			((middle_time - start_time)) / 1000,
 			((end_time - middle_time)) / 1000
 		)
+		print(msg)
 		return true, msg
 	end,
 })

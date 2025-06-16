@@ -739,14 +739,17 @@ core.noneitemdef_default = {  -- This is used for the hand and unknown items
 -- get_node implementation
 --
 
+local get_node_raw = core.get_node_raw
+local get_name_from_content_id = core.get_name_from_content_id
+
 function core.get_node(pos)
-	local content, param1, param2 = core.get_node_raw(pos.x, pos.y, pos.z)
-	return {name = core.get_name_from_content_id(content), param1 = param1, param2 = param2}
+	local content, param1, param2 = get_node_raw(pos.x, pos.y, pos.z)
+	return {name = get_name_from_content_id(content), param1 = param1, param2 = param2}
 end
 
 function core.get_node_or_nil(pos)
-	local content, param1, param2, pos_ok = core.get_node_raw(pos.x, pos.y, pos.z)
+	local content, param1, param2, pos_ok = get_node_raw(pos.x, pos.y, pos.z)
 	return pos_ok and
-			{name = core.get_name_from_content_id(content), param1 = param1, param2 = param2}
+			{name = get_name_from_content_id(content), param1 = param1, param2 = param2}
 			or nil
 end
