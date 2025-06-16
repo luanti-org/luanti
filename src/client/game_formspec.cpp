@@ -334,7 +334,7 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 		player->inventory_formspec_override.clear();
 	}
 
-	// If preventedd by Client-Side Mods
+	// If prevented by Client-Side Mods
 	if (m_client->modsLoaded() && m_client->getScript()->on_inventory_open(m_client->getInventory(inventoryloc)))
 		return;
 

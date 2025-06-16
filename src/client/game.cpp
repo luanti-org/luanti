@@ -2719,8 +2719,7 @@ void Game::handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation 
 	if (fs.formname->empty() && !fs.formspec->empty()) {
 		m_game_formspec.showPlayerInventory(fs.formspec);
 	} else {
-		m_game_formspec.showFormSpec(*fs.formspec,
-			*fs.formname);
+		m_game_formspec.showFormSpec(*fs.formspec, *fs.formname);
 	}
 
 	delete fs.formspec;
