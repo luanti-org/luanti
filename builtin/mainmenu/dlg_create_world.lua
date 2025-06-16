@@ -183,9 +183,9 @@ local function create_world_formspec(dialogdata)
 		end
 	end
 
-	local allowed_lua_mapgen_settings = {}
-	if is_lua_mapgen and lua_mapgens[current_mapgen].mapgen_flags then
-		allowed_lua_mapgen_settings = lua_mapgens[current_mapgen].mapgen_flags
+	local lua_mapgen_allowed_mg_flags = {}
+	if is_lua_mapgen and lua_mapgens[current_mapgen].mg_flags then
+		lua_mapgen_allowed_mg_flags = lua_mapgens[current_mapgen].mg_flags
 	end
 
 	-- The logic of the flag element IDs is as follows:
@@ -199,36 +199,68 @@ local function create_world_formspec(dialogdata)
 		if disallowed_mapgen_settings["mg_flags"] then
 			return "", y
 		end
-		if is_lua_mapgen and not allowed_lua_mapgen_settings["mg_flags"] then
+		if is_lua_mapgen and lua_mapgen_allowed_mg_flags == {} then
 			return "", y
 		end
 
-		local form = "checkbox[0," .. y .. ";flag_main_caves;" ..
-			fgettext("Caves") .. ";"..strflag(flags.main, "caves").."]"
-		y = y + 0.5
+		local form = ""
 
-		form = form .. "checkbox[0,"..y..";flag_main_dungeons;" ..
-			fgettext("Dungeons") .. ";"..strflag(flags.main, "dungeons").."]"
-		y = y + 0.5
-
-		local d_name = fgettext("Decorations")
-		local d_tt
-		if mapgen == "v6" then
-			d_tt = fgettext("Structures appearing on the terrain (no effect on trees and jungle grass created by v6)")
-		else
-			d_tt = fgettext("Structures appearing on the terrain, typically trees and plants")
+		if not is_lua_mapgen or lua_mapgen_allowed_mg_flags["caves"] then
+			form = form .. "checkbox[0," .. y .. ";flag_main_caves;" ..
+				fgettext("Caves") .. ";"..strflag(flags.main, "caves").."]"
+			y = y + 0.5
 		end
-		form = form .. "checkbox[0,"..y..";flag_main_decorations;" ..
-			d_name .. ";" ..
-			strflag(flags.main, "decorations").."]" ..
-			"tooltip[flag_mg_decorations;" ..
-			d_tt ..
-			"]"
-		y = y + 0.5
 
-		form = form .. "tooltip[flag_main_caves;" ..
-		fgettext("Network of tunnels and caves")
-		.. "]"
+		if not is_lua_mapgen or lua_mapgen_allowed_mg_flags["dungeons"] then
+			form = form .. "checkbox[0,"..y..";flag_main_dungeons;" ..
+				fgettext("Dungeons") .. ";"..strflag(flags.main, "dungeons").."]"
+			y = y + 0.5
+		end
+
+		if not is_lua_mapgen or lua_mapgen_allowed_mg_flags["decorations"] then
+			local d_name = fgettext("Decorations")
+			local d_tt
+			if mapgen == "v6" then
+				d_tt = fgettext("Structures appearing on the terrain (no effect on trees and jungle grass created by v6)")
+			else
+				d_tt = fgettext("Structures appearing on the terrain, typically trees and plants")
+			end
+			form = form .. "checkbox[0,"..y..";flag_main_decorations;" ..
+				d_name .. ";" ..
+				strflag(flags.main, "decorations").."]" ..
+				"tooltip[flag_mg_decorations;" ..
+				d_tt ..
+				"]"
+			y = y + 0.5
+		end
+
+		-- Allow all to be shown for Lua mapgens
+		if is_lua_mapgen then
+			if lua_mapgen_allowed_mg_flags["ores"] then
+				form = form .. "checkbox[0,"..y..";flag_main_ores;" ..
+					fgettext("Ores") .. ";"..strflag(flags.main, "ores").."]"
+				y = y + 0.5
+			end
+			if lua_mapgen_allowed_mg_flags["biomes"] then
+				form = form .. "checkbox[0,"..y..";flag_main_biomes;" ..
+					fgettext("Biomes") .. ";"..strflag(flags.main, "biomes").."]"
+				y = y + 0.5
+			end
+			if lua_mapgen_allowed_mg_flags["light"] then
+				form = form .. "checkbox[0,"..y..";flag_main_light;" ..
+					fgettext("Light") .. ";"..strflag(flags.main, "light").."]" .. 
+					"tooltip[flag_main_light;" ..
+					fgettext("This is not recommended, as it will disable engine lighting.") ..
+					"]"
+				y = y + 0.5
+			end
+		end
+
+		if form ~= "" then
+			form = form .. "tooltip[flag_main_caves;" ..
+			fgettext("Network of tunnels and caves")
+			.. "]"
+		end
 		return form, y
 	end
 

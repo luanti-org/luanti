@@ -147,12 +147,12 @@ bool parseModContents(ModSpec &spec)
 			}
 		}
 	} else {
-		if (info.exists("mapgen_flags")) {
-			std::string dep = info.get("mapgen_flags");
+		if (info.exists("mg_flags")) {
+			std::string dep = info.get("mg_flags");
 			dep.erase(std::remove_if(dep.begin(), dep.end(),
 					static_cast<int (*)(int)>(&std::isspace)), dep.end());
 			for (const auto &flag : str_split(dep, ',')) {
-				spec.mapgen_flags.insert(flag);
+				spec.mg_flags.insert(flag);
 			}
 		}
 	}

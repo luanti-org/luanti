@@ -704,14 +704,14 @@ int ModApiMainMenu::l_get_lua_mapgens(lua_State *L)
 			}
 			lua_settable(L, top_lvl2);
 
-			lua_pushstring(L, "mapgen_flags");
-			if (!mod.mapgen_flags.empty()) {
+			lua_pushstring(L, "mg_flags");
+			if (!mod.mg_flags.empty()) {
 				lua_newtable(L);
-				int mapgen_flags_top = lua_gettop(L);
-				for (const auto &flag : mod.mapgen_flags) {
+				int mg_flags_top = lua_gettop(L);
+				for (const auto &flag : mod.mg_flags) {
 					lua_pushstring(L, flag.c_str());
 					lua_pushboolean(L, true);
-					lua_settable(L, mapgen_flags_top);
+					lua_settable(L, mg_flags_top);
 				}
 			} else {
 				lua_pushnil(L);
