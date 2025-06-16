@@ -248,7 +248,7 @@ local function create_world_formspec(dialogdata)
 			end
 			if lua_mapgen_allowed_mg_flags["light"] then
 				form = form .. "checkbox[0,"..y..";flag_main_light;" ..
-					fgettext("Light") .. ";"..strflag(flags.main, "light").."]" .. 
+					fgettext("Light") .. ";"..strflag(flags.main, "light").."]" ..
 					"tooltip[flag_main_light;" ..
 					fgettext("This is not recommended, as it will disable engine lighting.") ..
 					"]"
