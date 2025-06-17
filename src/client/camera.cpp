@@ -655,13 +655,25 @@ void Camera::drawNametags()
 		}
 		if (font_size <= 1)
 			continue;
-		// TODO: This is quite primitive. It would be better to draw the font once
-		// at its maximum size to an RTT and let normal scaling happen.
+		// TODO: This is quite primitive. It would be better to let the GPU handle
+		// scaling (draw to RTT first?).
+		{
+			// Because the current approach puts a high load on the font engine
+			// we quantize the font size and set and arbitrary maximum...
+			font_size = MYMIN(font_size, 256);
+			if (font_size > 128)
+				font_size &= ~(1|2|4);
+			else if (font_size > 64)
+				font_size &= ~(1|2);
+			else if (font_size > 32)
+				font_size &= ~1;
+		}
 		auto *font = g_fontengine->getFont(font_size);
 		assert(font);
 
-		std::wstring real_text = translate_string(utf8_to_wide(nametag->text));
-		core::dimension2d<u32> textsize = font->getDimension(real_text.c_str());
+		const auto wtext = utf8_to_wide(nametag->text);
+		// Measure dimensions with escapes removed
+		core::dimension2du textsize = font->getDimension(unescape_translate(wtext).c_str());
 		v2s32 screen_pos;
 		screen_pos.X = screensize.X *
 			(0.5f + transformed_pos[0] * zDiv * 0.5f) - textsize.Width / 2;
@@ -675,7 +687,8 @@ void Camera::drawNametags()
 			driver->draw2DRectangle(bgcolor, bg_size + screen_pos);
 		}
 
-		font->draw(real_text.c_str(),
+		// but draw text with escapes
+		font->draw(translate_string(wtext).c_str(),
 			size + screen_pos, nametag->textcolor);
 	}
 }
