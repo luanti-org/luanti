@@ -631,40 +631,54 @@ void Camera::drawNametags()
 	core::matrix4 trans = m_cameranode->getProjectionMatrix();
 	trans *= m_cameranode->getViewMatrix();
 
-	gui::IGUIFont *font = g_fontengine->getFont();
+	const u32 default_font_size = g_fontengine->getFontSize(FM_Unspecified);
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	v2u32 screensize = driver->getScreenSize();
 
+	// Note: hidden nametags (e.g. GenericCAO) are removed from the array
 	for (const Nametag *nametag : m_nametags) {
-		// Nametags are hidden in GenericCAO::updateNametag()
-
 		v3f pos = nametag->parent_node->getAbsolutePosition() + nametag->pos * BS;
 		f32 transformed_pos[4] = { pos.X, pos.Y, pos.Z, 1.0f };
 		trans.multiplyWith1x4Matrix(transformed_pos);
-		if (transformed_pos[3] > 0) {
-			std::wstring nametag_colorless =
-				unescape_translate(utf8_to_wide(nametag->text));
-			core::dimension2d<u32> textsize = font->getDimension(
-				nametag_colorless.c_str());
-			f32 zDiv = transformed_pos[3] == 0.0f ? 1.0f :
-				core::reciprocal(transformed_pos[3]);
-			v2s32 screen_pos;
-			screen_pos.X = screensize.X *
-				(0.5 * transformed_pos[0] * zDiv + 0.5) - textsize.Width / 2;
-			screen_pos.Y = screensize.Y *
-				(0.5 - transformed_pos[1] * zDiv * 0.5) - textsize.Height / 2;
-			core::rect<s32> size(0, 0, textsize.Width, textsize.Height);
+		if (transformed_pos[3] <= 0) // negative Z means behind camera
+			continue;
+		f32 zDiv = transformed_pos[3] == 0.0f ? 1.0f : (1.0f / transformed_pos[3]);
 
-			auto bgcolor = nametag->getBgColor(m_show_nametag_backgrounds);
-			if (bgcolor.getAlpha() != 0) {
-				core::rect<s32> bg_size(-2, 0, textsize.Width + 2, textsize.Height);
-				driver->draw2DRectangle(bgcolor, bg_size + screen_pos);
-			}
-
-			font->draw(
-				translate_string(utf8_to_wide(nametag->text)).c_str(),
-				size + screen_pos, nametag->textcolor);
+		u32 font_size = 0;
+		if (nametag->scale_z) {
+			// Higher default since nametag should be reasonably visible
+			// even at distance.
+			u32 base_size = nametag->textsize.value_or(default_font_size * 4);
+			font_size = rangelim(base_size * BS * zDiv, 0, base_size);
+		} else {
+			font_size = nametag->textsize.value_or(default_font_size);
 		}
+		if (font_size <= 1)
+			continue;
+		// TODO: This is quite primitive. It would be better to draw the font once
+		// at its maximum size to an RTT and let normal scaling happen.
+		auto *font = g_fontengine->getFont(font_size);
+		assert(font);
+
+		std::wstring text =
+			unescape_translate(utf8_to_wide(nametag->text));
+		core::dimension2d<u32> textsize = font->getDimension(text.c_str());
+		v2s32 screen_pos;
+		screen_pos.X = screensize.X *
+			(0.5f + transformed_pos[0] * zDiv * 0.5f) - textsize.Width / 2;
+		screen_pos.Y = screensize.Y *
+			(0.5f - transformed_pos[1] * zDiv * 0.5f) - textsize.Height / 2;
+		core::rect<s32> size(0, 0, textsize.Width, textsize.Height);
+
+		auto bgcolor = nametag->getBgColor(m_show_nametag_backgrounds);
+		if (bgcolor.getAlpha() != 0) {
+			core::rect<s32> bg_size(-2, 0, textsize.Width + 2, textsize.Height);
+			driver->draw2DRectangle(bgcolor, bg_size + screen_pos);
+		}
+
+		font->draw(
+			translate_string(utf8_to_wide(nametag->text)).c_str(),
+			size + screen_pos, nametag->textcolor);
 	}
 }
 
@@ -672,7 +686,9 @@ Nametag *Camera::addNametag(scene::ISceneNode *parent_node,
 		const std::string &text, video::SColor textcolor,
 		std::optional<video::SColor> bgcolor, const v3f &pos)
 {
-	Nametag *nametag = new Nametag(parent_node, text, textcolor, bgcolor, pos);
+	assert(parent_node);
+	Nametag *nametag = new Nametag{
+		parent_node, text, textcolor, bgcolor, std::nullopt, pos, false};
 	m_nametags.push_back(nametag);
 	return nametag;
 }
