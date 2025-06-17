@@ -9598,14 +9598,14 @@ Player properties need to be saved manually.
     -- `false` will cause the background to be set automatically based on user settings.
     -- Default: false
 
-    nametag_fontsize = false,
+    nametag_fontsize = 1,
     -- Sets the font size of the nametag in pixels.
     -- `false` will cause the size to be set automatically based on user settings.
     -- Default: false
 
     nametag_scale_z = false,
     -- If enabled, the nametag will be scaled by Z in screen space, meaning it becomes
-    -- smaller the further way the object is.
+    -- smaller the further away the object is.
     -- Default: false
 
     infotext = "",

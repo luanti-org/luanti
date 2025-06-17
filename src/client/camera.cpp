@@ -659,7 +659,7 @@ void Camera::drawNametags()
 		// scaling (draw to RTT first?).
 		{
 			// Because the current approach puts a high load on the font engine
-			// we quantize the font size and set and arbitrary maximum...
+			// we quantize the font size and set an arbitrary maximum...
 			font_size = MYMIN(font_size, 256);
 			if (font_size > 128)
 				font_size &= ~(1|2|4);
