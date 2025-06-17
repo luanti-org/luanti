@@ -164,6 +164,13 @@ struct AnimationInfo {
 
 	void updateTexture(video::SMaterial &material, float animation_time);
 
+	// Returns true if texture needs to be updated
+	// Also proceeds to next frame if update is needed
+	bool needUpdate(float animation_time);
+
+	// Returns last used frame
+	u16 getCurrentFrame() const { return m_frame; };
+
 private:
 	u16 m_frame = 0; // last animation frame
 	u16 m_frame_length_ms = 0;
