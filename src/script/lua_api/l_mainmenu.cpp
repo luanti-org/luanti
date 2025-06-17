@@ -660,6 +660,7 @@ int ModApiMainMenu::l_get_mapgen_names(lua_State *L)
 	return 1;
 }
 
+
 /******************************************************************************/
 int ModApiMainMenu::l_get_user_path(lua_State *L)
 {
