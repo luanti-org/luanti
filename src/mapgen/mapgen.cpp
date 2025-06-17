@@ -76,14 +76,14 @@ struct MapgenDesc {
 // Of the remaining, v5 last due to age, v7 first due to being the default.
 // The order of 'enum MapgenType' in mapgen.h must match this order.
 static MapgenDesc g_reg_mapgens[] = {
-	{"v7",         true,	"Default mapgen with large complex mountins and plains."},
-	{"valleys",    true,	"Large valleys with complex terrain and rivers."},
-	{"carpathian", true,	"Realistic looking world with vast plains."},
-	{"v5",         true,	"Old mapgen."},
-	{"flat",       true,	"World Flat terrain."},
-	{"fractal",    true,	"Wold with fractal structure."},
-	{"singlenode", true,	"Empty world, use for lua defined mapgens."},
-	{"v6",         true,	"Simple mapgen with few features, not recommended."},
+	{"v7",         true},
+	{"valleys",    true},
+	{"carpathian", true},
+	{"v5",         true},
+	{"flat",       true},
+	{"fractal",    true},
+	{"singlenode", true},
+	{"v6",         true},
 };
 
 static_assert(
@@ -205,14 +205,6 @@ void Mapgen::getMapgenNames(std::vector<const char *> *mgnames, bool include_hid
 	for (u32 i = 0; i != ARRLEN(g_reg_mapgens); i++) {
 		if (include_hidden || g_reg_mapgens[i].is_user_visible)
 			mgnames->push_back(g_reg_mapgens[i].name);
-	}
-}
-
-void Mapgen::getMapgenDescriptions(std::vector<const char *> *mgdescriptions, bool include_hidden)
-{
-	for (u32 i = 0; i != ARRLEN(g_reg_mapgens); i++) {
-		if (include_hidden || g_reg_mapgens[i].is_user_visible)
-			mgdescriptions->push_back(g_reg_mapgens[i].description);
 	}
 }
 

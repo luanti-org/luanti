@@ -78,11 +78,21 @@ local mgv6_biomes = {
 	},
 }
 
+local mapgens_descriptions = {
+	v7 = fgettext("Default mapgen with large complex mountins and plains."),
+	valleys = fgettext("Large valleys with complex terrain and rivers."),
+	carpathian = fgettext("Realistic looking world with vast plains."),
+	v5 = fgettext("Old mapgen."),
+	flat = fgettext("World Flat terrain."),
+	fractal = fgettext("Wold with fractal structure."),
+	singlenode = fgettext("Empty world, use for lua defined mapgens."),
+	v6 = fgettext("Simple mapgen with few features, not recommended."),
+}
+
 local function create_world_formspec(dialogdata)
 
 	local current_mg = dialogdata.mg
 	local mapgens = core.get_mapgen_names()
-	local mapgens_descriptions = core.get_mapgen_descriptions()
 
 	local flags = dialogdata.flags
 
@@ -110,7 +120,6 @@ local function create_world_formspec(dialogdata)
 		if #allowed_mapgens > 0 then
 			for i = #mapgens, 1, -1 do
 				if table.indexof(allowed_mapgens, mapgens[i]) == -1 then
-					table.remove(mapgens_descriptions, i)
 					table.remove(mapgens, i)
 				end
 			end
@@ -119,7 +128,6 @@ local function create_world_formspec(dialogdata)
 		if #disallowed_mapgens > 0 then
 			for i = #mapgens, 1, -1 do
 				if table.indexof(disallowed_mapgens, mapgens[i]) > 0 then
-					table.remove(mapgens_descriptions, i)
 					table.remove(mapgens, i)
 				end
 			end
@@ -142,7 +150,6 @@ local function create_world_formspec(dialogdata)
 				first_mg = v
 			end
 			if current_mg == v then
-				mgdescription = mapgens_descriptions[k]
 				selindex = i
 			end
 			i = i + 1
@@ -290,10 +297,12 @@ local function create_world_formspec(dialogdata)
 
 	end
 
-	retval = retval ..
-		"label[0,2;" .. fgettext("Mapgen") .. "]"..
-		"dropdown[0,2.5;6.3;dd_mapgen;" .. mglist .. ";" .. selindex .. "]"..
-		"textarea[0.5,3.2;6,2;;;" .. core.formspec_escape(fgettext(mgdescription)) .. "]"
+	if mapgens_descriptions[current_mg] then
+		retval = retval ..
+			"label[0,2;" .. fgettext("Mapgen") .. "]"..
+			"dropdown[0,2.5;6.3;dd_mapgen;" .. mglist .. ";" .. selindex .. "]"..
+			"textarea[0.5,3.2;6,2;;;" .. mapgens_descriptions[current_mg] .. "]"
+	end
 
 	-- Warning when making a devtest world
 	if game.id == "devtest" then

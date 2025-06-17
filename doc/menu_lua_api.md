@@ -109,8 +109,6 @@ of manually putting one, as different OSs use different delimiters. E.g.
 * `handle:stop()` or `core.sound_stop(handle)`
 * `core.get_mapgen_names([include_hidden=false])` -> table of map generator algorithms
     registered in the core (possible in async calls)
-* `core.get_mapgen_descriptions([include_hidden=false])` -> table of map generator descriptions,
-    in the same order as returned by `core.get_mapgen_names` registered in the core (possible in async calls)
 * `core.get_cache_path()` -> path of cache
 * `core.get_temp_path([param])` (possible in async calls)
   * `param`=true: returns path to a newly created temporary file
