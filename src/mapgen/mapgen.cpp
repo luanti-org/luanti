@@ -62,7 +62,6 @@ const FlagDesc flagdesc_gennotify[] = {
 struct MapgenDesc {
 	const char *name;
 	bool is_user_visible;
-	const char *description;
 };
 
 ////
