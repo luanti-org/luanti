@@ -444,7 +444,7 @@ private:
 	void tryShrinkNodes();
 	// if only a single node is stored, expand storage back to the full array
 	void expandNodesIfNeeded();
-	void reallocate(u32 c, MapNode n);
+	void reallocate(u32 count, MapNode n);
 
 	/*
 	 * PLEASE NOTE: When adding something here be mindful of position and size

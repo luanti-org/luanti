@@ -217,11 +217,11 @@ void VoxelManipulator::copyFrom(MapNode *src, size_t n_nodes, const VoxelArea& s
 	for (s16 z = 0; z < size.Z; z++) {
 		for (s16 y = 0; y < size.Y; y++) {
 			if (n_nodes == 1) {
-				std::fill(m_data + i_local, m_data + i_local + size.X, src[0]);
+				std::fill_n(m_data + i_local, size.X, src[0]);
 			} else {
-				std::copy(src + i_src, src + i_src + size.X, m_data + i_local);
+				std::copy_n(src + i_src, size.X, m_data + i_local);
 			}
-			std::fill(m_flags + i_local, m_flags + i_local + size.X, 0);
+			std::fill_n(m_flags + i_local, size.X, 0);
 			i_src += src_step;
 			i_local += dest_step;
 		}
