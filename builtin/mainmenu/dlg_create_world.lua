@@ -140,7 +140,6 @@ local function create_world_formspec(dialogdata)
 	end
 
 	local mglist = ""
-	local mgdescription = ""
 	local selindex
 	do -- build the list of mapgens
 		local i = 1
