@@ -438,7 +438,8 @@ A `Settings` file that provides meta information about the mapgen.
              internal ID used to track versions.
 * `textdomain`: Textdomain used to translate title and description. Defaults to mapgen.
   See [Translating content meta](#translating-content-meta).
-* `mapgen_flags`: List of flags to be used
+* `mg_flags`: List of mg_flags that are allowed
+* `lmg_flags`: List of custom flags, same format as mg_flags
 
 
 Aliases
