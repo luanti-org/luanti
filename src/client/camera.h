@@ -178,9 +178,7 @@ public:
 		return m_camera_mode;
 	}
 
-	Nametag *addNametag(scene::ISceneNode *parent_node,
-		const std::string &text, video::SColor textcolor,
-		std::optional<video::SColor> bgcolor, const v3f &pos);
+	Nametag *addNametag(const Nametag &params);
 
 	void removeNametag(Nametag *nametag);
 

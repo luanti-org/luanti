@@ -660,9 +660,8 @@ void Camera::drawNametags()
 		auto *font = g_fontengine->getFont(font_size);
 		assert(font);
 
-		std::wstring text =
-			unescape_translate(utf8_to_wide(nametag->text));
-		core::dimension2d<u32> textsize = font->getDimension(text.c_str());
+		std::wstring real_text = translate_string(utf8_to_wide(nametag->text));
+		core::dimension2d<u32> textsize = font->getDimension(real_text.c_str());
 		v2s32 screen_pos;
 		screen_pos.X = screensize.X *
 			(0.5f + transformed_pos[0] * zDiv * 0.5f) - textsize.Width / 2;
@@ -676,26 +675,24 @@ void Camera::drawNametags()
 			driver->draw2DRectangle(bgcolor, bg_size + screen_pos);
 		}
 
-		font->draw(
-			translate_string(utf8_to_wide(nametag->text)).c_str(),
+		font->draw(real_text.c_str(),
 			size + screen_pos, nametag->textcolor);
 	}
 }
 
-Nametag *Camera::addNametag(scene::ISceneNode *parent_node,
-		const std::string &text, video::SColor textcolor,
-		std::optional<video::SColor> bgcolor, const v3f &pos)
+Nametag *Camera::addNametag(const Nametag &params)
 {
-	assert(parent_node);
-	Nametag *nametag = new Nametag{
-		parent_node, text, textcolor, bgcolor, std::nullopt, pos, false};
+	assert(params.parent_node);
+	auto *nametag = new Nametag(params);
 	m_nametags.push_back(nametag);
 	return nametag;
 }
 
 void Camera::removeNametag(Nametag *nametag)
 {
-	m_nametags.remove(nametag);
+	auto it = std::find(m_nametags.begin(), m_nametags.end(), nametag);
+	assert(it != m_nametags.end());
+	m_nametags.erase(it);
 	delete nametag;
 }
 
