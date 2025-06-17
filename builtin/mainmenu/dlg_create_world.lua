@@ -187,6 +187,10 @@ local function create_world_formspec(dialogdata)
 	if is_lua_mapgen and lua_mapgens[current_mapgen].mg_flags then
 		lua_mapgen_allowed_mg_flags = lua_mapgens[current_mapgen].mg_flags
 	end
+	local lua_mapgen_flags = {}
+	if is_lua_mapgen and lua_mapgens[current_mapgen].lmg_flags then
+		lua_mapgen_flags = lua_mapgens[current_mapgen].lmg_flags
+	end
 
 	-- The logic of the flag element IDs is as follows:
 	-- "flag_main_foo-bar-baz" controls dialogdata.flags["main"]["foo_bar_baz"]
@@ -265,13 +269,27 @@ local function create_world_formspec(dialogdata)
 	end
 
 	local mg_specific_flags = function(mapgen, y)
-		if not flag_checkboxes[mapgen] then
+		if not is_lua_mapgen and not flag_checkboxes[mapgen] then
 			return "", y
 		end
 		if disallowed_mapgen_settings["mg"..mapgen.."_spflags"] then
 			return "", y
 		end
+
 		local form = ""
+
+		if is_lua_mapgen then
+			for tab, _ in pairs(lua_mapgen_flags) do
+				local id = "flag_"..mapgen.."_"..tab:gsub("_", "-")
+				form = form .. ("checkbox[0,%f;%s;%s;%s]"):
+					format(y, id, tab, "true")
+
+				y = y + 0.5
+			end
+
+			return form, y
+		end
+
 		for _, tab in pairs(flag_checkboxes[mapgen]) do
 			local id = "flag_"..mapgen.."_"..tab[1]:gsub("_", "-")
 			form = form .. ("checkbox[0,%f;%s;%s;%s]"):
@@ -335,7 +353,7 @@ local function create_world_formspec(dialogdata)
 		y_start = 0.0
 	end
 	y = y_start + 0.3
-	str_spflags = mg_specific_flags(current_mapgen_internal, y)
+	str_spflags = mg_specific_flags(current_mapgen, y)
 	if str_spflags ~= "" then
 		label_spflags = "label[0,"..y_start..";" .. fgettext("Mapgen-specific flags") .. "]"
 	end
@@ -455,8 +473,8 @@ local function create_world_buttonhandler(this, fields)
 				end
 			end
 
+			local lua_mapgens = core.get_lua_mapgens()
 			if not is_internal_mapgen then
-				local lua_mapgens = core.get_lua_mapgens()
 				for name, v in pairs(lua_mapgens) do
 					if v.title == this.data.mg or (v.title == nil and name == this.data.mg) then
 						mapgen_internal = "singlenode"
@@ -480,6 +498,12 @@ local function create_world_buttonhandler(this, fields)
 				mgvalleys_spflags = table_to_flags(this.data.flags.valleys),
 				mgflat_spflags = table_to_flags(this.data.flags.flat),
 			}
+			-- Add the lua-defined mapgen flags
+			for mg, v in pairs(lua_mapgens) do
+				if this.data.flags[mg] ~= nil then
+					settings["lmg_" .. mg .. "_flags"] = table_to_flags(this.data.flags[mg])
+				end
+			end
 			message = core.create_world(worldname, game.id, settings)
 		end
 
@@ -564,6 +588,11 @@ function create_create_world_dlg()
 			flat = core.settings:get_flags("mgflat_spflags"),
 		}
 	}
+	for mg, tab in pairs(core.get_lua_mapgens()) do
+		if retval.data.flags[mg] == nil then
+			retval.data.flags[mg] = tab.lmg_flags
+		end
+	end
 
 	return retval
 end

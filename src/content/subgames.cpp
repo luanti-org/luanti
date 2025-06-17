@@ -416,6 +416,10 @@ void loadGameConfAndInitWorld(const std::string &path, const std::string &name,
 
 		mgr.setMapSetting("seed", g_settings->get("fixed_map_seed"));
 
+		// If there is a lua-defined mapgen and it has flags then add its flags
+		if (lua_mapgen != "" && g_settings->exists("lmg_" + lua_mapgen + "_flags"))
+			mgr.setMapSetting("lmg_" + lua_mapgen + "_flags", g_settings->get("lmg_" + lua_mapgen + "_flags"), true);
+
 		mgr.makeMapgenParams();
 		mgr.saveMapMeta();
 	}

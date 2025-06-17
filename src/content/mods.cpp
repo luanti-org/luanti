@@ -148,11 +148,19 @@ bool parseModContents(ModSpec &spec)
 		}
 	} else {
 		if (info.exists("mg_flags")) {
-			std::string dep = info.get("mg_flags");
-			dep.erase(std::remove_if(dep.begin(), dep.end(),
-					static_cast<int (*)(int)>(&std::isspace)), dep.end());
-			for (const auto &flag : str_split(dep, ',')) {
+			std::string mg_flags = info.get("mg_flags");
+			mg_flags.erase(std::remove_if(mg_flags.begin(), mg_flags.end(),
+					static_cast<int (*)(int)>(&std::isspace)), mg_flags.end());
+			for (const auto &flag : str_split(mg_flags, ',')) {
 				spec.mg_flags.insert(flag);
+			}
+		}
+		if (info.exists("lmg_flags")) {
+			std::string lmg_flags = info.get("lmg_flags");
+			lmg_flags.erase(std::remove_if(lmg_flags.begin(), lmg_flags.end(),
+					static_cast<int (*)(int)>(&std::isspace)), lmg_flags.end());
+			for (const auto &flag : str_split(lmg_flags, ',')) {
+				spec.lmg_flags.insert(flag);
 			}
 		}
 	}
