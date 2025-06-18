@@ -6,7 +6,7 @@
 
 #include "irrlichttypes.h"
 #include "irr_v2d.h"
-#include "joystick_controller.h"
+#include "gamepad_controller.h"
 #include <array>
 #include <list>
 #include <set>
@@ -84,7 +84,7 @@ public:
 		keyWasReleased.reset();
 	}
 
-	JoystickController *joystick = nullptr;
+	GamepadController *joystick = nullptr;
 
 	PointerType getLastPointerType() { return last_pointer_type; }
 
@@ -177,7 +177,8 @@ public:
 		static_cast<InputHandler *>(data)->reloadKeybindings();
 	}
 
-	JoystickController joystick;
+	GamepadController joystick;
+	bool isInMenu = false;
 };
 
 /*

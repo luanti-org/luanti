@@ -16,7 +16,7 @@
 #include "itemdef.h"
 #include "touchscreenlayout.h"
 #include "util/basic_macros.h"
-#include "client/keycode.h"
+#include "client/input/keycode.h"
 
 namespace irr
 {
