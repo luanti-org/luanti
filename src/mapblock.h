@@ -464,7 +464,6 @@ public:
 private:
 	// see isOrphan()
 	bool m_orphan = false;
-	bool m_is_mono_block;
 
 	// Position in blocks on parent
 	v3s16 m_pos;
@@ -499,6 +498,7 @@ private:
 	*/
 	float m_usage_timer = 0;
 
+	bool m_is_mono_block;
 public:
 	//// ABM optimizations ////
 	// True if we never want to cache content types for this block

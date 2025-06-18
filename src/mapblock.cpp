@@ -101,10 +101,10 @@ static const char *modified_reason_strings[] = {
 */
 
 MapBlock::MapBlock(v3s16 pos, IGameDef *gamedef):
-		m_is_mono_block(true),
 		m_pos(pos),
 		m_pos_relative(pos * MAP_BLOCKSIZE),
-		m_gamedef(gamedef)
+		m_gamedef(gamedef),
+		m_is_mono_block(true)
 {
 	reallocate(1, MapNode(CONTENT_IGNORE));
 }
