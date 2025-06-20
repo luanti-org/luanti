@@ -2,7 +2,7 @@
 
 ## Luanti Documentation
 
-Some important development docs are found in the Luanti Documentation: https://docs.luanti.org/
+Some important development docs are found on the docs site: https://docs.luanti.org/
 
 Notable pages:
 
@@ -11,13 +11,14 @@ Notable pages:
 - [Changelog](https://docs.luanti.org/about/changelog/)
 - [Organisation](https://docs.luanti.org/for-engine-devs/organization/)
 - [Code style guidelines](https://docs.luanti.org/for-engine-devs/code-style-guidelines/)
+  and [Lua code style guidelines](https://docs.luanti.org/for-engine-devs/lua-code-style-guidelines/)
 
 ## In this folder
 
-- [Developing minetestserver with Docker](docker.md)
-- [Android tips & tricks](android.md)
-- [OS/library compatibility policy](os-compatibility.md)
-- [Profiling instructions](profiling.md)
+- [docker.md](docker.md): Developing minetestserver with Docker
+- [android.md](android.md): Android tips & tricks
+- [os-compatibility.md](os-compatibility.md): OS/library compatibility policy
+- [profiling.md](profiling.md): Profiling instructions
 
 ## IRC
 
