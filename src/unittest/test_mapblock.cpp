@@ -57,21 +57,25 @@ void TestMapBlock::runTests(IGameDef *gamedef)
 void TestMapBlock::testMonoblock(IGameDef *gamedef)
 {
 	MapBlock block({}, gamedef);
-	UASSERT(block.m_is_mono_block);
-	block.data[0] = MapNode(CONTENT_AIR);
+	UASSERT(!block.m_is_mono_block);
 
 	// make the array is expanded
 	block.expandNodesIfNeeded();
-	UASSERT(std::all_of(block.data, block.data + MapBlock::nodecount, [](MapNode &n) { return n == MapNode(CONTENT_AIR); }));
+	UASSERT(std::all_of(block.data, block.data + MapBlock::nodecount, [](MapNode &n) { return n == MapNode(CONTENT_IGNORE); }));
 
 	// covert to monoblock
 	block.tryShrinkNodes();
+	UASSERT(block.m_is_mono_block);
+	UASSERT(block.data[0].param0 == CONTENT_IGNORE);
+
+	block.data[0] = MapNode(CONTENT_AIR);
 	UASSERT(block.m_is_mono_block);
 	UASSERT(block.data[0].param0 == CONTENT_AIR);
 
 	// get the data(), should deconvert the block
 	block.getData();
 	UASSERT(!block.m_is_mono_block);
+	UASSERT(std::all_of(block.data, block.data + MapBlock::nodecount, [](MapNode &n) { return n == MapNode(CONTENT_AIR); }));
 
 	// covert back to mono block
 	block.tryShrinkNodes();
