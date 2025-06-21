@@ -30,7 +30,7 @@ class TestMapBlock;
 ////
 
 enum ModReason : u32 {
-	MOD_REASON_REALLOCATE                 = 1 << 0,
+//	UNUSED                                = 1 << 0,
 	MOD_REASON_SET_IS_UNDERGROUND         = 1 << 1,
 	MOD_REASON_SET_LIGHTING_COMPLETE      = 1 << 2,
 	MOD_REASON_SET_GENERATED              = 1 << 3,
@@ -440,9 +440,9 @@ private:
 	*/
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
-	// check if all nodes are identical, if so store them as a single node
+	// check if all nodes are identical, if so convert to monoblock
 	void tryShrinkNodes();
-	// if only a single node is stored, expand storage back to the full array
+	// if a monoblock, expand storage back to the full array
 	void expandNodesIfNeeded();
 	void reallocate(u32 count, MapNode n);
 
@@ -487,7 +487,7 @@ private:
 	 * fragmentation (the array is exactly 16K, or exactly 4 bytes for a "monoblock"),
 	 * CPU caches and/or optimizability of algorithms working on this array.
 	 */
-	MapNode * data = nullptr;
+	MapNode *data = nullptr;
 
 	// provides the item and node definitions
 	IGameDef *m_gamedef;
@@ -498,6 +498,10 @@ private:
 	*/
 	float m_usage_timer = 0;
 
+	/*
+	 * For "monoblocks", the whole block is filled with the same node, only this node is stored.
+	 * (For reduced memory usage)
+	 */
 	bool m_is_mono_block;
 public:
 	//// ABM optimizations ////
