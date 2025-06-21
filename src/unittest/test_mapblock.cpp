@@ -58,52 +58,40 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 {
 	MapBlock block({}, gamedef);
 	UASSERT(block.m_is_mono_block);
-	MapNode *t = block.data;
 	block.data[0] = MapNode(CONTENT_AIR);
 
+	// make the array is expanded
 	block.expandNodesIfNeeded();
-	UASSERT(block.data != t);
 	UASSERT(std::all_of(block.data, block.data + MapBlock::nodecount, [](MapNode &n) { return n == MapNode(CONTENT_AIR); }));
-	t = block.data;
 
 	// covert to monoblock
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
 	UASSERT(block.data[0].param0 == CONTENT_AIR);
-	UASSERT(block.data != t);
-	t = block.data;
 
 	// get the data(), should deconvert the block
-	MapNode *d1 = block.getData();
+	block.getData();
 	UASSERT(!block.m_is_mono_block);
-	UASSERT(block.data != t);
-	UASSERT(block.data == d1);
 
 	// covert back to mono block
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
-	t = block.data;
 
 	// deconvert explicitly
 	block.expandNodesIfNeeded();
 	UASSERT(!block.m_is_mono_block);
-	UASSERT(block.data != t);
 
 	// covert back to mono block
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
-	t = block.data;
 
 	// set a node, should deconvert the block
 	block.setNode(5,5,5, MapNode(42));
 	UASSERT(!block.m_is_mono_block);
-	UASSERT(block.data != t);
-	t = block.data;
 
 	// cannot covert to mono block
 	block.tryShrinkNodes();
 	UASSERT(!block.m_is_mono_block);
-	UASSERT(block.data == t);
 
 	// set all nodes to 42
 	for (size_t i = 0; i < MapBlock::nodecount; ++i) {
@@ -114,8 +102,6 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
 	UASSERT(block.data[0].param0 == 42);
-	UASSERT(block.data != t);
-	t = block.data;
 
 	VoxelManipulator vmm;
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);

@@ -57,7 +57,7 @@ void MeshMakeData::fillBlockData(const v3s16 &bp, MapNode *data)
 	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
 
 	v3s16 blockpos_nodes = bp * MAP_BLOCKSIZE;
-	m_vmanip.copyFrom(data, MAP_BLOCKSIZE * MAP_BLOCKSIZE * MAP_BLOCKSIZE, data_area, v3s16(0,0,0), blockpos_nodes, data_size);
+	m_vmanip.copyFrom(data, false, data_area, v3s16(0,0,0), blockpos_nodes, data_size);
 }
 
 void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)

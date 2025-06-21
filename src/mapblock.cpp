@@ -214,7 +214,7 @@ void MapBlock::copyTo(VoxelManipulator &dst)
 	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
 
 	// Copy from data to VoxelManipulator
-	dst.copyFrom(data, m_is_mono_block ? 1 : nodecount, data_area, v3s16(0,0,0),
+	dst.copyFrom(data, m_is_mono_block, data_area, v3s16(0,0,0),
 			getPosRelative(), data_size);
 }
 
@@ -232,6 +232,8 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 
 void MapBlock::reallocate(u32 count, MapNode n)
 {
+	assert(count == 1 || count == nodecount);
+
 	delete[] data;
 	if (!m_is_mono_block && count == 1)
 		porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
@@ -307,8 +309,8 @@ void MapBlock::expireIsAirCache()
 // Renumbers the content IDs (starting at 0 and incrementing)
 // Note that there's no technical reason why we *have to* renumber the IDs,
 // but we do it anyway as it also helps compressability.
-static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
-	const NodeDefManager *nodedef, u32 nodecount)
+static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes, u32 nodecount,
+	const NodeDefManager *nodedef)
 {
 	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
 
@@ -427,9 +429,9 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 	if(disk)
 	{
 		const size_t size = m_is_mono_block ? 1 : nodecount;
-		auto tmp_nodes = std::make_unique<MapNode[]>(size);
+		std::unique_ptr<MapNode[]> tmp_nodes(new MapNode[size]);
 		std::copy_n(data, size, tmp_nodes.get());
-		getBlockNodeIdMapping(&nimap, tmp_nodes.get(), m_gamedef->ndef(), size);
+		getBlockNodeIdMapping(&nimap, tmp_nodes.get(), size, m_gamedef->ndef());
 
 		buf = MapNode::serializeBulk(version, tmp_nodes.get(), nodecount,
 				content_width, params_width, m_is_mono_block);
