@@ -47,19 +47,19 @@ ABMHandler::ABMHandler(std::vector<ABMWithState> &abms,
 	for (ABMWithState &abmws : abms) {
 		ActiveBlockModifier *abm = abmws.abm;
 		float trigger_interval = abm->getTriggerInterval();
-		if (trigger_interval < 0.001f)
+		if( trigger_interval < 0.001f)
 			trigger_interval = 0.001f;
 		float actual_interval = dtime_s;
 		if (use_timers) {
 			abmws.timer += dtime_s;
 			if (abmws.timer < trigger_interval)
 				continue;
-			abmws.timer -= trigger_interval;
+			abmws.timer = std::fmod(abmws.timer, trigger_interval);
 			actual_interval = trigger_interval;
 		}
 		float chance = abm->getTriggerChance();
 		if (chance == 0)
-			chance = 1;
+			continue;
 
 		ActiveABM aabm;
 		aabm.abm = abm;
