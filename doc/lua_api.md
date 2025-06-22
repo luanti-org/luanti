@@ -6873,10 +6873,14 @@ Formspec
     * `playername`: name of player to show formspec
     * `formname`: name passed to `on_player_receive_fields` callbacks.
         * It should follow the `"modname:<whatever>"` naming convention.
-        * If empty: Shows a custom, temporary inventory formspec. Use
-          `ObjectRef:set_inventory_formspec` to change it for future opens.
-          Supported if server AND client are both of version >= 5.13.0.
+        * If empty: Shows a custom, temporary inventory formspec.
+            * An inventory formspec shown this way will also be updated if
+              `ObjectRef:set_inventory_formspec` is called.
+            * Use `ObjectRef:set_inventory_formspec` to change the player's
+              inventory formspec for future opens.
+            * Supported if server AND client are both of version >= 5.13.0.
     * `formspec`: formspec to display
+    * See also: `core.register_on_player_receive_fields`
 * `core.close_formspec(playername, formname)`
     * `playername`: name of player to close formspec
     * `formname`: has to exactly match the one given in `show_formspec`, or the
