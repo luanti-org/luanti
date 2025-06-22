@@ -85,7 +85,7 @@ local mapgens_descriptions = {
 	v5 = fgettext("Old mapgen."),
 	flat = fgettext("Flat world terrain"),
 	fractal = fgettext("Wold with fractal structure."),
-	singlenode = fgettext("Empty world, use for lua defined mapgens."),
+	singlenode = fgettext("Empty world, commonly used for Lua-defined mapgens"),
 	v6 = fgettext("Simple mapgen with few features, not recommended."),
 }
 
