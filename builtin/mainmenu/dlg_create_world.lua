@@ -79,7 +79,7 @@ local mgv6_biomes = {
 }
 
 local mapgens_descriptions = {
-	v7 = fgettext("Default mapgen with large complex mountins and plains."),
+	v7 = fgettext("Default mapgen with large complex mountains and plains."),
 	valleys = fgettext("Large valleys with complex terrain and rivers."),
 	carpathian = fgettext("Realistic looking world with vast plains."),
 	v5 = fgettext("Old mapgen."),
