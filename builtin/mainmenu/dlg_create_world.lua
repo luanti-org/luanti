@@ -79,14 +79,14 @@ local mgv6_biomes = {
 }
 
 local mapgens_descriptions = {
-	v7 = fgettext("Default mapgen with large complex mountains and plains."),
-	valleys = fgettext("Large valleys with complex terrain and rivers."),
+	v7 = fgettext("Default mapgen with large complex mountains and plains"),
+	valleys = fgettext("Large valleys with complex terrain and rivers"),
 	carpathian = fgettext("Realistic looking world with vast plains."),
-	v5 = fgettext("Old mapgen."),
+	v5 = fgettext("Simple, but jagged landscape"),
 	flat = fgettext("Flat world terrain"),
 	fractal = fgettext("World with a fractal structure"),
 	singlenode = fgettext("Empty world, commonly used for Lua-defined mapgens"),
-	v6 = fgettext("Simple mapgen with few features, not recommended."),
+	v6 = fgettext("Simple mapgen with few features"),
 }
 
 local function create_world_formspec(dialogdata)
@@ -296,10 +296,12 @@ local function create_world_formspec(dialogdata)
 
 	end
 
+	retval = retval ..
+		"label[0,2;" .. fgettext("Mapgen") .. "]"..
+		"dropdown[0,2.5;6.3;dd_mapgen;" .. mglist .. ";" .. selindex .. "]"
+
 	if mapgens_descriptions[current_mg] then
 		retval = retval ..
-			"label[0,2;" .. fgettext("Mapgen") .. "]"..
-			"dropdown[0,2.5;6.3;dd_mapgen;" .. mglist .. ";" .. selindex .. "]"..
 			"textarea[0.5,3.2;6,2;;;" .. mapgens_descriptions[current_mg] .. "]"
 	end
 
