@@ -221,18 +221,13 @@ MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *
 		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager)
 {
 	m_generation_interval = g_settings->getU16("mesh_generation_interval");
-	m_generation_interval = rangelim(m_generation_interval, 0, 50);
+	m_generation_interval = rangelim(m_generation_interval, 0, 25);
 }
 
 void MeshUpdateWorkerThread::doUpdate()
 {
 	QueuedMeshUpdate *q;
 	while ((q = m_queue_in->pop())) {
-		if (m_generation_interval)
-			sleep_ms(m_generation_interval);
-
-		porting::TriggerMemoryTrim();
-
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
 		// This generates the mesh:
@@ -249,6 +244,14 @@ void MeshUpdateWorkerThread::doUpdate()
 		m_manager->putResult(r);
 		m_queue_in->done(q->p);
 		delete q;
+		sp.stop();
+
+		porting::TriggerMemoryTrim();
+
+		// do this after we're done so the interval is enforced without
+		// adding extra latency.
+		if (m_generation_interval)
+			sleep_ms(m_generation_interval);
 	}
 }
 
@@ -261,12 +264,12 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 {
 	int number_of_threads = rangelim(g_settings->getS32("mesh_generation_threads"), 0, 8);
 
-	// Automatically use 33% of the system cores for mesh generation, max 4
+	// Automatically use 25% of the system cores for mesh generation, max 3
 	if (number_of_threads == 0)
-		number_of_threads = MYMIN(4, Thread::getNumberOfProcessors() / 3);
+		number_of_threads = std::min(3U, Thread::getNumberOfProcessors() / 4);
 
 	// use at least one thread
-	number_of_threads = MYMAX(1, number_of_threads);
+	number_of_threads = std::max(1, number_of_threads);
 	infostream << "MeshUpdateManager: using " << number_of_threads << " threads" << std::endl;
 
 	for (int i = 0; i < number_of_threads; i++)

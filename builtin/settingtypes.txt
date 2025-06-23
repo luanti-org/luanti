@@ -2009,11 +2009,11 @@ transparency_sorting_group_by_buffers (Transparency Sorting Group by Buffers) bo
 cloud_radius (Cloud radius) int 12 8 62
 
 #    Delay between mesh updates on the client in ms. Increasing this will slow
-#    down the rate of mesh updates, thus reducing jitter on slower clients.
-mesh_generation_interval (Mapblock mesh generation delay) int 0 0 50
+#    down the rate of mesh updates, which can help reduce jitter.
+mesh_generation_interval (Mapblock mesh generation delay) int 0 0 25
 
 #    Number of threads to use for mesh generation.
-#    Value of 0 (default) will let Luanti autodetect the number of available threads.
+#    Value of 0 (default) will let Luanti automatically choose the number of threads.
 mesh_generation_threads (Mapblock mesh generation threads) int 0 0 8
 
 #    All mesh buffers with less than this number of vertices will be merged
