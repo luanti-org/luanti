@@ -472,7 +472,6 @@ void MapblockMeshGenerator::drawSolidNode()
 	if (!faces)
 		return;
 	u8 mask = faces ^ 0b0011'1111; // k-th bit is set if k-th face is to be *omitted*, as expected by cuboid drawing functions.
-	cur_node.origin = intToFloat(cur_node.p, BS);
 	auto box = aabb3f(v3f(-0.5 * BS), v3f(0.5 * BS));
 	box.MinEdge += cur_node.origin;
 	box.MaxEdge += cur_node.origin;
@@ -1773,6 +1772,7 @@ void MapblockMeshGenerator::errorUnknownDrawtype()
 
 void MapblockMeshGenerator::drawNode()
 {
+	cur_node.origin = intToFloat(cur_node.p, BS);
 	switch (cur_node.f->drawtype) {
 		case NDT_AIRLIKE:  // Not drawn at all
 			return;
@@ -1783,7 +1783,6 @@ void MapblockMeshGenerator::drawNode()
 		default:
 			break;
 	}
-	cur_node.origin = intToFloat(cur_node.p, BS);
 	if (data->m_smooth_lighting) {
 		getSmoothLightFrame();
 	} else {

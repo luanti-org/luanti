@@ -212,6 +212,20 @@ public:
 		return minimap_mapblocks;
 	}
 
+	/// @return true if the mesh contains nothing to draw
+	bool isEmpty() const
+	{
+		if (!m_transparent_triangles.empty())
+			return false;
+		for (auto &mesh : m_mesh) {
+			for (u32 i = 0; i < mesh->getMeshBufferCount(); i++) {
+				if (mesh->getMeshBuffer(i)->getIndexCount() != 0)
+					return false;
+			}
+		}
+		return true;
+	}
+
 	bool isAnimationForced() const
 	{
 		return m_animation_force_timer == 0;
@@ -242,7 +256,7 @@ public:
 	/// get the list of transparent buffers
 	const std::vector<PartialMeshBuffer> &getTransparentBuffers() const
 	{
-		return this->m_transparent_buffers;
+		return m_transparent_buffers;
 	}
 
 private:
