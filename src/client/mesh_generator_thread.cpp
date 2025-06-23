@@ -125,6 +125,18 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	}
 
 	/*
+		Air blocks won't suddenly become visible due to a neighbor update, so
+		skip those.
+		Note: this can be extended with more precise checks in the future
+	*/
+	if (from_neighbor && mesh_grid.cell_size == 1 && main_block->isAir()) {
+		assert(!ack_block_to_server);
+		m_urgents.erase(mesh_position);
+		g_profiler->add("MeshUpdateQueue: updates skipped", 1);
+		return true;
+	}
+
+	/*
 		Add the block
 	*/
 	QueuedMeshUpdate *q = new QueuedMeshUpdate;
