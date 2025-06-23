@@ -64,6 +64,7 @@ public:
 	// Slows down the player when moving through
 	u8 move_resistance = 0;
 	bool is_climbing = false;
+	f32 node_climb_factor = 1.0f;
 	bool swimming_vertical = false;
 	bool swimming_pitch = false;
 
