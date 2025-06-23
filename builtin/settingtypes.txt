@@ -158,6 +158,9 @@ autojump (Automatic jumping) bool false
 #    On touchscreens, this only affects digging.
 safe_dig_and_place (Safe digging and placing) bool false
 
+#	 Enable a confirmation dialog before closing.
+enable_esc_dialog (Confirmation dialog before closing) bool true
+
 [*Keyboard and Mouse]
 
 #    Invert vertical mouse movement.

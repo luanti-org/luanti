@@ -49,19 +49,25 @@ local tabs = {
 --------------------------------------------------------------------------------
 local function main_event_handler(tabview, event)
 	if event == "MenuQuit" then
-		if not ui.childlist["mainmenu_quit_confirm"] then
+		local show_dialog = core.settings:get_bool("enable_esc_dialog")
+		if not ui.childlist["mainmenu_quit_confirm"] and show_dialog then
 			tabview:hide()
 			local dlg = dialog_create(
 				"mainmenu_quit_confirm",
 				function()
-					return confirmation_formspec(
-						fgettext("Are you sure you want to quit?"),
-						"btn_quit_confirm_yes", fgettext("Quit"),
-						"btn_quit_confirm_cancel", fgettext("Cancel")
-					)
+					return "size[10,3,true]" ..
+						"label[0.5,0.5;" .. fgettext("Are you sure you want to quit?") .. "]" ..
+						"checkbox[0.5,1;cb_show_dialog;" .. fgettext("Always show this dialog.") .. ";" .. tostring(show_dialog) .. "]" ..
+						"style[btn_quit_confirm_yes;bgcolor=red]" ..
+						"button[0.5,2.0;2.5,0.5;btn_quit_confirm_yes;" .. fgettext("Quit") .. "]" ..
+						"button[7.0,2.0;2.5,0.5;btn_quit_confirm_cancel;" .. fgettext("Cancel") .. "]"
 				end,
 				function(this, fields)
-					if fields.btn_quit_confirm_yes then
+					if fields.cb_show_dialog ~= nil then
+						local value = (fields.cb_show_dialog == "true") and "true" or "false"
+						core.settings:set("enable_esc_dialog", value)
+						return false
+					elseif fields.btn_quit_confirm_yes then
 						this:delete()
 						core.close()
 						return true
@@ -77,6 +83,8 @@ local function main_event_handler(tabview, event)
 			)
 			dlg:set_parent(tabview)
 			dlg:show()
+		else
+			core.close()
 		end
 		return true
 	end
