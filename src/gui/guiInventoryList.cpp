@@ -203,9 +203,9 @@ bool GUIInventoryList::OnEvent(const SEvent &event)
 	if (!hovered || hovered->getID() == -1)
 		hovered = m_fs_menu;
 
-	IsVisible = was_visible;
-
 	bool ret = hovered->OnEvent(event);
+
+	IsVisible = was_visible;
 
 	return ret;
 }
