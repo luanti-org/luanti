@@ -185,32 +185,13 @@ bool GUIInventoryList::OnEvent(const SEvent &event)
 
 	m_hovered_i = getItemIndexAtPos(v2s32(event.MouseInput.X, event.MouseInput.Y));
 
-	if (m_hovered_i != -1)
-		return IGUIElement::OnEvent(event);
+	return IGUIElement::OnEvent(event);
+}
 
-	// no item slot at pos of mouse event => allow clicking through
-	// find the element that would be hovered if this inventorylist was invisible
-	bool was_visible = IsVisible;
-	IsVisible = false;
-	IGUIElement *hovered =
-		Environment->getRootGUIElement()->getElementFromPoint(
-			core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y));
 
-	// if the player clicks outside of the formspec window, hovered is not
-	// m_fs_menu, but some other weird element (with ID -1). we do however need
-	// hovered to be m_fs_menu as item dropping when clicking outside of the
-	// formspec window is handled in its OnEvent callback
-	if (!hovered || hovered->getID() == -1)
-		hovered = m_fs_menu;
-
-	bool ret = hovered->OnEvent(event);
-
-	// Set visible again *after* processing the event. Otherwise, hovered could
-	// be another GUIInventoryList, which will call this one again, resulting in
-	// an infinite loop.
-	IsVisible = was_visible;
-
-	return ret;
+bool GUIInventoryList::isPointInside(const core::position2d<s32> &point) const
+{
+	return getItemIndexAtPos(point) != -1;
 }
 
 s32 GUIInventoryList::getItemIndexAtPos(v2s32 p) const
