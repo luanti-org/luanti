@@ -85,7 +85,11 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 					if (block) {
 						block->refGrab();
 						q->map_blocks[i] = block;
+						q->data->fillBlockData(pos, block->getData());
 					}
+				} else if (p == pos) {
+					// the "center" block might have changed
+					q->data->fillBlockData(pos, q->map_blocks[i]->getData());
 				}
 				i++;
 			}
@@ -96,6 +100,13 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	/*
 		Make a list of blocks necessary for mesh generation and lock the blocks in memory.
 	*/
+	QueuedMeshUpdate *q = new QueuedMeshUpdate;
+	MeshMakeData *data = new MeshMakeData(m_client->ndef(),
+			MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid);
+	q->p = mesh_position;
+	data->fillBlockDataBegin(q->p);
+	q->data = data;
+
 	std::vector<MapBlock *> map_blocks;
 	map_blocks.reserve((mesh_grid.cell_size+2)*(mesh_grid.cell_size+2)*(mesh_grid.cell_size+2));
 	v3s16 pos;
@@ -104,15 +115,15 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	for (pos.Y = mesh_position.Y - 1; pos.Y <= mesh_position.Y + mesh_grid.cell_size; pos.Y++) {
 		MapBlock *block = map->getBlockNoCreateNoEx(pos);
 		map_blocks.push_back(block);
-		if (block)
+		if (block) {
 			block->refGrab();
+			data->fillBlockData(pos, block->getData());
+		}
 	}
 
 	/*
 		Add the block
 	*/
-	QueuedMeshUpdate *q = new QueuedMeshUpdate;
-	q->p = mesh_position;
 	if(ack_block_to_server)
 		q->ack_list.push_back(p);
 	q->crack_level = m_client->getCrackLevel();
@@ -128,7 +139,6 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 // Returns NULL if queue is empty
 QueuedMeshUpdate *MeshUpdateQueue::pop()
 {
-	QueuedMeshUpdate *result = NULL;
 	{
 		MutexAutoLock lock(m_mutex);
 
@@ -143,47 +153,22 @@ QueuedMeshUpdate *MeshUpdateQueue::pop()
 			m_queue.erase(i);
 			m_urgents.erase(q->p);
 			m_inflight_blocks.insert(q->p);
-			result = q;
-			break;
+
+			q->data->setCrack(q->crack_level, q->crack_pos);
+			q->data->m_generate_minimap = !!m_client->getMinimap();
+			q->data->m_smooth_lighting = m_cache_smooth_lighting;
+			q->data->m_enable_water_reflections = m_cache_enable_water_reflections;
+			return q;
 		}
 	}
 
-	if (result)
-		fillDataFromMapBlocks(result);
-
-	return result;
+	return NULL;
 }
 
 void MeshUpdateQueue::done(v3s16 pos)
 {
 	MutexAutoLock lock(m_mutex);
 	m_inflight_blocks.erase(pos);
-}
-
-
-void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
-{
-	auto mesh_grid = m_client->getMeshGrid();
-	MeshMakeData *data = new MeshMakeData(m_client->ndef(),
-			MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid);
-	q->data = data;
-
-	data->fillBlockDataBegin(q->p);
-
-	v3s16 pos;
-	int i = 0;
-	for (pos.X = q->p.X - 1; pos.X <= q->p.X + mesh_grid.cell_size; pos.X++)
-	for (pos.Z = q->p.Z - 1; pos.Z <= q->p.Z + mesh_grid.cell_size; pos.Z++)
-	for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
-		MapBlock *block = q->map_blocks[i++];
-		if (block)
-			data->fillBlockData(pos, block->getData());
-	}
-
-	data->setCrack(q->crack_level, q->crack_pos);
-	data->m_generate_minimap = !!m_client->getMinimap();
-	data->m_smooth_lighting = m_cache_smooth_lighting;
-	data->m_enable_water_reflections = m_cache_enable_water_reflections;
 }
 
 /*
