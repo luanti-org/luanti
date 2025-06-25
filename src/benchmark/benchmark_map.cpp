@@ -5,7 +5,6 @@
 #include "catch.h"
 #include "dummygamedef.h"
 #include "map.h"
-#include "mapsector.h"
 
 namespace {
 class TestMap : public Map {
@@ -14,20 +13,7 @@ public:
 
 	MapBlock * createBlockTest(v3s16 p)
 	{
-		v2s16 p2d(p.X, p.Z);
-		s16 block_y = p.Y;
-
-		MapSector *sector = getSectorNoGenerate(p2d);
-		if (!sector) {
-			sector = new MapSector(this, p2d, m_gamedef);
-			m_sectors[p2d] = sector;
-		}
-
-		MapBlock *block = sector->getBlockNoCreateNoEx(block_y);
-		if (block)
-			return block;
-
-		return sector->createBlankBlock(block_y);
+		return createBlankBlock(p);
 	}
 
 };
