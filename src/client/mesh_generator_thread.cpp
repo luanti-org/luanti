@@ -11,18 +11,6 @@
 #include "util/directiontables.h"
 #include "porting.h"
 
-// Data placeholder used for copying from non-existent blocks
-static struct BlockPlaceholder {
-	MapNode data[MapBlock::nodecount];
-
-	BlockPlaceholder()
-	{
-		for (std::size_t i = 0; i < MapBlock::nodecount; i++)
-			data[i] = MapNode(CONTENT_IGNORE);
-	}
-
-} block_placeholder;
-
 /*
 	QueuedMeshUpdate
 */
@@ -188,7 +176,8 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	for (pos.Z = q->p.Z - 1; pos.Z <= q->p.Z + mesh_grid.cell_size; pos.Z++)
 	for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
 		MapBlock *block = q->map_blocks[i++];
-		data->fillBlockData(pos, block ? block->getData() : block_placeholder.data);
+		if (block)
+			data->fillBlockData(pos, block->getData());
 	}
 
 	data->setCrack(q->crack_level, q->crack_pos);
