@@ -106,7 +106,7 @@ core.register_chatcommand("bench_bulk_set_node", {
 		core.chat_send_player(name, "Warming up finished, now benchmarking ...")
 
 		local start_time = core.get_us_time()
-		for i=1,#pos_list do
+		for i = 1, #pos_list do
 			core.set_node(pos_list[i], {name = "mapgen_stone"})
 		end
 		local middle_time = core.get_us_time()
@@ -130,12 +130,12 @@ core.register_chatcommand("bench_bulk_get_node", {
 			return false, "No player."
 		end
 		local pos_list = get_positions_cube(player:get_pos())
+		local dummy = 0
 		local function bench()
 			local start_time = core.get_us_time()
-			local dummy = 0
-			for i=1,#pos_list do
+			for i = 1, #pos_list do
 				local n = core.get_node(pos_list[i])
-				-- Make sure the name lookup is not optimized away
+				-- Make sure the name lookup is not optimized away (can this even happen?)
 				dummy = dummy + #n.name
 			end
 			return core.get_us_time() - start_time
@@ -163,10 +163,10 @@ core.register_chatcommand("bench_bulk_get_node_raw", {
 			return false, "No player."
 		end
 		local pos_list = get_positions_cube(player:get_pos())
+		local dummy = 0
 		local function bench()
 			local start_time = core.get_us_time()
-			local dummy = 0
-			for i=1,#pos_list do
+			for i = 1, #pos_list do
 				local pos_i = pos_list[i]
 				local nid = core.get_node_raw(pos_i.x, pos_i.y, pos_i.z)
 				-- Make sure the result is not optimized away
@@ -197,10 +197,10 @@ core.register_chatcommand("bench_bulk_get_node_raw2", {
 			return false, "No player."
 		end
 		local pos_list = get_positions_cube(player:get_pos())
+		local dummy = 0
 		local function bench()
 			local start_time = core.get_us_time()
-			local dummy = 0
-			for i=1,#pos_list do
+			for i = 1, #pos_list do
 				local pos_i = pos_list[i]
 				local nid = core.get_node_raw(pos_i.x, pos_i.y, pos_i.z)
 				local name = core.get_name_from_content_id(nid)
@@ -232,13 +232,16 @@ core.register_chatcommand("bench_bulk_get_node_vm", {
 			return false, "No player."
 		end
 		local pos = player:get_pos()
+		local dummy = 0
 		local function bench()
 			local start_time = core.get_us_time()
 			local vm = core.get_voxel_manip(pos:offset(1,1,1), pos:offset(100,100,100))
 			local data = vm:get_data()
 			local mid_time = core.get_us_time()
-			local dummy = 0
-			for i=1,99*99*99 do
+			-- Note that the VManip will actually retrieve more than just the 100³ nodes
+			-- and also we don't need to iterate pos_list here, so it's not an entirely
+			-- fair comparison.
+			for i = 1, 99*99*99 do
 				local nid = data[i]
 				-- Make sure the table lookup is not optimized away
 				dummy = dummy + nid
@@ -278,7 +281,7 @@ core.register_chatcommand("bench_bulk_swap_node", {
 		core.chat_send_player(name, "Warming up finished, now benchmarking ...")
 
 		local start_time = core.get_us_time()
-		for i=1,#pos_list do
+		for i = 1, #pos_list do
 			core.swap_node(pos_list[i], {name = "mapgen_stone"})
 		end
 		local middle_time = core.get_us_time()
