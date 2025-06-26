@@ -193,7 +193,7 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
 		MapBlock *block = q->map_blocks[i++];
 		if (block)
-			data->fillBlockData(pos, block->getData());
+			block->copyTo(data->m_vmanip);
 	}
 
 	data->setCrack(q->crack_level, q->crack_pos);

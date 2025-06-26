@@ -60,7 +60,6 @@ struct MeshMakeData
 		Copy block data manually (to allow optimizations by the caller)
 	*/
 	void fillBlockDataBegin(const v3s16 &blockpos);
-	void fillBlockData(const v3s16 &bp, MapNode *data);
 
 	/*
 		Prepare block data for rendering a single node located at (0,0,0).
