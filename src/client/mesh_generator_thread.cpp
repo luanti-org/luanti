@@ -49,13 +49,16 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	if (!main_block)
 		return false;
 
-	MutexAutoLock lock(m_mutex);
-
 	MeshGrid mesh_grid = m_client->getMeshGrid();
 
 	// Mesh is placed at the corner block of a chunk
 	// (where all coordinate are divisible by the chunk size)
 	v3s16 mesh_position(mesh_grid.getMeshPos(p));
+
+	{
+	// protect m_urgents and queue updates
+	MutexAutoLock lock(m_mutex);
+
 	/*
 		Mark the block as urgent if requested
 	*/
@@ -96,6 +99,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 			return true;
 		}
 	}
+	}
 
 	/*
 		Make a list of blocks necessary for mesh generation and lock the blocks in memory.
@@ -130,6 +134,9 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server, bool
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
 	q->map_blocks = std::move(map_blocks);
+
+	// protect the actual insert into the queue
+	MutexAutoLock lock(m_mutex);
 	m_queue.push_back(q);
 
 	return true;
