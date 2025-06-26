@@ -61,6 +61,7 @@
 		[scheduled bump for 5.10.0]
 	PROTOCOL VERSION 47
 		Add particle blend mode "clip"
+		"[combine:WxH:x1,y1,w1=" 3rd parameter extension
 		[scheduled bump for 5.11.0]
 	PROTOCOL VERSION 48
 		Add compression to some existing packets
