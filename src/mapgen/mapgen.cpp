@@ -1101,14 +1101,8 @@ void MapgenParams::writeParams(Settings *settings) const
 
 s32 MapgenParams::getSpawnRangeMax()
 {
-	if (!m_mapgen_edges_calculated) {
-		std::pair<s16, s16> edges = get_mapgen_edges(mapgen_limit, chunksize);
-		mapgen_edge_min = edges.first;
-		mapgen_edge_max = edges.second;
-		m_mapgen_edges_calculated = true;
-	}
-
-	return MYMIN(-mapgen_edge_min, mapgen_edge_max);
+	auto [emin, emax] = get_mapgen_edges(mapgen_limit, chunksize);
+	return std::min(-emin, emax);
 }
 
 

@@ -121,18 +121,12 @@ struct MapgenParams {
 
 	BiomeParams *bparams = nullptr;
 
-	s16 mapgen_edge_min = -MAX_MAP_GENERATION_LIMIT;
-	s16 mapgen_edge_max = MAX_MAP_GENERATION_LIMIT;
-
 	virtual void readParams(const Settings *settings);
 	virtual void writeParams(Settings *settings) const;
 	// Default settings for g_settings such as flags
 	virtual void setDefaultSettings(Settings *settings) {};
 
 	s32 getSpawnRangeMax();
-
-private:
-	bool m_mapgen_edges_calculated = false;
 };
 
 
