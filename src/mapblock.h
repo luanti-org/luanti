@@ -80,11 +80,6 @@ public:
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_REALLOCATE);
 	}
 
-	MapNode* getData()
-	{
-		return data;
-	}
-
 	////
 	//// Modification tracking methods
 	////
