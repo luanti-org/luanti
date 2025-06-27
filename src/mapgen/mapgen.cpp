@@ -1073,9 +1073,27 @@ void MapgenParams::readParams(const Settings *settings)
 	settings->getS16NoEx("mapgen_limit", mapgen_limit);
 	settings->getFlagStrNoEx("mg_flags", flags, flagdesc_mapgen);
 
-	s16 tmp;
-	settings->getS16NoEx("chunksize", tmp);
-	chunksize = v3s16(rangelim(tmp, 1, 24));
+	std::string chunksize_str;
+	settings->getNoEx("chunksize", chunksize_str);
+	if (is_number(chunksize_str)) {
+		chunksize = v3s16(stoi(chunksize_str, 1, 999));
+	} else if (auto tmp = str_to_v3f(chunksize_str); tmp.has_value()) {
+		chunksize = v3s16(
+			rangelim(tmp->X, 1, 999),
+			rangelim(tmp->Y, 1, 999),
+			rangelim(tmp->Z, 1, 999)
+		);
+	} else if (!chunksize_str.empty()) {
+		errorstream << "MapgenParams: invalid chunksize \"" << chunksize_str
+			<< "\"" << std::endl;
+	}
+	// Finally check the volume limit
+	if (u32 v = chunksize.X * chunksize.Y * chunksize.Z; v > MAX_CHUNK_VOLUME) {
+		errorstream << "MapgenParams: chunksize " << chunksize
+			<< " is too big (volume > " << MAX_CHUNK_VOLUME
+			<< "), falling back to the default." << std::endl;
+		chunksize = v3s16(5);
+	}
 
 	delete bparams;
 	bparams = BiomeManager::createBiomeParams(BIOMEGEN_ORIGINAL);
@@ -1092,8 +1110,14 @@ void MapgenParams::writeParams(Settings *settings) const
 	settings->setU64("seed", seed);
 	settings->setS16("water_level", water_level);
 	settings->setS16("mapgen_limit", mapgen_limit);
-	settings->setS16("chunksize", chunksize.X); // TODO
 	settings->setFlagStr("mg_flags", flags, flagdesc_mapgen);
+
+	// Write as number if cubic, for backwards-compatibility
+	if (chunksize.X == chunksize.Y && chunksize.Y == chunksize.Z) {
+		settings->setS16("chunksize", chunksize.X);
+	} else {
+		settings->setV3F("chunksize", v3f::from(chunksize));
+	}
 
 	if (bparams)
 		bparams->writeParams(settings);

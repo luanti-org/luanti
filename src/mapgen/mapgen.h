@@ -127,6 +127,9 @@ struct MapgenParams {
 	virtual void setDefaultSettings(Settings *settings) {};
 
 	s32 getSpawnRangeMax();
+
+	// Mostly arbitrary limit
+	constexpr static u32 MAX_CHUNK_VOLUME = 2000;
 };
 
 

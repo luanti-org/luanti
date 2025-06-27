@@ -861,6 +861,8 @@ int ModApiMapgen::l_get_mapgen_edges(lua_State *L)
 	v3s16 chunksize;
 	if (lua_isnumber(L, 2)) {
 		chunksize = v3s16(lua_tointeger(L, 2));
+	} else if (lua_istable(L, 2)) {
+		chunksize = check_v3s16(L, 2);
 	} else {
 		chunksize = params->chunksize;
 	}
