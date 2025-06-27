@@ -111,7 +111,7 @@ struct MapgenParams {
 	virtual ~MapgenParams();
 
 	MapgenType mgtype = MAPGEN_DEFAULT;
-	s16 chunksize = 5;
+	v3s16 chunksize = v3s16(5);
 	u64 seed = 0;
 	s16 water_level = 1;
 	s16 mapgen_limit = MAX_MAP_GENERATION_LIMIT;
@@ -322,4 +322,4 @@ protected:
 
 // Calculate exact edges of the outermost mapchunks that are within the set
 // mapgen_limit. Returns the minimum and maximum edges in nodes in that order.
-std::pair<s16, s16> get_mapgen_edges(s16 mapgen_limit, s16 chunksize);
+std::pair<s16, s16> get_mapgen_edges(s16 mapgen_limit, v3s16 chunksize);
