@@ -10,6 +10,7 @@
 #include "exceptions.h"
 #include "constants.h"
 #include "staticobject.h"
+#include "nameidmapping.h"
 #include "nodemetadata.h"
 #include "nodetimer.h"
 #include "modifiedstate.h"
@@ -422,17 +423,22 @@ public:
 	// clearObject and return removed objects count
 	u32 clearObjects();
 
+private:
 	static const u32 ystride = MAP_BLOCKSIZE;
 	static const u32 zstride = MAP_BLOCKSIZE * MAP_BLOCKSIZE;
 
 	static const u32 nodecount = MAP_BLOCKSIZE * MAP_BLOCKSIZE * MAP_BLOCKSIZE;
 
-private:
 	/*
 		Private methods
 	*/
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
+
+	static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
+		const NodeDefManager *nodedef);
+	static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
+			IGameDef *gamedef);
 
 	/*
 	 * PLEASE NOTE: When adding something here be mindful of position and size
