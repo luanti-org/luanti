@@ -231,6 +231,9 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float>
 		m_volumetric_light_strength_pixel{"volumetricLightStrength"};
 
+	CachedPixelShaderSetting<float, 9>
+		m_color_transform_matrix{"colorTransformMatrix"};
+
 	static constexpr std::array<const char*, 1> SETTING_CALLBACKS = {
 		"exposure_compensation",
 	};
@@ -320,6 +323,8 @@ public:
 			float radius = std::max(lighting.bloom_radius, 0.0f);
 			m_bloom_radius_pixel.set(&radius, services);
 		}
+
+		m_color_transform_matrix.set(lighting.vision_effects.color_transform_matrix.data(), services);
 
 		float saturation = lighting.saturation;
 		m_saturation_pixel.set(&saturation, services);
