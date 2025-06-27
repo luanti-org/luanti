@@ -1,0 +1,1 @@
+Put lua mapgens in this directory.

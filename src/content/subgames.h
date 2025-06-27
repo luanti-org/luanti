@@ -19,6 +19,7 @@ struct SubgameSpec
 	int release;
 	std::string first_mod; // "" <=> no mod
 	std::string last_mod; // "" <=> no mod
+	std::string lua_mapgen; // "" <=> use internal
 	std::string path;
 	std::string gamemods_path;
 
@@ -26,6 +27,7 @@ struct SubgameSpec
 	 * Map from virtual path to mods path
 	 */
 	std::unordered_map<std::string, std::string> addon_mods_paths;
+	std::unordered_map<std::string, std::string> mapgen_paths;
 
 	// For logging purposes
 	std::vector<const char *> deprecation_msgs;
@@ -36,14 +38,18 @@ struct SubgameSpec
 			const std::string &title = "",
 			const std::string &author = "", int release = 0,
 			const std::string &first_mod = "",
-			const std::string &last_mod = "") :
+			const std::string &last_mod = "",
+			const std::string &lua_mapgen = "",
+			const std::unordered_map<std::string, std::string> &mapgen_paths = {}) :
 			id(id),
 			title(title), author(author), release(release),
 			first_mod(first_mod),
 			last_mod(last_mod),
+			lua_mapgen(lua_mapgen),
 			path(path),
 			gamemods_path(gamemods_path),
-			addon_mods_paths(addon_mods_paths)
+			addon_mods_paths(addon_mods_paths),
+			mapgen_paths(mapgen_paths)
 	{
 	}
 
@@ -88,4 +94,4 @@ std::vector<WorldSpec> getAvailableWorlds();
 // loads the subgame's config and creates world directory
 // and world.mt if they don't exist
 void loadGameConfAndInitWorld(const std::string &path, const std::string &name,
-		const SubgameSpec &gamespec, bool create_world);
+		const SubgameSpec &gamespec, bool create_world, const std::string &lua_mapgen);
