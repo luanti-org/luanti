@@ -260,10 +260,8 @@ void MapBlock::tryShrinkNodes()
 
 	if (is_mono_block) {
 		reallocate(1, n);
-		if (n.getContent() == CONTENT_AIR) {
-			m_is_air = true;
-			m_is_air_expired = false;
-		}
+		m_is_air = n.getContent() == CONTENT_AIR;
+		m_is_air_expired = false;
 	}
 }
 
@@ -645,14 +643,12 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 		}
 
 		if (nimap.size() == 1) {
-			tryShrinkNodes();
 			u16 dummy;
-			if (nimap.getId("air", dummy)) {
-				m_is_air = true;
-				m_is_air_expired = false;
-			}
+			m_is_air = nimap.getId("air", dummy);
+			m_is_air_expired = false;
 		}
 	}
+	tryShrinkNodes();
 
 	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
 			<<": Done."<<std::endl);
