@@ -271,7 +271,7 @@ local scroll_fs =
 		"button[0,1;1,1;lorem;Lorem]"..
 		"animated_image[0,1;4.5,1;clip_animated_image;testformspec_animation.png;4;100]" ..
 		"button[0,10;1,1;ipsum;Ipsum]"..
-		"pwdfield[2,2;1,1;lorem2;Lorem]"..
+		"pwdfield[2,2;1,1;lorem2;Lorem;password]"..
 		"list[current_player;main;4,4;1,5;]"..
 		"box[2,5;3,2;#ffff00]"..
 		"image[1,10;3,2;testformspec_item.png]"..
@@ -349,7 +349,7 @@ local pages = {
 		item_image_button[0,6;1,1;testformspec:node;rc_item_image_button_1x1;1x1]
 		item_image_button[1,6;2,2;testformspec:node;rc_item_image_button_2x2;2x2]
 		field[3,.5;3,.5;rc_field;Field;text]
-		pwdfield[6,.5;3,1;rc_pwdfield;Password Field]
+		pwdfield[6,.5;3,1;rc_pwdfield;Password Field;password]
 		field[3,1;3,1;;Read-Only Field;text]
 		textarea[3,2;3,.5;rc_textarea_small;Textarea;text]
 		textarea[6,2;3,2;rc_textarea_big;Textarea;text\nmore text]
