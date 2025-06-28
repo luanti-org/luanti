@@ -2436,6 +2436,9 @@ enable_remote_media_server (Connect to external media server) [client] bool true
 #    Multiplayer Tab.
 serverlist_file (Serverlist file) [client] string favoriteservers.json
 
+#    File in client/ that contains your saved usernames and passwords for Multiplayer
+keyring_file (Keyring file) [client] string keyring.json
+
 
 [*Gamepads] [client]
 
