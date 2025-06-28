@@ -12,6 +12,14 @@ struct ExposureParams {
 	float compensationFactor;
 };
 
+uniform vec3 cdl_slope;
+uniform vec3 cdl_offset;
+uniform vec3 cdl_power;
+
+uniform float vignette_dark;
+uniform float vignette_bright;
+uniform float vignette_power;
+
 uniform sampler2D rendered;
 uniform sampler2D bloom;
 
@@ -20,6 +28,7 @@ uniform vec2 texelSize0;
 uniform ExposureParams exposureParams;
 uniform lowp float bloomIntensity;
 uniform lowp float saturation;
+uniform float gamma;
 
 #ifdef GL_ES
 varying mediump vec2 varTexCoord;
@@ -70,7 +79,6 @@ highp vec3 uncharted2Tonemap(highp vec3 x)
 vec4 applyToneMapping(vec4 color)
 {
 	color = vec4(pow(color.rgb, vec3(2.2)), color.a);
-	const float gamma = 1.6;
 	const float exposureBias = 5.5;
 	color.rgb = uncharted2Tonemap(exposureBias * color.rgb);
 	// Precalculated white_scale from
@@ -132,8 +140,6 @@ void main(void)
 #ifdef ENABLE_BLOOM
 	color = applyBloom(color, uv);
 #endif
-
-
 	color.rgb = clamp(color.rgb, vec3(0.), vec3(1.));
 
 	// return to sRGB colorspace (approximate)
@@ -143,10 +149,17 @@ void main(void)
 	if (uv.x > 0.5 || uv.y > 0.5)
 #endif
 	{
+
+	color.rgb *= (vignette_bright - vignette_dark) * (1.0 - pow(length(uv - vec2(0.5)) * 1.4, vignette_power)) + vignette_dark;
+
 #if ENABLE_TONE_MAPPING
 		color = applyToneMapping(color);
 #endif
 
+#ifdef ENABLE_COLOR_GRADING
+		// ASC CDL color grading
+		color.rgb = mix(color.rgb, pow(max(color.rgb * cdl_slope + cdl_offset, 0.0), cdl_power), 1.);
+#endif
 		color.rgb = applySaturation(color.rgb, saturation);
 	}
 
