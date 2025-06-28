@@ -130,7 +130,7 @@ local function get_formspec(tabview, name, tabdata)
 		"label[0.25,0;" .. fgettext("Name") .. "]" ..
 		"label[2.875,0;" .. fgettext("Password") .. "]" ..
 		"field[0.25,0.2;2.625,0.75;te_name;;" .. core.formspec_escape(core.settings:get("name")) .. "]" ..
-		"pwdfield[2.875,0.2;2.625,0.75;te_pwd;]" ..
+		"pwdfield[2.875,0.2;2.625,0.75;te_pwd;;" .. core.formspec_escape(core.settings:get("password")) .. "]" ..
 		"container_end[]" ..
 
 		-- Connect
@@ -441,6 +441,10 @@ local function main_button_handler(tabview, fields, name, tabdata)
 	if fields.te_name then
 		gamedata.playername = fields.te_name
 		core.settings:set("name", fields.te_name)
+	end
+
+	if fields.te_pwd then
+		core.settings:set("password", fields.te_pwd)
 	end
 
 	if fields.servers then
