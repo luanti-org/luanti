@@ -81,6 +81,9 @@ local function register_buttonhandler(this, fields)
 		core.settings:set("name", fields.name)
 		core.settings:set("address",     gamedata.address)
 		core.settings:set("remote_port", gamedata.port)
+		if core.settings:get_bool("remember_password") then
+			core.settings:set("password", fields.password)
+		end
 
 		core.start()
 	end
