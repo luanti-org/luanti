@@ -38,6 +38,16 @@ struct SkyboxParams
 	s16 fog_distance { -1 };
 	float fog_start { -1.0f };
 	video::SColor fog_color { 0 }; // override, only used if alpha > 0
+
+	// Check if this is a textured skybox and whether transparency is used
+	bool isSkybox() const
+	{
+		return type == "skybox" || type == "skybox_back" || type == "skybox_front";
+	}
+	bool isTransparent() const
+	{
+		return type == "regular" || type == "skybox_back" || type == "skybox_front";
+	}
 };
 
 struct SunParams

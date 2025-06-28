@@ -82,6 +82,7 @@ public:
 	const video::SColorf &getCloudColor() const { return m_cloudcolor_f; }
 
 	void setVisible(bool visible) { m_visible = visible; }
+	void setType(std::string type) { m_sky_params.type = type; }
 
 	// Set only from set_sky API
 	void setCloudsEnabled(bool clouds_enabled) { m_clouds_enabled = clouds_enabled; }
@@ -105,7 +106,7 @@ public:
 	void setInClouds(bool clouds) { m_in_clouds = clouds; }
 	void clearSkyboxTextures() { m_sky_params.textures.clear(); }
 	void addTextureToSkybox(const std::string &texture, int material_id,
-		ITextureSource *tsrc);
+		ITextureSource *tsrc, bool transparent);
 
 	// Note: the Sky class doesn't use these values. It just stores them.
 	void setFogDistance(s16 fog_distance) { m_sky_params.fog_distance = fog_distance; }
@@ -124,6 +125,8 @@ public:
 private:
 	aabb3f m_box{{0.0f, 0.0f, 0.0f}};
 	video::SMaterial m_materials[SKY_MATERIAL_COUNT];
+	virtual void renderTextures(video::IVideoDriver *driver);
+
 	// How much sun & moon transition should affect horizon color
 	float m_horizon_blend()
 	{
