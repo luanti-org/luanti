@@ -30,6 +30,8 @@
 #include "log.h"
 #include "log_internal.h"
 #include "gameparams.h"
+#include "filesys.h"
+#include "client/clientgamestartdata.h"
 #include "gettext.h"
 #include "gui/guiChatConsole.h"
 #include "texturesource.h"
@@ -566,7 +568,7 @@ public:
 	bool startup(volatile std::sig_atomic_t *kill,
 			InputHandler *input,
 			RenderingEngine *rendering_engine,
-			const GameStartData &game_params,
+			ClientGameStartData &game_params,
 			std::string &error_message,
 			bool *reconnect,
 			ChatBackend *chat_backend);
@@ -585,11 +587,11 @@ protected:
 	void copyServerClientCache();
 
 	// Client creation
-	bool createClient(const GameStartData &start_data);
+	bool createClient(ClientGameStartData &start_data);
 	bool initGui();
 
 	// Client connection
-	bool connectToServer(const GameStartData &start_data,
+	bool connectToServer(ClientGameStartData &start_data,
 			bool *connect_ok, bool *aborted);
 	bool getServerContent(bool *aborted);
 
@@ -937,7 +939,7 @@ Game::~Game()
 bool Game::startup(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
-		const GameStartData &start_data,
+		ClientGameStartData &start_data,
 		std::string &error_message,
 		bool *reconnect,
 		ChatBackend *chat_backend)
@@ -1330,7 +1332,7 @@ void Game::copyServerClientCache()
 		<< std::endl;
 }
 
-bool Game::createClient(const GameStartData &start_data)
+bool Game::createClient(ClientGameStartData &start_data)
 {
 	showOverlayMessage(N_("Creating client..."), 0, 10);
 
@@ -1460,7 +1462,7 @@ bool Game::initGui()
 	return true;
 }
 
-bool Game::connectToServer(const GameStartData &start_data,
+bool Game::connectToServer(ClientGameStartData &start_data,
 		bool *connect_ok, bool *connection_aborted)
 {
 	*connect_ok = false;	// Let's not be overly optimistic
@@ -1515,8 +1517,8 @@ bool Game::connectToServer(const GameStartData &start_data,
 
 
 	try {
-		client = new Client(start_data.name.c_str(),
-				start_data.password,
+		client = new Client(start_data.name,
+				&start_data.auth,
 				*draw_control, texture_src, shader_src,
 				itemdef_manager, nodedef_manager, sound_manager.get(), eventmgr,
 				m_rendering_engine,
@@ -4245,7 +4247,7 @@ void Game::readSettings()
 void the_game(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
-		const GameStartData &start_data,
+		ClientGameStartData &start_data,
 		std::string &error_message,
 		ChatBackend &chat_backend,
 		bool *reconnect_requested) // Used for local game
