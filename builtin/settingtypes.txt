@@ -871,6 +871,9 @@ tooltip_append_itemname (Append item name) bool false
 #    Use a cloud animation for the main menu background.
 menu_clouds (Clouds in menu) bool true
 
+#    Remember last entered password in the 'Join Game' tab
+remember_password (Remember password) bool false
+
 [**HUD]
 
 #    Modifies the size of the HUD elements.

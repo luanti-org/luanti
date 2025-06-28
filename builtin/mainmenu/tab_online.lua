@@ -96,6 +96,11 @@ local function get_formspec(tabview, name, tabdata)
 		tabdata.search_for = ""
 	end
 
+	local password = ""
+	if core.settings:get_bool("remember_password") then
+		password = core.settings:get("password")
+	end
+
 	local retval =
 		-- Search
 		"field[0.25,0.25;7,0.75;te_search;;" .. core.formspec_escape(tabdata.search_for) .. "]" ..
@@ -130,7 +135,7 @@ local function get_formspec(tabview, name, tabdata)
 		"label[0.25,0;" .. fgettext("Name") .. "]" ..
 		"label[2.875,0;" .. fgettext("Password") .. "]" ..
 		"field[0.25,0.2;2.625,0.75;te_name;;" .. core.formspec_escape(core.settings:get("name")) .. "]" ..
-		"pwdfield[2.875,0.2;2.625,0.75;te_pwd;;" .. core.formspec_escape(core.settings:get("password")) .. "]" ..
+		"pwdfield[2.875,0.2;2.625,0.75;te_pwd;;" .. core.formspec_escape(password) .. "]" ..
 		"container_end[]" ..
 
 		-- Connect
@@ -443,8 +448,12 @@ local function main_button_handler(tabview, fields, name, tabdata)
 		core.settings:set("name", fields.te_name)
 	end
 
-	if fields.te_pwd then
-		core.settings:set("password", fields.te_pwd)
+	if core.settings:get_bool("remember_password") then
+		if fields.te_pwd then
+			core.settings:set("password", fields.te_pwd)
+		end
+	else
+		core.settings:set("password", "")
 	end
 
 	if fields.servers then
