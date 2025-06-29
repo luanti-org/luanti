@@ -814,7 +814,9 @@ else
 			-- case it's a no-op
 			core.show_formspec("__builtin:settings", "")
 		end
-
-		core.show_formspec("__builtin:settings", get_formspec(dialog.data))
+		dialog.show = function() -- Used by the keybinding form
+			core.show_formspec("__builtin:settings", get_formspec(dialog.data))
+		end
+		dialog:show()
 	end
 end
