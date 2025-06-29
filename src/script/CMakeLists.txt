@@ -3,10 +3,10 @@ add_subdirectory(cpp_api)
 add_subdirectory(lua_api)
 
 # Used by server and client
-set(common_SCRIPT_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/scripting_server.h
-	${CMAKE_CURRENT_SOURCE_DIR}/scripting_emerge.h
+file(GLOB common_SCRIPT_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
+set(common_SCRIPT_SRCS
+	${common_SCRIPT_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_server.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_emerge.cpp
 
@@ -17,10 +17,6 @@ set(common_SCRIPT_SRCS
 
 # Used by client only
 set(client_SCRIPT_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/scripting_mainmenu.h
-	${CMAKE_CURRENT_SOURCE_DIR}/scripting_client.h
-	${CMAKE_CURRENT_SOURCE_DIR}/scripting_pause_menu.h
-
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_mainmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_client.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_pause_menu.cpp

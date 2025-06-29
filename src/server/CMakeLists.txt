@@ -1,17 +1,7 @@
-set(common_server_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/activeobjectmgr.h
-	${CMAKE_CURRENT_SOURCE_DIR}/ban.h
-	${CMAKE_CURRENT_SOURCE_DIR}/blockmodifier.h
-	${CMAKE_CURRENT_SOURCE_DIR}/clientiface.h
-	${CMAKE_CURRENT_SOURCE_DIR}/luaentity_sao.h
-	${CMAKE_CURRENT_SOURCE_DIR}/mods.h
-	${CMAKE_CURRENT_SOURCE_DIR}/player_sao.h
-	${CMAKE_CURRENT_SOURCE_DIR}/rollback.h
-	${CMAKE_CURRENT_SOURCE_DIR}/serveractiveobject.h
-	${CMAKE_CURRENT_SOURCE_DIR}/serverinventorymgr.h
-	${CMAKE_CURRENT_SOURCE_DIR}/serverlist.h
-	${CMAKE_CURRENT_SOURCE_DIR}/unit_sao.h
+file(GLOB common_server_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
+set(common_server_SRCS
+	${common_server_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/activeobjectmgr.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ban.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/blockmodifier.cpp

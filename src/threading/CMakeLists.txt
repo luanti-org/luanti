@@ -1,11 +1,7 @@
-set(threading_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/event.h
-	${CMAKE_CURRENT_SOURCE_DIR}/lambda.h
-	${CMAKE_CURRENT_SOURCE_DIR}/mutex_auto_lock.h
-	${CMAKE_CURRENT_SOURCE_DIR}/ordered_mutex.h
-	${CMAKE_CURRENT_SOURCE_DIR}/thread.h
-	${CMAKE_CURRENT_SOURCE_DIR}/semaphore.h
+file(GLOB threading_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
+set(threading_SRCS
+	${threading_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/event.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/thread.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/semaphore.cpp
