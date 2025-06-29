@@ -24,6 +24,9 @@ public:
 	bool collideWithObjects() const {
 		return true;
 	}
+	std::string getGUID() const {
+		return "";
+	}
 };
 
 constexpr float POS_RANGE = 2001;
