@@ -6280,7 +6280,7 @@ Call these functions only at load time!
 * `core.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv))`
     * Called when `player` crafts something
     * `itemstack` is the output
-    * `old_craft_grid` contains the recipe (Note: the one in the inventory is
+    * `old_craft_grid` contains the recipe, is an array of `ItemStack`s (Note: the one in the inventory is
       cleared).
     * `craft_inv` is the inventory with the crafting grid
     * Return either an `ItemStack`, to replace the output, or `nil`, to not
