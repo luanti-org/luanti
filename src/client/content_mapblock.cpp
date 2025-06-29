@@ -1774,6 +1774,9 @@ void MapblockMeshGenerator::drawNode()
 void MapblockMeshGenerator::generate()
 {
 	ZoneScoped;
+	static u16 calls = 0;
+	if (++calls % 10 == 0)
+		warningstream << "reg " << calls << std::endl;
 
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
@@ -1816,14 +1819,16 @@ void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, s
     bases = outs;
 }
 
-void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width, u8 min_size){
+void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width, u8 min_size)
+{
+	static u16 calls = 0;
+	if (++calls % 10 == 0)
+		warningstream << "lod " << calls << std::endl;
 	u8 num = data->m_side_length / width + 2;
 	// for now, assume chunk size is <= 8
 	std::bitset<66> all_set_nodes[3][66][66];
-	std::unordered_map<content_t, MapNode> node_types;
-	std::unordered_map<content_t, std::bitset<66>[3][66][66]> set_nodes;
-
-	MapNode main_node;
+	std::unordered_map<content_t, std::unordered_map<u16, MapNode>> node_types;
+	std::unordered_map<content_t, std::unordered_map<u16, std::bitset<66>[3][66][66]>> set_nodes;
 
     for (s8 x = 0; x < num; x++)
     for (s8 y = 0; y < num; y++)
@@ -1835,27 +1840,30 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
                          from.Y + (y == num-1 ? 1 : width),
                          from.Z + (z == num-1 ? 1 : width));
 
-        v3s16 p;
-    	content_t node_type;
-    	core::aabbox3d bounds(v3s16(S16_MAX), v3s16(S16_MIN));
-        for (p.Z = from.Z; p.Z < to.Z; p.Z++)
-        for (p.Y = from.Y; p.Y < to.Y; p.Y++)
-        for (p.X = from.X; p.X < to.X; p.X++){
-            MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
-            if (n.getContent() == CONTENT_IGNORE){
-                goto next_volume;
-            }
-            const ContentFeatures *f = &nodedef->get(n);
-            if (!types.test(f->drawtype))
-                continue;
-            bounds.MinEdge.X = MYMIN(bounds.MinEdge.X , p.X);
-            bounds.MinEdge.Y = MYMIN(bounds.MinEdge.Y , p.Y);
-            bounds.MinEdge.Z = MYMIN(bounds.MinEdge.Z , p.Z);
-            bounds.MaxEdge.X = MYMAX(bounds.MaxEdge.X , p.X);
-            bounds.MaxEdge.Y = MYMAX(bounds.MaxEdge.Y , p.Y);
-            bounds.MaxEdge.Z = MYMAX(bounds.MaxEdge.Z , p.Z);
-        	main_node = n;
-        }
+				v3s16 p;
+				MapNode main_node;
+				content_t node_type;
+				ContentLightingFlags f;
+				LightPair lp;
+				core::aabbox3d bounds(v3s16(S16_MAX), v3s16(S16_MIN));
+				for (p.Z = from.Z; p.Z < to.Z; p.Z++)
+					for (p.Y = from.Y; p.Y < to.Y; p.Y++)
+						for (p.X = from.X; p.X < to.X; p.X++) {
+							MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
+							if (n.getContent() == CONTENT_IGNORE) {
+								goto next_volume;
+							}
+							const ContentFeatures* f = &nodedef->get(n);
+							if (!types.test(f->drawtype))
+								continue;
+							bounds.MinEdge.X = MYMIN(bounds.MinEdge.X, p.X);
+							bounds.MinEdge.Y = MYMIN(bounds.MinEdge.Y, p.Y);
+							bounds.MinEdge.Z = MYMIN(bounds.MinEdge.Z, p.Z);
+							bounds.MaxEdge.X = MYMAX(bounds.MaxEdge.X, p.X);
+							bounds.MaxEdge.Y = MYMAX(bounds.MaxEdge.Y, p.Y);
+							bounds.MaxEdge.Z = MYMAX(bounds.MaxEdge.Z, p.Z);
+							main_node = n;
+						}
 
         // skip if volume is empty or too small
         if (bounds.MinEdge.X == S16_MAX || //
@@ -1865,25 +1873,32 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
     	bounds.MinEdge -= blockpos_nodes - 1;
     	bounds.MaxEdge -= blockpos_nodes - 1;
 
-    	node_type = main_node.getContent();
-    	node_types[node_type] = main_node;
-        for (p.Z = bounds.MinEdge.Z; p.Z <= bounds.MaxEdge.Z; p.Z++)
-    	for (p.Y = bounds.MinEdge.Y; p.Y <= bounds.MaxEdge.Y; p.Y++)
-    	for (p.X = bounds.MinEdge.X; p.X <= bounds.MaxEdge.X; p.X++) {
-    		all_set_nodes[0][p.Y][p.Z].set(p.X);// x axis
-    		all_set_nodes[1][p.X][p.Z].set(p.Y);// y axis
-    		all_set_nodes[2][p.X][p.Y].set(p.Z);// z axis
+				f = nodedef->getLightingFlags(main_node);
+				lp = LightPair(decode_light(main_node.getLightRaw(LIGHTBANK_DAY, f)),
+				               decode_light(main_node.getLightRaw(LIGHTBANK_NIGHT, f)));
 
-    		set_nodes[node_type][0][p.Y][p.Z].set(p.X);// x axis
-    		set_nodes[node_type][1][p.X][p.Z].set(p.Y);// y axis
-    		set_nodes[node_type][2][p.X][p.Y].set(p.Z);// z axis
-    	}
-        next_volume:
-    }
-    num -= 2;
+				node_type = main_node.getContent();
+				node_types[node_type][lp] = main_node;
+				for (p.Z = bounds.MinEdge.Z; p.Z <= bounds.MaxEdge.Z; p.Z++)
+					for (p.Y = bounds.MinEdge.Y; p.Y <= bounds.MaxEdge.Y; p.Y++)
+						for (p.X = bounds.MinEdge.X; p.X <= bounds.MaxEdge.X; p.X++) {
+							all_set_nodes[0][p.Y][p.Z].set(p.X); // x axis
+							all_set_nodes[1][p.X][p.Z].set(p.Y); // y axis
+							all_set_nodes[2][p.X][p.Y].set(p.Z); // z axis
 
-	for (auto [key, value] : set_nodes) {
-		std::bitset<66> nodes_faces[6][64][64]; // -x, +x, -y, +y, -z, +z
+							set_nodes[node_type][lp][0][p.Y][p.Z].set(p.X); // x axis
+							set_nodes[node_type][lp][1][p.X][p.Z].set(p.Y); // y axis
+							set_nodes[node_type][lp][2][p.X][p.Y].set(p.Z); // z axis
+						}
+			next_volume:
+
+			}
+	num -= 2;
+
+	for (auto [node_type, map] : set_nodes)
+		for (auto [light_pair, value] : map) {
+			std::bitset<66> nodes_faces[6][64][64]; // -x, +x, -y, +y, -z, +z
+			MapNode n = node_types[node_type][light_pair];
 
 		for (u8 u = 0; u < data->m_side_length; u++)
 		for (u8 v = 0; v < data->m_side_length; v++) {
@@ -1908,99 +1923,103 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 			}
 		}
 
-		for (u8 direction = 0; direction < 6; direction++)
-		for (u8 slice_i = 0; slice_i < data->m_side_length; slice_i++) {
-			for (u8 u = 0; u < data->m_side_length; u++) {
-				u64 column = slices[direction][slice_i][u].to_ullong();
-				while (column) {
-					u32 v0 = std::__countr_zero(column);
-					u32 v1 = std::__countr_one(column >> v0);
-					const u64 mask = v1 == 64 ? U64_MAX : ((static_cast<u64>(1) << v1) - 1) << v0;
-					column ^= mask;
-					u32 u1 = 1;
-					while (u + u1 < data->m_side_length && // while still in current chunk
-						(slices[direction][slice_i][u+u1].to_ullong() & mask) == mask) { // and next column shares faces
-						slices[direction][slice_i][u+u1] ^= mask;
-						u1++;
+			for (u8 direction = 0; direction < 6; direction++)
+				for (u8 slice_i = 0; slice_i < data->m_side_length; slice_i++) {
+					for (u8 u = 0; u < data->m_side_length; u++) {
+						u64 column = slices[direction][slice_i][u].to_ullong();
+						while (column) {
+							u32 v0 = std::__countr_zero(column);
+							u32 v1 = std::__countr_one(column >> v0);
+							const u64 mask = v1 == 64 ? U64_MAX : ((static_cast<u64>(1) << v1) - 1) << v0;
+							column ^= mask;
+							u32 u1 = 1;
+							while (u + u1 < data->m_side_length && // while still in current chunk
+								(slices[direction][slice_i][u + u1].to_ullong() & mask) == mask) {
+								// and next column shares faces
+								slices[direction][slice_i][u + u1] ^= mask;
+								u1++;
+							}
+							const core::vector2d<f32> uvs[4] = {
+								core::vector2d<f32>{0, static_cast<f32>(v1)},
+								core::vector2d<f32>{0, 0},
+								core::vector2d<f32>{static_cast<f32>(u1), 0},
+								core::vector2d<f32>{static_cast<f32>(u1), static_cast<f32>(v1)}
+							};
+							u1 = (u + u1) * BS;
+							v1 = (v0 + v1) * BS;
+							u32 u0 = u * BS;
+							v0 *= BS;
+							const s32 w = BS * slice_i - BS / 2
+								+ (direction % 2 == 0 ? 0 : BS);
+							static constexpr v3s16 direction_vectors[6] = {
+								v3s16(-1, 0, 0), v3s16(1, 0, 0),
+								v3s16(0, -1, 0), v3s16(0, 1, 0),
+								v3s16(0, 0, -1), v3s16(0, 0, 1)
+							};
+							static constexpr core::vector3df normals[6] = {
+								core::vector3df(-1, 0, 0), core::vector3df(1, 0, 0),
+								core::vector3df(0, -1, 0), core::vector3df(0, 1, 0),
+								core::vector3df(0, 0, -1), core::vector3df(0, 0, 1)
+							};
+							core::vector3df vertices[4];
+							switch (direction) {
+							case 0:
+								vertices[3] = core::vector3df(w, u0 - BS / 2, v0 - BS / 2);
+								vertices[0] = core::vector3df(w, u0 - BS / 2, v1 - BS / 2);
+								vertices[1] = core::vector3df(w, u1 - BS / 2, v1 - BS / 2);
+								vertices[2] = core::vector3df(w, u1 - BS / 2, v0 - BS / 2);
+								break;
+							case 1:
+								vertices[0] = core::vector3df(w, u0 - BS / 2, v0 - BS / 2);
+								vertices[1] = core::vector3df(w, u0 - BS / 2, v1 - BS / 2);
+								vertices[2] = core::vector3df(w, u1 - BS / 2, v1 - BS / 2);
+								vertices[3] = core::vector3df(w, u1 - BS / 2, v0 - BS / 2);
+								break;
+							case 2:
+							case 3:
+								vertices[0] = core::vector3df(u0 - BS / 2, w, v0 - BS / 2);
+								vertices[1] = core::vector3df(u1 - BS / 2, w, v0 - BS / 2);
+								vertices[2] = core::vector3df(u1 - BS / 2, w, v1 - BS / 2);
+								vertices[3] = core::vector3df(u0 - BS / 2, w, v1 - BS / 2);
+								break;
+							case 4:
+								vertices[3] = core::vector3df(u1 - BS / 2, v0 - BS / 2, w);
+								vertices[0] = core::vector3df(u0 - BS / 2, v0 - BS / 2, w);
+								vertices[1] = core::vector3df(u0 - BS / 2, v1 - BS / 2, w);
+								vertices[2] = core::vector3df(u1 - BS / 2, v1 - BS / 2, w);
+								break;
+							default:
+								vertices[0] = core::vector3df(u1 - BS / 2, v0 - BS / 2, w);
+								vertices[1] = core::vector3df(u0 - BS / 2, v0 - BS / 2, w);
+								vertices[2] = core::vector3df(u0 - BS / 2, v1 - BS / 2, w);
+								vertices[3] = core::vector3df(u1 - BS / 2, v1 - BS / 2, w);
+								break;
+							}
+							video::SColor color = encode_light(255, nodedef->getLightingFlags(n).light_source);
+							//video::SColor color = encode_light(light_pair, nodedef->getLightingFlags(n).light_source);
+							TileSpec tile;
+							video::S3DVertex irr_vertices[4];
+							switch (direction) {
+							case 0:
+							case 2:
+							case 4:
+								irr_vertices[0] = video::S3DVertex(vertices[0], normals[direction], color, uvs[0]);
+								irr_vertices[1] = video::S3DVertex(vertices[1], normals[direction], color, uvs[1]);
+								irr_vertices[2] = video::S3DVertex(vertices[2], normals[direction], color, uvs[2]);
+								irr_vertices[3] = video::S3DVertex(vertices[3], normals[direction], color, uvs[3]);
+								break;
+							default:
+								irr_vertices[0] = video::S3DVertex(vertices[0], normals[direction], color, uvs[0]);
+								irr_vertices[1] = video::S3DVertex(vertices[3], normals[direction], color, uvs[1]);
+								irr_vertices[2] = video::S3DVertex(vertices[2], normals[direction], color, uvs[2]);
+								irr_vertices[3] = video::S3DVertex(vertices[1], normals[direction], color, uvs[3]);
+							}
+							getNodeTile(n, blockpos_nodes, direction_vectors[direction], data, tile);
+							collector->append(tile, irr_vertices, 4, quad_indices, 6);
+						}
 					}
-					const core::vector2d<f32> uvs[4] = {
-						core::vector2d<f32>{0, static_cast<f32>(v1)},
-						core::vector2d<f32>{0, 0},
-						core::vector2d<f32>{static_cast<f32>(u1), 0},
-						core::vector2d<f32>{static_cast<f32>(u1), static_cast<f32>(v1)}
-					};
-					u1 = (u + u1) * BS;
-					v1 = (v0 + v1) * BS;
-					u32 u0 = u * BS;
-					v0 *= BS;
-					const s32 w = BS * slice_i - BS / 2
-						+ (direction % 2 == 0 ? 0 : BS );
-					static constexpr v3s16 direction_vectors[6] = {
-						v3s16(-1, 0, 0), v3s16(1, 0, 0),
-						v3s16(0, -1, 0), v3s16(0, 1, 0),
-						v3s16(0, 0, -1), v3s16(0, 0, 1)};
-					static constexpr core::vector3df normals[6] = {
-						core::vector3df(-1, 0, 0), core::vector3df(1, 0, 0),
-						core::vector3df(0, -1, 0), core::vector3df(0, 1, 0),
-						core::vector3df(0, 0, -1), core::vector3df(0, 0, 1)};
-					core::vector3df vertices[4];
-					switch (direction) {
-						case 0:
-							vertices[3] = core::vector3df(w, u0 - BS / 2, v0 - BS / 2);
-							vertices[0] = core::vector3df(w, u0 - BS / 2, v1 - BS / 2);
-							vertices[1] = core::vector3df(w, u1 - BS / 2, v1 - BS / 2);
-							vertices[2] = core::vector3df(w, u1 - BS / 2, v0 - BS / 2);
-							break;
-						case 1:
-							vertices[0] = core::vector3df(w, u0 - BS / 2, v0 - BS / 2);
-							vertices[1] = core::vector3df(w, u0 - BS / 2, v1 - BS / 2);
-							vertices[2] = core::vector3df(w, u1 - BS / 2, v1 - BS / 2);
-							vertices[3] = core::vector3df(w, u1 - BS / 2, v0 - BS / 2);
-							break;
-						case 2:
-						case 3:
-							vertices[0] = core::vector3df(u0 - BS / 2, w, v0 - BS / 2);
-							vertices[1] = core::vector3df(u1 - BS / 2, w, v0 - BS / 2);
-							vertices[2] = core::vector3df(u1 - BS / 2, w, v1 - BS / 2);
-							vertices[3] = core::vector3df(u0 - BS / 2, w, v1 - BS / 2);
-							break;
-						case 4:
-							vertices[3] = core::vector3df(u1 - BS / 2, v0 - BS / 2, w);
-							vertices[0] = core::vector3df(u0 - BS / 2, v0 - BS / 2, w);
-							vertices[1] = core::vector3df(u0 - BS / 2, v1 - BS / 2, w);
-							vertices[2] = core::vector3df(u1 - BS / 2, v1 - BS / 2, w);
-							break;
-						default:
-							vertices[0] = core::vector3df(u1 - BS / 2, v0 - BS / 2, w);
-							vertices[1] = core::vector3df(u0 - BS / 2, v0 - BS / 2, w);
-							vertices[2] = core::vector3df(u0 - BS / 2, v1 - BS / 2, w);
-							vertices[3] = core::vector3df(u1 - BS / 2, v1 - BS / 2, w);
-							break;
-					}
-					video::SColor color(255, 255, 255, 255);
-					TileSpec tile;
-					video::S3DVertex irr_vertices[4];
-					switch (direction) {
-					case 0:
-					case 2:
-					case 4:
-						irr_vertices[0] = video::S3DVertex(vertices[0], normals[direction], color, uvs[0]);
-						irr_vertices[1] = video::S3DVertex(vertices[1], normals[direction], color, uvs[1]);
-						irr_vertices[2] = video::S3DVertex(vertices[2], normals[direction], color, uvs[2]);
-						irr_vertices[3] = video::S3DVertex(vertices[3], normals[direction], color, uvs[3]);
-						break;
-					default:
-						irr_vertices[0] = video::S3DVertex(vertices[0], normals[direction], color, uvs[0]);
-						irr_vertices[1] = video::S3DVertex(vertices[3], normals[direction], color, uvs[1]);
-						irr_vertices[2] = video::S3DVertex(vertices[2], normals[direction], color, uvs[2]);
-						irr_vertices[3] = video::S3DVertex(vertices[1], normals[direction], color, uvs[3]);
-					}
-					getNodeTile(node_types[key], blockpos_nodes, direction_vectors[direction], data, tile);
-					collector->append(tile, irr_vertices, 4, quad_indices, 6);
 				}
-			}
 		}
-	}
 }
 
 void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u32 width, core::vector2d<f32> uvs[4], u8 min_size){
