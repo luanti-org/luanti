@@ -65,6 +65,11 @@ struct StarParams
 	video::SColor starcolor;
 	f32 scale;
 	f32 day_opacity;
+	bool shooting_stars_enabled;
+	f32 shooting_star_chance;
+	f32 shooting_star_speed;
+	f32 shooting_star_size;
+	std::vector<video::SColor> shooting_star_colors;
 };
 
 struct CloudParams
@@ -143,6 +148,17 @@ public:
 		stars.starcolor = video::SColor(105, 235, 235, 255);
 		stars.scale = 1;
 		stars.day_opacity = 0;
+		stars.shooting_stars_enabled = true;
+		stars.shooting_star_chance = 5.0f;
+		stars.shooting_star_speed = 0.1f;
+		stars.shooting_star_size = 1.0f;
+		stars.shooting_star_colors = {
+			video::SColor(255, 255, 255, 255),  // White
+			video::SColor(255, 180, 220, 255),  // Blue-ish
+			video::SColor(255, 255, 240, 180),  // Yellow-ish
+			video::SColor(255, 180, 255, 200),  // Green-ish
+			video::SColor(255, 255, 180, 180)   // Red-ish
+		};
 		return stars;
 	}
 
