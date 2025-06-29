@@ -116,7 +116,7 @@ function keyringmgr.set_login(server, playername, password)
 
   local keyring = keyringmgr.get_keyring()
 	local new_keys = get_keys(keyring, server);
-	
+
 	-- Check for existing entires for playername
 	for _, login in ipairs(new_keys.logins or {}) do
 		if login.playername and login.playername == playername then
@@ -135,7 +135,7 @@ function keyringmgr.set_login(server, playername, password)
   })
 
 	keyringmgr.set_last_login(server, playername)
-			
+
   rewrite_keys(keyring, server, new_keys)
 end
 
@@ -145,7 +145,7 @@ function keyringmgr.get_login(server, playername)
 
   local keyring = keyringmgr.get_keyring()
 	local new_keys = get_keys(keyring, server);
-	
+
 	-- Check for existing entires for playername
 	for _, login in ipairs(new_keys.logins) do
 		if login.playername and login.playername == playername then

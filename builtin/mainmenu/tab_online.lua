@@ -71,7 +71,7 @@ local function set_selected_server(server)
 	if address and port then
 		core.settings:set("address", address)
 		core.settings:set("remote_port", port)
-		
+
 		-- Pull info from last login (if exists)
 		-- This will always fail if remember_login is false
 		-- because nothing has been stored, nor will it ever be
@@ -79,7 +79,7 @@ local function set_selected_server(server)
 		if login then
 			input_playername = login.playername
 			input_password = login.password
-		else 
+		else
 			input_playername = core.settings:get("name")
 			input_password = ""
 		end
