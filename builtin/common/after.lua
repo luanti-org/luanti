@@ -114,6 +114,10 @@ end
 local time = 0.0
 local time_next = math.huge
 
+function core.get_global_time()
+	return time
+end
+
 core.register_globalstep(function(dtime)
 	time = time + dtime
 
