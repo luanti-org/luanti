@@ -871,9 +871,9 @@ tooltip_append_itemname (Append item name) bool false
 #    Use a cloud animation for the main menu background.
 menu_clouds (Clouds in menu) bool true
 
-#    Remember last entered password in the 'Join Game' tab
+#    Remember each server's entered login info in the 'Join Game' tab
 #    ***WARNING, THIS IS NOT SECURE WHATSOEVER. DO NOT ENABLE THIS***:
-remember_password (Remember password) bool false
+remember_login (Remember logins) bool false
 
 [**HUD]
 
