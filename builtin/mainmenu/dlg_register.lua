@@ -81,8 +81,11 @@ local function register_buttonhandler(this, fields)
 		core.settings:set("name", fields.name)
 		core.settings:set("address",     gamedata.address)
 		core.settings:set("remote_port", gamedata.port)
-		if core.settings:get_bool("remember_password") then
-			core.settings:set("password", fields.password)
+		if core.settings:get_bool("remember_login") then
+			keyringmgr.set_login({
+				address = gamedata.address,
+				port = gamedata.port,
+			}, fields.name, fields.password)
 		end
 
 		core.start()
