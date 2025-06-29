@@ -27,16 +27,16 @@ local function read_keyring()
 end
 
 --------------------------------------------------------------------------------
-local function is_for_server(keys, server)
-	return keys.address == server.address and keys.port == server.port
+local function is_for_server(keys, address, port)
+	return keys.address == address and keys.port == port
 end
 
 --------------------------------------------------------------------------------
-local function delete_keys(keyring, server)
+local function delete_keys(keyring, address, port)
 	for i=1, #keyring do
 		local keys = keyring[i]
 
-		if is_for_server(keys, server) then
+		if is_for_server(keys, address, port) then
 			table.remove(keyring, i)
 			return
 		end
@@ -44,18 +44,18 @@ local function delete_keys(keyring, server)
 end
 
 --------------------------------------------------------------------------------
-local function get_keys(keyring, server)
+local function get_keys(keyring, address, port)
   for i=1, #keyring do
     local keys = keyring[i]
 
-    if is_for_server(keys, server) then
+    if is_for_server(keys, address, port) then
       return keys
     end
   end
   -- If we don't find any existing keys, we make a blank set for the server
   local keys = {
-    address = server.address,
-    port = server.port,
+    address = address,
+    port = port,
     logins = {},
     last_login = false,
   }
@@ -65,18 +65,21 @@ local function get_keys(keyring, server)
 end
 
 --------------------------------------------------------------------------------
-local function rewrite_keys(keyring, server, new_keys)
-	delete_keys(keyring, server)
+local function rewrite_keys(keyring, address, port, new_keys)
+	delete_keys(keyring, address, port)
 	table.insert(keyring, 1, new_keys)
   save_keyring(keyring)
 end
 
 --------------------------------------------------------------------------------
-local function set_general_login(server, playername)
-	keyringmgr.general_login = {
-		playername = playername,
-		password = keyringmgr.get_login(server, playername)
-	}
+local function set_general_login(address, port, playername)
+	local login = keyringmgr.get_login(address, port, playername)
+	if login then
+		keyringmgr.general_login = {
+			playername = login.playername,
+			password = login.password,
+		}
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -101,21 +104,21 @@ function keyringmgr.get_keyring()
 end
 
 --------------------------------------------------------------------------------
-function keyringmgr.set_last_login(server, playername)
+function keyringmgr.set_last_login(address, port, playername)
 	local keyring = keyringmgr.get_keyring()
-  local new_keys = get_keys(keyring, server)
+  local new_keys = get_keys(keyring, address, port)
   new_keys.last_login = playername
 
-  rewrite_keys(keyring, server, new_keys)
-	set_general_login(server, playername)
+  rewrite_keys(keyring, address, port, new_keys)
+	set_general_login(address, port, playername)
 end
 
 --------------------------------------------------------------------------------
-function keyringmgr.set_login(server, playername, password)
-	assert(type(server.port) == "number")
+function keyringmgr.set_login(address, port, playername, password)
+	assert(type(port) == "number")
 
   local keyring = keyringmgr.get_keyring()
-	local new_keys = get_keys(keyring, server);
+	local new_keys = get_keys(keyring, address, port);
 
 	-- Check for existing entires for playername
 	for _, login in ipairs(new_keys.logins or {}) do
@@ -134,17 +137,17 @@ function keyringmgr.set_login(server, playername, password)
     password = password
   })
 
-	keyringmgr.set_last_login(server, playername)
+	keyringmgr.set_last_login(address, port, playername)
 
-  rewrite_keys(keyring, server, new_keys)
+  rewrite_keys(keyring, address, port, new_keys)
 end
 
 --------------------------------------------------------------------------------
-function keyringmgr.get_login(server, playername)
-	assert(type(server.port) == "number")
+function keyringmgr.get_login(address, port, playername)
+	assert(type(port) == "number")
 
   local keyring = keyringmgr.get_keyring()
-	local new_keys = get_keys(keyring, server);
+	local new_keys = get_keys(keyring, address, port);
 
 	-- Check for existing entires for playername
 	for _, login in ipairs(new_keys.logins) do
@@ -152,15 +155,15 @@ function keyringmgr.get_login(server, playername)
       return login
 		end
   end
-  error("No login found on " .. server.address .. ":" .. server.port .. " for player " .. playername)
+  error("No login found on " .. address .. ":" .. port .. " for player " .. playername)
 end
 
 --------------------------------------------------------------------------------
-function keyringmgr.remove_login(server, playername)
-	assert(type(server.port) == "number")
+function keyringmgr.remove_login(address, port, playername)
+	assert(type(port) == "number")
 
   local keyring = keyringmgr.get_keyring()
-	local new_keys = get_keys(keyring, server);
+	local new_keys = get_keys(keyring, address, port);
   for i=1, #new_keys.logins do
     local login = new_keys.logins[i]
 
@@ -170,21 +173,21 @@ function keyringmgr.remove_login(server, playername)
     end
   end
 
-  rewrite_keys(keyring, server, new_keys)
+  rewrite_keys(keyring, address, port, new_keys)
 end
 
 --------------------------------------------------------------------------------
-function keyringmgr.delete_keys(server)
+function keyringmgr.delete_keys(address, port)
 	local keyring = keyringmgr.get_keyring()
-	delete_keys(keyring, server)
+	delete_keys(keyring, address, port)
   save_keyring(keyring)
 end
 
 --------------------------------------------------------------------------------
-function keyringmgr.get_last_login(server)
-  local playername = get_keys(keyringmgr.get_keyring(), server).last_login
+function keyringmgr.get_last_login(address, port)
+  local playername = get_keys(keyringmgr.get_keyring(), address, port).last_login
   if playername then
-   return keyringmgr.get_login(server, playername)
+   return keyringmgr.get_login(address, port, playername)
   end
   return false
 end

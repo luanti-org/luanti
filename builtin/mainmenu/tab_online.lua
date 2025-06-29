@@ -75,7 +75,7 @@ local function set_selected_server(server)
 		-- Pull info from last login (if exists)
 		-- This will always fail if remember_login is false
 		-- because nothing has been stored, nor will it ever be
-		local login = keyringmgr.get_last_login(server)
+		local login = keyringmgr.get_last_login(address, port)
 		if login then
 			input_playername = login.playername
 			input_password = login.password
@@ -569,7 +569,7 @@ local function main_button_handler(tabview, fields, name, tabdata)
 				server.port == gamedata.port then
 
 			if core.settings:get_bool("remember_login") then
-				keyringmgr.set_login(server, gamedata.playername, gamedata.password)
+				keyringmgr.set_login(server.address, server.port, gamedata.playername, gamedata.password)
 			end
 			serverlistmgr.add_favorite(server)
 
