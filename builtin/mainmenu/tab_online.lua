@@ -56,12 +56,10 @@ end
 
 -- Persists the selected server in the "address" and "remote_port" settings
 local function get_default_playername()
-	print(keyringmgr.get_last_playername())
-	return keyringmgr.get_last_playername() or core.settings:get("name")
+	return core.settings:get("name")
 end
 local function get_default_password()
-	print(keyringmgr.get_last_password())
-	return keyringmgr.get_last_password() or ""
+	return ""
 end
 
 local input_playername = get_default_playername()

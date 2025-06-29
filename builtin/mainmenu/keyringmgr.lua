@@ -1,7 +1,5 @@
 keyringmgr = {
   keyring = nil,
-
-	general_login = false
 }
 
 --------------------------------------------------------------------------------
@@ -72,17 +70,6 @@ local function rewrite_keys(keyring, address, port, new_keys)
 end
 
 --------------------------------------------------------------------------------
-local function set_general_login(address, port, playername)
-	local login = keyringmgr.get_login(address, port, playername)
-	if login then
-		keyringmgr.general_login = {
-			playername = login.playername,
-			password = login.password,
-		}
-	end
-end
-
---------------------------------------------------------------------------------
 function keyringmgr.get_keyring()
 	if keyringmgr.keyring then
 		return keyringmgr.keyring
@@ -110,7 +97,6 @@ function keyringmgr.set_last_login(address, port, playername)
   new_keys.last_login = playername
 
   rewrite_keys(keyring, address, port, new_keys)
-	set_general_login(address, port, playername)
 end
 
 --------------------------------------------------------------------------------
@@ -190,20 +176,4 @@ function keyringmgr.get_last_login(address, port)
    return keyringmgr.get_login(address, port, playername)
   end
   return false
-end
-
---------------------------------------------------------------------------------
-function keyringmgr.get_last_playername()
-	if keyringmgr.general_login then
-		return keyringmgr.general_login.playername
-	end
-	return false
-end
-
---------------------------------------------------------------------------------
-function keyringmgr.get_last_password()
-	if keyringmgr.general_login then
-		return keyringmgr.general_login.password
-	end
-	return false
 end
