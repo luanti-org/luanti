@@ -10,7 +10,6 @@
 #include "exceptions.h"
 #include "constants.h"
 #include "staticobject.h"
-#include "nameidmapping.h"
 #include "nodemetadata.h"
 #include "nodetimer.h"
 #include "modifiedstate.h"
@@ -22,6 +21,7 @@ class NodeMetadataList;
 class IGameDef;
 class MapBlockMesh;
 class VoxelManipulator;
+class NameIdMapping;
 
 #define BLOCK_TIMESTAMP_UNDEFINED 0xffffffff
 

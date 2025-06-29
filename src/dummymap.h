@@ -31,9 +31,9 @@ public:
 		for (s16 y = bpmin.Y; y <= bpmax.Y; y++) {
 			MapBlock *block = getBlockNoCreateNoEx({x, y, z});
 			if (block) {
-				for (s16 xn=0; xn < MAP_BLOCKSIZE; xn++)
+				for (s16 zn=0; zn < MAP_BLOCKSIZE; zn++)
 				for (s16 yn=0; yn < MAP_BLOCKSIZE; yn++)
-				for (s16 zn=0; zn < MAP_BLOCKSIZE; zn++) {
+				for (s16 xn=0; xn < MAP_BLOCKSIZE; xn++) {
 					block->setNodeNoCheck(xn, yn, zn, n);
 				}
 				block->expireIsAirCache();

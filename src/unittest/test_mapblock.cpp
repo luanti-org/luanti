@@ -68,9 +68,9 @@ void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)
 		MapBlock block({}, gamedef);
 		// Fill with data
 		PcgRandom r(seed);
-		for (s16 x=0; x < MAP_BLOCKSIZE; x++)
+		for (s16 z=0; z < MAP_BLOCKSIZE; z++)
 		for (s16 y=0; y < MAP_BLOCKSIZE; y++)
-		for (s16 z=0; z < MAP_BLOCKSIZE; z++) {
+		for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
 			u32 rval = r.next();
 			block.setNodeNoCheck(x, y, z,
 					MapNode(rval % max, (rval >> 16) & 0xff, (rval >> 24) & 0xff));
@@ -87,9 +87,9 @@ void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)
 
 		// Check data
 		PcgRandom r(seed);
-		for (s16 x=0; x < MAP_BLOCKSIZE; x++)
+		for (s16 z=0; z < MAP_BLOCKSIZE; z++)
 		for (s16 y=0; y < MAP_BLOCKSIZE; y++)
-		for (s16 z=0; z < MAP_BLOCKSIZE; z++) {
+		for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
 			u32 rval = r.next();
 			auto expect =
 				MapNode(rval % max, (rval >> 16) & 0xff, (rval >> 24) & 0xff);
@@ -108,9 +108,9 @@ void TestMapBlock::testSave29(IGameDef *gamedef)
 	{
 		// Prepare test block
 		MapBlock block({}, gamedef);
-		for (s16 x=0; x < MAP_BLOCKSIZE; x++)
+		for (s16 z=0; z < MAP_BLOCKSIZE; z++)
 		for (s16 y=0; y < MAP_BLOCKSIZE; y++)
-		for (s16 z=0; z < MAP_BLOCKSIZE; z++) {
+		for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
 			block.setNodeNoCheck(x, y, z, MapNode(CONTENT_AIR));
 		}
 		block.setNode({0, 0, 0}, MapNode(t_CONTENT_STONE));
@@ -301,9 +301,9 @@ void TestMapBlock::testLoad20(IGameDef *gamedef)
 	UASSERTEQ(auto, get_node(10, 6, 4), "air");
 	UASSERTEQ(auto, get_node(11, 6, 3), "default:furnace");
 
-	for (s16 x=0; x < MAP_BLOCKSIZE; x++)
+	for (s16 z=0; z < MAP_BLOCKSIZE; z++)
 	for (s16 y=0; y < MAP_BLOCKSIZE; y++)
-	for (s16 z=0; z < MAP_BLOCKSIZE; z++) {
+	for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
 		UASSERT(block.getNodeNoCheck(x, y, z).getContent() != CONTENT_IGNORE);
 	}
 
