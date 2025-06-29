@@ -440,11 +440,7 @@ function make.key(setting)
 		end
 
 		local critical_keys = {
-			keymap_chat = true,
 			keymap_drop = true,
-			keymap_inventory = true,
-			keymap_cmd = true,
-			keymap_cmd_local = true,
 			keymap_dig = true,
 			keymap_place = true,
 		}
@@ -460,18 +456,13 @@ function make.key(setting)
 				local is_current_critical = critical_keys[setting.name]
 				local is_other_critical = critical_keys[o.name]
 
-				local show_warning_current = false
 
 				if (is_current_close_world and is_other_critical)
 					or (is_other_close_world and is_current_critical)
 					or (not is_current_close_world and not is_other_close_world) then
-					show_warning_current = true
-				end
-
-				if show_warning_current then
-					table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
-							core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext(o.readable_name)))))
-					height = height + 0.6
+						table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
+								core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext(o.readable_name)))))
+						height = height + 0.6
 				end
 			end
 		end
