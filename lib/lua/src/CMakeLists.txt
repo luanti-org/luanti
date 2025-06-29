@@ -32,8 +32,31 @@ set(LUA_CORE_SRC
 	lzio.c
 )
 
+set(LUA_CORE_HDRS
+	lapi.h
+	lauxlib.h
+	lcode.h
+	ldebug.h
+	ldo.h
+	lfunc.h
+	lgc.h
+	llex.h
+	llimits.h
+	lmem.h
+	lobject.h
+	lopcodes.h
+	lparser.h
+	lstate.h
+	lstring.h
+	ltable.h
+	ltm.h
+	lundump.h
+	lvm.h
+	lzio.h
+)
+
 # Lua library
-add_library(lua STATIC ${LUA_CORE_SRC})
+add_library(lua STATIC ${LUA_CORE_SRC} ${LUA_CORE_HDRS})
 target_link_libraries(lua ${LIBS})
 set_target_properties(lua PROPERTIES
 	VERSION ${LUA_VERSION}

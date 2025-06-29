@@ -1,4 +1,10 @@
 set(common_SCRIPT_COMMON_SRCS
+	${CMAKE_CURRENT_SOURCE_DIR}/c_content.h
+	${CMAKE_CURRENT_SOURCE_DIR}/c_converter.h
+	${CMAKE_CURRENT_SOURCE_DIR}/c_internal.h
+	${CMAKE_CURRENT_SOURCE_DIR}/c_packer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/helper.h
+
 	${CMAKE_CURRENT_SOURCE_DIR}/c_content.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/c_converter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/c_internal.cpp

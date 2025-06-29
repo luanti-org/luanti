@@ -1,4 +1,6 @@
+file(GLOB mapgen_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 set(mapgen_SRCS
+	${mapgen_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/cavegen.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/dungeongen.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mapgen_carpathian.cpp

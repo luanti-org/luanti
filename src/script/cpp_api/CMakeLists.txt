@@ -12,9 +12,28 @@ set(common_SCRIPT_CPP_API_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/s_player.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/s_security.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/s_server.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/s_async.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_base.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_entity.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_env.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_inventory.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_item.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_mapgen.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_modchannels.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_node.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_nodemeta.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_player.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_security.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_server.h
 	PARENT_SCOPE)
 
 set(client_SCRIPT_CPP_API_SRCS
+	${CMAKE_CURRENT_SOURCE_DIR}/s_client.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_client_common.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_mainmenu.h
+	${CMAKE_CURRENT_SOURCE_DIR}/s_pause_menu.h
+
 	${CMAKE_CURRENT_SOURCE_DIR}/s_client.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/s_client_common.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/s_mainmenu.cpp
