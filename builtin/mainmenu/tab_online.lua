@@ -55,9 +55,17 @@ local function is_selected_fav(server)
 end
 
 -- Persists the selected server in the "address" and "remote_port" settings
+local function get_default_playername()
+	print(keyringmgr.get_last_playername())
+	return keyringmgr.get_last_playername() or core.settings:get("name")
+end
+local function get_default_password()
+	print(keyringmgr.get_last_password())
+	return keyringmgr.get_last_password() or ""
+end
 
-local input_playername = keyringmgr.get_last_playername() or core.settings:get("name")
-local input_password = keyringmgr.get_last_password() or ""
+local input_playername = get_default_playername()
+local input_password = get_default_password()
 local function set_selected_server(server)
 	if server == nil then -- reset selection
 		core.settings:remove("address")
@@ -80,8 +88,8 @@ local function set_selected_server(server)
 			input_playername = login.playername
 			input_password = login.password
 		else
-			input_playername = core.settings:get("name")
-			input_password = ""
+			input_playername = get_default_playername()
+			input_password = get_default_password()
 		end
 	end
 end
