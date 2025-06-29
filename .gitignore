@@ -138,3 +138,6 @@ lib/irrlichtmt
 
 # Generated mod storage database
 client/mod_storage.sqlite
+
+# Client keyring
+client/keyring.json
