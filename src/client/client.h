@@ -407,7 +407,7 @@ public:
 		m_chat_queue.push(cec);
 	}
 
-	ClientScripting *getScript() { return m_script.get(); }
+	ClientScripting *getScript() { return m_script; }
 	bool modsLoaded() const { return m_mods_loaded; }
 
 	void pushToEventQueue(ClientEvent *event);
@@ -579,7 +579,7 @@ private:
 	u16 m_cache_save_interval;
 
 	// Client modding
-	std::unique_ptr<ClientScripting> m_script = nullptr;
+	ClientScripting *m_script = nullptr;
 	ModStorageDatabase *m_mod_storage_database = nullptr;
 	float m_mod_storage_save_timer = 10.0f;
 	std::vector<ModSpec> m_mods;

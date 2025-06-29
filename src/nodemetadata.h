@@ -6,6 +6,7 @@
 
 #include <unordered_set>
 #include <map>
+#include <memory>
 #include "metadata.h"
 
 /*
