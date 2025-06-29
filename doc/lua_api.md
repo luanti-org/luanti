@@ -6114,8 +6114,11 @@ Global callback registration functions
 Call these functions only at load time!
 
 * `core.register_globalstep(function(dtime))`
-    * Called every server step, usually interval of 0.1s.
+    * Called every server step, usually interval of around 0.1s, but can be much
+      higher or lower.
     * `dtime` is the time since last execution in seconds.
+    * More precisely, it's the time between the start of the current and the last
+      server step, excluding the time when the game was paused (in singleplayer).
 * `core.register_on_mods_loaded(function())`
     * Called after mods have finished loading and before the media is cached or the
       aliases handled.
@@ -7138,13 +7141,15 @@ Timing
     * Optional: Variable number of arguments that are passed to `func`
     * Jobs set for earlier times are executed earlier. If multiple jobs expire
       at exactly the same time, then they are executed in registration order.
-    * `time` is a lower bound. The job is executed in the first server-step that
-      started at least `time` seconds after the last time a server-step started,
-      measured with globalstep dtime.
-    * If `time` is `0`, the job is executed in the next step.
-
+    * `time` is a lower bound. The job is executed in the globalstep of the
+      first server-step that started at least `time` seconds after the last time
+      a server-step started, measured with globalstep dtime (see
+      `core.get_global_time`).
+    * If `time` is `0`, the job is executed in the next globalstep.
 * `job:cancel()`
     * Cancels the job function from being called
+* `core.get_global_time()`: returns sum of globalstep dtimes.
+    * See `core.register_globalstep`.
 
 Async environment
 -----------------
