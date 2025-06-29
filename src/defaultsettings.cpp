@@ -219,6 +219,7 @@ void set_default_settings()
 	settings->setDefault("keymap_slot30", "");
 	settings->setDefault("keymap_slot31", "");
 	settings->setDefault("keymap_slot32", "");
+	USEKEY2("keymap_close_world", "SYSTEM_SCANCODE_225", "KEY_LSHIFT");
 
 #ifndef NDEBUG
 	// Default keybinds for quicktune in debug builds
