@@ -3,18 +3,61 @@
 -- SPDX-License-Identifier: LGPL-2.1-or-later
 
 
-local function get_info_formspec(size, padding, text)
-	return table.concat({
-		"formspec_version[6]",
-		"size[", size.x, ",", size.y, "]",
-		"padding[0,0]",
-		"bgcolor[;true]",
+local function get_description_hypertext(package, info, loading_error)
+	-- Screenshots and description
+	local hypertext = "<big><b>" .. core.hypertext_escape(package.short_description) .. "</b></big>\n"
 
-		"label[4,4.35;", text, "]",
-		"container[", padding.x, ",", size.y - 0.8 - padding.y, "]",
-		"button[0,0;2,0.8;back;", fgettext("Back"), "]",
-		"container_end[]",
-	})
+	local screenshots = info and info.screenshots or {{url = package.thumbnail}}
+
+	local winfo = core.get_window_info()
+	local fs_to_px = winfo.size.x / winfo.max_formspec_size.x
+	for i, ss in ipairs(screenshots) do
+		local path = get_screenshot(package, ss.url, 2)
+		hypertext = hypertext .. "<action name=\"ss_".. i .. "\"><img name=\"" ..
+				core.hypertext_escape(path) .. "\" width=" .. (3 * fs_to_px) ..
+				" height=" .. (2 * fs_to_px) .. "></action>"
+		if i ~= #screenshots then
+			hypertext = hypertext .. "<img name=\"blank.png\" width=" .. (0.25 * fs_to_px) ..
+					" height=" .. (2.25 * fs_to_px).. ">"
+		end
+	end
+
+	if info then
+		hypertext = hypertext .. "\n" .. info.long_description.head
+
+		local first = true
+		local function add_link_button(label, name)
+			if info[name] then
+				if not first then
+					hypertext = hypertext .. " | "
+				end
+				hypertext = hypertext .. "<action name=link_" .. name .. ">" .. label .. "</action>"
+				info.long_description.links["link_" .. name] = info[name]
+				first = false
+			end
+		end
+
+		add_link_button(hgettext("Donate"), "donate_url")
+		add_link_button(hgettext("Website"), "website")
+		add_link_button(hgettext("Source"), "repo")
+		add_link_button(hgettext("Issue Tracker"), "issue_tracker")
+		add_link_button(hgettext("Translate"), "translation_url")
+		add_link_button(hgettext("Forum Topic"), "forum_url")
+
+		hypertext = hypertext .. "\n\n" .. info.long_description.body
+
+	elseif loading_error then
+		hypertext = hypertext .. "\n\n" .. hgettext("Error loading package information")
+	else
+		hypertext = hypertext .. "\n\n" .. hgettext("Loading...")
+	end
+
+	-- Fix the path to blank.png. This is needed for bullet indentation,
+	-- and also used for screenshot spacing.
+	hypertext = hypertext:gsub("<img name=\"?blank.png\"? ",
+			"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "blank.png\" ")
+
+	return hypertext
 end
 
 
@@ -41,17 +84,9 @@ local function get_formspec(data)
 
 				assert(data.package.name == info.name)
 				data.info = info
+				-- note: get_full_package_info can also return cached info immediately
 				ui.update()
 			end)
-		end
-
-		-- get_full_package_info can return cached info immediately, so
-		-- check to see if that happened
-		if not data.info then
-			if data.loading_error then
-				return get_info_formspec(size, window_padding, fgettext("Error loading package information"))
-			end
-			return get_info_formspec(size, window_padding, fgettext("Loading..."))
 		end
 	end
 
@@ -60,10 +95,14 @@ local function get_formspec(data)
 
 	local info = data.info
 
-	local info_line =
-	fgettext("by $1  —  $2 downloads  —  +$3 / $4 / -$5",
+	local info_line
+	if info then
+		info_line = fgettext_ne("by $1  —  $2 downloads  —  +$3 / $4 / -$5",
 			info.author, info.downloads,
 			info.reviews.positive, info.reviews.neutral, info.reviews.negative)
+	else
+		info_line = fgettext_ne("by $1", package.author)
+	end
 
 	local bottom_buttons_y = H - 0.8
 
@@ -79,7 +118,7 @@ local function get_formspec(data)
 		"button[", W - 3, ",", bottom_buttons_y, ";3,0.8;open_contentdb;", fgettext("ContentDB page"), "]",
 
 		"style_type[label;font_size=+24;font=bold]",
-		"label[0,0.4;", core.formspec_escape(info.title), "]",
+		"label[0,0.4;", core.formspec_escape(package.title), "]",
 		"style_type[label;font_size=;font=]",
 
 		"label[0,1.2;", core.formspec_escape(info_line), "]",
@@ -100,11 +139,13 @@ local function get_formspec(data)
 		formspec[#formspec + 1] = "image_button[5,0;1,1;" .. core.formspec_escape(defaulttexturedir)
 		formspec[#formspec + 1] = "cdb_queued.png;queued;]"
 	elseif not package.path then
+		local label = info and fgettext("Install [$1]", info.download_size) or
+			fgettext("Install")
 		formspec[#formspec + 1] = "style[install;bgcolor=green]"
 		formspec[#formspec + 1] = "button["
 		formspec[#formspec + 1] = right_button_rect
 		formspec[#formspec + 1] =";install;"
-		formspec[#formspec + 1] = fgettext("Install [$1]", info.download_size)
+		formspec[#formspec + 1] = label
 		formspec[#formspec + 1] = "]"
 	else
 		if package.installed_release < package.release then
@@ -125,13 +166,15 @@ local function get_formspec(data)
 		formspec[#formspec + 1] = "]"
 	end
 
-	local review_count = info.reviews.positive + info.reviews.neutral + info.reviews.negative
 	local current_tab = data.current_tab or 1
 	local tab_titles = {
 		fgettext("Description"),
-		fgettext("Information"),
-		fgettext("Reviews") .. core.formspec_escape(" [" .. review_count .. "]"),
 	}
+	if info then
+		local review_count = info.reviews.positive + info.reviews.neutral + info.reviews.negative
+		table.insert(tab_titles, fgettext("Information"))
+		table.insert(tab_titles, fgettext("Reviews") .. core.formspec_escape(" [" .. review_count .. "]"))
+	end
 
 	local tab_body_height = bottom_buttons_y - 2.8
 
@@ -147,59 +190,21 @@ local function get_formspec(data)
 	})
 
 	if current_tab == 1 then
-		-- Screenshots and description
-		local hypertext = "<big><b>" .. core.hypertext_escape(info.short_description) .. "</b></big>\n"
-		local winfo = core.get_window_info()
-		local fs_to_px = winfo.size.x / winfo.max_formspec_size.x
-		for i, ss in ipairs(info.screenshots) do
-			local path = get_screenshot(package, ss.url, 2)
-			hypertext = hypertext .. "<action name=\"ss_".. i .. "\"><img name=\"" ..
-					core.hypertext_escape(path) .. "\" width=" .. (3 * fs_to_px) ..
-					" height=" .. (2 * fs_to_px) .. "></action>"
-			if i ~= #info.screenshots then
-				hypertext = hypertext .. "<img name=\"blank.png\" width=" .. (0.25 * fs_to_px) ..
-						" height=" .. (2.25 * fs_to_px).. ">"
-			end
-		end
-		hypertext = hypertext .. "\n" .. info.long_description.head
-
-		local first = true
-		local function add_link_button(label, name)
-			if info[name] then
-				if not first then
-					hypertext = hypertext .. " | "
-				end
-				hypertext = hypertext .. "<action name=link_" .. name .. ">" .. core.hypertext_escape(label) .. "</action>"
-				info.long_description.links["link_" .. name] = info[name]
-				first = false
-			end
-		end
-
-		add_link_button(fgettext("Donate"), "donate_url")
-		add_link_button(fgettext("Website"), "website")
-		add_link_button(fgettext("Source"), "repo")
-		add_link_button(fgettext("Issue Tracker"), "issue_tracker")
-		add_link_button(fgettext("Translate"), "translation_url")
-		add_link_button(fgettext("Forum Topic"), "forum_url")
-
-		hypertext = hypertext .. "\n\n" .. info.long_description.body
-
-		-- Fix the path to blank.png. This is needed for bullet indentation.
-		hypertext = hypertext:gsub("<img name=\"?blank.png\"? ",
-				"<img name=\"" .. core.hypertext_escape(defaulttexturedir) .. "blank.png\" ")
-
+		local hypertext = get_description_hypertext(package, info, data.loading_error)
 		table.insert_all(formspec, {
 			"hypertext[0,0;", W, ",", tab_body_height - 0.375,
 			";desc;", core.formspec_escape(hypertext), "]",
 		})
 
 	elseif current_tab == 2 then
+		assert(info)
 		local hypertext = info.info_hypertext.head .. info.info_hypertext.body
 		table.insert_all(formspec, {
 			"hypertext[0,0;", W, ",", tab_body_height - 0.375,
 			";info;", core.formspec_escape(hypertext), "]",
 		})
 	elseif current_tab == 3 then
+		assert(info)
 		if not package.reviews and not data.reviews_error and not data.reviews_loading then
 			data.reviews_loading = true
 
@@ -286,10 +291,6 @@ local function handle_submit(this, fields)
 		return true
 	end
 
-	if not info then
-		return false
-	end
-
 	if fields.open_contentdb then
 		local version = core.get_version()
 		local url = core.settings:get("contentdb_url") .. "/packages/" .. package.url_part ..
@@ -310,6 +311,12 @@ local function handle_submit(this, fields)
 		this:hide()
 		dlg:show()
 		return true
+	end
+
+	-- The events handled below are only valid if the package info has finished
+	-- loading.
+	if not info then
+		return false
 	end
 
 	if fields.tabs then

@@ -401,7 +401,7 @@ See below for description.
   Luanti will correct lighting in the day light bank when the block at
   `(1, 0, 0)` is also loaded.
 
-Timestamp and node ID mappings were introduced in map format version 29.
+Timestamp and node ID mappings come here if map format version >= 29.
 * `u32` timestamp
     * Timestamp when last saved, as seconds from starting the game.
     * `0xffffffff` = invalid/unknown timestamp, nothing should be done with the time
@@ -482,13 +482,7 @@ Timestamp and node ID mappings were introduced in map format version 29.
             * `s32` timeout * 1000
             * `s32` elapsed * 1000
 
-* Since map format version 25:
-    * `u8` length of the data of a single timer (always 2+4+4=10)
-    * `u16` `num_of_timers`
-    * foreach `num_of_timers`:
-        * `u16` timer position (`(z*16*16 + y*16 + x)`)
-        * `s32` timeout * 1000
-        * `s32` elapsed * 1000
+* Map format version >= 25: see below
 
 `u8` static object version:
 * Always 0
@@ -515,6 +509,14 @@ Before map format version 29:
         * `u16` `id`
         * `u16` `name_len`
         * `u8[name_len]` `name`
+
+Since map format version 25, node timers come here:
+    * `u8` length of the data of a single timer (always 2+4+4=10)
+    * `u16` `num_of_timers`
+    * foreach `num_of_timers`:
+        * `u16` timer position (`(z*16*16 + y*16 + x)`)
+        * `s32` timeout * 1000
+        * `s32` elapsed * 1000
 
 End of File (EOF).
 

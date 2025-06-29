@@ -76,6 +76,8 @@ jobs:
         env:
           CC: gcc-14
           CXX: g++-14
+          # just to check that they compile correctly
+          CMAKE_FLAGS: '-DBUILD_BENCHMARKS=1'
 
       - name: Test
         run: |

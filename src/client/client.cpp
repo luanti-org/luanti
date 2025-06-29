@@ -612,12 +612,7 @@ void Client::step(float dtime)
 					if (minimap_mapblocks.empty())
 						do_mapper_update = false;
 
-					bool is_empty = true;
-					for (int l = 0; l < MAX_TILE_LAYERS; l++)
-						if (r.mesh->getMesh(l)->getMeshBufferCount() != 0)
-							is_empty = false;
-
-					if (is_empty) {
+					if (r.mesh->isEmpty()) {
 						delete r.mesh;
 					} else {
 						// Replace with the new mesh

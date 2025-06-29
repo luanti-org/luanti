@@ -121,6 +121,8 @@ public:
 	u16 protocol_version = 0;
 	u16 formspec_version = 0;
 
+	bool inventory_formspec_overridden = false;
+
 	/// returns PEER_ID_INEXISTENT when PlayerSAO is not ready
 	session_t getPeerId() const { return m_peer_id; }
 

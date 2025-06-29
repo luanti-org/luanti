@@ -1595,11 +1595,10 @@ void Server::SendShowFormspecMessage(session_t peer_id, const std::string &forms
 				(it->second == formname || formname.empty())) {
 			m_formspec_state_data.erase(peer_id);
 		}
-		pkt.putLongString("");
 	} else {
 		m_formspec_state_data[peer_id] = formname;
-		pkt.putLongString(formspec);
 	}
+	pkt.putLongString(formspec);
 	pkt << formname;
 
 	Send(&pkt);
@@ -3397,6 +3396,9 @@ bool Server::showFormspec(const char *playername, const std::string &formspec,
 	if (!player)
 		return false;
 
+	// To allow re-sending the same inventory formspec.
+	player->inventory_formspec_overridden = formname.empty() && !formspec.empty();
+
 	SendShowFormspecMessage(player->getPeerId(), formspec, formname);
 	return true;
 }
@@ -4285,7 +4287,7 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &world_path
 		warningstream << "/!\\ You are using the old mod storage files backend. "
 			<< "This backend is deprecated and may be removed in a future release /!\\"
 			<< std::endl << "Switching to SQLite3 is advised, "
-			<< "please read https://wiki.luanti.org/Database_backends." << std::endl;
+			<< "please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
 
 	return openModStorageDatabase(backend, world_path, world_mt);
 }
