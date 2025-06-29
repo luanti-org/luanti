@@ -57,6 +57,6 @@ private:
 	std::string m_map_meta_path;
 
 	SettingsHierarchy m_hierarchy;
-	Settings *m_defaults;
-	Settings *m_map_settings;
+	std::unique_ptr<Settings> m_defaults;
+	std::unique_ptr<Settings> m_map_settings;
 };

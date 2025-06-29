@@ -236,7 +236,7 @@ public:
 
 	const GUIInventoryList::ItemSpec *getSelectedItem() const
 	{
-		return m_selected_item;
+		return m_selected_item.get();
 	}
 
 	u16 getSelectedAmount() const
@@ -346,7 +346,7 @@ protected:
 	std::vector<gui::IGUIElement *> m_clickthrough_elements;
 	std::vector<std::pair<std::string, GUIScrollContainer *>> m_scroll_containers;
 
-	GUIInventoryList::ItemSpec *m_selected_item = nullptr;
+	std::unique_ptr<GUIInventoryList::ItemSpec> m_selected_item;
 	u16 m_selected_amount = 0;
 	bool m_selected_dragging = false;
 	ItemStack m_selected_swap;

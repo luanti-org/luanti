@@ -118,7 +118,7 @@ Client::Client(
 	m_last_chat_message_sent(time(NULL)),
 	m_password(password),
 	m_chosen_auth_mech(AUTH_MECHANISM_NONE),
-	m_media_downloader(new ClientMediaDownloader()),
+	m_media_downloader(std::make_unique<ClientMediaDownloader>()),
 	m_state(LC_Created),
 	m_modchannel_mgr(new ModChannelMgr())
 {
@@ -131,7 +131,7 @@ Client::Client(
 	m_mod_storage_database->beginSave();
 
 	if (g_settings->getBool("enable_minimap")) {
-		m_minimap = new Minimap(this);
+		m_minimap = std::make_unique<Minimap>(this);
 	}
 
 	m_cache_save_interval = g_settings->getU16("server_map_save_interval");
@@ -183,8 +183,8 @@ void Client::loadMods()
 		return;
 	}
 
-	m_script = new ClientScripting(this);
-	m_env.setScript(m_script);
+	m_script = std::make_unique<ClientScripting>(this);
+	m_env.setScript(m_script.get());
 	m_script->setEnv(&m_env);
 
 	// Load builtin
@@ -243,7 +243,7 @@ void Client::loadMods()
 	if (m_camera)
 		m_script->on_camera_ready(m_camera);
 	if (m_minimap)
-		m_script->on_minimap_ready(m_minimap);
+		m_script->on_minimap_ready(m_minimap.get());
 }
 
 void Client::scanModSubfolder(const std::string &mod_name, const std::string &mod_path,
@@ -309,10 +309,10 @@ void Client::Stop()
 	if (m_localdb) {
 		infostream << "Local map saving ended." << std::endl;
 		m_localdb->endSave();
+		m_localdb.reset();
 	}
 
-	if (m_mods_loaded)
-		delete m_script;
+	m_script.reset();
 }
 
 bool Client::isShutdown()
@@ -339,8 +339,6 @@ Client::~Client()
 		delete r.mesh;
 	}
 
-	delete m_inventory_from_server;
-
 	// Delete detached inventories
 	for (auto &m_detached_inventorie : m_detached_inventories) {
 		delete m_detached_inventorie.second;
@@ -352,11 +350,6 @@ Client::~Client()
 	m_item_visuals_manager->clear();
 
 	guiScalingCacheClear();
-
-	delete m_minimap;
-	m_minimap = nullptr;
-
-	delete m_media_downloader;
 
 	// Write the changes and delete
 	if (m_mod_storage_database)
@@ -672,8 +665,7 @@ void Client::step(float dtime)
 	if (m_media_downloader && m_media_downloader->isStarted()) {
 		m_media_downloader->step(this);
 		if (m_media_downloader->isDone()) {
-			delete m_media_downloader;
-			m_media_downloader = NULL;
+			m_media_downloader.reset();
 		}
 	}
 	{
@@ -921,7 +913,7 @@ void Client::initLocalMapSaving(const Address &address, const std::string &hostn
 		return;
 	}
 	if (m_localdb) {
-		infostream << "Local map saving already running" << std::endl;
+		infostream << "Local map saving already initialized" << std::endl;
 		return;
 	}
 
@@ -941,7 +933,7 @@ void Client::initLocalMapSaving(const Address &address, const std::string &hostn
 #undef set_world_path
 	fs::CreateAllDirs(world_path);
 
-	m_localdb = new MapDatabaseSQLite3(world_path);
+	m_localdb = std::make_unique<MapDatabaseSQLite3>(world_path);
 	m_localdb->beginSave();
 	actionstream << "Local map saving started, map will be saved at '" << world_path << "'" << std::endl;
 }

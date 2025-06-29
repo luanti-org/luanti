@@ -363,7 +363,7 @@ public:
 		return getProtoVersion() != 0; // (set in TOCLIENT_HELLO)
 	}
 
-	Minimap* getMinimap() { return m_minimap; }
+	Minimap* getMinimap() { return m_minimap.get(); }
 	void setCamera(Camera* camera) { m_camera = camera; }
 
 	Camera* getCamera () { return m_camera; }
@@ -407,7 +407,7 @@ public:
 		m_chat_queue.push(cec);
 	}
 
-	ClientScripting *getScript() { return m_script; }
+	ClientScripting *getScript() { return m_script.get(); }
 	bool modsLoaded() const { return m_mods_loaded; }
 
 	void pushToEventQueue(ClientEvent *event);
@@ -494,7 +494,7 @@ private:
 	std::string m_address_name;
 	ELoginRegister m_allow_login_or_register = ELoginRegister::Any;
 	Camera *m_camera = nullptr;
-	Minimap *m_minimap = nullptr;
+	std::unique_ptr<Minimap> m_minimap;
 
 	// Server serialization version
 	u8 m_server_ser_ver;
@@ -504,7 +504,7 @@ private:
 	u16 m_proto_ver = 0;
 
 	bool m_update_wielded_item = false;
-	Inventory *m_inventory_from_server = nullptr;
+	std::unique_ptr<Inventory> m_inventory_from_server;
 	float m_inventory_from_server_age = 0.0f;
 	s32 m_mapblock_limit_logged = 0;
 	PacketCounter m_packetcounter;
@@ -543,7 +543,7 @@ private:
 
 	std::vector<std::string> m_remote_media_servers;
 	// Media downloader, only exists during init
-	ClientMediaDownloader *m_media_downloader;
+	std::unique_ptr<ClientMediaDownloader> m_media_downloader;
 	// Pending downloads of dynamic media (key: token)
 	std::vector<std::pair<u32, std::shared_ptr<SingleMediaDownloader>>> m_pending_media_downloads;
 
@@ -574,12 +574,12 @@ private:
 	LocalClientState m_state;
 
 	// Used for saving server map to disk client-side
-	MapDatabase *m_localdb = nullptr;
+	std::unique_ptr<MapDatabase> m_localdb;
 	IntervalLimiter m_localdb_save_interval;
 	u16 m_cache_save_interval;
 
 	// Client modding
-	ClientScripting *m_script = nullptr;
+	std::unique_ptr<ClientScripting> m_script = nullptr;
 	ModStorageDatabase *m_mod_storage_database = nullptr;
 	float m_mod_storage_save_timer = 10.0f;
 	std::vector<ModSpec> m_mods;
