@@ -45,7 +45,7 @@ public:
 	RenderingCore &operator=(const RenderingCore &) = delete;
 	RenderingCore &operator=(RenderingCore &&) = delete;
 
-	void draw(video::SColor _skycolor, bool _show_hud,
+	void draw(video::SColor _skycolor, bool _show_hud, bool _show_chat,
 			bool _draw_wield_tool, bool _draw_crosshair);
 
 	v2u32 getVirtualSize() const;

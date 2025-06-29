@@ -5,6 +5,7 @@
 #pragma once
 
 #include "lua_api/l_base.h"
+#include "util/serialize.h"
 
 class AsyncEngine;
 
@@ -109,6 +110,15 @@ private:
 
 	// colorspec_to_table(colorspec)
 	static int l_colorspec_to_table(lua_State *L);
+
+	// colorspec_to_int(colorspec)
+	static int l_colorspec_to_int(lua_State *L);
+
+	// encode_network(format, ...)
+	static int l_encode_network(lua_State *L);
+
+	// decode_network(format, data)
+	static int l_decode_network(lua_State *L);
 
 	// time_to_day_night_ratio(time_of_day)
 	static int l_time_to_day_night_ratio(lua_State *L);
