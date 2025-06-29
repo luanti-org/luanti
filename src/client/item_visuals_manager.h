@@ -30,11 +30,11 @@ struct ItemVisualsManager
 	}
 
 	// Get item inventory texture
-	video::ITexture* getInventoryTexture(const ItemStack &item, Client *client) const;
+	video::ITexture* getInventoryTexture(const ItemStack &item, u16 variant, Client *client) const;
 
 	// Get item wield mesh
 	// Once said to return nullptr if there is an inventory image, but this is wrong
-	ItemMesh* getWieldMesh(const ItemStack &item, Client *client) const;
+	ItemMesh* getWieldMesh(const ItemStack &item, u16 variant, Client *client) const;
 
 	// Get item palette
 	Palette* getPalette(const ItemStack &item, Client *client) const;
@@ -63,7 +63,7 @@ private:
 	// The id of the thread that is allowed to use irrlicht directly
 	std::thread::id m_main_thread;
 	// Cached textures and meshes
-	mutable std::unordered_map<std::string, std::unique_ptr<ItemVisuals>> m_cached_item_visuals;
+	mutable std::unordered_map<std::string, std::unique_ptr<ItemVisuals[]>> m_cached_item_visuals;
 
-	ItemVisuals* createItemVisuals(const ItemStack &item, Client *client) const;
+	ItemVisuals* createItemVisuals(const ItemStack &item, Client *client, u16 &variant_count) const;
 };

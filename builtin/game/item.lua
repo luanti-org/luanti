@@ -52,14 +52,18 @@ function core.get_node_drops(node, toolname)
 	local ptype = def and def.paramtype2
 	-- get color, if there is color (otherwise nil)
 	local palette_index = core.strip_param2_color(param2, ptype)
+	-- get variant (always a number)
+	local variant = core.strip_param2_variant(param2, def)
 	if drop == nil then
 		-- default drop
+		local itemstring = nodename
 		if palette_index then
-			local stack = ItemStack(nodename)
-			stack:get_meta():set_int("palette_index", palette_index)
-			return {stack:to_string()}
+			itemstring = core.itemstring_with_palette(itemstring, palette_index)
 		end
-		return {nodename}
+		if variant > 0 then
+			itemstring = core.itemstring_with_variant(itemstring, variant)
+		end
+		return {itemstring}
 	elseif type(drop) == "string" then
 		-- itemstring drop
 		return drop ~= "" and {drop} or {}
@@ -118,9 +122,10 @@ function core.get_node_drops(node, toolname)
 			for _, add_item in ipairs(item.items) do
 				-- add color, if necessary
 				if item.inherit_color and palette_index then
-					local stack = ItemStack(add_item)
-					stack:get_meta():set_int("palette_index", palette_index)
-					add_item = stack:to_string()
+					add_item = core.itemstring_with_palette(add_item, palette_index)
+				end
+				if item.inherit_variant then
+					add_item = core.itemstring_with_variant(add_item, variant)
 				end
 				got_items[#got_items+1] = add_item
 			end
@@ -268,6 +273,13 @@ function core.item_place_node(itemstack, placer, pointed_thing, param2,
 			local other = newnode.param2 % color_divisor
 			newnode.param2 = color * color_divisor + other
 		end
+	end
+
+	-- Transfer variant
+	if not def.place_param2 and def.variant_count > 1 then
+		local variant = math.min(math.max(math.floor(metatable.variant or 0), 0),
+			def.variant_count - 1)
+		newnode.param2 = core.set_param2_variant(newnode.param2, variant, def)
 	end
 
 	-- Check if the node is attached and if it can be placed there
@@ -604,6 +616,12 @@ function core.itemstring_with_color(item, colorstring)
 	return stack:to_string()
 end
 
+function core.itemstring_with_variant(item, variant)
+	local stack = ItemStack(item) -- convert to ItemStack
+	stack:get_meta():set_string("variant", variant > 0 and variant or "")
+	return stack:to_string()
+end
+
 -- This is used to allow mods to redefine core.item_place and so on
 -- NOTE: This is not the preferred way. Preferred way is to provide enough
 --       callbacks to not require redefining global functions. -celeron55
@@ -625,6 +643,7 @@ core.nodedef_default = {
 	-- name intentionally not defined here
 	description = "",
 	groups = {},
+	variant_count = 1,
 	inventory_image = "",
 	wield_image = "",
 	wield_scale = vector.new(1, 1, 1),
@@ -655,6 +674,7 @@ core.nodedef_default = {
 	post_effect_color = {a=0, r=0, g=0, b=0},
 	paramtype = "none",
 	paramtype2 = "none",
+	param2_variant = {width = 0, offset = 0},
 	is_ground_content = true,
 	sunlight_propagates = false,
 	walkable = true,
@@ -680,6 +700,7 @@ core.craftitemdef_default = {
 	-- name intentionally not defined here
 	description = "",
 	groups = {},
+	variant_count = 1,
 	inventory_image = "",
 	wield_image = "",
 	wield_scale = vector.new(1, 1, 1),
@@ -700,6 +721,7 @@ core.tooldef_default = {
 	-- name intentionally not defined here
 	description = "",
 	groups = {},
+	variant_count = 1,
 	inventory_image = "",
 	wield_image = "",
 	wield_scale = vector.new(1, 1, 1),
@@ -720,6 +742,7 @@ core.noneitemdef_default = {  -- This is used for the hand and unknown items
 	-- name intentionally not defined here
 	description = "",
 	groups = {},
+	variant_count = 1,
 	inventory_image = "",
 	wield_image = "",
 	wield_scale = vector.new(1, 1, 1),

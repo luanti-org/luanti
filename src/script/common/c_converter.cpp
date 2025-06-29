@@ -369,6 +369,15 @@ void push_aabb3f(lua_State *L, aabb3f box, f32 divisor)
 	lua_rawseti(L, -2, 6);
 }
 
+void push_bitfield_parts(lua_State *L, u8 width, u8 offset)
+{
+	lua_createtable(L, 0, 2);
+	lua_pushinteger(L, width);
+	lua_setfield(L, -2, "width");
+	lua_pushinteger(L, offset);
+	lua_setfield(L, -2, "offset");
+}
+
 std::vector<aabb3f> read_aabb3f_vector(lua_State *L, int index, f32 scale)
 {
 	std::vector<aabb3f> boxes;
@@ -429,6 +438,16 @@ size_t read_stringlist(lua_State *L, int index, std::vector<std::string> *result
 	}
 
 	return num_strings;
+}
+
+void read_bitfield_parts(lua_State *L, int index, u8 *width, u8 *offset)
+{
+	*width = 0;
+	*offset = 0;
+	if (lua_istable(L, index)) {
+		getintfield(L, index, "width", *width);
+		getintfield(L, index, "offset", *offset);
+	}
 }
 
 /*

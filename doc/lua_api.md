@@ -1109,6 +1109,63 @@ core.register_node("default:dirt_with_grass", {
 })
 ```
 
+Variants
+--------
+
+Items can have "variants", which are numbered states that can determine certain
+properties. The number of variants is specified with the item definition field
+`variant_count`. Each variant is numbered from 0 to `variant_count` - 1. Every
+item has at least one variant (numbered 0). Nodes can specify a part of param2
+to read as the variant number by setting the `param2_variant` field to a
+`BitField`.
+
+The currently supported variant properties are:
+* `tiles`
+* `overlay_tiles`
+* `special_tiles`
+The `variants` table in the item definition is a mapping from
+variant numbers to variant tables. These tables can include the aforementioned
+fields to set the properties for particular variants. Variants not present in
+the mapping default to the values of the aforementioned fields specified in the
+item definition table. Old clients will receive only the variant 0 tiles.
+
+Items with multiple variants can specify a variant number with the "variant" key
+in their metadata. The absence of the key indicates a variant number of 0, and
+this is the canonical representation of the 0 variant. The helper function
+`core.itemstring_with_variant` is a shortcut for creating such itemstrings.
+The variant is preserved when a node is placed or dug. Custom drops will inherit
+the variant only if `inherit_variant` is set to `true` in their specification.
+
+Example node with variants:
+
+    core.register_node("mod:grass", {
+        description = "Grass",
+        drawtype = "plantlike",
+        paramtype = "light",
+        sunlight_propagates = true,
+        walkable = false,
+        groups = {dig_immediate = 3},
+        -- There are 4 variants numbered 0 to 3.
+        variant_count = 4,
+        -- The lowest 2 bits store the variant number.
+        param2_variant = {width = 2, offset = 0},
+        -- These tiles will be used for variants not otherwise specified,
+        -- in this case variant 0.
+        tiles = {"mod_grass1.png"},
+        -- Tiles for variants 1, 2, and 3 are specified here.
+        variants = {
+            {tiles = {"mod_grass2.png"}},
+            {tiles = {"mod_grass3.png"}},
+            {tiles = {"mod_grass4.png"}},
+        },
+        drop = {
+            items = {
+                -- The seeds will inherit the variant of the grass.
+                {items = {"mod:seeds"}, inherit_variant = true},
+            }
+        }
+    })
+
 
 
 Sounds
@@ -1991,6 +2048,13 @@ Exact pointing location (currently only `Raycast` supports these fields):
   For entities with rotated selection boxes, this will be rotated properly
   by the entity's rotation - it will always be in absolute world space.
 
+`BitField`
+----------
+
+A `BitField` specifies a part of an unsigned integer whose bits represent
+another unsigned integer. A `BitField` is represented as follows:
+
+    {width = <integer bit width>, offset = <offset from least significant bit>}
 
 
 
@@ -2715,6 +2779,8 @@ Some of the values in the key-value store are handled specially:
 * `color`: A `ColorString`, which sets the stack's color.
 * `palette_index`: If the item has a palette, this is used to get the
   current color from the palette.
+* `variant`: If the item has more than one variant, this is the variant number.
+  The canonical form of variant 0 is the absence of this key.
 * `count_meta`: Replace the displayed count with any string.
 * `count_alignment`: Set the alignment of the displayed count value. This is an
   int value. The lowest 2 bits specify the alignment in x-direction, the 3rd and
@@ -5810,6 +5876,8 @@ Utilities
       remove_item_match_meta = true,
       -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
       httpfetch_additional_methods = true,
+      -- Node/Item texture variants is supported (5.13.0)
+      texture_variants = true,
   }
   ```
 
@@ -6975,11 +7043,23 @@ Item handling
       given `param2` value.
     * Returns `nil` if the given `paramtype2` does not contain color
       information.
+<<<<<<< HEAD
 * `core.get_node_drops(node, toolname[, tool, digger, pos])`
     * Returns list of itemstrings that are dropped by `node` when dug with the
       item `toolname` (not limited to tools). The default implementation doesn't
       use `tool`, `digger`, and `pos`, but these are provided by `core.node_dig`
       since 5.12.0 for games/mods implementing customized drops.
+=======
+* `core.strip_param2_variant(param2, def)`
+    * Returns the variant from `param2` with the given node definition `def`.
+    * Always returns a non-negative integer less than `def.variant_count`.
+* `core.set_param2_variant(param2, variant, def)`
+    * Returns a modified `param2` with the variant bitfield set to `variant`
+      with the given node definition `def`.
+* `core.get_node_drops(node, toolname)`
+    * Returns list of itemstrings that are dropped by `node` when dug
+      with the item `toolname` (not limited to tools).
+>>>>>>> 324240af9 (Add node texture variants)
     * `node`: node as table or node name
     * `toolname`: name of the item used to dig (can be `nil`)
     * `tool`: `ItemStack` used to dig (can be `nil`)
@@ -7048,6 +7128,11 @@ Item handling
     * `item`: the item stack which becomes colored. Can be in string,
       table and native form.
     * `colorstring`: the new color of the item stack
+* `core.itemstring_with_variant(item, variant)`: returns an item string
+    * Creates an item string with an associated item variant.
+    * `item`: the item stack which is given the variant. Can be in string,
+      table or native form.
+    * `variant`: the new variant of the item stack
 
 Rollback
 --------
@@ -9067,6 +9152,13 @@ child will follow movement and rotation of that bone.
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.
+* `set_node_visual(node_name, node_visual)`: sets `node_visual` of `node_name` for the player
+    * `node_name` is a name of registered node.
+    * `node_visual` is a table with the following optional fields:
+      * `variant_offset` this value is added to variant from node param2 value (default: `0`).
+
+* `get_node_visual(node_name)`: returns the current `node_visual` of `node_name` for the player.
+    * Result is a table with the same fields as `node_visual` in `set_node_visual`.
 * `respawn()`: Respawns the player using the same mechanism as the death screen,
   including calling `on_respawnplayer` callbacks.
 * `get_flags()`: returns a table of player flags (the following boolean fields):
@@ -9795,6 +9887,9 @@ Used by `core.register_node`, `core.register_craftitem`, and
     --      {bendy = 2, snappy = 1},
     --      {hard = 1, metal = 1, spikes = 1}
 
+    variant_count = 1,
+    -- The number item variants, a positive integer.
+
     inventory_image = "",
     -- Texture shown in the inventory GUI
     -- Defaults to a 3D rendering of the node if left empty.
@@ -10019,6 +10114,9 @@ Used by `core.register_node`.
 {
     -- <all fields allowed in item definitions>
 
+    param2_variant = BitField,
+    -- The part of param2 from which to read the variant number.
+
     drawtype = "normal",  -- See "Node drawtypes"
 
     visual_scale = 1.0,
@@ -10032,6 +10130,7 @@ Used by `core.register_node`.
     tiles = {tile definition 1, def2, def3, def4, def5, def6},
     -- Textures of node; +Y, -Y, +X, -X, +Z, -Z
     -- List can be shortened to needed length.
+    -- This field is also used for Variant number 0, see "Variants" for details.
 
     overlay_tiles = {tile definition 1, def2, def3, def4, def5, def6},
     -- Same as `tiles`, but these textures are drawn on top of the base
@@ -10039,10 +10138,37 @@ Used by `core.register_node`.
     -- texture. If the texture name is an empty string, that overlay is not
     -- drawn. Since such tiles are drawn twice, it is not recommended to use
     -- overlays on very common nodes.
+    -- This field is also used for Variant number 0, see "Variants" for details.
 
     special_tiles = {tile definition 1, Tile definition 2},
     -- Special textures of node; used rarely.
     -- List can be shortened to needed length.
+    -- This field is also used for Variant number 0, see "Variants" for details.
+
+    -- See "Variants"
+    -- This field is optional.
+    variants = {
+            -- Variant number 0 is created from fields
+            -- tiles, overlay_tiles and special_tiles
+            -- defined above (outside from variants table).
+            { -- Variant number 1.
+                -- this field is reused from above definition if is not specified.
+                tiles = {tile definition 1, def2, def3, def4, def5, def6},
+
+                -- this field is reused from above definition if is not specified.
+                overlay_tiles = {def1, def2, def3, def4, def5, def6},
+
+                -- this field is reused from above definition if is not specified.
+                special_tiles = {def1, def2},
+            },
+            { -- Variant number 2.
+              -- reuse tiles and special_tiles from variant number 0
+              -- no overlay_tiles
+              overlay_tiles = {},
+              ...
+            },
+            ...
+        },
 
     color = ColorSpec,
     -- The node's original color will be multiplied with this color.
@@ -10327,6 +10453,9 @@ Used by `core.register_node`.
                 -- hardware coloring palette color from the dug node.
                 -- Default is 'false'.
                 inherit_color = true,
+                -- variant of the dug node.
+                -- Default is 'false'.
+                inherit_variant = true,
             },
             {
                 -- Only drop if using an item whose name contains

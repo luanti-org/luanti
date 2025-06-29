@@ -1902,7 +1902,7 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 		for (auto it = player_list.begin();
 			it != player_list.end(); ++it) {
 			actionstream << "Migrating player " << it->c_str() << std::endl;
-			RemotePlayer player(it->c_str(), NULL);
+			RemotePlayer player(it->c_str(), NULL, NULL);
 			PlayerSAO playerSAO(NULL, &player, 15000, false);
 
 			srcdb->loadPlayer(&player, &playerSAO);
