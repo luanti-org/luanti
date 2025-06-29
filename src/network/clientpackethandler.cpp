@@ -311,7 +311,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 	}
 
 	if (m_localdb) {
-		ServerMap::saveBlock(block, m_localdb);
+		ServerMap::saveBlock(block, m_localdb.get());
 	}
 
 	/*
@@ -335,8 +335,7 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 
 	m_update_wielded_item = true;
 
-	delete m_inventory_from_server;
-	m_inventory_from_server = new Inventory(player->inventory);
+	m_inventory_from_server = std::make_unique<Inventory>(player->inventory);
 	m_inventory_from_server_age = 0.0;
 }
 
