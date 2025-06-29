@@ -6668,6 +6668,7 @@ Environment access
       of the *active* mapgen setting `"chunksize"`.
 * `core.get_mapgen_chunksize()`
     * Returns the currently active chunksize of the mapgen, as a vector.
+      The size is specified in blocks.
 * `core.get_mapgen_setting(name)`
     * Gets the *active* mapgen setting (or nil if none exists) in string
       format with the following order of precedence:
