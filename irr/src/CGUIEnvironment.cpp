@@ -28,6 +28,8 @@
 #endif
 #include "os.h"
 
+irr::gui::IGUISkin *impl_create_irr_guiskin(irr::video::IVideoDriver *driver);
+
 namespace irr
 {
 namespace gui
@@ -590,7 +592,7 @@ If you no longer need the skin, you should call IGUISkin::drop().
 See IReferenceCounted::drop() for more information. */
 IGUISkin *CGUIEnvironment::createSkin()
 {
-	IGUISkin *skin = new CGUISkin(Driver);
+	IGUISkin *skin = impl_create_irr_guiskin(Driver);
 
 	IGUIFont *builtinfont = getBuiltInFont();
 	IGUIFontBitmap *bitfont = 0;
