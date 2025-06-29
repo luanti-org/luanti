@@ -1,4 +1,6 @@
 set (BENCHMARK_SRCS
+	${CMAKE_CURRENT_SOURCE_DIR}/benchmark.h
+
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_activeobjectmgr.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_lighting.cpp
