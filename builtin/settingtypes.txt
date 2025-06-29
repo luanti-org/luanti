@@ -872,6 +872,7 @@ tooltip_append_itemname (Append item name) bool false
 menu_clouds (Clouds in menu) bool true
 
 #    Remember last entered password in the 'Join Game' tab
+#    ***WARNING, THIS IS NOT SECURE WHATSOEVER. DO NOT ENABLE THIS***:
 remember_password (Remember password) bool false
 
 [**HUD]
