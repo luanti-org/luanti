@@ -7,16 +7,14 @@
 
 #include "irr_v2d.h"
 #include <SColor.h>
+#include <memory>
 
 class IrrlichtDevice;
 
 class ShadowRenderer;
-class Camera;
 class Client;
 class Hud;
-class Minimap;
 class RenderPipeline;
-class RenderTarget;
 
 class RenderingCore
 {
@@ -24,16 +22,17 @@ protected:
 	IrrlichtDevice *device;
 	Client *client;
 	Hud *hud;
-	ShadowRenderer *shadow_renderer;
+	std::unique_ptr<ShadowRenderer> shadow_renderer;
 
-	RenderPipeline *pipeline;
+	std::unique_ptr<RenderPipeline> pipeline;
 
 	v2f virtual_size_scale;
 	v2u32 virtual_size { 0, 0 };
 
 public:
 	RenderingCore(IrrlichtDevice *device, Client *client, Hud *hud,
-			ShadowRenderer *shadow_renderer, RenderPipeline *pipeline,
+			std::unique_ptr<ShadowRenderer> shadow_renderer,
+			std::unique_ptr<RenderPipeline> pipeline,
 			v2f virtual_size_scale);
 	RenderingCore(const RenderingCore &) = delete;
 	RenderingCore(RenderingCore &&) = delete;
@@ -47,5 +46,5 @@ public:
 
 	v2u32 getVirtualSize() const;
 
-	ShadowRenderer *get_shadow_renderer() { return shadow_renderer; };
+	ShadowRenderer *get_shadow_renderer() { return shadow_renderer.get(); };
 };

@@ -1360,13 +1360,16 @@ bool Game::createClient(const GameStartData &start_data)
 		return false;
 	}
 
-	shader_src->addShaderConstantSetter(new NodeShaderConstantSetter());
+	shader_src->addShaderConstantSetter(
+		std::make_unique<NodeShaderConstantSetter>());
 
-	auto *scsf = new GameGlobalShaderUniformSetterFactory(client);
-	shader_src->addShaderUniformSetterFactory(scsf);
+	auto scsf = std::make_unique<GameGlobalShaderUniformSetterFactory>(client);
+	// a raw pointer reference shall be kept to use after moved
+	auto scsf_unowned = scsf.get();
+	shader_src->addShaderUniformSetterFactory(std::move(scsf));
 
 	shader_src->addShaderUniformSetterFactory(
-		new FogShaderUniformSetterFactory());
+		std::make_unique<FogShaderUniformSetterFactory>());
 
 	ShadowRenderer::preInit(shader_src);
 
@@ -1387,7 +1390,7 @@ bool Game::createClient(const GameStartData &start_data)
 	/* Skybox
 	 */
 	sky = make_irr<Sky>(-1, m_rendering_engine, texture_src, shader_src);
-	scsf->setSky(sky.get());
+	scsf_unowned->setSky(sky.get());
 
 	/* Pre-calculated values
 	 */

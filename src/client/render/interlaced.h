@@ -4,7 +4,7 @@
 // Copyright (C) 2017 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
 #pragma once
-#include "stereo.h"
+#include "pipeline.h"
 
 class InitInterlacedMaskStep : public TrivialRenderStep
 {
@@ -17,4 +17,4 @@ private:
 	u8 index;
 };
 
-void populateInterlacedPipeline(RenderPipeline *pipeline, Client *client);
+void populateInterlacedPipeline(RenderPipeline &pipeline, Client *client);

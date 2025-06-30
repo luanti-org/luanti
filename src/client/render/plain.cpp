@@ -105,7 +105,7 @@ static v2f getDownscaleFactor()
 	return v2f(1.0f / undersampling);
 }
 
-RenderStep* addUpscaling(RenderPipeline *pipeline, RenderStep *previousStep, v2f downscale_factor, Client *client)
+RenderStep* addUpscaling(RenderPipeline &pipeline, RenderStep *previousStep, v2f downscale_factor, Client *client)
 {
 	const int TEXTURE_LOWRES_COLOR = 0;
 	const int TEXTURE_LOWRES_DEPTH = 1;
@@ -122,36 +122,36 @@ RenderStep* addUpscaling(RenderPipeline *pipeline, RenderStep *previousStep, v2f
 	video::ECOLOR_FORMAT depth_format = selectDepthFormat(driver);
 
 	// Initialize buffer
-	TextureBuffer *buffer = pipeline->createOwned<TextureBuffer>();
+	TextureBuffer *buffer = pipeline.createOwned<TextureBuffer>();
 	buffer->setTexture(TEXTURE_LOWRES_COLOR, downscale_factor, "lowres_color", color_format);
 	buffer->setTexture(TEXTURE_LOWRES_DEPTH, downscale_factor, "lowres_depth", depth_format);
 
 	// Attach previous step to the buffer
-	TextureBufferOutput *buffer_output = pipeline->createOwned<TextureBufferOutput>(
+	TextureBufferOutput *buffer_output = pipeline.createOwned<TextureBufferOutput>(
 			buffer, std::vector<u8> {TEXTURE_LOWRES_COLOR}, TEXTURE_LOWRES_DEPTH);
 	previousStep->setRenderTarget(buffer_output);
 
 	// Add upscaling step
-	RenderStep *upscale = pipeline->createOwned<UpscaleStep>();
+	RenderStep *upscale = pipeline.createOwned<UpscaleStep>();
 	upscale->setRenderSource(buffer);
-	pipeline->addStep(upscale);
+	pipeline.addStep(upscale);
 
 	return upscale;
 }
 
-void populatePlainPipeline(RenderPipeline *pipeline, Client *client)
+void populatePlainPipeline(RenderPipeline &pipeline, Client *client)
 {
 	auto downscale_factor = getDownscaleFactor();
-	auto step3D = pipeline->own(create3DStage(client, downscale_factor));
-	pipeline->addStep(step3D);
-	pipeline->addStep<DrawWield>();
-	pipeline->addStep<MapPostFxStep>();
+	auto step3D = pipeline.own(create3DStage(client, downscale_factor));
+	pipeline.addStep(step3D);
+	pipeline.addStep<DrawWield>();
+	pipeline.addStep<MapPostFxStep>();
 
 	step3D = addUpscaling(pipeline, step3D, downscale_factor, client);
 
-	step3D->setRenderTarget(pipeline->createOwned<ScreenTarget>());
+	step3D->setRenderTarget(pipeline.createOwned<ScreenTarget>());
 
-	pipeline->addStep<DrawHUD>();
+	pipeline.addStep<DrawHUD>();
 }
 
 video::ECOLOR_FORMAT selectColorFormat(video::IVideoDriver *driver)
