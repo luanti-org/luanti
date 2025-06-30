@@ -6975,7 +6975,7 @@ Item handling
       given `param2` value.
     * Returns `nil` if the given `paramtype2` does not contain color
       information.
-* `core.get_node_drops(node, toolname[, tool, digger, pos])`
+* `core.get_node_drops(node[, toolname, tool, digger, pos])`
     * Returns list of itemstrings that are dropped by `node` when dug with the
       item `toolname` (not limited to tools). The default implementation doesn't
       use `tool`, `digger`, and `pos`, but these are provided by `core.node_dig`
