@@ -101,6 +101,10 @@ end
 
 --------------------------------------------------------------------------------
 function keyringmgr.set_login(address, port, playername, password)
+	-- If the user doesn't want to remember logins, we completely skip the process
+	if not core.settings:get_bool("remember_login") then
+		return
+	end
 	assert(type(port) == "number")
 
   local keyring = keyringmgr.get_keyring()

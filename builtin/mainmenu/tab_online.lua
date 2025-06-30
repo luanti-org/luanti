@@ -574,9 +574,7 @@ local function main_button_handler(tabview, fields, name, tabdata)
 		if server and server.address == gamedata.address and
 				server.port == gamedata.port then
 
-			if core.settings:get_bool("remember_login") then
-				keyringmgr.set_login(server.address, server.port, gamedata.playername, gamedata.password)
-			end
+			keyringmgr.set_login(server.address, server.port, gamedata.playername, gamedata.password)
 			serverlistmgr.add_favorite(server)
 
 			gamedata.servername        = server.name
