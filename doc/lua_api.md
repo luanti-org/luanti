@@ -6280,7 +6280,7 @@ Call these functions only at load time!
 * `core.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv))`
     * Called when `player` crafts something
     * `itemstack` is the output
-    * `old_craft_grid` contains the recipe, is an array of `ItemStack`s (Note: the one in the inventory is
+    * `old_craft_grid` contains the recipe, is a list of `ItemStack`s (Note: the one in the inventory is
       cleared).
     * `craft_inv` is the inventory with the crafting grid
     * Return either an `ItemStack`, to replace the output, or `nil`, to not
@@ -6697,11 +6697,11 @@ Environment access
       active config.
 * `core.get_noiseparams(name)`
     * Returns a table of the noiseparams for name.
-* `core.generate_ores(vm, pos1, pos2)`
+* `core.generate_ores(vm[, pos1, pos2])`
     * Generate all registered ores within the VoxelManip `vm` and in the area
       from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
-* `core.generate_decorations(vm, pos1, pos2)`
+* `core.generate_decorations(vm[, pos1, pos2])`
     * Generate all registered decorations within the VoxelManip `vm` and in the
       area from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
