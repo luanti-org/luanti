@@ -274,10 +274,10 @@ public:
 	virtual void rebuildShaders()=0;
 
 	/// @note Takes ownership of @p setter.
-	virtual void addShaderConstantSetter(IShaderConstantSetter *setter) = 0;
+	virtual void addShaderConstantSetter(std::unique_ptr<IShaderConstantSetter> setter) = 0;
 
 	/// @note Takes ownership of @p setter.
-	virtual void addShaderUniformSetterFactory(IShaderUniformSetterFactory *setter) = 0;
+	virtual void addShaderUniformSetterFactory(std::unique_ptr<IShaderUniformSetterFactory> setter) = 0;
 };
 
 IWritableShaderSource *createShaderSource();

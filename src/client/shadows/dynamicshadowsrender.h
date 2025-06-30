@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <IrrlichtDevice.h>
 #include "client/shadows/dynamicshadows.h"
 #include <ISceneNode.h>
@@ -165,4 +166,4 @@ private:
  * @param client Reference to the client context.
  * @return A new ShadowRenderer instance or nullptr if shadows are disabled or not supported.
  */
-ShadowRenderer *createShadowRenderer(IrrlichtDevice *device, Client *client);
+std::unique_ptr<ShadowRenderer> createShadowRenderer(IrrlichtDevice *device, Client *client);

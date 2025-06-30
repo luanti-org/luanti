@@ -122,7 +122,7 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	// This is only global so it can be used by RenderingEngine::draw_load_screen().
 	assert(!g_menucloudsmgr && !g_menuclouds);
 	std::unique_ptr<IWritableShaderSource> ssrc(createShaderSource());
-	ssrc->addShaderUniformSetterFactory(new FogShaderUniformSetterFactory());
+	ssrc->addShaderUniformSetterFactory(std::make_unique<FogShaderUniformSetterFactory>());
 	g_menucloudsmgr = m_rendering_engine->get_scene_manager()->createNewSceneManager();
 	g_menuclouds = new Clouds(g_menucloudsmgr, ssrc.get(), -1, rand());
 	g_menuclouds->setHeight(100.0f);
