@@ -6943,7 +6943,7 @@ Item handling
       does not refer to a node or entity.
     * If the optional `above` parameter is true and the `pointed_thing` refers
       to a node, then it will return the `above` position of the `pointed_thing`.
-* `core.dir_to_facedir(dir, is6d)`
+* `core.dir_to_facedir(dir[, is6d])`
     * Convert a vector to a facedir value, used in `param2` for
       `paramtype2="facedir"`.
     * passing something non-`nil`/`false` for the optional second parameter
