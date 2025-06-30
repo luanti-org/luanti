@@ -212,6 +212,9 @@ void Client::loadMods()
 	// complain about mods with unsatisfied dependencies
 	if (!modconf.isConsistent()) {
 		errorstream << modconf.getUnsatisfiedModsError() << std::endl;
+		delete m_script;
+		m_script = nullptr;
+		m_env.setScript(nullptr);
 		return;
 	}
 
@@ -351,6 +354,9 @@ Client::~Client()
 	m_item_visuals_manager->clear();
 
 	guiScalingCacheClear();
+
+	m_minimap.reset();
+	m_media_downloader.reset();
 
 	// Write the changes and delete
 	if (m_mod_storage_database)
