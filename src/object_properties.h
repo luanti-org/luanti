@@ -56,6 +56,7 @@ struct ObjectProperties
 	f32 automatic_face_movement_max_rotation_per_sec = -1.0f;
 	float eye_height = 1.625f;
 	float zoom_fov = 0.0f;
+	std::optional<u32> nametag_fontsize;
 	MapNode node = MapNode(CONTENT_IGNORE);
 	u16 hp_max = 1;
 	u16 breath_max = 0;
@@ -73,6 +74,7 @@ struct ObjectProperties
 	bool use_texture_alpha = false;
 	bool shaded = true;
 	bool show_on_minimap = false;
+	bool nametag_scale_z = false;
 
 	ObjectProperties();
 
