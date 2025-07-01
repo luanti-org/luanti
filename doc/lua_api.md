@@ -8197,6 +8197,8 @@ will return the value associated with key `k`. There is a low recursion limit.
 This behavior is **deprecated** and will be removed in a future version. Usage
 of the `${k}` syntax in formspecs is not deprecated.
 
+Note: Usually not able to store the character `"\1"`
+
 ### Methods
 
 * `contains(key)`: Returns true if key present, otherwise false.
