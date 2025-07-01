@@ -8260,11 +8260,11 @@ metadata_table = {
             [1] = ItemStack("example:dirt"),
             [2] = ItemStack("example:stone 25"),
             [3] = ItemStack(""), -- empty slot
-            [4] = ItemStack"example:pickaxe",
+            [4] = ItemStack("example:pickaxe"),
         },
         -- inventory list "hidden" with 1 slot
         hidden = {
-            [1] = ItemStack"example:diamond"),
+            [1] = ItemStack("example:diamond"),
         },
     },
 }
