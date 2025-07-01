@@ -42,7 +42,7 @@ configuration file can usually be found at:
 * After 5.4.2:
     * `/sdcard/Android/data/net.minetest.minetest/` or `/storage/emulated/0/Android/data/net.minetest.minetest/` if stored on the device
     * `/storage/emulated/(varying folder name)/Android/data/net.minetest.minetest/` if stored on the SD card
-* [Learn more about Android directory](https://wiki.luanti.org/Accessing_Android_Data_Directory)
+* [Learn more about Android directory](https://docs.luanti.org/for-players/mobile/)
 
 ## Useful settings
 

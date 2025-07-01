@@ -1,9 +1,9 @@
 IrrlichtMt version 1.9
 ======================
 
-IrrlichtMt is the 3D engine of [Minetest](https://github.com/minetest).
+IrrlichtMt is the 3D engine of [Luanti](https://github.com/luanti-org).
 It is based on the [Irrlicht Engine](https://irrlicht.sourceforge.io/) but is now developed independently.
-It is intentionally not compatible to upstream and is planned to be eventually absorbed into Minetest.
+It is intentionally not compatible to upstream and is planned to be eventually absorbed into Luanti.
 
 Build
 -----

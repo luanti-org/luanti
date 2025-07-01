@@ -10,7 +10,7 @@ safely without breaking backwards compatibility.
 
 * More information at <http://www.luanti.org/>
 * Additional documentation: <https://docs.luanti.org/>
-* (Unofficial) Minetest Modding Book by rubenwardy: <https://rubenwardy.com/minetest_modding_book/>
+* (Unofficial) Luanti Modding Book by rubenwardy: <https://rubenwardy.com/minetest_modding_book/>
 * Modding tools: <https://github.com/luanti-org/modtools>
 
 Introduction
@@ -314,6 +314,9 @@ Binary glTF (`.glb`) files are supported and recommended over `.gltf` files
 due to their space savings.
 
 Bone weights should be normalized, e.g. using ["normalize all" in Blender](https://docs.blender.org/manual/en/4.2/grease_pencil/modes/weight_paint/weights_menu.html#normalize-all).
+
+Note that nodes using matrix transforms must not be animated.
+This also extends to bone overrides, which must not be applied to them.
 
 You can use the [Khronos glTF validator](https://github.com/KhronosGroup/glTF-Validator)
 to check whether a model is a valid glTF file.
@@ -6478,6 +6481,11 @@ Environment access
 * `core.get_node_or_nil(pos)`
     * Same as `get_node` but returns `nil` for unloaded areas.
     * Note that even loaded areas can contain "ignore" nodes.
+* `core.get_node_raw(x, y, z)`
+    * Same as `get_node` but a faster low-level API
+    * Returns `content_id`, `param1`, `param2`, and `pos_ok`
+    * The `content_id` can be mapped to a name using `core.get_name_from_content_id()`
+    * If `pos_ok` is false, the area is unloaded and `content_id == core.CONTENT_IGNORE`
 * `core.get_node_light(pos[, timeofday])`
     * Gets the light value at the given position. Note that the light value
       "inside" the node at the given position is returned, so you usually want
@@ -6583,6 +6591,7 @@ Environment access
 * `core.get_value_noise(noiseparams)`
     * Return world-specific value noise.
     * The actual seed used is the noiseparams seed plus the world seed.
+    * **Important**: Requires the mapgen environment to be initalized, do not use at load time.
 * `core.get_value_noise(seeddiff, octaves, persistence, spread)`
     * Deprecated: use `core.get_value_noise(noiseparams)` instead.
 * `core.get_perlin(noiseparams)`
@@ -6657,6 +6666,9 @@ Environment access
       of the *active* mapgen setting `"mapgen_limit"`.
     * `chunksize` is an optional number. If it is absent, its value is that
       of the *active* mapgen setting `"chunksize"`.
+* `core.get_mapgen_chunksize()`
+    * Returns the currently active chunksize of the mapgen, as a vector.
+      The size is specified in blocks.
 * `core.get_mapgen_setting(name)`
     * Gets the *active* mapgen setting (or nil if none exists) in string
       format with the following order of precedence:
@@ -6836,6 +6848,7 @@ You can find mod channels communication scheme in `doc/mod_channels.png`.
     * Server joins channel `channel_name`, and creates it if necessary. You
       should listen for incoming messages with
       `core.register_on_modchannel_message`
+    * This returns a [ModChannel] object.
 
 Inventory
 ---------
@@ -6867,10 +6880,15 @@ Formspec
 * `core.show_formspec(playername, formname, formspec)`
     * `playername`: name of player to show formspec
     * `formname`: name passed to `on_player_receive_fields` callbacks.
-      It should follow the `"modname:<whatever>"` naming convention.
-    * `formname` must not be empty, unless you want to reshow
-      the inventory formspec without updating it for future opens.
+        * It should follow the `"modname:<whatever>"` naming convention.
+        * If empty: Shows a custom, temporary inventory formspec.
+            * An inventory formspec shown this way will also be updated if
+              `ObjectRef:set_inventory_formspec` is called.
+            * Use `ObjectRef:set_inventory_formspec` to change the player's
+              inventory formspec for future opens.
+            * Supported if server AND client are both of version >= 5.13.0.
     * `formspec`: formspec to display
+    * See also: `core.register_on_player_receive_fields`
 * `core.close_formspec(playername, formname)`
     * `playername`: name of player to close formspec
     * `formname`: has to exactly match the one given in `show_formspec`, or the
@@ -8648,9 +8666,12 @@ child will follow movement and rotation of that bone.
     * Returns `nil` if no attribute found.
 * `get_meta()`: Returns metadata associated with the player (a PlayerMetaRef).
 * `set_inventory_formspec(formspec)`
-    * Redefine player's inventory form
-    * Should usually be called in `on_joinplayer`
+    * Redefines the player's inventory formspec.
+    * Should usually be called at least once in the `on_joinplayer` callback.
     * If `formspec` is `""`, the player's inventory is disabled.
+    * If the inventory formspec is currently open on the client, it is
+      updated immediately.
+    * See also: `core.register_on_player_receive_fields`
 * `get_inventory_formspec()`: returns a formspec string
 * `set_formspec_prepend(formspec)`:
     * the formspec string will be added to every formspec shown to the user,
@@ -9270,6 +9291,8 @@ It can be created via `ValueNoise()` or `core.get_value_noise()`.
 For `core.get_value_noise()`, the actual seed used is the noiseparams seed
 plus the world seed, to create world-specific noise.
 
+**Important**: These require the mapgen environment to be initalized, do not use at load time.
+
 * `ValueNoise(noiseparams)`
 * `ValueNoise(seed, octaves, persistence, spread)` (deprecated)
 * `core.get_value_noise(noiseparams)`
@@ -9305,6 +9328,8 @@ for 2D noise, and it must be larger than 1 for 3D noise (otherwise
 For each of the functions with an optional `buffer` parameter: If `buffer` is
 not nil, this table will be used to store the result instead of creating a new
 table.
+
+**Important**: These require the mapgen environment to be initalized, do not use at load time.
 
 ### Methods
 

@@ -27,7 +27,7 @@ struct LightInfo {
 	float light_night;
 	float light_boosted;
 
-	LightPair getPair(float sunlight_boost = 0.0) const
+	LightPair getPair(float sunlight_boost = 0.0f) const
 	{
 		return LightPair(
 			(1 - sunlight_boost) * light_day

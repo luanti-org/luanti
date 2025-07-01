@@ -7,6 +7,8 @@
 // Used with SkinnedMesh and IAnimatedMeshSceneNode, for boned meshes
 
 #include "IBoneSceneNode.h"
+#include "Transform.h"
+#include "matrix4.h"
 
 #include <optional>
 
@@ -21,49 +23,48 @@ public:
 	//! constructor
 	CBoneSceneNode(ISceneNode *parent, ISceneManager *mgr,
 			s32 id = -1, u32 boneIndex = 0,
-			const std::optional<std::string> &boneName = std::nullopt);
-
-	//! Returns the index of the bone
-	u32 getBoneIndex() const override;
-
-	//! Sets the animation mode of the bone. Returns true if successful.
-	bool setAnimationMode(E_BONE_ANIMATION_MODE mode) override;
-
-	//! Gets the current animation mode of the bone
-	E_BONE_ANIMATION_MODE getAnimationMode() const override;
-
-	//! returns the axis aligned bounding box of this node
-	const core::aabbox3d<f32> &getBoundingBox() const override;
-
-	/*
-	//! Returns the relative transformation of the scene node.
-	//core::matrix4 getRelativeTransformation() const override;
-	*/
-
-	void OnAnimate(u32 timeMs) override;
-
-	void updateAbsolutePositionOfAllChildren() override;
-
-	//! How the relative transformation of the bone is used
-	void setSkinningSpace(E_BONE_SKINNING_SPACE space) override
+			const std::optional<std::string> &boneName = std::nullopt,
+			const core::Transform &transform = {},
+			const std::optional<core::matrix4> &matrix = std::nullopt) :
+		IBoneSceneNode(parent, mgr, id, boneIndex, boneName),
+		Matrix(matrix)
 	{
-		SkinningSpace = space;
+		setTransform(transform);
 	}
 
-	E_BONE_SKINNING_SPACE getSkinningSpace() const override
+	void setTransform(const core::Transform &transform)
 	{
-		return SkinningSpace;
+		setPosition(transform.translation);
+		{
+			core::vector3df euler;
+			auto rot = transform.rotation;
+			// Invert to be consistent with setRotationDegrees
+			rot.makeInverse();
+			rot.toEuler(euler);
+			setRotation(euler * core::RADTODEG);
+		}
+		setScale(transform.scale);
 	}
 
-private:
-	void helper_updateAbsolutePositionOfAllChildren(ISceneNode *Node);
+	core::Transform getTransform() const
+	{
+		return {
+			getPosition(),
+			core::quaternion(getRotation() * core::DEGTORAD).makeInverse(),
+			getScale()
+		};
+	}
 
-	u32 BoneIndex;
+	core::matrix4 getRelativeTransformation() const override
+	{
+		if (Matrix)
+			return *Matrix;
+		return IBoneSceneNode::getRelativeTransformation();
+	}
 
-	core::aabbox3d<f32> Box{-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f};
-
-	E_BONE_ANIMATION_MODE AnimationMode;
-	E_BONE_SKINNING_SPACE SkinningSpace;
+	//! Some file formats alternatively let bones specify a transformation matrix.
+	//! If this is set, it overrides the TRS properties.
+	std::optional<core::matrix4> Matrix;
 };
 
 } // end namespace scene

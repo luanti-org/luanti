@@ -1574,7 +1574,9 @@ int ObjectRef::l_set_inventory_formspec(lua_State *L)
 
 	auto formspec = readParam<std::string_view>(L, 2);
 
-	if (formspec != player->inventory_formspec) {
+	if (player->inventory_formspec_overridden
+			|| formspec != player->inventory_formspec) {
+		player->inventory_formspec_overridden = false;
 		player->inventory_formspec = formspec;
 		getServer(L)->reportInventoryFormspecModified(player->getName());
 	}
