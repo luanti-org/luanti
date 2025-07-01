@@ -40,11 +40,11 @@ struct SkyboxParams
 	video::SColor fog_color { 0 }; // override, only used if alpha > 0
 
 	// Check if this is a textured skybox and whether transparency is used
-	bool isSkybox() const
+	bool isTextured() const
 	{
 		return type == "skybox" || type == "skybox_back" || type == "skybox_front";
 	}
-	bool isTransparent() const
+	bool hasAlpha() const
 	{
 		return type == "regular" || type == "skybox_back" || type == "skybox_front";
 	}

@@ -8832,9 +8832,9 @@ child will follow movement and rotation of that bone.
             * `"regular"`: Uses 0 textures, `base_color` ignored
             * `"skybox"`: Uses 6 textures, `base_color` used as fog.
             * `"skybox_back"`: Uses 6 textures, `sky_color` used as fog, stars / sun / moon in foreground.
-            Note: Requires Luanti client version 5.13 or greater.
+              Note: Requires Luanti client version 5.13 or greater.
             * `"skybox_front"`: Uses 6 textures, `sky_color` used as fog, stars / sun / moon in background.
-            Note: Requires Luanti client version 5.13 or greater.
+              Note: Requires Luanti client version 5.13 or greater.
             * `"plain"`: Uses 0 textures, `base_color` used as both fog and sky.
             (default: `"regular"`)
         * `textures`: A table containing up to six textures in the following

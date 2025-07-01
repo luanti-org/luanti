@@ -2859,23 +2859,23 @@ void Game::handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *ca
 void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 {
 	// Handle invalid sky type.
-	if (!event->set_sky->isSkybox() && !event->set_sky->isTransparent() && event->set_sky->type != "plain")
+	if (!event->set_sky->isTextured() && !event->set_sky->hasAlpha() && event->set_sky->type != "plain")
 		infostream << "Unknown sky type: " << (event->set_sky->type) << std::endl;
 
 	// Show the mesh sky if transparent.
-	sky->setVisible(event->set_sky->isTransparent());
+	sky->setVisible(event->set_sky->hasAlpha());
 	sky->setType(event->set_sky->type);
 	// Whether clouds are visible in front of a custom skybox.
 	sky->setCloudsEnabled(event->set_sky->clouds);
 
 	// Show the mesh sky and use skybox colours if transparent.
-	if (event->set_sky->isTransparent())
+	if (event->set_sky->hasAlpha())
 		sky->setSkyColors(event->set_sky->sky_color);
 	else
 		sky->setFallbackBgColor(event->set_sky->bgcolor);
 
 	// Use horizon tint for regular or skybox skies.
-	if (event->set_sky->isSkybox() || event->set_sky->isTransparent())
+	if (event->set_sky->isTextured() || event->set_sky->hasAlpha())
 		sky->setHorizonTint(
 			event->set_sky->fog_sun_tint,
 			event->set_sky->fog_moon_tint,
@@ -2891,9 +2891,9 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 	// Clear the old textures out in case we switch rendering type.
 	sky->clearSkyboxTextures();
 	// Add textures to skybox.
-	if(event->set_sky->isSkybox()) {
+	if (event->set_sky->isTextured()) {
 		for (int i = 0; i < 6; i++)
-			sky->addTextureToSkybox(event->set_sky->textures[i], i, texture_src, event->set_sky->isTransparent());
+			sky->addTextureToSkybox(event->set_sky->textures[i], i, texture_src, event->set_sky->hasAlpha());
 	}
 
 	// Orbit Tilt:

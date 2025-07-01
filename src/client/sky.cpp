@@ -215,7 +215,7 @@ void Sky::render()
 
 		// Draw far cloudy fog thing blended with skycolor
 		// Disabled when using a textured skybox to prevent clipping
-		if (m_visible && !m_sky_params.isSkybox()) {
+		if (m_visible && !m_sky_params.isTextured()) {
 			driver->setMaterial(m_materials[1]);
 			for (u32 j = 0; j < 4; j++) {
 				vertices[0] = video::S3DVertex(-1, -0.02, -1, 0, 0, 1, m_bgcolor, t, t);
@@ -280,7 +280,7 @@ void Sky::render()
 
 		// Draw far cloudy fog thing below all horizons in front of sun, moon and stars.
 		// Disabled when using a textured skybox to prevent clipping
-		if (m_visible && !m_sky_params.isSkybox()) {
+		if (m_visible && !m_sky_params.isTextured()) {
 			driver->setMaterial(m_materials[1]);
 
 			for (u32 j = 0; j < 4; j++) {
