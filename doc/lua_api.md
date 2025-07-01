@@ -8843,9 +8843,9 @@ child will follow movement and rotation of that bone.
             bottom texture and the bottom edge of the top texture touch the east face).
             Some top and bottom textures expect to be aligned with the north face and will need to be rotated
             by -90 and 90 degrees, respectively, to fit the eastward orientation.
+            For `"skybox_back"` and `"skybox_front"` types, the textures should have an alpha channel.
         * `clouds`: Boolean for whether clouds appear. (default: `true`)
-        * `sky_color`: A table used in `"regular"`, `"skybox_back"`, `"skybox_front"` types only. For a skybox
-           the `textures` should have an alpha channel. Contains the following values (alpha is ignored):
+        * `sky_color`: A table used in `"regular"` `"skybox_back"` `"skybox_front"` types, containing the following values:
             * `day_sky`: ColorSpec, for the top half of the sky during the day.
               (default: `#61b5f5`)
             * `day_horizon`: ColorSpec, for the bottom half of the sky during the day.

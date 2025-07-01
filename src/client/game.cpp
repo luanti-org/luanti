@@ -2858,7 +2858,6 @@ void Game::handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *ca
 
 void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 {
-	// Handle invalid sky type.
 	if (!event->set_sky->isTextured() && !event->set_sky->hasAlpha() && event->set_sky->type != "plain")
 		infostream << "Unknown sky type: " << (event->set_sky->type) << std::endl;
 
@@ -2875,18 +2874,19 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 		sky->setFallbackBgColor(event->set_sky->bgcolor);
 
 	// Use horizon tint for regular or skybox skies.
-	if (event->set_sky->isTextured() || event->set_sky->hasAlpha())
+	if (event->set_sky->isTextured() || event->set_sky->hasAlpha()) {
 		sky->setHorizonTint(
 			event->set_sky->fog_sun_tint,
 			event->set_sky->fog_moon_tint,
 			event->set_sky->fog_tint_type
 		);
-	else
+	} else {
 		sky->setHorizonTint(
 			event->set_sky->bgcolor,
 			event->set_sky->bgcolor,
 			"custom"
 		);
+	}
 
 	// Clear the old textures out in case we switch rendering type.
 	sky->clearSkyboxTextures();
