@@ -8257,14 +8257,14 @@ metadata_table = {
         -- inventory list "main" with 4 slots
         main = {
             -- list of all item slots
-            [1] = "example:dirt",
-            [2] = "example:stone 25",
-            [3] = "", -- empty slot
-            [4] = "example:pickaxe",
+            [1] = ItemStack("example:dirt"),
+            [2] = ItemStack("example:stone 25"),
+            [3] = ItemStack(""), -- empty slot
+            [4] = ItemStack"example:pickaxe",
         },
         -- inventory list "hidden" with 1 slot
         hidden = {
-            [1] = "example:diamond",
+            [1] = ItemStack"example:diamond"),
         },
     },
 }
