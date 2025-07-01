@@ -8,7 +8,7 @@
 #include <vector>
 #include <IGUIFont.h>
 #include <SMaterial.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 #include "irr_ptr.h"
 #include "irr_aabb3d.h"
 #include "../hud.h"

@@ -37,7 +37,7 @@
 #include <quaternion.h>
 #include <SMesh.h>
 #include <IMeshBuffer.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 
 class Settings;
 struct ToolCapabilities;

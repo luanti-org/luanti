@@ -8,7 +8,7 @@
 #include "irr_ptr.h"
 #include "ISceneNode.h"
 #include "S3DVertex.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
 #include <mutex>
 #include <memory>

@@ -7,7 +7,7 @@
 #include "irrlichttypes.h"
 #include "irr_ptr.h"
 #include "IMesh.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
 #include "util/numeric.h"
 #include "client/tile.h"

@@ -23,7 +23,7 @@
 #include "client/texturesource.h"
 #include <SMesh.h>
 #include <IMeshBuffer.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 
 /*
 	MeshMakeData

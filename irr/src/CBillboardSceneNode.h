@@ -5,7 +5,7 @@
 #pragma once
 
 #include "IBillboardSceneNode.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
 namespace irr
 {

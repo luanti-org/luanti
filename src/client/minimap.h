@@ -7,7 +7,7 @@
 #include "irrlichttypes.h"
 #include "irr_ptr.h"
 #include "rect.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
 #include "../hud.h"
 #include "mapnode.h"
