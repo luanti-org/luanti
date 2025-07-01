@@ -11670,7 +11670,7 @@ section, along with the datatypes they accept.
 All properties in this list of type "vec3 range", "float range" or "vec3" can
 be animated with `*_tween` tables. For example, `jitter` can be tweened by
 setting a `jitter_tween` table instead of (or in addition to) a `jitter`
-table/value.
+table/value. This also applies to the `attract` table.
 
 In this section, a float range is a table defined as so: { min = A, max = B }
 A and B are your supplemented values. For a vec3 range this means they are vectors.
@@ -11717,24 +11717,24 @@ Types used are defined in the previous section.
   * string `kind`: selects the kind of shape towards which the particles will
     be oriented. it must have one of the following values:
 
-    * `"none"`: no attractor is set and the `attractor` table is ignored
+    * `"none"`: no attractor is set and the `attract` table is ignored
     * `"point"`: the particles are attracted to a specific point in space.
       use this also if you want a sphere-like effect, in combination with
       the `radius` property.
     * `"line"`: the particles are attracted to an (infinite) line passing
-      through the points `origin` and `angle`. use this for e.g. beacon
+      through the point `origin`, with direction specified by `direction`. use this for e.g. beacon
       effects, energy beam effects, etc.
     * `"plane"`: the particles are attracted to an (infinite) plane on whose
       surface `origin` designates a point in world coordinate space. use this
       for e.g. particles entering or emerging from a portal.
 
   * float range `strength`: the speed with which particles will move towards
-    `attractor`. If negative, the particles will instead move away from that
+    the shape. If negative, the particles will instead move away from that
     point.
 
   * vec3 `origin`: the origin point of the shape towards which particles will
     initially be oriented. functions as an offset if `origin_attached` is also
-    set.
+set.
 
   * vec3 `direction`: sets the direction in which the attractor shape faces. for
     lines, this sets the angle of the line; e.g. a vector of (0,1,0) will
