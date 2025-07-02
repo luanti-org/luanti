@@ -17,7 +17,7 @@
 #include <map>
 #include <memory>
 
-namespace irr::scene {
+namespace scene {
 	class IMeshSceneNode;
 	class IBillboardSceneNode;
 }

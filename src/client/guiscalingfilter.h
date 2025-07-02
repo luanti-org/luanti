@@ -9,7 +9,7 @@
 #include <rect.h>
 #include <SColor.h>
 
-namespace irr::video
+namespace video
 {
 	class IImage;
 	class ITexture;

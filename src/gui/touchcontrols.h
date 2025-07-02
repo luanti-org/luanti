@@ -18,24 +18,22 @@
 #include "util/basic_macros.h"
 #include "client/keycode.h"
 
-namespace irr
+class IrrlichtDevice;
+namespace gui
 {
-	class IrrlichtDevice;
-	namespace gui
-	{
-		class IGUIEnvironment;
-		class IGUIImage;
-		class IGUIStaticText;
-	}
-	namespace video
-	{
-		class IVideoDriver;
-	}
+	class IGUIEnvironment;
+	class IGUIImage;
+	class IGUIStaticText;
 }
+namespace video
+{
+	class IVideoDriver;
+}
+
 class ISimpleTextureSource;
 
-using namespace irr::core;
-using namespace irr::gui;
+using namespace core;
+using namespace gui;
 
 
 enum class TapState

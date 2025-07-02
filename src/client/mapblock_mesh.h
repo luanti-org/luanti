@@ -16,7 +16,7 @@
 #include <map>
 #include <unordered_map>
 
-namespace irr::video {
+namespace video {
 	class IVideoDriver;
 }
 

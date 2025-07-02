@@ -7,8 +7,6 @@
 #include "irrTypes.h"
 #include "irrMath.h"
 
-namespace irr
-{
 namespace video
 {
 //! An enum for the color format of textures used by the Irrlicht Engine.
@@ -655,4 +653,3 @@ inline f32 SColorHSL::toRGB1(f32 rm1, f32 rm2, f32 rh) const
 }
 
 } // end namespace video
-} // end namespace irr

@@ -14,14 +14,14 @@
 #include <memory>
 #include "tile.h"
 
-namespace irr::scene
+namespace scene
 {
 	class ISceneManager;
 	class IMesh;
 	struct SMesh;
 }
 
-using namespace irr;
+
 
 struct ItemStack;
 class Client;

@@ -7,8 +7,6 @@
 #include "IGUIElement.h"
 #include "SColor.h"
 
-namespace irr
-{
 namespace gui
 {
 class IGUITab;
@@ -145,4 +143,3 @@ public:
 };
 
 } // end namespace gui
-} // end namespace irr

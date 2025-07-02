@@ -20,7 +20,7 @@ public:
 
 	KeyPress(const std::string &name);
 
-	KeyPress(const irr::SEvent::SKeyInput &in);
+	KeyPress(const SEvent::SKeyInput &in);
 
 	// Get a string representation that is suitable for use in minetest.conf
 	std::string sym() const;
@@ -29,7 +29,7 @@ public:
 	std::string name() const;
 
 	// Get the corresponding keycode or KEY_UNKNOWN if one is not available
-	irr::EKEY_CODE getKeycode() const;
+	EKEY_CODE getKeycode() const;
 
 	// Get the corresponding keychar or '\0' if one is not available
 	wchar_t getKeychar() const;
@@ -57,20 +57,20 @@ public:
 	// Check whether the keypress is valid
 	operator bool() const
 	{
-		return std::holds_alternative<irr::EKEY_CODE>(scancode) ?
-			Keycode::isValid(std::get<irr::EKEY_CODE>(scancode)) :
+		return std::holds_alternative<EKEY_CODE>(scancode) ?
+			Keycode::isValid(std::get<EKEY_CODE>(scancode)) :
 			std::get<u32>(scancode) != 0;
 	}
 
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
-	using value_type = std::variant<u32, irr::EKEY_CODE>;
+	using value_type = std::variant<u32, EKEY_CODE>;
 	bool loadFromScancode(const std::string &name);
-	void loadFromKey(irr::EKEY_CODE keycode, wchar_t keychar);
+	void loadFromKey(EKEY_CODE keycode, wchar_t keychar);
 	std::string formatScancode() const;
 
-	value_type scancode = irr::KEY_UNKNOWN;
+	value_type scancode = KEY_UNKNOWN;
 
 	friend std::hash<KeyPress>;
 };

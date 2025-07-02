@@ -7,9 +7,6 @@
 #include "irrTypes.h"
 #include <cassert>
 
-namespace irr
-{
-
 //! Base class of most objects of the Irrlicht Engine.
 /** This class provides reference counting through the methods grab() and drop().
 It also is able to store a debug string for every instance of an object.
@@ -142,5 +139,3 @@ private:
 	//! The reference counter. Mutable to do reference counting on const objects.
 	mutable s32 ReferenceCounter;
 };
-
-} // end namespace irr

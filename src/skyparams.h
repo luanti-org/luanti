@@ -9,7 +9,7 @@
 #include "SColor.h"
 #include "irr_v2d.h"
 
-using namespace irr;
+
 
 struct SkyColor
 {

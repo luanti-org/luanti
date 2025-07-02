@@ -10,7 +10,7 @@
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
 
-using namespace irr;
+
 
 class GUIScene : public gui::IGUIElement
 {

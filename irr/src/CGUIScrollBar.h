@@ -7,8 +7,6 @@
 #include "IGUIScrollBar.h"
 #include "IGUIButton.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -92,4 +90,3 @@ private:
 };
 
 } // end namespace gui
-} // end namespace irr

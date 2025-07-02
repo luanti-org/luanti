@@ -17,9 +17,6 @@
 #include <tuple>
 #include <vector>
 
-namespace irr
-{
-
 namespace scene
 {
 
@@ -164,6 +161,4 @@ private:
 };
 
 } // namespace scene
-
-} // namespace irr
 

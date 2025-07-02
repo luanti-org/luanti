@@ -8,9 +8,6 @@
 #include "position2d.h"
 #include "line3d.h"
 
-namespace irr
-{
-
 namespace scene
 {
 class ICameraSceneNode;
@@ -30,4 +27,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

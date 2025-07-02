@@ -14,7 +14,7 @@
 
 #define SKY_MATERIAL_COUNT 12
 
-namespace irr::video
+namespace video
 {
 	class IVideoDriver;
 	class IImage;

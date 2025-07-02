@@ -43,8 +43,7 @@
 #include <cstdlib>
 #include <iostream>
 
-namespace irr
-{
+
 namespace gui
 {
 
@@ -955,4 +954,3 @@ std::u32string CGUITTFont::convertWCharToU32String(const wchar_t* const charArra
 
 
 } // end namespace gui
-} // end namespace irr

@@ -14,8 +14,6 @@
 #include <list>
 #include <vector>
 
-namespace irr
-{
 namespace gui
 {
 class IGUIEnvironment;
@@ -926,4 +924,3 @@ protected:
 };
 
 } // end namespace gui
-} // end namespace irr

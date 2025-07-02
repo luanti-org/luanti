@@ -9,8 +9,6 @@
 #include <climits>
 #include <cmath>
 
-namespace irr
-{
 namespace core
 {
 
@@ -342,4 +340,3 @@ inline float fast_atof(const char *floatAsString, const char **out = 0)
 }
 
 } // end namespace core
-} // end namespace irr

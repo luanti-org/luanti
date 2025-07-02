@@ -4,8 +4,6 @@
 
 #include "CReadFile.h"
 
-namespace irr
-{
 namespace io
 {
 
@@ -89,4 +87,3 @@ IReadFile *CReadFile::createReadFile(const io::path &fileName)
 }
 
 } // end namespace io
-} // end namespace irr

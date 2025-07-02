@@ -12,8 +12,6 @@
 #include "irrArray.h"
 #include "IMeshLoader.h"
 
-namespace irr
-{
 namespace io
 {
 class IFileSystem;
@@ -272,4 +270,3 @@ private:
 };
 
 } // end namespace video
-} // end namespace scene

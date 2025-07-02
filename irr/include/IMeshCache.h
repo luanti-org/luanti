@@ -7,9 +7,6 @@
 #include "IReferenceCounted.h"
 #include "path.h"
 
-namespace irr
-{
-
 namespace scene
 {
 class IMesh;
@@ -128,4 +125,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

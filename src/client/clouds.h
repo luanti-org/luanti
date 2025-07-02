@@ -15,7 +15,7 @@
 
 class IShaderSource;
 
-namespace irr::scene
+namespace scene
 {
 	class ISceneManager;
 }

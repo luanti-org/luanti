@@ -12,8 +12,6 @@
 #include "coreutil.h"
 #include "os.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -72,11 +70,11 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 	const c8 *bufPtr = buf;
 	core::stringc grpName, mtlName;
 	bool mtlChanged = false;
-	[[maybe_unused]] irr::u32 lineNr = 1; // only counts non-empty lines, still useful in debugging to locate errors
+	[[maybe_unused]] u32 lineNr = 1; // only counts non-empty lines, still useful in debugging to locate errors
 	core::array<int> faceCorners;
 	faceCorners.reallocate(32); // should be large enough
 	const core::stringc TAG_OFF = "off";
-	irr::u32 degeneratedFaces = 0;
+	u32 degeneratedFaces = 0;
 
 	while (bufPtr != bufEnd) {
 		switch (bufPtr[0]) {
@@ -184,7 +182,7 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 				u32 wlength = copyWord(vertexWord, linePtr, WORD_BUFFER_LENGTH, endPtr);
 				// this function will also convert obj's 1-based index to c++'s 0-based index
 				retrieveVertexIndices(vertexWord, Idx, vertexWord + wlength + 1, vertexBuffer.size(), textureCoordBuffer.size(), normalsBuffer.size());
-				if (Idx[0] >= 0 && Idx[0] < (irr::s32)vertexBuffer.size())
+				if (Idx[0] >= 0 && Idx[0] < (s32)vertexBuffer.size())
 					v.Pos = vertexBuffer[Idx[0]];
 				else {
 					os::Printer::log("Invalid vertex index in this line", wordBuffer.c_str(), ELL_ERROR);
@@ -192,11 +190,11 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 					cleanUp();
 					return 0;
 				}
-				if (Idx[1] >= 0 && Idx[1] < (irr::s32)textureCoordBuffer.size())
+				if (Idx[1] >= 0 && Idx[1] < (s32)textureCoordBuffer.size())
 					v.TCoords = textureCoordBuffer[Idx[1]];
 				else
 					v.TCoords.set(0.0f, 0.0f);
-				if (Idx[2] >= 0 && Idx[2] < (irr::s32)normalsBuffer.size())
+				if (Idx[2] >= 0 && Idx[2] < (s32)normalsBuffer.size())
 					v.Normal = normalsBuffer[Idx[2]];
 				else {
 					v.Normal.set(0.0f, 0.0f, 0.0f);
@@ -253,9 +251,9 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 	} // end while(bufPtr && (bufPtr-buf<filesize))
 
 	if (degeneratedFaces > 0) {
-		irr::core::stringc log(degeneratedFaces);
+		core::stringc log(degeneratedFaces);
 		log += " degenerated faces removed in ";
-		log += irr::core::stringc(fullName);
+		log += core::stringc(fullName);
 		os::Printer::log(log.c_str(), ELL_INFORMATION);
 	}
 
@@ -523,4 +521,3 @@ void COBJMeshFileLoader::cleanUp()
 }
 
 } // end namespace scene
-} // end namespace irr

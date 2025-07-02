@@ -8,7 +8,7 @@
 #include <rect.h>
 #include <SColor.h>
 
-namespace irr::video
+namespace video
 {
 	class IVideoDriver;
 	class IImage;

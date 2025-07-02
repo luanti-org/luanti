@@ -8,9 +8,6 @@
 #include "EPrimitiveTypes.h"
 #include "path.h"
 
-namespace irr
-{
-
 namespace io
 {
 class IReadFile;
@@ -141,4 +138,3 @@ public:
 };
 
 } // end namespace video
-} // end namespace irr
