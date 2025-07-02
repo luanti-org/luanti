@@ -275,7 +275,7 @@ keymap_decrease_viewing_range_min (Decrease view range) key SYSTEM_SCANCODE_45
 
 #    First key bind for closing your world.
 #    Requires the selected key + secondary modifier key to work.
-main_keymap_close_world (Main world leave key) key
+main_keymap_close_world (Main world leave key) key SYSTEM_SCANCODE_41
 
 #    Modifier key bind for closing your world.
 #    Requires ESC + the selected key to work.
