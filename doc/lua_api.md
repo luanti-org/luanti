@@ -1378,6 +1378,10 @@ The function of `param2` is determined by `paramtype2` in node definition.
       see `core.get_node_level`, `core.set_node_level` and `core.add_node_level`
       to access/manipulate the content of this field
     * Bit 3: If set, liquid is flowing downwards (no graphical effect)
+* `paramtype2 = "colorflowingliquid"`
+    * Same as `flowingliquid`, but with colors.
+    * The upper four bits of `param2` tell which color is picked from the
+      palette. The palette should have 16 pixels.
 * `paramtype2 = "wallmounted"`
     * Supported drawtypes: "torchlike", "signlike", "plantlike",
       "plantlike_rooted", "normal", "nodebox", "mesh"
@@ -5810,6 +5814,9 @@ Utilities
       remove_item_match_meta = true,
       -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
       httpfetch_additional_methods = true,
+      -- The upper four bits of liquid node param2 values are preserved
+      -- during liquid flow (5.12.0)
+      preserve_liquid_param2 = true,
   }
   ```
 
@@ -10078,6 +10085,10 @@ Used by `core.register_node`.
     post_effect_color = "#00000000",
     -- Screen tint if a player is inside this node, see `ColorSpec`.
     -- Color is alpha-blended over the screen.
+
+    post_effect_use_node_color = false,
+    -- If true, the specific node's coloration (with param2 etc.) will be
+    -- applied to the post effect color as it is applied to the node itself.
 
     post_effect_color_shaded = false,
     -- Determines whether `post_effect_color` is affected by lighting.

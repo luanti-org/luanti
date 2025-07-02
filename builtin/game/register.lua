@@ -147,7 +147,7 @@ local function preprocess_node(nodedef)
 	end
 
 	-- Flowing liquid uses param2
-	if nodedef.liquidtype == "flowing" then
+  if nodedef.type == "node" and nodedef.liquidtype == "flowing" and nodedef.paramtype2 ~= "colorflowingliquid" then
 		nodedef.paramtype2 = "flowingliquid"
 	end
 end
