@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-    <id>net.minetest.minetest</id>
+    <id>org.luanti.luanti</id>
+    <provides>
+        <id>net.minetest.minetest</id>
+    </provides>
+    <replaces>
+        <id>net.minetest.minetest</id>
+    </replaces>
 
     <name>Luanti</name>
     <summary>Block-based multiplayer game platform</summary>
@@ -10,7 +16,7 @@
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>LGPL-2.1+ AND CC-BY-SA-3.0 AND MIT AND Apache-2.0</project_license>
 
-    <developer id="net.minetest">
+    <developer id="org.luanti">
         <name>Luanti Team</name>
     </developer>
 
@@ -119,7 +125,7 @@
         </ul>
     </description>
 
-    <launchable type="desktop-id">net.minetest.minetest.desktop</launchable>
+    <launchable type="desktop-id">org.luanti.luanti.desktop</launchable>
     <screenshots>
         <screenshot type="default">
             <image>https://www.luanti.org/media/gallery/1.jpg</image>
@@ -152,10 +158,10 @@
 
     <url type="homepage">https://www.luanti.org</url>
     <url type="bugtracker">https://www.luanti.org/get-involved/#reporting-issues</url>
-    <url type="translate">https://dev.luanti.org/Translation/</url>
+    <url type="translate">https://docs.luanti.org/for-creators/translation/</url>
     <url type="donation">https://www.luanti.org/get-involved/#donate</url>
-    <url type="faq">https://wiki.luanti.org/FAQ</url>
-    <url type="help">https://wiki.luanti.org</url>
+    <url type="faq">https://docs.luanti.org/about/faq</url>
+    <url type="help">https://docs.luanti.org</url>
     <url type="vcs-browser">https://github.com/luanti-org/luanti</url>
     <url type="contribute">https://www.luanti.org/get-involved</url>
 
@@ -168,6 +174,6 @@
     <update_contact>celeron55@gmail.com</update_contact>
 
     <releases>
-        <release date="2025-02-14" version="5.11.0"/>
+        <release date="2025-05-23" version="5.12.0"/>
     </releases>
 </component>

@@ -879,10 +879,10 @@ PathCost Pathfinder::calcCost(v3s16 pos, v3s16 dir)
 					DEBUG_OUT("Pathfinder cost below height found" << std::endl);
 				}
 				else {
-					INFO_TARGET << "Pathfinder:"
+					DEBUG_OUT("Pathfinder:"
 							" distance to surface below too big: "
 							<< (testpos.Y - pos2.Y) << " max: " << m_maxdrop
-							<< std::endl;
+							<< std::endl);
 				}
 			}
 			else {

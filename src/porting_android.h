@@ -36,6 +36,13 @@ void showComboBoxDialog(const std::string *optionList, s32 listSize, s32 selecte
  */
 void shareFileAndroid(const std::string &path);
 
+/**
+ * Shows/hides notification that the game is running
+ *
+ * @param show whether to show/hide the notification
+ */
+void setPlayingNowNotification(bool show);
+
 /*
  * Types of Android input dialog:
  * 1. Text input (single/multi-line text and password field)

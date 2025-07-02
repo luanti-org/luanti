@@ -7,9 +7,7 @@
 #include "IVideoDriver.h"
 #include "SMesh.h"
 #include "SMeshBuffer.h"
-#include "SAnimatedMesh.h"
 #include "IReadFile.h"
-#include "IAttributes.h"
 #include "fast_atof.h"
 #include "coreutil.h"
 #include "os.h"
@@ -74,8 +72,6 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 	const c8 *bufPtr = buf;
 	core::stringc grpName, mtlName;
 	bool mtlChanged = false;
-	bool useGroups = !SceneManager->getParameters()->getAttributeAsBool(OBJ_LOADER_IGNORE_GROUPS);
-	bool useMaterials = !SceneManager->getParameters()->getAttributeAsBool(OBJ_LOADER_IGNORE_MATERIAL_FILES);
 	[[maybe_unused]] irr::u32 lineNr = 1; // only counts non-empty lines, still useful in debugging to locate errors
 	core::array<int> faceCorners;
 	faceCorners.reallocate(32); // should be large enough
@@ -85,15 +81,7 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 	while (bufPtr != bufEnd) {
 		switch (bufPtr[0]) {
 		case 'm': // mtllib (material)
-		{
-			if (useMaterials) {
-				c8 name[WORD_BUFFER_LENGTH];
-				bufPtr = goAndCopyNextWord(name, bufPtr, WORD_BUFFER_LENGTH, bufEnd);
-#ifdef _IRR_DEBUG_OBJ_LOADER_
-				os::Printer::log("Ignoring material file", name);
-#endif
-			}
-		} break;
+			break; // not supported
 
 		case 'v': // v, vn, vt
 			switch (bufPtr[1]) {
@@ -127,12 +115,7 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 #ifdef _IRR_DEBUG_OBJ_LOADER_
 			os::Printer::log("Loaded group start", grp, ELL_DEBUG);
 #endif
-			if (useGroups) {
-				if (0 != grp[0])
-					grpName = grp;
-				else
-					grpName = "default";
-			}
+			grpName = ('\0' != grp[0]) ? grp : "default";
 			mtlChanged = true;
 		} break;
 
@@ -288,23 +271,19 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 		}
 	}
 
-	// Create the Animated mesh if there's anything in the mesh
-	SAnimatedMesh *animMesh = 0;
-	if (0 != mesh->getMeshBufferCount()) {
-		mesh->recalculateBoundingBox();
-		animMesh = new SAnimatedMesh();
-		animMesh->Type = EAMT_OBJ;
-		animMesh->addMesh(mesh);
-		animMesh->recalculateBoundingBox();
-	}
-
 	// Clean up the allocate obj file contents
 	delete[] buf;
 	// more cleaning up
 	cleanUp();
-	mesh->drop();
 
-	return animMesh;
+	// Nothing in the mesh
+	if (mesh->getMeshBufferCount() == 0) {
+		mesh->drop();
+		return nullptr;
+	}
+
+	mesh->recalculateBoundingBox();
+	return mesh;
 }
 
 //! Read RGB color

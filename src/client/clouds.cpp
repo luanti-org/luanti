@@ -474,7 +474,7 @@ void Clouds::readSettings()
 bool Clouds::gridFilled(int x, int y) const
 {
 	float cloud_size_noise = cloud_size / (BS * 200.f);
-	float noise = noise2d_perlin(
+	float noise = noise2d_fractal(
 			(float)x * cloud_size_noise,
 			(float)y * cloud_size_noise,
 			m_seed, 3, 0.5);

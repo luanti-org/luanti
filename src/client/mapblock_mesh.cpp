@@ -51,15 +51,6 @@ void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
 	m_vmanip.addArea(voxel_area);
 }
 
-void MeshMakeData::fillBlockData(const v3s16 &bp, MapNode *data)
-{
-	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
-	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
-
-	v3s16 blockpos_nodes = bp * MAP_BLOCKSIZE;
-	m_vmanip.copyFrom(data, data_area, v3s16(0,0,0), blockpos_nodes, data_size);
-}
-
 void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
 {
 	m_blockpos = {0, 0, 0};
@@ -347,7 +338,7 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 	tile = f.tiles[tileindex];
 	bool has_crack = p == data->m_crack_pos_relative;
 	for (TileLayer &layer : tile.layers) {
-		if (layer.texture_id == 0)
+		if (layer.empty())
 			continue;
 		if (!layer.has_color)
 			mn.getColor(f, &(layer.color));
@@ -626,7 +617,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 			if (data->m_vmanip.getNodeNoEx(p).getContent() != CONTENT_IGNORE) {
 				MinimapMapblock *block = new MinimapMapblock;
 				m_minimap_mapblocks[mesh_grid.getOffsetIndex(ofs)] = block;
-				block->getMinimapNodes(&data->m_vmanip, p);
+				block->getMinimapNodes(&data->m_vmanip, data->m_nodedef, p);
 			}
 		}
 	}
@@ -678,9 +669,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 			// - Texture animation
 			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
 				// Add to MapBlockMesh in order to animate these tiles
-				auto &info = m_animation_info[{layer, i}];
-				info.tile = p.layer;
-				info.frame = 0;
+				m_animation_info.emplace(std::make_pair(layer, i), AnimationInfo(p.layer));
 				// Replace tile texture with the first animation frame
 				p.layer.texture = (*p.layer.frames)[0].texture;
 			}
@@ -763,6 +752,12 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 	// Cracks
 	if (crack != m_last_crack) {
 		for (auto &crack_material : m_crack_materials) {
+
+			// TODO crack on animated tiles does not work
+			auto anim_it = m_animation_info.find(crack_material.first);
+			if (anim_it != m_animation_info.end())
+				continue;
+
 			scene::IMeshBuffer *buf = m_mesh[crack_material.first.first]->
 				getMeshBuffer(crack_material.first.second);
 
@@ -772,16 +767,6 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 			video::ITexture *new_texture =
 					m_tsrc->getTextureForMesh(s, &new_texture_id);
 			buf->getMaterial().setTexture(0, new_texture);
-
-			// If the current material is also animated, update animation info
-			auto anim_it = m_animation_info.find(crack_material.first);
-			if (anim_it != m_animation_info.end()) {
-				TileLayer &tile = anim_it->second.tile;
-				tile.texture = new_texture;
-				tile.texture_id = new_texture_id;
-				// force animation update
-				anim_it->second.frame = -1;
-			}
 		}
 
 		m_last_crack = crack;
@@ -789,20 +774,9 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 
 	// Texture animation
 	for (auto &it : m_animation_info) {
-		const TileLayer &tile = it.second.tile;
-		// Figure out current frame
-		int frameno = (int)(time * 1000 / tile.animation_frame_length_ms) %
-			tile.animation_frame_count;
-		// If frame doesn't change, skip
-		if (frameno == it.second.frame)
-			continue;
-
-		it.second.frame = frameno;
-
 		scene::IMeshBuffer *buf = m_mesh[it.first.first]->getMeshBuffer(it.first.second);
-
-		const FrameSpec &frame = (*tile.frames)[frameno];
-		buf->getMaterial().setTexture(0, frame.texture);
+		video::SMaterial &material = buf->getMaterial();
+		it.second.updateTexture(material, time);
 	}
 
 	return true;

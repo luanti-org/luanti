@@ -286,8 +286,6 @@ public:
 
 	void updateAnimationSpeed();
 
-	void updateBones(f32 dtime);
-
 	void processMessage(const std::string &data) override;
 
 	bool directReportPunch(v3f dir, const ItemStack *punchitem,

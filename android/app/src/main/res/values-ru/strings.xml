@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="unzip_notification_title">Загрузка Luanti</string>
-    <string name="unzip_notification_description">Меньше чам за 1 минуту…</string>
+    <string name="unzip_notification_description">Менее 1 минуты…</string>
     <string name="ime_dialog_done">Готово</string>
     <string name="label">Luаnti</string>
     <string name="notification_channel_description">Уведомления от Luanti</string>
     <string name="notification_channel_name">Основные уведомления</string>
     <string name="loading">Загрузка…</string>
     <string name="no_web_browser">Не найдено веб-браузера</string>
+    <string name="game_notification_title">Luanti запущено</string>
 </resources>

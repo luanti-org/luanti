@@ -21,6 +21,7 @@ class NodeMetadataList;
 class IGameDef;
 class MapBlockMesh;
 class VoxelManipulator;
+class NameIdMapping;
 
 #define BLOCK_TIMESTAMP_UNDEFINED 0xffffffff
 
@@ -78,11 +79,6 @@ public:
 		for (u32 i = 0; i < nodecount; i++)
 			data[i] = MapNode(CONTENT_IGNORE);
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_REALLOCATE);
-	}
-
-	MapNode* getData()
-	{
-		return data;
 	}
 
 	////
@@ -313,6 +309,7 @@ public:
 	bool onObjectsActivation();
 	bool saveStaticObject(u16 id, const StaticObject &obj, u32 reason);
 
+	/// @note This method is only for Server, don't call it on client
 	void step(float dtime, const std::function<bool(v3s16, MapNode, f32)> &on_timer_cb);
 
 	////
@@ -337,6 +334,7 @@ public:
 		return m_timestamp;
 	}
 
+	/// @deprecated don't use in new code, unclear semantics.
 	inline u32 getDiskTimestamp()
 	{
 		return m_disk_timestamp;
@@ -425,17 +423,22 @@ public:
 	// clearObject and return removed objects count
 	u32 clearObjects();
 
+private:
 	static const u32 ystride = MAP_BLOCKSIZE;
 	static const u32 zstride = MAP_BLOCKSIZE * MAP_BLOCKSIZE;
 
 	static const u32 nodecount = MAP_BLOCKSIZE * MAP_BLOCKSIZE * MAP_BLOCKSIZE;
 
-private:
 	/*
 		Private methods
 	*/
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
+
+	static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
+		const NodeDefManager *nodedef);
+	static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
+			IGameDef *gamedef);
 
 	/*
 	 * PLEASE NOTE: When adding something here be mindful of position and size

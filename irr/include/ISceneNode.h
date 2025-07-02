@@ -16,6 +16,7 @@
 #include <list>
 #include <optional>
 #include <string>
+#include <cassert>
 
 namespace irr
 {
@@ -93,16 +94,12 @@ public:
 	\param timeMs Current time in milliseconds. */
 	virtual void OnAnimate(u32 timeMs)
 	{
-		if (IsVisible) {
-			// update absolute position
-			updateAbsolutePosition();
+		if (!IsVisible && Children.empty())
+			return;
 
-			// perform the post render process on all children
-
-			ISceneNodeList::iterator it = Children.begin();
-			for (; it != Children.end(); ++it)
-				(*it)->OnAnimate(timeMs);
-		}
+		updateAbsolutePosition();
+		for (auto *child : Children)
+			child->OnAnimate(timeMs);
 	}
 
 	//! Renders the node.
@@ -268,7 +265,7 @@ public:
 			return false;
 
 		// The iterator must be set since the parent is not null.
-		_IRR_DEBUG_BREAK_IF(!child->ThisIterator.has_value());
+		assert(child->ThisIterator.has_value());
 		auto it = *child->ThisIterator;
 		child->ThisIterator = std::nullopt;
 		child->Parent = nullptr;

@@ -1,4 +1,4 @@
-# Miscellaneous
+# Profiling
 
 ## Profiling Luanti on Linux with perf
 

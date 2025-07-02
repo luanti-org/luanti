@@ -9,6 +9,8 @@
 #include "os.h"
 #include "SoftwareDriver2_helper.h"
 
+#include <cassert>
+
 namespace irr
 {
 namespace video
@@ -20,7 +22,10 @@ CImage::CImage(ECOLOR_FORMAT format, const core::dimension2d<u32> &size, void *d
 		IImage(format, size, deleteMemory)
 {
 	if (ownForeignMemory) {
-		Data = (u8 *)data;
+		assert(data);
+		Data = reinterpret_cast<u8*>(data);
+		if (reinterpret_cast<uintptr_t>(data) % sizeof(u32) != 0)
+			os::Printer::log("CImage created with foreign memory that's not aligned", ELL_WARNING);
 	} else {
 		const u32 dataSize = getDataSizeFromFormat(Format, Size.Width, Size.Height);
 		const u32 allocSize = align_next(dataSize, 16);
@@ -360,7 +365,7 @@ inline SColor CImage::getPixelBox(s32 x, s32 y, s32 fx, s32 fy, s32 bias) const
 		}
 	}
 
-	s32 sdiv = s32_log2_s32(fx * fy);
+	s32 sdiv = core::u32_log2(fx * fy);
 
 	a = core::s32_clamp((a >> sdiv) + bias, 0, 255);
 	r = core::s32_clamp((r >> sdiv) + bias, 0, 255);

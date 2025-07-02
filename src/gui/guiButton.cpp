@@ -718,18 +718,23 @@ void GUIButton::setFromStyle(const StyleSpec& style)
 	setUseAlphaChannel(style.getBool(StyleSpec::ALPHA, true));
 	setOverrideFont(style.getFont());
 
+	BgMiddle = style.getRect(StyleSpec::BGIMG_MIDDLE, BgMiddle);
+
 	if (style.isNotDefault(StyleSpec::BGIMG)) {
 		video::ITexture *texture = style.getTexture(StyleSpec::BGIMG,
 				getTextureSource());
-		setImage(guiScalingImageButton(
-				Environment->getVideoDriver(), texture,
-						AbsoluteRect.getWidth(), AbsoluteRect.getHeight()));
+		if (BgMiddle.getArea() == 0) {
+			setImage(guiScalingImageButton(
+					Environment->getVideoDriver(), texture,
+							AbsoluteRect.getWidth(), AbsoluteRect.getHeight()));
+		} else {
+			// Scaling happens in `draw2DImage9Slice`
+			setImage(texture);
+		}
 		setScaleImage(true);
 	} else {
 		setImage(nullptr);
 	}
-
-	BgMiddle = style.getRect(StyleSpec::BGIMG_MIDDLE, BgMiddle);
 
 	// Child padding and offset
 	Padding = style.getRect(StyleSpec::PADDING, core::rect<s32>());

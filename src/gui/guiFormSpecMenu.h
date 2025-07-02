@@ -47,7 +47,8 @@ enum FormspecFieldType {
 enum FormspecQuitMode {
 	quit_mode_no,
 	quit_mode_accept,
-	quit_mode_cancel
+	quit_mode_cancel,
+	quit_mode_try,
 };
 
 enum ButtonEventType : u8
@@ -67,8 +68,6 @@ struct TextDest
 {
 	virtual ~TextDest() = default;
 
-	// This is deprecated I guess? -celeron55
-	virtual void gotText(const std::wstring &text) {}
 	virtual void gotText(const StringMap &fields) = 0;
 
 	std::string m_formname;
@@ -129,9 +128,9 @@ class GUIFormSpecMenu : public GUIModalMenu
 		bool is_exit;
 		// Draw priority for formspec version < 3
 		int priority;
-		core::rect<s32> rect;
 		gui::ECURSOR_ICON fcursor_icon;
 		std::string sound;
+		f32 aux_f32 = 0;
 	};
 
 	struct TooltipSpec
@@ -203,8 +202,11 @@ public:
 		m_text_dst = text_dst;
 	}
 
-	void allowClose(bool value)
+	void defaultAllowClose(bool value)
 	{
+		// Also set m_allowclose here in order to have the correct value if
+		// escape is pressed before regenerateGui() is called.
+		m_default_allowclose = value;
 		m_allowclose = value;
 	}
 
@@ -363,6 +365,7 @@ protected:
 	u64 m_hovered_time = 0;
 	s32 m_old_tooltip_id = -1;
 
+	bool m_default_allowclose = true;
 	bool m_allowclose = true;
 	bool m_lock = false;
 	v2u32 m_lockscreensize;
@@ -422,7 +425,6 @@ private:
 		bool key_up;
 		bool key_down;
 		bool key_enter;
-		bool key_escape;
 	};
 
 	fs_key_pending current_keys_pending;
@@ -484,10 +486,12 @@ private:
 	void parseStyle(parserData *data, const std::string &element);
 	void parseSetFocus(parserData *, const std::string &element);
 	void parseModel(parserData *data, const std::string &element);
+	void parseAllowClose(parserData *data, const std::string &element);
 
 	bool parseMiddleRect(const std::string &value, core::rect<s32> *parsed_rect);
 
 	void tryClose();
+	void trySubmitClose();
 
 	void showTooltip(const std::wstring &text, const irr::video::SColor &color,
 		const irr::video::SColor &bgcolor);

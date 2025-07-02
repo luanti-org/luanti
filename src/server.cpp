@@ -65,6 +65,8 @@
 #include "gettext.h"
 #include "util/tracy_wrapper.h"
 
+#include <csignal>
+
 class ClientNotFoundException : public BaseException
 {
 public:
@@ -284,12 +286,12 @@ Server::Server(
 		throw ServerError("Supplied invalid gamespec");
 
 #if USE_PROMETHEUS
-	if (!simple_singleplayer_mode)
-		m_metrics_backend = std::unique_ptr<MetricsBackend>(createPrometheusMetricsBackend());
-	else
-#else
-	if (true)
+	if (!simple_singleplayer_mode) {
+		// Note: may return null
+		m_metrics_backend.reset(createPrometheusMetricsBackend());
+	}
 #endif
+	if (!m_metrics_backend)
 		m_metrics_backend = std::make_unique<MetricsBackend>();
 
 	m_uptime_counter = m_metrics_backend->addCounter("minetest_core_server_uptime", "Server uptime (in seconds)");
@@ -461,7 +463,7 @@ void Server::init()
 	m_mod_storage_database = openModStorageDatabase(m_path_world);
 	m_mod_storage_database->beginSave();
 
-	m_modmgr = std::make_unique<ServerModManager>(m_path_world);
+	m_modmgr = std::make_unique<ServerModManager>(m_path_world, m_gamespec);
 
 	// complain about mods with unsatisfied dependencies
 	if (!m_modmgr->isConsistent()) {
@@ -567,8 +569,7 @@ void Server::start()
 {
 	init();
 
-	infostream << "Starting server on " << m_bind_addr.serializeString()
-			<< "..." << std::endl;
+	infostream << "Starting server thread..." << std::endl;
 
 	// Stop thread if already running
 	m_thread->stop();
@@ -587,14 +588,16 @@ void Server::start()
 		R"(| | |_| | (_| | | | | |_| |)",
 		R"(|_|\__,_|\__,_|_| |_|\__|_|)",
 	};
-
 	if (!m_admin_chat) {
 		// we're not printing to rawstream to avoid it showing up in the logs.
 		// however it would then mess up the ncurses terminal (m_admin_chat),
 		// so we skip it in that case.
-		for (auto line : art)
-			std::cerr << line << std::endl;
+		for (size_t i = 0; i < ARRLEN(art); ++i)
+			std::cerr << art[i] << (i == ARRLEN(art) - 1 ? "" : "\n");
+		// add a "tail" with the engine version
+		std::cerr << "  ___ " << g_version_hash << std::endl;
 	}
+
 	actionstream << "World at [" << m_path_world << "]" << std::endl;
 	actionstream << "Server for gameid=\"" << m_gamespec.id
 			<< "\" listening on ";
@@ -756,6 +759,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
 			event.type = MEET_OTHER;
+			event.low_priority = true;
 			event.setModifiedBlocks(modified_blocks);
 			m_env->getMap().dispatchEvent(event);
 		}
@@ -967,6 +971,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		// We'll log the amount of each
 		Profiler prof;
 
+		size_t block_count = 0;
 		std::unordered_set<v3s16> node_meta_updates;
 
 		while (!m_unsent_map_edit_queue.empty()) {
@@ -1006,7 +1011,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 			}
 			case MEET_OTHER:
 				prof.add("MEET_OTHER", 1);
-				m_clients.markBlocksNotSent(event->modified_blocks);
+				m_clients.markBlocksNotSent(event->modified_blocks, event->low_priority);
 				break;
 			default:
 				prof.add("unknown", 1);
@@ -1015,22 +1020,22 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 				break;
 			}
 
+			block_count += event->modified_blocks.size();
+
 			/*
 				Set blocks not sent to far players
 			*/
 			for (const u16 far_player : far_players) {
 				if (RemoteClient *client = getClient(far_player))
-					client->SetBlocksNotSent(event->modified_blocks);
+					client->SetBlocksNotSent(event->modified_blocks, event->low_priority);
 			}
 
 			delete event;
 		}
 
-		if (event_count >= 5) {
-			infostream << "Server: MapEditEvents:" << std::endl;
-			prof.print(infostream);
-		} else if (event_count != 0) {
-			verbosestream << "Server: MapEditEvents:" << std::endl;
+		if (event_count != 0) {
+			verbosestream << "Server: MapEditEvents modified total "
+				<< block_count << " blocks:" << std::endl;
 			prof.print(verbosestream);
 		}
 
@@ -1310,9 +1315,7 @@ void Server::ProcessData(NetworkPacket *pkt)
 		}
 
 		if (m_clients.getClientState(peer_id) < CS_Active) {
-			if (command == TOSERVER_PLAYERPOS) return;
-
-			errorstream << "Server: Got packet command "
+			warningstream << "Server: Got packet command "
 					<< static_cast<unsigned>(command)
 					<< " for peer id " << peer_id
 					<< " but client isn't active yet. Dropping packet." << std::endl;
@@ -1573,7 +1576,8 @@ void Server::SendChatMessage(session_t peer_id, const ChatMessage &message)
 	if (peer_id != PEER_ID_INEXISTENT) {
 		Send(&pkt);
 	} else {
-		m_clients.sendToAll(&pkt);
+		// If a client has completed auth but is still joining, still send chat
+		m_clients.sendToAll(&pkt, CS_InitDone);
 	}
 }
 
@@ -1591,11 +1595,10 @@ void Server::SendShowFormspecMessage(session_t peer_id, const std::string &forms
 				(it->second == formname || formname.empty())) {
 			m_formspec_state_data.erase(peer_id);
 		}
-		pkt.putLongString("");
 	} else {
 		m_formspec_state_data[peer_id] = formname;
-		pkt.putLongString(formspec);
 	}
+	pkt.putLongString(formspec);
 	pkt << formname;
 
 	Send(&pkt);
@@ -2166,10 +2169,6 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersa
 	}
 
 	Send(&pkt);
-
-	verbosestream << "Server::SendActiveObjectRemoveAdd(): "
-		<< removed_objects.size() << " removed, " << added_objects.size()
-		<< " added, packet size is " << pkt.getSize() << std::endl;
 }
 
 void Server::SendActiveObjectMessages(session_t peer_id, const std::string &datas,
@@ -3188,9 +3187,7 @@ std::wstring Server::handleChat(const std::string &name,
 
 	ChatMessage chatmsg(line);
 
-	std::vector<session_t> clients = m_clients.getClientIDs();
-	for (u16 cid : clients)
-		SendChatMessage(cid, chatmsg);
+	SendChatMessage(PEER_ID_INEXISTENT, chatmsg);
 
 	return L"";
 }
@@ -3362,6 +3359,15 @@ bool Server::denyIfBanned(session_t peer_id)
 	return false;
 }
 
+bool Server::checkUserLimit(const std::string &player_name, const std::string &addr_s)
+{
+	if (!m_clients.isUserLimitReached())
+		return false;
+	if (player_name == g_settings->get("name")) // admin can always join
+		return false;
+	return !m_script->can_bypass_userlimit(player_name, addr_s);
+}
+
 void Server::notifyPlayer(const char *name, const std::wstring &msg)
 {
 	// m_env will be NULL if the server is initializing
@@ -3389,6 +3395,9 @@ bool Server::showFormspec(const char *playername, const std::string &formspec,
 	RemotePlayer *player = m_env->getPlayer(playername);
 	if (!player)
 		return false;
+
+	// To allow re-sending the same inventory formspec.
+	player->inventory_formspec_overridden = formname.empty() && !formspec.empty();
 
 	SendShowFormspecMessage(player->getPeerId(), formspec, formname);
 	return true;
@@ -3495,7 +3504,6 @@ void Server::hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &
 
 Address Server::getPeerAddress(session_t peer_id)
 {
-	// Note that this is only set after Init was received in Server::handleCommand_Init
 	return getClient(peer_id, CS_Invalid)->getAddress();
 }
 
@@ -3750,7 +3758,11 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 	// Push file to existing clients
 	if (m_env) {
 		NetworkPacket pkt(TOCLIENT_MEDIA_PUSH, 0);
-		pkt << raw_hash << filename << static_cast<bool>(a.ephemeral);
+		pkt << raw_hash << filename;
+		// NOTE: the meaning of a.ephemeral was accidentally inverted between proto 39 and 40,
+		// when dynamic_add_media v2 was added. As of 5.12.0 the server sends it correctly again.
+		// Compatibility code on the client-side was not added.
+		pkt << static_cast<bool>(!a.ephemeral);
 
 		NetworkPacket legacy_pkt = pkt;
 
@@ -3917,7 +3929,11 @@ std::string Server::getBuiltinLuaPath()
 
 void Server::setAsyncFatalError(const std::string &error)
 {
+	// print error right here in the thread that set it, for clearer logging
+	infostream << "setAsyncFatalError: " << error << std::endl;
+
 	m_async_fatal_error.set(error);
+
 	// make sure server steps stop happening immediately
 	if (m_thread)
 		m_thread->stop();
@@ -4102,7 +4118,7 @@ std::unique_ptr<PlayerSAO> Server::emergePlayer(const char *name, session_t peer
 	return playersao;
 }
 
-void dedicated_server_loop(Server &server, bool &kill)
+void dedicated_server_loop(Server &server, volatile std::sig_atomic_t &kill)
 {
 	verbosestream<<"dedicated_server_loop()"<<std::endl;
 
@@ -4271,7 +4287,7 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &world_path
 		warningstream << "/!\\ You are using the old mod storage files backend. "
 			<< "This backend is deprecated and may be removed in a future release /!\\"
 			<< std::endl << "Switching to SQLite3 is advised, "
-			<< "please read https://wiki.luanti.org/Database_backends." << std::endl;
+			<< "please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
 
 	return openModStorageDatabase(backend, world_path, world_mt);
 }

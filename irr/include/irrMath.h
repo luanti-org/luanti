@@ -25,7 +25,7 @@ constexpr f64 ROUNDING_ERROR_f64 = 0.00000001;
 #undef PI
 #endif
 //! Constant for PI.
-constexpr f32 PI = M_PI;
+constexpr f32 PI = static_cast<f32>(M_PI);
 
 #ifdef PI64 // make sure we don't collide with a define
 #undef PI64
@@ -281,6 +281,17 @@ inline s32 s32_max(s32 a, s32 b)
 inline s32 s32_clamp(s32 value, s32 low, s32 high)
 {
 	return clamp(value, low, high);
+}
+
+// integer log2 of an integer. returning 0 if denormal
+inline s32 u32_log2(u32 in)
+{
+	s32 ret = 0;
+	while (in > 1) {
+		in >>= 1;
+		ret++;
+	}
+	return ret;
 }
 
 /*

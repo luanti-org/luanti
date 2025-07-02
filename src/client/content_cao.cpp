@@ -144,6 +144,31 @@ void SmoothTranslatorWrappedv3f::translate(f32 dtime)
 	Other stuff
 */
 
+static bool setMaterialTextureAndFilters(video::SMaterial &material,
+	const std::string &texturestring, ITextureSource *tsrc)
+{
+	bool use_trilinear_filter = g_settings->getBool("trilinear_filter");
+	bool use_bilinear_filter = g_settings->getBool("bilinear_filter");
+	bool use_anisotropic_filter = g_settings->getBool("anisotropic_filter");
+
+	video::ITexture *texture = tsrc->getTextureForMesh(texturestring);
+	if (!texture)
+		return false;
+
+	material.setTexture(0, texture);
+
+	// don't filter low-res textures, makes them look blurry
+	const core::dimension2d<u32> &size = texture->getOriginalSize();
+	if (std::min(size.Width, size.Height) < TEXTURE_FILTER_MIN_SIZE)
+		use_trilinear_filter = use_bilinear_filter = false;
+
+	material.forEachTexture([=] (auto &tex) {
+		setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
+				use_anisotropic_filter);
+	});
+	return true;
+}
+
 static void setBillboardTextureMatrix(scene::IBillboardSceneNode *bill,
 		float txs, float tys, int col, int row)
 {
@@ -151,15 +176,6 @@ static void setBillboardTextureMatrix(scene::IBillboardSceneNode *bill,
 	core::matrix4& matrix = material.getTextureMatrix(0);
 	matrix.setTextureTranslate(txs*col, tys*row);
 	matrix.setTextureScale(txs, tys);
-}
-
-// Evaluate transform chain recursively; irrlicht does not do this for us
-static void updatePositionRecursive(scene::ISceneNode *node)
-{
-	scene::ISceneNode *parent = node->getParent();
-	if (parent)
-		updatePositionRecursive(parent);
-	node->updateAbsolutePosition();
 }
 
 static bool logOnce(const std::ostringstream &from, std::ostream &log_to)
@@ -229,139 +245,6 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 	}
 	mesh->recalculateBoundingBox();
 	return mesh.release();
-}
-
-/*
-	TestCAO
-*/
-
-class TestCAO : public ClientActiveObject
-{
-public:
-	TestCAO(Client *client, ClientEnvironment *env);
-	virtual ~TestCAO() = default;
-
-	ActiveObjectType getType() const
-	{
-		return ACTIVEOBJECT_TYPE_TEST;
-	}
-
-	static std::unique_ptr<ClientActiveObject> create(Client *client, ClientEnvironment *env);
-
-	void addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr);
-	void removeFromScene(bool permanent);
-	void updateLight(u32 day_night_ratio);
-	void updateNodePos();
-
-	void step(float dtime, ClientEnvironment *env);
-
-	void processMessage(const std::string &data);
-
-	bool getCollisionBox(aabb3f *toset) const { return false; }
-private:
-	scene::IMeshSceneNode *m_node;
-	v3f m_position;
-};
-
-// Prototype
-static TestCAO proto_TestCAO(nullptr, nullptr);
-
-TestCAO::TestCAO(Client *client, ClientEnvironment *env):
-	ClientActiveObject(0, client, env),
-	m_node(NULL),
-	m_position(v3f(0,10*BS,0))
-{
-	if (!client)
-		ClientActiveObject::registerType(getType(), create);
-}
-
-std::unique_ptr<ClientActiveObject> TestCAO::create(Client *client, ClientEnvironment *env)
-{
-	return std::make_unique<TestCAO>(client, env);
-}
-
-void TestCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
-{
-	if(m_node != NULL)
-		return;
-
-	//video::IVideoDriver* driver = smgr->getVideoDriver();
-
-	scene::SMesh *mesh = new scene::SMesh();
-	scene::IMeshBuffer *buf = new scene::SMeshBuffer();
-	video::SColor c(255,255,255,255);
-	video::S3DVertex vertices[4] =
-	{
-		video::S3DVertex(-BS/2,-BS/4,0, 0,0,0, c, 0,1),
-		video::S3DVertex(BS/2,-BS/4,0, 0,0,0, c, 1,1),
-		video::S3DVertex(BS/2,BS/4,0, 0,0,0, c, 1,0),
-		video::S3DVertex(-BS/2,BS/4,0, 0,0,0, c, 0,0),
-	};
-	u16 indices[] = {0,1,2,2,3,0};
-	buf->append(vertices, 4, indices, 6);
-	// Set material
-	buf->getMaterial().BackfaceCulling = false;
-	buf->getMaterial().TextureLayers[0].Texture = tsrc->getTextureForMesh("rat.png");
-	buf->getMaterial().TextureLayers[0].MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
-	buf->getMaterial().TextureLayers[0].MagFilter = video::ETMAGF_NEAREST;
-	buf->getMaterial().FogEnable = true;
-	buf->getMaterial().MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-	// Add to mesh
-	mesh->addMeshBuffer(buf);
-	buf->drop();
-	m_node = smgr->addMeshSceneNode(mesh, NULL);
-	mesh->drop();
-	updateNodePos();
-}
-
-void TestCAO::removeFromScene(bool permanent)
-{
-	if (!m_node)
-		return;
-
-	m_node->remove();
-	m_node = NULL;
-}
-
-void TestCAO::updateLight(u32 day_night_ratio)
-{
-}
-
-void TestCAO::updateNodePos()
-{
-	if (!m_node)
-		return;
-
-	m_node->setPosition(m_position);
-	//m_node->setRotation(v3f(0, 45, 0));
-}
-
-void TestCAO::step(float dtime, ClientEnvironment *env)
-{
-	if(m_node)
-	{
-		v3f rot = m_node->getRotation();
-		//infostream<<"dtime="<<dtime<<", rot.Y="<<rot.Y<<std::endl;
-		rot.Y += dtime * 180;
-		m_node->setRotation(rot);
-	}
-}
-
-void TestCAO::processMessage(const std::string &data)
-{
-	infostream<<"TestCAO: Got data: "<<data<<std::endl;
-	std::istringstream is(data, std::ios::binary);
-	u16 cmd;
-	is>>cmd;
-	if(cmd == 0)
-	{
-		v3f newpos;
-		is>>newpos.X;
-		is>>newpos.Y;
-		is>>newpos.Z;
-		m_position = newpos;
-		updateNodePos();
-	}
 }
 
 /*
@@ -519,6 +402,32 @@ void GenericCAO::setChildrenVisible(bool toset)
 void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
 		v3f position, v3f rotation, bool force_visible)
 {
+	// Do checks to avoid circular references
+	// See similar check in `UnitSAO::setAttachment` (but with different types).
+	{
+		auto *obj = m_env->getActiveObject(parent_id);
+		if (obj == this) {
+			assert(false);
+			return;
+		}
+		bool problem = false;
+		if (obj) {
+			// The chain of wanted parent must not refer or contain "this"
+			for (obj = obj->getParent(); obj; obj = obj->getParent()) {
+				if (obj == this) {
+					problem = true;
+					break;
+				}
+			}
+		}
+		if (problem) {
+			warningstream << "Network or mod bug: "
+				<< "Attempted to attach object " << m_id << " to parent "
+				<< parent_id << " but former is an (in)direct parent of latter." << std::endl;
+			return;
+		}
+	}
+
 	const auto old_parent = m_attachment_parent_id;
 	m_attachment_parent_id = parent_id;
 	m_attachment_bone = bone;
@@ -764,7 +673,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			m_animated_meshnode = m_smgr->addAnimatedMeshSceneNode(mesh, m_matrixnode);
 			m_animated_meshnode->grab();
 			mesh->drop(); // The scene node took hold of it
-			m_animated_meshnode->animateJoints(); // Needed for some animations
 			m_animated_meshnode->setScale(m_prop.visual_size);
 
 			// set vertex colors to ensure alpha is set
@@ -774,6 +682,21 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 
 			m_animated_meshnode->forEachMaterial([this] (auto &mat) {
 				mat.BackfaceCulling = m_prop.backface_culling;
+			});
+
+			m_animated_meshnode->setOnAnimateCallback([&](f32 dtime) {
+				for (auto &it : m_bone_override) {
+					auto* bone = m_animated_meshnode->getJointNode(it.first.c_str());
+					if (!bone)
+						continue;
+
+					BoneOverride &props = it.second;
+					props.dtime_passed += dtime;
+
+					bone->setPosition(props.getPosition(bone->getPosition()));
+					bone->setRotation(props.getRotationEulerDeg(bone->getRotation()));
+					bone->setScale(props.getScale(bone->getScale()));
+				}
 			});
 		} else
 			errorstream<<"GenericCAO::addToScene(): Could not load mesh "<<m_prop.mesh<<std::endl;
@@ -865,7 +788,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 	updateMarker();
 	updateNodePos();
 	updateAnimation();
-	updateBones(.0f);
 	updateAttachments();
 	setNodeLight(m_last_light);
 	updateMeshCulling();
@@ -942,7 +864,8 @@ void GenericCAO::setNodeLight(const video::SColor &light_color)
 {
 	if (m_prop.visual == OBJECTVISUAL_WIELDITEM || m_prop.visual == OBJECTVISUAL_ITEM) {
 		if (m_wield_meshnode)
-			m_wield_meshnode->setNodeLightColor(light_color);
+			m_wield_meshnode->setLightColorAndAnimation(light_color,
+					m_client->getAnimationTime());
 		return;
 	}
 
@@ -1255,18 +1178,6 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		rot_translator.val_current = m_rotation;
 		updateNodePos();
 	}
-
-	if (m_animated_meshnode) {
-		// Everything must be updated; the whole transform
-		// chain as well as the animated mesh node.
-		// Otherwise, bone attachments would be relative to
-		// a position that's one frame old.
-		if (m_matrixnode)
-			updatePositionRecursive(m_matrixnode);
-		m_animated_meshnode->updateAbsolutePosition();
-		m_animated_meshnode->animateJoints();
-		updateBones(dtime);
-	}
 }
 
 static void setMeshBufferTextureCoords(scene::IMeshBuffer *buf, const v2f *uv, u32 count)
@@ -1370,10 +1281,6 @@ void GenericCAO::updateTextures(std::string mod)
 {
 	ITextureSource *tsrc = m_client->tsrc();
 
-	bool use_trilinear_filter = g_settings->getBool("trilinear_filter");
-	bool use_bilinear_filter = g_settings->getBool("bilinear_filter");
-	bool use_anisotropic_filter = g_settings->getBool("anisotropic_filter");
-
 	m_previous_texture_modifier = m_current_texture_modifier;
 	m_current_texture_modifier = mod;
 
@@ -1386,12 +1293,7 @@ void GenericCAO::updateTextures(std::string mod)
 
 			video::SMaterial &material = m_spritenode->getMaterial(0);
 			material.MaterialType = m_material_type;
-			material.setTexture(0, tsrc->getTextureForMesh(texturestring));
-
-			material.forEachTexture([=] (auto &tex) {
-				setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-						use_anisotropic_filter);
-			});
+			setMaterialTextureAndFilters(material, texturestring, tsrc);
 		}
 	}
 
@@ -1405,29 +1307,12 @@ void GenericCAO::updateTextures(std::string mod)
 				if (texturestring.empty())
 					continue; // Empty texture string means don't modify that material
 				texturestring += mod;
-				video::ITexture *texture = tsrc->getTextureForMesh(texturestring);
-				if (!texture) {
-					errorstream<<"GenericCAO::updateTextures(): Could not load texture "<<texturestring<<std::endl;
-					continue;
-				}
 
 				// Set material flags and texture
 				video::SMaterial &material = m_animated_meshnode->getMaterial(i);
 				material.MaterialType = m_material_type;
-				material.TextureLayers[0].Texture = texture;
 				material.BackfaceCulling = m_prop.backface_culling;
-
-				// don't filter low-res textures, makes them look blurry
-				// player models have a res of 64
-				const core::dimension2d<u32> &size = texture->getOriginalSize();
-				const u32 res = std::min(size.Height, size.Width);
-				use_trilinear_filter &= res > 64;
-				use_bilinear_filter &= res > 64;
-
-				material.forEachTexture([=] (auto &tex) {
-					setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-							use_anisotropic_filter);
-				});
+				setMaterialTextureAndFilters(material, texturestring, tsrc);
 			}
 		}
 	}
@@ -1445,13 +1330,7 @@ void GenericCAO::updateTextures(std::string mod)
 				// Set material flags and texture
 				video::SMaterial &material = m_meshnode->getMaterial(i);
 				material.MaterialType = m_material_type;
-				material.setTexture(0, tsrc->getTextureForMesh(texturestring));
-				material.getTextureMatrix(0).makeIdentity();
-
-				material.forEachTexture([=] (auto &tex) {
-					setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-							use_anisotropic_filter);
-				});
+				setMaterialTextureAndFilters(material, texturestring, tsrc);
 			}
 		} else if (m_prop.visual == OBJECTVISUAL_UPRIGHT_SPRITE) {
 			scene::IMesh *mesh = m_meshnode->getMesh();
@@ -1462,12 +1341,7 @@ void GenericCAO::updateTextures(std::string mod)
 				tname += mod;
 
 				auto &material = m_meshnode->getMaterial(0);
-				material.setTexture(0, tsrc->getTextureForMesh(tname));
-
-				material.forEachTexture([=] (auto &tex) {
-					setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-							use_anisotropic_filter);
-				});
+				setMaterialTextureAndFilters(material, tname, tsrc);
 			}
 			{
 				std::string tname = "no_texture.png";
@@ -1478,12 +1352,7 @@ void GenericCAO::updateTextures(std::string mod)
 				tname += mod;
 
 				auto &material = m_meshnode->getMaterial(1);
-				material.setTexture(0, tsrc->getTextureForMesh(tname));
-
-				material.forEachTexture([=] (auto &tex) {
-					setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
-							use_anisotropic_filter);
-				});
+				setMaterialTextureAndFilters(material, tname, tsrc);
 			}
 			// Set mesh color (only if lighting is disabled)
 			if (m_prop.glow < 0)
@@ -1515,44 +1384,6 @@ void GenericCAO::updateAnimationSpeed()
 		return;
 
 	m_animated_meshnode->setAnimationSpeed(m_animation_speed);
-}
-
-void GenericCAO::updateBones(f32 dtime)
-{
-	if (!m_animated_meshnode)
-		return;
-	if (m_bone_override.empty()) {
-		m_animated_meshnode->setJointMode(scene::EJUOR_NONE);
-		return;
-	}
-
-	m_animated_meshnode->setJointMode(scene::EJUOR_CONTROL); // To write positions to the mesh on render
-	for (auto &it : m_bone_override) {
-		std::string bone_name = it.first;
-		scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
-		if (!bone)
-			continue;
-
-		BoneOverride &props = it.second;
-		props.dtime_passed += dtime;
-
-		bone->setPosition(props.getPosition(bone->getPosition()));
-		bone->setRotation(props.getRotationEulerDeg(bone->getRotation()));
-		bone->setScale(props.getScale(bone->getScale()));
-	}
-
-	// The following is needed for set_bone_pos to propagate to
-	// attached objects correctly.
-	// Irrlicht ought to do this, but doesn't when using EJUOR_CONTROL.
-	for (u32 i = 0; i < m_animated_meshnode->getJointCount(); ++i) {
-		auto bone = m_animated_meshnode->getJointNode(i);
-		// Look for the root bone.
-		if (bone && bone->getParent() == m_animated_meshnode) {
-			// Update entire skeleton.
-			bone->updateAbsolutePositionOfAllChildren();
-			break;
-		}
-	}
 }
 
 void GenericCAO::updateAttachments()
@@ -1870,7 +1701,6 @@ void GenericCAO::processMessage(const std::string &data)
 		} else {
 			m_bone_override[bone] = props;
 		}
-		// updateBones(); now called every step
 	} else if (cmd == AO_CMD_ATTACH_TO) {
 		u16 parent_id = readS16(is);
 		std::string bone = deSerializeString16(is);

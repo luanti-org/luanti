@@ -48,7 +48,7 @@ IAnimatedMesh *CB3DMeshFileLoader::createMesh(io::IReadFile *file)
 		return 0;
 
 	B3DFile = file;
-	AnimatedMesh = new scene::SkinnedMeshBuilder();
+	AnimatedMesh = new scene::SkinnedMeshBuilder(SkinnedMesh::SourceFormat::B3D);
 	ShowWarning = true; // If true a warning is issued if too many textures are used
 	VerticesStart = 0;
 
@@ -143,31 +143,25 @@ bool CB3DMeshFileLoader::readChunkNODE(SkinnedMesh::SJoint *inJoint)
 	os::Printer::log(logStr.c_str(), joint->Name.value_or("").c_str(), ELL_DEBUG);
 #endif
 
-	f32 position[3], scale[3], rotation[4];
+	core::Transform transform;
+	{
+		f32 t[3], s[3], r[4];
 
-	readFloats(position, 3);
-	readFloats(scale, 3);
-	readFloats(rotation, 4);
+		readFloats(t, 3);
+		readFloats(s, 3);
+		readFloats(r, 4);
 
-	joint->Animatedposition = core::vector3df(position[0], position[1], position[2]);
-	joint->Animatedscale = core::vector3df(scale[0], scale[1], scale[2]);
-	joint->Animatedrotation = core::quaternion(rotation[1], rotation[2], rotation[3], rotation[0]);
-
-	// Build LocalMatrix:
-
-	core::matrix4 positionMatrix;
-	positionMatrix.setTranslation(joint->Animatedposition);
-	core::matrix4 scaleMatrix;
-	scaleMatrix.setScale(joint->Animatedscale);
-	core::matrix4 rotationMatrix;
-	joint->Animatedrotation.getMatrix_transposed(rotationMatrix);
-
-	joint->LocalMatrix = positionMatrix * rotationMatrix * scaleMatrix;
+		joint->transform = transform = {
+			{t[0], t[1], t[2]},
+			{r[1], r[2], r[3], r[0]},
+			{s[0], s[1], s[2]},
+		};
+	}
 
 	if (inJoint)
-		joint->GlobalMatrix = inJoint->GlobalMatrix * joint->LocalMatrix;
+		joint->GlobalMatrix = inJoint->GlobalMatrix * transform.buildMatrix();
 	else
-		joint->GlobalMatrix = joint->LocalMatrix;
+		joint->GlobalMatrix = transform.buildMatrix();
 
 	while (B3dStack.getLast().startposition + B3dStack.getLast().length > B3DFile->getPos()) // this chunk repeats
 	{

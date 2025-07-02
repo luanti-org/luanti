@@ -410,7 +410,7 @@ void InvRef::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<InvRef>(L, methods, metamethods);
 
 	// Cannot be created from Lua
 	//lua_register(L, className, create_object);

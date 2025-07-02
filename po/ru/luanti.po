@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Russian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 13:23+0100\n"
-"PO-Revision-Date: 2025-02-12 12:18+0000\n"
+"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"PO-Revision-Date: 2025-05-16 16:16+0000\n"
 "Last-Translator: BlackImpostor <SkyBuilderOFFICAL@yandex.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/minetest/"
 "minetest/ru/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -83,8 +83,16 @@ msgid "Browse"
 msgstr "Обзор"
 
 #: builtin/common/settings/components.lua
+msgid "Conflicts with \"$1\""
+msgstr "Конфликтует с \"$1\""
+
+#: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "Править"
+
+#: builtin/common/settings/components.lua
+msgid "Remove keybinding"
+msgstr "Удалить привязку клавиш"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -112,8 +120,8 @@ msgstr "2D-шум"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
+#: src/gui/guiPasswordChange.cpp
 msgid "Cancel"
 msgstr "Отмена"
 
@@ -132,10 +140,10 @@ msgstr "Смещение"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Persistence"
-msgstr "Настойчивость"
+msgstr "Персистентность"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "Save"
 msgstr "Сохранить"
 
@@ -190,7 +198,7 @@ msgstr "(В игре также необходимо будет включить
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable bloom as well)"
-msgstr "(В игре также нужно будет включить функцию размытия)"
+msgstr "(В игре также нужно будет включить функцию свечения)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable volumetric lighting as well)"
@@ -208,8 +216,18 @@ msgstr "Доступность"
 msgid "Auto"
 msgstr "Авто"
 
-#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+msgid "Back"
+msgstr "Назад"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Buttons with crosshair"
+msgstr "Кнопки с перекрестием"
+
+#: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
+#: src/settings_translation_file.cpp
 msgid "Chat"
 msgstr "Чат"
 
@@ -235,6 +253,10 @@ msgid "General"
 msgstr "Основной"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Long tap"
+msgstr "Долгое нажатие"
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
 msgstr "Перемещение"
 
@@ -256,6 +278,10 @@ msgid "Search"
 msgstr "Найти"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Short tap"
+msgstr "Короткое нажатие"
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
 msgstr "Показать продвинутые настройки"
 
@@ -264,12 +290,16 @@ msgid "Show technical names"
 msgstr "Показывать технические названия"
 
 #: builtin/common/settings/dlg_settings.lua
-msgid "Touchscreen layout"
-msgstr "Pазложение сенсорного экрана"
+msgid "Tap"
+msgstr "Нажатие"
 
 #: builtin/common/settings/dlg_settings.lua
-msgid "pause_menu"
-msgstr "меню_паузы"
+msgid "Tap with crosshair"
+msgstr "Нажатие с прицелом"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Touchscreen layout"
+msgstr "Расположение сенсорного экрана"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -281,7 +311,7 @@ msgstr "Контент: Игры"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Content: Mods"
-msgstr "Контент: Дополнения"
+msgstr "Контент: Моды"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "(The game will need to enable shadows as well)"
@@ -394,16 +424,11 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "$1 downloading..."
-msgstr "$1 скачивается…"
+msgstr "$1 скачивается..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "All"
 msgstr "Всё"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Back"
-msgstr "Назад"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "ContentDB is not available when Luanti was compiled without cURL"
@@ -411,7 +436,7 @@ msgstr "ContentDB недоступен, когда Luanti скомпилиров
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Downloading..."
-msgstr "Загрузка…"
+msgstr "Загрузка..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
@@ -426,14 +451,13 @@ msgstr "Игры"
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/serverlistmgr.lua
 #: src/client/game.cpp
 msgid "Loading..."
-msgstr "Загрузка…"
+msgstr "Загрузка..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Mods"
-msgstr "Дополнения"
+msgstr "Моды"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "Дополнения не могут быть получены"
 
@@ -535,8 +559,16 @@ msgid "Donate"
 msgstr "Пожертвовать"
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading package information"
+msgstr "Ошибка загрузки информации о дополнении"
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading reviews"
+msgstr "Ошибка загрузки отзывов"
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
-msgstr "Страница на Форуме"
+msgstr "Страница на форуме"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Information"
@@ -548,7 +580,11 @@ msgstr "Установить [$1]"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
-msgstr "Треккер Проблем"
+msgstr "Трекер проблем"
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Reviews"
+msgstr "Отзывы"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -568,11 +604,11 @@ msgstr "Обновить"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
-msgstr "Веб-сайт"
+msgstr "Вебсайт"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
-msgstr "сделано $1  —  $2 загрузок  —  +$3 / $4 / -$5"
+msgstr "от $1  —  $2 загрузок  —  +$3 / $4 / -$5"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 (Enabled)"
@@ -580,7 +616,7 @@ msgstr "$1 (включено)"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 mods"
-msgstr "$1 модов"
+msgstr "Моды $1"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Failed to install $1 to $2"
@@ -592,7 +628,7 @@ msgstr "Установка: не удаётся найти подходящее 
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Unable to find a valid mod, modpack, or game"
-msgstr "Не удаётся найти действительную папку мода, набора модов или игры"
+msgstr "Не удаётся найти допустимый мод, набор модов или игру"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Unable to install a $1 as a $2"
@@ -604,10 +640,10 @@ msgstr "Не удаётся установить $1 как набор текст
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
-"This is the list of clients connected to\n"
+"Players connected to\n"
 "$1"
 msgstr ""
-"Это список подключённых клиентов к\n"
+"Игроки, подключенные к\n"
 "$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
@@ -616,11 +652,11 @@ msgstr "(Включено, есть ошибки)"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Unsatisfied)"
-msgstr "(Неудовлетворительно)"
+msgstr "(Неудовлетворено)"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Disable all"
-msgstr "Отключить все"
+msgstr "Отключить всё"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Disable modpack"
@@ -896,6 +932,30 @@ msgstr "pkgmgr: недопустимый путь «$1»"
 msgid "Delete World \"$1\"?"
 msgstr "Удалить мир «$1»?"
 
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr "В результате ваши привязки клавиш, возможно, были изменены."
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr "Ознакомьтесь с настройками клавиш или обратитесь к документации:"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr "Закрыть"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Keybindings changed"
+msgstr "Изменены привязки клавиш"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Open settings"
+msgstr "Открыть настройки"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr "Система обработки входных данных была переработана в Luanti 5.12.0."
+
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
 msgstr "Подтвердите пароль"
@@ -973,7 +1033,7 @@ msgstr ""
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Expand all"
-msgstr "Расширить всё"
+msgstr "Развернуть всё"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
@@ -981,12 +1041,11 @@ msgstr "Сгруппировать по префиксу"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "The $1 server uses a game called $2 and the following mods:"
-msgstr ""
-"На сервере $1 используется игра под названием $2 со следующими дополнениями:"
+msgstr "На сервере $1 используется игра под названием $2 со следующими модами:"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "The $1 server uses the following mods:"
-msgstr "Сервер $1 использует следующие дополнения:"
+msgstr "Сервер $1 использует следующие моды:"
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
@@ -1151,7 +1210,7 @@ msgstr "Установить игры с ContentDB"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Luanti doesn't come with a game by default."
-msgstr "Luanti больше не стоит по умолчанию."
+msgstr "Luanti больше не поставляется с игрой по умолчанию."
 
 #: builtin/mainmenu/tab_local.lua
 msgid ""
@@ -1171,7 +1230,7 @@ msgstr "Мир не создан или не выбран!"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
-msgstr "Играть в Игру"
+msgstr "Играть"
 
 #: builtin/mainmenu/tab_local.lua builtin/mainmenu/tab_online.lua
 msgid "Port"
@@ -1179,7 +1238,7 @@ msgstr "Порт"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Select Mods"
-msgstr "Выбор модов"
+msgstr "Выберите моды"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Select World:"
@@ -1206,14 +1265,6 @@ msgid "Address"
 msgstr "Адрес"
 
 #: builtin/mainmenu/tab_online.lua
-msgid ""
-"Clients:\n"
-"$1"
-msgstr ""
-"Клиенты:\n"
-"$1"
-
-#: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
 msgstr "Творческий режим"
 
@@ -1232,7 +1283,7 @@ msgstr "Игра: $1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
-msgstr "Несовместимые Сервера"
+msgstr "Несовместимые сервера"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Join Game"
@@ -1248,11 +1299,19 @@ msgstr "Количество модов: $1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Open server website"
-msgstr "Открыть веб-сайт сервера"
+msgstr "Открыть вебсайт сервера"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Задержка"
+
+#: builtin/mainmenu/tab_online.lua
+msgid ""
+"Players:\n"
+"$1"
+msgstr ""
+"Игроки:\n"
+"$1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid ""
@@ -1262,13 +1321,13 @@ msgid ""
 "player:<name>"
 msgstr ""
 "Возможные фильтры\n"
-"игра:<имя>\n"
-"дополнение:<имя>\n"
-"игрок:<имя>"
+"game:<name>\n"
+"mod:<name>\n"
+"player:<name>"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
-msgstr "Публичные серверы"
+msgstr "Публичные сервера"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Refresh"
@@ -1300,15 +1359,15 @@ msgstr "Инициализация нод"
 
 #: src/client/client.cpp
 msgid "Initializing nodes..."
-msgstr "Инициализация нод…"
+msgstr "Инициализация нод..."
 
 #: src/client/client.cpp
 msgid "Loading textures..."
-msgstr "Загрузка текстур…"
+msgstr "Загрузка текстур..."
 
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
-msgstr "Сборка шейдеров…"
+msgstr "Сборка шейдеров..."
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1340,7 +1399,7 @@ msgstr "По этому пути мира нет: "
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
-msgstr "Медиафайлы…"
+msgstr "Медиафайлы..."
 
 #: src/client/game.cpp src/client/shader.cpp src/server.cpp
 msgid ""
@@ -1417,7 +1476,7 @@ msgstr "Пользовательские моды отключены"
 
 #: src/client/game.cpp
 msgid "Connecting to server..."
-msgstr "Подключение к серверу…"
+msgstr "Подключение к серверу..."
 
 #: src/client/game.cpp
 msgid "Connection error (timed out?)"
@@ -1434,11 +1493,11 @@ msgstr "Не удалось разрешить адрес: %s"
 
 #: src/client/game.cpp
 msgid "Creating client..."
-msgstr "Создание клиента…"
+msgstr "Создание клиента..."
 
 #: src/client/game.cpp
 msgid "Creating server..."
-msgstr "Создание сервера…"
+msgstr "Создание сервера..."
 
 #: src/client/game.cpp
 msgid "Debug info shown"
@@ -1487,7 +1546,7 @@ msgstr "Туман включён игрой или модом"
 
 #: src/client/game.cpp
 msgid "Item definitions..."
-msgstr "Описания предметов…"
+msgstr "Определения предметов..."
 
 #: src/client/game.cpp
 msgid "KiB/s"
@@ -1519,7 +1578,7 @@ msgstr "Режим прохождения сквозь стены включён
 
 #: src/client/game.cpp
 msgid "Node definitions..."
-msgstr "Описания нод…"
+msgstr "Описания нод..."
 
 #: src/client/game.cpp
 msgid "Pitch move mode disabled"
@@ -1535,11 +1594,11 @@ msgstr "График профилировщика отображён"
 
 #: src/client/game.cpp
 msgid "Resolving address..."
-msgstr "Получение адреса…"
+msgstr "Получение адреса..."
 
 #: src/client/game.cpp
 msgid "Shutting down..."
-msgstr "Завершение…"
+msgstr "Завершение..."
 
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
@@ -1574,48 +1633,51 @@ msgstr "Не удаётся прослушать %s, так как IPv6 откл
 
 #: src/client/game.cpp
 msgid "Unlimited viewing range disabled"
-msgstr "Неограниченная видимость отключена"
+msgstr "Неограниченная дальность обзора отключена"
 
 #: src/client/game.cpp
 msgid "Unlimited viewing range enabled"
-msgstr "Неограниченная видимость включена"
+msgstr "Неограниченная дальность обзора включена"
 
 #: src/client/game.cpp
 msgid "Unlimited viewing range enabled, but forbidden by game or mod"
-msgstr "Неограниченная видимость включена, но запрещена игрой или модом"
+msgstr ""
+"Неограниченная дальность обзора включена, но запрещена игрой или дополнением"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Viewing changed to %d (the minimum)"
-msgstr "Видимость установлена на %d (минимум)"
+msgstr "Обзор изменен на %d (минимум)"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Viewing changed to %d (the minimum), but limited to %d by game or mod"
 msgstr ""
-"Видимость установлена на %d (минимум), но ограничена до %d игрой или модом"
+"Обзор изменен на %d (минимум), но ограничена до %d игрой или дополнением"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Viewing range changed to %d"
-msgstr "Видимость установлена на %d"
+msgstr "Дальность обзора изменена на %d"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Viewing range changed to %d (the maximum)"
-msgstr "Видимость установлена на %d (максимум)"
+msgstr "Дальность обзора изменена на %d (максимум)"
 
 #: src/client/game.cpp
 #, c-format
 msgid ""
 "Viewing range changed to %d (the maximum), but limited to %d by game or mod"
 msgstr ""
-"Видимость установлена на %d (максимум), но ограничена до %d игрой или модом"
+"Дальность обзора изменена на %d (максимум), но ограничена до %d игрой или "
+"дополнением"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Viewing range changed to %d, but limited to %d by game or mod"
-msgstr "Видимость установлена на %d, но ограничена до %d игрой или модом"
+msgstr ""
+"Дальность обзора изменена на %d, но ограничена до %d игрой или дополнением"
 
 #: src/client/game.cpp
 #, c-format
@@ -1705,7 +1767,7 @@ msgstr "Игра приостановлена"
 
 #: src/client/game_formspec.cpp
 msgid "Hosting server"
-msgstr "Локальный сервер"
+msgstr "Хостинг сервера"
 
 #: src/client/game_formspec.cpp
 msgid "Off"
@@ -1799,7 +1861,7 @@ msgstr "End"
 
 #: src/client/keycode.cpp
 msgid "Erase EOF"
-msgstr "Стереть EOF"
+msgstr "Erase EOF"
 
 #: src/client/keycode.cpp
 msgid "Execute"
@@ -1815,23 +1877,23 @@ msgstr "Home"
 
 #: src/client/keycode.cpp
 msgid "IME Accept"
-msgstr "Принять IME"
+msgstr "IME Accept"
 
 #: src/client/keycode.cpp
 msgid "IME Convert"
-msgstr "Конвертировать IME"
+msgstr "IME Convert"
 
 #: src/client/keycode.cpp
 msgid "IME Escape"
-msgstr "Выйти IME"
+msgstr "IME Escape"
 
 #: src/client/keycode.cpp
 msgid "IME Mode Change"
-msgstr "Режим изменения IME"
+msgstr "IME Mode Change"
 
 #: src/client/keycode.cpp
 msgid "IME Nonconvert"
-msgstr "Несконвертуемый IME"
+msgstr "IME Nonconvert"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1876,67 +1938,67 @@ msgstr "Num Lock"
 
 #: src/client/keycode.cpp
 msgid "Numpad *"
-msgstr "Номерная плитка *"
+msgstr "Numpad *"
 
 #: src/client/keycode.cpp
 msgid "Numpad +"
-msgstr "Номерная плитка +"
+msgstr "Numpad +"
 
 #: src/client/keycode.cpp
 msgid "Numpad -"
-msgstr "Номерная плитка -"
+msgstr "Numpad -"
 
 #: src/client/keycode.cpp
 msgid "Numpad ."
-msgstr "Номерная плитка ."
+msgstr "Numpad ."
 
 #: src/client/keycode.cpp
 msgid "Numpad /"
-msgstr "Номерная плитка /"
+msgstr "Numpad /"
 
 #: src/client/keycode.cpp
 msgid "Numpad 0"
-msgstr "Номерная плитка 0"
+msgstr "Numpad 0"
 
 #: src/client/keycode.cpp
 msgid "Numpad 1"
-msgstr "Номерная плитка 1"
+msgstr "Numpad 1"
 
 #: src/client/keycode.cpp
 msgid "Numpad 2"
-msgstr "Номерная плитка 2"
+msgstr "Numpad 2"
 
 #: src/client/keycode.cpp
 msgid "Numpad 3"
-msgstr "Номерная плитка 3"
+msgstr "Numpad 3"
 
 #: src/client/keycode.cpp
 msgid "Numpad 4"
-msgstr "Номерная плитка 4"
+msgstr "Numpad 4"
 
 #: src/client/keycode.cpp
 msgid "Numpad 5"
-msgstr "Номерная плитка 5"
+msgstr "Numpad 5"
 
 #: src/client/keycode.cpp
 msgid "Numpad 6"
-msgstr "Номерная плитка 6"
+msgstr "Numpad 6"
 
 #: src/client/keycode.cpp
 msgid "Numpad 7"
-msgstr "Номерная плитка 7"
+msgstr "Numpad 7"
 
 #: src/client/keycode.cpp
 msgid "Numpad 8"
-msgstr "Номерная плитка 8"
+msgstr "Numpad 8"
 
 #: src/client/keycode.cpp
 msgid "Numpad 9"
-msgstr "Номерная плитка 9"
+msgstr "Numpad 9"
 
 #: src/client/keycode.cpp
 msgid "OEM Clear"
-msgstr "OEM Очистка"
+msgstr "OEM Clear"
 
 #: src/client/keycode.cpp
 msgid "Page Down"
@@ -1953,7 +2015,7 @@ msgstr "Pause"
 
 #: src/client/keycode.cpp
 msgid "Play"
-msgstr "Играть"
+msgstr "Play"
 
 #. ~ "Print screen" key
 #: src/client/keycode.cpp
@@ -1995,7 +2057,7 @@ msgstr "Scroll Lock"
 #. ~ Key name
 #: src/client/keycode.cpp
 msgid "Select"
-msgstr "Выбрать"
+msgstr "Select"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
@@ -2003,7 +2065,7 @@ msgstr "Shift"
 
 #: src/client/keycode.cpp
 msgid "Sleep"
-msgstr "Спать"
+msgstr "Sleep"
 
 #: src/client/keycode.cpp
 msgid "Snapshot"
@@ -2084,6 +2146,10 @@ msgstr ""
 msgid "Some mods have unsatisfied dependencies:"
 msgstr "Некоторые моды имеют неудовлетворённые зависимости:"
 
+#: src/gui/guiButtonKey.h
+msgid "Press Button"
+msgstr "Нажмите Кнопку"
+
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
 msgstr "Не удалось открыть страницу"
@@ -2096,165 +2162,9 @@ msgstr "Открытие страницы"
 msgid "Proceed"
 msgstr "Продолжить"
 
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "\"Aux1\" = climb down"
-msgstr "«Aux1» = спуск"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Autoforward"
-msgstr "Автобег"
-
-#: src/gui/guiKeyChangeMenu.cpp src/settings_translation_file.cpp
-msgid "Automatic jumping"
-msgstr "Автопрыжок"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Aux1"
-msgstr "Aux1"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Backward"
-msgstr "Назад"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Block bounds"
-msgstr "Границы мапблока"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Change camera"
-msgstr "Сменить камеру"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Command"
-msgstr "Команда"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Console"
-msgstr "Консоль"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. range"
-msgstr "Уменьшить дальность"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. volume"
-msgstr "Уменьшить громкость"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Double tap \"jump\" to toggle fly"
-msgstr "Двойной прыжок = полёт"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Drop"
-msgstr "Бросить"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Forward"
-msgstr "Вперёд"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. range"
-msgstr "Увеличить дальность"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. volume"
-msgstr "Увеличить громкость"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Inventory"
-msgstr "Инвентарь"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Jump"
-msgstr "Прыжок"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Key already in use"
-msgstr "Клавиша уже используется"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Keybindings."
-msgstr "Сочетания клавиш."
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Left"
-msgstr "Влево"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Local command"
-msgstr "Локальная команда"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Mute"
-msgstr "Заглушить"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Next item"
-msgstr "След. предмет"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Prev. item"
-msgstr "Пред. предмет"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Range select"
-msgstr "Лимит видимости"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Right"
-msgstr "Вправо"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Screenshot"
-msgstr "Снимок экрана"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Sneak"
-msgstr "Красться"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle HUD"
-msgstr "Вкл/откл интерфейс"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle chat log"
-msgstr "Вкл/откл журнал чата"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fast"
-msgstr "Быстрый режим"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fly"
-msgstr "Режим полёта"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle fog"
-msgstr "Вкл/откл туман"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle minimap"
-msgstr "Вкл/откл миникарту"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle noclip"
-msgstr "Режим сквозь стены"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle pitchmove"
-msgstr "По наклону взгляда"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Zoom"
-msgstr "Приближение"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "press key"
-msgstr "нажмите клавишу"
-
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
-msgstr "Открыто"
+msgstr "Открыть"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open URL?"
@@ -2262,7 +2172,7 @@ msgstr "Открыть URL-адрес?"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Unable to open URL"
-msgstr "Не удается открыть URL-адрес"
+msgstr "Не удаётся открыть URL-адрес"
 
 #: src/gui/guiPasswordChange.cpp
 msgid "Change"
@@ -2279,10 +2189,6 @@ msgstr "Старый пароль"
 #: src/gui/guiPasswordChange.cpp
 msgid "Passwords do not match!"
 msgstr "Пароли не совпадают!"
-
-#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
-msgid "Exit"
-msgstr "Закрыть"
 
 #: src/gui/guiVolumeChange.cpp
 msgid "Muted"
@@ -2312,8 +2218,8 @@ msgstr "Сбросить"
 #: src/gui/touchscreeneditor.cpp
 msgid "Start dragging a button to add. Tap outside to cancel."
 msgstr ""
-"Начните перетаскивать кнопку, чтобы добавить. Нажмите \"За пределами\", "
-"чтобы отменить."
+"Начните перетаскивать кнопку, чтобы добавить. Нажмите за пределами, чтобы "
+"отменить."
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Tap a button to select it. Drag a button to move it."
@@ -2322,19 +2228,83 @@ msgstr ""
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Tap outside to deselect."
-msgstr "Нажмите \"Снаружи\", чтобы отменить выбор."
+msgstr "Нажмите за пределами, чтобы отменить выбор."
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Aux1"
+msgstr "Aux1"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Change camera"
+msgstr "Сменить камеру"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Dig/punch/use"
+msgstr "Копать/ударить/использовать"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Drop"
+msgstr "Бросить"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "Выйти"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Inventory"
+msgstr "Инвентарь"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
 msgstr "Джойстик"
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Jump"
+msgstr "Прыжок"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr "Переполненное меню"
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Place/use"
+msgstr "Поставить/использовать"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Range select"
+msgstr "Лимит видимости"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Sneak"
+msgstr "Красться"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle chat log"
+msgstr "Вкл/откл журнал чата"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Toggle debug"
-msgstr "Переключать отладку"
+msgstr "Переключить отладку"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fast"
+msgstr "Быстрый режим"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fly"
+msgstr "Режим полёта"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle minimap"
+msgstr "Вкл/откл миникарту"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle noclip"
+msgstr "Режим сквозь стены"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Zoom"
+msgstr "Приближение"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2664,7 +2634,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Allow clouds to look 3D instead of flat."
-msgstr "Позволяет облакам выглядеть больше 3D, чем плоскими."
+msgstr "Позволяет облакам выглядеть объёмно, а не плоско."
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
@@ -2718,11 +2688,11 @@ msgstr "Метод сглаживания"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat flags"
-msgstr "Флаги Анти-чита"
+msgstr "Флаги античита"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat movement tolerance"
-msgstr "Допуск движения Анти-чита"
+msgstr "Допуск движения античита"
 
 #: src/settings_translation_file.cpp
 msgid "Append item name"
@@ -2816,12 +2786,16 @@ msgstr ""
 "Меньшие значения потенциально повышают производительность за счет временно "
 "заметных\n"
 "сбоев в рендеринге (пропущенных блоков).\n"
-"Это особенно полезно при очень большом диапазоне просмотра (более 500).\n"
+"Это особенно полезно при очень большой дальности обзора (более 500).\n"
 "Указано в MapBlocks (16 узлов)."
 
 #: src/settings_translation_file.cpp
 msgid "Audio"
 msgstr "Звук"
+
+#: src/settings_translation_file.cpp
+msgid "Automatic jumping"
+msgstr "Автопрыжок"
 
 #: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
@@ -3036,6 +3010,10 @@ msgid "Client"
 msgstr "Клиент"
 
 #: src/settings_translation_file.cpp
+msgid "Client Debugging"
+msgstr "Отладка клиента"
+
+#: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
 msgstr "Размер меша мапчанков клиента"
 
@@ -3135,6 +3113,10 @@ msgstr ""
 "request_insecure_environment())."
 
 #: src/settings_translation_file.cpp
+msgid "Command"
+msgstr "Команда"
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Compression level to use when saving mapblocks to disk.\n"
 "-1 - use default compression level\n"
@@ -3184,7 +3166,7 @@ msgstr "Высота консоли"
 
 #: src/settings_translation_file.cpp
 msgid "Content Repository"
-msgstr "Репозиторий Контента"
+msgstr "Репозиторий контента"
 
 #: src/settings_translation_file.cpp
 msgid "ContentDB Flag Blacklist"
@@ -3192,11 +3174,11 @@ msgstr "Чёрный список меток ContentDB"
 
 #: src/settings_translation_file.cpp
 msgid "ContentDB Max Concurrent Downloads"
-msgstr "Максимум Одновременных Скачиваний ContentDB"
+msgstr "Максимум одновременных загрузок ContentDB"
 
 #: src/settings_translation_file.cpp
 msgid "ContentDB URL"
-msgstr "Ссылка ContentDB"
+msgstr "URL ContentDB"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3283,11 +3265,19 @@ msgid ""
 "Reducing this can improve performance, but some effects (e.g. debanding)\n"
 "require more than 8 bits to work."
 msgstr ""
-"Определить глубину цвета текстуры, используемой для конвейера постобработки."
-"\n"
+"Определить глубину цвета текстуры, используемой для конвейера "
+"постобработки.\n"
 "Уменьшение этого параметра может повысить производительность, но для работы "
 "некоторых эффектов (например, для удаления пятен)\n"
 "требуется более 8 бит."
+
+#: src/settings_translation_file.cpp
+msgid "Decrease view range"
+msgstr "Уменьшить дальность обзора"
+
+#: src/settings_translation_file.cpp
+msgid "Decrease volume"
+msgstr "Уменьшить громкость"
 
 #: src/settings_translation_file.cpp
 msgid "Dedicated server step"
@@ -3515,6 +3505,10 @@ msgstr ""
 "когда в противном случае сортировка по прозрачности была бы очень медленной."
 
 #: src/settings_translation_file.cpp
+msgid "Drop item"
+msgstr "Выбросить предмет"
+
+#: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
 msgstr "Записывать отладочные данные мапгена."
 
@@ -3548,7 +3542,7 @@ msgstr "Включить отладку свечения"
 
 #: src/settings_translation_file.cpp
 msgid "Enable Debanding"
-msgstr "Включить Дебандинг"
+msgstr "Включить дебандинг"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3557,6 +3551,17 @@ msgid ""
 msgstr ""
 "Включить поддержку IPv6 (для клиента и сервера).\n"
 "Требуется для того, чтобы соединение по IPv6 работало."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Enable IPv6 support for server.\n"
+"Note that clients will be able to connect with both IPv4 and IPv6.\n"
+"Ignored if bind_address is set."
+msgstr ""
+"Включить поддержку IPv6 для сервера.\n"
+"Обратите внимание, что клиенты смогут подключаться как с помощью IPv4, так и "
+"с помощью IPv6.\n"
+"Игнорируется если включен bind_andress."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3578,7 +3583,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Enable Post Processing"
-msgstr "Включить Постобработку"
+msgstr "Включить постобработку"
 
 #: src/settings_translation_file.cpp
 msgid "Enable Raytraced Culling"
@@ -3686,14 +3691,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set."
-msgstr ""
-"Включить/отключить запуск сервера IPv6.\n"
-"Игнорируется, если задан параметр bind_address."
-
-#: src/settings_translation_file.cpp
-msgid ""
 "Enables Hable's 'Uncharted 2' filmic tone mapping.\n"
 "Simulates the tone curve of photographic film and how this approximates the\n"
 "appearance of high dynamic range images. Mid-range contrast is slightly\n"
@@ -3780,16 +3777,12 @@ msgid "FPS"
 msgstr "Кадры в секунду (FPS)"
 
 #: src/settings_translation_file.cpp
-msgid "FPS when unfocused or paused"
-msgstr "Максимум FPS при паузе или вне фокуса"
+msgid "FPS when unfocused"
+msgstr "Максимум FPS вне фокуса"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
 msgstr "Коэффициент шума"
-
-#: src/settings_translation_file.cpp
-msgid "Fall bobbing factor"
-msgstr "Коэффициент покачивания при падении"
 
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
@@ -3846,7 +3839,7 @@ msgstr "Первый из двух 3D-шумов, которые вместе о
 
 #: src/settings_translation_file.cpp
 msgid "Fixed map seed"
-msgstr "Почининный сид мира"
+msgstr "Исправленный сид мира"
 
 #: src/settings_translation_file.cpp
 msgid "Fixed virtual joystick"
@@ -4216,12 +4209,148 @@ msgstr ""
 "в нодах/секунду²."
 
 #: src/settings_translation_file.cpp
+msgid "Hotbar slot 1"
+msgstr "Слот для хотбара 1"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 10"
+msgstr "Слот для хотбара 10"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 11"
+msgstr "Слот для хотбара 11"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 12"
+msgstr "Слот для хотбара 12"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 13"
+msgstr "Слот для хотбара 13"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 14"
+msgstr "Слот для хотбара 14"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 15"
+msgstr "Слот для хотбара 15"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 16"
+msgstr "Слот для хотбара 16"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 17"
+msgstr "Слот для хотбара 17"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 18"
+msgstr "Слот для хотбара 18"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 19"
+msgstr "Слот для хотбара 19"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 2"
+msgstr "Слот для хотбара 2"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 20"
+msgstr "Слот для хотбара 20"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 21"
+msgstr "Слот для хотбара 21"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 22"
+msgstr "Слот для хотбара 22"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 23"
+msgstr "Слот для хотбара 23"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 24"
+msgstr "Слот для хотбара 24"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 25"
+msgstr "Слот для хотбара 25"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 26"
+msgstr "Слот для хотбара 26"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 27"
+msgstr "Слот для хотбара 27"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 28"
+msgstr "Слот для хотбара 28"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 29"
+msgstr "Слот для хотбара 29"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 3"
+msgstr "Слот для хотбара 3"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 30"
+msgstr "Слот для хотбара 30"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 31"
+msgstr "Слот для хотбара 31"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 32"
+msgstr "Слот для хотбара 32"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 4"
+msgstr "Слот для хотбара 4"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 5"
+msgstr "Слот для хотбара 5"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 6"
+msgstr "Слот для хотбара 6"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 7"
+msgstr "Слот для хотбара 7"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 8"
+msgstr "Слот для хотбара 8"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 9"
+msgstr "Слот для хотбара 9"
+
+#: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
 msgstr "Хотбар: включить колёсико мыши для выбора"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
 msgstr "Хотбар: инвертировать направление колёсика мыши"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar: select next item"
+msgstr "Хотбар: выбрать следующий предмет"
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar: select previous item"
+msgstr "Хотбар: выбрать предыдущий предмет"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4346,6 +4475,18 @@ msgstr ""
 "новая учетная запись."
 
 #: src/settings_translation_file.cpp
+msgid "If enabled, the \"Aux1\" key will toggle when pressed."
+msgstr "Если включено, то клавиша \"Aux1\" будет переключаться при нажатии."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, the \"Sneak\" key will toggle when pressed.\n"
+"This functionality is ignored when fly is enabled."
+msgstr ""
+"Если включено, то клавиша \"Красться\" будет переключаться при нажатии.\n"
+"Эта функция игнорируется, если включен полет."
+
+#: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4417,6 +4558,14 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "Высота внутриигрового чата, между 0.1 (10%) и 1.0 (100%)."
 
 #: src/settings_translation_file.cpp
+msgid "Increase view range"
+msgstr "Увеличить дальность обзора"
+
+#: src/settings_translation_file.cpp
+msgid "Increase volume"
+msgstr "Увеличить громкость"
+
+#: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
 msgstr "Начальная вертикальная скорость при прыжке, в нодах в секунду."
 
@@ -4455,6 +4604,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
 msgstr "Замерять методы сущностей при регистрации."
+
+#: src/settings_translation_file.cpp
+msgid "Interaction style"
+msgstr "Стиль взаимодействия"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
@@ -4524,7 +4677,7 @@ msgstr "Чувствительность джойстика"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick type"
-msgstr "Тип Джойстика"
+msgstr "Тип джойстика"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4597,6 +4750,341 @@ msgid "Jumping speed"
 msgstr "Скорость прыжков"
 
 #: src/settings_translation_file.cpp
+msgid "Key for decreasing the viewing range."
+msgstr "Клавиша уменьшения дальности обзора."
+
+#: src/settings_translation_file.cpp
+msgid "Key for decreasing the volume."
+msgstr "Клавиша уменьшения громкости."
+
+#: src/settings_translation_file.cpp
+msgid "Key for decrementing the selected value in Quicktune."
+msgstr "Клавиша для уменьшения выбранного значения в Quicktune."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for digging, punching or using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+"Клавиша для копания, удара или использования чего-либо.\n"
+"(Примечание: фактическое значение может варьироваться в зависимости от игры.)"
+
+#: src/settings_translation_file.cpp
+msgid "Key for dropping the currently selected item."
+msgstr "Клавиша выкидывания выбранного предмета."
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the viewing range."
+msgstr "Клавиша увеличения дальности обзора."
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the volume."
+msgstr "Клавиша увеличения громкости."
+
+#: src/settings_translation_file.cpp
+msgid "Key for incrementing the selected value in Quicktune."
+msgstr "Клавиша для увеличения выбранного значения в Quicktune."
+
+#: src/settings_translation_file.cpp
+msgid "Key for jumping."
+msgstr "Клавиша прыжка."
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving fast in fast mode."
+msgstr "Клавиша для быстрого перемещения в режиме быстрого перемещения."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for moving the player backward.\n"
+"Will also disable autoforward, when active."
+msgstr ""
+"Клавиша для передвижения игрока назад.\n"
+"При активации также отключает автобег."
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player forward."
+msgstr "Клавиша для передвижения игрока вперед."
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player left."
+msgstr "Клавиша для передвижения игрока влево."
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player right."
+msgstr "Клавиша для передвижения игрока вправо."
+
+#: src/settings_translation_file.cpp
+msgid "Key for muting the game."
+msgstr "Клавиша заглушения игры."
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type commands."
+msgstr "Клавиша открытия чата для ввода комманд."
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type local commands."
+msgstr "Клавиша открытия окна чата для ввода локальных команд."
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window."
+msgstr "Клавиша открытия окна чата."
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the inventory."
+msgstr "Клавиша открытия инвентаря."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for placing an item/block or for using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+"Клавиша для размещения предмета/блока или для использования чего-либо.\n"
+"(Обратите внимание: фактическое значение может меняться в зависимости от "
+"игры.)"
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 11th hotbar slot."
+msgstr "Клавиша выбора 11-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 12th hotbar slot."
+msgstr "Клавиша выбора 12-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 13th hotbar slot."
+msgstr "Клавиша выбора 13-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 14th hotbar slot."
+msgstr "Клавиша выбора 14-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 15th hotbar slot."
+msgstr "Клавиша выбора 15-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 16th hotbar slot."
+msgstr "Клавиша выбора 16-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 17th hotbar slot."
+msgstr "Клавиша выбора 17-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 18th hotbar slot."
+msgstr "Клавиша выбора 18-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 19th hotbar slot."
+msgstr "Клавиша выбора 19-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 20th hotbar slot."
+msgstr "Клавиша выбора 20-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 21st hotbar slot."
+msgstr "Клавиша выбора 21-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 22nd hotbar slot."
+msgstr "Клавиша выбора 22-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 23rd hotbar slot."
+msgstr "Клавиша выбора 23-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 24th hotbar slot."
+msgstr "Клавиша выбора 24-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 25th hotbar slot."
+msgstr "Клавиша выбора 25-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 26th hotbar slot."
+msgstr "Клавиша выбора 26-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 27th hotbar slot."
+msgstr "Клавиша выбора 27-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 28th hotbar slot."
+msgstr "Клавиша выбора 28-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 29th hotbar slot."
+msgstr "Клавиша выбора 29-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 30th hotbar slot."
+msgstr "Клавиша выбора 30-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 31st hotbar slot."
+msgstr "Клавиша выбора 31-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 32nd hotbar slot."
+msgstr "Клавиша выбора 32-го слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the eighth hotbar slot."
+msgstr "Клавиша выбора восьмого слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fifth hotbar slot."
+msgstr "Клавиша выбора пятого слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the first hotbar slot."
+msgstr "Клавиша выбора первого слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fourth hotbar slot."
+msgstr "Клавиша выбора четвертого слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the next item in the hotbar."
+msgstr "Клавиша выбора следующего предмета в хотбаре."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the ninth hotbar slot."
+msgstr "Клавиша выбора девятого слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the previous item in the hotbar."
+msgstr "Клавиша выбора предыдущего предмета в хотбаре."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the second hotbar slot."
+msgstr "Клавиша выбора второго слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the seventh hotbar slot."
+msgstr "Клавиша выбора седьмого слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the sixth hotbar slot."
+msgstr "Клавиша выбора шестого слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the tenth hotbar slot."
+msgstr "Клавиша выбора десятого слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the third hotbar slot."
+msgstr "Клавиша выбора третьего слота для хотбара."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for sneaking.\n"
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"Клавиша, чтобы красться.\n"
+"Также используется для спуска и погружения под воду, если параметр "
+"aux1_descends отключён."
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching between first- and third-person camera."
+msgstr "Клавиша для переключения между камерой от первого и от третьего лица."
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the next entry in Quicktune."
+msgstr "Клавиша для перехода к следующей записи в Quicktune."
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the previous entry in Quicktune."
+msgstr "Клавиша для перехода к предыдущей записи в Quicktune."
+
+#: src/settings_translation_file.cpp
+msgid "Key for taking screenshots."
+msgstr "Клавиша для создания снимков экрана."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling autoforward."
+msgstr "Клавиша для включения автобега."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling cinematic mode."
+msgstr "Клавиша включения кинематографичного режима."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling display of minimap."
+msgstr "Клавиша включения отображения миникарты."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling fast mode."
+msgstr "Клавиша для включения режима быстрого перемещения."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling flying."
+msgstr "Клавиша для включения полета."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling fullscreen mode."
+msgstr "Клавиша для включения полноэкранного режима."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling noclip mode."
+msgstr "Клавиша включения режима прохождения сквозь стены."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling pitch move mode."
+msgstr "Клавиша включения режима движения по направлению взгляда."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
+msgstr ""
+"Клавиша для включения обновления камеры. Можно использовать только с "
+"привилегией 'откладка'."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of chat."
+msgstr "Клавиша включения отображения чата."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of debug info."
+msgstr "Клавиша включения отображения отладочных сведений."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of fog."
+msgstr "Клавиша включения отображения тумана."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of mapblock boundaries."
+msgstr "Клавиша включения отображения границ мапблока."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the HUD."
+msgstr "Клавиша включения отображения игрового интерфейса."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the large chat console."
+msgstr "Клавиша включения большой чат-консоли."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the profiler. Used for development."
+msgstr ""
+"Клавиша для переключения отображения профилировщика. Используется для "
+"разработки."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling unlimited view range."
+msgstr "Клавиша включения неограниченной дальности обзора."
+
+#: src/settings_translation_file.cpp
+msgid "Key to use view zoom when possible."
+msgstr "Клавиша для использования зума, когда возможно."
+
+#: src/settings_translation_file.cpp
+msgid "Keybindings"
+msgstr "Привязки клавиш"
+
+#: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
 msgstr "Клавиатура и мышь"
 
@@ -4631,6 +5119,10 @@ msgstr "Минимум больших пещер"
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr "Соотношение затопленности больших пещер"
+
+#: src/settings_translation_file.cpp
+msgid "Large chat console"
+msgstr "Большая чат-консоль"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -4808,7 +5300,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
-msgstr "Модификаторы загружающихся блоков"
+msgstr "Модификаторы загружающихся блоков (LBM)"
+
+#: src/settings_translation_file.cpp
+msgid "Local command"
+msgstr "Локальная команда"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -5028,8 +5524,8 @@ msgid "Maximum FPS"
 msgstr "Максимум FPS"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum FPS when the window is not focused, or when the game is paused."
-msgstr "Максимум FPS, когда окно не в фокусе, или когда игра приостановлена."
+msgid "Maximum FPS when the window is not focused."
+msgstr "Максимум FPS когда окно не в фокусе."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum distance to render shadows."
@@ -5103,10 +5599,14 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of mapblocks for client to be kept in memory.\n"
-"Set to -1 for unlimited amount."
+"Note that there is an internal dynamic minimum number of blocks that\n"
+"won't be deleted, depending on the current view range.\n"
+"Set to -1 for no limit."
 msgstr ""
-"Максимум мапблоков в памяти клиента.\n"
-"Установите в -1 для неограниченного количества."
+"Максимальное число мапблоков для хранения в памяти клиента.\n"
+"Учтите, что есть внутренний динамический минимум блоков, которые\n"
+"не будут удалены, в зависимости от текущей дальности прорисовки.\n"
+"Установите на -1, чтобы убрать лимит."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5149,15 +5649,15 @@ msgid "Maximum simultaneous block sends per client"
 msgstr "Максимум одновременно отправляемых мапблоков на клиент"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum size of the outgoing chat queue"
-msgstr "Максимальный размер очереди исходящих сообщений в чате"
+msgid "Maximum size of the client's outgoing chat queue"
+msgstr "Максимальный размер очереди исходящих сообщений клиента в чате"
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Maximum size of the outgoing chat queue.\n"
+"Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
-"Максимальный размер очереди исходящих сообщений в чате.\n"
+"Максимальный размер очереди исходящих сообщений в чате для клиента.\n"
 "0 для отключения очереди и -1 для неограниченного размера."
 
 #: src/settings_translation_file.cpp
@@ -5276,6 +5776,22 @@ msgid "Mouse sensitivity multiplier."
 msgstr "Множитель чувствительности мыши."
 
 #: src/settings_translation_file.cpp
+msgid "Move backward"
+msgstr "Двигаться назад"
+
+#: src/settings_translation_file.cpp
+msgid "Move forward"
+msgstr "Двигаться вперёд"
+
+#: src/settings_translation_file.cpp
+msgid "Move left"
+msgstr "Двигаться влево"
+
+#: src/settings_translation_file.cpp
+msgid "Move right"
+msgstr "Двигаться вправо"
+
+#: src/settings_translation_file.cpp
 msgid "Movement threshold"
 msgstr "Порог перемещения"
 
@@ -5284,12 +5800,8 @@ msgid "Mud noise"
 msgstr "Шум грязи"
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Multiplier for fall bobbing.\n"
-"For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-msgstr ""
-"Множитель для покачивания при падении.\n"
-"Например: 0 отключает покачивание; 1.0 для обычного; 2.0 для двойного."
+msgid "Mute"
+msgstr "Заглушить"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5428,6 +5940,14 @@ msgid ""
 msgstr "Непрозрачность тени сзади стандартного шрифта, между 0 и 255."
 
 #: src/settings_translation_file.cpp
+msgid "Open chat"
+msgstr "Открыть чат"
+
+#: src/settings_translation_file.cpp
+msgid "Open inventory"
+msgstr "Открыть инвентарь"
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -5450,7 +5970,7 @@ msgstr "Опциональное переопределение цвета сс�
 
 #: src/settings_translation_file.cpp
 msgid "Other Effects"
-msgstr "Другие Эффекты"
+msgstr "Другие эффекты"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5568,14 +6088,16 @@ msgstr "Адрес прослушивания Prometheus"
 #: src/settings_translation_file.cpp
 msgid ""
 "Prometheus listener address.\n"
-"If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
-"enable metrics listener for Prometheus on that address.\n"
-"Metrics can be fetched on http://127.0.0.1:30000/metrics"
+"If Luanti is compiled with Prometheus support, this setting\n"
+"enables the metrics listener for Prometheus on that address.\n"
+"By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
+"An empty value disables the metrics listener."
 msgstr ""
 "Адрес прослушивания Prometheus.\n"
-"Если Luanti скомпилирован с опцией ENABLE_PROMETHEUS,\n"
-"включить прослушивание метрик для Prometheus по этому адресу.\n"
-"Метрики можно получить на http://127.0.0.1:30000/metrics"
+"Если Luanti скомпилирован с поддержкой Prometheus, эта опция\n"
+"включит прослушивание метрик на данном адресе.\n"
+"По умолчанию, вы можете получить метрики с http://127.0.0.1:30000/metrics.\n"
+"Пустое значение отключает прослушивание метрик."
 
 #: src/settings_translation_file.cpp
 msgid "Proportion of large caves that contain liquid."
@@ -5587,7 +6109,23 @@ msgstr "Минимальная версия протокола"
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
-msgstr "Жест удара кулаком"
+msgstr "Жест для удара"
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: decrement value"
+msgstr "Quicktune: уменьшить значение"
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: increment value"
+msgstr "Quicktune: увеличить значение"
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select next entry"
+msgstr "Quicktune: выбрать следующую запись"
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select previous entry"
+msgstr "Quicktune: выбрать предыдущую запись"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5781,6 +6319,10 @@ msgid "Screen width"
 msgstr "Ширина экрана"
 
 #: src/settings_translation_file.cpp
+msgid "Screenshot"
+msgstr "Снимок экрана"
+
+#: src/settings_translation_file.cpp
 msgid "Screenshot folder"
 msgstr "Папка скриншотов"
 
@@ -5804,7 +6346,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Screenshots"
-msgstr "Снимки экрана"
+msgstr "Скриншоты"
 
 #: src/settings_translation_file.cpp
 msgid "Seabed noise"
@@ -6067,9 +6609,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable volumetric lighting effect (a.k.a. \"Godrays\")."
-msgstr ""
-"Установите значение true, чтобы включить эффект объемного освещения (он же "
-"\"Божественные лучи\")."
+msgstr "Включает эффект объёмного освещения (он же «Godrays»)."
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable waving leaves."
@@ -6276,7 +6816,7 @@ msgstr "Звук"
 
 #: src/settings_translation_file.cpp
 msgid "Sound Extensions Blacklist"
-msgstr "Черный список Расширений Звука"
+msgstr "Чёрный список расширений звука"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6438,7 +6978,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Terrain persistence noise"
-msgstr "Настойчивость шума ландшафта"
+msgstr "Персистентность шума ландшафта"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6470,7 +7010,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "The URL for the content repository"
-msgstr "Адрес источника дополнения"
+msgstr "URL репозитория контента"
 
 #: src/settings_translation_file.cpp
 msgid "The dead zone of the joystick"
@@ -6503,27 +7043,57 @@ msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
 "\n"
-"* short_tap\n"
+"* Short tap\n"
 "Easy to use and well-known from other games that shall not be named.\n"
 "\n"
-"* long_tap\n"
+"* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
-"Жест, обозначающий удар по игроку/объекту.\n"
-"Его можно изменить в играх и модах.\n"
+"Жест для удара по игрокам/объектам.\n"
+"Он может быть перезаписан играми и модами.\n"
 "\n"
-"* короткий удар\n"
-"Прост в использовании и хорошо известен по другим играм, названия которых не "
-"указываются.\n"
+"* Короткое касание\n"
+"Просто в использовании и хорошо известно по другим играм, чьи названия не "
+"упоминают.\n"
 "\n"
-"* длинный удар\n"
-"Известен по классическому мобильному элементу управления Luanti.\n"
-"Сражение более или менее невозможно."
+"* Длинное касание\n"
+"Известно по классическому мобильному управлению Luanti.\n"
+"Сражаться будет почти невозможно."
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
 msgstr "Идентификатор используемого контроллера"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The kind of digging/placing controls used.\n"
+"\n"
+"* Tap\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at finger position.\n"
+"\n"
+"* Tap with crosshair\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at crosshair position.\n"
+"\n"
+"* Buttons with crosshair\n"
+"Use dedicated dig/place buttons to interact.\n"
+"Interaction happens at crosshair position."
+msgstr ""
+"Используемый вид управления для копания/установки.\n"
+"\n"
+"* Касание\n"
+"Длинное/короткое касание в любом месте экране для взаимодействия.\n"
+"Взаимодействие происходит на позиции пальца.\n"
+"\n"
+"* Касание с прицелом\n"
+"Длинное/короткое касание в любом месте экране для взаимодействия.\n"
+"Взаимодействие происходит на позиции прицела.\n"
+"\n"
+"* Кнопки с прицеломr\n"
+"Используйте отдельные кнопки копания/установки для взаимодействия.\n"
+"Взаимодействие происходит на позиции прицела."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6708,6 +7278,58 @@ msgstr ""
 "ноды."
 
 #: src/settings_translation_file.cpp
+msgid "Toggle Aux1 key"
+msgstr "Включить клавишу Aux1"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle HUD"
+msgstr "Вкл/откл интерфейс"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle Sneak key"
+msgstr "Клавиша переключения приседания"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle automatic forward"
+msgstr "Включить автобег"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle block bounds"
+msgstr "Включить границы нод"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle camera mode"
+msgstr "Включить режим камеры"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle camera update"
+msgstr "Включить обновление камеры"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle cinematic mode"
+msgstr "Включить кинематографичный режим"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle debug info"
+msgstr "Включить отладочные сведения"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fog"
+msgstr "Вкл/откл туман"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fullscreen"
+msgstr "Включить полноэкранный режим"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle pitchmove"
+msgstr "По наклону взгляда"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle profiler"
+msgstr "Переключить профилировщик"
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Tolerance of movement cheat detector.\n"
 "Increase the value if players experience stuttery movement."
@@ -6864,25 +7486,12 @@ msgid ""
 "This provides a significant improvement when used together with mipmapping."
 msgstr ""
 "Использовать анизотропную фильтрацию при просмотре текстур под углом.\n"
-"Это обеспечивает значительное улучшение при использовании в сочетании с "
-"мип-картированием."
+"Это обеспечивает значительное улучшение при использовании в сочетании с мип-"
+"картированием."
 
 #: src/settings_translation_file.cpp
 msgid "Use bilinear filtering when scaling textures."
 msgstr "Использовать билинейную фильтрацию для масштабирования текстур."
-
-#: src/settings_translation_file.cpp
-msgid "Use crosshair for touch screen"
-msgstr "Использовать перекрестие для сенсорного экрана"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Use crosshair to select object instead of whole screen.\n"
-"If enabled, a crosshair will be shown and will be used for selecting object."
-msgstr ""
-"Используйте перекрестие для выбора предмета вместо всего экрана.\n"
-"Если включено, будет показано перекрестие, которое будет использоваться для "
-"выбора предмета."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6984,7 +7593,7 @@ msgid ""
 "Defines the 'persistence' value for terrain_base and terrain_alt noises."
 msgstr ""
 "Варьирует неровность ландшафта.\n"
-"Определяет значение «persistence» для шумов terrain_base и terrain_alt."
+"Определяет значение «персистентности» для шумов terrain_base и terrain_alt."
 
 #: src/settings_translation_file.cpp
 msgid "Varies steepness of cliffs."
@@ -7016,7 +7625,7 @@ msgstr "Дальность отрисовки в нодах."
 
 #: src/settings_translation_file.cpp
 msgid "Viewing range"
-msgstr "Дальность отрисовки"
+msgstr "Дальность обзора"
 
 #: src/settings_translation_file.cpp
 msgid "Virtual joystick triggers Aux1 button"
@@ -7044,7 +7653,7 @@ msgstr "Громкость при расфокусировке"
 
 #: src/settings_translation_file.cpp
 msgid "Volumetric lighting"
-msgstr "Объемное освещение"
+msgstr "Объёмное освещение"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7248,7 +7857,7 @@ msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
 "a specially-designed texture pack; with this option, the client tries\n"
-"to determine the scale automatically basing on the texture size.\n"
+"to determine the scale automatically based on the texture size.\n"
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
@@ -7260,7 +7869,7 @@ msgstr ""
 "попытается\n"
 "определить масштаб самостоятельно, основываясь на размере текстур.\n"
 "См. также «texture_min_size».\n"
-"Предупреждение: Эта настройка является ЭКСПЕРИМЕНТАЛЬНОЙ!"
+"Предупреждение: эта настройка является ЭКСПЕРИМЕНТАЛЬНОЙ!"
 
 #: src/settings_translation_file.cpp
 msgid "World-aligned textures mode"
@@ -7320,7 +7929,7 @@ msgstr "Y-уровень морского дна."
 
 #: src/settings_translation_file.cpp
 msgid "cURL"
-msgstr "URL"
+msgstr "cURL"
 
 #: src/settings_translation_file.cpp
 msgid "cURL file download timeout"
@@ -7333,6 +7942,9 @@ msgstr "Таймаут взаимодействия cURL"
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr "Лимит одновременных соединений cURL"
+
+#~ msgid "\"Aux1\" = climb down"
+#~ msgstr "«Aux1» = спуск"
 
 #~ msgid "(game support required)"
 #~ msgstr "(требуется поддержка игры)"
@@ -7444,14 +8056,8 @@ msgstr "Лимит одновременных соединений cURL"
 #~ msgid "Are you sure to reset your singleplayer world?"
 #~ msgstr "Уверены, что хотите сбросить мир одиночной игры?"
 
-#~ msgid "Automatic forward key"
-#~ msgstr "Автоматическая кнопка вперед"
-
 #~ msgid "Autosave Screen Size"
 #~ msgstr "Запоминать размер окна"
-
-#~ msgid "Aux1 key"
-#~ msgstr "Клавиша Aux1"
 
 #~ msgid "Back to Main Menu"
 #~ msgstr "Назад в главное меню"
@@ -7564,6 +8170,9 @@ msgstr "Лимит одновременных соединений cURL"
 
 #~ msgid "Connected Glass"
 #~ msgstr "Стёкла без швов"
+
+#~ msgid "Console"
+#~ msgstr "Консоль"
 
 #~ msgid "Continuous forward"
 #~ msgstr "Непрерывная ходьба"
@@ -7729,11 +8338,11 @@ msgstr "Лимит одновременных соединений cURL"
 #~ msgid "Disable anticheat"
 #~ msgstr "Отключить анти-чит"
 
-#~ msgid "Disabled unlimited viewing range"
-#~ msgstr "Ограничение видимости включено"
-
 #~ msgid "Don't show \"reinstall Minetest Game\" notification"
 #~ msgstr "Не показывать уведомление \"переустановить Minetest Game\""
+
+#~ msgid "Double tap \"jump\" to toggle fly"
+#~ msgstr "Двойной прыжок = полёт"
 
 #~ msgid "Down"
 #~ msgstr "Вниз"
@@ -7748,9 +8357,6 @@ msgstr "Лимит одновременных соединений cURL"
 #~ msgstr ""
 #~ "Загружается и устанавливается $1.\n"
 #~ "Пожалуйста, подождите..."
-
-#~ msgid "Drop item key"
-#~ msgstr "Кнопка выброса блока"
 
 #~ msgid "Dynamic shadows:"
 #~ msgstr "Динамические тени:"
@@ -7779,6 +8385,13 @@ msgstr "Лимит одновременных соединений cURL"
 #~ msgstr ""
 #~ "Включить объекты буфера вершин.\n"
 #~ "Это должно значительно улучшить графическую производительность."
+
+#~ msgid ""
+#~ "Enable/disable running an IPv6 server.\n"
+#~ "Ignored if bind_address is set."
+#~ msgstr ""
+#~ "Включить/отключить запуск сервера IPv6.\n"
+#~ "Игнорируется, если задан параметр bind_address."
 
 #~ msgid ""
 #~ "Enables bumpmapping for textures. Normalmaps need to be supplied by the "
@@ -7849,6 +8462,9 @@ msgstr "Лимит одновременных соединений cURL"
 
 #~ msgid "FSAA"
 #~ msgstr "Полноэкранное сглаживание (FSAA)"
+
+#~ msgid "Fall bobbing factor"
+#~ msgstr "Коэффициент покачивания при падении"
 
 #~ msgid "Fallback font shadow"
 #~ msgstr "Тень резервного шрифта"
@@ -7923,6 +8539,9 @@ msgstr "Лимит одновременных соединений cURL"
 #~ msgid "Formspec default background opacity (between 0 and 255)."
 #~ msgstr "Стандартная непрозрачность фона формы (от 0 до 255)."
 
+#~ msgid "Forward"
+#~ msgstr "Вперёд"
+
 #~ msgid "Forward key"
 #~ msgstr "Клавиша вперёд"
 
@@ -7955,108 +8574,6 @@ msgstr "Лимит одновременных соединений cURL"
 
 #~ msgid "High-precision FPU"
 #~ msgstr "Высокоточный FPU"
-
-#~ msgid "Hotbar next key"
-#~ msgstr "Следующий предмет на горячей панели"
-
-#~ msgid "Hotbar previous key"
-#~ msgstr "Предыдущий предмет на горячей панели"
-
-#~ msgid "Hotbar slot 1 key"
-#~ msgstr "Быстрая кнопка 1"
-
-#~ msgid "Hotbar slot 10 key"
-#~ msgstr "Быстрая кнопка 10"
-
-#~ msgid "Hotbar slot 11 key"
-#~ msgstr "Быстрая кнопка 11"
-
-#~ msgid "Hotbar slot 12 key"
-#~ msgstr "Быстрая кнопка 12"
-
-#~ msgid "Hotbar slot 13 key"
-#~ msgstr "Быстрая кнопка 13"
-
-#~ msgid "Hotbar slot 14 key"
-#~ msgstr "Быстрая кнопка 14"
-
-#~ msgid "Hotbar slot 15 key"
-#~ msgstr "Быстрая кнопка 15"
-
-#~ msgid "Hotbar slot 16 key"
-#~ msgstr "Быстрая кнопка 16"
-
-#~ msgid "Hotbar slot 17 key"
-#~ msgstr "Быстрая кнопка 17"
-
-#~ msgid "Hotbar slot 18 key"
-#~ msgstr "Быстрая кнопка 18"
-
-#~ msgid "Hotbar slot 19 key"
-#~ msgstr "Быстрая кнопка 19"
-
-#~ msgid "Hotbar slot 2 key"
-#~ msgstr "Быстрая кнопка 2"
-
-#~ msgid "Hotbar slot 20 key"
-#~ msgstr "Быстрая кнопка 20"
-
-#~ msgid "Hotbar slot 21 key"
-#~ msgstr "Быстрая кнопка 21"
-
-#~ msgid "Hotbar slot 22 key"
-#~ msgstr "Быстрая кнопка 22"
-
-#~ msgid "Hotbar slot 23 key"
-#~ msgstr "Быстрая кнопка 23"
-
-#~ msgid "Hotbar slot 24 key"
-#~ msgstr "Быстрая кнопка 24"
-
-#~ msgid "Hotbar slot 25 key"
-#~ msgstr "Быстрая кнопка 25"
-
-#~ msgid "Hotbar slot 26 key"
-#~ msgstr "Быстрая кнопка 26"
-
-#~ msgid "Hotbar slot 27 key"
-#~ msgstr "Быстрая кнопка 27"
-
-#~ msgid "Hotbar slot 28 key"
-#~ msgstr "Быстрая кнопка 28"
-
-#~ msgid "Hotbar slot 29 key"
-#~ msgstr "Быстрая кнопка 29"
-
-#~ msgid "Hotbar slot 3 key"
-#~ msgstr "Быстрая кнопка 3"
-
-#~ msgid "Hotbar slot 30 key"
-#~ msgstr "Быстрая кнопка 30"
-
-#~ msgid "Hotbar slot 31 key"
-#~ msgstr "Быстрая кнопка 31"
-
-#~ msgid "Hotbar slot 32 key"
-#~ msgstr "Быстрая кнопка 32"
-
-#~ msgid "Hotbar slot 4 key"
-#~ msgstr "Быстрая кнопка 4"
-
-#~ msgid "Hotbar slot 5 key"
-#~ msgstr "Быстрая кнопка 5"
-
-#~ msgid "Hotbar slot 6 key"
-#~ msgstr "Быстрая кнопка 6"
-
-#~ msgid "Hotbar slot 7 key"
-#~ msgstr "Быстрая кнопка 7"
-
-#~ msgid "Hotbar slot 8 key"
-#~ msgstr "Быстрая кнопка 8"
-
-#~ msgid "Hotbar slot 9 key"
-#~ msgstr "Быстрая кнопка 9"
 
 #~ msgid "IPv6 support."
 #~ msgstr "Поддержка IPv6."
@@ -8116,6 +8633,9 @@ msgstr "Лимит одновременных соединений cURL"
 
 #~ msgid "Jump key"
 #~ msgstr "Кнопка прыжка"
+
+#~ msgid "Key already in use"
+#~ msgstr "Клавиша уже используется"
 
 #~ msgid ""
 #~ "Key for decreasing the viewing range.\n"
@@ -8186,17 +8706,6 @@ msgstr "Лимит одновременных соединений cURL"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Клавиша, включающая режим быстрого перемещения.\n"
-#~ "См. http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player backward.\n"
-#~ "Will also disable autoforward, when active.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Клавиша движения назад.\n"
-#~ "При активации также отключает автобег.\n"
 #~ "См. http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
@@ -8588,19 +9097,6 @@ msgstr "Лимит одновременных соединений cURL"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
-#~ "Key for sneaking.\n"
-#~ "Also used for climbing down and descending in water if aux1_descends is "
-#~ "disabled.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Клавиша, чтобы красться.\n"
-#~ "Также используется для спуска и погружения под воду, если параметр "
-#~ "aux1_descends отключён.\n"
-#~ "См. http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
 #~ "Key for switching between first- and third-person camera.\n"
 #~ "See http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
@@ -8769,9 +9265,6 @@ msgstr "Лимит одновременных соединений cURL"
 #~ "Привязки клавиш. (Если это меню сломается, удалите настройки из "
 #~ "minetest.conf)"
 
-#~ msgid "Large chat console key"
-#~ msgstr "Кнопка вызова консоли"
-
 #~ msgid "Last known version update"
 #~ msgstr "Последнее известное обновление версии"
 
@@ -8780,6 +9273,9 @@ msgstr "Лимит одновременных соединений cURL"
 
 #~ msgid "Lava depth"
 #~ msgstr "Глубина лавы"
+
+#~ msgid "Left"
+#~ msgstr "Влево"
 
 #~ msgid "Left key"
 #~ msgstr "Кнопка выхода"
@@ -8822,6 +9318,13 @@ msgstr "Лимит одновременных соединений cURL"
 
 #~ msgid "Mapblock mesh generator's MapBlock cache size in MB"
 #~ msgstr "Размер кэша мапблоков в генераторе мешей мапблоков в мегабайтах"
+
+#~ msgid ""
+#~ "Maximum number of mapblocks for client to be kept in memory.\n"
+#~ "Set to -1 for unlimited amount."
+#~ msgstr ""
+#~ "Максимум мапблоков в памяти клиента.\n"
+#~ "Установите в -1 для неограниченного количества."
 
 #~ msgid ""
 #~ "Maximum number of packets sent per send step, if you have a slow "
@@ -8868,6 +9371,13 @@ msgstr "Лимит одновременных соединений cURL"
 #~ msgid "Misc"
 #~ msgstr "Разное"
 
+#~ msgid ""
+#~ "Multiplier for fall bobbing.\n"
+#~ "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
+#~ msgstr ""
+#~ "Множитель для покачивания при падении.\n"
+#~ "Например: 0 отключает покачивание; 1.0 для обычного; 2.0 для двойного."
+
 #~ msgid "Mute key"
 #~ msgstr "Клавиша отключения звука"
 
@@ -8879,6 +9389,9 @@ msgstr "Лимит одновременных соединений cURL"
 
 #~ msgid "Near plane"
 #~ msgstr "Ближняя плоскость"
+
+#~ msgid "Next item"
+#~ msgstr "След. предмет"
 
 #~ msgid "No"
 #~ msgstr "Нет"
@@ -8973,9 +9486,6 @@ msgstr "Лимит одновременных соединений cURL"
 #~ msgid "Pitch move mode"
 #~ msgstr "Режим движения по направлению взгляда"
 
-#~ msgid "Place key"
-#~ msgstr "Клавиша положить"
-
 #~ msgid ""
 #~ "Player is able to fly without being affected by gravity.\n"
 #~ "This requires the \"fly\" privilege on the server."
@@ -9003,6 +9513,9 @@ msgstr "Лимит одновременных соединений cURL"
 #~ "Имейте ввиду, что поле ввода порта в главном меню переопределяет эту "
 #~ "настройку."
 
+#~ msgid "Prev. item"
+#~ msgstr "Пред. предмет"
+
 #~ msgid "Profiler toggle key"
 #~ msgstr "Клавиша переключения профилировщика"
 
@@ -9023,6 +9536,9 @@ msgstr "Лимит одновременных соединений cURL"
 
 #~ msgid "Reset singleplayer world"
 #~ msgstr "Сброс одиночной игры"
+
+#~ msgid "Right"
+#~ msgstr "Вправо"
 
 #~ msgid "Right key"
 #~ msgstr "Правая клавиша меню"
@@ -9170,17 +9686,18 @@ msgstr "Лимит одновременных соединений cURL"
 #~ msgid "This is not a recommended configuration."
 #~ msgstr "Это конфигурация не рекомендуется."
 
+#~ msgid ""
+#~ "This is the list of clients connected to\n"
+#~ "$1"
+#~ msgstr ""
+#~ "Это список подключённых клиентов к\n"
+#~ "$1"
+
 #~ msgid "Time send interval"
 #~ msgstr "Промежуток отправки времени"
 
 #~ msgid "To enable shaders the OpenGL driver needs to be used."
 #~ msgstr "Для включения шейдеров необходим драйвер OpenGL."
-
-#~ msgid "Toggle Cinematic"
-#~ msgstr "Кино"
-
-#~ msgid "Toggle camera mode key"
-#~ msgstr "Клавиша переключения режима камеры"
 
 #~ msgid "Tone Mapping"
 #~ msgstr "Отображение тонов"
@@ -9221,6 +9738,18 @@ msgstr "Лимит одновременных соединений cURL"
 #~ msgid "Use bilinear filtering when scaling textures down."
 #~ msgstr ""
 #~ "Использовать билинейную фильтрацию для текстур в уменьшенном масштабе."
+
+#~ msgid "Use crosshair for touch screen"
+#~ msgstr "Использовать перекрестие для сенсорного экрана"
+
+#~ msgid ""
+#~ "Use crosshair to select object instead of whole screen.\n"
+#~ "If enabled, a crosshair will be shown and will be used for selecting "
+#~ "object."
+#~ msgstr ""
+#~ "Используйте перекрестие для выбора предмета вместо всего экрана.\n"
+#~ "Если включено, будет показано перекрестие, которое будет использоваться "
+#~ "для выбора предмета."
 
 #~ msgid ""
 #~ "Use multi-sample antialiasing (MSAA) to smooth out block edges.\n"
@@ -9379,3 +9908,9 @@ msgstr "Лимит одновременных соединений cURL"
 
 #~ msgid "ok"
 #~ msgstr "ок"
+
+#~ msgid "pause_menu"
+#~ msgstr "меню_паузы"
+
+#~ msgid "press key"
+#~ msgstr "нажмите клавишу"

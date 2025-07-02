@@ -44,8 +44,6 @@ centroid varying float nightRatio;
 	varying float perspective_factor;
 #endif
 
-varying float area_enable_parallax;
-
 varying highp vec3 eyeVec;
 // Color of the light emitted by the light sources.
 const vec3 artificialLight = vec3(1.04, 1.04, 1.04);

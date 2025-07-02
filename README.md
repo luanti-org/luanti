@@ -28,7 +28,7 @@ Table of Contents
 Further documentation
 ----------------------
 - Website: https://www.luanti.org/
-- Wiki: https://wiki.luanti.org/
+- Luanti Documentation: https://docs.luanti.org/
 - Forum: https://forum.luanti.org/
 - GitHub: https://github.com/luanti-org/luanti/
 - [Developer documentation](doc/developing/)
@@ -57,6 +57,7 @@ Some can be changed in the key config dialog in the settings tab.
 | T                             | Chat                                                           |
 | /                             | Command                                                        |
 | Esc                           | Pause menu/abort/exit (pauses only singleplayer game)          |
+| Shift + Esc                   | Exit directly to main menu from anywhere, bypassing pause menu |
 | +                             | Increase view range                                            |
 | -                             | Decrease view range                                            |
 | K                             | Enable/disable fly mode (needs fly privilege)                  |

@@ -47,7 +47,7 @@ const char *ClientInterface::statenames[] = {
 	"SudoMode",
 };
 
-std::string ClientInterface::state2Name(ClientState state)
+const char *ClientInterface::state2Name(ClientState state)
 {
 	return statenames[state];
 }
@@ -195,13 +195,6 @@ void RemoteClient::GetNextBlocks (
 		m_last_camera_dir = camera_dir;
 		m_map_send_completion_timer = 0.0f;
 	}
-	if (m_nearest_unsent_d > 0) {
-		// make sure any blocks modified since the last time we sent blocks are resent
-		for (const v3s16 &p : m_blocks_modified) {
-			m_nearest_unsent_d = std::min(m_nearest_unsent_d, center.getDistanceFrom(p));
-		}
-	}
-	m_blocks_modified.clear();
 
 	s16 d_start = m_nearest_unsent_d;
 
@@ -241,7 +234,6 @@ void RemoteClient::GetNextBlocks (
 	camera_fov = camera_fov / (1 + dot / 300.0f);
 
 	s32 nearest_emerged_d = -1;
-	s32 nearest_emergefull_d = -1;
 	s32 nearest_sent_d = -1;
 	//bool queue_is_full = false;
 
@@ -339,36 +331,37 @@ void RemoteClient::GetNextBlocks (
 				if (d >= d_opt && block->isAir())
 						continue;
 			}
-			/*
-				Check occlusion cache first.
-			 */
-			if (m_blocks_occ.find(p) != m_blocks_occ.end())
-				continue;
 
-			/*
-				Note that we do this even before the block is loaded as this does not depend on its contents.
-			 */
-			if (m_occ_cull &&
-					env->getMap().isBlockOccluded(p * MAP_BLOCKSIZE, cam_pos_nodes, d >= d_cull_opt)) {
-				m_blocks_occ.insert(p);
-				continue;
+			const bool want_emerge = !block || !block->isGenerated();
+
+			// if the block is already in the emerge queue we don't have to check again
+			if (!want_emerge || !emerge->isBlockInQueue(p)) {
+				/*
+					Check occlusion cache first.
+				 */
+				if (m_blocks_occ.find(p) != m_blocks_occ.end())
+					continue;
+
+				/*
+					Note that we do this even before the block is loaded as this does not depend on its contents.
+				 */
+				if (m_occ_cull &&
+						env->getMap().isBlockOccluded(p * MAP_BLOCKSIZE, cam_pos_nodes, d >= d_cull_opt)) {
+					m_blocks_occ.insert(p);
+					continue;
+				}
 			}
 
 			/*
 				Add inexistent block to emerge queue.
 			*/
-			if (!block || !block->isGenerated()) {
-				if (emerge->enqueueBlockEmerge(peer_id, p, generate)) {
-					if (nearest_emerged_d == -1)
-						nearest_emerged_d = d;
-				} else {
-					if (nearest_emergefull_d == -1)
-						nearest_emergefull_d = d;
+			if (want_emerge) {
+				if (nearest_emerged_d == -1)
+					nearest_emerged_d = d;
+				if (emerge->enqueueBlockEmerge(peer_id, p, generate))
+					continue;
+				else
 					goto queue_full_break;
-				}
-
-				// get next one.
-				continue;
 			}
 
 			if (nearest_sent_d == -1)
@@ -377,9 +370,7 @@ void RemoteClient::GetNextBlocks (
 			/*
 				Add block to send queue
 			*/
-			PrioritySortedBlockTransfer q((float)dist, p, peer_id);
-
-			dest.push_back(q);
+			dest.emplace_back((float)dist, p, peer_id);
 
 			num_blocks_selected += 1;
 		}
@@ -390,8 +381,6 @@ queue_full_break:
 	// emerging, continue next time browsing from here
 	if (nearest_emerged_d != -1) {
 		new_nearest_unsent_d = nearest_emerged_d;
-	} else if (nearest_emergefull_d != -1) {
-		new_nearest_unsent_d = nearest_emergefull_d;
 	} else {
 		if (d > full_d_max) {
 			new_nearest_unsent_d = 0;
@@ -417,8 +406,7 @@ queue_full_break:
 
 void RemoteClient::GotBlock(v3s16 p)
 {
-	if (m_blocks_sending.find(p) != m_blocks_sending.end()) {
-		m_blocks_sending.erase(p);
+	if (m_blocks_sending.erase(p) > 0) {
 		// only add to sent blocks if it actually was sending
 		// (it might have been modified since)
 		m_blocks_sent.insert(p);
@@ -429,32 +417,39 @@ void RemoteClient::GotBlock(v3s16 p)
 
 void RemoteClient::SentBlock(v3s16 p)
 {
-	if (m_blocks_sending.find(p) == m_blocks_sending.end())
-		m_blocks_sending[p] = 0.0f;
-	else
+	if (!m_blocks_sending.insert(p).second)
 		infostream<<"RemoteClient::SentBlock(): Sent block"
 				" already in m_blocks_sending"<<std::endl;
 }
 
-void RemoteClient::SetBlockNotSent(v3s16 p)
+void RemoteClient::SetBlockNotSent(v3s16 p, bool low_priority)
 {
 	m_nothing_to_send_pause_timer = 0;
 
 	// remove the block from sending and sent sets,
-	// and mark as modified if found
-	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0)
-		m_blocks_modified.insert(p);
+	// and reset the scan loop if found
+	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0) {
+		// If this is a low priority event, do not reset m_nearest_unsent_d.
+		// Instead, the send loop will get to the block in the next full loop iteration.
+		if (!low_priority) {
+			// Note that we do NOT use the euclidean distance here.
+			// getNextBlocks builds successive cube-surfaces in the send loop.
+			// This resets the distance to the maximum cube size that
+			// still guarantees that this block will be scanned again right away.
+			//
+			// Using m_last_center is OK, as a change in center
+			// will reset m_nearest_unsent_d to 0 anyway (see getNextBlocks).
+			p -= m_last_center;
+			s16 this_d = std::max({std::abs(p.X), std::abs(p.Y), std::abs(p.Z)});
+			m_nearest_unsent_d = std::min(m_nearest_unsent_d, this_d);
+		}
+	}
 }
 
-void RemoteClient::SetBlocksNotSent(const std::vector<v3s16> &blocks)
+void RemoteClient::SetBlocksNotSent(const std::vector<v3s16> &blocks, bool low_priority)
 {
-	m_nothing_to_send_pause_timer = 0;
-
 	for (v3s16 p : blocks) {
-		// remove the block from sending and sent sets,
-		// and mark as modified if found
-		if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0)
-			m_blocks_modified.insert(p);
+		SetBlockNotSent(p, low_priority);
 	}
 }
 
@@ -664,7 +659,7 @@ std::vector<session_t> ClientInterface::getClientIDs(ClientState min_state)
 {
 	std::vector<session_t> reply;
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-
+	reply.reserve(m_clients.size());
 	for (const auto &m_client : m_clients) {
 		if (m_client.second->getState() >= min_state)
 			reply.push_back(m_client.second->peer_id);
@@ -673,23 +668,19 @@ std::vector<session_t> ClientInterface::getClientIDs(ClientState min_state)
 	return reply;
 }
 
-void ClientInterface::markBlocksNotSent(const std::vector<v3s16> &positions)
+void ClientInterface::markBlocksNotSent(const std::vector<v3s16> &positions, bool low_priority)
 {
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
 	for (const auto &client : m_clients) {
 		if (client.second->getState() >= CS_Active)
-			client.second->SetBlocksNotSent(positions);
+			client.second->SetBlocksNotSent(positions, low_priority);
 	}
 }
 
-/**
- * Verify if user limit was reached.
- * User limit count all clients from HelloSent state (MT protocol user) to Active state
- * @return true if user limit was reached
- */
 bool ClientInterface::isUserLimitReached()
 {
-	return getClientIDs(CS_HelloSent).size() >= g_settings->getU16("max_users");
+	// Note that this only counts clients that have fully joined
+	return getClientIDs().size() >= g_settings->getU16("max_users");
 }
 
 void ClientInterface::step(float dtime)
@@ -708,16 +699,13 @@ void ClientInterface::step(float dtime)
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
 	for (const auto &it : m_clients) {
 		auto state = it.second->getState();
-		if (state >= CS_HelloSent)
+		if (state >= CS_InitDone)
 			continue;
 		if (it.second->uptime() <= LINGER_TIMEOUT)
 			continue;
-		// CS_Created means nobody has even noticed the client is there
-		//            (this is before on_prejoinplayer runs)
-		// CS_Invalid should not happen
-		// -> log those as warning, the rest as info
-		std::ostream &os = state == CS_Created || state == CS_Invalid ?
-			warningstream : infostream;
+		// Complain louder if this situation is unexpected
+		auto &os = state == CS_Disconnecting || state == CS_Denied ?
+			infostream : warningstream;
 		try {
 			Address addr = m_con->GetPeerAddress(it.second->peer_id);
 			os << "Disconnecting lingering client from "
@@ -775,33 +763,22 @@ void ClientInterface::sendCustom(session_t peer_id, u8 channel, NetworkPacket *p
 	m_con->Send(peer_id, channel, pkt, reliable);
 }
 
-void ClientInterface::sendToAll(NetworkPacket *pkt)
+void ClientInterface::sendToAll(NetworkPacket *pkt, ClientState state_min)
 {
+	auto &ccf = clientCommandFactoryTable[pkt->getCommand()];
+	FATAL_ERROR_IF(!ccf.name, "packet type missing in table");
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-	for (auto &client_it : m_clients) {
-		RemoteClient *client = client_it.second;
-
-		if (client->net_proto_version != 0) {
-			auto &ccf = clientCommandFactoryTable[pkt->getCommand()];
-			FATAL_ERROR_IF(!ccf.name, "packet type missing in table");
-			m_con->Send(client->peer_id, ccf.channel, pkt, ccf.reliable);
-		}
+	for (auto &[peer_id, client] : m_clients) {
+		if (client->getState() >= state_min)
+			m_con->Send(peer_id, ccf.channel, pkt, ccf.reliable);
 	}
 }
 
 RemoteClient* ClientInterface::getClientNoEx(session_t peer_id, ClientState state_min)
 {
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-	RemoteClientMap::const_iterator n = m_clients.find(peer_id);
-	// The client may not exist; clients are immediately removed if their
-	// access is denied, and this event occurs later then.
-	if (n == m_clients.end())
-		return NULL;
-
-	if (n->second->getState() >= state_min)
-		return n->second;
-
-	return NULL;
+	RemoteClient *client = lockedGetClientNoEx(peer_id, state_min);
+	return client;
 }
 
 RemoteClient* ClientInterface::lockedGetClientNoEx(session_t peer_id, ClientState state_min)
@@ -810,12 +787,13 @@ RemoteClient* ClientInterface::lockedGetClientNoEx(session_t peer_id, ClientStat
 	// The client may not exist; clients are immediately removed if their
 	// access is denied, and this event occurs later then.
 	if (n == m_clients.end())
-		return NULL;
+		return nullptr;
 
+	assert(n->second->peer_id == peer_id);
 	if (n->second->getState() >= state_min)
 		return n->second;
 
-	return NULL;
+	return nullptr;
 }
 
 ClientState ClientInterface::getClientState(session_t peer_id)
@@ -828,16 +806,6 @@ ClientState ClientInterface::getClientState(session_t peer_id)
 		return CS_Invalid;
 
 	return n->second->getState();
-}
-
-void ClientInterface::setPlayerName(session_t peer_id, const std::string &name)
-{
-	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-	RemoteClientMap::iterator n = m_clients.find(peer_id);
-	// The client may not exist; clients are immediately removed if their
-	// access is denied, and this event occurs later then.
-	if (n != m_clients.end())
-		n->second->setName(name);
 }
 
 void ClientInterface::DeleteClient(session_t peer_id)
@@ -919,19 +887,4 @@ u16 ClientInterface::getProtocolVersion(session_t peer_id)
 		return 0;
 
 	return n->second->net_proto_version;
-}
-
-void ClientInterface::setClientVersion(session_t peer_id, u8 major, u8 minor, u8 patch,
-		const std::string &full)
-{
-	RecursiveMutexAutoLock conlock(m_clients_mutex);
-
-	// Error check
-	RemoteClientMap::iterator n = m_clients.find(peer_id);
-
-	// No client to set versions
-	if (n == m_clients.end())
-		return;
-
-	n->second->setVersionInfo(major, minor, patch, full);
 }

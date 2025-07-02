@@ -14,6 +14,8 @@
 #include "util/enriched_string.h"
 #include "translation.h"
 
+#include <csignal>
+
 /******************************************************************************/
 /* Structs and macros                                                         */
 /******************************************************************************/
@@ -60,12 +62,6 @@ public:
 	 * @param fields map containing formspec field elements currently active
 	 */
 	void gotText(const StringMap &fields);
-
-	/**
-	 * receive text/events transmitted by guiFormSpecMenu
-	 * @param text textual representation of event
-	 */
-	void gotText(const std::wstring &text);
 
 private:
 	/** target to transmit data to */
@@ -130,7 +126,7 @@ public:
 			RenderingEngine *rendering_engine,
 			IMenuManager *menumgr,
 			MainMenuData *data,
-			bool &kill);
+			volatile std::sig_atomic_t &kill);
 
 	/** default destructor */
 	virtual ~GUIEngine();
@@ -199,7 +195,7 @@ private:
 	irr_ptr<GUIFormSpecMenu>              m_menu;
 
 	/** reference to kill variable managed by SIGINT handler */
-	bool                                 &m_kill;
+	volatile std::sig_atomic_t           &m_kill;
 
 	/** variable used to abort menu and return back to main game handling */
 	bool                                  m_startgame = false;

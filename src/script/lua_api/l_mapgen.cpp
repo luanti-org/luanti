@@ -428,7 +428,7 @@ size_t get_biome_list(lua_State *L, int index,
 	if (is_single) {
 		Biome *biome = get_or_load_biome(L, index, biomemgr);
 		if (!biome) {
-			infostream << "get_biome_list: failed to get biome '"
+			warningstream << "get_biome_list: failed to get biome '"
 				<< (lua_isstring(L, index) ? lua_tostring(L, index) : "")
 				<< "'." << std::endl;
 			return 1;
@@ -445,7 +445,7 @@ size_t get_biome_list(lua_State *L, int index,
 		Biome *biome = get_or_load_biome(L, -1, biomemgr);
 		if (!biome) {
 			fail_count++;
-			infostream << "get_biome_list: failed to get biome '"
+			warningstream << "get_biome_list: failed to get biome '"
 				<< (lua_isstring(L, -1) ? lua_tostring(L, -1) : "")
 				<< "'" << std::endl;
 			continue;
@@ -865,13 +865,32 @@ int ModApiMapgen::l_get_mapgen_edges(lua_State *L)
 	} else {
 		std::string chunksize_str;
 		settingsmgr->getMapSetting("chunksize", &chunksize_str);
-		chunksize = stoi(chunksize_str, -32768, 32767);
+		chunksize = stoi(chunksize_str, 1, 10);
 	}
 
 	std::pair<s16, s16> edges = get_mapgen_edges(mapgen_limit, chunksize);
 	push_v3s16(L, v3s16(1, 1, 1) * edges.first);
 	push_v3s16(L, v3s16(1, 1, 1) * edges.second);
 	return 2;
+}
+
+// get_mapgen_chunksize()
+int ModApiMapgen::l_get_mapgen_chunksize(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	const MapSettingsManager *settingsmgr = getEmergeManager(L)->map_settings_mgr;
+
+	// MapSettingsManager::makeMapgenParams cannot be used here because it would
+	// make mapgen settings immutable from then on. Mapgen settings should stay
+	// mutable until after mod loading ends.
+
+	std::string chunksize_str;
+	settingsmgr->getMapSetting("chunksize", &chunksize_str);
+	s16 chunksize = stoi(chunksize_str, 1, 10);
+
+	push_v3s16(L, {chunksize, chunksize, chunksize});
+	return 1;
 }
 
 // get_mapgen_setting(name)
@@ -2025,6 +2044,7 @@ void ModApiMapgen::Initialize(lua_State *L, int top)
 	API_FCT(get_mapgen_params);
 	API_FCT(set_mapgen_params);
 	API_FCT(get_mapgen_edges);
+	API_FCT(get_mapgen_chunksize);
 	API_FCT(get_mapgen_setting);
 	API_FCT(set_mapgen_setting);
 	API_FCT(get_mapgen_setting_noiseparams);
@@ -2067,6 +2087,7 @@ void ModApiMapgen::InitializeEmerge(lua_State *L, int top)
 	API_FCT(get_seed);
 	API_FCT(get_mapgen_params);
 	API_FCT(get_mapgen_edges);
+	API_FCT(get_mapgen_chunksize);
 	API_FCT(get_mapgen_setting);
 	API_FCT(get_mapgen_setting_noiseparams);
 	API_FCT(get_noiseparams);

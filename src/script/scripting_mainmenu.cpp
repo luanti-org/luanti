@@ -114,20 +114,6 @@ bool MainMenuScripting::checkPathAccess(const std::string &abs_path, bool write_
 	return !write_required;
 }
 
-void MainMenuScripting::beforeClose()
-{
-	SCRIPTAPI_PRECHECKHEADER
-
-	int error_handler = PUSH_ERROR_HANDLER(L);
-
-	lua_getglobal(L, "core");
-	lua_getfield(L, -1, "on_before_close");
-
-	PCALL_RES(lua_pcall(L, 0, 0, error_handler));
-
-	lua_pop(L, 2); // Pop core, error handler
-}
-
 void MainMenuScripting::step()
 {
 	asyncEngine.step(getStack());

@@ -187,6 +187,7 @@ void set_default_settings()
 	USEKEY2("keymap_fullscreen", "SYSTEM_SCANCODE_68", "KEY_F11");
 	USEKEY2("keymap_increase_viewing_range_min", "SYSTEM_SCANCODE_46", "+");
 	USEKEY2("keymap_decrease_viewing_range_min", "SYSTEM_SCANCODE_45", "-");
+	settings->setDefault("keymap_close_world", "");
 	USEKEY2("keymap_slot1", "SYSTEM_SCANCODE_30", "KEY_KEY_1");
 	USEKEY2("keymap_slot2", "SYSTEM_SCANCODE_31", "KEY_KEY_2");
 	USEKEY2("keymap_slot3", "SYSTEM_SCANCODE_32", "KEY_KEY_3");
@@ -246,7 +247,7 @@ void set_default_settings()
 	settings->setDefault("undersampling", "1");
 	settings->setDefault("world_aligned_mode", "enable");
 	settings->setDefault("autoscale_mode", "disable");
-	settings->setDefault("texture_min_size", "64");
+	settings->setDefault("texture_min_size", std::to_string(TEXTURE_FILTER_MIN_SIZE));
 	settings->setDefault("enable_fog", "true");
 	settings->setDefault("fog_start", "0.4");
 	settings->setDefault("3d_mode", "none");
@@ -340,7 +341,6 @@ void set_default_settings()
 	settings->setDefault("enable_volumetric_lighting", "false");
 	settings->setDefault("enable_water_reflections", "false");
 	settings->setDefault("enable_translucent_foliage", "false");
-	settings->setDefault("enable_node_specular", "false");
 
 	// Effects Shadows
 	settings->setDefault("enable_dynamic_shadows", "false");

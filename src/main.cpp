@@ -700,12 +700,18 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 	init_log_streams(cmd_args);
 
 	// Initialize random seed
-	{
-		u32 seed = static_cast<u32>(time(nullptr)) << 16;
-		seed |= porting::getTimeUs() & 0xffff;
-		srand(seed);
-		mysrand(seed);
+	u64 seed;
+	if (!porting::secure_rand_fill_buf(&seed, sizeof(seed))) {
+		verbosestream << "Secure randomness not available to seed global RNG." << std::endl;
+		std::ostringstream oss;
+		// some stuff that's hard to predict:
+		oss << time(nullptr) << porting::getTimeUs() << argc << g_settings_path;
+		print_version(oss);
+		std::string data = oss.str();
+		seed = murmur_hash_64_ua(data.c_str(), data.size(), 0xc0ffee);
 	}
+	srand(seed);
+	mysrand(seed);
 
 	// Initialize HTTP fetcher
 	httpfetch_init(g_settings->getS32("curl_parallel_limit"));
@@ -730,9 +736,8 @@ static void uninit_common()
 static void startup_message()
 {
 	print_version(infostream);
-	infostream << "SER_FMT_VER_HIGHEST_READ=" <<
-		TOSTRING(SER_FMT_VER_HIGHEST_READ) <<
-		" LATEST_PROTOCOL_VERSION=" << LATEST_PROTOCOL_VERSION
+	infostream << "SER_FMT_VER_HIGHEST_READ=" << (int)SER_FMT_VER_HIGHEST_READ
+		<< " LATEST_PROTOCOL_VERSION=" << (int)LATEST_PROTOCOL_VERSION
 		<< std::endl;
 }
 
@@ -772,10 +777,13 @@ static bool read_config_file(const Settings &cmd_args)
 		}
 
 		// If no path found, use the first one (menu creates the file)
-		if (g_settings_path.empty())
+		if (g_settings_path.empty()) {
 			g_settings_path = filenames[0];
+			g_first_run = true;
+		}
 	}
-	infostream << "Global configuration file: " << g_settings_path << std::endl;
+	infostream << "Global configuration file: " << g_settings_path
+		<< (g_first_run ? " (first run)" : "") << std::endl;
 
 	return true;
 }
@@ -1130,7 +1138,7 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 			return false;
 		}
 		ChatInterface iface;
-		bool &kill = *porting::signal_handler_killstatus();
+		volatile auto &kill = *porting::signal_handler_killstatus();
 
 		try {
 			// Create server
@@ -1173,7 +1181,7 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 			server.start();
 
 			// Run server
-			bool &kill = *porting::signal_handler_killstatus();
+			volatile auto &kill = *porting::signal_handler_killstatus();
 			dedicated_server_loop(server, kill);
 
 		} catch (const ModError &e) {
@@ -1218,7 +1226,7 @@ static bool migrate_map_database(const GameParams &game_params, const Settings &
 
 	u32 count = 0;
 	u64 last_update_time = 0;
-	bool &kill = *porting::signal_handler_killstatus();
+	volatile auto &kill = *porting::signal_handler_killstatus();
 
 	std::vector<v3s16> blocks;
 	old_db->listAllLoadableBlocks(blocks);
@@ -1272,8 +1280,9 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 
 	u32 count = 0;
 	u64 last_update_time = 0;
-	bool &kill = *porting::signal_handler_killstatus();
+	volatile auto &kill = *porting::signal_handler_killstatus();
 	const u8 serialize_as_ver = SER_FMT_VER_HIGHEST_WRITE;
+	const s16 map_compression_level = rangelim(g_settings->getS16("map_compression_level_disk"), -1, 9);
 
 	// This is ok because the server doesn't actually run
 	std::vector<v3s16> blocks;
@@ -1301,7 +1310,7 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 			oss.str("");
 			oss.clear();
 			writeU8(oss, serialize_as_ver);
-			mb.serialize(oss, serialize_as_ver, true, -1);
+			mb.serialize(oss, serialize_as_ver, true, map_compression_level);
 		}
 
 		db->saveBlock(*it, oss.str());

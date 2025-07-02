@@ -330,7 +330,7 @@ void LuaAreaStore::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaAreaStore>(L, methods, metamethods);
 
 	// Can be created from Lua (AreaStore())
 	lua_register(L, className, create_object);

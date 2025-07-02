@@ -134,8 +134,8 @@ void ServerScripting::InitializeModApi(lua_State *L, int top)
 	ItemStackMetaRef::Register(L);
 	LuaAreaStore::Register(L);
 	LuaItemStack::Register(L);
-	LuaPerlinNoise::Register(L);
-	LuaPerlinNoiseMap::Register(L);
+	LuaValueNoise::Register(L);
+	LuaValueNoiseMap::Register(L);
 	LuaPseudoRandom::Register(L);
 	LuaPcgRandom::Register(L);
 	LuaRaycast::Register(L);
@@ -172,8 +172,8 @@ void ServerScripting::InitializeAsync(lua_State *L, int top)
 	ItemStackMetaRef::Register(L);
 	LuaAreaStore::Register(L);
 	LuaItemStack::Register(L);
-	LuaPerlinNoise::Register(L);
-	LuaPerlinNoiseMap::Register(L);
+	LuaValueNoise::Register(L);
+	LuaValueNoiseMap::Register(L);
 	LuaPseudoRandom::Register(L);
 	LuaPcgRandom::Register(L);
 	LuaSecureRandom::Register(L);

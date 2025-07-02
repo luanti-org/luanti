@@ -513,7 +513,8 @@ function core.node_dig(pos, node, digger)
 		.. node.name .. " at " .. core.pos_to_string(pos))
 
 	local wielded = digger and digger:get_wielded_item()
-	local drops = core.get_node_drops(node, wielded and wielded:get_name())
+	local drops = core.get_node_drops(node, wielded and wielded:get_name(),
+				wielded and ItemStack(wielded), digger, vector.copy(pos))
 
 	if wielded then
 		local wdef = wielded:get_definition()
@@ -740,16 +741,16 @@ core.noneitemdef_default = {  -- This is used for the hand and unknown items
 --
 
 local get_node_raw = core.get_node_raw
-core.get_node_raw = nil
+local get_name_from_content_id = core.get_name_from_content_id
 
 function core.get_node(pos)
 	local content, param1, param2 = get_node_raw(pos.x, pos.y, pos.z)
-	return {name = core.get_name_from_content_id(content), param1 = param1, param2 = param2}
+	return {name = get_name_from_content_id(content), param1 = param1, param2 = param2}
 end
 
 function core.get_node_or_nil(pos)
 	local content, param1, param2, pos_ok = get_node_raw(pos.x, pos.y, pos.z)
 	return pos_ok and
-			{name = core.get_name_from_content_id(content), param1 = param1, param2 = param2}
+			{name = get_name_from_content_id(content), param1 = param1, param2 = param2}
 			or nil
 end

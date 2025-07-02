@@ -106,6 +106,11 @@ grorp:
   textures/base/pack/place_btn.png
     derived by editing the text in aux1_btn.svg
 
+Material Design, Google (Apache license v2.0):
+  textures/base/pack/contentdb_thumb_up.png
+  textures/base/pack/contentdb_thumb_down.png
+  textures/base/pack/contentdb_neutral.png
+
 License of Luanti source code
 -------------------------------
 

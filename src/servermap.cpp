@@ -199,6 +199,7 @@ bool ServerMap::blockpos_over_mapgen_limit(v3s16 p)
 
 bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 {
+	assert(data);
 	s16 csize = getMapgenParams()->chunksize;
 	v3s16 bpmin = EmergeManager::getContainingChunk(blockpos, csize);
 	v3s16 bpmax = bpmin + v3s16(1, 1, 1) * (csize - 1);
@@ -263,8 +264,10 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 }
 
 void ServerMap::finishBlockMake(BlockMakeData *data,
-	std::map<v3s16, MapBlock*> *changed_blocks)
+	std::map<v3s16, MapBlock*> *changed_blocks, u32 now)
 {
+	assert(data);
+	assert(changed_blocks);
 	v3s16 bpmin = data->blockpos_min;
 	v3s16 bpmax = data->blockpos_max;
 
@@ -283,7 +286,7 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 	/*
 		Copy transforming liquid information
 	*/
-	while (data->transforming_liquid.size()) {
+	while (!data->transforming_liquid.empty()) {
 		m_transforming_liquid.push_back(data->transforming_liquid.front());
 		data->transforming_liquid.pop_front();
 	}
@@ -297,15 +300,13 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 		*/
 		block->expireIsAirCache();
 		/*
-			Set block as modified
+			Set block as modified (if it isn't already)
 		*/
 		block->raiseModified(MOD_STATE_WRITE_NEEDED,
 			MOD_REASON_EXPIRE_IS_AIR);
 	}
 
-	/*
-		Set central blocks as generated
-	*/
+	// Note: this does not apply to the extra border area
 	for (s16 x = bpmin.X; x <= bpmax.X; x++)
 	for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
 	for (s16 y = bpmin.Y; y <= bpmax.Y; y++) {
@@ -314,13 +315,10 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 			continue;
 
 		block->setGenerated(true);
+		// Set timestamp to ensure correct application of LBMs and other stuff
+		block->setTimestampNoChangedFlag(now);
 	}
 
-	/*
-		Save changed parts of map
-		NOTE: Will be saved later.
-	*/
-	//save(MOD_STATE_WRITE_AT_UNLOAD);
 	m_chunks_in_progress.erase(bpmin);
 }
 
@@ -716,6 +714,7 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
 			event.type = MEET_OTHER;
+			event.low_priority = true;
 			event.setModifiedBlocks(modified_blocks);
 			dispatchEvent(event);
 		}

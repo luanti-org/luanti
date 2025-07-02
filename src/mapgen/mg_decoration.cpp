@@ -148,7 +148,7 @@ void Decoration::placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
 		bool cover = false;
 		// Amount of decorations
 		float nval = (flags & DECO_USE_NOISE) ?
-			NoisePerlin2D(&np, p2d_min.X + sidelen / 2, p2d_min.Y + sidelen / 2, mapseed) :
+			NoiseFractal2D(&np, p2d_min.X + sidelen / 2, p2d_min.Y + sidelen / 2, mapseed) :
 			fill_ratio;
 		u32 deco_count = 0;
 
@@ -163,7 +163,7 @@ void Decoration::placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
 				deco_count = deco_count_f;
 			} else if (deco_count_f > 0.0f) {
 				// For very low density calculate a chance for 1 decoration
-				if (ps.range(1000) <= deco_count_f * 1000.0f)
+				if (ps.next() <= deco_count_f * static_cast<float>(PcgRandom::RANDOM_RANGE))
 					deco_count = 1;
 			}
 		}

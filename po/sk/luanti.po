@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 13:23+0100\n"
+"POT-Creation-Date: 2025-05-14 23:02+0200\n"
 "PO-Revision-Date: 2025-01-03 17:19+0000\n"
 "Last-Translator: Lukáš Lizák <lukas.lizak15@gmail.com>\n"
 "Language-Team: Slovak <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -82,8 +82,17 @@ msgid "Browse"
 msgstr "Prehliadaj"
 
 #: builtin/common/settings/components.lua
+msgid "Conflicts with \"$1\""
+msgstr ""
+
+#: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "Upraviť"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Remove keybinding"
+msgstr "Priradenie kláves."
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -111,8 +120,8 @@ msgstr "2D šum"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
+#: src/gui/guiPasswordChange.cpp
 msgid "Cancel"
 msgstr "Zrušiť"
 
@@ -134,7 +143,7 @@ msgid "Persistence"
 msgstr "Vytrvalosť"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "Save"
 msgstr "Uložiť"
 
@@ -210,8 +219,18 @@ msgstr "Dostupnosť"
 msgid "Auto"
 msgstr "Auto"
 
-#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+msgid "Back"
+msgstr "Späť"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Buttons with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
+#: src/settings_translation_file.cpp
 msgid "Chat"
 msgstr "Komunikácia"
 
@@ -237,6 +256,10 @@ msgid "General"
 msgstr "Všeobecné"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Long tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
 msgstr "Pohyb"
 
@@ -258,6 +281,10 @@ msgid "Search"
 msgstr "Hľadaj"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Short tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
 msgstr "Zobraziť rozšírené nastavenia"
 
@@ -267,13 +294,17 @@ msgstr "Zobraz technické názvy"
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "Touchscreen layout"
-msgstr "Dotyková obrazovka"
+msgid "Tap"
+msgstr "Tab"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Tap with crosshair"
+msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "pause_menu"
-msgstr "FPS v menu pozastavenia hry"
+msgid "Touchscreen layout"
+msgstr "Dotyková obrazovka"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -405,11 +436,6 @@ msgid "All"
 msgstr "Všetky"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Back"
-msgstr "Späť"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr "ContentDB nie je k dispozícií ak bol Minetest skompilovaný bez cURL"
@@ -438,7 +464,6 @@ msgid "Mods"
 msgstr "Rozšírenia"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "Nepodarilo sa stiahnuť žiadne balíčky"
 
@@ -544,6 +569,15 @@ msgid "Donate"
 msgstr "Prispieť"
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading package information"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "Error loading reviews"
+msgstr "Chyba pri vytváraní klienta: %s"
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
 msgstr "Téma Fóra"
 
@@ -560,6 +594,10 @@ msgstr "Nainštalovať $1"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
 msgstr "Sledovač Problémov"
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Reviews"
+msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -616,7 +654,7 @@ msgstr "Nie je možné nainštalovať $1 ako balíček textúr"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
-"This is the list of clients connected to\n"
+"Players connected to\n"
 "$1"
 msgstr ""
 
@@ -906,6 +944,32 @@ msgstr "pkgmgr: nesprávna cesta \"$1\""
 #: builtin/mainmenu/dlg_delete_world.lua
 msgid "Delete World \"$1\"?"
 msgstr "Zmazať svet \"$1\"?"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Keybindings changed"
+msgstr "Priradenie kláves."
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Open settings"
+msgstr "Nastavenia"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr ""
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1222,13 +1286,6 @@ msgid "Address"
 msgstr "Adresa"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
-msgid ""
-"Clients:\n"
-"$1"
-msgstr "Klient"
-
-#: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
 msgstr "Kreatívny mód"
 
@@ -1271,6 +1328,13 @@ msgstr "Určený krok servera"
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Players:\n"
+"$1"
+msgstr "Klient"
 
 #: builtin/mainmenu/tab_online.lua
 msgid ""
@@ -2108,6 +2172,11 @@ msgstr ""
 msgid "Some mods have unsatisfied dependencies:"
 msgstr "Niektoré rozšírenia majú nevybavené závislosti:"
 
+#: src/gui/guiButtonKey.h
+#, fuzzy
+msgid "Press Button"
+msgstr "Ľavé tlačítko"
+
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
 msgstr "Nepodarilo sa otvoriť web stránku"
@@ -2119,162 +2188,6 @@ msgstr "Otváram web stránku"
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
 msgstr "Pokračuj"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "\"Aux1\" = climb down"
-msgstr "\"Aux1\"=šplhaj dole"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Autoforward"
-msgstr "Automaticky pohyb vpred"
-
-#: src/gui/guiKeyChangeMenu.cpp src/settings_translation_file.cpp
-msgid "Automatic jumping"
-msgstr "Automatické skákanie"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Aux1"
-msgstr "Aux1"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Backward"
-msgstr "Vzad"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Block bounds"
-msgstr "Hranice bloku"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Change camera"
-msgstr "Zmeň pohľad"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Command"
-msgstr "Príkaz"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Console"
-msgstr "Konzola"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. range"
-msgstr "Zníž dohľad"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. volume"
-msgstr "Zníž hlasitosť"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Double tap \"jump\" to toggle fly"
-msgstr "2x stlač \"skok\" pre prepnutie lietania"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Drop"
-msgstr "Zahodiť"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Forward"
-msgstr "Vpred"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. range"
-msgstr "Zvýš dohľad"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. volume"
-msgstr "Zvýš hlasitosť"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Inventory"
-msgstr "Inventár"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Jump"
-msgstr "Skok"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Key already in use"
-msgstr "Klávesa sa už používa"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Keybindings."
-msgstr "Priradenie kláves."
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Left"
-msgstr "Vľavo"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Local command"
-msgstr "Lokálny príkaz"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Mute"
-msgstr "Vypni zvuk"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Next item"
-msgstr "Ďalšia vec"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Prev. item"
-msgstr "Pred. vec"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Range select"
-msgstr "Zmena dohľadu"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Right"
-msgstr "Vpravo"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Screenshot"
-msgstr "Fotka obrazovky"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Sneak"
-msgstr "Zakrádať sa"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle HUD"
-msgstr "Prepni HUD"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle chat log"
-msgstr "Prepni logovanie komunikácie"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fast"
-msgstr "Prepni rýchly režim"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fly"
-msgstr "Prepni lietanie"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle fog"
-msgstr "Prepni hmlu"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle minimap"
-msgstr "Prepni minimapu"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle noclip"
-msgstr "Prepni režim prechádzania stenami"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle pitchmove"
-msgstr "Prepni režim pohybu podľa sklonu"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Zoom"
-msgstr "Priblíž"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "press key"
-msgstr "stlač klávesu"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
@@ -2304,10 +2217,6 @@ msgstr "Staré heslo"
 #: src/gui/guiPasswordChange.cpp
 msgid "Passwords do not match!"
 msgstr "Hesla sa nezhodujú!"
-
-#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
-msgid "Exit"
-msgstr "Odísť"
 
 #: src/gui/guiVolumeChange.cpp
 msgid "Muted"
@@ -2349,19 +2258,84 @@ msgstr ""
 msgid "Tap outside to deselect."
 msgstr ""
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Aux1"
+msgstr "Aux1"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Change camera"
+msgstr "Zmeň pohľad"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Dig/punch/use"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Drop"
+msgstr "Zahodiť"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "Odísť"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Inventory"
+msgstr "Inventár"
+
 #: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Joystick"
 msgstr "ID joysticku"
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Jump"
+msgstr "Skok"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#, fuzzy
+msgid "Place/use"
+msgstr "Tlačidlo na pokladanie"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Range select"
+msgstr "Zmena dohľadu"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Sneak"
+msgstr "Zakrádať sa"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle chat log"
+msgstr "Prepni logovanie komunikácie"
 
 #: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "Prepni hmlu"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fast"
+msgstr "Prepni rýchly režim"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fly"
+msgstr "Prepni lietanie"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle minimap"
+msgstr "Prepni minimapu"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle noclip"
+msgstr "Prepni režim prechádzania stenami"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Zoom"
+msgstr "Priblíž"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2832,6 +2806,10 @@ msgid "Audio"
 msgstr "Zvuk"
 
 #: src/settings_translation_file.cpp
+msgid "Automatic jumping"
+msgstr "Automatické skákanie"
+
+#: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
 msgstr "Automaticky vyskočí na prekážku vysokú jedna kocka."
 
@@ -3046,6 +3024,11 @@ msgid "Client"
 msgstr "Klient"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Client Debugging"
+msgstr "Ladenie"
+
+#: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
 msgstr "Veľkosť chunku pre \"Client Mesh\""
 
@@ -3138,6 +3121,10 @@ msgstr ""
 "Čiarkou oddelený zoznam dôveryhodných rozšírení, ktoré majú povolené\n"
 "nebezpečné funkcie aj keď je bezpečnosť rozšírení aktívna (cez "
 "request_insecure_environment())."
+
+#: src/settings_translation_file.cpp
+msgid "Command"
+msgstr "Príkaz"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3286,6 +3273,16 @@ msgid ""
 "Reducing this can improve performance, but some effects (e.g. debanding)\n"
 "require more than 8 bits to work."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease view range"
+msgstr "Zníž dohľad"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease volume"
+msgstr "Zníž hlasitosť"
 
 #: src/settings_translation_file.cpp
 msgid "Dedicated server step"
@@ -3500,6 +3497,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Drop item"
+msgstr "Tlačidlo Zahoď vec"
+
+#: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
 msgstr "Získaj ladiace informácie generátora máp."
 
@@ -3544,6 +3546,13 @@ msgid ""
 msgstr ""
 "Aktivuj IPv6 podporu (pre klienta ako i server).\n"
 "Požadované aby IPv6 spojenie vôbec mohlo fungovať."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Enable IPv6 support for server.\n"
+"Note that clients will be able to connect with both IPv4 and IPv6.\n"
+"Ignored if bind_address is set."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3674,16 +3683,6 @@ msgstr ""
 "Napr.: 0 pre žiadne pohupovanie; 1.0 pre normálne; 2.0 pre dvojnásobné."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid ""
-"Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set."
-msgstr ""
-"Aktivuj/vypni IPv6 server.\n"
-"Ignorované, ak je nastavená bind_address .\n"
-"Vyžaduje povolené enable_ipv6."
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Enables Hable's 'Uncharted 2' filmic tone mapping.\n"
 "Simulates the tone curve of photographic film and how this approximates the\n"
@@ -3766,16 +3765,13 @@ msgid "FPS"
 msgstr "FPS"
 
 #: src/settings_translation_file.cpp
-msgid "FPS when unfocused or paused"
+#, fuzzy
+msgid "FPS when unfocused"
 msgstr "FPS ak je hra nezameraná, alebo pozastavená"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
 msgstr "Faktor šumu"
-
-#: src/settings_translation_file.cpp
-msgid "Fall bobbing factor"
-msgstr "Faktor pohupovania sa pri pádu"
 
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
@@ -4208,12 +4204,182 @@ msgstr ""
 "v kockách za sekundu na druhú."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 1"
+msgstr "Tlačidlo Opasok pozícia 1"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 10"
+msgstr "Tlačidlo Opasok pozícia 10"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 11"
+msgstr "Tlačidlo Opasok pozícia 11"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 12"
+msgstr "Tlačidlo Opasok pozícia 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 13"
+msgstr "Tlačidlo Opasok pozícia 13"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 14"
+msgstr "Tlačidlo Opasok pozícia 14"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 15"
+msgstr "Tlačidlo Opasok pozícia 15"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 16"
+msgstr "Tlačidlo Opasok pozícia 16"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 17"
+msgstr "Tlačidlo Opasok pozícia 17"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 18"
+msgstr "Tlačidlo Opasok pozícia 18"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 19"
+msgstr "Tlačidlo Opasok pozícia 19"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 2"
+msgstr "Tlačidlo Opasok pozícia 2"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 20"
+msgstr "Tlačidlo Opasok pozícia 20"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 21"
+msgstr "Tlačidlo Opasok pozícia 21"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 22"
+msgstr "Tlačidlo Opasok pozícia 22"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 23"
+msgstr "Tlačidlo Opasok pozícia 23"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 24"
+msgstr "Tlačidlo Opasok pozícia 24"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 25"
+msgstr "Tlačidlo Opasok pozícia 25"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 26"
+msgstr "Tlačidlo Opasok pozícia 26"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 27"
+msgstr "Tlačidlo Opasok pozícia 27"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 28"
+msgstr "Tlačidlo Opasok pozícia 28"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 29"
+msgstr "Tlačidlo Opasok pozícia 29"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 3"
+msgstr "Tlačidlo Opasok pozícia 3"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 30"
+msgstr "Tlačidlo Opasok pozícia 30"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 31"
+msgstr "Tlačidlo Opasok pozícia 31"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 32"
+msgstr "Tlačidlo Opasok pozícia 32"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 4"
+msgstr "Tlačidlo Opasok pozícia 4"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 5"
+msgstr "Tlačidlo Opasok pozícia 5"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 6"
+msgstr "Tlačidlo Opasok pozícia 6"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 7"
+msgstr "Tlačidlo Opasok pozícia 7"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 8"
+msgstr "Tlačidlo Opasok pozícia 8"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 9"
+msgstr "Tlačidlo Opasok pozícia 9"
+
+#: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
 msgstr "Hlavná lišta: Povolenie kolieska myši pre výber"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
 msgstr "Hlavná lišta: Obrátenie smeru kolieska myši"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select next item"
+msgstr "Tlačidlo Nasledujúca vec na opasku"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select previous item"
+msgstr "Tlačidlo Predchádzajúcu vec na opasku"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4337,6 +4503,16 @@ msgstr ""
 "Ak je zakázané, nové konto sa zaregistruje automaticky pri prihlásení."
 
 #: src/settings_translation_file.cpp
+msgid "If enabled, the \"Aux1\" key will toggle when pressed."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, the \"Sneak\" key will toggle when pressed.\n"
+"This functionality is ignored when fly is enabled."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4409,6 +4585,16 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "Výška komunikačnej konzoly v hre, medzi 0.1 (10%) a 1.0 (100%)."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase view range"
+msgstr "Zvýš dohľad"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase volume"
+msgstr "Zvýš hlasitosť"
+
+#: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
 msgstr "Počiatočná vertikálna rýchlosť pri skákaní, v kockách za sekundu."
 
@@ -4446,6 +4632,11 @@ msgstr "Inštrumentuj funkcie nahrávania modifikátorov blokov pri registráci�
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
 msgstr "Inštrumentuj metódy bytostí pri registrácií."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Interaction style"
+msgstr "Iterácie"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
@@ -4587,6 +4778,343 @@ msgid "Jumping speed"
 msgstr "Rýchlosť skákania"
 
 #: src/settings_translation_file.cpp
+msgid "Key for decreasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decreasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for digging, punching or using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for dropping the currently selected item."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for incrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for jumping."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving fast in fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for moving the player backward.\n"
+"Will also disable autoforward, when active."
+msgstr ""
+"Tlačidlo pre pohyb hráča vzad.\n"
+"Zároveň vypne automatický pohyb hráča dopredu, ak je aktívny.\n"
+"Viď. http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player forward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player left."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player right."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for muting the game."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type local commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the inventory."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for placing an item/block or for using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 11th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 12th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 13th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 14th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 15th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 16th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 17th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 18th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 19th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 20th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 21st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 22nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 23rd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 24th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 25th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 26th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 27th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 28th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 29th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 30th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 31st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 32nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the eighth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fifth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the first hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fourth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the next item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the ninth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the previous item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the second hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the seventh hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the sixth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the tenth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the third hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for sneaking.\n"
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"Tlačidlo pre utajený pohyb (zakrádanie) hráča.\n"
+"Tiež sa používa pre zliezanie a ponáranie vo vode ak aux1_descends je "
+"vypnutý.\n"
+"Viď. http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching between first- and third-person camera."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the next entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the previous entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for taking screenshots."
+msgstr "Formát obrázkov snímok obrazovky."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling autoforward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling cinematic mode."
+msgstr "Plynulý pohyb kamery vo filmovom režime"
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling display of minimap."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling flying."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling fullscreen mode."
+msgstr "Režim celej obrazovky."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling noclip mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling pitch move mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of chat."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of debug info."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of fog."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of mapblock boundaries."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the HUD."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the large chat console."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the profiler. Used for development."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling unlimited view range."
+msgstr "Neobmedzená dohľadnosť je zakázaná"
+
+#: src/settings_translation_file.cpp
+msgid "Key to use view zoom when possible."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keybindings"
+msgstr "Priradenie kláves."
+
+#: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
 msgstr "Klávesnica a myš"
 
@@ -4621,6 +5149,11 @@ msgstr "Minimálny počet veľkých jaskýň"
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr "Pomer zaplavených častí veľkých jaskýň"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Large chat console"
+msgstr "Tlačidlo Veľká komunikačná konzola"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -4803,6 +5336,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
 msgstr "Nahrávam modifikátory blokov"
+
+#: src/settings_translation_file.cpp
+msgid "Local command"
+msgstr "Lokálny príkaz"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -5020,7 +5557,8 @@ msgid "Maximum FPS"
 msgstr "Maximálne FPS"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum FPS when the window is not focused, or when the game is paused."
+#, fuzzy
+msgid "Maximum FPS when the window is not focused."
 msgstr ""
 "Maximálne FPS, ak je hra nie je v aktuálnom okne, alebo je pozastavená."
 
@@ -5097,10 +5635,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of mapblocks for client to be kept in memory.\n"
-"Set to -1 for unlimited amount."
+"Note that there is an internal dynamic minimum number of blocks that\n"
+"won't be deleted, depending on the current view range.\n"
+"Set to -1 for no limit."
 msgstr ""
-"Maximálny počet blokov u klienta, ktoré ostávajú v pamäti.\n"
-"Nastav -1 pre neobmedzené množstvo."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5139,12 +5677,14 @@ msgid "Maximum simultaneous block sends per client"
 msgstr "Maximum súčasných odoslaní bloku na klienta"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum size of the outgoing chat queue"
+#, fuzzy
+msgid "Maximum size of the client's outgoing chat queue"
 msgstr "Maximálna veľkosť výstupnej komunikačnej fronty"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Maximum size of the outgoing chat queue.\n"
+"Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
 "Maximálna veľkosť výstupnej komunikačnej fronty.\n"
@@ -5271,6 +5811,25 @@ msgstr "Multiplikátor citlivosti myši."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Move backward"
+msgstr "Vzad"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move forward"
+msgstr "Automaticky pohyb vpred"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move left"
+msgstr "Pohyb"
+
+#: src/settings_translation_file.cpp
+msgid "Move right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Movement threshold"
 msgstr "Hraničná hodnota dutín"
 
@@ -5279,12 +5838,8 @@ msgid "Mud noise"
 msgstr "Šum bahna"
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Multiplier for fall bobbing.\n"
-"For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-msgstr ""
-"Násobiteľ pre pohupovanie sa pri pádu.\n"
-"Napr.: 0 pre žiadne pohupovanie; 1.0 pre normálne; 2.0 pre dvojnásobné."
+msgid "Mute"
+msgstr "Vypni zvuk"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5420,6 +5975,16 @@ msgstr "Occlusion Culling"
 msgid ""
 "Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
 msgstr "Nepriehľadnosť tieňa za štandardným písmom, medzi 0 a 255."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open chat"
+msgstr "Otvorené"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open inventory"
+msgstr "Inventár"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5566,9 +6131,10 @@ msgstr "Odpočúvacia adresa Promethea"
 #, fuzzy
 msgid ""
 "Prometheus listener address.\n"
-"If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
-"enable metrics listener for Prometheus on that address.\n"
-"Metrics can be fetched on http://127.0.0.1:30000/metrics"
+"If Luanti is compiled with Prometheus support, this setting\n"
+"enables the metrics listener for Prometheus on that address.\n"
+"By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
+"An empty value disables the metrics listener."
 msgstr ""
 "Odpočúvacia adresa Promethea.\n"
 "Ak je Minetest skompilovaný s nastaveným ENABLE_PROMETHEUS,\n"
@@ -5586,6 +6152,22 @@ msgstr "Verzie protokolov sa nezhodujú. "
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: decrement value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: increment value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select next entry"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select previous entry"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5777,6 +6359,10 @@ msgstr "Výška obrazovky"
 #: src/settings_translation_file.cpp
 msgid "Screen width"
 msgstr "Šírka obrazovky"
+
+#: src/settings_translation_file.cpp
+msgid "Screenshot"
+msgstr "Fotka obrazovky"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot folder"
@@ -6486,10 +7072,10 @@ msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
 "\n"
-"* short_tap\n"
+"* Short tap\n"
 "Easy to use and well-known from other games that shall not be named.\n"
 "\n"
-"* long_tap\n"
+"* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
@@ -6497,6 +7083,23 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
 msgstr "Identifikátor joysticku na použitie"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The kind of digging/placing controls used.\n"
+"\n"
+"* Tap\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at finger position.\n"
+"\n"
+"* Tap with crosshair\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at crosshair position.\n"
+"\n"
+"* Buttons with crosshair\n"
+"Use dedicated dig/place buttons to interact.\n"
+"Interaction happens at crosshair position."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -6677,6 +7280,68 @@ msgstr ""
 "Toto určuje ako dlho je spomalený po vložení, alebo zmazaní kocky."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Aux1 key"
+msgstr "Tlačidlo Aux1"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle HUD"
+msgstr "Prepni HUD"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Sneak key"
+msgstr "Tlačidlo Prepnutie režimu zobrazenia"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle automatic forward"
+msgstr "Tlačidlo Automatický pohyb vpred"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle block bounds"
+msgstr "Hranice bloku"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera mode"
+msgstr "Tlačidlo Prepnutie režimu zobrazenia"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera update"
+msgstr "Tlačidlo Prepnutie režimu zobrazenia"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle cinematic mode"
+msgstr "Filmový mód"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle debug info"
+msgstr "Prepni hmlu"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fog"
+msgstr "Prepni hmlu"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle fullscreen"
+msgstr "Prepni lietanie"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle pitchmove"
+msgstr "Prepni režim pohybu podľa sklonu"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle profiler"
+msgstr "Prepni lietanie"
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Tolerance of movement cheat detector.\n"
 "Increase the value if players experience stuttery movement."
@@ -6835,19 +7500,6 @@ msgstr "Použi anisotropné filtrovanie pri pohľade na textúry zo strany."
 #: src/settings_translation_file.cpp
 msgid "Use bilinear filtering when scaling textures."
 msgstr "Použi bilineárne filtrovanie pri zmene veľkosti textúr."
-
-#: src/settings_translation_file.cpp
-msgid "Use crosshair for touch screen"
-msgstr "Použiť zameriavací kríž na dotykovej obrazovke"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Use crosshair to select object instead of whole screen.\n"
-"If enabled, a crosshair will be shown and will be used for selecting object."
-msgstr ""
-"Použi zameriavač pre výber objektu, namiesto použitia celej obrazovky.\n"
-"Ak je povolené, tak zameriavač bude zobrazený a bude použitý na výber "
-"objektu."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7206,11 +7858,12 @@ msgid "World start time"
 msgstr "Počiatočný čas sveta"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
 "a specially-designed texture pack; with this option, the client tries\n"
-"to determine the scale automatically basing on the texture size.\n"
+"to determine the scale automatically based on the texture size.\n"
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
@@ -7293,6 +7946,9 @@ msgstr "Časový rámec interakcie cURL"
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr "Paralelný limit cURL"
+
+#~ msgid "\"Aux1\" = climb down"
+#~ msgstr "\"Aux1\"=šplhaj dole"
 
 #~ msgid "(game support required)"
 #~ msgstr "(vyžaduje sa podpora hry)"
@@ -7395,14 +8051,8 @@ msgstr "Paralelný limit cURL"
 #~ msgid "Are you sure to reset your singleplayer world?"
 #~ msgstr "Si si istý, že chceš vynulovať svoj svet jedného hráča?"
 
-#~ msgid "Automatic forward key"
-#~ msgstr "Tlačidlo Automatický pohyb vpred"
-
 #~ msgid "Autosave Screen Size"
 #~ msgstr "Automat. ulož. veľkosti okna"
-
-#~ msgid "Aux1 key"
-#~ msgstr "Tlačidlo Aux1"
 
 #~ msgid "Back to Main Menu"
 #~ msgstr "Späť na Hlavnú ponuku"
@@ -7484,9 +8134,6 @@ msgstr "Paralelný limit cURL"
 #~ msgid "Chat toggle key"
 #~ msgstr "Tlačidlo Prepnutie komunikácie"
 
-#~ msgid "Cinematic mode"
-#~ msgstr "Filmový mód"
-
 #~ msgid "Cinematic mode key"
 #~ msgstr "Tlačidlo Filmový režim"
 
@@ -7510,6 +8157,9 @@ msgstr "Paralelný limit cURL"
 
 #~ msgid "Connected Glass"
 #~ msgstr "Prepojené sklo"
+
+#~ msgid "Console"
+#~ msgstr "Konzola"
 
 #~ msgid "Continuous forward"
 #~ msgstr "Neustály pohyb vpred"
@@ -7643,8 +8293,8 @@ msgstr "Paralelný limit cURL"
 #~ msgid "Disable anticheat"
 #~ msgstr "Zakáž anticheat"
 
-#~ msgid "Disabled unlimited viewing range"
-#~ msgstr "Neobmedzená dohľadnosť je zakázaná"
+#~ msgid "Double tap \"jump\" to toggle fly"
+#~ msgstr "2x stlač \"skok\" pre prepnutie lietania"
 
 #~ msgid "Down"
 #~ msgstr "Dole"
@@ -7654,9 +8304,6 @@ msgstr "Paralelný limit cURL"
 
 #~ msgid "Download one from minetest.net"
 #~ msgstr "Stiahni jednu z minetest.net"
-
-#~ msgid "Drop item key"
-#~ msgstr "Tlačidlo Zahoď vec"
 
 #~ msgid "Dynamic shadows:"
 #~ msgstr "Dynamické tiene:"
@@ -7684,6 +8331,15 @@ msgstr "Paralelný limit cURL"
 #~ msgstr ""
 #~ "Aktivuj \"vertex buffer objects\".\n"
 #~ "Toto by malo viditeľne zvýšiť grafický výkon."
+
+#, fuzzy
+#~ msgid ""
+#~ "Enable/disable running an IPv6 server.\n"
+#~ "Ignored if bind_address is set."
+#~ msgstr ""
+#~ "Aktivuj/vypni IPv6 server.\n"
+#~ "Ignorované, ak je nastavená bind_address .\n"
+#~ "Vyžaduje povolené enable_ipv6."
 
 #~ msgid ""
 #~ "Enables bumpmapping for textures. Normalmaps need to be supplied by the "
@@ -7743,6 +8399,9 @@ msgstr "Paralelný limit cURL"
 
 #~ msgid "FSAA"
 #~ msgstr "FSAA"
+
+#~ msgid "Fall bobbing factor"
+#~ msgstr "Faktor pohupovania sa pri pádu"
 
 #~ msgid "Fallback font shadow"
 #~ msgstr "Tieň záložného písma"
@@ -7811,6 +8470,9 @@ msgstr "Paralelný limit cURL"
 #~ "Štandardná nepriehľadnosť pozadia (medzi 0 a 255) v definícii formulára "
 #~ "(Formspec)."
 
+#~ msgid "Forward"
+#~ msgstr "Vpred"
+
 #~ msgid "Forward key"
 #~ msgstr "Tlačidlo Vpred"
 
@@ -7841,108 +8503,6 @@ msgstr "Paralelný limit cURL"
 
 #~ msgid "High-precision FPU"
 #~ msgstr "Vysoko-presné FPU"
-
-#~ msgid "Hotbar next key"
-#~ msgstr "Tlačidlo Nasledujúca vec na opasku"
-
-#~ msgid "Hotbar previous key"
-#~ msgstr "Tlačidlo Predchádzajúcu vec na opasku"
-
-#~ msgid "Hotbar slot 1 key"
-#~ msgstr "Tlačidlo Opasok pozícia 1"
-
-#~ msgid "Hotbar slot 10 key"
-#~ msgstr "Tlačidlo Opasok pozícia 10"
-
-#~ msgid "Hotbar slot 11 key"
-#~ msgstr "Tlačidlo Opasok pozícia 11"
-
-#~ msgid "Hotbar slot 12 key"
-#~ msgstr "Tlačidlo Opasok pozícia 12"
-
-#~ msgid "Hotbar slot 13 key"
-#~ msgstr "Tlačidlo Opasok pozícia 13"
-
-#~ msgid "Hotbar slot 14 key"
-#~ msgstr "Tlačidlo Opasok pozícia 14"
-
-#~ msgid "Hotbar slot 15 key"
-#~ msgstr "Tlačidlo Opasok pozícia 15"
-
-#~ msgid "Hotbar slot 16 key"
-#~ msgstr "Tlačidlo Opasok pozícia 16"
-
-#~ msgid "Hotbar slot 17 key"
-#~ msgstr "Tlačidlo Opasok pozícia 17"
-
-#~ msgid "Hotbar slot 18 key"
-#~ msgstr "Tlačidlo Opasok pozícia 18"
-
-#~ msgid "Hotbar slot 19 key"
-#~ msgstr "Tlačidlo Opasok pozícia 19"
-
-#~ msgid "Hotbar slot 2 key"
-#~ msgstr "Tlačidlo Opasok pozícia 2"
-
-#~ msgid "Hotbar slot 20 key"
-#~ msgstr "Tlačidlo Opasok pozícia 20"
-
-#~ msgid "Hotbar slot 21 key"
-#~ msgstr "Tlačidlo Opasok pozícia 21"
-
-#~ msgid "Hotbar slot 22 key"
-#~ msgstr "Tlačidlo Opasok pozícia 22"
-
-#~ msgid "Hotbar slot 23 key"
-#~ msgstr "Tlačidlo Opasok pozícia 23"
-
-#~ msgid "Hotbar slot 24 key"
-#~ msgstr "Tlačidlo Opasok pozícia 24"
-
-#~ msgid "Hotbar slot 25 key"
-#~ msgstr "Tlačidlo Opasok pozícia 25"
-
-#~ msgid "Hotbar slot 26 key"
-#~ msgstr "Tlačidlo Opasok pozícia 26"
-
-#~ msgid "Hotbar slot 27 key"
-#~ msgstr "Tlačidlo Opasok pozícia 27"
-
-#~ msgid "Hotbar slot 28 key"
-#~ msgstr "Tlačidlo Opasok pozícia 28"
-
-#~ msgid "Hotbar slot 29 key"
-#~ msgstr "Tlačidlo Opasok pozícia 29"
-
-#~ msgid "Hotbar slot 3 key"
-#~ msgstr "Tlačidlo Opasok pozícia 3"
-
-#~ msgid "Hotbar slot 30 key"
-#~ msgstr "Tlačidlo Opasok pozícia 30"
-
-#~ msgid "Hotbar slot 31 key"
-#~ msgstr "Tlačidlo Opasok pozícia 31"
-
-#~ msgid "Hotbar slot 32 key"
-#~ msgstr "Tlačidlo Opasok pozícia 32"
-
-#~ msgid "Hotbar slot 4 key"
-#~ msgstr "Tlačidlo Opasok pozícia 4"
-
-#~ msgid "Hotbar slot 5 key"
-#~ msgstr "Tlačidlo Opasok pozícia 5"
-
-#~ msgid "Hotbar slot 6 key"
-#~ msgstr "Tlačidlo Opasok pozícia 6"
-
-#~ msgid "Hotbar slot 7 key"
-#~ msgstr "Tlačidlo Opasok pozícia 7"
-
-#~ msgid "Hotbar slot 8 key"
-#~ msgstr "Tlačidlo Opasok pozícia 8"
-
-#~ msgid "Hotbar slot 9 key"
-#~ msgstr "Tlačidlo Opasok pozícia 9"
 
 #~ msgid ""
 #~ "If enabled together with fly mode, player is able to fly through solid "
@@ -7994,6 +8554,9 @@ msgstr "Paralelný limit cURL"
 
 #~ msgid "Jump key"
 #~ msgstr "Tlačidlo Skok"
+
+#~ msgid "Key already in use"
+#~ msgstr "Klávesa sa už používa"
 
 #~ msgid ""
 #~ "Key for decreasing the viewing range.\n"
@@ -8064,17 +8627,6 @@ msgstr "Paralelný limit cURL"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Tlačidlo pre rýchly pohyb hráča v rýchlom móde.\n"
-#~ "Viď. http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player backward.\n"
-#~ "Will also disable autoforward, when active.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tlačidlo pre pohyb hráča vzad.\n"
-#~ "Zároveň vypne automatický pohyb hráča dopredu, ak je aktívny.\n"
 #~ "Viď. http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
@@ -8467,19 +9019,6 @@ msgstr "Paralelný limit cURL"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
-#~ "Key for sneaking.\n"
-#~ "Also used for climbing down and descending in water if aux1_descends is "
-#~ "disabled.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tlačidlo pre utajený pohyb (zakrádanie) hráča.\n"
-#~ "Tiež sa používa pre zliezanie a ponáranie vo vode ak aux1_descends je "
-#~ "vypnutý.\n"
-#~ "Viď. http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
 #~ "Key for switching between first- and third-person camera.\n"
 #~ "See http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
@@ -8648,14 +9187,14 @@ msgstr "Paralelný limit cURL"
 #~ "Priradenie kláves. (ak je toto menu rozbité, zmaž zbytočnosti z "
 #~ "minetest.conf)"
 
-#~ msgid "Large chat console key"
-#~ msgstr "Tlačidlo Veľká komunikačná konzola"
-
 #~ msgid "Last known version update"
 #~ msgstr "Posledná známa aktualizácia verzie"
 
 #~ msgid "Last update check"
 #~ msgstr "Posledná kontrola aktualizácií"
+
+#~ msgid "Left"
+#~ msgstr "Vľavo"
 
 #~ msgid "Left key"
 #~ msgstr "Tlačidlo Vľavo"
@@ -8690,6 +9229,13 @@ msgstr "Paralelný limit cURL"
 
 #~ msgid "Mapblock mesh generator's MapBlock cache size in MB"
 #~ msgstr "Medzipamäť Mapblock Mesh generátora blokov v MB"
+
+#~ msgid ""
+#~ "Maximum number of mapblocks for client to be kept in memory.\n"
+#~ "Set to -1 for unlimited amount."
+#~ msgstr ""
+#~ "Maximálny počet blokov u klienta, ktoré ostávajú v pamäti.\n"
+#~ "Nastav -1 pre neobmedzené množstvo."
 
 #~ msgid ""
 #~ "Maximum number of packets sent per send step, if you have a slow "
@@ -8735,6 +9281,13 @@ msgstr "Paralelný limit cURL"
 #~ msgid "Misc"
 #~ msgstr "Rôzne"
 
+#~ msgid ""
+#~ "Multiplier for fall bobbing.\n"
+#~ "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
+#~ msgstr ""
+#~ "Násobiteľ pre pohupovanie sa pri pádu.\n"
+#~ "Napr.: 0 pre žiadne pohupovanie; 1.0 pre normálne; 2.0 pre dvojnásobné."
+
 #~ msgid "Mute key"
 #~ msgstr "Tlačidlo Ticho"
 
@@ -8746,6 +9299,9 @@ msgstr "Paralelný limit cURL"
 
 #~ msgid "Near plane"
 #~ msgstr "Blízkosť roviny"
+
+#~ msgid "Next item"
+#~ msgstr "Ďalšia vec"
 
 #~ msgid "No"
 #~ msgstr "Nie"
@@ -8828,9 +9384,6 @@ msgstr "Paralelný limit cURL"
 #~ msgid "Pitch move mode"
 #~ msgstr "Režim pohybu podľa sklonu"
 
-#~ msgid "Place key"
-#~ msgstr "Tlačidlo na pokladanie"
-
 #~ msgid ""
 #~ "Player is able to fly without being affected by gravity.\n"
 #~ "This requires the \"fly\" privilege on the server."
@@ -8857,6 +9410,9 @@ msgstr "Paralelný limit cURL"
 #~ "Port pre pripojenie sa (UDP).\n"
 #~ "Políčko pre nastavenie Portu v hlavnom menu prepíše toto nastavenie."
 
+#~ msgid "Prev. item"
+#~ msgstr "Pred. vec"
+
 #~ msgid "Profiler toggle key"
 #~ msgstr "Tlačidlo Prepínanie profileru"
 
@@ -8874,6 +9430,9 @@ msgstr "Paralelný limit cURL"
 
 #~ msgid "Reset singleplayer world"
 #~ msgstr "Vynuluj svet jedného hráča"
+
+#~ msgid "Right"
+#~ msgstr "Vpravo"
 
 #~ msgid "Right key"
 #~ msgstr "Tlačidlo Vpravo"
@@ -9006,9 +9565,6 @@ msgstr "Paralelný limit cURL"
 #~ msgid "To enable shaders the OpenGL driver needs to be used."
 #~ msgstr "Aby mohli byť aktivované shadery, musí sa použiť OpenGL."
 
-#~ msgid "Toggle camera mode key"
-#~ msgstr "Tlačidlo Prepnutie režimu zobrazenia"
-
 #~ msgid "Tone Mapping"
 #~ msgstr "Optim. farieb"
 
@@ -9042,6 +9598,18 @@ msgstr "Paralelný limit cURL"
 #, fuzzy
 #~ msgid "Use bilinear filtering when scaling textures down."
 #~ msgstr "Použi bilineárne filtrovanie pri zmene mierky textúr."
+
+#~ msgid "Use crosshair for touch screen"
+#~ msgstr "Použiť zameriavací kríž na dotykovej obrazovke"
+
+#~ msgid ""
+#~ "Use crosshair to select object instead of whole screen.\n"
+#~ "If enabled, a crosshair will be shown and will be used for selecting "
+#~ "object."
+#~ msgstr ""
+#~ "Použi zameriavač pre výber objektu, namiesto použitia celej obrazovky.\n"
+#~ "Ak je povolené, tak zameriavač bude zobrazený a bude použitý na výber "
+#~ "objektu."
 
 #~ msgid ""
 #~ "Use multi-sample antialiasing (MSAA) to smooth out block edges.\n"
@@ -9171,3 +9739,10 @@ msgstr "Paralelný limit cURL"
 
 #~ msgid "ok"
 #~ msgstr "ok"
+
+#, fuzzy
+#~ msgid "pause_menu"
+#~ msgstr "FPS v menu pozastavenia hry"
+
+#~ msgid "press key"
+#~ msgstr "stlač klávesu"

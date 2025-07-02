@@ -44,7 +44,40 @@ int LuaVoxelManip::l_read_from_map(lua_State *L)
 
 	push_v3s16(L, vm->m_area.MinEdge);
 	push_v3s16(L, vm->m_area.MaxEdge);
+	return 2;
+}
 
+int LuaVoxelManip::l_initialize(lua_State *L)
+{
+	MAP_LOCK_REQUIRED;
+
+	LuaVoxelManip *o = checkObject<LuaVoxelManip>(L, 1);
+	MMVManip *vm = o->vm;
+
+	if (o->is_mapgen_vm)
+		throw LuaError("Cannot modify mapgen VoxelManip object");
+
+	VoxelArea area;
+	{
+		v3s16 bp1 = getNodeBlockPos(check_v3s16(L, 2));
+		v3s16 bp2 = getNodeBlockPos(check_v3s16(L, 3));
+		sortBoxVerticies(bp1, bp2);
+		area = VoxelArea(bp1 * MAP_BLOCKSIZE, (bp2+1) * MAP_BLOCKSIZE - v3s16(1));
+	}
+	assert(!area.hasEmptyExtent());
+
+	vm->clear();
+	vm->addArea(area);
+	if (lua_istable(L, 4)) {
+		MapNode n = readnode(L, 4);
+		const u32 volume = vm->m_area.getVolume();
+		for (u32 i = 0; i != volume; i++)
+			vm->m_data[i] = n;
+		vm->clearFlags(vm->m_area, VOXELFLAG_NO_DATA);
+	}
+
+	push_v3s16(L, vm->m_area.MinEdge);
+	push_v3s16(L, vm->m_area.MaxEdge);
 	return 2;
 }
 
@@ -93,11 +126,12 @@ int LuaVoxelManip::l_set_data(lua_State *L)
 		lua_pop(L, 1);
 	}
 
-	// FIXME: in theory we should clear VOXELFLAG_NO_DATA here
-	// However there is no way to tell which values Lua code has intended to set
-	// (if they were VOXELFLAG_NO_DATA before), and which were just not touched.
-	// In practice this doesn't cause problems because read_from_map() will cause
-	// all covered blocks to be loaded anyway.
+	// Mark all data as present, since we just got it from Lua
+	// Note that we can't tell if the caller intended to put CONTENT_IGNORE or
+	// is just repeating the dummy values we push in l_get_data() in case
+	// VOXELFLAG_NO_DATA is set. In practice this doesn't matter since ignore
+	// isn't written back to the map anyway.
+	vm->clearFlags(vm->m_area, VOXELFLAG_NO_DATA);
 
 	return 0;
 }
@@ -344,6 +378,19 @@ int LuaVoxelManip::l_get_emerged_area(lua_State *L)
 	return 2;
 }
 
+int LuaVoxelManip::l_close(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	LuaVoxelManip *o = checkObject<LuaVoxelManip>(L, 1);
+
+	if (o->is_mapgen_vm)
+		throw LuaError("Cannot dispose of mapgen VoxelManip object");
+	o->vm->clear();
+
+	return 0;
+}
+
 LuaVoxelManip::LuaVoxelManip(MMVManip *mmvm, bool is_mg_vm) :
 	is_mapgen_vm(is_mg_vm),
 	vm(mmvm)
@@ -425,7 +472,7 @@ void LuaVoxelManip::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaVoxelManip>(L, methods, metamethods);
 
 	// Can be created from Lua (VoxelManip())
 	lua_register(L, className, create_object);
@@ -436,6 +483,7 @@ void LuaVoxelManip::Register(lua_State *L)
 const char LuaVoxelManip::className[] = "VoxelManip";
 const luaL_Reg LuaVoxelManip::methods[] = {
 	luamethod(LuaVoxelManip, read_from_map),
+	luamethod(LuaVoxelManip, initialize),
 	luamethod(LuaVoxelManip, get_data),
 	luamethod(LuaVoxelManip, set_data),
 	luamethod(LuaVoxelManip, get_node_at),
@@ -451,5 +499,6 @@ const luaL_Reg LuaVoxelManip::methods[] = {
 	luamethod(LuaVoxelManip, set_param2_data),
 	luamethod(LuaVoxelManip, was_modified),
 	luamethod(LuaVoxelManip, get_emerged_area),
+	luamethod(LuaVoxelManip, close),
 	{0,0}
 };

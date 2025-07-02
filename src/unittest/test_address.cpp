@@ -4,6 +4,7 @@
 
 #include "test.h"
 
+#include <memory>
 #include "log.h"
 #include "settings.h"
 #include "network/socket.h"

@@ -14,11 +14,9 @@ namespace irr
 {
 namespace io
 {
-// set if the file is encrypted
-const s16 ZIP_FILE_ENCRYPTED = 0x0001;
 // the fields crc-32, compressed size and uncompressed size are set to
 // zero in the local header
-const s16 ZIP_INFO_IN_DATA_DESCRIPTOR = 0x0008;
+static constexpr s16 ZIP_INFO_IN_DATA_DESCRIPTOR = 0x0008;
 
 // byte-align structures
 #include "irrpack.h"
@@ -84,39 +82,6 @@ struct SZIPFileCentralDirEnd
 					   // zipfile comment (variable size)
 } PACK_STRUCT;
 
-struct SZipFileExtraHeader
-{
-	s16 ID;
-	s16 Size;
-} PACK_STRUCT;
-
-struct SZipFileAESExtraData
-{
-	s16 Version;
-	u8 Vendor[2];
-	u8 EncryptionStrength;
-	s16 CompressionMode;
-} PACK_STRUCT;
-
-enum E_GZIP_FLAGS
-{
-	EGZF_TEXT_DAT = 1,
-	EGZF_CRC16 = 2,
-	EGZF_EXTRA_FIELDS = 4,
-	EGZF_FILE_NAME = 8,
-	EGZF_COMMENT = 16
-};
-
-struct SGZIPMemberHeader
-{
-	u16 sig;              // 0x8b1f
-	u8 compressionMethod; // 8 = deflate
-	u8 flags;
-	u32 time;
-	u8 extraFlags; // slow compress = 2, fast compress = 4
-	u8 operatingSystem;
-} PACK_STRUCT;
-
 // Default alignment
 #include "irrunpack.h"
 
@@ -173,7 +138,7 @@ class CZipReader : public virtual IFileArchive, virtual CFileList
 {
 public:
 	//! constructor
-	CZipReader(IFileSystem *fs, IReadFile *file, bool ignoreCase, bool ignorePaths, bool isGZip = false);
+	CZipReader(IFileSystem *fs, IReadFile *file, bool ignoreCase, bool ignorePaths);
 
 	//! destructor
 	virtual ~CZipReader();
@@ -200,9 +165,6 @@ protected:
 	directory. */
 	bool scanZipHeader(bool ignoreGPBits = false);
 
-	//! the same but for gzip files
-	bool scanGZipHeader();
-
 	bool scanCentralDirectoryHeader();
 
 	io::IFileSystem *FileSystem;
@@ -210,8 +172,6 @@ protected:
 
 	// holds extended info about files
 	std::vector<SZipFileEntry> FileInfo;
-
-	bool IsGZip;
 };
 
 } // end namespace io

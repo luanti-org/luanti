@@ -2,7 +2,7 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
-#include "Driver.h"
+#include "DriverGL3.h"
 #include <cassert>
 #include <stdexcept>
 #include "mt_opengl.h"
@@ -50,8 +50,7 @@ void COpenGL3Driver::initFeatures()
 	TextureFormats[ECF_A1R5G5B5] = {GL_RGB5_A1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV}; // WARNING: may not be renderable
 	TextureFormats[ECF_R5G6B5] = {GL_RGB, GL_RGB, GL_UNSIGNED_SHORT_5_6_5};              // GL_RGB565 is an extension until 4.1
 	TextureFormats[ECF_R8G8B8] = {GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE};                    // WARNING: may not be renderable
-	// FIXME: shouldn't this simply be GL_UNSIGNED_BYTE?
-	TextureFormats[ECF_A8R8G8B8] = {GL_RGBA8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV};
+	TextureFormats[ECF_A8R8G8B8] = {GL_RGBA8, GL_BGRA, GL_UNSIGNED_BYTE};
 	TextureFormats[ECF_R16F] = {GL_R16F, GL_RED, GL_HALF_FLOAT};
 	TextureFormats[ECF_G16R16F] = {GL_RG16F, GL_RG, GL_HALF_FLOAT};
 	TextureFormats[ECF_A16B16G16R16F] = {GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT};
@@ -72,6 +71,7 @@ void COpenGL3Driver::initFeatures()
 	LODBiasSupported = true;
 	BlendMinMaxSupported = true;
 	TextureMultisampleSupported = true;
+	Texture2DArraySupported = Version.Major >= 3 || queryExtension("GL_EXT_texture_array");
 	KHRDebugSupported = isVersionAtLeast(4, 6) || queryExtension("GL_KHR_debug");
 	if (KHRDebugSupported)
 		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
@@ -79,6 +79,7 @@ void COpenGL3Driver::initFeatures()
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 16, "Only up to 16 textures are guaranteed");
 	Feature.BlendOperation = true;
+	Feature.TexStorage = isVersionAtLeast(4, 2) || queryExtension("GL_ARB_texture_storage");
 	Feature.ColorAttachment = GetInteger(GL_MAX_COLOR_ATTACHMENTS);
 	Feature.MaxTextureUnits = MATERIAL_MAX_TEXTURES;
 	Feature.MultipleRenderTarget = GetInteger(GL_MAX_DRAW_BUFFERS);
@@ -88,6 +89,8 @@ void COpenGL3Driver::initFeatures()
 		MaxAnisotropy = GetInteger(GL.MAX_TEXTURE_MAX_ANISOTROPY);
 	MaxIndices = GetInteger(GL_MAX_ELEMENTS_INDICES);
 	MaxTextureSize = GetInteger(GL_MAX_TEXTURE_SIZE);
+	if (Texture2DArraySupported)
+		MaxArrayTextureLayers = GetInteger(GL_MAX_ARRAY_TEXTURE_LAYERS);
 	GL.GetFloatv(GL_MAX_TEXTURE_LOD_BIAS, &MaxTextureLODBias);
 	GL.GetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, DimAliasedLine);
 	DimAliasedPoint[0] = 1.0f;

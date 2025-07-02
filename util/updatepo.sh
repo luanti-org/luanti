@@ -58,6 +58,7 @@ xgettext --package-name=luanti \
 	--keyword=fwgettext \
 	--keyword=fgettext \
 	--keyword=fgettext_ne \
+	--keyword=hgettext \
 	--keyword=strgettext \
 	--keyword=wstrgettext \
 	--keyword=core.gettext \
@@ -68,9 +69,12 @@ xgettext --package-name=luanti \
 	`find src/ -name '*.cpp' -o -name '*.h'` \
 	`find builtin/ -name '*.lua'`
 
-# Gettext collects a bunch of bogus comments for the "Available commands: " string
-# I couldn't figure out how to avoid that so get rid of them afterwards
-sed '/^#\. ~<number>.*relative_to/,/^#: /{ /^#: /!d; }' -i $potfile
+# Gettext collects a huge amount of bogus comments for the string
+# "Available commands: ", and this not once but twice!
+# I couldn't figure out how to avoid that so get rid of them afterwards:
+for i in 1 2; do
+	sed '/^#\. ~= 0\.3$/,/^#: /{ /^#: /!d; }' -i $potfile
+done
 
 # Now iterate on all languages and create the po file if missing, or update it
 # if it exists already

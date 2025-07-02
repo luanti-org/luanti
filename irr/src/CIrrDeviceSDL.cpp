@@ -16,10 +16,12 @@
 #include "irrString.h"
 #include "Keycodes.h"
 #include "COSOperator.h"
-#include <cstdio>
-#include <cstdlib>
 #include "SIrrCreationParameters.h"
 #include <SDL_video.h>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 #include <emscripten.h>
@@ -599,7 +601,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 		break;
 	default:
-		_IRR_DEBUG_BREAK_IF(1);
+		assert(false);
 	}
 
 	if (CreationParams.DriverDebug) {
@@ -766,12 +768,7 @@ bool CIrrDeviceSDL::run()
 			SDL_Keymod keymod = SDL_GetModState();
 
 			irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			irrevent.MouseInput.X = static_cast<s32>(SDL_event.button.x * ScaleX);
-			irrevent.MouseInput.Y = static_cast<s32>(SDL_event.button.y * ScaleY);
-			irrevent.MouseInput.Shift = (keymod & KMOD_SHIFT) != 0;
-			irrevent.MouseInput.Control = (keymod & KMOD_CTRL) != 0;
-
-			irrevent.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
+			irrevent.MouseInput.Event = irr::EMIE_MOUSE_MOVED; // value to be ignored
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 			// Handle mouselocking in emscripten in Windowed mode.
@@ -834,11 +831,29 @@ bool CIrrDeviceSDL::run()
 					MouseButtonStates &= ~irr::EMBSM_MIDDLE;
 				}
 				break;
+
+			// Since Irrlicht does not have event types for X1/X2 buttons, we simply pass
+			// those as keycodes instead. This is relatively hacky but avoids the effort of
+			// adding more mouse events that will be discarded anyway once we switch to SDL
+			case SDL_BUTTON_X1:
+				irrevent.EventType = irr::EET_KEY_INPUT_EVENT;
+				irrevent.KeyInput.Key = irr::KEY_XBUTTON1;
+				break;
+
+			case SDL_BUTTON_X2:
+				irrevent.EventType = irr::EET_KEY_INPUT_EVENT;
+				irrevent.KeyInput.Key = irr::KEY_XBUTTON2;
+				break;
 			}
 
-			irrevent.MouseInput.ButtonStates = MouseButtonStates;
-
-			if (irrevent.MouseInput.Event != irr::EMIE_MOUSE_MOVED) {
+			bool shift = (keymod & KMOD_SHIFT) != 0;
+			bool control = (keymod & KMOD_CTRL) != 0;
+			if (irrevent.EventType == irr::EET_MOUSE_INPUT_EVENT && irrevent.MouseInput.Event != irr::EMIE_MOUSE_MOVED) {
+				irrevent.MouseInput.ButtonStates = MouseButtonStates;
+				irrevent.MouseInput.X = static_cast<s32>(SDL_event.button.x * ScaleX);
+				irrevent.MouseInput.Y = static_cast<s32>(SDL_event.button.y * ScaleY);
+				irrevent.MouseInput.Shift = shift;
+				irrevent.MouseInput.Control = control;
 				postEventFromUser(irrevent);
 
 				if (irrevent.MouseInput.Event >= EMIE_LMOUSE_PRESSED_DOWN && irrevent.MouseInput.Event <= EMIE_MMOUSE_PRESSED_DOWN) {
@@ -851,6 +866,12 @@ bool CIrrDeviceSDL::run()
 						postEventFromUser(irrevent);
 					}
 				}
+			} else if (irrevent.EventType == irr::EET_KEY_INPUT_EVENT) {
+				irrevent.KeyInput.Char = 0;
+				irrevent.KeyInput.PressedDown = SDL_event.type == SDL_MOUSEBUTTONDOWN;
+				irrevent.KeyInput.Shift = shift;
+				irrevent.KeyInput.Control = control;
+				postEventFromUser(irrevent);
 			}
 			break;
 		}

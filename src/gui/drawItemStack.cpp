@@ -13,6 +13,7 @@
 #include "client/wieldmesh.h"
 #include "client/texturesource.h"
 #include "client/guiscalingfilter.h"
+#include "client/item_visuals_manager.h"
 
 struct MeshTimeInfo {
 	u64 time;
@@ -43,6 +44,7 @@ void drawItemStack(
 
 	auto *idef = client->idef();
 	const ItemDefinition &def = item.getDefinition(idef);
+	ItemVisualsManager* item_visuals = client->getItemVisualsManager();
 
 	bool draw_overlay = false;
 
@@ -58,7 +60,7 @@ void drawItemStack(
 
 	// Render as mesh if animated or no inventory image
 	if ((enable_animations && rotation_kind < IT_ROT_NONE) || inventory_image.empty()) {
-		imesh = idef->getWieldMesh(item, client);
+		imesh = item_visuals->getWieldMesh(item, client);
 		has_mesh = imesh && imesh->mesh;
 	}
 	if (has_mesh) {
@@ -114,17 +116,16 @@ void drawItemStack(
 		driver->setTransform(video::ETS_WORLD, matrix);
 		driver->setViewPort(viewrect);
 
-		video::SColor basecolor =
-			client->idef()->getItemstackColor(item, client);
+		video::SColor basecolor = item_visuals->getItemstackColor(item, client);
 
 		const u32 mc = mesh->getMeshBufferCount();
-		if (mc > imesh->buffer_colors.size())
-			imesh->buffer_colors.resize(mc);
+		if (mc > imesh->buffer_info.size())
+			imesh->buffer_info.resize(mc);
 		for (u32 j = 0; j < mc; ++j) {
 			scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
 			video::SColor c = basecolor;
 
-			auto &p = imesh->buffer_colors[j];
+			auto &p = imesh->buffer_info[j];
 			p.applyOverride(c);
 
 			// TODO: could be moved to a shader
@@ -137,6 +138,12 @@ void drawItemStack(
 			}
 
 			video::SMaterial &material = buf->getMaterial();
+
+			// Texture animation
+			if (p.animation_info) {
+				p.animation_info->updateTexture(material, client->getAnimationTime());
+			}
+
 			material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
 			driver->setMaterial(material);
 			driver->drawMeshBuffer(buf);
@@ -148,10 +155,10 @@ void drawItemStack(
 
 		draw_overlay = def.type == ITEM_NODE && inventory_image.empty();
 	} else { // Otherwise just draw as 2D
-		video::ITexture *texture = client->idef()->getInventoryTexture(item, client);
+		video::ITexture *texture = item_visuals->getInventoryTexture(item, client);
 		video::SColor color;
 		if (texture) {
-			color = client->idef()->getItemstackColor(item, client);
+			color = item_visuals->getItemstackColor(item, client);
 		} else {
 			color = video::SColor(255, 255, 255, 255);
 			ITextureSource *tsrc = client->getTextureSource();

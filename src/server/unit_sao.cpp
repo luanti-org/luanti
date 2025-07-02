@@ -128,8 +128,9 @@ void UnitSAO::setAttachment(const object_t new_parent, const std::string &bone, 
 	};
 
 	// Do checks to avoid circular references
+	// See similar check in `GenericCAO::setAttachment` (but with different types).
 	{
-		auto *obj = new_parent ? m_env->getActiveObject(new_parent) : nullptr;
+		auto *obj = m_env->getActiveObject(new_parent);
 		if (obj == this) {
 			assert(false);
 			return;
@@ -145,7 +146,8 @@ void UnitSAO::setAttachment(const object_t new_parent, const std::string &bone, 
 			}
 		}
 		if (problem) {
-			warningstream << "Mod bug: Attempted to attach object " << m_id << " to parent "
+			warningstream << "Mod bug: "
+				<< "Attempted to attach object " << m_id << " to parent "
 				<< new_parent << " but former is an (in)direct parent of latter." << std::endl;
 			return;
 		}

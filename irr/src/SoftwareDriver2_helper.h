@@ -93,17 +93,6 @@ inline void memset16(void *dest, const u16 value, size_t bytesize)
 	}
 }
 
-// integer log2 of an integer. returning 0 as denormal
-static inline s32 s32_log2_s32(u32 in)
-{
-	s32 ret = 0;
-	while (in > 1) {
-		in >>= 1;
-		ret++;
-	}
-	return ret;
-}
-
 // ------------------ Video---------------------------------------
 /*!
 	Pixel = dest * ( 1 - alpha ) + source * alpha

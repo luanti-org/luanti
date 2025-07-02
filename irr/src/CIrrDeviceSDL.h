@@ -109,6 +109,14 @@ public:
 		return EIDT_SDL;
 	}
 
+	//! Get the SDL version
+	std::string getVersionString() const override
+	{
+		SDL_version ver;
+		SDL_GetVersion(&ver);
+		return std::to_string(ver.major) + "." + std::to_string(ver.minor) + "." + std::to_string(ver.patch);
+	}
+
 	//! Get the display density in dots per inch.
 	float getDisplayDensity() const override;
 
@@ -198,7 +206,7 @@ public:
 		{
 		}
 
-		virtual void setRelativeMode(bool relative) _IRR_OVERRIDE_
+		virtual void setRelativeMode(bool relative) override
 		{
 			// Only change it when necessary, as it flushes mouse motion when enabled
 			if (relative != static_cast<bool>(SDL_GetRelativeMouseMode())) {
