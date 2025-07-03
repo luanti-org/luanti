@@ -479,6 +479,7 @@ inline void wrappedApproachShortest(T &current, const T target, const T stepsize
 }
 
 /// @note Uses YXZ (matrix notation) rotation order, left-handed rotation
+/// @note This is not consistent with Irrlicht's setRotationRadians
 void setPitchYawRollRad(core::matrix4 &m, v3f rot);
 
 inline void setPitchYawRoll(core::matrix4 &m, v3f rot)
