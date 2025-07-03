@@ -9822,6 +9822,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
 
     color = "#ffffffff",
     -- Color the item is colorized with. The palette overrides this.
+    -- It is a colorspec.
 
     stack_max = 99,
     -- Maximum amount of items that can be in a single stack.
