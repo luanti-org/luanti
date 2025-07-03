@@ -11734,10 +11734,10 @@ Types used are defined in the previous section.
       for e.g. particles entering or emerging from a portal.
 
   * float range `strength`: the speed with which particles will move towards
-    the shape. If negative, the particles will instead move away from that
+    the attractor shape. If negative, the particles will instead move away from that
     point.
 
-  * vec3 `origin`: the origin point of the shape towards which particles will
+  * vec3 `origin`: the origin point of the attractor shape towards which particles will
     initially be oriented. functions as an offset if `origin_attached` is also
     set.
 
