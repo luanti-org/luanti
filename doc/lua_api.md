@@ -10840,6 +10840,9 @@ See [Ores] section above for essential information.
 
 ```lua
 {
+    name = "",
+    -- If set, core.registered_ores[that_name] will return this definition.
+
     ore_type = "",
     -- Supported: "scatter", "sheet", "puff", "blob", "vein", "stratum"
 
