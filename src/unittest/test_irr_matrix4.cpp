@@ -53,7 +53,7 @@ TEST_CASE("matrix4") {
 
 // This is in numeric.h rather than matrix4.h, but is conceptually a matrix4 method as well
 SECTION("setPitchYawRollRad") {
-	SECTION("rotation order is YXZ (matrix notation)") {
+	SECTION("rotation order is Y*X*Z (matrix notation)") {
 		v3f rot{1, 2, 3};
 		matrix4 X, Y, Z, YXZ;
 		setPitchYawRollRad(X, {rot.X, 0, 0});
@@ -72,7 +72,7 @@ SECTION("setPitchYawRollRad") {
 }
 
 SECTION("setRotationRadians") {
-	SECTION("rotation order is ZYX (matrix notation)") {
+	SECTION("rotation order is Z*Y*X (matrix notation)") {
 		v3f rot{1, 2, 3};
 		matrix4 X, Y, Z, ZYX;
 		X.setRotationRadians({rot.X, 0, 0});

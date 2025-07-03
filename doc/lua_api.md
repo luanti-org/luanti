@@ -3935,16 +3935,20 @@ Luanti uses a **left-handed** coordinate system: Y is "up", X is "right", Z is "
 This is the convention used by Unity, DirectX and Irrlicht.
 It means that when you're pointing in +Z direction in-game ("forward"), +X is to your right; +Y is up.
 
-Consistently, rotation is **left-handed** as well:
-When your thumb points in the direction of the rotation axis,
-your curled fingers point in the direction the rotation goes.
-The rotation order is XYZ: First rotation around the X-axis is applied, then Y, then Z.
-(Note: As a product of rotation matrices, this will be written in reverse, so ZYX.)
+Consistently, rotation is [**left-handed**](https://en.wikipedia.org/w/index.php?title=Right-hand_rule) as well.
+Luanti uses [Tait-Bryan angles](https://en.wikipedia.org/wiki/Euler_angles#Tait%E2%80%93Bryan_angles) for rotations,
+often referred to simply as "euler angles" (even though they are not "proper" euler angles).
+The rotation order is extrinsic X-Y-Z:
+First rotation around the (unrotated) X-axis is applied,
+then rotation around the (unrotated) Y-axis follows,
+and finally rotation around the (unrotated) Z-axis is applied.
+(Note: As a product of rotation matrices, this will be written in reverse, so `Z*Y*X`.)
 
 Attachment and bone override rotations both use these conventions.
 
 There is an exception, however: Object rotation (`ObjectRef:set_rotation`, `ObjectRef:get_rotation`, `automatic_rotate`)
-**does not** use left-handed XYZ rotations. Instead, it uses **right-handed ZXY** rotations:
+**does not** use left-handed (extrinsic) X-Y-Z rotations.
+Instead, it uses **right-handed (extrinsic) Z-X-Y** rotations:
 First roll (Z) is applied, then pitch (X); yaw (Y) is applied last.
 
 See [Scratchapixel](https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/coordinate-systems.html)
@@ -8560,7 +8564,7 @@ child will follow movement and rotation of that bone.
 * `set_rotation(rot)`
     * `rot` is a vector (radians). X is pitch (elevation), Y is yaw (heading)
       and Z is roll (bank).
-    * Sets the **right-handed ZXY** rotation:
+    * Sets the **right-handed Z-X-Y** rotation:
       First roll (Z) is applied, then pitch (X); yaw (Y) is applied last.
     * Does not reset rotation incurred through `automatic_rotate`.
       Remove & re-add your objects to force a certain rotation.
