@@ -578,7 +578,7 @@ void Camera::updateViewingRange()
 		m_cameranode->setFarValue(100000.0);
 		return;
 	}
-	m_cameranode->setFarValue((m_draw_control.wanted_range < 2000) ? 2000 * BS : m_draw_control.wanted_range * BS);
+	m_cameranode->setFarValue(std::fmax(2000, m_draw_control.wanted_range) * BS);
 }
 
 void Camera::setDigging(s32 button)
