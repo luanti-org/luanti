@@ -2698,6 +2698,7 @@ Item Metadata
 -------------
 
 Item stacks can store metadata too. See [`ItemStackMetaRef`].
+Note: They are not able to store the character `"\1"`, be very careful when storing binary data in them
 
 Item metadata only contains a key-value store.
 
@@ -8196,8 +8197,6 @@ Note: If a metadata value is in the format `${k}`, an attempt to get the value
 will return the value associated with key `k`. There is a low recursion limit.
 This behavior is **deprecated** and will be removed in a future version. Usage
 of the `${k}` syntax in formspecs is not deprecated.
-
-Note: Usually not able to store the character `"\1"`
 
 ### Methods
 
