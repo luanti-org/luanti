@@ -11089,11 +11089,12 @@ The `PlayerHPChangeReason` table specifies a reason for player health changes.
     * `drown`: Drowning damage from a node with the `drowning` field set.
                `reason.node` and `reason.node_pos` are same as for `node_damage`
     * `respawn`: HP restored by respawning.
-* The `detail` field may optionally be used to provide a more detailed reason
-    as a string. It's recommended to follow the `modname:detail` naming convention.
-    These detail names exist by default:
-    * `__builtin:item_eat`: HP change caused by `core.do_item_eat`
-    * `__builtin:kill_command`: `/kill` command
+    * `item_eat`: HP change caused by `core.do_item_eat`
+    * `kill_command`: `/kill` command
+    * A custom value. This may be used by mods to inform other mods
+      about a damage type when none of the above applies. It should
+      follow a `_<modname>:<detail>` naming convention.
+      Example: `_example:poison` for poison damage from a mod named `example`
 * The `from` field denotes the origin of the HP change:
     * `engine`: Engine
     * `mod`: Mod or builtin
