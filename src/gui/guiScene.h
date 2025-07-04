@@ -11,7 +11,6 @@
 #include <IGUIEnvironment.h>
 
 
-
 class GUIScene : public gui::IGUIElement
 {
 public:

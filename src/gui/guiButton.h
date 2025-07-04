@@ -13,7 +13,6 @@
 #include "StyleSpec.h"
 
 
-
 class ISimpleTextureSource;
 
 class GUIButton : public gui::IGUIButton

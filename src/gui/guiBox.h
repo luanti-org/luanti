@@ -9,7 +9,6 @@
 #include <IGUIEnvironment.h>
 
 
-
 class GUIBox : public gui::IGUIElement
 {
 public:

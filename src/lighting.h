@@ -6,7 +6,6 @@
 #include "SColor.h"
 
 
-
 /**
  * Parameters for automatic exposure compensation
  *

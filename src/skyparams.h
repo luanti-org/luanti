@@ -10,7 +10,6 @@
 #include "irr_v2d.h"
 
 
-
 struct SkyColor
 {
 	video::SColor day_sky;

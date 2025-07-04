@@ -8,7 +8,6 @@
 #include <irrTypes.h>
 
 
-
 #define S8_MIN  INT8_MIN
 #define S16_MIN INT16_MIN
 #define S32_MIN INT32_MIN

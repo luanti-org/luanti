@@ -9,7 +9,6 @@
 #include "gettext.h"
 
 
-
 class GUIButtonKey : public GUIButton
 {
 	using super = GUIButton;

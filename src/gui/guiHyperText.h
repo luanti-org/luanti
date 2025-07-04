@@ -13,7 +13,6 @@
 #include "irr_v3d.h"
 
 
-
 class ISimpleTextureSource;
 class Client;
 class GUIScrollBar;

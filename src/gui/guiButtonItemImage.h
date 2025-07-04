@@ -8,7 +8,6 @@
 #include "IGUIButton.h"
 
 
-
 class Client;
 class GUIItemImage;
 

@@ -10,7 +10,6 @@
 #include "irr_ptr.h"
 
 
-
 class GUIButtonImage : public GUIButton
 {
 public:

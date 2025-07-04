@@ -8,7 +8,6 @@
 #include <IGUIEnvironment.h>
 
 
-
 class Client;
 
 class GUIItemImage : public gui::IGUIElement

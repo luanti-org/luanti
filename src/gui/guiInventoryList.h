@@ -10,7 +10,6 @@
 #include "irr_v2d.h"
 
 
-
 class GUIFormSpecMenu;
 
 class GUIInventoryList : public gui::IGUIElement

@@ -24,7 +24,6 @@
 #include "lzio.h"
 
 
-
 #define next(ls) (ls->current = zgetc(ls->z))
 
 

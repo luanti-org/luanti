@@ -10,7 +10,6 @@
 #include <string>
 
 
-
 // This file is only used for internal generation of images.
 // Use texturesource.h to handle textures.
 
