@@ -11304,8 +11304,8 @@ The `PlayerHPChangeReason` table specifies a reason for player health changes.
 
 * The `type` field will have one of the following values:
     * `set_hp`: A mod or the engine called `set_hp`, either without
-		giving a reason, or by setting `set_hp` as damage type
-                explicitly
+       giving a reason, or by setting `set_hp` as damage type
+       explicitly
     * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
     * `fall`: Fall damage.
     * `node_damage`: `damage_per_second` from a neighboring node.
@@ -11324,8 +11324,8 @@ The `PlayerHPChangeReason` table specifies a reason for player health changes.
     * `mod`: Mod or builtin
 * Mods may add additional fields
 
-Note: The `from` field doesn't need to be provided in the `set_hp` method,
-the engine will automatically set it to `mod`.
+Note: The `from` is ignored by `ObjectRef:set_hp`, the engine will always
+set it to `mod`.
 
 Chat command definition
 -----------------------
