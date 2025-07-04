@@ -232,6 +232,7 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 void MapBlock::reallocate(u32 count, MapNode n)
 {
 	assert(count == 1 || count == nodecount);
+	assert(!m_gamedef->isClient() || count == nodecount);
 
 	delete[] data;
 	if (!m_is_mono_block && count == 1)
@@ -245,6 +246,10 @@ void MapBlock::reallocate(u32 count, MapNode n)
 
 void MapBlock::tryShrinkNodes()
 {
+	// make sure we never shrink the array on the client
+	if (m_gamedef->isClient())
+		return;
+
 	if (m_is_mono_block)
 		return;
 
