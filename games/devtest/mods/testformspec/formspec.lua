@@ -339,10 +339,11 @@ local pages = {
 	[[
 		formspec_version[3]
 		size[12,13]
+		allow_close[false]
 		image_button[0,0;1,1;logo.png;rc_image_button_1x1;1x1]
-		image_button[1,0;2,2;logo.png;rc_image_button_2x2;2x2]
+		image_button_exit[1,0;2,2;logo.png;rc_image_button_2x2;2x2 exit]
 		button[0,2;1,1;rc_button_1x1;1x1]
-		button[1,2;2,2;rc_button_2x2;2x2]
+		button_exit[1,2;2,2;rc_button_2x2;2x2 exit]
 		item_image[0,4;1,1;air]
 		item_image[1,4;2,2;air]
 		item_image_button[0,6;1,1;testformspec:node;rc_item_image_button_1x1;1x1]
@@ -574,6 +575,10 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 
 	if fields.submit_window then
 		show_test_formspec(player:get_player_name())
+	end
+
+	if fields.try_quit then
+		core.chat_send_player(player:get_player_name(), "Quit attempt received")
 	end
 end)
 

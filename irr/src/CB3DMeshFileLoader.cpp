@@ -48,7 +48,7 @@ IAnimatedMesh *CB3DMeshFileLoader::createMesh(io::IReadFile *file)
 		return 0;
 
 	B3DFile = file;
-	AnimatedMesh = new scene::SkinnedMeshBuilder();
+	AnimatedMesh = new scene::SkinnedMeshBuilder(SkinnedMesh::SourceFormat::B3D);
 	ShowWarning = true; // If true a warning is issued if too many textures are used
 	VerticesStart = 0;
 

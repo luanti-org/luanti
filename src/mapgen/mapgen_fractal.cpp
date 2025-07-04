@@ -24,7 +24,7 @@
 #include "mapgen_fractal.h"
 
 
-FlagDesc flagdesc_mapgen_fractal[] = {
+const FlagDesc flagdesc_mapgen_fractal[] = {
 	{"terrain", MGFRACTAL_TERRAIN},
 	{NULL,      0}
 };
@@ -177,7 +177,7 @@ int MapgenFractal::getSpawnLevelAtPoint(v2s16 p)
 
 	// If terrain present, don't start search below terrain or water level
 	if (noise_seabed) {
-		s16 seabed_level = NoisePerlin2D(&noise_seabed->np, p.X, p.Y, seed);
+		s16 seabed_level = NoiseFractal2D(&noise_seabed->np, p.X, p.Y, seed);
 		search_start = MYMAX(search_start, MYMAX(seabed_level, water_level));
 	}
 
@@ -409,7 +409,7 @@ s16 MapgenFractal::generateTerrain()
 	u32 index2d = 0;
 
 	if (noise_seabed)
-		noise_seabed->perlinMap2D(node_min.X, node_min.Z);
+		noise_seabed->noiseMap2D(node_min.X, node_min.Z);
 
 	for (s16 z = node_min.Z; z <= node_max.Z; z++) {
 		for (s16 y = node_min.Y - 1; y <= node_max.Y + 1; y++) {

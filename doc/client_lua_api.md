@@ -1,4 +1,4 @@
-Luanti Lua Client Modding API Reference 5.11.0
+Luanti Lua Client Modding API Reference 5.12.0
 ==============================================
 
 **WARNING**: if you're looking for the `minetest` namespace (e.g. `minetest.something`),

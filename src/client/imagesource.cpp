@@ -601,7 +601,7 @@ static void apply_hue_saturation(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 			}
 
 			// Apply the specified HSL adjustments
-			hsl.Hue = fmod(hsl.Hue + hue, 360);
+			hsl.Hue = fmodf(hsl.Hue + hue, 360);
 			if (hsl.Hue < 0)
 				hsl.Hue += 360;
 
@@ -632,19 +632,19 @@ static void apply_overlay(video::IImage *blend, video::IImage *dst,
 		video::SColor blend_c =
 			blend_layer->getPixel(x + blend_layer_pos.X, y + blend_layer_pos.Y);
 		video::SColor base_c = base_layer->getPixel(base_x, base_y);
-		double blend_r = blend_c.getRed()   / 255.0;
-		double blend_g = blend_c.getGreen() / 255.0;
-		double blend_b = blend_c.getBlue()  / 255.0;
-		double base_r = base_c.getRed()   / 255.0;
-		double base_g = base_c.getGreen() / 255.0;
-		double base_b = base_c.getBlue()  / 255.0;
+		f32 blend_r = blend_c.getRed()   / 255.0f;
+		f32 blend_g = blend_c.getGreen() / 255.0f;
+		f32 blend_b = blend_c.getBlue()  / 255.0f;
+		f32 base_r = base_c.getRed()   / 255.0f;
+		f32 base_g = base_c.getGreen() / 255.0f;
+		f32 base_b = base_c.getBlue()  / 255.0f;
 
 		base_c.set(
 			base_c.getAlpha(),
 			// Do a Multiply blend if less that 0.5, otherwise do a Screen blend
-			(u32)((base_r < 0.5 ? 2 * base_r * blend_r : 1 - 2 * (1 - base_r) * (1 - blend_r)) * 255),
-			(u32)((base_g < 0.5 ? 2 * base_g * blend_g : 1 - 2 * (1 - base_g) * (1 - blend_g)) * 255),
-			(u32)((base_b < 0.5 ? 2 * base_b * blend_b : 1 - 2 * (1 - base_b) * (1 - blend_b)) * 255)
+			(u32)((base_r < 0.5f ? 2 * base_r * blend_r : 1 - 2 * (1 - base_r) * (1 - blend_r)) * 255),
+			(u32)((base_g < 0.5f ? 2 * base_g * blend_g : 1 - 2 * (1 - base_g) * (1 - blend_g)) * 255),
+			(u32)((base_b < 0.5f ? 2 * base_b * blend_b : 1 - 2 * (1 - base_b) * (1 - blend_b)) * 255)
 		);
 		dst->setPixel(base_x, base_y, base_c);
 	}
@@ -659,38 +659,38 @@ static void apply_overlay(video::IImage *blend, video::IImage *dst,
 static void apply_brightness_contrast(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 	s32 brightness, s32 contrast)
 {
-	video::SColor dst_c;
 	// Only allow normalized contrast to get as high as 127/128 to avoid infinite slope.
 	// (we could technically allow -128/128 here as that would just result in 0 slope)
-	double norm_c = core::clamp(contrast,   -127, 127) / 128.0;
-	double norm_b = core::clamp(brightness, -127, 127) / 127.0;
+	f32 norm_c = core::clamp(contrast,   -127, 127) / 128.0f;
+	f32 norm_b = core::clamp(brightness, -127, 127) / 127.0f;
 
 	// Scale brightness so its range is -127.5 to 127.5, otherwise brightness
 	// adjustments will outputs values from 0.5 to 254.5 instead of 0 to 255.
-	double scaled_b = brightness * 127.5 / 127;
+	f32 scaled_b = brightness * 127.5f / 127;
 
 	// Calculate a contrast slope such that that no colors will get clamped due
 	// to the brightness setting.
 	// This allows the texture modifier to used as a brightness modifier without
 	// the user having to calculate a contrast to avoid clipping at that brightness.
-	double slope = 1 - fabs(norm_b);
+	f32 slope = 1 - std::fabs(norm_b);
 
 	// Apply the user's contrast adjustment to the calculated slope, such that
 	// -127 will make it near-vertical and +127 will make it horizontal
-	double angle = atan(slope);
+	f32 angle = std::atan(slope);
 	angle += norm_c <= 0
 		? norm_c * angle // allow contrast slope to be lowered to 0
 		: norm_c * (M_PI_2 - angle); // allow contrast slope to be raised almost vert.
-	slope = tan(angle);
+	slope = std::tan(angle);
 
-	double c = slope <= 1
-		? -slope * 127.5 + 127.5 + scaled_b    // shift up/down when slope is horiz.
-		: -slope * (127.5 - scaled_b) + 127.5; // shift left/right when slope is vert.
+	f32 c = slope <= 1
+		? -slope * 127.5f + 127.5f + scaled_b    // shift up/down when slope is horiz.
+		: -slope * (127.5f - scaled_b) + 127.5f; // shift left/right when slope is vert.
 
 	// add 0.5 to c so that when the final result is cast to int, it is effectively
 	// rounded rather than trunc'd.
-	c += 0.5;
+	c += 0.5f;
 
+	video::SColor dst_c;
 	for (u32 y = dst_pos.Y; y < dst_pos.Y + size.Y; y++)
 	for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++) {
 		dst_c = dst->getPixel(x, y);
@@ -805,7 +805,7 @@ static void draw_crack(video::IImage *crack, video::IImage *dst,
 
 static void brighten(video::IImage *image)
 {
-	if (image == NULL)
+	if (!image)
 		return;
 
 	core::dimension2d<u32> dim = image->getDimension();
@@ -814,9 +814,9 @@ static void brighten(video::IImage *image)
 	for (u32 x=0; x<dim.Width; x++)
 	{
 		video::SColor c = image->getPixel(x,y);
-		c.setRed(0.5 * 255 + 0.5 * (float)c.getRed());
-		c.setGreen(0.5 * 255 + 0.5 * (float)c.getGreen());
-		c.setBlue(0.5 * 255 + 0.5 * (float)c.getBlue());
+		c.setRed(127.5f + 0.5f * c.getRed());
+		c.setGreen(127.5f + 0.5f * c.getGreen());
+		c.setBlue(127.5f + 0.5f * c.getBlue());
 		image->setPixel(x,y,c);
 	}
 }
@@ -881,7 +881,7 @@ static core::dimension2du imageTransformDimension(u32 transform, core::dimension
 
 static void imageTransform(u32 transform, video::IImage *src, video::IImage *dst)
 {
-	if (src == NULL || dst == NULL)
+	if (!src || !dst)
 		return;
 
 	core::dimension2d<u32> dstdim = dst->getDimension();
@@ -949,9 +949,10 @@ static void imageTransform(u32 transform, video::IImage *src, video::IImage *dst
 
 #define CHECK_DIM(w, h) \
 	do { \
-		if ((w) <= 0 || (h) <= 0 || (w) >= 0xffff || (h) >= 0xffff) { \
-			COMPLAIN_INVALID("width or height"); \
-		} \
+		if ((w) <= 0 || (w) > MAX_IMAGE_DIMENSION) \
+			COMPLAIN_INVALID("width"); \
+		if ((h) <= 0 || (h) > MAX_IMAGE_DIMENSION) \
+			COMPLAIN_INVALID("height"); \
 	} while(0)
 
 bool ImageSource::generateImagePart(std::string_view part_of_name,
@@ -1279,7 +1280,7 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			video::IImage *img_left = generateImage(imagename_left, source_image_names);
 			video::IImage *img_right = generateImage(imagename_right, source_image_names);
 
-			if (img_top == NULL || img_left == NULL || img_right == NULL) {
+			if (!img_top || !img_left || !img_right) {
 				errorstream << "generateImagePart(): Failed to create textures"
 						<< " for inventorycube \"" << part_of_name << "\""
 						<< std::endl;
@@ -1350,6 +1351,8 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			v2u32 frame_size = baseimg->getDimension();
 			frame_size.Y /= frame_count;
+			if (frame_size.Y == 0)
+				frame_size.Y = 1;
 
 			video::IImage *img = driver->createImage(video::ECF_A8R8G8B8,
 					frame_size);
@@ -1476,21 +1479,28 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			/* Upscale textures to user's requested minimum size.  This is a trick to make
 			 * filters look as good on low-res textures as on high-res ones, by making
-			 * low-res textures BECOME high-res ones.  This is helpful for worlds that
+			 * low-res textures BECOME high-res ones. This is helpful for worlds that
 			 * mix high- and low-res textures, or for mods with least-common-denominator
 			 * textures that don't have the resources to offer high-res alternatives.
+			 *
+			 * Q: why not just enable/disable filtering depending on texture size?
+			 * A: large texture resolutions apparently allow getting rid of the Moire
+			 *    effect way better than anisotropic filtering alone could.
+			 *    see <https://github.com/luanti-org/luanti/issues/15604> and related
+			 *    linked discussions.
 			 */
 			const bool filter = m_setting_trilinear_filter || m_setting_bilinear_filter;
-			const s32 scaleto = filter ? g_settings->getU16("texture_min_size") : 1;
-			if (scaleto > 1) {
-				const core::dimension2d<u32> dim = baseimg->getDimension();
+			if (filter) {
+				const f32 scaleto = rangelim(g_settings->getU16("texture_min_size"),
+					TEXTURE_FILTER_MIN_SIZE, 16384);
 
-				/* Calculate scaling needed to make the shortest texture dimension
-				 * equal to the target minimum.  If e.g. this is a vertical frames
-				 * animation, the short dimension will be the real size.
+				/* Calculate integer-scaling needed to make the shortest texture
+				 * dimension equal to the target minimum. If this is e.g. a
+				 * vertical frames animation, the short dimension will be the real size.
 				 */
-				u32 xscale = scaleto / dim.Width;
-				u32 yscale = scaleto / dim.Height;
+				const auto &dim = baseimg->getDimension();
+				u32 xscale = std::ceil(scaleto / dim.Width);
+				u32 yscale = std::ceil(scaleto / dim.Height);
 				const s32 scale = std::max(xscale, yscale);
 
 				// Never downscale; only scale up by 2x or more.
@@ -1498,11 +1508,13 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 					u32 w = scale * dim.Width;
 					u32 h = scale * dim.Height;
 					const core::dimension2d<u32> newdim(w, h);
-					video::IImage *newimg = driver->createImage(
-							baseimg->getColorFormat(), newdim);
-					baseimg->copyToScaling(newimg);
-					baseimg->drop();
-					baseimg = newimg;
+					if (w <= MAX_IMAGE_DIMENSION && h <= MAX_IMAGE_DIMENSION) {
+						video::IImage *newimg = driver->createImage(
+								baseimg->getColorFormat(), newdim);
+						baseimg->copyToScaling(newimg);
+						baseimg->drop();
+						baseimg = newimg;
+					}
 				}
 			}
 		}
@@ -1884,7 +1896,7 @@ video::IImage* ImageSource::generateImage(std::string_view name,
 	}
 
 	// If no resulting image, print a warning
-	if (baseimg == NULL) {
+	if (!baseimg) {
 		errorstream << "generateImage(): baseimg is NULL (attempted to"
 				" create texture \"" << name << "\")" << std::endl;
 	} else if (baseimg->getDimension().Width == 0 ||

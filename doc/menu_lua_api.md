@@ -1,4 +1,4 @@
-Luanti Lua Mainmenu API Reference 5.11.0
+Luanti Lua Mainmenu API Reference 5.12.0
 ========================================
 
 Introduction
@@ -25,6 +25,8 @@ Callbacks
 * `core.event_handler(event)`
   * `event`: `"MenuQuit"`, `"KeyEnter"`, `"ExitButton"`, `"EditBoxEnter"` or
     `"FullscreenChange"`
+* `core.on_before_close()`: called before the menu is closed, either to exit or
+  to join a game
 
 
 Gamedata
@@ -217,7 +219,6 @@ GUI
    doing tiling (background only)
 * `core.set_clouds(<true/false>)`
 * `core.set_topleft_text(text)`
-* `core.show_keys_menu()`
 * `core.show_touchscreen_layout()`
 * `core.show_path_select_dialog(formname, caption, is_file_select)`
   * shows a path select dialog
@@ -331,7 +332,7 @@ Package - content which is downloadable from the content db, may or may not be i
       ```lua
       {
           name             = "technical_id",
-          type             = "mod" or "modpack" or "game" or "txp",
+          type             = "mod" or "modpack" or "game" or "txp" or "unknown",
           title            = "Human readable title",
           description      = "description",
           author           = "author",

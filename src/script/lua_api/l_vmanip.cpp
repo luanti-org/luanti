@@ -425,7 +425,7 @@ void LuaVoxelManip::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaVoxelManip>(L, methods, metamethods);
 
 	// Can be created from Lua (VoxelManip())
 	lua_register(L, className, create_object);

@@ -2,8 +2,26 @@
 #
 # General format:
 #    name (Readable name) type type_args
+#    name (Readable name) [context] type type_args
 #
 # Note that the parts are separated by exactly one space
+#
+# `context` (optional) is used to document where the setting is read. It can be:
+#    - common: Read by both client and server.
+#    - client: Read by the client.
+#      (Includes settings read by the mainmenu.)
+#    - server: Read by the server.
+#    - world_creation: Read at world creation, thus only applied to new worlds.
+#      (Worlds are commonly created in the mainmenu (part of the client), but
+#      world creation is conceptually a server-side thing...)
+# If not specified, the value is inherited from the context value of the containing
+# category instead.
+# For the builtin/settingtypes.txt file, every setting needs to have a context defined,
+# either via a category containing it or via the setting itself. In game/mod-provided
+# settingtypes.txt files, context annotations are invalid.
+# Note: For context annotations, it's irrelevant whether changes to a setting
+# after startup/game-join will be read. A separate mechanism for declaring that
+# is needed.
 #
 # `type` can be:
 #    - int
@@ -13,7 +31,7 @@
 #    - enum
 #    - path
 #    - filepath
-#    - key (will be ignored in GUI, since a special key change dialog exists)
+#    - key
 #    - flags
 #    - noise_params_2d
 #    - noise_params_3d
@@ -73,10 +91,14 @@
 #     * touchscreen / keyboard_mouse
 #     * opengl / gles
 # * You can negate any requirement by prepending with !
+# * The "keyboard_mouse" requirement is automatically added to settings with the
+#   "key" type.
 #
 # Sections are marked by a single line in the format: [Section Name]
 # Sub-section are marked by adding * in front of the section name: [*Sub-section]
 # Sub-sub-sections have two * etc.
+# A context (see above) can be specified optionally: [Section Name] [context]
+# Context annotations on categories cannot be nested.
 # There shouldn't be too many settings per category.
 #
 # The top-level categories "Advanced", "Client and Server" and "Mapgen" are
@@ -84,7 +106,7 @@
 # They contain settings not intended for the "average user".
 
 
-[Controls]
+[Controls] [client]
 
 [*General]
 
@@ -110,6 +132,13 @@ doubletap_jump (Double tap jump for fly) bool false
 #    If disabled, "Aux1" key is used to fly fast if both fly and fast mode are
 #    enabled.
 always_fly_fast (Always fly fast) bool true
+
+#    If enabled, the "Sneak" key will toggle when pressed.
+#    This functionality is ignored when fly is enabled.
+toggle_sneak_key (Toggle Sneak key) bool false
+
+#    If enabled, the "Aux1" key will toggle when pressed.
+toggle_aux1_key (Toggle Aux1 key) bool false
 
 #    The time in seconds it takes between repeated node placements when holding
 #    the place button.
@@ -151,6 +180,228 @@ enable_hotbar_mouse_wheel (Hotbar: Enable mouse wheel for selection) bool true
 #    Requires: keyboard_mouse
 invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 
+[**Keybindings]
+
+#    Key for moving the player forward.
+keymap_forward (Move forward) key SYSTEM_SCANCODE_26
+
+#    Key for moving the player backward.
+#    Will also disable autoforward, when active.
+keymap_backward (Move backward) key SYSTEM_SCANCODE_22
+
+#    Key for moving the player left.
+keymap_left (Move left) key SYSTEM_SCANCODE_4
+
+#    Key for moving the player right.
+keymap_right (Move right) key SYSTEM_SCANCODE_7
+
+#    Key for jumping.
+keymap_jump (Jump) key SYSTEM_SCANCODE_44
+
+#    Key for sneaking.
+#    Also used for climbing down and descending in water if aux1_descends is disabled.
+keymap_sneak (Sneak) key SYSTEM_SCANCODE_225
+
+#    Key for digging, punching or using something.
+#    (Note: The actual meaning might vary on a per-game basis.)
+keymap_dig (Dig/punch/use) key KEY_LBUTTON
+
+#    Key for placing an item/block or for using something.
+#    (Note: The actual meaning might vary on a per-game basis.)
+keymap_place (Place/use) key KEY_RBUTTON
+
+#    Key for opening the inventory.
+keymap_inventory (Open inventory) key SYSTEM_SCANCODE_12
+
+#    Key for moving fast in fast mode.
+keymap_aux1 (Aux1) key SYSTEM_SCANCODE_8
+
+#    Key for opening the chat window.
+keymap_chat (Open chat) key SYSTEM_SCANCODE_23
+
+#    Key for opening the chat window to type commands.
+keymap_cmd (Command) key SYSTEM_SCANCODE_56
+
+#    Key for opening the chat window to type local commands.
+keymap_cmd_local (Local command) key SYSTEM_SCANCODE_55
+
+#    Key for toggling unlimited view range.
+keymap_rangeselect (Range select) key
+
+#    Key for toggling flying.
+keymap_freemove (Toggle fly) key SYSTEM_SCANCODE_14
+
+#    Key for toggling pitch move mode.
+keymap_pitchmove (Toggle pitchmove) key
+
+#    Key for toggling fast mode.
+keymap_fastmove (Toggle fast) key SYSTEM_SCANCODE_13
+
+#    Key for toggling noclip mode.
+keymap_noclip (Toggle noclip) key SYSTEM_SCANCODE_11
+
+#    Key for selecting the next item in the hotbar.
+keymap_hotbar_next (Hotbar: select next item) key SYSTEM_SCANCODE_17
+
+#    Key for selecting the previous item in the hotbar.
+keymap_hotbar_previous (Hotbar: select previous item) key SYSTEM_SCANCODE_5
+
+#    Key for muting the game.
+keymap_mute (Mute) key SYSTEM_SCANCODE_16
+
+#    Key for increasing the volume.
+keymap_increase_volume (Increase volume) key
+
+#    Key for decreasing the volume.
+keymap_decrease_volume (Decrease volume) key
+
+#    Key for toggling autoforward.
+keymap_autoforward (Toggle automatic forward) key
+
+#    Key for toggling cinematic mode.
+keymap_cinematic (Toggle cinematic mode) key
+
+#    Key for toggling display of minimap.
+keymap_minimap (Toggle minimap) key SYSTEM_SCANCODE_25
+
+#    Key for taking screenshots.
+keymap_screenshot (Screenshot) key SYSTEM_SCANCODE_69
+
+#    Key for toggling fullscreen mode.
+keymap_fullscreen (Toggle fullscreen) key SYSTEM_SCANCODE_68
+
+#    Key for dropping the currently selected item.
+keymap_drop (Drop item) key SYSTEM_SCANCODE_20
+
+#    Key to use view zoom when possible.
+keymap_zoom (Zoom) key SYSTEM_SCANCODE_29
+
+#    Key for toggling the display of the HUD.
+keymap_toggle_hud (Toggle HUD) key SYSTEM_SCANCODE_58
+
+#    Key for toggling the display of chat.
+keymap_toggle_chat (Toggle chat log) key SYSTEM_SCANCODE_59
+
+#    Key for toggling the display of the large chat console.
+keymap_console (Large chat console) key SYSTEM_SCANCODE_67
+
+#    Key for toggling the display of fog.
+keymap_toggle_fog (Toggle fog) key SYSTEM_SCANCODE_60
+
+#    Key for toggling the display of debug info.
+keymap_toggle_debug (Toggle debug info) key SYSTEM_SCANCODE_62
+
+#    Key for toggling the display of the profiler. Used for development.
+keymap_toggle_profiler (Toggle profiler) key SYSTEM_SCANCODE_63
+
+#    Key for toggling the display of mapblock boundaries.
+keymap_toggle_block_bounds (Toggle block bounds) key
+
+#    Key for switching between first- and third-person camera.
+keymap_camera_mode (Toggle camera mode) key SYSTEM_SCANCODE_6
+
+#    Key for increasing the viewing range.
+keymap_increase_viewing_range_min (Increase view range) key SYSTEM_SCANCODE_46
+
+#    Key for decreasing the viewing range.
+keymap_decrease_viewing_range_min (Decrease view range) key SYSTEM_SCANCODE_45
+
+#    Key for selecting the first hotbar slot.
+keymap_slot1 (Hotbar slot 1) key SYSTEM_SCANCODE_30
+
+#    Key for selecting the second hotbar slot.
+keymap_slot2 (Hotbar slot 2) key SYSTEM_SCANCODE_31
+
+#    Key for selecting the third hotbar slot.
+keymap_slot3 (Hotbar slot 3) key SYSTEM_SCANCODE_32
+
+#    Key for selecting the fourth hotbar slot.
+keymap_slot4 (Hotbar slot 4) key SYSTEM_SCANCODE_33
+
+#    Key for selecting the fifth hotbar slot.
+keymap_slot5 (Hotbar slot 5) key SYSTEM_SCANCODE_34
+
+#    Key for selecting the sixth hotbar slot.
+keymap_slot6 (Hotbar slot 6) key SYSTEM_SCANCODE_35
+
+#    Key for selecting the seventh hotbar slot.
+keymap_slot7 (Hotbar slot 7) key SYSTEM_SCANCODE_36
+
+#    Key for selecting the eighth hotbar slot.
+keymap_slot8 (Hotbar slot 8) key SYSTEM_SCANCODE_37
+
+#    Key for selecting the ninth hotbar slot.
+keymap_slot9 (Hotbar slot 9) key SYSTEM_SCANCODE_38
+
+#    Key for selecting the tenth hotbar slot.
+keymap_slot10 (Hotbar slot 10) key SYSTEM_SCANCODE_39
+
+#    Key for selecting the 11th hotbar slot.
+keymap_slot11 (Hotbar slot 11) key
+
+#    Key for selecting the 12th hotbar slot.
+keymap_slot12 (Hotbar slot 12) key
+
+#    Key for selecting the 13th hotbar slot.
+keymap_slot13 (Hotbar slot 13) key
+
+#    Key for selecting the 14th hotbar slot.
+keymap_slot14 (Hotbar slot 14) key
+
+#    Key for selecting the 15th hotbar slot.
+keymap_slot15 (Hotbar slot 15) key
+
+#    Key for selecting the 16th hotbar slot.
+keymap_slot16 (Hotbar slot 16) key
+
+#    Key for selecting the 17th hotbar slot.
+keymap_slot17 (Hotbar slot 17) key
+
+#    Key for selecting the 18th hotbar slot.
+keymap_slot18 (Hotbar slot 18) key
+
+#    Key for selecting the 19th hotbar slot.
+keymap_slot19 (Hotbar slot 19) key
+
+#    Key for selecting the 20th hotbar slot.
+keymap_slot20 (Hotbar slot 20) key
+
+#    Key for selecting the 21st hotbar slot.
+keymap_slot21 (Hotbar slot 21) key
+
+#    Key for selecting the 22nd hotbar slot.
+keymap_slot22 (Hotbar slot 22) key
+
+#    Key for selecting the 23rd hotbar slot.
+keymap_slot23 (Hotbar slot 23) key
+
+#    Key for selecting the 24th hotbar slot.
+keymap_slot24 (Hotbar slot 24) key
+
+#    Key for selecting the 25th hotbar slot.
+keymap_slot25 (Hotbar slot 25) key
+
+#    Key for selecting the 26th hotbar slot.
+keymap_slot26 (Hotbar slot 26) key
+
+#    Key for selecting the 27th hotbar slot.
+keymap_slot27 (Hotbar slot 27) key
+
+#    Key for selecting the 28th hotbar slot.
+keymap_slot28 (Hotbar slot 28) key
+
+#    Key for selecting the 29th hotbar slot.
+keymap_slot29 (Hotbar slot 29) key
+
+#    Key for selecting the 30th hotbar slot.
+keymap_slot30 (Hotbar slot 30) key
+
+#    Key for selecting the 31st hotbar slot.
+keymap_slot31 (Hotbar slot 31) key
+
+#    Key for selecting the 32nd hotbar slot.
+keymap_slot32 (Hotbar slot 32) key
+
 [*Touchscreen]
 
 #    Enables the touchscreen controls, allowing you to play the game with a touchscreen.
@@ -159,6 +410,36 @@ invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 #
 #    Requires: touch_support
 touch_controls (Touchscreen controls) enum auto auto,true,false
+
+#    The kind of digging/placing controls used.
+#
+#    * Tap
+#      Long/short tap anywhere on the screen to interact.
+#      Interaction happens at finger position.
+#
+#    * Tap with crosshair
+#      Long/short tap anywhere on the screen to interact.
+#      Interaction happens at crosshair position.
+#
+#    * Buttons with crosshair
+#      Use dedicated dig/place buttons to interact.
+#      Interaction happens at crosshair position.
+#
+#    Requires: touchscreen
+touch_interaction_style (Interaction style) enum tap tap,tap_crosshair,buttons_crosshair
+
+#    The gesture for punching players/entities.
+#    This can be overridden by games and mods.
+#
+#    * Short tap
+#      Easy to use and well-known from other games that shall not be named.
+#
+#    * Long tap
+#      Known from the classic Luanti mobile controls.
+#      Combat is more or less impossible.
+#
+#    Requires: touchscreen, touch_interaction_style_tap
+touch_punch_gesture (Punch gesture) enum short_tap short_tap,long_tap
 
 #    Touchscreen sensitivity multiplier.
 #
@@ -175,12 +456,6 @@ touchscreen_threshold (Movement threshold) int 20 0 100
 #    Requires: touchscreen
 touch_long_tap_delay (Threshold for long taps) int 400 100 1000
 
-#    Use crosshair to select object instead of whole screen.
-#    If enabled, a crosshair will be shown and will be used for selecting object.
-#
-#    Requires: touchscreen
-touch_use_crosshair (Use crosshair for touch screen) bool false
-
 #    Fixes the position of virtual joystick.
 #    If disabled, virtual joystick will center to first-touch's position.
 #
@@ -193,21 +468,7 @@ fixed_virtual_joystick (Fixed virtual joystick) bool false
 #    Requires: touchscreen
 virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool false
 
-#    The gesture for punching players/entities.
-#    This can be overridden by games and mods.
-#
-#    * short_tap
-#      Easy to use and well-known from other games that shall not be named.
-#
-#    * long_tap
-#      Known from the classic Luanti mobile controls.
-#      Combat is more or less impossible.
-#
-#    Requires: touchscreen
-touch_punch_gesture (Punch gesture) enum short_tap short_tap,long_tap
-
-
-[Graphics and Audio]
+[Graphics and Audio] [client]
 
 [*Graphics]
 
@@ -256,8 +517,8 @@ fps_max (Maximum FPS) int 60 1 4294967295
 #    Vertical screen synchronization. Your system may still force VSync on even if this is disabled.
 vsync (VSync) bool false
 
-#    Maximum FPS when the window is not focused, or when the game is paused.
-fps_max_unfocused (FPS when unfocused or paused) int 20 1 4294967295
+#    Maximum FPS when the window is not focused.
+fps_max_unfocused (FPS when unfocused) int 10 1 4294967295
 
 #    View distance in nodes.
 viewing_range (Viewing range) int 190 20 4000
@@ -312,10 +573,6 @@ arm_inertia (Arm inertia) bool true
 #    Enable view bobbing and amount of view bobbing.
 #    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
 view_bobbing_amount (View bobbing factor) float 1.0 0.0 7.9
-
-#    Multiplier for fall bobbing.
-#    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
-fall_bobbing_amount (Fall bobbing factor) float 0.03 0.0 100.0
 
 [**Camera]
 
@@ -633,11 +890,6 @@ enable_volumetric_lighting (Volumetric lighting) bool false
 #   Requires: enable_dynamic_shadows
 enable_translucent_foliage (Translucent foliage) bool false
 
-#   Apply specular shading to nodes.
-#
-#   Requires: enable_dynamic_shadows
-enable_node_specular (Node specular) bool false
-
 #   When enabled, liquid reflections are simulated.
 #
 #   Requires: enable_waving_water, enable_dynamic_shadows
@@ -735,9 +987,6 @@ console_color (Console color) string (0,0,0)
 #    In-game chat console background alpha (opaqueness, between 0 and 255).
 console_alpha (Console alpha) int 200 0 255
 
-#    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
-clickable_chat_weblinks (Chat weblinks) bool true
-
 #    Optional override for chat weblink color.
 chat_weblink_color (Weblink color) string #8888FF
 
@@ -770,13 +1019,13 @@ contentdb_max_concurrent_downloads (ContentDB Max Concurrent Downloads) int 3 1
 
 [Client and Server]
 
-[*Client]
+[*Client] [client]
 
 #    Save the map received by the client on disk.
 enable_local_map_saving (Saving map received from server) bool false
 
 #    URL to the server list displayed in the Multiplayer Tab.
-serverlist_url (Serverlist URL) string https://servers.luanti.org
+serverlist_url (Serverlist URL) [common] string https://servers.luanti.org
 
 #    If enabled, server account registration is separate from login in the UI.
 #    If disabled, connecting to a server will automatically register a new account.
@@ -786,7 +1035,7 @@ enable_split_login_register (Enable split login/register) bool true
 #    If this is empty the engine will never check for updates.
 update_information_url (Update information URL) string https://www.luanti.org/release_info.json
 
-[*Server]
+[*Server] [server]
 
 #    Name of the player.
 #    When running a server, a client connecting with this name is admin.
@@ -814,7 +1063,7 @@ server_announce (Announce server) bool false
 server_announce_send_players (Send player names to the server list) bool true
 
 #    Announce to this serverlist.
-serverlist_url (Serverlist URL) string https://servers.luanti.org
+serverlist_url (Serverlist URL) [common] string https://servers.luanti.org
 
 #    Message of the day displayed to players connecting.
 motd (Message of the day) string
@@ -853,13 +1102,14 @@ protocol_version_min (Protocol version minimum) int 1 1 65535
 #    Files that are not present will be fetched the usual way.
 remote_media (Remote media) string
 
-#    Enable/disable running an IPv6 server.
+#    Enable IPv6 support for server.
+#    Note that clients will be able to connect with both IPv4 and IPv6.
 #    Ignored if bind_address is set.
 #
 #    Requires: enable_ipv6
-ipv6_server (IPv6 server) bool false
+ipv6_server (IPv6 server) bool true
 
-[*Server Security]
+[*Server Security] [server]
 
 #    New users need to input this password.
 default_password (Default password) string
@@ -919,7 +1169,7 @@ chat_message_limit_per_10sec (Chat message count limit) float 8.0 1.0
 #    Kick players who sent more than X messages per 10 seconds.
 chat_message_limit_trigger_kick (Chat message kick threshold) int 50 1 65535
 
-[*Server Gameplay]
+[*Server Gameplay] [server]
 
 #    Controls length of day/night cycle.
 #    Examples:
@@ -927,7 +1177,7 @@ chat_message_limit_trigger_kick (Chat message kick threshold) int 50 1 65535
 time_speed (Time speed) int 72 0
 
 #    Time of day when a new world is started, in millihours (0-23999).
-world_start_time (World start time) int 6125 0 23999
+world_start_time (World start time) [world_creation] int 6125 0 23999
 
 #    Time in seconds for item entity (dropped items) to live.
 #    Setting it to -1 disables the feature.
@@ -982,7 +1232,7 @@ movement_liquid_sink (Liquid sinking) float 10.0
 movement_gravity (Gravity) float 9.81
 
 
-[Mapgen]
+[Mapgen] [world_creation]
 
 #    A chosen map seed for a new map, leave empty for random.
 #    Will be overridden when creating a new world in the main menu.
@@ -998,7 +1248,7 @@ mg_name (Mapgen name) enum v7 v7,valleys,carpathian,v5,flat,fractal,singlenode,v
 water_level (Water level) int 1 -31000 31000
 
 #    From how far blocks are generated for clients, stated in mapblocks (16 nodes).
-max_block_generate_distance (Max block generate distance) int 10 1 32767
+max_block_generate_distance (Max block generate distance) [server] int 10 1 32767
 
 #    Limit of map generation, in nodes, in all 6 directions from (0, 0, 0).
 #    Only mapchunks completely within the mapgen limit are generated.
@@ -1711,12 +1961,12 @@ mgvalleys_np_dungeons (Dungeon noise) noise_params_3d 0.9, 0.5, (500, 500, 500),
 
 #    Enable Lua modding support on client.
 #    This support is experimental and API can change.
-enable_client_modding (Client modding) bool false
+enable_client_modding (Client modding) [client] bool false
 
 #    Replaces the default main menu with a custom one.
-main_menu_script (Main menu script) string
+main_menu_script (Main menu script) [client] string
 
-[**Mod Security]
+[**Mod Security] [server]
 
 #    Prevent mods from doing insecure things like running shell commands.
 secure.enable_security (Enable mod security) bool true
@@ -1740,33 +1990,33 @@ secure.http_mods (HTTP mods) string
 #    -    info
 #    -    verbose
 #    -    trace
-debug_log_level (Debug log level) enum action ,none,error,warning,action,info,verbose,trace
+debug_log_level (Debug log level) [common] enum action ,none,error,warning,action,info,verbose,trace
 
 #    If the file size of debug.txt exceeds the number of megabytes specified in
 #    this setting when it is opened, the file is moved to debug.txt.1,
 #    deleting an older debug.txt.1 if it exists.
 #    debug.txt is only moved if this setting is positive.
-debug_log_size_max (Debug log file size threshold) int 50 1
+debug_log_size_max (Debug log file size threshold) [common] int 50 1
 
 #    Minimal level of logging to be written to chat.
-chat_log_level (Chat log level) enum error ,none,error,warning,action,info,verbose,trace
+chat_log_level (Chat log level) [client] enum error ,none,error,warning,action,info,verbose,trace
 
 #    Handling for deprecated Lua API calls:
 #    -    none: Do not log deprecated calls
 #    -    log: mimic and log backtrace of deprecated call (default).
 #    -    error: abort on usage of deprecated call (suggested for mod developers).
-deprecated_lua_api_handling (Deprecated Lua API handling) enum log none,log,error
+deprecated_lua_api_handling (Deprecated Lua API handling) [common] enum log none,log,error
 
 #    Enable random user input (only used for testing).
-random_input (Random input) bool false
+random_input (Random input) [client] bool false
 
 #    Enable random mod loading (mainly used for testing).
-random_mod_load_order (Random mod load order) bool false
+random_mod_load_order (Random mod load order) [server] bool false
 
 #    Enable mod channels support.
-enable_mod_channels (Mod channels) bool false
+enable_mod_channels (Mod channels) [server] bool false
 
-[**Mod Profiler]
+[**Mod Profiler] [server]
 
 #    Load the game profiler to collect game profiling data.
 #    Provides a /profiler command to access the compiled profile.
@@ -1806,24 +2056,15 @@ instrument.builtin (Builtin) bool false
 #     * Instrument the sampler being used to update the statistics.
 instrument.profiler (Profiler) bool false
 
-[**Engine Profiler]
+[**Engine Profiler] [common]
 
 #    Print the engine's profiling data in regular intervals (in seconds).
 #    0 = disable. Useful for developers.
 profiler_print_interval (Engine profiling data print interval) int 0 0
 
-
 [*Advanced]
 
-#    Enable IPv6 support (for both client and server).
-#    Required for IPv6 connections to work at all.
-enable_ipv6 (IPv6) bool true
-
-#    If enabled, invalid world data won't cause the server to shut down.
-#    Only enable this if you know what you are doing.
-ignore_world_load_errors (Ignore world errors) bool false
-
-[**Graphics]
+[**Graphics] [client]
 
 #    Enables debug and error-checking in the OpenGL driver.
 opengl_debug (OpenGL debug) bool false
@@ -1878,7 +2119,7 @@ world_aligned_mode (World-aligned textures mode) enum enable disable,enable,forc
 #    World-aligned textures may be scaled to span several nodes. However,
 #    the server may not send the scale you want, especially if you use
 #    a specially-designed texture pack; with this option, the client tries
-#    to determine the scale automatically basing on the texture size.
+#    to determine the scale automatically based on the texture size.
 #    See also texture_min_size.
 #    Warning: This option is EXPERIMENTAL!
 autoscale_mode (Autoscaling mode) enum disable disable,enable,force
@@ -1890,7 +2131,7 @@ autoscale_mode (Autoscaling mode) enum disable disable,enable,force
 #    This setting is ONLY applied if any of the mentioned filters are enabled.
 #    This is also used as the base node texture size for world-aligned
 #    texture autoscaling.
-texture_min_size (Base texture size) int 64 1 32768
+texture_min_size (Base texture size) int 192 192 16384
 
 #    Side length of a cube of map blocks that the client will consider together
 #    when generating meshes.
@@ -1927,12 +2168,12 @@ shadow_update_frames (Map shadows update frames) int 16 1 32
 #    Requires: enable_post_processing, enable_bloom
 enable_bloom_debug (Enable Bloom Debug) bool false
 
-[**Sound]
+[**Sound] [client]
 #    Comma-separated list of AL and ALC extensions that should not be used.
 #    Useful for testing. See al_extensions.[h,cpp] for details.
 sound_extensions_blacklist (Sound Extensions Blacklist) string
 
-[**Font]
+[**Font] [client]
 
 font_bold (Font bold by default) bool false
 
@@ -1982,7 +2223,7 @@ mono_font_path_bold_italic (Bold and italic monospace font path) filepath fonts/
 #    This font will be used for certain languages or if the default font is unavailable.
 fallback_font_path (Fallback font path) filepath fonts/DroidSansFallbackFull.ttf
 
-[**Lighting]
+[**Lighting] [client]
 
 #    Gradient of light curve at minimum light level.
 #    Controls the contrast of the lowest light levels.
@@ -2008,43 +2249,50 @@ lighting_boost_spread (Light curve boost spread) float 0.2 0.0 0.4
 
 [**Networking]
 
-#    Prometheus listener address.
-#    If Luanti is compiled with ENABLE_PROMETHEUS option enabled,
-#    enable metrics listener for Prometheus on that address.
-#    Metrics can be fetched on http://127.0.0.1:30000/metrics
-prometheus_listener_address (Prometheus listener address) string 127.0.0.1:30000
+#    Enable IPv6 support (for both client and server).
+#    Required for IPv6 connections to work at all.
+enable_ipv6 (IPv6) [common] bool true
 
-#    Maximum size of the outgoing chat queue.
+#    Prometheus listener address.
+#    If Luanti is compiled with Prometheus support, this setting
+#    enables the metrics listener for Prometheus on that address.
+#    By default you can fetch metrics from http://127.0.0.1:30000/metrics.
+#    An empty value disables the metrics listener.
+prometheus_listener_address (Prometheus listener address) [server] string 127.0.0.1:30000
+
+#    Maximum size of the client's outgoing chat queue.
 #    0 to disable queueing and -1 to make the queue size unlimited.
-max_out_chat_queue_size (Maximum size of the outgoing chat queue) int 20 -1 32767
+max_out_chat_queue_size (Maximum size of the client's outgoing chat queue) [client] int 20 -1 32767
 
 #    Timeout for client to remove unused map data from memory, in seconds.
-client_unload_unused_data_timeout (Mapblock unload timeout) float 600.0 0.0
+client_unload_unused_data_timeout (Mapblock unload timeout) [client] float 600.0 0.0
 
 #    Maximum number of mapblocks for client to be kept in memory.
-#    Set to -1 for unlimited amount.
-client_mapblock_limit (Mapblock limit) int 7500 -1 2147483647
+#    Note that there is an internal dynamic minimum number of blocks that
+#    won't be deleted, depending on the current view range.
+#    Set to -1 for no limit.
+client_mapblock_limit (Mapblock limit) [client] int 7500 -1 2147483647
 
 #    Maximum number of blocks that are simultaneously sent per client.
 #    The maximum total count is calculated dynamically:
 #    max_total = ceil((#clients + max_users) * per_client / 4)
-max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) int 40 1 4294967295
+max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 40 1 4294967295
 
 #    To reduce lag, block transfers are slowed down when a player is building something.
 #    This determines how long they are slowed down after placing or removing a node.
-full_block_send_enable_min_time_from_building (Delay in sending blocks after building) float 2.0 0.0
+full_block_send_enable_min_time_from_building (Delay in sending blocks after building) [server] float 2.0 0.0
 
 #    Maximum number of packets sent per send step in the low-level networking code.
 #    You generally don't need to change this, however busy servers may benefit from a higher number.
-max_packets_per_iteration (Max. packets per iteration) int 1024 1 65535
+max_packets_per_iteration (Max. packets per iteration) [common] int 1024 1 65535
 
 #    Compression level to use when sending mapblocks to the client.
 #    -1 - use default compression level
 #     0 - least compression, fastest
 #     9 - best compression, slowest
-map_compression_level_net (Map Compression Level for Network Transfer) int -1 -1 9
+map_compression_level_net (Map Compression Level for Network Transfer) [server] int -1 -1 9
 
-[**Server]
+[**Server] [server]
 
 #    Format of player chat messages. The following strings are valid placeholders:
 #    @name, @message, @timestamp (optional)
@@ -2064,7 +2312,7 @@ kick_msg_crash (Crash message) string This server has experienced an internal er
 #    Set this to true if your server is set up to restart automatically.
 ask_reconnect_on_crash (Ask to reconnect after crash) bool false
 
-[**Server/Env Performance]
+[**Server/Env Performance] [server]
 
 #    Length of a server tick (the interval at which everything is generally updated),
 #    stated in seconds.
@@ -2115,14 +2363,14 @@ max_objects_per_block (Maximum objects per block) int 256 256 65535
 active_block_mgmt_interval (Active block management interval) float 2.0 0.0
 
 #    Length of time between Active Block Modifier (ABM) execution cycles, stated in seconds.
-abm_interval (ABM interval) float 1.0 0.0
+abm_interval (ABM interval) float 1.0 0.1 30.0
 
 #    The time budget allowed for ABMs to execute on each step
 #    (as a fraction of the ABM Interval)
 abm_time_budget (ABM time budget) float 0.2 0.1 0.9
 
 #    Length of time between NodeTimer execution cycles, stated in seconds.
-nodetimer_interval (NodeTimer interval) float 0.2 0.0
+nodetimer_interval (NodeTimer interval) float 0.2 0.1 1.0
 
 #    Max liquids processed per step.
 liquid_loop_max (Liquid loop max) int 100000 1 4294967295
@@ -2157,7 +2405,7 @@ server_side_occlusion_culling (Server-side occlusion culling) bool true
 #    Stated in MapBlocks (16 nodes).
 block_cull_optimize_distance (Block cull optimize distance) int 25 2 2047
 
-[**Mapgen]
+[**Mapgen] [server]
 
 #    Size of mapchunks generated by mapgen, stated in mapblocks (16 nodes).
 #    WARNING: There is no benefit, and there are several dangers, in
@@ -2165,7 +2413,7 @@ block_cull_optimize_distance (Block cull optimize distance) int 25 2 2047
 #    Reducing this value increases cave and dungeon density.
 #    Altering this value is for special usage, leaving it unchanged is
 #    recommended.
-chunksize (Chunk size) int 5 1 10
+chunksize (Chunk size) [world_creation] int 5 1 10
 
 #    Dump the mapgen debug information.
 enable_mapgen_debug_info (Mapgen debug) bool false
@@ -2193,7 +2441,7 @@ emergequeue_limit_generate (Per-player limit of queued blocks to generate) int 1
 #    'on_generated'. For many users the optimum setting may be '1'.
 num_emerge_threads (Number of emerge threads) int 1 0 32767
 
-[**cURL]
+[**cURL] [common]
 
 #    Maximum time an interactive request (e.g. server list fetch) may take, stated in milliseconds.
 curl_timeout (cURL interactive timeout) int 20000 1000 2147483647
@@ -2208,44 +2456,68 @@ curl_parallel_limit (cURL parallel limit) int 8 1 2147483647
 #    Maximum time a file download (e.g. a mod download) may take, stated in milliseconds.
 curl_file_download_timeout (cURL file download timeout) int 300000 5000 2147483647
 
+[**Client Debugging] [client]
+
+#    Key for toggling the camera update. Only usable with 'debug' privilege.
+keymap_toggle_update_camera (Toggle camera update) key
+
+#    Key for switching to the previous entry in Quicktune.
+keymap_quicktune_prev (Quicktune: select previous entry) key
+
+#    Key for switching to the next entry in Quicktune.
+keymap_quicktune_next (Quicktune: select next entry) key
+
+#    Key for decrementing the selected value in Quicktune.
+keymap_quicktune_dec (Quicktune: decrement value) key
+
+#    Key for incrementing the selected value in Quicktune.
+keymap_quicktune_inc (Quicktune: increment value) key
+
 [**Miscellaneous]
 
+#    Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console output.
+clickable_chat_weblinks (Chat weblinks) [client] bool true
+
+#    If enabled, invalid world data won't cause the server to shut down.
+#    Only enable this if you know what you are doing.
+ignore_world_load_errors (Ignore world errors) [server] bool false
+
 #    Adjust the detected display density, used for scaling UI elements.
-display_density_factor (Display Density Scaling Factor) float 1 0.5 5.0
+display_density_factor (Display Density Scaling Factor) [client] float 1 0.5 5.0
 
 #    Windows systems only: Start Luanti with the command line window in the background.
 #    Contains the same information as the file debug.txt (default name).
-enable_console (Enable console window) bool false
+enable_console (Enable console window) [common] bool false
 
 #    Number of extra blocks that can be loaded by /clearobjects at once.
 #    This is a trade-off between SQLite transaction overhead and
 #    memory consumption (4096=100MB, as a rule of thumb).
-max_clearobjects_extra_loaded_blocks (Max. clearobjects extra blocks) int 4096 0 4294967295
+max_clearobjects_extra_loaded_blocks (Max. clearobjects extra blocks) [server] int 4096 0 4294967295
 
 #    World directory (everything in the world is stored here).
 #    Not needed if starting from the main menu.
-map-dir (Map directory) path
+map-dir (Map directory) [server] path
 
 #    See https://www.sqlite.org/pragma.html#pragma_synchronous
-sqlite_synchronous (Synchronous SQLite) enum 2 0,1,2
+sqlite_synchronous (Synchronous SQLite) [server] enum 2 0,1,2
 
 #    Compression level to use when saving mapblocks to disk.
 #    -1 - use default compression level
 #     0 - least compression, fastest
 #     9 - best compression, slowest
-map_compression_level_disk (Map Compression Level for Disk Storage) int -1 -1 9
+map_compression_level_disk (Map Compression Level for Disk Storage) [server] int -1 -1 9
 
 #    Enable usage of remote media server (if provided by server).
 #    Remote servers offer a significantly faster way to download media (e.g. textures)
 #    when connecting to the server.
-enable_remote_media_server (Connect to external media server) bool true
+enable_remote_media_server (Connect to external media server) [client] bool true
 
 #    File in client/serverlist/ that contains your favorite servers displayed in the
 #    Multiplayer Tab.
-serverlist_file (Serverlist file) string favoriteservers.json
+serverlist_file (Serverlist file) [client] string favoriteservers.json
 
 
-[*Gamepads]
+[*Gamepads] [client]
 
 #    Enable joysticks. Requires a restart to take effect
 enable_joysticks (Enable joysticks) bool false
@@ -2268,7 +2540,7 @@ joystick_deadzone (Joystick dead zone) int 2048 0 65535
 joystick_frustum_sensitivity (Joystick frustum sensitivity) float 170.0 0.001
 
 
-[*Hide: Temporary Settings]
+[*Hide: Temporary Settings] [common]
 
 #    Path to texture directory. All textures are first searched from here.
 texture_path (Texture path) path
@@ -2327,226 +2599,3 @@ show_technical_names (Show technical names) bool false
 
 #    Controlled by a checkbox in the settings menu.
 show_advanced (Show advanced settings) bool false
-
-#    Key for moving the player forward.
-keymap_forward (Forward key) key KEY_KEY_W
-
-#    Key for moving the player backward.
-#    Will also disable autoforward, when active.
-keymap_backward (Backward key) key KEY_KEY_S
-
-#    Key for moving the player left.
-keymap_left (Left key) key KEY_KEY_A
-
-#    Key for moving the player right.
-keymap_right (Right key) key KEY_KEY_D
-
-#    Key for jumping.
-keymap_jump (Jump key) key KEY_SPACE
-
-#    Key for sneaking.
-#    Also used for climbing down and descending in water if aux1_descends is disabled.
-keymap_sneak (Sneak key) key KEY_LSHIFT
-
-#    Key for digging, punching or using something.
-#    (Note: The actual meaning might vary on a per-game basis.)
-keymap_dig (Dig/punch/use key) key KEY_LBUTTON
-
-#    Key for placing an item/block or for using something.
-#    (Note: The actual meaning might vary on a per-game basis.)
-keymap_place (Place/use key) key KEY_RBUTTON
-
-#    Key for opening the inventory.
-keymap_inventory (Inventory key) key KEY_KEY_I
-
-#    Key for moving fast in fast mode.
-keymap_aux1 (Aux1 key) key KEY_KEY_E
-
-#    Key for opening the chat window.
-keymap_chat (Chat key) key KEY_KEY_T
-
-#    Key for opening the chat window to type commands.
-keymap_cmd (Command key) key /
-
-#    Key for opening the chat window to type local commands.
-keymap_cmd_local (Command key) key .
-
-#    Key for toggling unlimited view range.
-keymap_rangeselect (Range select key) key
-
-#    Key for toggling flying.
-keymap_freemove (Fly key) key KEY_KEY_K
-
-#    Key for toggling pitch move mode.
-keymap_pitchmove (Pitch move key) key
-
-#    Key for toggling fast mode.
-keymap_fastmove (Fast key) key KEY_KEY_J
-
-#    Key for toggling noclip mode.
-keymap_noclip (Noclip key) key KEY_KEY_H
-
-#    Key for selecting the next item in the hotbar.
-keymap_hotbar_next (Hotbar next key) key KEY_KEY_N
-
-#    Key for selecting the previous item in the hotbar.
-keymap_hotbar_previous (Hotbar previous key) key KEY_KEY_B
-
-#    Key for muting the game.
-keymap_mute (Mute key) key KEY_KEY_M
-
-#    Key for increasing the volume.
-keymap_increase_volume (Inc. volume key) key
-
-#    Key for decreasing the volume.
-keymap_decrease_volume (Dec. volume key) key
-
-#    Key for toggling autoforward.
-keymap_autoforward (Automatic forward key) key
-
-#    Key for toggling cinematic mode.
-keymap_cinematic (Cinematic mode key) key
-
-#    Key for toggling display of minimap.
-keymap_minimap (Minimap key) key KEY_KEY_V
-
-#    Key for taking screenshots.
-keymap_screenshot (Screenshot) key KEY_F12
-
-#    Key for toggling fullscreen mode.
-keymap_fullscreen (Fullscreen key) key KEY_F11
-
-#    Key for dropping the currently selected item.
-keymap_drop (Drop item key) key KEY_KEY_Q
-
-#    Key to use view zoom when possible.
-keymap_zoom (View zoom key) key KEY_KEY_Z
-
-#    Key for selecting the first hotbar slot.
-keymap_slot1 (Hotbar slot 1 key) key KEY_KEY_1
-
-#    Key for selecting the second hotbar slot.
-keymap_slot2 (Hotbar slot 2 key) key KEY_KEY_2
-
-#    Key for selecting the third hotbar slot.
-keymap_slot3 (Hotbar slot 3 key) key KEY_KEY_3
-
-#    Key for selecting the fourth hotbar slot.
-keymap_slot4 (Hotbar slot 4 key) key KEY_KEY_4
-
-#    Key for selecting the fifth hotbar slot.
-keymap_slot5 (Hotbar slot 5 key) key KEY_KEY_5
-
-#    Key for selecting the sixth hotbar slot.
-keymap_slot6 (Hotbar slot 6 key) key KEY_KEY_6
-
-#    Key for selecting the seventh hotbar slot.
-keymap_slot7 (Hotbar slot 7 key) key KEY_KEY_7
-
-#    Key for selecting the eighth hotbar slot.
-keymap_slot8 (Hotbar slot 8 key) key KEY_KEY_8
-
-#    Key for selecting the ninth hotbar slot.
-keymap_slot9 (Hotbar slot 9 key) key KEY_KEY_9
-
-#    Key for selecting the tenth hotbar slot.
-keymap_slot10 (Hotbar slot 10 key) key KEY_KEY_0
-
-#    Key for selecting the 11th hotbar slot.
-keymap_slot11 (Hotbar slot 11 key) key
-
-#    Key for selecting the 12th hotbar slot.
-keymap_slot12 (Hotbar slot 12 key) key
-
-#    Key for selecting the 13th hotbar slot.
-keymap_slot13 (Hotbar slot 13 key) key
-
-#    Key for selecting the 14th hotbar slot.
-keymap_slot14 (Hotbar slot 14 key) key
-
-#    Key for selecting the 15th hotbar slot.
-keymap_slot15 (Hotbar slot 15 key) key
-
-#    Key for selecting the 16th hotbar slot.
-keymap_slot16 (Hotbar slot 16 key) key
-
-#    Key for selecting the 17th hotbar slot.
-keymap_slot17 (Hotbar slot 17 key) key
-
-#    Key for selecting the 18th hotbar slot.
-keymap_slot18 (Hotbar slot 18 key) key
-
-#    Key for selecting the 19th hotbar slot.
-keymap_slot19 (Hotbar slot 19 key) key
-
-#    Key for selecting the 20th hotbar slot.
-keymap_slot20 (Hotbar slot 20 key) key
-
-#    Key for selecting the 21st hotbar slot.
-keymap_slot21 (Hotbar slot 21 key) key
-
-#    Key for selecting the 22nd hotbar slot.
-keymap_slot22 (Hotbar slot 22 key) key
-
-#    Key for selecting the 23rd hotbar slot.
-keymap_slot23 (Hotbar slot 23 key) key
-
-#    Key for selecting the 24th hotbar slot.
-keymap_slot24 (Hotbar slot 24 key) key
-
-#    Key for selecting the 25th hotbar slot.
-keymap_slot25 (Hotbar slot 25 key) key
-
-#    Key for selecting the 26th hotbar slot.
-keymap_slot26 (Hotbar slot 26 key) key
-
-#    Key for selecting the 27th hotbar slot.
-keymap_slot27 (Hotbar slot 27 key) key
-
-#    Key for selecting the 28th hotbar slot.
-keymap_slot28 (Hotbar slot 28 key) key
-
-#    Key for selecting the 29th hotbar slot.
-keymap_slot29 (Hotbar slot 29 key) key
-
-#    Key for selecting the 30th hotbar slot.
-keymap_slot30 (Hotbar slot 30 key) key
-
-#    Key for selecting the 31st hotbar slot.
-keymap_slot31 (Hotbar slot 31 key) key
-
-#    Key for selecting the 32nd hotbar slot.
-keymap_slot32 (Hotbar slot 32 key) key
-
-#    Key for toggling the display of the HUD.
-keymap_toggle_hud (HUD toggle key) key KEY_F1
-
-#    Key for toggling the display of chat.
-keymap_toggle_chat (Chat toggle key) key KEY_F2
-
-#    Key for toggling the display of the large chat console.
-keymap_console (Large chat console key) key KEY_F10
-
-#    Key for toggling the display of fog.
-keymap_toggle_fog (Fog toggle key) key KEY_F3
-
-#    Key for toggling the camera update. Only usable with 'debug' privilege.
-keymap_toggle_update_camera (Camera update toggle key) key
-
-#    Key for toggling the display of debug info.
-keymap_toggle_debug (Debug info toggle key) key KEY_F5
-
-#    Key for toggling the display of the profiler. Used for development.
-keymap_toggle_profiler (Profiler toggle key) key KEY_F6
-
-#    Key for toggling the display of mapblock boundaries.
-keymap_toggle_block_bounds (Block bounds toggle key) key
-
-#    Key for switching between first- and third-person camera.
-keymap_camera_mode (Toggle camera mode key) key KEY_KEY_C
-
-#    Key for increasing the viewing range.
-keymap_increase_viewing_range_min (View range increase key) key +
-
-#    Key for decreasing the viewing range.
-keymap_decrease_viewing_range_min (View range decrease key) key -

@@ -12,6 +12,7 @@
 #include "clientobject.h"
 #include "constants.h"
 #include "itemgroup.h"
+#include "client/tile.h"
 #include <cassert>
 #include <map>
 #include <memory>
@@ -27,7 +28,7 @@ struct Nametag;
 struct MinimapMarker;
 
 /*
-	SmoothTranslator
+	SmoothTranslator and other helpers
 */
 
 template<typename T>
@@ -60,9 +61,21 @@ struct SmoothTranslatorWrappedv3f : SmoothTranslator<v3f>
 	void translate(f32 dtime);
 };
 
+struct MeshAnimationInfo {
+	u32 i; /// index of mesh buffer
+	int frame; /// last animation frame
+	TileLayer tile;
+};
+
+/*
+	GenericCAO
+*/
+
 class GenericCAO : public ClientActiveObject
 {
 private:
+	static constexpr auto EMT_INVALID = video::EMT_FORCE_32BIT;
+
 	// Only set at initialization
 	std::string m_name = "";
 	bool m_is_player = false;
@@ -73,6 +86,8 @@ private:
 	scene::ISceneManager *m_smgr = nullptr;
 	Client *m_client = nullptr;
 	aabb3f m_selection_box = aabb3f(-BS/3.,-BS/3.,-BS/3., BS/3.,BS/3.,BS/3.);
+
+	// Visuals
 	scene::IMeshSceneNode *m_meshnode = nullptr;
 	scene::IAnimatedMeshSceneNode *m_animated_meshnode = nullptr;
 	WieldMeshSceneNode *m_wield_meshnode = nullptr;
@@ -80,6 +95,15 @@ private:
 	scene::IDummyTransformationSceneNode *m_matrixnode = nullptr;
 	Nametag *m_nametag = nullptr;
 	MinimapMarker *m_marker = nullptr;
+	bool m_visuals_expired = false;
+	video::SColor m_last_light = video::SColor(0xFFFFFFFF);
+	bool m_is_visible = false;
+	std::vector<MeshAnimationInfo> m_meshnode_animation;
+
+	// Material
+	video::E_MATERIAL_TYPE m_material_type = EMT_INVALID;
+
+	// Movement
 	v3f m_position = v3f(0.0f, 10.0f * BS, 0);
 	v3f m_velocity;
 	v3f m_acceleration;
@@ -87,18 +111,25 @@ private:
 	u16 m_hp = 1;
 	SmoothTranslator<v3f> pos_translator;
 	SmoothTranslatorWrappedv3f rot_translator;
-	// Spritesheet/animation stuff
+
+	// Spritesheet stuff
 	v2f m_tx_size = v2f(1,1);
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set = false;
 	bool m_tx_select_horiz_by_yawpitch = false;
+	bool m_animation_loop = true;
 	v2f m_animation_range;
 	float m_animation_speed = 15.0f;
 	float m_animation_blend = 0.0f;
-	bool m_animation_loop = true;
+	int m_anim_frame = 0;
+	int m_anim_num_frames = 1;
+	float m_anim_framelength = 0.2f;
+	float m_anim_timer = 0.0f;
+
 	// stores position and rotation for each bone name
 	BoneOverrideMap m_bone_override;
 
+	// Attachments
 	object_t m_attachment_parent_id = 0;
 	std::unordered_set<object_t> m_attachment_child_ids;
 	std::string m_attachment_bone = "";
@@ -107,23 +138,13 @@ private:
 	bool m_attached_to_local = false;
 	bool m_force_visible = false;
 
-	int m_anim_frame = 0;
-	int m_anim_num_frames = 1;
-	float m_anim_framelength = 0.2f;
-	float m_anim_timer = 0.0f;
 	ItemGroupList m_armor_groups;
 	float m_reset_textures_timer = -1.0f;
 	// stores texture modifier before punch update
 	std::string m_previous_texture_modifier = "";
 	// last applied texture modifier
 	std::string m_current_texture_modifier = "";
-	bool m_visuals_expired = false;
 	float m_step_distance_counter = 0.0f;
-	video::SColor m_last_light = video::SColor(0xFFFFFFFF);
-	bool m_is_visible = false;
-	// Material
-	video::E_MATERIAL_TYPE m_material_type;
-	f32 m_material_type_param;
 
 	bool visualExpiryRequired(const ObjectProperties &newprops) const;
 
@@ -255,7 +276,7 @@ public:
 
 	void step(float dtime, ClientEnvironment *env) override;
 
-	void updateTexturePos();
+	void updateTextureAnim();
 
 	// ffs this HAS TO BE a string copy! See #5739 if you think otherwise
 	// Reason: updateTextures(m_previous_texture_modifier);
@@ -269,8 +290,8 @@ public:
 
 	void processMessage(const std::string &data) override;
 
-	bool directReportPunch(v3f dir, const ItemStack *punchitem=NULL,
-			float time_from_last_punch=1000000) override;
+	bool directReportPunch(v3f dir, const ItemStack *punchitem,
+			const ItemStack *hand_item, float time_from_last_punch=1000000) override;
 
 	std::string debugInfoText() override;
 

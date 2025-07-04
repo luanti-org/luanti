@@ -117,7 +117,7 @@ std::vector<NodeTimer> NodeTimerList::step(float dtime)
 	if (m_next_trigger_time == -1. || m_time < m_next_trigger_time) {
 		return elapsed_timers;
 	}
-	std::multimap<double, NodeTimer>::iterator i = m_timers.begin();
+	auto i = m_timers.begin();
 	// Process timers
 	for (; i != m_timers.end() && i->first <= m_time; ++i) {
 		NodeTimer t = i->second;

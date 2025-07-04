@@ -104,7 +104,7 @@ void read_item_definition(lua_State* L, int index,
 	} else if (lua_isstring(L, -1)) {
 		video::SColor color;
 		read_color(L, -1, &color);
-		def.wear_bar_params = WearBarParams({{0.0, color}},
+		def.wear_bar_params = WearBarParams({{0.0f, color}},
 				WearBarParams::BLEND_MODE_CONSTANT);
 	}
 
@@ -294,11 +294,13 @@ const std::array<const char *, 33> object_property_keys = {
 	"shaded",
 	"damage_texture_modifier",
 	"show_on_minimap",
+	// "node" is intentionally not here as it's gated behind `fallback` below!
 };
 
 /******************************************************************************/
 void read_object_properties(lua_State *L, int index,
-		ServerActiveObject *sao, ObjectProperties *prop, IItemDefManager *idef)
+		ServerActiveObject *sao, ObjectProperties *prop, IItemDefManager *idef,
+		bool fallback)
 {
 	if(index < 0)
 		index = lua_gettop(L) + 1 + index;
@@ -351,7 +353,14 @@ void read_object_properties(lua_State *L, int index,
 	}
 	lua_pop(L, 1);
 
-	getstringfield(L, -1, "visual", prop->visual);
+	// Don't set if nil
+	std::string visual;
+	if (getstringfield(L, -1, "visual", visual)) {
+		if (!string_to_enum(es_ObjectVisual, prop->visual, visual)) {
+			script_log_unique(L, "Unsupported ObjectVisual: " + visual, warningstream);
+			prop->visual = OBJECTVISUAL_UNKNOWN;
+		}
+	}
 
 	getstringfield(L, -1, "mesh", prop->mesh);
 
@@ -398,6 +407,16 @@ void read_object_properties(lua_State *L, int index,
 		}
 	}
 	lua_pop(L, 1);
+
+	// This hack exists because the name 'node' easily collides with mods own
+	// usage (or in this case literally builtin/game/falling.lua).
+	if (!fallback) {
+		lua_getfield(L, -1, "node");
+		if (lua_istable(L, -1)) {
+			prop->node = readnode(L, -1);
+		}
+		lua_pop(L, 1);
+	}
 
 	lua_getfield(L, -1, "spritediv");
 	if(lua_istable(L, -1))
@@ -490,7 +509,7 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "selectionbox");
 	push_pointability_type(L, prop->pointable);
 	lua_setfield(L, -2, "pointable");
-	lua_pushlstring(L, prop->visual.c_str(), prop->visual.size());
+	lua_pushstring(L, enum_to_string(es_ObjectVisual, prop->visual));
 	lua_setfield(L, -2, "visual");
 	lua_pushlstring(L, prop->mesh.c_str(), prop->mesh.size());
 	lua_setfield(L, -2, "mesh");
@@ -513,6 +532,8 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	}
 	lua_setfield(L, -2, "colors");
 
+	pushnode(L, prop->node);
+	lua_setfield(L, -2, "node");
 	push_v2s16(L, prop->spritediv);
 	lua_setfield(L, -2, "spritediv");
 	push_v2s16(L, prop->initial_sprite_basepos);
@@ -1161,8 +1182,7 @@ void push_palette(lua_State *L, const std::vector<video::SColor> *palette)
 	lua_createtable(L, palette->size(), 0);
 	int newTable = lua_gettop(L);
 	int index = 1;
-	std::vector<video::SColor>::const_iterator iter;
-	for (iter = palette->begin(); iter != palette->end(); ++iter) {
+	for (auto iter = palette->begin(); iter != palette->end(); ++iter) {
 		push_ARGB8(L, (*iter));
 		lua_rawseti(L, newTable, index);
 		index++;
@@ -1815,7 +1835,7 @@ void push_hit_params(lua_State *L,const HitParams &params)
 /******************************************************************************/
 
 bool getflagsfield(lua_State *L, int table, const char *fieldname,
-	FlagDesc *flagdesc, u32 *flags, u32 *flagmask)
+	const FlagDesc *flagdesc, u32 *flags, u32 *flagmask)
 {
 	lua_getfield(L, table, fieldname);
 
@@ -1826,7 +1846,7 @@ bool getflagsfield(lua_State *L, int table, const char *fieldname,
 	return success;
 }
 
-bool read_flags(lua_State *L, int index, FlagDesc *flagdesc,
+bool read_flags(lua_State *L, int index, const FlagDesc *flagdesc,
 	u32 *flags, u32 *flagmask)
 {
 	if (lua_isstring(L, index)) {
@@ -1841,7 +1861,7 @@ bool read_flags(lua_State *L, int index, FlagDesc *flagdesc,
 	return true;
 }
 
-u32 read_flags_table(lua_State *L, int table, FlagDesc *flagdesc, u32 *flagmask)
+u32 read_flags_table(lua_State *L, int table, const FlagDesc *flagdesc, u32 *flagmask)
 {
 	u32 flags = 0, mask = 0;
 	char fnamebuf[64] = "no";
@@ -1866,7 +1886,7 @@ u32 read_flags_table(lua_State *L, int table, FlagDesc *flagdesc, u32 *flagmask)
 	return flags;
 }
 
-void push_flags_string(lua_State *L, FlagDesc *flagdesc, u32 flags, u32 flagmask)
+void push_flags_string(lua_State *L, const FlagDesc *flagdesc, u32 flags, u32 flagmask)
 {
 	std::string flagstring = writeFlagString(flags, flagdesc, flagmask);
 	lua_pushlstring(L, flagstring.c_str(), flagstring.size());

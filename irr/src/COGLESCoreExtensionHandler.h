@@ -39,7 +39,8 @@ public:
 
 	COGLESCoreExtensionHandler() :
 			MaxAnisotropy(1), MaxIndices(0xffff),
-			MaxTextureSize(1), MaxTextureLODBias(0.f), StencilBuffer(false)
+			MaxTextureSize(1), MaxArrayTextureLayers(1),
+			MaxTextureLODBias(0.f), StencilBuffer(false)
 	{
 		for (u32 i = 0; i < IRR_OGLES_Feature_Count; ++i)
 			FeatureAvailable[i] = false;
@@ -87,6 +88,7 @@ protected:
 	u8 MaxAnisotropy;
 	u32 MaxIndices;
 	u32 MaxTextureSize;
+	u32 MaxArrayTextureLayers;
 	f32 MaxTextureLODBias;
 	//! Minimal and maximal supported thickness for lines without smoothing
 	float DimAliasedLine[2];

@@ -34,9 +34,9 @@ void FpsControl::reset()
 	last_time = porting::getTimeUs();
 }
 
-void FpsControl::limit(IrrlichtDevice *device, f32 *dtime, bool assume_paused)
+void FpsControl::limit(IrrlichtDevice *device, f32 *dtime)
 {
-	const float fps_limit = (device->isWindowFocused() && !assume_paused)
+	const float fps_limit = device->isWindowFocused()
 			? g_settings->getFloat("fps_max")
 			: g_settings->getFloat("fps_max_unfocused");
 	const u64 frametime_min = 1000000.0f / std::max(fps_limit, 1.0f);
@@ -67,14 +67,14 @@ void FpsControl::limit(IrrlichtDevice *device, f32 *dtime, bool assume_paused)
 	last_time = time;
 }
 
-class FogShaderConstantSetter : public IShaderConstantSetter
+class FogShaderUniformSetter : public IShaderUniformSetter
 {
 	CachedPixelShaderSetting<float, 4> m_fog_color{"fogColor"};
 	CachedPixelShaderSetting<float> m_fog_distance{"fogDistance"};
 	CachedPixelShaderSetting<float> m_fog_shading_parameter{"fogShadingParameter"};
 
 public:
-	void onSetConstants(video::IMaterialRendererServices *services) override
+	void onSetUniforms(video::IMaterialRendererServices *services) override
 	{
 		auto *driver = services->getVideoDriver();
 		assert(driver);
@@ -101,9 +101,9 @@ public:
 	}
 };
 
-IShaderConstantSetter *FogShaderConstantSetterFactory::create()
+IShaderUniformSetter *FogShaderUniformSetterFactory::create()
 {
-	return new FogShaderConstantSetter();
+	return new FogShaderUniformSetter();
 }
 
 /* Other helpers */

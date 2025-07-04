@@ -9,7 +9,6 @@
 #include "scripting_mainmenu.h"
 #include "gui/guiEngine.h"
 #include "gui/guiMainMenu.h"
-#include "gui/guiKeyChangeMenu.h"
 #include "gui/guiPathSelectMenu.h"
 #include "gui/touchscreeneditor.h"
 #include "version.h"
@@ -30,6 +29,11 @@
 #include "common/c_converter.h"
 #include "gui/guiOpenURL.h"
 #include "gettext.h"
+#include "log.h"
+#include "util/string.h"
+
+#include <cassert>
+#include <iostream>
 
 /******************************************************************************/
 std::string ModApiMainMenu::getTextData(lua_State *L, const std::string &name)
@@ -126,10 +130,13 @@ int ModApiMainMenu::l_start(lua_State *L)
 	data->simple_singleplayer_mode = getBoolData(L,"singleplayer",valid);
 	data->do_reconnect = getBoolData(L, "do_reconnect", valid);
 	if (!data->do_reconnect) {
-		data->name     = getTextData(L,"playername");
-		data->password = getTextData(L,"password");
-		data->address  = getTextData(L,"address");
-		data->port     = getTextData(L,"port");
+		// Get rid of trailing whitespace in name (may be added by autocompletion
+		// on Android, which would then cause SERVER_ACCESSDENIED_WRONG_CHARS_IN_NAME).
+		data->name     = trim(getTextData(L, "playername"));
+		data->password = getTextData(L, "password");
+		// There's no reason for these to have leading/trailing whitespace either.
+		data->address  = trim(getTextData(L, "address"));
+		data->port     = trim(getTextData(L, "port"));
 
 		const auto val = getTextData(L, "allow_login_or_register");
 		if (val == "login")
@@ -351,6 +358,15 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 	spec.path = path;
 	parseContentInfo(spec);
 
+	if (spec.type == "unknown") {
+		// In <=5.11.0 the API call was erroneously not documented as
+		// being able to return type "unknown".
+		// TODO inspect call sites and make sure this is handled, then we can
+		// likely remove the warning.
+		warningstream << "Requested content info has type \"unknown\" "
+				<< "(at " << path << ")" << std::endl;
+	}
+
 	lua_newtable(L);
 
 	lua_pushstring(L, spec.name.c_str());
@@ -364,11 +380,6 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 
 	lua_pushstring(L, spec.author.c_str());
 	lua_setfield(L, -2, "author");
-
-	if (!spec.title.empty()) {
-		lua_pushstring(L, spec.title.c_str());
-		lua_setfield(L, -2, "title");
-	}
 
 	lua_pushinteger(L, spec.release);
 	lua_setfield(L, -2, "release");
@@ -385,7 +396,12 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 	if (spec.type == "mod") {
 		ModSpec spec;
 		spec.path = path;
-		parseModContents(spec);
+		// Since the content was already determined to be a mod,
+		// the parsing is guaranteed to succeed unless the init.lua
+		// file happens to be deleted between the content parse and
+		// the mod parse.
+		[[maybe_unused]] bool success = parseModContents(spec);
+		assert(success);
 
 		// Dependencies
 		lua_newtable(L);
@@ -519,22 +535,6 @@ int ModApiMainMenu::l_get_content_translation(lua_State *L)
 	string = wide_to_utf8(translate_string(utf8_to_wide(string), translations));
 	lua_pushstring(L, string.c_str());
 	return 1;
-}
-
-/******************************************************************************/
-int ModApiMainMenu::l_show_keys_menu(lua_State *L)
-{
-	GUIEngine *engine = getGuiEngine(L);
-	sanity_check(engine != NULL);
-
-	GUIKeyChangeMenu *kmenu = new GUIKeyChangeMenu(
-			engine->m_rendering_engine->get_gui_env(),
-			engine->m_parent,
-			-1,
-			engine->m_menumanager,
-			engine->m_texture_source.get());
-	kmenu->drop();
-	return 0;
 }
 
 /******************************************************************************/
@@ -928,8 +928,9 @@ int ModApiMainMenu::l_get_active_renderer(lua_State *L)
 /******************************************************************************/
 int ModApiMainMenu::l_get_active_irrlicht_device(lua_State *L)
 {
-	const char *device_name = [] {
-		switch (RenderingEngine::get_raw_device()->getType()) {
+	auto device = RenderingEngine::get_raw_device();
+	std::string device_name = [device] {
+		switch (device->getType()) {
 		case EIDT_WIN32: return "WIN32";
 		case EIDT_X11: return "X11";
 		case EIDT_OSX: return "OSX";
@@ -938,7 +939,9 @@ int ModApiMainMenu::l_get_active_irrlicht_device(lua_State *L)
 		default: return "Unknown";
 		}
 	}();
-	lua_pushstring(L, device_name);
+	if (auto version = device->getVersionString(); !version.empty())
+		device_name.append(" " + version);
+	lua_pushstring(L, device_name.c_str());
 	return 1;
 }
 
@@ -1050,7 +1053,6 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(get_content_translation);
 	API_FCT(start);
 	API_FCT(close);
-	API_FCT(show_keys_menu);
 	API_FCT(show_touchscreen_layout);
 	API_FCT(create_world);
 	API_FCT(delete_world);
@@ -1087,6 +1089,9 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_dir);
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
+
+	lua_pushboolean(L, g_first_run);
+	lua_setfield(L, top, "is_first_run");
 }
 
 /******************************************************************************/

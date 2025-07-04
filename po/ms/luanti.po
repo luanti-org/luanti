@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Malay (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 13:23+0100\n"
+"POT-Creation-Date: 2025-05-14 23:02+0200\n"
 "PO-Revision-Date: 2024-11-28 13:00+0000\n"
 "Last-Translator: Muhammad Nuruddin <nuruddin6106@gmail.com>\n"
 "Language-Team: Malay <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -82,8 +82,17 @@ msgid "Browse"
 msgstr "Layar"
 
 #: builtin/common/settings/components.lua
+msgid "Conflicts with \"$1\""
+msgstr ""
+
+#: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "Sunting"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Remove keybinding"
+msgstr "Ikatan kekunci."
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -111,8 +120,8 @@ msgstr "Hingar 2D"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
+#: src/gui/guiPasswordChange.cpp
 msgid "Cancel"
 msgstr "Batal"
 
@@ -134,7 +143,7 @@ msgid "Persistence"
 msgstr "Penerusan"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "Save"
 msgstr "Simpan"
 
@@ -210,8 +219,18 @@ msgstr "Ketercapaian"
 msgid "Auto"
 msgstr "Automatik"
 
-#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+msgid "Back"
+msgstr "Kembali"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Buttons with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
+#: src/settings_translation_file.cpp
 msgid "Chat"
 msgstr "Sembang"
 
@@ -237,6 +256,10 @@ msgid "General"
 msgstr "Umum"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Long tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
 msgstr "Pergerakan"
 
@@ -258,6 +281,10 @@ msgid "Search"
 msgstr "Cari"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Short tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
 msgstr "Tunjuk tetapan lanjutan"
 
@@ -267,13 +294,17 @@ msgstr "Tunjuk nama teknikal"
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "Touchscreen layout"
-msgstr "Skrin Sentuh"
+msgid "Tap"
+msgstr "Tab"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Tap with crosshair"
+msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "pause_menu"
-msgstr "FPS di menu jeda"
+msgid "Touchscreen layout"
+msgstr "Skrin Sentuh"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -405,11 +436,6 @@ msgid "All"
 msgstr "Semua"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Back"
-msgstr "Kembali"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr "ContentDB tidak tersedia apabila Minetest dikompil tanpa cURL"
@@ -438,7 +464,6 @@ msgid "Mods"
 msgstr "Mods"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "Tiada pakej yang boleh diambil"
 
@@ -544,6 +569,15 @@ msgid "Donate"
 msgstr "Derma"
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading package information"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "Error loading reviews"
+msgstr "Ralat dalam mencipta klien: %s"
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
 msgstr "Topik Forum"
 
@@ -560,6 +594,10 @@ msgstr "Pasang $1"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
 msgstr "Penjejak Isu"
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Reviews"
+msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -616,7 +654,7 @@ msgstr "Tidak mampu memasang $1 sebagai pek tekstur"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
-"This is the list of clients connected to\n"
+"Players connected to\n"
 "$1"
 msgstr ""
 
@@ -904,6 +942,32 @@ msgstr "pkgmgr: laluan tidak sah \"$1\""
 #: builtin/mainmenu/dlg_delete_world.lua
 msgid "Delete World \"$1\"?"
 msgstr "Padam Dunia \"$1\"?"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Keybindings changed"
+msgstr "Ikatan kekunci."
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Open settings"
+msgstr "Tetapan"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr ""
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1223,13 +1287,6 @@ msgid "Address"
 msgstr "Alamat"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
-msgid ""
-"Clients:\n"
-"$1"
-msgstr "Klien"
-
-#: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
 msgstr "Mod Kreatif"
 
@@ -1272,6 +1329,13 @@ msgstr "Langkah pelayan khusus"
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
+
+#: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Players:\n"
+"$1"
+msgstr "Klien"
 
 #: builtin/mainmenu/tab_online.lua
 msgid ""
@@ -2110,6 +2174,11 @@ msgstr ""
 msgid "Some mods have unsatisfied dependencies:"
 msgstr "Sesetengah mods mempunyai kebergantungan yang tidak dipenuhi:"
 
+#: src/gui/guiButtonKey.h
+#, fuzzy
+msgid "Press Button"
+msgstr "Butang Kiri"
+
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
 msgstr "Gagal buka laman sesawang"
@@ -2121,162 +2190,6 @@ msgstr "Membuka laman sesawang"
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
 msgstr "Teruskan"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "\"Aux1\" = climb down"
-msgstr "\"Aux1\" = panjat turun"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Autoforward"
-msgstr "Autopergerakan"
-
-#: src/gui/guiKeyChangeMenu.cpp src/settings_translation_file.cpp
-msgid "Automatic jumping"
-msgstr "Lompat automatik"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Aux1"
-msgstr "Aux1"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Backward"
-msgstr "Ke Belakang"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Block bounds"
-msgstr "Batas blok"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Change camera"
-msgstr "Tukar kamera"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Command"
-msgstr "Perintah"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Console"
-msgstr "Konsol"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. range"
-msgstr "Kurangkan jarak"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. volume"
-msgstr "Perlahankan bunyi"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Double tap \"jump\" to toggle fly"
-msgstr "Ketik berganda \"lompat\" untuk menogol terbang"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Drop"
-msgstr "Jatuhkan"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Forward"
-msgstr "Ke Depan"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. range"
-msgstr "Naikkan jarak"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. volume"
-msgstr "Kuatkan bunyi"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Inventory"
-msgstr "Inventori"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Jump"
-msgstr "Lompat"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Key already in use"
-msgstr "Kekunci telah digunakan untuk fungsi lain"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Keybindings."
-msgstr "Ikatan kekunci."
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Left"
-msgstr "Ke Kiri"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Local command"
-msgstr "Perintah tempatan"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Mute"
-msgstr "Bisu"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Next item"
-msgstr "Item seterusnya"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Prev. item"
-msgstr "Item sebelumnya"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Range select"
-msgstr "Jarak Pemilihan"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Right"
-msgstr "Ke Kanan"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Screenshot"
-msgstr "Tangkap layar"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Sneak"
-msgstr "Selinap"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle HUD"
-msgstr "Togol papar pandu (HUD)"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle chat log"
-msgstr "Togol log sembang"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fast"
-msgstr "Togol pergerakan pantas"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fly"
-msgstr "Togol Terbang"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle fog"
-msgstr "Togol kabut"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle minimap"
-msgstr "Togol peta mini"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle noclip"
-msgstr "Togol tembus blok"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle pitchmove"
-msgstr "Togol pergerakan mencuram"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Zoom"
-msgstr "Zum"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "press key"
-msgstr "tekan kekunci"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
@@ -2305,10 +2218,6 @@ msgstr "Kata Laluan Lama"
 #: src/gui/guiPasswordChange.cpp
 msgid "Passwords do not match!"
 msgstr "Kata laluan tidak padan!"
-
-#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
-msgid "Exit"
-msgstr "Keluar"
 
 #: src/gui/guiVolumeChange.cpp
 msgid "Muted"
@@ -2350,19 +2259,84 @@ msgstr ""
 msgid "Tap outside to deselect."
 msgstr ""
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Aux1"
+msgstr "Aux1"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Change camera"
+msgstr "Tukar kamera"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Dig/punch/use"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Drop"
+msgstr "Jatuhkan"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "Keluar"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Inventory"
+msgstr "Inventori"
+
 #: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Joystick"
 msgstr "ID Kayu Bedik"
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Jump"
+msgstr "Lompat"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr "Menu tambahan"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#, fuzzy
+msgid "Place/use"
+msgstr "Kekunci letak"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Range select"
+msgstr "Jarak Pemilihan"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Sneak"
+msgstr "Selinap"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle chat log"
+msgstr "Togol log sembang"
 
 #: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "Togol kabut"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fast"
+msgstr "Togol pergerakan pantas"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fly"
+msgstr "Togol Terbang"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle minimap"
+msgstr "Togol peta mini"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle noclip"
+msgstr "Togol tembus blok"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Zoom"
+msgstr "Zum"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2856,6 +2830,10 @@ msgid "Audio"
 msgstr "Audio"
 
 #: src/settings_translation_file.cpp
+msgid "Automatic jumping"
+msgstr "Lompat automatik"
+
+#: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
 msgstr "Lompat halangan satu-nod secara automatik."
 
@@ -3069,6 +3047,11 @@ msgid "Client"
 msgstr "Klien"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Client Debugging"
+msgstr "Nyahpepijat"
+
+#: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
 msgstr "Saiz Ketulan Jejaring Klien"
 
@@ -3168,6 +3151,10 @@ msgstr ""
 "mencapai fungsi\n"
 "tidak selamat walaupun ketika keselamatan mods diaktifkan (melalui "
 "request_insecure_environment())."
+
+#: src/settings_translation_file.cpp
+msgid "Command"
+msgstr "Perintah"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3317,6 +3304,16 @@ msgid ""
 "Reducing this can improve performance, but some effects (e.g. debanding)\n"
 "require more than 8 bits to work."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease view range"
+msgstr "Kurangkan jarak"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease volume"
+msgstr "Perlahankan bunyi"
 
 #: src/settings_translation_file.cpp
 msgid "Dedicated server step"
@@ -3542,6 +3539,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Drop item"
+msgstr "Kekunci jatuhkan item"
+
+#: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
 msgstr "Longgokkan maklumat nyahpepijat janapeta."
 
@@ -3585,6 +3587,13 @@ msgid ""
 msgstr ""
 "Membolehkan sokongan IPv6 (untuk kedua-dua klien dan pelayan).\n"
 "Diperlukan sekiranya ingin menggunakan sambungan IPv6."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Enable IPv6 support for server.\n"
+"Note that clients will be able to connect with both IPv4 and IPv6.\n"
+"Ignored if bind_address is set."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3719,16 +3728,6 @@ msgstr ""
 "Contohnya: 0 untuk tiada apungan; 1.0 untuk biasa; 2.0 untuk dua kali ganda."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid ""
-"Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set."
-msgstr ""
-"Membolehkan/melumpuhkan penjalanan pelayan IPv6.\n"
-"Diabaikan jika tetapan bind_address ditetapkan.\n"
-"Memerlukan tetapan enable_ipv6 dibolehkan."
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Enables Hable's 'Uncharted 2' filmic tone mapping.\n"
 "Simulates the tone curve of photographic film and how this approximates the\n"
@@ -3817,16 +3816,13 @@ msgid "FPS"
 msgstr "FPS"
 
 #: src/settings_translation_file.cpp
-msgid "FPS when unfocused or paused"
+#, fuzzy
+msgid "FPS when unfocused"
 msgstr "Bingkai per saat (FPS) apabila permainan hilang fokus atau dijedakan"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
 msgstr "Hingar faktor"
-
-#: src/settings_translation_file.cpp
-msgid "Fall bobbing factor"
-msgstr "Faktor apungan kejatuhan"
 
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
@@ -4264,12 +4260,182 @@ msgstr ""
 "dalam unit nod per saat per saat."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 1"
+msgstr "Kekunci slot hotbar 1"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 10"
+msgstr "Kekunci slot hotbar 10"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 11"
+msgstr "Kekunci slot hotbar 11"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 12"
+msgstr "Kekunci slot hotbar 12"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 13"
+msgstr "Kekunci slot hotbar 13"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 14"
+msgstr "Kekunci slot hotbar 14"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 15"
+msgstr "Kekunci slot hotbar 15"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 16"
+msgstr "Kekunci slot hotbar 16"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 17"
+msgstr "Kekunci slot hotbar 17"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 18"
+msgstr "Kekunci slot hotbar 18"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 19"
+msgstr "Kekunci slot hotbar 19"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 2"
+msgstr "Kekunci slot hotbar 2"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 20"
+msgstr "Kekunci slot hotbar 20"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 21"
+msgstr "Kekunci slot hotbar 21"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 22"
+msgstr "Kekunci slot hotbar 22"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 23"
+msgstr "Kekunci slot hotbar 23"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 24"
+msgstr "Kekunci slot hotbar 24"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 25"
+msgstr "Kekunci slot hotbar 25"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 26"
+msgstr "Kekunci slot hotbar 26"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 27"
+msgstr "Kekunci slot hotbar 27"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 28"
+msgstr "Kekunci slot hotbar 28"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 29"
+msgstr "Kekunci slot hotbar 29"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 3"
+msgstr "Kekunci slot hotbar 3"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 30"
+msgstr "Kekunci slot hotbar 30"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 31"
+msgstr "Kekunci slot hotbar 31"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 32"
+msgstr "Kekunci slot hotbar 32"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 4"
+msgstr "Kekunci slot hotbar 4"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 5"
+msgstr "Kekunci slot hotbar 5"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 6"
+msgstr "Kekunci slot hotbar 6"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 7"
+msgstr "Kekunci slot hotbar 7"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 8"
+msgstr "Kekunci slot hotbar 8"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 9"
+msgstr "Kekunci slot hotbar 9"
+
+#: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
 msgstr "Hotbar: Membolehkan roda tetikus untuk pemilihan"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
 msgstr "Hotbar: Songsangkan arah roda tetikus"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select next item"
+msgstr "Kekunci item seterusnya dalam hotbar"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select previous item"
+msgstr "Kekunci item sebelumnya dalam hotbar"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4398,6 +4564,16 @@ msgstr ""
 "masuk."
 
 #: src/settings_translation_file.cpp
+msgid "If enabled, the \"Aux1\" key will toggle when pressed."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, the \"Sneak\" key will toggle when pressed.\n"
+"This functionality is ignored when fly is enabled."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4477,6 +4653,16 @@ msgstr ""
 "(100%)."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase view range"
+msgstr "Naikkan jarak"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase volume"
+msgstr "Kuatkan bunyi"
+
+#: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
 msgstr "Kelajuan menegak awal ketika melompat, dalam unit nod per saat."
 
@@ -4514,6 +4700,11 @@ msgstr "Memasang fungsi perbuatan Pengubah Blok Pemuatan ketika pendaftaran."
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
 msgstr "Memasang kaedah entiti ketika pendaftaran."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Interaction style"
+msgstr "Lelaran"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
@@ -4657,6 +4848,343 @@ msgid "Jumping speed"
 msgstr "Kelajuan melompat"
 
 #: src/settings_translation_file.cpp
+msgid "Key for decreasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decreasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for decrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for digging, punching or using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for dropping the currently selected item."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the viewing range."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for increasing the volume."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for incrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for jumping."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving fast in fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for moving the player backward.\n"
+"Will also disable autoforward, when active."
+msgstr ""
+"Kekunci untuk menggerakkan pemain ke belakang.\n"
+"Juga akan melumpuhkan autopergerakan, apabila aktif.\n"
+"Lihat http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player forward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player left."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving the player right."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for muting the game."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type local commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the inventory."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for placing an item/block or for using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 11th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 12th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 13th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 14th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 15th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 16th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 17th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 18th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 19th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 20th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 21st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 22nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 23rd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 24th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 25th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 26th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 27th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 28th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 29th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 30th hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 31st hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the 32nd hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the eighth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fifth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the first hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the fourth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the next item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the ninth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the previous item in the hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the second hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the seventh hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the sixth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the tenth hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for selecting the third hotbar slot."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Key for sneaking.\n"
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"Kekunci untuk menyelinap.\n"
+"Juga digunakan untuk turun bawah ketika memanjat dan dalam air jika tetapan "
+"aux1_descends dilumpuhkan.\n"
+"Lihat http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching between first- and third-person camera."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the next entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the previous entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for taking screenshots."
+msgstr "Format yang digunakan untuk tangkap layar."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling autoforward."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling cinematic mode."
+msgstr "Pelembutan kamera dalam mod sinematik"
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling display of minimap."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling flying."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling fullscreen mode."
+msgstr "Mod skrin penuh."
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling noclip mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling pitch move mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of chat."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of debug info."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of fog."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of mapblock boundaries."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the HUD."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the large chat console."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the profiler. Used for development."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Key for toggling unlimited view range."
+msgstr "Jarak pandang tanpa had dilumpuhkan"
+
+#: src/settings_translation_file.cpp
+msgid "Key to use view zoom when possible."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keybindings"
+msgstr "Ikatan kekunci."
+
+#: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
 msgstr "Papan Kekunci dan Tetikus"
 
@@ -4691,6 +5219,11 @@ msgstr "Jumlah minimum gua besar"
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr "Perkadaran gua besar dibanjiri"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Large chat console"
+msgstr "Kekunci konsol sembang besar"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -4872,6 +5405,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
 msgstr "Memuatkan Pengubah Blok"
+
+#: src/settings_translation_file.cpp
+msgid "Local command"
+msgstr "Perintah tempatan"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -5091,7 +5628,8 @@ msgid "Maximum FPS"
 msgstr "FPS maksima"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum FPS when the window is not focused, or when the game is paused."
+#, fuzzy
+msgid "Maximum FPS when the window is not focused."
 msgstr ""
 "Bingkai per saat (FPS) maksimum apabila tetingkap tidak difokuskan, atau "
 "apabila permainan dijedakan."
@@ -5167,10 +5705,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of mapblocks for client to be kept in memory.\n"
-"Set to -1 for unlimited amount."
+"Note that there is an internal dynamic minimum number of blocks that\n"
+"won't be deleted, depending on the current view range.\n"
+"Set to -1 for no limit."
 msgstr ""
-"Jumlah blok peta maksimum yang klien boleh simpan dalam ingatan.\n"
-"Tetapkan kepada -1 untuk jumlah tanpa had."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5214,12 +5752,14 @@ msgid "Maximum simultaneous block sends per client"
 msgstr "Jumlah blok maksimum yang dihantar serentak kepada setiap klien"
 
 #: src/settings_translation_file.cpp
-msgid "Maximum size of the outgoing chat queue"
+#, fuzzy
+msgid "Maximum size of the client's outgoing chat queue"
 msgstr "Saiz maksimum baris gilir keluar sembang"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Maximum size of the outgoing chat queue.\n"
+"Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
 "Saiz maksimum baris gilir keluar sembang.\n"
@@ -5343,6 +5883,25 @@ msgid "Mouse sensitivity multiplier."
 msgstr "Pendarab kepekaan tetikus."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move backward"
+msgstr "Ke Belakang"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move forward"
+msgstr "Autopergerakan"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move left"
+msgstr "Pergerakan"
+
+#: src/settings_translation_file.cpp
+msgid "Move right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Movement threshold"
 msgstr "Nilai ambang pergerakan"
 
@@ -5351,12 +5910,8 @@ msgid "Mud noise"
 msgstr "Hingar lumpur"
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Multiplier for fall bobbing.\n"
-"For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-msgstr ""
-"Pendarab untuk apungan timbul tenggelam.\n"
-"Contohnya: 0 untuk tiada apungan; 1.0 untuk biasa; 2.0 untuk dua kali ganda."
+msgid "Mute"
+msgstr "Bisu"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5499,6 +6054,16 @@ msgstr "Penakaian Oklusi"
 msgid ""
 "Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
 msgstr "Kelegapan (alfa) bayang belakang fon lalai, nilai antara 0 dan 255."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open chat"
+msgstr "Buka"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open inventory"
+msgstr "Inventori"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5646,9 +6211,10 @@ msgstr "Alamat pendengar Prometheus"
 #, fuzzy
 msgid ""
 "Prometheus listener address.\n"
-"If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
-"enable metrics listener for Prometheus on that address.\n"
-"Metrics can be fetched on http://127.0.0.1:30000/metrics"
+"If Luanti is compiled with Prometheus support, this setting\n"
+"enables the metrics listener for Prometheus on that address.\n"
+"By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
+"An empty value disables the metrics listener."
 msgstr ""
 "Alamat pendengar Prometheus.\n"
 "Jika Minetest dikompil dengan pilihan ENABLE_PROMETHEUS dibolehkan,\n"
@@ -5666,6 +6232,22 @@ msgstr "Versi protokol minimum"
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
 msgstr "Gerak isyarat ketuk"
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: decrement value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: increment value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select next entry"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select previous entry"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5862,6 +6444,10 @@ msgstr "Tinggi skrin"
 #: src/settings_translation_file.cpp
 msgid "Screen width"
 msgstr "Lebar skrin"
+
+#: src/settings_translation_file.cpp
+msgid "Screenshot"
+msgstr "Tangkap layar"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot folder"
@@ -6596,10 +7182,10 @@ msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
 "\n"
-"* short_tap\n"
+"* Short tap\n"
 "Easy to use and well-known from other games that shall not be named.\n"
 "\n"
-"* long_tap\n"
+"* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
@@ -6617,6 +7203,23 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
 msgstr "Pengenal pasti kayu bedik yang digunakan"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The kind of digging/placing controls used.\n"
+"\n"
+"* Tap\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at finger position.\n"
+"\n"
+"* Tap with crosshair\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at crosshair position.\n"
+"\n"
+"* Buttons with crosshair\n"
+"Use dedicated dig/place buttons to interact.\n"
+"Interaction happens at crosshair position."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6804,6 +7407,68 @@ msgstr ""
 "mengalihkan sesebuah nod."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Aux1 key"
+msgstr "Kekunci Aux1"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle HUD"
+msgstr "Togol papar pandu (HUD)"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Sneak key"
+msgstr "Kekunci togol mod kamera"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle automatic forward"
+msgstr "Kekunci autopergerakan"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle block bounds"
+msgstr "Batas blok"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera mode"
+msgstr "Kekunci togol mod kamera"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera update"
+msgstr "Kekunci togol mod kamera"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle cinematic mode"
+msgstr "Togol Sinematik"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle debug info"
+msgstr "Togol kabut"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fog"
+msgstr "Togol kabut"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle fullscreen"
+msgstr "Togol Terbang"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle pitchmove"
+msgstr "Togol pergerakan mencuram"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle profiler"
+msgstr "Togol Terbang"
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Tolerance of movement cheat detector.\n"
 "Increase the value if players experience stuttery movement."
@@ -6968,19 +7633,6 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Use bilinear filtering when scaling textures."
 msgstr "Gunakan penapisan bilinear apabila menyesuaikan tekstur."
-
-#: src/settings_translation_file.cpp
-msgid "Use crosshair for touch screen"
-msgstr "Gunakan rerambut silang untuk skrin sentuh"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Use crosshair to select object instead of whole screen.\n"
-"If enabled, a crosshair will be shown and will be used for selecting object."
-msgstr ""
-"Gunakan rerambut silang untuk memilih objek menggantikan keseluruhan skrin.\n"
-"Jika dibolehkan, rerambut silang akan ditunjukkan dan akan digunakan untuk "
-"memilih objek."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7354,11 +8006,12 @@ msgid "World start time"
 msgstr "Masa mula dunia"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
 "a specially-designed texture pack; with this option, the client tries\n"
-"to determine the scale automatically basing on the texture size.\n"
+"to determine the scale automatically based on the texture size.\n"
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
@@ -7442,6 +8095,9 @@ msgstr "Had masa saling tindak cURL"
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr "Had cURL selari"
+
+#~ msgid "\"Aux1\" = climb down"
+#~ msgstr "\"Aux1\" = panjat turun"
 
 #~ msgid "(game support required)"
 #~ msgstr "(sokongan permainan diperlukan)"
@@ -7556,14 +8212,8 @@ msgstr "Had cURL selari"
 #~ msgid "Are you sure to reset your singleplayer world?"
 #~ msgstr "Adakah anda mahu set semula dunia pemain perseorangan?"
 
-#~ msgid "Automatic forward key"
-#~ msgstr "Kekunci autopergerakan"
-
 #~ msgid "Autosave Screen Size"
 #~ msgstr "Autosimpan Saiz Skrin"
-
-#~ msgid "Aux1 key"
-#~ msgstr "Kekunci Aux1"
 
 #~ msgid "Back to Main Menu"
 #~ msgstr "Kembali ke Menu Utama"
@@ -7676,6 +8326,9 @@ msgstr "Had cURL selari"
 
 #~ msgid "Connected Glass"
 #~ msgstr "Kaca Bersambungan"
+
+#~ msgid "Console"
+#~ msgstr "Konsol"
 
 #~ msgid "Continuous forward"
 #~ msgstr "Ke depan berterusan"
@@ -7841,11 +8494,11 @@ msgstr "Had cURL selari"
 #~ msgid "Disable anticheat"
 #~ msgstr "Melumpuhkan antitipu"
 
-#~ msgid "Disabled unlimited viewing range"
-#~ msgstr "Jarak pandang tanpa had dilumpuhkan"
-
 #~ msgid "Don't show \"reinstall Minetest Game\" notification"
 #~ msgstr "Jangan tunjuk pemberitahuan \"pasang semula Minetest Game\""
+
+#~ msgid "Double tap \"jump\" to toggle fly"
+#~ msgstr "Ketik berganda \"lompat\" untuk menogol terbang"
 
 #~ msgid "Down"
 #~ msgstr "Bawah"
@@ -7858,9 +8511,6 @@ msgstr "Had cURL selari"
 
 #~ msgid "Downloading and installing $1, please wait..."
 #~ msgstr "Sedang muat turun dan memasang $1, sila tunggu..."
-
-#~ msgid "Drop item key"
-#~ msgstr "Kekunci jatuhkan item"
 
 #~ msgid "Dynamic shadows:"
 #~ msgstr "Bayang dinamik:"
@@ -7890,6 +8540,15 @@ msgstr "Had cURL selari"
 #~ msgstr ""
 #~ "Membolehkan objek penimbal bucu.\n"
 #~ "Ini patut meningkatkan prestasi grafik dengan banyak."
+
+#, fuzzy
+#~ msgid ""
+#~ "Enable/disable running an IPv6 server.\n"
+#~ "Ignored if bind_address is set."
+#~ msgstr ""
+#~ "Membolehkan/melumpuhkan penjalanan pelayan IPv6.\n"
+#~ "Diabaikan jika tetapan bind_address ditetapkan.\n"
+#~ "Memerlukan tetapan enable_ipv6 dibolehkan."
 
 #~ msgid ""
 #~ "Enables bumpmapping for textures. Normalmaps need to be supplied by the "
@@ -7960,6 +8619,9 @@ msgstr "Had cURL selari"
 
 #~ msgid "FSAA"
 #~ msgstr "FSAA"
+
+#~ msgid "Fall bobbing factor"
+#~ msgstr "Faktor apungan kejatuhan"
 
 #~ msgid "Fallback font shadow"
 #~ msgstr "Bayang fon berbalik"
@@ -8035,6 +8697,9 @@ msgstr "Had cURL selari"
 #~ msgid "Formspec default background opacity (between 0 and 255)."
 #~ msgstr "Kelegapan asal latar belakang formspec (antara 0 dan 255)."
 
+#~ msgid "Forward"
+#~ msgstr "Ke Depan"
+
 #~ msgid "Forward key"
 #~ msgstr "Kekunci ke depan"
 
@@ -8067,108 +8732,6 @@ msgstr "Had cURL selari"
 
 #~ msgid "High-precision FPU"
 #~ msgstr "Unit titik terapung (FPU) ketepatan tinggi"
-
-#~ msgid "Hotbar next key"
-#~ msgstr "Kekunci item seterusnya dalam hotbar"
-
-#~ msgid "Hotbar previous key"
-#~ msgstr "Kekunci item sebelumnya dalam hotbar"
-
-#~ msgid "Hotbar slot 1 key"
-#~ msgstr "Kekunci slot hotbar 1"
-
-#~ msgid "Hotbar slot 10 key"
-#~ msgstr "Kekunci slot hotbar 10"
-
-#~ msgid "Hotbar slot 11 key"
-#~ msgstr "Kekunci slot hotbar 11"
-
-#~ msgid "Hotbar slot 12 key"
-#~ msgstr "Kekunci slot hotbar 12"
-
-#~ msgid "Hotbar slot 13 key"
-#~ msgstr "Kekunci slot hotbar 13"
-
-#~ msgid "Hotbar slot 14 key"
-#~ msgstr "Kekunci slot hotbar 14"
-
-#~ msgid "Hotbar slot 15 key"
-#~ msgstr "Kekunci slot hotbar 15"
-
-#~ msgid "Hotbar slot 16 key"
-#~ msgstr "Kekunci slot hotbar 16"
-
-#~ msgid "Hotbar slot 17 key"
-#~ msgstr "Kekunci slot hotbar 17"
-
-#~ msgid "Hotbar slot 18 key"
-#~ msgstr "Kekunci slot hotbar 18"
-
-#~ msgid "Hotbar slot 19 key"
-#~ msgstr "Kekunci slot hotbar 19"
-
-#~ msgid "Hotbar slot 2 key"
-#~ msgstr "Kekunci slot hotbar 2"
-
-#~ msgid "Hotbar slot 20 key"
-#~ msgstr "Kekunci slot hotbar 20"
-
-#~ msgid "Hotbar slot 21 key"
-#~ msgstr "Kekunci slot hotbar 21"
-
-#~ msgid "Hotbar slot 22 key"
-#~ msgstr "Kekunci slot hotbar 22"
-
-#~ msgid "Hotbar slot 23 key"
-#~ msgstr "Kekunci slot hotbar 23"
-
-#~ msgid "Hotbar slot 24 key"
-#~ msgstr "Kekunci slot hotbar 24"
-
-#~ msgid "Hotbar slot 25 key"
-#~ msgstr "Kekunci slot hotbar 25"
-
-#~ msgid "Hotbar slot 26 key"
-#~ msgstr "Kekunci slot hotbar 26"
-
-#~ msgid "Hotbar slot 27 key"
-#~ msgstr "Kekunci slot hotbar 27"
-
-#~ msgid "Hotbar slot 28 key"
-#~ msgstr "Kekunci slot hotbar 28"
-
-#~ msgid "Hotbar slot 29 key"
-#~ msgstr "Kekunci slot hotbar 29"
-
-#~ msgid "Hotbar slot 3 key"
-#~ msgstr "Kekunci slot hotbar 3"
-
-#~ msgid "Hotbar slot 30 key"
-#~ msgstr "Kekunci slot hotbar 30"
-
-#~ msgid "Hotbar slot 31 key"
-#~ msgstr "Kekunci slot hotbar 31"
-
-#~ msgid "Hotbar slot 32 key"
-#~ msgstr "Kekunci slot hotbar 32"
-
-#~ msgid "Hotbar slot 4 key"
-#~ msgstr "Kekunci slot hotbar 4"
-
-#~ msgid "Hotbar slot 5 key"
-#~ msgstr "Kekunci slot hotbar 5"
-
-#~ msgid "Hotbar slot 6 key"
-#~ msgstr "Kekunci slot hotbar 6"
-
-#~ msgid "Hotbar slot 7 key"
-#~ msgstr "Kekunci slot hotbar 7"
-
-#~ msgid "Hotbar slot 8 key"
-#~ msgstr "Kekunci slot hotbar 8"
-
-#~ msgid "Hotbar slot 9 key"
-#~ msgstr "Kekunci slot hotbar 9"
 
 #~ msgid "IPv6 support."
 #~ msgstr "Sokongan IPv6."
@@ -8232,6 +8795,9 @@ msgstr "Had cURL selari"
 
 #~ msgid "Jump key"
 #~ msgstr "Kekunci lompat"
+
+#~ msgid "Key already in use"
+#~ msgstr "Kekunci telah digunakan untuk fungsi lain"
 
 #~ msgid ""
 #~ "Key for decreasing the viewing range.\n"
@@ -8302,17 +8868,6 @@ msgstr "Had cURL selari"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 #~ msgstr ""
 #~ "Kekunci untuk bergerak pantas dalam mod pergerakan pantas.\n"
-#~ "Lihat http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player backward.\n"
-#~ "Will also disable autoforward, when active.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Kekunci untuk menggerakkan pemain ke belakang.\n"
-#~ "Juga akan melumpuhkan autopergerakan, apabila aktif.\n"
 #~ "Lihat http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
@@ -8704,19 +9259,6 @@ msgstr "Had cURL selari"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #~ msgid ""
-#~ "Key for sneaking.\n"
-#~ "Also used for climbing down and descending in water if aux1_descends is "
-#~ "disabled.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Kekunci untuk menyelinap.\n"
-#~ "Juga digunakan untuk turun bawah ketika memanjat dan dalam air jika "
-#~ "tetapan aux1_descends dilumpuhkan.\n"
-#~ "Lihat http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
 #~ "Key for switching between first- and third-person camera.\n"
 #~ "See http://irrlicht.sourceforge.net/docu/"
 #~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
@@ -8885,9 +9427,6 @@ msgstr "Had cURL selari"
 #~ "Ikatan kekunci. (Jika menu ini berselerak, buang sesetengah benda dari "
 #~ "fail minetest.conf)"
 
-#~ msgid "Large chat console key"
-#~ msgstr "Kekunci konsol sembang besar"
-
 #~ msgid "Last known version update"
 #~ msgstr "Kemas kini versi terakhir yang diketahui"
 
@@ -8896,6 +9435,9 @@ msgstr "Had cURL selari"
 
 #~ msgid "Lava depth"
 #~ msgstr "Kedalaman lava"
+
+#~ msgid "Left"
+#~ msgstr "Ke Kiri"
 
 #~ msgid "Left key"
 #~ msgstr "Kekunci ke kiri"
@@ -8938,6 +9480,13 @@ msgstr "Had cURL selari"
 
 #~ msgid "Mapblock mesh generator's MapBlock cache size in MB"
 #~ msgstr "Saiz cache BlokPeta untuk penjana jejaring blokpeta dalam unit MB"
+
+#~ msgid ""
+#~ "Maximum number of mapblocks for client to be kept in memory.\n"
+#~ "Set to -1 for unlimited amount."
+#~ msgstr ""
+#~ "Jumlah blok peta maksimum yang klien boleh simpan dalam ingatan.\n"
+#~ "Tetapkan kepada -1 untuk jumlah tanpa had."
 
 #~ msgid ""
 #~ "Maximum number of packets sent per send step, if you have a slow "
@@ -8984,6 +9533,14 @@ msgstr "Had cURL selari"
 #~ msgid "Misc"
 #~ msgstr "Lain-lain"
 
+#~ msgid ""
+#~ "Multiplier for fall bobbing.\n"
+#~ "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
+#~ msgstr ""
+#~ "Pendarab untuk apungan timbul tenggelam.\n"
+#~ "Contohnya: 0 untuk tiada apungan; 1.0 untuk biasa; 2.0 untuk dua kali "
+#~ "ganda."
+
 #~ msgid "Mute key"
 #~ msgstr "Kekunci bisu"
 
@@ -8995,6 +9552,9 @@ msgstr "Had cURL selari"
 
 #~ msgid "Near plane"
 #~ msgstr "Dekat satah"
+
+#~ msgid "Next item"
+#~ msgstr "Item seterusnya"
 
 #~ msgid "No"
 #~ msgstr "Tidak"
@@ -9091,9 +9651,6 @@ msgstr "Had cURL selari"
 #~ msgid "Pitch move mode"
 #~ msgstr "Mod pergerakan pic"
 
-#~ msgid "Place key"
-#~ msgstr "Kekunci letak"
-
 #~ msgid ""
 #~ "Player is able to fly without being affected by gravity.\n"
 #~ "This requires the \"fly\" privilege on the server."
@@ -9120,6 +9677,9 @@ msgstr "Had cURL selari"
 #~ "Port untuk menyambung (UDP).\n"
 #~ "Ambil perhatian bahawa medan port dalam menu utama mengatasi tetapan ini."
 
+#~ msgid "Prev. item"
+#~ msgstr "Item sebelumnya"
+
 #~ msgid "Profiler toggle key"
 #~ msgstr "Kekunci togol pembukah"
 
@@ -9140,6 +9700,9 @@ msgstr "Had cURL selari"
 
 #~ msgid "Reset singleplayer world"
 #~ msgstr "Set semula dunia pemain perseorangan"
+
+#~ msgid "Right"
+#~ msgstr "Ke Kanan"
 
 #~ msgid "Right key"
 #~ msgstr "Kekunci ke kanan"
@@ -9293,12 +9856,6 @@ msgstr "Had cURL selari"
 #~ msgid "To enable shaders the OpenGL driver needs to be used."
 #~ msgstr "Untuk membolehkan pembayang, pemacu OpenGL mesti digunakan."
 
-#~ msgid "Toggle Cinematic"
-#~ msgstr "Togol Sinematik"
-
-#~ msgid "Toggle camera mode key"
-#~ msgstr "Kekunci togol mod kamera"
-
 #~ msgid "Tone Mapping"
 #~ msgstr "Pemetaan Tona"
 
@@ -9337,6 +9894,19 @@ msgstr "Had cURL selari"
 
 #~ msgid "Use bilinear filtering when scaling textures down."
 #~ msgstr "Gunakan penapisan bilinear apabila menyesuaiturunkan tekstur."
+
+#~ msgid "Use crosshair for touch screen"
+#~ msgstr "Gunakan rerambut silang untuk skrin sentuh"
+
+#~ msgid ""
+#~ "Use crosshair to select object instead of whole screen.\n"
+#~ "If enabled, a crosshair will be shown and will be used for selecting "
+#~ "object."
+#~ msgstr ""
+#~ "Gunakan rerambut silang untuk memilih objek menggantikan keseluruhan "
+#~ "skrin.\n"
+#~ "Jika dibolehkan, rerambut silang akan ditunjukkan dan akan digunakan "
+#~ "untuk memilih objek."
 
 #~ msgid ""
 #~ "Use multi-sample antialiasing (MSAA) to smooth out block edges.\n"
@@ -9499,3 +10069,10 @@ msgstr "Had cURL selari"
 
 #~ msgid "ok"
 #~ msgstr "ok"
+
+#, fuzzy
+#~ msgid "pause_menu"
+#~ msgstr "FPS di menu jeda"
+
+#~ msgid "press key"
+#~ msgstr "tekan kekunci"

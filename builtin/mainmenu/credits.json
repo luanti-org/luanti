@@ -47,22 +47,20 @@
 	],
 	"#": "For updating active/previous contributors, see the script in ./util/gather_git_credits.py",
 	"contributors": [
-		"JosiahWI",
 		"Erich Schubert",
 		"wrrrzr",
-		"1F616EMO",
-		"red-001 <red-001@outlook.ie>",
-		"veprogames",
-		"paradust7",
-		"AFCMS",
 		"siliconsniffer",
-		"Wuzzy",
-		"Zemtzov7",
+		"JosiahWI",
+		"veprogames",
+		"Miguel P.L",
+		"AFCMS"
 	],
 	"previous_contributors": [
 		"Ælla Chiana Moskopp (erle) <erle@dieweltistgarnichtso.net> [Logo]",
 		"numzero",
+		"red-001 <red-001@outlook.ie>",
 		"Giuseppe Bilotta",
+		"HybridDog",
 		"ClobberXD",
 		"Dániel Juhász (juhdanad) <juhdanad@gmail.com>",
 		"MirceaKitsune <mirceakitsune@gmail.com>",
@@ -75,6 +73,7 @@
 		"stujones11",
 		"Rogier <rogier777@gmail.com>",
 		"Gregory Currie (gregorycu)",
+		"paradust7",
 		"JacobF",
 		"Jeija <jeija@mesecons.net>"
 	]

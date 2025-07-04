@@ -11,6 +11,7 @@
 #include "SMeshBuffer.h"
 
 #include <mutex>
+#include <memory>
 #include <vector>
 #include <unordered_map>
 #include "../particles.h"

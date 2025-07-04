@@ -23,12 +23,21 @@
 #include <SMesh.h>
 #include <IMeshBuffer.h>
 #include <SMeshBuffer.h>
+#include "item_visuals_manager.h"
 
 #define WIELD_SCALE_FACTOR 30.0f
 #define WIELD_SCALE_FACTOR_EXTRUDED 40.0f
 
 #define MIN_EXTRUSION_MESH_RESOLUTION 16
 #define MAX_EXTRUSION_MESH_RESOLUTION 512
+
+ItemMeshBufferInfo::ItemMeshBufferInfo(const TileLayer &layer) :
+		override_color(layer.color),
+		override_color_set(layer.has_color),
+		animation_info((layer.material_flags & MATERIAL_FLAG_ANIMATION) ?
+			std::make_unique<AnimationInfo>(layer) :
+			nullptr)
+{}
 
 static scene::IMesh *createExtrusionMesh(int resolution_x, int resolution_y)
 {
@@ -154,8 +163,7 @@ public:
 
 		int maxdim = MYMAX(dim.Width, dim.Height);
 
-		std::map<int, scene::IMesh*>::iterator
-			it = m_extrusion_meshes.lower_bound(maxdim);
+		auto it = m_extrusion_meshes.lower_bound(maxdim);
 
 		if (it == m_extrusion_meshes.end()) {
 			// no viable resolution found; use largest one
@@ -204,7 +212,6 @@ WieldMeshSceneNode::WieldMeshSceneNode(scene::ISceneManager *mgr, s32 id):
 	// Create the child scene node
 	scene::IMesh *dummymesh = g_extrusion_mesh_cache->createCube();
 	m_meshnode = SceneManager->addMeshSceneNode(dummymesh, this, -1);
-	m_meshnode->setReadOnlyMaterials(false);
 	m_meshnode->setVisible(false);
 	dummymesh->drop(); // m_meshnode grabbed it
 
@@ -248,7 +255,7 @@ void WieldMeshSceneNode::setExtruded(const std::string &imagename,
 		dim = core::dimension2d<u32>(dim.Width, frame_height);
 	}
 	scene::IMesh *original = g_extrusion_mesh_cache->create(dim);
-	scene::SMesh *mesh = cloneMesh(original);
+	scene::SMesh *mesh = cloneStaticMesh(original);
 	original->drop();
 	//set texture
 	mesh->getMeshBuffer(0)->getMaterial().setTexture(0,
@@ -274,12 +281,11 @@ void WieldMeshSceneNode::setExtruded(const std::string &imagename,
 		material.MaterialType = m_material_type;
 		material.MaterialTypeParam = 0.5f;
 		material.BackfaceCulling = true;
-		// Enable bi/trilinear filtering only for high resolution textures
-		bool bilinear_filter = dim.Width > 32 && m_bilinear_filter;
-		bool trilinear_filter = dim.Width > 32 && m_trilinear_filter;
+		// don't filter low-res textures, makes them look blurry
+		bool f_ok = std::min(dim.Width, dim.Height) >= TEXTURE_FILTER_MIN_SIZE;
 		material.forEachTexture([=] (auto &tex) {
-			setMaterialFilters(tex, bilinear_filter, trilinear_filter,
-					m_anisotropic_filter);
+			setMaterialFilters(tex, m_bilinear_filter && f_ok,
+				m_trilinear_filter && f_ok, m_anisotropic_filter);
 		});
 		// mipmaps cause "thin black line" artifacts
 		material.UseMipMaps = false;
@@ -287,7 +293,7 @@ void WieldMeshSceneNode::setExtruded(const std::string &imagename,
 }
 
 static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
-	std::vector<ItemPartColor> *colors, const ContentFeatures &f)
+	std::vector<ItemMeshBufferInfo> *buffer_info, const ContentFeatures &f)
 {
 	n.setParam1(0xff);
 	if (n.getParam2()) {
@@ -311,7 +317,7 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 		MapblockMeshGenerator(&mmd, &collector).generate();
 	}
 
-	colors->clear();
+	buffer_info->clear();
 	scene::SMesh *mesh = new scene::SMesh();
 	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
 		auto &prebuffers = collector.prebuffers[layer];
@@ -327,16 +333,11 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 			buf->append(&p.vertices[0], p.vertices.size(),
 					&p.indices[0], p.indices.size());
 
-			// Set up material
-			buf->Material.setTexture(0, p.layer.texture);
-			if (layer == 1) {
-				buf->Material.PolygonOffsetSlopeScale = -1;
-				buf->Material.PolygonOffsetDepthBias = -1;
-			}
-			p.layer.applyMaterialOptions(buf->Material);
+			// note: material type is left unset, overriden later
+			p.layer.applyMaterialOptions(buf->Material, layer);
 
 			mesh->addMeshBuffer(buf.get());
-			colors->emplace_back(p.layer.has_color, p.layer.color);
+			buffer_info->emplace_back(p.layer);
 		}
 	}
 	mesh->recalculateBoundingBox();
@@ -347,6 +348,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 {
 	ITextureSource *tsrc = client->getTextureSource();
 	IItemDefManager *idef = client->getItemDefManager();
+	ItemVisualsManager *item_visuals = client->getItemVisualsManager();
 	IShaderSource *shdrsrc = client->getShaderSource();
 	const NodeDefManager *ndef = client->getNodeDefManager();
 	const ItemDefinition &def = item.getDefinition(idef);
@@ -359,8 +361,8 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 	m_material_type = shdrsrc->getShaderInfo(shader_id).material;
 
 	// Color-related
-	m_colors.clear();
-	m_base_color = idef->getItemstackColor(item, client);
+	m_buffer_info.clear();
+	m_base_color = item_visuals->getItemstackColor(item, client);
 
 	const std::string wield_image = item.getWieldImage(idef);
 	const std::string wield_overlay = item.getWieldOverlay(idef);
@@ -368,11 +370,10 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 
 	// If wield_image needs to be checked and is defined, it overrides everything else
 	if (!wield_image.empty() && check_wield_image) {
-		setExtruded(wield_image, wield_overlay, wield_scale, tsrc,
-			1);
-		m_colors.emplace_back();
+		setExtruded(wield_image, wield_overlay, wield_scale, tsrc, 1);
+		m_buffer_info.emplace_back();
 		// overlay is white, if present
-		m_colors.emplace_back(true, video::SColor(0xFFFFFFFF));
+		m_buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
 		// initialize the color
 		setColor(video::SColor(0xFFFFFFFF));
 		return;
@@ -401,8 +402,8 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 				wscale, tsrc,
 				l0.animation_frame_count);
 			// Add color
-			m_colors.emplace_back(l0.has_color, l0.color);
-			m_colors.emplace_back(l1.has_color, l1.color);
+			m_buffer_info.emplace_back(l0.has_color, l0.color);
+			m_buffer_info.emplace_back(l1.has_color, l1.color);
 			break;
 		}
 		case NDT_PLANTLIKE_ROOTED: {
@@ -411,7 +412,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			setExtruded(tsrc->getTextureName(l0.texture_id),
 				"", wield_scale, tsrc,
 				l0.animation_frame_count);
-			m_colors.emplace_back(l0.has_color, l0.color);
+			m_buffer_info.emplace_back(l0.has_color, l0.color);
 			break;
 		}
 		default: {
@@ -420,7 +421,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			if (def.place_param2)
 				n.setParam2(*def.place_param2);
 
-			mesh = createGenericNodeMesh(client, n, &m_colors, f);
+			mesh = createGenericNodeMesh(client, n, &m_buffer_info, f);
 			changeToMesh(mesh);
 			mesh->drop();
 			m_meshnode->setScale(
@@ -433,7 +434,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		u32 material_count = m_meshnode->getMaterialCount();
 		for (u32 i = 0; i < material_count; ++i) {
 			video::SMaterial &material = m_meshnode->getMaterial(i);
-			// FIXME: overriding this breaks different alpha modes the mesh may have
+			// FIXME: we should take different alpha modes of the mesh into account here
 			material.MaterialType = m_material_type;
 			material.MaterialTypeParam = 0.5f;
 			material.forEachTexture([this] (auto &tex) {
@@ -454,9 +455,9 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			setExtruded("no_texture.png", "", def.wield_scale, tsrc, 1);
 		}
 
-		m_colors.emplace_back();
+		m_buffer_info.emplace_back();
 		// overlay is white, if present
-		m_colors.emplace_back(true, video::SColor(0xFFFFFFFF));
+		m_buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
 
 		// initialize the color
 		setColor(video::SColor(0xFFFFFFFF));
@@ -478,33 +479,38 @@ void WieldMeshSceneNode::setColor(video::SColor c)
 	u8 blue = c.getBlue();
 
 	const u32 mc = mesh->getMeshBufferCount();
-	if (mc > m_colors.size())
-		m_colors.resize(mc);
+	if (mc > m_buffer_info.size())
+		m_buffer_info.resize(mc);
 	for (u32 j = 0; j < mc; j++) {
 		video::SColor bc(m_base_color);
-		m_colors[j].applyOverride(bc);
+		m_buffer_info[j].applyOverride(bc);
 		video::SColor buffercolor(255,
 			bc.getRed() * red / 255,
 			bc.getGreen() * green / 255,
 			bc.getBlue() * blue / 255);
 		scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
 
-		if (m_colors[j].needColorize(buffercolor)) {
+		if (m_buffer_info[j].needColorize(buffercolor)) {
 			buf->setDirty(scene::EBT_VERTEX);
 			setMeshBufferColor(buf, buffercolor);
 		}
 	}
 }
 
-void WieldMeshSceneNode::setNodeLightColor(video::SColor color)
+void WieldMeshSceneNode::setLightColorAndAnimation(video::SColor color, float animation_time)
 {
 	if (!m_meshnode)
 		return;
 
-	{
-		for (u32 i = 0; i < m_meshnode->getMaterialCount(); ++i) {
-			video::SMaterial &material = m_meshnode->getMaterial(i);
-			material.ColorParam = color;
+	for (u32 i = 0; i < m_meshnode->getMaterialCount(); ++i) {
+		// Color
+		video::SMaterial &material = m_meshnode->getMaterial(i);
+		material.ColorParam = color;
+
+		// Animation
+		const ItemMeshBufferInfo &buf_info = m_buffer_info[i];
+		if (buf_info.animation_info) {
+			buf_info.animation_info->updateTexture(material, animation_time);
 		}
 	}
 }
@@ -551,9 +557,9 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 	const std::string inventory_overlay = item.getInventoryOverlay(idef);
 	if (!inventory_image.empty()) {
 		mesh = getExtrudedMesh(tsrc, inventory_image, inventory_overlay);
-		result->buffer_colors.emplace_back();
+		result->buffer_info.emplace_back();
 		// overlay is white, if present
-		result->buffer_colors.emplace_back(true, video::SColor(0xFFFFFFFF));
+		result->buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
 		// Items with inventory images do not need shading
 		result->needs_shading = false;
 	} else if (def.type == ITEM_NODE && f.drawtype == NDT_AIRLIKE) {
@@ -569,8 +575,8 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 				tsrc->getTextureName(l0.texture_id),
 				tsrc->getTextureName(l1.texture_id));
 			// Add color
-			result->buffer_colors.emplace_back(l0.has_color, l0.color);
-			result->buffer_colors.emplace_back(l1.has_color, l1.color);
+			result->buffer_info.emplace_back(l0.has_color, l0.color);
+			result->buffer_info.emplace_back(l1.has_color, l1.color);
 			break;
 		}
 		case NDT_PLANTLIKE_ROOTED: {
@@ -578,7 +584,7 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 			const TileLayer &l0 = f.special_tiles[0].layers[0];
 			mesh = getExtrudedMesh(tsrc,
 				tsrc->getTextureName(l0.texture_id), "");
-			result->buffer_colors.emplace_back(l0.has_color, l0.color);
+			result->buffer_info.emplace_back(l0.has_color, l0.color);
 			break;
 		}
 		default: {
@@ -587,7 +593,7 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 			if (def.place_param2)
 				n.setParam2(*def.place_param2);
 
-			mesh = createGenericNodeMesh(client, n, &result->buffer_colors, f);
+			mesh = createGenericNodeMesh(client, n, &result->buffer_info, f);
 			scaleMesh(mesh, v3f(0.12, 0.12, 0.12));
 			break;
 		}
@@ -633,7 +639,7 @@ scene::SMesh *getExtrudedMesh(ITextureSource *tsrc,
 	// get mesh
 	core::dimension2d<u32> dim = texture->getSize();
 	scene::IMesh *original = g_extrusion_mesh_cache->create(dim);
-	scene::SMesh *mesh = cloneMesh(original);
+	scene::SMesh *mesh = cloneStaticMesh(original);
 	original->drop();
 
 	//set texture

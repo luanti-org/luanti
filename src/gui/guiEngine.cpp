@@ -64,7 +64,7 @@ MenuTextureSource::~MenuTextureSource()
 video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 {
 	if (id)
-		*id = 0;
+		*id = 1;
 
 	if (name.empty())
 		return NULL;
@@ -78,7 +78,6 @@ video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 	if (!image)
 		return NULL;
 
-	image = Align2Npot2(image, m_driver);
 	retval = m_driver->addTexture(name.c_str(), image);
 	image->drop();
 
@@ -118,6 +117,10 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 	m_data(data),
 	m_kill(kill)
 {
+	// Go back to our mainmenu fonts
+	// Delayed until mainmenu initialization because of #15883
+	g_fontengine->clearMediaFonts();
+
 	// initialize texture pointers
 	for (image_definition &texture : m_textures) {
 		texture.texture = NULL;
@@ -168,7 +171,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 			"",
 			false);
 
-	m_menu->allowClose(false);
+	m_menu->defaultAllowClose(false);
 	m_menu->lockSize(true,v2u32(800,600));
 
 	// Initialize scripting
@@ -336,6 +339,8 @@ void GUIEngine::run()
 		framemarker.end();
 		fps_control.limit(device, &dtime);
 		framemarker.start();
+
+		g_fontengine->handleReload();
 
 		if (device->isWindowVisible()) {
 			// check if we need to update the "upper left corner"-text

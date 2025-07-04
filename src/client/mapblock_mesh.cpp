@@ -347,7 +347,7 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 	tile = f.tiles[tileindex];
 	bool has_crack = p == data->m_crack_pos_relative;
 	for (TileLayer &layer : tile.layers) {
-		if (layer.texture_id == 0)
+		if (layer.empty())
 			continue;
 		if (!layer.has_color)
 			mn.getColor(f, &(layer.color));
@@ -424,20 +424,6 @@ void getNodeTile(MapNode mn, const v3s16 &p, const v3s16 &dir, MeshMakeData *dat
 	};
 	getNodeTileN(mn, p, dir_to_tile[facedir][dir_i].tile, data, tile);
 	tile.rotation = tile.world_aligned ? TileRotation::None : dir_to_tile[facedir][dir_i].rotation;
-}
-
-static void applyTileColor(PreMeshBuffer &pmb)
-{
-	video::SColor tc = pmb.layer.color;
-	if (tc == video::SColor(0xFFFFFFFF))
-		return;
-	for (video::S3DVertex &vertex : pmb.vertices) {
-		video::SColor *c = &vertex.Color;
-		c->set(c->getAlpha(),
-			c->getRed() * tc.getRed() / 255,
-			c->getGreen() * tc.getGreen() / 255,
-			c->getBlue() * tc.getBlue() / 255);
-	}
 }
 
 /*
@@ -671,7 +657,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 		{
 			PreMeshBuffer &p = collector.prebuffers[layer][i];
 
-			applyTileColor(p);
+			p.applyTileColor();
 
 			// Generate animation data
 			// - Cracks
@@ -695,37 +681,23 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 			// - Texture animation
 			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
 				// Add to MapBlockMesh in order to animate these tiles
-				auto &info = m_animation_info[{layer, i}];
-				info.tile = p.layer;
-				info.frame = 0;
+				m_animation_info.emplace(std::make_pair(layer, i), AnimationInfo(p.layer));
 				// Replace tile texture with the first animation frame
 				p.layer.texture = (*p.layer.frames)[0].texture;
 			}
 
 			// Create material
 			video::SMaterial material;
-			material.BackfaceCulling = true;
 			material.FogEnable = true;
-			material.setTexture(0, p.layer.texture);
 			material.forEachTexture([] (auto &tex) {
 				tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
 				tex.MagFilter = video::ETMAGF_NEAREST;
 			});
-			/*
-			 * The second layer is for overlays, but uses the same vertex positions
-			 * as the first, which quickly leads to z-fighting.
-			 * To fix this we can offset the polygons in the direction of the camera.
-			 * This only affects the depth buffer and leads to no visual gaps in geometry.
-			 */
-			if (layer == 1) {
-				material.PolygonOffsetSlopeScale = -1;
-				material.PolygonOffsetDepthBias = -1;
-			}
 
 			{
 				material.MaterialType = m_shdrsrc->getShaderInfo(
 						p.layer.shader_id).material;
-				p.layer.applyMaterialOptionsWithShaders(material);
+				p.layer.applyMaterialOptions(material, layer);
 			}
 
 			scene::SMeshBuffer *buf = new scene::SMeshBuffer();
@@ -792,6 +764,12 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 	// Cracks
 	if (crack != m_last_crack) {
 		for (auto &crack_material : m_crack_materials) {
+
+			// TODO crack on animated tiles does not work
+			auto anim_it = m_animation_info.find(crack_material.first);
+			if (anim_it != m_animation_info.end())
+				continue;
+
 			scene::IMeshBuffer *buf = m_mesh[crack_material.first.first]->
 				getMeshBuffer(crack_material.first.second);
 
@@ -801,16 +779,6 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 			video::ITexture *new_texture =
 					m_tsrc->getTextureForMesh(s, &new_texture_id);
 			buf->getMaterial().setTexture(0, new_texture);
-
-			// If the current material is also animated, update animation info
-			auto anim_it = m_animation_info.find(crack_material.first);
-			if (anim_it != m_animation_info.end()) {
-				TileLayer &tile = anim_it->second.tile;
-				tile.texture = new_texture;
-				tile.texture_id = new_texture_id;
-				// force animation update
-				anim_it->second.frame = -1;
-			}
 		}
 
 		m_last_crack = crack;
@@ -818,20 +786,9 @@ bool MapBlockMesh::animate(bool faraway, float time, int crack,
 
 	// Texture animation
 	for (auto &it : m_animation_info) {
-		const TileLayer &tile = it.second.tile;
-		// Figure out current frame
-		int frameno = (int)(time * 1000 / tile.animation_frame_length_ms) %
-			tile.animation_frame_count;
-		// If frame doesn't change, skip
-		if (frameno == it.second.frame)
-			continue;
-
-		it.second.frame = frameno;
-
 		scene::IMeshBuffer *buf = m_mesh[it.first.first]->getMeshBuffer(it.first.second);
-
-		const FrameSpec &frame = (*tile.frames)[frameno];
-		buf->getMaterial().setTexture(0, frame.texture);
+		video::SMaterial &material = buf->getMaterial();
+		it.second.updateTexture(material, time);
 	}
 
 	return true;

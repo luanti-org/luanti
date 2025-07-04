@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <array>
+#include <cassert>
 
 namespace irr
 {
@@ -131,16 +132,20 @@ public:
 
 	T &operator[](u32 index)
 	{
-		_IRR_DEBUG_BREAK_IF(index > 1) // access violation
-
-		return *(&X + index);
+		switch (index) {
+			case 0: return X;
+			case 1: return Y;
+			default: IRR_CODE_UNREACHABLE();
+		}
 	}
 
 	const T &operator[](u32 index) const
 	{
-		_IRR_DEBUG_BREAK_IF(index > 1) // access violation
-
-		return *(&X + index);
+		switch (index) {
+			case 0: return X;
+			case 1: return Y;
+			default: IRR_CODE_UNREACHABLE();
+		}
 	}
 
 	//! sort in order X, Y.

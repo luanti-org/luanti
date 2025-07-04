@@ -246,10 +246,6 @@ public:
 	}
 
 private:
-	struct AnimationInfo {
-		int frame; // last animation frame
-		TileLayer tile;
-	};
 
 	irr_ptr<scene::IMesh> m_mesh[MAX_TILE_LAYERS];
 	std::vector<MinimapMapblock*> m_minimap_mapblocks;

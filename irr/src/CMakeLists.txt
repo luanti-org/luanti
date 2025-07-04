@@ -1,10 +1,8 @@
-# When enabling SDL2 by default on macOS, don't forget to change
-# "NSHighResolutionCapable" to true in "Info.plist".
-if(ANDROID)
-	set(DEFAULT_SDL2 ON)
-endif()
+set(DEFAULT_SDL2 ON)
 
 option(USE_SDL2 "Use the SDL2 backend" ${DEFAULT_SDL2})
+
+option(USE_SDL2_STATIC "Link with SDL2 static libraries" FALSE)
 
 # Compiler flags
 
@@ -32,6 +30,15 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
 
 elseif(MSVC)
 	string(APPEND CMAKE_CXX_STANDARD_LIBRARIES " msvcrt.lib") # ???? fuck off
+
+	add_compile_definitions(
+		# Suppress some useless warnings
+		_CRT_SECURE_NO_DEPRECATE
+		# Get M_PI to work
+		_USE_MATH_DEFINES
+		# Don't define min/max macros in minwindef.h
+		NOMINMAX
+	)
 
 	add_compile_options(/Zl)
 
@@ -219,7 +226,11 @@ endif()
 if(ENABLE_OPENGL)
 	find_package(OpenGL REQUIRED)
 endif()
+set(USE_SDL2_SHARED FALSE)
 if(USE_SDL2)
+	if(NOT USE_SDL2_STATIC)
+		set(USE_SDL2_SHARED TRUE)
+	endif()
 	if(NOT ANDROID)
 		find_package(SDL2 REQUIRED)
 	else()
@@ -355,14 +366,14 @@ endif()
 if(ENABLE_OPENGL3)
 	set(IRRDRVROBJ
 		${IRRDRVROBJ}
-		OpenGL3/Driver.cpp
+		OpenGL3/DriverGL3.cpp
 	)
 endif()
 
 if(ENABLE_GLES2)
 	set(IRRDRVROBJ
 		${IRRDRVROBJ}
-		OpenGLES2/Driver.cpp
+		OpenGLES2/DriverGLES2.cpp
 	)
 endif()
 
@@ -390,7 +401,6 @@ add_library(IRRIOOBJ OBJECT
 	CReadFile.cpp
 	CWriteFile.cpp
 	CZipReader.cpp
-	CAttributes.cpp
 )
 
 add_library(IRROTHEROBJ OBJECT
@@ -496,7 +506,8 @@ target_link_libraries(IrrlichtMt PRIVATE
 	${ZLIB_LIBRARY}
 	${JPEG_LIBRARY}
 	${PNG_LIBRARY}
-	"$<$<BOOL:${USE_SDL2}>:SDL2::SDL2>"
+	"$<$<BOOL:${USE_SDL2_SHARED}>:SDL2::SDL2>"
+	"$<$<BOOL:${USE_SDL2_STATIC}>:SDL2::SDL2-static>"
 
 	"$<$<BOOL:${OPENGL_DIRECT_LINK}>:${OPENGL_LIBRARIES}>"
 	${EGL_LIBRARY}
@@ -512,10 +523,10 @@ target_link_libraries(IrrlichtMt PRIVATE
 )
 
 if(WIN32)
-	target_compile_definitions(IrrlichtMt INTERFACE _IRR_WINDOWS_API_) # used in _IRR_DEBUG_BREAK_IF definition in a public header
+	target_compile_definitions(IrrlichtMt INTERFACE _IRR_WINDOWS_API_)
 endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	target_compile_definitions(IrrlichtMt INTERFACE _DEBUG) # same
+	target_compile_definitions(IrrlichtMt INTERFACE _DEBUG)
 endif()
 if(APPLE OR ANDROID OR EMSCRIPTEN)
 	target_compile_definitions(IrrlichtMt PUBLIC IRR_MOBILE_PATHS)

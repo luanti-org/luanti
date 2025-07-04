@@ -1,10 +1,11 @@
-
-local item_with_meta = ItemStack({name = "air", meta = {test = "abc"}})
+local function get_stack_with_meta(count)
+	return ItemStack({name = "air", count = count, meta = {test = "abc"}})
+end
 
 local test_list = {
 	ItemStack("air"),
 	ItemStack(""),
-	ItemStack(item_with_meta),
+	ItemStack(get_stack_with_meta(1)),
 }
 
 local function compare_lists(a, b)
@@ -34,12 +35,12 @@ local function test_inventory()
 	assert(not inv:set_width("test", -1))
 
 	inv:set_stack("test", 1, "air")
-	inv:set_stack("test", 3, item_with_meta)
+	inv:set_stack("test", 3, get_stack_with_meta(1))
 	assert(not inv:is_empty("test"))
 	assert(compare_lists(inv:get_list("test"), test_list))
 
 	assert(inv:add_item("test", "air") == ItemStack())
-	assert(inv:add_item("test", item_with_meta) == ItemStack())
+	assert(inv:add_item("test", get_stack_with_meta(1)) == ItemStack())
 	assert(inv:get_stack("test", 1) == ItemStack("air 2"))
 
 	assert(inv:room_for_item("test", "air 99"))
@@ -48,14 +49,26 @@ local function test_inventory()
 	inv:set_stack("test", 2, "")
 
 	assert(inv:contains_item("test", "air"))
+	assert(inv:contains_item("test", "air 4"))
+	assert(not inv:contains_item("test", "air 5"))
 	assert(not inv:contains_item("test", "air 99"))
-	assert(inv:contains_item("test", item_with_meta, true))
+	assert(inv:contains_item("test", "air 2", true))
+	assert(not inv:contains_item("test", "air 3", true))
+	assert(inv:contains_item("test", get_stack_with_meta(2), true))
+	assert(not inv:contains_item("test", get_stack_with_meta(3), true))
 
 	-- Items should be removed in reverse and combine with first stack removed
-	assert(inv:remove_item("test", "air") == item_with_meta)
-	item_with_meta:set_count(2)
-	assert(inv:remove_item("test", "air 2") == item_with_meta)
+	assert(inv:remove_item("test", "air") == get_stack_with_meta(1))
+	assert(inv:remove_item("test", "air 2") == get_stack_with_meta(2))
 	assert(inv:remove_item("test", "air") == ItemStack("air"))
+	assert(inv:is_empty("test"))
+
+	inv:set_stack("test", 1, "air 3")
+	inv:set_stack("test", 3, get_stack_with_meta(2))
+	assert(inv:remove_item("test", "air 4", true) == ItemStack("air 3"))
+	inv:set_stack("test", 1, "air 3")
+	assert(inv:remove_item("test", get_stack_with_meta(3), true) == get_stack_with_meta(2))
+	assert(inv:remove_item("test", "air 3", true) == ItemStack("air 3"))
 	assert(inv:is_empty("test"))
 
 	-- Failure of set_list(s) should not change inventory

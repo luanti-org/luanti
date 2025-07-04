@@ -27,7 +27,7 @@ void ProfilerGraph::draw(s32 x_left, s32 y_bottom, video::IVideoDriver *driver,
 		for (const auto &i : piece.values) {
 			const std::string &id = i.first;
 			const float &value = i.second;
-			std::map<std::string, Meta>::iterator j = m_meta.find(id);
+			auto j = m_meta.find(id);
 
 			if (j == m_meta.end()) {
 				m_meta[id] = Meta(value);

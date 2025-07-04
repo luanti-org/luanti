@@ -78,15 +78,13 @@ void MinimapUpdateThread::doUpdate()
 	while (popBlockUpdate(&update)) {
 		if (update.data) {
 			// Swap two values in the map using single lookup
-			std::pair<std::map<v3s16, MinimapMapblock*>::iterator, bool>
-			    result = m_blocks_cache.insert(std::make_pair(update.pos, update.data));
+			auto result = m_blocks_cache.insert(std::make_pair(update.pos, update.data));
 			if (!result.second) {
 				delete result.first->second;
 				result.first->second = update.data;
 			}
 		} else {
-			std::map<v3s16, MinimapMapblock *>::iterator it;
-			it = m_blocks_cache.find(update.pos);
+			auto it = m_blocks_cache.find(update.pos);
 			if (it != m_blocks_cache.end()) {
 				delete it->second;
 				m_blocks_cache.erase(it);
@@ -124,8 +122,7 @@ void MinimapUpdateThread::getMap(v3s16 pos, s16 size, s16 height)
 	for (blockpos.Z = blockpos_min.Z; blockpos.Z <= blockpos_max.Z; ++blockpos.Z)
 	for (blockpos.Y = blockpos_min.Y; blockpos.Y <= blockpos_max.Y; ++blockpos.Y)
 	for (blockpos.X = blockpos_min.X; blockpos.X <= blockpos_max.X; ++blockpos.X) {
-		std::map<v3s16, MinimapMapblock *>::const_iterator pblock =
-			m_blocks_cache.find(blockpos);
+		auto pblock = m_blocks_cache.find(blockpos);
 		if (pblock == m_blocks_cache.end())
 			continue;
 		const MinimapMapblock &block = *pblock->second;
@@ -647,8 +644,7 @@ void Minimap::drawMinimap(core::rect<s32> rect)
 	f32 sin_angle = std::sin(m_angle * core::DEGTORAD);
 	f32 cos_angle = std::cos(m_angle * core::DEGTORAD);
 	s32 marker_size2 =  0.025 * (float)rect.getWidth();;
-	for (std::list<v2f>::const_iterator
-			i = m_active_markers.begin();
+	for (auto i = m_active_markers.begin();
 			i != m_active_markers.end(); ++i) {
 		v2f posf = *i;
 		if (data->minimap_shape_round) {
@@ -708,8 +704,8 @@ void Minimap::updateActiveMarkers()
 			continue;
 		}
 
-		m_active_markers.emplace_back(((float)pos.X / (float)MINIMAP_MAX_SX) - 0.5,
-			(1.0 - (float)pos.Z / (float)MINIMAP_MAX_SY) - 0.5);
+		m_active_markers.emplace_back(((float)pos.X / (float)MINIMAP_MAX_SX) - 0.5f,
+			(1.0f - (float)pos.Z / (float)MINIMAP_MAX_SY) - 0.5f);
 	}
 }
 

@@ -99,10 +99,10 @@ void read_item_definition(lua_State *L, int index,
 void push_item_definition(lua_State *L, const ItemDefinition &i);
 void push_item_definition_full(lua_State *L, const ItemDefinition &i);
 
+/// @param fallback set to true if reading from bare entity table (not initial_properties)
 void read_object_properties(lua_State *L, int index,
-		ServerActiveObject *sao,
-		ObjectProperties *prop,
-		IItemDefManager *idef);
+		ServerActiveObject *sao, ObjectProperties *prop,
+		IItemDefManager *idef, bool fallback = false);
 
 void push_object_properties(lua_State *L, const ObjectProperties *prop);
 
@@ -120,21 +120,21 @@ void read_groups(lua_State *L, int index, ItemGroupList &result);
 
 void push_groups(lua_State *L, const ItemGroupList &groups);
 
-//TODO rename to "read_enum_field"
+// TODO: rename to "read_enum_field" and replace with type-safe template
 int getenumfield(lua_State *L, int table, const char *fieldname,
 		const EnumString *spec, int default_);
 
 bool getflagsfield(lua_State *L, int table, const char *fieldname,
-		FlagDesc *flagdesc, u32 *flags, u32 *flagmask);
+		const FlagDesc *flagdesc, u32 *flags, u32 *flagmask);
 
-bool read_flags(lua_State *L, int index, FlagDesc *flagdesc,
+bool read_flags(lua_State *L, int index, const FlagDesc *flagdesc,
 		u32 *flags, u32 *flagmask);
 
-void push_flags_string(lua_State *L, FlagDesc *flagdesc,
+void push_flags_string(lua_State *L, const FlagDesc *flagdesc,
 		u32 flags, u32 flagmask);
 
 u32 read_flags_table(lua_State *L, int table,
-		FlagDesc *flagdesc, u32 *flagmask);
+		const FlagDesc *flagdesc, u32 *flagmask);
 
 void push_items(lua_State *L, const std::vector<ItemStack> &items);
 

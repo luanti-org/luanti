@@ -360,13 +360,12 @@ end
 function core.item_drop(itemstack, dropper, pos)
 	local dropper_is_player = dropper and dropper:is_player()
 	local p = table.copy(pos)
-	local cnt = itemstack:get_count()
 	if dropper_is_player then
 		p.y = p.y + 1.2
 	end
-	local item = itemstack:take_item(cnt)
-	local obj = core.add_item(p, item)
+	local obj = core.add_item(p, ItemStack(itemstack))
 	if obj then
+		itemstack:clear()
 		if dropper_is_player then
 			local dir = dropper:get_look_dir()
 			dir.x = dir.x * 2.9
@@ -375,7 +374,7 @@ function core.item_drop(itemstack, dropper, pos)
 			obj:set_velocity(dir)
 			obj:get_luaentity().dropped_by = dropper:get_player_name()
 		end
-		return itemstack
+		return itemstack, obj
 	end
 	-- If we reach this, adding the object to the
 	-- environment failed
@@ -514,7 +513,8 @@ function core.node_dig(pos, node, digger)
 		.. node.name .. " at " .. core.pos_to_string(pos))
 
 	local wielded = digger and digger:get_wielded_item()
-	local drops = core.get_node_drops(node, wielded and wielded:get_name())
+	local drops = core.get_node_drops(node, wielded and wielded:get_name(),
+				wielded and ItemStack(wielded), digger, vector.copy(pos))
 
 	if wielded then
 		local wdef = wielded:get_definition()

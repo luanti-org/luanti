@@ -1,19 +1,6 @@
---Luanti
---Copyright (C) 2023 Gregor Parzefall
---
---This program is free software; you can redistribute it and/or modify
---it under the terms of the GNU Lesser General Public License as published by
---the Free Software Foundation; either version 2.1 of the License, or
---(at your option) any later version.
---
---This program is distributed in the hope that it will be useful,
---but WITHOUT ANY WARRANTY; without even the implied warranty of
---MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---GNU Lesser General Public License for more details.
---
---You should have received a copy of the GNU Lesser General Public License along
---with this program; if not, write to the Free Software Foundation, Inc.,
---51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+-- Luanti
+-- Copyright (C) 2023 Gregor Parzefall
+-- SPDX-License-Identifier: LGPL-2.1-or-later
 
 ---- IMPORTANT ----
 -- This whole file can be removed after a while.
@@ -67,10 +54,10 @@ end
 
 local function get_formspec(dialogdata)
 	local markup = table.concat({
-		"<big>", fgettext("Minetest Game is no longer installed by default"), "</big>\n",
-		fgettext("For a long time, Luanti shipped with a default game called \"Minetest Game\". " ..
+		"<big>", hgettext("Minetest Game is no longer installed by default"), "</big>\n",
+		hgettext("For a long time, Luanti shipped with a default game called \"Minetest Game\". " ..
 				"Since version 5.8.0, Luanti ships without a default game."), "\n",
-		fgettext("If you want to continue playing in your Minetest Game worlds, you need to reinstall Minetest Game."),
+		hgettext("If you want to continue playing in your Minetest Game worlds, you need to reinstall Minetest Game."),
 	})
 
 	return table.concat({

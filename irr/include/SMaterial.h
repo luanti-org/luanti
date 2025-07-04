@@ -10,7 +10,6 @@
 #include "EMaterialTypes.h" // IWYU pragma: export
 #include "EMaterialProps.h" // IWYU pragma: export
 #include "SMaterialLayer.h"
-#include "IrrCompileConfig.h" // for IRRLICHT_API
 
 namespace irr
 {
@@ -472,7 +471,7 @@ public:
 };
 
 //! global const identity Material
-IRRLICHT_API extern SMaterial IdentityMaterial;
+extern const SMaterial IdentityMaterial;
 
 } // end namespace video
 } // end namespace irr
@@ -483,9 +482,15 @@ struct std::hash<irr::video::SMaterial>
 	/// @brief std::hash specialization for video::SMaterial
 	std::size_t operator()(const irr::video::SMaterial &m) const noexcept
 	{
-		// basic implementation that hashes the two things most likely to differ
-		auto h1 = std::hash<irr::video::ITexture*>{}(m.getTexture(0));
-		auto h2 = std::hash<int>{}(m.MaterialType);
-		return (h1 << 1) ^ h2;
+		std::size_t ret = 0;
+		for (auto h : { // the three members most likely to differ
+			std::hash<irr::video::ITexture*>{}(m.getTexture(0)),
+			std::hash<int>{}(m.MaterialType),
+			std::hash<irr::u32>{}(m.ColorParam.color)
+		}) {
+			ret += h;
+			ret ^= (ret << 6) + (ret >> 2); // distribute bits
+		}
+		return ret;
 	}
 };

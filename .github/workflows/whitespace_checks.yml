@@ -92,7 +92,7 @@ jobs:
       - name: Check indent spaces
         run: |
           if git ls-files |\
-            grep -E '^src/.*\.cpp$|^src/.*\.[ch]$|\.lua' |\
+            grep -E '^src/.*\.cpp$|^src/.*\.[ch]$|\.lua$' |\
             xargs grep -n -P '^\t*[ ]';\
           then\
             echo -e "\033[0;31mFound incorrect indent whitespaces";\

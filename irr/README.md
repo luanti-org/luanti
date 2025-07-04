@@ -21,7 +21,7 @@ Aside from standard search options (`ZLIB_INCLUDE_DIR`, `ZLIB_LIBRARY`, ...) the
 * `ENABLE_OPENGL` - Enable OpenGL driver
 * `ENABLE_OPENGL3` (default: `OFF`) - Enable OpenGL 3+ driver
 * `ENABLE_GLES2` - Enable OpenGL ES 2+ driver
-* `USE_SDL2` (default: ON for Android, OFF for other platforms) - Use SDL2 instead of older native device code
+* `USE_SDL2` (default: platform-dependent, usually `ON`) - Use SDL2 instead of older native device code
 
 However, IrrlichtMt cannot be built or installed separately.
 

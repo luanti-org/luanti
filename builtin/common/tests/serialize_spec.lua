@@ -93,21 +93,49 @@ describe("serialize", function()
 		assert_preserves(test_in)
 	end)
 
-	it("strips functions in safe mode", function()
-		local test_in = {
-			func = function(a, b)
-				error("test")
-			end,
-			foo = "bar"
-		}
-		setfenv(test_in.func, _G)
+	describe("safe mode", function()
+		setup(function()
+			assert(not core.log)
+			-- logging a deprecation warning will be attempted
+			function core.log() end
+		end)
+		teardown(function()
+			core.log = nil
+		end)
+		it("functions are stripped", function()
+			local test_in = {
+				func = function(a, b)
+					error("test")
+				end,
+				foo = "bar"
+			}
+			setfenv(test_in.func, _G)
 
-		local str = core.serialize(test_in)
-		assert.not_nil(str:find("loadstring"))
+			local str = core.serialize(test_in)
+			assert.not_nil(str:find("loadstring"))
 
-		local test_out = core.deserialize(str, true)
-		assert.is_nil(test_out.func)
-		assert.equals(test_out.foo, "bar")
+			local test_out = core.deserialize(str, true)
+			assert.is_nil(test_out.func)
+			assert.equals(test_out.foo, "bar")
+		end)
+	end)
+
+	describe("deprecation warnings", function()
+		before_each(function()
+			assert(not core.log)
+			core.log = spy.new(function(level)
+				assert(level == "deprecated")
+			end)
+		end)
+		after_each(function()
+			core.log = nil
+		end)
+		it("dumping functions", function()
+			local t = {f = function() end, g = function() end}
+			t.t = t
+			core.serialize(t)
+			assert.spy(core.log).was.called(1) -- should have been called exactly *once*
+		end)
 	end)
 
 	it("vectors work", function()

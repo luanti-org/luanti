@@ -159,7 +159,7 @@ private:
 
 class ShaderCallback : public video::IShaderConstantSetCallBack
 {
-	std::vector<std::unique_ptr<IShaderConstantSetter>> m_setters;
+	std::vector<std::unique_ptr<IShaderUniformSetter>> m_setters;
 
 public:
 	template <typename Factories>
@@ -175,7 +175,7 @@ public:
 	virtual void OnSetConstants(video::IMaterialRendererServices *services, s32 userData) override
 	{
 		for (auto &&setter : m_setters)
-			setter->onSetConstants(services);
+			setter->onSetUniforms(services);
 	}
 
 	virtual void OnSetMaterial(const video::SMaterial& material) override
@@ -187,11 +187,78 @@ public:
 
 
 /*
-	MainShaderConstantSetter: Set basic constants required for almost everything
+	MainShaderConstantSetter: Sets some random general constants
 */
 
 class MainShaderConstantSetter : public IShaderConstantSetter
 {
+public:
+	MainShaderConstantSetter() = default;
+	~MainShaderConstantSetter() = default;
+
+	void onGenerate(const std::string &name, ShaderConstants &constants) override
+	{
+		constants["ENABLE_TONE_MAPPING"] = g_settings->getBool("tone_mapping") ? 1 : 0;
+
+		if (g_settings->getBool("enable_dynamic_shadows")) {
+			constants["ENABLE_DYNAMIC_SHADOWS"] = 1;
+			if (g_settings->getBool("shadow_map_color"))
+				constants["COLORED_SHADOWS"] = 1;
+
+			if (g_settings->getBool("shadow_poisson_filter"))
+				constants["POISSON_FILTER"] = 1;
+
+			if (g_settings->getBool("enable_water_reflections"))
+				constants["ENABLE_WATER_REFLECTIONS"] = 1;
+
+			if (g_settings->getBool("enable_translucent_foliage"))
+				constants["ENABLE_TRANSLUCENT_FOLIAGE"] = 1;
+
+			// FIXME: The node specular effect is currently disabled due to mixed in-game
+			// results. This shader should not be applied to all nodes equally. See #15898
+			if (false)
+				constants["ENABLE_NODE_SPECULAR"] = 1;
+
+			s32 shadow_filter = g_settings->getS32("shadow_filters");
+			constants["SHADOW_FILTER"] = shadow_filter;
+
+			float shadow_soft_radius = std::max(1.f,
+				g_settings->getFloat("shadow_soft_radius"));
+			constants["SOFTSHADOWRADIUS"] = shadow_soft_radius;
+		}
+
+		if (g_settings->getBool("enable_bloom")) {
+			constants["ENABLE_BLOOM"] = 1;
+			if (g_settings->getBool("enable_bloom_debug"))
+				constants["ENABLE_BLOOM_DEBUG"] = 1;
+		}
+
+		if (g_settings->getBool("enable_auto_exposure"))
+			constants["ENABLE_AUTO_EXPOSURE"] = 1;
+
+		if (g_settings->get("antialiasing") == "ssaa") {
+			constants["ENABLE_SSAA"] = 1;
+			u16 ssaa_scale = std::max<u16>(2, g_settings->getU16("fsaa"));
+			constants["SSAA_SCALE"] = ssaa_scale;
+		}
+
+		if (g_settings->getBool("debanding"))
+			constants["ENABLE_DITHERING"] = 1;
+
+		if (g_settings->getBool("enable_volumetric_lighting"))
+			constants["VOLUMETRIC_LIGHT"] = 1;
+	}
+};
+
+
+/*
+	MainShaderUniformSetter: Set basic uniforms required for almost everything
+*/
+
+class MainShaderUniformSetter : public IShaderUniformSetter
+{
+	using SamplerLayer_t = s32;
+
 	CachedVertexShaderSetting<f32, 16> m_world_view_proj{"mWorldViewProj"};
 	CachedVertexShaderSetting<f32, 16> m_world{"mWorld"};
 
@@ -200,19 +267,24 @@ class MainShaderConstantSetter : public IShaderConstantSetter
 	// Texture matrix
 	CachedVertexShaderSetting<float, 16> m_texture{"mTexture"};
 
+	CachedPixelShaderSetting<SamplerLayer_t> m_texture0{"texture0"};
+	CachedPixelShaderSetting<SamplerLayer_t> m_texture1{"texture1"};
+	CachedPixelShaderSetting<SamplerLayer_t> m_texture2{"texture2"};
+	CachedPixelShaderSetting<SamplerLayer_t> m_texture3{"texture3"};
+
 	// commonly used way to pass material color to shader
 	video::SColor m_material_color;
 	CachedPixelShaderSetting<float, 4> m_material_color_setting{"materialColor"};
 
 public:
-	~MainShaderConstantSetter() = default;
+	~MainShaderUniformSetter() = default;
 
 	virtual void onSetMaterial(const video::SMaterial& material) override
 	{
 		m_material_color = material.ColorParam;
 	}
 
-	virtual void onSetConstants(video::IMaterialRendererServices *services) override
+	virtual void onSetUniforms(video::IMaterialRendererServices *services) override
 	{
 		video::IVideoDriver *driver = services->getVideoDriver();
 		assert(driver);
@@ -237,17 +309,27 @@ public:
 			m_texture.set(texture, services);
 		}
 
+		SamplerLayer_t tex_id;
+		tex_id = 0;
+		m_texture0.set(&tex_id, services);
+		tex_id = 1;
+		m_texture1.set(&tex_id, services);
+		tex_id = 2;
+		m_texture2.set(&tex_id, services);
+		tex_id = 3;
+		m_texture3.set(&tex_id, services);
+
 		video::SColorf colorf(m_material_color);
 		m_material_color_setting.set(colorf, services);
 	}
 };
 
 
-class MainShaderConstantSetterFactory : public IShaderConstantSetterFactory
+class MainShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
-	virtual IShaderConstantSetter* create()
-		{ return new MainShaderConstantSetter(); }
+	virtual IShaderUniformSetter* create()
+		{ return new MainShaderUniformSetter(); }
 };
 
 
@@ -262,14 +344,13 @@ public:
 	~ShaderSource() override;
 
 	/*
-		- If shader material specified by name is found from cache,
-		  return the cached id.
+		- If shader material is found from cache, return the cached id.
 		- Otherwise generate the shader material, add to cache and return id.
 
 		The id 0 points to a null shader. Its material is EMT_SOLID.
 	*/
-	u32 getShaderIdDirect(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype);
+	u32 getShaderIdDirect(const std::string &name, const ShaderConstants &input_const,
+		video::E_MATERIAL_TYPE base_mat);
 
 	/*
 		If shader specified by the name pointed by the id doesn't
@@ -279,19 +360,10 @@ public:
 		and not found in cache, the call is queued to the main thread
 		for processing.
 	*/
-	u32 getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype) override;
+	u32 getShader(const std::string &name, const ShaderConstants &input_const,
+		video::E_MATERIAL_TYPE base_mat) override;
 
-	u32 getShaderRaw(const std::string &name, bool blendAlpha) override
-	{
-		// TODO: the shader system should be refactored to be much more generic.
-		// Just let callers pass arbitrary constants, this would also deal with
-		// runtime changes cleanly.
-		return getShader(name, blendAlpha ? TILE_MATERIAL_ALPHA : TILE_MATERIAL_BASIC,
-			NodeDrawType_END);
-	}
-
-	ShaderInfo getShaderInfo(u32 id) override;
+	const ShaderInfo &getShaderInfo(u32 id) override;
 
 	// Processes queued shader requests from other threads.
 	// Shall be called from the main thread.
@@ -306,9 +378,14 @@ public:
 	// Shall be called from the main thread.
 	void rebuildShaders() override;
 
-	void addShaderConstantSetterFactory(IShaderConstantSetterFactory *setter) override
+	void addShaderConstantSetter(IShaderConstantSetter *setter) override
 	{
-		m_setter_factories.emplace_back(setter);
+		m_constant_setters.emplace_back(setter);
+	}
+
+	void addShaderUniformSetterFactory(IShaderUniformSetterFactory *setter) override
+	{
+		m_uniform_factories.emplace_back(setter);
 	}
 
 private:
@@ -332,11 +409,23 @@ private:
 #endif
 
 	// Global constant setter factories
-	std::vector<std::unique_ptr<IShaderConstantSetterFactory>> m_setter_factories;
+	std::vector<std::unique_ptr<IShaderConstantSetter>> m_constant_setters;
+
+	// Global uniform setter factories
+	std::vector<std::unique_ptr<IShaderUniformSetterFactory>> m_uniform_factories;
 
 	// Generate shader given the shader name.
 	ShaderInfo generateShader(const std::string &name,
-			MaterialType material_type, NodeDrawType drawtype);
+		const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat);
+
+	/// @brief outputs a constant to an ostream
+	inline void putConstant(std::ostream &os, const ShaderConstants::mapped_type &it)
+	{
+		if (auto *ival = std::get_if<int>(&it); ival)
+			os << *ival;
+		else
+			os << std::get<float>(it);
+	}
 };
 
 IWritableShaderSource *createShaderSource()
@@ -351,8 +440,9 @@ ShaderSource::ShaderSource()
 	// Add a dummy ShaderInfo as the first index, named ""
 	m_shaderinfo_cache.emplace_back();
 
-	// Add main global constant setter
-	addShaderConstantSetterFactory(new MainShaderConstantSetterFactory());
+	// Add global stuff
+	addShaderConstantSetter(new MainShaderConstantSetter());
+	addShaderUniformSetterFactory(new MainShaderUniformSetterFactory());
 }
 
 ShaderSource::~ShaderSource()
@@ -362,22 +452,27 @@ ShaderSource::~ShaderSource()
 	// Delete materials
 	auto *gpu = RenderingEngine::get_video_driver()->getGPUProgrammingServices();
 	assert(gpu);
+	u32 n = 0;
 	for (ShaderInfo &i : m_shaderinfo_cache) {
-		if (!i.name.empty())
+		if (!i.name.empty()) {
 			gpu->deleteShaderMaterial(i.material);
+			n++;
+		}
 	}
 	m_shaderinfo_cache.clear();
+
+	infostream << "~ShaderSource() cleaned up " << n << " materials" << std::endl;
 }
 
 u32 ShaderSource::getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype)
+	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat)
 {
 	/*
 		Get shader
 	*/
 
 	if (std::this_thread::get_id() == m_main_thread) {
-		return getShaderIdDirect(name, material_type, drawtype);
+		return getShaderIdDirect(name, input_const, base_mat);
 	}
 
 	errorstream << "ShaderSource::getShader(): getting from "
@@ -415,7 +510,7 @@ u32 ShaderSource::getShader(const std::string &name,
 	This method generates all the shaders
 */
 u32 ShaderSource::getShaderIdDirect(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype)
+	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat)
 {
 	// Empty name means shader 0
 	if (name.empty()) {
@@ -424,10 +519,10 @@ u32 ShaderSource::getShaderIdDirect(const std::string &name,
 	}
 
 	// Check if already have such instance
-	for(u32 i=0; i<m_shaderinfo_cache.size(); i++){
-		ShaderInfo *info = &m_shaderinfo_cache[i];
-		if(info->name == name && info->material_type == material_type &&
-			info->drawtype == drawtype)
+	for (u32 i = 0; i < m_shaderinfo_cache.size(); i++) {
+		auto &info = m_shaderinfo_cache[i];
+		if (info.name == name && info.base_material == base_mat &&
+			info.input_constants == input_const)
 			return i;
 	}
 
@@ -440,7 +535,7 @@ u32 ShaderSource::getShaderIdDirect(const std::string &name,
 		return 0;
 	}
 
-	ShaderInfo info = generateShader(name, material_type, drawtype);
+	ShaderInfo info = generateShader(name, input_const, base_mat);
 
 	/*
 		Add shader to caches (add dummy shaders too)
@@ -449,22 +544,19 @@ u32 ShaderSource::getShaderIdDirect(const std::string &name,
 	MutexAutoLock lock(m_shaderinfo_cache_mutex);
 
 	u32 id = m_shaderinfo_cache.size();
-	m_shaderinfo_cache.push_back(info);
-
-	infostream<<"getShaderIdDirect(): "
-			<<"Returning id="<<id<<" for name \""<<name<<"\""<<std::endl;
-
+	m_shaderinfo_cache.push_back(std::move(info));
 	return id;
 }
 
 
-ShaderInfo ShaderSource::getShaderInfo(u32 id)
+const ShaderInfo &ShaderSource::getShaderInfo(u32 id)
 {
 	MutexAutoLock lock(m_shaderinfo_cache_mutex);
 
-	if(id >= m_shaderinfo_cache.size())
-		return ShaderInfo();
-
+	if (id >= m_shaderinfo_cache.size()) {
+		static ShaderInfo empty;
+		return empty;
+	}
 	return m_shaderinfo_cache[id];
 }
 
@@ -500,46 +592,31 @@ void ShaderSource::rebuildShaders()
 		}
 	}
 
+	infostream << "ShaderSource: recreating " << m_shaderinfo_cache.size()
+			<< " shaders" << std::endl;
+
 	// Recreate shaders
 	for (ShaderInfo &i : m_shaderinfo_cache) {
 		ShaderInfo *info = &i;
 		if (!info->name.empty()) {
-			*info = generateShader(info->name, info->material_type, info->drawtype);
+			*info = generateShader(info->name, info->input_constants, info->base_material);
 		}
 	}
 }
 
 
 ShaderInfo ShaderSource::generateShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype)
+	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat)
 {
 	ShaderInfo shaderinfo;
 	shaderinfo.name = name;
-	shaderinfo.material_type = material_type;
-	shaderinfo.drawtype = drawtype;
-	switch (material_type) {
-	case TILE_MATERIAL_OPAQUE:
-	case TILE_MATERIAL_LIQUID_OPAQUE:
-	case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-		shaderinfo.base_material = video::EMT_SOLID;
-		break;
-	case TILE_MATERIAL_ALPHA:
-	case TILE_MATERIAL_PLAIN_ALPHA:
-	case TILE_MATERIAL_LIQUID_TRANSPARENT:
-	case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-		shaderinfo.base_material = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-		break;
-	case TILE_MATERIAL_BASIC:
-	case TILE_MATERIAL_PLAIN:
-	case TILE_MATERIAL_WAVING_LEAVES:
-	case TILE_MATERIAL_WAVING_PLANTS:
-	case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-		shaderinfo.base_material = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
-		break;
-	}
+	shaderinfo.input_constants = input_const;
+	// fixed pipeline materials don't make sense here
+	assert(base_mat != video::EMT_TRANSPARENT_VERTEX_ALPHA && base_mat != video::EMT_ONETEXTURE_BLEND);
+	shaderinfo.base_material = base_mat;
 	shaderinfo.material = shaderinfo.base_material;
 
-	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
+	auto *driver = RenderingEngine::get_video_driver();
 	// The null driver doesn't support shaders (duh), but we can pretend it does.
 	if (driver->getDriverType() == video::EDT_NULL)
 		return shaderinfo;
@@ -615,13 +692,17 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 
 	/// Unique name of this shader, for debug/logging
 	std::string log_name = name;
+	for (auto &it : input_const) {
+		if (log_name.size() > 60) { // it shouldn't be too long
+			log_name.append("...");
+			break;
+		}
+		std::ostringstream oss;
+		putConstant(oss, it.second);
+		log_name.append(" ").append(it.first).append("=").append(oss.str());
+	}
 
-	/* Define constants for node and object shaders */
-	const bool node_shader = drawtype != NodeDrawType_END;
-	if (node_shader) {
-
-	log_name.append(" mat=").append(itos(material_type))
-		.append(" draw=").append(itos(drawtype));
+	ShaderConstants constants = input_const;
 
 	bool use_discard = fully_programmable;
 	if (!use_discard) {
@@ -632,133 +713,22 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 	}
 	if (use_discard) {
 		if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL)
-			shaders_header << "#define USE_DISCARD 1\n";
+			constants["USE_DISCARD"] = 1;
 		else if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF)
-			shaders_header << "#define USE_DISCARD_REF 1\n";
+			constants["USE_DISCARD_REF"] = 1;
 	}
 
-#define PROVIDE(constant) shaders_header << "#define " #constant " " << (int)constant << "\n"
-
-	PROVIDE(NDT_NORMAL);
-	PROVIDE(NDT_AIRLIKE);
-	PROVIDE(NDT_LIQUID);
-	PROVIDE(NDT_FLOWINGLIQUID);
-	PROVIDE(NDT_GLASSLIKE);
-	PROVIDE(NDT_ALLFACES);
-	PROVIDE(NDT_ALLFACES_OPTIONAL);
-	PROVIDE(NDT_TORCHLIKE);
-	PROVIDE(NDT_SIGNLIKE);
-	PROVIDE(NDT_PLANTLIKE);
-	PROVIDE(NDT_FENCELIKE);
-	PROVIDE(NDT_RAILLIKE);
-	PROVIDE(NDT_NODEBOX);
-	PROVIDE(NDT_GLASSLIKE_FRAMED);
-	PROVIDE(NDT_FIRELIKE);
-	PROVIDE(NDT_GLASSLIKE_FRAMED_OPTIONAL);
-	PROVIDE(NDT_PLANTLIKE_ROOTED);
-
-	PROVIDE(TILE_MATERIAL_BASIC);
-	PROVIDE(TILE_MATERIAL_ALPHA);
-	PROVIDE(TILE_MATERIAL_LIQUID_TRANSPARENT);
-	PROVIDE(TILE_MATERIAL_LIQUID_OPAQUE);
-	PROVIDE(TILE_MATERIAL_WAVING_LEAVES);
-	PROVIDE(TILE_MATERIAL_WAVING_PLANTS);
-	PROVIDE(TILE_MATERIAL_OPAQUE);
-	PROVIDE(TILE_MATERIAL_WAVING_LIQUID_BASIC);
-	PROVIDE(TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
-	PROVIDE(TILE_MATERIAL_WAVING_LIQUID_OPAQUE);
-	PROVIDE(TILE_MATERIAL_PLAIN);
-	PROVIDE(TILE_MATERIAL_PLAIN_ALPHA);
-
-#undef PROVIDE
-
-	shaders_header << "#define MATERIAL_TYPE " << (int)material_type << "\n";
-	shaders_header << "#define DRAW_TYPE " << (int)drawtype << "\n";
-
-	bool enable_waving_water = g_settings->getBool("enable_waving_water");
-	shaders_header << "#define ENABLE_WAVING_WATER " << enable_waving_water << "\n";
-	if (enable_waving_water) {
-		shaders_header << "#define WATER_WAVE_HEIGHT " << g_settings->getFloat("water_wave_height") << "\n";
-		shaders_header << "#define WATER_WAVE_LENGTH " << g_settings->getFloat("water_wave_length") << "\n";
-		shaders_header << "#define WATER_WAVE_SPEED " << g_settings->getFloat("water_wave_speed") << "\n";
-	}
-	switch (material_type) {
-		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-			shaders_header << "#define MATERIAL_WAVING_LIQUID 1\n";
-			break;
-		default:
-			shaders_header << "#define MATERIAL_WAVING_LIQUID 0\n";
-			break;
-	}
-	switch (material_type) {
-		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-		case TILE_MATERIAL_LIQUID_TRANSPARENT:
-			shaders_header << "#define MATERIAL_WATER_REFLECTIONS 1\n";
-			break;
-		default:
-			shaders_header << "#define MATERIAL_WATER_REFLECTIONS 0\n";
-			break;
+	/* Let the constant setters do their job and emit constants */
+	for (auto &setter : m_constant_setters) {
+		setter->onGenerate(name, constants);
 	}
 
-	shaders_header << "#define ENABLE_WAVING_LEAVES " << g_settings->getBool("enable_waving_leaves") << "\n";
-	shaders_header << "#define ENABLE_WAVING_PLANTS " << g_settings->getBool("enable_waving_plants") << "\n";
-
-	}
-
-	/* Other constants */
-
-	shaders_header << "#define ENABLE_TONE_MAPPING " << g_settings->getBool("tone_mapping") << "\n";
-
-	if (g_settings->getBool("enable_dynamic_shadows")) {
-		shaders_header << "#define ENABLE_DYNAMIC_SHADOWS 1\n";
-		if (g_settings->getBool("shadow_map_color"))
-			shaders_header << "#define COLORED_SHADOWS 1\n";
-
-		if (g_settings->getBool("shadow_poisson_filter"))
-			shaders_header << "#define POISSON_FILTER 1\n";
-
-		if (g_settings->getBool("enable_water_reflections"))
-			shaders_header << "#define ENABLE_WATER_REFLECTIONS 1\n";
-
-		if (g_settings->getBool("enable_translucent_foliage"))
-			shaders_header << "#define ENABLE_TRANSLUCENT_FOLIAGE 1\n";
-
-		if (g_settings->getBool("enable_node_specular"))
-			shaders_header << "#define ENABLE_NODE_SPECULAR 1\n";
-
-		s32 shadow_filter = g_settings->getS32("shadow_filters");
-		shaders_header << "#define SHADOW_FILTER " << shadow_filter << "\n";
-
-		float shadow_soft_radius = g_settings->getFloat("shadow_soft_radius");
-		if (shadow_soft_radius < 1.0f)
-			shadow_soft_radius = 1.0f;
-		shaders_header << "#define SOFTSHADOWRADIUS " << shadow_soft_radius << "\n";
-	}
-
-	if (g_settings->getBool("enable_bloom")) {
-		shaders_header << "#define ENABLE_BLOOM 1\n";
-		if (g_settings->getBool("enable_bloom_debug"))
-			shaders_header << "#define ENABLE_BLOOM_DEBUG 1\n";
-	}
-
-	if (g_settings->getBool("enable_auto_exposure"))
-		shaders_header << "#define ENABLE_AUTO_EXPOSURE 1\n";
-
-	if (g_settings->get("antialiasing") == "ssaa") {
-		shaders_header << "#define ENABLE_SSAA 1\n";
-		u16 ssaa_scale = MYMAX(2, g_settings->getU16("fsaa"));
-		shaders_header << "#define SSAA_SCALE " << ssaa_scale << ".\n";
-	}
-
-	if (g_settings->getBool("debanding"))
-		shaders_header << "#define ENABLE_DITHERING 1\n";
-
-	if (g_settings->getBool("enable_volumetric_lighting")) {
-		shaders_header << "#define VOLUMETRIC_LIGHT 1\n";
+	for (auto &it : constants) {
+		// spaces could cause duplicates
+		assert(trim(it.first) == it.first);
+		shaders_header << "#define " << it.first << ' ';
+		putConstant(shaders_header, it.second);
+		shaders_header << '\n';
 	}
 
 	std::string common_header = shaders_header.str();
@@ -776,7 +746,7 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		geometry_shader_ptr = geometry_shader.c_str();
 	}
 
-	auto cb = make_irr<ShaderCallback>(m_setter_factories);
+	auto cb = make_irr<ShaderCallback>(m_uniform_factories);
 	infostream << "Compiling high level shaders for " << log_name << std::endl;
 	s32 shadermat = gpu->addHighLevelShaderMaterial(
 		vertex_shader.c_str(), fragment_shader.c_str(), geometry_shader_ptr,
@@ -789,13 +759,46 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		dumpShaderProgram(warningstream, "Fragment", fragment_shader);
 		dumpShaderProgram(warningstream, "Geometry", geometry_shader);
 		throw ShaderException(
-			fmtgettext("Failed to compile the \"%s\" shader.", name.c_str()) +
+			fmtgettext("Failed to compile the \"%s\" shader.", log_name.c_str()) +
 			strgettext("\nCheck debug.txt for details."));
 	}
 
 	// Apply the newly created material type
 	shaderinfo.material = (video::E_MATERIAL_TYPE) shadermat;
 	return shaderinfo;
+}
+
+/*
+	Other functions and helpers
+*/
+
+u32 IShaderSource::getShader(const std::string &name,
+	MaterialType material_type, NodeDrawType drawtype)
+{
+	ShaderConstants input_const;
+	input_const["MATERIAL_TYPE"] = (int)material_type;
+	input_const["DRAWTYPE"] = (int)drawtype;
+
+	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
+	switch (material_type) {
+		case TILE_MATERIAL_ALPHA:
+		case TILE_MATERIAL_PLAIN_ALPHA:
+		case TILE_MATERIAL_LIQUID_TRANSPARENT:
+		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+			break;
+		case TILE_MATERIAL_BASIC:
+		case TILE_MATERIAL_PLAIN:
+		case TILE_MATERIAL_WAVING_LEAVES:
+		case TILE_MATERIAL_WAVING_PLANTS:
+		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
+			break;
+		default:
+			break;
+	}
+
+	return getShader(name, input_const, base_mat);
 }
 
 void dumpShaderProgram(std::ostream &output_stream,

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrTypes.h"
+#include <cassert>
 
 namespace irr
 {
@@ -118,7 +119,7 @@ public:
 	bool drop() const
 	{
 		// someone is doing bad reference counting.
-		_IRR_DEBUG_BREAK_IF(ReferenceCounter <= 0)
+		assert(ReferenceCounter > 0);
 
 		--ReferenceCounter;
 		if (!ReferenceCounter) {

@@ -52,13 +52,11 @@ void TestVoxelManipulator::testVoxelArea()
 	UASSERT(aa.size() == results.size());
 
 	infostream<<"Result of diff:"<<std::endl;
-	for (std::list<VoxelArea>::const_iterator
-			it = aa.begin(); it != aa.end(); ++it) {
+	for (auto it = aa.begin(); it != aa.end(); ++it) {
 		it->print(infostream);
 		infostream << std::endl;
 
-		std::vector<VoxelArea>::iterator j;
-		j = std::find(results.begin(), results.end(), *it);
+		auto j = std::find(results.begin(), results.end(), *it);
 		UASSERT(j != results.end());
 		results.erase(j);
 	}
