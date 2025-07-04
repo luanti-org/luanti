@@ -4159,8 +4159,7 @@ Using vectors of euler angles instead is discouraged as it is error-prone.
 
 The precision of the implementation may change (improve) in the future.
 
-Adhering to Luanti and Irrlicht conventions, rotations use **left-handed** conventions
-with a rotation order of **XYZ** (X first, then Y, then Z).
+Rotations use **left-handed** conventions.
 
 Constructors
 ------------
@@ -4176,9 +4175,10 @@ Constructors
     * `Rotation.x(pitch)`
     * `Rotation.y(yaw)`
     * `Rotation.z(roll)`
-* `Rotation.euler_angles(pitch, yaw, roll)`
+* `Rotation.euler_xyz(pitch, yaw, roll)`
   * All angles in radians.
-  * Mathematically equivalent to `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
+  * Uses X-Y-Z rotation order, equivalent to
+    `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
   * Consistent with the euler angles that can be used for bones or attachments.
 * `Rotation.compose(...)`: See methods below.
 
@@ -4194,9 +4194,10 @@ you merely get values that produce a (roughly) equivalent rotation when passed t
 * `axis, angle = Rotation:to_axis_angle()`
   * `axis` is a normalized vector.
   * `angle` is in radians.
-* `pitch, yaw, roll = Rotation:to_euler_angles()`
+* `pitch, yaw, roll = Rotation:to_euler_xyz()`
   * Angles are all in radians.
   * `pitch`, `yaw`, `roll`: Rotation around the X-, Y-, and Z-axis respectively.
+  * Inverse of `Rotation.euler_xyz`
 
 Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
 

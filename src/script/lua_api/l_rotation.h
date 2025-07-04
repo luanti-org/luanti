@@ -29,14 +29,14 @@ private:
 	template<float v3f::* C>
 	static int l_fixed_axis_angle(lua_State *L);
 	// self = euler_angles(pitch, yaw, roll)
-	static int l_euler_angles(lua_State *L);
+	static int l_euler_xyz(lua_State *L);
 
 	// x, y, z, w = to_quaternion(self)
 	static int l_to_quaternion(lua_State *L);
 	// axis, angle = to_axis_angle(self)
 	static int l_to_axis_angle(lua_State *L);
 	// pitch, yaw, roll = to_euler_angles(self)
-	static int l_to_euler_angles(lua_State *L);
+	static int l_to_euler_xyz(lua_State *L);
 
 	// rotated_vector = apply(self, vector)
 	static int l_apply(lua_State *L);

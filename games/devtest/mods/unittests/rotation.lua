@@ -42,7 +42,7 @@ describe("constructors", function()
 	it("euler angles", function()
 		local pitch, yaw, roll = 1, 2, 3
 		assert_close(Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch)),
-				Rotation.euler_angles(pitch, yaw, roll))
+				Rotation.euler_xyz(pitch, yaw, roll))
 	end)
 end)
 
@@ -57,7 +57,7 @@ describe("conversions", function()
 	end
 	test_roundtrip("quaternion")
 	test_roundtrip("axis_angle")
-	test_roundtrip("euler_angles")
+	test_roundtrip("euler_xyz")
 end)
 
 describe("composition", function()
