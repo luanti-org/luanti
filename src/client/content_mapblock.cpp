@@ -1819,7 +1819,7 @@ void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, s
     bases = outs;
 }
 
-void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width, u8 min_size)
+void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width, u8 quad_size)
 {
 	static u16 calls = 0;
 	if (++calls % 10 == 0)
@@ -1840,59 +1840,90 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
                          from.Y + (y == num-1 ? 1 : width),
                          from.Z + (z == num-1 ? 1 : width));
 
-				v3s16 p;
-				MapNode main_node;
-				content_t node_type;
-				ContentLightingFlags f;
-				LightPair lp;
-				core::aabbox3d bounds(v3s16(S16_MAX), v3s16(S16_MIN));
-				for (p.Z = from.Z; p.Z < to.Z; p.Z++)
-				for (p.Y = from.Y; p.Y < to.Y; p.Y++)
-				for (p.X = from.X; p.X < to.X; p.X++) {
-					MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
-					if (n.getContent() == CONTENT_IGNORE) {
-						goto next_volume;
+		v3s16 p;
+		MapNode main_node;
+		content_t node_type;
+		LightPair lp;
+		u16 day_light = 0;
+		u16 night_light = 0;
+		u8 num_light_samples = 0;
+		core::aabbox3d bounds(v3s16(S16_MAX), v3s16(S16_MIN));
+		for (p.Z = from.Z; p.Z < to.Z; p.Z++)
+		for (p.Y = from.Y; p.Y < to.Y; p.Y++)
+		for (p.X = from.X; p.X < to.X; p.X++) {
+			MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
+			if (n.getContent() == CONTENT_IGNORE) {
+				goto next_volume;
+			}
+			const ContentFeatures* f = &nodedef->get(n);
+			if (f->drawtype == NDT_NORMAL) {
+				for (v3s16 direction : directions) {
+					ContentLightingFlags lf = nodedef->getLightingFlags(data->m_vmanip.getNodeNoExNoEmerge(p + direction));
+					u8 light_sample = decode_light(main_node.getLightRaw(LIGHTBANK_DAY, lf));
+					if (light_sample > 0) {
+						//day_light = MYMAX(day_light, light_sample);
+						day_light += light_sample;
+						//warningstream << "day: " << day_light << std::endl;
+						night_light += decode_light(main_node.getLightRaw(LIGHTBANK_NIGHT, lf));
+						num_light_samples++;
 					}
-					const ContentFeatures* f = &nodedef->get(n);
-					if (!types.test(f->drawtype))
-						continue;
-					bounds.MinEdge.X = MYMIN(bounds.MinEdge.X, p.X);
-					bounds.MinEdge.Y = MYMIN(bounds.MinEdge.Y, p.Y);
-					bounds.MinEdge.Z = MYMIN(bounds.MinEdge.Z, p.Z);
-					bounds.MaxEdge.X = MYMAX(bounds.MaxEdge.X, p.X);
-					bounds.MaxEdge.Y = MYMAX(bounds.MaxEdge.Y, p.Y);
-					bounds.MaxEdge.Z = MYMAX(bounds.MaxEdge.Z, p.Z);
-					main_node = n;
 				}
+			} else {
+				ContentLightingFlags lf = nodedef->getLightingFlags(n);
+				u8 light_sample = decode_light(main_node.getLightRaw(LIGHTBANK_DAY, lf));
+				if (light_sample > 0) {
+					//day_light = MYMAX(day_light, light_sample);
+					day_light += light_sample;
+					//warningstream << "day: " << day_light << std::endl;
+					night_light += decode_light(main_node.getLightRaw(LIGHTBANK_NIGHT, lf));
+					num_light_samples++;
+				}
+			}
+			if (!types.test(f->drawtype)) {
+				continue;
+			}
+			bounds.MinEdge.X = MYMIN(bounds.MinEdge.X, p.X);
+			bounds.MinEdge.Y = MYMIN(bounds.MinEdge.Y, p.Y);
+			bounds.MinEdge.Z = MYMIN(bounds.MinEdge.Z, p.Z);
+			bounds.MaxEdge.X = MYMAX(bounds.MaxEdge.X, p.X);
+			bounds.MaxEdge.Y = MYMAX(bounds.MaxEdge.Y, p.Y);
+			bounds.MaxEdge.Z = MYMAX(bounds.MaxEdge.Z, p.Z);
+			main_node = n;
+		}
 
         // skip if volume is empty or too small
-        if (bounds.MinEdge.X == S16_MAX || //
-        	bounds.MinEdge.getDistanceFromSQ(bounds.MaxEdge) < min_size)
+        if (bounds.MinEdge.X == S16_MAX)
         	continue;
 
-    		bounds.MinEdge -= blockpos_nodes - 1;
-    		bounds.MaxEdge -= blockpos_nodes - 1;
+    	bounds.MinEdge -= blockpos_nodes;
+    	bounds.MaxEdge -= blockpos_nodes;
+    	bounds.MinEdge /= quad_size;
+    	bounds.MaxEdge /= quad_size;
+    	bounds.MinEdge += 1;
+    	bounds.MaxEdge += 1;
 
-			f = nodedef->getLightingFlags(main_node);
-			lp = LightPair(decode_light(main_node.getLightRaw(LIGHTBANK_DAY, f)),
-			               decode_light(main_node.getLightRaw(LIGHTBANK_NIGHT, f)));
+		//if(num_light_samples == 0)
+			lp = LightPair((u8) 255, 0);
+		//else {
+			//warningstream << "avg: " << (day_light) << " : " << (day_light / num_light_samples) << std::endl;
+		//	lp = LightPair((u8) (day_light / num_light_samples), night_light / num_light_samples);
+		//}
 
-			node_type = main_node.getContent();
-			node_types[node_type][lp] = main_node;
-			for (p.Z = bounds.MinEdge.Z; p.Z <= bounds.MaxEdge.Z; p.Z++)
-			for (p.Y = bounds.MinEdge.Y; p.Y <= bounds.MaxEdge.Y; p.Y++)
-			for (p.X = bounds.MinEdge.X; p.X <= bounds.MaxEdge.X; p.X++) {
-				all_set_nodes[0][p.Y][p.Z].set(p.X); // x axis
-				all_set_nodes[1][p.X][p.Z].set(p.Y); // y axis
-				all_set_nodes[2][p.X][p.Y].set(p.Z); // z axis
+		node_type = main_node.getContent();
+		node_types[node_type][lp] = main_node;
+		for (p.Z = bounds.MinEdge.Z; p.Z <= bounds.MaxEdge.Z; p.Z++)
+		for (p.Y = bounds.MinEdge.Y; p.Y <= bounds.MaxEdge.Y; p.Y++)
+		for (p.X = bounds.MinEdge.X; p.X <= bounds.MaxEdge.X; p.X++) {
+			all_set_nodes[0][p.Y][p.Z].set(p.X); // x axis
+			all_set_nodes[1][p.X][p.Z].set(p.Y); // y axis
+			all_set_nodes[2][p.X][p.Y].set(p.Z); // z axis
 
-				set_nodes[node_type][lp][0][p.Y][p.Z].set(p.X); // x axis
-				set_nodes[node_type][lp][1][p.X][p.Z].set(p.Y); // y axis
-				set_nodes[node_type][lp][2][p.X][p.Y].set(p.Z); // z axis
-			}
-			next_volume:
-
-			}
+			set_nodes[node_type][lp][0][p.Y][p.Z].set(p.X); // x axis
+			set_nodes[node_type][lp][1][p.X][p.Z].set(p.Y); // y axis
+			set_nodes[node_type][lp][2][p.X][p.Y].set(p.Z); // z axis
+		}
+		next_volume:
+	}
 	num -= 2;
 
 	for (auto [node_type, map] : set_nodes)
@@ -1900,8 +1931,8 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 		u64 nodes_faces[6][64][64]; // -x, +x, -y, +y, -z, +z
 		MapNode n = node_types[node_type][light_pair];
 
-		for (u8 u = 0; u < data->m_side_length; u++)
-		for (u8 v = 0; v < data->m_side_length; v++) {
+		for (u8 u = 0; u < 64; u++)
+		for (u8 v = 0; v < 64; v++) {
 			// last shifts to remove padding
 			nodes_faces[0][u][v] = (((value[0][u+1][v+1] & (all_set_nodes[0][u+1][v+1] << 1).flip()) << 1) >> 2).to_ullong();
 			nodes_faces[1][u][v] = (((value[0][u+1][v+1] & (all_set_nodes[0][u+1][v+1] >> 1).flip()) << 1) >> 2).to_ullong();
@@ -1913,8 +1944,8 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 
 		u64 slices[6][64][64] = {0};
 		for (u8 direction = 0; direction < 6; direction++)
-		for (u8 u = 0; u < data->m_side_length; u++)
-		for (u8 v = 0; v < data->m_side_length; v++) {
+		for (u8 u = 0; u < 64; u++)
+		for (u8 v = 0; v < 64; v++) {
 			u64 column = nodes_faces[direction][u][v];
 			while (column) {
 				const u8 first_filled = std::__countr_zero(column);
@@ -1924,8 +1955,8 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 		}
 
 		for (u8 direction = 0; direction < 6; direction++)
-		for (u8 slice_i = 0; slice_i < data->m_side_length; slice_i++) {
-		for (u8 u = 0; u < data->m_side_length; u++) {
+		for (u8 slice_i = 0; slice_i < 64; slice_i++) {
+		for (u8 u = 0; u < 64; u++) {
 			u64 column = slices[direction][slice_i][u];
 			while (column) {
 				u32 v0 = std::__countr_zero(column);
@@ -1948,8 +1979,8 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 				v1 = (v0 + v1) * BS;
 				u32 u0 = u * BS;
 				v0 *= BS;
-				const s32 w = BS * slice_i - BS / 2
-					+ (direction % 2 == 0 ? 0 : BS);
+				const s32 w = (BS * slice_i - BS / 2
+					+ (direction % 2 == 0 ? 0 : BS));
 				static constexpr v3s16 direction_vectors[6] = {
 					v3s16(-1, 0, 0), v3s16(1, 0, 0),
 					v3s16(0, -1, 0), v3s16(0, 1, 0),
@@ -1994,8 +2025,13 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 					vertices[3] = core::vector3df(u1 - BS / 2, v1 - BS / 2, w);
 					break;
 				}
-				video::SColor color = encode_light(255, nodedef->getLightingFlags(n).light_source);
-				//video::SColor color = encode_light(light_pair, nodedef->getLightingFlags(n).light_source);
+				vertices[0] *= quad_size;
+                vertices[1] *= quad_size;
+                vertices[2] *= quad_size;
+                vertices[3] *= quad_size;
+				//video::SColor color = encode_light(255, nodedef->getLightingFlags(n).light_source);
+				//warningstream << "light: " << light_pair << std::endl;
+				video::SColor color = encode_light(light_pair, nodedef->getLightingFlags(n).light_source);
 				TileSpec tile;
 				video::S3DVertex irr_vertices[4];
 				switch (direction) {
@@ -2154,8 +2190,11 @@ void LodMeshGenerator::generate(u8 lod) {
         if (g_settings->get("leaves_style") == "simple")
             types.set(NDT_GLASSLIKE);
 
-    	// shift these down a bit, to prevent z fighting with the water
-        generateCloseLod(types, width, min_size);
+		u8 quad_size = 1;
+		if (data->m_side_length > 64)
+			quad_size = data->m_side_length / 64;
+
+        generateCloseLod(types, width, quad_size);
     } else {
         std::bitset<NodeDrawType_END> solids;
         solids.set(NDT_NORMAL);
