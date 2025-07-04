@@ -68,7 +68,7 @@ int LuaRotation::l_fixed_axis_angle(lua_State *L)
 	return 1;
 }
 
-int LuaRotation::l_euler_angles(lua_State *L)
+int LuaRotation::l_euler_xyz(lua_State *L)
 {
 	f32 pitch = readFiniteParam<f32>(L, 1);
 	f32 yaw = readFiniteParam<f32>(L, 2);
@@ -100,7 +100,7 @@ int LuaRotation::l_to_axis_angle(lua_State *L)
 	return 2;
 }
 
-int LuaRotation::l_to_euler_angles(lua_State *L)
+int LuaRotation::l_to_euler_xyz(lua_State *L)
 {
 	const auto &q = check(L, 1);
 	core::vector3df euler;
@@ -205,7 +205,7 @@ void LuaRotation::Register(lua_State *L)
 	CONSTRUCTOR(identity)
 	CONSTRUCTOR(quaternion)
 	CONSTRUCTOR(axis_angle)
-	CONSTRUCTOR(euler_angles)
+	CONSTRUCTOR(euler_xyz)
 	CONSTRUCTOR(compose)
 
 #undef CONSTRUCTOR
@@ -227,7 +227,7 @@ const char LuaRotation::className[] = "Rotation";
 const luaL_Reg LuaRotation::methods[] = {
 	METHOD(to_quaternion),
 	METHOD(to_axis_angle),
-	METHOD(to_euler_angles),
+	METHOD(to_euler_xyz),
 	METHOD(apply),
 	METHOD(compose),
 	METHOD(invert),
