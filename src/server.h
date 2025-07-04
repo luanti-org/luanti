@@ -319,6 +319,7 @@ public:
 			std::list<std::string> *log);
 
 	// IGameDef interface
+	bool isClient() override { return false; }
 	// Under envlock
 	virtual IItemDefManager* getItemDefManager();
 	virtual const NodeDefManager* getNodeDefManager();
