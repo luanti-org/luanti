@@ -142,7 +142,7 @@ Mods
 Mod load path
 -------------
 
-Paths are relative to the directories listed in the [Paths](#Paths) section above.
+Paths are relative to the directories listed in the [Paths](#paths) section above.
 
 * `games/<gameid>/mods/`
 * `mods/`
