@@ -1106,7 +1106,7 @@ void CGUIEditBox::breakText()
 			if (Text[i + 1] == L'\n') { // Windows breaks
 				Text.erase(i);
 				--size;
-				if (CursorPos >= i)
+				if (CursorPos > i)
 					--CursorPos;
 			}
 		} else if (c == L'\n') { // Unix breaks

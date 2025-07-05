@@ -339,7 +339,7 @@ void GUIEditBoxWithScrollBar::breakText()
 			if (Text[i + 1] == L'\n') { // Windows breaks
 				Text.erase(i);
 				--size;
-				if (m_cursor_pos >= i)
+				if (m_cursor_pos > i)
 					--m_cursor_pos;
 			}
 		} else if (c == L'\n') { // Unix breaks
