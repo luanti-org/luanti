@@ -11,10 +11,10 @@ void MeshCollector::append(const TileSpec &tile, const video::S3DVertex *vertice
 		u32 numVertices, const u16 *indices, u32 numIndices)
 {
 	for (int layernum = 0; layernum < MAX_TILE_LAYERS; layernum++) {
-		const TileLayer *layer = &tile.layers[layernum];
-		if (layer->empty())
+		const TileLayer &layer = tile.layers[layernum];
+		if (layer.empty())
 			continue;
-		append(*layer, vertices, numVertices, indices, numIndices, layernum);
+		append(layer, vertices, numVertices, indices, numIndices, layernum);
 	}
 }
 
