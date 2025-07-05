@@ -172,7 +172,7 @@ public:
 	//! NOTE: Rotation order is ZYX. This means that vectors are
 	//! first rotated around the X, then the Y, and finally the Z axis.
 	//! NOTE: The rotation is done as per the right-hand rule.
-	//! See test_irr_matrix4.cpp if you're still unsure about the conventions used here.
+	//! See test_matrix4.cpp if you're still unsure about the conventions used here.
 	inline CMatrix4<T> &setRotationRadians(const vector3d<T> &rotation);
 
 	//! Same as `setRotationRadians`, but uses degrees.
