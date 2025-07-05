@@ -1,4 +1,7 @@
+file(GLOB util_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 set(util_SRCS
+	${util_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/areastore.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/auth.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/base64.cpp

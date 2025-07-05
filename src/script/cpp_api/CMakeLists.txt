@@ -1,4 +1,7 @@
+file(GLOB common_SCRIPT_CPP_API_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 set(common_SCRIPT_CPP_API_SRCS
+	${common_SCRIPT_CPP_API_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/s_async.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/s_base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/s_entity.cpp
