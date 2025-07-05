@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Polish (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-05-04 20:14+0000\n"
-"Last-Translator: Karol1165 <kutkarol1165@gmail.com>\n"
+"PO-Revision-Date: 2025-07-06 11:01+0000\n"
+"Last-Translator: nauta-turbidus <wiktor-t@hotmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/minetest/minetest/"
 "pl/>\n"
 "Language: pl\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -84,7 +84,7 @@ msgstr "Przeglądaj"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "Niezgodne z \"$1\""
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
@@ -224,7 +224,7 @@ msgstr "Backspace"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
-msgstr ""
+msgstr "Przyciski z celownikiem"
 
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
@@ -290,18 +290,16 @@ msgid "Show technical names"
 msgstr "Pokaż nazwy techniczne"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Tap"
-msgstr "Tab"
+msgstr "Dotknij"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
-msgstr ""
+msgstr "Dotknij z celownikiem"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Touchscreen layout"
-msgstr "Ekran dotykowy"
+msgstr "Układ ekranu dotykowego"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -429,12 +427,10 @@ msgid "$1 downloading..."
 msgstr "Pobieranie $1..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "All"
 msgstr "Wszystko"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr "ContentDB nie jest dostępny gdy Luanti był skompilowany bez cURL"
 
@@ -443,7 +439,6 @@ msgid "Downloading..."
 msgstr "Pobieranie..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "Featured"
 msgstr "Wyróżnione"
 
@@ -516,7 +511,6 @@ msgid "Dependencies:"
 msgstr "Zależności:"
 
 #: builtin/mainmenu/content/dlg_install.lua
-#, fuzzy
 msgid "Error getting dependencies for package $1"
 msgstr "Błąd przy pobieraniu zależności dla pakietu $1"
 
@@ -569,9 +563,8 @@ msgid "Error loading package information"
 msgstr "Błąd przy ładowaniu informacji o pakiecie"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Error loading reviews"
-msgstr "Błąd tworzenia klienta: %s"
+msgstr "Błąd ładowania recenzji"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
@@ -591,7 +584,7 @@ msgstr "Lista błędów"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr ""
+msgstr "Recenzje"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -614,9 +607,8 @@ msgid "Website"
 msgstr "Strona internetowa"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
-msgstr "Przez $1  —  $2 pobrań  —  +$3 / $4 / -$5"
+msgstr "od $1  —  $2 pobrań  —  +$3 / $4 / -$5"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 (Enabled)"
@@ -943,29 +935,27 @@ msgstr "Usunąć świat \"$1\"?"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "W związku z tym, twoje przypisania klawiszy mogły się zmienić."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Sprawdź ustawienia klawiszy lub zajrzyj w dokumentację:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Zamknij"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Przypisanie klawiszy."
+msgstr "Przypisania klawiszy uległy zmianie"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Ustawienia"
+msgstr "Otwórz ustawienia"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
-msgstr ""
+msgstr "System przetwarzania wejścia uległ przebudowie w Luanti 5.12.0."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1043,14 +1033,12 @@ msgstr ""
 "która nadpisze każdą zmienioną tutaj nazwę."
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
-#, fuzzy
 msgid "Expand all"
-msgstr "Włącz wszystkie"
+msgstr "Rozwiń wszystkie"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
-#, fuzzy
 msgid "Group by prefix"
-msgstr "Grupuj poprzez prefiks"
+msgstr "Grupuj po prefiksach"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "The $1 server uses a game called $2 and the following mods:"
@@ -1459,7 +1447,7 @@ msgstr "Granice bloków pokazane dla pobliskich bloków"
 
 #: src/client/game.cpp
 msgid "Bounding boxes shown"
-msgstr ""
+msgstr "Pudełka brzegowe widoczne"
 
 #: src/client/game.cpp
 msgid "Camera update disabled"
