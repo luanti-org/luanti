@@ -34,7 +34,9 @@ struct GameFormSpec
 	// Currently only used for the in-game settings menu.
 	void showPauseMenuFormSpec(const std::string &formspec, const std::string &formname);
 	void showNodeFormspec(const std::string &formspec, const v3s16 &nodepos);
-	void showPlayerInventory();
+	/// If `!fs_override`: Uses `player->inventory_formspec`.
+	/// If ` fs_override`: Uses a temporary formspec until an update is received.
+	void showPlayerInventory(const std::string *fs_override);
 	void showDeathFormspecLegacy();
 	// Shows the hardcoded "main" pause menu.
 	void showPauseMenu();

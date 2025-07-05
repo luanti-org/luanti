@@ -65,6 +65,8 @@
 	#include "client/sound/sound_openal.h"
 #endif
 
+#include <csignal>
+
 class NodeDugEvent : public MtEvent
 {
 public:
@@ -561,7 +563,7 @@ public:
 	Game();
 	~Game();
 
-	bool startup(bool *kill,
+	bool startup(volatile std::sig_atomic_t *kill,
 			InputHandler *input,
 			RenderingEngine *rendering_engine,
 			const GameStartData &game_params,
@@ -793,14 +795,14 @@ private:
 	   This class does take ownership/responsibily for cleaning up etc of any of
 	   these items (e.g. device)
 	*/
-	IrrlichtDevice *device;
-	RenderingEngine *m_rendering_engine;
-	video::IVideoDriver *driver;
-	scene::ISceneManager *smgr;
-	bool *kill;
-	std::string *error_message;
-	bool *reconnect_requested;
-	PausedNodesList paused_animated_nodes;
+	IrrlichtDevice             *device;
+	RenderingEngine            *m_rendering_engine;
+	video::IVideoDriver        *driver;
+	scene::ISceneManager       *smgr;
+	volatile std::sig_atomic_t *kill;
+	std::string                *error_message;
+	bool                       *reconnect_requested;
+	PausedNodesList             paused_animated_nodes;
 
 	bool simple_singleplayer_mode;
 	/* End 'cache' */
@@ -932,7 +934,7 @@ Game::~Game()
 		m_rendering_engine->finalize();
 }
 
-bool Game::startup(bool *kill,
+bool Game::startup(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,
@@ -1923,7 +1925,7 @@ void Game::processKeyInput()
 		if (g_settings->getBool("continuous_forward"))
 			toggleAutoforward();
 	} else if (wasKeyDown(KeyType::INVENTORY)) {
-		m_game_formspec.showPlayerInventory();
+		m_game_formspec.showPlayerInventory(nullptr);
 	} else if (input->cancelPressed()) {
 #ifdef __ANDROID__
 		m_android_chat_open = false;
@@ -2712,11 +2714,16 @@ void Game::handleClientEvent_DeathscreenLegacy(ClientEvent *event, CameraOrienta
 
 void Game::handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation *cam)
 {
-	m_game_formspec.showFormSpec(*event->show_formspec.formspec,
-		*event->show_formspec.formname);
+	auto &fs = event->show_formspec;
 
-	delete event->show_formspec.formspec;
-	delete event->show_formspec.formname;
+	if (fs.formname->empty() && !fs.formspec->empty()) {
+		m_game_formspec.showPlayerInventory(fs.formspec);
+	} else {
+		m_game_formspec.showFormSpec(*fs.formspec, *fs.formname);
+	}
+
+	delete fs.formspec;
+	delete fs.formname;
 }
 
 void Game::handleClientEvent_ShowCSMFormSpec(ClientEvent *event, CameraOrientation *cam)
@@ -4235,7 +4242,7 @@ void Game::readSettings()
  ****************************************************************************/
 /****************************************************************************/
 
-void the_game(bool *kill,
+void the_game(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,

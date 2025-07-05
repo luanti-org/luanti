@@ -51,15 +51,6 @@ void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
 	m_vmanip.addArea(voxel_area);
 }
 
-void MeshMakeData::fillBlockData(const v3s16 &bp, MapNode *data)
-{
-	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
-	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
-
-	v3s16 blockpos_nodes = bp * MAP_BLOCKSIZE;
-	m_vmanip.copyFrom(data, data_area, v3s16(0,0,0), blockpos_nodes, data_size);
-}
-
 void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
 {
 	m_blockpos = {0, 0, 0};
@@ -626,7 +617,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 			if (data->m_vmanip.getNodeNoEx(p).getContent() != CONTENT_IGNORE) {
 				MinimapMapblock *block = new MinimapMapblock;
 				m_minimap_mapblocks[mesh_grid.getOffsetIndex(ofs)] = block;
-				block->getMinimapNodes(&data->m_vmanip, p);
+				block->getMinimapNodes(&data->m_vmanip, data->m_nodedef, p);
 			}
 		}
 	}

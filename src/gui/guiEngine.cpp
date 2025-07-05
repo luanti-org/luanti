@@ -33,17 +33,13 @@
 	#include "client/sound/sound_openal.h"
 #endif
 
+#include <csignal>
+
 
 /******************************************************************************/
 void TextDestGuiEngine::gotText(const StringMap &fields)
 {
 	m_engine->getScriptIface()->handleMainMenuButtons(fields);
-}
-
-/******************************************************************************/
-void TextDestGuiEngine::gotText(const std::wstring &text)
-{
-	m_engine->getScriptIface()->handleMainMenuEvent(wide_to_utf8(text));
 }
 
 /******************************************************************************/
@@ -74,6 +70,7 @@ video::ITexture *MenuTextureSource::getTexture(const std::string &name, u32 *id)
 	if (retval)
 		return retval;
 
+	verbosestream << "MenuTextureSource: loading " << name << std::endl;
 	video::IImage *image = m_driver->createImageFromFile(name.c_str());
 	if (!image)
 		return NULL;
@@ -109,7 +106,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 		RenderingEngine *rendering_engine,
 		IMenuManager *menumgr,
 		MainMenuData *data,
-		bool &kill) :
+		volatile std::sig_atomic_t &kill) :
 	m_rendering_engine(rendering_engine),
 	m_parent(parent),
 	m_menumanager(menumgr),
@@ -404,12 +401,6 @@ GUIEngine::~GUIEngine()
 	m_sound_manager.reset();
 
 	m_irr_toplefttext->remove();
-
-	// delete textures
-	for (image_definition &texture : m_textures) {
-		if (texture.texture)
-			m_rendering_engine->get_video_driver()->removeTexture(texture.texture);
-	}
 }
 
 /******************************************************************************/
@@ -597,26 +588,16 @@ void GUIEngine::drawFooter(video::IVideoDriver *driver)
 bool GUIEngine::setTexture(texture_layer layer, const std::string &texturepath,
 		bool tile_image, unsigned int minsize)
 {
-	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
+	m_textures[layer].texture = nullptr;
 
-	if (m_textures[layer].texture) {
-		driver->removeTexture(m_textures[layer].texture);
-		m_textures[layer].texture = NULL;
-	}
-
-	if (texturepath.empty() || !fs::PathExists(texturepath)) {
+	if (texturepath.empty() || !fs::PathExists(texturepath))
 		return false;
-	}
 
-	m_textures[layer].texture = driver->getTexture(texturepath.c_str());
+	m_textures[layer].texture = m_texture_source->getTexture(texturepath);
 	m_textures[layer].tile    = tile_image;
 	m_textures[layer].minsize = minsize;
 
-	if (!m_textures[layer].texture) {
-		return false;
-	}
-
-	return true;
+	return m_textures[layer].texture != nullptr;
 }
 
 /******************************************************************************/

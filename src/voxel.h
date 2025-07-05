@@ -34,7 +34,6 @@ class NodeDefManager;
 	Debug stuff
 */
 extern u64 emerge_time;
-extern u64 emerge_load_time;
 
 /*
 	This class resembles aabbox3d<s16> a lot, but has inclusive
@@ -469,7 +468,7 @@ public:
 		Control
 	*/
 
-	virtual void clear();
+	void clear();
 
 	void print(std::ostream &o, const NodeDefManager *nodemgr,
 			VoxelPrintMode mode=VOXELPRINT_MATERIAL) const;
@@ -483,7 +482,7 @@ public:
 		Copy data and set flags to 0
 		dst_area.getExtent() <= src_area.getExtent()
 	*/
-	void copyFrom(MapNode *src, const VoxelArea& src_area,
+	void copyFrom(MapNode *src, bool is_mono_block, const VoxelArea& src_area,
 			v3s16 from_pos, v3s16 to_pos, const v3s16 &size);
 
 	// Copy data

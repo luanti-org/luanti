@@ -178,15 +178,6 @@ static void setBillboardTextureMatrix(scene::IBillboardSceneNode *bill,
 	matrix.setTextureScale(txs, tys);
 }
 
-// Evaluate transform chain recursively; irrlicht does not do this for us
-static void updatePositionRecursive(scene::ISceneNode *node)
-{
-	scene::ISceneNode *parent = node->getParent();
-	if (parent)
-		updatePositionRecursive(parent);
-	node->updateAbsolutePosition();
-}
-
 static bool logOnce(const std::ostringstream &from, std::ostream &log_to)
 {
 	thread_local std::vector<u64> logged;
@@ -682,7 +673,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			m_animated_meshnode = m_smgr->addAnimatedMeshSceneNode(mesh, m_matrixnode);
 			m_animated_meshnode->grab();
 			mesh->drop(); // The scene node took hold of it
-			m_animated_meshnode->animateJoints(); // Needed for some animations
 			m_animated_meshnode->setScale(m_prop.visual_size);
 
 			// set vertex colors to ensure alpha is set
@@ -692,6 +682,21 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 
 			m_animated_meshnode->forEachMaterial([this] (auto &mat) {
 				mat.BackfaceCulling = m_prop.backface_culling;
+			});
+
+			m_animated_meshnode->setOnAnimateCallback([&](f32 dtime) {
+				for (auto &it : m_bone_override) {
+					auto* bone = m_animated_meshnode->getJointNode(it.first.c_str());
+					if (!bone)
+						continue;
+
+					BoneOverride &props = it.second;
+					props.dtime_passed += dtime;
+
+					bone->setPosition(props.getPosition(bone->getPosition()));
+					bone->setRotation(props.getRotationEulerDeg(bone->getRotation()));
+					bone->setScale(props.getScale(bone->getScale()));
+				}
 			});
 		} else
 			errorstream<<"GenericCAO::addToScene(): Could not load mesh "<<m_prop.mesh<<std::endl;
@@ -783,7 +788,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 	updateMarker();
 	updateNodePos();
 	updateAnimation();
-	updateBones(.0f);
 	updateAttachments();
 	setNodeLight(m_last_light);
 	updateMeshCulling();
@@ -1174,18 +1178,6 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		rot_translator.val_current = m_rotation;
 		updateNodePos();
 	}
-
-	if (m_animated_meshnode) {
-		// Everything must be updated; the whole transform
-		// chain as well as the animated mesh node.
-		// Otherwise, bone attachments would be relative to
-		// a position that's one frame old.
-		if (m_matrixnode)
-			updatePositionRecursive(m_matrixnode);
-		m_animated_meshnode->updateAbsolutePosition();
-		m_animated_meshnode->animateJoints();
-		updateBones(dtime);
-	}
 }
 
 static void setMeshBufferTextureCoords(scene::IMeshBuffer *buf, const v2f *uv, u32 count)
@@ -1392,44 +1384,6 @@ void GenericCAO::updateAnimationSpeed()
 		return;
 
 	m_animated_meshnode->setAnimationSpeed(m_animation_speed);
-}
-
-void GenericCAO::updateBones(f32 dtime)
-{
-	if (!m_animated_meshnode)
-		return;
-	if (m_bone_override.empty()) {
-		m_animated_meshnode->setJointMode(scene::EJUOR_NONE);
-		return;
-	}
-
-	m_animated_meshnode->setJointMode(scene::EJUOR_CONTROL); // To write positions to the mesh on render
-	for (auto &it : m_bone_override) {
-		std::string bone_name = it.first;
-		scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
-		if (!bone)
-			continue;
-
-		BoneOverride &props = it.second;
-		props.dtime_passed += dtime;
-
-		bone->setPosition(props.getPosition(bone->getPosition()));
-		bone->setRotation(props.getRotationEulerDeg(bone->getRotation()));
-		bone->setScale(props.getScale(bone->getScale()));
-	}
-
-	// The following is needed for set_bone_pos to propagate to
-	// attached objects correctly.
-	// Irrlicht ought to do this, but doesn't when using EJUOR_CONTROL.
-	for (u32 i = 0; i < m_animated_meshnode->getJointCount(); ++i) {
-		auto bone = m_animated_meshnode->getJointNode(i);
-		// Look for the root bone.
-		if (bone && bone->getParent() == m_animated_meshnode) {
-			// Update entire skeleton.
-			bone->updateAbsolutePositionOfAllChildren();
-			break;
-		}
-	}
 }
 
 void GenericCAO::updateAttachments()
@@ -1747,7 +1701,6 @@ void GenericCAO::processMessage(const std::string &data)
 		} else {
 			m_bone_override[bone] = props;
 		}
-		// updateBones(); now called every step
 	} else if (cmd == AO_CMD_ATTACH_TO) {
 		u16 parent_id = readS16(is);
 		std::string bone = deSerializeString16(is);

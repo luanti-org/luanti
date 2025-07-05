@@ -68,8 +68,6 @@ struct TextDest
 {
 	virtual ~TextDest() = default;
 
-	// This is deprecated I guess? -celeron55
-	virtual void gotText(const std::wstring &text) {}
 	virtual void gotText(const StringMap &fields) = 0;
 
 	std::string m_formname;
@@ -493,6 +491,7 @@ private:
 	bool parseMiddleRect(const std::string &value, core::rect<s32> *parsed_rect);
 
 	void tryClose();
+	void trySubmitClose();
 
 	void showTooltip(const std::wstring &text, const irr::video::SColor &color,
 		const irr::video::SColor &bgcolor);

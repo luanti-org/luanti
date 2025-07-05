@@ -320,7 +320,6 @@ set(IRRMESHLOADER
 
 add_library(IRRMESHOBJ OBJECT
 	SkinnedMesh.cpp
-	CBoneSceneNode.cpp
 	CMeshSceneNode.cpp
 	CAnimatedMeshSceneNode.cpp
 	${IRRMESHLOADER}

@@ -147,8 +147,8 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	/*
 		Menu-game loop
 	*/
-	bool retval = true;
-	bool *kill = porting::signal_handler_killstatus();
+	bool retval         = true;
+	volatile auto *kill = porting::signal_handler_killstatus();
 
 	while (m_rendering_engine->run() && !*kill &&
 		!g_gamecallback->shutdown_requested) {
@@ -326,6 +326,18 @@ void ClientLauncher::setting_changed_callback(const std::string &name, void *dat
 	static_cast<ClientLauncher*>(data)->config_guienv();
 }
 
+static video::ITexture *loadTexture(video::IVideoDriver *driver, const char *path)
+{
+	// FIXME?: it would be cleaner to do this through a ITextureSource, but we don't have one
+	video::ITexture *texture = nullptr;
+	verbosestream << "Loading texture " << path << std::endl;
+	if (auto *image = driver->createImageFromFile(path); image) {
+		texture = driver->addTexture(fs::GetFilenameFromPath(path), image);
+		image->drop();
+	}
+	return texture;
+}
+
 void ClientLauncher::config_guienv()
 {
 	gui::IGUISkin *skin = guienv->getSkin();
@@ -364,10 +376,9 @@ void ClientLauncher::config_guienv()
 		if (cached_id != sprite_ids.end()) {
 			skin->setIcon(gui::EGDI_CHECK_BOX_CHECKED, cached_id->second);
 		} else {
-			gui::IGUISpriteBank *sprites = skin->getSpriteBank();
-			video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
-			video::ITexture *texture = driver->getTexture(path.c_str());
-			s32 id = sprites->addTextureAsSprite(texture);
+			auto *driver = m_rendering_engine->get_video_driver();
+			auto *texture = loadTexture(driver, path.c_str());
+			s32 id = skin->getSpriteBank()->addTextureAsSprite(texture);
 			if (id != -1) {
 				skin->setIcon(gui::EGDI_CHECK_BOX_CHECKED, id);
 				sprite_ids.emplace(path, id);
@@ -529,9 +540,9 @@ bool ClientLauncher::launch_game(std::string &error_message,
 
 void ClientLauncher::main_menu(MainMenuData *menudata)
 {
-	bool *kill = porting::signal_handler_killstatus();
+	volatile auto       *kill   = porting::signal_handler_killstatus();
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
-	auto *device = m_rendering_engine->get_raw_device();
+	auto                *device = m_rendering_engine->get_raw_device();
 
 	// Wait until app is in foreground because of #15883
 	infostream << "Waiting for app to be in foreground" << std::endl;
