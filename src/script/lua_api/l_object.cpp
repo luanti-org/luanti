@@ -2696,7 +2696,32 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			lighting.bloom_radius          = getfloatfield_default(L, -1, "radius",          lighting.bloom_radius);
 		}
 		lua_pop(L, 1); // bloom
-}
+
+		lua_getfield(L, 2, "color_transform_matrix");
+
+		// if none or nil, keep color transform matrix unchanged
+		if (!lua_isnoneornil(L, -1)) {
+			if (!lua_istable(L, -1))
+				throw LuaError("vision_effects.color_transform_matrix is not a table");
+
+			for (int row = 1; row <= 3; ++row) {
+				lua_rawgeti(L, -1, row);
+				if (!lua_istable(L, -1))
+					throw LuaError("color_transform_matrix should be in format {{a, b, c},{d, e, f},{g, a, h}}");
+
+				for (int col = 1; col <= 3; ++col) {
+					lua_rawgeti(L, -1, col);
+					if (!lua_isnumber(L, -1))
+						throw LuaError("color_transform_matrix should be in format {{a, b, c},{d, e, f},{g, a, h}}");
+
+					lighting.vision_effects.color_transform_matrix[(row - 1) * 3 + (col - 1)] = (float)lua_tonumber(L, -1);
+					lua_pop(L, 1); // Pop the value at [row][col]
+				}
+				lua_pop(L, 1); // Pop the row table
+			}
+		}
+		lua_pop(L, 1); // color_transform_matrix
+	}
 
 	getServer(L)->setLighting(player, lighting);
 	return 0;
@@ -2748,6 +2773,17 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_pushnumber(L, lighting.bloom_radius);
 	lua_setfield(L, -2, "radius");
 	lua_setfield(L, -2, "bloom");
+	lua_newtable(L); // "color_transform_matrix"
+	// Create the nested table structure {{a, b, c}, {d, e, f}, {g, h, i}}
+	for (int row = 0; row < 3; row++) {
+		lua_newtable(L); // Create inner row table
+		for (int col = 0; col < 3; col++) {
+			lua_pushnumber(L, lighting.vision_effects.color_transform_matrix[row * 3 + col]); // Push the value
+			lua_rawseti(L, -2, col + 1); // Set value in inner table with 1-based indexing
+		}
+		lua_rawseti(L, -2, row + 1); // Set inner table in the outer matrix table
+	}
+	lua_setfield(L, -2, "color_transform_matrix");
 	return 1;
 }
 

@@ -9064,6 +9064,23 @@ child will follow movement and rotation of that bone.
             * Currently, bloom `intensity` and `strength_factor` affect volumetric
               lighting `strength` and vice versa. This behavior is to be changed
               in the future, do not rely on it.
+      * `color_transform_matrix`: is a matrix with default value (identity matrix):
+        ```lua
+          { {1.0, 0.0, 0.0}, -- r
+            {0.0, 1.0, 0.0}, -- g
+            {0.0, 0.0, 1.0}} -- b
+        ```
+
+        * Work as `transformed_color_RGB = color_transform_matrix * color_RGB`
+        * Can be used for creation color blind effect, base for night vision effect etc.
+        * Request client with protocol version 49 or higger.
+
+        ```lua
+          -- example of night vision like transform
+          { {0.0, 0.0, 0.0},
+            {1.0, 9.0, 1.0},
+            {0.0, 0.0, 0.0}}
+        ```
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.
