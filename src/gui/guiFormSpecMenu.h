@@ -302,9 +302,13 @@ protected:
 	bool precheckElement(const std::string &name, const std::string &element,
 		size_t args_min, size_t args_max, std::vector<std::string> &parts);
 
-	std::unordered_map<std::string, std::vector<StyleSpec>> theme_by_type;
-	std::unordered_map<std::string, std::vector<StyleSpec>> theme_by_name;
+	StyleSpecMap theme_by_type, theme_by_name;
 	std::unordered_set<std::string> property_warned;
+
+	// Texturepack-definied formspec theming support
+	u16 m_theme_formspec_version;
+	void setThemeFromSettings();
+	static void onTxpSettingChanged(const std::string &name, void *data);
 
 	StyleSpec getDefaultStyleForElement(const std::string &type,
 			const std::string &name="", const std::string &parent_type="");
@@ -387,8 +391,9 @@ private:
 	bool                       m_show_debug = false;
 
 	struct parserData {
-		bool explicit_size;
-		bool real_coordinates;
+		bool explicit_size = false;
+		bool real_coordinates = false;
+		bool reading_theme = false;
 		u8 simple_field_count;
 		v2f invsize;
 		v2s32 size;
@@ -419,7 +424,9 @@ private:
 		std::string type;
 	};
 
-	static const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFormSpecMenu::parserData *data, const std::string &description)>> element_parsers;
+	using parser_function_t = std::function<void(GUIFormSpecMenu*, parserData *, const std::string &)>;
+	static const std::unordered_map<std::string, parser_function_t>
+			element_parsers, element_parsers_theme;
 
 	struct fs_key_pending {
 		bool key_up;
@@ -433,7 +440,7 @@ private:
 
 	void removeAll();
 
-	void parseElement(parserData* data, const std::string &element);
+	void parseElement(parserData* data, const std::string &element, bool is_theme = false);
 
 	void parseSize(parserData* data, const std::string &element);
 	void parseContainer(parserData* data, const std::string &element);
@@ -483,6 +490,8 @@ private:
 	void parseAnchor(parserData *data, const std::string &element);
 	bool parsePaddingDirect(parserData *data, const std::string &element);
 	void parsePadding(parserData *data, const std::string &element);
+	static void parse_style_to_map(StyleSpecMap &out, const std::string &element,
+		std::unordered_set<std::string> *prop_warned);
 	void parseStyle(parserData *data, const std::string &element);
 	void parseSetFocus(parserData *, const std::string &element);
 	void parseModel(parserData *data, const std::string &element);
