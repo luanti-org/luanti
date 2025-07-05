@@ -17,6 +17,7 @@
 #include "client/texturesource.h"
 #include "log.h"
 #include "util/numeric.h"
+#include "util/string.h"
 #include <map>
 #include <IMeshManipulator.h>
 #include "client/renderingengine.h"
@@ -292,7 +293,7 @@ void WieldMeshSceneNode::setExtruded(const std::string &imagename,
 	}
 }
 
-static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
+static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n, u16 variant,
 	std::vector<ItemMeshBufferInfo> *buffer_info, const ContentFeatures &f)
 {
 	n.setParam1(0xff);
@@ -309,6 +310,9 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 	} else if (f.drawtype == NDT_SIGNLIKE || f.drawtype == NDT_TORCHLIKE) {
 		n.setParam2(1);
 	}
+
+	if (f.variant_count > 1)
+		n.setParam2(f.param2_variant.set(n.getParam2(), variant));
 
 	MeshCollector collector(v3f(0), v3f());
 	{
@@ -354,6 +358,8 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 	const ItemDefinition &def = item.getDefinition(idef);
 	const ContentFeatures &f = ndef->get(def.name);
 	content_t id = ndef->getId(def.name);
+	u16 variant = f.variant_count > 1 ?
+			mystoi(item.metadata.getString("variant"), 0, f.variant_count - 1) : 0;
 
 	scene::SMesh *mesh = nullptr;
 
@@ -395,8 +401,8 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			v3f wscale = wield_scale;
 			if (f.drawtype == NDT_FLOWINGLIQUID)
 				wscale.Z *= 0.1f;
-			const TileLayer &l0 = f.tiles[0].layers[0];
-			const TileLayer &l1 = f.tiles[0].layers[1];
+			const TileLayer &l0 = f.tiles[variant][0].layers[0];
+			const TileLayer &l1 = f.tiles[variant][0].layers[1];
 			setExtruded(tsrc->getTextureName(l0.texture_id),
 				tsrc->getTextureName(l1.texture_id),
 				wscale, tsrc,
@@ -408,7 +414,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		}
 		case NDT_PLANTLIKE_ROOTED: {
 			// use the plant tile
-			const TileLayer &l0 = f.special_tiles[0].layers[0];
+			const TileLayer &l0 = f.special_tiles[variant][0].layers[0];
 			setExtruded(tsrc->getTextureName(l0.texture_id),
 				"", wield_scale, tsrc,
 				l0.animation_frame_count);
@@ -421,7 +427,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			if (def.place_param2)
 				n.setParam2(*def.place_param2);
 
-			mesh = createGenericNodeMesh(client, n, &m_buffer_info, f);
+			mesh = createGenericNodeMesh(client, n, variant, &m_buffer_info, f);
 			changeToMesh(mesh);
 			mesh->drop();
 			m_meshnode->setScale(
@@ -544,6 +550,8 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 	const ItemDefinition &def = item.getDefinition(idef);
 	const ContentFeatures &f = ndef->get(def.name);
 	content_t id = ndef->getId(def.name);
+	u16 variant = f.variant_count > 1 ?
+			mystoi(item.metadata.getString("variant"), 0, f.variant_count - 1) : 0;
 
 	FATAL_ERROR_IF(!g_extrusion_mesh_cache, "Extrusion mesh cache is not yet initialized");
 
@@ -569,8 +577,8 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 	} else if (def.type == ITEM_NODE) {
 		switch (f.drawtype) {
 		case NDT_PLANTLIKE: {
-			const TileLayer &l0 = f.tiles[0].layers[0];
-			const TileLayer &l1 = f.tiles[0].layers[1];
+			const TileLayer &l0 = f.tiles[variant][0].layers[0];
+			const TileLayer &l1 = f.tiles[variant][0].layers[1];
 			mesh = getExtrudedMesh(tsrc,
 				tsrc->getTextureName(l0.texture_id),
 				tsrc->getTextureName(l1.texture_id));
@@ -581,7 +589,7 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 		}
 		case NDT_PLANTLIKE_ROOTED: {
 			// Use the plant tile
-			const TileLayer &l0 = f.special_tiles[0].layers[0];
+			const TileLayer &l0 = f.special_tiles[variant][0].layers[0];
 			mesh = getExtrudedMesh(tsrc,
 				tsrc->getTextureName(l0.texture_id), "");
 			result->buffer_info.emplace_back(l0.has_color, l0.color);
@@ -593,7 +601,7 @@ void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result)
 			if (def.place_param2)
 				n.setParam2(*def.place_param2);
 
-			mesh = createGenericNodeMesh(client, n, &result->buffer_info, f);
+			mesh = createGenericNodeMesh(client, n, variant, &result->buffer_info, f);
 			scaleMesh(mesh, v3f(0.12, 0.12, 0.12));
 			break;
 		}

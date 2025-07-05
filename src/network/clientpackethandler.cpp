@@ -1795,3 +1795,18 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.bloom_radius;
 	}
 }
+
+void Client::handleCommand_SetNodeVisual(NetworkPacket *pkt)
+{
+	std::string node_name;
+	NodeVisual node_visual;
+
+	*pkt >> node_name;
+
+	if (pkt->getRemainingBytes() >= 2)
+		*pkt >> node_visual.variant_offset;
+
+	m_nodedef->applyNodeVisual(node_name, node_visual);
+
+	updateDrawListBlocks();
+}

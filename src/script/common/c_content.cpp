@@ -201,6 +201,8 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 {
 	std::string type(enum_to_string(es_ItemType, i.type));
 
+	// variant_count is presently not included, unlike in the server-side definition table.
+
 	lua_newtable(L);
 	lua_pushstring(L, i.name.c_str());
 	lua_setfield(L, -2, "name");
@@ -660,6 +662,8 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 		// color = ...
 		lua_getfield(L, index, "color");
 		tiledef.has_color = read_color(L, -1, &tiledef.color);
+		if (!tiledef.has_color)
+			tiledef.color = video::SColor();
 		lua_pop(L, 1);
 		// animation = {}
 		lua_getfield(L, index, "animation");
@@ -673,11 +677,75 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 	return tiledef;
 }
 
+void read_tiledefs(lua_State *L, int index, u8 drawtype, bool special,
+		std::array<TileDef, 6> &tiledefs)
+{
+	if(index < 0)
+		index = lua_gettop(L) + 1 + index;
+
+	if (lua_istable(L, index)) {
+		lua_pushnil(L);
+		int i = 0;
+		while (lua_next(L, index) != 0) {
+			// Read tiledef from value
+			tiledefs[i] = read_tiledef(L, -1, drawtype, special);
+			// removes value, keeps key for next iteration
+			lua_pop(L, 1);
+			i++;
+			if (i == 6) {
+				lua_pop(L, 1);
+				break;
+			}
+		}
+		// Allow empthy {} definition of tile
+		if (i==0) {
+			tiledefs[0] = TileDef();
+			i++;
+		}
+		// Copy last value to all remaining textures
+		if (i >= 1) {
+			TileDef lasttile = tiledefs[i - 1];
+			while (i < 6) {
+				tiledefs[i] = lasttile;
+				i++;
+			}
+		}
+	}
+}
+
+void read_default_tiledefs(lua_State *L, int index, u8 drawtype, bool special,
+		std::vector<std::array<TileDef, 6> > &tiledefs)
+{
+	read_tiledefs(L, index, drawtype, special, tiledefs[0]);
+	for (u16 v = 1; v < tiledefs.size(); v++)
+		tiledefs[v] = tiledefs[0];
+}
+
 /******************************************************************************/
 void read_content_features(lua_State *L, ContentFeatures &f, int index)
 {
 	if(index < 0)
 		index = lua_gettop(L) + 1 + index;
+
+	{
+		int variant_count = getintfield_default(L, index, "variant_count", 1);
+		if (variant_count < 1 || variant_count > UINT16_MAX)
+			throw LuaError("Invalid variant_count " + variant_count);
+
+		if (variant_count > 1) {
+			// Reserve memory first to avoid out-of-bounds indexing.
+			f.tiledef = std::vector<std::array<TileDef, 6> >(variant_count);
+			f.tiledef_overlay = std::vector<std::array<TileDef, 6> >(variant_count);
+			f.tiledef_special =
+					std::vector<std::array<TileDef, CF_SPECIAL_COUNT> >(variant_count);
+		}
+
+		f.variant_count = variant_count;
+	}
+
+	lua_getfield(L, index, "param2_variant");
+	f.param2_variant = read_bitfield<u8>(L, -1);
+	lua_pop(L, 1);
 
 	/* Cache existence of some callbacks */
 	lua_getfield(L, index, "on_construct");
@@ -718,76 +786,45 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	// tiles = {}
 	lua_getfield(L, index, "tiles");
-	if(lua_istable(L, -1)){
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		int i = 0;
-		while(lua_next(L, table) != 0){
-			// Read tiledef from value
-			f.tiledef[i] = read_tiledef(L, -1, f.drawtype, false);
-			// removes value, keeps key for next iteration
-			lua_pop(L, 1);
-			i++;
-			if(i==6){
-				lua_pop(L, 1);
-				break;
-			}
-		}
-		// Copy last value to all remaining textures
-		if(i >= 1){
-			TileDef lasttile = f.tiledef[i-1];
-			while(i < 6){
-				f.tiledef[i] = lasttile;
-				i++;
-			}
-		}
-	}
+	read_default_tiledefs(L, -1, f.drawtype, false, f.tiledef);
 	lua_pop(L, 1);
 
 	// overlay_tiles = {}
 	lua_getfield(L, index, "overlay_tiles");
-	if (lua_istable(L, -1)) {
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		int i = 0;
-		while (lua_next(L, table) != 0) {
-			// Read tiledef from value
-			f.tiledef_overlay[i] = read_tiledef(L, -1, f.drawtype, false);
-			// removes value, keeps key for next iteration
-			lua_pop(L, 1);
-			i++;
-			if (i == 6) {
-				lua_pop(L, 1);
-				break;
-			}
-		}
-		// Copy last value to all remaining textures
-		if (i >= 1) {
-			TileDef lasttile = f.tiledef_overlay[i - 1];
-			while (i < 6) {
-				f.tiledef_overlay[i] = lasttile;
-				i++;
-			}
-		}
-	}
+	read_default_tiledefs(L, -1, f.drawtype, false, f.tiledef_overlay);
 	lua_pop(L, 1);
 
 	// special_tiles = {}
 	lua_getfield(L, index, "special_tiles");
-	if(lua_istable(L, -1)){
-		int table = lua_gettop(L);
+	// This works as long as CF_SPECIAL_COUNT == 6.
+	read_default_tiledefs(L, -1, f.drawtype, true, f.tiledef_special);
+	lua_pop(L, 1);
+
+	// variants = {}
+	lua_getfield(L, index, "variants");
+	if (lua_istable(L, -1)) {
+		int variants_index = lua_gettop(L);
 		lua_pushnil(L);
-		int i = 0;
-		while(lua_next(L, table) != 0){
-			// Read tiledef from value
-			f.tiledef_special[i] = read_tiledef(L, -1, f.drawtype, true);
+		while (lua_next(L, variants_index) != 0) {
+			size_t v = lua_tointeger(L, -2);
+			if (v < f.variant_count && lua_istable(L, -1)) {
+				// tiles = {}
+				lua_getfield(L, -1, "tiles");
+				read_tiledefs(L, -1, f.drawtype, false, f.tiledef[v]);
+				lua_pop(L, 1);
+
+				// overlay_tiles = {}
+				lua_getfield(L, -1, "overlay_tiles");
+				read_tiledefs(L, -1, f.drawtype, false, f.tiledef_overlay[v]);
+				lua_pop(L, 1);
+
+				// special_tiles = {}
+				lua_getfield(L, -1, "special_tiles");
+				read_tiledefs(L, -1, f.drawtype, true, f.tiledef_special[v]);
+				lua_pop(L, 1);
+			}
 			// removes value, keeps key for next iteration
 			lua_pop(L, 1);
-			i++;
-			if(i==CF_SPECIAL_COUNT){
-				lua_pop(L, 1);
-				break;
-			}
 		}
 	}
 	lua_pop(L, 1);
@@ -1022,9 +1059,14 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	std::string drawtype(enum_to_string(ScriptApiNode::es_DrawType, c.drawtype));
 	std::string liquid_type(enum_to_string(ScriptApiNode::es_LiquidType, c.liquid_type));
 
-	/* Missing "tiles" because I don't see a usecase (at least not yet). */
+	// Missing "tiles" because I don't see a usecase (at least not yet).
+	// "variants" is also missing as the only variant properties are tiles.
 
 	lua_newtable(L);
+	lua_pushinteger(L, c.variant_count);
+	lua_setfield(L, -2, "variant_count");
+	push_bitfield(L, c.param2_variant);
+	lua_setfield(L, -2, "param2_variant");
 	lua_pushboolean(L, c.has_on_construct);
 	lua_setfield(L, -2, "has_on_construct");
 	lua_pushboolean(L, c.has_on_destruct);
@@ -1046,7 +1088,7 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 		lua_setfield(L, -2, "mesh");
 	}
 #if CHECK_CLIENT_BUILD()
-	push_ARGB8(L, c.minimap_color);       // I know this is not set-able w/ register_node,
+	push_ARGB8(L, c.minimap_color[0]);    // I know this is not set-able w/ register_node,
 	lua_setfield(L, -2, "minimap_color"); // but the people need to know!
 #endif
 	lua_pushnumber(L, c.visual_scale);

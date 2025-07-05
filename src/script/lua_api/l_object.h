@@ -406,6 +406,12 @@ private:
 	// get_lighting(self)
 	static int l_get_lighting(lua_State *L);
 
+	// set_node_visual(self, node_name, node_visual)
+	static int l_set_node_visual(lua_State *L);
+
+	// get_node_visual(self, node_name)
+	static int l_get_node_visual(lua_State *L);
+
 	// respawn(self)
 	static int l_respawn(lua_State *L);
 

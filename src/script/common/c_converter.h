@@ -16,6 +16,8 @@
 #include <string_view>
 
 #include "irrlichttypes_bloated.h"
+//#include "common/c_types.h"
+#include "util/numeric.h"
 
 extern "C" {
 #include <lua.h>
@@ -108,6 +110,15 @@ aabb3f read_aabb3f(lua_State *L, int index, f32 scale);
 std::vector<aabb3f> read_aabb3f_vector  (lua_State *L, int index, f32 scale);
 size_t read_stringlist(lua_State *L, int index,
 		std::vector<std::string> *result);
+void read_bitfield_parts (lua_State *L, int index, u8 *width, u8 *offset);
+
+template<typename T>
+BitField<T> read_bitfield(lua_State *L, int index)
+{
+	u8 width, offset;
+	read_bitfield_parts(L, index, &width, &offset);
+	return BitField<T>(width, offset);
+}
 
 void push_v2s16(lua_State *L, v2s16 p);
 void push_v2s32(lua_State *L, v2s32 p);
@@ -120,6 +131,13 @@ void push_v3f(lua_State *L, v3f p);
 void push_v2f(lua_State *L, v2f p);
 void push_aabb3f_vector(lua_State *L, const std::vector<aabb3f> &boxes,
 		f32 divisor = 1.0f);
+void push_bitfield_parts (lua_State *L, u8 width, u8 offset);
+
+template<typename T>
+void push_bitfield(lua_State *L, const BitField<T> &bitfield)
+{
+	push_bitfield_parts(L, bitfield.getWidth(), bitfield.getOffset());
+}
 
 void warn_if_field_exists(lua_State *L, int table, const char *fieldname,
 		std::string_view name, std::string_view message);
