@@ -44,15 +44,18 @@ local function create_minetest_conf_example(settings)
 				insert(result, rep("#", entry.level))
 				insert(result, "# " .. entry.name .. "\n\n")
 			end
-		else
+		else -- any `type` as listed in `settingtypes.txt`
 			local group_format = false
 			if entry.noise_params and entry.values then
 				if entry.type == "noise_params_2d" or entry.type == "noise_params_3d" then
 					group_format = true
 				end
 			end
-			if entry.comment ~= "" then
-				for _, comment_line in ipairs(entry.comment:split("\n", true)) do
+
+			local comment = entry.comment ~= "" and entry.comment
+				or entry.readable_name -- fallback to the short description
+			if comment ~= "" then
+				for _, comment_line in ipairs(comment:split("\n", true)) do
 					if comment_line == "" then
 						insert(result, "#\n")
 					else
