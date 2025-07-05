@@ -119,8 +119,10 @@ void script_error(lua_State *L, int pcall_result, const char *mod, const char *f
 	lua_Debug ar;
 	if (lua_getstack(L, stack_depth, &ar)) {
 		FATAL_ERROR_IF(!lua_getinfo(L, "Sl", &ar), "lua_getinfo() failed");
-		ret.append(" (at ").append(ar.short_src).append(":"
-			+ std::to_string(ar.currentline) + ")");
+		ret.append(" (at ");
+		// Use the full path for files, only use the shortened source for strings
+		ret.append(ar.source[0] == '@' ? &ar.source[1] : ar.short_src);
+		ret.append(":" + std::to_string(ar.currentline) + ")");
 	} else {
 		ret.append(" (at ?:?)");
 	}
