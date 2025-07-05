@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Russian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-05-25 00:52+0000\n"
+"PO-Revision-Date: 2025-07-06 11:01+0000\n"
 "Last-Translator: BlackImpostor <SkyBuilderOFFICAL@yandex.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/minetest/"
 "minetest/ru/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -1861,7 +1861,7 @@ msgstr "End"
 
 #: src/client/keycode.cpp
 msgid "Erase EOF"
-msgstr "Erase EOF"
+msgstr "Стереть EOF"
 
 #: src/client/keycode.cpp
 msgid "Execute"
@@ -1877,23 +1877,23 @@ msgstr "Home"
 
 #: src/client/keycode.cpp
 msgid "IME Accept"
-msgstr "IME Accept"
+msgstr "Принятие IME"
 
 #: src/client/keycode.cpp
 msgid "IME Convert"
-msgstr "IME Convert"
+msgstr "Конвертирование IME"
 
 #: src/client/keycode.cpp
 msgid "IME Escape"
-msgstr "IME Escape"
+msgstr "Выход IME"
 
 #: src/client/keycode.cpp
 msgid "IME Mode Change"
-msgstr "IME Mode Change"
+msgstr "Изменение Режима IME"
 
 #: src/client/keycode.cpp
 msgid "IME Nonconvert"
-msgstr "IME Nonconvert"
+msgstr "Неконвертирование IME"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1938,67 +1938,67 @@ msgstr "Num Lock"
 
 #: src/client/keycode.cpp
 msgid "Numpad *"
-msgstr "Numpad *"
+msgstr "Цифровая клавиатура *"
 
 #: src/client/keycode.cpp
 msgid "Numpad +"
-msgstr "Numpad +"
+msgstr "Цифровая клавиатура +"
 
 #: src/client/keycode.cpp
 msgid "Numpad -"
-msgstr "Numpad -"
+msgstr "Цифровая клавиатура -"
 
 #: src/client/keycode.cpp
 msgid "Numpad ."
-msgstr "Numpad ."
+msgstr "Цифровая клавиатура ."
 
 #: src/client/keycode.cpp
 msgid "Numpad /"
-msgstr "Numpad /"
+msgstr "Цифровая клавиатура /"
 
 #: src/client/keycode.cpp
 msgid "Numpad 0"
-msgstr "Numpad 0"
+msgstr "Цифровая клавиатура 0"
 
 #: src/client/keycode.cpp
 msgid "Numpad 1"
-msgstr "Numpad 1"
+msgstr "Цифровая клавиатура 1"
 
 #: src/client/keycode.cpp
 msgid "Numpad 2"
-msgstr "Numpad 2"
+msgstr "Цифровая клавиатура 2"
 
 #: src/client/keycode.cpp
 msgid "Numpad 3"
-msgstr "Numpad 3"
+msgstr "Цифровая клавиатура 3"
 
 #: src/client/keycode.cpp
 msgid "Numpad 4"
-msgstr "Numpad 4"
+msgstr "Цифровая клавиатура 4"
 
 #: src/client/keycode.cpp
 msgid "Numpad 5"
-msgstr "Numpad 5"
+msgstr "Цифровая клавиатура 5"
 
 #: src/client/keycode.cpp
 msgid "Numpad 6"
-msgstr "Numpad 6"
+msgstr "Цифровая клавиатура 6"
 
 #: src/client/keycode.cpp
 msgid "Numpad 7"
-msgstr "Numpad 7"
+msgstr "Цифровая клавиатура 7"
 
 #: src/client/keycode.cpp
 msgid "Numpad 8"
-msgstr "Numpad 8"
+msgstr "Цифровая клавиатура 8"
 
 #: src/client/keycode.cpp
 msgid "Numpad 9"
-msgstr "Numpad 9"
+msgstr "Цифровая клавиатура 9"
 
 #: src/client/keycode.cpp
 msgid "OEM Clear"
-msgstr "OEM Clear"
+msgstr "Отчистка OEM"
 
 #: src/client/keycode.cpp
 msgid "Page Down"
@@ -2015,7 +2015,7 @@ msgstr "Pause"
 
 #: src/client/keycode.cpp
 msgid "Play"
-msgstr "Play"
+msgstr "Воспроизвести"
 
 #. ~ "Print screen" key
 #: src/client/keycode.cpp
@@ -2057,7 +2057,7 @@ msgstr "Scroll Lock"
 #. ~ Key name
 #: src/client/keycode.cpp
 msgid "Select"
-msgstr "Select"
+msgstr "Выбор"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
@@ -2065,7 +2065,7 @@ msgstr "Shift"
 
 #: src/client/keycode.cpp
 msgid "Sleep"
-msgstr "Sleep"
+msgstr "Сон"
 
 #: src/client/keycode.cpp
 msgid "Snapshot"
@@ -7929,7 +7929,7 @@ msgstr "Y-уровень морского дна."
 
 #: src/settings_translation_file.cpp
 msgid "cURL"
-msgstr "cURL"
+msgstr "клиентский URL"
 
 #: src/settings_translation_file.cpp
 msgid "cURL file download timeout"
