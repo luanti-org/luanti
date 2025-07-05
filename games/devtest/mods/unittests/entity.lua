@@ -255,3 +255,17 @@ local function test_item_drop(_, pos)
 	assert(itemstack_ret:equals(itemstack_src))
 end
 unittests.register("test_item_drop", test_item_drop, {map=true})
+
+local function test_entity_guid(_, pos)
+	local obj0 = core.add_entity(pos, "unittests:dummy")
+	local obj1 = core.add_entity(pos, "unittests:dummy")
+
+	assert(obj0 ~= obj1)
+	assert(obj0:get_guid() ~= obj1:get_guid())
+	assert(core.objects_by_guid[obj0:get_guid()] == obj0)
+	assert(core.objects_by_guid[obj1:get_guid()] == obj1)
+
+	obj0:remove()
+	obj1:remove()
+end
+unittests.register("test_entity_guid", test_entity_guid, {map=true})
