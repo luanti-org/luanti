@@ -21,8 +21,6 @@
 #include <variant>
 #include <vector>
 
-namespace irr
-{
 namespace scene
 {
 
@@ -447,4 +445,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

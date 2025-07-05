@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #pragma once
 #include <type_traits>
 #include <utility>
-namespace irr { class IReferenceCounted; }
+class IReferenceCounted;
 
 /** Shared pointer for IrrLicht objects.
  *
@@ -125,7 +125,7 @@ public:
 	 */
 	void reset(ReferenceCounted *object = nullptr) noexcept
 	{
-		static_assert(std::is_base_of_v<irr::IReferenceCounted, ReferenceCounted>,
+		static_assert(std::is_base_of_v<IReferenceCounted, ReferenceCounted>,
 				"Class is not an IReferenceCounted");
 		if (value)
 			value->drop();
@@ -137,7 +137,7 @@ public:
 	 */
 	void grab(ReferenceCounted *object) noexcept
 	{
-		static_assert(std::is_base_of_v<irr::IReferenceCounted, ReferenceCounted>,
+		static_assert(std::is_base_of_v<IReferenceCounted, ReferenceCounted>,
 				"Class is not an IReferenceCounted");
 		if (object)
 			object->grab();

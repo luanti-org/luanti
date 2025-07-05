@@ -599,7 +599,7 @@ void Camera::wield(const ItemStack &item)
 	}
 }
 
-void Camera::drawWieldedTool(irr::core::matrix4* translation)
+void Camera::drawWieldedTool(core::matrix4* translation)
 {
 	// Clear Z buffer so that the wielded tool stays in front of world geometry
 	m_wieldmgr->getVideoDriver()->clearBuffers(video::ECBF_DEPTH);
@@ -612,12 +612,12 @@ void Camera::drawWieldedTool(irr::core::matrix4* translation)
 	cam->setFarValue(1000);
 	if (translation != NULL)
 	{
-		irr::core::matrix4 startMatrix = cam->getAbsoluteTransformation();
-		irr::core::vector3df focusPoint = (cam->getTarget()
+		core::matrix4 startMatrix = cam->getAbsoluteTransformation();
+		core::vector3df focusPoint = (cam->getTarget()
 				- cam->getAbsolutePosition()).setLength(1)
 				+ cam->getAbsolutePosition();
 
-		irr::core::vector3df camera_pos =
+		core::vector3df camera_pos =
 				(startMatrix * *translation).getTranslation();
 		cam->setPosition(camera_pos);
 		cam->updateAbsolutePosition();
@@ -685,7 +685,7 @@ void Camera::removeNametag(Nametag *nametag)
 
 std::array<core::plane3d<f32>, 4> Camera::getFrustumCullPlanes() const
 {
-	using irr::scene::SViewFrustum;
+	using scene::SViewFrustum;
 	const auto &frustum_planes = m_cameranode->getViewFrustum()->planes;
 	return {
 		frustum_planes[SViewFrustum::VF_LEFT_PLANE],

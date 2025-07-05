@@ -7,8 +7,6 @@
 #include <cassert>
 #include <mt_opengl.h>
 
-namespace irr
-{
 namespace video
 {
 
@@ -47,5 +45,4 @@ void OpenGLVBO::destroy()
 	m_size = 0;
 }
 
-}
 }

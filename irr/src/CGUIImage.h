@@ -6,8 +6,6 @@
 
 #include "IGUIImage.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -94,4 +92,3 @@ private:
 };
 
 } // end namespace gui
-} // end namespace irr

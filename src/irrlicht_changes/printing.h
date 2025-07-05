@@ -7,7 +7,7 @@
 #include <vector2d.h>
 #include <vector3d.h>
 
-namespace irr::core {
+namespace core {
 
 	template <class T>
 	std::ostream &operator<< (std::ostream &os, vector2d<T> vec)

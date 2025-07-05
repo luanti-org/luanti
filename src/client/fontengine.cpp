@@ -72,12 +72,12 @@ void FontEngine::clearCache()
 	}
 }
 
-irr::gui::IGUIFont *FontEngine::getFont(FontSpec spec)
+gui::IGUIFont *FontEngine::getFont(FontSpec spec)
 {
 	return getFont(spec, false);
 }
 
-irr::gui::IGUIFont *FontEngine::getFont(FontSpec spec, bool may_fail)
+gui::IGUIFont *FontEngine::getFont(FontSpec spec, bool may_fail)
 {
 	if (spec.mode == FM_Unspecified) {
 		spec.mode = s_default_font_mode;
@@ -310,7 +310,7 @@ gui::IGUIFont *FontEngine::initFont(FontSpec spec)
 				<< " " << size << "pt" << std::endl;
 
 		// Grab the face.
-		if (auto *face = irr::gui::SGUITTFace::loadFace(font_path)) {
+		if (auto *face = gui::SGUITTFace::loadFace(font_path)) {
 			auto *font = createFont(face);
 			face->drop();
 			return font;

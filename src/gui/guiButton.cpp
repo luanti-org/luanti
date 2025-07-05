@@ -15,7 +15,7 @@
 #include "StyleSpec.h"
 #include "util/numeric.h"
 
-using namespace irr;
+
 using namespace gui;
 
 // Multiply with a color to get the default corresponding hovered color
@@ -744,8 +744,8 @@ void GUIButton::setFromStyle(const StyleSpec& style)
 
 	IGUISkin *skin = Environment->getSkin();
 	core::vector2d<s32> defaultPressOffset(
-			skin->getSize(irr::gui::EGDS_BUTTON_PRESSED_IMAGE_OFFSET_X),
-			skin->getSize(irr::gui::EGDS_BUTTON_PRESSED_IMAGE_OFFSET_Y));
+			skin->getSize(gui::EGDS_BUTTON_PRESSED_IMAGE_OFFSET_X),
+			skin->getSize(gui::EGDS_BUTTON_PRESSED_IMAGE_OFFSET_Y));
 	ContentOffset = style.getVector2i(StyleSpec::CONTENT_OFFSET, isPressed()
 			? defaultPressOffset
 			: core::vector2d<s32>(0));

@@ -10,8 +10,6 @@
 #include "IGUIEditBox.h"
 #include "IFileSystem.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -45,11 +43,11 @@ public:
 	void draw() override;
 
 protected:
-	void setFileName(const irr::io::path &name);
-	void setDirectoryName(const irr::io::path &name);
+	void setFileName(const io::path &name);
+	void setDirectoryName(const io::path &name);
 
 	//! Ensure filenames are converted correct depending on wide-char settings
-	void pathToStringW(irr::core::stringw &result, const irr::io::path &p);
+	void pathToStringW(core::stringw &result, const io::path &p);
 
 	//! fills the listbox with files.
 	void fillListBox();
@@ -81,4 +79,3 @@ protected:
 };
 
 } // end namespace gui
-} // end namespace irr

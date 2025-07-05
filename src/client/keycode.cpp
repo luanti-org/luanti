@@ -15,21 +15,21 @@
 
 struct table_key {
 	std::string Name; // An EKEY_CODE 'symbol' name as a string
-	irr::EKEY_CODE Key;
+	EKEY_CODE Key;
 	wchar_t Char; // L'\0' means no character assigned
 	std::string LangName; // empty string means it doesn't have a human description
 };
 
 #define DEFINEKEY1(x, lang) /* Irrlicht key without character */ \
-	{ #x, irr::x, L'\0', lang },
+	{ #x, x, L'\0', lang },
 #define DEFINEKEY2(x, ch, lang) /* Irrlicht key with character */ \
-	{ #x, irr::x, ch, lang },
+	{ #x, x, ch, lang },
 #define DEFINEKEY3(ch) /* single Irrlicht key (e.g. KEY_KEY_X) */ \
-	{ "KEY_KEY_" TOSTRING(ch), irr::KEY_KEY_ ## ch, (wchar_t) *TOSTRING(ch), TOSTRING(ch) },
+	{ "KEY_KEY_" TOSTRING(ch), KEY_KEY_ ## ch, (wchar_t) *TOSTRING(ch), TOSTRING(ch) },
 #define DEFINEKEY4(ch) /* single Irrlicht function key (e.g. KEY_F3) */ \
-	{ "KEY_F" TOSTRING(ch), irr::KEY_F ## ch, L'\0', "F" TOSTRING(ch) },
+	{ "KEY_F" TOSTRING(ch), KEY_F ## ch, L'\0', "F" TOSTRING(ch) },
 #define DEFINEKEY5(ch) /* key without Irrlicht keycode */ \
-	{ ch, irr::KEY_KEY_CODES_COUNT, (wchar_t) *ch, ch },
+	{ ch, KEY_KEY_CODES_COUNT, (wchar_t) *ch, ch },
 
 #define N_(text) text
 
@@ -224,7 +224,7 @@ static std::vector<table_key> table = {
 	DEFINEKEY5("_")
 };
 
-static const table_key invalid_key = {"", irr::KEY_UNKNOWN, L'\0', ""};
+static const table_key invalid_key = {"", KEY_UNKNOWN, L'\0', ""};
 
 #undef N_
 
@@ -241,11 +241,11 @@ static const table_key &lookup_keychar(wchar_t Char)
 
 	// Create a new entry in the lookup table if one is not available.
 	auto newsym = wide_to_utf8(std::wstring_view(&Char, 1));
-	table_key new_key {newsym, irr::KEY_KEY_CODES_COUNT, Char, newsym};
+	table_key new_key {newsym, KEY_KEY_CODES_COUNT, Char, newsym};
 	return table.emplace_back(std::move(new_key));
 }
 
-static const table_key &lookup_keykey(irr::EKEY_CODE key)
+static const table_key &lookup_keykey(EKEY_CODE key)
 {
 	if (!Keycode::isValid(key))
 		return invalid_key;
@@ -278,18 +278,18 @@ static const table_key &lookup_scancode(const u32 scancode)
 {
 	auto key = RenderingEngine::get_raw_device()->getKeyFromScancode(scancode);
 	return std::holds_alternative<EKEY_CODE>(key) ?
-		lookup_keykey(std::get<irr::EKEY_CODE>(key)) :
+		lookup_keykey(std::get<EKEY_CODE>(key)) :
 		lookup_keychar(std::get<wchar_t>(key));
 }
 
-static const table_key &lookup_scancode(const std::variant<u32, irr::EKEY_CODE> &scancode)
+static const table_key &lookup_scancode(const std::variant<u32, EKEY_CODE> &scancode)
 {
-	return std::holds_alternative<irr::EKEY_CODE>(scancode) ?
-		lookup_keykey(std::get<irr::EKEY_CODE>(scancode)) :
+	return std::holds_alternative<EKEY_CODE>(scancode) ?
+		lookup_keykey(std::get<EKEY_CODE>(scancode)) :
 		lookup_scancode(std::get<u32>(scancode));
 }
 
-void KeyPress::loadFromKey(irr::EKEY_CODE keycode, wchar_t keychar)
+void KeyPress::loadFromKey(EKEY_CODE keycode, wchar_t keychar)
 {
 	scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
 }
@@ -302,13 +302,13 @@ KeyPress::KeyPress(const std::string &name)
 	loadFromKey(key.Key, key.Char);
 }
 
-KeyPress::KeyPress(const irr::SEvent::SKeyInput &in)
+KeyPress::KeyPress(const SEvent::SKeyInput &in)
 {
 	if (USE_SDL2) {
 		if (in.SystemKeyCode)
 			scancode.emplace<u32>(in.SystemKeyCode);
 		else
-			scancode.emplace<irr::EKEY_CODE>(in.Key);
+			scancode.emplace<EKEY_CODE>(in.Key);
 	} else {
 		loadFromKey(in.Key, in.Char);
 	}
@@ -340,7 +340,7 @@ std::string KeyPress::name() const
 	return formatScancode();
 }
 
-irr::EKEY_CODE KeyPress::getKeycode() const
+EKEY_CODE KeyPress::getKeycode() const
 {
 	return lookup_scancode(scancode).Key;
 }

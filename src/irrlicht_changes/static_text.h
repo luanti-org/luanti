@@ -18,9 +18,6 @@
 #include <IGUIEnvironment.h>
 
 
-namespace irr
-{
-
 namespace gui
 {
 
@@ -39,18 +36,18 @@ namespace gui
 		//! destructor
 		virtual ~StaticText();
 
-		static irr::gui::IGUIStaticText *add(
-			irr::gui::IGUIEnvironment *guienv,
+		static gui::IGUIStaticText *add(
+			gui::IGUIEnvironment *guienv,
 			const EnrichedString &text,
 			const core::rect< s32 > &rectangle,
 			bool border = false,
 			bool wordWrap = true,
-			irr::gui::IGUIElement *parent = NULL,
+			gui::IGUIElement *parent = NULL,
 			s32 id = -1,
 			bool fillBackground = false)
 		{
 			parent = parent ? parent : guienv->getRootGUIElement();
-			irr::gui::IGUIStaticText *result = new irr::gui::StaticText(
+			gui::IGUIStaticText *result = new gui::StaticText(
 				text, border, guienv, parent,
 				id, rectangle, fillBackground);
 
@@ -59,13 +56,13 @@ namespace gui
 			return result;
 		}
 
-		static irr::gui::IGUIStaticText *add(
-			irr::gui::IGUIEnvironment *guienv,
+		static gui::IGUIStaticText *add(
+			gui::IGUIEnvironment *guienv,
 			std::wstring_view text,
 			const core::rect< s32 > &rectangle,
 			bool border = false,
 			bool wordWrap = true,
-			irr::gui::IGUIElement *parent = NULL,
+			gui::IGUIElement *parent = NULL,
 			s32 id = -1,
 			bool fillBackground = false)
 		{
@@ -190,21 +187,19 @@ namespace gui
 
 } // end namespace gui
 
-} // end namespace irr
-
-inline void setStaticText(irr::gui::IGUIStaticText *static_text, const EnrichedString &text)
+inline void setStaticText(gui::IGUIStaticText *static_text, const EnrichedString &text)
 {
 	// dynamic_cast not possible due to some distributions shipped
 	// without rtti support in irrlicht
-	if (static_text->hasType(irr::gui::EGUIET_ENRICHED_STATIC_TEXT)) {
-		irr::gui::StaticText* stext = static_cast<irr::gui::StaticText*>(static_text);
+	if (static_text->hasType(gui::EGUIET_ENRICHED_STATIC_TEXT)) {
+		gui::StaticText* stext = static_cast<gui::StaticText*>(static_text);
 		stext->setText(text);
 	} else {
 		static_text->setText(text.c_str());
 	}
 }
 
-inline void setStaticText(irr::gui::IGUIStaticText *static_text, std::wstring_view text)
+inline void setStaticText(gui::IGUIStaticText *static_text, std::wstring_view text)
 {
 	setStaticText(static_text, EnrichedString(text, static_text->getOverrideColor()));
 }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "guiButtonKey.h"
-using namespace irr::gui;
+using namespace gui;
 
 GUIButtonKey *GUIButtonKey::addButton(IGUIEnvironment *environment,
 		const core::rect<s32> &rectangle, ISimpleTextureSource *tsrc,

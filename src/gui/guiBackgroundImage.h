@@ -21,7 +21,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <IGUIEnvironment.h>
 #include "irr_v2d.h"
 
-using namespace irr;
 
 class ISimpleTextureSource;
 

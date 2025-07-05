@@ -20,8 +20,6 @@
 
 #include "mt_opengl.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -2490,7 +2488,7 @@ bool COpenGLDriver::queryTextureFormat(ECOLOR_FORMAT format) const
 	return getColorFormatParameters(format, dummyInternalFormat, dummyPixelFormat, dummyPixelType, &dummyConverter);
 }
 
-bool COpenGLDriver::needsTransparentRenderPass(const irr::video::SMaterial &material) const
+bool COpenGLDriver::needsTransparentRenderPass(const video::SMaterial &material) const
 {
 	return CNullDriver::needsTransparentRenderPass(material) || material.isAlphaBlendOperation();
 }
@@ -2639,7 +2637,7 @@ ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &
 }
 
 //! Creates a render target texture for a cubemap
-ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const irr::u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
+ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
 {
 	if (IImage::isCompressedFormat(format))
 		return 0;
@@ -3170,5 +3168,4 @@ IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::
 }
 
 } // end namespace video
-} // end namespace irr
 #endif // opengl

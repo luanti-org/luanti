@@ -8,8 +8,6 @@
 
 #include "IVideoDriver.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -171,5 +169,4 @@ void COpenGL3MaterialOneTextureBlendCB::OnSetConstants(IMaterialRendererServices
 	services->setPixelShaderConstant(TextureUnit0ID, &TextureUnit0, 1);
 }
 
-}
 }

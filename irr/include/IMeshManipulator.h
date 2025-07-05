@@ -11,8 +11,6 @@
 #include "IMeshBuffer.h"
 #include "SVertexManipulator.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -146,4 +144,3 @@ protected:
 };
 
 } // end namespace scene
-} // end namespace irr

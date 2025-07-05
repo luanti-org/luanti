@@ -13,7 +13,7 @@
 
 #include "IGUIEnvironment.h"
 
-namespace irr::gui {
+namespace gui {
 	class IGUIStaticText;
 }
 

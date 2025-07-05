@@ -4,8 +4,6 @@
 
 #pragma once
 
-namespace irr
-{
 namespace scene
 {
 
@@ -38,4 +36,3 @@ enum E_DEBUG_SCENE_TYPE
 };
 
 } // end namespace scene
-} // end namespace irr

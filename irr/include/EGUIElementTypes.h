@@ -6,8 +6,6 @@
 
 #include "irrTypes.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -72,4 +70,3 @@ enum EGUI_ELEMENT_TYPE
 };
 
 } // end namespace gui
-} // end namespace irr

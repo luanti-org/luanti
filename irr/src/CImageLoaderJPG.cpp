@@ -11,8 +11,6 @@
 #include "irrString.h"
 #include <csetjmp>
 
-namespace irr
-{
 namespace video
 {
 
@@ -259,4 +257,3 @@ IImageLoader *createImageLoaderJPG()
 }
 
 } // end namespace video
-} // end namespace irr

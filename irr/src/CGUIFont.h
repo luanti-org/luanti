@@ -10,9 +10,6 @@
 #include "irrArray.h"
 #include <map>
 
-namespace irr
-{
-
 namespace video
 {
 class IVideoDriver;
@@ -103,4 +100,3 @@ private:
 };
 
 } // end namespace gui
-} // end namespace irr

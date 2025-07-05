@@ -7,8 +7,6 @@
 #include "IReferenceCounted.h"
 #include "path.h"
 
-namespace irr
-{
 namespace io
 {
 
@@ -85,5 +83,4 @@ public:
 	virtual void sort() = 0;
 };
 
-} // end namespace irr
 } // end namespace io

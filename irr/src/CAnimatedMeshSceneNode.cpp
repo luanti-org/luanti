@@ -25,8 +25,6 @@
 #include <optional>
 #include <cassert>
 
-namespace irr
-{
 namespace scene
 {
 
@@ -680,4 +678,3 @@ ISceneNode *CAnimatedMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *
 }
 
 } // end namespace scene
-} // end namespace irr

@@ -17,8 +17,6 @@
 
 #include "COGLESCoreExtensionHandler.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -183,5 +181,4 @@ public:
 	u32 MaxLabelLength = 0;
 };
 
-}
 }

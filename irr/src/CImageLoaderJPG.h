@@ -9,8 +9,6 @@
 #include <cstdio>    // IWYU pragma: keep (required for jpeglib.h)
 #include <jpeglib.h> // use system lib
 
-namespace irr
-{
 namespace video
 {
 
@@ -83,4 +81,3 @@ private:
 };
 
 } // end namespace video
-} // end namespace irr

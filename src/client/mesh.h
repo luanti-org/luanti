@@ -8,15 +8,12 @@
 #include "SMaterialLayer.h"
 #include "nodedef.h"
 
-namespace irr {
-	namespace scene {
-		class IAnimatedMesh;
-		class IMesh;
-		class IMeshBuffer;
-	}
+namespace scene {
+	class IAnimatedMesh;
+	class IMesh;
+	class IMeshBuffer;
 }
 
-using namespace irr;
 
 /*!
  * Applies shading to a color based on the surface's

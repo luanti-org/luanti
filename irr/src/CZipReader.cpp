@@ -12,8 +12,6 @@
 
 #include <zlib.h> // use system lib
 
-namespace irr
-{
 namespace io
 {
 
@@ -391,4 +389,3 @@ IReadFile *CZipReader::createAndOpenFile(u32 index)
 }
 
 } // end namespace io
-} // end namespace irr

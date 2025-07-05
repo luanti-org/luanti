@@ -672,7 +672,6 @@ namespace Catch {
 #include <chrono>
 
 
-
 #ifndef CATCH_STRINGREF_HPP_INCLUDED
 #define CATCH_STRINGREF_HPP_INCLUDED
 
@@ -2297,7 +2296,6 @@ namespace Catch {
 #include <cstddef>
 #include <type_traits>
 #include <string>
-
 
 
 

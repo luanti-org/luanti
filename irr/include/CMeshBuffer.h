@@ -9,8 +9,6 @@
 #include "CVertexBuffer.h"
 #include "CIndexBuffer.h"
 
-namespace irr
-{
 namespace scene
 {
 //! Template implementation of the IMeshBuffer interface
@@ -87,7 +85,7 @@ public:
 	{
 		if (Vertices->getCount()) {
 			BoundingBox.reset(Vertices->getPosition(0));
-			const irr::u32 vsize = Vertices->getCount();
+			const u32 vsize = Vertices->getCount();
 			for (u32 i = 1; i < vsize; ++i)
 				BoundingBox.addInternalPoint(Vertices->getPosition(i));
 		} else
@@ -146,4 +144,3 @@ typedef CMeshBuffer<video::S3DVertex2TCoords> SMeshBufferLightMap;
 //! Meshbuffer with vertices having tangents stored, e.g. for normal mapping
 typedef CMeshBuffer<video::S3DVertexTangents> SMeshBufferTangents;
 } // end namespace scene
-} // end namespace irr

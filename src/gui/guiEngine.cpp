@@ -317,7 +317,7 @@ void GUIEngine::run()
 				fog_end, fog_density, fog_pixelfog, fog_rangefog);
 	}
 
-	const irr::core::dimension2d<u32> initial_screen_size(
+	const core::dimension2d<u32> initial_screen_size(
 			g_settings->getU16("screen_w"),
 			g_settings->getU16("screen_h")
 		);

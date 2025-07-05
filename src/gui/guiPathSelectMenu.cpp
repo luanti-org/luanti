@@ -74,7 +74,7 @@ void GUIFileSelectMenu::acceptInput()
 
 bool GUIFileSelectMenu::OnEvent(const SEvent &event)
 {
-	if (event.EventType == irr::EET_GUI_EVENT) {
+	if (event.EventType == EET_GUI_EVENT) {
 		switch (event.GUIEvent.EventType) {
 		case gui::EGET_ELEMENT_CLOSED:
 		case gui::EGET_FILE_CHOOSE_DIALOG_CANCELLED:

@@ -707,7 +707,7 @@ void GUIEditBox::inputString(const core::stringw &str)
 bool GUIEditBox::processMouse(const SEvent &event)
 {
 	switch (event.MouseInput.Event) {
-	case irr::EMIE_LMOUSE_LEFT_UP:
+	case EMIE_LMOUSE_LEFT_UP:
 		if (Environment->hasFocus(this)) {
 			m_cursor_pos = getCursorPos(
 					event.MouseInput.X, event.MouseInput.Y);
@@ -719,7 +719,7 @@ bool GUIEditBox::processMouse(const SEvent &event)
 			return true;
 		}
 		break;
-	case irr::EMIE_MOUSE_MOVED: {
+	case EMIE_MOUSE_MOVED: {
 		if (m_mouse_marking) {
 			m_cursor_pos = getCursorPos(
 					event.MouseInput.X, event.MouseInput.Y);

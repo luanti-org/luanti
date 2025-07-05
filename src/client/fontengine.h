@@ -13,11 +13,9 @@
 #include "irrString.h" // utf8_to_wide
 #include "threading/mutex_auto_lock.h"
 
-namespace irr {
-	namespace gui {
-		class IGUIEnvironment;
-		class IGUIFont;
-	}
+namespace gui {
+	class IGUIEnvironment;
+	class IGUIFont;
 }
 
 #define FONT_SIZE_UNSPECIFIED 0xFFFFFFFF
@@ -76,9 +74,9 @@ public:
 	~FontEngine();
 
 	// Get best possible font specified by FontSpec
-	irr::gui::IGUIFont *getFont(FontSpec spec);
+	gui::IGUIFont *getFont(FontSpec spec);
 
-	irr::gui::IGUIFont *getFont(unsigned int font_size=FONT_SIZE_UNSPECIFIED,
+	gui::IGUIFont *getFont(unsigned int font_size=FONT_SIZE_UNSPECIFIED,
 			FontMode mode=FM_Unspecified)
 	{
 		FontSpec spec(font_size, mode, m_default_bold, m_default_italic);
@@ -148,7 +146,7 @@ public:
 	void clearMediaFonts();
 
 private:
-	irr::gui::IGUIFont *getFont(FontSpec spec, bool may_fail);
+	gui::IGUIFont *getFont(FontSpec spec, bool may_fail);
 
 	/** update content of font cache in case of a setting change made it invalid */
 	void updateCache();
@@ -174,7 +172,7 @@ private:
 	std::recursive_mutex m_font_mutex;
 
 	/** internal storage for caching fonts of different size */
-	std::map<unsigned int, irr::gui::IGUIFont*> m_font_cache[FontSpec::MAX_VARIANTS];
+	std::map<unsigned int, gui::IGUIFont*> m_font_cache[FontSpec::MAX_VARIANTS];
 
 	/** media-provided faces, indexed by filename (without extension) */
 	std::unordered_map<std::string, irr_ptr<gui::SGUITTFace>> m_media_faces;

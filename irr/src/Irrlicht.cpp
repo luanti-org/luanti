@@ -24,8 +24,6 @@ static const char *const copyright = "Irrlicht Engine (c) 2002-2017 Nikolaus Geb
 #include "CIrrDeviceSDL.h"
 #endif
 
-namespace irr
-{
 //! stub for calling createDeviceEx
 IrrlichtDevice *createDevice(video::E_DRIVER_TYPE driverType,
 		const core::dimension2d<u32> &windowSize,
@@ -116,5 +114,3 @@ extern "C" bool isDriverSupported(E_DRIVER_TYPE driver)
 	}
 }
 }
-
-} // end namespace irr

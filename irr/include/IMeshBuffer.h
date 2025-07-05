@@ -13,8 +13,6 @@
 #include "EPrimitiveTypes.h"
 #include <cassert>
 
-namespace irr
-{
 namespace scene
 {
 //! Struct for holding a mesh with a single material.
@@ -241,4 +239,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

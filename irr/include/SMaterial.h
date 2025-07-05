@@ -11,8 +11,6 @@
 #include "EMaterialProps.h" // IWYU pragma: export
 #include "SMaterialLayer.h"
 
-namespace irr
-{
 namespace video
 {
 class ITexture;
@@ -178,7 +176,7 @@ inline bool textureBlendFunc_hasAlpha(const E_BLEND_FACTOR factor)
 to coverage.
 Some drivers don't support a per-material setting of the anti-aliasing
 modes. In those cases, FSAA/multisampling is defined by the device mode
-chosen upon creation via irr::SIrrCreationParameters.
+chosen upon creation via SIrrCreationParameters.
 */
 enum E_ANTI_ALIASING_MODE : u8
 {
@@ -474,19 +472,18 @@ public:
 extern const SMaterial IdentityMaterial;
 
 } // end namespace video
-} // end namespace irr
 
 template<>
-struct std::hash<irr::video::SMaterial>
+struct std::hash<video::SMaterial>
 {
 	/// @brief std::hash specialization for video::SMaterial
-	std::size_t operator()(const irr::video::SMaterial &m) const noexcept
+	std::size_t operator()(const video::SMaterial &m) const noexcept
 	{
 		std::size_t ret = 0;
 		for (auto h : { // the three members most likely to differ
-			std::hash<irr::video::ITexture*>{}(m.getTexture(0)),
+			std::hash<video::ITexture*>{}(m.getTexture(0)),
 			std::hash<int>{}(m.MaterialType),
-			std::hash<irr::u32>{}(m.ColorParam.color)
+			std::hash<u32>{}(m.ColorParam.color)
 		}) {
 			ret += h;
 			ret ^= (ret << 6) + (ret >> 2); // distribute bits

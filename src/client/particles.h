@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include "../particles.h"
 
-namespace irr::video {
+namespace video {
 	class ITexture;
 }
 

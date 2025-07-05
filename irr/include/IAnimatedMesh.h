@@ -6,14 +6,12 @@
 
 #include "IMesh.h"
 
-namespace irr
-{
 namespace scene
 {
 //! Interface for an animated mesh.
 /** There are already simple implementations of this interface available so
 you don't have to implement this interface on your own if you need to:
-You might want to use irr::scene::SMesh, irr::scene::SMeshBuffer etc.
+You might want to use scene::SMesh, scene::SMeshBuffer etc.
 */
 class IAnimatedMesh : public IMesh
 {
@@ -39,4 +37,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

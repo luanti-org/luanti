@@ -19,8 +19,6 @@
 #include <vector>
 #include <cassert>
 
-namespace irr
-{
 namespace scene
 {
 
@@ -668,4 +666,3 @@ void SkinnedMesh::calculateTangents(
 }
 
 } // end namespace scene
-} // end namespace irr

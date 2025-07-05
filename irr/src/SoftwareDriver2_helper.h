@@ -20,9 +20,6 @@
 #endif
 #endif
 
-namespace irr
-{
-
 // ----------------------- Generic ----------------------------------
 //! align_next - align to next upper 2^n
 #define align_next(num, to) (((num) + (to - 1)) & (~(to - 1)))
@@ -275,5 +272,3 @@ inline bool intersect(AbsRectangle &dest, const AbsRectangle &a, const AbsRectan
 	dest.y1 = core::s32_min(a.y1, b.y1);
 	return dest.x0 < dest.x1 && dest.y0 < dest.y1;
 }
-
-} // end namespace irr

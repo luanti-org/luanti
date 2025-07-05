@@ -12,8 +12,6 @@
 #include "IGUIFontBitmap.h"
 #include "os.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -456,4 +454,3 @@ void CGUIScrollBar::refreshControls()
 }
 
 } // end namespace gui
-} // end namespace irr

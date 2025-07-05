@@ -4,7 +4,6 @@
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
 
-using namespace irr;
 
 class ISimpleTextureSource;
 

@@ -10,8 +10,6 @@
 #include "IFileSystem.h"
 #include "CFileList.h"
 
-namespace irr
-{
 namespace io
 {
 // the fields crc-32, compressed size and uncompressed size are set to
@@ -175,4 +173,3 @@ protected:
 };
 
 } // end namespace io
-} // end namespace irr

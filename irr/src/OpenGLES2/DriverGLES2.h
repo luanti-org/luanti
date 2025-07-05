@@ -5,8 +5,6 @@
 #pragma once
 #include "OpenGL/Driver.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -26,5 +24,4 @@ protected:
 	void initFeatures() override;
 };
 
-}
 }

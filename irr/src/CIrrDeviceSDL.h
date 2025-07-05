@@ -26,9 +26,6 @@
 #include <memory>
 #include <unordered_map>
 
-namespace irr
-{
-
 class CIrrDeviceSDL : public CIrrDeviceStub
 {
 public:
@@ -338,7 +335,5 @@ private:
 	s32 CurrentTouchCount;
 	bool IsInBackground;
 };
-
-} // end namespace irr
 
 #endif // _IRR_COMPILE_WITH_SDL_DEVICE_

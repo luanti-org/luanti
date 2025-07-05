@@ -8,8 +8,6 @@
 #include "mt_opengl.h"
 #include "CColorConverter.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -162,5 +160,4 @@ IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::
 	return driver;
 }
 
-}
 }

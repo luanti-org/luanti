@@ -11,8 +11,6 @@
 
 #include <cassert>
 
-namespace irr
-{
 namespace video
 {
 
@@ -128,7 +126,7 @@ void CImage::copyTo(IImage *target, const core::position2d<s32> &pos)
 	if (!Blit(BLITTER_TEXTURE, target, 0, &pos, this, 0, 0) && target && pos.X == 0 && pos.Y == 0 &&
 			CColorConverter::canConvertFormat(Format, target->getColorFormat())) {
 		// No fast blitting, but copyToScaling uses other color conversions and might work
-		irr::core::dimension2du dim(target->getDimension());
+		core::dimension2du dim(target->getDimension());
 		copyToScaling(target->getData(), dim.Width, dim.Height, target->getColorFormat(), target->getPitch());
 	}
 }
@@ -377,4 +375,3 @@ inline SColor CImage::getPixelBox(s32 x, s32 y, s32 fx, s32 fy, s32 bias) const
 }
 
 } // end namespace video
-} // end namespace irr

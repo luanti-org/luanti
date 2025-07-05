@@ -5,9 +5,6 @@
 #pragma once
 #include <variant>
 
-namespace irr
-{
-
 enum EKEY_CODE
 {
 	KEY_UNKNOWN = 0x0,
@@ -208,5 +205,3 @@ public:
 		return code > 0 && code < KEY_KEY_CODES_COUNT;
 	}
 };
-
-} // end namespace irr

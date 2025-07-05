@@ -10,8 +10,6 @@
 
 #include <cassert>
 
-namespace irr
-{
 namespace scene
 {
 
@@ -178,4 +176,3 @@ SMesh *CMeshManipulator::createMeshCopy(scene::IMesh *mesh) const
 }
 
 } // end namespace scene
-} // end namespace irr

@@ -20,12 +20,12 @@ class InventoryList;
 class LocalPlayer;
 struct ItemStack;
 
-namespace irr::scene
+namespace scene
 {
 	class IMesh;
 }
 
-namespace irr::video
+namespace video
 {
 	class ITexture;
 	class IVideoDriver;

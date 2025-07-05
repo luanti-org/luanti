@@ -12,8 +12,6 @@
 #include "COpenGLCoreTexture.h"
 #include "COpenGLCoreCacheHandler.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -57,6 +55,5 @@ protected:
 };
 
 } // end namespace video
-} // end namespace irr
 
 #endif // _IRR_COMPILE_WITH_OPENGL_

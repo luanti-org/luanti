@@ -14,8 +14,6 @@
 #include "IFileList.h"
 #include "os.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -152,13 +150,13 @@ const wchar_t *CGUIFileOpenDialog::getDirectoryNameW() const
 	return FileDirectoryFlatW.c_str();
 }
 
-void CGUIFileOpenDialog::setFileName(const irr::io::path &name)
+void CGUIFileOpenDialog::setFileName(const io::path &name)
 {
 	FileName = name;
 	pathToStringW(FileNameW, FileName);
 }
 
-void CGUIFileOpenDialog::setDirectoryName(const irr::io::path &name)
+void CGUIFileOpenDialog::setDirectoryName(const io::path &name)
 {
 	FileDirectory = name;
 	FileDirectoryFlat = name;
@@ -307,7 +305,7 @@ void CGUIFileOpenDialog::draw()
 	IGUIElement::draw();
 }
 
-void CGUIFileOpenDialog::pathToStringW(irr::core::stringw &result, const irr::io::path &p)
+void CGUIFileOpenDialog::pathToStringW(core::stringw &result, const io::path &p)
 {
 	core::multibyteToWString(result, p);
 }
@@ -365,4 +363,3 @@ void CGUIFileOpenDialog::sendCancelEvent()
 }
 
 } // end namespace gui
-} // end namespace irr

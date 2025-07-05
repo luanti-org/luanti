@@ -6,8 +6,6 @@
 
 #include "irrTypes.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -71,4 +69,3 @@ constexpr u32 numBuiltInMaterials =
 		sizeof(sBuiltInMaterialTypeNames) / sizeof(char *) - 1;
 
 } // end namespace video
-} // end namespace irr

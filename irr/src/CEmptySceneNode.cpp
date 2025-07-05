@@ -5,8 +5,6 @@
 #include "CEmptySceneNode.h"
 #include "ISceneManager.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -58,4 +56,3 @@ ISceneNode *CEmptySceneNode::clone(ISceneNode *newParent, ISceneManager *newMana
 }
 
 } // end namespace scene
-} // end namespace irr

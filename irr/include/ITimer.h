@@ -6,9 +6,6 @@
 
 #include "IReferenceCounted.h"
 
-namespace irr
-{
-
 //! Interface for getting and manipulating the virtual time
 class ITimer : public virtual IReferenceCounted
 {
@@ -61,5 +58,3 @@ public:
 	but you can call it manually if you don't use this method. */
 	virtual void tick() = 0;
 };
-
-} // end namespace irr
