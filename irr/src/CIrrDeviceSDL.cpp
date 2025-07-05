@@ -714,6 +714,10 @@ bool CIrrDeviceSDL::run()
 		// os::Printer::log("event: ", core::stringc((int)SDL_event.type).c_str(),   ELL_INFORMATION);	// just for debugging
 		irrevent = {};
 
+		// Initially, we assume that there is no other applicable event type.
+		irrevent.EventType = irr::EET_OTHER_SDL_EVENT;
+		irrevent.SdlEvent = &SDL_event;
+
 		switch (SDL_event.type) {
 		case SDL_MOUSEMOTION: {
 			SDL_Keymod keymod = SDL_GetModState();
@@ -736,31 +740,28 @@ bool CIrrDeviceSDL::run()
 			irrevent.MouseInput.ButtonStates = MouseButtonStates;
 			irrevent.MouseInput.Shift = (keymod & KMOD_SHIFT) != 0;
 			irrevent.MouseInput.Control = (keymod & KMOD_CTRL) != 0;
-
-			postEventFromUser(irrevent);
 			break;
 		}
 		case SDL_MOUSEWHEEL: {
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+			double wheel = SDL_event.wheel.preciseY;
+#else
+			double wheel = SDL_event.wheel.y;
+#endif
+			// wheel y can be 0 if scrolling sideways
+			if (wheel == 0.0f)
+				break;
+
 			SDL_Keymod keymod = SDL_GetModState();
 
 			irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
 			irrevent.MouseInput.Event = irr::EMIE_MOUSE_WHEEL;
-#if SDL_VERSION_ATLEAST(2, 0, 18)
-			irrevent.MouseInput.Wheel = SDL_event.wheel.preciseY;
-#else
-			irrevent.MouseInput.Wheel = SDL_event.wheel.y;
-#endif
+			irrevent.MouseInput.Wheel = wheel;
 			irrevent.MouseInput.ButtonStates = MouseButtonStates;
 			irrevent.MouseInput.Shift = (keymod & KMOD_SHIFT) != 0;
 			irrevent.MouseInput.Control = (keymod & KMOD_CTRL) != 0;
 			irrevent.MouseInput.X = MouseX;
 			irrevent.MouseInput.Y = MouseY;
-
-			// wheel y can be 0 if scrolling sideways
-			if (irrevent.MouseInput.Wheel == 0.0f)
-				break;
-
-			postEventFromUser(irrevent);
 			break;
 		}
 		case SDL_MOUSEBUTTONDOWN:
@@ -854,16 +855,22 @@ bool CIrrDeviceSDL::run()
 				irrevent.MouseInput.Y = static_cast<s32>(SDL_event.button.y * ScaleY);
 				irrevent.MouseInput.Shift = shift;
 				irrevent.MouseInput.Control = control;
-				postEventFromUser(irrevent);
 
 				if (irrevent.MouseInput.Event >= EMIE_LMOUSE_PRESSED_DOWN && irrevent.MouseInput.Event <= EMIE_MMOUSE_PRESSED_DOWN) {
 					u32 clicks = checkSuccessiveClicks(irrevent.MouseInput.X, irrevent.MouseInput.Y, irrevent.MouseInput.Event);
 					if (clicks == 2) {
+						// Since we need to send two events, explicitly send the first
+						// event and clear out the SdlEvent field for the second event so
+						// we don't get duplicate SDL events.
+						postEventFromUser(irrevent);
+						irrevent.SdlEvent = nullptr;
+
 						irrevent.MouseInput.Event = (EMOUSE_INPUT_EVENT)(EMIE_LMOUSE_DOUBLE_CLICK + irrevent.MouseInput.Event - EMIE_LMOUSE_PRESSED_DOWN);
-						postEventFromUser(irrevent);
 					} else if (clicks == 3) {
-						irrevent.MouseInput.Event = (EMOUSE_INPUT_EVENT)(EMIE_LMOUSE_TRIPLE_CLICK + irrevent.MouseInput.Event - EMIE_LMOUSE_PRESSED_DOWN);
 						postEventFromUser(irrevent);
+						irrevent.SdlEvent = nullptr;
+
+						irrevent.MouseInput.Event = (EMOUSE_INPUT_EVENT)(EMIE_LMOUSE_TRIPLE_CLICK + irrevent.MouseInput.Event - EMIE_LMOUSE_PRESSED_DOWN);
 					}
 				}
 			} else if (irrevent.EventType == irr::EET_KEY_INPUT_EVENT) {
@@ -871,7 +878,6 @@ bool CIrrDeviceSDL::run()
 				irrevent.KeyInput.PressedDown = SDL_event.type == SDL_MOUSEBUTTONDOWN;
 				irrevent.KeyInput.Shift = shift;
 				irrevent.KeyInput.Control = control;
-				postEventFromUser(irrevent);
 			}
 			break;
 		}
@@ -880,9 +886,6 @@ bool CIrrDeviceSDL::run()
 			irrevent.EventType = irr::EET_STRING_INPUT_EVENT;
 			irrevent.StringInput.Str = new core::stringw();
 			irr::core::utf8ToWString(*irrevent.StringInput.Str, SDL_event.text.text);
-			postEventFromUser(irrevent);
-			delete irrevent.StringInput.Str;
-			irrevent.StringInput.Str = NULL;
 		} break;
 
 		case SDL_KEYDOWN:
@@ -914,8 +917,6 @@ bool CIrrDeviceSDL::run()
 			irrevent.KeyInput.Char = findCharToPassToIrrlicht(keysym, key,
 					(SDL_event.key.keysym.mod & KMOD_NUM) != 0);
 			irrevent.KeyInput.SystemKeyCode = scancode;
-
-			postEventFromUser(irrevent);
 		} break;
 
 		case SDL_QUIT:
@@ -939,7 +940,6 @@ bool CIrrDeviceSDL::run()
 				if (old_scale_x != ScaleX || old_scale_y != ScaleY) {
 					irrevent.EventType = EET_APPLICATION_EVENT;
 					irrevent.ApplicationEvent.EventType = EAET_DPI_CHANGED;
-					postEventFromUser(irrevent);
 				}
 				break;
 			}
@@ -949,8 +949,6 @@ bool CIrrDeviceSDL::run()
 			irrevent.EventType = irr::EET_USER_EVENT;
 			irrevent.UserEvent.UserData1 = reinterpret_cast<uintptr_t>(SDL_event.user.data1);
 			irrevent.UserEvent.UserData2 = reinterpret_cast<uintptr_t>(SDL_event.user.data2);
-
-			postEventFromUser(irrevent);
 			break;
 
 		case SDL_FINGERDOWN:
@@ -961,8 +959,6 @@ bool CIrrDeviceSDL::run()
 			irrevent.TouchInput.Y = static_cast<s32>(SDL_event.tfinger.y * Height);
 			CurrentTouchCount++;
 			irrevent.TouchInput.touchedCount = CurrentTouchCount;
-
-			postEventFromUser(irrevent);
 			break;
 
 		case SDL_FINGERMOTION:
@@ -972,8 +968,6 @@ bool CIrrDeviceSDL::run()
 			irrevent.TouchInput.X = static_cast<s32>(SDL_event.tfinger.x * Width);
 			irrevent.TouchInput.Y = static_cast<s32>(SDL_event.tfinger.y * Height);
 			irrevent.TouchInput.touchedCount = CurrentTouchCount;
-
-			postEventFromUser(irrevent);
 			break;
 
 		case SDL_FINGERUP:
@@ -988,8 +982,6 @@ bool CIrrDeviceSDL::run()
 			if (CurrentTouchCount > 0) {
 				CurrentTouchCount--;
 			}
-
-			postEventFromUser(irrevent);
 			break;
 
 		// Contrary to what the SDL documentation says, SDL_APP_WILLENTERBACKGROUND
@@ -1017,6 +1009,14 @@ bool CIrrDeviceSDL::run()
 		default:
 			break;
 		} // end switch
+
+		postEventFromUser(irrevent);
+
+		if (SDL_event.type == SDL_TEXTINPUT) {
+			delete irrevent.StringInput.Str;
+			irrevent.StringInput.Str = nullptr;
+		}
+
 		resetReceiveTextInputEvents();
 	} // end while
 
