@@ -153,13 +153,13 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 			return true;
 
 		} else if (keyCode == getKeySetting("keymap_close_world")) {
-			close_world_down = event.KeyInput.PressedDown;
+			secondary_close_world_down = event.KeyInput.PressedDown;
 
-		} else if (keyCode == EscapeKey) {
-			esc_down = event.KeyInput.PressedDown;
+		} else if (keyCode == getKeySetting("main_keymap_close_world")) {
+			main_close_world_down = event.KeyInput.PressedDown;
 		}
 
-		if (esc_down && close_world_down) {
+		if (main_close_world_down && secondary_close_world_down) {
 			g_gamecallback->disconnect();
 			return true;
 		}

@@ -433,6 +433,7 @@ end
 function make.key(setting)
 	local btn_bind = "bind_" .. setting.name
 	local btn_clear = "unbind_" .. setting.name
+
 	local function add_conflict_warnings(fs, height)
 		local value = core.settings:get(setting.name)
 		if value == "" then
@@ -449,8 +450,8 @@ function make.key(setting)
 			if o.type == "key" and o.name ~= setting.name and
 					core.are_keycodes_equal(core.settings:get(o.name), value) then
 
-				local is_current_close_world = setting.name == "keymap_close_world"
-				local is_other_close_world = o.name == "keymap_close_world"
+				local is_current_close_world = setting.name == "keymap_close_world" or "main_keymap_close_world"
+				local is_other_close_world = o.name == "keymap_close_world" or "main_keymap_close_world"
 				local is_current_critical = critical_keys[setting.name]
 				local is_other_critical = critical_keys[o.name]
 

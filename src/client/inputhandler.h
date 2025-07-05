@@ -128,8 +128,8 @@ private:
 	// Intentionally not reset by clearInput/releaseAllKeys.
 	bool fullscreen_is_down = false;
 
-	bool close_world_down = false;
-	bool esc_down = false;
+	bool main_close_world_down = false;
+	bool secondary_close_world_down = false;
 
 	PointerType last_pointer_type = PointerType::Mouse;
 };
