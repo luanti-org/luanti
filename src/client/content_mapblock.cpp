@@ -1830,9 +1830,9 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 	std::unordered_map<content_t, std::unordered_map<u16, MapNode>> node_types;
 	std::unordered_map<content_t, std::unordered_map<u16, std::bitset<66>[3][66][66]>> set_nodes;
 
-    for (s8 x = 0; x < num; x++)
-    for (s8 y = 0; y < num; y++)
-    for (s8 z = 0; z < num; z++){
+    for (s16 x = 0; x < num; x++)
+    for (s16 y = 0; y < num; y++)
+    for (s16 z = 0; z < num; z++){
         v3s16 from = v3s16(blockpos_nodes.X + (x == 0 ? -1 : (x - 1) * width),
         				   blockpos_nodes.Y + (y == 0 ? -1 : (y - 1) * width),
         				   blockpos_nodes.Z + (z == 0 ? -1 : (z - 1) * width));
