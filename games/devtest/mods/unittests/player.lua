@@ -204,3 +204,17 @@ local function run_player_hotbar_clamp_tests(player)
 	player:hud_set_hotbar_itemcount(old_bar_size)
 end
 unittests.register("test_player_hotbar_clamp", run_player_hotbar_clamp_tests, {player=true})
+
+--
+-- Player defaults physics
+--
+core.DEFAULT_PHYSICS.speed = 2 -- Slightly change
+local function run_player_default_physics_tests(player)
+	local player_overrides = player:get_physics_override()
+	assert(player_overrides.speed == 2)
+	-- Revert everything
+	core.DEFAULT_PHYSICS.speed = 1
+	player_overrides.speed = 1
+	player:set_physics_override(player_overrides)
+end
+unittests.register("test_player_default_physics", run_player_default_physics_tests, {player=true})
