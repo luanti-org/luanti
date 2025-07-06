@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Greek (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-07-04 21:47+0000\n"
-"Last-Translator: GiorgeGi GiorgeGi <giorgegi729@gmail.com>\n"
+"PO-Revision-Date: 2025-07-07 21:02+0000\n"
+"Last-Translator: FedonT <phaidtheodcoc@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/minetest/minetest/"
 "el/>\n"
 "Language: el\n"
@@ -195,9 +195,8 @@ msgid "eased"
 msgstr "Ομαλός Χάρτης"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "(The game will need to enable automatic exposure as well)"
-msgstr "(Το παιχνίδι θα πρέπει επίσης να ενεργοποιήση αυτόματη έκθεση)"
+msgstr "(Το παιχνίδι θα πρέπει επίσης να ενεργοποιήσει αυτόματη έκθεση)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable bloom as well)"
@@ -208,39 +207,46 @@ msgid "(The game will need to enable volumetric lighting as well)"
 msgstr "(Το παιχνίδι θα πρέπει επίσης να ενεργοποιήσει βολουμετρικό φωτισμό)"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "(Use system language)"
-msgstr ""
+msgstr "(Χρήση γλώσσας του συστήματος)"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Accessibility"
-msgstr ""
+msgstr "Προσβασιμότητα"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Auto"
-msgstr ""
+msgstr "Αυτόματο"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+#, fuzzy
 msgid "Back"
-msgstr ""
+msgstr "Πίσω"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Buttons with crosshair"
-msgstr ""
+msgstr "Κουμπιά με στόχαστρο"
 
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Chat"
-msgstr ""
+msgstr "Συζήτηση"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Clear"
 msgstr "Εκκαθάριση"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+#, fuzzy
 msgid "Controls"
-msgstr ""
+msgstr "Έλεγχοι"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
@@ -252,16 +258,19 @@ msgid "Enabled"
 msgstr "Ενεργοποιημένο"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+#, fuzzy
 msgid "General"
-msgstr ""
+msgstr "Γενικά"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Long tap"
-msgstr ""
+msgstr "Πάτημα μεγάλης διάρκειας"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Movement"
-msgstr ""
+msgstr "Κίνηση"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
@@ -274,28 +283,32 @@ msgid "Reset setting to default"
 msgstr "Επαναφορά προεπιλογής"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Reset setting to default ($1)"
-msgstr ""
+msgstr "Επαναφορά ρύθμισης στην προεπιλογή ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
 msgstr "Αναζήτηση"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Short tap"
-msgstr ""
+msgstr "Πάτημα μικρής διάρκειας"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Show advanced settings"
-msgstr ""
+msgstr "Εμφάνισε προχωρημένες ρυθμίσεις"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show technical names"
 msgstr "Εμφάνιση τεχνικών ονομάτων"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Tap"
-msgstr ""
+msgstr "Πάτημα"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
@@ -304,7 +317,7 @@ msgstr ""
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Touchscreen layout"
-msgstr "Πλήρης οθόνη"
+msgstr "Διάταξη για Οθόνες Αφής"
 
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
@@ -314,16 +327,17 @@ msgstr "Επιλογή Τροποποιήσεων"
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
 msgid "Content: Games"
-msgstr "Περιεχόμενο"
+msgstr "Περιεχόμενο: Παιχνίδια"
 
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
 msgid "Content: Mods"
-msgstr "Περιεχόμενο"
+msgstr "Περιεχόμενο: Τροποποιήσεις"
 
 #: builtin/common/settings/shadows_component.lua
+#, fuzzy
 msgid "(The game will need to enable shadows as well)"
-msgstr ""
+msgstr "(Το παιχνίδι θα πρέπει επίσης να ενεργοποιήσει τις σκιές)"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Custom"
@@ -421,8 +435,8 @@ msgid ""
 "Failed to extract \"$1\" (insufficient disk space, unsupported file type or "
 "broken archive)"
 msgstr ""
-"Απέτυχε η εξαγωγή του \"$1\" (Μη υποστηριζόμενος τύπος αρχείου ή "
-"κατεστραμμένο αρχείο)"
+"Απέτυχε η εξαγωγή του \"$1\" (Έλλειψη χώρου στον δίσκο, μη υποστηριζόμενος "
+"τύπος αρχείου ή κατεστραμμένο αρχείο)"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid ""
@@ -437,8 +451,9 @@ msgid "$1 downloading..."
 msgstr "Λήψη ..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
+#, fuzzy
 msgid "All"
-msgstr ""
+msgstr "Όλα"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
@@ -451,8 +466,9 @@ msgid "Downloading..."
 msgstr "Λήψη ..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
+#, fuzzy
 msgid "Featured"
-msgstr ""
+msgstr "Επιλεγμένο"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -484,7 +500,7 @@ msgstr "Σε αναμονή"
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
 msgid "Texture Packs"
-msgstr "Πακέτα υφής"
+msgstr "Πακέτα Υφής"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "The package $1 was not found."
@@ -524,8 +540,9 @@ msgid "Dependencies:"
 msgstr "Εξαρτήσεις:"
 
 #: builtin/mainmenu/content/dlg_install.lua
+#, fuzzy
 msgid "Error getting dependencies for package $1"
-msgstr ""
+msgstr "Σφάλμα λαμβάνοντας εξαρτήσεις για το πακέτο $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Install"
@@ -562,55 +579,62 @@ msgstr "Αντικατάσταση"
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "ContentDB page"
-msgstr "Περιεχόμενο"
+msgstr "Σελίδα ContentDB"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "Description"
-msgstr "Περιγραφή Διακομιστή"
+msgstr "Περιγραφή"
 
 #: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
 msgid "Donate"
-msgstr ""
+msgstr "Δωρεά"
 
 #: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
 msgid "Error loading package information"
-msgstr ""
+msgstr "Σφάλμα φορτώνοντας πληροφορίες πακέτου"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "Error loading reviews"
-msgstr "Σφάλμα δημιουργίας πελάτη: %s"
+msgstr "Σφάλμα φόρτωσης αξιολογήσεων"
 
 #: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
 msgid "Forum Topic"
-msgstr ""
+msgstr "Θέμα Χώρου Συζητήσεων"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "Information"
-msgstr "Πληροφορίες:"
+msgstr "Πληροφορίες"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "Install [$1]"
-msgstr "Εγκατάσταση $1"
+msgstr "Εγκατάσταση [$1]"
 
 #: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
 msgid "Issue Tracker"
-msgstr ""
+msgstr "Ανιχνευτής Προβλημάτων"
 
 #: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
 msgid "Reviews"
-msgstr ""
+msgstr "Αξιολογήσεις"
 
 #: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
 msgid "Source"
-msgstr ""
+msgstr "Πηγή"
 
 #: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
 msgid "Translate"
-msgstr ""
+msgstr "Μετέφρασε"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
@@ -621,8 +645,9 @@ msgid "Update"
 msgstr "Αναβάθμιση"
 
 #: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
 msgid "Website"
-msgstr ""
+msgstr "Ιστοσελίδα"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -659,10 +684,13 @@ msgid "Unable to install a $1 as a texture pack"
 msgstr "Δεν είναι δυνατή η εγκατάσταση $1 ως πακέτου υφής"
 
 #: builtin/mainmenu/dlg_clients_list.lua
+#, fuzzy
 msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
+"Παίκτες συνδέθηκαν σε\n"
+"$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
