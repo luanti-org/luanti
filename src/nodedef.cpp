@@ -364,6 +364,7 @@ void ContentFeatures::reset()
 		j = TileDef();
 	alpha = ALPHAMODE_OPAQUE;
 	post_effect_color = video::SColor(0, 0, 0, 0);
+	post_effect_use_node_color = false;
 	param_type = CPT_NONE;
 	param_type_2 = CPT2_NONE;
 	is_ground_content = false;
@@ -450,7 +451,12 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 		}
 	}
 	writeU8(os, param_type);
-	writeU8(os, param_type_2);
+	if (protocol_version < 48 && param_type_2 == CPT2_COLORED_FLOWINGLIQUID) {
+		// Old clients will not see color in the liquid
+		writeU8(os, CPT2_FLOWINGLIQUID);
+	} else {
+		writeU8(os, param_type_2);
+	}
 
 	// visual
 	writeU8(os, drawtype);
@@ -534,6 +540,7 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 	writeU8(os, alpha);
 	writeU8(os, move_resistance);
 	writeU8(os, liquid_move_physics);
+	writeU8(os, post_effect_use_node_color);
 	writeU8(os, post_effect_color_shaded);
 }
 
@@ -665,6 +672,11 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 		if (is.eof())
 			throw SerializationError("");
 		post_effect_color_shaded = tmp;
+
+		tmp = readU8(is);
+		if (is.eof())
+			throw SerializationError("");
+		post_effect_use_node_color = tmp;
 	} catch (SerializationError &e) {};
 }
 
@@ -953,6 +965,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 				tdef_spec[j].backface_culling, tsettings);
 
 	if (param_type_2 == CPT2_COLOR ||
+			param_type_2 == CPT2_COLORED_FLOWINGLIQUID ||
 			param_type_2 == CPT2_COLORED_FACEDIR ||
 			param_type_2 == CPT2_COLORED_4DIR ||
 			param_type_2 == CPT2_COLORED_WALLMOUNTED ||

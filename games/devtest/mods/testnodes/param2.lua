@@ -319,3 +319,31 @@ core.register_node("testnodes:colorwallmounted_nodebox", {
 	groups = { dig_immediate = 3 },
 })
 
+local function register_color_flowing_liquid(name, desc, liquidtype, paramtype2, drawtype)
+	minetest.register_node(name, {
+		description = S(desc).."\n"..
+			S("param2 = color " .. (liquidtype == "flowing" and "+ flowing liquid properties" or "+ 4 unused bits")),
+		paramtype2 = paramtype2,
+		paramtype = "light",
+		liquidtype = liquidtype,
+		liquid_alternative_source = "testnodes:colorflowingliquid_source",
+		liquid_alternative_flowing = "testnodes:colorflowingliquid_flowing",
+		liquid_renewable = true,
+		liquid_range = 8,
+		walkable = false,
+		buildable_to = true,
+		is_ground_content = false,
+		drawtype = drawtype,
+		palette = "testnodes_palette_flowingliquid.png",
+		tiles = {"testnodes_node.png"},
+		special_tiles = {
+			{name = "testnodes_node.png", backface_culling = false},
+			{name = "testnodes_node.png", backface_culling = true},
+		},
+		post_effect_color = "#7d7d7d7d",
+		post_effect_use_node_color = true,
+	})
+end
+
+register_color_flowing_liquid("testnodes:colorflowingliquid_source", "Color Flowingliquid Source Test Node", "source", "color", "liquid")
+register_color_flowing_liquid("testnodes:colorflowingliquid_flowing", "Color Flowingliquid Flowing Test Node", "flowing", "colorflowingliquid", "flowingliquid")
