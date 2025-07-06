@@ -1855,26 +1855,33 @@ void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, s
     bases = outs;
 }
 
-void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width, u8 quad_size)
+void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width)
 {
 	static u16 calls = 0;
 	if (++calls % 10 == 0)
 		warningstream << "lod " << calls << std::endl;
-	u8 num = data->m_side_length / width + 2;
-	// for now, assume chunk size is <= 8
+	for (u16 greedy_seg_start_x = 0; greedy_seg_start_x < data->m_side_length; greedy_seg_start_x += 64)
+	for (u16 greedy_seg_start_y = 0; greedy_seg_start_y < data->m_side_length; greedy_seg_start_y += 64)
+	for (u16 greedy_seg_start_z = 0; greedy_seg_start_z < data->m_side_length; greedy_seg_start_z += 64) {
+	u8 greedy_side_length_x = MYMIN(data->m_side_length - greedy_seg_start_x, 64);
+	u8 greedy_side_length_y = MYMIN(data->m_side_length - greedy_seg_start_y, 64);
+	u8 greedy_side_length_z = MYMIN(data->m_side_length - greedy_seg_start_z, 64);
+	u8 num_x = greedy_side_length_x / width + 2;
+	u8 num_y = greedy_side_length_y / width + 2;
+	u8 num_z = greedy_side_length_z / width + 2;
 	std::bitset<66> all_set_nodes[3][66][66];
 	std::unordered_map<content_t, std::unordered_map<u16, MapNode>> node_types;
 	std::unordered_map<content_t, std::unordered_map<u16, std::bitset<66>[3][66][66]>> set_nodes;
 
-    for (s16 x = 0; x < num; x++)
-    for (s16 y = 0; y < num; y++)
-    for (s16 z = 0; z < num; z++){
-        v3s16 from = v3s16(blockpos_nodes.X + (x == 0 ? -1 : (x - 1) * width),
-        				   blockpos_nodes.Y + (y == 0 ? -1 : (y - 1) * width),
-        				   blockpos_nodes.Z + (z == 0 ? -1 : (z - 1) * width));
-        v3s16 to = v3s16(from.X + (x == num-1 ? 1 : width),
-                         from.Y + (y == num-1 ? 1 : width),
-                         from.Z + (z == num-1 ? 1 : width));
+    for (s16 x = 0; x < num_x; x++)
+    for (s16 y = 0; y < num_y; y++)
+    for (s16 z = 0; z < num_z; z++){
+        v3s16 from = v3s16(blockpos_nodes.X + (x == 0 ? -1 : (x - 1) * width) + greedy_seg_start_x,
+        				   blockpos_nodes.Y + (y == 0 ? -1 : (y - 1) * width) + greedy_seg_start_y,
+        				   blockpos_nodes.Z + (z == 0 ? -1 : (z - 1) * width) + greedy_seg_start_z);
+        v3s16 to = v3s16(from.X + (x == num_x-1 ? 1 : width),
+                         from.Y + (y == num_y-1 ? 1 : width),
+                         from.Z + (z == num_z-1 ? 1 : width));
 
 		v3s16 p;
 		MapNode main_node;
@@ -1931,12 +1938,8 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
         if (bounds.MinEdge.X == S16_MAX)
         	continue;
 
-    	bounds.MinEdge -= blockpos_nodes;
-    	bounds.MaxEdge -= blockpos_nodes;
-    	bounds.MinEdge /= quad_size;
-    	bounds.MaxEdge /= quad_size;
-    	bounds.MinEdge += 1;
-    	bounds.MaxEdge += 1;
+    	bounds.MinEdge -= blockpos_nodes + v3s16(greedy_seg_start_x, greedy_seg_start_y, greedy_seg_start_z) - 1;
+    	bounds.MaxEdge -= blockpos_nodes + v3s16(greedy_seg_start_x, greedy_seg_start_y, greedy_seg_start_z) - 1;
 
 		//if(num_light_samples == 0)
 			lp = LightPair((u8) 255, 0);
@@ -1960,7 +1963,9 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 		}
 		next_volume:
 	}
-	num -= 2;
+	num_x -= 2;
+	num_y -= 2;
+	num_z -= 2;
 
 	for (auto [node_type, map] : set_nodes)
 	for (auto [light_pair, value] : map) {
@@ -1991,7 +1996,7 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 		}
 
 		for (u8 direction = 0; direction < 6; direction++)
-		for (u8 slice_i = 0; slice_i < 64; slice_i++) {
+		for (u8 slice_i = 0; slice_i < 64; slice_i++)
 		for (u8 u = 0; u < 64; u++) {
 			u64 column = slices[direction][slice_i][u];
 			while (column) {
@@ -2000,7 +2005,7 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 				const u64 mask = v1 == 64 ? U64_MAX : ((static_cast<u64>(1) << v1) - 1) << v0;
 				column ^= mask;
 				u32 u1 = 1;
-				while (u + u1 < data->m_side_length && // while still in current chunk
+				while (u + u1 < 64 && // while still in current chunk
 					(slices[direction][slice_i][u + u1] & mask) == mask) { // and next column shares faces
 					slices[direction][slice_i][u + u1] ^= mask;
 					u1++;
@@ -2061,10 +2066,10 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 					vertices[3] = core::vector3df(u1 - BS / 2, v1 - BS / 2, w);
 					break;
 				}
-				vertices[0] *= quad_size;
-                vertices[1] *= quad_size;
-                vertices[2] *= quad_size;
-                vertices[3] *= quad_size;
+				vertices[0] += core::vector3df(greedy_seg_start_x * BS, greedy_seg_start_y * BS, greedy_seg_start_z * BS);
+				vertices[1] += core::vector3df(greedy_seg_start_x * BS, greedy_seg_start_y * BS, greedy_seg_start_z * BS);
+				vertices[2] += core::vector3df(greedy_seg_start_x * BS, greedy_seg_start_y * BS, greedy_seg_start_z * BS);
+				vertices[3] += core::vector3df(greedy_seg_start_x * BS, greedy_seg_start_y * BS, greedy_seg_start_z * BS);
 				//video::SColor color = encode_light(255, nodedef->getLightingFlags(n).light_source);
 				//warningstream << "light: " << light_pair << std::endl;
 				video::SColor color = encode_light(light_pair, nodedef->getLightingFlags(n).light_source);
@@ -2089,8 +2094,8 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 				collector->append(tile, irr_vertices, 4, quad_indices, 6);
 			}
 		}
-	}
 		}
+	}
 }
 
 void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u32 width, core::vector2d<f32> uvs[4], u8 min_size){
@@ -2226,11 +2231,7 @@ void LodMeshGenerator::generate(u8 lod) {
         if (g_settings->get("leaves_style") == "simple")
             types.set(NDT_GLASSLIKE);
 
-		u8 quad_size = 1;
-		if (data->m_side_length > 64)
-			quad_size = data->m_side_length / 64;
-
-        generateCloseLod(types, width, quad_size);
+        generateCloseLod(types, width);
     } else {
         std::bitset<NodeDrawType_END> solids;
         solids.set(NDT_NORMAL);

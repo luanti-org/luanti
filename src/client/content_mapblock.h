@@ -188,6 +188,6 @@ private:
 	                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
 
     void generateDetailLod(std::bitset<NodeDrawType_END> types, u32, core::vector2d<f32>[4], u8);
-    void generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width, u8 min_size);
+    void generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width);
     void findClosestOfTypes(std::bitset<NodeDrawType_END> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const;
 };
