@@ -402,9 +402,10 @@ add_custom_command(
 	-D "PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}"
 	-D "PROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
 	-D "BUILTIN_BASE_PATH=${BUILTIN_BASE_PATH}"
-	-D "builtin_SRCS=\"${builtin_SRCS}\"" #TODO: what if " in path?
+	-D "BUILTIN_SRCS=\"${BUILTIN_SRCS}\"" #TODO: what if " in path?
 	-P "${CMAKE_SOURCE_DIR}/cmake/Modules/GenerateBuiltinFilesList.cmake"
-	DEPENDS ${builtin_SRCS}
+	DEPENDS
+		${BUILTIN_SRCS}
 		"${PROJECT_SOURCE_DIR}/builtin_files.cpp.in"
 		"${CMAKE_SOURCE_DIR}/cmake/Modules/GenerateBuiltinFilesList.cmake"
 	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
