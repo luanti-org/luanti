@@ -1,4 +1,4 @@
-set(builtin_GAME_SRCS
+set(BUILTIN_GAME_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/async.lua
 	${CMAKE_CURRENT_SOURCE_DIR}/auth.lua
 	${CMAKE_CURRENT_SOURCE_DIR}/chat.lua
