@@ -529,6 +529,10 @@ if (BUILD_CLIENT)
 	add_subdirectory(client)
 	add_subdirectory(gui)
 	add_subdirectory(irrlicht_changes)
+
+	if(BUILD_UI)
+		add_subdirectory(ui)
+	endif()
 endif(BUILD_CLIENT)
 
 list(APPEND client_SRCS
@@ -542,9 +546,11 @@ list(APPEND client_SRCS
 if(BUILD_UNITTESTS)
 	list(APPEND client_SRCS ${UNITTEST_CLIENT_SRCS})
 endif()
-
 if(BUILD_BENCHMARKS)
 	list(APPEND client_SRCS ${BENCHMARK_CLIENT_SRCS})
+endif()
+if(BUILD_UI)
+	set(client_SRCS ${client_SRCS} ${ui_SRCS})
 endif()
 
 # Server sources
@@ -587,6 +593,10 @@ if(BUILD_CLIENT)
 		${FREETYPE_INCLUDE_DIRS}
 		${SOUND_INCLUDE_DIRS}
 	)
+
+	if(BUILD_UI)
+		include_directories(SYSTEM ${SDL2_INCLUDE_DIRS})
+	endif()
 endif()
 
 if(USE_CURL)
@@ -755,6 +765,9 @@ if(BUILD_CLIENT)
 	endif()
 	if(BUILD_WITH_TRACY)
 		target_link_libraries(${PROJECT_NAME} Tracy::TracyClient)
+	endif()
+	if(BUILD_UI)
+		target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 	endif()
 
 	if(PRECOMPILE_HEADERS)

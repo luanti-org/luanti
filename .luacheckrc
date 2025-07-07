@@ -22,7 +22,15 @@ read_globals = {
 	"ValueNoise", "ValueNoiseMap",
 
 	string = {fields = {"split", "trim"}},
-	table  = {fields = {"copy", "copy_with_metatables", "getn", "indexof", "keyof", "insert_all"}},
+	table  = {fields = {
+		"copy",
+		"copy_with_metatables",
+		"getn",
+		"indexof",
+		"keyof",
+		"insert_all",
+		"merge",
+	}},
 	math   = {fields = {"hypot", "round"}},
 }
 

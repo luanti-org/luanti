@@ -953,6 +953,17 @@ void Client::handleCommand_ShowFormSpec(NetworkPacket* pkt)
 	m_client_event_queue.push(event);
 }
 
+void Client::handleCommand_UiMessage(NetworkPacket* pkt)
+{
+	std::string *data = new std::string(pkt->getString(0), pkt->getSize());
+
+	ClientEvent *event = new ClientEvent();
+	event->type = CE_UI_MESSAGE;
+	event->ui_message.data = data;
+
+	m_client_event_queue.push(event);
+}
+
 void Client::handleCommand_SpawnParticle(NetworkPacket* pkt)
 {
 	std::string datastring(pkt->getString(0), pkt->getSize());
