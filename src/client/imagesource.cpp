@@ -102,8 +102,6 @@ video::IImage* SourceImageCache::getOrLoad(const std::string &name)
 
 /** Draw an image on top of another one with gamma-incorrect alpha compositing
  *
- * This exists because IImage::copyToWithAlpha() doesn't seem to always work.
- *
  * \tparam overlay If enabled, only modify pixels in dst which are fully opaque.
  *   Defaults to false.
  * \param src Top image. This image must have the ECF_A8R8G8B8 color format.
