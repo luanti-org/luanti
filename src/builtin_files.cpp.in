@@ -1,0 +1,31 @@
+// Luanti
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2025 Luanti contributors
+
+// Filled in by the build system
+
+#include "builtin_files.h"
+#include <unordered_map>
+
+static std::unordered_map<std::string, std::string> fill_file_hash_hashmap()
+{
+	return {
+@builtin_SHA256S_INITIALIZER_LIST@
+	};
+}
+
+const std::unordered_map<std::string, std::string> &get_builtin_file_sha256_map()
+{
+	static std::unordered_map<std::string, std::string> map = fill_file_hash_hashmap();
+	return map;
+}
+
+std::string get_builtin_file_sha256(const std::string &rel_path)
+{
+	auto &map = get_builtin_file_sha256_map();
+	auto it = map.find(rel_path);
+	if (it == map.end())
+		return "";
+	else
+		return it->second;
+}

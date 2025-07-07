@@ -1,0 +1,23 @@
+set(builtin_GAME_SRCS
+	${CMAKE_CURRENT_SOURCE_DIR}/async.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/auth.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/chat.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/constants.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/death_screen.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/deprecated.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/detached_inventory.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/falling.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/features.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/forceloading.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/hud.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/init.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/item_entity.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/item.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/knockback.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/misc.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/misc_s.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/privileges.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/register.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/static_spawn.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/voxelarea.lua
+	PARENT_SCOPE)
