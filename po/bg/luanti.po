@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-07-04 16:01+0000\n"
+"PO-Revision-Date: 2025-07-10 03:05+0000\n"
 "Last-Translator: 109247019824 <109247019824@users.noreply.hosted.weblate.org>"
 "\n"
 "Language-Team: Bulgarian <https://hosted.weblate.org/projects/minetest/"
@@ -3011,6 +3011,8 @@ msgid ""
 "Clickable weblinks (middle-click or Ctrl+left-click) enabled in chat console "
 "output."
 msgstr ""
+"Препратки в интернет (щракване със среден бутон или Ctrl+ляв бутон) са "
+"налични в разговорите."
 
 #: src/settings_translation_file.cpp
 msgid "Client"
@@ -3038,11 +3040,11 @@ msgstr "Ограничения на модификациите на клиент
 
 #: src/settings_translation_file.cpp
 msgid "Client-side Modding"
-msgstr ""
+msgstr "Модификация на клиента (CSM)"
 
 #: src/settings_translation_file.cpp
 msgid "Client-side node lookup range restriction"
-msgstr ""
+msgstr "Ограничение на разстоянието на търсене на възли от клиента"
 
 #: src/settings_translation_file.cpp
 msgid "Climbing speed"
@@ -3062,7 +3064,7 @@ msgstr "Облаци в менюто"
 
 #: src/settings_translation_file.cpp
 msgid "Color depth for post-processing texture"
-msgstr ""
+msgstr "Дълбочина на цвета при последваща обработка на текстури"
 
 #: src/settings_translation_file.cpp
 msgid "Colored fog"
@@ -3077,6 +3079,9 @@ msgid ""
 "Comma-separated list of AL and ALC extensions that should not be used.\n"
 "Useful for testing. See al_extensions.[h,cpp] for details."
 msgstr ""
+"Списък с всички AL и ACL разширения, разделени със запетая,\n"
+" които не трябва да бъдат използвани.\n"
+"Полезно при изпитване на кода. За подробности вижте al_extensions.[h,cpp]."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3102,12 +3107,18 @@ msgid ""
 "Comma-separated list of mods that are allowed to access HTTP APIs, which\n"
 "allow them to upload and download data to/from the internet."
 msgstr ""
+"Списък с модофикации, разделени със запетая, които имат\n"
+"достъп до ППИ за HTTP и могат да изтеглят и изпращат\n"
+"информация от интернет."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Comma-separated list of trusted mods that are allowed to access insecure\n"
 "functions even when mod security is on (via request_insecure_environment())."
 msgstr ""
+"Списък с доверени модофикации, разделени със запетая, които имат\n"
+"достъп до небезопасните възможности даже при включена защита\n"
+"от модификации (чрез request_insecure_environment())."
 
 #: src/settings_translation_file.cpp
 msgid "Command"
@@ -3120,6 +3131,11 @@ msgid ""
 "0 - least compression, fastest\n"
 "9 - best compression, slowest"
 msgstr ""
+"Ниво на компресия, използвана при запазване на\n"
+"блокове от картата на носителя.\n"
+"• -1 – подразбирана компресия\n"
+"• 0 – най-малка компресия, най-бърза\n"
+"• 9 – най-добра компресия, най-бавна"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3128,6 +3144,11 @@ msgid ""
 "0 - least compression, fastest\n"
 "9 - best compression, slowest"
 msgstr ""
+"Ниво на компресия, използвана при изпращане на\n"
+"блокове от картата към клиента.\n"
+"• -1 – подразбирана компресия\n"
+"• 0 – най-малка компресия, най-бърза\n"
+"• 9 – най-добра компресия, най-бавна"
 
 #: src/settings_translation_file.cpp
 msgid "Connect glass"
@@ -3155,19 +3176,19 @@ msgstr "Височина на конзолата"
 
 #: src/settings_translation_file.cpp
 msgid "Content Repository"
-msgstr ""
+msgstr "Хранилище за съдържание"
 
 #: src/settings_translation_file.cpp
 msgid "ContentDB Flag Blacklist"
-msgstr ""
+msgstr "Забранителен списък с флагове на ContentDB"
 
 #: src/settings_translation_file.cpp
 msgid "ContentDB Max Concurrent Downloads"
-msgstr ""
+msgstr "Максимален брой едновременни изтегляния от ContentDB"
 
 #: src/settings_translation_file.cpp
 msgid "ContentDB URL"
-msgstr ""
+msgstr "Адрес на ContentDB"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6521,6 +6542,18 @@ msgid ""
 "server-intensive extreme water flow and to avoid vast flooding of the\n"
 "world surface below."
 msgstr ""
+"Ниво на повърхността на незадължителната вода на плътния\n"
+"слой небесни острови.\n"
+"Водата е изключена по подразбиране и ще бъде добавена само\n"
+"при стойност над „mgv7_floatland_ymax“ - „mgv7_floatland_taper“\n"
+"(горна граница на стесняване).\n"
+"***ВНИМАНИЕ, ВЪЗМОЖНА ОПАСНОСТ ЗА РАБОТАТА НА СВЕТА ИЛИ СЪРВЪРА***\n"
+"Когато включите наличието на вода небесните острови трябва\n"
+"да бъдат настроени и да се уверите, че са плътен слой като на\n"
+"настройката „mgv7_floatland_density“ зададете 2.0 (или друга необходима\n"
+"стойност, в зависимост от „mgv7_np_floatland“), така че да избегнете\n"
+"наличието на преклено много течаща вода и наводняването на големи\n"
+"площи на повърхността под островите."
 
 #: src/settings_translation_file.cpp
 msgid "Synchronous SQLite"
@@ -7344,6 +7377,13 @@ msgid ""
 "For a solid floatland layer, this controls the height of hills/mountains.\n"
 "Must be less than or equal to half the distance between the Y limits."
 msgstr ""
+"Разстояние по оста Y, на което небесните острови намаляват\n"
+"от плътен слой до нищо.\n"
+"Намаляването започва от това разстояние от ограничението по Y.\n"
+"При плътен слой небесни острови настройката управлява\n"
+"височината на хълмовете и планините.\n"
+"Стойността трябва да бъде по-малка или равна на разстоянието\n"
+"между ограниченията по оста Y."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of average terrain surface."
