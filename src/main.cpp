@@ -344,9 +344,9 @@ static void set_allowed_options(OptionList *allowed_options)
 	allowed_options->insert(std::make_pair("map-dir", ValueSpec(VALUETYPE_STRING,
 			_("Same as --world (deprecated)"))));
 	allowed_options->insert(std::make_pair("world", ValueSpec(VALUETYPE_STRING,
-			_("Set world path" LOCAL_GAME))));
+			_("Set world path. Throws error if world does not exist" LOCAL_GAME))));
 	allowed_options->insert(std::make_pair("worldname", ValueSpec(VALUETYPE_STRING,
-			_("Set world by name" LOCAL_GAME))));
+			_("Set world by name. Creates a new world if it does not exist" LOCAL_GAME))));
 	allowed_options->insert(std::make_pair("worldlist", ValueSpec(VALUETYPE_STRING,
 			_("Get list of worlds ('path' lists paths, "
 			"'name' lists names, 'both' lists both)"))));
