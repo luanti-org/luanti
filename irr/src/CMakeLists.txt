@@ -371,11 +371,11 @@ endif()
 # the unified drivers
 
 if(ENABLE_OPENGL3 OR ENABLE_GLES2)
-	file(GLOB openGL_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/*.h")
+	file(GLOB IRRDRVR_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/*.h")
 
 	set(IRRDRVROBJ
-		${openGL_HDRS}
 		${IRRDRVROBJ}
+		${IRRDRVR_HDRS}
 		OpenGL/Driver.cpp
 		OpenGL/ExtensionHandler.cpp
 		OpenGL/FixedPipelineRenderer.cpp
