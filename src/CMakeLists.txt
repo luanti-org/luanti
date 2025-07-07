@@ -395,6 +395,21 @@ add_custom_target(GenerateVersion
 	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 
+# Command for builtin_files.cpp
+add_custom_command(
+	OUTPUT "${PROJECT_BINARY_DIR}/builtin_files.cpp"
+	COMMAND ${CMAKE_COMMAND}
+	-D "PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}"
+	-D "PROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+	-D "BUILTIN_BASE_PATH=${BUILTIN_BASE_PATH}"
+	-D "builtin_SRCS=\"${builtin_SRCS}\"" #TODO: what if " in path?
+	-P "${CMAKE_SOURCE_DIR}/cmake/Modules/GenerateBuiltinFilesList.cmake"
+	DEPENDS ${builtin_SRCS}
+		"${PROJECT_SOURCE_DIR}/builtin_files.cpp.in"
+		"${CMAKE_SOURCE_DIR}/cmake/Modules/GenerateBuiltinFilesList.cmake"
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+
 add_subdirectory(threading)
 add_subdirectory(content)
 add_subdirectory(database)
@@ -439,6 +454,7 @@ set(independent_SRCS
 	texture_override.cpp
 	tileanimation.cpp
 	tool.cpp
+	${PROJECT_BINARY_DIR}/builtin_files.cpp
 	${common_network_SRCS}
 	${content_SRCS}
 	${database_SRCS}
