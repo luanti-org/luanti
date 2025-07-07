@@ -14,6 +14,7 @@
 #include "inputhandler.h"
 #include "profiler.h"
 #include "gui/guiEngine.h"
+#include "gui/guiSkin.h"
 #include "fontengine.h"
 #include "clientlauncher.h"
 #include "version.h"
@@ -336,6 +337,11 @@ static video::ITexture *loadTexture(video::IVideoDriver *driver, const char *pat
 		image->drop();
 	}
 	return texture;
+}
+
+gui::IGUISkin *impl_create_irr_guiskin(video::IVideoDriver *driver)
+{
+	return new GUISkin(driver);
 }
 
 void ClientLauncher::config_guienv()
