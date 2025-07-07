@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: French (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-05-18 17:31+0000\n"
-"Last-Translator: waxtatect <piero@live.ie>\n"
+"PO-Revision-Date: 2025-07-01 14:49+0000\n"
+"Last-Translator: Tanavit MINETEST <tanavit@posto.ovh>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/minetest/minetest/"
 "fr/>\n"
 "Language: fr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -1487,16 +1487,16 @@ msgstr "Connexion au serveur…"
 
 #: src/client/game.cpp
 msgid "Connection error (timed out?)"
-msgstr "Erreur de connexion (délai expiré ?)."
+msgstr "Erreur de connexion (délai expiré ?)"
 
 #: src/client/game.cpp
 msgid "Connection failed for unknown reason"
-msgstr "La connexion a échoué pour une raison inconnue."
+msgstr "La connexion a échoué pour une raison inconnue"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Couldn't resolve address: %s"
-msgstr "Impossible de résoudre l'adresse : %s."
+msgstr "Impossible de résoudre l'adresse : %s"
 
 #: src/client/game.cpp
 msgid "Creating client..."
@@ -1513,7 +1513,7 @@ msgstr "Informations de débogage affichées"
 #: src/client/game.cpp
 #, c-format
 msgid "Error creating client: %s"
-msgstr "Erreur de création du client : %s."
+msgstr "Erreur de création du client : %s"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
@@ -1633,7 +1633,7 @@ msgstr "Le serveur utilise probablement une version différente de %s."
 #: src/client/game.cpp
 #, c-format
 msgid "Unable to connect to %s because IPv6 is disabled"
-msgstr "Impossible de se connecter à %s car IPv6 est désactivé."
+msgstr "Impossible de se connecter à %s car IPv6 est désactivé"
 
 #: src/client/game.cpp
 #, c-format
@@ -2328,11 +2328,11 @@ msgstr ""
 
 #: src/network/clientpackethandler.cpp
 msgid "Internal server error"
-msgstr "Erreur interne du serveur."
+msgstr "Erreur interne du serveur"
 
 #: src/network/clientpackethandler.cpp
 msgid "Invalid password"
-msgstr "Mot de passe incorrect."
+msgstr "Mot de passe incorrect"
 
 #. ~ DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
@@ -2347,23 +2347,23 @@ msgid ""
 "Name is not registered. To create an account on this server, click 'Register'"
 msgstr ""
 "Le nom n'est pas enregistré. Pour créer un compte sur ce serveur, cliquer "
-"sur « S'inscrire »."
+"sur « S'inscrire »"
 
 #: src/network/clientpackethandler.cpp
 msgid "Name is taken. Please choose another name"
-msgstr "Le nom est pris. Veuillez choisir un autre nom."
+msgstr "Le nom est pris. Veuillez choisir un autre nom"
 
 #: src/network/clientpackethandler.cpp
 msgid "Player name contains disallowed characters"
-msgstr "Le nom de joueur contient des caractères non autorisés."
+msgstr "Le nom de joueur contient des caractères non autorisés"
 
 #: src/network/clientpackethandler.cpp
 msgid "Player name not allowed"
-msgstr "Le nom de joueur est non autorisé."
+msgstr "Le nom de joueur est non autorisé"
 
 #: src/network/clientpackethandler.cpp
 msgid "Server shutting down"
-msgstr "Arrêt du serveur."
+msgstr "Arrêt du serveur"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2378,7 +2378,7 @@ msgstr "Le serveur fonctionne en mode solo. Vous ne pouvez pas vous connecter."
 
 #: src/network/clientpackethandler.cpp
 msgid "Too many users"
-msgstr "Trop de joueurs."
+msgstr "Trop de joueurs"
 
 #: src/network/clientpackethandler.cpp
 msgid "Unknown disconnect reason."
@@ -2553,7 +2553,7 @@ msgstr ""
 "lignes paires/impaires.\n"
 "– haut-bas : partage haut et bas de l'écran.\n"
 "– côte-à-côte : partage côte à côte de l'écran.\n"
-"– vision croisée : vision croisée 3D."
+"– vision croisée : vision croisée 3D"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3100,11 +3100,12 @@ msgid ""
 msgstr ""
 "Liste séparés par des virgules des étiquettes des paquets à cacher du dépôt "
 "de contenus.\n"
-"« nonfree » peut être utilisé pour cacher les paquets non libres, comme "
-"défini par la « Free Software Foundation ».\n"
+"« nonfree » peut être utilisé pour cacher les paquets non libres,\n"
+"comme défini par la « Free Software Foundation ».\n"
 "Vous pouvez aussi spécifier des classifications de contenu.\n"
-"Ces étiquettes sont indépendantes des versions de Luanti, consulter la liste "
-"complète à l'adresse https://content.luanti.org/help/content_flags/."
+"Ces étiquettes sont indépendantes des versions de Luanti,\n"
+"consulter la liste complète à l'adresse https://content.luanti.org/help/"
+"content_flags/."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3257,7 +3258,7 @@ msgid ""
 "Also controls the object crosshair color"
 msgstr ""
 "Couleur du réticule (R,V,B).\n"
-"Cela s'applique également à la couleur du réticule de l'objet."
+"Cela s'applique également à la couleur du réticule de l'objet"
 
 #: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
@@ -3634,7 +3635,7 @@ msgstr "Activer les manettes"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks. Requires a restart to take effect"
-msgstr "Activer les manettes. Nécessite un redémarrage pour prendre effet."
+msgstr "Activer les manettes. Nécessite un redémarrage pour prendre effet"
 
 #: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
@@ -4016,7 +4017,7 @@ msgstr "Type de fractale"
 msgid "Fraction of the visible distance at which fog starts to be rendered"
 msgstr ""
 "Fraction de la distance de vue à partir de laquelle le brouillard commence à "
-"être rendu."
+"être rendu"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4045,9 +4046,10 @@ msgstr ""
 "établie en blocs de carte (16 nœuds).\n"
 "\n"
 "Définir cela plus grand que « active_block_range », ainsi le serveur "
-"maintient les objets actifs jusqu’à cette distance dans la direction où un "
-"joueur regarde (cela peut éviter que des mobs disparaissent soudainement de "
-"la vue)."
+"maintient\n"
+"les objets actifs jusqu’à cette distance dans la direction où un joueur "
+"regarde\n"
+"(cela peut éviter que des mobs disparaissent soudainement de la vue)."
 
 #: src/settings_translation_file.cpp
 msgid "Full screen"
@@ -4559,8 +4561,8 @@ msgid ""
 "seconds, add the time information to the chat command message"
 msgstr ""
 "Si l'exécution d'une commande de tchat prend plus de temps que cette durée "
-"spécifiée en secondes, ajoute les informations de temps au message de la "
-"commande de tchat."
+"spécifiée en secondes,\n"
+"ajoute les informations de temps au message de la commande de tchat."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4615,8 +4617,7 @@ msgid ""
 "This is usually only needed by core/builtin contributors"
 msgstr ""
 "Instrumenter « Intégré » (« builtin »).\n"
-"Cela est habituellement nécessaire seulement pour les développeurs "
-"principaux."
+"Cela est habituellement nécessaire seulement pour les développeurs principaux"
 
 #: src/settings_translation_file.cpp
 msgid "Instrument chat commands on registration."
@@ -4627,8 +4628,8 @@ msgid ""
 "Instrument global callback functions on registration.\n"
 "(anything you pass to a core.register_*() function)"
 msgstr ""
-"Instrumenter les fonctions de rappel global à l'enregistrement (tout ce que "
-"vous passez à une fonction « core.register_*() »)."
+"Instrumenter les fonctions de rappel global à l'enregistrement\n"
+"(tout ce que vous passez à une fonction « core.register_*() »)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5689,7 +5690,7 @@ msgstr "Nombre maximal de joueurs connectés en même temps."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of recent chat messages to show"
-msgstr "Nombre maximal de messages récents à afficher."
+msgstr "Nombre maximal de messages récents à afficher"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of statically stored objects in a block."
@@ -6153,8 +6154,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Privileges that players with basic_privs can grant"
 msgstr ""
-"Privilèges que les joueurs avec le privilège « basic_privs » peuvent "
-"accorder."
+"Privilèges que les joueurs avec le privilège « basic_privs » peuvent accorder"
 
 #: src/settings_translation_file.cpp
 msgid "Profiler"
@@ -6258,7 +6258,7 @@ msgid ""
 msgstr ""
 "Supprime les codes couleurs venant des messages du tchat.\n"
 "Utiliser cette option pour empêcher les joueurs d’utiliser la couleur dans "
-"leurs messages."
+"leurs messages"
 
 #: src/settings_translation_file.cpp
 msgid "Replaces the default main menu with a custom one."
@@ -7103,7 +7103,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "The URL for the content repository"
-msgstr "URL du dépôt de contenu."
+msgstr "URL du dépôt de contenu"
 
 #: src/settings_translation_file.cpp
 msgid "The dead zone of the joystick"
@@ -7156,7 +7156,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
-msgstr "Identifiant de la manette à utiliser."
+msgstr "Identifiant de la manette à utiliser"
 
 #: src/settings_translation_file.cpp
 msgid ""

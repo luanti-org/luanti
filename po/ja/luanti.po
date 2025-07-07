@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Japanese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-03-17 02:51+0000\n"
-"Last-Translator: Jun Nogata <nogajun@gmail.com>\n"
+"PO-Revision-Date: 2025-05-26 02:03+0000\n"
+"Last-Translator: BreadW <toshiharu.uno@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/minetest/"
 "minetest/ja/>\n"
 "Language: ja\n"
@@ -12,11 +12,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.11-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
-msgstr "アウト チャット キューをクリア"
+msgstr "チャットキューをクリア"
 
 #: builtin/client/chatcommands.lua
 msgid "Empty command."
@@ -36,7 +36,7 @@ msgstr "発行されたコマンド： "
 
 #: builtin/client/chatcommands.lua
 msgid "List online players"
-msgstr "オンラインプレーヤーを一覧表示する"
+msgstr "オンラインプレイヤーを一覧表示"
 
 #: builtin/client/chatcommands.lua
 msgid "Online players: "
@@ -83,16 +83,15 @@ msgstr "参照"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "\"$1\" との競合"
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "編集"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Remove keybinding"
-msgstr "キーに対する機能の割り当てです。"
+msgstr "キー割り当ての削除"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -224,7 +223,7 @@ msgstr "戻る"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
-msgstr ""
+msgstr "十字カーソル付きボタン"
 
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
@@ -254,7 +253,7 @@ msgstr "一般"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
-msgstr ""
+msgstr "ロングタップ"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
@@ -279,7 +278,7 @@ msgstr "検索"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
-msgstr ""
+msgstr "ショートタップ"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
@@ -290,17 +289,16 @@ msgid "Show technical names"
 msgstr "技術名称を表示"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Tap"
-msgstr "Tab"
+msgstr "タップ"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
-msgstr ""
+msgstr "十字カーソルをタップ"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Touchscreen layout"
-msgstr "タッチスクリーンレイアウト"
+msgstr "タッチスクリーン"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -561,12 +559,11 @@ msgstr "寄付"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
-msgstr ""
+msgstr "パッケージ情報の読み込みエラー"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Error loading reviews"
-msgstr "クライアント作成中にエラー: %s"
+msgstr "レビューの読み込みエラー"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
@@ -586,7 +583,7 @@ msgstr "問題追跡"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr ""
+msgstr "レビュー"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -645,6 +642,8 @@ msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
+"プレイヤーが接続\n"
+"$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
@@ -932,29 +931,27 @@ msgstr "ワールド「$1」を削除しますか？"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "これにより、キー割り当てが変更されることがあります。"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "キーの設定を確認するかドキュメントを参照してください:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "閉じる"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "キーに対する機能の割り当てです。"
+msgstr "キー割り当て変更"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "設定"
+msgstr "設定を開く"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
-msgstr ""
+msgstr "Luanti 5.12.0 で入力処理システムが再構築されました。"
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1303,12 +1300,11 @@ msgid "Ping"
 msgstr "応答速度"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid ""
 "Players:\n"
 "$1"
 msgstr ""
-"クライアント:\n"
+"プレイヤー:\n"
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
@@ -1405,7 +1401,7 @@ msgid ""
 "Check debug.txt for details."
 msgstr ""
 "\n"
-"詳細はdebug.txtを確認してください。"
+"詳細は debug.txt を確認してください。"
 
 #: src/client/game.cpp
 msgid "A serialization error occurred:"
@@ -2141,13 +2137,12 @@ msgid "Some mods have unsatisfied dependencies:"
 msgstr "一部のMODは満たされていない依存関係があります:"
 
 #: src/gui/guiButtonKey.h
-#, fuzzy
 msgid "Press Button"
-msgstr "左ボタン"
+msgstr "ボタンを押す"
 
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
-msgstr "ウェブページを開けませんでした"
+msgstr "ウェブページが開けません"
 
 #: src/gui/guiChatConsole.cpp
 msgid "Opening webpage"
@@ -2232,7 +2227,7 @@ msgstr "視点変更"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Dig/punch/use"
-msgstr ""
+msgstr "掘る/パンチ/使う"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Drop"
@@ -2259,9 +2254,8 @@ msgid "Overflow menu"
 msgstr "オーバーフローメニュー"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
-#, fuzzy
 msgid "Place/use"
-msgstr "設置キー"
+msgstr "置く/使う"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Range select"
@@ -2992,9 +2986,8 @@ msgid "Client"
 msgstr "クライアント"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client Debugging"
-msgstr "デバッグ"
+msgstr "クライアントのデバッグ"
 
 #: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
@@ -3246,12 +3239,10 @@ msgstr ""
 "一部の効果(バンディング除去など)は8 ビット以上を必要とします。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease view range"
 msgstr "視野を縮小"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease volume"
 msgstr "音量を下げる"
 
@@ -3476,9 +3467,8 @@ msgstr ""
 "透明度ソートが非常に遅くなる状況を回避できます。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Drop item"
-msgstr "アイテムを落とすキー"
+msgstr "アイテムを落とす"
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -3530,6 +3520,9 @@ msgid ""
 "Note that clients will be able to connect with both IPv4 and IPv6.\n"
 "Ignored if bind_address is set."
 msgstr ""
+"サーバーの IPv6 サポートを有効にします。\n"
+"クライアントは IPv4 と IPv6 の両方で接続できることに注意してください。\n"
+"bind_address が設定されている場合は無視されます。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3739,9 +3732,8 @@ msgid "FPS"
 msgstr "FPS"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "FPS when unfocused"
-msgstr "非アクティブまたはポーズメニュー表示中のFPS"
+msgstr "非アクティブ中のFPS"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
@@ -4172,164 +4164,132 @@ msgstr ""
 "1秒あたりのノード数/秒です。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 1"
-msgstr "ホットバースロット1キー"
+msgstr "ホットバーのスロット1"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 10"
-msgstr "ホットバースロット10キー"
+msgstr "ホットバーのスロット10"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 11"
-msgstr "ホットバースロット11キー"
+msgstr "ホットバーのスロット11"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 12"
-msgstr "ホットバースロット12キー"
+msgstr "ホットバーのスロット12"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 13"
-msgstr "ホットバースロット13キー"
+msgstr "ホットバーのスロット13"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 14"
-msgstr "ホットバースロット14キー"
+msgstr "ホットバーのスロット14"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 15"
-msgstr "ホットバースロット15キー"
+msgstr "ホットバーのスロット15"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 16"
-msgstr "ホットバースロット16キー"
+msgstr "ホットバーのスロット16"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 17"
-msgstr "ホットバースロット17キー"
+msgstr "ホットバーのスロット17"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 18"
-msgstr "ホットバースロット18キー"
+msgstr "ホットバーのスロット18"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 19"
-msgstr "ホットバースロット19キー"
+msgstr "ホットバーのスロット19"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 2"
-msgstr "ホットバースロット2キー"
+msgstr "ホットバーのスロット2"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 20"
-msgstr "ホットバースロット20キー"
+msgstr "ホットバーのスロット20"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 21"
-msgstr "ホットバースロット21キー"
+msgstr "ホットバーのスロット21"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 22"
-msgstr "ホットバースロット22キー"
+msgstr "ホットバーのスロット22"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 23"
-msgstr "ホットバースロット23キー"
+msgstr "ホットバーのスロット23"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 24"
-msgstr "ホットバースロット24キー"
+msgstr "ホットバーのスロット24"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 25"
-msgstr "ホットバースロット25キー"
+msgstr "ホットバーのスロット25"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 26"
-msgstr "ホットバースロット26キー"
+msgstr "ホットバーのスロット26"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 27"
-msgstr "ホットバースロット27キー"
+msgstr "ホットバーのスロット27"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 28"
-msgstr "ホットバースロット28キー"
+msgstr "ホットバーのスロット28"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 29"
-msgstr "ホットバースロット29キー"
+msgstr "ホットバーのスロット29"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 3"
-msgstr "ホットバースロット3キー"
+msgstr "ホットバーのスロット3"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 30"
-msgstr "ホットバースロット30キー"
+msgstr "ホットバーのスロット30"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 31"
-msgstr "ホットバースロット31キー"
+msgstr "ホットバーのスロット31"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 32"
-msgstr "ホットバースロット32キー"
+msgstr "ホットバーのスロット32"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 4"
-msgstr "ホットバースロット4キー"
+msgstr "ホットバーのスロット4"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 5"
-msgstr "ホットバースロット5キー"
+msgstr "ホットバーのスロット5"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 6"
-msgstr "ホットバースロット6キー"
+msgstr "ホットバーのスロット6"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 7"
-msgstr "ホットバースロット7キー"
+msgstr "ホットバーのスロット7"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 8"
-msgstr "ホットバースロット8キー"
+msgstr "ホットバーのスロット8"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 9"
-msgstr "ホットバースロット9キー"
+msgstr "ホットバーのスロット9"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
@@ -4340,14 +4300,12 @@ msgid "Hotbar: Invert mouse wheel direction"
 msgstr "ホットバー: マウスホイールの方向を反転"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select next item"
-msgstr "ホットバー次へキー"
+msgstr "ホットバー: 次のアイテム選択"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select previous item"
-msgstr "ホットバー前へキー"
+msgstr "ホットバー: 前のアイテム選択"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4444,7 +4402,7 @@ msgid ""
 "If enabled, actions are recorded for rollback.\n"
 "This option is only read when server starts."
 msgstr ""
-"有効にした場合、ロールバックのために行動が記録されます。\n"
+"有効にすると、ロールバックのために行動が記録されます。\n"
 "このオプションはサーバー起動時にのみ読み込まれます。"
 
 #: src/settings_translation_file.cpp
@@ -4452,7 +4410,7 @@ msgid ""
 "If enabled, invalid world data won't cause the server to shut down.\n"
 "Only enable this if you know what you are doing."
 msgstr ""
-"有効にした場合、無効なワールドデータによってサーバーがシャットダウン\n"
+"有効にすると、無効なワールドデータによってサーバーがシャットダウン\n"
 "することはありません。\n"
 "自分がしていることがわかっている場合のみこれを有効にします。"
 
@@ -4475,13 +4433,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "If enabled, the \"Aux1\" key will toggle when pressed."
-msgstr ""
+msgstr "有効にすると、「Aux1」キーが押されたときトグルします。"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the \"Sneak\" key will toggle when pressed.\n"
 "This functionality is ignored when fly is enabled."
 msgstr ""
+"有効にすると、「スニーク」キーが押されたときトグルします。\n"
+"この機能は飛行モードを有効にしたときは無視されます。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4554,12 +4514,10 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "ゲーム内チャットコンソールの高さ、0.1 (10%) ～ 1.0 (100%) の間。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase view range"
 msgstr "視野を拡大"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase volume"
 msgstr "音量を上げる"
 
@@ -4606,9 +4564,8 @@ msgid "Instrument the methods of entities on registration."
 msgstr "エンティティの方式を登録するとすぐに計測します。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Interaction style"
-msgstr "繰り返し"
+msgstr "相互作用スタイル"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
@@ -4751,340 +4708,332 @@ msgstr "ジャンプ時の速度"
 
 #: src/settings_translation_file.cpp
 msgid "Key for decreasing the viewing range."
-msgstr ""
+msgstr "視野を縮小させるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for decreasing the volume."
-msgstr ""
+msgstr "音量を下げるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
-msgstr ""
+msgstr "Quicktune で選択した値を減らすためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Key for digging, punching or using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
+"何かを掘る、パンチする、または使うためのキーです。\n"
+"(注: ゲームごとに実際の意味は異なります。)"
 
 #: src/settings_translation_file.cpp
 msgid "Key for dropping the currently selected item."
-msgstr ""
+msgstr "選択中のアイテムを落とすためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for increasing the viewing range."
-msgstr ""
+msgstr "視野を拡大させるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for increasing the volume."
-msgstr ""
+msgstr "音量を上げるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
-msgstr ""
+msgstr "Quicktune で選択した値を増やすためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for jumping."
-msgstr ""
+msgstr "ジャンプするのためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
+msgstr "高速移動モード中に速く移動するためのキーです。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Key for moving the player backward.\n"
 "Will also disable autoforward, when active."
 msgstr ""
 "プレイヤーを後方へ移動するキーです。\n"
-"自動前進中に押すと自動前進を停止します。\n"
-"参照 http://irrlicht.sourceforge.net/docu/"
-"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+"自動前進中に押すと自動前進を停止します。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving the player forward."
-msgstr ""
+msgstr "プレイヤーを前方へ移動させるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving the player left."
-msgstr ""
+msgstr "プレイヤーを左へ移動させるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving the player right."
-msgstr ""
+msgstr "プレイヤーを右へ移動させるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for muting the game."
-msgstr ""
+msgstr "ゲームを無音にするためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type commands."
-msgstr ""
+msgstr "コマンドを入力するチャットウィンドウを開くためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type local commands."
-msgstr ""
+msgstr "ローカルコマンドを入力するチャットウィンドウを開くためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window."
-msgstr ""
+msgstr "チャットウィンドウを開くためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the inventory."
-msgstr ""
+msgstr "インベントリを開けるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
+"アイテムやブロックを置く、または何かを使うためのキーです。\n"
+"(注: ゲームごとに実際の意味は異なります。)"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 11th hotbar slot."
-msgstr ""
+msgstr "ホットバーの11番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 12th hotbar slot."
-msgstr ""
+msgstr "ホットバーの12番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 13th hotbar slot."
-msgstr ""
+msgstr "ホットバーの13番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 14th hotbar slot."
-msgstr ""
+msgstr "ホットバーの14番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 15th hotbar slot."
-msgstr ""
+msgstr "ホットバーの15番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 16th hotbar slot."
-msgstr ""
+msgstr "ホットバーの16番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 17th hotbar slot."
-msgstr ""
+msgstr "ホットバーの17番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 18th hotbar slot."
-msgstr ""
+msgstr "ホットバーの18番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 19th hotbar slot."
-msgstr ""
+msgstr "ホットバーの19番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 20th hotbar slot."
-msgstr ""
+msgstr "ホットバーの20番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 21st hotbar slot."
-msgstr ""
+msgstr "ホットバーの21番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 22nd hotbar slot."
-msgstr ""
+msgstr "ホットバーの22番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 23rd hotbar slot."
-msgstr ""
+msgstr "ホットバーの23番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 24th hotbar slot."
-msgstr ""
+msgstr "ホットバーの24番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 25th hotbar slot."
-msgstr ""
+msgstr "ホットバーの25番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 26th hotbar slot."
-msgstr ""
+msgstr "ホットバーの26番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 27th hotbar slot."
-msgstr ""
+msgstr "ホットバーの27番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 28th hotbar slot."
-msgstr ""
+msgstr "ホットバーの28番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 29th hotbar slot."
-msgstr ""
+msgstr "ホットバーの29番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 30th hotbar slot."
-msgstr ""
+msgstr "ホットバーの30番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 31st hotbar slot."
-msgstr ""
+msgstr "ホットバーの31番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the 32nd hotbar slot."
-msgstr ""
+msgstr "ホットバーの32番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the eighth hotbar slot."
-msgstr ""
+msgstr "ホットバーの8番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the fifth hotbar slot."
-msgstr ""
+msgstr "ホットバーの5番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the first hotbar slot."
-msgstr ""
+msgstr "ホットバーの1番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the fourth hotbar slot."
-msgstr ""
+msgstr "ホットバーの4番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the next item in the hotbar."
-msgstr ""
+msgstr "ホットバーの次のアイテムを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the ninth hotbar slot."
-msgstr ""
+msgstr "ホットバーの9番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the previous item in the hotbar."
-msgstr ""
+msgstr "ホットバーの前のアイテムを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the second hotbar slot."
-msgstr ""
+msgstr "ホットバーの2番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the seventh hotbar slot."
-msgstr ""
+msgstr "ホットバーの7番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the sixth hotbar slot."
-msgstr ""
+msgstr "ホットバーの6番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the tenth hotbar slot."
-msgstr ""
+msgstr "ホットバーの10番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for selecting the third hotbar slot."
-msgstr ""
+msgstr "ホットバーの3番スロットを選択するためのキーです。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Key for sneaking.\n"
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
-"スニークするキーです。\n"
-"aux1_descends が無効になっている場合は、降りるときや水中を潜るためにも使用さ"
-"れます。\n"
-"参照 http://irrlicht.sourceforge.net/docu/"
-"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+"スニークするためのキーです。\n"
+"aux1_descends が無効中は、降りるときや水中で潜るときにも使用されます。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching between first- and third-person camera."
-msgstr ""
+msgstr "一人称視点カメラと第3者視点カメラを切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the next entry in Quicktune."
-msgstr ""
+msgstr "Quicktune の次のエントリに切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the previous entry in Quicktune."
-msgstr ""
+msgstr "Quicktune の前のエントリに切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for taking screenshots."
-msgstr "スクリーンショットのファイル形式です。"
+msgstr "スクリーンショットを撮るためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling autoforward."
-msgstr ""
+msgstr "自動前進を切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for toggling cinematic mode."
-msgstr "シネマティックモードでのカメラの滑らかさ"
+msgstr "シネマティックモードを切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling display of minimap."
-msgstr ""
+msgstr "ミニマップの表示を切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling fast mode."
-msgstr ""
+msgstr "高速移動モードを切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling flying."
-msgstr ""
+msgstr "飛行モードを切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for toggling fullscreen mode."
-msgstr "全画面表示モードです。"
+msgstr "全画面表示モードを切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling noclip mode."
-msgstr ""
+msgstr "すり抜けモードを切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling pitch move mode."
-msgstr ""
+msgstr "ピッチ移動モードを切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
-msgstr ""
+msgstr "カメラの更新を切り替えるためのキーです。'debug' 権限でのみ使用可能です。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of chat."
-msgstr ""
+msgstr "チャット表示を切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of debug info."
-msgstr ""
+msgstr "デバッグ情報の表示を切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of fog."
-msgstr ""
+msgstr "霧の表示を切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of mapblock boundaries."
-msgstr ""
+msgstr "マップブロック境界の表示を切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the HUD."
-msgstr ""
+msgstr "HUD表示を切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the large chat console."
-msgstr ""
+msgstr "大型チャットコンソールの表示を切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
+msgstr "観測記録の表示を切り替えるためのキーです。開発のために使用されます。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for toggling unlimited view range."
-msgstr "視野無制限 無効"
+msgstr "無制限な視野を切り替えるためのキーです。"
 
 #: src/settings_translation_file.cpp
 msgid "Key to use view zoom when possible."
-msgstr ""
+msgstr "可能な限りズームするためのキーです。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keybindings"
-msgstr "キーに対する機能の割り当てです。"
+msgstr "キー割り当て"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -5123,9 +5072,8 @@ msgid "Large cave proportion flooded"
 msgstr "大きな洞窟の浸水割合"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Large chat console"
-msgstr "大型チャットコンソールキー"
+msgstr "大型チャットコンソール"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -5523,11 +5471,8 @@ msgid "Maximum FPS"
 msgstr "最大FPS"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Maximum FPS when the window is not focused."
-msgstr ""
-"ウィンドウにフォーカスが合っていないとき、またはポーズメニュー表示中の最大"
-"FPS。"
+msgstr "ウィンドウがフォーカスされていないときの最大FPSです。"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum distance to render shadows."
@@ -5602,6 +5547,10 @@ msgid ""
 "won't be deleted, depending on the current view range.\n"
 "Set to -1 for no limit."
 msgstr ""
+"クライアントがメモリに保持するマップブロックの最大数です。\n"
+"現在の視野に応じて、削除されないブロックの最小数が\n"
+"内部で動的に設定されます。\n"
+"制限なしにするには -1 に設定します。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5644,18 +5593,16 @@ msgid "Maximum simultaneous block sends per client"
 msgstr "クライアントあたりの最大同時ブロック送信数"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Maximum size of the client's outgoing chat queue"
-msgstr "アウトチャットキューの最大サイズ"
+msgstr "クライアントの送信チャットキューの最大サイズ"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
-"アウトチャットキューの最大サイズです。\n"
-"キューを無効にするには 0、サイズを無制限にするには -1 です。"
+"クライアントの送信チャットキューの最大サイズ\n"
+"0 はキューを無効にし、-1 はキューのサイズを無制限にします。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5774,23 +5721,20 @@ msgid "Mouse sensitivity multiplier."
 msgstr "マウス感度の倍率。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move backward"
-msgstr "後退"
+msgstr "後方へ移動"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move forward"
-msgstr "自動前進"
+msgstr "前方へ移動"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move left"
-msgstr "動き"
+msgstr "左へ移動"
 
 #: src/settings_translation_file.cpp
 msgid "Move right"
-msgstr ""
+msgstr "右へ移動"
 
 #: src/settings_translation_file.cpp
 msgid "Movement threshold"
@@ -5936,14 +5880,12 @@ msgid ""
 msgstr "既定のフォントの影の不透明度 (透過) は0から255の間です。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Open chat"
-msgstr "開く"
+msgstr "チャットを開く"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Open inventory"
-msgstr "インベントリ"
+msgstr "インベントリを開く"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6080,7 +6022,6 @@ msgid "Prometheus listener address"
 msgstr "プロメテウスリスナーのアドレス"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Prometheus listener address.\n"
 "If Luanti is compiled with Prometheus support, this setting\n"
@@ -6088,10 +6029,13 @@ msgid ""
 "By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
 "An empty value disables the metrics listener."
 msgstr ""
-"プロメテウスリスナーのアドレスです。\n"
-"Luantiが ENABLE_PROMETHEUS オプションを有効にしてコンパイルされている場合、\n"
-"そのアドレスでプロメテウスのメトリックスリスナーを有効にします。\n"
-"メトリックスは http://127.0.0.1:30000/metrics で取得可能"
+"プロメテウスのリスナーアドレスです。\n"
+"Luanti がプロメテウスサポート付きでコンパイルされている場合、この設定により、"
+"\n"
+"そのアドレスでプロメテウスのメトリックスリスナーが有効になります。\n"
+"デフォルトでは、http://127.0.0.1:30000/metrics "
+"からメトリックスを取得できます。\n"
+"空の値を指定すると、メトリックスリスナーは無効になります。"
 
 #: src/settings_translation_file.cpp
 msgid "Proportion of large caves that contain liquid."
@@ -6107,19 +6051,19 @@ msgstr "パンチのジェスチャー"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: decrement value"
-msgstr ""
+msgstr "Quicktune: 減少値"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: increment value"
-msgstr ""
+msgstr "Quicktune: 増加値"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: select next entry"
-msgstr ""
+msgstr "Quicktune: 次のエントリ選択"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: select previous entry"
-msgstr ""
+msgstr "Quicktune: 前のエントリ選択"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7009,7 +6953,6 @@ msgid ""
 msgstr "観測記録が保存されるワールドパスに対する相対的なファイルパスです。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
@@ -7022,13 +6965,13 @@ msgid ""
 "Combat is more or less impossible."
 msgstr ""
 "プレイヤー/エンティティをパンチするためのジェスチャーです。\n"
-"これはゲームやMODによって上書きされる可能性があります。\n"
+"この設定はゲームやMODによって上書きされます。\n"
 "\n"
 "* ショートタップ\n"
 "使いやすく、名前は挙げませんが他のゲームでもよく知られています。\n"
 "\n"
 "* ロングタップ\n"
-"古典的なLuantiのモバイル版操作として知られています。\n"
+"古典的な Luanti のモバイル版操作として知られています。\n"
 "戦闘はほぼ不可能です。"
 
 #: src/settings_translation_file.cpp
@@ -7051,6 +6994,19 @@ msgid ""
 "Use dedicated dig/place buttons to interact.\n"
 "Interaction happens at crosshair position."
 msgstr ""
+"掘ったり置いたりする操作で使われます。\n"
+"\n"
+"* タップ\n"
+"画面上のどこでもロング/ショートタップして相互作用させます。\n"
+"指の位置で作用します。\n"
+"\n"
+"* 十字カーソルをタップ\n"
+"画面上のどこでもロング/ショートタップして相互作用させます。\n"
+"十字カーソルの位置で作用します。\n"
+"\n"
+"* 十字カーソル付きボタン\n"
+"専用の 掘る/置く ボタンを使って相互作用させます。\n"
+"十字カーソルの位置で作用します。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7223,66 +7179,56 @@ msgstr ""
 "す。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Aux1 key"
-msgstr "Aux1キー"
+msgstr "Aux1 キー切替"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle HUD"
 msgstr "HUD表示切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Sneak key"
-msgstr "視点変更キー"
+msgstr "スニークキー切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle automatic forward"
-msgstr "自動前進キー"
+msgstr "自動前進切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle block bounds"
 msgstr "ブロック境界線表示切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera mode"
-msgstr "視点変更キー"
+msgstr "カメラモード切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera update"
-msgstr "視点変更キー"
+msgstr "カメラ更新切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle cinematic mode"
-msgstr "映画風モード切替"
+msgstr "シネマティックモード切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle debug info"
-msgstr "デバッグ切替"
+msgstr "デバッグ情報表示切替"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle fog"
 msgstr "霧表示切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle fullscreen"
-msgstr "飛行モード切替"
+msgstr "全画面表示モード切替"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "ピッチ移動モード切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle profiler"
-msgstr "飛行モード切替"
+msgstr "観測記録表示切替"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7802,7 +7748,6 @@ msgid "World start time"
 msgstr "ワールド開始時刻"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
@@ -7813,10 +7758,9 @@ msgid ""
 msgstr ""
 "整列テクスチャは、いくつかのノードにまたがるように拡大縮小する\n"
 "ことができます。ただし、特別に設計されたテクスチャパックを使用\n"
-"している場合は特に、サーバーから必要なスケールが送信されない\n"
-"ことがあります。\n"
-"このオプションでは、クライアントはテクスチャサイズに基づいて\n"
-"自動的にスケールを決定しようとします。\n"
+"している場合はサーバーから必要なスケールが送信されないことが\n"
+"あります。このオプションでは、クライアントはテクスチャサイズに\n"
+"基づいて自動的にスケールを決定しようとします。\n"
 "texture_min_size も参照してください。\n"
 "警告: このオプションは実験的なものです！"
 

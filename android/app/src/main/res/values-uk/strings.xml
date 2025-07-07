@@ -8,4 +8,5 @@
     <string name="unzip_notification_description">Менше за 1 хвилину…</string>
     <string name="ime_dialog_done">Готово</string>
     <string name="notification_channel_description">Сповіщення від Luanti</string>
+    <string name="game_notification_title">Luanti працює</string>
 </resources>

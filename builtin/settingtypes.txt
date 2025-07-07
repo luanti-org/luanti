@@ -273,6 +273,10 @@ keymap_increase_viewing_range_min (Increase view range) key SYSTEM_SCANCODE_46
 
 keymap_decrease_viewing_range_min (Decrease view range) key SYSTEM_SCANCODE_45
 
+#    Modifier key bind for closing your world.
+#    Requires ESC + the selected key to work.
+keymap_close_world (Return to Main Menu) key
+
 keymap_slot1 (Hotbar slot 1) key SYSTEM_SCANCODE_30
 
 keymap_slot2 (Hotbar slot 2) key SYSTEM_SCANCODE_31

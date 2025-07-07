@@ -6,7 +6,7 @@
 
 #include "IAnimatedMesh.h"
 #include "ISceneManager.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 #include "SSkinMeshBuffer.h"
 #include "aabbox3d.h"
 #include "irrMath.h"

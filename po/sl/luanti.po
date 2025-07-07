@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Slovenian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-02-28 14:08+0000\n"
-"Last-Translator: Gg Gg <veselsem0@gmail.com>\n"
+"PO-Revision-Date: 2025-05-30 05:02+0000\n"
+"Last-Translator: Vesel Sem <veselsem@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/minetest/"
 "minetest/sl/>\n"
 "Language: sl\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 5.10.3-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -84,16 +84,15 @@ msgstr "Prebrskaj"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "Spor s \"$1\""
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "Uredi"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Remove keybinding"
-msgstr "Bližnjice na tipkovnici."
+msgstr "Odstrani bližnjico na tipkovnici"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -225,7 +224,7 @@ msgstr "Nazaj"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
-msgstr ""
+msgstr "Izbira gumbov s križcem"
 
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
@@ -255,7 +254,7 @@ msgstr "Glavno"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
-msgstr ""
+msgstr "Dolg pritisk"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
@@ -280,7 +279,7 @@ msgstr "Poišči"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
-msgstr ""
+msgstr "Kratek pritisk"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
@@ -291,13 +290,12 @@ msgid "Show technical names"
 msgstr "Prikaži tehnična imena"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Tap"
-msgstr "Tabulator"
+msgstr "Pritisk"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
-msgstr ""
+msgstr "Pritisk s križcem"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Touchscreen layout"
@@ -562,12 +560,11 @@ msgstr "Doniraj"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
-msgstr ""
+msgstr "Napaka nalaganja podatkov paketa"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Error loading reviews"
-msgstr "Napaka pri ustvarjanju odjemalca:%s"
+msgstr "Napaka pri nalaganju mnenj"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
@@ -587,7 +584,7 @@ msgstr "Sledilnik težav"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr ""
+msgstr "Mnenje"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -646,6 +643,8 @@ msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
+"Igralec povezan na\n"
+"$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
@@ -936,29 +935,28 @@ msgstr "Ali res želiš izbrisati svet »$1«?"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "Posledično so se vaše dodelitve tipk morda spremenile."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Preverite nastavitve tipk ali si oglejte dokumentacijo:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Zapri"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Bližnjice na tipkovnici."
+msgstr "Dodelitve tipk spremenjene"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Nastavitve"
+msgstr "Odpri nastavitve"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
 msgstr ""
+"Sistem za upravljanje vnosa je bil prenovljen v različici Luanti 5.12.0."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1114,7 +1112,7 @@ msgstr "Osrednja ekipa"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Open User Data Directory"
-msgstr "Izberi mapo"
+msgstr "Odpri mapo uporabniških podatkov"
 
 #: builtin/mainmenu/tab_about.lua
 msgid ""
@@ -1122,7 +1120,7 @@ msgid ""
 "and texture packs in a file manager / explorer."
 msgstr ""
 "Odpre mapo, ki vsebuje uporabniške svetove, igre, prilagoditve\n"
-" in pakete tekstur v upravitelju datotek/raziskovalcu."
+"in pakete tekstur v upravitelju datotek/raziskovalcu."
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Previous Contributors"
@@ -1309,12 +1307,11 @@ msgid "Ping"
 msgstr "Ping"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid ""
 "Players:\n"
 "$1"
 msgstr ""
-"Odjemalec\n"
+"Igralci:\n"
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
@@ -2160,9 +2157,8 @@ msgid "Some mods have unsatisfied dependencies:"
 msgstr "Nekatere prilagoditve imajo manjkajoče odvisnosti:"
 
 #: src/gui/guiButtonKey.h
-#, fuzzy
 msgid "Press Button"
-msgstr "Leva tipka"
+msgstr "Pritisni gumb"
 
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
@@ -2251,7 +2247,7 @@ msgstr "Sprememba kamere"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Dig/punch/use"
-msgstr ""
+msgstr "Koplji/Udari/Uporabi"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Drop"
@@ -2278,9 +2274,8 @@ msgid "Overflow menu"
 msgstr "Razširjeni meni"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
-#, fuzzy
 msgid "Place/use"
-msgstr "Tipka za letenje"
+msgstr "Postavi/Uporabi"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Range select"
@@ -3018,9 +3013,8 @@ msgid "Client"
 msgstr "Odjemalec"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client Debugging"
-msgstr "Odpravljanje napak"
+msgstr "Razhroščevanje odjemalca"
 
 #: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
@@ -3278,12 +3272,10 @@ msgstr ""
 "potrebujejo več kot 8 bitov za pravilno delovanje."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease view range"
 msgstr "Zmanjšaj doseg pogleda"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease volume"
 msgstr "Zmanjšaj glasnost"
 
@@ -3510,9 +3502,8 @@ msgstr ""
 "kjer bi bilo razvrščanje prosojnosti sicer zelo počasno."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Drop item"
-msgstr "Tipka za met predmeta"
+msgstr "Odvrzi predmet"
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -3564,6 +3555,9 @@ msgid ""
 "Note that clients will be able to connect with both IPv4 and IPv6.\n"
 "Ignored if bind_address is set."
 msgstr ""
+"Omogoči podporo za IPv6 za strežnik.\n"
+"Odjemalci se bodo lahko povezali tako z IPv4 kot tudi z IPv6.\n"
+"Prezre se, če je bind_address nastavljen."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3765,35 +3759,42 @@ msgid ""
 "Values < 1.0 (for example 0.25) create a more defined surface level with\n"
 "flatter lowlands, suitable for a solid floatland layer."
 msgstr ""
+"Eksponent zoževanja plavajočih dežel. Spreminja način, kako se te zožujejo.\n"
+"Vrednost = 1,0 ustvari enakomerno, linearno zoževanje.\n"
+"Vrednosti > 1,0 ustvarijo gladko zoževanje, primerno za privzete, ločene "
+"plavajoče\n"
+"dežele.\n"
+"Vrednosti < 1,0 (na primer 0,25) ustvarijo bolj izrazito površinsko raven z "
+"bolj ravnimi nižavji,\n"
+"kar je primerno za neprekinjeno/trdno plast plavajočih dežel."
 
 #: src/settings_translation_file.cpp
 msgid "Exposure compensation"
-msgstr ""
+msgstr "Popravek osvetlitve"
 
 #: src/settings_translation_file.cpp
 msgid "FPS"
-msgstr ""
+msgstr "FPS (Sličice na sekundo)"
 
 #: src/settings_translation_file.cpp
 msgid "FPS when unfocused"
-msgstr ""
+msgstr "FPS (Sličice na sekundo) v ozadju"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
-msgstr ""
+msgstr "Dejavnik (faktor) šuma"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Fallback font path"
-msgstr "Pot pisave"
+msgstr "Pot nadomestne pisave"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
-msgstr ""
+msgstr "Pospeševanje v hitrem načinu"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode speed"
-msgstr ""
+msgstr "Hitrost hitrega načina"
 
 #: src/settings_translation_file.cpp
 msgid "Field of view"
@@ -3809,19 +3810,21 @@ msgid ""
 "the\n"
 "Multiplayer Tab."
 msgstr ""
+"Datoteka v mapi (ali: imeniku) client/serverlist/, ki vsebuje vaše "
+"priljubljene strežnike, prikazane na\n"
+"zavihku za večigralstvo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Filler depth"
 msgstr "Globina polnila"
 
 #: src/settings_translation_file.cpp
 msgid "Filler depth noise"
-msgstr ""
+msgstr "Šum globine polnila"
 
 #: src/settings_translation_file.cpp
 msgid "Filmic tone mapping"
-msgstr ""
+msgstr "Filmska tonska preslikava"
 
 #: src/settings_translation_file.cpp
 msgid "Filtering and Antialiasing"
@@ -3830,10 +3833,11 @@ msgstr "Glajenje"
 #: src/settings_translation_file.cpp
 msgid "First of 4 2D noises that together define hill/mountain range height."
 msgstr ""
+"Prvi od štirih 2D-šumov, ki skupaj določajo višino hribov/gorskih verig."
 
 #: src/settings_translation_file.cpp
 msgid "First of two 3D noises that together define tunnels."
-msgstr ""
+msgstr "Prvi od dveh 3D-šumov, ki skupaj določajo rove."
 
 #: src/settings_translation_file.cpp
 msgid "Fixed map seed"
@@ -3844,7 +3848,6 @@ msgid "Fixed virtual joystick"
 msgstr "Fiksen virtualni joystick"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Fixes the position of virtual joystick.\n"
 "If disabled, virtual joystick will center to first-touch's position."
@@ -3855,31 +3858,31 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
-msgstr ""
+msgstr "Gostota plavajočih dežel"
 
 #: src/settings_translation_file.cpp
 msgid "Floatland maximum Y"
-msgstr ""
+msgstr "Najvišji Y plavajočih dežel"
 
 #: src/settings_translation_file.cpp
 msgid "Floatland minimum Y"
-msgstr ""
+msgstr "Najnižji Y plavajočih dežel"
 
 #: src/settings_translation_file.cpp
 msgid "Floatland noise"
-msgstr ""
+msgstr "Hrup plavajočih dežel"
 
 #: src/settings_translation_file.cpp
 msgid "Floatland taper exponent"
-msgstr ""
+msgstr "Eksponent zoževanja plavajočih dežel"
 
 #: src/settings_translation_file.cpp
 msgid "Floatland tapering distance"
-msgstr ""
+msgstr "Razdalja zoževanja plavajočih dežel"
 
 #: src/settings_translation_file.cpp
 msgid "Floatland water level"
-msgstr ""
+msgstr "Raven vode plavajočih dežel"
 
 #: src/settings_translation_file.cpp
 msgid "Fog"
@@ -3890,49 +3893,49 @@ msgid "Fog start"
 msgstr "Začetek megle"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Font"
-msgstr "Velikost pisave"
+msgstr "Pisava"
 
 #: src/settings_translation_file.cpp
 msgid "Font bold by default"
-msgstr ""
+msgstr "Pisava je privzeto krepka"
 
 #: src/settings_translation_file.cpp
 msgid "Font italic by default"
-msgstr ""
+msgstr "Pisava je privzeto ležeč"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Font shadow"
-msgstr "Senca pisave"
+msgstr "Senca pisave (shadow)"
 
 #: src/settings_translation_file.cpp
 msgid "Font shadow alpha"
-msgstr ""
+msgstr "Alfa sence pisave"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Font size"
 msgstr "Velikost pisave"
 
 #: src/settings_translation_file.cpp
 msgid "Font size divisible by"
-msgstr ""
+msgstr "Velikost pisave deljiva z"
 
 #: src/settings_translation_file.cpp
 msgid "Font size of the default font where 1 unit = 1 pixel at 96 DPI"
-msgstr ""
+msgstr "Velikost privzete pisave (1 enota = 1 pika (pixel) pri 96 DPI)"
 
 #: src/settings_translation_file.cpp
 msgid "Font size of the monospace font where 1 unit = 1 pixel at 96 DPI"
-msgstr ""
+msgstr "Velikost enakoširinske pisave, kjer 1 enota = 1 pika (pixel) pri 96 DPI"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Font size of the recent chat text and chat prompt in point (pt).\n"
 "Value 0 will use the default font size."
 msgstr ""
+"Velikost pisave nedavnega klepetalnega besedila in klepetalnega poziva v "
+"točkah (pt).\n"
+"Vrednost 0 bo uporabila privzeto velikost pisave."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3944,6 +3947,13 @@ msgid ""
 "be\n"
 "sized 16, 32, 48, etc., so a mod requesting a size of 25 will get 32."
 msgstr ""
+"Pri pikselskih pisavah, ki se slabo skalirajo, ta nastavitev zagotavlja, da "
+"so velikosti, uporabljene s to pisavo,\n"
+"vedno deljive s to vrednostjo (v pikslih). Na primer,\n"
+"pikselska pisava, visoka 16 pikslov, naj bi imela to vrednost nastavljeno na "
+"16. Tako bo vedno prikazana le v\n"
+"velikostih 16, 32, 48 itd. Če modifikacija (mod) zahteva velikost 25, bo "
+"pisava namesto tega prikazana z velikostjo 32."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3951,11 +3961,13 @@ msgid ""
 "placeholders:\n"
 "@name, @message, @timestamp (optional)"
 msgstr ""
+"Oblika klepetalnih sporočil igralcev. Naslednji nizi so veljavni nadomestni "
+"znaki:\n"
+"@name, @message, @timestamp (izbirno)"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Format of screenshots."
-msgstr "Oblika posnetkov zaslona."
+msgstr "Format osnetkov zaslona."
 
 #: src/settings_translation_file.cpp
 msgid "Formspec Full-Screen Background Color"
@@ -3977,25 +3989,28 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Fourth of 4 2D noises that together define hill/mountain range height."
 msgstr ""
+"Četrti od štirih 2D šumov, ki skupaj določajo višino gričev/gorskih verig."
 
 #: src/settings_translation_file.cpp
 msgid "Fractal type"
-msgstr ""
+msgstr "Tip fraktala"
 
 #: src/settings_translation_file.cpp
 msgid "Fraction of the visible distance at which fog starts to be rendered"
-msgstr ""
+msgstr "Delež vidne razdalje, pri kateri se začne izrisovati megla"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "From how far blocks are generated for clients, stated in mapblocks (16 "
 "nodes)."
 msgstr ""
+"Razdalja, od katere se za odjemalce generirajo bloki, navedena v mapblokih ("
+"16 vozlišč)."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "From how far blocks are sent to clients, stated in mapblocks (16 nodes)."
-msgstr ""
+msgstr "Razdalja pošiljanja blokov odjemalcem, podana v mapblokih (16 vozlišč)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4005,6 +4020,13 @@ msgid ""
 "to maintain active objects up to this distance in the direction the\n"
 "player is looking. (This can avoid mobs suddenly disappearing from view)"
 msgstr ""
+"Razdalja, do katere odjemalci poznajo predmete, navedena v mapblokih (16 "
+"vozlišč).\n"
+"\n"
+"Če je ta vrednost večja od active_block_range, bo strežnik\n"
+"ohranjal aktivne predmete vse do te razdalje v smeri\n"
+"igralčevega pogleda. (To lahko prepreči nenadno izginjanje pošasti iz "
+"vidnega polja.)"
 
 #: src/settings_translation_file.cpp
 msgid "Full screen"
@@ -4016,20 +4038,19 @@ msgstr "Celozaslonski način."
 
 #: src/settings_translation_file.cpp
 msgid "GUI"
-msgstr ""
+msgstr "GUI"
 
 #: src/settings_translation_file.cpp
 msgid "GUI scaling"
-msgstr ""
+msgstr "Skaliranje uporabniškega vmesnika"
 
 #: src/settings_translation_file.cpp
 msgid "GUI scaling filter"
-msgstr ""
+msgstr "Filter skaliranja uporabniškega vmesnika"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Gamepads"
-msgstr "Igre"
+msgstr "Igralni ploščki"
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -5531,7 +5552,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
-msgstr ""
+msgstr "Največ uporabnikov"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -5697,7 +5718,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "New users need to input this password."
-msgstr ""
+msgstr "Novi uporabniki morajo vnesti geslo."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -6742,6 +6763,8 @@ msgid ""
 "The privileges that new users automatically get.\n"
 "See /privs in game for a full list on your server and mod configuration."
 msgstr ""
+"Pravice ki jih novi uporabniki dobijo samodejno.\n"
+"Za celoten seznam nastavitev strežnika in prilagoditev glejte /privs v igri."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7085,7 +7108,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "User Interfaces"
-msgstr ""
+msgstr "Uporabniški vmesniki"
 
 #: src/settings_translation_file.cpp
 msgid "VSync"

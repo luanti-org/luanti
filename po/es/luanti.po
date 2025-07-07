@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Spanish (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-03-30 02:00+0000\n"
-"Last-Translator: Miguel <miguel_p.l@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2025-06-28 17:04+0000\n"
+"Last-Translator: Santi cluke <santicluke@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/minetest/"
 "minetest/es/>\n"
 "Language: es\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.11-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -83,16 +83,15 @@ msgstr "Explorar"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "En conflicto con \"$1\""
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "Editar"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Remove keybinding"
-msgstr "Combinaciones de teclas."
+msgstr "Remover combinación de teclas"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -224,7 +223,7 @@ msgstr "Atrás"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
-msgstr ""
+msgstr "Botones con cruz"
 
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
@@ -254,7 +253,7 @@ msgstr "General"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
-msgstr ""
+msgstr "Pulsación larga"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
@@ -279,7 +278,7 @@ msgstr "Buscar"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
-msgstr ""
+msgstr "Pulsación corta"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
@@ -296,7 +295,7 @@ msgstr "Tabulador"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
-msgstr ""
+msgstr "Pulsación con cruz"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Touchscreen layout"
@@ -561,7 +560,7 @@ msgstr "Donar"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
-msgstr ""
+msgstr "Error cargando paquete de información"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
@@ -586,7 +585,7 @@ msgstr "Rastreador de problemas"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr ""
+msgstr "Reseñas"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -647,6 +646,8 @@ msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
+"Jugadores conectados a\n"
+"$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
@@ -938,28 +939,27 @@ msgstr "¿Eliminar el mundo \"$1\"?"
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
 msgstr ""
+"Como resultado, es posible que se hayan cambiado las combinaciones de teclas."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Consulte la configuración de las teclas o consulte la documentación:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Cerca"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Combinaciones de teclas."
+msgstr "Combinaciones de teclas cambiadas"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Ajustes"
+msgstr "Abrir ajustes"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
-msgstr ""
+msgstr "El sistema de manejo de entrada fue rediseñado en Luanti 5.12.0."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1312,12 +1312,11 @@ msgid "Ping"
 msgstr "Ping"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid ""
 "Players:\n"
 "$1"
 msgstr ""
-"Clientes:\n"
+"Jugadores:\n"
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
@@ -2252,7 +2251,7 @@ msgstr "Cambiar cámara"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Dig/punch/use"
-msgstr ""
+msgstr "Cavar/golpear/usar"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Drop"
@@ -3596,6 +3595,10 @@ msgid ""
 "Note that clients will be able to connect with both IPv4 and IPv6.\n"
 "Ignored if bind_address is set."
 msgstr ""
+"Habilite la compatibilidad con IPv6 para el servidor.\n"
+"Tenga en cuenta que los clientes podrán conectarse tanto con IPv4 como con "
+"IPv6.\n"
+"Se ignora si se configura bind_address."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4566,7 +4569,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "If enabled, the \"Aux1\" key will toggle when pressed."
-msgstr ""
+msgstr "Si está habilitada, la tecla “Aux1” alternará cuando se presione."
 
 #: src/settings_translation_file.cpp
 msgid ""

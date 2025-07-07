@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Swedish (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-05-13 19:05+0000\n"
-"Last-Translator: Zacharias Tyllström <zacharias.tyllstrom@gmail.com>\n"
+"PO-Revision-Date: 2025-05-25 00:52+0000\n"
+"Last-Translator: ROllerozxa <rollerozxa@voxelmanip.se>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/minetest/"
 "minetest/sv/>\n"
 "Language: sv\n"
@@ -932,29 +932,27 @@ msgstr "Radera värld \"$1\"?"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "Som ett resultat av detta kan dina tagentbindningar ha ändrats."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Se tagentinställningarna eller se dokumentationen (på engelska):"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Stäng"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Tangentbindningar"
+msgstr "Tangentbindningar har ändrats"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Inställningar"
+msgstr "Öppna inställningar"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
-msgstr ""
+msgstr "Inmatningssystemet har blivit omgjort i Luanti 5.12.0."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -3065,7 +3063,6 @@ msgstr ""
 "Användbar för testning. Se al_extensions.[h,cpp] för detaljer."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Comma-separated list of flags to hide in the content repository.\n"
 "\"nonfree\" can be used to hide packages which do not qualify as 'free "
@@ -3080,8 +3077,8 @@ msgstr ""
 "programvara',\n"
 "per Free Software Foundations definition.\n"
 "Du kan även specifiera innehållsvarningar.\n"
-"Dessa flaggor är oberoende från Minetest-versioner,\n"
-"så en full lista finns på https://content.minetest.net/help/content_flags/"
+"Dessa flaggor är oberoende från Luanti-versioner,\n"
+"så en full lista finns på https://content.luanti.org/help/content_flags/"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3254,6 +3251,10 @@ msgid ""
 "Reducing this can improve performance, but some effects (e.g. debanding)\n"
 "require more than 8 bits to work."
 msgstr ""
+"Bestäm färgdjupet på texturer som används för post-processing-pipeline:n.\n"
+"Prestandan kan höjas med sänkt färgdjup, men vissa effekter (t.ex. debanding)"
+"\n"
+"kräver mer än 8 bitar för att fungera."
 
 #: src/settings_translation_file.cpp
 msgid "Decrease view range"
@@ -4511,7 +4512,6 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase view range"
 msgstr "Höj räckvidd"
 
@@ -5481,9 +5481,8 @@ msgid "Maximum simultaneous block sends per client"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Maximum size of the client's outgoing chat queue"
-msgstr "Rensa chattkön"
+msgstr "Högsta storlek på klientens utgående chattkö"
 
 #: src/settings_translation_file.cpp
 msgid ""

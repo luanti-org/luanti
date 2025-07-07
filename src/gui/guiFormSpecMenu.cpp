@@ -120,7 +120,6 @@ GUIFormSpecMenu::~GUIFormSpecMenu()
 {
 	removeAll();
 
-	delete m_selected_item;
 	delete m_form_src;
 	delete m_text_dst;
 }
@@ -3757,7 +3756,7 @@ void GUIFormSpecMenu::updateSelectedItem()
 
 			} else {
 				// Grab selected item from the crafting result list
-				m_selected_item = new GUIInventoryList::ItemSpec(s);
+				m_selected_item = std::make_unique<GUIInventoryList::ItemSpec>(s);
 				m_selected_amount = item.count;
 				m_selected_dragging = false;
 			}
@@ -3799,8 +3798,7 @@ ItemStack GUIFormSpecMenu::verifySelectedItem()
 		}
 
 		// selection was not valid
-		delete m_selected_item;
-		m_selected_item = nullptr;
+		m_selected_item.reset();
 		m_selected_amount = 0;
 		m_selected_dragging = false;
 	}
@@ -4333,7 +4331,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					shift_move_amount = button == BET_RIGHT ? 1 : count;
 				} else {
 					// No shift: select item
-					m_selected_item = new GUIInventoryList::ItemSpec(s);
+					m_selected_item = std::make_unique<GUIInventoryList::ItemSpec>(s);
 					m_selected_amount = count;
 					m_selected_dragging = button != BET_WHEEL_DOWN;
 				}
@@ -4528,7 +4526,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 			} else if (m_held_mouse_button == BET_LEFT) {
 				// Start picking up items
-				m_selected_item = new GUIInventoryList::ItemSpec(s);
+				m_selected_item = std::make_unique<GUIInventoryList::ItemSpec>(s);
 				m_selected_amount = s_count;
 				m_selected_dragging = true;
 			}
@@ -4835,8 +4833,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		// and we are not left-dragging, deselect
 		if (m_selected_amount == 0 && !m_left_dragging) {
 			m_selected_swap.clear();
-			delete m_selected_item;
-			m_selected_item = nullptr;
+			m_selected_item.reset();
 			m_selected_amount = 0;
 			m_selected_dragging = false;
 		}

@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: German (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-05-16 10:31+0000\n"
-"Last-Translator: sfan5 <sfan5@live.de>\n"
+"PO-Revision-Date: 2025-06-28 17:04+0000\n"
+"Last-Translator: Wuzzy <Wuzzy@disroot.org>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/minetest/minetest/"
 "de/>\n"
 "Language: de\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -1923,11 +1923,11 @@ msgstr "Menü links"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
-msgstr "Umsch. links"
+msgstr "Umschalt links"
 
 #: src/client/keycode.cpp
 msgid "Left Windows"
-msgstr "Win. links"
+msgstr "Windows links"
 
 #. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
@@ -2050,11 +2050,11 @@ msgstr "Menü rechts"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
-msgstr "Umsch. rechts"
+msgstr "Umschalt rechts"
 
 #: src/client/keycode.cpp
 msgid "Right Windows"
-msgstr "Win. rechts"
+msgstr "Windows rechts"
 
 #: src/client/keycode.cpp
 msgid "Scroll Lock"
@@ -2155,7 +2155,7 @@ msgstr "Einige Mods haben nicht erfüllte Abhängigkeiten:"
 
 #: src/gui/guiButtonKey.h
 msgid "Press Button"
-msgstr "Knopf drücken"
+msgstr "Taste drücken"
 
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
@@ -4401,11 +4401,11 @@ msgstr "Schnellleiste: Mausradrichtung umkehren"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: select next item"
-msgstr "Schnellleiste: Nächsten Gegenstand auswählen"
+msgstr "Schnellleiste: Nächst. Ggnst."
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: select previous item"
-msgstr "Schnellleiste: Vorherigen Gegenstand auswählen"
+msgstr "Schnellleiste: Vorh. Ggnst."
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4536,14 +4536,16 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "If enabled, the \"Aux1\" key will toggle when pressed."
-msgstr "Falls aktiviert, wird die „Aux1“-Taste beim Drücken es wechseln."
+msgstr ""
+"Falls aktiviert, wird die „Aux1“-Taste beim Drücken ein- oder ausgeschaltet."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the \"Sneak\" key will toggle when pressed.\n"
 "This functionality is ignored when fly is enabled."
 msgstr ""
-"Falls aktiviert, wird die „Schleichen“-Taste beim Drücken es wechslen.\n"
+"Falls aktiviert, wird die „Schleichen“-Taste beim Drücken ein- oder "
+"ausgeschaltet.\n"
 "Diese Funktion wird im Flugmodus ignoriert."
 
 #: src/settings_translation_file.cpp

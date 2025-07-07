@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Hebrew (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-03-24 18:57+0000\n"
-"Last-Translator: jhon game <jhongamepc2@gmail.com>\n"
+"PO-Revision-Date: 2025-06-21 13:01+0000\n"
+"Last-Translator: ShiloMazuz <shiloteam@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/minetest/minetest/"
 "he/>\n"
 "Language: he\n"
@@ -13,40 +13,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.11-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
 msgstr "נקה את תור הצ'אט"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Empty command."
-msgstr "פקודות צ'אט"
+msgstr "פקודה ריקה"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Exit to main menu"
 msgstr "יציאה לתפריט"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Invalid command: "
-msgstr "פקודה מקומית"
+msgstr "פקודה לא חוקית "
 
 #: builtin/client/chatcommands.lua
 msgid "Issued command: "
 msgstr "פקודה שניתנה: "
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "List online players"
-msgstr "שחקן יחיד"
+msgstr "הצג שחקנים מחוברים"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Online players: "
-msgstr "שחקן יחיד"
+msgstr "שחקנים מחוברים: "
 
 #: builtin/client/chatcommands.lua
 msgid "The out chat queue is now empty."
@@ -57,14 +52,12 @@ msgid "This command is disabled by server."
 msgstr "פקודה זו מושבתת על ידי השרת."
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Available commands:"
-msgstr "פקודה מקומית"
+msgstr "פקודות זמינות:"
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Available commands: "
-msgstr "פקודה מקומית"
+msgstr "פקודות זמינות: "
 
 #: builtin/common/chatcommands.lua
 msgid "Command not available: "
@@ -89,15 +82,16 @@ msgstr "דפדף"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "התנגשות עם \"$1\""
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "עריכה"
 
 #: builtin/common/settings/components.lua
+#, fuzzy
 msgid "Remove keybinding"
-msgstr ""
+msgstr "הסר קיצור"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -108,9 +102,8 @@ msgid "Select file"
 msgstr "נא לבחור קובץ"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Set"
-msgstr "Select"
+msgstr "קבע"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
@@ -1529,9 +1522,9 @@ msgid "Debug info shown"
 msgstr "מידע דיבאג מוצג"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Error creating client: %s"
-msgstr "יוצר לקוח..."
+msgstr "שגיאה ביצירת לקוח: %s"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"

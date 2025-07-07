@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Italian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-05-23 15:04+0000\n"
-"Last-Translator: Francesco Rossi <zhu.gamedev@tutanota.com>\n"
+"PO-Revision-Date: 2025-05-31 06:01+0000\n"
+"Last-Translator: Zughy <zhu.gamedev@tutanota.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/minetest/"
 "minetest/it/>\n"
 "Language: it\n"
@@ -2725,7 +2725,7 @@ msgstr "Allarga le vallate."
 
 #: src/settings_translation_file.cpp
 msgid "Anisotropic filtering"
-msgstr "Filtraggio anisotropico"
+msgstr "Filtro anisotropico"
 
 #: src/settings_translation_file.cpp
 msgid "Announce server"
@@ -2883,7 +2883,7 @@ msgstr "Soglia del rumore delle spiagge"
 
 #: src/settings_translation_file.cpp
 msgid "Bilinear filtering"
-msgstr "Filtraggio bilineare"
+msgstr "Filtro bilineare"
 
 #: src/settings_translation_file.cpp
 msgid "Bind address"
@@ -3367,7 +3367,7 @@ msgid ""
 "This simulates the soft shadows effect by applying a PCF or Poisson disk\n"
 "but also uses more resources."
 msgstr ""
-"Definisci la qualità del filtraggio delle ombre.\n"
+"Definisci la qualità del filtro delle ombre.\n"
 "Questo simula l'effetto delle ombre morbide applicando un PCF o Poisson "
 "disk\n"
 "ma utilizza più risorse."
@@ -3624,9 +3624,9 @@ msgid ""
 "On true uses Poisson disk to make \"soft shadows\". Otherwise uses PCF "
 "filtering."
 msgstr ""
-"Abilità il filtraggio Poisson disk\n"
+"Abilità il filtro Poisson disk\n"
 "Se abilitato si hanno le \\\"ombre morbide\\\". Altrimenti utilizza il "
-"filtraggio PCF."
+"filtro PCF."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -3887,7 +3887,7 @@ msgstr "Mappatura del tono filmica"
 
 #: src/settings_translation_file.cpp
 msgid "Filtering and Antialiasing"
-msgstr "Filtraggio ed Anti-Scalettatura"
+msgstr "Filtri e Antiscalettatura"
 
 #: src/settings_translation_file.cpp
 msgid "First of 4 2D noises that together define hill/mountain range height."
@@ -6179,7 +6179,7 @@ msgstr "Distanza di trasferimento del giocatore"
 
 #: src/settings_translation_file.cpp
 msgid "Poisson filtering"
-msgstr "Filtraggio Poisson"
+msgstr "Filtro Poisson"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7560,7 +7560,7 @@ msgstr "Rumore degli alberi"
 
 #: src/settings_translation_file.cpp
 msgid "Trilinear filtering"
-msgstr "Filtraggio trilineare"
+msgstr "Filtro trilineare"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7657,18 +7657,17 @@ msgid "Use a cloud animation for the main menu background."
 msgstr "Usare un'animazione con le nuvole per lo sfondo del menu principale."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Use anisotropic filtering when looking at textures from an angle.\n"
 "This provides a significant improvement when used together with mipmapping."
 msgstr ""
-"Usare il filtraggio anisotropico quando si guardano le textures da "
-"un'angolazione."
+"Usa il filtro anisotropico quando si guardano le texture da una certa "
+"angolazione.\n"
+"Fornisce un importante miglioramento quando usato insieme al mipmapping."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Use bilinear filtering when scaling textures."
-msgstr "Usare il filtraggio trilineare quando si ridimensionano le textures."
+msgstr "Usare il filtro trilineare quando si ridimensionano le texture."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7923,13 +7922,12 @@ msgid ""
 "filtered in software, but some images are generated directly\n"
 "to hardware (e.g. render-to-texture for nodes in inventory)."
 msgstr ""
-"Quando gui_scaling_filter è Vero, tutte le immagini dell'interfaccia\n"
-"necessitano il filtraggio software, ma alcune immagini sono generate\n"
+"Quando gui_scaling_filter è abilitato, tutte le immagini dell'interfaccia\n"
+"vengono filtrate a livello software, tuttavia alcune immagini sono generate\n"
 "direttamente dall'hardware (es. render-to-texture per i nodi "
 "nell'inventario)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "When using bilinear/trilinear filtering, low-resolution textures\n"
 "can be blurred, so this option automatically upscales them to preserve\n"
@@ -7940,20 +7938,20 @@ msgid ""
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
-"Quando si usano i filtri bilineare/trilineare/anisotropico, le textures a "
+"Quando si usano i filtri bilineare/trilineare/anisotropico, le texture a "
 "bassa risoluzione possono\n"
-"essere sfocate, così viene eseguito l'ingrandimento automatico con "
-"l'interpolazione\n"
-"nearest-neighbor per conservare la chiarezza dei pixels. Questa opzione "
+"essere sfocate, così viene eseguito l'ingrandimento automatico con l'"
+"interpolazione\n"
+"nearest-neighbor per conservare la chiarezza dei pixel. Questa opzione "
 "imposta la dimensione\n"
-"minima per le textures ingrandite; valori superiori permettono un aspetto "
-"più nitido, ma richiedono\n"
+"minima per le texture ingrandite; valori superiori permettono un aspetto più "
+"nitido, ma richiedono\n"
 "più memoria. Sono raccomandate le potenze di 2. Questa impostazione si "
-"attiva SOLO SE il filtraggio\n"
+"attiva SOLO SE il filtro\n"
 "bilineare/trilineare/anisotropico è abilitato.\n"
-"Viene anche utilizzata come dimensione di base delle texturesdei nodi per "
-"l'auto-ridimensionamento\n"
-"delle textures con allineamento relativo al mondo."
+"Viene anche utilizzata come dimensione di base delle textures dei nodi per l'"
+"autoridimensionamento\n"
+"delle texture con allineamento relativo al mondo."
 
 #: src/settings_translation_file.cpp
 msgid ""

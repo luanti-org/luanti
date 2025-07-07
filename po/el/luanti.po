@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Greek (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2024-01-14 12:31+0000\n"
-"Last-Translator: RRadler <rileyradler@icloud.com>\n"
+"PO-Revision-Date: 2025-07-04 21:47+0000\n"
+"Last-Translator: GiorgeGi GiorgeGi <giorgegi729@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/minetest/minetest/"
 "el/>\n"
 "Language: el\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -32,7 +32,7 @@ msgstr "Άκυρη εντολή: "
 
 #: builtin/client/chatcommands.lua
 msgid "Issued command: "
-msgstr ""
+msgstr "Εκτελέστηκε εντολή: "
 
 #: builtin/client/chatcommands.lua
 msgid "List online players"
@@ -63,9 +63,8 @@ msgid "Command not available: "
 msgstr "Η εντολή δεν είναι διαθέσιμη: "
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Get help for commands (-t: output in chat)"
-msgstr "Βοήθεια για τις εντολές"
+msgstr "Βρες βοήθεια για τις εντολές (-t: αποτελέσματα στην συζήτηση)"
 
 #: builtin/common/chatcommands.lua
 msgid ""
@@ -85,7 +84,7 @@ msgstr "Περιήγηση"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "Εμφανίζει συγκρούσεις με \"$1\""
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
@@ -129,7 +128,7 @@ msgstr "Άκυρο"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
-msgstr ""
+msgstr "Κενότητα"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Octaves"
@@ -141,8 +140,9 @@ msgid "Offset"
 msgstr "Αντιστάθμιση"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+#, fuzzy
 msgid "Persistence"
-msgstr ""
+msgstr "Διατήρηση"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_config_world.lua
@@ -195,8 +195,9 @@ msgid "eased"
 msgstr "Ομαλός Χάρτης"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "(The game will need to enable automatic exposure as well)"
-msgstr ""
+msgstr "(Το παιχνίδι θα πρέπει επίσης να ενεργοποιήση αυτόματη έκθεση)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable bloom as well)"
@@ -204,7 +205,7 @@ msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable volumetric lighting as well)"
-msgstr ""
+msgstr "(Το παιχνίδι θα πρέπει επίσης να ενεργοποιήσει βολουμετρικό φωτισμό)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(Use system language)"
@@ -1104,7 +1105,7 @@ msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
-msgstr "Σχετικά"
+msgstr "Περί"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Active Contributors"

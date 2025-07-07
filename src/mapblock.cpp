@@ -12,7 +12,6 @@
 #include "gamedef.h"
 #include "irrlicht_changes/printing.h"
 #include "log.h"
-#include "nameidmapping.h"
 #include "content_mapnode.h"  // For legacy name-id mapping
 #include "content_nodemeta.h" // For legacy deserialization
 #include "serialization.h"
@@ -258,7 +257,7 @@ void MapBlock::expireIsAirCache()
 // Renumbers the content IDs (starting at 0 and incrementing)
 // Note that there's no technical reason why we *have to* renumber the IDs,
 // but we do it anyway as it also helps compressability.
-static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
+void MapBlock::getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 	const NodeDefManager *nodedef)
 {
 	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
@@ -288,7 +287,7 @@ static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
 // Correct ids in the block to match nodedef based on names.
 // Unknown ones are added to nodedef.
 // Will not update itself to match id-name pairs in nodedef.
-static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
+void MapBlock::correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 		IGameDef *gamedef)
 {
 	const NodeDefManager *nodedef = gamedef->ndef();

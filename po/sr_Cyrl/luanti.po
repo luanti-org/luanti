@@ -3,17 +3,17 @@ msgstr ""
 "Project-Id-Version: Serbian (cyrillic) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2022-07-12 16:18+0000\n"
-"Last-Translator: OrbitalPetrol <ccorporation981@gmail.com>\n"
-"Language-Team: Serbian (cyrillic) <https://hosted.weblate.org/projects/"
-"minetest/minetest/sr_Cyrl/>\n"
+"PO-Revision-Date: 2025-06-19 14:04+0000\n"
+"Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
+"Language-Team: Serbian (Cyrillic script) <https://hosted.weblate.org/"
+"projects/minetest/minetest/sr_Cyrl/>\n"
 "Language: sr_Cyrl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 5.12.1\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -64,9 +64,8 @@ msgid "Command not available: "
 msgstr "Команда није доступна: "
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Get help for commands (-t: output in chat)"
-msgstr "Нађите помоћ за команде"
+msgstr "Нађите помоћ за наредбе (-t: излаз у ћаскању)"
 
 #: builtin/common/chatcommands.lua
 msgid ""
@@ -76,9 +75,8 @@ msgstr ""
 "да бисте све набројали."
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "[all | <cmd>] [-t]"
-msgstr "[all | <команда>]"
+msgstr ""
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -86,7 +84,7 @@ msgstr "Прегледај"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "Сукоб са „$1“"
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
@@ -94,22 +92,19 @@ msgstr "Промени"
 
 #: builtin/common/settings/components.lua
 msgid "Remove keybinding"
-msgstr ""
+msgstr "Уклони пречицу"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Select directory"
-msgstr "Изаберите фајл мода:"
+msgstr "Означи омот"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Select file"
-msgstr "Изаберите фајл мода:"
+msgstr "Означи датотеку"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Set"
-msgstr "Одабери"
+msgstr "Постави"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"

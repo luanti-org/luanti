@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-05-10 13:03+0000\n"
+"PO-Revision-Date: 2025-06-04 17:59+0000\n"
 "Last-Translator: ninjum <ninhum@gmx.com>\n"
 "Language-Team: Galician <https://hosted.weblate.org/projects/minetest/"
 "minetest/gl/>\n"
@@ -289,9 +289,8 @@ msgid "Show technical names"
 msgstr "Mostrar nomes técnicos"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Tap"
-msgstr "Tabulador"
+msgstr "Toque"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
@@ -563,9 +562,8 @@ msgid "Error loading package information"
 msgstr "Produciuse un erro ao cargar a información do paquete"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Error loading reviews"
-msgstr "Erro creando cliente: %s"
+msgstr "Erro ao cargar as valoracións"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
@@ -938,28 +936,27 @@ msgstr "Eliminar o mundo \"$1\"?"
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
 msgstr ""
+"Como resultado, é posible que se modificasen as túas asignacións de teclas."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Consulta a configuración das teclas ou refírete á documentación:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Pechar"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Atallos de teclado."
+msgstr "Combinacións de teclas trocadas"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Configuración"
+msgstr "Abrir configuración"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
-msgstr ""
+msgstr "O sistema de xestión de entradas foi reformulado en Luanti 5.12.0."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1312,12 +1309,11 @@ msgid "Ping"
 msgstr "Ping"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid ""
 "Players:\n"
 "$1"
 msgstr ""
-"Clientes:\n"
+"Xogadores:\n"
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
@@ -1382,7 +1378,7 @@ msgstr "Non se puido atopar ou cargar o xogo: "
 
 #: src/client/clientlauncher.cpp
 msgid "Main Menu"
-msgstr "Menú principal"
+msgstr "Menú Principal"
 
 #: src/client/clientlauncher.cpp
 msgid "No world selected and no address provided. Nothing to do."
@@ -2155,9 +2151,8 @@ msgid "Some mods have unsatisfied dependencies:"
 msgstr "Algunhas modificacións teñen dependencias non satisfeitas:"
 
 #: src/gui/guiButtonKey.h
-#, fuzzy
 msgid "Press Button"
-msgstr "Botón esquerdo"
+msgstr "Preme o botón"
 
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
@@ -2254,7 +2249,7 @@ msgstr "Soltar"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Exit"
-msgstr "Pechar"
+msgstr "Saír"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Inventory"
@@ -2273,9 +2268,8 @@ msgid "Overflow menu"
 msgstr "Menú de desbordamento"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
-#, fuzzy
 msgid "Place/use"
-msgstr "Tecla para colocar obxectos"
+msgstr "Colocar/usar"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Range select"
@@ -3022,9 +3016,8 @@ msgid "Client"
 msgstr "Cliente"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client Debugging"
-msgstr "Depuración"
+msgstr "Depuración do cliente"
 
 #: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
@@ -3283,12 +3276,10 @@ msgstr ""
 "require máis de 8 bits para funcionar."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease view range"
-msgstr "Dism. alcance"
+msgstr "Diminuír o rango de vista"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease volume"
 msgstr "Baixar volume"
 
@@ -3522,9 +3513,8 @@ msgstr ""
 "onde a orde de transparencia sería moi lenta noutro caso."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Drop item"
-msgstr "Tecla para soltar obxecto"
+msgstr "Soltar obxecto"
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -3579,7 +3569,7 @@ msgstr ""
 "Activar o soporte para IPv6 no servidor.\n"
 "Teña en conta que os clientes poderán conectarse tanto con IPv4 como con "
 "IPv6.\n"
-"Ignórase se se define bind_address."
+"Ignórase cando se define bind_address."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3802,9 +3792,8 @@ msgid "FPS"
 msgstr "FPS"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "FPS when unfocused"
-msgstr "FPS cando está en segundo plano ou pausado"
+msgstr "FPS cando non está enfocado"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
@@ -4242,164 +4231,132 @@ msgstr ""
 "en nodos por segundo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 1"
-msgstr "Tecla de rañura 1"
+msgstr "Oco 1 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 10"
-msgstr "Tecla de rañura 10"
+msgstr "Oco 10 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 11"
-msgstr "Tecla de rañura 11"
+msgstr "Oco 11 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 12"
-msgstr "Tecla de rañura 12"
+msgstr "Oco 12 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 13"
-msgstr "Tecla de rañura 13"
+msgstr "Oco 13 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 14"
-msgstr "Tecla de rañura 14"
+msgstr "Oco 14 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 15"
-msgstr "Tecla de rañura 15"
+msgstr "Oco 15 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 16"
-msgstr "Tecla de rañura 16"
+msgstr "Oco 16 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 17"
-msgstr "Tecla de rañura 17"
+msgstr "Oco 17 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 18"
-msgstr "Tecla de rañura 18"
+msgstr "Oco 18 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 19"
-msgstr "Tecla de rañura 19"
+msgstr "Oco 19 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 2"
-msgstr "Tecla de rañura 2"
+msgstr "Oco 2 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 20"
-msgstr "Tecla de rañura 20"
+msgstr "Oco 20 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 21"
-msgstr "Tecla de rañura 21"
+msgstr "Oco 21 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 22"
-msgstr "Tecla de rañura 22"
+msgstr "Oco 22 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 23"
-msgstr "Tecla de rañura 23"
+msgstr "Oco 23 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 24"
-msgstr "Tecla de rañura 24"
+msgstr "Oco 24 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 25"
-msgstr "Tecla de rañura 25"
+msgstr "Oco 25 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 26"
-msgstr "Tecla de rañura 26"
+msgstr "Oco 26 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 27"
-msgstr "Tecla de rañura 27"
+msgstr "Oco 27 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 28"
-msgstr "Tecla de rañura 28"
+msgstr "Oco 28 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 29"
-msgstr "Tecla de rañura 29"
+msgstr "Oco 29 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 3"
-msgstr "Tecla de rañura 3"
+msgstr "Oco 3 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 30"
-msgstr "Tecla de rañura 30"
+msgstr "Oco 30 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 31"
-msgstr "Tecla de rañura 31"
+msgstr "Oco 31 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 32"
-msgstr "Tecla de rañura 32"
+msgstr "Oco 32 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 4"
-msgstr "Tecla de rañura 4"
+msgstr "Oco 4 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 5"
-msgstr "Tecla de rañura 5"
+msgstr "Oco 5 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 6"
-msgstr "Tecla de rañura 6"
+msgstr "Oco 6 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 7"
-msgstr "Tecla de rañura 7"
+msgstr "Oco 7 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 8"
-msgstr "Tecla de rañura 8"
+msgstr "Oco 8 da barra rápida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 9"
-msgstr "Tecla de rañura 9"
+msgstr "Oco 9 da barra rápida"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
@@ -4410,14 +4367,12 @@ msgid "Hotbar: Invert mouse wheel direction"
 msgstr "Barra acceso rápido: inverte a dirección da roda do rato"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select next item"
-msgstr "Tecla de próximo obxecto na barra principal"
+msgstr "Barra rápida: seleccionar o seguinte obxecto"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select previous item"
-msgstr "Tecla de obxecto anterior na barra principal"
+msgstr "Barra rápida: seleccionar o anterior obxecto"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4637,12 +4592,10 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "Altura da consola do chat no xogo, entre 0,1 (10 %) e 1,0 (100 %)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase view range"
-msgstr "Aum. alcance"
+msgstr "Aumentar o rango de visualización"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase volume"
 msgstr "Subir volume"
 
@@ -4689,9 +4642,8 @@ msgid "Instrument the methods of entities on registration."
 msgstr "Instrumenta os métodos das entidades durante o rexistro."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Interaction style"
-msgstr "Iteracións"
+msgstr "Estilo de interacción"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
@@ -4879,15 +4831,12 @@ msgid "Key for moving fast in fast mode."
 msgstr "Tecla para moverse rapidamente no modo rápido."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Key for moving the player backward.\n"
 "Will also disable autoforward, when active."
 msgstr ""
 "Tecla para mover o xogador cara atrás.\n"
-"Tamén desactivará o desprazamento automático cando estea activo.\n"
-"Ver http://irrlicht.sourceforge.net/docu/"
-"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+"Tamén desactivará o desprazamento automático cando estea activa."
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving the player forward."
@@ -5066,17 +5015,14 @@ msgid "Key for selecting the third hotbar slot."
 msgstr "Tecla para seleccionar o 3º slot da barra de acceso rápido."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Key for sneaking.\n"
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
 "Tecla para agacharse.\n"
-"Tamén serve para descender dentro da auga se aux1_descends está "
-"desactivado.\n"
-"Ver http://irrlicht.sourceforge.net/docu/"
-"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+"Tamén se usa para baixar escaleiras e descender na auga se está desactivada "
+"a opción aux1_descends."
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching between first- and third-person camera."
@@ -5091,18 +5037,16 @@ msgid "Key for switching to the previous entry in Quicktune."
 msgstr "Tecla para cambiar á entrada anterior en Quicktune."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for taking screenshots."
-msgstr "Formato das capturas de pantalla."
+msgstr "Tecla para facer capturas de pantalla."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling autoforward."
 msgstr "Tecla para alternar o autoforward."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for toggling cinematic mode."
-msgstr "Suavizado de cámara en modo cinematográfico"
+msgstr "Tecla para activar/desactivar o modo cinemático."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling display of minimap."
@@ -5117,9 +5061,8 @@ msgid "Key for toggling flying."
 msgstr "Tecla para alternar o voo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for toggling fullscreen mode."
-msgstr "Modo de pantalla completa."
+msgstr "Tecla para activar/desactivar o modo de pantalla completa."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling noclip mode."
@@ -5167,18 +5110,16 @@ msgstr ""
 "desenvolvemento."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Key for toggling unlimited view range."
-msgstr "Campo de visión ilimitada desactivado"
+msgstr "Tecla para activar/desactivar o rango de vista ilimitado."
 
 #: src/settings_translation_file.cpp
 msgid "Key to use view zoom when possible."
 msgstr "Tecla para usar o zoom da vista cando sexa posible."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keybindings"
-msgstr "Atallos de teclado."
+msgstr "Combinacións de teclas"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -5217,9 +5158,8 @@ msgid "Large cave proportion flooded"
 msgstr "Proporción de covas grandes inundadas"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Large chat console"
-msgstr "Tecla da consola do chat grande"
+msgstr "Consola de conversa grande"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -5630,10 +5570,8 @@ msgid "Maximum FPS"
 msgstr "FPS máximos"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Maximum FPS when the window is not focused."
-msgstr ""
-"FPS máximos cando a xanela non está enfocada ou cando o xogo está en pausa."
+msgstr "FPS máximos cando a xanela non está enfocada."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum distance to render shadows."
@@ -5759,18 +5697,16 @@ msgid "Maximum simultaneous block sends per client"
 msgstr "Número máximo de envíos de bloques simultáneos por cliente"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Maximum size of the client's outgoing chat queue"
-msgstr "Tamaño máximo da cola de chat de saída"
+msgstr "Tamaño máximo da cola de saída da conversa do cliente"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
-"Tamaño máximo da cola de saída de chat.\n"
-"0 para desactivar a cola e -1 para facer que o tamaño da cola sexa ilimitado."
+"Tamaño máximo da cola de saída do chat do cliente.\n"
+"0 para desactivar a cola e -1 para facer o tamaño da cola ilimitado."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5889,19 +5825,16 @@ msgid "Mouse sensitivity multiplier."
 msgstr "Multiplicador da sensibilidade do rato."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move backward"
-msgstr "Atrás"
+msgstr "Moverse cara atrás"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move forward"
-msgstr "Avance automático"
+msgstr "Moverse cara adiante"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move left"
-msgstr "Movemento"
+msgstr "Mover á esquerda"
 
 #: src/settings_translation_file.cpp
 msgid "Move right"
@@ -6058,14 +5991,12 @@ msgstr ""
 "255."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Open chat"
-msgstr "Aberto"
+msgstr "Abrir conversa"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Open inventory"
-msgstr "Inventario"
+msgstr "Abrir inventario"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6207,7 +6138,6 @@ msgid "Prometheus listener address"
 msgstr "Enderezo do Prometheus"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Prometheus listener address.\n"
 "If Luanti is compiled with Prometheus support, this setting\n"
@@ -6215,10 +6145,11 @@ msgid ""
 "By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
 "An empty value disables the metrics listener."
 msgstr ""
-"Enderezo do escoitador de Prometheus.\n"
-"Se Luanti está compilado coa opción ENABLE_PROMETHEUS habilitada,\n"
-"habilita a escoita de métricas para Prometheus nese enderezo.\n"
-"As métricas poden ser obtidas en http://127.0.0.1:30000/metrics"
+"Enderezo do receptor de Prometheus.\n"
+"Se Luanti está compilado con soporte para Prometheus, esta configuración\n"
+"activa o receptor de métricas para Prometheus neste enderezo.\n"
+"Por defecto, podes obter as métricas en http://127.0.0.1:30000/metrics.\n"
+"Un valor baleiro desactiva o receptor de métricas."
 
 #: src/settings_translation_file.cpp
 msgid "Proportion of large caves that contain liquid."
@@ -7170,7 +7101,6 @@ msgstr ""
 "O camiño do ficheiro relativa ao camiño do mundo onde se gardarán os perfís."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
@@ -7182,14 +7112,14 @@ msgid ""
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
-"A xesto para golpear xogadores/entidades.\n"
+"O xesto para golpear xogadores/entidades.\n"
 "Isto pode ser substituído por xogos e mods.\n"
 "\n"
-"* toque curto\n"
-"Fácil de usar e ben coñecido doutros xogos que non se deben nomear.\n"
+"Toque curto\n"
+"Fácil de usar e coñecido doutros xogos que non deben ser mencionados.\n"
 "\n"
-"* toque longo\n"
-"Coñecido polos controis móbiles clásicos en Luanti.\n"
+"Toque longo\n"
+"Coñecido dos controis clásicos móbiles de Luanti.\n"
 "O combate é máis ou menos imposible."
 
 #: src/settings_translation_file.cpp
@@ -7215,7 +7145,7 @@ msgstr ""
 "O tipo de controis de escavado/colocación empregados.\n"
 "\n"
 "* Toque\n"
-"Toque longo/curto en calquera lugar da pantalla para interactuar.\n"
+"Longo/curto en calquera lugar da pantalla para interactuar.\n"
 "A interacción prodúcese na posición do dedo.\n"
 "\n"
 "* Tocar coa mira\n"
@@ -7412,66 +7342,56 @@ msgstr ""
 "nó."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Aux1 key"
-msgstr "Tecla Aux1"
+msgstr "Activar/desactivar a tecla Aux1"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle HUD"
 msgstr "Alt. HUD"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Sneak key"
-msgstr "Tecla para alternar o modo cámara"
+msgstr "Activar/desactivar a tecla de agacharse"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle automatic forward"
-msgstr "Tecla de avance automático"
+msgstr "Activar/desactivar o avance automático"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle block bounds"
-msgstr "Lím. bloques"
+msgstr "Activar/desactivar os límites dos bloques"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera mode"
-msgstr "Tecla para alternar o modo cámara"
+msgstr "Activar/desactivar o modo de cámara"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera update"
-msgstr "Tecla para alternar o modo cámara"
+msgstr "Activar/desactivar a actualización da cámara"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle cinematic mode"
-msgstr "Modo cinematográfico"
+msgstr "Activar/desactivar o modo cinemático"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle debug info"
-msgstr "Activar/desactivar depuración"
+msgstr "Activar/desactivar a información de depuración"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle fog"
 msgstr "Alt. néboa"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle fullscreen"
-msgstr "Alt. voo"
+msgstr "Activar/desactivar a pantalla completa"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "Alt. rot. vertical"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle profiler"
-msgstr "Alt. voo"
+msgstr "Activar/desactivar o perfilador"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7998,7 +7918,6 @@ msgid "World start time"
 msgstr "Horario de inicio do mundo"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
@@ -8007,15 +7926,14 @@ msgid ""
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
-"As texturas aliñadas ao mundo pódense escalar para abarcar varios nós. Non "
-"obstante,\n"
-"é posible que o servidor non envíe a escala que desexa, especialmente se "
-"usa\n"
+"As texturas aliñadas ao mundo poden escalarse para abranguer varios nodos. "
+"Con todo,\n"
+"o servidor pode non enviar a escala que queres, especialmente se usas\n"
 "un paquete de texturas especialmente deseñado; con esta opción, o cliente "
 "tenta\n"
-"determinar a escala automaticamente baseándose no tamaño da textura.\n"
-"Consulte tamén texture_min_size.\n"
-"Aviso: esta opción é EXPERIMENTAL!"
+"determinar a escala automaticamente baseado no tamaño da textura.\n"
+"Ver tamén texture_min_size.\n"
+"Aviso: ¡Esta opción é EXPERIMENTAL!"
 
 #: src/settings_translation_file.cpp
 msgid "World-aligned textures mode"

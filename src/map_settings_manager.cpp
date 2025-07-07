@@ -21,15 +21,13 @@ MapSettingsManager::MapSettingsManager(const std::string &map_meta_path):
 	 * 1: defaults set by scripts (override_meta = false)
 	 * 2: settings present in map_meta.txt or overridden by scripts
 	 */
-	m_defaults = new Settings("", &m_hierarchy, 1);
-	m_map_settings = new Settings("[end_of_params]", &m_hierarchy, 2);
+	m_defaults = std::make_unique<Settings>("", &m_hierarchy, 1);
+	m_map_settings = std::make_unique<Settings>("[end_of_params]", &m_hierarchy, 2);
 }
 
 
 MapSettingsManager::~MapSettingsManager()
 {
-	delete m_defaults;
-	delete m_map_settings;
 	delete mapgen_params;
 }
 
@@ -109,8 +107,8 @@ bool MapSettingsManager::saveMapMeta()
 		return false;
 	}
 
-	mapgen_params->MapgenParams::writeParams(m_map_settings);
-	mapgen_params->writeParams(m_map_settings);
+	mapgen_params->MapgenParams::writeParams(m_map_settings.get());
+	mapgen_params->writeParams(m_map_settings.get());
 
 	if (!m_map_settings->updateConfigFile(m_map_meta_path.c_str())) {
 		errorstream << "saveMapMeta: could not write "
@@ -150,8 +148,8 @@ MapgenParams *MapSettingsManager::makeMapgenParams()
 	params->mgtype = mgtype;
 
 	// Load the rest of the mapgen params from our active settings
-	params->MapgenParams::readParams(m_map_settings);
-	params->readParams(m_map_settings);
+	params->MapgenParams::readParams(m_map_settings.get());
+	params->readParams(m_map_settings.get());
 
 	// Hold onto our params
 	mapgen_params = params;
