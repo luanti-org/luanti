@@ -1,6 +1,7 @@
 uniform sampler2D baseTexture;
 uniform sampler2D normalTexture;
 uniform vec3 yawVec;
+uniform float mapSize;
 
 varying lowp vec4 varColor;
 varying mediump vec2 varTexCoord;
@@ -10,7 +11,7 @@ void main (void)
 	vec2 uv = varTexCoord.st;
 
 	//texture sampling rate
-	const float step = 1.0 / 256.0;
+	float step = 1.0 / mapSize;
 	float tl = texture2D(normalTexture, vec2(uv.x - step, uv.y + step)).r;
 	float t  = texture2D(normalTexture, vec2(uv.x,        uv.y + step)).r;
 	float tr = texture2D(normalTexture, vec2(uv.x + step, uv.y + step)).r;
