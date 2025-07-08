@@ -524,8 +524,12 @@ add_library(IRRGUIOBJ OBJECT
 
 # Library
 
+file(GLOB_RECURSE IrrlichtMt_PUBLIC_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/../include/*.h")
+
 # There have to be some sources in IrrlichtMt to workaround Cmake Xcode generator bug
 add_library(IrrlichtMt STATIC
+	${IrrlichtMt_PUBLIC_HDRS}
+
 	CBillboardSceneNode.h
 	CCameraSceneNode.h
 	CDummyTransformationSceneNode.h
