@@ -27,11 +27,8 @@ struct VideoDriverInfo {
 };
 
 class ITextureSource;
-class Camera;
 class Client;
-class LocalPlayer;
 class Hud;
-class Minimap;
 
 class RenderingCore;
 

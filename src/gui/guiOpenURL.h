@@ -20,7 +20,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "modalMenu.h"
 #include <string>
 
-class Client;
 class ISimpleTextureSource;
 
 class GUIOpenURLMenu : public GUIModalMenu

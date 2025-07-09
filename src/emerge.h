@@ -22,7 +22,6 @@
 
 class EmergeThread;
 class NodeDefManager;
-class Settings;
 class MapSettingsManager;
 class BiomeManager;
 class OreManager;

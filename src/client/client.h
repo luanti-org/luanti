@@ -35,7 +35,6 @@ class ISoundManager;
 class IWritableItemDefManager;
 class IWritableShaderSource;
 class IWritableTextureSource;
-class MapBlockMesh;
 class MapDatabase;
 class MeshUpdateManager;
 class Minimap;
@@ -51,11 +50,13 @@ struct ClientDynamicInfo;
 struct ClientEvent;
 struct MapDrawControl;
 struct MapNode;
-struct MeshMakeData;
-struct MinimapMapblock;
 struct PlayerControl;
 struct PointedThing;
 struct ItemVisualsManager;
+
+namespace scene {
+class IAnimatedMesh;
+}
 
 namespace con {
 class IConnection;

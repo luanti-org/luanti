@@ -14,7 +14,6 @@
 
 namespace scene
 {
-class IDummyTransformationSceneNode;
 
 class CAnimatedMeshSceneNode : public IAnimatedMeshSceneNode
 {

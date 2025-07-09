@@ -11,28 +11,16 @@
 #include "SColor.h"
 #include "ESceneNodeTypes.h"
 
-struct SKeyMap;
 struct SEvent;
 
 namespace io
 {
 class IReadFile;
-class IWriteFile;
-class IFileSystem;
 } // end namespace io
-
-namespace gui
-{
-class IGUIFont;
-class IGUIEnvironment;
-} // end namespace gui
 
 namespace video
 {
 class IVideoDriver;
-class SMaterial;
-class IImage;
-class ITexture;
 } // end namespace video
 
 namespace scene
@@ -89,14 +77,12 @@ class ICameraSceneNode;
 class IDummyTransformationSceneNode;
 class IMesh;
 class SkinnedMesh;
-class IMeshBuffer;
 class IMeshCache;
 class ISceneCollisionManager;
 class IMeshLoader;
 class IMeshManipulator;
 class IMeshSceneNode;
 class ISceneNode;
-class ISceneNodeFactory;
 
 //! The Scene Manager manages scene nodes, mesh resources, cameras and all the other stuff.
 /** All Scene nodes can be created only here.

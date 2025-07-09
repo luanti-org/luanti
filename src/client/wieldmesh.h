@@ -22,11 +22,9 @@ namespace scene
 }
 
 
-
 struct ItemStack;
 class Client;
 class ITextureSource;
-struct ContentFeatures;
 class ShadowRenderer;
 
 /*

@@ -18,7 +18,6 @@
 #include "util/numeric.h"
 #include "util/metricsbackend.h"
 
-class IGameDef;
 struct GameParams;
 class RemotePlayer;
 class PlayerDatabase;

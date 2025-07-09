@@ -12,7 +12,6 @@
 class Client;
 class RenderingEngine;
 class InputHandler;
-class ISoundManager;
 class GUIFormSpecMenu;
 
 /*

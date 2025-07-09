@@ -14,8 +14,6 @@ class Client;
 class Environment;
 class GenericCAO;
 class ClientActiveObject;
-class ClientEnvironment;
-class IGameDef;
 struct CollisionInfo;
 struct collisionMoveResult;
 

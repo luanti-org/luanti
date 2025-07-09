@@ -12,10 +12,6 @@
 #include "irrArray.h"
 #include "IMeshLoader.h"
 
-namespace io
-{
-class IFileSystem;
-}
 namespace scene
 {
 class IMeshCache;

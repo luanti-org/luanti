@@ -5,7 +5,6 @@
 #include <IGUIEnvironment.h>
 
 
-class ISimpleTextureSource;
 
 class GUIAnimatedImage : public gui::IGUIElement {
 public:

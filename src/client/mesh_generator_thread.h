@@ -15,6 +15,8 @@
 #include <memory>
 #include <unordered_map>
 
+class MapBlock;
+
 struct QueuedMeshUpdate
 {
 	v3s16 p = v3s16(-1337, -1337, -1337);

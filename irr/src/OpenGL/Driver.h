@@ -20,7 +20,6 @@ namespace video
 {
 struct VertexType;
 
-class COpenGL3FixedPipelineRenderer;
 class COpenGL3Renderer2D;
 
 class COpenGL3DriverBase : public CNullDriver, public IMaterialRendererServices, public COpenGL3ExtensionHandler

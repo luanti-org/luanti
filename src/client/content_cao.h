@@ -22,10 +22,10 @@ namespace scene {
 	class IBillboardSceneNode;
 }
 
-class Camera;
 class Client;
 struct Nametag;
 struct MinimapMarker;
+class WieldMeshSceneNode;
 
 /*
 	SmoothTranslator and other helpers

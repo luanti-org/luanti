@@ -137,9 +137,7 @@ enum CameraMode {
 
 extern const struct EnumString es_CameraMode[];
 
-class Map;
 struct HudElement;
-class Environment;
 
 class Player
 {

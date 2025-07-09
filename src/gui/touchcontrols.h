@@ -25,10 +25,6 @@ namespace gui
 	class IGUIImage;
 	class IGUIStaticText;
 }
-namespace video
-{
-	class IVideoDriver;
-}
 
 class ISimpleTextureSource;
 

@@ -6,7 +6,6 @@
 
 #include "lua_api/l_base.h"
 
-class AsyncEngine;
 
 /** Implementation of lua api support for mainmenu */
 class ModApiMainMenu: public ModApiBase
