@@ -10,11 +10,11 @@ class InitInterlacedMaskStep : public TrivialRenderStep
 {
 public:
 	InitInterlacedMaskStep(TextureBuffer *buffer, u8 index);
-	void run(PipelineContext &context);
+	void run(PipelineContext &context) override;
 private:
 	TextureBuffer *buffer;
 	video::ITexture *last_mask { nullptr };
 	u8 index;
 };
 
-void populateInterlacedPipeline(RenderPipeline &pipeline, Client *client);
+void populateInterlacedPipeline(RenderPipeline *pipeline, Client *client);

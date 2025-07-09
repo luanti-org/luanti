@@ -1363,10 +1363,9 @@ bool Game::createClient(const GameStartData &start_data)
 	shader_src->addShaderConstantSetter(
 		std::make_unique<NodeShaderConstantSetter>());
 
-	auto scsf = std::make_unique<GameGlobalShaderUniformSetterFactory>(client);
-	// a raw pointer reference shall be kept to use after moved
-	auto scsf_unowned = scsf.get();
-	shader_src->addShaderUniformSetterFactory(std::move(scsf));
+	auto scsf_up = std::make_unique<GameGlobalShaderUniformSetterFactory>(client);
+	auto* scsf = scsf_up.get();
+	shader_src->addShaderUniformSetterFactory(std::move(scsf_up));
 
 	shader_src->addShaderUniformSetterFactory(
 		std::make_unique<FogShaderUniformSetterFactory>());
@@ -1390,7 +1389,7 @@ bool Game::createClient(const GameStartData &start_data)
 	/* Skybox
 	 */
 	sky = make_irr<Sky>(-1, m_rendering_engine, texture_src, shader_src);
-	scsf_unowned->setSky(sky.get());
+	scsf->setSky(sky.get());
 
 	/* Pre-calculated values
 	 */

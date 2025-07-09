@@ -51,4 +51,4 @@ private:
 	bool enable;
 };
 
-void populateAnaglyphPipeline(RenderPipeline &pipeline, Client *client);
+void populateAnaglyphPipeline(RenderPipeline *pipeline, Client *client);

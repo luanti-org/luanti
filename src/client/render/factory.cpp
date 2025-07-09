@@ -45,31 +45,31 @@ void createPipeline(const std::string &stereo_mode, IrrlichtDevice *device, Clie
 		result.pipeline->addStep<RenderShadowMapStep>();
 
 	if (stereo_mode == "none") {
-		populatePlainPipeline(*result.pipeline, client);
+		populatePlainPipeline(result.pipeline.get(), client);
 		return;
 	}
 	if (stereo_mode == "anaglyph") {
-		populateAnaglyphPipeline(*result.pipeline, client);
+		populateAnaglyphPipeline(result.pipeline.get(), client);
 		return;
 	}
 	if (stereo_mode == "interlaced") {
-		populateInterlacedPipeline(*result.pipeline, client);
+		populateInterlacedPipeline(result.pipeline.get(), client);
 		return;
 	}
 	if (stereo_mode == "sidebyside") {
-		populateSideBySidePipeline(*result.pipeline, client, false, false, result.virtual_size_scale);
+		populateSideBySidePipeline(result.pipeline.get(), client, false, false, result.virtual_size_scale);
 		return;
 	}
 	if (stereo_mode == "topbottom") {
-		populateSideBySidePipeline(*result.pipeline, client, true, false, result.virtual_size_scale);
+		populateSideBySidePipeline(result.pipeline.get(), client, true, false, result.virtual_size_scale);
 		return;
 	}
 	if (stereo_mode == "crossview") {
-		populateSideBySidePipeline(*result.pipeline, client, false, true, result.virtual_size_scale);
+		populateSideBySidePipeline(result.pipeline.get(), client, false, true, result.virtual_size_scale);
 		return;
 	}
 
 	// fallback to plain renderer
 	errorstream << "Invalid rendering mode: " << stereo_mode << std::endl;
-	populatePlainPipeline(*result.pipeline, client);
+	populatePlainPipeline(result.pipeline.get(), client);
 }

@@ -33,7 +33,7 @@ void DrawImageStep::run(PipelineContext &context)
 	context.device->getVideoDriver()->draw2DImage(texture, pos);
 }
 
-void populateSideBySidePipeline(RenderPipeline &pipeline, Client *client, bool horizontal, bool flipped, v2f &virtual_size_scale)
+void populateSideBySidePipeline(RenderPipeline *pipeline, Client *client, bool horizontal, bool flipped, v2f &virtual_size_scale)
 {
 	static const u8 TEXTURE_LEFT = 0;
 	static const u8 TEXTURE_RIGHT = 1;
@@ -53,31 +53,31 @@ void populateSideBySidePipeline(RenderPipeline &pipeline, Client *client, bool h
 		offset = v2f(0.5f, 0.0f);
 	}
 
-	TextureBuffer *buffer = pipeline.createOwned<TextureBuffer>();
+	TextureBuffer *buffer = pipeline->createOwned<TextureBuffer>();
 	buffer->setTexture(TEXTURE_LEFT, virtual_size_scale, "3d_render_left", color_format);
 	buffer->setTexture(TEXTURE_RIGHT, virtual_size_scale, "3d_render_right", color_format);
 	buffer->setTexture(TEXTURE_DEPTH, virtual_size_scale, "3d_depthmap_sidebyside", depth_format);
 
-	auto step3D = pipeline.own(create3DStage(client, virtual_size_scale));
+	auto step3D = pipeline->own(create3DStage(client, virtual_size_scale));
 
 	// eyes
 	for (bool right : { false, true }) {
-		pipeline.addStep<OffsetCameraStep>(flipped ? !right : right);
-		auto output = pipeline.createOwned<TextureBufferOutput>(
+		pipeline->addStep<OffsetCameraStep>(flipped ? !right : right);
+		auto output = pipeline->createOwned<TextureBufferOutput>(
 				buffer, std::vector<u8> {right ? TEXTURE_RIGHT : TEXTURE_LEFT}, TEXTURE_DEPTH);
-		pipeline.addStep<SetRenderTargetStep>(step3D, output);
-		pipeline.addStep(step3D);
-		pipeline.addStep<DrawWield>();
-		pipeline.addStep<MapPostFxStep>();
-		pipeline.addStep<DrawHUD>();
+		pipeline->addStep<SetRenderTargetStep>(step3D, output);
+		pipeline->addStep(step3D);
+		pipeline->addStep<DrawWield>();
+		pipeline->addStep<MapPostFxStep>();
+		pipeline->addStep<DrawHUD>();
 	}
 
-	pipeline.addStep<OffsetCameraStep>(0.0f);
+	pipeline->addStep<OffsetCameraStep>(0.0f);
 
-	auto screen = pipeline.createOwned<ScreenTarget>();
+	auto screen = pipeline->createOwned<ScreenTarget>();
 
 	for (bool right : { false, true }) {
-		auto step = pipeline.addStep<DrawImageStep>(
+		auto step = pipeline->addStep<DrawImageStep>(
 				right ? TEXTURE_RIGHT : TEXTURE_LEFT,
 				right ? offset : v2f());
 		step->setRenderSource(buffer);
