@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2025-06-09 14:01+0000\n"
+"PO-Revision-Date: 2025-07-10 03:05+0000\n"
 "Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
 "Language-Team: Serbian <https://hosted.weblate.org/projects/minetest/"
 "minetest/sr/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 #, fuzzy
@@ -4071,7 +4071,7 @@ msgstr "Просторно светло"
 msgid "Set to true to enable volumetric lighting effect (a.k.a. \"Godrays\")."
 msgstr ""
 "Поставите на тачно ради омогућавања дејства просторног светла (тзв. „Божијих "
-"зрака“)"
+"зрака“)."
 
 #: src/settings_translation_file.cpp
 msgid "Other Effects"
@@ -4509,9 +4509,8 @@ msgid "Domain name of server, to be displayed in the serverlist."
 msgstr "Име домаћина служитеља, ради приказивања на списку служитеља."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Server URL"
-msgstr "Адреса сервера"
+msgstr "Адреса служитеља"
 
 #: src/settings_translation_file.cpp
 msgid "Homepage of server, to be displayed in the serverlist."
@@ -6462,9 +6461,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Font"
-msgstr "Слова"
+msgstr "Словолик"
 
 #: src/settings_translation_file.cpp
 msgid "Font bold by default"
@@ -6494,9 +6492,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Font size"
-msgstr "Величина слова"
+msgstr "Величина словолика"
 
 #: src/settings_translation_file.cpp
 msgid "Font size of the default font where 1 unit = 1 pixel at 96 DPI"
