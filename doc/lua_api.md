@@ -1604,6 +1604,15 @@ There are a bunch of different looking node types.
     * The base cube texture tiles are defined as normal, the `plantlike`
       extension uses the defined special tile, for example:
       `special_tiles = {{name = "default_papyrus.png"}},`
+* `sunken`
+    * Can be used to draw nodes sunken in liquid like flooded doors, stairs, etc.
+    * It first renders the node defined in metadata fields `inner_node` and `inner_param2`
+      and after it liquid node around it.
+* `covered`
+    * Can be used to draw covered nodes like historical vases, sculptures, etc covered by sand.
+    * It first renders the node defined in metadata fields `inner_node` and `inner_param2`
+      and after it leveled nodebox node around it.
+    * By changing the level of the node, the covered node can be fully or partially covered/uncovered.
 
 `*_optional` drawtypes need less rendering time if deactivated
 (always client-side).
