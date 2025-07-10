@@ -8,6 +8,9 @@
 	See comments in porting.h
 */
 
+// enable include of memset_s function
+#define __STDC_WANT_LIB_EXT1__ 1
+
 #include "porting.h"
 
 #if defined(__FreeBSD__)  || defined(__NetBSD__) || defined(__DragonFly__) || defined(__OpenBSD__)
@@ -967,5 +970,34 @@ void TriggerMemoryTrim()
 }
 
 #endif
+
+/// Override every byte before clearing
+void secure_clear_memory(volatile void *ptr, size_t size)
+{
+#ifdef __STDC_LIB_EXT1__
+	memset_s(ptr, size, '0', size);
+#elif _WIN32
+	SecureZeroMemory((PVOID)ptr, size);
+#else
+	volatile char *ch = (char *)ptr;
+	for (;size>0;size--) {
+		*ch = 0;
+		ch++;
+	}
+#endif
+}
+
+/// Override every character before clearing
+void secure_clear_string(std::string &text)
+{
+	secure_clear_memory((void *)text.data(), text.size());
+	text.clear();
+}
+
+void secure_clear_string(std::wstring &text)
+{
+	secure_clear_memory((void *)text.data(), text.size() * sizeof(wchar_t));
+	text.clear();
+}
 
 } //namespace porting
