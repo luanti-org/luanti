@@ -1860,6 +1860,7 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 	static u16 calls = 0;
 	if (++calls % 10 == 0)
 		warningstream << "lod " << calls << std::endl;
+	u8 lod_resolution = std::max((u32) 1, width / 4);
 	for (u16 greedy_seg_start_x = 0; greedy_seg_start_x < data->m_side_length; greedy_seg_start_x += 64)
 	for (u16 greedy_seg_start_y = 0; greedy_seg_start_y < data->m_side_length; greedy_seg_start_y += 64)
 	for (u16 greedy_seg_start_z = 0; greedy_seg_start_z < data->m_side_length; greedy_seg_start_z += 64) {
@@ -1891,9 +1892,12 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 		u16 night_light = 0;
 		u8 num_light_samples = 0;
 		core::aabbox3d bounds(v3s16(S16_MAX), v3s16(S16_MIN));
-		for (p.Z = from.Z; p.Z < to.Z; p.Z++)
-		for (p.Y = from.Y; p.Y < to.Y; p.Y++)
-		for (p.X = from.X; p.X < to.X; p.X++) {
+		for (p.Z = from.Z; p.Z < to.Z + lod_resolution - 1; p.Z += lod_resolution)
+		for (p.Y = from.Y; p.Y < to.Y + lod_resolution - 1; p.Y += lod_resolution)
+		for (p.X = from.X; p.X < to.X + lod_resolution - 1; p.X += lod_resolution) {
+			p.X = MYMIN(p.X, to.X - 1);
+			p.Y = MYMIN(p.Y, to.Y - 1);
+			p.Z = MYMIN(p.Z, to.Z - 1);
 			MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
 			if (n.getContent() == CONTENT_IGNORE) {
 				goto next_volume;
