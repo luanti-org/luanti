@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Romanian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"POT-Creation-Date: 2025-07-11 19:59+0200\n"
 "PO-Revision-Date: 2025-01-27 15:28+0000\n"
 "Last-Translator: Negoitescu <negoitescumario@gmail.com>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/minetest/"
@@ -517,6 +517,7 @@ msgid "Error getting dependencies for package $1"
 msgstr "Eroare la obținerea dependențelor pentru pachet „$1”"
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "Instalează"
 
@@ -611,6 +612,11 @@ msgstr "Actualizare"
 #, fuzzy
 msgid "Website"
 msgstr "Vizitează saitul"
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "by $1"
+msgstr "$1, de $2"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
@@ -1358,6 +1364,11 @@ msgid "Done!"
 msgstr "Terminat!"
 
 #: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Inițializarea nodurilor"
 
@@ -1372,6 +1383,11 @@ msgstr "Se încarcă texturi ..."
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
 msgstr "Reconstruirea shaderelor..."
+
+#: src/client/client.cpp
+#, fuzzy, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "Capturi de ecran"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -2278,7 +2294,7 @@ msgstr ""
 msgid "Place/use"
 msgstr "Tasta de plasare"
 
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "Selectare distanță"
 
@@ -2616,7 +2632,7 @@ msgstr ""
 "elementelor UI."
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2653,6 +2669,12 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
 msgstr "Permiteți lichidelor să fie transparente."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2731,10 +2753,6 @@ msgid ""
 "to 8 bits.\n"
 "With OpenGL ES, dithering only works if the shader supports high\n"
 "floating-point precision and it may have a higher performance impact."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3410,7 +3428,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4355,6 +4373,7 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4407,6 +4426,7 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 
@@ -4576,14 +4596,6 @@ msgid "Jumping speed"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for decreasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for decreasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
 msgstr ""
 
@@ -4594,49 +4606,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for dropping the currently selected item."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for jumping."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for moving the player backward.\n"
-"Will also disable autoforward, when active."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player forward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player left."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player right."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for muting the game."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4648,164 +4622,9 @@ msgid "Key for opening the chat window to type local commands."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for opening the chat window."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for opening the inventory."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 11th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 12th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 13th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 14th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 15th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 16th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 17th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 18th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 19th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 20th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 21st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 22nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 23rd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 24th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 25th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 26th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 27th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 28th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 29th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 30th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 31st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 32nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the eighth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fifth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the first hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fourth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the next item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the ninth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the previous item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the second hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the seventh hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the sixth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the tenth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the third hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for sneaking.\n"
-"Also used for climbing down and descending in water if aux1_descends is "
-"disabled."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for switching between first- and third-person camera."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4817,56 +4636,7 @@ msgid "Key for switching to the previous entry in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for taking screenshots."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling autoforward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Key for toggling cinematic mode."
-msgstr "Cameră fluidă în modul cinematic"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling display of minimap."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling flying."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fullscreen mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling noclip mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling pitch move mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of chat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of debug info."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of fog."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4874,24 +4644,7 @@ msgid "Key for toggling the display of mapblock boundaries."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the HUD."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the large chat console."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Key for toggling unlimited view range."
-msgstr "Interval de vizualizare nelimitat dezactivat"
-
-#: src/settings_translation_file.cpp
-msgid "Key to use view zoom when possible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4934,11 +4687,6 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Large chat console"
-msgstr "Tasta de consolă de chat mare"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -5470,6 +5218,12 @@ msgid "Mod channels"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
 msgstr ""
 
@@ -5588,10 +5342,6 @@ msgid "Node highlighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr ""
 
@@ -5632,7 +5382,7 @@ msgstr "Cantitatea de mesaje pe care un jucător poate trimite la 10 secunde."
 #: src/settings_translation_file.cpp
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 
@@ -5881,6 +5631,11 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "Ieși în meniul principal"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6767,6 +6522,11 @@ msgid "Toggle fullscreen"
 msgstr "Intră pe zbor"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle large chat console"
+msgstr "Tasta de consolă de chat mare"
+
+#: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "Comutați pitchmove"
 
@@ -6774,6 +6534,11 @@ msgstr "Comutați pitchmove"
 #, fuzzy
 msgid "Toggle profiler"
 msgstr "Intră pe zbor"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "Interval de vizualizare nelimitat dezactivat"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7197,6 +6962,10 @@ msgid "Width of the selection box lines around nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Will also disable autoforward, when active."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr ""
 
@@ -7293,604 +7062,6 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#~ msgid "\"Aux1\" = climb down"
-#~ msgstr "\"Aux1\" = coborâre"
-
-#~ msgid "(game support required)"
-#~ msgstr "(necesită suportul jocului)"
-
-#~ msgid "- Address: "
-#~ msgstr "- Adresa: "
-
-#~ msgid "- Creative Mode: "
-#~ msgstr "- Modul creativ: "
-
-#~ msgid "- Damage: "
-#~ msgstr "- Daune: "
-
-#~ msgid "- Port: "
-#~ msgstr "- Port: "
-
-#~ msgid ""
-#~ "0 = parallax occlusion with slope information (faster).\n"
-#~ "1 = relief mapping (slower, more accurate)."
-#~ msgstr ""
-#~ "0 = ocluzia de paralax cu informații despre panta (mai rapid).\n"
-#~ "1 = mapare în relief (mai lentă, mai exactă)."
-
-#~ msgid "2x"
-#~ msgstr "2x"
-
-#~ msgid "3D Clouds"
-#~ msgstr "Nori 3D"
-
-#~ msgid "4x"
-#~ msgstr "4x"
-
-#~ msgid "8x"
-#~ msgstr "8x"
-
-#~ msgid "< Back to Settings page"
-#~ msgstr "< Înapoi la pagina de setări"
-
-#~ msgid "Address / Port"
-#~ msgstr "Adresă / Port"
-
-#~ msgid ""
-#~ "Address to connect to.\n"
-#~ "Leave this blank to start a local server.\n"
-#~ "Note that the address field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "Adresa la care să vă conectați.\n"
-#~ "Lăsați necompletat pentru a porni un server local.\n"
-#~ "Rețineți că, câmpul de adresă din meniul principal suprascrie această "
-#~ "setare."
-
-#~ msgid "Adds particles when digging a node."
-#~ msgstr "Adăuga particule atunci când săpați un nod."
-
-#~ msgid ""
-#~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
-#~ "4k screens."
-#~ msgstr ""
-#~ "Ajustați configurația dpi pe ecran (numai pentru x11/Android), de exemplu "
-#~ "pentru ecrane 4k."
-
-#~ msgid "All Settings"
-#~ msgstr "Toate setările"
-
-#~ msgid "All packages"
-#~ msgstr "Toate pachetele"
-
-#~ msgid "Are you sure to reset your singleplayer world?"
-#~ msgstr "Eşti sigur că vrei să resetezi lumea proprie ?"
-
-#~ msgid "Autosave Screen Size"
-#~ msgstr "Salvează automat dimensiunea ecranului"
-
-#~ msgid "Back to Main Menu"
-#~ msgstr "Meniul principal"
-
-#~ msgid "Backward key"
-#~ msgstr "Tastă înapoi"
-
-#~ msgid "Basic"
-#~ msgstr "De bază"
-
-#~ msgid "Bilinear Filter"
-#~ msgstr "Filtrare Biliniară"
-
-#~ msgid "Biome API noise parameters"
-#~ msgstr "Parametrii de zgomot de pentru API-ul de biomuri"
-
-#~ msgid "Bits per pixel (aka color depth) in fullscreen mode."
-#~ msgstr "Biți per pixel (aka adâncime de culoare) în modul ecran complet."
-
-#~ msgid "Block bounds shown for all blocks"
-#~ msgstr "Limite blocuri afișate pentru toate blocurile"
-
-#~ msgid "Bloom"
-#~ msgstr "Strălucire"
-
-#~ msgid "Bloom Intensity"
-#~ msgstr "Intensitate Bloom"
-
-#~ msgid "Bloom Radius"
-#~ msgstr "Raza strălucirii (bloom)"
-
-#~ msgid "Bloom Strength Factor"
-#~ msgstr "Factor de putere Bloom"
-
-#~ msgid "Bump Mapping"
-#~ msgstr "Cartografiere cu denivelări"
-
-#~ msgid "Bumpmapping"
-#~ msgstr "Hartă pentru Denivelări"
-
-#~ msgid ""
-#~ "Camera 'near clipping plane' distance in nodes, between 0 and 0.25\n"
-#~ "Only works on GLES platforms. Most users will not need to change this.\n"
-#~ "Increasing can reduce artifacting on weaker GPUs.\n"
-#~ "0.1 = Default, 0.25 = Good value for weaker tablets."
-#~ msgstr ""
-#~ "Distanța, în noduri, a camerei „aproape de planul tăiat”, între 0 și "
-#~ "0.25\n"
-#~ "Funcționează doar pe platforme GLES. Majoritatea utilizatorilor nu vor "
-#~ "trebui să schimbe acest lucru.\n"
-#~ "Creșterea poate reduce artefactele pe GPU-uri mai slabe.\n"
-#~ "0.1 = Implicit, 0.25 = Valoare bună pentru tabletele mai slabe."
-
-#~ msgid "Camera update toggle key"
-#~ msgstr "Tasta de comutare a actualizării camerei"
-
-#~ msgid "Change Keys"
-#~ msgstr "Modifică tastele"
-
 #, fuzzy
-#~ msgid "Change keys"
-#~ msgstr "Modifică tastele"
-
-#~ msgid ""
-#~ "Changes the main menu UI:\n"
-#~ "-   Full:  Multiple singleplayer worlds, game choice, texture pack "
-#~ "chooser, etc.\n"
-#~ "-   Simple: One singleplayer world, no game or texture pack choosers. May "
-#~ "be\n"
-#~ "necessary for smaller screens."
-#~ msgstr ""
-#~ "Modifică interfața meniului principal:\n"
-#~ "-   Complet:  Lumi multiple singleplayer, selector de joc, selector de "
-#~ "texturi etc.\n"
-#~ "-   Simplu:  Doar o lume singleplayer, fără selectoare de joc sau "
-#~ "texturi.\n"
-#~ "Poate fi necesar pentru ecrane mai mici."
-
-#~ msgid "Chat key"
-#~ msgstr "Tasta de chat"
-
-#~ msgid "Chat toggle key"
-#~ msgstr "Cheia de comutare a chatului"
-
-#~ msgid "Cinematic mode"
-#~ msgstr "Modul cinematografic"
-
-#~ msgid "Cinematic mode key"
-#~ msgstr "Tasta modului cinematografic"
-
-#~ msgid "Clean transparent textures"
-#~ msgstr "Texturi transparente curate"
-
-#, fuzzy
-#~ msgid "Clouds are a client-side effect."
-#~ msgstr "Norii sunt un efect pe client."
-
-#~ msgid "Command key"
-#~ msgstr "Tasta de comandă"
-
-#~ msgid "Config mods"
-#~ msgstr "Configurează moduri"
-
-#~ msgid "Configure"
-#~ msgstr "Configurează"
-
-#~ msgid "Connect"
-#~ msgstr "Conectează"
-
-#~ msgid "Connected Glass"
-#~ msgstr "Sticlă conectată"
-
-#~ msgid "Console"
-#~ msgstr "Consloă"
-
-#~ msgid "Continuous forward"
-#~ msgstr "În continuare înainte"
-
-#, fuzzy, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "Controale:\n"
-#~ "- %s: deplasare înainte\n"
-#~ "- %s: deplasare înapoi\n"
-#~ "- %s: deplasare stânga\n"
-#~ "- %s: deplasare dreapta\n"
-#~ "- %s: salt/urcare\n"
-#~ "- %s: săpare/lovire\n"
-#~ "- %s: plasare/utilizare\n"
-#~ "- %s: furișare/coborâre\n"
-#~ "- %s: aruncare obiect\n"
-#~ "- %s: inventar\n"
-#~ "- Maus: rotire/privire\n"
-#~ "- Roata mausului: selectare obiect\n"
-#~ "- %s: chat\n"
-
-#~ msgid "Creative"
-#~ msgstr "Creativ"
-
-#~ msgid "Credits"
-#~ msgstr "Credite"
-
-#~ msgid "DPI"
-#~ msgstr "DPI"
-
-#~ msgid "Damage"
-#~ msgstr "Daune"
-
-#~ msgid "Damage enabled"
-#~ msgstr "Daune activate"
-
-#, fuzzy
-#~ msgid "Darkness sharpness"
-#~ msgstr "Mapgen"
-
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "Informațiile de depanare și graficul profilului sunt ascunse"
-
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr "Informații de depanare, grafic de profil și ascuns"
-
-#~ msgid "Default game"
-#~ msgstr "Jocul implicit"
-
-#~ msgid ""
-#~ "Defines the magnitude of bloom overexposure.\n"
-#~ "Range: from 0.1 to 10.0, default: 1.0"
-#~ msgstr ""
-#~ "Definește magnitudinea supraexpunerii la strălucire.\n"
-#~ "Interval: de la 0.1 la 10.0, implicit: 1.0"
-
-#~ msgid "Dig key"
-#~ msgstr "Tasta pentru săpat"
-
-#~ msgid "Digging particles"
-#~ msgstr "Particule pentru săpare"
-
-#~ msgid "Disable anticheat"
-#~ msgstr "Dezactivează anticheatul"
-
-#~ msgid "Double tap \"jump\" to toggle fly"
-#~ msgstr "Apasă de 2 ori \"sari\" pentru a zbura"
-
-#~ msgid "Down"
-#~ msgstr "Jos"
-
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr "Descărcați un joc, precum Minetest Game, de pe minetest.net"
-
-#~ msgid "Download one from minetest.net"
-#~ msgstr "Descărcați unul de pe minetest.net"
-
-#~ msgid "Downloading and installing $1, please wait..."
-#~ msgstr "Se descarca si se instaleaza $ 1, vă rugăm să așteptați ..."
-
-#~ msgid "Dynamic shadows:"
-#~ msgstr "Umbre dinamice:"
-
-#~ msgid "Enable"
-#~ msgstr "Activează"
-
-#, fuzzy
-#~ msgid "Enable VBO"
-#~ msgstr "Activează MP"
-
-#, fuzzy
-#~ msgid "Enable touchscreen"
-#~ msgstr "Ecran tactil"
-
-#, fuzzy
-#~ msgid "Enables filmic tone mapping"
-#~ msgstr "Activează Daune"
-
-#~ msgid "Enables minimap."
-#~ msgstr "Activează minimap."
-
-#~ msgid "Enter "
-#~ msgstr "Introduceţi "
-
-#~ msgid "Fancy Leaves"
-#~ msgstr "Frunze detaliate"
-
-#~ msgid "Filtering"
-#~ msgstr "Filtrarea"
-
-#~ msgid "Forward"
-#~ msgstr "Înainte"
-
-#~ msgid "Forward key"
-#~ msgstr "Tasta înainte"
-
-#~ msgid "Generate Normal Maps"
-#~ msgstr "Generați Hărți Normale"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "Setări temporare"
-
-#~ msgid "In-Game"
-#~ msgstr "În joc"
-
-#~ msgid "Inc. volume key"
-#~ msgstr "Inc. tastă de volum"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr "Instalare mod: nu se poate găsi numele real pentru: $1"
-
-#~ msgid "Install: file: \"$1\""
-#~ msgstr "Instalare: fișier: \"$1\""
-
-#~ msgid "Invalid gamespec."
-#~ msgstr "Jocul este nevalid."
-
-#~ msgid "Inventory key"
-#~ msgstr "Tasta pentru inventar"
-
-#~ msgid "Irrlicht device:"
-#~ msgstr "Dispozitiv Irrlicht:"
-
-#~ msgid "Jump key"
-#~ msgstr "Tasta de salt"
-
-#~ msgid "Key already in use"
-#~ msgstr "Tastă deja folosită"
-
-#~ msgid ""
-#~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
-#~ msgstr ""
-#~ "Keybindings. (Dacă acest meniu apare, șterge lucrurile din minetest.conf)"
-
-#~ msgid "Left"
-#~ msgstr "Stânga"
-
-#~ msgid "Left key"
-#~ msgstr "Tasta stângă"
-
-#~ msgid "Main"
-#~ msgstr "Principal"
-
-#~ msgid "Main menu style"
-#~ msgstr "Stilul meniului principal"
-
-#~ msgid "Menus"
-#~ msgstr "Meniuri"
-
-#~ msgid "Minimap in radar mode, Zoom x2"
-#~ msgstr "Hartă mip în modul radar, Zoom x2"
-
-#~ msgid "Minimap in radar mode, Zoom x4"
-#~ msgstr "Hartă mip în modul radar, Zoom x4"
-
-#~ msgid "Minimap in surface mode, Zoom x2"
-#~ msgstr "Hartă mip în modul de suprafață, Zoom x2"
-
-#~ msgid "Minimap in surface mode, Zoom x4"
-#~ msgstr "Hartă mip în modul de suprafață, Zoom x4"
-
-#~ msgid "Mipmap"
-#~ msgstr "Hartă mip"
-
-#~ msgid "Mipmap + Aniso. Filter"
-#~ msgstr "Hartă mip + filtru aniso."
-
-#~ msgid "Mute key"
-#~ msgstr "Tasta pentru mut"
-
-#~ msgid "Name / Password"
-#~ msgstr "Nume / Parolă"
-
-#~ msgid "Name/Password"
-#~ msgstr "Nume/Parolă"
-
-#~ msgid "Next item"
-#~ msgstr "Următorul element"
-
-#~ msgid "No"
-#~ msgstr "Nu"
-
-#~ msgid "No Filter"
-#~ msgstr "Fără Filtru"
-
-#~ msgid "No Mipmap"
-#~ msgstr "Fără hartă mip"
-
-#~ msgid "Node Highlighting"
-#~ msgstr "Evidenţiere Nod"
-
-#~ msgid "Node Outlining"
-#~ msgstr "Conturează Nod"
-
-#~ msgid "None"
-#~ msgstr "Niciunul"
-
-#~ msgid "Ok"
-#~ msgstr "Ok"
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "Frunze opace"
-
-#~ msgid "Opaque Water"
-#~ msgstr "Apă opacă"
-
-#~ msgid "Parallax Occlusion"
-#~ msgstr "Ocluzie Parallax"
-
-#~ msgid "Particles"
-#~ msgstr "Particule"
-
-#~ msgid "Pitch move key"
-#~ msgstr "Tasta de mutare a pitch"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "Vă rugăm să introduceți un număr întreg valid."
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "Vă rugăm să introduceți un număr valid."
-
-#~ msgid "PvP enabled"
-#~ msgstr "PvP activat"
-
-#~ msgid "Range select key"
-#~ msgstr "Tasta de selectare a intervalului"
-
-#~ msgid "Reset singleplayer world"
-#~ msgstr "Resetează lume proprie"
-
-#~ msgid "Right"
-#~ msgstr "Dreapta"
-
-#~ msgid "Right key"
-#~ msgstr "Tasta dreapta"
-
-#~ msgid "Screen:"
-#~ msgstr "Ecran:"
-
-#, fuzzy
-#~ msgid "Select Package File:"
-#~ msgstr "Selectează Fișierul Modului:"
-
-#~ msgid "Server / Singleplayer"
-#~ msgstr "Server / Jucător singur"
-
-#~ msgid "Shaders"
-#~ msgstr "Shadere"
-
-#~ msgid "Shaders (experimental)"
-#~ msgstr "Shadere (experimental)"
-
-#~ msgid "Shaders (unavailable)"
-#~ msgstr "Shaders (indisponibil)"
-
-#~ msgid "Shaders are disabled."
-#~ msgstr "Shaderele sunt dezactivate."
-
-#~ msgid "Simple Leaves"
-#~ msgstr "Frunze simple"
-
-#~ msgid "Smooth Lighting"
-#~ msgstr "Lumină fină"
-
-#~ msgid "Sound system is disabled"
-#~ msgstr "Sistem audio dezactivat"
-
-#~ msgid "Special"
-#~ msgstr "Special"
-
-#~ msgid "Special key"
-#~ msgstr "Cheie specială"
-
-#~ msgid "Start Singleplayer"
-#~ msgstr "Începeți Jucător singur"
-
-#~ msgid "Texture path"
-#~ msgstr "Calea texturii"
-
-#~ msgid "Texturing:"
-#~ msgstr "Texturare:"
-
-#~ msgid "The value must be at least $1."
-#~ msgstr "Valoarea trebuie să fie de cel puțin $ 1."
-
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "Valoarea nu trebuie să fie mai mare de $1."
-
-#~ msgid "This is not a recommended configuration."
-#~ msgstr "Aceasta nu este o opțiune recomandată."
-
-#~ msgid "To enable shaders the OpenGL driver needs to be used."
-#~ msgstr "Pentru a permite shadere OpenGL trebuie să fie folosite."
-
-#~ msgid "Tone Mapping"
-#~ msgstr "Mapare ton"
-
-#~ msgid "Touch threshold (px):"
-#~ msgstr "Pragul atingerii (px):"
-
-#~ msgid "Trilinear Filter"
-#~ msgstr "Filtrare Triliniară"
-
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "Imposibil de instalat un joc ca $1"
-
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "Imposibil de instalat un pachet de moduri ca $ 1"
-
-#~ msgid "Uninstall Package"
-#~ msgstr "Dezinstalați pachetul"
-
-#~ msgid "Up"
-#~ msgstr "Sus"
-
-#~ msgid "View"
-#~ msgstr "Vizualizare"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "Vezi detalii într-un navigator web"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "Intervalul de vizualizare este maxim: %d"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "Frunze legănătoare"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "Fluturarea lichidelor"
-
-#~ msgid "Waving Plants"
-#~ msgstr "Plante legănătoare"
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#~ msgid "Yes"
-#~ msgstr "Da"
-
-#, c-format
-#~ msgid ""
-#~ "You are about to join this server with the name \"%s\" for the first "
-#~ "time.\n"
-#~ "If you proceed, a new account using your credentials will be created on "
-#~ "this server.\n"
-#~ "Please retype your password and click 'Register and Join' to confirm "
-#~ "account creation, or click 'Cancel' to abort."
-#~ msgstr ""
-#~ "Sunteți pe cale să vă asociați pentru prima dată la acest server cu "
-#~ "numele \"%s\".\n"
-#~ "Dacă continuați, se va crea un cont nou utilizând acreditările pe acest "
-#~ "server.\n"
-#~ "Reintroduceți parola și faceți clic pe \"Înregistrare și asociere\" "
-#~ "pentru a confirma crearea contului sau faceți clic pe \"Revocare\" pentru "
-#~ "a abandona."
-
-#~ msgid "You died."
-#~ msgstr "Ai murit."
-
-#~ msgid "You have no games installed."
-#~ msgstr "Nu aveți jocuri instalate."
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "needs_fallback_font"
-#~ msgstr "no"
-
-#~ msgid "ok"
-#~ msgstr "O.K"
-
-#~ msgid "press key"
-#~ msgstr "apasă o tastă"
+#~ msgid "Key for toggling cinematic mode."
+#~ msgstr "Cameră fluidă în modul cinematic"

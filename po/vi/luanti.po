@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Vietnamese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"POT-Creation-Date: 2025-07-11 19:59+0200\n"
 "PO-Revision-Date: 2025-05-30 05:02+0000\n"
 "Last-Translator: Quốc Kiệt Nguyễn Hữu <huuquockietn@tutamail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/minetest/"
@@ -70,8 +70,8 @@ msgstr "Trợ giúp về lệnh (-t: hiển thị trong trò chuyện)"
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
 msgstr ""
-"Dùng '.help <câu lệnh>' để có thêm thông tin về một câu lệnh hoặc dùng "
-"'.help all' để xem danh sách về những câu lệnh có sẵn."
+"Dùng '.help <câu lệnh>' để có thêm thông tin về một câu lệnh hoặc dùng '."
+"help all' để xem danh sách về những câu lệnh có sẵn."
 
 #: builtin/common/chatcommands.lua
 #, fuzzy
@@ -518,6 +518,7 @@ msgid "Error getting dependencies for package $1"
 msgstr "Lỗi khi tải phần phụ thuộc của gói $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "Cài đặt"
 
@@ -611,6 +612,10 @@ msgstr "Cập nhật"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
 msgstr "Trang chủ"
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "by $1"
+msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1353,6 +1358,11 @@ msgid "Done!"
 msgstr "Đã xong!"
 
 #: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Tạo các khối"
 
@@ -1367,6 +1377,11 @@ msgstr "Đang tải kết cấu..."
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
 msgstr "Đang xây dựng lại trình đổ bóng..."
+
+#: src/client/client.cpp
+#, fuzzy, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "Ảnh chụp màn hình"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -2269,7 +2284,7 @@ msgstr ""
 msgid "Place/use"
 msgstr ""
 
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "Lựa chọn phạm vi"
 
@@ -2568,7 +2583,7 @@ msgstr ""
 "Điều chỉnh mật độ điểm ảnh đã phát hiện, sử dụng để thu phóng các yếu tố UI."
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2598,6 +2613,12 @@ msgstr "Cho phép mây nhìn 3D thay vì phẳng lừ."
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
 msgstr "Cho phép chất lỏng trở nên trong suốt."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2671,10 +2692,6 @@ msgid ""
 "to 8 bits.\n"
 "With OpenGL ES, dithering only works if the shader supports high\n"
 "floating-point precision and it may have a higher performance impact."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3290,7 +3307,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4248,6 +4265,7 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4300,6 +4318,7 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 
@@ -4469,14 +4488,6 @@ msgid "Jumping speed"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for decreasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for decreasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
 msgstr ""
 
@@ -4487,49 +4498,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for dropping the currently selected item."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for jumping."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for moving the player backward.\n"
-"Will also disable autoforward, when active."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player forward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player left."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player right."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for muting the game."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4541,164 +4514,9 @@ msgid "Key for opening the chat window to type local commands."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for opening the chat window."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for opening the inventory."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 11th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 12th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 13th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 14th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 15th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 16th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 17th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 18th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 19th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 20th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 21st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 22nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 23rd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 24th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 25th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 26th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 27th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 28th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 29th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 30th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 31st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 32nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the eighth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fifth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the first hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fourth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the next item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the ninth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the previous item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the second hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the seventh hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the sixth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the tenth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the third hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for sneaking.\n"
-"Also used for climbing down and descending in water if aux1_descends is "
-"disabled."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for switching between first- and third-person camera."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4710,55 +4528,7 @@ msgid "Key for switching to the previous entry in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for taking screenshots."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling autoforward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling cinematic mode."
-msgstr "Phím bật chế độ điện ảnh."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling display of minimap."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling flying."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fullscreen mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling noclip mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling pitch move mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of chat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of debug info."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of fog."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4766,23 +4536,7 @@ msgid "Key for toggling the display of mapblock boundaries."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the HUD."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the large chat console."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling unlimited view range."
-msgstr "Phím bật tầm nhìn vô hạn."
-
-#: src/settings_translation_file.cpp
-msgid "Key to use view zoom when possible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4824,10 +4578,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Large chat console"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5367,6 +5117,12 @@ msgid "Mod channels"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
 msgstr ""
 
@@ -5486,10 +5242,6 @@ msgid "Node highlighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr ""
 
@@ -5530,7 +5282,7 @@ msgstr "Số lượng tin nhắn của một người chơi có thể gửi tron
 #: src/settings_translation_file.cpp
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 
@@ -5777,6 +5529,11 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "Thoát ra màn hình chính"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6667,6 +6424,11 @@ msgid "Toggle fullscreen"
 msgstr "Chuyển đổi bay"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle large chat console"
+msgstr "Chuyển đổi nhật kí trò chuyện"
+
+#: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr ""
 
@@ -6674,6 +6436,11 @@ msgstr ""
 #, fuzzy
 msgid "Toggle profiler"
 msgstr "Chuyển đổi bay"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "Phím bật tầm nhìn vô hạn."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7100,6 +6867,10 @@ msgid "Width of the selection box lines around nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Will also disable autoforward, when active."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr "Cửa sổ phóng đại"
 
@@ -7196,387 +6967,5 @@ msgstr "Hết thời gian tương tác với cURL"
 msgid "cURL parallel limit"
 msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 
-#~ msgid "\"Aux1\" = climb down"
-#~ msgstr "\"Aux1\" = leo xuống"
-
-#~ msgid "- Address: "
-#~ msgstr "- Địa chỉ: "
-
-#~ msgid "- Creative Mode: "
-#~ msgstr "- Chế độ sáng tạo: "
-
-#~ msgid "- Damage: "
-#~ msgstr "- Tổn hại: "
-
-#~ msgid "- Port: "
-#~ msgstr "- Cổng: "
-
-#~ msgid "2x"
-#~ msgstr "2x"
-
-#~ msgid "3D Clouds"
-#~ msgstr "Mây dạng 3D"
-
-#~ msgid "3d"
-#~ msgstr "3D"
-
-#~ msgid "4x"
-#~ msgstr "4x"
-
-#~ msgid "8x"
-#~ msgstr "8x"
-
-#~ msgid "< Back to Settings page"
-#~ msgstr "< Về trang Cài đặt"
-
-#~ msgid ""
-#~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
-#~ "4k screens."
-#~ msgstr ""
-#~ "Điều chỉnh cấu hình DPI cho màn hình của bạn (chỉ cho Android/không phải "
-#~ "X11), VD: cho màn hình 4K."
-
-#~ msgid "All Settings"
-#~ msgstr "Tất cả cài đặt"
-
-#~ msgid "All packages"
-#~ msgstr "Tất cả các gói"
-
-#~ msgid "Autosave Screen Size"
-#~ msgstr "Tự động lưu kích cỡ màn hình"
-
-#~ msgid "Back to Main Menu"
-#~ msgstr "Trở về màn hình chính"
-
-#~ msgid "Backward key"
-#~ msgstr "Phím lùi"
-
-#~ msgid "Bilinear Filter"
-#~ msgstr "Bộ lọc song tuyến"
-
-#~ msgid "Block bounds shown for all blocks"
-#~ msgstr "Đã hiển thị ranh giới cho tất cả các khối"
-
-#, fuzzy
-#~ msgid "Bloom Radius"
-#~ msgstr "Bán kính mây"
-
-#~ msgid "Camera update toggle key"
-#~ msgstr "Nút chuyển đổi cập nhật máy ảnh"
-
-#~ msgid "Change Keys"
-#~ msgstr "Thay đổi khóa"
-
-#, fuzzy
-#~ msgid "Change keys"
-#~ msgstr "Thay đổi khóa"
-
-#~ msgid "Chat key"
-#~ msgstr "Phím trò chuyện"
-
-#~ msgid "Chat toggle key"
-#~ msgstr "Phím chuyển đổi trò chuyện"
-
-#~ msgid "Cinematic mode key"
-#~ msgstr "Phím chế độ điện ảnh"
-
-#~ msgid "Clean transparent textures"
-#~ msgstr "Xóa các kết cấu trong suốt"
-
-#, fuzzy
-#~ msgid "Clouds are a client-side effect."
-#~ msgstr "Mây là một hiệu ứng ở máy khách."
-
-#~ msgid "Command key"
-#~ msgstr "Phím lệnh"
-
-#~ msgid "Connect"
-#~ msgstr "Kết nối"
-
-#~ msgid "Connected Glass"
-#~ msgstr "Kính kết nối với nhau"
-
-#, fuzzy, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "Điền khiển:\n"
-#~ "- %s: tiến lên\n"
-#~ "- %s: lùi xuống\n"
-#~ "- %s: sang trái\n"
-#~ "- %s: sang phải\n"
-#~ "- %s: nhảy / leo lên\n"
-#~ "- %s: đào / đấm\n"
-#~ "- %s: đặt khối / sử dụng\n"
-#~ "- %s: đi rón rén / leo xuống\n"
-#~ "- %s: thả vật phẩm\n"
-#~ "- %s: túi đồ\n"
-#~ "- Di chuột: xoay / nhìn\n"
-#~ "- Lăn chuột: chọn vật phẩm\n"
-#~ "- %s: trò chuyện\n"
-
-#~ msgid "Creative"
-#~ msgstr "Sáng tạo"
-
-#~ msgid "DPI"
-#~ msgstr "DPI"
-
-#~ msgid "Damage"
-#~ msgstr "Sát thương"
-
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "Thông tin gỡ lỗi và biểu đồ hồ sơ đã ẩn"
-
-#~ msgid "Debug info toggle key"
-#~ msgstr "Phím chuyển đổi thông tin gỡ lỗi"
-
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr "Thông tin gỡ lỗi, biểu đồ hồ sơ và khung dây đã ẩn"
-
-#~ msgid "Dec. volume key"
-#~ msgstr "Phím giảm âm lượng"
-
-#~ msgid "Default game"
-#~ msgstr "Trò chơi mặc định"
-
-#~ msgid ""
-#~ "Default game when creating a new world.\n"
-#~ "This will be overridden when creating a world from the main menu."
-#~ msgstr ""
-#~ "Trò chơi mặc định khi tạo thế giới mới.\n"
-#~ "Nó sẽ bị ghi đè khi tạo một thế giới từ màn hình chính."
-
-#~ msgid "Desynchronize block animation"
-#~ msgstr "Không đồng bộ hoạt ảnh khối"
-
-#~ msgid "Dig key"
-#~ msgstr "Phím đào"
-
-#~ msgid "Digging particles"
-#~ msgstr "Hạt hiệu ứng khi đào"
-
-#~ msgid "Disable anticheat"
-#~ msgstr "Vô hiệu trình chống gian lận"
-
-#~ msgid "Double tap \"jump\" to toggle fly"
-#~ msgstr "Nhấn đúp nút \"nhảy\" để chuyển đổi chế độ bay"
-
-#~ msgid "Down"
-#~ msgstr "Xuống"
-
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr ""
-#~ "Tải xuống một trò chơi, chẳng hạn như trò chơi Minetest, từ minetest.net"
-
-#~ msgid "Download one from minetest.net"
-#~ msgstr "Tải xuống một trò chơi từ minetest.net"
-
-#~ msgid "Dynamic shadows:"
-#~ msgstr "Bóng kiểu động lực học:"
-
-#, fuzzy
-#~ msgid "Enable"
-#~ msgstr "Đã kích hoạt"
-
-#~ msgid "Enable creative mode for all players"
-#~ msgstr "Kích hoạt chế độ sáng tạo cho tất cả người chơi"
-
-#~ msgid "Enable players getting damage and dying."
-#~ msgstr "Cho phép người chơi nhận sát thương và chết."
-
-#~ msgid "Enables minimap."
-#~ msgstr "Kích hoạt minimap."
-
-#~ msgid ""
-#~ "Enables the sound system.\n"
-#~ "If disabled, this completely disables all sounds everywhere and the in-"
-#~ "game\n"
-#~ "sound controls will be non-functional.\n"
-#~ "Changing this setting requires a restart."
-#~ msgstr ""
-#~ "Kích hoạt hệ thống âm thanh.\n"
-#~ "Nếu vô hiệu hóa, điều này sẽ tắt hoàn toàn tất cả âm thanh trong trò "
-#~ "chơi\n"
-#~ "điều khiển âm thanh sẽ không có tác dụng.\n"
-#~ "Thay đổi cài đặt này sẽ cần khởi động lại."
-
-#~ msgid "FSAA"
-#~ msgstr "FSAA"
-
-#~ msgid "Fancy Leaves"
-#~ msgstr "Lá đẹp"
-
-#~ msgid "Flying"
-#~ msgstr "Bay"
-
-#~ msgid "Forward"
-#~ msgstr "Tiến lên"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "Cài đặt"
-
-#~ msgid "Inc. volume key"
-#~ msgstr "Phím tăng âm lượng"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr "Cài đặt mod: Không thể tìm thấy tên mod thật cho: $1"
-
-#, fuzzy
-#~ msgid "Invalid gamespec."
-#~ msgstr "Gamespec không hợp lệ."
-
-#~ msgid "Key already in use"
-#~ msgstr "Phím đã được sử dụng"
-
-#~ msgid "Left"
-#~ msgstr "Sang trái"
-
-#~ msgid "Mipmap"
-#~ msgstr "Mipmap"
-
-#~ msgid "Mipmap + Aniso. Filter"
-#~ msgstr "Mipmap + Bộ lọc bất đẳng hướng"
-
-#~ msgid "Next item"
-#~ msgstr "Vật phẩm tiếp theo"
-
-#~ msgid "No Filter"
-#~ msgstr "Không dùng bộ lọc"
-
-#~ msgid "No Mipmap"
-#~ msgstr "Không dùng Mipmap"
-
-#, fuzzy
-#~ msgid "Node Outlining"
-#~ msgstr "Phác thảo node"
-
-#~ msgid "None"
-#~ msgstr "Không có"
-
-#~ msgid "Ok"
-#~ msgstr "Được"
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "Lá đục"
-
-#~ msgid "Opaque Water"
-#~ msgstr "Nước đục"
-
-#~ msgid "Particles"
-#~ msgstr "Hạt hiệu ứng"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "Vui lòng nhập một số nguyên hợp lệ."
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "Vui lòng nhập một số hợp lệ."
-
-#~ msgid "Prev. item"
-#~ msgstr "Vật phẩm trước"
-
-#~ msgid "Right"
-#~ msgstr "Sang phải"
-
-#~ msgid "Screen:"
-#~ msgstr "Màn hình:"
-
-#~ msgid "Shaders"
-#~ msgstr "Trình đổ bóng"
-
-#~ msgid "Shaders (experimental)"
-#~ msgstr "Trình đổ bóng (thử nghiệm)"
-
-#~ msgid "Shaders (unavailable)"
-#~ msgstr "Trình đổ bóng (không tồn tại)"
-
-#, fuzzy
-#~ msgid "Shaders are disabled."
-#~ msgstr "Cập nhật máy ảnh đã tắt"
-
-#~ msgid "Simple Leaves"
-#~ msgstr "Lá đơn giản"
-
-#~ msgid "Sound system is disabled"
-#~ msgstr "Hệ thống âm thanh đã bị vô hiệu"
-
-#~ msgid "Texturing:"
-#~ msgstr "Kết cấu:"
-
-#~ msgid "The value must be at least $1."
-#~ msgstr "Giá trị ít nhất phải là $1."
-
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "Giá trị không được lớn hơn $1."
-
-#~ msgid "Tone Mapping"
-#~ msgstr "Tông màu"
-
-#~ msgid "Trilinear Filter"
-#~ msgstr "Bộ lọc tam song"
-
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "Không thể cài đặt trò chơi dưới dạng $1"
-
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "Không thể cài đặt modpack dưới dạng $1"
-
-#~ msgid "Uninstall Package"
-#~ msgstr "Gỡ cài đặt gói"
-
-#~ msgid "Up"
-#~ msgstr "Lên"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "Xem thêm thông tin trên trình duyệt web của bạn"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "Phạm vi nhìn đang ở mức tối đa: %d"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "Lá đung đưa"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "Sóng"
-
-#~ msgid "Waving Plants"
-#~ msgstr "Thực vật đung đưa"
-
-#~ msgid "Whether to allow players to damage and kill each other."
-#~ msgstr "Có cho phép người chơi sát thương và giết lẫn nhau hay không."
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#, fuzzy
-#~ msgid "You died."
-#~ msgstr "Bạn đã chết"
-
-#~ msgid "You have no games installed."
-#~ msgstr "Bạn chưa cài đặt trò chơi nào."
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "ok"
-#~ msgstr "OK"
-
-#~ msgid "press key"
-#~ msgstr "bấm phím"
+#~ msgid "Key for toggling cinematic mode."
+#~ msgstr "Phím bật chế độ điện ảnh."

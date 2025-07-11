@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"POT-Creation-Date: 2025-07-11 19:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -523,6 +523,7 @@ msgid "Install missing dependencies"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr ""
 
@@ -543,11 +544,39 @@ msgid "Overwrite"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Donate"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Website"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Source"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Issue Tracker"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Translate"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Forum Topic"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "by $1"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
@@ -576,30 +605,6 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr ""
-
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Donate"
-msgstr ""
-
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Website"
-msgstr ""
-
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Source"
-msgstr ""
-
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Issue Tracker"
-msgstr ""
-
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Translate"
-msgstr ""
-
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Forum Topic"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
@@ -1332,6 +1337,16 @@ msgstr ""
 
 #: src/client/client.cpp
 msgid "Done!"
+msgstr ""
+
+#: src/client/client.cpp
+#, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
 msgstr ""
 
 #: src/client/clientlauncher.cpp
@@ -2230,7 +2245,7 @@ msgstr ""
 msgid "Change camera"
 msgstr ""
 
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr ""
 
@@ -2490,17 +2505,11 @@ msgid "Move forward"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for moving the player forward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Move backward"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Key for moving the player backward.\n"
-"Will also disable autoforward, when active."
+msgid "Will also disable autoforward, when active."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2508,24 +2517,11 @@ msgid "Move left"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for moving the player left."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Move right"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for moving the player right."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for jumping."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
-"Key for sneaking.\n"
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
@@ -2547,19 +2543,11 @@ msgid "Open inventory"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for opening the inventory."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Open chat"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for opening the chat window."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2579,11 +2567,7 @@ msgid "Key for opening the chat window to type local commands."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling unlimited view range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling flying."
+msgid "Toggle unlimited view range"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2591,23 +2575,7 @@ msgid "Toggle pitchmove"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling pitch move mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling noclip mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar: select next item"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the next item in the hotbar."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2615,15 +2583,7 @@ msgid "Hotbar: select previous item"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the previous item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Mute"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for muting the game."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2631,15 +2591,7 @@ msgid "Increase volume"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for increasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Decrease volume"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for decreasing the volume."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2647,19 +2599,7 @@ msgid "Toggle automatic forward"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling autoforward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Toggle cinematic mode"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling cinematic mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling display of minimap."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2667,15 +2607,7 @@ msgid "Screenshot"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for taking screenshots."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Toggle fullscreen"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fullscreen mode."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2683,31 +2615,11 @@ msgid "Drop item"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for dropping the currently selected item."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key to use view zoom when possible."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Toggle HUD"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the HUD."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of chat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Large chat console"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the large chat console."
+msgid "Toggle large chat console"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2715,15 +2627,7 @@ msgid "Toggle fog"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of fog."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Toggle debug info"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of debug info."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2747,15 +2651,7 @@ msgid "Toggle camera mode"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for switching between first- and third-person camera."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Increase view range"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the viewing range."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2763,7 +2659,13 @@ msgid "Decrease view range"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for decreasing the viewing range."
+msgid "Return to Main Menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2771,15 +2673,7 @@ msgid "Hotbar slot 1"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the first hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 2"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the second hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2787,15 +2681,7 @@ msgid "Hotbar slot 3"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the third hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 4"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fourth hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2803,15 +2689,7 @@ msgid "Hotbar slot 5"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the fifth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 6"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the sixth hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2819,15 +2697,7 @@ msgid "Hotbar slot 7"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the seventh hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 8"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the eighth hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2835,15 +2705,7 @@ msgid "Hotbar slot 9"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the ninth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 10"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the tenth hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2851,15 +2713,7 @@ msgid "Hotbar slot 11"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 11th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 12"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 12th hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2867,15 +2721,7 @@ msgid "Hotbar slot 13"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 13th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 14"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 14th hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2883,15 +2729,7 @@ msgid "Hotbar slot 15"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 15th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 16"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 16th hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2899,15 +2737,7 @@ msgid "Hotbar slot 17"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 17th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 18"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 18th hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2915,15 +2745,7 @@ msgid "Hotbar slot 19"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 19th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 20"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 20th hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2931,15 +2753,7 @@ msgid "Hotbar slot 21"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 21st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 22"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 22nd hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2947,15 +2761,7 @@ msgid "Hotbar slot 23"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 23rd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 24"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 24th hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2963,15 +2769,7 @@ msgid "Hotbar slot 25"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 25th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 26"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 26th hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2979,15 +2777,7 @@ msgid "Hotbar slot 27"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 27th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 28"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 28th hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2995,15 +2785,7 @@ msgid "Hotbar slot 29"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 29th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 30"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 30th hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3011,15 +2793,7 @@ msgid "Hotbar slot 31"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for selecting the 31st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Hotbar slot 32"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 32nd hotbar slot."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3874,14 +3648,6 @@ msgid "Simulate translucency when looking at foliage in the sunlight."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Liquid reflections"
 msgstr ""
 
@@ -4092,6 +3858,7 @@ msgid "Console height"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 
@@ -5154,7 +4921,7 @@ msgid "Floatland density"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -6021,7 +5788,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6031,7 +5798,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 
@@ -6693,6 +6460,7 @@ msgid "Server-side occlusion culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"

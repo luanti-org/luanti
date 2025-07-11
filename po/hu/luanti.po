@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Hungarian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"POT-Creation-Date: 2025-07-11 19:59+0200\n"
 "PO-Revision-Date: 2025-07-03 13:04+0000\n"
 "Last-Translator: Kisbenedek Márton <martonkisbenedek@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/minetest/"
@@ -514,6 +514,7 @@ msgid "Error getting dependencies for package $1"
 msgstr "Hiba történt a(z) $1 csomag függőségeinek beszerzésekor"
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "Telepítés"
 
@@ -604,6 +605,11 @@ msgstr "Frissítés"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
 msgstr "Weboldal"
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "by $1"
+msgstr "$1 az $2-ből"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1356,6 +1362,11 @@ msgid "Done!"
 msgstr "Kész!"
 
 #: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Kockák előkészítése"
 
@@ -1370,6 +1381,11 @@ msgstr "Textúrák betöltése…"
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
 msgstr "Árnyalók újraépítése…"
+
+#: src/client/client.cpp
+#, fuzzy, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "Képernyőképek"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -2273,7 +2289,7 @@ msgstr "Túlcsorduló menü"
 msgid "Place/use"
 msgstr "Lehelyezés/használat"
 
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "Látótávolság választása"
 
@@ -2606,7 +2622,7 @@ msgstr ""
 "méretezéséhez."
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2645,6 +2661,16 @@ msgstr "3D kinézetű felhők engedélyezése a lapos helyett."
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
 msgstr "A folyadékok áttetszőségét teszi lehetővé."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"Gomb a lopakodáshoz.\n"
+"A lefelé mászáshoz és vízben történő ereszkedéshez is ezt lehet használni, "
+"ha az aux1_descends le van tiltva."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2729,10 +2755,6 @@ msgstr ""
 "színcsatornák nincsenek 8 bitre alakítva.\n"
 "OpenGL ES-el a zajmoduláció csak akkor működik, ha az árnyaló támogatja\n"
 "a precíz lebegőpontos számítást, és nagyobb hatása lehet a teljesítményre."
-
-#: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
-msgstr "Tükröződő árnyékolás alkalmazása a kockákon."
 
 #: src/settings_translation_file.cpp
 msgid "Arm inertia"
@@ -3411,9 +3433,10 @@ msgid "Defines tree areas and tree density."
 msgstr "Az erdős területeket és a fák sűrűségét szabályozza."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 "A világ 3D-modelljének frissítési időköze a klienseken. Ennek a megnövelése\n"
 "ritkábbá teszi a frissítéseket, így csökkenti a lassú kliensek szaggatását."
@@ -4515,6 +4538,7 @@ msgstr ""
 "Ez a funkció figyelmen kívül marad, ha a repülés funkció engedélyezve van."
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4587,6 +4611,7 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr "Játékon belüli csevegőpanel hátterének színe (R,G,B)."
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "Játékon belüli csevegőpanel magassága 0,1 (10%) és 1,0 (100%) között."
 
@@ -4786,14 +4811,6 @@ msgid "Jumping speed"
 msgstr "Ugrás sebessége"
 
 #: src/settings_translation_file.cpp
-msgid "Key for decreasing the viewing range."
-msgstr "Billentyű a látótávolság csökkentéséhez."
-
-#: src/settings_translation_file.cpp
-msgid "Key for decreasing the volume."
-msgstr "A hangerő csökkentésének gombja."
-
-#: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
 msgstr "A kiválasztott érték csökkentésének gombja a Quicktune-ban."
 
@@ -4806,52 +4823,12 @@ msgstr ""
 "(Megjegyzés: A tényleges jelentés játékonként változhat.)"
 
 #: src/settings_translation_file.cpp
-msgid "Key for dropping the currently selected item."
-msgstr "Az aktuálisan kiválasztott tárgy eldobásának gombja."
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the viewing range."
-msgstr "Billentyű a látótávolság növeléséhez."
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the volume."
-msgstr "Billentyű a hangerő növeléséhez."
-
-#: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
 msgstr "A kiválasztott érték növelésének gombja a Quicktune-ban."
 
 #: src/settings_translation_file.cpp
-msgid "Key for jumping."
-msgstr "Billentyű az ugráshoz."
-
-#: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
 msgstr "Billentyű a gyors mozgáshoz gyors üzemmódban."
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for moving the player backward.\n"
-"Will also disable autoforward, when active."
-msgstr ""
-"A játékos visszafelé történő mozgatásának gombja.\n"
-"Ha aktív, az automatikus előremenetelt is kikapcsolja."
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player forward."
-msgstr "Billentyű a játékos előrehaladásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player left."
-msgstr "A játékos balra mozgatásának billentyűje."
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player right."
-msgstr "A játékos jobbra mozgatásának billentyűje."
-
-#: src/settings_translation_file.cpp
-msgid "Key for muting the game."
-msgstr "A játék elnémításának gombja."
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type commands."
@@ -4864,170 +4841,12 @@ msgstr ""
 "beírásához."
 
 #: src/settings_translation_file.cpp
-msgid "Key for opening the chat window."
-msgstr "A csevegőablak megnyitásához szükséges billentyű."
-
-#: src/settings_translation_file.cpp
-msgid "Key for opening the inventory."
-msgstr "Billentyű a leltár megnyitásához."
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
 "Kulcs egy tárgy/blokk kihelyezéséhez vagy valami használatához.\n"
 "(Megjegyzés: A tényleges jelentés játékonként változhat.)"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 11th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 11. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 12th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 12. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 13th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 13. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 14th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 14. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 15th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 15. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 16th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 16. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 17th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 17. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 18th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 18. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 19th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 19. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 20th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 20. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 21st hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 21. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 22nd hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 22. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 23rd hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 23. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 24th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 24. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 25th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 25. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 26th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 26. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 27th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 27. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 28th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 28. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 29th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 29. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 30th hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 30. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 31st hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 31. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 32nd hotbar slot."
-msgstr "Billentyű a gyors elérési sáv 32. helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the eighth hotbar slot."
-msgstr "Billentyű a gyors elérési sáv nyolcas helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fifth hotbar slot."
-msgstr "Billentyű a gyors elérési sáv ötös helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the first hotbar slot."
-msgstr "Billentyű a gyors elérési sáv első helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fourth hotbar slot."
-msgstr "Billentyű a gyors elérési sáv négyes helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the next item in the hotbar."
-msgstr "Billentyű a gyors elérési sáv következő helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the ninth hotbar slot."
-msgstr "Billentyű a gyors elérési sáv kilences helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the previous item in the hotbar."
-msgstr "Billentyű a gyors elérési sáv előző helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the second hotbar slot."
-msgstr "Billentyű a gyors elérési sáv kettes helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the seventh hotbar slot."
-msgstr "Billentyű a gyors elérési sáv hetes helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the sixth hotbar slot."
-msgstr "Billentyű a gyors elérési sáv hatos helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the tenth hotbar slot."
-msgstr "Billentyű a gyors elérési sáv tízes helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the third hotbar slot."
-msgstr "Billentyű a gyors elérési sáv hármas helyének kiválasztásához."
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for sneaking.\n"
-"Also used for climbing down and descending in water if aux1_descends is "
-"disabled."
-msgstr ""
-"Gomb a lopakodáshoz.\n"
-"A lefelé mászáshoz és vízben történő ereszkedéshez is ezt lehet használni, "
-"ha az aux1_descends le van tiltva."
-
-#: src/settings_translation_file.cpp
-msgid "Key for switching between first- and third-person camera."
-msgstr "Billentyű az belső és külső nézetű kamera közötti váltáshoz."
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the next entry in Quicktune."
@@ -5038,85 +4857,20 @@ msgid "Key for switching to the previous entry in Quicktune."
 msgstr "A Quicktune előző bejegyzésre való váltás gombja."
 
 #: src/settings_translation_file.cpp
-msgid "Key for taking screenshots."
-msgstr "Billentyű a képernyőképek készítéséhez."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling autoforward."
-msgstr "Billentyű az automatikus előrehaladás kapcsolásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling cinematic mode."
-msgstr "A filmes üzemmód váltásának gombja."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling display of minimap."
-msgstr "Billentyű a minitérkép megjelenítésének kapcsolásához ."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fast mode."
-msgstr "A gyors üzemmód váltásának gombja."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling flying."
-msgstr "Gomb a repülés váltásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fullscreen mode."
-msgstr "Billentyű a teljes képernyős mód váltásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling noclip mode."
-msgstr "A noclip üzemmód váltásának gombja."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling pitch move mode."
-msgstr "Billentyű a pitch move üzemmód váltásához."
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
 msgstr ""
 "A kamera frissítésének váltására szolgáló billentyű. Csak 'debug' "
 "jogosultsággal használható."
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of chat."
-msgstr "A csevegés megjelenítésének váltására szolgáló billentyű."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of debug info."
-msgstr ""
-"A hibakeresési információk megjelenítésének váltására szolgáló billentyű."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of fog."
-msgstr "A köd megjelenítésének váltására szolgáló billentyű."
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the display of mapblock boundaries."
 msgstr "A térképblokkok határainak megjelenítésére szolgáló billentyű."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the HUD."
-msgstr "A HUD megjelenítésének váltására szolgáló billentyű."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the large chat console."
-msgstr "A nagy csevegő konzol megjelenítésének váltására szolgáló billentyű."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
 msgstr ""
 "A profilkészítő megjelenítésének váltására szolgáló billentyű. Fejlesztéshez "
 "használatos."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling unlimited view range."
-msgstr "Kulcs a korlátlan látótávolság váltásához."
-
-#: src/settings_translation_file.cpp
-msgid "Key to use view zoom when possible."
-msgstr "Billentyű a nézet nagyítás használatához, ha lehetséges."
 
 #: src/settings_translation_file.cpp
 msgid "Keybindings"
@@ -5159,10 +4913,6 @@ msgstr "Nagy barlangok minimális száma"
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr "Az elárasztott nagy barlangok aránya"
-
-#: src/settings_translation_file.cpp
-msgid "Large chat console"
-msgstr "Nagy csevegőkonzol"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -5418,8 +5168,8 @@ msgstr ""
 "'humid_rivers': megnöveli a páratartalmat a folyók körül.\n"
 "'vary_river_depth': ha engedélyezve van, az alacsony páratartalom és a "
 "magas\n"
-"hőmérséklet hatására a folyók sekélyebbé válnak, és lehet, hogy kiszáradnak."
-"\n"
+"hőmérséklet hatására a folyók sekélyebbé válnak, és lehet, hogy "
+"kiszáradnak.\n"
 "'altitude_dry': csökkenti a páratartalmat a magassággal."
 
 #: src/settings_translation_file.cpp
@@ -5793,6 +5543,12 @@ msgid "Mod channels"
 msgstr "Mod csatornák"
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
 msgstr "A HUD elemeinek méretét módosítja."
 
@@ -5918,10 +5674,6 @@ msgid "Node highlighting"
 msgstr "Kockák kiemelése"
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr "Kocka tükröződése"
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr "NodeTimer időköz"
 
@@ -5977,9 +5729,10 @@ msgid "Number of messages a player may send per 10 seconds."
 msgstr "Üzenetek száma amit egy játékos küldhet 10 másodpercenként."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 "A 3D-modellek létrehozásához használt szálak száma.\n"
@@ -6067,8 +5820,8 @@ msgid ""
 "Path to the default font. Must be a TrueType font.\n"
 "The fallback font will be used if the font cannot be loaded."
 msgstr ""
-"Az alapértelmezett betűtípus elérési útja. TrueType betűtípusnak kell lennie."
-"\n"
+"Az alapértelmezett betűtípus elérési útja. TrueType betűtípusnak kell "
+"lennie.\n"
 "Ha nem lehet betölteni a betűtípust, a tartalék betűtípust fogja használni."
 
 #: src/settings_translation_file.cpp
@@ -6279,6 +6032,11 @@ msgstr ""
 "LOOKUP_NODES_LIMIT: 16 (korlátozza a get_node hívásokat kliensoldalon a\n"
 "csm_restriction_noderange esetén)\n"
 "READ_PLAYERINFO: 32 (letiltja a get_player_names hívásokat kliensoldalon)"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "Kilépés a főmenübe"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6808,8 +6566,8 @@ msgid ""
 "Altering this value is for special usage, leaving it unchanged is\n"
 "recommended."
 msgstr ""
-"A pályageneráló által generált pályadarabka mérete pályablokkokban (16 kocka)"
-" mérve.\n"
+"A pályageneráló által generált pályadarabka mérete pályablokkokban (16 "
+"kocka) mérve.\n"
 "FIGYELEM!: Nem jár előnyökkel, és bizonyos veszélyekkel is jár ennek az "
 "értéknek\n"
 "5 fölé emelése.\n"
@@ -7279,8 +7037,8 @@ msgid ""
 "items.  A value of 0 disables the functionality."
 msgstr ""
 "A másodpercben megadott idő, ameddig a folyadékok várólistája a számítási\n"
-"teljesítmény fölé nőhet, és ezután megpróbálja csökkenteni a méretét azáltal,"
-"\n"
+"teljesítmény fölé nőhet, és ezután megpróbálja csökkenteni a méretét "
+"azáltal,\n"
 "hogy törli a régóta sorban álló elemeket.   A 0 érték letiltja ezt a "
 "funkciót."
 
@@ -7413,12 +7171,22 @@ msgid "Toggle fullscreen"
 msgstr "Teljes képernyő kapcsolása"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle large chat console"
+msgstr "Nagy csevegőkonzol"
+
+#: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "Pályamozgás mód váltása"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle profiler"
 msgstr "Profilozó kapcsolása"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "Kulcs a korlátlan látótávolság váltásához."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7850,8 +7618,8 @@ msgstr ""
 "az éles pixeleket. Ez a beállítás meghatározza a minimális textúraméretet a "
 "felnagyított textúrákhoz;\n"
 "magasabb értéknél élesebb, de több memóriát igényel.\n"
-"CSAK akkor érvényes ez a beállítás, ha bármely említett szűrés engedélyezett."
-"\n"
+"CSAK akkor érvényes ez a beállítás, ha bármely említett szűrés "
+"engedélyezett.\n"
 "Ez egyben azon kockák alap textúraméreteként is használatos, amelyeknél a "
 "világhoz\n"
 "igazítva kell méretezni a textúrát."
@@ -7913,6 +7681,13 @@ msgid "Width of the selection box lines around nodes."
 msgstr "A kijelölődoboz vonalainak szélessége a kockák körül."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Will also disable autoforward, when active."
+msgstr ""
+"A játékos visszafelé történő mozgatásának gombja.\n"
+"Ha aktív, az automatikus előremenetelt is kikapcsolja."
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr "Az ablak már teljes képernyős"
 
@@ -7952,8 +7727,8 @@ msgstr ""
 "nem biztos, hogy a szerver az általad kívánt módon terjeszti ki azt, "
 "különösen,\n"
 "ha egyedi tervezésű textúracsomagról van szó; ezzel a beállítással a kliens\n"
-"megpróbálja automatikusan meghatározni a méretezést a textúra mérete alapján."
-"\n"
+"megpróbálja automatikusan meghatározni a méretezést a textúra mérete "
+"alapján.\n"
 "Lásd még: texture_min_size.\n"
 "Figyelem: Ez egy KÍSÉRLETI beállítás!"
 
@@ -8031,1823 +7806,196 @@ msgstr "cURL interaktív időtúllépés"
 msgid "cURL parallel limit"
 msgstr "cURL párhuzamossági korlát"
 
-#~ msgid "\"Aux1\" = climb down"
-#~ msgstr "\"Aux1\" = lemászás"
+#~ msgid "Apply specular shading to nodes."
+#~ msgstr "Tükröződő árnyékolás alkalmazása a kockákon."
 
-#~ msgid "(game support required)"
-#~ msgstr "(játéktámogatás szükséges)"
+#~ msgid "Key for decreasing the viewing range."
+#~ msgstr "Billentyű a látótávolság csökkentéséhez."
 
-#~ msgid "- Address: "
-#~ msgstr "- Cím: "
+#~ msgid "Key for decreasing the volume."
+#~ msgstr "A hangerő csökkentésének gombja."
 
-#~ msgid "- Creative Mode: "
-#~ msgstr "- Kreatív mód: "
+#~ msgid "Key for dropping the currently selected item."
+#~ msgstr "Az aktuálisan kiválasztott tárgy eldobásának gombja."
 
-#~ msgid "- Damage: "
-#~ msgstr "- Sérülés: "
+#~ msgid "Key for increasing the viewing range."
+#~ msgstr "Billentyű a látótávolság növeléséhez."
 
-#~ msgid "- Port: "
-#~ msgstr "- Port: "
+#~ msgid "Key for increasing the volume."
+#~ msgstr "Billentyű a hangerő növeléséhez."
 
-#~ msgid ""
-#~ "0 = parallax occlusion with slope information (faster).\n"
-#~ "1 = relief mapping (slower, more accurate)."
-#~ msgstr ""
-#~ "0 = parallax occlusion with slope information (gyorsabb).\n"
-#~ "1 = relief mapping (lassabb, pontosabb)."
-
-#~ msgid "2x"
-#~ msgstr "2x"
-
-#~ msgid "3D Clouds"
-#~ msgstr "3D felhők"
-
-#~ msgid "3d"
-#~ msgstr "3d"
-
-#~ msgid "4x"
-#~ msgstr "4x"
-
-#~ msgid "8x"
-#~ msgstr "8x"
-
-#~ msgid "< Back to Settings page"
-#~ msgstr "< Vissza a Beállításokra"
-
-#~ msgid "Address / Port"
-#~ msgstr "Cím / Port"
-
-#~ msgid ""
-#~ "Address to connect to.\n"
-#~ "Leave this blank to start a local server.\n"
-#~ "Note that the address field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "Cím a csatlakozáshoz.\n"
-#~ "Hagyd üresen helyi szerver indításához.\n"
-#~ "Megjegyzés: a cím mező a főmenüben felülírja ezt a beállítást."
-
-#~ msgid "Adds particles when digging a node."
-#~ msgstr "Részecskéket mutat a kockák ásásakor."
-
-#~ msgid ""
-#~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
-#~ "4k screens."
-#~ msgstr ""
-#~ "Dpi konfiguráció igazítása a képernyődhöz (nem X11/csak Android) pl. 4k "
-#~ "képernyőkhöz."
-
-#~ msgid ""
-#~ "Adjust the gamma encoding for the light tables. Higher numbers are "
-#~ "brighter.\n"
-#~ "This setting is for the client only and is ignored by the server."
-#~ msgstr ""
-#~ "Gamma kódolás beállítása a fényhez. Alacsonyabb számok - nagyobb "
-#~ "fényerő.\n"
-#~ "Ez a beállítás csak a kliensre érvényes, a szerver nem veszi figyelembe."
-
-#, fuzzy
-#~ msgid ""
-#~ "Affects mods and texture packs in the Content and Select Mods menus, as "
-#~ "well as\n"
-#~ "setting names.\n"
-#~ "Controlled by a checkbox in the settings menu."
-#~ msgstr ""
-#~ "Megjelenítse-e a technikai neveket.\n"
-#~ "Hatással van a modokra és a textúracsomagokra a Tartalom és a Modok "
-#~ "kiválasztása menüben, valamint\n"
-#~ "a nevek beállítására Minden Beállításban.\n"
-#~ "Az \"Összes beállítás\" menü jelölőnégyzetével vezérelhető."
-
-#~ msgid "All Settings"
-#~ msgstr "Minden beállítás"
-
-#~ msgid "All packages"
-#~ msgstr "Minden csomag"
-
-#~ msgid "Are you sure to reset your singleplayer world?"
-#~ msgstr "Biztosan visszaállítod az egyjátékos világod?"
-
-#~ msgid "Autosave Screen Size"
-#~ msgstr "Képernyőméret megjegyzése"
-
-#~ msgid "Back to Main Menu"
-#~ msgstr "Vissza a főmenübe"
-
-#~ msgid "Backward key"
-#~ msgstr "Vissza gomb"
-
-#~ msgid "Basic"
-#~ msgstr "Alap"
-
-#~ msgid "Bilinear Filter"
-#~ msgstr "Bilineáris szűrés"
-
-#~ msgid "Biome API noise parameters"
-#~ msgstr "Biom API zaj paraméterei"
-
-#~ msgid "Bits per pixel (aka color depth) in fullscreen mode."
-#~ msgstr "Bit/pixel (vagyis színmélység) teljes képernyős módban."
-
-#~ msgid "Block bounds shown for all blocks"
-#~ msgstr "Blokkhatárok mutatása minden blokk esetén"
-
-#~ msgid "Bloom"
-#~ msgstr "Ragyogás"
-
-#~ msgid "Bloom Intensity"
-#~ msgstr "Ragyogás intenzitása"
-
-#~ msgid "Bloom Radius"
-#~ msgstr "Ragyogás sugara"
-
-#~ msgid "Bloom Strength Factor"
-#~ msgstr "Ragyogás erősségének mértéke"
-
-#~ msgid "Bump Mapping"
-#~ msgstr "Bump mapping"
-
-#~ msgid "Bumpmapping"
-#~ msgstr "Bumpmappolás"
-
-#~ msgid ""
-#~ "Camera 'near clipping plane' distance in nodes, between 0 and 0.25\n"
-#~ "Only works on GLES platforms. Most users will not need to change this.\n"
-#~ "Increasing can reduce artifacting on weaker GPUs.\n"
-#~ "0.1 = Default, 0.25 = Good value for weaker tablets."
-#~ msgstr ""
-#~ "A kamera \"közelségi vágósíkjának\" kockákban mért távolsága 0 és 0,25 "
-#~ "között.\n"
-#~ "Csak GLES platformon működik. A legtöbb felhasználó változatlanul "
-#~ "hagyhatja.\n"
-#~ "Növelése csökkentheti a grafikai hibákat a gyengébb GPU-kon.\n"
-#~ "0,1 = alapértelmezett, 0,25 = jóválasztás gyengébb tabletekhez."
-
-#~ msgid "Camera update toggle key"
-#~ msgstr "Kamera frissítés váltása gomb"
-
-#~ msgid "Change Keys"
-#~ msgstr "Gombok megváltoztatása"
-
-#, fuzzy
-#~ msgid "Change keys"
-#~ msgstr "Gombok megváltoztatása"
-
-#, fuzzy
-#~ msgid ""
-#~ "Changes the main menu UI:\n"
-#~ "-   Full:  Multiple singleplayer worlds, game choice, texture pack "
-#~ "chooser, etc.\n"
-#~ "-   Simple: One singleplayer world, no game or texture pack choosers. May "
-#~ "be\n"
-#~ "necessary for smaller screens."
-#~ msgstr ""
-#~ "Megváltoztatja a főmenü felhasználói felületét:\n"
-#~ "- Teljes: Több egyjátékos világ, játékválasztás, textúracsomag-választó "
-#~ "stb.\n"
-#~ "- Egyszerű: Egy egyjátékos világ, nincs játék- vagy textúracsomag-"
-#~ "választó.\n"
-#~ "Szükséges lehet a kisebb képernyőkhöz."
-
-#~ msgid "Chat key"
-#~ msgstr "Csevegés gomb"
-
-#~ msgid "Chat toggle key"
-#~ msgstr "Csevegés váltása gomb"
-
-#~ msgid "Cinematic mode"
-#~ msgstr "Operatőr mód"
-
-#~ msgid "Cinematic mode key"
-#~ msgstr "Operatőr mód gomb"
-
-#~ msgid "Clean transparent textures"
-#~ msgstr "Tiszta átlátszó textúrák"
-
-#~ msgid "Clouds are a client-side effect."
-#~ msgstr "A felhő kliens oldali effektus."
-
-#~ msgid "Command key"
-#~ msgstr "Parancs gomb"
-
-#~ msgid "Config mods"
-#~ msgstr "Modok beállítása"
-
-#~ msgid "Configure"
-#~ msgstr "Beállítás"
-
-#~ msgid "Connect"
-#~ msgstr "Kapcsolódás"
-
-#~ msgid "Connected Glass"
-#~ msgstr "Csatlakoztatott üveg"
-
-#~ msgid "Console"
-#~ msgstr "Konzol"
-
-#~ msgid "Continuous forward"
-#~ msgstr "Önjárás"
-
-#~ msgid ""
-#~ "Continuous forward movement, toggled by autoforward key.\n"
-#~ "Press the autoforward key again or the backwards movement to disable."
-#~ msgstr ""
-#~ "Az \"Önjárás\" gombbal aktiválható folyamatos előre mozgás.\n"
-#~ "Nyomja meg az \"Önjárás\" vagy a hátrafelé gombot a kikapcsoláshoz."
-
-#~ msgid "Controls sinking speed in liquid."
-#~ msgstr "Folyadékban a süllyedési sebességet szabályozza."
-
-#, fuzzy
-#~ msgid ""
-#~ "Controls the density of mountain-type floatlands.\n"
-#~ "Is a noise offset added to the 'mgv7_np_mountain' noise value."
-#~ msgstr ""
-#~ "A lebegő szigetek hegységeinek sűrűségét szabályozza.\n"
-#~ "Az \"np_mountain\" zaj értékéhez hozzáadott eltolás."
-
-#~ msgid "Controls width of tunnels, a smaller value creates wider tunnels."
-#~ msgstr ""
-#~ "A járatok szélességét határozza meg, alacsonyabb érték szélesebb "
-#~ "járatokat hoz létre."
-
-#, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "Irányítás:\n"
-#~ "- %s: mozgás előre\n"
-#~ "- %s: mozgás hátra\n"
-#~ "- %s: mozgás balra\n"
-#~ "- %s: mozgás jobbra\n"
-#~ "- %s: ugrás/mászás\n"
-#~ "- %s: ásás/ütés/használat\n"
-#~ "- %s: letevés/használat\n"
-#~ "- %s: lopakodás/lefelé mászás\n"
-#~ "- %s: tárgy eldobása\n"
-#~ "- %s: leltár\n"
-#~ "- Egér: forgás/nézelődés\n"
-#~ "- Egérgörgő: tárgy kiválasztása\n"
-#~ "- %s: csevegés\n"
-
-#~ msgid "Creative"
-#~ msgstr "Kreatív"
-
-#~ msgid "Credits"
-#~ msgstr "Köszönetnyilvánítás"
-
-#~ msgid "Crosshair color (R,G,B)."
-#~ msgstr "Célkereszt színe (R,G,B)."
-
-#~ msgid "DPI"
-#~ msgstr "DPI"
-
-#~ msgid "Damage"
-#~ msgstr "Sérülés"
-
-#~ msgid "Damage enabled"
-#~ msgstr "Sérülés engedélyezve"
-
-#~ msgid "Darkness sharpness"
-#~ msgstr "a sötétség élessége"
-
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "Hibakereső információ és pofiler elrejtése"
-
-#~ msgid "Debug info toggle key"
-#~ msgstr "Hibakereső információra váltás gomb"
-
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr "Hibakereső információk, profilergrafika, drótkeret rejtett"
-
-#~ msgid "Dec. volume key"
-#~ msgstr "Hangerő csökkentés gomb"
-
-#~ msgid "Default game"
-#~ msgstr "Alapértelmezett játék"
-
-#~ msgid ""
-#~ "Default game when creating a new world.\n"
-#~ "This will be overridden when creating a world from the main menu."
-#~ msgstr ""
-#~ "Alapértelmezett játék új világ létrehozásánál.\n"
-#~ "A főmenüből történő világ létrehozása ezt felülírja."
-
-#~ msgid ""
-#~ "Default timeout for cURL, stated in milliseconds.\n"
-#~ "Only has an effect if compiled with cURL."
-#~ msgstr ""
-#~ "A cURL alapértelmezett időkorlátja ezredmásodpercekben.\n"
-#~ "Csak akkor van hatása, ha a program cURL-lel lett lefordítva."
-
-#~ msgid ""
-#~ "Defines areas of floatland smooth terrain.\n"
-#~ "Smooth floatlands occur when noise > 0."
-#~ msgstr ""
-#~ "A lebegő szigetek sima területeit határozza meg.\n"
-#~ "Lapos szigetek ott fordulnak elő, ahol a zaj értéke pozitív."
-
-#~ msgid ""
-#~ "Defines how much bloom is applied to the rendered image\n"
-#~ "Smaller values make bloom more subtle\n"
-#~ "Range: from 0.01 to 1.0, default: 0.05"
-#~ msgstr ""
-#~ "Meghatározza, hogy mennyire ragyogjon a renderelt kép.\n"
-#~ "Az alacsonyabb értékek finomabb ragyogást eredményeznek.\n"
-#~ "Értékhatár: 0.01-től 1.0-ig. Alapértelmezett érték: 0.05"
-
-#~ msgid ""
-#~ "Defines sampling step of texture.\n"
-#~ "A higher value results in smoother normal maps."
-#~ msgstr ""
-#~ "A textúrák mintavételezési lépésközét adja meg.\n"
-#~ "Nagyobb érték simább normal map-et eredményez."
-
-#~ msgid ""
-#~ "Defines the magnitude of bloom overexposure.\n"
-#~ "Range: from 0.1 to 10.0, default: 1.0"
-#~ msgstr ""
-#~ "Meghatározza a ragyogás túlexponálásának mértékét.\n"
-#~ "Értékhatár: 0.1-től 10.0-ig. Alapértelmezett érték: 1.0"
-
-#~ msgid "Del. Favorite"
-#~ msgstr "Kedvenc törlése"
-
-#~ msgid "Desynchronize block animation"
-#~ msgstr "Blokkanimáció deszinkronizálása"
-
-#~ msgid "Dig key"
-#~ msgstr "Ásás gomb"
-
-#~ msgid "Digging particles"
-#~ msgstr "Ásási részecskék"
-
-#~ msgid "Disable anticheat"
-#~ msgstr "Csalás elleni védelem letiltása"
-
-#~ msgid "Double tap \"jump\" to toggle fly"
-#~ msgstr "Nyomj duplán az „ugrásra” a repülés be-/kikapcsolásához"
-
-#~ msgid "Down"
-#~ msgstr "Le"
-
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr "Játék (mint a minetest_game) letöltése a minetest.net címről"
-
-#~ msgid "Download one from minetest.net"
-#~ msgstr "Letöltés a minetest.net címről"
-
-#~ msgid "Downloading and installing $1, please wait..."
-#~ msgstr "$1 letöltése és telepítése, kérlek várj…"
-
-#~ msgid "Dynamic shadows:"
-#~ msgstr "Dinamikus árnyékok:"
-
-#~ msgid "Enable"
-#~ msgstr "Engedélyez"
-
-#~ msgid "Enable VBO"
-#~ msgstr "VBO engedélyez"
-
-#~ msgid "Enable creative mode for all players"
-#~ msgstr "Kreatív mód engedélyezése az összes játékos számára"
-
-#~ msgid "Enable players getting damage and dying."
-#~ msgstr "Játékosok sérülésének és halálának engedélyezése."
-
-#~ msgid "Enable register confirmation"
-#~ msgstr "Regisztráció megerősítés engedélyezése"
-
-#, fuzzy
-#~ msgid "Enable touchscreen"
-#~ msgstr "Érintőképernyő"
-
-#~ msgid ""
-#~ "Enable vertex buffer objects.\n"
-#~ "This should greatly improve graphics performance."
-#~ msgstr ""
-#~ "Vertex buffer objektumok engedélyezése.\n"
-#~ "Ez nagyban javíthatja a grafikus teljesítményt."
-
-#, fuzzy
-#~ msgid ""
-#~ "Enable/disable running an IPv6 server.\n"
-#~ "Ignored if bind_address is set."
-#~ msgstr ""
-#~ "IPv6 szerver futtatásának engedélyezése/letiltása.\n"
-#~ "Nincs figyelembe véve, ha bind_address van beállítva.\n"
-#~ "Szükséges hozzá, hogy az ipv6 engedélyezve legyen."
-
-#~ msgid ""
-#~ "Enables caching of facedir rotated meshes.\n"
-#~ "This is only effective with shaders disabled."
-#~ msgstr ""
-#~ "A facedir-t használó forgatott 3D-moddellek gyorsítótárazásának "
-#~ "engedélyezése.\n"
-#~ "Ennek csak az árnyékolók letiltásakor van hatása."
-
-#~ msgid "Enables filmic tone mapping"
-#~ msgstr "filmes tónus effektek bekapcsolása"
-
-#~ msgid "Enables minimap."
-#~ msgstr "Engedélyezi a kistérképet."
-
-#~ msgid ""
-#~ "Enables parallax occlusion mapping.\n"
-#~ "Requires shaders to be enabled."
-#~ msgstr ""
-#~ "Parallax occlusion mapping bekapcsolása.\n"
-#~ "A shaderek engedélyezve kell hogy legyenek."
-
-#~ msgid ""
-#~ "Enables the sound system.\n"
-#~ "If disabled, this completely disables all sounds everywhere and the in-"
-#~ "game\n"
-#~ "sound controls will be non-functional.\n"
-#~ "Changing this setting requires a restart."
-#~ msgstr ""
-#~ "Engedélyezi a hangrendszert.\n"
-#~ "Ha ki van kapcsolva, teljesen kikapcsol minden hangot és a játék "
-#~ "hangvezérlői\n"
-#~ "nem fognak működni.\n"
-#~ "Ennek a beállításnak a megváltoztatása a játék újraindítását igényli."
-
-#~ msgid ""
-#~ "Enables touchscreen mode, allowing you to play the game with a "
-#~ "touchscreen."
-#~ msgstr ""
-#~ "Engedélyezi az érintőkijelzős módot, ami által érintőkijelzővel is "
-#~ "játszhat."
-
-#~ msgid "Enter "
-#~ msgstr "Belépés "
-
-#~ msgid ""
-#~ "Experimental option, might cause visible spaces between blocks\n"
-#~ "when set to higher number than 0."
-#~ msgstr ""
-#~ "Kísérleti opció, látható rések jelenhetnek meg a blokkok között\n"
-#~ "ha nagyobbra van állítva, mint 0."
-
-#~ msgid "FSAA"
-#~ msgstr "FSAA"
-
-#~ msgid "Fall bobbing factor"
-#~ msgstr "Becsapódási rázkódás mértéke"
-
-#~ msgid "Fallback font shadow"
-#~ msgstr "Tartalék betűtípus árnyéka"
-
-#~ msgid "Fallback font shadow alpha"
-#~ msgstr "Tartalék betűtípus árnyék átlátszósága"
-
-#~ msgid "Fallback font size"
-#~ msgstr "Tartalék betűtípus mérete"
-
-#~ msgid "Fancy Leaves"
-#~ msgstr "Szép levelek"
-
-#~ msgid "Fast key"
-#~ msgstr "Gyorsaság gomb"
-
-#~ msgid ""
-#~ "Fast movement (via the \"Aux1\" key).\n"
-#~ "This requires the \"fast\" privilege on the server."
-#~ msgstr ""
-#~ "Gyors mozgás (az \"Aux1\" gombbal).\n"
-#~ "Szükséges hozzá a gyors mód jogosultság a szerveren."
-
-#~ msgid ""
-#~ "Filtered textures can blend RGB values with fully-transparent neighbors,\n"
-#~ "which PNG optimizers usually discard, often resulting in dark or\n"
-#~ "light edges to transparent textures. Apply a filter to clean that up\n"
-#~ "at texture load time. This is automatically enabled if mipmapping is "
-#~ "enabled."
-#~ msgstr ""
-#~ "A szűrt textúrák vegyíthetik a teljesen átlátszó szomszédokkal rendelkező "
-#~ "RGB értékeket,\n"
-#~ "amit a PNG optimalizálók általában figyelmen kívül hagynak, és ez gyakran "
-#~ "sötét vagy\n"
-#~ "világos élekhez vezet az átlátszó textúráknál. Használjon szűrőt ezeknek "
-#~ "a textúra betöltésekor\n"
-#~ "történő eltüntetésére. Ez automatikusan bekapcsol, ha a mipmapping be van "
-#~ "kapcsolva."
-
-#~ msgid "Filtering"
-#~ msgstr "Szűrés"
-
-#, fuzzy
-#~ msgid "Floatland base height noise"
-#~ msgstr "A lebegő hegyek alapmagassága"
-
-#, fuzzy
-#~ msgid "Floatland mountain height"
-#~ msgstr "Lebegő hegyek magassága"
-
-#~ msgid "Fly key"
-#~ msgstr "Repülés gomb"
-
-#~ msgid "Flying"
-#~ msgstr "Repülés"
-
-#~ msgid "Fog toggle key"
-#~ msgstr "Köd váltása gomb"
-
-#~ msgid "Font shadow alpha (opaqueness, between 0 and 255)."
-#~ msgstr "Betűtípus árnyék alfa (átlátszatlanság, 0 és 255 között)."
-
-#~ msgid "Formspec Default Background Color"
-#~ msgstr "Formspec panelek alapértelmezett háttérszíne"
-
-#~ msgid "Formspec Default Background Opacity"
-#~ msgstr "Formspec panelek hátterének alapértelmezett átlátszósága"
-
-#~ msgid "Formspec default background color (R,G,B)."
-#~ msgstr "Formspec panelek alapértelmezett háttérszíne (R,G,B)."
-
-#~ msgid "Formspec default background opacity (between 0 and 255)."
-#~ msgstr ""
-#~ "Játékon belüli kezelőpanelek hátterének alfája (átlátszatlanság, 0 és 255 "
-#~ "között)."
-
-#~ msgid "Forward"
-#~ msgstr "Előre"
-
-#~ msgid "Forward key"
-#~ msgstr "Előre gomb"
-
-#~ msgid "FreeType fonts"
-#~ msgstr "FreeType betűtípusok"
-
-#~ msgid "Full screen BPP"
-#~ msgstr "Teljes képernyő BPP"
-
-#~ msgid "GUI scaling filter txr2img"
-#~ msgstr "Felhasználói felület méretarány szűrő txr2img"
-
-#~ msgid "Gamma"
-#~ msgstr "Gamma"
-
-#~ msgid "Generate Normal Maps"
-#~ msgstr "Normál felületek generálása"
-
-#~ msgid "Generate normalmaps"
-#~ msgstr "Normálfelületek generálása"
-
-#~ msgid "HUD scale factor"
-#~ msgstr "Vezérlőelemek mérete"
-
-#~ msgid "HUD toggle key"
-#~ msgstr "HUD váltás gomb"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "Ideiglenes beállítások"
-
-#~ msgid "High-precision FPU"
-#~ msgstr "Nagy pontosságú FPU"
-
-#~ msgid "IPv6 support."
-#~ msgstr "IPv6 támogatás."
-
-#~ msgid ""
-#~ "If enabled together with fly mode, player is able to fly through solid "
-#~ "nodes.\n"
-#~ "This requires the \"noclip\" privilege on the server."
-#~ msgstr ""
-#~ "Ha a repülés móddal együtt van engedélyezve, a játékos átrepülhet "
-#~ "szilárd\n"
-#~ "kockákon. Szükséges hozzá a noclip jogosultság a szerveren."
-
-#~ msgid "If enabled, disable cheat prevention in multiplayer."
-#~ msgstr ""
-#~ "Ha ez engedélyezve van, kikapcsolja a csalás megelőzést többjátékos "
-#~ "módban."
-
-#~ msgid ""
-#~ "If enabled, makes move directions relative to the player's pitch when "
-#~ "flying or swimming."
-#~ msgstr ""
-#~ "Ha engedélyezve van, a játékos abba az irányba megy, amerre néz, amikor "
-#~ "úszik vagy repül."
-
-#~ msgid "In-Game"
-#~ msgstr "Játékon belül"
-
-#~ msgid "Inc. volume key"
-#~ msgstr "Hangerő növelése gomb"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr "Mod telepítése: nem található valódi mod név ehhez: $1"
-
-#~ msgid "Install: file: \"$1\""
-#~ msgstr "Fájl telepítése: \"$1\""
-
-#~ msgid "Instrumentation"
-#~ msgstr "Behangolás"
-
-#~ msgid "Interval of sending time of day to clients, stated in seconds."
-#~ msgstr ""
-#~ "A napszak kliensnek való küldésének gyakorisága, másodpercben megadva."
-
-#~ msgid "Invalid gamespec."
-#~ msgstr "Érvénytelen játékmeghatározás."
-
-#~ msgid "Inventory key"
-#~ msgstr "Felszerelés gomb"
-
-#~ msgid "Irrlicht device:"
-#~ msgstr "Irrlicht készülék:"
-
-#~ msgid "Jump key"
-#~ msgstr "Ugrás gomb"
-
-#~ msgid "Key already in use"
-#~ msgstr "A gomb már használatban van"
-
-#~ msgid ""
-#~ "Key for decreasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a látóterület csökkentéséhez.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for decreasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a hangerő csökkentéséhez.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for digging.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb az ásáshoz.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for dropping the currently selected item.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb az éppen kijelölt tárgy eldobásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for increasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a látóterület növeléséhez.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for increasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a hangerő növeléséhez.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for jumping.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb az ugráshoz.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving fast in fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a gyors mozgáshoz gyors módban.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player forward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a játékos előre mozgásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player left.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a játékos balra mozgatásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player right.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a játékos jobbra mozgatásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for muting the game.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a játék némításához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the chat window to type commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a csevegőablak megnyitásához, parancsok beírásához.\n"
-#~ "Lásd: //irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the chat window to type local commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a csevegőablak megnyitásához, helyi parancsok beírásához.\n"
-#~ "Lásd: //irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the chat window.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a csevegőablak megnyitásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the inventory.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a felszerelés megnyitásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for placing.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a lehelyezéshez.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 11th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 11. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 12th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 12. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 13th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 13. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 14th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 14. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 15th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 15. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 16th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 16. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 17th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 17. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 18th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 18. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 19th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 19. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 20th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 20. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 21st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 21. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 22nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 22. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 23rd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 23. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 24th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 24. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 25th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 25. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 26th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 26. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 27th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 27. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 28th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 28. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 29th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 29. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 30th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 30. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 31st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 31. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 32nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 32. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the eighth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 8. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the fifth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 5. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the first hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 1. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the fourth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 4. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the next item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a következő elem kiválasztásához az eszköztárban.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the ninth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 9. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the previous item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb az előző elem kiválasztásához az eszköztárban.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the second hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 2. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the seventh hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 7. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the sixth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 6. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the tenth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 10. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the third hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a 3. eszköztárhely kiválasztásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for switching between first- and third-person camera.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a belső és külső nézetre váltáshoz.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for taking screenshots.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb képernyőkép készítéshez.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling autoforward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb az automatikus előrehaladás bekapcsolásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling cinematic mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb az operatőr mód kapcsolgatásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling display of minimap.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a kistérkép váltásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a gyors mód váltásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling flying.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a repülés mód váltásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling noclip mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a noclip mód váltásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling pitch move mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb pályamozgás mód váltásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the camera update. Only used for development\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a kamerafrissítés váltásához. Csak fejlesztők számára.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of chat.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a csevegés megjelenítéséhez.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of debug info.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a hibakeresési információ megjelenítéséhez.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of fog.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a köd váltásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of the HUD.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a HUD váltásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of the large chat console.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a nagy csevegéskonzol megjelenítéséhez.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of the profiler. Used for development.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "A profiler kijelzőjének kapcsológombja. Fejlesztéshez használatos.\n"
-#~ "Lásd http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling unlimited view range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a végtelen látóterület váltásához.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key to use view zoom when possible.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Gomb a nagyításhoz amikor lehetséges.\n"
-#~ "Lásd: http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
-#~ msgstr ""
-#~ "Billentyűzetkiosztás. (Ha ez a menü összeomlik, távolíts el néhány dolgot "
-#~ "a minetest.conf-ból)"
-
-#~ msgid "Last update check"
-#~ msgstr "Legutóbbi frissítéskeresés"
-
-#, fuzzy
-#~ msgid "Lava depth"
-#~ msgstr "Nagy barlang mélység"
-
-#~ msgid "Left"
-#~ msgstr "Balra"
-
-#~ msgid "Left key"
-#~ msgstr "Bal gomb"
-
-#~ msgid ""
-#~ "Length of liquid waves.\n"
-#~ "Requires waving liquids to be enabled."
-#~ msgstr ""
-#~ "Folyadékhullámok hossza.\n"
-#~ "A hullámzó folyadékok engedélyezése szükséges hozzá."
-
-#, fuzzy
-#~ msgid "Lightness sharpness"
-#~ msgstr "Fényélesség"
-
-#~ msgid ""
-#~ "Logical value that controls how far the bloom effect spreads\n"
-#~ "from the bright objects.\n"
-#~ "Range: from 0.1 to 8, default: 1"
-#~ msgstr ""
-#~ "Logikai érték, amely szabályozza, hogy a ragyogási hatás meddig "
-#~ "terjedjen\n"
-#~ "a fényes tárgyaktól.\n"
-#~ "Tartomány: 0,1-8, alapértelmezett: 1"
-
-#~ msgid "Main"
-#~ msgstr "Fő"
-
-#~ msgid "Main menu style"
-#~ msgstr "Főmenü stílusa"
-
-#~ msgid "Makes DirectX work with LuaJIT. Disable if it causes troubles."
-#~ msgstr ""
-#~ "Lehetővé teszi, hogy a DirectX működjön a LuaJIT-tel. Tiltsd le, ha "
-#~ "problémákat okoz."
+#~ msgid "Key for jumping."
+#~ msgstr "Billentyű az ugráshoz."
 
-#~ msgid "Makes all liquids opaque"
-#~ msgstr "Az összes folyadékot átlátszatlanná teszi"
+#~ msgid "Key for moving the player forward."
+#~ msgstr "Billentyű a játékos előrehaladásához."
 
-#~ msgid "Mapblock mesh generator's MapBlock cache size in MB"
-#~ msgstr "Pályablokkrács-generátorok MapBlock-gyorsítótár mérete MB-ban"
+#~ msgid "Key for moving the player left."
+#~ msgstr "A játékos balra mozgatásának billentyűje."
 
-#~ msgid ""
-#~ "Maximum number of mapblocks for client to be kept in memory.\n"
-#~ "Set to -1 for unlimited amount."
-#~ msgstr ""
-#~ "Maximum pályablokkok száma, amit a kliens memóriában tárolhat.\n"
-#~ "Állítsd -1-re végtelen mennyiségért."
-
-#~ msgid ""
-#~ "Maximum number of packets sent per send step, if you have a slow "
-#~ "connection\n"
-#~ "try reducing it, but don't reduce it to a number below double of "
-#~ "targeted\n"
-#~ "client number."
-#~ msgstr ""
-#~ "A lépésenként küldött csomagok maximális száma,\n"
-#~ "ha lassú kapcsolattal rendelkezel, próbáld csökkenteni,\n"
-#~ "de ne csökkentsd a kívánt kliensszám duplája alá."
-
-#~ msgid "Menus"
-#~ msgstr "Menük"
-
-#~ msgid "Mesh cache"
-#~ msgstr "3D-modell gyorsítótár"
-
-#~ msgid "Minimap"
-#~ msgstr "Kistérkép"
-
-#~ msgid "Minimap in radar mode, Zoom x2"
-#~ msgstr "Kistérkép radar módban x2"
-
-#~ msgid "Minimap in radar mode, Zoom x4"
-#~ msgstr "Kistérkép radar módban x4"
-
-#~ msgid "Minimap in surface mode, Zoom x2"
-#~ msgstr "Kistérkép terület módban x2"
-
-#~ msgid "Minimap in surface mode, Zoom x4"
-#~ msgstr "Kistérkép terület módban x4"
-
-#~ msgid "Minimap key"
-#~ msgstr "Kistérkép gomb"
-
-#~ msgid "Mipmap"
-#~ msgstr "Mipmap"
-
-#~ msgid "Mipmap + Aniso. Filter"
-#~ msgstr "Mipmap + anizotróp szűrés"
-
-#~ msgid "Misc"
-#~ msgstr "Vegyes"
-
-#~ msgid ""
-#~ "Multiplier for fall bobbing.\n"
-#~ "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-#~ msgstr ""
-#~ "A zuhanás utáni fejbillenés szorzója.\n"
-#~ "Például: 0 nincs biccentés; 1,0 normál; 2,0 dupla."
-
-#~ msgid "Mute key"
-#~ msgstr "Némítás gomb"
-
-#~ msgid "Name / Password"
-#~ msgstr "Név / Jelszó"
-
-#~ msgid "Name/Password"
-#~ msgstr "Név/jelszó"
-
-#~ msgid "Near plane"
-#~ msgstr "Majdnem mint a repülőgép"
-
-#~ msgid "Next item"
-#~ msgstr "Következő tárgy"
-
-#~ msgid "No"
-#~ msgstr "Nem"
-
-#~ msgid "No Filter"
-#~ msgstr "Nincs szűrés"
-
-#~ msgid "No Mipmap"
-#~ msgstr "Nincs mipmap"
-
-#~ msgid "Noclip"
-#~ msgstr "Noclip"
-
-#~ msgid "Noclip key"
-#~ msgstr "Noclip mód gomb"
-
-#~ msgid "Node Highlighting"
-#~ msgstr "Kockák kiemelése"
-
-#~ msgid "Node Outlining"
-#~ msgstr "Kockák körvonala"
-
-#~ msgid "None"
-#~ msgstr "Nincs"
-
-#~ msgid "Ok"
-#~ msgstr "Ok"
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "Átlátszatlan levelek"
-
-#~ msgid "Opaque Water"
-#~ msgstr "Átlátszatlan víz"
-
-#~ msgid "Parallax Occlusion"
-#~ msgstr "Parallax Occlusion ( domború textúra )"
-
-#~ msgid "Parallax occlusion"
-#~ msgstr "Parallax Occlusion effekt"
-
-#~ msgid "Parallax occlusion mode"
-#~ msgstr "Parallax Occlusion módja"
-
-#~ msgid "Parallax occlusion scale"
-#~ msgstr "Parallax Occlusion mértéke"
-
-#~ msgid "Particles"
-#~ msgstr "Részecskék"
+#~ msgid "Key for moving the player right."
+#~ msgstr "A játékos jobbra mozgatásának billentyűje."
 
-#~ msgid "Path to TrueTypeFont or bitmap."
-#~ msgstr "A TrueType betűtípus (ttf) vagy bitmap útvonala."
+#~ msgid "Key for muting the game."
+#~ msgstr "A játék elnémításának gombja."
 
-#~ msgid "Path to save screenshots at."
-#~ msgstr "Képernyőmentések mappája."
+#~ msgid "Key for opening the chat window."
+#~ msgstr "A csevegőablak megnyitásához szükséges billentyű."
 
-#~ msgid ""
-#~ "Path to texture directory. All textures are first searched from here."
-#~ msgstr "Textúra mappa útvonala. Először minden textúrát itt keres a játék."
+#~ msgid "Key for opening the inventory."
+#~ msgstr "Billentyű a leltár megnyitásához."
 
-#~ msgid "Pitch move key"
-#~ msgstr "Pályamozgás mód gomb"
+#~ msgid "Key for selecting the 11th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 11. helyének kiválasztásához."
 
-#~ msgid "Pitch move mode"
-#~ msgstr "Tekintet irányába mozgás"
+#~ msgid "Key for selecting the 12th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 12. helyének kiválasztásához."
 
-#~ msgid ""
-#~ "Player is able to fly without being affected by gravity.\n"
-#~ "This requires the \"fly\" privilege on the server."
-#~ msgstr ""
-#~ "A játékos képes repülni, nem hat rá a gravitáció.\n"
-#~ "Szükséges hozzá a repülés jogosultság a szerveren."
-
-#~ msgid "Player name"
-#~ msgstr "Játékos neve"
-
-#~ msgid "Player versus player"
-#~ msgstr "Játékos játékos ellen"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "Írj be egy érvényes egész számot."
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "Írj be egy érvényes számot."
-
-#~ msgid ""
-#~ "Port to connect to (UDP).\n"
-#~ "Note that the port field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "Port a csatlakozáshoz (UDP).\n"
-#~ "A főmenü port mezője ezt a beállítást felülírja."
-
-#~ msgid "Prev. item"
-#~ msgstr "Előző elem"
-
-#~ msgid "Profiler toggle key"
-#~ msgstr "Profiler váltó gomb"
+#~ msgid "Key for selecting the 13th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 13. helyének kiválasztásához."
 
-#~ msgid "Profiling"
-#~ msgstr "Pfolilozás"
+#~ msgid "Key for selecting the 14th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 14. helyének kiválasztásához."
 
-#~ msgid "PvP enabled"
-#~ msgstr "PvP engedélyezve"
+#~ msgid "Key for selecting the 15th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 15. helyének kiválasztásához."
 
-#~ msgid "Range select key"
-#~ msgstr "Látóterület választása gomb"
+#~ msgid "Key for selecting the 16th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 16. helyének kiválasztásához."
 
-#~ msgid "Remote port"
-#~ msgstr "Távoli port"
+#~ msgid "Key for selecting the 17th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 17. helyének kiválasztásához."
 
-#~ msgid "Reset singleplayer world"
-#~ msgstr "Egyjátékos világ visszaállítása"
+#~ msgid "Key for selecting the 18th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 18. helyének kiválasztásához."
 
-#~ msgid "Right"
-#~ msgstr "Jobbra"
+#~ msgid "Key for selecting the 19th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 19. helyének kiválasztásához."
 
-#~ msgid "Right key"
-#~ msgstr "Jobb gomb"
+#~ msgid "Key for selecting the 20th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 20. helyének kiválasztásához."
 
-#~ msgid "Round minimap"
-#~ msgstr "Kerek kistérkép"
+#~ msgid "Key for selecting the 21st hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 21. helyének kiválasztásához."
 
-#, fuzzy
-#~ msgid "Saturation"
-#~ msgstr "Ismétlések"
+#~ msgid "Key for selecting the 22nd hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 22. helyének kiválasztásához."
 
-#~ msgid "Save window size automatically when modified."
-#~ msgstr "Ablakméret automatikus mentése amikor módosítva van."
+#~ msgid "Key for selecting the 23rd hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 23. helyének kiválasztásához."
 
-#~ msgid "Screen:"
-#~ msgstr "Képernyő:"
+#~ msgid "Key for selecting the 24th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 24. helyének kiválasztásához."
 
-#~ msgid "Select Package File:"
-#~ msgstr "csomag fájl kiválasztása:"
+#~ msgid "Key for selecting the 25th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 25. helyének kiválasztásához."
 
-#~ msgid "Server / Singleplayer"
-#~ msgstr "Szerver / Egyjátékos"
+#~ msgid "Key for selecting the 26th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 26. helyének kiválasztásához."
 
-#~ msgid "Shaders"
-#~ msgstr "Árnyalók"
+#~ msgid "Key for selecting the 27th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 27. helyének kiválasztásához."
 
-#~ msgid "Shaders (experimental)"
-#~ msgstr "Árnyalók (kísérleti)"
+#~ msgid "Key for selecting the 28th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 28. helyének kiválasztásához."
 
-#~ msgid "Shaders (unavailable)"
-#~ msgstr "Árnyalók (nem elérhető)"
+#~ msgid "Key for selecting the 29th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 29. helyének kiválasztásához."
 
-#, fuzzy
-#~ msgid ""
-#~ "Shaders allow advanced visual effects and may increase performance on "
-#~ "some video\n"
-#~ "cards."
-#~ msgstr ""
-#~ "Az árnyalók fejlett vizuális effekteket tesznek lehetővé és növelhetik a "
-#~ "teljesítményt\n"
-#~ "néhány videókártya esetében.\n"
-#~ "Csak OpenGL-el működnek."
-
-#~ msgid ""
-#~ "Shaders are a fundamental part of rendering and enable advanced visual "
-#~ "effects."
-#~ msgstr ""
-#~ "Az árnyékolók a renderelés alapját képezik, és bonyolultabb "
-#~ "látványhatásokat tesznek lehetővé."
-
-#~ msgid "Shaders are disabled."
-#~ msgstr "Árnyékolók letiltva."
-
-#, fuzzy
-#~ msgid "Shadow limit"
-#~ msgstr "Térképblokk korlát"
-
-#~ msgid ""
-#~ "Shadow offset (in pixels) of the fallback font. If 0, then shadow will "
-#~ "not be drawn."
-#~ msgstr ""
-#~ "Tartalék betűtípus árnyékának eltolása. Ha 0, akkor nem lesz árnyék "
-#~ "rajzolva."
-
-#~ msgid "Shape of the minimap. Enabled = round, disabled = square."
-#~ msgstr ""
-#~ "A kistérkép alakja. Engedélyezve (enabled) = kerek, letiltva (disabled) = "
-#~ "négyzet."
-
-#~ msgid "Simple Leaves"
-#~ msgstr "Egyszerű levelek"
-
-#~ msgid ""
-#~ "Size of the MapBlock cache of the mesh generator. Increasing this will\n"
-#~ "increase the cache hit %, reducing the data being copied from the main\n"
-#~ "thread, thus reducing jitter."
-#~ msgstr ""
-#~ "A poligonhálót generáló MapBlock cache mérete. Növelése megnöveli a\n"
-#~ "cache kiszolgálási teljesítményét, ezáltal csökken a fő szálból másolt "
-#~ "adatok\n"
-#~ "mennyisége, és ezáltal csökken a szaggatás."
+#~ msgid "Key for selecting the 30th hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 30. helyének kiválasztásához."
 
-#~ msgid "Smooth Lighting"
-#~ msgstr "Lágy megvilágítás"
+#~ msgid "Key for selecting the 31st hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 31. helyének kiválasztásához."
 
-#~ msgid "Smooths rotation of camera. 0 to disable."
-#~ msgstr "Kameraforgás lágyítása. 0 = letiltás."
+#~ msgid "Key for selecting the 32nd hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv 32. helyének kiválasztásához."
 
-#~ msgid "Sound system is disabled"
-#~ msgstr "A hangrendszer letiltva"
+#~ msgid "Key for selecting the eighth hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv nyolcas helyének kiválasztásához."
 
-#~ msgid "Special"
-#~ msgstr "Különleges"
+#~ msgid "Key for selecting the fifth hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv ötös helyének kiválasztásához."
 
-#~ msgid "Special key"
-#~ msgstr "Különleges gomb"
+#~ msgid "Key for selecting the first hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv első helyének kiválasztásához."
 
-#~ msgid "Start Singleplayer"
-#~ msgstr "Egyjátékos mód indítása"
+#~ msgid "Key for selecting the fourth hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv négyes helyének kiválasztásához."
 
-#~ msgid "Strength of generated normalmaps."
-#~ msgstr "Generált normálfelületek erőssége."
+#~ msgid "Key for selecting the next item in the hotbar."
+#~ msgstr "Billentyű a gyors elérési sáv következő helyének kiválasztásához."
 
-#~ msgid "Texture path"
-#~ msgstr "Textúrák útvonala"
+#~ msgid "Key for selecting the ninth hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv kilences helyének kiválasztásához."
 
-#~ msgid "Texturing:"
-#~ msgstr "Textúrázás:"
+#~ msgid "Key for selecting the previous item in the hotbar."
+#~ msgstr "Billentyű a gyors elérési sáv előző helyének kiválasztásához."
 
-#~ msgid "The depth of dirt or other biome filler node."
-#~ msgstr "A föld vagy egyéb biomkitöltő kockaréteg mélysége."
+#~ msgid "Key for selecting the second hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv kettes helyének kiválasztásához."
 
-#~ msgid "The value must be at least $1."
-#~ msgstr "Az érték nem lehet kisebb mint $1."
+#~ msgid "Key for selecting the seventh hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv hetes helyének kiválasztásához."
 
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "Az érték nem lehet nagyobb mint $1."
+#~ msgid "Key for selecting the sixth hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv hatos helyének kiválasztásához."
 
-#, fuzzy
-#~ msgid ""
-#~ "This can be bound to a key to toggle camera smoothing when looking "
-#~ "around.\n"
-#~ "Useful for recording videos"
-#~ msgstr ""
-#~ "Kamera mozgásának lágyítása körbenézéskor. Nézet- vagy "
-#~ "egérstabilizálásnak is hívják.\n"
-#~ "Hasznos videók felvételénél."
+#~ msgid "Key for selecting the tenth hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv tízes helyének kiválasztásához."
 
-#~ msgid "This font will be used for certain languages."
-#~ msgstr "Ezt a betűtípust bizonyos nyelvek használják."
+#~ msgid "Key for selecting the third hotbar slot."
+#~ msgstr "Billentyű a gyors elérési sáv hármas helyének kiválasztásához."
 
-#~ msgid "This is not a recommended configuration."
-#~ msgstr "Ezek a beállításokat nem ajánlott egyszerre alkalmazni."
+#~ msgid "Key for switching between first- and third-person camera."
+#~ msgstr "Billentyű az belső és külső nézetű kamera közötti váltáshoz."
 
-#~ msgid "Time send interval"
-#~ msgstr "Idő küldési gyakoriság"
+#~ msgid "Key for taking screenshots."
+#~ msgstr "Billentyű a képernyőképek készítéséhez."
 
-#~ msgid "To enable shaders the OpenGL driver needs to be used."
-#~ msgstr "Az árnyalók engedélyezéséhez OpenGL driver használata szükséges."
+#~ msgid "Key for toggling autoforward."
+#~ msgstr "Billentyű az automatikus előrehaladás kapcsolásához."
 
-#~ msgid "Tone Mapping"
-#~ msgstr "Színleképezés"
+#~ msgid "Key for toggling cinematic mode."
+#~ msgstr "A filmes üzemmód váltásának gombja."
 
-#~ msgid "Touch threshold (px):"
-#~ msgstr "Érintésküszöb (px):"
+#~ msgid "Key for toggling display of minimap."
+#~ msgstr "Billentyű a minitérkép megjelenítésének kapcsolásához ."
 
-#~ msgid "Trilinear Filter"
-#~ msgstr "Trilineáris szűrés"
+#~ msgid "Key for toggling fast mode."
+#~ msgstr "A gyors üzemmód váltásának gombja."
 
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "$1 aljáték telepítése meghiúsult"
+#~ msgid "Key for toggling flying."
+#~ msgstr "Gomb a repülés váltásához."
 
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "$1 modcsomag telepítése meghiúsult"
+#~ msgid "Key for toggling fullscreen mode."
+#~ msgstr "Billentyű a teljes képernyős mód váltásához."
 
-#~ msgid "Uninstall Package"
-#~ msgstr "Csomag eltávolítása"
+#~ msgid "Key for toggling noclip mode."
+#~ msgstr "A noclip üzemmód váltásának gombja."
 
-#~ msgid "Up"
-#~ msgstr "Fel"
+#~ msgid "Key for toggling pitch move mode."
+#~ msgstr "Billentyű a pitch move üzemmód váltásához."
 
-#, fuzzy
-#~ msgid "Use bilinear filtering when scaling textures down."
-#~ msgstr "Bilineáris szűrés a textúrák méretezésekor."
+#~ msgid "Key for toggling the display of chat."
+#~ msgstr "A csevegés megjelenítésének váltására szolgáló billentyű."
 
-#~ msgid "Use crosshair for touch screen"
-#~ msgstr "Célkereszt haszálata érintőképernyőn"
-
-#~ msgid ""
-#~ "Use crosshair to select object instead of whole screen.\n"
-#~ "If enabled, a crosshair will be shown and will be used for selecting "
-#~ "object."
-#~ msgstr ""
-#~ "Célkereszt használata tárgyak kijelöléséhez a teljes képernyő helyett.\n"
-#~ "engedélyezés esetén egy célkereszt fog objektumokra mutatni a kijelzőn."
-
-#~ msgid ""
-#~ "Use multi-sample antialiasing (MSAA) to smooth out block edges.\n"
-#~ "This algorithm smooths out the 3D viewport while keeping the image "
-#~ "sharp,\n"
-#~ "but it doesn't affect the insides of textures\n"
-#~ "(which is especially noticeable with transparent textures).\n"
-#~ "Visible spaces appear between nodes when shaders are disabled.\n"
-#~ "If set to 0, MSAA is disabled.\n"
-#~ "A restart is required after changing this option."
+#~ msgid "Key for toggling the display of debug info."
 #~ msgstr ""
-#~ "Többmintás élsimítás (MSAA) használata a blokkélek simításához.\n"
-#~ "Ez az algoritmus kisimítja a 3D látómezőt miközben a kép éles marad,\n"
-#~ "a textúrák beljsejét azonban nem módosítja\n"
-#~ "(ami főleg az átlátszó textúráknál vehető észre).\n"
-#~ "A kockák között látható rések jelennek meg, ha az árnyalók nincsenek\n"
-#~ "engedélyezve. Ha 0-ra van állítva, az MSAA tiltva van.\n"
-#~ "E beállítás megváltoztatása után újraindítás szükséges."
+#~ "A hibakeresési információk megjelenítésének váltására szolgáló billentyű."
 
-#~ msgid "VBO"
-#~ msgstr "VBO"
+#~ msgid "Key for toggling the display of fog."
+#~ msgstr "A köd megjelenítésének váltására szolgáló billentyű."
 
-#~ msgid "Vertical screen synchronization."
-#~ msgstr "Függőleges képernyő szinkronizálás."
+#~ msgid "Key for toggling the display of the HUD."
+#~ msgstr "A HUD megjelenítésének váltására szolgáló billentyű."
 
-#~ msgid "View"
-#~ msgstr "Megtekintés"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "További információ megtekintése böngészőben"
-
-#~ msgid "View range decrease key"
-#~ msgstr "Látóterület csökkentése gomb"
-
-#~ msgid "View range increase key"
-#~ msgstr "Látóterület növelése gomb"
-
-#~ msgid "View zoom key"
-#~ msgstr "Nagyítás gomb"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "látótáv maximum %d1"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "Ringatózó lombok"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "Hullámzó folyadékok"
-
-#~ msgid "Waving Plants"
-#~ msgstr "Ringatózó növények"
-
-#~ msgid "Waving Water"
-#~ msgstr "Hullámzó víz"
-
-#~ msgid "Waving water"
-#~ msgstr "Hullámzó víz"
-
-#~ msgid ""
-#~ "When gui_scaling_filter_txr2img is true, copy those images\n"
-#~ "from hardware to software for scaling.  When false, fall back\n"
-#~ "to the old scaling method, for video drivers that don't\n"
-#~ "properly support downloading textures back from hardware."
-#~ msgstr ""
-#~ "Ha a gui_scaling_filter_txr2img be van kapcsolva, ezeket a képeket\n"
-#~ "a hardverről a szoftverbe másolja méretezésre.  Ha ki van kapcsolva,\n"
-#~ "a régi méretezési módszert használja, azoknál a videó drivereknél,\n"
-#~ "amelyek nem megfelelően támogatják a textúra hardverről való letöltését."
-
-#~ msgid ""
-#~ "Whether FreeType fonts are used, requires FreeType support to be compiled "
-#~ "in.\n"
-#~ "If disabled, bitmap and XML vectors fonts are used instead."
-#~ msgstr ""
-#~ "Használhatók-e FreeType betűtípusok. Szükséges a beépített FreeType "
-#~ "támogatás.\n"
-#~ "Ha ki van kapcsolva, bittérképes és XML vektoros betűtípusok lesznek "
-#~ "használva helyette."
-
-#~ msgid ""
-#~ "Whether node texture animations should be desynchronized per mapblock."
-#~ msgstr ""
-#~ "Legyen-e független a kockák textúraanimációinak időzítése az egyes "
-#~ "pályablokkokban."
-
-#~ msgid "Whether to allow players to damage and kill each other."
-#~ msgstr "Engedélyezve van-e, hogy a játékosok sebezzék és megöljék egymást."
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#~ msgid "Yes"
-#~ msgstr "Igen"
-
-#, c-format
-#~ msgid ""
-#~ "You are about to join this server with the name \"%s\" for the first "
-#~ "time.\n"
-#~ "If you proceed, a new account using your credentials will be created on "
-#~ "this server.\n"
-#~ "Please retype your password and click 'Register and Join' to confirm "
-#~ "account creation, or click 'Cancel' to abort."
+#~ msgid "Key for toggling the display of the large chat console."
 #~ msgstr ""
-#~ "Most először csatlakozol erre a szerverre a \"%s\" névvel.\n"
-#~ "Ha folytatod, akkor a hitelesítő adataiddal egy új fiók jön létre a "
-#~ "szerveren.\n"
-#~ "Kérlek írd be újra a jelszavad, majd kattints a \"Regisztráció és "
-#~ "Bejelentkezés\"-re, hogy megerősítsd a fióklétrehozást, vagy kattints a "
-#~ "\"Mégse\" gombra a megszakításhoz."
-
-#~ msgid "You died."
-#~ msgstr "Meghaltál."
-
-#~ msgid "You have no games installed."
-#~ msgstr "Nincsenek játékok telepítve."
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "needs_fallback_font"
-#~ msgstr "no"
-
-#~ msgid "ok"
-#~ msgstr "ok"
+#~ "A nagy csevegő konzol megjelenítésének váltására szolgáló billentyű."
 
-#, fuzzy
-#~ msgid "pause_menu"
-#~ msgstr "FPS a szünet menüben"
+#~ msgid "Key to use view zoom when possible."
+#~ msgstr "Billentyű a nézet nagyítás használatához, ha lehetséges."
 
-#~ msgid "press key"
-#~ msgstr "Nyomj meg egy gombot"
+#~ msgid "Node specular"
+#~ msgstr "Kocka tükröződése"

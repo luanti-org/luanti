@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Greek (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"POT-Creation-Date: 2025-07-11 19:59+0200\n"
 "PO-Revision-Date: 2025-07-11 16:39+0000\n"
 "Last-Translator: GiorgeGi <giorgegi729@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -519,6 +519,7 @@ msgid "Error getting dependencies for package $1"
 msgstr "Σφάλμα λήψης εξαρτήσεων για το πακέτο $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "Εγκατάσταση"
 
@@ -611,6 +612,11 @@ msgstr "Αναβάθμιση"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
 msgstr "Ιστοσελίδα"
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "by $1"
+msgstr "$1 με $2"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1369,6 +1375,11 @@ msgid "Done!"
 msgstr "Έτοιμο!"
 
 #: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Εκκίνηση στοιχείων"
 
@@ -1383,6 +1394,11 @@ msgstr "Φόρτωση υφών..."
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
 msgstr "Ανακατασκευή σκίαστρων..."
+
+#: src/client/client.cpp
+#, fuzzy, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "Στιγμιότυπο οθόνης"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -2300,7 +2316,7 @@ msgstr ""
 msgid "Place/use"
 msgstr ""
 
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr ""
 
@@ -2586,7 +2602,7 @@ msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2616,6 +2632,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2689,10 +2711,6 @@ msgid ""
 "to 8 bits.\n"
 "With OpenGL ES, dithering only works if the shader supports high\n"
 "floating-point precision and it may have a higher performance impact."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3288,7 +3306,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4230,6 +4248,7 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4282,6 +4301,7 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 
@@ -4449,14 +4469,6 @@ msgid "Jumping speed"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for decreasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for decreasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
 msgstr ""
 
@@ -4467,49 +4479,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for dropping the currently selected item."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for jumping."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for moving the player backward.\n"
-"Will also disable autoforward, when active."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player forward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player left."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player right."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for muting the game."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4521,164 +4495,9 @@ msgid "Key for opening the chat window to type local commands."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for opening the chat window."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for opening the inventory."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 11th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 12th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 13th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 14th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 15th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 16th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 17th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 18th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 19th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 20th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 21st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 22nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 23rd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 24th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 25th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 26th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 27th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 28th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 29th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 30th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 31st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 32nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the eighth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fifth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the first hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fourth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the next item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the ninth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the previous item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the second hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the seventh hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the sixth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the tenth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the third hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for sneaking.\n"
-"Also used for climbing down and descending in water if aux1_descends is "
-"disabled."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for switching between first- and third-person camera."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4690,55 +4509,7 @@ msgid "Key for switching to the previous entry in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for taking screenshots."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling autoforward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling cinematic mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling display of minimap."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling flying."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fullscreen mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling noclip mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling pitch move mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of chat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of debug info."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of fog."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4746,23 +4517,7 @@ msgid "Key for toggling the display of mapblock boundaries."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the HUD."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the large chat console."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling unlimited view range."
-msgstr "Πλήκτρο για εναλλαγή απεριόριστης απόστασης ορατότητας."
-
-#: src/settings_translation_file.cpp
-msgid "Key to use view zoom when possible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4803,10 +4558,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Large chat console"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5340,6 +5091,12 @@ msgid "Mod channels"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
 msgstr ""
 
@@ -5457,10 +5214,6 @@ msgid "Node highlighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr ""
 
@@ -5500,7 +5253,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 
@@ -5745,6 +5498,11 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "Έξοδος στο κεντρικό μενού"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6628,12 +6386,21 @@ msgid "Toggle fullscreen"
 msgstr "Πλήρης οθόνη"
 
 #: src/settings_translation_file.cpp
+msgid "Toggle large chat console"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Toggle profiler"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "Πλήκτρο για εναλλαγή απεριόριστης απόστασης ορατότητας."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7052,6 +6819,10 @@ msgid "Width of the selection box lines around nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Will also disable autoforward, when active."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr ""
 
@@ -7147,253 +6918,3 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr "Παράλληλο όριο cURL"
-
-#~ msgid "- Address: "
-#~ msgstr "- Διεύθυνση: "
-
-#~ msgid "- Port: "
-#~ msgstr "- Θήρα: "
-
-#~ msgid "3D Clouds"
-#~ msgstr "3D Σύννεφα"
-
-#~ msgid "4x"
-#~ msgstr "4x"
-
-#~ msgid "8x"
-#~ msgstr "8x"
-
-#~ msgid "< Back to Settings page"
-#~ msgstr "< Επιστροφή στη σελίδα Ρυθμίσεις"
-
-#~ msgid "Address / Port"
-#~ msgstr "Διεύθυνση / Θήρα"
-
-#~ msgid "All Settings"
-#~ msgstr "Όλες οι ρυθμίσεις"
-
-#~ msgid "All packages"
-#~ msgstr "Όλα τα Πακέτα"
-
-#~ msgid "Autosave Screen Size"
-#~ msgstr "Αυτόματη αποθήκευση Μεγέθους Οθόνης"
-
-#~ msgid "Back to Main Menu"
-#~ msgstr "Πίσω στο Κύριο Μενού"
-
-#~ msgid "Basic"
-#~ msgstr "Βασικό"
-
-#~ msgid "Bilinear Filter"
-#~ msgstr "Διγραμμικό Φίλτρο"
-
-#~ msgid "Block bounds shown for all blocks"
-#~ msgstr "Τα όρια μπλοκ εμφανίζονται για όλα τα μπλοκ"
-
-#~ msgid "Change Keys"
-#~ msgstr "Αλλαγή πλήκτρων"
-
-#, fuzzy
-#~ msgid "Change keys"
-#~ msgstr "Αλλαγή πλήκτρων"
-
-#~ msgid "Connect"
-#~ msgstr "Σύνδεση"
-
-#, fuzzy, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "Στοιχεία ελέγχου:\n"
-#~ "- %s: κίνηση προς τα εμπρός\n"
-#~ "- %s: κίνηση προς τα πίσω\n"
-#~ "- %s: κίνηση αριστερά\n"
-#~ "- %s: κίνηση δεξιά\n"
-#~ "- %s: άλμα/σκαρφάλωμα\n"
-#~ "- %s: σκάψιμο/διάτρηση\n"
-#~ "- %s: τοποθέτηση/χρήση\n"
-#~ "- %s: ολίσθηση/κατέβασμα\n"
-#~ "- %s: απόθεση αντικειμένου\n"
-#~ "- %s: αποθέματα\n"
-#~ "- Ποντίκι: στροφή/παρακολούθηση\n"
-#~ "- Τροχός ποντικιού: επιλογή στοιχείου\n"
-#~ "- %s: συνομιλία\n"
-
-#~ msgid "Credits"
-#~ msgstr "Μνείες"
-
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "Κρυφές πληροφορίες εντοπισμού σφαλμάτων και γράφημα προφίλ"
-
-#, fuzzy
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr ""
-#~ "Απόκρυψη πληροφοριών εντοπισμού σφαλμάτων, γραφήματος προφίλ και wireframe"
-
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr "Κατέβασε ένα παιχνίδι, όπως το Minetest Game, από το minetest.net"
-
-#~ msgid "Download one from minetest.net"
-#~ msgstr "Κατέβασε ένα από το minetest.net"
-
-#, fuzzy
-#~ msgid "Dynamic shadows:"
-#~ msgstr "Δυναμικές σκιές: "
-
-#, fuzzy
-#~ msgid "Enable"
-#~ msgstr "Ενεργοποιημένο"
-
-#~ msgid "Fancy Leaves"
-#~ msgstr "Φανταχτερά Φύλλα"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "Ρυθμίσεις"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr ""
-#~ "Εγκατάσταση Τροποποίησης: Δεν είναι δυνατή η εύρεση του πραγματικού "
-#~ "ονόματος τροποποίησης για: $1"
-
-#~ msgid "Install: file: \"$1\""
-#~ msgstr "Εγκατάσταση: αρχείο: \"$1\""
-
-#~ msgid "Invalid gamespec."
-#~ msgstr "Μη έγκυρη προδιαγραφή παιχνιδιού."
-
-#~ msgid "Key already in use"
-#~ msgstr "Το πλήκτρο ήδη χρησιμοποιείται"
-
-#~ msgid "Left"
-#~ msgstr "Αριστερά"
-
-#~ msgid "Name / Password"
-#~ msgstr "Όνομα / Κωδικός"
-
-#~ msgid "Next item"
-#~ msgstr "Επόμενο αντικείμενο"
-
-#~ msgid "No Filter"
-#~ msgstr "Χωρίς Φίλτρο"
-
-#~ msgid "Node Outlining"
-#~ msgstr "Περίγραμμα Στοιχείων"
-
-#~ msgid "None"
-#~ msgstr "Κανένα"
-
-#~ msgid "Ok"
-#~ msgstr "Οκ"
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "Αδιαφανή Φύλλα"
-
-#~ msgid "Opaque Water"
-#~ msgstr "Αδιαφανές Νερό"
-
-#~ msgid "Particles"
-#~ msgstr "Σωματίδια"
-
-#~ msgid "Player name"
-#~ msgstr "Όνομα παίκτη"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "Εισαγάγετε έναν έγκυρο ακέραιο αριθμό."
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "Εισαγάγετε έναν έγκυρο αριθμό."
-
-#~ msgid "Right"
-#~ msgstr "Δεξιά"
-
-#~ msgid "Screen:"
-#~ msgstr "Οθόνη:"
-
-#, fuzzy
-#~ msgid "Shaders are disabled."
-#~ msgstr "Η ενημέρωση κάμερας απενεργοποιήθηκε"
-
-#~ msgid "Simple Leaves"
-#~ msgstr "Απλά Φύλλα"
-
-#~ msgid "Sound system is disabled"
-#~ msgstr "Το Σύστημα Ήχου είναι απενεργοποιημένο"
-
-#~ msgid "Special key"
-#~ msgstr "Ειδικό πλήκτρο"
-
-#~ msgid "Texturing:"
-#~ msgstr "Υφή:"
-
-#~ msgid "The value must be at least $1."
-#~ msgstr "Η τιμή πρέπει να είναι τουλάχιστον $1."
-
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "Η τιμή δεν πρέπει να είναι μεγαλύτερη από $1."
-
-#~ msgid "Tone Mapping"
-#~ msgstr "Χαρτογράφηση Τόνου"
-
-#~ msgid "Trilinear Filter"
-#~ msgstr "Τριγραμμικό Φίλτρο"
-
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "Δεν είναι δυνατή η εγκατάσταση ενός παιχνιδιού ως $1"
-
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "Δεν είναι δυνατή η εγκατάσταση πακέτου τροποποίησης ως $1"
-
-#~ msgid "Uninstall Package"
-#~ msgstr "Απεγκατάσταση πακέτου"
-
-#~ msgid "Up"
-#~ msgstr "Πάνω"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "Δείτε περισσότερες πληροφορίες σε ένα πρόγραμμα περιήγησης ιστού"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "Το εύρος προβολής πρέπει να είναι έως: %d"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "Κινούμενα Φύλλα"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "Κυματιζόμενα Υγρά"
-
-#~ msgid "Waving Plants"
-#~ msgstr "Κυματιζόμενα Φυτά"
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#, fuzzy
-#~ msgid "You died."
-#~ msgstr "Πέθανες"
-
-#~ msgid "You have no games installed."
-#~ msgstr "Δεν έχετε εγκαταστήσει παιχνίδια."
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "needs_fallback_font"
-#~ msgstr "needs_fallback_font"

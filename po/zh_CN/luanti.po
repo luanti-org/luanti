@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Chinese (Simplified) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"POT-Creation-Date: 2025-07-11 19:59+0200\n"
 "PO-Revision-Date: 2025-06-08 13:07+0000\n"
 "Last-Translator: maxchen32 <maxchen32@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
@@ -511,6 +511,7 @@ msgid "Error getting dependencies for package $1"
 msgstr "无法获取$1的依赖项"
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "安装"
 
@@ -601,6 +602,11 @@ msgstr "更新"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
 msgstr "网站"
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "by $1"
+msgstr "$1 作者： $2"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1335,6 +1341,11 @@ msgid "Done!"
 msgstr "完成!"
 
 #: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "初始化方块中"
 
@@ -1349,6 +1360,11 @@ msgstr "载入材质..."
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
 msgstr "重建着色器..."
+
+#: src/client/client.cpp
+#, fuzzy, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "屏幕截图"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -2240,7 +2256,7 @@ msgstr "溢出菜单"
 msgid "Place/use"
 msgstr "放置/使用"
 
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "选择范围"
 
@@ -2558,7 +2574,7 @@ msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr "调整检测到的显示密度，用来缩放 UI 元素。"
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2593,6 +2609,15 @@ msgstr "使用 3D 而不是扁平的云朵外观。"
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
 msgstr "允许液体呈现半透明效果。"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"潜行（下蹲）键。\n"
+"若aux1_descends禁用，也可用于向下攀爬、在水中向下游。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2675,10 +2700,6 @@ msgstr ""
 "或颜色通道没有量化到 8 位，则会造成错误工作。\n"
 "在 OpenGL ES 中，抖动仅在着色器支持高浮点精度时有效，并且可能会产生更高的性能"
 "影响。"
-
-#: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
-msgstr "对节点应用高光阴影。"
 
 #: src/settings_translation_file.cpp
 msgid "Arm inertia"
@@ -3336,9 +3357,10 @@ msgid "Defines tree areas and tree density."
 msgstr "定义森林面积和森林密度。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 "客户端网格更新的延迟（以毫秒计）。增大该数值将降低\n"
 "网格更新速率，从而减少较慢客户端的抖动现象。"
@@ -4375,6 +4397,7 @@ msgstr ""
 "启用飞行时忽略此功能。"
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4441,6 +4464,7 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr "游戏内聊天控制台背景色(红,绿,蓝)。"
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "游戏内聊天控制台高度，0.1(10%)~1.0(100%)。"
 
@@ -4634,14 +4658,6 @@ msgid "Jumping speed"
 msgstr "跳跃速度"
 
 #: src/settings_translation_file.cpp
-msgid "Key for decreasing the viewing range."
-msgstr "用于缩小水平视野范围的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for decreasing the volume."
-msgstr "减小音量的按键。"
-
-#: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
 msgstr ""
 
@@ -4654,52 +4670,12 @@ msgstr ""
 "（注意：实际作用可能因子游戏而异。）"
 
 #: src/settings_translation_file.cpp
-msgid "Key for dropping the currently selected item."
-msgstr "丢弃手中物品的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the viewing range."
-msgstr "用于扩大水平视野范围的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the volume."
-msgstr "增大音量的按键。"
-
-#: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for jumping."
-msgstr "用于跳跃的按键。"
-
-#: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
 msgstr "用于在快速模式下快速移动的按键。"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for moving the player backward.\n"
-"Will also disable autoforward, when active."
-msgstr ""
-"后退键。\n"
-"在按下时也会取消自动前进。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player forward."
-msgstr "向前移动玩家的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player left."
-msgstr "向左移动玩家的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player right."
-msgstr "向右移动玩家的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for muting the game."
-msgstr "将游戏静音的按键。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type commands."
@@ -4710,169 +4686,12 @@ msgid "Key for opening the chat window to type local commands."
 msgstr "打开聊天窗口输入本地命令的按键。"
 
 #: src/settings_translation_file.cpp
-msgid "Key for opening the chat window."
-msgstr "打开聊天窗口的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for opening the inventory."
-msgstr "用于打开物品栏的按键。"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
 "放置物品/方块或使用的按键。\n"
 "（注意：实际作用可能因子游戏而异。）"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 11th hotbar slot."
-msgstr "选中快捷栏第11项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 12th hotbar slot."
-msgstr "选中快捷栏第12项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 13th hotbar slot."
-msgstr "选中快捷栏第13项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 14th hotbar slot."
-msgstr "选中快捷栏第14项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 15th hotbar slot."
-msgstr "选中快捷栏第15项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 16th hotbar slot."
-msgstr "选中快捷栏第16项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 17th hotbar slot."
-msgstr "选中快捷栏第17项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 18th hotbar slot."
-msgstr "选中快捷栏第18项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 19th hotbar slot."
-msgstr "选中快捷栏第19项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 20th hotbar slot."
-msgstr "选中快捷栏第20项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 21st hotbar slot."
-msgstr "选中快捷栏第21项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 22nd hotbar slot."
-msgstr "选中快捷栏第22项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 23rd hotbar slot."
-msgstr "选中快捷栏第23项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 24th hotbar slot."
-msgstr "选中快捷栏第24项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 25th hotbar slot."
-msgstr "选中快捷栏第25项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 26th hotbar slot."
-msgstr "选中快捷栏第26项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 27th hotbar slot."
-msgstr "选中快捷栏第27项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 28th hotbar slot."
-msgstr "选中快捷栏第28项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 29th hotbar slot."
-msgstr "选中快捷栏第29项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 30th hotbar slot."
-msgstr "选中快捷栏第30项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 31st hotbar slot."
-msgstr "选中快捷栏第31项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 32nd hotbar slot."
-msgstr "选中快捷栏第32项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the eighth hotbar slot."
-msgstr "选中快捷栏第8项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fifth hotbar slot."
-msgstr "选中快捷栏第5项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the first hotbar slot."
-msgstr "选中快捷栏第1项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fourth hotbar slot."
-msgstr "选中快捷栏第4项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the next item in the hotbar."
-msgstr "选中快捷栏下一项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the ninth hotbar slot."
-msgstr "选中快捷栏第9项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the previous item in the hotbar."
-msgstr "选中快捷栏上一项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the second hotbar slot."
-msgstr "选中快捷栏第2项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the seventh hotbar slot."
-msgstr "选中快捷栏第7项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the sixth hotbar slot."
-msgstr "选中快捷栏第6项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the tenth hotbar slot."
-msgstr "选中快捷栏第10项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the third hotbar slot."
-msgstr "选中快捷栏第3项的按键。"
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for sneaking.\n"
-"Also used for climbing down and descending in water if aux1_descends is "
-"disabled."
-msgstr ""
-"潜行（下蹲）键。\n"
-"若aux1_descends禁用，也可用于向下攀爬、在水中向下游。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for switching between first- and third-person camera."
-msgstr "切换第一人称和第三人称视角的按键。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the next entry in Quicktune."
@@ -4883,80 +4702,16 @@ msgid "Key for switching to the previous entry in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for taking screenshots."
-msgstr "用于屏幕截图的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling autoforward."
-msgstr "启用/禁用自动前进的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling cinematic mode."
-msgstr "用于切换电影模式（镜头平滑）的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling display of minimap."
-msgstr "显示/隐藏小地图的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fast mode."
-msgstr "启用/禁用快速模式的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling flying."
-msgstr "启用/禁用飞行模式的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fullscreen mode."
-msgstr "用于切换全屏模式的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling noclip mode."
-msgstr "启用/禁用穿墙模式的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling pitch move mode."
-msgstr "启用/禁用俯仰移动模式的按键。"
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
 msgstr "启用/禁用相机更新。仅在具有“debug”权限时可用。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of chat."
-msgstr "启用/禁用聊天显示的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of debug info."
-msgstr "显示/隐藏调试信息的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of fog."
-msgstr "启用/禁用雾气显示的按键。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of mapblock boundaries."
 msgstr "显示/隐藏区块边界的按键。"
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the HUD."
-msgstr "显示/隐藏HUD的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the large chat console."
-msgstr "显示/隐藏大型聊天控制台的按键。"
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
 msgstr "显示/隐藏性能分析信息的按键。用于开发。"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling unlimited view range."
-msgstr "用于启用/禁用无限视野的按键。"
-
-#: src/settings_translation_file.cpp
-msgid "Key to use view zoom when possible."
-msgstr "视距缩放可用时使用的按键。"
 
 #: src/settings_translation_file.cpp
 msgid "Keybindings"
@@ -4997,10 +4752,6 @@ msgstr "大型洞穴最小数量"
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr "大型洞穴淹没比"
-
-#: src/settings_translation_file.cpp
-msgid "Large chat console"
-msgstr "大型聊天控制台"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -5600,6 +5351,12 @@ msgid "Mod channels"
 msgstr "mod频道"
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
 msgstr "更改 HUD 栏元素大小。"
 
@@ -5723,10 +5480,6 @@ msgid "Node highlighting"
 msgstr "方块高亮"
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr "节点高光"
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr "NodeTimer间隔"
 
@@ -5777,9 +5530,10 @@ msgid "Number of messages a player may send per 10 seconds."
 msgstr "每10秒发送给玩家的消息量。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 "用于生成网格的线程数。\n"
@@ -6059,6 +5813,11 @@ msgstr ""
 "LOOKUP_NODES_LIMIT：16（禁止客户端 get_node 调用限制为\n"
 "csm_restriction_noderange）\n"
 "READ_PLAYERINFO：32（禁止客户端调用 get_player_names）"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "退出至主菜单"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6610,8 +6369,9 @@ msgstr "平滑滚动"
 msgid ""
 "Smooths rotation of camera when in cinematic mode, 0 to disable. Enter "
 "cinematic mode by using the key set in Controls."
-msgstr "在电影模式中让相机旋转变流畅。设为 0 "
-"以停用。使用控制中设置的按键进入电影模式。"
+msgstr ""
+"在电影模式中让相机旋转变流畅。设为 0 以停用。使用控制中设置的按键进入电影模"
+"式。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7123,12 +6883,22 @@ msgid "Toggle fullscreen"
 msgstr "切换全屏模式"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle large chat console"
+msgstr "大型聊天控制台"
+
+#: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "启用/禁用仰角移动模式"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle profiler"
 msgstr "显示/隐藏性能分析信息"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "用于启用/禁用无限视野的按键。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7607,6 +7377,13 @@ msgid "Width of the selection box lines around nodes."
 msgstr "结点周围的选择框的线宽。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Will also disable autoforward, when active."
+msgstr ""
+"后退键。\n"
+"在按下时也会取消自动前进。"
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr "窗口放大"
 
@@ -7717,1797 +7494,194 @@ msgstr "cURL 超时"
 msgid "cURL parallel limit"
 msgstr "cURL 并发限制"
 
-#~ msgid "\"Aux1\" = climb down"
-#~ msgstr "“Aux1” = 向下爬"
+#~ msgid "Apply specular shading to nodes."
+#~ msgstr "对节点应用高光阴影。"
 
-#~ msgid "(game support required)"
-#~ msgstr "（需要子游戏支持）"
+#~ msgid "Key for decreasing the viewing range."
+#~ msgstr "用于缩小水平视野范围的按键。"
 
-#~ msgid "- Address: "
-#~ msgstr "- 地址： "
+#~ msgid "Key for decreasing the volume."
+#~ msgstr "减小音量的按键。"
 
-#~ msgid "- Creative Mode: "
-#~ msgstr "- 创造模式: "
+#~ msgid "Key for dropping the currently selected item."
+#~ msgstr "丢弃手中物品的按键。"
 
-#~ msgid "- Damage: "
-#~ msgstr "- 伤害: "
+#~ msgid "Key for increasing the viewing range."
+#~ msgstr "用于扩大水平视野范围的按键。"
 
-#~ msgid "- Port: "
-#~ msgstr "- 端口: "
+#~ msgid "Key for increasing the volume."
+#~ msgstr "增大音量的按键。"
 
-#~ msgid ""
-#~ "0 = parallax occlusion with slope information (faster).\n"
-#~ "1 = relief mapping (slower, more accurate)."
-#~ msgstr ""
-#~ "0 = 利用梯度信息进行视差遮蔽 (较快).\n"
-#~ "1 = 浮雕映射 (较慢, 但准确)."
+#~ msgid "Key for jumping."
+#~ msgstr "用于跳跃的按键。"
 
-#~ msgid "2x"
-#~ msgstr "两倍"
+#~ msgid "Key for moving the player forward."
+#~ msgstr "向前移动玩家的按键。"
 
-#~ msgid "3D Clouds"
-#~ msgstr "3D 云彩"
+#~ msgid "Key for moving the player left."
+#~ msgstr "向左移动玩家的按键。"
 
-#~ msgid "3d"
-#~ msgstr "3D"
+#~ msgid "Key for moving the player right."
+#~ msgstr "向右移动玩家的按键。"
 
-#~ msgid "4x"
-#~ msgstr "四倍"
+#~ msgid "Key for muting the game."
+#~ msgstr "将游戏静音的按键。"
 
-#~ msgid "8x"
-#~ msgstr "八倍"
+#~ msgid "Key for opening the chat window."
+#~ msgstr "打开聊天窗口的按键。"
 
-#~ msgid "< Back to Settings page"
-#~ msgstr "< 返回设置页面"
+#~ msgid "Key for opening the inventory."
+#~ msgstr "用于打开物品栏的按键。"
 
-#~ msgid "Address / Port"
-#~ msgstr "地址/端口"
+#~ msgid "Key for selecting the 11th hotbar slot."
+#~ msgstr "选中快捷栏第11项的按键。"
 
-#~ msgid ""
-#~ "Address to connect to.\n"
-#~ "Leave this blank to start a local server.\n"
-#~ "Note that the address field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "服务器连接地址。\n"
-#~ "留空则启动一个本地服务器。\n"
-#~ "注意，主菜单的地址栏将会覆盖这里的设置。"
+#~ msgid "Key for selecting the 12th hotbar slot."
+#~ msgstr "选中快捷栏第12项的按键。"
 
-#~ msgid "Adds particles when digging a node."
-#~ msgstr "挖方块时添加粒子。"
+#~ msgid "Key for selecting the 13th hotbar slot."
+#~ msgstr "选中快捷栏第13项的按键。"
 
-#~ msgid ""
-#~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
-#~ "4k screens."
-#~ msgstr "为支持4K等屏幕，调节像素点密度（非 X11/Android 环境才有效）。"
+#~ msgid "Key for selecting the 14th hotbar slot."
+#~ msgstr "选中快捷栏第14项的按键。"
 
-#~ msgid ""
-#~ "Adjust the gamma encoding for the light tables. Higher numbers are "
-#~ "brighter.\n"
-#~ "This setting is for the client only and is ignored by the server."
-#~ msgstr ""
-#~ "调整亮度表的伽玛编码。较高的数值会较亮。\n"
-#~ "这个设定是给客户端使用的，会被服务器忽略。"
+#~ msgid "Key for selecting the 15th hotbar slot."
+#~ msgstr "选中快捷栏第15项的按键。"
 
-#~ msgid "All Settings"
-#~ msgstr "所有设置"
+#~ msgid "Key for selecting the 16th hotbar slot."
+#~ msgstr "选中快捷栏第16项的按键。"
 
-#~ msgid "All packages"
-#~ msgstr "所有包"
+#~ msgid "Key for selecting the 17th hotbar slot."
+#~ msgstr "选中快捷栏第17项的按键。"
 
-#~ msgid "Are you sure to reset your singleplayer world?"
-#~ msgstr "你确定要重置你的单人世界吗？"
+#~ msgid "Key for selecting the 18th hotbar slot."
+#~ msgstr "选中快捷栏第18项的按键。"
 
-#~ msgid "Autosave Screen Size"
-#~ msgstr "自动保存屏幕尺寸"
+#~ msgid "Key for selecting the 19th hotbar slot."
+#~ msgstr "选中快捷栏第19项的按键。"
 
-#~ msgid "Back to Main Menu"
-#~ msgstr "返回主菜单"
+#~ msgid "Key for selecting the 20th hotbar slot."
+#~ msgstr "选中快捷栏第20项的按键。"
 
-#~ msgid "Backward key"
-#~ msgstr "后退键"
+#~ msgid "Key for selecting the 21st hotbar slot."
+#~ msgstr "选中快捷栏第21项的按键。"
 
-#~ msgid "Basic"
-#~ msgstr "基础"
+#~ msgid "Key for selecting the 22nd hotbar slot."
+#~ msgstr "选中快捷栏第22项的按键。"
 
-#~ msgid "Bilinear Filter"
-#~ msgstr "双线性过滤"
+#~ msgid "Key for selecting the 23rd hotbar slot."
+#~ msgstr "选中快捷栏第23项的按键。"
 
-#, fuzzy
-#~ msgid "Biome API noise parameters"
-#~ msgstr "生物群系 API 温度和湿度噪声参数"
+#~ msgid "Key for selecting the 24th hotbar slot."
+#~ msgstr "选中快捷栏第24项的按键。"
 
-#~ msgid "Bits per pixel (aka color depth) in fullscreen mode."
-#~ msgstr "全屏模式中的位每像素（又称色彩深度）。"
+#~ msgid "Key for selecting the 25th hotbar slot."
+#~ msgstr "选中快捷栏第25项的按键。"
 
-#~ msgid "Block bounds shown for all blocks"
-#~ msgstr "已为所有方块描边"
+#~ msgid "Key for selecting the 26th hotbar slot."
+#~ msgstr "选中快捷栏第26项的按键。"
 
-#~ msgid "Bloom"
-#~ msgstr "泛光"
+#~ msgid "Key for selecting the 27th hotbar slot."
+#~ msgstr "选中快捷栏第27项的按键。"
 
-#~ msgid "Bloom Intensity"
-#~ msgstr "泛光强度"
+#~ msgid "Key for selecting the 28th hotbar slot."
+#~ msgstr "选中快捷栏第28项的按键。"
 
-#~ msgid "Bloom Radius"
-#~ msgstr "泛光半径"
-
-#~ msgid "Bloom Strength Factor"
-#~ msgstr "泛光强度因子"
+#~ msgid "Key for selecting the 29th hotbar slot."
+#~ msgstr "选中快捷栏第29项的按键。"
 
-#~ msgid "Bump Mapping"
-#~ msgstr "凹凸贴图"
+#~ msgid "Key for selecting the 30th hotbar slot."
+#~ msgstr "选中快捷栏第30项的按键。"
 
-#~ msgid "Bumpmapping"
-#~ msgstr "凹凸贴图"
-
-#~ msgid ""
-#~ "Camera 'near clipping plane' distance in nodes, between 0 and 0.25\n"
-#~ "Only works on GLES platforms. Most users will not need to change this.\n"
-#~ "Increasing can reduce artifacting on weaker GPUs.\n"
-#~ "0.1 = Default, 0.25 = Good value for weaker tablets."
-#~ msgstr ""
-#~ "相机在节点附近的“剪切平面附近”距离，介于0到0.25之间。\n"
-#~ "大多数用户不需要更改此设置。\n"
-#~ "增加可以减少较弱GPU上的伪影。\n"
-#~ "0.1 =默认值，0.25 =对于较弱的平板电脑来说是不错的值。"
-
-#~ msgid "Camera update toggle key"
-#~ msgstr "镜头更新启用/禁用键"
-
-#~ msgid "Change Keys"
-#~ msgstr "更改键位设置"
-
-#, fuzzy
-#~ msgid "Change keys"
-#~ msgstr "更改键位设置"
-
-#~ msgid ""
-#~ "Changes the main menu UI:\n"
-#~ "-   Full:  Multiple singleplayer worlds, game choice, texture pack "
-#~ "chooser, etc.\n"
-#~ "-   Simple: One singleplayer world, no game or texture pack choosers. May "
-#~ "be\n"
-#~ "necessary for smaller screens."
-#~ msgstr ""
-#~ "主菜单UI的变化：\n"
-#~ "-   完整  多个单人世界，子游戏选择，材质包选择器等。\n"
-#~ "-   简单：单个单人世界，无子游戏材质包选择器。可能\n"
-#~ "需要用于小屏幕。"
-
-#~ msgid "Chat key"
-#~ msgstr "聊天键"
-
-#~ msgid "Chat toggle key"
-#~ msgstr "聊天启用/禁用键"
-
-#~ msgid "Cinematic mode"
-#~ msgstr "电影模式"
-
-#~ msgid "Cinematic mode key"
-#~ msgstr "电影模式键"
-
-#~ msgid "Clean transparent textures"
-#~ msgstr "干净透明材质"
-
-#~ msgid "Clouds are a client-side effect."
-#~ msgstr "云是客户端效果。"
-
-#~ msgid "Command key"
-#~ msgstr "命令键"
-
-#~ msgid "Config mods"
-#~ msgstr "配置 mod"
-
-#~ msgid "Configure"
-#~ msgstr "配置"
-
-#~ msgid "Connect"
-#~ msgstr "连接"
-
-#~ msgid "Connected Glass"
-#~ msgstr "连通玻璃"
-
-#~ msgid "Console"
-#~ msgstr "控制台"
-
-#~ msgid "Continuous forward"
-#~ msgstr "自动前进"
-
-#~ msgid ""
-#~ "Continuous forward movement, toggled by autoforward key.\n"
-#~ "Press the autoforward key again or the backwards movement to disable."
-#~ msgstr ""
-#~ "自动前进，通过自动前进键启用/禁用。\n"
-#~ "再次按下自动前进键或后退以关闭。"
-
-#~ msgid "Controls sinking speed in liquid."
-#~ msgstr "控制在液体中的下沉速度。"
-
-#, fuzzy
-#~ msgid ""
-#~ "Controls the density of mountain-type floatlands.\n"
-#~ "Is a noise offset added to the 'mgv7_np_mountain' noise value."
-#~ msgstr ""
-#~ "控制 floatland 地形的密度。\n"
-#~ "是添加到 \"np_mountain\" 噪声值的偏移量。"
-
-#~ msgid "Controls width of tunnels, a smaller value creates wider tunnels."
-#~ msgstr "控制隧道宽度，较小的值创建更宽的隧道。"
-
-#, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "控制：\n"
-#~ "- %s：向前移动\n"
-#~ "- %s：向后移动\n"
-#~ "- %s：向左移动\n"
-#~ "- %s：向右移动\n"
-#~ "- %s：跳/向上攀爬\n"
-#~ "- %s：挖/打/使用\n"
-#~ "- %s：放/使用\n"
-#~ "- %s：潜行/向下攀爬\n"
-#~ "- %s：丢弃物品\n"
-#~ "- %s：物品栏\n"
-#~ "- 鼠标：转身/环顾\n"
-#~ "- 鼠标滚轮：选择物品\n"
-#~ "- %s：聊天\n"
-
-#~ msgid "Creative"
-#~ msgstr "创造"
-
-#~ msgid "Credits"
-#~ msgstr "贡献者"
-
-#~ msgid "Crosshair color (R,G,B)."
-#~ msgstr "准星颜色（红,绿,蓝）。"
-
-#~ msgid "DPI"
-#~ msgstr "DPI"
-
-#~ msgid "Damage"
-#~ msgstr "伤害"
-
-#~ msgid "Damage enabled"
-#~ msgstr "伤害已启用"
-
-#, fuzzy
-#~ msgid "Darkness sharpness"
-#~ msgstr "地图生成器平面湖坡度"
-
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "调试信息和性能分析图已隐藏"
-
-#~ msgid "Debug info toggle key"
-#~ msgstr "调试信息启用/禁用键"
-
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr "调试信息、性能分析图和线框已隐藏"
-
-#~ msgid "Dec. volume key"
-#~ msgstr "音量减小键"
-
-#~ msgid "Default game"
-#~ msgstr "默认游戏"
-
-#~ msgid ""
-#~ "Default game when creating a new world.\n"
-#~ "This will be overridden when creating a world from the main menu."
-#~ msgstr ""
-#~ "创建新世界时的默认游戏。\n"
-#~ "从主菜单创建一个新世界时这将被覆盖。"
-
-#~ msgid ""
-#~ "Default timeout for cURL, stated in milliseconds.\n"
-#~ "Only has an effect if compiled with cURL."
-#~ msgstr ""
-#~ "cURL 的默认时限，单位毫秒。\n"
-#~ "仅使用 cURL 编译时有效果。"
-
-#~ msgid ""
-#~ "Defines areas of floatland smooth terrain.\n"
-#~ "Smooth floatlands occur when noise > 0."
-#~ msgstr ""
-#~ "定义 floatland 平滑地形的区域。\n"
-#~ "当噪音0时, 平滑的 floatlands 发生。"
-
-#~ msgid ""
-#~ "Defines how much bloom is applied to the rendered image\n"
-#~ "Smaller values make bloom more subtle\n"
-#~ "Range: from 0.01 to 1.0, default: 0.05"
-#~ msgstr ""
-#~ "定义对渲染图像的晕染程度\n"
-#~ "数值越小，晕染越细腻\n"
-#~ "范围：0.01 至 1.0，默认值：0.05"
-
-#~ msgid ""
-#~ "Defines sampling step of texture.\n"
-#~ "A higher value results in smoother normal maps."
-#~ msgstr ""
-#~ "定义材质采样步骤。\n"
-#~ "数值越高常态贴图越平滑。"
-
-#~ msgid ""
-#~ "Defines the magnitude of bloom overexposure.\n"
-#~ "Range: from 0.1 to 10.0, default: 1.0"
-#~ msgstr ""
-#~ "定义泛光的程度。\n"
-#~ "范围：0.1 至 10.0，默认值：1.0"
-
-#~ msgid "Del. Favorite"
-#~ msgstr "删除收藏项"
-
-#~ msgid "Desynchronize block animation"
-#~ msgstr "去同步块动画"
-
-#~ msgid "Dig key"
-#~ msgstr "挖掘键"
-
-#~ msgid "Digging particles"
-#~ msgstr "挖掘粒子效果"
-
-#~ msgid "Disable anticheat"
-#~ msgstr "禁用反作弊"
-
-#~ msgid "Double tap \"jump\" to toggle fly"
-#~ msgstr "连按两次“跳”启用/禁用飞行模式"
-
-#~ msgid "Down"
-#~ msgstr "向下"
-
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr "从 minetest.net 下载一个子游戏，例如 minetest_game"
-
-#~ msgid "Download one from minetest.net"
-#~ msgstr "从 minetest.net 下载一个"
-
-#~ msgid "Downloading and installing $1, please wait..."
-#~ msgstr "正在下载和安装 $1，请稍等..."
-
-#~ msgid "Dynamic shadows:"
-#~ msgstr "动态阴影："
-
-#, fuzzy
-#~ msgid "Enable"
-#~ msgstr "启用"
-
-#~ msgid "Enable VBO"
-#~ msgstr "启用 VBO"
-
-#~ msgid "Enable creative mode for all players"
-#~ msgstr "为所有玩家启用创造模式"
-
-#~ msgid "Enable players getting damage and dying."
-#~ msgstr "启用玩家受到伤害和死亡。"
-
-#~ msgid "Enable register confirmation"
-#~ msgstr "启用注册确认"
-
-#, fuzzy
-#~ msgid "Enable touchscreen"
-#~ msgstr "触摸屏"
-
-#~ msgid ""
-#~ "Enable vertex buffer objects.\n"
-#~ "This should greatly improve graphics performance."
-#~ msgstr ""
-#~ "启用顶点缓冲对象。\n"
-#~ "这会极大改善图像性能。"
-
-#, fuzzy
-#~ msgid ""
-#~ "Enable/disable running an IPv6 server.\n"
-#~ "Ignored if bind_address is set."
-#~ msgstr ""
-#~ "允许/禁止运行 IPv6 服务器。\n"
-#~ "如果设置了 bind_address 则本项被忽略。\n"
-#~ "需要开启 enable_ipv6。"
-
-#~ msgid ""
-#~ "Enables bumpmapping for textures. Normalmaps need to be supplied by the "
-#~ "texture pack\n"
-#~ "or need to be auto-generated.\n"
-#~ "Requires shaders to be enabled."
-#~ msgstr ""
-#~ "启用材质的凹凸贴图效果。需要材质包支持法线贴图，\n"
-#~ "否则将自动生成法线。\n"
-#~ "需要启用着色器。"
-
-#, fuzzy
-#~ msgid ""
-#~ "Enables caching of facedir rotated meshes.\n"
-#~ "This is only effective with shaders disabled."
-#~ msgstr "启用翻转网状物facedir的缓存。"
-
-#~ msgid "Enables filmic tone mapping"
-#~ msgstr "启用电影基调映射"
-
-#~ msgid "Enables minimap."
-#~ msgstr "启用小地图。"
-
-#~ msgid ""
-#~ "Enables on the fly normalmap generation (Emboss effect).\n"
-#~ "Requires bumpmapping to be enabled."
-#~ msgstr ""
-#~ "启用即时法线贴图生成（浮雕效果）。\n"
-#~ "需要启用凹凸贴图。"
-
-#~ msgid ""
-#~ "Enables parallax occlusion mapping.\n"
-#~ "Requires shaders to be enabled."
-#~ msgstr ""
-#~ "启用视差遮蔽贴图。\n"
-#~ "需要启用着色器。"
-
-#~ msgid ""
-#~ "Enables the sound system.\n"
-#~ "If disabled, this completely disables all sounds everywhere and the in-"
-#~ "game\n"
-#~ "sound controls will be non-functional.\n"
-#~ "Changing this setting requires a restart."
-#~ msgstr ""
-#~ "启用声音系统。\n"
-#~ "如果禁用，则完全禁用游戏中所有声音。\n"
-#~ "游戏内声音控制将失效。\n"
-#~ "改变此设置需要重启。"
-
-#, fuzzy
-#~ msgid ""
-#~ "Enables touchscreen mode, allowing you to play the game with a "
-#~ "touchscreen."
-#~ msgstr "启用触摸屏模式。启用后您可以使用触摸屏玩游戏。"
-
-#~ msgid "Enter "
-#~ msgstr "输入 "
-
-#~ msgid ""
-#~ "Experimental option, might cause visible spaces between blocks\n"
-#~ "when set to higher number than 0."
-#~ msgstr ""
-#~ "实验性选项，设为大于 0 的数字时可能导致\n"
-#~ "块之间出现可见空间。"
-
-#~ msgid "FSAA"
-#~ msgstr "FSAA"
-
-#~ msgid "Fall bobbing factor"
-#~ msgstr "坠落上下摆动系数"
-
-#~ msgid "Fallback font shadow"
-#~ msgstr "后备字体阴影"
-
-#~ msgid "Fallback font shadow alpha"
-#~ msgstr "后备字体阴影透明度"
-
-#~ msgid "Fallback font size"
-#~ msgstr "后备字体大小"
-
-#~ msgid "Fancy Leaves"
-#~ msgstr "华丽树叶"
-
-#~ msgid "Fast key"
-#~ msgstr "快速键"
-
-#~ msgid ""
-#~ "Fast movement (via the \"Aux1\" key).\n"
-#~ "This requires the \"fast\" privilege on the server."
-#~ msgstr ""
-#~ "快速移动（通过“Aux1”键）。\n"
-#~ "这需要服务器的“fast”权限。"
-
-#~ msgid ""
-#~ "Filtered textures can blend RGB values with fully-transparent neighbors,\n"
-#~ "which PNG optimizers usually discard, often resulting in dark or\n"
-#~ "light edges to transparent textures. Apply a filter to clean that up\n"
-#~ "at texture load time. This is automatically enabled if mipmapping is "
-#~ "enabled."
-#~ msgstr ""
-#~ "经过滤的材质会与邻近的全透明材质混合RGB值，\n"
-#~ "该值通常会被PNG优化器丢弃，某些时候会给透明材质产生暗色或\n"
-#~ "亮色的边缘。应用该过滤器将在材质加载时移除该效果。\n"
-#~ "该过滤器将在启用mipmapping的时候被自动应用。"
-
-#~ msgid "Filtering"
-#~ msgstr "过滤"
-
-#~ msgid "Fly key"
-#~ msgstr "飞行键"
-
-#~ msgid "Flying"
-#~ msgstr "飞行"
-
-#~ msgid "Fog toggle key"
-#~ msgstr "雾启用/禁用键"
-
-#~ msgid "Font shadow alpha (opaqueness, between 0 and 255)."
-#~ msgstr "字体阴影不透明度（0-255）。"
-
-#~ msgid "Font size of the fallback font in point (pt)."
-#~ msgstr "后备字体大小，单位pt。"
-
-#~ msgid "Formspec Default Background Color"
-#~ msgstr "窗口默认背景色"
-
-#~ msgid "Formspec Default Background Opacity"
-#~ msgstr "窗口默认背景不透明度"
-
-#~ msgid "Formspec default background color (R,G,B)."
-#~ msgstr "窗口默认背景色(红,绿,蓝)。"
-
-#~ msgid "Formspec default background opacity (between 0 and 255)."
-#~ msgstr "窗口默认背景不透明度(0~255)。"
-
-#~ msgid "Forward"
-#~ msgstr "向前"
-
-#~ msgid "Forward key"
-#~ msgstr "前进键"
-
-#~ msgid "FreeType fonts"
-#~ msgstr "FreeType 字体"
-
-#~ msgid "Full screen BPP"
-#~ msgstr "全屏 BPP"
-
-#~ msgid "GUI scaling filter txr2img"
-#~ msgstr "GUI缩放过滤器 txr2img"
-
-#~ msgid "Gamma"
-#~ msgstr "伽马"
-
-#~ msgid "Generate Normal Maps"
-#~ msgstr "生成法线贴图"
-
-#~ msgid "Generate normalmaps"
-#~ msgstr "生成发现贴图"
-
-#~ msgid "HUD scale factor"
-#~ msgstr "HUD 缩放比例系数"
-
-#~ msgid "HUD toggle key"
-#~ msgstr "HUD启用/禁用键"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "临时设置"
-
-#~ msgid "High-precision FPU"
-#~ msgstr "高精度 FPU"
-
-#~ msgid "IPv6 support."
-#~ msgstr "IPv6 支持。"
-
-#~ msgid ""
-#~ "If enabled together with fly mode, player is able to fly through solid "
-#~ "nodes.\n"
-#~ "This requires the \"noclip\" privilege on the server."
-#~ msgstr ""
-#~ "使玩家可以在飞行启用时飞过固体方块。\n"
-#~ "这需要服务器的“noclip”权限。"
-
-#~ msgid "If enabled, disable cheat prevention in multiplayer."
-#~ msgstr "如果启用，在多人游戏中禁用防止作弊。"
-
-#~ msgid ""
-#~ "If enabled, makes move directions relative to the player's pitch when "
-#~ "flying or swimming."
-#~ msgstr "如果启用，则在飞行或游泳时相对于玩家的仰角来移动方向。"
-
-#~ msgid "In-Game"
-#~ msgstr "游戏中"
-
-#~ msgid "Inc. volume key"
-#~ msgstr "音量增大键"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr "安装mod：无法找到$1的真实mod名称"
-
-#~ msgid "Install: file: \"$1\""
-#~ msgstr "安装：文件：”$1“"
-
-#~ msgid "Instrumentation"
-#~ msgstr "计数器"
-
-#~ msgid "Interval of sending time of day to clients, stated in seconds."
-#~ msgstr "一天中向客户端发送时间的间隔，以秒为单位。"
-
-#~ msgid "Invalid gamespec."
-#~ msgstr "非法游戏信息。"
-
-#~ msgid "Inventory key"
-#~ msgstr "物品清单键"
-
-#~ msgid "Irrlicht device:"
-#~ msgstr "Irrlicht 渲染设备："
-
-#~ msgid "Jump key"
-#~ msgstr "跳跃键"
-
-#~ msgid "Key already in use"
-#~ msgstr "按键已被占用"
-
-#~ msgid ""
-#~ "Key for decreasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "视野缩小键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for decreasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "音量减小键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for digging.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "挖掘键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for dropping the currently selected item.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "丢弃所选物品键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for increasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "视野扩大键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for increasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "音量增大键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for jumping.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "跳跃键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving fast in fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "快速模式快速移动键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player forward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "前进键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player left.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "左方向键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player right.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "右方向键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for muting the game.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "静音键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the chat window to type commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "打开聊天窗口输入命令键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the chat window to type local commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "打开聊天窗口输入本地命令键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the chat window.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "打开聊天窗口键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the inventory.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "打开物品清单键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for placing.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "放置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 11th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第11个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 12th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第12个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 13th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第13个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 14th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第14个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 15th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第15个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 16th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第16个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 17th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第17个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 18th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第18个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 19th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第19个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 20th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第20个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 21st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第21个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 22nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第22个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 23rd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第23个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 24th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第24个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 25th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第25个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 26th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第26个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 27th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第27个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 28th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第28个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 29th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第29个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 30th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第30个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 31st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第31个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 32nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第32个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the eighth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第8个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the fifth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第5个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the first hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第1个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the fourth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第4个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the next item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏下一个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the ninth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第9个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the previous item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏上一个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the second hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第2个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the seventh hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第7个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the sixth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第6个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the tenth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第10个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the third hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "选择快捷栏第3个位置键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for switching between first- and third-person camera.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "第一人称第三人称镜头切换键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for taking screenshots.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "截屏键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling autoforward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用自动前进键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling cinematic mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用电影模式键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling display of minimap.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用小地图键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用快速移动键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling flying.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用飞行键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling noclip mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用穿墙模式键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling pitch move mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用俯仰移动模式键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the camera update. Only used for development\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用相机更新键。仅用于开发。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of chat.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用聊天显示键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of debug info.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用调试信息键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of fog.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用雾显示键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of the HUD.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用HUD显示键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of the large chat console.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用大型聊天控制台显示键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of the profiler. Used for development.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用性能分析图显示键。仅用于开发。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling unlimited view range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用无限视野键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key to use view zoom when possible.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "启用/禁用缩放（如有可能）键。\n"
-#~ "见http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
-#~ msgstr "键位配置。（如果这个菜单被弄乱，从 minetest.conf 中删掉点东西）"
-
-#, fuzzy
-#~ msgid "Last update check"
-#~ msgstr "液体更新时钟间隔"
-
-#, fuzzy
-#~ msgid "Lava depth"
-#~ msgstr "巨大洞穴深度"
-
-#~ msgid "Left"
-#~ msgstr "向左"
-
-#~ msgid "Left key"
-#~ msgstr "左方向键"
-
-#~ msgid ""
-#~ "Length of liquid waves.\n"
-#~ "Requires waving liquids to be enabled."
-#~ msgstr ""
-#~ "液体波长度。\n"
-#~ "需要波动液体启用。"
-
-#~ msgid "Limit of emerge queues on disk"
-#~ msgstr "磁盘上的生产队列限制"
-
-#~ msgid ""
-#~ "Logical value that controls how far the bloom effect spreads\n"
-#~ "from the bright objects.\n"
-#~ "Range: from 0.1 to 8, default: 1"
-#~ msgstr ""
-#~ "逻辑值，用于控制泛光效果\n"
-#~ "从明亮物体扩散的距离。\n"
-#~ "范围：0.1 至 8，默认：1"
-
-#~ msgid "Main"
-#~ msgstr "主菜单"
-
-#~ msgid "Main menu style"
-#~ msgstr "主菜单样式"
-
-#~ msgid "Makes DirectX work with LuaJIT. Disable if it causes troubles."
-#~ msgstr "使DirectX和LuaJIT一起工作。如果这导致了问题禁用它。"
-
-#~ msgid "Makes all liquids opaque"
-#~ msgstr "使所有液体不透明"
-
-#~ msgid "Mapblock mesh generator's MapBlock cache size in MB"
-#~ msgstr "地图生成缓存大小"
-
-#~ msgid ""
-#~ "Maximum number of mapblocks for client to be kept in memory.\n"
-#~ "Set to -1 for unlimited amount."
-#~ msgstr ""
-#~ "客户端保存在内存中的最大地图块数量。\n"
-#~ "设置为-1则无限量。"
-
-#~ msgid ""
-#~ "Maximum number of packets sent per send step, if you have a slow "
-#~ "connection\n"
-#~ "try reducing it, but don't reduce it to a number below double of "
-#~ "targeted\n"
-#~ "client number."
-#~ msgstr ""
-#~ "每个发送间隔之间发送的最大包数，如果你网络连接慢\n"
-#~ "尝试减小它，但不要把它减小到小雨目标客户端数的\n"
-#~ "两倍。"
-
-#~ msgid "Menus"
-#~ msgstr "菜单"
-
-#~ msgid "Mesh cache"
-#~ msgstr "Mesh 缓存"
-
-#~ msgid "Minimap"
-#~ msgstr "小地图"
-
-#~ msgid "Minimap in radar mode, Zoom x2"
-#~ msgstr "雷达小地图，放大至两倍"
-
-#~ msgid "Minimap in radar mode, Zoom x4"
-#~ msgstr "雷达小地图, 放大至四倍"
-
-#~ msgid "Minimap in surface mode, Zoom x2"
-#~ msgstr "地表模式小地图, 放大至两倍"
-
-#~ msgid "Minimap in surface mode, Zoom x4"
-#~ msgstr "地表模式小地图, 放大至四倍"
-
-#~ msgid "Minimap key"
-#~ msgstr "小地图键"
-
-#~ msgid "Mipmap"
-#~ msgstr "Mip 贴图"
-
-#~ msgid "Mipmap + Aniso. Filter"
-#~ msgstr "Mip 贴图 + 各向异性过滤"
-
-#~ msgid "Misc"
-#~ msgstr "杂项"
-
-#~ msgid ""
-#~ "Multiplier for fall bobbing.\n"
-#~ "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-#~ msgstr ""
-#~ "掉落摇动倍数。\n"
-#~ "例如：设为0则不摇动；1.0则正常；2.0则两倍。"
-
-#~ msgid "Mute key"
-#~ msgstr "静音按键"
-
-#~ msgid "Name / Password"
-#~ msgstr "用户名/密码"
-
-#~ msgid "Name/Password"
-#~ msgstr "用户名/密码"
-
-#~ msgid "Near plane"
-#~ msgstr "近平面"
-
-#~ msgid "Next item"
-#~ msgstr "下一个"
-
-#~ msgid "No"
-#~ msgstr "否"
-
-#~ msgid "No Filter"
-#~ msgstr "无过滤"
-
-#~ msgid "No Mipmap"
-#~ msgstr "无 Mip 贴图"
-
-#~ msgid "Noclip"
-#~ msgstr "穿墙"
-
-#~ msgid "Noclip key"
-#~ msgstr "穿墙键"
-
-#~ msgid "Node Highlighting"
-#~ msgstr "方块高亮"
-
-#~ msgid "Node Outlining"
-#~ msgstr "方块轮廓"
-
-#~ msgid "None"
-#~ msgstr "无"
-
-#~ msgid "Normalmaps sampling"
-#~ msgstr "法线贴图采样"
-
-#~ msgid "Normalmaps strength"
-#~ msgstr "法线贴图强度"
-
-#~ msgid "Number of parallax occlusion iterations."
-#~ msgstr "视差遮蔽迭代数。"
-
-#~ msgid "Ok"
-#~ msgstr "确定"
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "不透明树叶"
-
-#~ msgid "Opaque Water"
-#~ msgstr "不透明水"
-
-#~ msgid ""
-#~ "Opaqueness (alpha) of the shadow behind the fallback font, between 0 and "
-#~ "255."
-#~ msgstr "后备字体后阴影的透明度（alpha），取值范围0～255。"
-
-#~ msgid "Overall bias of parallax occlusion effect, usually scale/2."
-#~ msgstr "视差遮蔽效果的整体斜纹，通常为比例/2。"
-
-#~ msgid "Overall scale of parallax occlusion effect."
-#~ msgstr "视差遮蔽效果的总体比例。"
-
-#~ msgid "Parallax Occlusion"
-#~ msgstr "视差遮蔽"
-
-#~ msgid "Parallax occlusion"
-#~ msgstr "视差遮蔽"
-
-#~ msgid "Parallax occlusion bias"
-#~ msgstr "视差遮蔽偏移"
-
-#~ msgid "Parallax occlusion iterations"
-#~ msgstr "视差遮蔽迭代"
-
-#~ msgid "Parallax occlusion mode"
-#~ msgstr "视差遮蔽模式"
-
-#~ msgid "Parallax occlusion scale"
-#~ msgstr "视差遮蔽比例"
-
-#~ msgid "Parallax occlusion strength"
-#~ msgstr "视差遮蔽强度"
-
-#~ msgid "Particles"
-#~ msgstr "粒子效果"
-
-#~ msgid "Path to TrueTypeFont or bitmap."
-#~ msgstr "TrueType 字体或位图的路径。"
-
-#~ msgid "Path to save screenshots at."
-#~ msgstr "屏幕截图保存路径。"
-
-#~ msgid ""
-#~ "Path to texture directory. All textures are first searched from here."
-#~ msgstr "材质目录路径。所有材质都首先从此路径搜索。"
-
-#~ msgid "Pitch move key"
-#~ msgstr "俯仰移动键"
-
-#~ msgid "Pitch move mode"
-#~ msgstr "俯仰移动模式"
-
-#~ msgid ""
-#~ "Player is able to fly without being affected by gravity.\n"
-#~ "This requires the \"fly\" privilege on the server."
-#~ msgstr ""
-#~ "使玩家可以不受重力飞起。\n"
-#~ "这需要服务器的“fly”权限。"
-
-#~ msgid "Player name"
-#~ msgstr "玩家名称"
-
-#~ msgid "Player versus player"
-#~ msgstr "玩家对战"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "请输入一个整数类型。"
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "请输入一个合法的数字。"
-
-#~ msgid ""
-#~ "Port to connect to (UDP).\n"
-#~ "Note that the port field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "要连接到的端口（UDP）。 \n"
-#~ "请注意，主菜单中的端口字段将覆盖此设置。"
-
-#~ msgid "Prev. item"
-#~ msgstr "上一个物品"
-
-#~ msgid "Profiler toggle key"
-#~ msgstr "性能分析启用/禁用键"
-
-#~ msgid "Profiling"
-#~ msgstr "性能分析"
-
-#~ msgid "PvP enabled"
-#~ msgstr "启用玩家对战"
-
-#~ msgid "Range select key"
-#~ msgstr "范围选择键"
-
-#~ msgid "Remote port"
-#~ msgstr "远程端口"
-
-#~ msgid "Reset singleplayer world"
-#~ msgstr "重置单人世界"
-
-#~ msgid "Right"
-#~ msgstr "向右"
-
-#~ msgid "Right key"
-#~ msgstr "右方向键"
-
-#~ msgid "Round minimap"
-#~ msgstr "圆形小地图"
-
-#, fuzzy
-#~ msgid "Saturation"
-#~ msgstr "迭代"
-
-#~ msgid "Save window size automatically when modified."
-#~ msgstr "当窗口大小改变时自动保存。"
-
-#~ msgid "Screen:"
-#~ msgstr "屏幕："
-
-#~ msgid "Select Package File:"
-#~ msgstr "选择包文件："
-
-#~ msgid "Server / Singleplayer"
-#~ msgstr "服务器 / 单人游戏"
-
-#~ msgid ""
-#~ "Set the shadow update time.\n"
-#~ "Lower value means shadows and map updates faster, but it consume more "
-#~ "resources.\n"
-#~ "Minimun value 0.001 seconds max value 0.2 seconds"
-#~ msgstr ""
-#~ "设置阴影更新时间。\n"
-#~ "较低的值意味着阴影和贴图更新更快，但会消耗更多资源。\n"
-#~ "最小值 0.001 秒 最大值 0.2 秒"
-
-#~ msgid "Shaders"
-#~ msgstr "着色器"
-
-#~ msgid "Shaders (experimental)"
-#~ msgstr "着色器（实验性）"
-
-#~ msgid "Shaders (unavailable)"
-#~ msgstr "着色器 (不可用)"
-
-#, fuzzy
-#~ msgid ""
-#~ "Shaders allow advanced visual effects and may increase performance on "
-#~ "some video\n"
-#~ "cards."
-#~ msgstr ""
-#~ "着色器允许高级视觉效果并且在一些显卡上可能会提高\n"
-#~ "性能。\n"
-#~ "仅用于OpenGL视频后端。"
-
-#~ msgid ""
-#~ "Shaders are a fundamental part of rendering and enable advanced visual "
-#~ "effects."
-#~ msgstr "着色器是渲染的基本部分，能够启用高级视觉效果。"
-
-#, fuzzy
-#~ msgid "Shaders are disabled."
-#~ msgstr "已禁用镜头更新"
-
-#, fuzzy
-#~ msgid "Shadow limit"
-#~ msgstr "地图块限制"
-
-#~ msgid ""
-#~ "Shadow offset (in pixels) of the fallback font. If 0, then shadow will "
-#~ "not be drawn."
-#~ msgstr "后备字体阴影偏移（单位为像素），0 表示不绘制阴影。"
-
-#~ msgid "Shape of the minimap. Enabled = round, disabled = square."
-#~ msgstr "小地图的形状。启用 = 圆形，停用 = 方形。"
-
-#~ msgid "Simple Leaves"
-#~ msgstr "简单树叶"
-
-#~ msgid ""
-#~ "Size of the MapBlock cache of the mesh generator. Increasing this will\n"
-#~ "increase the cache hit %, reducing the data being copied from the main\n"
-#~ "thread, thus reducing jitter."
-#~ msgstr ""
-#~ "网格生成器的地图区块缓存大小。增加此值将会\n"
-#~ "增加缓存命中率，减少从主线程复制数据，从而\n"
-#~ "减少抖动。"
-
-#~ msgid "Smooth Lighting"
-#~ msgstr "平滑光照"
-
-#~ msgid "Smooths rotation of camera. 0 to disable."
-#~ msgstr "让旋转摄影机时较流畅。设为 0 以停用。"
-
-#~ msgid "Sound system is disabled"
-#~ msgstr "声音系统已禁用"
-
-#~ msgid "Special"
-#~ msgstr "特殊"
-
-#~ msgid "Special key"
-#~ msgstr "特殊键"
-
-#~ msgid "Start Singleplayer"
-#~ msgstr "单人游戏"
-
-#~ msgid "Strength of generated normalmaps."
-#~ msgstr "生成的一般地图强度。"
-
-#~ msgid "Texture path"
-#~ msgstr "材质路径"
-
-#~ msgid "Texturing:"
-#~ msgstr "材质:"
-
-#, fuzzy
-#~ msgid "The depth of dirt or other biome filler node."
-#~ msgstr "泥土深度或其他生物群系过滤节点。"
-
-#~ msgid "The value must be at least $1."
-#~ msgstr "这个值必须至少为 $1。"
-
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "这个值必须不大于$1."
-
-#, fuzzy
-#~ msgid ""
-#~ "This can be bound to a key to toggle camera smoothing when looking "
-#~ "around.\n"
-#~ "Useful for recording videos"
-#~ msgstr ""
-#~ "当转动视角时让摄影机变流畅。也称为观看或鼠标流畅。\n"
-#~ "对录影很有用。"
-
-#~ msgid "This font will be used for certain languages."
-#~ msgstr "用于特定语言的字体。"
-
-#~ msgid "This is not a recommended configuration."
-#~ msgstr "不推荐使用该配置。"
-
-#~ msgid ""
-#~ "This is the list of clients connected to\n"
-#~ "$1"
-#~ msgstr ""
-#~ "以下为连接到此服务器的客户端\n"
-#~ "$1"
-
-#~ msgid "Time send interval"
-#~ msgstr "发送间隔时间"
-
-#~ msgid "To enable shaders the OpenGL driver needs to be used."
-#~ msgstr "启用着色器需要使用OpenGL驱动。"
-
-#~ msgid "Tone Mapping"
-#~ msgstr "色调映射"
-
-#~ msgid "Touch threshold (px):"
-#~ msgstr "触控阈值（像素）："
-
-#~ msgid "Trilinear Filter"
-#~ msgstr "三线性过滤"
-
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "无法将$1安装为子游戏"
-
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "无法将$1安装为mod包"
-
-#~ msgid "Uninstall Package"
-#~ msgstr "删除包"
-
-#~ msgid "Up"
-#~ msgstr "向上"
-
-#~ msgid "Use crosshair for touch screen"
-#~ msgstr "在触摸屏上使用准星操控"
-
-#~ msgid ""
-#~ "Use crosshair to select object instead of whole screen.\n"
-#~ "If enabled, a crosshair will be shown and will be used for selecting "
-#~ "object."
-#~ msgstr ""
-#~ "用准星选择物体而不是整个屏幕.\n"
-#~ "如果启用，准星会被展示并且用于选择物体."
-
-#~ msgid "VBO"
-#~ msgstr "VBO"
-
-#~ msgid "Vertical screen synchronization."
-#~ msgstr "屏幕垂直同步。"
-
-#~ msgid "View"
-#~ msgstr "视野"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "在网络浏览器中查看更多信息"
-
-#~ msgid "View range decrease key"
-#~ msgstr "可视范围减小键"
-
-#~ msgid "View range increase key"
-#~ msgstr "可视范围增加键"
-
-#~ msgid "View zoom key"
-#~ msgstr "检视缩放键"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "视野范围已达到最大：%d"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "飘动树叶"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "摇动流体"
-
-#~ msgid "Waving Plants"
-#~ msgstr "摇摆植物"
-
-#~ msgid "Waving Water"
-#~ msgstr "流动的水面"
-
-#~ msgid "Waving water"
-#~ msgstr "摇动水"
-
-#~ msgid ""
-#~ "When gui_scaling_filter_txr2img is true, copy those images\n"
-#~ "from hardware to software for scaling.  When false, fall back\n"
-#~ "to the old scaling method, for video drivers that don't\n"
-#~ "properly support downloading textures back from hardware."
-#~ msgstr ""
-#~ "当gui_scaling_filter_txr2img为 true 时，复制这些图像\n"
-#~ "从硬件到软件进行扩展。 当 false 时，回退\n"
-#~ "到旧的缩放方法，对于不\n"
-#~ "正确支持从硬件下载纹理。"
-
-#~ msgid ""
-#~ "Whether node texture animations should be desynchronized per mapblock."
-#~ msgstr "方块材质动画是否应按地图块同步，否则取消同步。"
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#, fuzzy
-#~ msgid "Y of upper limit of lava in large caves."
-#~ msgstr "大型随机洞穴的Y轴最大值。"
-
-#~ msgid "Yes"
-#~ msgstr "是"
-
-#, c-format
-#~ msgid ""
-#~ "You are about to join this server with the name \"%s\" for the first "
-#~ "time.\n"
-#~ "If you proceed, a new account using your credentials will be created on "
-#~ "this server.\n"
-#~ "Please retype your password and click 'Register and Join' to confirm "
-#~ "account creation, or click 'Cancel' to abort."
-#~ msgstr ""
-#~ "这是你第一次用“%s”加入服务器。\n"
-#~ "如果要继续，一个新的用户将在服务器上创建。\n"
-#~ "请重新输入你的密码然后点击“注册”来创建用户或点击“取消”退出。"
-
-#~ msgid "You died."
-#~ msgstr "您已经死亡."
-
-#~ msgid "You have no games installed."
-#~ msgstr "你没有安装任何子游戏。"
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "needs_fallback_font"
-#~ msgstr "yes"
-
-#~ msgid "ok"
-#~ msgstr "确定"
-
-#, fuzzy
-#~ msgid "pause_menu"
-#~ msgstr "暂停菜单 FPS"
-
-#~ msgid "press key"
-#~ msgstr "按键"
+#~ msgid "Key for selecting the 31st hotbar slot."
+#~ msgstr "选中快捷栏第31项的按键。"
+
+#~ msgid "Key for selecting the 32nd hotbar slot."
+#~ msgstr "选中快捷栏第32项的按键。"
+
+#~ msgid "Key for selecting the eighth hotbar slot."
+#~ msgstr "选中快捷栏第8项的按键。"
+
+#~ msgid "Key for selecting the fifth hotbar slot."
+#~ msgstr "选中快捷栏第5项的按键。"
+
+#~ msgid "Key for selecting the first hotbar slot."
+#~ msgstr "选中快捷栏第1项的按键。"
+
+#~ msgid "Key for selecting the fourth hotbar slot."
+#~ msgstr "选中快捷栏第4项的按键。"
+
+#~ msgid "Key for selecting the next item in the hotbar."
+#~ msgstr "选中快捷栏下一项的按键。"
+
+#~ msgid "Key for selecting the ninth hotbar slot."
+#~ msgstr "选中快捷栏第9项的按键。"
+
+#~ msgid "Key for selecting the previous item in the hotbar."
+#~ msgstr "选中快捷栏上一项的按键。"
+
+#~ msgid "Key for selecting the second hotbar slot."
+#~ msgstr "选中快捷栏第2项的按键。"
+
+#~ msgid "Key for selecting the seventh hotbar slot."
+#~ msgstr "选中快捷栏第7项的按键。"
+
+#~ msgid "Key for selecting the sixth hotbar slot."
+#~ msgstr "选中快捷栏第6项的按键。"
+
+#~ msgid "Key for selecting the tenth hotbar slot."
+#~ msgstr "选中快捷栏第10项的按键。"
+
+#~ msgid "Key for selecting the third hotbar slot."
+#~ msgstr "选中快捷栏第3项的按键。"
+
+#~ msgid "Key for switching between first- and third-person camera."
+#~ msgstr "切换第一人称和第三人称视角的按键。"
+
+#~ msgid "Key for taking screenshots."
+#~ msgstr "用于屏幕截图的按键。"
+
+#~ msgid "Key for toggling autoforward."
+#~ msgstr "启用/禁用自动前进的按键。"
+
+#~ msgid "Key for toggling cinematic mode."
+#~ msgstr "用于切换电影模式（镜头平滑）的按键。"
+
+#~ msgid "Key for toggling display of minimap."
+#~ msgstr "显示/隐藏小地图的按键。"
+
+#~ msgid "Key for toggling fast mode."
+#~ msgstr "启用/禁用快速模式的按键。"
+
+#~ msgid "Key for toggling flying."
+#~ msgstr "启用/禁用飞行模式的按键。"
+
+#~ msgid "Key for toggling fullscreen mode."
+#~ msgstr "用于切换全屏模式的按键。"
+
+#~ msgid "Key for toggling noclip mode."
+#~ msgstr "启用/禁用穿墙模式的按键。"
+
+#~ msgid "Key for toggling pitch move mode."
+#~ msgstr "启用/禁用俯仰移动模式的按键。"
+
+#~ msgid "Key for toggling the display of chat."
+#~ msgstr "启用/禁用聊天显示的按键。"
+
+#~ msgid "Key for toggling the display of debug info."
+#~ msgstr "显示/隐藏调试信息的按键。"
+
+#~ msgid "Key for toggling the display of fog."
+#~ msgstr "启用/禁用雾气显示的按键。"
+
+#~ msgid "Key for toggling the display of the HUD."
+#~ msgstr "显示/隐藏HUD的按键。"
+
+#~ msgid "Key for toggling the display of the large chat console."
+#~ msgstr "显示/隐藏大型聊天控制台的按键。"
+
+#~ msgid "Key to use view zoom when possible."
+#~ msgstr "视距缩放可用时使用的按键。"
+
+#~ msgid "Node specular"
+#~ msgstr "节点高光"
