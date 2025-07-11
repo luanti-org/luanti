@@ -82,7 +82,10 @@ for lang in $langs ; do # note the missing quotes around $langs
 	pofile=po/$lang/luanti.po
 	if test -e $pofile; then
 		echo "[$lang]: updating strings"
-		msgmerge --update --sort-by-file $pofile $potfile
+		# Drop old strings *before* updating such that they can be re-used
+		# until this script is run again.
+		msgattrib --output-file=$pofile --no-obsolete $pofile
+		msgmerge --update --backup=none --sort-by-file $pofile $potfile
 	else
 		# This will ask for the translator identity
 		echo "[$lang]: NEW strings"
