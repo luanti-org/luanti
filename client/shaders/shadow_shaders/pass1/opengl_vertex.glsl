@@ -6,6 +6,12 @@ uniform float xyPerspectiveBias0;
 uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
 
+#ifdef GL_ES
+varying mediump vec2 varTexCoord;
+#else
+centroid varying vec2 varTexCoord;
+#endif
+
 vec4 getRelativePosition(in vec4 position)
 {
 	vec2 l = position.xy - CameraPos.xy;
@@ -34,10 +40,10 @@ vec4 applyPerspectiveDistortion(in vec4 position)
 
 void main()
 {
-	vec4 pos = LightMVP * gl_Vertex;
+	vec4 pos = LightMVP * inVertexPosition;
 
 	tPos = applyPerspectiveDistortion(pos);
 
 	gl_Position = vec4(tPos.xyz, 1.0);
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+	varTexCoord = (mTexture * vec4(inTexCoord0, 0.0, 1.0)).xy;
 }

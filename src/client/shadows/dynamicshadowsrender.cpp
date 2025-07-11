@@ -52,14 +52,6 @@ ShadowRenderer::~ShadowRenderer()
 	// call to disable releases dynamically allocated resources
 	disable();
 
-	if (m_shadow_depth_cb)
-		delete m_shadow_depth_cb;
-	if (m_shadow_depth_entity_cb)
-		delete m_shadow_depth_entity_cb;
-	if (m_shadow_depth_trans_cb)
-		delete m_shadow_depth_trans_cb;
-	if (m_shadow_mix_cb)
-		delete m_shadow_mix_cb;
 	m_shadow_node_array.clear();
 	m_light_list.clear();
 }
@@ -108,11 +100,17 @@ void ShadowRenderer::preInit(IWritableShaderSource *shsrc)
 {
 	if (g_settings->getBool("enable_dynamic_shadows")) {
 		shsrc->addShaderUniformSetterFactory(new ShadowUniformSetterFactory());
+		shsrc->addShaderUniformSetterFactory(new ShadowScreenQuadUniformSetterFactory());
 	}
 }
 
 void ShadowRenderer::initialize()
 {
+	if (g_settings->getBool("enable_dynamic_shadows")) {
+		auto* shdsrc = m_client->getShaderSource();
+		shdsrc->addShaderUniformSetterFactory(new ShadowDepthUniformSetterFactory(this));
+	}
+
 	createShaders();
 
 
@@ -271,15 +269,7 @@ void ShadowRenderer::updateSMTextures()
 		// Update SM incrementally:
 		for (DirectionalLight &light : m_light_list) {
 			// Static shader values.
-			for (auto cb : {m_shadow_depth_cb, m_shadow_depth_entity_cb, m_shadow_depth_trans_cb}) {
-				if (cb) {
-					cb->MapRes = (u32)m_shadow_map_texture_size;
-					cb->MaxFar = (f32)m_shadow_map_max_distance * BS;
-					cb->PerspectiveBiasXY = getPerspectiveBiasXY();
-					cb->PerspectiveBiasZ = getPerspectiveBiasZ();
-					cb->CameraPos = light.getFuturePlayerPos();
-				}
-			}
+			m_currentLightCameraPos = light.getFuturePlayerPos();
 
 			// Note that force_update means we're drawing everything one go.
 
@@ -341,7 +331,7 @@ void ShadowRenderer::update(video::ITexture *outputTarget)
 			// Static shader values for entities are set in updateSMTextures
 			// SM texture for entities is not updated incrementally and
 			// must by updated using current player position.
-			m_shadow_depth_entity_cb->CameraPos = light.getPlayerPos();
+			m_currentLightCameraPos = light.getPlayerPos();
 
 			// render shadows for the n0n-map objects.
 			m_driver->setRenderTarget(shadowMapTextureDynamicObjects, true,
@@ -431,10 +421,10 @@ void ShadowRenderer::renderShadowMap(video::ITexture *target,
 	material.FrontfaceCulling = true;
 
 	if (m_shadow_map_colored && pass != scene::ESNRP_SOLID) {
-		material.MaterialType = (video::E_MATERIAL_TYPE) depth_shader_trans;
+		material.MaterialType = m_client->getShaderSource()->getShaderInfo(depth_shader_trans_id).material;
 	}
 	else {
-		material.MaterialType = (video::E_MATERIAL_TYPE) depth_shader;
+		material.MaterialType = m_client->getShaderSource()->getShaderInfo(depth_shader_id).material;
 		material.BlendOperation = video::EBO_MIN;
 	}
 
@@ -474,8 +464,7 @@ void ShadowRenderer::renderShadowObjects(
 			auto &current_mat = shadow_node.node->getMaterial(m);
 
 			BufferMaterialList.push_back(current_mat.MaterialType);
-			current_mat.MaterialType =
-					(video::E_MATERIAL_TYPE)depth_shader_entities;
+			current_mat.MaterialType = m_client->getShaderSource()->getShaderInfo(depth_shader_entities_id).material;
 
 			BufferMaterialCullingList.emplace_back(
 				(bool)current_mat.BackfaceCulling, (bool)current_mat.FrontfaceCulling);
@@ -508,168 +497,26 @@ void ShadowRenderer::mixShadowsQuad()
 {
 }
 
-/*
- * @Liso's disclaimer ;) This function loads the Shadow Mapping Shaders.
- * I used a custom loader because I couldn't figure out how to use the base
- * Shaders system with custom IShaderConstantSetCallBack without messing up the
- * code too much. If anyone knows how to integrate this with the standard MT
- * shaders, please feel free to change it.
- *
- * TODO: as of now (2025) it should be possible to hook these up to the normal
- * shader system.
- */
-
 void ShadowRenderer::createShaders()
 {
-	auto *gpu = m_driver->getGPUProgrammingServices();
-
-	if (depth_shader == -1) {
-		std::string depth_shader_vs = getShaderPath("shadow_shaders", "pass1_vertex.glsl");
-		if (depth_shader_vs.empty()) {
-			m_shadows_supported = false;
-			errorstream << "Error shadow mapping vs shader not found." << std::endl;
-			return;
-		}
-		std::string depth_shader_fs = getShaderPath("shadow_shaders", "pass1_fragment.glsl");
-		if (depth_shader_fs.empty()) {
-			m_shadows_supported = false;
-			errorstream << "Error shadow mapping fs shader not found." << std::endl;
-			return;
-		}
-		m_shadow_depth_cb = new ShadowDepthShaderCB();
-
-		depth_shader = gpu->addHighLevelShaderMaterial(
-				readShaderFile(depth_shader_vs).c_str(),
-				readShaderFile(depth_shader_fs).c_str(), nullptr,
-				m_shadow_depth_cb, video::EMT_ONETEXTURE_BLEND);
-
-		if (depth_shader == -1) {
-			// upsi, something went wrong loading shader.
-			delete m_shadow_depth_cb;
-			m_shadow_depth_cb = nullptr;
-			m_shadows_enabled = false;
-			m_shadows_supported = false;
-			errorstream << "Error compiling shadow mapping shader." << std::endl;
-			return;
-		}
-
-		// HACK, TODO: investigate this better
-		// Grab the material renderer once more so minetest doesn't crash
-		// on exit
-		m_driver->getMaterialRenderer(depth_shader)->grab();
-	}
-
+	auto* shdsrc = m_client->getShaderSource();
+	const std::string name_prefix = std::string("shadow_shaders") + DIR_DELIM;
+	ShaderConstants input_const;
+	
+	depth_shader_id = shdsrc->getShader(name_prefix + "pass1", input_const, video::EMT_ONETEXTURE_BLEND);
+	
 	// This creates a clone of depth_shader with base material set to EMT_SOLID,
 	// because entities won't render shadows with base material EMP_ONETEXTURE_BLEND
-	if (depth_shader_entities == -1) {
-		std::string depth_shader_vs = getShaderPath("shadow_shaders", "pass1_vertex.glsl");
-		if (depth_shader_vs.empty()) {
-			m_shadows_supported = false;
-			errorstream << "Error shadow mapping vs shader not found." << std::endl;
-			return;
-		}
-		std::string depth_shader_fs = getShaderPath("shadow_shaders", "pass1_fragment.glsl");
-		if (depth_shader_fs.empty()) {
-			m_shadows_supported = false;
-			errorstream << "Error shadow mapping fs shader not found." << std::endl;
-			return;
-		}
-		m_shadow_depth_entity_cb = new ShadowDepthShaderCB();
+	depth_shader_entities_id = shdsrc->getShader(name_prefix + "pass1", input_const, video::EMT_SOLID);
 
-		depth_shader_entities = gpu->addHighLevelShaderMaterial(
-				readShaderFile(depth_shader_vs).c_str(),
-				readShaderFile(depth_shader_fs).c_str(), nullptr,
-				m_shadow_depth_entity_cb);
+	mixcsm_shader_id = shdsrc->getShader(name_prefix + "pass2", input_const, video::EMT_SOLID);
 
-		if (depth_shader_entities == -1) {
-			// upsi, something went wrong loading shader.
-			delete m_shadow_depth_entity_cb;
-			m_shadow_depth_entity_cb = nullptr;
-			m_shadows_enabled = false;
-			m_shadows_supported = false;
-			errorstream << "Error compiling shadow mapping shader (dynamic)." << std::endl;
-			return;
-		}
+	m_screen_quad = new shadowScreenQuad();
+	m_screen_quad->getMaterial().MaterialType =
+		m_client->getShaderSource()->getShaderInfo(mixcsm_shader_id).material;
 
-		// HACK, TODO: investigate this better
-		// Grab the material renderer once more so minetest doesn't crash
-		// on exit
-		m_driver->getMaterialRenderer(depth_shader_entities)->grab();
-	}
-
-	if (mixcsm_shader == -1) {
-		std::string depth_shader_vs = getShaderPath("shadow_shaders", "pass2_vertex.glsl");
-		if (depth_shader_vs.empty()) {
-			m_shadows_supported = false;
-			errorstream << "Error cascade shadow mapping fs shader not found." << std::endl;
-			return;
-		}
-
-		std::string depth_shader_fs = getShaderPath("shadow_shaders", "pass2_fragment.glsl");
-		if (depth_shader_fs.empty()) {
-			m_shadows_supported = false;
-			errorstream << "Error cascade shadow mapping fs shader not found." << std::endl;
-			return;
-		}
-		m_shadow_mix_cb = new shadowScreenQuadCB();
-		m_screen_quad = new shadowScreenQuad();
-		mixcsm_shader = gpu->addHighLevelShaderMaterial(
-				readShaderFile(depth_shader_vs).c_str(),
-				readShaderFile(depth_shader_fs).c_str(), nullptr,
-				m_shadow_mix_cb);
-
-		m_screen_quad->getMaterial().MaterialType =
-				(video::E_MATERIAL_TYPE)mixcsm_shader;
-
-		if (mixcsm_shader == -1) {
-			// upsi, something went wrong loading shader.
-			delete m_shadow_mix_cb;
-			delete m_screen_quad;
-			m_shadows_supported = false;
-			errorstream << "Error compiling cascade shadow mapping shader." << std::endl;
-			return;
-		}
-
-		// HACK, TODO: investigate this better
-		// Grab the material renderer once more so minetest doesn't crash
-		// on exit
-		m_driver->getMaterialRenderer(mixcsm_shader)->grab();
-	}
-
-	if (m_shadow_map_colored && depth_shader_trans == -1) {
-		std::string depth_shader_vs = getShaderPath("shadow_shaders", "pass1_trans_vertex.glsl");
-		if (depth_shader_vs.empty()) {
-			m_shadows_supported = false;
-			errorstream << "Error shadow mapping vs shader not found." << std::endl;
-			return;
-		}
-		std::string depth_shader_fs = getShaderPath("shadow_shaders", "pass1_trans_fragment.glsl");
-		if (depth_shader_fs.empty()) {
-			m_shadows_supported = false;
-			errorstream << "Error shadow mapping fs shader not found." << std::endl;
-			return;
-		}
-		m_shadow_depth_trans_cb = new ShadowDepthShaderCB();
-
-		depth_shader_trans = gpu->addHighLevelShaderMaterial(
-				readShaderFile(depth_shader_vs).c_str(),
-				readShaderFile(depth_shader_fs).c_str(), nullptr,
-				m_shadow_depth_trans_cb);
-
-		if (depth_shader_trans == -1) {
-			// upsi, something went wrong loading shader.
-			delete m_shadow_depth_trans_cb;
-			m_shadow_depth_trans_cb = nullptr;
-			m_shadow_map_colored = false;
-			m_shadows_supported = false;
-			errorstream << "Error compiling colored shadow mapping shader." << std::endl;
-			return;
-		}
-
-		// HACK, TODO: investigate this better
-		// Grab the material renderer once more so minetest doesn't crash
-		// on exit
-		m_driver->getMaterialRenderer(depth_shader_trans)->grab();
+	if (m_shadow_map_colored) {
+		depth_shader_trans_id = shdsrc->getShader(name_prefix + "pass1_trans", input_const, video::EMT_SOLID);
 	}
 }
 
