@@ -121,9 +121,6 @@ void push_v2f(lua_State *L, v2f p);
 void push_aabb3f_vector(lua_State *L, const std::vector<aabb3f> &boxes,
 		f32 divisor = 1.0f);
 
-void warn_if_field_exists(lua_State *L, int table, const char *fieldname,
-		std::string_view name, std::string_view message);
-
 size_t write_array_slice_float(lua_State *L, int table_index, float *data,
 		v3u16 data_size, v3u16 slice_offset, v3u16 slice_size);
 
