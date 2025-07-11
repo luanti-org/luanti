@@ -503,20 +503,28 @@ void ShadowRenderer::createShaders()
 	const std::string name_prefix = std::string("shadow_shaders") + DIR_DELIM;
 	ShaderConstants input_const;
 
-	depth_shader_id = shdsrc->getShader(name_prefix + "pass1", input_const, video::EMT_ONETEXTURE_BLEND);
+	try {
+		depth_shader_id = shdsrc->getShader(name_prefix + "pass1", input_const, video::EMT_ONETEXTURE_BLEND);
 
-	// This creates a clone of depth_shader with base material set to EMT_SOLID,
-	// because entities won't render shadows with base material EMP_ONETEXTURE_BLEND
-	depth_shader_entities_id = shdsrc->getShader(name_prefix + "pass1", input_const, video::EMT_SOLID);
+		// This creates a clone of depth_shader with base material set to EMT_SOLID,
+		// because entities won't render shadows with base material EMP_ONETEXTURE_BLEND
+		depth_shader_entities_id = shdsrc->getShader(name_prefix + "pass1", input_const, video::EMT_SOLID);
 
-	mixcsm_shader_id = shdsrc->getShader(name_prefix + "pass2", input_const, video::EMT_SOLID);
+		mixcsm_shader_id = shdsrc->getShader(name_prefix + "pass2", input_const, video::EMT_SOLID);
 
-	m_screen_quad = new shadowScreenQuad();
-	m_screen_quad->getMaterial().MaterialType =
-		m_client->getShaderSource()->getShaderInfo(mixcsm_shader_id).material;
+		m_screen_quad = new shadowScreenQuad();
+		m_screen_quad->getMaterial().MaterialType =
+			m_client->getShaderSource()->getShaderInfo(mixcsm_shader_id).material;
 
-	if (m_shadow_map_colored) {
-		depth_shader_trans_id = shdsrc->getShader(name_prefix + "pass1_trans", input_const, video::EMT_SOLID);
+		if (m_shadow_map_colored) {
+			depth_shader_trans_id = shdsrc->getShader(name_prefix + "pass1_trans", input_const, video::EMT_SOLID);
+		}
+	} catch (const ShaderException&) {
+		m_shadows_enabled = false;
+		m_shadows_supported = false;
+		delete m_screen_quad;
+		m_screen_quad = nullptr;
+		errorstream << "Error compiling shadow mapping shader." << std::endl;
 	}
 }
 
