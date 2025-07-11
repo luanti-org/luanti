@@ -28,8 +28,9 @@ local function get_formspec(dialogdata)
 	for idx, key in ipairs(value) do
 		local prefix = ""
 		for _, o in ipairs(core.full_settingtypes) do
-			if o.type == "key" and o.name ~= name
-					and has_keybinding_conflict(core.settings:get(o.name):split("|"), key) then
+			if o.type == "key" and o.name ~= name and
+					is_keybinding_critical(name, o.name) and
+					has_keybinding_conflict(core.settings:get(o.name):split("|"), key) then
 				prefix = mt_color_orange
 				if idx == selection then
 					warning = core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext_ne(o.readable_name)))
@@ -155,4 +156,18 @@ function has_keybinding_conflict(t1, t2) -- not local as it is also used by the 
 		end
 	end
 	return false
+end
+
+local critical_keys = {
+	keymap_drop = true,
+	keymap_dig = true,
+	keymap_place = true,
+}
+function is_keybinding_critical(n1, n2)
+	local is_current_close_world = n1 == "keymap_close_world"
+	local is_other_close_world = n2 == "keymap_close_world"
+	local is_current_critical = critical_keys[n1]
+	local is_other_critical = critical_keys[n2]
+	return (is_other_critical or is_current_critical) or
+			(not is_current_close_world and not is_other_close_world)
 end

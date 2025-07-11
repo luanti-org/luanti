@@ -456,27 +456,14 @@ function make.key(setting)
 			return height
 		end
 
-		local critical_keys = {
-			keymap_drop = true,
-			keymap_dig = true,
-			keymap_place = true,
-		}
-
 		for _, o in ipairs(core.full_settingtypes) do
 			if o.type == "key" and o.name ~= setting.name and
+					is_keybinding_critical(setting.name, o.name) and
 					has_keybinding_conflict(core.settings:get(o.name):split("|"), value) then
 
-				local is_current_close_world = setting.name == "keymap_close_world"
-				local is_other_close_world = o.name == "keymap_close_world"
-				local is_current_critical = critical_keys[setting.name]
-				local is_other_critical = critical_keys[o.name]
-
-				if (is_other_critical or is_current_critical) or
-						(not is_current_close_world and not is_other_close_world) then
-					table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
-							core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext(o.readable_name)))))
-					height = height + 0.6
-				end
+				table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
+						core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext(o.readable_name)))))
+				height = height + 0.6
 			end
 		end
 		return height
