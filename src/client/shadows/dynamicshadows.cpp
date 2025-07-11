@@ -68,8 +68,10 @@ void DirectionalLight::createSplitMatrices(const Camera *cam)
 	// we must compute the viewmat with the position - the camera offset
 	// but the future_frustum position must be the actual world position
 	v3f eye = center_scene - eye_displacement;
-	v3f up = v3f(0.0f, 1.0f, 0.0f);
+	v3f up(0.0f, 1.0f, 0.0f);
 	// eye_displacement and up shall not be collinear
+	// At noon, light points straight down, the "up" vector can be anything
+	// that is not along the up axis
 	if (core::equals(eye_displacement.crossProduct(up).getLengthSQ(), 0.f))
 		up = v3f(1.0f, 0.0f, 0.0f);
 	future_frustum.player = cam_pos_scene;

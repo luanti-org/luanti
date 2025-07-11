@@ -303,12 +303,14 @@ public:
 	CMatrix4<T> &buildProjectionMatrixOrthoRH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero = true);
 
 	//! Builds a left-handed look-at matrix.
+	//! NOTE: upVector must not be collinear to the postion-to-target vector
 	CMatrix4<T> &buildCameraLookAtMatrixLH(
 			const vector3df &position,
 			const vector3df &target,
 			const vector3df &upVector);
 
 	//! Builds a right-handed look-at matrix.
+	//! NOTE: upVector must not be collinear to the postion-to-target vector
 	CMatrix4<T> &buildCameraLookAtMatrixRH(
 			const vector3df &position,
 			const vector3df &target,
