@@ -48,7 +48,7 @@ void main()
 	tPos = applyPerspectiveDistortion(pos);
 
 	gl_Position = vec4(tPos.xyz, 1.0);
-	varTexCoord = inTexCoord0;
+	varTexCoord = inTexCoord0.xy;
 
 #ifdef COLORED_SHADOWS
 	varColor = inVertexColor.rgb;

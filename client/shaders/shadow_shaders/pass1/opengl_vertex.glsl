@@ -45,5 +45,5 @@ void main()
 	tPos = applyPerspectiveDistortion(pos);
 
 	gl_Position = vec4(tPos.xyz, 1.0);
-	varTexCoord = (mTexture * vec4(inTexCoord0, 0.0, 1.0)).xy;
+	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 0.0, 1.0)).xy;
 }
