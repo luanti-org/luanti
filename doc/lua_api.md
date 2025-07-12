@@ -3935,6 +3935,32 @@ The following functions provide escape sequences:
     * Removes all color escape sequences.
 
 
+Coordinate System
+=================
+
+Luanti uses a **left-handed** coordinate system: Y is "up", X is "right", Z is "forward".
+This is the convention used by Unity, DirectX and Irrlicht.
+It means that when you're pointing in +Z direction in-game ("forward"), +X is to your right; +Y is up.
+
+Consistently, rotation is [**left-handed**](https://en.wikipedia.org/w/index.php?title=Right-hand_rule) as well.
+Luanti uses [Tait-Bryan angles](https://en.wikipedia.org/wiki/Euler_angles#Tait%E2%80%93Bryan_angles) for rotations,
+often referred to simply as "euler angles" (even though they are not "proper" euler angles).
+The rotation order is extrinsic X-Y-Z:
+First rotation around the (unrotated) X-axis is applied,
+then rotation around the (unrotated) Y-axis follows,
+and finally rotation around the (unrotated) Z-axis is applied.
+(Note: As a product of rotation matrices, this will be written in reverse, so `Z*Y*X`.)
+
+Attachment and bone override rotations both use these conventions.
+
+There is an exception, however: Object rotation (`ObjectRef:set_rotation`, `ObjectRef:get_rotation`, `automatic_rotate`)
+**does not** use left-handed (extrinsic) X-Y-Z rotations.
+Instead, it uses **right-handed (extrinsic) Z-X-Y** rotations:
+First roll (Z) is applied, then pitch (X); yaw (Y) is applied last.
+
+See [Scratchapixel](https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/coordinate-systems.html)
+or [Wikipedia](https://en.wikipedia.org/wiki/Cartesian_coordinate_system#Orientation_and_handedness)
+for a more detailed and pictorial explanation of these terms.
 
 
 Spatial Vectors
@@ -4134,6 +4160,7 @@ angles in radians.
 
 * `vector.rotate(v, r)`:
     * Applies the rotation `r` to `v` and returns the result.
+    * Uses Z-X-Y rotation order and is right-handed, consistent with `ObjectRef:set_rotation`.
     * `vector.rotate(vector.new(0, 0, 1), r)` and
       `vector.rotate(vector.new(0, 1, 0), r)` return vectors pointing
       forward and up relative to an entity's rotation `r`.
@@ -8506,9 +8533,9 @@ child will follow movement and rotation of that bone.
         * `interpolation`: The old and new overrides are interpolated over this timeframe (in seconds).
         * `absolute`: If set to `false` (which is the default),
           the override will be relative to the animated property:
-            * Translation in the case of `position`;
-            * Composition in the case of `rotation`;
-            * Per-axis multiplication in the case of `scale`
+          * Translation in the case of `position`;
+          * Composition in the case of `rotation`;
+          * Per-axis multiplication in the case of `scale`
     * `property = nil` is equivalent to no override on that property
     * **Note:** Unlike `set_bone_position`, the rotation is in radians, not degrees.
     * Compatibility note: Clients prior to 5.9.0 only support absolute position and rotation.
@@ -8589,9 +8616,10 @@ child will follow movement and rotation of that bone.
     * `acc` is a vector
 * `get_acceleration()`: returns the acceleration, a vector
 * `set_rotation(rot)`
-    * Sets the rotation
     * `rot` is a vector (radians). X is pitch (elevation), Y is yaw (heading)
       and Z is roll (bank).
+    * Sets the **right-handed Z-X-Y** rotation:
+      First roll (Z) is applied, then pitch (X); yaw (Y) is applied last.
     * Does not reset rotation incurred through `automatic_rotate`.
       Remove & re-add your objects to force a certain rotation.
 * `get_rotation()`: returns the rotation, a vector (radians)
@@ -9506,7 +9534,7 @@ Player properties need to be saved manually.
     -- (see node sound definition for details).
 
     automatic_rotate = 0,
-    -- Set constant rotation in radians per second, positive or negative.
+    -- Set constant right-handed rotation in radians per second, positive or negative.
     -- Object rotates along the local Y-axis, and works with set_rotation.
     -- Set to 0 to disable constant rotation.
 

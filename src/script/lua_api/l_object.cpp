@@ -1158,6 +1158,8 @@ int ObjectRef::l_set_rotation(lua_State *L)
 
 	v3f rotation = check_v3f(L, 2) * core::RADTODEG;
 
+	// Note: These angles are inverted before being applied using setPitchYawRoll,
+	// hence we end up with a right-handed rotation
 	entitysao->setRotation(rotation);
 	return 0;
 }

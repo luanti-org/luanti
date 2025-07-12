@@ -5,8 +5,6 @@
 #include "catch_amalgamated.hpp"
 #include "irrMath.h"
 #include "matrix4.h"
-#include "irrMath.h"
-#include "matrix4.h"
 #include "irr_v3d.h"
 #include "quaternion.h"
 #include <functional>
