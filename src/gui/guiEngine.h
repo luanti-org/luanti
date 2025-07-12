@@ -40,7 +40,6 @@ struct image_definition {
 class GUIEngine;
 class RenderingEngine;
 class MainMenuScripting;
-class IWritableShaderSource;
 struct MainMenuData;
 
 /******************************************************************************/

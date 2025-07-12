@@ -13,7 +13,6 @@
 
 class Map;
 class IGameDef;
-struct MapNode;
 class InventoryManager;
 
 struct RollbackNode

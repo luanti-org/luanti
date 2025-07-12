@@ -9,8 +9,6 @@
 
 #include <optional>
 
-class Inventory;
-class IItemDefManager;
 
 class ItemStackMetadata : public SimpleMetadata
 {

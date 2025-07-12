@@ -18,6 +18,7 @@
 #include "util/pointedthing.h"
 
 struct ToolCapabilities;
+struct ItemDefinition;
 
 /*
 	Base item definition

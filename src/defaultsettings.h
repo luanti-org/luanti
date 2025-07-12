@@ -4,7 +4,6 @@
 
 #pragma once
 
-class Settings;
 
 /**
  * initialize basic default settings

@@ -14,7 +14,6 @@
 
 class Settings;
 class MapDatabase;
-class IRollbackManager;
 class EmergeManager;
 class ServerEnvironment;
 struct BlockMakeData;

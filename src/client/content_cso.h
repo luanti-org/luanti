@@ -12,5 +12,7 @@ namespace scene
 	class ISceneManager;
 }
 
+class ClientEnvironment;
+
 ClientSimpleObject* createSmokePuff(scene::ISceneManager *smgr,
 		ClientEnvironment *env, v3f pos, v2f size);
