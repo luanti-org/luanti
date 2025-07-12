@@ -89,8 +89,11 @@ public:
 	video::SColor getShadowTint() const { return m_shadow_tint; }
 	float getTimeOfDay() const { return m_time_day; }
 
-	f32 getPerspectiveBiasXY() { return m_perspective_bias_xy; }
-	f32 getPerspectiveBiasZ() { return m_perspective_bias_z; }
+	f32 getPerspectiveBiasXY() const { return m_perspective_bias_xy; }
+	f32 getPerspectiveBiasZ() const { return m_perspective_bias_z; }
+	u32 getMapRes() const { return m_shadow_map_texture_size; }
+	f32 getMaxFar() const { return (f32)m_shadow_map_max_distance * BS; }
+	v3f getCurrentLightCameraPos() const { return m_currentLightCameraPos; }
 
 private:
 	video::ITexture *getSMTexture(const std::string &shadow_map_name,
@@ -136,6 +139,7 @@ private:
 	u8 m_current_frame; /* Current frame */
 	f32 m_perspective_bias_xy;
 	f32 m_perspective_bias_z;
+	v3f m_currentLightCameraPos;
 
 	video::ECOLOR_FORMAT m_texture_format{video::ECOLOR_FORMAT::ECF_R16F};
 	video::ECOLOR_FORMAT m_texture_format_color{video::ECOLOR_FORMAT::ECF_R16G16};
@@ -145,17 +149,12 @@ private:
 	void createShaders();
 	std::string readShaderFile(const std::string &path);
 
-	s32 depth_shader{-1};
-	s32 depth_shader_entities{-1};
-	s32 depth_shader_trans{-1};
-	s32 mixcsm_shader{-1};
-
-	ShadowDepthShaderCB *m_shadow_depth_cb{nullptr};
-	ShadowDepthShaderCB *m_shadow_depth_entity_cb{nullptr};
-	ShadowDepthShaderCB *m_shadow_depth_trans_cb{nullptr};
+	u32 depth_shader_id{0};
+	u32 depth_shader_entities_id{0};
+	u32 depth_shader_trans_id{0};
+	u32 mixcsm_shader_id{0};
 
 	shadowScreenQuad *m_screen_quad{nullptr};
-	shadowScreenQuadCB *m_shadow_mix_cb{nullptr};
 };
 
 /**

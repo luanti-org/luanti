@@ -52,8 +52,11 @@ void ShadowUniformSetter::onSetUniforms(video::IMaterialRendererServices *servic
 	m_perspective_zbias_pixel.set(&zbias, services);
 }
 
-void ShadowDepthShaderCB::OnSetConstants(
-		video::IMaterialRendererServices *services, s32 userData)
+ShadowDepthUniformSetter::ShadowDepthUniformSetter(ShadowRenderer* shadowRenderer) :
+	m_shadowRenderer(shadowRenderer)
+{}
+
+void ShadowDepthUniformSetter::onSetUniforms(video::IMaterialRendererServices* services)
 {
 	video::IVideoDriver *driver = services->getVideoDriver();
 
@@ -61,20 +64,22 @@ void ShadowDepthShaderCB::OnSetConstants(
 	lightMVP *= driver->getTransform(video::ETS_VIEW);
 
 	f32 cam_pos[4];
-	lightMVP.transformVect(cam_pos, CameraPos);
+	lightMVP.transformVect(cam_pos, m_shadowRenderer->getCurrentLightCameraPos());
 
 	lightMVP *= driver->getTransform(video::ETS_WORLD);
 
 	m_light_mvp_setting.set(lightMVP, services);
-	m_map_resolution_setting.set(&MapRes, services);
-	m_max_far_setting.set(&MaxFar, services);
+	f32 mapRes = m_shadowRenderer->getMapRes();
+	m_map_resolution_setting.set(&mapRes, services);
+	f32 maxFar = m_shadowRenderer->getMaxFar();
+	m_max_far_setting.set(&maxFar, services);
 	s32 TextureId = 0;
 	m_color_map_sampler_setting.set(&TextureId, services);
-	f32 bias0 = PerspectiveBiasXY;
+	f32 bias0 = m_shadowRenderer->getPerspectiveBiasXY();
 	m_perspective_bias0.set(&bias0, services);
 	f32 bias1 = 1.0f - bias0 + 1e-5f;
 	m_perspective_bias1.set(&bias1, services);
-	f32 zbias = PerspectiveBiasZ;
+	f32 zbias = m_shadowRenderer->getPerspectiveBiasZ();
 	m_perspective_zbias.set(&zbias, services);
 
 	m_cam_pos_setting.set(cam_pos, services);
