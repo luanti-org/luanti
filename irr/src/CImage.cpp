@@ -142,19 +142,6 @@ void CImage::copyTo(IImage *target, const core::position2d<s32> &pos, const core
 	Blit(BLITTER_TEXTURE, target, clipRect, &pos, this, &sourceRect, 0);
 }
 
-//! copies this surface into another, using the alpha mask, a cliprect and a color to add with
-void CImage::copyToWithAlpha(IImage *target, const core::position2d<s32> &pos, const core::rect<s32> &sourceRect, const SColor &color, const core::rect<s32> *clipRect, bool combineAlpha)
-{
-	if (IImage::isCompressedFormat(Format)) {
-		os::Printer::log("IImage::copyToWithAlpha method doesn't work with compressed images.", ELL_WARNING);
-		return;
-	}
-
-	eBlitter op = combineAlpha ? BLITTER_TEXTURE_COMBINE_ALPHA : color.color == 0xFFFFFFFF ? BLITTER_TEXTURE_ALPHA_BLEND
-																						   : BLITTER_TEXTURE_ALPHA_COLOR_BLEND;
-	Blit(op, target, clipRect, &pos, this, &sourceRect, color.color);
-}
-
 //! copies this surface into another, if it has the exact same size and format.
 bool CImage::copyToNoScaling(void *target, u32 width, u32 height, ECOLOR_FORMAT format, u32 pitch) const
 {
