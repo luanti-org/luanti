@@ -1855,34 +1855,25 @@ void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, s
     bases = outs;
 }
 
-void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width)
+void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u32 lod_width, u8 lod_resolution)
 {
-	static u16 calls = 0;
-	if (++calls % 10 == 0)
-		warningstream << "lod " << calls << std::endl;
-	u8 lod_resolution = std::max((u32) 1, width / 4);
-	for (u16 greedy_seg_start_x = 0; greedy_seg_start_x < data->m_side_length; greedy_seg_start_x += 64)
-	for (u16 greedy_seg_start_y = 0; greedy_seg_start_y < data->m_side_length; greedy_seg_start_y += 64)
-	for (u16 greedy_seg_start_z = 0; greedy_seg_start_z < data->m_side_length; greedy_seg_start_z += 64) {
-	u8 greedy_side_length_x = MYMIN(data->m_side_length - greedy_seg_start_x, 64);
-	u8 greedy_side_length_y = MYMIN(data->m_side_length - greedy_seg_start_y, 64);
-	u8 greedy_side_length_z = MYMIN(data->m_side_length - greedy_seg_start_z, 64);
-	u8 num_x = greedy_side_length_x / width + 2;
-	u8 num_y = greedy_side_length_y / width + 2;
-	u8 num_z = greedy_side_length_z / width + 2;
 	std::bitset<66> all_set_nodes[3][66][66];
 	std::unordered_map<content_t, std::unordered_map<u16, MapNode>> node_types;
 	std::unordered_map<content_t, std::unordered_map<u16, std::bitset<66>[3][66][66]>> set_nodes;
 
+	u8 num_x = seg_size.X / lod_width + 2;
+	u8 num_y = seg_size.Y / lod_width + 2;
+	u8 num_z = seg_size.Z / lod_width + 2;
+
     for (s16 x = 0; x < num_x; x++)
     for (s16 y = 0; y < num_y; y++)
     for (s16 z = 0; z < num_z; z++){
-        v3s16 from = v3s16(blockpos_nodes.X + (x == 0 ? -1 : (x - 1) * width) + greedy_seg_start_x,
-        				   blockpos_nodes.Y + (y == 0 ? -1 : (y - 1) * width) + greedy_seg_start_y,
-        				   blockpos_nodes.Z + (z == 0 ? -1 : (z - 1) * width) + greedy_seg_start_z);
-        v3s16 to = v3s16(from.X + (x == num_x-1 ? 1 : width),
-                         from.Y + (y == num_y-1 ? 1 : width),
-                         from.Z + (z == num_z-1 ? 1 : width));
+        v3s16 from = v3s16(blockpos_nodes.X + (x == 0 ? -1 : (x - 1) * lod_width),
+        				   blockpos_nodes.Y + (y == 0 ? -1 : (y - 1) * lod_width),
+        				   blockpos_nodes.Z + (z == 0 ? -1 : (z - 1) * lod_width)) + seg_start;
+        v3s16 to = v3s16(from.X + (x == num_x-1 ? 1 : lod_width),
+                         from.Y + (y == num_y-1 ? 1 : lod_width),
+                         from.Z + (z == num_z-1 ? 1 : lod_width));
 
 		v3s16 p;
 		MapNode main_node;
@@ -1942,8 +1933,8 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
         if (bounds.MinEdge.X == S16_MAX)
         	continue;
 
-    	bounds.MinEdge -= blockpos_nodes + v3s16(greedy_seg_start_x, greedy_seg_start_y, greedy_seg_start_z) - 1;
-    	bounds.MaxEdge -= blockpos_nodes + v3s16(greedy_seg_start_x, greedy_seg_start_y, greedy_seg_start_z) - 1;
+    	bounds.MinEdge -= blockpos_nodes + seg_start - 1;
+    	bounds.MaxEdge -= blockpos_nodes + seg_start - 1;
 
 		//if(num_light_samples == 0)
 			lp = LightPair((u8) 255, 0);
@@ -2070,10 +2061,10 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 					vertices[3] = core::vector3df(u1 - BS / 2, v1 - BS / 2, w);
 					break;
 				}
-				vertices[0] += core::vector3df(greedy_seg_start_x * BS, greedy_seg_start_y * BS, greedy_seg_start_z * BS);
-				vertices[1] += core::vector3df(greedy_seg_start_x * BS, greedy_seg_start_y * BS, greedy_seg_start_z * BS);
-				vertices[2] += core::vector3df(greedy_seg_start_x * BS, greedy_seg_start_y * BS, greedy_seg_start_z * BS);
-				vertices[3] += core::vector3df(greedy_seg_start_x * BS, greedy_seg_start_y * BS, greedy_seg_start_z * BS);
+				vertices[0] += core::vector3df(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
+				vertices[1] += core::vector3df(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
+				vertices[2] += core::vector3df(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
+				vertices[3] += core::vector3df(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
 				//video::SColor color = encode_light(255, nodedef->getLightingFlags(n).light_source);
 				//warningstream << "light: " << light_pair << std::endl;
 				video::SColor color = encode_light(light_pair, nodedef->getLightingFlags(n).light_source);
@@ -2098,7 +2089,23 @@ void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32
 				collector->append(tile, irr_vertices, 4, quad_indices, 6);
 			}
 		}
-		}
+	}
+}
+
+void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u32 width)
+{
+	static u16 calls = 0;
+	if (++calls % 10 == 0)
+		warningstream << "lod " << calls << std::endl;
+	const u8 lod_resolution = std::max(static_cast<u32>(1), width / 4);
+	v3s16 seg_start;
+	for (seg_start.X = 0; seg_start.X < data->m_side_length; seg_start.X += 64)
+	for (seg_start.Y = 0; seg_start.Y < data->m_side_length; seg_start.Y += 64)
+	for (seg_start.Z = 0; seg_start.Z < data->m_side_length; seg_start.Z += 64) {
+		const v3s16 seg_size(std::min(data->m_side_length - seg_start.X, 64),
+		               std::min(data->m_side_length - seg_start.Y, 64),
+		               std::min(data->m_side_length - seg_start.Z, 64));
+		generateGreedyLod(types, seg_start, seg_size, width, lod_resolution);
 	}
 }
 
@@ -2204,6 +2211,7 @@ void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u3
 void LodMeshGenerator::generate(u8 lod) {
 	ZoneScoped;
 
+	// lod += 5;
     u32 width = 1 << MYMIN(lod, 31);
 
     if(width > data->m_side_length){
