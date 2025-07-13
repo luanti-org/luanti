@@ -103,15 +103,6 @@ void ShadowRenderer::preInit(IWritableShaderSource *shsrc)
 
 void ShadowRenderer::initialize()
 {
-	if (g_settings->getBool("enable_dynamic_shadows")) {
-		auto* shdsrc = m_client->getShaderSource();
-	}
-
-	m_shadow_depth_cb = make_irr<ShadowDepthShaderCB>();
-	m_shadow_depth_entity_cb = make_irr<ShadowDepthShaderCB>();
-	m_shadow_depth_trans_cb = make_irr<ShadowDepthShaderCB>();
-	m_shadow_mix_cb = make_irr<shadowScreenQuadCB>();
-
 	createShaders();
 
 
@@ -270,7 +261,7 @@ void ShadowRenderer::updateSMTextures()
 		// Update SM incrementally:
 		for (DirectionalLight &light : m_light_list) {
 			// Static shader values.
-			for (auto cb : {m_shadow_depth_cb, m_shadow_depth_entity_cb, m_shadow_depth_trans_cb}) {
+			for (auto& cb : {m_shadow_depth_cb, m_shadow_depth_entity_cb, m_shadow_depth_trans_cb}) {
 				if (cb) {
 					cb->MapRes = (u32)m_shadow_map_texture_size;
 					cb->MaxFar = (f32)m_shadow_map_max_distance * BS;
@@ -508,6 +499,11 @@ void ShadowRenderer::mixShadowsQuad()
 
 void ShadowRenderer::createShaders()
 {
+	m_shadow_depth_cb = make_irr<ShadowDepthShaderCB>();
+	m_shadow_depth_entity_cb = make_irr<ShadowDepthShaderCB>();
+	m_shadow_depth_trans_cb = make_irr<ShadowDepthShaderCB>();
+	m_shadow_mix_cb = make_irr<shadowScreenQuadCB>();
+
 	auto* shdsrc = m_client->getShaderSource();
 	const std::string name_prefix = std::string("shadow_shaders") + DIR_DELIM;
 	ShaderConstants input_const;
