@@ -434,7 +434,7 @@ describe("vector", function()
 		end)
 		it("rotation order is Z-X-Y", function()
 			local r = vector.new(1, 2, 3)
-			for _, v in pairs({
+			for _, v in ipairs({
 				vector.new(1, 0, 0),
 				vector.new(0, 1, 0),
 				vector.new(0, 0, 1),

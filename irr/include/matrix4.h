@@ -169,10 +169,11 @@ public:
 	vector3d<T> getTranslation() const;
 
 	//! Make a rotation matrix from Euler angles. The 4th row and column are unmodified.
-	//! NOTE: Rotation order is ZYX. This means that vectors are
-	//! first rotated around the X, then the Y, and finally the Z axis.
+	//! NOTE: Rotation order is (extrinsic) X-Y-Z.
+	//! This means that vectors are first rotated around the X,
+	//! then the (unrotated) Y, and finally the (unrotated) Z axis.
 	//! NOTE: The rotation is done as per the right-hand rule.
-	//! See test_matrix4.cpp if you're still unsure about the conventions used here.
+	//! See test_irr_matrix4.cpp if you're still unsure about the conventions used here.
 	inline CMatrix4<T> &setRotationRadians(const vector3d<T> &rotation);
 
 	//! Same as `setRotationRadians`, but uses degrees.
