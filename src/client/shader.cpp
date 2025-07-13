@@ -162,8 +162,6 @@ class ShaderCallback : public video::IShaderConstantSetCallBack
 	std::vector<std::unique_ptr<IShaderUniformSetter>> m_setters;
 
 public:
-	~ShaderCallback() override = default;
-
 	template <typename Factories>
 	ShaderCallback(const Factories &factories)
 	{
@@ -326,6 +324,7 @@ public:
 	}
 };
 
+
 class MainShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
@@ -440,7 +439,6 @@ IWritableShaderSource *createShaderSource()
 ShaderSource::ShaderSource() :
 	m_main_thread(std::this_thread::get_id())
 {
-
 	// Add a dummy ShaderInfo as the first index, named ""
 	m_shaderinfo_cache.emplace_back();
 

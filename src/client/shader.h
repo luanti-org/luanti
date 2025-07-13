@@ -279,7 +279,6 @@ public:
 		const std::string &filename, const std::string &program)=0;
 	virtual void rebuildShaders()=0;
 
-	/// @note Takes ownership of @p setter.
 	virtual void addShaderConstantSetter(std::unique_ptr<IShaderConstantSetter> setter) = 0;
 	virtual void addShaderUniformSetterFactory(std::unique_ptr<IShaderUniformSetterFactory> setter) = 0;
 };
