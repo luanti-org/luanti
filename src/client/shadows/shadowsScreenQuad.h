@@ -20,26 +20,15 @@ private:
 	video::SMaterial Material;
 };
 
-class ShadowScreenQuadUniformSetter : public IShaderUniformSetter
+class shadowScreenQuadCB : public video::IShaderConstantSetCallBack
 {
 public:
-	ShadowScreenQuadUniformSetter() = default;
-	~ShadowScreenQuadUniformSetter() = default;
-
-	virtual void onSetUniforms(video::IMaterialRendererServices* services) override;
-
+	virtual void OnSetConstants(video::IMaterialRendererServices *services,
+			s32 userData);
 private:
 	CachedPixelShaderSetting<s32> m_sm_client_map_setting{"ShadowMapClientMap"};
 	CachedPixelShaderSetting<s32>
 		m_sm_client_map_trans_setting{"ShadowMapClientMapTraslucent"};
 	CachedPixelShaderSetting<s32>
 		m_sm_dynamic_sampler_setting{"ShadowMapSamplerdynamic"};
-};
-
-class ShadowScreenQuadUniformSetterFactory : public IShaderUniformSetterFactory
-{
-public:
-	virtual IShaderUniformSetter* create() {
-		return new ShadowScreenQuadUniformSetter();
-	}
 };

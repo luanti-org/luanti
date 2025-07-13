@@ -1360,13 +1360,12 @@ bool Game::createClient(const GameStartData &start_data)
 		return false;
 	}
 
-	shader_src->addShaderConstantSetter(new NodeShaderConstantSetter());
+	shader_src->addShaderConstantSetter(std::make_unique<NodeShaderConstantSetter>());
 
-	auto *scsf = new GameGlobalShaderUniformSetterFactory(client);
-	shader_src->addShaderUniformSetterFactory(scsf);
-
-	shader_src->addShaderUniformSetterFactory(
-		new FogShaderUniformSetterFactory());
+	auto scsf_up = std::make_unique<GameGlobalShaderUniformSetterFactory>(client);
+	auto* scsf = scsf_up.get();
+	shader_src->addShaderUniformSetterFactory(std::move(scsf_up));
+	shader_src->addShaderUniformSetterFactory(std::make_unique<FogShaderUniformSetterFactory>());
 
 	ShadowRenderer::preInit(shader_src);
 

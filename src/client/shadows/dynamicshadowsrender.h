@@ -11,6 +11,8 @@
 #include <ISceneNode.h>
 #include <ISceneManager.h>
 
+#include "irr_ptr.h"
+
 class ShadowDepthShaderCB;
 class shadowScreenQuad;
 class shadowScreenQuadCB;
@@ -91,9 +93,6 @@ public:
 
 	f32 getPerspectiveBiasXY() const { return m_perspective_bias_xy; }
 	f32 getPerspectiveBiasZ() const { return m_perspective_bias_z; }
-	u32 getMapRes() const { return m_shadow_map_texture_size; }
-	f32 getMaxFar() const { return (f32)m_shadow_map_max_distance * BS; }
-	v3f getCurrentLightCameraPos() const { return m_currentLightCameraPos; }
 
 private:
 	video::ITexture *getSMTexture(const std::string &shadow_map_name,
@@ -139,7 +138,6 @@ private:
 	u8 m_current_frame; /* Current frame */
 	f32 m_perspective_bias_xy;
 	f32 m_perspective_bias_z;
-	v3f m_currentLightCameraPos;
 
 	video::ECOLOR_FORMAT m_texture_format{video::ECOLOR_FORMAT::ECF_R16F};
 	video::ECOLOR_FORMAT m_texture_format_color{video::ECOLOR_FORMAT::ECF_R16G16};
@@ -154,7 +152,11 @@ private:
 	u32 depth_shader_trans_id{0};
 	u32 mixcsm_shader_id{0};
 
+	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_cb{nullptr};
+	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_entity_cb{nullptr};
+	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_trans_cb{nullptr};
 	shadowScreenQuad *m_screen_quad{nullptr};
+	irr_ptr<shadowScreenQuadCB> m_shadow_mix_cb{nullptr};
 };
 
 /**

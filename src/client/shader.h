@@ -6,6 +6,8 @@
 #pragma once
 
 #include "irrlichttypes_bloated.h"
+#include "IShaderConstantSetCallBack.h"
+#include "irr_ptr.h"
 #include <IMaterialRendererServices.h>
 #include <string>
 #include <map>
@@ -217,6 +219,8 @@ struct ShaderInfo {
 	video::E_MATERIAL_TYPE material = video::EMT_SOLID;
 	// Input constants
 	ShaderConstants input_constants;
+	// Uniforms setter override
+	irr_ptr<video::IShaderConstantSetCallBack> uniforms_cb_override = nullptr;
 };
 
 class IShaderSource {
@@ -239,11 +243,13 @@ public:
 	 * @param name name of the shader (directory on disk)
 	 * @param input_const primary key constants for this shader
 	 * @param base_mat base material to use
+	 * @param uniforms_cb_override override of the Uniform Setter callback
 	 * @return shader ID
 	 * @note `base_material` only controls alpha behavior
 	 */
 	virtual u32 getShader(const std::string &name,
-		const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat) = 0;
+		const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat,
+		irr_ptr<video::IShaderConstantSetCallBack> uniforms_cb_override) = 0;
 
 	/// @brief Helper: Generates or gets a shader suitable for nodes and entities
 	u32 getShader(const std::string &name,
@@ -259,7 +265,7 @@ public:
 	{
 		auto base_mat = blendAlpha ? video::EMT_TRANSPARENT_ALPHA_CHANNEL :
 			video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
-		return getShader(name, ShaderConstants(), base_mat);
+		return getShader(name, ShaderConstants(), base_mat, nullptr);
 	}
 };
 
@@ -274,10 +280,8 @@ public:
 	virtual void rebuildShaders()=0;
 
 	/// @note Takes ownership of @p setter.
-	virtual void addShaderConstantSetter(IShaderConstantSetter *setter) = 0;
-
-	/// @note Takes ownership of @p setter.
-	virtual void addShaderUniformSetterFactory(IShaderUniformSetterFactory *setter) = 0;
+	virtual void addShaderConstantSetter(std::unique_ptr<IShaderConstantSetter> setter) = 0;
+	virtual void addShaderUniformSetterFactory(std::unique_ptr<IShaderUniformSetterFactory> setter) = 0;
 };
 
 IWritableShaderSource *createShaderSource();
