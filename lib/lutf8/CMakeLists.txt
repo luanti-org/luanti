@@ -1,0 +1,5 @@
+add_library(lutf8 STATIC lutf8.c)
+target_include_directories(lutf8 PRIVATE ${LUA_INCLUDE_DIR})
+
+set(LUA_UTF8_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+set(LUA_UTF8_LIBRARY lutf8 PARENT_SCOPE)
