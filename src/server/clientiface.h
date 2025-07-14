@@ -276,12 +276,12 @@ public:
 
 	void PrintInfo(std::ostream &o)
 	{
-		o<<"RemoteClient "<<peer_id<<": "
-				<<"m_blocks_sent.size()="<<m_blocks_sent.size()
-				<<", m_blocks_sending.size()="<<m_blocks_sending.size()
-				<<", m_nearest_unsent_d="<<m_nearest_unsent_d
-				<<", m_excess_gotblocks="<<m_excess_gotblocks
-				<<std::endl;
+		o << "RemoteClient " << peer_id << ": "
+			<<"blocks_sent=" << m_blocks_sent.size()
+			<<", blocks_sending=" << m_blocks_sending.size()
+			<<", nearest_unsent_d=" << m_nearest_unsent_d
+			<<", map_send_completion_timer=" << (int)(m_map_send_completion_timer + 0.5f)
+			<<", excess_gotblocks=" << m_excess_gotblocks;
 		m_excess_gotblocks = 0;
 	}
 
@@ -507,13 +507,17 @@ private:
 
 	// Connection
 	std::shared_ptr<con::IConnection> m_con;
+
+	// FIXME?: as far as I can tell this lock is pointless because only the server
+	// thread ever touches the clients. Consider how getClientNoEx() returns
+	// a raw pointer too.
 	std::recursive_mutex m_clients_mutex;
 	// Connected clients (behind the mutex)
 	RemoteClientMap m_clients;
 	std::vector<std::string> m_clients_names; // for announcing to server list
 
 	// Environment
-	ServerEnvironment *m_env;
+	ServerEnvironment *m_env = nullptr;
 
 	float m_print_info_timer = 0;
 	float m_check_linger_timer = 0;

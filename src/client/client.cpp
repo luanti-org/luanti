@@ -839,10 +839,10 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 	};
 	name = removeStringEnd(filename, model_ext);
 	if (!name.empty()) {
-		verbosestream<<"Client: Storing model into memory: "
-				<<"\""<<filename<<"\""<<std::endl;
+		TRACESTREAM(<<"Client: Storing model into memory "
+				"\""<<filename<<"\""<<std::endl);
 		if(m_mesh_data.count(filename))
-			errorstream<<"Multiple models with name \""<<filename.c_str()
+			errorstream<<"Multiple models with name \""<<filename
 					<<"\" found; replacing previous model"<<std::endl;
 		m_mesh_data[filename] = data;
 		return true;

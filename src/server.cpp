@@ -2556,6 +2556,7 @@ bool Server::addMediaFile(const std::string &filename,
 				<< filename << "\"" << std::endl;
 		return false;
 	}
+
 	// If name is not in a supported format, ignore it
 	const char *supported_ext[] = {
 		".png", ".jpg", ".tga",
@@ -2594,7 +2595,7 @@ bool Server::addMediaFile(const std::string &filename,
 	// Put in list
 	m_media[filename] = MediaInfo(filepath, sha1);
 	verbosestream << "Server: " << sha1_hex << " is " << filename
-			<< std::endl;
+			<< " (" << (filedata.size() >> 10) << "KiB)" << std::endl;
 
 	if (filedata_to)
 		*filedata_to = std::move(filedata);
@@ -2752,8 +2753,8 @@ void Server::sendRequestedMedia(session_t peer_id,
 		auto it = m_media.find(name);
 
 		if (it == m_media.end()) {
-			errorstream<<"Server::sendRequestedMedia(): Client asked for "
-					<<"unknown file \""<<(name)<<"\""<<std::endl;
+			warningstream << "Server::sendRequestedMedia(): Client asked for "
+					"unknown file \"" << name << "\"" << std::endl;
 			continue;
 		}
 		const auto &m = it->second;
@@ -2762,7 +2763,7 @@ void Server::sendRequestedMedia(session_t peer_id,
 		// have duplicate filenames. So we can't check it.
 		if (!m.no_announce) {
 			if (!client->markMediaSent(name)) {
-				infostream << "Server::sendRequestedMedia(): Client asked has "
+				warningstream << "Server::sendRequestedMedia(): Client has "
 					"requested \"" << name << "\" before, not sending it again."
 					<< std::endl;
 				continue;
