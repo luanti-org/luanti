@@ -11,6 +11,7 @@ local function modname_valid(name)
 end
 
 local function init_data(data)
+	data.search_for = data.search_for or ""
 	data.list = filterlist.create(
 		pkgmgr.preparemodlist,
 		pkgmgr.comparemod,
@@ -29,6 +30,16 @@ local function init_data(data)
 					element.modpack ~= nil then
 				return false
 			end
+
+			-- Filter by search text if provided
+			if criteria.search_text and criteria.search_text ~= "" then
+				local search_text = criteria.search_text:lower()
+				local name = element.name:lower()
+				if not name:find(search_text, 1, true) then
+					return false
+				end
+			end
+
 			return true
 		end,
 		{
@@ -42,7 +53,8 @@ local function init_data(data)
 
 	data.list:set_filtercriteria({
 		hide_game = data.hide_gamemods,
-		hide_modpackcontents = data.hide_modpackcontents
+		hide_modpackcontents = data.hide_modpackcontents,
+		search_text = data.search_for
 	})
 	-- Sorting is already done by pgkmgr.get_mods
 end
@@ -109,12 +121,57 @@ local function get_formspec(data)
 	local with_error, enabled_mods_by_name = check_mod_configuration(data.worldspec.path, all_mods)
 
 	local mod = all_mods[data.selected_mod] or {name = ""}
+	local use_technical_names = core.settings:get_bool("show_technical_names")
 
-	local retval =
-		"size[11.5,7.5,true]" ..
-		"label[0.5,0;" .. fgettext("World:") .. "]" ..
-		"label[1.75,0;" .. core.formspec_escape(data.worldspec.name) .. "]"
+	-- Modern layout with consistent spacing and alignment
+	local retval = "size[12,8,true]"
 
+	-- Header area with world name
+	retval = retval ..
+		"label[0.5,0.4;" .. fgettext("World:") .. " " .. core.formspec_escape(data.worldspec.name) .. "]"
+
+	-- Search box with better positioning
+	retval = retval ..
+		"field[8.0,0.3;3,0.8;te_search;;" .. core.formspec_escape(data.search_for) .. "]" ..
+		"field_enter_after_edit[te_search;true]" ..
+		"image_button[11.0,0.15;0.8,0.8;" .. core.formspec_escape(defaulttexturedir .. "search.png") .. ";btn_mod_search;]" ..
+		"tooltip[btn_mod_search;" .. fgettext("Search") .. "]" ..
+		"image_button[11.0,1.0;0.8,0.8;" .. core.formspec_escape(defaulttexturedir .. "clear.png") .. ";btn_mod_clear;]" ..
+		"tooltip[btn_mod_clear;" .. fgettext("Clear") .. "]"
+
+	-- Left panel: Mod list with header
+	retval = retval ..
+		"label[0.5,1.0;" .. fgettext("Available Mods:") .. "]" ..
+		"tablecolumns[color;tree;image,align=inline,width=1.5,0=" .. core.formspec_escape(defaulttexturedir .. "blank.png") ..
+			",1=" .. core.formspec_escape(defaulttexturedir .. "checkbox_16.png") ..
+			",2=" .. core.formspec_escape(defaulttexturedir .. "error_icon_orange.png") ..
+			",3=" .. core.formspec_escape(defaulttexturedir .. "error_icon_red.png") .. ";text]" ..
+		"table[0.5,1.5;5.5,5.5;world_config_modlist;" ..
+		pkgmgr.render_packagelist(data.list, use_technical_names, with_error) .. ";" .. data.selected_mod .."]"
+
+	-- Find More Mods button positioned under the mod list
+	if not mod.is_modpack and mod.type ~= "game" then
+		retval = retval ..
+			"button[0.5,7.1;2.5,0.7;btn_config_world_cdb;" ..
+			fgettext("Find More Mods") .. "]"
+	end
+
+	-- Enable/Disable All button
+	if enabled_all then
+		retval = retval ..
+			"button[3.5,7.1;2.5,0.7;btn_disable_all_mods;" ..
+			fgettext("Disable all") .. "]"
+	else
+		retval = retval ..
+			"button[3.5,7.1;2.5,0.7;btn_enable_all_mods;" ..
+			fgettext("Enable all") .. "]"
+	end
+
+	-- Right panel: Mod details with header
+	retval = retval ..
+		"label[6.5,1.0;" .. fgettext("Mod Details:") .. "]"
+
+	-- Mod details content
 	if mod.is_modpack or mod.type == "game" then
 		local info = core.formspec_escape(
 			core.get_content_info(mod.path).description)
@@ -126,7 +183,8 @@ local function get_formspec(data)
 			end
 		end
 		retval = retval ..
-			"textarea[0.25,0.7;5.75,7.2;;" .. info .. ";]"
+			"label[6.5,1.5;" .. fgettext("Name:") .. " " .. mod.name .. "]" ..
+			"textarea[6.5,2.0;5.0,5.0;;" .. info .. ";]"
 	else
 		local hard_deps, soft_deps = pkgmgr.get_dependencies(mod.path)
 
@@ -156,87 +214,59 @@ local function get_formspec(data)
 		local soft_deps_str = table.concat(soft_deps, ",")
 
 		retval = retval ..
-			"label[0,0.7;" .. fgettext("Mod:") .. "]" ..
-			"label[0.75,0.7;" .. mod.name .. "]"
+			"label[6.5,1.5;" .. fgettext("Name:") .. " " .. mod.name .. "]"
 
-		if hard_deps_str == "" then
-			if soft_deps_str == "" then
-				retval = retval ..
-					"label[0,1.25;" ..
-					fgettext("No (optional) dependencies") .. "]"
-			else
-				retval = retval ..
-					"label[0,1.25;" .. fgettext("No hard dependencies") ..
-					"]" ..
-					"label[0,1.75;" .. fgettext("Optional dependencies:") ..
-					"]" ..
-					"textlist[0,2.25;5,4;world_config_optdepends;" ..
-					soft_deps_str .. ";0]"
-			end
+		if hard_deps_str == "" and soft_deps_str == "" then
+			retval = retval ..
+				"label[6.5,2.0;" .. fgettext("No dependencies") .. "]"
 		else
-			if soft_deps_str == "" then
+			-- Start dependencies section at a fixed position
+			local y_pos = 2.0
+
+			if hard_deps_str ~= "" then
 				retval = retval ..
-					"label[0,1.25;" .. fgettext("Dependencies:") .. "]" ..
-					"textlist[0,1.75;5,4;world_config_depends;" ..
-					hard_deps_str .. ";0]" ..
-					"label[0,6;" .. fgettext("No optional dependencies") .. "]"
-			else
+					"label[6.5," .. y_pos .. ";" .. fgettext("Dependencies:") .. "]" ..
+					"textlist[6.5," .. (y_pos + 0.5) .. ";5,1.5;world_config_depends;" ..
+					hard_deps_str .. ";0]"
+				y_pos = y_pos + 2.0  -- Reduced spacing between dependency sections
+			end
+
+			if soft_deps_str ~= "" then
 				retval = retval ..
-					"label[0,1.25;" .. fgettext("Dependencies:") .. "]" ..
-					"textlist[0,1.75;5,2.125;world_config_depends;" ..
-					hard_deps_str .. ";0]" ..
-					"label[0,3.9;" .. fgettext("Optional dependencies:") ..
-					"]" ..
-					"textlist[0,4.375;5,1.8;world_config_optdepends;" ..
+					"label[6.5," .. y_pos .. ";" .. fgettext("Optional dependencies:") .. "]" ..
+					"textlist[6.5," .. (y_pos + 0.5) .. ";5,1.5;world_config_optdepends;" ..
 					soft_deps_str .. ";0]"
 			end
 		end
 	end
 
-	retval = retval ..
-		"button[3.25,7;2.5,0.5;btn_config_world_save;" ..
-		fgettext("Save") .. "]" ..
-		"button[5.75,7;2.5,0.5;btn_config_world_cancel;" ..
-		fgettext("Cancel") .. "]" ..
-		"button[9,7;2.5,0.5;btn_config_world_cdb;" ..
-		fgettext("Find More Mods") .. "]"
-
+	-- Mod/Modpack enable/disable controls
 	if mod.name ~= "" and not mod.is_game_content then
 		if mod.is_modpack then
 			if pkgmgr.is_modpack_entirely_enabled(data, mod.name) then
 				retval = retval ..
-					"button[5.5,0.125;3,0.5;btn_mp_disable;" ..
+					"button[9.0,7.1;2.5,0.7;btn_mp_disable;" ..
 					fgettext("Disable modpack") .. "]"
 			else
 				retval = retval ..
-					"button[5.5,0.125;3,0.5;btn_mp_enable;" ..
+					"button[9.0,7.1;2.5,0.7;btn_mp_enable;" ..
 					fgettext("Enable modpack") .. "]"
 			end
 		else
 			retval = retval ..
-				"checkbox[5.5,-0.125;cb_mod_enable;" .. fgettext("enabled") ..
+				"checkbox[6.5,7.1;cb_mod_enable;" .. fgettext("Enable mod") ..
 				";" .. tostring(mod.enabled) .. "]"
 		end
 	end
-	if enabled_all then
-		retval = retval ..
-			"button[8.95,0.125;2.5,0.5;btn_disable_all_mods;" ..
-			fgettext("Disable all") .. "]"
-	else
-		retval = retval ..
-			"button[8.95,0.125;2.5,0.5;btn_enable_all_mods;" ..
-			fgettext("Enable all") .. "]"
-	end
 
-	local use_technical_names = core.settings:get_bool("show_technical_names")
+	-- Bottom buttons - Save and Cancel
+	retval = retval ..
+		"button[6.5,7.1;2.5,0.7;btn_config_world_save;" ..
+		fgettext("Save") .. "]" ..
+		"button[9.0,7.1;2.5,0.7;btn_config_world_cancel;" ..
+		fgettext("Cancel") .. "]"
 
-	return retval ..
-		"tablecolumns[color;tree;image,align=inline,width=1.5,0=" .. core.formspec_escape(defaulttexturedir .. "blank.png") ..
-			",1=" .. core.formspec_escape(defaulttexturedir .. "checkbox_16.png") ..
-			",2=" .. core.formspec_escape(defaulttexturedir .. "error_icon_orange.png") ..
-			",3=" .. core.formspec_escape(defaulttexturedir .. "error_icon_red.png") .. ";text]" ..
-		"table[5.5,0.75;5.75,6;world_config_modlist;" ..
-		pkgmgr.render_packagelist(data.list, use_technical_names, with_error) .. ";" .. data.selected_mod .."]"
+	return retval
 end
 
 local function handle_buttons(this, fields)
@@ -249,6 +279,19 @@ local function handle_buttons(this, fields)
 			pkgmgr.enable_mod(this)
 		end
 
+		return true
+	end
+
+	-- Handle search functionality
+	if fields.btn_mod_search or fields.key_enter_field == "te_search" then
+		this.data.search_for = fields.te_search
+		init_data(this.data)
+		return true
+	end
+
+	if fields.btn_mod_clear then
+		this.data.search_for = ""
+		init_data(this.data)
 		return true
 	end
 
