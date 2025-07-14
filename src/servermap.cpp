@@ -35,6 +35,9 @@
 #if USE_POSTGRESQL
 #include "database/database-postgresql.h"
 #endif
+#if USE_TKRZW
+#include "database/database-tkrzw.h"
+#endif
 
 /*
 	Helpers
@@ -594,6 +597,11 @@ MapDatabase *ServerMap::createDatabase(
 		std::string connect_string;
 		conf.getNoEx("pgsql_connection", connect_string);
 		db = new MapDatabasePostgreSQL(connect_string);
+	}
+	#endif
+	#if USE_TKRZW
+	if (name == "tkrzw") {
+		db = new MapDatabaseTkrzw(savedir);
 	}
 	#endif
 

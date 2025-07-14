@@ -60,6 +60,9 @@
 #endif
 #include "database/database-files.h"
 #include "database/database-dummy.h"
+#if USE_TKRZW
+#include "database/database-tkrzw.h"
+#endif
 #include "gameparams.h"
 #include "particles.h"
 #include "gettext.h"
@@ -4311,6 +4314,12 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &backend,
 
 	if (backend == "dummy")
 		return new Database_Dummy();
+
+#if USE_TKRZW
+	if (backend == "tkrzw") {
+		return new ModStorageDatabaseTkrzw(world_path);
+	}
+#endif
 
 	throw BaseException("Mod storage database backend " + backend + " not supported");
 }

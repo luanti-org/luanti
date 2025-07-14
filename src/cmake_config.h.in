@@ -24,6 +24,7 @@
 #cmakedefine01 USE_LEVELDB
 #cmakedefine01 USE_LUAJIT
 #cmakedefine01 USE_POSTGRESQL
+#cmakedefine01 USE_TKRZW
 #cmakedefine01 USE_PROMETHEUS
 #cmakedefine01 USE_SPATIAL
 #cmakedefine01 USE_SYSTEM_GMP
