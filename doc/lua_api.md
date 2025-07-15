@@ -284,6 +284,9 @@ Accepted formats are:
     models: .x, .b3d, .obj, (since version 5.10:) .gltf, .glb
     fonts: .ttf, .woff (both since version 5.11, see notes below)
 
+Currently the engine is unable to handle files over ~16MB in size. For best
+performance you should keep your media files as small as reasonably possible.
+
 Other formats won't be sent to the client (e.g. you can store .blend files
 in a folder for convenience, without the risk that such files are transferred)
 

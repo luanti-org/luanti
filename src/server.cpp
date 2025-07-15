@@ -2586,6 +2586,12 @@ bool Server::addMediaFile(const std::string &filename,
 				<< filepath << "\"" << std::endl;
 		return false;
 	}
+	if (filedata.size() > MEDIAFILE_MAX_SIZE) {
+		errorstream << "Server::addMediaFile(): \""
+				<< filepath << "\" is too big (" << (filedata.size() >> 10)
+				<< "KiB). The internal limit is " << (MEDIAFILE_MAX_SIZE >> 10) << "KiB." << std::endl;
+		return false;
+	}
 
 	std::string sha1 = hashing::sha1(filedata);
 	std::string sha1_hex = hex_encode(sha1);
