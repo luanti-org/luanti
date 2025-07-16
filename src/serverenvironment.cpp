@@ -35,6 +35,9 @@
 #if USE_LEVELDB
 #include "database/database-leveldb.h"
 #endif
+#if USE_TKRZW
+#include "database/database-tkrzw.h"
+#endif
 #include "irrlicht_changes/printing.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
@@ -1854,6 +1857,11 @@ PlayerDatabase *ServerEnvironment::openPlayerDatabase(const std::string &name,
 	if (name == "files")
 		return new PlayerDatabaseFiles(savedir + DIR_DELIM + "players");
 
+#if USE_TKRZW
+	if (name == "tkrzw")
+		return new PlayerDatabaseTkrzw(savedir);
+#endif
+
 	throw BaseException(std::string("Database backend ") + name + " not supported.");
 }
 
@@ -1871,7 +1879,7 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 	if (!world_mt.exists("player_backend")) {
 		errorstream << "Please specify your current backend in world.mt:"
 			<< std::endl
-			<< "	player_backend = {files|sqlite3|leveldb|postgresql}"
+			<< "	player_backend = {files|sqlite3|leveldb|postgresql|tkrzw}"
 			<< std::endl;
 		return false;
 	}
@@ -1964,6 +1972,11 @@ AuthDatabase *ServerEnvironment::openAuthDatabase(
 #if USE_LEVELDB
 	if (name == "leveldb")
 		return new AuthDatabaseLevelDB(savedir);
+#endif
+
+#if USE_TKRZW
+	if (name == "tkrzw")
+		return new AuthDatabaseTkrzw(savedir);
 #endif
 
 	throw BaseException(std::string("Database backend ") + name + " not supported.");

@@ -9,5 +9,6 @@ set(database_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/database-postgresql.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/database-redis.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/database-sqlite3.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/database-tkrzw.cpp
 	PARENT_SCOPE
 )
