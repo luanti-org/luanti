@@ -164,14 +164,8 @@ void GUIEditBoxWithScrollBar::draw()
 						m_broken_text.emplace_back();
 					}
 					if (m_broken_text[0].size() != Text.size()){
+						//Replace password with *
 						m_broken_text[0] = EnrichedString(std::wstring(Text.size(), m_passwordchar));
-
-						//m_broken_text[0] = Text;
-
-						//for (u32 q = 0; q < Text.size(); ++q)
-						//{
-							//m_broken_text[0][q] = m_passwordchar;
-						//}
 					}
 					txt_line = &m_broken_text[0];
 					start_pos = 0;
