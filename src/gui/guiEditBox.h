@@ -154,9 +154,10 @@ protected:
 	bool m_border;
 
 	bool m_passwordbox = false;
+	//! character that is used to hide actual password
 	wchar_t m_passwordchar = L'*';
 
-	std::vector<core::stringw> m_broken_text;
+	std::vector<EnrichedString> m_broken_text;
 	std::vector<s32> m_broken_text_positions;
 
 	EGUI_ALIGNMENT m_halign = EGUIA_UPPERLEFT;

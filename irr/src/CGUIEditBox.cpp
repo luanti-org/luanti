@@ -271,7 +271,7 @@ bool CGUIEditBox::processKey(const SEvent &event)
 				const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
 				core::stringc s;
-				wStringToUTF8(s, Text.subString(realmbgn, realmend - realmbgn));
+				wStringToUTF8(s, Text.substr(realmbgn, realmend - realmbgn).getString());
 				Operator->copyToClipboard(s.c_str());
 			}
 			break;
@@ -283,14 +283,14 @@ bool CGUIEditBox::processKey(const SEvent &event)
 
 				// copy
 				core::stringc sc;
-				wStringToUTF8(sc, Text.subString(realmbgn, realmend - realmbgn));
+				wStringToUTF8(sc, Text.substr(realmbgn, realmend - realmbgn).getString());
 				Operator->copyToClipboard(sc.c_str());
 
 				if (isEnabled()) {
 					// delete
-					core::stringw s;
-					s = Text.subString(0, realmbgn);
-					s.append(Text.subString(realmend, Text.size() - realmend));
+					EnrichedString s;
+					s = Text.substr(0, realmbgn);
+					s += Text.substr(realmend, Text.size() - realmend);
 					Text = s;
 
 					CursorPos = realmbgn;
@@ -317,25 +317,25 @@ bool CGUIEditBox::processKey(const SEvent &event)
 
 					if (MarkBegin == MarkEnd) {
 						// insert text
-						core::stringw s = Text.subString(0, CursorPos);
-						s.append(widep);
-						s.append(Text.subString(CursorPos, Text.size() - CursorPos));
+						EnrichedString s = Text.substr(0, CursorPos);
+						s += std::wstring_view(widep.c_str());
+						s += (Text.substr(CursorPos, Text.size() - CursorPos));
 
 						if (!Max || s.size() <= Max) { // thx to Fish FH for fix
 							Text = s;
-							s = widep;
+							s = std::wstring_view(widep.c_str());
 							CursorPos += s.size();
 						}
 					} else {
 						// replace text
 
-						core::stringw s = Text.subString(0, realmbgn);
-						s.append(widep);
-						s.append(Text.subString(realmend, Text.size() - realmend));
+						EnrichedString s = Text.substr(0, realmbgn);
+						s += std::wstring_view(widep.c_str());
+						s += Text.substr(realmend, Text.size() - realmend);
 
 						if (!Max || s.size() <= Max) { // thx to Fish FH for fix
 							Text = s;
-							s = widep;
+							s = std::wstring_view(widep.c_str());
 							CursorPos = realmbgn + s.size();
 						}
 					}
@@ -460,7 +460,7 @@ bool CGUIEditBox::processKey(const SEvent &event)
 				if (lineNo > 0) {
 					s32 cp = CursorPos - BrokenTextPositions[lineNo];
 					if ((s32)BrokenText[lineNo - 1].size() < cp)
-						CursorPos = BrokenTextPositions[lineNo - 1] + core::max_((u32)1, BrokenText[lineNo - 1].size()) - 1;
+						CursorPos = BrokenTextPositions[lineNo - 1] + core::max_((size_t)1, BrokenText[lineNo - 1].size()) - 1;
 					else
 						CursorPos = BrokenTextPositions[lineNo - 1] + cp;
 				}
@@ -484,7 +484,7 @@ bool CGUIEditBox::processKey(const SEvent &event)
 				if (lineNo < (s32)BrokenText.size() - 1) {
 					s32 cp = CursorPos - BrokenTextPositions[lineNo];
 					if ((s32)BrokenText[lineNo + 1].size() < cp)
-						CursorPos = BrokenTextPositions[lineNo + 1] + core::max_((u32)1, BrokenText[lineNo + 1].size()) - 1;
+						CursorPos = BrokenTextPositions[lineNo + 1] + core::max_((size_t)1, BrokenText[lineNo + 1].size()) - 1;
 					else
 						CursorPos = BrokenTextPositions[lineNo + 1] + cp;
 				}
@@ -538,25 +538,25 @@ bool CGUIEditBox::processKey(const SEvent &event)
 				break;
 
 			if (Text.size()) {
-				core::stringw s;
+				EnrichedString s;
 
 				if (MarkBegin != MarkEnd) {
 					// delete marked text
 					const s32 realmbgn = MarkBegin < MarkEnd ? MarkBegin : MarkEnd;
 					const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
-					s = Text.subString(0, realmbgn);
-					s.append(Text.subString(realmend, Text.size() - realmend));
+					s = Text.substr(0, realmbgn);
+					s += (Text.substr(realmend, Text.size() - realmend));
 					Text = s;
 
 					CursorPos = realmbgn;
 				} else {
 					// delete text behind cursor
 					if (CursorPos > 0)
-						s = Text.subString(0, CursorPos - 1);
+						s = Text.substr(0, CursorPos - 1);
 					else
 						s = L"";
-					s.append(Text.subString(CursorPos, Text.size() - CursorPos));
+					s += (Text.substr(CursorPos, Text.size() - CursorPos));
 					Text = s;
 					--CursorPos;
 				}
@@ -645,22 +645,22 @@ bool CGUIEditBox::processKey(const SEvent &event)
 bool CGUIEditBox::keyDelete()
 {
 	if (Text.size() != 0) {
-		core::stringw s;
+		EnrichedString s;
 
 		if (MarkBegin != MarkEnd) {
 			// delete marked text
 			const s32 realmbgn = MarkBegin < MarkEnd ? MarkBegin : MarkEnd;
 			const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
-			s = Text.subString(0, realmbgn);
-			s.append(Text.subString(realmend, Text.size() - realmend));
+			s = Text.substr(0, realmbgn);
+			s += (Text.substr(realmend, Text.size() - realmend));
 			Text = s;
 
 			CursorPos = realmbgn;
 		} else {
 			// delete text before cursor
-			s = Text.subString(0, CursorPos);
-			s.append(Text.subString(CursorPos + 1, Text.size() - CursorPos - 1));
+			s = Text.substr(0, CursorPos);
+			s += (Text.substr(CursorPos + 1, Text.size() - CursorPos - 1));
 			Text = s;
 		}
 
@@ -717,10 +717,10 @@ void CGUIEditBox::draw()
 
 		// calculate cursor pos
 
-		core::stringw *txtLine = &Text;
+		EnrichedString *txtLine = &Text;
 		s32 startPos = 0;
 
-		core::stringw s, s2;
+		EnrichedString s, s2;
 
 		// get mark position
 		const bool ml = (!PasswordBox && (WordWrap || MultiLine));
@@ -754,7 +754,7 @@ void CGUIEditBox::draw()
 				if (PasswordBox) {
 					if (BrokenText.size() != 1) {
 						BrokenText.clear();
-						BrokenText.push_back(core::stringw());
+						BrokenText.push_back(EnrichedString());
 					}
 					if (BrokenText[0].size() != Text.size()) {
 						BrokenText[0] = Text;
@@ -782,7 +782,7 @@ void CGUIEditBox::draw()
 
 					if (i == hlineStart) {
 						// highlight start is on this line
-						s = txtLine->subString(0, realmbgn - startPos);
+						s = txtLine->substr(0, realmbgn - startPos);
 						mbegin = font->getDimension(s.c_str()).Width;
 
 						// deal with kerning
@@ -794,7 +794,7 @@ void CGUIEditBox::draw()
 					}
 					if (i == hlineStart + hlineCount - 1) {
 						// highlight end is on this line
-						s2 = txtLine->subString(0, realmend - startPos);
+						s2 = txtLine->substr(0, realmend - startPos);
 						mend = font->getDimension(s2.c_str()).Width;
 						lineEndPos = (s32)s2.size();
 					} else
@@ -807,7 +807,7 @@ void CGUIEditBox::draw()
 					skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), CurrentTextRect, &localClipRect);
 
 					// draw marked text
-					s = txtLine->subString(lineStartPos, lineEndPos - lineStartPos);
+					s = txtLine->substr(lineStartPos, lineEndPos - lineStartPos);
 
 					if (s.size())
 						font->draw(s.c_str(), CurrentTextRect,
@@ -828,7 +828,7 @@ void CGUIEditBox::draw()
 				txtLine = &BrokenText[cursorLine];
 				startPos = BrokenTextPositions[cursorLine];
 			}
-			s = txtLine->subString(0, CursorPos - startPos);
+			s = txtLine->substr(0, CursorPos - startPos);
 			charcursorpos = font->getDimension(s.c_str()).Width +
 							font->getKerning(CursorChar[0],
 							CursorPos - startPos > 0 ? (*txtLine)[CursorPos - startPos - 1] : 0).X;
@@ -838,7 +838,7 @@ void CGUIEditBox::draw()
 				CurrentTextRect.UpperLeftCorner.X += charcursorpos;
 
 				if (OverwriteMode) {
-					core::stringw character = Text.subString(CursorPos, 1);
+					EnrichedString character = Text.substr(CursorPos, 1);
 					s32 mend = font->getDimension(character.c_str()).Width;
 					// Make sure the cursor box has at least some width to it
 					if (mend <= 0)
@@ -911,7 +911,7 @@ void CGUIEditBox::setMax(u32 max)
 	Max = max;
 
 	if (Text.size() > Max && Max != 0)
-		Text = Text.subString(0, Max);
+		Text = Text.substr(0, Max);
 }
 
 //! Returns maximum amount of characters, previously set by setMax();
@@ -1034,7 +1034,7 @@ s32 CGUIEditBox::getCursorPos(s32 x, s32 y)
 
 	const u32 lineCount = (WordWrap || MultiLine) ? BrokenText.size() : 1;
 
-	core::stringw *txtLine = 0;
+	EnrichedString *txtLine = 0;
 	s32 startPos = 0;
 	x += 3;
 
@@ -1085,9 +1085,9 @@ void CGUIEditBox::breakText()
 
 	LastBreakFont = font;
 
-	core::stringw line;
-	core::stringw word;
-	core::stringw whitespace;
+	EnrichedString line;
+	EnrichedString word;
+	EnrichedString whitespace;
 	s32 lastLineStart = 0;
 	s32 size = Text.size();
 	s32 length = 0;
@@ -1262,7 +1262,7 @@ void CGUIEditBox::inputString(const core::stringw &str)
 	if (!isEnabled())
 		return;
 
-	core::stringw s;
+	EnrichedString s;
 	u32 len = str.size();
 
 	if (MarkBegin != MarkEnd) {
@@ -1270,9 +1270,9 @@ void CGUIEditBox::inputString(const core::stringw &str)
 		const s32 realmbgn = MarkBegin < MarkEnd ? MarkBegin : MarkEnd;
 		const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
-		s = Text.subString(0, realmbgn);
-		s.append(str);
-		s.append(Text.subString(realmend, Text.size() - realmend));
+		s = Text.substr(0, realmbgn);
+		s += std::wstring_view(str.c_str());
+		s += (Text.substr(realmend, Text.size() - realmend));
 		Text = s;
 		CursorPos = realmbgn + len;
 	} else if (OverwriteMode) {
@@ -1288,32 +1288,32 @@ void CGUIEditBox::inputString(const core::stringw &str)
 				}
 			}
 			if (!isEOL || Text.size() + len <= Max || Max == 0) {
-				s = Text.subString(0, CursorPos);
-				s.append(str);
+				s = Text.substr(0, CursorPos);
+				s += std::wstring_view(str.c_str());
 				if (isEOL) {
 					// just keep appending to the current line
 					// This follows the behavior of other gui libraries behaviors
-					s.append(Text.subString(EOLPos, Text.size() - EOLPos));
+					s += (Text.substr(EOLPos, Text.size() - EOLPos));
 				} else {
 					// replace the next character
-					s.append(Text.subString(CursorPos + len, Text.size() - CursorPos - len));
+					s += (Text.substr(CursorPos + len, Text.size() - CursorPos - len));
 				}
 				Text = s;
 				CursorPos += len;
 			}
 		} else if (Text.size() + len <= Max || Max == 0) {
 			// add new character because we are at the end of the string
-			s = Text.subString(0, CursorPos);
-			s.append(str);
-			s.append(Text.subString(CursorPos + len, Text.size() - CursorPos - len));
+			s = Text.substr(0, CursorPos);
+			s += std::wstring_view(str.c_str());
+			s += (Text.substr(CursorPos + len, Text.size() - CursorPos - len));
 			Text = s;
 			CursorPos += len;
 		}
 	} else if (Text.size() + len <= Max || Max == 0) {
 		// add new character
-		s = Text.subString(0, CursorPos);
-		s.append(str);
-		s.append(Text.subString(CursorPos, Text.size() - CursorPos));
+		s = Text.substr(0, CursorPos);
+		s += std::wstring_view(str.c_str());
+		s += (Text.substr(CursorPos, Text.size() - CursorPos));
 		Text = s;
 		CursorPos += len;
 	}
@@ -1348,9 +1348,9 @@ void CGUIEditBox::calculateScrollPos()
 		// get cursor position
 		// get cursor area
 		u32 cursorWidth = font->getDimension(CursorChar.c_str()).Width;
-		core::stringw *txtLine = hasBrokenText ? &BrokenText[cursLine] : &Text;
+		EnrichedString *txtLine = hasBrokenText ? &BrokenText[cursLine] : &Text;
 		s32 cPos = hasBrokenText ? CursorPos - BrokenTextPositions[cursLine] : CursorPos; // column
-		s32 cStart = font->getDimension(txtLine->subString(0, cPos).c_str()).Width;       // pixels from text-start
+		s32 cStart = font->getDimension(txtLine->substr(0, cPos).c_str()).Width;       // pixels from text-start
 		s32 cEnd = cStart + cursorWidth;
 		s32 txtWidth = font->getDimension(txtLine->c_str()).Width;
 
@@ -1455,7 +1455,7 @@ void CGUIEditBox::setTextMarkers(s32 begin, s32 end)
 			const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
 			core::stringc s;
-			wStringToUTF8(s, Text.subString(realmbgn, realmend - realmbgn));
+			wStringToUTF8(s, Text.substr(realmbgn, realmend - realmbgn).getString().c_str());
 			Operator->copyToPrimarySelection(s.c_str());
 		}
 

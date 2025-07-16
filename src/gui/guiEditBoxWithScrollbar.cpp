@@ -12,6 +12,7 @@
 #include "rect.h"
 #include "porting.h"
 #include "Keycodes.h"
+#include "util/enriched_string.h"
 
 /*
 todo:
@@ -123,10 +124,10 @@ void GUIEditBoxWithScrollBar::draw()
 
 		// calculate cursor pos
 
-		core::stringw *txt_line = &Text;
+		EnrichedString *txt_line = &Text;
 		s32 start_pos = 0;
 
-		core::stringw s, s2;
+		EnrichedString s, s2;
 
 		// get mark position
 		const bool ml = (!m_passwordbox && (m_word_wrap || m_multiline));
@@ -163,11 +164,8 @@ void GUIEditBoxWithScrollBar::draw()
 						m_broken_text.emplace_back();
 					}
 					if (m_broken_text[0].size() != Text.size()){
-						m_broken_text[0] = Text;
-						for (u32 q = 0; q < Text.size(); ++q)
-						{
-							m_broken_text[0][q] = m_passwordchar;
-						}
+						//Replace password with *
+						m_broken_text[0] = EnrichedString(std::wstring(Text.size(), m_passwordchar));
 					}
 					txt_line = &m_broken_text[0];
 					start_pos = 0;
@@ -190,7 +188,7 @@ void GUIEditBoxWithScrollBar::draw()
 
 					if (i == hline_start) {
 						// highlight start is on this line
-						s = txt_line->subString(0, realmbgn - start_pos);
+						s = txt_line->substr(0, realmbgn - start_pos);
 						mbegin = font->getDimension(s.c_str()).Width;
 
 						// deal with kerning
@@ -202,7 +200,7 @@ void GUIEditBoxWithScrollBar::draw()
 					}
 					if (i == hline_start + hline_count - 1) {
 						// highlight end is on this line
-						s2 = txt_line->subString(0, realmend - start_pos);
+						s2 = txt_line->substr(0, realmend - start_pos);
 						mend = font->getDimension(s2.c_str()).Width;
 						lineEndPos = (s32)s2.size();
 					} else {
@@ -218,7 +216,7 @@ void GUIEditBoxWithScrollBar::draw()
 					skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), m_current_text_rect, &local_clip_rect);
 
 					// draw marked text
-					s = txt_line->subString(lineStartPos, lineEndPos - lineStartPos);
+					s = txt_line->substr(lineStartPos, lineEndPos - lineStartPos);
 
 					if (s.size())
 						font->draw(s.c_str(), m_current_text_rect,
@@ -240,7 +238,7 @@ void GUIEditBoxWithScrollBar::draw()
 				txt_line = &m_broken_text[cursor_line];
 				start_pos = m_broken_text_positions[cursor_line];
 			}
-			s = txt_line->subString(0, m_cursor_pos - start_pos);
+			s = txt_line->substr(0, m_cursor_pos - start_pos);
 			charcursorpos = font->getDimension(s.c_str()).Width +
 				font->getKerning(L'_',
 					m_cursor_pos - start_pos > 0 ? (*txt_line)[m_cursor_pos - start_pos - 1] : 0).X;
@@ -267,7 +265,7 @@ s32 GUIEditBoxWithScrollBar::getCursorPos(s32 x, s32 y)
 
 	const u32 line_count = (m_word_wrap || m_multiline) ? m_broken_text.size() : 1;
 
-	core::stringw *txt_line = 0;
+	EnrichedString *txt_line = 0;
 	s32 start_pos = 0;
 	x += 3;
 
@@ -319,8 +317,8 @@ void GUIEditBoxWithScrollBar::breakText()
 
 	m_last_break_font = font;
 
-	core::stringw line;
-	core::stringw word;
+	EnrichedString line;
+	EnrichedString word;
 	core::stringw whitespace;
 	s32 last_line_start = 0;
 	s32 size = Text.size();
@@ -333,7 +331,6 @@ void GUIEditBoxWithScrollBar::breakText()
 		bool line_break = false;
 
 		if (c == L'\r') { // Mac or Windows breaks
-
 			line_break = true;
 			c = 0;
 			if (Text[i + 1] == L'\n') { // Windows breaks
@@ -367,7 +364,7 @@ void GUIEditBoxWithScrollBar::breakText()
 				line = word;
 			} else {
 				// add word to line
-				line += whitespace;
+				line += std::wstring_view(whitespace.c_str());
 				line += word;
 				length += whitelgth + worldlgth;
 			}
@@ -381,7 +378,7 @@ void GUIEditBoxWithScrollBar::breakText()
 
 			// compute line break
 			if (line_break) {
-				line += whitespace;
+				line += std::wstring_view(whitespace.c_str());
 				line += word;
 				m_broken_text.push_back(line);
 				m_broken_text_positions.push_back(last_line_start);
@@ -397,7 +394,7 @@ void GUIEditBoxWithScrollBar::breakText()
 		}
 	}
 
-	line += whitespace;
+	line += std::wstring_view(whitespace.c_str());
 	line += word;
 	m_broken_text.push_back(line);
 	m_broken_text_positions.push_back(last_line_start);
@@ -504,9 +501,9 @@ void GUIEditBoxWithScrollBar::calculateScrollPos()
 
 		// get cursor area
 		u32 cursor_width = font->getDimension(L"_").Width;
-		core::stringw *txt_line = has_broken_text ? &m_broken_text[curs_line] : &Text;
+		EnrichedString *txt_line = has_broken_text ? &m_broken_text[curs_line] : &Text;
 		s32 cpos = has_broken_text ? m_cursor_pos - m_broken_text_positions[curs_line] : m_cursor_pos;	// column
-		s32 cstart = font->getDimension(txt_line->subString(0, cpos).c_str()).Width;		// pixels from text-start
+		s32 cstart = font->getDimension(txt_line->substr(0, cpos).c_str()).Width;		// pixels from text-start
 		s32 cend = cstart + cursor_width;
 		s32 txt_width = font->getDimension(txt_line->c_str()).Width;
 
