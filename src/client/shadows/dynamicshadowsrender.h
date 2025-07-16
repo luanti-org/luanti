@@ -11,6 +11,8 @@
 #include <ISceneNode.h>
 #include <ISceneManager.h>
 
+#include "irr_ptr.h"
+
 class ShadowDepthShaderCB;
 class shadowScreenQuad;
 class shadowScreenQuadCB;
@@ -89,8 +91,8 @@ public:
 	video::SColor getShadowTint() const { return m_shadow_tint; }
 	float getTimeOfDay() const { return m_time_day; }
 
-	f32 getPerspectiveBiasXY() { return m_perspective_bias_xy; }
-	f32 getPerspectiveBiasZ() { return m_perspective_bias_z; }
+	f32 getPerspectiveBiasXY() const { return m_perspective_bias_xy; }
+	f32 getPerspectiveBiasZ() const { return m_perspective_bias_z; }
 
 private:
 	video::ITexture *getSMTexture(const std::string &shadow_map_name,
@@ -145,17 +147,16 @@ private:
 	void createShaders();
 	std::string readShaderFile(const std::string &path);
 
-	s32 depth_shader{-1};
-	s32 depth_shader_entities{-1};
-	s32 depth_shader_trans{-1};
-	s32 mixcsm_shader{-1};
+	u32 depth_shader_id{0};
+	u32 depth_shader_entities_id{0};
+	u32 depth_shader_trans_id{0};
+	u32 mixcsm_shader_id{0};
 
-	ShadowDepthShaderCB *m_shadow_depth_cb{nullptr};
-	ShadowDepthShaderCB *m_shadow_depth_entity_cb{nullptr};
-	ShadowDepthShaderCB *m_shadow_depth_trans_cb{nullptr};
-
+	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_cb{nullptr};
+	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_entity_cb{nullptr};
+	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_trans_cb{nullptr};
 	shadowScreenQuad *m_screen_quad{nullptr};
-	shadowScreenQuadCB *m_shadow_mix_cb{nullptr};
+	irr_ptr<shadowScreenQuadCB> m_shadow_mix_cb{nullptr};
 };
 
 /**

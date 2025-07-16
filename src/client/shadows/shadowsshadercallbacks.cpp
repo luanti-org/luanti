@@ -65,6 +65,11 @@ void ShadowDepthShaderCB::OnSetConstants(
 
 	lightMVP *= driver->getTransform(video::ETS_WORLD);
 
+
+	if (driver->getDriverType() == video::EDT_OGLES2 || driver->getDriverType() == video::EDT_OPENGL3) {
+		auto& texture = driver->getTransform(video::ETS_TEXTURE_0);
+		m_texture.set(texture, services);
+	}
 	m_light_mvp_setting.set(lightMVP, services);
 	m_map_resolution_setting.set(&MapRes, services);
 	m_max_far_setting.set(&MaxFar, services);

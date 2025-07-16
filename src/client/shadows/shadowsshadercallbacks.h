@@ -62,6 +62,7 @@ public:
 	v3f CameraPos;
 
 private:
+	CachedVertexShaderSetting<float, 16> m_texture{"mTexture"};
 	CachedVertexShaderSetting<f32, 16> m_light_mvp_setting{"LightMVP"};
 	CachedVertexShaderSetting<f32> m_map_resolution_setting{"MapResolution"};
 	CachedVertexShaderSetting<f32> m_max_far_setting{"MaxFar"};
