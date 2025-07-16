@@ -370,7 +370,7 @@ void GUIEditBoxWithScrollBar::breakText()
 				line = word;
 			} else {
 				// add word to line
-				line += whitespace;
+				line += std::wstring_view(whitespace.c_str());
 				line += word;
 				length += whitelgth + worldlgth;
 			}
@@ -384,7 +384,7 @@ void GUIEditBoxWithScrollBar::breakText()
 
 			// compute line break
 			if (line_break) {
-				line += whitespace;
+				line += std::wstring_view(whitespace.c_str());
 				line += word;
 				m_broken_text.push_back(line);
 				m_broken_text_positions.push_back(last_line_start);
@@ -400,7 +400,7 @@ void GUIEditBoxWithScrollBar::breakText()
 		}
 	}
 
-	line += whitespace;
+	line += std::wstring_view(whitespace.c_str());
 	line += word;
 	m_broken_text.push_back(line);
 	m_broken_text_positions.push_back(last_line_start);
@@ -507,9 +507,9 @@ void GUIEditBoxWithScrollBar::calculateScrollPos()
 
 		// get cursor area
 		u32 cursor_width = font->getDimension(L"_").Width;
-		core::stringw *txt_line = has_broken_text ? &m_broken_text[curs_line] : &Text;
+		EnrichedString *txt_line = has_broken_text ? &m_broken_text[curs_line] : &Text;
 		s32 cpos = has_broken_text ? m_cursor_pos - m_broken_text_positions[curs_line] : m_cursor_pos;	// column
-		s32 cstart = font->getDimension(txt_line->subString(0, cpos).c_str()).Width;		// pixels from text-start
+		s32 cstart = font->getDimension(txt_line->substr(0, cpos).c_str()).Width;		// pixels from text-start
 		s32 cend = cstart + cursor_width;
 		s32 txt_width = font->getDimension(txt_line->c_str()).Width;
 

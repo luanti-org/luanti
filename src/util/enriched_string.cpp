@@ -161,14 +161,16 @@ void EnrichedString::operator+=(const EnrichedString &other)
 	}
 }
 
-wchar_t EnrichedString::operator[](s32 index) const
+void EnrichedString::operator+=(wchar_t character)
 {
-	return getString()[index];
+	addCharNoColor(character);
 }
 
-inline void EnrichedString::erase(s32 index){
-	m_string.erase(index);
+wchar_t& EnrichedString::operator[](s32 index)
+{
+	return m_string[index];
 }
+
 
 EnrichedString EnrichedString::getNextLine(size_t *pos) const
 {
