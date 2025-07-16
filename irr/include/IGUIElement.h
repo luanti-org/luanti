@@ -10,6 +10,7 @@
 #include "IEventReceiver.h"
 #include "EGUIElementTypes.h"
 #include "EGUIAlignment.h"
+#include "util/enriched_string.h"
 #include <cassert>
 #include <list>
 #include <vector>
@@ -893,7 +894,7 @@ protected:
 	bool NoClip;
 
 	//! caption
-	core::stringw Text;
+	EnrichedString Text;
 
 	//! tooltip
 	core::stringw ToolTipText;
