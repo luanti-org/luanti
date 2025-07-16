@@ -14,7 +14,6 @@ class IReadFile;
 } // end namespace io
 namespace scene
 {
-class IMeshManipulator;
 
 //! Meshloader capable of loading x meshes.
 class CXMeshFileLoader : public IMeshLoader

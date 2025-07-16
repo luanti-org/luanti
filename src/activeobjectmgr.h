@@ -9,7 +9,6 @@
 #include "irrlichttypes.h"
 #include "util/basic_macros.h"
 
-class TestClientActiveObjectMgr;
 class TestServerActiveObjectMgr;
 
 template <typename T>

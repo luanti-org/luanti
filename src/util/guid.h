@@ -10,7 +10,6 @@
 #include <string>
 #include <array>
 
-class ServerEnvironment;
 
 /**
  * A global unique identifier.

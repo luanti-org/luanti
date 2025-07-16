@@ -147,7 +147,6 @@ private:
 };
 
 struct MapNode;
-class NodeMetadata;
 
 enum LeavesStyle {
 	LEAVES_FANCY,

@@ -10,9 +10,9 @@
 typedef u16 biome_t;  // copy from mg_biome.h to avoid an unnecessary include
 
 class MMVManip;
-class BiomeManager;
 class BiomeGen;
 class Mapgen;
+class EmergeManager;
 
 class ModApiMapgen : public ModApiBase
 {

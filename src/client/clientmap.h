@@ -23,8 +23,6 @@ struct MapDrawControl
 };
 
 class Client;
-class ITextureSource;
-class PartialMeshBuffer;
 
 namespace scene
 {
