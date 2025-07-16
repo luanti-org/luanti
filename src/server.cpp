@@ -1952,6 +1952,10 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 	pkt << lighting.bloom_intensity << lighting.bloom_strength_factor <<
 			lighting.bloom_radius;
 
+	for (int i = 0; i < 9; ++i) {
+		pkt << lighting.vision_effects.color_transform_matrix[i];
+	}
+
 	Send(&pkt);
 }
 
