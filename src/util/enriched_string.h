@@ -57,6 +57,10 @@ public:
 		*this += EnrichedString(other);
 	}
 
+	wchar_t operator[](s32 index) const;
+
+	inline void EnrichedString::erase(s32 index);
+
 	const wchar_t *c_str() const
 	{
 		return getString().c_str();

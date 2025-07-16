@@ -161,10 +161,18 @@ void EnrichedString::operator+=(const EnrichedString &other)
 	}
 }
 
+wchar_t EnrichedString::operator[](s32 index) const
+{
+	return getString()[index];
+}
+
+inline void EnrichedString::erase(s32 index){
+	m_string.erase(index);
+}
+
 EnrichedString EnrichedString::getNextLine(size_t *pos) const
 {
 	size_t str_pos = *pos;
-
 	// Split per line
 	size_t str_nl = getString().find(L'\n', str_pos);
 	if (str_nl == std::wstring::npos)
