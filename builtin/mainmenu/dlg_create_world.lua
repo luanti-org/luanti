@@ -79,9 +79,26 @@ local mgv6_biomes = {
 }
 
 local function create_world_formspec(dialogdata)
-
-	local current_mg = dialogdata.mg
+	local current_mapgen = dialogdata.mg
 	local mapgens = core.get_mapgen_names()
+
+	-- This is used to make sure that the internal mapgens are never overwritten by an ill-playing mapgen
+	local is_internal_mapgen = false
+	for _, mg in pairs(mapgens) do
+		if mg == current_mapgen then
+			is_internal_mapgen = true
+		end
+	end
+
+	local lua_mapgens = core.get_lua_mapgens()
+	local is_lua_mapgen = false
+	for k, v in pairs(lua_mapgens) do
+		if not is_internal_mapgen and v.title == dialogdata.mg then
+			current_mapgen = k
+			is_lua_mapgen = true
+		end
+		mapgens[#mapgens+1] = k
+	end
 
 	local flags = dialogdata.flags
 
@@ -137,17 +154,32 @@ local function create_world_formspec(dialogdata)
 			if not first_mg then
 				first_mg = v
 			end
-			if current_mg == v then
+			if current_mapgen == v then
 				selindex = i
 			end
 			i = i + 1
-			mglist = mglist .. core.formspec_escape(v) .. ","
+
+			local mapgen_title = (lua_mapgens[v] or {}).title
+			if not mapgen_title then
+				mapgen_title = v
+			end
+
+			mglist = mglist .. core.formspec_escape(mapgen_title) .. ","
 		end
 		if not selindex then
 			selindex = 1
-			current_mg = first_mg
+			current_mapgen = first_mg
 		end
 		mglist = mglist:sub(1, -2)
+	end
+
+	local lua_mapgen_allowed_mg_flags = {}
+	if is_lua_mapgen and lua_mapgens[current_mapgen].mg_flags then
+		lua_mapgen_allowed_mg_flags = lua_mapgens[current_mapgen].mg_flags
+	end
+	local lua_mapgen_flags = {}
+	if is_lua_mapgen and lua_mapgens[current_mapgen].lmg_flags then
+		lua_mapgen_flags = lua_mapgens[current_mapgen].lmg_flags
 	end
 
 	-- The logic of the flag element IDs is as follows:
@@ -161,44 +193,93 @@ local function create_world_formspec(dialogdata)
 		if disallowed_mapgen_settings["mg_flags"] then
 			return "", y
 		end
-
-		local form = "checkbox[0," .. y .. ";flag_main_caves;" ..
-			fgettext("Caves") .. ";"..strflag(flags.main, "caves").."]"
-		y = y + 0.5
-
-		form = form .. "checkbox[0,"..y..";flag_main_dungeons;" ..
-			fgettext("Dungeons") .. ";"..strflag(flags.main, "dungeons").."]"
-		y = y + 0.5
-
-		local d_name = fgettext("Decorations")
-		local d_tt
-		if mapgen == "v6" then
-			d_tt = fgettext("Structures appearing on the terrain (no effect on trees and jungle grass created by v6)")
-		else
-			d_tt = fgettext("Structures appearing on the terrain, typically trees and plants")
+		if is_lua_mapgen and lua_mapgen_allowed_mg_flags == {} then
+			return "", y
 		end
-		form = form .. "checkbox[0,"..y..";flag_main_decorations;" ..
-			d_name .. ";" ..
-			strflag(flags.main, "decorations").."]" ..
-			"tooltip[flag_mg_decorations;" ..
-			d_tt ..
-			"]"
-		y = y + 0.5
 
-		form = form .. "tooltip[flag_main_caves;" ..
-		fgettext("Network of tunnels and caves")
-		.. "]"
+		local form = ""
+
+		if not is_lua_mapgen or lua_mapgen_allowed_mg_flags["caves"] then
+			form = form .. "checkbox[0," .. y .. ";flag_main_caves;" ..
+				fgettext("Caves") .. ";"..strflag(flags.main, "caves").."]"
+			y = y + 0.5
+		end
+
+		if not is_lua_mapgen or lua_mapgen_allowed_mg_flags["dungeons"] then
+			form = form .. "checkbox[0,"..y..";flag_main_dungeons;" ..
+				fgettext("Dungeons") .. ";"..strflag(flags.main, "dungeons").."]"
+			y = y + 0.5
+		end
+
+		if not is_lua_mapgen or lua_mapgen_allowed_mg_flags["decorations"] then
+			local d_name = fgettext("Decorations")
+			local d_tt
+			if mapgen == "v6" then
+				d_tt = fgettext("Structures appearing on the terrain (no effect on trees and jungle grass created by v6)")
+			else
+				d_tt = fgettext("Structures appearing on the terrain, typically trees and plants")
+			end
+			form = form .. "checkbox[0,"..y..";flag_main_decorations;" ..
+				d_name .. ";" ..
+				strflag(flags.main, "decorations").."]" ..
+				"tooltip[flag_mg_decorations;" ..
+				d_tt ..
+				"]"
+			y = y + 0.5
+		end
+
+		-- Allow all to be shown for Lua mapgens
+		if is_lua_mapgen then
+			if lua_mapgen_allowed_mg_flags["ores"] then
+				form = form .. "checkbox[0,"..y..";flag_main_ores;" ..
+					fgettext("Ores") .. ";"..strflag(flags.main, "ores").."]"
+				y = y + 0.5
+			end
+			if lua_mapgen_allowed_mg_flags["biomes"] then
+				form = form .. "checkbox[0,"..y..";flag_main_biomes;" ..
+					fgettext("Biomes") .. ";"..strflag(flags.main, "biomes").."]"
+				y = y + 0.5
+			end
+			if lua_mapgen_allowed_mg_flags["light"] then
+				form = form .. "checkbox[0,"..y..";flag_main_light;" ..
+					fgettext("Light") .. ";"..strflag(flags.main, "light").."]" ..
+					"tooltip[flag_main_light;" ..
+					fgettext("This is not recommended, as it will disable engine lighting.") ..
+					"]"
+				y = y + 0.5
+			end
+		end
+
+		if form ~= "" then
+			form = form .. "tooltip[flag_main_caves;" ..
+			fgettext("Network of tunnels and caves")
+			.. "]"
+		end
 		return form, y
 	end
 
 	local mg_specific_flags = function(mapgen, y)
-		if not flag_checkboxes[mapgen] then
+		if not is_lua_mapgen and not flag_checkboxes[mapgen] then
 			return "", y
 		end
 		if disallowed_mapgen_settings["mg"..mapgen.."_spflags"] then
 			return "", y
 		end
+
 		local form = ""
+
+		if is_lua_mapgen then
+			for tab, _ in pairs(lua_mapgen_flags) do
+				local id = "flag_"..mapgen.."_"..tab:gsub("_", "-")
+				form = form .. ("checkbox[0,%f;%s;%s;%s]"):
+					format(y, id, tab, "true")
+
+				y = y + 0.5
+			end
+
+			return form, y
+		end
+
 		for _, tab in pairs(flag_checkboxes[mapgen]) do
 			local id = "flag_"..mapgen.."_"..tab[1]:gsub("_", "-")
 			form = form .. ("checkbox[0,%f;%s;%s;%s]"):
@@ -254,7 +335,7 @@ local function create_world_formspec(dialogdata)
 	local str_flags, str_spflags
 	local label_flags, label_spflags = "", ""
 	y = y + 0.3
-	str_flags, y = mg_main_flags(current_mg, y)
+	str_flags, y = mg_main_flags(current_mapgen, y)
 	if str_flags ~= "" then
 		label_flags = "label[0,"..y_start..";" .. fgettext("Mapgen flags") .. "]"
 		y_start = y + 0.4
@@ -262,7 +343,7 @@ local function create_world_formspec(dialogdata)
 		y_start = 0.0
 	end
 	y = y_start + 0.3
-	str_spflags = mg_specific_flags(current_mg, y)
+	str_spflags = mg_specific_flags(current_mapgen, y)
 	if str_spflags ~= "" then
 		label_spflags = "label[0,"..y_start..";" .. fgettext("Mapgen-specific flags") .. "]"
 	end
@@ -370,11 +451,34 @@ local function create_world_buttonhandler(this, fields)
 		if message == nil then
 			this.data.seed = fields["te_seed"] or ""
 			this.data.mg = fields["dd_mapgen"]
+			local mapgen_internal = this.data.mg
+			local lua_mapgen = nil
+
+			-- This is used to make sure that the internal mapgens are never overwritten by an ill-playing mapgen
+			local internal_mapgens = core.get_mapgen_names()
+			local is_internal_mapgen = false
+			for _, mg in pairs(internal_mapgens) do
+				if mg == this.data.mg then
+					is_internal_mapgen = true
+				end
+			end
+
+			local lua_mapgens = core.get_lua_mapgens()
+			if not is_internal_mapgen then
+				for name, v in pairs(lua_mapgens) do
+					if v.title == this.data.mg or (v.title == nil and name == this.data.mg) then
+						mapgen_internal = "singlenode"
+						lua_mapgen = name
+						break
+					end
+				end
+			end
 
 			-- actual names as used by engine
 			local settings = {
 				fixed_map_seed = this.data.seed,
-				mg_name = this.data.mg,
+				mg_name = mapgen_internal,
+				lua_mapgen = lua_mapgen,
 				mg_flags = table_to_flags(this.data.flags.main),
 				mgv5_spflags = table_to_flags(this.data.flags.v5),
 				mgv6_spflags = table_to_flags(this.data.flags.v6),
@@ -384,6 +488,12 @@ local function create_world_buttonhandler(this, fields)
 				mgvalleys_spflags = table_to_flags(this.data.flags.valleys),
 				mgflat_spflags = table_to_flags(this.data.flags.flat),
 			}
+			-- Add the lua-defined mapgen flags
+			for mg, v in pairs(lua_mapgens) do
+				if this.data.flags[mg] ~= nil then
+					settings["lmg_" .. mg .. "_flags"] = table_to_flags(this.data.flags[mg])
+				end
+			end
 			message = core.create_world(worldname, game.id, settings)
 		end
 
@@ -468,6 +578,11 @@ function create_create_world_dlg()
 			flat = core.settings:get_flags("mgflat_spflags"),
 		}
 	}
+	for mg, tab in pairs(core.get_lua_mapgens()) do
+		if retval.data.flags[mg] == nil then
+			retval.data.flags[mg] = tab.lmg_flags
+		end
+	end
 
 	return retval
 end
