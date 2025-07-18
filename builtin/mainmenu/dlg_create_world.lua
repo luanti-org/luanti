@@ -80,7 +80,7 @@ local mgv6_biomes = {
 
 local function create_world_formspec(dialogdata)
 
-	local current_mg = dialogdata.mg or core.settings:get("mg_name")
+	local current_mg = dialogdata.mg
 	local mapgens = core.get_mapgen_names()
 
 	local flags = dialogdata.flags
@@ -90,16 +90,15 @@ local function create_world_formspec(dialogdata)
 		-- should never happen but just pick the first game
 		game = pkgmgr.games[1]
 		core.settings:set("menu_last_game", game.id)
+
+		current_mg = dialogdata.mg or core.settings:get("mg_name")
 	end
 
 	local disallowed_mapgen_settings = {}
 	if game ~= nil then
 		local gameconfig = Settings(game.path.."/game.conf")
 
-		local game_default_mg = gameconfig:get("default_mapgen")
-		if dialogdata.mg == nil and game_default_mg then
-			current_mg = game_default_mg
-		end
+		current_mg = current_mg or gameconfig:get("default_mapgen") or core.settings:get("mg_name")
 
 		local allowed_mapgens = (gameconfig:get("allowed_mapgens") or ""):split()
 		for key, value in pairs(allowed_mapgens) do
