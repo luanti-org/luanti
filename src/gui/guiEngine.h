@@ -11,7 +11,7 @@
 #include "guiFormSpecMenu.h"
 #include "client/clouds.h"
 #include "client/sound.h"
-#include "util/enriched_string.h"
+#include "enriched_string.h"
 #include "translation.h"
 
 #include <csignal>

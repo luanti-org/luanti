@@ -9,7 +9,7 @@
 #include "gui/mainmenumanager.h"
 #include "gui/guiChatConsole.h"
 #include "gui/touchcontrols.h"
-#include "util/enriched_string.h"
+#include "enriched_string.h"
 #include "util/pointedthing.h"
 #include "client.h"
 #include "clientmap.h"

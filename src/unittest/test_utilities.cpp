@@ -6,7 +6,7 @@
 
 #include <cmath>
 #include <limits>
-#include "util/enriched_string.h"
+#include "enriched_string.h"
 #include "util/numeric.h"
 #include "util/string.h"
 #include "util/base64.h"

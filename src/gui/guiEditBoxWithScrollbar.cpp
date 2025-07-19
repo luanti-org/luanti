@@ -12,7 +12,7 @@
 #include "rect.h"
 #include "porting.h"
 #include "Keycodes.h"
-#include "util/enriched_string.h"
+#include "enriched_string.h"
 
 /*
 todo:

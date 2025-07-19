@@ -10,7 +10,8 @@
 #include "IEventReceiver.h"
 #include "EGUIElementTypes.h"
 #include "EGUIAlignment.h"
-#include "../../src/util/enriched_string.h"//src/util/enriched_string.h
+//#include "../../src/util/enriched_string.h"//src/util/enriched_string.h
+#include <enriched_string.h>
 #include <cassert>
 #include <list>
 #include <vector>

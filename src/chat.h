@@ -11,7 +11,7 @@
 #include <optional>
 
 #include "irrlichttypes.h"
-#include "util/enriched_string.h"
+#include "enriched_string.h"
 
 // Chat console related classes
 
