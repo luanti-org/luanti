@@ -5921,8 +5921,8 @@ Utilities
       },
 
       -- Estimated maximum formspec size before Luanti will start shrinking the
-      -- formspec to fit. For a fullscreen formspec, use this formspec size and
-      -- `padding[0,0]`. `bgcolor[;true]` is also recommended.
+      -- formspec to fit. For a fullscreen formspec, use the size returned by
+      -- this table  and `padding[0,0]`. `bgcolor[;true]` is also recommended.
       max_formspec_size = {
           x = 20,
           y = 11.25
