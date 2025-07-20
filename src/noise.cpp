@@ -83,7 +83,6 @@ u32 PcgRandom::range(u32 bound)
 	if (bound == 0)
 		return next();
 
-	// Optimization: only one value is possible.
 	if (bound == 1)
 		return 0;
 
