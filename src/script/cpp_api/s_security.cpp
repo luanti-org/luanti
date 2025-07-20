@@ -5,6 +5,9 @@
 #include "cpp_api/s_security.h"
 #include "lua_api/l_base.h"
 #include "filesys.h"
+#include "util/hashing.h"
+#include "util/hex.h"
+#include "builtin_files.h"
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
@@ -466,7 +469,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 	if (!display_name)
 		display_name = path;
 	if (!path) {
-		fp = stdin;
+		fp = stdin; // TODO: why do we support this?
 		chunk_name = const_cast<char *>("=stdin");
 	} else {
 		fp_up.reset(std::fopen(path, "rb"));
@@ -498,10 +501,32 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 
 	size_t num_read = std::fread(&code[0], 1, size, fp);
 	if (num_read != size) {
-		lua_pushliteral(L, "Error reading file to load.");
+		lua_pushfstring(L, "%s: Error reading file to load.", path);
 		return false;
 	}
 	fp_up.reset();
+
+	// Check sha256 if it's a builtin file
+	do {
+		if (!path)
+			break;
+		const auto &sha_map = get_builtin_file_sha256_map();
+		std::string builtin_path = Client::getBuiltinLuaPath() + DIR_DELIM;
+		if (std::string_view(path).substr(0, builtin_path.size()) != builtin_path)
+			break;
+		auto path_local = std::string_view(path).substr(builtin_path.size());
+		auto it = sha_map.find(std::string(path_local));
+		if (it == sha_map.end())
+			break;
+		auto digest = hex_encode(hashing::sha256(code));
+		if (it->second != digest) {
+			// TODO: new exception kind
+			lua_pushfstring(L,
+				"%s: SHA256 of builtin file does not match. Expected: %s Found: %s",
+				path, it->second.c_str(), digest.c_str());
+			return false;
+		}
+	} while (false);
 
 	// Skip the shebang line (but keep line-ending)
 	std::string_view code_view = code;
