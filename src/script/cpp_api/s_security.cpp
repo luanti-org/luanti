@@ -459,7 +459,9 @@ bool ScriptApiSecurity::safeLoadString(lua_State *L, std::string_view code, cons
 
 bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char *display_name)
 {
+	fs::FileUniquePtr fp_up;
 	FILE *fp;
+	std::unique_ptr<char[]> chunk_name_up;
 	char *chunk_name;
 	if (!display_name)
 		display_name = path;
@@ -467,62 +469,50 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 		fp = stdin;
 		chunk_name = const_cast<char *>("=stdin");
 	} else {
-		fp = std::fopen(path, "rb");
-		if (!fp) {
+		fp_up.reset(std::fopen(path, "rb"));
+		if (!fp_up) {
 			lua_pushfstring(L, "%s: %s", path, strerror(errno));
 			return false;
 		}
+		fp = fp_up.get();
 		size_t len = strlen(display_name) + 2;
-		chunk_name = new char[len];
-		snprintf(chunk_name, len, "@%s", display_name);
-	}
-
-	size_t start = 0;
-	int c = std::getc(fp);
-	if (c == '#') {
-		// Skip the shebang line (but keep line-ending)
-		while (c != EOF && c != '\n')
-			c = std::getc(fp);
-		start = std::ftell(fp) - 1;
+		chunk_name_up.reset(new char[len]);
+		snprintf(chunk_name_up.get(), len, "@%s", display_name);
+		chunk_name = chunk_name_up.get();
 	}
 
 	// Read the file
 	int ret = std::fseek(fp, 0, SEEK_END);
 	if (ret) {
 		lua_pushfstring(L, "%s: %s", path, strerror(errno));
-		if (path) {
-			std::fclose(fp);
-			delete [] chunk_name;
-		}
 		return false;
 	}
 
-	size_t size = std::ftell(fp) - start;
+	size_t size = std::ftell(fp);
 	std::string code(size, '\0');
-	ret = std::fseek(fp, start, SEEK_SET);
+	ret = std::fseek(fp, 0, SEEK_SET);
 	if (ret) {
 		lua_pushfstring(L, "%s: %s", path, strerror(errno));
-		if (path) {
-			std::fclose(fp);
-			delete [] chunk_name;
-		}
 		return false;
 	}
 
 	size_t num_read = std::fread(&code[0], 1, size, fp);
-	if (path)
-		std::fclose(fp);
 	if (num_read != size) {
 		lua_pushliteral(L, "Error reading file to load.");
-		if (path)
-			delete [] chunk_name;
 		return false;
 	}
+	fp_up.reset();
 
-	bool result = safeLoadString(L, code, chunk_name);
-	if (path)
-		delete [] chunk_name;
-	return result;
+	// Skip the shebang line (but keep line-ending)
+	std::string_view code_view = code;
+	if (!code_view.empty() && code_view[0] == '#') {
+		size_t nl = code_view.find('\n', 1);
+		if (nl == code_view.npos)
+			nl = code_view.size();
+		code_view = code_view.substr(nl);
+	}
+
+	return safeLoadString(L, code_view, chunk_name);
 }
 
 
