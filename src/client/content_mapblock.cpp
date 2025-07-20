@@ -1965,6 +1965,7 @@ void LodMeshGenerator::generateBitsetMesh(u64 slices[6][64][64], MapNode n, u8 l
 void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u32 lod_width, u8 lod_resolution)
 {
 	std::bitset<66> all_set_nodes[3][66][66];
+	std::unordered_map<content_t, u32> types_counts;
 	std::unordered_map<content_t, std::unordered_map<u16, MapNode>> node_types;
 	std::unordered_map<content_t, std::unordered_map<u16, std::bitset<66>[3][66][66]>> set_nodes;
 
@@ -2052,7 +2053,8 @@ void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3
 		//	lp = LightPair((u8) (day_light / num_light_samples), night_light / num_light_samples);
 		//}
 
-		node_type = main_node.getContent() % (8 / lod_resolution + 1);
+		node_type = main_node.getContent();
+    	types_counts[node_type]++;
 		node_types[node_type][lp] = main_node;
 		for (p.Z = bounds.MinEdge.Z; p.Z <= bounds.MaxEdge.Z; p.Z++)
 		for (p.Y = bounds.MinEdge.Y; p.Y <= bounds.MaxEdge.Y; p.Y++)
@@ -2066,6 +2068,28 @@ void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3
 			set_nodes[node_type][lp][2][p.X][p.Y].set(p.Z); // z axis
 		}
 		next_volume:
+	}
+
+	{
+		std::vector<content_t> sorted_types;
+		std::vector<std::pair<content_t, u32>> helper(types_counts.begin(), types_counts.end());
+		std::sort(helper.begin(), helper.end(), [](const auto &a, const auto &b) {
+			return a.second > b.second;
+		});
+		for (const auto & [first, second] : helper) {
+			sorted_types.push_back(first);
+		}
+		u8 types_resolution = (4 / lod_resolution + 1);
+		for (u8 type_i = types_resolution; type_i < sorted_types.size(); type_i++) {
+			for (auto [from_light, from_set] : set_nodes[sorted_types[type_i]])
+			// for (auto &[unused, to_set] : set_nodes[sorted_types[types_resolution - 1]])
+			for (u8 direction = 0; direction < 3; direction++)
+			for (u8 u = 0; u < 64; u++)
+			for (u8 v = 0; v < 64; v++) {
+				set_nodes[sorted_types[types_resolution - 1]][from_light][direction][u][v] |= from_set[direction][u][v];
+			}
+			set_nodes.erase(sorted_types[type_i]);
+		}
 	}
 
 	for (auto [node_type, map] : set_nodes)
