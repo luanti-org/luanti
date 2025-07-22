@@ -556,7 +556,7 @@ bool CGUIEditBox::processKey(const SEvent &event)
 						s = Text.substr(0, CursorPos - 1);
 					else
 						s = L"";
-					s += (Text.substr(CursorPos, Text.size() - CursorPos));
+					s += Text.substr(CursorPos, Text.size() - CursorPos);
 					Text = s;
 					--CursorPos;
 				}
