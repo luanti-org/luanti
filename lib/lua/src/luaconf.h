@@ -356,7 +356,7 @@
 ** CHANGE it to 2 if you want the old behaviour, or undefine it to turn
 ** off the advisory error when nesting [[...]].
 */
-#undef LUA_COMPAT_LSTR		1
+#undef LUA_COMPAT_LSTR
 
 /*
 @@ LUA_COMPAT_GFIND controls compatibility with old 'string.gfind' name.
