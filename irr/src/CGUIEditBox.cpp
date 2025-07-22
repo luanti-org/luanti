@@ -546,7 +546,7 @@ bool CGUIEditBox::processKey(const SEvent &event)
 					const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
 					s = Text.substr(0, realmbgn);
-					s += (Text.substr(realmend, Text.size() - realmend));
+					s += Text.substr(realmend, Text.size() - realmend);
 					Text = s;
 
 					CursorPos = realmbgn;
