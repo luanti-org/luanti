@@ -660,7 +660,7 @@ bool CGUIEditBox::keyDelete()
 		} else {
 			// delete text before cursor
 			s = Text.substr(0, CursorPos);
-			s += (Text.substr(CursorPos + 1, Text.size() - CursorPos - 1));
+			s += Text.substr(CursorPos + 1, Text.size() - CursorPos - 1);
 			Text = s;
 		}
 
