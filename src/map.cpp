@@ -30,11 +30,22 @@ Map::Map(IGameDef *gamedef):
 
 Map::~Map()
 {
-	/*
-		Free all MapSectors
-	*/
+	// Free all sectors
+	size_t used = 0;
 	for (auto &sector : m_sectors) {
+		sector.second->deleteBlocks(&used);
 		delete sector.second;
+	}
+	m_sectors.clear();
+
+	if (used > 0) {
+#ifdef NDEBUG
+		std::ostream &to = infostream;
+#else
+		std::ostream &to = warningstream;
+#endif
+		PrintInfo(to);
+		to << used << " blocks deleted despite reference count > 0. Potential bug." << std::endl;
 	}
 }
 
