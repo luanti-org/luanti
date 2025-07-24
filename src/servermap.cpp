@@ -208,9 +208,8 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 	bool enable_mapgen_debug_info = m_emerge->enable_mapgen_debug_info;
 	EMERGE_DBG_OUT("initBlockMake(): " << bpmin << " - " << bpmax);
 
-	v3s16 extra_borders(1, 1, 1);
-	v3s16 full_bpmin = bpmin - extra_borders;
-	v3s16 full_bpmax = bpmax + extra_borders;
+	v3s16 full_bpmin = bpmin - EMERGE_EXTRA_BORDER;
+	v3s16 full_bpmax = bpmax + EMERGE_EXTRA_BORDER;
 
 	// Do nothing if not inside mapgen limits (+-1 because of neighbors)
 	if (blockpos_over_mapgen_limit(full_bpmin) ||
@@ -265,11 +264,12 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 void ServerMap::cancelBlockMake(BlockMakeData *data)
 {
 	assert(data->vmanip); // no vmanip = initBlockMake did not complete (caller mistake)
-	v3s16 bpmin = data->blockpos_min;
-	v3s16 bpmax = data->blockpos_max;
-	for (s16 x = bpmin.X - 1; x <= bpmax.X + 1; x++)
-	for (s16 z = bpmin.Z - 1; z <= bpmax.Z + 1; z++)
-	for (s16 y = bpmin.Y - 1; y <= bpmax.Y + 1; y++) {
+
+	v3s16 full_bpmin = data->blockpos_min - EMERGE_EXTRA_BORDER;
+	v3s16 full_bpmax = data->blockpos_max + EMERGE_EXTRA_BORDER;
+	for (s16 x = full_bpmin.X; x <= full_bpmax.X; x++)
+	for (s16 z = full_bpmin.Z; z <= full_bpmax.Z; z++)
+	for (s16 y = full_bpmin.Y; y <= full_bpmax.Y; y++) {
 		MapBlock *block = getBlockNoCreateNoEx(v3s16(x, y, z));
 		if (block)
 			block->refDrop();

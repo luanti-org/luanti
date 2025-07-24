@@ -170,6 +170,9 @@ protected:
 private:
 	friend class ModApiMapgen; // for m_transforming_liquid
 
+	// extra border area during mapgen (in blocks)
+	constexpr static v3s16 EMERGE_EXTRA_BORDER{1, 1, 1};
+
 	// Emerge manager
 	EmergeManager *m_emerge;
 
