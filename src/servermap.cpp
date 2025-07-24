@@ -199,8 +199,8 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 {
 	assert(data);
 	s16 csize = getMapgenParams()->chunksize;
-	v3s16 bpmin = EmergeManager::getContainingChunk(blockpos, csize);
-	v3s16 bpmax = bpmin + v3s16(1, 1, 1) * (csize - 1);
+	const v3s16 bpmin = EmergeManager::getContainingChunk(blockpos, csize);
+	const v3s16 bpmax = bpmin + v3s16(1, 1, 1) * (csize - 1);
 
 	if (!m_chunks_in_progress.insert(bpmin).second)
 		return false;
@@ -208,10 +208,10 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 	bool enable_mapgen_debug_info = m_emerge->enable_mapgen_debug_info;
 	EMERGE_DBG_OUT("initBlockMake(): " << bpmin << " - " << bpmax);
 
-	v3s16 full_bpmin = bpmin - EMERGE_EXTRA_BORDER;
-	v3s16 full_bpmax = bpmax + EMERGE_EXTRA_BORDER;
+	const v3s16 full_bpmin = bpmin - EMERGE_EXTRA_BORDER;
+	const v3s16 full_bpmax = bpmax + EMERGE_EXTRA_BORDER;
 
-	// Do nothing if not inside mapgen limits (+-1 because of neighbors)
+	// Do nothing if not fully inside mapgen limits
 	if (blockpos_over_mapgen_limit(full_bpmin) ||
 			blockpos_over_mapgen_limit(full_bpmax))
 		return false;
@@ -265,8 +265,8 @@ void ServerMap::cancelBlockMake(BlockMakeData *data)
 {
 	assert(data->vmanip); // no vmanip = initBlockMake did not complete (caller mistake)
 
-	v3s16 full_bpmin = data->blockpos_min - EMERGE_EXTRA_BORDER;
-	v3s16 full_bpmax = data->blockpos_max + EMERGE_EXTRA_BORDER;
+	const v3s16 full_bpmin = data->blockpos_min - EMERGE_EXTRA_BORDER;
+	const v3s16 full_bpmax = data->blockpos_max + EMERGE_EXTRA_BORDER;
 	for (s16 x = full_bpmin.X; x <= full_bpmax.X; x++)
 	for (s16 z = full_bpmin.Z; z <= full_bpmax.Z; z++)
 	for (s16 y = full_bpmin.Y; y <= full_bpmax.Y; y++) {
@@ -281,8 +281,8 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 {
 	assert(data);
 	assert(changed_blocks);
-	v3s16 bpmin = data->blockpos_min;
-	v3s16 bpmax = data->blockpos_max;
+	const v3s16 bpmin = data->blockpos_min;
+	const v3s16 bpmax = data->blockpos_max;
 
 	bool enable_mapgen_debug_info = m_emerge->enable_mapgen_debug_info;
 	EMERGE_DBG_OUT("finishBlockMake(): " << bpmin << " - " << bpmax);
@@ -319,10 +319,13 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 			MOD_REASON_EXPIRE_IS_AIR);
 	}
 
+	const v3s16 full_bpmin = bpmin - EMERGE_EXTRA_BORDER;
+	const v3s16 full_bpmax = bpmax + EMERGE_EXTRA_BORDER;
+
 	v3s16 bp;
-	for (bp.X = bpmin.X - 1; bp.X <= bpmax.X + 1; bp.X++)
-	for (bp.Z = bpmin.Z - 1; bp.Z <= bpmax.Z + 1; bp.Z++)
-	for (bp.Y = bpmin.Y - 1; bp.Y <= bpmax.Y + 1; bp.Y++) {
+	for (bp.X = full_bpmin.X; bp.X <= full_bpmax.X; bp.X++)
+	for (bp.Z = full_bpmin.Z; bp.Z <= full_bpmax.Z; bp.Z++)
+	for (bp.Y = full_bpmin.Y; bp.Y <= full_bpmax.Y; bp.Y++) {
 		MapBlock *block = getBlockNoCreateNoEx(bp);
 		if (!block) {
 			warningstream << "ServerMap::finishBlockMake: block " << bp
@@ -332,7 +335,7 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 
 		block->refDrop();
 
-		/* Blocks near the border are grabbed during
+		/* Border blocks are grabbed during
 		   generation but mustn't be marked generated. */
 		if (bp >= bpmin && bp <= bpmax) {
 			block->setGenerated(true);
