@@ -127,6 +127,20 @@ inline void sortBoxVerticies(core::vector3d<T> &p1, core::vector3d<T> &p2)
 }
 
 template <typename T>
+inline constexpr core::vector2d<T> componentwise_min(const core::vector2d<T> &a,
+	const core::vector2d<T> &b)
+{
+	return {std::min(a.X, b.X), std::min(a.Y, b.Y)};
+}
+
+template <typename T>
+inline constexpr core::vector2d<T> componentwise_max(const core::vector2d<T> &a,
+	const core::vector2d<T> &b)
+{
+	return {std::max(a.X, b.X), std::max(a.Y, b.Y)};
+}
+
+template <typename T>
 inline constexpr core::vector3d<T> componentwise_min(const core::vector3d<T> &a,
 	const core::vector3d<T> &b)
 {
