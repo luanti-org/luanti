@@ -29,7 +29,9 @@ public:
 	MapSector(Map *parent, v2s16 pos, IGameDef *gamedef);
 	virtual ~MapSector();
 
-	void deleteBlocks();
+	/// @brief Deletes all blocks (regardless of reference count).
+	/// @param used_count output: number of blocks which were still ref'd
+	void deleteBlocks(size_t *used_count = nullptr);
 
 	v2s16 getPos() const
 	{
@@ -60,7 +62,8 @@ public:
 
 	bool empty() const { return m_blocks.empty(); }
 
-	int size() const { return m_blocks.size(); }
+	size_t size() const { return m_blocks.size(); }
+
 protected:
 
 	// The pile of MapBlocks

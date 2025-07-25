@@ -19,12 +19,18 @@ MapSector::~MapSector()
 	deleteBlocks();
 }
 
-void MapSector::deleteBlocks()
+void MapSector::deleteBlocks(size_t *used_count)
 {
-	// Clear cache
 	m_block_cache = nullptr;
 
-	// Delete all blocks
+	size_t u = 0;
+	for (auto &it : m_blocks) {
+		if (it.second->refGet() > 0)
+			u++;
+		it.second.reset();
+	}
+	if (used_count)
+		*used_count += u;
 	m_blocks.clear();
 }
 
