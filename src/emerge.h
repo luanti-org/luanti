@@ -20,9 +20,9 @@
 		infostream << "EmergeThread: " x << std::endl; \
 }
 
+class EmergeManager;
 class EmergeThread;
 class NodeDefManager;
-class Settings;
 class MapSettingsManager;
 class BiomeManager;
 class OreManager;

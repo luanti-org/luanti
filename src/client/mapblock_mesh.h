@@ -30,7 +30,6 @@ class ITextureSource;
 */
 
 
-class MapBlock;
 struct MinimapMapblock;
 
 struct MeshMakeData

@@ -11,12 +11,9 @@
 class IrrlichtDevice;
 
 class ShadowRenderer;
-class Camera;
 class Client;
 class Hud;
-class Minimap;
 class RenderPipeline;
-class RenderTarget;
 
 class RenderingCore
 {

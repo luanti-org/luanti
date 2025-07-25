@@ -7,7 +7,6 @@
 #include "irrlichttypes_bloated.h"
 #include <vector>
 
-class Map;
 class IGameDef;
 class Environment;
 class ActiveObject;

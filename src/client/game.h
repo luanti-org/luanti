@@ -16,7 +16,6 @@
 class InputHandler;
 class ChatBackend;
 class RenderingEngine;
-struct SubgameSpec;
 struct GameStartData;
 
 struct Jitter {

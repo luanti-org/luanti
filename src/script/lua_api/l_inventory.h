@@ -9,7 +9,6 @@
 #include "inventory.h"
 #include "inventorymanager.h"
 
-class RemotePlayer;
 
 /*
 	InvRef

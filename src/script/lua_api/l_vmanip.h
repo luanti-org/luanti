@@ -8,7 +8,6 @@
 #include "lua_api/l_base.h"
 
 class Map;
-class MapBlock;
 class MMVManip;
 
 /*

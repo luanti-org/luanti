@@ -39,7 +39,6 @@
 #include <IMeshBuffer.h>
 #include <CMeshBuffer.h>
 
-class Settings;
 struct ToolCapabilities;
 
 std::unordered_map<u16, ClientActiveObject::Factory> ClientActiveObject::m_types;
