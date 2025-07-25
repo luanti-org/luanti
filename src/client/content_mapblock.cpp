@@ -1855,7 +1855,7 @@ void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, s
     bases = outs;
 }
 
-void LodMeshGenerator::generateBitsetMesh(u64 (&slices)[6][64][64], MapNode n, u8 lod_resolution, v3s16 seg_start, video::SColor color)
+void LodMeshGenerator::generateBitsetMesh(u64 (&slices)[6][62][62], MapNode n, u8 lod_resolution, v3s16 seg_start, video::SColor color)
 {
 	static constexpr v3s16 direction_vectors[6] = {
 		v3s16(-1, 0, 0), v3s16(1, 0, 0),
@@ -1872,7 +1872,7 @@ void LodMeshGenerator::generateBitsetMesh(u64 (&slices)[6][64][64], MapNode n, u
 		while (column) {
 			u32 v0 = std::__countr_zero(column);
 			u32 v1 = std::__countr_one(column >> v0);
-			const u64 mask = v1 == 62 ? U64_MAX : ((static_cast<u64>(1) << v1) - 1) << v0;
+			const u64 mask = ((static_cast<u64>(1) << v1) - 1) << v0;
 			column ^= mask;
 			u32 u1 = 1;
 			while (u + u1 < 62 && // while still in current chunk
@@ -1888,7 +1888,7 @@ void LodMeshGenerator::generateBitsetMesh(u64 (&slices)[6][64][64], MapNode n, u
 			};
 			u1 = (u + u1) * BS;
 			v1 = (v0 + v1) * BS;
-			u32 u0 = u * BS;
+			const u32 u0 = u * BS;
 			v0 *= BS;
 			const s32 w = (BS * slice_i - BS / 2
 				+ (direction % 2 == 0 ? 0 : BS));
@@ -1964,25 +1964,23 @@ void LodMeshGenerator::generateBitsetMesh(u64 (&slices)[6][64][64], MapNode n, u
 
 void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u32 lod_width, u8 lod_resolution)
 {
-	typedef u64 bitset;
 	bitset all_set_nodes[3][64][64] = {0};
 	std::unordered_map<content_t, u32> types_counts;
 	std::unordered_map<content_t, std::unordered_map<u16, MapNode>> node_types;
-	std::unordered_map<content_t, std::unordered_map<u16, bitset[3][66][66]>> set_nodes;
+	std::unordered_map<content_t, std::unordered_map<u16, bitset[3][64][64]>> set_nodes;
 
-	u8 num_x = seg_size.X / lod_width + 2;
-	u8 num_y = seg_size.Y / lod_width + 2;
-	u8 num_z = seg_size.Z / lod_width + 2;
-
-    for (s16 x = 0; x < num_x; x++)
-    for (s16 y = 0; y < num_y; y++)
-    for (s16 z = 0; z < num_z; z++){
-        v3s16 from = v3s16(blockpos_nodes.X + (x == 0 ? -1 : (x - 1) * lod_width),
-        				   blockpos_nodes.Y + (y == 0 ? -1 : (y - 1) * lod_width),
-        				   blockpos_nodes.Z + (z == 0 ? -1 : (z - 1) * lod_width)) + seg_start;
-        v3s16 to = v3s16(from.X + (x == num_x-1 ? 1 : lod_width),
-                         from.Y + (y == num_y-1 ? 1 : lod_width),
-                         from.Z + (z == num_z-1 ? 1 : lod_width));
+    for (s16 x = -1; x < seg_size.X + 1; x += x < 0 || x >= seg_size.X ? 1 : lod_width)
+    for (s16 y = -1; y < seg_size.Y + 1; y += y < 0 || y >= seg_size.Y ? 1 : lod_width)
+    for (s16 z = -1; z < seg_size.Z + 1; z += z < 0 || z >= seg_size.Z ? 1 : lod_width){
+		u16 actual_lod_width_x = std::max((s16) 1, std::min((s16) lod_width, (s16) (seg_size.X - x)));
+    	u16 actual_lod_width_y = std::max((s16) 1, std::min((s16) lod_width, (s16) (seg_size.Y - y)));
+    	u16 actual_lod_width_z = std::max((s16) 1, std::min((s16) lod_width, (s16) (seg_size.Z - z)));
+        v3s16 from = v3s16(x,
+        				   y,
+        				   z) + seg_start + blockpos_nodes;
+        v3s16 to = v3s16(actual_lod_width_x,
+                         actual_lod_width_y,
+                         actual_lod_width_z) + from;
 
 		v3s16 p;
 		MapNode main_node;
@@ -2042,10 +2040,12 @@ void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3
         if (bounds.MinEdge.X == S16_MAX)
         	continue;
 
-    	bounds.MinEdge -= blockpos_nodes + seg_start - 1;
-    	bounds.MaxEdge -= blockpos_nodes + seg_start - 1;
+    	bounds.MinEdge -= blockpos_nodes + seg_start;
+    	bounds.MaxEdge -= blockpos_nodes + seg_start;
     	bounds.MinEdge /= lod_resolution;
     	bounds.MaxEdge /= lod_resolution;
+    	bounds.MinEdge += 1;
+    	bounds.MaxEdge += 1;
 
 		//if(num_light_samples == 0)
 			lp = LightPair((u8) 255, 0);
@@ -2094,12 +2094,12 @@ void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3
 
 	for (const auto& [node_type, map] : set_nodes)
 	for (const auto& [light_pair, value] : map) {
-		bitset nodes_faces[6][64][64]; // -x, +x, -y, +y, -z, +z
+		bitset nodes_faces[6][62][62] = {0}; // -x, +x, -y, +y, -z, +z
 		MapNode n = node_types[node_type][light_pair];
 		video::SColor color = encode_light(255, nodedef->getLightingFlags(n).light_source);
 
-		for (u8 u = 0; u < 64; u++)
-		for (u8 v = 0; v < 64; v++) {
+		for (u8 u = 0; u < 62; u++)
+		for (u8 v = 0; v < 62; v++) {
 			// last shifts to remove padding
 			nodes_faces[0][u][v] = (value[0][u+1][v+1] & ~(all_set_nodes[0][u+1][v+1] << 1)) >> 1;
 			nodes_faces[1][u][v] = (value[0][u+1][v+1] & ~(all_set_nodes[0][u+1][v+1] >> 1)) >> 1;
@@ -2107,12 +2107,19 @@ void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3
 			nodes_faces[3][u][v] = (value[1][u+1][v+1] & ~(all_set_nodes[1][u+1][v+1] >> 1)) >> 1;
 			nodes_faces[4][u][v] = (value[2][u+1][v+1] & ~(all_set_nodes[2][u+1][v+1] << 1)) >> 1;
 			nodes_faces[5][u][v] = (value[2][u+1][v+1] & ~(all_set_nodes[2][u+1][v+1] >> 1)) >> 1;
+
+			// nodes_faces[0][u][v] &= ~(static_cast<u64>(1) << (63 - std::__countl_zero(nodes_faces[0][u][v])));
+			// nodes_faces[1][u][v] &= ~(static_cast<u64>(1) << (63 - std::__countl_zero(nodes_faces[1][u][v])));
+			// nodes_faces[2][u][v] &= ~(static_cast<u64>(1) << (63 - std::__countl_zero(nodes_faces[2][u][v])));
+			// nodes_faces[3][u][v] &= ~(static_cast<u64>(1) << (63 - std::__countl_zero(nodes_faces[3][u][v])));
+			// nodes_faces[4][u][v] &= ~(static_cast<u64>(1) << (63 - std::__countl_zero(nodes_faces[4][u][v])));
+			// nodes_faces[5][u][v] &= ~(static_cast<u64>(1) << (63 - std::__countl_zero(nodes_faces[5][u][v])));
 		}
 
-		bitset slices[6][64][64] = {0};
+		bitset slices[6][62][62] = {0};
 		for (u8 direction = 0; direction < 6; direction++)
-		for (u8 u = 0; u < 64; u++)
-		for (u8 v = 0; v < 64; v++) {
+		for (u8 u = 0; u < 62; u++)
+		for (u8 v = 0; v < 62; v++) {
 			bitset column = nodes_faces[direction][u][v];
 			while (column) {
 				const u8 first_filled = std::__countr_zero(column);
@@ -2125,7 +2132,7 @@ void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3
 	}
 }
 
-void LodMeshGenerator::generateCloseLod(std::bitset<NodeDrawType_END> types, u16 width)
+void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> types, const u16 width)
 {
 	static u16 calls = 0;
 	if (++calls % 10 == 0)
