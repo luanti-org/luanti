@@ -1794,4 +1794,9 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.bloom_strength_factor
 				>> lighting.bloom_radius;
 	}
+	if (pkt->getRemainingBytes() >= 36) {
+		for (int i = 0; i < 9; ++i) {
+			*pkt >> lighting.vision_effects.color_transform_matrix[i];
+		}
+	}
 }

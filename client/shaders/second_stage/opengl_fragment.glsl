@@ -31,6 +31,8 @@ centroid varying vec2 varTexCoord;
 varying float exposure; // linear exposure factor, see vertex shader
 #endif
 
+uniform mat3 colorTransformMatrix;
+
 #ifdef ENABLE_BLOOM
 
 vec4 applyBloom(vec4 color, vec2 uv)
@@ -103,6 +105,12 @@ vec3 screen_space_dither(highp vec2 frag_coord) {
 }
 #endif
 
+vec4 applyColorVision(vec4 color)
+{
+	vec3 transformedColor = colorTransformMatrix * color.rgb;
+	return vec4(transformedColor, color.a);
+}
+
 void main(void)
 {
 	vec2 uv = varTexCoord.st;
@@ -133,6 +141,7 @@ void main(void)
 	color = applyBloom(color, uv);
 #endif
 
+	color = applyColorVision(color);
 
 	color.rgb = clamp(color.rgb, vec3(0.), vec3(1.));
 
