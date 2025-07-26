@@ -29,10 +29,19 @@ read_globals = {
 	"check",
 	"PseudoRandom",
 	"PcgRandom",
+	"Matrix4",
+	"Rotation",
 
 	string = {fields = {"split", "trim"}},
 	table  = {fields = {"copy", "getn", "indexof", "insert_all", "key_value_swap"}},
 	math   = {fields = {"hypot", "round"}},
+
+	-- Busted-style unit testing
+	read_globals = {
+		"describe",
+		"it",
+		assert = {fields = {"same", "equals"}},
+	},
 }
 
 globals = {
@@ -42,4 +51,3 @@ globals = {
 	os = { fields = { "tempfolder" } },
 	"_",
 }
-
