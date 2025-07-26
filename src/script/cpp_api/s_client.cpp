@@ -25,6 +25,10 @@ void ScriptApiClient::on_mods_loaded()
 	} catch (LuaError &e) {
 		getClient()->setFatalError(e);
 	}
+	// set is_mods_loaded
+	lua_getglobal(L, "core");
+	lua_pushboolean(L, true);
+	lua_setfield(L, -2, "is_mods_loaded");
 }
 
 void ScriptApiClient::on_shutdown()
