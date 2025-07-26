@@ -1106,8 +1106,8 @@ bool GUIHyperText::OnEvent(const SEvent &event)
 			if (element) {
 				for (auto &tag : element->tags) {
 					if (tag->name == "action") {
-						Text = core::stringw(L"action:") +
-						       utf8_to_stringw(tag->attrs["name"]);
+						Text = EnrichedString(L"action:") +
+						       EnrichedString(utf8_to_stringw(tag->attrs["name"]).c_str());
 						if (Parent) {
 							SEvent newEvent;
 							newEvent.EventType = EET_GUI_EVENT;

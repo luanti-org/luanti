@@ -148,23 +148,9 @@ EnrichedString EnrichedString::operator+(const EnrichedString &other) const
 	return result;
 }
 
-void EnrichedString::operator+=(const EnrichedString &other)
-{
-	bool update_default_color = m_default_length == m_string.size();
-
-	m_string += other.m_string;
-	m_colors.insert(m_colors.end(), other.m_colors.begin(), other.m_colors.end());
-
-	if (update_default_color) {
-		m_default_length += other.m_default_length;
-		updateDefaultColor();
-	}
-}
-
 EnrichedString EnrichedString::getNextLine(size_t *pos) const
 {
 	size_t str_pos = *pos;
-
 	// Split per line
 	size_t str_nl = getString().find(L'\n', str_pos);
 	if (str_nl == std::wstring::npos)
