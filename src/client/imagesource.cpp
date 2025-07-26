@@ -11,6 +11,7 @@
 #include "settings.h"
 #include "texturepaths.h"
 #include "irrlicht_changes/printing.h"
+#include "irr_ptr.h"
 #include "util/base64.h"
 #include "util/numeric.h"
 #include "util/strfnd.h"
@@ -425,41 +426,57 @@ static void blit_with_alpha2(video::IImage *src, video::IImage *dst,
 		throw BaseException("blit_with_alpha() supports only ECF_A8R8G8B8 "
 			"destination images.");
 
-	core::dimension2d<u32> src_dim = src->getDimension();
-	core::dimension2d<u32> dst_dim = dst->getDimension();
-	bool drop_src = false;
+	if (size.X == 0 || size.Y == 0)
+		return;
+
+	const v2u32 src_dim = src->getDimension();
+	const v2u32 dst_dim = dst->getDimension();
+
+	// Convert source image if needed
+	irr_ptr<video::IImage> converted;
 	if (src->getColorFormat() != video::ECF_A8R8G8B8) {
-		video::IVideoDriver *driver = RenderingEngine::get_video_driver();
-		video::IImage *src_converted = driver->createImage(video::ECF_A8R8G8B8,
-			src_dim);
-		sanity_check(src_converted != nullptr);
-		src->copyTo(src_converted);
-		src = src_converted;
-		drop_src = true;
+		auto *driver = RenderingEngine::get_video_driver();
+		converted.reset(driver->createImage(video::ECF_A8R8G8B8, src_dim));
+		sanity_check(converted);
+		src->copyTo(converted.get());
+		src = converted.get();
 	}
 
+	// A negative offset is the same as shifting the other position.
+	// equivalent: if (src_pos < 0) { dst_pos += -src_pos; src_pos = 0; }
+	dst_pos -= componentwise_min(src_pos, {0,0});
+	src_pos = componentwise_max(src_pos, {0,0});
+	// and in reverse
+	src_pos -= componentwise_min(dst_pos, {0,0});
+	dst_pos = componentwise_max(dst_pos, {0,0});
+
+	assert(src_pos.X >= 0 && src_pos.Y >= 0);
+	assert(dst_pos.X >= 0 && dst_pos.Y >= 0);
+	const v2u32 src_pos_u = v2u32::from(src_pos);
+	const v2u32 dst_pos_u = v2u32::from(dst_pos);
+
+	// Out of bounds?
+	if (src_pos_u.X >= src_dim.X || src_pos_u.Y >= src_dim.Y)
+		return;
+	if (dst_pos_u.X >= dst_dim.X || dst_pos_u.Y >= dst_dim.Y)
+		return;
+
+	// Truncate blit area as needed
+	size = componentwise_min(size,
+		componentwise_min(src_dim - src_pos_u, dst_dim - dst_pos_u));
+
+	// Do it!
 	video::SColor *pixels_src =
 		reinterpret_cast<video::SColor *>(src->getData());
 	video::SColor *pixels_dst =
 		reinterpret_cast<video::SColor *>(dst->getData());
-	// Limit X and Y to the overlapping ranges
-	// so that the positions are all in bounds after offsetting.
-	u32 x_start = (u32)std::max({0, -dst_pos.X, -src_pos.X});
-	u32 y_start = (u32)std::max({0, -dst_pos.Y, -src_pos.Y});
-	u32 x_end = (u32)std::min({size.X, src_dim.Width - (s32)src_pos.X,
-		dst_dim.Width - (s32)dst_pos.X});
-	u32 y_end = (u32)std::min({size.Y, src_dim.Height - (s32)src_pos.Y,
-		dst_dim.Height - (s32)dst_pos.Y});
-	for (u32 y0 = y_start; y0 < y_end; ++y0) {
-		size_t i_src = (src_pos.Y + y0) * src_dim.Width + src_pos.X + x_start;
-		size_t i_dst = (dst_pos.Y + y0) * dst_dim.Width + dst_pos.X + x_start;
-		for (u32 x0 = x_start; x0 < x_end; ++x0) {
+	for (u32 y0 = 0; y0 < size.Y; ++y0) {
+		size_t i_src = (src_pos_u.Y + y0) * src_dim.X + src_pos_u.X;
+		size_t i_dst = (dst_pos_u.Y + y0) * dst_dim.X + dst_pos_u.X;
+		for (u32 x0 = 0; x0 < size.X; ++x0) {
 			blit_pixel<overlay>(pixels_src[i_src++], pixels_dst[i_dst++]);
 		}
 	}
-
-	if (drop_src)
-		src->drop();
 }
 
 /*
