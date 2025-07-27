@@ -11,7 +11,7 @@ void main()
 {
 	vec4 col = texture2D(ColorMapSampler, varTexCoord);
 
-	if (col.a < 0.10)
+	if (col.a < 0.70)
 		discard;
 
 	float depth = 0.5 + tPos.z * 0.5;

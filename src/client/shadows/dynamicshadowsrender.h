@@ -152,11 +152,11 @@ private:
 	u32 depth_shader_trans_id{0};
 	u32 mixcsm_shader_id{0};
 
-	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_cb{nullptr};
-	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_entity_cb{nullptr};
-	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_trans_cb{nullptr};
+	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_cb;
+	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_entity_cb;
+	irr_ptr<ShadowDepthShaderCB> m_shadow_depth_trans_cb;
 	shadowScreenQuad *m_screen_quad{nullptr};
-	irr_ptr<shadowScreenQuadCB> m_shadow_mix_cb{nullptr};
+	irr_ptr<shadowScreenQuadCB> m_shadow_mix_cb;
 };
 
 /**

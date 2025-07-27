@@ -1363,7 +1363,7 @@ bool Game::createClient(const GameStartData &start_data)
 	shader_src->addShaderConstantSetter(std::make_unique<NodeShaderConstantSetter>());
 
 	auto scsf_up = std::make_unique<GameGlobalShaderUniformSetterFactory>(client);
-	auto* scsf = scsf_up.get();
+	auto *scsf = scsf_up.get();
 	shader_src->addShaderUniformSetterFactory(std::move(scsf_up));
 	shader_src->addShaderUniformSetterFactory(std::make_unique<FogShaderUniformSetterFactory>());
 
@@ -3006,7 +3006,7 @@ void Game::updateChat(f32 dtime)
 
 	// Get new messages from error log buffer
 	std::vector<LogEntry> entries = m_chat_log_buf.take();
-	for (const auto& entry : entries) {
+	for (const auto &entry : entries) {
 		std::string line;
 		line.append(color_for(entry.level)).append(entry.combined);
 		chat_backend->addMessage(L"", utf8_to_wide(line));

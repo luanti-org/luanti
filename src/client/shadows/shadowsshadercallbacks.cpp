@@ -67,7 +67,7 @@ void ShadowDepthShaderCB::OnSetConstants(
 
 
 	if (driver->getDriverType() == video::EDT_OGLES2 || driver->getDriverType() == video::EDT_OPENGL3) {
-		auto& texture = driver->getTransform(video::ETS_TEXTURE_0);
+		auto &texture = driver->getTransform(video::ETS_TEXTURE_0);
 		m_texture.set(texture, services);
 	}
 	m_light_mvp_setting.set(lightMVP, services);
