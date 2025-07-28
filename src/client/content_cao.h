@@ -149,6 +149,7 @@ private:
 	bool visualExpiryRequired(const ObjectProperties &newprops) const;
 
 public:
+
 	GenericCAO(Client *client, ClientEnvironment *env);
 
 	~GenericCAO();
@@ -299,4 +300,10 @@ public:
 	}
 
 	void updateMeshCulling();
+
+private:
+
+	/// Update the parent chain so getPosition() returns an up to date position.
+	void updateParentChain() const;
+
 };
