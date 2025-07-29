@@ -6064,8 +6064,11 @@ Call these functions only at load time!
       `name` from `core.registered_items` and from the associated item table
       according to its nature (e.g. `core.registered_nodes`)
 * `core.register_entity(name, entity definition)`
+* `core.override_entity(name, entity definition)`
 * `core.register_abm(abm definition)`
+* `core.override_abm(name, abm definition)`
 * `core.register_lbm(lbm definition)`
+* `core.override_lbm(name, lbm definition)`
 * `core.register_alias(alias, original_name)`
     * Also use this to set the 'mapgen aliases' needed in a game for the core
       mapgens. See [Mapgen aliases](#mapgen-aliases) section above.
@@ -9601,7 +9604,7 @@ Player properties need to be saved manually.
 Entity definition
 -----------------
 
-Used by `core.register_entity`.
+Used by `core.register_entity` and `core.override_entity`.
 The entity definition table becomes a metatable of a newly created per-entity
 luaentity table, meaning its fields (e.g. `initial_properties`) will be shared
 between all instances of an entity.
@@ -9639,7 +9642,7 @@ between all instances of an entity.
 ABM (ActiveBlockModifier) definition
 ------------------------------------
 
-Used by `core.register_abm`.
+Used by `core.register_abm` and `core.override_abm`.
 
 An active block modifier (ABM) is used to define a function that is continously
 and randomly called for specific nodes (defined by `nodenames` and other conditions)
@@ -9650,6 +9653,10 @@ in active mapblocks.
     label = "Lava cooling",
     -- Descriptive label for profiling purposes (optional).
     -- Definitions with identical labels will be listed as one.
+
+    name = "modname:replace_legacy_door",
+    -- Optional filed, required for make ABM overridable.
+    -- Identifier of the ABM, should follow the modname:<whatever> convention.
 
     nodenames = {"default:lava_source"},
     -- Apply `action` function to these nodes.
@@ -9697,7 +9704,7 @@ in active mapblocks.
 LBM (LoadingBlockModifier) definition
 -------------------------------------
 
-Used by `core.register_lbm`.
+Used by `core.register_lbm` and `core.override_lbm`.
 
 A loading block modifier (LBM) is used to define a function that is called for
 specific nodes (defined by `nodenames`) when a mapblock which contains such nodes
@@ -9732,7 +9739,8 @@ Currently the only workaround is to use `run_at_every_load = true`.
     -- Definitions with identical labels will be listed as one.
 
     name = "modname:replace_legacy_door",
-    -- Identifier of the LBM, should follow the modname:<whatever> convention
+    -- Identifier of the LBM, should follow the modname:<whatever> convention.
+    -- Also used for overriding LBM.
 
     nodenames = {"default:lava_source"},
     -- List of node names to trigger the LBM on.
