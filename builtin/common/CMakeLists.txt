@@ -1,0 +1,19 @@
+add_subdirectory(settings)
+
+set(BUILTIN_COMMON_SRCS
+	${CMAKE_CURRENT_SOURCE_DIR}/after.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/chatcommands.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/filterlist.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/information_formspecs.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/item_s.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/math.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/menu.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/metatable.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/misc_helpers.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/mod_storage.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/register.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/serialize.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/strict.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/vector.lua
+	${BUILTIN_COMMON_SETTINGS_SRCS}
+	PARENT_SCOPE)

@@ -1,0 +1,26 @@
+add_subdirectory(content)
+
+set(BUILTIN_MAINMENU_SRCS
+	${CMAKE_CURRENT_SOURCE_DIR}/async_event.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/common.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/credits.json
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_clients_list.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_config_world.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_create_world.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_delete_content.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_delete_world.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_rebind_keys.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_register.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_reinstall_mtg.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_rename_modpack.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_server_list_mods.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_version_info.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/game_theme.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/init.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/serverlistmgr.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/tab_about.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/tab_content.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/tab_local.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/tab_online.lua
+	${BUILTIN_MAINMENU_CONTENT_SRCS}
+	PARENT_SCOPE)
