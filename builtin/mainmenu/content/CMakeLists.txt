@@ -1,0 +1,11 @@
+set(BUILTIN_MAINMENU_CONTENT_SRCS
+	${CMAKE_CURRENT_SOURCE_DIR}/contentdb.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_contentdb.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_install.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_overwrite.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/dlg_package.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/init.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/pkgmgr.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/screenshots.lua
+	${CMAKE_CURRENT_SOURCE_DIR}/update_detector.lua
+	PARENT_SCOPE)
