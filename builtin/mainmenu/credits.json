@@ -48,12 +48,11 @@
 	"#": "For updating active/previous contributors, see the script in ./util/gather_git_credits.py",
 	"contributors": [
 		"Erich Schubert",
-		"wrrrzr",
-		"siliconsniffer",
-		"JosiahWI",
-		"veprogames",
+		"Lucas OH",
+		"Xeno333",
 		"Miguel P.L",
-		"AFCMS"
+		"siliconsniffer",
+		"JosiahWI"
 	],
 	"previous_contributors": [
 		"Ælla Chiana Moskopp (erle) <erle@dieweltistgarnichtso.net> [Logo]",
