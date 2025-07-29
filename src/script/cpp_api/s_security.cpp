@@ -460,7 +460,8 @@ bool ScriptApiSecurity::safeLoadString(lua_State *L, std::string_view code, cons
 	return true;
 }
 
-bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char *display_name)
+bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char *display_name,
+	std::optional<std::string_view> expected_sha256)
 {
 	fs::FileUniquePtr fp_up;
 	FILE *fp;
@@ -505,6 +506,14 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 		return false;
 	}
 	fp_up.reset();
+
+	// Check sha256
+	if (expected_sha256.has_value()) {
+		auto digest = hex_encode(hashing::sha256(code));
+		if (*expected_sha256 != digest) {
+			throw 0;
+		}
+	}
 
 	// Check sha256 if it's a builtin file
 	do {
