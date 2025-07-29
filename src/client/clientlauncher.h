@@ -11,6 +11,7 @@ class Settings;
 class MyEventReceiver;
 class InputHandler;
 struct GameStartData;
+struct ClientGameStartData;
 struct MainMenuData;
 
 class ClientLauncher
@@ -23,7 +24,7 @@ public:
 	bool run(GameStartData &start_data, const Settings &cmd_args);
 
 private:
-	void init_args(GameStartData &start_data, const Settings &cmd_args);
+	void init_args(ClientGameStartData &start_data, const Settings &cmd_args);
 	bool init_engine();
 	void init_input();
 	void init_joysticks();
@@ -32,7 +33,7 @@ private:
 	void config_guienv();
 
 	bool launch_game(std::string &error_message, bool reconnect_requested,
-		GameStartData &start_data, const Settings &cmd_args);
+		ClientGameStartData &start_data, const Settings &cmd_args);
 
 	void main_menu(MainMenuData *menudata);
 
