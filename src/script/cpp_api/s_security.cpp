@@ -511,7 +511,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 		if (!path)
 			break;
 		const auto &sha_map = get_builtin_file_sha256_map();
-		std::string builtin_path = Client::getBuiltinLuaPath() + DIR_DELIM;
+		std::string builtin_path = Server::getBuiltinLuaPath() + DIR_DELIM;
 		if (std::string_view(path).substr(0, builtin_path.size()) != builtin_path)
 			break;
 		auto path_local = std::string_view(path).substr(builtin_path.size());
