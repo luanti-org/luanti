@@ -5,6 +5,7 @@
 #pragma once
 
 #include "cpp_api/s_base.h"
+#include <optional>
 
 
 #define CHECK_SECURE_PATH_INTERNAL(L, path, write_required, ptr) \
@@ -44,7 +45,10 @@ public:
 	static bool safeLoadString(lua_State *L, std::string_view code, const char *chunk_name);
 	/// Loads a file as Lua code safely (doesn't allow bytecode).
 	/// @warning path is not validated in any way
-	static bool safeLoadFile(lua_State *L, const char *path, const char *display_name = nullptr);
+	/// @p expected_sha256 SHA256 digest in hex. If given and the file content
+	///                    doesn't match, a TODO exception is thrown.
+	static bool safeLoadFile(lua_State *L, const char *path, const char *display_name = nullptr,
+			std::optional<std::string_view> expected_sha256 = std::nullopt);
 
 	/**
 	 * Returns the currently running mod, only during init time.
