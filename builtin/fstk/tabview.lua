@@ -225,7 +225,14 @@ end
 local function hide_tabview(self)
 	self.hidden=true
 
-	--call on_change as we're not gonna show self tab any longer
+	-- hide the menu header image as well
+	if  core.settings:get_bool("touch_gui") then
+		if mm_game_theme and mm_game_theme.clear_single then
+			mm_game_theme.clear_single("header")
+		end
+	end
+
+	-- call on_change as we're not gonna show self tab any longer
 	if self.tablist[self.last_tab_index].on_change ~= nil then
 		self.tablist[self.last_tab_index].on_change("LEAVE",
 				self.current_tab, nil)
