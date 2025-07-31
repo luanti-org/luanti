@@ -65,10 +65,13 @@
 	PROTOCOL VERSION 48
 		Add compression to some existing packets
 		[scheduled bump for 5.12.0]
+	PROTOCOL VERSION 49
+		Support of showing a player inventory using 'core.show_formspec'
+		[scheduled bump for 5.13.0]
 */
 
 // Note: Also update core.protocol_versions in builtin when bumping
-const u16 LATEST_PROTOCOL_VERSION = 48;
+const u16 LATEST_PROTOCOL_VERSION = 49;
 
 // See also formspec [Version History] in doc/lua_api.md
-const u16 FORMSPEC_API_VERSION = 9;
+const u16 FORMSPEC_API_VERSION = 10;

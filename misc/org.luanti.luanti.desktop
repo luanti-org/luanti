@@ -11,5 +11,5 @@ Terminal=false
 Type=Application
 Categories=Game;Simulation;
 StartupNotify=false
-StartupWMClass=Luanti
+StartupWMClass=luanti
 Keywords=sandbox;world;mining;crafting;blocks;nodes;multiplayer;roleplaying;minetest;

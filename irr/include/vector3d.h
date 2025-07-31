@@ -10,8 +10,6 @@
 #include <array>
 #include <cassert>
 
-namespace irr
-{
 namespace core
 {
 
@@ -528,15 +526,14 @@ vector3d<T> operator*(const S scalar, const vector3d<T> &vector)
 }
 
 } // end namespace core
-} // end namespace irr
 
 namespace std
 {
 
 template <class T>
-struct hash<irr::core::vector3d<T>>
+struct hash<core::vector3d<T>>
 {
-	size_t operator()(const irr::core::vector3d<T> &vec) const
+	size_t operator()(const core::vector3d<T> &vec) const
 	{
 		size_t h1 = hash<T>()(vec.X);
 		size_t h2 = hash<T>()(vec.Y);

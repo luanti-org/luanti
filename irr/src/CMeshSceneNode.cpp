@@ -10,8 +10,6 @@
 #include "IMaterialRenderer.h"
 #include "IFileSystem.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -254,4 +252,3 @@ ISceneNode *CMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *newManag
 }
 
 } // end namespace scene
-} // end namespace irr

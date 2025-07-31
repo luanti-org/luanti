@@ -33,17 +33,13 @@
 	#include "client/sound/sound_openal.h"
 #endif
 
+#include <csignal>
+
 
 /******************************************************************************/
 void TextDestGuiEngine::gotText(const StringMap &fields)
 {
 	m_engine->getScriptIface()->handleMainMenuButtons(fields);
-}
-
-/******************************************************************************/
-void TextDestGuiEngine::gotText(const std::wstring &text)
-{
-	m_engine->getScriptIface()->handleMainMenuEvent(wide_to_utf8(text));
 }
 
 /******************************************************************************/
@@ -110,7 +106,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 		RenderingEngine *rendering_engine,
 		IMenuManager *menumgr,
 		MainMenuData *data,
-		bool &kill) :
+		volatile std::sig_atomic_t &kill) :
 	m_rendering_engine(rendering_engine),
 	m_parent(parent),
 	m_menumanager(menumgr),
@@ -321,7 +317,7 @@ void GUIEngine::run()
 				fog_end, fog_density, fog_pixelfog, fog_rangefog);
 	}
 
-	const irr::core::dimension2d<u32> initial_screen_size(
+	const core::dimension2d<u32> initial_screen_size(
 			g_settings->getU16("screen_w"),
 			g_settings->getU16("screen_h")
 		);
@@ -405,12 +401,6 @@ GUIEngine::~GUIEngine()
 	m_sound_manager.reset();
 
 	m_irr_toplefttext->remove();
-
-	// delete textures
-	for (image_definition &texture : m_textures) {
-		if (texture.texture)
-			m_rendering_engine->get_video_driver()->removeTexture(texture.texture);
-	}
 }
 
 /******************************************************************************/

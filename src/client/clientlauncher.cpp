@@ -148,8 +148,8 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	/*
 		Menu-game loop
 	*/
-	bool retval = true;
-	bool *kill = porting::signal_handler_killstatus();
+	bool retval         = true;
+	volatile auto *kill = porting::signal_handler_killstatus();
 
 	while (m_rendering_engine->run() && !*kill &&
 		!g_gamecallback->shutdown_requested) {
@@ -303,8 +303,8 @@ void ClientLauncher::init_input()
 
 void ClientLauncher::init_joysticks()
 {
-	irr::core::array<irr::SJoystickInfo> infos;
-	std::vector<irr::SJoystickInfo> joystick_infos;
+	core::array<SJoystickInfo> infos;
+	std::vector<SJoystickInfo> joystick_infos;
 
 	// Make sure this is called maximum once per
 	// irrlicht device, otherwise it will give you
@@ -543,8 +543,10 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 {
 	ServerList::lan_get();
 	bool *kill = porting::signal_handler_killstatus();
+
+	volatile auto       *kill   = porting::signal_handler_killstatus();
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
-	auto *device = m_rendering_engine->get_raw_device();
+	auto                *device = m_rendering_engine->get_raw_device();
 
 	// Wait until app is in foreground because of #15883
 	infostream << "Waiting for app to be in foreground" << std::endl;

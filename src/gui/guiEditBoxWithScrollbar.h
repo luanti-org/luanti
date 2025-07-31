@@ -37,8 +37,8 @@ public:
 	virtual bool isDrawBorderEnabled() const;
 	virtual void setCursorChar(const wchar_t cursorChar);
 	virtual wchar_t getCursorChar() const;
-	virtual void setCursorBlinkTime(irr::u32 timeMs);
-	virtual irr::u32 getCursorBlinkTime() const;
+	virtual void setCursorBlinkTime(u32 timeMs);
+	virtual u32 getCursorBlinkTime() const;
 
 protected:
 	//! Breaks the single text line.

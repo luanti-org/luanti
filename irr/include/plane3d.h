@@ -7,8 +7,6 @@
 #include "irrMath.h"
 #include "vector3d.h"
 
-namespace irr
-{
 namespace core
 {
 
@@ -241,4 +239,3 @@ typedef plane3d<f32> plane3df;
 typedef plane3d<s32> plane3di;
 
 } // end namespace core
-} // end namespace irr

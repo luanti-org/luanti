@@ -13,8 +13,6 @@
 #include "CGUIListBox.h"
 #include "os.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -456,4 +454,3 @@ void CGUIComboBox::openCloseMenu()
 }
 
 } // end namespace gui
-} // end namespace irr

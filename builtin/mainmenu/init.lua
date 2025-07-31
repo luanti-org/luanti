@@ -112,8 +112,12 @@ local function init_globals()
 	tv_main:show()
 	ui.update()
 
-	check_reinstall_mtg()
-	migrate_keybindings()
+	-- synchronous, chain parents to only show one at a time
+	local parent = tv_main
+	parent = migrate_keybindings(parent)
+	check_reinstall_mtg(parent)
+
+	-- asynchronous, will only be shown if we're still on "maintab"
 	check_new_version()
 end
 

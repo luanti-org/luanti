@@ -7,8 +7,6 @@
 #include "IReadFile.h"
 #include "irrString.h"
 
-namespace irr
-{
 class CUnicodeConverter;
 
 namespace io
@@ -59,4 +57,3 @@ private:
 };
 
 } // end namespace io
-} // end namespace irr

@@ -23,8 +23,8 @@ Callbacks
 * `core.button_handler(fields)`: called when a button is pressed.
   * `fields` = `{name1 = value1, name2 = value2, ...}`
 * `core.event_handler(event)`
-  * `event`: `"MenuQuit"`, `"KeyEnter"`, `"ExitButton"`, `"EditBoxEnter"` or
-    `"FullscreenChange"`
+  * `event`: `"MenuQuit"` (derived from `quit`) or `"FullscreenChange"`
+    The main menu may issue custom events, such as `"Refresh"` (server list).
 * `core.on_before_close()`: called before the menu is closed, either to exit or
   to join a game
 

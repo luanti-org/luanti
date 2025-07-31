@@ -204,3 +204,12 @@ local function run_player_hotbar_clamp_tests(player)
 	player:hud_set_hotbar_itemcount(old_bar_size)
 end
 unittests.register("test_player_hotbar_clamp", run_player_hotbar_clamp_tests, {player=true})
+
+--
+-- Player GUID
+--
+local function test_player_guid(player)
+	assert(player:get_guid() == player:get_player_name())
+	assert(core.objects_by_guid[player:get_guid()] == player)
+end
+unittests.register("test_player_guid", test_player_guid, {player=true})

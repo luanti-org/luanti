@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-14 23:02+0200\n"
+"POT-Creation-Date: 2025-07-11 19:59+0200\n"
 "PO-Revision-Date: 2024-08-15 19:09+0000\n"
 "Last-Translator: bgo-eiu <huyaqoob+toolforge@gmail.com>\n"
 "Language-Team: Malay (Jawi) <https://hosted.weblate.org/projects/minetest/"
@@ -529,6 +529,7 @@ msgid "Error getting dependencies for package $1"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "ڤاسڠ"
 
@@ -624,6 +625,11 @@ msgstr "کمس کيني"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
 msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "by $1"
+msgstr "$1 اوليه $2"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1372,6 +1378,11 @@ msgid "Done!"
 msgstr "سلساي!"
 
 #: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "مڠاولکن نود"
 
@@ -1386,6 +1397,11 @@ msgstr "سدڠ ممواتکن تيکستور..."
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
 msgstr "سدڠ ممبينا سمولا ڤمبايڠ..."
+
+#: src/client/client.cpp
+#, fuzzy, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "تڠکڤ لاير"
 
 #: src/client/clientlauncher.cpp
 #, fuzzy
@@ -2310,7 +2326,7 @@ msgstr ""
 msgid "Place/use"
 msgstr "ککونچي تربڠ"
 
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "جارق ڤميليهن"
 
@@ -2621,7 +2637,7 @@ msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2653,6 +2669,18 @@ msgstr "ݢونا ڤاڤرن اون 3D مڠݢنتيکن اون رات."
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"ککونچي اونتوق مڽلينڤ.\n"
+"جوݢ دݢوناکن اونتوق تورون باواه کتيک ممنجت دان دالم اٴير جيک تتڤن "
+"aux1_descends دلومڤوهکن.\n"
+"ليهت http://irrlicht.sourceforge.net/docu/namespaceirr."
+"html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2732,10 +2760,6 @@ msgid ""
 "to 8 bits.\n"
 "With OpenGL ES, dithering only works if the shader supports high\n"
 "floating-point precision and it may have a higher performance impact."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3356,9 +3380,10 @@ msgid "Defines tree areas and tree density."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 "لڠه ماس دانتارا کمسکيني ججاريڠ دکت کليئن دالم اونيت ميليساٴت (ms). مناٴيقکن "
 "نيلاي\n"
@@ -4413,6 +4438,7 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4471,6 +4497,7 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr "ورنا لاتر بلاکڠ کونسول سيمبڠ دالم ڤرماٴينن (R,G,B)."
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 "نيلاي کتيڠݢين کونسول سيمبڠ دالم ڤرماٴينن⹁ انتارا 0.1 (10%) دان 1.0 (100%)."
@@ -4643,14 +4670,6 @@ msgid "Jumping speed"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for decreasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for decreasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
 msgstr ""
 
@@ -4661,54 +4680,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for dropping the currently selected item."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for jumping."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid ""
-"Key for moving the player backward.\n"
-"Will also disable autoforward, when active."
-msgstr ""
-"ککونچي اونتوق مڠݢرقکن ڤماٴين کبلاکڠ.\n"
-"جوݢ اکن ملومڤوهکن أوتوڤرݢرقن⹁ اڤابيلا اکتيف.\n"
-"ليهت http://irrlicht.sourceforge.net/docu/"
-"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player forward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player left."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player right."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for muting the game."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4720,170 +4696,9 @@ msgid "Key for opening the chat window to type local commands."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for opening the chat window."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for opening the inventory."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 11th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 12th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 13th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 14th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 15th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 16th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 17th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 18th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 19th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 20th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 21st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 22nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 23rd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 24th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 25th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 26th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 27th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 28th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 29th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 30th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 31st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 32nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the eighth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fifth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the first hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fourth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the next item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the ninth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the previous item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the second hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the seventh hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the sixth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the tenth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the third hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid ""
-"Key for sneaking.\n"
-"Also used for climbing down and descending in water if aux1_descends is "
-"disabled."
-msgstr ""
-"ککونچي اونتوق مڽلينڤ.\n"
-"جوݢ دݢوناکن اونتوق تورون باواه کتيک ممنجت دان دالم اٴير جيک تتڤن "
-"aux1_descends دلومڤوهکن.\n"
-"ليهت http://irrlicht.sourceforge.net/docu/"
-"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#: src/settings_translation_file.cpp
-msgid "Key for switching between first- and third-person camera."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4895,58 +4710,7 @@ msgid "Key for switching to the previous entry in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Key for taking screenshots."
-msgstr "فورمت يڠ دݢوناکن اونتوق تڠکڤ لاير."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling autoforward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Key for toggling cinematic mode."
-msgstr "ڤلمبوتن کاميرا دالم مود سينماتيک"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling display of minimap."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling flying."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Key for toggling fullscreen mode."
-msgstr "مود سکرين ڤنوه."
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling noclip mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling pitch move mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of chat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of debug info."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of fog."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4954,24 +4718,7 @@ msgid "Key for toggling the display of mapblock boundaries."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the HUD."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the large chat console."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Key for toggling unlimited view range."
-msgstr "جارق ڤندڠ تنڤ حد دلومڤوهکن"
-
-#: src/settings_translation_file.cpp
-msgid "Key to use view zoom when possible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5013,11 +4760,6 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Large chat console"
-msgstr "ککونچي کونسول سيمبڠ بسر"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -5568,6 +5310,12 @@ msgid "Mod channels"
 msgstr "سالوران مودس"
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
 msgstr "مڠوبه ساٴيز ايليمن ڤاڤر ڤندو (HUD)."
 
@@ -5692,10 +5440,6 @@ msgid "Node highlighting"
 msgstr "تونجولن نود"
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr ""
 
@@ -5736,7 +5480,7 @@ msgstr "جومله ميسيج ڤماٴين بوليه هنتر ستياڤ 10 س�
 #: src/settings_translation_file.cpp
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 
@@ -6021,6 +5765,11 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "کلوار کمينو اوتام"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -7004,6 +6753,11 @@ msgid "Toggle fullscreen"
 msgstr "توݢول تربڠ"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle large chat console"
+msgstr "ککونچي کونسول سيمبڠ بسر"
+
+#: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "توݢول ڤرݢرقن منچورم"
 
@@ -7011,6 +6765,11 @@ msgstr "توݢول ڤرݢرقن منچورم"
 #, fuzzy
 msgid "Toggle profiler"
 msgstr "توݢول تربڠ"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "جارق ڤندڠ تنڤ حد دلومڤوهکن"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7478,6 +7237,15 @@ msgid "Width of the selection box lines around nodes."
 msgstr "ليبر ݢاريسن کوتق ڤميليهن سکليليڠ نود."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Will also disable autoforward, when active."
+msgstr ""
+"ککونچي اونتوق مڠݢرقکن ڤماٴين کبلاکڠ.\n"
+"جوݢ اکن ملومڤوهکن أوتوڤرݢرقن⹁ اڤابيلا اکتيف.\n"
+"ليهت http://irrlicht.sourceforge.net/docu/namespaceirr."
+"html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr ""
 
@@ -7587,1605 +7355,13 @@ msgid "cURL parallel limit"
 msgstr ""
 
 #, fuzzy
-#~ msgid "\"Aux1\" = climb down"
-#~ msgstr "\"ايستيميوا\" = ڤنجت تورون"
-
-#~ msgid "- Address: "
-#~ msgstr "- علامت: "
-
-#~ msgid "- Creative Mode: "
-#~ msgstr "- مود کرياتيف: "
-
-#~ msgid "- Damage: "
-#~ msgstr "- بوليه چدرا "
-
-#~ msgid "- Port: "
-#~ msgstr "- ڤورت: "
-
-#~ msgid ""
-#~ "0 = parallax occlusion with slope information (faster).\n"
-#~ "1 = relief mapping (slower, more accurate)."
-#~ msgstr ""
-#~ "0 = اوکلوسي ڤارالکس دڠن معلومت چرون (لبيه چڤت).\n"
-#~ "1 = ڤمتاٴن بنتوق موک بومي (لبيه لمبت⹁ لبيه تڤت)."
-
-#~ msgid "2x"
-#~ msgstr "2x"
-
-#~ msgid "3D Clouds"
-#~ msgstr "اوان 3D"
-
-#~ msgid "4x"
-#~ msgstr "4x"
-
-#~ msgid "8x"
-#~ msgstr "8x"
-
-#~ msgid "< Back to Settings page"
-#~ msgstr "< کمبالي کهلامن تتڤن"
-
-#~ msgid "Address / Port"
-#~ msgstr "علامت \\ ڤورت"
-
-#~ msgid ""
-#~ "Address to connect to.\n"
-#~ "Leave this blank to start a local server.\n"
-#~ "Note that the address field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "علامت اونتوق مڽمبوڠ.\n"
-#~ "بيار کوسوڠ اونتوق ممولاکن ڤلاين ڤرماٴينن تمڤتن.\n"
-#~ "امبيل ڤرهاتيان بهاوا ميدن علامت دالم مينو اوتام مڠاتسي تتڤن اين."
-
-#~ msgid "Adds particles when digging a node."
-#~ msgstr "منمبه ڤرتيکل اڤابيلا مڠݢالي نود."
-
-#~ msgid ""
-#~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
-#~ "4k screens."
-#~ msgstr ""
-#~ "لارسکن کونفيݢوراسي DPI کسکرين اندا (بوکن X11/Android سهاج) چونتوه اونتوق "
-#~ "سکرين 4K."
-
-#~ msgid "All Settings"
-#~ msgstr "سموا تتڤن"
-
-#~ msgid "All packages"
-#~ msgstr "سموا ڤاکيج"
-
-#~ msgid "Are you sure to reset your singleplayer world?"
-#~ msgstr "اداکه اندا ماهو سيت سمولا دنيا ڤماٴين ڤرساورڠن؟"
-
-#~ msgid "Autosave Screen Size"
-#~ msgstr "اٴوتوسيمڤن ساٴيز سکرين"
-
-#~ msgid "Back to Main Menu"
-#~ msgstr "کمبالي کمينو اوتام"
-
-#~ msgid "Backward key"
-#~ msgstr "ککونچي کبلاکڠ"
-
-#~ msgid "Basic"
-#~ msgstr "اساس"
-
-#~ msgid "Bilinear Filter"
-#~ msgstr "ڤناڤيسن بيلينيار"
-
-#~ msgid "Bits per pixel (aka color depth) in fullscreen mode."
-#~ msgstr "بيت ڤر ڤيکسيل (اتاو کدالمن ورنا) دالم مود سکرين ڤنوه."
-
-#~ msgid "Bloom"
-#~ msgstr "سري \\ کمبڠ"
+#~ msgid "Key for taking screenshots."
+#~ msgstr "فورمت يڠ دݢوناکن اونتوق تڠکڤ لاير."
 
 #, fuzzy
-#~ msgid "Bloom Radius"
-#~ msgstr "ججاري اون"
-
-#~ msgid "Bump Mapping"
-#~ msgstr "ڤمتاٴن برتومڤوق"
-
-#~ msgid "Bumpmapping"
-#~ msgstr "ڤمتاٴن برتومڤوق"
-
-#~ msgid ""
-#~ "Camera 'near clipping plane' distance in nodes, between 0 and 0.25\n"
-#~ "Only works on GLES platforms. Most users will not need to change this.\n"
-#~ "Increasing can reduce artifacting on weaker GPUs.\n"
-#~ "0.1 = Default, 0.25 = Good value for weaker tablets."
-#~ msgstr ""
-#~ "جارق کاميرا 'برهمڤيرن ساته کتيڤن' دالم نيلاي نود⹁ انتارا 0 دان 0.5.\n"
-#~ "هاڽ برکسن دڤلاتفورم GLES. کباڽقن ڤڠݢونا تيدق ڤرلو مڠوبه نيلاي اين.\n"
-#~ "مناٴيقکن نيلاي بوليه کورڠکن ارتيفک ڤد GPU يڠ لبيه لمه.\n"
-#~ "0.1 = اصل⹁ 0.25 = نيلاي باݢوس اونتوق تابليت يڠ لبيه لمه."
-
-#~ msgid "Camera update toggle key"
-#~ msgstr "ککونچي توݢول کمس کيني کاميرا"
-
-#~ msgid "Change Keys"
-#~ msgstr "توکر ککونچي"
+#~ msgid "Key for toggling cinematic mode."
+#~ msgstr "ڤلمبوتن کاميرا دالم مود سينماتيک"
 
 #, fuzzy
-#~ msgid "Change keys"
-#~ msgstr "توکر ککونچي"
-
-#~ msgid "Chat key"
-#~ msgstr "ککونچي سيمبڠ"
-
-#~ msgid "Chat toggle key"
-#~ msgstr "ککونچي توݢول سيمبڠ"
-
-#~ msgid "Cinematic mode key"
-#~ msgstr "ککونچي مود سينماتيک"
-
-#~ msgid "Clean transparent textures"
-#~ msgstr "برسيهکن تيکستور لوت سينر"
-
-#, fuzzy
-#~ msgid "Clouds are a client-side effect."
-#~ msgstr "اون ايت ايفيک ڤد ڤيهق کليئن."
-
-#~ msgid "Command key"
-#~ msgstr "ککونچي ارهن"
-
-#~ msgid "Config mods"
-#~ msgstr "کونفيݢوراسي مودس"
-
-#~ msgid "Configure"
-#~ msgstr "کونفيݢوراسي"
-
-#~ msgid "Connect"
-#~ msgstr "سمبوڠ"
-
-#~ msgid "Connected Glass"
-#~ msgstr "کاچ برسمبوڠن"
-
-#~ msgid "Console"
-#~ msgstr "کونسول"
-
-#~ msgid "Continuous forward"
-#~ msgstr "کدڤن برتروسن"
-
-#~ msgid ""
-#~ "Continuous forward movement, toggled by autoforward key.\n"
-#~ "Press the autoforward key again or the backwards movement to disable."
-#~ msgstr ""
-#~ "ڤرݢرقن کدڤن برتروسن⹁ دتوݢول اوليه ککونچي أوتوڤرݢرقن.\n"
-#~ "تکن ککونچي أوتوڤرݢرقن لاݢي اتاو ڤرݢرقن کبلاکڠ اونتوق ملومڤوهکنڽ."
-
-#, fuzzy, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "کاولن:\n"
-#~ "- %s: برݢرق کدڤن\n"
-#~ "- %s: برݢرق کبلاکڠ\n"
-#~ "- %s: برݢرق ککيري\n"
-#~ "- %s: برݢرق ککانن\n"
-#~ "- %s: لومڤت\\ناٴيق اتس\n"
-#~ "- %s: سلينڤ\\تورون باواه\n"
-#~ "- %s: جاتوهکن ايتم\n"
-#~ "- %s: اينۏينتوري\n"
-#~ "- تتيکوس: ڤوسيڠ\\ليهت سکليليڠ\n"
-#~ "- تتيکوس کيري: ݢالي\\کتوق\n"
-#~ "- تتيکوس کانن: لتق\\ݢونا\n"
-#~ "- رودا تتيکوس: ڤيليه ايتم\n"
-#~ "- %s: سيمبڠ\n"
-
-#~ msgid "Creative"
-#~ msgstr "کرياتيف"
-
-#~ msgid "Credits"
-#~ msgstr "ڤڠهرݢاٴن"
-
-#~ msgid "Crosshair color (R,G,B)."
-#~ msgstr "ورنا باݢي کورسور ررمبوت سيلڠ (R,G,B)."
-
-#~ msgid "DPI"
-#~ msgstr "DPI"
-
-#~ msgid "Damage"
-#~ msgstr "بوليه چدرا"
-
-#~ msgid "Damage enabled"
-#~ msgstr "بوليه چدرا"
-
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "معلومت ڽهڤڤيجت دان ݢراف ڤمبوکه دسمبوڽيکن"
-
-#~ msgid "Debug info toggle key"
-#~ msgstr "ککونچي توݢول معلومت ڽهڤڤيجت"
-
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr "معلومت ڽهڤڤيجت⹁ ݢراف ڤمبوکه⹁ دان رڠک داواي دسمبوڽيکن"
-
-#~ msgid "Dec. volume key"
-#~ msgstr "ککونچي ڤرلاهنکن بوڽي"
-
-#~ msgid "Default game"
-#~ msgstr "ڤرماٴينن لالاي"
-
-#~ msgid ""
-#~ "Default game when creating a new world.\n"
-#~ "This will be overridden when creating a world from the main menu."
-#~ msgstr ""
-#~ "ڤرماٴينن لالاي يڠ اکن دݢوناکن کتيک منچيڤتا دنيا بارو.\n"
-#~ "تتڤن اين اکن دأتسي اڤابيلا ممبوات دنيا دري مينو اوتام."
-
-#~ msgid ""
-#~ "Defines sampling step of texture.\n"
-#~ "A higher value results in smoother normal maps."
-#~ msgstr ""
-#~ "منتعريفکن تاهڤ ڤرسمڤلن تيکستور.\n"
-#~ "نيلاي لبيه تيڠݢي مڠحاصيلکن ڤتا نورمل لبيه لمبوت."
-
-#~ msgid "Del. Favorite"
-#~ msgstr "ڤادم کݢمرن"
-
-#~ msgid "Desynchronize block animation"
-#~ msgstr "مڽهسݢرقکن انيماسي بلوک"
-
-#, fuzzy
-#~ msgid "Dig key"
-#~ msgstr "ککومچي ککانن"
-
-#~ msgid "Digging particles"
-#~ msgstr "ڤرتيکل کتيک مڠݢالي"
-
-#~ msgid "Disable anticheat"
-#~ msgstr "ملومڤوهکن انتيتيڤو"
-
-#~ msgid "Double tap \"jump\" to toggle fly"
-#~ msgstr "تکن دوا کالي \"لومڤت\" اونتوق منوݢول تربڠ"
-
-#~ msgid "Down"
-#~ msgstr "باواه"
-
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr "موات تورون ڤرماٴينن⹁ چونتوهڽ Minetest Game⹁ دري minetest.net"
-
-#~ msgid "Download one from minetest.net"
-#~ msgstr "موات تورون ساتو دري minetest.net"
-
-#, fuzzy
-#~ msgid "Dynamic shadows:"
-#~ msgstr "بايڠ فون"
-
-#, fuzzy
-#~ msgid "Enable"
-#~ msgstr "دبوليهکن"
-
-#, fuzzy
-#~ msgid "Enable creative mode for all players"
-#~ msgstr "ممبوليهکن مود کرياتيف اونتوق ڤتا بارو دچيڤتا."
-
-#~ msgid "Enable players getting damage and dying."
-#~ msgstr "ممبوليهکن ڤماٴين منريما کچدراٴن دان ماتي."
-
-#~ msgid "Enable register confirmation"
-#~ msgstr "بوليهکن ڤڠصحن ڤندفترن"
-
-#, fuzzy
-#~ msgid "Enable touchscreen"
-#~ msgstr "نيلاي امبڠ سکرين سنتوه"
-
-#~ msgid ""
-#~ "Enable vertex buffer objects.\n"
-#~ "This should greatly improve graphics performance."
-#~ msgstr ""
-#~ "ممبوليهکن اوبجيک ڤنيمبل بوچو.\n"
-#~ "اين ڤاتوت منيڠکتکن ڤريستاسي ݢرافيک دڠن باڽق."
-
-#, fuzzy
-#~ msgid ""
-#~ "Enable/disable running an IPv6 server.\n"
-#~ "Ignored if bind_address is set."
-#~ msgstr ""
-#~ "ممبوليهکن\\ملومڤوهکن ڤنجالنن ڤلاين IPv6.\n"
-#~ "دأبايکن جک تتڤن bind_address دتتڤکن.\n"
-#~ "ممرلوکن تتڤن enable_ipv6 دبوليهکن."
-
-#~ msgid ""
-#~ "Enables bumpmapping for textures. Normalmaps need to be supplied by the "
-#~ "texture pack\n"
-#~ "or need to be auto-generated.\n"
-#~ "Requires shaders to be enabled."
-#~ msgstr ""
-#~ "ممبوليهکن ڤمتاٴن برتومڤوق ڤد تيکستور. ڤتا نورمل ڤرلو دسدياکن\n"
-#~ "اوليه ڤيک تيکستور اتاو ڤرلو دجان سچارا أوتوماتيک.\n"
-#~ "ڤرلوکن ڤمبايڠ دبوليهکن."
-
-#, fuzzy
-#~ msgid ""
-#~ "Enables caching of facedir rotated meshes.\n"
-#~ "This is only effective with shaders disabled."
-#~ msgstr "ممبوليهکن ڤڠاݢريݢتن ججاريڠ يڠ دڤوتر دڤکسي Y ايايت (facedir)."
-
-#~ msgid "Enables minimap."
-#~ msgstr "ممبوليهکن ڤتا ميني."
-
-#~ msgid ""
-#~ "Enables on the fly normalmap generation (Emboss effect).\n"
-#~ "Requires bumpmapping to be enabled."
-#~ msgstr ""
-#~ "ممبوليهکن ڤنجاناٴن ڤتا نورمل سچارا لايڠ (کسن چيتق تيمبول).\n"
-#~ "ڤرلوکن ڤمتاٴن برتومڤوق اونتوق دبوليهکن."
-
-#~ msgid ""
-#~ "Enables parallax occlusion mapping.\n"
-#~ "Requires shaders to be enabled."
-#~ msgstr ""
-#~ "ممبوليهکن ڤمتاٴن اوکلوسي ڤارالکس.\n"
-#~ "ممرلوکن ڤمبايڠ اونتوق دبوليهکن."
-
-#~ msgid ""
-#~ "Enables the sound system.\n"
-#~ "If disabled, this completely disables all sounds everywhere and the in-"
-#~ "game\n"
-#~ "sound controls will be non-functional.\n"
-#~ "Changing this setting requires a restart."
-#~ msgstr ""
-#~ "ممبوليهکن سيستم بوڽي.\n"
-#~ "جک دلومڤوهکن⹁ اي اکن ملومڤوهکن کسموا بوڽي دسموا تمڤت\n"
-#~ "دان کاولن بوڽي دالم ڤرماٴينن تيدق اکن برفوڠسي.\n"
-#~ "ڤڠوبهن تتڤن اين ممرلوکن ڤرمولاٴن سمولا."
-
-#~ msgid "Enter "
-#~ msgstr "ماسوقکن "
-
-#~ msgid ""
-#~ "Experimental option, might cause visible spaces between blocks\n"
-#~ "when set to higher number than 0."
-#~ msgstr ""
-#~ "ڤيليهن ڤرچوباٴن⹁ موڠکين منمڤقکن رواڠ ڽات دانتارا\n"
-#~ "بلوک اڤابيلا دتتڤکن دڠن نومبور لبيه بسر درڤد 0."
-
-#~ msgid "FSAA"
-#~ msgstr "FSAA"
-
-#~ msgid "Fall bobbing factor"
-#~ msgstr "فکتور اڤوڠن کجاتوهن"
-
-#~ msgid "Fallback font shadow"
-#~ msgstr "بايڠ فون برباليق"
-
-#~ msgid "Fallback font shadow alpha"
-#~ msgstr "نيلاي الفا بايڠ فون برباليق"
-
-#~ msgid "Fallback font size"
-#~ msgstr "سايز فون برباليق"
-
-#~ msgid "Fancy Leaves"
-#~ msgstr "داون براݢم"
-
-#~ msgid "Fast key"
-#~ msgstr "ککونچي ڤرݢرقن ڤنتس"
-
-#, fuzzy
-#~ msgid ""
-#~ "Fast movement (via the \"Aux1\" key).\n"
-#~ "This requires the \"fast\" privilege on the server."
-#~ msgstr ""
-#~ "برݢرق ڤنتس (دڠن ککونچي \"ايستيميوا\").\n"
-#~ "اين ممرلوکن کأيستيميواٴن \"ڤرݢرقن ڤنتس\" دالم ڤلاين ترسبوت."
-
-#, fuzzy
-#~ msgid ""
-#~ "Filtered textures can blend RGB values with fully-transparent neighbors,\n"
-#~ "which PNG optimizers usually discard, often resulting in dark or\n"
-#~ "light edges to transparent textures. Apply a filter to clean that up\n"
-#~ "at texture load time. This is automatically enabled if mipmapping is "
-#~ "enabled."
-#~ msgstr ""
-#~ "تيکستور يڠ دتاڤيس بوليه سباتيکن نيلاي RGB دڠن جيرن يڠ لوت سينر سڤنوهڽ⹁\n"
-#~ "يڠ مان ڤڠاوڤتيموم PNG سريڠ ابايکن⹁ کادڠکال مڽببکن سيسي ݢلڤ اتاو تراڠ ڤد\n"
-#~ "تيکستور لوت سينر. ݢونا ڤناڤيسن اين اونتوق ممبرسيهکن تيکستور ترسبوت کتيک\n"
-#~ "اي سدڠ دمواتکن."
-
-#~ msgid "Filtering"
-#~ msgstr "ڤناڤيسن"
-
-#~ msgid "Fly key"
-#~ msgstr "ککونچي تربڠ"
-
-#~ msgid "Flying"
-#~ msgstr "تربڠ"
-
-#~ msgid "Fog toggle key"
-#~ msgstr "ککونچي توݢول کابوت"
-
-#~ msgid "Font size of the fallback font in point (pt)."
-#~ msgstr "سايز فون باݢي فون برباليق دالم اونيت تيتيق (pt)."
-
-#~ msgid "Formspec Default Background Color"
-#~ msgstr "ورنا لاتر بلاکڠ لالاي فورمسڤيک"
-
-#~ msgid "Formspec Default Background Opacity"
-#~ msgstr "کلݢڤن لاتر بلاکڠ لالاي فورمسڤيک"
-
-#~ msgid "Formspec default background color (R,G,B)."
-#~ msgstr "ورنا لاتر بلاکڠ اصل فورمسڤيک (R,G,B)."
-
-#~ msgid "Formspec default background opacity (between 0 and 255)."
-#~ msgstr "کلݢڤن اصل لاتر بلاکڠ فورمسڤيک (انتارا 0 دان 255)."
-
-#~ msgid "Forward"
-#~ msgstr "کدڤن"
-
-#~ msgid "Forward key"
-#~ msgstr "ککونچي کدڤن"
-
-#~ msgid "FreeType fonts"
-#~ msgstr "فون FreeType"
-
-#~ msgid "Full screen BPP"
-#~ msgstr "BPP سکرين ڤنوه"
-
-#~ msgid "GUI scaling filter txr2img"
-#~ msgstr "ڤناڤيس سکال GUI جنيس txr2img"
-
-#~ msgid "Generate Normal Maps"
-#~ msgstr "جان ڤتا نورمل"
-
-#~ msgid "Generate normalmaps"
-#~ msgstr "جان ڤتا نورمل"
-
-#~ msgid "HUD scale factor"
-#~ msgstr "فکتور سکالا ڤاڤر ڤندو (HUD)"
-
-#~ msgid "HUD toggle key"
-#~ msgstr "ککونچي منوݢول ڤاڤر ڤندو (HUD)"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "تتڤن"
-
-#~ msgid ""
-#~ "If enabled together with fly mode, player is able to fly through solid "
-#~ "nodes.\n"
-#~ "This requires the \"noclip\" privilege on the server."
-#~ msgstr ""
-#~ "جيک دبوليهکن برسام مود تربڠ⹁ ڤماٴين بوليه تربڠ منروسي نود ڤڤجل.\n"
-#~ "اين ممرلوکن کأيستيميواٴن \"تمبوس بلوک\" دالم ڤلاين ترسبوت."
-
-#~ msgid "If enabled, disable cheat prevention in multiplayer."
-#~ msgstr "جک دبوليهکن⹁ اي اکن ملومڤوهکن ڤنچݢهن ڤنيڤوان دالم ڤماٴين راماي."
-
-#~ msgid ""
-#~ "If enabled, makes move directions relative to the player's pitch when "
-#~ "flying or swimming."
-#~ msgstr ""
-#~ "جيک دبوليهکن⹁ اي ممبواتکن اره ڤرݢرقن ريلاتيف دڠن ڤيچ ڤماٴين اڤابيلا تربڠ "
-#~ "اتاو برنڠ."
-
-#~ msgid "In-Game"
-#~ msgstr "دالم ڤرماٴينن"
-
-#~ msgid "Inc. volume key"
-#~ msgstr "ککونچي کواتکن بوڽي"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr "ڤاسڠ مودس: ݢاݢل منچاري نام مودس سبنر اونتوق: $1"
-
-#~ msgid "Install: file: \"$1\""
-#~ msgstr "ڤاسڠ: فايل: \"$1\""
-
-#, fuzzy
-#~ msgid "Interval of sending time of day to clients, stated in seconds."
-#~ msgstr "سلڠ دأنتارا ڤڠهنترن معلومت ماس ڤلاين کڤد کليئن."
-
-#~ msgid "Invalid gamespec."
-#~ msgstr "سڤيسيفيکاسي ڤرماٴينن تيدق صح."
-
-#~ msgid "Inventory key"
-#~ msgstr "ککونچي اينۏينتوري"
-
-#~ msgid "Jump key"
-#~ msgstr "ککونچي لومڤت"
-
-#~ msgid "Key already in use"
-#~ msgstr "ککونچي تله دݢوناکن اونتوق فوڠسي لاٴين"
-
-#~ msgid ""
-#~ "Key for decreasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مڠورڠکن جارق ڤندڠ.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for decreasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق ممڤرلاهنکن بوڽي.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#, fuzzy
-#~ msgid ""
-#~ "Key for digging.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق ملومڤت.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for dropping the currently selected item.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منجاتوهکن ايتم يڠ سدڠ دڤيليه.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for increasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منمبه جارق ڤندڠ.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for increasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مڠواتکن بوڽي.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for jumping.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق ملومڤت.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving fast in fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق برݢرق ڤنتس دالم مود ڤرݢرقن ڤنتس.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player forward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مڠݢرقکن ڤماٴين کدڤن.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player left.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مڠݢرقکن ڤماٴين ککيري.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player right.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مڠݢرقکن ڤماٴين ککانن.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for muting the game.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق ممبيسوکن ڤرماٴينن.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the chat window to type commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق ممبوک تتيڠکڤ سيمبڠ اونتوق مناٴيڤ ارهن.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the chat window to type local commands.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق ممبوک تتيڠکڤ سيمبڠ اونتوق مناٴيڤ ارهن تمڤتن.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the chat window.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق ممبوک تتيڠکڤ سيمبڠ.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for opening the inventory.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق ممبوک اينۏينتوري.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#, fuzzy
-#~ msgid ""
-#~ "Key for placing.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق ملومڤت.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 11th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-11 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 12th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-12 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 13th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-13 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 14th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-14 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 15th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-15 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 16th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-16 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 17th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-17 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 18th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-18 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 19th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-19 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 20th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-20 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 21st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-21 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 22nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-22 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 23rd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-23 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 24th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-24 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 25th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-25 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 26th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-26 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 27th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-27 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 28th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-28 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 29th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-29 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 30th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-30 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 31st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-31 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 32nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-32 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the eighth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-8 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the fifth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-5 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the first hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ڤرتام دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the fourth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-4 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the next item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه ايتم ستروسڽ ددالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the ninth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-9 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the previous item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه بارڠ سبلومڽ دهوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the second hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-2 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the seventh hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-7 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the sixth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-6 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the tenth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-10 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the third hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مميليه سلوت ک-3 دالم هوتبر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for switching between first- and third-person camera.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق برتوکر انتارا کاميرا اورڠ ڤرتام دان کتيݢ.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for taking screenshots.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منڠکڤ ݢمبر لاير.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling autoforward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول أوتوڤرݢرقن.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling cinematic mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول مود سينماتيک.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling display of minimap.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول ڤاڤرن ڤتا ميني.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول مود ڤرݢرقن ڤنتس.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling flying.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول مود تربڠ.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling noclip mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول مود تمبوس بلوک.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling pitch move mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول مود ڤرݢرقن ڤيچ.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the camera update. Only used for development\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول ڤڠمسکينين کاميرا. هاڽ دݢوناکن اونتوق ڤمباڠونن.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of chat.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول ڤاڤرن سيمبڠ.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of debug info.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول ڤاڤرن معلومت ڽهڤڤيجت.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of fog.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول ڤاڤرن کابوت.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of the HUD.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول ڤاڤر ڤندو (HUD).\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of the large chat console.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول ڤاڤرن کونسول سيمبڠ بسر.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling the display of the profiler. Used for development.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول ڤمبوکه. دݢوناکن اونتوق ڤمباڠونن.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for toggling unlimited view range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق منوݢول جارق ڤندڠن تيادا حد.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key to use view zoom when possible.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "ککونچي اونتوق مڠݢوناکن ڤندڠن زوم اڤابيلا دبنرکن.\n"
-#~ "ليهت http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
-#~ msgstr ""
-#~ "ايکتن ککونچي. (جيک مينو اين برسليرق⹁ ڤادم سستڠه بندا دري فايل "
-#~ "minetest.conf)"
-
-#~ msgid "Left"
-#~ msgstr "ککيري"
-
-#~ msgid "Left key"
-#~ msgstr "ککونچي ککيري"
-
-#~ msgid ""
-#~ "Length of liquid waves.\n"
-#~ "Requires waving liquids to be enabled."
-#~ msgstr ""
-#~ "ڤنجڠ ݢلورا چچاٴير.\n"
-#~ "ممرلوکن تتڤن چچاٴير برݢلورا دبوليهکن."
-
-#~ msgid "Main"
-#~ msgstr "اوتام"
-
-#~ msgid "Makes all liquids opaque"
-#~ msgstr "بواتکن سموا چچاٴير منجادي لݢڤ"
-
-#~ msgid "Mapblock mesh generator's MapBlock cache size in MB"
-#~ msgstr ""
-#~ "ساٴيز کيش بلوکڤتا اونتوق ڤنجان ججاريڠ بلوکڤتا دالم اونيت ميݢاباٴيت (MB)"
-
-#~ msgid ""
-#~ "Maximum number of mapblocks for client to be kept in memory.\n"
-#~ "Set to -1 for unlimited amount."
-#~ msgstr ""
-#~ "جومله بلوک ڤتا مکسيموم يڠ کليئن بوليه سيمڤن دالم ميموري.\n"
-#~ "تتڤکن کڤد -1 اونتوق جومله تنڤ حد."
-
-#~ msgid ""
-#~ "Maximum number of packets sent per send step, if you have a slow "
-#~ "connection\n"
-#~ "try reducing it, but don't reduce it to a number below double of "
-#~ "targeted\n"
-#~ "client number."
-#~ msgstr ""
-#~ "جومله مکسيما بيڠکيسن يڠ دهنتر ڤد ستياڤ لڠکه ڤڠهنترن⹁\n"
-#~ "جک اندا ممڤوڽاٴي سمبوڠن يڠ ڤرلاهن ماک چوبا کورڠکنڽ⹁\n"
-#~ "نامون جاڠن کورڠکن کڤد نيلاي دباوه ݢندا دوا جومله کليئن ساسرن."
-
-#~ msgid "Menus"
-#~ msgstr "مينو"
-
-#~ msgid "Mesh cache"
-#~ msgstr "کيش ججاريڠ"
-
-#~ msgid "Minimap"
-#~ msgstr "ڤتا ميني"
-
-#~ msgid "Minimap in radar mode, Zoom x2"
-#~ msgstr "ڤتا ميني دالم مود رادر⹁ زوم 2x"
-
-#~ msgid "Minimap in radar mode, Zoom x4"
-#~ msgstr "ڤتا ميني دالم مود رادر⹁ زوم 4x"
-
-#~ msgid "Minimap in surface mode, Zoom x2"
-#~ msgstr "ڤتا ميني دالم مود ڤرموکاٴن⹁ زوم 2x"
-
-#~ msgid "Minimap in surface mode, Zoom x4"
-#~ msgstr "ڤتا ميني دالم مود ڤرموکاٴن⹁ زوم 4x"
-
-#~ msgid "Minimap key"
-#~ msgstr "ککونچي ڤتا ميني"
-
-#~ msgid "Mipmap"
-#~ msgstr "ڤتا ميڤ"
-
-#~ msgid "Mipmap + Aniso. Filter"
-#~ msgstr "ڤتا ميڤ + ڤناڤيسن انيسو"
-
-#~ msgid ""
-#~ "Multiplier for fall bobbing.\n"
-#~ "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-#~ msgstr ""
-#~ "ڤندارب اونتوق اڤوڠن تيمبول تڠݢلم.\n"
-#~ "چونتوهڽ: 0 اونتوق تيادا اڤوڠن⁏ 1.0 اونتوق بياسا⁏ 2.0 اونتوق دوا کالي ݢندا."
-
-#~ msgid "Mute key"
-#~ msgstr "ککونچي بيسو"
-
-#~ msgid "Name / Password"
-#~ msgstr "نام \\ کات لالوان"
-
-#~ msgid "Name/Password"
-#~ msgstr "نام\\کات لالوان"
-
-#~ msgid "Near plane"
-#~ msgstr "دکت ساته"
-
-#~ msgid "Next item"
-#~ msgstr "ايتم ستروسڽ"
-
-#~ msgid "No"
-#~ msgstr "تيدق"
-
-#~ msgid "No Filter"
-#~ msgstr "تيادا تاڤيسن"
-
-#~ msgid "No Mipmap"
-#~ msgstr "تيادا ڤتا ميڤ"
-
-#~ msgid "Noclip"
-#~ msgstr "تمبوس بلوک"
-
-#~ msgid "Noclip key"
-#~ msgstr "ککونچي تمبوس بلوک"
-
-#~ msgid "Node Highlighting"
-#~ msgstr "تونجولن نود"
-
-#~ msgid "Node Outlining"
-#~ msgstr "کرڠک نود"
-
-#~ msgid "None"
-#~ msgstr "تيادا"
-
-#~ msgid "Normalmaps sampling"
-#~ msgstr "ڤرسمڤلن ڤتا نورمل"
-
-#~ msgid "Normalmaps strength"
-#~ msgstr "ککواتن ڤتا نورمل"
-
-#~ msgid "Number of parallax occlusion iterations."
-#~ msgstr "جومله للرن اوکلوسي ڤارالکس."
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "داون لݢڤ"
-
-#~ msgid "Opaque Water"
-#~ msgstr "اٴير لݢڤ"
-
-#~ msgid ""
-#~ "Opaqueness (alpha) of the shadow behind the fallback font, between 0 and "
-#~ "255."
-#~ msgstr "کلݢڤن (الفا) بايڠ بلاکڠ فون برباليق⹁ نيلاي انتارا 0 دان 225."
-
-#~ msgid "Overall bias of parallax occlusion effect, usually scale/2."
-#~ msgstr "ڤڠاروه کسن اوکلوسي ڤارالکس ڤد کسلوروهنڽ⹁ کبياساٴنڽ سکال\\2."
-
-#~ msgid "Overall scale of parallax occlusion effect."
-#~ msgstr "سکال کسلوروهن کسن اوکلوسي ڤارالکس."
-
-#~ msgid "Parallax Occlusion"
-#~ msgstr "اوکلوسي ڤارالکس"
-
-#~ msgid "Parallax occlusion"
-#~ msgstr "اوکلوسي ڤارالکس"
-
-#~ msgid "Parallax occlusion bias"
-#~ msgstr "ڤڠاروه اوکلوسي ڤارالکس"
-
-#~ msgid "Parallax occlusion iterations"
-#~ msgstr "للرن اوکلوسي ڤارالکس"
-
-#~ msgid "Parallax occlusion mode"
-#~ msgstr "مود اوکلوسي ڤارالکس"
-
-#~ msgid "Parallax occlusion scale"
-#~ msgstr "سکال اوکلوسي ڤارالکس"
-
-#~ msgid "Particles"
-#~ msgstr "ڤرتيکل"
-
-#~ msgid ""
-#~ "Path to texture directory. All textures are first searched from here."
-#~ msgstr "لالوان کديريکتوري تيکستور. سموا تيکستور دچاري دري سيني داهولو."
-
-#~ msgid "Pitch move key"
-#~ msgstr "ککونچي ڤرݢرقن ڤيچ"
-
-#~ msgid "Pitch move mode"
-#~ msgstr "مود ڤرݢرقن ڤيچ"
-
-#~ msgid ""
-#~ "Player is able to fly without being affected by gravity.\n"
-#~ "This requires the \"fly\" privilege on the server."
-#~ msgstr ""
-#~ "ڤماٴين بوليه تربڠ تنڤ ترکسن دڠن ݢراۏيتي.\n"
-#~ "اين ممرلوکن کأيستيميواٴن \"تربڠ\" دالم ڤلاين ترسبوت."
-
-#~ msgid "Player versus player"
-#~ msgstr "ڤماٴين لاون ڤماٴين"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "سيلا ماسوقکن اينتيݢر يڠ صح."
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "سيلا ماسوقکن نومبور يڠ صح."
-
-#~ msgid ""
-#~ "Port to connect to (UDP).\n"
-#~ "Note that the port field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "ڤورت اونتوق مڽمبوڠ (UDP).\n"
-#~ "امبيل ڤرهاتيان بهاوا ميدن ڤورت دالم مينو اوتام مڠاتسي تتڤن اين."
-
-#~ msgid "Prev. item"
-#~ msgstr "ايتم سبلومڽ"
-
-#~ msgid "Profiler toggle key"
-#~ msgstr "ککونچي توݢول ڤمبوکه"
-
-#~ msgid "PvP enabled"
-#~ msgstr "بوليه برلاوان PvP"
-
-#~ msgid "Range select key"
-#~ msgstr "ککونچي جارق ڤميليهن"
-
-#~ msgid "Remote port"
-#~ msgstr "ڤورت جارق جاٴوه"
-
-#~ msgid "Reset singleplayer world"
-#~ msgstr "سيت سمولا دنيا ڤماٴين ڤرساورڠن"
-
-#~ msgid "Right"
-#~ msgstr "ککانن"
-
-#~ msgid "Right key"
-#~ msgstr "ککومچي ککانن"
-
-#~ msgid "Round minimap"
-#~ msgstr "ڤتا ميني بولت"
-
-#~ msgid "Save window size automatically when modified."
-#~ msgstr "سيمڤن ساٴيز تتيڠکڤ سچارا اٴتوماتيک کتيک دأوبه."
-
-#~ msgid "Screen:"
-#~ msgstr "سکرين:"
-
-#~ msgid "Server / Singleplayer"
-#~ msgstr "ڤلاين ڤرماٴينن \\ ڤماٴين ڤرسأورڠن"
-
-#~ msgid "Shaders"
-#~ msgstr "ڤمبايڠ"
-
-#, fuzzy
-#~ msgid "Shaders (experimental)"
-#~ msgstr "تانه تراڤوڠ (دالم اوجيکاجي)"
-
-#~ msgid "Shaders (unavailable)"
-#~ msgstr "ڤمبايڠ (تيدق ترسديا)"
-
-#, fuzzy
-#~ msgid ""
-#~ "Shaders allow advanced visual effects and may increase performance on "
-#~ "some video\n"
-#~ "cards."
-#~ msgstr ""
-#~ "ڤمبايڠ ممبوليهکن کسن ۏيسوال مندالم دان بوليه منيڠکتکن\n"
-#~ "ڤريستاسي اونتوق سستڠه کد ۏيديو.\n"
-#~ "نامون اي هاڽ برفوڠسي دڠن ڤمبهاݢين بلاکڠ ۏيديو OpenGL."
-
-#, fuzzy
-#~ msgid "Shaders are disabled."
-#~ msgstr "کمس کيني کاميرا دلومڤوهکن"
-
-#~ msgid ""
-#~ "Shadow offset (in pixels) of the fallback font. If 0, then shadow will "
-#~ "not be drawn."
-#~ msgstr ""
-#~ "اوفسيت بايڠ فون برباليق (دالم اونيت ڤيکسل). جيک 0⹁ ماک بايڠ تيدق اکن "
-#~ "دلوکيس."
-
-#~ msgid "Shape of the minimap. Enabled = round, disabled = square."
-#~ msgstr "بنتوق ڤتا ميني. دبوليهکن = بولت⹁ دلومڤوهکن = ڤيتق."
-
-#~ msgid "Simple Leaves"
-#~ msgstr "داون ريڠکس"
-
-#~ msgid ""
-#~ "Size of the MapBlock cache of the mesh generator. Increasing this will\n"
-#~ "increase the cache hit %, reducing the data being copied from the main\n"
-#~ "thread, thus reducing jitter."
-#~ msgstr ""
-#~ "ساٴيز کيش بلوکڤتا اونتوق ڤنجان ججاريڠ. مناٴيقکن نيلاي اين\n"
-#~ "اکن منيڠکتکن جومله % هيت کيش⹁ مڠورڠکن داتا يڠ ڤرلو دسالين\n"
-#~ "درڤد جالور اوتام⹁ لالو مڠورڠکن کترن."
-
-#~ msgid "Smooth Lighting"
-#~ msgstr "ڤنچهاياٴن لمبوت"
-
-#~ msgid "Smooths rotation of camera. 0 to disable."
-#~ msgstr "ملمبوتکن ڤموترن کاميرا. سيت سباݢاي 0 اونتوق ملومڤوهکنڽ."
-
-#~ msgid "Sound system is disabled"
-#~ msgstr "سيستم بوڽي دلومڤوهکن"
-
-#~ msgid "Special"
-#~ msgstr "ايستيميوا"
-
-#~ msgid "Special key"
-#~ msgstr "ککونچي ايستيميوا"
-
-#~ msgid "Start Singleplayer"
-#~ msgstr "مولا ماٴين ساورڠ"
-
-#~ msgid "Strength of generated normalmaps."
-#~ msgstr "ککواتن ڤتا نورمل يڠ دجان."
-
-#~ msgid "Texture path"
-#~ msgstr "لالوان تيکستور"
-
-#~ msgid "Texturing:"
-#~ msgstr "جالينن:"
-
-#~ msgid "The value must be at least $1."
-#~ msgstr "نيلاي مستيله سکورڠ-کورڠڽ $1."
-
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "نيلاي مستيله تيدق لبيه درڤد $1."
-
-#, fuzzy
-#~ msgid ""
-#~ "This can be bound to a key to toggle camera smoothing when looking "
-#~ "around.\n"
-#~ "Useful for recording videos"
-#~ msgstr ""
-#~ "ملمبوتکن کاميرا اڤابيلا مليهت سکليليڠ. جوݢ دکنلي سباݢاي ڤلمبوتن ڤڠليهتن "
-#~ "اتاو ڤلمبوتن تتيکوس.\n"
-#~ "برݢونا اونتوق مراکم ۏيديو."
-
-#~ msgid "Time send interval"
-#~ msgstr "سلڠ ڤڠهنترن ماس"
-
-#~ msgid "To enable shaders the OpenGL driver needs to be used."
-#~ msgstr "اونتوق ممبوليهکن ڤمبايڠ⹁ ڤماچو OpenGL مستي دݢوناکن."
-
-#~ msgid "Tone Mapping"
-#~ msgstr "ڤمتاٴن تونا"
-
-#, fuzzy
-#~ msgid "Touch threshold (px):"
-#~ msgstr "نيلاي امبڠ سنتوهن: (px)"
-
-#~ msgid "Trilinear Filter"
-#~ msgstr "ڤناڤيسن تريلينيار"
-
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "ݢاݢل مماسڠ ڤرماٴينن سباݢاي $1"
-
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "ݢاݢل مماسڠ ڤيک مودس سباݢاي $1"
-
-#~ msgid "Uninstall Package"
-#~ msgstr "ڽهڤاسڠ ڤاکيج"
-
-#~ msgid "Up"
-#~ msgstr "اتس"
-
-#, fuzzy
-#~ msgid "Use bilinear filtering when scaling textures down."
-#~ msgstr "ݢوناکن ڤناڤيسن بيلينيار اڤابيلا مڽسوايکن تيکستور."
-
-#~ msgid "VBO"
-#~ msgstr "VBO"
-
-#~ msgid "Vertical screen synchronization."
-#~ msgstr "ڤڽݢرقن منݢق سکرين."
-
-#~ msgid "View"
-#~ msgstr "ليهت"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "ليهت معلومت لنجوت دالم ڤلاير سساوڠ"
-
-#~ msgid "View range decrease key"
-#~ msgstr "ککونچي مڠورڠ جارق ڤندڠ"
-
-#~ msgid "View range increase key"
-#~ msgstr "ککونچي منمبه جارق ڤندڠ"
-
-#~ msgid "View zoom key"
-#~ msgstr "ککونچي زوم ڤندڠن"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "جارق ڤندڠ براد دتاهڤ مکسيموم: %d"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "داٴون برݢويڠ"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "چچاٴير برݢلورا"
-
-#~ msgid "Waving Plants"
-#~ msgstr "تومبوهن برݢويڠ"
-
-#~ msgid ""
-#~ "When gui_scaling_filter_txr2img is true, copy those images\n"
-#~ "from hardware to software for scaling.  When false, fall back\n"
-#~ "to the old scaling method, for video drivers that don't\n"
-#~ "properly support downloading textures back from hardware."
-#~ msgstr ""
-#~ "اڤابيلا gui_scaling_filter_txr2img دتتڤکن کڤد \"true\"⹁ سالين سمولا "
-#~ "کسموا\n"
-#~ "ايميج ترسبوت دري ڤرکاکسن کڤرايسين اونتوق دسسوايکن. سکيراڽ دتتڤکن کڤد\n"
-#~ "\"false\"⹁ برباليق کڤد قاعده ڤڽسواين يڠ لام⹁ اونتوق ڤماچو ۏيديو يڠ تيدق "
-#~ "ممڤو\n"
-#~ "مڽوکوڠ دڠن سمڤورنا فوڠسي موات تورون سمولا تيکستور درڤد ڤرکاکسن."
-
-#~ msgid ""
-#~ "Whether FreeType fonts are used, requires FreeType support to be compiled "
-#~ "in.\n"
-#~ "If disabled, bitmap and XML vectors fonts are used instead."
-#~ msgstr ""
-#~ "منتڤکن سام اد فون FreeType دݢوناکن⹁ ممرلوکن سوکوڠن Freetype\n"
-#~ "دکومڤيل برسام. جيک دلومڤوهکن⹁ فون ڤتا بيت دان ۏيکتور XML اکن دݢوناکن."
-
-#~ msgid ""
-#~ "Whether node texture animations should be desynchronized per mapblock."
-#~ msgstr "سام اد انيماسي تيکستور نود ڤاتوت دڽهسݢرقکن ڤد ستياڤ بلوک ڤتا."
-
-#~ msgid "Whether to allow players to damage and kill each other."
-#~ msgstr ""
-#~ "منتڤکن سام اد ايڠين ممبنرکن ڤماٴين اونتوق منچدراکن دان ممبونوه ساتو سام "
-#~ "لاٴين."
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#~ msgid "Yes"
-#~ msgstr "ياٴ"
-
-#, c-format
-#~ msgid ""
-#~ "You are about to join this server with the name \"%s\" for the first "
-#~ "time.\n"
-#~ "If you proceed, a new account using your credentials will be created on "
-#~ "this server.\n"
-#~ "Please retype your password and click 'Register and Join' to confirm "
-#~ "account creation, or click 'Cancel' to abort."
-#~ msgstr ""
-#~ "اندا اکن سرتاٴي ڤلاين دڠن نام \"%s\" اونتوق کالي ڤرتام.\n"
-#~ "جيک اندا تروسکن⹁ اکاٴون بهارو دڠن معلومت اندا اکن دچيڤت دڤلاين اين.\n"
-#~ "سيلا تايڤ سمولا کات لالوان اندا دان کليک 'دفتر دان سرتاٴي' اونتوق صحکن "
-#~ "ڤنچيڤتاٴن اکاٴون⹁ اتاو کليک 'باتل' اونتوق ممباتلکن."
-
-#, fuzzy
-#~ msgid "You died."
-#~ msgstr "اندا تله منيڠݢل"
-
-#~ msgid "You have no games installed."
-#~ msgstr "اندا تيدق مماسڠ سبارڠ ڤرماٴينن."
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "needs_fallback_font"
-#~ msgstr "yes"
-
-#~ msgid "ok"
-#~ msgstr "اوکي"
-
-#, fuzzy
-#~ msgid "pause_menu"
-#~ msgstr "FPS دمينو جيدا"
-
-#~ msgid "press key"
-#~ msgstr "تکن ککونچي"
+#~ msgid "Key for toggling fullscreen mode."
+#~ msgstr "مود سکرين ڤنوه."

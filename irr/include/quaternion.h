@@ -19,8 +19,6 @@
 // - For uses of getMatrix() you have to use quaternion::getMatrix_transposed instead.
 // #define IRR_TEST_BROKEN_QUATERNION_USE
 
-namespace irr
-{
 namespace core
 {
 
@@ -180,7 +178,7 @@ public:
 	linear interpolation.
 	*/
 	quaternion &slerp(quaternion q1, quaternion q2,
-			f32 time, f32 threshold = .05f);
+			f32 time, f32 threshold = .001f);
 
 	//! Set this quaternion to represent a rotation from angle and axis.
 	/** Axis must be unit length.
@@ -704,4 +702,3 @@ inline core::quaternion &quaternion::rotationFromTo(const vector3df &from, const
 }
 
 } // end namespace core
-} // end namespace irr

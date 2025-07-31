@@ -12,8 +12,6 @@
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
-namespace irr
-{
 namespace video
 {
 
@@ -138,13 +136,13 @@ IImage *CImageLoaderTGA::loadImage(io::IReadFile *file) const
 	if (header.ColorMapType) {
 		// Create 32 bit palette
 		// `core::max_()` is not used here because it takes its inputs as references. Since `header` is packed, use the macro `MAX()` instead:
-		const irr::u16 paletteSize = MAX((u16)256u, header.ColorMapLength); // ColorMapLength can lie, but so far we only use palette for 8-bit, so ensure it has 256 entries
+		const u16 paletteSize = MAX((u16)256u, header.ColorMapLength); // ColorMapLength can lie, but so far we only use palette for 8-bit, so ensure it has 256 entries
 		palette = new u32[paletteSize];
 
 		if (paletteSize > header.ColorMapLength) {
 			// To catch images using palette colors with invalid indices
-			const irr::u32 errorCol = irr::video::SColor(255, 255, 0, 205).color; // bright magenta
-			for (irr::u16 i = header.ColorMapLength; i < paletteSize; ++i)
+			const u32 errorCol = video::SColor(255, 255, 0, 205).color; // bright magenta
+			for (u16 i = header.ColorMapLength; i < paletteSize; ++i)
 				palette[i] = errorCol;
 		}
 
@@ -251,4 +249,3 @@ IImageLoader *createImageLoaderTGA()
 }
 
 } // end namespace video
-} // end namespace irr

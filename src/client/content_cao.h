@@ -17,7 +17,7 @@
 #include <map>
 #include <memory>
 
-namespace irr::scene {
+namespace scene {
 	class IMeshSceneNode;
 	class IBillboardSceneNode;
 }
@@ -285,8 +285,6 @@ public:
 	void updateAnimation();
 
 	void updateAnimationSpeed();
-
-	void updateBones(f32 dtime);
 
 	void processMessage(const std::string &data) override;
 

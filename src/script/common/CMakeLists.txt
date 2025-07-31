@@ -1,4 +1,7 @@
+file(GLOB common_SCRIPT_COMMON_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 set(common_SCRIPT_COMMON_SRCS
+	${common_SCRIPT_COMMON_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/c_content.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/c_converter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/c_internal.cpp

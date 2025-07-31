@@ -114,9 +114,12 @@ function update_detector.get_all()
 	local ret = {}
 	local all_content = pkgmgr.get_all()
 	for _, content in ipairs(all_content) do
+		assert(content.path and content.path ~= "")
 		local cdb_id = pkgmgr.get_contentdb_id(content)
 
-		if cdb_id then
+		-- Do not consider content that we cannot modify to be out-of-date.
+		-- This would be technically correct but confusing for the user.
+		if cdb_id and core.may_modify_path(content.path) then
 			-- The backend will account for aliases in `latest_releases`
 			local latest_release = latest_releases[cdb_id]
 			if not latest_release and content.type == "game" then

@@ -7,8 +7,6 @@
 #include "IGUIElement.h"
 #include "SColor.h"
 
-namespace irr
-{
 namespace gui
 {
 class IGUIFont;
@@ -141,11 +139,10 @@ public:
 
 	//! Set the blinktime for the cursor. 2x blinktime is one full cycle.
 	//** \param timeMs Blinktime in milliseconds. When set to 0 the cursor is constantly on without blinking */
-	virtual void setCursorBlinkTime(irr::u32 timeMs) = 0;
+	virtual void setCursorBlinkTime(u32 timeMs) = 0;
 
 	//! Get the cursor blinktime
-	virtual irr::u32 getCursorBlinkTime() const = 0;
+	virtual u32 getCursorBlinkTime() const = 0;
 };
 
 } // end namespace gui
-} // end namespace irr

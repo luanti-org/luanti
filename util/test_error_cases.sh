@@ -36,7 +36,7 @@ export ASAN_OPTIONS="exitcode=42"
 export MSAN_OPTIONS="exitcode=42"
 
 # see helper_mod/init.lua for the different types
-for n in $(seq 1 4); do
+for n in $(seq 1 6); do
 	write_config error_type=$n
 	run "$executable" "${args[@]}"
 	echo "---------------"

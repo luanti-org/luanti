@@ -637,9 +637,10 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 		// name="default_lava.png"
 		tiledef.name.clear();
 		getstringfield(L, index, "name", tiledef.name);
-		warn_if_field_exists(L, index, "image", "TileDef",
-			"Deprecated: new name is \"name\".");
-		getstringfield(L, index, "image", tiledef.name);
+		if (getstringfield(L, index, "image", tiledef.name)) {
+			log_deprecated(L, "Field \"image\" on TileDef is deprecated, "
+					"use \"name\" instead.", 2);
+		}
 
 		tiledef.backface_culling = getboolfield_default(
 			L, index, "backface_culling", default_culling);
@@ -797,16 +798,21 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	f.setDefaultAlphaMode();
 
-	warn_if_field_exists(L, index, "alpha", "node " + f.name,
-		"Obsolete, only limited compatibility provided; "
-		"replaced by \"use_texture_alpha\"");
-	if (getintfield_default(L, index, "alpha", 255) != 255)
-		f.alpha = ALPHAMODE_BLEND;
+	{
+		int alpha;
+		if (getintfield(L, index, "alpha", alpha)) {
+			log_deprecated(L, "Field \"alpha\" on node " + f.name + " is obsolete, "
+					"only limited compatibility provided; "
+					"replaced by \"use_texture_alpha\".", 2);
+			if (alpha != 255)
+				f.alpha = ALPHAMODE_BLEND;
+		}
+	}
 
 	lua_getfield(L, index, "use_texture_alpha");
 	if (lua_isboolean(L, -1)) {
-		warn_if_field_exists(L, index, "use_texture_alpha", "node " + f.name,
-			"Boolean values are deprecated; use the new choices");
+		log_deprecated(L, "Field \"use_texture_alpha\" on node " + f.name + ": "
+				"Boolean values are deprecated; use the new choices instead.", 2);
 		if (lua_toboolean(L, -1))
 			f.alpha = (f.drawtype == NDT_NORMAL) ? ALPHAMODE_CLIP : ALPHAMODE_BLEND;
 	} else if (check_field_or_nil(L, -1, LUA_TSTRING, "use_texture_alpha")) {
@@ -1358,22 +1364,6 @@ void pushnode(lua_State *L, const MapNode &n)
 	lua_pushinteger(L, n.getParam1());
 	lua_pushinteger(L, n.getParam2());
 	lua_call(L, 3, 1);
-}
-
-/******************************************************************************/
-void warn_if_field_exists(lua_State *L, int table, const char *fieldname,
-		std::string_view name, std::string_view message)
-{
-	lua_getfield(L, table, fieldname);
-	if (!lua_isnil(L, -1)) {
-		warningstream << "Field \"" << fieldname << "\"";
-		if (!name.empty()) {
-			warningstream << " on " << name;
-		}
-		warningstream << ": " << message << std::endl;
-		infostream << script_get_backtrace(L) << std::endl;
-	}
-	lua_pop(L, 1);
 }
 
 /******************************************************************************/

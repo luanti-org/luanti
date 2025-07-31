@@ -7,7 +7,7 @@
 #include "irrlichttypes_bloated.h"
 #include "clientsimpleobject.h"
 
-namespace irr::scene
+namespace scene
 {
 	class ISceneManager;
 }

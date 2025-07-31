@@ -337,10 +337,7 @@ void GUIEditBoxWithScrollBar::breakText()
 			line_break = true;
 			c = 0;
 			if (Text[i + 1] == L'\n') { // Windows breaks
-				// TODO: I (Michael) think that we shouldn't change the text given by the user for whatever reason.
-				// Instead rework the cursor positioning to be able to handle this (but not in stable release
-				// branch as users might already expect this behavior).
-				Text.erase(i + 1);
+				Text.erase(i);
 				--size;
 				if (m_cursor_pos > i)
 					--m_cursor_pos;
@@ -506,7 +503,7 @@ void GUIEditBoxWithScrollBar::calculateScrollPos()
 			return;
 
 		// get cursor area
-		irr::u32 cursor_width = font->getDimension(L"_").Width;
+		u32 cursor_width = font->getDimension(L"_").Width;
 		core::stringw *txt_line = has_broken_text ? &m_broken_text[curs_line] : &Text;
 		s32 cpos = has_broken_text ? m_cursor_pos - m_broken_text_positions[curs_line] : m_cursor_pos;	// column
 		s32 cstart = font->getDimension(txt_line->subString(0, cpos).c_str()).Width;		// pixels from text-start
@@ -537,9 +534,9 @@ void GUIEditBoxWithScrollBar::calculateScrollPos()
 
 	// calculate vertical scrolling
 	if (has_broken_text) {
-		irr::u32 line_height = font->getDimension(L"A").Height + font->getKerning(L'A').Y;
+		u32 line_height = font->getDimension(L"A").Height + font->getKerning(L'A').Y;
 		// only up to 1 line fits?
-		if (line_height >= (irr::u32)m_frame_rect.getHeight()) {
+		if (line_height >= (u32)m_frame_rect.getHeight()) {
 			m_vscroll_pos = 0;
 			setTextRect(curs_line);
 			s32 unscrolledPos = m_current_text_rect.UpperLeftCorner.Y;
@@ -630,7 +627,7 @@ void GUIEditBoxWithScrollBar::createVScrollBar()
 
 	m_scrollbar_width = skin ? skin->getSize(gui::EGDS_SCROLLBAR_SIZE) : 16;
 
-	irr::core::rect<s32> scrollbarrect = m_frame_rect;
+	core::rect<s32> scrollbarrect = m_frame_rect;
 	scrollbarrect.UpperLeftCorner.X += m_frame_rect.getWidth() - m_scrollbar_width;
 	m_vscrollbar = new GUIScrollBar(Environment, getParent(), -1,
 			scrollbarrect, false, true, m_tsrc);
@@ -653,5 +650,5 @@ bool GUIEditBoxWithScrollBar::isDrawBackgroundEnabled() const { return false; }
 bool GUIEditBoxWithScrollBar::isDrawBorderEnabled() const { return false; }
 void GUIEditBoxWithScrollBar::setCursorChar(const wchar_t cursorChar) { }
 wchar_t GUIEditBoxWithScrollBar::getCursorChar() const { return '|'; }
-void GUIEditBoxWithScrollBar::setCursorBlinkTime(irr::u32 timeMs) { }
-irr::u32 GUIEditBoxWithScrollBar::getCursorBlinkTime() const { return 500; }
+void GUIEditBoxWithScrollBar::setCursorBlinkTime(u32 timeMs) { }
+u32 GUIEditBoxWithScrollBar::getCursorBlinkTime() const { return 500; }

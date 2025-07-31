@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace irr::video
+namespace video
 {
 	class IImage;
 	class ITexture;

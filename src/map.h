@@ -307,16 +307,29 @@ public:
 	MMVManip(Map *map);
 	virtual ~MMVManip() = default;
 
-	virtual void clear()
-	{
-		VoxelManipulator::clear();
-		m_loaded_blocks.clear();
-	}
-
+	/*
+		Loads specified area from map and *adds* it to the area already
+		contained in the VManip.
+	*/
 	void initialEmerge(v3s16 blockpos_min, v3s16 blockpos_max,
 		bool load_if_inexistent = true);
 
-	// This is much faster with big chunks of generated data
+	/**
+		Uses the flags array to determine which blocks the VManip covers,
+		and for which of them we have any data.
+		@warning requires VManip area to be block-aligned
+		@return map of blockpos -> any data?
+	*/
+	std::map<v3s16, bool> getCoveredBlocks() const;
+
+	/**
+		Writes data in VManip back to the map. Blocks without any data in the VManip
+		are skipped.
+		@note VOXELFLAG_NO_DATA is checked per-block, not per-node. So you need
+		to ensure that the relevant parts of m_data are initialized.
+		@param modified_blocks output array of touched blocks (optional)
+		@param overwrite_generated if false, blocks marked as generate in the map are not changed
+	*/
 	void blitBackAll(std::map<v3s16, MapBlock*> * modified_blocks,
 		bool overwrite_generated = true) const;
 
@@ -339,13 +352,4 @@ protected:
 
 	// may be null
 	Map *m_map = nullptr;
-	/*
-		key = blockpos
-		value = flags describing the block
-	*/
-	std::map<v3s16, u8> m_loaded_blocks;
-
-	enum : u8 {
-		VMANIP_BLOCK_DATA_INEXIST = 1 << 0,
-	};
 };

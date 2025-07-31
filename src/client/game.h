@@ -6,6 +6,7 @@
 
 #include "irrlichttypes.h"
 #include "config.h"
+#include <csignal>
 #include <string>
 
 #if !IS_CLIENT_BUILD
@@ -36,7 +37,7 @@ struct CameraOrientation {
 #define GAME_FALLBACK_TIMEOUT 1.8f
 #define GAME_CONNECTION_TIMEOUT 10.0f
 
-void the_game(bool *kill,
+void the_game(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,

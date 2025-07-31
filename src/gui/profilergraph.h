@@ -10,7 +10,7 @@
 #include <IGUIFont.h>
 #include "profiler.h"
 
-namespace irr::video {
+namespace video {
 	class IVideoDriver;
 }
 

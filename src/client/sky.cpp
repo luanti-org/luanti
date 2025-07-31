@@ -20,7 +20,7 @@
 #include "settings.h"
 #include "camera.h" // CameraModes
 
-using namespace irr::core;
+using namespace core;
 
 static video::SMaterial baseMaterial()
 {
@@ -140,7 +140,7 @@ void Sky::render()
 		video::SColor mooncolor2 = mooncolor2_f.toSColor();
 
 		// Calculate offset normalized to the X dimension of a 512x1 px tonemap
-		float offset = (1.0 - fabs(sin((m_time_of_day - 0.5) * irr::core::PI))) * 511;
+		float offset = (1.0 - fabs(sin((m_time_of_day - 0.5) * core::PI))) * 511;
 
 		if (m_sun_tonemap) {
 			auto texel_color = m_sun_tonemap->getPixel(offset, 0);
@@ -711,6 +711,7 @@ static void getTextureAsImage(video::IImage *&dst, const std::string &name, ITex
 		dst = nullptr;
 	}
 	if (tsrc->isKnownSourceImage(name)) {
+		infostream << "Sky: loading image " << name << std::endl;
 		auto *texture = tsrc->getTexture(name);
 		assert(texture);
 		auto *driver = RenderingEngine::get_video_driver();
@@ -726,7 +727,7 @@ void Sky::setSunTexture(const std::string &sun_texture,
 {
 	// Ignore matching textures (with modifiers) entirely,
 	// but lets at least update the tonemap before hand.
-	if (m_sun_params.tonemap != sun_tonemap) {
+	if (m_sun_params.tonemap != sun_tonemap || m_first_update) {
 		m_sun_params.tonemap = sun_tonemap;
 		getTextureAsImage(m_sun_tonemap, sun_tonemap, tsrc);
 	}
@@ -756,7 +757,7 @@ void Sky::setSunriseTexture(const std::string &sunglow_texture,
 		ITextureSource* tsrc)
 {
 	// Ignore matching textures (with modifiers) entirely.
-	if (m_sun_params.sunrise == sunglow_texture)
+	if (m_sun_params.sunrise == sunglow_texture && !m_first_update)
 		return;
 	m_sun_params.sunrise = sunglow_texture;
 	m_materials[2].setTexture(0, tsrc->getTextureForMesh(
@@ -769,7 +770,7 @@ void Sky::setMoonTexture(const std::string &moon_texture,
 {
 	// Ignore matching textures (with modifiers) entirely,
 	// but lets at least update the tonemap before hand.
-	if (m_moon_params.tonemap != moon_tonemap) {
+	if (m_moon_params.tonemap != moon_tonemap || m_first_update) {
 		m_moon_params.tonemap = moon_tonemap;
 		getTextureAsImage(m_moon_tonemap, moon_tonemap, tsrc);
 	}

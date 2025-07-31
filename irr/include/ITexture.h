@@ -10,8 +10,6 @@
 #include "EDriverTypes.h"
 #include "path.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -292,4 +290,3 @@ protected:
 };
 
 } // end namespace video
-} // end namespace irr

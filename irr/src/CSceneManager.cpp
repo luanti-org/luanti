@@ -8,7 +8,6 @@
 #include "CSceneManager.h"
 #include "IVideoDriver.h"
 #include "IFileSystem.h"
-#include "SAnimatedMesh.h"
 #include "CMeshCache.h"
 #include "IGUIEnvironment.h"
 #include "IMaterialRenderer.h"
@@ -31,8 +30,6 @@
 
 #include "CSceneCollisionManager.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -772,4 +769,3 @@ ISceneManager *createSceneManager(video::IVideoDriver *driver, gui::ICursorContr
 }
 
 } // end namespace scene
-} // end namespace irr

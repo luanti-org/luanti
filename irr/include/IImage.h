@@ -10,8 +10,6 @@
 #include "SColor.h"
 #include <cstring>
 
-namespace irr
-{
 namespace video
 {
 
@@ -208,14 +206,6 @@ public:
 	//! copies this surface into another
 	virtual void copyTo(IImage *target, const core::position2d<s32> &pos, const core::rect<s32> &sourceRect, const core::rect<s32> *clipRect = 0) = 0;
 
-	//! copies this surface into another, using the alpha mask and cliprect and a color to add with
-	/**	\param combineAlpha - When true then combine alpha channels. When false replace target image alpha with source image alpha.
-	*/
-	virtual void copyToWithAlpha(IImage *target, const core::position2d<s32> &pos,
-			const core::rect<s32> &sourceRect, const SColor &color,
-			const core::rect<s32> *clipRect = 0,
-			bool combineAlpha = false) = 0;
-
 	//! copies this surface into another, scaling it to fit, applying a box filter
 	virtual void copyToScalingBoxFilter(IImage *target, s32 bias = 0, bool blend = false) = 0;
 
@@ -332,4 +322,3 @@ protected:
 };
 
 } // end namespace video
-} // end namespace irr

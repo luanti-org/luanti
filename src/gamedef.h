@@ -23,7 +23,7 @@ struct SubgameSpec;
 struct ModSpec;
 struct ModIPCStore;
 
-namespace irr::scene {
+namespace scene {
 	class IAnimatedMesh;
 	class ISceneManager;
 }

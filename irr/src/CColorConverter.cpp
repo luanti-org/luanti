@@ -16,8 +16,6 @@
 // convert_A1R5G5B5toR8G8B8 converts 0bARRRRRGGGGGBBBBB into [R][G][B].
 // This also means many conversions may be broken on big endian.
 
-namespace irr
-{
 namespace video
 {
 
@@ -650,4 +648,3 @@ void CColorConverter::convert_viaFormat(const void *sP, ECOLOR_FORMAT sF, s32 sN
 }
 
 } // end namespace video
-} // end namespace irr

@@ -11,8 +11,6 @@
 #include "IVideoDriver.h"
 #include "IGUISpriteBank.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -396,4 +394,3 @@ IGUISpriteBank *CGUIFont::getSpriteBank() const
 }
 
 } // end namespace gui
-} // end namespace irr

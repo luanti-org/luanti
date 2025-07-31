@@ -11,8 +11,6 @@
 #include "matrix4.h"
 #include "EVideoTypes.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -446,4 +444,3 @@ inline void SViewFrustum::recalculateBoundingSphere()
 }
 
 } // end namespace scene
-} // end namespace irr

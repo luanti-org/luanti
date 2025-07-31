@@ -11,8 +11,6 @@
 #include "coreutil.h"
 #include "os.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -251,5 +249,4 @@ IImageLoader *createImageLoaderPNG()
 	return new CImageLoaderPng();
 }
 
-} // end namespace irr
 } // end namespace video

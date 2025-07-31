@@ -11,8 +11,6 @@
 #include "IGUIElement.h"
 #include "IVideoDriver.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -876,4 +874,3 @@ void CGUISkin::getColors(video::SColor* colors)
 // END PATCH
 
 } // end namespace gui
-} // end namespace irr

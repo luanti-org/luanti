@@ -31,16 +31,6 @@ struct TextDestNodeMetadata : public TextDest
 		m_p = p;
 		m_client = client;
 	}
-	// This is deprecated I guess? -celeron55
-	void gotText(const std::wstring &text)
-	{
-		std::string ntext = wide_to_utf8(text);
-		infostream << "Submitting 'text' field of node at (" << m_p.X << ","
-			   << m_p.Y << "," << m_p.Z << "): " << ntext << std::endl;
-		StringMap fields;
-		fields["text"] = ntext;
-		m_client->sendNodemetaFields(m_p, "", fields);
-	}
 	void gotText(const StringMap &fields)
 	{
 		m_client->sendNodemetaFields(m_p, "", fields);
@@ -188,6 +178,10 @@ public:
 	const std::string &getForm() const
 	{
 		LocalPlayer *player = m_client->getEnv().getLocalPlayer();
+
+		if (!player->inventory_formspec_override.empty())
+			return player->inventory_formspec_override;
+
 		return player->inventory_formspec;
 	}
 
@@ -314,7 +308,7 @@ void GameFormSpec::showNodeFormspec(const std::string &formspec, const v3s16 &no
 	m_formspec->setFormSpec(formspec, inventoryloc);
 }
 
-void GameFormSpec::showPlayerInventory()
+void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 {
 	/*
 	 * Don't permit to open inventory is CAO or player doesn't exists.
@@ -327,28 +321,35 @@ void GameFormSpec::showPlayerInventory()
 
 	infostream << "Game: Launching inventory" << std::endl;
 
-	PlayerInventoryFormSource *fs_src = new PlayerInventoryFormSource(m_client);
+	auto fs_src = std::make_unique<PlayerInventoryFormSource>(m_client);
 
 	InventoryLocation inventoryloc;
 	inventoryloc.setCurrentPlayer();
 
-	if (m_client->modsLoaded() && m_client->getScript()->on_inventory_open(m_client->getInventory(inventoryloc))) {
-		delete fs_src;
-		return;
+	if (fs_override) {
+		// Temporary overwrite for this specific formspec.
+		player->inventory_formspec_override = *fs_override;
+	} else {
+		// Show the regular inventory formspec
+		player->inventory_formspec_override.clear();
 	}
 
-	if (fs_src->getForm().empty()) {
-		delete fs_src;
+	// If prevented by Client-Side Mods
+	if (m_client->modsLoaded() && m_client->getScript()->on_inventory_open(m_client->getInventory(inventoryloc)))
 		return;
-	}
+
+	// Empty formspec -> do not show.
+	if (fs_src->getForm().empty())
+		return;
 
 	TextDest *txt_dst = new TextDestPlayerInventory(m_client);
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
-		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
+		&m_input->joystick, fs_src.get(), txt_dst, m_client->getFormspecPrepend(),
 		m_client->getSoundManager());
 
 	m_formspec->setFormSpec(fs_src->getForm(), inventoryloc);
+	fs_src.release(); // owned by GUIFormSpecMenu
 }
 
 #define SIZE_TAG "size[11,5.5,true]" // Fixed size (ignored in touchscreen mode)
@@ -562,8 +563,10 @@ bool GameFormSpec::handleCallbacks()
 #ifdef __ANDROID__
 bool GameFormSpec::handleAndroidUIInput()
 {
-	if (m_formspec) {
-		m_formspec->getAndroidUIInput();
+	// FIXME: m_formspec and this value are not in sync at all times.
+	GUIModalMenu *menu = g_menumgr.tryGetTopMenu();
+	if (menu) {
+		menu->getAndroidUIInput();
 		return true;
 	}
 	return false;
