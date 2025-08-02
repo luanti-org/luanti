@@ -2083,7 +2083,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 
 		lua_getfield(L, 2, "textures");
 		sky_params.textures.clear();
-		if (lua_istable(L, -1) && sky_params.type == "skybox") {
+		if (lua_istable(L, -1) && sky_params.isTextured()) {
 			lua_pushnil(L);
 			while (lua_next(L, -2) != 0) {
 				// Key is at index -2 and value at index -1
@@ -2177,7 +2177,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 
 		// Preserve old behavior of the sun, moon and stars
 		// when using the old set_sky call.
-		if (sky_params.type == "regular") {
+		if (sky_params.hasAlpha()) {
 			sun_params.visible = true;
 			sun_params.sunrise_visible = true;
 			moon_params.visible = true;
@@ -2199,7 +2199,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 				lua_pop(L, 1);
 			}
 		}
-		if (sky_params.type == "skybox" && sky_params.textures.size() != 6)
+		if (sky_params.isTextured() && sky_params.textures.size() != 6)
 			throw LuaError("Skybox expects 6 textures.");
 
 		sky_params.clouds = true;
@@ -2218,7 +2218,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 static void push_sky_color(lua_State *L, const SkyboxParams &params)
 {
 	lua_newtable(L);
-	if (params.type == "regular") {
+	if (params.hasAlpha()) {
 		push_ARGB8(L, params.sky_color.day_sky);
 		lua_setfield(L, -2, "day_sky");
 		push_ARGB8(L, params.sky_color.day_horizon);

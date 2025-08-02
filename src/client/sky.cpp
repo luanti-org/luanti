@@ -93,6 +93,45 @@ void Sky::OnRegisterSceneNode()
 	scene::ISceneNode::OnRegisterSceneNode();
 }
 
+void Sky::renderTextures(video::IVideoDriver *driver)
+{
+	const f32 t = 1.0f;
+	const f32 o = 0.0f;
+	static const u16 indices[6] = {0, 1, 2, 0, 2, 3};
+	video::S3DVertex vertices[4];
+
+	for (u32 j = 5; j < 11; j++) {
+		video::SColor c(255, 255, 255, 255);
+		driver->setMaterial(m_materials[j]);
+		// Use 1.05 rather than 1.0 to avoid colliding with the
+		// sun, moon and stars, as this is a background skybox.
+		vertices[0] = video::S3DVertex(-1.05, -1.05, -1.05, 0, 0, 1, c, t, t);
+		vertices[1] = video::S3DVertex( 1.05, -1.05, -1.05, 0, 0, 1, c, o, t);
+		vertices[2] = video::S3DVertex( 1.05,  1.05, -1.05, 0, 0, 1, c, o, o);
+		vertices[3] = video::S3DVertex(-1.05,  1.05, -1.05, 0, 0, 1, c, t, o);
+		for (video::S3DVertex &vertex : vertices) {
+			if (j == 5) { // Top texture
+				vertex.Pos.rotateYZBy(90);
+				vertex.Pos.rotateXZBy(90);
+			} else if (j == 6) { // Bottom texture
+				vertex.Pos.rotateYZBy(-90);
+				vertex.Pos.rotateXZBy(90);
+			} else if (j == 7) { // Left texture
+				vertex.Pos.rotateXZBy(90);
+			} else if (j == 8) { // Right texture
+				vertex.Pos.rotateXZBy(-90);
+			} else if (j == 9) { // Front texture, do nothing
+				// Irrlicht doesn't like it when vertexes are left
+				// alone and not rotated for some reason.
+				vertex.Pos.rotateXZBy(0);
+			} else {// Back texture
+				vertex.Pos.rotateXZBy(180);
+			}
+		}
+		driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
+	}
+}
+
 void Sky::render()
 {
 	video::IVideoDriver *driver = SceneManager->getVideoDriver();
@@ -170,42 +209,13 @@ void Sky::render()
 		if (m_in_clouds)
 			return;
 
-		// Draw the six sided skybox,
-		if (m_sky_params.textures.size() == 6) {
-			for (u32 j = 5; j < 11; j++) {
-				video::SColor c(255, 255, 255, 255);
-				driver->setMaterial(m_materials[j]);
-				// Use 1.05 rather than 1.0 to avoid colliding with the
-				// sun, moon and stars, as this is a background skybox.
-				vertices[0] = video::S3DVertex(-1.05, -1.05, -1.05, 0, 0, 1, c, t, t);
-				vertices[1] = video::S3DVertex( 1.05, -1.05, -1.05, 0, 0, 1, c, o, t);
-				vertices[2] = video::S3DVertex( 1.05,  1.05, -1.05, 0, 0, 1, c, o, o);
-				vertices[3] = video::S3DVertex(-1.05,  1.05, -1.05, 0, 0, 1, c, t, o);
-				for (video::S3DVertex &vertex : vertices) {
-					if (j == 5) { // Top texture
-						vertex.Pos.rotateYZBy(90);
-						vertex.Pos.rotateXZBy(90);
-					} else if (j == 6) { // Bottom texture
-						vertex.Pos.rotateYZBy(-90);
-						vertex.Pos.rotateXZBy(90);
-					} else if (j == 7) { // Left texture
-						vertex.Pos.rotateXZBy(90);
-					} else if (j == 8) { // Right texture
-						vertex.Pos.rotateXZBy(-90);
-					} else if (j == 9) { // Front texture, do nothing
-						// Irrlicht doesn't like it when vertexes are left
-						// alone and not rotated for some reason.
-						vertex.Pos.rotateXZBy(0);
-					} else {// Back texture
-						vertex.Pos.rotateXZBy(180);
-					}
-				}
-				driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
-			}
-		}
+		// Draw the six sided skybox, solid or transparent background.
+		if (m_sky_params.type == "skybox" || m_sky_params.type == "skybox_back")
+			renderTextures(driver);
 
 		// Draw far cloudy fog thing blended with skycolor
-		if (m_visible) {
+		// Disabled when using a textured skybox to prevent clipping
+		if (m_visible && !m_sky_params.isTextured()) {
 			driver->setMaterial(m_materials[1]);
 			for (u32 j = 0; j < 4; j++) {
 				vertices[0] = video::S3DVertex(-1, -0.02, -1, 0, 0, 1, m_bgcolor, t, t);
@@ -268,9 +278,9 @@ void Sky::render()
 		if (m_moon_params.visible)
 			draw_moon(driver, mooncolor, mooncolor2, wicked_time_of_day);
 
-		// Draw far cloudy fog thing below all horizons in front of sun, moon
-		// and stars.
-		if (m_visible) {
+		// Draw far cloudy fog thing below all horizons in front of sun, moon and stars.
+		// Disabled when using a textured skybox to prevent clipping
+		if (m_visible && !m_sky_params.isTextured()) {
 			driver->setMaterial(m_materials[1]);
 
 			for (u32 j = 0; j < 4; j++) {
@@ -304,6 +314,10 @@ void Sky::render()
 			vertices[3] = video::S3DVertex(-1, -1.0, 1, 0, 1, 0, c, t, o);
 			driver->drawIndexedTriangleList(&vertices[0], 4, indices, 2);
 		}
+
+		// Draw the six sided skybox, transparent foreground.
+		if (m_sky_params.type == "skybox_front")
+			renderTextures(driver);
 	}
 }
 
@@ -872,7 +886,7 @@ void Sky::setHorizonTint(video::SColor sun_tint, video::SColor moon_tint,
 }
 
 void Sky::addTextureToSkybox(const std::string &texture, int material_id,
-		ITextureSource *tsrc)
+		ITextureSource *tsrc, bool transparent)
 {
 	// Sanity check for more than six textures.
 	if (material_id + 5 >= SKY_MATERIAL_COUNT)
@@ -882,7 +896,7 @@ void Sky::addTextureToSkybox(const std::string &texture, int material_id,
 	video::ITexture *result = tsrc->getTextureForMesh(texture);
 	m_materials[material_id+5] = baseMaterial();
 	m_materials[material_id+5].setTexture(0, result);
-	m_materials[material_id+5].MaterialType = video::EMT_SOLID;
+	m_materials[material_id+5].MaterialType = transparent ? video::EMT_TRANSPARENT_ALPHA_CHANNEL : video::EMT_SOLID;
 }
 
 float getWickedTimeOfDay(float time_of_day)
