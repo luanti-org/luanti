@@ -30,6 +30,7 @@ public:
 		delete m_itemdef;
 	}
 
+	bool isClient() override { return false; }
 	IItemDefManager *getItemDefManager() override { return m_itemdef; }
 	const NodeDefManager *getNodeDefManager() override { return m_nodedef; }
 	NodeDefManager* getWritableNodeDefManager() { return m_nodedef; }
