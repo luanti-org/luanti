@@ -124,7 +124,7 @@ void GUIEditBox::setMax(u32 max)
 	m_max = max;
 
 	if (Text.size() > m_max && m_max != 0)
-		Text = Text.subString(0, m_max);
+		Text = Text.substr(0, m_max);
 }
 
 //! Gets the area of the text in the edit box
@@ -168,7 +168,7 @@ void GUIEditBox::setTextMarkers(s32 begin, s32 end)
 			const s32 realmbgn = m_mark_begin < m_mark_end ? m_mark_begin : m_mark_end;
 			const s32 realmend = m_mark_begin < m_mark_end ? m_mark_end : m_mark_begin;
 
-			std::string s = stringw_to_utf8(Text.subString(realmbgn, realmend - realmbgn));
+			std::string s = stringw_to_utf8(Text.substr(realmbgn, realmend - realmbgn).getString().c_str());
 			m_operator->copyToPrimarySelection(s.c_str());
 		}
 
@@ -446,7 +446,7 @@ bool GUIEditBox::onKeyUp(const SEvent &event, s32 &mark_begin, s32 &mark_end)
 			s32 cp = m_cursor_pos - m_broken_text_positions[lineNo];
 			if ((s32)m_broken_text[lineNo - 1].size() < cp) {
 				m_cursor_pos = m_broken_text_positions[lineNo - 1] +
-					core::max_((u32)1, m_broken_text[lineNo - 1].size()) - 1;
+					core::max_((size_t)1, m_broken_text[lineNo - 1].size()) - 1;
 			}
 			else
 				m_cursor_pos = m_broken_text_positions[lineNo - 1] + cp;
@@ -476,7 +476,7 @@ bool GUIEditBox::onKeyDown(const SEvent &event, s32 &mark_begin, s32 &mark_end)
 			s32 cp = m_cursor_pos - m_broken_text_positions[lineNo];
 			if ((s32)m_broken_text[lineNo + 1].size() < cp) {
 				m_cursor_pos = m_broken_text_positions[lineNo + 1] +
-					core::max_((u32)1, m_broken_text[lineNo + 1].size()) - 1;
+					core::max_((size_t)1, m_broken_text[lineNo + 1].size()) - 1;
 			}
 			else
 				m_cursor_pos = m_broken_text_positions[lineNo + 1] + cp;
@@ -505,7 +505,7 @@ void GUIEditBox::onKeyControlC(const SEvent &event)
 	const s32 realmbgn = m_mark_begin < m_mark_end ? m_mark_begin : m_mark_end;
 	const s32 realmend = m_mark_begin < m_mark_end ? m_mark_end : m_mark_begin;
 
-	std::string s = stringw_to_utf8(Text.subString(realmbgn, realmend - realmbgn));
+	std::string s = stringw_to_utf8(Text.substr(realmbgn, realmend - realmbgn).getString().c_str());
 	m_operator->copyToClipboard(s.c_str());
 }
 
@@ -526,9 +526,9 @@ bool GUIEditBox::onKeyControlX(const SEvent &event, s32 &mark_begin, s32 &mark_e
 	// Now remove from box if enabled
 	if (isEnabled()) {
 		// delete
-		core::stringw s;
-		s = Text.subString(0, realmbgn);
-		s.append(Text.subString(realmend, Text.size() - realmend));
+		EnrichedString s;
+		s = Text.substr(0, realmbgn);
+		s += (Text.substr(realmend, Text.size() - realmend));
 		Text = s;
 
 		m_cursor_pos = realmbgn;
@@ -557,9 +557,9 @@ bool GUIEditBox::onKeyControlV(const SEvent &event, s32 &mark_begin, s32 &mark_e
 		core::stringw inserted_text = utf8_to_stringw(p);
 		if (m_mark_begin == m_mark_end) {
 			// insert text
-			core::stringw s = Text.subString(0, m_cursor_pos);
-			s.append(inserted_text);
-			s.append(Text.subString(
+			EnrichedString s = Text.substr(0, m_cursor_pos);
+			s += std::wstring_view(inserted_text.c_str());
+			s += (Text.substr(
 					m_cursor_pos, Text.size() - m_cursor_pos));
 
 			if (!m_max || s.size() <= m_max) {
@@ -569,9 +569,9 @@ bool GUIEditBox::onKeyControlV(const SEvent &event, s32 &mark_begin, s32 &mark_e
 		} else {
 			// replace text
 
-			core::stringw s = Text.subString(0, realmbgn);
-			s.append(inserted_text);
-			s.append(Text.subString(realmend, Text.size() - realmend));
+			EnrichedString s = Text.substr(0, realmbgn);
+			s += std::wstring_view(inserted_text.c_str());
+			s += (Text.substr(realmend, Text.size() - realmend));
 
 			if (!m_max || s.size() <= m_max) {
 				Text = s;
@@ -590,7 +590,7 @@ bool GUIEditBox::onKeyBack(const SEvent &event, s32 &mark_begin, s32 &mark_end)
 	if (!isEnabled() || Text.empty() || !m_writable)
 		return false;
 
-	core::stringw s;
+	EnrichedString s;
 
 	if (m_mark_begin != m_mark_end) {
 		// delete marked text
@@ -599,18 +599,18 @@ bool GUIEditBox::onKeyBack(const SEvent &event, s32 &mark_begin, s32 &mark_end)
 		const s32 realmend =
 				m_mark_begin < m_mark_end ? m_mark_end : m_mark_begin;
 
-		s = Text.subString(0, realmbgn);
-		s.append(Text.subString(realmend, Text.size() - realmend));
+		s = Text.substr(0, realmbgn);
+		s += (Text.substr(realmend, Text.size() - realmend));
 		Text = s;
 
 		m_cursor_pos = realmbgn;
 	} else {
 		// delete text behind cursor
 		if (m_cursor_pos > 0)
-			s = Text.subString(0, m_cursor_pos - 1);
+			s = Text.substr(0, m_cursor_pos - 1);
 		else
 			s = L"";
-		s.append(Text.subString(m_cursor_pos, Text.size() - m_cursor_pos));
+		s += (Text.substr(m_cursor_pos, Text.size() - m_cursor_pos));
 		Text = s;
 		--m_cursor_pos;
 	}
@@ -628,7 +628,7 @@ bool GUIEditBox::onKeyDelete(const SEvent &event, s32 &mark_begin, s32 &mark_end
 	if (!isEnabled() || Text.empty() || !m_writable)
 		return false;
 
-	core::stringw s;
+	EnrichedString s;
 
 	if (m_mark_begin != m_mark_end) {
 		// delete marked text
@@ -637,15 +637,15 @@ bool GUIEditBox::onKeyDelete(const SEvent &event, s32 &mark_begin, s32 &mark_end
 		const s32 realmend =
 				m_mark_begin < m_mark_end ? m_mark_end : m_mark_begin;
 
-		s = Text.subString(0, realmbgn);
-		s.append(Text.subString(realmend, Text.size() - realmend));
+		s = Text.substr(0, realmbgn);
+		s += (Text.substr(realmend, Text.size() - realmend));
 		Text = s;
 
 		m_cursor_pos = realmbgn;
 	} else {
 		// delete text before cursor
-		s = Text.subString(0, m_cursor_pos);
-		s.append(Text.subString(
+		s = Text.substr(0, m_cursor_pos);
+		s += (Text.substr(
 				m_cursor_pos + 1, Text.size() - m_cursor_pos - 1));
 		Text = s;
 	}
@@ -674,22 +674,22 @@ void GUIEditBox::inputString(const core::stringw &str)
 
 	u32 len = str.size();
 	if (Text.size()+len <= m_max || m_max == 0) {
-		core::stringw s;
+		EnrichedString s;
 		if (m_mark_begin != m_mark_end) {
 			// replace marked text
 			s32 real_begin = m_mark_begin < m_mark_end ? m_mark_begin : m_mark_end;
 			s32 real_end = m_mark_begin < m_mark_end ? m_mark_end : m_mark_begin;
 
-			s = Text.subString(0, real_begin);
-			s.append(str);
-			s.append(Text.subString(real_end, Text.size() - real_end));
+			s = Text.substr(0, real_begin);
+			s += std::wstring_view(str.c_str());
+			s += (Text.substr(real_end, Text.size() - real_end));
 			Text = s;
 			m_cursor_pos = real_begin + len;
 		} else {
 			// append string
-			s = Text.subString(0, m_cursor_pos);
-			s.append(str);
-			s.append(Text.subString(m_cursor_pos,
+			s = Text.substr(0, m_cursor_pos);
+			s += std::wstring_view(str.c_str());
+			s += (Text.substr(m_cursor_pos,
 					Text.size() - m_cursor_pos));
 			Text = s;
 			m_cursor_pos += len;
