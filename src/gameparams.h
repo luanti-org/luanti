@@ -6,6 +6,7 @@
 
 #include "irrlichttypes.h"
 #include "content/subgames.h"
+#include "porting.h"
 
 // Information provided from "main"
 struct GameParams
@@ -33,7 +34,6 @@ struct GameStartData : GameParams
 	bool isSinglePlayer() const { return address.empty() && !local_server; }
 
 	std::string name;
-	std::string password;
 	// If empty, we're hosting a server.
 	// This may or may not be in "simple singleplayer mode".
 	std::string address;
