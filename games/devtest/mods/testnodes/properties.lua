@@ -209,6 +209,49 @@ core.register_node("testnodes:climbable", {
 	groups = {dig_immediate=3},
 })
 
+minetest.register_node("testnodes:climbable_fast", {
+	description = S("Fast Climbable Node").."\n"..
+		S("You can climb up and down, faster than usual"),
+	climbable = true,
+	climb_factor = 2.0,
+	walkable = false,
+
+
+	paramtype = "light",
+	sunlight_propagates = true,
+	is_ground_content = false,
+	tiles = {
+		"testnodes_climbable_top.png^[colorize:#FFFFFF:140",
+		"testnodes_climbable_top.png^[colorize:#FFFFFF:140",
+		"testnodes_climbable_side.png^[colorize:#FFFFFF:140"
+	},
+	use_texture_alpha = "clip",
+	drawtype = "nodebox",
+	node_box = climbable_nodebox,
+	groups = {dig_immediate=3},
+})
+minetest.register_node("testnodes:climbable_slow", {
+	description = S("Slow Climbable Node").."\n"..
+		S("You can climb up and down, slower than usual"),
+	climbable = true,
+	climb_factor = 0.5,
+	walkable = false,
+
+
+	paramtype = "light",
+	sunlight_propagates = true,
+	is_ground_content = false,
+	tiles = {
+		"testnodes_climbable_top.png^[colorize:#000000:140",
+		"testnodes_climbable_top.png^[colorize:#000000:140",
+		"testnodes_climbable_side.png^[colorize:#000000:140"
+	},
+	use_texture_alpha = "clip",
+	drawtype = "nodebox",
+	node_box = climbable_nodebox,
+	groups = {dig_immediate=3},
+})
+
 -- Climbable only downwards with sneak key
 core.register_node("testnodes:climbable_nojump", {
 	description = S("Downwards-climbable Node").."\n"..
@@ -219,7 +262,11 @@ core.register_node("testnodes:climbable_nojump", {
 	groups = {disable_jump=1, dig_immediate=3},
 	drawtype = "nodebox",
 	node_box = climbable_nodebox,
-	tiles = {"testnodes_climbable_nojump_top.png","testnodes_climbable_nojump_top.png","testnodes_climbable_nojump_side.png"},
+	tiles = {
+		"testnodes_climbable_nojump_top.png",
+		"testnodes_climbable_nojump_top.png",
+		"testnodes_climbable_nojump_side.png"
+	},
 	use_texture_alpha = "clip",
 	paramtype = "light",
 	sunlight_propagates = true,
@@ -227,28 +274,38 @@ core.register_node("testnodes:climbable_nojump", {
 
 
 core.register_node("testnodes:climbable_nodescend", {
-	description = S("Upwards-climbable Node"),
+	description = S("Upwards-climbable Node").."\n"..
+		S("You can climb only upwards"),
 	climbable = true,
 	walkable = false,
 
 	groups = {disable_descend=1, dig_immediate=3},
 	drawtype = "nodebox",
 	node_box = climbable_nodebox,
-	tiles = {"testnodes_climbable_nodescend_top.png","testnodes_climbable_nodescend_top.png","testnodes_climbable_nodescend_side.png"},
+	tiles = {
+		"testnodes_climbable_nodescend_top.png",
+		"testnodes_climbable_nodescend_top.png",
+		"testnodes_climbable_nodescend_side.png"
+	},
 	use_texture_alpha = "clip",
 	paramtype = "light",
 	sunlight_propagates = true,
 })
 
 core.register_node("testnodes:climbable_nodescend_nojump", {
-	description = S("Horizontal-only Climbable Node"),
+	description = S("Horizontal-only Climbable Node").."\n"..
+		S("You hold on to this node but can't climb vertically"),
 	climbable = true,
 	walkable = false,
 
 	groups = {disable_jump=1, disable_descend=1, dig_immediate=3},
 	drawtype = "nodebox",
 	node_box = climbable_nodebox,
-	tiles = {"testnodes_climbable_noclimb_top.png","testnodes_climbable_noclimb_top.png","testnodes_climbable_noclimb_side.png"},
+	tiles = {
+		"testnodes_climbable_noclimb_top.png",
+		"testnodes_climbable_noclimb_top.png",
+		"testnodes_climbable_noclimb_side.png"
+	},
 	use_texture_alpha = "clip",
 	paramtype = "light",
 	sunlight_propagates = true,
