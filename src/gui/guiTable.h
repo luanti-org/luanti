@@ -85,7 +85,7 @@ public:
 	void setTextList(const std::vector<std::string> &content,
 			bool transparent);
 
-	/* Set generic table options, columns and content */
+	/** Set generic table options, columns and content, calculate cell sizes */
 	// Adds empty strings to end of content if there is an incomplete row
 	void setTable(const TableOptions &options,
 			const TableColumns &columns,

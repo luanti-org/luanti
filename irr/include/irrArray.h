@@ -11,8 +11,6 @@
 #include "irrTypes.h"
 #include "irrMath.h"
 
-namespace irr
-{
 namespace core
 {
 
@@ -24,7 +22,7 @@ class array
 {
 public:
 	static_assert(!std::is_same<T, bool>::value,
-			"irr::core::array<T> with T = bool not supported. Use std::vector instead.");
+			"core::array<T> with T = bool not supported. Use std::vector instead.");
 
 	//! Default constructor for empty array.
 	array() :
@@ -407,4 +405,3 @@ private:
 };
 
 } // end namespace core
-} // end namespace irr

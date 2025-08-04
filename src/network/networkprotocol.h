@@ -16,7 +16,13 @@ constexpr u16 CLIENT_PROTOCOL_VERSION_MIN = 37;
 
 extern const u16 FORMSPEC_API_VERSION;
 
+// (applies to all media files, not just textures)
 #define TEXTURENAME_ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-"
+
+// Due to our network protocol the maximum window size determines the maximum
+// media size we can safely allow. See the comment and check in Connection::Send().
+// This is a bit lower to include safety margin.
+#define MEDIAFILE_MAX_SIZE (16700000U)
 
 typedef u16 session_t;
 

@@ -15,8 +15,6 @@
 #include <GL/glext.h>
 #include <GL/glxext.h>
 
-namespace irr
-{
 namespace video
 {
 
@@ -391,7 +389,6 @@ bool CGLXManager::swapBuffers()
 	return true;
 }
 
-}
 }
 
 #endif

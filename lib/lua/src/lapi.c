@@ -30,7 +30,6 @@
 #include "lvm.h"
 
 
-
 const char lua_ident[] =
   "$Lua: " LUA_RELEASE " " LUA_COPYRIGHT " $\n"
   "$Authors: " LUA_AUTHORS " $\n"

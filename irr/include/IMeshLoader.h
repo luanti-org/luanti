@@ -7,8 +7,6 @@
 #include "IReferenceCounted.h"
 #include "path.h"
 
-namespace irr
-{
 namespace io
 {
 class IReadFile;
@@ -47,4 +45,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

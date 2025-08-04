@@ -12,8 +12,6 @@
 #include "rect.h"
 #include "os.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -922,5 +920,4 @@ void CGUITabControl::updateAbsolutePosition()
 	recalculateScrollBar();
 }
 
-} // end namespace irr
 } // end namespace gui

@@ -6,8 +6,6 @@
 
 #include "irrTypes.h"
 
-namespace irr
-{
 namespace io
 {
 
@@ -27,4 +25,3 @@ enum EREAD_FILE_TYPE
 	EFIT_UNKNOWN = MAKE_IRR_ID('u', 'n', 'k', 'n')
 };
 } // end namespace io
-} // end namespace irr

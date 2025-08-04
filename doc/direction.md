@@ -37,7 +37,7 @@ Examples include
 [general view distance](https://github.com/luanti-org/luanti/issues/7222).
 
 This includes work on maintaining
-[our Irrlicht fork](https://github.com/minetest/irrlicht), and switching to
+[our Irrlicht fork](https://github.com/luanti-org/luanti/tree/master/irr), and switching to
 alternative libraries to replace Irrlicht functionality as needed
 
 ### 2.2 Internal code refactoring

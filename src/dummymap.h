@@ -27,12 +27,15 @@ public:
 	void fill(v3s16 bpmin, v3s16 bpmax, MapNode n)
 	{
 		for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
-		for (s16 y = bpmin.Y; y <= bpmax.Y; y++)
-		for (s16 x = bpmin.X; x <= bpmax.X; x++) {
+		for (s16 x = bpmin.X; x <= bpmax.X; x++)
+		for (s16 y = bpmin.Y; y <= bpmax.Y; y++) {
 			MapBlock *block = getBlockNoCreateNoEx({x, y, z});
 			if (block) {
-				for (size_t i = 0; i < MapBlock::nodecount; i++)
-					block->getData()[i] = n;
+				for (s16 zn=0; zn < MAP_BLOCKSIZE; zn++)
+				for (s16 yn=0; yn < MAP_BLOCKSIZE; yn++)
+				for (s16 xn=0; xn < MAP_BLOCKSIZE; xn++) {
+					block->setNodeNoCheck(xn, yn, zn, n);
+				}
 				block->expireIsAirCache();
 			}
 		}

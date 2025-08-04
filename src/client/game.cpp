@@ -65,6 +65,8 @@
 	#include "client/sound/sound_openal.h"
 #endif
 
+#include <csignal>
+
 class NodeDugEvent : public MtEvent
 {
 public:
@@ -603,7 +605,7 @@ public:
 	Game();
 	~Game();
 
-	bool startup(bool *kill,
+	bool startup(volatile std::sig_atomic_t *kill,
 			InputHandler *input,
 			RenderingEngine *rendering_engine,
 			const GameStartData &game_params,
@@ -835,14 +837,14 @@ private:
 	   This class does take ownership/responsibily for cleaning up etc of any of
 	   these items (e.g. device)
 	*/
-	IrrlichtDevice *device;
-	RenderingEngine *m_rendering_engine;
-	video::IVideoDriver *driver;
-	scene::ISceneManager *smgr;
-	bool *kill;
-	std::string *error_message;
-	bool *reconnect_requested;
-	PausedNodesList paused_animated_nodes;
+	IrrlichtDevice             *device;
+	RenderingEngine            *m_rendering_engine;
+	video::IVideoDriver        *driver;
+	scene::ISceneManager       *smgr;
+	volatile std::sig_atomic_t *kill;
+	std::string                *error_message;
+	bool                       *reconnect_requested;
+	PausedNodesList             paused_animated_nodes;
 
 	bool simple_singleplayer_mode;
 	/* End 'cache' */
@@ -974,7 +976,7 @@ Game::~Game()
 		m_rendering_engine->finalize();
 }
 
-bool Game::startup(bool *kill,
+bool Game::startup(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,
@@ -1053,7 +1055,7 @@ void Game::run()
 	m_touch_simulate_aux1 = g_settings->getBool("fast_move")
 			&& client->checkPrivilege("fast");
 
-	const irr::core::dimension2du initial_screen_size(
+	const core::dimension2du initial_screen_size(
 			g_settings->getU16("screen_w"),
 			g_settings->getU16("screen_h")
 		);
@@ -1965,7 +1967,7 @@ void Game::processKeyInput()
 		if (g_settings->getBool("continuous_forward"))
 			toggleAutoforward();
 	} else if (wasKeyDown(KeyType::INVENTORY)) {
-		m_game_formspec.showPlayerInventory();
+		m_game_formspec.showPlayerInventory(nullptr);
 	} else if (input->cancelPressed()) {
 #ifdef __ANDROID__
 		m_android_chat_open = false;
@@ -2754,11 +2756,16 @@ void Game::handleClientEvent_DeathscreenLegacy(ClientEvent *event, CameraOrienta
 
 void Game::handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation *cam)
 {
-	m_game_formspec.showFormSpec(*event->show_formspec.formspec,
-		*event->show_formspec.formname);
+	auto &fs = event->show_formspec;
 
-	delete event->show_formspec.formspec;
-	delete event->show_formspec.formname;
+	if (fs.formname->empty() && !fs.formspec->empty()) {
+		m_game_formspec.showPlayerInventory(fs.formspec);
+	} else {
+		m_game_formspec.showFormSpec(*fs.formspec, *fs.formname);
+	}
+
+	delete fs.formspec;
+	delete fs.formname;
 }
 
 void Game::handleClientEvent_ShowCSMFormSpec(ClientEvent *event, CameraOrientation *cam)
@@ -3420,10 +3427,10 @@ PointedThing Game::updatePointedThing(
 
 		// Modify final color a bit with time
 		u32 timer = client->getEnv().getFrameTime() % 5000;
-		float timerf = (float) (irr::core::PI * ((timer / 2500.0) - 0.5));
+		float timerf = (float) (core::PI * ((timer / 2500.0) - 0.5));
 		float sin_r = 0.08f * std::sin(timerf);
-		float sin_g = 0.08f * std::sin(timerf + irr::core::PI * 0.5f);
-		float sin_b = 0.08f * std::sin(timerf + irr::core::PI);
+		float sin_g = 0.08f * std::sin(timerf + core::PI * 0.5f);
+		float sin_b = 0.08f * std::sin(timerf + core::PI);
 		c.setRed(core::clamp(core::round32(c.getRed() * (0.8 + sin_r)), 0, 255));
 		c.setGreen(core::clamp(core::round32(c.getGreen() * (0.8 + sin_g)), 0, 255));
 		c.setBlue(core::clamp(core::round32(c.getBlue() * (0.8 + sin_b)), 0, 255));
@@ -4277,7 +4284,7 @@ void Game::readSettings()
  ****************************************************************************/
 /****************************************************************************/
 
-void the_game(bool *kill,
+void the_game(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,

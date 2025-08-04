@@ -6,7 +6,6 @@
 
 #include "lua_api/l_base.h"
 
-class AsyncEngine;
 
 class ModApiUtil : public ModApiBase
 {

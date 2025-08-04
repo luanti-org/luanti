@@ -13,3 +13,9 @@ Jordach (CC BY-SA 3.0):
 Zeg9 (CC BY-SA 3.0):
   testentities_lava_flan.x
   testentities_lava_flan.png
+
+"Cool Guy":
+
+hecks (refer to irr/LICENSE):
+  testentities_cool_guy.x
+  testentities_cool_guy.png

@@ -67,7 +67,6 @@ void MainMenuScripting::initializeModApi(lua_State *L, int top)
 	asyncEngine.registerStateInitializer(ModApiHttp::InitializeAsync);
 
 	// Initialize async environment
-	//TODO possibly make number of async threads configurable
 	asyncEngine.initialize(MAINMENU_NUM_ASYNC_THREADS);
 }
 
@@ -84,16 +83,7 @@ bool MainMenuScripting::mayModifyPath(const std::string &path)
 		return true;
 
 	std::string path_user = fs::AbsolutePathPartial(porting::path_user);
-
-	if (fs::PathStartsWith(path, path_user + DIR_DELIM "client"))
-		return true;
-	if (fs::PathStartsWith(path, path_user + DIR_DELIM "games"))
-		return true;
-	if (fs::PathStartsWith(path, path_user + DIR_DELIM "mods"))
-		return true;
-	if (fs::PathStartsWith(path, path_user + DIR_DELIM "textures"))
-		return true;
-	if (fs::PathStartsWith(path, path_user + DIR_DELIM "worlds"))
+	if (fs::PathStartsWith(path, path_user))
 		return true;
 
 	if (fs::PathStartsWith(path, fs::AbsolutePathPartial(porting::path_cache)))

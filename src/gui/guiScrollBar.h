@@ -18,7 +18,7 @@ the arrow buttons where there is insufficient space.
 
 class ISimpleTextureSource;
 
-using namespace irr;
+
 using namespace gui;
 
 class GUIScrollBar : public IGUIElement

@@ -394,9 +394,9 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 					(e->style & HUD_STYLE_MONO) ? FM_Mono : FM_Unspecified,
 					e->style & HUD_STYLE_BOLD, e->style & HUD_STYLE_ITALIC));
 
-				irr::gui::CGUITTFont *ttfont = nullptr;
-				if (textfont->getType() == irr::gui::EGFT_CUSTOM)
-					ttfont = static_cast<irr::gui::CGUITTFont *>(textfont);
+				gui::CGUITTFont *ttfont = nullptr;
+				if (textfont->getType() == gui::EGFT_CUSTOM)
+					ttfont = static_cast<gui::CGUITTFont *>(textfont);
 
 				video::SColor color(255, (e->number >> 16) & 0xFF,
 										 (e->number >> 8)  & 0xFF,

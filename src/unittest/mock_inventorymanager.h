@@ -8,7 +8,6 @@
 #include "inventory.h"
 #include "server/serverinventorymgr.h"
 
-class ServerEnvironment;
 
 class MockInventoryManager : public ServerInventoryManager
 {

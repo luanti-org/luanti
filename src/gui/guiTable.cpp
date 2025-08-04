@@ -831,8 +831,10 @@ bool GUITable::OnEvent(const SEvent &event)
 			return true;
 		}
 		else if (event.KeyInput.Key == KEY_ESCAPE ||
-				event.KeyInput.Key == KEY_SPACE) {
+				event.KeyInput.Key == KEY_SPACE ||
+				(event.KeyInput.Key == KEY_TAB && event.KeyInput.Control)) {
 			// pass to parent
+			return IGUIElement::OnEvent(event);
 		}
 		else if (event.KeyInput.PressedDown && event.KeyInput.Char) {
 			// change selection based on text as it is typed

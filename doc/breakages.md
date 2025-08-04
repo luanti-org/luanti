@@ -25,3 +25,4 @@ This list is largely advisory and items may be reevaluated once the time comes.
 * remove built-in knockback and related functions entirely
 * remove `safe` parameter from `core.serialize`, always enforce `safe = true`.
   possibly error when `loadstring` calls are encountered in `core.deserialize`.
+* introduce strict type checking for all instances of `v3s16` / `v3f` read from Lua

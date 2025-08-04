@@ -12,12 +12,6 @@
 #include "irrArray.h"
 #include "IMeshLoader.h"
 
-namespace irr
-{
-namespace io
-{
-class IFileSystem;
-}
 namespace scene
 {
 class IMeshCache;
@@ -272,4 +266,3 @@ private:
 };
 
 } // end namespace video
-} // end namespace scene

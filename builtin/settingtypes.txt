@@ -182,23 +182,17 @@ invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 
 [**Keybindings]
 
-#    Key for moving the player forward.
 keymap_forward (Move forward) key SYSTEM_SCANCODE_26
 
-#    Key for moving the player backward.
 #    Will also disable autoforward, when active.
 keymap_backward (Move backward) key SYSTEM_SCANCODE_22
 
-#    Key for moving the player left.
 keymap_left (Move left) key SYSTEM_SCANCODE_4
 
-#    Key for moving the player right.
 keymap_right (Move right) key SYSTEM_SCANCODE_7
 
-#    Key for jumping.
 keymap_jump (Jump) key SYSTEM_SCANCODE_44
 
-#    Key for sneaking.
 #    Also used for climbing down and descending in water if aux1_descends is disabled.
 keymap_sneak (Sneak) key SYSTEM_SCANCODE_225
 
@@ -210,13 +204,11 @@ keymap_dig (Dig/punch/use) key KEY_LBUTTON
 #    (Note: The actual meaning might vary on a per-game basis.)
 keymap_place (Place/use) key KEY_RBUTTON
 
-#    Key for opening the inventory.
 keymap_inventory (Open inventory) key SYSTEM_SCANCODE_12
 
 #    Key for moving fast in fast mode.
 keymap_aux1 (Aux1) key SYSTEM_SCANCODE_8
 
-#    Key for opening the chat window.
 keymap_chat (Open chat) key SYSTEM_SCANCODE_23
 
 #    Key for opening the chat window to type commands.
@@ -225,70 +217,48 @@ keymap_cmd (Command) key SYSTEM_SCANCODE_56
 #    Key for opening the chat window to type local commands.
 keymap_cmd_local (Local command) key SYSTEM_SCANCODE_55
 
-#    Key for toggling unlimited view range.
-keymap_rangeselect (Range select) key
+keymap_rangeselect (Toggle unlimited view range) key
 
-#    Key for toggling flying.
 keymap_freemove (Toggle fly) key SYSTEM_SCANCODE_14
 
-#    Key for toggling pitch move mode.
 keymap_pitchmove (Toggle pitchmove) key
 
-#    Key for toggling fast mode.
 keymap_fastmove (Toggle fast) key SYSTEM_SCANCODE_13
 
-#    Key for toggling noclip mode.
 keymap_noclip (Toggle noclip) key SYSTEM_SCANCODE_11
 
-#    Key for selecting the next item in the hotbar.
 keymap_hotbar_next (Hotbar: select next item) key SYSTEM_SCANCODE_17
 
-#    Key for selecting the previous item in the hotbar.
 keymap_hotbar_previous (Hotbar: select previous item) key SYSTEM_SCANCODE_5
 
-#    Key for muting the game.
 keymap_mute (Mute) key SYSTEM_SCANCODE_16
 
-#    Key for increasing the volume.
 keymap_increase_volume (Increase volume) key
 
-#    Key for decreasing the volume.
 keymap_decrease_volume (Decrease volume) key
 
-#    Key for toggling autoforward.
 keymap_autoforward (Toggle automatic forward) key
 
-#    Key for toggling cinematic mode.
 keymap_cinematic (Toggle cinematic mode) key
 
-#    Key for toggling display of minimap.
 keymap_minimap (Toggle minimap) key SYSTEM_SCANCODE_25
 
-#    Key for taking screenshots.
 keymap_screenshot (Screenshot) key SYSTEM_SCANCODE_69
 
-#    Key for toggling fullscreen mode.
 keymap_fullscreen (Toggle fullscreen) key SYSTEM_SCANCODE_68
 
-#    Key for dropping the currently selected item.
 keymap_drop (Drop item) key SYSTEM_SCANCODE_20
 
-#    Key to use view zoom when possible.
 keymap_zoom (Zoom) key SYSTEM_SCANCODE_29
 
-#    Key for toggling the display of the HUD.
 keymap_toggle_hud (Toggle HUD) key SYSTEM_SCANCODE_58
 
-#    Key for toggling the display of chat.
 keymap_toggle_chat (Toggle chat log) key SYSTEM_SCANCODE_59
 
-#    Key for toggling the display of the large chat console.
-keymap_console (Large chat console) key SYSTEM_SCANCODE_67
+keymap_console (Toggle large chat console) key SYSTEM_SCANCODE_67
 
-#    Key for toggling the display of fog.
 keymap_toggle_fog (Toggle fog) key SYSTEM_SCANCODE_60
 
-#    Key for toggling the display of debug info.
 keymap_toggle_debug (Toggle debug info) key SYSTEM_SCANCODE_62
 
 #    Key for toggling the display of the profiler. Used for development.
@@ -297,109 +267,78 @@ keymap_toggle_profiler (Toggle profiler) key SYSTEM_SCANCODE_63
 #    Key for toggling the display of mapblock boundaries.
 keymap_toggle_block_bounds (Toggle block bounds) key
 
-#    Key for switching between first- and third-person camera.
 keymap_camera_mode (Toggle camera mode) key SYSTEM_SCANCODE_6
 
-#    Key for increasing the viewing range.
 keymap_increase_viewing_range_min (Increase view range) key SYSTEM_SCANCODE_46
 
-#    Key for decreasing the viewing range.
 keymap_decrease_viewing_range_min (Decrease view range) key SYSTEM_SCANCODE_45
 
-#    Key for selecting the first hotbar slot.
+#    Modifier key bind for closing your world.
+#    Requires ESC + the selected key to work.
+keymap_close_world (Return to Main Menu) key
+
 keymap_slot1 (Hotbar slot 1) key SYSTEM_SCANCODE_30
 
-#    Key for selecting the second hotbar slot.
 keymap_slot2 (Hotbar slot 2) key SYSTEM_SCANCODE_31
 
-#    Key for selecting the third hotbar slot.
 keymap_slot3 (Hotbar slot 3) key SYSTEM_SCANCODE_32
 
-#    Key for selecting the fourth hotbar slot.
 keymap_slot4 (Hotbar slot 4) key SYSTEM_SCANCODE_33
 
-#    Key for selecting the fifth hotbar slot.
 keymap_slot5 (Hotbar slot 5) key SYSTEM_SCANCODE_34
 
-#    Key for selecting the sixth hotbar slot.
 keymap_slot6 (Hotbar slot 6) key SYSTEM_SCANCODE_35
 
-#    Key for selecting the seventh hotbar slot.
 keymap_slot7 (Hotbar slot 7) key SYSTEM_SCANCODE_36
 
-#    Key for selecting the eighth hotbar slot.
 keymap_slot8 (Hotbar slot 8) key SYSTEM_SCANCODE_37
 
-#    Key for selecting the ninth hotbar slot.
 keymap_slot9 (Hotbar slot 9) key SYSTEM_SCANCODE_38
 
-#    Key for selecting the tenth hotbar slot.
 keymap_slot10 (Hotbar slot 10) key SYSTEM_SCANCODE_39
 
-#    Key for selecting the 11th hotbar slot.
 keymap_slot11 (Hotbar slot 11) key
 
-#    Key for selecting the 12th hotbar slot.
 keymap_slot12 (Hotbar slot 12) key
 
-#    Key for selecting the 13th hotbar slot.
 keymap_slot13 (Hotbar slot 13) key
 
-#    Key for selecting the 14th hotbar slot.
 keymap_slot14 (Hotbar slot 14) key
 
-#    Key for selecting the 15th hotbar slot.
 keymap_slot15 (Hotbar slot 15) key
 
-#    Key for selecting the 16th hotbar slot.
 keymap_slot16 (Hotbar slot 16) key
 
-#    Key for selecting the 17th hotbar slot.
 keymap_slot17 (Hotbar slot 17) key
 
-#    Key for selecting the 18th hotbar slot.
 keymap_slot18 (Hotbar slot 18) key
 
-#    Key for selecting the 19th hotbar slot.
 keymap_slot19 (Hotbar slot 19) key
 
-#    Key for selecting the 20th hotbar slot.
 keymap_slot20 (Hotbar slot 20) key
 
-#    Key for selecting the 21st hotbar slot.
 keymap_slot21 (Hotbar slot 21) key
 
-#    Key for selecting the 22nd hotbar slot.
 keymap_slot22 (Hotbar slot 22) key
 
-#    Key for selecting the 23rd hotbar slot.
 keymap_slot23 (Hotbar slot 23) key
 
-#    Key for selecting the 24th hotbar slot.
 keymap_slot24 (Hotbar slot 24) key
 
-#    Key for selecting the 25th hotbar slot.
 keymap_slot25 (Hotbar slot 25) key
 
-#    Key for selecting the 26th hotbar slot.
 keymap_slot26 (Hotbar slot 26) key
 
-#    Key for selecting the 27th hotbar slot.
 keymap_slot27 (Hotbar slot 27) key
 
-#    Key for selecting the 28th hotbar slot.
 keymap_slot28 (Hotbar slot 28) key
 
-#    Key for selecting the 29th hotbar slot.
 keymap_slot29 (Hotbar slot 29) key
 
-#    Key for selecting the 30th hotbar slot.
 keymap_slot30 (Hotbar slot 30) key
 
-#    Key for selecting the 31st hotbar slot.
 keymap_slot31 (Hotbar slot 31) key
 
-#    Key for selecting the 32nd hotbar slot.
 keymap_slot32 (Hotbar slot 32) key
 
 [*Touchscreen]
@@ -2104,11 +2043,11 @@ transparency_sorting_group_by_buffers (Transparency Sorting Group by Buffers) bo
 cloud_radius (Cloud radius) int 12 8 62
 
 #    Delay between mesh updates on the client in ms. Increasing this will slow
-#    down the rate of mesh updates, thus reducing jitter on slower clients.
-mesh_generation_interval (Mapblock mesh generation delay) int 0 0 50
+#    down the rate of mesh updates, which can help reduce jitter.
+mesh_generation_interval (Mapblock mesh generation delay) int 0 0 25
 
 #    Number of threads to use for mesh generation.
-#    Value of 0 (default) will let Luanti autodetect the number of available threads.
+#    Value of 0 (default) will let Luanti automatically choose the number of threads.
 mesh_generation_threads (Mapblock mesh generation threads) int 0 0 8
 
 #    All mesh buffers with less than this number of vertices will be merged

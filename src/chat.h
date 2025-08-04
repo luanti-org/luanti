@@ -137,7 +137,7 @@ private:
 	// Enable clickable chat weblinks
 	bool m_cache_clickable_chat_weblinks;
 	// Color of clickable chat weblinks
-	irr::video::SColor m_cache_chat_weblink_color;
+	video::SColor m_cache_chat_weblink_color;
 
 	// Whether the lines were modified since last markLinesUnchanged()
 	// Is always set to true when m_unformatted is modified, because that's what

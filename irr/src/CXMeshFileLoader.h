@@ -8,15 +8,12 @@
 #include "irrString.h"
 #include "SkinnedMesh.h"
 
-namespace irr
-{
 namespace io
 {
 class IReadFile;
 } // end namespace io
 namespace scene
 {
-class IMeshManipulator;
 
 //! Meshloader capable of loading x meshes.
 class CXMeshFileLoader : public IMeshLoader
@@ -178,4 +175,3 @@ private:
 };
 
 } // end namespace scene
-} // end namespace irr

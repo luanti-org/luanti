@@ -5,10 +5,8 @@
 #pragma once
 
 #include "IBillboardSceneNode.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -68,7 +66,7 @@ public:
 			video::SColor &bottomColor) const override;
 
 	//! Get the real boundingbox used by the billboard (which depends on the active camera)
-	const core::aabbox3d<f32> &getTransformedBillboardBoundingBox(const irr::scene::ICameraSceneNode *camera) override;
+	const core::aabbox3d<f32> &getTransformedBillboardBoundingBox(const scene::ICameraSceneNode *camera) override;
 
 	//! Get the amount of mesh buffers.
 	u32 getMeshBufferCount() const override
@@ -91,7 +89,7 @@ public:
 	ISceneNode *clone(ISceneNode *newParent = 0, ISceneManager *newManager = 0) override;
 
 protected:
-	void updateMesh(const irr::scene::ICameraSceneNode *camera);
+	void updateMesh(const scene::ICameraSceneNode *camera);
 
 private:
 	//! Size.Width is the bottom edge width
@@ -110,4 +108,3 @@ private:
 };
 
 } // end namespace scene
-} // end namespace irr

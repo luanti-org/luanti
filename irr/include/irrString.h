@@ -18,8 +18,6 @@ extern std::wstring utf8_to_wide(std::string_view input);
 extern std::string wide_to_utf8(std::wstring_view input);
 /* */
 
-namespace irr
-{
 namespace core
 {
 
@@ -940,4 +938,3 @@ inline size_t wStringToUTF8(stringc &destination, const stringw &source)
 }
 
 } // end namespace core
-} // end namespace irr

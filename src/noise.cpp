@@ -83,6 +83,9 @@ u32 PcgRandom::range(u32 bound)
 	if (bound == 0)
 		return next();
 
+	if (bound == 1)
+		return 0;
+
 	/*
 		This is an optimization of the expression:
 		  0x100000000ull % bound

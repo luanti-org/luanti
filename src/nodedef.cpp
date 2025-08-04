@@ -4,7 +4,6 @@
 
 #include "nodedef.h"
 
-#include "SAnimatedMesh.h"
 #include "itemdef.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/mesh.h"
@@ -964,13 +963,6 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		// Note: By freshly reading, we get an unencumbered mesh.
 		if (scene::IMesh *src_mesh = client->getMesh(mesh)) {
 			bool apply_bs = false;
-			// For frame-animated meshes, always get the first frame,
-			// which holds a model for which we can eventually get the static pose.
-			while (auto *src_meshes = dynamic_cast<scene::SAnimatedMesh *>(src_mesh)) {
-				src_mesh = src_meshes->getMesh(0.0f);
-				src_mesh->grab();
-				src_meshes->drop();
-			}
 			if (auto *skinned_mesh = dynamic_cast<scene::SkinnedMesh *>(src_mesh)) {
 				// Compatibility: Animated meshes, as well as static gltf meshes, are not scaled by BS.
 				// See https://github.com/luanti-org/luanti/pull/16112#issuecomment-2881860329
