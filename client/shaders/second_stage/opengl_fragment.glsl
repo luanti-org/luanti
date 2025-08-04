@@ -36,6 +36,8 @@ varying mediump vec2 varTexCoord;
 centroid varying vec2 varTexCoord;
 #endif
 
+#define SQRT_2 1.41421356237
+
 #ifdef ENABLE_AUTO_EXPOSURE
 varying float exposure; // linear exposure factor, see vertex shader
 #endif
@@ -150,16 +152,16 @@ void main(void)
 #endif
 	{
 
-	color.rgb *= (vignette_bright - vignette_dark) * (1.0 - pow(length(uv - vec2(0.5)) * 1.4, vignette_power)) + vignette_dark;
+	// Apply vignette. sqrt(2) is necessary so the darkest value is at the corner of the screen.
+	color.rgb *= (vignette_bright - vignette_dark) * (1.0 - pow(length(uv - vec2(0.5)) * SQRT_2, vignette_power)) + vignette_dark;
 
 #if ENABLE_TONE_MAPPING
 		color = applyToneMapping(color);
 #endif
 
-#ifdef ENABLE_COLOR_GRADING
 		// ASC CDL color grading
 		color.rgb = mix(color.rgb, pow(max(color.rgb * cdl_slope + cdl_offset, 0.0), cdl_power), 1.);
-#endif
+		
 		color.rgb = applySaturation(color.rgb, saturation);
 	}
 

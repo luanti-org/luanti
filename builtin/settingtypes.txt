@@ -798,11 +798,6 @@ exposure_compensation (Exposure compensation) float 0.0 -1.0 1.0
 #   Requires: enable_post_processing, tone_mapping
 secondstage_gamma (Gamma) float 1.6 1.0 5.0
 
-#   Apply ASL CDL color grading to make brighter colors warmer and darker colors cooler.
-#
-#   Requires: enable_post_processing
-enable_color_grading (Color grading) bool false
-
 #    Apply dithering to reduce color banding artifacts.
 #    Dithering significantly increases the size of losslessly-compressed
 #    screenshots and it works incorrectly if the display or operating system
