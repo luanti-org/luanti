@@ -1,13 +1,16 @@
 uniform mat4 LightMVP; // world matrix
-uniform vec4 CameraPos;
+uniform vec4 CameraPos; // camera position
 varying vec4 tPos;
-#ifdef COLORED_SHADOWS
-varying vec3 varColor;
-#endif
 
 uniform float xyPerspectiveBias0;
 uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
+
+#ifdef GL_ES
+varying mediump vec2 varTexCoord;
+#else
+centroid varying vec2 varTexCoord;
+#endif
 
 vec4 getRelativePosition(in vec4 position)
 {
@@ -37,14 +40,10 @@ vec4 applyPerspectiveDistortion(in vec4 position)
 
 void main()
 {
-	vec4 pos = LightMVP * gl_Vertex;
+	vec4 pos = LightMVP * inVertexPosition;
 
-	tPos = applyPerspectiveDistortion(LightMVP * gl_Vertex);
+	tPos = applyPerspectiveDistortion(pos);
 
 	gl_Position = vec4(tPos.xyz, 1.0);
-	gl_TexCoord[0].st = gl_MultiTexCoord0.st;
-
-#ifdef COLORED_SHADOWS
-	varColor = gl_Color.rgb;
-#endif
+	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 0.0, 1.0)).xy;
 }
