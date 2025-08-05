@@ -161,7 +161,7 @@ void main(void)
 
 		// ASC CDL color grading
 		color.rgb = mix(color.rgb, pow(max(color.rgb * cdl_slope + cdl_offset, 0.0), cdl_power), 1.);
-		
+
 		color.rgb = applySaturation(color.rgb, saturation);
 	}
 
