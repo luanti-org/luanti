@@ -353,7 +353,7 @@ function core.item_place(itemstack, placer, pointed_thing, param2)
 	return itemstack, nil
 end
 
-function core.item_secondary_use(itemstack, placer)
+function core.item_secondary_use(itemstack, user)
 	return itemstack
 end
 
@@ -390,7 +390,7 @@ function core.item_pickup(itemstack, picker, pointed_thing, ...)
 		end
 	end
 
-	-- Pickup item.
+	-- Pick up item
 	local inv = picker and picker:get_inventory()
 	if inv then
 		return inv:add_item("main", itemstack)
@@ -639,6 +639,7 @@ core.nodedef_default = {
 	on_drop = redef_wrapper(core, 'item_drop'), -- core.item_drop
 	on_pickup = redef_wrapper(core, 'item_pickup'), -- core.item_pickup
 	on_use = nil,
+	after_use = nil,
 	can_dig = nil,
 
 	on_punch = redef_wrapper(core, 'node_punch'), -- core.node_punch

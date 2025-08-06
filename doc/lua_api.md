@@ -6148,34 +6148,34 @@ Call these functions only at load time!
     * Called every server step, usually interval of 0.1s.
     * `dtime` is the time since last execution in seconds.
 * `core.register_on_mods_loaded(function())`
-    * Called after mods have finished loading and before the media is cached or the
-      aliases handled.
+    * Called after all mods have finished loading and before the media is cached
+      or aliases are handled.
 * `core.register_on_shutdown(function())`
-    * Called before server shutdown
-    * Players that were kicked by the shutdown procedure are still fully accessible
-     in `core.get_connected_players()`.
+    * Called during server shutdown before players are kicked.
     * **Warning**: If the server terminates abnormally (i.e. crashes), the
-      registered callbacks **will likely not be run**. Data should be saved at
+      registered callbacks will likely **not run**. Data should be saved at
       semi-frequent intervals as well as on server shutdown.
 * `core.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack, pointed_thing))`
-    * Called when a node has been placed
-    * If return `true` no item is taken from `itemstack`
+    * Called after a node has been placed.
+    * If `true` is returned no item is taken from `itemstack`
     * `placer` may be any valid ObjectRef or nil.
     * **Not recommended**; use `on_construct` or `after_place_node` in node
       definition whenever possible.
 * `core.register_on_dignode(function(pos, oldnode, digger))`
-    * Called when a node has been dug.
+    * Called after a node has been dug.
     * **Not recommended**; Use `on_destruct` or `after_dig_node` in node
       definition whenever possible.
 * `core.register_on_punchnode(function(pos, node, puncher, pointed_thing))`
     * Called when a node is punched
 * `core.register_on_generated(function(minp, maxp, blockseed))`
-    * Called after generating a piece of world between `minp` and `maxp`.
+    * Called after a piece of world between `minp` and `maxp` has been
+      generated and written into the map.
     * **Avoid using this** whenever possible. As with other callbacks this blocks
-      the main thread and introduces noticeable latency.
-      Consider [Mapgen environment](#mapgen-environment) for an alternative.
-* `core.register_on_newplayer(function(ObjectRef))`
+      the main thread and is prone to introduce noticeable latency/lag.
+      Consider [Mapgen environment](#mapgen-environment) as an alternative.
+* `core.register_on_newplayer(function(player))`
     * Called when a new player enters the world for the first time
+    * `player`: ObjectRef
 * `core.register_on_punchplayer(function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage))`
     * Called when a player is punched
     * Note: This callback is invoked even if the punched player is dead.
@@ -7116,8 +7116,12 @@ Defaults for the `on_place` and `on_drop` item definition functions
 * `core.item_pickup(itemstack, picker, pointed_thing, time_from_last_punch, ...)`
     * Runs callbacks registered by `core.register_on_item_pickup` and adds
       the item to the picker's `"main"` inventory list.
-    * Parameters are the same as in `on_pickup`.
-    * Returns the leftover itemstack.
+    * Parameters and return value are the same as `on_pickup`.
+    * **Note**: is not called when wielded item overrides `on_pickup`
+* `core.item_secondary_use(itemstack, user)`
+    * Global secondary use callback. Does nothing.
+    * Parameters and return value are the same as `on_secondary_use`.
+    * **Note**: is not called when wielded item overrides `on_secondary_use`
 * `core.item_drop(itemstack, dropper, pos)`
     * Converts `itemstack` to an in-world Lua entity.
     * `itemstack` (`ItemStack`) is modified (cleared) on success.
@@ -7140,7 +7144,7 @@ Defaults for the `on_punch` and `on_dig` node definition callbacks
     * Calls functions registered by `core.register_on_punchnode()`
 * `core.node_dig(pos, node, digger)`
     * Checks if node can be dug, puts item into inventory, removes node
-    * Calls functions registered by `core.registered_on_dignodes()`
+    * Calls functions registered by `core.register_on_dignode()`
 
 Sounds
 ------
@@ -9988,15 +9992,15 @@ Used by `core.register_node`, `core.register_craftitem`, and
         -- When item is eaten with `core.do_item_eat`
 
         punch_use = <SimpleSoundSpec>,
-        -- When item is used with the 'punch/mine' key pointing at a node or entity
+        -- When item is used with the 'punch/dig' key pointing at a node or entity
 
         punch_use_air = <SimpleSoundSpec>,
-        -- When item is used with the 'punch/mine' key pointing at nothing (air)
+        -- When item is used with the 'punch/dig' key pointing at nothing (air)
     },
 
     on_place = function(itemstack, placer, pointed_thing),
-    -- When the 'place' key was pressed with the item in hand
-    -- and a node was pointed at.
+    -- Called when the 'place' key was pressed with the item in hand
+    -- and pointing at a node.
     -- Shall place item and return the leftover itemstack
     -- or nil to not modify the inventory.
     -- The placer may be any ObjectRef or nil.
@@ -10007,7 +10011,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
     -- Function must return either nil if inventory shall not be modified,
     -- or an itemstack to replace the original itemstack.
     -- The user may be any ObjectRef or nil.
-    -- default: nil
+    -- default: core.item_secondary_use
 
     on_drop = function(itemstack, dropper, pos),
     -- Shall drop item and return the leftover itemstack.
@@ -10025,28 +10029,26 @@ Used by `core.register_node`, `core.register_craftitem`, and
     --   luaentity) as `type="object"` `pointed_thing`.
     -- * `time_from_last_punch, ...` (optional): Other parameters from
     --   `luaentity:on_punch`.
-    -- default: `core.item_pickup`
+    -- default: core.item_pickup
 
     on_use = function(itemstack, user, pointed_thing),
-    -- default: nil
-    -- When user pressed the 'punch/mine' key with the item in hand.
+    -- Called when user presses the 'punch/dig' key with the item in hand.
     -- Function must return either nil if inventory shall not be modified,
     -- or an itemstack to replace the original itemstack.
     -- e.g. itemstack:take_item(); return itemstack
-    -- Otherwise, the function is free to do what it wants.
     -- The user may be any ObjectRef or nil.
-    -- The default functions handle regular use cases.
+    -- Note that defining this callback will prevent normal punching/digging
+    -- behavior on the client, as the interaction is instead "forwarded" to the
+    -- server.
+    -- default: nil
 
     after_use = function(itemstack, user, node, digparams),
-    -- default: nil
-    -- If defined, should return an itemstack and will be called instead of
-    -- wearing out the item (if tool). If returns nil, does nothing.
-    -- If after_use doesn't exist, it is the same as:
-    --   function(itemstack, user, node, digparams)
-    --     itemstack:add_wear(digparams.wear)
-    --     return itemstack
-    --   end
+    -- Called after a tool is used to dig a node and will replace the default
+    -- tool wear-out handling.
+    -- Shall return the leftover itemstack or nil to not
+    -- modify the dropped item.
     -- The user may be any ObjectRef or nil.
+    -- default: nil
 
     _custom_field = whatever,
     -- Add your own custom fields. By convention, all custom field names
