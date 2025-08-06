@@ -202,7 +202,13 @@ void ClientMap::onSettingChanged(std::string_view name, bool all)
 
 ClientMap::~ClientMap()
 {
+	verbosestream << FUNCTION_NAME << std::endl;
+
 	g_settings->deregisterAllChangedCallbacks(this);
+
+	// avoid refcount warning from ~Map()
+	clearDrawList();
+	clearDrawListShadow();
 
 	for (auto &it : m_dynamic_buffers)
 		it.second.drop();
@@ -351,22 +357,28 @@ private:
 	v3s16 volume;
 };
 
-void ClientMap::updateDrawList()
+void ClientMap::clearDrawList()
 {
-	ScopeProfiler sp(g_profiler, "CM::updateDrawList()", SPT_AVG);
-
-	m_needs_update_drawlist = false;
-
 	for (auto &i : m_drawlist) {
 		MapBlock *block = i.second;
 		block->refDrop();
 	}
 	m_drawlist.clear();
 
-	for (auto &block : m_keeplist) {
+	for (auto &block : m_keeplist)
 		block->refDrop();
-	}
 	m_keeplist.clear();
+
+	m_needs_update_drawlist = true;
+}
+
+void ClientMap::updateDrawList()
+{
+	ScopeProfiler sp(g_profiler, "CM::updateDrawList()", SPT_AVG);
+
+	clearDrawList();
+
+	m_needs_update_drawlist = false;
 
 	const v3s16 cam_pos_nodes = floatToInt(m_camera_position, BS);
 
@@ -1528,6 +1540,15 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	g_profiler->avg(prefix + "material swaps [#]", material_swaps);
 }
 
+void ClientMap::clearDrawListShadow()
+{
+	for (auto &i : m_drawlist_shadow) {
+		MapBlock *block = i.second;
+		block->refDrop();
+	}
+	m_drawlist_shadow.clear();
+}
+
 /*
 	Custom update draw list for the pov of shadow light.
 */
@@ -1535,11 +1556,7 @@ void ClientMap::updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir,
 {
 	ScopeProfiler sp(g_profiler, "CM::updateDrawListShadow()", SPT_AVG);
 
-	for (auto &i : m_drawlist_shadow) {
-		MapBlock *block = i.second;
-		block->refDrop();
-	}
-	m_drawlist_shadow.clear();
+	clearDrawListShadow();
 
 	// Number of blocks currently loaded by the client
 	u32 blocks_loaded = 0;

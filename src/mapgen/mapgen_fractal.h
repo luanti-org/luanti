@@ -10,7 +10,6 @@
 ///////////// Mapgen Fractal flags
 #define MGFRACTAL_TERRAIN     0x01
 
-class BiomeManager;
 
 extern const FlagDesc flagdesc_mapgen_fractal[];
 

@@ -9,8 +9,6 @@
 #include <string>
 #include "ITexture.h"
 
-namespace irr
-{
 namespace video
 {
 	class IVideoDriver;
@@ -304,5 +302,4 @@ namespace gui
 	};
 
 } // end namespace gui
-} // end namespace irr
 

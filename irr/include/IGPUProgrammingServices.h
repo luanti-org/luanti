@@ -8,18 +8,9 @@
 #include "EPrimitiveTypes.h"
 #include "path.h"
 
-namespace irr
-{
-
-namespace io
-{
-class IReadFile;
-} // end namespace io
-
 namespace video
 {
 
-class IVideoDriver;
 class IShaderConstantSetCallBack;
 
 //! Interface making it possible to create and use programs running on the GPU.
@@ -141,4 +132,3 @@ public:
 };
 
 } // end namespace video
-} // end namespace irr

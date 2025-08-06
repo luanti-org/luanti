@@ -13,7 +13,7 @@
 #include <IAnimatedMeshSceneNode.h>
 #include "S3DVertex.h"
 #include <SMesh.h>
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
 inline static void applyShadeFactor(video::SColor& color, float factor)
 {

@@ -187,26 +187,28 @@ public:
 	//// Position stuff
 	////
 
+	/// @return map position of block
 	inline v3s16 getPos()
 	{
 		return m_pos;
 	}
 
+	/// @return in-world position of the block (== pos * MAP_BLOCKSIZE)
 	inline v3s16 getPosRelative()
 	{
 		return m_pos_relative;
 	}
 
-	inline core::aabbox3d<s16> getBox() {
+	/// @return in-world box of the block
+	inline core::aabbox3d<s16> getBox()
+	{
 		return getBox(getPosRelative());
 	}
 
-	static inline core::aabbox3d<s16> getBox(const v3s16 &pos_relative)
+	static inline core::aabbox3d<s16> getBox(v3s16 pos_relative)
 	{
 		return core::aabbox3d<s16>(pos_relative,
-				pos_relative
-				+ v3s16(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE)
-				- v3s16(1,1,1));
+				pos_relative + v3s16(MAP_BLOCKSIZE - 1));
 	}
 
 	////
@@ -360,7 +362,7 @@ public:
 	}
 
 	////
-	//// Reference counting (see m_refcount)
+	//// Reference counting (different purposes on client vs. server)
 	////
 
 	inline void refGrab()
@@ -470,10 +472,6 @@ private:
 	 */
 	v3s16 m_pos_relative;
 
-	/*
-		Reference count; currently used for determining if this block is in
-		the list of blocks to be drawn.
-	*/
 	short m_refcount = 0;
 
 	/*

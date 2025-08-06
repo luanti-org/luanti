@@ -11,7 +11,7 @@
 #include "IVideoDriver.h"
 #include "StyleSpec.h"
 
-using namespace irr;
+
 using namespace gui;
 
 GUIButtonImage::GUIButtonImage(gui::IGUIEnvironment *environment,

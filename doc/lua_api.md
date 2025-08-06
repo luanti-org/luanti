@@ -142,7 +142,7 @@ Mods
 Mod load path
 -------------
 
-Paths are relative to the directories listed in the [Paths] section above.
+Paths are relative to the directories listed in the [Paths](#paths) section above.
 
 * `games/<gameid>/mods/`
 * `mods/`
@@ -261,7 +261,7 @@ It is parsed by the main menu settings dialogue to list mod-specific
 settings in the "Mods" category.
 
 `core.settings` can be used to read custom or engine settings.
-See [`Settings`].
+See [Settings](#settings).
 
 ### `init.lua`
 
@@ -273,7 +273,7 @@ registered callbacks.
 
 Media files (textures, sounds, whatever) that will be transferred to the
 client and will be available for use by the mod and translation files for
-the clients (see [Translations]). Accepted characters for names are:
+the clients (see [Translations](#translations)). Accepted characters for names are:
 
     a-zA-Z0-9_.-
 
@@ -283,6 +283,9 @@ Accepted formats are:
     sounds: .ogg vorbis
     models: .x, .b3d, .obj, (since version 5.10:) .gltf, .glb
     fonts: .ttf, .woff (both since version 5.11, see notes below)
+
+Currently the engine is unable to handle files over ~16MB in size. For best
+performance you should keep your media files as small as reasonably possible.
 
 Other formats won't be sent to the client (e.g. you can store .blend files
 in a folder for convenience, without the risk that such files are transferred)
@@ -305,10 +308,6 @@ Simple textured meshes (with multiple textures), optionally with normals.
 The .x, .b3d and .gltf formats additionally support (a single) animation.
 
 #### glTF
-
-The glTF model file format for now only serves as a
-more modern alternative to the other static model file formats;
-it unlocks no special rendering features.
 
 Binary glTF (`.glb`) files are supported and recommended over `.gltf` files
 due to their space savings.
@@ -1293,8 +1292,8 @@ These sound-groups are played back by the engine if provided.
 Registered definitions
 ======================
 
-Anything added using certain [Registration functions] gets added to one or more
-of the global [Registered definition tables].
+Anything added using certain [Registration functions](#registration-functions) gets added to one or more
+of the global [Registered definition tables](#registered-definition-tables)
 
 Note that in some cases you will stumble upon things that are not contained
 in these tables (e.g. when a mod has been removed). Always check for
@@ -1327,7 +1326,7 @@ The definition of a node is stored and can be accessed by using
 core.registered_nodes[node.name]
 ```
 
-See [Registered definitions].
+See [Node definition](#node-definition)
 
 Nodes are passed by value between Lua and the engine.
 They are represented by a table:
@@ -1496,7 +1495,7 @@ The function of `param2` is determined by `paramtype2` in node definition.
     * `param2` will not be used by the engine and can be used to store
       an arbitrary value
 
-Nodes can also contain extra data. See [Node Metadata].
+Nodes can also contain extra data. See [Node Metadata](#node-metadata)
 
 Node drawtypes
 --------------
@@ -1588,7 +1587,7 @@ There are a bunch of different looking node types.
 * `nodebox`
     * Often used for stairs and slabs.
     * Allows defining nodes consisting of an arbitrary number of boxes.
-    * See [Node boxes] below for more information.
+    * See [Node boxes](#node-boxes) below for more information.
 * `mesh`
     * Uses models for nodes.
     * Tiles should hold model materials textures.
@@ -1970,7 +1969,7 @@ Vector (ie. a position)
 vector.new(x, y, z)
 ```
 
-See [Spatial Vectors] for details.
+See [Spatial Vectors](#spatial-vectors) for details.
 
 `pointed_thing`
 ---------------
@@ -2178,10 +2177,10 @@ An apple:
 {name="default:apple", count=1, wear=0, metadata=""}
 ```
 
-### `ItemStack`
+### `ItemStack` format
 
 A native C++ format with many helper methods. Useful for converting
-between formats. See the [Class reference] section for details.
+between formats. See the [Class Reference](#class-reference) section for details.
 
 
 
@@ -2237,7 +2236,7 @@ Groups of entities
 
 For entities, groups are, as of now, used only for calculating damage.
 The rating is the percentage of damage caused by items with this damage group.
-See [Entity damage mechanism].
+See [Entity damage mechanism](#entity-damage-mechanism).
 
 ```lua
 object:get_armor_groups() --> a group-rating table (e.g. {fleshy=100})
@@ -2358,7 +2357,7 @@ to games.
        from destroyed nodes.
      * `0` is something that is directly accessible at the start of gameplay
      * There is no upper limit
-     * See also: `leveldiff` in [Tool Capabilities]
+     * See also: `leveldiff` in [Tool Capabilities](#tool-capabilities)
 * `slippery`: Players and items will slide on the node.
   Slipperiness rises steadily with `slippery` value, starting at 1.
 
@@ -2519,7 +2518,7 @@ so a digging time of 0.01 is actually faster than a digging time of 0.
 
 ### Damage groups
 
-List of damage for groups of entities. See [Entity damage mechanism].
+List of damage for groups of entities. See [Entity damage mechanism](#entity-damage-mechanism).
 
 ### Punch attack uses (tools only)
 
@@ -2641,7 +2640,7 @@ Node Metadata
 -------------
 
 The instance of a node in the world normally only contains the three values
-mentioned in [Nodes]. However, it is possible to insert extra data into a node.
+mentioned in [Nodes](#nodes). However, it is possible to insert extra data into a node.
 It is called "node metadata"; See `NodeMetaRef`.
 
 Node metadata contains two things:
@@ -2653,7 +2652,7 @@ Some of the values in the key-value store are handled specially:
 
 * `formspec`: Defines an inventory menu that is opened with the
               'place/use' key. Only works if no `on_rightclick` was
-              defined for the node. See also [Formspec].
+              defined for the node. See also [Formspec](#formspec).
 * `infotext`: Text shown on the screen when the node is pointed at.
               Line-breaks will be applied automatically.
               If the infotext is very long, it will be truncated.
@@ -2701,16 +2700,17 @@ meta:from_table({
 Item Metadata
 -------------
 
-Item stacks can store metadata too. See [`ItemStackMetaRef`].
+Item stacks can store metadata too. See [`ItemStackMetaRef`](#itemstackmetaref)
+Note: They are not able to store the character `"\1"`, be very careful when storing binary data in them
 
 Item metadata only contains a key-value store.
 
 Some of the values in the key-value store are handled specially:
 
 * `description`: Set the item stack's description.
-  See also: `get_description` in [`ItemStack`]
+  See also: `get_description` in [`ItemStack`](#itemstack)
 * `short_description`: Set the item stack's short description.
-  See also: `get_short_description` in [`ItemStack`]
+  See also: `get_short_description` in [`ItemStack`](#itemstack)
 * `inventory_image`: Override inventory_image
 * `inventory_overlay`: Override inventory_overlay
 * `wield_image`: Override wield_image
@@ -2801,7 +2801,7 @@ control characters. For values, escape sequences used by the engine are an excep
 **WARNING**: Luanti allows you to add elements to every single formspec instance
 using `player:set_formspec_prepend()`, which may be the reason backgrounds are
 appearing when you don't expect them to, or why things are styled differently
-to normal. See [`no_prepend[]`] and [Styling Formspecs].
+to normal. See [`no_prepend[]`] and [Styling Formspecs](#styling-formspecs).
 
 Examples
 --------
@@ -2855,6 +2855,8 @@ Version History
 * Formspec version 9 (5.12.0)
   * Add allow_close[]
   * label[]: Add "area label" variant
+* Formspec version 10 (5.13.0)
+  * model[]: Support floating-point frames
 
 Elements
 --------
@@ -2867,7 +2869,7 @@ Elements
 * Clients older than this version can neither show newer elements nor display
   elements with new arguments correctly.
 * Available since feature `formspec_version_element`.
-* See also: [Version History]
+* See also: [Version History](#version-history).
 
 ### `size[<W>,<H>,<fixed_size>]`
 
@@ -2986,7 +2988,7 @@ Elements
   `starting item index`.
 * **Note**: With the new coordinate system, the spacing between inventory
   slots is one-fourth the size of an inventory slot by default. Also see
-  [Styling Formspecs] for changing the size of slots and spacing.
+  [Styling Formspecs](#styling-formspecs) for changing the size of slots and spacing.
 
 ### `listring[<inventory location>;<list name>]`
 
@@ -3042,7 +3044,7 @@ Elements
 ### `animated_image[<X>,<Y>;<W>,<H>;<name>;<texture name>;<frame count>;<frame duration>;<frame start>;<middle>]`
 
 * Show an animated image. The image is drawn like a "vertical_frames" tile
-  animation (See [Tile animation definition]), but uses a frame count/duration for simplicity
+  animation (See [Tile animation definition](#tile-animation-definition)), but uses a frame count/duration for simplicity
 * `name`: Element name to send when an event occurs. The event value is the index of the current frame.
 * `texture name`: The image to use.
 * `frame count`: The number of frames animating the image.
@@ -3474,7 +3476,7 @@ Elements
     * If a state is provided, the style will only take effect when the element is in that state.
     * All provided states must be active for the style to apply.
 * Note: this **must** be before the element is defined.
-* See [Styling Formspecs].
+* See [Styling Formspecs](#styling-formspecs).
 
 
 ### `style_type[<selector 1>,<selector 2>,...;<prop1>;<prop2>;...]`
@@ -3486,7 +3488,7 @@ Elements
 * `state` is a list of states separated by the `+` character.
     * If a state is provided, the style will only take effect when the element is in that state.
     * All provided states must be active for the style to apply.
-* See [Styling Formspecs].
+* See [Styling Formspecs](#styling-formspecs).
 
 ### `set_focus[<name>;<force>]`
 
@@ -3938,6 +3940,32 @@ The following functions provide escape sequences:
     * Removes all color escape sequences.
 
 
+Coordinate System
+=================
+
+Luanti uses a **left-handed** coordinate system: Y is "up", X is "right", Z is "forward".
+This is the convention used by Unity, DirectX and Irrlicht.
+It means that when you're pointing in +Z direction in-game ("forward"), +X is to your right; +Y is up.
+
+Consistently, rotation is [**left-handed**](https://en.wikipedia.org/w/index.php?title=Right-hand_rule) as well.
+Luanti uses [Tait-Bryan angles](https://en.wikipedia.org/wiki/Euler_angles#Tait%E2%80%93Bryan_angles) for rotations,
+often referred to simply as "euler angles" (even though they are not "proper" euler angles).
+The rotation order is extrinsic X-Y-Z:
+First rotation around the (unrotated) X-axis is applied,
+then rotation around the (unrotated) Y-axis follows,
+and finally rotation around the (unrotated) Z-axis is applied.
+(Note: As a product of rotation matrices, this will be written in reverse, so `Z*Y*X`.)
+
+Attachment and bone override rotations both use these conventions.
+
+There is an exception, however: Object rotation (`ObjectRef:set_rotation`, `ObjectRef:get_rotation`, `automatic_rotate`)
+**does not** use left-handed (extrinsic) X-Y-Z rotations.
+Instead, it uses **right-handed (extrinsic) Z-X-Y** rotations:
+First roll (Z) is applied, then pitch (X); yaw (Y) is applied last.
+
+See [Scratchapixel](https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/coordinate-systems.html)
+or [Wikipedia](https://en.wikipedia.org/wiki/Cartesian_coordinate_system#Orientation_and_handedness)
+for a more detailed and pictorial explanation of these terms.
 
 
 Spatial Vectors
@@ -4055,7 +4083,7 @@ vectors are written like this: `(x, y, z)`:
     * At a multiple of 0.5, rounds away from zero.
 * `vector.sign(v, tolerance)`:
     * Returns a vector where `math.sign` was called for each component.
-    * See [Helper functions] for details.
+    * See [Helper functions](#helper-functions) for details.
 * `vector.abs(v)`:
     * Returns a vector with absolute values for each component.
 * `vector.apply(v, func, ...)`:
@@ -4137,6 +4165,7 @@ angles in radians.
 
 * `vector.rotate(v, r)`:
     * Applies the rotation `r` to `v` and returns the result.
+    * Uses (extrinsic) Z-X-Y rotation order and is right-handed, consistent with `ObjectRef:set_rotation`.
     * `vector.rotate(vector.new(0, 0, 1), r)` and
       `vector.rotate(vector.new(0, 1, 0), r)` return vectors pointing
       forward and up relative to an entity's rotation `r`.
@@ -4455,7 +4484,7 @@ The file should be a text file, with the following format:
 * All other empty lines or lines beginning with `#` are ignored.
 * Other lines should be in the format `original=translated`. Both `original`
   and `translated` can contain escape sequences beginning with `@` to insert
-  arguments, literal `@`, `=` or newline (See [Escapes] below).
+  arguments, literal `@`, `=` or newline (See [Escapes](#escapes) below).
   There must be no extraneous whitespace around the `=` or at the beginning or
   the end of the line.
 
@@ -4865,7 +4894,7 @@ The parameters `clust_num_ores`, `clust_size`, `noise_threshold` and
 Ore attributes
 --------------
 
-See section [Flag Specifier Format].
+See section [Flag Specifier Format](#flag-specifier-format).
 
 Currently supported flags:
 `puff_cliffs`, `puff_additive_composition`.
@@ -4960,7 +4989,7 @@ About probability values:
 Schematic attributes
 --------------------
 
-See section [Flag Specifier Format].
+See section [Flag Specifier Format](#flag-specifier-format).
 
 Currently supported flags: `place_center_x`, `place_center_y`, `place_center_z`,
                            `force_placement`.
@@ -5030,11 +5059,11 @@ Nodes in a VoxelManip object may also be read in bulk to a flat array table
 using:
 
 * `VoxelManip:get_data()` for node content (in Content ID form, see section
-  [Content IDs]),
+  [Content IDs](#content-ids),
 * `VoxelManip:get_light_data()` for node param (usually light levels), and
 * `VoxelManip:get_param2_data()` for the node type-dependent "param2" values.
 
-See section [Flat array format] for more details.
+See section [Flat array format](#flat-array-format) for more details.
 
 It is very important to understand that the tables returned by any of the above
 three functions represent a snapshot of the VoxelManip's internal state at the
@@ -5087,7 +5116,7 @@ and the array index for a position p contained completely in p1..p2 is:
 
 Note that this is the same "flat 3D array" format as
 `ValueNoiseMap:get3dMap_flat()`.
-VoxelArea objects (see section [`VoxelArea`]) can be used to simplify calculation
+VoxelArea objects (see section [`VoxelArea`](#voxelarea)) can be used to simplify calculation
 of the index for a single point in a flat VoxelManip array.
 
 ### Content IDs
@@ -5388,7 +5417,7 @@ Available generation notification types:
 * `cave_end`
 * `large_cave_begin`
 * `large_cave_end`
-* `custom`: data originating from [Mapgen environment] (Lua API)
+* `custom`: data originating from [Mapgen environment](#mapgen-environment) (Lua API)
    * This is a table.
    * key = user-defined ID (string)
    * value = arbitrary Lua value
@@ -5814,8 +5843,10 @@ Utilities
       remove_item_match_meta = true,
       -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
       httpfetch_additional_methods = true,
+      -- objects have get_guid method (5.13.0)
+      object_guids = true,
       -- The upper four bits of liquid node param2 values are preserved
-      -- during liquid flow (5.12.0)
+      -- during liquid flow (5.14.0)
       preserve_liquid_param2 = true,
   }
   ```
@@ -5899,8 +5930,8 @@ Utilities
       },
 
       -- Estimated maximum formspec size before Luanti will start shrinking the
-      -- formspec to fit. For a fullscreen formspec, use this formspec size and
-      -- `padding[0,0]`. `bgcolor[;true]` is also recommended.
+      -- formspec to fit. For a fullscreen formspec, use the size returned by
+      -- this table  and `padding[0,0]`. `bgcolor[;true]` is also recommended.
       max_formspec_size = {
           x = 20,
           y = 11.25
@@ -6044,7 +6075,7 @@ Call these functions only at load time!
 * `core.register_lbm(lbm definition)`
 * `core.register_alias(alias, original_name)`
     * Also use this to set the 'mapgen aliases' needed in a game for the core
-      mapgens. See [Mapgen aliases] section above.
+      mapgens. See [Mapgen aliases](#mapgen-aliases) section above.
 * `core.register_alias_force(alias, original_name)`
 * `core.register_ore(ore definition)`
     * Returns an integer object handle uniquely identifying the registered
@@ -6106,7 +6137,7 @@ Call these functions only at load time!
     * Unregisters a chatcommands registered with `register_chatcommand`.
 * `core.register_privilege(name, definition)`
     * `definition` can be a description or a definition table (see [Privilege
-      definition]).
+      definition](#privilege-definition)).
     * If it is a description, the priv will be granted to singleplayer and admin
       by default.
     * To allow players with `basic_privs` to grant, see the `basic_privs`
@@ -6149,7 +6180,7 @@ Call these functions only at load time!
     * Called after generating a piece of world between `minp` and `maxp`.
     * **Avoid using this** whenever possible. As with other callbacks this blocks
       the main thread and introduces noticeable latency.
-      Consider [Mapgen environment] for an alternative.
+      Consider [Mapgen environment](#mapgen-environment) for an alternative.
 * `core.register_on_newplayer(function(ObjectRef))`
     * Called when a new player enters the world for the first time
 * `core.register_on_punchplayer(function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage))`
@@ -6287,7 +6318,7 @@ Call these functions only at load time!
 * `core.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv))`
     * Called when `player` crafts something
     * `itemstack` is the output
-    * `old_craft_grid` contains the recipe (Note: the one in the inventory is
+    * `old_craft_grid` contains the recipe, is a list of `ItemStack`s (Note: the one in the inventory is
       cleared).
     * `craft_inv` is the inventory with the crafting grid
     * Return either an `ItemStack`, to replace the output, or `nil`, to not
@@ -6369,7 +6400,7 @@ Setting-related
 ---------------
 
 * `core.settings`: Settings object containing all of the settings from the
-  main config file (`minetest.conf`). See [`Settings`].
+  main config file (`minetest.conf`). See [`Settings`](#settings).
 * `core.setting_get_pos(name)`: Loads a setting from the main settings and
   parses it as a position (in the format `(1,2,3)`). Returns a position or nil. **Deprecated: use `core.settings:get_pos()` instead**
 
@@ -6412,7 +6443,7 @@ Authentication
 * `core.get_auth_handler()`: Return the currently active auth handler
     * Must be called *after* load time, to ensure that any custom auth handler was
       already registered.
-    * See the [Authentication handler definition]
+    * See the [Authentication handler definition](#authentication-handler-definition)
     * Use this to e.g. get the authentication data for a player:
       `local auth_data = core.get_auth_handler().get_auth(playername)`
 * `core.notify_authentication_modified(name)`
@@ -6610,7 +6641,7 @@ Environment access
     * Loads the manipulator from the map if positions are passed.
 * `core.set_gen_notify(flags, [deco_ids], [custom_ids])`
     * Set the types of on-generate notifications that should be collected.
-    * `flags`: flag field, see [`gennotify`] for available generation notification types.
+    * `flags`: flag field, see [`gennotify`](#gennotify) for available generation notification types.
     * The following parameters are optional:
     * `deco_ids` is a list of IDs of decorations which notification
       is requested for.
@@ -6624,7 +6655,7 @@ Environment access
     * Returns the decoration ID number for the provided decoration name string,
       or `nil` on failure.
 * `core.get_mapgen_object(objectname)`
-    * Return requested mapgen object if available (see [Mapgen objects])
+    * Return requested mapgen object if available (see [Mapgen objects](#mapgen-objects))
 * `core.get_heat(pos)`
     * Returns the heat at the position, or `nil` on failure.
 * `core.get_humidity(pos)`
@@ -6704,11 +6735,11 @@ Environment access
       active config.
 * `core.get_noiseparams(name)`
     * Returns a table of the noiseparams for name.
-* `core.generate_ores(vm, pos1, pos2)`
+* `core.generate_ores(vm[, pos1, pos2])`
     * Generate all registered ores within the VoxelManip `vm` and in the area
       from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
-* `core.generate_decorations(vm, pos1, pos2)`
+* `core.generate_decorations(vm[, pos1, pos2])`
     * Generate all registered decorations within the VoxelManip `vm` and in the
       area from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
@@ -6855,7 +6886,7 @@ You can find mod channels communication scheme in `doc/mod_channels.png`.
     * Server joins channel `channel_name`, and creates it if necessary. You
       should listen for incoming messages with
       `core.register_on_modchannel_message`
-    * This returns a [ModChannel] object.
+    * This returns a [ModChannel](#modchannel) object.
 
 Inventory
 ---------
@@ -6868,7 +6899,7 @@ Inventory
     * `{type="detached", name="creative"}`
 * `core.create_detached_inventory(name, callbacks, [player_name])`: returns
   an `InvRef`.
-    * `callbacks`: See [Detached inventory callbacks]
+    * `callbacks`: See [Detached inventory callbacks](#detached-inventory-callbacks)
     * `player_name`: Make detached inventory available to one player
       exclusively, by default they will be sent to every player (even if not
       used).
@@ -6881,7 +6912,7 @@ Inventory
   returns leftover ItemStack or nil to indicate no inventory change
     * See `core.item_eat` and `core.register_on_item_eat`
 
-Formspec
+Formspec functions
 --------
 
 * `core.show_formspec(playername, formname, formspec)`
@@ -6950,7 +6981,7 @@ Item handling
       does not refer to a node or entity.
     * If the optional `above` parameter is true and the `pointed_thing` refers
       to a node, then it will return the `above` position of the `pointed_thing`.
-* `core.dir_to_facedir(dir, is6d)`
+* `core.dir_to_facedir(dir[, is6d])`
     * Convert a vector to a facedir value, used in `param2` for
       `paramtype2="facedir"`.
     * passing something non-`nil`/`false` for the optional second parameter
@@ -6982,7 +7013,7 @@ Item handling
       given `param2` value.
     * Returns `nil` if the given `paramtype2` does not contain color
       information.
-* `core.get_node_drops(node, toolname[, tool, digger, pos])`
+* `core.get_node_drops(node[, toolname, tool, digger, pos])`
     * Returns list of itemstrings that are dropped by `node` when dug with the
       item `toolname` (not limited to tools). The default implementation doesn't
       use `tool`, `digger`, and `pos`, but these are provided by `core.node_dig`
@@ -7233,7 +7264,7 @@ a Lua environment. Its primary purpose is to allow mods to operate on newly
 generated parts of the map to e.g. generate custom structures.
 Internally it is referred to as "emerge environment".
 
-Refer to [Async environment] for the usual disclaimer on what environment isolation entails.
+Refer to [Async environment](#async-environment) for the usual disclaimer on what environment isolation entails.
 
 The map generator threads, which also contain the above mentioned Lua environment,
 are initialized after all mods have been loaded by the server. After that the
@@ -7257,7 +7288,7 @@ does not have a global step or timer.
       is not necessary and is disallowed.
     * `blockseed`: 64-bit seed number used for this chunk
 * `core.save_gen_notify(id, data)`
-    * Saves data for retrieval using the gennotify mechanism (see [Mapgen objects]).
+    * Saves data for retrieval using the gennotify mechanism (see [Mapgen objects](#mapgen-objects)).
     * Data is bound to the chunk that is currently being processed, so this function
       only makes sense inside the `on_generated` callback.
     * `id`: user-defined ID (a string)
@@ -7494,7 +7525,7 @@ Schematics
     * Saves schematic in the Luanti Schematic format to filename.
 
 * `core.place_schematic(pos, schematic, rotation, replacements, force_placement, flags)`
-    * Place the schematic specified by schematic (see [Schematic specifier]) at
+    * Place the schematic specified by schematic (see [Schematic specifier](#schematic-specifier)) at
       `pos`.
     * `rotation` can equal `"0"`, `"90"`, `"180"`, `"270"`, or `"random"`.
     * If the `rotation` parameter is omitted, the schematic is not rotated.
@@ -7529,7 +7560,7 @@ Schematics
 
 * `core.serialize_schematic(schematic, format, options)`
     * Return the serialized schematic specified by schematic
-      (see [Schematic specifier])
+      (see [Schematic specifier](#schematic-specifier))
     * in the `format` of either "mts" or "lua".
     * "mts" - a string containing the binary MTS data used in the MTS file
       format.
@@ -7544,8 +7575,8 @@ Schematics
           instead of a tab character.
 
 * `core.read_schematic(schematic, options)`
-    * Returns a Lua table representing the schematic (see: [Schematic specifier])
-    * `schematic` is the schematic to read (see: [Schematic specifier])
+    * Returns a Lua table representing the schematic (see: [Schematic specifier](#schematic-specifier))
+    * `schematic` is the schematic to read (see: [Schematic specifier](#schematic-specifier))
     * `options` is a table containing the following optional parameters:
         * `write_yslice_prob`: string value:
             * `none`: no `write_yslice_prob` table is inserted,
@@ -7867,8 +7898,12 @@ Global tables
     * Values in this table may be modified directly.
       Note: changes to initial properties will only affect entities spawned afterwards,
       as they are only read when spawning.
+* `core.objects_by_guid`
+    * Map of active object references, indexed by object GUID
 * `core.object_refs`
-    * Map of object references, indexed by active object id
+    * **Obsolete:** Use `core.objects_by_guid` instead.
+      GUIDs are strictly more useful than active object IDs.
+    * Map of active object references, indexed by active object id
 * `core.luaentities`
     * Map of Lua entities, indexed by active object id
 * `core.registered_abms`
@@ -7897,7 +7932,7 @@ Global tables
 
 ### Registered callback tables
 
-All callbacks registered with [Global callback registration functions] are added
+All callbacks registered with [Global callback registration functions](#global-callback-registration-functions) are added
 to corresponding `core.registered_*` tables.
 
 For historical reasons, the use of an -s suffix in these names is inconsistent.
@@ -8114,13 +8149,13 @@ an itemstring, a table or `nil`.
 * `get_description()`: returns the description shown in inventory list tooltips.
     * The engine uses this when showing item descriptions in tooltips.
     * Fields for finding the description, in order:
-        * `description` in item metadata (See [Item Metadata].)
+        * `description` in item metadata (See [Item Metadata](#item-metadata).)
         * `description` in item definition
         * item name
 * `get_short_description()`: returns the short description or nil.
     * Unlike the description, this does not include new lines.
     * Fields for finding the short description, in order:
-        * `short_description` in item metadata (See [Item Metadata].)
+        * `short_description` in item metadata (See [Item Metadata](#item-metadata).)
         * `short_description` in item definition
         * first line of the description (From item meta or def, see `get_description()`.)
         * Returns nil if none of the above are set
@@ -8196,8 +8231,8 @@ Can be obtained via `item:get_meta()`.
 `MetaDataRef`
 -------------
 
-Base class used by [`StorageRef`], [`NodeMetaRef`], [`ItemStackMetaRef`],
-and [`PlayerMetaRef`].
+Base class used by [`StorageRef`](#storageref), [`NodeMetaRef`](#nodemetaref), [`ItemStackMetaRef`](#itemstackmetaref),
+and [`PlayerMetaRef`](#playermetaref).
 
 Note: If a metadata value is in the format `${k}`, an attempt to get the value
 will return the value associated with key `k`. There is a low recursion limit.
@@ -8262,14 +8297,14 @@ metadata_table = {
         -- inventory list "main" with 4 slots
         main = {
             -- list of all item slots
-            [1] = "example:dirt",
-            [2] = "example:stone 25",
-            [3] = "", -- empty slot
-            [4] = "example:pickaxe",
+            [1] = ItemStack("example:dirt"),
+            [2] = ItemStack("example:stone 25"),
+            [3] = ItemStack(""), -- empty slot
+            [4] = ItemStack("example:pickaxe"),
         },
         -- inventory list "hidden" with 1 slot
         hidden = {
-            [1] = "example:diamond",
+            [1] = ItemStack("example:diamond"),
         },
     },
 }
@@ -8506,9 +8541,9 @@ child will follow movement and rotation of that bone.
         * `interpolation`: The old and new overrides are interpolated over this timeframe (in seconds).
         * `absolute`: If set to `false` (which is the default),
           the override will be relative to the animated property:
-            * Translation in the case of `position`;
-            * Composition in the case of `rotation`;
-            * Per-axis multiplication in the case of `scale`
+          * Translation in the case of `position`;
+          * Composition in the case of `rotation`;
+          * Per-axis multiplication in the case of `scale`
     * `property = nil` is equivalent to no override on that property
     * **Note:** Unlike `set_bone_position`, the rotation is in radians, not degrees.
     * Compatibility note: Clients prior to 5.9.0 only support absolute position and rotation.
@@ -8566,6 +8601,14 @@ child will follow movement and rotation of that bone.
           -- Default: false
       }
       ```
+* `get_guid()`: returns a global unique identifier (a string)
+    * For players, this is a player name.
+    * For Lua entities, this is a uniquely generated string, guaranteed not to collide with player names.
+      * example: `@bGh3p2AbRE29Mb4biqX6OA`
+    * GUIDs only use printable ASCII characters.
+    * GUIDs persist between object reloads, and their format is guaranteed not to change.
+      Thus you can use the GUID to identify an object in a particular world online and offline.
+
 
 #### Lua entity only (no-op for other objects)
 
@@ -8581,9 +8624,10 @@ child will follow movement and rotation of that bone.
     * `acc` is a vector
 * `get_acceleration()`: returns the acceleration, a vector
 * `set_rotation(rot)`
-    * Sets the rotation
     * `rot` is a vector (radians). X is pitch (elevation), Y is yaw (heading)
       and Z is roll (bank).
+    * Sets the **right-handed Z-X-Y** rotation:
+      First roll (Z) is applied, then pitch (X); yaw (Y) is applied last.
     * Does not reset rotation incurred through `automatic_rotate`.
       Remove & re-add your objects to force a certain rotation.
 * `get_rotation()`: returns the rotation, a vector (radians)
@@ -8592,7 +8636,7 @@ child will follow movement and rotation of that bone.
 * `set_texture_mod(mod)`
     * Set a texture modifier to the base texture, for sprites and meshes.
     * When calling `set_texture_mod` again, the previous one is discarded.
-    * `mod` the texture modifier. See [Texture modifiers].
+    * `mod` the texture modifier. See [Texture modifiers](#texture-modifiers).
 * `get_texture_mod()` returns current texture modifier
 * `set_sprite(start_frame, num_frames, framelength, select_x_by_camera)`
     * Specifies and starts a sprite animation
@@ -8649,7 +8693,7 @@ child will follow movement and rotation of that bone.
     * values:
         * `0`: player is drowning
         * max: bubbles bar is not shown
-        * See [Object properties] for more information
+        * See [Object properties](#object-properties) for more information
     * Is limited to range 0 ... 65535 (2^16 - 1)
 * `set_fov(fov, is_multiplier, transition_time)`: Sets player's FOV
     * `fov`: Field of View (FOV) value.
@@ -9498,7 +9542,7 @@ Player properties need to be saved manually.
     -- (see node sound definition for details).
 
     automatic_rotate = 0,
-    -- Set constant rotation in radians per second, positive or negative.
+    -- Set constant right-handed rotation in radians per second, positive or negative.
     -- Object rotates along the local Y-axis, and works with set_rotation.
     -- Set to 0 to disable constant rotation.
 
@@ -9828,6 +9872,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
 
     color = "#ffffffff",
     -- Color the item is colorized with. The palette overrides this.
+    -- It is a colorspec.
 
     stack_max = 99,
     -- Maximum amount of items that can be in a single stack.
@@ -10850,6 +10895,9 @@ See [Ores] section above for essential information.
 
 ```lua
 {
+    name = "",
+    -- If set, core.registered_ores[that_name] will return this definition.
+
     ore_type = "",
     -- Supported: "scatter", "sheet", "puff", "blob", "vein", "stratum"
 
@@ -11049,7 +11097,7 @@ performance and computing power the practical limit is much lower.
 Decoration definition
 ---------------------
 
-See [Decoration types]. Used by `core.register_decoration`.
+See [Decoration types](#decoration-types). Used by `core.register_decoration`.
 
 ```lua
 {
@@ -11339,7 +11387,7 @@ HUD Definition
 --------------
 
 Since most values have multiple different functions, please see the
-documentation in [HUD] section.
+documentation in [HUD](#hud) section.
 
 Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
 
@@ -11681,7 +11729,7 @@ section, along with the datatypes they accept.
 All properties in this list of type "vec3 range", "float range" or "vec3" can
 be animated with `*_tween` tables. For example, `jitter` can be tweened by
 setting a `jitter_tween` table instead of (or in addition to) a `jitter`
-table/value.
+table/value. This also applies to the `attract` table.
 
 In this section, a float range is a table defined as so: { min = A, max = B }
 A and B are your supplemented values. For a vec3 range this means they are vectors.
@@ -11728,22 +11776,22 @@ Types used are defined in the previous section.
   * string `kind`: selects the kind of shape towards which the particles will
     be oriented. it must have one of the following values:
 
-    * `"none"`: no attractor is set and the `attractor` table is ignored
+    * `"none"`: no attractor is set and the `attract` table is ignored
     * `"point"`: the particles are attracted to a specific point in space.
       use this also if you want a sphere-like effect, in combination with
       the `radius` property.
     * `"line"`: the particles are attracted to an (infinite) line passing
-      through the points `origin` and `angle`. use this for e.g. beacon
+      through the point `origin`, with direction specified by `direction`. use this for e.g. beacon
       effects, energy beam effects, etc.
     * `"plane"`: the particles are attracted to an (infinite) plane on whose
       surface `origin` designates a point in world coordinate space. use this
       for e.g. particles entering or emerging from a portal.
 
   * float range `strength`: the speed with which particles will move towards
-    `attractor`. If negative, the particles will instead move away from that
+    the attractor shape. If negative, the particles will instead move away from that
     point.
 
-  * vec3 `origin`: the origin point of the shape towards which particles will
+  * vec3 `origin`: the origin point of the attractor shape towards which particles will
     initially be oriented. functions as an offset if `origin_attached` is also
     set.
 

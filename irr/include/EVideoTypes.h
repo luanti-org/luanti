@@ -6,7 +6,7 @@
 
 #include "SMaterial.h" // MATERIAL_MAX_TEXTURES
 
-namespace irr::video
+namespace video
 {
 
 //! enumeration for geometry transformation states
@@ -71,5 +71,5 @@ enum E_FOG_TYPE
 	EFT_FOG_EXP2
 };
 
-} // irr::video
+} // end namespace video
 

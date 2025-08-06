@@ -111,7 +111,7 @@ void MyEventReceiver::setKeyDown(GameKeyType action, bool is_down)
 
 bool MyEventReceiver::OnEvent(const SEvent &event)
 {
-	if (event.EventType == irr::EET_LOG_TEXT_EVENT) {
+	if (event.EventType == EET_LOG_TEXT_EVENT) {
 		static const LogLevel irr_loglev_conv[] = {
 			LL_VERBOSE, // ELL_DEBUG
 			LL_INFO,    // ELL_INFORMATION
@@ -178,18 +178,18 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	}
 
 	// Remember whether each key is down or up
-	if (event.EventType == irr::EET_KEY_INPUT_EVENT) {
+	if (event.EventType == EET_KEY_INPUT_EVENT) {
 		KeyPress keyCode(event.KeyInput);
 		if (setKeyDown(keyCode, event.KeyInput.PressedDown))
 			return true;
-	} else if (g_touchcontrols && event.EventType == irr::EET_TOUCH_INPUT_EVENT) {
+	} else if (g_touchcontrols && event.EventType == EET_TOUCH_INPUT_EVENT) {
 		// In case of touchcontrols, we have to handle different events
 		g_touchcontrols->translateEvent(event);
 		return true;
-	} else if (event.EventType == irr::EET_JOYSTICK_INPUT_EVENT) {
+	} else if (event.EventType == EET_JOYSTICK_INPUT_EVENT) {
 		// joystick may be nullptr if game is launched with '--random-input' parameter
 		return joystick && joystick->handleEvent(event.JoystickEvent);
-	} else if (event.EventType == irr::EET_MOUSE_INPUT_EVENT) {
+	} else if (event.EventType == EET_MOUSE_INPUT_EVENT) {
 		// Handle mouse events
 		switch (event.MouseInput.Event) {
 		case EMIE_LMOUSE_PRESSED_DOWN:

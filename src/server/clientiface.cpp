@@ -709,8 +709,8 @@ void ClientInterface::step(float dtime)
 		try {
 			Address addr = m_con->GetPeerAddress(it.second->peer_id);
 			os << "Disconnecting lingering client from "
-				<< addr.serializeString() << " (state="
-				<< state2Name(state) << ")" << std::endl;
+				<< addr.serializeString() << " peer_id=" << it.second->peer_id
+				<< " (" << state2Name(state) << ")" << std::endl;
 			m_con->DisconnectPeer(it.second->peer_id);
 		} catch (con::PeerNotFoundException &e) {
 		}
@@ -739,6 +739,7 @@ void ClientInterface::UpdatePlayerList()
 				RemoteClient* client = lockedGetClientNoEx(i);
 				if (client)
 					client->PrintInfo(infostream);
+				infostream << std::endl;
 			}
 
 			m_clients_names.emplace_back(player->getName());

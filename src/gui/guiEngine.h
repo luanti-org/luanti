@@ -40,7 +40,6 @@ struct image_definition {
 class GUIEngine;
 class RenderingEngine;
 class MainMenuScripting;
-class IWritableShaderSource;
 struct MainMenuData;
 
 /******************************************************************************/
@@ -254,7 +253,7 @@ private:
 	void setTopleftText(const std::string &text);
 
 	/** pointer to gui element shown at topleft corner */
-	irr::gui::IGUIStaticText *m_irr_toplefttext = nullptr;
+	gui::IGUIStaticText *m_irr_toplefttext = nullptr;
 	/** and text that is in it */
 	EnrichedString m_toplefttext;
 

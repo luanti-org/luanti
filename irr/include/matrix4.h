@@ -13,8 +13,6 @@
 #include "rect.h"
 #include <cassert>
 
-namespace irr
-{
 namespace core
 {
 
@@ -169,8 +167,9 @@ public:
 	vector3d<T> getTranslation() const;
 
 	//! Make a rotation matrix from Euler angles. The 4th row and column are unmodified.
-	//! NOTE: Rotation order is ZYX. This means that vectors are
-	//! first rotated around the X, then the Y, and finally the Z axis.
+	//! NOTE: Rotation order is (extrinsic) X-Y-Z.
+	//! This means that vectors are first rotated around the X,
+	//! then the (unrotated) Y, and finally the (unrotated) Z axis.
 	//! NOTE: The rotation is done as per the right-hand rule.
 	//! See test_irr_matrix4.cpp if you're still unsure about the conventions used here.
 	inline CMatrix4<T> &setRotationRadians(const vector3d<T> &rotation);
@@ -305,12 +304,14 @@ public:
 	CMatrix4<T> &buildProjectionMatrixOrthoRH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero = true);
 
 	//! Builds a left-handed look-at matrix.
+	//! NOTE: upVector must not be collinear to the postion-to-target vector
 	CMatrix4<T> &buildCameraLookAtMatrixLH(
 			const vector3df &position,
 			const vector3df &target,
 			const vector3df &upVector);
 
 	//! Builds a right-handed look-at matrix.
+	//! NOTE: upVector must not be collinear to the postion-to-target vector
 	CMatrix4<T> &buildCameraLookAtMatrixRH(
 			const vector3df &position,
 			const vector3df &target,
@@ -1901,4 +1902,3 @@ typedef CMatrix4<f32> matrix4;
 extern const matrix4 IdentityMatrix;
 
 } // end namespace core
-} // end namespace irr

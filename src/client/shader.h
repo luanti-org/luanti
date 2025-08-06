@@ -51,7 +51,7 @@ public:
 	Abstraction for updating uniforms used by shaders
 */
 
-namespace irr::video {
+namespace video {
 	class IMaterialRendererServices;
 }
 

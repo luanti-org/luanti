@@ -46,12 +46,10 @@
 #include <map>
 #include <optional>
 
-namespace irr
-{
 namespace gui
 {
 	// Manages the FT_Face cache.
-	struct SGUITTFace : public irr::IReferenceCounted
+	struct SGUITTFace : public IReferenceCounted
 	{
 	private:
 
@@ -409,4 +407,3 @@ namespace gui
 	};
 
 } // end namespace gui
-} // end namespace irr

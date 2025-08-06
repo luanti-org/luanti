@@ -51,7 +51,6 @@ struct DigParams;
 struct HitParams;
 struct EnumString;
 struct NoiseParams;
-class Schematic;
 class ServerActiveObject;
 struct collisionMoveResult;
 namespace treegen { struct TreeDef; }

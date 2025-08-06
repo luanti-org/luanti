@@ -9,7 +9,6 @@
 #include <unordered_map>
 #include <vector>
 
-class Settings;
 
 struct SubgameSpec
 {

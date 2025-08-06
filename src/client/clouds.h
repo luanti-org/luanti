@@ -11,11 +11,11 @@
 #include <iostream>
 #include <ISceneNode.h>
 #include <SMaterial.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 
 class IShaderSource;
 
-namespace irr::scene
+namespace scene
 {
 	class ISceneManager;
 }

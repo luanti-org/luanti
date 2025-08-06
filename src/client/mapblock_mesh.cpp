@@ -23,7 +23,7 @@
 #include "client/texturesource.h"
 #include <SMesh.h>
 #include <IMeshBuffer.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 
 /*
 	MeshMakeData
@@ -316,7 +316,7 @@ void final_color_blend(video::SColor *result,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	};
 
-	b += emphase_blue_when_dark[irr::core::clamp((s32) ((r + g + b) / 3 * 255),
+	b += emphase_blue_when_dark[core::clamp((s32) ((r + g + b) / 3 * 255),
 		0, 255) / 8] / 255.0f;
 
 	result->setRed(core::clamp((s32) (r * 255.0f), 0, 255));

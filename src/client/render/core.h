@@ -8,18 +8,12 @@
 #include "irr_v2d.h"
 #include <SColor.h>
 
-namespace irr
-{
-	class IrrlichtDevice;
-}
+class IrrlichtDevice;
 
 class ShadowRenderer;
-class Camera;
 class Client;
 class Hud;
-class Minimap;
 class RenderPipeline;
-class RenderTarget;
 
 class RenderingCore
 {

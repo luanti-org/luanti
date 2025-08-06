@@ -23,7 +23,7 @@
 #define PATH_DELIM ":"
 #endif
 
-namespace irr::io {
+namespace io {
 class IFileSystem;
 }
 
@@ -151,7 +151,7 @@ const char *GetFilenameFromPath(const char *path);
 bool safeWriteToFile(const std::string &path, std::string_view content);
 
 #if IS_CLIENT_BUILD
-bool extractZipFile(irr::io::IFileSystem *fs, const char *filename, const std::string &destination);
+bool extractZipFile(io::IFileSystem *fs, const char *filename, const std::string &destination);
 #endif
 
 bool ReadFile(const std::string &path, std::string &out, bool log_error = false);

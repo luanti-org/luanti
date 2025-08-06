@@ -6,7 +6,7 @@
 
 #include "IAnimatedMesh.h"
 #include "ISceneManager.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 #include "SSkinMeshBuffer.h"
 #include "aabbox3d.h"
 #include "irrMath.h"
@@ -21,8 +21,6 @@
 #include <variant>
 #include <vector>
 
-namespace irr
-{
 namespace scene
 {
 
@@ -447,4 +445,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

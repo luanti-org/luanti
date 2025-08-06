@@ -8,8 +8,6 @@
 #include "SIrrCreationParameters.h"
 #include "IContextManager.h"
 
-namespace irr
-{
 // lots of prototypes:
 class ILogger;
 class CLogger;
@@ -159,7 +157,7 @@ public:
 	float getDisplayDensity() const override;
 
 	//! Resize the render window.
-	void setWindowSize(const irr::core::dimension2d<u32> &size) override {}
+	void setWindowSize(const core::dimension2d<u32> &size) override {}
 
 protected:
 	void createGUIAndScene();
@@ -202,5 +200,3 @@ protected:
 	SIrrlichtCreationParameters CreationParams;
 	bool Close;
 };
-
-} // end namespace irr

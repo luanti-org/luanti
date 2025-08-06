@@ -563,8 +563,10 @@ bool GameFormSpec::handleCallbacks()
 #ifdef __ANDROID__
 bool GameFormSpec::handleAndroidUIInput()
 {
-	if (m_formspec) {
-		m_formspec->getAndroidUIInput();
+	// FIXME: m_formspec and this value are not in sync at all times.
+	GUIModalMenu *menu = g_menumgr.tryGetTopMenu();
+	if (menu) {
+		menu->getAndroidUIInput();
 		return true;
 	}
 	return false;

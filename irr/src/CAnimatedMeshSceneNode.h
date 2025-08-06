@@ -12,11 +12,8 @@
 #include "Transform.h"
 #include "matrix4.h"
 
-namespace irr
-{
 namespace scene
 {
-class IDummyTransformationSceneNode;
 
 class CAnimatedMeshSceneNode : public IAnimatedMeshSceneNode
 {
@@ -192,4 +189,3 @@ private:
 };
 
 } // end namespace scene
-} // end namespace irr

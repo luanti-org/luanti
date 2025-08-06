@@ -7,6 +7,7 @@
 #include <ICameraSceneNode.h>
 #include <IMeshManipulator.h>
 #include <IAnimatedMeshSceneNode.h>
+#include <ISceneNode.h>
 #include "client/client.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
@@ -37,9 +38,8 @@
 #include <quaternion.h>
 #include <SMesh.h>
 #include <IMeshBuffer.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 
-class Settings;
 struct ToolCapabilities;
 
 std::unordered_map<u16, ClientActiveObject::Factory> ClientActiveObject::m_types;
@@ -343,6 +343,18 @@ bool GenericCAO::getSelectionBox(aabb3f *toset) const
 	return true;
 }
 
+void GenericCAO::updateParentChain() const
+{
+	if (!m_matrixnode)
+		return;
+	// Update the entire chain of nodes to ensure absolute position is correct
+	std::vector<scene::ISceneNode *> chain;
+	for (scene::ISceneNode *node = m_matrixnode; node; node = node->getParent())
+		chain.push_back(node);
+	for (auto it = chain.rbegin(); it != chain.rend(); ++it)
+		(*it)->updateAbsolutePosition();
+}
+
 const v3f GenericCAO::getPosition() const
 {
 	if (!getParent())
@@ -350,6 +362,11 @@ const v3f GenericCAO::getPosition() const
 
 	// Calculate real position in world based on MatrixNode
 	if (m_matrixnode) {
+		// FIXME work around #16221 which is caused by the camera position and thus
+		// offset not being in sync with the player (parent) CAO position.
+		// A better solution might restrict this update to the local player only
+		// or keep player and camera position in sync.
+		GenericCAO::updateParentChain();
 		v3s16 camera_offset = m_env->getCameraOffset();
 		return m_matrixnode->getAbsolutePosition() +
 				intToFloat(camera_offset, BS);

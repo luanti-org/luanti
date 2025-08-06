@@ -23,15 +23,13 @@ struct MapDrawControl
 };
 
 class Client;
-class ITextureSource;
-class PartialMeshBuffer;
 
-namespace irr::scene
+namespace scene
 {
 	class IMeshBuffer;
 }
 
-namespace irr::video
+namespace video
 {
 	class IVideoDriver;
 }
@@ -89,12 +87,20 @@ public:
 
 	void getBlocksInViewRange(v3s16 cam_pos_nodes,
 		v3s16 *p_blocks_min, v3s16 *p_blocks_max, float range=-1.0f);
+
 	void updateDrawList();
-	// @brief Calculate statistics about the map and keep the blocks alive
+	/// @brief clears m_drawlist and m_keeplist
+	void clearDrawList();
+
+	/// @brief Calculate statistics about the map and keep the blocks alive
 	void touchMapBlocks();
+
 	void updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir, float radius, float length);
+	void clearDrawListShadow();
+
 	// Returns true if draw list needs updating before drawing the next frame.
 	bool needsUpdateDrawList() { return m_needs_update_drawlist; }
+
 	void renderMap(video::IVideoDriver* driver, s32 pass);
 
 	void renderMapShadows(video::IVideoDriver *driver,

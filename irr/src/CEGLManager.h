@@ -12,8 +12,6 @@
 #include "SExposedVideoData.h"
 #include "IContextManager.h"
 
-namespace irr
-{
 namespace video
 {
 // EGL manager.
@@ -80,13 +78,13 @@ protected:
 
 	//! Check how close this config is to the parameters we requested
 	//! returns 0 is perfect, larger values are worse and < 0 is unusable.
-	irr::s32 rateConfig(EGLConfig config, EGLint eglOpenGLBIT, bool log = false);
+	s32 rateConfig(EGLConfig config, EGLint eglOpenGLBIT, bool log = false);
 
 	// Helper to sort EGLConfig's. (because we got no std::pair....)
 	struct SConfigRating
 	{
 		EGLConfig config;
-		irr::s32 rating;
+		s32 rating;
 		bool operator<(const SConfigRating &other) const
 		{
 			return rating < other.rating;
@@ -109,6 +107,5 @@ private:
 	EGLint MajorVersion;
 	EGLint MinorVersion;
 };
-}
 }
 #endif

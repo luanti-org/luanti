@@ -17,14 +17,11 @@
 // macro used with COpenGL3DriverBase
 #define TEST_GL_ERROR(cls) (cls)->testGLError(__FILE__, __LINE__)
 
-namespace irr
-{
 namespace video
 {
 
 // Forward declarations.
 
-class COpenGLCoreFeature;
 
 template <class TOpenGLDriver>
 class COpenGLCoreTexture;
@@ -40,7 +37,6 @@ typedef COpenGLCoreTexture<COpenGL3DriverBase> COpenGL3Texture;
 typedef COpenGLCoreRenderTarget<COpenGL3DriverBase, COpenGL3Texture> COpenGL3RenderTarget;
 typedef COpenGLCoreCacheHandler<COpenGL3DriverBase, COpenGL3Texture> COpenGL3CacheHandler;
 
-class OpenGLVBO;
 
 enum OpenGLSpec : u8
 {
@@ -58,5 +54,4 @@ struct OpenGLVersion
 	u8 Release;
 };
 
-}
 }

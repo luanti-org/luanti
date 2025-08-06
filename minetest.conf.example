@@ -10,7 +10,7 @@
 #    to the program, eg. "luanti.exe --config ../minetest.conf.example".
 
 #    Further documentation:
-#    https://wiki.luanti.org/
+#    https://docs.luanti.org/
 
 #
 # Controls
@@ -94,33 +94,31 @@
 
 ### Keybindings
 
-#    Key for moving the player forward.
+#    Move forward
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_forward = SYSTEM_SCANCODE_26
 
-#    Key for moving the player backward.
 #    Will also disable autoforward, when active.
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_backward = SYSTEM_SCANCODE_22
 
-#    Key for moving the player left.
+#    Move left
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_left = SYSTEM_SCANCODE_4
 
-#    Key for moving the player right.
+#    Move right
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_right = SYSTEM_SCANCODE_7
 
-#    Key for jumping.
+#    Jump
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_jump = SYSTEM_SCANCODE_44
 
-#    Key for sneaking.
 #    Also used for climbing down and descending in water if aux1_descends is disabled.
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
@@ -138,7 +136,7 @@
 #    type: key
 # keymap_place = KEY_RBUTTON
 
-#    Key for opening the inventory.
+#    Open inventory
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_inventory = SYSTEM_SCANCODE_12
@@ -148,7 +146,7 @@
 #    type: key
 # keymap_aux1 = SYSTEM_SCANCODE_8
 
-#    Key for opening the chat window.
+#    Open chat
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_chat = SYSTEM_SCANCODE_23
@@ -163,112 +161,112 @@
 #    type: key
 # keymap_cmd_local = SYSTEM_SCANCODE_55
 
-#    Key for toggling unlimited view range.
+#    Toggle unlimited view range
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_rangeselect =
 
-#    Key for toggling flying.
+#    Toggle fly
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_freemove = SYSTEM_SCANCODE_14
 
-#    Key for toggling pitch move mode.
+#    Toggle pitchmove
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_pitchmove =
 
-#    Key for toggling fast mode.
+#    Toggle fast
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_fastmove = SYSTEM_SCANCODE_13
 
-#    Key for toggling noclip mode.
+#    Toggle noclip
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_noclip = SYSTEM_SCANCODE_11
 
-#    Key for selecting the next item in the hotbar.
+#    Hotbar: select next item
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_hotbar_next = SYSTEM_SCANCODE_17
 
-#    Key for selecting the previous item in the hotbar.
+#    Hotbar: select previous item
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_hotbar_previous = SYSTEM_SCANCODE_5
 
-#    Key for muting the game.
+#    Mute
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_mute = SYSTEM_SCANCODE_16
 
-#    Key for increasing the volume.
+#    Increase volume
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_increase_volume =
 
-#    Key for decreasing the volume.
+#    Decrease volume
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_decrease_volume =
 
-#    Key for toggling autoforward.
+#    Toggle automatic forward
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_autoforward =
 
-#    Key for toggling cinematic mode.
+#    Toggle cinematic mode
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_cinematic =
 
-#    Key for toggling display of minimap.
+#    Toggle minimap
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_minimap = SYSTEM_SCANCODE_25
 
-#    Key for taking screenshots.
+#    Screenshot
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_screenshot = SYSTEM_SCANCODE_69
 
-#    Key for toggling fullscreen mode.
+#    Toggle fullscreen
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_fullscreen = SYSTEM_SCANCODE_68
 
-#    Key for dropping the currently selected item.
+#    Drop item
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_drop = SYSTEM_SCANCODE_20
 
-#    Key to use view zoom when possible.
+#    Zoom
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_zoom = SYSTEM_SCANCODE_29
 
-#    Key for toggling the display of the HUD.
+#    Toggle HUD
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_toggle_hud = SYSTEM_SCANCODE_58
 
-#    Key for toggling the display of chat.
+#    Toggle chat log
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_toggle_chat = SYSTEM_SCANCODE_59
 
-#    Key for toggling the display of the large chat console.
+#    Toggle large chat console
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_console = SYSTEM_SCANCODE_67
 
-#    Key for toggling the display of fog.
+#    Toggle fog
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_toggle_fog = SYSTEM_SCANCODE_60
 
-#    Key for toggling the display of debug info.
+#    Toggle debug info
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_toggle_debug = SYSTEM_SCANCODE_62
@@ -283,177 +281,183 @@
 #    type: key
 # keymap_toggle_block_bounds =
 
-#    Key for switching between first- and third-person camera.
+#    Toggle camera mode
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_camera_mode = SYSTEM_SCANCODE_6
 
-#    Key for increasing the viewing range.
+#    Increase view range
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_increase_viewing_range_min = SYSTEM_SCANCODE_46
 
-#    Key for decreasing the viewing range.
+#    Decrease view range
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_decrease_viewing_range_min = SYSTEM_SCANCODE_45
 
-#    Key for selecting the first hotbar slot.
+#    Modifier key bind for closing your world.
+#    Requires ESC + the selected key to work.
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_close_world =
+
+#    Hotbar slot 1
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot1 = SYSTEM_SCANCODE_30
 
-#    Key for selecting the second hotbar slot.
+#    Hotbar slot 2
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot2 = SYSTEM_SCANCODE_31
 
-#    Key for selecting the third hotbar slot.
+#    Hotbar slot 3
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot3 = SYSTEM_SCANCODE_32
 
-#    Key for selecting the fourth hotbar slot.
+#    Hotbar slot 4
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot4 = SYSTEM_SCANCODE_33
 
-#    Key for selecting the fifth hotbar slot.
+#    Hotbar slot 5
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot5 = SYSTEM_SCANCODE_34
 
-#    Key for selecting the sixth hotbar slot.
+#    Hotbar slot 6
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot6 = SYSTEM_SCANCODE_35
 
-#    Key for selecting the seventh hotbar slot.
+#    Hotbar slot 7
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot7 = SYSTEM_SCANCODE_36
 
-#    Key for selecting the eighth hotbar slot.
+#    Hotbar slot 8
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot8 = SYSTEM_SCANCODE_37
 
-#    Key for selecting the ninth hotbar slot.
+#    Hotbar slot 9
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot9 = SYSTEM_SCANCODE_38
 
-#    Key for selecting the tenth hotbar slot.
+#    Hotbar slot 10
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot10 = SYSTEM_SCANCODE_39
 
-#    Key for selecting the 11th hotbar slot.
+#    Hotbar slot 11
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot11 =
 
-#    Key for selecting the 12th hotbar slot.
+#    Hotbar slot 12
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot12 =
 
-#    Key for selecting the 13th hotbar slot.
+#    Hotbar slot 13
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot13 =
 
-#    Key for selecting the 14th hotbar slot.
+#    Hotbar slot 14
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot14 =
 
-#    Key for selecting the 15th hotbar slot.
+#    Hotbar slot 15
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot15 =
 
-#    Key for selecting the 16th hotbar slot.
+#    Hotbar slot 16
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot16 =
 
-#    Key for selecting the 17th hotbar slot.
+#    Hotbar slot 17
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot17 =
 
-#    Key for selecting the 18th hotbar slot.
+#    Hotbar slot 18
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot18 =
 
-#    Key for selecting the 19th hotbar slot.
+#    Hotbar slot 19
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot19 =
 
-#    Key for selecting the 20th hotbar slot.
+#    Hotbar slot 20
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot20 =
 
-#    Key for selecting the 21st hotbar slot.
+#    Hotbar slot 21
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot21 =
 
-#    Key for selecting the 22nd hotbar slot.
+#    Hotbar slot 22
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot22 =
 
-#    Key for selecting the 23rd hotbar slot.
+#    Hotbar slot 23
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot23 =
 
-#    Key for selecting the 24th hotbar slot.
+#    Hotbar slot 24
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot24 =
 
-#    Key for selecting the 25th hotbar slot.
+#    Hotbar slot 25
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot25 =
 
-#    Key for selecting the 26th hotbar slot.
+#    Hotbar slot 26
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot26 =
 
-#    Key for selecting the 27th hotbar slot.
+#    Hotbar slot 27
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot27 =
 
-#    Key for selecting the 28th hotbar slot.
+#    Hotbar slot 28
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot28 =
 
-#    Key for selecting the 29th hotbar slot.
+#    Hotbar slot 29
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot29 =
 
-#    Key for selecting the 30th hotbar slot.
+#    Hotbar slot 30
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot30 =
 
-#    Key for selecting the 31st hotbar slot.
+#    Hotbar slot 31
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot31 =
 
-#    Key for selecting the 32nd hotbar slot.
+#    Hotbar slot 32
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_slot32 =
@@ -3108,12 +3112,12 @@
 # cloud_radius = 12
 
 #    Delay between mesh updates on the client in ms. Increasing this will slow
-#    down the rate of mesh updates, thus reducing jitter on slower clients.
-#    type: int min: 0 max: 50
+#    down the rate of mesh updates, which can help reduce jitter.
+#    type: int min: 0 max: 25
 # mesh_generation_interval = 0
 
 #    Number of threads to use for mesh generation.
-#    Value of 0 (default) will let Luanti autodetect the number of available threads.
+#    Value of 0 (default) will let Luanti automatically choose the number of threads.
 #    type: int min: 0 max: 8
 # mesh_generation_threads = 0
 
@@ -3197,9 +3201,11 @@
 
 ### Font
 
+#    Font bold by default
 #    type: bool
 # font_bold = false
 
+#    Font italic by default
 #    type: bool
 # font_italic = false
 
@@ -3227,12 +3233,15 @@
 #    type: filepath
 # font_path = fonts/Arimo-Regular.ttf
 
+#    Bold font path
 #    type: filepath
 # font_path_bold = fonts/Arimo-Bold.ttf
 
+#    Italic font path
 #    type: filepath
 # font_path_italic = fonts/Arimo-Italic.ttf
 
+#    Bold and italic font path
 #    type: filepath
 # font_path_bold_italic = fonts/Arimo-BoldItalic.ttf
 
@@ -3252,12 +3261,15 @@
 #    type: filepath
 # mono_font_path = fonts/Cousine-Regular.ttf
 
+#    Bold monospace font path
 #    type: filepath
 # mono_font_path_bold = fonts/Cousine-Bold.ttf
 
+#    Italic monospace font path
 #    type: filepath
 # mono_font_path_italic = fonts/Cousine-Italic.ttf
 
+#    Bold and italic monospace font path
 #    type: filepath
 # mono_font_path_bold_italic = fonts/Cousine-BoldItalic.ttf
 

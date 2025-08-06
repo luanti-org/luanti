@@ -302,8 +302,8 @@ void ClientLauncher::init_input()
 
 void ClientLauncher::init_joysticks()
 {
-	irr::core::array<irr::SJoystickInfo> infos;
-	std::vector<irr::SJoystickInfo> joystick_infos;
+	core::array<SJoystickInfo> infos;
+	std::vector<SJoystickInfo> joystick_infos;
 
 	// Make sure this is called maximum once per
 	// irrlicht device, otherwise it will give you

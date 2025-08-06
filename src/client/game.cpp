@@ -1013,7 +1013,7 @@ void Game::run()
 	m_touch_simulate_aux1 = g_settings->getBool("fast_move")
 			&& client->checkPrivilege("fast");
 
-	const irr::core::dimension2du initial_screen_size(
+	const core::dimension2du initial_screen_size(
 			g_settings->getU16("screen_w"),
 			g_settings->getU16("screen_h")
 		);
@@ -3385,10 +3385,10 @@ PointedThing Game::updatePointedThing(
 
 		// Modify final color a bit with time
 		u32 timer = client->getEnv().getFrameTime() % 5000;
-		float timerf = (float) (irr::core::PI * ((timer / 2500.0) - 0.5));
+		float timerf = (float) (core::PI * ((timer / 2500.0) - 0.5));
 		float sin_r = 0.08f * std::sin(timerf);
-		float sin_g = 0.08f * std::sin(timerf + irr::core::PI * 0.5f);
-		float sin_b = 0.08f * std::sin(timerf + irr::core::PI);
+		float sin_g = 0.08f * std::sin(timerf + core::PI * 0.5f);
+		float sin_b = 0.08f * std::sin(timerf + core::PI);
 		c.setRed(core::clamp(core::round32(c.getRed() * (0.8 + sin_r)), 0, 255));
 		c.setGreen(core::clamp(core::round32(c.getGreen() * (0.8 + sin_g)), 0, 255));
 		c.setBlue(core::clamp(core::round32(c.getBlue() * (0.8 + sin_b)), 0, 255));

@@ -14,12 +14,9 @@
 class ClientEnvironment;
 class ITextureSource;
 class Client;
-class IGameDef;
-class LocalPlayer;
 struct ItemStack;
-class WieldMeshSceneNode;
 
-namespace irr::scene
+namespace scene
 {
 	class IAnimatedMeshSceneNode;
 	class ISceneNode;

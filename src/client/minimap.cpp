@@ -481,7 +481,7 @@ video::ITexture *Minimap::getMinimapTexture()
 
 		map_image->fill(video::SColor(255, 0, 0, 0));
 		image->copyTo(map_image,
-			irr::core::vector2d<int> {
+			core::vector2d<int> {
 				((data->mode.map_size - (static_cast<int>(dim.Width))) >> 1)
 					- data->pos.X / data->mode.scale,
 				((data->mode.map_size - (static_cast<int>(dim.Height))) >> 1)

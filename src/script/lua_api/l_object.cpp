@@ -119,6 +119,20 @@ int ObjectRef::l_is_valid(lua_State *L)
 	return 1;
 }
 
+// get_guid()
+int ObjectRef::l_get_guid(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		return 0;
+
+	std::string guid = sao->getGUID();
+	lua_pushlstring(L, guid.c_str(), guid.size());
+	return 1;
+}
+
 // get_pos(self)
 int ObjectRef::l_get_pos(lua_State *L)
 {
@@ -1144,6 +1158,8 @@ int ObjectRef::l_set_rotation(lua_State *L)
 
 	v3f rotation = check_v3f(L, 2) * core::RADTODEG;
 
+	// Note: These angles are inverted before being applied using setPitchYawRoll,
+	// hence we end up with a right-handed rotation
 	entitysao->setRotation(rotation);
 	return 0;
 }
@@ -2838,6 +2854,7 @@ luaL_Reg ObjectRef::methods[] = {
 	// ServerActiveObject
 	luamethod(ObjectRef, remove),
 	luamethod(ObjectRef, is_valid),
+	luamethod(ObjectRef, get_guid),
 	luamethod_aliased(ObjectRef, get_pos, getpos),
 	luamethod_aliased(ObjectRef, set_pos, setpos),
 	luamethod(ObjectRef, add_pos),

@@ -11,15 +11,11 @@
 #include "IEventReceiver.h"
 #include "path.h"
 
-namespace irr
-{
 class IOSOperator;
 class IEventReceiver;
 
 namespace io
 {
-class IReadFile;
-class IWriteFile;
 class IFileSystem;
 } // end namespace io
 namespace video
@@ -46,7 +42,6 @@ class IGUITabControl;
 class IGUITab;
 class IGUIComboBox;
 class IGUIButton;
-class IGUIWindow;
 
 //! GUI Environment. Used as factory and manager of all other GUI elements.
 /** \par This element can create the following events of type EGUI_EVENT_TYPE (which are passed on to focused sub-elements):
@@ -403,4 +398,3 @@ public:
 };
 
 } // end namespace gui
-} // end namespace irr

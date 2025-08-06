@@ -1,6 +1,6 @@
 project(sha256 C)
 
-add_library(sha256 STATIC sha256.c)
+add_library(sha256 STATIC sha256.c my_sha256.h)
 
 target_include_directories(sha256 INTERFACE .)
 

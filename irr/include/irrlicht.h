@@ -36,8 +36,6 @@
 #include "SIrrCreationParameters.h"
 
 //! Everything in the Irrlicht Engine can be found in this namespace.
-namespace irr
-{
 //! Creates an Irrlicht device. The Irrlicht device is the root object for using the engine.
 /** If you need more parameters to be passed to the creation of the Irrlicht Engine device,
 use the createDeviceEx() function.
@@ -70,7 +68,7 @@ extern "C" IrrlichtDevice *createDevice(
 Use this function only if you wish to specify advanced parameters like a window
 handle in which the device should be created.
 \param parameters: Structure containing advanced parameters for the creation of the device.
-See irr::SIrrlichtCreationParameters for details.
+See SIrrlichtCreationParameters for details.
 \return Returns pointer to the created IrrlichtDevice or null if the
 device could not be created. */
 extern "C" IrrlichtDevice *createDeviceEx(
@@ -102,7 +100,6 @@ namespace scene
 //! The video namespace contains classes for accessing the video driver. All 2d and 3d rendering is done here.
 namespace video
 {
-}
 }
 
 /*! \file irrlicht.h

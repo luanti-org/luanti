@@ -12,8 +12,6 @@
 #include "os.h"
 #include <mt_opengl.h>
 
-namespace irr
-{
 namespace video
 {
 
@@ -25,4 +23,3 @@ void COpenGL3ExtensionHandler::initExtensions()
 }
 
 } // end namespace video
-} // end namespace irr

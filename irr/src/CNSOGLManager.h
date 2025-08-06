@@ -13,8 +13,6 @@
 
 #import <AppKit/NSOpenGL.h>
 
-namespace irr
-{
 namespace video
 {
 // NSOpenGL manager.
@@ -64,7 +62,6 @@ private:
 
 	NSOpenGLPixelFormat *PixelFormat;
 };
-}
 }
 
 #endif

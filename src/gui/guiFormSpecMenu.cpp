@@ -120,7 +120,6 @@ GUIFormSpecMenu::~GUIFormSpecMenu()
 {
 	removeAll();
 
-	delete m_selected_item;
 	delete m_form_src;
 	delete m_text_dst;
 }
@@ -1506,7 +1505,7 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 	e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 	e->setOverrideFont(style.getFont());
 
-	irr::SEvent evt;
+	SEvent evt;
 	evt.EventType            = EET_KEY_INPUT_EVENT;
 	evt.KeyInput.Key         = KEY_END;
 	evt.KeyInput.Char        = 0;
@@ -1561,7 +1560,7 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 			e->setWordWrap(true);
 			e->setTextAlignment(gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT);
 		} else {
-			irr::SEvent evt;
+			SEvent evt;
 			evt.EventType            = EET_KEY_INPUT_EVENT;
 			evt.KeyInput.Key         = KEY_END;
 			evt.KeyInput.Char        = 0;
@@ -2138,8 +2137,8 @@ void GUIFormSpecMenu::parseTabHeader(parserData* data, const std::string &elemen
 
 	gui::IGUITabControl *e = Environment->addTabControl(rect,
 			data->current_parent, show_background, show_border, spec.fid);
-	e->setAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_UPPERLEFT,
-			irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_LOWERRIGHT);
+	e->setAlignment(gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT,
+			gui::EGUIA_UPPERLEFT, gui::EGUIA_LOWERRIGHT);
 	e->setTabHeight(geom.Y);
 
 	auto style = getDefaultStyleForElement("tabheader", name);
@@ -3401,7 +3400,7 @@ void GUIFormSpecMenu::getAndroidUIInput()
 			return;
 
 		auto element_type = element->getType();
-		if (dialog_type == porting::TEXT_INPUT && element_type == irr::gui::EGUIET_EDIT_BOX) {
+		if (dialog_type == porting::TEXT_INPUT && element_type == gui::EGUIET_EDIT_BOX) {
 			gui::IGUIEditBox *editbox = (gui::IGUIEditBox *)element;
 			std::string text = porting::getInputDialogMessage();
 			editbox->setText(utf8_to_wide(text).c_str());
@@ -3420,7 +3419,7 @@ void GUIFormSpecMenu::getAndroidUIInput()
 				editbox->getParent()->OnEvent(enter);
 			}
 		} else if (dialog_type == porting::SELECTION_INPUT &&
-				element_type == irr::gui::EGUIET_COMBO_BOX) {
+				element_type == gui::EGUIET_COMBO_BOX) {
 			auto dropdown = (gui::IGUIComboBox *) element;
 			int selected = porting::getInputDialogSelection();
 			dropdown->setAndSendSelected(selected);
@@ -3632,7 +3631,7 @@ void GUIFormSpecMenu::drawMenu()
 
 
 void GUIFormSpecMenu::showTooltip(const std::wstring &text,
-	const irr::video::SColor &color, const irr::video::SColor &bgcolor)
+	const video::SColor &color, const video::SColor &bgcolor)
 {
 	EnrichedString ntext(text);
 	ntext.setDefaultColor(color);
@@ -3757,7 +3756,7 @@ void GUIFormSpecMenu::updateSelectedItem()
 
 			} else {
 				// Grab selected item from the crafting result list
-				m_selected_item = new GUIInventoryList::ItemSpec(s);
+				m_selected_item = std::make_unique<GUIInventoryList::ItemSpec>(s);
 				m_selected_amount = item.count;
 				m_selected_dragging = false;
 			}
@@ -3799,8 +3798,7 @@ ItemStack GUIFormSpecMenu::verifySelectedItem()
 		}
 
 		// selection was not valid
-		delete m_selected_item;
-		m_selected_item = nullptr;
+		m_selected_item.reset();
 		m_selected_amount = 0;
 		m_selected_dragging = false;
 	}
@@ -4026,7 +4024,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		}
 	}
 
-	if (event.EventType == irr::EET_JOYSTICK_INPUT_EVENT) {
+	if (event.EventType == EET_JOYSTICK_INPUT_EVENT) {
 		if (event.JoystickEvent.Joystick != m_joystick->getJoystickId())
 			return false;
 
@@ -4333,7 +4331,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					shift_move_amount = button == BET_RIGHT ? 1 : count;
 				} else {
 					// No shift: select item
-					m_selected_item = new GUIInventoryList::ItemSpec(s);
+					m_selected_item = std::make_unique<GUIInventoryList::ItemSpec>(s);
 					m_selected_amount = count;
 					m_selected_dragging = button != BET_WHEEL_DOWN;
 				}
@@ -4528,7 +4526,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 			} else if (m_held_mouse_button == BET_LEFT) {
 				// Start picking up items
-				m_selected_item = new GUIInventoryList::ItemSpec(s);
+				m_selected_item = std::make_unique<GUIInventoryList::ItemSpec>(s);
 				m_selected_amount = s_count;
 				m_selected_dragging = true;
 			}
@@ -4835,8 +4833,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		// and we are not left-dragging, deselect
 		if (m_selected_amount == 0 && !m_left_dragging) {
 			m_selected_swap.clear();
-			delete m_selected_item;
-			m_selected_item = nullptr;
+			m_selected_item.reset();
 			m_selected_amount = 0;
 			m_selected_dragging = false;
 		}

@@ -624,6 +624,7 @@ static bool use_debugger(int argc, char *argv[])
 		warningstream << "Couldn't find a debugger to use. Try installing gdb or lldb." << std::endl;
 		return false;
 	}
+	verbosestream << "Found debugger " << debugger_path << std::endl;
 
 	// Try to be helpful
 #ifdef NDEBUG
@@ -682,11 +683,11 @@ static bool use_debugger(int argc, char *argv[])
 static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 {
 	startup_message();
-	set_default_settings();
 
 	sockets_init();
 
 	// Initialize g_settings
+	set_default_settings();
 	Settings::createLayer(SL_GLOBAL);
 
 	// Set cleanup callback(s) to run at process exit
@@ -702,10 +703,11 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 	// Initialize random seed
 	u64 seed;
 	if (!porting::secure_rand_fill_buf(&seed, sizeof(seed))) {
-		verbosestream << "Secure randomness not available to seed global RNG." << std::endl;
+		infostream << "Secure randomness not available to seed global RNG!" << std::endl;
 		std::ostringstream oss;
-		// some stuff that's hard to predict:
-		oss << time(nullptr) << porting::getTimeUs() << argc << g_settings_path;
+		// stuff that's somewhat unpredictable:
+		oss << time(nullptr) << porting::getTimeUs() << argc
+			<< g_settings_path << reinterpret_cast<intptr_t>(argv);
 		print_version(oss);
 		std::string data = oss.str();
 		seed = murmur_hash_64_ua(data.c_str(), data.size(), 0xc0ffee);

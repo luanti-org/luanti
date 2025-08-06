@@ -5,8 +5,6 @@
 #include <vector3d.h>
 #include <quaternion.h>
 
-namespace irr
-{
 namespace core
 {
 
@@ -39,4 +37,3 @@ struct Transform {
 };
 
 } // end namespace core
-} // end namespace irr

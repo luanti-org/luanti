@@ -274,7 +274,7 @@ void GUIPasswordChange::getAndroidUIInput()
 		e = getElementFromId(ID_newPassword2);
 	m_jni_field_name.clear();
 
-	if (!e || e->getType() != irr::gui::EGUIET_EDIT_BOX)
+	if (!e || e->getType() != gui::EGUIET_EDIT_BOX)
 		return;
 
 	std::string text = porting::getInputDialogMessage();

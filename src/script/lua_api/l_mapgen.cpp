@@ -1365,30 +1365,43 @@ int ModApiMapgen::l_register_ore(lua_State *L)
 	ore->flags          = 0;
 
 	//// Get noise_threshold
-	warn_if_field_exists(L, index, "noise_threshhold", "ore " + ore->name,
-		"Deprecated: new name is \"noise_threshold\".");
-
-	float nthresh;
-	if (!getfloatfield(L, index, "noise_threshold", nthresh) &&
-			!getfloatfield(L, index, "noise_threshhold", nthresh))
-		nthresh = 0;
-	ore->nthresh = nthresh;
+	{
+		float nthresh;
+		if (getfloatfield(L, index, "noise_threshold", nthresh)) {
+		} else if (getfloatfield(L, index, "noise_threshhold", nthresh)) {
+			log_deprecated(L, "Field \"noise_threshhold\" on ore " + ore->name +
+					" is deprecated, use \"noise_threshold\" instead.", 2);
+		} else {
+			nthresh = 0;
+		}
+		ore->nthresh = nthresh;
+	}
 
 	//// Get y_min/y_max
-	warn_if_field_exists(L, index, "height_min", "ore " + ore->name,
-		"Deprecated: new name is \"y_min\".");
-	warn_if_field_exists(L, index, "height_max", "ore " + ore->name,
-		"Deprecated: new name is \"y_max\".");
 
-	int ymin, ymax;
-	if (!getintfield(L, index, "y_min", ymin) &&
-		!getintfield(L, index, "height_min", ymin))
-		ymin = -31000;
-	if (!getintfield(L, index, "y_max", ymax) &&
-		!getintfield(L, index, "height_max", ymax))
-		ymax = 31000;
-	ore->y_min = ymin;
-	ore->y_max = ymax;
+	{
+		int ymin;
+		if (getintfield(L, index, "y_min", ymin)) {
+		} else if (getintfield(L, index, "height_min", ymin)) {
+			log_deprecated(L, "Field \"height_min\" on ore " + ore->name +
+					" is deprecated, use \"y_min\" instead.", 2);
+		} else {
+			ymin = -31000;
+		}
+		ore->y_min = ymin;
+	}
+
+	{
+		int ymax;
+		if (getintfield(L, index, "y_max", ymax)) {
+		} else if (getintfield(L, index, "height_max", ymax)) {
+			log_deprecated(L, "Field \"height_max\" on ore " + ore->name +
+					" is deprecated, use \"y_max\" instead.", 2);
+		} else {
+			ymax = 31000;
+		}
+		ore->y_max = ymax;
+	}
 
 	if (ore->clust_scarcity <= 0 || ore->clust_num_ores <= 0) {
 		errorstream << "register_ore: clust_scarcity and clust_num_ores"
@@ -1410,8 +1423,8 @@ int ModApiMapgen::l_register_ore(lua_State *L)
 	if (read_noiseparams(L, -1, &ore->np)) {
 		ore->flags |= OREFLAG_USE_NOISE;
 	} else if (ore->needs_noise) {
-		log_deprecated(L,
-			"register_ore: ore type requires 'noise_params' but it is not specified, falling back to defaults");
+		log_deprecated(L, "register_ore: ore type requires 'noise_params'"
+				" but it is not specified, falling back to defaults", 2);
 	}
 	lua_pop(L, 1);
 
