@@ -226,10 +226,8 @@ local function hide_tabview(self)
 	self.hidden=true
 
 	-- hide the menu header image as well
-	if  core.settings:get_bool("touch_gui") then
-		if mm_game_theme and mm_game_theme.clear_single then
-			mm_game_theme.clear_single("header")
-		end
+	if mm_game_theme and mm_game_theme.clear_single then
+		mm_game_theme.clear_single("header")
 	end
 
 	-- call on_change as we're not gonna show self tab any longer
