@@ -1597,6 +1597,7 @@ inline void COpenGLDriver::getGLTextureMatrix(GLfloat *o, const core::matrix4 &m
 
 ITexture *COpenGLDriver::createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type, const std::vector<IImage*> &images)
 {
+	assert(type == ETT_2D);
 	return new COpenGLTexture(name, images, ETT_2D, this);
 }
 

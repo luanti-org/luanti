@@ -56,15 +56,18 @@ public:
 		HasMipMaps = Driver->getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
 		KeepImage = Driver->getTextureCreationFlag(ETCF_ALLOW_MEMORY_COPY);
 
+		if (!name.empty())
+			os::Printer::log("COpenGLCoreTexture: name", name.c_str(), ELL_DEBUG);
+
 		getImageValues(srcImages[0]);
 		if (!InternalFormat)
 			return;
 
 		char lbuf[128];
 		snprintf_irr(lbuf, sizeof(lbuf),
-			"COpenGLCoreTexture: Type = %d Size = %dx%d (%dx%d) ColorFormat = %d (%d)%s -> %#06x %#06x %#06x%s",
+			"COpenGLCoreTexture: Type = %d Size = %dx%d (%dx%d) ColorFormat = %s (%s)%s -> %#06x %#06x %#06x%s",
 			(int)Type, Size.Width, Size.Height, OriginalSize.Width, OriginalSize.Height,
-			(int)ColorFormat, (int)OriginalColorFormat,
+			ColorFormatName(ColorFormat), ColorFormatName(OriginalColorFormat),
 			HasMipMaps ? " +Mip" : "",
 			InternalFormat, PixelFormat, PixelType, Converter ? " (c)" : ""
 		);
@@ -147,6 +150,9 @@ public:
 		HasMipMaps = false;
 		IsRenderTarget = true;
 
+		if (!name.empty())
+			os::Printer::log("COpenGLCoreTexture: name", name.c_str(), ELL_DEBUG);
+
 		OriginalColorFormat = format;
 
 		if (ECF_UNKNOWN == OriginalColorFormat)
@@ -157,10 +163,17 @@ public:
 		OriginalSize = size;
 		Size = OriginalSize;
 
+		if (Size.Width == 0 || Size.Height == 0) {
+			char buf[64];
+			snprintf_irr(buf, sizeof(buf), "%dx%d", Size.Width, Size.Height);
+			os::Printer::log("Invalid size for render target", buf, ELL_ERROR);
+			return;
+		}
+
 		Pitch = Size.Width * IImage::getBitsPerPixelFromFormat(ColorFormat) / 8;
 
 		if (!Driver->getColorFormatParameters(ColorFormat, InternalFormat, PixelFormat, PixelType, &Converter)) {
-			os::Printer::log("COpenGLCoreTexture: Color format is not supported", ColorFormatNames[ColorFormat < ECF_UNKNOWN ? ColorFormat : ECF_UNKNOWN], ELL_ERROR);
+			os::Printer::log("COpenGLCoreTexture: Color format is not supported", ColorFormatName(ColorFormat), ELL_ERROR);
 			return;
 		}
 
@@ -176,8 +189,8 @@ public:
 
 		char lbuf[100];
 		snprintf_irr(lbuf, sizeof(lbuf),
-			"COpenGLCoreTexture: RTT Type = %d Size = %dx%d ColorFormat = %d -> %#06x %#06x %#06x%s",
-			(int)Type, Size.Width, Size.Height, (int)ColorFormat,
+			"COpenGLCoreTexture: RTT Type = %d Size = %dx%d (S:%d) ColorFormat = %s -> %#06x %#06x %#06x%s",
+			(int)Type, Size.Width, Size.Height, (int)MSAA, ColorFormatName(ColorFormat),
 			InternalFormat, PixelFormat, PixelType, Converter ? " (c)" : ""
 		);
 		os::Printer::log(lbuf, ELL_DEBUG);
@@ -458,7 +471,7 @@ protected:
 		ColorFormat = getBestColorFormat(OriginalColorFormat);
 
 		if (!Driver->getColorFormatParameters(ColorFormat, InternalFormat, PixelFormat, PixelType, &Converter)) {
-			os::Printer::log("getImageValues: Color format is not supported", ColorFormatNames[ColorFormat < ECF_UNKNOWN ? ColorFormat : ECF_UNKNOWN], ELL_ERROR);
+			os::Printer::log("getImageValues: Color format is not supported", ColorFormatName(ColorFormat), ELL_ERROR);
 			InternalFormat = 0;
 			return;
 		}
@@ -471,7 +484,9 @@ protected:
 		Size = OriginalSize;
 
 		if (Size.Width == 0 || Size.Height == 0) {
-			os::Printer::log("Invalid size of image for texture.", ELL_ERROR);
+			char buf[64];
+			snprintf_irr(buf, sizeof(buf), "%dx%d", Size.Width, Size.Height);
+			os::Printer::log("Invalid size of image for texture", buf, ELL_ERROR);
 			return;
 		}
 
@@ -520,6 +535,7 @@ protected:
 		if (HasMipMaps) {
 			levels = core::u32_log2(core::max_(Size.Width, Size.Height)) + 1;
 		}
+		assert(levels > 0);
 
 		// reference: <https://www.khronos.org/opengl/wiki/Texture_Storage>
 		bool use_tex_storage = Driver->getFeature().TexStorage;
@@ -543,7 +559,7 @@ protected:
 			TEST_GL_ERROR(Driver);
 			break;
 		case ETT_2D_MS: {
-			GLint max_samples = 0;
+			GLint max_samples = 1;
 			GL.GetIntegerv(GL_MAX_SAMPLES, &max_samples);
 			MSAA = core::min_(MSAA, (u8)max_samples);
 
@@ -663,7 +679,8 @@ protected:
 			return GL_TEXTURE_2D_ARRAY;
 		}
 
-		os::Printer::log("COpenGLCoreTexture::TextureTypeIrrToGL unknown texture type", ELL_WARNING);
+		auto s = std::to_string(type);
+		os::Printer::log("COpenGLCoreTexture: unknown texture type", s.c_str(), ELL_WARNING);
 		return GL_TEXTURE_2D;
 	}
 

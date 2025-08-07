@@ -119,6 +119,11 @@ const c8 *const ColorFormatNames[] = {
 static_assert(sizeof(ColorFormatNames) / sizeof(ColorFormatNames[0])
 	== ECF_UNKNOWN + 2, "name table size mismatch");
 
+inline const c8 *ColorFormatName(ECOLOR_FORMAT format)
+{
+	return ColorFormatNames[format < ECF_UNKNOWN ? format : ECF_UNKNOWN];
+}
+
 //! Creates a 16 bit A1R5G5B5 color
 inline u16 RGBA16(u32 r, u32 g, u32 b, u32 a = 0xFF)
 {

@@ -131,7 +131,7 @@ bool TextureBuffer::ensureTexture(video::ITexture **texture, const TextureDefini
 	if (definition.valid) {
 		if (!m_driver->queryTextureFormat(definition.format)) {
 			errorstream << "Failed to create texture \"" << definition.name
-				<< "\": unsupported format " << video::ColorFormatNames[definition.format]
+				<< "\": unsupported format " << video::ColorFormatName(definition.format)
 				<< std::endl;
 			return false;
 		}
