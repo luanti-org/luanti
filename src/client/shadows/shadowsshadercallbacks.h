@@ -42,7 +42,7 @@ public:
 class ShadowUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
-	virtual IShaderUniformSetter *create() {
+	virtual IShaderUniformSetter *create(const std::string &name) {
 		return new ShadowUniformSetter();
 	}
 };

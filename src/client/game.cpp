@@ -401,8 +401,10 @@ public:
 		created_nosky.clear();
 	}
 
-	virtual IShaderUniformSetter* create()
+	virtual IShaderUniformSetter* create(const std::string &name)
 	{
+		if (str_starts_with(name, "shadow/"))
+			return nullptr;
 		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_client);
 		if (!m_sky)
 			created_nosky.push_back(scs);
