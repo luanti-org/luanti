@@ -15,12 +15,13 @@ template<typename T>
 class MutexedVariable
 {
 public:
+	// default initialization
+	MutexedVariable() {}
+
 	MutexedVariable(const T &value):
-		m_value(value)
-	{}
+		m_value(value) {}
 	MutexedVariable(T &&value):
-		m_value(std::move(value))
-	{}
+		m_value(std::move(value)) {}
 
 	T get()
 	{

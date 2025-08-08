@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-// Texture paths get cached and this clears the Cache.
+// Texture paths get cached and this clears the cache.
 void clearTextureNameCache();
 
 // Find out the full path of an image by trying different filename extensions.
