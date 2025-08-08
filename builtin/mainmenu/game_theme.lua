@@ -117,7 +117,7 @@ end
 
 function mm_game_theme.set_game_single(identifier, gamedetails)
 	local extensions_randomised = table.copy(valid_image_extensions)
-	table.shuffle(valid_image_extensions)
+	table.shuffle(extensions_randomised)
 	for _, extension in pairs(extensions_randomised) do
 		assert(gamedetails ~= nil)
 
