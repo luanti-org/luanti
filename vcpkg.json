@@ -3,6 +3,7 @@
   "dependencies": [
     "zlib",
     "zstd",
+    "openssl",
     {
       "name": "curl",
       "features": [
