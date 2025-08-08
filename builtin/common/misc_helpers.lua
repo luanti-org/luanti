@@ -872,3 +872,9 @@ function core.parse_coordinates(x, y, z, relative_to)
 	local rz = core.parse_relative_number(z, relative_to.z)
 	return rx and ry and rz and { x = rx, y = ry, z = rz }
 end
+
+function core.file_exists(path)
+	local file = io.open(path, "r")
+	if file then file:close() return true end
+	return false
+end
