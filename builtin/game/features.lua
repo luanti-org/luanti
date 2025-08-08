@@ -50,6 +50,7 @@ core.features = {
 	object_guids = true,
 	on_timer_four_args = true,
 	particlespawner_exclude_player = true,
+	generate_decorations_biomes = true,
 }
 
 function core.has_feature(arg)

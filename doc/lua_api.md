@@ -5845,6 +5845,8 @@ Utilities
       on_timer_four_args = true,
       -- `ParticleSpawner` definition supports `exclude_player` field (5.14.0)
       particlespawner_exclude_player = true,
+      -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
+      generate_decorations_biomes = true,
   }
   ```
 
@@ -6737,10 +6739,15 @@ Environment access
     * Generate all registered ores within the VoxelManip `vm` and in the area
       from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
-* `core.generate_decorations(vm[, pos1, pos2])`
+* `core.generate_decorations(vm[, pos1, pos2, [use_mapgen_biomes]])`
     * Generate all registered decorations within the VoxelManip `vm` and in the
       area from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
+    * `use_mapgen_biomes` means that decorations should
+       respect the biome map of the current chunk inside an
+       on_generated callback. `pos1` and `pos2` must match the
+       positions of the current chunk, or an error will be raised.
+
 * `core.clear_objects([options])`
     * Clear all objects in the environment
     * Takes an optional table as an argument with the field `mode`.
