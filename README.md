@@ -91,29 +91,29 @@ Where each location is on each platform:
     * `share` = `.`
     * `user`  = `.`
 * Windows installed:
-    * `bin`   = `C:\Program Files\Minetest\bin (Depends on the install location)`
-    * `share` = `C:\Program Files\Minetest (Depends on the install location)`
-    * `user`  = `%APPDATA%\Minetest` or `%MINETEST_USER_PATH%`
+    * `bin`   = `C:\Program Files\Luanti\bin (Depends on the install location)`
+    * `share` = `C:\Program Files\Luanti (Depends on the install location)`
+    * `user`  = `%APPDATA%\Luanti` or `%MINETEST_USER_PATH%`
 * Linux installed:
     * `bin`   = `/usr/bin`
-    * `share` = `/usr/share/minetest`
-    * `user`  = `~/.minetest` or `$MINETEST_USER_PATH`
+    * `share` = `/usr/share/luanti`
+    * `user`  = `~/.local/share/luanti` or `$MINETEST_USER_PATH`
 * macOS:
     * `bin`   = `Contents/MacOS`
     * `share` = `Contents/Resources`
-    * `user`  = `Contents/User` or `~/Library/Application Support/minetest` or `$MINETEST_USER_PATH`
+    * `user`  = `Contents/User` or `~/Library/Application Support/luanti` or `$MINETEST_USER_PATH`
 
 Worlds can be found as separate folders in: `user/worlds/`
 
 Configuration file
 ------------------
 - Default location:
-    `user/minetest.conf`
+    `user/luanti.conf`
 - This file is created by closing Luanti for the first time.
 - A specific file can be specified on the command line:
     `--config <path-to-file>`
 - A run-in-place build will look for the configuration file in
-    `location_of_exe/../minetest.conf` and also `location_of_exe/../../minetest.conf`
+    `location_of_exe/../luanti.conf` and also `location_of_exe/../../luanti.conf`
 
 Command-line options
 --------------------
