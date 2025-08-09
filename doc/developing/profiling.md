@@ -22,12 +22,12 @@ It will give you flamegraphs, per-thread, per-function views and much more.
 
 Attach perf to your running server, press *^C* to stop:
 ```bash
-perf record -z --call-graph dwarf -F 400 -p "$(pidof minetestserver)"
+perf record -z --call-graph dwarf -F 400 -p "$(pidof luantiserver)"
 ```
 
 Collect a copy of the required libraries/executables:
 ```bash
-perf buildid-list | grep -Eo '/[^ ]+(minetestserver|\.so)[^ ]*$' | \
+perf buildid-list | grep -Eo '/[^ ]+(luantiserver|\.so)[^ ]*$' | \
 	tar -cvahf debug.tgz --files-from=- --ignore-failed-read
 ```
 

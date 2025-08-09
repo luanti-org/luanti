@@ -26,7 +26,7 @@ adb install -r -d ./app-arm64-v8a-release-unsigned.apk
 In case debug.txt isn't enough (e.g. when debugging a crash), you can get debug
 output using logcat:
 
-`adb logcat -s 'Minetest:*' '*:F'`
+`adb logcat -s Luanti '*:F'`
 
 Note that you can do this even *after* the app has crashed,
 since Android keeps an internal buffer.

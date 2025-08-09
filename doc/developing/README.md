@@ -15,7 +15,7 @@ Notable pages:
 
 ## In this folder
 
-- [docker.md](docker.md): Developing minetestserver with Docker
+- [docker.md](docker.md): Developing luantiserver with Docker
 - [android.md](android.md): Android tips & tricks
 - [os-compatibility.md](os-compatibility.md): OS/library compatibility policy
 - [profiling.md](profiling.md): Profiling instructions

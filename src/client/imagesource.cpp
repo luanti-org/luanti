@@ -1113,7 +1113,7 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 						<< " for [combine" << std::endl;
 					continue;
 				}
-				infostream << "Adding \"" << filename<< "\" to combined "
+				tracestream << "Adding \"" << filename << "\" to combined "
 					<< pos_base << std::endl;
 
 				video::IImage *img = generateImage(filename, source_image_names);
