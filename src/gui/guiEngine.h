@@ -263,5 +263,8 @@ private:
 	/** is drawing of clouds enabled atm */
 	bool m_clouds_enabled = true;
 
+	void setMainMenuCloudsColor(video::SColor& color);
+	void setMainMenuSkyColor(video::SColor& color);
+
 	static void fullscreenChangedCallback(const std::string &name, void *data);
 };
