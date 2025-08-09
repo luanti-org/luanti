@@ -43,7 +43,17 @@ end
 -- Chat command handler
 --
 
-core.chatcommands = core.registered_chatcommands -- BACKWARDS COMPATIBILITY
+-- Unsure how to handle pairs()
+core.chatcommands = setmetatable({}, {
+	__index=function (_, k)
+		core.log("warn", "core.chatcommands is deprecated, use core.registered_chatcommands instead")
+		return core.registered_chatcommands[k]
+	end,
+	__newindex=function (_, k, v)
+		core.log("warn", "core.chatcommands is deprecated, use core.registered_chatcommands instead")
+		core.registered_chatcommands[k] = v
+	end,
+})
 
 local msg_time_threshold =
 	tonumber(core.settings:get("chatcommand_msg_time_threshold")) or 0.1
