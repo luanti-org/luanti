@@ -101,6 +101,7 @@ static std::string readJavaString(jstring j_str)
 }
 
 void migrateLegacyDirs() {
+	// TODO: Migrate legacy Minetest dir to Luanti
 	// Real migration in android/
 }
 
