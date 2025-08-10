@@ -319,9 +319,7 @@ int InvRef::l_contains_item(lua_State *L)
 	const char *listname = luaL_checkstring(L, 2);
 	ItemStack item = read_item(L, 3, getServer(L)->idef());
 	InventoryList *list = getlist(L, ref, listname);
-	bool match_meta = false;
-	if (lua_isboolean(L, 4))
-		match_meta = readParam<bool>(L, 4);
+	bool match_meta = readParam<bool>(L, 4, false);
 	if (list) {
 		lua_pushboolean(L, list->containsItem(item, match_meta));
 	} else {
@@ -330,7 +328,7 @@ int InvRef::l_contains_item(lua_State *L)
 	return 1;
 }
 
-// remove_item(self, listname, itemstack or itemstring or table or nil) -> itemstack
+// remove_item(self, listname, itemstack or itemstring or table or nil, [match_meta]) -> itemstack
 // Returns the items that were actually removed
 int InvRef::l_remove_item(lua_State *L)
 {
@@ -339,8 +337,9 @@ int InvRef::l_remove_item(lua_State *L)
 	const char *listname = luaL_checkstring(L, 2);
 	ItemStack item = read_item(L, 3, getServer(L)->idef());
 	InventoryList *list = getlist(L, ref, listname);
+	bool match_meta = readParam<bool>(L, 4, false);
 	if(list){
-		ItemStack removed = list->removeItem(item);
+		ItemStack removed = list->removeItem(item, match_meta);
 		if(!removed.empty())
 			reportInventoryChange(L, ref);
 		LuaItemStack::create(L, removed);
@@ -411,7 +410,7 @@ void InvRef::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<InvRef>(L, methods, metamethods);
 
 	// Cannot be created from Lua
 	//lua_register(L, className, create_object);

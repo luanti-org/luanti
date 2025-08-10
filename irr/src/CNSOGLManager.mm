@@ -9,8 +9,6 @@
 #include <mach-o/dyld.h>
 #include "os.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -224,7 +222,6 @@ bool CNSOGLManager::swapBuffers()
 	return true;
 }
 
-}
 }
 
 #endif

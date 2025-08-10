@@ -9,8 +9,8 @@
 
 #include "mt_opengl.h"
 
-namespace irr
-{
+#include <cassert>
+
 namespace video
 {
 
@@ -100,13 +100,15 @@ class COpenGLCoreCacheHandler
 									GL.Enable(curTextureType);
 #endif
 
-							GL.BindTexture(curTextureType, static_cast<const TOpenGLTexture *>(texture)->getOpenGLTextureName());
+							auto name = static_cast<const TOpenGLTexture *>(texture)->getOpenGLTextureName();
+							assert(name != 0);
+							GL.BindTexture(curTextureType, name);
 						} else {
 							texture = 0;
 
 							os::Printer::log("Fatal Error: Tried to set a texture not owned by this driver.", ELL_ERROR);
-							os::Printer::log("Texture type", irr::core::stringc((int)type), ELL_ERROR);
-							os::Printer::log("Driver (or cache handler) type", irr::core::stringc((int)DriverType), ELL_ERROR);
+							os::Printer::log("Texture type", core::stringc((int)type), ELL_ERROR);
+							os::Printer::log("Driver (or cache handler) type", core::stringc((int)DriverType), ELL_ERROR);
 						}
 					}
 
@@ -549,7 +551,7 @@ public:
 	//! Compare material to current cache and update it when there are differences
 	// Some material renderers do change the cache beyond the original material settings
 	// This corrects the material to represent the current cache state again.
-	void correctCacheMaterial(irr::video::SMaterial &material)
+	void correctCacheMaterial(video::SMaterial &material)
 	{
 		// Fix textures which got removed
 		for (u32 i = 0; i < MATERIAL_MAX_TEXTURES; ++i) {
@@ -598,5 +600,4 @@ protected:
 	GLsizei ViewportHeight;
 };
 
-}
 }

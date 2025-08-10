@@ -51,7 +51,7 @@ elseif mode == "mapgen" then
 elseif mode == "error" then
 
 	local n = tonumber(core.settings:get("error_type"))
-	local error_lua = core.get_modpath(core.get_current_modname()) .. "/error.lua"
+	local modpath = core.get_modpath(core.get_current_modname())
 	if n == 1 then
 		print("=> error during startup <=")
 		error("intentional")
@@ -60,10 +60,26 @@ elseif mode == "error" then
 		core.after(0, error, "intentional")
 	elseif n == 3 then
 		print("=> error in async script <=")
-		core.register_async_dofile(error_lua)
+		core.register_async_dofile(modpath .. "/error.lua")
 	elseif n == 4 then
 		print("=> error in mapgen script <=")
-		core.register_mapgen_script(error_lua)
+		core.register_mapgen_script(modpath .. "/error.lua")
+	elseif n == 5 then
+		print("=> error in mapgen env callback <=")
+		core.register_mapgen_script(modpath .. "/mapgen_error.lua")
+		core.after(0, function()
+			-- emerge something to trigger it
+			core.emerge_area(vector.new(0,0,0), vector.new(1,1,1), function(pos, action)
+				print("action=" .. action)
+			end)
+		end)
+	elseif n == 6 then
+		print("=> error in emerge_area callback <=")
+		core.after(0, function()
+			core.emerge_area(vector.new(0,0,0), vector.new(1,1,1), function()
+				error("intentional")
+			end)
+		end)
 	else
 		assert(false)
 	end

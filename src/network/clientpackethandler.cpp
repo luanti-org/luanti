@@ -132,16 +132,9 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 {
 	deleteAuthData();
 
-	v3f playerpos;
-	*pkt >> playerpos >> m_map_seed >> m_recommended_send_interval
+	v3f unused;
+	*pkt >> unused >> m_map_seed >> m_recommended_send_interval
 		>> m_sudo_auth_methods;
-
-	playerpos -= v3f(0, BS / 2, 0);
-
-	// Set player position
-	LocalPlayer *player = m_env.getLocalPlayer();
-	assert(player != NULL);
-	player->setPosition(playerpos);
 
 	infostream << "Client: received map seed: " << m_map_seed << std::endl;
 	infostream << "Client: received recommended send interval "
@@ -176,6 +169,7 @@ void Client::handleCommand_AcceptSudoMode(NetworkPacket* pkt)
 	// reset again
 	m_chosen_auth_mech = AUTH_MECHANISM_NONE;
 }
+
 void Client::handleCommand_DenySudoMode(NetworkPacket* pkt)
 {
 	ChatMessage *chatMessage = new ChatMessage(CHATMESSAGE_TYPE_SYSTEM,
@@ -193,8 +187,8 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 	m_access_denied = true;
 
 	if (pkt->getCommand() != TOCLIENT_ACCESS_DENIED) {
-		// Legacy code from 0.4.12 and older but is still used
-		// in some places of the server code
+		// Servers older than 5.6 still send TOCLIENT_ACCESS_DENIED_LEGACY sometimes.
+		// see commit a65f6f07f3a5601207b790edcc8cc945133112f7
 		if (pkt->getSize() >= 2) {
 			std::wstring wide_reason;
 			*pkt >> wide_reason;
@@ -231,9 +225,6 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 
 void Client::handleCommand_RemoveNode(NetworkPacket* pkt)
 {
-	if (pkt->getSize() < 6)
-		return;
-
 	v3s16 p;
 	*pkt >> p;
 	removeNode(p);
@@ -241,22 +232,19 @@ void Client::handleCommand_RemoveNode(NetworkPacket* pkt)
 
 void Client::handleCommand_AddNode(NetworkPacket* pkt)
 {
-	if (pkt->getSize() < 6 + MapNode::serializedLength(m_server_ser_ver))
-		return;
-
 	v3s16 p;
 	*pkt >> p;
 
+	auto *ptr = reinterpret_cast<const u8*>(pkt->getRemainingString());
+	pkt->skip(MapNode::serializedLength(m_server_ser_ver)); // performs length check
+
 	MapNode n;
-	n.deSerialize(pkt->getU8Ptr(6), m_server_ser_ver);
+	n.deSerialize(ptr, m_server_ser_ver);
 
-	bool remove_metadata = true;
-	u32 index = 6 + MapNode::serializedLength(m_server_ser_ver);
-	if ((pkt->getSize() >= index + 1) && pkt->getU8(index)) {
-		remove_metadata = false;
-	}
+	bool keep_metadata;
+	*pkt >> keep_metadata;
 
-	addNode(p, n, remove_metadata);
+	addNode(p, n, !keep_metadata);
 }
 
 void Client::handleCommand_NodemetaChanged(NetworkPacket *pkt)
@@ -272,7 +260,7 @@ void Client::handleCommand_NodemetaChanged(NetworkPacket *pkt)
 	meta_updates_list.deSerialize(sstr, m_itemdef, true);
 
 	Map &map = m_env.getMap();
-	for (NodeMetadataMap::const_iterator i = meta_updates_list.begin();
+	for (auto i = meta_updates_list.begin();
 			i != meta_updates_list.end(); ++i) {
 		v3s16 pos = i->first;
 
@@ -294,7 +282,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 	v3s16 p;
 	*pkt >> p;
 
-	std::string datastring(pkt->getString(6), pkt->getSize() - 6);
+	std::string datastring(pkt->getRemainingString(), pkt->getRemainingBytes());
 	std::istringstream istr(datastring, std::ios_base::binary);
 
 	MapSector *sector;
@@ -323,7 +311,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 	}
 
 	if (m_localdb) {
-		ServerMap::saveBlock(block, m_localdb);
+		ServerMap::saveBlock(block, m_localdb.get());
 	}
 
 	/*
@@ -347,9 +335,8 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 
 	m_update_wielded_item = true;
 
-	delete m_inventory_from_server;
-	m_inventory_from_server = new Inventory(player->inventory);
-	m_inventory_from_server_age = 0.0;
+	m_inventory_from_server = std::make_unique<Inventory>(player->inventory);
+	m_inventory_from_server_age = 0.0f;
 }
 
 void Client::handleCommand_TimeOfDay(NetworkPacket* pkt)
@@ -358,46 +345,15 @@ void Client::handleCommand_TimeOfDay(NetworkPacket* pkt)
 		return;
 
 	u16 time_of_day;
-
 	*pkt >> time_of_day;
-
 	time_of_day      = time_of_day % 24000;
-	float time_speed = 0;
 
-	if (pkt->getSize() >= 2 + 4) {
-		*pkt >> time_speed;
-	}
-	else {
-		// Old message; try to approximate speed of time by ourselves
-		float time_of_day_f = (float)time_of_day / 24000.0f;
-		float tod_diff_f = 0;
-
-		if (time_of_day_f < 0.2 && m_last_time_of_day_f > 0.8)
-			tod_diff_f = time_of_day_f - m_last_time_of_day_f + 1.0f;
-		else
-			tod_diff_f = time_of_day_f - m_last_time_of_day_f;
-
-		m_last_time_of_day_f       = time_of_day_f;
-		float time_diff            = m_time_of_day_update_timer;
-		m_time_of_day_update_timer = 0;
-
-		if (m_time_of_day_set) {
-			time_speed = (3600.0f * 24.0f) * tod_diff_f / time_diff;
-			infostream << "Client: Measured time_of_day speed (old format): "
-					<< time_speed << " tod_diff_f=" << tod_diff_f
-					<< " time_diff=" << time_diff << std::endl;
-		}
-	}
+	float time_speed;
+	*pkt >> time_speed;
 
 	// Update environment
 	m_env.setTimeOfDay(time_of_day);
 	m_env.setTimeOfDaySpeed(time_speed);
-	m_time_of_day_set = true;
-
-	//u32 dr = m_env.getDayNightRatio();
-	//infostream << "Client: time_of_day=" << time_of_day
-	//		<< " time_speed=" << time_speed
-	//		<< " dr=" << dr << std::endl;
 }
 
 void Client::handleCommand_ChatMessage(NetworkPacket *pkt)
@@ -611,7 +567,7 @@ void Client::handleCommand_MovePlayer(NetworkPacket* pkt)
 	player->setPosition(pos);
 
 	infostream << "Client got TOCLIENT_MOVE_PLAYER"
-			<< " pos=(" << pos.X << "," << pos.Y << "," << pos.Z << ")"
+			<< " pos=" << pos
 			<< " pitch=" << pitch
 			<< " yaw=" << yaw
 			<< std::endl;
@@ -649,10 +605,6 @@ void Client::handleCommand_DeathScreenLegacy(NetworkPacket* pkt)
 
 void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 {
-	u16 num_files;
-
-	*pkt >> num_files;
-
 	infostream << "Client: Received media announcement: packet size: "
 			<< pkt->getSize() << std::endl;
 
@@ -662,9 +614,7 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 			"we already saw another announcement" :
 			"all media has been received already";
 		errorstream << "Client: Received media announcement but "
-			<< problem << "! "
-			<< " files=" << num_files
-			<< " size=" << pkt->getSize() << std::endl;
+			<< problem << "!" << std::endl;
 		return;
 	}
 
@@ -672,16 +622,36 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 	// updating content definitions
 	sanity_check(!m_mesh_update_manager->isRunning());
 
-	for (u16 i = 0; i < num_files; i++) {
+	if (m_proto_ver >= 48) {
+		// compressed table of media names
+		std::vector<std::string> names;
+		{
+			std::istringstream iss(pkt->readLongString(), std::ios::binary);
+			std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
+			decompressZstd(iss, ss);
+			names = deserializeString16Array(ss);
+		}
+
+		// raw hash for each media file
+		for (auto &name : names) {
+			auto sha1_raw = pkt->readRawString(20);
+			m_media_downloader->addFile(name, sha1_raw);
+		}
+	} else {
+		u16 num_files;
+		*pkt >> num_files;
+
 		std::string name, sha1_base64;
+		for (u16 i = 0; i < num_files; i++) {
+			*pkt >> name >> sha1_base64;
 
-		*pkt >> name >> sha1_base64;
-
-		std::string sha1_raw = base64_decode(sha1_base64);
-		m_media_downloader->addFile(name, sha1_raw);
+			std::string sha1_raw = base64_decode(sha1_base64);
+			m_media_downloader->addFile(name, sha1_raw);
+		}
 	}
 
 	{
+		// Remote media servers
 		std::string str;
 		*pkt >> str;
 
@@ -700,18 +670,6 @@ void Client::handleCommand_AnnounceMedia(NetworkPacket* pkt)
 
 void Client::handleCommand_Media(NetworkPacket* pkt)
 {
-	/*
-		u16 command
-		u16 total number of file bunches
-		u16 index of this bunch
-		u32 number of files in this bunch
-		for each file {
-			u16 length of name
-			string name
-			u32 length of data
-			data
-		}
-	*/
 	u16 num_bunches;
 	u16 bunch_i;
 	u32 num_files;
@@ -738,6 +696,12 @@ void Client::handleCommand_Media(NetworkPacket* pkt)
 
 		*pkt >> name;
 		data = pkt->readLongString();
+		if (m_proto_ver >= 48) {
+			std::istringstream iss(data, std::ios::binary);
+			std::ostringstream oss(std::ios::binary);
+			decompressZstd(iss, oss);
+			data = oss.str();
+		}
 
 		bool ok = false;
 		if (init_phase) {
@@ -772,7 +736,10 @@ void Client::handleCommand_NodeDef(NetworkPacket* pkt)
 	// Decompress node definitions
 	std::istringstream tmp_is(pkt->readLongString(), std::ios::binary);
 	std::stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
-	decompressZlib(tmp_is, tmp_os);
+	if (m_proto_ver >= 48)
+		decompressZstd(tmp_is, tmp_os);
+	else
+		decompressZlib(tmp_is, tmp_os);
 
 	// Deserialize node definitions
 	m_nodedef->deSerialize(tmp_os, m_proto_ver);
@@ -791,7 +758,10 @@ void Client::handleCommand_ItemDef(NetworkPacket* pkt)
 	// Decompress item definitions
 	std::istringstream tmp_is(pkt->readLongString(), std::ios::binary);
 	std::stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
-	decompressZlib(tmp_is, tmp_os);
+	if (m_proto_ver >= 48)
+		decompressZstd(tmp_is, tmp_os);
+	else
+		decompressZlib(tmp_is, tmp_os);
 
 	// Deserialize node definitions
 	m_itemdef->deSerialize(tmp_os, m_proto_ver);
@@ -851,6 +821,8 @@ void Client::handleCommand_PlaySound(NetworkPacket* pkt)
 			pos = cao->getPosition() * (1.0f/BS);
 			vel = cao->getVelocity() * (1.0f/BS);
 		}
+		// Note that the server sends 'pos' correctly even for attached sounds,
+		// so this fallback path is not a mistake.
 		m_sound->playSoundAt(client_id, spec, pos, vel);
 		break;
 	}
@@ -883,7 +855,7 @@ void Client::handleCommand_StopSound(NetworkPacket* pkt)
 
 	*pkt >> server_id;
 
-	std::unordered_map<s32, int>::iterator i = m_sounds_server_to_client.find(server_id);
+	auto i = m_sounds_server_to_client.find(server_id);
 	if (i != m_sounds_server_to_client.end()) {
 		int client_id = i->second;
 		m_sound->stopSound(client_id);
@@ -898,9 +870,7 @@ void Client::handleCommand_FadeSound(NetworkPacket *pkt)
 
 	*pkt >> sound_id >> step >> gain;
 
-	std::unordered_map<s32, int>::const_iterator i =
-			m_sounds_server_to_client.find(sound_id);
-
+	auto i = m_sounds_server_to_client.find(sound_id);
 	if (i != m_sounds_server_to_client.end())
 		m_sound->fadeSound(i->second, step, gain);
 }
@@ -931,6 +901,7 @@ void Client::handleCommand_InventoryFormSpec(NetworkPacket* pkt)
 
 	// Store formspec in LocalPlayer
 	player->inventory_formspec = pkt->readLongString();
+	player->inventory_formspec_override.clear();
 }
 
 void Client::handleCommand_DetachedInventory(NetworkPacket* pkt)
@@ -958,8 +929,8 @@ void Client::handleCommand_DetachedInventory(NetworkPacket* pkt)
 		inv = inv_it->second;
 	}
 
-	u16 ignore;
-	*pkt >> ignore; // this used to be the length of the following string, ignore it
+	// this used to be the length of the following string, ignore it
+	pkt->skip(2);
 
 	std::string contents(pkt->getRemainingString(), pkt->getRemainingBytes());
 	std::istringstream is(contents, std::ios::binary);
@@ -1009,7 +980,7 @@ void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 	p.amount             = readU16(is);
 	p.time               = readF32(is);
 	if (p.time < 0)
-		throw SerializationError("particle spawner time < 0");
+		throw PacketError("particle spawner time < 0");
 
 	bool missing_end_values = false;
 	if (m_proto_ver >= 42) {
@@ -1324,10 +1295,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		for (size_t i = 0; i < count; i++)
 			skybox.textures.emplace_back(deSerializeString16(is));
 
-		skybox.clouds = true;
-		try {
-			skybox.clouds = readU8(is);
-		} catch (...) {}
+		skybox.clouds = readU8(is) != 0;
 
 		// Use default skybox settings:
 		SunParams sun = SkyboxDefaults::getSunDefaults();
@@ -1530,7 +1498,19 @@ void Client::handleCommand_EyeOffset(NetworkPacket* pkt)
 		*pkt >> player->eye_offset_third_front;
 	} catch (PacketError &e) {
 		player->eye_offset_third_front = player->eye_offset_third;
-	};
+	}
+}
+
+void Client::handleCommand_Camera(NetworkPacket* pkt)
+{
+	LocalPlayer *player = m_env.getLocalPlayer();
+	assert(player);
+
+	u8 tmp;
+	*pkt >> tmp;
+	player->allowed_camera_mode = static_cast<CameraMode>(tmp);
+
+	m_client_event_queue.push(new ClientEvent(CE_UPDATE_CAMERA));
 }
 
 void Client::handleCommand_UpdatePlayerList(NetworkPacket* pkt)

@@ -14,7 +14,6 @@
 #include "lzio.h"
 
 
-
 struct lua_longjmp;  /* defined in ldo.c */
 
 

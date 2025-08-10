@@ -12,9 +12,8 @@
 #define MGFLAT_HILLS 0x02
 #define MGFLAT_CAVERNS 0x04
 
-class BiomeManager;
 
-extern FlagDesc flagdesc_mapgen_flat[];
+extern const FlagDesc flagdesc_mapgen_flat[];
 
 struct MapgenFlatParams : public MapgenParams
 {

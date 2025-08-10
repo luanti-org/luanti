@@ -6,9 +6,6 @@
 
 #include "IOSOperator.h"
 
-namespace irr
-{
-
 class CIrrDeviceLinux;
 
 //! The OSOperator provides OS-specific methods and information.
@@ -70,5 +67,3 @@ private:
 	mutable char *PrimarySelectionText = nullptr;
 #endif
 };
-
-} // end namespace

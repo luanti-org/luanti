@@ -24,6 +24,13 @@ struct TextureInfo
 	std::set<std::string> sourceImages{};
 };
 
+// Stores internal information about a texture image.
+struct ImageInfo
+{
+	video::IImage *image = nullptr;
+	std::set<std::string> sourceImages;
+};
+
 // TextureSource
 class TextureSource final : public IWritableTextureSource
 {
@@ -123,7 +130,13 @@ public:
 
 	video::SColor getTextureAverageColor(const std::string &name);
 
+	void setImageCaching(bool enabled);
+
 private:
+	// Gets or generates an image for a texture string
+	// Caller needs to drop the returned image
+	video::IImage *getOrGenerateImage(const std::string &name,
+		std::set<std::string> &source_image_names);
 
 	// The id of the thread that is allowed to use irrlicht directly
 	std::thread::id m_main_thread;
@@ -131,6 +144,12 @@ private:
 	// Generates and caches source images
 	// This should be only accessed from the main thread
 	ImageSource m_imagesource;
+
+	// Is the image cache enabled?
+	bool m_image_cache_enabled = false;
+	// Caches finished texture images before they are uploaded to the GPU
+	// (main thread use only)
+	std::unordered_map<std::string, ImageInfo> m_image_cache;
 
 	// Rebuild images and textures from the current set of source images
 	// Shall be called from the main thread.
@@ -147,7 +166,7 @@ private:
 	// The first position contains a NULL texture.
 	std::vector<TextureInfo> m_textureinfo_cache;
 	// Maps a texture name to an index in the former.
-	std::map<std::string, u32> m_name_to_id;
+	std::unordered_map<std::string, u32> m_name_to_id;
 	// The two former containers are behind this mutex
 	std::mutex m_textureinfo_cache_mutex;
 
@@ -191,23 +210,45 @@ TextureSource::TextureSource()
 TextureSource::~TextureSource()
 {
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
+	u32 textures_before = driver->getTextureCount();
 
-	unsigned int textures_before = driver->getTextureCount();
+	for (const auto &it : m_image_cache) {
+		assert(it.second.image);
+		it.second.image->drop();
+	}
 
 	for (const auto &iter : m_textureinfo_cache) {
-		// cleanup texture
 		if (iter.texture)
 			driver->removeTexture(iter.texture);
 	}
 	m_textureinfo_cache.clear();
 
 	for (auto t : m_texture_trash) {
-		// cleanup trashed texture
 		driver->removeTexture(t);
 	}
 
 	infostream << "~TextureSource() before cleanup: " << textures_before
 			<< " after: " << driver->getTextureCount() << std::endl;
+}
+
+video::IImage *TextureSource::getOrGenerateImage(const std::string &name,
+		std::set<std::string> &source_image_names)
+{
+	auto it = m_image_cache.find(name);
+	if (it != m_image_cache.end()) {
+		source_image_names = it->second.sourceImages;
+		it->second.image->grab();
+		return it->second.image;
+	}
+
+	std::set<std::string> tmp;
+	auto *img = m_imagesource.generateImage(name, tmp);
+	if (img && m_image_cache_enabled) {
+		img->grab();
+		m_image_cache[name] = {img, tmp};
+	}
+	source_image_names = std::move(tmp);
+	return img;
 }
 
 u32 TextureSource::getTextureId(const std::string &name)
@@ -281,12 +322,11 @@ u32 TextureSource::generateTexture(const std::string &name)
 
 	// passed into texture info for dynamic media tracking
 	std::set<std::string> source_image_names;
-	video::IImage *img = m_imagesource.generateImage(name, source_image_names);
+	video::IImage *img = getOrGenerateImage(name, source_image_names);
 
 	video::ITexture *tex = nullptr;
 
 	if (img) {
-		img = Align2Npot2(img, driver);
 		// Create texture from resulting image
 		tex = driver->addTexture(name.c_str(), img);
 		guiScalingCache(io::path(name.c_str()), driver, img);
@@ -358,7 +398,7 @@ Palette* TextureSource::getPalette(const std::string &name)
 	if (it == m_palettes.end()) {
 		// Create palette
 		std::set<std::string> source_image_names; // unused, sadly.
-		video::IImage *img = m_imagesource.generateImage(name, source_image_names);
+		video::IImage *img = getOrGenerateImage(name, source_image_names);
 		if (!img) {
 			warningstream << "TextureSource::getPalette(): palette \"" << name
 				<< "\" could not be loaded." << std::endl;
@@ -447,11 +487,20 @@ void TextureSource::rebuildImagesAndTextures()
 {
 	MutexAutoLock lock(m_textureinfo_cache_mutex);
 
+	/*
+	 * Note: While it may become useful in the future, it's not clear what the
+	 * current purpose of this function is. The client loads all media into a
+	 * freshly created texture source, so the only two textures that will ever be
+	 * rebuilt are 'progress_bar.png' and 'progress_bar_bg.png'.
+	 */
+
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	sanity_check(driver);
 
 	infostream << "TextureSource: recreating " << m_textureinfo_cache.size()
 			<< " textures" << std::endl;
+
+	assert(!m_image_cache_enabled || m_image_cache.empty());
 
 	// Recreate textures
 	for (TextureInfo &ti : m_textureinfo_cache) {
@@ -459,6 +508,8 @@ void TextureSource::rebuildImagesAndTextures()
 			continue; // Skip dummy entry
 		rebuildTexture(driver, ti);
 	}
+
+	// FIXME: we should rebuild palettes too
 }
 
 void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
@@ -466,37 +517,47 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 	assert(!ti.name.empty());
 	sanity_check(std::this_thread::get_id() == m_main_thread);
 
-	// Replaces the previous sourceImages.
-	// Shouldn't really need to be done, but can't hurt.
 	std::set<std::string> source_image_names;
-	video::IImage *img = m_imagesource.generateImage(ti.name, source_image_names);
-	img = Align2Npot2(img, driver);
+	video::IImage *img = getOrGenerateImage(ti.name, source_image_names);
+
 	// Create texture from resulting image
-	video::ITexture *t = nullptr;
-	if (img) {
+	video::ITexture *t = nullptr, *t_old = ti.texture;
+	if (!img) {
+		// new texture becomes null
+	} else if (t_old && t_old->getColorFormat() == img->getColorFormat() && t_old->getSize() == img->getDimension()) {
+		// can replace texture in-place
+		std::swap(t, t_old);
+		void *ptr = t->lock(video::ETLM_WRITE_ONLY);
+		if (ptr) {
+			memcpy(ptr, img->getData(), img->getImageDataSizeInBytes());
+			t->unlock();
+			t->regenerateMipMapLevels();
+		} else {
+			warningstream << "TextureSource::rebuildTexture(): lock failed for \""
+				<< ti.name << "\"" << std::endl;
+		}
+	} else {
+		// create new one
 		t = driver->addTexture(ti.name.c_str(), img);
-		guiScalingCache(io::path(ti.name.c_str()), driver, img);
-		img->drop();
 	}
-	video::ITexture *t_old = ti.texture;
-	// Replace texture
+	if (img)
+		guiScalingCache(io::path(ti.name.c_str()), driver, img);
+
+	// Replace texture info
+	if (img)
+		img->drop();
 	ti.texture = t;
 	ti.sourceImages = std::move(source_image_names);
-
 	if (t_old)
 		m_texture_trash.push_back(t_old);
 }
 
 video::SColor TextureSource::getTextureAverageColor(const std::string &name)
 {
-	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
-	video::ITexture *texture = getTexture(name);
-	if (!texture)
-		return {0, 0, 0, 0};
-	// Note: this downloads the texture back from the GPU, which is pointless
-	video::IImage *image = driver->createImage(texture,
-		core::position2d<s32>(0, 0),
-		texture->getOriginalSize());
+	assert(std::this_thread::get_id() == m_main_thread);
+
+	std::set<std::string> unused;
+	auto *image = getOrGenerateImage(name, unused);
 	if (!image)
 		return {0, 0, 0, 0};
 
@@ -504,4 +565,16 @@ video::SColor TextureSource::getTextureAverageColor(const std::string &name)
 	image->drop();
 
 	return c;
+}
+
+void TextureSource::setImageCaching(bool enabled)
+{
+	m_image_cache_enabled = enabled;
+	if (!enabled) {
+		for (const auto &it : m_image_cache) {
+			assert(it.second.image);
+			it.second.image->drop();
+		}
+		m_image_cache.clear();
+	}
 }

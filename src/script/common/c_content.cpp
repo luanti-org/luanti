@@ -56,9 +56,16 @@ void read_item_definition(lua_State* L, int index,
 	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
-	def.type = (ItemType)getenumfield(L, index, "type",
-			es_ItemType, ITEM_NONE);
+	def.name.clear();
 	getstringfield(L, index, "name", def.name);
+
+	{
+		auto str = getstringfield_default(L, index, "type", "");
+		if (!string_to_enum(es_ItemType, def.type, str))
+			warningstream << "Item " << def.name
+				<< " has unknown type \"" << str << '"' << std::endl;
+	}
+
 	getstringfield(L, index, "description", def.description);
 	getstringfield(L, index, "short_description", def.short_description);
 	getstringfield(L, index, "inventory_image", def.inventory_image);
@@ -104,7 +111,7 @@ void read_item_definition(lua_State* L, int index,
 	} else if (lua_isstring(L, -1)) {
 		video::SColor color;
 		read_color(L, -1, &color);
-		def.wear_bar_params = WearBarParams({{0.0, color}},
+		def.wear_bar_params = WearBarParams({{0.0f, color}},
 				WearBarParams::BLEND_MODE_CONSTANT);
 	}
 
@@ -294,11 +301,13 @@ const std::array<const char *, 33> object_property_keys = {
 	"shaded",
 	"damage_texture_modifier",
 	"show_on_minimap",
+	// "node" is intentionally not here as it's gated behind `fallback` below!
 };
 
 /******************************************************************************/
 void read_object_properties(lua_State *L, int index,
-		ServerActiveObject *sao, ObjectProperties *prop, IItemDefManager *idef)
+		ServerActiveObject *sao, ObjectProperties *prop, IItemDefManager *idef,
+		bool fallback)
 {
 	if(index < 0)
 		index = lua_gettop(L) + 1 + index;
@@ -351,7 +360,14 @@ void read_object_properties(lua_State *L, int index,
 	}
 	lua_pop(L, 1);
 
-	getstringfield(L, -1, "visual", prop->visual);
+	// Don't set if nil
+	std::string visual;
+	if (getstringfield(L, -1, "visual", visual)) {
+		if (!string_to_enum(es_ObjectVisual, prop->visual, visual)) {
+			script_log_unique(L, "Unsupported ObjectVisual: " + visual, warningstream);
+			prop->visual = OBJECTVISUAL_UNKNOWN;
+		}
+	}
 
 	getstringfield(L, -1, "mesh", prop->mesh);
 
@@ -398,6 +414,16 @@ void read_object_properties(lua_State *L, int index,
 		}
 	}
 	lua_pop(L, 1);
+
+	// This hack exists because the name 'node' easily collides with mods own
+	// usage (or in this case literally builtin/game/falling.lua).
+	if (!fallback) {
+		lua_getfield(L, -1, "node");
+		if (lua_istable(L, -1)) {
+			prop->node = readnode(L, -1);
+		}
+		lua_pop(L, 1);
+	}
 
 	lua_getfield(L, -1, "spritediv");
 	if(lua_istable(L, -1))
@@ -490,7 +516,7 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "selectionbox");
 	push_pointability_type(L, prop->pointable);
 	lua_setfield(L, -2, "pointable");
-	lua_pushlstring(L, prop->visual.c_str(), prop->visual.size());
+	lua_pushstring(L, enum_to_string(es_ObjectVisual, prop->visual));
 	lua_setfield(L, -2, "visual");
 	lua_pushlstring(L, prop->mesh.c_str(), prop->mesh.size());
 	lua_setfield(L, -2, "mesh");
@@ -513,6 +539,8 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	}
 	lua_setfield(L, -2, "colors");
 
+	pushnode(L, prop->node);
+	lua_setfield(L, -2, "node");
 	push_v2s16(L, prop->spritediv);
 	lua_setfield(L, -2, "spritediv");
 	push_v2s16(L, prop->initial_sprite_basepos);
@@ -584,9 +612,6 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 		case NDT_PLANTLIKE:
 		case NDT_FIRELIKE:
 			default_tiling = false;
-			// "break" is omitted here intentionaly, as PLANTLIKE
-			// FIRELIKE drawtype both should default to having
-			// backface_culling to false.
 			[[fallthrough]];
 		case NDT_MESH:
 		case NDT_LIQUID:
@@ -600,7 +625,6 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 			break;
 	}
 
-	// key at index -2 and value at index
 	if(lua_isstring(L, index)){
 		// "default_lava.png"
 		tiledef.name = lua_tostring(L, index);
@@ -613,7 +637,11 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 		// name="default_lava.png"
 		tiledef.name.clear();
 		getstringfield(L, index, "name", tiledef.name);
-		getstringfield(L, index, "image", tiledef.name); // MaterialSpec compat.
+		if (getstringfield(L, index, "image", tiledef.name)) {
+			log_deprecated(L, "Field \"image\" on TileDef is deprecated, "
+					"use \"name\" instead.", 2);
+		}
+
 		tiledef.backface_culling = getboolfield_default(
 			L, index, "backface_culling", default_culling);
 		tiledef.tileable_horizontal = getboolfield_default(
@@ -638,6 +666,9 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 		lua_getfield(L, index, "animation");
 		tiledef.animation = read_animation_definition(L, -1);
 		lua_pop(L, 1);
+	} else if (!lua_isnil(L, index)) {
+		// TODO: should be an error
+		errorstream << "TileDef: Invalid type! (expected string or table)" << std::endl;
 	}
 
 	return tiledef;
@@ -651,13 +682,13 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	/* Cache existence of some callbacks */
 	lua_getfield(L, index, "on_construct");
-	if(!lua_isnil(L, -1)) f.has_on_construct = true;
+	f.has_on_construct = !lua_isnil(L, -1);
 	lua_pop(L, 1);
 	lua_getfield(L, index, "on_destruct");
-	if(!lua_isnil(L, -1)) f.has_on_destruct = true;
+	f.has_on_destruct = !lua_isnil(L, -1);
 	lua_pop(L, 1);
 	lua_getfield(L, index, "after_destruct");
-	if(!lua_isnil(L, -1)) f.has_after_destruct = true;
+	f.has_after_destruct = !lua_isnil(L, -1);
 	lua_pop(L, 1);
 
 	lua_getfield(L, index, "on_rightclick");
@@ -674,8 +705,13 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	/* Visual definition */
 
-	f.drawtype = (NodeDrawType)getenumfield(L, index, "drawtype",
-			ScriptApiNode::es_DrawType,NDT_NORMAL);
+	{
+		auto str = getstringfield_default(L, index, "drawtype", "");
+		if (!string_to_enum(ScriptApiNode::es_DrawType, f.drawtype, str))
+			warningstream << "Node " << f.name
+				<< " has unknown drawtype \"" << str << '"' << std::endl;
+	}
+
 	getfloatfield(L, index, "visual_scale", f.visual_scale);
 
 	/* Meshnode model filename */
@@ -762,23 +798,25 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	f.setDefaultAlphaMode();
 
-	warn_if_field_exists(L, index, "alpha", "node " + f.name,
-		"Obsolete, only limited compatibility provided; "
-		"replaced by \"use_texture_alpha\"");
-	if (getintfield_default(L, index, "alpha", 255) != 255)
-		f.alpha = ALPHAMODE_BLEND;
+	{
+		int alpha;
+		if (getintfield(L, index, "alpha", alpha)) {
+			log_deprecated(L, "Field \"alpha\" on node " + f.name + " is obsolete, "
+					"only limited compatibility provided; "
+					"replaced by \"use_texture_alpha\".", 2);
+			if (alpha != 255)
+				f.alpha = ALPHAMODE_BLEND;
+		}
+	}
 
 	lua_getfield(L, index, "use_texture_alpha");
 	if (lua_isboolean(L, -1)) {
-		warn_if_field_exists(L, index, "use_texture_alpha", "node " + f.name,
-			"Boolean values are deprecated; use the new choices");
+		log_deprecated(L, "Field \"use_texture_alpha\" on node " + f.name + ": "
+				"Boolean values are deprecated; use the new choices instead.", 2);
 		if (lua_toboolean(L, -1))
 			f.alpha = (f.drawtype == NDT_NORMAL) ? ALPHAMODE_CLIP : ALPHAMODE_BLEND;
 	} else if (check_field_or_nil(L, -1, LUA_TSTRING, "use_texture_alpha")) {
-		int result = f.alpha;
-		string_to_enum(ScriptApiNode::es_TextureAlphaMode, result,
-				std::string(lua_tostring(L, -1)));
-		f.alpha = static_cast<enum AlphaMode>(result);
+		string_to_enum(ScriptApiNode::es_TextureAlphaMode, f.alpha, lua_tostring(L, -1));
 	}
 	lua_pop(L, 1);
 
@@ -796,10 +834,18 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	getboolfield(L, index, "post_effect_color_shaded", f.post_effect_color_shaded);
 
-	f.param_type = (ContentParamType)getenumfield(L, index, "paramtype",
-			ScriptApiNode::es_ContentParamType, CPT_NONE);
-	f.param_type_2 = (ContentParamType2)getenumfield(L, index, "paramtype2",
-			ScriptApiNode::es_ContentParamType2, CPT2_NONE);
+	{
+		auto str = getstringfield_default(L, index, "paramtype", "");
+		if (!string_to_enum(ScriptApiNode::es_ContentParamType, f.param_type, str))
+			warningstream << "Node " << f.name
+				<< " has unknown paramtype \"" << str << '"' << std::endl;
+	}
+	{
+		auto str = getstringfield_default(L, index, "paramtype2", "");
+		if (!string_to_enum(ScriptApiNode::es_ContentParamType2, f.param_type_2, str))
+			warningstream << "Node " << f.name
+				<< " has unknown paramtype2 \"" << str << '"' << std::endl;
+	}
 
 	if (!f.palette_name.empty() &&
 			!(f.param_type_2 == CPT2_COLOR ||
@@ -834,8 +880,12 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	// Liquids flow into and replace node
 	getboolfield(L, index, "floodable", f.floodable);
 	// Whether the node is non-liquid, source liquid or flowing liquid
-	f.liquid_type = (LiquidType)getenumfield(L, index, "liquidtype",
-			ScriptApiNode::es_LiquidType, LIQUID_NONE);
+	{
+		auto str = getstringfield_default(L, index, "liquidtype", "");
+		if (!string_to_enum(ScriptApiNode::es_LiquidType, f.liquid_type, str))
+			warningstream << "Node " << f.name
+				<< " has unknown liquidtype \"" << str << '"' << std::endl;
+	}
 	// If the content is liquid, this is the flowing version of the liquid.
 	getstringfield(L, index, "liquid_alternative_flowing",
 			f.liquid_alternative_flowing);
@@ -894,7 +944,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 		lua_pushnil(L);
 		while (lua_next(L, table) != 0) {
 			// Value at -1
-			std::string side(lua_tostring(L, -1));
+			std::string_view side(lua_tostring(L, -1));
 			// Note faces are flipped to make checking easier
 			if (side == "top")
 				f.connect_sides |= 2;
@@ -965,6 +1015,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	} else if(lua_isnil(L, -1)) {
 		f.liquid_move_physics = f.liquid_type != LIQUID_NONE;
 	} else {
+		// TODO: should be an error
 		errorstream << "Field \"liquid_move_physics\": Invalid type!" << std::endl;
 	}
 	lua_pop(L, 1);
@@ -1161,8 +1212,7 @@ void push_palette(lua_State *L, const std::vector<video::SColor> *palette)
 	lua_createtable(L, palette->size(), 0);
 	int newTable = lua_gettop(L);
 	int index = 1;
-	std::vector<video::SColor>::const_iterator iter;
-	for (iter = palette->begin(); iter != palette->end(); ++iter) {
+	for (auto iter = palette->begin(); iter != palette->end(); ++iter) {
 		push_ARGB8(L, (*iter));
 		lua_rawseti(L, newTable, index);
 		index++;
@@ -1314,22 +1364,6 @@ void pushnode(lua_State *L, const MapNode &n)
 	lua_pushinteger(L, n.getParam1());
 	lua_pushinteger(L, n.getParam2());
 	lua_call(L, 3, 1);
-}
-
-/******************************************************************************/
-void warn_if_field_exists(lua_State *L, int table, const char *fieldname,
-		std::string_view name, std::string_view message)
-{
-	lua_getfield(L, table, fieldname);
-	if (!lua_isnil(L, -1)) {
-		warningstream << "Field \"" << fieldname << "\"";
-		if (!name.empty()) {
-			warningstream << " on " << name;
-		}
-		warningstream << ": " << message << std::endl;
-		infostream << script_get_backtrace(L) << std::endl;
-	}
-	lua_pop(L, 1);
 }
 
 /******************************************************************************/
@@ -1785,10 +1819,8 @@ WearBarParams read_wear_bar_params(
 	auto blend = WearBarParams::BLEND_MODE_CONSTANT;
 	lua_getfield(L, stack_idx, "blend");
 	if (check_field_or_nil(L, -1, LUA_TSTRING, "blend")) {
-		int blendInt;
-		if (!string_to_enum(WearBarParams::es_BlendMode, blendInt, std::string(lua_tostring(L, -1))))
+		if (!string_to_enum(WearBarParams::es_BlendMode, blend, lua_tostring(L, -1)))
 			throw LuaError("Invalid wear bar color blend mode");
-		blend = static_cast<WearBarParams::BlendMode>(blendInt);
 	}
 	lua_pop(L, 1);
 
@@ -1815,7 +1847,7 @@ void push_hit_params(lua_State *L,const HitParams &params)
 /******************************************************************************/
 
 bool getflagsfield(lua_State *L, int table, const char *fieldname,
-	FlagDesc *flagdesc, u32 *flags, u32 *flagmask)
+	const FlagDesc *flagdesc, u32 *flags, u32 *flagmask)
 {
 	lua_getfield(L, table, fieldname);
 
@@ -1826,7 +1858,7 @@ bool getflagsfield(lua_State *L, int table, const char *fieldname,
 	return success;
 }
 
-bool read_flags(lua_State *L, int index, FlagDesc *flagdesc,
+bool read_flags(lua_State *L, int index, const FlagDesc *flagdesc,
 	u32 *flags, u32 *flagmask)
 {
 	if (lua_isstring(L, index)) {
@@ -1841,7 +1873,7 @@ bool read_flags(lua_State *L, int index, FlagDesc *flagdesc,
 	return true;
 }
 
-u32 read_flags_table(lua_State *L, int table, FlagDesc *flagdesc, u32 *flagmask)
+u32 read_flags_table(lua_State *L, int table, const FlagDesc *flagdesc, u32 *flagmask)
 {
 	u32 flags = 0, mask = 0;
 	char fnamebuf[64] = "no";
@@ -1866,7 +1898,7 @@ u32 read_flags_table(lua_State *L, int table, FlagDesc *flagdesc, u32 *flagmask)
 	return flags;
 }
 
-void push_flags_string(lua_State *L, FlagDesc *flagdesc, u32 flags, u32 flagmask)
+void push_flags_string(lua_State *L, const FlagDesc *flagdesc, u32 flags, u32 flagmask)
 {
 	std::string flagstring = writeFlagString(flags, flagdesc, flagmask);
 	lua_pushlstring(L, flagstring.c_str(), flagstring.size());
@@ -2375,14 +2407,9 @@ void push_hud_element(lua_State *L, HudElement *elem)
 bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value)
 {
 	std::string statstr = lua_tostring(L, 3);
-	{
-		int statint;
-		if (!string_to_enum(es_HudElementStat, statint, statstr)) {
-			script_log_unique(L, "Unknown HUD stat type: " + statstr, warningstream);
-			return false;
-		}
-
-		stat = static_cast<HudElementStat>(statint);
+	if (!string_to_enum(es_HudElementStat, stat, statstr)) {
+		script_log_unique(L, "Unknown HUD stat type: " + statstr, warningstream);
+		return false;
 	}
 
 	switch (stat) {

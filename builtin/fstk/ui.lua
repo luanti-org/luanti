@@ -1,19 +1,6 @@
---Luanti
---Copyright (C) 2014 sapier
---
---This program is free software; you can redistribute it and/or modify
---it under the terms of the GNU Lesser General Public License as published by
---the Free Software Foundation; either version 2.1 of the License, or
---(at your option) any later version.
---
---This program is distributed in the hope that it will be useful,
---but WITHOUT ANY WARRANTY; without even the implied warranty of
---MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---GNU Lesser General Public License for more details.
---
---You should have received a copy of the GNU Lesser General Public License along
---with this program; if not, write to the Free Software Foundation, Inc.,
---51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+-- Luanti
+-- Copyright (C) 2014 sapier
+-- SPDX-License-Identifier: LGPL-2.1-or-later
 
 ui = {}
 ui.childlist = {}
@@ -131,7 +118,7 @@ function ui.update()
 
 		if (active_toplevel_ui_elements > 1) then
 			core.log("warning", "more than one active ui "..
-				"element, self most likely isn't intended")
+				"element, this most likely isn't intended")
 		end
 
 		if (active_toplevel_ui_elements == 0) then
@@ -179,6 +166,10 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 core.button_handler = function(fields)
+	if fields["try_quit"] and not fields["key_enter"] then
+		core.event_handler("MenuQuit")
+		return
+	end
 	if fields["btn_reconnect_yes"] then
 		gamedata.reconnect_requested = false
 		gamedata.errormessage = nil

@@ -22,6 +22,11 @@ This is a directory containing the entire contents of a single texture pack.
 It can be chosen more or less freely and will also become the name of the
 texture pack. The name must not be “base”.
 
+### The "server" texture pack
+If a texture pack named `server` exists, the textures in it will replace textures
+sent to clients.
+It's independent of the client's texture pack, which will take precedence as usual.
+
 ### `texture_pack.conf`
 A key-value config file with the following keys:
 
@@ -139,20 +144,33 @@ are placeholders intended to be overwritten by the game.
 
 ### Android textures
 
-* `drop_btn.png`
-* `fast_btn.png`
-* `fly_btn.png`
-* `jump_btn.png`
-* `noclip_btn.png`
+* `dig_btn.png`
+* `place_btn.png`
 
-* `camera_btn.png`
+* `jump_btn.png`
+* `down.png`
+* `zoom.png`
+* `aux1_btn.png`
+* `overflow_btn.png`
+
 * `chat_btn.png`
 * `inventory_btn.png`
-* `rangeview_btn.png`
-
-* `debug_btn.png`
-* `overflow_btn.png`
+* `drop_btn.png`
 * `exit_btn.png`
+
+* `fly_btn.png`
+* `fast_btn.png`
+* `noclip_btn.png`
+* `debug_btn.png`
+* `camera_btn.png`
+* `rangeview_btn.png`
+* `minimap_btn.png`
+* `chat_hide_btn.png`
+* `chat_show_btn.png`
+
+* `joystick_off.png`
+* `joystick_bg.png`
+* `joystick_center.png`
 
 Texture Overrides
 -----------------

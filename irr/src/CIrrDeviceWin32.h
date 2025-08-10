@@ -18,8 +18,6 @@
 #define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
 #endif
 
-namespace irr
-{
 struct SJoystickWin32Control;
 
 class CIrrDeviceWin32 : public CIrrDeviceStub
@@ -72,7 +70,7 @@ public:
 	void setResizable(bool resize = false) override;
 
 	//! Resize the render window.
-	void setWindowSize(const irr::core::dimension2d<u32> &size) override;
+	void setWindowSize(const core::dimension2d<u32> &size) override;
 
 	//! Minimizes the window.
 	void minimizeWindow() override;
@@ -113,7 +111,7 @@ public:
 	bool switchToFullScreen();
 
 	// convert an Irrlicht texture to a windows cursor
-	HCURSOR TextureToCursor(HWND hwnd, irr::video::ITexture *tex, const core::rect<s32> &sourceRect, const core::position2d<s32> &hotspot);
+	HCURSOR TextureToCursor(HWND hwnd, video::ITexture *tex, const core::rect<s32> &sourceRect, const core::position2d<s32> &hotspot);
 
 	//! Implementation of the win32 cursor control
 	class CCursorControl : public gui::ICursorControl
@@ -399,7 +397,5 @@ private:
 
 	bool WindowMaximized;
 };
-
-} // end namespace irr
 
 #endif // _IRR_COMPILE_WITH_WINDOWS_DEVICE_

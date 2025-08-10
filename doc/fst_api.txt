@@ -3,8 +3,10 @@ Formspec toolkit api 0.0.3
 
 Formspec toolkit is a set of functions to create basic ui elements.
 
+You can find the files in builtin/fstk/.
 
-File: fst/ui.lua
+
+File: fstk/ui.lua
 ----------------
 
 ui.lua adds base ui interface to add additional components to.
@@ -25,7 +27,7 @@ ui.find_by_name(name) --> returns component or nil
 ^ find a component within ui
 ^ name: name of component to look for
 
-File: fst/tabview.lua
+File: fstk/tabview.lua
 ---------------------
 
 tabview_create(name, size, tabheaderpos) --> returns tabview component
@@ -92,7 +94,7 @@ methods:
       * icon: path to icon
       * on_click(tabview): callback function
 
-File: fst/dialog.lua
+File: fstk/dialog.lua
 ---------------------
 Only one dialog can be shown at a time. If a dialog is closed it's parent is
 gonna be activated and shown again.
@@ -129,7 +131,7 @@ members:
 - parent
   ^ parent component to return to on exit
 
-File: fst/buttonbar.lua
+File: fstk/buttonbar.lua
 -----------------------
 
 buttonbar_create(name, pos, size, bgcolor, cbf_buttonhandler)

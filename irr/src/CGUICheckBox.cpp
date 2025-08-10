@@ -10,8 +10,6 @@
 #include "IGUIFont.h"
 #include "os.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -191,4 +189,3 @@ bool CGUICheckBox::isDrawBorderEnabled() const
 }
 
 } // end namespace gui
-} // end namespace irr

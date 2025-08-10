@@ -7,8 +7,6 @@
 #include "IReferenceCounted.h"
 #include "path.h"
 
-namespace irr
-{
 namespace io
 {
 
@@ -44,4 +42,3 @@ public:
 };
 
 } // end namespace io
-} // end namespace irr

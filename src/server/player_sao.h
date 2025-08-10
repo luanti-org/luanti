@@ -78,6 +78,7 @@ public:
 	void addPos(const v3f &added_pos) override;
 	void moveTo(v3f pos, bool continuous) override;
 	void setPlayerYaw(const float yaw);
+	std::string getGUID() const override { return m_player_name; }
 	// Data should not be sent at player initialization
 	void setPlayerYawAndSend(const float yaw);
 	void setLookPitch(const float pitch);
@@ -170,7 +171,7 @@ public:
 
 	void finalize(RemotePlayer *player, const std::set<std::string> &privs);
 
-	v3f getEyePosition() const { return m_base_position + getEyeOffset(); }
+	v3f getEyePosition() const { return getBasePosition() + getEyeOffset(); }
 	v3f getEyeOffset() const;
 	float getZoomFOV() const;
 
@@ -182,6 +183,8 @@ private:
 	std::string generateUpdatePhysicsOverrideCommand() const;
 
 	RemotePlayer *m_player = nullptr;
+	// Extra variable because during shutdown m_player is unavailable, but we still need to know.
+	std::string m_player_name; ///< used as GUID
 	session_t m_peer_id_initial = 0; ///< only used to initialize RemotePlayer
 
 	// Cheat prevention

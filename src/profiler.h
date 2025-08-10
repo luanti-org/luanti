@@ -13,6 +13,8 @@
 #include "threading/mutex_auto_lock.h"
 #include "util/timetaker.h"
 #include "util/numeric.h"      // paging()
+/* FIXME: ^ move this to the .cpp file, it's not needed here */
+#include "util/basic_macros.h"
 
 // Global profiler
 class Profiler;
@@ -108,7 +110,12 @@ public:
 	ScopeProfiler(Profiler *profiler, const std::string &name,
 			ScopeProfilerType type = SPT_ADD,
 			TimePrecision precision = PRECISION_MILLI);
-	~ScopeProfiler();
+	inline ~ScopeProfiler() { stop(); }
+
+	// End profiled scope early
+	void stop() noexcept;
+
+	DISABLE_CLASS_COPY(ScopeProfiler)
 
 private:
 	Profiler *m_profiler = nullptr;

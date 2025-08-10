@@ -53,9 +53,14 @@ public:
 		return m_queue.front();
 	}
 
-	u32 size() const
+	size_t size() const
 	{
 		return m_queue.size();
+	}
+
+	bool empty() const
+	{
+		return m_queue.empty();
 	}
 
 private:
@@ -100,7 +105,11 @@ public:
 		return result;
 	}
 
-	void clear() { m_values.clear(); }
+	void clear()
+	{
+		MutexAutoLock lock(m_mutex);
+		m_values.clear();
+	}
 
 private:
 	std::map<Key, Value> m_values;
@@ -357,11 +366,10 @@ public:
 		// This conditional block was converted from a ternary to ensure no
 		// temporary values are created in evaluating the return expression,
 		// which could cause a dangling reference.
-		if (it != m_values.end()) {
+		if (it != m_values.end())
 			return it->second;
-		} else {
+		else
 			return null_value;
-		}
 	}
 
 	void put(const K &key, const V &value) {
@@ -425,7 +433,7 @@ public:
 		return !!take(key);
 	}
 
-	// Warning: not constant-time!
+	/// @warning not constant-time!
 	size_t size() const {
 		if (m_iterating) {
 			// This is by no means impossible to determine, it's just annoying
@@ -441,7 +449,7 @@ public:
 		return n;
 	}
 
-	// Warning: not constant-time!
+	/// @warning not constant-time!
 	bool empty() const {
 		if (m_iterating)
 			return false; // maybe

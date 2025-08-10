@@ -9,8 +9,8 @@
 #include "os.h"
 #include "SoftwareDriver2_helper.h"
 
-namespace irr
-{
+#include <cassert>
+
 namespace video
 {
 
@@ -20,7 +20,10 @@ CImage::CImage(ECOLOR_FORMAT format, const core::dimension2d<u32> &size, void *d
 		IImage(format, size, deleteMemory)
 {
 	if (ownForeignMemory) {
-		Data = (u8 *)data;
+		assert(data);
+		Data = reinterpret_cast<u8*>(data);
+		if (reinterpret_cast<uintptr_t>(data) % sizeof(u32) != 0)
+			os::Printer::log("CImage created with foreign memory that's not aligned", ELL_WARNING);
 	} else {
 		const u32 dataSize = getDataSizeFromFormat(Format, Size.Width, Size.Height);
 		const u32 allocSize = align_next(dataSize, 16);
@@ -123,7 +126,7 @@ void CImage::copyTo(IImage *target, const core::position2d<s32> &pos)
 	if (!Blit(BLITTER_TEXTURE, target, 0, &pos, this, 0, 0) && target && pos.X == 0 && pos.Y == 0 &&
 			CColorConverter::canConvertFormat(Format, target->getColorFormat())) {
 		// No fast blitting, but copyToScaling uses other color conversions and might work
-		irr::core::dimension2du dim(target->getDimension());
+		core::dimension2du dim(target->getDimension());
 		copyToScaling(target->getData(), dim.Width, dim.Height, target->getColorFormat(), target->getPitch());
 	}
 }
@@ -137,19 +140,6 @@ void CImage::copyTo(IImage *target, const core::position2d<s32> &pos, const core
 	}
 
 	Blit(BLITTER_TEXTURE, target, clipRect, &pos, this, &sourceRect, 0);
-}
-
-//! copies this surface into another, using the alpha mask, a cliprect and a color to add with
-void CImage::copyToWithAlpha(IImage *target, const core::position2d<s32> &pos, const core::rect<s32> &sourceRect, const SColor &color, const core::rect<s32> *clipRect, bool combineAlpha)
-{
-	if (IImage::isCompressedFormat(Format)) {
-		os::Printer::log("IImage::copyToWithAlpha method doesn't work with compressed images.", ELL_WARNING);
-		return;
-	}
-
-	eBlitter op = combineAlpha ? BLITTER_TEXTURE_COMBINE_ALPHA : color.color == 0xFFFFFFFF ? BLITTER_TEXTURE_ALPHA_BLEND
-																						   : BLITTER_TEXTURE_ALPHA_COLOR_BLEND;
-	Blit(op, target, clipRect, &pos, this, &sourceRect, color.color);
 }
 
 //! copies this surface into another, if it has the exact same size and format.
@@ -360,7 +350,7 @@ inline SColor CImage::getPixelBox(s32 x, s32 y, s32 fx, s32 fy, s32 bias) const
 		}
 	}
 
-	s32 sdiv = s32_log2_s32(fx * fy);
+	s32 sdiv = core::u32_log2(fx * fy);
 
 	a = core::s32_clamp((a >> sdiv) + bias, 0, 255);
 	r = core::s32_clamp((r >> sdiv) + bias, 0, 255);
@@ -372,4 +362,3 @@ inline SColor CImage::getPixelBox(s32 x, s32 y, s32 fx, s32 fy, s32 bias) const
 }
 
 } // end namespace video
-} // end namespace irr

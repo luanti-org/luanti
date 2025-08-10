@@ -4,6 +4,11 @@
 
 #pragma once
 
+#include <vector>
+#include <string>
+#include "SColor.h"
+#include "irr_v2d.h"
+
 
 struct SkyColor
 {

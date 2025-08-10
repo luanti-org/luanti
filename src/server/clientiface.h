@@ -251,8 +251,8 @@ public:
 
 	void SentBlock(v3s16 p);
 
-	void SetBlockNotSent(v3s16 p);
-	void SetBlocksNotSent(const std::vector<v3s16> &blocks);
+	void SetBlockNotSent(v3s16 p, bool low_priority = false);
+	void SetBlocksNotSent(const std::vector<v3s16> &blocks, bool low_priority = false);
 
 	/**
 	 * tell client about this block being modified right now.
@@ -276,12 +276,12 @@ public:
 
 	void PrintInfo(std::ostream &o)
 	{
-		o<<"RemoteClient "<<peer_id<<": "
-				<<"m_blocks_sent.size()="<<m_blocks_sent.size()
-				<<", m_blocks_sending.size()="<<m_blocks_sending.size()
-				<<", m_nearest_unsent_d="<<m_nearest_unsent_d
-				<<", m_excess_gotblocks="<<m_excess_gotblocks
-				<<std::endl;
+		o << "RemoteClient " << peer_id << ": "
+			<<"blocks_sent=" << m_blocks_sent.size()
+			<<", blocks_sending=" << m_blocks_sending.size()
+			<<", nearest_unsent_d=" << m_nearest_unsent_d
+			<<", map_send_completion_timer=" << (int)(m_map_send_completion_timer + 0.5f)
+			<<", excess_gotblocks=" << m_excess_gotblocks;
 		m_excess_gotblocks = 0;
 	}
 
@@ -388,19 +388,8 @@ private:
 		- The size of this list is limited to some value
 		Block is added when it is sent with BLOCKDATA.
 		Block is removed when GOTBLOCKS is received.
-		Value is time from sending. (not used at the moment)
 	*/
-	std::unordered_map<v3s16, float> m_blocks_sending;
-
-	/*
-		Blocks that have been modified since blocks were
-		sent to the client last (getNextBlocks()).
-		This is used to reset the unsent distance, so that
-		modified blocks are resent to the client.
-
-		List of block positions.
-	*/
-	std::unordered_set<v3s16> m_blocks_modified;
+	std::unordered_set<v3s16> m_blocks_sending;
 
 	/*
 		Count of excess GotBlocks().
@@ -454,9 +443,9 @@ public:
 	std::vector<session_t> getClientIDs(ClientState min_state=CS_Active);
 
 	/* mark blocks as not sent on all active clients */
-	void markBlocksNotSent(const std::vector<v3s16> &positions);
+	void markBlocksNotSent(const std::vector<v3s16> &positions, bool low_priority = false);
 
-	/* verify is server user limit was reached */
+	/* verify if server user limit was reached */
 	bool isUserLimitReached();
 
 	/* get list of client player names */
@@ -469,7 +458,7 @@ public:
 	void sendCustom(session_t peer_id, u8 channel, NetworkPacket *pkt, bool reliable);
 
 	/* send to all clients */
-	void sendToAll(NetworkPacket *pkt);
+	void sendToAll(NetworkPacket *pkt, ClientState state_min = CS_Active);
 
 	/* delete a client */
 	void DeleteClient(session_t peer_id);
@@ -486,15 +475,8 @@ public:
 	/* get state of client by id*/
 	ClientState getClientState(session_t peer_id);
 
-	/* set client playername */
-	void setPlayerName(session_t peer_id, const std::string &name);
-
 	/* get protocol version of client */
 	u16 getProtocolVersion(session_t peer_id);
-
-	/* set client version */
-	void setClientVersion(session_t peer_id, u8 major, u8 minor, u8 patch,
-			const std::string &full);
 
 	/* event to update client state */
 	void event(session_t peer_id, ClientStateEvent event);
@@ -506,7 +488,8 @@ public:
 		m_env = env;
 	}
 
-	static std::string state2Name(ClientState state);
+	static const char *state2Name(ClientState state);
+
 protected:
 	class AutoLock {
 	public:
@@ -524,18 +507,24 @@ private:
 
 	// Connection
 	std::shared_ptr<con::IConnection> m_con;
+
+	// FIXME?: as far as I can tell this lock is pointless because only the server
+	// thread ever touches the clients. Consider how getClientNoEx() returns
+	// a raw pointer too.
 	std::recursive_mutex m_clients_mutex;
-	// Connected clients (behind the con mutex)
+	// Connected clients (behind the mutex)
 	RemoteClientMap m_clients;
-	std::vector<std::string> m_clients_names; //for announcing masterserver
+	std::vector<std::string> m_clients_names; // for announcing to server list
 
 	// Environment
-	ServerEnvironment *m_env;
+	ServerEnvironment *m_env = nullptr;
 
 	float m_print_info_timer = 0;
 	float m_check_linger_timer = 0;
 
 	static const char *statenames[];
 
-	static constexpr int LINGER_TIMEOUT = 10;
+	// Note that this puts a fixed timeout on the init & auth phase for a client.
+	// (lingering is enforced until CS_InitDone)
+	static constexpr int LINGER_TIMEOUT = 12;
 };

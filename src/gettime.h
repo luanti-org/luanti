@@ -20,7 +20,7 @@ inline struct tm mt_localtime()
 #endif
 		});
 
-	struct tm ret;
+	struct tm ret{};
 	time_t t = time(NULL);
 	// TODO we should check if the function returns NULL, which would mean error
 #ifdef _WIN32

@@ -8,8 +8,6 @@
 #include "IShaderConstantSetCallBack.h"
 #include "IMaterialRendererServices.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -82,5 +80,4 @@ protected:
 	s32 TextureUnit0;
 };
 
-}
 }

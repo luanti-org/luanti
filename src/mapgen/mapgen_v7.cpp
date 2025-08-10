@@ -24,7 +24,7 @@
 #include "mapgen_v7.h"
 
 
-FlagDesc flagdesc_mapgen_v7[] = {
+const FlagDesc flagdesc_mapgen_v7[] = {
 	{"mountains",   MGV7_MOUNTAINS},
 	{"ridges",      MGV7_RIDGES},
 	{"floatlands",  MGV7_FLOATLANDS},
@@ -251,7 +251,7 @@ int MapgenV7::getSpawnLevelAtPoint(v2s16 p)
 	// If rivers are enabled, first check if in a river
 	if (spflags & MGV7_RIDGES) {
 		float width = 0.2f;
-		float uwatern = NoisePerlin2D(&noise_ridge_uwater->np, p.X, p.Y, seed) *
+		float uwatern = NoiseFractal2D(&noise_ridge_uwater->np, p.X, p.Y, seed) *
 			2.0f;
 		if (std::fabs(uwatern) <= width)
 			return MAX_MAP_GENERATION_LIMIT; // Unsuitable spawn point
@@ -390,16 +390,16 @@ void MapgenV7::makeChunk(BlockMakeData *data)
 
 float MapgenV7::baseTerrainLevelAtPoint(s16 x, s16 z)
 {
-	float hselect = NoisePerlin2D(&noise_height_select->np, x, z, seed);
+	float hselect = NoiseFractal2D(&noise_height_select->np, x, z, seed);
 	hselect = rangelim(hselect, 0.0f, 1.0f);
 
-	float persist = NoisePerlin2D(&noise_terrain_persist->np, x, z, seed);
+	float persist = NoiseFractal2D(&noise_terrain_persist->np, x, z, seed);
 
 	noise_terrain_base->np.persist = persist;
-	float height_base = NoisePerlin2D(&noise_terrain_base->np, x, z, seed);
+	float height_base = NoiseFractal2D(&noise_terrain_base->np, x, z, seed);
 
 	noise_terrain_alt->np.persist = persist;
-	float height_alt = NoisePerlin2D(&noise_terrain_alt->np, x, z, seed);
+	float height_alt = NoiseFractal2D(&noise_terrain_alt->np, x, z, seed);
 
 	if (height_alt > height_base)
 		return height_alt;
@@ -424,9 +424,9 @@ float MapgenV7::baseTerrainLevelFromMap(int index)
 bool MapgenV7::getMountainTerrainAtPoint(s16 x, s16 y, s16 z)
 {
 	float mnt_h_n =
-		std::fmax(NoisePerlin2D(&noise_mount_height->np, x, z, seed), 1.0f);
+		std::fmax(NoiseFractal2D(&noise_mount_height->np, x, z, seed), 1.0f);
 	float density_gradient = -((float)(y - mount_zero_level) / mnt_h_n);
-	float mnt_n = NoisePerlin3D(&noise_mountain->np, x, y, z, seed);
+	float mnt_n = NoiseFractal3D(&noise_mountain->np, x, y, z, seed);
 
 	return mnt_n + density_gradient >= 0.0f;
 }
@@ -472,16 +472,16 @@ int MapgenV7::generateTerrain()
 	MapNode n_water(c_water_source);
 
 	//// Calculate noise for terrain generation
-	noise_terrain_persist->perlinMap2D(node_min.X, node_min.Z);
+	noise_terrain_persist->noiseMap2D(node_min.X, node_min.Z);
 	float *persistmap = noise_terrain_persist->result;
 
-	noise_terrain_base->perlinMap2D(node_min.X, node_min.Z, persistmap);
-	noise_terrain_alt->perlinMap2D(node_min.X, node_min.Z, persistmap);
-	noise_height_select->perlinMap2D(node_min.X, node_min.Z);
+	noise_terrain_base->noiseMap2D(node_min.X, node_min.Z, persistmap);
+	noise_terrain_alt->noiseMap2D(node_min.X, node_min.Z, persistmap);
+	noise_height_select->noiseMap2D(node_min.X, node_min.Z);
 
 	if (spflags & MGV7_MOUNTAINS) {
-		noise_mount_height->perlinMap2D(node_min.X, node_min.Z);
-		noise_mountain->perlinMap3D(node_min.X, node_min.Y - 1, node_min.Z);
+		noise_mount_height->noiseMap2D(node_min.X, node_min.Z);
+		noise_mountain->noiseMap3D(node_min.X, node_min.Y - 1, node_min.Z);
 	}
 
 	//// Floatlands
@@ -497,7 +497,7 @@ int MapgenV7::generateTerrain()
 			node_max.Y >= floatland_ymin && node_min.Y <= floatland_ymax) {
 		gen_floatlands = true;
 		// Calculate noise for floatland generation
-		noise_floatland->perlinMap3D(node_min.X, node_min.Y - 1, node_min.Z);
+		noise_floatland->noiseMap3D(node_min.X, node_min.Y - 1, node_min.Z);
 
 		// Cache floatland noise offset values, for floatland tapering
 		for (s16 y = node_min.Y - 1; y <= node_max.Y + 1; y++, cache_index++) {
@@ -518,8 +518,8 @@ int MapgenV7::generateTerrain()
 	bool gen_rivers = (spflags & MGV7_RIDGES) && node_max.Y >= water_level - 16 &&
 		!gen_floatlands;
 	if (gen_rivers) {
-		noise_ridge->perlinMap3D(node_min.X, node_min.Y - 1, node_min.Z);
-		noise_ridge_uwater->perlinMap2D(node_min.X, node_min.Z);
+		noise_ridge->noiseMap3D(node_min.X, node_min.Y - 1, node_min.Z);
+		noise_ridge_uwater->noiseMap2D(node_min.X, node_min.Z);
 	}
 
 	//// Place nodes

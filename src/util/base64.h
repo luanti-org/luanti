@@ -31,6 +31,6 @@ René Nyffenegger rene.nyffenegger@adp-gmbh.ch
 #include <string>
 #include <string_view>
 
-bool base64_is_valid(std::string_view s);
-std::string base64_encode(std::string_view s);
-std::string base64_decode(std::string_view s);
+[[nodiscard]] bool base64_is_valid(std::string_view s);
+[[nodiscard]] std::string base64_encode(std::string_view s);
+[[nodiscard]] std::string base64_decode(std::string_view s);

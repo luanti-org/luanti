@@ -264,6 +264,10 @@ void TestVoxelArea::test_intersect()
 	UASSERT(v3.intersect(v1) == v1.intersect(v3));
 	UASSERT(v1.intersect(v4) ==
 			VoxelArea({-10, -2, -10}, {10, 2, 10}));
+
+	// edge cases
+	UASSERT(VoxelArea().intersect(v1).hasEmptyExtent());
+	UASSERT(v1.intersect(VoxelArea()).hasEmptyExtent());
 }
 
 void TestVoxelArea::test_index_xyz_all_pos()

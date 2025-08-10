@@ -4,8 +4,9 @@
     <string name="loading">Laddar…</string>
     <string name="unzip_notification_description">Mindre än 1 minut…</string>
     <string name="ime_dialog_done">Färdig</string>
-    <string name="no_web_browser">Ingen webbläsare kunde hittas</string>
-    <string name="notification_channel_name">Generell notis</string>
-    <string name="notification_channel_description">Notiser från Luanti</string>
+    <string name="no_web_browser">Ingen webbläsare hittades</string>
+    <string name="notification_channel_name">Allmän notifikation</string>
+    <string name="notification_channel_description">Notifikationer från Luanti</string>
     <string name="unzip_notification_title">Laddar Luanti</string>
+    <string name="game_notification_title">Luanti är igång</string>
 </resources>

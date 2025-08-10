@@ -18,6 +18,8 @@ struct NoiseParams;
 // Global objects
 extern Settings *g_settings; // Same as Settings::getLayer(SL_GLOBAL);
 extern std::string g_settings_path;
+/// Is set to true if the engine runs for the first time
+extern bool g_first_run;
 
 // Type for a settings changed callback function
 typedef void (*SettingsChangedCallback)(const std::string &name, void *data);

@@ -16,9 +16,8 @@
 #include <list>
 #include <optional>
 #include <string>
+#include <cassert>
 
-namespace irr
-{
 namespace scene
 {
 class ISceneNode;
@@ -93,16 +92,12 @@ public:
 	\param timeMs Current time in milliseconds. */
 	virtual void OnAnimate(u32 timeMs)
 	{
-		if (IsVisible) {
-			// update absolute position
-			updateAbsolutePosition();
+		if (!IsVisible && Children.empty())
+			return;
 
-			// perform the post render process on all children
-
-			ISceneNodeList::iterator it = Children.begin();
-			for (; it != Children.end(); ++it)
-				(*it)->OnAnimate(timeMs);
-		}
+		updateAbsolutePosition();
+		for (auto *child : Children)
+			child->OnAnimate(timeMs);
 	}
 
 	//! Renders the node.
@@ -268,7 +263,7 @@ public:
 			return false;
 
 		// The iterator must be set since the parent is not null.
-		_IRR_DEBUG_BREAK_IF(!child->ThisIterator.has_value());
+		assert(child->ThisIterator.has_value());
 		auto it = *child->ThisIterator;
 		child->ThisIterator = std::nullopt;
 		child->Parent = nullptr;
@@ -310,7 +305,11 @@ public:
 	\return The material at that index. */
 	virtual video::SMaterial &getMaterial(u32 num)
 	{
-		return video::IdentityMaterial;
+		// We return a default material since a reference can't be null,
+		// but note that writing to this is a mistake either by a child class
+		// or the caller, because getMaterialCount() is zero.
+		// Doing so will helpfully cause a segfault.
+		return const_cast<video::SMaterial&>(video::IdentityMaterial);
 	}
 
 	//! Get amount of materials used by this scene node.
@@ -416,7 +415,7 @@ public:
 	}
 
 	//! Sets if debug data like bounding boxes should be drawn.
-	/** A bitwise OR of the types from @ref irr::scene::E_DEBUG_SCENE_TYPE.
+	/** A bitwise OR of the types from @ref scene::E_DEBUG_SCENE_TYPE.
 	Please note that not all scene nodes support all debug data types.
 	\param state The debug data visibility state to be used. */
 	virtual void setDebugDataVisible(u16 state)
@@ -426,7 +425,7 @@ public:
 
 	//! Returns if debug data like bounding boxes are drawn.
 	/** \return A bitwise OR of the debug data values from
-	@ref irr::scene::E_DEBUG_SCENE_TYPE that are currently visible. */
+	@ref scene::E_DEBUG_SCENE_TYPE that are currently visible. */
 	u16 isDebugDataVisible() const
 	{
 		return DebugDataVisible;
@@ -594,4 +593,3 @@ protected:
 };
 
 } // end namespace scene
-} // end namespace irr

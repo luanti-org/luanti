@@ -54,16 +54,16 @@ struct JoystickComponent
 
 struct JoystickInfo
 {
-	irr::core::array<JoystickComponent> axisComp;
-	irr::core::array<JoystickComponent> buttonComp;
-	irr::core::array<JoystickComponent> hatComp;
+	core::array<JoystickComponent> axisComp;
+	core::array<JoystickComponent> buttonComp;
+	core::array<JoystickComponent> hatComp;
 
 	int hats;
 	int axes;
 	int buttons;
 	int numActiveJoysticks;
 
-	irr::SEvent persistentData;
+	SEvent persistentData;
 
 	IOHIDDeviceInterface **interface;
 	bool removed;
@@ -80,12 +80,12 @@ struct JoystickInfo
 		buttonComp.clear();
 		hatComp.clear();
 
-		persistentData.EventType = irr::EET_JOYSTICK_INPUT_EVENT;
+		persistentData.EventType = EET_JOYSTICK_INPUT_EVENT;
 		persistentData.JoystickEvent.POV = 65535;
 		persistentData.JoystickEvent.ButtonStates = 0;
 	}
 };
-irr::core::array<JoystickInfo> ActiveJoysticks;
+core::array<JoystickInfo> ActiveJoysticks;
 
 // helper functions for init joystick
 static IOReturn closeJoystickDevice(JoystickInfo *joyInfo)
@@ -97,11 +97,11 @@ static IOReturn closeJoystickDevice(JoystickInfo *joyInfo)
 		if (kIOReturnNotOpen == result) {
 			/* do nothing as device was not opened, thus can't be closed */
 		} else if (kIOReturnSuccess != result)
-			irr::os::Printer::log("IOHIDDeviceInterface failed to close", irr::ELL_ERROR);
+			os::Printer::log("IOHIDDeviceInterface failed to close", ELL_ERROR);
 		/* release the interface */
 		result = (*(joyInfo->interface))->Release(joyInfo->interface);
 		if (kIOReturnSuccess != result)
-			irr::os::Printer::log("IOHIDDeviceInterface failed to release", irr::ELL_ERROR);
+			os::Printer::log("IOHIDDeviceInterface failed to release", ELL_ERROR);
 		joyInfo->interface = NULL;
 	}
 	return result;
@@ -202,10 +202,10 @@ static void joystickTopLevelElementHandler(const void *value, void *parameter)
 		return;
 	refCF = CFDictionaryGetValue((CFDictionaryRef)value, CFSTR(kIOHIDElementUsagePageKey));
 	if (!CFNumberGetValue((CFNumberRef)refCF, kCFNumberLongType, &((JoystickInfo *)parameter)->usagePage))
-		irr::os::Printer::log("CFNumberGetValue error retrieving JoystickInfo->usagePage", irr::ELL_ERROR);
+		os::Printer::log("CFNumberGetValue error retrieving JoystickInfo->usagePage", ELL_ERROR);
 	refCF = CFDictionaryGetValue((CFDictionaryRef)value, CFSTR(kIOHIDElementUsageKey));
 	if (!CFNumberGetValue((CFNumberRef)refCF, kCFNumberLongType, &((JoystickInfo *)parameter)->usage))
-		irr::os::Printer::log("CFNumberGetValue error retrieving JoystickInfo->usage", irr::ELL_ERROR);
+		os::Printer::log("CFNumberGetValue error retrieving JoystickInfo->usage", ELL_ERROR);
 }
 
 static void getJoystickDeviceInfo(io_object_t hidDevice, CFMutableDictionaryRef hidProperties, JoystickInfo *joyInfo)
@@ -231,18 +231,18 @@ static void getJoystickDeviceInfo(io_object_t hidDevice, CFMutableDictionaryRef 
 				refCF = CFDictionaryGetValue(usbProperties, CFSTR("USB Product Name"));
 			if (refCF) {
 				if (!CFStringGetCString((CFStringRef)refCF, joyInfo->joystickName, 256, CFStringGetSystemEncoding()))
-					irr::os::Printer::log("CFStringGetCString error getting joyInfo->joystickName", irr::ELL_ERROR);
+					os::Printer::log("CFStringGetCString error getting joyInfo->joystickName", ELL_ERROR);
 			}
 
 			/* get usage page and usage */
 			refCF = CFDictionaryGetValue(hidProperties, CFSTR(kIOHIDPrimaryUsagePageKey));
 			if (refCF) {
 				if (!CFNumberGetValue((CFNumberRef)refCF, kCFNumberLongType, &joyInfo->usagePage))
-					irr::os::Printer::log("CFNumberGetValue error getting joyInfo->usagePage", irr::ELL_ERROR);
+					os::Printer::log("CFNumberGetValue error getting joyInfo->usagePage", ELL_ERROR);
 				refCF = CFDictionaryGetValue(hidProperties, CFSTR(kIOHIDPrimaryUsageKey));
 				if (refCF)
 					if (!CFNumberGetValue((CFNumberRef)refCF, kCFNumberLongType, &joyInfo->usage))
-						irr::os::Printer::log("CFNumberGetValue error getting joyInfo->usage", irr::ELL_ERROR);
+						os::Printer::log("CFNumberGetValue error getting joyInfo->usage", ELL_ERROR);
 			}
 
 			if (NULL == refCF) /* get top level element HID usage page or usage */
@@ -259,12 +259,12 @@ static void getJoystickDeviceInfo(io_object_t hidDevice, CFMutableDictionaryRef 
 
 			CFRelease(usbProperties);
 		} else
-			irr::os::Printer::log("IORegistryEntryCreateCFProperties failed to create usbProperties", irr::ELL_ERROR);
+			os::Printer::log("IORegistryEntryCreateCFProperties failed to create usbProperties", ELL_ERROR);
 
 		if (kIOReturnSuccess != IOObjectRelease(parent2))
-			irr::os::Printer::log("IOObjectRelease failed to release parent2", irr::ELL_ERROR);
+			os::Printer::log("IOObjectRelease failed to release parent2", ELL_ERROR);
 		if (kIOReturnSuccess != IOObjectRelease(parent1))
-			irr::os::Printer::log("IOObjectRelease failed to release parent1", irr::ELL_ERROR);
+			os::Printer::log("IOObjectRelease failed to release parent1", ELL_ERROR);
 	}
 }
 
@@ -436,11 +436,11 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void *key)
 static bool firstLaunch = true;
 
 @implementation CIrrDelegateOSX {
-	irr::CIrrDeviceMacOSX *Device;
+	CIrrDeviceMacOSX *Device;
 	bool Quit;
 }
 
-- (id)initWithDevice:(irr::CIrrDeviceMacOSX *)device
+- (id)initWithDevice:(CIrrDeviceMacOSX *)device
 {
 	self = [super init];
 
@@ -513,8 +513,6 @@ static bool firstLaunch = true;
 
 @end
 
-namespace irr
-{
 //! constructor
 CIrrDeviceMacOSX::CIrrDeviceMacOSX(const SIrrlichtCreationParameters &param) :
 		CIrrDeviceStub(param), Window(NULL), Display(NULL),
@@ -729,7 +727,7 @@ bool CIrrDeviceMacOSX::run()
 	NSAutoreleasePool *Pool = [[NSAutoreleasePool alloc] init];
 
 	NSEvent *event;
-	irr::SEvent ievent;
+	SEvent ievent;
 
 	os::Timer::tick();
 	storeMouseLocation();
@@ -748,13 +746,13 @@ bool CIrrDeviceMacOSX::run()
 			break;
 
 		case NSFlagsChanged:
-			ievent.EventType = irr::EET_KEY_INPUT_EVENT;
+			ievent.EventType = EET_KEY_INPUT_EVENT;
 			ievent.KeyInput.Shift = ([(NSEvent *)event modifierFlags] & NSShiftKeyMask) != 0;
 			ievent.KeyInput.Control = ([(NSEvent *)event modifierFlags] & NSControlKeyMask) != 0;
 
 			if (IsShiftDown != ievent.KeyInput.Shift) {
-				ievent.KeyInput.Char = irr::KEY_SHIFT;
-				ievent.KeyInput.Key = irr::KEY_SHIFT;
+				ievent.KeyInput.Char = KEY_SHIFT;
+				ievent.KeyInput.Key = KEY_SHIFT;
 				ievent.KeyInput.PressedDown = ievent.KeyInput.Shift;
 
 				IsShiftDown = ievent.KeyInput.Shift;
@@ -763,8 +761,8 @@ bool CIrrDeviceMacOSX::run()
 			}
 
 			if (IsControlDown != ievent.KeyInput.Control) {
-				ievent.KeyInput.Char = irr::KEY_CONTROL;
-				ievent.KeyInput.Key = irr::KEY_CONTROL;
+				ievent.KeyInput.Char = KEY_CONTROL;
+				ievent.KeyInput.Key = KEY_CONTROL;
 				ievent.KeyInput.PressedDown = ievent.KeyInput.Control;
 
 				IsControlDown = ievent.KeyInput.Control;
@@ -776,34 +774,34 @@ bool CIrrDeviceMacOSX::run()
 			break;
 
 		case NSLeftMouseDown:
-			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			ievent.MouseInput.Event = irr::EMIE_LMOUSE_PRESSED_DOWN;
-			MouseButtonStates |= irr::EMBSM_LEFT;
+			ievent.EventType = EET_MOUSE_INPUT_EVENT;
+			ievent.MouseInput.Event = EMIE_LMOUSE_PRESSED_DOWN;
+			MouseButtonStates |= EMBSM_LEFT;
 			ievent.MouseInput.ButtonStates = MouseButtonStates;
 			postMouseEvent(event, ievent);
 			break;
 
 		case NSLeftMouseUp:
-			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			MouseButtonStates &= !irr::EMBSM_LEFT;
+			ievent.EventType = EET_MOUSE_INPUT_EVENT;
+			MouseButtonStates &= !EMBSM_LEFT;
 			ievent.MouseInput.ButtonStates = MouseButtonStates;
-			ievent.MouseInput.Event = irr::EMIE_LMOUSE_LEFT_UP;
+			ievent.MouseInput.Event = EMIE_LMOUSE_LEFT_UP;
 			postMouseEvent(event, ievent);
 			break;
 
 		case NSOtherMouseDown:
-			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			ievent.MouseInput.Event = irr::EMIE_MMOUSE_PRESSED_DOWN;
-			MouseButtonStates |= irr::EMBSM_MIDDLE;
+			ievent.EventType = EET_MOUSE_INPUT_EVENT;
+			ievent.MouseInput.Event = EMIE_MMOUSE_PRESSED_DOWN;
+			MouseButtonStates |= EMBSM_MIDDLE;
 			ievent.MouseInput.ButtonStates = MouseButtonStates;
 			postMouseEvent(event, ievent);
 			break;
 
 		case NSOtherMouseUp:
-			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			MouseButtonStates &= !irr::EMBSM_MIDDLE;
+			ievent.EventType = EET_MOUSE_INPUT_EVENT;
+			MouseButtonStates &= !EMBSM_MIDDLE;
 			ievent.MouseInput.ButtonStates = MouseButtonStates;
-			ievent.MouseInput.Event = irr::EMIE_MMOUSE_LEFT_UP;
+			ievent.MouseInput.Event = EMIE_MMOUSE_LEFT_UP;
 			postMouseEvent(event, ievent);
 			break;
 
@@ -811,31 +809,31 @@ bool CIrrDeviceMacOSX::run()
 		case NSLeftMouseDragged:
 		case NSRightMouseDragged:
 		case NSOtherMouseDragged:
-			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			ievent.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
+			ievent.EventType = EET_MOUSE_INPUT_EVENT;
+			ievent.MouseInput.Event = EMIE_MOUSE_MOVED;
 			ievent.MouseInput.ButtonStates = MouseButtonStates;
 			postMouseEvent(event, ievent);
 			break;
 
 		case NSRightMouseDown:
-			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			ievent.MouseInput.Event = irr::EMIE_RMOUSE_PRESSED_DOWN;
-			MouseButtonStates |= irr::EMBSM_RIGHT;
+			ievent.EventType = EET_MOUSE_INPUT_EVENT;
+			ievent.MouseInput.Event = EMIE_RMOUSE_PRESSED_DOWN;
+			MouseButtonStates |= EMBSM_RIGHT;
 			ievent.MouseInput.ButtonStates = MouseButtonStates;
 			postMouseEvent(event, ievent);
 			break;
 
 		case NSRightMouseUp:
-			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			ievent.MouseInput.Event = irr::EMIE_RMOUSE_LEFT_UP;
-			MouseButtonStates &= !irr::EMBSM_RIGHT;
+			ievent.EventType = EET_MOUSE_INPUT_EVENT;
+			ievent.MouseInput.Event = EMIE_RMOUSE_LEFT_UP;
+			MouseButtonStates &= !EMBSM_RIGHT;
 			ievent.MouseInput.ButtonStates = MouseButtonStates;
 			postMouseEvent(event, ievent);
 			break;
 
 		case NSScrollWheel:
-			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			ievent.MouseInput.Event = irr::EMIE_MOUSE_WHEEL;
+			ievent.EventType = EET_MOUSE_INPUT_EVENT;
+			ievent.MouseInput.Event = EMIE_MOUSE_WHEEL;
 			ievent.MouseInput.Wheel = [(NSEvent *)event deltaY];
 			if (ievent.MouseInput.Wheel < 1.0f)
 				ievent.MouseInput.Wheel *= 10.0f;
@@ -924,7 +922,7 @@ bool CIrrDeviceMacOSX::isWindowMinimized() const
 	return false;
 }
 
-void CIrrDeviceMacOSX::postKeyEvent(void *event, irr::SEvent &ievent, bool pressed)
+void CIrrDeviceMacOSX::postKeyEvent(void *event, SEvent &ievent, bool pressed)
 {
 	NSString *str;
 	std::map<int, int>::const_iterator iter;
@@ -947,7 +945,7 @@ void CIrrDeviceMacOSX::postKeyEvent(void *event, irr::SEvent &ievent, bool press
 		else {
 			// workaround for period character
 			if (c == 0x2E) {
-				mkey = irr::KEY_PERIOD;
+				mkey = KEY_PERIOD;
 				mchar = '.';
 			} else {
 				cStr = (unsigned char *)[str cStringUsingEncoding:NSWindowsCP1252StringEncoding];
@@ -964,8 +962,8 @@ void CIrrDeviceMacOSX::postKeyEvent(void *event, irr::SEvent &ievent, bool press
 			}
 		}
 
-		ievent.EventType = irr::EET_KEY_INPUT_EVENT;
-		ievent.KeyInput.Key = (irr::EKEY_CODE)mkey;
+		ievent.EventType = EET_KEY_INPUT_EVENT;
+		ievent.KeyInput.Key = (EKEY_CODE)mkey;
 		ievent.KeyInput.PressedDown = pressed;
 		ievent.KeyInput.Shift = ([(NSEvent *)event modifierFlags] & NSShiftKeyMask) != 0;
 		ievent.KeyInput.Control = ([(NSEvent *)event modifierFlags] & NSControlKeyMask) != 0;
@@ -980,7 +978,7 @@ void CIrrDeviceMacOSX::postKeyEvent(void *event, irr::SEvent &ievent, bool press
 	}
 }
 
-void CIrrDeviceMacOSX::postMouseEvent(void *event, irr::SEvent &ievent)
+void CIrrDeviceMacOSX::postMouseEvent(void *event, SEvent &ievent)
 {
 	bool post = true;
 
@@ -1033,9 +1031,9 @@ void CIrrDeviceMacOSX::storeMouseLocation()
 
 		const core::position2di &curr = ((CCursorControl *)CursorControl)->getPosition(true);
 		if (curr.X != x || curr.Y != y) {
-			irr::SEvent ievent;
-			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			ievent.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
+			SEvent ievent;
+			ievent.EventType = EET_MOUSE_INPUT_EVENT;
+			ievent.MouseInput.Event = EMIE_MOUSE_MOVED;
 			ievent.MouseInput.X = x;
 			ievent.MouseInput.Y = y;
 			ievent.MouseInput.ButtonStates = MouseButtonStates;
@@ -1084,119 +1082,119 @@ void CIrrDeviceMacOSX::setWindow(NSWindow *window)
 
 void CIrrDeviceMacOSX::initKeycodes()
 {
-	KeyCodes[kVK_UpArrow] = irr::KEY_UP;
-	KeyCodes[kVK_DownArrow] = irr::KEY_DOWN;
-	KeyCodes[kVK_LeftArrow] = irr::KEY_LEFT;
-	KeyCodes[kVK_RightArrow] = irr::KEY_RIGHT;
-	KeyCodes[kVK_F1] = irr::KEY_F1;
-	KeyCodes[kVK_F2] = irr::KEY_F2;
-	KeyCodes[kVK_F3] = irr::KEY_F3;
-	KeyCodes[kVK_F4] = irr::KEY_F4;
-	KeyCodes[kVK_F5] = irr::KEY_F5;
-	KeyCodes[kVK_F6] = irr::KEY_F6;
-	KeyCodes[kVK_F7] = irr::KEY_F7;
-	KeyCodes[kVK_F8] = irr::KEY_F8;
-	KeyCodes[kVK_F9] = irr::KEY_F9;
-	KeyCodes[kVK_F10] = irr::KEY_F10;
-	KeyCodes[kVK_F11] = irr::KEY_F11;
-	KeyCodes[kVK_F12] = irr::KEY_F12;
-	KeyCodes[kVK_F13] = irr::KEY_F13;
-	KeyCodes[kVK_F14] = irr::KEY_F14;
-	KeyCodes[kVK_F15] = irr::KEY_F15;
-	KeyCodes[kVK_F16] = irr::KEY_F16;
-	KeyCodes[kVK_F17] = irr::KEY_F17;
-	KeyCodes[kVK_F18] = irr::KEY_F18;
-	KeyCodes[kVK_F19] = irr::KEY_F19;
-	KeyCodes[kVK_F20] = irr::KEY_F20;
-	KeyCodes[kVK_Home] = irr::KEY_HOME;
-	KeyCodes[kVK_End] = irr::KEY_END;
-	KeyCodes[NSInsertFunctionKey] = irr::KEY_INSERT;
-	KeyCodes[kVK_ForwardDelete] = irr::KEY_DELETE;
-	KeyCodes[kVK_Help] = irr::KEY_HELP;
-	KeyCodes[NSSelectFunctionKey] = irr::KEY_SELECT;
-	KeyCodes[NSPrintFunctionKey] = irr::KEY_PRINT;
-	KeyCodes[NSExecuteFunctionKey] = irr::KEY_EXECUT;
-	KeyCodes[NSPrintScreenFunctionKey] = irr::KEY_SNAPSHOT;
-	KeyCodes[NSPauseFunctionKey] = irr::KEY_PAUSE;
-	KeyCodes[NSScrollLockFunctionKey] = irr::KEY_SCROLL;
-	KeyCodes[kVK_Delete] = irr::KEY_BACK;
-	KeyCodes[kVK_Tab] = irr::KEY_TAB;
-	KeyCodes[kVK_Return] = irr::KEY_RETURN;
-	KeyCodes[kVK_Escape] = irr::KEY_ESCAPE;
-	KeyCodes[kVK_Control] = irr::KEY_CONTROL;
-	KeyCodes[kVK_RightControl] = irr::KEY_RCONTROL;
-	KeyCodes[kVK_Command] = irr::KEY_MENU;
-	KeyCodes[kVK_Shift] = irr::KEY_SHIFT;
-	KeyCodes[kVK_RightShift] = irr::KEY_RSHIFT;
-	KeyCodes[kVK_Space] = irr::KEY_SPACE;
+	KeyCodes[kVK_UpArrow] = KEY_UP;
+	KeyCodes[kVK_DownArrow] = KEY_DOWN;
+	KeyCodes[kVK_LeftArrow] = KEY_LEFT;
+	KeyCodes[kVK_RightArrow] = KEY_RIGHT;
+	KeyCodes[kVK_F1] = KEY_F1;
+	KeyCodes[kVK_F2] = KEY_F2;
+	KeyCodes[kVK_F3] = KEY_F3;
+	KeyCodes[kVK_F4] = KEY_F4;
+	KeyCodes[kVK_F5] = KEY_F5;
+	KeyCodes[kVK_F6] = KEY_F6;
+	KeyCodes[kVK_F7] = KEY_F7;
+	KeyCodes[kVK_F8] = KEY_F8;
+	KeyCodes[kVK_F9] = KEY_F9;
+	KeyCodes[kVK_F10] = KEY_F10;
+	KeyCodes[kVK_F11] = KEY_F11;
+	KeyCodes[kVK_F12] = KEY_F12;
+	KeyCodes[kVK_F13] = KEY_F13;
+	KeyCodes[kVK_F14] = KEY_F14;
+	KeyCodes[kVK_F15] = KEY_F15;
+	KeyCodes[kVK_F16] = KEY_F16;
+	KeyCodes[kVK_F17] = KEY_F17;
+	KeyCodes[kVK_F18] = KEY_F18;
+	KeyCodes[kVK_F19] = KEY_F19;
+	KeyCodes[kVK_F20] = KEY_F20;
+	KeyCodes[kVK_Home] = KEY_HOME;
+	KeyCodes[kVK_End] = KEY_END;
+	KeyCodes[NSInsertFunctionKey] = KEY_INSERT;
+	KeyCodes[kVK_ForwardDelete] = KEY_DELETE;
+	KeyCodes[kVK_Help] = KEY_HELP;
+	KeyCodes[NSSelectFunctionKey] = KEY_SELECT;
+	KeyCodes[NSPrintFunctionKey] = KEY_PRINT;
+	KeyCodes[NSExecuteFunctionKey] = KEY_EXECUT;
+	KeyCodes[NSPrintScreenFunctionKey] = KEY_SNAPSHOT;
+	KeyCodes[NSPauseFunctionKey] = KEY_PAUSE;
+	KeyCodes[NSScrollLockFunctionKey] = KEY_SCROLL;
+	KeyCodes[kVK_Delete] = KEY_BACK;
+	KeyCodes[kVK_Tab] = KEY_TAB;
+	KeyCodes[kVK_Return] = KEY_RETURN;
+	KeyCodes[kVK_Escape] = KEY_ESCAPE;
+	KeyCodes[kVK_Control] = KEY_CONTROL;
+	KeyCodes[kVK_RightControl] = KEY_RCONTROL;
+	KeyCodes[kVK_Command] = KEY_MENU;
+	KeyCodes[kVK_Shift] = KEY_SHIFT;
+	KeyCodes[kVK_RightShift] = KEY_RSHIFT;
+	KeyCodes[kVK_Space] = KEY_SPACE;
 
-	KeyCodes[kVK_ANSI_A] = irr::KEY_KEY_A;
-	KeyCodes[kVK_ANSI_B] = irr::KEY_KEY_B;
-	KeyCodes[kVK_ANSI_C] = irr::KEY_KEY_C;
-	KeyCodes[kVK_ANSI_D] = irr::KEY_KEY_D;
-	KeyCodes[kVK_ANSI_E] = irr::KEY_KEY_E;
-	KeyCodes[kVK_ANSI_F] = irr::KEY_KEY_F;
-	KeyCodes[kVK_ANSI_G] = irr::KEY_KEY_G;
-	KeyCodes[kVK_ANSI_H] = irr::KEY_KEY_H;
-	KeyCodes[kVK_ANSI_I] = irr::KEY_KEY_I;
-	KeyCodes[kVK_ANSI_J] = irr::KEY_KEY_J;
-	KeyCodes[kVK_ANSI_K] = irr::KEY_KEY_K;
-	KeyCodes[kVK_ANSI_L] = irr::KEY_KEY_L;
-	KeyCodes[kVK_ANSI_M] = irr::KEY_KEY_M;
-	KeyCodes[kVK_ANSI_N] = irr::KEY_KEY_N;
-	KeyCodes[kVK_ANSI_O] = irr::KEY_KEY_O;
-	KeyCodes[kVK_ANSI_P] = irr::KEY_KEY_P;
-	KeyCodes[kVK_ANSI_Q] = irr::KEY_KEY_Q;
-	KeyCodes[kVK_ANSI_R] = irr::KEY_KEY_R;
-	KeyCodes[kVK_ANSI_S] = irr::KEY_KEY_S;
-	KeyCodes[kVK_ANSI_T] = irr::KEY_KEY_T;
-	KeyCodes[kVK_ANSI_U] = irr::KEY_KEY_U;
-	KeyCodes[kVK_ANSI_V] = irr::KEY_KEY_V;
-	KeyCodes[kVK_ANSI_W] = irr::KEY_KEY_W;
-	KeyCodes[kVK_ANSI_X] = irr::KEY_KEY_X;
-	KeyCodes[kVK_ANSI_X] = irr::KEY_KEY_X;
-	KeyCodes[kVK_ANSI_Y] = irr::KEY_KEY_Y;
-	KeyCodes[kVK_ANSI_Z] = irr::KEY_KEY_Z;
+	KeyCodes[kVK_ANSI_A] = KEY_KEY_A;
+	KeyCodes[kVK_ANSI_B] = KEY_KEY_B;
+	KeyCodes[kVK_ANSI_C] = KEY_KEY_C;
+	KeyCodes[kVK_ANSI_D] = KEY_KEY_D;
+	KeyCodes[kVK_ANSI_E] = KEY_KEY_E;
+	KeyCodes[kVK_ANSI_F] = KEY_KEY_F;
+	KeyCodes[kVK_ANSI_G] = KEY_KEY_G;
+	KeyCodes[kVK_ANSI_H] = KEY_KEY_H;
+	KeyCodes[kVK_ANSI_I] = KEY_KEY_I;
+	KeyCodes[kVK_ANSI_J] = KEY_KEY_J;
+	KeyCodes[kVK_ANSI_K] = KEY_KEY_K;
+	KeyCodes[kVK_ANSI_L] = KEY_KEY_L;
+	KeyCodes[kVK_ANSI_M] = KEY_KEY_M;
+	KeyCodes[kVK_ANSI_N] = KEY_KEY_N;
+	KeyCodes[kVK_ANSI_O] = KEY_KEY_O;
+	KeyCodes[kVK_ANSI_P] = KEY_KEY_P;
+	KeyCodes[kVK_ANSI_Q] = KEY_KEY_Q;
+	KeyCodes[kVK_ANSI_R] = KEY_KEY_R;
+	KeyCodes[kVK_ANSI_S] = KEY_KEY_S;
+	KeyCodes[kVK_ANSI_T] = KEY_KEY_T;
+	KeyCodes[kVK_ANSI_U] = KEY_KEY_U;
+	KeyCodes[kVK_ANSI_V] = KEY_KEY_V;
+	KeyCodes[kVK_ANSI_W] = KEY_KEY_W;
+	KeyCodes[kVK_ANSI_X] = KEY_KEY_X;
+	KeyCodes[kVK_ANSI_X] = KEY_KEY_X;
+	KeyCodes[kVK_ANSI_Y] = KEY_KEY_Y;
+	KeyCodes[kVK_ANSI_Z] = KEY_KEY_Z;
 
-	KeyCodes[kVK_ANSI_0] = irr::KEY_KEY_0;
-	KeyCodes[kVK_ANSI_1] = irr::KEY_KEY_1;
-	KeyCodes[kVK_ANSI_2] = irr::KEY_KEY_2;
-	KeyCodes[kVK_ANSI_3] = irr::KEY_KEY_3;
-	KeyCodes[kVK_ANSI_4] = irr::KEY_KEY_4;
-	KeyCodes[kVK_ANSI_5] = irr::KEY_KEY_5;
-	KeyCodes[kVK_ANSI_6] = irr::KEY_KEY_6;
-	KeyCodes[kVK_ANSI_7] = irr::KEY_KEY_7;
-	KeyCodes[kVK_ANSI_8] = irr::KEY_KEY_8;
-	KeyCodes[kVK_ANSI_9] = irr::KEY_KEY_9;
+	KeyCodes[kVK_ANSI_0] = KEY_KEY_0;
+	KeyCodes[kVK_ANSI_1] = KEY_KEY_1;
+	KeyCodes[kVK_ANSI_2] = KEY_KEY_2;
+	KeyCodes[kVK_ANSI_3] = KEY_KEY_3;
+	KeyCodes[kVK_ANSI_4] = KEY_KEY_4;
+	KeyCodes[kVK_ANSI_5] = KEY_KEY_5;
+	KeyCodes[kVK_ANSI_6] = KEY_KEY_6;
+	KeyCodes[kVK_ANSI_7] = KEY_KEY_7;
+	KeyCodes[kVK_ANSI_8] = KEY_KEY_8;
+	KeyCodes[kVK_ANSI_9] = KEY_KEY_9;
 
-	KeyCodes[kVK_ANSI_Slash] = irr::KEY_DIVIDE;
-	KeyCodes[kVK_ANSI_Comma] = irr::KEY_COMMA;
-	KeyCodes[kVK_ANSI_Period] = irr::KEY_PERIOD;
-	KeyCodes[kVK_PageUp] = irr::KEY_PRIOR;
-	KeyCodes[kVK_PageDown] = irr::KEY_NEXT;
+	KeyCodes[kVK_ANSI_Slash] = KEY_DIVIDE;
+	KeyCodes[kVK_ANSI_Comma] = KEY_COMMA;
+	KeyCodes[kVK_ANSI_Period] = KEY_PERIOD;
+	KeyCodes[kVK_PageUp] = KEY_PRIOR;
+	KeyCodes[kVK_PageDown] = KEY_NEXT;
 
-	KeyCodes[kVK_ANSI_Keypad0] = irr::KEY_NUMPAD0;
-	KeyCodes[kVK_ANSI_Keypad1] = irr::KEY_NUMPAD1;
-	KeyCodes[kVK_ANSI_Keypad2] = irr::KEY_NUMPAD2;
-	KeyCodes[kVK_ANSI_Keypad3] = irr::KEY_NUMPAD3;
-	KeyCodes[kVK_ANSI_Keypad4] = irr::KEY_NUMPAD4;
-	KeyCodes[kVK_ANSI_Keypad5] = irr::KEY_NUMPAD5;
-	KeyCodes[kVK_ANSI_Keypad6] = irr::KEY_NUMPAD6;
-	KeyCodes[kVK_ANSI_Keypad7] = irr::KEY_NUMPAD7;
-	KeyCodes[kVK_ANSI_Keypad8] = irr::KEY_NUMPAD8;
-	KeyCodes[kVK_ANSI_Keypad9] = irr::KEY_NUMPAD9;
+	KeyCodes[kVK_ANSI_Keypad0] = KEY_NUMPAD0;
+	KeyCodes[kVK_ANSI_Keypad1] = KEY_NUMPAD1;
+	KeyCodes[kVK_ANSI_Keypad2] = KEY_NUMPAD2;
+	KeyCodes[kVK_ANSI_Keypad3] = KEY_NUMPAD3;
+	KeyCodes[kVK_ANSI_Keypad4] = KEY_NUMPAD4;
+	KeyCodes[kVK_ANSI_Keypad5] = KEY_NUMPAD5;
+	KeyCodes[kVK_ANSI_Keypad6] = KEY_NUMPAD6;
+	KeyCodes[kVK_ANSI_Keypad7] = KEY_NUMPAD7;
+	KeyCodes[kVK_ANSI_Keypad8] = KEY_NUMPAD8;
+	KeyCodes[kVK_ANSI_Keypad9] = KEY_NUMPAD9;
 
-	KeyCodes[kVK_ANSI_KeypadDecimal] = irr::KEY_DECIMAL;
-	KeyCodes[kVK_ANSI_KeypadMultiply] = irr::KEY_MULTIPLY;
-	KeyCodes[kVK_ANSI_KeypadPlus] = irr::KEY_PLUS;
-	KeyCodes[kVK_ANSI_KeypadClear] = irr::KEY_OEM_CLEAR;
-	KeyCodes[kVK_ANSI_KeypadDivide] = irr::KEY_DIVIDE;
-	KeyCodes[kVK_ANSI_KeypadEnter] = irr::KEY_RETURN;
-	KeyCodes[kVK_ANSI_KeypadMinus] = irr::KEY_SUBTRACT;
+	KeyCodes[kVK_ANSI_KeypadDecimal] = KEY_DECIMAL;
+	KeyCodes[kVK_ANSI_KeypadMultiply] = KEY_MULTIPLY;
+	KeyCodes[kVK_ANSI_KeypadPlus] = KEY_PLUS;
+	KeyCodes[kVK_ANSI_KeypadClear] = KEY_OEM_CLEAR;
+	KeyCodes[kVK_ANSI_KeypadDivide] = KEY_DIVIDE;
+	KeyCodes[kVK_ANSI_KeypadEnter] = KEY_RETURN;
+	KeyCodes[kVK_ANSI_KeypadMinus] = KEY_SUBTRACT;
 
-	KeyCodes[kVK_ANSI_LeftBracket] = irr::KEY_OEM_4;
-	KeyCodes[kVK_ANSI_Backslash] = irr::KEY_OEM_5;
-	KeyCodes[kVK_ANSI_RightBracket] = irr::KEY_OEM_6;
+	KeyCodes[kVK_ANSI_LeftBracket] = KEY_OEM_4;
+	KeyCodes[kVK_ANSI_Backslash] = KEY_OEM_5;
+	KeyCodes[kVK_ANSI_RightBracket] = KEY_OEM_6;
 }
 
 //! Sets if the window should be resizable in windowed mode.
@@ -1455,7 +1453,5 @@ void CIrrDeviceMacOSX::pollJoysticks()
 	}
 #endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
 }
-
-} // end namespace
 
 #endif // _IRR_COMPILE_WITH_OSX_DEVICE_

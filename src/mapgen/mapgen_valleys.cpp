@@ -32,7 +32,7 @@ Licensing changed by permission of Gael de Sailly.
 #include <cmath>
 
 
-FlagDesc flagdesc_mapgen_valleys[] = {
+const FlagDesc flagdesc_mapgen_valleys[] = {
 	{"altitude_chill",   MGVALLEYS_ALT_CHILL},
 	{"humid_rivers",     MGVALLEYS_HUMID_RIVERS},
 	{"vary_river_depth", MGVALLEYS_VARY_RIVER_DEPTH},
@@ -280,15 +280,15 @@ void MapgenValleys::makeChunk(BlockMakeData *data)
 int MapgenValleys::getSpawnLevelAtPoint(v2s16 p)
 {
 	// Check if in a river channel
-	float n_rivers = NoisePerlin2D(&noise_rivers->np, p.X, p.Y, seed);
+	float n_rivers = NoiseFractal2D(&noise_rivers->np, p.X, p.Y, seed);
 	if (std::fabs(n_rivers) <= river_size_factor)
 		// Unsuitable spawn point
 		return MAX_MAP_GENERATION_LIMIT;
 
-	float n_slope          = NoisePerlin2D(&noise_inter_valley_slope->np, p.X, p.Y, seed);
-	float n_terrain_height = NoisePerlin2D(&noise_terrain_height->np, p.X, p.Y, seed);
-	float n_valley         = NoisePerlin2D(&noise_valley_depth->np, p.X, p.Y, seed);
-	float n_valley_profile = NoisePerlin2D(&noise_valley_profile->np, p.X, p.Y, seed);
+	float n_slope          = NoiseFractal2D(&noise_inter_valley_slope->np, p.X, p.Y, seed);
+	float n_terrain_height = NoiseFractal2D(&noise_terrain_height->np, p.X, p.Y, seed);
+	float n_valley         = NoiseFractal2D(&noise_valley_depth->np, p.X, p.Y, seed);
+	float n_valley_profile = NoiseFractal2D(&noise_valley_profile->np, p.X, p.Y, seed);
 
 	float valley_d = n_valley * n_valley;
 	float base = n_terrain_height + valley_d;
@@ -309,7 +309,7 @@ int MapgenValleys::getSpawnLevelAtPoint(v2s16 p)
 	// Starting spawn search at max_spawn_y + 128 ensures 128 nodes of open
 	// space above spawn position. Avoids spawning in possibly sealed voids.
 	for (s16 y = max_spawn_y + 128; y >= water_level; y--) {
-		float n_fill = NoisePerlin3D(&noise_inter_valley_fill->np, p.X, y, p.Y, seed);
+		float n_fill = NoiseFractal3D(&noise_inter_valley_fill->np, p.X, y, p.Y, seed);
 		float surface_delta = (float)y - surface_y;
 		float density = slope * n_fill - surface_delta;
 
@@ -336,13 +336,13 @@ int MapgenValleys::generateTerrain()
 	MapNode n_stone(c_stone);
 	MapNode n_water(c_water_source);
 
-	noise_inter_valley_slope->perlinMap2D(node_min.X, node_min.Z);
-	noise_rivers->perlinMap2D(node_min.X, node_min.Z);
-	noise_terrain_height->perlinMap2D(node_min.X, node_min.Z);
-	noise_valley_depth->perlinMap2D(node_min.X, node_min.Z);
-	noise_valley_profile->perlinMap2D(node_min.X, node_min.Z);
+	noise_inter_valley_slope->noiseMap2D(node_min.X, node_min.Z);
+	noise_rivers->noiseMap2D(node_min.X, node_min.Z);
+	noise_terrain_height->noiseMap2D(node_min.X, node_min.Z);
+	noise_valley_depth->noiseMap2D(node_min.X, node_min.Z);
+	noise_valley_profile->noiseMap2D(node_min.X, node_min.Z);
 
-	noise_inter_valley_fill->perlinMap3D(node_min.X, node_min.Y - 1, node_min.Z);
+	noise_inter_valley_fill->noiseMap3D(node_min.X, node_min.Y - 1, node_min.Z);
 
 	const v3s32 &em = vm->m_area.getExtent();
 	s16 surface_max_y = -MAX_MAP_GENERATION_LIMIT;

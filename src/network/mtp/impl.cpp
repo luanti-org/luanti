@@ -1314,11 +1314,6 @@ Connection::~Connection()
 	m_sendThread->stop();
 	m_receiveThread->stop();
 
-	//TODO for some unkonwn reason send/receive threads do not exit as they're
-	// supposed to be but wait on peer timeout. To speed up shutdown we reduce
-	// timeout to half a second.
-	m_sendThread->setPeerTimeout(0.5);
-
 	// wait for threads to finish
 	m_sendThread->wait();
 	m_receiveThread->wait();

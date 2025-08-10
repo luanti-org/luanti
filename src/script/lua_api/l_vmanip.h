@@ -8,7 +8,6 @@
 #include "lua_api/l_base.h"
 
 class Map;
-class MapBlock;
 class MMVManip;
 
 /*
@@ -24,6 +23,7 @@ private:
 	static int gc_object(lua_State *L);
 
 	static int l_read_from_map(lua_State *L);
+	static int l_initialize(lua_State *L);
 	static int l_get_data(lua_State *L);
 	static int l_set_data(lua_State *L);
 	static int l_write_to_map(lua_State *L);
@@ -44,6 +44,8 @@ private:
 
 	static int l_was_modified(lua_State *L);
 	static int l_get_emerged_area(lua_State *L);
+
+	static int l_close(lua_State *L);
 
 public:
 	MMVManip *vm = nullptr;

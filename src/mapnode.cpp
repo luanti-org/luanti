@@ -561,7 +561,7 @@ void MapNode::serialize(u8 *dest, u8 version) const
 	writeU8(dest+2, param1);
 	writeU8(dest+3, param2);
 }
-void MapNode::deSerialize(u8 *source, u8 version)
+void MapNode::deSerialize(const u8 *source, u8 version)
 {
 	if (!ser_ver_supported_read(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");

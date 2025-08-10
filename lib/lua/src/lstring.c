@@ -18,7 +18,6 @@
 #include "lstring.h"
 
 
-
 void luaS_resize (lua_State *L, int newsize) {
   GCObject **newhash;
   stringtable *tb;

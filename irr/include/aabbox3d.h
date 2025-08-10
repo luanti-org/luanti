@@ -8,8 +8,6 @@
 #include "plane3d.h"
 #include "line3d.h"
 
-namespace irr
-{
 namespace core
 {
 
@@ -384,4 +382,3 @@ typedef aabbox3d<f32> aabbox3df;
 typedef aabbox3d<s32> aabbox3di;
 
 } // end namespace core
-} // end namespace irr

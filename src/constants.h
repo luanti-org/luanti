@@ -99,3 +99,9 @@
 #define SCREENSHOT_MAX_SERIAL_TRIES 1000
 
 #define TTF_DEFAULT_FONT_SIZE (16)
+
+// Minimum texture size enforced/checked for enabling linear filtering
+// This serves as the minimum for `texture_min_size`.
+// The intent is to ensure that the rendering doesn't turn terribly blurry
+// when filtering is enabled.
+#define TEXTURE_FILTER_MIN_SIZE 192U

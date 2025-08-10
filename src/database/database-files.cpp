@@ -234,8 +234,7 @@ void PlayerDatabaseFiles::listPlayers(std::vector<std::string> &res)
 {
 	std::vector<fs::DirListNode> files = fs::GetDirListing(m_savedir);
 	// list files into players directory
-	for (std::vector<fs::DirListNode>::const_iterator it = files.begin(); it !=
-		files.end(); ++it) {
+	for (auto it = files.begin(); it != files.end(); ++it) {
 		// Ignore directories
 		if (it->dir)
 			continue;

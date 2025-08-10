@@ -11,14 +11,13 @@
 #include <cstdio>
 #include <cstring>
 #include <cwchar>
+#include <cassert>
 
 /* HACK: import these string methods from MT's util/string.h */
 extern std::wstring utf8_to_wide(std::string_view input);
 extern std::string wide_to_utf8(std::wstring_view input);
 /* */
 
-namespace irr
-{
 namespace core
 {
 
@@ -174,9 +173,9 @@ public:
 		}
 
 		if constexpr (sizeof(T) != sizeof(B)) {
-			_IRR_DEBUG_BREAK_IF(
-				(uintptr_t)c >= (uintptr_t)(str.data()) &&
-				(uintptr_t)c <  (uintptr_t)(str.data() + str.size()));
+			assert(
+				(uintptr_t)c < (uintptr_t)(str.data()) ||
+				(uintptr_t)c >=  (uintptr_t)(str.data() + str.size()));
 		}
 
 		if ((void *)c == (void *)c_str())
@@ -939,4 +938,3 @@ inline size_t wStringToUTF8(stringc &destination, const stringw &source)
 }
 
 } // end namespace core
-} // end namespace irr

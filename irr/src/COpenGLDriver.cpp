@@ -20,8 +20,6 @@
 
 #include "mt_opengl.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -116,18 +114,6 @@ bool COpenGLDriver::genericDriverInit()
 		os::Printer::log("GLSL version", buf, ELL_INFORMATION);
 	} else
 		os::Printer::log("GLSL not available.", ELL_INFORMATION);
-	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
-	DriverAttributes->setAttribute("MaxAuxBuffers", MaxAuxBuffers);
-	DriverAttributes->setAttribute("MaxMultipleRenderTargets", (s32)Feature.MultipleRenderTarget);
-	DriverAttributes->setAttribute("MaxIndices", (s32)MaxIndices);
-	DriverAttributes->setAttribute("MaxTextureSize", (s32)MaxTextureSize);
-	DriverAttributes->setAttribute("MaxGeometryVerticesOut", (s32)MaxGeometryVerticesOut);
-	DriverAttributes->setAttribute("MaxTextureLODBias", MaxTextureLODBias);
-	DriverAttributes->setAttribute("Version", Version);
-	DriverAttributes->setAttribute("ShaderLanguageVersion", ShaderLanguageVersion);
-	DriverAttributes->setAttribute("AntiAlias", AntiAlias);
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
@@ -710,7 +696,7 @@ void COpenGLDriver::drawVertexPrimitiveList(const void *vertices, u32 vertexCoun
 			}
 		} else {
 			// avoid passing broken pointer to OpenGL
-			_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+			assert(!ColorBuffer.empty());
 			glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 		}
 	}
@@ -983,7 +969,7 @@ void COpenGLDriver::draw2DVertexPrimitiveList(const void *vertices, u32 vertexCo
 			}
 		} else {
 			// avoid passing broken pointer to OpenGL
-			_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+			assert(!ColorBuffer.empty());
 			glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 		}
 	}
@@ -1124,7 +1110,7 @@ void COpenGLDriver::draw2DImage(const video::ITexture *texture, const core::posi
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 
@@ -1204,7 +1190,7 @@ void COpenGLDriver::draw2DImage(const video::ITexture *texture, const core::rect
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 
@@ -1352,7 +1338,7 @@ void COpenGLDriver::draw2DImageBatch(const video::ITexture *texture,
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 
@@ -1519,7 +1505,7 @@ void COpenGLDriver::draw2DRectangle(const core::rect<s32> &position,
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 
@@ -1555,7 +1541,7 @@ void COpenGLDriver::draw2DLine(const core::position2d<s32> &start,
 		if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 			glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 		else {
-			_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+			assert(!ColorBuffer.empty());
 			glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 		}
 
@@ -1609,20 +1595,10 @@ inline void COpenGLDriver::getGLTextureMatrix(GLfloat *o, const core::matrix4 &m
 	o[15] = 1.f;
 }
 
-ITexture *COpenGLDriver::createDeviceDependentTexture(const io::path &name, IImage *image)
+ITexture *COpenGLDriver::createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type, const std::vector<IImage*> &images)
 {
-	std::vector tmp { image };
-
-	COpenGLTexture *texture = new COpenGLTexture(name, tmp, ETT_2D, this);
-
-	return texture;
-}
-
-ITexture *COpenGLDriver::createDeviceDependentTextureCubemap(const io::path &name, const std::vector<IImage *> &image)
-{
-	COpenGLTexture *texture = new COpenGLTexture(name, image, ETT_CUBEMAP, this);
-
-	return texture;
+	assert(type == ETT_2D);
+	return new COpenGLTexture(name, images, ETT_2D, this);
 }
 
 void COpenGLDriver::disableFeature(E_VIDEO_DRIVER_FEATURE feature, bool flag)
@@ -2489,7 +2465,7 @@ void COpenGLDriver::draw3DLine(const core::vector3df &start,
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
-		_IRR_DEBUG_BREAK_IF(ColorBuffer.size() == 0);
+		assert(!ColorBuffer.empty());
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
 	}
 
@@ -2513,7 +2489,7 @@ bool COpenGLDriver::queryTextureFormat(ECOLOR_FORMAT format) const
 	return getColorFormatParameters(format, dummyInternalFormat, dummyPixelFormat, dummyPixelType, &dummyConverter);
 }
 
-bool COpenGLDriver::needsTransparentRenderPass(const irr::video::SMaterial &material) const
+bool COpenGLDriver::needsTransparentRenderPass(const video::SMaterial &material) const
 {
 	return CNullDriver::needsTransparentRenderPass(material) || material.isAlphaBlendOperation();
 }
@@ -2662,7 +2638,7 @@ ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &
 }
 
 //! Creates a render target texture for a cubemap
-ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const irr::u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
+ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
 {
 	if (IImage::isCompressedFormat(format))
 		return 0;
@@ -3193,5 +3169,4 @@ IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::
 }
 
 } // end namespace video
-} // end namespace irr
 #endif // opengl

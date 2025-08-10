@@ -9,7 +9,6 @@
 #include "IGPUProgrammingServices.h"
 #include "irrArray.h"
 #include "irrString.h"
-#include "IAttributes.h"
 #include "IMesh.h"
 #include "IMeshBuffer.h"
 #include "IMeshSceneNode.h"
@@ -18,8 +17,6 @@
 #include "SVertexIndex.h"
 #include "SExposedVideoData.h"
 
-namespace irr
-{
 namespace io
 {
 class IWriteFile;
@@ -49,9 +46,6 @@ public:
 
 	//! queries the features of the driver, returns true if feature is available
 	bool queryFeature(E_VIDEO_DRIVER_FEATURE feature) const override;
-
-	//! Get attributes of the actual video driver
-	const io::IAttributes &getDriverAttributes() const override;
 
 	//! sets transformation
 	void setTransform(E_TRANSFORMATION_STATE state, const core::matrix4 &mat) override;
@@ -84,10 +78,12 @@ public:
 
 	ITexture *addTexture(const io::path &name, IImage *image) override;
 
+	ITexture *addArrayTexture(const io::path &name, IImage **images, u32 count) override;
+
 	virtual ITexture *addTextureCubemap(const io::path &name, IImage *imagePosX, IImage *imageNegX, IImage *imagePosY,
 			IImage *imageNegY, IImage *imagePosZ, IImage *imageNegZ) override;
 
-	ITexture *addTextureCubemap(const irr::u32 sideLen, const io::path &name, ECOLOR_FORMAT format = ECF_A8R8G8B8) override;
+	ITexture *addTextureCubemap(const u32 sideLen, const io::path &name, ECOLOR_FORMAT format = ECF_A8R8G8B8) override;
 
 	virtual bool setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SColor clearColor = SColor(255, 0, 0, 0),
 			f32 clearDepth = 1.f, u8 clearStencil = 0) override;
@@ -223,7 +219,7 @@ public:
 			const io::path &name, const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
 
 	//! Creates a render target texture for a cubemap
-	ITexture *addRenderTargetTextureCubemap(const irr::u32 sideLen,
+	ITexture *addRenderTargetTextureCubemap(const u32 sideLen,
 			const io::path &name, const ECOLOR_FORMAT format) override;
 
 	//! Creates an 1bit alpha channel of the texture based of an color key.
@@ -537,7 +533,7 @@ public:
 	core::dimension2du getMaxTextureSize() const override;
 
 	//! Used by some SceneNodes to check if a material should be rendered in the transparent render pass
-	bool needsTransparentRenderPass(const irr::video::SMaterial &material) const override;
+	bool needsTransparentRenderPass(const video::SMaterial &material) const override;
 
 protected:
 	//! deletes all textures
@@ -549,9 +545,8 @@ protected:
 	//! adds a surface, not loaded or created by the Irrlicht Engine
 	void addTexture(ITexture *surface);
 
-	virtual ITexture *createDeviceDependentTexture(const io::path &name, IImage *image);
-
-	virtual ITexture *createDeviceDependentTextureCubemap(const io::path &name, const std::vector<IImage*> &image);
+	virtual ITexture *createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type,
+		const std::vector<IImage*> &images);
 
 	//! checks triangle count and print warning if wrong
 	bool checkPrimitiveCount(u32 prmcnt) const;
@@ -616,7 +611,7 @@ protected:
 
 		void *lock(E_TEXTURE_LOCK_MODE mode = ETLM_READ_WRITE, u32 mipmapLevel = 0, u32 layer = 0, E_TEXTURE_LOCK_FLAGS lockFlags = ETLF_FLIP_Y_UP_RTT) override { return 0; }
 		void unlock() override {}
-		void regenerateMipMapLevels(void *data = 0, u32 layer = 0) override {}
+		void regenerateMipMapLevels(u32 layer = 0) override {}
 	};
 	core::array<SSurface> Textures;
 
@@ -716,8 +711,6 @@ protected:
 	SColor FogColor;
 	SExposedVideoData ExposedData;
 
-	io::IAttributes *DriverAttributes;
-
 	SOverrideMaterial OverrideMaterial;
 	SMaterial OverrideMaterial2D;
 	SMaterial InitMaterial2D;
@@ -732,4 +725,3 @@ protected:
 };
 
 } // end namespace video
-} // end namespace irr

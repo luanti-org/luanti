@@ -60,6 +60,8 @@ core.register_on_chat_message(function(name, message)
 
 	param = param or ""
 
+	core.log("verbose", string.format("Handling chat command %q with params %q", cmd, param))
+
 	-- Run core.registered_on_chatcommands callbacks.
 	if core.run_callbacks(core.registered_on_chatcommands, 5, name, cmd, param) then
 		return true
@@ -1275,7 +1277,7 @@ core.register_chatcommand("msg", {
 		core.log("action", "DM from " .. name .. " to " .. sendto
 				.. ": " .. message)
 		core.chat_send_player(sendto, S("DM from @1: @2", name, message))
-		return true, S("Message sent.")
+		return true, S("DM sent to @1: @2", sendto, message)
 	end,
 })
 

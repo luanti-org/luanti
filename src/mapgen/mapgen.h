@@ -29,20 +29,15 @@ class Settings;
 class MMVManip;
 class NodeDefManager;
 
-extern FlagDesc flagdesc_mapgen[];
-extern FlagDesc flagdesc_gennotify[];
+extern const FlagDesc flagdesc_mapgen[];
+extern const FlagDesc flagdesc_gennotify[];
 
-class Biome;
 class BiomeGen;
 struct BiomeParams;
 class BiomeManager;
 class EmergeParams;
-class EmergeManager;
-class MapBlock;
-class VoxelManipulator;
 struct BlockMakeData;
 class VoxelArea;
-class Map;
 
 enum MapgenObject {
 	MGOBJ_VMANIP,

@@ -20,6 +20,10 @@ public:
 
 	std::string m_worlddir;
 
+	static ServerModManager makeManager(const std::string &worldpath) {
+		return ServerModManager(worldpath, findWorldSubgame(worldpath));
+	}
+
 	void testCreation();
 	void testIsConsistent();
 	void testUnsatisfiedMods();
@@ -80,34 +84,34 @@ void TestServerModManager::testCreation()
 	world_config.set("load_mod_test_mod", "true");
 	UASSERTEQ(bool, world_config.updateConfigFile(path.c_str()), true);
 
-	ServerModManager sm(m_worlddir);
+	auto sm = makeManager(m_worlddir);
 }
 
 void TestServerModManager::testGetModsWrongDir()
 {
 	// Test in non worlddir to ensure no mods are found
-	ServerModManager sm(m_worlddir + DIR_DELIM + "..");
+	auto sm = makeManager(m_worlddir + DIR_DELIM "..");
 	UASSERTEQ(bool, sm.getMods().empty(), true);
 }
 
 void TestServerModManager::testUnsatisfiedMods()
 {
-	ServerModManager sm(m_worlddir);
+	auto sm = makeManager(m_worlddir);
 	UASSERTEQ(bool, sm.getUnsatisfiedMods().empty(), true);
 }
 
 void TestServerModManager::testIsConsistent()
 {
-	ServerModManager sm(m_worlddir);
+	auto sm = makeManager(m_worlddir);
 	UASSERTEQ(bool, sm.isConsistent(), true);
 }
 
 void TestServerModManager::testGetMods()
 {
-	ServerModManager sm(m_worlddir);
+	auto sm = makeManager(m_worlddir);
 	const auto &mods = sm.getMods();
 	// `ls ./games/devtest/mods | wc -l` + 1 (test mod)
-	UASSERTEQ(std::size_t, mods.size(), 34 + 1);
+	UASSERTEQ(std::size_t, mods.size(), 35 + 1);
 
 	// Ensure we found basenodes mod (part of devtest)
 	// and test_mod (for testing MINETEST_MOD_PATH).
@@ -132,14 +136,14 @@ void TestServerModManager::testGetMods()
 
 void TestServerModManager::testGetModspec()
 {
-	ServerModManager sm(m_worlddir);
+	auto sm = makeManager(m_worlddir);
 	UASSERTEQ(const ModSpec *, sm.getModSpec("wrongmod"), NULL);
 	UASSERT(sm.getModSpec("basenodes") != NULL);
 }
 
 void TestServerModManager::testGetModNamesWrongDir()
 {
-	ServerModManager sm(m_worlddir + DIR_DELIM + "..");
+	auto sm = makeManager(m_worlddir + DIR_DELIM "..");
 	std::vector<std::string> result;
 	sm.getModNames(result);
 	UASSERTEQ(bool, result.empty(), true);
@@ -147,7 +151,7 @@ void TestServerModManager::testGetModNamesWrongDir()
 
 void TestServerModManager::testGetModNames()
 {
-	ServerModManager sm(m_worlddir);
+	auto sm = makeManager(m_worlddir);
 	std::vector<std::string> result;
 	sm.getModNames(result);
 	UASSERTEQ(bool, result.empty(), false);
@@ -156,7 +160,7 @@ void TestServerModManager::testGetModNames()
 
 void TestServerModManager::testGetModMediaPathsWrongDir()
 {
-	ServerModManager sm(m_worlddir + DIR_DELIM + "..");
+	auto sm = makeManager(m_worlddir + DIR_DELIM "..");
 	std::vector<std::string> result;
 	sm.getModsMediaPaths(result);
 	UASSERTEQ(bool, result.empty(), true);
@@ -164,7 +168,7 @@ void TestServerModManager::testGetModMediaPathsWrongDir()
 
 void TestServerModManager::testGetModMediaPaths()
 {
-	ServerModManager sm(m_worlddir);
+	auto sm = makeManager(m_worlddir);
 	std::vector<std::string> result;
 	sm.getModsMediaPaths(result);
 	UASSERTEQ(bool, result.empty(), false);

@@ -61,3 +61,10 @@ function core.register_on_auth_fail(func)
 		end
 	end)
 end
+
+-- deprecated as of 5.12, as it was not Perlin noise
+-- but with no warnings (yet) for compatibility
+core.get_perlin = core.get_value_noise
+core.get_perlin_map = core.get_value_noise_map
+PerlinNoise = ValueNoise
+PerlinNoiseMap = ValueNoiseMap

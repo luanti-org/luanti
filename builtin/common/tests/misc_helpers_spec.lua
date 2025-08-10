@@ -178,6 +178,35 @@ describe("table", function()
 		assert.equal(2, table.keyof({[2] = "foo", [3] = "bar"}, "foo"))
 		assert.equal(3, table.keyof({[1] = "foo", [3] = "bar"}, "bar"))
 	end)
+
+	describe("copy()", function()
+		it("strips metatables", function()
+			local v = vector.new(1, 2, 3)
+			local w = table.copy(v)
+			assert.are_not.equal(v, w)
+			assert.same(v, w)
+			assert.equal(nil, getmetatable(w))
+		end)
+		it("preserves referential structure", function()
+			local t = {{}, {}}
+			t[1][1] = t[2]
+			t[2][1] = t[1]
+			local copy = table.copy(t)
+			assert.same(t, copy)
+			assert.equal(copy[1][1], copy[2])
+			assert.equal(copy[2][1], copy[1])
+		end)
+	end)
+
+	describe("copy_with_metatables()", function()
+		it("preserves metatables", function()
+			local v = vector.new(1, 2, 3)
+			local w = table.copy_with_metatables(v)
+			assert.equal(getmetatable(v), getmetatable(w))
+			assert(vector.check(w))
+			assert.equal(v, w) -- vector overrides ==
+		end)
+	end)
 end)
 
 describe("formspec_escape", function()
@@ -199,5 +228,126 @@ describe("math", function()
 		assert.equal(-11, math.round(-10.7))
 		assert.equal(0, math.round(0.49999999999999994))
 		assert.equal(0, math.round(-0.49999999999999994))
+	end)
+end)
+
+describe("dump", function()
+	local function test_expression(expr)
+		local chunk = assert(loadstring("return " .. expr))
+		local refs = {}
+		setfenv(chunk, {
+			setref = function(id)
+				refs[id] = {}
+				return function(fields)
+					for k, v in pairs(fields) do
+						refs[id][k] = v
+					end
+					return refs[id]
+				end
+			end,
+			getref = function(id)
+				return assert(refs[id])
+			end,
+		})
+		assert.equal(expr, dump(chunk()))
+	end
+
+	it("nil", function()
+		test_expression("nil")
+	end)
+
+	it("booleans", function()
+		test_expression("false")
+		test_expression("true")
+	end)
+
+	describe("numbers", function()
+		it("formats integers nicely", function()
+			test_expression("42")
+		end)
+		it("avoids misleading rounding", function()
+			test_expression("0.3")
+			assert.equal("0.30000000000000004", dump(0.1 + 0.2))
+		end)
+	end)
+
+	it("strings", function()
+		test_expression('"hello world"')
+		test_expression([["hello \"world\""]])
+	end)
+
+	describe("tables", function()
+		it("empty", function()
+			test_expression("{}")
+		end)
+
+		it("lists", function()
+			test_expression([[
+{
+	false,
+	true,
+	"foo",
+	1,
+	2,
+}]])
+		end)
+
+		it("number keys", function()
+test_expression([[
+{
+	[0.5] = false,
+	[1.5] = true,
+	[2.5] = "foo",
+}]])
+		end)
+
+		it("dicts", function()
+			test_expression([[{
+	a = 1,
+	b = 2,
+	c = 3,
+}]])
+		end)
+
+		it("mixed", function()
+			test_expression([[{
+	a = 1,
+	b = 2,
+	c = 3,
+	["d e"] = true,
+	"foo",
+	"bar",
+}]])
+		end)
+
+		it("nested", function()
+test_expression([[{
+	a = {
+		1,
+		{},
+	},
+	b = "foo",
+	c = {
+		[0.5] = 0.1,
+		[1.5] = 0.2,
+	},
+}]])
+		end)
+
+		it("circular references", function()
+test_expression([[setref(1){
+	child = {
+		parent = getref(1),
+	},
+	other_child = {
+		parent = getref(1),
+	},
+}]])
+		end)
+
+		it("supports variable indent", function()
+			assert.equal('{1,2,3,{foo = "bar",},}', dump({1, 2, 3, {foo = "bar"}}, ""))
+			assert.equal('{\n  "x",\n  "y",\n}', dump({"x", "y"}, "  "))
+		end)
 	end)
 end)

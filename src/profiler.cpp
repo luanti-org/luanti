@@ -17,7 +17,7 @@ ScopeProfiler::ScopeProfiler(Profiler *profiler, const std::string &name,
 	m_time1 = porting::getTime(prec);
 }
 
-ScopeProfiler::~ScopeProfiler()
+void ScopeProfiler::stop() noexcept
 {
 	if (!m_profiler)
 		return;
@@ -38,6 +38,8 @@ ScopeProfiler::~ScopeProfiler()
 		m_profiler->max(m_name, duration);
 		break;
 	}
+
+	m_profiler = nullptr; // don't stop a second time
 }
 
 Profiler::Profiler()

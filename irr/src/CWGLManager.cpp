@@ -11,8 +11,6 @@
 #include <GL/gl.h>
 #include <GL/wglext.h>
 
-namespace irr
-{
 namespace video
 {
 
@@ -433,7 +431,6 @@ bool CWGLManager::swapBuffers()
 	return SwapBuffers((HDC)CurrentContext.OpenGLWin32.HDc) == TRUE;
 }
 
-}
 }
 
 #endif

@@ -24,9 +24,6 @@ public:
 	// Global step handler to pass back async events
 	void step();
 
-	// Calls core.on_before_close()
-	void beforeClose();
-
 	// Pass async events from engine to async threads
 	u32 queueAsync(std::string &&serialized_func,
 		std::string &&serialized_param);

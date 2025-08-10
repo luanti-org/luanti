@@ -102,18 +102,27 @@ struct ItemStack
 	}
 
 	// Get tool digging properties, or those of the hand if not a tool
+	// If not hand assumes default hand ""
 	const ToolCapabilities& getToolCapabilities(
-			const IItemDefManager *itemdef) const
+			const IItemDefManager *itemdef, const ItemStack *hand = nullptr) const
 	{
-		const ToolCapabilities *item_cap =
-			itemdef->get(name).tool_capabilities;
+		const ToolCapabilities *item_cap = itemdef->get(name).tool_capabilities;
 
-		if (item_cap == NULL)
-			// Fall back to the hand's tool capabilities
-			item_cap = itemdef->get("").tool_capabilities;
+		if (item_cap) {
+			return metadata.getToolCapabilities(*item_cap); // Check for override
+		}
 
-		assert(item_cap != NULL);
-		return metadata.getToolCapabilities(*item_cap); // Check for override
+		// Fall back to the hand's tool capabilities
+		if (hand) {
+			item_cap = itemdef->get(hand->name).tool_capabilities;
+			if (item_cap) {
+				return hand->metadata.getToolCapabilities(*item_cap);
+			}
+		}
+
+		item_cap = itemdef->get("").tool_capabilities;
+		assert(item_cap);
+		return *item_cap;
 	}
 
 	const std::optional<WearBarParams> &getWearBarParams(
@@ -262,7 +271,7 @@ public:
 	// If not as many items exist as requested, removes as
 	// many as possible.
 	// Returns the items that were actually removed.
-	ItemStack removeItem(const ItemStack &item);
+	ItemStack removeItem(const ItemStack &item, bool match_meta);
 
 	// Takes some items from a slot.
 	// If there are not enough, takes as many as it can.

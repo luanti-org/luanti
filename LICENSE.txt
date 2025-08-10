@@ -102,6 +102,14 @@ grorp:
     using the font "undefined medium" (https://undefined-medium.com/),
     which is licensed under the SIL Open Font License, Version 1.1
     modified by DS
+  textures/base/pack/dig_btn.png
+  textures/base/pack/place_btn.png
+    derived by editing the text in aux1_btn.svg
+
+Material Design, Google (Apache license v2.0):
+  textures/base/pack/contentdb_thumb_up.png
+  textures/base/pack/contentdb_thumb_down.png
+  textures/base/pack/contentdb_neutral.png
 
 License of Luanti source code
 -------------------------------

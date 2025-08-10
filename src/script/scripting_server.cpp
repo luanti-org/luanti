@@ -63,6 +63,9 @@ ServerScripting::ServerScripting(Server* server):
 	lua_setfield(L, -2, "object_refs");
 
 	lua_newtable(L);
+	lua_setfield(L, -2, "objects_by_guid");
+
+	lua_newtable(L);
 	lua_setfield(L, -2, "luaentities");
 
 	// Initialize our lua_api modules
@@ -134,8 +137,8 @@ void ServerScripting::InitializeModApi(lua_State *L, int top)
 	ItemStackMetaRef::Register(L);
 	LuaAreaStore::Register(L);
 	LuaItemStack::Register(L);
-	LuaPerlinNoise::Register(L);
-	LuaPerlinNoiseMap::Register(L);
+	LuaValueNoise::Register(L);
+	LuaValueNoiseMap::Register(L);
 	LuaPseudoRandom::Register(L);
 	LuaPcgRandom::Register(L);
 	LuaRaycast::Register(L);
@@ -172,8 +175,8 @@ void ServerScripting::InitializeAsync(lua_State *L, int top)
 	ItemStackMetaRef::Register(L);
 	LuaAreaStore::Register(L);
 	LuaItemStack::Register(L);
-	LuaPerlinNoise::Register(L);
-	LuaPerlinNoiseMap::Register(L);
+	LuaValueNoise::Register(L);
+	LuaValueNoiseMap::Register(L);
 	LuaPseudoRandom::Register(L);
 	LuaPcgRandom::Register(L);
 	LuaSecureRandom::Register(L);

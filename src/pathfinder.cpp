@@ -169,8 +169,6 @@ public:
 	Pathfinder() = delete;
 	Pathfinder(Map *map, const NodeDefManager *ndef) : m_map(map), m_ndef(ndef) {}
 
-	~Pathfinder();
-
 	/**
 	 * path evaluation function
 	 * @param env environment to look for path
@@ -307,7 +305,7 @@ private:
 	/** contains all map data already collected and analyzed.
 		Access it via the getIndexElement/getIdxElem methods. */
 	friend class GridNodeContainer;
-	GridNodeContainer *m_nodes_container = nullptr;
+	std::unique_ptr<GridNodeContainer> m_nodes_container;
 
 	Map *m_map = nullptr;
 
@@ -578,7 +576,7 @@ MapGridNodeContainer::MapGridNodeContainer(Pathfinder *pathf)
 
 PathGridnode &MapGridNodeContainer::access(v3s16 p)
 {
-	std::map<v3s16, PathGridnode>::iterator it = m_nodes.find(p);
+	auto it = m_nodes.find(p);
 	if (it != m_nodes.end()) {
 		return it->second;
 	}
@@ -639,11 +637,10 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 	m_max_index_y = diff.Y;
 	m_max_index_z = diff.Z;
 
-	delete m_nodes_container;
 	if (diff.getLength() > 5) {
-		m_nodes_container = new MapGridNodeContainer(this);
+		m_nodes_container = std::make_unique<MapGridNodeContainer>(this);
 	} else {
-		m_nodes_container = new ArrayGridNodeContainer(this, diff);
+		m_nodes_container = std::make_unique<ArrayGridNodeContainer>(this, diff);
 	}
 #ifdef PATHFINDER_DEBUG
 	printType();
@@ -758,8 +755,7 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 		}
 		//convert all index positions to "normal" positions and insert
 		//them into full_path in reverse
-		std::vector<v3s16>::reverse_iterator rit = index_path.rbegin();
-		for (; rit != index_path.rend(); ++rit) {
+		for (auto rit = index_path.rbegin(); rit != index_path.rend(); ++rit) {
 			full_path.push_back(getIndexElement(*rit).pos);
 		}
 		//manually add true_destination to end of path, if needed
@@ -800,10 +796,6 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 	return retval;
 }
 
-Pathfinder::~Pathfinder()
-{
-	delete m_nodes_container;
-}
 /******************************************************************************/
 v3s16 Pathfinder::getRealPos(v3s16 ipos)
 {
@@ -880,10 +872,10 @@ PathCost Pathfinder::calcCost(v3s16 pos, v3s16 dir)
 					DEBUG_OUT("Pathfinder cost below height found" << std::endl);
 				}
 				else {
-					INFO_TARGET << "Pathfinder:"
+					DEBUG_OUT("Pathfinder:"
 							" distance to surface below too big: "
 							<< (testpos.Y - pos2.Y) << " max: " << m_maxdrop
-							<< std::endl;
+							<< std::endl);
 				}
 			}
 			else {
@@ -1419,8 +1411,7 @@ std::string Pathfinder::dirToName(PathDirections dir)
 void Pathfinder::printPath(const std::vector<v3s16> &path)
 {
 	unsigned int current = 0;
-	for (std::vector<v3s16>::iterator i = path.begin();
-			i != path.end(); ++i) {
+	for (auto i = path.begin(); i != path.end(); ++i) {
 		std::cout << std::setw(3) << current << ":" << *i << std::endl;
 		current++;
 	}

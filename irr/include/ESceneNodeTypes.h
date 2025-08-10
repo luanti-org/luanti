@@ -6,8 +6,6 @@
 
 #include "irrTypes.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -46,4 +44,3 @@ enum ESCENE_NODE_TYPE
 };
 
 } // end namespace scene
-} // end namespace irr

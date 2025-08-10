@@ -10,7 +10,7 @@ fi
 # * Clang + LLD + libc++ instead of GCC + binutils + stdc++
 # * Mingw-w64 with UCRT enabled and winpthreads support
 # why are we avoiding GCC? -> Thread Local Storage (TLS) is totally broken
-date=20240619
+date=20250305
 name=llvm-mingw-${date}-ucrt-ubuntu-20.04-x86_64.tar.xz
 wget "https://github.com/mstorsjo/llvm-mingw/releases/download/$date/$name" -O "$name"
 sha256sum -w -c <(grep -F "$name" "$topdir/sha256sums.txt")

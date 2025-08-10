@@ -90,6 +90,10 @@ Run it:
 
     ./bin/luanti
 
+Run unit tests:
+
+    ./bin/luanti --run-unittests
+
 - Use `cmake . -LH` to see all CMake options and their current state.
 - If you want to install it system-wide (or are making a distribution package),
   you will want to use `-DRUN_IN_PLACE=FALSE`.

@@ -5,9 +5,7 @@
 #pragma once
 
 #include "irrTypes.h"
-
-namespace irr
-{
+#include <cassert>
 
 //! Base class of most objects of the Irrlicht Engine.
 /** This class provides reference counting through the methods grab() and drop().
@@ -118,7 +116,7 @@ public:
 	bool drop() const
 	{
 		// someone is doing bad reference counting.
-		_IRR_DEBUG_BREAK_IF(ReferenceCounter <= 0)
+		assert(ReferenceCounter > 0);
 
 		--ReferenceCounter;
 		if (!ReferenceCounter) {
@@ -141,5 +139,3 @@ private:
 	//! The reference counter. Mutable to do reference counting on const objects.
 	mutable s32 ReferenceCounter;
 };
-
-} // end namespace irr

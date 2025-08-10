@@ -81,7 +81,7 @@ void ItemStackMetaRef::create(lua_State *L, LuaItemStack *istack)
 
 void ItemStackMetaRef::Register(lua_State *L)
 {
-	registerMetadataClass(L, className, methods);
+	registerMetadataClass<ItemStackMetaRef>(L, methods);
 }
 
 const char ItemStackMetaRef::className[] = "ItemStackMetaRef";

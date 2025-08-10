@@ -27,7 +27,6 @@
 #include "lvm.h"
 
 
-
 /* limit for table tag-method chains (to avoid loops) */
 #define MAXTAGLOOP	100
 

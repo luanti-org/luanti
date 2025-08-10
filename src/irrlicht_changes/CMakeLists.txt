@@ -1,5 +1,8 @@
 if (BUILD_CLIENT)
+	file(GLOB client_irrlicht_changes_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 	set(client_irrlicht_changes_SRCS
+		${client_irrlicht_changes_HDRS}
 		${CMAKE_CURRENT_SOURCE_DIR}/static_text.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/CGUITTFont.cpp
 	)

@@ -1,19 +1,6 @@
---Luanti
---Copyright (C) 2015 PilzAdam
---
---This program is free software; you can redistribute it and/or modify
---it under the terms of the GNU Lesser General Public License as published by
---the Free Software Foundation; either version 2.1 of the License, or
---(at your option) any later version.
---
---This program is distributed in the hope that it will be useful,
---but WITHOUT ANY WARRANTY; without even the implied warranty of
---MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---GNU Lesser General Public License for more details.
---
---You should have received a copy of the GNU Lesser General Public License along
---with this program; if not, write to the Free Software Foundation, Inc.,
---51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+-- Luanti
+-- Copyright (C) 2015 PilzAdam
+-- SPDX-License-Identifier: LGPL-2.1-or-later
 
 settingtypes = {}
 
@@ -40,12 +27,24 @@ local CHAR_CLASSES = {
 	FLAGS = "[%w_%-%.,]",
 }
 
+local valid_contexts = {common = true, client = true, server = true, world_creation = true}
+
+local function check_context_annotation(context, force_context)
+	if force_context then
+		return "Context annotations are not allowed, context is always " .. force_context
+	end
+	if not valid_contexts[context] then
+		return "Unknown context"
+	end
+	return nil
+end
+
 local function flags_to_table(flags)
 	return flags:gsub("%s+", ""):split(",", true) -- Remove all spaces and split
 end
 
 -- returns error message, or nil
-local function parse_setting_line(settings, line, read_all, base_level, allow_secure)
+local function parse_setting_line(settings, line, read_all, base_level, allow_secure, force_context)
 
 	-- strip carriage returns (CR, /r)
 	line = line:gsub("\r", "")
@@ -69,8 +68,31 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 
 	-- category
 	local stars, category = line:match("^%[([%*]*)([^%]]+)%]$")
+	local category_context
+	if not category then
+		stars, category, category_context = line:match("^%[([%*]*)([^%]]+)%] %[([^%]]+)%]$")
+	end
 	if category then
 		local category_level = stars:len() + base_level
+
+		if settings.current_context_level and
+				category_level <= settings.current_context_level then
+			-- The start of this category marks the end of the context annotation's scope.
+			settings.current_context_level = nil
+			settings.current_context = nil
+		end
+
+		if category_context then
+			local err = check_context_annotation(category_context, force_context)
+			if err then
+				return err
+			end
+			if settings.current_context_level then
+				return "Category context annotations cannot be nested"
+			end
+			settings.current_context_level = category_level
+			settings.current_context = category_context
+		end
 
 		if settings.current_hide_level then
 			if settings.current_hide_level < category_level then
@@ -102,7 +124,8 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 	end
 
 	-- settings
-	local first_part, name, readable_name, setting_type = line:match("^"
+	local function make_pattern(include_context)
+		return "^"
 			-- this first capture group matches the whole first part,
 			--  so we can later strip it from the rest of the line
 			.. "("
@@ -110,9 +133,19 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 				.. CHAR_CLASSES.SPACE .. "*"
 				.. "%(([^%)]*)%)"  -- readable name
 				.. CHAR_CLASSES.SPACE .. "*"
+				.. (include_context and (
+					"%[([^%]]+)%]" -- context annotation
+					.. CHAR_CLASSES.SPACE .. "*"
+				) or "")
 				.. "(" .. CHAR_CLASSES.VARIABLE .. "+)" -- type
 				.. CHAR_CLASSES.SPACE .. "*"
-			.. ")")
+			.. ")"
+	end
+	local first_part, name, readable_name, setting_type = line:match(make_pattern(false))
+	local setting_context
+	if not first_part then
+		first_part, name, readable_name, setting_context, setting_type = line:match(make_pattern(true))
+	end
 
 	if not first_part then
 		return "Invalid line"
@@ -120,6 +153,26 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 
 	if name:match("secure%.[.]*") and not allow_secure then
 		return "Tried to add \"secure.\" setting"
+	end
+
+	if setting_context then
+		local err = check_context_annotation(setting_context, force_context)
+		if err then
+			return err
+		end
+	end
+
+	local context
+	if force_context then
+		context = force_context
+	else
+		if setting_context then
+			context = setting_context
+		elseif settings.current_context_level then
+			context = settings.current_context
+		else
+			return "Missing context annotation"
+		end
 	end
 
 	local requires = {}
@@ -170,6 +223,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			min = min,
 			max = max,
 			requires = requires,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -182,9 +236,9 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 		if not default then
 			return "Invalid string setting"
 		end
-		if setting_type == "key" and not read_all then
-			-- ignore key type if read_all is false
-			return
+
+		if setting_type == "key" then
+			requires.keyboard_mouse = true
 		end
 
 		table.insert(settings, {
@@ -193,6 +247,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			type = setting_type,
 			default = default,
 			requires = requires,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -245,6 +300,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			},
 			values = values,
 			requires = requires,
+			context = context,
 			comment = comment,
 			noise_params = true,
 			flags = flags_to_table("defaults,eased,absvalue")
@@ -263,6 +319,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			type = "bool",
 			default = remaining_line,
 			requires = requires,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -290,6 +347,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			min = min,
 			max = max,
 			requires = requires,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -313,6 +371,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			default = default,
 			values = values:split(",", true),
 			requires = requires,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -331,6 +390,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			type = setting_type,
 			default = default,
 			requires = requires,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -361,6 +421,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			default = default,
 			possible = flags_to_table(possible),
 			requires = requires,
+			context = context,
 			comment = comment,
 		})
 		return
@@ -369,14 +430,14 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 	return "Invalid setting type \"" .. setting_type .. "\""
 end
 
-local function parse_single_file(file, filepath, read_all, result, base_level, allow_secure)
+local function parse_single_file(file, filepath, read_all, result, base_level, allow_secure, force_context)
 	-- store this helper variable in the table so it's easier to pass to parse_setting_line()
 	result.current_comment = {}
 	result.current_hide_level = nil
 
 	local line = file:read("*line")
 	while line do
-		local error_msg = parse_setting_line(result, line, read_all, base_level, allow_secure)
+		local error_msg = parse_setting_line(result, line, read_all, base_level, allow_secure, force_context)
 		if error_msg then
 			core.log("error", error_msg .. " in " .. filepath .. " \"" .. line .. "\"")
 		end
@@ -411,7 +472,6 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 	-- TODO: Support game/mod settings in the pause menu too
 	-- Note that this will need to work different from how it's done in the
 	-- mainmenu:
-	-- * Only if in singleplayer / on local server, not on remote servers
 	-- * Only show settings for the active game and mods
 	--   (add API function to get them, can return nil if on a remote server)
 	--   (names are probably not enough, will need paths for uniqueness)
@@ -441,7 +501,7 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 					type = "category",
 				})
 
-				parse_single_file(file, path, read_all, settings, 2, false)
+				parse_single_file(file, path, read_all, settings, 2, false, "server")
 
 				file:close()
 			end
@@ -474,7 +534,7 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 					type = "category",
 				})
 
-				parse_single_file(file, path, read_all, settings, 2, false)
+				parse_single_file(file, path, read_all, settings, 2, false, "server")
 
 				file:close()
 			end
@@ -505,7 +565,7 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 					type = "category",
 				})
 
-				parse_single_file(file, path, read_all, settings, 2, false)
+				parse_single_file(file, path, read_all, settings, 2, false, "client")
 
 				file:close()
 			end

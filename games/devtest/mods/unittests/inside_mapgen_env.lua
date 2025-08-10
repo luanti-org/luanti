@@ -29,6 +29,6 @@ if core.ipc_cas("unittests:mg_once", nil, true) then
 end
 
 core.register_on_generated(function(vm, pos1, pos2, blockseed)
-	local n = tonumber(core.get_mapgen_setting("chunksize")) * 16 - 1
-	assert(pos2:subtract(pos1) == vector.new(n, n, n))
+	local cs = core.get_mapgen_chunksize()
+	assert(pos2:subtract(pos1) == cs:multiply(core.MAP_BLOCKSIZE):subtract(1))
 end)

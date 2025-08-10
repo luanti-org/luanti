@@ -22,11 +22,15 @@ core.register_node("basenodes:desert_stone", {
 
 core.register_node("basenodes:dirt_with_grass", {
 	description = "Dirt with Grass",
-	tiles ={"default_grass.png",
+	-- Using overlays here has no real merit here but we do it anyway so
+	-- overlay-related bugs become more apparent in devtest.
+	tiles = {"default_dirt.png"},
+	overlay_tiles = {
+		"default_grass.png",
 		-- a little dot on the bottom to distinguish it from dirt
-		"default_dirt.png^basenodes_dirt_with_grass_bottom.png",
-		{name = "default_dirt.png^default_grass_side.png",
-		tileable_vertical = false}},
+		"basenodes_dirt_with_grass_bottom.png",
+		{name = "default_grass_side.png", tileable_vertical = false},
+	},
 	groups = {crumbly=3, soil=1},
 })
 

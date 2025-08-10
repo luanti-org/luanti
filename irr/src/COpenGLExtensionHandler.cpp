@@ -11,8 +11,6 @@
 #include "fast_atof.h"
 #include "IContextManager.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -618,7 +616,6 @@ bool COpenGLExtensionHandler::queryFeature(E_VIDEO_DRIVER_FEATURE feature) const
 	};
 }
 
-}
 }
 
 #endif

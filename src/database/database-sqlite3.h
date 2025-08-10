@@ -13,25 +13,39 @@ extern "C" {
 #include "sqlite3.h"
 }
 
+// Template class for SQLite3 based data storage
 class Database_SQLite3 : public Database
 {
 public:
 	virtual ~Database_SQLite3();
 
-	void beginSave();
-	void endSave();
+	void beginSave() override;
+	void endSave() override;
 
-	bool initialized() const { return m_initialized; }
+	bool initialized() const override { return m_initialized; }
+
+	/// @note not thread-safe
+	void verifyDatabase() override;
+
 protected:
 	Database_SQLite3(const std::string &savedir, const std::string &dbname);
 
-	// Open and initialize the database if needed
-	void verifyDatabase();
+	// Check if a specific table exists
+	bool checkTable(const char *table);
 
-	// Convertors
+	// Check if a table has a specific column
+	bool checkColumn(const char *table, const char *column);
+
+	/* Value conversion helpers */
+
 	inline void str_to_sqlite(sqlite3_stmt *s, int iCol, std::string_view str) const
 	{
 		sqlite3_vrfy(sqlite3_bind_text(s, iCol, str.data(), str.size(), NULL));
+	}
+
+	inline void blob_to_sqlite(sqlite3_stmt *s, int iCol, std::string_view str) const
+	{
+		sqlite3_vrfy(sqlite3_bind_blob(s, iCol, str.data(), str.size(), NULL));
 	}
 
 	inline void int_to_sqlite(sqlite3_stmt *s, int iCol, int val) const
@@ -104,12 +118,14 @@ protected:
 				sqlite_to_float(s, iCol + 2));
 	}
 
-	// Query verifiers helpers
+	// Helper for verifying result of sqlite3_step() and such
 	inline void sqlite3_vrfy(int s, std::string_view m = "", int r = SQLITE_OK) const
 	{
 		if (s != r) {
 			std::string msg(m);
-			msg.append(": ").append(sqlite3_errmsg(m_database));
+			if (!msg.empty())
+				msg.append(": ");
+			msg.append(sqlite3_errmsg(m_database));
 			throw DatabaseException(msg);
 		}
 	}
@@ -119,27 +135,36 @@ protected:
 		sqlite3_vrfy(s, m, r);
 	}
 
-	// Create the database structure
+	// Called after opening a fresh database file. Should create tables and indices.
 	virtual void createDatabase() = 0;
+
+	// Should prepare the necessary statements.
 	virtual void initStatements() = 0;
 
 	sqlite3 *m_database = nullptr;
+
 private:
 	// Open the database
 	void openDatabase();
 
 	bool m_initialized = false;
 
-	std::string m_savedir = "";
-	std::string m_dbname = "";
+	const std::string m_savedir;
+	const std::string m_dbname;
 
 	sqlite3_stmt *m_stmt_begin = nullptr;
 	sqlite3_stmt *m_stmt_end = nullptr;
 
-	s64 m_busy_handler_data[2];
+	u64 m_busy_handler_data[2];
 
 	static int busyHandler(void *data, int count);
 };
+
+// Not sure why why we have to do this. can't C++ figure it out on its own?
+#define PARENT_CLASS_FUNCS \
+	void beginSave() { Database_SQLite3::beginSave(); } \
+	void endSave() { Database_SQLite3::endSave(); } \
+	void verifyDatabase() { Database_SQLite3::verifyDatabase(); }
 
 class MapDatabaseSQLite3 : private Database_SQLite3, public MapDatabase
 {
@@ -152,16 +177,19 @@ public:
 	bool deleteBlock(const v3s16 &pos);
 	void listAllLoadableBlocks(std::vector<v3s16> &dst);
 
-	void beginSave() { Database_SQLite3::beginSave(); }
-	void endSave() { Database_SQLite3::endSave(); }
+	PARENT_CLASS_FUNCS
+
 protected:
 	virtual void createDatabase();
 	virtual void initStatements();
 
 private:
-	void bindPos(sqlite3_stmt *stmt, const v3s16 &pos, int index = 1);
+	/// @brief Bind block position into statement at column index
+	/// @return index of next column after position
+	int bindPos(sqlite3_stmt *stmt, v3s16 pos, int index = 1);
 
-	// Map
+	bool m_new_format = false;
+
 	sqlite3_stmt *m_stmt_read = nullptr;
 	sqlite3_stmt *m_stmt_write = nullptr;
 	sqlite3_stmt *m_stmt_list = nullptr;
@@ -178,6 +206,8 @@ public:
 	bool loadPlayer(RemotePlayer *player, PlayerSAO *sao);
 	bool removePlayer(const std::string &name);
 	void listPlayers(std::vector<std::string> &res);
+
+	PARENT_CLASS_FUNCS
 
 protected:
 	virtual void createDatabase();
@@ -216,6 +246,8 @@ public:
 	virtual void listNames(std::vector<std::string> &res);
 	virtual void reload();
 
+	PARENT_CLASS_FUNCS
+
 protected:
 	virtual void createDatabase();
 	virtual void initStatements();
@@ -251,8 +283,7 @@ public:
 	virtual bool removeModEntries(const std::string &modname);
 	virtual void listMods(std::vector<std::string> *res);
 
-	virtual void beginSave() { Database_SQLite3::beginSave(); }
-	virtual void endSave() { Database_SQLite3::endSave(); }
+	PARENT_CLASS_FUNCS
 
 protected:
 	virtual void createDatabase();
@@ -267,3 +298,5 @@ private:
 	sqlite3_stmt *m_stmt_remove = nullptr;
 	sqlite3_stmt *m_stmt_remove_all = nullptr;
 };
+
+#undef PARENT_CLASS_FUNCS

@@ -12,8 +12,6 @@
 #include <png.h> // use system lib png
 #include <memory>
 
-namespace irr
-{
 namespace video
 {
 
@@ -179,4 +177,3 @@ bool CImageWriterPNG::writeImage(io::IWriteFile *file, IImage *image, u32 param)
 }
 
 } // namespace video
-} // namespace irr

@@ -1,10 +1,8 @@
-# When enabling SDL2 by default on macOS, don't forget to change
-# "NSHighResolutionCapable" to true in "Info.plist".
-if(NOT APPLE)
-	set(DEFAULT_SDL2 ON)
-endif()
+set(DEFAULT_SDL2 ON)
 
 option(USE_SDL2 "Use the SDL2 backend" ${DEFAULT_SDL2})
+
+option(USE_SDL2_STATIC "Link with SDL2 static libraries" FALSE)
 
 # Compiler flags
 
@@ -32,6 +30,15 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
 
 elseif(MSVC)
 	string(APPEND CMAKE_CXX_STANDARD_LIBRARIES " msvcrt.lib") # ???? fuck off
+
+	add_compile_definitions(
+		# Suppress some useless warnings
+		_CRT_SECURE_NO_DEPRECATE
+		# Get M_PI to work
+		_USE_MATH_DEFINES
+		# Don't define min/max macros in minwindef.h
+		NOMINMAX
+	)
 
 	add_compile_options(/Zl)
 
@@ -219,7 +226,11 @@ endif()
 if(ENABLE_OPENGL)
 	find_package(OpenGL REQUIRED)
 endif()
+set(USE_SDL2_SHARED FALSE)
 if(USE_SDL2)
+	if(NOT USE_SDL2_STATIC)
+		set(USE_SDL2_SHARED TRUE)
+	endif()
 	if(NOT ANDROID)
 		find_package(SDL2 REQUIRED)
 	else()
@@ -301,6 +312,11 @@ set(link_includes
 # Source files
 
 set(IRRMESHLOADER
+	CB3DMeshFileLoader.h
+	CGLTFMeshFileLoader.h
+	COBJMeshFileLoader.h
+	CXMeshFileLoader.h
+
 	CB3DMeshFileLoader.cpp
 	CGLTFMeshFileLoader.cpp
 	COBJMeshFileLoader.cpp
@@ -308,16 +324,25 @@ set(IRRMESHLOADER
 )
 
 add_library(IRRMESHOBJ OBJECT
+	CMeshSceneNode.h
+	CAnimatedMeshSceneNode.h
+
 	SkinnedMesh.cpp
-	CBoneSceneNode.cpp
 	CMeshSceneNode.cpp
 	CAnimatedMeshSceneNode.cpp
+
 	${IRRMESHLOADER}
 )
 
 target_link_libraries(IRRMESHOBJ PUBLIC tiniergltf::tiniergltf)
 
 set(IRRDRVROBJ
+	CNullDriver.h
+	CGLXManager.h
+	CWGLManager.h
+	CEGLManager.h
+	CSDLManager.h
+
 	CNullDriver.cpp
 	CGLXManager.cpp
 	CWGLManager.cpp
@@ -331,6 +356,11 @@ set(IRRDRVROBJ
 if(ENABLE_OPENGL)
 	set(IRRDRVROBJ
 		${IRRDRVROBJ}
+		COpenGLCacheHandler.h
+		COpenGLDriver.h
+		COpenGLSLMaterialRenderer.h
+		COpenGLExtensionHandler.h
+
 		COpenGLCacheHandler.cpp
 		COpenGLDriver.cpp
 		COpenGLSLMaterialRenderer.cpp
@@ -341,8 +371,11 @@ endif()
 # the unified drivers
 
 if(ENABLE_OPENGL3 OR ENABLE_GLES2)
+	file(GLOB IRRDRVR_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/*.h")
+
 	set(IRRDRVROBJ
 		${IRRDRVROBJ}
+		${IRRDRVR_HDRS}
 		OpenGL/Driver.cpp
 		OpenGL/ExtensionHandler.cpp
 		OpenGL/FixedPipelineRenderer.cpp
@@ -355,18 +388,28 @@ endif()
 if(ENABLE_OPENGL3)
 	set(IRRDRVROBJ
 		${IRRDRVROBJ}
-		OpenGL3/Driver.cpp
+		OpenGL3/DriverGL3.h
+		OpenGL3/DriverGL3.cpp
 	)
 endif()
 
 if(ENABLE_GLES2)
 	set(IRRDRVROBJ
 		${IRRDRVROBJ}
-		OpenGLES2/Driver.cpp
+		OpenGLES2/DriverGLES2.h
+		OpenGLES2/DriverGLES2.cpp
 	)
 endif()
 
 set(IRRIMAGEOBJ
+	CColorConverter.h
+	CImage.h
+	CImageLoaderJPG.h
+	CImageLoaderPNG.h
+	CImageLoaderTGA.h
+	CImageWriterJPG.h
+	CImageWriterPNG.h
+
 	CColorConverter.cpp
 	CImage.cpp
 	CImageLoaderJPG.cpp
@@ -377,12 +420,21 @@ set(IRRIMAGEOBJ
 )
 
 add_library(IRRVIDEOOBJ OBJECT
+	CFPSCounter.h
 	CFPSCounter.cpp
 	${IRRDRVROBJ}
 	${IRRIMAGEOBJ}
 )
 
 add_library(IRRIOOBJ OBJECT
+	CFileList.h
+	CFileSystem.h
+	CLimitReadFile.h
+	CMemoryFile.h
+	CReadFile.h
+	CWriteFile.h
+	CZipReader.h
+
 	CFileList.cpp
 	CFileSystem.cpp
 	CLimitReadFile.cpp
@@ -390,10 +442,17 @@ add_library(IRRIOOBJ OBJECT
 	CReadFile.cpp
 	CWriteFile.cpp
 	CZipReader.cpp
-	CAttributes.cpp
 )
 
 add_library(IRROTHEROBJ OBJECT
+	CIrrDeviceSDL.h
+	CIrrDeviceLinux.h
+	CIrrDeviceStub.h
+	CIrrDeviceWin32.h
+	CLogger.h
+	COSOperator.h
+	os.h
+
 	CIrrDeviceSDL.cpp
 	CIrrDeviceLinux.cpp
 	CIrrDeviceStub.cpp
@@ -430,6 +489,22 @@ if(USE_XCURSOR)
 endif()
 
 add_library(IRRGUIOBJ OBJECT
+	CGUIButton.h
+	CGUICheckBox.h
+	CGUIComboBox.h
+	CGUIEditBox.h
+	CGUIEnvironment.h
+	CGUIFileOpenDialog.h
+	CGUIFont.h
+	CGUIImage.h
+	CGUIListBox.h
+	CGUIScrollBar.h
+	CGUISkin.h
+	CGUIStaticText.h
+	CGUITabControl.h
+	CGUISpriteBank.h
+	CGUIImageList.h
+
 	CGUIButton.cpp
 	CGUICheckBox.cpp
 	CGUIComboBox.cpp
@@ -449,8 +524,21 @@ add_library(IRRGUIOBJ OBJECT
 
 # Library
 
+file(GLOB_RECURSE IrrlichtMt_PUBLIC_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/../include/*.h")
+
 # There have to be some sources in IrrlichtMt to workaround Cmake Xcode generator bug
 add_library(IrrlichtMt STATIC
+	${IrrlichtMt_PUBLIC_HDRS}
+
+	CBillboardSceneNode.h
+	CCameraSceneNode.h
+	CDummyTransformationSceneNode.h
+	CEmptySceneNode.h
+	CMeshManipulator.h
+	CSceneCollisionManager.h
+	CSceneManager.h
+	CMeshCache.h
+
 	CBillboardSceneNode.cpp
 	CCameraSceneNode.cpp
 	CDummyTransformationSceneNode.cpp
@@ -496,7 +584,8 @@ target_link_libraries(IrrlichtMt PRIVATE
 	${ZLIB_LIBRARY}
 	${JPEG_LIBRARY}
 	${PNG_LIBRARY}
-	"$<$<BOOL:${USE_SDL2}>:SDL2::SDL2>"
+	"$<$<BOOL:${USE_SDL2_SHARED}>:SDL2::SDL2>"
+	"$<$<BOOL:${USE_SDL2_STATIC}>:SDL2::SDL2-static>"
 
 	"$<$<BOOL:${OPENGL_DIRECT_LINK}>:${OPENGL_LIBRARIES}>"
 	${EGL_LIBRARY}
@@ -512,10 +601,10 @@ target_link_libraries(IrrlichtMt PRIVATE
 )
 
 if(WIN32)
-	target_compile_definitions(IrrlichtMt INTERFACE _IRR_WINDOWS_API_) # used in _IRR_DEBUG_BREAK_IF definition in a public header
+	target_compile_definitions(IrrlichtMt INTERFACE _IRR_WINDOWS_API_)
 endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	target_compile_definitions(IrrlichtMt INTERFACE _DEBUG) # same
+	target_compile_definitions(IrrlichtMt INTERFACE _DEBUG)
 endif()
 if(APPLE OR ANDROID OR EMSCRIPTEN)
 	target_compile_definitions(IrrlichtMt PUBLIC IRR_MOBILE_PATHS)

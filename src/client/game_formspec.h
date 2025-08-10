@@ -12,7 +12,6 @@
 class Client;
 class RenderingEngine;
 class InputHandler;
-class ISoundManager;
 class GUIFormSpecMenu;
 
 /*
@@ -26,7 +25,7 @@ struct GameFormSpec
 {
 	void init(Client *client, RenderingEngine *rendering_engine, InputHandler *input);
 
-	~GameFormSpec();
+	~GameFormSpec() { reset(); }
 
 	void showFormSpec(const std::string &formspec, const std::string &formname);
 	void showCSMFormSpec(const std::string &formspec, const std::string &formname);
@@ -34,7 +33,9 @@ struct GameFormSpec
 	// Currently only used for the in-game settings menu.
 	void showPauseMenuFormSpec(const std::string &formspec, const std::string &formname);
 	void showNodeFormspec(const std::string &formspec, const v3s16 &nodepos);
-	void showPlayerInventory();
+	/// If `!fs_override`: Uses `player->inventory_formspec`.
+	/// If ` fs_override`: Uses a temporary formspec until an update is received.
+	void showPlayerInventory(const std::string *fs_override);
 	void showDeathFormspecLegacy();
 	// Shows the hardcoded "main" pause menu.
 	void showPauseMenu();
@@ -43,6 +44,7 @@ struct GameFormSpec
 	void disableDebugView();
 
 	bool handleCallbacks();
+	void reset();
 
 #ifdef __ANDROID__
 	// Returns false if no formspec open
@@ -55,9 +57,9 @@ private:
 	InputHandler *m_input;
 	std::unique_ptr<PauseMenuScripting> m_pause_script;
 
-	// Default: "". If other than "": Empty show_formspec packets will only
-	// close the formspec when the formname matches
-	std::string m_formname;
+	/// The currently open formspec that is not a submenu of the pause menu
+	/// FIXME: Layering is already managed by `GUIModalMenu` (`g_menumgr`), hence this
+	/// variable should be removed in long-term.
 	GUIFormSpecMenu *m_formspec = nullptr;
 
 	bool handleEmptyFormspec(const std::string &formspec, const std::string &formname);

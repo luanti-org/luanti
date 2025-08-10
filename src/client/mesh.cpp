@@ -3,16 +3,17 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "mesh.h"
+#include "IMeshBuffer.h"
+#include "SSkinMeshBuffer.h"
 #include "debug.h"
 #include "log.h"
 #include <cmath>
 #include <iostream>
 #include <IAnimatedMesh.h>
-#include <SAnimatedMesh.h>
 #include <IAnimatedMeshSceneNode.h>
 #include "S3DVertex.h"
-#include "SMesh.h"
-#include "SMeshBuffer.h"
+#include <SMesh.h>
+#include "CMeshBuffer.h"
 
 inline static void applyShadeFactor(video::SColor& color, float factor)
 {
@@ -95,11 +96,23 @@ scene::IAnimatedMesh* createCubeMesh(v3f scale)
 		mesh->addMeshBuffer(buf);
 		buf->drop();
 	}
+	scaleMesh(mesh, scale);  // also recalculates bounding box
+	return mesh;
+}
 
-	scene::SAnimatedMesh *anim_mesh = new scene::SAnimatedMesh(mesh);
-	mesh->drop();
-	scaleMesh(anim_mesh, scale);  // also recalculates bounding box
-	return anim_mesh;
+template<typename F>
+inline static void transformMeshBuffer(scene::IMeshBuffer *buf,
+		const F &transform_vertex)
+{
+	const u32 stride = getVertexPitchFromType(buf->getVertexType());
+	u32 vertex_count = buf->getVertexCount();
+	u8 *vertices = (u8 *)buf->getVertices();
+	for (u32 i = 0; i < vertex_count; i++) {
+		auto *vertex = (video::S3DVertex *)(vertices + i * stride);
+		transform_vertex(vertex);
+	}
+	buf->setDirty(scene::EBT_VERTEX);
+	buf->recalculateBoundingBox();
 }
 
 void scaleMesh(scene::IMesh *mesh, v3f scale)
@@ -112,14 +125,9 @@ void scaleMesh(scene::IMesh *mesh, v3f scale)
 	u32 mc = mesh->getMeshBufferCount();
 	for (u32 j = 0; j < mc; j++) {
 		scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
-		const u32 stride = getVertexPitchFromType(buf->getVertexType());
-		u32 vertex_count = buf->getVertexCount();
-		u8 *vertices = (u8 *)buf->getVertices();
-		for (u32 i = 0; i < vertex_count; i++)
-			((video::S3DVertex *)(vertices + i * stride))->Pos *= scale;
-
-		buf->setDirty(scene::EBT_VERTEX);
-		buf->recalculateBoundingBox();
+		transformMeshBuffer(buf, [scale](video::S3DVertex *vertex) {
+			vertex->Pos *= scale;
+		});
 
 		// calculate total bounding box
 		if (j == 0)
@@ -140,14 +148,9 @@ void translateMesh(scene::IMesh *mesh, v3f vec)
 	u32 mc = mesh->getMeshBufferCount();
 	for (u32 j = 0; j < mc; j++) {
 		scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
-		const u32 stride = getVertexPitchFromType(buf->getVertexType());
-		u32 vertex_count = buf->getVertexCount();
-		u8 *vertices = (u8 *)buf->getVertices();
-		for (u32 i = 0; i < vertex_count; i++)
-			((video::S3DVertex *)(vertices + i * stride))->Pos += vec;
-
-		buf->setDirty(scene::EBT_VERTEX);
-		buf->recalculateBoundingBox();
+		transformMeshBuffer(buf, [vec](video::S3DVertex *vertex) {
+			vertex->Pos += vec;
+		});
 
 		// calculate total bounding box
 		if (j == 0)
@@ -330,44 +333,40 @@ bool checkMeshNormals(scene::IMesh *mesh)
 	return true;
 }
 
+template<class VertexType, class SMeshBufferType>
+static scene::IMeshBuffer *cloneMeshBuffer(scene::IMeshBuffer *mesh_buffer)
+{
+	auto *v = static_cast<VertexType *>(mesh_buffer->getVertices());
+	u16 *indices = mesh_buffer->getIndices();
+	auto *cloned_buffer = new SMeshBufferType();
+	cloned_buffer->append(v, mesh_buffer->getVertexCount(), indices,
+			mesh_buffer->getIndexCount());
+	// Rigidly animated meshes may have transformation matrices that need to be applied
+	if (auto *sbuf = dynamic_cast<scene::SSkinMeshBuffer *>(mesh_buffer)) {
+		transformMeshBuffer(cloned_buffer, [sbuf](video::S3DVertex *vertex) {
+			sbuf->Transformation.transformVect(vertex->Pos);
+			vertex->Normal = sbuf->Transformation.rotateAndScaleVect(vertex->Normal);
+			vertex->Normal.normalize();
+		});
+	}
+	return cloned_buffer;
+}
+
 scene::IMeshBuffer* cloneMeshBuffer(scene::IMeshBuffer *mesh_buffer)
 {
 	switch (mesh_buffer->getVertexType()) {
-	case video::EVT_STANDARD: {
-		video::S3DVertex *v = (video::S3DVertex *) mesh_buffer->getVertices();
-		u16 *indices = mesh_buffer->getIndices();
-		scene::SMeshBuffer *cloned_buffer = new scene::SMeshBuffer();
-		cloned_buffer->append(v, mesh_buffer->getVertexCount(), indices,
-			mesh_buffer->getIndexCount());
-		return cloned_buffer;
+	case video::EVT_STANDARD:
+		return cloneMeshBuffer<video::S3DVertex, scene::SMeshBuffer>(mesh_buffer);
+	case video::EVT_2TCOORDS:
+		return cloneMeshBuffer<video::S3DVertex2TCoords, scene::SMeshBufferLightMap>(mesh_buffer);
+	case video::EVT_TANGENTS:
+		return cloneMeshBuffer<video::S3DVertexTangents, scene::SMeshBufferTangents>(mesh_buffer);
 	}
-	case video::EVT_2TCOORDS: {
-		video::S3DVertex2TCoords *v =
-			(video::S3DVertex2TCoords *) mesh_buffer->getVertices();
-		u16 *indices = mesh_buffer->getIndices();
-		scene::SMeshBufferLightMap *cloned_buffer =
-			new scene::SMeshBufferLightMap();
-		cloned_buffer->append(v, mesh_buffer->getVertexCount(), indices,
-			mesh_buffer->getIndexCount());
-		return cloned_buffer;
-	}
-	case video::EVT_TANGENTS: {
-		video::S3DVertexTangents *v =
-			(video::S3DVertexTangents *) mesh_buffer->getVertices();
-		u16 *indices = mesh_buffer->getIndices();
-		scene::SMeshBufferTangents *cloned_buffer =
-			new scene::SMeshBufferTangents();
-		cloned_buffer->append(v, mesh_buffer->getVertexCount(), indices,
-			mesh_buffer->getIndexCount());
-		return cloned_buffer;
-	}
-	}
-	// This should not happen.
 	sanity_check(false);
 	return NULL;
 }
 
-scene::SMesh* cloneMesh(scene::IMesh *src_mesh)
+scene::SMesh* cloneStaticMesh(scene::IMesh *src_mesh)
 {
 	scene::SMesh* dst_mesh = new scene::SMesh();
 	for (u16 j = 0; j < src_mesh->getMeshBufferCount(); j++) {

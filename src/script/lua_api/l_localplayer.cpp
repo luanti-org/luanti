@@ -464,7 +464,7 @@ void LuaLocalPlayer::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaLocalPlayer>(L, methods, metamethods);
 }
 
 const char LuaLocalPlayer::className[] = "LocalPlayer";

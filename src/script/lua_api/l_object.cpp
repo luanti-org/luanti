@@ -69,8 +69,27 @@ RemotePlayer *ObjectRef::getplayer(ObjectRef *ref)
 
 // Exported functions
 
+int ObjectRef::mt_tostring(lua_State *L)
+{
+	auto *ref = checkObject<ObjectRef>(L, 1);
+	if (getobject(ref)) {
+		if (auto *player = getplayer(ref)) {
+			lua_pushfstring(L, "ObjectRef (player): %s", player->getName().c_str());
+		} else if (auto *entitysao = getluaobject(ref)) {
+			lua_pushfstring(L, "ObjectRef (entity): %s (id: %d)",
+					entitysao->getName().c_str(), entitysao->getId());
+		} else {
+			lua_pushfstring(L, "ObjectRef (?): %p", ref);
+		}
+	} else {
+		lua_pushfstring(L, "ObjectRef (invalid): %p", ref);
+	}
+	return 1;
+}
+
 // garbage collector
-int ObjectRef::gc_object(lua_State *L) {
+int ObjectRef::gc_object(lua_State *L)
+{
 	ObjectRef *obj = *(ObjectRef **)(lua_touserdata(L, 1));
 	delete obj;
 	return 0;
@@ -97,6 +116,20 @@ int ObjectRef::l_remove(lua_State *L)
 int ObjectRef::l_is_valid(lua_State *L)
 {
 	lua_pushboolean(L, getobject(checkObject<ObjectRef>(L, 1)) != nullptr);
+	return 1;
+}
+
+// get_guid()
+int ObjectRef::l_get_guid(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		return 0;
+
+	std::string guid = sao->getGUID();
+	lua_pushlstring(L, guid.c_str(), guid.size());
 	return 1;
 }
 
@@ -490,6 +523,39 @@ int ObjectRef::l_get_eye_offset(lua_State *L)
 	push_v3f(L, player->eye_offset_third);
 	push_v3f(L, player->eye_offset_third_front);
 	return 3;
+}
+
+int ObjectRef::l_set_camera(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	luaL_checktype(L, 2, LUA_TTABLE);
+
+	lua_getfield(L, -1, "mode");
+	if (lua_isstring(L, -1))
+		string_to_enum(es_CameraMode, player->allowed_camera_mode, lua_tostring(L, -1));
+	lua_pop(L, 1);
+
+	getServer(L)->SendCamera(player->getPeerId(), player);
+	return 0;
+}
+
+int ObjectRef::l_get_camera(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	lua_newtable(L);
+	setstringfield(L, -1, "mode", enum_to_string(es_CameraMode, player->allowed_camera_mode));
+
+	return 1;
 }
 
 // send_mapblock(self, pos)
@@ -1092,6 +1158,8 @@ int ObjectRef::l_set_rotation(lua_State *L)
 
 	v3f rotation = check_v3f(L, 2) * core::RADTODEG;
 
+	// Note: These angles are inverted before being applied using setPitchYawRoll,
+	// hence we end up with a right-handed rotation
 	entitysao->setRotation(rotation);
 	return 0;
 }
@@ -1522,7 +1590,9 @@ int ObjectRef::l_set_inventory_formspec(lua_State *L)
 
 	auto formspec = readParam<std::string_view>(L, 2);
 
-	if (formspec != player->inventory_formspec) {
+	if (player->inventory_formspec_overridden
+			|| formspec != player->inventory_formspec) {
+		player->inventory_formspec_overridden = false;
 		player->inventory_formspec = formspec;
 		getServer(L)->reportInventoryFormspecModified(player->getName());
 	}
@@ -2773,9 +2843,10 @@ void ObjectRef::Register(lua_State *L)
 {
 	static const luaL_Reg metamethods[] = {
 		{"__gc", gc_object},
+		{"__tostring", mt_tostring},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<ObjectRef>(L, methods, metamethods);
 }
 
 const char ObjectRef::className[] = "ObjectRef";
@@ -2783,6 +2854,7 @@ luaL_Reg ObjectRef::methods[] = {
 	// ServerActiveObject
 	luamethod(ObjectRef, remove),
 	luamethod(ObjectRef, is_valid),
+	luamethod(ObjectRef, get_guid),
 	luamethod_aliased(ObjectRef, get_pos, getpos),
 	luamethod_aliased(ObjectRef, set_pos, setpos),
 	luamethod(ObjectRef, add_pos),
@@ -2900,6 +2972,8 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod(ObjectRef, respawn),
 	luamethod(ObjectRef, set_flags),
 	luamethod(ObjectRef, get_flags),
+	luamethod(ObjectRef, set_camera),
+	luamethod(ObjectRef, get_camera),
 
 	{0,0}
 };

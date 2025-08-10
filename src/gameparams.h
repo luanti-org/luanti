@@ -25,6 +25,7 @@ enum class ELoginRegister {
 };
 
 // Information processed by main menu
+// TODO: unify with MainMenuData
 struct GameStartData : GameParams
 {
 	GameStartData() = default;
@@ -33,7 +34,11 @@ struct GameStartData : GameParams
 
 	std::string name;
 	std::string password;
+	// If empty, we're hosting a server.
+	// This may or may not be in "simple singleplayer mode".
 	std::string address;
+	// If true, we're hosting a server and are *not* in "simple singleplayer
+	// mode".
 	bool local_server;
 
 	ELoginRegister allow_login_or_register = ELoginRegister::Any;

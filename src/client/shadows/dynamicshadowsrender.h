@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <IrrlichtDevice.h>
 #include "client/shadows/dynamicshadows.h"
 #include <ISceneNode.h>
@@ -28,7 +29,8 @@ struct NodeToApply
 			E_SHADOW_MODE m = E_SHADOW_MODE::ESM_BOTH) :
 			node(n),
 			shadowMode(m){};
-	bool operator<(const NodeToApply &other) const { return node < other.node; };
+
+	bool operator==(scene::ISceneNode *n) const { return node == n; }
 
 	scene::ISceneNode *node;
 
@@ -68,6 +70,7 @@ public:
 	void removeNodeFromShadowList(scene::ISceneNode *node);
 
 	void update(video::ITexture *outputTarget = nullptr);
+	/// Force shadow map to be re-drawn in one go next frame
 	void setForceUpdateShadowMap() { m_force_update_shadow_map = true; }
 	void drawDebug();
 
@@ -122,7 +125,7 @@ private:
 	video::SColor m_shadow_tint;
 	float m_shadow_strength_gamma;
 	float m_shadow_map_max_distance;
-	float m_shadow_map_texture_size;
+	u32 m_shadow_map_texture_size;
 	float m_time_day;
 	int m_shadow_samples;
 	bool m_shadow_map_texture_32bit;
@@ -163,4 +166,4 @@ private:
  * @param client Reference to the client context.
  * @return A new ShadowRenderer instance or nullptr if shadows are disabled or not supported.
  */
-ShadowRenderer *createShadowRenderer(IrrlichtDevice *device, Client *client);
+std::unique_ptr<ShadowRenderer> createShadowRenderer(IrrlichtDevice *device, Client *client);

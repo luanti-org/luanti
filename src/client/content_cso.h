@@ -7,10 +7,12 @@
 #include "irrlichttypes_bloated.h"
 #include "clientsimpleobject.h"
 
-namespace irr::scene
+namespace scene
 {
 	class ISceneManager;
 }
+
+class ClientEnvironment;
 
 ClientSimpleObject* createSmokePuff(scene::ISceneManager *smgr,
 		ClientEnvironment *env, v3f pos, v2f size);

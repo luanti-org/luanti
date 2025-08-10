@@ -13,8 +13,6 @@
 #include "CGUIScrollBar.h"
 #include "os.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -738,4 +736,3 @@ IGUIScrollBar *CGUIListBox::getVerticalScrollBar() const
 }
 
 } // end namespace gui
-} // end namespace irr

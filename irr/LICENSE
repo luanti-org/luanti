@@ -21,6 +21,4 @@ Copyright (C) 2002-2012 Nikolaus Gebhardt
   the Irrlicht Engine in your product, you must acknowledge somewhere in your
   documentation that you've used the IJPG code. It would also be nice to mention
   that you use the Irrlicht Engine, the zlib, libPng and aesGladman. See the
-  corresponding license files for further informations. It is also possible to disable
-  usage of those additional libraries by defines in the IrrCompileConfig.h header and
-  recompiling the engine.
+  corresponding license files for further informations.

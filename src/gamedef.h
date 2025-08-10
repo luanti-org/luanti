@@ -11,22 +11,12 @@
 class IItemDefManager;
 class NodeDefManager;
 class ICraftDefManager;
-class ITextureSource;
-class IShaderSource;
 class IRollbackManager;
-class EmergeManager;
-class Camera;
 class ModChannel;
-class ModStorage;
 class ModStorageDatabase;
 struct SubgameSpec;
 struct ModSpec;
 struct ModIPCStore;
-
-namespace irr::scene {
-	class IAnimatedMesh;
-	class ISceneManager;
-}
 
 /*
 	An interface for fetching game-global definitions like tool and

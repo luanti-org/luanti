@@ -15,7 +15,6 @@
 	Debug stuff
 */
 u64 emerge_time = 0;
-u64 emerge_load_time = 0;
 
 VoxelManipulator::~VoxelManipulator()
 {

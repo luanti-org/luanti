@@ -36,7 +36,7 @@ void StorageRef::create(lua_State *L, const std::string &mod_name, ModStorageDat
 
 void StorageRef::Register(lua_State *L)
 {
-	registerMetadataClass(L, className, methods);
+	registerMetadataClass<StorageRef>(L, methods);
 }
 
 IMetadata* StorageRef::getmeta(bool auto_create)

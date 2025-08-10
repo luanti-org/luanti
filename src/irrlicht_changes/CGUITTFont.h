@@ -46,12 +46,10 @@
 #include <map>
 #include <optional>
 
-namespace irr
-{
 namespace gui
 {
 	// Manages the FT_Face cache.
-	struct SGUITTFace : public irr::IReferenceCounted
+	struct SGUITTFace : public IReferenceCounted
 	{
 	private:
 
@@ -200,9 +198,13 @@ namespace gui
 			//! Updates the texture atlas with new glyphs.
 			void updateTexture()
 			{
-				if (!dirty) return;
+				if (!dirty)
+					return;
 
 				void* ptr = texture->lock();
+				if (!ptr)
+					return;
+
 				video::ECOLOR_FORMAT format = texture->getColorFormat();
 				core::dimension2du size = texture->getOriginalSize();
 				video::IImage* pageholder = driver->createImageFromData(format, size, ptr, true, false);
@@ -405,4 +407,3 @@ namespace gui
 	};
 
 } // end namespace gui
-} // end namespace irr

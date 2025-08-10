@@ -8,14 +8,15 @@
 #include "irr_ptr.h"
 #include "ISceneNode.h"
 #include "S3DVertex.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
 #include <mutex>
+#include <memory>
 #include <vector>
 #include <unordered_map>
 #include "../particles.h"
 
-namespace irr::video {
+namespace video {
 	class ITexture;
 }
 

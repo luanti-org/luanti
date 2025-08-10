@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_web_browser">Ni bil najden spletni brskalnik</string>
+    <string name="notification_channel_name">Glavno obvestilo</string>
+    <string name="loading">Nalaganje …</string>
+    <string name="unzip_notification_description">Manj kot 1 minuta …</string>
+    <string name="label">Luanti</string>
+    <string name="notification_channel_description">Obvestilo od Luantia</string>
+    <string name="ime_dialog_done">Končano!l</string>
+    <string name="unzip_notification_title">Nalaganje Luantia</string>
+    <string name="game_notification_title">Luanti deluje</string>
+</resources>

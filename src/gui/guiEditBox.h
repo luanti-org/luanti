@@ -10,8 +10,8 @@
 #include "guiScrollBar.h"
 #include <vector>
 
-using namespace irr;
-using namespace irr::gui;
+
+using namespace gui;
 
 class GUIEditBox : public IGUIEditBox
 {

@@ -120,6 +120,11 @@ namespace {
 	inline T subtract_or_zero(T a, T b) {
 		return b >= a ? T(0) : (a - b);
 	}
+
+	// file-scope thread-local instances of the above two data structures, because
+	// allocating memory in a hot path can be expensive.
+	thread_local MeshBufListMaps tl_meshbuflistmaps;
+	thread_local DrawDescriptorList tl_drawdescriptorlist;
 }
 
 void CachedMeshBuffer::drop()
@@ -197,7 +202,13 @@ void ClientMap::onSettingChanged(std::string_view name, bool all)
 
 ClientMap::~ClientMap()
 {
+	verbosestream << FUNCTION_NAME << std::endl;
+
 	g_settings->deregisterAllChangedCallbacks(this);
+
+	// avoid refcount warning from ~Map()
+	clearDrawList();
+	clearDrawListShadow();
 
 	for (auto &it : m_dynamic_buffers)
 		it.second.drop();
@@ -346,22 +357,28 @@ private:
 	v3s16 volume;
 };
 
-void ClientMap::updateDrawList()
+void ClientMap::clearDrawList()
 {
-	ScopeProfiler sp(g_profiler, "CM::updateDrawList()", SPT_AVG);
-
-	m_needs_update_drawlist = false;
-
 	for (auto &i : m_drawlist) {
 		MapBlock *block = i.second;
 		block->refDrop();
 	}
 	m_drawlist.clear();
 
-	for (auto &block : m_keeplist) {
+	for (auto &block : m_keeplist)
 		block->refDrop();
-	}
 	m_keeplist.clear();
+
+	m_needs_update_drawlist = true;
+}
+
+void ClientMap::updateDrawList()
+{
+	ScopeProfiler sp(g_profiler, "CM::updateDrawList()", SPT_AVG);
+
+	clearDrawList();
+
+	m_needs_update_drawlist = false;
 
 	const v3s16 cam_pos_nodes = floatToInt(m_camera_position, BS);
 
@@ -800,6 +817,27 @@ void MeshBufListMaps::addFromBlock(v3s16 block_pos, MapBlockMesh *block_mesh,
 	}
 }
 
+namespace {
+	// there is no convenient scope this would fit, so it's global
+	struct {
+		u32 total = 0, cache_miss = 0;
+
+		inline void increment(bool hit)
+		{
+			total++;
+			cache_miss += hit ? 0 : 1;
+		}
+		inline void commit(Profiler *profiler)
+		{
+			if (total == 0)
+				return;
+			float rate = (total - cache_miss) / (float)total;
+			profiler->avg("CM::transformBuffers...: cache hit rate [%]", 100 * rate);
+			*this = {0, 0};
+		}
+	} buffer_transform_stats;
+}
+
 /**
  * Copy a list of mesh buffers into the draw order, while potentially
  * merging some.
@@ -874,7 +912,7 @@ static u32 transformBuffersToDrawOrder(
 	// try to take from cache
 	auto it2 = dynamic_buffers.find(key);
 	if (it2 != dynamic_buffers.end()) {
-		g_profiler->avg("CM::transformBuffersToDO: cache hit rate", 1);
+		buffer_transform_stats.increment(true);
 		const auto &use_mat = to_merge.front().second->getMaterial();
 		assert(!it2->second.buf.empty());
 		for (auto *buf : it2->second.buf) {
@@ -884,7 +922,7 @@ static u32 transformBuffersToDrawOrder(
 		}
 		it2->second.age = 0;
 	} else if (!key.empty()) {
-		g_profiler->avg("CM::transformBuffersToDO: cache hit rate", 0);
+		buffer_transform_stats.increment(false);
 		// merge and save to cache
 		auto &put_buffers = dynamic_buffers[key];
 		scene::SMeshBuffer *tmp = nullptr;
@@ -978,8 +1016,10 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	*/
 	TimeTaker tt_collect("");
 
-	MeshBufListMaps grouped_buffers;
-	DrawDescriptorList draw_order;
+	MeshBufListMaps &grouped_buffers = tl_meshbuflistmaps;
+	DrawDescriptorList &draw_order = tl_drawdescriptorlist;
+	grouped_buffers.clear();
+	draw_order.clear();
 
 	auto is_frustum_culled = m_client->getCamera()->getFrustumCuller();
 
@@ -1107,6 +1147,8 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 			}
 		}
 		g_profiler->avg(prefix + "merged buffers in cache [#]", cached_count);
+
+		buffer_transform_stats.commit(g_profiler);
 	}
 
 	if (pass == scene::ESNRP_TRANSPARENT) {
@@ -1375,8 +1417,10 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 		return intToFloat(mesh_grid.getMeshPos(pos) * MAP_BLOCKSIZE - m_camera_offset, BS);
 	};
 
-	MeshBufListMaps grouped_buffers;
-	DrawDescriptorList draw_order;
+	MeshBufListMaps &grouped_buffers = tl_meshbuflistmaps;
+	DrawDescriptorList &draw_order = tl_drawdescriptorlist;
+	grouped_buffers.clear();
+	draw_order.clear();
 
 	std::size_t count = 0;
 	std::size_t meshes_per_frame = m_drawlist_shadow.size() / total_frames + 1;
@@ -1487,6 +1531,15 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	g_profiler->avg(prefix + "material swaps [#]", material_swaps);
 }
 
+void ClientMap::clearDrawListShadow()
+{
+	for (auto &i : m_drawlist_shadow) {
+		MapBlock *block = i.second;
+		block->refDrop();
+	}
+	m_drawlist_shadow.clear();
+}
+
 /*
 	Custom update draw list for the pov of shadow light.
 */
@@ -1494,11 +1547,7 @@ void ClientMap::updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir,
 {
 	ScopeProfiler sp(g_profiler, "CM::updateDrawListShadow()", SPT_AVG);
 
-	for (auto &i : m_drawlist_shadow) {
-		MapBlock *block = i.second;
-		block->refDrop();
-	}
-	m_drawlist_shadow.clear();
+	clearDrawListShadow();
 
 	// Number of blocks currently loaded by the client
 	u32 blocks_loaded = 0;

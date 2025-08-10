@@ -124,10 +124,10 @@ perform_release() {
 	local release_version=$1
 	RELEASE_DATE=$(date +%Y-%m-%d)
 
-	sed -i '/\<release/s/\(version\)="[^"]*"/\1="'"$release_version"'"/' misc/net.minetest.minetest.metainfo.xml
-	sed -i 's/\(<release date\)="[^"]*"/\1="'"$RELEASE_DATE"'"/' misc/net.minetest.minetest.metainfo.xml
+	sed -i '/\<release/s/\(version\)="[^"]*"/\1="'"$release_version"'"/' misc/*.metainfo.xml
+	sed -i 's/\(<release date\)="[^"]*"/\1="'"$RELEASE_DATE"'"/' misc/*.metainfo.xml
 
-	git add -f misc/net.minetest.minetest.metainfo.xml
+	git add -f misc/*.metainfo.xml
 
 	git commit -m "Bump version to $release_version"
 

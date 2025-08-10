@@ -50,8 +50,7 @@ public:
 
 	// Get timer
 	NodeTimer get(const v3s16 &p) {
-		std::map<v3s16, std::multimap<double, NodeTimer>::iterator>::iterator n =
-			m_iterators.find(p);
+		auto n = m_iterators.find(p);
 		if (n == m_iterators.end())
 			return NodeTimer();
 		NodeTimer t = n->second->second;
@@ -60,8 +59,7 @@ public:
 	}
 	// Deletes timer
 	void remove(v3s16 p) {
-		std::map<v3s16, std::multimap<double, NodeTimer>::iterator>::iterator n =
-			m_iterators.find(p);
+		auto n = m_iterators.find(p);
 		if(n != m_iterators.end()) {
 			double removed_time = n->second->first;
 			m_timers.erase(n->second);
@@ -81,7 +79,7 @@ public:
 	void insert(const NodeTimer &timer) {
 		v3s16 p = timer.position;
 		double trigger_time = m_time + (double)(timer.timeout - timer.elapsed);
-		std::multimap<double, NodeTimer>::iterator it = m_timers.emplace(trigger_time, timer);
+		auto it = m_timers.emplace(trigger_time, timer);
 		m_iterators.emplace(p, it);
 		if (m_next_trigger_time == -1. || trigger_time < m_next_trigger_time)
 			m_next_trigger_time = trigger_time;

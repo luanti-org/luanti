@@ -145,7 +145,7 @@ struct alignas(u32) MapNode
 
 	MapNode() = default;
 
-	MapNode(content_t content, u8 a_param1=0, u8 a_param2=0) noexcept
+	constexpr MapNode(content_t content, u8 a_param1=0, u8 a_param2=0) noexcept
 		: param0(content),
 		  param1(a_param1),
 		  param2(a_param2)
@@ -156,6 +156,10 @@ struct alignas(u32) MapNode
 		return (param0 == other.param0
 				&& param1 == other.param1
 				&& param2 == other.param2);
+	}
+	bool operator!=(const MapNode &other) const noexcept
+	{
+		return !(*this == other);
 	}
 
 	// To be used everywhere
@@ -292,7 +296,7 @@ struct alignas(u32) MapNode
 
 	static u32 serializedLength(u8 version);
 	void serialize(u8 *dest, u8 version) const;
-	void deSerialize(u8 *source, u8 version);
+	void deSerialize(const u8 *source, u8 version);
 
 	// Serializes or deserializes a list of nodes in bulk format (first the
 	// content of all nodes, then the param1 of all nodes, then the param2

@@ -8,4 +8,5 @@
     <string name="unzip_notification_description">Moins d\'une minute…</string>
     <string name="ime_dialog_done">Terminé</string>
     <string name="no_web_browser">Aucun navigateur web trouvé</string>
+    <string name="game_notification_title">Luanti est en cours d\'exécution</string>
 </resources>

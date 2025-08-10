@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="label">Luanti</string>
-    <string name="loading">Lädt…</string>
+    <string name="loading">Laden …</string>
     <string name="unzip_notification_title">Luanti lädt</string>
-    <string name="unzip_notification_description">Weniger als 1 Minute…</string>
+    <string name="unzip_notification_description">Weniger als 1 Minute …</string>
     <string name="ime_dialog_done">Fertig</string>
-    <string name="no_web_browser">Kein Web-Browser gefunden</string>
+    <string name="no_web_browser">Keinen Web-Browser gefunden</string>
     <string name="notification_channel_name">Allgemeine Benachrichtigung</string>
     <string name="notification_channel_description">Benachrichtigungen von Luanti</string>
+    <string name="game_notification_title">Luanti läuft</string>
 </resources>

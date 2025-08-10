@@ -8,9 +8,8 @@
 #include "CVertexBuffer.h"
 #include "CIndexBuffer.h"
 #include "S3DVertex.h"
+#include <cassert>
 
-namespace irr
-{
 namespace scene
 {
 
@@ -200,7 +199,7 @@ public:
 	//! append the vertices and indices to the current buffer
 	void append(const void *const vertices, u32 numVertices, const u16 *const indices, u32 numIndices) override
 	{
-		_IRR_DEBUG_BREAK_IF(true);
+		assert(false);
 	}
 
 	//! Describe what kind of primitive geometry is used by the meshbuffer
@@ -237,4 +236,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

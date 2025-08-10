@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "debug.h"
 #include "log.h"
 
-using namespace irr::video;
+using namespace video;
 
 EnrichedString::EnrichedString()
 {
@@ -49,8 +49,8 @@ void EnrichedString::clear()
 	m_colors.clear();
 	m_has_background = false;
 	m_default_length = 0;
-	m_default_color = irr::video::SColor(255, 255, 255, 255);
-	m_background = irr::video::SColor(0, 0, 0, 0);
+	m_default_color = video::SColor(255, 255, 255, 255);
+	m_background = video::SColor(0, 0, 0, 0);
 }
 
 EnrichedString &EnrichedString::operator=(std::wstring_view str)

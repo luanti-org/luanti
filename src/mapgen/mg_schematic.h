@@ -11,9 +11,7 @@
 
 class Map;
 class ServerMap;
-class Mapgen;
 class MMVManip;
-class PseudoRandom;
 class NodeResolver;
 class Server;
 

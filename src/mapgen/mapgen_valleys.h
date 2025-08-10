@@ -21,10 +21,9 @@ Licensing changed by permission of Gael de Sailly.
 #define MGVALLEYS_VARY_RIVER_DEPTH 0x04
 #define MGVALLEYS_ALT_DRY          0x08
 
-class BiomeManager;
 class BiomeGenOriginal;
 
-extern FlagDesc flagdesc_mapgen_valleys[];
+extern const FlagDesc flagdesc_mapgen_valleys[];
 
 
 struct MapgenValleysParams : public MapgenParams {

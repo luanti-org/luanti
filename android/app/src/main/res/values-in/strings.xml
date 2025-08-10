@@ -8,4 +8,5 @@
     <string name="unzip_notification_description">Kurang dari 1 menit…</string>
     <string name="notification_channel_description">Pemberitahuan dari Luanti</string>
     <string name="unzip_notification_title">Memuat Luanti…</string>
+    <string name="game_notification_title">Luanti sedang berjalan</string>
 </resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">לואנטי</string>
+    <string name="loading">טוען…</string>
+    <string name="notification_channel_name">הודעה כללית</string>
+    <string name="notification_channel_description">התראות מלואנטי</string>
+    <string name="unzip_notification_title">טוען לואנטי</string>
+    <string name="game_notification_title">לואנטי רץ</string>
+    <string name="ime_dialog_done">בוצע</string>
+    <string name="no_web_browser">לא נמצא דפדפן אינטרנט</string>
+    <string name="unzip_notification_description">פחות מדקה אחת…</string>
+</resources>

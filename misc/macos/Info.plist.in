@@ -21,6 +21,6 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.games</string>
 	<key>NSHighResolutionCapable</key>
-	<false/>
+	<true/>
 </dict>
 </plist>

@@ -67,18 +67,6 @@ local function test_dynamic_media(cb, player)
 end
 unittests.register("test_dynamic_media", test_dynamic_media, {async=true, player=true})
 
-local function test_v3f_metatable(player)
-	assert(vector.check(player:get_pos()))
-end
-unittests.register("test_v3f_metatable", test_v3f_metatable, {player=true})
-
-local function test_v3s16_metatable(player, pos)
-	local node = core.get_node(pos)
-	local found_pos = core.find_node_near(pos, 0, node.name, true)
-	assert(vector.check(found_pos))
-end
-unittests.register("test_v3s16_metatable", test_v3s16_metatable, {map=true})
-
 local function test_clear_meta(_, pos)
 	local ref = core.get_meta(pos)
 
@@ -188,6 +176,29 @@ local function test_write_json()
 	assert(roundtripped == 42)
 end
 unittests.register("test_write_json", test_write_json)
+
+local function lint_json_files()
+	-- Check that files we ship with Luanti are valid JSON
+	local stack = {core.get_builtin_path()}
+	local checked = 0
+	while #stack > 0 do
+		local path = table.remove(stack)
+		for _, name in ipairs(core.get_dir_list(path, true)) do
+			stack[#stack+1] = path .. "/" .. name
+		end
+		for _, name in ipairs(core.get_dir_list(path, false)) do
+			if name:match("%.json$") then
+				local f = io.open(path .. "/" .. name, "rb")
+				print(path .. "/" .. name)
+				assert(core.parse_json(f:read("*all"), -1) ~= nil)
+				f:close()
+				checked = checked + 1
+			end
+		end
+	end
+	assert(checked > 0, "no files found?!")
+end
+unittests.register("lint_json_files", lint_json_files)
 
 local function test_game_info()
 	local info = core.get_game_info()

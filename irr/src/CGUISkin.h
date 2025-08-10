@@ -9,8 +9,6 @@
 #include <string>
 #include "ITexture.h"
 
-namespace irr
-{
 namespace video
 {
 	class IVideoDriver;
@@ -21,7 +19,7 @@ namespace gui
 	{
 	public:
 
-		CGUISkin(EGUI_SKIN_TYPE type, video::IVideoDriver* driver);
+		CGUISkin(video::IVideoDriver* driver);
 
 		//! destructor
 		virtual ~CGUISkin();
@@ -288,10 +286,6 @@ namespace gui
 		virtual void draw2DRectangle(IGUIElement* element, const video::SColor &color,
 				const core::rect<s32>& pos, const core::rect<s32>* clip = 0);
 
-
-		//! get the type of this skin
-		virtual EGUI_SKIN_TYPE getType() const;
-
 		//! gets the colors
 		virtual void getColors(video::SColor* colors); // ::PATCH:
 
@@ -305,11 +299,7 @@ namespace gui
 		IGUISpriteBank* SpriteBank;
 		core::stringw Texts[EGDT_COUNT];
 		video::IVideoDriver* Driver;
-		bool UseGradient;
-
-		EGUI_SKIN_TYPE Type;
 	};
 
 } // end namespace gui
-} // end namespace irr
 

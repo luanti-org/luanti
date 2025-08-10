@@ -5,7 +5,7 @@
 #include "client/shadows/shadowsshadercallbacks.h"
 #include "client/renderingengine.h"
 
-void ShadowConstantSetter::onSetConstants(video::IMaterialRendererServices *services)
+void ShadowUniformSetter::onSetUniforms(video::IMaterialRendererServices *services)
 {
 	auto *shadow = RenderingEngine::get_shadow_renderer();
 	if (!shadow)

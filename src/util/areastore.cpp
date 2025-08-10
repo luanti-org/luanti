@@ -194,7 +194,7 @@ bool VectorAreaStore::removeArea(u32 id)
 	if (it == areas_map.end())
 		return false;
 	Area *a = &it->second;
-	for (std::vector<Area *>::iterator v_it = m_areas.begin();
+	for (auto v_it = m_areas.begin();
 			v_it != m_areas.end(); ++v_it) {
 		if (*v_it == a) {
 			m_areas.erase(v_it);
@@ -259,7 +259,7 @@ bool SpatialAreaStore::insertArea(Area *a)
 
 bool SpatialAreaStore::removeArea(u32 id)
 {
-	std::map<u32, Area>::iterator itr = areas_map.find(id);
+	auto itr = areas_map.find(id);
 	if (itr != areas_map.end()) {
 		Area *a = &itr->second;
 		bool result = m_tree->deleteData(get_spatial_region(a->minedge,

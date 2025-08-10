@@ -6,9 +6,6 @@
 
 #include "IGUISpriteBank.h"
 
-namespace irr
-{
-
 namespace video
 {
 class IVideoDriver;
@@ -78,4 +75,3 @@ protected:
 };
 
 } // end namespace gui
-} // end namespace irr

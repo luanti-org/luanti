@@ -349,7 +349,6 @@ f:write[[
 
 #include <string>
 #include <unordered_set>
-#include "IrrCompileConfig.h" // for IRRLICHT_API
 #include "IContextManager.h"
 #include <KHR/khrplatform.h>
 
@@ -392,7 +391,7 @@ f:write [[
 
 public:
 	// Call this once after creating the context.
-	void LoadAllProcedures(irr::video::IContextManager *cmgr);
+	void LoadAllProcedures(video::IContextManager *cmgr);
 	/// Check if an extension is supported.
 	/// @param ext full extension name e.g. "GL_KHR_no_error"
 	inline bool IsExtensionPresent(const std::string &ext) const
@@ -415,7 +414,7 @@ f:write[[
 ]];
 f:write( "};\n" );
 f:write( "\n// Global GL procedures object.\n" );
-f:write( "IRRLICHT_API extern OpenGLProcedures GL;\n" );
+f:write( "extern OpenGLProcedures GL;\n" );
 f:close();
 
 -- Write loader implementation
@@ -430,7 +429,7 @@ f:write[[
 
 OpenGLProcedures GL;
 
-void OpenGLProcedures::LoadAllProcedures(irr::video::IContextManager *cmgr)
+void OpenGLProcedures::LoadAllProcedures(video::IContextManager *cmgr)
 {
 
 ]];

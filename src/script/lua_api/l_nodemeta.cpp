@@ -186,7 +186,7 @@ const char NodeMetaRef::className[] = "NodeMetaRef";
 
 void NodeMetaRef::Register(lua_State *L)
 {
-	registerMetadataClass(L, className, methodsServer);
+	registerMetadataClass<NodeMetaRef>(L, methodsServer);
 }
 
 
@@ -211,7 +211,7 @@ const luaL_Reg NodeMetaRef::methodsServer[] = {
 
 void NodeMetaRef::RegisterClient(lua_State *L)
 {
-	registerMetadataClass(L, className, methodsClient);
+	registerMetadataClass<NodeMetaRef>(L, methodsClient);
 }
 
 

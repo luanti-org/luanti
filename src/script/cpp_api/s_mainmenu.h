@@ -27,4 +27,9 @@ public:
 	 * @param fields data in field format
 	 */
 	void handleMainMenuButtons(const StringMap &fields);
+
+	/**
+	 * Called before the menu is closed, either to exit or to join a game
+	 */
+	void beforeClose();
 };

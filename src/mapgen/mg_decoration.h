@@ -33,7 +33,7 @@ enum DecorationType {
 #define DECO_ALL_FLOORS      0x40
 #define DECO_ALL_CEILINGS    0x80
 
-extern FlagDesc flagdesc_deco[];
+extern const FlagDesc flagdesc_deco[];
 
 
 class Decoration : public ObjDef, public NodeResolver {
@@ -44,7 +44,7 @@ public:
 	virtual void resolveNodeNames();
 
 	bool canPlaceDecoration(MMVManip *vm, v3s16 p);
-	size_t placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
+	void placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
 
 	virtual size_t generate(MMVManip *vm, PcgRandom *pr, v3s16 p, bool ceiling) = 0;
 
@@ -135,7 +135,7 @@ public:
 		}
 	}
 
-	size_t placeAllDecos(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
+	void placeAllDecos(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
 
 private:
 	DecorationManager() {};

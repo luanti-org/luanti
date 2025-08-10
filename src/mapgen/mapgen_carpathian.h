@@ -10,9 +10,8 @@
 #define MGCARPATHIAN_CAVERNS 0x01
 #define MGCARPATHIAN_RIVERS  0x02
 
-class BiomeManager;
 
-extern FlagDesc flagdesc_mapgen_carpathian[];
+extern const FlagDesc flagdesc_mapgen_carpathian[];
 
 
 struct MapgenCarpathianParams : public MapgenParams

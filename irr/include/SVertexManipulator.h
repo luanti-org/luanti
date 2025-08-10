@@ -6,14 +6,9 @@
 
 #include "vector3d.h"
 
-namespace irr
-{
 namespace scene
 {
 
-class IMesh;
-class IMeshBuffer;
-struct SMesh;
 
 //! Interface for vertex manipulators.
 /** You should derive your manipulator from this class if it shall be called for every vertex, getting as parameter just the vertex.
@@ -39,4 +34,3 @@ private:
 };
 
 } // end namespace scene
-} // end namespace irr

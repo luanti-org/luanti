@@ -15,8 +15,6 @@
 #include <windows.h>
 #include <libloaderapi.h>
 
-namespace irr
-{
 namespace video
 {
 // WGL manager.
@@ -70,7 +68,6 @@ private:
 
 	HMODULE libHandle;
 };
-}
 }
 
 #endif

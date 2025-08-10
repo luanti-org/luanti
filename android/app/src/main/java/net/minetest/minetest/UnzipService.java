@@ -51,7 +51,6 @@ public class UnzipService extends IntentService {
 	public static final int SUCCESS = -1;
 	public static final int FAILURE = -2;
 	public static final int INDETERMINATE = -3;
-	private final int id = 1;
 	private NotificationManager mNotifyManager;
 	private boolean isSuccess = true;
 	private String failureMessage;
@@ -100,11 +99,14 @@ public class UnzipService extends IntentService {
 		}
 	}
 
+	// TODO: share code with GameActivity.updateGameNotification
 	@NonNull
 	private Notification.Builder createNotification() {
-		Notification.Builder builder;
-		if (mNotifyManager == null)
+		if (mNotifyManager == null) {
 			mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		}
+
+		Notification.Builder builder;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			builder = new Notification.Builder(this, MainActivity.NOTIFICATION_CHANNEL_ID);
 		} else {
@@ -128,7 +130,7 @@ public class UnzipService extends IntentService {
 				.setOngoing(true)
 				.setProgress(0, 0, true);
 
-		mNotifyManager.notify(id, builder.build());
+		mNotifyManager.notify(MainActivity.NOTIFICATION_ID_UNZIP, builder.build());
 		return builder;
 	}
 
@@ -200,14 +202,14 @@ public class UnzipService extends IntentService {
 			} else {
 				notificationBuilder.setProgress(100, progress, false);
 			}
-			mNotifyManager.notify(id, notificationBuilder.build());
+			mNotifyManager.notify(MainActivity.NOTIFICATION_ID_UNZIP, notificationBuilder.build());
 		}
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		mNotifyManager.cancel(id);
+		mNotifyManager.cancel(MainActivity.NOTIFICATION_ID_UNZIP);
 		publishProgress(null, R.string.loading, isSuccess ? SUCCESS : FAILURE);
 	}
 }

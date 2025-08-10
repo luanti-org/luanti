@@ -659,6 +659,13 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 		}
 	}
 
+	// Allow read-only access to builtin
+	if (!write_required) {
+		str = fs::AbsolutePath(Server::getBuiltinLuaPath());
+		if (!str.empty() && fs::PathStartsWith(abs_path, str))
+			return true;
+	}
+
 	// Allow read-only access to game directory
 	if (!write_required) {
 		const SubgameSpec *game_spec = gamedef->getGameSpec();

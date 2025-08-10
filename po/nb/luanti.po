@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Norwegian Bokmål (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 13:23+0100\n"
+"POT-Creation-Date: 2025-07-11 19:59+0200\n"
 "PO-Revision-Date: 2024-10-22 11:01+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
@@ -84,8 +84,17 @@ msgid "Browse"
 msgstr "Bla gjennom"
 
 #: builtin/common/settings/components.lua
+msgid "Conflicts with \"$1\""
+msgstr ""
+
+#: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "Endre"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Remove keybinding"
+msgstr "Tastebindinger."
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -114,8 +123,8 @@ msgstr "2D-støy"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
+#: src/gui/guiPasswordChange.cpp
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -137,7 +146,7 @@ msgid "Persistence"
 msgstr "Standhaftighet"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "Save"
 msgstr "Lagre"
 
@@ -213,8 +222,18 @@ msgstr "Tilgjengelighet"
 msgid "Auto"
 msgstr ""
 
-#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+msgid "Back"
+msgstr "Tilbake"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Buttons with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
+#: src/settings_translation_file.cpp
 msgid "Chat"
 msgstr "Chatte"
 
@@ -240,6 +259,10 @@ msgid "General"
 msgstr "Generelt"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Long tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
 msgstr "Bevegelse"
 
@@ -261,6 +284,10 @@ msgid "Search"
 msgstr "Søk"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Short tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
 msgstr "Vis avanserte innstillinger"
 
@@ -270,12 +297,17 @@ msgstr "Vis tekniske navn"
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "Touchscreen layout"
-msgstr "Strandlydsterskel"
+msgid "Tap"
+msgstr "Tab"
 
 #: builtin/common/settings/dlg_settings.lua
-msgid "pause_menu"
+msgid "Tap with crosshair"
 msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Touchscreen layout"
+msgstr "Strandlydsterskel"
 
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
@@ -408,11 +440,6 @@ msgid "All"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
-msgid "Back"
-msgstr "Tilbake"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr "ContentDB er ikke tilgjengelig når Minetest kompileres uten cURL"
@@ -441,7 +468,6 @@ msgid "Mods"
 msgstr "Modder"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "Kunne ikke hente pakker"
 
@@ -501,6 +527,7 @@ msgid "Error getting dependencies for package $1"
 msgstr "Kunne ikke hente pakkens avhengigheter"
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "Installere"
 
@@ -547,6 +574,15 @@ msgid "Donate"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading package information"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "Error loading reviews"
+msgstr "Feil ved oppretting av klient: %s"
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
 msgstr ""
 
@@ -562,6 +598,10 @@ msgstr "Installere $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Reviews"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
@@ -584,6 +624,11 @@ msgstr "Oppdatere"
 #, fuzzy
 msgid "Website"
 msgstr "Besøk nettsted"
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "by $1"
+msgstr "$1 av $2"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -620,7 +665,7 @@ msgstr "Kan ikke installere en $1 som en teksturpakke"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
-"This is the list of clients connected to\n"
+"Players connected to\n"
 "$1"
 msgstr ""
 
@@ -906,6 +951,32 @@ msgstr "pkgmgr: ugyldig sti \"$1\""
 #: builtin/mainmenu/dlg_delete_world.lua
 msgid "Delete World \"$1\"?"
 msgstr "Slett verden \"$1\"?"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Keybindings changed"
+msgstr "Tastebindinger."
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Open settings"
+msgstr "Innstillinger"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr ""
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1221,13 +1292,6 @@ msgid "Address"
 msgstr "Adresse"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
-msgid ""
-"Clients:\n"
-"$1"
-msgstr "Klient"
-
-#: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
 msgstr "Kreativ modus"
 
@@ -1271,6 +1335,13 @@ msgid "Ping"
 msgstr "Forsinkelse"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Players:\n"
+"$1"
+msgstr "Klient"
+
+#: builtin/mainmenu/tab_online.lua
 msgid ""
 "Possible filters\n"
 "game:<name>\n"
@@ -1307,6 +1378,11 @@ msgid "Done!"
 msgstr "Ferdig!"
 
 #: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Initialisering av noder"
 
@@ -1321,6 +1397,11 @@ msgstr "Laster inn teksturer..."
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
 msgstr "Gjenoppbygger shaders..."
+
+#: src/client/client.cpp
+#, fuzzy, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "Skjermdump"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -2108,6 +2189,11 @@ msgstr ""
 msgid "Some mods have unsatisfied dependencies:"
 msgstr "Noen modder har utilfredstilte avhengigheter:"
 
+#: src/gui/guiButtonKey.h
+#, fuzzy
+msgid "Press Button"
+msgstr "Venstre knapp"
+
 #: src/gui/guiChatConsole.cpp
 #, fuzzy
 msgid "Failed to open webpage"
@@ -2120,163 +2206,6 @@ msgstr "Åpner nettside"
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
 msgstr "Fortsett"
-
-#: src/gui/guiKeyChangeMenu.cpp
-#, fuzzy
-msgid "\"Aux1\" = climb down"
-msgstr "«Spesial» = klatre ned"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Autoforward"
-msgstr "Automatisk fremover"
-
-#: src/gui/guiKeyChangeMenu.cpp src/settings_translation_file.cpp
-msgid "Automatic jumping"
-msgstr "Automatisk hopping"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Aux1"
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Backward"
-msgstr "Tilbake"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Block bounds"
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Change camera"
-msgstr "Endre visning"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Command"
-msgstr "Kommando"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Console"
-msgstr "Konsoll"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. range"
-msgstr "Senk siktavstanden"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. volume"
-msgstr "Senk lydstyrke"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Double tap \"jump\" to toggle fly"
-msgstr "Trykk raskt på «hopp» to ganger for å starte og slutte å fly"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Drop"
-msgstr "Dropp"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Forward"
-msgstr "Framover"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. range"
-msgstr "Øk siktavstanden"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. volume"
-msgstr "Øk lydstyrken"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Inventory"
-msgstr "Beholdning"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Jump"
-msgstr "Hopp"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Key already in use"
-msgstr "Tast allerede i bruk"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Keybindings."
-msgstr "Tastebindinger."
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Left"
-msgstr "Venstre"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Local command"
-msgstr "Lokal kommando"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Mute"
-msgstr "Demp"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Next item"
-msgstr "Neste gjenstand"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Prev. item"
-msgstr "Forrige gjenstand"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Range select"
-msgstr "Velg rekkevidde"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Right"
-msgstr "Høyre"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Screenshot"
-msgstr "Skjermdump"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Sneak"
-msgstr "Snike"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle HUD"
-msgstr "HUD (hurtigtilgang) av/på"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle chat log"
-msgstr "Chattehistorikk av/på"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fast"
-msgstr "Rask forflytning av/på"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fly"
-msgstr "Flymodus av/på"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle fog"
-msgstr "Tåke av/på"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle minimap"
-msgstr "Minikart av/på"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle noclip"
-msgstr "Gjennomtrengelige blokker av/på"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle pitchmove"
-msgstr "Pitchbevegelse (lateralaksevinkel) av/på"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Zoom"
-msgstr "Forstørrelse"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "press key"
-msgstr "trykk tast"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
@@ -2306,10 +2235,6 @@ msgstr "Gammelt passord"
 #: src/gui/guiPasswordChange.cpp
 msgid "Passwords do not match!"
 msgstr "Passordene samsvarer ikke!"
-
-#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
-msgid "Exit"
-msgstr "Avslutt"
 
 #: src/gui/guiVolumeChange.cpp
 msgid "Muted"
@@ -2351,19 +2276,84 @@ msgstr ""
 msgid "Tap outside to deselect."
 msgstr ""
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Aux1"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Change camera"
+msgstr "Endre visning"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Dig/punch/use"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Drop"
+msgstr "Dropp"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "Avslutt"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Inventory"
+msgstr "Beholdning"
+
 #: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Joystick"
 msgstr "Spillstikke-ID"
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Jump"
+msgstr "Hopp"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#, fuzzy
+msgid "Place/use"
+msgstr "Flygingstast"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Range select"
+msgstr "Velg rekkevidde"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Sneak"
+msgstr "Snike"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle chat log"
+msgstr "Chattehistorikk av/på"
 
 #: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "Tåke av/på"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fast"
+msgstr "Rask forflytning av/på"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fly"
+msgstr "Flymodus av/på"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle minimap"
+msgstr "Minikart av/på"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle noclip"
+msgstr "Gjennomtrengelige blokker av/på"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Zoom"
+msgstr "Forstørrelse"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2653,7 +2643,7 @@ msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2684,6 +2674,18 @@ msgstr "Bruk 3D-skyer i stedet for flate."
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
+msgstr ""
+"Sniketast.\n"
+"Brukes også for å gå ned på stiger og i vann dersom aux1_descends ikke "
+"brukes.\n"
+"See http://irrlicht.sourceforge.net/docu/namespaceirr."
+"html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2763,10 +2765,6 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Arm inertia"
 msgstr "Treghet i armer"
 
@@ -2827,6 +2825,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Audio"
 msgstr "Audio"
+
+#: src/settings_translation_file.cpp
+msgid "Automatic jumping"
+msgstr "Automatisk hopping"
 
 #: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
@@ -3052,6 +3054,11 @@ msgid "Client"
 msgstr "Klient"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Client Debugging"
+msgstr "Brukermodding"
+
+#: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
 msgstr ""
 
@@ -3146,6 +3153,10 @@ msgid ""
 msgstr ""
 "Kommainndelt liste med klarerte modder som har tilgang til usikre\n"
 "funksjoner selv når moddsikkerhet er på (via request_insecure_environment())."
+
+#: src/settings_translation_file.cpp
+msgid "Command"
+msgstr "Kommando"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3282,6 +3293,16 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease view range"
+msgstr "Senk siktavstanden"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease volume"
+msgstr "Senk lydstyrke"
+
+#: src/settings_translation_file.cpp
 msgid "Dedicated server step"
 msgstr "Serverens oppdateringsintervall (servertikk)"
 
@@ -3395,7 +3416,7 @@ msgstr "Definerer treområder og skogstetthet."
 #: src/settings_translation_file.cpp
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3475,6 +3496,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Drop item"
+msgstr "Forrige gjenstand"
+
+#: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
 msgstr ""
 
@@ -3518,6 +3544,13 @@ msgstr "Aktiver skade"
 msgid ""
 "Enable IPv6 support (for both client and server).\n"
 "Required for IPv6 connections to work at all."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Enable IPv6 support for server.\n"
+"Note that clients will be able to connect with both IPv4 and IPv6.\n"
+"Ignored if bind_address is set."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3625,12 +3658,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
 "Enables Hable's 'Uncharted 2' filmic tone mapping.\n"
 "Simulates the tone curve of photographic film and how this approximates the\n"
 "appearance of high dynamic range images. Mid-range contrast is slightly\n"
@@ -3699,15 +3726,12 @@ msgid "FPS"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "FPS when unfocused or paused"
+#, fuzzy
+msgid "FPS when unfocused"
 msgstr "Maks FPS når spillet ikke har fokus eller er pauset"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Fall bobbing factor"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4102,12 +4126,182 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 1"
+msgstr "Første hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 10"
+msgstr "Tiende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 11"
+msgstr "Ellevte hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 12"
+msgstr "Tolvte hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 13"
+msgstr "Trettende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 14"
+msgstr "Fjortende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 15"
+msgstr "Femtende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 16"
+msgstr "Sekstende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 17"
+msgstr "Syttende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 18"
+msgstr "Attende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 19"
+msgstr "Nittende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 2"
+msgstr "Andre hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 20"
+msgstr "Tjuende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 21"
+msgstr "Tjueførste hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 22"
+msgstr "Tjueandre hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 23"
+msgstr "Tjuetredje hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 24"
+msgstr "Tjuefjerde hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 25"
+msgstr "Tjuefemte hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 26"
+msgstr "Tjuesjette hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 27"
+msgstr "Tjuesjuende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 28"
+msgstr "Tjueåttende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 29"
+msgstr "Tjueniende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 3"
+msgstr "Tredje hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 30"
+msgstr "Trettiende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 31"
+msgstr "Trettiførste hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 32"
+msgstr "Trettiandre hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 4"
+msgstr "Fjerde hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 5"
+msgstr "Femte hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 6"
+msgstr "Sjette hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 7"
+msgstr "Syvende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 8"
+msgstr "Åttende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar slot 9"
+msgstr "Niende hurtigfelttast"
+
+#: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select next item"
+msgstr "Neste hurtigfelttast"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Hotbar: select previous item"
+msgstr "Forrige hurtigfelttast"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4213,6 +4407,17 @@ msgstr ""
 "Hvis avskrudd, vil en ny konto registres automatisk."
 
 #: src/settings_translation_file.cpp
+msgid "If enabled, the \"Aux1\" key will toggle when pressed."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, the \"Sneak\" key will toggle when pressed.\n"
+"This functionality is ignored when fly is enabled."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4265,8 +4470,19 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase view range"
+msgstr "Øk siktavstanden"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase volume"
+msgstr "Øk lydstyrken"
 
 #: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
@@ -4301,6 +4517,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Interaction style"
+msgstr "Ringer"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
@@ -4420,6 +4641,63 @@ msgstr "Julia-z"
 #: src/settings_translation_file.cpp
 msgid "Jumping speed"
 msgstr "Hoppehastighet"
+
+#: src/settings_translation_file.cpp
+msgid "Key for decrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for digging, punching or using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for incrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving fast in fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type local commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for placing an item/block or for using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the next entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the previous entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of mapblock boundaries."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the profiler. Used for development."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keybindings"
+msgstr "Tastebindinger."
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -4608,6 +4886,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Local command"
+msgstr "Lokal kommando"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -4812,7 +5094,7 @@ msgstr "Maks FPS («frames» - bilder per sekund)"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Maximum FPS when the window is not focused, or when the game is paused."
+msgid "Maximum FPS when the window is not focused."
 msgstr "Maks FPS når spillet står i pause."
 
 #: src/settings_translation_file.cpp
@@ -4874,7 +5156,9 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of mapblocks for client to be kept in memory.\n"
-"Set to -1 for unlimited amount."
+"Note that there is an internal dynamic minimum number of blocks that\n"
+"won't be deleted, depending on the current view range.\n"
+"Set to -1 for no limit."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4915,12 +5199,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Maximum size of the outgoing chat queue"
+msgid "Maximum size of the client's outgoing chat queue"
 msgstr "Nullstill meldingskøen"
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Maximum size of the outgoing chat queue.\n"
+"Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
 
@@ -4998,6 +5282,12 @@ msgid "Mod channels"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
 msgstr ""
 
@@ -5040,6 +5330,25 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Move backward"
+msgstr "Tilbake"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move forward"
+msgstr "Automatisk fremover"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move left"
+msgstr "Bevegelse"
+
+#: src/settings_translation_file.cpp
+msgid "Move right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Movement threshold"
 msgstr "Grotteterskel"
 
@@ -5048,10 +5357,8 @@ msgid "Mud noise"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Multiplier for fall bobbing.\n"
-"For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-msgstr ""
+msgid "Mute"
+msgstr "Demp"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5102,10 +5409,6 @@ msgid "Node highlighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr ""
 
@@ -5146,7 +5449,7 @@ msgstr "Antall meldinger en spiller kan sende hvert 10. sekund."
 #: src/settings_translation_file.cpp
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 
@@ -5163,6 +5466,15 @@ msgstr "Ikke-synlige blokker blir ikke sendt videre av serveren"
 msgid ""
 "Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Open chat"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open inventory"
+msgstr "Beholdning"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5285,9 +5597,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Prometheus listener address.\n"
-"If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
-"enable metrics listener for Prometheus on that address.\n"
-"Metrics can be fetched on http://127.0.0.1:30000/metrics"
+"If Luanti is compiled with Prometheus support, this setting\n"
+"enables the metrics listener for Prometheus on that address.\n"
+"By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
+"An empty value disables the metrics listener."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5301,6 +5614,22 @@ msgstr "Avvikende protokollversjon. "
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: decrement value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: increment value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select next entry"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select previous entry"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5371,6 +5700,11 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "Avslutt til hovedmeny"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -5469,6 +5803,10 @@ msgstr "Skjermhøyde"
 #: src/settings_translation_file.cpp
 msgid "Screen width"
 msgstr "Skjermbredde"
+
+#: src/settings_translation_file.cpp
+msgid "Screenshot"
+msgstr "Skjermdump"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot folder"
@@ -6097,16 +6435,33 @@ msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
 "\n"
-"* short_tap\n"
+"* Short tap\n"
 "Easy to use and well-known from other games that shall not be named.\n"
 "\n"
-"* long_tap\n"
+"* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The kind of digging/placing controls used.\n"
+"\n"
+"* Tap\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at finger position.\n"
+"\n"
+"* Tap with crosshair\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at crosshair position.\n"
+"\n"
+"* Buttons with crosshair\n"
+"Use dedicated dig/place buttons to interact.\n"
+"Interaction happens at crosshair position."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6245,6 +6600,76 @@ msgid ""
 "This determines how long they are slowed down after placing or removing a "
 "node."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Aux1 key"
+msgstr "Hoppetast"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle HUD"
+msgstr "HUD (hurtigtilgang) av/på"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Sneak key"
+msgstr "Flymodus av/på"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle automatic forward"
+msgstr "Tast for automatisk fremoverbevegelse"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle block bounds"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera mode"
+msgstr "Chattehistorikk av/på"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle camera update"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle cinematic mode"
+msgstr "Filmatisk tilstand"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle debug info"
+msgstr "Tåke av/på"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fog"
+msgstr "Tåke av/på"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle fullscreen"
+msgstr "Flymodus av/på"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle large chat console"
+msgstr "Chattehistorikk av/på"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle pitchmove"
+msgstr "Pitchbevegelse (lateralaksevinkel) av/på"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle profiler"
+msgstr "Flymodus av/på"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "Ubegrenset visningsområde deaktivert"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6389,16 +6814,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Use bilinear filtering when scaling textures."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Use crosshair for touch screen"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Use crosshair to select object instead of whole screen.\n"
-"If enabled, a crosshair will be shown and will be used for selecting object."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6693,6 +7108,15 @@ msgid "Width of the selection box lines around nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Will also disable autoforward, when active."
+msgstr ""
+"Tast for å bevege spilleren bakover\n"
+"Vil også koble ut automatisk foroverbevegelse, hvis aktiv.\n"
+"Se http://irrlicht.sourceforge.net/docu/namespaceirr."
+"html#a54da2a0e231901735e3da1b0edf72eb3"
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr ""
 
@@ -6720,7 +7144,7 @@ msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
 "a specially-designed texture pack; with this option, the client tries\n"
-"to determine the scale automatically basing on the texture size.\n"
+"to determine the scale automatically based on the texture size.\n"
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
@@ -6794,1218 +7218,14 @@ msgstr "cURL-tidsgrense"
 msgid "cURL parallel limit"
 msgstr "Maksimal parallellisering i cURL"
 
-#~ msgid "- Address: "
-#~ msgstr "- Adresse: "
-
-#~ msgid "- Creative Mode: "
-#~ msgstr "- Kreativ modus: "
-
-#~ msgid "- Damage: "
-#~ msgstr "- Skade: "
-
-#~ msgid "- Port: "
-#~ msgstr "- Port: "
-
-#~ msgid "2x"
-#~ msgstr "2x"
-
-#~ msgid "3D Clouds"
-#~ msgstr "3D-skyer"
-
-#~ msgid "4x"
-#~ msgstr "4x"
-
-#~ msgid "8x"
-#~ msgstr "8x"
-
-#~ msgid "< Back to Settings page"
-#~ msgstr "< Tilbake til innstillinger"
-
-#~ msgid "Address / Port"
-#~ msgstr "Adresse / port"
-
-#~ msgid ""
-#~ "Address to connect to.\n"
-#~ "Leave this blank to start a local server.\n"
-#~ "Note that the address field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "Kobler til denne adressen.\n"
-#~ "La det stå tomt for å starte en lokal server.\n"
-#~ "Vær klar over at adressen i feltet i hovedmenyen overkjører denne "
-#~ "innstillingen."
-
-#~ msgid "Adds particles when digging a node."
-#~ msgstr "Legger på partikler når man graver ut en blokk."
-
-#~ msgid ""
-#~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
-#~ "4k screens."
-#~ msgstr ""
-#~ "Justér skjermens DPI-innstilling (ikke for X11/kun Android), f. eks. for "
-#~ "4k-skjermer."
-
-#~ msgid "All Settings"
-#~ msgstr "Alle innstillinger"
-
-#~ msgid "All packages"
-#~ msgstr "Alle pakker"
-
-#~ msgid "Are you sure to reset your singleplayer world?"
-#~ msgstr ""
-#~ "Er du sikker på at du ønsker å tilbakestille din enkeltspiller-verden?"
-
-#~ msgid "Automatic forward key"
-#~ msgstr "Tast for automatisk fremoverbevegelse"
-
-#~ msgid "Autosave Screen Size"
-#~ msgstr "Lagre skjermstørrelse automatisk"
+#, fuzzy
+#~ msgid "Key for taking screenshots."
+#~ msgstr "Skjermavbildningsformat."
 
 #, fuzzy
-#~ msgid "Aux1 key"
-#~ msgstr "Hoppetast"
-
-#~ msgid "Back to Main Menu"
-#~ msgstr "Tilbake til hovedmeny"
-
-#~ msgid "Backward key"
-#~ msgstr "Rettetast"
-
-#~ msgid "Basic"
-#~ msgstr "Grunnleggende"
-
-#~ msgid "Bilinear Filter"
-#~ msgstr "Bilineært filter"
+#~ msgid "Key for toggling cinematic mode."
+#~ msgstr "Kamerautjevning i filmmodus"
 
 #, fuzzy
-#~ msgid "Biome API noise parameters"
-#~ msgstr "Temperatur- og fuktighetsparametre for biotop-APIet"
-
-#~ msgid "Bits per pixel (aka color depth) in fullscreen mode."
-#~ msgstr "Biter per piksel (dvs. fargedybde) i fullskjermsmodus."
-
-#~ msgid "Block bounds shown for all blocks"
-#~ msgstr "Block bounds vist for alle blokker"
-
-#, fuzzy
-#~ msgid "Bloom Radius"
-#~ msgstr "Skyradius"
-
-#~ msgid "Bump Mapping"
-#~ msgstr "Teksturtilføyning"
-
-#~ msgid "Bumpmapping"
-#~ msgstr "Teksturpåføring (bump mapping)"
-
-#, fuzzy
-#~ msgid ""
-#~ "Camera 'near clipping plane' distance in nodes, between 0 and 0.25\n"
-#~ "Only works on GLES platforms. Most users will not need to change this.\n"
-#~ "Increasing can reduce artifacting on weaker GPUs.\n"
-#~ "0.1 = Default, 0.25 = Good value for weaker tablets."
-#~ msgstr ""
-#~ "Kamera 'near clipping plane' avstand i noder, mellom 0 og 0,5.\n"
-#~ "Brukere flest vil ikke behøve å endre på dette.\n"
-#~ "Økning av verdi vil kunne redusere artefakter fra svakere skjermkort.\n"
-#~ "0.1 = standardverdi, 0.25 = grei verdi for svakere nettbrett."
-
-#~ msgid "Camera update toggle key"
-#~ msgstr "Av/på-tast for visningsoppdatning"
-
-#~ msgid "Change Keys"
-#~ msgstr "Endre taster"
-
-#~ msgid "Change keys"
-#~ msgstr "Endre taster"
-
-#~ msgid ""
-#~ "Changes the main menu UI:\n"
-#~ "-   Full:  Multiple singleplayer worlds, game choice, texture pack "
-#~ "chooser, etc.\n"
-#~ "-   Simple: One singleplayer world, no game or texture pack choosers. May "
-#~ "be\n"
-#~ "necessary for smaller screens."
-#~ msgstr ""
-#~ "Endrer hovedmenyens brukergrensesnitt (UI):\n"
-#~ "-   Fullstendig:  Flere enkeltspillerverdener, valg av spill, "
-#~ "teksturpakkevalg, osv.\n"
-#~ "-   Enkel: Én enkeltspillerverden, ingen valg av spill eller "
-#~ "teksturpakke.  Kan være\n"
-#~ "nødvendig på mindre skjermer."
-
-#~ msgid "Chat key"
-#~ msgstr "Skydretast"
-
-#~ msgid "Chat toggle key"
-#~ msgstr "Tast for veksling av sludring"
-
-#~ msgid "Cinematic mode"
-#~ msgstr "Filmatisk tilstand"
-
-#~ msgid "Cinematic mode key"
-#~ msgstr "Tast for filmatisk tilstand"
-
-#~ msgid "Clean transparent textures"
-#~ msgstr "Rene, gjennomsiktige teksturer"
-
-#, fuzzy
-#~ msgid "Clouds are a client-side effect."
-#~ msgstr "Skyer er en effekt på klientsiden."
-
-#~ msgid "Command key"
-#~ msgstr "Tast for chat og kommandoer"
-
-#~ msgid "Config mods"
-#~ msgstr "Sett opp modder"
-
-#~ msgid "Configure"
-#~ msgstr "Sett opp"
-
-#~ msgid "Connect"
-#~ msgstr "Koble til"
-
-#~ msgid "Connected Glass"
-#~ msgstr "Forbundet glass"
-
-#~ msgid "Continuous forward"
-#~ msgstr "Kontinuerlig fremoverbevegelse"
-
-#~ msgid ""
-#~ "Continuous forward movement, toggled by autoforward key.\n"
-#~ "Press the autoforward key again or the backwards movement to disable."
-#~ msgstr ""
-#~ "Kontinuerlig fremoverbevegelse, slås av/på med tasten for automatisk "
-#~ "fremover.\n"
-#~ "Trykk på automatisk fremover-tasten igjen eller gå bakover for å slå av."
-
-#~ msgid "Controls sinking speed in liquid."
-#~ msgstr "Bestemmer synkehastigheten i væsker."
-
-#, fuzzy, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "Kontroller:\n"
-#~ "- %s: flytt forover\n"
-#~ "- %s: flytt bakover\n"
-#~ "- %s: flytt mot venstre\n"
-#~ "- %s: flytt mot høyre\n"
-#~ "- %s: hopp/klatre oppover\n"
-#~ "- %s: grav/slå\n"
-#~ "- %s: plasser/bruk\n"
-#~ "- %s: snik/klatre nedover\n"
-#~ "- %s: slipp ting\n"
-#~ "- %s: inventar\n"
-#~ "- Mus: snu/se\n"
-#~ "- Musehjul: velg ting\n"
-#~ "- %s: chat\n"
-
-#~ msgid "Creative"
-#~ msgstr "Kreativ"
-
-#~ msgid "Credits"
-#~ msgstr "Bidragsytere"
-
-#~ msgid "Crosshair color (R,G,B)."
-#~ msgstr "Trådkorsfarge (R, G, B)."
-
-#~ msgid "DPI"
-#~ msgstr "DPI (skjermoppløsning)"
-
-#~ msgid "Damage"
-#~ msgstr "Skade"
-
-#~ msgid "Damage enabled"
-#~ msgstr "Skade aktivert"
-
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "Feilsøkingsinformasjon og profileringsgraf er skjult"
-
-#~ msgid "Debug info toggle key"
-#~ msgstr "Tast for å vise/skjule feilsøkingsinfo"
-
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr "Feilsøkingsinformasjon, profileringsgraf og wireframe skjult"
-
-#~ msgid "Dec. volume key"
-#~ msgstr "Tast for senking av lydstyrke"
-
-#~ msgid "Default game"
-#~ msgstr "Forvalgt spill"
-
-#~ msgid "Del. Favorite"
-#~ msgstr "Slett favoritt"
-
-#, fuzzy
-#~ msgid "Dig key"
-#~ msgstr "Høyre tast"
-
-#~ msgid "Digging particles"
-#~ msgstr "Gravepartikler"
-
-#~ msgid "Disable anticheat"
-#~ msgstr "Skru av antijuksing"
-
-#~ msgid "Disabled unlimited viewing range"
-#~ msgstr "Ubegrenset visningsområde deaktivert"
-
-#~ msgid "Down"
-#~ msgstr "Ned"
-
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr "Last ned et spill, for eksempel Minetest Game, fra minetest.net"
-
-#~ msgid "Download one from minetest.net"
-#~ msgstr "Last ned fra minetest.net"
-
-#~ msgid "Downloading and installing $1, please wait..."
-#~ msgstr "Laster ned og installerer $1, vent…"
-
-#, fuzzy
-#~ msgid "Dynamic shadows:"
-#~ msgstr "Dynamiske skygger: "
-
-#, fuzzy
-#~ msgid "Enable"
-#~ msgstr "Aktivert"
-
-#~ msgid "Enable VBO"
-#~ msgstr "Aktiver VBO"
-
-#~ msgid "Enable creative mode for all players"
-#~ msgstr "Aktiver kreativt modus for alle spillere"
-
-#~ msgid "Enable register confirmation"
-#~ msgstr "Skru på registerbekreftelse"
-
-#, fuzzy
-#~ msgid "Enable touchscreen"
-#~ msgstr "Strandlydsterskel"
-
-#~ msgid "Enables filmic tone mapping"
-#~ msgstr "Aktiver filmatisk toneoversettelse"
-
-#~ msgid "Enables minimap."
-#~ msgstr "Aktiverer minikart."
-
-#~ msgid "Enter "
-#~ msgstr "Enter "
-
-#~ msgid "FSAA"
-#~ msgstr "FSAA"
-
-#~ msgid "Fallback font shadow"
-#~ msgstr "Tilbakefallsskriftsskygge"
-
-#~ msgid "Fallback font size"
-#~ msgstr "Tilbakefallsskriftstørrelse"
-
-#~ msgid "Fancy Leaves"
-#~ msgstr "Stilfulle Blader"
-
-#~ msgid "Fast key"
-#~ msgstr "Hurtigtast"
-
-#~ msgid "Filtering"
-#~ msgstr "Filtrering"
-
-#~ msgid "Fly key"
-#~ msgstr "Flygingstast"
-
-#~ msgid "Flying"
-#~ msgstr "Flyging"
-
-#~ msgid "Fog toggle key"
-#~ msgstr "Tåkevekslingstast"
-
-#~ msgid "Forward key"
-#~ msgstr "Forovertast"
-
-#~ msgid "FreeType fonts"
-#~ msgstr "FreeType-skrifttyper"
-
-#~ msgid "Generate Normal Maps"
-#~ msgstr "Generer normale kart"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "Innstillinger"
-
-#~ msgid "Hotbar next key"
-#~ msgstr "Neste hurtigfelttast"
-
-#~ msgid "Hotbar previous key"
-#~ msgstr "Forrige hurtigfelttast"
-
-#~ msgid "Hotbar slot 1 key"
-#~ msgstr "Første hurtigfelttast"
-
-#~ msgid "Hotbar slot 10 key"
-#~ msgstr "Tiende hurtigfelttast"
-
-#~ msgid "Hotbar slot 11 key"
-#~ msgstr "Ellevte hurtigfelttast"
-
-#~ msgid "Hotbar slot 12 key"
-#~ msgstr "Tolvte hurtigfelttast"
-
-#~ msgid "Hotbar slot 13 key"
-#~ msgstr "Trettende hurtigfelttast"
-
-#~ msgid "Hotbar slot 14 key"
-#~ msgstr "Fjortende hurtigfelttast"
-
-#~ msgid "Hotbar slot 15 key"
-#~ msgstr "Femtende hurtigfelttast"
-
-#~ msgid "Hotbar slot 16 key"
-#~ msgstr "Sekstende hurtigfelttast"
-
-#~ msgid "Hotbar slot 17 key"
-#~ msgstr "Syttende hurtigfelttast"
-
-#~ msgid "Hotbar slot 18 key"
-#~ msgstr "Attende hurtigfelttast"
-
-#~ msgid "Hotbar slot 19 key"
-#~ msgstr "Nittende hurtigfelttast"
-
-#~ msgid "Hotbar slot 2 key"
-#~ msgstr "Andre hurtigfelttast"
-
-#~ msgid "Hotbar slot 20 key"
-#~ msgstr "Tjuende hurtigfelttast"
-
-#~ msgid "Hotbar slot 21 key"
-#~ msgstr "Tjueførste hurtigfelttast"
-
-#~ msgid "Hotbar slot 22 key"
-#~ msgstr "Tjueandre hurtigfelttast"
-
-#~ msgid "Hotbar slot 23 key"
-#~ msgstr "Tjuetredje hurtigfelttast"
-
-#~ msgid "Hotbar slot 24 key"
-#~ msgstr "Tjuefjerde hurtigfelttast"
-
-#~ msgid "Hotbar slot 25 key"
-#~ msgstr "Tjuefemte hurtigfelttast"
-
-#~ msgid "Hotbar slot 26 key"
-#~ msgstr "Tjuesjette hurtigfelttast"
-
-#~ msgid "Hotbar slot 27 key"
-#~ msgstr "Tjuesjuende hurtigfelttast"
-
-#~ msgid "Hotbar slot 28 key"
-#~ msgstr "Tjueåttende hurtigfelttast"
-
-#~ msgid "Hotbar slot 29 key"
-#~ msgstr "Tjueniende hurtigfelttast"
-
-#~ msgid "Hotbar slot 3 key"
-#~ msgstr "Tredje hurtigfelttast"
-
-#~ msgid "Hotbar slot 30 key"
-#~ msgstr "Trettiende hurtigfelttast"
-
-#~ msgid "Hotbar slot 31 key"
-#~ msgstr "Trettiførste hurtigfelttast"
-
-#~ msgid "Hotbar slot 32 key"
-#~ msgstr "Trettiandre hurtigfelttast"
-
-#~ msgid "Hotbar slot 4 key"
-#~ msgstr "Fjerde hurtigfelttast"
-
-#~ msgid "Hotbar slot 5 key"
-#~ msgstr "Femte hurtigfelttast"
-
-#~ msgid "Hotbar slot 6 key"
-#~ msgstr "Sjette hurtigfelttast"
-
-#~ msgid "Hotbar slot 7 key"
-#~ msgstr "Syvende hurtigfelttast"
-
-#~ msgid "Hotbar slot 8 key"
-#~ msgstr "Åttende hurtigfelttast"
-
-#~ msgid "Hotbar slot 9 key"
-#~ msgstr "Niende hurtigfelttast"
-
-#~ msgid "IPv6 support."
-#~ msgstr "IPv6-støtte."
-
-#~ msgid "In-Game"
-#~ msgstr "I-spillet"
-
-#~ msgid "Inc. volume key"
-#~ msgstr "Inkluder lydstyrketast"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr "Installer Mod: Kan ikke finne ekte modnavn for: $1"
-
-#~ msgid "Install: file: \"$1\""
-#~ msgstr "Installasjon: fil \"$1\""
-
-#~ msgid "Instrumentation"
-#~ msgstr "Instrumentering"
-
-#~ msgid "Invalid gamespec."
-#~ msgstr "Ugyldig spillspesifikasjon."
-
-#~ msgid "Inventory key"
-#~ msgstr "Tast for beholdning"
-
-#~ msgid "Jump key"
-#~ msgstr "Hoppetast"
-
-#~ msgid ""
-#~ "Key for decreasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for å redusere synsrekkevidde.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for decreasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for redusering av lydstyrken.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#, fuzzy
-#~ msgid ""
-#~ "Key for digging.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for hopping.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for dropping the currently selected item.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for kasting av gjeldende valgt element.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for increasing the viewing range.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for økning av synsrekkevidde.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for increasing the volume.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for økning av lydstyrken.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for jumping.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for hopping.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving fast in fast mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for hurtig gange i raskt modus.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player backward.\n"
-#~ "Will also disable autoforward, when active.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for å bevege spilleren bakover\n"
-#~ "Vil også koble ut automatisk foroverbevegelse, hvis aktiv.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player forward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for å bevege spilleren fremover.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player left.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for å bevege spilleren til venstre.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for moving the player right.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for å bevege spilleren til høyre.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#, fuzzy
-#~ msgid ""
-#~ "Key for placing.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for hopping.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 11th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av ellevte hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 12th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tolvte hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 13th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av trettende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 14th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av fjortende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 15th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av femtende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 16th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging sekstende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 17th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av syttende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 18th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av attende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 19th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av nittende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 20th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjuende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 21st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjueførste hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 22nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjueandre hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 23rd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjuetredje hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 24th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjuefjerde hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 25th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjuefemte hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 26th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjuesjette hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 27th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjuesyvende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 28th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjueåttende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 29th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tjueniende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 30th hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av trettiende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 31st hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av trettiførste hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the 32nd hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av trettiandre hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the eighth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av åttende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the fifth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av femte hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the first hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av første hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the fourth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av fjerde hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the next item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av neste element i hurtigfeltet.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the ninth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av niende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the previous item in the hotbar.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av forrige element i hurtigfeltet.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the second hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av andre hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the seventh hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av syvende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the sixth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av sjette hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the tenth hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tiende hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for selecting the third hotbar slot.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for utvelging av tredje hurtigplassfelt.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Key for sneaking.\n"
-#~ "Also used for climbing down and descending in water if aux1_descends is "
-#~ "disabled.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Sniketast.\n"
-#~ "Brukes også for å gå ned på stiger og i vann dersom aux1_descends ikke "
-#~ "brukes.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#, fuzzy
-#~ msgid ""
-#~ "Key for toggling autoforward.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for hopping.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#, fuzzy
-#~ msgid ""
-#~ "Key for toggling pitch move mode.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for hurtig gange i raskt modus.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#, fuzzy
-#~ msgid ""
-#~ "Key for toggling the display of chat.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for hurtig gange i raskt modus.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#, fuzzy
-#~ msgid ""
-#~ "Key for toggling the display of fog.\n"
-#~ "See http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-#~ msgstr ""
-#~ "Tast for hurtig gange i raskt modus.\n"
-#~ "Se http://irrlicht.sourceforge.net/docu/"
-#~ "namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
-
-#~ msgid ""
-#~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
-#~ msgstr ""
-#~ "Tastaturtilknytninger. (Hvis dette byr på problemer, fjern ting fra "
-#~ "minetest.conf)"
-
-#~ msgid "Left key"
-#~ msgstr "Venstretast"
-
-#, fuzzy
-#~ msgid ""
-#~ "Length of liquid waves.\n"
-#~ "Requires waving liquids to be enabled."
-#~ msgstr ""
-#~ "Aktiver for å slå på bølgende blader.\n"
-#~ "Krever at dybdeskapere er aktivert."
-
-#~ msgid "Main"
-#~ msgstr "Hovedmeny"
-
-#, fuzzy
-#~ msgid "Main menu style"
-#~ msgstr "Hovedmeny"
-
-#~ msgid "Menus"
-#~ msgstr "Menyer"
-
-#~ msgid "Minimap"
-#~ msgstr "Minikart"
-
-#~ msgid "Minimap key"
-#~ msgstr "Tast for minikart"
-
-#~ msgid "Mipmap"
-#~ msgstr "Mipmap"
-
-#~ msgid "Mipmap + Aniso. Filter"
-#~ msgstr "Mipmap + anisotropisk filter"
-
-#~ msgid "Name / Password"
-#~ msgstr "Navn / passord"
-
-#~ msgid "Name/Password"
-#~ msgstr "Navn/passord"
-
-#~ msgid "No"
-#~ msgstr "Nei"
-
-#~ msgid "No Filter"
-#~ msgstr "Ingen filter"
-
-#~ msgid "No Mipmap"
-#~ msgstr "Mangler mipmap"
-
-#~ msgid "Node Outlining"
-#~ msgstr "Knutepunktsomriss"
-
-#~ msgid "None"
-#~ msgstr "Ingen"
-
-#~ msgid "Ok"
-#~ msgstr "Okei"
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "Ugjennomsiktige blader"
-
-#~ msgid "Opaque Water"
-#~ msgstr "Ugjennomsiktig vann"
-
-#~ msgid "Parallax Occlusion"
-#~ msgstr "Parallakse Okklusjon"
-
-#~ msgid "Particles"
-#~ msgstr "Partikler"
-
-#~ msgid "Path to save screenshots at."
-#~ msgstr "Filsti til lagring av skjermdumper."
-
-#, fuzzy
-#~ msgid "Pitch move key"
-#~ msgstr "Flygingstast"
-
-#, fuzzy
-#~ msgid "Place key"
-#~ msgstr "Flygingstast"
-
-#~ msgid "Player name"
-#~ msgstr "Spillernavn"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "Vennligst skriv inn et gyldig heltall."
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "Vennligst oppgi et gyldig nummer."
-
-#~ msgid "Profiling"
-#~ msgstr "Profilering"
-
-#~ msgid "PvP enabled"
-#~ msgstr "Alle mot alle er på"
-
-#~ msgid "Range select key"
-#~ msgstr "Tilfeldig inndata"
-
-#~ msgid "Remote port"
-#~ msgstr "Eksterne media"
-
-#~ msgid "Reset singleplayer world"
-#~ msgstr "Tilbakestill enkeltspillerverden"
-
-#~ msgid "Right key"
-#~ msgstr "Høyre tast"
-
-#~ msgid "Round minimap"
-#~ msgstr "Rundt minikart"
-
-#, fuzzy
-#~ msgid "Saturation"
-#~ msgstr "Ringer"
-
-#~ msgid "Screen:"
-#~ msgstr "Skjerm:"
-
-#~ msgid "Select Package File:"
-#~ msgstr "Velg pakkefil:"
-
-#~ msgid "Server / Singleplayer"
-#~ msgstr "Server/alene"
-
-#~ msgid "Shaders"
-#~ msgstr "Shaders"
-
-#~ msgid "Shaders (experimental)"
-#~ msgstr "Shaders (eksperimentelt)"
-
-#~ msgid "Shaders (unavailable)"
-#~ msgstr "Shaders (ikke tilgjengelig)"
-
-#, fuzzy
-#~ msgid "Shaders are disabled."
-#~ msgstr "Kameraoppdatering slått av"
-
-#~ msgid "Simple Leaves"
-#~ msgstr "Enkle Blader"
-
-#~ msgid "Sound system is disabled"
-#~ msgstr "Lydsystemet er deaktivert"
-
-#~ msgid "Special"
-#~ msgstr "Spesial"
-
-#~ msgid "Special key"
-#~ msgstr "Spesialtast"
-
-#~ msgid "Start Singleplayer"
-#~ msgstr "Start enkeltspiller"
-
-#~ msgid "Texture path"
-#~ msgstr "Filsti for teksturer"
-
-#~ msgid "Texturing:"
-#~ msgstr "Teksturering:"
-
-#~ msgid "The value must be at least $1."
-#~ msgstr "Verdien må være minst $1."
-
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "Verdien må ikke være større enn $1."
-
-#~ msgid "To enable shaders the OpenGL driver needs to be used."
-#~ msgstr "OpenGL-driveren må brukes for å aktivere skyggelegging."
-
-#~ msgid "Tone Mapping"
-#~ msgstr "Tonemapping"
-
-#, fuzzy
-#~ msgid "Touch threshold (px):"
-#~ msgstr "Berøringsterskel: (px)"
-
-#~ msgid "Trilinear Filter"
-#~ msgstr "Tri-lineært filter"
-
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "Kan ikke installere et spill som en $1"
-
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "Kan ikke installere en modpack som en $1"
-
-#~ msgid "Uninstall Package"
-#~ msgstr "Avinstaller pakke"
-
-#~ msgid "Up"
-#~ msgstr "Opp"
-
-#~ msgid "View"
-#~ msgstr "Vis"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "Se mer informasjon i en nettleser"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "Visningsområdet er maksimalt: %d"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "Viftende blader"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "Skvulpende væsker"
-
-#~ msgid "Waving Plants"
-#~ msgstr "Viftende planter"
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#~ msgid "Y of upper limit of lava in large caves."
-#~ msgstr "Y-verdi for øvre grense for lava i store grotter."
-
-#~ msgid "Y-level to which floatland shadows extend."
-#~ msgstr "Hvilket Y-nivå som skyggen til luftøyer når."
-
-#~ msgid "Yes"
-#~ msgstr "Ja"
-
-#, c-format
-#~ msgid ""
-#~ "You are about to join this server with the name \"%s\" for the first "
-#~ "time.\n"
-#~ "If you proceed, a new account using your credentials will be created on "
-#~ "this server.\n"
-#~ "Please retype your password and click 'Register and Join' to confirm "
-#~ "account creation, or click 'Cancel' to abort."
-#~ msgstr ""
-#~ "Dette er første gang du kobler deg til serveren «\"%s».\n"
-#~ "Om du fortsetter, vil det opprettes en ny konto med ditt navn og passord "
-#~ "på denne serveren.\n"
-#~ "Vennligst skriv inn et passord og klikk på «Registrer meg og bli med» for "
-#~ "å bekrefte opprettelse av konto, eller klikk « Avbryt» for å avbryte."
-
-#~ msgid "You died."
-#~ msgstr "Du døde."
-
-#~ msgid "You have no games installed."
-#~ msgstr "Du har ingen spill installert."
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "needs_fallback_font"
-#~ msgstr "no"
-
-#~ msgid "ok"
-#~ msgstr "ok"
+#~ msgid "Key for toggling fullscreen mode."
+#~ msgstr "Fullskjermsmodus."

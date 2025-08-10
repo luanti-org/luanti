@@ -25,6 +25,7 @@
 #include "translation.h"
 #include "script/common/c_types.h" // LuaError
 #include <atomic>
+#include <csignal>
 #include <string>
 #include <list>
 #include <map>
@@ -45,6 +46,7 @@ class BanManager;
 class Inventory;
 class ModChannelMgr;
 class RemotePlayer;
+class Player;
 class PlayerSAO;
 struct PlayerHPChangeReason;
 class IRollbackManager;
@@ -89,7 +91,7 @@ enum ClientDeletionReason {
 struct MediaInfo
 {
 	std::string path;
-	std::string sha1_digest; // base64-encoded
+	std::string sha1_digest;
 	// true = not announced in TOCLIENT_ANNOUNCE_MEDIA (at player join)
 	bool no_announce;
 	// does what it says. used by some cases of dynamic media.
@@ -367,6 +369,7 @@ public:
 	void hudSetHotbarImage(RemotePlayer *player, const std::string &name);
 	void hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &name);
 
+	/// @note this is only available for client state >= CS_HelloSent
 	Address getPeerAddress(session_t peer_id);
 
 	void setLocalPlayerAnimations(RemotePlayer *player, v2f animation_frames[4],
@@ -409,6 +412,7 @@ public:
 	void SendMovePlayerRel(session_t peer_id, const v3f &added_pos);
 	void SendPlayerSpeed(session_t peer_id, const v3f &added_vel);
 	void SendPlayerFov(session_t peer_id);
+	void SendCamera(session_t peer_id, Player *player);
 
 	void SendMinimapModes(session_t peer_id,
 			std::vector<MinimapMode> &modes,
@@ -546,6 +550,7 @@ private:
 	void SendCloudParams(session_t peer_id, const CloudParams &params);
 	void SendOverrideDayNightRatio(session_t peer_id, bool do_override, float ratio);
 	void SendSetLighting(session_t peer_id, const Lighting &lighting);
+
 	void broadcastModChannelMessage(const std::string &channel,
 			const std::string &message, session_t from_peer);
 
@@ -607,6 +612,10 @@ private:
 	bool checkInteractDistance(RemotePlayer *player, const f32 d, const std::string &what);
 
 	void handleChatInterfaceEvent(ChatEvent *evt);
+
+	/// @brief Checks if user limit allows a potential client to join
+	/// @return true if the client can NOT join
+	bool checkUserLimit(const std::string &player_name, const std::string &addr_s);
 
 	// This returns the answer to the sender of wmessage, or "" if there is none
 	std::wstring handleChat(const std::string &name, std::wstring wmessage_input,
@@ -791,4 +800,4 @@ private:
 
 	Shuts down when kill is set to true.
 */
-void dedicated_server_loop(Server &server, bool &kill);
+void dedicated_server_loop(Server &server, volatile std::sig_atomic_t &kill);

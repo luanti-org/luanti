@@ -8,8 +8,6 @@
 #include "position2d.h"
 #include "rect.h"
 
-namespace irr
-{
 namespace gui
 {
 
@@ -192,4 +190,3 @@ public:
 };
 
 } // end namespace gui
-} // end namespace irr

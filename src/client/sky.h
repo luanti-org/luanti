@@ -6,7 +6,7 @@
 
 #include "irrlichttypes_bloated.h"
 #include <ISceneNode.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 #include <array>
 #include "camera.h" // CameraMode
 #include "irr_ptr.h"
@@ -14,7 +14,7 @@
 
 #define SKY_MATERIAL_COUNT 12
 
-namespace irr::video
+namespace video
 {
 	class IVideoDriver;
 	class IImage;

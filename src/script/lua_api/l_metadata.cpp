@@ -10,6 +10,7 @@
 #include "map.h"
 #include "server.h"
 #include "util/basic_macros.h"
+#include "util/string.h"
 
 MetaDataRef *MetaDataRef::checkAnyMetadata(lua_State *L, int narg)
 {
@@ -166,9 +167,9 @@ int MetaDataRef::l_get_float(lua_State *L)
 
 	std::string str_;
 	const std::string &str = meta->getString(name, &str_);
-	// Convert with Lua, as is done in set_float.
-	lua_pushlstring(L, str.data(), str.size());
-	lua_pushnumber(L, lua_tonumber(L, -1));
+	// TODO this silently produces 0.0 if conversion fails, which is a footgun
+	f64 number = my_string_to_double(str).value_or(0.0);
+	lua_pushnumber(L, number);
 	return 1;
 }
 
@@ -179,12 +180,11 @@ int MetaDataRef::l_set_float(lua_State *L)
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
 	std::string name = luaL_checkstring(L, 2);
-	luaL_checknumber(L, 3);
-	// Convert number to string with Lua as it gives good precision.
-	std::string str = readParam<std::string>(L, 3);
+	f64 number = luaL_checknumber(L, 3);
 
 	IMetadata *meta = ref->getmeta(true);
-	if (meta != NULL && meta->setString(name, str))
+	// Note: Do not use Lua's tostring for the conversion - it rounds.
+	if (meta != NULL && meta->setString(name, my_double_to_string(number)))
 		ref->reportMetadataChange(&name);
 	return 0;
 }
@@ -289,8 +289,11 @@ bool MetaDataRef::handleFromTable(lua_State *L, int table, IMetadata *meta)
 		while (lua_next(L, fieldstable) != 0) {
 			// key at index -2 and value at index -1
 			std::string name = readParam<std::string>(L, -2);
-			auto value = readParam<std::string_view>(L, -1);
-			meta->setString(name, value);
+			if (lua_type(L, -1) == LUA_TNUMBER) {
+				log_deprecated(L, "Passing `fields` with number values "
+					"is deprecated and may result in loss of precision.");
+			}
+			meta->setString(name, readParam<std::string_view>(L, -1));
 			lua_pop(L, 1); // Remove value, keep key for next iteration
 		}
 		lua_pop(L, 1);
@@ -311,21 +314,4 @@ int MetaDataRef::l_equals(lua_State *L)
 	else
 		lua_pushboolean(L, *data1 == *data2);
 	return 1;
-}
-
-void MetaDataRef::registerMetadataClass(lua_State *L, const char *name,
-		const luaL_Reg *methods)
-{
-	const luaL_Reg metamethods[] = {
-		{"__eq", l_equals},
-		{"__gc", gc_object},
-		{0, 0}
-	};
-	registerClass(L, name, methods, metamethods);
-
-	// Set metadata_class in the metatable for MetaDataRef::checkAnyMetadata.
-	luaL_getmetatable(L, name);
-	lua_pushstring(L, name);
-	lua_setfield(L, -2, "metadata_class");
-	lua_pop(L, 1);
 }

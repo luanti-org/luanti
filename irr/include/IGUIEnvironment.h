@@ -11,15 +11,11 @@
 #include "IEventReceiver.h"
 #include "path.h"
 
-namespace irr
-{
 class IOSOperator;
 class IEventReceiver;
 
 namespace io
 {
-class IReadFile;
-class IWriteFile;
 class IFileSystem;
 } // end namespace io
 namespace video
@@ -46,7 +42,6 @@ class IGUITabControl;
 class IGUITab;
 class IGUIComboBox;
 class IGUIButton;
-class IGUIWindow;
 
 //! GUI Environment. Used as factory and manager of all other GUI elements.
 /** \par This element can create the following events of type EGUI_EVENT_TYPE (which are passed on to focused sub-elements):
@@ -130,26 +125,18 @@ public:
 
 	//! Sets a new GUI Skin
 	/** You can use this to change the appearance of the whole GUI
-	Environment. You can set one of the built-in skins or implement your
-	own class derived from IGUISkin and enable it using this method.
-	To set for example the built-in Windows classic skin, use the following
-	code:
-	\code
-	gui::IGUISkin* newskin = environment->createSkin(gui::EGST_WINDOWS_CLASSIC);
-	environment->setSkin(newskin);
-	newskin->drop();
-	\endcode
+	Environment.
 	\param skin New skin to use.
 	*/
 	virtual void setSkin(IGUISkin *skin) = 0;
 
-	//! Creates a new GUI Skin based on a template.
+	//! Creates a new GUI Skin.
 	/** Use setSkin() to set the created skin.
 	\param type The type of the new skin.
 	\return Pointer to the created skin.
 	If you no longer need it, you should call IGUISkin::drop().
 	See IReferenceCounted::drop() for more information. */
-	virtual IGUISkin *createSkin(EGUI_SKIN_TYPE type) = 0;
+	virtual IGUISkin *createSkin() = 0;
 
 	//! Creates the image list from the given texture.
 	/** \param texture Texture to split into images
@@ -411,4 +398,3 @@ public:
 };
 
 } // end namespace gui
-} // end namespace irr

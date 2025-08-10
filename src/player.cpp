@@ -15,6 +15,13 @@
 #include "porting.h"  // strlcpy
 #include <tuple>
 
+const struct EnumString es_CameraMode[] = {
+	{CAMERA_MODE_ANY, "any"},
+	{CAMERA_MODE_FIRST, "first"},
+	{CAMERA_MODE_THIRD, "third"},
+	{CAMERA_MODE_THIRD_FRONT, "third_front"},
+	{0, nullptr}
+};
 
 bool is_valid_player_name(std::string_view name)
 {

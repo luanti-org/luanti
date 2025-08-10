@@ -8,6 +8,8 @@ compare_meta:from_table({
 		c = "3",
 		d = "4",
 		e = "e",
+		["0.3"] = "0.29999999999999999",
+		["0.1+0.2"] = "0.30000000000000004",
 	},
 })
 
@@ -21,6 +23,9 @@ local function test_metadata(meta)
 	meta:set_string("", "!")
 	meta:set_string("", "")
 
+	meta:set_float("0.3", 0.3)
+	meta:set_float("0.1+0.2", 0.1 + 0.2)
+
 	assert(meta:equals(compare_meta))
 
 	local tab = meta:to_table()
@@ -29,6 +34,8 @@ local function test_metadata(meta)
 	assert(tab.fields.c == "3")
 	assert(tab.fields.d == "4")
 	assert(tab.fields.e == "e")
+	assert(tab.fields["0.3"] == "0.29999999999999999")
+	assert(tab.fields["0.1+0.2"] == "0.30000000000000004")
 
 	local keys = meta:get_keys()
 	assert(table.indexof(keys, "a") > 0)
@@ -36,7 +43,7 @@ local function test_metadata(meta)
 	assert(table.indexof(keys, "c") > 0)
 	assert(table.indexof(keys, "d") > 0)
 	assert(table.indexof(keys, "e") > 0)
-	assert(#keys == 5)
+	assert(#keys == 7)
 
 	assert(not meta:contains(""))
 	assert(meta:contains("a"))
@@ -55,6 +62,8 @@ local function test_metadata(meta)
 	assert(meta:get_float("a") == 1.0)
 	assert(meta:get_int("e") == 0)
 	assert(meta:get_float("e") == 0.0)
+	assert(meta:get_float("0.3") == 0.3)
+	assert(meta:get_float("0.1+0.2") == 0.1 + 0.2)
 
 	meta:set_float("f", 1.1)
 	meta:set_string("g", "${f}")

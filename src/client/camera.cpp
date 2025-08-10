@@ -34,7 +34,7 @@ static constexpr f32 CAMERA_OFFSET_STEP = 200;
 #define WIELDMESH_AMPLITUDE_Y 10.0f
 
 static const char *setting_names[] = {
-	"fall_bobbing_amount", "view_bobbing_amount", "fov", "arm_inertia",
+	"view_bobbing_amount", "fov", "arm_inertia",
 	"show_nametag_backgrounds",
 };
 
@@ -78,7 +78,6 @@ void Camera::readSettings()
 	 *       (as opposed to the this local caching). This can be addressed in
 	 *       a later release.
 	 */
-	m_cache_fall_bobbing_amount = g_settings->getFloat("fall_bobbing_amount", 0.0f, 100.0f);
 	m_cache_view_bobbing_amount = g_settings->getFloat("view_bobbing_amount", 0.0f, 7.9f);
 	// 45 degrees is the lowest FOV that doesn't cause the server to treat this
 	// as a zoom FOV and load world beyond the set server limits.
@@ -130,19 +129,13 @@ inline f32 my_modf(f32 x)
 
 void Camera::step(f32 dtime)
 {
-	if(m_view_bobbing_fall > 0)
-	{
-		m_view_bobbing_fall -= 3 * dtime;
-		if(m_view_bobbing_fall <= 0)
-			m_view_bobbing_fall = -1; // Mark the effect as finished
-	}
-
 	bool was_under_zero = m_wield_change_timer < 0;
 	m_wield_change_timer = MYMIN(m_wield_change_timer + dtime, 0.125);
 
 	if (m_wield_change_timer >= 0 && was_under_zero) {
 		m_wieldnode->setItem(m_wield_item_next, m_client);
-		m_wieldnode->setNodeLightColor(m_player_light_color);
+		m_wieldnode->setLightColorAndAnimation(m_player_light_color,
+				m_client->getAnimationTime());
 	}
 
 	if (m_view_bobbing_state != 0)
@@ -351,30 +344,13 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	// Get camera tilt timer (hurt animation)
 	float cameratilt = fabs(fabs(player->hurt_tilt_timer-0.75)-0.75);
 
-	// Fall bobbing animation
-	float fall_bobbing = 0;
-	if(player->camera_impact >= 1 && m_camera_mode < CAMERA_MODE_THIRD)
-	{
-		if(m_view_bobbing_fall == -1) // Effect took place and has finished
-			player->camera_impact = m_view_bobbing_fall = 0;
-		else if(m_view_bobbing_fall == 0) // Initialize effect
-			m_view_bobbing_fall = 1;
-
-		// Convert 0 -> 1 to 0 -> 1 -> 0
-		fall_bobbing = m_view_bobbing_fall < 0.5 ? m_view_bobbing_fall * 2 : -(m_view_bobbing_fall - 0.5) * 2 + 1;
-		// Smoothen and invert the above
-		fall_bobbing = sin(fall_bobbing * 0.5 * M_PI) * -1;
-		// Amplify according to the intensity of the impact
-		if (player->camera_impact > 0.0f)
-			fall_bobbing *= (1 - rangelim(50 / player->camera_impact, 0, 1)) * 5;
-
-		fall_bobbing *= m_cache_fall_bobbing_amount;
-	}
-
 	// Calculate and translate the head SceneNode offsets
 	{
 		v3f eye_offset = player->getEyeOffset();
 		switch(m_camera_mode) {
+		case CAMERA_MODE_ANY:
+			assert(false);
+			break;
 		case CAMERA_MODE_FIRST:
 			eye_offset += player->eye_offset_first;
 			break;
@@ -389,7 +365,7 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 		}
 
 		// Set head node transformation
-		eye_offset.Y += cameratilt * -player->hurt_tilt_strength + fall_bobbing;
+		eye_offset.Y += cameratilt * -player->hurt_tilt_strength;
 		m_headnode->setPosition(eye_offset);
 		m_headnode->setRotation(v3f(pitch, 0,
 			cameratilt * player->hurt_tilt_strength));
@@ -562,7 +538,8 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	m_wieldnode->setRotation(wield_rotation);
 
 	m_player_light_color = player->light_color;
-	m_wieldnode->setNodeLightColor(m_player_light_color);
+	m_wieldnode->setLightColorAndAnimation(m_player_light_color,
+			m_client->getAnimationTime());
 
 	// Set render distance
 	updateViewingRange();
@@ -596,12 +573,12 @@ void Camera::updateViewingRange()
 
 	m_cameranode->setNearValue(0.1f * BS);
 
-	m_draw_control.wanted_range = std::fmin(adjustDist(viewing_range, getFovMax()), 4000);
+	m_draw_control.wanted_range = std::fmin(adjustDist(viewing_range, getFovMax()), 6000);
 	if (m_draw_control.range_all) {
 		m_cameranode->setFarValue(100000.0);
 		return;
 	}
-	m_cameranode->setFarValue((viewing_range < 2000) ? 2000 * BS : viewing_range * BS);
+	m_cameranode->setFarValue(std::fmax(2000, m_draw_control.wanted_range) * BS);
 }
 
 void Camera::setDigging(s32 button)
@@ -622,7 +599,7 @@ void Camera::wield(const ItemStack &item)
 	}
 }
 
-void Camera::drawWieldedTool(irr::core::matrix4* translation)
+void Camera::drawWieldedTool(core::matrix4* translation)
 {
 	// Clear Z buffer so that the wielded tool stays in front of world geometry
 	m_wieldmgr->getVideoDriver()->clearBuffers(video::ECBF_DEPTH);
@@ -635,12 +612,12 @@ void Camera::drawWieldedTool(irr::core::matrix4* translation)
 	cam->setFarValue(1000);
 	if (translation != NULL)
 	{
-		irr::core::matrix4 startMatrix = cam->getAbsoluteTransformation();
-		irr::core::vector3df focusPoint = (cam->getTarget()
+		core::matrix4 startMatrix = cam->getAbsoluteTransformation();
+		core::vector3df focusPoint = (cam->getTarget()
 				- cam->getAbsolutePosition()).setLength(1)
 				+ cam->getAbsolutePosition();
 
-		irr::core::vector3df camera_pos =
+		core::vector3df camera_pos =
 				(startMatrix * *translation).getTranslation();
 		cam->setPosition(camera_pos);
 		cam->updateAbsolutePosition();
@@ -708,7 +685,7 @@ void Camera::removeNametag(Nametag *nametag)
 
 std::array<core::plane3d<f32>, 4> Camera::getFrustumCullPlanes() const
 {
-	using irr::scene::SViewFrustum;
+	using scene::SViewFrustum;
 	const auto &frustum_planes = m_cameranode->getViewFrustum()->planes;
 	return {
 		frustum_planes[SViewFrustum::VF_LEFT_PLANE],

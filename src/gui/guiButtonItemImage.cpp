@@ -5,12 +5,11 @@
 #include "guiButtonItemImage.h"
 
 #include "client/client.h"
-#include "client/hud.h" // drawItemStack
 #include "guiItemImage.h"
 #include "IGUIEnvironment.h"
 #include "itemdef.h"
 
-using namespace irr;
+
 using namespace gui;
 
 GUIButtonItemImage::GUIButtonItemImage(gui::IGUIEnvironment *environment,

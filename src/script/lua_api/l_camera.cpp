@@ -175,7 +175,7 @@ void LuaCamera::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaCamera>(L, methods, metamethods);
 }
 
 const char LuaCamera::className[] = "Camera";

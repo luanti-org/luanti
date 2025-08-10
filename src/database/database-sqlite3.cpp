@@ -2,14 +2,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-/*
-SQLite format specification:
-	blocks:
-		(PK) INT id
-		BLOB data
-*/
-
-
 #include "database-sqlite3.h"
 
 #include "log.h"
@@ -26,23 +18,19 @@ SQLite format specification:
 
 // When to print messages when the database is being held locked by another process
 // Note: I've seen occasional delays of over 250ms while running minetestmapper.
-#define BUSY_INFO_TRESHOLD	100	// Print first informational message after 100ms.
-#define BUSY_WARNING_TRESHOLD	250	// Print warning message after 250ms. Lag is increased.
-#define BUSY_ERROR_TRESHOLD	1000	// Print error message after 1000ms. Significant lag.
-#define BUSY_FATAL_TRESHOLD	3000	// Allow SQLITE_BUSY to be returned, which will cause a minetest crash.
-#define BUSY_ERROR_INTERVAL	10000	// Safety net: report again every 10 seconds
+enum {
+	BUSY_INFO_TRESHOLD    = 100,   // Print first informational message.
+	BUSY_WARNING_TRESHOLD = 250,   // Print warning message. Significant lag.
+	BUSY_FATAL_TRESHOLD   = 3000,  // Allow SQLITE_BUSY to be returned back to the caller.
+	BUSY_ERROR_INTERVAL   = 10000, // Safety net: report again every 10 seconds
+};
 
-
-#define SQLRES(s, r, m) \
-	if ((s) != (r)) { \
-		throw DatabaseException(std::string(m) + ": " +\
-				sqlite3_errmsg(m_database)); \
-	}
+#define SQLRES(s, r, m) sqlite3_vrfy(s, m, r);
 #define SQLOK(s, m) SQLRES(s, SQLITE_OK, m)
 
 #define PREPARE_STATEMENT(name, query) \
-	SQLOK(sqlite3_prepare_v2(m_database, query, -1, &m_stmt_##name, NULL),\
-		"Failed to prepare query '" query "'")
+	SQLOK(sqlite3_prepare_v2(m_database, query, -1, &m_stmt_##name, NULL), \
+		std::string("Failed to prepare query \"").append(query).append("\""))
 
 #define SQLOK_ERRSTREAM(s, m)                           \
 	if ((s) != SQLITE_OK) {                             \
@@ -50,52 +38,49 @@ SQLite format specification:
 			<< sqlite3_errmsg(m_database) << std::endl; \
 	}
 
-#define FINALIZE_STATEMENT(statement) SQLOK_ERRSTREAM(sqlite3_finalize(statement), \
-	"Failed to finalize " #statement)
+#define FINALIZE_STATEMENT(name) \
+	sqlite3_finalize(m_stmt_##name); /* if this fails who cares */ \
+	m_stmt_##name = nullptr;
 
 int Database_SQLite3::busyHandler(void *data, int count)
 {
-	s64 &first_time = reinterpret_cast<s64 *>(data)[0];
-	s64 &prev_time = reinterpret_cast<s64 *>(data)[1];
-	s64 cur_time = porting::getTimeMs();
+	u64 &first_time = reinterpret_cast<u64*>(data)[0];
+	u64 &prev_time = reinterpret_cast<u64*>(data)[1];
+	u64 cur_time = porting::getTimeMs();
 
 	if (count == 0) {
 		first_time = cur_time;
 		prev_time = first_time;
-	} else {
-		while (cur_time < prev_time)
-			cur_time += s64(1)<<32;
 	}
 
-	if (cur_time - first_time < BUSY_INFO_TRESHOLD) {
-		; // do nothing
-	} else if (cur_time - first_time >= BUSY_INFO_TRESHOLD &&
-			prev_time - first_time < BUSY_INFO_TRESHOLD) {
+	const auto total_diff = cur_time - first_time; // time since first call
+	const auto this_diff = prev_time - first_time; // time since last call
+
+	if (total_diff < BUSY_INFO_TRESHOLD) {
+		// do nothing
+	} else if (total_diff >= BUSY_INFO_TRESHOLD &&
+			this_diff < BUSY_INFO_TRESHOLD) {
 		infostream << "SQLite3 database has been locked for "
-			<< cur_time - first_time << " ms." << std::endl;
-	} else if (cur_time - first_time >= BUSY_WARNING_TRESHOLD &&
-			prev_time - first_time < BUSY_WARNING_TRESHOLD) {
+			<< total_diff << " ms." << std::endl;
+	} else if (total_diff >= BUSY_WARNING_TRESHOLD &&
+			this_diff < BUSY_WARNING_TRESHOLD) {
 		warningstream << "SQLite3 database has been locked for "
-			<< cur_time - first_time << " ms." << std::endl;
-	} else if (cur_time - first_time >= BUSY_ERROR_TRESHOLD &&
-			prev_time - first_time < BUSY_ERROR_TRESHOLD) {
+			<< total_diff << " ms; this causes lag." << std::endl;
+	} else if (total_diff >= BUSY_FATAL_TRESHOLD &&
+			this_diff < BUSY_FATAL_TRESHOLD) {
 		errorstream << "SQLite3 database has been locked for "
-			<< cur_time - first_time << " ms; this causes lag." << std::endl;
-	} else if (cur_time - first_time >= BUSY_FATAL_TRESHOLD &&
-			prev_time - first_time < BUSY_FATAL_TRESHOLD) {
-		errorstream << "SQLite3 database has been locked for "
-			<< cur_time - first_time << " ms - giving up!" << std::endl;
-	} else if ((cur_time - first_time) / BUSY_ERROR_INTERVAL !=
-			(prev_time - first_time) / BUSY_ERROR_INTERVAL) {
+			<< total_diff << " ms - giving up!" << std::endl;
+	} else if (total_diff / BUSY_ERROR_INTERVAL !=
+			this_diff / BUSY_ERROR_INTERVAL) {
 		// Safety net: keep reporting every BUSY_ERROR_INTERVAL
 		errorstream << "SQLite3 database has been locked for "
-			<< (cur_time - first_time) / 1000 << " seconds!" << std::endl;
+			<< total_diff / 1000 << " seconds!" << std::endl;
 	}
 
 	prev_time = cur_time;
 
 	// Make sqlite transaction fail if delay exceeds BUSY_FATAL_TRESHOLD
-	return cur_time - first_time < BUSY_FATAL_TRESHOLD;
+	return total_diff < BUSY_FATAL_TRESHOLD;
 }
 
 
@@ -130,7 +115,7 @@ void Database_SQLite3::openDatabase()
 	// Open the database connection
 
 	if (!fs::CreateAllDirs(m_savedir)) {
-		infostream << "Database_SQLite3: Failed to create directory \""
+		errorstream << "Database_SQLite3: Failed to create directory \""
 			<< m_savedir << "\"" << std::endl;
 		throw FileNotGoodException("Failed to create database "
 				"save directory");
@@ -138,8 +123,11 @@ void Database_SQLite3::openDatabase()
 
 	bool needs_create = !fs::PathExists(dbp);
 
-	SQLOK(sqlite3_open_v2(dbp.c_str(), &m_database,
-			SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL),
+	auto flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+#ifdef SQLITE_OPEN_EXRESCODE
+	flags |= SQLITE_OPEN_EXRESCODE;
+#endif
+	SQLOK(sqlite3_open_v2(dbp.c_str(), &m_database, flags, NULL),
 		std::string("Failed to open SQLite3 database file ") + dbp);
 
 	SQLOK(sqlite3_busy_handler(m_database, Database_SQLite3::busyHandler,
@@ -152,9 +140,9 @@ void Database_SQLite3::openDatabase()
 	std::string query_str = std::string("PRAGMA synchronous = ")
 			 + itos(g_settings->getU16("sqlite_synchronous"));
 	SQLOK(sqlite3_exec(m_database, query_str.c_str(), NULL, NULL, NULL),
-		"Failed to modify sqlite3 synchronous mode");
+		"Failed to set SQLite3 synchronous mode");
 	SQLOK(sqlite3_exec(m_database, "PRAGMA foreign_keys = ON", NULL, NULL, NULL),
-		"Failed to enable sqlite3 foreign key support");
+		"Failed to enable SQLite3 foreign key support");
 }
 
 void Database_SQLite3::verifyDatabase()
@@ -171,10 +159,47 @@ void Database_SQLite3::verifyDatabase()
 	m_initialized = true;
 }
 
+bool Database_SQLite3::checkTable(const char *table)
+{
+	assert(m_database);
+
+	// PRAGMA table_list would be cleaner here but it was only introduced in
+	// sqlite 3.37.0 (2021-11-27).
+	// So let's do this: https://stackoverflow.com/a/83195
+
+	sqlite3_stmt *m_stmt_tmp = nullptr;
+	PREPARE_STATEMENT(tmp, "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?;");
+	str_to_sqlite(m_stmt_tmp, 1, table);
+
+	bool ret = (sqlite3_step(m_stmt_tmp) == SQLITE_ROW);
+
+	FINALIZE_STATEMENT(tmp)
+	return ret;
+}
+
+bool Database_SQLite3::checkColumn(const char *table, const char *column)
+{
+	assert(m_database);
+
+	sqlite3_stmt *m_stmt_tmp = nullptr;
+	auto query_str = std::string("PRAGMA table_info(").append(table).append(");");
+	PREPARE_STATEMENT(tmp, query_str.c_str());
+
+	bool ret = false;
+	while (sqlite3_step(m_stmt_tmp) == SQLITE_ROW) {
+		ret |= sqlite_to_string_view(m_stmt_tmp, 1) == column;
+		if (ret)
+			break;
+	}
+
+	FINALIZE_STATEMENT(tmp)
+	return ret;
+}
+
 Database_SQLite3::~Database_SQLite3()
 {
-	FINALIZE_STATEMENT(m_stmt_begin)
-	FINALIZE_STATEMENT(m_stmt_end)
+	FINALIZE_STATEMENT(begin)
+	FINALIZE_STATEMENT(end)
 
 	SQLOK_ERRSTREAM(sqlite3_close(m_database), "Failed to close database");
 }
@@ -191,40 +216,68 @@ MapDatabaseSQLite3::MapDatabaseSQLite3(const std::string &savedir):
 
 MapDatabaseSQLite3::~MapDatabaseSQLite3()
 {
-	FINALIZE_STATEMENT(m_stmt_read)
-	FINALIZE_STATEMENT(m_stmt_write)
-	FINALIZE_STATEMENT(m_stmt_list)
-	FINALIZE_STATEMENT(m_stmt_delete)
+	FINALIZE_STATEMENT(read)
+	FINALIZE_STATEMENT(write)
+	FINALIZE_STATEMENT(list)
+	FINALIZE_STATEMENT(delete)
 }
 
 
 void MapDatabaseSQLite3::createDatabase()
 {
-	assert(m_database); // Pre-condition
+	assert(m_database);
 
-	SQLOK(sqlite3_exec(m_database,
+	// Note: before 5.12.0 the format was blocks(pos INT, data BLOB).
+	// This function only runs for newly created databases.
+
+	const char *schema =
 		"CREATE TABLE IF NOT EXISTS `blocks` (\n"
-			"	`pos` INT PRIMARY KEY,\n"
-			"	`data` BLOB\n"
-			");\n",
-		NULL, NULL, NULL),
+			"`x` INTEGER,"
+			"`y` INTEGER,"
+			"`z` INTEGER,"
+			"`data` BLOB NOT NULL,"
+			// Declaring a primary key automatically creates an index and the
+			// order largely dictates which range operations can be sped up.
+			// see also: <https://www.sqlite.org/optoverview.html#skipscan>
+			// Putting XZ before Y matches our MapSector abstraction.
+			"PRIMARY KEY (`x`, `z`, `y`)"
+		");\n"
+	;
+	SQLOK(sqlite3_exec(m_database, schema, NULL, NULL, NULL),
 		"Failed to create database table");
 }
 
 void MapDatabaseSQLite3::initStatements()
 {
-	PREPARE_STATEMENT(read, "SELECT `data` FROM `blocks` WHERE `pos` = ? LIMIT 1");
-	PREPARE_STATEMENT(write, "REPLACE INTO `blocks` (`pos`, `data`) VALUES (?, ?)");
-	PREPARE_STATEMENT(delete, "DELETE FROM `blocks` WHERE `pos` = ?");
-	PREPARE_STATEMENT(list, "SELECT `pos` FROM `blocks`");
+	assert(checkTable("blocks"));
+	m_new_format = checkColumn("blocks", "z");
+	infostream << "MapDatabaseSQLite3: split column format = "
+		<< (m_new_format ? "yes" : "no") << std::endl;
 
-	verbosestream << "ServerMap: SQLite3 database opened." << std::endl;
+	if (m_new_format) {
+		PREPARE_STATEMENT(read, "SELECT `data` FROM `blocks` WHERE `x` = ? AND `y` = ? AND `z` = ? LIMIT 1");
+		PREPARE_STATEMENT(write, "REPLACE INTO `blocks` (`x`, `y`, `z`, `data`) VALUES (?, ?, ?, ?)");
+		PREPARE_STATEMENT(delete, "DELETE FROM `blocks` WHERE `x` = ? AND `y` = ? AND `z` = ?");
+		PREPARE_STATEMENT(list, "SELECT `x`, `y`, `z` FROM `blocks`");
+	} else {
+		PREPARE_STATEMENT(read, "SELECT `data` FROM `blocks` WHERE `pos` = ? LIMIT 1");
+		PREPARE_STATEMENT(write, "REPLACE INTO `blocks` (`pos`, `data`) VALUES (?, ?)");
+		PREPARE_STATEMENT(delete, "DELETE FROM `blocks` WHERE `pos` = ?");
+		PREPARE_STATEMENT(list, "SELECT `pos` FROM `blocks`");
+	}
 }
 
-inline void MapDatabaseSQLite3::bindPos(sqlite3_stmt *stmt, const v3s16 &pos, int index)
+inline int MapDatabaseSQLite3::bindPos(sqlite3_stmt *stmt, v3s16 pos, int index)
 {
-	SQLOK(sqlite3_bind_int64(stmt, index, getBlockAsInteger(pos)),
-		"Internal error: failed to bind query at " __FILE__ ":" TOSTRING(__LINE__));
+	if (m_new_format) {
+		int_to_sqlite(stmt, index, pos.X);
+		int_to_sqlite(stmt, index + 1, pos.Y);
+		int_to_sqlite(stmt, index + 2, pos.Z);
+		return index + 3;
+	} else {
+		int64_to_sqlite(stmt, index, getBlockAsInteger(pos));
+		return index + 1;
+	}
 }
 
 bool MapDatabaseSQLite3::deleteBlock(const v3s16 &pos)
@@ -237,7 +290,7 @@ bool MapDatabaseSQLite3::deleteBlock(const v3s16 &pos)
 	sqlite3_reset(m_stmt_delete);
 
 	if (!good) {
-		warningstream << "deleteBlock: Block failed to delete "
+		warningstream << "deleteBlock: Failed to delete block "
 			<< pos << ": " << sqlite3_errmsg(m_database) << std::endl;
 	}
 	return good;
@@ -247,9 +300,8 @@ bool MapDatabaseSQLite3::saveBlock(const v3s16 &pos, std::string_view data)
 {
 	verifyDatabase();
 
-	bindPos(m_stmt_write, pos);
-	SQLOK(sqlite3_bind_blob(m_stmt_write, 2, data.data(), data.size(), NULL),
-		"Internal error: failed to bind query at " __FILE__ ":" TOSTRING(__LINE__));
+	int col = bindPos(m_stmt_write, pos);
+	blob_to_sqlite(m_stmt_write, col, data);
 
 	SQLRES(sqlite3_step(m_stmt_write), SQLITE_DONE, "Failed to save block")
 	sqlite3_reset(m_stmt_write);
@@ -264,6 +316,7 @@ void MapDatabaseSQLite3::loadBlock(const v3s16 &pos, std::string *block)
 	bindPos(m_stmt_read, pos);
 
 	if (sqlite3_step(m_stmt_read) != SQLITE_ROW) {
+		block->clear();
 		sqlite3_reset(m_stmt_read);
 		return;
 	}
@@ -271,7 +324,6 @@ void MapDatabaseSQLite3::loadBlock(const v3s16 &pos, std::string *block)
 	auto data = sqlite_to_blob(m_stmt_read, 0);
 	block->assign(data);
 
-	sqlite3_step(m_stmt_read);
 	// We should never get more than 1 row, so ok to reset
 	sqlite3_reset(m_stmt_read);
 }
@@ -280,8 +332,17 @@ void MapDatabaseSQLite3::listAllLoadableBlocks(std::vector<v3s16> &dst)
 {
 	verifyDatabase();
 
-	while (sqlite3_step(m_stmt_list) == SQLITE_ROW)
-		dst.push_back(getIntegerAsBlock(sqlite3_column_int64(m_stmt_list, 0)));
+	v3s16 p;
+	while (sqlite3_step(m_stmt_list) == SQLITE_ROW) {
+		if (m_new_format) {
+			p.X = sqlite_to_int(m_stmt_list, 0);
+			p.Y = sqlite_to_int(m_stmt_list, 1);
+			p.Z = sqlite_to_int(m_stmt_list, 2);
+		} else {
+			p = getIntegerAsBlock(sqlite_to_int64(m_stmt_list, 0));
+		}
+		dst.push_back(p);
+	}
 
 	sqlite3_reset(m_stmt_list);
 }
@@ -298,35 +359,38 @@ PlayerDatabaseSQLite3::PlayerDatabaseSQLite3(const std::string &savedir):
 
 PlayerDatabaseSQLite3::~PlayerDatabaseSQLite3()
 {
-	FINALIZE_STATEMENT(m_stmt_player_load)
-	FINALIZE_STATEMENT(m_stmt_player_add)
-	FINALIZE_STATEMENT(m_stmt_player_update)
-	FINALIZE_STATEMENT(m_stmt_player_remove)
-	FINALIZE_STATEMENT(m_stmt_player_list)
-	FINALIZE_STATEMENT(m_stmt_player_add_inventory)
-	FINALIZE_STATEMENT(m_stmt_player_add_inventory_items)
-	FINALIZE_STATEMENT(m_stmt_player_remove_inventory)
-	FINALIZE_STATEMENT(m_stmt_player_remove_inventory_items)
-	FINALIZE_STATEMENT(m_stmt_player_load_inventory)
-	FINALIZE_STATEMENT(m_stmt_player_load_inventory_items)
-	FINALIZE_STATEMENT(m_stmt_player_metadata_load)
-	FINALIZE_STATEMENT(m_stmt_player_metadata_add)
-	FINALIZE_STATEMENT(m_stmt_player_metadata_remove)
+	FINALIZE_STATEMENT(player_load)
+	FINALIZE_STATEMENT(player_add)
+	FINALIZE_STATEMENT(player_update)
+	FINALIZE_STATEMENT(player_remove)
+	FINALIZE_STATEMENT(player_list)
+	FINALIZE_STATEMENT(player_add_inventory)
+	FINALIZE_STATEMENT(player_add_inventory_items)
+	FINALIZE_STATEMENT(player_remove_inventory)
+	FINALIZE_STATEMENT(player_remove_inventory_items)
+	FINALIZE_STATEMENT(player_load_inventory)
+	FINALIZE_STATEMENT(player_load_inventory_items)
+	FINALIZE_STATEMENT(player_metadata_load)
+	FINALIZE_STATEMENT(player_metadata_add)
+	FINALIZE_STATEMENT(player_metadata_remove)
 };
 
 
 void PlayerDatabaseSQLite3::createDatabase()
 {
-	assert(m_database); // Pre-condition
+	assert(m_database);
+
+	// When designing the schema remember that SQLite only has 5 basic data types
+	// and ignores length-limited types like "VARCHAR(32)".
 
 	SQLOK(sqlite3_exec(m_database,
 		"CREATE TABLE IF NOT EXISTS `player` ("
-			"`name` VARCHAR(50) NOT NULL,"
-			"`pitch` NUMERIC(11, 4) NOT NULL,"
-			"`yaw` NUMERIC(11, 4) NOT NULL,"
-			"`posX` NUMERIC(11, 4) NOT NULL,"
-			"`posY` NUMERIC(11, 4) NOT NULL,"
-			"`posZ` NUMERIC(11, 4) NOT NULL,"
+			"`name` TEXT NOT NULL,"
+			"`pitch` NUMERIC NOT NULL,"
+			"`yaw` NUMERIC NOT NULL,"
+			"`posX` NUMERIC NOT NULL,"
+			"`posY` NUMERIC NOT NULL,"
+			"`posZ` NUMERIC NOT NULL,"
 			"`hp` INT NOT NULL,"
 			"`breath` INT NOT NULL,"
 			"`creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
@@ -337,9 +401,9 @@ void PlayerDatabaseSQLite3::createDatabase()
 
 	SQLOK(sqlite3_exec(m_database,
 		"CREATE TABLE IF NOT EXISTS `player_metadata` ("
-			"    `player` VARCHAR(50) NOT NULL,"
-			"    `metadata` VARCHAR(256) NOT NULL,"
-			"    `value` TEXT,"
+			"    `player` TEXT NOT NULL,"
+			"    `metadata` TEXT NOT NULL,"
+			"    `value` TEXT NOT NULL,"
 			"    PRIMARY KEY(`player`, `metadata`),"
 			"    FOREIGN KEY (`player`) REFERENCES player (`name`) ON DELETE CASCADE );",
 		NULL, NULL, NULL),
@@ -347,7 +411,7 @@ void PlayerDatabaseSQLite3::createDatabase()
 
 	SQLOK(sqlite3_exec(m_database,
 		"CREATE TABLE IF NOT EXISTS `player_inventories` ("
-			"   `player` VARCHAR(50) NOT NULL,"
+			"   `player` TEXT NOT NULL,"
 			"	`inv_id` INT NOT NULL,"
 			"	`inv_width` INT NOT NULL,"
 			"	`inv_name` TEXT NOT NULL DEFAULT '',"
@@ -359,7 +423,7 @@ void PlayerDatabaseSQLite3::createDatabase()
 
 	SQLOK(sqlite3_exec(m_database,
 		"CREATE TABLE `player_inventory_items` ("
-			"   `player` VARCHAR(50) NOT NULL,"
+			"   `player` TEXT NOT NULL,"
 			"	`inv_id` INT NOT NULL,"
 			"	`slot_id` INT NOT NULL,"
 			"	`item` TEXT NOT NULL DEFAULT '',"
@@ -401,7 +465,6 @@ void PlayerDatabaseSQLite3::initStatements()
 		"(`player`, `metadata`, `value`) VALUES (?, ?, ?)")
 	PREPARE_STATEMENT(player_metadata_remove, "DELETE FROM `player_metadata` "
 		"WHERE `player` = ?")
-	verbosestream << "ServerEnvironment: SQLite3 database opened (players)." << std::endl;
 }
 
 bool PlayerDatabaseSQLite3::playerDataExists(const std::string &name)
@@ -588,27 +651,27 @@ AuthDatabaseSQLite3::AuthDatabaseSQLite3(const std::string &savedir) :
 
 AuthDatabaseSQLite3::~AuthDatabaseSQLite3()
 {
-	FINALIZE_STATEMENT(m_stmt_read)
-	FINALIZE_STATEMENT(m_stmt_write)
-	FINALIZE_STATEMENT(m_stmt_create)
-	FINALIZE_STATEMENT(m_stmt_delete)
-	FINALIZE_STATEMENT(m_stmt_list_names)
-	FINALIZE_STATEMENT(m_stmt_read_privs)
-	FINALIZE_STATEMENT(m_stmt_write_privs)
-	FINALIZE_STATEMENT(m_stmt_delete_privs)
-	FINALIZE_STATEMENT(m_stmt_last_insert_rowid)
+	FINALIZE_STATEMENT(read)
+	FINALIZE_STATEMENT(write)
+	FINALIZE_STATEMENT(create)
+	FINALIZE_STATEMENT(delete)
+	FINALIZE_STATEMENT(list_names)
+	FINALIZE_STATEMENT(read_privs)
+	FINALIZE_STATEMENT(write_privs)
+	FINALIZE_STATEMENT(delete_privs)
+	FINALIZE_STATEMENT(last_insert_rowid)
 }
 
 void AuthDatabaseSQLite3::createDatabase()
 {
-	assert(m_database); // Pre-condition
+	assert(m_database);
 
 	SQLOK(sqlite3_exec(m_database,
 		"CREATE TABLE IF NOT EXISTS `auth` ("
 			"`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-			"`name` VARCHAR(32) UNIQUE,"
-			"`password` VARCHAR(512),"
-			"`last_login` INTEGER"
+			"`name` TEXT UNIQUE NOT NULL,"
+			"`password` TEXT NOT NULL,"
+			"`last_login` INTEGER NOT NULL DEFAULT 0"
 		");",
 		NULL, NULL, NULL),
 		"Failed to create auth table");
@@ -616,7 +679,7 @@ void AuthDatabaseSQLite3::createDatabase()
 	SQLOK(sqlite3_exec(m_database,
 		"CREATE TABLE IF NOT EXISTS `user_privileges` ("
 			"`id` INTEGER,"
-			"`privilege` VARCHAR(32),"
+			"`privilege` TEXT,"
 			"PRIMARY KEY (id, privilege)"
 			"CONSTRAINT fk_id FOREIGN KEY (id) REFERENCES auth (id) ON DELETE CASCADE"
 		");",
@@ -751,18 +814,18 @@ ModStorageDatabaseSQLite3::ModStorageDatabaseSQLite3(const std::string &savedir)
 
 ModStorageDatabaseSQLite3::~ModStorageDatabaseSQLite3()
 {
-	FINALIZE_STATEMENT(m_stmt_remove_all)
-	FINALIZE_STATEMENT(m_stmt_remove)
-	FINALIZE_STATEMENT(m_stmt_set)
-	FINALIZE_STATEMENT(m_stmt_has)
-	FINALIZE_STATEMENT(m_stmt_get)
-	FINALIZE_STATEMENT(m_stmt_get_keys)
-	FINALIZE_STATEMENT(m_stmt_get_all)
+	FINALIZE_STATEMENT(remove_all)
+	FINALIZE_STATEMENT(remove)
+	FINALIZE_STATEMENT(set)
+	FINALIZE_STATEMENT(has)
+	FINALIZE_STATEMENT(get)
+	FINALIZE_STATEMENT(get_keys)
+	FINALIZE_STATEMENT(get_all)
 }
 
 void ModStorageDatabaseSQLite3::createDatabase()
 {
-	assert(m_database); // Pre-condition
+	assert(m_database);
 
 	SQLOK(sqlite3_exec(m_database,
 		"CREATE TABLE IF NOT EXISTS `entries` (\n"
@@ -825,8 +888,7 @@ bool ModStorageDatabaseSQLite3::getModEntry(const std::string &modname,
 	verifyDatabase();
 
 	str_to_sqlite(m_stmt_get, 1, modname);
-	SQLOK(sqlite3_bind_blob(m_stmt_get, 2, key.data(), key.size(), NULL),
-		"Internal error: failed to bind query at " __FILE__ ":" TOSTRING(__LINE__));
+	blob_to_sqlite(m_stmt_get, 2, key);
 	bool found = sqlite3_step(m_stmt_get) == SQLITE_ROW;
 	if (found) {
 		auto sv = sqlite_to_blob(m_stmt_get, 0);
@@ -845,8 +907,7 @@ bool ModStorageDatabaseSQLite3::hasModEntry(const std::string &modname,
 	verifyDatabase();
 
 	str_to_sqlite(m_stmt_has, 1, modname);
-	SQLOK(sqlite3_bind_blob(m_stmt_has, 2, key.data(), key.size(), NULL),
-		"Internal error: failed to bind query at " __FILE__ ":" TOSTRING(__LINE__));
+	blob_to_sqlite(m_stmt_has, 2, key);
 	bool found = sqlite3_step(m_stmt_has) == SQLITE_ROW;
 	if (found)
 		sqlite3_step(m_stmt_has);
@@ -862,10 +923,8 @@ bool ModStorageDatabaseSQLite3::setModEntry(const std::string &modname,
 	verifyDatabase();
 
 	str_to_sqlite(m_stmt_set, 1, modname);
-	SQLOK(sqlite3_bind_blob(m_stmt_set, 2, key.data(), key.size(), NULL),
-		"Internal error: failed to bind query at " __FILE__ ":" TOSTRING(__LINE__));
-	SQLOK(sqlite3_bind_blob(m_stmt_set, 3, value.data(), value.size(), NULL),
-		"Internal error: failed to bind query at " __FILE__ ":" TOSTRING(__LINE__));
+	blob_to_sqlite(m_stmt_set, 2, key);
+	blob_to_sqlite(m_stmt_set, 3, value);
 	SQLRES(sqlite3_step(m_stmt_set), SQLITE_DONE, "Failed to set mod entry")
 
 	sqlite3_reset(m_stmt_set);
@@ -879,8 +938,7 @@ bool ModStorageDatabaseSQLite3::removeModEntry(const std::string &modname,
 	verifyDatabase();
 
 	str_to_sqlite(m_stmt_remove, 1, modname);
-	SQLOK(sqlite3_bind_blob(m_stmt_remove, 2, key.data(), key.size(), NULL),
-		"Internal error: failed to bind query at " __FILE__ ":" TOSTRING(__LINE__));
+	blob_to_sqlite(m_stmt_remove, 2, key);
 	sqlite3_vrfy(sqlite3_step(m_stmt_remove), SQLITE_DONE);
 	int changes = sqlite3_changes(m_database);
 
@@ -906,6 +964,7 @@ void ModStorageDatabaseSQLite3::listMods(std::vector<std::string> *res)
 {
 	verifyDatabase();
 
+	// FIXME: please don't do this. this should be sqlite3_step like all others.
 	char *errmsg;
 	int status = sqlite3_exec(m_database,
 		"SELECT `modname` FROM `entries` GROUP BY `modname`;",

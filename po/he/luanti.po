@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Hebrew (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-09 13:23+0100\n"
-"PO-Revision-Date: 2024-05-04 14:07+0000\n"
-"Last-Translator: jhon game <jhongamepc2@gmail.com>\n"
+"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"PO-Revision-Date: 2025-06-21 13:01+0000\n"
+"Last-Translator: ShiloMazuz <shiloteam@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/minetest/minetest/"
 "he/>\n"
 "Language: he\n"
@@ -13,66 +13,59 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.5.3\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
 msgstr "נקה את תור הצ'אט"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Empty command."
-msgstr "פקודות צ'אט"
+msgstr "פקודה ריקה"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Exit to main menu"
 msgstr "יציאה לתפריט"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Invalid command: "
-msgstr "פקודה מקומית"
+msgstr "פקודה לא חוקית "
 
 #: builtin/client/chatcommands.lua
 msgid "Issued command: "
-msgstr ""
+msgstr "פקודה שניתנה: "
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "List online players"
-msgstr "שחקן יחיד"
+msgstr "הצג שחקנים מחוברים"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Online players: "
-msgstr "שחקן יחיד"
+msgstr "שחקנים מחוברים: "
 
 #: builtin/client/chatcommands.lua
 msgid "The out chat queue is now empty."
-msgstr ""
+msgstr "תור הצ'אט ליציאה ריק כעת."
 
 #: builtin/client/chatcommands.lua
 msgid "This command is disabled by server."
-msgstr ""
+msgstr "פקודה זו מושבתת על ידי השרת."
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Available commands:"
-msgstr "פקודה מקומית"
+msgstr "פקודות זמינות:"
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Available commands: "
-msgstr "פקודה מקומית"
+msgstr "פקודות זמינות: "
 
 #: builtin/common/chatcommands.lua
 msgid "Command not available: "
-msgstr ""
+msgstr "הפקודה לא זמינה: "
 
 #: builtin/common/chatcommands.lua
 msgid "Get help for commands (-t: output in chat)"
-msgstr ""
+msgstr "קבל עזרה עבור פקודות (-ל: פלט בצ'אט)"
 
 #: builtin/common/chatcommands.lua
 msgid ""
@@ -88,8 +81,17 @@ msgid "Browse"
 msgstr "דפדף"
 
 #: builtin/common/settings/components.lua
+msgid "Conflicts with \"$1\""
+msgstr "התנגשות עם \"$1\""
+
+#: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "עריכה"
+
+#: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Remove keybinding"
+msgstr "הסר קיצור"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -100,9 +102,8 @@ msgid "Select file"
 msgstr "נא לבחור קובץ"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Set"
-msgstr "Select"
+msgstr "קבע"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
@@ -118,8 +119,8 @@ msgstr "רעש דו-מיימדי"
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
-#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/guiOpenURL.cpp src/gui/guiPasswordChange.cpp
+#: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
+#: src/gui/guiPasswordChange.cpp
 msgid "Cancel"
 msgstr "ביטול"
 
@@ -142,7 +143,7 @@ msgid "Persistence"
 msgstr "התמדה"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#: builtin/mainmenu/dlg_config_world.lua src/gui/guiKeyChangeMenu.cpp
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "Save"
 msgstr "שמירה"
 
@@ -215,8 +216,19 @@ msgstr ""
 msgid "Auto"
 msgstr ""
 
-#: builtin/common/settings/dlg_settings.lua src/gui/guiKeyChangeMenu.cpp
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/mainmenu/content/dlg_contentdb.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
+#, fuzzy
+msgid "Back"
+msgstr "אחורה"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Buttons with crosshair"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
+#: src/settings_translation_file.cpp
 msgid "Chat"
 msgstr "צ'אט"
 
@@ -242,6 +254,10 @@ msgid "General"
 msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Long tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
 msgstr ""
 
@@ -264,6 +280,10 @@ msgid "Search"
 msgstr "חיפוש"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Short tap"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
 msgstr ""
 
@@ -273,12 +293,17 @@ msgstr "הצגת שמות טכניים"
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
-msgid "Touchscreen layout"
-msgstr "סף נגיעה: (px)"
+msgid "Tap"
+msgstr "Tab"
 
 #: builtin/common/settings/dlg_settings.lua
-msgid "pause_menu"
+msgid "Tap with crosshair"
 msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Touchscreen layout"
+msgstr "סף נגיעה: (px)"
 
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
@@ -413,12 +438,6 @@ msgid "All"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
-msgid "Back"
-msgstr "אחורה"
-
-#: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr "בסיס נתוני התוכן לא זמין כאשר מיינטסט מקומפל בלי cUrl"
@@ -447,7 +466,6 @@ msgid "Mods"
 msgstr "שיפורים"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
 msgid "No packages could be retrieved"
 msgstr "לא ניתן להביא את החבילות"
 
@@ -506,6 +524,7 @@ msgid "Error getting dependencies for package $1"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "התקנה"
 
@@ -552,6 +571,15 @@ msgid "Donate"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "Error loading package information"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "Error loading reviews"
+msgstr "יוצר לקוח..."
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
 msgstr ""
 
@@ -567,6 +595,10 @@ msgstr "התקנת $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
+msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+msgid "Reviews"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
@@ -588,6 +620,11 @@ msgstr "עדכון"
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
 msgstr ""
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "by $1"
+msgstr "$1 ליד $2"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -626,7 +663,7 @@ msgstr "לא ניתן להתקין $1 כחבילת טקסטורות"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
-"This is the list of clients connected to\n"
+"Players connected to\n"
 "$1"
 msgstr ""
 
@@ -911,6 +948,31 @@ msgstr "pkgmgr: נתיב לא חוקי \"$1\""
 #: builtin/mainmenu/dlg_delete_world.lua
 msgid "Delete World \"$1\"?"
 msgstr "למחוק את העולם \"$1\"?"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Keybindings changed"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Open settings"
+msgstr "הגדרות"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr ""
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -1220,13 +1282,6 @@ msgid "Address"
 msgstr "- כתובת: "
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
-msgid ""
-"Clients:\n"
-"$1"
-msgstr "לקוח"
-
-#: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
 msgstr "מצב יצירתי"
 
@@ -1271,6 +1326,13 @@ msgid "Ping"
 msgstr "פינג"
 
 #: builtin/mainmenu/tab_online.lua
+#, fuzzy
+msgid ""
+"Players:\n"
+"$1"
+msgstr "לקוח"
+
+#: builtin/mainmenu/tab_online.lua
 msgid ""
 "Possible filters\n"
 "game:<name>\n"
@@ -1311,6 +1373,11 @@ msgid "Done!"
 msgstr "הסתיים!"
 
 #: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "מאתחל קוביות"
 
@@ -1325,6 +1392,11 @@ msgstr "טוען טקסטורות..."
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
 msgstr "בונה מחדש שיידרים..."
+
+#: src/client/client.cpp
+#, fuzzy, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "צילום מסך"
 
 #: src/client/clientlauncher.cpp
 #, fuzzy
@@ -1466,9 +1538,9 @@ msgid "Debug info shown"
 msgstr "מידע דיבאג מוצג"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Error creating client: %s"
-msgstr "יוצר לקוח..."
+msgstr "שגיאה ביצירת לקוח: %s"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
@@ -2120,6 +2192,11 @@ msgstr ""
 msgid "Some mods have unsatisfied dependencies:"
 msgstr "ללא תלויות קשות"
 
+#: src/gui/guiButtonKey.h
+#, fuzzy
+msgid "Press Button"
+msgstr "הלחצן השמאלי"
+
 #: src/gui/guiChatConsole.cpp
 #, fuzzy
 msgid "Failed to open webpage"
@@ -2132,163 +2209,6 @@ msgstr ""
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
 msgstr "להמשיך"
-
-#: src/gui/guiKeyChangeMenu.cpp
-#, fuzzy
-msgid "\"Aux1\" = climb down"
-msgstr "\"מיוחד\" = טפס למטה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Autoforward"
-msgstr "קדימה אוטומטי"
-
-#: src/gui/guiKeyChangeMenu.cpp src/settings_translation_file.cpp
-msgid "Automatic jumping"
-msgstr "קפיצה אוטומטית"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Aux1"
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Backward"
-msgstr "אחורה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Block bounds"
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Change camera"
-msgstr "שנה מצלמה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Command"
-msgstr "פקודה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Console"
-msgstr "קונסולה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. range"
-msgstr "הקטן טווח"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Dec. volume"
-msgstr "הנמך ווליום"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Double tap \"jump\" to toggle fly"
-msgstr "לחיצה כפולה על \"קפיצה\" כדי לכבות או להדליק את מצב התעופה"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Drop"
-msgstr "הפל"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Forward"
-msgstr "קדימה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. range"
-msgstr "הגדל טווח"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Inc. volume"
-msgstr "הגבר ווליום"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Inventory"
-msgstr "תיק חפצים"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Jump"
-msgstr "קפיצה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Key already in use"
-msgstr "מקש כבר בשימוש"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Keybindings."
-msgstr ""
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Left"
-msgstr "שמאלה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Local command"
-msgstr "פקודה מקומית"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Mute"
-msgstr "השתק"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Next item"
-msgstr "הפריט הבא"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Prev. item"
-msgstr "הפריט הקודם"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Range select"
-msgstr "בחר טווח"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Right"
-msgstr "ימינה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Screenshot"
-msgstr "צילום מסך"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Sneak"
-msgstr "התכופף"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle HUD"
-msgstr "מתג מידע על מסך"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle chat log"
-msgstr "מתג צא'ט לוג"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fast"
-msgstr "מתג מצב מהיר"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle fly"
-msgstr "מתג תעופה"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle fog"
-msgstr "מתג ערפל"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle minimap"
-msgstr "מתג מפה קטנה"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Toggle noclip"
-msgstr "מתג מעבר דרך קירות"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "Toggle pitchmove"
-msgstr "מתג תנועה לכיוון מבט"
-
-#: src/gui/guiKeyChangeMenu.cpp src/gui/touchscreenlayout.cpp
-msgid "Zoom"
-msgstr "זום"
-
-#: src/gui/guiKeyChangeMenu.cpp
-msgid "press key"
-msgstr "לחץ מקש"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
@@ -2318,10 +2238,6 @@ msgstr "סיסמה ישנה"
 #: src/gui/guiPasswordChange.cpp
 msgid "Passwords do not match!"
 msgstr "סיסמאות לא תואמות!"
-
-#: src/gui/guiVolumeChange.cpp src/gui/touchscreenlayout.cpp
-msgid "Exit"
-msgstr "יציאה"
 
 #: src/gui/guiVolumeChange.cpp
 msgid "Muted"
@@ -2363,18 +2279,82 @@ msgstr ""
 msgid "Tap outside to deselect."
 msgstr ""
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Aux1"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Change camera"
+msgstr "שנה מצלמה"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Dig/punch/use"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Drop"
+msgstr "הפל"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "יציאה"
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Inventory"
+msgstr "תיק חפצים"
+
 #: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
 msgstr ""
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Jump"
+msgstr "קפיצה"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
 msgstr ""
 
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Place/use"
+msgstr ""
+
+#: src/gui/touchscreenlayout.cpp
+msgid "Range select"
+msgstr "בחר טווח"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Sneak"
+msgstr "התכופף"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle chat log"
+msgstr "מתג צא'ט לוג"
+
 #: src/gui/touchscreenlayout.cpp
 #, fuzzy
 msgid "Toggle debug"
 msgstr "מתג ערפל"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fast"
+msgstr "מתג מצב מהיר"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle fly"
+msgstr "מתג תעופה"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle minimap"
+msgstr "מתג מפה קטנה"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Toggle noclip"
+msgstr "מתג מעבר דרך קירות"
+
+#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+msgid "Zoom"
+msgstr "זום"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2664,7 +2644,7 @@ msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2699,6 +2679,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2782,10 +2768,6 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Arm inertia"
 msgstr "אינרציה בזרוע"
 
@@ -2846,6 +2828,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Audio"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Automatic jumping"
+msgstr "קפיצה אוטומטית"
 
 #: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
@@ -3065,6 +3051,11 @@ msgid "Client"
 msgstr "לקוח"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Client Debugging"
+msgstr "קלינט"
+
+#: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
 msgstr ""
 
@@ -3148,6 +3139,10 @@ msgid ""
 "Comma-separated list of trusted mods that are allowed to access insecure\n"
 "functions even when mod security is on (via request_insecure_environment())."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Command"
+msgstr "פקודה"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3278,6 +3273,16 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease view range"
+msgstr "הקטן טווח"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Decrease volume"
+msgstr "הנמך ווליום"
+
+#: src/settings_translation_file.cpp
 msgid "Dedicated server step"
 msgstr ""
 
@@ -3389,7 +3394,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3469,6 +3474,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Drop item"
+msgstr "הפריט הקודם"
+
+#: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
 msgstr ""
 
@@ -3510,6 +3520,13 @@ msgstr "לאפשר חבלה"
 msgid ""
 "Enable IPv6 support (for both client and server).\n"
 "Required for IPv6 connections to work at all."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Enable IPv6 support for server.\n"
+"Note that clients will be able to connect with both IPv4 and IPv6.\n"
+"Ignored if bind_address is set."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3616,12 +3633,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Enable/disable running an IPv6 server.\n"
-"Ignored if bind_address is set."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
 "Enables Hable's 'Uncharted 2' filmic tone mapping.\n"
 "Simulates the tone curve of photographic film and how this approximates the\n"
 "appearance of high dynamic range images. Mid-range contrast is slightly\n"
@@ -3689,15 +3700,11 @@ msgid "FPS"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "FPS when unfocused or paused"
+msgid "FPS when unfocused"
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Fall bobbing factor"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4084,11 +4091,147 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Hotbar slot 1"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 10"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 11"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 12"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 13"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 14"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 15"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 16"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 17"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 18"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 19"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 2"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 20"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 21"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 22"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 23"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 24"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 25"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 26"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 27"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 28"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 29"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 3"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 30"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 31"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 32"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 4"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 5"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 6"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 7"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 8"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar slot 9"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar: select next item"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar: select previous item"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4190,6 +4333,17 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "If enabled, the \"Aux1\" key will toggle when pressed."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"If enabled, the \"Sneak\" key will toggle when pressed.\n"
+"This functionality is ignored when fly is enabled."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4242,8 +4396,19 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase view range"
+msgstr "הגדל טווח"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Increase volume"
+msgstr "הגבר ווליום"
 
 #: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
@@ -4277,6 +4442,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Interaction style"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4395,6 +4564,62 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Jumping speed"
 msgstr "מהירות הקפיצה"
+
+#: src/settings_translation_file.cpp
+msgid "Key for decrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for digging, punching or using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for incrementing the selected value in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for moving fast in fast mode."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for opening the chat window to type local commands."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for placing an item/block or for using something.\n"
+"(Note: The actual meaning might vary on a per-game basis.)"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the next entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for switching to the previous entry in Quicktune."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of mapblock boundaries."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Key for toggling the display of the profiler. Used for development."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Keybindings"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -4578,6 +4803,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Local command"
+msgstr "פקודה מקומית"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -4780,8 +5009,9 @@ msgid "Maximum FPS"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Maximum FPS when the window is not focused, or when the game is paused."
-msgstr ""
+#, fuzzy
+msgid "Maximum FPS when the window is not focused."
+msgstr "מכפיל עוצמת הקול כאשר החלון אינו ממוקד."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum distance to render shadows."
@@ -4842,7 +5072,9 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of mapblocks for client to be kept in memory.\n"
-"Set to -1 for unlimited amount."
+"Note that there is an internal dynamic minimum number of blocks that\n"
+"won't be deleted, depending on the current view range.\n"
+"Set to -1 for no limit."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4880,12 +5112,12 @@ msgid "Maximum simultaneous block sends per client"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Maximum size of the outgoing chat queue"
+msgid "Maximum size of the client's outgoing chat queue"
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Maximum size of the outgoing chat queue.\n"
+"Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
 
@@ -4962,6 +5194,12 @@ msgid "Mod channels"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
 msgstr ""
 
@@ -5003,6 +5241,24 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Move backward"
+msgstr "אחורה"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Move forward"
+msgstr "קדימה אוטומטי"
+
+#: src/settings_translation_file.cpp
+msgid "Move left"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Move right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Movement threshold"
 msgstr "סף מערות"
 
@@ -5011,10 +5267,8 @@ msgid "Mud noise"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Multiplier for fall bobbing.\n"
-"For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
-msgstr ""
+msgid "Mute"
+msgstr "השתק"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5064,10 +5318,6 @@ msgid "Node highlighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr ""
 
@@ -5108,7 +5358,7 @@ msgstr "כמות ההודעות ששחקן עשוי לשלוח לכל 10 שני�
 #: src/settings_translation_file.cpp
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 
@@ -5124,6 +5374,15 @@ msgstr ""
 msgid ""
 "Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Open chat"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Open inventory"
+msgstr "תיק חפצים"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5245,9 +5504,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Prometheus listener address.\n"
-"If Luanti is compiled with ENABLE_PROMETHEUS option enabled,\n"
-"enable metrics listener for Prometheus on that address.\n"
-"Metrics can be fetched on http://127.0.0.1:30000/metrics"
+"If Luanti is compiled with Prometheus support, this setting\n"
+"enables the metrics listener for Prometheus on that address.\n"
+"By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
+"An empty value disables the metrics listener."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5261,6 +5521,22 @@ msgstr "שגיאה בגרסאות הפרוטוקול. "
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: decrement value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: increment value"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select next entry"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Quicktune: select previous entry"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5330,6 +5606,11 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "יציאה לתפריט"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -5429,6 +5710,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Screen width"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Screenshot"
+msgstr "צילום מסך"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot folder"
@@ -6013,16 +6298,33 @@ msgid ""
 "The gesture for punching players/entities.\n"
 "This can be overridden by games and mods.\n"
 "\n"
-"* short_tap\n"
+"* Short tap\n"
 "Easy to use and well-known from other games that shall not be named.\n"
 "\n"
-"* long_tap\n"
+"* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The kind of digging/placing controls used.\n"
+"\n"
+"* Tap\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at finger position.\n"
+"\n"
+"* Tap with crosshair\n"
+"Long/short tap anywhere on the screen to interact.\n"
+"Interaction happens at crosshair position.\n"
+"\n"
+"* Buttons with crosshair\n"
+"Use dedicated dig/place buttons to interact.\n"
+"Interaction happens at crosshair position."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6155,6 +6457,76 @@ msgid ""
 "This determines how long they are slowed down after placing or removing a "
 "node."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Aux1 key"
+msgstr "מקש הקפיצה"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle HUD"
+msgstr "מתג מידע על מסך"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle Sneak key"
+msgstr "מתג תעופה"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle automatic forward"
+msgstr "מקש התקדמות אוטומטית"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle block bounds"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle camera mode"
+msgstr "מתג צא'ט לוג"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle camera update"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle cinematic mode"
+msgstr "מצב קולנועי"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle debug info"
+msgstr "מתג ערפל"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle fog"
+msgstr "מתג ערפל"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle fullscreen"
+msgstr "מתג תעופה"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle large chat console"
+msgstr "מתג צא'ט לוג"
+
+#: src/settings_translation_file.cpp
+msgid "Toggle pitchmove"
+msgstr "מתג תנועה לכיוון מבט"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle profiler"
+msgstr "מתג תעופה"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "ביטול טווח ראיה בלתי מוגבל"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6294,16 +6666,6 @@ msgid "Use bilinear filtering when scaling textures."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Use crosshair for touch screen"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Use crosshair to select object instead of whole screen.\n"
-"If enabled, a crosshair will be shown and will be used for selecting object."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Use mipmaps when scaling textures. May slightly increase performance,\n"
 "especially when using a high-resolution texture pack.\n"
@@ -6432,7 +6794,7 @@ msgstr "ווליום"
 
 #: src/settings_translation_file.cpp
 msgid "Volume multiplier when the window is unfocused."
-msgstr ""
+msgstr "מכפיל עוצמת הקול כאשר החלון אינו ממוקד."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6482,11 +6844,11 @@ msgstr "מפלס פני המים בעולם."
 
 #: src/settings_translation_file.cpp
 msgid "Waving Nodes"
-msgstr ""
+msgstr "מנופפים בצמתים"
 
 #: src/settings_translation_file.cpp
 msgid "Waving leaves"
-msgstr ""
+msgstr "מניפים עלים"
 
 #: src/settings_translation_file.cpp
 msgid "Waving liquids"
@@ -6540,12 +6902,21 @@ msgid ""
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
+"בעת שימוש בסינון בילינארי/תלת ליניארי, מרקמים ברזולוציה נמוכה\n"
+"ניתן לטשטש, כך שאופציה זו משדרגת אותם באופן אוטומטי לשימור\n"
+"פיקסלים חדים. זה מגדיר את גודל המרקם המינימלי עבור המרקמים המוגדלים;\n"
+"ערכים גבוהים יותר נראים חדים יותר, אך דורשים יותר זיכרון.\n"
+"הגדרה זו חלה רק אם אחד מהמסננים שהוזכרו מופעל.\n"
+"זה משמש גם כגודל מרקם הצומת הבסיסי עבור מיושר עולם\n"
+"קנה מידה אוטומטי של מרקם."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
+"האם יש להציג רקעים של תגי שם כברירת מחדל.\n"
+"ייתכן שמודדים עדיין מגדירים רקע."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6589,6 +6960,10 @@ msgid "Width of the selection box lines around nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Will also disable autoforward, when active."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr ""
 
@@ -6611,14 +6986,21 @@ msgid "World start time"
 msgstr "שם העולם"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "World-aligned textures may be scaled to span several nodes. However,\n"
 "the server may not send the scale you want, especially if you use\n"
 "a specially-designed texture pack; with this option, the client tries\n"
-"to determine the scale automatically basing on the texture size.\n"
+"to determine the scale automatically based on the texture size.\n"
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
+"ניתן לשנות קנה מידה של טקסטורות מיושרות בעולם כך שיפרשו מספר צמתים. אוּלָם,\n"
+"ייתכן שהשרת לא ישלח את הסולם הרצוי, במיוחד אם אתה משתמש\n"
+"מארז טקסטורה שעוצב במיוחד; עם אפשרות זו, הלקוח מנסה\n"
+"כדי לקבוע את קנה המידה באופן אוטומטי בהתבסס על גודל המרקם.\n"
+"ראה גם texture_min_size.\n"
+"אזהרה: אפשרות זו היא ניסיוני!"
 
 #: src/settings_translation_file.cpp
 msgid "World-aligned textures mode"
@@ -6687,422 +7069,10 @@ msgstr "(cURL) מגבלת זמן"
 msgid "cURL parallel limit"
 msgstr "(cURL) מגבלה לפעולות במקביל"
 
-#~ msgid "- Address: "
-#~ msgstr "- כתובת: "
-
-#~ msgid "- Creative Mode: "
-#~ msgstr "- מצב יצירתי: "
-
-#~ msgid "- Damage: "
-#~ msgstr "- חבלה: "
-
-#~ msgid "- Port: "
-#~ msgstr "- פורט: "
-
-#~ msgid "2x"
-#~ msgstr "x2"
-
-#~ msgid "3D Clouds"
-#~ msgstr "עננים תלת מימדיים"
-
-#~ msgid "4x"
-#~ msgstr "x4"
-
-#~ msgid "8x"
-#~ msgstr "x8"
-
-#~ msgid "< Back to Settings page"
-#~ msgstr "חזור לדף ההגדרות >"
-
-#~ msgid "Address / Port"
-#~ msgstr "כתובת / פורט"
-
-#~ msgid ""
-#~ "Address to connect to.\n"
-#~ "Leave this blank to start a local server.\n"
-#~ "Note that the address field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "כתובת להתחברות אליה.\n"
-#~ "השאר את זה ריק כדי להפעיל שרת מקומי.\n"
-#~ "שים לב ששדה הכתובת בתפריט הראשי עוקף הגדרה זו."
-
-#~ msgid "Adds particles when digging a node."
-#~ msgstr "הוסף חלקיקים כשחופרים בקוביה."
-
-#~ msgid ""
-#~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
-#~ "4k screens."
-#~ msgstr "התאם את תצורת dpi למסך שלך (לא X11 / Android בלבד) למשל. למסכי 4k."
-
-#~ msgid "All Settings"
-#~ msgstr "כל ההגדרות"
-
-#~ msgid "All packages"
-#~ msgstr "כל החבילות"
-
-#~ msgid "Automatic forward key"
-#~ msgstr "מקש התקדמות אוטומטית"
-
-#~ msgid "Autosave Screen Size"
-#~ msgstr "שמור אוטומטית גודל מסך"
+#, fuzzy
+#~ msgid "Key for toggling cinematic mode."
+#~ msgstr "החלקת מצלמה ומצב קולנועי"
 
 #, fuzzy
-#~ msgid "Aux1 key"
-#~ msgstr "מקש הקפיצה"
-
-#~ msgid "Back to Main Menu"
-#~ msgstr "חזרה לתפריט הראשי"
-
-#~ msgid "Backward key"
-#~ msgstr "מקש התזוזה אחורה"
-
-#~ msgid "Basic"
-#~ msgstr "בסיסי"
-
-#~ msgid "Bilinear Filter"
-#~ msgstr "פילטר בילינארי"
-
-#, fuzzy
-#~ msgid "Biome API noise parameters"
-#~ msgstr "פרמטרי רעש טמפרטורה ולחות של Biome API"
-
-#~ msgid "Bits per pixel (aka color depth) in fullscreen mode."
-#~ msgstr "ביטים לפיקסל (עומק צבע) במצב מסך מלא."
-
-#~ msgid ""
-#~ "Camera 'near clipping plane' distance in nodes, between 0 and 0.25\n"
-#~ "Only works on GLES platforms. Most users will not need to change this.\n"
-#~ "Increasing can reduce artifacting on weaker GPUs.\n"
-#~ "0.1 = Default, 0.25 = Good value for weaker tablets."
-#~ msgstr ""
-#~ "מרחק מצלמה 'קרוב לקיר' בקוביות, בין 0 ל -0.25\n"
-#~ "עובד רק בפלטפורמות GLES. רוב המשתמשים לא יצטרכו לשנות זאת.\n"
-#~ "הגדלה יכולה להפחית חפצים על גרפי GPU חלשים יותר.\n"
-#~ "0.1 = ברירת מחדל, 0.25 = ערך טוב לטאבלטים חלשים יותר."
-
-#~ msgid "Camera update toggle key"
-#~ msgstr "מקש החלפת עדכון המצלמה"
-
-#~ msgid "Change Keys"
-#~ msgstr "שנה מקשים"
-
-#, fuzzy
-#~ msgid "Change keys"
-#~ msgstr "שנה מקשים"
-
-#~ msgid "Chat key"
-#~ msgstr "מקש צ'אט"
-
-#~ msgid "Chat toggle key"
-#~ msgstr "מתג הפעלת צ'אט"
-
-#~ msgid "Cinematic mode"
-#~ msgstr "מצב קולנועי"
-
-#~ msgid "Cinematic mode key"
-#~ msgstr "מקש מצב קולנועי"
-
-#~ msgid "Clean transparent textures"
-#~ msgstr "טקסטורות נקיות ושקופות"
-
-#~ msgid "Configure"
-#~ msgstr "קביעת תצורה"
-
-#~ msgid "Connect"
-#~ msgstr "התחברות"
-
-#~ msgid "Connected Glass"
-#~ msgstr "זכוכיות מחוברות"
-
-#, fuzzy, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "פקדים:\n"
-#~ "- %s: כדי לזוז קדימה\n"
-#~ "- %s: כדי לזוז אחורה\n"
-#~ "- %s: כדי לזוז שמאלה\n"
-#~ "- %s: כדי לזוז ימינה\n"
-#~ "- %s: כדי לקפוץ או לטפס למעלה\n"
-#~ "- %s: כדי לחפור או לחבוט\n"
-#~ "- %s: כדי להניח או להשתמש\n"
-#~ "- %s: כדי להתכופף או לטפס למטה\n"
-#~ "- %s: כדי לזרוק פריט\n"
-#~ "- %s: כדי לפתוח את תיק החפצים\n"
-#~ "- עכבר: כדי להסתובב או להסתכל\n"
-#~ "- גלגלת העכבר: כדי לבחור פריט\n"
-#~ "- %s: כדי לפתוח את הצ׳אט\n"
-
-#~ msgid "Creative"
-#~ msgstr "יצירתי"
-
-#~ msgid "Credits"
-#~ msgstr "תודות"
-
-#~ msgid "Damage"
-#~ msgstr "חבלה"
-
-#~ msgid "Damage enabled"
-#~ msgstr "נזק מופעל"
-
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "מידע דיבאג וגרף פרופיילר מוסתר"
-
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr "מידע דיבאג, גרף פרופיילר, ומצב שלד מוסתר"
-
-#, fuzzy
-#~ msgid "Dig key"
-#~ msgstr "מקש התזוזה ימינה"
-
-#, fuzzy
-#~ msgid "Digging particles"
-#~ msgstr "חלקיקים"
-
-#~ msgid "Disabled unlimited viewing range"
-#~ msgstr "ביטול טווח ראיה בלתי מוגבל"
-
-#~ msgid "Down"
-#~ msgstr "למטה"
-
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr "הורדת משחק, כמו משחק Minetest, מאתר minetest.net"
-
-#~ msgid "Download one from minetest.net"
-#~ msgstr "הורד אחד מאתר minetest.net"
-
-#, fuzzy
-#~ msgid "Enable"
-#~ msgstr "מופעל"
-
-#, fuzzy
-#~ msgid "Enable VBO"
-#~ msgstr "אפשר בכל"
-
-#~ msgid "Enable creative mode for all players"
-#~ msgstr "הפעלת המצב היצירתי עבור כל השחקנים"
-
-#~ msgid "Enable players getting damage and dying."
-#~ msgstr "לאפשר חבלה ומוות של השחקנים."
-
-#~ msgid "Enter "
-#~ msgstr "הכנס "
-
-#~ msgid "Fancy Leaves"
-#~ msgstr "עלים מגניבים"
-
-#~ msgid "Forward key"
-#~ msgstr "מקש התזוזה קדימה"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "הגדרות"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr "התקנת שיפור: לא ניתן למצוא את שם השיפור האמיתי עבור: $1"
-
-#~ msgid "Install: file: \"$1\""
-#~ msgstr "התקנה: מקובץ: \"$1\""
-
-#~ msgid "Invalid gamespec."
-#~ msgstr "הגדרת משחק לא תקינה."
-
-#~ msgid "Jump key"
-#~ msgstr "מקש הקפיצה"
-
-#~ msgid ""
-#~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
-#~ msgstr "קישור מקשים (אם התפריט מתקלקל, הסר דברים מminetest.conf)"
-
-#~ msgid "Left key"
-#~ msgstr "מקש התזוזה שמאלה"
-
-#~ msgid "Main menu style"
-#~ msgstr "סגנון התפריט הראשי"
-
-#~ msgid "Mipmap"
-#~ msgstr "מיפמאפ"
-
-#~ msgid "Mipmap + Aniso. Filter"
-#~ msgstr "מיפמאפ + פילטר אניסוטרופי"
-
-#~ msgid "Name / Password"
-#~ msgstr "שם/סיסמה"
-
-#~ msgid "No"
-#~ msgstr "לא"
-
-#~ msgid "No Filter"
-#~ msgstr "בלי פילטר"
-
-#~ msgid "No Mipmap"
-#~ msgstr "בלי מיפמאפ"
-
-#~ msgid "Node Outlining"
-#~ msgstr "הדגשת מסגרת קוביות"
-
-#~ msgid "None"
-#~ msgstr "ללא"
-
-#~ msgid "Ok"
-#~ msgstr "אישור"
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "עלים אטומים"
-
-#~ msgid "Opaque Water"
-#~ msgstr "מים אטומים לאור"
-
-#~ msgid "Particles"
-#~ msgstr "חלקיקים"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "הכנס מספר שלם חוקי."
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "הכנס מספר חוקי."
-
-#~ msgid "PvP enabled"
-#~ msgstr "לאפשר קרבות"
-
-#, fuzzy
-#~ msgid "Reset singleplayer world"
-#~ msgstr "שרת"
-
-#~ msgid "Right key"
-#~ msgstr "מקש התזוזה ימינה"
-
-#~ msgid "Screen:"
-#~ msgstr "מסך:"
-
-#~ msgid "Shaders"
-#~ msgstr "שיידרים"
-
-#~ msgid "Shaders (experimental)"
-#~ msgstr "שיידרים (נסיוני)"
-
-#, fuzzy
-#~ msgid "Shaders are disabled."
-#~ msgstr "עדכון מצלמה מבוטל"
-
-#~ msgid "Simple Leaves"
-#~ msgstr "עלים פשוטים"
-
-#~ msgid "Sound system is disabled"
-#~ msgstr "מערכת שמע לא מופעלת"
-
-#~ msgid "Special"
-#~ msgstr "מיוחד"
-
-#~ msgid "Texturing:"
-#~ msgstr "טקסטורות:"
-
-#~ msgid "The value must be at least $1."
-#~ msgstr "הערך חייב להיות לפחות $1."
-
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "הערך לא יכול להיות גדול מ־$1."
-
-#~ msgid "To enable shaders the OpenGL driver needs to be used."
-#~ msgstr "כדי לאפשר שיידרים יש להשתמש בדרייבר של OpenGL."
-
-#~ msgid "Tone Mapping"
-#~ msgstr "מיפוי גוונים"
-
-#~ msgid "Trilinear Filter"
-#~ msgstr "פילטר תלת לינארי"
-
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "לא ניתן להתקין משחק בתור $1"
-
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "אין אפשרות להתקין ערכת שיפורים בשם $1"
-
-#~ msgid "Uninstall Package"
-#~ msgstr "הסרת החבילה"
-
-#~ msgid "Up"
-#~ msgstr "למעלה"
-
-#~ msgid "View"
-#~ msgstr "תצוגה"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "צפה במידע נוסף בדפדפן האינטרנט"
-
-#~ msgid "View range decrease key"
-#~ msgstr "מקש הקטנת טווח ראיה"
-
-#~ msgid "View range increase key"
-#~ msgstr "מקש הגדלת טוחח ראיה"
-
-#~ msgid "View zoom key"
-#~ msgstr "מקש זום (משקפת)"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "טווח ראיה הגיע למקסימום: %d"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "עלים מתנופפים"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "נוזלים עם גלים"
-
-#~ msgid "Waving Plants"
-#~ msgstr "צמחים מתנוענעים"
-
-#~ msgid "Whether to allow players to damage and kill each other."
-#~ msgstr "האם לאפשר לשחקנים להרוג אחד־את־השני."
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#~ msgid "Yes"
-#~ msgstr "כן"
-
-#, c-format
-#~ msgid ""
-#~ "You are about to join this server with the name \"%s\" for the first "
-#~ "time.\n"
-#~ "If you proceed, a new account using your credentials will be created on "
-#~ "this server.\n"
-#~ "Please retype your password and click 'Register and Join' to confirm "
-#~ "account creation, or click 'Cancel' to abort."
-#~ msgstr ""
-#~ "אתה עומד להצטרף לשרת זה עם השם \"%s\" בפעם הראשונה.\n"
-#~ "אם תמשיך, ייווצר חשבון חדש באמצעות אישוריך בשרת זה.\n"
-#~ "אנא הקלד מחדש את הסיסמה שלך ולחץ על 'הירשם והצטרף' כדי לאשר את יצירת "
-#~ "החשבון, או לחץ על 'ביטול' כדי לבטל."
-
-#, fuzzy
-#~ msgid "You died."
-#~ msgstr "מתת"
-
-#~ msgid "You have no games installed."
-#~ msgstr "אין לך משחקים מותקנים."
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "needs_fallback_font"
-#~ msgstr "yes"
-
-#~ msgid "ok"
-#~ msgstr "אוקיי"
+#~ msgid "Key for toggling fullscreen mode."
+#~ msgstr "מצב מסך מלא."

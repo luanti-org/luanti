@@ -14,8 +14,6 @@
 #include "../src/os.h"
 #endif
 
-namespace irr
-{
 namespace scene
 {
 //! Template implementation of the IIndexBuffer interface
@@ -95,4 +93,3 @@ public:
 typedef CIndexBuffer<u16> SIndexBuffer;
 
 } // end namespace scene
-} // end namespace irr

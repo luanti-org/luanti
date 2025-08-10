@@ -7,12 +7,9 @@
 #include <vector>
 #include "IFileSystem.h"
 
-namespace irr
-{
 namespace io
 {
 
-class CZipReader;
 
 /*!
 	FileSystem which uses normal files and one zipfile
@@ -98,5 +95,4 @@ private:
 	std::vector<IArchiveLoader *> ArchiveLoader;
 };
 
-} // end namespace irr
 } // end namespace io

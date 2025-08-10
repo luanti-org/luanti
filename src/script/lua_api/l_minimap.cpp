@@ -160,7 +160,7 @@ void LuaMinimap::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaMinimap>(L, methods, metamethods);
 }
 
 const char LuaMinimap::className[] = "Minimap";

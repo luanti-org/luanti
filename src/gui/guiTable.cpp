@@ -32,7 +32,7 @@ GUITable::GUITable(gui::IGUIEnvironment *env,
 		core::rect<s32> rectangle,
 		ISimpleTextureSource *tsrc
 ):
-	gui::IGUIElement(gui::EGUIET_ELEMENT, env, parent, id, rectangle),
+	gui::IGUIElement(gui::EGUIET_TABLE, env, parent, id, rectangle),
 	m_tsrc(tsrc)
 {
 	assert(tsrc != NULL);
@@ -362,8 +362,7 @@ void GUITable::setTable(const TableOptions &options,
 				// Find content_index. Image indices are defined in
 				// column options so check active_image_indices.
 				s32 image_index = stoi(content[i * colcount + j]);
-				std::map<s32, s32>::iterator image_iter =
-					active_image_indices.find(image_index);
+				auto image_iter =active_image_indices.find(image_index);
 				if (image_iter != active_image_indices.end())
 					row->content_index = image_iter->second;
 
@@ -636,11 +635,6 @@ void GUITable::setDynamicData(const DynamicData &dyndata)
 	m_scrollbar->setPos(dyndata.scrollpos);
 }
 
-const c8* GUITable::getTypeName() const
-{
-	return "GUITable";
-}
-
 void GUITable::updateAbsolutePosition()
 {
 	IGUIElement::updateAbsolutePosition();
@@ -837,8 +831,10 @@ bool GUITable::OnEvent(const SEvent &event)
 			return true;
 		}
 		else if (event.KeyInput.Key == KEY_ESCAPE ||
-				event.KeyInput.Key == KEY_SPACE) {
+				event.KeyInput.Key == KEY_SPACE ||
+				(event.KeyInput.Key == KEY_TAB && event.KeyInput.Control)) {
 			// pass to parent
+			return IGUIElement::OnEvent(event);
 		}
 		else if (event.KeyInput.PressedDown && event.KeyInput.Char) {
 			// change selection based on text as it is typed
@@ -965,7 +961,7 @@ bool GUITable::OnEvent(const SEvent &event)
 
 s32 GUITable::allocString(const std::string &text)
 {
-	std::map<std::string, s32>::iterator it = m_alloc_strings.find(text);
+	auto it = m_alloc_strings.find(text);
 	if (it == m_alloc_strings.end()) {
 		s32 id = m_strings.size();
 		std::wstring wtext = utf8_to_wide(text);
@@ -979,7 +975,7 @@ s32 GUITable::allocString(const std::string &text)
 
 s32 GUITable::allocImage(const std::string &imagename)
 {
-	std::map<std::string, s32>::iterator it = m_alloc_images.find(imagename);
+	auto it = m_alloc_images.find(imagename);
 	if (it == m_alloc_images.end()) {
 		s32 id = m_images.size();
 		m_images.push_back(m_tsrc->getTexture(imagename));

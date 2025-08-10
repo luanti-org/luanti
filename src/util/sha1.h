@@ -26,6 +26,10 @@ SOFTWARE.
 
 #pragma once
 
+#if !defined(IN_HASHING_CPP) && !defined(IN_SHA1_CPP)
+#error do not include directly
+#endif
+
 #include <cstdint>
 #include <string>
 #include <string_view>
@@ -59,9 +63,4 @@ public:
 		getDigest(reinterpret_cast<unsigned char*>(ret.data()));
 		return ret;
 	}
-
-	// utility methods
-	static Uint32 lrot(Uint32 x, int bits);
-	static void storeBigEndianUint32(unsigned char *byte, Uint32 num);
-	static void hexPrinter(unsigned char *c, int l);
 };

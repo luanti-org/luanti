@@ -7,8 +7,6 @@
 #include "IGUIElement.h"
 #include "SColor.h"
 
-namespace irr
-{
 namespace gui
 {
 class IGUISpriteBank;
@@ -133,4 +131,3 @@ public:
 };
 
 } // end namespace gui
-} // end namespace irr

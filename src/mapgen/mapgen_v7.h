@@ -14,9 +14,8 @@
 #define MGV7_CAVERNS     0x08
 #define MGV7_BIOMEREPEAT 0x10 // Now unused
 
-class BiomeManager;
 
-extern FlagDesc flagdesc_mapgen_v7[];
+extern const FlagDesc flagdesc_mapgen_v7[];
 
 
 struct MapgenV7Params : public MapgenParams {

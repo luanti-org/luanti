@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>org.luanti.luanti</id>
+    <provides>
+        <id>net.minetest.minetest</id>
+    </provides>
+    <replaces>
+        <id>net.minetest.minetest</id>
+    </replaces>
+
+    <name>Luanti</name>
+    <summary>Block-based multiplayer game platform</summary>
+    <summary xml:lang="de">Blockbasierte Mehrspieler-Spieleplattform</summary>
+    <summary xml:lang="fr">Plate-forme de jeu multijoueurs à base de blocs</summary>
+
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>LGPL-2.1+ AND CC-BY-SA-3.0 AND MIT AND Apache-2.0</project_license>
+
+    <developer id="org.luanti">
+        <name>Luanti Team</name>
+    </developer>
+
+    <supports>
+        <control>pointing</control>
+        <control>keyboard</control>
+        <control>touch</control>
+        <internet>offline-only</internet>
+    </supports>
+
+    <requires>
+        <display_length compare="ge">360</display_length>
+    </requires>
+
+    <content_rating type="oars-1.1">
+        <content_attribute id="violence-cartoon">mild</content_attribute>
+        <content_attribute id="violence-fantasy">mild</content_attribute>
+        <content_attribute id="violence-realistic">none</content_attribute>
+        <content_attribute id="violence-bloodshed">none</content_attribute>
+        <content_attribute id="violence-sexual">none</content_attribute>
+        <content_attribute id="violence-desecration">none</content_attribute>
+        <content_attribute id="violence-slavery">none</content_attribute>
+        <content_attribute id="drugs-alcohol">none</content_attribute>
+        <content_attribute id="drugs-narcotics">none</content_attribute>
+        <content_attribute id="drugs-tobacco">none</content_attribute>
+        <content_attribute id="sex-nudity">none</content_attribute>
+        <content_attribute id="sex-themes">none</content_attribute>
+        <content_attribute id="language-profanity">none</content_attribute>
+        <content_attribute id="language-humor">none</content_attribute>
+        <content_attribute id="language-discrimination">none</content_attribute>
+        <content_attribute id="social-chat">intense</content_attribute>
+        <content_attribute id="social-info">mild</content_attribute>
+        <content_attribute id="social-audio">none</content_attribute>
+        <content_attribute id="social-location">none</content_attribute>
+        <content_attribute id="social-contacts">none</content_attribute>
+        <content_attribute id="money-purchasing">none</content_attribute>
+        <content_attribute id="money-advertising">none</content_attribute>
+        <content_attribute id="money-gambling">none</content_attribute>
+    </content_rating>
+
+    <description>
+        <p>
+            Luanti is a block-based sandbox game platform.
+        </p>
+        <p xml:lang="de">
+            Luanti ist eine blockbasierte Sandbox-Spielplattform.
+        </p>
+        <p xml:lang="fr">
+            Luanti est une plateforme de jeu de type bac à sable à base de blocs.
+        </p>
+        <p>
+            Players can create and destroy various types of blocks in a
+            three-dimensional open world. This allows forming structures in
+            every possible creation, on multiplayer servers or in singleplayer.
+        </p>
+        <p xml:lang="de">
+            Spieler können in einer offenen 3D-Welt viele verschiedene Arten von
+            Blöcken platzieren und abbauen. Dies erlaubt das Bauen von vielfältigen
+            Strukturen im Einzelspieler oder auf Mehrspielerservern.
+        </p>
+        <p xml:lang="fr">
+            Les joueurs peuvent créer et détruire différents types de blocs dans un
+            monde ouvert tridimensionnel. Cela permet de créer des structures de toutes les
+            formes possibles, sur des serveurs multijoueurs ou en solo.
+        </p>
+        <p>
+            Luanti is designed to be simple, stable, and portable.
+            It is lightweight enough to run on fairly old hardware.
+        </p>
+        <p xml:lang="de">
+            Luanti wurde entworfen, um einfach, stabil und portabel zu sein.
+            Es ist leichtgewichtig genug, um auf relativ alter Hardware zu laufen.
+        </p>
+        <p xml:lang="fr">
+            Luanti est conçu pour être simple, stable et portable.
+            Il est suffisamment léger pour fonctionner sur du matériel relativement ancien.
+        </p>
+        <p>
+            Luanti has many features, including:
+        </p>
+        <p xml:lang="de">
+            Luanti besitzt viele Features, unter anderem:
+        </p>
+        <p xml:lang="fr">
+            Luanti offre de nombreuses fonctionnalités, notamment :
+        </p>
+        <ul>
+            <li>Ability to walk around, dig, and build in a near-infinite voxel world</li>
+            <li xml:lang="de">Die Möglichkeit, in einer nahezu unendlichen Voxel-Welt herumzulaufen, zu graben und zu
+                bauen
+            </li>
+            <li xml:lang="fr">La possibilité de se promener, de creuser et de construire dans un monde voxel quasi-infini
+            </li>
+            <li>Crafting of items from raw materials</li>
+            <li xml:lang="de">Fertigen von Items aus Rohmaterialien</li>
+            <li xml:lang="fr">Fabrication d'objets à partir de matières premières</li>
+            <li>A simple modding API that supports many additions and modifications to the game</li>
+            <li xml:lang="de">Eine einfache Modding-API, die viele Ergänzungen und Änderungen am Spiel unterstützt</li>
+            <li xml:lang="fr">Une API de modding simple qui permet de nombreux ajouts et modifications au jeu</li>
+            <li>Multiplayer support via servers hosted by users</li>
+            <li xml:lang="de">Mehrspieler auf selber gehosteten Servern</li>
+            <li xml:lang="fr">Prise en charge du multijoueur via des serveurs hébergés par les utilisateurs</li>
+            <li>Beautiful lightning-fast map generator</li>
+            <li xml:lang="de">Wunderschöner, blitzschneller Kartengenerator</li>
+            <li xml:lang="fr">Générateur de cartes très rapide</li>
+        </ul>
+    </description>
+
+    <launchable type="desktop-id">org.luanti.luanti.desktop</launchable>
+    <screenshots>
+        <screenshot type="default">
+            <image>https://www.luanti.org/media/gallery/1.jpg</image>
+        </screenshot>
+        <screenshot>
+            <image>https://www.luanti.org/media/gallery/3.jpg</image>
+        </screenshot>
+        <screenshot>
+            <image>https://www.luanti.org/media/gallery/5.jpg</image>
+        </screenshot>
+    </screenshots>
+
+    <icon type="stock">luanti</icon>
+
+    <categories>
+        <category>Game</category>
+        <category>Simulation</category>
+    </categories>
+
+    <keywords>
+        <keyword>sandbox</keyword>
+        <keyword>world</keyword>
+        <keyword>mining</keyword>
+        <keyword>crafting</keyword>
+        <keyword>blocks</keyword>
+        <keyword>nodes</keyword>
+        <keyword>multiplayer</keyword>
+        <keyword>roleplaying</keyword>
+    </keywords>
+
+    <url type="homepage">https://www.luanti.org</url>
+    <url type="bugtracker">https://www.luanti.org/get-involved/#reporting-issues</url>
+    <url type="translate">https://docs.luanti.org/for-creators/translation/</url>
+    <url type="donation">https://www.luanti.org/get-involved/#donate</url>
+    <url type="faq">https://docs.luanti.org/about/faq</url>
+    <url type="help">https://docs.luanti.org</url>
+    <url type="vcs-browser">https://github.com/luanti-org/luanti</url>
+    <url type="contribute">https://www.luanti.org/get-involved</url>
+
+    <provides>
+        <binary>luanti</binary>
+    </provides>
+
+    <translation type="gettext">luanti</translation>
+
+    <update_contact>celeron55@gmail.com</update_contact>
+
+    <releases>
+        <release date="2025-08-01" version="5.13.0"/>
+    </releases>
+</component>

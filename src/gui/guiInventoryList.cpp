@@ -4,7 +4,7 @@
 
 #include "guiInventoryList.h"
 #include "guiFormSpecMenu.h"
-#include "client/hud.h"
+#include "drawItemStack.h"
 #include "client/client.h"
 #include "client/renderingengine.h"
 #include <IVideoDriver.h>
@@ -205,6 +205,9 @@ bool GUIInventoryList::OnEvent(const SEvent &event)
 
 	bool ret = hovered->OnEvent(event);
 
+	// Set visible again *after* processing the event. Otherwise, hovered could
+	// be another GUIInventoryList, which will call this one again, resulting in
+	// an infinite loop.
 	IsVisible = was_visible;
 
 	return ret;

@@ -362,7 +362,7 @@ void LuaSettings::Register(lua_State* L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaSettings>(L, methods, metamethods);
 
 	// Can be created from Lua (Settings(filename))
 	lua_register(L, className, create_object);

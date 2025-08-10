@@ -23,7 +23,7 @@
 #include "mapgen_flat.h"
 
 
-FlagDesc flagdesc_mapgen_flat[] = {
+const FlagDesc flagdesc_mapgen_flat[] = {
 	{"lakes",   MGFLAT_LAKES},
 	{"hills",   MGFLAT_HILLS},
 	{"caverns", MGFLAT_CAVERNS},
@@ -164,7 +164,7 @@ int MapgenFlat::getSpawnLevelAtPoint(v2s16 p)
 	s16 stone_level = ground_level;
 	float n_terrain =
 		((spflags & MGFLAT_LAKES) || (spflags & MGFLAT_HILLS)) ?
-		NoisePerlin2D(&noise_terrain->np, p.X, p.Y, seed) :
+		NoiseFractal2D(&noise_terrain->np, p.X, p.Y, seed) :
 		0.0f;
 
 	if ((spflags & MGFLAT_LAKES) && n_terrain < lake_threshold) {
@@ -284,7 +284,7 @@ s16 MapgenFlat::generateTerrain()
 
 	bool use_noise = (spflags & MGFLAT_LAKES) || (spflags & MGFLAT_HILLS);
 	if (use_noise)
-		noise_terrain->perlinMap2D(node_min.X, node_min.Z);
+		noise_terrain->noiseMap2D(node_min.X, node_min.Z);
 
 	for (s16 z = node_min.Z; z <= node_max.Z; z++)
 	for (s16 x = node_min.X; x <= node_max.X; x++, ni2d++) {

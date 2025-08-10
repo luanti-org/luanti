@@ -14,8 +14,6 @@
 #include "../src/os.h"
 #endif
 
-namespace irr
-{
 namespace scene
 {
 //! Template implementation of the IVertexBuffer interface
@@ -128,4 +126,3 @@ typedef CVertexBuffer<video::S3DVertex2TCoords> SVertexBufferLightMap;
 typedef CVertexBuffer<video::S3DVertexTangents> SVertexBufferTangents;
 
 } // end namespace scene
-} // end namespace irr

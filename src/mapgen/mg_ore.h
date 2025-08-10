@@ -33,7 +33,7 @@ enum OreType {
 	ORE_STRATUM,
 };
 
-extern FlagDesc flagdesc_ore[];
+extern const FlagDesc flagdesc_ore[];
 
 class Ore : public ObjDef, public NodeResolver {
 public:

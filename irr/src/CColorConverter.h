@@ -7,8 +7,6 @@
 #include "irrTypes.h"
 #include "IImage.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -81,4 +79,3 @@ public:
 };
 
 } // end namespace video
-} // end namespace irr
