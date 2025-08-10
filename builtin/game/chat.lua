@@ -43,16 +43,25 @@ end
 -- Chat command handler
 --
 
--- Unsure how to handle pairs()
-core.chatcommands = setmetatable({}, {
-	__index=function (_, k)
-		core.log("warn", "core.chatcommands is deprecated, use core.registered_chatcommands instead")
+--- Deprecated core.chatcommands
+core.chatcommands = setmetatable(table.copy(core.registered_chatcommands), {
+	__index = function (_, k)
+		core.log("warning", "core.chatcommands is deprecated, use core.registered_chatcommands instead.")
 		return core.registered_chatcommands[k]
 	end,
-	__newindex=function (_, k, v)
-		core.log("warn", "core.chatcommands is deprecated, use core.registered_chatcommands instead")
+	__newindex = function (_, k, v)
+		core.log("warning", "core.chatcommands is deprecated, use core.registered_chatcommands instead.")
+		rawset(core.chatcommands, k, v)
 		core.registered_chatcommands[k] = v
 	end,
+})
+
+--- For support pairs() with core.chatcommands
+setmetatable(core.registered_chatcommands, {
+	__newindex = function (t, k, v)
+		rawset(t, k, v)
+		rawset(core.chatcommands, k, v)
+	end
 })
 
 local msg_time_threshold =
