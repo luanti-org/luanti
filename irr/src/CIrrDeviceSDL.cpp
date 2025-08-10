@@ -1408,7 +1408,7 @@ void CIrrDeviceSDL::createKeyMap()
 	// select missing
 	KeyMap.emplace(SDLK_PRINTSCREEN, KEY_PRINT);
 	// execute missing
-	KeyMap.emplace(SDLK_PRINTSCREEN, KEY_SNAPSHOT);
+	// snapshot missing
 
 	KeyMap.emplace(SDLK_INSERT, KEY_INSERT);
 	KeyMap.emplace(SDLK_DELETE, KEY_DELETE);
