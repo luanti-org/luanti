@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- Localize functions to avoid table lookups (better performance).
-local string_sub, string_find = string.sub, string.find
+local string_sub, string_find, string_rep = string.sub, string.find, string.rep
 local math = math
 
 --------------------------------------------------------------------------------
@@ -179,7 +179,7 @@ function dump(value, indent)
 		write(newline)
 
 		local function write_entry(k, v)
-			write(indent:rep(level))
+			write(string_rep(indent, level))
 			write("[")
 			write_value(k, level + 1)
 			write("] = ")
@@ -201,7 +201,7 @@ function dump(value, indent)
 		for _, k in ipairs(keys.string) do
 			local v = val[k]
 			if is_valid_identifier(k) then
-				write(indent:rep(level))
+				write(string_rep(indent, level))
 				write(k)
 				write(" = ")
 				write_value(v, level + 1)
@@ -219,7 +219,7 @@ function dump(value, indent)
 		end
 		if #keys.number == len then -- table is a list
 			for _, v in ipairs(tbl) do
-				write(indent:rep(level))
+				write(string_rep(indent, level))
 				write_value(v, level + 1)
 				write(",")
 				write(newline)
@@ -238,7 +238,7 @@ function dump(value, indent)
 			end
 		end
 
-		write(indent:rep(level - 1))
+		write(string_rep(indent, level - 1))
 		write("}")
 	end
 	write_value(value, 1)
