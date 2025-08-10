@@ -572,8 +572,8 @@ void ServerEnvironment::activateBlock(MapBlock *block)
 		return;
 
 	// Run node timers
-	block->step((float)dtime_s, [&](v3s16 p, MapNode n, f32 d) -> bool {
-		return m_script->node_on_timer(p, n, d);
+	block->step((float)dtime_s, [&](v3s16 p, MapNode n, NodeTimer t) -> bool {
+		return m_script->node_on_timer(p, n, t.elapsed, t.timeout);
 	});
 }
 
@@ -999,8 +999,8 @@ void ServerEnvironment::step(float dtime)
 			}
 
 			// Run node timers
-			block->step(dtime, [&](v3s16 p, MapNode n, f32 d) -> bool {
-				return m_script->node_on_timer(p, n, d);
+			block->step(dtime, [&](v3s16 p, MapNode n, NodeTimer t) -> bool {
+				return m_script->node_on_timer(p, n, t.elapsed, t.timeout);
 			});
 		}
 	}

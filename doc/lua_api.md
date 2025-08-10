@@ -177,8 +177,6 @@ The file is a key-value store of modpack details.
 * `textdomain`: Textdomain used to translate title and description. Defaults to modpack name.
   See [Translating content meta](#translating-content-meta).
 
-Note: to support 0.4.x, please also create an empty modpack.txt file.
-
 Mod directory structure
 -----------------------
 
@@ -5841,6 +5839,8 @@ Utilities
       httpfetch_additional_methods = true,
       -- objects have get_guid method (5.13.0)
       object_guids = true,
+      -- The NodeTimer `on_timer` callback is passed additional `node` and `timeout` args (5.14.0)
+      on_timer_four_args = true,
   }
   ```
 
@@ -5848,6 +5848,7 @@ Utilities
     * checks for *server-side* feature availability
     * `arg`: string or table in format `{foo=true, bar=true}`
     * `missing_features`: `{foo=true, bar=true}`
+
 * `core.get_player_information(player_name)`: Table containing information
   about a player. Example return value:
 
@@ -10470,8 +10471,6 @@ Used by `core.register_node`.
     -- itemstack will hold clicker's wielded item.
     -- Shall return the leftover itemstack.
     -- Note: pointed_thing can be nil, if a mod calls this function.
-    -- This function does not get triggered by clients <=0.4.16 if the
-    -- "formspec" node metadata field is set.
 
     on_dig = function(pos, node, digger),
     -- default: core.node_dig
@@ -10479,10 +10478,12 @@ Used by `core.register_node`.
     -- return true if the node was dug successfully, false otherwise.
     -- Deprecated: returning nil is the same as returning true.
 
-    on_timer = function(pos, elapsed),
+    on_timer = function(pos, elapsed, node, timeout),
     -- default: nil
     -- called by NodeTimers, see core.get_node_timer and NodeTimerRef.
-    -- elapsed is the total time passed since the timer was started.
+    -- `elapsed`: total time passed since the timer was started.
+    -- `node`: node table (since 5.14)
+    -- `timeout`: timeout value of the just ended timer (since 5.14)
     -- return true to run the timer for another cycle with the same timeout
     -- value.
 

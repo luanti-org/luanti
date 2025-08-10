@@ -215,7 +215,7 @@ void ScriptApiNode::node_after_destruct(v3s16 p, MapNode node)
 	lua_pop(L, 1);  // Pop error handler
 }
 
-bool ScriptApiNode::node_on_timer(v3s16 p, MapNode node, f32 dtime)
+bool ScriptApiNode::node_on_timer(v3s16 p, MapNode node, f32 elapsed, f32 timeout)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -229,10 +229,14 @@ bool ScriptApiNode::node_on_timer(v3s16 p, MapNode node, f32 dtime)
 
 	// Call function
 	push_v3s16(L, p);
-	lua_pushnumber(L,dtime);
-	PCALL_RES(lua_pcall(L, 2, 1, error_handler));
-	lua_remove(L, error_handler);
-	return readParam<bool>(L, -1, false);
+	lua_pushnumber(L, elapsed);
+	pushnode(L, node);
+	lua_pushnumber(L, timeout);
+	PCALL_RES(lua_pcall(L, 4, 1, error_handler));
+	bool ret = readParam<bool>(L, -1, false);
+	lua_pop(L, 2); // error handler, return value
+
+	return ret;
 }
 
 void ScriptApiNode::node_on_receive_fields(v3s16 p,

@@ -168,7 +168,7 @@ bool MapBlock::saveStaticObject(u16 id, const StaticObject &obj, u32 reason)
 	return true;
 }
 
-void MapBlock::step(float dtime, const std::function<bool(v3s16, MapNode, f32)> &on_timer_cb)
+void MapBlock::step(float dtime, const std::function<bool(v3s16, MapNode, NodeTimer)> &on_timer_cb)
 {
 	// Run callbacks for elapsed node_timers
 	std::vector<NodeTimer> elapsed_timers = m_node_timers.step(dtime);
@@ -177,8 +177,10 @@ void MapBlock::step(float dtime, const std::function<bool(v3s16, MapNode, f32)> 
 	for (const auto &it : elapsed_timers) {
 		n = getNodeNoEx(it.position);
 		p = it.position + getPosRelative();
-		if (on_timer_cb(p, n, it.elapsed))
+		if (on_timer_cb(p, n, it)) {
+			// restart
 			setNodeTimer(NodeTimer(it.timeout, 0, it.position));
+		}
 		if (isOrphan())
 			return;
 	}

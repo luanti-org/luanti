@@ -43,8 +43,9 @@ core.register_node("callbacks:callback_node", {
 		print_to_everything("callbacks:callback_node:after_dig_node("..core.pos_to_string(pos)..")")
 	end,
 
-	on_timer = function(pos, elapsed)
-		print_to_everything("callbacks:callback_node:on_timer(): elapsed="..dump(elapsed))
+	on_timer = function(pos, elapsed, node, timeout)
+		print_to_everything("callbacks:callback_node:on_timer(): elapsed="..
+			elapsed .. " node=" .. dump(node) .. " timeout=" .. timeout)
 		return true
 	end,
 })

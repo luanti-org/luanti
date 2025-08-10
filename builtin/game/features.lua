@@ -48,6 +48,7 @@ core.features = {
 	remove_item_match_meta = true,
 	httpfetch_additional_methods = true,
 	object_guids = true,
+	on_timer_four_args = true,
 }
 
 function core.has_feature(arg)
