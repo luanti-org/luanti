@@ -853,22 +853,22 @@ Intended to be used in chat command parameter parsing.
 
 Parameters:
 * x, y, z: Parsed x, y, and z coordinates as strings
-* relative_to: Position to which to compare the position
+* relative_to: Optional position vector as reference point
 
 Syntax of x, y and z:
-* "<number>": return as number
-* "~<number>": return <number> + player position on this axis
-* "~": return player position on this axis
+* "<number>": use as number
+* "~<number>": use <number> + reference point on this axis
+* "~": use reference point on this axis
 
-Returns: a vector or nil for invalid input or if player does not exist
+Returns: a vector or nil for invalid input
 ]]
 function core.parse_coordinates(x, y, z, relative_to)
 	if not relative_to then
 		x, y, z = tonumber(x), tonumber(y), tonumber(z)
-		return x and y and z and { x = x, y = y, z = z }
+		return x and y and z and vector.new(x, y, z)
 	end
 	local rx = core.parse_relative_number(x, relative_to.x)
 	local ry = core.parse_relative_number(y, relative_to.y)
 	local rz = core.parse_relative_number(z, relative_to.z)
-	return rx and ry and rz and { x = rx, y = ry, z = rz }
+	return rx and ry and rz and vector.new(rx, ry, rz)
 end
