@@ -163,7 +163,7 @@ public:
 		OriginalSize = size;
 		Size = OriginalSize;
 
-		if (Size.Width == 0 || Size.Height == 0) {
+		if (core::min_(Size.Width, Size.Height) == 0 || core::max_(Size.Width, Size.Height) > Driver->MaxTextureSize) {
 			char buf[64];
 			snprintf_irr(buf, sizeof(buf), "%dx%d", Size.Width, Size.Height);
 			os::Printer::log("Invalid size for render target", buf, ELL_ERROR);

@@ -136,6 +136,14 @@ bool TextureBuffer::ensureTexture(video::ITexture **texture, const TextureDefini
 			return false;
 		}
 
+		const core::dimension2du max_size = m_driver->getMaxTextureSize();
+		if (size.Width > max_size.Width || size.Height > max_size.Height) {
+			errorstream << "Failed to create texture \"" << definition.name
+				<< "\": exceeds limit " << size.Width << "x" << size.Height
+				<< std::endl;
+			return false;
+		}
+
 		if (definition.clear) {
 			// We're not able to clear a render target texture
 			// We're not able to create a normal texture with MSAA
