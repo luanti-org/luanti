@@ -168,7 +168,7 @@ local function get_formspec(tabview, name, tabdata)
 	local index = filterlist.get_current_index(menudata.worldlist,
 				tonumber(core.settings:get("mainmenu_last_selected_world")))
 	local is_world_selected = index and index ~= 0
-	
+
 	local list = menudata.worldlist:get_list()
 	local world = list and index and list[index]
 	local game
