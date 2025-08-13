@@ -11,6 +11,7 @@ body:
         2. This page is for reporting the bugs of **the engine itself**. For bugs in a particular game, please [search for the game on ContentDB](https://content.luanti.org/packages/?type=game) and submit a bug report to its developers.
             * For example, issues about Minetest Game are submitted to [its own repository](https://github.com/luanti-org/minetest_game/issues).
         3. Please provide as many relevant details as possible.
+        4. If you have used an LLM/AI to format your issue description, disclose this. Try to keep it concise. No walls of text please.
 
   - type: textarea
     attributes:
