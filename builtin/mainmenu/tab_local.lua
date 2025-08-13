@@ -167,6 +167,8 @@ local function get_formspec(tabview, name, tabdata)
 
 	local index = filterlist.get_current_index(menudata.worldlist,
 				tonumber(core.settings:get("mainmenu_last_selected_world")))
+	local is_world_selected = index and index ~= 0
+	
 	local list = menudata.worldlist:get_list()
 	local world = list and index and list[index]
 	local game
@@ -183,27 +185,33 @@ local function get_formspec(tabview, name, tabdata)
 	local y = 0.2
 	local yo = 0.5625
 
-	if disabled_settings["creative_mode"] == nil then
-		creative = "checkbox[0,"..y..";cb_creative_mode;".. fgettext("Creative Mode") .. ";" ..
-			dump(core.settings:get_bool("creative_mode")) .. "]"
-		y = y + yo
-	end
-	if disabled_settings["enable_damage"] == nil then
-		damage = "checkbox[0,"..y..";cb_enable_damage;".. fgettext("Enable Damage") .. ";" ..
-			dump(core.settings:get_bool("enable_damage")) .. "]"
-		y = y + yo
-	end
-	if disabled_settings["enable_server"] == nil then
-		host = "checkbox[0,"..y..";cb_server;".. fgettext("Host Server") ..";" ..
-			dump(core.settings:get_bool("enable_server")) .. "]"
-		y = y + yo
+	if is_world_selected then
+		if disabled_settings["creative_mode"] == nil then
+			creative = "checkbox[0,"..y..";cb_creative_mode;".. fgettext("Creative Mode") .. ";" ..
+				dump(core.settings:get_bool("creative_mode")) .. "]"
+			y = y + yo
+		end
+		if disabled_settings["enable_damage"] == nil then
+			damage = "checkbox[0,"..y..";cb_enable_damage;".. fgettext("Enable Damage") .. ";" ..
+				dump(core.settings:get_bool("enable_damage")) .. "]"
+			y = y + yo
+		end
+		if disabled_settings["enable_server"] == nil then
+			host = "checkbox[0,"..y..";cb_server;".. fgettext("Host Server") ..";" ..
+				dump(core.settings:get_bool("enable_server")) .. "]"
+			y = y + yo
+		end
 	end
 
 	retval = retval ..
 			"container[5.25,4.875]" ..
-			"button[0,0;3.225,0.8;world_delete;".. fgettext("Delete") .. "]" ..
-			"button[3.325,0;3.225,0.8;world_configure;".. fgettext("Select Mods") .. "]" ..
-			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]" ..
+			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]"
+	if is_world_selected then
+		retval = retval ..
+				"button[0,0;3.225,0.8;world_delete;".. fgettext("Delete") .. "]" ..
+				"button[3.325,0;3.225,0.8;world_configure;".. fgettext("Select Mods") .. "]"
+	end
+	retval = retval ..
 			"container_end[]" ..
 			"container[0.375,0.375]" ..
 			creative ..
@@ -251,7 +259,7 @@ local function get_formspec(tabview, name, tabdata)
 		end
 
 		retval = retval .. "container_end[]"
-	else
+	elseif is_world_selected then
 		retval = retval ..
 				"button[10.1875,5.925;4.9375,0.8;play;" .. fgettext("Play Game") .. "]"
 	end
