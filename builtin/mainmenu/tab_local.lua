@@ -167,11 +167,13 @@ local function get_formspec(tabview, name, tabdata)
 
 	local index = filterlist.get_current_index(menudata.worldlist,
 				tonumber(core.settings:get("mainmenu_last_selected_world")))
-	local is_world_selected = index and index ~= 0
 
 	local list = menudata.worldlist:get_list()
 	local world = list and index and list[index]
 	local game
+
+	local is_world_selected = list and list[core.get_textlist_index("sp_worlds") or index]
+	
 	if world then
 		game = pkgmgr.find_by_gameid(world.gameid)
 	else
@@ -356,8 +358,6 @@ local function main_button_handler(this, fields, name, tabdata)
 		gamedata.selected_world = menudata.worldlist:get_raw_index(selected)
 
 		if selected == nil or gamedata.selected_world == 0 then
-			gamedata.errormessage =
-					fgettext_ne("No world created or selected!")
 			return true
 		end
 
