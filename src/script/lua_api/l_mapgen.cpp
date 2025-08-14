@@ -1611,7 +1611,7 @@ int ModApiMapgen::l_generate_ores(lua_State *L)
 }
 
 
-// generate_decorations(vm, p1, p2)
+// generate_decorations(vm, p1, p2, use_mapgen_biomes)
 int ModApiMapgen::l_generate_decorations(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
@@ -1621,26 +1621,48 @@ int ModApiMapgen::l_generate_decorations(lua_State *L)
 		return 0;
 
 	DecorationManager *decomgr;
-	if (auto mg = getMapgen(L))
+	Mapgen mg, *mgp = NULL;
+	bool use_mapgen_biomes = lua_isboolean (L, 4) && readParam<bool> (L, 4);
+	MMVManip *oldvm, *vm = checkObject<LuaVoxelManip>(L, 1)->vm;
+	if (auto mg = getMapgen(L)) {
 		decomgr = mg->m_emerge->decomgr;
-	else
+		if (use_mapgen_biomes) {
+			mgp = mg;
+			oldvm = mgp->vm;
+		}
+	} else {
 		decomgr = emerge->decomgr;
+	}
+	if (!mgp) {
+		mgp = &mg;
+		// Intentionally truncates to s32, see Mapgen::Mapgen()
+		mg.seed = (s32)emerge->mgparams->seed;
+		mg.ndef = emerge->ndef;
+		oldvm = NULL;
+	}
 
-	Mapgen mg;
-	// Intentionally truncates to s32, see Mapgen::Mapgen()
-	mg.seed = (s32)emerge->mgparams->seed;
-	mg.vm   = checkObject<LuaVoxelManip>(L, 1)->vm;
-	mg.ndef = emerge->ndef;
-
-	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) :
-			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
-	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) :
-			mg.vm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE;
+	v3s16 default_pmin = vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
+	v3s16 default_pmax = vm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE;
+	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) : default_pmin;
+	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) : default_pmax;
+	if (use_mapgen_biomes && !oldvm) {
+		throw LuaError("use_mapgen_biomes called before any MapChunks have been generated");
+	} else if (use_mapgen_biomes) {
+		v3s16 required_pmin
+			= oldvm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
+		v3s16 required_pmax
+			= oldvm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE;
+		if (pmin != required_pmin || pmax != required_pmax) {
+			throw LuaError("use_mapgen_biomes specified alongside non-default extents");
+		}
+	}
 	sortBoxVerticies(pmin, pmax);
 
 	u32 blockseed = Mapgen::getBlockSeed(pmin, mg.seed);
 
-	decomgr->placeAllDecos(&mg, blockseed, pmin, pmax);
+	mgp->vm = vm;
+	decomgr->placeAllDecos(mgp, blockseed, pmin, pmax);
+	mgp->vm = oldvm;
 
 	return 0;
 }
