@@ -474,13 +474,12 @@ undersampling (Undersampling) int 1 1 8
 
 #    3D support.
 #    Currently supported:
-#    -    none: no 3d output.
-#    -    anaglyph: cyan/magenta color 3d.
-#    -    interlaced: odd/even line based polarization screen support.
-#    -    topbottom: split screen top/bottom.
-#    -    sidebyside: split screen side by side.
-#    -    crossview: Cross-eyed 3d
-3d_mode (3D mode) enum none none,anaglyph,interlaced,topbottom,sidebyside,crossview
+#    -    none: no 3D output
+#    -    anaglyph: cyan/magenta color 3D
+#    -    topbottom: split screen top/bottom
+#    -    sidebyside: split screen side-by-side
+#    -    crossview: cross-eyed 3D
+3d_mode (3D mode) enum none none,anaglyph,topbottom,sidebyside,crossview
 
 #    Strength of 3D mode parallax.
 3d_paralax_strength (3D mode parallax strength) float 0.025 -0.087 0.087

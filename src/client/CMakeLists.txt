@@ -32,7 +32,6 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/render/anaglyph.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/core.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/factory.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/render/interlaced.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/plain.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/sidebyside.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/stereo.cpp

@@ -42,6 +42,12 @@ struct QueuedMeshUpdate
 	 * @note not done by destructor, since this is only safe on main thread
 	 */
 	void dropBlocks();
+	/**
+	 * Check if the blocks that would comprise the mesh are all air.
+	 * @param res output result (true = all air)
+	 * @param cell_size mesh grid cell size
+	 */
+	void checkAir(bool *res, u16 cell_size);
 };
 
 /*
