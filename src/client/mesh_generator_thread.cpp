@@ -29,6 +29,8 @@ void QueuedMeshUpdate::retrieveBlocks(Map *map, u16 cell_size)
 		assert(map_blocks.size() == total); // must not change
 	size_t i = 0;
 	v3s16 pos;
+	// order is not important, but it must be consistent
+	// note the extra margin!
 	for (pos.X = p.X - 1; pos.X <= p.X + cell_size; pos.X++)
 	for (pos.Z = p.Z - 1; pos.Z <= p.Z + cell_size; pos.Z++)
 	for (pos.Y = p.Y - 1; pos.Y <= p.Y + cell_size; pos.Y++) {
@@ -43,6 +45,20 @@ void QueuedMeshUpdate::retrieveBlocks(Map *map, u16 cell_size)
 	}
 }
 
+bool QueuedMeshUpdate::checkSkip(u16 cell_size)
+{
+	bool all_air = true;
+	const v3s16 p_max = p + v3s16(cell_size);
+	assert(!map_blocks.empty());
+	for (auto *block : map_blocks) {
+		// ignore extra margin
+		if (block && block->getPos() >= p && block->getPos() < p_max) {
+			all_air &= block->isAir();
+		}
+	}
+	return all_air;
+}
+
 void QueuedMeshUpdate::dropBlocks()
 {
 	for (auto *block : map_blocks) {
@@ -50,6 +66,19 @@ void QueuedMeshUpdate::dropBlocks()
 			block->refDrop();
 	}
 	map_blocks.clear();
+}
+
+namespace {
+	struct DroppingDeleter {
+		void operator() (QueuedMeshUpdate *q) {
+			if (q)
+				q->dropBlocks();
+			delete q;
+		}
+	};
+
+	// Simple helper to avoid messing up the refcounting
+	using UnqueuedMeshUpdate = std::unique_ptr<QueuedMeshUpdate, DroppingDeleter>;
 }
 
 /*
@@ -76,17 +105,15 @@ MeshUpdateQueue::~MeshUpdateQueue()
 bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	bool urgent, bool from_neighbor)
 {
-	// FIXME: with cell_size > 1 there isn't a "main block" and this check is
-	// probably incorrect and broken
-	MapBlock *main_block = map->getBlockNoCreateNoEx(p);
-	if (!main_block)
+	// If block that causes update does not exist, skip.
+	if (!map->getBlockNoCreateNoEx(p))
 		return false;
 
-	MeshGrid mesh_grid = m_client->getMeshGrid();
+	const MeshGrid mesh_grid = m_client->getMeshGrid();
 
 	// Mesh is placed at the corner block of a chunk
 	// (where all coordinate are divisible by the chunk size)
-	v3s16 mesh_position = mesh_grid.getMeshPos(p);
+	const v3s16 mesh_position = mesh_grid.getMeshPos(p);
 
 	MutexAutoLock lock(m_mutex);
 
@@ -113,21 +140,9 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	}
 
 	/*
-		Air blocks won't suddenly become visible due to a neighbor update, so
-		skip those.
-		Note: this can be extended with more precise checks in the future
+		Grab the relevant blocks first
 	*/
-	if (from_neighbor && mesh_grid.cell_size == 1 && main_block->isAir()) {
-		assert(!ack_block_to_server);
-		m_urgents.erase(mesh_position);
-		g_profiler->add("MeshUpdateQueue: updates skipped", 1);
-		return true;
-	}
-
-	/*
-		Add the block
-	*/
-	QueuedMeshUpdate *q = new QueuedMeshUpdate;
+	UnqueuedMeshUpdate q{new QueuedMeshUpdate()};
 	q->p = mesh_position;
 	if (ack_block_to_server)
 		q->ack_list.push_back(p);
@@ -135,7 +150,21 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
 	q->retrieveBlocks(map, mesh_grid.cell_size);
-	m_queue.push_back(q);
+
+	/*
+		Air blocks won't suddenly become visible due to a neighbor update, so
+		skip those.
+		Note: this can be extended with more precise checks in the future
+	*/
+	if (from_neighbor && q->checkSkip(mesh_grid.cell_size)) {
+		assert(!ack_block_to_server);
+		m_urgents.erase(mesh_position);
+		g_profiler->add("MeshUpdateQueue: updates skipped", 1);
+		return true;
+	}
+
+	// Put into queue, pointer moved from `q`.
+	m_queue.push_back(q.release());
 
 	return true;
 }
@@ -186,12 +215,7 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 
 	data->fillBlockDataBegin(q->p);
 
-	v3s16 pos;
-	int i = 0;
-	for (pos.X = q->p.X - 1; pos.X <= q->p.X + mesh_grid.cell_size; pos.X++)
-	for (pos.Z = q->p.Z - 1; pos.Z <= q->p.Z + mesh_grid.cell_size; pos.Z++)
-	for (pos.Y = q->p.Y - 1; pos.Y <= q->p.Y + mesh_grid.cell_size; pos.Y++) {
-		MapBlock *block = q->map_blocks[i++];
+	for (auto *block : q->map_blocks) {
 		if (block)
 			block->copyTo(data->m_vmanip);
 	}
