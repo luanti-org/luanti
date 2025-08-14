@@ -407,8 +407,15 @@ public:
 	}
 
 	////
+	//// Render Cache
+	////
+#ifndef SERVER
+	void buildRenderCache(const NodeDefManager *ndef);
+#endif
+
+	////
 	//// Serialization
-	///
+	////
 
 	// These don't write or read version by itself
 	// Set disk to true for on-disk format, false for over-the-network format

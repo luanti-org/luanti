@@ -122,6 +122,7 @@ public:
 
 	void onSettingChanged(std::string_view name, bool all);
 
+	bool setNodeMetadata(v3s16 p, NodeMetadata *meta) override;
 protected:
 	// use drop() instead
 	virtual ~ClientMap();

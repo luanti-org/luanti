@@ -12,6 +12,7 @@
 #include "util/numeric.h"
 #include "client/tile.h"
 #include "voxel.h"
+#include "nodemetadata.h"
 #include <array>
 #include <map>
 #include <unordered_map>
@@ -36,6 +37,9 @@ struct MeshMakeData
 {
 	VoxelManipulator m_vmanip;
 
+	// cached subset of metadata used for rendering
+	std::map<v3s16, RenderCachedMetadataMap> m_render_cache;
+
 	// base pos of meshgen area, in blocks
 	v3s16 m_blockpos = v3s16(-1337,-1337,-1337);
 	// size of meshgen area, in nodes.
@@ -59,6 +63,7 @@ struct MeshMakeData
 		Copy block data manually (to allow optimizations by the caller)
 	*/
 	void fillBlockDataBegin(const v3s16 &blockpos);
+	void fillMetadataCache(RenderCachedMetadataMap &&cache);
 
 	/*
 		Prepare block data for rendering a single node located at (0,0,0).
