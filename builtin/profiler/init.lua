@@ -31,10 +31,10 @@ function profiler.init_chatcommand()
 			local args = arg0 and string.split(arg0, " ")
 
 			if command == "dump" then
-				core.log("action", reporter.print(sampler.profile, arg0))
+				core.log("action", reporter.print(sampler.profile, arg0, false))
 				return true, S("Statistics written to action log.")
 			elseif command == "print" then
-				return true, reporter.print(sampler.profile, arg0)
+				return true, reporter.print(sampler.profile, arg0, true)
 			elseif command == "save" then
 				return reporter.save(sampler.profile, args[1] or "txt", args[2])
 			elseif command == "reset" then
