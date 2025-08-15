@@ -23,7 +23,10 @@ function profiler.init_chatcommand()
 
 	local param_usage = S("print [<filter>] | dump [<filter>] | save [<format> [<filter>]] | reset")
 	core.register_chatcommand("profiler", {
-		description = S("Handle the profiler and profiling data"),
+		description = S("Handle the profiler and profiling data. "
+			.. "Can output to chat (print), action log (dump), or file in world (save). "
+			.. "Format can be one of txt, csv, lua, json, json_pretty (structures may be subject to change). "
+			.. "Filter is a lua pattern used to limit output to matching mod names."),
 		params = param_usage,
 		privs = { server=true },
 		func = function(name, param)
@@ -42,9 +45,7 @@ function profiler.init_chatcommand()
 				return true, S("Statistics were reset.")
 			end
 
-			return false,
-				S("Usage: @1", param_usage) .. "\n" ..
-				S("Format can be one of txt, csv, lua, json, json_pretty (structures may be subject to change).")
+			return false
 		end
 	})
 
