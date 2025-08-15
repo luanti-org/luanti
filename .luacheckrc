@@ -40,7 +40,13 @@ stds.menu_common = {
 	},
 }
 
-files["builtin/client/register.lua"] = {
+files["builtin/client/init.lua"] = {
+	globals = {
+		debug = {fields={"getinfo"}},
+	}
+}
+
+files["builtin/sscsm_client/init.lua"] = {
 	globals = {
 		debug = {fields={"getinfo"}},
 	}
