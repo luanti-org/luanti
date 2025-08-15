@@ -4,9 +4,9 @@
 
 local format, pairs, type = string.format, pairs, type
 local core, get_current_modname = core, core.get_current_modname
-local profiler, sampler, get_bool_default = ...
+local profiler, sampler = ...
 
-local instrument_builtin = get_bool_default("instrument.builtin", false)
+local instrument_builtin = core.settings:get_bool("instrument.builtin", false)
 
 local register_functions = {
 	register_globalstep = 0,
@@ -144,7 +144,7 @@ local function instrument_register(func, func_name)
 end
 
 local function init_chatcommand()
-	if get_bool_default("instrument.chatcommand", true) then
+	if core.settings:get_bool("instrument.chatcommand", true) then
 		local orig_register_chatcommand = core.register_chatcommand
 		core.register_chatcommand = function(cmd, def)
 			def.func = instrument {
@@ -160,7 +160,7 @@ end
 -- Start instrumenting selected functions
 --
 local function init()
-	if get_bool_default("instrument.entity", true) then
+	if core.settings:get_bool("instrument.entity", true) then
 		-- Explicitly declare entity api-methods.
 		-- Simple iteration would ignore lookup via __index.
 		local entity_instrumentation = {
@@ -187,7 +187,7 @@ local function init()
 		end
 	end
 
-	if get_bool_default("instrument.abm", true) then
+	if core.settings:get_bool("instrument.abm", true) then
 		-- Wrap register_abm() to automatically instrument abms.
 		local orig_register_abm = core.register_abm
 		core.register_abm = function(spec)
@@ -200,7 +200,7 @@ local function init()
 		end
 	end
 
-	if get_bool_default("instrument.lbm", true) then
+	if core.settings:get_bool("instrument.lbm", true) then
 		-- Wrap register_lbm() to automatically instrument lbms.
 		local orig_register_lbm = core.register_lbm
 		core.register_lbm = function(spec)
@@ -214,13 +214,13 @@ local function init()
 		end
 	end
 
-	if get_bool_default("instrument.global_callback", true) then
+	if core.settings:get_bool("instrument.global_callback", true) then
 		for func_name, _ in pairs(register_functions) do
 			core[func_name] = instrument_register(core[func_name], func_name)
 		end
 	end
 
-	if get_bool_default("instrument.profiler", false) then
+	if core.settings:get_bool("instrument.profiler", false) then
 		-- Measure overhead of instrumentation, but keep it down for functions
 		-- So keep the `return` for better optimization.
 		profiler.empty_instrument = instrument {
