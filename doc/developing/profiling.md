@@ -1,5 +1,19 @@
 # Profiling
 
+## Using builtin's mod profiler
+
+Builtin has a pr
+
+To start, enable the `profiler.load` setting.
+(There are more settings, see `profiler.*` and `instrument.*`.)
+
+Use the `profiler` chatcommand to look at the results.
+
+TODO: explain output
+(what are the mod rows, and total?)
+(what happens when a callback is not, or multiple times, called in one server step?)
+
+
 ## Profiling Luanti on Linux with perf
 
 We will be using a tool called "perf", which you can get by installing `perf` or `linux-perf` or `linux-tools-common`.
