@@ -184,7 +184,7 @@ protected:
 	wchar_t PasswordChar;
 	EGUI_ALIGNMENT HAlign, VAlign;
 
-	core::array<core::stringw> BrokenText;
+	core::array<EnrichedString> BrokenText;
 	core::array<s32> BrokenTextPositions;
 
 	core::rect<s32> CurrentTextRect, FrameRect; // temporary values
