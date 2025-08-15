@@ -119,7 +119,12 @@ end
 -- }]]
 function dump(value, indent)
 	indent = indent or "\t"
-	assert(type(indent) == "string", "dump()'s second argument should be a string or nil, to dump multiple things use dump({a, b}).")
+
+	assert(
+		type(indent) == "string",
+		"dump()'s second argument should be a string or nil, to dump multiple things use dump({a, b})."
+	)
+
 	local newline = indent == "" and "" or "\n"
 
 	local rope = {}
