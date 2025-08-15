@@ -173,17 +173,17 @@ local function init()
 		}
 		-- Wrap register_entity() to instrument them on registration.
 		local orig_register_entity = core.register_entity
-		core.register_entity = function(name, prototype)
+		core.register_entity = function(name, def)
 			local modname = get_current_modname()
-			for _, func_name in pairs(entity_instrumentation) do
-				prototype[func_name] = instrument {
-					func = prototype[func_name],
+			for _, func_name in ipairs(entity_instrumentation) do
+				def[func_name] = instrument {
+					func = def[func_name],
 					mod = modname,
 					func_name = func_name,
-					label = prototype.label,
+					label = name,
 				}
 			end
-			orig_register_entity(name,prototype)
+			orig_register_entity(name, def)
 		end
 	end
 
