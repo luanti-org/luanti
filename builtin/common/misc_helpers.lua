@@ -876,8 +876,3 @@ function core.parse_coordinates(x, y, z, relative_to)
 	return rx and ry and rz and { x = rx, y = ry, z = rz }
 end
 
-function core.file_exists(path)
-	local file = io.open(path, "r")
-	if file then file:close() return true end
-	return false
-end
