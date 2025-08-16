@@ -101,3 +101,6 @@ See Tracy's official documentation for more information.
 
 Note: The whole Tracy Lua API is accessible to all mods. And we don't check if it
 is or becomes insecure. Run untrusted mods at your own risk.
+
+Enable `profiler.load` and `profiler.tracy` to automatically instrument mod
+callback functions.

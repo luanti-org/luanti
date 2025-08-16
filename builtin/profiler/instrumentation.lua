@@ -8,6 +8,13 @@ local profiler, sampler = ...
 
 local instrument_builtin = core.settings:get_bool("instrument.builtin", false)
 
+local do_measure = core.settings:get_bool("profiler.measure", true)
+local do_tracy = core.settings:get_bool("profiler.tracy", false)
+if do_tracy and not tracy then
+	core.log("warning", "profiler.tracy is enabled, but `tracy` was not found. Did you build with Tracy?")
+	do_tracy = false
+end
+
 -- keep in sync with game/register.lua
 local register_functions = {
 	"register_on_player_hpchange",
@@ -95,6 +102,10 @@ local function measure(modname, instrument_name, start, ...)
 	log(modname, instrument_name, time() - start)
 	return ...
 end
+local function tracy_ZoneEnd_and_return(...)
+	tracy.ZoneEnd()
+	return ...
+end
 --- Automatically instrument a function to measure and log to the sampler.
 -- def = {
 -- 		mod = "",
@@ -116,15 +127,28 @@ local function instrument(def)
 		return func
 	end
 
-	return function(...)
-		-- This tail-call allows passing all return values of `func`
-		-- also called https://en.wikipedia.org/wiki/Continuation_passing_style
-		-- Compared to table creation and unpacking it won't lose `nil` returns
-		-- and is expected to be faster
-		-- `measure` will be executed after func(...)
-		local start = time()
-		return measure(modname, instrument_name, start, func(...))
+	local func1 = func
+	if do_tracy then
+		func1 = function(...)
+			tracy.ZoneBeginN(instrument_name) --TODO: longer name. *always* include source location
+			return tracy_ZoneEnd_and_return(func(...))
+		end
 	end
+
+	local func2 = func1
+	if do_measure then
+		func2 = function(...)
+			-- This tail-call allows passing all return values of `func`
+			-- also called https://en.wikipedia.org/wiki/Continuation_passing_style
+			-- Compared to table creation and unpacking it won't lose `nil` returns
+			-- and is expected to be faster
+			-- `measure` will be executed after func(...)
+			local start = time()
+			return measure(modname, instrument_name, start, func1(...))
+		end
+	end
+
+	return func2
 end
 
 local function can_be_called(func)
