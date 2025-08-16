@@ -4317,10 +4317,6 @@ Helper functions
     * `tool_capabilities`: Tool capabilities table of the item
     * `time_from_last_punch`: time in seconds since last punch action
     * `wear`: Amount of wear the item starts with (default: 0)
-* `core.file_exists(path)`
-    * Returns true if a file exists
-    * Use if you only want to check if a file exists, don't use to check if you can open it (example: you can check if a schematic exists before loading it)
-
 
 
 
