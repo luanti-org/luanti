@@ -2,7 +2,7 @@
 -- Copyright (C) 2016 T4im
 -- SPDX-License-Identifier: LGPL-2.1-or-later
 
-local format, pairs, type = string.format, pairs, type
+local format, ipairs, type = string.format, ipairs, type
 local core, get_current_modname = core, core.get_current_modname
 local profiler, sampler = ...
 
