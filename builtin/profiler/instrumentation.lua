@@ -8,29 +8,44 @@ local profiler, sampler = ...
 
 local instrument_builtin = core.settings:get_bool("instrument.builtin", false)
 
+-- keep in sync with game/register.lua
 local register_functions = {
-	register_globalstep = 0,
-	register_playerevent = 0,
-	register_on_placenode = 0,
-	register_on_dignode = 0,
-	register_on_punchnode = 0,
-	register_on_generated = 0,
-	register_on_newplayer = 0,
-	register_on_dieplayer = 0,
-	register_on_respawnplayer = 0,
-	register_on_prejoinplayer = 0,
-	register_on_joinplayer = 0,
-	register_on_leaveplayer = 0,
-	register_on_cheat = 0,
-	register_on_chat_message = 0,
-	register_on_player_receive_fields = 0,
-	register_on_craft = 0,
-	register_craft_predict = 0,
-	register_on_protection_violation = 0,
-	register_on_item_eat = 0,
-	register_on_punchplayer = 0,
-	register_on_player_hpchange = 0,
-	register_on_mapblocks_changed = 0,
+	"register_on_player_hpchange",
+
+	"register_on_chat_message",
+	"register_on_chatcommand",
+	"register_globalstep",
+	"register_playerevent",
+	"register_on_mods_loaded",
+	"register_on_shutdown",
+	"register_on_punchnode",
+	"register_on_placenode",
+	"register_on_dignode",
+	"register_on_generated",
+	"register_on_newplayer",
+	"register_on_dieplayer",
+	"register_on_respawnplayer",
+	"register_on_prejoinplayer",
+	"register_on_joinplayer",
+	"register_on_leaveplayer",
+	"register_on_player_receive_fields",
+	"register_on_cheat",
+	"register_on_craft",
+	"register_craft_predict",
+	"register_on_protection_violation",
+	"register_on_item_eat",
+	"register_on_item_pickup",
+	"register_on_punchplayer",
+	"register_on_priv_grant",
+	"register_on_priv_revoke",
+	"register_on_authplayer",
+	"register_can_bypass_userlimit",
+	"register_on_modchannel_message",
+	"register_on_player_inventory_action",
+	"register_allow_player_inventory_action",
+	"register_on_rightclickplayer",
+	"register_on_liquid_transformed",
+	"register_on_mapblocks_changed",
 }
 
 local function regex_escape(s)
@@ -135,7 +150,6 @@ local function instrument_register(func, func_name)
 	local register_name = func_name:gsub("^register_", "", 1)
 	return function(callback, ...)
 		assert_can_be_called(callback, func_name, 2)
-		register_functions[func_name] = register_functions[func_name] + 1
 		return func(instrument {
 			func = callback,
 			func_name = register_name
@@ -168,7 +182,11 @@ local function init()
 			"on_deactivate",
 			"on_step",
 			"on_punch",
+			"on_death",
 			"on_rightclick",
+			"on_attach_child",
+			"on_detach_child",
+			"on_detach",
 			"get_staticdata",
 		}
 		-- Wrap register_entity() to instrument them on registration.
@@ -215,7 +233,7 @@ local function init()
 	end
 
 	if core.settings:get_bool("instrument.global_callback", true) then
-		for func_name, _ in pairs(register_functions) do
+		for _, func_name in ipairs(register_functions) do
 			core[func_name] = instrument_register(core[func_name], func_name)
 		end
 	end
@@ -233,7 +251,6 @@ local function init()
 end
 
 return {
-	register_functions = register_functions,
 	instrument = instrument,
 	init = init,
 	init_chatcommand = init_chatcommand,
