@@ -646,6 +646,13 @@ if(BUILD_CLIENT)
 
 		add_dependencies(${PROJECT_NAME} translations)
 
+		option(MACOSX_SANDBOXED "Create sanboxed macos binary" TRUE)
+		set(MACOSX_SANDBOXED FALSE)
+
+		if(MACOSX_SANDBOXED)
+			add_compile_definitions(MACOSX_SANDBOXED)
+		endif()
+
 		set_target_properties(${PROJECT_NAME} PROPERTIES
 			MACOSX_BUNDLE TRUE
 			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"

@@ -39,6 +39,7 @@
 #endif
 #if defined(__APPLE__)
 	#include <mach-o/dyld.h>
+	#import <Foundation/Foundation.h>
 	#include <CoreFoundation/CoreFoundation.h>
 	// For _NSGetEnviron()
 	// Related: https://gitlab.haskell.org/ghc/ghc/issues/2458
@@ -410,6 +411,15 @@ bool getCurrentExecPath(char *buf, size_t len)
 #endif
 
 
+#if defined(__APPLE__) && defined(MACOSX_SANDBOXED)
+
+[[maybe_unused]] static inline const char *getHomeOrFail()
+{
+	NSString *dir = NSHomeDirectory();
+	return dir.UTF8String;
+}
+
+#else
 [[maybe_unused]] static inline const char *getHomeOrFail()
 {
 	const char *home = getenv("HOME");
@@ -418,6 +428,7 @@ bool getCurrentExecPath(char *buf, size_t len)
 		"Required environment variable HOME is not set");
 	return home;
 }
+#endif
 
 
 //// Windows
