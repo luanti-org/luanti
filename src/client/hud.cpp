@@ -363,7 +363,8 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 	}
 
 	// Reorder by Z-index for rendering
-	std::sort(elems.begin(), elems.end(), [] (HudElement *l, HudElement *r) {
+	// Note: we don't guarantee rendering in ID order, but it used to work so let's keep it.
+	std::stable_sort(elems.begin(), elems.end(), [] (HudElement *l, HudElement *r) {
 		return l->z_index < r->z_index;
 	});
 
