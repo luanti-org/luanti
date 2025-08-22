@@ -51,6 +51,7 @@ core.features = {
 	on_timer_four_args = true,
 	particlespawner_exclude_player = true,
 	generate_decorations_biomes = true,
+	chunksize_vector = true,
 }
 
 function core.has_feature(arg)

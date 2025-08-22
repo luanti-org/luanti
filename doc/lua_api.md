@@ -5849,6 +5849,8 @@ Utilities
       particlespawner_exclude_player = true,
       -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
       generate_decorations_biomes = true,
+      -- 'chunksize' mapgen setting can be a vector, instead of a single number (5.15.0)
+      chunksize_vector = true,
   }
   ```
 
