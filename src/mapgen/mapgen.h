@@ -325,4 +325,4 @@ protected:
 
 // Calculate exact edges of the outermost mapchunks that are within the set
 // mapgen_limit. Returns the minimum and maximum edges in nodes in that order.
-std::pair<s16, s16> get_mapgen_edges(s16 mapgen_limit, v3s16 chunksize);
+std::pair<v3s16, v3s16> get_mapgen_edges(s16 mapgen_limit, v3s16 chunksize);

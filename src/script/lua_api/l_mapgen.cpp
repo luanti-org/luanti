@@ -867,9 +867,9 @@ int ModApiMapgen::l_get_mapgen_edges(lua_State *L)
 		chunksize = params->chunksize;
 	}
 
-	std::pair<s16, s16> edges = get_mapgen_edges(mapgen_limit, chunksize);
-	push_v3s16(L, v3s16(1, 1, 1) * edges.first);
-	push_v3s16(L, v3s16(1, 1, 1) * edges.second);
+	auto edges = get_mapgen_edges(mapgen_limit, chunksize);
+	push_v3s16(L, edges.first);
+	push_v3s16(L, edges.second);
 	return 2;
 }
 

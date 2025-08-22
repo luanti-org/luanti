@@ -1127,25 +1127,13 @@ void MapgenParams::writeParams(Settings *settings) const
 s32 MapgenParams::getSpawnRangeMax()
 {
 	auto [emin, emax] = get_mapgen_edges(mapgen_limit, chunksize);
-	return std::min(-emin, emax);
+	s32 min_xz = std::max(emin.X, emin.Z), max_xz = std::min(emax.X, emax.Z);
+	return std::min(-min_xz, max_xz);
 }
 
 
-std::pair<s16, s16> get_mapgen_edges(s16 mapgen_limit, v3s16 chunksize)
+std::pair<v3s16, v3s16> get_mapgen_edges(s16 mapgen_limit, v3s16 chunksize)
 {
-	// FIXME: this is no longer exact
-	const s16 cs = std::max(std::max(chunksize.X, chunksize.Y), chunksize.Z);
-
-	// Central chunk offset, in blocks
-	s16 ccoff_b = -cs / 2;
-	// Chunksize, in nodes
-	s32 csize_n = cs * MAP_BLOCKSIZE;
-	// Minp/maxp of central chunk, in nodes
-	s16 ccmin = ccoff_b * MAP_BLOCKSIZE;
-	s16 ccmax = ccmin + csize_n - 1;
-	// Fullminp/fullmaxp of central chunk, in nodes
-	s16 ccfmin = ccmin - MAP_BLOCKSIZE;
-	s16 ccfmax = ccmax + MAP_BLOCKSIZE;
 	// Effective mapgen limit, in blocks
 	// Uses same calculation as ServerMap::blockpos_over_mapgen_limit(v3s16 p)
 	s16 mapgen_limit_b = rangelim(mapgen_limit,
@@ -1153,10 +1141,29 @@ std::pair<s16, s16> get_mapgen_edges(s16 mapgen_limit, v3s16 chunksize)
 	// Effective mapgen limits, in nodes
 	s16 mapgen_limit_min = -mapgen_limit_b * MAP_BLOCKSIZE;
 	s16 mapgen_limit_max = (mapgen_limit_b + 1) * MAP_BLOCKSIZE - 1;
-	// Number of complete chunks from central chunk fullminp/fullmaxp
-	// to effective mapgen limits.
-	s16 numcmin = std::max((ccfmin - mapgen_limit_min) / csize_n, 0);
-	s16 numcmax = std::max((mapgen_limit_max - ccfmax) / csize_n, 0);
+
+	const auto &calculate = [&] (s16 cs) -> std::pair<s16, s16> {
+		// Central chunk offset, in blocks
+		s16 ccoff_b = -cs / 2;
+		// Chunksize, in nodes
+		s32 csize_n = cs * MAP_BLOCKSIZE;
+		// Minp/maxp of central chunk, in nodes
+		s16 ccmin = ccoff_b * MAP_BLOCKSIZE;
+		s16 ccmax = ccmin + csize_n - 1;
+		// Fullminp/fullmaxp of central chunk, in nodes
+		s16 ccfmin = ccmin - MAP_BLOCKSIZE;
+		s16 ccfmax = ccmax + MAP_BLOCKSIZE;
+		// Number of complete chunks from central chunk fullminp/fullmaxp
+		// to effective mapgen limits.
+		s16 numcmin = std::max((ccfmin - mapgen_limit_min) / csize_n, 0);
+		s16 numcmax = std::max((mapgen_limit_max - ccfmax) / csize_n, 0);
+		return {ccmin - numcmin * csize_n, ccmax + numcmax * csize_n};
+	};
+
 	// Mapgen edges, in nodes
-	return {ccmin - numcmin * csize_n, ccmax + numcmax * csize_n};
+	v3s16 emin, emax;
+	std::tie(emin.X, emax.X) = calculate(chunksize.X);
+	std::tie(emin.Y, emax.Y) = calculate(chunksize.Y);
+	std::tie(emin.Z, emax.Z) = calculate(chunksize.Z);
+	return {emin, emax};
 }
