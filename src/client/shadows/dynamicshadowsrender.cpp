@@ -404,10 +404,17 @@ video::ITexture *ShadowRenderer::getSMTexture(const std::string &shadow_map_name
 		video::ECOLOR_FORMAT texture_format, bool force_creation)
 {
 	if (force_creation) {
-		return m_driver->addRenderTargetTexture(
+		// TODO. Is there a benefit by using mip-maps?
+		const bool was_on = m_driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+		m_driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+
+		video::ITexture *texture = m_driver->addRenderTargetTexture(
 				core::dimension2du(m_shadow_map_texture_size,
 						m_shadow_map_texture_size),
 				shadow_map_name.c_str(), texture_format);
+
+		m_driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, was_on);
+		return texture;
 	}
 
 	return m_driver->findTexture(shadow_map_name.c_str());

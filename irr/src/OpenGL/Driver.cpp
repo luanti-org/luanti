@@ -1663,17 +1663,9 @@ ITexture *COpenGL3DriverBase::addRenderTargetTexture(const core::dimension2d<u32
 ITexture *COpenGL3DriverBase::addRenderTargetTextureMs(const core::dimension2d<u32> &size, u8 msaa,
 		const io::path &name, const ECOLOR_FORMAT format)
 {
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
-
 	COpenGL3Texture *renderTargetTexture = new COpenGL3Texture(name, size, msaa > 0 ? ETT_2D_MS : ETT_2D, format, this, msaa);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
-
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
-
 	return renderTargetTexture;
 }
 
@@ -1714,6 +1706,13 @@ bool COpenGL3DriverBase::setRenderTargetEx(IRenderTarget *target, u16 clearFlag,
 	if (target && target->getDriverType() != getDriverType()) {
 		os::Printer::log("Fatal Error: Tried to set a render target not owned by OpenGL 3 driver.", ELL_ERROR);
 		return false;
+	}
+
+	if (CurrentRenderTarget) {
+		// Update mip-map of the generated texture, if enabled.
+		auto textures = CurrentRenderTarget->getTexture();
+		for (size_t i = 0; i < textures.size(); ++i)
+			textures[i]->regenerateMipMapLevels();
 	}
 
 	core::dimension2d<u32> destRenderTargetSize(0, 0);

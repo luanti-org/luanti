@@ -635,6 +635,53 @@ void Camera::drawNametags()
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	v2u32 screensize = driver->getScreenSize();
 
+
+	// TODO: Remove this testing code
+	static video::ITexture *mipmap_test = nullptr;
+	do {
+		if (mipmap_test)
+			break;
+
+		gui::IGUIFont *font_xxl = g_fontengine->getFont(70);
+
+		std::wstring textw = L"Hello world";
+		core::dimension2d<u32> dim = font_xxl->getDimension(textw.c_str());
+
+		// 1. Add some padding for mip-mapping
+		// 2. Align to a power of 2 (desired by render target)
+		dim.Width  = npot2(dim.Width  + 4);
+		dim.Height = npot2(dim.Height + 4);
+
+		const bool was_on = driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+		// enable mip-mapping
+		driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, true);
+		auto out_tex = driver->addRenderTargetTexture(dim, "sample_rtt", video::ECF_A8R8G8B8);
+		// restore previous value
+		driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, was_on);
+
+		if (!driver->setRenderTarget(out_tex, true, true, video::SColor(0x00FFFFFF))) {
+			driver->removeTexture(out_tex);
+			break;
+		}
+
+		font_xxl->draw(textw.c_str(), core::recti({2, 2}, dim), video::SColor(0xFFFFFFFF));
+		driver->setRenderTarget(nullptr, video::ECBF_ALL);
+		mipmap_test = out_tex;
+	} while (0);
+
+	if (mipmap_test) {
+		printf("mip map? %d\n", mipmap_test->hasMipMaps());
+		core::dimension2d<u32> dim = mipmap_test->getOriginalSize();
+		f32 scale = std::fabs(m_camera_direction.X); // turn around = scale
+		core::dimension2d<u32> dim_render((dim.Width + 0.5f) * scale, (dim.Height + 0.5f) * scale);
+		driver->draw2DImage(mipmap_test,
+			core::recti(core::vector2di(0, screensize.Y - dim_render.Height), dim_render),
+			core::recti({0,0}, dim), nullptr, nullptr,
+			true /* alpha channel */
+		);
+	}
+
+
 	for (const Nametag *nametag : m_nametags) {
 		// Nametags are hidden in GenericCAO::updateNametag()
 
