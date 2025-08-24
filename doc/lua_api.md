@@ -3612,6 +3612,8 @@ Some types may inherit styles from parent types.
 * animated_image
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
 * box
+    * **Note**: In order for any of the styling options to take effect,
+                the `color` field in the box element must be left unspecified.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
         * Defaults to false in formspec_version version 3 or higher
     * **Note**: `colors`, `bordercolors`, and `borderwidths` accept multiple input types:
