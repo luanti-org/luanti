@@ -111,4 +111,31 @@ describe("after", function()
 		do_step(math.max(unpack(t)))
 		assert.equal(#t, i)
 	end)
+
+	it("is in time interval, according to core.get_global_time()", function()
+		do_step(0.1 + math.random() * 0.001)
+
+		local num_executed = 0
+		local t0 = core.get_global_time()
+
+		for i = 0, 2.00001, 0.05 do
+			core.after(i, function()
+				local actual_time = core.get_global_time() - t0
+				assert(actual_time >= i)
+				if i >= 0.1 then
+					assert(actual_time < i + 0.1)
+				end
+				num_executed = num_executed + 1
+			end)
+		end
+
+		for i = 1, 25 do
+			do_step(0.1 + math.random() * 0.001)
+		end
+
+		assert(core.get_global_time() - t0 >= 25 * 0.1)
+		assert(core.get_global_time() - t0 < 26 * 0.1)
+
+		assert.equal(num_executed, 41)
+	end)
 end)
