@@ -266,7 +266,6 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 
 	GL.ClearDepthf(1.0f);
 
-	GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 	GL.FrontFace(GL_CW);
 
 	// create material renderers
@@ -1666,15 +1665,12 @@ ITexture *COpenGL3DriverBase::addRenderTargetTextureMs(const core::dimension2d<u
 	COpenGL3Texture *renderTargetTexture = new COpenGL3Texture(name, size, msaa > 0 ? ETT_2D_MS : ETT_2D, format, this, msaa);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
+
 	return renderTargetTexture;
 }
 
 ITexture *COpenGL3DriverBase::addRenderTargetTextureCubemap(const u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
 {
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
-
 	bool supportForFBO = (Feature.ColorAttachment > 0);
 
 	const core::dimension2d<u32> size(sideLen, sideLen);
@@ -1688,9 +1684,6 @@ ITexture *COpenGL3DriverBase::addRenderTargetTextureCubemap(const u32 sideLen, c
 	COpenGL3Texture *renderTargetTexture = new COpenGL3Texture(name, destSize, ETT_CUBEMAP, format, this);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
-
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
 
 	return renderTargetTexture;
 }

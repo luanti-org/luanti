@@ -139,7 +139,7 @@ public:
 		DriverType = Driver->getDriverType();
 		assert(Type != ETT_2D_ARRAY); // not supported by this constructor
 		TextureType = TextureTypeIrrToGL(Type);
-		HasMipMaps = Driver->getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
+		HasMipMaps = Driver->getTextureCreationFlag(ETCF_CREATE_RTT_MIP_MAPS);
 		IsRenderTarget = true;
 
 		if (!name.empty())
@@ -390,8 +390,9 @@ public:
 		if (!HasMipMaps || (Size.Width <= 1 && Size.Height <= 1))
 			return;
 
-		const COpenGLCoreTexture *prevTexture = Driver->getCacheHandler()->getTextureCache().get(0);
-		Driver->getCacheHandler()->getTextureCache().set(0, this);
+		auto &cache = Driver->getCacheHandler()->getTextureCache();
+		const COpenGLCoreTexture *prevTexture = cache.get(0);
+		cache.set(0, this);
 
 		if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_SPEED))
 			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
@@ -403,7 +404,7 @@ public:
 		Driver->irrGlGenerateMipmap(TextureType);
 		TEST_GL_ERROR(Driver);
 
-		Driver->getCacheHandler()->getTextureCache().set(0, prevTexture);
+		cache.set(0, prevTexture);
 	}
 
 	GLenum getOpenGLTextureType() const

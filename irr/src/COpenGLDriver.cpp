@@ -2636,10 +2636,6 @@ ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const 
 	if (IImage::isCompressedFormat(format))
 		return 0;
 
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
-
 	bool supportForFBO = (Feature.ColorAttachment > 0);
 
 	const core::dimension2d<u32> size(sideLen, sideLen);
@@ -2653,9 +2649,6 @@ ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const 
 	COpenGLTexture *renderTargetTexture = new COpenGLTexture(name, destSize, ETT_CUBEMAP, format, this);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
-
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
 
 	return renderTargetTexture;
 }

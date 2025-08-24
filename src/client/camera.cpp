@@ -652,12 +652,12 @@ void Camera::drawNametags()
 		dim.Width  = npot2(dim.Width  + 4);
 		dim.Height = npot2(dim.Height + 4);
 
-		const bool was_on = driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+		const bool was_on = driver->getTextureCreationFlag(video::ETCF_CREATE_RTT_MIP_MAPS);
 		// enable mip-mapping
-		driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, true);
+		driver->setTextureCreationFlag(video::ETCF_CREATE_RTT_MIP_MAPS, true);
 		auto out_tex = driver->addRenderTargetTexture(dim, "sample_rtt", video::ECF_A8R8G8B8);
 		// restore previous value
-		driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, was_on);
+		driver->setTextureCreationFlag(video::ETCF_CREATE_RTT_MIP_MAPS, was_on);
 
 		if (!driver->setRenderTarget(out_tex, true, true, video::SColor(0x00FFFFFF))) {
 			driver->removeTexture(out_tex);
