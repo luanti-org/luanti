@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2024 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#include <algorithm>
+
 #include "map.h"
 #include "mapsector.h"
 #include "filesys.h"
@@ -568,36 +570,62 @@ void ServerMap::listAllLoadedBlocks(std::vector<v3s16> &dst)
 	}
 }
 
+std::vector<std::string> ServerMap::getDatabaseBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
+	ret.emplace_back("dummy");
+#if USE_LEVELDB
+	ret.emplace_back("leveldb");
+#endif
+#if USE_REDIS
+	ret.emplace_back("redis");
+#endif
+#if USE_POSTGRESQL
+	ret.emplace_back("postgresql");
+#endif
+	return ret;
+}
+
 MapDatabase *ServerMap::createDatabase(
 	const std::string &name,
 	const std::string &savedir,
 	Settings &conf)
 {
+	// Hopefully this way we don't forget to keep them in sync.
+	auto valid = getDatabaseBackends();
+	if (!CONTAINS(valid, name)) {
+		auto err = std::string("Database backend \"") + name + "\" unknown or not supported";
+		errorstream << err << std::endl;
+		throw BaseException(err);
+	}
+
 	MapDatabase *db = nullptr;
-	verbosestream << "Creating map database with backend \"" << name << "\"" << std::endl;
+	infostream << "Creating map database with backend \"" << name << "\"" << std::endl;
 
 	if (name == "sqlite3")
 		db = new MapDatabaseSQLite3(savedir);
-	if (name == "dummy")
+	else if (name == "dummy")
 		db = new Database_Dummy();
-	#if USE_LEVELDB
-	if (name == "leveldb")
+#if USE_LEVELDB
+	else if (name == "leveldb")
 		db = new Database_LevelDB(savedir);
-	#endif
-	#if USE_REDIS
-	if (name == "redis")
+#endif
+#if USE_REDIS
+	else if (name == "redis")
 		db = new Database_Redis(conf);
-	#endif
-	#if USE_POSTGRESQL
-	if (name == "postgresql") {
+#endif
+#if USE_POSTGRESQL
+	else if (name == "postgresql") {
 		std::string connect_string;
 		conf.getNoEx("pgsql_connection", connect_string);
 		db = new MapDatabasePostgreSQL(connect_string);
 	}
-	#endif
+#endif
 
-	if (!db)
-		throw BaseException(std::string("Database backend ") + name + " not supported.");
+	// Constructor can't return null, only throw
+	sanity_check(db);
+
 	// Do this to get feedback about errors asap
 	db->verifyDatabase();
 	assert(db->initialized());

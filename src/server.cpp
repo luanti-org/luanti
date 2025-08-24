@@ -4289,13 +4289,26 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &world_path
 
 	std::string backend = world_mt.exists("mod_storage_backend") ?
 		world_mt.get("mod_storage_backend") : "files";
-	if (backend == "files")
+	if (backend == "files") {
 		warningstream << "/!\\ You are using the old mod storage files backend. "
-			<< "This backend is deprecated and may be removed in a future release /!\\"
-			<< std::endl << "Switching to SQLite3 is advised, "
-			<< "please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
+			"This backend is deprecated and may be removed in a future release /!\\"
+			"\nSwitching to SQLite3 is advised, "
+			"please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
+	}
 
 	return openModStorageDatabase(backend, world_path, world_mt);
+}
+
+std::vector<std::string> Server::getModStorageDatabaseBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
+#if USE_POSTGRESQL
+	ret.emplace_back("postgresql");
+#endif
+	ret.emplace_back("files");
+	ret.emplace_back("dummy");
+	return ret;
 }
 
 ModStorageDatabase *Server::openModStorageDatabase(const std::string &backend,

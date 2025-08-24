@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#include <map>
+#include <algorithm>
+
 #include "irrlichttypes_bloated.h"
 #include "irrlicht.h" // createDevice
 #include "irrlicht_changes/printing.h"
@@ -405,6 +408,22 @@ static void print_help(const OptionList &allowed_options)
 {
 	std::cout << _("Allowed options:") << std::endl;
 	print_allowed_options(allowed_options);
+	std::cout << std::endl;
+
+	std::pair<const char*, std::vector<std::string>> the_list[] = {
+		{"map", ServerMap::getDatabaseBackends()},
+		{"players", ServerEnvironment::getPlayerDatabaseBackends()},
+		{"auth", ServerEnvironment::getAuthDatabaseBackends()},
+		{"mod storage", Server::getModStorageDatabaseBackends()},
+	};
+
+	std::cout << "Supported database backends:";
+	for (auto &e : the_list) {
+		SORT_AND_UNIQUE(e.second);
+		std::cout << "\n  " << padStringRight(e.first, 16)
+			<< ": " << str_join(e.second, ", ");
+	}
+	std::cout << std::endl;
 }
 
 static void print_allowed_options(const OptionList &allowed_options)
