@@ -139,7 +139,7 @@ void COpenGL3DriverBase::debugCb(GLenum source, GLenum type, GLuint id, GLenum s
 		ll = ELL_ERROR;
 	else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
 		ll = ELL_WARNING;
-	char buf[300];
+	char buf[512];
 	snprintf_irr(buf, sizeof(buf), "%04x %04x %.*s", source, type, length, message);
 	os::Printer::log("GL", buf, ll);
 }

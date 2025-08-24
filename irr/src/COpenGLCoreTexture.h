@@ -164,7 +164,7 @@ public:
 		Size = OriginalSize;
 
 		if (core::min_(Size.Width, Size.Height) == 0 || core::max_(Size.Width, Size.Height) > Driver->MaxTextureSize) {
-			char buf[64];
+			char buf[32];
 			snprintf_irr(buf, sizeof(buf), "%dx%d", Size.Width, Size.Height);
 			os::Printer::log("Invalid size for render target", buf, ELL_ERROR);
 			return;
@@ -187,7 +187,7 @@ public:
 		}
 #endif
 
-		char lbuf[100];
+		char lbuf[200];
 		snprintf_irr(lbuf, sizeof(lbuf),
 			"COpenGLCoreTexture: RTT Type = %d Size = %dx%d (S:%d) ColorFormat = %s -> %#06x %#06x %#06x%s",
 			(int)Type, Size.Width, Size.Height, (int)MSAA, ColorFormatName(ColorFormat),
@@ -484,7 +484,7 @@ protected:
 		Size = OriginalSize;
 
 		if (Size.Width == 0 || Size.Height == 0) {
-			char buf[64];
+			char buf[32];
 			snprintf_irr(buf, sizeof(buf), "%dx%d", Size.Width, Size.Height);
 			os::Printer::log("Invalid size of image for texture", buf, ELL_ERROR);
 			return;
