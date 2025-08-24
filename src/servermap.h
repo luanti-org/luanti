@@ -101,6 +101,7 @@ public:
 	/*
 		Database functions
 	*/
+	static std::vector<std::string> getDatabaseBackends();
 	static MapDatabase *createDatabase(const std::string &name, const std::string &savedir, Settings &conf);
 
 	// Call these before and after saving of blocks

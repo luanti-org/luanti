@@ -435,6 +435,8 @@ public:
 	// map key = binary sha1, map value = file path
 	std::unordered_map<std::string, std::string> getMediaList();
 
+	static std::vector<std::string> getModStorageDatabaseBackends();
+
 	static ModStorageDatabase *openModStorageDatabase(const std::string &world_path);
 
 	static ModStorageDatabase *openModStorageDatabase(const std::string &backend,
