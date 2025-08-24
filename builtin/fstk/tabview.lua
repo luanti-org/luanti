@@ -222,11 +222,13 @@ local function set_tab_by_name(self, name)
 end
 
 --------------------------------------------------------------------------------
-local function hide_tabview(self)
+local function hide_tabview(self, hide_header)
 	self.hidden=true
 
+	if hide_header == nil then hide_header = true end
+
 	-- hide the menu header image as well
-	if mm_game_theme and mm_game_theme.clear_single then
+	if hide_header and mm_game_theme and mm_game_theme.clear_single then
 		mm_game_theme.clear_single("header")
 	end
 

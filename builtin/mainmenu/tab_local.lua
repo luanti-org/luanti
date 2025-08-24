@@ -394,7 +394,7 @@ local function main_button_handler(this, fields, name, tabdata)
 		this.dlg_create_world_closed_at = 0
 		local create_world_dlg = create_create_world_dlg()
 		create_world_dlg:set_parent(this)
-		this:hide()
+		this:hide(false)
 		create_world_dlg:show()
 		return true
 	end
@@ -410,7 +410,7 @@ local function main_button_handler(this, fields, name, tabdata)
 				local index = menudata.worldlist:get_raw_index(selected)
 				local delete_world_dlg = create_delete_world_dlg(world.name,index)
 				delete_world_dlg:set_parent(this)
-				this:hide()
+				this:hide(false)
 				delete_world_dlg:show()
 			end
 		end
@@ -427,7 +427,7 @@ local function main_button_handler(this, fields, name, tabdata)
 
 			if (configdialog ~= nil) then
 				configdialog:set_parent(this)
-				this:hide()
+				this:hide(false)
 				configdialog:show()
 			end
 		end
