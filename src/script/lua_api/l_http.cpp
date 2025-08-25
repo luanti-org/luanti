@@ -39,8 +39,9 @@ void ModApiHttp::read_http_fetch_request(lua_State *L, HTTPFetchRequest &req)
 	getstringfield(L, 1, "url", req.url);
 	getstringfield(L, 1, "user_agent", req.useragent);
 	req.multipart = getboolfield_default(L, 1, "multipart", false);
-	if (getintfield(L, 1, "timeout", req.timeout))
-		req.timeout *= 1000;
+	float timeout_sec = 0;
+	if (getfloatfield(L, 1, "timeout", timeout_sec))
+		req.timeout = timeout_sec * 1000;
 
 	lua_getfield(L, 1, "method");
 	if (lua_isstring(L, -1))
