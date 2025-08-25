@@ -224,6 +224,7 @@ end
 --------------------------------------------------------------------------------
 local function hide_tabview(self, hide_header)
 	self.hidden=true
+	self.hide_header = hide_header
 
 	if hide_header == nil then hide_header = true end
 
@@ -296,6 +297,7 @@ function tabview_create(name, size, tabheaderpos)
 	self.tablist        = {}
 
 	self.autosave_tab   = false
+	self.hide_header    = false
 
 	ui.add(self)
 	return self
