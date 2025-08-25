@@ -84,13 +84,17 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 	InitMaterial2D.AntiAliasing = video::EAAM_OFF;
 	InitMaterial2D.ZWriteEnable = video::EZW_OFF;
 	InitMaterial2D.ZBuffer = video::ECFN_DISABLED;
-	InitMaterial2D.UseMipMaps = false;
-	InitMaterial2D.forEachTexture([](auto &tex) {
-		tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
+	InitMaterial2D.UseMipMaps = true;
+	InitMaterial2D.forEachTexture([](video::SMaterialLayer &tex) {
+		// Improve the looks of downscaled 2D graphics using trilinear interpolation
+		tex.MinFilter = video::ETMINF_LINEAR_MIPMAP_LINEAR;
 		tex.MagFilter = video::ETMAGF_NEAREST;
 		tex.TextureWrapU = video::ETC_REPEAT;
 		tex.TextureWrapV = video::ETC_REPEAT;
 		tex.TextureWrapW = video::ETC_REPEAT;
+		// Lower bias  -> more crisp images, more jitter
+		// Higher bias -> burry images, less jitter
+		tex.LODBias = -1;
 	});
 	OverrideMaterial2D = InitMaterial2D;
 }
