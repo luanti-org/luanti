@@ -7377,7 +7377,7 @@ Server
                        it will not be cached on the client (optional, default false)
         * Exactly one of the parameters marked [*] must be specified.
     * `callback`: function with arguments `name`, which is a player name
-    * Pushes the specified media file to client(s). (details below)
+    * Pushes the specified media file to client(s) as detailed below.
       The file must be a supported image, sound or model format.
       Dynamically added media is not persisted between server restarts.
     * Returns false on error, true if the request was accepted
@@ -7386,19 +7386,17 @@ Server
     * Details/Notes:
       * If `ephemeral`=false and `to_player` is unset the file is added to the media
         sent to clients on startup, this means the media will appear even on
-        old clients if they rejoin the server.
+        old clients (<5.3.0) if they rejoin the server.
       * If `ephemeral`=false the file must not be modified, deleted, moved or
-        renamed after calling this function.
-      * Regardless of any use of `ephemeral`, adding media files with the same
-        name twice is not possible/guaranteed to work. An exception to this is the
-        use of `to_player` to send the same, already existent file to multiple
-        chosen players.
+        renamed after calling this function. This is allowed otherwise.
+      * Adding media files with the same name twice is not possible.
+        An exception to this is the use of `to_player` to send the same,
+        already existent file to multiple chosen players (`ephemeral`=false only).
       * You can also call this at startup time. In that case `callback` MUST
         be `nil` and you cannot use `ephemeral` or `to_player`, as these logically
         do not make sense.
     * Clients will attempt to fetch files added this way via remote media,
-      this can make transfer of bigger files painless (if set up). Nevertheless
-      it is advised not to use dynamic media for big media files.
+      this can make transfer of bigger files painless (if set up).
 
 IPC
 ---

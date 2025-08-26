@@ -567,6 +567,7 @@ int ModApiServer::l_dynamic_add_media(lua_State *L)
 	} else {
 		tmp = readParam<std::string>(L, 1);
 		args.filepath = tmp;
+		log_deprecated(L, "Deprecated call to core.dynamic_add_media() with string argument", 1, true);
 	}
 	if (at_startup) {
 		if (!lua_isnoneornil(L, 2))

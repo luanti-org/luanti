@@ -2764,9 +2764,8 @@ void Server::sendRequestedMedia(session_t peer_id,
 		}
 		const auto &m = it->second;
 
-		// no_announce <=> usually ephemeral dynamic media, which may
-		// have duplicate filenames. So we can't check it.
-		if (!m.no_announce) {
+		// Ephemeral dynamic media may have duplicate filenames. So we can't check it.
+		if (!m.ephemeral) {
 			if (!client->markMediaSent(name)) {
 				warningstream << "Server::sendRequestedMedia(): Client has "
 					"requested \"" << name << "\" before, not sending it again."
@@ -2834,31 +2833,41 @@ void Server::sendRequestedMedia(session_t peer_id,
 	}
 }
 
+namespace {
+	// unordered_map erase_if is only C++20
+	template <typename C, typename F>
+	void erase_if(C &container, F predicate) {
+		for (auto it = container.begin(); it != container.end(); ) {
+			if (predicate(*it))
+				it = container.erase(it);
+			else
+				++it;
+		}
+	}
+}
+
 void Server::stepPendingDynMediaCallbacks(float dtime)
 {
 	EnvAutoLock lock(this);
 
-	for (auto it = m_pending_dyn_media.begin(); it != m_pending_dyn_media.end();) {
-		it->second.expiry_timer -= dtime;
-		bool del = it->second.waiting_players.empty() || it->second.expiry_timer < 0;
+	erase_if(m_pending_dyn_media, [&] (decltype(m_pending_dyn_media)::value_type &it) {
+		auto &[token, state] = it;
 
-		if (!del) {
-			it++;
-			continue;
-		}
+		state.expiry_timer -= dtime;
+		if (!state.waiting_players.empty() && state.expiry_timer >= 0)
+			return false;
 
-		const auto &name = it->second.filename;
+		const auto &name = state.filename;
 		if (!name.empty()) {
 			assert(m_media.count(name));
-			// if no_announce isn't set we're definitely deleting the wrong file!
-			sanity_check(m_media[name].no_announce);
+			sanity_check(m_media[name].ephemeral);
 
 			fs::DeleteSingleFileOrEmptyDirectory(m_media[name].path);
 			m_media.erase(name);
 		}
-		getScriptIface()->freeDynamicMediaCallback(it->first);
-		it = m_pending_dyn_media.erase(it);
-	}
+		getScriptIface()->freeDynamicMediaCallback(token);
+		return true;
+	});
 }
 
 void Server::SendMinimapModes(session_t peer_id,
@@ -3677,11 +3686,17 @@ namespace {
 
 bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 {
-	std::string filename = a.filename;
-	std::string filepath;
+	if (!m_env && (!a.to_player.empty() || a.ephemeral)) {
+		errorstream << "Server: "
+			"adding ephemeral or player-specific media at startup is nonsense"
+			<< std::endl;
+		return false;
+	}
 
 	// Deal with file -or- data, as provided
 	// (Note: caller must ensure validity, so sanity_check is okay)
+	std::string filename = a.filename;
+	std::string filepath;
 	if (a.filepath) {
 		sanity_check(!a.data);
 		filepath = *a.filepath;
@@ -3703,29 +3718,30 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 			<< filepath << std::endl;
 	}
 
-	// Do some checks
-	auto it = m_media.find(filename);
-	if (it != m_media.end()) {
-		// Allow the same path to be "added" again in certain conditions
-		if (a.ephemeral || it->second.path != filepath) {
+	{
+		auto it = m_media.find(filename);
+		if (it == m_media.end()) {
+			// standard case
+		} else if (a.ephemeral || it->second.ephemeral || it->second.path != filepath) {
+			// If the path is the same we can safely allow adding the same file twice.
+			// Note that we already trust mods to not to modify files after the fact.
+			// Ephemeral files are excluded too, because currently each
+			// PendingDynamicMediaCallback "owns" the matching m_media[] entry
+			// so that would mess up.
 			errorstream << "Server::dynamicAddMedia(): file \"" << filename
-				<< "\" already exists in media cache" << std::endl;
+				<< "\" already exists in media list" << std::endl;
 			return false;
 		}
-	}
-
-	if (!m_env && (!a.to_player.empty() || a.ephemeral)) {
-		errorstream << "Server::dynamicAddMedia(): "
-			"adding ephemeral or player-specific media at startup is nonsense"
-			<< std::endl;
-		return false;
 	}
 
 	// Load the file and add it to our media cache
 	std::string filedata, raw_hash;
 	bool ok = addMediaFile(filename, filepath, &filedata, &raw_hash);
-	if (!ok)
+	if (!ok) {
+		if (a.data) // file was temporary
+			fs::DeleteSingleFileOrEmptyDirectory(filepath);
 		return false;
+	}
 	assert(!filedata.empty());
 
 	const auto &media_it = m_media.find(filename);
@@ -3748,6 +3764,7 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 		}
 
 		media_it->second.no_announce = true;
+		media_it->second.ephemeral = true;
 		// stepPendingDynMediaCallbacks will clean the file up later
 	} else if (a.data) {
 		// data is in a temporary file but not ephemeral, so the cleanup point
