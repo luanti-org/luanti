@@ -222,10 +222,18 @@ local function set_tab_by_name(self, name)
 end
 
 --------------------------------------------------------------------------------
-local function hide_tabview(self)
+local function hide_tabview(self, hide_header)
 	self.hidden=true
+	self.hide_header = hide_header
 
-	--call on_change as we're not gonna show self tab any longer
+	if hide_header == nil then hide_header = true end
+
+	-- hide the menu header image as well
+	if hide_header and mm_game_theme and mm_game_theme.clear_single then
+		mm_game_theme.clear_single("header")
+	end
+
+	-- call on_change as we're not gonna show self tab any longer
 	if self.tablist[self.last_tab_index].on_change ~= nil then
 		self.tablist[self.last_tab_index].on_change("LEAVE",
 				self.current_tab, nil)
@@ -289,6 +297,7 @@ function tabview_create(name, size, tabheaderpos)
 	self.tablist        = {}
 
 	self.autosave_tab   = false
+	self.hide_header    = false
 
 	ui.add(self)
 	return self
