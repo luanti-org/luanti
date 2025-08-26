@@ -302,6 +302,7 @@ public:
 		u32 token;
 		std::string to_player;
 		bool ephemeral = false;
+		bool client_cache = true;
 	};
 	bool dynamicAddMedia(const DynamicMediaArgs &args);
 

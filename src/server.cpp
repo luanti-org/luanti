@@ -3782,10 +3782,10 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 	if (m_env) {
 		NetworkPacket pkt(TOCLIENT_MEDIA_PUSH, 0);
 		pkt << raw_hash << filename;
-		// NOTE: the meaning of a.ephemeral was accidentally inverted between proto 39 and 40,
+		// NOTE: the meaning of this bit was accidentally inverted between proto 39 and 40,
 		// when dynamic_add_media v2 was added. As of 5.12.0 the server sends it correctly again.
 		// Compatibility code on the client-side was not added.
-		pkt << static_cast<bool>(!a.ephemeral);
+		pkt << static_cast<bool>(a.client_cache);
 
 		NetworkPacket legacy_pkt = pkt;
 

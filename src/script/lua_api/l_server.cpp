@@ -564,6 +564,7 @@ int ModApiServer::l_dynamic_add_media(lua_State *L)
 			args.data.reset();
 		getstringfield(L, 1, "to_player", args.to_player);
 		getboolfield(L, 1, "ephemeral", args.ephemeral);
+		args.client_cache = getboolfield_default(L, 1, "client_cache", !args.ephemeral);
 	} else {
 		tmp = readParam<std::string>(L, 1);
 		args.filepath = tmp;

@@ -7373,8 +7373,10 @@ Server
         * `filedata`: the data of the file to be sent [*]
         * `to_player`: name of the player the media should be sent to instead of
                        all players (optional)
-        * `ephemeral`: boolean that marks the media as ephemeral,
-                       it will not be cached on the client (optional, default false)
+        * `ephemeral`: if true the server will create a copy of the file and
+                       forget about it once delivered (optional boolean, default false)
+        * `client_cache`: hint whether the client should save the media in its cache
+                          (optional boolean, default `!ephemeral`, added in 5.14.0)
         * Exactly one of the parameters marked [*] must be specified.
     * `callback`: function with arguments `name`, which is a player name
     * Pushes the specified media file to client(s) as detailed below.
