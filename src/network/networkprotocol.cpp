@@ -68,10 +68,13 @@
 	PROTOCOL VERSION 49
 		Support of showing a player inventory using 'core.show_formspec'
 		[scheduled bump for 5.13.0]
+	PROTOCOL VERSION 50
+		Support for TOCLIENT_SPAWN_PARTICLE_BATCH
+		[scheduled bump for 5.14.0]
 */
 
 // Note: Also update core.protocol_versions in builtin when bumping
-const u16 LATEST_PROTOCOL_VERSION = 49;
+const u16 LATEST_PROTOCOL_VERSION = 50;
 
 // See also formspec [Version History] in doc/lua_api.md
 const u16 FORMSPEC_API_VERSION = 10;
