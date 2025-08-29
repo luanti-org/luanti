@@ -805,6 +805,9 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 	}
 #endif
 
+	// Send queued particles
+	SendSpawnParticles();
+
 	/*
 		Check added and deleted active objects
 	*/
@@ -1607,33 +1610,6 @@ void Server::SendShowFormspecMessage(session_t peer_id, const std::string &forms
 void Server::SendSpawnParticle(session_t peer_id, u16 protocol_version,
 	const ParticleParameters &p)
 {
-	static thread_local const float radius =
-			g_settings->getS16("max_block_send_distance") * MAP_BLOCKSIZE * BS;
-
-	if (peer_id == PEER_ID_INEXISTENT) {
-		std::vector<session_t> clients = m_clients.getClientIDs();
-		const v3f pos = p.pos * BS;
-		const float radius_sq = radius * radius;
-
-		for (const session_t client_id : clients) {
-			RemotePlayer *player = m_env->getPlayer(client_id);
-			if (!player)
-				continue;
-
-			PlayerSAO *sao = player->getPlayerSAO();
-			if (!sao)
-				continue;
-
-			// Do not send to distant clients
-			if (sao->getBasePosition().getDistanceFromSQ(pos) > radius_sq)
-				continue;
-
-			SendSpawnParticle(client_id, player->protocol_version, p);
-		}
-		return;
-	}
-	assert(protocol_version != 0);
-
 	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, 0, peer_id);
 
 	{
@@ -1644,6 +1620,87 @@ void Server::SendSpawnParticle(session_t peer_id, u16 protocol_version,
 	}
 
 	Send(&pkt);
+}
+
+void Server::SendSpawnParticles(session_t peer_id, const std::vector<ParticleParameters> &particles)
+{
+	static thread_local const float radius =
+		g_settings->getS16("max_block_send_distance") * MAP_BLOCKSIZE * BS;
+	const float radius_sq = radius * radius;
+
+	RemoteClient *client = m_clients.getClientNoEx(peer_id, CS_Active);
+	if (!client)
+		return;
+
+	PlayerSAO *sao = getPlayerSAO(peer_id);
+	if (!sao)
+		return;
+
+	const auto is_in_range = [&](v3f pos) {
+		// Note: sao->getBasePosition() is in BS scale
+		return sao->getBasePosition().getDistanceFromSQ(pos * BS) <= radius_sq;
+	};
+
+	RemotePlayer *player = m_env->getPlayer(peer_id);
+	assert(player);
+
+	if (player->protocol_version >= 50) {
+		// Client supports TOCLIENT_SPAWN_PARTICLE_BATCH
+
+		std::ostringstream oss(std::ios::binary);
+		u32 n_particles = 0;
+		for (const auto &particle : particles) {
+			if (!is_in_range(particle.pos))
+				continue;
+
+			particle.serialize(oss, player->protocol_version);
+			++n_particles;
+		}
+
+		if (n_particles == 0)
+			return;
+
+		std::string compressed_data_str;
+		{
+			std::ostringstream compressed_data_oss;
+			compressZstd(oss.str(), compressed_data_oss);
+			compressed_data_str = compressed_data_oss.str();
+		}
+
+		NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE_BATCH, 4 + 4 + compressed_data_str.size(), peer_id);
+		pkt << n_particles;
+		pkt.putLongString(compressed_data_str);
+		Send(&pkt);
+	} else {
+		// Client only supports TOCLIENT_SPAWN_PARTICLE
+		for (const auto &particle : particles) {
+			if (!is_in_range(particle.pos))
+				continue;
+
+			SendSpawnParticle(peer_id, player->protocol_version, particle);
+		}
+	}
+}
+
+void Server::SendSpawnParticles()
+{
+	for (const auto &[pname, particles] : m_particles_to_send) {
+		if (pname.empty())
+			continue; // sent to all clients
+
+		RemotePlayer *player = m_env->getPlayer(pname.c_str());
+		if (!player)
+			continue;
+
+		SendSpawnParticles(player->getPeerId(), particles);
+	}
+
+	const auto &peer_ids = m_clients.getClientIDs();
+	for (const auto peer_id : peer_ids) {
+		SendSpawnParticles(peer_id, m_particles_to_send[""]);
+	}
+
+	m_particles_to_send.clear();
 }
 
 void Server::SendAddParticleSpawner(const std::string &to_player,
@@ -3621,17 +3678,7 @@ void Server::spawnParticle(const std::string &playername,
 	if (!m_env)
 		return;
 
-	session_t peer_id = PEER_ID_INEXISTENT;
-	u16 proto_ver = 0;
-	if (!playername.empty()) {
-		RemotePlayer *player = m_env->getPlayer(playername.c_str());
-		if (!player)
-			return;
-		peer_id = player->getPeerId();
-		proto_ver = player->protocol_version;
-	}
-
-	SendSpawnParticle(peer_id, proto_ver, p);
+	m_particles_to_send[playername].push_back(p);
 }
 
 u32 Server::addParticleSpawner(const ParticleSpawnerParameters &p,

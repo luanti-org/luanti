@@ -604,9 +604,13 @@ private:
 
 	void SendDeleteParticleSpawner(session_t peer_id, u32 id);
 
-	// Spawns particle on peer with peer_id (PEER_ID_INEXISTENT == all)
+	// Spawns particle on peer with peer_id
 	void SendSpawnParticle(session_t peer_id, u16 protocol_version,
 		const ParticleParameters &p);
+	// Spawn particles for a specific client.
+	void SendSpawnParticles(session_t peer_id, const std::vector<ParticleParameters> &particles);
+	// Spawn all particles for this step, batching them if clients support it.
+	void SendSpawnParticles();
 
 	void SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersao);
 	void SendActiveObjectMessages(session_t peer_id, const std::string &datas,
@@ -804,6 +808,10 @@ private:
 	MetricCounterPtr m_packet_recv_counter;
 	MetricCounterPtr m_packet_recv_processed_counter;
 	MetricCounterPtr m_map_edit_event_counter;
+
+	// Particles to send this server step
+	// [playername] = list of params, empty playername for broadcast
+	std::unordered_map<std::string, std::vector<ParticleParameters>> m_particles_to_send;
 };
 
 /*

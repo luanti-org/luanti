@@ -34,6 +34,7 @@
 #include "skyparams.h"
 #include "particles.h"
 #include <memory>
+#include <sstream>
 
 const char *accessDeniedStrings[SERVER_ACCESSDENIED_MAX] = {
 	N_("Invalid password"),
@@ -966,6 +967,27 @@ void Client::handleCommand_SpawnParticle(NetworkPacket* pkt)
 	event->spawn_particle = new ParticleParameters(p);
 
 	m_client_event_queue.push(event);
+}
+
+void Client::handleCommand_SpawnParticlesBatched(NetworkPacket* pkt)
+{
+	u32 n_particles;
+	*pkt >> n_particles;
+	std::istringstream iss(pkt->readLongString(), std::ios::binary);
+	std::ostringstream oss;
+	decompressZstd(iss, oss);
+	std::istringstream is(oss.str(), std::ios::binary);
+
+	for (u32 i = 0; i < n_particles; i++) {
+		auto p = std::make_unique<ParticleParameters>();
+		p->deSerialize(is, m_proto_ver);
+
+		ClientEvent *event = new ClientEvent();
+		event->type = CE_SPAWN_PARTICLE;
+		event->spawn_particle = p.release();
+
+		m_client_event_queue.push(event);
+	}
 }
 
 void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
