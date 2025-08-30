@@ -696,8 +696,7 @@ enum ToClientCommand : u16
 
 	TOCLIENT_SPAWN_PARTICLE_BATCH = 0x64,
 	/*
-		u32 n_particles
-		string data (ParticleParameters[n_particles], zstd-compressed)
+		std::string data (ParticleParameters[n_particles], zstd-compressed)
 	*/
 
 	TOCLIENT_NUM_MSG_TYPES = 0x65,
