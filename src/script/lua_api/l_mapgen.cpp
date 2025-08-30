@@ -1650,13 +1650,13 @@ int ModApiMapgen::l_generate_decorations(lua_State *L)
 int ModApiMapgen::l_create_schematic(lua_State *L)
 {
 	MAP_LOCK_REQUIRED;
+	GET_ENV_PTR;
 
 	const NodeDefManager *ndef = getServer(L)->getNodeDefManager();
 
 	const char *filename = luaL_checkstring(L, 4);
 	CHECK_SECURE_PATH(L, filename, true);
 
-	Map *map = &(getEnv(L)->getMap());
 	Schematic schem;
 
 	v3s16 p1 = check_v3s16(L, 1);
@@ -1694,7 +1694,7 @@ int ModApiMapgen::l_create_schematic(lua_State *L)
 		}
 	}
 
-	if (!schem.getSchematicFromMap(map, p1, p2)) {
+	if (!schem.getSchematicFromMap(&env->getMap(), p1, p2)) {
 		errorstream << "create_schematic: failed to get schematic "
 			"from map" << std::endl;
 		return 0;

@@ -124,35 +124,34 @@ int ModApiServer::l_get_player_privs(lua_State *L)
 // get_player_ip()
 int ModApiServer::l_get_player_ip(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-
-	Server *server = getServer(L);
+	GET_ENV_PTR_NO_MAP_LOCK;
 
 	const char *name = luaL_checkstring(L, 1);
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player) {
 		lua_pushnil(L); // no such player
 		return 1;
 	}
 
-	lua_pushstring(L, server->getPeerAddress(player->getPeerId()).serializeString().c_str());
+	lua_pushstring(L, env->getGameDef()->getPeerAddress(
+		player->getPeerId()).serializeString().c_str()
+	);
 	return 1;
 }
 
 // get_player_information(name)
 int ModApiServer::l_get_player_information(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-
-	Server *server = getServer(L);
+	GET_ENV_PTR_NO_MAP_LOCK;
 
 	const char *name = luaL_checkstring(L, 1);
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player) {
 		lua_pushnil(L); // no such player
 		return 1;
 	}
 
+	Server *server = env->getGameDef();
 	ClientInfo info;
 	if (!server->getClientInfo(player->getPeerId(), info)) {
 		warningstream << FUNCTION_NAME << ": no client info?!" << std::endl;
@@ -271,15 +270,14 @@ int ModApiServer::l_get_player_information(lua_State *L)
 // get_player_window_information(name)
 int ModApiServer::l_get_player_window_information(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-
-	Server *server = getServer(L);
+	GET_ENV_PTR_NO_MAP_LOCK;
 
 	const char *name = luaL_checkstring(L, 1);
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player)
 		return 0;
 
+	Server *server = env->getGameDef();
 	auto dynamic = server->getClientDynamicInfo(player->getPeerId());
 
 	if (!dynamic || dynamic->render_target_size == v2u32())
@@ -331,19 +329,16 @@ int ModApiServer::l_get_ban_description(lua_State *L)
 // ban_player()
 int ModApiServer::l_ban_player(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
+	GET_ENV_PTR_NO_MAP_LOCK;
 
-	if (!getEnv(L))
-		throw LuaError("Can't ban player before server has started up");
-
-	Server *server = getServer(L);
 	const char *name = luaL_checkstring(L, 1);
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player) {
 		lua_pushboolean(L, false); // no such player
 		return 1;
 	}
 
+	Server *server = env->getGameDef();
 	std::string ip_str = server->getPeerAddress(player->getPeerId()).serializeString();
 	server->setIpBanned(ip_str, name);
 	lua_pushboolean(L, true);
@@ -353,10 +348,7 @@ int ModApiServer::l_ban_player(lua_State *L)
 // disconnect_player(name[, reason[, reconnect]]) -> success
 int ModApiServer::l_disconnect_player(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-
-	if (!getEnv(L))
-		throw LuaError("Can't kick player before server has started up");
+	GET_ENV_PTR_NO_MAP_LOCK;
 
 	const char *name = luaL_checkstring(L, 1);
 	std::string message;
@@ -365,9 +357,7 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 	else
 		message.append("Disconnected.");
 
-	Server *server = getServer(L);
-
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player) {
 		lua_pushboolean(L, false); // No such player
 		return 1;
@@ -375,6 +365,7 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 
 	bool reconnect = readParam<bool>(L, 3, false);
 
+	Server *server = env->getGameDef();
 	server->DenyAccess(player->getPeerId(), SERVER_ACCESSDENIED_CUSTOM_STRING, message, reconnect);
 	lua_pushboolean(L, true);
 	return 1;
@@ -382,15 +373,12 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 
 int ModApiServer::l_remove_player(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	std::string name = luaL_checkstring(L, 1);
-	ServerEnvironment *s_env = dynamic_cast<ServerEnvironment *>(getEnv(L));
-	if (!s_env)
-		throw LuaError("Can't remove player before server has started up");
 
-	RemotePlayer *player = s_env->getPlayer(name.c_str());
+	RemotePlayer *player = env->getPlayer(name.c_str());
 	if (!player)
-		lua_pushinteger(L, s_env->removePlayerFromDatabase(name) ? 0 : 1);
+		lua_pushinteger(L, env->removePlayerFromDatabase(name) ? 0 : 1);
 	else
 		lua_pushinteger(L, 2);
 

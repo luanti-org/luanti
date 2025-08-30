@@ -44,8 +44,10 @@
 #define GET_ENV_PTR_NO_MAP_LOCK                              \
 	DEBUG_ASSERT_NO_CLIENTAPI;                               \
 	ServerEnvironment *env = (ServerEnvironment *)getEnv(L); \
-	if (env == NULL)                                         \
-		return 0
+	if (!env) {                                              \
+		luaL_error(L, "Calling this function during script init is disallowed."); \
+		return 0;                                            \
+	} do {} while (0)
 
 // Retrieve ServerEnvironment pointer as `env`
 #define GET_ENV_PTR         \
