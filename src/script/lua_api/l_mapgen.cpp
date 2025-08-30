@@ -1649,7 +1649,6 @@ int ModApiMapgen::l_generate_decorations(lua_State *L)
 // create_schematic(p1, p2, probability_list, filename, y_slice_prob_list)
 int ModApiMapgen::l_create_schematic(lua_State *L)
 {
-	MAP_LOCK_REQUIRED;
 	GET_ENV_PTR;
 
 	const NodeDefManager *ndef = getServer(L)->getNodeDefManager();
@@ -1715,8 +1714,6 @@ int ModApiMapgen::l_create_schematic(lua_State *L)
 //     replacements, force_placement, flagstring)
 int ModApiMapgen::l_place_schematic(lua_State *L)
 {
-	MAP_LOCK_REQUIRED;
-
 	GET_ENV_PTR;
 
 	ServerMap *map = &(env->getServerMap());

@@ -47,8 +47,7 @@ int ModApiServer::l_get_server_uptime(lua_State *L)
 // get_server_max_lag()
 int ModApiServer::l_get_server_max_lag(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	lua_pushnumber(L, env->getMaxLagEstimate());
 	return 1;
 }
