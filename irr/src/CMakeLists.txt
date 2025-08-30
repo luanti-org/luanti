@@ -249,7 +249,7 @@ if(USE_SDL2)
 	if(NOT USE_SDL2_STATIC)
 		set(USE_SDL2_SHARED TRUE)
 	endif()
-	if(NOT ANDROID AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+	if(NOT ANDROID)
 		find_package(SDL2 REQUIRED)
 	else()
 		# provided by AndroidLibs.cmake or from cmake call
@@ -630,11 +630,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 		"-framework CoreMotion"
 		"-framework IOSurface"
 		${OPENGLES2_LIBRARY}
-		${SDL2_LIBRARIES}
-	)
-else()
-	target_link_libraries(IrrlichtMt PRIVATE
-		"$<$<BOOL:${USE_SDL2}>:SDL2::SDL2>"
+		SDL2::SDL2main
 	)
 endif()
 

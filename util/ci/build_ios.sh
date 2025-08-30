@@ -12,8 +12,8 @@ cmake .. -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=$osver -DCMAKE_FI
 					-DENABLE_OPENGL3=OFF \
 					-DENABLE_GLES2=ON \
 					-DUSE_SDL2=ON \
-					-DSDL2_LIBRARIES="${DEPS_DIR}/lib/libSDL2.a;${DEPS_DIR}/lib/libSDL2main.a" \
-					-DSDL2_INCLUDE_DIRS=${DEPS_DIR}/include/SDL2 \
+					-DUSE_SDL2_STATIC=ON \
+					-DSDL2_DIR=${DEPS_DIR}/lib/cmake/SDL2 \
 					-DOPENGLES2_LIBRARY=${DEPS_DIR}/lib/libGLESv2_static.a \
 					-DOPENGLES2_INCLUDE_DIR=${DEPS_DIR}/include/ANGLE \
 					-DCURL_LIBRARY=${DEPS_DIR}/lib/libcurl.a \
