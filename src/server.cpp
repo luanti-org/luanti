@@ -1606,22 +1606,6 @@ void Server::SendShowFormspecMessage(session_t peer_id, const std::string &forms
 	Send(&pkt);
 }
 
-// Spawns a particle on peer with peer_id
-void Server::SendSpawnParticle(session_t peer_id, u16 protocol_version,
-	const ParticleParameters &p)
-{
-	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, 0, peer_id);
-
-	{
-		// NetworkPacket and iostreams are incompatible...
-		std::ostringstream oss(std::ios_base::binary);
-		p.serialize(oss, protocol_version);
-		pkt.putRawString(oss.str());
-	}
-
-	Send(&pkt);
-}
-
 void Server::SendSpawnParticles(session_t peer_id, const std::vector<ParticleParameters> &particles)
 {
 	static thread_local const float radius =
@@ -1636,50 +1620,40 @@ void Server::SendSpawnParticles(session_t peer_id, const std::vector<ParticlePar
 	if (!sao)
 		return;
 
-	const auto is_in_range = [&](v3f pos) {
-		// Note: sao->getBasePosition() is in BS scale
-		return sao->getBasePosition().getDistanceFromSQ(pos * BS) <= radius_sq;
-	};
-
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 	assert(player);
 
-	if (player->protocol_version >= 50) {
-		// Client supports TOCLIENT_SPAWN_PARTICLE_BATCH
+	std::ostringstream oss(std::ios::binary);
+	for (const auto &particle : particles) {
+		if (sao->getBasePosition().getDistanceFromSQ(particle.pos * BS) > radius_sq)
+			continue; // out of range
 
-		std::ostringstream oss(std::ios::binary);
-		u32 n_particles = 0;
-		for (const auto &particle : particles) {
-			if (!is_in_range(particle.pos))
-				continue;
-
-			particle.serialize(oss, player->protocol_version);
-			++n_particles;
-		}
-
-		if (n_particles == 0)
-			return;
-
-		std::string compressed_data_str;
-		{
-			std::ostringstream compressed_data_oss;
-			compressZstd(oss.str(), compressed_data_oss);
-			compressed_data_str = compressed_data_oss.str();
-		}
-
-		NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE_BATCH, 4 + 4 + compressed_data_str.size(), peer_id);
-		pkt << n_particles;
-		pkt.putLongString(compressed_data_str);
-		Send(&pkt);
-	} else {
-		// Client only supports TOCLIENT_SPAWN_PARTICLE
-		for (const auto &particle : particles) {
-			if (!is_in_range(particle.pos))
-				continue;
-
-			SendSpawnParticle(peer_id, player->protocol_version, particle);
+		particle.serialize(oss, player->protocol_version);
+		if (player->protocol_version < 50) {
+			// Client only supports TOCLIENT_SPAWN_PARTICLE,
+			// so turn the written particle into a packet immediately
+			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, oss.tellp(), peer_id);
+			pkt.putRawString(oss.str());
+			Send(&pkt);
+			oss.clear();
 		}
 	}
+
+	if (oss.tellp() == 0)
+		return; // no batch to send
+
+	// Client supports TOCLIENT_SPAWN_PARTICLE_BATCH
+	assert(player->protocol_version >= 50);
+	std::string compressed_data;
+	{
+		std::ostringstream compressed_data_oss;
+		compressZstd(oss.str(), compressed_data_oss);
+		compressed_data = compressed_data_oss.str();
+	}
+	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE_BATCH,
+			4 + compressed_data.size(), peer_id);
+	pkt.putLongString(compressed_data);
+	Send(&pkt);
 }
 
 void Server::SendSpawnParticles()
