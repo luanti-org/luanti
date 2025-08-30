@@ -279,6 +279,11 @@ bool GUIEditBox::processKey(const SEvent &event)
 				new_mark_end = 0;
 			}
 			break;
+		case KEY_LEFT:
+		case KEY_RIGHT:
+			processKeyLR(event.KeyInput, new_mark_begin, new_mark_end);
+			m_blink_start_time = porting::getTimeMs();
+			break;
 		default:
 			return false;
 		}
@@ -335,37 +340,8 @@ bool GUIEditBox::processKey(const SEvent &event)
 			}
 			return true;
 		case KEY_LEFT:
-			if (event.KeyInput.Shift) {
-				if (m_cursor_pos > 0) {
-					if (m_mark_begin == m_mark_end)
-						new_mark_begin = m_cursor_pos;
-
-					new_mark_end = m_cursor_pos - 1;
-				}
-			} else {
-				new_mark_begin = 0;
-				new_mark_end = 0;
-			}
-
-			if (m_cursor_pos > 0)
-				m_cursor_pos--;
-			m_blink_start_time = porting::getTimeMs();
-			break;
 		case KEY_RIGHT:
-			if (event.KeyInput.Shift) {
-				if (Text.size() > (u32)m_cursor_pos) {
-					if (m_mark_begin == m_mark_end)
-						new_mark_begin = m_cursor_pos;
-
-					new_mark_end = m_cursor_pos + 1;
-				}
-			} else {
-				new_mark_begin = 0;
-				new_mark_end = 0;
-			}
-
-			if (Text.size() > (u32)m_cursor_pos)
-				m_cursor_pos++;
+			processKeyLR(event.KeyInput, new_mark_begin, new_mark_end);
 			m_blink_start_time = porting::getTimeMs();
 			break;
 		case KEY_UP:
@@ -434,6 +410,54 @@ bool GUIEditBox::processKey(const SEvent &event)
 	calculateScrollPos();
 
 	return true;
+}
+
+void GUIEditBox::processKeyLR(const SEvent::SKeyInput &input, s32 &new_mark_begin,
+		s32 &new_mark_end)
+{
+	const s8 dir = input.Key == KEY_RIGHT ? 1 : -1;
+
+	s32 new_pos = m_cursor_pos;
+	if (input.Control) {
+		// Advance to next/previous word
+		wchar_t prev_c = L'\0';
+		for (s32 i = new_pos; i >= 0 && i <= (s32)Text.size(); i += dir) {
+			// This only handles Latin characters.
+			const wchar_t c = Text[i];
+
+			new_pos = i;
+			if (std::abs(i - m_cursor_pos) > 2) {
+				// End of word
+				if (!std::iswspace(prev_c) && std::iswspace(c))
+					break;
+				// End of a sentence.
+				if (std::iswpunct(prev_c) && !std::iswpunct(c))
+					break;
+			}
+			prev_c = c;
+		}
+	} else {
+		// Advance by +1/-1 character
+		new_pos += dir;
+	}
+
+	if (!input.Shift) {
+		// Reset selection
+		new_mark_begin = 0;
+		new_mark_end = 0;
+	}
+
+	if (new_pos >= 0 && new_pos <= (s32)Text.size()) {
+		// Update cursor (and selection)
+		if (input.Shift) {
+			if (m_mark_begin == m_mark_end)
+				new_mark_begin = m_cursor_pos;
+
+			new_mark_end = new_pos;
+		}
+
+		m_cursor_pos = new_pos;
+	}
 }
 
 bool GUIEditBox::onKeyUp(const SEvent &event, s32 &mark_begin, s32 &mark_end)
