@@ -971,18 +971,15 @@ void Client::handleCommand_SpawnParticle(NetworkPacket* pkt)
 
 void Client::handleCommand_SpawnParticlesBatched(NetworkPacket *pkt)
 {
-	std::string decompressed_str;
+	std::stringstream particle_data(std::ios::binary | std::ios::in | std::ios::out);
 	{
-		std::istringstream iss(pkt->readLongString(), std::ios::binary);
-		std::ostringstream oss;
-		decompressZstd(iss, oss);
-		decompressed_str = oss.str();
+		std::istringstream compressed(pkt->readLongString(), std::ios::binary);
+		decompressZstd(compressed, particle_data);
 	}
-	std::istringstream iss(decompressed_str, std::ios::binary);
 
-	while (iss.peek() != EOF) {
+	while (particle_data.peek() != EOF) {
 		auto p = std::make_unique<ParticleParameters>();
-		p->deSerialize(iss, m_proto_ver);
+		p->deSerialize(particle_data, m_proto_ver);
 
 		ClientEvent *event = new ClientEvent();
 		event->type = CE_SPAWN_PARTICLE;
