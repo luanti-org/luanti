@@ -1624,36 +1624,32 @@ void Server::SendSpawnParticles(RemotePlayer *player,
 	if (!client)
 		return;
 
-	std::ostringstream oss(std::ios::binary);
+	std::ostringstream particle_data;
 	for (const auto &particle : particles) {
 		if (sao->getBasePosition().getDistanceFromSQ(particle.pos * BS) > radius_sq)
 			continue; // out of range
 
-		particle.serialize(oss, player->protocol_version);
+		particle.serialize(particle_data, player->protocol_version);
 		if (player->protocol_version < 50) {
 			// Client only supports TOCLIENT_SPAWN_PARTICLE,
 			// so turn the written particle into a packet immediately
-			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, oss.tellp(), player->getPeerId());
-			pkt.putRawString(oss.str());
+			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, particle_data.tellp(), player->getPeerId());
+			pkt.putRawString(particle_data.str());
 			Send(&pkt);
-			oss.clear();
+			particle_data.clear();
 		}
 	}
 
-	if (oss.tellp() == 0)
+	if (particle_data.tellp() == 0)
 		return; // no batch to send
 
 	// Client supports TOCLIENT_SPAWN_PARTICLE_BATCH
 	assert(player->protocol_version >= 50);
-	std::string compressed_data;
-	{
-		std::ostringstream compressed_data_oss;
-		compressZstd(oss.str(), compressed_data_oss);
-		compressed_data = compressed_data_oss.str();
-	}
+	std::ostringstream compressed;
+	compressZstd(particle_data.str(), compressed);
 	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE_BATCH,
-			4 + compressed_data.size(), player->getPeerId());
-	pkt.putLongString(compressed_data);
+			4 + compressed.tellp(), player->getPeerId());
+	pkt.putLongString(compressed.str());
 	Send(&pkt);
 }
 
