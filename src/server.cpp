@@ -806,7 +806,10 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 #endif
 
 	// Send queued particles
-	SendSpawnParticles();
+	{
+		EnvAutoLock envlock(this);
+		SendSpawnParticles();
+	}
 
 	/*
 		Check added and deleted active objects
@@ -1606,22 +1609,20 @@ void Server::SendShowFormspecMessage(session_t peer_id, const std::string &forms
 	Send(&pkt);
 }
 
-void Server::SendSpawnParticles(session_t peer_id, const std::vector<ParticleParameters> &particles)
+void Server::SendSpawnParticles(RemotePlayer *player,
+		const std::vector<ParticleParameters> &particles)
 {
 	static thread_local const float radius =
 		g_settings->getS16("max_block_send_distance") * MAP_BLOCKSIZE * BS;
 	const float radius_sq = radius * radius;
 
-	RemoteClient *client = m_clients.getClientNoEx(peer_id, CS_Active);
-	if (!client)
-		return;
-
-	PlayerSAO *sao = getPlayerSAO(peer_id);
+	PlayerSAO *sao = player->getPlayerSAO();
 	if (!sao)
 		return;
 
-	RemotePlayer *player = m_env->getPlayer(peer_id);
-	assert(player);
+	RemoteClient *client = m_clients.getClientNoEx(player->getPeerId(), CS_Active);
+	if (!client)
+		return;
 
 	std::ostringstream oss(std::ios::binary);
 	for (const auto &particle : particles) {
@@ -1632,7 +1633,7 @@ void Server::SendSpawnParticles(session_t peer_id, const std::vector<ParticlePar
 		if (player->protocol_version < 50) {
 			// Client only supports TOCLIENT_SPAWN_PARTICLE,
 			// so turn the written particle into a packet immediately
-			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, oss.tellp(), peer_id);
+			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, oss.tellp(), player->getPeerId());
 			pkt.putRawString(oss.str());
 			Send(&pkt);
 			oss.clear();
@@ -1651,7 +1652,7 @@ void Server::SendSpawnParticles(session_t peer_id, const std::vector<ParticlePar
 		compressed_data = compressed_data_oss.str();
 	}
 	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE_BATCH,
-			4 + compressed_data.size(), peer_id);
+			4 + compressed_data.size(), player->getPeerId());
 	pkt.putLongString(compressed_data);
 	Send(&pkt);
 }
@@ -1666,12 +1667,11 @@ void Server::SendSpawnParticles()
 		if (!player)
 			continue;
 
-		SendSpawnParticles(player->getPeerId(), particles);
+		SendSpawnParticles(player, particles);
 	}
 
-	const auto &peer_ids = m_clients.getClientIDs();
-	for (const auto peer_id : peer_ids) {
-		SendSpawnParticles(peer_id, m_particles_to_send[""]);
+	for (auto *player : m_env->getPlayers()) {
+		SendSpawnParticles(player, m_particles_to_send[""]);
 	}
 
 	m_particles_to_send.clear();
