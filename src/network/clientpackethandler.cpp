@@ -969,7 +969,7 @@ void Client::handleCommand_SpawnParticle(NetworkPacket* pkt)
 	m_client_event_queue.push(event);
 }
 
-void Client::handleCommand_SpawnParticlesBatched(NetworkPacket* pkt)
+void Client::handleCommand_SpawnParticlesBatched(NetworkPacket *pkt)
 {
 	std::string decompressed_str;
 	{
