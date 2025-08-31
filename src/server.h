@@ -605,7 +605,8 @@ private:
 	void SendDeleteParticleSpawner(session_t peer_id, u32 id);
 
 	// Spawn particles for a specific client.
-	void SendSpawnParticles(session_t peer_id, const std::vector<ParticleParameters> &particles);
+	void SendSpawnParticles(RemotePlayer *player,
+			const std::vector<ParticleParameters> &particles);
 	// Spawn all particles for this step, batching them if clients support it.
 	void SendSpawnParticles();
 
