@@ -45,7 +45,7 @@
 	DEBUG_ASSERT_NO_CLIENTAPI;                               \
 	ServerEnvironment *env = (ServerEnvironment *)getEnv(L); \
 	if (!env) {                                              \
-		luaL_error(L, "Calling this function during script init is disallowed."); \
+		log_deprecated(L, "Calling this function during script init is disallowed.", 1); \
 		return 0;                                            \
 	} do {} while (0)
 
