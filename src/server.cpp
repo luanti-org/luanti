@@ -1620,11 +1620,11 @@ void Server::SendSpawnParticles(RemotePlayer *player,
 	if (!sao)
 		return;
 
-	RemoteClient *client = m_clients.getClientNoEx(player->getPeerId(), CS_Active);
+	RemoteClient *client = m_clients.getClientNoEx(player->getPeerId());
 	if (!client)
 		return;
 
-	std::ostringstream particle_data;
+	std::ostringstream particle_data(std::ios_base::binary);
 	for (const auto &particle : particles) {
 		if (sao->getBasePosition().getDistanceFromSQ(particle.pos * BS) > radius_sq)
 			continue; // out of range
@@ -1636,6 +1636,7 @@ void Server::SendSpawnParticles(RemotePlayer *player,
 			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, particle_data.tellp(), player->getPeerId());
 			pkt.putRawString(particle_data.str());
 			Send(&pkt);
+			particle_data.str("");
 			particle_data.clear();
 		}
 	}
@@ -1645,8 +1646,9 @@ void Server::SendSpawnParticles(RemotePlayer *player,
 
 	// Client supports TOCLIENT_SPAWN_PARTICLE_BATCH
 	assert(player->protocol_version >= 50);
-	std::ostringstream compressed;
+	std::ostringstream compressed(std::ios_base::binary);
 	compressZstd(particle_data.str(), compressed);
+
 	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE_BATCH,
 			4 + compressed.tellp(), player->getPeerId());
 	pkt.putLongString(compressed.str());
