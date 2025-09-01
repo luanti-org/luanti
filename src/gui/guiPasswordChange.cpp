@@ -176,12 +176,20 @@ void GUIPasswordChange::acceptInput()
 bool GUIPasswordChange::processInput()
 {
 	if (m_newpass != m_newpass_confirm) {
+		porting::secure_clear_string(m_oldpass);
+		porting::secure_clear_string(m_newpass);
+		porting::secure_clear_string(m_newpass_confirm);
 		gui::IGUIElement *e = getElementFromId(ID_message);
 		if (e != NULL)
 			e->setVisible(true);
 		return false;
 	}
-	m_client->sendChangePassword(wide_to_utf8(m_oldpass), wide_to_utf8(m_newpass));
+	std::string old_pass = wide_to_utf8(m_oldpass);
+	std::string new_pass = wide_to_utf8(m_newpass);
+	porting::secure_clear_string(m_oldpass);
+	porting::secure_clear_string(m_newpass);
+	porting::secure_clear_string(m_newpass_confirm);
+	m_client->sendChangePassword(old_pass, new_pass);
 	return true;
 }
 
