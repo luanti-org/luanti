@@ -73,13 +73,16 @@ local function get_formspec(dialogdata)
 	height = height + 1.1
 
 	-- Third row
-	add_field(0.3, "te_octaves", fgettext("Octaves"),     t[7], fgettext([[This value controls how many octaves the noise will have.
+	add_field(0.3, "te_octaves", fgettext("Octaves"),     t[7], fgettext(
+[[This value controls how many octaves the noise will have.
 An octave is a simple noise generator. Its scale and amplitude will be multiplied based on the Persistence and Lacunarity settings.
 Finally, all of the octaves will be added to generate this noise.]]))
-	add_field(3.6, "te_persist", fgettext("Persistence"), t[8], fgettext([[This value multiplies an octave's amplitude by the previous octave multiplied by this value.
+	add_field(3.6, "te_persist", fgettext("Persistence"), t[8], fgettext(
+[[This value multiplies an octave's amplitude by the previous octave multiplied by this value.
 
 Example: If the persistence was 0.5, the 1st octave would be scaled by 1, the 2nd would be by 0.5, the 3rd would be by 0.25, etc.]]))
-	add_field(6.9, "te_lacun",   fgettext("Lacunarity"),  t[9], fgettext([[This value multiplies an octave's scale by the previous octave multiplied by this value.
+	add_field(6.9, "te_lacun",   fgettext("Lacunarity"),  t[9], fgettext(
+[[This value multiplies an octave's scale by the previous octave multiplied by this value.
 
 Example: If the lacunarity was 0.5, the 1st octave would be scaled by 1, the 2nd would be by 0.5, the 3rd would be by 0.25, etc.]]))
 	height = height + 1.1
@@ -104,7 +107,8 @@ Example: If the lacunarity was 0.5, the 1st octave would be scaled by 1, the 2nd
 			for noise settings in the settings menu. ]]
 			.. fgettext("defaults") .. ";" -- defaults
 			.. tostring(flags["defaults"] == true) .. "]" -- to get false if nil
-			.. "tooltip[cb_defaults;" .. fgettext([[This flag overrides the eased flag based on the noise map type.
+			.. "tooltip[cb_defaults;" .. fgettext(
+[[This flag overrides the eased flag based on the noise map type.
 
 2D noise will make eased on.
 3D noise will make eased off.]]) .. "]"
@@ -115,7 +119,8 @@ Example: If the lacunarity was 0.5, the 1st octave would be scaled by 1, the 2nd
 			the settings menu. ]]
 			.. fgettext("eased") .. ";" -- eased
 			.. tostring(flags["eased"] == true) .. "]"
-			.. "tooltip[cb_eased;" .. fgettext([[This flag maps noise gradient values onto a quintic S-curve before performing interpolation. 
+			.. "tooltip[cb_eased;" .. fgettext(
+[[This flag maps noise gradient values onto a quintic S-curve before performing interpolation. 
 This results in smooth noise instead of gridlike noise.
 
 Making 3D noise eased is not recommended because it significantly increases the computation load.]]) .. "]"
@@ -126,7 +131,8 @@ Making 3D noise eased is not recommended because it significantly increases the 
 			the settings menu. ]]
 			.. fgettext("absvalue") .. ";" -- absvalue
 			.. tostring(flags["absvalue"] == true) .. "]"
-			.. "tooltip[cb_absvalue;" .. fgettext([[This flag takes the absolute value of each octave while adding them together.
+			.. "tooltip[cb_absvalue;" .. fgettext(
+[[This flag takes the absolute value of each octave while adding them together.
 This results in "spiky" noise.]]) .. "]"
 
 	height = height + 1
