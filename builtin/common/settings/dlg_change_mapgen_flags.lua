@@ -46,33 +46,42 @@ local function get_formspec(dialogdata)
 	end
 
 	local fields = {}
-	local function add_field(x, name, label, value)
+	local function add_field(x, name, label, value, tt)
 		fields[#fields + 1] = ("field[%f,%f;3.3,1;%s;%s;%s]"):format(
 			x, height, name, label, core.formspec_escape(value or "")
 		)
+		if tt then
+			fields[#fields + 1] = ("tooltip[%s;%s]"):format(name, tt)
+		end
 	end
 	-- First row
 	height = height + 0.3
-	add_field(0.3, "te_offset", fgettext("Offset"), t[1])
-	add_field(3.6, "te_scale",  fgettext("Scale"),  t[2])
-	add_field(6.9, "te_seed",   fgettext("Seed"),   t[6])
+	add_field(0.3, "te_offset", fgettext("Offset"), t[1], fgettext("This value offsets the final noise."))
+	add_field(3.6, "te_scale",  fgettext("Scale"),  t[2], fgettext("This value multiplies the noise before the offset is added."))
+	add_field(6.9, "te_seed",   fgettext("Seed"),   t[6], fgettext("This value acts as a random seed for the noise. Every value will result in a different, random result."))
 	height = height + 1.1
 
 	-- Second row
-	add_field(0.3, "te_spreadx", fgettext("X spread"), t[3])
+	add_field(0.3, "te_spreadx", fgettext("X spread"), t[3], fgettext("This value \"scales\" the noise in the X axis by this value."))
 	if dimension == 3 then
-		add_field(3.6, "te_spready", fgettext("Y spread"), t[4])
+		add_field(3.6, "te_spready", fgettext("Y spread"), t[4], fgettext("This value \"scales\" the noise in the Y axis by this value."))
 	else
 		fields[#fields + 1] = "label[4," .. height - 0.2 .. ";" ..
 				fgettext("2D Noise") .. "]"
 	end
-	add_field(6.9, "te_spreadz", fgettext("Z spread"), t[5])
+	add_field(6.9, "te_spreadz", fgettext("Z spread"), t[5], fgettext("This value \"scales\" the noise in the Z axis by this value."))
 	height = height + 1.1
 
 	-- Third row
-	add_field(0.3, "te_octaves", fgettext("Octaves"),     t[7])
-	add_field(3.6, "te_persist", fgettext("Persistence"), t[8])
-	add_field(6.9, "te_lacun",   fgettext("Lacunarity"),  t[9])
+	add_field(0.3, "te_octaves", fgettext("Octaves"),     t[7], fgettext([[This value controls how many octaves the noise will have.
+An octave is a simple noise generator. Its scale and amplitude will be multiplied based on the Persistence and Lacunarity settings.
+Finally, all of the octaves will be added to generate this noise.]]))
+	add_field(3.6, "te_persist", fgettext("Persistence"), t[8], fgettext([[This value multiplies an octave's amplitude by the previous octave multiplied by this value.
+
+Example: If the persistence was 0.5, the 1st octave would be scaled by 1, the 2nd would be by 0.5, the 3rd would be by 0.25, etc.]]))
+	add_field(6.9, "te_lacun",   fgettext("Lacunarity"),  t[9], fgettext([[This value multiplies an octave's scale by the previous octave multiplied by this value.
+
+Example: If the lacunarity was 0.5, the 1st octave would be scaled by 1, the 2nd would be by 0.5, the 3rd would be by 0.25, etc.]]))
 	height = height + 1.1
 
 
@@ -95,6 +104,10 @@ local function get_formspec(dialogdata)
 			for noise settings in the settings menu. ]]
 			.. fgettext("defaults") .. ";" -- defaults
 			.. tostring(flags["defaults"] == true) .. "]" -- to get false if nil
+			.. "tooltip[cb_defaults;" .. fgettext([[This flag overrides the eased flag based on the noise map type.
+
+2D noise will make eased on.
+3D noise will make eased off.]]) .. "]"
 			.. "checkbox[5," .. height - 0.6 .. ";cb_eased;"
 			--[[~ "eased" is a noise parameter flag.
 			It is used to make the map smoother and
@@ -102,6 +115,10 @@ local function get_formspec(dialogdata)
 			the settings menu. ]]
 			.. fgettext("eased") .. ";" -- eased
 			.. tostring(flags["eased"] == true) .. "]"
+			.. "tooltip[cb_eased;" .. fgettext([[This flag maps noise gradient values onto a quintic S-curve before performing interpolation. 
+This results in smooth noise instead of gridlike noise.
+
+Making 3D noise eased is not recommended because it significantly increases the computation load.]]) .. "]"
 			.. "checkbox[5," .. height - 0.15 .. ";cb_absvalue;"
 			--[[~ "absvalue" is a noise parameter flag.
 			It is short for "absolute value".
@@ -109,6 +126,8 @@ local function get_formspec(dialogdata)
 			the settings menu. ]]
 			.. fgettext("absvalue") .. ";" -- absvalue
 			.. tostring(flags["absvalue"] == true) .. "]"
+			.. "tooltip[cb_absvalue;" .. fgettext([[This flag takes the absolute value of each octave while adding them together.
+This results in "spiky" noise.]]) .. "]"
 
 	height = height + 1
 
