@@ -85,10 +85,10 @@ local function get_formspec(dialogdata)
 			fgettext("An octave is a simple noise generator. Its scale and amplitude will be multiplied based on the Persistence and Lacunarity settings."),
 			fgettext("Finally, all of the octaves will be added to generate this noise.")})
 	add_field(3.6, "te_persist", fgettext("Persistence"), t[8], {
-			fgettext("This value multiplies every octave's amplitude by persistence^i where i is the place of the octave."),
+			fgettext("This value multiplies every octave's amplitude by persistence^(i-1) where i is the place of the octave."),
 			fgettext("Example: If the persistence was 0.5, the 1st octave would be amplified by 1, the 2nd would be by 0.5, the 3rd would be by 0.25, etc.")})
 	add_field(6.9, "te_lacun",   fgettext("Lacunarity"),  t[9], {
-			fgettext("This value multiplies every octave's scale by lacunarity^i where i is the place of the octave."),
+			fgettext("This value multiplies every octave's scale by lacunarity^(i-1) where i is the place of the octave."),
 			fgettext("Example: If the lacunarity was 3, the 1st octave would be scaled by 1, the 2nd would be by 3, the 3rd would be by 9s, etc.")})
 	height = height + 1.1
 
