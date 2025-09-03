@@ -35,7 +35,7 @@ install_linux_deps() {
 # macOS build only
 install_macos_deps() {
 	# Uninstall the bundled cmake, it is outdated, and brew does not want to install the newest version with this one present since they are from different taps.
-	brew uninstall cmake
+	brew uninstall cmake || :
 
 	local pkgs=(
 		cmake gettext freetype gmp jpeg-turbo jsoncpp leveldb
