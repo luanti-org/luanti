@@ -57,7 +57,8 @@ local function get_formspec(dialogdata)
 	-- First row
 	height = height + 0.3
 	add_field(0.3, "te_offset", fgettext("Offset"), t[1], {fgettext("This value offsets the final noise.")})
-	add_field(3.6, "te_scale",  fgettext("Scale"),  t[2], {fgettext("This value is multiplied with the noise before the offset is added.")})
+	add_field(3.6, "te_scale",  fgettext("Scale"),  t[2], {
+			fgettext("This value is multiplied with the noise before the offset is added.")})
 	add_field(6.9, "te_seed",   fgettext("Seed"),   t[6], {
 			fgettext("This value acts as a random seed for the noise. The same seed results in the same noise.")})
 	height = height + 1.1
@@ -81,15 +82,18 @@ local function get_formspec(dialogdata)
 
 	-- Third row
 	add_field(0.3, "te_octaves", fgettext("Octaves"),     t[7], {
-			fgettext("This value controls how many octaves the noise will have."),
-			fgettext("An octave is a simple noise generator. Its scale and amplitude will be multiplied based on the Persistence and Lacunarity settings."),
+			fgettext("This value controls how many octaves the noise will have."), "",
+			fgettext("An octave is a simple noise generator."),
+			fgettext("Its scale and amplitude will be multiplied based on the Persistence and Lacunarity settings."),
 			fgettext("Finally, all of the octaves will be added to generate this noise.")})
 	add_field(3.6, "te_persist", fgettext("Persistence"), t[8], {
-			fgettext("This value multiplies every octave's amplitude by persistence^(i-1) where i is the place of the octave."),
-			fgettext("Example: If the persistence was 0.5, the 1st octave would be amplified by 1, the 2nd would be by 0.5, the 3rd would be by 0.25, etc.")})
+			fgettext("This value multiplies every octave's amplitude by persistence^i where i is the place of the octave."),
+			fgettext("Example: If the persistence was 0.5, the 1st octave would be amplified by 1,"),
+			fgettext("the 2nd would be by 0.5, the 3rd would be by 0.25, etc.")})
 	add_field(6.9, "te_lacun",   fgettext("Lacunarity"),  t[9], {
-			fgettext("This value multiplies every octave's scale by lacunarity^(i-1) where i is the place of the octave."),
-			fgettext("Example: If the lacunarity was 3, the 1st octave would be scaled by 1, the 2nd would be by 3, the 3rd would be by 9s, etc.")})
+			fgettext("This value multiplies every octave's scale by lacunarity^i where i is the place of the octave."),
+			fgettext("Example: If the lacunarity was 3, the 1st octave would be scaled by 1,"),
+			fgettext("the 2nd would be by 3, the 3rd would be by 9, etc.")})
 	height = height + 1.1
 
 
@@ -124,8 +128,8 @@ local function get_formspec(dialogdata)
 			.. tostring(flags["eased"] == true) .. "]"
 			.. "tooltip[cb_eased;"
 			 .. fgettext("This flag maps noise gradient values onto a quintic S-curve before performing interpolation.")
-			.. "\n" .. fgettext("This results in smooth noise instead of gridlike noise.")
-			.. "\n" .. fgettext("Making 3D noise eased is not recommended because it significantly increases the load.") .. "]"
+			.. "\n" .. fgettext("This results in smooth noise instead of gridlike noise.") .. "\n"
+			.. fgettext("Making 3D noise eased is not recommended because it significantly increases the load.") .. "]"
 			.. "checkbox[5," .. height - 0.15 .. ";cb_absvalue;"
 			--[[~ "absvalue" is a noise parameter flag.
 			It is short for "absolute value".
