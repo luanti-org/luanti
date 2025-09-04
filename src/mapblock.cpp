@@ -249,7 +249,7 @@ void MapBlock::reallocate(u32 count, MapNode n)
 void MapBlock::tryShrinkNodes()
 {
 	// make sure we never shrink the array on the client
-	if (m_gamedef->isClient() || m_refcount)
+	if (m_gamedef->isClient())
 		return;
 
 	if (m_is_mono_block)
