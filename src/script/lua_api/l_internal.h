@@ -47,7 +47,8 @@
 	if (!env) {                                              \
 		log_deprecated(L, "Calling this function during script init is disallowed.", 1); \
 		return 0;                                            \
-	} do {} while (0)
+	} \
+	((void)0)
 
 // Retrieve ServerEnvironment pointer as `env`
 #define GET_ENV_PTR         \
