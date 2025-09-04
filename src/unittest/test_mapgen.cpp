@@ -7,6 +7,7 @@
 #include "emerge.h"
 #include "mapgen/mapgen.h"
 #include "mapgen/mg_biome.h"
+#include "irrlicht_changes/printing.h"
 #include "mock_server.h"
 
 class TestMapgen : public TestBase
@@ -18,6 +19,7 @@ public:
 	void runTests(IGameDef *gamedef);
 
 	void testBiomeGen(IGameDef *gamedef);
+	void testMapgenEdges();
 };
 
 static TestMapgen g_test_instance;
@@ -37,6 +39,7 @@ namespace {
 void TestMapgen::runTests(IGameDef *gamedef)
 {
 	TEST(testBiomeGen, gamedef);
+	TEST(testMapgenEdges);
 }
 
 void TestMapgen::testBiomeGen(IGameDef *gamedef)
@@ -98,7 +101,7 @@ void TestMapgen::testBiomeGen(IGameDef *gamedef)
 			{    0, "deciduous_forest_shore", S16_MIN },
 			{ -100, "deciduous_forest_shore", S16_MIN },
 		};
-		for (const auto expected : expected_biomes) {
+		for (const auto &expected : expected_biomes) {
 			Biome *biome = biomegen->getBiomeAtIndex(
 				(1 * CSIZE.X) + 1, // index in CSIZE 2D noise map
 				v3s16(2000, expected.check_y, -1000) // absolute coordinates
@@ -123,3 +126,15 @@ void TestMapgen::testBiomeGen(IGameDef *gamedef)
 	}
 }
 
+void TestMapgen::testMapgenEdges()
+{
+	v3s16 emin, emax;
+
+	std::tie(emin, emax) = get_mapgen_edges(31007, v3s16(5));
+	UASSERTEQ(auto, emin, v3s16(-30912));
+	UASSERTEQ(auto, emax, v3s16(30927));
+
+	std::tie(emin, emax) = get_mapgen_edges(502 * MAP_BLOCKSIZE, v3s16(1, 2, 1));
+	UASSERTEQ(auto, emin, v3s16(-8016));
+	UASSERTEQ(auto, emax, v3s16(8031, 8015, 8031));
+}
