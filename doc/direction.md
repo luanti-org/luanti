@@ -29,8 +29,8 @@ See [CONTRIBUTING.md](../.github/CONTRIBUTING.md) for more info.
 
 Server-Sent Client-side Modding has been a long requested feature, as it
 allows game developers to highly expand the tools for their creations.
-Implementing SSCSM also brings more dehardcoding, also allowing us to improve
-the overall performances of the engine.  
+Implementing SSCSM also means to feature more dehardcoding, furthermore
+allowing us to improve the overall performances of the engine.  
 
 Instead of focusing on short-term solutions that will inevitably lead to more
 technical debt to deal with, SSCSM paves the way for a cleaner architecture
