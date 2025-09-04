@@ -1,6 +1,11 @@
 set(DEFAULT_SDL2 ON)
 
+if(APPLE AND CMAKE_SYSTEM_NAME STREQUAL "iOS")
+	set(DEFAULT_ANGLE ON)
+endif()
+
 option(USE_SDL2 "Use the SDL2 backend" ${DEFAULT_SDL2})
+option(USE_ANGLE "Use the Google ANGLE EGL and OpenGL ES" ${DEFAULT_ANGLE})
 
 option(USE_SDL2_STATIC "Link with SDL2 static libraries" FALSE)
 
@@ -64,8 +69,17 @@ if(WIN32)
 	add_compile_definitions(_IRR_WINDOWS_ _IRR_WINDOWS_API_)
 	set(DEVICE "WINDOWS")
 elseif(APPLE)
-	add_compile_definitions(_IRR_OSX_PLATFORM_)
-	set(DEVICE "OSX")
+	if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+		add_compile_definitions(-D_IRR_OSX_PLATFORM_)
+		set(DEVICE "OSX")
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+		add_compile_definitions(-D_IRR_IOS_PLATFORM_)
+		if(NOT USE_SDL2)
+			message(FATAL_ERROR "The iOS build requires SDL2")
+		endif()
+	else()
+		message(FATAL_ERROR "Not supported Apple device.")
+	endif()
 elseif(ANDROID)
 	add_compile_definitions(_IRR_ANDROID_PLATFORM_)
 	if(NOT USE_SDL2)
@@ -100,6 +114,10 @@ endif()
 
 add_compile_definitions("_IRR_COMPILE_WITH_${DEVICE}_DEVICE_")
 
+if(USE_ANGLE)
+	add_definitions("-D_IRR_COMPILE_WITH_ANGLE_")
+endif()
+
 # X11
 
 if(DEVICE STREQUAL "X11")
@@ -125,7 +143,7 @@ endif()
 # OpenGL
 
 if(USE_SDL2)
-	if(NOT ANDROID)
+	if(NOT ANDROID AND NOT USE_ANGLE)
 		set(DEFAULT_OPENGL3 TRUE)
 	endif()
 else()
@@ -133,17 +151,17 @@ else()
 endif()
 option(ENABLE_OPENGL3 "Enable OpenGL 3+" ${DEFAULT_OPENGL3})
 
-if(ANDROID OR EMSCRIPTEN)
+if(ANDROID OR EMSCRIPTEN OR USE_ANGLE)
 	set(ENABLE_OPENGL FALSE)
 else()
 	option(ENABLE_OPENGL "Enable OpenGL" TRUE)
 endif()
 
-if(APPLE)
+if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
 	set(ENABLE_GLES2 FALSE)
 	set(ENABLE_WEBGL1 FALSE)
 else()
-	if(ANDROID OR EMSCRIPTEN)
+	if(ANDROID OR EMSCRIPTEN OR USE_ANGLE)
 		set(DEFAULT_GLES2 TRUE)
 	endif()
 	if(EMSCRIPTEN)
@@ -234,7 +252,7 @@ if(USE_SDL2)
 	if(NOT ANDROID)
 		find_package(SDL2 REQUIRED)
 	else()
-		# provided by AndroidLibs.cmake
+		# provided by AndroidLibs.cmake or from cmake call
 	endif()
 	message(STATUS "Found SDL2: ${SDL2_LIBRARIES}")
 
@@ -280,7 +298,7 @@ endif()
 
 if(ANDROID)
 	enable_language(C)
-elseif(APPLE)
+elseif(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
 	find_library(COCOA_LIB Cocoa REQUIRED)
 	find_library(IOKIT_LIB IOKit REQUIRED)
 
@@ -599,6 +617,22 @@ target_link_libraries(IrrlichtMt PRIVATE
 	"$<$<BOOL:${USE_X11}>:${X11_X11_LIB}>"
 	"$<$<BOOL:${USE_X11}>:${X11_Xi_LIB}>"
 )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+	target_link_libraries(IrrlichtMt PRIVATE
+		"-framework UIKit"
+		"-framework Foundation"
+		"-framework CoreGraphics"
+		"-framework QuartzCore"
+		"-framework AudioToolbox"
+		"-framework AVFoundation"
+		"-framework CoreAudio"
+		"-framework CoreMotion"
+		"-framework IOSurface"
+		${OPENGLES2_LIBRARY}
+		SDL2::SDL2main
+	)
+endif()
 
 if(WIN32)
 	target_compile_definitions(IrrlichtMt INTERFACE _IRR_WINDOWS_API_)
