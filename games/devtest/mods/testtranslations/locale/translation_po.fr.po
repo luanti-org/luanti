@@ -23,7 +23,7 @@ msgstr "Testing .po without context: translated"
 
 msgctxt "testtranslations"
 msgid "Testing translation with multiple languages"
-msgstr" Testing translation: translated in standard French"
+msgstr "Testing translation: translated in standard French"
 
 msgctxt "testtranslations"
 msgid "Testing French-only translation: untranslated"
