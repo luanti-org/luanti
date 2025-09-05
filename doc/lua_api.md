@@ -5841,6 +5841,8 @@ Utilities
       object_guids = true,
       -- The NodeTimer `on_timer` callback is passed additional `node` and `timeout` args (5.14.0)
       on_timer_four_args = true,
+      -- `ParticleSpawner` definition supports `exclude_player` field (5.14.0)
+      particlespawner_exclude_player = true,
   }
   ```
 
@@ -7469,6 +7471,7 @@ Particles
 ---------
 
 * `core.add_particle(particle definition)`
+    * Spawn a single particle
     * Deprecated: `core.add_particle(pos, velocity, acceleration,
       expirationtime, size, collisiondetection, texture, playername)`
 
@@ -11484,6 +11487,9 @@ Used by `core.add_particle`.
     playername = "singleplayer",
     -- Optional, if specified spawns particle only on the player's client
 
+    -- Note that `exclude_player` is not supported here. You can use a single-use
+    -- particlespawner if needed.
+
     animation = {Tile Animation definition},
     -- Optional, specifies how to animate the particle texture
 
@@ -11547,6 +11553,9 @@ will be ignored.
     -- If time is 0 spawner has infinite lifespan and spawns the `amount` on
     -- a per-second basis.
 
+    size = 1,
+    -- Size of the particle.
+
     collisiondetection = false,
     -- If true collide with `walkable` nodes and, depending on the
     -- `object_collision` field, objects too.
@@ -11573,7 +11582,12 @@ will be ignored.
     -- following section.
 
     playername = "singleplayer",
-    -- Optional, if specified spawns particles only on the player's client
+    -- Optional, if specified spawns particles only for this player
+    -- Can't be used together with `exclude_player`.
+
+    exclude_player = "singleplayer",
+    -- Optional, if specified spawns particles not for this player
+    -- Added in v5.14.0. Can't be used together with `playername`.
 
     animation = {Tile Animation definition},
     -- Optional, specifies how to animate the particles' texture
