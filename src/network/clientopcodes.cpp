@@ -111,6 +111,7 @@ const ToClientCommandHandler toClientCommandTable[TOCLIENT_NUM_MSG_TYPES] =
 	{ "TOCLIENT_FORMSPEC_PREPEND",         TOCLIENT_STATE_CONNECTED, &Client::handleCommand_FormspecPrepend }, // 0x61,
 	{ "TOCLIENT_MINIMAP_MODES",            TOCLIENT_STATE_CONNECTED, &Client::handleCommand_MinimapModes }, // 0x62,
 	{ "TOCLIENT_SET_LIGHTING",             TOCLIENT_STATE_CONNECTED, &Client::handleCommand_SetLighting }, // 0x63,
+	{ "TOCLIENT_SPAWN_PARTICLE_BATCH",     TOCLIENT_STATE_CONNECTED, &Client::handleCommand_SpawnParticleBatch }, // 0x64,
 };
 
 const static ServerCommandFactory null_command_factory = { nullptr, 0, false };
