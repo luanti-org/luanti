@@ -542,11 +542,14 @@ void CGUITTFont::draw(const EnrichedString &text, const core::rect<s32>& positio
 		if (InvisibleChars.find_first_of(currentChar) != std::u32string::npos)
 			goto skip_invisible;
 
-		if (clip && !clip->isPointInside(offset) &&
-				!clip->isPointInside(offset + core::vector2di(width, lineHeight)))
-		{
+		if (clip) {
 			// Skip fully clipped characters.
-			goto skip_invisible;
+			const core::recti rect(
+				offset,
+				offset + core::vector2di(width, lineHeight)
+			);
+			if (!clip->isRectCollided(rect))
+				goto skip_invisible;
 		}
 
 		{
@@ -598,9 +601,9 @@ skip_invisible:
 	update_glyph_pages();
 	core::array<core::vector2di> tmp_positions;
 	core::array<core::recti> tmp_source_rects;
-	for (auto it : Render_Map)
+	for (const auto &it : Render_Map)
 	{
-		CGUITTGlyphPage* page = it.second;
+		CGUITTGlyphPage *page = it.second;
 
 		// render runs of matching color in batch
 		video::SColor colprev;
