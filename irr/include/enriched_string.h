@@ -48,13 +48,45 @@ public:
 	void addCharNoColor(wchar_t c);
 
 	EnrichedString getNextLine(size_t *pos) const;
+
 	EnrichedString substr(size_t pos = 0, size_t len = std::string::npos) const;
 
 	EnrichedString operator+(const EnrichedString &other) const;
-	void operator+=(const EnrichedString &other);
-	void operator+=(std::wstring_view other)
+
+	inline void operator+=(const EnrichedString &other)
 	{
-		*this += EnrichedString(other);
+		bool update_default_color = m_default_length == m_string.size();
+		m_string += other.m_string;
+		m_colors.insert(m_colors.end(), other.m_colors.begin(), other.m_colors.end());
+		if (update_default_color) {
+			m_default_length += other.m_default_length;
+			updateDefaultColor();
+		}
+	}
+
+	inline void operator+=(wchar_t character)
+	{
+		addCharNoColor(character);
+	}
+
+	inline void operator+=(std::wstring string)
+	{
+		//Use last characters colour else use default colour
+		video::SColor lastColor = (m_colors.empty()) ? m_default_color : m_colors.back();
+		m_string += string;
+		//Add colour for each character
+		for(size_t i = 0; i < string.length(); i++)
+			m_colors.emplace_back(lastColor);
+	}
+
+	inline wchar_t& operator[](size_t index)
+	{
+		return m_string[index];
+	}
+
+	inline void erase(size_t index)
+	{
+		m_string.erase(index);
 	}
 
 	const wchar_t *c_str() const
@@ -108,6 +140,7 @@ public:
 
 private:
 	std::wstring m_string;
+	// Stores color for each individual character
 	std::vector<video::SColor> m_colors;
 	bool m_has_background;
 	video::SColor m_default_color;

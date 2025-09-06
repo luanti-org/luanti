@@ -24,7 +24,7 @@
 #include "client/minimap.h"
 #include "client/texturesource.h"
 #include "gui/touchcontrols.h"
-#include "util/enriched_string.h"
+#include "enriched_string.h"
 #include "irrlicht_changes/CGUITTFont.h"
 #include "gui/drawItemStack.h"
 
