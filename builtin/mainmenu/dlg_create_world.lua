@@ -90,11 +90,15 @@ local function create_world_formspec(dialogdata)
 		-- should never happen but just pick the first game
 		game = pkgmgr.games[1]
 		core.settings:set("menu_last_game", game.id)
+
+		current_mg = dialogdata.mg or core.settings:get("mg_name")
 	end
 
 	local disallowed_mapgen_settings = {}
 	if game ~= nil then
 		local gameconfig = Settings(game.path.."/game.conf")
+
+		current_mg = current_mg or gameconfig:get("default_mapgen") or core.settings:get("mg_name")
 
 		local allowed_mapgens = (gameconfig:get("allowed_mapgens") or ""):split()
 		for key, value in pairs(allowed_mapgens) do
@@ -456,7 +460,6 @@ function create_create_world_dlg()
 		worldname = "",
 		-- settings the world is created with:
 		seed = core.settings:get("fixed_map_seed") or "",
-		mg = core.settings:get("mg_name"),
 		flags = {
 			main = core.settings:get_flags("mg_flags"),
 			v5 = core.settings:get_flags("mgv5_spflags"),
