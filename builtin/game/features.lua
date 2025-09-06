@@ -49,6 +49,7 @@ core.features = {
 	httpfetch_additional_methods = true,
 	object_guids = true,
 	on_timer_four_args = true,
+	particlespawner_exclude_player = true,
 }
 
 function core.has_feature(arg)

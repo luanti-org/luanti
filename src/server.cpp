@@ -1646,45 +1646,61 @@ void Server::SendSpawnParticle(session_t peer_id, u16 protocol_version,
 	Send(&pkt);
 }
 
-// Adds a ParticleSpawner on peer with peer_id
-void Server::SendAddParticleSpawner(session_t peer_id, u16 protocol_version,
+void Server::SendAddParticleSpawner(const std::string &to_player,
+	const std::string &exclude_player,
 	const ParticleSpawnerParameters &p, u16 attached_id, u32 id)
 {
 	static thread_local const float radius =
 			g_settings->getS16("max_block_send_distance") * MAP_BLOCKSIZE * BS;
+	const float radius_sq = radius * radius;
 
-	if (peer_id == PEER_ID_INEXISTENT) {
-		std::vector<session_t> clients = m_clients.getClientIDs();
-		const v3f pos = (
-			p.pos.start.min.val +
-			p.pos.start.max.val +
-			p.pos.end.min.val +
-			p.pos.end.max.val
-		) / 4.0f * BS;
-		const float radius_sq = radius * radius;
-		/* Don't send short-lived spawners to distant players.
-		 * This could be replaced with proper tracking at some point.
-		 * A lifetime of 0 means that the spawner exists forever.*/
-		const bool distance_check = !attached_id && p.time <= 1.0f && p.time != 0.0f;
+	// Average position where particles would spawn (approximate)
+	const v3f pos = (
+		p.pos.start.min.val +
+		p.pos.start.max.val +
+		p.pos.end.min.val +
+		p.pos.end.max.val
+	) / 4.0f * BS;
+	/* Don't send short-lived spawners to distant players.
+	 * This could be replaced with proper tracking at some point.
+	 * A lifetime of 0 means that the spawner exists forever. */
+	const bool distance_check = !attached_id && p.time <= 1.0f && p.time != 0.0f;
 
-		for (const session_t client_id : clients) {
-			RemotePlayer *player = m_env->getPlayer(client_id);
-			if (!player)
-				continue;
-
-			if (distance_check) {
-				PlayerSAO *sao = player->getPlayerSAO();
-				if (!sao)
-					continue;
-				if (sao->getBasePosition().getDistanceFromSQ(pos) > radius_sq)
-					continue;
-			}
-
-			SendAddParticleSpawner(client_id, player->protocol_version,
-				p, attached_id, id);
+	const auto &consider_player = [&] (RemotePlayer *player) {
+		if (distance_check) {
+			PlayerSAO *sao = player->getPlayerSAO();
+			if (!sao)
+				return;
+			if (sao->getBasePosition().getDistanceFromSQ(pos) > radius_sq)
+				return;
 		}
+
+		SendAddParticleSpawner(player->getPeerId(), player->protocol_version,
+			p, attached_id, id);
+	};
+
+	// Send to one -or- all (except one)
+	if (!to_player.empty()) {
+		RemotePlayer *player = m_env->getPlayer(to_player);
+		if (player)
+			consider_player(player);
 		return;
 	}
+	std::vector<session_t> clients = m_clients.getClientIDs();
+	for (const session_t client_id : clients) {
+		RemotePlayer *player = m_env->getPlayer(client_id);
+		if (!player)
+			continue;
+		if (!exclude_player.empty() && exclude_player == player->getName())
+			continue;
+		consider_player(player);
+	}
+}
+
+void Server::SendAddParticleSpawner(session_t peer_id, u16 protocol_version,
+	const ParticleSpawnerParameters &p, u16 attached_id, u32 id)
+{
+	assert(peer_id != PEER_ID_INEXISTENT);
 	assert(protocol_version != 0);
 
 	NetworkPacket pkt(TOCLIENT_ADD_PARTICLESPAWNER, 100, peer_id);
@@ -3619,21 +3635,11 @@ void Server::spawnParticle(const std::string &playername,
 }
 
 u32 Server::addParticleSpawner(const ParticleSpawnerParameters &p,
-	ServerActiveObject *attached, const std::string &playername)
+	ServerActiveObject *attached, const std::string &to_player,
+	const std::string &exclude_player)
 {
-	// m_env will be NULL if the server is initializing
 	if (!m_env)
 		return -1;
-
-	session_t peer_id = PEER_ID_INEXISTENT;
-	u16 proto_ver = 0;
-	if (!playername.empty()) {
-		RemotePlayer *player = m_env->getPlayer(playername.c_str());
-		if (!player)
-			return -1;
-		peer_id = player->getPeerId();
-		proto_ver = player->protocol_version;
-	}
 
 	u16 attached_id = attached ? attached->getId() : 0;
 
@@ -3643,13 +3649,12 @@ u32 Server::addParticleSpawner(const ParticleSpawnerParameters &p,
 	else
 		id = m_env->addParticleSpawner(p.time, attached_id);
 
-	SendAddParticleSpawner(peer_id, proto_ver, p, attached_id, id);
+	SendAddParticleSpawner(to_player, exclude_player, p, attached_id, id);
 	return id;
 }
 
 void Server::deleteParticleSpawner(const std::string &playername, u32 id)
 {
-	// m_env will be NULL if the server is initializing
 	if (!m_env)
 		throw ServerError("Can't delete particle spawners during initialisation!");
 
@@ -3661,7 +3666,11 @@ void Server::deleteParticleSpawner(const std::string &playername, u32 id)
 		peer_id = player->getPeerId();
 	}
 
+	// FIXME: we don't track which client still knows about this spawner, so
+	// just deleting it entirely is problematic!
+	// We also don't check if the ID is even in use. FAIL!
 	m_env->deleteParticleSpawner(id);
+
 	SendDeleteParticleSpawner(peer_id, id);
 }
 

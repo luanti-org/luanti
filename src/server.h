@@ -291,7 +291,8 @@ public:
 		const ParticleParameters &p);
 
 	u32 addParticleSpawner(const ParticleSpawnerParameters &p,
-		ServerActiveObject *attached, const std::string &playername);
+		ServerActiveObject *attached, const std::string &to_player,
+		const std::string &exclude_player);
 
 	void deleteParticleSpawner(const std::string &playername, u32 id);
 
@@ -593,7 +594,11 @@ private:
 			const std::unordered_set<std::string> &tosend);
 	void stepPendingDynMediaCallbacks(float dtime);
 
-	// Adds a ParticleSpawner on peer with peer_id (PEER_ID_INEXISTENT == all)
+	/// @brief send particle spawner to a selection of clients
+	void SendAddParticleSpawner(const std::string &to_player,
+		const std::string &exclude_player,
+		const ParticleSpawnerParameters &p, u16 attached_id, u32 id);
+	/// @brief send particle spawner to one client (internal)
 	void SendAddParticleSpawner(session_t peer_id, u16 protocol_version,
 		const ParticleSpawnerParameters &p, u16 attached_id, u32 id);
 
