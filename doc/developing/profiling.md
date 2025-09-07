@@ -79,12 +79,15 @@ Build Luanti with `-DDBUILD_WITH_TRACY=1`, this will fetch Tracy for building
 the Tracy client. And use `FETCH_TRACY_GIT_TAG` to get a version matching your
 Tracy server, e.g. `-DFETCH_TRACY_GIT_TAG=v0.11.0` if it's `0.11.0`.
 
-To actually use Tracy, you also have to enable it with Tracy's build options:
-```
--DTRACY_ENABLE=1 -DTRACY_ONLY_LOCALHOST=1
-```
+To actually use Tracy, you also have to enable it with Tracy's build options
+(`-DTRACY_ENABLE=1`).
 
 See Tracy's documentation for more build options.
+
+TL;DR:
+```
+-DDBUILD_WITH_TRACY=1 -DFETCH_TRACY_GIT_TAG=<your_version> -DTRACY_ENABLE=1 -DTRACY_ONLY_LOCALHOST=1
+```
 
 ### Using in C++
 
