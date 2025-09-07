@@ -127,29 +127,29 @@ local function instrument(def)
 		return func
 	end
 
-	-- These tail-calls allows passing all return values of `func`
+	-- These tail-calls allows passing all return values of `func_o`
 	-- also called https://en.wikipedia.org/wiki/Continuation_passing_style
 	-- Compared to table creation and unpacking it won't lose `nil` returns
 	-- and is expected to be faster
-	-- `tracy_ZoneEnd_and_return` / `measure` will be executed after func(...)
+	-- `tracy_ZoneEnd_and_return` / `measure` will be executed after `func_o(...)`
 
-	local func1 = func
 	if do_tracy then
-		func1 = function(...)
+		local func_o = func
+		func = function(...)
 			tracy.ZoneBeginN(instrument_name) --TODO: longer name. *always* include source location
-			return tracy_ZoneEnd_and_return(func(...))
+			return tracy_ZoneEnd_and_return(func_o(...))
 		end
 	end
 
-	local func2 = func1
 	if do_measure then
-		func2 = function(...)
+		local func_o = func
+		func = function(...)
 			local start = time()
-			return measure(modname, instrument_name, start, func1(...))
+			return measure(modname, instrument_name, start, func_o(...))
 		end
 	end
 
-	return func2
+	return func
 end
 
 local function can_be_called(func)
