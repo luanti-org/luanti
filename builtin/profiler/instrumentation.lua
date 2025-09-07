@@ -10,7 +10,7 @@ local instrument_builtin = core.settings:get_bool("instrument.builtin", false)
 
 local do_measure = core.settings:get_bool("profiler.measure", true)
 local do_tracy = core.settings:get_bool("profiler.tracy", false)
-if do_tracy and not tracy then
+if do_tracy and not core.global_exists("tracy") then
 	core.log("warning", "profiler.tracy is enabled, but `tracy` was not found. Did you build with Tracy?")
 	do_tracy = false
 end
@@ -127,6 +127,12 @@ local function instrument(def)
 		return func
 	end
 
+	-- These tail-calls allows passing all return values of `func`
+	-- also called https://en.wikipedia.org/wiki/Continuation_passing_style
+	-- Compared to table creation and unpacking it won't lose `nil` returns
+	-- and is expected to be faster
+	-- `tracy_ZoneEnd_and_return` / `measure` will be executed after func(...)
+
 	local func1 = func
 	if do_tracy then
 		func1 = function(...)
@@ -138,11 +144,6 @@ local function instrument(def)
 	local func2 = func1
 	if do_measure then
 		func2 = function(...)
-			-- This tail-call allows passing all return values of `func`
-			-- also called https://en.wikipedia.org/wiki/Continuation_passing_style
-			-- Compared to table creation and unpacking it won't lose `nil` returns
-			-- and is expected to be faster
-			-- `measure` will be executed after func(...)
 			local start = time()
 			return measure(modname, instrument_name, start, func1(...))
 		end
