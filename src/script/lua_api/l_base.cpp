@@ -58,6 +58,11 @@ GUIEngine *ModApiBase::getGuiEngine(lua_State *L)
 {
 	return getScriptApiBase(L)->getGuiEngine();
 }
+
+SSCSMEnvironment *ModApiBase::getSSCSMEnv(lua_State *L)
+{
+	return getScriptApiBase(L)->getSSCSMEnv();
+}
 #endif
 
 EmergeThread *ModApiBase::getEmergeThread(lua_State *L)
