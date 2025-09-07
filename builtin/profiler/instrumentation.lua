@@ -60,27 +60,13 @@ local function regex_escape(s)
 end
 
 ---
--- Create an unique instrument name.
--- Generate a missing label with a running index number.
+-- Format `filepath#linenumber` of function, with a relative filepath.
 --
-local counts = {}
+-- FIXME: these paths are not canonicalized (i.e. can be .../lunti/bin/..)
 local worldmods_path = regex_escape(core.get_worldpath())
 local user_path = regex_escape(core.get_user_path())
 local builtin_path = regex_escape(core.get_builtin_path())
-local function generate_name(def)
-	local class, label, func_name = def.class, def.label, def.func_name
-	if label then
-		if class or func_name then
-			return format("%s '%s' %s", class or "", label, func_name or ""):trim()
-		end
-		return format("%s", label):trim()
-	elseif label == false then
-		return format("%s", class or func_name):trim()
-	end
-
-	local index_id = def.mod .. (class or func_name)
-	local index = counts[index_id] or 1
-	counts[index_id] = index + 1
+local function generate_source_location(def)
 	local info = debug.getinfo(def.func)
 	local modpath = regex_escape(core.get_modpath(def.mod) or "")
 	local source = info.source
@@ -90,7 +76,32 @@ local function generate_name(def)
 	source = source:gsub(worldmods_path, "")
 	source = source:gsub(builtin_path, "builtin" .. DIR_DELIM)
 	source = source:gsub(user_path, "")
-	return format("%s[%d] %s#%s", class or func_name, index, source, info.linedefined)
+	return string.format("%s#%s", source, info.linedefined)
+end
+
+---
+-- Create an unique instrument name.
+-- Generate a missing label with a running index number.
+-- Returns name, name_has_source.
+--
+local generate_name_counts = {}
+local function generate_name(def)
+	local class, label, func_name = def.class, def.label, def.func_name
+	local source = generate_source_location(def)
+
+	if label then
+		if class or func_name then
+			return format("%s '%s' %s", class or "", label, func_name or ""):trim(), false
+		end
+		return format("%s", label):trim(), false
+	elseif label == false then
+		return format("%s", class or func_name):trim(), false
+	else
+		local index_id = def.mod .. (class or func_name)
+		local index = generate_name_counts[index_id] or 1
+		generate_name_counts[index_id] = index + 1
+		return format("%s[%d] %s", class or func_name, index, source), true
+	end
 end
 
 ---
@@ -120,7 +131,9 @@ local function instrument(def)
 	end
 	def.mod = def.mod or get_current_modname() or "??"
 	local modname = def.mod
-	local instrument_name = generate_name(def)
+	local instrument_name, name_has_source = generate_name(def)
+	local instrument_name_with_source = name_has_source and instrument_name or
+		string.format("%s %s", instrument_name, generate_source_location(def))
 	local func = def.func
 
 	if not instrument_builtin and modname == "*builtin*" then
@@ -136,7 +149,7 @@ local function instrument(def)
 	if do_tracy then
 		local func_o = func
 		func = function(...)
-			tracy.ZoneBeginN(instrument_name) --TODO: longer name. *always* include source location
+			tracy.ZoneBeginN(instrument_name_with_source)
 			return tracy_ZoneEnd_and_return(func_o(...))
 		end
 	end
