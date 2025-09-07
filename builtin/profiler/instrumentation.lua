@@ -62,7 +62,7 @@ end
 ---
 -- Format `filepath#linenumber` of function, with a relative filepath.
 --
--- FIXME: these paths are not canonicalized (i.e. can be .../lunti/bin/..)
+-- FIXME: these paths are not canonicalized (i.e. can be .../luanti/bin/..)
 local worldmods_path = regex_escape(core.get_worldpath())
 local user_path = regex_escape(core.get_user_path())
 local builtin_path = regex_escape(core.get_builtin_path())
