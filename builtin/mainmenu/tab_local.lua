@@ -173,7 +173,7 @@ local function get_formspec(tabview, name, tabdata)
 	local game
 
 	local is_world_selected = list and (list[index] or index > #list)
-	
+
 	if world then
 		game = pkgmgr.find_by_gameid(world.gameid)
 	else
