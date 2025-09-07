@@ -2,16 +2,13 @@
 
 ## Using builtin's mod profiler
 
-Builtin has a pr
+Builtin has a profiler for callbacks registered by mods. It measures how much
+time each callback took per server-step (on average / min / max).
 
 To start, enable the `profiler.load` setting.
 (There are more settings, see `profiler.*` and `instrument.*`.)
 
 Use the `profiler` chatcommand to look at the results.
-
-TODO: explain output
-(what are the mod rows, and total?)
-(what happens when a callback is not, or multiple times, called in one server step?)
 
 
 ## Profiling Luanti on Linux with perf
