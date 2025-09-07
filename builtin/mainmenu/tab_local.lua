@@ -165,15 +165,15 @@ local function get_formspec(tabview, name, tabdata)
 
 	local retval = ""
 
-	local index = filterlist.get_current_index(menudata.worldlist,
-				tonumber(core.settings:get("mainmenu_last_selected_world")))
+	local index = core.get_textlist_index("sp_worlds") or filterlist.get_current_index(menudata.worldlist,
+				tonumber(core.settings:get("mainmenu_last_selected_world"))) or 0
 
 	local list = menudata.worldlist:get_list()
-	local world = list and index and list[index]
+	local world = list and list[index]
 	local game
 
-	local list_selected = core.get_textlist_index("sp_worlds") or index or 0
-	local is_world_selected = list and (list[list_selected] or list_selected > #list)
+	local is_world_selected = list and (list[index] or index > #list)
+	
 	if world then
 		game = pkgmgr.find_by_gameid(world.gameid)
 	else
