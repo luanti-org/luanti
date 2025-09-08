@@ -3,9 +3,6 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "server.h"
-#include <iostream>
-#include <queue>
-#include <algorithm>
 #include "irr_v2d.h"
 #include "network/connection.h"
 #include "network/networkpacket.h"
@@ -65,6 +62,10 @@
 #include "gettext.h"
 #include "util/tracy_wrapper.h"
 
+#include <iostream>
+#include <queue>
+#include <algorithm>
+#include <sstream>
 #include <csignal>
 
 class ClientNotFoundException : public BaseException
@@ -1624,30 +1625,34 @@ void Server::SendSpawnParticles(RemotePlayer *player,
 	if (!client)
 		return;
 
-	std::ostringstream particle_data(std::ios_base::binary);
+	std::ostringstream particle_batch_data(std::ios_base::binary);
 	for (const auto &particle : particles) {
 		if (sao->getBasePosition().getDistanceFromSQ(particle.pos * BS) > radius_sq)
 			continue; // out of range
 
+		std::ostringstream particle_data(std::ios_base::binary);
 		particle.serialize(particle_data, player->protocol_version);
+		std::string particle_data_str = particle_data.str();
+		SANITY_CHECK(particle_data_str.size() < U32_MAX);
 		if (player->protocol_version < 50) {
 			// Client only supports TOCLIENT_SPAWN_PARTICLE,
 			// so turn the written particle into a packet immediately
 			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, particle_data.tellp(), player->getPeerId());
-			pkt.putRawString(particle_data.str());
+			pkt.putRawString(particle_data_str);
 			Send(&pkt);
-			particle_data.str("");
-			particle_data.clear();
+		} else {
+			writeU32(particle_batch_data, particle_data_str.size());
+			particle_batch_data << particle_data_str;
 		}
 	}
 
-	if (particle_data.tellp() == 0)
+	if (particle_batch_data.tellp() == 0)
 		return; // no batch to send
 
 	// Client supports TOCLIENT_SPAWN_PARTICLE_BATCH
 	assert(player->protocol_version >= 50);
 	std::ostringstream compressed(std::ios_base::binary);
-	compressZstd(particle_data.str(), compressed);
+	compressZstd(particle_batch_data.str(), compressed);
 
 	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE_BATCH,
 			4 + compressed.tellp(), player->getPeerId());
