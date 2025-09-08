@@ -169,7 +169,9 @@ local function get_formspec(tabview, name, tabdata)
 				tonumber(core.settings:get("mainmenu_last_selected_world"))) or 0
 
 	local list = menudata.worldlist:get_list()
-	local world = list and list[index]
+	-- When changing tabs to a world list with fewer entries, the last index is selected (visually).
+	-- However, the formspec fields lag behind, thus 'index > #list' can be a valid choice.
+	local world = list and list[math.min(index, #list)]
 	local game
 
 	local is_world_selected = list and (list[index] or index > #list)
