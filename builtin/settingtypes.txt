@@ -1943,6 +1943,14 @@ enable_mod_channels (Mod channels) [server] bool false
 #    Useful for mod developers and server operators.
 profiler.load (Load the game profiler) bool false
 
+#    Disable if you only want to instrument with Tracy.
+profiler.measure (Measure time samples) bool true
+
+#    Capture Tracy zones with the profiler's instrumentation.
+#    You need to build with Tracy to use this, see doc/developing/profiling.md
+#    for details.
+profiler.tracy (Capture Tracy zones) bool false
+
 #    The default format in which profiles are being saved,
 #    when calling `/profiler save [format]` without format.
 profiler.default_report_format (Default report format) enum txt txt,csv,lua,json,json_pretty

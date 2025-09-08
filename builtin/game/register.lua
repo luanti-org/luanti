@@ -584,6 +584,7 @@ core.unregister_biome = make_wrap_deregistration(core.register_biome,
 local make_registration = builtin_shared.make_registration
 local make_registration_reverse = builtin_shared.make_registration_reverse
 
+-- keep in sync with profiler/instrumentation.lua
 core.registered_on_chat_messages, core.register_on_chat_message = make_registration()
 core.registered_on_chatcommands, core.register_on_chatcommand = make_registration()
 core.registered_globalsteps, core.register_globalstep = make_registration()

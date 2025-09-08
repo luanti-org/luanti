@@ -9558,7 +9558,8 @@ Player properties need to be saved manually.
     stepheight = 0,
     -- If positive number, object will climb upwards when it moves
     -- horizontally against a `walkable` node, if the height difference
-    -- is within `stepheight`.
+    -- is within `stepheight` and if the object current max Y in the world
+    -- is greater or equal than the node min Y.
 
     automatic_face_movement_dir = 0.0,
     -- Automatically set yaw to movement direction, offset in degrees.

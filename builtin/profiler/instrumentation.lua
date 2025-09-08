@@ -2,35 +2,57 @@
 -- Copyright (C) 2016 T4im
 -- SPDX-License-Identifier: LGPL-2.1-or-later
 
-local format, pairs, type = string.format, pairs, type
+local format, ipairs, type = string.format, ipairs, type
 local core, get_current_modname = core, core.get_current_modname
-local profiler, sampler, get_bool_default = ...
+local profiler, sampler = ...
 
-local instrument_builtin = get_bool_default("instrument.builtin", false)
+local instrument_builtin = core.settings:get_bool("instrument.builtin", false)
 
+local do_measure = core.settings:get_bool("profiler.measure", true)
+local do_tracy = core.settings:get_bool("profiler.tracy", false)
+if do_tracy and not core.global_exists("tracy") then
+	core.log("warning", "profiler.tracy is enabled, but `tracy` was not found. Did you build with Tracy?")
+	do_tracy = false
+end
+
+-- keep in sync with game/register.lua
 local register_functions = {
-	register_globalstep = 0,
-	register_playerevent = 0,
-	register_on_placenode = 0,
-	register_on_dignode = 0,
-	register_on_punchnode = 0,
-	register_on_generated = 0,
-	register_on_newplayer = 0,
-	register_on_dieplayer = 0,
-	register_on_respawnplayer = 0,
-	register_on_prejoinplayer = 0,
-	register_on_joinplayer = 0,
-	register_on_leaveplayer = 0,
-	register_on_cheat = 0,
-	register_on_chat_message = 0,
-	register_on_player_receive_fields = 0,
-	register_on_craft = 0,
-	register_craft_predict = 0,
-	register_on_protection_violation = 0,
-	register_on_item_eat = 0,
-	register_on_punchplayer = 0,
-	register_on_player_hpchange = 0,
-	register_on_mapblocks_changed = 0,
+	"register_on_player_hpchange",
+
+	"register_on_chat_message",
+	"register_on_chatcommand",
+	"register_globalstep",
+	"register_playerevent",
+	"register_on_mods_loaded",
+	"register_on_shutdown",
+	"register_on_punchnode",
+	"register_on_placenode",
+	"register_on_dignode",
+	"register_on_generated",
+	"register_on_newplayer",
+	"register_on_dieplayer",
+	"register_on_respawnplayer",
+	"register_on_prejoinplayer",
+	"register_on_joinplayer",
+	"register_on_leaveplayer",
+	"register_on_player_receive_fields",
+	"register_on_cheat",
+	"register_on_craft",
+	"register_craft_predict",
+	"register_on_protection_violation",
+	"register_on_item_eat",
+	"register_on_item_pickup",
+	"register_on_punchplayer",
+	"register_on_priv_grant",
+	"register_on_priv_revoke",
+	"register_on_authplayer",
+	"register_can_bypass_userlimit",
+	"register_on_modchannel_message",
+	"register_on_player_inventory_action",
+	"register_allow_player_inventory_action",
+	"register_on_rightclickplayer",
+	"register_on_liquid_transformed",
+	"register_on_mapblocks_changed",
 }
 
 local function regex_escape(s)
@@ -38,27 +60,13 @@ local function regex_escape(s)
 end
 
 ---
--- Create an unique instrument name.
--- Generate a missing label with a running index number.
+-- Format `filepath#linenumber` of function, with a relative filepath.
 --
-local counts = {}
+-- FIXME: these paths are not canonicalized (i.e. can be .../luanti/bin/..)
 local worldmods_path = regex_escape(core.get_worldpath())
 local user_path = regex_escape(core.get_user_path())
 local builtin_path = regex_escape(core.get_builtin_path())
-local function generate_name(def)
-	local class, label, func_name = def.class, def.label, def.func_name
-	if label then
-		if class or func_name then
-			return format("%s '%s' %s", class or "", label, func_name or ""):trim()
-		end
-		return format("%s", label):trim()
-	elseif label == false then
-		return format("%s", class or func_name):trim()
-	end
-
-	local index_id = def.mod .. (class or func_name)
-	local index = counts[index_id] or 1
-	counts[index_id] = index + 1
+local function generate_source_location(def)
 	local info = debug.getinfo(def.func)
 	local modpath = regex_escape(core.get_modpath(def.mod) or "")
 	local source = info.source
@@ -68,7 +76,32 @@ local function generate_name(def)
 	source = source:gsub(worldmods_path, "")
 	source = source:gsub(builtin_path, "builtin" .. DIR_DELIM)
 	source = source:gsub(user_path, "")
-	return format("%s[%d] %s#%s", class or func_name, index, source, info.linedefined)
+	return string.format("%s#%s", source, info.linedefined)
+end
+
+---
+-- Create an unique instrument name.
+-- Generate a missing label with a running index number.
+-- Returns name, name_has_source.
+--
+local generate_name_counts = {}
+local function generate_name(def)
+	local class, label, func_name = def.class, def.label, def.func_name
+	local source = generate_source_location(def)
+
+	if label then
+		if class or func_name then
+			return format("%s '%s' %s", class or "", label, func_name or ""):trim(), false
+		end
+		return format("%s", label):trim(), false
+	elseif label == false then
+		return format("%s", class or func_name):trim(), false
+	else
+		local index_id = def.mod .. (class or func_name)
+		local index = generate_name_counts[index_id] or 1
+		generate_name_counts[index_id] = index + 1
+		return format("%s[%d] %s", class or func_name, index, source), true
+	end
 end
 
 ---
@@ -78,6 +111,10 @@ end
 local time, log = core.get_us_time, sampler.log
 local function measure(modname, instrument_name, start, ...)
 	log(modname, instrument_name, time() - start)
+	return ...
+end
+local function tracy_ZoneEnd_and_return(...)
+	tracy.ZoneEnd()
 	return ...
 end
 --- Automatically instrument a function to measure and log to the sampler.
@@ -94,22 +131,38 @@ local function instrument(def)
 	end
 	def.mod = def.mod or get_current_modname() or "??"
 	local modname = def.mod
-	local instrument_name = generate_name(def)
+	local instrument_name, name_has_source = generate_name(def)
+	local instrument_name_with_source = name_has_source and instrument_name or
+		string.format("%s %s", instrument_name, generate_source_location(def))
 	local func = def.func
 
 	if not instrument_builtin and modname == "*builtin*" then
 		return func
 	end
 
-	return function(...)
-		-- This tail-call allows passing all return values of `func`
-		-- also called https://en.wikipedia.org/wiki/Continuation_passing_style
-		-- Compared to table creation and unpacking it won't lose `nil` returns
-		-- and is expected to be faster
-		-- `measure` will be executed after func(...)
-		local start = time()
-		return measure(modname, instrument_name, start, func(...))
+	-- These tail-calls allows passing all return values of `func_o`
+	-- also called https://en.wikipedia.org/wiki/Continuation_passing_style
+	-- Compared to table creation and unpacking it won't lose `nil` returns
+	-- and is expected to be faster
+	-- `tracy_ZoneEnd_and_return` / `measure` will be executed after `func_o(...)`
+
+	if do_tracy then
+		local func_o = func
+		func = function(...)
+			tracy.ZoneBeginN(instrument_name_with_source)
+			return tracy_ZoneEnd_and_return(func_o(...))
+		end
 	end
+
+	if do_measure then
+		local func_o = func
+		func = function(...)
+			local start = time()
+			return measure(modname, instrument_name, start, func_o(...))
+		end
+	end
+
+	return func
 end
 
 local function can_be_called(func)
@@ -135,7 +188,6 @@ local function instrument_register(func, func_name)
 	local register_name = func_name:gsub("^register_", "", 1)
 	return function(callback, ...)
 		assert_can_be_called(callback, func_name, 2)
-		register_functions[func_name] = register_functions[func_name] + 1
 		return func(instrument {
 			func = callback,
 			func_name = register_name
@@ -144,7 +196,7 @@ local function instrument_register(func, func_name)
 end
 
 local function init_chatcommand()
-	if get_bool_default("instrument.chatcommand", true) then
+	if core.settings:get_bool("instrument.chatcommand", true) then
 		local orig_register_chatcommand = core.register_chatcommand
 		core.register_chatcommand = function(cmd, def)
 			def.func = instrument {
@@ -160,7 +212,7 @@ end
 -- Start instrumenting selected functions
 --
 local function init()
-	if get_bool_default("instrument.entity", true) then
+	if core.settings:get_bool("instrument.entity", true) then
 		-- Explicitly declare entity api-methods.
 		-- Simple iteration would ignore lookup via __index.
 		local entity_instrumentation = {
@@ -168,26 +220,30 @@ local function init()
 			"on_deactivate",
 			"on_step",
 			"on_punch",
+			"on_death",
 			"on_rightclick",
+			"on_attach_child",
+			"on_detach_child",
+			"on_detach",
 			"get_staticdata",
 		}
 		-- Wrap register_entity() to instrument them on registration.
 		local orig_register_entity = core.register_entity
-		core.register_entity = function(name, prototype)
+		core.register_entity = function(name, def)
 			local modname = get_current_modname()
-			for _, func_name in pairs(entity_instrumentation) do
-				prototype[func_name] = instrument {
-					func = prototype[func_name],
+			for _, func_name in ipairs(entity_instrumentation) do
+				def[func_name] = instrument {
+					func = def[func_name],
 					mod = modname,
 					func_name = func_name,
-					label = prototype.label,
+					label = name,
 				}
 			end
-			orig_register_entity(name,prototype)
+			orig_register_entity(name, def)
 		end
 	end
 
-	if get_bool_default("instrument.abm", true) then
+	if core.settings:get_bool("instrument.abm", true) then
 		-- Wrap register_abm() to automatically instrument abms.
 		local orig_register_abm = core.register_abm
 		core.register_abm = function(spec)
@@ -200,7 +256,7 @@ local function init()
 		end
 	end
 
-	if get_bool_default("instrument.lbm", true) then
+	if core.settings:get_bool("instrument.lbm", true) then
 		-- Wrap register_lbm() to automatically instrument lbms.
 		local orig_register_lbm = core.register_lbm
 		core.register_lbm = function(spec)
@@ -214,13 +270,13 @@ local function init()
 		end
 	end
 
-	if get_bool_default("instrument.global_callback", true) then
-		for func_name, _ in pairs(register_functions) do
+	if core.settings:get_bool("instrument.global_callback", true) then
+		for _, func_name in ipairs(register_functions) do
 			core[func_name] = instrument_register(core[func_name], func_name)
 		end
 	end
 
-	if get_bool_default("instrument.profiler", false) then
+	if core.settings:get_bool("instrument.profiler", false) then
 		-- Measure overhead of instrumentation, but keep it down for functions
 		-- So keep the `return` for better optimization.
 		profiler.empty_instrument = instrument {
@@ -233,7 +289,6 @@ local function init()
 end
 
 return {
-	register_functions = register_functions,
 	instrument = instrument,
 	init = init,
 	init_chatcommand = init_chatcommand,
