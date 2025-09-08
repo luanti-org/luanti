@@ -979,14 +979,10 @@ void Client::handleCommand_SpawnParticleBatch(NetworkPacket *pkt)
 
 	while (particle_data.peek() != EOF) {
 		auto p = std::make_unique<ParticleParameters>();
-		u32 particle_data_len = readU32(particle_data);
-		std::string particle_data_str;
-		particle_data_str.resize(particle_data_len);
-		particle_data.read(&particle_data_str[0], particle_data_len);
-		if (!particle_data)
-			throw PacketError("reading particle data failed");
-		std::istringstream particle_data_is(particle_data_str, std::ios::binary);
-		p->deSerialize(particle_data_is, m_proto_ver);
+		{
+			std::istringstream(deSerializeString32(particle_data), std::ios::binary);
+			p->deSerialize(particle_data, m_proto_ver);
+		}
 
 		ClientEvent *event = new ClientEvent();
 		event->type = CE_SPAWN_PARTICLE;
