@@ -8,8 +8,10 @@
 #include "script/cpp_api/s_base.h"
 #include "script/lua_api/l_util.h"
 #include "script/lua_api/l_settings.h"
+#include "script/common/helper.h"
 #include "script/common/c_converter.h"
 #include "irrlicht_changes/printing.h"
+#include "util/string.h"
 #include "server.h"
 
 namespace {
@@ -17,11 +19,11 @@ namespace {
 	public:
 		MyScriptApi() : ScriptApiBase(ScriptingType::Async) {};
 		void init();
-		using ScriptApiBase::getStack;
+		using ScriptApiBase::getStack; // make public
 	};
 }
 
-class TestScriptApi : public TestBase
+class TestScriptApi : public TestBase, LuaHelper
 {
 public:
 	TestScriptApi() { TestManager::registerTestModule(this); }
@@ -33,6 +35,7 @@ public:
 	void testVectorRead(MyScriptApi *script);
 	void testVectorReadErr(MyScriptApi *script);
 	void testVectorReadMix(MyScriptApi *script);
+	void testStripEscapes(MyScriptApi *script);
 };
 
 static TestScriptApi g_test_instance;
@@ -73,6 +76,7 @@ void TestScriptApi::runTests(IGameDef *gamedef)
 	TEST(testVectorRead, &script);
 	TEST(testVectorReadErr, &script);
 	TEST(testVectorReadMix, &script);
+	TEST(testStripEscapes, &script);
 }
 
 // Runs Lua code and leaves `nresults` return values on the stack
@@ -192,5 +196,47 @@ void TestScriptApi::testVectorReadMix(MyScriptApi *script)
 		(void)read_v3s16(L, -1);
 		EXCEPTION_CHECK(LuaError, check_v3s16(L, -1));
 		lua_pop(L, 1);
+	}
+}
+
+void TestScriptApi::testStripEscapes(MyScriptApi *script)
+{
+	lua_State *L = script->getStack();
+	StackUnroller unroller(L);
+
+	const auto &call_strip_escapes = [&] (std::string_view str) -> std::string {
+		lua_pushlstring(L, str.data(), str.size());
+		lua_setglobal(L, "tmp");
+		run(L, "return core.strip_escapes(tmp)", 1);
+		auto ret = readParam<std::string>(L, -1);
+		lua_pop(L, 1);
+		return ret;
+	};
+
+	const char *cases[] = {
+		"luonti",
+		"\x1bX",
+		"\x1b(simple)",
+		"\x1b(complex\\)shit)",
+		"\x1b(not\\\\)",
+	};
+	const char *patterns[] = {
+		"#",
+		"foo#", // with prefix
+		"#bar", // with suffix
+		"#1#2#", // multiple
+		"\\#", // special edge case/implementation detail
+	};
+	for (auto &case_ : cases) {
+		std::string s, r1, r2;
+		for (auto &pattern_ : patterns) {
+			s = pattern_;
+			str_replace(s, "#", case_);
+			r1 = call_strip_escapes(s);
+			// unescape_enriched is already unit-tested elsewhere, so we can trust it here
+			r2 = unescape_enriched(s);
+			UASSERTEQ(auto, r1, r2);
+			//rawstream << '"' << s << "\" \"" << r1 << "\" \"" << r2 << "\"\n";
+		}
 	}
 }

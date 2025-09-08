@@ -598,21 +598,19 @@ std::basic_string<T> unescape_enriched(const std::basic_string<T> &s)
 	output.reserve(s.size());
 	size_t i = 0;
 	while (i < s.length()) {
-		if (s[i] == '\x1b') {
+		if (s[i] == static_cast<T>('\x1b')) {
 			++i;
-			if (i == s.length()) continue;
-			if (s[i] == '(') {
+			if (i == s.length())
+				continue;
+			if (s[i] == static_cast<T>('(')) {
 				++i;
-				while (i < s.length() && s[i] != ')') {
-					if (s[i] == '\\') {
+				while (i < s.length() && s[i] != static_cast<T>(')')) {
+					if (s[i] == static_cast<T>('\\'))
 						++i;
-					}
 					++i;
 				}
-				++i;
-			} else {
-				++i;
 			}
+			++i;
 			continue;
 		}
 		output += s[i];

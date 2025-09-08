@@ -658,7 +658,7 @@ function core.colorize(color, message)
 		lines[i] = color_code .. line
 	end
 
-	return table.concat(lines, "\n") .. core.get_color_escape_sequence("#ffffff")
+	return table.concat(lines, "\n") .. core.get_color_escape_sequence("#fff")
 end
 
 
@@ -673,6 +673,44 @@ end
 function core.strip_colors(str)
 	return (str:gsub(ESCAPE_CHAR .. "%([bc]@[^)]+%)", ""))
 end
+
+
+function core.strip_escapes(str)
+	-- Check if the we can skip the complex code path, this should be worth it
+	if string_find(str, "\\", 1, true) == nil then
+		return (str:gsub(ESCAPE_CHAR .. "%([^)]+%)", ""):gsub(ESCAPE_CHAR .. ".", ""))
+	end
+
+	local ret = {}
+	local last_i = 0
+	while true do
+		local i = string_find(str, ESCAPE_CHAR, last_i+1, true)
+		if i == nil then
+			ret[#ret+1] = string_sub(str, last_i)
+			break
+		end
+		ret[#ret+1] = string_sub(str, last_i, i - 1)
+		i = i + 1
+		local c = string_sub(str, i, i)
+		i = i + 1
+		if c == "(" then -- bracketed escape
+			i = i + 1
+			while true do
+				c = string_sub(str, i, i)
+				i = i + 1
+				if c == "" or c == ")" then
+					break
+				elseif c == "\\" then
+					i = i + 1 -- don't interpret next
+				end
+			end
+		end
+		-- now moved past the escape sequence, continue splitting
+		last_i = i
+	end
+	return table.concat(ret, "")
+end
+
 
 local function translate(textdomain, str, num, ...)
 	local start_seq

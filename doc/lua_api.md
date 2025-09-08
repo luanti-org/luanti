@@ -3920,10 +3920,8 @@ The following functions provide escape sequences:
     * `color` is a ColorString
     * The escape sequence sets the text color to `color`
 * `core.colorize(color, message)`:
-    * Equivalent to:
-      `core.get_color_escape_sequence(color) ..
-      message ..
-      core.get_color_escape_sequence("#ffffff")`
+    * Equivalent to including the right color escape sequence in the front,
+      and resetting to `#fff` after the text (plus newline handling).
 * `core.get_background_escape_sequence(color)`
     * `color` is a ColorString
     * The escape sequence sets the background of the whole text element to
@@ -3934,6 +3932,10 @@ The following functions provide escape sequences:
     * Removes background colors added by `get_background_escape_sequence`.
 * `core.strip_colors(str)`
     * Removes all color escape sequences.
+* `core.strip_escapes(str)`
+    * Removes all escape sequences, including client-side translations and
+      any unknown or future escape sequences that Luanti might define.
+    * You can use this to clean text before logging or handing to an external system.
 
 
 Coordinate System
