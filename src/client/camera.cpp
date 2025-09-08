@@ -631,7 +631,12 @@ void Camera::drawNametags()
 	core::matrix4 trans = m_cameranode->getProjectionMatrix();
 	trans *= m_cameranode->getViewMatrix();
 
-	const u32 default_font_size = g_fontengine->getFontSize(FM_Unspecified);
+	// This isn't the actual size, just a placeholder so we can easily apply
+	// the user's font size preference...
+	const u32 default_font_size = 16;
+	// ...by multiplying this in.
+	const float font_size_mult = g_fontengine->getFontSize(FM_Unspecified) / (float)default_font_size;
+
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	v2u32 screensize = driver->getScreenSize();
 
@@ -649,9 +654,10 @@ void Camera::drawNametags()
 			// Higher default since nametag should be reasonably visible
 			// even at distance.
 			u32 base_size = nametag->textsize.value_or(default_font_size * 4);
-			font_size = rangelim(base_size * BS * zDiv, 0, base_size);
+			font_size = myround(font_size_mult *
+				rangelim(base_size * BS * zDiv, 0, base_size));
 		} else {
-			font_size = nametag->textsize.value_or(default_font_size);
+			font_size = myround(font_size_mult * nametag->textsize.value_or(default_font_size));
 		}
 		if (font_size <= 1)
 			continue;
