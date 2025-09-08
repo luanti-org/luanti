@@ -288,6 +288,8 @@ enum ToClientCommand : u16
 
 	TOCLIENT_SPAWN_PARTICLE = 0x46,
 	/*
+		ParticleParameters params:
+
 		using range<T> = RangedParameter<T> {
 			T min, max
 			f32 bias
@@ -692,7 +694,14 @@ enum ToClientCommand : u16
 			f32 center_weight_power
 	*/
 
-	TOCLIENT_NUM_MSG_TYPES = 0x64,
+	TOCLIENT_SPAWN_PARTICLE_BATCH = 0x64,
+	/*
+		std::string data, zstd-compressed, for each particle:
+			u32 len
+			u8[len] serialized ParticleParameters
+	*/
+
+	TOCLIENT_NUM_MSG_TYPES = 0x65,
 };
 
 enum ToServerCommand : u16

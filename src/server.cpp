@@ -3,9 +3,6 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "server.h"
-#include <iostream>
-#include <queue>
-#include <algorithm>
 #include "irr_v2d.h"
 #include "network/connection.h"
 #include "network/networkpacket.h"
@@ -65,6 +62,10 @@
 #include "gettext.h"
 #include "util/tracy_wrapper.h"
 
+#include <iostream>
+#include <queue>
+#include <algorithm>
+#include <sstream>
 #include <csignal>
 
 class ClientNotFoundException : public BaseException
@@ -804,6 +805,12 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		counter += dtime;
 	}
 #endif
+
+	// Send queued particles
+	{
+		EnvAutoLock envlock(this);
+		SendSpawnParticles();
+	}
 
 	/*
 		Check added and deleted active objects
@@ -1603,47 +1610,74 @@ void Server::SendShowFormspecMessage(session_t peer_id, const std::string &forms
 	Send(&pkt);
 }
 
-// Spawns a particle on peer with peer_id
-void Server::SendSpawnParticle(session_t peer_id, u16 protocol_version,
-	const ParticleParameters &p)
+void Server::SendSpawnParticles(RemotePlayer *player,
+		const std::vector<ParticleParameters> &particles)
 {
 	static thread_local const float radius =
-			g_settings->getS16("max_block_send_distance") * MAP_BLOCKSIZE * BS;
+		g_settings->getS16("max_block_send_distance") * MAP_BLOCKSIZE * BS;
+	const float radius_sq = radius * radius;
 
-	if (peer_id == PEER_ID_INEXISTENT) {
-		std::vector<session_t> clients = m_clients.getClientIDs();
-		const v3f pos = p.pos * BS;
-		const float radius_sq = radius * radius;
-
-		for (const session_t client_id : clients) {
-			RemotePlayer *player = m_env->getPlayer(client_id);
-			if (!player)
-				continue;
-
-			PlayerSAO *sao = player->getPlayerSAO();
-			if (!sao)
-				continue;
-
-			// Do not send to distant clients
-			if (sao->getBasePosition().getDistanceFromSQ(pos) > radius_sq)
-				continue;
-
-			SendSpawnParticle(client_id, player->protocol_version, p);
-		}
+	PlayerSAO *sao = player->getPlayerSAO();
+	if (!sao)
 		return;
+
+	RemoteClient *client = m_clients.getClientNoEx(player->getPeerId());
+	if (!client)
+		return;
+
+	std::ostringstream particle_batch_data(std::ios_base::binary);
+	for (const auto &particle : particles) {
+		if (sao->getBasePosition().getDistanceFromSQ(particle.pos * BS) > radius_sq)
+			continue; // out of range
+
+		std::ostringstream particle_data(std::ios_base::binary);
+		particle.serialize(particle_data, player->protocol_version);
+		std::string particle_data_str = particle_data.str();
+		SANITY_CHECK(particle_data_str.size() < U32_MAX);
+		if (player->protocol_version < 50) {
+			// Client only supports TOCLIENT_SPAWN_PARTICLE,
+			// so turn the written particle into a packet immediately
+			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, particle_data.tellp(), player->getPeerId());
+			pkt.putRawString(particle_data_str);
+			Send(&pkt);
+		} else {
+			writeU32(particle_batch_data, particle_data_str.size());
+			particle_batch_data << particle_data_str;
+		}
 	}
-	assert(protocol_version != 0);
 
-	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, 0, peer_id);
+	if (particle_batch_data.tellp() == 0)
+		return; // no batch to send
 
-	{
-		// NetworkPacket and iostreams are incompatible...
-		std::ostringstream oss(std::ios_base::binary);
-		p.serialize(oss, protocol_version);
-		pkt.putRawString(oss.str());
-	}
+	// Client supports TOCLIENT_SPAWN_PARTICLE_BATCH
+	assert(player->protocol_version >= 50);
+	std::ostringstream compressed(std::ios_base::binary);
+	compressZstd(particle_batch_data.str(), compressed);
 
+	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE_BATCH,
+			4 + compressed.tellp(), player->getPeerId());
+	pkt.putLongString(compressed.str());
 	Send(&pkt);
+}
+
+void Server::SendSpawnParticles()
+{
+	for (const auto &[pname, particles] : m_particles_to_send) {
+		if (pname.empty())
+			continue; // sent to all clients
+
+		RemotePlayer *player = m_env->getPlayer(pname.c_str());
+		if (!player)
+			continue;
+
+		SendSpawnParticles(player, particles);
+	}
+
+	for (auto *player : m_env->getPlayers()) {
+		SendSpawnParticles(player, m_particles_to_send[""]);
+	}
+
+	m_particles_to_send.clear();
 }
 
 // Adds a ParticleSpawner on peer with peer_id
@@ -3605,17 +3639,7 @@ void Server::spawnParticle(const std::string &playername,
 	if (!m_env)
 		return;
 
-	session_t peer_id = PEER_ID_INEXISTENT;
-	u16 proto_ver = 0;
-	if (!playername.empty()) {
-		RemotePlayer *player = m_env->getPlayer(playername.c_str());
-		if (!player)
-			return;
-		peer_id = player->getPeerId();
-		proto_ver = player->protocol_version;
-	}
-
-	SendSpawnParticle(peer_id, proto_ver, p);
+	m_particles_to_send[playername].push_back(p);
 }
 
 u32 Server::addParticleSpawner(const ParticleSpawnerParameters &p,
