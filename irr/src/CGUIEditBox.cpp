@@ -59,6 +59,9 @@ CGUIEditBox::CGUIEditBox(const wchar_t *text, bool border,
 //! destructor
 CGUIEditBox::~CGUIEditBox()
 {
+	if (VScrollBar)
+		VScrollBar->drop();
+
 	if (OverrideFont)
 		OverrideFont->drop();
 
@@ -721,17 +724,21 @@ void CGUIEditBox::draw()
 	if (!skin)
 		return;
 
-	EGUI_DEFAULT_COLOR bgCol = EGDC_GRAY_EDITABLE;
-	if (isEnabled())
-		bgCol = focus ? EGDC_FOCUSED_EDITABLE : EGDC_EDITABLE;
+	video::SColor bgColor = OverrideBgColor;
+	if (OverrideBgColor.color == 0) {
+		EGUI_DEFAULT_COLOR bgCol = EGDC_GRAY_EDITABLE;
+		if (isEnabled())
+			bgCol = focus ? EGDC_FOCUSED_EDITABLE : EGDC_EDITABLE;
+		bgColor = skin->getColor(bgCol);
+	}
 
 	if (!Border && Background) {
-		skin->draw2DRectangle(this, skin->getColor(bgCol), AbsoluteRect, &AbsoluteClippingRect);
+		skin->draw2DRectangle(this, bgColor, AbsoluteRect, &AbsoluteClippingRect);
 	}
 
 	if (Border && IsWritable) {
 		// draw the border
-		skin->draw3DSunkenPane(this, skin->getColor(bgCol), false, Background, AbsoluteRect, &AbsoluteClippingRect);
+		skin->draw3DSunkenPane(this, bgColor, false, Background, AbsoluteRect, &AbsoluteClippingRect);
 	}
 
 	calculateFrameRect();
@@ -1029,6 +1036,14 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 				return true;
 			}
 		}
+	case EMIE_MOUSE_WHEEL:
+		if (VScrollBar && VScrollBar->isVisible()) {
+			s32 pos = VScrollBar->getTargetPos();
+			s32 step = VScrollBar->getSmallStep();
+			VScrollBar->setPosInterpolated(pos - event.MouseInput.Wheel * step);
+			return true;
+		}
+		break;
 	case EMIE_MMOUSE_PRESSED_DOWN: {
 		if (!AbsoluteClippingRect.isPointInside(core::position2d<s32>(
 					event.MouseInput.X, event.MouseInput.Y)))
@@ -1127,7 +1142,9 @@ void CGUIEditBox::breakText()
 	s32 lastLineStart = 0;
 	s32 size = Text.size();
 	s32 length = 0;
-	s32 elWidth = RelativeRect.getWidth() - 6;
+	s32 elWidth = RelativeRect.getWidth() - 10;
+	if (VScrollBar)
+		elWidth -= VScrollBarWidth;
 	wchar_t c;
 
 	for (s32 i = 0; i < size; ++i) {
@@ -1462,6 +1479,10 @@ void CGUIEditBox::calculateScrollPos()
 			}
 		}
 	}
+
+	if (VScrollBar) {
+		VScrollBar->setPos(VScrollPos);
+	}
 }
 
 void CGUIEditBox::calculateFrameRect()
@@ -1476,6 +1497,8 @@ void CGUIEditBox::calculateFrameRect()
 		FrameRect.LowerRightCorner.X -= skin->getSize(EGDS_TEXT_DISTANCE_X) + 1;
 		FrameRect.LowerRightCorner.Y -= skin->getSize(EGDS_TEXT_DISTANCE_Y) + 1;
 	}
+
+	updateVScrollBar();
 }
 
 //! set text markers
