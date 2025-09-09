@@ -51,6 +51,11 @@ public:
 
 	//! sets the current position of the scrollbar
 	virtual void setPos(s32 pos) = 0;
+
+	//! For automatic thumb scaling
+	/** Sets the full height (e.g. content to scroll), in pixels.
+	Set to 0 to disable (default). */
+	virtual void setPageSize(s32 size) = 0;
 };
 
 } // end namespace gui

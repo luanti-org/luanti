@@ -59,6 +59,9 @@ public:
 	//! sets the position of the scrollbar
 	void setPos(s32 pos) override;
 
+	//! sets the content height to scroll
+	void setPageSize(s32 size) override { }
+
 	//! updates the rectangle
 	void updateAbsolutePosition() override;
 

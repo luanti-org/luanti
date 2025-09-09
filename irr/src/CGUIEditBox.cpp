@@ -7,6 +7,7 @@
 #include "IGUISkin.h"
 #include "IGUIEnvironment.h"
 #include "IGUIFont.h"
+#include "IGUIScrollBar.h"
 #include "IVideoDriver.h"
 #include "rect.h"
 #include "os.h"
@@ -1509,6 +1510,54 @@ void CGUIEditBox::sendGuiEvent(EGUI_EVENT_TYPE type)
 		e.GUIEvent.EventType = type;
 
 		Parent->OnEvent(e);
+	}
+}
+
+void CGUIEditBox::updateVScrollBar()
+{
+	if (!VScrollBar) {
+		return;
+	}
+
+	// OnScrollBarChanged(...)
+	if (VScrollBar->getPos() != VScrollPos) {
+		s32 deltaScrollY = VScrollBar->getPos() - VScrollPos;
+		CurrentTextRect.UpperLeftCorner.Y -= deltaScrollY;
+		CurrentTextRect.LowerRightCorner.Y -= deltaScrollY;
+
+		s32 scrollymax = getTextDimension().Height - FrameRect.getHeight();
+		if (scrollymax != VScrollBar->getMax()) {
+			// manage a newline or a deleted line
+			VScrollBar->setMax(scrollymax);
+			VScrollBar->setPageSize(s32(getTextDimension().Height));
+			calculateScrollPos();
+		} else {
+			// manage a newline or a deleted line
+			VScrollPos = VScrollBar->getPos();
+		}
+	}
+
+	// check if a vertical scrollbar is needed ?
+	if (getTextDimension().Height > (u32)FrameRect.getHeight()) {
+		FrameRect.LowerRightCorner.X -= VScrollBarWidth;
+
+		s32 scrollymax = getTextDimension().Height - FrameRect.getHeight();
+		if (scrollymax != VScrollBar->getMax()) {
+			VScrollBar->setMax(scrollymax);
+			VScrollBar->setPageSize(s32(getTextDimension().Height));
+		}
+
+		if (!VScrollBar->isVisible()) {
+			VScrollBar->setVisible(true);
+		}
+	} else {
+		if (VScrollBar->isVisible()) {
+			VScrollBar->setVisible(false);
+			VScrollPos = 0;
+			VScrollBar->setPos(0);
+			VScrollBar->setMax(1);
+			VScrollBar->setPageSize(s32(getTextDimension().Height));
+		}
 	}
 }
 
