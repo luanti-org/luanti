@@ -8,10 +8,8 @@
 #include "script/cpp_api/s_base.h"
 #include "script/lua_api/l_util.h"
 #include "script/lua_api/l_settings.h"
-#include "script/common/helper.h"
 #include "script/common/c_converter.h"
 #include "irrlicht_changes/printing.h"
-#include "util/string.h"
 #include "server.h"
 
 namespace {
@@ -23,7 +21,7 @@ namespace {
 	};
 }
 
-class TestScriptApi : public TestBase, LuaHelper
+class TestScriptApi : public TestBase
 {
 public:
 	TestScriptApi() { TestManager::registerTestModule(this); }
@@ -196,4 +194,3 @@ void TestScriptApi::testVectorReadMix(MyScriptApi *script)
 		lua_pop(L, 1);
 	}
 }
-
