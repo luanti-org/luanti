@@ -387,3 +387,4 @@ local function bench(fun)
 	print(("Time per loop: %.1fus"):format((t1-t0) / N))
 end
 unittests.register("bench_strip_escapes", function() bench(core.strip_escapes) end)
+unittests.register("bench_strip_escapes2", function() bench(core.strip_escapes2) end)

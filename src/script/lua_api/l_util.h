@@ -127,6 +127,8 @@ private:
 	// is_valid_player_name(name)
 	static int l_is_valid_player_name(lua_State *L);
 
+	static int l_strip_escapes2(lua_State *L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 	static void InitializeAsync(lua_State *L, int top);

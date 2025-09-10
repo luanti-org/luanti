@@ -695,6 +695,45 @@ int ModApiUtil::l_is_valid_player_name(lua_State *L)
 	return 1;
 }
 
+// created a copy here to be able to use a string view
+template <typename T>
+static std::basic_string<T> unescape_enriched(std::basic_string_view<T> s)
+{
+	std::basic_string<T> output;
+	output.reserve(s.size());
+	size_t i = 0;
+	while (i < s.length()) {
+		if (s[i] == static_cast<T>('\x1b')) {
+			++i;
+			if (i == s.length())
+				continue;
+			if (s[i] == static_cast<T>('(')) {
+				++i;
+				while (i < s.length() && s[i] != static_cast<T>(')')) {
+					if (s[i] == static_cast<T>('\\'))
+						++i;
+					++i;
+				}
+			}
+			++i;
+			continue;
+		}
+		output += s[i];
+		++i;
+	}
+	return output;
+}
+
+int ModApiUtil::l_strip_escapes2(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	auto s = readParam<std::string_view>(L, 1);
+	auto r = unescape_enriched(s);
+	lua_pushlstring(L, r.c_str(), r.size());
+	return 1;
+}
+
 void ModApiUtil::Initialize(lua_State *L, int top)
 {
 	API_FCT(log);
@@ -746,6 +785,7 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 
 	API_FCT(urlencode);
 	API_FCT(is_valid_player_name);
+	API_FCT(strip_escapes2);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
