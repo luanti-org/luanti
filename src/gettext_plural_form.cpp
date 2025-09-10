@@ -3,6 +3,7 @@
 
 #include "gettext_plural_form.h"
 #include "util/string.h"
+#include <type_traits>
 
 static size_t minsize(const GettextPluralForm::Ptr &form)
 {
@@ -95,11 +96,11 @@ typedef ParserResult (*Parser)(const size_t, std::wstring_view);
 static ParserResult parse_expr(const size_t nplurals, std::wstring_view str);
 
 template<Parser Parser, template<typename> typename Operator>
-static ParserResult reduce_ltr(const size_t nplurals, const ParserResult &res, const wchar_t* pattern)
+static ParserResult reduce_ltr_single(const size_t nplurals, const ParserResult &res, const std::wstring &pattern)
 {
 	if (!str_starts_with(res.second, pattern))
 		return ParserResult(nullptr, res.second);
-	auto next = Parser(nplurals, trim(res.second.substr(std::char_traits<wchar_t>::length(pattern))));
+	auto next = Parser(nplurals, trim(res.second.substr(pattern.size())));
 	if (!next.first)
 		return next;
 	next.first = GettextPluralForm::Ptr(new BinaryOperation<Operator>(res.first, next.first));
@@ -108,29 +109,29 @@ static ParserResult reduce_ltr(const size_t nplurals, const ParserResult &res, c
 }
 
 template<Parser Parser>
-static ParserResult reduce_ltr(const size_t nplurals, const ParserResult &res, const wchar_t**)
+static ParserResult reduce_ltr(const size_t nplurals, const ParserResult &res)
 {
 	return ParserResult(nullptr, res.second);
 }
 
 template<Parser Parser, template<typename> typename Operator, template<typename> typename... Operators>
-static ParserResult reduce_ltr(const size_t nplurals, const ParserResult &res, const wchar_t** patterns)
+static ParserResult reduce_ltr(const size_t nplurals, const ParserResult &res, const std::wstring &pattern, const typename std::conditional<1,std::wstring,Operators<GettextPluralForm::NumT>>::type&... patterns)
 {
-	auto next = reduce_ltr<Parser, Operator>(nplurals, res, patterns[0]);
+	auto next = reduce_ltr_single<Parser, Operator>(nplurals, res, pattern);
 	if (next.first || next.second != res.second)
 		return next;
-	return reduce_ltr<Parser, Operators...>(nplurals, res, patterns+1);
+	return reduce_ltr<Parser, Operators...>(nplurals, res, patterns...);
 }
 
-template<Parser Parser, template<typename> typename Operator, template<typename> typename... Operators>
-static ParserResult parse_ltr(const size_t nplurals, std::wstring_view str, const wchar_t** patterns)
+template<Parser Parser, template<typename> typename... Operators>
+static ParserResult parse_ltr(const size_t nplurals, std::wstring_view str, const typename std::conditional<1,std::wstring,Operators<GettextPluralForm::NumT>>::type&... patterns)
 {
 	auto &&pres = Parser(nplurals, str);
 	if (!pres.first)
 		return pres;
 	pres.second = trim(pres.second);
 	while (!pres.second.empty()) {
-		auto next = reduce_ltr<Parser, Operator, Operators...>(nplurals, pres, patterns);
+		auto next = reduce_ltr<Parser, Operators...>(nplurals, pres, patterns...);
 		if (!next.first)
 			return pres;
 		next.second = trim(next.second);
@@ -181,38 +182,32 @@ static ParserResult parse_negation(const size_t nplurals, std::wstring_view str)
 
 static ParserResult parse_multiplicative(const size_t nplurals, std::wstring_view str)
 {
-	static const wchar_t *patterns[] = { L"*", L"/", L"%" };
-	return parse_ltr<parse_negation, std::multiplies, std::divides, std::modulus>(nplurals, str, patterns);
+	return parse_ltr<parse_negation, std::multiplies, std::divides, std::modulus>(nplurals, str, L"*", L"/", L"%");
 }
 
 static ParserResult parse_additive(const size_t nplurals, std::wstring_view str)
 {
-	static const wchar_t *patterns[] = { L"+", L"-" };
-	return parse_ltr<parse_multiplicative, std::plus, std::minus>(nplurals, str, patterns);
+	return parse_ltr<parse_multiplicative, std::plus, std::minus>(nplurals, str, L"+", L"-");
 }
 
 static ParserResult parse_comparison(const size_t nplurals, std::wstring_view str)
 {
-	static const wchar_t *patterns[] = { L"<=", L">=", L"<", L">" };
-	return parse_ltr<parse_additive, std::less_equal, std::greater_equal, std::less, std::greater>(nplurals, str, patterns);
+	return parse_ltr<parse_additive, std::less_equal, std::greater_equal, std::less, std::greater>(nplurals, str, L"<=", L">=", L"<", L">");
 }
 
 static ParserResult parse_equality(const size_t nplurals, std::wstring_view str)
 {
-	static const wchar_t *patterns[] = { L"==", L"!=" };
-	return parse_ltr<parse_comparison, std::equal_to, std::not_equal_to>(nplurals, str, patterns);
+	return parse_ltr<parse_comparison, std::equal_to, std::not_equal_to>(nplurals, str, L"==", L"!=");
 }
 
 static ParserResult parse_conjunction(const size_t nplurals, std::wstring_view str)
 {
-	static const wchar_t *and_pattern[] = { L"&&" };
-	return parse_ltr<parse_equality, std::logical_and>(nplurals, str, and_pattern);
+	return parse_ltr<parse_equality, std::logical_and>(nplurals, str, L"&&");
 }
 
 static ParserResult parse_disjunction(const size_t nplurals, std::wstring_view str)
 {
-	static const wchar_t *or_pattern[] = { L"||" };
-	return parse_ltr<parse_conjunction, std::logical_or>(nplurals, str, or_pattern);
+	return parse_ltr<parse_conjunction, std::logical_or>(nplurals, str, L"||");
 }
 
 static ParserResult parse_ternary(const size_t nplurals, std::wstring_view str)
