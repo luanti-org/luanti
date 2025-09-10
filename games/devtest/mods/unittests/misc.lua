@@ -342,3 +342,48 @@ local function test_ipc_poll(cb)
 	print("delta: " .. (core.get_us_time() - t0) .. "us")
 end
 unittests.register("test_ipc_poll", test_ipc_poll)
+
+local test_str = {}
+do
+	local S = core.get_translator("foo")
+	local words = {}
+	for w in ([[
+	Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+	sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+	no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet,
+	consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+	sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
+	]]):gmatch("%w+") do
+		words[#words+1] = w
+	end
+	local rand = PcgRandom(1337+420)
+	for i = 5, 25 do
+		local t = {}
+		for j = 1, i do
+			local s = words[rand:next(1, #words)]
+			if rand:next(1,5) == 1 then
+				s = S(s)
+			end
+			t[#t+1] = s
+			t[#t+1] = s .. "  \\" -- trigger special code path
+		end
+		test_str[#test_str+1] = table.concat(t, " ")
+	end
+end
+
+local function bench(fun)
+	print("Warming up...")
+	local N = 500000
+	for i = 1, N do
+		fun(test_str[i % #test_str + 1])
+	end
+	print("Testing...")
+	local t0 = core.get_us_time()
+	local x = 0
+	for i = 1, N do
+		x = x + #fun(test_str[i % #test_str + 1])
+	end
+	local t1 = core.get_us_time()
+	print(("Time per loop: %.1fus"):format((t1-t0) / N))
+end
+unittests.register("bench_strip_escapes", function() bench(core.strip_escapes) end)

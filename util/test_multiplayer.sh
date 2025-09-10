@@ -10,7 +10,7 @@ conf_server=$testspath/server.conf
 worldpath=$testspath/world
 
 waitfor () {
-	n=30
+	n=300
 	while [ $n -gt 0 ]; do
 		[ -f "$1" ] && return 0
 		sleep 0.5
