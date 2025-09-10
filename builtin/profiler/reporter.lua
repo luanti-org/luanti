@@ -182,7 +182,7 @@ local function format_statistics(profile, format, filter, enable_translation)
 	formatter:format(filter)
 	local out = formatter:flush()
 	if not enable_translation then
-		out = core.get_translated_string("en", out)
+		out = core.strip_escapes(out)
 	end
 	return out
 end
