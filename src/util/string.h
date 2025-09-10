@@ -592,7 +592,7 @@ inline std::basic_string<T> unescape_string(const std::basic_string<T> &s)
  */
 template <typename T>
 [[nodiscard]]
-std::basic_string<T> unescape_enriched(const std::basic_string<T> &s)
+std::basic_string<T> unescape_enriched(std::basic_string_view<T> s)
 {
 	std::basic_string<T> output;
 	output.reserve(s.size());
@@ -617,6 +617,18 @@ std::basic_string<T> unescape_enriched(const std::basic_string<T> &s)
 		++i;
 	}
 	return output;
+}
+
+// (same templating issue here)
+[[nodiscard]]
+inline std::string unescape_enriched(std::string_view s)
+{
+	return unescape_enriched<char>(s);
+}
+[[nodiscard]]
+inline std::wstring unescape_enriched(std::wstring_view s)
+{
+	return unescape_enriched<wchar_t>(s);
 }
 
 template <typename T>
