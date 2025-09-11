@@ -20,9 +20,8 @@ public:
 		return nplurals;
 	};
 
-	// Note that this function does not perform any bounds check.
-	// The number of plural translations provided by the translation file may deviate from nplurals,
-	// so it is up to the caller to perform the bounds check.
+	// Note that this function does not perform any bounds check as the number of plural
+	// translations provided by the translation file may deviate from nplurals,
 	NumT operator()(const NumT n) const {
 		return func ? func(n) : 0;
 	}
