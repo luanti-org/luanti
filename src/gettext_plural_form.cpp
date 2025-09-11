@@ -4,7 +4,7 @@
 /* This file implements a recursive descent parser for gettext plural forms.
  * Left recursion (for left-associative operators) is implemented by parse_ltr, which iteratively attempts to reduce
  * expressions from operations of the same precedence. This should not be confused with reduce_ltr, which recurses
- * though a list of operators with the same precedence (not the input string!) to search for a match.
+ * through a list of operators with the same precedence (not the input string!) to search for a match.
  * Note that this only implements a subset of C expressions. See:
  * https://git.savannah.gnu.org/gitweb/?p=gettext.git;a=blob;f=gettext-runtime/intl/plural.y
  */
