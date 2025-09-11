@@ -40,7 +40,7 @@
 #include "IGUIFont.h"
 #include "IVideoDriver.h"
 #include "IrrlichtDevice.h"
-#include "util/enriched_string.h"
+#include "enriched_string.h"
 #include "util/basic_macros.h"
 
 #include <map>
