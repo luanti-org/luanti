@@ -26,8 +26,17 @@ TEST_CASE("test translations")
 	SECTION("Plural-Forms function for translations")
 	{
 #define REQUIRE_FORM_SIZE(x) {REQUIRE(form); REQUIRE(form.size() == (x));}
+		// Basic test cases
+		auto form = GettextPluralForm(L"Plural-Forms: nplurals=2; plural=1;");
+		REQUIRE_FORM_SIZE(2);
+		CHECK(form(0) == 1);
+
+		form = GettextPluralForm(L"");
+		REQUIRE(form.size() == 0);
+		CHECK(form(0) == 0);
+
 		// Test cases from https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html
-		auto form = GettextPluralForm(L"Plural-Forms: nplurals=2; plural=n != 1;");
+		form = GettextPluralForm(L"Plural-Forms: nplurals=2; plural=n != 1;");
 		REQUIRE_FORM_SIZE(2);
 		CHECK(form(0) == 1);
 		CHECK(form(1) == 0);
@@ -59,6 +68,11 @@ TEST_CASE("test translations")
 		CHECK(form(0) == 0);
 		CHECK(form(1) == 0);
 		CHECK(form(2) == 1);
+
+		form = GettextPluralForm(L"Plural-Forms: nplurals=2; plural= 1/n;");
+		REQUIRE_FORM_SIZE(2);
+		CHECK(form(1) == 1);
+		CHECK(form(0) == 0);
 #undef REQUIRE_FORM_SIZE
 	}
 

@@ -33,6 +33,6 @@ public:
 		return Ptr(new GettextPluralForm(str));
 	}
 private:
-	size_t nplurals;
-	Function func;
+	size_t nplurals = 0;
+	Function func = nullptr;
 };
