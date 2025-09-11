@@ -342,3 +342,27 @@ local function test_ipc_poll(cb)
 	print("delta: " .. (core.get_us_time() - t0) .. "us")
 end
 unittests.register("test_ipc_poll", test_ipc_poll)
+
+do
+	local t = require(".require")
+	assert(t.foo == "bar")
+	assert(t == require("unittests.require"))
+	package.unload(".require")
+	assert(t ~= require(".require"))
+	package.set(".require", "test")
+	assert(require(".require") == "test")
+end
+
+do
+	local status, err = xpcall(function()
+		table.insert(package.loaders, function()
+			return function()
+				return 42
+			end
+		end)
+		local answer = require("the_answer_to_life_the_universe_and_all_the_rest")
+		assert(answer == 42)
+	end, debug.traceback)
+	table.remove(package.loaders)
+	assert(status, err)
+end
