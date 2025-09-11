@@ -69,9 +69,14 @@ TEST_CASE("test translations")
 		CHECK(form(1) == 0);
 		CHECK(form(2) == 1);
 
-		form = GettextPluralForm(L"Plural-Forms: nplurals=2; plural= 1/n;");
+		form = GettextPluralForm(L"Plural-Forms: nplurals=2; plural=4/n;");
 		REQUIRE_FORM_SIZE(2);
-		CHECK(form(1) == 1);
+		CHECK(form(1) == 4);
+		CHECK(form(0) == 0);
+
+		form = GettextPluralForm(L"Plural-Forms: nplurals=2; plural=7%n;");
+		REQUIRE_FORM_SIZE(2);
+		CHECK(form(3) == 1);
 		CHECK(form(0) == 0);
 #undef REQUIRE_FORM_SIZE
 	}

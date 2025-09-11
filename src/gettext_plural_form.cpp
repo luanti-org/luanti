@@ -10,8 +10,8 @@ static GettextPluralForm::NumT identity(GettextPluralForm::NumT n)
 	return n;
 }
 
-static GettextPluralForm::NumT ternary_op(GettextPluralForm::NumT n, GettextPluralForm::Function cond,
-		GettextPluralForm::Function val, GettextPluralForm::Function alt)
+static GettextPluralForm::NumT ternary_op(GettextPluralForm::NumT n, const GettextPluralForm::Function &cond,
+		const GettextPluralForm::Function &val, const GettextPluralForm::Function &alt)
 {
 	return cond(n) ? val(n) : alt(n);
 }
