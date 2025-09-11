@@ -81,7 +81,8 @@ static ParserResult parse_atomic(std::wstring_view str)
 
 	wchar_t* endp;
 	auto val = wcstoul(str.data(), &endp, 10);
-	return ParserResult(std::bind(identity, val), trim(str.substr(endp-str.data())));
+	return ParserResult([val](GettextPluralForm::NumT _) -> GettextPluralForm::NumT { return val; },
+			trim(str.substr(endp-str.data())));
 }
 
 static ParserResult parse_parenthesized(std::wstring_view str)
