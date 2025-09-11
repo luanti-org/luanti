@@ -6,8 +6,6 @@
 #include <memory>
 #include <functional>
 
-// Note that this only implements a subset of C expressions. See:
-// https://git.savannah.gnu.org/gitweb/?p=gettext.git;a=blob;f=gettext-runtime/intl/plural.y
 class GettextPluralForm
 {
 public:
