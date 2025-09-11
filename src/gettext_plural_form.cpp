@@ -124,14 +124,14 @@ static ParserResult parse_negation(std::wstring_view str)
 template<typename T> struct safe_divides {
 	T operator()(T lhs, T rhs) const
 	{
-		return rhs == 0 ? 0 : lhs/rhs;
+		return rhs == 0 ? 0 : (lhs / rhs);
 	}
 };
 
 template<typename T> struct safe_modulus {
 	T operator()(T lhs, T rhs) const
 	{
-		return rhs == 0 ? 0 : lhs%rhs;
+		return rhs == 0 ? 0 : (lhs % rhs);
 	}
 };
 
