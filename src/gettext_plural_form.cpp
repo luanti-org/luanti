@@ -119,9 +119,16 @@ template<typename T> struct safe_divides {
 	}
 };
 
+template<typename T> struct safe_modulus {
+	T operator()(T lhs, T rhs) const
+	{
+		return rhs == 0 ? 0 : lhs%rhs;
+	}
+};
+
 static ParserResult parse_multiplicative(std::wstring_view str)
 {
-	return parse_ltr<parse_negation, std::multiplies, safe_divides, std::modulus>(str, L"*", L"/", L"%");
+	return parse_ltr<parse_negation, std::multiplies, safe_divides, safe_modulus>(str, L"*", L"/", L"%");
 }
 
 static ParserResult parse_additive(std::wstring_view str)
