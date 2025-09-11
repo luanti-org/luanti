@@ -1,4 +1,4 @@
-// Minetest
+// Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 /* This file implements a recursive descent parser for gettext plural forms.
