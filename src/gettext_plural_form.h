@@ -1,33 +1,45 @@
-// Minetest
+// Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #pragma once
 #include <string_view>
 #include <memory>
+#include <functional>
 
-// Note that this only implements a subset of C expressions. See:
-// https://git.savannah.gnu.org/gitweb/?p=gettext.git;a=blob;f=gettext-runtime/intl/plural.y
 class GettextPluralForm
 {
 public:
 	using NumT = unsigned long;
+	using Function = std::function<NumT(NumT)>;
 	using Ptr = std::shared_ptr<GettextPluralForm>;
+
+	GettextPluralForm(std::wstring_view str);
 
 	size_t size() const
 	{
 		return nplurals;
 	};
-	virtual NumT operator()(const NumT) const = 0;
-	virtual operator bool() const
-	{
-		return size() > 0;
-	}
-	virtual ~GettextPluralForm() {};
 
-	static GettextPluralForm::Ptr parse(const size_t nplurals, std::wstring_view str);
-	static GettextPluralForm::Ptr parseHeaderLine(std::wstring_view str);
-protected:
-	GettextPluralForm(size_t nplurals): nplurals(nplurals) {};
+	// Note that this function does not perform any bounds check as the number of plural
+	// translations provided by the translation file may deviate from nplurals,
+	NumT operator()(const NumT n) const {
+		return func ? func(n) : 0;
+	}
+
+	operator bool() const
+	{
+		return nplurals > 0;
+	}
+
+	static Ptr parseHeaderLine(std::wstring_view str) {
+		return Ptr(new GettextPluralForm(str));
+	}
 private:
-	const size_t nplurals;
+	// The number of plural forms.
+	size_t nplurals = 0;
+
+	// The formula for determining the plural form based on the input value; see
+	// https://www.gnu.org/software/gettext/manual/html_node/Translating-plural-forms.html
+	// for details.
+	Function func = nullptr;
 };
