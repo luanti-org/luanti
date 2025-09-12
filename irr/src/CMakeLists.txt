@@ -492,7 +492,6 @@ add_library(IRRGUIOBJ OBJECT
 	CGUIButton.h
 	CGUICheckBox.h
 	CGUIComboBox.h
-	CGUIEditBox.h
 	CGUIEnvironment.h
 	CGUIFileOpenDialog.h
 	CGUIFont.h

@@ -51,6 +51,17 @@ public:
 
 	//! sets the current position of the scrollbar
 	virtual void setPos(s32 pos) = 0;
+
+	//! Smooth scroll: target position
+	virtual s32 getTargetPos() const { return getPos(); }
+
+	//! Smooth scroll: move to position
+	virtual void setPosInterpolated(s32 pos) { setPos(pos); }
+
+	//! For automatic thumb scaling
+	/** Sets the full height (e.g. content to scroll), in pixels.
+	Set to 0 to disable (default). */
+	virtual void setPageSize(s32 size) = 0;
 };
 
 } // end namespace gui
