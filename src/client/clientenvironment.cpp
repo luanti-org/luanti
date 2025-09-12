@@ -109,8 +109,8 @@ void ClientEnvironment::step(float dtime)
 		dtime_max_increment = 0.01;
 
 	// Don't allow overly huge dtime
-	if(dtime > 0.5)
-		dtime = 0.5;
+	if(dtime > DTIME_LIMIT)
+		dtime = DTIME_LIMIT;
 
 	/*
 		Stuff that has a maximum time increment
