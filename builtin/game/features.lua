@@ -50,6 +50,7 @@ core.features = {
 	object_guids = true,
 	on_timer_four_args = true,
 	particlespawner_exclude_player = true,
+	chunksize_vector = true,
 }
 
 function core.has_feature(arg)
