@@ -88,8 +88,6 @@ public:
 	f32 last_movement_speed = 0.0f;
 	f32 last_movement_dir = 0.0f;
 
-	float camera_impact = 0.0f;
-
 	bool makes_footstep_sound = true;
 
 	LocalPlayerAnimation last_animation = LocalPlayerAnimation::NO_ANIM;
