@@ -165,14 +165,14 @@ local function get_formspec(tabview, name, tabdata)
 
 	local retval = ""
 
-	local index = filterlist.get_current_index(menudata.worldlist,
-				tonumber(core.settings:get("mainmenu_last_selected_world")))
+	local index = core.get_textlist_index("sp_worlds") or filterlist.get_current_index(menudata.worldlist,
+				tonumber(core.settings:get("mainmenu_last_selected_world"))) or 0
 
 	local list = menudata.worldlist:get_list()
-	local world = list and index and list[index]
+	-- When changing tabs to a world list with fewer entries, the last index is selected (visually).
+	-- However, the formspec fields lag behind, thus 'index > #list' can be a valid choice.
+	local world = list and list[math.min(index, #list)]
 	local game
-
-	local is_world_selected = list and list[core.get_textlist_index("sp_worlds") or index]
 
 	if world then
 		game = pkgmgr.find_by_gameid(world.gameid)
@@ -187,7 +187,7 @@ local function get_formspec(tabview, name, tabdata)
 	local y = 0.2
 	local yo = 0.5625
 
-	if is_world_selected then
+	if world then
 		if disabled_settings["creative_mode"] == nil then
 			creative = "checkbox[0,"..y..";cb_creative_mode;".. fgettext("Creative Mode") .. ";" ..
 				dump(core.settings:get_bool("creative_mode")) .. "]"
@@ -208,7 +208,7 @@ local function get_formspec(tabview, name, tabdata)
 	retval = retval ..
 			"container[5.25,4.875]" ..
 			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]"
-	if is_world_selected then
+	if world then
 		retval = retval ..
 				"button[0,0;3.225,0.8;world_delete;".. fgettext("Delete") .. "]" ..
 				"button[3.325,0;3.225,0.8;world_configure;".. fgettext("Select Mods") .. "]"
@@ -261,7 +261,7 @@ local function get_formspec(tabview, name, tabdata)
 		end
 
 		retval = retval .. "container_end[]"
-	elseif is_world_selected then
+	elseif world then
 		retval = retval ..
 				"button[10.1875,5.925;4.9375,0.8;play;" .. fgettext("Play Game") .. "]"
 	end
