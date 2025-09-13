@@ -17,7 +17,7 @@ namespace {
 	public:
 		MyScriptApi() : ScriptApiBase(ScriptingType::Async) {};
 		void init();
-		using ScriptApiBase::getStack;
+		using ScriptApiBase::getStack; // make public
 	};
 }
 

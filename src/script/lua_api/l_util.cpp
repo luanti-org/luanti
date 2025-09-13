@@ -695,6 +695,17 @@ int ModApiUtil::l_is_valid_player_name(lua_State *L)
 	return 1;
 }
 
+// strip_escapes(str)
+int ModApiUtil::l_strip_escapes(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	auto s = readParam<std::string_view>(L, 1);
+	auto r = unescape_enriched(s);
+	lua_pushlstring(L, r.c_str(), r.size());
+	return 1;
+}
+
 void ModApiUtil::Initialize(lua_State *L, int top)
 {
 	API_FCT(log);
@@ -746,6 +757,7 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 
 	API_FCT(urlencode);
 	API_FCT(is_valid_player_name);
+	API_FCT(strip_escapes);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
@@ -780,6 +792,7 @@ void ModApiUtil::InitializeClient(lua_State *L, int top)
 	API_FCT(set_last_run_mod);
 
 	API_FCT(urlencode);
+	API_FCT(strip_escapes);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
@@ -828,6 +841,7 @@ void ModApiUtil::InitializeAsync(lua_State *L, int top)
 	API_FCT(set_last_run_mod);
 
 	API_FCT(urlencode);
+	API_FCT(strip_escapes);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
