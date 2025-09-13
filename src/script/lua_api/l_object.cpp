@@ -1744,7 +1744,6 @@ int ObjectRef::l_set_physics_override(lua_State *L)
 	getfloatfield(L, 2, "gravity", phys.gravity);
 	getboolfield(L, 2, "sneak", phys.sneak);
 	getboolfield(L, 2, "sneak_glitch", phys.sneak_glitch);
-	getboolfield(L, 2, "new_move", phys.new_move);
 	getfloatfield(L, 2, "speed_climb", phys.speed_climb);
 	getfloatfield(L, 2, "speed_crouch", phys.speed_crouch);
 	getfloatfield(L, 2, "liquid_fluidity", phys.liquid_fluidity);
@@ -1782,7 +1781,7 @@ int ObjectRef::l_get_physics_override(lua_State *L)
 	lua_setfield(L, -2, "sneak");
 	lua_pushboolean(L, phys.sneak_glitch);
 	lua_setfield(L, -2, "sneak_glitch");
-	lua_pushboolean(L, phys.new_move);
+	lua_pushboolean(L, true);
 	lua_setfield(L, -2, "new_move");
 	lua_pushnumber(L, phys.speed_climb);
 	lua_setfield(L, -2, "speed_climb");

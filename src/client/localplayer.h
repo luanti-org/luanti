@@ -88,8 +88,6 @@ public:
 	f32 last_movement_speed = 0.0f;
 	f32 last_movement_dir = 0.0f;
 
-	float camera_impact = 0.0f;
-
 	bool makes_footstep_sound = true;
 
 	LocalPlayerAnimation last_animation = LocalPlayerAnimation::NO_ANIM;
@@ -170,8 +168,6 @@ private:
 		const f32 max_increase_V, const bool use_pitch);
 	bool updateSneakNode(Map *map, const v3f &position, const v3f &sneak_max);
 	float getSlipFactor(Environment *env, const v3f &speedH);
-	void old_move(f32 dtime, Environment *env,
-			std::vector<CollisionInfo> *collision_info);
 	void handleAutojump(f32 dtime, Environment *env,
 		const collisionMoveResult &result,
 		v3f position_before_move, v3f speed_before_move);
@@ -187,17 +183,6 @@ private:
 	// Whether a "sneak ladder" structure is detected at the players pos
 	// see detectSneakLadder() in the .cpp for more info (always false if disabled)
 	bool m_sneak_ladder_detected = false;
-
-	// ***** Variables for temporary option of the old move code *****
-	// Stores the max player uplift by m_sneak_node
-	f32 m_sneak_node_bb_ymax = 0.0f;
-	// Whether recalculation of m_sneak_node and its top bbox is needed
-	bool m_need_to_get_new_sneak_node = true;
-	// Node below player, used to determine whether it has been removed,
-	// and its old type
-	v3s16 m_old_node_below = v3s16(32767, 32767, 32767);
-	std::string m_old_node_below_type = "air";
-	// ***** End of variables for temporary option *****
 
 	bool m_can_jump = false;
 	bool m_disable_jump = false;

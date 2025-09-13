@@ -2326,10 +2326,10 @@ to games.
     * `2`: the node always gets the digging time 0.5 seconds (rail, sign)
     * `3`: the node always gets the digging time 0 seconds (torch)
 * `disable_jump`: Player (and possibly other things) cannot jump from node
-  or if their feet are in the node. Note: not supported for `new_move = false`
+  or if their feet are in the node.
 * `disable_descend`: Player (and possibly other things) cannot *actively*
   descend in node using Sneak or Aux1 key (for liquids and climbable nodes
-  only). Note: not supported for `new_move = false`
+  only).
 * `fall_damage_add_percent`: modifies the fall damage suffered when hitting
   the top of this node. There's also an armor group with the same name.
   The final player damage is determined by the following formula:
@@ -8805,11 +8805,9 @@ child will follow movement and rotation of that bone.
         * `acceleration_fast`: multiplier to acceleration in Fast Mode (default: `1`)
             * Note: The actual acceleration is the product of `speed` and `acceleration_fast`
         * `sneak`: whether player can sneak (default: `true`)
-        * `sneak_glitch`: whether player can use the new move code replications
-          of the old sneak side-effects: sneak ladders and 2 node sneak jump
+        * `sneak_glitch`: whether player can use sneak ladders and 2 node sneak jump
           (default: `false`)
-        * `new_move`: use new move/sneak code. When `false` the exact old code
-          is used for the specific old sneak behavior (default: `true`)
+        * `new_move`: deprecated since 5.14.0. Is always `true`. Changes are ignored.
     * Note: All numeric fields above modify a corresponding `movement_*` setting.
     * For games, we recommend for simpler code to first modify the `movement_*`
       settings (e.g. via the game's `minetest.conf`) to set a global base value
