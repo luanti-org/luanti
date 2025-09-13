@@ -186,17 +186,6 @@ private:
 	// see detectSneakLadder() in the .cpp for more info (always false if disabled)
 	bool m_sneak_ladder_detected = false;
 
-	// ***** Variables for temporary option of the old move code *****
-	// Stores the max player uplift by m_sneak_node
-	f32 m_sneak_node_bb_ymax = 0.0f;
-	// Whether recalculation of m_sneak_node and its top bbox is needed
-	bool m_need_to_get_new_sneak_node = true;
-	// Node below player, used to determine whether it has been removed,
-	// and its old type
-	v3s16 m_old_node_below = v3s16(32767, 32767, 32767);
-	std::string m_old_node_below_type = "air";
-	// ***** End of variables for temporary option *****
-
 	bool m_can_jump = false;
 	bool m_disable_jump = false;
 	bool m_disable_descend = false;
