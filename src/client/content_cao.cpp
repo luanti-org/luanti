@@ -1591,7 +1591,7 @@ void GenericCAO::processMessage(const std::string &data)
 		// MT 0.4.10 legacy: send inverted for detault `true` if the server sends nothing
 		bool sneak = !readU8(is);
 		bool sneak_glitch = !readU8(is);
-		bool new_move = !readU8(is);
+		(void)!readU8(is); // = new move, unused since 5.14.0
 
 		// new overrides since 5.8.0
 		float override_speed_climb = readF32(is);
@@ -1628,7 +1628,6 @@ void GenericCAO::processMessage(const std::string &data)
 			phys.gravity = override_gravity;
 			phys.sneak = sneak;
 			phys.sneak_glitch = sneak_glitch;
-			phys.new_move = new_move;
 			phys.speed_climb = override_speed_climb;
 			phys.speed_crouch = override_speed_crouch;
 			phys.liquid_fluidity = override_liquid_fluidity;

@@ -104,8 +104,6 @@ struct PlayerPhysicsOverride
 
 	bool sneak = true;
 	bool sneak_glitch = false;
-	// "Temporary" option for old move code
-	bool new_move = true;
 
 	float speed_climb = 1.f;
 	float speed_crouch = 1.f;

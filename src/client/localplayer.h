@@ -170,8 +170,6 @@ private:
 		const f32 max_increase_V, const bool use_pitch);
 	bool updateSneakNode(Map *map, const v3f &position, const v3f &sneak_max);
 	float getSlipFactor(Environment *env, const v3f &speedH);
-	void old_move(f32 dtime, Environment *env,
-			std::vector<CollisionInfo> *collision_info);
 	void handleAutojump(f32 dtime, Environment *env,
 		const collisionMoveResult &result,
 		v3f position_before_move, v3f speed_before_move);
