@@ -6743,11 +6743,10 @@ Environment access
     * Generate all registered decorations within the VoxelManip `vm` and in the
       area from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
-    * `use_mapgen_biomes` means that decorations should
-       respect the biome map of the current chunk inside an
-       on_generated callback. `pos1` and `pos2` must match the
-       positions of the current chunk, or an error will be raised.
-
+    * `use_mapgen_biomes` (optional boolean). For use in on_generated callbacks only.
+       If set to true, decorations are placed in respect to the biome map of the current chunk.
+       `pos1` and `pos2` must match the positions of the current chunk, or an error will be raised.
+       default: `false`
 * `core.clear_objects([options])`
     * Clear all objects in the environment
     * Takes an optional table as an argument with the field `mode`.
