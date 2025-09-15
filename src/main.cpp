@@ -49,6 +49,10 @@ extern "C" {
 #endif
 }
 
+#if TARGET_OS_IPHONE
+#include <SDL2/SDL.h>
+#endif
+
 #if !defined(__cpp_rtti) || !defined(__cpp_exceptions)
 #error Luanti cannot be built without exceptions or RTTI
 #endif
