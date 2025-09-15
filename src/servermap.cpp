@@ -200,9 +200,9 @@ bool ServerMap::blockpos_over_mapgen_limit(v3s16 p)
 bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 {
 	assert(data);
-	s16 csize = getMapgenParams()->chunksize;
+	const v3s16 csize = getMapgenParams()->chunksize;
 	const v3s16 bpmin = EmergeManager::getContainingChunk(blockpos, csize);
-	const v3s16 bpmax = bpmin + v3s16(1, 1, 1) * (csize - 1);
+	const v3s16 bpmax = bpmin + csize - v3s16(1);
 
 	if (!m_chunks_in_progress.insert(bpmin).second)
 		return false;

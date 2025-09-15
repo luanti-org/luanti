@@ -190,7 +190,7 @@ void EmergeManager::initMapgens(MapgenParams *params)
 
 	mgparams = params;
 
-	v3s16 csize = v3s16(1, 1, 1) * (params->chunksize * MAP_BLOCKSIZE);
+	v3s16 csize = params->chunksize * MAP_BLOCKSIZE;
 	biomegen = biomemgr->createBiomeGen(BIOMEGEN_ORIGINAL, params->bparams, csize);
 
 	for (u32 i = 0; i != m_threads.size(); i++) {
@@ -319,11 +319,9 @@ bool EmergeManager::isBlockInQueue(v3s16 pos)
 //
 
 
-// TODO(hmmmm): Move this to ServerMap
-v3s16 EmergeManager::getContainingChunk(v3s16 blockpos, s16 chunksize)
+v3s16 EmergeManager::getContainingChunk(v3s16 blockpos, v3s16 chunksize)
 {
-	s16 coff = -chunksize / 2;
-	v3s16 chunk_offset(coff, coff, coff);
+	v3s16 chunk_offset = -chunksize / 2;
 
 	return getContainerPos(blockpos - chunk_offset, chunksize)
 		* chunksize + chunk_offset;
