@@ -1540,7 +1540,7 @@ void GenericCAO::processMessage(const std::string &data)
 	} else if (cmd == AO_CMD_UPDATE_POSITION) {
 		// Not sent by the server if this object is an attachment.
 		// We might however get here if the server notices the object being detached before the client.
-		m_position = readV3F32(is);
+		v3f newpos = readV3F32(is);
 		m_velocity = readV3F32(is);
 		m_acceleration = readV3F32(is);
 		m_rotation = readV3F32(is);
@@ -1549,6 +1549,13 @@ void GenericCAO::processMessage(const std::string &data)
 		bool do_interpolate = readU8(is);
 		bool is_end_position = readU8(is);
 		float update_interval = readF32(is);
+
+		// interpolate position if it's off less than 1 node
+		// 17.3 ~= sqrt(3) * BS
+		if (do_interpolate && newpos.getDistanceFrom(m_position) < 17.3f)
+			m_position = m_position * 0.9f + newpos * 0.1f;
+		else
+			m_position = newpos;
 
 		if(getParent() != NULL) // Just in case
 			return;
