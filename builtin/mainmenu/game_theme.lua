@@ -51,6 +51,8 @@ function mm_game_theme.set_game(gamedetails)
 	assert(gamedetails ~= nil)
 
 	if mm_game_theme.gameid == gamedetails.id then
+		-- still restore header in case it was cleared
+		mm_game_theme.set_game_single("header", gamedetails)
 		return
 	end
 	mm_game_theme.gameid = gamedetails.id
