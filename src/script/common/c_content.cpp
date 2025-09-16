@@ -582,20 +582,16 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "nametag");
 	push_ARGB8(L, prop->nametag_color);
 	lua_setfield(L, -2, "nametag_color");
-	if (prop->nametag_bgcolor) {
+	if (prop->nametag_bgcolor)
 		push_ARGB8(L, prop->nametag_bgcolor.value());
-		lua_setfield(L, -2, "nametag_bgcolor");
-	} else {
+	else
 		lua_pushboolean(L, false);
-		lua_setfield(L, -2, "nametag_bgcolor");
-	}
-	if (prop->nametag_fontsize) {
+	lua_setfield(L, -2, "nametag_bgcolor");
+	if (prop->nametag_fontsize)
 		lua_pushinteger(L, prop->nametag_fontsize.value());
-		lua_setfield(L, -2, "nametag_fontsize");
-	} else {
+	else
 		lua_pushboolean(L, false);
-		lua_setfield(L, -2, "nametag_fontsize");
-	}
+	lua_setfield(L, -2, "nametag_fontsize");
 	lua_pushboolean(L, prop->nametag_scale_z);
 	lua_setfield(L, -2, "nametag_scale_z");
 	lua_pushlstring(L, prop->infotext.c_str(), prop->infotext.size());
