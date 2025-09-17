@@ -1098,7 +1098,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		pos_translator.val_current = m_position;
 		pos_translator.val_target = m_position;
 	} else {
-		rot_translator.translate(dtime);
+		rot_translator.translate(dtime * 0.1f);
 		v3f lastpos = pos_translator.val_current;
 
 		if(m_prop.physical)
@@ -1125,7 +1125,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 			pos_translator.update(m_position, pos_translator.aim_is_end,
 					pos_translator.anim_time);
 		}
-		pos_translator.translate(dtime);
+		pos_translator.translate(dtime * 0.1f);
 		updateNodePos();
 
 		float moved = lastpos.getDistanceFrom(pos_translator.val_current);
