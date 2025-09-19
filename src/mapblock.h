@@ -445,7 +445,7 @@ private:
 	void reallocate(u32 count, MapNode n);
 
 	static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
-		u32 nodecount, const NodeDefManager *nodedef);
+		u32 count, const NodeDefManager *nodedef);
 	static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 			IGameDef *gamedef);
 
