@@ -105,6 +105,9 @@ MapBlock::MapBlock(v3s16 pos, IGameDef *gamedef):
 		m_gamedef(gamedef),
 		m_is_mono_block(false)
 {
+	// We start with nodecount nodes, because in the vast
+	// majority of the cases a block is created just before
+	// is de-serialized or generated.
 	reallocate(nodecount, MapNode(CONTENT_IGNORE));
 }
 
@@ -234,10 +237,12 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 void MapBlock::reallocate(u32 count, MapNode n)
 {
 	assert(count == 1 || count == nodecount);
+	// For now monoblocks are disabled on the client.
+	// The client allows unsynchronized access to a block's data.
 	assert(!m_gamedef->isClient() || count == nodecount);
 
 	delete[] data;
-	if (!m_is_mono_block && count == 1)
+	if (data && !m_is_mono_block && count == 1)
 		porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
 
 	data = new MapNode[count];
@@ -248,7 +253,8 @@ void MapBlock::reallocate(u32 count, MapNode n)
 
 void MapBlock::tryShrinkNodes()
 {
-	// make sure we never shrink the array on the client
+	// For now monoblocks are disabled on the client.
+	// The client allows unsynchronized access to a block's data.
 	if (m_gamedef->isClient())
 		return;
 

@@ -35,7 +35,7 @@ public:
 	// Tests loading a non-standard MapBlock
 	void testLoadNonStd(IGameDef *gamedef);
 
-	// Tests blocks with a single node recurring node
+	// Tests blocks with a single recurring node
 	void testMonoblock(IGameDef *gamedef);
 };
 
@@ -88,6 +88,7 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
 
+	static_assert(CONTENT_AIR != 42);
 	// set a node, should deconvert the block
 	block.setNode(5,5,5, MapNode(42));
 	UASSERT(!block.m_is_mono_block);
