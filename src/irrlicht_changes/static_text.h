@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include "util/enriched_string.h"
+#include "enriched_string.h"
 #include "config.h"
 #include <IGUIEnvironment.h>
 
