@@ -107,7 +107,7 @@ MapBlock::MapBlock(v3s16 pos, IGameDef *gamedef):
 {
 	// We start with nodecount nodes, because in the vast
 	// majority of the cases a block is created just before
-	// is de-serialized or generated.
+	// it is de-serialized or generated.
 	reallocate(nodecount, MapNode(CONTENT_IGNORE));
 }
 
@@ -238,7 +238,7 @@ void MapBlock::reallocate(u32 count, MapNode n)
 {
 	assert(count == 1 || count == nodecount);
 	// For now monoblocks are disabled on the client.
-	// The client allows unsynchronized access to a block's data.
+	// The client has known data races on the block's data (FIXME).
 	assert(!m_gamedef->isClient() || count == nodecount);
 
 	delete[] data;
@@ -254,7 +254,7 @@ void MapBlock::reallocate(u32 count, MapNode n)
 void MapBlock::tryShrinkNodes()
 {
 	// For now monoblocks are disabled on the client.
-	// The client allows unsynchronized access to a block's data.
+	// The client has known data races on the block's data (FIXME).
 	if (m_gamedef->isClient())
 		return;
 
@@ -320,12 +320,12 @@ void MapBlock::expireIsAirCache()
 // Note that there's no technical reason why we *have to* renumber the IDs,
 // but we do it anyway as it also helps compressability.
 void MapBlock::getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
-	u32 nodecount, const NodeDefManager *nodedef)
+	u32 count, const NodeDefManager *nodedef)
 {
 	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
 
 	content_t id_counter = 0;
-	for (u32 i = 0; i < nodecount; i++) {
+	for (u32 i = 0; i < count; i++) {
 		content_t global_id = nodes[i].getContent();
 		content_t id = CONTENT_IGNORE;
 
