@@ -371,6 +371,7 @@ public:
 	scene::ISceneManager *getSceneManager();
 
 	// IGameDef interface
+	bool isClient() override { return true; }
 	IItemDefManager* getItemDefManager() override;
 	const NodeDefManager* getNodeDefManager() override;
 	ICraftDefManager* getCraftDefManager() override;

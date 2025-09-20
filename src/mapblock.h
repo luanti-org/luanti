@@ -22,6 +22,7 @@ class IGameDef;
 class MapBlockMesh;
 class VoxelManipulator;
 class NameIdMapping;
+class TestMapBlock;
 
 #define BLOCK_TIMESTAMP_UNDEFINED 0xffffffff
 
@@ -30,7 +31,7 @@ class NameIdMapping;
 ////
 
 enum ModReason : u32 {
-	MOD_REASON_REALLOCATE                 = 1 << 0,
+//	UNUSED                                = 1 << 0,
 	MOD_REASON_SET_IS_UNDERGROUND         = 1 << 1,
 	MOD_REASON_SET_LIGHTING_COMPLETE      = 1 << 2,
 	MOD_REASON_SET_GENERATED              = 1 << 3,
@@ -72,13 +73,6 @@ public:
 	void makeOrphan()
 	{
 		m_orphan = true;
-	}
-
-	void reallocate()
-	{
-		for (u32 i = 0; i < nodecount; i++)
-			data[i] = MapNode(CONTENT_IGNORE);
-		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_REALLOCATE);
 	}
 
 	////
@@ -234,7 +228,7 @@ public:
 		if (!*valid_position)
 			return {CONTENT_IGNORE};
 
-		return data[z * zstride + y * ystride + x];
+		return data[m_is_mono_block ? 0 : z * zstride + y * ystride + x];
 	}
 
 	inline MapNode getNode(v3s16 p, bool *valid_position)
@@ -253,6 +247,7 @@ public:
 		if (!isValidPosition(x, y, z))
 			throw InvalidPositionException();
 
+		expandNodesIfNeeded();
 		data[z * zstride + y * ystride + x] = n;
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_SET_NODE);
 	}
@@ -268,7 +263,7 @@ public:
 
 	inline MapNode getNodeNoCheck(s16 x, s16 y, s16 z)
 	{
-		return data[z * zstride + y * ystride + x];
+		return data[m_is_mono_block ? 0 : z * zstride + y * ystride + x];
 	}
 
 	inline MapNode getNodeNoCheck(v3s16 p)
@@ -278,6 +273,7 @@ public:
 
 	inline void setNodeNoCheck(s16 x, s16 y, s16 z, MapNode n)
 	{
+		expandNodesIfNeeded();
 		data[z * zstride + y * ystride + x] = n;
 		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_SET_NODE);
 	}
@@ -431,14 +427,25 @@ private:
 
 	static const u32 nodecount = MAP_BLOCKSIZE * MAP_BLOCKSIZE * MAP_BLOCKSIZE;
 
+private:
+#if BUILD_UNITTESTS
+	// access to data, tryConvertToMonoBlock, deconvertMonoblock
+	friend class TestMapBlock;
+#endif
+
 	/*
 		Private methods
 	*/
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
+	// check if all nodes are identical, if so convert to monoblock
+	void tryShrinkNodes();
+	// if a monoblock, expand storage back to the full array
+	void expandNodesIfNeeded();
+	void reallocate(u32 count, MapNode n);
 
 	static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
-		const NodeDefManager *nodedef);
+		u32 count, const NodeDefManager *nodedef);
 	static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 			IGameDef *gamedef);
 
@@ -475,11 +482,11 @@ private:
 	short m_refcount = 0;
 
 	/*
-	 * Note that this is not an inline array because that has implications for
-	 * heap fragmentation (the array is exactly 16K), CPU caches and/or
-	 * optimizability of algorithms working on this array.
+	 * Note that this is not an inline array because that has implications for heap
+	 * fragmentation (the array is exactly 16K, or exactly 4 bytes for a "monoblock"),
+	 * CPU caches and/or optimizability of algorithms working on this array.
 	 */
-	MapNode *const data; // of `nodecount` elements
+	MapNode *data = nullptr;
 
 	// provides the item and node definitions
 	IGameDef *m_gamedef;
@@ -490,6 +497,11 @@ private:
 	*/
 	float m_usage_timer = 0;
 
+	/*
+	 * For "monoblocks", the whole block is filled with the same node, only this node is stored.
+	 * (For reduced memory usage)
+	 */
+	bool m_is_mono_block;
 public:
 	//// ABM optimizations ////
 	// True if we never want to cache content types for this block
