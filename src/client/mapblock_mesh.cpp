@@ -691,7 +691,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 				u8 tiles = p.layer.scale;
 				if (tiles > 1)
 					os << ":" << (u32)tiles;
-				os << ":" << (u32)p.layer.animation_frame_count << ":";
+				os << ":" << 1 << ":";
 				m_crack_materials.insert(std::make_pair(
 						std::pair<u8, u32>(layer, i), os.str()));
 				// Replace tile texture with the cracked one
