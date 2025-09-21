@@ -1621,10 +1621,6 @@ void Server::SendSpawnParticles(RemotePlayer *player,
 	if (!sao)
 		return;
 
-	RemoteClient *client = m_clients.getClientNoEx(player->getPeerId());
-	if (!client)
-		return;
-
 	std::ostringstream particle_batch_data(std::ios_base::binary);
 	for (const auto &particle : particles) {
 		if (sao->getBasePosition().getDistanceFromSQ(particle.pos * BS) > radius_sq)
@@ -1637,12 +1633,11 @@ void Server::SendSpawnParticles(RemotePlayer *player,
 		if (player->protocol_version < 50) {
 			// Client only supports TOCLIENT_SPAWN_PARTICLE,
 			// so turn the written particle into a packet immediately
-			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, particle_data.tellp(), player->getPeerId());
+			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, particle_data_str.size(), player->getPeerId());
 			pkt.putRawString(particle_data_str);
 			Send(&pkt);
 		} else {
-			writeU32(particle_batch_data, particle_data_str.size());
-			particle_batch_data << particle_data_str;
+			particle_batch_data << serializeString32(particle_data_str);
 		}
 	}
 

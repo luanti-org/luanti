@@ -971,16 +971,16 @@ void Client::handleCommand_SpawnParticle(NetworkPacket* pkt)
 
 void Client::handleCommand_SpawnParticleBatch(NetworkPacket *pkt)
 {
-	std::stringstream particle_data(std::ios::binary | std::ios::in | std::ios::out);
+	std::stringstream particle_batch_data(std::ios::binary | std::ios::in | std::ios::out);
 	{
 		std::istringstream compressed(pkt->readLongString(), std::ios::binary);
-		decompressZstd(compressed, particle_data);
+		decompressZstd(compressed, particle_batch_data);
 	}
 
-	while (particle_data.peek() != EOF) {
+	while (particle_batch_data.peek() != EOF) {
 		auto p = std::make_unique<ParticleParameters>();
 		{
-			std::istringstream(deSerializeString32(particle_data), std::ios::binary);
+			std::istringstream particle_data(deSerializeString32(particle_batch_data), std::ios::binary);
 			p->deSerialize(particle_data, m_proto_ver);
 		}
 
