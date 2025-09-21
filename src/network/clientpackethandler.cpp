@@ -153,6 +153,14 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 	Send(&resp_pkt);
 
 	m_state = LC_Init;
+
+	// Log meaningful info
+	if (!m_internal_server) {
+		Address remote = m_con->GetPeerAddress(PEER_ID_SERVER);
+		actionstream << "Connected to " << m_address_name << " (";
+		remote.print(actionstream);
+		actionstream << ")" << std::endl;
+	}
 }
 
 void Client::handleCommand_AcceptSudoMode(NetworkPacket* pkt)
