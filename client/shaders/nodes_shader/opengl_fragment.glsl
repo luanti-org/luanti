@@ -1,4 +1,8 @@
-uniform sampler2D baseTexture;
+#ifdef USE_ARRAY_TEXTURE
+	uniform sampler2DArray baseTexture;
+#else
+	uniform sampler2D baseTexture;
+#endif
 #define crackTexture texture1
 uniform sampler2D crackTexture;
 
@@ -431,10 +435,13 @@ void main(void)
 {
 	vec2 uv = varTexCoord.st;
 
+#ifdef USE_ARRAY_TEXTURE
+	vec4 base = texture(baseTexture, vec3(uv, 0)).rgba;
+#else
 	vec4 base = texture2D(baseTexture, uv).rgba;
-	// If alpha is zero, we can just discard the pixel. This fixes transparency
-	// on GPUs like GC7000L, where GL_ALPHA_TEST is not implemented in mesa,
-	// and also on GLES 2, where GL_ALPHA_TEST is missing entirely.
+#endif
+
+	// Handle transparency by discarding pixel as appropriate.
 #ifdef USE_DISCARD
 	if (base.a == 0.0)
 		discard;
