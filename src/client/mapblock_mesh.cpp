@@ -660,7 +660,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 						os << m_tsrc->getTextureName((*p.layer.frames)[j].texture_id) << "^[crack";
 						if (p.layer.material_flags & MATERIAL_FLAG_CRACK_OVERLAY)
 							os << "o";  // use ^[cracko
-						os << ":" << 1 << ":";
+						os << ":1:";
 
 						crack_frames[j] = os.str();
 					}
@@ -691,7 +691,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 				u8 tiles = p.layer.scale;
 				if (tiles > 1)
 					os << ":" << (u32)tiles;
-				os << ":" << 1 << ":";
+				os << ":1:";
 				m_crack_materials.insert(std::make_pair(
 						std::pair<u8, u32>(layer, i), os.str()));
 				// Replace tile texture with the cracked one
