@@ -1,4 +1,6 @@
-# Compiling on Windows using MSVC
+# Compiling on Windows using Visual Studio MSVC
+
+**Compiling with Visual Studio** | [Compiling with MSYS2](windows_msys2.md)
 
 ## Requirements
 
@@ -6,7 +8,6 @@
 - [CMake](https://cmake.org/download/)
 - [vcpkg](https://github.com/Microsoft/vcpkg)
 - [Git](https://git-scm.com/downloads)
-
 
 ## Compiling and installing the dependencies
 
