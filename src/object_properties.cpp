@@ -211,7 +211,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 	writeU8(os, node.getParam2());
 
 	if (!nametag_fontsize)
-		writeU32(os, U32_MAX); // nil placeholder
+		writeU32(os, U32_MAX); // null placeholder
 	else
 		writeU32(os, nametag_fontsize.value());
 
