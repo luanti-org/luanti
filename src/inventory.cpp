@@ -665,18 +665,84 @@ bool InventoryList::roomForItem(const ItemStack &item_) const
 {
 	ItemStack item = item_;
 	ItemStack leftover;
-	for(u32 i=0; i<m_items.size(); i++)
+	for(auto i = m_items.begin(); i != m_items.end(); ++i)
 	{
-		if(itemFits(i, item, &leftover))
+		if(i->itemFits(item, &leftover, m_itemdef))
 			return true;
 		item = leftover;
 	}
 	return false;
 }
 
+bool InventoryList::roomForItems(const std::vector<ItemStack> &items_) const
+{
+	std::vector<ItemStack> items = items_;
+
+	// Initially check only non-empty cells in the target inventory
+	for (auto i = m_items.begin(); i != m_items.end(); ++i) {
+		if (i->empty())
+			continue;
+
+		u16 avail_cur = i->freeSpace(m_itemdef);
+		if (avail_cur == 0)
+			continue;
+
+		for (auto item = items.begin(); item != items.end();) {
+			bool is_erased = false;
+			if (i->stacksWith(*item)) {
+				u16 min_count = std::min(avail_cur, item->count);
+				avail_cur -= min_count;
+				item->count -= min_count;
+				if (item->empty()) {
+					item = items.erase(item);
+					is_erased = true;
+				}
+				if (avail_cur == 0)
+					break;
+			}
+			if (!is_erased)
+				++item;
+		}
+
+		if (items.empty())
+			return true;
+	}
+
+	// Now check only empty cells in the target inventory
+	for (auto i = m_items.begin(); i != m_items.end(); ++i) {
+		if (!i->empty())
+			continue;
+
+		u16 avail_cur = items.back().freeSpace(m_itemdef);
+		items.pop_back();
+
+		for (auto item = items.begin(); item != items.end();) {
+			bool is_erased = false;
+			if (i->stacksWith(*item)) {
+				u16 min_count = std::min(avail_cur, item->count);
+				avail_cur -= min_count;
+				item->count -= min_count;
+				if (item->empty()) {
+					item = items.erase(item);
+					is_erased = true;
+				}
+				if (avail_cur == 0)
+					break;
+			}
+			if (!is_erased)
+				++item;
+		}
+
+		if (items.empty())
+			return true;
+	}
+
+	return items.empty();
+}
+
 bool InventoryList::containsItem(const ItemStack &item, bool match_meta) const
 {
-	u32 count = item.count;
+	u16 count = item.count;
 	if (count == 0)
 		return true;
 
@@ -690,6 +756,45 @@ bool InventoryList::containsItem(const ItemStack &item, bool match_meta) const
 			count -= i->count;
 		}
 	}
+	return false;
+}
+
+bool InventoryList::containsItems(const std::vector<ItemStack> &items_, bool match_meta) const
+{
+	std::vector<ItemStack> items = items_;
+	for (auto item = items.begin(); item != items.end();) {
+		if (item->empty())
+			item = items.erase(item);
+		else
+			++item;
+	}
+
+	for (auto i = m_items.begin(); i != m_items.end(); ++i) {
+		u16 avail_cur = i->count;
+		if (avail_cur == 0)
+			continue;
+
+		for (auto item = items.begin(); item != items.end();) {
+			bool is_erased = false;
+			if (i->name == item->name && (!match_meta || (i->metadata == item->metadata))) {
+				u16 min_count = std::min(avail_cur, item->count);
+				avail_cur -= min_count;
+				item->count -= min_count;
+				if (item->empty()) {
+					item = items.erase(item);
+					is_erased = true;
+				}
+				if (avail_cur == 0)
+					break;
+			}
+			if (!is_erased)
+				++item;
+		}
+
+		if (items.empty())
+			return true;
+	}
+
 	return false;
 }
 
