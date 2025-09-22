@@ -11,7 +11,7 @@ void AnimationInfo::updateTexture(video::SMaterial &material, float animation_ti
 		assert(m_frame < m_frames->size());
 		material.setTexture(0, (*m_frames)[m_frame].texture);
 	}
-};
+}
 
 bool AnimationInfo::needUpdate(float animation_time)
 {
@@ -23,7 +23,7 @@ bool AnimationInfo::needUpdate(float animation_time)
 		return true;
 	}
 	return false;
-};
+}
 
 void TileLayer::applyMaterialOptions(video::SMaterial &material, int layer) const
 {
