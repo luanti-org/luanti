@@ -169,7 +169,7 @@ struct AnimationInfo {
 	bool needUpdate(float animation_time);
 
 	// Returns last used frame
-	u16 getCurrentFrame() const { return m_frame; };
+	u16 getCurrentFrame() const { return m_frame; }
 
 private:
 	u16 m_frame = 0; // last animation frame
