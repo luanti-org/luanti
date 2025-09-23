@@ -236,6 +236,7 @@ Air=Luft
 Ignore=Ignorieren
 You can't place 'ignore' nodes!=Sie können keine „ignore“-Blöcke platzieren!
 print [<filter>] | dump [<filter>] | save [<format> [<filter>]] | reset=print [<Filter>] | dump [<Filter>] | save [<Format> [<Filter>]] | reset
+Handle the profiler and profiling data. Can output to chat (print), action log (dump), or file in world (save). Format can be one of txt, csv, lua, json, json_pretty (structures may be subject to change). Filter is a lua pattern used to limit output to matching mod names.=
 Statistics written to action log.=Statistiken zum Aktionsprotokoll geschrieben.
 Statistics were reset.=Statistiken wurden zurückgesetzt.
 Values below show absolute/relative times spend per server step by the instrumented function.=Die unten angegebenen Werte zeigen absolute/relative Zeitspannen, die je Server-Step von der instrumentierten Funktion in Anspruch genommen wurden.
