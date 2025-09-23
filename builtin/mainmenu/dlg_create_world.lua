@@ -90,8 +90,6 @@ local function create_world_formspec(dialogdata)
 		-- should never happen but just pick the first game
 		game = pkgmgr.games[1]
 		core.settings:set("menu_last_game", game.id)
-
-		current_mg = dialogdata.mg or core.settings:get("mg_name")
 	end
 
 	local disallowed_mapgen_settings = {}
