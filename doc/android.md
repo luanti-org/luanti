@@ -77,30 +77,28 @@ some shader settings cannot be used on OpenGL ES.
 Changing the graphic driver setting to OpenGL will not work.
 
 ## Building Requirements
-In order to build, your PC has to be set up to build Luanti in the usual
-manner (see the regular Luanti documentation for how to get this done).
-In addition to what is required for Luanti in general, you will need the
-following software packages. The version number in parenthesis denotes the
-version that was tested at the time this README was drafted; newer/older
-versions may or may not work.
 
-* Android SDK 29
-* Android NDK r21
-* Android Studio 3 [optional]
+In order to build, you will need the following development tools:
+
+* Java JDK
+* Android SDK
+* `gettext` command line tools
+* Android Studio [optional]
 
 Additionally, you'll need to have an Internet connection available on the
 build system, as the Android build will download some source packages.
 
 ## Build
+
 The new build system Luanti Android is fully functional and is designed to
 speed up and simplify the work, as well as adding the possibility of
 cross-platform build.
-You can use `./gradlew assemblerelease` or `./gradlew assembledebug` from the
+You can use `./gradlew assembleRelease` or `./gradlew assembleDebug` from the
 command line or use Android Studio and click the build button.
 
 When using gradlew, the newest NDK will be downloaded and installed
-automatically. Or you can create a `local.properties` file and specify
-`sdk.dir` and `ndk.dir` yourself.
+automatically. You have to create a `local.properties` file and specify
+`sdk.dir` yourself if you want to use an existing installation.
 
 * In order to make a release build you'll have to have a keystore setup to sign
   the resulting apk package. How this is done is not part of this README. There

@@ -68,5 +68,5 @@ if (new File(depsDir, 'armeabi-v7a').exists()) {
 preBuild.dependsOn getDeps
 
 clean {
-	delete new File(buildDir.parent, 'deps')
+	delete depsDir
 }
