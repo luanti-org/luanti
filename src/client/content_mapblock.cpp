@@ -1962,22 +1962,20 @@ void LodMeshGenerator::generateBitsetMesh(bitset (&slices)[6][62][62], MapNode n
 	}
 }
 
-void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u32 lod_width, u8 lod_resolution)
+void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, s16 lod_width, u8 lod_resolution)
 {
 	bitset all_set_nodes[3][64][64] = {0};
 	std::unordered_map<content_t, u32> types_counts;
 	std::unordered_map<content_t, std::unordered_map<u16, MapNode>> node_types;
 	std::unordered_map<content_t, std::unordered_map<u16, bitset[3][64][64]>> set_nodes;
 
-    for (s16 x = -1; x < seg_size.X + 1; x += x < 0 || x >= seg_size.X ? 1 : lod_width)
-    for (s16 y = -1; y < seg_size.Y + 1; y += y < 0 || y >= seg_size.Y ? 1 : lod_width)
-    for (s16 z = -1; z < seg_size.Z + 1; z += z < 0 || z >= seg_size.Z ? 1 : lod_width){
-		u16 actual_lod_width_x = std::max((s16) 1, std::min((s16) lod_width, (s16) (seg_size.X - x)));
-    	u16 actual_lod_width_y = std::max((s16) 1, std::min((s16) lod_width, (s16) (seg_size.Y - y)));
-    	u16 actual_lod_width_z = std::max((s16) 1, std::min((s16) lod_width, (s16) (seg_size.Z - z)));
-        v3s16 from = v3s16(x,
-        				   y,
-        				   z) + seg_start + blockpos_nodes;
+    for (s16 x = -lod_resolution; x < seg_size.X + lod_resolution; x += x < 0 || x >= seg_size.X ? lod_resolution : lod_width)
+    for (s16 y = -lod_resolution; y < seg_size.Y + lod_resolution; y += y < 0 || y >= seg_size.Y ? lod_resolution : lod_width)
+    for (s16 z = -lod_resolution; z < seg_size.Z + lod_resolution; z += z < 0 || z >= seg_size.Z ? lod_resolution : lod_width){
+		u16 actual_lod_width_x = std::max(static_cast<s16>(1), std::min(lod_width, static_cast<s16>(seg_size.X - x)));
+    	u16 actual_lod_width_y = std::max(static_cast<s16>(1), std::min(lod_width, static_cast<s16>(seg_size.Y - y)));
+    	u16 actual_lod_width_z = std::max(static_cast<s16>(1), std::min(lod_width, static_cast<s16>(seg_size.Z - z)));
+        v3s16 from = v3s16(x, y, z) + seg_start + blockpos_nodes;
         v3s16 to = v3s16(actual_lod_width_x,
                          actual_lod_width_y,
                          actual_lod_width_z) + from;
@@ -2040,10 +2038,10 @@ void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3
         if (bounds.MinEdge.X == S16_MAX)
         	continue;
 
-    	bounds.MinEdge -= blockpos_nodes + seg_start - lod_resolution;
-    	bounds.MaxEdge -= blockpos_nodes + seg_start - lod_resolution;
-    	bounds.MinEdge /= lod_resolution;
-    	bounds.MaxEdge /= lod_resolution;
+		bounds.MinEdge -= blockpos_nodes + seg_start - lod_resolution;
+		bounds.MaxEdge -= blockpos_nodes + seg_start - lod_resolution;
+		bounds.MinEdge /= lod_resolution;
+		bounds.MaxEdge /= lod_resolution;
 
 		//if(num_light_samples == 0)
 			lp = LightPair((u8) 255, 0);
@@ -2131,7 +2129,6 @@ void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> type
 
 	const u8 lod_resolution = std::max(1, width / 4);
 	const int attempted_seg_size = 64 * lod_resolution - 2;
-	// warningstream << "attempted_seg_size: " << attempted_seg_size << std::endl;
 
 	for (u16 x = 0; x < data->m_side_length; x += attempted_seg_size)
 	for (u16 y = 0; y < data->m_side_length; y += attempted_seg_size)
