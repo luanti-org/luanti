@@ -79,7 +79,8 @@ public:
 	*/
 	u32 getTextureId(const std::string &name);
 
-	// Finds out the name of a cached texture.
+	/// @brief Finds out the name of a cached texture.
+	/// @note DO NOT USE IN NEW CODE
 	std::string getTextureName(u32 id);
 
 	/*

@@ -23,6 +23,7 @@ namespace scene
 
 
 struct ItemStack;
+struct TileDef;
 class Client;
 class ITextureSource;
 class ShadowRenderer;
@@ -98,8 +99,16 @@ public:
 	WieldMeshSceneNode(scene::ISceneManager *mgr, s32 id = -1);
 	virtual ~WieldMeshSceneNode();
 
-	void setExtruded(const std::string &imagename, const std::string &overlay_image,
-			v3f wield_scale, ITextureSource *tsrc, u8 num_frames);
+	// Set appearance from node def
+	// d0, l0 = base tile
+	// d1, l1 = overlay tile
+	void setExtruded(const TileDef &d0, const TileLayer &l0,
+			const TileDef &d1, const TileLayer &l1,
+			v3f wield_scale, ITextureSource *tsrc);
+	// Set apperance from texture name
+	void setExtruded(const std::string &image, const std::string &overlay,
+			v3f wield_scale, ITextureSource *tsrc);
+
 	void setItem(const ItemStack &item, Client *client,
 			bool check_wield_image = true);
 
@@ -116,6 +125,9 @@ public:
 	virtual const aabb3f &getBoundingBox() const { return m_bounding_box; }
 
 private:
+	void setExtruded(video::ITexture *base, video::ITexture *overlay,
+			v3f wield_scale);
+
 	void changeToMesh(scene::IMesh *mesh);
 
 	// Child scene node with the current wield mesh
@@ -139,12 +151,15 @@ private:
 	// Bounding box culling is disabled for this type of scene node,
 	// so this variable is just required so we can implement
 	// getBoundingBox() and is set to an empty box.
-	aabb3f m_bounding_box{{0, 0, 0}};
+	const aabb3f m_bounding_box{{0, 0, 0}};
 
 	ShadowRenderer *m_shadow;
 };
 
 void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result);
+
+scene::SMesh *getExtrudedMesh(video::ITexture *texture,
+		video::ITexture *overlay_texture);
 
 scene::SMesh *getExtrudedMesh(ITextureSource *tsrc, const std::string &imagename,
 		const std::string &overlay_name);
