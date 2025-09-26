@@ -713,7 +713,8 @@ private:
 	// Craft definition manager
 	IWritableCraftDefManager *m_craftdef;
 
-	std::unordered_map<std::string, Translations> server_translations;
+	Translations server_translations;
+	std::unordered_set<std::string> loaded_translations;
 
 	ModIPCStore m_ipcstore;
 
