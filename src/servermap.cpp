@@ -339,7 +339,9 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 
 		/* Border blocks are grabbed during
 		   generation but mustn't be marked generated. */
-		if (bp >= bpmin && bp <= bpmax) {
+		if (bp.X >= bpmin.X && bp.X <= bpmax.X
+				&& bp.Y >= bpmin.Y && bp.Y <= bpmax.Y
+				&& bp.Z >= bpmin.Z && bp.Z <= bpmax.Z) {
 			block->setGenerated(true);
 			// Set timestamp to ensure correct application
 			// of LBMs and other stuff.
