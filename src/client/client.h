@@ -523,7 +523,7 @@ private:
 	// The authentication methods we can use to enter sudo mode (=change password)
 	u32 m_sudo_auth_methods;
 
-	// The seed returned by the server in TOCLIENT_INIT is stored here
+	// The seed returned by the server in TOCLIENT_AUTH_ACCEPT is stored here
 	u64 m_map_seed = 0;
 
 	// Auth data
