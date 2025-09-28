@@ -242,5 +242,5 @@ You can't place 'ignore' nodes!=Не можете да поставяте въз
 Values below show absolute/relative times spend per server step by the instrumented function.=Стойностите по-долу показват абсолютното/относителното време за всяка стъпка на сървъра от замерваната функция.
 A total of @1 sample(s) were taken.=Взети са общи @1 проби.
 The output is limited to '@1'.=Изходът е ограничен до „@1“.
-Saving of profile failed: @1=Грешка при запазване на профила
+Saving of profile failed: @1=Грешка при запазване на профила: @1
 Profile saved to @1=Профилът е запазен в @1
