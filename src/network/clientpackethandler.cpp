@@ -192,7 +192,7 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 {
 	// The server didn't like our password. Note, this needs
 	// to be processed even if the serialization format has
-	// not been agreed yet, the same as TOCLIENT_INIT.
+	// not been agreed yet, the same as TOCLIENT_AUTH_ACCEPT.
 	m_access_denied = true;
 
 	if (pkt->getCommand() != TOCLIENT_ACCESS_DENIED) {
