@@ -1953,7 +1953,7 @@ void Server::SendSetStars(session_t peer_id, const StarParams &params)
 
 	pkt << params.visible << params.count
 		<< params.starcolor << params.scale
-		<< params.day_opacity;
+		<< params.day_opacity << params.star_seed;
 
 	Send(&pkt);
 }
