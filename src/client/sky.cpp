@@ -805,6 +805,15 @@ void Sky::setStarCount(u16 star_count)
 	}
 }
 
+void Sky::setStarSeed(u64 star_seed)
+{
+	// Allow force updating star seed at game init.
+	if (m_star_params.star_seed != star_seed || m_first_update) {
+		m_star_params.star_seed = star_seed;
+		updateStars();
+	}
+}
+
 void Sky::updateStars()
 {
 	m_stars.reset(new scene::SMeshBuffer());
