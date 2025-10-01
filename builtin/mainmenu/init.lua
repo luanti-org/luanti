@@ -28,6 +28,7 @@ dofile(menupath .. DIR_DELIM .. "content" .. DIR_DELIM .. "init.lua")
 
 dofile(menupath .. DIR_DELIM .. "dlg_config_world.lua")
 dofile(basepath .. "common" .. DIR_DELIM .. "settings" .. DIR_DELIM .. "init.lua")
+dofile(menupath .. DIR_DELIM .. "dlg_confirm_exit.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_create_world.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_delete_content.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_delete_world.lua")
@@ -47,51 +48,14 @@ local tabs = {
 }
 
 --------------------------------------------------------------------------------
-local function show_exit_dialog(tabview, show_dialog)
-	tabview:hide()
-	local dlg = dialog_create(
-		"mainmenu_quit_confirm",
-		function()
-			return "size[10,3,true]" ..
-				"label[0.5,0.5;" .. fgettext("Are you sure you want to quit?") .. "]" ..
-				"checkbox[0.5,1;cb_show_dialog;" .. fgettext("Always show this dialog.") .. ";" .. tostring(show_dialog) .. "]" ..
-				"style[btn_quit_confirm_yes;bgcolor=red]" ..
-				"button[0.5,2.0;2.5,0.5;btn_quit_confirm_yes;" .. fgettext("Quit") .. "]" ..
-				"button[7.0,2.0;2.5,0.5;btn_quit_confirm_cancel;" .. fgettext("Cancel") .. "]"
-		end,
-		function(this, fields)
-			if fields.cb_show_dialog ~= nil then
-				core.settings:set_bool("enable_esc_dialog", core.is_yes(fields.cb_show_dialog))
-				return false
-			elseif fields.btn_quit_confirm_yes then
-				this:delete()
-				core.close()
-				return true
-			elseif fields.btn_quit_confirm_cancel or fields.key_escape or fields.quit then
-				this:delete()
-				if tabview and tabview.show then
-					tabview:show()
-				end
-				return true
-			end
-		end,
-		function(event)
-			if event == "DialogShow" then
-				mm_game_theme.set_engine(true) -- hide the menu header
-				return true
-			end
-			return true
-		end
-	)
-	dlg:set_parent(tabview)
-	dlg:show()
-end
-
 local function main_event_handler(tabview, event)
 	if event == "MenuQuit" then
 		local show_dialog = core.settings:get_bool("enable_esc_dialog")
 		if not ui.childlist["mainmenu_quit_confirm"] and show_dialog then
-			show_exit_dialog(tabview, show_dialog)
+			tabview:hide()
+			local dlg = create_exit_dialog()
+			dlg:set_parent(tabview)
+			dlg:show()
 		else
 			core.close()
 		end
