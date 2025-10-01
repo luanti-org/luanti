@@ -75,7 +75,13 @@ local function show_exit_dialog(tabview, show_dialog)
 				return true
 			end
 		end,
-		nil
+		function(event)
+			if event == "DialogShow" then
+				mm_game_theme.set_engine(true) -- hide the menu header
+				return true
+			end
+			return true
+		end
 	)
 	dlg:set_parent(tabview)
 	dlg:show()
