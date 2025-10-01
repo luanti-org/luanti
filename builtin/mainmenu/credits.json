@@ -12,7 +12,7 @@
 		"v-rob <robinsonvincent89@gmail.com>",
 		"Desour/DS",
 		"srifqi",
-		"Gregor Parzefall (grorp)",
+		"grorp",
 		"Lars Müller (luatic)",
 		"cx384",
 		"sfence",
@@ -47,14 +47,11 @@
 	],
 	"#": "For updating active/previous contributors, see the script in ./util/gather_git_credits.py",
 	"contributors": [
-		"Erich Schubert",
 		"Lucas OH",
-		"Xeno333",
-		"Miguel P.L",
-		"siliconsniffer",
-		"JosiahWI"
+		"Xeno333"
 	],
 	"previous_contributors": [
+		"Wuzzy (Wuzzy2)",
 		"Ælla Chiana Moskopp (erle) <erle@dieweltistgarnichtso.net> [Logo]",
 		"numzero",
 		"red-001 <red-001@outlook.ie>",
@@ -66,6 +63,7 @@
 		"Jean-Patrick Guerrero (kilbith)",
 		"MoNTE48",
 		"Constantin Wenger (SpeedProg)",
+		"JosiahWI",
 		"Ciaran Gultnieks (CiaranG)",
 		"ROllerozxa",
 		"Paul Ouellette (pauloue)",
