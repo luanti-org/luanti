@@ -27,8 +27,8 @@ local function exit_dialog_buttonhandler(this, fields)
 		return true
 	elseif fields.btn_quit_confirm_cancel or fields.key_escape or fields.quit then
 		this:delete()
-		if tabview and tabview.show then
-			tabview:show()
+		if this and this.show then
+			this:show()
 		end
 		return true
 	end
