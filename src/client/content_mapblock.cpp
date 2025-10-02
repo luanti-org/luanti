@@ -1855,7 +1855,7 @@ void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, s
     bases = outs;
 }
 
-void LodMeshGenerator::generateBitsetMesh(bitset (&slices)[6][62][62], MapNode n, u8 lod_resolution, v3s16 seg_start, video::SColor color)
+void LodMeshGenerator::generateBitsetMesh(bitset (& __restrict slices)[6][62][62], MapNode n, u8 lod_resolution, v3s16 seg_start, video::SColor color)
 {
 	static constexpr v3s16 direction_vectors[6] = {
 		v3s16(-1, 0, 0), v3s16(1, 0, 0),
@@ -1872,7 +1872,7 @@ void LodMeshGenerator::generateBitsetMesh(bitset (&slices)[6][62][62], MapNode n
 		while (column) {
 			u32 v0 = std::__countr_zero(column);
 			u32 v1 = std::__countr_one(column >> v0);
-			const bitset mask = ((static_cast<bitset>(1) << v1) - 1) << v0;
+			const bitset mask = ((1ULL << v1) - 1) << v0;
 			column ^= mask;
 			u32 u1 = 1;
 			while (u + u1 < 62 && // while still in current chunk
@@ -1962,137 +1962,77 @@ void LodMeshGenerator::generateBitsetMesh(bitset (&slices)[6][62][62], MapNode n
 	}
 }
 
-void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, s16 lod_width, u8 lod_resolution)
+void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u8 lod_resolution)
 {
 	bitset all_set_nodes[3][64][64] = {0};
 	std::unordered_map<content_t, u32> types_counts;
 	std::unordered_map<content_t, std::unordered_map<u16, MapNode>> node_types;
 	std::unordered_map<content_t, std::unordered_map<u16, bitset[3][64][64]>> set_nodes;
 
-    for (s16 x = -lod_resolution; x < seg_size.X + lod_resolution; x += x < 0 || x >= seg_size.X ? lod_resolution : lod_width)
-    for (s16 y = -lod_resolution; y < seg_size.Y + lod_resolution; y += y < 0 || y >= seg_size.Y ? lod_resolution : lod_width)
-    for (s16 z = -lod_resolution; z < seg_size.Z + lod_resolution; z += z < 0 || z >= seg_size.Z ? lod_resolution : lod_width){
-		u16 actual_lod_width_x = std::max(static_cast<s16>(1), std::min(lod_width, static_cast<s16>(seg_size.X - x)));
-    	u16 actual_lod_width_y = std::max(static_cast<s16>(1), std::min(lod_width, static_cast<s16>(seg_size.Y - y)));
-    	u16 actual_lod_width_z = std::max(static_cast<s16>(1), std::min(lod_width, static_cast<s16>(seg_size.Z - z)));
-        v3s16 from = v3s16(x, y, z) + seg_start + blockpos_nodes;
-        v3s16 to = v3s16(actual_lod_width_x,
-                         actual_lod_width_y,
-                         actual_lod_width_z) + from;
+    const v3s16 to = seg_start + seg_size;
 
-		v3s16 p;
-		MapNode main_node;
-		content_t node_type;
-		LightPair lp;
-		u16 day_light = 0;
-		u16 night_light = 0;
-		u8 num_light_samples = 0;
-		core::aabbox3d bounds(v3s16(S16_MAX), v3s16(S16_MIN));
-		for (p.Z = from.Z; p.Z < to.Z; p.Z += lod_resolution)
-		for (p.Y = from.Y; p.Y < to.Y; p.Y += lod_resolution)
-		for (p.X = from.X; p.X < to.X; p.X += lod_resolution) {
-			p.X = MYMIN(p.X, to.X - 1);
-			p.Y = MYMIN(p.Y, to.Y - 1);
-			p.Z = MYMIN(p.Z, to.Z - 1);
-			MapNode n = data->m_vmanip.getNodeNoEx(p);
-			if (n.getContent() == CONTENT_IGNORE) {
-				goto next_volume;
+	v3s16 p;
+	LightPair lp;
+	for (p.Z = seg_start.Z - 1; p.Z < to.Z + lod_resolution; p.Z += lod_resolution)
+	for (p.Y = seg_start.Y - 1; p.Y < to.Y + lod_resolution; p.Y += lod_resolution)
+	for (p.X = seg_start.X - 1; p.X < to.X + lod_resolution; p.X += lod_resolution) {
+		p.Z = MYMIN(to.Z, p.Z);
+		p.Y = MYMIN(to.Y, p.Y);
+		p.X = MYMIN(to.X, p.X);
+		// warningstream << "getting: " << p << " in " << blockpos_nodes << " - " << (blockpos_nodes + data->m_side_length) << std::endl;
+		MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
+		// MapNode n = data->m_vmanip.getNodeRefUnsafeCheckFlags(p);
+		// warningstream << "got it" << std::endl;
+		if (n.getContent() == CONTENT_IGNORE) {
+			continue;
+		}
+		const ContentFeatures* f = &nodedef->get(n);
+		u16 day_light;
+		u16 night_light;
+		if (f->drawtype == NDT_NORMAL) {
+			for (v3s16 direction : directions) {
+				ContentLightingFlags lf = nodedef->getLightingFlags(data->m_vmanip.getNodeRefUnsafeCheckFlags(p + direction));
+				day_light += decode_light(n.getLightRaw(LIGHTBANK_DAY, lf)) / 6;
+				night_light += decode_light(n.getLightRaw(LIGHTBANK_NIGHT, lf)) / 6;
 			}
-			const ContentFeatures* f = &nodedef->get(n);
-			if (f->drawtype == NDT_NORMAL) {
-				for (v3s16 direction : directions) {
-					ContentLightingFlags lf = nodedef->getLightingFlags(data->m_vmanip.getNodeNoEx(p + direction));
-					u8 light_sample = decode_light(main_node.getLightRaw(LIGHTBANK_DAY, lf));
-					if (light_sample > 0) {
-						//day_light = MYMAX(day_light, light_sample);
-						day_light += light_sample;
-						//warningstream << "day: " << day_light << std::endl;
-						night_light += decode_light(main_node.getLightRaw(LIGHTBANK_NIGHT, lf));
-						num_light_samples++;
-					}
-				}
-			} else {
-				ContentLightingFlags lf = nodedef->getLightingFlags(n);
-				u8 light_sample = decode_light(main_node.getLightRaw(LIGHTBANK_DAY, lf));
-				if (light_sample > 0) {
-					//day_light = MYMAX(day_light, light_sample);
-					day_light += light_sample;
-					//warningstream << "day: " << day_light << std::endl;
-					night_light += decode_light(main_node.getLightRaw(LIGHTBANK_NIGHT, lf));
-					num_light_samples++;
-				}
-			}
-			if (!types.test(f->drawtype)) {
-				continue;
-			}
-			bounds.MinEdge.X = MYMIN(bounds.MinEdge.X, p.X);
-			bounds.MinEdge.Y = MYMIN(bounds.MinEdge.Y, p.Y);
-			bounds.MinEdge.Z = MYMIN(bounds.MinEdge.Z, p.Z);
-			bounds.MaxEdge.X = MYMAX(bounds.MaxEdge.X, p.X);
-			bounds.MaxEdge.Y = MYMAX(bounds.MaxEdge.Y, p.Y);
-			bounds.MaxEdge.Z = MYMAX(bounds.MaxEdge.Z, p.Z);
-			main_node = n;
+		} else {
+			ContentLightingFlags lf = nodedef->getLightingFlags(n);
+			day_light = decode_light(n.getLightRaw(LIGHTBANK_DAY, lf));
+			night_light = decode_light(n.getLightRaw(LIGHTBANK_NIGHT, lf));
+		}
+		if (!types.test(f->drawtype)) {
+			continue;
 		}
 
-        // skip if volume is empty or too small
-        if (bounds.MinEdge.X == S16_MAX)
-        	continue;
+		// if(num_light_samples == 0)
+			// lp = LightPair((u8) 255, 0);
+		// else {
+			// warningstream << "avg: " << day_light << " / " << (int) num_light_samples << " = " << (day_light / num_light_samples) << std::endl;
+			// warningstream << "daylight: " << (day_light / 64 * 64) << std::endl;
+			lp = LightPair((u8) (day_light / 64 * 64), (u8) (night_light / 64 * 64));
+		// }
 
-		bounds.MinEdge -= blockpos_nodes + seg_start - lod_resolution;
-		bounds.MaxEdge -= blockpos_nodes + seg_start - lod_resolution;
-		bounds.MinEdge /= lod_resolution;
-		bounds.MaxEdge /= lod_resolution;
+		content_t node_type = n.getContent();
+		types_counts[node_type]++;
+		node_types[node_type][lp] = n;
+		v3s16 p_scaled = (p - seg_start + 1) / lod_resolution;
+		// warningstream << "scaled: " << p_scaled << std::endl;
+		all_set_nodes[0][p_scaled.Y][p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+		all_set_nodes[1][p_scaled.X][p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+		all_set_nodes[2][p_scaled.X][p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+		// warningstream << "value inserted in all bitset" << std::endl;
 
-		//if(num_light_samples == 0)
-			lp = LightPair((u8) 255, 0);
-		//else {
-			//warningstream << "avg: " << (day_light) << " : " << (day_light / num_light_samples) << std::endl;
-		//	lp = LightPair((u8) (day_light / num_light_samples), night_light / num_light_samples);
-		//}
-
-		node_type = main_node.getContent();
-    	types_counts[node_type]++;
-		node_types[node_type][lp] = main_node;
-		for (p.Z = bounds.MinEdge.Z; p.Z <= bounds.MaxEdge.Z; p.Z++)
-		for (p.Y = bounds.MinEdge.Y; p.Y <= bounds.MaxEdge.Y; p.Y++)
-		for (p.X = bounds.MinEdge.X; p.X <= bounds.MaxEdge.X; p.X++) {
-			all_set_nodes[0][p.Y][p.Z] |= static_cast<bitset>(1) << p.X; // x axis
-			all_set_nodes[1][p.X][p.Z] |= static_cast<bitset>(1) << p.Y; // y axis
-			all_set_nodes[2][p.X][p.Y] |= static_cast<bitset>(1) << p.Z; // z axis
-
-			set_nodes[node_type][lp][0][p.Y][p.Z] |= static_cast<bitset>(1) << p.X; // x axis
-			set_nodes[node_type][lp][1][p.X][p.Z] |= static_cast<bitset>(1) << p.Y; // y axis
-			set_nodes[node_type][lp][2][p.X][p.Y] |= static_cast<bitset>(1) << p.Z; // z axis
-		}
-		next_volume:
-	}
-
-	{
-		std::vector<content_t> sorted_types;
-		std::vector<std::pair<content_t, u32>> helper(types_counts.begin(), types_counts.end());
-		std::sort(helper.begin(), helper.end(), [](const auto &a, const auto &b) {
-			return a.second > b.second;
-		});
-		for (const auto & [first, second] : helper) {
-			sorted_types.push_back(first);
-		}
-		u8 types_resolution = (8 / lod_resolution + 1);
-		for (u8 type_i = types_resolution; type_i < sorted_types.size(); type_i++) {
-			for (auto [from_light, from_set] : set_nodes[sorted_types[type_i]])
-			for (u8 direction = 0; direction < 3; direction++)
-			for (u8 u = 0; u < 64; u++)
-			for (u8 v = 0; v < 64; v++) {
-				set_nodes[sorted_types[types_resolution - 1]][from_light][direction][u][v] |= from_set[direction][u][v];
-			}
-			set_nodes.erase(sorted_types[type_i]);
-		}
+		set_nodes[node_type][lp][0][p_scaled.Y][p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+		set_nodes[node_type][lp][1][p_scaled.X][p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+		set_nodes[node_type][lp][2][p_scaled.X][p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+		// warningstream << "value inserted in type bitset" << std::endl;
 	}
 
 	for (const auto& [node_type, map] : set_nodes)
 	for (const auto& [light_pair, value] : map) {
 		bitset nodes_faces[6][62][62] = {0}; // -x, +x, -y, +y, -z, +z
 		MapNode n = node_types[node_type][light_pair];
-		video::SColor color = encode_light(255, nodedef->getLightingFlags(n).light_source);
+		video::SColor color = encode_light(light_pair, nodedef->getLightingFlags(n).light_source);
 
 		for (u8 u = 0; u < 62; u++)
 		for (u8 v = 0; v < 62; v++) {
@@ -2112,32 +2052,30 @@ void LodMeshGenerator::generateGreedyLod(std::bitset<NodeDrawType_END> types, v3
 			bitset column = nodes_faces[direction][u][v];
 			while (column) {
 				const u8 first_filled = std::__countr_zero(column);
-				slices[direction][first_filled][u] |= (static_cast<bitset>(1) << v);
+				slices[direction][first_filled][u] |= 1ULL << v;
 				column &= column - 1;
 			}
 		}
 
-		generateBitsetMesh(slices, n, lod_resolution, seg_start, color);
+		generateBitsetMesh(slices, n, lod_resolution, seg_start - blockpos_nodes, color);
 	}
 }
 
 void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> types, const u16 width)
 {
-	static u16 calls = 0;
-	if (++calls % 10 == 0)
-		warningstream << "lod " << calls << std::endl;
-
-	const u8 lod_resolution = std::max(1, width / 4);
-	const int attempted_seg_size = 64 * lod_resolution - 2;
+	const int attempted_seg_size = 62 * width;
 
 	for (u16 x = 0; x < data->m_side_length; x += attempted_seg_size)
 	for (u16 y = 0; y < data->m_side_length; y += attempted_seg_size)
 	for (u16 z = 0; z < data->m_side_length; z += attempted_seg_size) {
-		const v3s16 seg_start(x, y, z);
+		const v3s16 seg_start(
+			x + blockpos_nodes.X,
+			y + blockpos_nodes.Y,
+			z + blockpos_nodes.Z);
 		const v3s16 seg_size(std::min(data->m_side_length - x, attempted_seg_size),
 		                     std::min(data->m_side_length - y, attempted_seg_size),
 							 std::min(data->m_side_length - z, attempted_seg_size));
-		generateGreedyLod(types, seg_start, seg_size, width, lod_resolution);
+		generateGreedyLod(types, seg_start, seg_size, width);
 	}
 }
 
