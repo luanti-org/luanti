@@ -26,11 +26,24 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	const ItemDefinition &def = item.getDefinition(idef);
 	std::string inventory_image = item.getInventoryImage(idef);
 	std::string inventory_overlay = item.getInventoryOverlay(idef);
-	std::string cache_key = def.name;
+	const TileAnimationParams inventory_image_animation = item.getInventoryImageAnimation(idef);
+	const TileAnimationParams inventory_overlay_animation = item.getInventoryOverlayAnimation(idef);
+
+	std::ostringstream os(def.name);
 	if (!inventory_image.empty())
-		cache_key += "/" + inventory_image;
+		os << "/" << inventory_image;
 	if (!inventory_overlay.empty())
-		cache_key += ":" + inventory_overlay;
+		os << ":" << inventory_overlay;
+	if (inventory_image_animation.type != TileAnimationType::TAT_NONE) {
+		os << "//";
+		inventory_image_animation.serializeJson(os);
+	}
+	if (inventory_overlay_animation.type != TileAnimationType::TAT_NONE) {
+		os << "::";
+		inventory_overlay_animation.serializeJson(os);
+	}
+	std::string cache_key = os.str();
+
 
 	// Skip if already in cache
 	auto it = m_cached_item_visuals.find(cache_key);
@@ -67,10 +80,10 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 		}
 	};
 
-	populate_texture_and_animation(inventory_image, def.inventory_image_animation,
+	populate_texture_and_animation(inventory_image, inventory_image_animation,
 			iv->inventory_texture, iv->inventory_animation);
 
-	populate_texture_and_animation(inventory_overlay, def.inventory_overlay_animation,
+	populate_texture_and_animation(inventory_overlay, inventory_overlay_animation,
 			iv->inventory_overlay_texture, iv->inventory_overlay_animation);
 
 	createItemMesh(client, def, iv->inventory_texture,
