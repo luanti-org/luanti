@@ -420,36 +420,32 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		video::ITexture *wield_texture = tsrc->getTexture(wield_image);
 		video::ITexture *wield_overlay_texture = wield_image.empty() ?
 				nullptr : tsrc->getTexture(wield_overlay);
-		if (def.wield_image_animation.type == TileAnimationType::TAT_NONE) {
+
+		// Animation
+		int frame_length_ms;
+		m_wield_image_frames = std::vector<FrameSpec>(createAnimationFrames(
+				tsrc, wield_image, def.wield_image_animation, frame_length_ms));
+		if (m_wield_image_frames.empty()) {
 			m_buffer_info.emplace_back();
+		} else {
+			m_buffer_info.emplace_back(&m_wield_image_frames, frame_length_ms);
+			wield_texture = m_wield_image_frames[0].texture;
+		}
+
+		// Overlay animation
+		int overlay_frame_length_ms;
+		m_wield_overlay_frames = std::vector<FrameSpec>(createAnimationFrames(
+				tsrc, wield_overlay, def.wield_overlay_animation, overlay_frame_length_ms));
+		if (m_wield_overlay_frames.empty()) {
 			// overlay is white, if present
 			m_buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
 		} else {
-			// Handle animation
-			int frame_length_ms, overlay_frame_length_ms;
-			m_wield_image_frames = std::vector<FrameSpec>(
-					createAnimationFrames(tsrc, wield_image, def.wield_image_animation,
-					frame_length_ms));
-			m_wield_overlay_frames = std::vector<FrameSpec>(
-					createAnimationFrames(tsrc, wield_overlay, def.wield_image_animation,
-					overlay_frame_length_ms));
-
-			if (m_wield_image_frames.empty()) {
-				m_buffer_info.emplace_back();
-			} else {
-				m_buffer_info.emplace_back(&m_wield_image_frames, frame_length_ms);
-				wield_texture = m_wield_image_frames[0].texture;
-			}
-
-			if (m_wield_overlay_frames.empty()) {
-				m_buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));
-			} else {
-				m_buffer_info.emplace_back(
-						&m_wield_overlay_frames, overlay_frame_length_ms,
-						true, video::SColor(0xFFFFFFFF));
-				wield_overlay_texture = m_wield_overlay_frames[0].texture;
-			}
+			m_buffer_info.emplace_back(
+					&m_wield_overlay_frames, overlay_frame_length_ms,
+					true, video::SColor(0xFFFFFFFF));
+			wield_overlay_texture = m_wield_overlay_frames[0].texture;
 		}
+
 		setExtruded(wield_texture, wield_overlay_texture, wield_scale);
 		// initialize the color
 		setColor(video::SColor(0xFFFFFFFF));

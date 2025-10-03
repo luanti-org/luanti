@@ -113,7 +113,9 @@ ItemDefinition& ItemDefinition::operator=(const ItemDefinition &def)
 	wield_overlay = def.wield_overlay;
 	wield_scale = def.wield_scale;
 	inventory_image_animation = def.inventory_image_animation;
+	inventory_overlay_animation = def.inventory_overlay_animation;
 	wield_image_animation = def.wield_image_animation;
+	wield_overlay_animation = def.wield_overlay_animation;
 	stack_max = def.stack_max;
 	usable = def.usable;
 	liquids_pointable = def.liquids_pointable;
@@ -163,7 +165,9 @@ void ItemDefinition::reset()
 	color = video::SColor(0xFFFFFFFF);
 	wield_scale = v3f(1.0, 1.0, 1.0);
 	inventory_image_animation.type = TileAnimationType::TAT_NONE;
+	inventory_overlay_animation.type = TileAnimationType::TAT_NONE;
 	wield_image_animation.type = TileAnimationType::TAT_NONE;
+	wield_overlay_animation.type = TileAnimationType::TAT_NONE;
 	stack_max = 99;
 	usable = false;
 	liquids_pointable = false;
@@ -190,11 +194,11 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	std::string wield_image_to_send = wield_image;
 	std::string inventory_overlay_to_send = inventory_overlay;
 	std::string wield_overlay_to_send = wield_overlay;
-	if (protocol_version < 48) {
+	if (protocol_version < 50) {
 		inventory_image_animation.extractFirstFrame(inventory_image_to_send);
+		inventory_overlay_animation.extractFirstFrame(inventory_overlay_to_send);
 		wield_image_animation.extractFirstFrame(wield_image_to_send);
-		inventory_image_animation.extractFirstFrame(inventory_overlay_to_send);
-		wield_image_animation.extractFirstFrame(wield_overlay_to_send);
+		wield_overlay_animation.extractFirstFrame(wield_overlay_to_send);
 	}
 
 	// protocol_version >= 37
@@ -272,7 +276,9 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	}
 
 	inventory_image_animation.serialize(os, protocol_version);
+	inventory_overlay_animation.serialize(os, protocol_version);
 	wield_image_animation.serialize(os, protocol_version);
+	wield_overlay_animation.serialize(os, protocol_version);
 }
 
 void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
@@ -361,7 +367,9 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 		}
 
 		inventory_image_animation.deSerialize(is, protocol_version);
+		inventory_overlay_animation.deSerialize(is, protocol_version);
 		wield_image_animation.deSerialize(is, protocol_version);
+		wield_overlay_animation.deSerialize(is, protocol_version);
 
 	} catch(SerializationError &e) {};
 }

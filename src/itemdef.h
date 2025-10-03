@@ -78,7 +78,9 @@ struct ItemDefinition
 	video::SColor color; // The fallback color of the node.
 	v3f wield_scale;
 	TileAnimationParams inventory_image_animation;
+	TileAnimationParams inventory_overlay_animation;
 	TileAnimationParams wield_image_animation;
+	TileAnimationParams wield_overlay_animation;
 
 	/*
 		Item stack and interaction properties

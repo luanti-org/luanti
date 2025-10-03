@@ -182,7 +182,7 @@ scene::SMesh *getExtrudedMesh(video::ITexture *texture,
 	video::ITexture *overlay_texture = nullptr);
 
 // This is only used to initially generate an ItemMesh
-// To get the mesh use IItemDefManager::getWieldMesh(item, client) instead
+// To get the mesh, use ItemVisualsManager::getItemMesh(item, client) instead
 void createItemMesh(Client *client, const ItemDefinition &def,
 		video::ITexture *inventory_texture, AnimationInfo* inventory_animation,
 		video::ITexture *inventory_overlay_texture, AnimationInfo* inventory_overlay_animation,
