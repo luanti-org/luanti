@@ -1,0 +1,3 @@
+msgctxt "testtranslations"
+msgid "Testing translation with multiple languages"
+msgstr "Testing translation: translated in Swiss French"
