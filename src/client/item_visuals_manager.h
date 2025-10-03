@@ -62,8 +62,8 @@ private:
 		ItemMesh item_mesh;
 		Palette *palette;
 
-		// ItemVisuals owns the frames vector of the inventory and overlay image,
-		// and stores an AnimationInfo to draw animated non-mesh items,
+		// Exists to own the frames vector referenced by
+		// the contained AnimationInfo.
 		struct OwnedAnimationInfo {
 			AnimationInfo info;
 			std::vector<FrameSpec> frames;

@@ -61,7 +61,7 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 						createAnimationFrames(tsrc, image_name, animation, frame_length_ms),
 						frame_length_ms);
 
-				// Use first frame for static texture
+				// Set first frame
 				texture = owned_animation->frames[0].texture;
 			}
 		}
@@ -70,7 +70,7 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	populate_texture_and_animation(inventory_image, def.inventory_image_animation,
 			iv->inventory_texture, iv->inventory_animation);
 
-	populate_texture_and_animation(inventory_overlay, def.inventory_image_animation,
+	populate_texture_and_animation(inventory_overlay, def.inventory_overlay_animation,
 			iv->inventory_overlay_texture, iv->inventory_overlay_animation);
 
 	createItemMesh(client, def, iv->inventory_texture,

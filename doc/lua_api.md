@@ -5849,8 +5849,8 @@ Utilities
       particlespawner_exclude_player = true,
       -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
       generate_decorations_biomes = true,
-      -- Item definitions make use of the `inventory_image_animation`
-      -- and `wield_image_animation` field (5.12.0)
+      -- Item definitions make use of the `inventory_image_animation`, `wield_overlay_animation`,
+      -- `wield_overlay_animation` and `wield_image_animation` field (5.16.0)
       item_image_animation = true,
   }
   ```
@@ -9514,6 +9514,7 @@ Player properties need to be saved manually.
     --   `core.itemstring_with_palette()`), the entity will inherit the color.
     --   Wielditems are scaled a bit. If you want a wielditem to appear
     --   to be as large as a node, use `0.667` in `visual_size`
+    --   Currently, item image animations are not played. This may change in the future.
     -- "item" is similar to "wielditem" but ignores the 'wield_image' parameter.
     -- "node" looks exactly like a node in-world (supported since 5.12.0)
     --   Note that visual effects like waving or liquid reflections will not work.
@@ -9888,7 +9889,10 @@ Used by `core.register_node`, `core.register_craftitem`, and
     -- An overlay texture which is not affected by colorization
 
     inventory_image_animation = {Tile Animation definition},
-    -- Optional, animates the `inventory_image` and `inventory_overlay` if specified
+    -- Optional, animates the `inventory_image` if specified
+
+    inventory_overlay_animation = {Tile Animation definition},
+    -- Optional, animates the `inventory_overlay` if specified
 
     wield_image = "",
     -- Texture shown when item is held in hand
@@ -9898,7 +9902,10 @@ Used by `core.register_node`, `core.register_craftitem`, and
     -- Like inventory_overlay but only used in the same situation as wield_image
 
     wield_image_animation = {Tile Animation definition}
-    -- Optional, animates the `wield_image` and `wield_overlay` if specified
+    -- Optional, animates the `wield_image` if specified
+
+    wield_overlay_animation = {Tile Animation definition}
+    -- Optional, animates `wield_overlay` if specified
 
     wield_scale = {x = 1, y = 1, z = 1},
     -- Scale for the item when held in hand
