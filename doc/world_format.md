@@ -249,7 +249,7 @@ Example content:
 
 # Map File Format
 
-Luanti maps consist of `MapBlock`s, chunks of 16x16x16 nodes.
+Luanti maps consist of `MapBlock`s, each holds 16x16x16 nodes.
 
 In addition to the bulk node data, `MapBlock`s stored on disk also contain
 other things.
