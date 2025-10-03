@@ -59,6 +59,21 @@ int ItemStackMetaRef::l_set_wear_bar_params(lua_State *L)
 	return 0;
 }
 
+template<ItemStackMetadata::AnimationType t>
+int ItemStackMetaRef::l_set_animation(lua_State *L)
+{
+	ItemStackMetaRef *metaref = checkObject<ItemStackMetaRef>(L, 1);
+	if (lua_isnoneornil(L, 2)) {
+		metaref->clearAnimation<t>();
+	} else if (lua_istable(L, 2)) {
+		metaref->setAnimation<t>(read_animation_definition(L, 2));
+	} else {
+		luaL_typerror(L, 2, "table, or nil");
+	}
+
+	return 0;
+}
+
 ItemStackMetaRef::ItemStackMetaRef(LuaItemStack *istack): istack(istack)
 {
 	istack->grab();
@@ -100,5 +115,9 @@ const luaL_Reg ItemStackMetaRef::methods[] = {
 	luamethod(MetaDataRef, equals),
 	luamethod(ItemStackMetaRef, set_tool_capabilities),
 	luamethod(ItemStackMetaRef, set_wear_bar_params),
+	{"set_inventory_image_animation", ItemStackMetaRef::l_set_animation<ItemStackMetadata::InventoryImage>},
+	{"set_inventory_overlay_animation", ItemStackMetaRef::l_set_animation<ItemStackMetadata::InventoryOverlay>},
+	{"set_wield_image_animation", ItemStackMetaRef::l_set_animation<ItemStackMetadata::WieldImage>},
+	{"set_wield_overlay_animation", ItemStackMetaRef::l_set_animation<ItemStackMetadata::WieldOverlay>},
 	{0,0}
 };

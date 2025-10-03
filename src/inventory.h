@@ -41,6 +41,10 @@ struct ItemStack
 	std::string getWieldImage(const IItemDefManager *itemdef) const;
 	std::string getWieldOverlay(const IItemDefManager *itemdef) const;
 	v3f getWieldScale(const IItemDefManager *itemdef) const;
+	const TileAnimationParams getInventoryImageAnimation(const IItemDefManager *itemdef) const;
+	const TileAnimationParams getInventoryOverlayAnimation(const IItemDefManager *itemdef) const;
+	const TileAnimationParams getWieldImageAnimation(const IItemDefManager *itemdef) const;
+	const TileAnimationParams getWieldOverlayAnimation(const IItemDefManager *itemdef) const;
 
 	/*
 		Quantity methods

@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include "irrlichttypes_bloated.h"
+#include <optional>
 
 enum TileAnimationType : u8
 {
@@ -37,6 +38,9 @@ struct TileAnimationParams
 
 	void serialize(std::ostream &os, u16 protocol_ver) const;
 	void deSerialize(std::istream &is, u16 protocol_ver);
+	void serializeJson(std::ostream &os) const;
+	static std::optional<TileAnimationParams> deserializeJson(std::istream &is);
+
 	void determineParams(v2u32 texture_size, int *frame_count, int *frame_length_ms,
 			v2u32 *frame_size) const;
 	void getTextureModifer(std::ostream &os, v2u32 texture_size, int frame) const;
