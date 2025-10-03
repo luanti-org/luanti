@@ -5849,7 +5849,7 @@ Utilities
       particlespawner_exclude_player = true,
       -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
       generate_decorations_biomes = true,
-      -- Item definitions make use of the `inventory_image_animation`, `wield_overlay_animation`,
+      -- Item definitions make use of the `inventory_image_animation`, `inventory_overlay_animation`,
       -- `wield_overlay_animation` and `wield_image_animation` field (5.16.0)
       item_image_animation = true,
   }
@@ -8250,6 +8250,13 @@ Can be obtained via `item:get_meta()`.
     * Overrides the item's wear bar parameters (see "Wear Bar Color" section)
     * A nil value will clear the override data and restore the original
       behavior.
+* `set_inventory_image_animation({Tile Animation definition})`
+* `set_inventory_overlay_animation({Tile Animation definition})`
+* `set_wield_image_animation({Tile Animation definition})`
+* `set_wield_overlay_animation({Tile Animation definition})`
+    * Overrides the item's image animation definitions
+    * A nil value will clear the override data.
+    * See [Item Metadata](#item-metadata) for how to override the image.
 
 `MetaDataRef`
 -------------

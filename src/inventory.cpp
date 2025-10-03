@@ -292,6 +292,42 @@ std::string ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
 	return texture;
 }
 
+const TileAnimationParams ItemStack::getInventoryImageAnimation(const IItemDefManager *itemdef) const
+{
+	auto &meta_override = metadata.getAnimationOverride<ItemStackMetadata::InventoryImage>();
+	if (meta_override.has_value())
+		return meta_override.value();
+
+	return getDefinition(itemdef).inventory_image_animation;
+}
+
+const TileAnimationParams ItemStack::getInventoryOverlayAnimation(const IItemDefManager *itemdef) const
+{
+	auto &meta_override = metadata.getAnimationOverride<ItemStackMetadata::InventoryOverlay>();
+	if (meta_override.has_value())
+		return meta_override.value();
+
+	return getDefinition(itemdef).inventory_overlay_animation;
+}
+
+const TileAnimationParams ItemStack::getWieldImageAnimation(const IItemDefManager *itemdef) const
+{
+	auto &meta_override = metadata.getAnimationOverride<ItemStackMetadata::WieldImage>();
+	if (meta_override.has_value())
+		return meta_override.value();
+
+	return getDefinition(itemdef).wield_image_animation;
+}
+
+const TileAnimationParams ItemStack::getWieldOverlayAnimation(const IItemDefManager *itemdef) const
+{
+	auto &meta_override = metadata.getAnimationOverride<ItemStackMetadata::WieldOverlay>();
+	if (meta_override.has_value())
+		return meta_override.value();
+
+	return getDefinition(itemdef).wield_overlay_animation;
+}
+
 v3f ItemStack::getWieldScale(const IItemDefManager *itemdef) const
 {
 	std::string scale = metadata.getString("wield_scale");

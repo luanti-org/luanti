@@ -44,9 +44,25 @@ private:
 		istack->getItem().metadata.clearWearBarParams();
 	}
 
+	template<ItemStackMetadata::AnimationType t>
+	void setAnimation(const TileAnimationParams &params)
+	{
+		istack->getItem().metadata.setAnimation<t>(params);
+	}
+
+	template<ItemStackMetadata::AnimationType t>
+	void clearAnimation()
+	{
+		istack->getItem().metadata.clearAnimation<t>();
+	}
+
+
 	// Exported functions
 	static int l_set_tool_capabilities(lua_State *L);
 	static int l_set_wear_bar_params(lua_State *L);
+
+	template<ItemStackMetadata::AnimationType>
+	static int l_set_animation(lua_State *L);
 public:
 	// takes a reference
 	ItemStackMetaRef(LuaItemStack *istack);

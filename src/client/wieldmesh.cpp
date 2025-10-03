@@ -414,6 +414,8 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 	const std::string wield_image = item.getWieldImage(idef);
 	const std::string wield_overlay = item.getWieldOverlay(idef);
 	const v3f wield_scale = item.getWieldScale(idef);
+	const TileAnimationParams wield_image_animation = item.getWieldImageAnimation(idef);
+	const TileAnimationParams wield_overlay_animation = item.getWieldOverlayAnimation(idef);
 
 	// If wield_image needs to be checked and is defined, it overrides everything else
 	if (!wield_image.empty() && check_wield_image) {
@@ -424,7 +426,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		// Animation
 		int frame_length_ms;
 		m_wield_image_frames = std::vector<FrameSpec>(createAnimationFrames(
-				tsrc, wield_image, def.wield_image_animation, frame_length_ms));
+				tsrc, wield_image, wield_image_animation, frame_length_ms));
 		if (m_wield_image_frames.empty()) {
 			m_buffer_info.emplace_back();
 		} else {
@@ -435,7 +437,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		// Overlay animation
 		int overlay_frame_length_ms;
 		m_wield_overlay_frames = std::vector<FrameSpec>(createAnimationFrames(
-				tsrc, wield_overlay, def.wield_overlay_animation, overlay_frame_length_ms));
+				tsrc, wield_overlay, wield_overlay_animation, overlay_frame_length_ms));
 		if (m_wield_overlay_frames.empty()) {
 			// overlay is white, if present
 			m_buffer_info.emplace_back(true, video::SColor(0xFFFFFFFF));

@@ -6,6 +6,7 @@
 
 #include "metadata.h"
 #include "tool.h"
+#include "tileanimation.h"
 
 #include <optional>
 
@@ -40,10 +41,46 @@ public:
 	void setWearBarParams(const WearBarParams &params);
 	void clearWearBarParams();
 
+	// Templated to prevent code duplication
+	enum AnimationType {
+		InventoryImage,
+		InventoryOverlay,
+		WieldImage,
+		WieldOverlay
+	};
+
+	template<AnimationType t>
+	const std::optional<TileAnimationParams> &getAnimationOverride() const
+	{
+		return animation_overrides[t];
+	}
+
+	template<AnimationType>
+	void setAnimation(const TileAnimationParams &params);
+	template<AnimationType>
+	void clearAnimation();
+
 private:
 	void updateToolCapabilities();
 	void updateWearBarParams();
+	void updateAll();
+
+	template<AnimationType>
+	void updateAnimation();
 
 	std::optional<ToolCapabilities> toolcaps_override;
 	std::optional<WearBarParams> wear_bar_override;
+	std::optional<TileAnimationParams> animation_overrides[4];
 };
+
+// Need to declare all
+extern template void ItemStackMetadata::setAnimation<ItemStackMetadata::InventoryImage>(const TileAnimationParams &params);
+extern template void ItemStackMetadata::setAnimation<ItemStackMetadata::InventoryOverlay>(const TileAnimationParams &params);
+extern template void ItemStackMetadata::setAnimation<ItemStackMetadata::WieldImage>(const TileAnimationParams &params);
+extern template void ItemStackMetadata::setAnimation<ItemStackMetadata::WieldOverlay>(const TileAnimationParams &params);
+extern template void ItemStackMetadata::clearAnimation<ItemStackMetadata::InventoryImage>();
+extern template void ItemStackMetadata::clearAnimation<ItemStackMetadata::InventoryOverlay>();
+extern template void ItemStackMetadata::clearAnimation<ItemStackMetadata::WieldImage>();
+extern template void ItemStackMetadata::clearAnimation<ItemStackMetadata::WieldOverlay>();
+
+
