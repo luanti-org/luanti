@@ -195,6 +195,12 @@ core.register_craftitem("testitems:inventory_image_animation_overlay", {
 		aspect_h = 16,
 		length = 4.0,
 	},
+	inventory_overlay_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 4.0,
+	},
 	color = "#ff0000",
 })
 
@@ -221,6 +227,12 @@ core.register_craftitem("testitems:wield_image_animation_overlay", {
 	wield_image= "testnodes_anim.png^[invert:rgb",
 	wield_overlay="testitems_animation_overlay.png",
 	wield_image_animation = {
+		type = "sheet_2d",
+		frames_w = 1,
+		frames_h = 4,
+		frame_length = 1.0,
+	},
+	wield_overlay_animation = {
 		type = "sheet_2d",
 		frames_w = 1,
 		frames_h = 4,
