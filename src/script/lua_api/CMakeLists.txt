@@ -43,4 +43,5 @@ set(client_SCRIPT_LUA_API_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/l_particles_local.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_pause_menu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_storage.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/l_sscsm.cpp
 	PARENT_SCOPE)
