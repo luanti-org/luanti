@@ -256,77 +256,27 @@ std::string ItemStack::getShortDescription(const IItemDefManager *itemdef) const
 	return desc;
 }
 
-std::string ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
-{
-	std::string texture = metadata.getString("inventory_image");
-	if (texture.empty())
-		texture = getDefinition(itemdef).inventory_image;
-
-	return texture;
+#define image_get_function(NAME, FIELD) \
+std::string ItemStack::get##NAME(const IItemDefManager *itemdef) const \
+{ \
+	std::string texture = metadata.getString(#FIELD); \
+	if (texture.empty()) \
+		texture = getDefinition(itemdef).FIELD; \
+	return texture; \
+} \
+const TileAnimationParams ItemStack::get##NAME##Animation(const IItemDefManager *itemdef) const \
+{ \
+	auto &meta_override = metadata.get##NAME##AnimationOverride(); \
+	if (meta_override.has_value()) \
+		return meta_override.value(); \
+	return getDefinition(itemdef).FIELD##_animation; \
 }
 
-std::string ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) const
-{
-	std::string texture = metadata.getString("inventory_overlay");
-	if (texture.empty())
-		texture = getDefinition(itemdef).inventory_overlay;
-
-	return texture;
-}
-
-std::string ItemStack::getWieldImage(const IItemDefManager *itemdef) const
-{
-	std::string texture = metadata.getString("wield_image");
-	if (texture.empty())
-		texture = getDefinition(itemdef).wield_image;
-
-	return texture;
-}
-
-std::string ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
-{
-	std::string texture = metadata.getString("wield_overlay");
-	if (texture.empty())
-		texture = getDefinition(itemdef).wield_overlay;
-
-	return texture;
-}
-
-const TileAnimationParams ItemStack::getInventoryImageAnimation(const IItemDefManager *itemdef) const
-{
-	auto &meta_override = metadata.getAnimationOverride<ItemStackMetadata::InventoryImage>();
-	if (meta_override.has_value())
-		return meta_override.value();
-
-	return getDefinition(itemdef).inventory_image_animation;
-}
-
-const TileAnimationParams ItemStack::getInventoryOverlayAnimation(const IItemDefManager *itemdef) const
-{
-	auto &meta_override = metadata.getAnimationOverride<ItemStackMetadata::InventoryOverlay>();
-	if (meta_override.has_value())
-		return meta_override.value();
-
-	return getDefinition(itemdef).inventory_overlay_animation;
-}
-
-const TileAnimationParams ItemStack::getWieldImageAnimation(const IItemDefManager *itemdef) const
-{
-	auto &meta_override = metadata.getAnimationOverride<ItemStackMetadata::WieldImage>();
-	if (meta_override.has_value())
-		return meta_override.value();
-
-	return getDefinition(itemdef).wield_image_animation;
-}
-
-const TileAnimationParams ItemStack::getWieldOverlayAnimation(const IItemDefManager *itemdef) const
-{
-	auto &meta_override = metadata.getAnimationOverride<ItemStackMetadata::WieldOverlay>();
-	if (meta_override.has_value())
-		return meta_override.value();
-
-	return getDefinition(itemdef).wield_overlay_animation;
-}
+image_get_function(InventoryImage, inventory_image)
+image_get_function(InventoryOverlay, inventory_overlay)
+image_get_function(WieldImage, wield_image)
+image_get_function(WieldOverlay, wield_overlay)
+#undef image_get_function
 
 v3f ItemStack::getWieldScale(const IItemDefManager *itemdef) const
 {
