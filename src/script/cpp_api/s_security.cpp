@@ -119,7 +119,6 @@ void ScriptApiSecurity::initializeSecurity()
 	static const char *debug_whitelist[] = {
 		"gethook",
 		"traceback",
-		"getinfo",
 		"upvalueid",
 		"sethook",
 		"debug",
@@ -218,6 +217,10 @@ void ScriptApiSecurity::initializeSecurity()
 	lua_getfield(L, old_globals, "debug");
 	lua_newtable(L);
 	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(debug, getinfo);
+
 	lua_setglobal(L, "debug");
 	lua_pop(L, 1);  // Pop old debug
 
@@ -309,7 +312,6 @@ void ScriptApiSecurity::initializeSecurityClient()
 		"time"
 	};
 	static const char *debug_whitelist[] = {
-		"getinfo", // used by builtin and unset before mods load
 		"traceback"
 	};
 
@@ -362,8 +364,13 @@ void ScriptApiSecurity::initializeSecurityClient()
 	lua_getglobal(L, "debug");
 	lua_newtable(L);
 	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(debug, getinfo);
+
 	lua_setfield(L, -3, "debug");
 	lua_pop(L, 1);  // Pop old debug
+
 
 #if USE_LUAJIT
 	// Copy safe jit functions, if they exist
@@ -961,5 +968,31 @@ int ScriptApiSecurity::sl_os_setlocale(lua_State *L)
 	if (cat)
 		lua_pushvalue(L, 2);
 	lua_call(L, cat ? 2 : 1, 1);
+	return 1;
+}
+
+
+int ScriptApiSecurity::sl_debug_getinfo(lua_State *L)
+{
+	const bool havefun = lua_isfunction(L, 1);
+	const bool what = lua_gettop(L) > 1;
+
+	push_original(L, "debug", "getinfo");
+	if (havefun) {
+		lua_pushvalue(L, 1);
+	} else {
+		// +1 to account for this wrapper
+		lua_pushinteger(L, lua_tointeger(L, 1) + 1);
+	}
+	if (what)
+		lua_pushvalue(L, 2);
+	lua_call(L, what ? 2 : 1, 1);
+
+	if (!havefun && !lua_isnil(L, -1)) {
+		assert(lua_istable(L, -1));
+		// don't allow stack functions to be returned
+		lua_pushnil(L);
+		lua_setfield(L, -2, "func");
+	}
 	return 1;
 }
