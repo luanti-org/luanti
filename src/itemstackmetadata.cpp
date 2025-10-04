@@ -20,11 +20,26 @@
 #define TOOLCAP_KEY "tool_capabilities"
 #define WEAR_BAR_KEY "wear_color"
 
+#define INVENTORY_IMAGE_ANIMATION_KEY "inventory_image_animation"
+#define INVENTORY_OVERLAY_ANIMATION_KEY "inventory_overlay_animation"
+#define WIELD_IMAGE_ANIMATION_KEY "wield_image_animation"
+#define WIELD_OVERLAY_ANIMATION_KEY "wield_overlay_animation"
+
+
+void ItemStackMetadata::updateAll()
+{
+	updateToolCapabilities();
+	updateWearBarParams();
+	updateInventoryImageAnimation();
+	updateInventoryOverlayAnimation();
+	updateWieldImageAnimation();
+	updateWieldOverlayAnimation();
+}
+
 void ItemStackMetadata::clear()
 {
 	SimpleMetadata::clear();
-	updateToolCapabilities();
-	updateWearBarParams();
+	updateAll();
 }
 
 static void sanitize_string(std::string &str)
@@ -46,6 +61,14 @@ bool ItemStackMetadata::setString(const std::string &name, std::string_view var)
 		updateToolCapabilities();
 	else if (clean_name == WEAR_BAR_KEY)
 		updateWearBarParams();
+	else if (clean_name == INVENTORY_IMAGE_ANIMATION_KEY)
+		updateInventoryImageAnimation();
+	else if (clean_name == INVENTORY_OVERLAY_ANIMATION_KEY)
+		updateInventoryOverlayAnimation();
+	else if (clean_name == WIELD_IMAGE_ANIMATION_KEY)
+		updateWieldImageAnimation();
+	else if (clean_name == WIELD_OVERLAY_ANIMATION_KEY)
+		updateWieldOverlayAnimation();
 	return result;
 }
 
@@ -81,8 +104,7 @@ void ItemStackMetadata::deSerialize(std::istream &is)
 			m_stringvars[""] = std::move(in);
 		}
 	}
-	updateToolCapabilities();
-	updateWearBarParams();
+	updateAll();
 }
 
 void ItemStackMetadata::updateToolCapabilities()
@@ -129,3 +151,34 @@ void ItemStackMetadata::clearWearBarParams()
 {
 	setString(WEAR_BAR_KEY, "");
 }
+
+#define animation_functions(NAME, FIELD, KEY) \
+const std::optional<TileAnimationParams> &ItemStackMetadata::get##NAME##AnimationOverride() const \
+{ \
+	return FIELD##_override; \
+} \
+void ItemStackMetadata::set##NAME##Animation(const TileAnimationParams &params) \
+{ \
+	std::ostringstream os; \
+	params.serializeJson(os); \
+	setString(KEY, os.str()); \
+} \
+void ItemStackMetadata::clear##NAME##Animation() \
+{ \
+	setString(KEY, ""); \
+} \
+void ItemStackMetadata::update##NAME##Animation() \
+{ \
+	if (contains(KEY)) { \
+		std::istringstream is(getString(#FIELD)); \
+		FIELD##_override = TileAnimationParams::deserializeJson(is); \
+	} else { \
+		FIELD##_override.reset(); \
+	} \
+}
+
+animation_functions(InventoryImage, inventory_image_animation, INVENTORY_IMAGE_ANIMATION_KEY)
+animation_functions(InventoryOverlay, inventory_overlay_animation, INVENTORY_OVERLAY_ANIMATION_KEY)
+animation_functions(WieldImage, wield_image_animation, WIELD_IMAGE_ANIMATION_KEY)
+animation_functions(WieldOverlay, wield_overlay_animation, WIELD_OVERLAY_ANIMATION_KEY)
+#undef animation_functions

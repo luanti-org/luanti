@@ -59,6 +59,26 @@ int ItemStackMetaRef::l_set_wear_bar_params(lua_State *L)
 	return 0;
 }
 
+#define set_animation_function(FUNCTION, NAME) \
+int ItemStackMetaRef::FUNCTION(lua_State *L) \
+{ \
+	ItemStackMetaRef *metaref = checkObject<ItemStackMetaRef>(L, 1); \
+	if (lua_isnoneornil(L, 2)) { \
+		metaref->clear##NAME##Animation(); \
+	} else if (lua_istable(L, 2)) { \
+		metaref->set##NAME##Animation(read_animation_definition(L, 2)); \
+	} else { \
+		luaL_typerror(L, 2, "table, or nil"); \
+	} \
+	return 0; \
+}
+
+set_animation_function(l_set_inventory_image_animation, InventoryImage)
+set_animation_function(l_set_inventory_overlay_animation, InventoryOverlay)
+set_animation_function(l_set_wield_image_animation,WieldImage)
+set_animation_function(l_set_wield_overlay_animation, WieldOverlay)
+#undef set_animation_function
+
 ItemStackMetaRef::ItemStackMetaRef(LuaItemStack *istack): istack(istack)
 {
 	istack->grab();
@@ -100,5 +120,9 @@ const luaL_Reg ItemStackMetaRef::methods[] = {
 	luamethod(MetaDataRef, equals),
 	luamethod(ItemStackMetaRef, set_tool_capabilities),
 	luamethod(ItemStackMetaRef, set_wear_bar_params),
+	luamethod(ItemStackMetaRef, set_inventory_image_animation),
+	luamethod(ItemStackMetaRef, set_inventory_overlay_animation),
+	luamethod(ItemStackMetaRef, set_wield_image_animation),
+	luamethod(ItemStackMetaRef, set_wield_overlay_animation),
 	{0,0}
 };

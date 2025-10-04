@@ -170,3 +170,183 @@ core.register_craftitem("testitems:tree_spawner_vmanip", {
 core.register_on_leaveplayer(function(player, timed_out)
 	vmanip_for_trees[player:get_player_name()] = nil
 end)
+
+core.register_craftitem("testitems:inventory_image_animation", {
+	description = S("Animated Test Item").."\n"..
+		S("Image animate from A to D in 4s cycle"),
+	inventory_image= "testnodes_anim.png^[invert:rgb",
+	inventory_image_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 4.0,
+	},
+})
+
+core.register_craftitem("testitems:inventory_image_animation_overlay", {
+	description = S("Animated Test Item With Overlay").."\n"..
+		S("Should be colored red and have green stripes that move").."\n"..
+		S("Image animate from A to D in 4s cycle"),
+	inventory_image= "testnodes_anim.png^[invert:rgb",
+	inventory_overlay="testitems_animation_overlay.png",
+	inventory_image_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 4.0,
+	},
+	inventory_overlay_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 4.0,
+	},
+	color = "#ff0000",
+})
+
+core.register_craftitem("testitems:wield_image_animation", {
+	description = S("Wield Animated Test Item").."\n"..
+		S("Looks like the Animated Test Item, "..
+			"but only animated for the wield mesh."),
+	inventory_image= "testnodes_anim.png^[invert:rgb^[verticalframe:4:0",
+	wield_image= "testnodes_anim.png^[invert:rgb",
+	wield_image_animation = {
+		type = "sheet_2d",
+		frames_w = 1,
+		frames_h = 4,
+		frame_length = 1.0,
+	},
+})
+
+core.register_craftitem("testitems:wield_image_animation_overlay", {
+	description = S("Wield Animated Test Item With Overlay").."\n"..
+		S("Looks like the animated Test Item With Overlay, "..
+			"but only animated for the wield mesh."),
+	inventory_image= "testnodes_anim.png^[invert:rgb^[verticalframe:4:0",
+	inventory_overlay= "testitems_animation_overlay.png^[verticalframe:4:0",
+	wield_image= "testnodes_anim.png^[invert:rgb",
+	wield_overlay="testitems_animation_overlay.png",
+	wield_image_animation = {
+		type = "sheet_2d",
+		frames_w = 1,
+		frames_h = 4,
+		frame_length = 1.0,
+	},
+	wield_overlay_animation = {
+		type = "sheet_2d",
+		frames_w = 1,
+		frames_h = 4,
+		frame_length = 1.0,
+	},
+	color = "#ff0000",
+})
+
+local function update_animation(meta, mode, speed, name)
+	if mode == 0 then
+		meta:set_inventory_image_animation({
+			type = "vertical_frames",
+			aspect_w = 16,
+			aspect_h = 16,
+			length = 4.0*speed,
+		})
+		core.chat_send_player(name, S("Inventory image animated"))
+	elseif mode == 1 then
+		meta:set_inventory_image_animation({
+			type = "vertical_frames",
+			aspect_w = 16,
+			aspect_h = 16,
+			length = 0,
+		})
+		meta:set_inventory_overlay_animation({
+			type = "vertical_frames",
+			aspect_w = 16,
+			aspect_h = 16,
+			length = 4.0*speed,
+		})
+		core.chat_send_player(name, S("Inventory overlay animated"))
+	elseif mode == 2 then
+		meta:set_inventory_overlay_animation({
+			type = "vertical_frames",
+			aspect_w = 16,
+			aspect_h = 16,
+			length = 0,
+		})
+		meta:set_wield_image_animation({
+			type = "sheet_2d",
+			frames_w = 1,
+			frames_h = 4,
+			frame_length = 1.0*speed,
+		})
+		core.chat_send_player(name, S("Wield image animated"))
+	elseif mode == 3 then
+		meta:set_wield_image_animation({
+			type = "sheet_2d",
+			frames_w = 1,
+			frames_h = 4,
+			frame_length = 0,
+		})
+		meta:set_wield_overlay_animation({
+			type = "sheet_2d",
+			frames_w = 1,
+			frames_h = 4,
+			frame_length = 1.0*speed,
+		})
+		core.chat_send_player(name, S("Wield overlay animated"))
+	else
+		meta:set_wield_overlay_animation({
+			type = "sheet_2d",
+			frames_w = 1,
+			frames_h = 4,
+			frame_length = 0,
+		})
+		core.chat_send_player(name, S("All off"))
+	end
+end
+
+core.register_craftitem("testitems:inventory_image_animation_meta", {
+	description = S("Animated Meta Test Item").."\n"..
+		S("Right click to cycle through modes").."\n"..
+		S("Holding sneak makes the next mode much faster"),
+	inventory_image= "testnodes_anim.png^[invert:rgb",
+	inventory_overlay="testitems_animation_overlay.png",
+	inventory_image_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 0,
+	},
+	inventory_overlay_animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 0,
+	},
+	wield_image= "testnodes_anim.png^[invert:rgb",
+	wield_overlay="testitems_animation_overlay.png",
+	wield_image_animation = {
+		type = "sheet_2d",
+		frames_w = 1,
+		frames_h = 4,
+		frame_length = 0,
+	},
+	wield_overlay_animation = {
+		type = "sheet_2d",
+		frames_w = 1,
+		frames_h = 4,
+		frame_length = 0,
+	},
+	on_use = function(itemstack, user, pointed_thing)
+		if not core.is_player(user) then
+			return
+		end
+		local name = user:get_player_name()
+
+		local meta = itemstack:get_meta()
+		local mode = (meta:get_int("mode") + 1) % 5
+		local speed = user:get_player_control().sneak and 0.2 or 1
+		meta:set_int("mode", mode)
+
+		update_animation(meta, mode, speed, name)
+		return itemstack
+	end
+})

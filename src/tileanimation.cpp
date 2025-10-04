@@ -3,6 +3,9 @@
 // Copyright (C) 2016 sfan5 <sfan5@live.de>
 #include "tileanimation.h"
 #include "util/serialize.h"
+#include "util/string.h"
+#include "convert_json.h"
+#include <json/json.h>
 
 void TileAnimationParams::serialize(std::ostream &os, u16 protocol_ver) const
 {
@@ -46,6 +49,60 @@ void TileAnimationParams::deSerialize(std::istream &is, u16 protocol_ver)
 	}
 }
 
+void TileAnimationParams::serializeJson(std::ostream &os) const
+{
+	Json::Value root;
+	root["type"] = type;
+	if (type == TAT_VERTICAL_FRAMES) {
+		root["aspect_w"] = vertical_frames.aspect_w;
+		root["aspect_h"] = vertical_frames.aspect_h;
+		root["length"] = vertical_frames.length;
+	} else if (type == TAT_SHEET_2D) {
+		root["frames_w"] = sheet_2d.frames_w;
+		root["frames_h"] = sheet_2d.frames_h;
+		root["frame_length"] = sheet_2d.frame_length;
+	}
+
+	fastWriteJson(root, os);
+}
+
+std::optional<TileAnimationParams> TileAnimationParams::deserializeJson(std::istream &is)
+{
+	Json::Value root;
+	is >> root;
+	if (!root.isObject() || !root["type"].isInt()) {
+		return std::nullopt;
+	}
+
+	TileAnimationParams params;
+	params.type = (TileAnimationType) root["type"].asInt();
+	switch(params.type) {
+		case TAT_NONE:
+			break;
+		case TAT_VERTICAL_FRAMES:
+			if (!root["aspect_w"].isInt() || !root["aspect_h"].isInt() ||
+					!root["length"].isDouble())
+				return std::nullopt;
+			params.vertical_frames.aspect_w = root["aspect_w"].asInt();
+			params.vertical_frames.aspect_h = root["aspect_h"].asInt();
+			params.vertical_frames.length = root["length"].asDouble();
+			break;
+		case TAT_SHEET_2D:
+			if (!root["frames_w"].isInt() || !root["frames_h"].isInt() ||
+					!root["frame_length"].isDouble())
+				return std::nullopt;
+			params.sheet_2d.frames_w = root["frames_w"].asInt();
+			params.sheet_2d.frames_h = root["frames_h"].asInt();
+			params.sheet_2d.frame_length = root["frame_length"].asDouble();
+			break;
+		default:
+			params.type = TAT_NONE;
+			break;
+	}
+
+	return params;
+}
+
 void TileAnimationParams::determineParams(v2u32 texture_size, int *frame_count,
 		int *frame_length_ms, v2u32 *frame_size) const
 {
@@ -85,6 +142,35 @@ void TileAnimationParams::getTextureModifer(std::ostream &os, v2u32 texture_size
 		r = frame % sheet_2d.frames_w;
 		os << "^[sheet:" << sheet_2d.frames_w << "x" << sheet_2d.frames_h
 			<< ":" << r << "," << q;
+	}
+}
+
+void TileAnimationParams::extractFirstFrame(std::string &name) const
+{
+	if (name.empty())
+		return;
+
+	switch(type) {
+	case TAT_VERTICAL_FRAMES: {
+		// Can't use "[verticalframe", since the the server doesn't know the texture size.
+		std::ostringstream oss;
+		str_texture_modifiers_escape(name);
+		oss << "[combine:" <<
+				vertical_frames.aspect_w << "x" <<
+				vertical_frames.aspect_h <<
+				":0,0=" << name;
+		name = oss.str();
+		break;
+	} case TAT_SHEET_2D: {
+		std::ostringstream oss;
+		oss << name << "^[sheet:" <<
+				sheet_2d.frames_w << "x" <<
+				sheet_2d.frames_h << ":0,0";
+		name = oss.str();
+		break;
+	} case TAT_NONE:
+	default:
+		break;
 	}
 }
 

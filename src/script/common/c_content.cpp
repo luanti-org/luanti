@@ -85,6 +85,22 @@ void read_item_definition(lua_State* L, int index,
 	}
 	lua_pop(L, 1);
 
+	lua_getfield(L, index, "inventory_image_animation");
+	def.inventory_image_animation = read_animation_definition(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, index, "inventory_overlay_animation");
+	def.inventory_overlay_animation = read_animation_definition(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, index, "wield_image_animation");
+	def.wield_image_animation = read_animation_definition(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, index, "wield_overlay_animation");
+	def.wield_overlay_animation = read_animation_definition(L, -1);
+	lua_pop(L, 1);
+
 	int stack_max = getintfield_default(L, index, "stack_max", def.stack_max);
 	def.stack_max = rangelim(stack_max, 1, U16_MAX);
 
@@ -200,6 +216,10 @@ void push_item_definition(lua_State *L, const ItemDefinition &i)
 void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 {
 	std::string type(enum_to_string(es_ItemType, i.type));
+
+	/* Missing: inventory_image_animation, inventory_overlay_animation, wield_image_animation
+	 * and wield_overlay_animation, because for nodes we don't push "tiles" (yet) and
+	 * we don't have a push_TileAnimationParams function (yet). */
 
 	lua_newtable(L);
 	lua_pushstring(L, i.name.c_str());

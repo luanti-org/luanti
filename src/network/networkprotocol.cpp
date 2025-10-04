@@ -70,6 +70,7 @@
 		[scheduled bump for 5.13.0]
 	PROTOCOL VERSION 50
 		Support for TOCLIENT_SPAWN_PARTICLE_BATCH
+		Only send first frame of animated item/wield images to older client
 		[scheduled bump for 5.14.0]
 */
 

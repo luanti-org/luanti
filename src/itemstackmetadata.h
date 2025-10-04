@@ -6,6 +6,7 @@
 
 #include "metadata.h"
 #include "tool.h"
+#include "tileanimation.h"
 
 #include <optional>
 
@@ -40,10 +41,34 @@ public:
 	void setWearBarParams(const WearBarParams &params);
 	void clearWearBarParams();
 
+	const std::optional<TileAnimationParams> &getInventoryImageAnimationOverride() const;
+	const std::optional<TileAnimationParams> &getInventoryOverlayAnimationOverride() const;
+	const std::optional<TileAnimationParams> &getWieldImageAnimationOverride() const;
+	const std::optional<TileAnimationParams> &getWieldOverlayAnimationOverride() const;
+	void setInventoryImageAnimation(const TileAnimationParams &params);
+	void setInventoryOverlayAnimation(const TileAnimationParams &params);
+	void setWieldImageAnimation(const TileAnimationParams &params);
+	void setWieldOverlayAnimation(const TileAnimationParams &params);
+	void clearInventoryImageAnimation();
+	void clearInventoryOverlayAnimation();
+	void clearWieldImageAnimation();
+	void clearWieldOverlayAnimation();
 private:
 	void updateToolCapabilities();
 	void updateWearBarParams();
+	void updateInventoryImageAnimation();
+	void updateInventoryOverlayAnimation();
+	void updateWieldImageAnimation();
+	void updateWieldOverlayAnimation();
+
+	void updateAll();
 
 	std::optional<ToolCapabilities> toolcaps_override;
 	std::optional<WearBarParams> wear_bar_override;
+	std::optional<TileAnimationParams> inventory_image_animation_override;
+	std::optional<TileAnimationParams> inventory_overlay_animation_override;
+	std::optional<TileAnimationParams> wield_image_animation_override;
+	std::optional<TileAnimationParams> wield_overlay_animation_override;
 };
+
+
