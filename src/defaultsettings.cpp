@@ -422,7 +422,7 @@ void set_default_settings()
 #endif
 
 	// Server
-	settings->setDefault("strip_color_codes", "false");
+	settings->setDefault("strip_color_codes", "true");
 #ifndef NDEBUG
 	settings->setDefault("random_mod_load_order", "true");
 #else
