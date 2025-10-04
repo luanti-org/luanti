@@ -278,9 +278,14 @@ private:
 	std::map<std::pair<u8, u32>, std::string> m_crack_materials;
 
 	// Animation info: texture animation
-	// Maps mesh and mesh buffer indices to TileSpecs
+	// Maps mesh and mesh buffer indices to AnimationInfo
 	// Keys are pairs of (mesh index, buffer index in the mesh)
 	std::map<std::pair<u8, u32>, AnimationInfo> m_animation_info;
+
+	// Same as above, but in the case both are needed, animation and crack
+	// The vector contains base crack textures for each animation frame
+	std::map<std::pair<u8, u32>, std::pair<AnimationInfo, std::vector<std::string>>>
+			m_animation_info_crack;
 
 	// list of all semitransparent triangles in the mapblock
 	std::vector<MeshTriangle> m_transparent_triangles;
