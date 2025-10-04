@@ -41,46 +41,34 @@ public:
 	void setWearBarParams(const WearBarParams &params);
 	void clearWearBarParams();
 
-	// Templated to prevent code duplication
-	enum AnimationType {
-		InventoryImage,
-		InventoryOverlay,
-		WieldImage,
-		WieldOverlay
-	};
-
-	template<AnimationType t>
-	const std::optional<TileAnimationParams> &getAnimationOverride() const
-	{
-		return animation_overrides[t];
-	}
-
-	template<AnimationType>
-	void setAnimation(const TileAnimationParams &params);
-	template<AnimationType>
-	void clearAnimation();
-
+	const std::optional<TileAnimationParams> &getInventoryImageAnimationOverride() const;
+	const std::optional<TileAnimationParams> &getInventoryOverlayAnimationOverride() const;
+	const std::optional<TileAnimationParams> &getWieldImageAnimationOverride() const;
+	const std::optional<TileAnimationParams> &getWieldOverlayAnimationOverride() const;
+	void setInventoryImageAnimation(const TileAnimationParams &params);
+	void setInventoryOverlayAnimation(const TileAnimationParams &params);
+	void setWieldImageAnimation(const TileAnimationParams &params);
+	void setWieldOverlayAnimation(const TileAnimationParams &params);
+	void clearInventoryImageAnimation();
+	void clearInventoryOverlayAnimation();
+	void clearWieldImageAnimation();
+	void clearWieldOverlayAnimation();
 private:
 	void updateToolCapabilities();
 	void updateWearBarParams();
-	void updateAll();
+	void updateInventoryImageAnimation();
+	void updateInventoryOverlayAnimation();
+	void updateWieldImageAnimation();
+	void updateWieldOverlayAnimation();
 
-	template<AnimationType>
-	void updateAnimation();
+	void updateAll();
 
 	std::optional<ToolCapabilities> toolcaps_override;
 	std::optional<WearBarParams> wear_bar_override;
-	std::optional<TileAnimationParams> animation_overrides[4];
+	std::optional<TileAnimationParams> inventory_image_animation_override;
+	std::optional<TileAnimationParams> inventory_overlay_animation_override;
+	std::optional<TileAnimationParams> wield_image_animation_override;
+	std::optional<TileAnimationParams> wield_overlay_animation_override;
 };
-
-// Need to declare all
-extern template void ItemStackMetadata::setAnimation<ItemStackMetadata::InventoryImage>(const TileAnimationParams &params);
-extern template void ItemStackMetadata::setAnimation<ItemStackMetadata::InventoryOverlay>(const TileAnimationParams &params);
-extern template void ItemStackMetadata::setAnimation<ItemStackMetadata::WieldImage>(const TileAnimationParams &params);
-extern template void ItemStackMetadata::setAnimation<ItemStackMetadata::WieldOverlay>(const TileAnimationParams &params);
-extern template void ItemStackMetadata::clearAnimation<ItemStackMetadata::InventoryImage>();
-extern template void ItemStackMetadata::clearAnimation<ItemStackMetadata::InventoryOverlay>();
-extern template void ItemStackMetadata::clearAnimation<ItemStackMetadata::WieldImage>();
-extern template void ItemStackMetadata::clearAnimation<ItemStackMetadata::WieldOverlay>();
 
 
