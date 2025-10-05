@@ -49,6 +49,72 @@ dofile(commonpath .. "serialize.lua")
 dofile(commonpath .. "misc_helpers.lua")
 
 if INIT == "game" then
+	local function mod_loader(module_name)
+		local parts = module_name:split(".")
+		local modname = parts[1]
+		local modpath = core.get_modpath(modname)
+		if not modpath then
+			return "no mod called " .. modname
+		end
+		parts[1] = modpath
+		local base_path = table.concat(parts, "/")
+		local errors = {}
+		for _, suffix in ipairs({"/init.lua", #parts > 1 and ".lua" or nil}) do
+			local source_path = base_path .. suffix
+			local f, err = io.open(source_path, "r")
+			if f then
+				local source = f:read("*all")
+				local chunk, load_err = loadstring(source, source_path)
+				f:close()
+				assert(chunk, load_err)
+				return chunk
+			else
+				table.insert(errors, err)
+			end
+		end
+		return table.concat(errors, "\n")
+	end
+
+	local function preprocess_module_name(module_name)
+		if module_name:sub(1, 1) == "." then
+			module_name = assert(core.get_current_modname()) .. module_name
+		end
+		assert(module_name:find("^[A-Za-z0-9_%.]+$") and
+				module_name:find("%.%.") == nil and
+				module_name:sub(-1) ~= ".",
+				"invalid module name")
+		return module_name
+	end
+
+	local loaded = {} -- [module_name] = function() return module end
+	package = {
+		loaders = {mod_loader},
+		unload = function(module_name)
+			loaded[preprocess_module_name(module_name)] = nil
+		end,
+		set = function(module_name, module)
+			loaded[preprocess_module_name(module_name)] = function() return module end
+		end,
+	}
+	function require(module_name)
+		module_name = preprocess_module_name(module_name)
+		local module_func = loaded[module_name]
+		if module_func then
+			return module_func()
+		end
+		local errors = {}
+		for _, loader in ipairs(package.loaders) do
+			local res = loader(module_name)
+			if type(res) == "function" then
+				local module = res()
+				package.set(module_name, module)
+				return module
+			end
+			table.insert(errors, res)
+		end
+		error("failed to load module '" .. module_name .. '":\n' .. table.concat(errors, "\n"))
+	end
+
 	dofile(scriptdir .. "game" .. DIR_DELIM .. "init.lua")
 	assert(not core.get_http_api)
 elseif INIT == "mainmenu" then

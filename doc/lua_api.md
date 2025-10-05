@@ -4189,6 +4189,36 @@ For example:
 * `core.dir_to_wallmounted` (Involves wallmounted param2 values.)
 
 
+Loading files
+=============
+
+The typical way to load files until 5.13.0 was to use `dofile`
+and run files in order of dependencies in `init.lua`, e.g.
+
+```lua
+local modname = core.get_current_modname()
+local modpath = core.get_modpath(modname)
+dofile(modname .. "/stuff.lua")
+dofile(modname .. "/more_stuff.lua")
+```
+
+This is clunky and has several drawbacks.
+As of version 5.13.0, Luanti supports a custom version of Lua's `require`:
+
+* `require("mymod")` gives you whatever `init.lua` of `mymod` returns.
+  You should have a dependency (optional or not) on `mymod` if you call this.
+* `require("mod.dir.file")` loads `dir/file.lua` or `dir/file/init.lua` from the mod folder of `mod`.
+* For convenience, `require(".dir.file")` is equivalent to `require(core.get_current_modname() .. ".dir.file")`.
+  This is also supported by the `package.*` functions.
+
+The implementation is customizable via the `package` table:
+
+* `package.loaders` is a list of loaders which are tried in order.
+  A loader is a `function(module_name)` which returns `nil`,
+  a string explaining why it couldn't load the module,
+  or a function that when called returns the module.
+* `package.unload(module_name)` can be used to forcibly unload a module.
+* `package.set(module_name, module)` can be used to override a module.
 
 
 Helper functions
