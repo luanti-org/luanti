@@ -8868,7 +8868,7 @@ child will follow movement and rotation of that bone.
       `list` is a player inventory list
       `length` is the amount of inventory slots
       `offset` adjusts starting inventory position, 0 if not specified
-    * Note: Do not use this together with mods that relay on a fixed wield list and list size.
+    * Note: Do not use this together with mods that rely on a fixed wield list and list size.
       All mods should use `get_wield_list()` and `get_wield_index()` to get the wield position.
 * `hud_set_hotbar_image(texturename)`
     * sets background image for hotbar
