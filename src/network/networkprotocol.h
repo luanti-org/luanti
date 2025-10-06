@@ -803,17 +803,20 @@ enum ToServerCommand : u16
 
 	TOSERVER_INTERACT = 0x39,
 	/*
-		[0] u16 command
-		[2] u8 action
-		[3] u16 item
-		[5] u32 length of the next item
-		[9] serialized PointedThing
-		actions:
-		0: start digging (from undersurface) or use
-		1: stop digging (all parameters ignored)
-		2: digging completed
-		3: place block or item (to abovesurface)
-		4: use item
+		u16 command
+		u8 action (InteractAction)
+		u16 item
+		u32 length of the next item
+		u8[length] serialized PointedThing
+		v3s32 player position multiplied by 100 and converted to integers
+		v3s32 player speed multiplied by 100 and converted to integers
+		s32 player pitch multiplied by 100 and converted to an integer
+		s32 player yaw multiplied by 100 and converted to an integer
+		u32 keyPressed
+		u8 fov
+		u8 wanted drawing range
+		optional:
+		u8 flags; it is 0x01 if the camera is inverted
 	*/
 
 	TOSERVER_REMOVED_SOUNDS = 0x3a,
