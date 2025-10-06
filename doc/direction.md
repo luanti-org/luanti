@@ -27,7 +27,7 @@ See [CONTRIBUTING.md](../.github/CONTRIBUTING.md) for more info.
 
 ### 2.1 SSCSM
 
-Server-Sent Client-side Modding has been a long requested feature, as it
+Server-Sent Client-Side Modding has been a long requested feature, as it
 allows game developers to highly expand the tools for their creations.
 Implementing SSCSM also means to feature more dehardcoding, furthermore
 allowing us to improve the overall performances of the engine.
