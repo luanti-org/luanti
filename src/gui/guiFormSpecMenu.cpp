@@ -3871,8 +3871,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 						fields[name] = table->checkEvent();
 					}
 				} else if (s.ftype == f_DropDown) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					gui::IGUIComboBox *e = NULL;
 					if ((element) && (element->getType() == gui::EGUIET_COMBO_BOX)) {
@@ -3895,8 +3893,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 						}
 					}
 				} else if (s.ftype == f_TabHeader) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					gui::IGUITabControl *e = nullptr;
 					if ((element) && (element->getType() == gui::EGUIET_TAB_CONTROL)) {
@@ -3907,8 +3903,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 						fields[name] = itos(e->getActiveTab() + 1);
 					}
 				} else if (s.ftype == f_CheckBox) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					gui::IGUICheckBox *e = nullptr;
 					if ((element) && (element->getType() == gui::EGUIET_CHECK_BOX)) {
@@ -3922,11 +3916,9 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 							fields[name] = "false";
 					}
 				} else if (s.ftype == f_ScrollBar) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					GUIScrollBar *e = nullptr;
-					if (element && element->getType() == gui::EGUIET_ELEMENT)
+					if (element && element->getType() == gui::EGUIET_SCROLL_BAR)
 						e = static_cast<GUIScrollBar *>(element);
 
 					if (e) {
@@ -3936,8 +3928,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 							fields[name] = "VAL:" + itos(e->getPos());
 					}
 				} else if (s.ftype == f_AnimatedImage) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					GUIAnimatedImage *e = nullptr;
 					if (element && element->getType() == gui::EGUIET_ELEMENT)

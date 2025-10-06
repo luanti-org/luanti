@@ -52,6 +52,7 @@ local function test_dynamic_media(cb, player)
 	local ok = core.dynamic_add_media({
 		filepath = path,
 		to_player = player:get_player_name(),
+		client_cache = false,
 	}, function(name)
 		if not call_ok then
 			return cb("impossible condition")

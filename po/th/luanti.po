@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Thai (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2022-03-18 01:05+0000\n"
 "Last-Translator: Thomas Wiegand <weblate.org@wiegand.info>\n"
 "Language-Team: Thai <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1242,10 +1242,6 @@ msgid "New"
 msgstr "ใหม่"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "ยังไม่มีการสร้างโลก หรือยังไม่ได้เลือก!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "เล่นเกม"
 
@@ -1853,10 +1849,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "สร้างโปรไฟล์ที่แสดง (หน้า %d1 of %d2)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "แอ"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "แบ็คสเปซ"
 
@@ -1890,44 +1882,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "สิ้นสุด"
+#, fuzzy
+msgid "End Key"
+msgstr "เมนู"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "ลบ EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "ลบ"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "ดำเนินการ"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "ช่วย"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "บ้าน"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME รับ"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME แปลง"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME หนี"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "การเปลี่ยนโหมด IME"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME ไม่แปลง"
+#, fuzzy
+msgid "Home Key"
+msgstr "ซูม"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1939,8 +1906,9 @@ msgid "Left Arrow"
 msgstr "ด้านซ้าย Control"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "ปุ่มซ้าย"
+#, fuzzy
+msgid "Left Click"
+msgstr "ด้านซ้าย Control"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1954,19 +1922,27 @@ msgstr "ด้านซ้าย Menu"
 msgid "Left Shift"
 msgstr "ข้อกะ"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "หน้าต่างซ้าย"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "เมนู"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "ปุ่มกลาง"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2033,10 +2009,6 @@ msgid "Numpad 9"
 msgstr "ตัวเลข 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM ล้าง"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "เพลง"
@@ -2072,8 +2044,9 @@ msgid "Right Arrow"
 msgstr "สิทธิ Control"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "ปุ่มขวา"
+#, fuzzy
+msgid "Right Click"
+msgstr "สิทธิ Control"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2087,6 +2060,7 @@ msgstr "สิทธิ Menu"
 msgid "Right Shift"
 msgstr "สิทธิ Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "หน้าต่างขวา"
@@ -2095,10 +2069,10 @@ msgstr "หน้าต่างขวา"
 msgid "Scroll Lock"
 msgstr "ล็อคเลื่อน"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "เลือก"
+#, fuzzy
+msgid "Select Key"
+msgstr "ลบ"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2106,37 +2080,17 @@ msgid "Shift Key"
 msgstr "กะ"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "สลี"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "ภาพรวม"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "ช่องว่าง"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "แท็บ"
+#, fuzzy
+msgid "Tab Key"
+msgstr "กุญแจแอบ"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X ปุ่ม 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X ปุ่ม 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "ซูม"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2566,12 +2520,11 @@ msgstr "เสียง 3 มิติที่กำหนดจำนวนด
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "รองรับ 3D\n"
 "รองรับในปัจจุบัน:\n"
@@ -2687,8 +2640,8 @@ msgid ""
 msgstr ""
 "ที่สำคัญสำหรับการด้อม.\n"
 "นอกจากนี้ยังใช้สำหรับการปีนลงและลงไปในน้ำหากปิดการใช้งาน aux1_descends.\n"
-"ดู http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"ดู http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2948,6 +2901,17 @@ msgstr "กล้องเรียบ"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "กล้องที่ปรับในโหมดภาพยนตร์"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3480,6 +3444,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "ของตกแต่ง"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5420,6 +5388,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "ผู้ใช้สูงสุด"
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7512,8 +7484,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "ปุ่มกดสำหรับเลื่อนเครื่องเล่นถอยหลัง.\n"
 "จะปิดใช้งานการป้อนอัตโนมัติอัตโนมัติเมื่อเปิดใช้งาน.\n"
-"ดู http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"ดู http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7628,14 +7600,68 @@ msgstr "cURL หมดเวลาโต้ตอบ"
 msgid "cURL parallel limit"
 msgstr "cURL ขีด จำกัด ขนาน"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "รูปแบบของภาพหน้าจอ."
+#~ msgid "Apps"
+#~ msgstr "แอ"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "กล้องที่ปรับในโหมดภาพยนตร์"
+#~ msgid "End"
+#~ msgstr "สิ้นสุด"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "โหมดเต็มหน้าจอ"
+#~ msgid "Erase EOF"
+#~ msgstr "ลบ EOF"
+
+#~ msgid "Execute"
+#~ msgstr "ดำเนินการ"
+
+#~ msgid "Help"
+#~ msgstr "ช่วย"
+
+#~ msgid "Home"
+#~ msgstr "บ้าน"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME รับ"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME แปลง"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME หนี"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "การเปลี่ยนโหมด IME"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME ไม่แปลง"
+
+#~ msgid "Left Button"
+#~ msgstr "ปุ่มซ้าย"
+
+#~ msgid "Middle Button"
+#~ msgstr "ปุ่มกลาง"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "ยังไม่มีการสร้างโลก หรือยังไม่ได้เลือก!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM ล้าง"
+
+#~ msgid "Right Button"
+#~ msgstr "ปุ่มขวา"
+
+#~ msgid "Select"
+#~ msgstr "เลือก"
+
+#~ msgid "Sleep"
+#~ msgstr "สลี"
+
+#~ msgid "Snapshot"
+#~ msgstr "ภาพรวม"
+
+#~ msgid "Tab"
+#~ msgstr "แท็บ"
+
+#~ msgid "X Button 1"
+#~ msgstr "X ปุ่ม 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X ปุ่ม 2"

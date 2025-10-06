@@ -3612,6 +3612,8 @@ Some types may inherit styles from parent types.
 * animated_image
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
 * box
+    * **Note**: In order for any of the styling options to take effect,
+                the `color` field in the box element must be left unspecified.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
         * Defaults to false in formspec_version version 3 or higher
     * **Note**: `colors`, `bordercolors`, and `borderwidths` accept multiple input types:
@@ -3918,10 +3920,8 @@ The following functions provide escape sequences:
     * `color` is a ColorString
     * The escape sequence sets the text color to `color`
 * `core.colorize(color, message)`:
-    * Equivalent to:
-      `core.get_color_escape_sequence(color) ..
-      message ..
-      core.get_color_escape_sequence("#ffffff")`
+    * Equivalent to including the right color escape sequence in the front,
+      and resetting to `#fff` after the text (plus newline handling).
 * `core.get_background_escape_sequence(color)`
     * `color` is a ColorString
     * The escape sequence sets the background of the whole text element to
@@ -3932,6 +3932,10 @@ The following functions provide escape sequences:
     * Removes background colors added by `get_background_escape_sequence`.
 * `core.strip_colors(str)`
     * Removes all color escape sequences.
+* `core.strip_escapes(str)`
+    * Removes all escape sequences, including client-side translations and
+      any unknown or future escape sequences that Luanti might define.
+    * You can use this to clean text before logging or handing to an external system.
 
 
 Coordinate System
@@ -5841,6 +5845,10 @@ Utilities
       object_guids = true,
       -- The NodeTimer `on_timer` callback is passed additional `node` and `timeout` args (5.14.0)
       on_timer_four_args = true,
+      -- `ParticleSpawner` definition supports `exclude_player` field (5.14.0)
+      particlespawner_exclude_player = true,
+      -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
+      generate_decorations_biomes = true,
   }
   ```
 
@@ -6733,10 +6741,14 @@ Environment access
     * Generate all registered ores within the VoxelManip `vm` and in the area
       from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
-* `core.generate_decorations(vm[, pos1, pos2])`
+* `core.generate_decorations(vm[, pos1, pos2, [use_mapgen_biomes]])`
     * Generate all registered decorations within the VoxelManip `vm` and in the
       area from `pos1` to `pos2`.
     * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
+    * `use_mapgen_biomes` (optional boolean). For use in on_generated callbacks only.
+       If set to true, decorations are placed in respect to the biome map of the current chunk.
+       `pos1` and `pos2` must match the positions of the current chunk, or an error will be raised.
+       default: `false`
 * `core.clear_objects([options])`
     * Clear all objects in the environment
     * Takes an optional table as an argument with the field `mode`.
@@ -7373,11 +7385,13 @@ Server
         * `filedata`: the data of the file to be sent [*]
         * `to_player`: name of the player the media should be sent to instead of
                        all players (optional)
-        * `ephemeral`: boolean that marks the media as ephemeral,
-                       it will not be cached on the client (optional, default false)
+        * `ephemeral`: if true the server will create a copy of the file and
+                       forget about it once delivered (optional boolean, default false)
+        * `client_cache`: hint whether the client should save the media in its cache
+                          (optional boolean, default `!ephemeral`, added in 5.14.0)
         * Exactly one of the parameters marked [*] must be specified.
     * `callback`: function with arguments `name`, which is a player name
-    * Pushes the specified media file to client(s). (details below)
+    * Pushes the specified media file to client(s) as detailed below.
       The file must be a supported image, sound or model format.
       Dynamically added media is not persisted between server restarts.
     * Returns false on error, true if the request was accepted
@@ -7386,19 +7400,17 @@ Server
     * Details/Notes:
       * If `ephemeral`=false and `to_player` is unset the file is added to the media
         sent to clients on startup, this means the media will appear even on
-        old clients if they rejoin the server.
+        old clients (<5.3.0) if they rejoin the server.
       * If `ephemeral`=false the file must not be modified, deleted, moved or
-        renamed after calling this function.
-      * Regardless of any use of `ephemeral`, adding media files with the same
-        name twice is not possible/guaranteed to work. An exception to this is the
-        use of `to_player` to send the same, already existent file to multiple
-        chosen players.
+        renamed after calling this function. This is allowed otherwise.
+      * Adding media files with the same name twice is not possible.
+        An exception to this is the use of `to_player` to send the same,
+        already existent file to multiple chosen players (`ephemeral`=false only).
       * You can also call this at startup time. In that case `callback` MUST
         be `nil` and you cannot use `ephemeral` or `to_player`, as these logically
         do not make sense.
     * Clients will attempt to fetch files added this way via remote media,
-      this can make transfer of bigger files painless (if set up). Nevertheless
-      it is advised not to use dynamic media for big media files.
+      this can make transfer of bigger files painless (if set up).
 
 IPC
 ---
@@ -7469,6 +7481,7 @@ Particles
 ---------
 
 * `core.add_particle(particle definition)`
+    * Spawn a single particle
     * Deprecated: `core.add_particle(pos, velocity, acceleration,
       expirationtime, size, collisiondetection, texture, playername)`
 
@@ -9556,7 +9569,8 @@ Player properties need to be saved manually.
     stepheight = 0,
     -- If positive number, object will climb upwards when it moves
     -- horizontally against a `walkable` node, if the height difference
-    -- is within `stepheight`.
+    -- is within `stepheight` and if the object current max Y in the world
+    -- is greater or equal than the node min Y.
 
     automatic_face_movement_dir = 0.0,
     -- Automatically set yaw to movement direction, offset in degrees.
@@ -9588,6 +9602,16 @@ Player properties need to be saved manually.
     nametag_bgcolor = <ColorSpec>,
     -- Sets background color of nametag
     -- `false` will cause the background to be set automatically based on user settings.
+    -- Default: false
+
+    nametag_fontsize = 1,
+    -- Sets the font size of the nametag in pixels.
+    -- `false` will cause the size to be set automatically based on user settings.
+    -- Default: false
+
+    nametag_scale_z = false,
+    -- If enabled, the nametag will be scaled by Z in screen space, meaning it becomes
+    -- smaller the further away the object is.
     -- Default: false
 
     infotext = "",
@@ -11484,6 +11508,9 @@ Used by `core.add_particle`.
     playername = "singleplayer",
     -- Optional, if specified spawns particle only on the player's client
 
+    -- Note that `exclude_player` is not supported here. You can use a single-use
+    -- particlespawner if needed.
+
     animation = {Tile Animation definition},
     -- Optional, specifies how to animate the particle texture
 
@@ -11547,6 +11574,9 @@ will be ignored.
     -- If time is 0 spawner has infinite lifespan and spawns the `amount` on
     -- a per-second basis.
 
+    size = 1,
+    -- Size of the particle.
+
     collisiondetection = false,
     -- If true collide with `walkable` nodes and, depending on the
     -- `object_collision` field, objects too.
@@ -11573,7 +11603,12 @@ will be ignored.
     -- following section.
 
     playername = "singleplayer",
-    -- Optional, if specified spawns particles only on the player's client
+    -- Optional, if specified spawns particles only for this player
+    -- Can't be used together with `exclude_player`.
+
+    exclude_player = "singleplayer",
+    -- Optional, if specified spawns particles not for this player
+    -- Added in v5.14.0. Can't be used together with `playername`.
 
     animation = {Tile Animation definition},
     -- Optional, specifies how to animate the particles' texture

@@ -23,28 +23,17 @@ class WieldMeshSceneNode;
 
 struct Nametag
 {
-	scene::ISceneNode *parent_node;
+	scene::ISceneNode *parent_node = nullptr;
 	std::string text;
 	video::SColor textcolor;
 	std::optional<video::SColor> bgcolor;
-	v3f pos;
-
-	Nametag(scene::ISceneNode *a_parent_node,
-			const std::string &text,
-			const video::SColor &textcolor,
-			const std::optional<video::SColor> &bgcolor,
-			const v3f &pos):
-		parent_node(a_parent_node),
-		text(text),
-		textcolor(textcolor),
-		bgcolor(bgcolor),
-		pos(pos)
-	{
-	}
+	std::optional<u32> textsize;
+	v3f pos; // offset from parent node
+	bool scale_z;
 
 	video::SColor getBgColor(bool use_fallback) const
 	{
-		if (bgcolor)
+		if (bgcolor.has_value())
 			return bgcolor.value();
 		else if (!use_fallback)
 			return video::SColor(0, 0, 0, 0);
@@ -189,9 +178,7 @@ public:
 		return m_camera_mode;
 	}
 
-	Nametag *addNametag(scene::ISceneNode *parent_node,
-		const std::string &text, video::SColor textcolor,
-		std::optional<video::SColor> bgcolor, const v3f &pos);
+	Nametag *addNametag(const Nametag &params);
 
 	void removeNametag(Nametag *nametag);
 

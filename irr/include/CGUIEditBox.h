@@ -10,6 +10,9 @@
 
 namespace gui
 {
+
+class IGUIScrollBar;
+
 class CGUIEditBox : public IGUIEditBox
 {
 public:
@@ -133,7 +136,10 @@ public:
 	void updateAbsolutePosition() override;
 
 	//! Returns whether the element takes input from the IME
-	bool acceptsIME() override;
+	bool acceptsIME() override { return isEnabled() && IsWritable; };
+
+	//! set true if this EditBox is writable
+	void setWritable(bool writable) { IsWritable = writable; }
 
 protected:
 	//! Breaks the single text line.
@@ -154,10 +160,23 @@ protected:
 	void sendGuiEvent(EGUI_EVENT_TYPE type);
 	//! set text markers
 	void setTextMarkers(s32 begin, s32 end);
-	//! delete current selection or next char
-	bool keyDelete();
+	//! update the vertical scrollBar (visibilty & position)
+	void updateVScrollBar();
 
 	bool processKey(const SEvent &event);
+	//! KEY_LEFT / KEY_RIGHT inputs
+	void processKeyLR(const SEvent::SKeyInput &input, s32 &new_mark_begin,
+			s32 &new_mark_end);
+
+	bool onKeyUp(const SEvent &event, s32 &mark_begin, s32 &mark_end);
+	bool onKeyDown(const SEvent &event, s32 &mark_begin, s32 &mark_end);
+	void onKeyControlC(const SEvent &event);
+	bool onKeyControlX(const SEvent &event, s32 &mark_begin, s32 &mark_end);
+	bool onKeyControlV(const SEvent &event, s32 &mark_begin, s32 &mark_end);
+	bool onKeyBack();
+	//! delete current selection or next char
+	bool onKeyDelete();
+
 	bool processMouse(const SEvent &event);
 	s32 getCursorPos(s32 x, s32 y);
 
@@ -169,6 +188,7 @@ protected:
 	s32 MarkBegin;
 	s32 MarkEnd;
 
+	video::SColor OverrideBgColor = 0;
 	video::SColor OverrideColor;
 	gui::IGUIFont *OverrideFont, *LastBreakFont;
 	IOSOperator *Operator;
@@ -179,8 +199,15 @@ protected:
 	s32 CursorPos;
 	s32 HScrollPos, VScrollPos; // scroll position in characters
 	u32 Max;
+	u32 VScrollBarWidth = 0;
+	IGUIScrollBar *VScrollBar = nullptr;
 
-	bool WordWrap, MultiLine, AutoScroll, PasswordBox;
+	bool WordWrap = false,
+		MultiLine = false,
+		AutoScroll = true,
+		PasswordBox = false,
+		IsWritable = true;
+
 	wchar_t PasswordChar;
 	EGUI_ALIGNMENT HAlign, VAlign;
 

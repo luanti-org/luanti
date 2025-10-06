@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2024-08-06 19:09+0000\n"
 "Last-Translator: Mićadźoridź <otto.grotovel@gmail.com>\n"
 "Language-Team: Komi <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1228,10 +1228,6 @@ msgid "New"
 msgstr "Выль"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Енкӧла абу бӧрйӧма/абу вӧчӧма!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Ворсны"
 
@@ -1814,10 +1810,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Уджтасъяс"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Shift"
 
@@ -1847,44 +1839,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr ""
+#, fuzzy
+msgid "Help Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Вӧчны"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Help"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr ""
+#, fuzzy
+msgid "Home Key"
+msgstr "Zoom"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1895,8 +1862,9 @@ msgid "Left Arrow"
 msgstr "Шуйгалань"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Шуйга личкантор"
+#, fuzzy
+msgid "Left Click"
+msgstr "Шуйга Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1910,18 +1878,26 @@ msgstr "Шуйга Alt"
 msgid "Left Shift"
 msgstr "Шуйга Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Шуйга Win"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Шӧр личкантор"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -1988,10 +1964,6 @@ msgid "Numpad 9"
 msgstr "Numpad вывса 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr ""
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2022,8 +1994,9 @@ msgid "Right Arrow"
 msgstr "Веськыдлань"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Веськыд личкантор"
+#, fuzzy
+msgid "Right Click"
+msgstr "Веськыд Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2037,6 +2010,7 @@ msgstr "Веськыд Alt"
 msgid "Right Shift"
 msgstr "Веськыд Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Веськыд Win"
@@ -2045,46 +2019,27 @@ msgstr "Веськыд Win"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr ""
+#, fuzzy
+msgid "Select Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Узьны"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Snapshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Space"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Break"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Медводдза X личкантор"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Мӧд X личкантор"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zoom"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2484,12 +2439,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2809,6 +2763,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3290,6 +3255,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4970,6 +4939,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6848,6 +6821,44 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Скриншотлӧн ыджда."
+#~ msgid "Apps"
+#~ msgstr "Уджтасъяс"
+
+#~ msgid "End"
+#~ msgstr "End"
+
+#~ msgid "Execute"
+#~ msgstr "Вӧчны"
+
+#~ msgid "Help"
+#~ msgstr "Help"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "Left Button"
+#~ msgstr "Шуйга личкантор"
+
+#~ msgid "Middle Button"
+#~ msgstr "Шӧр личкантор"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Енкӧла абу бӧрйӧма/абу вӧчӧма!"
+
+#~ msgid "Right Button"
+#~ msgstr "Веськыд личкантор"
+
+#~ msgid "Sleep"
+#~ msgstr "Узьны"
+
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "Медводдза X личкантор"
+
+#~ msgid "X Button 2"
+#~ msgstr "Мӧд X личкантор"

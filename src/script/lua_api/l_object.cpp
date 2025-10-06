@@ -770,7 +770,7 @@ int ObjectRef::l_get_bone_overrides(lua_State *L)
 // set_attach(self, parent, bone, position, rotation, force_visible)
 int ObjectRef::l_set_attach(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
 	ObjectRef *parent_ref = checkObject<ObjectRef>(L, 2);
 	ServerActiveObject *sao = getobject(ref);
@@ -797,7 +797,7 @@ int ObjectRef::l_set_attach(lua_State *L)
 // get_attach(self)
 int ObjectRef::l_get_attach(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
 	ServerActiveObject *sao = getobject(ref);
 	if (sao == nullptr)
@@ -825,7 +825,7 @@ int ObjectRef::l_get_attach(lua_State *L)
 // get_children(self)
 int ObjectRef::l_get_children(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
 	ServerActiveObject *sao = getobject(ref);
 	if (sao == nullptr)
@@ -898,7 +898,7 @@ int ObjectRef::l_get_properties(lua_State *L)
 // set_observers(self, observers)
 int ObjectRef::l_set_observers(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
 	ServerActiveObject *sao = getobject(ref);
 	if (sao == nullptr)

@@ -167,7 +167,7 @@ fake_function() {
 	gettext("Undersampling is similar to using a lower screen resolution, but it applies\nto the game world only, keeping the GUI intact.\nIt should give a significant performance boost at the cost of less detailed image.\nHigher values result in a less detailed image.\nNote: Undersampling is currently not supported if the \"3d_mode\" setting is set\nto a non-default value.");
 	gettext("3D");
 	gettext("3D mode");
-	gettext("3D support.\nCurrently supported:\n-    none: no 3d output.\n-    anaglyph: cyan/magenta color 3d.\n-    interlaced: odd/even line based polarization screen support.\n-    topbottom: split screen top/bottom.\n-    sidebyside: split screen side by side.\n-    crossview: Cross-eyed 3d");
+	gettext("3D support.\nCurrently supported:\n-    none: no 3D output\n-    anaglyph: cyan/magenta color 3D\n-    topbottom: split screen top/bottom\n-    sidebyside: split screen side-by-side\n-    crossview: cross-eyed 3D");
 	gettext("3D mode parallax strength");
 	gettext("Strength of 3D mode parallax.");
 	gettext("Bobbing");
@@ -716,6 +716,10 @@ fake_function() {
 	gettext("Mod Profiler");
 	gettext("Load the game profiler");
 	gettext("Load the game profiler to collect game profiling data.\nProvides a /profiler command to access the compiled profile.\nUseful for mod developers and server operators.");
+	gettext("Measure time samples");
+	gettext("Disable if you only want to instrument with Tracy.");
+	gettext("Capture Tracy zones");
+	gettext("Capture Tracy zones with the profiler's instrumentation.\nYou need to build with Tracy to use this, see doc/developing/profiling.md\nfor details.");
 	gettext("Default report format");
 	gettext("The default format in which profiles are being saved,\nwhen calling `/profiler save [format]` without format.");
 	gettext("Report path");

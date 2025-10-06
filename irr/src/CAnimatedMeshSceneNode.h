@@ -10,6 +10,7 @@
 
 #include "SkinnedMesh.h"
 #include "Transform.h"
+#include "irr_ptr.h"
 #include "matrix4.h"
 
 namespace scene
@@ -172,7 +173,7 @@ private:
 	std::function<void(f32)> OnAnimateCallback;
 
 	struct PerJointData {
-		std::vector<CBoneSceneNode *> SceneNodes;
+		std::vector<irr_ptr<CBoneSceneNode>> SceneNodes;
 		std::vector<core::matrix4> GlobalMatrices;
 		std::vector<std::optional<core::Transform>> PreTransSaves;
 		void setN(u16 n) {

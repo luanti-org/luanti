@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2024-08-15 19:09+0000\n"
 "Last-Translator: bgo-eiu <huyaqoob+toolforge@gmail.com>\n"
 "Language-Team: Malay (Jawi) <https://hosted.weblate.org/projects/minetest/"
@@ -1243,10 +1243,6 @@ msgid "New"
 msgstr "بوات بارو"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "تياد دنيا دچيڤتا اتاو دڤيليه!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "مولا ماٴين"
 
@@ -1863,10 +1859,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "ڤمبوکه دتونجوقکن (هلامن %d دري %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "اڤليکاسي"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1900,44 +1892,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "ڤادم EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "ڤادم"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "لاکوکن"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "بنتوان"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME - تريما"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME - توکر"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME - کلوار"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME - توکر مود"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME - تيدقتوکر"
+#, fuzzy
+msgid "Home Key"
+msgstr "زوم"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1949,8 +1916,9 @@ msgid "Left Arrow"
 msgstr "Ctrl کيري"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "بوتڠ کيري"
+#, fuzzy
+msgid "Left Click"
+msgstr "Ctrl کيري"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1964,19 +1932,27 @@ msgstr "مينو کيري"
 msgid "Left Shift"
 msgstr "Shift کيري"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows کيري"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "بوتڠ تڠه"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2043,10 +2019,6 @@ msgid "Numpad 9"
 msgstr "ڤد اڠک 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "ڤادم OEM"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Page down"
@@ -2082,8 +2054,9 @@ msgid "Right Arrow"
 msgstr "Ctrl کانن"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "بوتڠ کانن"
+#, fuzzy
+msgid "Right Click"
+msgstr "Ctrl کانن"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2097,6 +2070,7 @@ msgstr "مينو کانن"
 msgid "Right Shift"
 msgstr "Shift کانن"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows کانن"
@@ -2105,10 +2079,10 @@ msgstr "Windows کانن"
 msgid "Scroll Lock"
 msgstr "کونچي تاتل"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Select"
+#, fuzzy
+msgid "Select Key"
+msgstr "ڤادم"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2116,37 +2090,17 @@ msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "تيدور"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "تڠکڤ ݢمبر سکرين"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "سلاڠ"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "ککونچي سلينڤ"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "بوتڠ X نومبور 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "بوتڠ X نومبور 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "زوم"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2562,12 +2516,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "سوکوڠن 3D.\n"
 "يڠ دسوکوڠ ڤد ماس اين:\n"
@@ -2679,8 +2632,8 @@ msgstr ""
 "ککونچي اونتوق مڽلينڤ.\n"
 "جوݢ دݢوناکن اونتوق تورون باواه کتيک ممنجت دان دالم اٴير جيک تتڤن "
 "aux1_descends دلومڤوهکن.\n"
-"ليهت http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"ليهت http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2922,6 +2875,17 @@ msgstr "ڤلمبوتن کاميرا"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "ڤلمبوتن کاميرا دالم مود سينماتيک"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3432,6 +3396,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "هياسن"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5251,6 +5219,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "حد جومله ڤڠݢونا"
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7242,8 +7214,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "ککونچي اونتوق مڠݢرقکن ڤماٴين کبلاکڠ.\n"
 "جوݢ اکن ملومڤوهکن أوتوڤرݢرقن⹁ اڤابيلا اکتيف.\n"
-"ليهت http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"ليهت http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7354,14 +7326,68 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "فورمت يڠ دݢوناکن اونتوق تڠکڤ لاير."
+#~ msgid "Apps"
+#~ msgstr "اڤليکاسي"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "ڤلمبوتن کاميرا دالم مود سينماتيک"
+#~ msgid "End"
+#~ msgstr "End"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "مود سکرين ڤنوه."
+#~ msgid "Erase EOF"
+#~ msgstr "ڤادم EOF"
+
+#~ msgid "Execute"
+#~ msgstr "لاکوکن"
+
+#~ msgid "Help"
+#~ msgstr "بنتوان"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME - تريما"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME - توکر"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME - کلوار"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME - توکر مود"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME - تيدقتوکر"
+
+#~ msgid "Left Button"
+#~ msgstr "بوتڠ کيري"
+
+#~ msgid "Middle Button"
+#~ msgstr "بوتڠ تڠه"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "تياد دنيا دچيڤتا اتاو دڤيليه!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "ڤادم OEM"
+
+#~ msgid "Right Button"
+#~ msgstr "بوتڠ کانن"
+
+#~ msgid "Select"
+#~ msgstr "Select"
+
+#~ msgid "Sleep"
+#~ msgstr "تيدور"
+
+#~ msgid "Snapshot"
+#~ msgstr "تڠکڤ ݢمبر سکرين"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "بوتڠ X نومبور 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "بوتڠ X نومبور 2"

@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Hungarian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-07-03 13:04+0000\n"
-"Last-Translator: Kisbenedek Márton <martonkisbenedek@gmail.com>\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-08-06 12:02+0000\n"
+"Last-Translator: Unacceptium <unacceptium@proton.me>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/minetest/"
 "minetest/hu/>\n"
 "Language: hu\n"
@@ -24,7 +24,7 @@ msgstr "Üres parancs."
 
 #: builtin/client/chatcommands.lua
 msgid "Exit to main menu"
-msgstr "Kilépés a főmenübe"
+msgstr "Kilép a főmenübe"
 
 #: builtin/client/chatcommands.lua
 msgid "Invalid command: "
@@ -75,7 +75,7 @@ msgstr ""
 
 #: builtin/common/chatcommands.lua
 msgid "[all | <cmd>] [-t]"
-msgstr "[all | <cmd>] [-t]"
+msgstr "[all | <parancs>] [-t]"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -607,9 +607,8 @@ msgid "Website"
 msgstr "Weboldal"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1"
-msgstr "$1 az $2-ből"
+msgstr "$1 -ből"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1232,10 +1231,6 @@ msgid "New"
 msgstr "Új"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Nincs létrehozott vagy kiválasztott világ!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Játék indítása"
 
@@ -1364,7 +1359,7 @@ msgstr "Kész!"
 #: src/client/client.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
-msgstr ""
+msgstr "A képernyőképet nem sikerült \"%s\"-be menteni"
 
 #: src/client/client.cpp
 msgid "Initializing nodes"
@@ -1383,9 +1378,9 @@ msgid "Rebuilding shaders..."
 msgstr "Árnyalók újraépítése…"
 
 #: src/client/client.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Képernyőképek"
+msgstr "Képernyőképek elmentve ide: \"%s\""
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1771,7 +1766,7 @@ msgstr ""
 
 #: src/client/game_formspec.cpp
 msgid "Exit to Menu"
-msgstr "Kilépés a főmenübe"
+msgstr "Kilépés a Menübe"
 
 #: src/client/game_formspec.cpp
 msgid "Exit to OS"
@@ -1843,10 +1838,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profiler megjelenítése (lap: %d1 ennyiből: %d2)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Alkalmazások"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1876,44 +1867,19 @@ msgid "Down Arrow"
 msgstr "Lefelé nyíl"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Menü"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "EOF törlése"
+#, fuzzy
+msgid "Help Key"
+msgstr "Törlés(kulcs)"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Végrehajtás"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Segítség"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME Elfogadás"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME átalakítás"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME Kilépés"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME módváltás"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME nem átalakított"
+#, fuzzy
+msgid "Home Key"
+msgstr "Nagyítási gomb"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1924,8 +1890,9 @@ msgid "Left Arrow"
 msgstr "Bal nyíl"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Bal gomb"
+#, fuzzy
+msgid "Left Click"
+msgstr "Bal Control"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1939,18 +1906,26 @@ msgstr "Bal menü"
 msgid "Left Shift"
 msgstr "Bal Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Bal Windows"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menü"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Középső gomb"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2017,10 +1992,6 @@ msgid "Numpad 9"
 msgstr "Számbillentyűzet 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Tisztítás"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Lapozás lefelé"
 
@@ -2051,8 +2022,9 @@ msgid "Right Arrow"
 msgstr "Jobb nyíl"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Jobb gomb"
+#, fuzzy
+msgid "Right Click"
+msgstr "Jobb Control"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2066,6 +2038,7 @@ msgstr "Jobb menü"
 msgid "Right Shift"
 msgstr "Jobb Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Jobb Windows"
@@ -2074,46 +2047,27 @@ msgstr "Jobb Windows"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Kiválasztás"
+#, fuzzy
+msgid "Select Key"
+msgstr "Törlés(kulcs)"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Alvás"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Pillanatkép"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Szóköz"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tabulátor"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Szüneteltetés"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Felfele nyíl"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X gomb 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Gomb 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Nagyítási gomb"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2544,15 +2498,15 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "3D-s zaj, amely meghatározza a tömlöcök számát egy pályadarabkánként."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D támogatás.\n"
 "Jelenleg támogatott:\n"
@@ -2663,14 +2617,12 @@ msgid "Allows liquids to be translucent."
 msgstr "A folyadékok áttetszőségét teszi lehetővé."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
-"Gomb a lopakodáshoz.\n"
-"A lefelé mászáshoz és vízben történő ereszkedéshez is ezt lehet használni, "
-"ha az aux1_descends le van tiltva."
+"Gomb a lopakodáshoz. A lefelé mászáshoz és vízben történő ereszkedéshez is "
+"ezt lehet használni, ha az aux1_descends le van tiltva."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2928,6 +2880,17 @@ msgstr "Kamera stabilizálása"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Lágy kameramozgás operatőr módban"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3433,13 +3396,14 @@ msgid "Defines tree areas and tree density."
 msgstr "Az erdős területeket és a fák sűrűségét szabályozza."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
 "down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
-"A világ 3D-modelljének frissítési időköze a klienseken. Ennek a megnövelése\n"
-"ritkábbá teszi a frissítéseket, így csökkenti a lassú kliensek szaggatását."
+"Az egyedi 3D modellek (Mesh-ek) frissítési időköze a klienseken. Ezen "
+"értékkel megnövelheti az\n"
+"egyedi 3D modellek frissítési időközét, amely csökkentheti a szaggatást "
+"gyenge eszközökön."
 
 #: src/settings_translation_file.cpp
 msgid "Delay in sending blocks after building"
@@ -3485,6 +3449,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Fejlesztői beállítások"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -4943,9 +4911,8 @@ msgstr ""
 "objektumfrissítés között),\n"
 "másodpercben megadva.\n"
 "Ez nem érvényes a kliens menüjéből indított munkamenetekre.\n"
-"Ez egy alsó korlát, azaz a szerverlépések nem lehetnek ennél rövidebben, "
-"viszont\n"
-"gyakorta ennél hosszabbak."
+"Ez egy alsó korlát. a szerverlépések nem lehetnek\n"
+"rövidebbek, viszont gyakran hosszabbak."
 
 #: src/settings_translation_file.cpp
 msgid "Length of liquid waves."
@@ -5319,7 +5286,7 @@ msgstr "Max. csomagszám lépésenként"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum FPS"
-msgstr "Maximum FPS"
+msgstr "Maximum képkocka/másodperc"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum FPS when the window is not focused."
@@ -5483,6 +5450,11 @@ msgid "Maximum users"
 msgstr "Maximum felhasználók"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Sivatag sablonok"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "Napi üzenet"
 
@@ -5547,6 +5519,8 @@ msgid ""
 "Modifier key bind for closing your world.\n"
 "Requires ESC + the selected key to work."
 msgstr ""
+"Módosító billentyű a világod bezárásához.\n"
+"Az ESC +a kiválasztott gomb szükséges a működéséhez."
 
 #: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
@@ -5562,7 +5536,7 @@ msgstr "Monospace betűméret"
 
 #: src/settings_translation_file.cpp
 msgid "Monospace font size divisible by"
-msgstr "Monospace betűméret osztható ezzel:"
+msgstr "Monospace betűméret osztható ezzel"
 
 #: src/settings_translation_file.cpp
 msgid "Mountain height noise"
@@ -5729,7 +5703,6 @@ msgid "Number of messages a player may send per 10 seconds."
 msgstr "Üzenetek száma amit egy játékos küldhet 10 másodpercenként."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Number of threads to use for mesh generation.\n"
 "Value of 0 (default) will let Luanti automatically choose the number of "
@@ -6034,9 +6007,8 @@ msgstr ""
 "READ_PLAYERINFO: 32 (letiltja a get_player_names hívásokat kliensoldalon)"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Return to Main Menu"
-msgstr "Kilépés a főmenübe"
+msgstr "Kilép a Főmenübe"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -7171,9 +7143,8 @@ msgid "Toggle fullscreen"
 msgstr "Teljes képernyő kapcsolása"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle large chat console"
-msgstr "Nagy csevegőkonzol"
+msgstr "Váltás nagy csevegőkonzolra"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
@@ -7184,9 +7155,8 @@ msgid "Toggle profiler"
 msgstr "Profilozó kapcsolása"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
-msgstr "Kulcs a korlátlan látótávolság váltásához."
+msgstr "Végtelen látótávolság váltása"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7681,11 +7651,8 @@ msgid "Width of the selection box lines around nodes."
 msgstr "A kijelölődoboz vonalainak szélessége a kockák körül."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Will also disable autoforward, when active."
-msgstr ""
-"A játékos visszafelé történő mozgatásának gombja.\n"
-"Ha aktív, az automatikus előremenetelt is kikapcsolja."
+msgstr "az automatikus előrehaladás funkciót is kikapcsolja, ha aktív."
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7806,196 +7773,68 @@ msgstr "cURL interaktív időtúllépés"
 msgid "cURL parallel limit"
 msgstr "cURL párhuzamossági korlát"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Tükröződő árnyékolás alkalmazása a kockákon."
+#~ msgid "Apps"
+#~ msgstr "Alkalmazások"
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "Billentyű a látótávolság csökkentéséhez."
+#~ msgid "End"
+#~ msgstr "End"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "A hangerő csökkentésének gombja."
+#~ msgid "Erase EOF"
+#~ msgstr "EOF törlése"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "Az aktuálisan kiválasztott tárgy eldobásának gombja."
+#~ msgid "Execute"
+#~ msgstr "Végrehajtás"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "Billentyű a látótávolság növeléséhez."
+#~ msgid "Help"
+#~ msgstr "Segítség"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "Billentyű a hangerő növeléséhez."
+#~ msgid "Home"
+#~ msgstr "Home"
 
-#~ msgid "Key for jumping."
-#~ msgstr "Billentyű az ugráshoz."
+#~ msgid "IME Accept"
+#~ msgstr "IME Elfogadás"
 
-#~ msgid "Key for moving the player forward."
-#~ msgstr "Billentyű a játékos előrehaladásához."
+#~ msgid "IME Convert"
+#~ msgstr "IME átalakítás"
 
-#~ msgid "Key for moving the player left."
-#~ msgstr "A játékos balra mozgatásának billentyűje."
+#~ msgid "IME Escape"
+#~ msgstr "IME Kilépés"
 
-#~ msgid "Key for moving the player right."
-#~ msgstr "A játékos jobbra mozgatásának billentyűje."
+#~ msgid "IME Mode Change"
+#~ msgstr "IME módváltás"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "A játék elnémításának gombja."
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME nem átalakított"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "A csevegőablak megnyitásához szükséges billentyű."
+#~ msgid "Left Button"
+#~ msgstr "Bal gomb"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "Billentyű a leltár megnyitásához."
+#~ msgid "Middle Button"
+#~ msgstr "Középső gomb"
 
-#~ msgid "Key for selecting the 11th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 11. helyének kiválasztásához."
+#~ msgid "No world created or selected!"
+#~ msgstr "Nincs létrehozott vagy kiválasztott világ!"
 
-#~ msgid "Key for selecting the 12th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 12. helyének kiválasztásához."
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Tisztítás"
 
-#~ msgid "Key for selecting the 13th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 13. helyének kiválasztásához."
+#~ msgid "Right Button"
+#~ msgstr "Jobb gomb"
 
-#~ msgid "Key for selecting the 14th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 14. helyének kiválasztásához."
+#~ msgid "Select"
+#~ msgstr "Kiválasztás"
 
-#~ msgid "Key for selecting the 15th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 15. helyének kiválasztásához."
+#~ msgid "Sleep"
+#~ msgstr "Alvás"
 
-#~ msgid "Key for selecting the 16th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 16. helyének kiválasztásához."
+#~ msgid "Snapshot"
+#~ msgstr "Pillanatkép"
 
-#~ msgid "Key for selecting the 17th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 17. helyének kiválasztásához."
+#~ msgid "Tab"
+#~ msgstr "Tabulátor"
 
-#~ msgid "Key for selecting the 18th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 18. helyének kiválasztásához."
+#~ msgid "X Button 1"
+#~ msgstr "X gomb 1"
 
-#~ msgid "Key for selecting the 19th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 19. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 20th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 20. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 21st hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 21. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 22nd hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 22. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 23rd hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 23. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 24th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 24. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 25th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 25. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 26th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 26. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 27th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 27. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 28th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 28. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 29th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 29. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 30th hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 30. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 31st hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 31. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the 32nd hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv 32. helyének kiválasztásához."
-
-#~ msgid "Key for selecting the eighth hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv nyolcas helyének kiválasztásához."
-
-#~ msgid "Key for selecting the fifth hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv ötös helyének kiválasztásához."
-
-#~ msgid "Key for selecting the first hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv első helyének kiválasztásához."
-
-#~ msgid "Key for selecting the fourth hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv négyes helyének kiválasztásához."
-
-#~ msgid "Key for selecting the next item in the hotbar."
-#~ msgstr "Billentyű a gyors elérési sáv következő helyének kiválasztásához."
-
-#~ msgid "Key for selecting the ninth hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv kilences helyének kiválasztásához."
-
-#~ msgid "Key for selecting the previous item in the hotbar."
-#~ msgstr "Billentyű a gyors elérési sáv előző helyének kiválasztásához."
-
-#~ msgid "Key for selecting the second hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv kettes helyének kiválasztásához."
-
-#~ msgid "Key for selecting the seventh hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv hetes helyének kiválasztásához."
-
-#~ msgid "Key for selecting the sixth hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv hatos helyének kiválasztásához."
-
-#~ msgid "Key for selecting the tenth hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv tízes helyének kiválasztásához."
-
-#~ msgid "Key for selecting the third hotbar slot."
-#~ msgstr "Billentyű a gyors elérési sáv hármas helyének kiválasztásához."
-
-#~ msgid "Key for switching between first- and third-person camera."
-#~ msgstr "Billentyű az belső és külső nézetű kamera közötti váltáshoz."
-
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Billentyű a képernyőképek készítéséhez."
-
-#~ msgid "Key for toggling autoforward."
-#~ msgstr "Billentyű az automatikus előrehaladás kapcsolásához."
-
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "A filmes üzemmód váltásának gombja."
-
-#~ msgid "Key for toggling display of minimap."
-#~ msgstr "Billentyű a minitérkép megjelenítésének kapcsolásához ."
-
-#~ msgid "Key for toggling fast mode."
-#~ msgstr "A gyors üzemmód váltásának gombja."
-
-#~ msgid "Key for toggling flying."
-#~ msgstr "Gomb a repülés váltásához."
-
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Billentyű a teljes képernyős mód váltásához."
-
-#~ msgid "Key for toggling noclip mode."
-#~ msgstr "A noclip üzemmód váltásának gombja."
-
-#~ msgid "Key for toggling pitch move mode."
-#~ msgstr "Billentyű a pitch move üzemmód váltásához."
-
-#~ msgid "Key for toggling the display of chat."
-#~ msgstr "A csevegés megjelenítésének váltására szolgáló billentyű."
-
-#~ msgid "Key for toggling the display of debug info."
-#~ msgstr ""
-#~ "A hibakeresési információk megjelenítésének váltására szolgáló billentyű."
-
-#~ msgid "Key for toggling the display of fog."
-#~ msgstr "A köd megjelenítésének váltására szolgáló billentyű."
-
-#~ msgid "Key for toggling the display of the HUD."
-#~ msgstr "A HUD megjelenítésének váltására szolgáló billentyű."
-
-#~ msgid "Key for toggling the display of the large chat console."
-#~ msgstr ""
-#~ "A nagy csevegő konzol megjelenítésének váltására szolgáló billentyű."
-
-#~ msgid "Key to use view zoom when possible."
-#~ msgstr "Billentyű a nézet nagyítás használatához, ha lehetséges."
-
-#~ msgid "Node specular"
-#~ msgstr "Kocka tükröződése"
+#~ msgid "X Button 2"
+#~ msgstr "X Gomb 2"

@@ -267,7 +267,7 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 }
 
 /******************************************************************************/
-const std::array<const char *, 33> object_property_keys = {
+const std::array<const char *, 35> object_property_keys = {
 	"hp_max",
 	"breath_max",
 	"physical",
@@ -302,6 +302,8 @@ const std::array<const char *, 33> object_property_keys = {
 	"damage_texture_modifier",
 	"show_on_minimap",
 	// "node" is intentionally not here as it's gated behind `fallback` below!
+	"nametag_fontsize",
+	"nametag_scale_z",
 };
 
 /******************************************************************************/
@@ -467,7 +469,7 @@ void read_object_properties(lua_State *L, int index,
 	lua_pop(L, 1);
 	lua_getfield(L, -1, "nametag_bgcolor");
 	if (!lua_isnil(L, -1)) {
-		if (lua_toboolean(L, -1)) {
+		if (lua_toboolean(L, -1)) { // truthy
 			video::SColor color;
 			if (read_color(L, -1, &color))
 				prop->nametag_bgcolor = color;
@@ -476,6 +478,16 @@ void read_object_properties(lua_State *L, int index,
 		}
 	}
 	lua_pop(L, 1);
+	lua_getfield(L, -1, "nametag_fontsize");
+	if (!lua_isnil(L, -1)) {
+		if (lua_toboolean(L, -1)) { // truthy
+			prop->nametag_fontsize = lua_tointeger(L, -1);
+		} else {
+			prop->nametag_fontsize = std::nullopt;
+		}
+	}
+	lua_pop(L, 1);
+	getboolfield(L, -1, "nametag_scale_z", prop->nametag_scale_z);
 
 	getstringfield(L, -1, "infotext", prop->infotext);
 	getboolfield(L, -1, "static_save", prop->static_save);
@@ -570,13 +582,18 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "nametag");
 	push_ARGB8(L, prop->nametag_color);
 	lua_setfield(L, -2, "nametag_color");
-	if (prop->nametag_bgcolor) {
+	if (prop->nametag_bgcolor)
 		push_ARGB8(L, prop->nametag_bgcolor.value());
-		lua_setfield(L, -2, "nametag_bgcolor");
-	} else {
+	else
 		lua_pushboolean(L, false);
-		lua_setfield(L, -2, "nametag_bgcolor");
-	}
+	lua_setfield(L, -2, "nametag_bgcolor");
+	if (prop->nametag_fontsize)
+		lua_pushinteger(L, prop->nametag_fontsize.value());
+	else
+		lua_pushboolean(L, false);
+	lua_setfield(L, -2, "nametag_fontsize");
+	lua_pushboolean(L, prop->nametag_scale_z);
+	lua_setfield(L, -2, "nametag_scale_z");
 	lua_pushlstring(L, prop->infotext.c_str(), prop->infotext.size());
 	lua_setfield(L, -2, "infotext");
 	lua_pushboolean(L, prop->static_save);

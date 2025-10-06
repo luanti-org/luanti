@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: German (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-06-28 17:04+0000\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-09-24 12:28+0000\n"
 "Last-Translator: Wuzzy <Wuzzy@disroot.org>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/minetest/minetest/"
 "de/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -608,9 +608,8 @@ msgid "Website"
 msgstr "Webseite"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1"
-msgstr "$1 von $2"
+msgstr "von $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1235,10 +1234,6 @@ msgid "New"
 msgstr "Neu"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Keine Welt angegeben oder ausgewählt!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Spiel starten"
 
@@ -1367,7 +1362,7 @@ msgstr "Fertig!"
 #: src/client/client.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
-msgstr ""
+msgstr "Bildschirmfotos konnten nicht nach „%s“ gespeichert werden"
 
 #: src/client/client.cpp
 msgid "Initializing nodes"
@@ -1386,9 +1381,9 @@ msgid "Rebuilding shaders..."
 msgstr "Shader erneuern …"
 
 #: src/client/client.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Bildschirmfotos"
+msgstr "Bildschirmfoto nach „%s“ gespeichert"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1845,10 +1840,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profiler angezeigt (Seite %d von %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Anwendungen"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Rücktaste"
 
@@ -1878,44 +1869,16 @@ msgid "Down Arrow"
 msgstr "Pfeil runter"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Ende"
+msgid "End Key"
+msgstr "Ende-Taste"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Erase OEF"
+msgid "Help Key"
+msgstr "Hilfe-Taste"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Ausführen"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Hilfe"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Pos1"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME: Akzept."
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME: Konvert."
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME: Escape"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME: Moduswechsel"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME: Nonconvert"
+msgid "Home Key"
+msgstr "Pos1-Taste"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1926,8 +1889,8 @@ msgid "Left Arrow"
 msgstr "Pfeil links"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Linke Taste"
+msgid "Left Click"
+msgstr "Linksklick"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1941,18 +1904,26 @@ msgstr "Menü links"
 msgid "Left Shift"
 msgstr "Umschalt links"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows links"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menü-Taste"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Mittlere Taste"
+msgid "Middle Click"
+msgstr "Mittelklick"
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr "Maus X1"
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr "Maus X2"
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2019,10 +1990,6 @@ msgid "Numpad 9"
 msgstr "Ziffernblock 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Clear"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Bild ab"
 
@@ -2053,8 +2020,8 @@ msgid "Right Arrow"
 msgstr "Pfeil rechts"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Rechte Taste"
+msgid "Right Click"
+msgstr "Rechtsklick"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2068,6 +2035,7 @@ msgstr "Menü rechts"
 msgid "Right Shift"
 msgstr "Umschalt rechts"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows rechts"
@@ -2076,46 +2044,25 @@ msgstr "Windows rechts"
 msgid "Scroll Lock"
 msgstr "Rollen"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Auswählen"
+msgid "Select Key"
+msgstr "Select-Taste"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Umschalt-Taste"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Schlaf"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Druck"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Leertaste"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+msgid "Tab Key"
+msgstr "Tab-Taste"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Pfeil hoch"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X-Knopf 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X-Knopf 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zoom-Taste"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2557,19 +2504,16 @@ msgstr "3-D-Rauschen, welches die Anzahl der Verliese je Mapchunk festlegt."
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3-D-Unterstützung.\n"
 "Aktuell verfügbar:\n"
 "-    none: Keine 3-D-Ausgabe.\n"
 "-    anaglyph: Türkises / magenta 3-D.\n"
-"-    interlaced: Bildschirmunterstützung für gerade / ungerade "
-"zeilenbasierte Polarisation.\n"
 "-    topbottom: Bildschirm horizontal teilen.\n"
 "-    sidebyside: Bildschirm vertikal teilen.\n"
 "-    crossview: Schieläugiges 3-D"
@@ -2681,12 +2625,10 @@ msgid "Allows liquids to be translucent."
 msgstr "Erlaubt Flüssigkeiten, transluzent zu sein."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
-"Taste zum Schleichen.\n"
 "Wird auch zum Runterklettern und das Sinken im Wasser verwendet, falls "
 "aux1_descends deaktiviert ist."
 
@@ -2702,8 +2644,8 @@ msgstr ""
 "an ihr vorgenommen wird. Höhere Werte können mittlere\n"
 "und niedrigere Lichtstufen heller machen. Der Wert „1.0“\n"
 "lässt die Lichtkurve unverändert.\n"
-"Das hat nur einen merkliche Wirkung auf das Tageslicht und\n"
-"dem künstlichem Licht, es hat sehr geringe Auswirkungen\n"
+"Das hat nur eine merkliche Wirkung auf Tageslicht und\n"
+"künstliches Licht, es hat sehr geringe Auswirkungen\n"
 "auf natürliches Licht bei Nacht."
 
 #: src/settings_translation_file.cpp
@@ -2805,11 +2747,10 @@ msgid ""
 "optimization.\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
-"In dieser Distanz wird der Server die zu den Clients gesendeten Blöcke "
-"aggressiv\n"
-"optimieren.\n"
-"Kleine Werte werden die Performanz möglicherweise stark erhöhen, auf\n"
-"Kosten von sichtbaren Renderfehlern (einige Blöcke können eventuell in "
+"In dieser Entfernung wird der Server aggressiv optimieren,\n"
+"welche Kartenblöcke an Clients gesendet werden.\n"
+"Kleine Werte werden die Performanz möglicherweise stark erhöhen,\n"
+"auf Kosten von sichtbaren Renderfehlern (einige Blöcke können eventuell in "
 "Höhlen\n"
 "nicht korrekt gerendert werden).\n"
 "Wird dieser Wert auf eine Zahl größer als max_block_send_distance gesetzt,\n"
@@ -2827,9 +2768,9 @@ msgid ""
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
 "In dieser Distanz wird der Server einen einfacheren und günstigeren\n"
-"Occlusion-Check machen.\n"
-"Kleine Werte werden die Performanz möglicherweise stark erhöhen, auf\n"
-"Kosten von sichtbaren Renderfehlern (fehlende Blöcke).\n"
+"Verdeckungs-Prüfung machen.\n"
+"Kleine Werte werden die Performanz möglicherweise stark erhöhen,\n"
+"auf Kosten von sichtbaren Renderfehlern (fehlende Kartenblöcke).\n"
 "Dies ist besonders nützlich für eine hohe Sichtweite (über 500).\n"
 "In Kartenblöcken (16 Blöcke) angegeben."
 
@@ -2948,6 +2889,20 @@ msgstr "Kameraglättung"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Kameraglättung im Filmmodus"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr "Tracy-Zonen aufnehmen"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
+"Tracy-Zonen mit der Instrumentierung des Profilers aufnehmen.\n"
+"Sie benötigen einen Build mit Tracy, um dies verwenden zu können,\n"
+"siehe doc/developing/profiling.md für Details."
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3460,7 +3415,6 @@ msgid "Defines tree areas and tree density."
 msgstr "Definiert Baumgebiete und Baumdichte."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
 "down the rate of mesh updates, which can help reduce jitter."
@@ -3468,7 +3422,7 @@ msgstr ""
 "Zeitabstand zwischen Mesh-Updates auf dem Client in ms. Wenn dieser Wert\n"
 "erhöht wird, wird die Rate der Mesh-Updates verringert, was das Stottern "
 "auf\n"
-"langsameren Clients reduziert."
+"reduzieren kann."
 
 #: src/settings_translation_file.cpp
 msgid "Delay in sending blocks after building"
@@ -3513,6 +3467,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Entwickleroptionen"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr "Deaktivieren, falls Sie mit Tracy nur instrumentieren wollen."
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5259,7 +5217,7 @@ msgstr "Kartenschatten-Aktualisierungsframes"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock limit"
-msgstr "Kartenblock-Grenze"
+msgstr "Kartenblock-Begrenzung"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock mesh generation delay"
@@ -5524,6 +5482,10 @@ msgid "Maximum users"
 msgstr "Maximale Benutzerzahl"
 
 #: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr "Zeitstempel messen"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "Meldung des Tages (message of the day)"
 
@@ -5587,6 +5549,8 @@ msgid ""
 "Modifier key bind for closing your world.\n"
 "Requires ESC + the selected key to work."
 msgstr ""
+"Modifikationstaste zum Schließen der Welt.\n"
+"Dafür muss man ESC und die gewählte Taste drücken."
 
 #: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
@@ -5769,7 +5733,6 @@ msgstr ""
 "darf."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Number of threads to use for mesh generation.\n"
 "Value of 0 (default) will let Luanti automatically choose the number of "
@@ -6072,9 +6035,8 @@ msgstr ""
 "READ_PLAYERINFO: 32 (deaktiviert clientseitigen Aufruf von get_player_names)"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Return to Main Menu"
-msgstr "Ins Hauptmenü beenden"
+msgstr "Zurück zum Hauptmenü"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -7202,9 +7164,8 @@ msgid "Toggle fullscreen"
 msgstr "Vollbild umschalten"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle large chat console"
-msgstr "Große Chatkonsole"
+msgstr "Große Chatkonsole umschalten"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
@@ -7215,9 +7176,8 @@ msgid "Toggle profiler"
 msgstr "Profiler umschalten"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
-msgstr "Taste zum Umschalten der unbegrenzten Sichtweite."
+msgstr "Unbegrenzte Sichtweite umschalten"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7727,11 +7687,8 @@ msgid "Width of the selection box lines around nodes."
 msgstr "Breite der Auswahlboxlinien um Blöcke."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Will also disable autoforward, when active."
-msgstr ""
-"Taste, um den Spieler rückwärts zu bewegen.\n"
-"Wird, wenn aktiviert, auch die Vorwärtsautomatik deaktivieren."
+msgstr "Wird, wenn aktiviert, auch die Vorwärtsautomatik deaktivieren."
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7851,198 +7808,68 @@ msgstr "cURL-Interaktiv-Zeitüberschreitung"
 msgid "cURL parallel limit"
 msgstr "cURL-Parallel-Begrenzung"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Specular-Shading auf Nodes anwenden."
+#~ msgid "Apps"
+#~ msgstr "Anwendungen"
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "Taste zum Verringern der Sichtweite."
+#~ msgid "End"
+#~ msgstr "Ende"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "Taste zum Verringern der Lautstärke."
+#~ msgid "Erase EOF"
+#~ msgstr "Erase OEF"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "Taste zum Fallenlassen des momentan ausgewählten Gegenstands."
+#~ msgid "Execute"
+#~ msgstr "Ausführen"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "Taste zur Erhöhung der Sichtweite."
+#~ msgid "Help"
+#~ msgstr "Hilfe"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "Taste zur Erhöhung der Lautstärke."
+#~ msgid "Home"
+#~ msgstr "Pos1"
 
-#~ msgid "Key for jumping."
-#~ msgstr "Taste zum Springen."
+#~ msgid "IME Accept"
+#~ msgstr "IME: Akzept."
 
-#~ msgid "Key for moving the player forward."
-#~ msgstr "Taste, um den Spieler vorwärts zu bewegen."
+#~ msgid "IME Convert"
+#~ msgstr "IME: Konvert."
 
-#~ msgid "Key for moving the player left."
-#~ msgstr "Taste, um den Spieler nach links zu bewegen."
+#~ msgid "IME Escape"
+#~ msgstr "IME: Escape"
 
-#~ msgid "Key for moving the player right."
-#~ msgstr "Taste, um den Spieler nach rechts zu bewegen."
+#~ msgid "IME Mode Change"
+#~ msgstr "IME: Moduswechsel"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "Taste, um das Spiel verstummen zu lassen."
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME: Nonconvert"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "Taste, um das Chatfenster zu öffnen."
+#~ msgid "Left Button"
+#~ msgstr "Linke Taste"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "Taste zum Öffnen des Inventars."
+#~ msgid "Middle Button"
+#~ msgstr "Mittlere Taste"
 
-#~ msgid "Key for selecting the 11th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 11. Schnellleistenplatzes."
+#~ msgid "No world created or selected!"
+#~ msgstr "Keine Welt angegeben oder ausgewählt!"
 
-#~ msgid "Key for selecting the 12th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 12. Schnellleistenplatzes."
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Clear"
 
-#~ msgid "Key for selecting the 13th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 13. Schnellleistenplatzes."
+#~ msgid "Right Button"
+#~ msgstr "Rechte Taste"
 
-#~ msgid "Key for selecting the 14th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 14. Schnellleistenplatzes."
+#~ msgid "Select"
+#~ msgstr "Auswählen"
 
-#~ msgid "Key for selecting the 15th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 15. Schnellleistenplatzes."
+#~ msgid "Sleep"
+#~ msgstr "Schlaf"
 
-#~ msgid "Key for selecting the 16th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 16. Schnellleistenplatzes."
+#~ msgid "Snapshot"
+#~ msgstr "Druck"
 
-#~ msgid "Key for selecting the 17th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 17. Schnellleistenplatzes."
+#~ msgid "Tab"
+#~ msgstr "Tab"
 
-#~ msgid "Key for selecting the 18th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 18. Schnellleistenplatzes."
+#~ msgid "X Button 1"
+#~ msgstr "X-Knopf 1"
 
-#~ msgid "Key for selecting the 19th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 19. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 20th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 20. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 21st hotbar slot."
-#~ msgstr "Taste für die Auswahl des 21. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 22nd hotbar slot."
-#~ msgstr "Taste für die Auswahl des 22. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 23rd hotbar slot."
-#~ msgstr "Taste für die Auswahl des 23. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 24th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 24. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 25th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 25. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 26th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 26. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 27th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 27. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 28th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 28. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 29th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 29. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 30th hotbar slot."
-#~ msgstr "Taste für die Auswahl des 30. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 31st hotbar slot."
-#~ msgstr "Taste für die Auswahl des 31. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the 32nd hotbar slot."
-#~ msgstr "Taste für die Auswahl des 32. Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the eighth hotbar slot."
-#~ msgstr "Taste für die Auswahl des achten Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the fifth hotbar slot."
-#~ msgstr "Taste für die Auswahl des fünften Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the first hotbar slot."
-#~ msgstr "Taste für die Auswahl des ersten Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the fourth hotbar slot."
-#~ msgstr "Taste für die Auswahl des vierten Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the next item in the hotbar."
-#~ msgstr ""
-#~ "Taste für die Auswahl des nächsten Gegenstands in der Schnellleiste."
-
-#~ msgid "Key for selecting the ninth hotbar slot."
-#~ msgstr "Taste für die Auswahl des neunten Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the previous item in the hotbar."
-#~ msgstr ""
-#~ "Taste für die Auswahl des vorherigen Gegenstands in der Schnellleiste."
-
-#~ msgid "Key for selecting the second hotbar slot."
-#~ msgstr "Taste für die Auswahl des zweiten Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the seventh hotbar slot."
-#~ msgstr "Taste für die Auswahl des siebten Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the sixth hotbar slot."
-#~ msgstr "Taste für die Auswahl des sechsten Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the tenth hotbar slot."
-#~ msgstr "Taste für die Auswahl des zehnten Schnellleistenplatzes."
-
-#~ msgid "Key for selecting the third hotbar slot."
-#~ msgstr "Taste für die Auswahl des dritten Schnellleistenplatzes."
-
-#~ msgid "Key for switching between first- and third-person camera."
-#~ msgstr ""
-#~ "Taste zum Wechseln zwischen der Kamera der ersten Person und der dritten "
-#~ "Person."
-
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Taste für die Aufnahme von Screenshots."
-
-#~ msgid "Key for toggling autoforward."
-#~ msgstr "Taste für das Umschalten der Vorwärtsautomatik."
-
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Taste für die Umschaltung des Filmmodus."
-
-#~ msgid "Key for toggling display of minimap."
-#~ msgstr "Taste für das Umschalten der Anzeige der Übersichtskarte."
-
-#~ msgid "Key for toggling fast mode."
-#~ msgstr "Taste zum Umschalten des Schnellmodus."
-
-#~ msgid "Key for toggling flying."
-#~ msgstr "Taste, um das Fliegen ein- oder auszuschalten."
-
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Taste zum Ein- oder Ausschalten des Vollbildmodus."
-
-#~ msgid "Key for toggling noclip mode."
-#~ msgstr "Taste zum Umschalten des Geistmodus."
-
-#~ msgid "Key for toggling pitch move mode."
-#~ msgstr "Taste zum Umschalten des Nick-Bewegungsmodus."
-
-#~ msgid "Key for toggling the display of chat."
-#~ msgstr "Taste zum Umschalten der Anzeige des Chat."
-
-#~ msgid "Key for toggling the display of debug info."
-#~ msgstr "Taste zum Umschalten der Anzeige der Debuginformationen."
-
-#~ msgid "Key for toggling the display of fog."
-#~ msgstr "Taste zum Umschalten der Anzeige des Nebels."
-
-#~ msgid "Key for toggling the display of the HUD."
-#~ msgstr "Taste zum Umschalten der Anzeige der HUD."
-
-#~ msgid "Key for toggling the display of the large chat console."
-#~ msgstr "Taste zum Umschalten der Anzeige der großen Chatkonsole."
-
-#~ msgid "Key to use view zoom when possible."
-#~ msgstr "Taste für die Benutzung der Zoomansicht, falls möglich."
-
-#~ msgid "Node specular"
-#~ msgstr "Node-Specular"
+#~ msgid "X Button 2"
+#~ msgstr "X-Knopf 2"

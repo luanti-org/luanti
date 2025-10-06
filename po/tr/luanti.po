@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Turkish (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-03-11 16:25+0000\n"
 "Last-Translator: Siber <siber@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/minetest/"
@@ -70,8 +70,8 @@ msgstr "Komutlar için yardım alın (-t: sohbet çıktısına)"
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
 msgstr ""
-"Daha fazla bilgi almak için '.help <komut>' veya her şeyi listelemek için '."
-"help all' kullanın."
+"Daha fazla bilgi almak için '.help <komut>' veya her şeyi listelemek için "
+"'.help all' kullanın."
 
 #: builtin/common/chatcommands.lua
 #, fuzzy
@@ -1048,8 +1048,8 @@ msgid ""
 "This modpack has an explicit name given in its modpack.conf which will "
 "override any renaming here."
 msgstr ""
-"Bu mod paketinin buradaki yeniden adlandırmayı geçersiz kılacak, modpack."
-"conf dosyasında verilen açık bir adı var."
+"Bu mod paketinin buradaki yeniden adlandırmayı geçersiz kılacak, "
+"modpack.conf dosyasında verilen açık bir adı var."
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 #, fuzzy
@@ -1245,10 +1245,6 @@ msgstr ""
 #: builtin/mainmenu/tab_local.lua
 msgid "New"
 msgstr "Yeni"
-
-#: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Dünya seçilmedi ya da yaratılmadı!"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
@@ -1863,10 +1859,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profilci gösteriliyor (sayfa %d / %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Uygulamalar"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1897,44 +1889,19 @@ msgid "Down Arrow"
 msgstr "Aşağı Ok"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Son"
+#, fuzzy
+msgid "End Key"
+msgstr "Menü Tuşu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "EOF'yi Sil"
+#, fuzzy
+msgid "Help Key"
+msgstr "Sil Tuşu"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Çalıştır"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Yardım"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Ev"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME Kabul"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME Dönüştür"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME Çıkış"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME Kip Değiştir"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME Dönüştürme"
+#, fuzzy
+msgid "Home Key"
+msgstr "Yakınlaştır Tuşu"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1945,8 +1912,9 @@ msgid "Left Arrow"
 msgstr "Sol Ok"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Sol Tuş"
+#, fuzzy
+msgid "Left Click"
+msgstr "Sol CTRL"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1960,18 +1928,26 @@ msgstr "Sol Menü"
 msgid "Left Shift"
 msgstr "Sol Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Sol Windows"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menü Tuşu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Orta Tuş"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2038,10 +2014,6 @@ msgid "Numpad 9"
 msgstr "Sayısal Tuş Takımı 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Temizle"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Sayfa aşağı"
@@ -2074,8 +2046,9 @@ msgid "Right Arrow"
 msgstr "Sağ Ok"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Sağ Tuş"
+#, fuzzy
+msgid "Right Click"
+msgstr "Sağ CTRL"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2089,6 +2062,7 @@ msgstr "Sağ Menü"
 msgid "Right Shift"
 msgstr "Sağ Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Sağ Windows"
@@ -2097,46 +2071,27 @@ msgstr "Sağ Windows"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Seç"
+#, fuzzy
+msgid "Select Key"
+msgstr "Sil Tuşu"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift Tuşu"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Uyku"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Ekran Resmi"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Boşluk"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Sızma tuşu"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Yukarı Ok"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Düğme 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Düğme 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Yakınlaştır Tuşu"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2573,12 +2528,11 @@ msgstr "Harita yığını başına zindan sayısını belirleyen 3B gürültü."
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D desteği.\n"
 "Şu an desteklenen:\n"
@@ -2698,8 +2652,8 @@ msgstr ""
 "Sızma tuşu.\n"
 "Aynı zamanda aşağı inmek ve, aux1_descends kapalı ise, suda alçalmak için "
 "kullanılır.\n"
-"Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Bakın: http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2966,6 +2920,17 @@ msgstr "Kamera yumuşatma"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Sinematik kipte kamera yumuşatma"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3515,6 +3480,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Geliştirici Seçenekleri"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5477,6 +5446,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Maksimum kullanıcı"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Çöl Tapınakları"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7623,8 +7597,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "Oyuncuyu geriye hareket ettirme tuşu.\n"
 "Etkinken, kendiliğinden ileriyi de devre dışı kılar\n"
-"Bakın: http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Bakın: http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7742,17 +7716,68 @@ msgstr "cURL etkileşimli zaman aşımı"
 msgid "cURL parallel limit"
 msgstr "cURL paralel sınırı"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Düğümlere speküler gölgelendirme uygulayın."
+#~ msgid "Apps"
+#~ msgstr "Uygulamalar"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Ekran yakalama biçimi."
+#~ msgid "End"
+#~ msgstr "Son"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Sinematik kipte kamera yumuşatma"
+#~ msgid "Erase EOF"
+#~ msgstr "EOF'yi Sil"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Tam ekran kipi."
+#~ msgid "Execute"
+#~ msgstr "Çalıştır"
+
+#~ msgid "Help"
+#~ msgstr "Yardım"
+
+#~ msgid "Home"
+#~ msgstr "Ev"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME Kabul"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME Dönüştür"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME Çıkış"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME Kip Değiştir"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME Dönüştürme"
+
+#~ msgid "Left Button"
+#~ msgstr "Sol Tuş"
+
+#~ msgid "Middle Button"
+#~ msgstr "Orta Tuş"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Dünya seçilmedi ya da yaratılmadı!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Temizle"
+
+#~ msgid "Right Button"
+#~ msgstr "Sağ Tuş"
+
+#~ msgid "Select"
+#~ msgstr "Seç"
+
+#~ msgid "Sleep"
+#~ msgstr "Uyku"
+
+#~ msgid "Snapshot"
+#~ msgstr "Ekran Resmi"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "X Düğme 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X Düğme 2"

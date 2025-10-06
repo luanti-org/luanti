@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2024-05-21 09:01+0000\n"
 "Last-Translator: Jamil Mohamad Alhussein <jamilmohamadalhoseen@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1250,10 +1250,6 @@ msgid "New"
 msgstr "جديد"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "لم تنشئ او تحدد عالما!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "إلعب"
 
@@ -1865,10 +1861,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "محلل البيانات ظاهر ( صفحة %d من %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "تطبيقات"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1902,49 +1894,19 @@ msgid "Down Arrow"
 msgstr "السهم لأسفل"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
-
-#: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "مسح EOF"
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr "شغّل"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "مساعدة"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "الرئيسية"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "IME Accept"
-msgstr "IME Accept"
+msgid "Help Key"
+msgstr "إحذف"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "IME Convert"
-msgstr "IME Convert"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Escape"
-msgstr "IME Escape"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Mode Change"
-msgstr "IME Mode Change"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Nonconvert"
-msgstr "IME Nonconvert"
+msgid "Home Key"
+msgstr "كبِر"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -1957,8 +1919,9 @@ msgid "Left Arrow"
 msgstr "Left Control"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "الزر الأيسر"
+#, fuzzy
+msgid "Left Click"
+msgstr "Left Control"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -1974,20 +1937,28 @@ msgstr "القائمة اليسرى"
 msgid "Left Shift"
 msgstr "Left Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Left Windows"
 msgstr "Left Windows"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "الزر الأوسط"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2071,11 +2042,6 @@ msgstr "Numpad 9"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "OEM Clear"
-msgstr "OEM Clear"
-
-#: src/client/keycode.cpp
-#, fuzzy
 msgid "Page Down"
 msgstr "Page down"
 
@@ -2112,8 +2078,9 @@ msgid "Right Arrow"
 msgstr "Right Control"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "الزر الايمن"
+#, fuzzy
+msgid "Right Click"
+msgstr "Right Control"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2130,6 +2097,7 @@ msgstr "Right Menu"
 msgid "Right Shift"
 msgstr "Right Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Right Windows"
@@ -2140,11 +2108,10 @@ msgstr "Right Windows"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "Select"
-msgstr "Select"
+msgid "Select Key"
+msgstr "إحذف"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2152,43 +2119,18 @@ msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-#, fuzzy
-msgid "Sleep"
-msgstr "Sleep"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Snapshot"
-msgstr "Snapshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "مسافة"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "Tab"
-msgstr "Tab"
+msgid "Tab Key"
+msgstr "مفتاح الكسر"
 
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Up Arrow"
 msgstr "سهم للاعلى"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "X Button 1"
-msgstr "X Button 1"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "X Button 2"
-msgstr "X Button 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "كبِر"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2598,12 +2540,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2942,6 +2883,17 @@ msgstr "انسيابية حركة الكامير"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "انسيابية حركة الكامير في الوضع السنيمائي"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3448,6 +3400,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "المطورون الرئيسيون"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5197,6 +5153,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7097,6 +7057,80 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
+#~ msgid "Apps"
+#~ msgstr "تطبيقات"
+
+#~ msgid "End"
+#~ msgstr "End"
+
+#~ msgid "Erase EOF"
+#~ msgstr "مسح EOF"
+
+#~ msgid "Execute"
+#~ msgstr "شغّل"
+
+#~ msgid "Help"
+#~ msgstr "مساعدة"
+
+#~ msgid "Home"
+#~ msgstr "الرئيسية"
+
 #, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "انسيابية حركة الكامير في الوضع السنيمائي"
+#~ msgid "IME Accept"
+#~ msgstr "IME Accept"
+
+#, fuzzy
+#~ msgid "IME Convert"
+#~ msgstr "IME Convert"
+
+#, fuzzy
+#~ msgid "IME Escape"
+#~ msgstr "IME Escape"
+
+#, fuzzy
+#~ msgid "IME Mode Change"
+#~ msgstr "IME Mode Change"
+
+#, fuzzy
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME Nonconvert"
+
+#~ msgid "Left Button"
+#~ msgstr "الزر الأيسر"
+
+#~ msgid "Middle Button"
+#~ msgstr "الزر الأوسط"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "لم تنشئ او تحدد عالما!"
+
+#, fuzzy
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Clear"
+
+#~ msgid "Right Button"
+#~ msgstr "الزر الايمن"
+
+#, fuzzy
+#~ msgid "Select"
+#~ msgstr "Select"
+
+#, fuzzy
+#~ msgid "Sleep"
+#~ msgstr "Sleep"
+
+#, fuzzy
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
+
+#, fuzzy
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#, fuzzy
+#~ msgid "X Button 1"
+#~ msgstr "X Button 1"
+
+#, fuzzy
+#~ msgid "X Button 2"
+#~ msgstr "X Button 2"

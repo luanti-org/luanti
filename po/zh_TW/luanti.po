@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Chinese (Traditional) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-01-16 13:00+0000\n"
 "Last-Translator: reimu105 <peter112548@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
@@ -1217,10 +1217,6 @@ msgid "New"
 msgstr "新增"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "未建立或選取世界！"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "遊玩遊戲"
 
@@ -1821,10 +1817,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "已顯示分析器（第 %d 頁，共 %d 頁）"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "應用程式"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "退格鍵"
 
@@ -1854,44 +1846,19 @@ msgid "Down Arrow"
 msgstr "向下箭頭"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "選單鍵"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "抹除 EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "刪除鍵"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "執行"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "幫助"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "接受 IME"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "轉換 IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "跳脫 IME"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME 模式變更"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME 不轉換"
+#, fuzzy
+msgid "Home Key"
+msgstr "縮放鍵"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1902,8 +1869,9 @@ msgid "Left Arrow"
 msgstr "左箭頭"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "左鍵"
+#, fuzzy
+msgid "Left Click"
+msgstr "左 Control"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1917,18 +1885,26 @@ msgstr "左選單鍵"
 msgid "Left Shift"
 msgstr "左 Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "左 Windows 鍵"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "選單鍵"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "中鍵"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -1995,10 +1971,6 @@ msgid "Numpad 9"
 msgstr "數字鍵 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM 清除"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2029,8 +2001,9 @@ msgid "Right Arrow"
 msgstr "右箭頭"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "右鍵"
+#, fuzzy
+msgid "Right Click"
+msgstr "右 Control"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2044,6 +2017,7 @@ msgstr "右選單鍵"
 msgid "Right Shift"
 msgstr "右 Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "右 Windows 鍵"
@@ -2052,46 +2026,27 @@ msgstr "右 Windows 鍵"
 msgid "Scroll Lock"
 msgstr "捲動鎖定鍵"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "選擇"
+#, fuzzy
+msgid "Select Key"
+msgstr "刪除鍵"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift 鍵"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "睡眠"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "快照"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "空白鍵"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "取消鍵"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "向上箭頭"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X 按鈕 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X 按鈕 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "縮放鍵"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2514,12 +2469,11 @@ msgstr "決定每個地圖區塊中地城數量的 3D 雜訊值。"
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D 支援。\n"
 "目前已支援：\n"
@@ -2633,8 +2587,8 @@ msgid ""
 msgstr ""
 "潛行的按鍵。\n"
 "若 aux1_ 降低停用時，也會用於向下攀爬與在水中下潛。\n"
-"請見 http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"請見 http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2887,6 +2841,17 @@ msgstr "攝影機平滑"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "在電影模式中攝影機平滑"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3423,6 +3388,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "開發者選項"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5346,6 +5315,11 @@ msgstr "交互請求（例如伺服器清單取得）可能花費的最長時間
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "最多使用者"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "沙漠聖殿"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7441,8 +7415,8 @@ msgstr "選取框在節點周邊的選取框線。"
 msgid "Will also disable autoforward, when active."
 msgstr ""
 "將玩家往後方移動的按鍵。\n"
-"請見 http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"請見 http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7556,20 +7530,68 @@ msgstr "cURL互動超時"
 msgid "cURL parallel limit"
 msgstr "cURL 並行限制"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "將鏡面著色應用於節點。"
+#~ msgid "Apps"
+#~ msgstr "應用程式"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "螢幕截圖的格式。"
+#~ msgid "End"
+#~ msgstr "End"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "在電影模式中攝影機平滑"
+#~ msgid "Erase EOF"
+#~ msgstr "抹除 EOF"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "全螢幕模式。"
+#~ msgid "Execute"
+#~ msgstr "執行"
 
-#~ msgid "Node specular"
-#~ msgstr "節點鏡面反射"
+#~ msgid "Help"
+#~ msgstr "幫助"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "接受 IME"
+
+#~ msgid "IME Convert"
+#~ msgstr "轉換 IME"
+
+#~ msgid "IME Escape"
+#~ msgstr "跳脫 IME"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME 模式變更"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME 不轉換"
+
+#~ msgid "Left Button"
+#~ msgstr "左鍵"
+
+#~ msgid "Middle Button"
+#~ msgstr "中鍵"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "未建立或選取世界！"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM 清除"
+
+#~ msgid "Right Button"
+#~ msgstr "右鍵"
+
+#~ msgid "Select"
+#~ msgstr "選擇"
+
+#~ msgid "Sleep"
+#~ msgstr "睡眠"
+
+#~ msgid "Snapshot"
+#~ msgstr "快照"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "X 按鈕 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X 按鈕 2"

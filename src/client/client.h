@@ -194,6 +194,7 @@ public:
 	void handleCommand_DetachedInventory(NetworkPacket* pkt);
 	void handleCommand_ShowFormSpec(NetworkPacket* pkt);
 	void handleCommand_SpawnParticle(NetworkPacket* pkt);
+	void handleCommand_SpawnParticleBatch(NetworkPacket *pkt);
 	void handleCommand_AddParticleSpawner(NetworkPacket* pkt);
 	void handleCommand_DeleteParticleSpawner(NetworkPacket* pkt);
 	void handleCommand_HudAdd(NetworkPacket* pkt);
@@ -371,6 +372,7 @@ public:
 	scene::ISceneManager *getSceneManager();
 
 	// IGameDef interface
+	bool isClient() override { return true; }
 	IItemDefManager* getItemDefManager() override;
 	const NodeDefManager* getNodeDefManager() override;
 	ICraftDefManager* getCraftDefManager() override;
@@ -521,7 +523,7 @@ private:
 	// The authentication methods we can use to enter sudo mode (=change password)
 	u32 m_sudo_auth_methods;
 
-	// The seed returned by the server in TOCLIENT_INIT is stored here
+	// The seed returned by the server in TOCLIENT_AUTH_ACCEPT is stored here
 	u64 m_map_seed = 0;
 
 	// Auth data

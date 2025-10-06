@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dutch (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2023-10-22 17:18+0000\n"
 "Last-Translator: Bas Huis <bassimhuis@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1253,10 +1253,6 @@ msgid "New"
 msgstr "Nieuw"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Geen wereldnaam opgegeven of geen wereld aangemaakt!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Spel Starten"
 
@@ -1864,10 +1860,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profiler getoond (pagina %d van %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Menu"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Terug"
 
@@ -1901,44 +1893,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Einde"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Verwijder EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Verwijderen"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Uitvoeren"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Help"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME Accepteren"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME Converteren"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME Ontsnappen"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Modus veranderen"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME Niet-converteren"
+#, fuzzy
+msgid "Home Key"
+msgstr "Zoomen"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1950,8 +1917,9 @@ msgid "Left Arrow"
 msgstr "Linker Ctrl"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Linkermuisknop"
+#, fuzzy
+msgid "Left Click"
+msgstr "Linker Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1965,19 +1933,27 @@ msgstr "Linker Menu"
 msgid "Left Shift"
 msgstr "Linker Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Linker Windowstoets"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Muiswielknop"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2044,10 +2020,6 @@ msgid "Numpad 9"
 msgstr "Numpad 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM duidelijk"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Pagina omlaag"
@@ -2083,8 +2055,9 @@ msgid "Right Arrow"
 msgstr "Rechter Ctrl"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Rechtmuisknop"
+#, fuzzy
+msgid "Right Click"
+msgstr "Rechter Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2098,6 +2071,7 @@ msgstr "Rechter Menu"
 msgid "Right Shift"
 msgstr "Rechter Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Rechter Windowstoets"
@@ -2106,10 +2080,10 @@ msgstr "Rechter Windowstoets"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Selecteren"
+#, fuzzy
+msgid "Select Key"
+msgstr "Verwijderen"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2117,37 +2091,17 @@ msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Slaapknop"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Screenshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Spatie"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Sluipen toets"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X knop 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X knop 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Zoomen"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2581,12 +2535,11 @@ msgstr "3D-ruis die het aantal kerkers per mapchunk bepaalt."
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D ondersteuning.\n"
 "Op dit moment ondersteund:\n"
@@ -2711,8 +2664,8 @@ msgstr ""
 "Toets om te sluipen.\n"
 "Wordt ook gebruikt om naar beneden te klimmen en te dalen indien "
 "aux1_descends uitstaat.\n"
-"Zie http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Zie http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2980,6 +2933,17 @@ msgstr "Vloeiender camerabeweging"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Vloeiendere camerabeweging (in cinematic modus)"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3530,6 +3494,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "Decoraties"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5532,6 +5500,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Maximaal aantal gebruikers"
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7722,8 +7694,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "Toets om de speler achteruit te bewegen.\n"
 "Zal ook het automatisch voortbewegen deactiveren, indien actief.\n"
-"Zie http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Zie http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7847,14 +7819,68 @@ msgstr "cURL interactieve time-out"
 msgid "cURL parallel limit"
 msgstr "Maximaal parallellisme in cURL"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Formaat van screenshots."
+#~ msgid "Apps"
+#~ msgstr "Menu"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Vloeiendere camerabeweging (in cinematic modus)"
+#~ msgid "End"
+#~ msgstr "Einde"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Volledig scherm modus."
+#~ msgid "Erase EOF"
+#~ msgstr "Verwijder EOF"
+
+#~ msgid "Execute"
+#~ msgstr "Uitvoeren"
+
+#~ msgid "Help"
+#~ msgstr "Help"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME Accepteren"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME Converteren"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME Ontsnappen"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "Modus veranderen"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME Niet-converteren"
+
+#~ msgid "Left Button"
+#~ msgstr "Linkermuisknop"
+
+#~ msgid "Middle Button"
+#~ msgstr "Muiswielknop"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Geen wereldnaam opgegeven of geen wereld aangemaakt!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM duidelijk"
+
+#~ msgid "Right Button"
+#~ msgstr "Rechtmuisknop"
+
+#~ msgid "Select"
+#~ msgstr "Selecteren"
+
+#~ msgid "Sleep"
+#~ msgstr "Slaapknop"
+
+#~ msgid "Snapshot"
+#~ msgstr "Screenshot"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "X knop 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X knop 2"

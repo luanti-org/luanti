@@ -2614,10 +2614,6 @@ ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &
 	if (IImage::isCompressedFormat(format))
 		return 0;
 
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
-
 	bool supportForFBO = (Feature.ColorAttachment > 0);
 
 	core::dimension2du destSize(size);
@@ -2631,9 +2627,6 @@ ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
 
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
-
 	return renderTargetTexture;
 }
 
@@ -2642,10 +2635,6 @@ ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const 
 {
 	if (IImage::isCompressedFormat(format))
 		return 0;
-
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
 
 	bool supportForFBO = (Feature.ColorAttachment > 0);
 
@@ -2660,9 +2649,6 @@ ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const 
 	COpenGLTexture *renderTargetTexture = new COpenGLTexture(name, destSize, ETT_CUBEMAP, format, this);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
-
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
 
 	return renderTargetTexture;
 }
@@ -2680,6 +2666,13 @@ bool COpenGLDriver::setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SCol
 	if (target && target->getDriverType() != EDT_OPENGL) {
 		os::Printer::log("Fatal Error: Tried to set a render target not owned by this driver.", ELL_ERROR);
 		return false;
+	}
+
+	if (CurrentRenderTarget) {
+		// Update mip-map of the generated texture, if enabled.
+		auto textures = CurrentRenderTarget->getTexture();
+		for (size_t i = 0; i < textures.size(); ++i)
+			textures[i]->regenerateMipMapLevels();
 	}
 
 	bool supportForFBO = (Feature.ColorAttachment > 0);

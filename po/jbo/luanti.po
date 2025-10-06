@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lojban (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2024-07-10 01:09+0000\n"
 "Last-Translator: Qimar <jbobaukensylitru@gmail.com>\n"
 "Language-Team: Lojban <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1242,10 +1242,6 @@ msgid "New"
 msgstr "cnino"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr ".i do na cupra ja cuxna lo munje"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "co'a kelci"
 
@@ -1856,10 +1852,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr ""
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "prula'i vimcu tekla"
 
@@ -1889,46 +1881,16 @@ msgid "Down Arrow"
 msgstr "dizlo tekla"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "fanmo tekla"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Erase EOF"
-msgstr "la'o gy.Erase OEF.gy."
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "sidju"
-
-#: src/client/keycode.cpp
-msgid "Home"
+msgid "End Key"
 msgstr ""
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "IME Accept"
-msgstr "fitytu'i"
+msgid "Help Key"
+msgstr "bavla'i vimcu tekla"
 
 #: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr ""
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Mode Change"
-msgstr "la'o gy.Mode Change.gy."
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
+msgid "Home Key"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -1940,8 +1902,9 @@ msgid "Left Arrow"
 msgstr "zunle tekla"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "zunle sma'acu bo tekla"
+#, fuzzy
+msgid "Left Click"
+msgstr "zunle kontrol zei tekla"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1955,18 +1918,26 @@ msgstr ""
 msgid "Left Shift"
 msgstr "zunle cift zei tekla"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "zunle uindos zei tekla"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "midju sma'acu bo tekla"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2033,11 +2004,6 @@ msgid "Numpad 9"
 msgstr ""
 
 #: src/client/keycode.cpp
-#, fuzzy
-msgid "OEM Clear"
-msgstr "la'o gy.OEM Clear.gy."
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "papri dizlo tekla"
 
@@ -2068,8 +2034,9 @@ msgid "Right Arrow"
 msgstr "pritu tekla"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "pritu sma'acu bo tekla"
+#, fuzzy
+msgid "Right Click"
+msgstr "pritu kontrol zei tekla"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2083,6 +2050,7 @@ msgstr ""
 msgid "Right Shift"
 msgstr "pritu cift zei tekla"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "pritu uindos zei tekla"
@@ -2091,48 +2059,27 @@ msgstr "pritu uindos zei tekla"
 msgid "Scroll Lock"
 msgstr "muvdu stela tekla"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr ""
+#, fuzzy
+msgid "Select Key"
+msgstr "bavla'i vimcu tekla"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "cift zei tekla"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr ""
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "se ragve tekla"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "pagyca'o tekla"
+#, fuzzy
+msgid "Tab Key"
+msgstr "dicra tekla"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "galtu tekla"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "X Button 1"
-msgstr "la'o gy.X Button 1.gy."
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "X Button 2"
-msgstr "la'o gy.X Button 2.gy."
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr ""
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2546,12 +2493,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2875,6 +2821,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3370,6 +3327,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "datni"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5057,6 +5018,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6968,3 +6933,48 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr ""
+
+#~ msgid "End"
+#~ msgstr "fanmo tekla"
+
+#, fuzzy
+#~ msgid "Erase EOF"
+#~ msgstr "la'o gy.Erase OEF.gy."
+
+#~ msgid "Help"
+#~ msgstr "sidju"
+
+#, fuzzy
+#~ msgid "IME Accept"
+#~ msgstr "fitytu'i"
+
+#, fuzzy
+#~ msgid "IME Mode Change"
+#~ msgstr "la'o gy.Mode Change.gy."
+
+#~ msgid "Left Button"
+#~ msgstr "zunle sma'acu bo tekla"
+
+#~ msgid "Middle Button"
+#~ msgstr "midju sma'acu bo tekla"
+
+#~ msgid "No world created or selected!"
+#~ msgstr ".i do na cupra ja cuxna lo munje"
+
+#, fuzzy
+#~ msgid "OEM Clear"
+#~ msgstr "la'o gy.OEM Clear.gy."
+
+#~ msgid "Right Button"
+#~ msgstr "pritu sma'acu bo tekla"
+
+#~ msgid "Tab"
+#~ msgstr "pagyca'o tekla"
+
+#, fuzzy
+#~ msgid "X Button 1"
+#~ msgstr "la'o gy.X Button 1.gy."
+
+#, fuzzy
+#~ msgid "X Button 2"
+#~ msgstr "la'o gy.X Button 2.gy."

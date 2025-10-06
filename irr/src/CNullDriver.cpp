@@ -85,8 +85,16 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 	InitMaterial2D.ZWriteEnable = video::EZW_OFF;
 	InitMaterial2D.ZBuffer = video::ECFN_DISABLED;
 	InitMaterial2D.UseMipMaps = false;
-	InitMaterial2D.forEachTexture([](auto &tex) {
+	InitMaterial2D.forEachTexture([](video::SMaterialLayer &tex) {
+		// Best preset for 2D pixel-perfect graphics
 		tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
+
+		// Best preset for downscaled 2D graphics using trilinear interpolation
+		//tex.MinFilter = video::ETMINF_LINEAR_MIPMAP_LINEAR;
+		// Lower bias  -> more crisp images, more jitter
+		// Higher bias -> burry images, less jitter
+		//tex.LODBias = -1;
+
 		tex.MagFilter = video::ETMAGF_NEAREST;
 		tex.TextureWrapU = video::ETC_REPEAT;
 		tex.TextureWrapV = video::ETC_REPEAT;

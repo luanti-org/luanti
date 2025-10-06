@@ -588,13 +588,12 @@
 
 #    3D support.
 #    Currently supported:
-#    -    none: no 3d output.
-#    -    anaglyph: cyan/magenta color 3d.
-#    -    interlaced: odd/even line based polarization screen support.
-#    -    topbottom: split screen top/bottom.
-#    -    sidebyside: split screen side by side.
-#    -    crossview: Cross-eyed 3d
-#    type: enum values: none, anaglyph, interlaced, topbottom, sidebyside, crossview
+#    -    none: no 3D output
+#    -    anaglyph: cyan/magenta color 3D
+#    -    topbottom: split screen top/bottom
+#    -    sidebyside: split screen side-by-side
+#    -    crossview: cross-eyed 3D
+#    type: enum values: none, anaglyph, topbottom, sidebyside, crossview
 # 3d_mode = none
 
 #    Strength of 3D mode parallax.
@@ -3026,6 +3025,16 @@
 #    Useful for mod developers and server operators.
 #    type: bool
 # profiler.load = false
+
+#    Disable if you only want to instrument with Tracy.
+#    type: bool
+# profiler.measure = true
+
+#    Capture Tracy zones with the profiler's instrumentation.
+#    You need to build with Tracy to use this, see doc/developing/profiling.md
+#    for details.
+#    type: bool
+# profiler.tracy = false
 
 #    The default format in which profiles are being saved,
 #    when calling `/profiler save [format]` without format.

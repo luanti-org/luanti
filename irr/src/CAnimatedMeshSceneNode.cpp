@@ -400,7 +400,7 @@ IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 		return 0;
 	}
 
-	return PerJoint.SceneNodes[*number];
+	return PerJoint.SceneNodes[*number].get();
 }
 
 //! Returns a pointer to a child node, which has the same transformation as
@@ -419,7 +419,7 @@ IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(u32 jointID)
 		return 0;
 	}
 
-	return PerJoint.SceneNodes[jointID];
+	return PerJoint.SceneNodes[jointID].get();
 }
 
 //! Gets joint count.
@@ -441,8 +441,8 @@ bool CAnimatedMeshSceneNode::removeChild(ISceneNode *child)
 	if (ISceneNode::removeChild(child)) {
 		if (JointsUsed) { // stop weird bugs caused while changing parents as the joints are being created
 			for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i) {
-				if (PerJoint.SceneNodes[i] == child) {
-					PerJoint.SceneNodes[i] = 0; // remove link to child
+				if (PerJoint.SceneNodes[i].get() == child) {
+					PerJoint.SceneNodes[i].reset(); // remove link to child
 					break;
 				}
 			}
@@ -551,13 +551,13 @@ void CAnimatedMeshSceneNode::addJoints()
 		const auto *joint = joints[i];
 		ISceneNode *parent = this;
 		if (joint->ParentJointID)
-			parent = PerJoint.SceneNodes.at(*joint->ParentJointID); // exists because of topo. order
+			parent = PerJoint.SceneNodes.at(*joint->ParentJointID).get(); // exists because of topo. order
 		assert(parent);
 		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
-		PerJoint.SceneNodes.push_back(new CBoneSceneNode(
+		PerJoint.SceneNodes.push_back(irr_ptr<CBoneSceneNode>(new CBoneSceneNode(
 				parent, SceneManager, 0, i, joint->Name,
 				matrix ? core::Transform{} : std::get<core::Transform>(joint->transform),
-				matrix ? *matrix : std::optional<core::matrix4>{}));
+				matrix ? *matrix : std::optional<core::matrix4>{})));
 	}
 }
 
@@ -610,7 +610,7 @@ void CAnimatedMeshSceneNode::checkJoints()
 
 	if (!JointsUsed) {
 		for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i)
-			removeChild(PerJoint.SceneNodes[i]);
+			removeChild(PerJoint.SceneNodes[i].get());
 		addJoints();
 
 		JointsUsed = true;

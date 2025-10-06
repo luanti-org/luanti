@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Catalan (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2024-10-06 05:16+0000\n"
 "Last-Translator: Joaquín Villalba <joaco-mono@hotmail.com>\n"
 "Language-Team: Catalan <https://hosted.weblate.org/projects/minetest/"
@@ -1295,10 +1295,6 @@ msgid "New"
 msgstr "Nou"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "No s'ha creat ningun món o no s'ha seleccionat!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Jugar Joc"
 
@@ -1932,10 +1928,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Aplicacions"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Backspace"
 msgstr "Enrere"
@@ -1970,50 +1962,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Fi"
+#, fuzzy
+msgid "End Key"
+msgstr "Menú"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "Erase EOF"
-msgstr "Esborrar OEF"
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Executar"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Ajuda"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Inici"
+msgid "Help Key"
+msgstr "Esborrar"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "IME Accept"
-msgstr "Acceptar"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Convert"
-msgstr "Convertir"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Escape"
-msgstr "Esc"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Mode Change"
-msgstr "Canvi de mode"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Nonconvert"
-msgstr "No convertir"
+msgid "Home Key"
+msgstr "Zoom"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -2025,8 +1986,9 @@ msgid "Left Arrow"
 msgstr "Control esq"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Botó esquerre"
+#, fuzzy
+msgid "Left Click"
+msgstr "Control esq"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -2040,19 +2002,27 @@ msgstr "Menú esq"
 msgid "Left Shift"
 msgstr "Shift esq"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows esquerre"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Menú"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Botó del mig"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2120,10 +2090,6 @@ msgid "Numpad 9"
 msgstr "Teclat Num. 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "Netejar OEM"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Avall"
@@ -2158,8 +2124,9 @@ msgid "Right Arrow"
 msgstr "Control dta"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Botó dret"
+#, fuzzy
+msgid "Right Click"
+msgstr "Control dta"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2173,6 +2140,7 @@ msgstr "Menú dta"
 msgid "Right Shift"
 msgstr "Shift Dta"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows dret"
@@ -2181,10 +2149,10 @@ msgstr "Windows dret"
 msgid "Scroll Lock"
 msgstr "Bloq Despl"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Seleccionar"
+#, fuzzy
+msgid "Select Key"
+msgstr "Esborrar"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2192,37 +2160,17 @@ msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Dormir"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Captura de pantalla"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Espai"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tabulador"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Tecla sigil"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Botó 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Botó 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Zoom"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2639,12 +2587,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Suport 3D.\n"
 "Currently supported:\n"
@@ -2992,6 +2939,17 @@ msgstr "Suavitzat de la càmera"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Suavitzat de la càmera en mode cinematogràfic"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -3506,6 +3464,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "Informació del mod:"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5217,6 +5179,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7075,8 +7041,8 @@ msgstr ""
 msgid "Will also disable autoforward, when active."
 msgstr ""
 "Tecla per moure el jugador cap arrere.\n"
-"Veure http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Veure http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7179,6 +7145,74 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
+#~ msgid "Apps"
+#~ msgstr "Aplicacions"
+
+#~ msgid "End"
+#~ msgstr "Fi"
+
 #, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Suavitzat de la càmera en mode cinematogràfic"
+#~ msgid "Erase EOF"
+#~ msgstr "Esborrar OEF"
+
+#~ msgid "Execute"
+#~ msgstr "Executar"
+
+#~ msgid "Help"
+#~ msgstr "Ajuda"
+
+#~ msgid "Home"
+#~ msgstr "Inici"
+
+#, fuzzy
+#~ msgid "IME Accept"
+#~ msgstr "Acceptar"
+
+#, fuzzy
+#~ msgid "IME Convert"
+#~ msgstr "Convertir"
+
+#, fuzzy
+#~ msgid "IME Escape"
+#~ msgstr "Esc"
+
+#, fuzzy
+#~ msgid "IME Mode Change"
+#~ msgstr "Canvi de mode"
+
+#, fuzzy
+#~ msgid "IME Nonconvert"
+#~ msgstr "No convertir"
+
+#~ msgid "Left Button"
+#~ msgstr "Botó esquerre"
+
+#~ msgid "Middle Button"
+#~ msgstr "Botó del mig"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "No s'ha creat ningun món o no s'ha seleccionat!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "Netejar OEM"
+
+#~ msgid "Right Button"
+#~ msgstr "Botó dret"
+
+#~ msgid "Select"
+#~ msgstr "Seleccionar"
+
+#~ msgid "Sleep"
+#~ msgstr "Dormir"
+
+#~ msgid "Snapshot"
+#~ msgstr "Captura de pantalla"
+
+#~ msgid "Tab"
+#~ msgstr "Tabulador"
+
+#~ msgid "X Button 1"
+#~ msgstr "X Botó 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X Botó 2"

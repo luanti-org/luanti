@@ -2,10 +2,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-07-10 03:05+0000\n"
-"Last-Translator: 109247019824 <109247019824@users.noreply.hosted.weblate."
-"org>\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-10-04 11:02+0000\n"
+"Last-Translator: 109247019824 <109247019824@users.noreply.hosted.weblate.org>"
+"\n"
 "Language-Team: Bulgarian <https://hosted.weblate.org/projects/minetest/"
 "minetest/bg/>\n"
 "Language: bg\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -224,7 +224,7 @@ msgstr "Назад"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
-msgstr "Бутони с кръстче"
+msgstr "Бутони с мерник"
 
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
@@ -295,7 +295,7 @@ msgstr "Докосване"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
-msgstr "Докосване с кръстче"
+msgstr "Докосване с мерник"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Touchscreen layout"
@@ -610,9 +610,8 @@ msgid "Website"
 msgstr "Страница"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1"
-msgstr "$1 от $2"
+msgstr "от $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -730,11 +729,11 @@ msgstr "включен"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
-msgstr "Свят с името „$1“ вече съществува"
+msgstr "Свят с име „$1“ вече съществува"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Additional terrain"
-msgstr "Допълнителен терен"
+msgstr "Допълнителен релеф"
 
 #: builtin/mainmenu/dlg_create_world.lua src/settings_translation_file.cpp
 msgid "Altitude chill"
@@ -790,7 +789,7 @@ msgstr "Подземия"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Flat terrain"
-msgstr "Равен терен"
+msgstr "Равна местност"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Floating landmasses in the sky"
@@ -802,7 +801,7 @@ msgstr "Небесни острови (експериментално)"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Generate non-fractal terrain: Oceans and underground"
-msgstr "Създаване на нефрактален терен: Морета и подземен свят"
+msgstr "Създаване на нефрактална местност: Морета и подземен свят"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Hills"
@@ -830,15 +829,15 @@ msgstr "Ниската влажност и горещините причиняв
 
 #: builtin/mainmenu/dlg_create_world.lua src/settings_translation_file.cpp
 msgid "Mapgen"
-msgstr "Създаване на карти"
+msgstr "Създаване на светове"
 
 #: builtin/mainmenu/dlg_create_world.lua src/settings_translation_file.cpp
 msgid "Mapgen flags"
-msgstr "Настройки за карти"
+msgstr "Настройки на света"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Mapgen-specific flags"
-msgstr "Специфични за генератора настройки"
+msgstr "Специфични за вида свят настройки"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Mountains"
@@ -969,7 +968,7 @@ msgstr "Системата за обработка на входни данни 
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
-msgstr "Потвърж. на парола"
+msgstr "Парола отново"
 
 #: builtin/mainmenu/dlg_register.lua
 msgid "Joining $1"
@@ -1236,10 +1235,6 @@ msgid "New"
 msgstr "Създаване"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Не е създаден или избран свят!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Започване на игра"
 
@@ -1367,7 +1362,7 @@ msgstr "Готово!"
 #: src/client/client.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
-msgstr ""
+msgstr "Грешка при запазване на екранната снимка в „%s“"
 
 #: src/client/client.cpp
 msgid "Initializing nodes"
@@ -1386,9 +1381,9 @@ msgid "Rebuilding shaders..."
 msgstr "Пресъздаване на шейдери…"
 
 #: src/client/client.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Екранни снимки"
+msgstr "Екранната снимка е запазена в „%s“"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1613,7 +1608,7 @@ msgstr "Режимът „промяна на височината“ е вкл�
 
 #: src/client/game.cpp
 msgid "Profiler graph shown"
-msgstr "Графиката на профилатора е показана"
+msgstr "Графиката на инструмента за профилиране е показана"
 
 #: src/client/game.cpp
 msgid "Resolving address..."
@@ -1764,7 +1759,7 @@ msgstr ""
 "При затворено меню:\n"
 "- плъзгане на пръст: оглеждане\n"
 "- докосване: поставяне/нанасяне на удар/използване (по подразбиране)\n"
-"- дълго докосване: копаене/използване (по подразбиране)\n"
+"- продължително докосване: копаене/използване (по подразбиране)\n"
 "При отворено меню/инвентар:\n"
 "- двойно докосване (отвън):\n"
 " → затваряне\n"
@@ -1839,16 +1834,12 @@ msgstr "Игровият интерфейс е видим"
 
 #: src/client/gameui.cpp
 msgid "Profiler hidden"
-msgstr "Профилаторът е скрит"
+msgstr "Инструментът за профилиране е скрит"
 
 #: src/client/gameui.cpp
 #, c-format
 msgid "Profiler shown (page %d of %d)"
-msgstr "Профилаторът е видим (страница %d от %d)"
-
-#: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Приложения"
+msgstr "Инструментът за профилиране е видим (страница %d от %d)"
 
 #: src/client/keycode.cpp
 msgid "Backspace"
@@ -1880,44 +1871,16 @@ msgid "Down Arrow"
 msgstr "Надолу"
 
 #: src/client/keycode.cpp
-msgid "End"
+msgid "End Key"
 msgstr "End"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Премахване EOF"
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Изпълняване"
-
-#: src/client/keycode.cpp
-msgid "Help"
+msgid "Help Key"
 msgstr "Help"
 
 #: src/client/keycode.cpp
-msgid "Home"
+msgid "Home Key"
 msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME: Приемане"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME: Превъщане"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME: Избягване"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME: Смяна на режима"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME: Без преобразуване"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1928,8 +1891,8 @@ msgid "Left Arrow"
 msgstr "Наляво"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Ляв бутон"
+msgid "Left Click"
+msgstr "Ляво щракване"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1943,18 +1906,26 @@ msgstr "Ляв Menu"
 msgid "Left Shift"
 msgstr "Ляв Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Ляв Windows"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Клавиш Меню"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Среден бутон"
+msgid "Middle Click"
+msgstr "Средно щракване"
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr "X1 на мишката"
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr "X2 на мишката"
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2021,10 +1992,6 @@ msgid "Numpad 9"
 msgstr "Цифрова клавиатура 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Изчистване"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2055,8 +2022,8 @@ msgid "Right Arrow"
 msgstr "Надясно"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Десен бутон"
+msgid "Right Click"
+msgstr "Дясно щракване"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2070,6 +2037,7 @@ msgstr "Десен Menu"
 msgid "Right Shift"
 msgstr "Десен Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Десен Windows"
@@ -2078,46 +2046,25 @@ msgstr "Десен Windows"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Избиране"
+msgid "Select Key"
+msgstr "Select"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Сън"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Снимка на екрана"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Интервал"
 
 #: src/client/keycode.cpp
-msgid "Tab"
+msgid "Tab Key"
 msgstr "Табулатор"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Нагоре"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Доп. бутон 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Доп. бутон 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zoom"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2222,7 +2169,7 @@ msgstr "Без звук"
 #: src/gui/guiVolumeChange.cpp
 #, c-format
 msgid "Sound Volume: %d%%"
-msgstr "Сила на звука: %d%%"
+msgstr "Сила на звука: %d %%"
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Add button"
@@ -2279,7 +2226,7 @@ msgstr "Инвентар"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
-msgstr "Джойстик"
+msgstr "Контролер"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Jump"
@@ -2435,7 +2382,7 @@ msgstr ""
 "увеличаване на мащаба.\n"
 "Подразбираната стойност е подходяща точка на зараждане на\n"
 "множество на Манделбро. В други случаи може да е необходима промяна.\n"
-"Обхватът е приблизително от -2 до 2. Умножете с еди иците на мащаба,\n"
+"Обхватът е приблизително от -2 до 2. Умножете с единиците на мащаба,\n"
 "за да отмествате с цели възли."
 
 #: src/settings_translation_file.cpp
@@ -2546,28 +2493,25 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "3D noise that determines number of dungeons per mapchunk."
-msgstr "Триизмерен шум, определящ броя на подземията на парче от картата."
+msgstr "Триизмерен шум, определящ броя на подземията на парче от света."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Триизмерна поддръжка.\n"
 "В момента се поддържа:\n"
-"-    none: без извеждане на 3D.\n"
-"-    anaglyph: 3D на базата на соньо-зелено/пурпурно.\n"
-"-    interlaced: нечетни/четни редове на базата на поддръжка на поляризиран "
-"екран.\n"
-"-    topbottom: разделяне на екрана хоризонтално.\n"
-"-    sidebyside: разделяне на екрана вертикално.\n"
-"-     crossview: 3D на базата на кръстосан поглед"
+"• none: без извеждане на 3D.\n"
+"• anaglyph: 3D на базата на синьо-зелено/пурпурно.\n"
+"• topbottom: разделяне на екрана хоризонтално.\n"
+"• sidebyside: разделяне на екрана вертикално.\n"
+"• crossview: 3D на базата на кръстосан поглед"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2598,7 +2542,7 @@ msgstr "Ограничение на времето на ABM"
 
 #: src/settings_translation_file.cpp
 msgid "Absolute limit of queued blocks to emerge"
-msgstr "Абсолютно ограничение на опашката от чакащи за показване блокове"
+msgstr "Абсолютно ограничение на чакащи блокове"
 
 #: src/settings_translation_file.cpp
 msgid "Acceleration in air"
@@ -2606,7 +2550,7 @@ msgstr "Ускорение във въздуха"
 
 #: src/settings_translation_file.cpp
 msgid "Acceleration of gravity, in nodes per second per second."
-msgstr "Ускорение на земното притегляне във възел/секунда²."
+msgstr "Ускорение на земното притегляне във възли/секунда²."
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -2676,6 +2620,7 @@ msgid ""
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
+"Също се използв за слизане и спускане във вода ако aux1_descends е изключено."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2797,7 +2742,7 @@ msgstr ""
 "изчертани правилно).\n"
 "Задаване на стойността по-голяма от max_block_send_distance изключва\n"
 "тази оптимизация.\n"
-"Изразено в MapBlocks (16 възела)."
+"Изразено в блокове от света (16 възела)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2814,7 +2759,7 @@ msgstr ""
 "подобряват производителността за сметка на временно видими дефекти (липсващи "
 "блокове).\n"
 "Това е особено полезно за много голям обхват на видимостта (над 500).\n"
-"Изразено в MapBlocks (16 възела)."
+"Изразено в блокове от света (16 възела)."
 
 #: src/settings_translation_file.cpp
 msgid "Audio"
@@ -2830,7 +2775,7 @@ msgstr "Автоматично прескача препятствия от ед
 
 #: src/settings_translation_file.cpp
 msgid "Automatically report to the serverlist."
-msgstr "Автоматично докладване в списъка на сървърите."
+msgstr "Автоматично добавяне в списъка със сървъри."
 
 #: src/settings_translation_file.cpp
 msgid "Autoscaling mode"
@@ -2866,7 +2811,7 @@ msgstr "Праг на шум за плажове"
 
 #: src/settings_translation_file.cpp
 msgid "Bilinear filtering"
-msgstr "Двулинейно филтриране"
+msgstr "Двуредово филтриране"
 
 #: src/settings_translation_file.cpp
 msgid "Bind address"
@@ -2930,7 +2875,22 @@ msgstr "Заглаждане на камерата"
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
-msgstr "Заглаждане на камерата в кинематографичен режим"
+msgstr "Заглажд. на кам. в кинематограф. режим"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr "Улавяне зони на Trasy"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
+"Улавяне зони на Trasy чрез замерване с инструмента\n"
+"за профилиране. За да използвате настройката трябва\n"
+"да компилирате с поддръжка на Trasy. За подробности\n"
+"вижте doc/developing/profiling.md."
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3062,7 +3022,7 @@ msgstr "Модификация на клиента (CSM)"
 
 #: src/settings_translation_file.cpp
 msgid "Client-side node lookup range restriction"
-msgstr "Ограничение на разстоянието на търсене на възли от клиента"
+msgstr "Ограничение на търсене на възли от клиента"
 
 #: src/settings_translation_file.cpp
 msgid "Climbing speed"
@@ -3098,7 +3058,7 @@ msgid ""
 "Useful for testing. See al_extensions.[h,cpp] for details."
 msgstr ""
 "Списък с всички AL и ACL разширения, разделени със запетая,\n"
-" които не трябва да бъдат използвани.\n"
+"които не трябва да бъдат използвани.\n"
 "Полезно при изпитване на кода. За подробности вижте al_extensions.[h,cpp]."
 
 #: src/settings_translation_file.cpp
@@ -3134,9 +3094,9 @@ msgid ""
 "Comma-separated list of trusted mods that are allowed to access insecure\n"
 "functions even when mod security is on (via request_insecure_environment())."
 msgstr ""
-"Списък с доверени модофикации, разделени със запетая, които имат\n"
-"достъп до небезопасните възможности даже при включена защита\n"
-"от модификации (чрез request_insecure_environment())."
+"Списък с доверени модофикации, разделени със запетая, които\n"
+"имат достъп до опасните възможности даже при включена\n"
+"защита (чрез request_insecure_environment())."
 
 #: src/settings_translation_file.cpp
 msgid "Command"
@@ -3150,7 +3110,7 @@ msgid ""
 "9 - best compression, slowest"
 msgstr ""
 "Ниво на компресия, използвана при запазване на\n"
-"блокове от картата на носителя.\n"
+"блокове от света на носителя.\n"
 "• -1 – подразбирана компресия\n"
 "• 0 – най-малка компресия, най-бърза\n"
 "• 9 – най-добра компресия, най-бавна"
@@ -3163,7 +3123,7 @@ msgid ""
 "9 - best compression, slowest"
 msgstr ""
 "Ниво на компресия, използвана при изпращане на\n"
-"блокове от картата към клиента.\n"
+"блокове от света към клиента.\n"
 "• -1 – подразбирана компресия\n"
 "• 0 – най-малка компресия, най-бърза\n"
 "• 9 – най-добра компресия, най-бавна"
@@ -3202,7 +3162,7 @@ msgstr "Забранителен списък с флагове на ContentDB"
 
 #: src/settings_translation_file.cpp
 msgid "ContentDB Max Concurrent Downloads"
-msgstr "Максимален брой едновременни изтегляния от ContentDB"
+msgstr "Брой едновременни изтегляния от ContentDB"
 
 #: src/settings_translation_file.cpp
 msgid "ContentDB URL"
@@ -3224,14 +3184,16 @@ msgid ""
 "Controls sinking speed in liquid when idling. Negative values will cause\n"
 "you to rise instead."
 msgstr ""
+"Скорост на потъване в течност при бездействие.\n"
+"Отрицателната стойност ще причинява издигане."
 
 #: src/settings_translation_file.cpp
 msgid "Controls steepness/depth of lake depressions."
-msgstr ""
+msgstr "Управлява стръмнината/дълбочината на езерните дъна."
 
 #: src/settings_translation_file.cpp
 msgid "Controls steepness/height of hills."
-msgstr ""
+msgstr "Управлява стръмнината/височината на хълмовете."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3239,42 +3201,50 @@ msgid ""
 "Value >= 10.0 completely disables generation of tunnels and avoids the\n"
 "intensive noise calculations."
 msgstr ""
+"Определя ширината на тунелите, малката стойност създава по-широки тунели.\n"
+"Стойност >= 10.0 напълно изключва създаването на тунели и помага за "
+"избягването\n"
+"на интензивни изписления на шума."
 
 #: src/settings_translation_file.cpp
 msgid "Crash message"
-msgstr ""
+msgstr "Съобщение при срив"
 
 #: src/settings_translation_file.cpp
 msgid "Crosshair alpha"
-msgstr ""
+msgstr "Прозрачност на мерника"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Crosshair alpha (opaqueness, between 0 and 255).\n"
 "This also applies to the object crosshair."
 msgstr ""
+"Прозрачност на мерника (0 (прозрачно), 255 (непрозрачно)).\n"
+"Също се прилага към обекта на мерника."
 
 #: src/settings_translation_file.cpp
 msgid "Crosshair color"
-msgstr ""
+msgstr "Цвят на мерника"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Crosshair color (R,G,B).\n"
 "Also controls the object crosshair color"
 msgstr ""
+"Цвят на мерника (R, G, B).\n"
+"Управлява цвета на обекта на мерника"
 
 #: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
-msgstr ""
+msgstr "Ограничение на размера на файла с дневника"
 
 #: src/settings_translation_file.cpp
 msgid "Debug log level"
-msgstr ""
+msgstr "Подробност на дневника"
 
 #: src/settings_translation_file.cpp
 msgid "Debugging"
-msgstr ""
+msgstr "Отстраняване на грешки"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3283,6 +3253,11 @@ msgid ""
 "Reducing this can improve performance, but some effects (e.g. debanding)\n"
 "require more than 8 bits to work."
 msgstr ""
+"Определя дълбочината на цвета на текстурата, използвана\n"
+"в конвейра за последваща обработка.\n"
+"Намаляването на стойността може да подобри производителността,\n"
+"но някои ефекти (напр. премахване на лентов ефект) изискват\n"
+"повече от 8 бита."
 
 #: src/settings_translation_file.cpp
 msgid "Decrease view range"
@@ -3294,21 +3269,24 @@ msgstr "Сила на звука -"
 
 #: src/settings_translation_file.cpp
 msgid "Dedicated server step"
-msgstr ""
+msgstr "Стъпка на избрания сървър"
 
 #: src/settings_translation_file.cpp
 msgid "Default acceleration"
-msgstr ""
+msgstr "Подразбирано ускорение"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Default maximum number of forceloaded mapblocks.\n"
 "Set this to -1 to disable the limit."
 msgstr ""
+"Стандартно ограничение на броя принудително заредеждани\n"
+"блокове от света.\n"
+"Задайте -1 за премахване на ограничението."
 
 #: src/settings_translation_file.cpp
 msgid "Default password"
-msgstr ""
+msgstr "Подразбирана парола"
 
 #: src/settings_translation_file.cpp
 msgid "Default privileges"
@@ -3316,11 +3294,11 @@ msgstr "Подразбирани права"
 
 #: src/settings_translation_file.cpp
 msgid "Default report format"
-msgstr "Формат на отчета по подразбиране"
+msgstr "Подразбиран формат на отчет"
 
 #: src/settings_translation_file.cpp
 msgid "Default stack size"
-msgstr ""
+msgstr "Подразбиран размер на стека"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3328,6 +3306,9 @@ msgid ""
 "This simulates the soft shadows effect by applying a PCF or Poisson disk\n"
 "but also uses more resources."
 msgstr ""
+"Определя качеството на филтриране на сянката.\n"
+"Симулира ефекта на меките сенки, като прилага PCF или\n"
+"диск на Поасон, но изисква повече ресурси."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3341,34 +3322,42 @@ msgid ""
 "Luanti still enforces its own internal minimum, and enabling\n"
 "strict_protocol_version_checking will effectively override this."
 msgstr ""
+"Определя най-старите клиенти, които имат право да се свързват.\n"
+"По-старите клиенти са съвместими в смисъл, че няма да се сриват\n"
+"при свързване с нови сървъри, но може да не поддържат всички нови\n"
+"възможности, които очаквате. Дава възможност по-точен контрол\n"
+"от strict_protocol_version_checking.\n"
+"Luanti все пак налага своя собствен вътрешен минимум, а включването\n"
+"на strict_protocol_version_checking всъщност ще отмени тази настройка."
 
 #: src/settings_translation_file.cpp
 msgid "Defines areas where trees have apples."
-msgstr ""
+msgstr "Определя областите, в които дърветата имат ябълки."
 
 #: src/settings_translation_file.cpp
 msgid "Defines areas with sandy beaches."
-msgstr ""
+msgstr "Определя областите с пясъчни плажове."
 
 #: src/settings_translation_file.cpp
 msgid "Defines distribution of higher terrain and steepness of cliffs."
-msgstr ""
+msgstr "Определя разпределението на възвишенията и стръмнината на скалите."
 
 #: src/settings_translation_file.cpp
 msgid "Defines distribution of higher terrain."
-msgstr ""
+msgstr "Определя разпределението на възвишенията."
 
 #: src/settings_translation_file.cpp
 msgid "Defines full size of caverns, smaller values create larger caverns."
 msgstr ""
+"Определя пълния размер на пещерите, малките стойности създават големи пещери."
 
 #: src/settings_translation_file.cpp
 msgid "Defines large-scale river channel structure."
-msgstr ""
+msgstr "Определя речната мрежа."
 
 #: src/settings_translation_file.cpp
 msgid "Defines location and terrain of optional hills and lakes."
-msgstr ""
+msgstr "Определя разположението и терена на допълнителните хълмове и езера."
 
 #: src/settings_translation_file.cpp
 msgid "Defines the base ground level."
@@ -3376,11 +3365,12 @@ msgstr "Определя основното ниво на земята."
 
 #: src/settings_translation_file.cpp
 msgid "Defines the depth of the river channel."
-msgstr ""
+msgstr "Определя дълбочината на речното корито."
 
 #: src/settings_translation_file.cpp
 msgid "Defines the maximal player transfer distance in blocks (0 = unlimited)."
 msgstr ""
+"Определя пределното разстояние на пренасяне на играча (0 = неограничено)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3388,72 +3378,87 @@ msgid ""
 "methods.\n"
 "Value of 2 means taking 2x2 = 4 samples."
 msgstr ""
+"Определя размера на решетката за избор при методите за сгласяне FSAA и "
+"SSAA.\n"
+"Стойност 2 означава 2×2 = 4 проби."
 
 #: src/settings_translation_file.cpp
 msgid "Defines the width of the river channel."
-msgstr ""
+msgstr "Определя ширинатана речното корито."
 
 #: src/settings_translation_file.cpp
 msgid "Defines the width of the river valley."
-msgstr ""
+msgstr "Определя ширинатана речната долина."
 
 #: src/settings_translation_file.cpp
 msgid "Defines tree areas and tree density."
-msgstr ""
+msgstr "Определя областите и плътността на дърветата."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
 "down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
+"Интервал между обновяванията на мешовете от страна на клиента,\n"
+"в милисекунди.\n"
+"Увеличаването на стойността ще забави честотата не обновяване\n"
+"на мешове, което ще доведе до намаляване на колебанията."
 
 #: src/settings_translation_file.cpp
 msgid "Delay in sending blocks after building"
-msgstr ""
+msgstr "Интервал при изпращане на блокове след строене"
 
 #: src/settings_translation_file.cpp
 msgid "Delay showing tooltips, stated in milliseconds."
-msgstr ""
+msgstr "Забавяне при показване на подсказки, в милисекунди."
 
 #: src/settings_translation_file.cpp
 msgid "Deprecated Lua API handling"
-msgstr ""
+msgstr "Обработка на изведени от употреба ППИ на Lua"
 
 #: src/settings_translation_file.cpp
 msgid "Depth below which you'll find giant caverns."
-msgstr ""
+msgstr "Дълбочина, под която се срещат огромни пещери."
 
 #: src/settings_translation_file.cpp
 msgid "Depth below which you'll find large caves."
-msgstr ""
+msgstr "Дълбочина, под която се срещат големи пещери."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Description of server, to be displayed when players join and in the "
 "serverlist."
 msgstr ""
+"Описание на сървъра, показвано при вход в игра и в списъка със сървърите."
 
 #: src/settings_translation_file.cpp
 msgid "Desert noise threshold"
-msgstr ""
+msgstr "Праг на шум за пустини"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Deserts occur when np_biome exceeds this value.\n"
 "When the 'snowbiomes' flag is enabled, this is ignored."
 msgstr ""
+"Пустините се появяват, когато „np_biome“\n"
+"превишава тази стойност.\n"
+"Пренебрегва се, когато флагът „snowbiomes“ е включен."
 
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "За разработчици"
 
 #: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr "Изключете ако желаете да замервате с Trasy."
+
+#: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
-msgstr ""
+msgstr "Забраняване на празни пароли"
 
 #: src/settings_translation_file.cpp
 msgid "Display Density Scaling Factor"
-msgstr ""
+msgstr "Коефициент на мащабитане на плътността на изображението"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3461,10 +3466,15 @@ msgid ""
 "Use this to limit the performance impact of transparency depth sorting.\n"
 "Set to 0 to disable it entirely."
 msgstr ""
+"Разстоянието във възли, при което се включва сортиране\n"
+"по степен на прозрачност. Използвайте, за да ограничите\n"
+"влиянието на сортирането по степента на прозрачност\n"
+"върху производителността.\n"
+"Задайте стойност 0, за да изключите."
 
 #: src/settings_translation_file.cpp
 msgid "Domain name of server, to be displayed in the serverlist."
-msgstr ""
+msgstr "Име на домейна на сървъра, показвано в списъка със сървърите."
 
 #: src/settings_translation_file.cpp
 msgid "Double tap jump for fly"
@@ -3481,6 +3491,10 @@ msgid ""
 "situations\n"
 "where transparency sorting would be very slow otherwise."
 msgstr ""
+"Изчертаване на прозрачни сортирани триъгълници,\n"
+"групирани по меш. Това нарушава сортирането по\n"
+"прозрачност между мешове, но избягва ситуации,\n"
+"в които сортирането по прозрачност би било много бавно."
 
 #: src/settings_translation_file.cpp
 msgid "Drop item"
@@ -3489,14 +3503,16 @@ msgstr "Пускане предмет"
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
 msgstr ""
+"Записване на информацията за отстраняване на дефекти в услугата за създаване "
+"на светове."
 
 #: src/settings_translation_file.cpp
 msgid "Dungeon maximum Y"
-msgstr ""
+msgstr "Максимум по оста Y на подземията"
 
 #: src/settings_translation_file.cpp
 msgid "Dungeon minimum Y"
-msgstr ""
+msgstr "Минимум по оста Y на подземията"
 
 #: src/settings_translation_file.cpp
 msgid "Dungeon noise"
@@ -3527,6 +3543,8 @@ msgid ""
 "Enable IPv6 support (for both client and server).\n"
 "Required for IPv6 connections to work at all."
 msgstr ""
+"Включване на поддръжка на IPv6 (за клиента и сървъра).\n"
+"Необходимо за работеща връзка по IPv6."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3534,12 +3552,18 @@ msgid ""
 "Note that clients will be able to connect with both IPv4 and IPv6.\n"
 "Ignored if bind_address is set."
 msgstr ""
+"Включване на поддръжка на IPv6 за сървъра.\n"
+"Обърнете внимание, че клиентите могат да се свързват както по IPv4,\n"
+"така и по IPv6.\n"
+"Пренебрегнато ако е включена настройката bind_andress."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Enable Lua modding support on client.\n"
 "This support is experimental and API can change."
 msgstr ""
+"Включване на поддръжка на модификации на Lua на клиента.\n"
+"Поддръжката е експериментална, а ППИ може да бъде променен."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3547,14 +3571,17 @@ msgid ""
 "On true uses Poisson disk to make \"soft shadows\". Otherwise uses PCF "
 "filtering."
 msgstr ""
+"Включва филтър на диска на Поасон.\n"
+"Когато е отметнато използва диска на Поасон за „меки сенки“,\n"
+"в противен случай – филтриране чрез PFC."
 
 #: src/settings_translation_file.cpp
 msgid "Enable Post Processing"
-msgstr ""
+msgstr "Последваща обработка"
 
 #: src/settings_translation_file.cpp
 msgid "Enable Raytraced Culling"
-msgstr ""
+msgstr "Лъчево премахване на невидимите блокове"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3563,44 +3590,52 @@ msgid ""
 "automatically adjust to the brightness of the scene,\n"
 "simulating the behavior of human eye."
 msgstr ""
+"Автоматична настройка на експозицията.\n"
+"Когато е отметнато, машината за последваща\n"
+"обработка ще променя яркостта на картината,\n"
+"подобно на поведението на човешкото око."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Enable colored shadows for transculent nodes.\n"
 "This is expensive."
 msgstr ""
+"Цветни сенки на полупрозрачните възли.\n"
+"Скъпо действие."
 
 #: src/settings_translation_file.cpp
 msgid "Enable console window"
-msgstr ""
+msgstr "Прозорец на конзолата"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks"
-msgstr ""
+msgstr "Включване на контролер"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks. Requires a restart to take effect"
-msgstr ""
+msgstr "Включване поддръжката на контролер. Изисква рестарт"
 
 #: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
-msgstr ""
+msgstr "Поддръжка на канали на модификациите."
 
 #: src/settings_translation_file.cpp
 msgid "Enable mod security"
-msgstr ""
+msgstr "Сигурност на модификациите"
 
 #: src/settings_translation_file.cpp
 msgid "Enable mouse wheel (scroll) for item selection in hotbar."
 msgstr ""
+"Използване колелцето на мишката (прелистване) за избор на предмет от лентата "
+"с предмети."
 
 #: src/settings_translation_file.cpp
 msgid "Enable random mod loading (mainly used for testing)."
-msgstr ""
+msgstr "Зареждане на произволна модификация (главно за изпитателни цели)."
 
 #: src/settings_translation_file.cpp
 msgid "Enable random user input (only used for testing)."
-msgstr ""
+msgstr "Случайно въвеждано от потребителя (само с изпитателна цел)."
 
 #: src/settings_translation_file.cpp
 msgid "Enable smooth lighting with simple ambient occlusion."
@@ -3609,7 +3644,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Enable split login/register"
-msgstr ""
+msgstr "Разделяне на процесите на вход и регистрация"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3619,10 +3654,14 @@ msgid ""
 "to new servers, but they may not support all new features that you are "
 "expecting."
 msgstr ""
+"Разрешава или забранява на стари клиенти да се свързват.\n"
+"По-старите клиенти са съвместими в смисъл, че няма да се сриват\n"
+"при свързване с нови сървъри, но може да не поддържат всички нови\n"
+"възможности, които очаквате."
 
 #: src/settings_translation_file.cpp
 msgid "Enable updates available indicator on content tab"
-msgstr ""
+msgstr "Индикатор за налично обновяване на раздела „Съдържание“"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3631,12 +3670,21 @@ msgid ""
 "textures)\n"
 "when connecting to the server."
 msgstr ""
+"Включете използването на отдалечен сървър за медия\n"
+"(ако е предоставен от сървъра). Отдалечените сървъри\n"
+"предлагат значително по-бързо изтегляне на файловете\n"
+"(например текстури) по време на свързване със сървъра."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Enable view bobbing and amount of view bobbing.\n"
 "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
 msgstr ""
+"Включване на поклащането на изгледа и задаване на стойност.\n"
+"Например:\n"
+"- 0 за липса на поклащане на изгледа;\n"
+"- 1.0 за обикновено;\n"
+"- 2.0 за двойно."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3645,14 +3693,21 @@ msgid ""
 "appearance of high dynamic range images. Mid-range contrast is slightly\n"
 "enhanced, highlights and shadows are gradually compressed."
 msgstr ""
+"Включва кинематографическата тонова карта на Хабъл за „Uncharted 2“.\n"
+"Симулира тоновата крива на фотографския филм и как тя се доближава\n"
+"до изгледа на изображения с висок динамичен диапазон. Контрастът\n"
+"в средния диапазон е леко подобрен, светлите и тъмните области са\n"
+"постепенно компресирани."
 
 #: src/settings_translation_file.cpp
 msgid "Enables animation of inventory items."
-msgstr ""
+msgstr "Включва анимиране на предметите в инвентара."
 
 #: src/settings_translation_file.cpp
 msgid "Enables debug and error-checking in the OpenGL driver."
 msgstr ""
+"Включва отстраняването и проверката за грешки в управляващия софтуер на "
+"OpenGL."
 
 #: src/settings_translation_file.cpp
 msgid "Enables smooth scrolling."
@@ -3660,7 +3715,7 @@ msgstr "Включва плавно прелистване."
 
 #: src/settings_translation_file.cpp
 msgid "Enables the post processing pipeline."
-msgstr ""
+msgstr "Включва процеса за последваща обработка."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3669,24 +3724,31 @@ msgid ""
 "\"auto\" means that the touchscreen controls will be enabled and disabled\n"
 "automatically depending on the last used input method."
 msgstr ""
+"Включва управлението чрез сензорен екран, дава възможност да играете\n"
+"посредством докосване на екрана. \"auto\" означава, че управлението чрез\n"
+"докосване ще бъде включвано или изключвано в зависимост от последния\n"
+"метод за въвеждане."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Enables tradeoffs that reduce CPU load or increase rendering performance\n"
 "at the expense of minor visual glitches that do not impact game playability."
 msgstr ""
+"Намалява натоварването на процесора или увеличава\n"
+"производителността при изчертаване за сметка на\n"
+"визуални дефекти, които не влияят на играта."
 
 #: src/settings_translation_file.cpp
 msgid "Engine Profiler"
-msgstr ""
+msgstr "Профилиране на машината за изчертаване"
 
 #: src/settings_translation_file.cpp
 msgid "Engine profiling data print interval"
-msgstr ""
+msgstr "Интервал на извеждане на информацията за профилиране"
 
 #: src/settings_translation_file.cpp
 msgid "Entity methods"
-msgstr ""
+msgstr "Методи на предметите"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3711,35 +3773,35 @@ msgstr "Компенсация на експозицията"
 
 #: src/settings_translation_file.cpp
 msgid "FPS"
-msgstr ""
+msgstr "Кадри в секунда (FPS)"
 
 #: src/settings_translation_file.cpp
 msgid "FPS when unfocused"
-msgstr ""
+msgstr "Максимум FPS без фокус"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
-msgstr ""
+msgstr "Коефициент на шума"
 
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
-msgstr ""
+msgstr "Път към резервен шрифт"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
-msgstr ""
+msgstr "Ускорение в режим на бързо движение"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode speed"
-msgstr ""
+msgstr "Скорост в режим на бързо движение"
 
 #: src/settings_translation_file.cpp
 msgid "Field of view"
-msgstr ""
+msgstr "Ширина на погледа"
 
 #: src/settings_translation_file.cpp
 msgid "Field of view in degrees."
-msgstr ""
+msgstr "Ширина на погледа в градуси."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3752,15 +3814,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Filler depth"
-msgstr ""
+msgstr "Дълбочина на запълване"
 
 #: src/settings_translation_file.cpp
 msgid "Filler depth noise"
-msgstr ""
+msgstr "Шум за дълбочина на запълване"
 
 #: src/settings_translation_file.cpp
 msgid "Filmic tone mapping"
-msgstr ""
+msgstr "Кинематографическа тонова карта"
 
 #: src/settings_translation_file.cpp
 msgid "Filtering and Antialiasing"
@@ -3769,24 +3831,31 @@ msgstr "Филтриране и сгласяне"
 #: src/settings_translation_file.cpp
 msgid "First of 4 2D noises that together define hill/mountain range height."
 msgstr ""
+"Първият от четирите двумерни шума, които заедно\n"
+"определят височината на възвишенията и планинските вериги."
 
 #: src/settings_translation_file.cpp
 msgid "First of two 3D noises that together define tunnels."
 msgstr ""
+"Първият от двата тримерни шума, които заедно\n"
+"определят тунелите."
 
 #: src/settings_translation_file.cpp
 msgid "Fixed map seed"
-msgstr ""
+msgstr "Фиксирано семе на света"
 
 #: src/settings_translation_file.cpp
 msgid "Fixed virtual joystick"
-msgstr ""
+msgstr "Фиксиране на виртуалния контролер"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Fixes the position of virtual joystick.\n"
 "If disabled, virtual joystick will center to first-touch's position."
 msgstr ""
+"Фиксиране на местоположението на виртуалния контролер.\n"
+"Когато не е отметнато контролерът ще се появи на мястото на първото "
+"докосване."
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -3818,53 +3887,61 @@ msgstr "Ниво на водата на небесните острови"
 
 #: src/settings_translation_file.cpp
 msgid "Fog"
-msgstr ""
+msgstr "Мъгла"
 
 #: src/settings_translation_file.cpp
 msgid "Fog start"
-msgstr ""
+msgstr "Граница на мъглата"
 
 #: src/settings_translation_file.cpp
 msgid "Font"
-msgstr ""
+msgstr "Шрифт"
 
 #: src/settings_translation_file.cpp
 msgid "Font bold by default"
-msgstr ""
+msgstr "Получер шрифт по подразбиране"
 
 #: src/settings_translation_file.cpp
 msgid "Font italic by default"
-msgstr ""
+msgstr "Курсивен шрифт по подразбиране"
 
 #: src/settings_translation_file.cpp
 msgid "Font shadow"
-msgstr ""
+msgstr "Шрифт със сянка"
 
 #: src/settings_translation_file.cpp
 msgid "Font shadow alpha"
-msgstr ""
+msgstr "Прозрачност на сянката на шрифта"
 
 #: src/settings_translation_file.cpp
 msgid "Font size"
-msgstr ""
+msgstr "Размер на шрифта"
 
 #: src/settings_translation_file.cpp
 msgid "Font size divisible by"
-msgstr ""
+msgstr "Кратност на размера на шрифта"
 
 #: src/settings_translation_file.cpp
 msgid "Font size of the default font where 1 unit = 1 pixel at 96 DPI"
 msgstr ""
+"Размер на стандартния шрифт, където\n"
+"1 пункт = 1 пиксел при плътност на екрана\n"
+"96 точки / инч."
 
 #: src/settings_translation_file.cpp
 msgid "Font size of the monospace font where 1 unit = 1 pixel at 96 DPI"
 msgstr ""
+"Размер на равноширокия шрифт, където\n"
+"1 пункт = 1 пиксел при плътност на екрана\n"
+"96 точки / инч."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Font size of the recent chat text and chat prompt in point (pt).\n"
 "Value 0 will use the default font size."
 msgstr ""
+"Размер на шрифта на последните съобщения в разговорите, в пунктове (pt).\n"
+"При стойност 0 ще бъде използван стандартния шрифт."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3890,49 +3967,58 @@ msgid ""
 "placeholders:\n"
 "@name, @message, @timestamp (optional)"
 msgstr ""
+"Формат на съобщенията в разговорите. Могат да бъдат използвани следните "
+"низове:\n"
+"@name, @message, @timestamp (незадължително)."
 
 #: src/settings_translation_file.cpp
 msgid "Format of screenshots."
-msgstr ""
+msgstr "Формат на екранните снимки."
 
 #: src/settings_translation_file.cpp
 msgid "Formspec Full-Screen Background Color"
-msgstr ""
+msgstr "Цвят на фона на формулярите на цял екран"
 
 #: src/settings_translation_file.cpp
 msgid "Formspec Full-Screen Background Opacity"
-msgstr ""
+msgstr "Прозрачност на фона на формулярите на цял екран"
 
 #: src/settings_translation_file.cpp
 msgid "Formspec full-screen background color (R,G,B)."
-msgstr ""
+msgstr "Цвят на фона на формулярите на цял екран (R,G,B)."
 
 #: src/settings_translation_file.cpp
 msgid "Formspec full-screen background opacity (between 0 and 255)."
-msgstr ""
+msgstr "Прозрачност на фона на формулярите на цял екран (от 0 до 255)."
 
 #: src/settings_translation_file.cpp
 msgid "Fourth of 4 2D noises that together define hill/mountain range height."
 msgstr ""
+"Четвъртият от четирите двумерни шума, които заедно\n"
+"определят височината на възвишенията и планинските вериги."
 
 #: src/settings_translation_file.cpp
 msgid "Fractal type"
-msgstr ""
+msgstr "Вид на фрактала"
 
 #: src/settings_translation_file.cpp
 msgid "Fraction of the visible distance at which fog starts to be rendered"
-msgstr ""
+msgstr "Част от видимото разстояние, на което започва да се появява мъгла"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "From how far blocks are generated for clients, stated in mapblocks (16 "
 "nodes)."
 msgstr ""
+"От колко далече блоковете на картата се създават за киента, в блокове от "
+"света (16 възела)."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "From how far blocks are sent to clients, stated in mapblocks (16 nodes)."
 msgstr ""
+"От колко далече блоковете на картата се изпращат към киента, в блокове от "
+"света (16 възела)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3942,8 +4028,8 @@ msgid ""
 "to maintain active objects up to this distance in the direction the\n"
 "player is looking. (This can avoid mobs suddenly disappearing from view)"
 msgstr ""
-"От какво разстояние клиентите знаят за обектите, посочено в блокове от "
-"картата (16 възела).\n"
+"От какво разстояние клиентите знаят за обектите, посочено в блокове от света "
+"(16 възела).\n"
 "\n"
 "Задаването на стойност по-голяма от active_block_range\n"
 "също ще накара сървъра да поддържа активни обекти до това разстояние\n"
@@ -3952,23 +4038,23 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Full screen"
-msgstr ""
+msgstr "Цял екран"
 
 #: src/settings_translation_file.cpp
 msgid "Fullscreen mode."
-msgstr ""
+msgstr "Режим на цял екран."
 
 #: src/settings_translation_file.cpp
 msgid "GUI"
-msgstr ""
+msgstr "Графичен интерфейс"
 
 #: src/settings_translation_file.cpp
 msgid "GUI scaling"
-msgstr ""
+msgstr "Мащаб на интерфейса"
 
 #: src/settings_translation_file.cpp
 msgid "GUI scaling filter"
-msgstr ""
+msgstr "Филтър на мащабиране на интерфейса"
 
 #: src/settings_translation_file.cpp
 msgid "Gamepads"
@@ -3984,18 +4070,26 @@ msgid ""
 "In Mapgen v6 the 'decorations' flag controls all decorations except trees\n"
 "and jungle grass, in all other mapgens this flag controls all decorations."
 msgstr ""
+"Общи атрибути при създаване на светове.\n"
+"При създаване на светове „v6“ флагът „декорации“ управлява\n"
+"всички декорации с изключение на дърветата и тревата в джунглата,\n"
+"а при останалите светове флагът управлява всички декорации."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Gradient of light curve at maximum light level.\n"
 "Controls the contrast of the highest light levels."
 msgstr ""
+"Градиент на кривата на светлината при максимално ниво на осветеност.\n"
+"Управлява контраста при най-високите нива на осветеност."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Gradient of light curve at minimum light level.\n"
 "Controls the contrast of the lowest light levels."
 msgstr ""
+"Градиент на кривата на светлината при минимално ниво на осветеност.\n"
+"Управлява контраста при най-ниските нива на осветеност."
 
 #: src/settings_translation_file.cpp
 msgid "Graphics"
@@ -4027,7 +4121,7 @@ msgstr "Игрови интерфейс"
 
 #: src/settings_translation_file.cpp
 msgid "HUD scaling"
-msgstr "Мащаб на игровия интетфейс"
+msgstr "Мащаб на игровия интерфейс"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4036,6 +4130,12 @@ msgid ""
 "-    log: mimic and log backtrace of deprecated call (default).\n"
 "-    error: abort on usage of deprecated call (suggested for mod developers)."
 msgstr ""
+"Обработка на изведените от употреба ППИ на Lua:\n"
+"• none: изикванията на такива ППИ не влизат в дневника.\n"
+"• log: фалшифицира успешно извикване и записва в дневника следи  на "
+"изведеното от употреба извикване (стандартно).\n"
+"• error: спира изпълнението при  изведено от употреба извикване "
+"(препоръчително за разработчиците на модофокации)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4045,226 +4145,239 @@ msgid ""
 "call).\n"
 "* Instrument the sampler being used to update the statistics."
 msgstr ""
+"Профилиране на инструмента за профилиране:\n"
+"• замерване на празна функция – оценява разхода,\n"
+"добавен при замерване (+1 извикване на функция)\n"
+"• замерва пробата, използвана за обновяване на статистиката."
 
 #: src/settings_translation_file.cpp
 msgid "Heat blend noise"
-msgstr ""
+msgstr "Шум за смесване на топлината"
 
 #: src/settings_translation_file.cpp
 msgid "Heat noise"
-msgstr ""
+msgstr "Шум на топлината"
 
 #: src/settings_translation_file.cpp
 msgid "Height component of the initial window size."
-msgstr ""
+msgstr "Начална височина на екрана."
 
 #: src/settings_translation_file.cpp
 msgid "Height noise"
-msgstr ""
+msgstr "Шум за височината"
 
 #: src/settings_translation_file.cpp
 msgid "Height select noise"
-msgstr ""
+msgstr "Шум за избор на височина"
 
 #: src/settings_translation_file.cpp
 msgid "Hill steepness"
-msgstr ""
+msgstr "Стръмност на възвишенията"
 
 #: src/settings_translation_file.cpp
 msgid "Hill threshold"
-msgstr ""
+msgstr "Праг на възвишенията"
 
 #: src/settings_translation_file.cpp
 msgid "Hilliness1 noise"
-msgstr ""
+msgstr "Шум за възвишения 1"
 
 #: src/settings_translation_file.cpp
 msgid "Hilliness2 noise"
-msgstr ""
+msgstr "Шум за възвишения 2"
 
 #: src/settings_translation_file.cpp
 msgid "Hilliness3 noise"
-msgstr ""
+msgstr "Шум за възвишения 3"
 
 #: src/settings_translation_file.cpp
 msgid "Hilliness4 noise"
-msgstr ""
+msgstr "Шум за възвишения 4"
 
 #: src/settings_translation_file.cpp
 msgid "Homepage of server, to be displayed in the serverlist."
-msgstr ""
+msgstr "Страница на сървъра, показвана в списъка със сървърите."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Horizontal acceleration in air when jumping or falling,\n"
 "in nodes per second per second."
 msgstr ""
+"Хоризонтално ускорение във въздуха при скачане\n"
+"и падане във възли/секунда²."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Horizontal and vertical acceleration in fast mode,\n"
 "in nodes per second per second."
 msgstr ""
+"Хоризонтално и вертикално ускорение при\n"
+"бързо придвижване във възли/секунда²."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Horizontal and vertical acceleration on ground or when climbing,\n"
 "in nodes per second per second."
 msgstr ""
+"Хоризонтално ускорение на земята или при катерене\n"
+"във възли/секунда²."
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 1"
-msgstr ""
+msgstr "Позиция №1 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 10"
-msgstr ""
+msgstr "Позиция №10 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 11"
-msgstr ""
+msgstr "Позиция №11 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 12"
-msgstr ""
+msgstr "Позиция №12 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 13"
-msgstr ""
+msgstr "Позиция №13 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 14"
-msgstr ""
+msgstr "Позиция №14 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 15"
-msgstr ""
+msgstr "Позиция №15 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 16"
-msgstr ""
+msgstr "Позиция №16 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 17"
-msgstr ""
+msgstr "Позиция №17 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 18"
-msgstr ""
+msgstr "Позиция №18 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 19"
-msgstr ""
+msgstr "Позиция №19 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 2"
-msgstr ""
+msgstr "Позиция №2 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 20"
-msgstr ""
+msgstr "Позиция №20 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 21"
-msgstr ""
+msgstr "Позиция №21 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 22"
-msgstr ""
+msgstr "Позиция №22 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 23"
-msgstr ""
+msgstr "Позиция №23 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 24"
-msgstr ""
+msgstr "Позиция №24 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 25"
-msgstr ""
+msgstr "Позиция №25 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 26"
-msgstr ""
+msgstr "Позиция №26 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 27"
-msgstr ""
+msgstr "Позиция №27 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 28"
-msgstr ""
+msgstr "Позиция №28 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 29"
-msgstr ""
+msgstr "Позиция №29 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 3"
-msgstr ""
+msgstr "Позиция №3 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 30"
-msgstr ""
+msgstr "Позиция №30 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 31"
-msgstr ""
+msgstr "Позиция №31 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 32"
-msgstr ""
+msgstr "Позиция №32 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 4"
-msgstr ""
+msgstr "Позиция №4 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 5"
-msgstr ""
+msgstr "Позиция №5 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 6"
-msgstr ""
+msgstr "Позиция №6 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 7"
-msgstr ""
+msgstr "Позиция №7 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 8"
-msgstr ""
+msgstr "Позиция №8 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 9"
-msgstr ""
+msgstr "Позиция №9 на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
-msgstr ""
+msgstr "Лента с предмети: избор с колелцето на мишката"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
-msgstr ""
+msgstr "Лента с предмети: обърнат избор с колелцето на мишката"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: select next item"
-msgstr ""
+msgstr "Лента с предмети: избиране на следващия предмет"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: select previous item"
-msgstr ""
+msgstr "Лента с предмети: избиране на предишния предмет"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
-msgstr ""
+msgstr "Каква да бъде дълбочината на реките."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "How fast liquid waves will move. Higher = faster.\n"
 "If negative, liquid waves will move backwards."
 msgstr ""
+"Колко бързо да се движат вълните от течност.\n"
+"Висока стойност = по-бързо. Отрицателните стойности\n"
+"движат вълните назад."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4272,28 +4385,33 @@ msgid ""
 "seconds.\n"
 "Higher value is smoother, but will use more RAM."
 msgstr ""
+"Време на изчакване преди сървърът да освободи\n"
+"неизползваните блокове от света, в секунди.\n"
+"По-голямата стойност е по-плавна, но използва повече памет."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "How much you are slowed down when moving inside a liquid.\n"
 "Decrease this to increase liquid resistance to movement."
 msgstr ""
+"Колко течностите забавят движението.\n"
+"Намалете стойността, за да увеличите викозитета на течността."
 
 #: src/settings_translation_file.cpp
 msgid "How wide to make rivers."
-msgstr ""
+msgstr "Колко широки да бъдат речните корита."
 
 #: src/settings_translation_file.cpp
 msgid "Humidity blend noise"
-msgstr ""
+msgstr "Шум за смесване на влажността"
 
 #: src/settings_translation_file.cpp
 msgid "Humidity noise"
-msgstr ""
+msgstr "Шум за влажността"
 
 #: src/settings_translation_file.cpp
 msgid "Humidity variation for biomes."
-msgstr ""
+msgstr "Вариране на влажността между различните биоми."
 
 #: src/settings_translation_file.cpp
 msgid "IPv6"
@@ -4308,12 +4426,17 @@ msgid ""
 "If FPS would go higher than this, limit it by sleeping\n"
 "to not waste CPU power for no benefit."
 msgstr ""
+"Ако кадрите в секунда са повече от зададените тук да бъдат\n"
+"ограничени чрез приспиване на процесора, за да де се пилее\n"
+"процесорна мощ."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If disabled, \"Aux1\" key is used to fly fast if both fly and fast mode are\n"
 "enabled."
 msgstr ""
+"Когато не е отметнато клавишът „Aux1“ се използва за бързо летене\n"
+"ако са включени режимът на бързо придвижване и летене."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4338,18 +4461,25 @@ msgid ""
 "If enabled, actions are recorded for rollback.\n"
 "This option is only read when server starts."
 msgstr ""
+"Когато е отметнато, действията се записват с цел отменяне.\n"
+"Настройката се чете само при стартиране на сървъра."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, invalid world data won't cause the server to shut down.\n"
 "Only enable this if you know what you are doing."
 msgstr ""
+"Когато е отметнато, неприемливите данни на света няма\n"
+"да предизвикват изключване на сървъра.\n"
+"Отметнете само ако разбирате последствията."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, players cannot join without a password or change theirs to an "
 "empty password."
 msgstr ""
+"Когато е отметнато, играчите не могат да играят без парола\n"
+"или ли да сменят паролата си на празна."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4357,17 +4487,21 @@ msgid ""
 "If disabled, connecting to a server will automatically register a new "
 "account."
 msgstr ""
+"Когато е отметнато, създаването на профил в сървъра и входа\n"
+"са различни неща в интерфейса.\n"
+"Когато не е отметнато, при свързване към сървър ще бъде\n"
+"създаден и профил."
 
 #: src/settings_translation_file.cpp
 msgid "If enabled, the \"Aux1\" key will toggle when pressed."
-msgstr ""
+msgstr "Когато е отметнато, клавишът „Aux1“ ще превключва при натискане."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the \"Sneak\" key will toggle when pressed.\n"
 "This functionality is ignored when fly is enabled."
 msgstr ""
-"Когато е отметнато клавишът „Промъкване“ ще превключва приннатискане.\n"
+"Когато е отметнато клавишът „Промъкване“ ще превключва при натискане.\n"
 "Тази настройка е пренебрегната по време на летене."
 
 #: src/settings_translation_file.cpp
@@ -4378,7 +4512,7 @@ msgid ""
 "sent to the client by 50-80%. Clients will no longer receive most\n"
 "invisible blocks, so that the utility of noclip mode is reduced."
 msgstr ""
-"Когато е включено, сървърът ще извърши премахване на далечните блокове от "
+"Когато е отметнато, сървърът ще извърши премахване на далечните блокове от "
 "картата въз основа на\n"
 "на позицията на очите на играча. Това може да намали броя на блоковете\n"
 "изпратени към клиента с 50-80 %. Клиентите вече няма да получават повечето\n"
@@ -4390,6 +4524,8 @@ msgid ""
 "stand.\n"
 "This is helpful when working with nodeboxes in small areas."
 msgstr ""
+"Когато е отметнато, можете да поставяте възли, на мястото, на което стоите.\n"
+"Полезно при строене в тесни места."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4397,12 +4533,18 @@ msgid ""
 "limited\n"
 "to this distance from the player to the node."
 msgstr ""
+"Когато ограничението за модификации на клиента е включено\n"
+"извикванията към get_node са ограничени до това разстояние\n"
+"от играча до възела."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If the execution of a chat command takes longer than this specified time in\n"
 "seconds, add the time information to the chat command message"
 msgstr ""
+"Когато изпълнението на команда в прозореца за разговори отнеме\n"
+"повече от зададеното тук време в секунди, информация за времето\n"
+"да бъде добавена към резултата от командата."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4411,6 +4553,11 @@ msgid ""
 "deleting an older debug.txt.1 if it exists.\n"
 "debug.txt is only moved if this setting is positive."
 msgstr ""
+"Ако размерът на файла „debug.txt“ надвишава указания тук размер в МБ,\n"
+"файлът ще бъде преименуван на „debug.txt.1“, а предишния файл "
+"„debug.txt.1“,\n"
+"ако има такъв ще бъде премахнат.\n"
+"Файлът „debug.txt“ бива преименуван само ако стойността тук е положителна."
 
 #: src/settings_translation_file.cpp
 msgid "If this is set, players will always (re)spawn at the given position."
@@ -4418,20 +4565,20 @@ msgstr "Ако е зададено, играчите ще се преражда�
 
 #: src/settings_translation_file.cpp
 msgid "Ignore world errors"
-msgstr ""
+msgstr "Пренебрегване на грешките в света"
 
 #: src/settings_translation_file.cpp
 msgid "In-game chat console background alpha (opaqueness, between 0 and 255)."
-msgstr ""
+msgstr "Прозрачност на фона на конзолата в играта (0 – 255)."
 
 #: src/settings_translation_file.cpp
 msgid "In-game chat console background color (R,G,B)."
-msgstr ""
+msgstr "Цвят на фона на конзолата в играта (R,G,B)."
 
 #: src/settings_translation_file.cpp
 #, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
-msgstr ""
+msgstr "Височина на конзолата (между 0.1 → 10% и 1.0 → 100%)."
 
 #: src/settings_translation_file.cpp
 msgid "Increase view range"
@@ -4439,81 +4586,91 @@ msgstr "Увелич. на обхвата"
 
 #: src/settings_translation_file.cpp
 msgid "Increase volume"
-msgstr "Увелич. на звука"
+msgstr "Сила на звука +"
 
 #: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
-msgstr ""
+msgstr "Начална вертикална скорост при скачане, във възли/секунда."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Instrument builtin.\n"
 "This is usually only needed by core/builtin contributors"
 msgstr ""
+"Замерване на вградена функция.\n"
+"Обикновено е нужно на допринасящите кум ядрото."
 
 #: src/settings_translation_file.cpp
 msgid "Instrument chat commands on registration."
-msgstr ""
+msgstr "За ерване на командите в панела за разговори при регистриране."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Instrument global callback functions on registration.\n"
 "(anything you pass to a core.register_*() function)"
 msgstr ""
+"Замерва общите функции за обратно извикване при регистрация.\n"
+"(всичко, което се подава на core.register_*() function)"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Instrument the action function of Active Block Modifiers on registration."
 msgstr ""
+"Замерване на функцията за действия с модификатора\n"
+"на активния блок при регистрация."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Instrument the action function of Loading Block Modifiers on registration."
 msgstr ""
+"Замерване на функцията за действия с модификатора\n"
+"на зареждащия блок при регистрация."
 
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
-msgstr ""
+msgstr "Замерване на методите на създанията при регистрация."
 
 #: src/settings_translation_file.cpp
 msgid "Interaction style"
-msgstr ""
+msgstr "Вид на взаимодействията"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
-msgstr ""
+msgstr "Интервал на запазване на важните промени в света, в секунди."
 
 #: src/settings_translation_file.cpp
 msgid "Inventory items animations"
-msgstr ""
+msgstr "Анимиране на предметите в инвентара"
 
 #: src/settings_translation_file.cpp
 msgid "Invert mouse"
-msgstr ""
+msgstr "Обръщане осите на мишката"
 
 #: src/settings_translation_file.cpp
 msgid "Invert mouse wheel (scroll) direction for item selection in hotbar."
 msgstr ""
+"Обръщане посоката на колелцето (прелистване)\n"
+"на мишката при избор на предмет от лентата с предмети."
 
 #: src/settings_translation_file.cpp
 msgid "Invert vertical mouse movement."
-msgstr ""
+msgstr "Обръщане движението на мишката по вертикалната ос."
 
 #: src/settings_translation_file.cpp
 msgid "Italic font path"
-msgstr ""
+msgstr "Път към курсивен шрифт"
 
 #: src/settings_translation_file.cpp
 msgid "Italic monospace font path"
-msgstr ""
+msgstr "Път към курсивен равноширок шрифт"
 
 #: src/settings_translation_file.cpp
 msgid "Item entity TTL"
-msgstr ""
+msgstr "Време на живот на хвърлени предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Iterations"
-msgstr ""
+msgstr "Брой завъртания"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4522,26 +4679,30 @@ msgid ""
 "increases processing load.\n"
 "At iterations = 20 this mapgen has a similar load to mapgen V7."
 msgstr ""
+"Брой завъртания на рекурсивната функция.\n"
+"Увеличаване на броя завъртания подобрява подробностите\n"
+"на фрактала, но увеличава и натоварването при изчисление.\n"
+"При 20 завъртания натоварването е подобно на светове „v7“."
 
 #: src/settings_translation_file.cpp
 msgid "Joystick ID"
-msgstr ""
+msgstr "ID на контролера"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
-msgstr ""
+msgstr "Интервал на повтаряне действието на бутон на контролера"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick dead zone"
-msgstr ""
+msgstr "Мъртва област на контролера"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
-msgstr ""
+msgstr "Чувствителност на контролера"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick type"
-msgstr ""
+msgstr "Вид на контролера"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4551,6 +4712,11 @@ msgid ""
 "Has no effect on 3D fractals.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Само за множества на Жулия.\n"
+"Компонент W от свръхсложната константа,\n"
+"определяща формата на фрактала на Жулия.\n"
+"Не влияе на триизмерни фрактали.\n"
+"Примерен диапазон: -2 до 2."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4559,6 +4725,10 @@ msgid ""
 "Alters the shape of the fractal.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Само за множества на Жулия.\n"
+"Компонент X от свръхсложната константа,\n"
+"определяща формата на фрактала на Жулия.\n"
+"Примерен диапазон: -2 до 2."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4567,6 +4737,10 @@ msgid ""
 "Alters the shape of the fractal.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Само за множества на Жулия.\n"
+"Компонент Y от свръхсложната константа,\n"
+"определяща формата на фрактала на Жулия.\n"
+"Примерен диапазон: -2 до 2."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4575,22 +4749,26 @@ msgid ""
 "Alters the shape of the fractal.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Само за множество на Жулия.\n"
+"Компонент Z от свръхсложната константа,\n"
+"определяща формата на фрактала на Жулия.\n"
+"Примерен диапазон: -2 до 2."
 
 #: src/settings_translation_file.cpp
 msgid "Julia w"
-msgstr "Жулия w"
+msgstr "Жулия W"
 
 #: src/settings_translation_file.cpp
 msgid "Julia x"
-msgstr "Жулия x"
+msgstr "Жулия X"
 
 #: src/settings_translation_file.cpp
 msgid "Julia y"
-msgstr "Жулия y"
+msgstr "Жулия Y"
 
 #: src/settings_translation_file.cpp
 msgid "Julia z"
-msgstr "Жулия z"
+msgstr "Жулия Z"
 
 #: src/settings_translation_file.cpp
 msgid "Jumping speed"
@@ -4598,55 +4776,67 @@ msgstr "Скорост на скачане"
 
 #: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
-msgstr ""
+msgstr "Клавиш за намаляване на избраната стойност в QuickТune."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Key for digging, punching or using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
+"Клавиш за копаене, удряне или използване на предмет.\n"
+"Забележка: значението може да варира в зависимост от играта."
 
 #: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
-msgstr ""
+msgstr "Клавиш за увеличаване на избраната стойност в QuickТune."
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
+msgstr "Клавиш за бързо придвижване в режим на бързо придвижване."
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type commands."
 msgstr ""
+"Клавиш за отваряне на прозореца за разговори\n"
+"и въвеждане на команди."
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type local commands."
 msgstr ""
+"Клавиш за отваряне на прозореца за разговори\n"
+"и въвеждане на местни команди."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
+"Клавиш за поставяне на предмет/блок или използването му.\n"
+"Забележка: значението може да варира в зависимост от играта."
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the next entry in Quicktune."
-msgstr ""
+msgstr "Клавиш за преминаване към следващ запис в QuickТune."
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the previous entry in Quicktune."
-msgstr ""
+msgstr "Клавиш за преминаване към предишен запис в QuickТune."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
 msgstr ""
+"Клавиш за превключване обновяването на камерата.\n"
+"Може да бъде използвано само с правото „debug“."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of mapblock boundaries."
-msgstr ""
+msgstr "Клавиш за превключване на границите на блоковете."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
 msgstr ""
+"Клавиш за превключване показването на инструмента за профилиране.\n"
+"Използва се при разработка."
 
 #: src/settings_translation_file.cpp
 msgid "Keybindings"
@@ -4699,6 +4889,10 @@ msgid ""
 "-   Simple: only outer faces\n"
 "-   Opaque: disable transparency"
 msgstr ""
+"Стилове на листата:\n"
+"• fancy – видими са всички страни\n"
+"• simple – видими само външните страни\n"
+"• opaque – без прозрачност"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4718,7 +4912,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Length of liquid waves."
-msgstr ""
+msgstr "Дължина на вълните от течности."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4730,12 +4924,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Length of time between NodeTimer execution cycles, stated in seconds."
-msgstr ""
+msgstr "Време между циклите на изпълнение на NodeTimer, в секунди."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Length of time between active block management cycles, stated in seconds."
-msgstr ""
+msgstr "Време между циклите на управление на активни блокове, в секунди."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4749,30 +4943,39 @@ msgid ""
 "-    verbose\n"
 "-    trace"
 msgstr ""
+"Ново на подробност на дневника debug.txt:\n"
+"• <празно> – без дневник\n"
+"• none – съобщения без определено ниво\n"
+"• error – грешки\n"
+"• warning – предупреждения\n"
+"• action – действия\n"
+"• info – информация\n"
+"• verbose – подробности\n"
+"• trace – следи от изпълнението"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve boost"
-msgstr ""
+msgstr "Усилване кривата на светлината"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve boost center"
-msgstr ""
+msgstr "Среда на усилване кривата на светлината"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve boost spread"
-msgstr ""
+msgstr "Разсейване на усилването кривата на светлината"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve gamma"
-msgstr ""
+msgstr "Гама на кривата на светлината"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve high gradient"
-msgstr ""
+msgstr "Висок градиент на кривата на светлината"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve low gradient"
-msgstr ""
+msgstr "Нисък градиент на кривата на светлината"
 
 #: src/settings_translation_file.cpp
 msgid "Lighting"
@@ -4784,6 +4987,11 @@ msgid ""
 "Only mapchunks completely within the mapgen limit are generated.\n"
 "Value is stored per-world."
 msgstr ""
+"Ограничаване на създаваните сетове, във възли,\n"
+"във всички 6 направления от (0, 0, 0). Създават се\n"
+"единствено областите от света, които са изцяло\n"
+"в пределите на ограничението. Стойностите се\n"
+"запазват за всеки свят поотделно."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4793,42 +5001,47 @@ msgid ""
 "-    Downloads performed by main menu (e.g. mod manager).\n"
 "Only has an effect if compiled with cURL."
 msgstr ""
+"Ограничава броя на едновременните заявки по HTTP. Влияе върху:\n"
+"• зареждане на медийни файлове при настроено на remote_media.\n"
+"• зареждане на списъка със сървъри и известия.\n"
+"• изтегляния от главното меню (напр. упревление на модификации).\n"
+"Има значение само ако е компилирано с поддръжка на cURL."
 
 #: src/settings_translation_file.cpp
 msgid "Liquid fluidity"
-msgstr ""
+msgstr "Вискозитет на течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid fluidity smoothing"
-msgstr ""
+msgstr "Изглаждане вискозитета на течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid loop max"
-msgstr ""
+msgstr "Ограничение циклите на течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid queue purge time"
-msgstr ""
+msgstr "Време на изчистване опашката на течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid reflections"
-msgstr ""
+msgstr "Отражения от течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid sinking"
-msgstr ""
+msgstr "Потъване на течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid update interval in seconds."
-msgstr ""
+msgstr "Време на обновяване на течностите, в секунди."
 
 #: src/settings_translation_file.cpp
 msgid "Liquid update tick"
-msgstr ""
+msgstr "Стъпка на обновяване на течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Load the game profiler"
-msgstr ""
+msgstr "Зареждане инструмента за профилиране на играта"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4836,10 +5049,14 @@ msgid ""
 "Provides a /profiler command to access the compiled profile.\n"
 "Useful for mod developers and server operators."
 msgstr ""
+"Зареждане на инструмента за профилиране на играта, за да бъдат събрана "
+"информация.\n"
+"Предоставя команда „/profiler“ за достъп до компилирания профил.\n"
+"Полезно за разработчици на модификации и при управление на сървър."
 
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
-msgstr ""
+msgstr "Модификатори на зареждащия блок (LBM)"
 
 #: src/settings_translation_file.cpp
 msgid "Local command"
@@ -4847,7 +5064,7 @@ msgstr "Местна команда"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
-msgstr ""
+msgstr "Долно ограничение по оста Y на подземията."
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of floatlands."
@@ -4855,34 +5072,38 @@ msgstr "Долно ограничение по оста Y на небеснит�
 
 #: src/settings_translation_file.cpp
 msgid "Main menu script"
-msgstr ""
+msgstr "Скрипт за главното меню"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Make fog and sky colors depend on daytime (dawn/sunset) and view direction."
 msgstr ""
+"Цветовете на мъглата и небето ще зависят от часа̀\n"
+"през деня (изгрев/залез) и посоката на погледа."
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
-msgstr ""
+msgstr "Ниво на компресия на картата на диска"
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Network Transfer"
-msgstr ""
+msgstr "Ниво на компресия на картата през мрежата"
 
 #: src/settings_translation_file.cpp
 msgid "Map directory"
-msgstr ""
+msgstr "Папка на картата"
 
 #: src/settings_translation_file.cpp
 msgid "Map generation attributes specific to Mapgen Carpathian."
-msgstr ""
+msgstr "Настройки, специфични за създаване на светове „Карпати“."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Map generation attributes specific to Mapgen Flat.\n"
 "Occasional lakes and hills can be added to the flat world."
 msgstr ""
+"Настройки, специфични за създаване на светове „Плосък“.\n"
+"Понякога могат да бъдат добавени езера и хълмове към равния свят."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4890,6 +5111,9 @@ msgid ""
 "'terrain' enables the generation of non-fractal terrain:\n"
 "ocean, islands and underground."
 msgstr ""
+"Настройки, специфични за създаване на светове „Фрактал“.\n"
+"„terrain“ дава възможност за създаване на нефрактален релеф:\n"
+"океани, острови и подземия."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4900,10 +5124,17 @@ msgid ""
 "to become shallower and occasionally dry.\n"
 "'altitude_dry': Reduces humidity with altitude."
 msgstr ""
+"Настройки, специфични за създаване на светове „Долини“.\n"
+"„altitude_chill“ – намалява топлината във височина.\n"
+"„humid_rivers“ – величава влажността около реките.\n"
+"„vary_river_depth“ – когато е отметнато, ниската влажност и\n"
+"високите температури водят до намаляване на водата в реките,\n"
+"а понякога до тяхното пресъхване.\n"
+"„altitude_dry“ – намалява влажността във височина."
 
 #: src/settings_translation_file.cpp
 msgid "Map generation attributes specific to Mapgen v5."
-msgstr ""
+msgstr "Настройки, специфични за създаване на светове „v5“."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4914,12 +5145,12 @@ msgid ""
 "The 'temples' flag disables generation of desert temples. Normal dungeons "
 "will appear instead."
 msgstr ""
-"Атрибути за създаване на карти, специфични за Mapgen v6.\n"
+"Настройки, специфични за създаване на светове „“v6.\n"
 "Флагът „snowbiomes“ включва новата система от 5 биома.\n"
 "Когато е отметнат флагът „snowbiomes“ включва джунглите и\n"
 "флагът „jungles“ е пренебрегнат.\n"
-"Флагът „temples“ изключва създаването на пустинни храмове. Вместо тях ше "
-"бъдат създавани обикновени подземия."
+"Флагът „temples“ изключва създаването на пустинни храмове.\n"
+"Вместо тях ще бъдат създавани обикновени подземия."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4928,30 +5159,30 @@ msgid ""
 "'floatlands': Floating land masses in the atmosphere.\n"
 "'caverns': Giant caves deep underground."
 msgstr ""
-"Атрибути за създаване на карти v7.\n"
-"„ridges“: реки.\n"
-"„floatlands“: плуващи в атмосферата земни маси.\n"
-"„caverns“: гигантски пещери дълбоко под земята."
+"Настройки, специфични за създаване на светове „v7“.\n"
+"„ridges“ – реки.\n"
+"„floatlands“ – плуващи в атмосферата земни маси.\n"
+"„caverns“ – гигантски пещери дълбоко под земята."
 
 #: src/settings_translation_file.cpp
 msgid "Map generation limit"
-msgstr ""
+msgstr "Ограничение при създаване на карти"
 
 #: src/settings_translation_file.cpp
 msgid "Map save interval"
-msgstr ""
+msgstr "Интервал на запазване на карата"
 
 #: src/settings_translation_file.cpp
 msgid "Map shadows update frames"
-msgstr ""
+msgstr "Кадри при обновяване сенките на картата"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock limit"
-msgstr ""
+msgstr "Ограничение за блокове от картата"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock mesh generation delay"
-msgstr ""
+msgstr "Забавяне при създаване на мешове на картата"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock mesh generation threads"
@@ -4959,75 +5190,75 @@ msgstr "Брой нишки, създаващи мрежата от блоков
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock unload timeout"
-msgstr ""
+msgstr "Изчакване преди премахване на блокове от паметта"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Carpathian"
-msgstr ""
+msgstr "Светове „Карпати“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Carpathian specific flags"
-msgstr ""
+msgstr "Настройки, специфични за светове„Карпати“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Flat"
-msgstr ""
+msgstr "Светове „Плосък“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Flat specific flags"
-msgstr ""
+msgstr "Настройки, специфични за светове „Плосък“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Fractal"
-msgstr ""
+msgstr "Светове „Фрактал“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Fractal specific flags"
-msgstr ""
+msgstr "Настройки, специфични за светове „Фрактал“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V5"
-msgstr ""
+msgstr "Светове „v5“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V5 specific flags"
-msgstr ""
+msgstr "Настройки, специфични за светове „v5“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V6"
-msgstr ""
+msgstr "Светове „v6“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V6 specific flags"
-msgstr ""
+msgstr "Настройки, специфични за светове „v6“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V7"
-msgstr ""
+msgstr "Светове „v7“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V7 specific flags"
-msgstr ""
+msgstr "Настройки, специфични за светове „v7“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Valleys"
-msgstr ""
+msgstr "Светове „Долини“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Valleys specific flags"
-msgstr ""
+msgstr "Настройки, специфични за светове „Долини“"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen debug"
-msgstr ""
+msgstr "Отстраняване на грешки при създаване на светове"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen name"
-msgstr ""
+msgstr "Вид на света"
 
 #: src/settings_translation_file.cpp
 msgid "Max block generate distance"
-msgstr ""
+msgstr "Макс. разст.за създаване на блокове"
 
 #: src/settings_translation_file.cpp
 msgid "Max block send distance"
@@ -5035,49 +5266,53 @@ msgstr "Макс. разстояние на изпращане на блоков
 
 #: src/settings_translation_file.cpp
 msgid "Max liquids processed per step."
-msgstr ""
+msgstr "Максимално количество течности, обработвани на една стъпка."
 
 #: src/settings_translation_file.cpp
 msgid "Max. clearobjects extra blocks"
-msgstr ""
+msgstr "Огранич. блокове за clearobjects"
 
 #: src/settings_translation_file.cpp
 msgid "Max. packets per iteration"
-msgstr ""
+msgstr "Огранич. пакети на завъртане"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum FPS"
-msgstr ""
+msgstr "Ограничение на кадри/секунда"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum FPS when the window is not focused."
 msgstr ""
+"Ограничение на кадрите в секунда, когато прозорецът\n"
+"на играта не е на фокус."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum distance to render shadows."
-msgstr ""
+msgstr "Ограничение на разстоянието, на което да бъдат показвани сенки."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum forceloaded blocks"
-msgstr ""
+msgstr "Ограничение на зарежданите блокове"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum hotbar width"
-msgstr ""
+msgstr "Ограничение на ширината на лентата с предмети"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum limit of random number of large caves per mapchunk."
-msgstr ""
+msgstr "Горна граница на случайния брой големи пещери на парче от света."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum limit of random number of small caves per mapchunk."
-msgstr ""
+msgstr "Горна граница на случайния брой малки пещери на парче от света."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum liquid resistance. Controls deceleration when entering liquid at\n"
 "high speed."
 msgstr ""
+"Ограничение на съпротивлението на течностите.\n"
+"Управлява забавянето при навлизане в течност с висока скорост."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5085,22 +5320,30 @@ msgid ""
 "The maximum total count is calculated dynamically:\n"
 "max_total = ceil((#clients + max_users) * per_client / 4)"
 msgstr ""
+"Ограничение на броя блокове, изпращани към всеки\n"
+"клиент.\n"
+"Общият пределен брой се определя динамично:\n"
+"max_total = ceil((#clients + max_users) * per_client / 4)"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of blocks that can be queued for loading."
-msgstr ""
+msgstr "Ограничение на броя блокове в опашката за зареждане."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of blocks to be queued that are to be generated.\n"
 "This limit is enforced per player."
 msgstr ""
+"Ограничение на броя блокове в опашката за създаване.\n"
+"Правилото е наложено на всеки играч поотделно."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of blocks to be queued that are to be loaded from file.\n"
 "This limit is enforced per player."
 msgstr ""
+"Ограничение на броя блокове в опашката за зареждане от файл.\n"
+"Правилото е наложено на всеки играч поотделно."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5108,6 +5351,9 @@ msgid ""
 "be queued.\n"
 "This should be lower than curl_parallel_limit."
 msgstr ""
+"Ограничение на броя едновременни изтегляния. Изтеглянията\n"
+"над ограничението ще се редят на опашка.\n"
+"Стойността може да бъде по-малка от „curl_parallel_limit“."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5116,6 +5362,12 @@ msgid ""
 "won't be deleted, depending on the current view range.\n"
 "Set to -1 for no limit."
 msgstr ""
+"Максимален брой блокове от света, които клиентът да\n"
+"поддържа в паметта.\n"
+"Имайте предвид, че има вътрешен динамичен минимален брой\n"
+"на блоковете, които няма да бъдат премахнати, в зависимост от\n"
+"текущия обхват на погледа\n"
+"Задайте -1 за премахване на ограничението."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5124,32 +5376,39 @@ msgid ""
 "You generally don't need to change this, however busy servers may benefit "
 "from a higher number."
 msgstr ""
+"Максимален брой пакети, изпращани при една стъпка в мрежовия код от ниско "
+"ниво.\n"
+"Обикновено няма нужда да променяте, но натоварени сървъри може да се "
+"възползват от по-висока стойност."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of players that can be connected simultaneously."
-msgstr ""
+msgstr "Ограничение на броя едновременно свързани играчи."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of recent chat messages to show"
-msgstr ""
+msgstr "Ограничение на броя съобщения, видими в панела."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of statically stored objects in a block."
-msgstr ""
+msgstr "Ограничение на броя статично пазени обекти в блок от света."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum objects per block"
-msgstr ""
+msgstr "Макс. обекти в блок от света"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum proportion of current window to be used for hotbar.\n"
 "Useful if there's something to be displayed right or left of hotbar."
 msgstr ""
+"Ограничение на съотношението на прозореца, използвано\n"
+"за лентата с предмети. Полезно ако от ляво или от дясно\n"
+"на нея трябва да бъде показано нещо."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum simultaneous block sends per client"
-msgstr ""
+msgstr "Макс. едновр. изпращани блокове на клиент"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum size of the client's outgoing chat queue"
@@ -5160,84 +5419,99 @@ msgid ""
 "Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
+"Ограничение на размера на опашката на изходящите съобщения на клиента.\n"
+"• 0 за изключване на опашката;\n"
+"• -1 за неограничен размер."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum time a file download (e.g. a mod download) may take, stated in "
 "milliseconds."
 msgstr ""
+"Ограничение на времето за изтегляне на файл (напр. модификация), в "
+"милисекунди."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum time an interactive request (e.g. server list fetch) may take, "
 "stated in milliseconds."
 msgstr ""
+"Ограничение на времето на заявка след взаимодействие (напр. получаване "
+"списъка на сървъри), в милисекунди."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
-msgstr ""
+msgstr "Ограничение на броя потребители"
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr "Проби, измерващи време"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
-msgstr ""
+msgstr "Съобщение на деня"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day displayed to players connecting."
-msgstr ""
+msgstr "Съобщение, показвано на играчите при свързване."
 
 #: src/settings_translation_file.cpp
 msgid "Method used to highlight selected object."
-msgstr ""
+msgstr "Методът, използван за открояване на избрания обект."
 
 #: src/settings_translation_file.cpp
 msgid "Minimal level of logging to be written to chat."
 msgstr ""
+"Най-ниското ниво на подробност дневника,\n"
+"показвано в панела за разговори."
 
 #: src/settings_translation_file.cpp
 msgid "Minimap scan height"
-msgstr ""
+msgstr "Височина на сканиране за миникартата"
 
 #: src/settings_translation_file.cpp
 msgid "Minimum dig repetition interval"
-msgstr ""
+msgstr "Мин. интервал за повторение при копаене"
 
 #: src/settings_translation_file.cpp
 msgid "Minimum limit of random number of large caves per mapchunk."
-msgstr ""
+msgstr "Долна граница на случайния брой големи пещери на парче от света."
 
 #: src/settings_translation_file.cpp
 msgid "Minimum limit of random number of small caves per mapchunk."
-msgstr ""
+msgstr "Долна граница на случайния брой малки пещери на парче от света."
 
 #: src/settings_translation_file.cpp
 msgid "Minimum vertex count for mesh buffers"
-msgstr ""
+msgstr "Минимално количество върхове за буфери за меша"
 
 #: src/settings_translation_file.cpp
 msgid "Mipmapping"
-msgstr ""
+msgstr "MIP текстуриране"
 
 #: src/settings_translation_file.cpp
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Разни"
 
 #: src/settings_translation_file.cpp
 msgid "Mod Profiler"
-msgstr ""
+msgstr "Инструмент за профилиране на модификации"
 
 #: src/settings_translation_file.cpp
 msgid "Mod Security"
-msgstr ""
+msgstr "Сигурност на модификации"
 
 #: src/settings_translation_file.cpp
 msgid "Mod channels"
-msgstr ""
+msgstr "Канали на модификации"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Modifier key bind for closing your world.\n"
 "Requires ESC + the selected key to work."
 msgstr ""
+"Клавиш за затваряне на свят.\n"
+"Изисква задържане на ESC + избрания клавиш."
 
 #: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
@@ -5245,31 +5519,31 @@ msgstr "Променя размера на елементите на игров�
 
 #: src/settings_translation_file.cpp
 msgid "Monospace font path"
-msgstr ""
+msgstr "Път към равноширок шрифт"
 
 #: src/settings_translation_file.cpp
 msgid "Monospace font size"
-msgstr ""
+msgstr "Размер на равноширокия шрифт"
 
 #: src/settings_translation_file.cpp
 msgid "Monospace font size divisible by"
-msgstr ""
+msgstr "Размер на равноширокия шрифт, кратност"
 
 #: src/settings_translation_file.cpp
 msgid "Mountain height noise"
-msgstr ""
+msgstr "Шум за височината на планините"
 
 #: src/settings_translation_file.cpp
 msgid "Mountain noise"
-msgstr ""
+msgstr "Шум за планините"
 
 #: src/settings_translation_file.cpp
 msgid "Mountain variation noise"
-msgstr ""
+msgstr "Шум за променливост на планините"
 
 #: src/settings_translation_file.cpp
 msgid "Mountain zero level"
-msgstr ""
+msgstr "Нулево ниво на планините"
 
 #: src/settings_translation_file.cpp
 msgid "Mouse sensitivity"
@@ -5293,7 +5567,7 @@ msgstr "Движение наляво"
 
 #: src/settings_translation_file.cpp
 msgid "Move right"
-msgstr ""
+msgstr "Движение на дясно"
 
 #: src/settings_translation_file.cpp
 msgid "Movement threshold"
@@ -5301,7 +5575,7 @@ msgstr "Праг на придвижване"
 
 #: src/settings_translation_file.cpp
 msgid "Mud noise"
-msgstr ""
+msgstr "Шум за калта"
 
 #: src/settings_translation_file.cpp
 msgid "Mute"
@@ -5309,7 +5583,7 @@ msgstr "Заглушаване"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
-msgstr ""
+msgstr "Без звук"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5318,6 +5592,11 @@ msgid ""
 "Current mapgens in a highly unstable state:\n"
 "-    The optional floatlands of v7 (disabled by default)."
 msgstr ""
+"Вида на света, който да бъде създаден.\n"
+"При създаване на свят от главното меню\n"
+"тази настройка бива пренебрегната.\n"
+"Крайно нестабилни светове:\n"
+"• летящите острови на свят „v7“ (изключени по подразбиране)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5325,17 +5604,24 @@ msgid ""
 "When running a server, a client connecting with this name is admin.\n"
 "When starting from the main menu, this is overridden."
 msgstr ""
+"Име на играча.\n"
+"При пускане на сървър клиента, който се свързва с това име е администратор.\n"
+"Когато играта се пуска от главното меню\n"
+"стойността не се взима предвид."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Name of the server, to be displayed when players join and in the serverlist."
-msgstr ""
+msgstr "Име на сървъра, показвано при вход в игра и в списъка със сървърите."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Network port to listen (UDP).\n"
 "This value will be overridden when starting from the main menu."
 msgstr ""
+"Мрежов порт за слушане (UDP).\n"
+"Когато играта се пуска от главното меню\n"
+"стойността не се взима предвид."
 
 #: src/settings_translation_file.cpp
 msgid "Networking"
@@ -5343,27 +5629,27 @@ msgstr "Мрежа"
 
 #: src/settings_translation_file.cpp
 msgid "New users need to input this password."
-msgstr ""
+msgstr "Новите потребители трябва да въведат паролата си."
 
 #: src/settings_translation_file.cpp
 msgid "Node and Entity Highlighting"
-msgstr "Осветяване на възли и същности"
+msgstr "Открояване на възли и същности"
 
 #: src/settings_translation_file.cpp
 msgid "Node highlighting"
-msgstr ""
+msgstr "Открояване на възли"
 
 #: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
-msgstr ""
+msgstr "Интервал на NodeTimer"
 
 #: src/settings_translation_file.cpp
 msgid "Noises"
-msgstr ""
+msgstr "Шумове"
 
 #: src/settings_translation_file.cpp
 msgid "Number of emerge threads"
-msgstr ""
+msgstr "Брой подготвящи нишки"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5378,6 +5664,16 @@ msgid ""
 "processes, especially in singleplayer and/or when running Lua code in\n"
 "'on_generated'. For many users the optimum setting may be '1'."
 msgstr ""
+"Брой на подготвящите нишки, които да бъдат използвани.\n"
+"• стойност 0 – автоматичен избор. Броят на нишките ще бъде равен\n"
+"на „броя на процесорите - 2“, минимум 1.\n"
+"• всяка друга стойност – брой на нишките, минимум 1.\n"
+"\n"
+"ВНИМАНИЕ: Увеличаване на стойността увеличава бързодействието\n"
+"при създаване на света, но може да навреди на бързодействието на\n"
+"играта като цяло и по-специално в режим на един играч и/или при\n"
+"изпълняване на код на Lua при „on_generated“. За повечето потребители\n"
+"оптималната стойност е 1."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5385,6 +5681,10 @@ msgid ""
 "This is a trade-off between SQLite transaction overhead and\n"
 "memory consumption (4096=100MB, as a rule of thumb)."
 msgstr ""
+"Броя допълнителни блокове, които едновременно могат\n"
+"да бъдат заредени от командата /clearobjects.\n"
+"Компромис между натоварването при трансакции на\n"
+"SQLite и използването на памет (по правило, 4096 = 100 МБ)."
 
 #: src/settings_translation_file.cpp
 msgid "Number of messages a player may send per 10 seconds."
@@ -5392,28 +5692,28 @@ msgstr ""
 "Броя на съобщенията, които играч може да изпрати за период от 10 секунди."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Number of threads to use for mesh generation.\n"
 "Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
-"Брой процесорни нишки, използвани за създаване на мрежа.\n"
-"Стойност 0 (подразбирана) ще остави Luanti автоматично да определи броя "
-"налични нишки."
+"Брой процесорни нишки, използвани за\n"
+"създаване на мешове\n"
+"Стойност 0 (подразбирана) ще остави Luanti\n"
+"автоматично да определи броя налични нишки."
 
 #: src/settings_translation_file.cpp
 msgid "Occlusion Culler"
-msgstr "Метод на изчистване на невидими блокове"
+msgstr "Метод за изчистване на невидими блокове"
 
 #: src/settings_translation_file.cpp
 msgid "Occlusion Culling"
-msgstr "Изчистване на невидими блокове"
+msgstr "Премахване на невидимите блокове"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
-msgstr ""
+msgstr "Прозрачност на сянката на стандартния шрифт, между 0 и 255."
 
 #: src/settings_translation_file.cpp
 msgid "Open chat"
@@ -5429,22 +5729,26 @@ msgid ""
 "formspec is\n"
 "open."
 msgstr ""
+"Отваряне на менюто за спиране на играта когато прозорецът\n"
+"загуби фокус. Не спира играта когато има отворен формуляр."
 
 #: src/settings_translation_file.cpp
 msgid "OpenGL debug"
-msgstr ""
+msgstr "Отстраняване на дефекти в OpenGL"
 
 #: src/settings_translation_file.cpp
 msgid "Optimize GUI for touchscreens"
-msgstr ""
+msgstr "Оптимизиране на интерфейса за сензорен екран"
 
 #: src/settings_translation_file.cpp
 msgid "Optional override for chat weblink color."
 msgstr ""
+"Незадължително определяне цвета\n"
+"на препратките към страници в интернет."
 
 #: src/settings_translation_file.cpp
 msgid "Other Effects"
-msgstr ""
+msgstr "Други ефекти"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5452,62 +5756,73 @@ msgid ""
 "This font will be used for certain languages or if the default font is "
 "unavailable."
 msgstr ""
+"Път към резервен шрифт. Шрифтът трябва да бъде TrueType.\n"
+"Използва се с определени езици или ако стандартният шрифт не е наличен."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Path to save screenshots at. Can be an absolute or relative path.\n"
 "The folder will be created if it doesn't already exist."
 msgstr ""
+"Път, където да бъдат запазвани екранните снимки.\n"
+"Може да бъде пълен или относителен.\n"
+"Ако папката не съществува ще бъде създадена."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Path to shader directory. If no path is defined, default location will be "
 "used."
 msgstr ""
+"Път към папката с шейдерите. Ако не е зададен ще бъде използван стандартния."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Path to the default font. Must be a TrueType font.\n"
 "The fallback font will be used if the font cannot be loaded."
 msgstr ""
+"Път към стандартния шрифт. Шрифтът трябва да бъде TrueType.\n"
+"Използва се резервният шрифт ако този не е наличен."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Path to the monospace font. Must be a TrueType font.\n"
 "This font is used for e.g. the console and profiler screen."
 msgstr ""
+"Път към равноширокия шрифт. Трябва да е TrueType шрифт.\n"
+"Този шрифт се използва например за конзолата и екрана на инструмента за "
+"профилиране."
 
 #: src/settings_translation_file.cpp
 msgid "Pause on lost window focus"
-msgstr ""
+msgstr "Пауза при загуба на фокус"
 
 #: src/settings_translation_file.cpp
 msgid "Per-player limit of queued blocks load from disk"
-msgstr ""
+msgstr "Огранич. опашк. зарежд. от диска блокове, за играч"
 
 #: src/settings_translation_file.cpp
 msgid "Per-player limit of queued blocks to generate"
-msgstr ""
+msgstr "Огранич. опашк. от създавани блокове, за играч"
 
 #: src/settings_translation_file.cpp
 msgid "Physics"
-msgstr ""
+msgstr "Физика"
 
 #: src/settings_translation_file.cpp
 msgid "Place repetition interval"
-msgstr ""
+msgstr "Интервал на повторно поставяне"
 
 #: src/settings_translation_file.cpp
 msgid "Player transfer distance"
-msgstr ""
+msgstr "Разстояние на пренасяне на играча"
 
 #: src/settings_translation_file.cpp
 msgid "Poisson filtering"
-msgstr ""
+msgstr "Филтър на Поасон"
 
 #: src/settings_translation_file.cpp
 msgid "Post Processing"
-msgstr ""
+msgstr "Последваща обработка"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5516,16 +5831,24 @@ msgid ""
 "Enable this when you dig or place too often by accident.\n"
 "On touchscreens, this only affects digging."
 msgstr ""
+"Предотвратява повторно копаене и поставяне при задържане\n"
+"на съответните бутони.\n"
+"Включете ако, когато копаете или поставяте прекалено често\n"
+"по невнимание. При сензорни екрани засяга само копаенето."
 
 #: src/settings_translation_file.cpp
 msgid "Prevent mods from doing insecure things like running shell commands."
 msgstr ""
+"Забраняване на модификациите да извършват опасни действия\n"
+"като изпълняване на команди в обвивката."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Print the engine's profiling data in regular intervals (in seconds).\n"
 "0 = disable. Useful for developers."
 msgstr ""
+"Извеждане на информацията за профилиране на равни интервали (в секунди).\n"
+"0 = изключване. Полезно при разработка."
 
 #: src/settings_translation_file.cpp
 msgid "Privileges that players with basic_privs can grant"
@@ -5533,11 +5856,11 @@ msgstr "Правата, които играчите с „basic_privs“ мог�
 
 #: src/settings_translation_file.cpp
 msgid "Profiler"
-msgstr ""
+msgstr "Инструмент за профилиране"
 
 #: src/settings_translation_file.cpp
 msgid "Prometheus listener address"
-msgstr ""
+msgstr "Адрес, на който слуша Prometheus"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5547,6 +5870,13 @@ msgid ""
 "By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
 "An empty value disables the metrics listener."
 msgstr ""
+"Адрес, на който слуша Prometheus.\n"
+"Ако клиента Luanti е компилиран с поддръжка на Prometheus\n"
+"настройката включва слушателя за метрики на Prometheus\n"
+"на зададения адрес.\n"
+"По подразбиране можете да получавате метрики от\n"
+"http://127.0.0.1:30000/metrics.\n"
+"Празна стойност изключва слушателя за метрики."
 
 #: src/settings_translation_file.cpp
 msgid "Proportion of large caves that contain liquid."
@@ -5558,23 +5888,23 @@ msgstr "Минимално издание на протокола"
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
-msgstr ""
+msgstr "Жест за удър"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: decrement value"
-msgstr ""
+msgstr "QuickTune: намаляване на стойност"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: increment value"
-msgstr ""
+msgstr "QuickTune: увеличаване на стойност"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: select next entry"
-msgstr ""
+msgstr "QuickTune: избиране на следващ запис"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: select previous entry"
-msgstr ""
+msgstr "QuickTune: избиране на предишен запис"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5582,6 +5912,8 @@ msgid ""
 "Values larger than 26 will start to produce sharp cutoffs at cloud area "
 "corners."
 msgstr ""
+"Радиус на облаците, изразен в брой 64 квадратни възли.\n"
+"Стойности по-големи от 26 ще предизвикат изрязване в краищата на облаците."
 
 #: src/settings_translation_file.cpp
 msgid "Radius to use when the block bounds HUD feature is set to near blocks."
@@ -5591,23 +5923,23 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Raises terrain to make valleys around the rivers."
-msgstr ""
+msgstr "Повдига релефа, за да се образуват долини около реките."
 
 #: src/settings_translation_file.cpp
 msgid "Random input"
-msgstr ""
+msgstr "Случаен вход"
 
 #: src/settings_translation_file.cpp
 msgid "Random mod load order"
-msgstr ""
+msgstr "Случаен ред на зареждане на модификациите"
 
 #: src/settings_translation_file.cpp
 msgid "Recent Chat Messages"
-msgstr ""
+msgstr "Последни съобщения"
 
 #: src/settings_translation_file.cpp
 msgid "Regular font path"
-msgstr ""
+msgstr "Път към обикновен шрифт"
 
 #: src/settings_translation_file.cpp
 msgid "Remember screen size"
@@ -5615,21 +5947,23 @@ msgstr "Запазване на размера на екрана"
 
 #: src/settings_translation_file.cpp
 msgid "Remote media"
-msgstr ""
+msgstr "Отдалечен сървър за медия"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Remove color codes from incoming chat messages\n"
 "Use this to stop players from being able to use color in their messages"
 msgstr ""
+"Премахва кодовете за цвят във входящите съобщения.\n"
+"Използвайте, за да спрете цветовете в съобщенията на потребителите."
 
 #: src/settings_translation_file.cpp
 msgid "Replaces the default main menu with a custom one."
-msgstr ""
+msgstr "Заменя главното меню с потребителско."
 
 #: src/settings_translation_file.cpp
 msgid "Report path"
-msgstr ""
+msgstr "Път за запазване на отчети"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5646,8 +5980,9 @@ msgid ""
 msgstr ""
 "Ограничава достъпа до определени възможности от страна на клиента до "
 "сървърите .\n"
-"Комбинирайте побитовите стойности по-долу, за да ограничите възможностите от "
-"страна на клиента, или задайте стойност 0 за да премахнете ограниченията:\n"
+"Комбинирайте побитовите стойности по-долу, за да ограничите възможностите\n"
+"от страна на клиента, или задайте стойност 0 за да премахнете "
+"ограниченията:\n"
 "LOAD_CLIENT_MODS: 1 (изключва зареждането на модификации на клиента)\n"
 "CHAT_MESSAGES: 2 (изключва извикването на send_chat_message от страна на "
 "клиента)\n"
@@ -5661,73 +5996,73 @@ msgstr ""
 "клиента)"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Return to Main Menu"
-msgstr "Главно меню"
+msgstr "Към главното меню"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
-msgstr ""
+msgstr "Шум за разпространение на планинските хребети"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge noise"
-msgstr ""
+msgstr "Шум за хребети"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge underwater noise"
-msgstr ""
+msgstr "Шум за подводни хребети"
 
 #: src/settings_translation_file.cpp
 msgid "Ridged mountain size noise"
-msgstr ""
+msgstr "Шум за размера на планинските хребети"
 
 #: src/settings_translation_file.cpp
 msgid "River channel depth"
-msgstr ""
+msgstr "Дълбочина на речното корито"
 
 #: src/settings_translation_file.cpp
 msgid "River channel width"
-msgstr ""
+msgstr "Ширина на речното корито"
 
 #: src/settings_translation_file.cpp
 msgid "River depth"
-msgstr ""
+msgstr "Дълбочина на реките"
 
 #: src/settings_translation_file.cpp
 msgid "River noise"
-msgstr ""
+msgstr "Шум за реките"
 
 #: src/settings_translation_file.cpp
 msgid "River size"
-msgstr ""
+msgstr "Големина на реките"
 
 #: src/settings_translation_file.cpp
 msgid "River valley width"
-msgstr ""
+msgstr "Ширина на речните долини"
 
 #: src/settings_translation_file.cpp
 msgid "Rollback recording"
-msgstr ""
+msgstr "Записване с цел отменяне"
 
 #: src/settings_translation_file.cpp
 msgid "Rolling hill size noise"
-msgstr ""
+msgstr "Шум за размера на хълмовете"
 
 #: src/settings_translation_file.cpp
 msgid "Rolling hills spread noise"
-msgstr ""
+msgstr "Шум за разпространение на хълмовете"
 
 #: src/settings_translation_file.cpp
 msgid "Safe digging and placing"
-msgstr ""
+msgstr "Единично копаене и поставяне"
 
 #: src/settings_translation_file.cpp
 msgid "Sandy beaches occur when np_beach exceeds this value."
 msgstr ""
+"Пясъчните плажове се появяват, когато np_beach превишава тази стойност."
 
 #: src/settings_translation_file.cpp
 msgid "Save the map received by the client on disk."
-msgstr ""
+msgstr "Запазва картата, получена от клиента на диска."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5737,10 +6072,15 @@ msgid ""
 "is maximized is stored in window_maximized.\n"
 "(Autosaving window_maximized only works if compiled with SDL.)"
 msgstr ""
+"Запазване размера на прозореца при промяна.\n"
+"Когато е отметнато, размерът на прозореца се запазва\n"
+"в параметрите screen_w и screen_h, а дали прозорецът\n"
+"е уголемен – в window_maximized (само ако е компилирано\n"
+"с поддръжка на SDL)."
 
 #: src/settings_translation_file.cpp
 msgid "Saving map received from server"
-msgstr ""
+msgstr "Запазване картата, получена от сървъра"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5750,6 +6090,11 @@ msgid ""
 "pixels when scaling down, at the cost of blurring some\n"
 "edge pixels when images are scaled by non-integer sizes."
 msgstr ""
+"Мащабира интерфейса по зададена стойност.\n"
+"Използва филтър за приблизително сгласяне.\n"
+"Той ще изглади острите ръбове и ще помогне за сливане\n"
+"на пикселите при намаляване, на цената на замъгляване\n"
+"на някои крайни пиксели на изображения, мащабирани с дробен размер."
 
 #: src/settings_translation_file.cpp
 msgid "Screen"
@@ -5757,27 +6102,27 @@ msgstr "Екран"
 
 #: src/settings_translation_file.cpp
 msgid "Screen height"
-msgstr ""
+msgstr "Височина на екрана"
 
 #: src/settings_translation_file.cpp
 msgid "Screen width"
-msgstr ""
+msgstr "Ширина на екрана"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot"
-msgstr "Снимка на екрана"
+msgstr "Екранна снимка"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot folder"
-msgstr ""
+msgstr "Папка за екранните снимки"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot format"
-msgstr ""
+msgstr "Формат на екранните снимки"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot quality"
-msgstr ""
+msgstr "Качество на екранните снимки"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5785,6 +6130,9 @@ msgid ""
 "1 means worst quality; 100 means best quality.\n"
 "Use 0 for default quality."
 msgstr ""
+"Използва се само при формат JPEG.\n"
+"1 – най-ниско качество, 100 – най-високи.\n"
+"Задайте 0 за стандартно качество."
 
 #: src/settings_translation_file.cpp
 msgid "Screenshots"
@@ -5792,19 +6140,23 @@ msgstr "Екранни снимки"
 
 #: src/settings_translation_file.cpp
 msgid "Seabed noise"
-msgstr ""
+msgstr "Шум за морското дъно"
 
 #: src/settings_translation_file.cpp
 msgid "Second of 4 2D noises that together define hill/mountain range height."
 msgstr ""
+"Вторият от четирите двумерни шума, които заедно\n"
+"определят височината на възвишенията и планинските вериги."
 
 #: src/settings_translation_file.cpp
 msgid "Second of two 3D noises that together define tunnels."
 msgstr ""
+"Вторият от двата тримерни шума, които заедно\n"
+"определят тунелите."
 
 #: src/settings_translation_file.cpp
 msgid "See https://www.sqlite.org/pragma.html#pragma_synchronous"
-msgstr ""
+msgstr "Вж. https://www.sqlite.org/pragma.html#pragma_synchronous"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5833,14 +6185,14 @@ msgstr ""
 "\n"
 "• None – без сглсяне (по подразбиране)\n"
 "\n"
-"• FSAA – апаратно пълноекранно сгласяне\n"
+"• FSAA – апаратно сгласяне на цял екран\n"
 "още известно като сгласяне с множество извадки (MSAA)\n"
 "Изглажда ръбовете на блоковете без да променя текстурата.\n"
 "\n"
 "Ако е изключена последващата обработка промяната на FSAA изисква рестарт.\n"
 "Също ако е изключена последващата обработка FSAA няма да работи\n"
-"заедно с намален брой извадки (undersampling) и настройка на „3d_mode“,\n"
-"различна от подразбираната.\n"
+"заедно с намаляване на разделителната способност и настройка\n"
+"на „3d_mode“, различна от подразбираната.\n"
 "\n"
 "• FXAA - бързо приблизително сгласяне на изображението\n"
 "\n"
@@ -5848,22 +6200,22 @@ msgstr ""
 "на контрастни ръбове. Осигурява баланс между скорост и качество\n"
 "на изображението.\n"
 "\n"
-"• SSAA – сгласяне с свръхмного извадки\n"
+"• SSAA – сгласяне със свръхмного извадки\n"
 "Изчертава изображението на сцената с по-висока разделителна способност,\n"
 "след което намалява мащаба, за да бъде намален ефекта от сгласянето.\n"
 "Най-бавният и най-точен метод."
 
 #: src/settings_translation_file.cpp
 msgid "Selection box border color (R,G,B)."
-msgstr ""
+msgstr "Цвят на рамката на избран обект (R,G,B)."
 
 #: src/settings_translation_file.cpp
 msgid "Selection box color"
-msgstr ""
+msgstr "Цвят на рамката за избране"
 
 #: src/settings_translation_file.cpp
 msgid "Selection box width"
-msgstr ""
+msgstr "Дебелина на рамката за избране"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5912,10 +6264,13 @@ msgid ""
 "Send names of online players to the serverlist. If disabled only the player "
 "count is revealed."
 msgstr ""
+"Изпращане на имената на играпите на линия към всички\n"
+"сървъри от списъка със сървърите. Ако е изключено се\n"
+"изпраща само броя на играчите."
 
 #: src/settings_translation_file.cpp
 msgid "Send player names to the server list"
-msgstr ""
+msgstr "Изпращ. имена на играчите към сървърите"
 
 #: src/settings_translation_file.cpp
 msgid "Server"
@@ -5931,7 +6286,7 @@ msgstr "Защита на сървъра"
 
 #: src/settings_translation_file.cpp
 msgid "Server URL"
-msgstr ""
+msgstr "Адрес на сървъра"
 
 #: src/settings_translation_file.cpp
 msgid "Server address"
@@ -5943,14 +6298,17 @@ msgid ""
 "Flags are positive. Uncheck the flag to disable corresponding anticheat "
 "module."
 msgstr ""
+"Настройка на сървъра против измами.\n"
+"Възможностите са положителни. Махнете\n"
+"отметката, за да изключите съответния модул."
 
 #: src/settings_translation_file.cpp
 msgid "Server description"
-msgstr ""
+msgstr "Описание на сървъра"
 
 #: src/settings_translation_file.cpp
 msgid "Server name"
-msgstr ""
+msgstr "Име на сървъра"
 
 #: src/settings_translation_file.cpp
 msgid "Server port"
@@ -5958,7 +6316,7 @@ msgstr "Порт на сървъра"
 
 #: src/settings_translation_file.cpp
 msgid "Server-side occlusion culling"
-msgstr "Изчистване на невидимите блокове от страна на сървъра"
+msgstr "Премахване на невидимите блокове от страна на сървъра"
 
 #: src/settings_translation_file.cpp
 msgid "Server/Env Performance"
@@ -5966,7 +6324,7 @@ msgstr "Производителност на сървъра/обкръжени�
 
 #: src/settings_translation_file.cpp
 msgid "Serverlist URL"
-msgstr ""
+msgstr "Адрес на списъка със сървъри"
 
 #: src/settings_translation_file.cpp
 msgid "Serverlist and MOTD"
@@ -5974,7 +6332,7 @@ msgstr "Списък на сървъри и съобщения на деня"
 
 #: src/settings_translation_file.cpp
 msgid "Serverlist file"
-msgstr ""
+msgstr "Файл за списъка със сървъри"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5982,6 +6340,9 @@ msgid ""
 "Games may change orbit tilt via API.\n"
 "Value of 0 means no tilt / vertical orbit."
 msgstr ""
+"Задава стандартния наклон на орбитата на Слънцето и Луната\n"
+"в градуси. Игрите могат да променят този наклон посредством ППИ.\n"
+"Стойност 0 означава отсъатвие на наклон / вертикална орбита."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5998,6 +6359,8 @@ msgid ""
 "Set the language. By default, the system language is used.\n"
 "A restart is required after changing this."
 msgstr ""
+"Задава езика. По подразбиране се използва системния език.\n"
+"Изисква рестарт."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6010,6 +6373,10 @@ msgid ""
 "Adjusts the intensity of in-game dynamic shadows.\n"
 "Lower value means lighter shadows, higher value means darker shadows."
 msgstr ""
+"Задава сила на гамата на сенките.\n"
+"Променя наситеността на динамичните\n"
+"сенки в играта. Ниските стойности задават\n"
+"по-светли сенки, високите – по-тъмни."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6017,10 +6384,14 @@ msgid ""
 "Lower values mean sharper shadows, bigger values mean softer shadows.\n"
 "Minimum value: 1.0; maximum value: 15.0"
 msgstr ""
+"Задава радиуса на меката сянка.\n"
+"Малките стойности означават по-резки сенки,\n"
+"а големите по-меки.\n"
+"Долна граница: 1.0; горна граница: 15.0"
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable Shadow Mapping."
-msgstr ""
+msgstr "Включва карта на сенките."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6038,15 +6409,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable waving leaves."
-msgstr ""
+msgstr "Отметнете, за да включите поклащането на листата."
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable waving liquids (like water)."
-msgstr ""
+msgstr "Включва вълни на течностите (напр. вода)."
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable waving plants."
-msgstr ""
+msgstr "Включва поклащане на растенията."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6069,32 +6440,37 @@ msgid ""
 "On false, 16 bits texture will be used.\n"
 "This can cause much more artifacts in the shadow."
 msgstr ""
+"Задава качество на текстурите на 32 бита.\n"
+"В противен случай ще бъдат използвани 16 битови.\n"
+"Може да предизвика много повече артефакти в сенките."
 
 #: src/settings_translation_file.cpp
 msgid "Shader path"
-msgstr ""
+msgstr "Път към шейдерите"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow filter quality"
-msgstr ""
+msgstr "Качество на филтриране на сенките"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map max distance in nodes to render shadows"
-msgstr ""
+msgstr "Ограничение на разстоянието на картата на сенките, във възли"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map texture in 32 bits"
-msgstr ""
+msgstr "Текстура на картата на сенките в 32 бита"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map texture size"
-msgstr ""
+msgstr "Размер на текстура на картата на сенките"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Shadow offset (in pixels) of the default font. If 0, then shadow will not be "
 "drawn."
 msgstr ""
+"Отстъп на сянката на стандартния шрифт, в пиксели.\n"
+"Задайте стойност 0, за да изключите сянката."
 
 #: src/settings_translation_file.cpp
 msgid "Shadow strength gamma"
@@ -6106,21 +6482,23 @@ msgstr "Показване на сведения за отстраняване �
 
 #: src/settings_translation_file.cpp
 msgid "Show entity selection boxes"
-msgstr ""
+msgstr "Рамки при избиране на обект"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Show entity selection boxes\n"
 "A restart is required after changing this."
 msgstr ""
+"Показва рамка около избирания обект.\n"
+"Изисква рестарт."
 
 #: src/settings_translation_file.cpp
 msgid "Show name tag backgrounds by default"
-msgstr ""
+msgstr "Фон на имената"
 
 #: src/settings_translation_file.cpp
 msgid "Shutdown message"
-msgstr ""
+msgstr "Съобщение при изключване"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6130,10 +6508,17 @@ msgid ""
 "draw calls, benefiting especially high-end GPUs.\n"
 "Systems with a low-end GPU (or no GPU) would benefit from smaller values."
 msgstr ""
+"Дължина на страните на куба от блокове от света, които клиентът\n"
+"ще приеме че са заедно при създаването на мешове.\n"
+"По-големите стойности увеличават използването на графични карти,\n"
+"като намаляват броя на заявките за изчертаване, което е от полза особено\n"
+"за производителни графични карти. Системите със слабопроизводителни "
+"графични\n"
+"карти (или без графични карти) биха имали предимство от по-малки стойности."
 
 #: src/settings_translation_file.cpp
 msgid "Simulate translucency when looking at foliage in the sunlight."
-msgstr ""
+msgstr "Имитира прозрачност при поглед през листата в слънчев сноп."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6144,45 +6529,45 @@ msgid ""
 "Altering this value is for special usage, leaving it unchanged is\n"
 "recommended."
 msgstr ""
-"Размер на генерираните парчета от картата, посочен в блокове от карта (16 "
-"възела).\n"
-"ВНИМАНИЕ: Няма полза от увеличаване на стойността над 5, но има странични "
-"ефекти.\n"
-"Намаляването на стойността увеличава гъстотата на пещерите и подземията.\n"
-"Промяната на тази стойност е за специална употреба, а оставянето ѝ "
-"непроменена се препоръчва."
+"Размер на създаваните парчета от света,\n"
+"посочен в блокове от света (16 възела).\n"
+"ВНИМАНИЕ: Няма полза от увеличаване на стойността над 5,\n"
+"но има странични ефекти. Намаляването на стойността\n"
+"увеличава гъстотата на пещерите и подземията.\n"
+"Промяната на тази стойност е за специална употреба,\n"
+"а оставянето ѝ непроменена се препоръчва."
 
 #: src/settings_translation_file.cpp
 msgid "Sky Body Orbit Tilt"
-msgstr ""
+msgstr "Наклон на орбитата на небесните тела"
 
 #: src/settings_translation_file.cpp
 msgid "Slice w"
-msgstr ""
+msgstr "Разрез W"
 
 #: src/settings_translation_file.cpp
 msgid "Slope and fill work together to modify the heights."
-msgstr ""
+msgstr "Склона и запълването работят заедно за промяна на височините."
 
 #: src/settings_translation_file.cpp
 msgid "Small cave maximum number"
-msgstr ""
+msgstr "Горна граница на броя малки пещери"
 
 #: src/settings_translation_file.cpp
 msgid "Small cave minimum number"
-msgstr ""
+msgstr "Долна граница на броя малки пещери"
 
 #: src/settings_translation_file.cpp
 msgid "Small-scale humidity variation for blending biomes on borders."
-msgstr ""
+msgstr "Малки промени във влажността на границите на биомите."
 
 #: src/settings_translation_file.cpp
 msgid "Small-scale temperature variation for blending biomes on borders."
-msgstr ""
+msgstr "Малки промени в температурата на границите на биомите."
 
 #: src/settings_translation_file.cpp
 msgid "Smooth lighting"
-msgstr ""
+msgstr "Меко осветление"
 
 #: src/settings_translation_file.cpp
 msgid "Smooth scrolling"
@@ -6193,20 +6578,25 @@ msgid ""
 "Smooths rotation of camera when in cinematic mode, 0 to disable. Enter "
 "cinematic mode by using the key set in Controls."
 msgstr ""
+"Плавно движение на камерата в кинематографичен режим.\n"
+"Влезте в този режим, чрез клавишната комбинация в настройките.\n"
+"Задайте стойност 0, за да изключите."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Smooths rotation of camera, also called look or mouse smoothing. 0 to "
 "disable."
 msgstr ""
+"Плавно движение на камерата, известно още като плавно движение на мишката.\n"
+"Задайте стойност 0, за да изключите."
 
 #: src/settings_translation_file.cpp
 msgid "Sneaking speed"
-msgstr ""
+msgstr "Скорост на промъкване"
 
 #: src/settings_translation_file.cpp
 msgid "Sneaking speed, in nodes per second."
-msgstr ""
+msgstr "Скорост на ходенето при промъкване, във възли/секунда."
 
 #: src/settings_translation_file.cpp
 msgid "Soft clouds"
@@ -6214,7 +6604,7 @@ msgstr "Меки облаци"
 
 #: src/settings_translation_file.cpp
 msgid "Soft shadow radius"
-msgstr ""
+msgstr "Радиус на меката сянка"
 
 #: src/settings_translation_file.cpp
 msgid "Sound"
@@ -6222,7 +6612,7 @@ msgstr "Звук"
 
 #: src/settings_translation_file.cpp
 msgid "Sound Extensions Blacklist"
-msgstr ""
+msgstr "Забран. списък на разширения за звука"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6231,6 +6621,10 @@ msgid ""
 "(obviously, remote_media should end with a slash).\n"
 "Files that are not present will be fetched the usual way."
 msgstr ""
+"Указва адреса, от който клиентът изтегля медия, вместо да използва\n"
+"протокол UDP. $filename трябва да е достъпен от $remote_media$filename\n"
+"чрез cURL (разбира се, remote_media трябва да завършва с наклонена черта).\n"
+"Файловете, които не са налични, ще бъдат изтеглени по обичайния начин."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6238,6 +6632,9 @@ msgid ""
 "Note that mods or games may explicitly set a stack for certain (or all) "
 "items."
 msgstr ""
+"Указва стандартния размер на стека за възли, предмети и инструменти.\n"
+"Имайте предвид, че модификациите или игрите могат изрично да зададат\n"
+"стек за определени (или всички) предмети."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6245,6 +6642,9 @@ msgid ""
 "Higher values might make shadows laggy, lower values\n"
 "will consume more resources."
 msgstr ""
+"Разпределя обновяването на карта на сенките в зададения брой кадри.\n"
+"Много големите стойности могат да направят сенките насечени,\n"
+"докато много малките използват повече ресурси."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6252,6 +6652,9 @@ msgid ""
 "Controls the width of the range to be boosted.\n"
 "Standard deviation of the light curve boost Gaussian."
 msgstr ""
+"Диапазон на увеличаване на кривата на светлината.\n"
+"Управлява ширината на диапазона на увеличаване.\n"
+"Стандартно отклонение на увеличението по Гаус."
 
 #: src/settings_translation_file.cpp
 msgid "Static spawn point"
@@ -6259,19 +6662,19 @@ msgstr "Постоянна точка на прераждане"
 
 #: src/settings_translation_file.cpp
 msgid "Steepness noise"
-msgstr ""
+msgstr "Шум на стръмността"
 
 #: src/settings_translation_file.cpp
 msgid "Step mountain size noise"
-msgstr ""
+msgstr "Шум на размера на степните планини"
 
 #: src/settings_translation_file.cpp
 msgid "Step mountain spread noise"
-msgstr ""
+msgstr "Шум на разпростр. на степните планини"
 
 #: src/settings_translation_file.cpp
 msgid "Strength of 3D mode parallax."
-msgstr ""
+msgstr "Сила на паралакса в триизмерен режим."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6279,14 +6682,17 @@ msgid ""
 "The 3 'boost' parameters define a range of the light\n"
 "curve that is boosted in brightness."
 msgstr ""
+"Сила на увеличаване на кривата на светлината.\n"
+"Трите параметъра „усилване“ определят диапазона\n"
+"на увеличаване на кривата чрез подсилване на яркостта."
 
 #: src/settings_translation_file.cpp
 msgid "Strict protocol checking"
-msgstr ""
+msgstr "Строга проверка на протокола"
 
 #: src/settings_translation_file.cpp
 msgid "Strip color codes"
-msgstr ""
+msgstr "Изрязване на кодовете за цветове"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6316,31 +6722,31 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Synchronous SQLite"
-msgstr ""
+msgstr "Синхронно SQLite"
 
 #: src/settings_translation_file.cpp
 msgid "Temperature variation for biomes."
-msgstr ""
+msgstr "Вариране на температурата между различните биоми."
 
 #: src/settings_translation_file.cpp
 msgid "Terrain alternative noise"
-msgstr ""
+msgstr "Алтернативен шум за релефа"
 
 #: src/settings_translation_file.cpp
 msgid "Terrain base noise"
-msgstr ""
+msgstr "Основен шум за релефа"
 
 #: src/settings_translation_file.cpp
 msgid "Terrain height"
-msgstr ""
+msgstr "Височина на релефа"
 
 #: src/settings_translation_file.cpp
 msgid "Terrain higher noise"
-msgstr ""
+msgstr "Шум за високия релеф"
 
 #: src/settings_translation_file.cpp
 msgid "Terrain noise"
-msgstr ""
+msgstr "Шум за релефа"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6348,6 +6754,9 @@ msgid ""
 "Controls proportion of world area covered by hills.\n"
 "Adjust towards 0.0 for a larger proportion."
 msgstr ""
+"Праг на шум на релефа за хълмове.\n"
+"Управлява съотношението на покритието на света с хълмове.\n"
+"Променяйте към 0.0 за увеличаване на съотношението."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6355,10 +6764,13 @@ msgid ""
 "Controls proportion of world area covered by lakes.\n"
 "Adjust towards 0.0 for a larger proportion."
 msgstr ""
+"Праг на шум на релефа за езера.\n"
+"Управлява съотношението на покритието на света с езера.\n"
+"Променяйте към 0.0 за увеличаване на съотношението."
 
 #: src/settings_translation_file.cpp
 msgid "Terrain persistence noise"
-msgstr ""
+msgstr "Шум за постоянството на терена"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6366,6 +6778,9 @@ msgid ""
 "This must be a power of two.\n"
 "Bigger numbers create better shadows but it is also more expensive."
 msgstr ""
+"Размер на текстурата, върху която се изчертава\n"
+"картата на сенките. Трябва да бъде число, кратно на две.\n"
+"Големите числа създават по-добри сенки, но използват повече ресурси."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6388,28 +6803,34 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "The URL for the content repository"
-msgstr ""
+msgstr "Адрес, на хранилището за съдържание"
 
 #: src/settings_translation_file.cpp
 msgid "The dead zone of the joystick"
-msgstr ""
+msgstr "Мъртва зона на контролера"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
 msgstr ""
+"Подразбираният формат, в който профилите се запазват,\n"
+"при изпълняване на `/profile save [format]` без зададен формат."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The delay in milliseconds after which a touch interaction is considered a "
 "long tap."
 msgstr ""
+"Интервал, след който докосването се счита за продължително докосване, в "
+"милисекунди."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The file path relative to your world path in which profiles will be saved to."
 msgstr ""
+"Относителен път към папка, спрямо папката на света, в който да бъдат "
+"запазвани профилите."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6423,10 +6844,20 @@ msgid ""
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
+"Жестът на удар по играч или обект.\n"
+"Може да бъде презаписан от игра или модификация.\n"
+"\n"
+"* Кратко докосване\n"
+"Лесно за използване и добре познато от други игри, чието име не трябва да "
+"бъде изричано.\n"
+"\n"
+"* Продължително докосване\n"
+"Познато от класическото управление на Luanti за мобилно устройство.\n"
+"Да бъде водена битка е почти невъзможно."
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
-msgstr ""
+msgstr "Идентификатор на използвания контролер"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6444,11 +6875,26 @@ msgid ""
 "Use dedicated dig/place buttons to interact.\n"
 "Interaction happens at crosshair position."
 msgstr ""
+"Вида на управлението на копаене / поставяне.\n"
+"\n"
+"• Докосване\n"
+"Продължително / кратко докосване някъде по екрана.\n"
+"Действието се извършва на мястото на докосването.\n"
+"\n"
+"• Докосване с мерник\n"
+"Продължително / кратко докосване някъде по екрана.\n"
+"Действието се извършва на мястото на мерника.\n"
+"\n"
+"• Бутони с мерник\n"
+"За копаене / поставяне се използват определени бутони.\n"
+"Действието се извършва на мястото на мерника."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The length in pixels after which a touch interaction is considered movement."
 msgstr ""
+"Дължината, след която сензорното взаимодействие се счита за движение, в "
+"пиксели."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6457,16 +6903,22 @@ msgid ""
 "0.0 = Wave doesn't move at all.\n"
 "Default is 1.0 (1/2 node)."
 msgstr ""
+"Ограничение на височината на повърхността на вълните на течностите.\n"
+"• 4.0 – височината на вълната е два възела.\n"
+"• 0.0 – вълната не се движи.\n"
+"Подразбирана стойност 1.0 (½ възел)."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The minimum time in seconds it takes between digging nodes when holding\n"
 "the dig button."
 msgstr ""
+"Минималното време между изкопаване на два възела\n"
+"при задържан бутон за копаене, в секунди."
 
 #: src/settings_translation_file.cpp
 msgid "The network interface that the server listens on."
-msgstr ""
+msgstr "Мрежов интерфейс, на който слуша сървъра."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6487,7 +6939,7 @@ msgid ""
 "This should be configured together with active_object_send_range_blocks."
 msgstr ""
 "Радиусът на обема от блокове около всеки играч, който е обект на\n"
-"свързаните с активни блокове действия, посочен в блокове на картата (16 "
+"свързаните с активни блокове действия, посочен в блокове от света (16 "
 "възела).\n"
 "В активните блокове се зареждат обекти и се изпълняват ABM.\n"
 "Това е и минималният обхват, в който се поддържат активни обекти (зверове).\n"
@@ -6499,12 +6951,18 @@ msgid ""
 "Note: A restart is required after changing this!\n"
 "OpenGL is the default for desktop, and OGLES2 for Android."
 msgstr ""
+"Сървърна част на изчертаването.\n"
+"Стандартно за настолни компютри се използва\n"
+"OpenGL, а за Андроид - OGLES2.\n"
+"Изисква рестарт."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The sensitivity of the joystick axes for moving the\n"
 "in-game view frustum around."
 msgstr ""
+"Чувствителност на осите на контролера при\n"
+"преместване на погледа в играта."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6513,6 +6971,9 @@ msgid ""
 "setting is 0.25 to 4.0 inclusive. If the value is out of range it will be\n"
 "set to the nearest valid value."
 msgstr ""
+"Сила на сянката при изчезване в далечина. Ниските стойности\n"
+"създават тъмна, а високите - светла.\n"
+"Долна граница: 0.25, горна – 4.0."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6520,6 +6981,11 @@ msgid ""
 "capacity until an attempt is made to decrease its size by dumping old queue\n"
 "items.  A value of 0 disables the functionality."
 msgstr ""
+"Времето, за което опашката за течности може да расте над възможностите\n"
+"за обработка, докато не бъде направен опит за намаляването ѝ чрез "
+"премахване\n"
+"на най-старите елементи, в секунди.\n"
+"Задайте стойност 0, за да изключите."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6534,16 +7000,20 @@ msgid ""
 "The time in seconds it takes between repeated events\n"
 "when holding down a joystick button combination."
 msgstr ""
+"Време между повтарящи се събития, при задържане\n"
+"на клавишна комбинация на контролера, в секунди."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The time in seconds it takes between repeated node placements when holding\n"
 "the place button."
 msgstr ""
+"Време между повтарящо се поставяне на възли, при задържане\n"
+"на бутона за поставяне, в секунди."
 
 #: src/settings_translation_file.cpp
 msgid "The type of joystick"
-msgstr ""
+msgstr "Вид на контролера"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6551,28 +7021,36 @@ msgid ""
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
 "'altitude_dry' is enabled."
 msgstr ""
+"Вертикалното разстояние, на което температурата пада с 20\n"
+"ако настройката „altitude_chill“ е включена. А също, вертикалното\n"
+"разстояние, на което влажността пада с 20 ако настройката\n"
+"„altitude_dry“ е включена."
 
 #: src/settings_translation_file.cpp
 msgid "Third of 4 2D noises that together define hill/mountain range height."
 msgstr ""
+"Третият от четирите двумерни шума, които заедно\n"
+"определят височината на възвишенията и планинските вериги."
 
 #: src/settings_translation_file.cpp
 msgid "Threshold for long taps"
-msgstr ""
+msgstr "Праг на продължително докосване"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Time in seconds for item entity (dropped items) to live.\n"
 "Setting it to -1 disables the feature."
 msgstr ""
+"Време на съществуване на хвърлените предмети, в секунди.\n"
+"Задайте -1 за премахване на ограничението."
 
 #: src/settings_translation_file.cpp
 msgid "Time of day when a new world is started, in millihours (0-23999)."
-msgstr ""
+msgstr "Час от деня, в който да започва новия свят, в миличасове (0 - 23999)."
 
 #: src/settings_translation_file.cpp
 msgid "Time speed"
-msgstr ""
+msgstr "Ход на времето"
 
 #: src/settings_translation_file.cpp
 msgid "Timeout for client to remove unused map data from memory, in seconds."
@@ -6587,6 +7065,9 @@ msgid ""
 "This determines how long they are slowed down after placing or removing a "
 "node."
 msgstr ""
+"За намаляване на забавянето, докато играчът строи\n"
+"предаването на блокове от света е забавено. Тази настройка\n"
+"определя това забавяне след поставяне или премахване на възел."
 
 #: src/settings_translation_file.cpp
 msgid "Toggle Aux1 key"
@@ -6602,7 +7083,7 @@ msgstr "Превкл. клавиш промъкване"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle automatic forward"
-msgstr "Превкл. автоматично движение напред"
+msgstr "Превкл. автом. движение напред"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle block bounds"
@@ -6614,7 +7095,7 @@ msgstr "Превкл. режима на камерата"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle camera update"
-msgstr ""
+msgstr "Превкл. обновяване на камерата"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle cinematic mode"
@@ -6633,9 +7114,8 @@ msgid "Toggle fullscreen"
 msgstr "Превкл. цял екран"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle large chat console"
-msgstr "Превкл. разговори"
+msgstr "Превкл. голямо поле за разговори"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
@@ -6646,19 +7126,20 @@ msgid "Toggle profiler"
 msgstr "Превкл. профилиране"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
-msgstr "Клавиш за превключване неограничен обхват на видимост."
+msgstr "Превкл. неогр. обхват на видимост"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Tolerance of movement cheat detector.\n"
 "Increase the value if players experience stuttery movement."
 msgstr ""
+"Установяване на измами посредством начина на движение.\n"
+"Увеличете стойността ако играчите имат накъсани движения."
 
 #: src/settings_translation_file.cpp
 msgid "Tooltip delay"
-msgstr ""
+msgstr "Забавяне на подказката"
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen"
@@ -6678,15 +7159,15 @@ msgstr "Множител на чувствителността на сензор
 
 #: src/settings_translation_file.cpp
 msgid "Tradeoffs for performance"
-msgstr ""
+msgstr "Компромиси в производителността"
 
 #: src/settings_translation_file.cpp
 msgid "Translucent foliage"
-msgstr ""
+msgstr "Прозрачна листна маса"
 
 #: src/settings_translation_file.cpp
 msgid "Translucent liquids"
-msgstr ""
+msgstr "Прозрачни течности"
 
 #: src/settings_translation_file.cpp
 msgid "Transparency Sorting Distance"
@@ -6698,11 +7179,11 @@ msgstr "Сортиране на прозрачността, групиране �
 
 #: src/settings_translation_file.cpp
 msgid "Trees noise"
-msgstr ""
+msgstr "Шум за дърветата"
 
 #: src/settings_translation_file.cpp
 msgid "Trilinear filtering"
-msgstr ""
+msgstr "Триредово филтриране"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6710,10 +7191,14 @@ msgid ""
 "False = 128\n"
 "Usable to make minimap smoother on slower machines."
 msgstr ""
+"Включено – 256\n"
+"Изключено – 128\n"
+"Полезно за създаване на плавна миникарта на\n"
+"слабопроизводителни устройства."
 
 #: src/settings_translation_file.cpp
 msgid "Trusted mods"
-msgstr ""
+msgstr "Доверени модификации"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6724,6 +7209,13 @@ msgid ""
 "\n"
 "This setting should only be changed if you have performance problems."
 msgstr ""
+"Методи за изчистване на невидими блокове\n"
+"\n"
+"• loops – стар алгоритъм с вложени цикли и сложност O(n³);\n"
+"• bfs – нов алгоритъм на основата на търсене в ширина и изчистване на "
+"гранични блокове.\n"
+"\n"
+"Настройката трябва да бъде променяна само при проблеми с производителността."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6731,6 +7223,8 @@ msgid ""
 "release.\n"
 "If this is empty the engine will never check for updates."
 msgstr ""
+"Адрес към JSON, който съдържа информация за последното издание на Luanti.\n"
+"Ако стойността е празна проверка за обновяване няма да бъде извършвана."
 
 #: src/settings_translation_file.cpp
 msgid "URL to the server list displayed in the Multiplayer Tab."
@@ -6738,7 +7232,7 @@ msgstr "Адрес, съдържащ избраните сървъри, пока
 
 #: src/settings_translation_file.cpp
 msgid "Undersampling"
-msgstr ""
+msgstr "Намаляване на разделителната способност"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6752,48 +7246,55 @@ msgid ""
 "to a non-default value."
 msgstr ""
 "Намаляването на дискретизацията е подобно на използването на по-ниска "
-"разделителна способност на екрана, но се прилага\n"
-"само за света, докато интерфейсът остава не променен.\n"
-"Би трябвало да доведе до значително повишаване на производителността за "
-"сметка на по-малко детайлна картина.\n"
-"По-високите стойности водят до по-голяма загуба на детайли на картината.\n"
+"разделителна\n"
+"способност на екрана, но се прилага само за света, но не влияе на "
+"интерфейса. Би трябвало\n"
+"да доведе до значително повишаване на производителността за сметка на по-"
+"малко детайлна\n"
+"картина. По-високите стойности водят до по-голяма загуба на детайли на "
+"картината.\n"
 "Забележка: Понастоящем не се поддържа намаляване на дискретизацията, ако е "
-"зададена настройката „3d_mode“. на стойност, различна от тази по "
-"подразбиране."
+"зададена\n"
+"настройката „3d_mode“. на стойност, различна от тази по подразбиране."
 
 #: src/settings_translation_file.cpp
 msgid "Unlimited player transfer distance"
-msgstr ""
+msgstr "Неограничено разстояние на пренасяне на играча"
 
 #: src/settings_translation_file.cpp
 msgid "Unload unused server data"
-msgstr ""
+msgstr "Изчистване неизползвани данни от сървъра"
 
 #: src/settings_translation_file.cpp
 msgid "Update information URL"
-msgstr ""
+msgstr "Адрес с информация за обновяване"
 
 #: src/settings_translation_file.cpp
 msgid "Upper Y limit of dungeons."
-msgstr ""
+msgstr "Горно ограничение по оста Y на подземията."
 
 #: src/settings_translation_file.cpp
 msgid "Upper Y limit of floatlands."
-msgstr ""
+msgstr "Горно ограничение по оста Y на небесните острови."
 
 #: src/settings_translation_file.cpp
 msgid "Use a cloud animation for the main menu background."
-msgstr ""
+msgstr "Анимиране на облаците във фона на главното меню."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Use anisotropic filtering when looking at textures from an angle.\n"
 "This provides a significant improvement when used together with mipmapping."
 msgstr ""
+"Използване на анизотропно филтриране при гледане\n"
+"на текстурите под ъгъл. Създава значително подобрение,\n"
+"при съчетаване с MIP текстуриране."
 
 #: src/settings_translation_file.cpp
 msgid "Use bilinear filtering when scaling textures."
 msgstr ""
+"Използване на двуредово филтриране при\n"
+"мащабиране на текстурите."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6801,6 +7302,9 @@ msgid ""
 "especially when using a high-resolution texture pack.\n"
 "Gamma-correct downscaling is not supported."
 msgstr ""
+"Използване на MIP текстуриране при мащабиране на текстурите. Може леко\n"
+"да повиши производителността, особено при използване на текстури с висока\n"
+"разделителна способност. Не се поддържа корекция на гамата при намаляване."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6808,10 +7312,14 @@ msgid ""
 "This flag enables use of raytraced occlusion culling test for\n"
 "client mesh sizes smaller than 4x4x4 map blocks."
 msgstr ""
+"Лъчево премахване на невидимите блокове.\n"
+"Флагът включва проверка за използването на лъчевото премахване\n"
+"на невидими блокове за клиентски мешове по-малки от 4х4х4\n"
+"блокове от картата."
 
 #: src/settings_translation_file.cpp
 msgid "Use smooth cloud shading."
-msgstr ""
+msgstr "Използване на плавна сянка за облаците."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6819,6 +7327,9 @@ msgid ""
 "If both bilinear and trilinear filtering are enabled, trilinear filtering\n"
 "is applied."
 msgstr ""
+"Използване на триредово филтриране при мащабиране\n"
+"на текстурите. Ако дву- и триредовото филтриране\n"
+"са включени се използва триредовото."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6826,6 +7337,9 @@ msgid ""
 "If enabled, virtual joystick will also tap \"Aux1\" button when out of main "
 "circle."
 msgstr ""
+"Използвайте виртуален контролер за използване на бутон „Aux1“.\n"
+"Когато е отметнато виртуалният контролер може да натиска бутон „Aux1“, "
+"когато се намира извън основния кръг."
 
 #: src/settings_translation_file.cpp
 msgid "User Interfaces"
@@ -6833,103 +7347,112 @@ msgstr "Интерфейси"
 
 #: src/settings_translation_file.cpp
 msgid "VSync"
-msgstr ""
+msgstr "Вертикално синхронизиране (VSync)"
 
 #: src/settings_translation_file.cpp
 msgid "Valley depth"
-msgstr ""
+msgstr "Дълбочина на долините"
 
 #: src/settings_translation_file.cpp
 msgid "Valley fill"
-msgstr ""
+msgstr "Запълване на долините"
 
 #: src/settings_translation_file.cpp
 msgid "Valley profile"
-msgstr ""
+msgstr "Профил на долините"
 
 #: src/settings_translation_file.cpp
 msgid "Valley slope"
-msgstr ""
+msgstr "Склон на долините"
 
 #: src/settings_translation_file.cpp
 msgid "Variation of biome filler depth."
-msgstr ""
+msgstr "Колебание на дълбочината на запълване на различните биоми."
 
 #: src/settings_translation_file.cpp
 msgid "Variation of maximum mountain height (in nodes)."
-msgstr ""
+msgstr "Променливост на ограничението на височината на планините, във възли."
 
 #: src/settings_translation_file.cpp
 msgid "Variation of number of caves."
-msgstr ""
+msgstr "Променливост на броя пещери."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Variation of terrain vertical scale.\n"
 "When noise is < -0.55 terrain is near-flat."
 msgstr ""
+"Променливост на вертикалния профил на релефа.\n"
+"При шум < -0.55 теренът е почти равен."
 
 #: src/settings_translation_file.cpp
 msgid "Varies depth of biome surface nodes."
-msgstr ""
+msgstr "Променливост на дълбочината на повърхностните възли на биома."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Varies roughness of terrain.\n"
 "Defines the 'persistence' value for terrain_base and terrain_alt noises."
 msgstr ""
+"Променливост на неравностите на релефа.\n"
+"Задава стойността „persistence“ на шумовете на „terrain_base“ и "
+"„terrain_alt“."
 
 #: src/settings_translation_file.cpp
 msgid "Varies steepness of cliffs."
-msgstr ""
+msgstr "Променливост на стръмността на скалите."
 
 #: src/settings_translation_file.cpp
 msgid "Vertical climbing speed, in nodes per second."
-msgstr ""
+msgstr "Скорост на катерене, във възли/секунда."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Vertical screen synchronization. Your system may still force VSync on even "
 "if this is disabled."
 msgstr ""
+"Вертикална синхронизация. Системата може\n"
+"да принуди VSync даже и да е изключена тук."
 
 #: src/settings_translation_file.cpp
 msgid "Video driver"
-msgstr ""
+msgstr "Управляващ софтуер за видео"
 
 #: src/settings_translation_file.cpp
 msgid "View bobbing factor"
-msgstr ""
+msgstr "Коефициент на поклащане"
 
 #: src/settings_translation_file.cpp
 msgid "View distance in nodes."
-msgstr ""
+msgstr "Далечина на погледа, във възли."
 
 #: src/settings_translation_file.cpp
 msgid "Viewing range"
-msgstr ""
+msgstr "Ъгъл на видимост"
 
 #: src/settings_translation_file.cpp
 msgid "Virtual joystick triggers Aux1 button"
-msgstr ""
+msgstr "Виртуалният контролер натиска бутон „Aux1“"
 
 #: src/settings_translation_file.cpp
 msgid "Volume"
-msgstr ""
+msgstr "Сила на звука"
 
 #: src/settings_translation_file.cpp
 msgid "Volume multiplier when the window is unfocused."
-msgstr ""
+msgstr "Множител на звука, когато прозорецът загуби фокус."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Volume of all sounds.\n"
 "Requires the sound system to be enabled."
 msgstr ""
+"Сила на всички звуци.\n"
+"Изисква включена звукова система."
 
 #: src/settings_translation_file.cpp
 msgid "Volume when unfocused"
-msgstr ""
+msgstr "Сила на звука при загуба на фокус"
 
 #: src/settings_translation_file.cpp
 msgid "Volumetric lighting"
@@ -6943,68 +7466,78 @@ msgid ""
 "Has no effect on 3D fractals.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Координата W на създадения триизмерен срез на четириизмерен фрактал.\n"
+"Определя кой от срезовете на четириизмерната фо̀рма да бъде създаден,\n"
+"определящ формата на фрактала.\n"
+"Не влияе на триизмерни фрактали.\n"
+"Примерен диапазон: -2 до 2."
 
 #: src/settings_translation_file.cpp
 msgid "Walking and flying speed, in nodes per second."
-msgstr ""
+msgstr "Скорост на ходене и летене, във възли/секунда."
 
 #: src/settings_translation_file.cpp
 msgid "Walking speed"
-msgstr ""
+msgstr "Скорост на ходене"
 
 #: src/settings_translation_file.cpp
 msgid "Walking, flying and climbing speed in fast mode, in nodes per second."
 msgstr ""
+"Скорост на ходене, летене и катерене в режим\n"
+"на бързо придвижване в възли/секунда."
 
 #: src/settings_translation_file.cpp
 msgid "Water level"
-msgstr ""
+msgstr "Ниво на водата"
 
 #: src/settings_translation_file.cpp
 msgid "Water surface level of the world."
-msgstr ""
+msgstr "Ниво на повърхността на водата в света."
 
 #: src/settings_translation_file.cpp
 msgid "Waving Nodes"
-msgstr ""
+msgstr "Поклащане на възли"
 
 #: src/settings_translation_file.cpp
 msgid "Waving leaves"
-msgstr ""
+msgstr "Поклащащи се листа"
 
 #: src/settings_translation_file.cpp
 msgid "Waving liquids"
-msgstr ""
+msgstr "Поклащане на течности"
 
 #: src/settings_translation_file.cpp
 msgid "Waving liquids wave height"
-msgstr ""
+msgstr "Височина на вълните на течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Waving liquids wave speed"
-msgstr ""
+msgstr "Скорост на вълните на течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Waving liquids wavelength"
-msgstr ""
+msgstr "Дължина на вълните на течностите"
 
 #: src/settings_translation_file.cpp
 msgid "Waving plants"
-msgstr ""
+msgstr "Поклащащи се растения"
 
 #: src/settings_translation_file.cpp
 msgid "Weblink color"
-msgstr ""
+msgstr "Цвят на препратките"
 
 #: src/settings_translation_file.cpp
 msgid "When enabled, liquid reflections are simulated."
-msgstr ""
+msgstr "Когато е отметнато се имитира отражение от течностите."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "When enabled, the GUI is optimized to be more usable on touchscreens.\n"
 "Whether this is enabled by default depends on your hardware form-factor."
 msgstr ""
+"Когато е отметнато, интерфейсът е оптимизиран за лесно използване\n"
+"посредством сензорен екран.\n"
+"Състоянието по подразбиране зависи от хардуера на устройството."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7012,6 +7545,9 @@ msgid ""
 "filtered in software, but some images are generated directly\n"
 "to hardware (e.g. render-to-texture for nodes in inventory)."
 msgstr ""
+"Когато „gui_scaling_filter“ е отметнато, всички изображения\n"
+"на интерфейса трябва да бъдат филтрирани програмно, но някои\n"
+"от тях се създават апаратно (напр. възлите в инвентара)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7038,26 +7574,32 @@ msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
+"По подразбиране се показва фон зад имената.\n"
+"Модификациите могат да задават фон въпреки настройката."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Whether players are shown to clients without any range limit.\n"
 "Deprecated, use the setting player_transfer_distance instead."
 msgstr ""
+"Играчите се показват на клиентите без ограничение на разстоянието.\n"
+"Изведено от употреба, използвайте настройката „player_transfer_distance“."
 
 #: src/settings_translation_file.cpp
 msgid "Whether the window is maximized."
-msgstr ""
+msgstr "Уголемяване на прозореца."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Whether to ask clients to reconnect after a (Lua) crash.\n"
 "Set this to true if your server is set up to restart automatically."
 msgstr ""
+"Запитване на клиентите за повторно свързване след срив (на Lua).\n"
+"Задайте ако сървърът е настроен да се рестартира след срив."
 
 #: src/settings_translation_file.cpp
 msgid "Whether to fog out the end of the visible area."
-msgstr ""
+msgstr "Замъгляване при границата на видимост."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7065,6 +7607,9 @@ msgid ""
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
+"Дали да бъдат заглушени звуците. Можете да изключите звука\n"
+"по всяко време. В играта можете да го направите с клавишната\n"
+"комбинация или от менюто за пауза."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7083,7 +7628,7 @@ msgstr "Дебелина на рамката при избор на възел."
 
 #: src/settings_translation_file.cpp
 msgid "Will also disable autoforward, when active."
-msgstr ""
+msgstr "При включване ще изключи атоматичното движение напред."
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7104,10 +7649,12 @@ msgid ""
 "World directory (everything in the world is stored here).\n"
 "Not needed if starting from the main menu."
 msgstr ""
+"Папка на света (всичко за света се пази вътре).\n"
+"Не е необходима ако играта се пуска от главното меню."
 
 #: src/settings_translation_file.cpp
 msgid "World start time"
-msgstr ""
+msgstr "Начален час на света"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7118,6 +7665,13 @@ msgid ""
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
+"Подравнените по света текстури могат да бъдат мащабирани,\n"
+"така че да обхващат няколко възела. Сървърът, обаче, може да не\n"
+"изпрати мащабът, който очаквате, особено ако използване специално\n"
+"създаден пакет с текстури. Чрез тази настройка клиента прави опит\n"
+"да определи мащаба на основата на размера на текстурата.\n"
+"Вж. „texture_min_size“.\n"
+"Внимание: настройката е ЕКСПЕРИМЕНТАЛНА!"
 
 #: src/settings_translation_file.cpp
 msgid "World-aligned textures mode"
@@ -7194,5 +7748,68 @@ msgstr "Изчакване за взаимодействие с cURL"
 msgid "cURL parallel limit"
 msgstr "Ограничение на едновременните връзки на cURL"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Прилагане на рефлекторна сянка към възлите."
+#~ msgid "Apps"
+#~ msgstr "Приложения"
+
+#~ msgid "End"
+#~ msgstr "End"
+
+#~ msgid "Erase EOF"
+#~ msgstr "Премахване EOF"
+
+#~ msgid "Execute"
+#~ msgstr "Изпълняване"
+
+#~ msgid "Help"
+#~ msgstr "Help"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME: Приемане"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME: Превъщане"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME: Избягване"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME: Смяна на режима"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME: Без преобразуване"
+
+#~ msgid "Left Button"
+#~ msgstr "Ляв бутон"
+
+#~ msgid "Middle Button"
+#~ msgstr "Среден бутон"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Не е създаден или избран свят!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Изчистване"
+
+#~ msgid "Right Button"
+#~ msgstr "Десен бутон"
+
+#~ msgid "Select"
+#~ msgstr "Избиране"
+
+#~ msgid "Sleep"
+#~ msgstr "Сън"
+
+#~ msgid "Snapshot"
+#~ msgstr "Снимка на екрана"
+
+#~ msgid "Tab"
+#~ msgstr "Табулатор"
+
+#~ msgid "X Button 1"
+#~ msgstr "Доп. бутон 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "Доп. бутон 2"

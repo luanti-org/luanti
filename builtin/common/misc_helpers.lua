@@ -658,7 +658,7 @@ function core.colorize(color, message)
 		lines[i] = color_code .. line
 	end
 
-	return table.concat(lines, "\n") .. core.get_color_escape_sequence("#ffffff")
+	return table.concat(lines, "\n") .. core.get_color_escape_sequence("#fff")
 end
 
 
@@ -673,6 +673,7 @@ end
 function core.strip_colors(str)
 	return (str:gsub(ESCAPE_CHAR .. "%([bc]@[^)]+%)", ""))
 end
+
 
 local function translate(textdomain, str, num, ...)
 	local start_seq

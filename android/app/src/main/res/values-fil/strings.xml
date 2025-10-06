@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unzip_notification_title">Loading ang Luanti</string>
+    <string name="unzip_notification_description">Sa loob ng isang minuto…</string>
+    <string name="notification_channel_name">Notification na general</string>
+    <string name="notification_channel_description">Notification mula sa Luanti</string>
+    <string name="game_notification_title">Pina-pagana ang Luanti</string>
+    <string name="ime_dialog_done">Tapos na</string>
+    <string name="no_web_browser">Walang mahanap na web browser</string>
+</resources>

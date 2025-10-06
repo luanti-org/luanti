@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Vietnamese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-05-30 05:02+0000\n"
-"Last-Translator: Quốc Kiệt Nguyễn Hữu <huuquockietn@tutamail.com>\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-09-24 12:28+0000\n"
+"Last-Translator: dvchd <dvcuong.honda@gmail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/minetest/"
 "minetest/vi/>\n"
 "Language: vi\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -70,13 +70,12 @@ msgstr "Trợ giúp về lệnh (-t: hiển thị trong trò chuyện)"
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
 msgstr ""
-"Dùng '.help <câu lệnh>' để có thêm thông tin về một câu lệnh hoặc dùng '."
-"help all' để xem danh sách về những câu lệnh có sẵn."
+"Dùng '.help <câu lệnh>' để có thêm thông tin về một câu lệnh hoặc dùng "
+"'.help all' để xem danh sách về những câu lệnh có sẵn."
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "[all | <cmd>] [-t]"
-msgstr "[all | <câu lệnh>]"
+msgstr "[all | <câu lệnh>] [-t]"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -91,9 +90,8 @@ msgid "Edit"
 msgstr "Chỉnh sửa"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Remove keybinding"
-msgstr "Liên kết phím."
+msgstr "Loại bỏ phím liên kết"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -1233,10 +1231,6 @@ msgid "New"
 msgstr "Mới"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Chưa tạo hay chọn thế giới!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Chơi trò chơi"
 
@@ -1838,10 +1832,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Hồ sơ đã được hiển thị (trang thứ %d trên %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Ứng dụng"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1872,44 +1862,19 @@ msgid "Down Arrow"
 msgstr "Mũi tên xuống"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Xóa bỏ EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Phím xóa"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Thực thi"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Trợ giúp"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Trang chủ"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Chấp nhận IME"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Chuyển đổi IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "Thoát IME"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Thay đổi chế độ IME"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr ""
+#, fuzzy
+msgid "Home Key"
+msgstr "Phím thu phóng"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1920,8 +1885,9 @@ msgid "Left Arrow"
 msgstr "Mũi tên trái"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Nút trái"
+#, fuzzy
+msgid "Left Click"
+msgstr "Control trái"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1935,19 +1901,27 @@ msgstr "Menu trái"
 msgid "Left Shift"
 msgstr "Shift trái"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows trái"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Nút giữa"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2014,10 +1988,6 @@ msgid "Numpad 9"
 msgstr "9 trên b.phím số"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr ""
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Page down"
@@ -2050,8 +2020,9 @@ msgid "Right Arrow"
 msgstr "Mũi tên phải"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Nút phải"
+#, fuzzy
+msgid "Right Click"
+msgstr "Control phải"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2065,6 +2036,7 @@ msgstr "Menu phải"
 msgid "Right Shift"
 msgstr "Shift phải"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows phải"
@@ -2073,46 +2045,27 @@ msgstr "Windows phải"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Chọn"
+#, fuzzy
+msgid "Select Key"
+msgstr "Phím xóa"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Phím Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Ngủ"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Ảnh chụp nhanh"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Phím cách"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Phím nghỉ"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Mũi tên lên"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Nút X 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Nút X 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Phím thu phóng"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2517,12 +2470,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2852,6 +2804,17 @@ msgstr "Máy ảnh mượt mà"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Máy ảnh mượt mà trong chế độ điện ảnh"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3351,6 +3314,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Tùy chọn nhà phát triển"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5059,6 +5026,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Đền sa mạc"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -6967,5 +6939,62 @@ msgstr "Hết thời gian tương tác với cURL"
 msgid "cURL parallel limit"
 msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Phím bật chế độ điện ảnh."
+#~ msgid "Apps"
+#~ msgstr "Ứng dụng"
+
+#~ msgid "End"
+#~ msgstr "End"
+
+#~ msgid "Erase EOF"
+#~ msgstr "Xóa bỏ EOF"
+
+#~ msgid "Execute"
+#~ msgstr "Thực thi"
+
+#~ msgid "Help"
+#~ msgstr "Trợ giúp"
+
+#~ msgid "Home"
+#~ msgstr "Trang chủ"
+
+#~ msgid "IME Accept"
+#~ msgstr "Chấp nhận IME"
+
+#~ msgid "IME Convert"
+#~ msgstr "Chuyển đổi IME"
+
+#~ msgid "IME Escape"
+#~ msgstr "Thoát IME"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "Thay đổi chế độ IME"
+
+#~ msgid "Left Button"
+#~ msgstr "Nút trái"
+
+#~ msgid "Middle Button"
+#~ msgstr "Nút giữa"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Chưa tạo hay chọn thế giới!"
+
+#~ msgid "Right Button"
+#~ msgstr "Nút phải"
+
+#~ msgid "Select"
+#~ msgstr "Chọn"
+
+#~ msgid "Sleep"
+#~ msgstr "Ngủ"
+
+#~ msgid "Snapshot"
+#~ msgstr "Ảnh chụp nhanh"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "Nút X 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "Nút X 2"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Belarusian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2019-11-19 23:04+0000\n"
 "Last-Translator: Viktar Vauchkevich <victorenator@gmail.com>\n"
 "Language-Team: Belarusian <https://hosted.weblate.org/projects/minetest/"
@@ -1276,10 +1276,6 @@ msgid "New"
 msgstr "Новы"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Няма створанага альбо абранага свету!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Гуляць"
 
@@ -1897,10 +1893,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Прафіліроўшчык паказваецца (старонка %d з %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Праграмы"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1934,44 +1926,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Меню"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Ачысціць EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Выдаліць"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Выканаць"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Даведка"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME Accept"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Пераўтварыць IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME Escape"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Змяніць рэжым IME"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME без пераўтварэння"
+#, fuzzy
+msgid "Home Key"
+msgstr "Павялічыць"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1983,8 +1950,9 @@ msgid "Left Arrow"
 msgstr "Левы Ctrl"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Левая кнопка"
+#, fuzzy
+msgid "Left Click"
+msgstr "Левы Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1998,19 +1966,27 @@ msgstr "Левае меню"
 msgid "Left Shift"
 msgstr "Левы Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Левы Super"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Меню"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Сярэдняя кнопка"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2077,10 +2053,6 @@ msgid "Numpad 9"
 msgstr "Дадат. 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "Ачысціць OEM"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Page down"
@@ -2116,8 +2088,9 @@ msgid "Right Arrow"
 msgstr "Правы Ctrl"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Правая кнопка"
+#, fuzzy
+msgid "Right Click"
+msgstr "Правы Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2131,6 +2104,7 @@ msgstr "Правае меню"
 msgid "Right Shift"
 msgstr "Правы Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Правы Super"
@@ -2139,10 +2113,10 @@ msgstr "Правы Super"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Абраць"
+#, fuzzy
+msgid "Select Key"
+msgstr "Выдаліць"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2150,37 +2124,17 @@ msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Сон"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Здымак"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Прагал"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Табуляцыя"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Клавіша \"красціся\""
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Дадат. кнопка 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Дадат. кнопка 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Павялічыць"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2608,12 +2562,11 @@ msgstr "3D-шум, што вызначае колькасць падзямелл
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D-падтрымка.\n"
 "Зараз падтрымліваюцца:\n"
@@ -2726,8 +2679,8 @@ msgstr ""
 "Клавіша \"красціся\".\n"
 "Таксама выкарыстоўваецца для спускання і апускання ў ваду, калі "
 "aux1_descends выключана.\n"
-"Глядзіце http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Глядзіце http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2989,6 +2942,17 @@ msgstr "Згладжванне камеры"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Згладжванне камеры ў кінематаграфічным рэжыме"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3516,6 +3480,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "Ітэрацыі"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5472,6 +5440,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Максімальная колькасць карыстальнікаў"
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7563,8 +7535,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "Клавіша для руху назад.\n"
 "Таксама выключае аўтабег, калі той актыўны.\n"
-"Глядзіце http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Глядзіце http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7680,14 +7652,68 @@ msgstr "Таймаўт cURL"
 msgid "cURL parallel limit"
 msgstr "Ліміт адначасовых злучэнняў cURL"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Фармат здымкаў экрана."
+#~ msgid "Apps"
+#~ msgstr "Праграмы"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Згладжванне камеры ў кінематаграфічным рэжыме"
+#~ msgid "End"
+#~ msgstr "End"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Поўнаэкранны рэжым."
+#~ msgid "Erase EOF"
+#~ msgstr "Ачысціць EOF"
+
+#~ msgid "Execute"
+#~ msgstr "Выканаць"
+
+#~ msgid "Help"
+#~ msgstr "Даведка"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME Accept"
+
+#~ msgid "IME Convert"
+#~ msgstr "Пераўтварыць IME"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME Escape"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "Змяніць рэжым IME"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME без пераўтварэння"
+
+#~ msgid "Left Button"
+#~ msgstr "Левая кнопка"
+
+#~ msgid "Middle Button"
+#~ msgstr "Сярэдняя кнопка"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Няма створанага альбо абранага свету!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "Ачысціць OEM"
+
+#~ msgid "Right Button"
+#~ msgstr "Правая кнопка"
+
+#~ msgid "Select"
+#~ msgstr "Абраць"
+
+#~ msgid "Sleep"
+#~ msgstr "Сон"
+
+#~ msgid "Snapshot"
+#~ msgstr "Здымак"
+
+#~ msgid "Tab"
+#~ msgstr "Табуляцыя"
+
+#~ msgid "X Button 1"
+#~ msgstr "Дадат. кнопка 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "Дадат. кнопка 2"

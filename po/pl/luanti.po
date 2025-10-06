@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Polish (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-07-06 11:01+0000\n"
-"Last-Translator: nauta-turbidus <wiktor-t@hotmail.com>\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-09-29 16:02+0000\n"
+"Last-Translator: Karol1165 <kutkarol1165@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/minetest/minetest/"
 "pl/>\n"
 "Language: pl\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -1234,10 +1234,6 @@ msgid "New"
 msgstr "Nowy"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Nie wybrano bądź nie utworzono świata!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Graj"
 
@@ -1384,9 +1380,9 @@ msgid "Rebuilding shaders..."
 msgstr "Przebudowywanie shaderów..."
 
 #: src/client/client.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Zrzuty ekranu"
+msgstr "Wykonano zrzut ekranu do ”%s”"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1844,10 +1840,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profiler wyświetlony (strona %d z %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Menu"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1877,44 +1869,19 @@ msgid "Down Arrow"
 msgstr "Strzałka w dół"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Usuń EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Wykonaj"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Pomoc"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Zaakceptuj IME"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Konwertuj IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "Uniknij IME"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Zmiana Trybu IME"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "Niezmienialny"
+#, fuzzy
+msgid "Home Key"
+msgstr "Klawisz Zoom"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1925,8 +1892,9 @@ msgid "Left Arrow"
 msgstr "Strzałka w lewo"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Lewy przycisk myszy"
+#, fuzzy
+msgid "Left Click"
+msgstr "Lewy Control"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1940,18 +1908,26 @@ msgstr "Lewy Menu"
 msgid "Left Shift"
 msgstr "Lewy Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Lewy Windows"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Środkowy przycisk myszy"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2018,10 +1994,6 @@ msgid "Numpad 9"
 msgstr "Numeryczna 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Clear"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2052,8 +2024,9 @@ msgid "Right Arrow"
 msgstr "Strzałka w prawo"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Prawy przycisk myszy"
+#, fuzzy
+msgid "Right Click"
+msgstr "Prawy Control"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2067,6 +2040,7 @@ msgstr "Prawy Menu"
 msgid "Right Shift"
 msgstr "Prawy Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Prawy Windows"
@@ -2075,46 +2049,27 @@ msgstr "Prawy Windows"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Wybierz"
+#, fuzzy
+msgid "Select Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Uśpij"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Snapshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Spacja"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Break"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Strzałka w górę"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Przycisk X 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Przycisk X 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Klawisz Zoom"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2552,12 +2507,11 @@ msgstr "Szum 3D, który wpływa na liczbę lochów na jeden mapchunk."
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Wsparcie 3D\n"
 "Aktualnie wspierane:\n"
@@ -2678,8 +2632,8 @@ msgstr ""
 "Klawisz skradania.\n"
 "Także używany do schodzenia w dół i opadania w wodzie jeżeli aux1_descends "
 "jest wyłączone.\n"
-"Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Zobacz http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2936,6 +2890,17 @@ msgstr "Wygładzanie kamery"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Wygładzanie kamery w trybie cinematic"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3486,6 +3451,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Opcje deweloperskie"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5488,6 +5457,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Maksymalna ilość użytkowników"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Pustynne świątynie"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7709,8 +7683,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "Klawisz poruszania się wstecz.\n"
 "Gdy jest aktywny to wyłącza również automatyczne chodzenie do przodu.\n"
-"Zobacz http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Zobacz http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7829,46 +7803,68 @@ msgstr "Interaktywny limit czasu oczekiwania cURL"
 msgid "cURL parallel limit"
 msgstr "Limit żądań równoległych cURL"
 
-#, fuzzy
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Zastosuj cieniowanie lustrzane do bloków."
+#~ msgid "Apps"
+#~ msgstr "Menu"
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "Klawisz do zmniejszania zasięgu widzenia."
+#~ msgid "End"
+#~ msgstr "End"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "Klawisz do zmniejszania głośności."
+#~ msgid "Erase EOF"
+#~ msgstr "Usuń EOF"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "Klawisz do wyrzucania aktualnie wybranego przedmiotu."
+#~ msgid "Execute"
+#~ msgstr "Wykonaj"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "Klawisz do zwiększenia zasięgu widzenia."
+#~ msgid "Help"
+#~ msgstr "Pomoc"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "Klawisz do zwiększenia głośności."
+#~ msgid "Home"
+#~ msgstr "Home"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "Klawisz do wyciszenia gry."
+#~ msgid "IME Accept"
+#~ msgstr "Zaakceptuj IME"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "Klawisz do otwierania czatu."
+#~ msgid "IME Convert"
+#~ msgstr "Konwertuj IME"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "Klawisz do otwierania ekwipunku."
+#~ msgid "IME Escape"
+#~ msgstr "Uniknij IME"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Format zrzutu ekranu."
+#~ msgid "IME Mode Change"
+#~ msgstr "Zmiana Trybu IME"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Wygładzanie kamery w trybie cinematic"
+#~ msgid "IME Nonconvert"
+#~ msgstr "Niezmienialny"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Tryb pełnoekranowy."
+#~ msgid "Left Button"
+#~ msgstr "Lewy przycisk myszy"
 
-#, fuzzy
-#~ msgid "Node specular"
-#~ msgstr "Odbicie bloku"
+#~ msgid "Middle Button"
+#~ msgstr "Środkowy przycisk myszy"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Nie wybrano bądź nie utworzono świata!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Clear"
+
+#~ msgid "Right Button"
+#~ msgstr "Prawy przycisk myszy"
+
+#~ msgid "Select"
+#~ msgstr "Wybierz"
+
+#~ msgid "Sleep"
+#~ msgstr "Uśpij"
+
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "Przycisk X 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "Przycisk X 2"

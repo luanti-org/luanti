@@ -103,14 +103,6 @@ public:
 		GL.TexParameteri(TextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		GL.TexParameteri(TextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		if (HasMipMaps) {
-			if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_SPEED))
-				GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
-			else if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_QUALITY))
-				GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-			else
-				GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_DONT_CARE);
-		}
 		TEST_GL_ERROR(Driver);
 
 		initTexture(tmpImages->size());
@@ -147,7 +139,7 @@ public:
 		DriverType = Driver->getDriverType();
 		assert(Type != ETT_2D_ARRAY); // not supported by this constructor
 		TextureType = TextureTypeIrrToGL(Type);
-		HasMipMaps = false;
+		HasMipMaps = Driver->getTextureCreationFlag(ETCF_CREATE_RTT_MIP_MAPS);
 		IsRenderTarget = true;
 
 		if (!name.empty())
@@ -189,8 +181,9 @@ public:
 
 		char lbuf[200];
 		snprintf_irr(lbuf, sizeof(lbuf),
-			"COpenGLCoreTexture: RTT Type = %d Size = %dx%d (S:%d) ColorFormat = %s -> %#06x %#06x %#06x%s",
+			"COpenGLCoreTexture: RTT Type = %d Size = %dx%d (S:%d) ColorFormat = %s%s -> %#06x %#06x %#06x%s",
 			(int)Type, Size.Width, Size.Height, (int)MSAA, ColorFormatName(ColorFormat),
+			HasMipMaps ? " +Mip" : "",
 			InternalFormat, PixelFormat, PixelType, Converter ? " (c)" : ""
 		);
 		os::Printer::log(lbuf, ELL_DEBUG);
@@ -397,13 +390,21 @@ public:
 		if (!HasMipMaps || (Size.Width <= 1 && Size.Height <= 1))
 			return;
 
-		const COpenGLCoreTexture *prevTexture = Driver->getCacheHandler()->getTextureCache().get(0);
-		Driver->getCacheHandler()->getTextureCache().set(0, this);
+		auto &cache = Driver->getCacheHandler()->getTextureCache();
+		const COpenGLCoreTexture *prevTexture = cache.get(0);
+		cache.set(0, this);
+
+		if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_SPEED))
+			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
+		else if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_QUALITY))
+			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+		else
+			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_DONT_CARE);
 
 		Driver->irrGlGenerateMipmap(TextureType);
 		TEST_GL_ERROR(Driver);
 
-		Driver->getCacheHandler()->getTextureCache().set(0, prevTexture);
+		cache.set(0, prevTexture);
 	}
 
 	GLenum getOpenGLTextureType() const

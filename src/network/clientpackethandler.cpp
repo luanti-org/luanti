@@ -34,6 +34,7 @@
 #include "skyparams.h"
 #include "particles.h"
 #include <memory>
+#include <sstream>
 
 const char *accessDeniedStrings[SERVER_ACCESSDENIED_MAX] = {
 	N_("Invalid password"),
@@ -153,6 +154,14 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 	Send(&resp_pkt);
 
 	m_state = LC_Init;
+
+	// Log meaningful info
+	if (!m_internal_server) {
+		Address remote = m_con->GetPeerAddress(PEER_ID_SERVER);
+		actionstream << "Connected to " << m_address_name << " (";
+		remote.print(actionstream);
+		actionstream << ")" << std::endl;
+	}
 }
 
 void Client::handleCommand_AcceptSudoMode(NetworkPacket* pkt)
@@ -183,7 +192,7 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 {
 	// The server didn't like our password. Note, this needs
 	// to be processed even if the serialization format has
-	// not been agreed yet, the same as TOCLIENT_INIT.
+	// not been agreed yet, the same as TOCLIENT_AUTH_ACCEPT.
 	m_access_denied = true;
 
 	if (pkt->getCommand() != TOCLIENT_ACCESS_DENIED) {
@@ -381,6 +390,9 @@ void Client::handleCommand_ChatMessage(NetworkPacket *pkt)
 	chatMessage->timestamp = static_cast<std::time_t>(timestamp);
 
 	chatMessage->type = (ChatMessageType) message_type;
+
+	// log the chat message
+	actionstream << "CHAT: " << wide_to_utf8(unescape_enriched(chatMessage->message)) << std::endl;
 
 	// @TODO send this to CSM using ChatMessage object
 	if (modsLoaded() && m_script->on_receiving_message(
@@ -966,6 +978,29 @@ void Client::handleCommand_SpawnParticle(NetworkPacket* pkt)
 	event->spawn_particle = new ParticleParameters(p);
 
 	m_client_event_queue.push(event);
+}
+
+void Client::handleCommand_SpawnParticleBatch(NetworkPacket *pkt)
+{
+	std::stringstream particle_batch_data(std::ios::binary | std::ios::in | std::ios::out);
+	{
+		std::istringstream compressed(pkt->readLongString(), std::ios::binary);
+		decompressZstd(compressed, particle_batch_data);
+	}
+
+	while (particle_batch_data.peek() != EOF) {
+		auto p = std::make_unique<ParticleParameters>();
+		{
+			std::istringstream particle_data(deSerializeString32(particle_batch_data), std::ios::binary);
+			p->deSerialize(particle_data, m_proto_ver);
+		}
+
+		ClientEvent *event = new ClientEvent();
+		event->type = CE_SPAWN_PARTICLE;
+		event->spawn_particle = p.release();
+
+		m_client_event_queue.push(event);
+	}
 }
 
 void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
