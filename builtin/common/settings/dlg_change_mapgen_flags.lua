@@ -64,36 +64,37 @@ local function get_formspec(dialogdata)
 	height = height + 1.1
 
 	-- Second row
-	add_field(0.3, "te_spreadx", fgettext("X spread"), t[3], {
-			fgettext("This value scales the noise in the X axis by this value."),
-			fgettext("This is also the scale of the largest structures in the X direction of the noise.")})
+	add_field(0.3, "te_spreadx", fgettext("$1 spread", "X"), t[3], {
+			fgettext("This value scales the noise in the $1 axis by this value.", "X"),
+			fgettext("This is also the scale of the largest structures in the $1 direction of the noise.", "X")})
 	if dimension == 3 then
-		add_field(3.6, "te_spready", fgettext("Y spread"), t[4], {
-			fgettext("This value scales the noise in the Y axis by this value."),
-			fgettext("This is also the scale of the largest structures in the Y direction of the noise.")})
+		add_field(3.6, "te_spready", fgettext("$1 spread", "Y"), t[4], {
+			fgettext("This value scales the noise in the $1 axis by this value."),
+			fgettext("This is also the scale of the largest structures in the $1 direction of the noise.", "Y")})
 	else
 		fields[#fields + 1] = "label[4," .. height - 0.2 .. ";" ..
 				fgettext("2D Noise") .. "]"
 	end
-	add_field(6.9, "te_spreadz", fgettext("Z spread"), t[5], {
-			fgettext("This value scales the noise in the Z axis by this value."),
-			fgettext("This is also the scale of the largest structures in the Z direction of the noise.")})
+	add_field(6.9, "te_spreadz", fgettext("$1 spread", "Z"), t[5], {
+			fgettext("This value scales the noise in the $1 axis by this value.", "Z"),
+			fgettext("This is also the scale of the largest structures in the $1 direction of the noise.", "Z")})
 	height = height + 1.1
 
 	-- Third row
 	add_field(0.3, "te_octaves", fgettext("Octaves"),     t[7], {
-			fgettext("This value controls how many octaves the noise will have."), "",
-			fgettext("An octave is a simple noise generator."),
-			fgettext("Its scale and amplitude will be multiplied based on the Persistence and Lacunarity settings."),
-			fgettext("Finally, all of the octaves will be added to generate this noise.")})
+			fgettext("This value controls how many octaves (layers) the noise will have."), "",
+			fgettext("Lower values will result in smoother noise and higher values will result in rougher noise."),
+			fgettext("Finally, all of the octaves will be added to generate the noise.")}),
+		fgettext("Having lots of octaves is not recommended because it increases terrain generation time."),
 	add_field(3.6, "te_persist", fgettext("Persistence"), t[8], {
-			fgettext("This value multiplies every octave's amplitude by persistence^i where i is the place of the octave."),
-			fgettext("Example: If the persistence was 0.5, the 1st octave would be amplified by 1,"),
-			fgettext("the 2nd would be by 0.5, the 3rd would be by 0.25, etc.")})
+			fgettext("This value multiplies every octave's amplitude by Persistence * the previous octave's amplitude."),
+			fgettext("The first octave is amplified by 1."),
+			fgettext("Lower values make the terrain simple and higher values make the terrain rough."),
 	add_field(6.9, "te_lacun",   fgettext("Lacunarity"),  t[9], {
-			fgettext("This value multiplies every octave's scale by lacunarity^i where i is the place of the octave."),
-			fgettext("Example: If the lacunarity was 3, the 1st octave would be scaled by 1,"),
-			fgettext("the 2nd would be by 3, the 3rd would be by 9, etc.")})
+			fgettext("This value multiplies every octave's scale by Lacunarity * the previous octave's scale."),
+			fgettext("The first octave is scaled by 1."),
+			fgettext("Lower values make the terrain have fine detail and higher values make the terrain smooth."),
+			fgettext("Warning: If the scale of any octave becomes less than 1, an error will occur."),
 	height = height + 1.1
 
 
@@ -117,8 +118,8 @@ local function get_formspec(dialogdata)
 			.. fgettext("defaults") .. ";" -- defaults
 			.. tostring(flags["defaults"] == true) .. "]" -- to get false if nil
 			.. "tooltip[cb_defaults;" .. fgettext("This flag overrides the eased flag based on the noise map type.")
-			.. "\n" .. fgettext("2D noise will make eased on.")
-			.. "\n" .. fgettext("3D noise will make eased off.") .. "]"
+			.. "\n" .. fgettext("2D noise will force eased to be on.")
+			.. "\n" .. fgettext("3D noise will force eased to be off.") .. "]"
 			.. "checkbox[5," .. height - 0.6 .. ";cb_eased;"
 			--[[~ "eased" is a noise parameter flag.
 			It is used to make the map smoother and
