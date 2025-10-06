@@ -84,17 +84,17 @@ local function get_formspec(dialogdata)
 	add_field(0.3, "te_octaves", fgettext("Octaves"),     t[7], {
 			fgettext("This value controls how many octaves (layers) the noise will have."), "",
 			fgettext("Lower values will result in smoother noise and higher values will result in rougher noise."),
-			fgettext("Finally, all of the octaves will be added to generate the noise.")}),
-		fgettext("Having lots of octaves is not recommended because it increases terrain generation time."),
+			fgettext("Finally, all of the octaves will be added to generate the noise."),
+		fgettext("Having lots of octaves is not recommended because it increases terrain generation time."),})
 	add_field(3.6, "te_persist", fgettext("Persistence"), t[8], {
 			fgettext("This value multiplies every octave's amplitude by Persistence * the previous octave's amplitude."),
 			fgettext("The first octave is amplified by 1."),
-			fgettext("Lower values make the terrain simple and higher values make the terrain rough."),
+			fgettext("Lower values make the terrain simple and higher values make the terrain rough."),})
 	add_field(6.9, "te_lacun",   fgettext("Lacunarity"),  t[9], {
 			fgettext("This value multiplies every octave's scale by Lacunarity * the previous octave's scale."),
 			fgettext("The first octave is scaled by 1."),
 			fgettext("Lower values make the terrain have fine detail and higher values make the terrain smooth."),
-			fgettext("Warning: If the scale of any octave becomes less than 1, an error will occur."),
+			fgettext("Warning: If the scale of any octave becomes less than 1, an error will occur."),})
 	height = height + 1.1
 
 
