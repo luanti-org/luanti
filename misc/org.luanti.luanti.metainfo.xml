@@ -3,6 +3,7 @@
     <id>org.luanti.luanti</id>
     <provides>
         <id>net.minetest.minetest</id>
+        <binary>luanti</binary>
     </provides>
     <replaces>
         <id>net.minetest.minetest</id>
@@ -164,10 +165,6 @@
     <url type="help">https://docs.luanti.org</url>
     <url type="vcs-browser">https://github.com/luanti-org/luanti</url>
     <url type="contribute">https://www.luanti.org/get-involved</url>
-
-    <provides>
-        <binary>luanti</binary>
-    </provides>
 
     <translation type="gettext">luanti</translation>
 
