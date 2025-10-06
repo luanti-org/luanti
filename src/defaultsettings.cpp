@@ -370,6 +370,7 @@ void set_default_settings()
 	settings->setDefault("toggle_sneak_key", "false");
 	settings->setDefault("toggle_aux1_key", "false");
 	settings->setDefault("autojump", bool_to_cstr(has_touch));
+	settings->setDefault("enable_esc_dialog", "true");
 	settings->setDefault("continuous_forward", "false");
 	settings->setDefault("enable_joysticks", "false");
 	settings->setDefault("joystick_id", "0");
