@@ -82,19 +82,19 @@ local function get_formspec(dialogdata)
 
 	-- Third row
 	add_field(0.3, "te_octaves", fgettext("Octaves"),     t[7], {
-			fgettext("This value controls how many octaves (layers) the noise will have."), "",
+			fgettext("This value controls how many octaves (layers) the noise will have."),
+			fgettext("Each octave is a simple noise generator. Each one also adds more detail to the noise."),
 			fgettext("Lower values will result in smoother noise and higher values will result in rougher noise."),
-			fgettext("Finally, all of the octaves will be added to generate the noise."),
-		fgettext("Having lots of octaves is not recommended because it increases terrain generation time."),})
+			fgettext("Finally, all of the octaves will be combined to generate the noise."),
+			fgettext("Having lots of octaves is not recommended because it increases terrain generation time."),})
 	add_field(3.6, "te_persist", fgettext("Persistence"), t[8], {
-			fgettext("This value multiplies every octave's amplitude by Persistence * the previous octave's amplitude."),
+			fgettext("This value amplifies every octave by (amplitude of the previous octave * Persistence)."),
 			fgettext("The first octave is amplified by 1."),
 			fgettext("Lower values make the terrain simple and higher values make the terrain rough."),})
 	add_field(6.9, "te_lacun",   fgettext("Lacunarity"),  t[9], {
-			fgettext("This value multiplies every octave's scale by Lacunarity * the previous octave's scale."),
+			fgettext("This value scales every octave by (scale of the previous octave / Lacunarity)."),
 			fgettext("The first octave is scaled by 1."),
-			fgettext("Lower values make the terrain have fine detail and higher values make the terrain smooth."),
-			fgettext("Warning: If the scale of any octave becomes less than 1, an error will occur."),})
+			fgettext("Lower values make the terrain smooth and higher values make the terrain have fine detail.")})
 	height = height + 1.1
 
 
@@ -117,9 +117,8 @@ local function get_formspec(dialogdata)
 			for noise settings in the settings menu. ]]
 			.. fgettext("defaults") .. ";" -- defaults
 			.. tostring(flags["defaults"] == true) .. "]" -- to get false if nil
-			.. "tooltip[cb_defaults;" .. fgettext("This flag overrides the eased flag based on the noise map type.")
-			.. "\n" .. fgettext("2D noise will force eased to be on.")
-			.. "\n" .. fgettext("3D noise will force eased to be off.") .. "]"
+			.. "tooltip[cb_defaults;" .. fgettext("This flag overrides the 'eased' flag based on the noise type.")
+			.. "\n" .. fgettext("2D noise: flag on.\n3D noise: flag off.") .. "]"
 			.. "checkbox[5," .. height - 0.6 .. ";cb_eased;"
 			--[[~ "eased" is a noise parameter flag.
 			It is used to make the map smoother and
