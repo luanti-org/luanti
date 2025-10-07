@@ -104,6 +104,8 @@ public:
 
 	video::SColor getTextureAverageColor(const std::string &name);
 
+	core::dimension2du getTextureDimensions(const std::string &image);
+
 	void setImageCaching(bool enabled);
 
 private:
@@ -535,6 +537,8 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 video::SColor TextureSource::getTextureAverageColor(const std::string &name)
 {
 	assert(std::this_thread::get_id() == m_main_thread);
+	if (name.empty())
+		return {0, 0, 0, 0};
 
 	std::set<std::string> unused;
 	auto *image = getOrGenerateImage(name, unused);
@@ -545,6 +549,23 @@ video::SColor TextureSource::getTextureAverageColor(const std::string &name)
 	image->drop();
 
 	return c;
+}
+
+core::dimension2du TextureSource::getTextureDimensions(const std::string &name)
+{
+	assert(std::this_thread::get_id() == m_main_thread);
+
+	core::dimension2du ret;
+	if (!name.empty()) {
+		std::set<std::string> unused;
+		auto *image = getOrGenerateImage(name, unused);
+		if (image) {
+			ret = image->getDimension();
+			image->drop();
+		}
+	}
+
+	return ret;
 }
 
 void TextureSource::setImageCaching(bool enabled)

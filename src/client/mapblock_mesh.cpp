@@ -653,6 +653,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 				// Find the texture name plus ^[crack:N:
 				std::ostringstream os(std::ios::binary);
 				os << m_tsrc->getTextureName(p.layer.texture_id) << "^[crack";
+				// FIXME how to we solve this?
 				if (p.layer.material_flags & MATERIAL_FLAG_CRACK_OVERLAY)
 					os << "o";  // use ^[cracko
 				u8 tiles = p.layer.scale;

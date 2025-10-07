@@ -6,6 +6,7 @@
 
 #include "irrlichttypes.h"
 #include <SColor.h>
+#include <dimension2d.h>
 #include <string>
 #include <vector>
 
@@ -89,6 +90,10 @@ public:
 
 	/// @brief Check if given image name exists
 	virtual bool isKnownSourceImage(const std::string &name)=0;
+
+	/// @brief Return dimensions of a texture string
+	/// (will avoid actually creating the texture)
+	virtual core::dimension2du getTextureDimensions(const std::string &image)=0;
 
 	/// @brief Return average color of a texture string
 	virtual video::SColor getTextureAverageColor(const std::string &image)=0;
