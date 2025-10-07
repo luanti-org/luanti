@@ -31,6 +31,7 @@ General options and their default values:
     ENABLE_LEVELDB=ON          - Build with LevelDB; Enables use of LevelDB map backend
     ENABLE_POSTGRESQL=ON       - Build with libpq; Enables use of PostgreSQL map backend (PostgreSQL 9.5 or greater recommended)
     ENABLE_REDIS=ON            - Build with libhiredis; Enables use of Redis map backend
+    ENABLE_MARIADB=ON          - Build with MariaDB; Enables use of MariaDB map backend (MariaDB 10.3 or greater recommended)
     ENABLE_SPATIAL=ON          - Build with LibSpatial; Speeds up AreaStores
     ENABLE_OPENSSL=ON          - Build with OpenSSL; Speeds up SHA1 and SHA2 hashing
     ENABLE_SOUND=ON            - Build with OpenAL, libogg & libvorbis; in-game sounds
@@ -79,6 +80,7 @@ Library specific options:
     PostgreSQL_LIBRARY              - Only when building with PostgreSQL; path to libpq.a/libpq.so/libpq.lib
     REDIS_INCLUDE_DIR               - Only when building with Redis; directory that contains hiredis.h
     REDIS_LIBRARY                   - Only when building with Redis; path to libhiredis.a/libhiredis.so
+    (MariaDB is found via pkg-config; install the libmariadb development package)
     SPATIAL_INCLUDE_DIR             - Only when building with LibSpatial; directory that contains spatialindex/SpatialIndex.h
     SPATIAL_LIBRARY                 - Only when building with LibSpatial; path to libspatialindex.so/spatialindex-32.lib
     LUA_INCLUDE_DIR                 - Only if you want to use LuaJIT; directory where luajit.h is located

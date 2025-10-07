@@ -17,6 +17,9 @@
 #if USE_POSTGRESQL
 #include "database/database-postgresql.h"
 #endif
+#if USE_MARIADB
+#include "database/database-mariadb.h"
+#endif
 #include "filesys.h"
 
 namespace
@@ -141,6 +144,45 @@ private:
 	ModStorageDatabase *m_db = nullptr;
 };
 #endif // USE_POSTGRESQL
+
+#if USE_MARIADB
+void clearMariaDBDatabase(const std::string &connect_string) {
+	ModStorageDatabaseMariaDB db(connect_string);
+	std::vector<std::string> modnames;
+	db.beginSave();
+	db.listMods(&modnames);
+	for (const std::string &modname : modnames) {
+		db.removeModEntries(modname);
+	}
+	db.endSave();
+}
+
+class MariaDBProvider : public ModStorageDatabaseProvider {
+public:
+	MariaDBProvider(const std::string &connect_string): m_connect_string(connect_string) {}
+
+	~MariaDBProvider() {
+		if (m_db) {
+			m_db->endSave();
+		}
+		delete m_db;
+	}
+
+	ModStorageDatabase *getModStorageDatabase() override {
+		if (m_db) {
+			m_db->endSave();
+		}
+		delete m_db;
+		m_db = new ModStorageDatabaseMariaDB(m_connect_string);
+		m_db->beginSave();
+		return m_db;
+	};
+
+private:
+	std::string m_connect_string;
+	ModStorageDatabase *m_db = nullptr;
+};
+#endif // USE_MARIADB
 }
 
 class TestModStorageDatabase : public TestBase
@@ -257,6 +299,33 @@ void TestModStorageDatabase::runTests(IGameDef *gamedef)
 		delete mod_storage_provider;
 	}
 #endif // USE_POSTGRESQL
+
+#if USE_MARIADB
+	const char *env_mariadb_connect_string = getenv("LUANTI_MARIADB_CONNECT_STRING");
+	if (env_mariadb_connect_string) {
+		std::string connect_string(env_mariadb_connect_string);
+
+		rawstream << "-------- MariaDB database (same object)" << std::endl;
+
+		clearMariaDBDatabase(connect_string);
+		mod_storage_db = new ModStorageDatabaseMariaDB(connect_string);
+		mod_storage_provider = new FixedProvider(mod_storage_db);
+
+		runTestsForCurrentDB();
+
+		delete mod_storage_db;
+		delete mod_storage_provider;
+
+		rawstream << "-------- MariaDB database (new objects)" << std::endl;
+
+		clearMariaDBDatabase(connect_string);
+		mod_storage_provider = new MariaDBProvider(connect_string);
+
+		runTestsForCurrentDB();
+
+		delete mod_storage_provider;
+	}
+#endif // USE_MARIADB
 }
 
 ////////////////////////////////////////////////////////////////////////////////

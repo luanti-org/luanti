@@ -2,11 +2,16 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2018 bendeutsch, Ben Deutsch <ben@bendeutsch.de>
 
+#include "cmake_config.h"
+
 #include "test.h"
 
 #include <algorithm>
 #include "database/database-files.h"
 #include "database/database-sqlite3.h"
+#if USE_MARIADB
+#include "database/database-mariadb.h"
+#endif
 #include "util/string.h"
 #include "filesys.h"
 
@@ -70,6 +75,34 @@ private:
 	std::string dir;
 	AuthDatabase *auth_db = nullptr;
 };
+
+#if USE_MARIADB
+void clearMariaDBAuthDatabase(const std::string &connect_string)
+{
+	AuthDatabaseMariaDB db(connect_string);
+	std::vector<std::string> names;
+	db.listNames(names);
+	for (const std::string &name : names)
+		db.deleteAuth(name);
+}
+
+class MariaDBProvider : public AuthDatabaseProvider
+{
+public:
+	MariaDBProvider(const std::string &connect_string) : m_connect_string(connect_string) {}
+	virtual ~MariaDBProvider() { delete auth_db; }
+	virtual AuthDatabase *getAuthDatabase()
+	{
+		delete auth_db;
+		auth_db = new AuthDatabaseMariaDB(m_connect_string);
+		return auth_db;
+	}
+
+private:
+	std::string m_connect_string;
+	AuthDatabase *auth_db = nullptr;
+};
+#endif // USE_MARIADB
 }
 
 class TestAuthDatabase : public TestBase
@@ -148,6 +181,33 @@ void TestAuthDatabase::runTests(IGameDef *gamedef)
 	runTestsForCurrentDB();
 
 	delete auth_provider;
+
+#if USE_MARIADB
+	const char *env_mariadb_connect_string = getenv("LUANTI_MARIADB_CONNECT_STRING");
+	if (env_mariadb_connect_string) {
+		std::string connect_string(env_mariadb_connect_string);
+
+		rawstream << "-------- MariaDB database (same object)" << std::endl;
+
+		clearMariaDBAuthDatabase(connect_string);
+		AuthDatabase *auth_db_mariadb = new AuthDatabaseMariaDB(connect_string);
+		auth_provider = new FixedProvider(auth_db_mariadb);
+
+		runTestsForCurrentDB();
+
+		delete auth_db_mariadb;
+		delete auth_provider;
+
+		rawstream << "-------- MariaDB database (new objects)" << std::endl;
+
+		clearMariaDBAuthDatabase(connect_string);
+		auth_provider = new MariaDBProvider(connect_string);
+
+		runTestsForCurrentDB();
+
+		delete auth_provider;
+	}
+#endif // USE_MARIADB
 }
 
 ////////////////////////////////////////////////////////////////////////////////
