@@ -1891,9 +1891,9 @@ void LodMeshGenerator::generateBitsetMesh(bitset (& __restrict slices)[6][62][62
 				v1 = (v0 + v1) * BS;
 				const u32 u0 = u * BS;
 				v0 *= BS;
-				const s32 w = BS * slice_i * lod_resolution - BS / 2
-					+ (direction % 2 == 0 ? 0 : BS)
-					+ (lod_resolution - 1) * BS;
+				const s32 w = ((slice_i + 1) * lod_resolution - 1
+					+ (direction % 2 == 0 ? -lod_resolution + 1 : 1)) * BS
+					- BS / 2;
 				static constexpr core::vector3df normals[6] = {
 					core::vector3df(-1, 0, 0), core::vector3df(1, 0, 0),
 					core::vector3df(0, -1, 0), core::vector3df(0, 1, 0),
