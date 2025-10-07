@@ -219,11 +219,11 @@ public:
 	void handleParticleEvent(ClientEvent *event, Client *client,
 			LocalPlayer *player);
 
-	void addDiggingParticles(IGameDef *gamedef, LocalPlayer *player, v3s16 pos,
-		const MapNode &n, const ContentFeatures &f);
+	void addDiggingParticles(LocalPlayer *player, v3s16 pos,
+		const MapNode &n);
 
-	void addNodeParticle(IGameDef *gamedef, LocalPlayer *player, v3s16 pos,
-		const MapNode &n, const ContentFeatures &f);
+	void addNodeParticle(LocalPlayer *player, v3s16 pos,
+		const MapNode &n);
 
 	void reserveParticleSpace(size_t max_estimate);
 
@@ -240,7 +240,7 @@ public:
 	}
 
 protected:
-	static bool getNodeParticleParams(const MapNode &n, const ContentFeatures &f,
+	static bool getNodeParticleParams(Client *client, const MapNode &n,
 		ParticleParameters &p, video::ITexture **texture, v2f &texpos,
 		v2f &texsize, video::SColor *color, u8 tilenum = 0);
 
