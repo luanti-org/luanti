@@ -40,6 +40,7 @@
 # `type_args` can be:
 #   * int:
 #            - default
+#            - default min
 #            - default min max
 #   * string:
 #            - default (if default is not specified then "" is set)
@@ -47,8 +48,10 @@
 #            - default
 #   * float:
 #            - default
+#            - default min
 #            - default min max
 #   * enum:
+#            Empty string "" is a valid enum value
 #            - default value1,value2,...
 #   * path:
 #            - default (if default is not specified then "" is set)
@@ -866,7 +869,7 @@ formspec_fullscreen_bg_color (Formspec Full-Screen Background Color) string (0,0
 gui_scaling_filter (GUI scaling filter) bool false
 
 #    Delay showing tooltips, stated in milliseconds.
-tooltip_show_delay (Tooltip delay) int 400 0 18446744073709551615
+tooltip_show_delay (Tooltip delay) int 400 0
 
 #    Append item name to tooltip.
 tooltip_append_itemname (Append item name) bool false
