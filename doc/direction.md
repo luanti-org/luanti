@@ -27,11 +27,21 @@ See [CONTRIBUTING.md](../.github/CONTRIBUTING.md) for more info.
 
 ### 2.1 SSCSM
 
-Server-sent client-side modding (SSCSM) is a long requested feature (both by modders and core devs) where, as the name suggests, the server sends modding scripts to the client for it to execute in a sandbox. This allows mods to run code on the client, similar to how web pages can run javascript code in web browsers.
+Server-sent client-side modding (SSCSM) is a long requested feature (both by
+modders and core devs) where, as the name suggests, the server sends modding
+scripts to the client for it to execute in a sandbox. This allows mods to run
+code on the client, similar to how web pages can run javascript code in web
+browsers.
 
-Due to the avoided network latency, the engine can provide APIs in this new scripting environment for things that need to happen in a synchronous fashion, allowing mods to overwrite various things that are currently hard-coded in the client.
-For some APIs, it also just makes more sense to have them exist on the client, and not tunnel every call through the server, only leading to technical debt once SSCSM arrives.
-Lastly, parts of the computation of mods can be moved to the client, improving server performance.
+Due to the avoided network latency, the engine can provide APIs in this new
+scripting environment for things that need to happen in a synchronous fashion,
+allowing mods to overwrite various things that are currently hard-coded in the
+client.
+For some APIs, it also just makes more sense to have them exist on the client,
+and not tunnel every call through the server, only leading to technical debt
+once SSCSM arrives.
+Lastly, parts of the computation of mods can be moved to the client, improving
+server performance.
 
 Instead of focusing on short-term solutions that will inevitably lead to more
 technical debt to deal with, SSCSM paves the way for a cleaner architecture
