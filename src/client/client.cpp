@@ -1775,44 +1775,41 @@ float Client::mediaReceiveProgress()
 	if (m_media_downloader)
 		return m_media_downloader->getProgress();
 
-	return 1.0; // downloader only exists when not yet done
+	return 1.0f; // downloader only exists when not yet done
 }
 
-void Client::drawLoadScreen(const std::wstring &text, float dtime, int percent) {
+void Client::drawLoadScreen(const std::wstring &text, float dtime, int percent)
+{
 	m_rendering_engine->run();
 	m_rendering_engine->draw_load_screen(text, guienv, m_tsrc, dtime, percent);
 }
 
 struct TextureUpdateArgs {
-	gui::IGUIEnvironment *guienv;
 	u64 last_time_ms;
-	u16 last_percent;
 	std::wstring text_base;
-	ITextureSource *tsrc;
 };
 
 void Client::showUpdateProgressTexture(void *args, u32 progress, u32 max_progress)
 {
-		TextureUpdateArgs* targs = (TextureUpdateArgs*) args;
-		u16 cur_percent = std::ceil(progress / max_progress * 100.f);
+	auto *targs = reinterpret_cast<TextureUpdateArgs*>(args);
+	u16 cur_percent = std::ceil(progress * 100.f / max_progress);
 
-		// update the loading menu -- if necessary
-		bool do_draw = false;
-		u64 time_ms = targs->last_time_ms;
-		if (cur_percent != targs->last_percent) {
-			targs->last_percent = cur_percent;
-			time_ms = porting::getTimeMs();
-			// only draw when the user will notice something:
-			do_draw = (time_ms - targs->last_time_ms > 100);
-		}
+	// Throttle menu drawing
+	bool do_draw = false;
+	u64 time_ms = porting::getTimeMs();
+	if (time_ms - targs->last_time_ms > 50) {
+		do_draw = true;
+		targs->last_time_ms = time_ms;
+	}
 
-		if (do_draw) {
-			targs->last_time_ms = time_ms;
-			std::wostringstream strm;
-			strm << targs->text_base << L" " << targs->last_percent << L"%...";
-			m_rendering_engine->draw_load_screen(strm.str(), targs->guienv, targs->tsrc, 0,
-				72 + (u16) ((18. / 100.) * (double) targs->last_percent));
-		}
+	if (!do_draw)
+		return;
+
+	std::wostringstream strm;
+	strm << targs->text_base << L" " << cur_percent << L"%...";
+	int shown_progress = 72 + std::ceil(0.18f * cur_percent);
+	m_rendering_engine->draw_load_screen(strm.str(), guienv, m_tsrc,
+		0, shown_progress);
 }
 
 void Client::afterContentReceived()
@@ -1855,11 +1852,8 @@ void Client::afterContentReceived()
 	// Update node textures and assign shaders to each tile
 	infostream<<"- Updating node textures"<<std::endl;
 	TextureUpdateArgs tu_args;
-	tu_args.guienv = guienv;
 	tu_args.last_time_ms = porting::getTimeMs();
-	tu_args.last_percent = 0;
 	tu_args.text_base = wstrgettext("Initializing nodes");
-	tu_args.tsrc = m_tsrc;
 	m_nodedef->updateTextures(this, &tu_args);
 
 	// Start mesh update thread after setting up content definitions
