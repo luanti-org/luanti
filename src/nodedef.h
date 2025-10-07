@@ -14,6 +14,7 @@
 #if CHECK_CLIENT_BUILD()
 #include "client/tile.h"
 #include <IMeshManipulator.h>
+#include <unordered_set>
 class Client;
 #endif
 #include "itemgroup.h"
@@ -259,6 +260,15 @@ enum AlphaMode : u8 {
 	AlphaMode_END // Dummy for validity check
 };
 
+#if CHECK_CLIENT_BUILD()
+/* private, only for use with ContentFeatures::updateTextures() */
+struct PreLoadedTexture {
+	video::ITexture *texture = nullptr;
+	u32 texture_id = 0;
+	u16 texture_layer_idx = 0;
+};
+typedef std::unordered_map<std::string, PreLoadedTexture> PreLoadedTextures;
+#endif
 
 /*
 	Stand-alone definition of a TileSpec (basically a server-side TileSpec)
@@ -505,8 +515,11 @@ struct ContentFeatures
 	}
 
 #if CHECK_CLIENT_BUILD()
+	void preUpdateTextures(std::unordered_set<std::string> &pool, const TextureSettings &tsettings);
 	void updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
-		scene::IMeshManipulator *meshmanip, Client *client, const TextureSettings &tsettings);
+		Client *client, const PreLoadedTextures &texture_pool,
+		const TextureSettings &tsettings);
+	void updateMesh(Client *client, const TextureSettings &tsettings);
 #endif
 
 private:
