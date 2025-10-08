@@ -8,5 +8,3 @@
 #include <unordered_map>
 
 const std::unordered_map<std::string, std::string> &get_builtin_file_sha256_map();
-
-std::string get_builtin_file_sha256(const std::string &rel_path);
