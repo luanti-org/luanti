@@ -499,6 +499,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 	}
 
 	// Read the file
+	// TODO: just use a helper
 	int ret = std::fseek(fp, 0, SEEK_END);
 	if (ret) {
 		lua_pushfstring(L, "%s: %s", path, strerror(errno));
@@ -531,22 +532,23 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 	// Check sha256 if it's a builtin file
 	do {
 		if (!path)
-			break;
+			break; // stdin
 		const auto &sha_map = get_builtin_file_sha256_map();
 		std::string builtin_path = Server::getBuiltinLuaPath() + DIR_DELIM;
 		if (std::string_view(path).substr(0, builtin_path.size()) != builtin_path)
-			break;
+			break; // not in builtin
 		auto path_local = std::string_view(path).substr(builtin_path.size());
 		auto it = sha_map.find(std::string(path_local));
-		if (it == sha_map.end())
+		if (it == sha_map.end()) {
+			warningstream << "No SHA256 known for builtin file \"" << path << "\""
+					<< std::endl;
 			break;
+		}
 		auto digest = hex_encode(hashing::sha256(code));
 		if (it->second != digest) {
-			// TODO: new exception kind
-			lua_pushfstring(L,
-				"%s: SHA256 of builtin file does not match. Expected: %s Found: %s",
-				path, it->second.c_str(), digest.c_str());
-			return false;
+			warningstream << "SHA256 of builtin file \"" << path
+					<< "\" does not match. Expected: " << it->second.c_str()
+					<< " Found: " << digest.c_str() << std::endl;;
 		}
 	} while (false);
 
