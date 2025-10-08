@@ -14,17 +14,25 @@
 #include "texturepaths.h"
 #include "util/thread.h"
 
-
+// Represents a to-be-generated texture for queueing purposes
 struct TextureRequest
 {
-	std::string image;
+	video::E_TEXTURE_TYPE type = video::ETT_2D;
+	std::vector<std::string> images;
 
 	void print(std::ostream &to) const {
-		to << "image=\"" << image << "\"";
+		if (images.size() == 1) {
+			to << "image=\"" << images[0] << "\"";
+		} else {
+			to << "images={";
+			for (auto &image : images)
+				to << "\"" << image << "\" ";
+			to << "}";
+		}
 	}
 
 	bool operator==(const TextureRequest &other) const {
-		return image == other.image;
+		return images == other.images;
 	}
 	bool operator!=(const TextureRequest &other) const {
 		return !(*this == other);
@@ -71,6 +79,9 @@ public:
 	video::ITexture* getTexture(u32 id);
 
 	video::ITexture* getTexture(const std::string &name, u32 *id = nullptr);
+
+	video::ITexture *addArrayTexture(
+		const std::vector<std::string> &images, u32 *id = nullptr);
 
 	bool needFilterForMesh() const {
 		return mesh_filter_needed;
@@ -138,6 +149,9 @@ private:
 
 	// Generate standard texture
 	u32 generateTexture(const std::string &name);
+
+	// Generate array texture
+	u32 generateArrayTexture(const std::vector<std::string> &names);
 
 	// Thread-safe cache of what source images are known (true = known)
 	MutexedMap<std::string, bool> m_source_image_existence;
@@ -272,15 +286,97 @@ u32 TextureSource::getTextureId(const std::string &name)
 			return n->second;
 	}
 
-	TextureRequest req{name};
+	TextureRequest req{video::ETT_2D, {name}};
 
 	return processRequestQueued(req);
 }
 
+video::ITexture *TextureSource::addArrayTexture(
+	const std::vector<std::string> &images, u32 *ret_id)
+{
+	if (images.empty())
+		return NULL;
+
+	TextureRequest req{video::ETT_2D_ARRAY, images};
+
+	u32 id = processRequestQueued(req);
+	if (ret_id)
+		*ret_id = id;
+	return getTexture(id);
+}
+
 u32 TextureSource::processRequest(const TextureRequest &req)
 {
-	// No different types yet (TODO)
-	return generateTexture(req.image);
+	if (req.type == video::ETT_2D) {
+		assert(req.images.size() == 1);
+		return generateTexture(req.images[0]);
+	}
+
+	if (req.type == video::ETT_2D_ARRAY) {
+		assert(!req.images.empty());
+		return generateArrayTexture(req.images);
+	}
+
+	errorstream << "TextureSource::processRequest(): unknown type "
+			<< (int)req.type << std::endl;
+	return 0;
+}
+
+u32 TextureSource::generateArrayTexture(const std::vector<std::string> &images)
+{
+	std::set<std::string> source_image_names;
+	std::vector<video::IImage*> imgs;
+	const auto &drop_imgs = [&imgs] () {
+		for (auto *img : imgs) {
+			if (img)
+				img->drop();
+		}
+		imgs.clear();
+	};
+	for (auto &name : images) {
+		video::IImage *img = getOrGenerateImage(name, source_image_names);
+		if (!img) {
+			// Since the caller needs to make sure of the dimensions beforehand
+			// anyway, this should not ever happen. So the "unhelpful" error is ok.
+			errorstream << "generateArrayTexture(): one of " << images.size()
+				<< " images failed to generate, aborting." << std::endl;
+			drop_imgs();
+			return 0;
+		}
+		imgs.push_back(img);
+	}
+	assert(!imgs.empty());
+
+	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
+	sanity_check(driver);
+	assert(driver->queryFeature(video::EVDF_TEXTURE_2D_ARRAY));
+
+	MutexAutoLock lock(m_textureinfo_cache_mutex);
+	const u32 id = m_textureinfo_cache.size();
+	std::string name;
+	{ // automatically choose a name
+		char buf[64];
+		porting::mt_snprintf(buf, sizeof(buf), "array#%u %ux%ux%u", id,
+			imgs[0]->getDimension().Width, imgs[0]->getDimension().Height,
+			imgs.size());
+		name = buf;
+	}
+
+	video::ITexture *tex = driver->addArrayTexture(name, imgs.data(), imgs.size());
+	drop_imgs();
+
+	if (!tex) {
+		warningstream << "generateArrayTexture(): failed to upload texture \""
+				<< name << "\"" << std::endl;
+	}
+
+	// Add texture to caches (add NULL textures too)
+
+	TextureInfo ti{video::ETT_2D_ARRAY, name, images, tex, std::move(source_image_names)};
+	m_textureinfo_cache.emplace_back(std::move(ti));
+	m_name_to_id[name] = id;
+
+	return id;
 }
 
 u32 TextureSource::generateTexture(const std::string &name)
@@ -304,7 +400,6 @@ u32 TextureSource::generateTexture(const std::string &name)
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	sanity_check(driver);
 
-	// passed into texture info for dynamic media tracking
 	std::set<std::string> source_image_names;
 	video::IImage *img = getOrGenerateImage(name, source_image_names);
 
@@ -316,12 +411,16 @@ u32 TextureSource::generateTexture(const std::string &name)
 		guiScalingCache(io::path(name.c_str()), driver, img);
 		img->drop();
 	}
+	if (!tex) {
+		warningstream << "generateTexture(): failed to upload texture \""
+				<< name << "\"" << std::endl;
+	}
 
 	// Add texture to caches (add NULL textures too)
 
 	MutexAutoLock lock(m_textureinfo_cache_mutex);
 
-	u32 id = m_textureinfo_cache.size();
+	const u32 id = m_textureinfo_cache.size();
 	TextureInfo ti{video::ETT_2D, name, {name}, tex, std::move(source_image_names)};
 	m_textureinfo_cache.emplace_back(std::move(ti));
 	m_name_to_id[name] = id;
