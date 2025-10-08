@@ -15,13 +15,3 @@ const std::unordered_map<std::string, std::string> &get_builtin_file_sha256_map(
 
 	return map;
 }
-
-std::string get_builtin_file_sha256(const std::string &rel_path)
-{
-	auto &map = get_builtin_file_sha256_map();
-	auto it = map.find(rel_path);
-	if (it == map.end())
-		return "";
-	else
-		return it->second;
-}
