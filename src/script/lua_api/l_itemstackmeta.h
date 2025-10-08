@@ -44,31 +44,9 @@ private:
 		istack->getItem().metadata.clearWearBarParams();
 	}
 
-#define animation_functions(NAME) \
-	void set##NAME##Animation(const TileAnimationParams &params) \
-	{ \
-		istack->getItem().metadata.set##NAME##Animation(params); \
-	} \
-	void clear##NAME##Animation() \
-	{ \
-		istack->getItem().metadata.clear##NAME##Animation(); \
-	}
-
-	animation_functions(InventoryImage)
-	animation_functions(InventoryOverlay)
-	animation_functions(WieldImage)
-	animation_functions(WieldOverlay)
-#undef animation_functions
-
-
-
 	// Exported functions
 	static int l_set_tool_capabilities(lua_State *L);
 	static int l_set_wear_bar_params(lua_State *L);
-	static int l_set_inventory_image_animation(lua_State *L);
-	static int l_set_inventory_overlay_animation(lua_State *L);
-	static int l_set_wield_image_animation(lua_State *L);
-	static int l_set_wield_overlay_animation(lua_State *L);
 public:
 	// takes a reference
 	ItemStackMetaRef(LuaItemStack *istack);

@@ -26,22 +26,14 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	const ItemDefinition &def = item.getDefinition(idef);
 	std::string inventory_image = item.getInventoryImage(idef);
 	std::string inventory_overlay = item.getInventoryOverlay(idef);
-	const TileAnimationParams inventory_image_animation = item.getInventoryImageAnimation(idef);
-	const TileAnimationParams inventory_overlay_animation = item.getInventoryOverlayAnimation(idef);
+	const TileAnimationParams &inventory_image_animation = item.getInventoryImageAnimation(idef);
+	const TileAnimationParams &inventory_overlay_animation = item.getInventoryOverlayAnimation(idef);
 
 	std::ostringstream os(def.name);
 	if (!inventory_image.empty())
 		os << "/" << inventory_image;
 	if (!inventory_overlay.empty())
 		os << ":" << inventory_overlay;
-	if (inventory_image_animation.type != TileAnimationType::TAT_NONE) {
-		os << "//";
-		inventory_image_animation.serializeJson(os);
-	}
-	if (inventory_overlay_animation.type != TileAnimationType::TAT_NONE) {
-		os << "::";
-		inventory_overlay_animation.serializeJson(os);
-	}
 	std::string cache_key = os.str();
 
 

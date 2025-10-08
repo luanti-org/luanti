@@ -266,9 +266,6 @@ std::string ItemStack::get##NAME(const IItemDefManager *itemdef) const \
 } \
 const TileAnimationParams ItemStack::get##NAME##Animation(const IItemDefManager *itemdef) const \
 { \
-	auto &meta_override = metadata.get##NAME##AnimationOverride(); \
-	if (meta_override.has_value()) \
-		return meta_override.value(); \
 	return getDefinition(itemdef).FIELD##_animation; \
 }
 

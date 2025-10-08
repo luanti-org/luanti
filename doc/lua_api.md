@@ -8250,13 +8250,6 @@ Can be obtained via `item:get_meta()`.
     * Overrides the item's wear bar parameters (see "Wear Bar Color" section)
     * A nil value will clear the override data and restore the original
       behavior.
-* `set_inventory_image_animation({Tile Animation definition})`
-* `set_inventory_overlay_animation({Tile Animation definition})`
-* `set_wield_image_animation({Tile Animation definition})`
-* `set_wield_overlay_animation({Tile Animation definition})`
-    * Overrides the item's image animation definitions
-    * A nil value will clear the override data.
-    * See [Item Metadata](#item-metadata) for how to override the image.
 
 `MetaDataRef`
 -------------
