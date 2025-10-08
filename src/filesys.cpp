@@ -454,6 +454,16 @@ std::string CreateTempDir()
 	return path;
 }
 
+namespace {
+	struct FileDeleter {
+		void operator()(FILE *stream) {
+			fclose(stream);
+		}
+	};
+
+	typedef std::unique_ptr<FILE, FileDeleter> FileUniquePtr;
+}
+
 bool CopyFileContents(const std::string &source, const std::string &target)
 {
 	FileUniquePtr sourcefile, targetfile;

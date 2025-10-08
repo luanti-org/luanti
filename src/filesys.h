@@ -9,7 +9,6 @@
 #include <string_view>
 #include <vector>
 #include <fstream>
-#include <memory>
 
 #ifdef _WIN32
 #define DIR_DELIM "\\"
@@ -29,15 +28,6 @@ class IFileSystem;
 
 namespace fs
 {
-
-struct FileDeleter {
-	void operator()(std::FILE *stream) {
-		if (stream)
-			std::fclose(stream);
-	}
-};
-
-using FileUniquePtr = std::unique_ptr<std::FILE, FileDeleter>;
 
 struct DirListNode
 {
