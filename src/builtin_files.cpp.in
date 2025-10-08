@@ -5,7 +5,6 @@
 // Filled in by the build system
 
 #include "builtin_files.h"
-#include <unordered_map>
 
 const std::unordered_map<std::string, std::string> &get_builtin_file_sha256_map()
 {
