@@ -229,10 +229,7 @@ public:
 	virtual void makeColorKeyTexture(video::ITexture *texture,
 			core::position2d<s32> colorKeyPixelPos) const override;
 
-	//! Returns the maximum amount of primitives (mostly vertices) which
-	//! the device is able to render with one drawIndexedTriangleList
-	//! call.
-	u32 getMaximalPrimitiveCount() const override;
+	SDriverLimits getLimits() const override;
 
 	//! Enables or disables a texture creation flag.
 	void setTextureCreationFlag(E_TEXTURE_CREATION_FLAG flag, bool enabled) override;
@@ -280,7 +277,7 @@ public:
 	//! Check if the driver supports creating textures with the given color format
 	bool queryTextureFormat(ECOLOR_FORMAT format) const override
 	{
-		return false;
+		return format == video::ECF_A8R8G8B8;
 	}
 
 protected:
@@ -528,9 +525,6 @@ public:
 	{
 		AllowZWriteOnTransparent = flag;
 	}
-
-	//! Returns the maximum texture size supported.
-	core::dimension2du getMaxTextureSize() const override;
 
 	//! Used by some SceneNodes to check if a material should be rendered in the transparent render pass
 	bool needsTransparentRenderPass(const video::SMaterial &material) const override;

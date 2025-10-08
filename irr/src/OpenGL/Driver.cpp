@@ -1688,10 +1688,13 @@ ITexture *COpenGL3DriverBase::addRenderTargetTextureCubemap(const u32 sideLen, c
 	return renderTargetTexture;
 }
 
-//! Returns the maximum amount of primitives
-u32 COpenGL3DriverBase::getMaximalPrimitiveCount() const
+SDriverLimits COpenGL3DriverBase::getLimits() const
 {
-	return Version.Spec == OpenGLSpec::ES ? 65535 : 0x7fffffff;
+	SDriverLimits ret;
+	ret.MaxPrimitiveCount = Version.Spec == OpenGLSpec::ES ? UINT16_MAX : INT32_MAX;
+	ret.MaxTextureSize = MaxTextureSize;
+	ret.MaxArrayTextureImages = MaxArrayTextureLayers;
+	return ret;
 }
 
 bool COpenGL3DriverBase::setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SColor clearColor, f32 clearDepth, u8 clearStencil)
@@ -1862,11 +1865,6 @@ void COpenGL3DriverBase::removeTexture(ITexture *texture)
 {
 	CacheHandler->getTextureCache().remove(texture);
 	CNullDriver::removeTexture(texture);
-}
-
-core::dimension2du COpenGL3DriverBase::getMaxTextureSize() const
-{
-	return core::dimension2du(MaxTextureSize, MaxTextureSize);
 }
 
 GLenum COpenGL3DriverBase::getGLBlend(E_BLEND_FACTOR factor) const

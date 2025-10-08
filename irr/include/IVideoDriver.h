@@ -62,6 +62,15 @@ struct SFrameStats {
 	u32 HWBuffersActive = 0;
 };
 
+struct SDriverLimits {
+	//! Maximum amount of primitives that can be rendered in a single call
+	u32 MaxPrimitiveCount = 0;
+	//! Maximum width/height for a texture
+	u32 MaxTextureSize = 0;
+	//! Maximum number of images in an array texture
+	u32 MaxArrayTextureImages = 0;
+};
+
 //! Interface to driver which is able to perform 2d and 3d graphics functions.
 /** This interface is one of the most important interfaces of
 the Irrlicht Engine: All rendering and texture manipulation is done with
@@ -852,11 +861,8 @@ public:
 	\param writer: Pointer to the external writer created. */
 	virtual void addExternalImageWriter(IImageWriter *writer) = 0;
 
-	//! Returns the maximum amount of primitives
-	/** (mostly vertices) which the device is able to render with
-	one drawVertexPrimitiveList call.
-	\return Maximum amount of primitives. */
-	virtual u32 getMaximalPrimitiveCount() const = 0;
+	//! Returns some common driver limits.
+	virtual SDriverLimits getLimits() const = 0;
 
 	//! Enables or disables a texture creation flag.
 	/** These flags define how textures should be created. By
@@ -1116,7 +1122,11 @@ public:
 	virtual void setAllowZWriteOnTransparent(bool flag) = 0;
 
 	//! Get the maximum texture size supported.
-	virtual core::dimension2du getMaxTextureSize() const = 0;
+	inline core::dimension2du getMaxTextureSize() const
+	{
+		auto l = getLimits();
+		return {l.MaxTextureSize, l.MaxTextureSize};
+	}
 
 	//! Check if the driver supports creating textures with the given color format
 	/**	\return True if the format is available, false if not. */
