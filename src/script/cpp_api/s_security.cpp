@@ -475,27 +475,28 @@ bool ScriptApiSecurity::safeLoadFileContent(lua_State *L, std::string_view code,
 
 bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char *display_name)
 {
+	if (!path) {
+		lua_pushstring(L, "Loading code from stdin is not supported.");
+		return false;
+	}
+
 	fs::FileUniquePtr fp_up;
 	FILE *fp;
 	std::unique_ptr<char[]> chunk_name_up;
 	const char *chunk_name;
 	if (!display_name)
 		display_name = path;
-	if (!path) {
-		fp = stdin; // TODO: why do we support this?
-		chunk_name = "=stdin";
-	} else {
-		fp_up.reset(std::fopen(path, "rb"));
-		if (!fp_up) {
-			lua_pushfstring(L, "%s: %s", path, strerror(errno));
-			return false;
-		}
-		fp = fp_up.get();
-		size_t len = strlen(display_name) + 2;
-		chunk_name_up.reset(new char[len]);
-		snprintf(chunk_name_up.get(), len, "@%s", display_name);
-		chunk_name = chunk_name_up.get();
+
+	fp_up.reset(std::fopen(path, "rb"));
+	if (!fp_up) {
+		lua_pushfstring(L, "%s: %s", path, strerror(errno));
+		return false;
 	}
+	fp = fp_up.get();
+	size_t len = strlen(display_name) + 2;
+	chunk_name_up.reset(new char[len]);
+	snprintf(chunk_name_up.get(), len, "@%s", display_name);
+	chunk_name = chunk_name_up.get();
 
 	// Read the file
 	// TODO: just use a helper
@@ -522,9 +523,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 
 	// Check sha256 if it's a builtin file
 	do {
-		if (!path)
-			break; // stdin
-
+		assert(path != nullptr);
 		std::string path_abs = fs::AbsolutePathPartial(path);
 		std::string builtin_path_abs =
 				fs::AbsolutePathPartial(Server::getBuiltinLuaPath()) + DIR_DELIM;
