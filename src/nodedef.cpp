@@ -696,7 +696,7 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 			image += tsrc->FILTER_FOR_MESH;
 		auto it = context.texture_pool.find(image);
 		if (it == context.texture_pool.end()) {
-			// Shouldn't normally happen, but we can handle this.
+			// wasn't pre-loaded. create standard texture on the fly.
 			layer->texture = tsrc->getTexture(image, &layer->texture_id);
 		} else {
 			layer->texture = it->second.texture;
@@ -1535,24 +1535,60 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 	tsrc->setImageCaching(true);
 	const u32 size = m_content_features.size();
 
-	// collect all textures we might use
+	/* collect all textures we might use */
 	std::unordered_set<std::string> pool;
 	for (u32 i = 0; i < size; i++) {
 		ContentFeatures *f = &(m_content_features[i]);
 		f->preUpdateTextures(pool, tsettings);
 	}
 
-	// load all textures
-	PreLoadedTextures plt;
-	for (auto &image : pool) {
-		PreLoadedTexture t;
-		t.texture = tsrc->getTexture(image, &t.texture_id);
-		if (t.texture)
-			plt[image] = t;
+	/* texture pre-loading stage */
+	auto *drv = RenderingEngine::get_video_driver();
+	u32 arraymax = drv->queryFeature(video::EVDF_TEXTURE_2D_ARRAY) ?
+		drv->getLimits().MaxArrayTextureImages : 0;
+	arraymax = std::min(arraymax, 65535U); // layer index is u16
+	// Group by size
+	std::unordered_map<v2u32, std::vector<std::string_view>> sizes;
+	if (arraymax > 1) {
+		for (auto &image : pool) {
+			core::dimension2du dim = tsrc->getTextureDimensions(image);
+			if (!dim.Width || !dim.Height) // error
+				continue;
+			sizes[v2u32(dim)].emplace_back(image);
+		}
 	}
+	// create array textures as far as possible
+	PreLoadedTextures plt;
+	const auto &doBunch = [&] (core::dimension2du dim, const std::vector<std::string> &bunch) {
+		rawstream << dim.Width << "x" << dim.Height << " b: " << bunch.size() << std::endl;
+		PreLoadedTexture t;
+		t.texture = tsrc->addArrayTexture(bunch, &t.texture_id);
+		if (t.texture) {
+			// Success: all of the images in this bunch can now refer to this texture
+			for (size_t idx = 0; idx < bunch.size(); idx++) {
+				t.texture_layer_idx = idx;
+				plt[bunch[idx]] = t;
+			}
+		}
+	};
+	for (auto &it : sizes) {
+		if (it.second.size() < 2)
+			continue;
+		std::vector<std::string> bunch;
+		for (auto &image : it.second) {
+			bunch.emplace_back(image);
+			if (bunch.size() == arraymax) {
+				doBunch(core::dimension2du(it.first), bunch);
+				bunch.clear();
+			}
+		}
+		if (!bunch.empty())
+			doBunch(core::dimension2du(it.first), bunch);
+	}
+	// standard textures aren't preloaded
 	rawstream << "pre: " << plt.size() << std::endl;
 
-	// final step
+	/* final step */
 	for (u32 i = 0; i < size; i++) {
 		ContentFeatures *f = &(m_content_features[i]);
 		f->updateTextures(tsrc, shdsrc, client, plt, tsettings);

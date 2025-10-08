@@ -60,8 +60,11 @@ public:
 	/// @brief Returns existing texture by ID
 	virtual video::ITexture *getTexture(u32 id)=0;
 
-	/// @return true if getTextureForMesh will apply a filter
-	virtual bool needFilterForMesh() const = 0;
+	/// @brief Generates texture string(s) into an array texture
+	/// @note Unlike the other getters this will always add a *new* texture.
+	/// @return its ID
+	virtual video::ITexture *addArrayTexture(
+		const std::vector<std::string> &images, u32 *id = nullptr) = 0;
 
 	/**
 	 * @brief Generates a texture string into a standard texture
@@ -76,6 +79,9 @@ public:
 			return getTexture(image + FILTER_FOR_MESH, id);
 		return getTexture(image, id);
 	}
+
+	/// @return true if getTextureForMesh will apply a filter
+	virtual bool needFilterForMesh() const = 0;
 
 	/// Filter needed for mesh-suitable textures, including leading ^
 	static constexpr const char *FILTER_FOR_MESH = "^[applyfiltersformesh";
