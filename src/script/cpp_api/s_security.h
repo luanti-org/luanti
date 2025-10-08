@@ -47,10 +47,8 @@ public:
 	static bool safeLoadFileContent(lua_State *L, std::string_view code, const char *chunk_name);
 	/// Loads a file as Lua code safely (doesn't allow bytecode).
 	/// @warning path is not validated in any way
-	/// @p expected_sha256 SHA256 digest in hex. If given and the file content
-	///                    doesn't match, a TODO exception is thrown.
-	static bool safeLoadFile(lua_State *L, const char *path, const char *display_name = nullptr,
-			std::optional<std::string_view> expected_sha256 = std::nullopt);
+	/// Prints warnings for modified builtin files.
+	static bool safeLoadFile(lua_State *L, const char *path, const char *display_name = nullptr);
 
 	/**
 	 * Returns the currently running mod, only during init time.
