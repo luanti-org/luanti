@@ -5,7 +5,6 @@
 #pragma once
 
 #include "cpp_api/s_base.h"
-#include <optional>
 
 
 #define CHECK_SECURE_PATH_INTERNAL(L, path, write_required, ptr) \
