@@ -710,9 +710,6 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 		}
 	}
 
-	layer->shader_id = (layer->texture && layer->texture->getType() == video::ETT_2D_ARRAY) ?
-		shader.with_layers : shader.normal;
-
 	core::dimension2du texture_size(1, 1); // dummy if there's an error
 	if (layer->texture)
 		texture_size = layer->texture->getOriginalSize();
@@ -778,6 +775,16 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 			FrameSpec &frame = (*layer->frames)[i];
 			frame.texture = tsrc->getTextureForMesh(os.str(), &frame.texture_id);
 		}
+	}
+
+	// decide on shader to use:
+	// animated nodes will have their texture replaced with one of the frames
+	{
+		video::ITexture *check = layer->texture;
+		if (layer->material_flags & MATERIAL_FLAG_ANIMATION)
+			check = (*layer->frames)[0].texture;
+		layer->shader_id = (check && check->getType() == video::ETT_2D_ARRAY) ?
+			shader.with_layers : shader.normal;
 	}
 }
 
@@ -1579,6 +1586,9 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 	u32 arraymax = drv->queryFeature(video::EVDF_TEXTURE_2D_ARRAY) ?
 		drv->getLimits().MaxArrayTextureImages : 0;
 	arraymax = std::min(arraymax, 65535U); // layer index is u16
+	if (getenv("ARRAYMAX"))
+		arraymax = std::min(arraymax, (u32)atoi(getenv("ARRAYMAX")));
+	// TODO: https://developer.arm.com/documentation/102502/0101/Shader-precision mediump?
 	// Group by size
 	std::unordered_map<v2u32, std::vector<std::string_view>> sizes;
 	if (arraymax > 1) {
@@ -1598,7 +1608,7 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 		if (t.texture) {
 			// Success: all of the images in this bunch can now refer to this texture
 			for (size_t idx = 0; idx < bunch.size(); idx++) {
-				t.texture_layer_idx = idx;
+				t.texture_layer_idx = 1 + idx;
 				plt[bunch[idx]] = t;
 			}
 		}
