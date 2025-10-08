@@ -466,12 +466,12 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 	fs::FileUniquePtr fp_up;
 	FILE *fp;
 	std::unique_ptr<char[]> chunk_name_up;
-	char *chunk_name;
+	const char *chunk_name;
 	if (!display_name)
 		display_name = path;
 	if (!path) {
 		fp = stdin; // TODO: why do we support this?
-		chunk_name = const_cast<char *>("=stdin");
+		chunk_name = "=stdin";
 	} else {
 		fp_up.reset(std::fopen(path, "rb"));
 		if (!fp_up) {
