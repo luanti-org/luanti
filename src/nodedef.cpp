@@ -679,15 +679,20 @@ struct TileAttribContext {
 	const TextureSettings &tsettings;
 };
 
+struct ShaderIds {
+	u32 normal;
+	// Shader that will correctly an array texture and texture_layer_idx 
+	u32 with_layers;
+};
+
 static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 		const TileSpec &tile, const TileDef &tiledef,
-		MaterialType material_type, u32 shader_id)
+		MaterialType material_type, ShaderIds shader)
 {
 	auto *tsrc = context.tsrc;
 	const auto &tsettings = context.tsettings;
 
-	layer->shader_id     = shader_id;
-	layer->material_type = material_type;
+	layer->material_type = material_type; // note: unused
 
 	// Grab texture
 	if (!tiledef.name.empty()) {
@@ -706,10 +711,14 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 		}
 	}
 
+	layer->shader_id = (layer->texture && layer->texture->getType() == video::ETT_2D_ARRAY) ?
+		shader.with_layers : shader.normal;
+
 	core::dimension2du texture_size(1, 1); // dummy if there's an error
 	if (layer->texture)
 		texture_size = layer->texture->getOriginalSize();
 
+	// Scale
 	bool has_scale = tiledef.scale > 0;
 	bool use_autoscale = tsettings.autoscale_mode == AUTOSCALE_FORCE ||
 		(tsettings.autoscale_mode == AUTOSCALE_ENABLE && !has_scale);
@@ -941,7 +950,16 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		}
 	}
 
-	u32 tile_shader = shdsrc->getShader("nodes_shader", material_type, drawtype);
+	const bool texture_2d_array = RenderingEngine::get_video_driver()->queryFeature(video::EVDF_TEXTURE_2D_ARRAY);
+	const auto &getNodeShader = [&] (MaterialType my_material, NodeDrawType my_drawtype) {
+		ShaderIds ret;
+		ret.normal = shdsrc->getShader("nodes_shader", my_material, my_drawtype);
+		if (texture_2d_array)
+			ret.with_layers = shdsrc->getShader("nodes_shader", my_material, my_drawtype, true);
+		return ret;
+	};
+
+	ShaderIds tile_shader = getNodeShader(material_type, drawtype);
 
 	MaterialType overlay_material = material_type;
 	if (overlay_material == TILE_MATERIAL_OPAQUE)
@@ -949,7 +967,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 	else if (overlay_material == TILE_MATERIAL_LIQUID_OPAQUE)
 		overlay_material = TILE_MATERIAL_LIQUID_TRANSPARENT;
 
-	u32 overlay_shader = shdsrc->getShader("nodes_shader", overlay_material, drawtype);
+	ShaderIds overlay_shader = getNodeShader(overlay_material, drawtype);
 
 	// minimap pixel color = average color of top tile
 	if (tsettings.enable_minimap && drawtype != NDT_AIRLIKE && !tdef[0].name.empty())
@@ -999,7 +1017,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		else if (waving == 2)
 			special_material = TILE_MATERIAL_WAVING_LEAVES;
 	}
-	u32 special_shader = shdsrc->getShader("nodes_shader", special_material, drawtype);
+	ShaderIds special_shader = getNodeShader(special_material, drawtype);
 
 	// Special tiles (fill in f->special_tiles[])
 	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++) {
