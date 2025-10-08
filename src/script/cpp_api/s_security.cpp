@@ -460,6 +460,19 @@ bool ScriptApiSecurity::safeLoadString(lua_State *L, std::string_view code, cons
 	return true;
 }
 
+bool ScriptApiSecurity::safeLoadFileContent(lua_State *L, std::string_view code, const char *chunk_name)
+{
+	// Skip the shebang line (but keep line-ending)
+	if (!code.empty() && code[0] == '#') {
+		size_t nl = code.find('\n', 1);
+		if (nl == code.npos)
+			nl = code.size();
+		code = code.substr(nl);
+	}
+
+	return safeLoadString(L, code, chunk_name);
+}
+
 bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char *display_name,
 	std::optional<std::string_view> expected_sha256)
 {
@@ -537,16 +550,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 		}
 	} while (false);
 
-	// Skip the shebang line (but keep line-ending)
-	std::string_view code_view = code;
-	if (!code_view.empty() && code_view[0] == '#') {
-		size_t nl = code_view.find('\n', 1);
-		if (nl == code_view.npos)
-			nl = code_view.size();
-		code_view = code_view.substr(nl);
-	}
-
-	return safeLoadString(L, code_view, chunk_name);
+	return safeLoadFileContent(L, code, chunk_name);
 }
 
 
@@ -827,7 +831,7 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 		}
 
 		std::string chunk_name = "@" + path;
-		if (!safeLoadString(L, *contents, chunk_name.c_str())) {
+		if (!safeLoadFileContent(L, *contents, chunk_name.c_str())) {
 			lua_pushnil(L);
 			lua_insert(L, -2);
 			return 2;
