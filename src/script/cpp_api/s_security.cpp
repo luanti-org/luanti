@@ -480,46 +480,17 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 		return false;
 	}
 
-	fs::FileUniquePtr fp_up;
-	FILE *fp;
-	std::unique_ptr<char[]> chunk_name_up;
-	const char *chunk_name;
 	if (!display_name)
 		display_name = path;
 
-	fp_up.reset(std::fopen(path, "rb"));
-	if (!fp_up) {
-		lua_pushfstring(L, "%s: %s", path, strerror(errno));
-		return false;
-	}
-	fp = fp_up.get();
-	size_t len = strlen(display_name) + 2;
-	chunk_name_up.reset(new char[len]);
-	snprintf(chunk_name_up.get(), len, "@%s", display_name);
-	chunk_name = chunk_name_up.get();
+	std::string chunk_name = std::string("@") + display_name;
 
 	// Read the file
-	// TODO: just use a helper
-	int ret = std::fseek(fp, 0, SEEK_END);
-	if (ret) {
-		lua_pushfstring(L, "%s: %s", path, strerror(errno));
+	std::string code;
+	if (!fs::ReadFile(path, code)) {
+		lua_pushfstring(L, "%s: %s", path, "Failed reading file.");
 		return false;
 	}
-
-	size_t size = std::ftell(fp);
-	std::string code(size, '\0');
-	ret = std::fseek(fp, 0, SEEK_SET);
-	if (ret) {
-		lua_pushfstring(L, "%s: %s", path, strerror(errno));
-		return false;
-	}
-
-	size_t num_read = std::fread(&code[0], 1, size, fp);
-	if (num_read != size) {
-		lua_pushfstring(L, "%s: Error reading file to load.", path);
-		return false;
-	}
-	fp_up.reset();
 
 	// Check sha256 if it's a builtin file
 	do {
@@ -549,7 +520,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 		}
 	} while (false);
 
-	return safeLoadFileContent(L, code, chunk_name);
+	return safeLoadFileContent(L, code, chunk_name.c_str());
 }
 
 
