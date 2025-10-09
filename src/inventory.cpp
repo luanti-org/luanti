@@ -256,24 +256,45 @@ std::string ItemStack::getShortDescription(const IItemDefManager *itemdef) const
 	return desc;
 }
 
-#define image_get_function(NAME, FIELD) \
-std::string ItemStack::get##NAME(const IItemDefManager *itemdef) const \
-{ \
-	std::string texture = metadata.getString(#FIELD); \
-	if (texture.empty()) \
-		texture = getDefinition(itemdef).FIELD; \
-	return texture; \
-} \
-const TileAnimationParams ItemStack::get##NAME##Animation(const IItemDefManager *itemdef) const \
-{ \
-	return getDefinition(itemdef).FIELD##_animation; \
+ItemImageDef ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
+{
+	ItemImageDef image = getDefinition(itemdef).inventory_image;
+	std::string meta_image = metadata.getString("inventory_image");
+	if (!meta_image.empty())
+		image.name = meta_image;
+
+	return image;
 }
 
-image_get_function(InventoryImage, inventory_image)
-image_get_function(InventoryOverlay, inventory_overlay)
-image_get_function(WieldImage, wield_image)
-image_get_function(WieldOverlay, wield_overlay)
-#undef image_get_function
+ItemImageDef ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) const
+{
+	ItemImageDef image = getDefinition(itemdef).inventory_overlay;
+	std::string meta_image = metadata.getString("inventory_overlay");
+	if (!meta_image.empty())
+		image.name = meta_image;
+
+	return image;
+}
+
+ItemImageDef ItemStack::getWieldImage(const IItemDefManager *itemdef) const
+{
+	ItemImageDef image = getDefinition(itemdef).wield_image;
+	std::string meta_image = metadata.getString("wield_image");
+	if (!meta_image.empty())
+		image.name = meta_image;
+
+	return image;
+}
+
+ItemImageDef ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
+{
+	ItemImageDef image = getDefinition(itemdef).wield_overlay;
+	std::string meta_image = metadata.getString("wield_overlay");
+	if (!meta_image.empty())
+		image.name = meta_image;
+
+	return image;
+}
 
 v3f ItemStack::getWieldScale(const IItemDefManager *itemdef) const
 {

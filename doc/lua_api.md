@@ -2705,10 +2705,10 @@ Some of the values in the key-value store are handled specially:
   See also: `get_description` in [`ItemStack`](#itemstack)
 * `short_description`: Set the item stack's short description.
   See also: `get_short_description` in [`ItemStack`](#itemstack)
-* `inventory_image`: Override inventory_image
-* `inventory_overlay`: Override inventory_overlay
-* `wield_image`: Override wield_image
-* `wield_overlay`: Override wield_overlay
+* `inventory_image`: Override inventory_image.name
+* `inventory_overlay`: Override inventory_overlay.name
+* `wield_image`: Override wield_image.name
+* `wield_overlay`: Override wield_overlay.name
 * `wield_scale`: Override wield_scale, use vector.to_string
 * `color`: A `ColorString`, which sets the stack's color.
 * `palette_index`: If the item has a palette, this is used to get the
@@ -5849,8 +5849,8 @@ Utilities
       particlespawner_exclude_player = true,
       -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
       generate_decorations_biomes = true,
-      -- Item definitions make use of the `inventory_image_animation`, `inventory_overlay_animation`,
-      -- `wield_overlay_animation` and `wield_image_animation` field (5.16.0)
+      -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
+      -- and `wield_overlay` accept a table containing animation definitions. (5.16.0)
       item_image_animation = true,
   }
   ```
@@ -9855,6 +9855,13 @@ Tile animation definition
 }
 ```
 
+Item image definition
+---------------------
+
+* `"image.png"`
+* `{name="image.png", animation={Tile Animation definition}}`
+    * Basically a tile definition but for items
+
 Item definition
 ---------------
 
@@ -9881,31 +9888,19 @@ Used by `core.register_node`, `core.register_craftitem`, and
     --      {bendy = 2, snappy = 1},
     --      {hard = 1, metal = 1, spikes = 1}
 
-    inventory_image = "",
-    -- Texture shown in the inventory GUI
+    inventory_image = <Item image definition>,
+    -- Image shown in the inventory GUI
     -- Defaults to a 3D rendering of the node if left empty.
 
-    inventory_overlay = "",
-    -- An overlay texture which is not affected by colorization
+    inventory_overlay = <Item image definition>,
+    -- An overlay image which is not affected by colorization
 
-    inventory_image_animation = {Tile Animation definition},
-    -- Optional, animates the `inventory_image` if specified
-
-    inventory_overlay_animation = {Tile Animation definition},
-    -- Optional, animates the `inventory_overlay` if specified
-
-    wield_image = "",
-    -- Texture shown when item is held in hand
+    wield_image = <Item image definition>,
+    -- Image shown when item is held in hand
     -- Defaults to a 3D rendering of the node if left empty.
 
-    wield_overlay = "",
+    wield_overlay = <Item image definition>,
     -- Like inventory_overlay but only used in the same situation as wield_image
-
-    wield_image_animation = {Tile Animation definition}
-    -- Optional, animates the `wield_image` if specified
-
-    wield_overlay_animation = {Tile Animation definition}
-    -- Optional, animates `wield_overlay` if specified
 
     wield_scale = {x = 1, y = 1, z = 1},
     -- Scale for the item when held in hand
