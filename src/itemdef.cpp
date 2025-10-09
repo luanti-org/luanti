@@ -82,6 +82,27 @@ void TouchInteraction::deSerialize(std::istream &is)
 		pointed_object = (TouchInteractionMode)tmp;
 }
 
+void ItemImageDef::serialize(std::ostream &os, u16 protocol_version) const
+{
+	if (protocol_version < 50) {
+		// Use first frame if animation is not supported
+		std::string image_to_send = name;
+		animation.extractFirstFrame(image_to_send);
+		os << serializeString16(image_to_send);
+		return;
+	}
+	os << serializeString16(name);
+	animation.serialize(os, protocol_version);
+
+}
+void ItemImageDef::deSerialize(std::istream &is, u16 protocol_version)
+{
+	name = deSerializeString16(is);
+	if (protocol_version < 50)
+		return;
+	animation.deSerialize(is, protocol_version);
+}
+
 /*
 	ItemDefinition
 */
@@ -112,10 +133,6 @@ ItemDefinition& ItemDefinition::operator=(const ItemDefinition &def)
 	wield_image = def.wield_image;
 	wield_overlay = def.wield_overlay;
 	wield_scale = def.wield_scale;
-	inventory_image_animation = def.inventory_image_animation;
-	inventory_overlay_animation = def.inventory_overlay_animation;
-	wield_image_animation = def.wield_image_animation;
-	wield_overlay_animation = def.wield_overlay_animation;
 	stack_max = def.stack_max;
 	usable = def.usable;
 	liquids_pointable = def.liquids_pointable;
@@ -157,17 +174,13 @@ void ItemDefinition::reset()
 	name.clear();
 	description.clear();
 	short_description.clear();
-	inventory_image.clear();
-	inventory_overlay.clear();
-	wield_image.clear();
-	wield_overlay.clear();
+	inventory_image.reset();
+	inventory_overlay.reset();
+	wield_image.reset();
+	wield_overlay.reset();
 	palette_image.clear();
 	color = video::SColor(0xFFFFFFFF);
 	wield_scale = v3f(1.0, 1.0, 1.0);
-	inventory_image_animation.type = TileAnimationType::TAT_NONE;
-	inventory_overlay_animation.type = TileAnimationType::TAT_NONE;
-	wield_image_animation.type = TileAnimationType::TAT_NONE;
-	wield_overlay_animation.type = TileAnimationType::TAT_NONE;
 	stack_max = 99;
 	usable = false;
 	liquids_pointable = false;
@@ -189,26 +202,14 @@ void ItemDefinition::reset()
 
 void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 {
-	// Use first frame if animation is not supported
-	std::string inventory_image_to_send = inventory_image;
-	std::string wield_image_to_send = wield_image;
-	std::string inventory_overlay_to_send = inventory_overlay;
-	std::string wield_overlay_to_send = wield_overlay;
-	if (protocol_version < 50) {
-		inventory_image_animation.extractFirstFrame(inventory_image_to_send);
-		inventory_overlay_animation.extractFirstFrame(inventory_overlay_to_send);
-		wield_image_animation.extractFirstFrame(wield_image_to_send);
-		wield_overlay_animation.extractFirstFrame(wield_overlay_to_send);
-	}
-
 	// protocol_version >= 37
 	u8 version = 6;
 	writeU8(os, version);
 	writeU8(os, type);
 	os << serializeString16(name);
 	os << serializeString16(description);
-	os << serializeString16(inventory_image_to_send);
-	os << serializeString16(wield_image_to_send);
+	inventory_image.serialize(os, protocol_version);
+	wield_image.serialize(os, protocol_version);
 	writeV3F32(os, wield_scale);
 	writeS16(os, stack_max);
 	writeU8(os, usable);
@@ -237,8 +238,8 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	writeF32(os, range);
 	os << serializeString16(palette_image);
 	writeARGB8(os, color);
-	os << serializeString16(inventory_overlay_to_send);
-	os << serializeString16(wield_overlay_to_send);
+	inventory_overlay.serialize(os, protocol_version);
+	wield_overlay.serialize(os, protocol_version);
 
 	os << serializeString16(short_description);
 
@@ -274,11 +275,6 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	} else {
 		writeU8(os, 0);
 	}
-
-	inventory_image_animation.serialize(os, protocol_version);
-	inventory_overlay_animation.serialize(os, protocol_version);
-	wield_image_animation.serialize(os, protocol_version);
-	wield_overlay_animation.serialize(os, protocol_version);
 }
 
 void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
@@ -298,8 +294,8 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 
 	name = deSerializeString16(is);
 	description = deSerializeString16(is);
-	inventory_image = deSerializeString16(is);
-	wield_image = deSerializeString16(is);
+	inventory_image.deSerialize(is, protocol_version);
+	wield_image.deSerialize(is, protocol_version);
 	wield_scale = readV3F32(is);
 	stack_max = readS16(is);
 	usable = readU8(is);
@@ -328,8 +324,8 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 	range = readF32(is);
 	palette_image = deSerializeString16(is);
 	color = readARGB8(is);
-	inventory_overlay = deSerializeString16(is);
-	wield_overlay = deSerializeString16(is);
+	inventory_overlay .deSerialize(is, protocol_version);
+	wield_overlay.deSerialize(is, protocol_version);
 
 	// If you add anything here, insert it inside the try-catch
 	// block to not need to increase the version.
@@ -365,12 +361,6 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 		if (readU8(is)) {
 			wear_bar_params = WearBarParams::deserialize(is);
 		}
-
-		inventory_image_animation.deSerialize(is, protocol_version);
-		inventory_overlay_animation.deSerialize(is, protocol_version);
-		wield_image_animation.deSerialize(is, protocol_version);
-		wield_overlay_animation.deSerialize(is, protocol_version);
-
 	} catch(SerializationError &e) {};
 }
 
@@ -447,10 +437,10 @@ public:
 			ItemDefinition* itemdef = m_item_definitions[texture_override.id];
 
 			if (texture_override.hasTarget(OverrideTarget::INVENTORY))
-				itemdef->inventory_image = texture_override.texture;
+				itemdef->inventory_image.name = texture_override.texture;
 
 			if (texture_override.hasTarget(OverrideTarget::WIELD))
-				itemdef->wield_image = texture_override.texture;
+				itemdef->wield_image.name = texture_override.texture;
 		}
 	}
 	void clear()
@@ -471,7 +461,7 @@ public:
 
 		ItemDefinition* hand_def = new ItemDefinition;
 		hand_def->name.clear();
-		hand_def->wield_image = "wieldhand.png";
+		hand_def->wield_image.name = "wieldhand.png";
 		hand_def->tool_capabilities = new ToolCapabilities;
 		m_item_definitions.insert(std::make_pair("", hand_def));
 

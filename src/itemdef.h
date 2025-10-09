@@ -57,6 +57,21 @@ struct TouchInteraction
 	void deSerialize(std::istream &is);
 };
 
+struct ItemImageDef
+{
+	// May be extended to support meshes in the future
+	std::string name;
+	TileAnimationParams animation;
+
+	void reset() {
+		animation.type = TileAnimationType::TAT_NONE;
+		name.clear();
+	}
+
+	void serialize(std::ostream &os, u16 protocol_version) const;
+	void deSerialize(std::istream &is, u16 protocol_version);
+};
+
 struct ItemDefinition
 {
 	/*
@@ -70,17 +85,13 @@ struct ItemDefinition
 	/*
 		Visual properties
 	*/
-	std::string inventory_image; // Optional for nodes, mandatory for tools/craftitems
-	std::string inventory_overlay; // Overlay of inventory_image.
-	std::string wield_image; // If empty, inventory_image or mesh (only nodes) is used
-	std::string wield_overlay; // Overlay of wield_image.
+	ItemImageDef inventory_image; // Optional for nodes, mandatory for tools/craftitems
+	ItemImageDef inventory_overlay; // Overlay of inventory_image.
+	ItemImageDef wield_image; // If empty, inventory_image or mesh (only nodes) is used
+	ItemImageDef wield_overlay; // Overlay of wield_image.
 	std::string palette_image; // If specified, the item will be colorized based on this
 	video::SColor color; // The fallback color of the node.
 	v3f wield_scale;
-	TileAnimationParams inventory_image_animation;
-	TileAnimationParams inventory_overlay_animation;
-	TileAnimationParams wield_image_animation;
-	TileAnimationParams wield_overlay_animation;
 
 	/*
 		Item stack and interaction properties

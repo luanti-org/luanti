@@ -24,16 +24,16 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	IItemDefManager *idef = client->idef();
 
 	const ItemDefinition &def = item.getDefinition(idef);
-	std::string inventory_image = item.getInventoryImage(idef);
-	std::string inventory_overlay = item.getInventoryOverlay(idef);
-	const TileAnimationParams &inventory_image_animation = item.getInventoryImageAnimation(idef);
-	const TileAnimationParams &inventory_overlay_animation = item.getInventoryOverlayAnimation(idef);
+	ItemImageDef inventory_image = item.getInventoryImage(idef);
+	ItemImageDef inventory_overlay = item.getInventoryOverlay(idef);
 
+	// Key only consists of item name + image name,
+	// because animation currently cannot be overridden by meta
 	std::ostringstream os(def.name);
-	if (!inventory_image.empty())
-		os << "/" << inventory_image;
-	if (!inventory_overlay.empty())
-		os << ":" << inventory_overlay;
+	if (!inventory_image.name.empty())
+		os << "/" << inventory_image.name;
+	if (!inventory_overlay.name.empty())
+		os << ":" << inventory_overlay.name;
 	std::string cache_key = os.str();
 
 
@@ -51,32 +51,37 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	auto iv = std::make_unique<ItemVisuals>();
 
 	auto populate_texture_and_animation = [&](
-			const std::string &image_name, const TileAnimationParams &animation,
-			video::ITexture *&texture,
+			const ItemImageDef &image, video::ITexture *&texture,
 			std::unique_ptr<ItemVisuals::OwnedAnimationInfo> &owned_animation)
 	{
-		texture = nullptr;
-		if (!image_name.empty()) {
-			texture = tsrc->getTexture(image_name);
-
-			// Get inventory texture frames
-			if (animation.type != TileAnimationType::TAT_NONE && texture) {
-				int frame_length_ms;
-				owned_animation = std::make_unique<ItemVisuals::OwnedAnimationInfo>(
-						createAnimationFrames(tsrc, image_name, animation, frame_length_ms),
-						frame_length_ms);
-
-				// Set first frame
-				texture = owned_animation->frames[0].texture;
-			}
+		if (image.name.empty()) {
+			texture = nullptr;
+			return;
 		}
+
+		if (image.animation.type == TileAnimationType::TAT_NONE) {
+			texture = tsrc->getTexture(image.name);
+			return;
+		}
+
+		// Get inventory texture frames
+		int frame_length_ms;
+		owned_animation = std::make_unique<ItemVisuals::OwnedAnimationInfo>(
+				createAnimationFrames(tsrc, image.name, image.animation,
+				frame_length_ms), frame_length_ms);
+
+		// Set first frame
+		if (!owned_animation || !owned_animation->frames.empty())
+			texture = owned_animation->frames[0].texture;
+		else
+			texture = nullptr;
 	};
 
-	populate_texture_and_animation(inventory_image, inventory_image_animation,
-			iv->inventory_texture, iv->inventory_animation);
+	populate_texture_and_animation(inventory_image, iv->inventory_texture,
+			iv->inventory_animation);
 
-	populate_texture_and_animation(inventory_overlay, inventory_overlay_animation,
-			iv->inventory_overlay_texture, iv->inventory_overlay_animation);
+	populate_texture_and_animation(inventory_overlay, iv->inventory_overlay_texture,
+			iv->inventory_overlay_animation);
 
 	createItemMesh(client, def, iv->inventory_texture,
 			iv->inventory_animation ? &(iv->inventory_animation->info) : nullptr,
