@@ -162,7 +162,16 @@ struct AnimationInfo {
 			m_frames(tile.frames)
 	{};
 
+	AnimationInfo(std::vector<FrameSpec> *frames, u16 frame_length_ms) :
+			m_frame_length_ms(frame_length_ms),
+			m_frame_count(frames->size()),
+			m_frames(frames)
+	{};
+
 	void updateTexture(video::SMaterial &material, float animation_time);
+
+	// Returns nullptr if texture did not change since last time
+	video::ITexture *getTexture(float animation_time);
 
 private:
 	u16 m_frame = 0; // last animation frame
