@@ -20,7 +20,7 @@ varying vec3 worldPosition;
 #ifdef GL_ES
 varying lowp vec4 varColor;
 varying mediump vec2 varTexCoord;
-varying int varTexLayer;
+varying float varTexLayer;
 varying float nightRatio;
 #else
 centroid varying vec4 varColor;

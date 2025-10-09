@@ -28,7 +28,7 @@ void MeshCollector::append(const TileLayer &layer, const video::S3DVertex *verti
 			return uv;
 		// We can keep the fractional part intact, but we need to know if
 		// the value originally was exactly 1.0
-		// FIXME: what if u > 1 || u < 0?
+		uv.X = std::clamp(uv.X, 0.0f, 1.0f); // uhhh
 		if (uv.X == 1.0f)
 			return v2f(-layer.texture_layer_idx, uv.Y);
 		return v2f(uv.X + layer.texture_layer_idx, uv.Y);
