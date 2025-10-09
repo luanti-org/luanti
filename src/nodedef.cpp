@@ -767,8 +767,10 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 	// animated nodes will have their texture replaced with one of the frames
 	{
 		video::ITexture *check = layer->texture;
-		if (layer->material_flags & MATERIAL_FLAG_ANIMATION)
+		if (layer->material_flags & MATERIAL_FLAG_ANIMATION) {
 			check = (*layer->frames)[0].texture;
+			layer->texture_layer_idx = 0; // HACK
+		}
 		layer->shader_id = (check && check->getType() == video::ETT_2D_ARRAY) ?
 			shader.with_layers : shader.normal;
 	}
