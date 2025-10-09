@@ -155,9 +155,8 @@ void drawItemStack(
 
 		draw_overlay = def.type == ITEM_NODE && !inventory_texture;
 	} else { // Otherwise just draw as 2D
-		video::ITexture *texture = item_visuals->getInventoryTexture(item, client);
 		video::SColor color;
-		if (texture) {
+		if (inventory_texture) {
 			color = item_visuals->getItemstackColor(item, client);
 		} else {
 			color = video::SColor(255, 255, 255, 255);
