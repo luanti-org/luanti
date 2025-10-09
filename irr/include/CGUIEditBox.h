@@ -185,6 +185,7 @@ protected:
 	bool Border;
 	bool Background;
 	bool OverrideColorEnabled;
+	bool InhibitMouseUp = false;
 	s32 MarkBegin;
 	s32 MarkEnd;
 
