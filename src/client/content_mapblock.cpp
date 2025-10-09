@@ -20,6 +20,8 @@
 #include <SMesh.h>
 #include <IMeshBuffer.h>
 
+#include "profiler.h"
+
 // Distance of light extrapolation (for oversized nodes)
 // After this distance, it gives up and considers light level constant
 #define SMOOTH_LIGHTING_OVERSIZE 1.0
