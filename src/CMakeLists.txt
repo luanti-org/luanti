@@ -632,7 +632,7 @@ endif()
 add_library(EngineCommon OBJECT
 	${independent_SRCS}
 )
-add_dependencies(EngineCommon GenerateVersion)
+add_dependencies(EngineCommon GenerateVersion GenerateBuiltinFilesCpp)
 target_link_libraries(EngineCommon
 	sha256
 )
