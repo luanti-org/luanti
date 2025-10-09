@@ -7,4 +7,4 @@
 #include <string>
 #include <unordered_map>
 
-const std::unordered_map<std::string, std::string> &get_builtin_file_sha256_map();
+extern const std::unordered_map<std::string, std::string> g_builtin_file_sha256_map;
