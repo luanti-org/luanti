@@ -593,7 +593,8 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 	m_shdrsrc(client->getShaderSource()),
 	m_bounding_sphere_center((data->m_side_length * 0.5f - 0.5f) * BS),
 	m_animation_force_timer(0), // force initial animation
-	m_last_crack(-1)
+	m_last_crack(-1),
+	m_lod(lod)
 {
 	ZoneScoped;
 

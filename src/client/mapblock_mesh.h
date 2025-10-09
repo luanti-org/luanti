@@ -258,6 +258,8 @@ public:
 		return m_transparent_buffers;
 	}
 
+	const u8 m_lod;
+
 private:
 
 	irr_ptr<scene::IMesh> m_mesh[MAX_TILE_LAYERS];

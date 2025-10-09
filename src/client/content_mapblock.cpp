@@ -1810,9 +1810,7 @@ void MapblockMeshGenerator::drawNode()
 void MapblockMeshGenerator::generate()
 {
 	ZoneScoped;
-	static u16 calls = 0;
-	if (++calls % 10 == 0)
-		warningstream << "reg " << calls << std::endl;
+	ScopeProfiler sp(g_profiler, "Client: Mesh Making Regular", SPT_AVG);
 
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
@@ -1981,6 +1979,10 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 			continue;
 		}
 		const ContentFeatures* f = &nodedef->get(n);
+		for (u8 subtr = 1; subtr < lod_resolution && f->drawtype == NDT_AIRLIKE; subtr++) {
+			n = data->m_vmanip.getNodeNoExNoEmerge(p - lod_resolution / 2);
+			f = &nodedef->get(n);
+		}
 		if (!types.test(f->drawtype)) {
 			continue;
 		}
@@ -2057,6 +2059,7 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 
 void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> types, const u16 width)
 {
+	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Greedy", SPT_AVG);
 	const int attempted_seg_size = 62 * width;
 
 	for (u16 x = 0; x < data->m_side_length; x += attempted_seg_size)
@@ -2073,9 +2076,10 @@ void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> type
 	}
 }
 
-void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u32 width, core::vector2d<f32> uvs[4],
-                                         u8 min_size)
+void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u32 width, core::vector2d<f32> uvs[4], u8 min_size)
 {
+	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Slanted", SPT_AVG);
+
 	static const v3s16 directions[6] = {
 		v3s16(0, -1, 0), v3s16(0, 1, 0),
 		v3s16(-1, 0, 0), v3s16(1, 0, 0),
@@ -2208,13 +2212,11 @@ void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u3
 	}
 }
 
-using Clock = std::chrono::high_resolution_clock;
-
 void LodMeshGenerator::generate(u8 lod)
 {
 	ZoneScoped;
 
-    u32 width = 1 << MYMIN(lod, 31);
+    u32 width = 1 << MYMIN(lod - 1, 31);
 
 	if (width > data->m_side_length)
 		width = data->m_side_length;
