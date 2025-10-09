@@ -622,7 +622,7 @@ fsaa (Anti-aliasing scale) enum 2 2,4,8,16
 
 #             Applies a post-processing filter to detect and smoothen high-contrast edges.
 #             Provides balance between speed and image quality.
-#             fxaa can used in combination with the other aliasing methods
+#             fxaa can used in combination with the other anti-aliasing methods
 #
 #             Requires: opengl
 fxaa (Fast approximate antialiasing) bool false
