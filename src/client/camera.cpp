@@ -25,6 +25,7 @@
 #include <SViewFrustum.h>
 #include <IGUIFont.h>
 #include <IVideoDriver.h>
+#include "font_enriched_string_composite.h"
 
 static constexpr f32 CAMERA_OFFSET_STEP = 200;
 
@@ -678,12 +679,10 @@ void Camera::drawNametags()
 			else if (font_size > 32)
 				font_size &= ~1;
 		}
-		auto *font = g_fontengine->getFont(font_size);
-		assert(font);
 
 		const auto wtext = utf8_to_wide(nametag->text);
-		// Measure dimensions with escapes removed
-		core::dimension2du textsize = font->getDimension(unescape_translate(wtext).c_str());
+		FontEnrichedStringComposite fesc(translate_string(wtext).c_str(), nametag->textcolor);
+		core::dimension2du textsize = fesc.getDimension();
 		v2s32 screen_pos;
 		screen_pos.X = screensize.X *
 			(0.5f + transformed_pos[0] * zDiv * 0.5f) - textsize.Width / 2;
@@ -697,9 +696,7 @@ void Camera::drawNametags()
 			driver->draw2DRectangle(bgcolor, bg_size + screen_pos);
 		}
 
-		// but draw text with escapes
-		font->draw(translate_string(wtext).c_str(),
-			size + screen_pos, nametag->textcolor);
+		fesc.draw(size + screen_pos);
 	}
 }
 
