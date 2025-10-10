@@ -624,7 +624,7 @@ fsaa (Anti-aliasing scale) enum 2 2,4,8,16
 #             Provides balance between speed and image quality.
 #             fxaa can used in combination with the other anti-aliasing methods
 #
-#             Requires: opengl
+#             Requires: enable_post_processing
 fxaa (Fast approximate antialiasing) bool false
 
 [**Occlusion Culling]
