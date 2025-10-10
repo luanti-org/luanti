@@ -155,6 +155,8 @@ local function test_item_metadata_tool_capabilities()
 	local item_meta = item:get_meta()
 	assert(dump(item:get_tool_capabilities()) == dump(ItemStack(""):get_tool_capabilities()))
 	item_meta:set_tool_capabilities(test_caps)
+	-- Can't directly compare the tables, because the pushback to Lua from get_tool_capabilities()
+	-- adds values to left out fields of the tool capabilities table.
 	assert(get_cracky_cap(item) == 123)
 
 	-- has preexisting tool capabilities in its definition table
