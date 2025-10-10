@@ -32,9 +32,9 @@
 #define MAX_EXTRUSION_MESH_RESOLUTION 512
 
 ItemMeshBufferInfo::ItemMeshBufferInfo(int layer_num, const TileLayer &layer) :
-		layer(layer_num),
 		override_color(layer.color),
 		override_color_set(layer.has_color),
+		layer(layer_num),
 		animation_info((layer.material_flags & MATERIAL_FLAG_ANIMATION) ?
 			std::make_unique<AnimationInfo>(layer) :
 			nullptr)

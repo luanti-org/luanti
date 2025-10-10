@@ -34,11 +34,6 @@ class ShadowRenderer;
  */
 class ItemMeshBufferInfo
 {
-public:
-	// Index of the layer this mesh buffer belongs to
-	u32 layer;
-
-private:
 	/*
 	 * Optional color that overrides the global base color.
 	 */
@@ -57,8 +52,8 @@ public:
 	ItemMeshBufferInfo(int layer) : layer(layer) {}
 
 	ItemMeshBufferInfo(int layer, bool override, video::SColor color) :
-		layer(layer),
-		override_color(color), override_color_set(override)
+		override_color(color), override_color_set(override),
+		layer(layer)
 	{}
 
 	ItemMeshBufferInfo(int layer_num, const TileLayer &layer);
@@ -76,7 +71,8 @@ public:
 		return true;
 	}
 
-
+	// Index of the tile layer this mesh buffer belongs to
+	u8 layer;
 
 	// Null for no animated parts
 	std::unique_ptr<AnimationInfo> animation_info;
