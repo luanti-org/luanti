@@ -45,8 +45,6 @@ centroid varying float nightRatio;
 #endif
 
 varying highp vec3 eyeVec;
-// Color of the light emitted by the light sources.
-const vec3 artificialLight = vec3(1.04, 1.04, 1.04);
 const float e = 2.718281828459;
 const float BS = 10.0;
 uniform float xyPerspectiveBias0;
@@ -141,8 +139,17 @@ float snoise(vec3 p)
 
 	return o4.y * d.y + o4.x * (1.0 - d.y);
 }
-
 #endif
+
+vec3 get_artificial_light(vec3 color)
+{
+#ifdef ENABLE_WARM_LIGHTING
+	return vec3(1.04, 0.64, 0.34) + color; // prevent artificial lighting making brighter areas appear darker
+#else
+	return vec3(1.04, 1.04, 1.04);
+#endif
+}
+
 
 
 
@@ -205,7 +212,7 @@ void main(void)
 	// The alpha gives the ratio of sunlight in the incoming light.
 	nightRatio = 1.0 - color.a;
 	color.rgb = color.rgb * (color.a * dayLight.rgb +
-		nightRatio * artificialLight.rgb) * 2.0;
+		nightRatio * get_artificial_light(color.rgb)) * 2.0;
 	color.a = 1.0;
 
 	// Emphase blue a bit in darker places
