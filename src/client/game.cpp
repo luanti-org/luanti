@@ -2850,7 +2850,7 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 		);
 	} else if (event->set_sky->type == "skybox" &&
 			event->set_sky->textures.size() == 6) {
-		// Disable the dyanmic mesh skybox:
+		// Disable the dynamic mesh skybox:
 		sky->setVisible(false);
 		// Set fog colors:
 		sky->setFallbackBgColor(event->set_sky->bgcolor);
@@ -2926,6 +2926,8 @@ void Game::handleClientEvent_SetStars(ClientEvent *event, CameraOrientation *cam
 	sky->setStarColor(event->star_params->starcolor);
 	sky->setStarScale(event->star_params->scale);
 	sky->setStarDayOpacity(event->star_params->day_opacity);
+	if (event->star_params->star_seed != 0)
+		sky->setStarSeed(event->star_params->star_seed);
 	delete event->star_params;
 }
 

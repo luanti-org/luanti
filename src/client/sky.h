@@ -85,6 +85,7 @@ public:
 
 	// Set only from set_sky API
 	void setCloudsEnabled(bool clouds_enabled) { m_clouds_enabled = clouds_enabled; }
+	void setStarSeed(u64 star_seed) { m_seed = star_seed; }
 	void setFallbackBgColor(video::SColor fallback_bg_color)
 	{
 		m_fallback_bg_color = fallback_bg_color;
