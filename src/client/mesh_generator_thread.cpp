@@ -231,8 +231,8 @@ void MeshUpdateWorkerThread::doUpdate()
 		            + (cam_pos.Z - q->p.Z) * (cam_pos.Z - q->p.Z); // distance squared
 		u16 renderDist = g_settings->getU16("lod_threshold");
 		renderDist *= renderDist;
-		const u16 lod = dist2 < renderDist ? 0 :
-		1 + static_cast<u16>(std::log2(dist2 / renderDist) / g_settings->getFloat("lod_quality"));
+		const u8 lod = dist2 < renderDist ? 0 :
+		1 + (u8)(std::log2(dist2 / renderDist) / g_settings->getFloat("lod_quality"));
 
 		// This generates the mesh:
 		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, lod);

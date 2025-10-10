@@ -2012,7 +2012,7 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		else {
 			ContentLightingFlags lf = nodedef->getLightingFlags(n);
 			LightPair lp = LightPair(
-				(u8) (decode_light(n.getLightRaw(LIGHTBANK_DAY, lf)) / 16 * 16),
+				(u8) (decode_light(n.getLightRaw(LIGHTBANK_DAY, lf)) / 16 * 16 + 15),
 				(u8) (decode_light(n.getLightRaw(LIGHTBANK_NIGHT, lf)) / 16 * 16));
 
 			node_types[node_type][lp] = n;
@@ -2026,6 +2026,10 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		all_set_nodes[2][p_scaled.X][p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 	}
 
+	const bitset x_max = U64_MAX >> (64 - seg_size.X / lod_resolution);
+	const bitset y_max = U64_MAX >> (64 - seg_size.Y / lod_resolution);
+	const bitset z_max = U64_MAX >> (64 - seg_size.Z / lod_resolution);
+
 	for (const auto& [node_type, map] : set_nodes)
 	for (const auto& [light_pair, value] : map) {
 		bitset nodes_faces[6][62][62] = {0}; // -x, +x, -y, +y, -z, +z
@@ -2034,13 +2038,12 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 
 		for (u8 u = 0; u < 62; u++)
 		for (u8 v = 0; v < 62; v++) {
-			constexpr bitset U62_MAX = U64_MAX >> 2;
-			nodes_faces[0][u][v] = (value[0][u + 1][v + 1] & ~(all_set_nodes[0][u + 1][v + 1] << 1)) >> 1 & U62_MAX;
-			nodes_faces[1][u][v] = (value[0][u + 1][v + 1] & ~(all_set_nodes[0][u + 1][v + 1] >> 1)) >> 1 & U62_MAX;
-			nodes_faces[2][u][v] = (value[1][u + 1][v + 1] & ~(all_set_nodes[1][u + 1][v + 1] << 1)) >> 1 & U62_MAX;
-			nodes_faces[3][u][v] = (value[1][u + 1][v + 1] & ~(all_set_nodes[1][u + 1][v + 1] >> 1)) >> 1 & U62_MAX;
-			nodes_faces[4][u][v] = (value[2][u + 1][v + 1] & ~(all_set_nodes[2][u + 1][v + 1] << 1)) >> 1 & U62_MAX;
-			nodes_faces[5][u][v] = (value[2][u + 1][v + 1] & ~(all_set_nodes[2][u + 1][v + 1] >> 1)) >> 1 & U62_MAX;
+			nodes_faces[0][u][v] = (value[0][u + 1][v + 1] & ~(all_set_nodes[0][u + 1][v + 1] << 1)) >> 1 & x_max;
+			nodes_faces[1][u][v] = (value[0][u + 1][v + 1] & ~(all_set_nodes[0][u + 1][v + 1] >> 1)) >> 1 & x_max;
+			nodes_faces[2][u][v] = (value[1][u + 1][v + 1] & ~(all_set_nodes[1][u + 1][v + 1] << 1)) >> 1 & y_max;
+			nodes_faces[3][u][v] = (value[1][u + 1][v + 1] & ~(all_set_nodes[1][u + 1][v + 1] >> 1)) >> 1 & y_max;
+			nodes_faces[4][u][v] = (value[2][u + 1][v + 1] & ~(all_set_nodes[2][u + 1][v + 1] << 1)) >> 1 & z_max;
+			nodes_faces[5][u][v] = (value[2][u + 1][v + 1] & ~(all_set_nodes[2][u + 1][v + 1] >> 1)) >> 1 & z_max;
 		}
 
 		bitset slices[6][62][62] = {0};

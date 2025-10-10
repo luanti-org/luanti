@@ -605,7 +605,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 	v3s16 bp = data->m_blockpos;
 	// Only generate minimap mapblocks at grid aligned coordinates.
 	// FIXME: ^ doesn't really make sense. and in practice, bp is always aligned
-	if (mesh_grid.isMeshPos(bp) && data->m_generate_minimap) {
+	if (lod > 1 && mesh_grid.isMeshPos(bp) && data->m_generate_minimap) {
 		// meshgen area always fits into a grid cell
 		m_minimap_mapblocks.resize(mesh_grid.getCellVolume(), nullptr);
 		v3s16 ofs;
