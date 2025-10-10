@@ -93,8 +93,8 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	video::ECOLOR_FORMAT depth_format = selectDepthFormat(driver);
 
 	verbosestream << "addPostProcessing(): color = "
-		<< video::ColorFormatNames[color_format] << " depth = "
-		<< video::ColorFormatNames[depth_format] << std::endl;
+		<< video::ColorFormatName(color_format) << " depth = "
+		<< video::ColorFormatName(depth_format) << std::endl;
 
 	// init post-processing buffer
 	static const u8 TEXTURE_COLOR = 0;
@@ -133,6 +133,10 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 	const bool enable_ssaa = antialiasing == "ssaa";
 	const bool enable_fxaa = antialiasing == "fxaa";
+
+	verbosestream << "addPostProcessing(): AA = "
+		<< (enable_msaa ? "msaa" : enable_ssaa ? "ssaa" : enable_fxaa ? "fxaa" : "none")
+		<< " " << antialiasing_scale << "x" << std::endl;
 
 	// Super-sampling is simply rendering into a larger texture.
 	// Downscaling is done by the final step when rendering to the screen.

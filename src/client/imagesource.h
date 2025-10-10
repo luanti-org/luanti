@@ -9,7 +9,6 @@
 #include <set>
 #include <string>
 
-using namespace irr;
 
 // This file is only used for internal generation of images.
 // Use texturesource.h to handle textures.

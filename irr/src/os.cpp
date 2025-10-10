@@ -39,8 +39,6 @@
 #define bswap_64(X) ((((X) & 0x00000000000000FF) << 56) | (((X) & 0xFF00000000000000) >> 56) | (((X) & 0x000000000000FF00) << 40) | (((X) & 0x00FF000000000000) >> 40) | (((X) & 0x0000000000FF0000) << 24) | (((X) & 0x0000FF0000000000) >> 24) | (((X) & 0x00000000FF000000) << 8) | (((X) & 0x000000FF00000000) >> 8))
 #endif
 
-namespace irr
-{
 namespace os
 {
 u16 Byteswap::byteswap(u16 num)
@@ -74,7 +72,6 @@ f32 Byteswap::byteswap(f32 num)
 	return (FR(tmp));
 }
 }
-}
 
 #if defined(_IRR_WINDOWS_API_)
 // ----------------------------------------------------------------
@@ -85,8 +82,6 @@ f32 Byteswap::byteswap(f32 num)
 #include <windows.h>
 #include <ctime>
 
-namespace irr
-{
 namespace os
 {
 //! prints a debuginfo string
@@ -130,8 +125,6 @@ u32 Timer::getRealTime()
 
 #include <android/log.h>
 
-namespace irr
-{
 namespace os
 {
 
@@ -194,8 +187,6 @@ u32 Timer::getRealTime()
 #include <ctime>
 #include <sys/time.h>
 
-namespace irr
-{
 namespace os
 {
 
@@ -245,8 +236,6 @@ u32 Timer::getRealTime()
 #include <ctime>
 #include <sys/time.h>
 
-namespace irr
-{
 namespace os
 {
 
@@ -377,4 +366,3 @@ void Timer::initVirtualTimer()
 }
 
 } // end namespace os
-} // end namespace irr

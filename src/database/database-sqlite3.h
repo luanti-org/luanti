@@ -290,6 +290,7 @@ protected:
 	virtual void initStatements();
 
 private:
+	sqlite3_stmt *m_stmt_get_mods = nullptr;
 	sqlite3_stmt *m_stmt_get_all = nullptr;
 	sqlite3_stmt *m_stmt_get_keys = nullptr;
 	sqlite3_stmt *m_stmt_get = nullptr;

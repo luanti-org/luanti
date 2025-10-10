@@ -16,8 +16,6 @@
 
 #include "mt_opengl.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -58,15 +56,18 @@ public:
 		HasMipMaps = Driver->getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
 		KeepImage = Driver->getTextureCreationFlag(ETCF_ALLOW_MEMORY_COPY);
 
+		if (!name.empty())
+			os::Printer::log("COpenGLCoreTexture: name", name.c_str(), ELL_DEBUG);
+
 		getImageValues(srcImages[0]);
 		if (!InternalFormat)
 			return;
 
 		char lbuf[128];
 		snprintf_irr(lbuf, sizeof(lbuf),
-			"COpenGLCoreTexture: Type = %d Size = %dx%d (%dx%d) ColorFormat = %d (%d)%s -> %#06x %#06x %#06x%s",
+			"COpenGLCoreTexture: Type = %d Size = %dx%d (%dx%d) ColorFormat = %s (%s)%s -> %#06x %#06x %#06x%s",
 			(int)Type, Size.Width, Size.Height, OriginalSize.Width, OriginalSize.Height,
-			(int)ColorFormat, (int)OriginalColorFormat,
+			ColorFormatName(ColorFormat), ColorFormatName(OriginalColorFormat),
 			HasMipMaps ? " +Mip" : "",
 			InternalFormat, PixelFormat, PixelType, Converter ? " (c)" : ""
 		);
@@ -102,14 +103,6 @@ public:
 		GL.TexParameteri(TextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		GL.TexParameteri(TextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		if (HasMipMaps) {
-			if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_SPEED))
-				GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
-			else if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_QUALITY))
-				GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-			else
-				GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_DONT_CARE);
-		}
 		TEST_GL_ERROR(Driver);
 
 		initTexture(tmpImages->size());
@@ -146,8 +139,11 @@ public:
 		DriverType = Driver->getDriverType();
 		assert(Type != ETT_2D_ARRAY); // not supported by this constructor
 		TextureType = TextureTypeIrrToGL(Type);
-		HasMipMaps = false;
+		HasMipMaps = Driver->getTextureCreationFlag(ETCF_CREATE_RTT_MIP_MAPS);
 		IsRenderTarget = true;
+
+		if (!name.empty())
+			os::Printer::log("COpenGLCoreTexture: name", name.c_str(), ELL_DEBUG);
 
 		OriginalColorFormat = format;
 
@@ -159,10 +155,17 @@ public:
 		OriginalSize = size;
 		Size = OriginalSize;
 
+		if (core::min_(Size.Width, Size.Height) == 0 || core::max_(Size.Width, Size.Height) > Driver->MaxTextureSize) {
+			char buf[32];
+			snprintf_irr(buf, sizeof(buf), "%dx%d", Size.Width, Size.Height);
+			os::Printer::log("Invalid size for render target", buf, ELL_ERROR);
+			return;
+		}
+
 		Pitch = Size.Width * IImage::getBitsPerPixelFromFormat(ColorFormat) / 8;
 
 		if (!Driver->getColorFormatParameters(ColorFormat, InternalFormat, PixelFormat, PixelType, &Converter)) {
-			os::Printer::log("COpenGLCoreTexture: Color format is not supported", ColorFormatNames[ColorFormat < ECF_UNKNOWN ? ColorFormat : ECF_UNKNOWN], ELL_ERROR);
+			os::Printer::log("COpenGLCoreTexture: Color format is not supported", ColorFormatName(ColorFormat), ELL_ERROR);
 			return;
 		}
 
@@ -176,10 +179,11 @@ public:
 		}
 #endif
 
-		char lbuf[100];
+		char lbuf[200];
 		snprintf_irr(lbuf, sizeof(lbuf),
-			"COpenGLCoreTexture: RTT Type = %d Size = %dx%d ColorFormat = %d -> %#06x %#06x %#06x%s",
-			(int)Type, Size.Width, Size.Height, (int)ColorFormat,
+			"COpenGLCoreTexture: RTT Type = %d Size = %dx%d (S:%d) ColorFormat = %s%s -> %#06x %#06x %#06x%s",
+			(int)Type, Size.Width, Size.Height, (int)MSAA, ColorFormatName(ColorFormat),
+			HasMipMaps ? " +Mip" : "",
 			InternalFormat, PixelFormat, PixelType, Converter ? " (c)" : ""
 		);
 		os::Printer::log(lbuf, ELL_DEBUG);
@@ -386,13 +390,21 @@ public:
 		if (!HasMipMaps || (Size.Width <= 1 && Size.Height <= 1))
 			return;
 
-		const COpenGLCoreTexture *prevTexture = Driver->getCacheHandler()->getTextureCache().get(0);
-		Driver->getCacheHandler()->getTextureCache().set(0, this);
+		auto &cache = Driver->getCacheHandler()->getTextureCache();
+		const COpenGLCoreTexture *prevTexture = cache.get(0);
+		cache.set(0, this);
+
+		if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_SPEED))
+			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
+		else if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_QUALITY))
+			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+		else
+			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_DONT_CARE);
 
 		Driver->irrGlGenerateMipmap(TextureType);
 		TEST_GL_ERROR(Driver);
 
-		Driver->getCacheHandler()->getTextureCache().set(0, prevTexture);
+		cache.set(0, prevTexture);
 	}
 
 	GLenum getOpenGLTextureType() const
@@ -460,7 +472,7 @@ protected:
 		ColorFormat = getBestColorFormat(OriginalColorFormat);
 
 		if (!Driver->getColorFormatParameters(ColorFormat, InternalFormat, PixelFormat, PixelType, &Converter)) {
-			os::Printer::log("getImageValues: Color format is not supported", ColorFormatNames[ColorFormat < ECF_UNKNOWN ? ColorFormat : ECF_UNKNOWN], ELL_ERROR);
+			os::Printer::log("getImageValues: Color format is not supported", ColorFormatName(ColorFormat), ELL_ERROR);
 			InternalFormat = 0;
 			return;
 		}
@@ -473,7 +485,9 @@ protected:
 		Size = OriginalSize;
 
 		if (Size.Width == 0 || Size.Height == 0) {
-			os::Printer::log("Invalid size of image for texture.", ELL_ERROR);
+			char buf[32];
+			snprintf_irr(buf, sizeof(buf), "%dx%d", Size.Width, Size.Height);
+			os::Printer::log("Invalid size of image for texture", buf, ELL_ERROR);
 			return;
 		}
 
@@ -522,6 +536,7 @@ protected:
 		if (HasMipMaps) {
 			levels = core::u32_log2(core::max_(Size.Width, Size.Height)) + 1;
 		}
+		assert(levels > 0);
 
 		// reference: <https://www.khronos.org/opengl/wiki/Texture_Storage>
 		bool use_tex_storage = Driver->getFeature().TexStorage;
@@ -545,7 +560,7 @@ protected:
 			TEST_GL_ERROR(Driver);
 			break;
 		case ETT_2D_MS: {
-			GLint max_samples = 0;
+			GLint max_samples = 1;
 			GL.GetIntegerv(GL_MAX_SAMPLES, &max_samples);
 			MSAA = core::min_(MSAA, (u8)max_samples);
 
@@ -665,7 +680,8 @@ protected:
 			return GL_TEXTURE_2D_ARRAY;
 		}
 
-		os::Printer::log("COpenGLCoreTexture::TextureTypeIrrToGL unknown texture type", ELL_WARNING);
+		auto s = std::to_string(type);
+		os::Printer::log("COpenGLCoreTexture: unknown texture type", s.c_str(), ELL_WARNING);
 		return GL_TEXTURE_2D;
 	}
 
@@ -701,5 +717,4 @@ protected:
 	mutable SStatesCache StatesCache;
 };
 
-}
 }

@@ -1,4 +1,7 @@
+file(GLOB_RECURSE common_network_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 set(common_network_SRCS
+	${common_network_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/address.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/connection.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mtp/impl.cpp

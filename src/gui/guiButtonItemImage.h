@@ -7,7 +7,6 @@
 #include "guiButton.h"
 #include "IGUIButton.h"
 
-using namespace irr;
 
 class Client;
 class GUIItemImage;

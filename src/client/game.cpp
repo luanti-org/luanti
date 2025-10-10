@@ -863,46 +863,17 @@ Game::Game() :
 	m_chat_log_buf(g_logger),
 	m_game_ui(new GameUI())
 {
-	g_settings->registerChangedCallback("chat_log_level",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("doubletap_jump",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("toggle_sneak_key",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("toggle_aux1_key",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("enable_joysticks",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("enable_fog",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("mouse_sensitivity",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("joystick_frustum_sensitivity",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("repeat_place_time",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("repeat_dig_time",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("noclip",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("free_move",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("fog_start",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("cinematic",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("cinematic_camera_smoothing",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("camera_smoothing",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("invert_mouse",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("enable_hotbar_mouse_wheel",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("invert_hotbar_mouse_wheel",
-		&settingChangedCallback, this);
-	g_settings->registerChangedCallback("pause_on_lost_focus",
-		&settingChangedCallback, this);
+	clearTextureNameCache();
+
+	const char *settings[] = {
+		"chat_log_level", "doubletap_jump", "toggle_sneak_key", "toggle_aux1_key",
+		"enable_joysticks", "enable_fog", "mouse_sensitivity", "joystick_frustum_sensitivity",
+		"repeat_place_time", "repeat_dig_time", "noclip", "free_move", "fog_start",
+		"cinematic", "cinematic_camera_smoothing", "camera_smoothing", "invert_mouse",
+		"enable_hotbar_mouse_wheel", "invert_hotbar_mouse_wheel", "pause_on_lost_focus",
+	};
+	for (auto s : settings)
+		g_settings->registerChangedCallback(s, &settingChangedCallback, this);
 
 	readSettings();
 }
@@ -1013,7 +984,7 @@ void Game::run()
 	m_touch_simulate_aux1 = g_settings->getBool("fast_move")
 			&& client->checkPrivilege("fast");
 
-	const irr::core::dimension2du initial_screen_size(
+	const core::dimension2du initial_screen_size(
 			g_settings->getU16("screen_w"),
 			g_settings->getU16("screen_h")
 		);
@@ -1360,13 +1331,15 @@ bool Game::createClient(const GameStartData &start_data)
 		return false;
 	}
 
-	shader_src->addShaderConstantSetter(new NodeShaderConstantSetter());
+	shader_src->addShaderConstantSetter(
+		std::make_unique<NodeShaderConstantSetter>());
 
-	auto *scsf = new GameGlobalShaderUniformSetterFactory(client);
-	shader_src->addShaderUniformSetterFactory(scsf);
+	auto scsf_up = std::make_unique<GameGlobalShaderUniformSetterFactory>(client);
+	auto* scsf = scsf_up.get();
+	shader_src->addShaderUniformSetterFactory(std::move(scsf_up));
 
 	shader_src->addShaderUniformSetterFactory(
-		new FogShaderUniformSetterFactory());
+		std::make_unique<FogShaderUniformSetterFactory>());
 
 	ShadowRenderer::preInit(shader_src);
 
@@ -3385,10 +3358,10 @@ PointedThing Game::updatePointedThing(
 
 		// Modify final color a bit with time
 		u32 timer = client->getEnv().getFrameTime() % 5000;
-		float timerf = (float) (irr::core::PI * ((timer / 2500.0) - 0.5));
+		float timerf = (float) (core::PI * ((timer / 2500.0) - 0.5));
 		float sin_r = 0.08f * std::sin(timerf);
-		float sin_g = 0.08f * std::sin(timerf + irr::core::PI * 0.5f);
-		float sin_b = 0.08f * std::sin(timerf + irr::core::PI);
+		float sin_g = 0.08f * std::sin(timerf + core::PI * 0.5f);
+		float sin_b = 0.08f * std::sin(timerf + core::PI);
 		c.setRed(core::clamp(core::round32(c.getRed() * (0.8 + sin_r)), 0, 255));
 		c.setGreen(core::clamp(core::round32(c.getGreen() * (0.8 + sin_g)), 0, 255));
 		c.setBlue(core::clamp(core::round32(c.getBlue() * (0.8 + sin_b)), 0, 255));
@@ -4251,11 +4224,6 @@ void the_game(volatile std::sig_atomic_t *kill,
 		bool *reconnect_requested) // Used for local game
 {
 	Game game;
-
-	/* Make a copy of the server address because if a local singleplayer server
-	 * is created then this is updated and we don't want to change the value
-	 * passed to us by the calling function
-	 */
 
 	try {
 

@@ -305,6 +305,7 @@ struct alignas(u32) MapNode
 	//   content_width = the number of bytes of content per node
 	//   params_width = the number of bytes of params per node
 	//   compressed = true to zlib-compress output
+	//   is_mono_block = if true, nodes is array of size 1
 	static Buffer<u8> serializeBulk(int version,
 			const MapNode *nodes, u32 nodecount,
 			u8 content_width, u8 params_width, bool is_mono_block = false);

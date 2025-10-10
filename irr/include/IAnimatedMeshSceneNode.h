@@ -8,8 +8,6 @@
 #include "IBoneSceneNode.h"
 #include "IAnimatedMesh.h"
 
-namespace irr
-{
 namespace scene
 {
 class IAnimatedMeshSceneNode;
@@ -133,4 +131,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

@@ -20,8 +20,6 @@
 
 #include "mt_opengl.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -1599,6 +1597,7 @@ inline void COpenGLDriver::getGLTextureMatrix(GLfloat *o, const core::matrix4 &m
 
 ITexture *COpenGLDriver::createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type, const std::vector<IImage*> &images)
 {
+	assert(type == ETT_2D);
 	return new COpenGLTexture(name, images, ETT_2D, this);
 }
 
@@ -2490,7 +2489,7 @@ bool COpenGLDriver::queryTextureFormat(ECOLOR_FORMAT format) const
 	return getColorFormatParameters(format, dummyInternalFormat, dummyPixelFormat, dummyPixelType, &dummyConverter);
 }
 
-bool COpenGLDriver::needsTransparentRenderPass(const irr::video::SMaterial &material) const
+bool COpenGLDriver::needsTransparentRenderPass(const video::SMaterial &material) const
 {
 	return CNullDriver::needsTransparentRenderPass(material) || material.isAlphaBlendOperation();
 }
@@ -2615,10 +2614,6 @@ ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &
 	if (IImage::isCompressedFormat(format))
 		return 0;
 
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
-
 	bool supportForFBO = (Feature.ColorAttachment > 0);
 
 	core::dimension2du destSize(size);
@@ -2632,21 +2627,14 @@ ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
 
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
-
 	return renderTargetTexture;
 }
 
 //! Creates a render target texture for a cubemap
-ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const irr::u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
+ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
 {
 	if (IImage::isCompressedFormat(format))
 		return 0;
-
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
 
 	bool supportForFBO = (Feature.ColorAttachment > 0);
 
@@ -2661,9 +2649,6 @@ ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const irr::u32 sideLen, c
 	COpenGLTexture *renderTargetTexture = new COpenGLTexture(name, destSize, ETT_CUBEMAP, format, this);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
-
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
 
 	return renderTargetTexture;
 }
@@ -2681,6 +2666,13 @@ bool COpenGLDriver::setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SCol
 	if (target && target->getDriverType() != EDT_OPENGL) {
 		os::Printer::log("Fatal Error: Tried to set a render target not owned by this driver.", ELL_ERROR);
 		return false;
+	}
+
+	if (CurrentRenderTarget) {
+		// Update mip-map of the generated texture, if enabled.
+		auto textures = CurrentRenderTarget->getTexture();
+		for (size_t i = 0; i < textures.size(); ++i)
+			textures[i]->regenerateMipMapLevels();
 	}
 
 	bool supportForFBO = (Feature.ColorAttachment > 0);
@@ -3170,5 +3162,4 @@ IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::
 }
 
 } // end namespace video
-} // end namespace irr
 #endif // opengl

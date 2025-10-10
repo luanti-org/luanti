@@ -14,8 +14,6 @@ class Client;
 class Environment;
 class GenericCAO;
 class ClientActiveObject;
-class ClientEnvironment;
-class IGameDef;
 struct CollisionInfo;
 struct collisionMoveResult;
 
@@ -116,8 +114,6 @@ public:
 		assert(!m_cao); // Pre-condition
 		m_cao = toset;
 	}
-
-	u32 maxHudId() const { return hud.size(); }
 
 	u16 getBreath() const { return m_breath; }
 	void setBreath(u16 breath) { m_breath = breath; }

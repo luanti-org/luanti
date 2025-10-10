@@ -10,8 +10,6 @@
 #include "EDriverTypes.h"
 #include "path.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -67,6 +65,11 @@ enum E_TEXTURE_CREATION_FLAG
 			 are often badly supported by drivers. So it's generally
 			 not recommended to enable this flag.	*/
 	ETCF_NO_ALPHA_CHANNEL = 0x00000020,
+
+	/** Creates Render Target Textures with mipmap levels.
+	See also: `ETCF_CREATE_MIP_MAPS` for other textures.
+	This is disabled by default. */
+	ETCF_CREATE_RTT_MIP_MAPS = 0x00000040,
 
 	//! Allow the driver to keep a copy of the texture in memory
 	/** Enabling this makes calls to ITexture::lock a lot faster, but costs main memory.
@@ -292,4 +295,3 @@ protected:
 };
 
 } // end namespace video
-} // end namespace irr

@@ -13,15 +13,16 @@ pkgs.mkShell {
     libjpeg
     libpng
     libGL
+    luajit
     SDL2
     openal
     curl
     libvorbis
     libogg
     gettext
+    gmp
     freetype
     sqlite
-    irrlicht
 
     mangohud
     python313

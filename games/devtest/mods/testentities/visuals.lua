@@ -85,6 +85,28 @@ core.register_entity("testentities:sam", {
 	},
 	on_activate = function(self)
 		self.object:set_animation({x = 0, y = 219}, 30, 0, true)
+		self._timer = 0
+		self._grow_head = true
+		self:_animate_head()
+	end,
+	_head_anim_duration = 2,
+	_animate_head = function(self)
+		local s = self._grow_head and 2 or 1
+		self.object:set_bone_override("Head", {
+			scale = {
+				vec = vector.new(s, s, s),
+				absolute = true,
+				interpolation = self._head_anim_duration,
+			},
+		})
+	end,
+	on_step = function(self, dtime)
+		self._timer = self._timer + dtime
+		if self._timer >= self._head_anim_duration then
+			self._timer = 0
+			self._grow_head = not self._grow_head
+			self:_animate_head()
+		end
 	end,
 })
 

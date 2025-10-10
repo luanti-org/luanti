@@ -1,4 +1,7 @@
+file(GLOB unittest_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 set (UNITTEST_SRCS
+	${unittest_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_address.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_authdatabase.cpp

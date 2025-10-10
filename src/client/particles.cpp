@@ -22,7 +22,7 @@
 #include "settings.h"
 #include "profiler.h"
 
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
 using BlendMode = ParticleParamTypes::BlendMode;
 
@@ -31,6 +31,10 @@ ClientParticleTexture::ClientParticleTexture(const ServerParticleTexture& p, ITe
 	tex = p;
 	// note: getTextureForMesh not needed here because we don't use texture filtering
 	ref = tsrc->getTexture(p.string);
+
+	// Try to show another texture to indicate a code issue.
+	if (!ref)
+		ref = tsrc->getTexture("no_texture.png");
 }
 
 /*
@@ -455,13 +459,16 @@ void ParticleSpawner::spawnParticle(ClientEnvironment *env, float radius,
 	} else {
 		if (m_texpool.size() == 0)
 			return;
-		texture = ClientParticleTexRef(m_texpool[m_texpool.size() == 1 ? 0
-				: myrand_range(0, m_texpool.size()-1)]);
+		texture = ClientParticleTexRef(m_texpool[myrand_range(0, m_texpool.size() - 1)]);
 		texpos = v2f(0.0f, 0.0f);
 		texsize = v2f(1.0f, 1.0f);
 		if (texture.tex->animated)
 			pp.animation = texture.tex->animation;
 	}
+
+	// Same guard as in `CE_SPAWN_PARTICLE`
+	if (!texture.ref)
+		return;
 
 	// synchronize animation length with particle life if desired
 	if (pp.animation.type != TAT_NONE) {
@@ -786,7 +793,8 @@ void ParticleManager::handleParticleEvent(ClientEvent *event, Client *client,
 
 			const ParticleSpawnerParameters &p = *event->add_particlespawner.p;
 
-			// texture pool
+			// There can be multiple textures, e.g. for time-based animations
+			// Look up all required textures in `ITextureSource` to retrieve an `ITexture`.
 			std::vector<ClientParticleTexture> texpool;
 			if (!p.texpool.empty()) {
 				size_t txpsz = p.texpool.size();

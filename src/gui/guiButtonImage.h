@@ -9,7 +9,6 @@
 #include "guiAnimatedImage.h"
 #include "irr_ptr.h"
 
-using namespace irr;
 
 class GUIButtonImage : public GUIButton
 {

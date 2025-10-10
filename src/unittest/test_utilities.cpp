@@ -335,6 +335,8 @@ void TestUtilities::testRemoveEscapes()
 		L"abc\x1b(escaped)def") == L"abcdef");
 	UASSERT(unescape_enriched<wchar_t>(
 		L"abc\x1b((escaped with parenthesis\\))def") == L"abcdef");
+	UASSERTEQ(auto, unescape_enriched("abc\x1b(not this\\\\)def"),
+		"abcdef");
 	UASSERT(unescape_enriched<wchar_t>(
 		L"abc\x1b(incomplete") == L"abc");
 	UASSERT(unescape_enriched<wchar_t>(
@@ -342,6 +344,9 @@ void TestUtilities::testRemoveEscapes()
 	// Nested escapes not supported
 	UASSERT(unescape_enriched<wchar_t>(
 		L"abc\x1b(outer \x1b(inner escape)escape)def") == L"abcescape)def");
+	// Multiple
+	UASSERTEQ(auto, unescape_enriched("one\x1bX two \x1b(four)three"),
+		"one two three");
 }
 
 void TestUtilities::testWrapRows()
@@ -370,7 +375,7 @@ void TestUtilities::testWrapRows()
 void TestUtilities::testEnrichedString()
 {
 	EnrichedString str(L"Test bar");
-	irr::video::SColor color(0xFF, 0, 0, 0xFF);
+	video::SColor color(0xFF, 0, 0, 0xFF);
 
 	UASSERT(str.substr(1, 3).getString() == L"est");
 	str += L" BUZZ";

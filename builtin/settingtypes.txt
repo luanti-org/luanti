@@ -273,6 +273,10 @@ keymap_increase_viewing_range_min (Increase view range) key SYSTEM_SCANCODE_46
 
 keymap_decrease_viewing_range_min (Decrease view range) key SYSTEM_SCANCODE_45
 
+#    Modifier key bind for closing your world.
+#    Requires ESC + the selected key to work.
+keymap_close_world (Return to Main Menu) key
+
 keymap_slot1 (Hotbar slot 1) key SYSTEM_SCANCODE_30
 
 keymap_slot2 (Hotbar slot 2) key SYSTEM_SCANCODE_31
@@ -488,13 +492,12 @@ lod_size_threshold (LOD min. size) float 0.25 0.01 1
 
 #    3D support.
 #    Currently supported:
-#    -    none: no 3d output.
-#    -    anaglyph: cyan/magenta color 3d.
-#    -    interlaced: odd/even line based polarization screen support.
-#    -    topbottom: split screen top/bottom.
-#    -    sidebyside: split screen side by side.
-#    -    crossview: Cross-eyed 3d
-3d_mode (3D mode) enum none none,anaglyph,interlaced,topbottom,sidebyside,crossview
+#    -    none: no 3D output
+#    -    anaglyph: cyan/magenta color 3D
+#    -    topbottom: split screen top/bottom
+#    -    sidebyside: split screen side-by-side
+#    -    crossview: cross-eyed 3D
+3d_mode (3D mode) enum none none,anaglyph,topbottom,sidebyside,crossview
 
 #    Strength of 3D mode parallax.
 3d_paralax_strength (3D mode parallax strength) float 0.025 -0.087 0.087
@@ -1957,6 +1960,14 @@ enable_mod_channels (Mod channels) [server] bool false
 #    Provides a /profiler command to access the compiled profile.
 #    Useful for mod developers and server operators.
 profiler.load (Load the game profiler) bool false
+
+#    Disable if you only want to instrument with Tracy.
+profiler.measure (Measure time samples) bool true
+
+#    Capture Tracy zones with the profiler's instrumentation.
+#    You need to build with Tracy to use this, see doc/developing/profiling.md
+#    for details.
+profiler.tracy (Capture Tracy zones) bool false
 
 #    The default format in which profiles are being saved,
 #    when calling `/profiler save [format]` without format.

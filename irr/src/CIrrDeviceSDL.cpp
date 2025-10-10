@@ -30,13 +30,13 @@
 #include "CSDLManager.h"
 
 // Since SDL doesn't have mouse keys as keycodes we need to fall back to EKEY_CODE in some cases.
-static inline bool is_fake_key(irr::EKEY_CODE key) {
+static inline bool is_fake_key(EKEY_CODE key) {
 	switch (key) {
-	case irr::KEY_LBUTTON:
-	case irr::KEY_MBUTTON:
-	case irr::KEY_RBUTTON:
-	case irr::KEY_XBUTTON1:
-	case irr::KEY_XBUTTON2:
+	case KEY_LBUTTON:
+	case KEY_MBUTTON:
+	case KEY_RBUTTON:
+	case KEY_XBUTTON1:
+	case KEY_XBUTTON2:
 		return true;
 
 	default:
@@ -46,8 +46,6 @@ static inline bool is_fake_key(irr::EKEY_CODE key) {
 
 static int SDLDeviceInstances = 0;
 
-namespace irr
-{
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 EM_BOOL CIrrDeviceSDL::MouseUpDownCallback(int eventType, const EmscriptenMouseEvent *event, void *userData)
 {
@@ -63,8 +61,8 @@ EM_BOOL CIrrDeviceSDL::MouseEnterCallback(int eventType, const EmscriptenMouseEv
 
 	SEvent irrevent;
 
-	irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-	irrevent.MouseInput.Event = irr::EMIE_MOUSE_ENTER_CANVAS;
+	irrevent.EventType = EET_MOUSE_INPUT_EVENT;
+	irrevent.MouseInput.Event = EMIE_MOUSE_ENTER_CANVAS;
 	This->MouseX = irrevent.MouseInput.X = mouseEvent->canvasX;
 	This->MouseY = irrevent.MouseInput.Y = mouseEvent->canvasY;
 	This->MouseXRel = mouseEvent->movementX; // should be 0 I guess? Or can it enter while pointer is locked()?
@@ -84,8 +82,8 @@ EM_BOOL CIrrDeviceSDL::MouseLeaveCallback(int eventType, const EmscriptenMouseEv
 
 	SEvent irrevent;
 
-	irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-	irrevent.MouseInput.Event = irr::EMIE_MOUSE_LEAVE_CANVAS;
+	irrevent.EventType = EET_MOUSE_INPUT_EVENT;
+	irrevent.MouseInput.Event = EMIE_MOUSE_LEAVE_CANVAS;
 	This->MouseX = irrevent.MouseInput.X = mouseEvent->canvasX;
 	This->MouseY = irrevent.MouseInput.Y = mouseEvent->canvasY;
 	This->MouseXRel = mouseEvent->movementX; // should be 0 I guess? Or can it enter while pointer is locked()?
@@ -718,8 +716,8 @@ bool CIrrDeviceSDL::run()
 		case SDL_MOUSEMOTION: {
 			SDL_Keymod keymod = SDL_GetModState();
 
-			irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			irrevent.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
+			irrevent.EventType = EET_MOUSE_INPUT_EVENT;
+			irrevent.MouseInput.Event = EMIE_MOUSE_MOVED;
 
 			MouseXRel = static_cast<s32>(SDL_event.motion.xrel * ScaleX);
 			MouseYRel = static_cast<s32>(SDL_event.motion.yrel * ScaleY);
@@ -743,8 +741,8 @@ bool CIrrDeviceSDL::run()
 		case SDL_MOUSEWHEEL: {
 			SDL_Keymod keymod = SDL_GetModState();
 
-			irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			irrevent.MouseInput.Event = irr::EMIE_MOUSE_WHEEL;
+			irrevent.EventType = EET_MOUSE_INPUT_EVENT;
+			irrevent.MouseInput.Event = EMIE_MOUSE_WHEEL;
 #if SDL_VERSION_ATLEAST(2, 0, 18)
 			irrevent.MouseInput.Wheel = SDL_event.wheel.preciseY;
 #else
@@ -767,8 +765,8 @@ bool CIrrDeviceSDL::run()
 		case SDL_MOUSEBUTTONUP: {
 			SDL_Keymod keymod = SDL_GetModState();
 
-			irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
-			irrevent.MouseInput.Event = irr::EMIE_MOUSE_MOVED; // value to be ignored
+			irrevent.EventType = EET_MOUSE_INPUT_EVENT;
+			irrevent.MouseInput.Event = EMIE_MOUSE_MOVED; // value to be ignored
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 			// Handle mouselocking in emscripten in Windowed mode.
@@ -804,31 +802,31 @@ bool CIrrDeviceSDL::run()
 			switch (button) {
 			case SDL_BUTTON_LEFT:
 				if (SDL_event.type == SDL_MOUSEBUTTONDOWN) {
-					irrevent.MouseInput.Event = irr::EMIE_LMOUSE_PRESSED_DOWN;
-					MouseButtonStates |= irr::EMBSM_LEFT;
+					irrevent.MouseInput.Event = EMIE_LMOUSE_PRESSED_DOWN;
+					MouseButtonStates |= EMBSM_LEFT;
 				} else {
-					irrevent.MouseInput.Event = irr::EMIE_LMOUSE_LEFT_UP;
-					MouseButtonStates &= ~irr::EMBSM_LEFT;
+					irrevent.MouseInput.Event = EMIE_LMOUSE_LEFT_UP;
+					MouseButtonStates &= ~EMBSM_LEFT;
 				}
 				break;
 
 			case SDL_BUTTON_RIGHT:
 				if (SDL_event.type == SDL_MOUSEBUTTONDOWN) {
-					irrevent.MouseInput.Event = irr::EMIE_RMOUSE_PRESSED_DOWN;
-					MouseButtonStates |= irr::EMBSM_RIGHT;
+					irrevent.MouseInput.Event = EMIE_RMOUSE_PRESSED_DOWN;
+					MouseButtonStates |= EMBSM_RIGHT;
 				} else {
-					irrevent.MouseInput.Event = irr::EMIE_RMOUSE_LEFT_UP;
-					MouseButtonStates &= ~irr::EMBSM_RIGHT;
+					irrevent.MouseInput.Event = EMIE_RMOUSE_LEFT_UP;
+					MouseButtonStates &= ~EMBSM_RIGHT;
 				}
 				break;
 
 			case SDL_BUTTON_MIDDLE:
 				if (SDL_event.type == SDL_MOUSEBUTTONDOWN) {
-					irrevent.MouseInput.Event = irr::EMIE_MMOUSE_PRESSED_DOWN;
-					MouseButtonStates |= irr::EMBSM_MIDDLE;
+					irrevent.MouseInput.Event = EMIE_MMOUSE_PRESSED_DOWN;
+					MouseButtonStates |= EMBSM_MIDDLE;
 				} else {
-					irrevent.MouseInput.Event = irr::EMIE_MMOUSE_LEFT_UP;
-					MouseButtonStates &= ~irr::EMBSM_MIDDLE;
+					irrevent.MouseInput.Event = EMIE_MMOUSE_LEFT_UP;
+					MouseButtonStates &= ~EMBSM_MIDDLE;
 				}
 				break;
 
@@ -836,19 +834,19 @@ bool CIrrDeviceSDL::run()
 			// those as keycodes instead. This is relatively hacky but avoids the effort of
 			// adding more mouse events that will be discarded anyway once we switch to SDL
 			case SDL_BUTTON_X1:
-				irrevent.EventType = irr::EET_KEY_INPUT_EVENT;
-				irrevent.KeyInput.Key = irr::KEY_XBUTTON1;
+				irrevent.EventType = EET_KEY_INPUT_EVENT;
+				irrevent.KeyInput.Key = KEY_XBUTTON1;
 				break;
 
 			case SDL_BUTTON_X2:
-				irrevent.EventType = irr::EET_KEY_INPUT_EVENT;
-				irrevent.KeyInput.Key = irr::KEY_XBUTTON2;
+				irrevent.EventType = EET_KEY_INPUT_EVENT;
+				irrevent.KeyInput.Key = KEY_XBUTTON2;
 				break;
 			}
 
 			bool shift = (keymod & KMOD_SHIFT) != 0;
 			bool control = (keymod & KMOD_CTRL) != 0;
-			if (irrevent.EventType == irr::EET_MOUSE_INPUT_EVENT && irrevent.MouseInput.Event != irr::EMIE_MOUSE_MOVED) {
+			if (irrevent.EventType == EET_MOUSE_INPUT_EVENT && irrevent.MouseInput.Event != EMIE_MOUSE_MOVED) {
 				irrevent.MouseInput.ButtonStates = MouseButtonStates;
 				irrevent.MouseInput.X = static_cast<s32>(SDL_event.button.x * ScaleX);
 				irrevent.MouseInput.Y = static_cast<s32>(SDL_event.button.y * ScaleY);
@@ -866,7 +864,7 @@ bool CIrrDeviceSDL::run()
 						postEventFromUser(irrevent);
 					}
 				}
-			} else if (irrevent.EventType == irr::EET_KEY_INPUT_EVENT) {
+			} else if (irrevent.EventType == EET_KEY_INPUT_EVENT) {
 				irrevent.KeyInput.Char = 0;
 				irrevent.KeyInput.PressedDown = SDL_event.type == SDL_MOUSEBUTTONDOWN;
 				irrevent.KeyInput.Shift = shift;
@@ -877,9 +875,9 @@ bool CIrrDeviceSDL::run()
 		}
 
 		case SDL_TEXTINPUT: {
-			irrevent.EventType = irr::EET_STRING_INPUT_EVENT;
+			irrevent.EventType = EET_STRING_INPUT_EVENT;
 			irrevent.StringInput.Str = new core::stringw();
-			irr::core::utf8ToWString(*irrevent.StringInput.Str, SDL_event.text.text);
+			core::utf8ToWString(*irrevent.StringInput.Str, SDL_event.text.text);
 			postEventFromUser(irrevent);
 			delete irrevent.StringInput.Str;
 			irrevent.StringInput.Str = NULL;
@@ -906,7 +904,7 @@ bool CIrrDeviceSDL::run()
 			if (SDL_IsTextInputActive() && !keyIsKnownSpecial(key) && (SDL_event.key.keysym.mod & KMOD_CTRL) == 0)
 				break;
 
-			irrevent.EventType = irr::EET_KEY_INPUT_EVENT;
+			irrevent.EventType = EET_KEY_INPUT_EVENT;
 			irrevent.KeyInput.Key = key;
 			irrevent.KeyInput.PressedDown = (SDL_event.type == SDL_KEYDOWN);
 			irrevent.KeyInput.Shift = (SDL_event.key.keysym.mod & KMOD_SHIFT) != 0;
@@ -946,7 +944,7 @@ bool CIrrDeviceSDL::run()
 			break;
 
 		case SDL_USEREVENT:
-			irrevent.EventType = irr::EET_USER_EVENT;
+			irrevent.EventType = EET_USER_EVENT;
 			irrevent.UserEvent.UserData1 = reinterpret_cast<uintptr_t>(SDL_event.user.data1);
 			irrevent.UserEvent.UserData2 = reinterpret_cast<uintptr_t>(SDL_event.user.data2);
 
@@ -1410,7 +1408,7 @@ void CIrrDeviceSDL::createKeyMap()
 	// select missing
 	KeyMap.emplace(SDLK_PRINTSCREEN, KEY_PRINT);
 	// execute missing
-	KeyMap.emplace(SDLK_PRINTSCREEN, KEY_SNAPSHOT);
+	// snapshot missing
 
 	KeyMap.emplace(SDLK_INSERT, KEY_INSERT);
 	KeyMap.emplace(SDLK_DELETE, KEY_DELETE);
@@ -1528,7 +1526,5 @@ void CIrrDeviceSDL::CCursorControl::initCursors()
 	Cursors.emplace_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE));    // ECI_SIZEWE
 	Cursors.emplace_back(nullptr);                                             // ECI_UP
 }
-
-} // end namespace irr
 
 #endif // _IRR_COMPILE_WITH_SDL_DEVICE_

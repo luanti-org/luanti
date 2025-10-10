@@ -18,7 +18,7 @@ class Client;
 class Hud;
 class ShadowRenderer;
 
-namespace irr::video
+namespace video
 {
 	class IRenderTarget;
 }

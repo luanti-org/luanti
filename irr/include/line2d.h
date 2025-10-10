@@ -7,8 +7,6 @@
 #include "irrTypes.h"
 #include "vector2d.h"
 
-namespace irr
-{
 namespace core
 {
 
@@ -350,7 +348,7 @@ public:
 
 // partial specialization to optimize <f32> lines (avoiding casts)
 template <>
-inline vector2df line2d<irr::f32>::getClosestPoint(const vector2df &point, bool checkOnlySegments) const
+inline vector2df line2d<f32>::getClosestPoint(const vector2df &point, bool checkOnlySegments) const
 {
 	const vector2df c = point - start;
 	vector2df v = end - start;
@@ -377,4 +375,3 @@ typedef line2d<f32> line2df;
 typedef line2d<s32> line2di;
 
 } // end namespace core
-} // end namespace irr

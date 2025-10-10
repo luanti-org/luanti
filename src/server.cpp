@@ -3,9 +3,6 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "server.h"
-#include <iostream>
-#include <queue>
-#include <algorithm>
 #include "irr_v2d.h"
 #include "network/connection.h"
 #include "network/networkpacket.h"
@@ -65,6 +62,10 @@
 #include "gettext.h"
 #include "util/tracy_wrapper.h"
 
+#include <iostream>
+#include <queue>
+#include <algorithm>
+#include <sstream>
 #include <csignal>
 
 class ClientNotFoundException : public BaseException
@@ -268,7 +269,6 @@ Server::Server(
 	m_gamespec(gamespec),
 	m_simple_singleplayer_mode(simple_singleplayer_mode),
 	m_dedicated(dedicated),
-	m_async_fatal_error(""),
 	m_con(con::createMTP(CONNECTION_TIMEOUT, m_bind_addr.isIPv6(), this)),
 	m_itemdef(createItemDefManager()),
 	m_nodedef(createNodeDefManager()),
@@ -805,6 +805,12 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		counter += dtime;
 	}
 #endif
+
+	// Send queued particles
+	{
+		EnvAutoLock envlock(this);
+		SendSpawnParticles();
+	}
 
 	/*
 		Check added and deleted active objects
@@ -1604,88 +1610,126 @@ void Server::SendShowFormspecMessage(session_t peer_id, const std::string &forms
 	Send(&pkt);
 }
 
-// Spawns a particle on peer with peer_id
-void Server::SendSpawnParticle(session_t peer_id, u16 protocol_version,
-	const ParticleParameters &p)
+void Server::SendSpawnParticles(RemotePlayer *player,
+		const std::vector<ParticleParameters> &particles)
 {
 	static thread_local const float radius =
-			g_settings->getS16("max_block_send_distance") * MAP_BLOCKSIZE * BS;
+		g_settings->getS16("max_block_send_distance") * MAP_BLOCKSIZE * BS;
+	const float radius_sq = radius * radius;
 
-	if (peer_id == PEER_ID_INEXISTENT) {
-		std::vector<session_t> clients = m_clients.getClientIDs();
-		const v3f pos = p.pos * BS;
-		const float radius_sq = radius * radius;
-
-		for (const session_t client_id : clients) {
-			RemotePlayer *player = m_env->getPlayer(client_id);
-			if (!player)
-				continue;
-
-			PlayerSAO *sao = player->getPlayerSAO();
-			if (!sao)
-				continue;
-
-			// Do not send to distant clients
-			if (sao->getBasePosition().getDistanceFromSQ(pos) > radius_sq)
-				continue;
-
-			SendSpawnParticle(client_id, player->protocol_version, p);
-		}
+	PlayerSAO *sao = player->getPlayerSAO();
+	if (!sao || sao->isGone())
 		return;
+
+	std::ostringstream particle_batch_data(std::ios_base::binary);
+	for (const auto &particle : particles) {
+		if (sao->getBasePosition().getDistanceFromSQ(particle.pos * BS) > radius_sq)
+			continue; // out of range
+
+		std::ostringstream particle_data(std::ios_base::binary);
+		particle.serialize(particle_data, player->protocol_version);
+		std::string particle_data_str = particle_data.str();
+		SANITY_CHECK(particle_data_str.size() < U32_MAX);
+		if (player->protocol_version < 50) {
+			// Client only supports TOCLIENT_SPAWN_PARTICLE,
+			// so turn the written particle into a packet immediately
+			NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, particle_data_str.size(), player->getPeerId());
+			pkt.putRawString(particle_data_str);
+			Send(&pkt);
+		} else {
+			particle_batch_data << serializeString32(particle_data_str);
+		}
 	}
-	assert(protocol_version != 0);
 
-	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE, 0, peer_id);
+	if (particle_batch_data.tellp() == 0)
+		return; // no batch to send
 
-	{
-		// NetworkPacket and iostreams are incompatible...
-		std::ostringstream oss(std::ios_base::binary);
-		p.serialize(oss, protocol_version);
-		pkt.putRawString(oss.str());
-	}
+	// Client supports TOCLIENT_SPAWN_PARTICLE_BATCH
+	assert(player->protocol_version >= 50);
+	std::ostringstream compressed(std::ios_base::binary);
+	compressZstd(particle_batch_data.str(), compressed);
 
+	NetworkPacket pkt(TOCLIENT_SPAWN_PARTICLE_BATCH,
+			4 + compressed.tellp(), player->getPeerId());
+	pkt.putLongString(compressed.str());
 	Send(&pkt);
 }
 
-// Adds a ParticleSpawner on peer with peer_id
-void Server::SendAddParticleSpawner(session_t peer_id, u16 protocol_version,
+void Server::SendSpawnParticles()
+{
+	for (const auto &[pname, particles] : m_particles_to_send) {
+		if (pname.empty())
+			continue; // sent to all clients
+
+		RemotePlayer *player = m_env->getPlayer(pname.c_str());
+		if (!player)
+			continue;
+
+		SendSpawnParticles(player, particles);
+	}
+
+	for (auto *player : m_env->getPlayers()) {
+		SendSpawnParticles(player, m_particles_to_send[""]);
+	}
+
+	m_particles_to_send.clear();
+}
+
+void Server::SendAddParticleSpawner(const std::string &to_player,
+	const std::string &exclude_player,
 	const ParticleSpawnerParameters &p, u16 attached_id, u32 id)
 {
 	static thread_local const float radius =
 			g_settings->getS16("max_block_send_distance") * MAP_BLOCKSIZE * BS;
+	const float radius_sq = radius * radius;
 
-	if (peer_id == PEER_ID_INEXISTENT) {
-		std::vector<session_t> clients = m_clients.getClientIDs();
-		const v3f pos = (
-			p.pos.start.min.val +
-			p.pos.start.max.val +
-			p.pos.end.min.val +
-			p.pos.end.max.val
-		) / 4.0f * BS;
-		const float radius_sq = radius * radius;
-		/* Don't send short-lived spawners to distant players.
-		 * This could be replaced with proper tracking at some point.
-		 * A lifetime of 0 means that the spawner exists forever.*/
-		const bool distance_check = !attached_id && p.time <= 1.0f && p.time != 0.0f;
+	// Average position where particles would spawn (approximate)
+	const v3f pos = (
+		p.pos.start.min.val +
+		p.pos.start.max.val +
+		p.pos.end.min.val +
+		p.pos.end.max.val
+	) / 4.0f * BS;
+	/* Don't send short-lived spawners to distant players.
+	 * This could be replaced with proper tracking at some point.
+	 * A lifetime of 0 means that the spawner exists forever. */
+	const bool distance_check = !attached_id && p.time <= 1.0f && p.time != 0.0f;
 
-		for (const session_t client_id : clients) {
-			RemotePlayer *player = m_env->getPlayer(client_id);
-			if (!player)
-				continue;
-
-			if (distance_check) {
-				PlayerSAO *sao = player->getPlayerSAO();
-				if (!sao)
-					continue;
-				if (sao->getBasePosition().getDistanceFromSQ(pos) > radius_sq)
-					continue;
-			}
-
-			SendAddParticleSpawner(client_id, player->protocol_version,
-				p, attached_id, id);
+	const auto &consider_player = [&] (RemotePlayer *player) {
+		if (distance_check) {
+			PlayerSAO *sao = player->getPlayerSAO();
+			if (!sao)
+				return;
+			if (sao->getBasePosition().getDistanceFromSQ(pos) > radius_sq)
+				return;
 		}
+
+		SendAddParticleSpawner(player->getPeerId(), player->protocol_version,
+			p, attached_id, id);
+	};
+
+	// Send to one -or- all (except one)
+	if (!to_player.empty()) {
+		RemotePlayer *player = m_env->getPlayer(to_player);
+		if (player)
+			consider_player(player);
 		return;
 	}
+	std::vector<session_t> clients = m_clients.getClientIDs();
+	for (const session_t client_id : clients) {
+		RemotePlayer *player = m_env->getPlayer(client_id);
+		if (!player)
+			continue;
+		if (!exclude_player.empty() && exclude_player == player->getName())
+			continue;
+		consider_player(player);
+	}
+}
+
+void Server::SendAddParticleSpawner(session_t peer_id, u16 protocol_version,
+	const ParticleSpawnerParameters &p, u16 attached_id, u32 id)
+{
+	assert(peer_id != PEER_ID_INEXISTENT);
 	assert(protocol_version != 0);
 
 	NetworkPacket pkt(TOCLIENT_ADD_PARTICLESPAWNER, 100, peer_id);
@@ -2556,6 +2600,7 @@ bool Server::addMediaFile(const std::string &filename,
 				<< filename << "\"" << std::endl;
 		return false;
 	}
+
 	// If name is not in a supported format, ignore it
 	const char *supported_ext[] = {
 		".png", ".jpg", ".tga",
@@ -2585,6 +2630,12 @@ bool Server::addMediaFile(const std::string &filename,
 				<< filepath << "\"" << std::endl;
 		return false;
 	}
+	if (filedata.size() > MEDIAFILE_MAX_SIZE) {
+		errorstream << "Server::addMediaFile(): \""
+				<< filepath << "\" is too big (" << (filedata.size() >> 10)
+				<< "KiB). The internal limit is " << (MEDIAFILE_MAX_SIZE >> 10) << "KiB." << std::endl;
+		return false;
+	}
 
 	std::string sha1 = hashing::sha1(filedata);
 	std::string sha1_hex = hex_encode(sha1);
@@ -2594,7 +2645,7 @@ bool Server::addMediaFile(const std::string &filename,
 	// Put in list
 	m_media[filename] = MediaInfo(filepath, sha1);
 	verbosestream << "Server: " << sha1_hex << " is " << filename
-			<< std::endl;
+			<< " (" << (filedata.size() >> 10) << "KiB)" << std::endl;
 
 	if (filedata_to)
 		*filedata_to = std::move(filedata);
@@ -2752,17 +2803,16 @@ void Server::sendRequestedMedia(session_t peer_id,
 		auto it = m_media.find(name);
 
 		if (it == m_media.end()) {
-			errorstream<<"Server::sendRequestedMedia(): Client asked for "
-					<<"unknown file \""<<(name)<<"\""<<std::endl;
+			warningstream << "Server::sendRequestedMedia(): Client asked for "
+					"unknown file \"" << name << "\"" << std::endl;
 			continue;
 		}
 		const auto &m = it->second;
 
-		// no_announce <=> usually ephemeral dynamic media, which may
-		// have duplicate filenames. So we can't check it.
-		if (!m.no_announce) {
+		// Ephemeral dynamic media may have duplicate filenames. So we can't check it.
+		if (!m.ephemeral) {
 			if (!client->markMediaSent(name)) {
-				infostream << "Server::sendRequestedMedia(): Client asked has "
+				warningstream << "Server::sendRequestedMedia(): Client has "
 					"requested \"" << name << "\" before, not sending it again."
 					<< std::endl;
 				continue;
@@ -2828,31 +2878,41 @@ void Server::sendRequestedMedia(session_t peer_id,
 	}
 }
 
+namespace {
+	// unordered_map erase_if is only C++20
+	template <typename C, typename F>
+	void erase_if(C &container, F predicate) {
+		for (auto it = container.begin(); it != container.end(); ) {
+			if (predicate(*it))
+				it = container.erase(it);
+			else
+				++it;
+		}
+	}
+}
+
 void Server::stepPendingDynMediaCallbacks(float dtime)
 {
 	EnvAutoLock lock(this);
 
-	for (auto it = m_pending_dyn_media.begin(); it != m_pending_dyn_media.end();) {
-		it->second.expiry_timer -= dtime;
-		bool del = it->second.waiting_players.empty() || it->second.expiry_timer < 0;
+	erase_if(m_pending_dyn_media, [&] (decltype(m_pending_dyn_media)::value_type &it) {
+		auto &[token, state] = it;
 
-		if (!del) {
-			it++;
-			continue;
-		}
+		state.expiry_timer -= dtime;
+		if (!state.waiting_players.empty() && state.expiry_timer >= 0)
+			return false;
 
-		const auto &name = it->second.filename;
+		const auto &name = state.filename;
 		if (!name.empty()) {
 			assert(m_media.count(name));
-			// if no_announce isn't set we're definitely deleting the wrong file!
-			sanity_check(m_media[name].no_announce);
+			sanity_check(m_media[name].ephemeral);
 
 			fs::DeleteSingleFileOrEmptyDirectory(m_media[name].path);
 			m_media.erase(name);
 		}
-		getScriptIface()->freeDynamicMediaCallback(it->first);
-		it = m_pending_dyn_media.erase(it);
-	}
+		getScriptIface()->freeDynamicMediaCallback(token);
+		return true;
+	});
 }
 
 void Server::SendMinimapModes(session_t peer_id,
@@ -3590,35 +3650,15 @@ void Server::spawnParticle(const std::string &playername,
 	if (!m_env)
 		return;
 
-	session_t peer_id = PEER_ID_INEXISTENT;
-	u16 proto_ver = 0;
-	if (!playername.empty()) {
-		RemotePlayer *player = m_env->getPlayer(playername.c_str());
-		if (!player)
-			return;
-		peer_id = player->getPeerId();
-		proto_ver = player->protocol_version;
-	}
-
-	SendSpawnParticle(peer_id, proto_ver, p);
+	m_particles_to_send[playername].push_back(p);
 }
 
 u32 Server::addParticleSpawner(const ParticleSpawnerParameters &p,
-	ServerActiveObject *attached, const std::string &playername)
+	ServerActiveObject *attached, const std::string &to_player,
+	const std::string &exclude_player)
 {
-	// m_env will be NULL if the server is initializing
 	if (!m_env)
 		return -1;
-
-	session_t peer_id = PEER_ID_INEXISTENT;
-	u16 proto_ver = 0;
-	if (!playername.empty()) {
-		RemotePlayer *player = m_env->getPlayer(playername.c_str());
-		if (!player)
-			return -1;
-		peer_id = player->getPeerId();
-		proto_ver = player->protocol_version;
-	}
 
 	u16 attached_id = attached ? attached->getId() : 0;
 
@@ -3628,13 +3668,12 @@ u32 Server::addParticleSpawner(const ParticleSpawnerParameters &p,
 	else
 		id = m_env->addParticleSpawner(p.time, attached_id);
 
-	SendAddParticleSpawner(peer_id, proto_ver, p, attached_id, id);
+	SendAddParticleSpawner(to_player, exclude_player, p, attached_id, id);
 	return id;
 }
 
 void Server::deleteParticleSpawner(const std::string &playername, u32 id)
 {
-	// m_env will be NULL if the server is initializing
 	if (!m_env)
 		throw ServerError("Can't delete particle spawners during initialisation!");
 
@@ -3646,7 +3685,11 @@ void Server::deleteParticleSpawner(const std::string &playername, u32 id)
 		peer_id = player->getPeerId();
 	}
 
+	// FIXME: we don't track which client still knows about this spawner, so
+	// just deleting it entirely is problematic!
+	// We also don't check if the ID is even in use. FAIL!
 	m_env->deleteParticleSpawner(id);
+
 	SendDeleteParticleSpawner(peer_id, id);
 }
 
@@ -3671,11 +3714,17 @@ namespace {
 
 bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 {
-	std::string filename = a.filename;
-	std::string filepath;
+	if (!m_env && (!a.to_player.empty() || a.ephemeral)) {
+		errorstream << "Server: "
+			"adding ephemeral or player-specific media at startup is nonsense"
+			<< std::endl;
+		return false;
+	}
 
 	// Deal with file -or- data, as provided
 	// (Note: caller must ensure validity, so sanity_check is okay)
+	std::string filename = a.filename;
+	std::string filepath;
 	if (a.filepath) {
 		sanity_check(!a.data);
 		filepath = *a.filepath;
@@ -3697,29 +3746,30 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 			<< filepath << std::endl;
 	}
 
-	// Do some checks
-	auto it = m_media.find(filename);
-	if (it != m_media.end()) {
-		// Allow the same path to be "added" again in certain conditions
-		if (a.ephemeral || it->second.path != filepath) {
+	{
+		auto it = m_media.find(filename);
+		if (it == m_media.end()) {
+			// standard case
+		} else if (a.ephemeral || it->second.ephemeral || it->second.path != filepath) {
+			// If the path is the same we can safely allow adding the same file twice.
+			// Note that we already trust mods to not to modify files after the fact.
+			// Ephemeral files are excluded too, because currently each
+			// PendingDynamicMediaCallback "owns" the matching m_media[] entry
+			// so that would mess up.
 			errorstream << "Server::dynamicAddMedia(): file \"" << filename
-				<< "\" already exists in media cache" << std::endl;
+				<< "\" already exists in media list" << std::endl;
 			return false;
 		}
-	}
-
-	if (!m_env && (!a.to_player.empty() || a.ephemeral)) {
-		errorstream << "Server::dynamicAddMedia(): "
-			"adding ephemeral or player-specific media at startup is nonsense"
-			<< std::endl;
-		return false;
 	}
 
 	// Load the file and add it to our media cache
 	std::string filedata, raw_hash;
 	bool ok = addMediaFile(filename, filepath, &filedata, &raw_hash);
-	if (!ok)
+	if (!ok) {
+		if (a.data) // file was temporary
+			fs::DeleteSingleFileOrEmptyDirectory(filepath);
 		return false;
+	}
 	assert(!filedata.empty());
 
 	const auto &media_it = m_media.find(filename);
@@ -3742,6 +3792,7 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 		}
 
 		media_it->second.no_announce = true;
+		media_it->second.ephemeral = true;
 		// stepPendingDynMediaCallbacks will clean the file up later
 	} else if (a.data) {
 		// data is in a temporary file but not ephemeral, so the cleanup point
@@ -3759,10 +3810,10 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 	if (m_env) {
 		NetworkPacket pkt(TOCLIENT_MEDIA_PUSH, 0);
 		pkt << raw_hash << filename;
-		// NOTE: the meaning of a.ephemeral was accidentally inverted between proto 39 and 40,
+		// NOTE: the meaning of this bit was accidentally inverted between proto 39 and 40,
 		// when dynamic_add_media v2 was added. As of 5.12.0 the server sends it correctly again.
 		// Compatibility code on the client-side was not added.
-		pkt << static_cast<bool>(!a.ephemeral);
+		pkt << static_cast<bool>(a.client_cache);
 
 		NetworkPacket legacy_pkt = pkt;
 
@@ -4283,13 +4334,26 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &world_path
 
 	std::string backend = world_mt.exists("mod_storage_backend") ?
 		world_mt.get("mod_storage_backend") : "files";
-	if (backend == "files")
+	if (backend == "files") {
 		warningstream << "/!\\ You are using the old mod storage files backend. "
-			<< "This backend is deprecated and may be removed in a future release /!\\"
-			<< std::endl << "Switching to SQLite3 is advised, "
-			<< "please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
+			"This backend is deprecated and may be removed in a future release /!\\"
+			"\nSwitching to SQLite3 is advised, "
+			"please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
+	}
 
 	return openModStorageDatabase(backend, world_path, world_mt);
+}
+
+std::vector<std::string> Server::getModStorageDatabaseBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
+#if USE_POSTGRESQL
+	ret.emplace_back("postgresql");
+#endif
+	ret.emplace_back("files");
+	ret.emplace_back("dummy");
+	return ret;
 }
 
 ModStorageDatabase *Server::openModStorageDatabase(const std::string &backend,

@@ -11,6 +11,7 @@
 #include "settings.h"
 #include "texturepaths.h"
 #include "irrlicht_changes/printing.h"
+#include "irr_ptr.h"
 #include "util/base64.h"
 #include "util/numeric.h"
 #include "util/strfnd.h"
@@ -102,19 +103,25 @@ video::IImage* SourceImageCache::getOrLoad(const std::string &name)
 
 /** Draw an image on top of another one with gamma-incorrect alpha compositing
  *
- * This exists because IImage::copyToWithAlpha() doesn't seem to always work.
- *
  * \tparam overlay If enabled, only modify pixels in dst which are fully opaque.
  *   Defaults to false.
  * \param src Top image. This image must have the ECF_A8R8G8B8 color format.
  * \param dst Bottom image.
  *   The top image is drawn onto this base image in-place.
- * \param dst_pos An offset vector to move src before drawing it onto dst
+ * \param src_pos Offset into the Top image
+ * \param dst_pos Offset into the Bottom image
  * \param size Size limit of the copied area
 */
 template<bool overlay = false>
-static void blit_with_alpha(video::IImage *src, video::IImage *dst,
-	v2s32 dst_pos, v2u32 size);
+static void blit_with_alpha2(video::IImage *src, video::IImage *dst,
+	v2s32 src_pos, v2s32 dst_pos, v2u32 size);
+
+template<bool overlay = false>
+static inline void blit_with_alpha(video::IImage *src, video::IImage *dst,
+	v2s32 dst_pos, v2u32 size)
+{
+	blit_with_alpha2<overlay>(src, dst, v2s32(), dst_pos, size);
+}
 
 // Apply a color to an image.  Uses an int (0-255) to calculate the ratio.
 // If the ratio is 255 or -1 and keep_alpha is true, then it multiples the
@@ -412,48 +419,64 @@ void blit_pixel(video::SColor src_col, video::SColor &dst_col)
 }  // namespace (anonymous)
 
 template<bool overlay>
-static void blit_with_alpha(video::IImage *src, video::IImage *dst, v2s32 dst_pos,
-	v2u32 size)
+static void blit_with_alpha2(video::IImage *src, video::IImage *dst,
+	v2s32 src_pos, v2s32 dst_pos, v2u32 size)
 {
 	if (dst->getColorFormat() != video::ECF_A8R8G8B8)
 		throw BaseException("blit_with_alpha() supports only ECF_A8R8G8B8 "
 			"destination images.");
 
-	core::dimension2d<u32> src_dim = src->getDimension();
-	core::dimension2d<u32> dst_dim = dst->getDimension();
-	bool drop_src = false;
+	if (size.X == 0 || size.Y == 0)
+		return;
+
+	const v2u32 src_dim = src->getDimension();
+	const v2u32 dst_dim = dst->getDimension();
+
+	// Convert source image if needed
+	irr_ptr<video::IImage> converted;
 	if (src->getColorFormat() != video::ECF_A8R8G8B8) {
-		video::IVideoDriver *driver = RenderingEngine::get_video_driver();
-		video::IImage *src_converted = driver->createImage(video::ECF_A8R8G8B8,
-			src_dim);
-		sanity_check(src_converted != nullptr);
-		src->copyTo(src_converted);
-		src = src_converted;
-		drop_src = true;
+		auto *driver = RenderingEngine::get_video_driver();
+		converted.reset(driver->createImage(video::ECF_A8R8G8B8, src_dim));
+		sanity_check(converted);
+		src->copyTo(converted.get());
+		src = converted.get();
 	}
 
+	// A negative offset is the same as shifting the other position.
+	// equivalent: if (src_pos < 0) { dst_pos += -src_pos; src_pos = 0; }
+	dst_pos -= componentwise_min(src_pos, {0,0});
+	src_pos = componentwise_max(src_pos, {0,0});
+	// and in reverse
+	src_pos -= componentwise_min(dst_pos, {0,0});
+	dst_pos = componentwise_max(dst_pos, {0,0});
+
+	assert(src_pos.X >= 0 && src_pos.Y >= 0);
+	assert(dst_pos.X >= 0 && dst_pos.Y >= 0);
+	const v2u32 src_pos_u = v2u32::from(src_pos);
+	const v2u32 dst_pos_u = v2u32::from(dst_pos);
+
+	// Out of bounds?
+	if (src_pos_u.X >= src_dim.X || src_pos_u.Y >= src_dim.Y)
+		return;
+	if (dst_pos_u.X >= dst_dim.X || dst_pos_u.Y >= dst_dim.Y)
+		return;
+
+	// Truncate blit area as needed
+	size = componentwise_min(size,
+		componentwise_min(src_dim - src_pos_u, dst_dim - dst_pos_u));
+
+	// Do it!
 	video::SColor *pixels_src =
 		reinterpret_cast<video::SColor *>(src->getData());
 	video::SColor *pixels_dst =
 		reinterpret_cast<video::SColor *>(dst->getData());
-	// Limit y and x to the overlapping ranges
-	// s.t. the positions are all in bounds after offsetting.
-	u32 x_start = (u32)std::max(0, -dst_pos.X);
-	u32 y_start = (u32)std::max(0, -dst_pos.Y);
-	u32 x_end = (u32)std::min<s64>({size.X, src_dim.Width,
-		dst_dim.Width - (s64)dst_pos.X});
-	u32 y_end = (u32)std::min<s64>({size.Y, src_dim.Height,
-		dst_dim.Height - (s64)dst_pos.Y});
-	for (u32 y0 = y_start; y0 < y_end; ++y0) {
-		size_t i_src = y0 * src_dim.Width + x_start;
-		size_t i_dst = (dst_pos.Y + y0) * dst_dim.Width + dst_pos.X + x_start;
-		for (u32 x0 = x_start; x0 < x_end; ++x0) {
+	for (u32 y0 = 0; y0 < size.Y; ++y0) {
+		size_t i_src = (src_pos_u.Y + y0) * src_dim.X + src_pos_u.X;
+		size_t i_dst = (dst_pos_u.Y + y0) * dst_dim.X + dst_pos_u.X;
+		for (u32 x0 = 0; x0 < size.X; ++x0) {
 			blit_pixel<overlay>(pixels_src[i_src++], pixels_dst[i_dst++]);
 		}
 	}
-
-	if (drop_src)
-		src->drop();
 }
 
 /*
@@ -1090,7 +1113,7 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 						<< " for [combine" << std::endl;
 					continue;
 				}
-				infostream << "Adding \"" << filename<< "\" to combined "
+				tracestream << "Adding \"" << filename << "\" to combined "
 					<< pos_base << std::endl;
 
 				video::IImage *img = generateImage(filename, source_image_names);
@@ -1310,19 +1333,16 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			video::IImage *img = generateImage(filename, source_image_names);
 			if (img) {
 				core::dimension2d<u32> dim = img->getDimension();
-				if (!baseimg)
+				if (!baseimg) {
 					baseimg = driver->createImage(video::ECF_A8R8G8B8, dim);
+					baseimg->fill(video::SColor(0,0,0,0));
+				}
 
-				core::position2d<s32> pos_base(0, 0);
-				core::position2d<s32> clippos(0, 0);
+				v2s32 clippos(0, 0);
 				clippos.Y = dim.Height * (100-percent) / 100;
-				core::dimension2d<u32> clipdim = dim;
+				core::dimension2du clipdim = dim;
 				clipdim.Height = clipdim.Height * percent / 100 + 1;
-				core::rect<s32> cliprect(clippos, clipdim);
-				img->copyToWithAlpha(baseimg, pos_base,
-						core::rect<s32>(v2s32(0,0), dim),
-						video::SColor(255,255,255,255),
-						&cliprect);
+				blit_with_alpha2(img, baseimg, clippos, clippos, clipdim);
 				img->drop();
 			}
 		}
@@ -1357,16 +1377,11 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			video::IImage *img = driver->createImage(video::ECF_A8R8G8B8,
 					frame_size);
 
-			// Fill target image with transparency
-			img->fill(video::SColor(0,0,0,0));
-
 			core::dimension2d<u32> dim = frame_size;
 			core::position2d<s32> pos_dst(0, 0);
 			core::position2d<s32> pos_src(0, frame_index * frame_size.Y);
-			baseimg->copyToWithAlpha(img, pos_dst,
-					core::rect<s32>(pos_src, dim),
-					video::SColor(255,255,255,255),
-					NULL);
+			baseimg->copyTo(img, pos_dst,
+					core::rect<s32>(pos_src, dim), nullptr);
 			// Replace baseimg
 			baseimg->drop();
 			baseimg = img;
@@ -1626,12 +1641,10 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			video::IImage *img = driver->createImage(
 					video::ECF_A8R8G8B8, tile_dim);
-			img->fill(video::SColor(0,0,0,0));
 
 			v2u32 vdim(tile_dim);
 			core::rect<s32> rect(v2s32(x0 * vdim.X, y0 * vdim.Y), tile_dim);
-			baseimg->copyToWithAlpha(img, v2s32(0), rect,
-					video::SColor(255,255,255,255), NULL);
+			baseimg->copyTo(img, v2s32(0), rect, nullptr);
 
 			// Replace baseimg
 			baseimg->drop();

@@ -7,8 +7,6 @@
 #include "irrTypes.h"
 #include "irrMath.h"
 
-namespace irr
-{
 namespace video
 {
 //! An enum for the color format of textures used by the Irrlicht Engine.
@@ -120,6 +118,11 @@ const c8 *const ColorFormatNames[] = {
 
 static_assert(sizeof(ColorFormatNames) / sizeof(ColorFormatNames[0])
 	== ECF_UNKNOWN + 2, "name table size mismatch");
+
+inline const c8 *ColorFormatName(ECOLOR_FORMAT format)
+{
+	return ColorFormatNames[format < ECF_UNKNOWN ? format : ECF_UNKNOWN];
+}
 
 //! Creates a 16 bit A1R5G5B5 color
 inline u16 RGBA16(u32 r, u32 g, u32 b, u32 a = 0xFF)
@@ -655,4 +658,3 @@ inline f32 SColorHSL::toRGB1(f32 rm1, f32 rm2, f32 rh) const
 }
 
 } // end namespace video
-} // end namespace irr

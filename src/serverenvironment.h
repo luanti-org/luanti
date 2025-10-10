@@ -10,13 +10,14 @@
 #include "activeobject.h"
 #include "environment.h"
 #include "servermap.h"
+#include "util/guid.h"
+#include "map.h"
 #include "settings.h"
 #include "server/activeobjectmgr.h"
 #include "server/blockmodifier.h"
 #include "util/numeric.h"
 #include "util/metricsbackend.h"
 
-class IGameDef;
 struct GameParams;
 class RemotePlayer;
 class PlayerDatabase;
@@ -122,6 +123,9 @@ public:
 
 	float getSendRecommendedInterval()
 	{ return m_recommended_send_interval; }
+
+	GUIDGenerator & getGUIDGenerator()
+	{ return m_guid_generator; }
 
 	// Save players
 	void saveLoadedPlayers(bool force = false);
@@ -274,12 +278,15 @@ public:
 	const std::vector<RemotePlayer *> getPlayers() const { return m_players; }
 	u32 getPlayerCount() const { return m_players.size(); }
 
+	static std::vector<std::string> getPlayerDatabaseBackends();
 	static bool migratePlayersDatabase(const GameParams &game_params,
 			const Settings &cmd_args);
 
 	AuthDatabase *getAuthDatabase() { return m_auth_database; }
+	static std::vector<std::string> getAuthDatabaseBackends();
 	static bool migrateAuthDatabase(const GameParams &game_params,
 			const Settings &cmd_args);
+
 private:
 
 	/**
@@ -357,6 +364,7 @@ private:
 	server::ActiveObjectMgr m_ao_manager;
 	// on_mapblocks_changed map event receiver
 	OnMapblocksChangedReceiver m_on_mapblocks_changed_receiver;
+	GUIDGenerator m_guid_generator;
 	// Outgoing network message buffer for active objects
 	std::queue<ActiveObjectMessage> m_active_object_messages;
 	// Some timers

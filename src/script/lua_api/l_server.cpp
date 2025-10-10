@@ -47,8 +47,7 @@ int ModApiServer::l_get_server_uptime(lua_State *L)
 // get_server_max_lag()
 int ModApiServer::l_get_server_max_lag(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	lua_pushnumber(L, env->getMaxLagEstimate());
 	return 1;
 }
@@ -124,35 +123,34 @@ int ModApiServer::l_get_player_privs(lua_State *L)
 // get_player_ip()
 int ModApiServer::l_get_player_ip(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-
-	Server *server = getServer(L);
+	GET_ENV_PTR_NO_MAP_LOCK;
 
 	const char *name = luaL_checkstring(L, 1);
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player) {
 		lua_pushnil(L); // no such player
 		return 1;
 	}
 
-	lua_pushstring(L, server->getPeerAddress(player->getPeerId()).serializeString().c_str());
+	lua_pushstring(L, env->getGameDef()->getPeerAddress(
+		player->getPeerId()).serializeString().c_str()
+	);
 	return 1;
 }
 
 // get_player_information(name)
 int ModApiServer::l_get_player_information(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-
-	Server *server = getServer(L);
+	GET_ENV_PTR_NO_MAP_LOCK;
 
 	const char *name = luaL_checkstring(L, 1);
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player) {
 		lua_pushnil(L); // no such player
 		return 1;
 	}
 
+	Server *server = env->getGameDef();
 	ClientInfo info;
 	if (!server->getClientInfo(player->getPeerId(), info)) {
 		warningstream << FUNCTION_NAME << ": no client info?!" << std::endl;
@@ -271,15 +269,14 @@ int ModApiServer::l_get_player_information(lua_State *L)
 // get_player_window_information(name)
 int ModApiServer::l_get_player_window_information(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-
-	Server *server = getServer(L);
+	GET_ENV_PTR_NO_MAP_LOCK;
 
 	const char *name = luaL_checkstring(L, 1);
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player)
 		return 0;
 
+	Server *server = env->getGameDef();
 	auto dynamic = server->getClientDynamicInfo(player->getPeerId());
 
 	if (!dynamic || dynamic->render_target_size == v2u32())
@@ -331,19 +328,16 @@ int ModApiServer::l_get_ban_description(lua_State *L)
 // ban_player()
 int ModApiServer::l_ban_player(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
+	GET_ENV_PTR_NO_MAP_LOCK;
 
-	if (!getEnv(L))
-		throw LuaError("Can't ban player before server has started up");
-
-	Server *server = getServer(L);
 	const char *name = luaL_checkstring(L, 1);
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player) {
 		lua_pushboolean(L, false); // no such player
 		return 1;
 	}
 
+	Server *server = env->getGameDef();
 	std::string ip_str = server->getPeerAddress(player->getPeerId()).serializeString();
 	server->setIpBanned(ip_str, name);
 	lua_pushboolean(L, true);
@@ -353,10 +347,7 @@ int ModApiServer::l_ban_player(lua_State *L)
 // disconnect_player(name[, reason[, reconnect]]) -> success
 int ModApiServer::l_disconnect_player(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
-
-	if (!getEnv(L))
-		throw LuaError("Can't kick player before server has started up");
+	GET_ENV_PTR_NO_MAP_LOCK;
 
 	const char *name = luaL_checkstring(L, 1);
 	std::string message;
@@ -365,9 +356,7 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 	else
 		message.append("Disconnected.");
 
-	Server *server = getServer(L);
-
-	RemotePlayer *player = server->getEnv().getPlayer(name);
+	RemotePlayer *player = env->getPlayer(name);
 	if (!player) {
 		lua_pushboolean(L, false); // No such player
 		return 1;
@@ -375,6 +364,7 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 
 	bool reconnect = readParam<bool>(L, 3, false);
 
+	Server *server = env->getGameDef();
 	server->DenyAccess(player->getPeerId(), SERVER_ACCESSDENIED_CUSTOM_STRING, message, reconnect);
 	lua_pushboolean(L, true);
 	return 1;
@@ -382,15 +372,12 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 
 int ModApiServer::l_remove_player(lua_State *L)
 {
-	NO_MAP_LOCK_REQUIRED;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	std::string name = luaL_checkstring(L, 1);
-	ServerEnvironment *s_env = dynamic_cast<ServerEnvironment *>(getEnv(L));
-	if (!s_env)
-		throw LuaError("Can't remove player before server has started up");
 
-	RemotePlayer *player = s_env->getPlayer(name.c_str());
+	RemotePlayer *player = env->getPlayer(name.c_str());
 	if (!player)
-		lua_pushinteger(L, s_env->removePlayerFromDatabase(name) ? 0 : 1);
+		lua_pushinteger(L, env->removePlayerFromDatabase(name) ? 0 : 1);
 	else
 		lua_pushinteger(L, 2);
 
@@ -564,9 +551,11 @@ int ModApiServer::l_dynamic_add_media(lua_State *L)
 			args.data.reset();
 		getstringfield(L, 1, "to_player", args.to_player);
 		getboolfield(L, 1, "ephemeral", args.ephemeral);
+		args.client_cache = getboolfield_default(L, 1, "client_cache", !args.ephemeral);
 	} else {
 		tmp = readParam<std::string>(L, 1);
 		args.filepath = tmp;
+		log_deprecated(L, "Deprecated call to core.dynamic_add_media() with string argument", 1, true);
 	}
 	if (at_startup) {
 		if (!lua_isnoneornil(L, 2))
@@ -623,33 +612,6 @@ int ModApiServer::l_notify_authentication_modified(lua_State *L)
 		name = readParam<std::string>(L, 1);
 	getServer(L)->reportPrivsModified(name);
 	return 0;
-}
-
-// do_async_callback(func, params, mod_origin)
-int ModApiServer::l_do_async_callback(lua_State *L)
-{
-	NO_MAP_LOCK_REQUIRED;
-	ServerScripting *script = getScriptApi<ServerScripting>(L);
-
-	luaL_checktype(L, 1, LUA_TFUNCTION);
-	luaL_checktype(L, 2, LUA_TTABLE);
-	luaL_checktype(L, 3, LUA_TSTRING);
-
-	call_string_dump(L, 1);
-	size_t func_length;
-	const char *serialized_func_raw = lua_tolstring(L, -1, &func_length);
-
-	PackedValue *param = script_pack(L, 2);
-
-	std::string mod_origin = readParam<std::string>(L, 3);
-
-	u32 jobId = script->queueAsync(
-		std::string(serialized_func_raw, func_length),
-		param, mod_origin);
-
-	lua_settop(L, 0);
-	lua_pushinteger(L, jobId);
-	return 1;
 }
 
 // register_async_dofile(path)
@@ -747,7 +709,6 @@ void ModApiServer::Initialize(lua_State *L, int top)
 	API_FCT(unban_player_or_ip);
 	API_FCT(notify_authentication_modified);
 
-	API_FCT(do_async_callback);
 	API_FCT(register_async_dofile);
 	API_FCT(serialize_roundtrip);
 

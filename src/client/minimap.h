@@ -7,7 +7,7 @@
 #include "irrlichttypes.h"
 #include "irr_ptr.h"
 #include "rect.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
 #include "../hud.h"
 #include "mapnode.h"
@@ -16,16 +16,14 @@
 #include <string>
 #include <vector>
 
-namespace irr {
-	namespace video {
-		class IVideoDriver;
-		class IImage;
-		class ITexture;
-	}
+namespace video {
+	class IVideoDriver;
+	class IImage;
+	class ITexture;
+}
 
-	namespace scene {
-		class ISceneNode;
-	}
+namespace scene {
+	class ISceneNode;
 }
 
 class Client;

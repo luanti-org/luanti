@@ -1,6 +1,8 @@
-
 # Lua core source files.
+file(GLOB LUA_CORE_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 set(LUA_CORE_SRC
+	${LUA_CORE_HDRS}
 	lapi.c
 	lauxlib.c
 	lbaselib.c

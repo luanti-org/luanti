@@ -44,15 +44,18 @@ local function create_minetest_conf_example(settings)
 				insert(result, rep("#", entry.level))
 				insert(result, "# " .. entry.name .. "\n\n")
 			end
-		else
+		else -- any `type` as listed in `settingtypes.txt`
 			local group_format = false
 			if entry.noise_params and entry.values then
 				if entry.type == "noise_params_2d" or entry.type == "noise_params_3d" then
 					group_format = true
 				end
 			end
-			if entry.comment ~= "" then
-				for _, comment_line in ipairs(entry.comment:split("\n", true)) do
+
+			local comment = entry.comment ~= "" and entry.comment
+				or entry.readable_name -- fallback to the short description
+			if comment ~= "" then
+				for _, comment_line in ipairs(comment:split("\n", true)) do
 					if comment_line == "" then
 						insert(result, "#\n")
 					else
@@ -106,19 +109,41 @@ local translation_file_header = [[
 
 fake_function() {]]
 
+local function add_translation_string(result, str, seen)
+	if seen[str] then
+		return
+	end
+	seen[str] = true
+
+	-- Prevent gettext from interpreting e.g. "50% of volume" as C-formatted string
+	-- Documentation: https://www.gnu.org/software/gettext/manual/html_node/c_002dformat-Flag.html
+	local force_no_c_format = str:find("%", 1, true)
+	local prefix = force_no_c_format and "/* xgettext:no-c-format */ " or ""
+
+	local have_newlines = str:find("\n", 1, true)
+	if have_newlines then
+		-- Formatting as "%q" inserts literal newlines. But we want '\n'.
+		-- Hence, use "%s" and escape relevant characters manually.
+		str = str:gsub("\n", "\\n")
+		str = str:gsub("\"", "\\\"")
+		insert(result, sprintf("\t%sgettext(\"%s\");", prefix, str))
+	else
+		insert(result, sprintf("\t%sgettext(%q);", prefix, str))
+	end
+end
+
 local function create_translation_file(settings)
+	local seen = {} -- to deduplicate entries
 	local result = { translation_file_header }
 	for _, entry in ipairs(settings) do
 		if entry.type == "category" then
-			insert(result, sprintf("\t/* xgettext:no-c-format */ gettext(%q);", entry.name))
+			add_translation_string(result, entry.name, seen)
 		else
 			if entry.readable_name then
-				insert(result, sprintf("\t/* xgettext:no-c-format */ gettext(%q);", entry.readable_name))
+				add_translation_string(result, entry.readable_name, seen)
 			end
 			if entry.comment ~= "" then
-				local comment_escaped = entry.comment:gsub("\n", "\\n")
-				comment_escaped = comment_escaped:gsub("\"", "\\\"")
-				insert(result, "\t/* xgettext:no-c-format */ gettext(\"" .. comment_escaped .. "\");")
+				add_translation_string(result, entry.comment, seen)
 			end
 		end
 	end

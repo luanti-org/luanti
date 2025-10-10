@@ -11,8 +11,6 @@
 #include <array>
 #include <cassert>
 
-namespace irr
-{
 namespace core
 {
 
@@ -301,13 +299,13 @@ public:
 
 		if (Y > 0)
 			if (X > 0)
-				return atan((irr::f64)Y / (irr::f64)X) * RADTODEG64;
+				return atan((f64)Y / (f64)X) * RADTODEG64;
 			else
-				return 180.0 - atan((irr::f64)Y / -(irr::f64)X) * RADTODEG64;
+				return 180.0 - atan((f64)Y / -(f64)X) * RADTODEG64;
 		else if (X > 0)
-			return 360.0 - atan(-(irr::f64)Y / (irr::f64)X) * RADTODEG64;
+			return 360.0 - atan(-(f64)Y / (f64)X) * RADTODEG64;
 		else
-			return 180.0 + atan(-(irr::f64)Y / -(irr::f64)X) * RADTODEG64;
+			return 180.0 + atan(-(f64)Y / -(f64)X) * RADTODEG64;
 	}
 
 	//! Calculates the angle of this vector in degrees in the counter trigonometric sense.
@@ -499,15 +497,14 @@ bool dimension2d<T>::operator==(const vector2d<T> &other) const
 }
 
 } // end namespace core
-} // end namespace irr
 
 namespace std
 {
 
 template <class T>
-struct hash<irr::core::vector2d<T>>
+struct hash<core::vector2d<T>>
 {
-	size_t operator()(const irr::core::vector2d<T> &vec) const
+	size_t operator()(const core::vector2d<T> &vec) const
 	{
 		size_t h1 = hash<T>()(vec.X);
 		size_t h2 = hash<T>()(vec.Y);

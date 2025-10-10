@@ -17,11 +17,11 @@
 #include "mainmenumanager.h"
 #include "porting.h"
 
-using namespace irr::gui;
+using namespace gui;
 
 static bool check_color(const std::string &str)
 {
-	irr::video::SColor color;
+	video::SColor color;
 	return parseColorString(str, color, false);
 }
 
@@ -359,7 +359,7 @@ void ParsedText::globalTag(const AttrsList &attrs)
 			else if (attr.second == "middle")
 				valign = ParsedText::VALIGN_MIDDLE;
 		} else if (attr.first == "background") {
-			irr::video::SColor color;
+			video::SColor color;
 			if (attr.second == "none") {
 				background_type = BACKGROUND_NONE;
 			} else if (parseColorString(attr.second, color, false)) {
@@ -585,6 +585,7 @@ u32 ParsedText::parseTag(const wchar_t *text, u32 cursor)
 				return 0;
 			openTag(name, attrs)->style = m_elementtags["action"];
 		}
+		endElement();
 
 	} else if (m_elementtags.count(name)) {
 		if (end) {
@@ -630,7 +631,7 @@ TextDrawer::TextDrawer(const wchar_t *text, Client *client,
 				if (e.font) {
 					e.dim.Width = e.font->getDimension(e.text.c_str()).Width;
 					e.dim.Height = e.font->getDimension(L"Yy").Height;
-					if (e.font->getType() == irr::gui::EGFT_CUSTOM) {
+					if (e.font->getType() == gui::EGFT_CUSTOM) {
 						CGUITTFont *tmp = static_cast<CGUITTFont*>(e.font);
 						e.baseline = e.dim.Height - 1 - tmp->getAscender() / 64;
 					}
@@ -932,7 +933,7 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 void TextDrawer::draw(const core::rect<s32> &clip_rect,
 		const core::position2d<s32> &dest_offset)
 {
-	irr::video::IVideoDriver *driver = m_guienv->getVideoDriver();
+	video::IVideoDriver *driver = m_guienv->getVideoDriver();
 	core::position2d<s32> offset = dest_offset;
 	offset.Y += m_voffset;
 
@@ -948,7 +949,7 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 			switch (el.type) {
 			case ParsedText::ELEMENT_SEPARATOR:
 			case ParsedText::ELEMENT_TEXT: {
-				irr::video::SColor color = el.color;
+				video::SColor color = el.color;
 
 				for (auto tag : el.tags)
 					if (&(*tag) == m_hovertag)
@@ -981,7 +982,7 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 				if (texture != 0)
 					m_guienv->getVideoDriver()->draw2DImage(
 							texture, rect,
-							irr::core::rect<s32>(
+							core::rect<s32>(
 									core::position2d<s32>(0, 0),
 									texture->getOriginalSize()),
 							&clip_rect, 0, true);
@@ -1021,7 +1022,7 @@ GUIHyperText::GUIHyperText(const wchar_t *text, IGUIEnvironment *environment,
 
 	m_scrollbar_width = skin ? skin->getSize(gui::EGDS_SCROLLBAR_SIZE) : 16;
 
-	core::rect<s32> rect = irr::core::rect<s32>(
+	core::rect<s32> rect = core::rect<s32>(
 			RelativeRect.getWidth() - m_scrollbar_width, 0,
 			RelativeRect.getWidth(), RelativeRect.getHeight());
 

@@ -16,7 +16,6 @@
 #include <map>
 #include <optional>
 
-struct ItemDefinition;
 class IItemDefManager;
 
 /*

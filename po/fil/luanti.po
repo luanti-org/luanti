@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-14 23:02+0200\n"
-"PO-Revision-Date: 2024-12-26 19:00+0000\n"
-"Last-Translator: Kevin Hagen <de.absurdo@gmail.com>\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-09-19 07:19+0000\n"
+"Last-Translator: Filipino Student <hamen27545@artvara.com>\n"
 "Language-Team: Filipino <https://hosted.weblate.org/projects/minetest/"
 "minetest/fil/>\n"
 "Language: fil\n"
@@ -13,15 +13,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1 && n != 2 && n != 3 && (n % 10 == 4 "
 "|| n % 10 == 6 || n % 10 == 9);\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
-msgstr "Linisin ang pila ng out chat"
+msgstr "Linisin ang chat queue"
 
 #: builtin/client/chatcommands.lua
 msgid "Empty command."
-msgstr "Bakanteng utos."
+msgstr "Empty na command."
 
 #: builtin/client/chatcommands.lua
 msgid "Exit to main menu"
@@ -29,44 +29,43 @@ msgstr "Umalis sa main menu"
 
 #: builtin/client/chatcommands.lua
 msgid "Invalid command: "
-msgstr "Invalid na utos: "
+msgstr "Invalid na command: "
 
 #: builtin/client/chatcommands.lua
 msgid "Issued command: "
-msgstr "Inisyu na utos: "
+msgstr "Issued na command: "
 
 #: builtin/client/chatcommands.lua
 msgid "List online players"
-msgstr "Ilista ang mga naka-online na player"
+msgstr "Maglista ng online players"
 
 #: builtin/client/chatcommands.lua
 msgid "Online players: "
-msgstr "Mga naka-online na player: "
+msgstr "Mga online na player: "
 
 #: builtin/client/chatcommands.lua
 msgid "The out chat queue is now empty."
-msgstr "Bakante na ang pila ng out chat."
+msgstr "Ang chat queue ay walang laman."
 
 #: builtin/client/chatcommands.lua
 msgid "This command is disabled by server."
-msgstr "Sinara ng server ang utos na ito."
+msgstr "Naka-sara sa server na ito ang command na ito."
 
 #: builtin/common/chatcommands.lua
 msgid "Available commands:"
-msgstr "Mga magagamit na utos:"
+msgstr "Mga available na commands:"
 
 #: builtin/common/chatcommands.lua
 msgid "Available commands: "
-msgstr "Mga magagamit na utos: "
+msgstr "Mga available na commands: "
 
 #: builtin/common/chatcommands.lua
 msgid "Command not available: "
-msgstr "Di magagamit ang utos: "
+msgstr "Unavailable ang command: "
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Get help for commands (-t: output in chat)"
-msgstr "Humingi ng tulong para sa mga utos"
+msgstr "Humingi ng tulong para sa commands (-t: output sa chat)"
 
 #: builtin/common/chatcommands.lua
 msgid ""
@@ -76,42 +75,41 @@ msgstr ""
 "o '.help all' para ilista lahat."
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "[all | <cmd>] [-t]"
-msgstr "[all | <utos>]"
+msgstr ""
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
-msgstr "Mag-browse"
+msgstr "Magbrowse"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "May Conflict sa \"$1\""
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
-msgstr "Baguhin"
+msgstr "Magedit"
 
 #: builtin/common/settings/components.lua
 msgid "Remove keybinding"
-msgstr ""
+msgstr "Magremove ng Keybinding"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
-msgstr "Pumili ng directory"
+msgstr "Magselect ng directory"
 
 #: builtin/common/settings/components.lua
 msgid "Select file"
-msgstr "Pumili ng file"
+msgstr "Magselect ng file"
 
 #: builtin/common/settings/components.lua
 #, fuzzy
 msgid "Set"
-msgstr "Select"
+msgstr "Magtakda"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
-msgstr "(Walang binigay na paglalarawan)"
+msgstr "(Walang binigay na description ukol dito)"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "2D Noise"
@@ -162,15 +160,15 @@ msgstr "Seed"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "X spread"
-msgstr "Pagkalat ng X"
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Y spread"
-msgstr "Pagkalat ng Y"
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Z spread"
-msgstr "Pagkalat ng Z"
+msgstr ""
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -197,19 +195,19 @@ msgstr "eased"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable automatic exposure as well)"
-msgstr ""
+msgstr "(Ang laro ay kinakailangang ding buksan ang automatic exposure)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable bloom as well)"
-msgstr ""
+msgstr "(Ang laro ay nangangailangan ding buksan ang bloom)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable volumetric lighting as well)"
-msgstr ""
+msgstr "(Ang laro ay nangangailangan ding buksan ang volumetric lightning)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(Use system language)"
-msgstr ""
+msgstr "(Gumamit ng wika sa sistema)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
@@ -217,18 +215,19 @@ msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Auto"
-msgstr ""
+msgstr "Pag-auto"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
 #, fuzzy
 msgid "Back"
-msgstr "Pabalik"
+msgstr "Bumalik"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Buttons with crosshair"
-msgstr ""
+msgstr "Pindutang may crosshair"
 
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
@@ -237,20 +236,20 @@ msgstr "Chat"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Clear"
-msgstr "Linisin"
+msgstr "Magclear"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "Controls"
-msgstr ""
+msgstr "Mga Kontrol"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
 msgid "Disabled"
-msgstr "Nakasara"
+msgstr "Nakadisable"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Enabled"
-msgstr "Nakabukas"
+msgstr "Nakaenable"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
@@ -258,25 +257,24 @@ msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
-msgstr ""
+msgstr "Pindot na Madiin"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
-msgstr ""
+msgstr "Paggalaw"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No results"
-msgstr "Walang mga resulta"
+msgstr "Walang resulta"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Reset setting to default"
-msgstr "I-restore ang Default"
+msgstr "I-reset ang setting sa default"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default ($1)"
-msgstr ""
+msgstr "I-reset ang setting sa default ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
@@ -284,57 +282,56 @@ msgstr "Maghanap"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
-msgstr ""
+msgstr "Pindot na Maiikli"
 
 #: builtin/common/settings/dlg_settings.lua
+#, fuzzy
 msgid "Show advanced settings"
-msgstr ""
+msgstr "Buksan ang advanced settings"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show technical names"
-msgstr "Ipakita ang mga teknikal na pangalan"
+msgstr "Ipakita ang technical names"
 
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Tap"
-msgstr "Tab"
+msgstr "Pindot"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
-msgstr ""
+msgstr "Pindot kasama'ng crosshair"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Touchscreen layout"
-msgstr "Touchthreshold: (px)"
+msgstr "Layout ng Touchscreen"
 
 #: builtin/common/settings/settingtypes.lua
-#, fuzzy
 msgid "Client Mods"
-msgstr "Pumili ng mga Mod"
+msgstr "Modyul sa Client"
 
 #: builtin/common/settings/settingtypes.lua
-#, fuzzy
 msgid "Content: Games"
-msgstr "Content"
+msgstr "Nilalaman: Mga Laro"
 
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
 msgid "Content: Mods"
-msgstr "Content"
+msgstr "Nilalaman: Modyul"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "(The game will need to enable shadows as well)"
-msgstr ""
+msgstr "(Ang larong ito ay nangangailangan ring i-enable ang shadows)"
 
 #: builtin/common/settings/shadows_component.lua
+#, fuzzy
 msgid "Custom"
-msgstr ""
+msgstr "Kustom"
 
 #: builtin/common/settings/shadows_component.lua
 #: src/settings_translation_file.cpp
 msgid "Dynamic shadows"
-msgstr "Dynamic na mga anino"
+msgstr "Dynamic na anino"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "High"
@@ -379,83 +376,80 @@ msgstr "Sige"
 
 #: builtin/fstk/ui.lua
 msgid "Reconnect"
-msgstr "Kumonekta uli"
+msgstr "Magreconnect"
 
 #: builtin/fstk/ui.lua
 msgid "The server has requested a reconnect:"
-msgstr "Humiling ang server ng pagkonekta muli:"
+msgstr "Nagrequest ang server ng reconnection:"
 
 #: builtin/mainmenu/common.lua
 msgid "Protocol version mismatch. "
-msgstr "Di tumugmang bersyon ng protocol. "
+msgstr "Mismatch ang version ng protocol. "
 
 #: builtin/mainmenu/common.lua
 msgid "Server enforces protocol version $1. "
-msgstr "Pinapatupad ng server ang bersyon ng protocol na $1. "
+msgstr "Pinapatupad ng server ang version ng protocol na $1. "
 
 #: builtin/mainmenu/common.lua
 msgid "Server supports protocol versions between $1 and $2. "
-msgstr ""
-"Sinusuportahan ng server ang mga bersyon ng protocol sa pagitan $1 at $2. "
+msgstr "Supported ng server ang mga version ng protocol mula sa $1 at $2. "
 
 #: builtin/mainmenu/common.lua
 msgid "We only support protocol version $1."
-msgstr "Suportado lang po namin ang bersyon ng protocol na $1."
+msgstr "Aming supported ay ang version na $1 lamang."
 
 #: builtin/mainmenu/common.lua
 msgid "We support protocol versions between version $1 and $2."
-msgstr ""
-"Suportado lang po namin ang mga bersyon ng protocol sa pagitan ng $1 at $2."
+msgstr "Aming supported ay ang protocol version $1 at $2 lamang."
 
 #: builtin/mainmenu/content/contentdb.lua
 msgid "Error installing \"$1\": $2"
-msgstr ""
+msgstr "Error ang sinalpak na \"$1\": $2"
 
 #: builtin/mainmenu/content/contentdb.lua
-#, fuzzy
 msgid "Failed to download \"$1\""
-msgstr "Bigong ma-download ang $1"
+msgstr "Failed ang pagdownload ng \"$1\""
 
 #: builtin/mainmenu/content/contentdb.lua
 msgid "Failed to download $1"
-msgstr "Bigong ma-download ang $1"
+msgstr "Failed ang pagdownload ng $1"
 
 #: builtin/mainmenu/content/contentdb.lua
-#, fuzzy
 msgid ""
 "Failed to extract \"$1\" (insufficient disk space, unsupported file type or "
 "broken archive)"
-msgstr "I-install: Di-suportadong file type o sirang archive"
+msgstr ""
+"Failed ang pag-extract ng \"$1\" (kulang ang laman ng disk space, o "
+"unsupported file type o broken na archive)"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid ""
 "$1 downloading,\n"
 "$2 queued"
 msgstr ""
-"$1 dina-download,\n"
-"$2 nakapila"
+"$1 ay dinadownload,\n"
+"$2 ay nakaqueue"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "$1 downloading..."
-msgstr "$1 dina-download..."
+msgstr "$1 ay dinadownload..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "All"
-msgstr ""
+msgstr "Kalahatan"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr ""
-"Di magagamit ang ContentDB kapag na-compile ang Minetest nang walang cURL"
+"Hindi magagamit ang ContentDB kapag na-compile ang Minetest nang walang cURL"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Downloading..."
-msgstr "Dina-download..."
+msgstr "Dinadownload..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
-msgstr ""
+msgstr "Nakatampok"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -466,32 +460,31 @@ msgstr "Mga Laro"
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/serverlistmgr.lua
 #: src/client/game.cpp
 msgid "Loading..."
-msgstr "Nilo-load..."
+msgstr "Niloload..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Mods"
-msgstr "Mga Mod"
+msgstr "Mga Modyul"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No packages could be retrieved"
-msgstr "Walang makuhang mga package"
+msgstr "Walang nakukuhang mga package"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No updates"
-msgstr "Walang mga update"
+msgstr "Walang update"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Queued"
-msgstr "Nakapila"
+msgstr "Nakaqueue"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "Texture Packs"
-msgstr "Mga Texture Pack"
+msgstr "Texture Packs"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "The package $1 was not found."
-msgstr ""
+msgstr "Ang package na $1 ay hindi mahanap."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Update All [$1]"
@@ -499,7 +492,7 @@ msgstr "I-update Lahat [$1]"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 and $2 dependencies will be installed."
-msgstr "Ii-install ang mga kailangan na $1 at $2."
+msgstr "Maginstall ng dependencies na $1 at $2."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
@@ -507,15 +500,15 @@ msgstr "$1 ni $2"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 required dependencies could not be found."
-msgstr "Di makita ang $1 (na) kailangan."
+msgstr "$1 na dependencies ay hindi mahanap."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 will be installed, and $2 dependencies will be skipped."
-msgstr "Ii-install ang $1, at lalaktawan ang %2."
+msgstr "Maiinstall ang $1, at ang $2 dependencies ay lalaktawan."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Already installed"
-msgstr "Naka-install na"
+msgstr "Nakainstall na"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Base Game:"
@@ -524,13 +517,14 @@ msgstr "Basehang Laro:"
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Dependencies:"
-msgstr "Mga kailangan:"
+msgstr "Dependencies:"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Error getting dependencies for package $1"
-msgstr ""
+msgstr "Error ang pagkuha sa dependencies ukol sa package $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "I-install"
 
@@ -540,37 +534,35 @@ msgstr "I-install ang $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Install missing dependencies"
-msgstr "I-install ang mga nawawalang kailangan"
+msgstr "I-install ang walang mga dependencies"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Not found"
-msgstr "Di nakita"
+msgstr "Hindi nahanap"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Please check that the base game is correct."
-msgstr "Siguraduhing tama ang basehang laro."
+msgstr "Mangyaring suriin kung ang basehang laro ay tugma/tama."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "You need to install a game before you can install a mod"
-msgstr ""
+msgstr "Kailangan magsalpak ng laro bago makapagsalpak ng modyul"
 
 #: builtin/mainmenu/content/dlg_overwrite.lua
 msgid "\"$1\" already exists. Would you like to overwrite it?"
-msgstr "Meron na'ng \"$1\". Gusto mo bang i-overwrite ito?"
+msgstr "Meron nang $1. Nais mo bang palitan ng bago ito?"
 
 #: builtin/mainmenu/content/dlg_overwrite.lua
 msgid "Overwrite"
-msgstr "I-overwrite"
+msgstr "Magoverwrite"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "ContentDB page"
-msgstr "Content"
+msgstr "Pahina ng ContentDB"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Description"
-msgstr "Paglalarawan sa Server"
+msgstr "Nilalarawan"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
@@ -578,25 +570,23 @@ msgstr "Magdonate"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
-msgstr ""
+msgstr "Di-Tagumpay i-load ang detalye ng pakete"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Error loading reviews"
-msgstr "Ginagawa ang client..."
+msgstr "Di-Tagumpay i-load ang reviews"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
-msgstr ""
+msgstr "Pinaguusapan sa Forum"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Information"
 msgstr "Impormasyon"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Install [$1]"
-msgstr "I-install ang $1"
+msgstr "I-salpak ang [$1]"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
@@ -604,7 +594,7 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr ""
+msgstr "Mga Review"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -612,7 +602,7 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Translate"
-msgstr ""
+msgstr "Pag-salin wika"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
@@ -627,8 +617,12 @@ msgid "Website"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
+msgid "by $1"
+msgstr "kay $1"
+
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
-msgstr ""
+msgstr "kay $1  —  dinownload ni $2  —  +$3/$4/-$5"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 (Enabled)"
@@ -643,21 +637,18 @@ msgid "Failed to install $1 to $2"
 msgstr "Bigong ma-install ang $1 sa $2"
 
 #: builtin/mainmenu/content/pkgmgr.lua
-#, fuzzy
 msgid "Install: Unable to find suitable folder name for $1"
 msgstr ""
-"I-install ang Mod: Bigong mahanap ang akmang pangalan ng folder para sa "
+"Pag-salpak ng Mod: Di-Tagumpay mahanap ang akmang pangalan ng folder para sa "
 "modpack na $1"
 
 #: builtin/mainmenu/content/pkgmgr.lua
-#, fuzzy
 msgid "Unable to find a valid mod, modpack, or game"
-msgstr "Bigong makahanap ng valid na mod o modpack"
+msgstr "Di-Tagumpay makahanap ng valid na mod o modpack"
 
 #: builtin/mainmenu/content/pkgmgr.lua
-#, fuzzy
 msgid "Unable to install a $1 as a $2"
-msgstr "Bigong ma-install ang mod bilang $1"
+msgstr "Di-Tagumpay maisalpak ang modyul na $1 bilang $2"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Unable to install a $1 as a texture pack"
@@ -668,14 +659,16 @@ msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
+"Manlalaro ipinasok sa\n"
+"$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
-msgstr ""
+msgstr "(Nag-enable, may error)"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Unsatisfied)"
-msgstr ""
+msgstr "(May kulang)"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Disable all"
@@ -786,15 +779,16 @@ msgid "Desert temples"
 msgstr "Mga Templo ng Disyerto"
 
 #: builtin/mainmenu/dlg_create_world.lua
-#, fuzzy
 msgid "Development Test is meant for developers."
-msgstr "Babala: Para sa mga developer ang Development Test."
+msgstr "Ang Development Test ay para sa mga developers."
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid ""
 "Different dungeon variant generated in desert biomes (only if dungeons "
 "enabled)"
 msgstr ""
+"Maraming uri ng dungeon ma-generate sa mga desert biome (kapag naka-enable "
+"ang dungeons)"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Dungeons"
@@ -822,7 +816,7 @@ msgstr "Mga burol"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Humid rivers"
-msgstr "Mga mahalumigmig na ilog"
+msgstr ""
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Increases humidity around rivers"
@@ -830,7 +824,7 @@ msgstr "Pinapataas ang halumigmig sa mga ilog"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Install another game"
-msgstr ""
+msgstr "Mag-salpak ng ibang laro"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Lakes"
@@ -958,28 +952,27 @@ msgstr "Burahin ang Mundong \"$1\"?"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "As a result, your keybindings may have been changed."
-msgstr ""
+msgstr "Dahil dyan, may pagbabagong nangyari sa iyong keybindings."
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Check out the key settings or refer to the documentation:"
-msgstr ""
+msgstr "Tingnan ang key settings o tumugon sa documentation:"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Magsarado"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Keybindings changed"
-msgstr ""
+msgstr "Nagbago ang Keybindings"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Pagsasaayos"
+msgstr "Buksan ang settings"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
-msgstr ""
+msgstr "Ang sistema ng input handling ay binago sa Luanti 5.12.0."
 
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
@@ -987,11 +980,11 @@ msgstr "Kumpirmahin ang Password"
 
 #: builtin/mainmenu/dlg_register.lua
 msgid "Joining $1"
-msgstr ""
+msgstr "Ipinapasok na sa $1"
 
 #: builtin/mainmenu/dlg_register.lua
 msgid "Missing name"
-msgstr ""
+msgstr "Nawawalang pangalan"
 
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_local.lua
 #: builtin/mainmenu/tab_online.lua
@@ -1004,38 +997,41 @@ msgid "Password"
 msgstr "Password"
 
 #: builtin/mainmenu/dlg_register.lua
-#, fuzzy
 msgid "Passwords do not match"
-msgstr "Di tugma ang mga password!"
+msgstr "Ang password ay hindi tugma"
 
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Register"
-msgstr "Magparehistro at Sumali"
+msgstr "Magparehistro"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Dismiss"
-msgstr ""
+msgstr "Huwag pansinin"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid ""
 "For a long time, Luanti shipped with a default game called \"Minetest "
 "Game\". Since version 5.8.0, Luanti ships without a default game."
 msgstr ""
+"Pagkalipas ng matagal na panahon, ang Luanti at ang default na larong "
+"\"Minetest Game\". Simula noong version 5.8.0, ay hindi isinama ng Luanti "
+"bilang default na laro."
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid ""
 "If you want to continue playing in your Minetest Game worlds, you need to "
 "reinstall Minetest Game."
 msgstr ""
+"Kung hinihiling mong laruin ang iyong worlds sa Minetest Game, kailangan "
+"mong mai-salpak muli ang Minetest Game"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Minetest Game is no longer installed by default"
-msgstr ""
+msgstr "Ang Minetest Game ay hindi na kasamang nakasalpak ng default"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Reinstall Minetest Game"
-msgstr ""
+msgstr "I-salpak muli ang Minetest Game"
 
 #: builtin/mainmenu/dlg_rename_modpack.lua
 msgid "Accept"
@@ -1054,25 +1050,26 @@ msgstr ""
 "nito na mag-o-override sa kahit anong pag-rename dito."
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
-#, fuzzy
 msgid "Expand all"
-msgstr "Buksan lahat"
+msgstr "Pahabain pa itong lahat"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
-msgstr ""
+msgstr "I-grupo sa unlapi"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "The $1 server uses a game called $2 and the following mods:"
 msgstr ""
+"Ang server ng $1 ay merong larong tinatawag na $2 at ang sumusunod pang mga "
+"modyul:"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "The $1 server uses the following mods:"
-msgstr ""
+msgstr "Ang server ng $1 ay gumagamit ng mga sumusunod na mga modyul:"
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
-msgstr ""
+msgstr "Ang bagong $1 version ay nandito na"
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid ""
@@ -1081,10 +1078,14 @@ msgid ""
 "Visit $3 to find out how to get the newest version and stay up to date with "
 "features and bugfixes."
 msgstr ""
+"Isinalpak na version: $1\n"
+"Bagong version: $2\n"
+"Puntahan ang $3 para malaman paano makuha ang pinakabagong version at "
+"manatiling nakasubaybay sa mga features at bugfixes."
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "Later"
-msgstr ""
+msgstr "Mamaya na"
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "Never"
@@ -1092,11 +1093,11 @@ msgstr ""
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "Visit website"
-msgstr ""
+msgstr "Tingnan sa website"
 
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
-msgstr "Pagsasaayos"
+msgstr ""
 
 #: builtin/mainmenu/serverlistmgr.lua
 msgid "Public server list is disabled"
@@ -1110,7 +1111,7 @@ msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
-msgstr "Patungkol"
+msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Active Contributors"
@@ -1122,11 +1123,11 @@ msgstr "Aktibong renderer:"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Developers"
-msgstr "Mga Core Developer"
+msgstr "Nangungunang mga Developer"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
-msgstr ""
+msgstr "Nangungunang Team"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Open User Data Directory"
@@ -1137,38 +1138,36 @@ msgid ""
 "Opens the directory that contains user-provided worlds, games, mods,\n"
 "and texture packs in a file manager / explorer."
 msgstr ""
-"Bubuksan ang directory na naglalaman ng mga user-provided na mundo,\n"
-"laro, mod, at texture pack sa isang file manager/explorer."
+"Bubuksan ang directory na naglalaman ng mga user-provided na mga world,\n"
+"laro, modyul, at mga texture pack sa isang file manager/explorer."
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Previous Contributors"
-msgstr "Mga Nakaraang Nag-ambag"
+msgstr "Dating Tumulong"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Previous Core Developers"
-msgstr "Mga Nakaraang Core Developer"
+msgstr "Dating Nangungunang mga Developer"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Share debug log"
-msgstr ""
+msgstr "I-share ang debug log"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Browse online content"
 msgstr "Mag-browse ng online content"
 
 #: builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Browse online content [$1]"
-msgstr "Mag-browse ng online content"
+msgstr "Mag-browse ng online content [$1]"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Content"
 msgstr "Content"
 
 #: builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Content [$1]"
-msgstr "Content"
+msgstr "Content [$1]"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Disable Texture Pack"
@@ -1191,9 +1190,8 @@ msgid "Rename"
 msgstr "I-rename"
 
 #: builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Update available?"
-msgstr "<wala>"
+msgstr "Merong available Update?"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Use Texture Pack"
@@ -1201,7 +1199,7 @@ msgstr "Gumamit ng Texture Pack"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Announce Server"
-msgstr "Ianunsyo ang Server"
+msgstr "I-announce ang Server"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Bind Address"
@@ -1224,9 +1222,8 @@ msgid "Host Server"
 msgstr "Mag-host ng Server"
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid "Install a game"
-msgstr "I-install ang $1"
+msgstr "I-salpak ang laro"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Install games from ContentDB"
@@ -1234,21 +1231,19 @@ msgstr "Mag-install ng mga laro mula sa ContentDB"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Luanti doesn't come with a game by default."
-msgstr ""
+msgstr "Ang Luanti ay wala ng kasamang laro nang default."
 
 #: builtin/mainmenu/tab_local.lua
 msgid ""
 "Luanti is a game-creation platform that allows you to play many different "
 "games."
 msgstr ""
+"Ang Luanti ay Isang game-creation platform na pwedeng maglaro ng iba't ibang "
+"laro."
 
 #: builtin/mainmenu/tab_local.lua
 msgid "New"
 msgstr "Bago"
-
-#: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Walang nagawa o napiling mundo!"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
@@ -1272,16 +1267,15 @@ msgstr "Port ng Server"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Start Game"
-msgstr "Magsimula"
+msgstr "Panimulang mga laro"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "You need to install a game before you can create a world."
-msgstr ""
+msgstr "Kinakailangang mag-salpak ng laro bago gumawa ng world."
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Add favorite"
-msgstr "Burahin Paborito"
+msgstr "Magmarka ng favorite"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Address"
@@ -1294,47 +1288,47 @@ msgstr "Creative mode"
 #. ~ PvP = Player versus Player
 #: builtin/mainmenu/tab_online.lua
 msgid "Damage / PvP"
-msgstr "Pinsala/PvP"
+msgstr "May Damage / PvP"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Favorites"
-msgstr "Mga Paborito"
+msgstr "Mga minarkang Paborito"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Game: $1"
-msgstr "Laro"
+msgstr "Laro: $1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
-msgstr "Di compatible na mga Server"
+msgstr "Server na incompatible"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Join Game"
-msgstr "Sumali sa Laro"
+msgstr "Sumama sa Laro"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Login"
-msgstr ""
+msgstr "Log-in"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Number of mods: $1"
-msgstr ""
+msgstr "Bilang ng mga modyul: $1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Open server website"
-msgstr ""
+msgstr "Buksan ang Website ng Server"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid ""
 "Players:\n"
 "$1"
-msgstr "Client"
+msgstr ""
+"Mga Manlalaro:\n"
+"$1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid ""
@@ -1343,28 +1337,30 @@ msgid ""
 "mod:<name>\n"
 "player:<name>"
 msgstr ""
+"Posibleng filters\n"
+"laro:<name>\n"
+"modyul:<name>\n"
+"manglalaro:<name>"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
-msgstr "Mga Pampublikong Server"
+msgstr "Pampublikong Server"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Refresh"
 msgstr "I-refresh"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Remove favorite"
-msgstr "Burahin Paborito"
+msgstr "Tanggaling minarkang Paborito"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Server Description"
 msgstr "Paglalarawan sa Server"
 
 #: src/client/client.cpp
-#, fuzzy
 msgid "Connection aborted (protocol error?)."
-msgstr "Error sa koneksyon (nag-timeout?)"
+msgstr "Aborted ang connection (nag-error ang protocol?)."
 
 #: src/client/client.cpp src/client/game.cpp
 msgid "Connection timed out."
@@ -1373,6 +1369,11 @@ msgstr "Nag-timeout ang koneksyon."
 #: src/client/client.cpp
 msgid "Done!"
 msgstr "Tapos na!"
+
+#: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr "Failed ma-save ang screenshot sa \"%s\""
 
 #: src/client/client.cpp
 msgid "Initializing nodes"
@@ -1390,6 +1391,11 @@ msgstr "Nilo-load ang mga texture..."
 msgid "Rebuilding shaders..."
 msgstr "Rine-rebuild ang mga shader..."
 
+#: src/client/client.cpp
+#, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "Saved ang screenshot sa \"%s\""
+
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
 msgstr "Di mahanap o ma-load ang laro: "
@@ -1400,23 +1406,23 @@ msgstr "Main Menu"
 
 #: src/client/clientlauncher.cpp
 msgid "No world selected and no address provided. Nothing to do."
-msgstr "Walang napiling mundo at walang binigay na address. Walang gagawin."
+msgstr "Walang napiling world at walang address. Kaya walang mangyayari."
 
 #: src/client/clientlauncher.cpp
 msgid "Player name too long."
-msgstr "Masyadong mahaba ang pangalan ng player."
+msgstr "Napakahabang pangalan para sa Manglalaro."
 
 #: src/client/clientlauncher.cpp
 msgid "Please choose a name!"
-msgstr "Mangyaring pumili po ng pangalan!"
+msgstr "Mangyaring gumawa ng pangalan!"
 
 #: src/client/clientlauncher.cpp
 msgid "Provided password file failed to open: "
-msgstr "Bigong mabuksan ang binigay na password file: "
+msgstr "Di-Tagumpay buksan ang password file na ibinigay: "
 
 #: src/client/clientlauncher.cpp
 msgid "Provided world path doesn't exist: "
-msgstr "Walang path sa mundo na tumugma sa binigay: "
+msgstr "Ang provided na world path ay hindi nageexist: "
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
@@ -1437,67 +1443,63 @@ msgstr "May naganap na serialization error:"
 #: src/client/game.cpp
 #, c-format
 msgid "Access denied. Reason: %s"
-msgstr "Tinanggihan ang access: Dahilan: %s"
+msgstr "Ibinawal ang pagpasok: Dahilan: %s"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "All debug info hidden"
-msgstr "Ipinapakita ang debug info"
+msgstr "Nakatago lahat ng debug info"
 
 #: src/client/game.cpp
 msgid "Automatic forward disabled"
-msgstr "Nakasara ang kusang pag-abante"
+msgstr "Nakadisable ang Automatic Forward"
 
 #: src/client/game.cpp
 msgid "Automatic forward enabled"
-msgstr "Nakabukas ang kusang pag-abante"
+msgstr "Nakaenable ang Automatic Forward"
 
 #: src/client/game.cpp
 msgid "Block bounds hidden"
-msgstr "Nakatago ang mga block bound"
+msgstr "Nakatago ang block bounds"
 
 #: src/client/game.cpp
 msgid "Block bounds shown for current block"
-msgstr "Ipinapakita ang block bound para sa kasalukuyang block"
+msgstr "Ang Block bounds ay pinakita para sa current block"
 
 #: src/client/game.cpp
 msgid "Block bounds shown for nearby blocks"
-msgstr "Ipinapakita ang mga block bound para sa mga malalapit na block"
+msgstr "Ang Block bounds ay pinakita para sa nearby blocks"
 
 #: src/client/game.cpp
 msgid "Bounding boxes shown"
-msgstr ""
+msgstr "Pinakita ang Bounding boxes"
 
 #: src/client/game.cpp
 msgid "Camera update disabled"
-msgstr "Nakasara ang pag-update sa kamera"
+msgstr "Nakadisable ang Camera update"
 
 #: src/client/game.cpp
 msgid "Camera update enabled"
-msgstr "Nakabukas ang pag-update sa kamera"
+msgstr "Naka-enable ang Camera update"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Can't show block bounds (disabled by game or mod)"
-msgstr ""
-"Bawal maipakita ang mga block bound (kailangan ng pribilehiyong "
-"'basic_debug')"
+msgstr "Di-pwedeng ipakita ang block bounds(disabled ng laro o modyul)"
 
 #: src/client/game.cpp
 msgid "Cinematic mode disabled"
-msgstr "Nakasara ang cinematic mode"
+msgstr "Nakadisable ang Cinematic mode"
 
 #: src/client/game.cpp
 msgid "Cinematic mode enabled"
-msgstr "Nakabukas ang cinematic mode"
+msgstr "Nakaenable ang Cinematic mode"
 
 #: src/client/game.cpp
 msgid "Client disconnected"
-msgstr "Nadiskonekta ang client"
+msgstr "Nakadisconnect sa Client"
 
 #: src/client/game.cpp
 msgid "Client side scripting is disabled"
-msgstr "Nakasara ang scripting sa client side"
+msgstr "Nakadisable ang Client side scripting"
 
 #: src/client/game.cpp
 msgid "Connecting to server..."
@@ -1505,11 +1507,11 @@ msgstr "Kumokonekta sa server..."
 
 #: src/client/game.cpp
 msgid "Connection error (timed out?)"
-msgstr "Error sa koneksyon (nag-timeout?)"
+msgstr "Di-Tagumpay sa koneksyon (nag-timeout?)"
 
 #: src/client/game.cpp
 msgid "Connection failed for unknown reason"
-msgstr "Bigong makakonekta dahil sa di matukoy na dahilan"
+msgstr "Connection failed sa di-malamang dahilan"
 
 #: src/client/game.cpp
 #, c-format
@@ -1526,53 +1528,52 @@ msgstr "Ginagawa ang server..."
 
 #: src/client/game.cpp
 msgid "Debug info shown"
-msgstr "Ipinapakita ang debug info"
+msgstr "Ipinakita ang debug info"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Error creating client: %s"
-msgstr "Ginagawa ang client..."
+msgstr "Di-Tagumpay gawin ang client: %s"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
-msgstr "Nakasara ang fast mode"
+msgstr "Nakadisable ang fast mode"
 
 #: src/client/game.cpp
 msgid "Fast mode enabled"
-msgstr "Nakabukas ang fast mode"
+msgstr "Nakaenable ang Fast mode"
 
 #: src/client/game.cpp
 msgid "Fast mode enabled (note: no 'fast' privilege)"
-msgstr "Nakabukas ang fast mode (paalala: walang pribilehiyong 'fast')"
+msgstr "Nakaenable ang Fast mode (babala: walang privilege na 'fast')"
 
 #: src/client/game.cpp
 msgid "Fly mode disabled"
-msgstr "Nakasara ang fly mode"
+msgstr "Nakadisable ang Fly Mode"
 
 #: src/client/game.cpp
 msgid "Fly mode enabled"
-msgstr "Nakabukas ang fly mode"
+msgstr "Nakaenable ang Fly mode"
 
 #: src/client/game.cpp
 msgid "Fly mode enabled (note: no 'fly' privilege)"
-msgstr "Nakabukas ang fly mode (paalala: walang pribilehiyong 'fly')"
+msgstr "Nakaenable ang Fly mode (babala: walang privilege na 'fly')"
 
 #: src/client/game.cpp
 msgid "Fog disabled"
-msgstr "Nakasara ang hamog"
+msgstr "Nakadisable ang Fog"
 
 #: src/client/game.cpp
 msgid "Fog enabled"
-msgstr "Nakabukas ang hamog"
+msgstr "Nakaenable ang Fog"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Fog enabled by game or mod"
-msgstr "Kasalukuyang sinara ng laro o mod ang pag-zoom"
+msgstr "Inenable ang Fog mula sa laro o modyul"
 
 #: src/client/game.cpp
 msgid "Item definitions..."
-msgstr "Mga definition ng item..."
+msgstr "Definition ng item..."
 
 #: src/client/game.cpp
 msgid "KiB/s"
@@ -1584,7 +1585,7 @@ msgstr "MiB/s"
 
 #: src/client/game.cpp
 msgid "Minimap currently disabled by game or mod"
-msgstr "Kasalukuyang sinara ng laro o mod ang minimap"
+msgstr "Nakadisable ang Minimap mula sa laro o modyul"
 
 #: src/client/game.cpp
 msgid "Multiplayer"
@@ -1592,39 +1593,39 @@ msgstr "Multiplayer"
 
 #: src/client/game.cpp
 msgid "Noclip mode disabled"
-msgstr "Nakasara ang noclip mode"
+msgstr "Nakadisable ang Noclip mode"
 
 #: src/client/game.cpp
 msgid "Noclip mode enabled"
-msgstr "Nakabukas ang noclip mode"
+msgstr "Nakaenable ang Noclip mode"
 
 #: src/client/game.cpp
 msgid "Noclip mode enabled (note: no 'noclip' privilege)"
-msgstr "Nakabukas ang noclip mode (paalala: walang pribilehiyong 'noclip')"
+msgstr "Nakaenable ang Noclip mode (babala: walang privilege na 'noclip')"
 
 #: src/client/game.cpp
 msgid "Node definitions..."
-msgstr "Mga definition ng node..."
+msgstr "Definition ng Node..."
 
 #: src/client/game.cpp
 msgid "Pitch move mode disabled"
-msgstr "Nakasara ang pitch move mode"
+msgstr "Nakadisable ang Pitch move mode"
 
 #: src/client/game.cpp
 msgid "Pitch move mode enabled"
-msgstr "Nakabukas ang pitch move mode"
+msgstr "Nakaenable ang Pitch move mode"
 
 #: src/client/game.cpp
 msgid "Profiler graph shown"
-msgstr "Ipinapakita ang profiler graph"
+msgstr "Ipinakita ang Profiler graph"
 
 #: src/client/game.cpp
 msgid "Resolving address..."
-msgstr "Rineresolba ang address..."
+msgstr "Rineresolve ang address..."
 
 #: src/client/game.cpp
 msgid "Shutting down..."
-msgstr "Sina-shutdown..."
+msgstr "Shina-shutdown..."
 
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
@@ -1632,25 +1633,25 @@ msgstr "Singleplayer"
 
 #: src/client/game.cpp
 msgid "Sound muted"
-msgstr "Naka-mute ang tunog"
+msgstr "Muted ang Sound"
 
 #: src/client/game.cpp
 msgid "Sound system is not supported on this build"
-msgstr "Di suportado ang system ng tunog sa build na ito"
+msgstr "Ang Sound system ay di-supportado nitong build"
 
 #: src/client/game.cpp
 msgid "Sound unmuted"
-msgstr "Di na naka-mute ang tunog"
+msgstr "Unmuted ang Sound"
 
 #: src/client/game.cpp
 #, c-format
 msgid "The server is probably running a different version of %s."
-msgstr "Baka ibang bersyon ng %s ang pinapatakbo ng server."
+msgstr "Ang server ay posibleng ibang version ang gamit na %s."
 
 #: src/client/game.cpp
 #, c-format
 msgid "Unable to connect to %s because IPv6 is disabled"
-msgstr "Bigong makakonekta sa %s dahil nakasara ang IPv6"
+msgstr "Unable na kumonek sa %s dahil disabled ang IPv6"
 
 #: src/client/game.cpp
 #, c-format
@@ -1658,28 +1659,29 @@ msgid "Unable to listen on %s because IPv6 is disabled"
 msgstr "Bigong makakinig sa %s dahil nakasara ang IPv6"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Unlimited viewing range disabled"
-msgstr "Nakabukas ang unlimited na viewing range"
+msgstr "Naka-disable ang Unlimited viewing range"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Unlimited viewing range enabled"
-msgstr "Nakabukas ang unlimited na viewing range"
+msgstr "Naka-enable ang Unlimited viewing range"
 
 #: src/client/game.cpp
 msgid "Unlimited viewing range enabled, but forbidden by game or mod"
 msgstr ""
+"Naka-enable ang Unlimited viewing range, pero hindi pinahintulutang ng laro "
+"o modyul"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing changed to %d (the minimum)"
-msgstr "Nasa minimum na ang viewing range: %d"
+msgstr "Nabago ang Viewing sa %d (minimum)"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Viewing changed to %d (the minimum), but limited to %d by game or mod"
 msgstr ""
+"Nabago ang Viewing sa %d (minimum), pero ni-limita sa %d ng game o modyul"
 
 #: src/client/game.cpp
 #, c-format
@@ -1687,20 +1689,21 @@ msgid "Viewing range changed to %d"
 msgstr "Binago ang viewing range papuntang %d"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing range changed to %d (the maximum)"
-msgstr "Binago ang viewing range papuntang %d"
+msgstr "Nabago ang Viewing range sa %d (max)"
 
 #: src/client/game.cpp
 #, c-format
 msgid ""
 "Viewing range changed to %d (the maximum), but limited to %d by game or mod"
-msgstr ""
+msgstr "Nabago ang Viewing sa %d (max), pero ni-limita sa %d ng game o modyul"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing range changed to %d, but limited to %d by game or mod"
-msgstr "Binago ang viewing range papuntang %d"
+msgstr ""
+"Binago ang viewing range papuntang %d, pero ni-limita sa %d ng game o modyul"
 
 #: src/client/game.cpp
 #, c-format
@@ -1709,7 +1712,7 @@ msgstr "Binago ang volume papuntang %d%%"
 
 #: src/client/game.cpp
 msgid "Wireframe not supported by video driver"
-msgstr ""
+msgstr "Unsupported ng video driver ang Wireframe"
 
 #: src/client/game.cpp
 msgid "Wireframe shown"
@@ -1745,7 +1748,6 @@ msgid "Continue"
 msgstr "Magpatuloy"
 
 #: src/client/game_formspec.cpp
-#, fuzzy
 msgid ""
 "Controls:\n"
 "No menu open:\n"
@@ -1760,18 +1762,18 @@ msgid ""
 "- touch&drag, tap 2nd finger\n"
 " --> place single item to slot\n"
 msgstr ""
-"Mga Default na Kontrol:\n"
-"Kapag walang makikitang Menu:\n"
-"- isang pindot: i-activate ang button\n"
-"- dobleng pindot: ilagay/gamitin\n"
-"- padulasin ang daliri: tumingin-tingin sa paligid\n"
-"Kapag makikita ang Menu/Inventory:\n"
-"- dobleng pindot (sa labas):\n"
-" -->isara\n"
-"- pindutin ang stack, pindutin ang slot:\n"
-" --> ilipat ang stack\n"
-"- pindutin at i-drag, pindutin pangalawang daliri\n"
-" --> ilagay ang isang item sa slot\n"
+"Controls:\n"
+"No menu open:\n"
+"- slide ang daliri: look around\n"
+"- pindot/tap: place/punch/use (default)\n"
+"- pindot/tap na madiin: dig/use (default)\n"
+"Kung bubuksan ang Menu/inventory:\n"
+"- dobleng pindot (outside):\n"
+" --> close\n"
+"- touch stack, touch slot:\n"
+" --> move stack\n"
+"- touch&drag, tap 2nd finger\n"
+" --> place single item to slot\n"
 
 #: src/client/game_formspec.cpp
 msgid "Exit to Menu"
@@ -1818,9 +1820,8 @@ msgid "You died"
 msgstr "Namatay ka"
 
 #: src/client/gameui.cpp
-#, fuzzy
 msgid "Chat currently disabled by game or mod"
-msgstr "Kasalukuyang sinara ng laro o mod ang pag-zoom"
+msgstr "Currently naka-disable ang chat ng game o mod"
 
 #: src/client/gameui.cpp
 msgid "Chat hidden"
@@ -1848,10 +1849,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Ipinapakita ang profiler (pahina %d ng %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Mga App"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1865,76 +1862,47 @@ msgid "Caps Lock"
 msgstr "Caps Lock"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Clear Key"
-msgstr "Linisin"
+msgstr ""
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Control Key"
-msgstr "Control"
+msgstr ""
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Delete Key"
-msgstr "Burahin"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+msgid "End Key"
+msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Erase EOF"
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Execute"
-
-#: src/client/keycode.cpp
-msgid "Help"
+#, fuzzy
+msgid "Help Key"
 msgstr "Help"
 
 #: src/client/keycode.cpp
-msgid "Home"
+#, fuzzy
+msgid "Home Key"
 msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME Accept"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME Convert"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME Escape"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME Mode Change"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME Nonconvert"
 
 #: src/client/keycode.cpp
 msgid "Insert"
 msgstr "Insert"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Arrow"
-msgstr "Left Control"
+msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Left Button"
+#, fuzzy
+msgid "Left Click"
+msgstr "Left Control"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1948,19 +1916,26 @@ msgstr "Left Menu"
 msgid "Left Shift"
 msgstr "Left Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Left Windows"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Menu Key"
-msgstr "Menu"
+msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Middle Button"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2027,24 +2002,17 @@ msgid "Numpad 9"
 msgstr "Numpad 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Clear"
-
-#: src/client/keycode.cpp
-#, fuzzy
 msgid "Page Down"
-msgstr "Page down"
+msgstr ""
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Page Up"
-msgstr "Page up"
+msgstr ""
 
 #. ~ Usually paired with the Break key
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Pause Key"
-msgstr "Pause"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Play"
@@ -2056,18 +2024,17 @@ msgid "Print"
 msgstr "Print"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Return Key"
-msgstr "Return"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Arrow"
+msgstr ""
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "Right Arrow"
+msgid "Right Click"
 msgstr "Right Control"
-
-#: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Right Button"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2081,6 +2048,7 @@ msgstr "Right Menu"
 msgid "Right Shift"
 msgstr "Right Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Right Windows"
@@ -2089,48 +2057,26 @@ msgstr "Right Windows"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
-#: src/client/keycode.cpp
-msgid "Select"
-msgstr "Select"
-
 #: src/client/keycode.cpp
 #, fuzzy
+msgid "Select Key"
+msgstr "Magselect ng file"
+
+#: src/client/keycode.cpp
 msgid "Shift Key"
-msgstr "Shift"
-
-#: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Sleep"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Snapshot"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Space"
 msgstr "Space"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+msgid "Tab Key"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Button 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Button 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Zoom"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2151,41 +2097,42 @@ msgid "Minimap in texture mode"
 msgstr "Minimap sa texture mode"
 
 #: src/client/shader.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to compile the \"%s\" shader."
-msgstr "Bigong mabuksan ang webpage"
+msgstr "Failed ma-compile ang \"%s\" shader."
 
 #: src/client/shader.cpp
-#, fuzzy
 msgid "GLSL is not supported by the driver"
-msgstr "Di suportado ang system ng tunog sa build na ito"
+msgstr "Unsupported ng driver ang GLSL"
 
 #. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
 #, c-format
 msgid "%s is missing:"
-msgstr ""
+msgstr "%s ay nawawalan nang:"
 
 #: src/content/mod_configuration.cpp
 msgid ""
 "Install and enable the required mods, or disable the mods causing errors."
 msgstr ""
+"I-salpak at enable ang required modyul, o i-disable/tanggalin ang modyul na "
+"nag-error dito."
 
 #: src/content/mod_configuration.cpp
 msgid ""
 "Note: this may be caused by a dependency cycle, in which case try updating "
 "the mods."
 msgstr ""
+"Paalala: posibleng dahil ito sa dependency cycle, kung maaari subukang i-"
+"update ang mga modyul."
 
 #: src/content/mod_configuration.cpp
-#, fuzzy
 msgid "Some mods have unsatisfied dependencies:"
-msgstr "Walang kailangang kailangan"
+msgstr "Unsatisfied ang iilang dependencies ng modyul:"
 
 #: src/gui/guiButtonKey.h
-#, fuzzy
 msgid "Press Button"
-msgstr "Left Button"
+msgstr ""
 
 #: src/gui/guiChatConsole.cpp
 msgid "Failed to open webpage"
@@ -2201,16 +2148,15 @@ msgstr "Tumuloy"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
-msgstr ""
+msgstr "I-Open"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open URL?"
-msgstr ""
+msgstr "I-open ang URL?"
 
 #: src/gui/guiOpenURL.cpp
-#, fuzzy
 msgid "Unable to open URL"
-msgstr "Bigong mabuksan ang webpage"
+msgstr "Unable i-open ang URL"
 
 #: src/gui/guiPasswordChange.cpp
 msgid "Change"
@@ -2238,19 +2184,16 @@ msgid "Sound Volume: %d%%"
 msgstr "Volume ng Tunog: %d%%"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Add button"
-msgstr "Middle Button"
+msgstr ""
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Done"
-msgstr "Tapos na!"
+msgstr "Tapos na"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Remove"
-msgstr "Remote na server"
+msgstr ""
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Reset"
@@ -2308,7 +2251,7 @@ msgstr ""
 msgid "Place/use"
 msgstr ""
 
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "Pagpili sa saklaw"
 
@@ -2321,9 +2264,8 @@ msgid "Toggle chat log"
 msgstr "I-toggle ang chat log"
 
 #: src/gui/touchscreenlayout.cpp
-#, fuzzy
 msgid "Toggle debug"
-msgstr "I-toggle ang hamog"
+msgstr "I-toggle ang debug"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle fast"
@@ -2350,19 +2292,22 @@ msgid ""
 "Another client is connected with this name.  If your client closed "
 "unexpectedly, try again in a minute."
 msgstr ""
+"Ang pangalang ito ay naka-connect sa ibang client.   Kung nag-close ang "
+"client nang di inaasahan, subukan muli mamaya."
 
 #: src/network/clientpackethandler.cpp
 msgid "Empty passwords are disallowed.  Set a password and try again."
 msgstr ""
+"Bawal ang walang naka-lagay na password.   Gumawa ng password at balikan "
+"nalang ito muli."
 
 #: src/network/clientpackethandler.cpp
 msgid "Internal server error"
-msgstr ""
+msgstr "Error sa internal server"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Invalid password"
-msgstr "Lumang Password"
+msgstr "Invalid ang password"
 
 #. ~ DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
@@ -2376,59 +2321,63 @@ msgstr "fil"
 msgid ""
 "Name is not registered. To create an account on this server, click 'Register'"
 msgstr ""
+"Unregistered ang pangalang ito. Para makagawa ng account sa server na ito, I-"
+"click ang 'Register'"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Name is taken. Please choose another name"
-msgstr "Mangyaring pumili po ng pangalan!"
+msgstr "May gumamit na ng pangalan. Pumili ng iba"
 
 #: src/network/clientpackethandler.cpp
 msgid "Player name contains disallowed characters"
-msgstr ""
+msgstr "May disallowed characters ang nakalagay sa player name"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Player name not allowed"
-msgstr "Masyadong mahaba ang pangalan ng player."
+msgstr "Hindi pwede ang Player name na'to"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Server shutting down"
-msgstr "Sina-shutdown..."
+msgstr "Pinapatay ang server"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "The server has experienced an internal error.  You will now be disconnected."
 msgstr ""
+"May internal error na naranasan sa server.   Ikaw ay madi-disconnect na."
 
 #: src/network/clientpackethandler.cpp
 msgid "The server is running in singleplayer mode.  You cannot connect."
-msgstr ""
+msgstr "Naka-singleplayer mode ang server.   Bawal mag-connect."
 
 #: src/network/clientpackethandler.cpp
 msgid "Too many users"
-msgstr ""
+msgstr "Sobrang ang mga user"
 
 #: src/network/clientpackethandler.cpp
 msgid "Unknown disconnect reason."
-msgstr ""
+msgstr "Na-disconnect nang di-batid ang dahilan."
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "Your client sent something the server didn't expect.  Try reconnecting or "
 "updating your client."
 msgstr ""
+"May unexpeected na pinadala ang client sa server.  Subukan magreconnect o i-"
+"update ang iyong client."
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "Your client's version is not supported.\n"
 "Please contact the server administrator."
 msgstr ""
+"Unsupported ang iyong client version.\n"
+"Mangyaring i-contact ang server administrator."
 
 #: src/server.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "%s while shutting down: "
-msgstr "Sina-shutdown..."
+msgstr "%s habang sina-shutdown: "
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2441,16 +2390,6 @@ msgid ""
 "situations.\n"
 "Range roughly -2 to 2. Multiply by 'scale' for offset in nodes."
 msgstr ""
-"(X,Y,Z) offset ng fractal mula sa sentro ng mundo sa mga unit ng 'scale'.\n"
-"Pwedeng magamit para ilipat ang isang partikular na punto papunta sa (0,0) "
-"para\n"
-"makagawa ng isang maayos na spawn point, o para payagan ang\n"
-"pag-zoom papalapit sa naturang punto sa pamamagitan ng pagtaas sa 'scale'.\n"
-"Ginawa ang default para sa maayos na spawn point para sa\n"
-"mga Mandelbrot set na may mga default na parametro,\n"
-"posibleng kailangang baguhin ito sa ilang mga sitwasyon.\n"
-"Mula -2 hanggang 2 ang tipikal na saklaw. I-multiply sa 'scale' para sa "
-"offset sa mga node."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2462,36 +2401,30 @@ msgid ""
 "Default is for a vertically-squashed shape suitable for\n"
 "an island, set all 3 numbers equal for the raw shape."
 msgstr ""
-"(X,Y,Z) scale ng fractal sa mga node.\n"
-"2 hanggang 3 beses na mas malaki ang aktwal na laki ng fractal.\n"
-"Pwede sobrang laki ang mga bilang nito, hindi naman dapat\n"
-"sinlaki ng mundo ang fractal.\n"
-"Palakihin ito para mag-zoom sa mga detalye ng fractal.\n"
-"Para sa isang hugis na inipit taas-baba ang default,\n"
-"na bagay para sa mga isla, itakda ang lahat ng 3 bilang nang magkakapareho "
-"para sa raw na hugis."
 
 #: src/settings_translation_file.cpp
 msgid "2D noise that controls the shape/size of ridged mountains."
 msgstr ""
-"2D noise na kumokonttol sa hugis/laki ng mga mala-gulugod na kabundukan."
+"Ang 2D noise na nagko-control ng shape/size lubak ng bundok (ridged "
+"mountains.)"
 
 #: src/settings_translation_file.cpp
 msgid "2D noise that controls the shape/size of rolling hills."
-msgstr "2D noise na kumokontrol sa hugis/laki ng mga malalambot na burol."
+msgstr ""
+"Ang 2D noise na nagko-control ng shape/size ng kurba ng burol (rolling "
+"hills.)"
 
 #: src/settings_translation_file.cpp
 msgid "2D noise that controls the shape/size of step mountains."
-msgstr "2D noise na kumokontrol sa hugis/laki ng mga mala-hagdang kabundukan."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "2D noise that controls the size/occurrence of ridged mountain ranges."
 msgstr ""
-"2D noise na kumokontrol sa laki/paglitaw ng mga mala-gulugod na kabundukan."
 
 #: src/settings_translation_file.cpp
 msgid "2D noise that controls the size/occurrence of rolling hills."
-msgstr "2D noise na kumokontrol sa laki/paglitaw ng mga malalambot na burol."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "2D noise that controls the size/occurrence of step mountain ranges."
@@ -2568,12 +2501,11 @@ msgstr "3D noise na nagdedetermina sa bilang ng mga dungeon kada mapchunk."
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Suporta sa 3D.\n"
 "Kasalukuyang suportado:\n"
@@ -2627,11 +2559,11 @@ msgstr "Acceleration ng gravity, sa node kada segundo kada segundo."
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
-msgstr "Mga Modifier sa Aktibong Block"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Active block management interval"
-msgstr "Pagitan sa management sa aktibong block"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Active block range"
@@ -2648,7 +2580,7 @@ msgstr ""
 "UI element."
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2665,9 +2597,8 @@ msgstr ""
 "gumagawa ng solidong layer ng lumulutang na lupa."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Admin name"
-msgstr "Idagdag ang pangalan ng item"
+msgstr "Pangalan ng admin"
 
 #: src/settings_translation_file.cpp
 msgid "Advanced"
@@ -2685,6 +2616,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
+msgstr "Gawing translucent ang liquid."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2704,9 +2641,8 @@ msgstr ""
 "at maliit lang ang epekto nito sa natural na liwanag sa gabi."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Always fly fast"
-msgstr "Palaging lumipad at mabilis"
+msgstr "Palaging lumipad nang mabilis"
 
 #: src/settings_translation_file.cpp
 msgid "Ambient occlusion gamma"
@@ -2767,10 +2703,6 @@ msgid ""
 "to 8 bits.\n"
 "With OpenGL ES, dithering only works if the shader supports high\n"
 "floating-point precision and it may have a higher performance impact."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2955,6 +2887,17 @@ msgid "Camera smoothing in cinematic mode"
 msgstr "Pag-smooth sa kamera sa cinematic mode"
 
 #: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Cave noise"
 msgstr "Noise ng kweba"
 
@@ -3060,13 +3003,12 @@ msgid "Client"
 msgstr "Client"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client Debugging"
-msgstr "Pag-mod ng client"
+msgstr "Debugging ang Client"
 
 #: src/settings_translation_file.cpp
 msgid "Client Mesh Chunksize"
-msgstr ""
+msgstr "Chunksize ng Client Mesh"
 
 #: src/settings_translation_file.cpp
 msgid "Client and Server"
@@ -3074,49 +3016,47 @@ msgstr "Client at Server"
 
 #: src/settings_translation_file.cpp
 msgid "Client modding"
-msgstr "Pag-mod ng client"
+msgstr "Modding ng client"
 
 #: src/settings_translation_file.cpp
 msgid "Client side modding restrictions"
-msgstr "Mga restriksyon sa pag-mod ng client side"
+msgstr "Restrictions sa modding ng Client side"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client-side Modding"
-msgstr "Pag-mod ng client"
+msgstr "Modding sa Client-Side"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Client-side node lookup range restriction"
-msgstr "Restriksyon sa saklaw ng pagtingin sa node ng client side"
+msgstr "Restriction sa lookup range ng Client-Side node"
 
 #: src/settings_translation_file.cpp
 msgid "Climbing speed"
-msgstr "Bilis ng pag-akyat"
+msgstr "Speed ng Climbing"
 
 #: src/settings_translation_file.cpp
 msgid "Cloud radius"
-msgstr "Radius ng ulap"
+msgstr "Radius ng Cloud"
 
 #: src/settings_translation_file.cpp
 msgid "Clouds"
-msgstr "Mga ulap"
+msgstr "Mga Cloud"
 
 #: src/settings_translation_file.cpp
 msgid "Clouds in menu"
-msgstr "Mga ulap sa menu"
+msgstr "Clouds sa menu"
 
 #: src/settings_translation_file.cpp
 msgid "Color depth for post-processing texture"
-msgstr ""
+msgstr "Color depth para sa post-processing texture"
 
 #: src/settings_translation_file.cpp
 msgid "Colored fog"
-msgstr "May kulay na hamog"
+msgstr "Fog na Colored"
 
 #: src/settings_translation_file.cpp
 msgid "Colored shadows"
-msgstr "Makukulay na anino"
+msgstr "Shadows na colored"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3140,12 +3080,18 @@ msgid ""
 "Comma-separated list of mods that are allowed to access HTTP APIs, which\n"
 "allow them to upload and download data to/from the internet."
 msgstr ""
+"Listahan ng Comma-separated na mga modyul na pwedeng i-access ang HTTP APIs, "
+"na\n"
+"nagaallow sa pag upload at download ng data sa/Mula sa internet."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Comma-separated list of trusted mods that are allowed to access insecure\n"
 "functions even when mod security is on (via request_insecure_environment())."
 msgstr ""
+"Listahan ng Comma-separated na mga modyul na pwedeng i-access nang insecure\n"
+"na functions kahit na ang security ng modyul ay naka-on (via "
+"request_insecure_environment())."
 
 #: src/settings_translation_file.cpp
 msgid "Command"
@@ -3173,11 +3119,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Connect to external media server"
-msgstr ""
+msgstr "Magconnect sa external media server"
 
 #: src/settings_translation_file.cpp
 msgid "Connects glass if supported by node."
-msgstr ""
+msgstr "Nagko-connect ng glass kung supported ng node."
 
 #: src/settings_translation_file.cpp
 msgid "Console alpha"
@@ -3401,7 +3347,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3444,6 +3390,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "Mga dekorasyon"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -4297,6 +4247,8 @@ msgid ""
 "If disabled, \"Aux1\" key is used to fly fast if both fly and fast mode are\n"
 "enabled."
 msgstr ""
+"Kung disabled, ang \"Aux1\" key ang ginagamit kung enabled ang fly mode at "
+"fast mode."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4304,6 +4256,9 @@ msgid ""
 "ContentDB to\n"
 "check for package updates when opening the mainmenu."
 msgstr ""
+"Kung enabled at merong nakasalpak na ContentDB packages,\n"
+"Ang Luanti ay maaring i-contact ang ContentDB ukol sa pagcheck ng package "
+"updates kapag nasa mainmenu."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4311,24 +4266,33 @@ msgid ""
 "and\n"
 "descending."
 msgstr ""
+"Kung enabled, Ang \"Aux1\" key ang gagamitin sa magclimb down at bumaba/"
+"descend at hindi ang \"Sneak\" key."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, actions are recorded for rollback.\n"
 "This option is only read when server starts."
 msgstr ""
+"Kung enabled, recorded ang actions sa rollback.\n"
+"Ang optiong ito ay nare-read lamang sa pag-start ng server."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, invalid world data won't cause the server to shut down.\n"
 "Only enable this if you know what you are doing."
 msgstr ""
+"Kung enabled, ang invalid world data ay hindi magiging sanhi ng pagsara ng "
+"server.\n"
+"I-enable lamang ito kapag batid ang iyong gagawin."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, players cannot join without a password or change theirs to an "
 "empty password."
 msgstr ""
+"Kung enabled, Hindi pwede mag-join ang mga player nang walang password o "
+"binago sa empty password."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4336,18 +4300,24 @@ msgid ""
 "If disabled, connecting to a server will automatically register a new "
 "account."
 msgstr ""
+"Kung enabled, Nakahiwalay sa UI ng login ang server account registration.\n"
+"Kung disabled, Automatic na nakaregister sa bagong account kapag nakaconnect "
+"sa server."
 
 #: src/settings_translation_file.cpp
 msgid "If enabled, the \"Aux1\" key will toggle when pressed."
-msgstr ""
+msgstr "Kung enabled, Magto-toggle ang \"Aux1\" key kapag na-press."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the \"Sneak\" key will toggle when pressed.\n"
 "This functionality is ignored when fly is enabled."
 msgstr ""
+"Kapag enabled, Magto-toggle ang \"Sneak\" key kapag napressed.\n"
+"Itong functionality ay ignored kapag enabled ang fly mode."
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4400,6 +4370,7 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 
@@ -4569,14 +4540,6 @@ msgid "Jumping speed"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for decreasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for decreasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
 msgstr ""
 
@@ -4587,49 +4550,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for dropping the currently selected item."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for jumping."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for moving the player backward.\n"
-"Will also disable autoforward, when active."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player forward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player left."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player right."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for muting the game."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4641,164 +4566,9 @@ msgid "Key for opening the chat window to type local commands."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for opening the chat window."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for opening the inventory."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 11th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 12th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 13th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 14th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 15th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 16th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 17th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 18th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 19th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 20th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 21st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 22nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 23rd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 24th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 25th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 26th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 27th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 28th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 29th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 30th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 31st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 32nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the eighth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fifth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the first hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fourth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the next item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the ninth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the previous item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the second hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the seventh hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the sixth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the tenth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the third hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for sneaking.\n"
-"Also used for climbing down and descending in water if aux1_descends is "
-"disabled."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for switching between first- and third-person camera."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4810,56 +4580,7 @@ msgid "Key for switching to the previous entry in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for taking screenshots."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling autoforward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Key for toggling cinematic mode."
-msgstr "Pag-smooth sa kamera sa cinematic mode"
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling display of minimap."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling flying."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fullscreen mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling noclip mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling pitch move mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of chat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of debug info."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of fog."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4867,24 +4588,7 @@ msgid "Key for toggling the display of mapblock boundaries."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the HUD."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the large chat console."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Key for toggling unlimited view range."
-msgstr "Nakasara ang unlimited na viewing range"
-
-#: src/settings_translation_file.cpp
-msgid "Key to use view zoom when possible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4925,10 +4629,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Large chat console"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5405,6 +5105,11 @@ msgid "Maximum users"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Mga Templo ng Disyerto"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr ""
 
@@ -5458,6 +5163,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Mod channels"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5579,10 +5290,6 @@ msgid "Node highlighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr ""
 
@@ -5623,7 +5330,7 @@ msgstr "Dami ng mga mensaheng pwede maipadala ng isang player kada 10 segundo."
 #: src/settings_translation_file.cpp
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 
@@ -5870,6 +5577,11 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "Umalis sa main menu"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6761,6 +6473,11 @@ msgid "Toggle fullscreen"
 msgstr "I-toggle ang fly"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle large chat console"
+msgstr "I-toggle ang chat log"
+
+#: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "I-toggle ang pitchmove"
 
@@ -6768,6 +6485,11 @@ msgstr "I-toggle ang pitchmove"
 #, fuzzy
 msgid "Toggle profiler"
 msgstr "I-toggle ang fly"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "Nakasara ang unlimited na viewing range"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7189,6 +6911,10 @@ msgid "Width of the selection box lines around nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Will also disable autoforward, when active."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr ""
 
@@ -7207,7 +6933,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "World start time"
-msgstr ""
+msgstr "Pag-umpisa ng oras ng world"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7285,354 +7011,62 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#~ msgid "\"Aux1\" = climb down"
-#~ msgstr "\"Aux1\" = bumaba"
+#~ msgid "Apps"
+#~ msgstr "Mga App"
 
-#~ msgid "- Address: "
-#~ msgstr "- Address: "
+#~ msgid "End"
+#~ msgstr "End"
 
-#~ msgid "- Port: "
-#~ msgstr "- Port: "
+#~ msgid "Erase EOF"
+#~ msgstr "Erase EOF"
 
-#~ msgid "2x"
-#~ msgstr "2x"
+#~ msgid "Execute"
+#~ msgstr "Execute"
 
-#~ msgid "3D Clouds"
-#~ msgstr "3D na Ulap"
+#~ msgid "IME Accept"
+#~ msgstr "IME Accept"
 
-#~ msgid "4x"
-#~ msgstr "4x"
+#~ msgid "IME Convert"
+#~ msgstr "IME Convert"
 
-#~ msgid "8x"
-#~ msgstr "8x"
+#~ msgid "IME Escape"
+#~ msgstr "IME Escape"
 
-#~ msgid "< Back to Settings page"
-#~ msgstr "< Balik sa Pagsasaayos"
+#~ msgid "IME Mode Change"
+#~ msgstr "IME Mode Change"
 
-#~ msgid ""
-#~ "Address to connect to.\n"
-#~ "Leave this blank to start a local server.\n"
-#~ "Note that the address field in the main menu overrides this setting."
-#~ msgstr ""
-#~ "Address na kokonektahan.\n"
-#~ "Ibakante para magsimula ng lokal na server.\n"
-#~ "Tandaan na ang ino-override ng pagsasaayos na ito ang address field sa "
-#~ "main menu."
-
-#~ msgid "Adds particles when digging a node."
-#~ msgstr "Nagdadagdag ng mga particle habang naghuhukay ng node."
-
-#~ msgid ""
-#~ "Adjust dpi configuration to your screen (non X11/Android only) e.g. for "
-#~ "4k screens."
-#~ msgstr ""
-#~ "Ayusin ang dpi configuration ayon sa screen mo (non X11/Android lang) "
-#~ "hal. para sa mga 4k screen."
-
-#~ msgid "All Settings"
-#~ msgstr "Lahat ng Pagsasaayos"
-
-#~ msgid "All packages"
-#~ msgstr "Lahat ng package"
-
-#~ msgid "Autosave Screen Size"
-#~ msgstr "Kusang I-save ang Laki ng Screen"
-
-#~ msgid "Back to Main Menu"
-#~ msgstr "Balik sa Main Menu"
-
-#~ msgid "Backward key"
-#~ msgstr "Key sa pag-atras"
-
-#~ msgid "Basic"
-#~ msgstr "Basic"
-
-#~ msgid "Bilinear Filter"
-#~ msgstr "Bilinear Filter"
-
-#, fuzzy
-#~ msgid "Biome API noise parameters"
-#~ msgstr "Mga parametro sa noise ng temperatura at halumigmig sa Biome API"
-
-#~ msgid "Block bounds shown for all blocks"
-#~ msgstr "Ipinapakita ang mga block bound para sa lahat ng mga block"
-
-#, fuzzy
-#~ msgid "Bloom Radius"
-#~ msgstr "Radius ng ulap"
-
-#~ msgid ""
-#~ "Camera 'near clipping plane' distance in nodes, between 0 and 0.25\n"
-#~ "Only works on GLES platforms. Most users will not need to change this.\n"
-#~ "Increasing can reduce artifacting on weaker GPUs.\n"
-#~ "0.1 = Default, 0.25 = Good value for weaker tablets."
-#~ msgstr ""
-#~ "Layo sa node ng 'near clipping plane' ng kamera, mula 0 hanggang 0.25\n"
-#~ "Gagana lang sa mga GLES platform. Hindi kailangang baguhin ito ng "
-#~ "karamihan sa mga user.\n"
-#~ "Posibleng mabawasan ang pag-artifact sa mga mahihinang GPU kapag tinaasan "
-#~ "ito.\n"
-#~ "0.1 = Default, 0.25 = Magandang value para sa mga mahihinang tablet."
-
-#~ msgid "Camera update toggle key"
-#~ msgstr "Toggle key sa pag-update sa kamera"
-
-#~ msgid "Change Keys"
-#~ msgstr "Baguhin ang mga Key"
-
-#, fuzzy
-#~ msgid "Change keys"
-#~ msgstr "Baguhin ang mga Key"
-
-#~ msgid "Chat key"
-#~ msgstr "Key ng chat"
-
-#~ msgid "Chat toggle key"
-#~ msgstr "Toggle key sa chat"
-
-#~ msgid "Cinematic mode key"
-#~ msgstr "Key sa cinematic mode"
-
-#~ msgid "Clean transparent textures"
-#~ msgstr "Malilinis na transparent na texture"
-
-#, fuzzy
-#~ msgid "Clouds are a client-side effect."
-#~ msgstr "Epekto sa client side ang mga ulap."
-
-#~ msgid "Connect"
-#~ msgstr "Kumonekta"
-
-#~ msgid "Connected Glass"
-#~ msgstr "Konektadong Salamin"
-
-#~ msgid "Console"
-#~ msgstr "Console"
-
-#, fuzzy, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "Mga kontrol:\n"
-#~ "- %s: abante paharap\n"
-#~ "- %s: abante patalikod\n"
-#~ "- %s: kumaliwa\n"
-#~ "- %s: kumanan\n"
-#~ "- %s: tumalon/umakyat\n"
-#~ "- %s: maghukay/sumuntok\n"
-#~ "- %s: maglagay/gumamit\n"
-#~ "- %s: dahan-dahan/bumaba\n"
-#~ "- %s: ihulog ang item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: umikot/tumingin\n"
-#~ "- Mouse wheel: pumili ng item\n"
-#~ "- %s: chat\n"
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME Nonconvert"
 
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "Nakatago ang debug info at profiler graph"
+#~ msgid "Left Button"
+#~ msgstr "Left Button"
 
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr "Nakatago ang debug info, profiler graph, at wireframe"
+#~ msgid "Middle Button"
+#~ msgstr "Middle Button"
 
-#~ msgid "Double tap \"jump\" to toggle fly"
-#~ msgstr "Dobleng pindutin ang \"tumalon\" para makalipad"
+#~ msgid "No world created or selected!"
+#~ msgstr "Walang nagawa o napiling mundo!"
 
-#~ msgid "Down"
-#~ msgstr "Down"
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Clear"
 
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr "Mag-download ng laro, tulad ng Minetest Game, mula sa minetest.net"
+#~ msgid "Right Button"
+#~ msgstr "Right Button"
 
-#~ msgid "Download one from minetest.net"
-#~ msgstr "Mag-download ng isa mula sa minetest.net"
+#~ msgid "Select"
+#~ msgstr "Select"
 
-#, fuzzy
-#~ msgid "Dynamic shadows:"
-#~ msgstr "Dynamic na mga anino: "
+#~ msgid "Sleep"
+#~ msgstr "Sleep"
 
-#, fuzzy
-#~ msgid "Enable"
-#~ msgstr "Nakabukas"
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
 
-#~ msgid "Enter "
-#~ msgstr "Ipasok "
+#~ msgid "Tab"
+#~ msgstr "Tab"
 
-#~ msgid "Fancy Leaves"
-#~ msgstr "Magagarang Dahon"
+#~ msgid "X Button 1"
+#~ msgstr "X Button 1"
 
-#~ msgid "Forward"
-#~ msgstr "Abante"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "Pagsasaayos"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr ""
-#~ "I-install ang Mod: Bigong mahanap ang tunay na pangalan ng mod ng: $1"
-
-#~ msgid "Invalid gamespec."
-#~ msgstr "Invalid na gamespec."
-
-#~ msgid "Key already in use"
-#~ msgstr "May gamit na ang key"
-
-#~ msgid ""
-#~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
-#~ msgstr ""
-#~ "Mga keybinding. (Kung pumalpak ang menu na ito, tanggalin ang laman ng "
-#~ "minetest.conf)"
-
-#~ msgid "Left"
-#~ msgstr "Left"
-
-#~ msgid "Mipmap"
-#~ msgstr "Mipmap"
-
-#~ msgid "Mipmap + Aniso. Filter"
-#~ msgstr "Mipmap + Aniso. Filter"
-
-#~ msgid "Next item"
-#~ msgstr "Susunod na item"
-
-#~ msgid "No Filter"
-#~ msgstr "Walang Filter"
-
-#~ msgid "No Mipmap"
-#~ msgstr "Walang Mipmap"
-
-#~ msgid "Node Outlining"
-#~ msgstr "Pag-outline sa Node"
-
-#~ msgid "None"
-#~ msgstr "Wala"
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "Opaque na Dahon"
-
-#~ msgid "Opaque Water"
-#~ msgstr "Opaque na Tubig"
-
-#~ msgid "Particles"
-#~ msgstr "Mga Particle"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "Mangyaring maglagay ng valid na integer."
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "Mangyaring maglagay ng valid na bilang."
-
-#~ msgid "Right"
-#~ msgstr "Right"
-
-#~ msgid "Screen:"
-#~ msgstr "Screen:"
-
-#~ msgid "Shaders"
-#~ msgstr "Mga Shader"
-
-#~ msgid "Shaders (experimental)"
-#~ msgstr "Mga Shader (eksperimento)"
-
-#~ msgid "Shaders (unavailable)"
-#~ msgstr "Mga Shader (di available)"
-
-#, fuzzy
-#~ msgid "Shaders are disabled."
-#~ msgstr "Nakasara ang pag-update sa kamera"
-
-#~ msgid "Simple Leaves"
-#~ msgstr "Simpleng Dahon"
-
-#~ msgid "Sound system is disabled"
-#~ msgstr "Nakasara ang system ng tunog"
-
-#~ msgid "Texturing:"
-#~ msgstr "Pagte-texture:"
-
-#~ msgid "The value must be at least $1."
-#~ msgstr "Dapat di bababa sa $1 ang value."
-
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "Dapat di lalaki sa $1 ang value."
-
-#~ msgid "Tone Mapping"
-#~ msgstr "Tone Mapping"
-
-#~ msgid "Trilinear Filter"
-#~ msgstr "Trilinear Filter"
-
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "Bigong ma-install ang laro bilang $1"
-
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "Bigong ma-install ang modpack bilang $1"
-
-#~ msgid "Uninstall Package"
-#~ msgstr "Burahin ang Package"
-
-#~ msgid "Up"
-#~ msgstr "Up"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "Tumingin pa ng mas maraming impormasyon sa web browser"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "Nasa maximum na ang viewing range: %d"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "Nahahanginang Dahon"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "Umaalong Tubig"
-
-#~ msgid "Waving Plants"
-#~ msgstr "Nahahanginang Halaman"
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#, c-format
-#~ msgid ""
-#~ "You are about to join this server with the name \"%s\" for the first "
-#~ "time.\n"
-#~ "If you proceed, a new account using your credentials will be created on "
-#~ "this server.\n"
-#~ "Please retype your password and click 'Register and Join' to confirm "
-#~ "account creation, or click 'Cancel' to abort."
-#~ msgstr ""
-#~ "Sasali ka sa server na ito na may pangalang \"%s\" sa unang pagkakataon.\n"
-#~ "Kung tutuloy ka, may magagawang bagong account sa server na ito gamit ang "
-#~ "iyong mga credential.\n"
-#~ "Mangyaring i-type muli ang password mo at pindutin ang 'Magparehistro at "
-#~ "Sumali' para kumpirmahin ang paggawa sa account, o pindutin ang "
-#~ "'Ikansela' para pigilan ito."
-
-#~ msgid "You have no games installed."
-#~ msgstr "Wala kang na-install na mga laro."
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "ok"
-#~ msgstr "sige"
-
-#~ msgid "press key"
-#~ msgstr "pumindot ng key"
+#~ msgid "X Button 2"
+#~ msgstr "X Button 2"

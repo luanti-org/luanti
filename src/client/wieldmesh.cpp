@@ -22,7 +22,7 @@
 #include "client/renderingengine.h"
 #include <SMesh.h>
 #include <IMeshBuffer.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 #include "item_visuals_manager.h"
 
 #define WIELD_SCALE_FACTOR 30.0f

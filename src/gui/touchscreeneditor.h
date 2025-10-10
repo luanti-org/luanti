@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 class ISimpleTextureSource;
-namespace irr::gui
+namespace gui
 {
 	class IGUIButton;
 	class IGUIImage;

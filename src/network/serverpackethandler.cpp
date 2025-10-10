@@ -34,8 +34,9 @@
 
 void Server::handleCommand_Deprecated(NetworkPacket* pkt)
 {
-	infostream << "Server: " << toServerCommandTable[pkt->getCommand()].name
-		<< " not supported anymore" << std::endl;
+	auto &h = toServerCommandTable[pkt->getCommand()];
+	infostream << "Server: ignoring unsupported " << h.name << " from peer " <<
+		pkt->getPeerId() << std::endl;
 }
 
 void Server::handleCommand_Init(NetworkPacket* pkt)
@@ -55,8 +56,8 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 		 * respond for some time, your server was overloaded or
 		 * things like that.
 		 */
-		infostream << "Server::ProcessData(): Canceling: peer " << peer_id <<
-			" not found" << std::endl;
+		infostream << "Server: peer " << peer_id << " not found during INIT?!"
+			<< std::endl;
 		return;
 	}
 
@@ -1363,22 +1364,11 @@ void Server::handleCommand_InventoryFields(NetworkPacket* pkt)
 	session_t peer_id = pkt->getPeerId();
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 
-	if (player == NULL) {
-		errorstream <<
-			"Server::ProcessData(): Canceling: No player for peer_id=" <<
-			peer_id << " disconnecting peer!" << std::endl;
-		DisconnectPeer(peer_id);
+	if (!player)
 		return;
-	}
-
 	PlayerSAO *playersao = player->getPlayerSAO();
-	if (playersao == NULL) {
-		errorstream <<
-			"Server::ProcessData(): Canceling: No player object for peer_id=" <<
-			peer_id << " disconnecting peer!" << std::endl;
-		DisconnectPeer(peer_id);
+	if (!playersao)
 		return;
-	}
 
 	std::string client_formspec_name;
 	StringMap fields;
@@ -1480,7 +1470,7 @@ void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 		acceptAuth(peer_id, false);
 	} else {
 		if (cstate < CS_SudoMode) {
-			infostream << "Server::ProcessData(): Ignoring TOSERVER_FIRST_SRP from "
+			infostream << "Server: Ignoring TOSERVER_FIRST_SRP from "
 					<< addr_s << ": " << "Client has wrong state " << cstate << "."
 					<< std::endl;
 			return;

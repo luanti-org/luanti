@@ -13,7 +13,6 @@
 #include "gamedef.h"
 #include "irrlicht_changes/printing.h"
 #include "log.h"
-#include "nameidmapping.h"
 #include "content_mapnode.h"  // For legacy name-id mapping
 #include "content_nodemeta.h" // For legacy deserialization
 #include "serialization.h"
@@ -106,6 +105,9 @@ MapBlock::MapBlock(v3s16 pos, IGameDef *gamedef):
 		m_gamedef(gamedef),
 		m_is_mono_block(false)
 {
+	// We start with nodecount nodes, because in the vast
+	// majority of the cases a block is created just before
+	// it is de-serialized or generated.
 	reallocate(nodecount, MapNode(CONTENT_IGNORE));
 }
 
@@ -170,7 +172,7 @@ bool MapBlock::saveStaticObject(u16 id, const StaticObject &obj, u32 reason)
 	return true;
 }
 
-void MapBlock::step(float dtime, const std::function<bool(v3s16, MapNode, f32)> &on_timer_cb)
+void MapBlock::step(float dtime, const std::function<bool(v3s16, MapNode, NodeTimer)> &on_timer_cb)
 {
 	// Run callbacks for elapsed node_timers
 	std::vector<NodeTimer> elapsed_timers = m_node_timers.step(dtime);
@@ -179,8 +181,10 @@ void MapBlock::step(float dtime, const std::function<bool(v3s16, MapNode, f32)> 
 	for (const auto &it : elapsed_timers) {
 		n = getNodeNoEx(it.position);
 		p = it.position + getPosRelative();
-		if (on_timer_cb(p, n, it.elapsed))
+		if (on_timer_cb(p, n, it)) {
+			// restart
 			setNodeTimer(NodeTimer(it.timeout, 0, it.position));
+		}
 		if (isOrphan())
 			return;
 	}
@@ -233,9 +237,12 @@ void MapBlock::copyFrom(const VoxelManipulator &src)
 void MapBlock::reallocate(u32 count, MapNode n)
 {
 	assert(count == 1 || count == nodecount);
+	// For now monoblocks are disabled on the client.
+	// The client has known data races on the block's data (FIXME).
+	assert(!m_gamedef->isClient() || count == nodecount);
 
 	delete[] data;
-	if (!m_is_mono_block && count == 1)
+	if (data && !m_is_mono_block && count == 1)
 		porting::TrackFreedMemory(sizeof(MapNode) * nodecount);
 
 	data = new MapNode[count];
@@ -246,6 +253,11 @@ void MapBlock::reallocate(u32 count, MapNode n)
 
 void MapBlock::tryShrinkNodes()
 {
+	// For now monoblocks are disabled on the client.
+	// The client has known data races on the block's data (FIXME).
+	if (m_gamedef->isClient())
+		return;
+
 	if (m_is_mono_block)
 		return;
 
@@ -307,13 +319,13 @@ void MapBlock::expireIsAirCache()
 // Renumbers the content IDs (starting at 0 and incrementing)
 // Note that there's no technical reason why we *have to* renumber the IDs,
 // but we do it anyway as it also helps compressability.
-static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes, u32 nodecount,
-	const NodeDefManager *nodedef)
+void MapBlock::getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
+	u32 count, const NodeDefManager *nodedef)
 {
 	IdIdMapping &mapping = IdIdMapping::giveClearedThreadLocalInstance();
 
 	content_t id_counter = 0;
-	for (u32 i = 0; i < nodecount; i++) {
+	for (u32 i = 0; i < count; i++) {
 		content_t global_id = nodes[i].getContent();
 		content_t id = CONTENT_IGNORE;
 
@@ -337,7 +349,7 @@ static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes, u32 node
 // Correct ids in the block to match nodedef based on names.
 // Unknown ones are added to nodedef.
 // Will not update itself to match id-name pairs in nodedef.
-static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
+void MapBlock::correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 		IGameDef *gamedef)
 {
 	const NodeDefManager *nodedef = gamedef->ndef();
@@ -643,6 +655,8 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 		}
 
 		if (nimap.size() == 1) {
+			tryShrinkNodes();
+
 			u16 dummy;
 			m_is_air = nimap.getId("air", dummy);
 			m_is_air_expired = false;

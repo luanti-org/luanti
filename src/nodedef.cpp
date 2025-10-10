@@ -907,8 +907,16 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 	u32 overlay_shader = shdsrc->getShader("nodes_shader", overlay_material, drawtype);
 
 	// minimap pixel color = average color of top tile
-	if (tsettings.enable_minimap && !tdef[0].name.empty() && drawtype != NDT_AIRLIKE)
-		minimap_color = tsrc->getTextureAverageColor(tdef[0].name);
+	if (tsettings.enable_minimap && drawtype != NDT_AIRLIKE && !tdef[0].name.empty())
+	{
+		if (!tdef_overlay[0].name.empty()) {
+			// Merge overlay and base texture
+			std::string combined = tdef[0].name + "^(" + tdef_overlay[0].name + ")";
+			minimap_color = tsrc->getTextureAverageColor(combined);
+		} else {
+			minimap_color = tsrc->getTextureAverageColor(tdef[0].name);
+		}
+	}
 
 	// Tiles (fill in f->tiles[])
 	bool any_polygon_offset = false;

@@ -737,6 +737,8 @@ void *EmergeThread::run()
 
 			if (!error)
 				block = finishGen(pos, &bmdata, &modified_blocks);
+			else
+				m_map->cancelBlockMake(&bmdata);
 			if (!block || error)
 				action = EMERGE_ERRORED;
 

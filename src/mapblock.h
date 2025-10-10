@@ -21,6 +21,7 @@ class NodeMetadataList;
 class IGameDef;
 class MapBlockMesh;
 class VoxelManipulator;
+class NameIdMapping;
 class TestMapBlock;
 
 #define BLOCK_TIMESTAMP_UNDEFINED 0xffffffff
@@ -72,12 +73,6 @@ public:
 	void makeOrphan()
 	{
 		m_orphan = true;
-	}
-
-	MapNode* getData()
-	{
-		expandNodesIfNeeded();
-		return data;
 	}
 
 	////
@@ -186,26 +181,28 @@ public:
 	//// Position stuff
 	////
 
+	/// @return map position of block
 	inline v3s16 getPos()
 	{
 		return m_pos;
 	}
 
+	/// @return in-world position of the block (== pos * MAP_BLOCKSIZE)
 	inline v3s16 getPosRelative()
 	{
 		return m_pos_relative;
 	}
 
-	inline core::aabbox3d<s16> getBox() {
+	/// @return in-world box of the block
+	inline core::aabbox3d<s16> getBox()
+	{
 		return getBox(getPosRelative());
 	}
 
-	static inline core::aabbox3d<s16> getBox(const v3s16 &pos_relative)
+	static inline core::aabbox3d<s16> getBox(v3s16 pos_relative)
 	{
 		return core::aabbox3d<s16>(pos_relative,
-				pos_relative
-				+ v3s16(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE)
-				- v3s16(1,1,1));
+				pos_relative + v3s16(MAP_BLOCKSIZE - 1));
 	}
 
 	////
@@ -311,7 +308,7 @@ public:
 	bool saveStaticObject(u16 id, const StaticObject &obj, u32 reason);
 
 	/// @note This method is only for Server, don't call it on client
-	void step(float dtime, const std::function<bool(v3s16, MapNode, f32)> &on_timer_cb);
+	void step(float dtime, const std::function<bool(v3s16, MapNode, NodeTimer)> &on_timer_cb);
 
 	////
 	//// Timestamp (see m_timestamp)
@@ -361,7 +358,7 @@ public:
 	}
 
 	////
-	//// Reference counting (see m_refcount)
+	//// Reference counting (different purposes on client vs. server)
 	////
 
 	inline void refGrab()
@@ -424,6 +421,7 @@ public:
 	// clearObject and return removed objects count
 	u32 clearObjects();
 
+private:
 	static const u32 ystride = MAP_BLOCKSIZE;
 	static const u32 zstride = MAP_BLOCKSIZE * MAP_BLOCKSIZE;
 
@@ -445,6 +443,11 @@ private:
 	// if a monoblock, expand storage back to the full array
 	void expandNodesIfNeeded();
 	void reallocate(u32 count, MapNode n);
+
+	static void getBlockNodeIdMapping(NameIdMapping *nimap, MapNode *nodes,
+		u32 count, const NodeDefManager *nodedef);
+	static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
+			IGameDef *gamedef);
 
 	/*
 	 * PLEASE NOTE: When adding something here be mindful of position and size
@@ -476,10 +479,6 @@ private:
 	 */
 	v3s16 m_pos_relative;
 
-	/*
-		Reference count; currently used for determining if this block is in
-		the list of blocks to be drawn.
-	*/
 	short m_refcount = 0;
 
 	/*

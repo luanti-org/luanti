@@ -1087,7 +1087,7 @@ std::optional<double> my_string_to_double(const std::string &s)
 	char *end = nullptr;
 	// Note: this also supports hexadecimal notation like "0x1.0p+1"
 	double number = std::strtod(s.c_str(), &end);
-	if (end != &*s.end())
+	if (end && *end != '\0')
 		return std::nullopt;
 	return number;
 }

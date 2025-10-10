@@ -596,9 +596,11 @@ Object types:
 * `s32` yaw * 1000
 
 Since protocol version 37:
-* `u8` `version2` (=1)
+* `u8` `version2` (=1 or 2)
 * `s32` pitch * 1000
 * `s32` roll * 1000
+* if version2 >= 2:
+  * `u8[16]` guid
 
 # Itemstring Format
 

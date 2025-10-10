@@ -14,8 +14,6 @@
 #include "CLogger.h"
 #include "irrString.h"
 
-namespace irr
-{
 namespace video
 {
 #ifndef _IRR_COMPILE_WITH_OPENGL_
@@ -176,7 +174,7 @@ u32 CIrrDeviceStub::checkSuccessiveClicks(s32 mouseX, s32 mouseY, EMOUSE_INPUT_E
 {
 	const s32 MAX_MOUSEMOVE = 3;
 
-	irr::u32 clickTime = getTimer()->getRealTime();
+	u32 clickTime = getTimer()->getRealTime();
 
 	if ((clickTime - MouseMultiClicks.LastClickTime) < MouseMultiClicks.DoubleClickTime && core::abs_(MouseMultiClicks.LastClick.X - mouseX) <= MAX_MOUSEMOVE && core::abs_(MouseMultiClicks.LastClick.Y - mouseY) <= MAX_MOUSEMOVE && MouseMultiClicks.CountSuccessiveClicks < 3 && MouseMultiClicks.LastMouseInputEvent == inputEvent) {
 		++MouseMultiClicks.CountSuccessiveClicks;
@@ -378,5 +376,3 @@ bool CIrrDeviceStub::acceptsIME()
 	gui::IGUIElement *elem = GUIEnvironment->getFocus();
 	return elem && elem->acceptsIME();
 }
-
-} // end namespace irr

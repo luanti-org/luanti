@@ -43,8 +43,7 @@
 #include <cstdlib>
 #include <iostream>
 
-namespace irr
-{
+
 namespace gui
 {
 
@@ -288,8 +287,7 @@ CGUITTFont* CGUITTFont::createTTFont(IGUIEnvironment *env,
 //! Constructor.
 CGUITTFont::CGUITTFont(IGUIEnvironment *env)
 : use_monochrome(false), use_transparency(true), use_hinting(true), use_auto_hinting(true),
-batch_load_size(1), Driver(0), GlobalKerningWidth(0), GlobalKerningHeight(0),
-shadow_offset(0), shadow_alpha(0), fallback(0)
+batch_load_size(1)
 {
 
 	if (env) {
@@ -492,35 +490,34 @@ void CGUITTFont::draw(const EnrichedString &text, const core::rect<s32>& positio
 		textDimension = getDimension(text.c_str());
 
 		if (hcenter)
-			offset.X = ((position.getWidth() - textDimension.Width) >> 1) + offset.X;
+			offset.X = ((position.getWidth() - textDimension.Width) / 2) + offset.X;
 
 		if (vcenter)
-			offset.Y = ((position.getHeight() - textDimension.Height) >> 1) + offset.Y;
+			offset.Y = ((position.getHeight() - textDimension.Height) / 2) + offset.Y;
 	}
 
 	// Convert to a unicode string.
-	std::u32string utext = convertWCharToU32String(text.c_str());
+	const std::u32string utext = convertWCharToU32String(text.c_str());
+	const u32 lineHeight = getLineHeight();
 
-	// Set up our render map.
+	// Key: Glyph page index. Value: Arrays relevant for rendering
 	std::map<u32, CGUITTGlyphPage*> Render_Map;
 
 	// Start parsing characters.
-	u32 n;
+	// The same logic is applied to `CGUITTFont::getDimension`
 	char32_t previousChar = 0;
-	std::u32string::const_iterator iter = utext.begin();
-	while (iter != utext.end())
+	for (size_t i = 0; i < utext.size(); ++i)
 	{
-		char32_t currentChar = *iter;
-		n = getGlyphIndexByChar(currentChar);
-		bool visible = (Invisible.find_first_of(currentChar) == std::u32string::npos);
-		bool lineBreak=false;
-		if (currentChar == L'\r') // Mac or Windows breaks
+		char32_t currentChar = utext[i];
+		bool lineBreak = false;
+		if (currentChar == U'\r') // Mac or Windows breaks
 		{
 			lineBreak = true;
-			if (*(iter + 1) == (char32_t)'\n') 	// Windows line breaks.
-				currentChar = *(++iter);
+			// `std::u32string` is '\0'-terminated, thus this check is OK
+			if (utext[i + 1] == U'\n') // Windows line breaks.
+				currentChar = utext[++i];
 		}
-		else if (currentChar == (char32_t)'\n') // Unix breaks
+		else if (currentChar == U'\n') // Unix breaks
 		{
 			lineBreak = true;
 		}
@@ -528,82 +525,90 @@ void CGUITTFont::draw(const EnrichedString &text, const core::rect<s32>& positio
 		if (lineBreak)
 		{
 			previousChar = 0;
-			offset.Y += font_metrics.height / 64;
+			offset.Y += lineHeight;
 			offset.X = position.UpperLeftCorner.X;
 
 			if (hcenter)
-				offset.X += (position.getWidth() - textDimension.Width) >> 1;
-			++iter;
+				offset.X += (position.getWidth() - textDimension.Width) / 2;
 			continue;
 		}
 
-		if (n > 0 && visible)
+		// Draw visible text
+
+		SGUITTGlyph *glyph = nullptr;
+		const u32 width = getWidthFromCharacter(currentChar);
+
+		// Skip whitespace characters
+		if (InvisibleChars.find_first_of(currentChar) != std::u32string::npos)
+			goto skip_invisible;
+
+		if (clip) {
+			// Skip fully clipped characters.
+			const core::recti rect(
+				offset,
+				offset + core::vector2di(width, lineHeight)
+			);
+			if (!clip->isRectCollided(rect))
+				goto skip_invisible;
+		}
+
+		{
+			// Retrieve the glyph
+			const u32 n = getGlyphIndexByChar(currentChar);
+			if (n > 0)
+				glyph = &Glyphs[n - 1];
+		}
+
+		if (glyph)
 		{
 			// Calculate the glyph offset.
-			s32 offx = Glyphs[n-1].offset.X;
-			s32 offy = (font_metrics.ascender / 64) - Glyphs[n-1].offset.Y;
+			const s32 offx = glyph->offset.X;
+			const s32 offy = (font_metrics.ascender / 64) - glyph->offset.Y;
 
 			// Apply kerning.
-			core::vector2di k = getKerning(currentChar, previousChar);
-			offset.X += k.X;
-			offset.Y += k.Y;
+			offset += getKerning(currentChar, previousChar);
 
 			// Determine rendering information.
-			SGUITTGlyph& glyph = Glyphs[n-1];
-			CGUITTGlyphPage* const page = Glyph_Pages[glyph.glyph_page];
+			CGUITTGlyphPage* const page = Glyph_Pages[glyph->glyph_page];
 			page->render_positions.push_back(core::position2di(offset.X + offx, offset.Y + offy));
-			page->render_source_rects.push_back(glyph.source_rect);
-			const size_t iterPos = iter - utext.begin();
-			if (iterPos < colors.size())
-				page->render_colors.push_back(colors[iterPos]);
+			page->render_source_rects.push_back(glyph->source_rect);
+			if (i < colors.size())
+				page->render_colors.push_back(colors[i]);
 			else
 				page->render_colors.push_back(video::SColor(255,255,255,255));
-			Render_Map[glyph.glyph_page] = page;
+			Render_Map[glyph->glyph_page] = page;
 		}
-		if (n > 0)
-		{
-			offset.X += getWidthFromCharacter(currentChar);
-		}
-		else if (fallback != 0)
+		else if (fallback)
 		{
 			// Let the fallback font draw it, this isn't super efficient but hopefully that doesn't matter
 			wchar_t l1[] = { (wchar_t) currentChar, 0 };
 
-			if (visible)
-			{
-				// Apply kerning.
-				offset += fallback->getKerning(*l1, (wchar_t) previousChar);
+			// Apply kerning.
+			offset += fallback->getKerning(*l1, (wchar_t) previousChar);
 
-				const u32 current_color = iter - utext.begin();
-				fallback->draw(core::stringw(l1),
-					core::rect<s32>({offset.X-1, offset.Y-1}, position.LowerRightCorner), // ???
-					current_color < colors.size() ? colors[current_color] : video::SColor(255, 255, 255, 255),
-					false, false, clip);
-			}
-
-			offset.X += fallback->getDimension(l1).Width;
+			fallback->draw(core::stringw(l1),
+				core::rect<s32>({offset.X-1, offset.Y-1}, position.LowerRightCorner), // ???
+				i < colors.size() ? colors[i] : video::SColor(255, 255, 255, 255),
+				false, false, clip);
 		}
 
+skip_invisible:
+		offset.X += width;
 		previousChar = currentChar;
-		++iter;
 	}
 
 	// Draw now.
 	update_glyph_pages();
-	auto it = Render_Map.begin();
-	auto ie = Render_Map.end();
 	core::array<core::vector2di> tmp_positions;
 	core::array<core::recti> tmp_source_rects;
-	while (it != ie)
+	for (const auto &it : Render_Map)
 	{
-		CGUITTGlyphPage* page = it->second;
-		++it;
+		CGUITTGlyphPage *page = it.second;
 
 		// render runs of matching color in batch
-		size_t ibegin;
 		video::SColor colprev;
 		for (size_t i = 0; i < page->render_positions.size(); ++i) {
-			ibegin = i;
+			const size_t ibegin = i;
 			colprev = page->render_colors[i];
 			do
 				++i;
@@ -637,7 +642,7 @@ core::dimension2d<u32> CGUITTFont::getDimension(const wchar_t* text) const
 	return getDimension(convertWCharToU32String(text));
 }
 
-core::dimension2d<u32> CGUITTFont::getDimension(const std::u32string& text) const
+core::dimension2d<u32> CGUITTFont::getDimension(const std::u32string& utext) const
 {
 	// Get the maximum font height.  Unfortunately, we have to do this hack as
 	// Irrlicht will draw things wrong.  In FreeType, the font size is the
@@ -646,38 +651,28 @@ core::dimension2d<u32> CGUITTFont::getDimension(const std::u32string& text) cons
 	// Irrlicht does not understand this concept when drawing fonts.  Also, I
 	// add +1 to give it a 1 pixel blank border.  This makes things like
 	// tooltips look nicer.
-	s32 test1 = getHeightFromCharacter((char32_t)'g') + 1;
-	s32 test2 = getHeightFromCharacter((char32_t)'j') + 1;
-	s32 test3 = getHeightFromCharacter((char32_t)'_') + 1;
-	s32 max_font_height = core::max_(test1, core::max_(test2, test3));
+	const u32 lineHeight = getLineHeight();
 
-	core::dimension2d<u32> text_dimension(0, max_font_height);
-	core::dimension2d<u32> line(0, max_font_height);
+	core::dimension2d<u32> text_dimension(0, lineHeight);
+	core::dimension2d<u32> line(0, lineHeight);
 
+	// The same logic is applied to `CGUITTFont::draw`
 	char32_t previousChar = 0;
-	std::u32string::const_iterator iter = text.begin();
-	for (; iter != text.end(); ++iter)
+	for (size_t i = 0; i < utext.size(); ++i)
 	{
-		char32_t p = *iter;
+		char32_t currentChar = utext[i];
 		bool lineBreak = false;
-		if (p == '\r')	// Mac or Windows line breaks.
+		if (currentChar == U'\r') // Mac or Windows breaks
 		{
 			lineBreak = true;
-			if (iter + 1 != text.end() && *(iter + 1) == '\n')
-			{
-				++iter;
-				p = *iter;
-			}
+			// `std::u32string` is '\0'-terminated, thus this check is OK
+			if (utext[i + 1] == U'\n') // Windows line breaks.
+				currentChar = utext[++i];
 		}
-		else if (p == '\n')	// Unix line breaks.
+		else if (currentChar == U'\n') // Unix breaks
 		{
 			lineBreak = true;
 		}
-
-		// Kerning.
-		core::vector2di k = getKerning(p, previousChar);
-		line.Width += k.X;
-		previousChar = p;
 
 		// Check for linebreak.
 		if (lineBreak)
@@ -687,10 +682,15 @@ core::dimension2d<u32> CGUITTFont::getDimension(const std::u32string& text) cons
 			if (text_dimension.Width < line.Width)
 				text_dimension.Width = line.Width;
 			line.Width = 0;
-			line.Height = max_font_height;
+			line.Height = lineHeight;
 			continue;
 		}
-		line.Width += getWidthFromCharacter(p);
+
+		// Kerning.
+		line.Width += getKerning(currentChar, previousChar).X;
+
+		previousChar = currentChar;
+		line.Width += getWidthFromCharacter(currentChar);
 	}
 	if (text_dimension.Width < line.Width)
 		text_dimension.Width = line.Width;
@@ -874,7 +874,7 @@ core::vector2di CGUITTFont::getKerning(const char32_t thisLetter, const char32_t
 
 void CGUITTFont::setInvisibleCharacters(const wchar_t *s)
 {
-	Invisible = convertWCharToU32String(s);
+	InvisibleChars = convertWCharToU32String(s);
 }
 
 video::IImage* CGUITTFont::createTextureFromChar(const char32_t& ch)
@@ -955,4 +955,3 @@ std::u32string CGUITTFont::convertWCharToU32String(const wchar_t* const charArra
 
 
 } // end namespace gui
-} // end namespace irr

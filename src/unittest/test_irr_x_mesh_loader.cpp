@@ -25,9 +25,9 @@ const auto gamespec = findSubgame("devtest");
 if (!gamespec.isValid())
 	SKIP();
 
-irr::SIrrlichtCreationParameters p;
+SIrrlichtCreationParameters p;
 p.DriverType = video::EDT_NULL;
-auto *driver = irr::createDeviceEx(p);
+auto *driver = createDeviceEx(p);
 
 REQUIRE(driver);
 
@@ -42,7 +42,7 @@ const static auto model_stem = gamespec.gamemods_path +
 		DIR_DELIM + "testentities" + DIR_DELIM + "models" + DIR_DELIM + "testentities_";
 
 SECTION("cool guy") {
-	const auto *mesh = dynamic_cast<irr::scene::SkinnedMesh*>(loadMesh(model_stem + "cool_guy.x"));
+	const auto *mesh = dynamic_cast<scene::SkinnedMesh*>(loadMesh(model_stem + "cool_guy.x"));
 	REQUIRE(mesh);
 	REQUIRE(mesh->getMeshBufferCount() == 1);
 

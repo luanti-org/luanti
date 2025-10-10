@@ -25,8 +25,6 @@
 #include <optional>
 #include <cassert>
 
-namespace irr
-{
 namespace scene
 {
 
@@ -173,7 +171,8 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	}
 
 	// set CurrentFrameNr
-	buildFrameNr(timeMs - LastTimeMs);
+	const u32 dtimeMs = timeMs - LastTimeMs;
+	buildFrameNr(dtimeMs);
 	LastTimeMs = timeMs;
 
 	// This needs to be done on animate, which is called recursively *before*
@@ -185,7 +184,7 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	copyOldTransforms();
 
 	if (OnAnimateCallback)
-		OnAnimateCallback(timeMs / 1000.0f);
+		OnAnimateCallback(dtimeMs / 1000.0f);
 
 	IAnimatedMeshSceneNode::OnAnimate(timeMs);
 
@@ -401,7 +400,7 @@ IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 		return 0;
 	}
 
-	return PerJoint.SceneNodes[*number];
+	return PerJoint.SceneNodes[*number].get();
 }
 
 //! Returns a pointer to a child node, which has the same transformation as
@@ -420,7 +419,7 @@ IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(u32 jointID)
 		return 0;
 	}
 
-	return PerJoint.SceneNodes[jointID];
+	return PerJoint.SceneNodes[jointID].get();
 }
 
 //! Gets joint count.
@@ -442,8 +441,8 @@ bool CAnimatedMeshSceneNode::removeChild(ISceneNode *child)
 	if (ISceneNode::removeChild(child)) {
 		if (JointsUsed) { // stop weird bugs caused while changing parents as the joints are being created
 			for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i) {
-				if (PerJoint.SceneNodes[i] == child) {
-					PerJoint.SceneNodes[i] = 0; // remove link to child
+				if (PerJoint.SceneNodes[i].get() == child) {
+					PerJoint.SceneNodes[i].reset(); // remove link to child
 					break;
 				}
 			}
@@ -552,13 +551,13 @@ void CAnimatedMeshSceneNode::addJoints()
 		const auto *joint = joints[i];
 		ISceneNode *parent = this;
 		if (joint->ParentJointID)
-			parent = PerJoint.SceneNodes.at(*joint->ParentJointID); // exists because of topo. order
+			parent = PerJoint.SceneNodes.at(*joint->ParentJointID).get(); // exists because of topo. order
 		assert(parent);
 		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
-		PerJoint.SceneNodes.push_back(new CBoneSceneNode(
+		PerJoint.SceneNodes.push_back(irr_ptr<CBoneSceneNode>(new CBoneSceneNode(
 				parent, SceneManager, 0, i, joint->Name,
 				matrix ? core::Transform{} : std::get<core::Transform>(joint->transform),
-				matrix ? *matrix : std::optional<core::matrix4>{}));
+				matrix ? *matrix : std::optional<core::matrix4>{})));
 	}
 }
 
@@ -611,7 +610,7 @@ void CAnimatedMeshSceneNode::checkJoints()
 
 	if (!JointsUsed) {
 		for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i)
-			removeChild(PerJoint.SceneNodes[i]);
+			removeChild(PerJoint.SceneNodes[i].get());
 		addJoints();
 
 		JointsUsed = true;
@@ -680,4 +679,3 @@ ISceneNode *CAnimatedMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *
 }
 
 } // end namespace scene
-} // end namespace irr

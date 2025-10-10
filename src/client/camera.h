@@ -23,28 +23,17 @@ class WieldMeshSceneNode;
 
 struct Nametag
 {
-	scene::ISceneNode *parent_node;
+	scene::ISceneNode *parent_node = nullptr;
 	std::string text;
 	video::SColor textcolor;
 	std::optional<video::SColor> bgcolor;
-	v3f pos;
-
-	Nametag(scene::ISceneNode *a_parent_node,
-			const std::string &text,
-			const video::SColor &textcolor,
-			const std::optional<video::SColor> &bgcolor,
-			const v3f &pos):
-		parent_node(a_parent_node),
-		text(text),
-		textcolor(textcolor),
-		bgcolor(bgcolor),
-		pos(pos)
-	{
-	}
+	std::optional<u32> textsize;
+	v3f pos; // offset from parent node
+	bool scale_z;
 
 	video::SColor getBgColor(bool use_fallback) const
 	{
-		if (bgcolor)
+		if (bgcolor.has_value())
 			return bgcolor.value();
 		else if (!use_fallback)
 			return video::SColor(0, 0, 0, 0);
@@ -164,7 +153,7 @@ public:
 	// Draw the wielded tool.
 	// This has to happen *after* the main scene is drawn.
 	// Warning: This clears the Z buffer.
-	void drawWieldedTool(irr::core::matrix4* translation=NULL);
+	void drawWieldedTool(core::matrix4* translation=NULL);
 
 	// Toggle the current camera mode
 	void toggleCameraMode()
@@ -189,9 +178,7 @@ public:
 		return m_camera_mode;
 	}
 
-	Nametag *addNametag(scene::ISceneNode *parent_node,
-		const std::string &text, video::SColor textcolor,
-		std::optional<video::SColor> bgcolor, const v3f &pos);
+	Nametag *addNametag(const Nametag &params);
 
 	void removeNametag(Nametag *nametag);
 

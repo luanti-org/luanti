@@ -131,7 +131,15 @@ bool TextureBuffer::ensureTexture(video::ITexture **texture, const TextureDefini
 	if (definition.valid) {
 		if (!m_driver->queryTextureFormat(definition.format)) {
 			errorstream << "Failed to create texture \"" << definition.name
-				<< "\": unsupported format " << video::ColorFormatNames[definition.format]
+				<< "\": unsupported format " << video::ColorFormatName(definition.format)
+				<< std::endl;
+			return false;
+		}
+
+		const core::dimension2du max_size = m_driver->getMaxTextureSize();
+		if (size.Width > max_size.Width || size.Height > max_size.Height) {
+			errorstream << "Failed to create texture \"" << definition.name
+				<< "\": exceeds limit " << size.Width << "x" << size.Height
 				<< std::endl;
 			return false;
 		}

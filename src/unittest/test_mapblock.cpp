@@ -35,7 +35,7 @@ public:
 	// Tests loading a non-standard MapBlock
 	void testLoadNonStd(IGameDef *gamedef);
 
-	// Tests blocks with a single node recurring node
+	// Tests blocks with a single recurring node
 	void testMonoblock(IGameDef *gamedef);
 };
 
@@ -72,8 +72,7 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	UASSERT(block.m_is_mono_block);
 	UASSERT(block.data[0].param0 == CONTENT_AIR);
 
-	// get the data(), should deconvert the block
-	block.getData();
+	block.expandNodesIfNeeded();
 	UASSERT(!block.m_is_mono_block);
 	UASSERT(std::all_of(block.data, block.data + MapBlock::nodecount, [](MapNode &n) { return n == MapNode(CONTENT_AIR); }));
 
@@ -89,6 +88,7 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
 
+	static_assert(CONTENT_AIR != 42);
 	// set a node, should deconvert the block
 	block.setNode(5,5,5, MapNode(42));
 	UASSERT(!block.m_is_mono_block);
@@ -172,10 +172,12 @@ void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)
 		MapBlock block({}, gamedef);
 		// Fill with data
 		PcgRandom r(seed);
-		for (size_t i = 0; i < MapBlock::nodecount; ++i) {
+		for (s16 z=0; z < MAP_BLOCKSIZE; z++)
+		for (s16 y=0; y < MAP_BLOCKSIZE; y++)
+		for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
 			u32 rval = r.next();
-			block.getData()[i] =
-				MapNode(rval % max, (rval >> 16) & 0xff, (rval >> 24) & 0xff);
+			block.setNodeNoCheck(x, y, z,
+					MapNode(rval % max, (rval >> 16) & 0xff, (rval >> 24) & 0xff));
 		}
 
 		// Serialize
@@ -189,11 +191,13 @@ void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)
 
 		// Check data
 		PcgRandom r(seed);
-		for (size_t i = 0; i < MapBlock::nodecount; ++i) {
+		for (s16 z=0; z < MAP_BLOCKSIZE; z++)
+		for (s16 y=0; y < MAP_BLOCKSIZE; y++)
+		for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
 			u32 rval = r.next();
 			auto expect =
 				MapNode(rval % max, (rval >> 16) & 0xff, (rval >> 24) & 0xff);
-			UASSERT(block.getData()[i] == expect);
+			UASSERT(block.getNodeNoCheck(x, y, z) == expect);
 		}
 	}
 }
@@ -208,8 +212,11 @@ void TestMapBlock::testSave29(IGameDef *gamedef)
 	{
 		// Prepare test block
 		MapBlock block({}, gamedef);
-		for (size_t i = 0; i < MapBlock::nodecount; ++i)
-			block.getData()[i] = MapNode(CONTENT_AIR);
+		for (s16 z=0; z < MAP_BLOCKSIZE; z++)
+		for (s16 y=0; y < MAP_BLOCKSIZE; y++)
+		for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
+			block.setNodeNoCheck(x, y, z, MapNode(CONTENT_AIR));
+		}
 		block.setNode({0, 0, 0}, MapNode(t_CONTENT_STONE));
 
 		block.serialize(ss, 29, true, -1);
@@ -398,8 +405,11 @@ void TestMapBlock::testLoad20(IGameDef *gamedef)
 	UASSERTEQ(auto, get_node(10, 6, 4), "air");
 	UASSERTEQ(auto, get_node(11, 6, 3), "default:furnace");
 
-	for (size_t i = 0; i < MapBlock::nodecount; ++i)
-		UASSERT(block.getData()[i].getContent() != CONTENT_IGNORE);
+	for (s16 z=0; z < MAP_BLOCKSIZE; z++)
+	for (s16 y=0; y < MAP_BLOCKSIZE; y++)
+	for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
+		UASSERT(block.getNodeNoCheck(x, y, z).getContent() != CONTENT_IGNORE);
+	}
 
 	// metadata is also translated
 	auto *meta = block.m_node_metadata.get({11, 6, 3});

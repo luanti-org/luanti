@@ -5,8 +5,6 @@
 #include "CFPSCounter.h"
 #include "irrMath.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -32,4 +30,3 @@ void CFPSCounter::registerFrame(u32 now)
 }
 
 } // end namespace video
-} // end namespace irr

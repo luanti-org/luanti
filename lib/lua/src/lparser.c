@@ -26,7 +26,6 @@
 #include "ltable.h"
 
 
-
 #define hasmultret(k)		((k) == VCALL || (k) == VVARARG)
 
 #define getlocvar(fs, i)	((fs)->f->locvars[(fs)->actvar[i]])
