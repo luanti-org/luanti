@@ -132,11 +132,11 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 			<< "combination with post-processing by the current video driver." << std::endl;
 
 	const bool enable_ssaa = antialiasing == "ssaa";
-	const bool enable_fxaa = antialiasing == "fxaa";
+	const bool enable_fxaa = g_settings->getBool("fxaa");
 
 	verbosestream << "addPostProcessing(): AA = "
-		<< (enable_msaa ? "msaa" : enable_ssaa ? "ssaa" : enable_fxaa ? "fxaa" : "none")
-		<< " " << antialiasing_scale << "x" << std::endl;
+		<< (enable_msaa ? "msaa" : enable_ssaa ? "ssaa" : "none")
+		<< " " << antialiasing_scale << "x" << (enable_fxaa ? " + fxaa" : "") << std::endl;
 
 	// Super-sampling is simply rendering into a larger texture.
 	// Downscaling is done by the final step when rendering to the screen.

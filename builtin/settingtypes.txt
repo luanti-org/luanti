@@ -614,18 +614,21 @@ anisotropic_filter (Anisotropic filtering) bool false
 #             Also, if Post Processing is disabled, FSAA will not work together with
 #             undersampling or a non-default "3d_mode" setting.
 #
-#    * FXAA - Fast approximate antialiasing
-#             Applies a post-processing filter to detect and smoothen high-contrast edges.
-#             Provides balance between speed and image quality.
-#
 #    * SSAA - Super-sampling antialiasing
 #             Renders higher-resolution image of the scene, then scales down to reduce
 #             the aliasing effects. This is the slowest and the most accurate method.
-antialiasing (Antialiasing method) enum none none,fsaa,fxaa,ssaa
+antialiasing (Antialiasing method) enum none none,fsaa,ssaa
 
 #    Defines the size of the sampling grid for FSAA and SSAA antialiasing methods.
 #    Value of 2 means taking 2x2 = 4 samples.
 fsaa (Anti-aliasing scale) enum 2 2,4,8,16
+
+#    Applies a post-processing filter to detect and smoothen high-contrast edges.
+#    Provides balance between speed and image quality.
+#    fxaa can used in combination with the other anti-aliasing methods
+#
+#    Requires: enable_post_processing
+fxaa (Fast approximate antialiasing) bool false
 
 [**Occlusion Culling]
 
