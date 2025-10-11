@@ -5,6 +5,7 @@
 #include "pipeline.h"
 #include "client/client.h"
 #include "client/hud.h"
+#include "gettext.h"
 #include "IRenderTarget.h"
 #include "SColor.h"
 
@@ -85,7 +86,12 @@ void TextureBuffer::reset(PipelineContext &context)
 	for (u32 i = 0; i < m_definitions.size(); i++) {
 		video::ITexture **ptr = &m_textures[i];
 
-		ensureTexture(ptr, m_definitions[i], context);
+		if (!ensureTexture(ptr, m_definitions[i], context)) {
+			throw ShaderException(
+				fmtgettext("Failed to create the texture \"%s\" for the rendering pipeline.",
+					m_definitions[i].name.c_str()) +
+				strgettext("\nCheck debug.txt for details."));
+		}
 		m_definitions[i].dirty = false;
 	}
 

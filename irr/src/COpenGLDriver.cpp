@@ -2672,7 +2672,8 @@ bool COpenGLDriver::setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SCol
 		// Update mip-map of the generated texture, if enabled.
 		auto textures = CurrentRenderTarget->getTexture();
 		for (size_t i = 0; i < textures.size(); ++i)
-			textures[i]->regenerateMipMapLevels();
+			if (textures[i])
+				textures[i]->regenerateMipMapLevels();
 	}
 
 	bool supportForFBO = (Feature.ColorAttachment > 0);
