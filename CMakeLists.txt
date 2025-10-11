@@ -300,6 +300,21 @@ add_subdirectory(lib/tiniergltf)
 # Builtin
 add_subdirectory(builtin)
 
+list(TRANSFORM BUILTIN_SRCS
+	PREPEND "${BUILTIN_BASE_PATH}"
+	OUTPUT_VARIABLE BUILTIN_SRCS_ABS)
+
+list(TRANSFORM BUILTIN_SRCS
+	PREPEND "${BUILTIN_BASE_PATH}"
+	OUTPUT_VARIABLE BUILTIN_SRCS_REL)
+
+list(TRANSFORM BUILTIN_SRCS PREPEND "in_builtin/" OUTPUT_VARIABLE BLA)
+list(JOIN BLA "\n" BLA)
+MESSAGE(WARNING "BUILTIN_SRCS: ${BLA}")
+MESSAGE(WARNING "BUILTIN_SRCS_ABS: ${BUILTIN_SRCS_ABS}")
+#~ set(BLA2 "$<LIST:JOIN,BUILTIN_SRCS_REL, >")
+#~ MESSAGE(WARNING ${BLA2})
+
 # Subdirectories
 # Be sure to add all relevant definitions above this
 add_subdirectory(src)

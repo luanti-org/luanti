@@ -1,6 +1,6 @@
 set(BUILTIN_FSTK_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/buttonbar.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/dialog.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/tabview.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/ui.lua
+	fstk/buttonbar.lua
+	fstk/dialog.lua
+	fstk/tabview.lua
+	fstk/ui.lua
 	PARENT_SCOPE)
