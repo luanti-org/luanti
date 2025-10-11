@@ -1,9 +1,9 @@
 set(BUILTIN_COMMON_SETTINGS_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/components.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/dlg_change_mapgen_flags.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/dlg_settings.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/generate_from_settingtypes.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/init.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/settingtypes.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/shadows_component.lua
+	common/settings/components.lua
+	common/settings/dlg_change_mapgen_flags.lua
+	common/settings/dlg_settings.lua
+	common/settings/generate_from_settingtypes.lua
+	common/settings/init.lua
+	common/settings/settingtypes.lua
+	common/settings/shadows_component.lua
 	PARENT_SCOPE)

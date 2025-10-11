@@ -1,6 +1,6 @@
 set(BUILTIN_PROFILER_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/init.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/instrumentation.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/reporter.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/sampling.lua
+	profiler/init.lua
+	profiler/instrumentation.lua
+	profiler/reporter.lua
+	profiler/sampling.lua
 	PARENT_SCOPE)

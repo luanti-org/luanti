@@ -1,4 +1,4 @@
 set(BUILTIN_PAUSE_MENU_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/init.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/register.lua
+	pause_menu/init.lua
+	pause_menu/register.lua
 	PARENT_SCOPE)
