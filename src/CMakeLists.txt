@@ -410,10 +410,6 @@ add_custom_command(
 		"${CMAKE_SOURCE_DIR}/cmake/Modules/GenerateBuiltinFilesList.cmake"
 	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-# Target to generate just builtin_files.cpp (used by util/ci/clang-tidy.sh)
-add_custom_target(GenerateBuiltinFilesCpp
-	DEPENDS "${PROJECT_BINARY_DIR}/builtin_files.cpp")
-
 
 add_subdirectory(threading)
 add_subdirectory(content)
@@ -632,7 +628,7 @@ endif()
 add_library(EngineCommon OBJECT
 	${independent_SRCS}
 )
-add_dependencies(EngineCommon GenerateVersion GenerateBuiltinFilesCpp)
+add_dependencies(EngineCommon GenerateVersion)
 target_link_libraries(EngineCommon
 	sha256
 )
