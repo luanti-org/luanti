@@ -1116,7 +1116,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 			m_velocity = p_velocity;
 
 			bool is_end_position = moveresult.collides;
-			pos_translator.update(m_position, is_end_position, dtime);
+			pos_translator.update(m_position, is_end_position, moveresult.collides ? dtime : dtime * 5.0f);
 		} else {
 			m_position += dtime * m_velocity + 0.5 * dtime * dtime * m_acceleration;
 			m_velocity += dtime * m_acceleration;
@@ -1546,7 +1546,7 @@ void GenericCAO::processMessage(const std::string &data)
 		m_rotation = wrapDegrees_0_360_v3f(m_rotation);
 		bool do_interpolate = readU8(is);
 		bool is_end_position = readU8(is);
-		float update_interval = readF32(is);
+		float update_interval = readF32(is) * 2.0f;
 
 		if(getParent() != NULL) // Just in case
 			return;
