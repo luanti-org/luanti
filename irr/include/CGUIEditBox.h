@@ -197,6 +197,7 @@ protected:
 	u32 BlinkStartTime;
 	u32 CursorBlinkTime;
 	core::stringw CursorChar; // IGUIFont::draw needs stringw instead of wchar_t
+	//! Text insertion position. Is `Text.size()` when appending (rightmost position).
 	s32 CursorPos;
 	s32 HScrollPos, VScrollPos; // scroll position in characters
 	u32 Max;

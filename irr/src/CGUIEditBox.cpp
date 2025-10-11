@@ -1011,7 +1011,6 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 			s32 newMarkBegin = CursorPos,
 				newMarkEnd = CursorPos;
 
-			// Note: `CursorPos` is `Text.size()` at the rightmost position (i.e. append).
 			const bool is_alnum = std::iswalnum(
 				Text[std::min<size_t>(CursorPos, Text.size() - 1)]
 			);
