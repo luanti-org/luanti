@@ -1005,15 +1005,13 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 		}
 		break;
 	case EMIE_LMOUSE_DOUBLE_CLICK:
-		if (Text.empty())
-			break;
-
 		// Select the clicked word
-		{
+		if (!Text.empty()) {
 			// The cursor is already set by the first EMIE_LMOUSE_PRESSED_DOWN.
 			s32 newMarkBegin = CursorPos,
 				newMarkEnd = CursorPos;
 
+			// Note: `CursorPos` is `Text.size()` at the rightmost position (i.e. append).
 			const bool is_alnum = std::iswalnum(
 				Text[std::min<size_t>(CursorPos, Text.size() - 1)]
 			);
@@ -1034,11 +1032,8 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 		}
 		break;
 	case EMIE_LMOUSE_TRIPLE_CLICK:
-		if (Text.empty())
-			break;
-
 		// Select a 'new line'-separated line. This may span multiple broken lines.
-		{
+		if (!Text.empty()) {
 			s32 newMarkBegin = CursorPos,
 				newMarkEnd = CursorPos;
 
@@ -1067,6 +1062,7 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 			setTextMarkers(newMarkBegin, newMarkEnd);
 			InhibitMouseUp = true;
 			MouseMarking = false;
+			return true;
 		}
 		break;
 	case EMIE_MOUSE_MOVED: {
