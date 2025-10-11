@@ -301,7 +301,7 @@ add_subdirectory(lib/tiniergltf)
 add_subdirectory(builtin)
 
 list(TRANSFORM BUILTIN_SRCS
-	PREPEND "${BUILTIN_BASE_PATH}"
+	PREPEND "${BUILTIN_BASE_PATH}/"
 	OUTPUT_VARIABLE BUILTIN_SRCS_ABS)
 
 # Subdirectories
