@@ -2,7 +2,7 @@
 
 set(BUILTIN_SHA256S "")
 foreach(P_REL ${BUILTIN_SRCS})
-	set(P_ABS "${BUILTIN_BASE_PATH}${P_REL}")
+	set(P_ABS "${BUILTIN_BASE_PATH}/${P_REL}")
 
 	file(SHA256 ${P_ABS} H)
 
