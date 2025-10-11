@@ -1823,7 +1823,7 @@ void MapblockMeshGenerator::generate()
 		cur_node.f = &nodedef->get(cur_node.n);
 		drawNode();
 	}
-	g_profiler->avg("Client: Mesh Making Regular [ms]", (dur += tt.stop(true)) / calls++);
+	g_profiler->avg("Client: Mesh Making Regular [ms]", (double) (dur += tt.stop(true)) / calls++);
 }
 
 LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output):
@@ -2087,7 +2087,7 @@ void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> type
 		                     std::min(data->m_side_length - z, attempted_seg_size));
 		generateGreedyLod(types, seg_start, seg_size, width);
 	}
-	g_profiler->avg("Client: Mesh Making LOD Greedy [ms]", (dur += tt.stop(true)) / calls++);
+	g_profiler->avg("Client: Mesh Making LOD Greedy [ms]", (double) (dur += tt.stop(true)) / calls++);
 }
 
 void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u32 width, core::vector2d<f32> uvs[4], u8 min_size)
@@ -2226,7 +2226,7 @@ void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u3
 			collector->append(tile, v, 4, quad_indices, 6);
 		}
 	}
-	g_profiler->avg("Client: Mesh Making LOD Slanted [ms]", (dur += tt.stop(true)) / calls++);
+	g_profiler->avg("Client: Mesh Making LOD Slanted [ms]", (double) (dur += tt.stop(true)) / calls++);
 }
 
 void LodMeshGenerator::generate(u8 lod)
