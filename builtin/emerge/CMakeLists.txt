@@ -1,5 +1,5 @@
 set(BUILTIN_EMERGE_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/env.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/init.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/register.lua
+	emerge/env.lua
+	emerge/init.lua
+	emerge/register.lua
 	PARENT_SCOPE)

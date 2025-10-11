@@ -9,7 +9,7 @@ add_subdirectory(pause_menu)
 add_subdirectory(profiler)
 
 set(BUILTIN_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/init.lua
+	init.lua
 	${BUILTIN_ASYNC_SRCS}
 	${BUILTIN_CLIENT_SRCS}
 	${BUILTIN_COMMON_SRCS}

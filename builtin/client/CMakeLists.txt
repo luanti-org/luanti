@@ -1,6 +1,6 @@
 set(BUILTIN_CLIENT_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/chatcommands.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/init.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/misc.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/register.lua
+	client/chatcommands.lua
+	client/init.lua
+	client/misc.lua
+	client/register.lua
 	PARENT_SCOPE)
