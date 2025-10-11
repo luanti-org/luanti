@@ -989,8 +989,8 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 {
 	switch (event.MouseInput.Event) {
 	case EMIE_LMOUSE_LEFT_UP:
-		if (InhibitMouseUp) {
-			InhibitMouseUp = false;
+		if (InhibitLeftMouseUpOnce) {
+			InhibitLeftMouseUpOnce = false;
 			break;
 		}
 
@@ -1015,17 +1015,17 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 				Text[std::min<size_t>(CursorPos, Text.size() - 1)]
 			);
 			for (; newMarkEnd < (s32)Text.size(); ++newMarkEnd) {
-				if (!!std::iswalnum(Text[newMarkEnd]) != !!is_alnum)
+				if (!!std::iswalnum(Text[newMarkEnd]) != is_alnum)
 					break;
 			}
 			for (; newMarkBegin > 0; --newMarkBegin) {
-				if (!!std::iswalnum(Text[newMarkBegin - 1]) != !!is_alnum)
+				if (!!std::iswalnum(Text[newMarkBegin - 1]) != is_alnum)
 					break;
 			}
 
 			setTextMarkers(newMarkBegin, newMarkEnd);
 			// The mouse up event fires afterwards. Prevent selection changes there.
-			InhibitMouseUp = true;
+			InhibitLeftMouseUpOnce = true;
 			MouseMarking = false;
 			return true;
 		}
@@ -1039,13 +1039,8 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 			if (MultiLine) {
 				for (; newMarkEnd < (s32)Text.size(); ++newMarkEnd) {
 					wchar_t c = Text[newMarkEnd];
-					if (c == L'\r') {
-						if (Text[newMarkBegin + 1] == L'\n')
-							newMarkBegin++;
+					if (c == L'\r'|| c == L'\n')
 						break;
-					} else if (c == L'\n') {
-						break;
-					}
 				}
 
 				for (; newMarkBegin > 0; --newMarkBegin) {
@@ -1059,7 +1054,7 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 			}
 
 			setTextMarkers(newMarkBegin, newMarkEnd);
-			InhibitMouseUp = true;
+			InhibitLeftMouseUpOnce = true;
 			MouseMarking = false;
 			return true;
 		}
