@@ -1855,20 +1855,21 @@ void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, s
     bases = outs;
 }
 
-void LodMeshGenerator::generateBitsetMesh(bitset (& __restrict slices)[6][62][62], MapNode n, u8 lod_resolution, v3s16 seg_start, video::SColor color)
+void LodMeshGenerator::generateBitsetMesh(bitset (& __restrict slices)[6 * 62 * 62], MapNode n, u8 lod_resolution, v3s16 seg_start, video::SColor color)
 {
 	static constexpr v3s16 direction_vectors[6] = {
 		v3s16(-1, 0, 0), v3s16(1, 0, 0),
 		v3s16(0, -1, 0), v3s16(0, 1, 0),
 		v3s16(0, 0, -1), v3s16(0, 0, 1)
 	};
+	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
 
 	for (u8 direction = 0; direction < 6; direction++) {
 		TileSpec tile;
 		getNodeTile(n, blockpos_nodes, direction_vectors[direction], data, tile);
 		for (u8 slice_i = 0; slice_i < 62; slice_i++)
 		for (u8 u = 0; u < 62; u++) {
-			bitset column = slices[direction][slice_i][u];
+			bitset column = slices[62 * (62 * direction + slice_i) + u];
 			while (column) {
 				u32 v0 = std::__countr_zero(column);
 				u32 v1 = std::__countr_one(column >> v0);
@@ -1876,9 +1877,9 @@ void LodMeshGenerator::generateBitsetMesh(bitset (& __restrict slices)[6][62][62
 				column ^= mask;
 				u32 u1 = 1;
 				while (u + u1 < 62 && // while still in current chunk
-					(slices[direction][slice_i][u + u1] & mask) == mask) {
+					(slices[62 * (62 * direction + slice_i) + u + u1] & mask) == mask) {
 					// and next column shares faces
-					slices[direction][slice_i][u + u1] ^= mask;
+					slices[62 * (62 * direction + slice_i) + u + u1] ^= mask;
 					u1++;
 				}
 				const core::vector2d<f32> uvs[4] = {
@@ -1933,10 +1934,8 @@ void LodMeshGenerator::generateBitsetMesh(bitset (& __restrict slices)[6][62][62
 					vertices[3] = core::vector3df(u1 * lod_resolution - BS / 2, v1 * lod_resolution - BS / 2, w);
 					break;
 				}
-				vertices[0] += core::vector3df(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
-				vertices[1] += core::vector3df(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
-				vertices[2] += core::vector3df(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
-				vertices[3] += core::vector3df(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
+				for (core::vector3df &v : vertices)
+					v += seg_offset;
 
 				video::S3DVertex irr_vertices[4];
 				switch (direction) {
@@ -1963,9 +1962,9 @@ void LodMeshGenerator::generateBitsetMesh(bitset (& __restrict slices)[6][62][62
 void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> types, const v3s16 seg_start,
 										 const v3s16 seg_size, const u8 lod_resolution)
 {
-	bitset all_set_nodes[3][64][64] = {0};
-	std::unordered_map<content_t, std::unordered_map<u16, MapNode>> node_types;
-	std::unordered_map<content_t, std::unordered_map<u16, bitset[3][64][64]>> set_nodes;
+	bitset all_set_nodes[3 * 64 * 64] = {0};
+	std::unordered_map<NodeKey, MapNode> node_types;
+	std::unordered_map<NodeKey, bitset[3 * 64 * 64]> set_nodes;
 
 	const v3s16 to = seg_start + seg_size;
 
@@ -1993,21 +1992,21 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		const v3s16 p_scaled = (p - seg_start + 1) / lod_resolution;
 
 		if (f->drawtype == NDT_NORMAL) {
-			u16 lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(lod_resolution, 0, 0)), nodedef);
-			u16 lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(lod_resolution, 0, 0)), nodedef);
+			u16 lp1 = getFaceLight(n, data->m_vmanip.getNodeRefUnsafe(p + v3s16(lod_resolution, 0, 0)), nodedef);
+			u16 lp2 = getFaceLight(n, data->m_vmanip.getNodeRefUnsafe(p - v3s16(lod_resolution, 0, 0)), nodedef);
 			LightPair lp = (LightPair) std::max(lp1, lp2);
-			node_types[node_type][lp] = n;
-			set_nodes[node_type][lp][0][p_scaled.Y][p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+			node_types[NodeKey{node_type, lp}] = n;
+			set_nodes[NodeKey{node_type, lp}][64 * (64 * 0 + p_scaled.Y) + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
 
-			lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(0, lod_resolution, 0)), nodedef);
-			lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, lod_resolution, 0)), nodedef);
+			lp1 = getFaceLight(n, data->m_vmanip.getNodeRefUnsafe(p + v3s16(0, lod_resolution, 0)), nodedef);
+			lp2 = getFaceLight(n, data->m_vmanip.getNodeRefUnsafe(p - v3s16(0, lod_resolution, 0)), nodedef);
 			lp = (LightPair) std::max(lp1, lp2);
-			set_nodes[node_type][lp][1][p_scaled.X][p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+			set_nodes[NodeKey{node_type, lp}][64 * (64 * 1 + p_scaled.X) + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
 
-			lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(0, 0, lod_resolution)), nodedef);
-			lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, 0, lod_resolution)), nodedef);
+			lp1 = getFaceLight(n, data->m_vmanip.getNodeRefUnsafe(p + v3s16(0, 0, lod_resolution)), nodedef);
+			lp2 = getFaceLight(n, data->m_vmanip.getNodeRefUnsafe(p - v3s16(0, 0, lod_resolution)), nodedef);
 			lp = (LightPair) std::max(lp1, lp2);
-			set_nodes[node_type][lp][2][p_scaled.X][p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+			set_nodes[NodeKey{node_type, lp}][64 * (64 * 2 + p_scaled.X) + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 		}
 		else {
 			ContentLightingFlags lf = nodedef->getLightingFlags(n);
@@ -2015,45 +2014,45 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 				(u8) (decode_light(n.getLightRaw(LIGHTBANK_DAY, lf)) / 16 * 16 + 15),
 				(u8) (decode_light(n.getLightRaw(LIGHTBANK_NIGHT, lf)) / 16 * 16));
 
-			node_types[node_type][lp] = n;
-			set_nodes[node_type][lp][0][p_scaled.Y][p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-			set_nodes[node_type][lp][1][p_scaled.X][p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-			set_nodes[node_type][lp][2][p_scaled.X][p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+			NodeKey key{node_type, lp};
+			node_types[key] = n;
+			set_nodes[key][64 * (64 * 0 + p_scaled.Y) + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+			set_nodes[key][64 * (64 * 1 + p_scaled.X) + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+			set_nodes[key][64 * (64 * 2 + p_scaled.X) + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 		}
 
-		all_set_nodes[0][p_scaled.Y][p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-		all_set_nodes[1][p_scaled.X][p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-		all_set_nodes[2][p_scaled.X][p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+		all_set_nodes[64 * (64 * 0 + p_scaled.Y) + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+		all_set_nodes[64 * (64 * 1 + p_scaled.X) + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+		all_set_nodes[64 * (64 * 2 + p_scaled.X) + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 	}
 
 	const bitset x_max = U64_MAX >> (64 - seg_size.X / lod_resolution);
 	const bitset y_max = U64_MAX >> (64 - seg_size.Y / lod_resolution);
 	const bitset z_max = U64_MAX >> (64 - seg_size.Z / lod_resolution);
 
-	for (const auto& [node_type, map] : set_nodes)
-	for (const auto& [light_pair, value] : map) {
-		bitset nodes_faces[6][62][62] = {0}; // -x, +x, -y, +y, -z, +z
-		MapNode n = node_types[node_type][light_pair];
-		video::SColor color = encode_light(light_pair, nodedef->getLightingFlags(n).light_source);
+	for (const auto& [node_key, nodes] : set_nodes) {
+		bitset nodes_faces[6 * 62 * 62] = {0}; // -x, +x, -y, +y, -z, +z
+		MapNode n = node_types[node_key];
+		video::SColor color = encode_light(node_key.light, nodedef->getLightingFlags(n).light_source);
 
 		for (u8 u = 0; u < 62; u++)
 		for (u8 v = 0; v < 62; v++) {
-			nodes_faces[0][u][v] = (value[0][u + 1][v + 1] & ~(all_set_nodes[0][u + 1][v + 1] << 1)) >> 1 & x_max;
-			nodes_faces[1][u][v] = (value[0][u + 1][v + 1] & ~(all_set_nodes[0][u + 1][v + 1] >> 1)) >> 1 & x_max;
-			nodes_faces[2][u][v] = (value[1][u + 1][v + 1] & ~(all_set_nodes[1][u + 1][v + 1] << 1)) >> 1 & y_max;
-			nodes_faces[3][u][v] = (value[1][u + 1][v + 1] & ~(all_set_nodes[1][u + 1][v + 1] >> 1)) >> 1 & y_max;
-			nodes_faces[4][u][v] = (value[2][u + 1][v + 1] & ~(all_set_nodes[2][u + 1][v + 1] << 1)) >> 1 & z_max;
-			nodes_faces[5][u][v] = (value[2][u + 1][v + 1] & ~(all_set_nodes[2][u + 1][v + 1] >> 1)) >> 1 & z_max;
+			nodes_faces[62 * (62 * 0 + u) + v] =(nodes[64 * (64 * 0 + (u + 1)) + (v + 1)] & ~(all_set_nodes[64 * (64 * 0 + (u + 1)) + (v + 1)] << 1)) >> 1 & x_max;
+			nodes_faces[62 * (62 * 1 + u) + v] =(nodes[64 * (64 * 0 + (u + 1)) + (v + 1)] & ~(all_set_nodes[64 * (64 * 0 + (u + 1)) + (v + 1)] >> 1)) >> 1 & x_max;
+			nodes_faces[62 * (62 * 2 + u) + v] =(nodes[64 * (64 * 1 + (u + 1)) + (v + 1)] & ~(all_set_nodes[64 * (64 * 1 + (u + 1)) + (v + 1)] << 1)) >> 1 & y_max;
+			nodes_faces[62 * (62 * 3 + u) + v] =(nodes[64 * (64 * 1 + (u + 1)) + (v + 1)] & ~(all_set_nodes[64 * (64 * 1 + (u + 1)) + (v + 1)] >> 1)) >> 1 & y_max;
+			nodes_faces[62 * (62 * 4 + u) + v] =(nodes[64 * (64 * 2 + (u + 1)) + (v + 1)] & ~(all_set_nodes[64 * (64 * 2 + (u + 1)) + (v + 1)] << 1)) >> 1 & z_max;
+			nodes_faces[62 * (62 * 5 + u) + v] =(nodes[64 * (64 * 2 + (u + 1)) + (v + 1)] & ~(all_set_nodes[64 * (64 * 2 + (u + 1)) + (v + 1)] >> 1)) >> 1 & z_max;
 		}
 
-		bitset slices[6][62][62] = {0};
+		bitset slices[6 * 62 * 62] = {0};
 		for (u8 direction = 0; direction < 6; direction++)
 		for (u8 u = 0; u < 62; u++)
 		for (u8 v = 0; v < 62; v++) {
-			bitset column = nodes_faces[direction][u][v];
+			bitset column = nodes_faces[62 * (62 * direction + u) + v];
 			while (column) {
 				const u8 first_filled = std::__countr_zero(column);
-				slices[direction][first_filled][u] |= 1ULL << v;
+				slices[62 * (62 * direction + first_filled) + u] |= 1ULL << v;
 				column &= column - 1;
 			}
 		}

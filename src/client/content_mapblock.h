@@ -192,6 +192,22 @@ private:
     void findClosestOfTypes(std::bitset<NodeDrawType_END> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const;
     void generateDetailLod(std::bitset<NodeDrawType_END> types, u32, core::vector2d<f32>[4], u8);
 	void generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u8 lod_resolution);
-	void generateBitsetMesh(bitset (&slices)[6][62][62], MapNode n, u8 lod_resolution, v3s16 seg_start, video::SColor color);
+	void generateBitsetMesh(bitset (&slices)[6 * 62 * 62], MapNode n, u8 lod_resolution, v3s16 seg_start, video::SColor color);
     void generateCloseLod(std::bitset<NodeDrawType_END> types, u16 width);
+};
+
+struct NodeKey {
+	content_t content;
+	LightPair light;
+
+	bool operator==(const NodeKey& other) const {
+		return content == other.content && light == other.light;
+	}
+};
+
+template<>
+struct std::hash<NodeKey> {
+	std::size_t operator()(const NodeKey& k) const {
+		return std::hash<content_t>()(k.content) ^ (std::hash<u16>()(k.light) << 1);
+	}
 };
