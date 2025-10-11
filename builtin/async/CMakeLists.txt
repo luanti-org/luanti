@@ -1,4 +1,4 @@
 set(BUILTIN_ASYNC_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/game.lua
-	${CMAKE_CURRENT_SOURCE_DIR}/mainmenu.lua
+	async/game.lua
+	async/mainmenu.lua
 	PARENT_SCOPE)
