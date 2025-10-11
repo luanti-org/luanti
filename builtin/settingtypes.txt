@@ -665,6 +665,8 @@ smooth_lighting (Smooth lighting) bool true
 #    at the expense of minor visual glitches that do not impact game playability.
 performance_tradeoffs (Tradeoffs for performance) bool false
 
+#    Enable Warm Lighting on artificial light
+enable_warm_lighting (Warm Lighting) bool false
 
 [**Waving Nodes]
 

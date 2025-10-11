@@ -227,6 +227,9 @@ public:
 			constants["SOFTSHADOWRADIUS"] = shadow_soft_radius;
 		}
 
+		if (g_settings->getBool("enable_warm_lighting"))
+			constants["ENABLE_WARM_LIGHTING"] = 1;
+
 		if (g_settings->getBool("enable_bloom")) {
 			constants["ENABLE_BLOOM"] = 1;
 			if (g_settings->getBool("enable_bloom_debug"))
