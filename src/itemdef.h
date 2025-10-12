@@ -65,7 +65,7 @@ struct ItemImageDef
 
 	ItemImageDef& operator=(const std::string& other_name) {
 		this->name = other_name;
-        return *this;
+		return *this;
     }
 
 	void reset() {
