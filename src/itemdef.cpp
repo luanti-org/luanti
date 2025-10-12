@@ -84,7 +84,7 @@ void TouchInteraction::deSerialize(std::istream &is)
 
 void ItemImageDef::serialize(std::ostream &os, u16 protocol_version) const
 {
-	if (protocol_version < 50) {
+	if (protocol_version < 51) {
 		// Use first frame if animation is not supported
 		std::string image_to_send = name;
 		animation.extractFirstFrame(image_to_send);
@@ -98,7 +98,7 @@ void ItemImageDef::serialize(std::ostream &os, u16 protocol_version) const
 void ItemImageDef::deSerialize(std::istream &is, u16 protocol_version)
 {
 	name = deSerializeString16(is);
-	if (protocol_version < 50)
+	if (protocol_version < 51)
 		return;
 	animation.deSerialize(is, protocol_version);
 }
