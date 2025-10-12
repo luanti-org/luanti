@@ -66,7 +66,7 @@ struct ItemImageDef
 	ItemImageDef& operator=(const std::string& other_name) {
 		this->name = other_name;
 		return *this;
-    }
+	}
 
 	void reset() {
 		animation.type = TileAnimationType::TAT_NONE;
