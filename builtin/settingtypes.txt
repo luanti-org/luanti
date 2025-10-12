@@ -475,9 +475,6 @@ undersampling (Undersampling) int 1 1 8
 #    Distance of blocks, when LODs should kick in.
 lod_threshold (LOD Threshold) int 20 10 50
 
-#    LOD at which they switch from blocks to their slanted representation.
-lod_slant_threshold (LOD Slant Threshold) int 4 1 10
-
 #    Quality of LODs from 1 (low) to 2 (high).
 #    At 1, the quality decreases at every distance where the LOD Threshold is doubled.
 #    At 2, the quality decreases at every distance where the LOD Threshold is doubled twice.

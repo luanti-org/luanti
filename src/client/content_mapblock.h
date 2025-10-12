@@ -201,7 +201,7 @@ private:
 	                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
 
     void findClosestOfTypes(std::bitset<NodeDrawType_END> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const;
-    void generateDetailLod(std::bitset<NodeDrawType_END> types, u32, core::vector2d<f32>[4], u8);
+    void generateDetailLod(std::bitset<NodeDrawType_END> types, u32, core::vector2d<f32>[4]);
 	void generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u8 width);
 	void generateBitsetMesh(MapNode n, u8 width, v3s16 seg_start, video::SColor color);
     void generateCloseLod(std::bitset<NodeDrawType_END> types, u16 width);

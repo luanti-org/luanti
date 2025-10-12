@@ -1812,9 +1812,7 @@ void MapblockMeshGenerator::drawNode()
 void MapblockMeshGenerator::generate()
 {
 	ZoneScoped;
-	TimeTaker tt("");
-	static u64 dur = 0;
-	static u64 calls = 1;
+	ScopeProfiler sp(g_profiler, "Client: Mesh Making Regular", SPT_AVG);
 
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
@@ -1823,7 +1821,6 @@ void MapblockMeshGenerator::generate()
 		cur_node.f = &nodedef->get(cur_node.n);
 		drawNode();
 	}
-	g_profiler->avg("Client: Mesh Making Regular [ms]", (double) (dur += tt.stop(true)) / calls++);
 }
 
 LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output):
@@ -1832,30 +1829,6 @@ LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output):
     nodedef(data->m_nodedef),
     blockpos_nodes(data->m_blockpos * MAP_BLOCKSIZE)
 {
-}
-
-void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const
-{
-    std::vector<u16> min_dists(8, U16_MAX);
-    std::array<v3s16, 8> outs;
-    v3s16 p;
-    for (p.Z = from.Z; p.Z < to.Z; p.Z++)
-    for (p.Y = from.Y; p.Y < to.Y; p.Y++)
-    for (p.X = from.X; p.X < to.X; p.X++){
-        MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
-        if (n.getContent() == CONTENT_IGNORE)
-            return;
-        if (!types.test((&nodedef->get(n))->drawtype))
-            continue;
-        for (u8 i = 0; i < 8; i++) { // calc distance for every corner
-            u16 new_dist = bases[i].getDistanceFromSQ(p);
-            if (new_dist < min_dists[i]) {
-                min_dists[i] = new_dist;
-                outs[i] = p;
-            }
-        }
-    }
-    bases = outs;
 }
 
 void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
@@ -2093,9 +2066,7 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 
 void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> types, const u16 width)
 {
-	TimeTaker tt("");
-	static u64 dur = 0;
-	static u64 calls = 1;
+	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Greedy", SPT_AVG);
 
 	const int attempted_seg_size = 62 * width;
 
@@ -2111,21 +2082,42 @@ void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> type
 		                     std::min(data->m_side_length - z, attempted_seg_size));
 		generateGreedyLod(types, seg_start, seg_size, width);
 	}
-	g_profiler->avg("Client: Mesh Making LOD Greedy [ms]", (double) (dur += tt.stop(true)) / calls++);
 }
 
-void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u32 width, core::vector2d<f32> uvs[4], u8 min_size)
+void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, std::array<v3s16, 8> &bases,
+										  v3s16 from, v3s16 to) const
 {
-	TimeTaker tt("");
-	static u64 dur = 0;
-	static u64 calls = 1;
+	std::array<u16, 8> min_dists;
+	min_dists.fill(U16_MAX);
+	std::array<v3s16, 8> outs;
+	v3s16 p;
+	for (p.Z = from.Z; p.Z < to.Z; p.Z++)
+	for (p.Y = from.Y; p.Y < to.Y; p.Y++)
+	for (p.X = from.X; p.X < to.X; p.X++){
+		if (const MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
+			n.getContent() == CONTENT_IGNORE || !types.test(nodedef->get(n).drawtype))
+			continue;
+		for (u8 i = 0; i < 8; i++) { // calc distance for every corner
+			if (const u16 new_dist = bases[i].getDistanceFromSQ(p); new_dist < min_dists[i]) {
+				min_dists[i] = new_dist;
+				outs[i] = p;
+			}
+		}
+	}
+	bases = outs;
+}
 
-	static const v3s16 directions[6] = {
+void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u32 width, core::vector2d<f32> uvs[4])
+{
+	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Slanted", SPT_AVG);
+
+	static constexpr v3s16 directions[6] = {
 		v3s16(0, -1, 0), v3s16(0, 1, 0),
 		v3s16(-1, 0, 0), v3s16(1, 0, 0),
 		v3s16(0, 0, -1), v3s16(0, 0, 1)
 	};
 	u8 num = data->m_side_length / width;
+	std::array<v3s16, 8> bounds;
 
 	for (u8 x = 0; x < num; x++)
 	for (u8 y = 0; y < num; y++)
@@ -2135,7 +2127,7 @@ void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u3
 
 		// eg lxhylz = corner of a block, where x and z are lowest and y is highest
 		// lxhylz is initialized with the values for the opposite corner, so high x and z, low y
-		std::array<v3s16, 8> bounds = {
+		bounds = {
 			v3s16(from.X - 1, from.Y, from.Z), // lxlylz
 			v3s16(from.X, from.Y, to.Z), //   lxlyhz
 			v3s16(from.X, to.Y, from.Z), //   lxhylz
@@ -2149,8 +2141,7 @@ void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u3
 		findClosestOfTypes(types, bounds, from, to);
 
 		// exclude too small meshes
-		if (bounds[0].X == from.X - 1 ||
-			bounds[0].getDistanceFromSQ(bounds[7]) < min_size)
+		if (bounds[0].X == from.X - 1)
 			continue;
 
 		// moving for legibility
@@ -2250,7 +2241,6 @@ void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u3
 			collector->append(tile, v, 4, quad_indices, 6);
 		}
 	}
-	g_profiler->avg("Client: Mesh Making LOD Slanted [ms]", (double) (dur += tt.stop(true)) / calls++);
 }
 
 void LodMeshGenerator::generate(u8 lod)
@@ -2262,9 +2252,6 @@ void LodMeshGenerator::generate(u8 lod)
 	if (width > data->m_side_length)
 		width = data->m_side_length;
 
-	u8 min_size = MYMAX(width * g_settings->getFloat("lod_size_threshold"), 1);
-	min_size = min_size * min_size - 1;
-
 	core::vector2d<f32> uvs[4] = {
 		core::vector2d<f32>{0, (f32)width},
 		core::vector2d<f32>{0, 0},
@@ -2272,45 +2259,20 @@ void LodMeshGenerator::generate(u8 lod)
 		core::vector2d<f32>{(f32)width, (f32)width},
 	};
 
-	if (lod < g_settings->getU16("lod_slant_threshold")) {
-		// liquids are always rendered slanted
-		std::bitset<NodeDrawType_END> liqu_set;
-		liqu_set.set(NDT_LIQUID);
-		generateDetailLod(liqu_set, MYMAX(8, width), uvs, min_size);
+	// liquids are always rendered separately
+	std::bitset<NodeDrawType_END> transparent_set;
+	transparent_set.set(NDT_LIQUID);
+	if (g_settings->get("leaves_style") == "simple")
+		transparent_set.set(NDT_GLASSLIKE);
+	if (lod == 1)
+		generateDetailLod(transparent_set, MYMAX(8, width), uvs);
+	else
+		generateCloseLod(transparent_set, width);
 
-		std::bitset<NodeDrawType_END> types;
-		types.set(NDT_NORMAL);
-		types.set(NDT_NODEBOX);
-		types.set(NDT_ALLFACES);
-		// types.set(NDT_LIQUID);
-		if (g_settings->get("leaves_style") == "simple")
-			types.set(NDT_GLASSLIKE);
+	std::bitset<NodeDrawType_END> solid_set;
+	solid_set.set(NDT_NORMAL);
+	solid_set.set(NDT_NODEBOX);
+	solid_set.set(NDT_ALLFACES);
 
-		generateCloseLod(types, width);
-	}
-	else {
-		std::bitset<NodeDrawType_END> solids;
-		solids.set(NDT_NORMAL);
-		solids.set(NDT_NODEBOX);
-
-		std::bitset<NodeDrawType_END> other;
-
-		if (g_settings->get("leaves_style") == "opaque")
-			solids.set(NDT_ALLFACES);
-		else {
-			other.set(NDT_ALLFACES);
-			if (g_settings->get("leaves_style") == "simple")
-				other.set(NDT_GLASSLIKE);
-		}
-
-		if (g_settings->getBool("translucent_liquids"))
-			other.set(NDT_LIQUID);
-		else
-			solids.set(NDT_LIQUID);
-
-
-        generateDetailLod(solids, width, uvs, min_size);
-        if (other.any())
-            generateDetailLod(other, width, uvs, min_size);
-    }
+	generateCloseLod(solid_set, width);
 }
