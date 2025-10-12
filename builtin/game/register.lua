@@ -320,7 +320,105 @@ local function make_register_item_wrapper(the_type)
 	end
 end
 
-core.register_node = make_register_item_wrapper("node")
+---@class ItemSpec
+---@field type string?
+
+---@class NodeSpec: ItemSpec
+---@field drawtype NodeDrawType?
+---@field tiles table?
+---@field overlay_tiles table?
+---@field special_tiles table?
+---@field color any?
+---@field use_texture_alpha string?
+---@field palette string?
+---@field post_effect_color string?
+---@field post_effect_color_shaded boolean?
+---@field paramtype string?
+---@field paramtype2 string?
+---@field place_param2 number?
+---@field wallmounted_rotate_vertical boolean?
+---@field is_ground_content boolean?
+---@field sunlight_propagates boolean?
+---@field walkable boolean?
+---@field pointable boolean?
+---@field diggable boolean?
+---@field climbable boolean?
+---@field move_resistance number?
+---@field buildable_to boolean?
+---@field floodable boolean?
+---@field liquidtype string?
+---@field liquid_alternative_flowing string?
+---@field liquid_alternative_source string?
+---@field liquid_viscosity number?
+---@field liquid_renewable boolean?
+---@field liquid_move_physics boolean?
+---@field air_equivalent boolean?
+---@field leveled number?
+---@field leveled_max number?
+---@field liquid_range number?
+---@field drowning number?
+---@field damage_per_second number?
+---@field node_box table?
+---@field connects_to string[]?
+---@field connect_sides string[]?
+---@field mesh string?
+---@field selection_box table?
+---@field collision_box table?
+---@field legacy_facedir_simple boolean?
+---@field legacy_wallmounted boolean?
+---@field waving number?
+---@field sounds table?
+---@field drop string|table?
+---@field on_construct function?(pos: any): nil
+---@field on_destruct function?(pos: any): nil
+---@field after_destruct function?(pos: any, oldnode: any): nil
+---@field on_flood function?(pos: any, oldnode: any, newnode: any): nil
+---@field preserve_metadata function?(pos: any, oldnode: any, oldmeta: any, drops: any): nil
+---@field after_place_node function?(pos: any, placer: any, itemstack: any, pointed_thing: any): nil
+---@field after_dig_node function?(pos: any, oldnode: any, oldmetadata: any, digger: any): nil
+---@field can_dig function?(pos: any, player: any): boolean
+---@field on_punch function?(pos: any, node: any, puncher: any, pointed_thing: any): nil
+---@field on_rightclick function?(pos: any, node: any, clicker: any, itemstack: any, pointed_thing: any): nil
+---@field on_dig function?(pos: any, node: any, digger: any): nil
+---@field on_timer function?(pos: any, elapsed: number, node: any, timeout: number): nil
+---@field on_reveive_fields function?(pos: any, formname: string, fields: table, sender: any): nil
+---@field allow_metadata_inventory_move function?(pos: any, from_list: string, from_index: number, to_list: string, to_index: number, count: number, player: any): boolean
+---@field allow_metadata_inventory_put function?(pos: any, listname: string, index: number, stack: any, player: any): boolean
+---@field allow_metadata_inventory_take function?(pos: any, listname: string, index: number, stack: any, player: any): boolean
+---@field on_metadata_inventory_move function?(pos: any, from_list: string, from_index: number, to_list: string, to_index: number, count: number, player: any): nil
+---@field on_metadata_inventory_put function?(pos: any, listname: string, index: number, stack: any, player: any): nil
+---@field on_metadata_inventory_take function?(pos: any, listname: string, index: number, stack: any, player: any): nil
+---@field on_blast function?(pos: any, intensity: any): nil
+---@field mod_origin string?
+
+---@alias NodeDrawType
+---| '"normal"'
+---| '"airlike"'
+---| '"liquid"'
+---| '"flowingliquid"'
+---| '"glasslike"'
+---| '"glasslike_framed"'
+---| '"glasslike_framed_optional"'
+---| '"allfaces"'
+---| '"allfaces_optional"'
+---| '"torchlike"'
+---| '"signlike"'
+---| '"plantlike"'
+---| '"firelike"'
+---| '"fencelike"'
+---| '"raillike"'
+---| '"nodebox"'
+---| '"mesh"'
+---| '"plantlike_rooted"'
+
+---Register a Node
+---@param name string
+---@param nodedef NodeSpec
+core.register_node = function(name, nodedef)
+	nodedef.type = "node"
+	core.register_item(name, nodedef)
+end
+
 core.register_craftitem = make_register_item_wrapper("craft")
 core.register_tool = make_register_item_wrapper("tool")
 
