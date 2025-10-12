@@ -54,6 +54,72 @@ the build directory. For system-wide builds on Linux the share path is usually a
 `/usr/share/minetest` while the user path resides in `.minetest` in the home directory.
 Paths on other operating systems will differ.
 
+Development Setup
+=================
+
+Introduction
+------------
+
+You can use any text editor to write mods,
+but it is recommended to pick an editor
+that supports the Language Server Protocol (LSP).
+The LSP provides autocompletions and diagnostics
+to aid you in development.
+
+Examples of Editors that support the LSP are:
+
+* [Visual Studio Code](https://code.visualstudio.com/)
+* [Kate](https://apps.kde.org/kate/)
+* [NeoVim](https://neovim.io/)
+* [Helix](https://helix-editor.com/)
+
+Installing the Language Server
+------------------------------
+
+How you install the language server depends on the editor and operating system you use.
+
+For VS Code, install the [Lua Plugin](https://marketplace.visualstudio.com/items?itemName=sumneko.lua)
+which bundles the Language Server.
+
+If you use NeoVim, you may install the Language Server via mason or another
+LSP plugin.
+
+If your editor does not bundle the language server, you need to
+[install it](https://luals.github.io/#install) on the operating system level.
+
+Configuring the Language Server
+-------------------------------
+
+Let's get autocomplete working!
+
+If you use VS Code, you will need to modify settings.json.
+Guidance on that can be found [here](https://github.com/LuaLS/lua-language-server/wiki/Configuration-File#visual-studio-code)
+
+In general, the language server needs to be supplied the
+library of files where everything about Luantis Lua API
+is defined. Use the following configuration as a
+reference:
+
+```jsonc
+{
+    "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+    "workspace.library": [
+        // Linux
+        "/usr/share/luanti/builtin",
+        "/usr/share/minetest/builtin",
+        // Windows
+        "C:\\Program Files\\Minetest\\builtin",
+        // MacOS
+        "Contents/Resources/builtin"
+        // Add <Luanti installation path>/builtin if it's not working
+    ],
+}
+```
+
+If you have trouble configuring the language server in the editor,
+you may add a `.luarc.json` file to the project root
+containing the snippet above.
+
 Games
 =====
 
