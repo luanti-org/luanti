@@ -692,28 +692,21 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 	auto *tsrc = context.tsrc;
 	const auto &tsettings = context.tsettings;
 
-	layer->material_type = material_type; // note: unused
-
-	// Grab texture
+	std::string texture_image;
 	if (!tiledef.name.empty()) {
-		std::string image = tiledef.name;
+		texture_image = tiledef.name;
 		if (tsrc->needFilterForMesh())
-			image += tsrc->FILTER_FOR_MESH;
-		auto it = context.texture_pool.find(image);
-		if (it == context.texture_pool.end()) {
-			// wasn't pre-loaded. create standard texture on the fly.
-			layer->texture = tsrc->getTexture(image, &layer->texture_id);
-		} else {
-			layer->texture = it->second.texture;
-			layer->texture_id = it->second.texture_id;
-			layer->texture_layer_idx = it->second.texture_layer_idx;
-			assert(layer->texture);
-		}
+			texture_image += tsrc->FILTER_FOR_MESH;
+	} else {
+		// Tile is empty, nothing to do.
+		return;
 	}
 
-	core::dimension2du texture_size(1, 1); // dummy if there's an error
-	if (layer->texture)
-		texture_size = layer->texture->getOriginalSize();
+	core::dimension2du texture_size;
+	if (!texture_image.empty())
+		texture_size = tsrc->getTextureDimensions(texture_image);
+	if (!texture_size.Width || !texture_size.Height)
+		texture_size = {1, 1}; // dummy if there's an error
 
 	// Scale
 	bool has_scale = tiledef.scale > 0;
@@ -731,7 +724,8 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 	if (!tile.world_aligned)
 		layer->scale = 1;
 
-	// Material flags
+	// Material
+	layer->material_type = material_type;
 	layer->material_flags = 0;
 	if (tiledef.backface_culling)
 		layer->material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
@@ -758,20 +752,32 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 			layer->frames = new std::vector<FrameSpec>(frames);
 			layer->animation_frame_count = layer->frames->size();
 			layer->animation_frame_length_ms = frame_length_ms;
+
+			// Set default texture to first frame (not used practice)
+			layer->texture = (*layer->frames)[0].texture;
+			layer->texture_id = (*layer->frames)[0].texture_id;
 		} else {
 			layer->material_flags &= ~MATERIAL_FLAG_ANIMATION;
 		}
 	}
 
-	// decide on shader to use:
-	// animated nodes will have their texture replaced with one of the frames
-	{
-		video::ITexture *check = layer->texture;
-		if (layer->material_flags & MATERIAL_FLAG_ANIMATION) {
-			check = (*layer->frames)[0].texture;
-			layer->texture_layer_idx = 0; // HACK
+	if (!(layer->material_flags & MATERIAL_FLAG_ANIMATION)) {
+		// Grab texture
+		auto it = context.texture_pool.find(texture_image);
+		if (it == context.texture_pool.end()) {
+			// wasn't pre-loaded: create standard texture on the fly
+			layer->texture = tsrc->getTexture(texture_image, &layer->texture_id);
+		} else {
+			layer->texture = it->second.texture;
+			layer->texture_id = it->second.texture_id;
+			layer->texture_layer_idx = it->second.texture_layer_idx;
+			assert(layer->texture);
 		}
-		layer->shader_id = (check && check->getType() == video::ETT_2D_ARRAY) ?
+	}
+
+	// Decide on shader to use
+	if (layer->texture) {
+		layer->shader_id = (layer->texture->getType() == video::ETT_2D_ARRAY) ?
 			shader.with_layers : shader.normal;
 	}
 }
