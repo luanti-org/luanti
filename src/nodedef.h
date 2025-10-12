@@ -16,6 +16,7 @@
 #include <IMeshManipulator.h>
 #include <unordered_set>
 class Client;
+struct PreLoadedTextures;
 #endif
 #include "itemgroup.h"
 #include "sound.h" // SoundSpec
@@ -260,15 +261,6 @@ enum AlphaMode : u8 {
 	AlphaMode_END // Dummy for validity check
 };
 
-#if CHECK_CLIENT_BUILD()
-/* private, only for use with ContentFeatures::updateTextures() */
-struct PreLoadedTexture {
-	video::ITexture *texture = nullptr;
-	u32 texture_id = 0;
-	u16 texture_layer_idx = 0;
-};
-typedef std::unordered_map<std::string, PreLoadedTexture> PreLoadedTextures;
-#endif
 
 /*
 	Stand-alone definition of a TileSpec (basically a server-side TileSpec)
@@ -515,9 +507,10 @@ struct ContentFeatures
 	}
 
 #if CHECK_CLIENT_BUILD()
-	void preUpdateTextures(std::unordered_set<std::string> &pool, const TextureSettings &tsettings);
+	void preUpdateTextures(ITextureSource *tsrc,
+		std::unordered_set<std::string> &pool, const TextureSettings &tsettings);
 	void updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
-		Client *client, const PreLoadedTextures &texture_pool,
+		Client *client, PreLoadedTextures *texture_pool,
 		const TextureSettings &tsettings);
 	void updateMesh(Client *client, const TextureSettings &tsettings);
 #endif
