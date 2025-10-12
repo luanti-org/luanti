@@ -325,16 +325,17 @@ end
 
 ---@class NodeSpec: ItemSpec
 ---@field drawtype NodeDrawType?
----@field tiles table?
----@field overlay_tiles table?
----@field special_tiles table?
----@field color any?
----@field use_texture_alpha string?
+---@field visual_scale number?
+---@field tiles TileSpec[]?
+---@field overlay_tiles TileSpec[]?
+---@field special_tiles TileSpec[]?
+---@field color ColorSpec?
+---@field use_texture_alpha TextureAlphaMode?
 ---@field palette string?
 ---@field post_effect_color string?
 ---@field post_effect_color_shaded boolean?
----@field paramtype string?
----@field paramtype2 string?
+---@field paramtype NodeParam1?
+---@field paramtype2 NodeParam2?
 ---@field place_param2 number?
 ---@field wallmounted_rotate_vertical boolean?
 ---@field is_ground_content boolean?
@@ -346,7 +347,7 @@ end
 ---@field move_resistance number?
 ---@field buildable_to boolean?
 ---@field floodable boolean?
----@field liquidtype string?
+---@field liquidtype LiquidType?
 ---@field liquid_alternative_flowing string?
 ---@field liquid_alternative_source string?
 ---@field liquid_viscosity number?
@@ -410,6 +411,75 @@ end
 ---| '"nodebox"'
 ---| '"mesh"'
 ---| '"plantlike_rooted"'
+
+---@alias TextureAlphaMode
+--–| '"opaque"'
+--–| '"clip"'
+---| '"blend"'
+
+---@alias NodeParam1
+---| '"none"'
+---| '"light"'
+
+---@alias NodeParam2
+---| '"flowingliquid"'
+---| '"wallmounted"'
+---| '"facedir"'
+---| '"4dir"'
+---| '"leveled"'
+---| '"degrotate"'
+---| '"meshoptions"'
+---| '"color"'
+---| '"colorfacedir"'
+---| '"color4dir"'
+---| '"colorwallmounted"'
+---| '"glasslikeliquidlevel"'
+---| '"colordegrotate"'
+---| '"none"'
+
+---@alias LiquidType
+---| '"none"'
+---| '"source"'
+---| '"flowing"'
+
+---@class TileSpecColored
+---@field name string
+---@field color ColorSpec
+
+---@class TileSpecFull
+---@field name string
+---@field backface_culling boolean?
+---@field align_style TileAlignStyle?
+---@field scale number?
+
+---@alias TileAlignStyle
+---| '"node"'
+---| '"world"'
+---| '"user"'
+
+---@class TileSpecAnimation
+---@field name string
+---@field animation TileAnimationSpec
+
+---@class TileAnimationSpec
+---@field type TileAnimationType
+---@field aspect_w number
+---@field aspect_h number
+---@field length number
+
+---@alias TileAnimationType
+---| "vertical_frames"
+---| "sheet_2d"
+
+---@alias TileSpec string|TileSpecColored|TileSpecFull|TileSpecAnimation
+
+---@alias ColorSpec number|string|ColorSpecRGBA
+
+---@class ColorSpecRGBA
+---@field r number
+---@field g number
+---@field b number
+---@field a number
 
 ---Register a Node
 ---@param name string
