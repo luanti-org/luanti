@@ -681,7 +681,7 @@ struct TileAttribContext {
 
 struct ShaderIds {
 	u32 normal;
-	// Shader that will correctly an array texture and texture_layer_idx 
+	// Shader that will handle an array texture and texture_layer_idx
 	u32 with_layers;
 };
 
@@ -1552,10 +1552,9 @@ void NodeDefManager::applyTextureOverrides(const std::vector<TextureOverride> &o
 			apply(nodedef.tiledef_special[5]);
 	}
 }
-
+#if CHECK_CLIENT_BUILD()
 void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_args)
 {
-#if CHECK_CLIENT_BUILD()
 	infostream << "NodeDefManager::updateTextures(): Updating "
 		"textures in node definitions" << std::endl;
 
@@ -1586,19 +1585,32 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 	// Group by size
 	std::unordered_map<v2u32, std::vector<std::string_view>> sizes;
 	if (arraymax > 1) {
+		size_t i = 0;
 		for (auto &image : pool) {
 			core::dimension2du dim = tsrc->getTextureDimensions(image);
+			client->showUpdateProgressTexture(progress_callback_args,
+				0.33333f * ++i / pool.size());
 			if (!dim.Width || !dim.Height) // error
 				continue;
 			sizes[v2u32(dim)].emplace_back(image);
 		}
 	}
+
 	// create array textures as far as possible
+	size_t num_preloadable = 0, preload_progress = 0;
+	for (auto &it : sizes) {
+		if (it.second.size() < 2)
+			continue;
+		num_preloadable += it.second.size();
+	}
 	PreLoadedTextures plt;
 	const auto &doBunch = [&] (core::dimension2du dim, const std::vector<std::string> &bunch) {
 		rawstream << dim.Width << "x" << dim.Height << " b: " << bunch.size() << std::endl;
 		PreLoadedTexture t;
 		t.texture = tsrc->addArrayTexture(bunch, &t.texture_id);
+		preload_progress += bunch.size();
+		client->showUpdateProgressTexture(progress_callback_args,
+			0.33333f + 0.33333f * preload_progress / num_preloadable);
 		if (t.texture) {
 			// Success: all of the images in this bunch can now refer to this texture
 			for (size_t idx = 0; idx < bunch.size(); idx++) {
@@ -1621,7 +1633,7 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 		if (!bunch.empty())
 			doBunch(core::dimension2du(it.first), bunch);
 	}
-	// standard textures aren't preloaded
+	// note that standard textures aren't preloaded
 	rawstream << "pre: " << plt.size() << std::endl;
 
 	/* final step */
@@ -1629,12 +1641,13 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 		ContentFeatures *f = &(m_content_features[i]);
 		f->updateTextures(tsrc, shdsrc, client, plt, tsettings);
 		f->updateMesh(client, tsettings);
-		client->showUpdateProgressTexture(progress_callback_args, i, size);
+		client->showUpdateProgressTexture(progress_callback_args,
+			0.66666f + 0.33333f * i / size);
 	}
 
 	tsrc->setImageCaching(false);
-#endif
 }
+#endif
 
 void NodeDefManager::serialize(std::ostream &os, u16 protocol_version) const
 {

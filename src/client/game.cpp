@@ -1283,7 +1283,8 @@ bool Game::getServerContent(bool *aborted)
 				message << " (" << cur << ' ' << cur_unit << ")";
 			}
 
-			progress = 30 + client->mediaReceiveProgress() * 35 + 0.5;
+			// 30% -> 65%
+			progress = 30 + std::ceil(client->mediaReceiveProgress() * 35 + 0.5f);
 			m_rendering_engine->draw_load_screen(utf8_to_wide(message.str()), guienv,
 				texture_src, dtime, progress);
 		}
