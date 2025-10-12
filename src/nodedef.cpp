@@ -269,6 +269,10 @@ void TileDef::deSerialize(std::istream &is, NodeDrawType drawtype, u16 protocol_
 	}
 }
 
+/*
+	TextureSettings
+*/
+
 void TextureSettings::readSettings()
 {
 	connected_glass                = g_settings->getBool("connected_glass");
@@ -304,6 +308,52 @@ void TextureSettings::readSettings()
 	else
 		autoscale_mode = AUTOSCALE_DISABLE;
 }
+
+/*
+	Texture pool and related
+*/
+
+#if CHECK_CLIENT_BUILD()
+struct PreLoadedTexture {
+	video::ITexture *texture = nullptr;
+	u32 texture_id = 0;
+	u16 texture_layer_idx = 0;
+	bool used = false; // For debugging
+};
+
+struct PreLoadedTextures {
+	std::unordered_map<std::string, PreLoadedTexture> pool;
+
+	PreLoadedTexture find(const std::string &name);
+	void add(const std::string &name, const PreLoadedTexture &t);
+
+	void printStats(std::ostream &to) const;
+};
+
+PreLoadedTexture PreLoadedTextures::find(const std::string &name)
+{
+	auto it = pool.find(name);
+	if (it == pool.end())
+		return {};
+	it->second.used = true;
+	return it->second;
+}
+
+void PreLoadedTextures::add(const std::string &name, const PreLoadedTexture &t)
+{
+	assert(pool.find(name) == pool.end());
+	pool[name] = t;
+}
+
+void PreLoadedTextures::printStats(std::ostream &to) const
+{
+	size_t unused = 0;
+	for (auto &it : pool)
+		unused += it.second.used ? 0 : 1;
+	to << "pre: " << pool.size() << "\nwasted: " << unused << std::endl;
+}
+#endif
+
 
 /*
 	ContentFeatures
@@ -674,7 +724,7 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 #if CHECK_CLIENT_BUILD()
 struct TileAttribContext {
 	ITextureSource *tsrc;
-	const PreLoadedTextures &texture_pool;
+	PreLoadedTextures *texture_pool;
 	video::SColor base_color;
 	const TextureSettings &tsettings;
 };
@@ -763,15 +813,14 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 
 	if (!(layer->material_flags & MATERIAL_FLAG_ANIMATION)) {
 		// Grab texture
-		auto it = context.texture_pool.find(texture_image);
-		if (it == context.texture_pool.end()) {
+		auto tex = context.texture_pool->find(texture_image);
+		if (!tex.texture) {
 			// wasn't pre-loaded: create standard texture on the fly
 			layer->texture = tsrc->getTexture(texture_image, &layer->texture_id);
 		} else {
-			layer->texture = it->second.texture;
-			layer->texture_id = it->second.texture_id;
-			layer->texture_layer_idx = it->second.texture_layer_idx;
-			assert(layer->texture);
+			layer->texture = tex.texture;
+			layer->texture_id = tex.texture_id;
+			layer->texture_layer_idx = tex.texture_layer_idx;
 		}
 	}
 
@@ -782,12 +831,15 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 	}
 }
 
-void ContentFeatures::preUpdateTextures(std::unordered_set<std::string> &pool, const TextureSettings &tsettings)
+void ContentFeatures::preUpdateTextures(ITextureSource *tsrc,
+		std::unordered_set<std::string> &pool, const TextureSettings &tsettings)
 {
 	// Find out the exact texture strings this node might use, and put them into the pool
 	// (this should match updateTextures, but it's not the end of the world if
 	// a mismatch occurs)
-	std::string append = ITextureSource::FILTER_FOR_MESH;
+	std::string append;
+	if (tsrc->needFilterForMesh())
+		append = ITextureSource::FILTER_FOR_MESH;
 	std::string append_overlay = append, append_special = append;
 	bool use = true, use_overlay = true, use_special = true;
 
@@ -798,17 +850,25 @@ void ContentFeatures::preUpdateTextures(std::unordered_set<std::string> &pool, c
 			append.insert(0, "^[noalpha");
 	}
 
+	const auto &consider_tile = [&] (const TileDef &def, const std::string &append) {
+		// Animations are chopped into frames later, so we won't actually need
+		// the source texture
+		if (!def.name.empty() && def.animation.type == TAT_NONE) {
+			pool.insert(def.name + append);
+		}
+	};
+
 	for (u32 j = 0; j < 6; j++) {
-		if (use && !tiledef[j].name.empty())
-			pool.insert(tiledef[j].name + append);
+		if (use)
+			consider_tile(tiledef[j], append);
 	}
 	for (u32 j = 0; j < 6; j++) {
-		if (use_overlay && !tiledef_overlay[j].name.empty())
-			pool.insert(tiledef_overlay[j].name + append_overlay);
+		if (use_overlay)
+			consider_tile(tiledef_overlay[j], append_overlay);
 	}
 	for (u32 j = 0; j < CF_SPECIAL_COUNT; j++) {
-		if (use_special && !tiledef_special[j].name.empty())
-			pool.insert(tiledef_special[j].name + append_special);
+		if (use_special)
+			consider_tile(tiledef_special[j], append_special);
 	}
 }
 
@@ -828,7 +888,7 @@ static bool isWorldAligned(AlignStyle style, WorldAlignMode mode, NodeDrawType d
 }
 
 void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
-	Client *client, const PreLoadedTextures &texture_pool,
+	Client *client, PreLoadedTextures *texture_pool,
 	const TextureSettings &tsettings)
 {
 	// Figure out the actual tiles to use
@@ -1267,7 +1327,7 @@ content_t NodeDefManager::allocateId()
  * @param[in]      boxes     the vector containing the boxes
  * @param[in, out] box_union the union of the arguments
  */
-void boxVectorUnion(const std::vector<aabb3f> &boxes, aabb3f *box_union)
+static void boxVectorUnion(const std::vector<aabb3f> &boxes, aabb3f *box_union)
 {
 	for (const aabb3f &box : boxes) {
 		box_union->addInternalBox(box);
@@ -1283,7 +1343,7 @@ void boxVectorUnion(const std::vector<aabb3f> &boxes, aabb3f *box_union)
  * can be rotated
  * @param[in, out] box_union the union of the arguments
  */
-void getNodeBoxUnion(const NodeBox &nodebox, const ContentFeatures &features,
+static void getNodeBoxUnion(const NodeBox &nodebox, const ContentFeatures &features,
 	aabb3f *box_union)
 {
 	switch(nodebox.type) {
@@ -1571,7 +1631,7 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 	std::unordered_set<std::string> pool;
 	for (u32 i = 0; i < size; i++) {
 		ContentFeatures *f = &(m_content_features[i]);
-		f->preUpdateTextures(pool, tsettings);
+		f->preUpdateTextures(tsrc, pool, tsettings);
 	}
 
 	/* texture pre-loading stage */
@@ -1615,7 +1675,7 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 			// Success: all of the images in this bunch can now refer to this texture
 			for (size_t idx = 0; idx < bunch.size(); idx++) {
 				t.texture_layer_idx = 1 + idx;
-				plt[bunch[idx]] = t;
+				plt.add(bunch[idx], t);
 			}
 		}
 	};
@@ -1634,17 +1694,17 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 			doBunch(core::dimension2du(it.first), bunch);
 	}
 	// note that standard textures aren't preloaded
-	rawstream << "pre: " << plt.size() << std::endl;
 
 	/* final step */
 	for (u32 i = 0; i < size; i++) {
 		ContentFeatures *f = &(m_content_features[i]);
-		f->updateTextures(tsrc, shdsrc, client, plt, tsettings);
+		f->updateTextures(tsrc, shdsrc, client, &plt, tsettings);
 		f->updateMesh(client, tsettings);
 		client->showUpdateProgressTexture(progress_callback_args,
 			0.66666f + 0.33333f * i / size);
 	}
 
+	plt.printStats(rawstream);
 	tsrc->setImageCaching(false);
 }
 #endif
