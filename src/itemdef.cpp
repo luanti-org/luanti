@@ -437,10 +437,10 @@ public:
 			ItemDefinition* itemdef = m_item_definitions[texture_override.id];
 
 			if (texture_override.hasTarget(OverrideTarget::INVENTORY))
-				itemdef->inventory_image.name = texture_override.texture;
+				itemdef->inventory_image = texture_override.texture;
 
 			if (texture_override.hasTarget(OverrideTarget::WIELD))
-				itemdef->wield_image.name = texture_override.texture;
+				itemdef->wield_image = texture_override.texture;
 		}
 	}
 	void clear()
@@ -461,7 +461,7 @@ public:
 
 		ItemDefinition* hand_def = new ItemDefinition;
 		hand_def->name.clear();
-		hand_def->wield_image.name = "wieldhand.png";
+		hand_def->wield_image = "wieldhand.png";
 		hand_def->tool_capabilities = new ToolCapabilities;
 		m_item_definitions.insert(std::make_pair("", hand_def));
 

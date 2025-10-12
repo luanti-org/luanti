@@ -74,7 +74,7 @@ void TestGameDef::defineSomeNodes()
 	itemdef.name = "default:stone";
 	itemdef.description = "Stone";
 	itemdef.groups["cracky"] = 3;
-	itemdef.inventory_image.name = "[inventorycube"
+	itemdef.inventory_image = "[inventorycube"
 		"{default_stone.png"
 		"{default_stone.png"
 		"{default_stone.png";
@@ -92,7 +92,7 @@ void TestGameDef::defineSomeNodes()
 	itemdef.name = "default:dirt_with_grass";
 	itemdef.description = "Dirt with grass";
 	itemdef.groups["crumbly"] = 3;
-	itemdef.inventory_image.name = "[inventorycube"
+	itemdef.inventory_image = "[inventorycube"
 		"{default_grass.png"
 		"{default_dirt.png&default_grass_side.png"
 		"{default_dirt.png&default_grass_side.png";
@@ -124,7 +124,7 @@ void TestGameDef::defineSomeNodes()
 	itemdef.type = ITEM_NODE;
 	itemdef.name = "default:water";
 	itemdef.description = "Water";
-	itemdef.inventory_image.name = "[inventorycube"
+	itemdef.inventory_image = "[inventorycube"
 		"{default_water.png"
 		"{default_water.png"
 		"{default_water.png";
@@ -147,7 +147,7 @@ void TestGameDef::defineSomeNodes()
 	itemdef.type = ITEM_NODE;
 	itemdef.name = "default:lava";
 	itemdef.description = "Lava";
-	itemdef.inventory_image.name = "[inventorycube"
+	itemdef.inventory_image = "[inventorycube"
 		"{default_lava.png"
 		"{default_lava.png"
 		"{default_lava.png";
@@ -171,7 +171,7 @@ void TestGameDef::defineSomeNodes()
 	itemdef.name = "default:brick";
 	itemdef.description = "Brick";
 	itemdef.groups["cracky"] = 3;
-	itemdef.inventory_image.name = "[inventorycube"
+	itemdef.inventory_image = "[inventorycube"
 		"{default_brick.png"
 		"{default_brick.png"
 		"{default_brick.png";

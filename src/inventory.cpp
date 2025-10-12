@@ -261,7 +261,7 @@ ItemImageDef ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
 	ItemImageDef image = getDefinition(itemdef).inventory_image;
 	std::string meta_image = metadata.getString("inventory_image");
 	if (!meta_image.empty())
-		image.name = meta_image;
+		image = meta_image;
 
 	return image;
 }
@@ -271,7 +271,7 @@ ItemImageDef ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) cons
 	ItemImageDef image = getDefinition(itemdef).inventory_overlay;
 	std::string meta_image = metadata.getString("inventory_overlay");
 	if (!meta_image.empty())
-		image.name = meta_image;
+		image = meta_image;
 
 	return image;
 }
@@ -281,7 +281,7 @@ ItemImageDef ItemStack::getWieldImage(const IItemDefManager *itemdef) const
 	ItemImageDef image = getDefinition(itemdef).wield_image;
 	std::string meta_image = metadata.getString("wield_image");
 	if (!meta_image.empty())
-		image.name = meta_image;
+		image = meta_image;
 
 	return image;
 }
@@ -291,7 +291,7 @@ ItemImageDef ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
 	ItemImageDef image = getDefinition(itemdef).wield_overlay;
 	std::string meta_image = metadata.getString("wield_overlay");
 	if (!meta_image.empty())
-		image.name = meta_image;
+		image = meta_image;
 
 	return image;
 }
