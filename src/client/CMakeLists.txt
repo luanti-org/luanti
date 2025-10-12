@@ -51,6 +51,7 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/content_mapblock.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/filecache.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/fontengine.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/font_enriched_string_composite.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/game.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gameui.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/game_formspec.cpp
