@@ -186,11 +186,8 @@ public:
 	You may want to call regenerateMipMapLevels() after this when you changed any data.	*/
 	virtual void unlock() = 0;
 
-	//! Regenerates the mip map levels of the texture.
-	/** Required after modifying the texture, usually after calling unlock().
-	\param layer It informs a texture about which cubemap or texture array layer
-	needs mipmap regeneration. */
-	virtual void regenerateMipMapLevels(u32 layer = 0) = 0;
+	//! Regenerates the mip map levels of the texture. */
+	virtual void regenerateMipMapLevels() = 0;
 
 	//! Get original size of the texture.
 	/** The texture is usually scaled, if it was created with an unoptimal
