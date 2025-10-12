@@ -107,8 +107,12 @@ public:
 
 		initTexture(tmpImages->size());
 
-		for (size_t i = 0; i < tmpImages->size(); ++i)
-			uploadTexture(i, 0, (*tmpImages)[i]->getData());
+		if (Type == ETT_2D_ARRAY) {
+			upload2DArrayTexture(tmpImages->size(), tmpImages->data());
+		} else {
+			for (size_t i = 0; i < tmpImages->size(); ++i)
+				uploadTexture(i, 0, (*tmpImages)[i]->getData());
+		}
 
 		if (HasMipMaps) {
 			for (size_t i = 0; i < tmpImages->size(); ++i)
@@ -665,6 +669,56 @@ protected:
 			}
 			TEST_GL_ERROR(Driver);
 		}
+	}
+
+	void upload2DArrayTexture(const u32 layers, video::IImage *const *images)
+	{
+		if (!layers)
+			return;
+		assert(images);
+
+		const u32 width = Size.Width, height = Size.Height;
+
+		assert(!IImage::isCompressedFormat(ColorFormat));
+		assert(TextureType == GL_TEXTURE_2D_ARRAY);
+
+		const u32 imageBytes = IImage::getDataSizeFromFormat(ColorFormat, width, height);
+		constexpr u32 MAX_TMP_BUFFER = 16 * 1024 * 1024;
+
+		// Uploading small textures layer-by-layer can apparently be very slow.
+		// Maybe a PBO would be cleaner here but copying to a temporary buffer
+		// isn't too bad.
+		std::vector<u8> tmpBuffer;
+		tmpBuffer.reserve(core::min_(imageBytes * layers, MAX_TMP_BUFFER));
+		u32 layerOffset = 0;
+		const auto &uploadMultiple = [&] () {
+			assert(tmpBuffer.size() % imageBytes == 0);
+			size_t curLayers = tmpBuffer.size() / imageBytes;
+			assert(curLayers > 0);
+			GL.TexSubImage3D(TextureType, 0, 0, 0, layerOffset, width, height, curLayers, PixelFormat, PixelType, tmpBuffer.data());
+			layerOffset += curLayers;
+			tmpBuffer.clear();
+		};
+		CImage *tmpImage = nullptr;
+		for (u32 i = 0; i < layers; i++) {
+			u8 *data;
+			if (Converter) {
+				// this may look redundant but CImage does special alignment
+				if (!tmpImage)
+					tmpImage = new CImage(ColorFormat, {width, height});
+				data = reinterpret_cast<u8*>(tmpImage->getData());
+				Converter(images[i]->getData(), width * height, data);
+			} else {
+				data = reinterpret_cast<u8*>(images[i]->getData());
+			}
+			tmpBuffer.insert(tmpBuffer.end(), data, data + imageBytes);
+			if (tmpBuffer.size() >= MAX_TMP_BUFFER)
+				uploadMultiple();
+		}
+		delete tmpImage;
+		if (!tmpBuffer.empty())
+			uploadMultiple();
+		assert(layerOffset == layers);
 	}
 
 	GLenum TextureTypeIrrToGL(E_TEXTURE_TYPE type) const
