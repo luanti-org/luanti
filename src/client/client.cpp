@@ -1799,10 +1799,10 @@ struct TextureUpdateArgs {
 	std::wstring text_base;
 };
 
-void Client::showUpdateProgressTexture(void *args, u32 progress, u32 max_progress)
+void Client::showUpdateProgressTexture(void *args, float progress)
 {
 	auto *targs = reinterpret_cast<TextureUpdateArgs*>(args);
-	u16 cur_percent = std::ceil(progress * 100.f / max_progress);
+	u16 cur_percent = std::ceil(100 * progress);
 
 	// Throttle menu drawing
 	bool do_draw = false;
@@ -1817,7 +1817,8 @@ void Client::showUpdateProgressTexture(void *args, u32 progress, u32 max_progres
 
 	std::wostringstream strm;
 	strm << targs->text_base << L" " << cur_percent << L"%...";
-	int shown_progress = 72 + std::ceil(0.18f * cur_percent);
+	// 70% -> 99%
+	int shown_progress = 70 + std::ceil(0.29f * cur_percent);
 	m_rendering_engine->draw_load_screen(strm.str(), guienv, m_tsrc,
 		0, shown_progress);
 }
@@ -1837,19 +1838,19 @@ void Client::afterContentReceived()
 	// Rebuild inherited images and recreate textures
 	infostream<<"- Rebuilding images and textures"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Loading textures..."),
-			guienv, m_tsrc, 0, 70);
+			guienv, m_tsrc, 0, 66);
 	m_tsrc->rebuildImagesAndTextures();
 
 	// Rebuild shaders
 	infostream<<"- Rebuilding shaders"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Rebuilding shaders..."),
-			guienv, m_tsrc, 0, 71);
+			guienv, m_tsrc, 0, 68);
 	m_shsrc->rebuildShaders();
 
 	// Update node aliases
 	infostream<<"- Updating node aliases"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Initializing nodes..."),
-			guienv, m_tsrc, 0, 72);
+			guienv, m_tsrc, 0, 70);
 	m_nodedef->updateAliases(m_itemdef);
 	for (const auto &path : getTextureDirs()) {
 		TextureOverrideSource override_source(path + DIR_DELIM + "override.txt");

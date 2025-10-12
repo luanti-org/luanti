@@ -688,8 +688,9 @@ public:
 	 */
 	void applyTextureOverrides(const std::vector<TextureOverride> &overrides);
 
+#if CHECK_CLIENT_BUILD()
 	/*!
-	 * Only the client uses this. Loads textures and shaders required for
+	 * Loads textures and shaders required for
 	 * rendering the nodes.
 	 * @param gamedef must be a Client.
 	 * @param progress_cbk called each time a node is loaded. Arguments:
@@ -698,6 +699,7 @@ public:
 	 * @param progress_cbk_args passed to the callback function
 	 */
 	void updateTextures(IGameDef *gamedef, void *progress_cbk_args);
+#endif
 
 	/*!
 	 * Writes the content of this manager to the given output stream.
