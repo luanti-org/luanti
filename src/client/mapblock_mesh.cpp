@@ -651,9 +651,6 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
 				// Add to MapBlockMesh in order to animate these tiles
 				m_animation_info.emplace(std::make_pair(layer, i), AnimationInfo(p.layer));
-				// Replace tile texture with the first animation frame
-				assert(p.layer.frames);
-				p.layer.texture = (*p.layer.frames)[0].texture;
 			}
 
 			// Create material

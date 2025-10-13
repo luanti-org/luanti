@@ -389,10 +389,6 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
 		auto &prebuffers = collector.prebuffers[layer];
 		for (PreMeshBuffer &p : prebuffers) {
-			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
-				const FrameSpec &frame = (*p.layer.frames)[0];
-				p.layer.texture = frame.texture;
-			}
 			for (video::S3DVertex &v : p.vertices)
 				v.Color.setAlpha(255);
 

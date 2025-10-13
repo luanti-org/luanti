@@ -323,6 +323,7 @@ struct PreLoadedTexture {
 
 struct PreLoadedTextures {
 	std::unordered_map<std::string, PreLoadedTexture> pool;
+	std::unordered_set<std::string> missed; // For debugging
 
 	PreLoadedTexture find(const std::string &name);
 	void add(const std::string &name, const PreLoadedTexture &t);
@@ -333,8 +334,10 @@ struct PreLoadedTextures {
 PreLoadedTexture PreLoadedTextures::find(const std::string &name)
 {
 	auto it = pool.find(name);
-	if (it == pool.end())
+	if (it == pool.end()) {
+		missed.emplace(name);
 		return {};
+	}
 	it->second.used = true;
 	return it->second;
 }
@@ -350,7 +353,8 @@ void PreLoadedTextures::printStats(std::ostream &to) const
 	size_t unused = 0;
 	for (auto &it : pool)
 		unused += it.second.used ? 0 : 1;
-	to << "pre: " << pool.size() << "\nwasted: " << unused << std::endl;
+	to << "pre: " << pool.size() << "\nwasted: " << unused
+		<< " missed: " << missed.size() << std::endl;
 }
 #endif
 
