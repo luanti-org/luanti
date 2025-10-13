@@ -1,0 +1,22 @@
+---@class SimpleSoundSpecParams
+---@field name string
+---@field gain number?
+---@field pitch number?
+---@field fade number?
+---@field start_time number?
+---@field loop boolean?
+---@field pos table?
+---@field object any?
+---@field to_player string?
+---@field exclude_player string?
+---@field max_hear_distance number?
+
+---@alias SimpleSoundSpec string|SimpleSoundSpecParams
+
+---@class NodeSoundSpec
+---@field footstep SimpleSoundSpec?
+---@field dig ('"__group"'|SimpleSoundSpec)?
+---@field dug SimpleSoundSpec?
+---@field place SimpleSoundSpec?
+---@field place_failed SimpleSoundSpec?
+---@field fall SimpleSoundSpec?

@@ -89,17 +89,17 @@
 ---@field liquid_range number?
 ---@field drowning number?
 ---@field damage_per_second number?
----@field node_box table?
+---@field node_box NodeBoxSpec?
 ---@field connects_to string[]?
 ---@field connect_sides string[]?
 ---@field mesh string?
----@field selection_box table?
----@field collision_box table?
+---@field selection_box NodeBoxSpec?
+---@field collision_box NodeBoxSpec?
 ---@field legacy_facedir_simple boolean?
 ---@field legacy_wallmounted boolean?
 ---@field waving number?
----@field sounds table?
----@field drop string|table?
+---@field sounds NodeSoundSpec?
+---@field drop string|NodeDropSpec?
 ---@field on_construct function?(pos: any): nil
 ---@field on_destruct function?(pos: any): nil
 ---@field after_destruct function?(pos: any, oldnode: any): nil
