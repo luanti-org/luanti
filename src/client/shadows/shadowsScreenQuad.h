@@ -4,13 +4,12 @@
 
 #pragma once
 #include <IMaterialRendererServices.h>
-#include <IShaderConstantSetCallBack.h>
 #include "client/shader.h"
 
-class shadowScreenQuad
+class ShadowScreenQuad
 {
 public:
-	shadowScreenQuad();
+	ShadowScreenQuad();
 
 	void render(video::IVideoDriver *driver);
 	video::SMaterial &getMaterial() { return Material; }
@@ -20,11 +19,11 @@ private:
 	video::SMaterial Material;
 };
 
-class shadowScreenQuadCB : public video::IShaderConstantSetCallBack
+class ShadowScreenQuadUniformSetter : public IShaderUniformSetterRC
 {
 public:
-	virtual void OnSetConstants(video::IMaterialRendererServices *services,
-			s32 userData);
+	virtual void onSetUniforms(video::IMaterialRendererServices *services) override;
+
 private:
 	CachedPixelShaderSetting<s32> m_sm_client_map_setting{"ShadowMapClientMap"};
 	CachedPixelShaderSetting<s32>
