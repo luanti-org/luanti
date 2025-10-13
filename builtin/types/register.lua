@@ -1,0 +1,128 @@
+---@meta
+
+---@alias NodeDrawType
+---| '"normal"'
+---| '"airlike"'
+---| '"liquid"'
+---| '"flowingliquid"'
+---| '"glasslike"'
+---| '"glasslike_framed"'
+---| '"glasslike_framed_optional"'
+---| '"allfaces"'
+---| '"allfaces_optional"'
+---| '"torchlike"'
+---| '"signlike"'
+---| '"plantlike"'
+---| '"firelike"'
+---| '"fencelike"'
+---| '"raillike"'
+---| '"nodebox"'
+---| '"mesh"'
+---| '"plantlike_rooted"'
+
+---@alias TextureAlphaMode
+--–| '"opaque"'
+--–| '"clip"'
+---| '"blend"'
+
+---@alias NodeParam1
+---| '"none"'
+---| '"light"'
+
+---@alias NodeParam2
+---| '"flowingliquid"'
+---| '"wallmounted"'
+---| '"facedir"'
+---| '"4dir"'
+---| '"leveled"'
+---| '"degrotate"'
+---| '"meshoptions"'
+---| '"color"'
+---| '"colorfacedir"'
+---| '"color4dir"'
+---| '"colorwallmounted"'
+---| '"glasslikeliquidlevel"'
+---| '"colordegrotate"'
+---| '"none"'
+
+---@alias LiquidType
+---| '"none"'
+---| '"source"'
+---| '"flowing"'
+
+---@class ItemSpec
+---@field type string?
+
+---@class NodeSpec: ItemSpec
+---@field drawtype NodeDrawType?
+---@field visual_scale number?
+---@field tiles TileSpec[]?
+---@field overlay_tiles TileSpec[]?
+---@field special_tiles TileSpec[]?
+---@field color ColorSpec?
+---@field use_texture_alpha TextureAlphaMode?
+---@field palette string?
+---@field post_effect_color string?
+---@field post_effect_color_shaded boolean?
+---@field paramtype NodeParam1?
+---@field paramtype2 NodeParam2?
+---@field place_param2 number?
+---@field wallmounted_rotate_vertical boolean?
+---@field is_ground_content boolean?
+---@field sunlight_propagates boolean?
+---@field walkable boolean?
+---@field pointable boolean?
+---@field diggable boolean?
+---@field climbable boolean?
+---@field move_resistance number?
+---@field buildable_to boolean?
+---@field floodable boolean?
+---@field liquidtype LiquidType?
+---@field liquid_alternative_flowing string?
+---@field liquid_alternative_source string?
+---@field liquid_viscosity number?
+---@field liquid_renewable boolean?
+---@field liquid_move_physics boolean?
+---@field air_equivalent boolean?
+---@field leveled number?
+---@field leveled_max number?
+---@field liquid_range number?
+---@field drowning number?
+---@field damage_per_second number?
+---@field node_box table?
+---@field connects_to string[]?
+---@field connect_sides string[]?
+---@field mesh string?
+---@field selection_box table?
+---@field collision_box table?
+---@field legacy_facedir_simple boolean?
+---@field legacy_wallmounted boolean?
+---@field waving number?
+---@field sounds table?
+---@field drop string|table?
+---@field on_construct function?(pos: any): nil
+---@field on_destruct function?(pos: any): nil
+---@field after_destruct function?(pos: any, oldnode: any): nil
+---@field on_flood function?(pos: any, oldnode: any, newnode: any): nil
+---@field preserve_metadata function?(pos: any, oldnode: any, oldmeta: any, drops: any): nil
+---@field after_place_node function?(pos: any, placer: any, itemstack: any, pointed_thing: any): nil
+---@field after_dig_node function?(pos: any, oldnode: any, oldmetadata: any, digger: any): nil
+---@field can_dig function?(pos: any, player: any): boolean
+---@field on_punch function?(pos: any, node: any, puncher: any, pointed_thing: any): nil
+---@field on_rightclick function?(pos: any, node: any, clicker: any, itemstack: any, pointed_thing: any): nil
+---@field on_dig function?(pos: any, node: any, digger: any): nil
+---@field on_timer function?(pos: any, elapsed: number, node: any, timeout: number): nil
+---@field on_reveive_fields function?(pos: any, formname: string, fields: table, sender: any): nil
+---@field allow_metadata_inventory_move function?(pos: any, from_list: string, from_index: number, to_list: string, to_index: number, count: number, player: any): boolean
+---@field allow_metadata_inventory_put function?(pos: any, listname: string, index: number, stack: any, player: any): boolean
+---@field allow_metadata_inventory_take function?(pos: any, listname: string, index: number, stack: any, player: any): boolean
+---@field on_metadata_inventory_move function?(pos: any, from_list: string, from_index: number, to_list: string, to_index: number, count: number, player: any): nil
+---@field on_metadata_inventory_put function?(pos: any, listname: string, index: number, stack: any, player: any): nil
+---@field on_metadata_inventory_take function?(pos: any, listname: string, index: number, stack: any, player: any): nil
+---@field on_blast function?(pos: any, intensity: any): nil
+---@field mod_origin string?
+
+---Register a Node
+---@param name string
+---@param nodedef NodeSpec
+function core.register_node(name, nodedef) end
