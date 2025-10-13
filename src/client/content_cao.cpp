@@ -236,8 +236,12 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 
 			// Set up material
 			auto &mat = buf->Material;
-			u32 shader_id = shdsrc->getShader("object_shader", p.layer.material_type, NDT_NORMAL);
-			mat.MaterialType = shdsrc->getShaderInfo(shader_id).material;
+			if (0) { // FIXME
+				u32 shader_id = shdsrc->getShader("object_shader", p.layer.material_type, NDT_NORMAL);
+				mat.MaterialType = shdsrc->getShaderInfo(shader_id).material;
+			} else {
+				mat.MaterialType = shdsrc->getShaderInfo(p.layer.shader_id).material;
+			}
 			p.layer.applyMaterialOptions(mat, layer);
 
 			mesh->addMeshBuffer(buf.get());
