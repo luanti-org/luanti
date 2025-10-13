@@ -100,26 +100,26 @@
 ---@field waving number?
 ---@field sounds NodeSoundSpec?
 ---@field drop string|NodeDropSpec?
----@field on_construct function?(pos: any): nil
----@field on_destruct function?(pos: any): nil
----@field after_destruct function?(pos: any, oldnode: any): nil
----@field on_flood function?(pos: any, oldnode: any, newnode: any): nil
----@field preserve_metadata function?(pos: any, oldnode: any, oldmeta: any, drops: any): nil
----@field after_place_node function?(pos: any, placer: any, itemstack: any, pointed_thing: any): nil
----@field after_dig_node function?(pos: any, oldnode: any, oldmetadata: any, digger: any): nil
----@field can_dig function?(pos: any, player: any): boolean
----@field on_punch function?(pos: any, node: any, puncher: any, pointed_thing: any): nil
----@field on_rightclick function?(pos: any, node: any, clicker: any, itemstack: any, pointed_thing: any): nil
----@field on_dig function?(pos: any, node: any, digger: any): nil
----@field on_timer function?(pos: any, elapsed: number, node: any, timeout: number): nil
----@field on_reveive_fields function?(pos: any, formname: string, fields: table, sender: any): nil
----@field allow_metadata_inventory_move function?(pos: any, from_list: string, from_index: number, to_list: string, to_index: number, count: number, player: any): boolean
----@field allow_metadata_inventory_put function?(pos: any, listname: string, index: number, stack: any, player: any): boolean
----@field allow_metadata_inventory_take function?(pos: any, listname: string, index: number, stack: any, player: any): boolean
----@field on_metadata_inventory_move function?(pos: any, from_list: string, from_index: number, to_list: string, to_index: number, count: number, player: any): nil
----@field on_metadata_inventory_put function?(pos: any, listname: string, index: number, stack: any, player: any): nil
----@field on_metadata_inventory_take function?(pos: any, listname: string, index: number, stack: any, player: any): nil
----@field on_blast function?(pos: any, intensity: any): nil
+---@field on_construct fun(pos: vector)?: nil
+---@field on_destruct fun(pos: vector)?: nil
+---@field after_destruct fun(pos: vector, oldnode: any)?: nil
+---@field on_flood fun(pos: vector, oldnode: any, newnode: any)?: nil
+---@field preserve_metadata fun(pos: vector, oldnode: any, oldmeta: any, drops: any)?: nil
+---@field after_place_node fun(pos: vector, placer: any, itemstack: any, pointed_thing: any)?: nil
+---@field after_dig_node fun(pos: vector, oldnode: any, oldmetadata: any, digger: any)?: nil
+---@field can_dig fun(pos: vector, player: any)?: boolean
+---@field on_punch fun(pos: vector, node: any, puncher: any, pointed_thing: any)?: nil
+---@field on_rightclick fun(pos: vector, node: any, clicker: any, itemstack: any, pointed_thing: any)?: nil
+---@field on_dig fun(pos: vector, node: any, digger: any)?: nil
+---@field on_timer fun(pos: vector, elapsed: number, node: any, timeout: number)?: nil
+---@field on_reveive_fields fun(pos: vector, formname: string, fields: table, sender: any)?: nil
+---@field allow_metadata_inventory_move fun(pos: vector, from_list: string, from_index: number, to_list: string, to_index: number, count: number, player: any)?: boolean
+---@field allow_metadata_inventory_put fun(pos: vector, listname: string, index: number, stack: any, player: any)?: boolean
+---@field allow_metadata_inventory_take fun(pos: vector, listname: string, index: number, stack: any, player: any)?: boolean
+---@field on_metadata_inventory_move fun(pos: vector, from_list: string, from_index: number, to_list: string, to_index: number, count: number, player: any)?: nil
+---@field on_metadata_inventory_put fun(pos: vector, listname: string, index: number, stack: any, player: any)?: nil
+---@field on_metadata_inventory_take fun(pos: vector, listname: string, index: number, stack: any, player: any)?: nil
+---@field on_blast fun(pos: vector, intensity: any)?: nil
 ---@field mod_origin string?
 
 ---Register a Node
