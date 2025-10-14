@@ -44,10 +44,6 @@ bool COpenGLDriver::initDriver()
 
 	genericDriverInit();
 
-#if defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_) || defined(_IRR_COMPILE_WITH_X11_DEVICE_)
-	extGlSwapInterval(Params.Vsync ? 1 : 0);
-#endif
-
 	return true;
 }
 
