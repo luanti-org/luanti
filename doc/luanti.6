@@ -1,4 +1,4 @@
-.TH luanti 6 "2 February 2019" "" ""
+.TH luanti 6 "2025-10-16" "" ""
 
 .SH NAME
 luanti, luantiserver \- voxel game engine
@@ -7,12 +7,10 @@ luanti, luantiserver \- voxel game engine
 .B luanti
 [\fB--server SERVER OPTIONS\fR | \fBCLIENT OPTIONS\fR]
 [\fBCOMMON OPTIONS\fR]
-[\fBWORLD PATH\fR]
 
 .B luantiserver
 [\fBSERVER OPTIONS\fR]
 [\fBCOMMON OPTIONS\fR]
-[\fBWORLD PATH\fR]
 
 .SH DESCRIPTION
 .B Luanti (formerly Minetest) is a voxel game engine with easy modding and game creation.
@@ -43,8 +41,11 @@ Print enormous amounts of information to console
 .B \-\-quiet
 Print only errors to console
 .TP
-.B \-\-color <value>
-Colorize the logs ('always', 'never' or 'auto'), defaults to 'auto'
+.B \-\-color always | never | auto
+Coloured logs, default: 'auto'
+.TP
+.B \-\-log-timestamp wall | relative | none
+Timestamped logs, default: 'wall'
 .TP
 .B \-\-gameid <value> | list
 Set gameid or list available ones
@@ -66,14 +67,17 @@ Set network port (UDP) to use
 .TP
 .B \-\-run\-unittests
 Run unit tests and exit
+.TP
+.B \-\-run\-benchmarks
+Run benchmarks and exit
 
 .SH CLIENT OPTIONS
 .TP
 .B \-\-address <value>
-Address to connect to
+Address to connect to ('' = local game)
 .TP
 .B \-\-go
-Disable main menu
+Skip main menu, go directly in-game
 .TP
 .B \-\-name <value>
 Set player name
@@ -85,48 +89,47 @@ Set password
 Set password from contents of file
 .TP
 .B \-\-random\-input
-Enable random user input, for testing (client only)
-.TP
-.TP
-.B \-\-speedtests
-Run speed tests
+Enable random user input (for testing)
 
 .SH SERVER OPTIONS
 .TP
 .B \-\-migrate <value>
-Migrate from current map backend to another. Possible values are sqlite3,
-leveldb, redis, postgresql, and dummy.
+Migrate from current map backend to another. See supported backends
+with \-\-help.
 .TP
 .B \-\-migrate-auth <value>
-Migrate from current auth backend to another. Possible values are sqlite3,
-leveldb, and files.
+Migrate from current auth backend to another. See supported backends
+with \-\-help.
 .TP
 .B \-\-migrate-players <value>
-Migrate from current players backend to another. Possible values are sqlite3,
-leveldb, postgresql, dummy, and files.
+Migrate from current players backend to another. See supported backends
+with \-\-help.
 .TP
 .B \-\-migrate-mod-storage <value>
-Migrate from current mod storage backend to another. Possible values are
-sqlite3, dummy, and files.
+Migrate from current mod storage backend to another. See supported backends
+with \-\-help.
 .TP
 .B \-\-terminal
 Display an interactive terminal over ncurses during execution.
 
-.SH ENVIRONMENT
+.SH ENVIRONMENT VARIABLES
 .TP
 .B MINETEST_GAME_PATH
-Colon delimited list of directories to search for games.
+Colon delimited list of directories to search for games
 .TP
 .B MINETEST_MOD_PATH
-Colon delimited list of directories to search for mods.
+Colon delimited list of directories to search for mods
 .TP
 .B MINETEST_USER_PATH
-Path to Luanti user data directory.
+Path to Luanti user data directory
+.TP
+.B LOG_TIMESTAMP
+Equivalent to \-\-log-timestamp
 
 .SH BUGS
 Please report all bugs at https://github.com/luanti-org/luanti/issues.
 
-.SH AUTHOR
+.SH AUTHORS
 .PP
 Perttu Ahola <celeron55@gmail.com> and contributors.
 .PP
