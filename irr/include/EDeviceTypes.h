@@ -14,7 +14,8 @@ enum E_DEVICE_TYPE
 	EIDT_OSX,
 
 	//! A device which uses Simple DirectMedia Layer
-	/** The SDL device works under all platforms supported by SDL. */
+	/** The SDL device works under all platforms supported by SDL2 or SDL3.
+	See also: CMake option 'USE_SDL3' */
 	EIDT_SDL,
 
 	//! This selection allows Irrlicht to choose the best device from the ones available.

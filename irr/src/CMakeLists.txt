@@ -1,4 +1,10 @@
+set(DEFAULT_SDL3 OFF)
+
 option(USE_SDL2_STATIC "Link with SDL2 static libraries" FALSE)
+
+option(USE_SDL3 "Use the SDL3 backend instead of SDL3" ${DEFAULT_SDL3})
+option(USE_SDL3_STATIC "Link with SDL3 static libraries" FALSE)
+
 
 # Compiler flags
 
@@ -165,8 +171,21 @@ endif()
 if(ENABLE_OPENGL)
 	find_package(OpenGL REQUIRED)
 endif()
+
 set(USE_SDL2_SHARED FALSE)
-if(TRUE)
+if(USE_SDL3)
+	set(USE_SDL2_STATIC FALSE) # do not attempt to link against SDL2
+
+	# https://wiki.libsdl.org/SDL3/README-cmake#a-system-sdl-library
+	if(USE_SDL3_STATIC)
+		set(SDL3_SUFFIX "static")
+	else()
+		set(SDL3_SUFFIX "shared")
+	endif()
+	find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-${SDL3_SUFFIX})
+else()
+	# Fall back to SDL2
+
 	if(NOT USE_SDL2_STATIC)
 		set(USE_SDL2_SHARED TRUE)
 	endif()
@@ -228,7 +247,7 @@ set(link_includes
 	"${ZLIB_INCLUDE_DIR}"
 	"${JPEG_INCLUDE_DIR}"
 	"${PNG_INCLUDE_DIR}"
-	"${SDL2_INCLUDE_DIRS}"
+	"$<$<NOT:$<BOOL:${USE_SDL3}>>:${SDL2_INCLUDE_DIRS}>"
 
 	${OPENGL_INCLUDE_DIR}
 	${OPENGLES2_INCLUDE_DIR}
@@ -387,6 +406,12 @@ if(APPLE)
 	set_target_properties(IRROTHEROBJ PROPERTIES COMPILE_OPTIONS "-xobjective-c++")
 endif()
 
+if(USE_SDL3)
+	include_directories(IRROTHEROBJ $<TARGET_PROPERTY:SDL3::Headers,INTERFACE_INCLUDE_DIRECTORIES>)
+	target_compile_definitions(IRROTHEROBJ PRIVATE _IRR_USE_SDL3_)
+	target_compile_definitions(IRRVIDEOOBJ PRIVATE _IRR_USE_SDL3_) # OpenGL/Common.h
+endif()
+
 add_library(IRRGUIOBJ OBJECT
 	CGUIButton.h
 	CGUICheckBox.h
@@ -484,6 +509,8 @@ target_link_libraries(IrrlichtMt PRIVATE
 	${PNG_LIBRARY}
 	"$<$<BOOL:${USE_SDL2_SHARED}>:SDL2::SDL2>"
 	"$<$<BOOL:${USE_SDL2_STATIC}>:SDL2::SDL2-static>"
+
+	"$<$<BOOL:${USE_SDL3}>:SDL3::SDL3-${SDL3_SUFFIX}>"
 
 	"$<$<BOOL:${OPENGL_DIRECT_LINK}>:${OPENGL_LIBRARIES}>"
 	${EGL_LIBRARY}
