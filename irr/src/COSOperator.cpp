@@ -17,9 +17,13 @@
 #endif
 #endif
 
-#if defined(_IRR_COMPILE_WITH_SDL_DEVICE_)
-#include <SDL_clipboard.h>
-#include <SDL_version.h>
+// "SDL_version.h" for SDL_VERSION_ATLEAST
+#ifdef _IRR_SDL_IS_SDL3_
+	#include <SDL3/SDL_clipboard.h>
+	#include <SDL3/SDL_version.h>
+#else
+	#include <SDL_clipboard.h>
+	#include <SDL_version.h>
 #endif
 
 #include "fast_atof.h"
@@ -143,6 +147,7 @@ bool COSOperator::getSystemMemory(u32 *Total, u32 *Avail) const
 		*Avail = (u32)(physical_memory >> 10); // we don't know better
 	return true;
 #else
+	// TODO: implement for others
 	return false;
 #endif
 }
