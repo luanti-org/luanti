@@ -247,16 +247,14 @@ void MeshUpdateWorkerThread::doUpdate()
 		// /*
 		//  * Calculate LOD
 		//  */
-		v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE // current player block
+		const v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE // current player block
 						// other block positions are on the corner, so offset this position as well for dist calcs
 						- m_client->getMeshGrid().cell_size / 2;
-		u16 dist2 = (cam_pos.X - q->p.X) * (cam_pos.X - q->p.X)
-		            + (cam_pos.Y - q->p.Y) * (cam_pos.Y - q->p.Y)
-		            + (cam_pos.Z - q->p.Z) * (cam_pos.Z - q->p.Z); // distance squared
-		u16 renderDist = g_settings->getU16("lod_threshold");
-		renderDist *= renderDist;
-		const u8 lod = dist2 < renderDist ? 0 :
-		1 + (u8)(std::log2(dist2 / renderDist) / g_settings->getFloat("lod_quality"));
+		const u16 dist2 = cam_pos.getDistanceFromSQ(q->p); // distance squared
+		u16 lod_threshold = g_settings->getU16("lod_threshold");
+		lod_threshold *= lod_threshold;
+		const u8 lod = dist2 < lod_threshold ? 0 :
+		1 + (u8)(std::log2(dist2 / lod_threshold) / g_settings->getFloat("lod_quality"));
 
 		// This generates the mesh:
 		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, lod);

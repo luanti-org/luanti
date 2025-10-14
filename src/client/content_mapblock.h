@@ -174,7 +174,7 @@ private:
 class LodMeshGenerator
 {
 public:
-    LodMeshGenerator(MeshMakeData *input, MeshCollector *output);
+    LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_mono_mat);
     void generate(u8 lod);
 
 private:
@@ -182,6 +182,7 @@ private:
     MeshCollector *const collector;
     const NodeDefManager *const nodedef;
 	const v3s16 blockpos_nodes;
+	const bool m_is_mono_mat;
 
 	// max bits the fit in a bitset
 	static constexpr s16 BITSET_MAX = 64;
@@ -193,12 +194,19 @@ private:
 	static constexpr s16 BITSET_MAX_NOPAD2 = BITSET_MAX_NOPAD * BITSET_MAX_NOPAD;
 
 	using bitset = u64;
-	bitset m_nodes_faces[6 * BITSET_MAX_NOPAD * BITSET_MAX_NOPAD];
-	bitset m_slices[6 * BITSET_MAX_NOPAD * BITSET_MAX_NOPAD];
+	bitset m_nodes_faces[6 * BITSET_MAX_NOPAD2];
+	bitset m_slices[6 * BITSET_MAX_NOPAD2];
 
-    static constexpr v3s16 directions[6] = {v3s16(0, -1, 0), v3s16(0, 1, 0),
-	                                        v3s16(-1, 0, 0), v3s16(1, 0, 0),
-	                                        v3s16(0, 0, -1), v3s16(0, 0, 1)};
+    static constexpr v3s16 directions[6] = {
+    	v3s16(0, -1, 0), v3s16(0, 1, 0),
+	    v3s16(-1, 0, 0), v3s16(1, 0, 0),
+	    v3s16(0, 0, -1), v3s16(0, 0, 1)
+    };
+	static constexpr core::vector3df normals[6] = {
+		core::vector3df(-1, 0, 0), core::vector3df(1, 0, 0),
+		core::vector3df(0, -1, 0), core::vector3df(0, 1, 0),
+		core::vector3df(0, 0, -1), core::vector3df(0, 0, 1)
+	};
 
     void findClosestOfTypes(std::bitset<NodeDrawType_END> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const;
     void generateDetailLod(std::bitset<NodeDrawType_END> types, u32, core::vector2d<f32>[4]);

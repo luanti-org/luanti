@@ -1823,16 +1823,17 @@ void MapblockMeshGenerator::generate()
 	}
 }
 
-LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output):
+LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_mono_mat):
     data(input),
     collector(output),
     nodedef(data->m_nodedef),
-    blockpos_nodes(data->m_blockpos * MAP_BLOCKSIZE)
+    blockpos_nodes(data->m_blockpos * MAP_BLOCKSIZE),
+	m_is_mono_mat(is_mono_mat)
 {
 }
 
 void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
-										  const v3s16 seg_start, const video::SColor color)
+										  const v3s16 seg_start, video::SColor color)
 {
 	static constexpr v3s16 direction_vectors[6] = {
 		v3s16(-1, 0, 0), v3s16(1, 0, 0),
@@ -1840,6 +1841,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 		v3s16(0, 0, -1), v3s16(0, 0, 1)
 	};
 	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
+	const f32 scaled_BS = BS * width;
 
 	core::vector3df vertices[4];
 	video::S3DVertex irr_vertices[4];
@@ -1864,23 +1866,18 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 						u1++;
 						}
 					const core::vector2d<f32> uvs[4] = {
-						core::vector2d<f32>{0, static_cast<f32>(v1)},
+						core::vector2d<f32>{0, static_cast<f32>(v1*width)},
 						core::vector2d<f32>{0, 0},
-						core::vector2d<f32>{static_cast<f32>(u1), 0},
-						core::vector2d<f32>{static_cast<f32>(u1), static_cast<f32>(v1)}
+						core::vector2d<f32>{static_cast<f32>(u1*width), 0},
+						core::vector2d<f32>{static_cast<f32>(u1*width), static_cast<f32>(v1*width)}
 					};
-					u1 = (u + u1) * BS * width - BS / 2;
-					const s32 u0 = u * BS * width - BS / 2;
-					v1 = (v0 + v1) * BS * width - BS / 2;
-					v0 = v0 * BS * width - BS / 2;
+					u1 = (u + u1) * scaled_BS - BS / 2;
+					const s32 u0 = u * scaled_BS - BS / 2;
+					v1 = (v0 + v1) * scaled_BS - BS / 2;
+					v0 = v0 * scaled_BS - BS / 2;
 					const s32 w = ((slice_i + 1) * width - 1
 							+ (direction % 2 == 0 ? -width + 1 : 1)) * BS
 						- BS / 2;
-					static constexpr core::vector3df normals[6] = {
-						core::vector3df(-1, 0, 0), core::vector3df(1, 0, 0),
-						core::vector3df(0, -1, 0), core::vector3df(0, 1, 0),
-						core::vector3df(0, 0, -1), core::vector3df(0, 0, 1)
-					};
 					switch (direction) {
 					case 0:
 						vertices[0] = core::vector3df(w, u0, v1);
@@ -1917,6 +1914,12 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 					for (core::vector3df& v : vertices)
 						v += seg_offset;
 
+					if (m_is_mono_mat && tile.layers[0].has_color)
+						color.set(color.getAlpha(),
+							color.getRed() * tile.layers[0].color.getRed() / 255,
+							color.getGreen() * tile.layers[0].color.getGreen() / 255,
+							color.getBlue() * tile.layers[0].color.getBlue() / 255);
+
 					switch (direction) {
 					case 0:
 					case 2:
@@ -1932,7 +1935,14 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 						irr_vertices[2] = video::S3DVertex(vertices[2], normals[direction], color, uvs[2]);
 						irr_vertices[3] = video::S3DVertex(vertices[1], normals[direction], color, uvs[3]);
 					}
-					collector->append(tile, irr_vertices, 4, quad_indices, 6);
+					thread_local constexpr TileSpec static_tile = [] {
+						TileSpec tile;
+						TileLayer layer;
+						layer.texture_id = 1;
+						tile.layers[0] = layer;
+						return tile;
+					}();
+					collector->append(m_is_mono_mat ? static_tile : tile, irr_vertices, 4, quad_indices, 6);
 				}
 			}
 		}
