@@ -24,10 +24,6 @@ static const char *const copyright = "Irrlicht Engine (c) 2002-2017 Nikolaus Geb
 #include "CIrrDeviceSDL.h"
 #endif
 
-#ifdef _IRR_COMPILE_WITH_SDL3_DEVICE_
-#include "CIrrDeviceSDL3.h"
-#endif
-
 //! stub for calling createDeviceEx
 IrrlichtDevice *createDevice(video::E_DRIVER_TYPE driverType,
 		const core::dimension2d<u32> &windowSize,
@@ -71,11 +67,6 @@ extern "C" IrrlichtDevice *createDeviceEx(const SIrrlichtCreationParameters &par
 #ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
 	if (params.DeviceType == EIDT_SDL || (!dev && params.DeviceType == EIDT_BEST))
 		dev = new CIrrDeviceSDL(params);
-#endif
-
-#ifdef _IRR_COMPILE_WITH_SDL3_DEVICE_
-	if (params.DeviceType == EIDT_SDL3 || (!dev && params.DeviceType == EIDT_BEST))
-		dev = new CIrrDeviceSDL3(params);
 #endif
 
 	if (dev && !dev->getVideoDriver() && params.DriverType != video::EDT_NULL) {

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#if defined(_IRR_COMPILE_WITH_SDL_DEVICE_)
+#ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
 
 #include "IrrlichtDevice.h"
 #include "CIrrDeviceStub.h"
