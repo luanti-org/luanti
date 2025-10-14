@@ -1207,9 +1207,6 @@ public:
 	void extGlBindTextures(GLuint first, GLsizei count, const GLuint *textures, const GLenum *targets);
 	void extGlGenerateTextureMipmap(GLuint texture, GLenum target);
 
-	// generic vsync setting method for several extensions
-	void extGlSwapInterval(int interval);
-
 	// the global feature array
 	bool FeatureAvailable[IRR_OpenGL_Feature_Count];
 
@@ -1388,19 +1385,6 @@ protected:
 	PFNGLNAMEDFRAMEBUFFERTEXTUREEXTPROC pGlNamedFramebufferTextureEXT;
 	PFNGLFRAMEBUFFERTEXTUREPROC pGlFramebufferTexture;
 	PFNGLGENERATETEXTUREMIPMAPEXTPROC pGlGenerateTextureMipmapEXT;
-
-#if defined(WGL_EXT_swap_control)
-	PFNWGLSWAPINTERVALEXTPROC pWglSwapIntervalEXT;
-#endif
-#if defined(GLX_SGI_swap_control)
-	PFNGLXSWAPINTERVALSGIPROC pGlxSwapIntervalSGI;
-#endif
-#if defined(GLX_EXT_swap_control)
-	PFNGLXSWAPINTERVALEXTPROC pGlxSwapIntervalEXT;
-#endif
-#if defined(GLX_MESA_swap_control)
-	PFNGLXSWAPINTERVALMESAPROC pGlxSwapIntervalMESA;
-#endif
 };
 
 inline void COpenGLExtensionHandler::irrGlActiveTexture(GLenum texture)
@@ -2581,32 +2565,6 @@ inline void COpenGLExtensionHandler::extGlGenerateTextureMipmap(GLuint texture, 
 	}
 }
 
-inline void COpenGLExtensionHandler::extGlSwapInterval(int interval)
-{
-	// we have wglext, so try to use that
-#if defined(_IRR_WINDOWS_API_) && defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_)
-#ifdef WGL_EXT_swap_control
-	if (pWglSwapIntervalEXT)
-		pWglSwapIntervalEXT(interval);
-#endif
-#endif
-#ifdef _IRR_COMPILE_WITH_X11_DEVICE_
-#if defined(GLX_MESA_swap_control)
-	if (pGlxSwapIntervalMESA)
-		pGlxSwapIntervalMESA(interval);
-#elif defined(GLX_EXT_swap_control)
-	Display *dpy = glXGetCurrentDisplay();
-	GLXDrawable drawable = glXGetCurrentDrawable();
-	if (pGlxSwapIntervalEXT)
-		pGlxSwapIntervalEXT(dpy, drawable, interval);
-#elif defined(GLX_SGI_swap_control)
-	// does not work with interval==0
-	if (interval && pGlxSwapIntervalSGI)
-		pGlxSwapIntervalSGI(interval);
-}
-#endif
-#endif
-}
 }
 
 #endif
