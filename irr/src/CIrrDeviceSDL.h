@@ -111,9 +111,9 @@ public:
 	//! Get the SDL version
 	std::string getVersionString() const override
 	{
+		char buf[32];
 #ifdef _IRR_SDL_IS_SDL3_
 		int ver = SDL_GetVersion();
-		char buf[32];
 		snprintf_irr(buf, sizeof(buf), "%d.%d.%d (%d.%d.%d)",
 			// Version of the dynamic library
 			SDL_VERSIONNUM_MAJOR(ver),
@@ -126,9 +126,15 @@ public:
 		);
 		return std::string(buf);
 #else
-		SDL_version ver;
+		SDL_version ver{};
 		SDL_GetVersion(&ver);
-		return std::to_string(ver.major) + "." + std::to_string(ver.minor) + "." + std::to_string(ver.patch);
+		snprintf_irr(buf, sizeof(buf), "%d.%d.%d%s",
+			ver.major, ver.minor, ver.patch,
+			// the SDL team seems to intentionally number sdl2-compat this way:
+			// <https://github.com/libsdl-org/sdl2-compat/tags>
+			ver.patch >= 50 ? " (compat)" : ""
+		);
+		return std::string(buf);
 #endif
 	}
 

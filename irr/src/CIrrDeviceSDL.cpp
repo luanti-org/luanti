@@ -279,6 +279,7 @@ Keycode CIrrDeviceSDL::getKeyFromScancode(const u32 scancode) const
 
 #ifndef _IRR_SDL_IS_SDL3_
 	// SDL2 backwards compatibility for things that were renamed in SDL3.
+	#define SDL_TextInputActive(unused) SDL_IsTextInputActive()
 	#define SDL_CloseJoystick SDL_JoystickClose
 	#define SDL_GL_DestroyContext SDL_GL_DeleteContext
 
@@ -415,13 +416,6 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 	core::stringc sdlver = "SDL ";
 	{
 		sdlver += getVersionString();
-#ifndef _IRR_SDL_IS_SDL3_
-		// the SDL team seems to intentionally number sdl2-compat this way:
-		// <https://github.com/libsdl-org/sdl2-compat/tags>
-		if (v.patch >= 50)
-			sdlver += " (compat)";
-#endif
-
 		sdlver += " on ";
 		sdlver += SDL_GetPlatform();
 	}
@@ -756,11 +750,10 @@ static int wrap_PollEvent(SDL_Event *ev)
 
 #ifndef _IRR_SDL_IS_SDL3_
 	// SDL2 backwards compatibility for things that were renamed in SDL3.
-	#define SDL_TextInputActive(unused) SDL_IsTextInputActive()
-
 	#define SDL_EVENT_MOUSE_MOTION SDL_MOUSEMOTION
 	#define SDL_KMOD_SHIFT KMOD_SHIFT
 	#define SDL_KMOD_CTRL KMOD_CTRL
+	#define SDL_KMOD_NUM KMOD_NUM
 
 	#define SDL_EVENT_MOUSE_WHEEL SDL_MOUSEWHEEL
 	#define SDL_EVENT_MOUSE_BUTTON_DOWN SDL_MOUSEBUTTONDOWN
@@ -1384,7 +1377,11 @@ void CIrrDeviceSDL::setResizable(bool resize)
 #else  // !_IRR_EMSCRIPTEN_PLATFORM_
 	if (resize != Resizable) {
 		if (Window) {
+#ifdef _IRR_SDL_IS_SDL3_
 			SDL_SetWindowResizable(Window, resize);
+#else
+			SDL_SetWindowResizable(Window, (SDL_bool)resize);
+#endif
 		}
 		Resizable = resize;
 	}
