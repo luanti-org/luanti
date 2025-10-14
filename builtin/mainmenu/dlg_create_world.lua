@@ -79,14 +79,14 @@ local mgv6_biomes = {
 }
 
 local mapgens_descriptions = {
-	v7 = fgettext("Default mapgen with large complex mountains and plains"),
-	valleys = fgettext("Large valleys with complex terrain and rivers"),
-	carpathian = fgettext("Realistic looking world with vast plains"),
-	v5 = fgettext("Simple, but jagged landscape"),
+	v7 = fgettext("Complex mountains, plains and ridges"),
+	valleys = fgettext("Valleys with complex terrain and mountain rivers"),
+	carpathian = fgettext("Realistic world with vast plains and mountain ranges"),
+	v5 = fgettext("Jagged, unrealistic landscape with common terrain overhangs"),
 	flat = fgettext("Flat world terrain"),
 	fractal = fgettext("World with a fractal structure"),
-	singlenode = fgettext("Empty world, commonly used for Lua-defined mapgens"),
-	v6 = fgettext("Simple mapgen with few features"),
+	singlenode = fgettext("Empty world, often overridden by games and mods"),
+	v6 = fgettext("Hills, plains and cliffs"),
 }
 
 local function create_world_formspec(dialogdata)
