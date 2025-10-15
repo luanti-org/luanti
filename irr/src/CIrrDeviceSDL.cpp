@@ -259,6 +259,7 @@ std::variant<u32, EKEY_CODE> CIrrDeviceSDL::getScancodeFromKey(const Keycode &ke
 	SDL_Keymod kmod = SDL_KMOD_NONE; // TODO: respect modifiers
 	return (u32)SDL_GetScancodeFromKey(keynum, &kmod);
 #else
+	// Modifiers not supported
 	return (u32)SDL_GetScancodeFromKey(keynum);
 #endif
 }
@@ -269,6 +270,7 @@ Keycode CIrrDeviceSDL::getKeyFromScancode(const u32 scancode) const
 	// TODO: SDL_HINT_KEYCODE_OPTIONS ?
 	auto keycode = SDL_GetKeyFromScancode((SDL_Scancode)scancode, SDL_KMOD_NONE, true);
 #else
+	// Modifiers not supported
 	auto keycode = SDL_GetKeyFromScancode((SDL_Scancode)scancode);
 #endif
 	const auto &keyentry = KeyMap.find(keycode);
@@ -1007,9 +1009,9 @@ bool CIrrDeviceSDL::run()
 		case SDL_EVENT_KEY_DOWN:
 		case SDL_EVENT_KEY_UP: {
 #ifdef _IRR_SDL_IS_SDL3_
-			auto keysym = 0; // TODO
-			auto scancode = SDL_event.key.scancode;
-			auto keymod = SDL_event.key.mod;
+			SDL_Keycode keysym = SDL_event.key.key;
+			SDL_Scancode scancode = SDL_event.key.scancode;
+			SDL_Keymod keymod = SDL_event.key.mod;
 #else
 			auto keysym = SDL_event.key.keysym.sym;
 			auto scancode = SDL_event.key.keysym.scancode;

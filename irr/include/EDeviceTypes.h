@@ -23,13 +23,8 @@ enum E_DEVICE_TYPE
 
 	//! A device which uses Simple DirectMedia Layer
 	/** The SDL device works under all platforms supported by SDL but first must be compiled
-	in by setting the USE_SDL2 CMake option to ON */
+	in by setting the USE_SDL2 or USE_SDL3 CMake option to ON */
 	EIDT_SDL,
-
-	//! A device which uses Simple DirectMedia Layer Version 3
-	/** The SDL device works under all platforms supported by SDL but first must be compiled
-	in by setting the USE_SDL3 CMake option to ON */
-	EIDT_SDL3,
 
 	//! This selection allows Irrlicht to choose the best device from the ones available.
 	/** If this selection is chosen then Irrlicht will try to use the IrrlichtDevice native
