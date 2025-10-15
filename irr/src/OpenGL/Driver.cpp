@@ -1704,8 +1704,10 @@ bool COpenGL3DriverBase::setRenderTargetEx(IRenderTarget *target, u16 clearFlag,
 	if (CurrentRenderTarget) {
 		// Update mip-map of the generated texture, if enabled.
 		auto textures = CurrentRenderTarget->getTexture();
-		for (size_t i = 0; i < textures.size(); ++i)
-			textures[i]->regenerateMipMapLevels();
+		for (size_t i = 0; i < textures.size(); ++i) {
+			if (textures[i])
+				textures[i]->regenerateMipMapLevels();
+		}
 	}
 
 	core::dimension2d<u32> destRenderTargetSize(0, 0);

@@ -118,9 +118,9 @@ void drawItemStack(
 
 		video::SColor basecolor = item_visuals->getItemstackColor(item, client);
 
-		const u32 mc = mesh->getMeshBufferCount();
-		if (mc > imesh->buffer_info.size())
-			imesh->buffer_info.resize(mc);
+		u32 mc = mesh->getMeshBufferCount();
+		assert(mc <= imesh->buffer_info.size());
+		mc = std::min<u32>(mc, imesh->buffer_info.size());
 		for (u32 j = 0; j < mc; ++j) {
 			scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
 			video::SColor c = basecolor;
@@ -144,7 +144,6 @@ void drawItemStack(
 				p.animation_info->updateTexture(material, client->getAnimationTime());
 			}
 
-			material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
 			driver->setMaterial(material);
 			driver->drawMeshBuffer(buf);
 		}

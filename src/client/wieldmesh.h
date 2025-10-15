@@ -49,13 +49,14 @@ class ItemMeshBufferInfo
 
 public:
 
-	ItemMeshBufferInfo() = default;
+	ItemMeshBufferInfo(int layer) : layer(layer) {}
 
-	ItemMeshBufferInfo(bool override, video::SColor color) :
-		override_color(color), override_color_set(override)
+	ItemMeshBufferInfo(int layer, bool override, video::SColor color) :
+		override_color(color), override_color_set(override),
+		layer(layer)
 	{}
 
-	ItemMeshBufferInfo(const TileLayer &layer);
+	ItemMeshBufferInfo(int layer_num, const TileLayer &layer);
 
 	void applyOverride(video::SColor &dest) const {
 		if (override_color_set)
@@ -69,6 +70,9 @@ public:
 		last_colorized = target;
 		return true;
 	}
+
+	// Index of the tile layer this mesh buffer belongs to
+	u8 layer;
 
 	// Null for no animated parts
 	std::unique_ptr<AnimationInfo> animation_info;
@@ -132,6 +136,7 @@ private:
 
 	// Child scene node with the current wield mesh
 	scene::IMeshSceneNode *m_meshnode = nullptr;
+	// Material types used as fallback
 	video::E_MATERIAL_TYPE m_material_type;
 
 	bool m_anisotropic_filter;
@@ -156,6 +161,10 @@ private:
 	ShadowRenderer *m_shadow;
 };
 
+/**
+ * NOTE: The item mesh is only suitable for inventory rendering (due to its
+ * material types). In-world rendering of items must go through WieldMeshSceneNode.
+ */
 void getItemMesh(Client *client, const ItemStack &item, ItemMesh *result);
 
 scene::SMesh *getExtrudedMesh(video::ITexture *texture,

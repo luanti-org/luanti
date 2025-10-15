@@ -16,35 +16,46 @@ These are the current medium-term goals for Luanti development, in no
 particular order.
 
 These goals were created from the top points in a
-[roadmap brainstorm](https://github.com/luanti-org/luanti/issues/10461).
-This should be reviewed approximately yearly, or when goals are achieved.
+[roadmap brainstorm](https://github.com/luanti-org/luanti/issues/16162).
+This is reviewed approximately every two years.
 
 Pull requests that address one of these goals will be labeled as "Roadmap".
 PRs that are not on the roadmap will be closed unless they receive a concept
-approval within a month, issues can be used for preapproval.
-Bug fixes are exempt for this, and are always accepted and prioritized.
+approval within a month. Issues can be used for preapproval.
+Bug fixes are exempt from this, and are always accepted and prioritized.
 See [CONTRIBUTING.md](../.github/CONTRIBUTING.md) for more info.
 
-### 2.1 Rendering/Graphics improvements
+### 2.1 SSCSM
 
-The priority is fixing the issues, performance, and general correctness.
-Once that is done, fancier features can be worked on, such as water shaders,
-shadows, and improved lighting.
+Server-sent client-side modding (SSCSM) is a long requested feature (both by
+modders and core devs) where, as the name suggests, the server sends modding
+scripts to the client for it to execute in a sandbox. This allows mods to run
+code on the client, similar to how web pages can run javascript code in web
+browsers.
 
-Examples include
-[transparency sorting](https://github.com/luanti-org/luanti/issues/95),
-[particle performance](https://github.com/luanti-org/luanti/issues/1414),
-[general view distance](https://github.com/luanti-org/luanti/issues/7222).
+Due to the avoided network latency, the engine can provide APIs in this new
+scripting environment for things that need to happen in a synchronous fashion,
+allowing mods to overwrite various things that are currently hard-coded in the
+client.
+For some APIs, it also just makes more sense to have them exist on the client,
+and not tunnel every call through the server, only leading to technical debt
+once SSCSM arrives.
+Lastly, parts of the computation of mods can be moved to the client, improving
+server performance.
 
-This includes work on maintaining
-[our Irrlicht fork](https://github.com/luanti-org/luanti/tree/master/irr), and switching to
-alternative libraries to replace Irrlicht functionality as needed
+Instead of focusing on short-term solutions that will inevitably lead to more
+technical debt to deal with, SSCSM paves the way for a cleaner architecture
+designed to stay.
 
-### 2.2 Internal code refactoring
+### 2.2 Input Handling
 
-To ensure sustainable development, Luanti's code needs to be
-[refactored and improved](https://github.com/luanti-org/luanti/pulls?q=is%3Aopen+sort%3Aupdated-desc+label%3A%22Code+quality%22).
-This will remove code rot and allow for more efficient development.
+Luanti keys are currently limited to a small subset, not allowing game developers
+to map the majority of the keys a device usually offers. This limits the possibilities
+of game creators, forcing them to either implement a workaround or, worse, forget
+about it.
+
+Using a gamepad also represents a known issue in Luanti, as some devices might not
+work at all or result in an uncomfortable user experience.
 
 ### 2.3 UI Improvements
 
@@ -55,15 +66,6 @@ be a replacement for HUDs, allowing for a unified API.
 A [new mainmenu](https://github.com/luanti-org/luanti/issues/6733) is needed to
 improve user experience. First impressions matter, and the current main menu
 doesn't do a very good job at selling Luanti or explaining what it is.
-A new main menu should promote games to users, allowing Minetest Game to no
-longer be bundled by default.
 
 The UI code is undergoing rapid changes, so it is especially important to make
 an issue for any large changes before spending lots of time.
-
-### 2.4 Object and entity improvements
-
-There are still a significant number of issues with objects.
-Collisions,
-[performance](https://github.com/luanti-org/luanti/issues/6453),
-API convenience, and discrepancies between players and entities.

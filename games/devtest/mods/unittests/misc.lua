@@ -319,7 +319,7 @@ local function test_mapgen_env(cb)
 end
 unittests.register("test_mapgen_env", test_mapgen_env, {async=true})
 
-local function test_ipc_vector_preserve(cb)
+local function test_ipc_vector_preserve()
 	-- the IPC also uses register_portable_metatable
 	core.ipc_set("unittests:v", vector.new(4, 0, 4))
 	local v = core.ipc_get("unittests:v")
@@ -328,7 +328,7 @@ local function test_ipc_vector_preserve(cb)
 end
 unittests.register("test_ipc_vector_preserve", test_ipc_vector_preserve)
 
-local function test_ipc_poll(cb)
+local function test_ipc_poll()
 	core.ipc_set("unittests:flag", nil)
 	assert(core.ipc_poll("unittests:flag", 1) == false)
 
@@ -342,3 +342,24 @@ local function test_ipc_poll(cb)
 	print("delta: " .. (core.get_us_time() - t0) .. "us")
 end
 unittests.register("test_ipc_poll", test_ipc_poll)
+
+local function test_sandbox()
+	if not core.settings:get_bool("secure.enable_security") then
+		core.log("warning", "Lua sandbox disabled, skipping test")
+		return
+	end
+	-- this would point to _G but we have it unset
+	assert(package.loaded == nil)
+	-- string metatable must match global string table
+	assert(rawequal(getmetatable("").__index, string))
+	-- (some) entirely dangerous functions
+	assert(debug.getupvalue == nil)
+	assert(debug.setlocal == nil)
+	assert(debug.getmetatable == nil)
+	assert(os.execute == nil)
+	assert(io.popen == nil)
+	-- getinfo should not allow access to functions
+	assert(debug.getinfo(1).func == nil)
+	assert(debug.getinfo(function() end, "f").func ~= nil)
+end
+unittests.register("test_sandbox", test_sandbox)
