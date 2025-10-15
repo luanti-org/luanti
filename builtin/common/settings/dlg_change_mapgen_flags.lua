@@ -56,7 +56,7 @@ local function get_formspec(dialogdata)
 	end
 	-- First row
 	height = height + 0.3
-	add_field(0.3, "te_offset", fgettext("Offset"), t[1], {fgettext("This value offsets the final noise.")})
+	add_field(0.3, "te_offset", fgettext("Offset"), t[1], {fgettext("Offsets the final noise")})
 	add_field(3.6, "te_scale",  fgettext("Scale"),  t[2], {
 			fgettext("This value is multiplied with the noise before the offset is added.")})
 	add_field(6.9, "te_seed",   fgettext("Seed"),   t[6], {
