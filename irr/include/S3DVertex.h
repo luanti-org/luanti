@@ -41,17 +41,17 @@ struct S3DVertex
 {
 	//! default constructor
 	constexpr S3DVertex() :
-			Color(0xffffffff) {}
+			Color(0xffffffff), Aux(0) {}
 
 	//! constructor
-	constexpr S3DVertex(f32 x, f32 y, f32 z, f32 nx, f32 ny, f32 nz, SColor c, f32 tu, f32 tv) :
-			Pos(x, y, z), Normal(nx, ny, nz), Color(c), TCoords(tu, tv) {}
+	constexpr S3DVertex(f32 x, f32 y, f32 z, f32 nx, f32 ny, f32 nz, SColor c, f32 tu, f32 tv, u16 a = 0) :
+			Pos(x, y, z), Normal(nx, ny, nz), Color(c), TCoords(tu, tv), Aux(a) {}
 
 	//! constructor
 	constexpr S3DVertex(const core::vector3df &pos, const core::vector3df &normal,
-			SColor color, const core::vector2df &tcoords) :
+			SColor color, const core::vector2df &tcoords, u16 aux = 0) :
 			Pos(pos),
-			Normal(normal), Color(color), TCoords(tcoords) {}
+			Normal(normal), Color(color), TCoords(tcoords), Aux(aux) {}
 
 	//! Position
 	core::vector3df Pos;
@@ -65,24 +65,42 @@ struct S3DVertex
 	//! Texture coordinates
 	core::vector2df TCoords;
 
+	//! Auxiliary value (free to use)
+	u16 Aux;
+
 	constexpr bool operator==(const S3DVertex &other) const
 	{
 		return ((Pos == other.Pos) && (Normal == other.Normal) &&
-				(Color == other.Color) && (TCoords == other.TCoords));
+				(Color == other.Color) && (TCoords == other.TCoords) &&
+				(Aux == other.Aux));
 	}
 
 	constexpr bool operator!=(const S3DVertex &other) const
 	{
 		return ((Pos != other.Pos) || (Normal != other.Normal) ||
-				(Color != other.Color) || (TCoords != other.TCoords));
+				(Color != other.Color) || (TCoords != other.TCoords) ||
+				(Aux != other.Aux));
 	}
 
 	constexpr bool operator<(const S3DVertex &other) const
 	{
-		return ((Pos < other.Pos) ||
-				((Pos == other.Pos) && (Normal < other.Normal)) ||
-				((Pos == other.Pos) && (Normal == other.Normal) && (Color < other.Color)) ||
-				((Pos == other.Pos) && (Normal == other.Normal) && (Color == other.Color) && (TCoords < other.TCoords)));
+		if (Pos < other.Pos)
+			return true;
+		if (Pos != other.Pos)
+			return false;
+		if (Normal < other.Normal)
+			return true;
+		if (Normal != other.Normal)
+			return false;
+		if (Color < other.Color)
+			return true;
+		if (Color != other.Color)
+			return false;
+		if (TCoords < other.TCoords)
+			return true;
+		if (TCoords != other.TCoords)
+			return false;
+		return Aux < other.Aux;
 	}
 
 	//! Get type of the class
@@ -98,9 +116,12 @@ struct S3DVertex
 		return S3DVertex(Pos.getInterpolated(other.Pos, d),
 				Normal.getInterpolated(other.Normal, d),
 				Color.getInterpolated(other.Color, d),
-				TCoords.getInterpolated(other.TCoords, d));
+				TCoords.getInterpolated(other.TCoords, d),
+				d == 0.0f ? other.Aux : Aux);
 	}
 };
+
+// FIXME: the following types don't handle `Aux`, but we don't use them in situations where it's relevant.
 
 //! Vertex with two texture coordinates.
 /** Usually used for geometry with lightmaps
