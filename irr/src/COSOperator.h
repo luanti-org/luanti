@@ -6,16 +6,11 @@
 
 #include "IOSOperator.h"
 
-class CIrrDeviceLinux;
-
 //! The OSOperator provides OS-specific methods and information.
 class COSOperator : public IOSOperator
 {
 public:
 	// constructor
-#if defined(_IRR_COMPILE_WITH_X11_DEVICE_)
-	COSOperator(const core::stringc &osversion, CIrrDeviceLinux *device);
-#endif
 	COSOperator(const core::stringc &osversion);
 
 	~COSOperator();
@@ -52,10 +47,6 @@ public:
 
 private:
 	core::stringc OperatingSystem;
-
-#if defined(_IRR_COMPILE_WITH_X11_DEVICE_)
-	CIrrDeviceLinux *IrrDeviceLinux;
-#endif
 
 #ifdef _IRR_WINDOWS_API_
 	mutable core::stringc ClipboardBuf;
