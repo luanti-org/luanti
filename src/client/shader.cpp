@@ -666,9 +666,11 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			uniform mediump mat4 mTexture;
 
 			attribute highp vec4 inVertexPosition;
-			attribute lowp vec4 inVertexColor;
-			attribute mediump vec2 inTexCoord0;
 			attribute mediump vec3 inVertexNormal;
+			attribute lowp vec4 inVertexColor;
+			attribute mediump float inVertexAux;
+			attribute mediump vec2 inTexCoord0;
+			attribute mediump vec2 inTexCoord1;
 			attribute mediump vec4 inVertexTangent;
 			attribute mediump vec4 inVertexBinormal;
 		)";

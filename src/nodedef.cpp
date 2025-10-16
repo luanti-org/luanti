@@ -891,6 +891,23 @@ static bool isWorldAligned(AlignStyle style, WorldAlignMode mode, NodeDrawType d
 	return false;
 }
 
+/// @return maximum number of layers in array textures we can use (0 if unsupported)
+static size_t getArrayTextureMax(video::IVideoDriver *driver)
+{
+	// needs to actually support array textures
+	if (!driver->queryFeature(video::EVDF_TEXTURE_2D_ARRAY))
+		return 0;
+	// must not be the legacy driver, due to custom vertex format
+	if (driver->getDriverType() == video::EDT_OPENGL)
+		return 0;
+	u32 n = driver->getLimits().MaxArrayTextureImages;
+	n = std::min(n, 65535U); // layer index is u16
+	// TODO: https://developer.arm.com/documentation/102502/0101/Shader-precision mediump?
+	if (getenv("ARRAYMAX"))
+		n = std::min<u32>(n, atoi(getenv("ARRAYMAX")));
+	return n;
+}
+
 void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
 	Client *client, PreLoadedTextures *texture_pool,
 	const TextureSettings &tsettings)
@@ -1029,7 +1046,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		}
 	}
 
-	const bool texture_2d_array = RenderingEngine::get_video_driver()->queryFeature(video::EVDF_TEXTURE_2D_ARRAY);
+	const bool texture_2d_array = getArrayTextureMax(RenderingEngine::get_video_driver()) > 1;
 	const auto &getNodeShader = [&] (MaterialType my_material, NodeDrawType my_drawtype) {
 		ShaderIds ret;
 		ret.normal = shdsrc->getShader("nodes_shader", my_material, my_drawtype);
@@ -1639,13 +1656,7 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 	}
 
 	/* texture pre-loading stage */
-	auto *drv = RenderingEngine::get_video_driver();
-	u32 arraymax = drv->queryFeature(video::EVDF_TEXTURE_2D_ARRAY) ?
-		drv->getLimits().MaxArrayTextureImages : 0;
-	arraymax = std::min(arraymax, 65535U); // layer index is u16
-	if (getenv("ARRAYMAX"))
-		arraymax = std::min(arraymax, (u32)atoi(getenv("ARRAYMAX")));
-	// TODO: https://developer.arm.com/documentation/102502/0101/Shader-precision mediump?
+	const size_t arraymax = getArrayTextureMax(RenderingEngine::get_video_driver());
 	// Group by size
 	std::unordered_map<v2u32, std::vector<std::string_view>> sizes;
 	if (arraymax > 1) {
@@ -1678,7 +1689,7 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 		if (t.texture) {
 			// Success: all of the images in this bunch can now refer to this texture
 			for (size_t idx = 0; idx < bunch.size(); idx++) {
-				t.texture_layer_idx = 1 + idx;
+				t.texture_layer_idx = idx;
 				plt.add(bunch[idx], t);
 			}
 		}

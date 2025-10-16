@@ -152,15 +152,9 @@ float snoise(vec3 p)
 void main(void)
 {
 #ifdef USE_ARRAY_TEXTURE
-	// we shove the texture layer index into the U component
-	if (inTexCoord0.s < 0.0)
-		varTexCoord = vec2(1.0, inTexCoord0.t);
-	else
-		varTexCoord = vec2(mod(inTexCoord0.s, 1.0), inTexCoord0.t);
-	varTexLayer = abs(floor(inTexCoord0.s)) - 1.0;
-#else
-	varTexCoord = inTexCoord0.st;
+	varTexLayer = inVertexAux;
 #endif
+	varTexCoord = inTexCoord0.st;
 
 	float disp_x;
 	float disp_z;

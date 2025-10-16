@@ -23,21 +23,12 @@ void MeshCollector::append(const TileLayer &layer, const video::S3DVertex *verti
 {
 	PreMeshBuffer &p = findBuffer(layer, layernum, numVertices);
 
-	const auto &modify_uv = [&] (v2f uv) {
-		if (!layer.texture_layer_idx)
-			return uv;
-		// We can keep the fractional part intact, but we need to know if
-		// the value originally was exactly 1.0
-		uv.X = std::clamp(uv.X, 0.0f, 1.0f); // uhhh
-		if (uv.X == 1.0f)
-			return v2f(-layer.texture_layer_idx, uv.Y);
-		return v2f(uv.X + layer.texture_layer_idx, uv.Y);
-	};
+	const u16 aux = layer.texture_layer_idx;
 
 	u32 vertex_count = p.vertices.size();
 	for (u32 i = 0; i < numVertices; i++) {
 		p.vertices.emplace_back(vertices[i].Pos + offset, vertices[i].Normal,
-				vertices[i].Color, modify_uv(vertices[i].TCoords));
+				vertices[i].Color, vertices[i].TCoords, aux);
 		m_bounding_radius_sq = std::max(m_bounding_radius_sq,
 				(vertices[i].Pos - m_center_pos).getLengthSQ());
 	}

@@ -123,7 +123,7 @@ struct TileLayer
 	u16 animation_frame_length_ms = 0;
 	u16 animation_frame_count = 1;
 
-	/// Layer index to use (1-indexed), if the texture is an array texture
+	/// Layer index to use, if the texture is an array texture
 	u16 texture_layer_idx = 0;
 
 	MaterialType material_type = TILE_MATERIAL_BASIC;
