@@ -655,9 +655,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 		for(u32 i = 0; i < collector.prebuffers[0].size(); i++) {
 			scene::SMeshBuffer *buf = new scene::SMeshBuffer();
 			buf->Material = monoMaterial;
-
 			PreMeshBuffer &p = collector.prebuffers[0][i];
-			p.applyColor(video::SColor(0, 127, 80 * (lod % 4), 127 * (lod % 3)));
 
 			if (p.layer.isTransparent()) {
 				buf->append(&p.vertices[0], p.vertices.size(), nullptr, 0);
@@ -677,7 +675,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 					&p.indices[0], p.indices.size());
 			}
 			mesh->addMeshBuffer(buf);
-			buf->drop();
+			std::ignore = buf->drop();
 		}
 		if (mesh) {
 			// Use VBO for mesh (this just would set this for every buffer)

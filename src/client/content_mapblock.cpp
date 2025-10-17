@@ -1914,12 +1914,6 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 					for (core::vector3df& v : vertices)
 						v += seg_offset;
 
-					if (m_is_mono_mat && tile.layers[0].has_color)
-						color.set(color.getAlpha(),
-							color.getRed() * tile.layers[0].color.getRed() / 255,
-							color.getGreen() * tile.layers[0].color.getGreen() / 255,
-							color.getBlue() * tile.layers[0].color.getBlue() / 255);
-
 					switch (direction) {
 					case 0:
 					case 2:
@@ -1957,6 +1951,7 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 	std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> set_nodes;
 
 	const v3s16 to = seg_start + seg_size;
+	const s16 max_light_step = std::min<s16>(MAP_BLOCKSIZE, width);
 
 	v3s16 p;
 	for (p.Z = seg_start.Z - 1; p.Z < to.Z + width; p.Z += width)
@@ -1979,19 +1974,19 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		const v3s16 p_scaled = (p - seg_start + 1) / width;
 
 		if (f->drawtype == NDT_NORMAL) {
-			u16 lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(width, 0, 0)), nodedef);
-			u16 lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(width, 0, 0)), nodedef);
+			u16 lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(max_light_step, 0, 0)), nodedef);
+			u16 lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(max_light_step, 0, 0)), nodedef);
 			LightPair lp = (LightPair) std::max(lp1, lp2);
 			node_types.try_emplace(NodeKey{node_type, lp}, n);
 			set_nodes[NodeKey{node_type, lp}][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
 
-			lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(0, width, 0)), nodedef);
-			lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, width, 0)), nodedef);
+			lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(0, max_light_step, 0)), nodedef);
+			lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, max_light_step, 0)), nodedef);
 			lp = (LightPair) std::max(lp1, lp2);
 			set_nodes[NodeKey{node_type, lp}][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
 
-			lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(0, 0, width)), nodedef);
-			lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, 0, width)), nodedef);
+			lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(0, 0, max_light_step)), nodedef);
+			lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, 0, max_light_step)), nodedef);
 			lp = (LightPair) std::max(lp1, lp2);
 			set_nodes[NodeKey{node_type, lp}][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 		}
@@ -2013,45 +2008,40 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 	}
 
-	const bitset x_max = U64_MAX >> (BITSET_MAX - seg_size.X / width);
-	const bitset y_max = U64_MAX >> (BITSET_MAX - seg_size.Y / width);
-	const bitset z_max = U64_MAX >> (BITSET_MAX - seg_size.Z / width);
+	constexpr bitset U62_MAX = U64_MAX >> 2;
 
 	for (const auto& [node_key, nodes] : set_nodes) {
-		MapNode n = node_types[node_key];
-		const video::SColor color = encode_light(node_key.light, nodedef->getLightingFlags(n).light_source);
-
 		for (u8 u = 0; u < BITSET_MAX_NOPAD; u++)
 		for (u8 v = 0; v < BITSET_MAX_NOPAD; v++) {
 			m_nodes_faces[BITSET_MAX_NOPAD * u + v] =
 				(nodes[BITSET_MAX * (u + 1) + (v + 1)] &
 				~(all_set_nodes[BITSET_MAX * (u + 1) + (v + 1)] << 1))
-				>> 1 & x_max;
+				>> 1 & U62_MAX;
 
 			m_nodes_faces[BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
 				(nodes[BITSET_MAX * (u + 1) + (v + 1)] &
 				~(all_set_nodes[BITSET_MAX * (u + 1) + (v + 1)] >> 1))
-				>> 1 & x_max;
+				>> 1 & U62_MAX;
 
 			m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
 				(nodes[BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] &
 				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] << 1))
-				>> 1 & y_max;
+				>> 1 & U62_MAX;
 
 			m_nodes_faces[3 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
 				(nodes[BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] &
 				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] >> 1))
-				>> 1 & y_max;
+				>> 1 & U62_MAX;
 
 			m_nodes_faces[4 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
 				(nodes[2 * BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] &
 				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] << 1))
-				>> 1 & z_max;
+				>> 1 & U62_MAX;
 
 			m_nodes_faces[5 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
 				(nodes[2 * BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] &
 				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] >> 1))
-				>> 1 & z_max;
+				>> 1 & U62_MAX;
 		}
 
 		memset(m_slices, 0, sizeof(m_slices));
@@ -2068,6 +2058,16 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 					}
 				}
 			}
+		}
+
+		MapNode n = node_types[node_key];
+		video::SColor color = encode_light(node_key.light, nodedef->getLightingFlags(n).light_source);
+		if (m_is_mono_mat) {
+			video::SColor c2 = nodedef->get(n).minimap_color;
+			color.set(color.getAlpha(),
+					  color.getRed() * c2.getRed() / 255U,
+					  color.getGreen() * c2.getGreen() / 255U,
+					  color.getBlue() * c2.getBlue() / 255U);
 		}
 
 		generateBitsetMesh(n, width, seg_start - blockpos_nodes, color);
@@ -2087,9 +2087,9 @@ void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> type
 			x + blockpos_nodes.X,
 			y + blockpos_nodes.Y,
 			z + blockpos_nodes.Z);
-		const v3s16 seg_size(std::min(data->m_side_length - x, attempted_seg_size),
-		                     std::min(data->m_side_length - y, attempted_seg_size),
-		                     std::min(data->m_side_length - z, attempted_seg_size));
+		const v3s16 seg_size(std::min(data->m_side_length - x - 1, attempted_seg_size),
+		                     std::min(data->m_side_length - y - 1, attempted_seg_size),
+		                     std::min(data->m_side_length - z - 1, attempted_seg_size));
 		generateGreedyLod(types, seg_start, seg_size, width);
 	}
 }
@@ -2236,6 +2236,19 @@ void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u3
 			                                    nodedef->getLightingFlags(n1).light_source);
 			video::SColor color2 = encode_light(LightPair(day_light, night_light),
 			                                    nodedef->getLightingFlags(n2).light_source);
+
+			if (m_is_mono_mat) {
+				video::SColor c2 = nodedef->get(n1).minimap_color;
+				color1.set(color1.getAlpha(),
+						   color1.getRed() * c2.getRed() / 255U,
+						   color1.getGreen() * c2.getGreen() / 255U,
+						   color1.getBlue() * c2.getBlue() / 255U);
+				c2 = nodedef->get(n2).minimap_color;
+				color2.set(color2.getAlpha(),
+						   color2.getRed() * c2.getRed() / 255U,
+						   color2.getGreen() * c2.getGreen() / 255U,
+						   color2.getBlue() * c2.getBlue() / 255U);
+			}
 
 			core::vector3df normal = (vertices[i][2] - vertices[i][1]).crossProduct(
 				vertices[i][0] - vertices[i][1]).normalize();

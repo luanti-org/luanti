@@ -25,17 +25,12 @@ struct PreMeshBuffer
 		video::SColor tc = layer.color;
 		if (tc == video::SColor(0xFFFFFFFF))
 			return;
-		applyColor(tc);
-	}
-
-	void applyColor(const video::SColor color)
-	{
 		for (auto &vertex : vertices) {
 			video::SColor *c = &vertex.Color;
 			c->set(c->getAlpha(),
-				c->getRed() * color.getRed() / 255U,
-				c->getGreen() * color.getGreen() / 255U,
-				c->getBlue() * color.getBlue() / 255U);
+				c->getRed() * tc.getRed() / 255U,
+				c->getGreen() * tc.getGreen() / 255U,
+				c->getBlue() * tc.getBlue() / 255U);
 		}
 	}
 };
