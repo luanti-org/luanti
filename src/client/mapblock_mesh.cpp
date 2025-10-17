@@ -649,25 +649,40 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 	*/
 	m_bounding_radius = std::sqrt(collector.m_bounding_radius_sq);
 
-	if (is_mono_mat) {
-		scene::SMesh *mesh = static_cast<scene::SMesh *>(m_mesh[0].get());
+	if (is_mono_mat)
+		generateMonoMesh(collector);
+	else
+		generateMesh(collector);
 
-		for(u32 i = 0; i < collector.prebuffers[0].size(); i++) {
-			scene::SMeshBuffer *buf = new scene::SMeshBuffer();
-			buf->Material = monoMaterial;
-			PreMeshBuffer &p = collector.prebuffers[0][i];
+	m_bsp_tree.buildTree(&m_transparent_triangles, data->m_side_length);
 
-			buf->append(&p.vertices[0], p.vertices.size(),
-				&p.indices[0], p.indices.size());
+	// Check if animation is required for this mesh
+	m_has_animation =
+		!m_crack_materials.empty() ||
+		!m_animation_info.empty();
+}
 
-			mesh->addMeshBuffer(buf);
-			std::ignore = buf->drop();
-		}
-		if (mesh) {
-			// Use VBO for mesh (this just would set this for every buffer)
-			mesh->setHardwareMappingHint(scene::EHM_STATIC);
-		}
-	} else
+void MapBlockMesh::generateMonoMesh(MeshCollector &collector) const {
+	scene::SMesh *mesh = static_cast<scene::SMesh *>(m_mesh[0].get());
+
+	for(u32 i = 0; i < collector.prebuffers[0].size(); i++) {
+		scene::SMeshBuffer *buf = new scene::SMeshBuffer();
+		buf->Material = monoMaterial;
+		PreMeshBuffer &p = collector.prebuffers[0][i];
+
+		buf->append(&p.vertices[0], p.vertices.size(),
+			&p.indices[0], p.indices.size());
+
+		mesh->addMeshBuffer(buf);
+		std::ignore = buf->drop();
+	}
+	if (mesh) {
+		// Use VBO for mesh (this just would set this for every buffer)
+		mesh->setHardwareMappingHint(scene::EHM_STATIC);
+	}
+}
+
+void MapBlockMesh::generateMesh(MeshCollector &collector) {
 	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
 		scene::SMesh *mesh = static_cast<scene::SMesh *>(m_mesh[layer].get());
 
@@ -746,13 +761,6 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 			mesh->setHardwareMappingHint(scene::EHM_STATIC);
 		}
 	}
-
-	m_bsp_tree.buildTree(&m_transparent_triangles, data->m_side_length);
-
-	// Check if animation is required for this mesh
-	m_has_animation =
-		!m_crack_materials.empty() ||
-		!m_animation_info.empty();
 }
 
 MapBlockMesh::~MapBlockMesh()

@@ -1824,22 +1824,17 @@ void MapblockMeshGenerator::generate()
 }
 
 LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_mono_mat):
-    data(input),
-    collector(output),
-    nodedef(data->m_nodedef),
-    blockpos_nodes(data->m_blockpos * MAP_BLOCKSIZE),
+    m_data(input),
+    m_collector(output),
+    m_nodedef(m_data->m_nodedef),
+    m_blockpos_nodes(m_data->m_blockpos * MAP_BLOCKSIZE),
 	m_is_mono_mat(is_mono_mat)
 {
 }
 
 void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
-		const v3s16 seg_start, video::SColor color)
+		const v3s16 seg_start, const video::SColor color)
 {
-	static constexpr v3s16 direction_vectors[6] = {
-		v3s16(-1, 0, 0), v3s16(1, 0, 0),
-		v3s16(0, -1, 0), v3s16(0, 1, 0),
-		v3s16(0, 0, -1), v3s16(0, 0, 1)
-	};
 	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
 	const f32 scaled_BS = BS * width;
 
@@ -1847,7 +1842,8 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 	video::S3DVertex irr_vertices[4];
 	for (u8 direction = 0; direction < 6; direction++) {
 		TileSpec tile;
-		getNodeTile(n, blockpos_nodes, direction_vectors[direction], data, tile);
+		if (!m_is_mono_mat)
+			getNodeTile(n, m_blockpos_nodes, s_directions[direction], m_data, tile);
 		const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
 		for (u8 slice_i = 0; slice_i < BITSET_MAX_NOPAD; slice_i++) {
 			const u64 slice_offset = direction_offset + BITSET_MAX_NOPAD * slice_i;
@@ -1864,7 +1860,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 						// and next column shares faces
 						m_slices[slice_offset + u + u1] ^= mask;
 						u1++;
-						}
+					}
 					const core::vector2d<f32> uvs[4] = {
 						core::vector2d<f32>{0, static_cast<f32>(v1*width)},
 						core::vector2d<f32>{0, 0},
@@ -1876,7 +1872,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 					v1 = (v0 + v1) * scaled_BS - BS / 2;
 					v0 = v0 * scaled_BS - BS / 2;
 					const s32 w = ((slice_i + 1) * width - 1
-							+ (direction % 2 == 0 ? -width + 1 : 1)) * BS
+						+ (direction % 2 == 0 ? -width + 1 : 1)) * BS
 						- BS / 2;
 					switch (direction) {
 					case 0:
@@ -1918,29 +1914,29 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 					case 0:
 					case 2:
 					case 4:
-						irr_vertices[0] = video::S3DVertex(vertices[0], normals[direction], color, uvs[0]);
-						irr_vertices[1] = video::S3DVertex(vertices[1], normals[direction], color, uvs[1]);
-						irr_vertices[2] = video::S3DVertex(vertices[2], normals[direction], color, uvs[2]);
-						irr_vertices[3] = video::S3DVertex(vertices[3], normals[direction], color, uvs[3]);
+						irr_vertices[0] = video::S3DVertex(vertices[0], s_normals[direction], color, uvs[0]);
+						irr_vertices[1] = video::S3DVertex(vertices[1], s_normals[direction], color, uvs[1]);
+						irr_vertices[2] = video::S3DVertex(vertices[2], s_normals[direction], color, uvs[2]);
+						irr_vertices[3] = video::S3DVertex(vertices[3], s_normals[direction], color, uvs[3]);
 						break;
 					default:
-						irr_vertices[0] = video::S3DVertex(vertices[0], normals[direction], color, uvs[0]);
-						irr_vertices[1] = video::S3DVertex(vertices[3], normals[direction], color, uvs[1]);
-						irr_vertices[2] = video::S3DVertex(vertices[2], normals[direction], color, uvs[2]);
-						irr_vertices[3] = video::S3DVertex(vertices[1], normals[direction], color, uvs[3]);
+						irr_vertices[0] = video::S3DVertex(vertices[0], s_normals[direction], color, uvs[0]);
+						irr_vertices[1] = video::S3DVertex(vertices[3], s_normals[direction], color, uvs[1]);
+						irr_vertices[2] = video::S3DVertex(vertices[2], s_normals[direction], color, uvs[2]);
+						irr_vertices[3] = video::S3DVertex(vertices[1], s_normals[direction], color, uvs[3]);
 					}
-					thread_local constexpr TileSpec static_tile = [] {
-						TileSpec tile;
-						TileLayer layer;
-						layer.texture_id = 1;
-						tile.layers[0] = layer;
-						return tile;
-					}();
-					collector->append(m_is_mono_mat ? static_tile : tile, irr_vertices, 4, quad_indices, 6);
+					m_collector->append(m_is_mono_mat ? s_static_tile : tile, irr_vertices, 4, quad_indices, 6);
 				}
 			}
 		}
 	}
+}
+
+LightPair LodMeshGenerator::computeMaxFaceLight(const MapNode n, const v3s16 p, const v3s16 dir) const
+{
+	const u16 lp1 = getFaceLight(n, m_data->m_vmanip.getNodeNoExNoEmerge(p + dir), m_nodedef);
+	const u16 lp2 = getFaceLight(n, m_data->m_vmanip.getNodeNoExNoEmerge(p - dir), m_nodedef);
+	return static_cast<LightPair>(std::max(lp1, lp2));
 }
 
 void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> types, const v3s16 seg_start,
@@ -1957,14 +1953,14 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 	for (p.Z = seg_start.Z - 1; p.Z < to.Z + width; p.Z += width)
 	for (p.Y = seg_start.Y - 1; p.Y < to.Y + width; p.Y += width)
 	for (p.X = seg_start.X - 1; p.X < to.X + width; p.X += width) {
-		MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
+		MapNode n = m_data->m_vmanip.getNodeNoExNoEmerge(p);
 		if (n.getContent() == CONTENT_IGNORE) {
 			continue;
 		}
-		const ContentFeatures* f = &nodedef->get(n);
+		const ContentFeatures* f = &m_nodedef->get(n);
 		for (u8 subtr = 1; subtr < width && f->drawtype == NDT_AIRLIKE; subtr++) {
-			n = data->m_vmanip.getNodeNoExNoEmerge(p - subtr);
-			f = &nodedef->get(n);
+			n = m_data->m_vmanip.getNodeNoExNoEmerge(p - subtr);
+			f = &m_nodedef->get(n);
 		}
 		if (!types.test(f->drawtype)) {
 			continue;
@@ -1974,33 +1970,29 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		const v3s16 p_scaled = (p - seg_start + 1) / width;
 
 		if (f->drawtype == NDT_NORMAL) {
-			u16 lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(max_light_step, 0, 0)), nodedef);
-			u16 lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(max_light_step, 0, 0)), nodedef);
-			LightPair lp = (LightPair) std::max(lp1, lp2);
-			node_types.try_emplace(NodeKey{node_type, lp}, n);
-			set_nodes[NodeKey{node_type, lp}][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+			LightPair lp = computeMaxFaceLight(n, p, v3s16(max_light_step, 0, 0));
+			NodeKey key = NodeKey{node_type, lp};
+			node_types.try_emplace(key, n);
+			set_nodes[key][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
 
-			lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(0, max_light_step, 0)), nodedef);
-			lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, max_light_step, 0)), nodedef);
-			lp = (LightPair) std::max(lp1, lp2);
-			set_nodes[NodeKey{node_type, lp}][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+			lp = computeMaxFaceLight(n, p, v3s16(0, max_light_step, 0));
+			key = NodeKey{node_type, lp};
+			set_nodes[key][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
 
-			lp1 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p + v3s16(0, 0, max_light_step)), nodedef);
-			lp2 = getFaceLight(n, data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, 0, max_light_step)), nodedef);
-			lp = (LightPair) std::max(lp1, lp2);
-			set_nodes[NodeKey{node_type, lp}][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+			lp = computeMaxFaceLight(n, p, v3s16(0, 0, max_light_step));
+			key = NodeKey{node_type, lp};
+			set_nodes[key][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 		}
 		else {
-			const ContentLightingFlags lf = nodedef->getLightingFlags(n);
-			const LightPair lp = LightPair(
-				(u8) (decode_light(n.getLightRaw(LIGHTBANK_DAY, lf)) / 16 * 16 + 15),
-				(u8) (decode_light(n.getLightRaw(LIGHTBANK_NIGHT, lf)) / 16 * 16));
+			const ContentLightingFlags lf = m_nodedef->getLightingFlags(n);
+			const LightPair lp = static_cast<LightPair>(getInteriorLight(n, 0, m_nodedef));
 
 			NodeKey key{node_type, lp};
 			node_types.try_emplace(key, n);
-			set_nodes[key][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-			set_nodes[key][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-			set_nodes[key][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+			auto &nodes = set_nodes[key];
+			nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+			nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+			nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 		}
 
 		all_set_nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
@@ -2011,36 +2003,36 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 	constexpr bitset U62_MAX = U64_MAX >> 2;
 
 	for (const auto& [node_key, nodes] : set_nodes) {
-		for (u8 u = 0; u < BITSET_MAX_NOPAD; u++)
-		for (u8 v = 0; v < BITSET_MAX_NOPAD; v++) {
-			m_nodes_faces[BITSET_MAX_NOPAD * u + v] =
-				(nodes[BITSET_MAX * (u + 1) + (v + 1)] &
-				~(all_set_nodes[BITSET_MAX * (u + 1) + (v + 1)] << 1))
+		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
+		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
+			m_nodes_faces[BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+				(nodes[BITSET_MAX * u + v] &
+				~(all_set_nodes[BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
 
-			m_nodes_faces[BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
-				(nodes[BITSET_MAX * (u + 1) + (v + 1)] &
-				~(all_set_nodes[BITSET_MAX * (u + 1) + (v + 1)] >> 1))
+			m_nodes_faces[BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+				(nodes[BITSET_MAX * u + v] &
+				~(all_set_nodes[BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
-			m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
-				(nodes[BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] &
-				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] << 1))
+			m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
+				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
 
-			m_nodes_faces[3 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
-				(nodes[BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] &
-				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] >> 1))
+			m_nodes_faces[3 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
+				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
-			m_nodes_faces[4 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
-				(nodes[2 * BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] &
-				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] << 1))
+			m_nodes_faces[4 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
+				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
 
-			m_nodes_faces[5 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * u + v] =
-				(nodes[2 * BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] &
-				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * (u + 1) + (v + 1)] >> 1))
+			m_nodes_faces[5 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
+				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 		}
 
@@ -2061,9 +2053,9 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		}
 
 		MapNode n = node_types[node_key];
-		video::SColor color = encode_light(node_key.light, nodedef->getLightingFlags(n).light_source);
+		video::SColor color = encode_light(node_key.light, m_nodedef->getLightingFlags(n).light_source);
 		if (m_is_mono_mat) {
-			video::SColor c2 = nodedef->get(n).minimap_color;
+			video::SColor c2 = m_nodedef->get(n).minimap_color;
 			color.set(
 				color.getAlpha(),
 				color.getRed() * c2.getRed() / 255U,
@@ -2071,227 +2063,45 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 				color.getBlue() * c2.getBlue() / 255U);
 		}
 
-		generateBitsetMesh(n, width, seg_start - blockpos_nodes, color);
+		generateBitsetMesh(n, width, seg_start - m_blockpos_nodes, color);
 	}
 }
 
-void LodMeshGenerator::generateCloseLod(const std::bitset<NodeDrawType_END> types, const u16 width)
+void LodMeshGenerator::generateLodChunks(const std::bitset<NodeDrawType_END> types, const u16 width)
 {
 	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Greedy", SPT_AVG);
 
 	const int attempted_seg_size = 62 * width;
 
-	for (u16 x = 0; x < data->m_side_length; x += attempted_seg_size)
-	for (u16 y = 0; y < data->m_side_length; y += attempted_seg_size)
-	for (u16 z = 0; z < data->m_side_length; z += attempted_seg_size) {
+	for (u16 x = 0; x < m_data->m_side_length; x += attempted_seg_size)
+	for (u16 y = 0; y < m_data->m_side_length; y += attempted_seg_size)
+	for (u16 z = 0; z < m_data->m_side_length; z += attempted_seg_size) {
 		const v3s16 seg_start(
-			x + blockpos_nodes.X,
-			y + blockpos_nodes.Y,
-			z + blockpos_nodes.Z);
+			x + m_blockpos_nodes.X,
+			y + m_blockpos_nodes.Y,
+			z + m_blockpos_nodes.Z);
 		const v3s16 seg_size(
-			std::min(data->m_side_length - x - 1, attempted_seg_size),
-			std::min(data->m_side_length - y - 1, attempted_seg_size),
-			std::min(data->m_side_length - z - 1, attempted_seg_size));
+			std::min(m_data->m_side_length - x - 1, attempted_seg_size),
+			std::min(m_data->m_side_length - y - 1, attempted_seg_size),
+			std::min(m_data->m_side_length - z - 1, attempted_seg_size));
 		generateGreedyLod(types, seg_start, seg_size, width);
 	}
 }
 
-void LodMeshGenerator::findClosestOfTypes(std::bitset<NodeDrawType_END> types, std::array<v3s16, 8> &bases,
-		v3s16 from, v3s16 to) const
-{
-	std::array<u16, 8> min_dists;
-	min_dists.fill(U16_MAX);
-	std::array<v3s16, 8> outs;
-	v3s16 p;
-	for (p.Z = from.Z; p.Z < to.Z; p.Z++)
-	for (p.Y = from.Y; p.Y < to.Y; p.Y++)
-	for (p.X = from.X; p.X < to.X; p.X++){
-		if (const MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
-			n.getContent() == CONTENT_IGNORE || !types.test(nodedef->get(n).drawtype))
-			continue;
-		for (u8 i = 0; i < 8; i++) { // calc distance for every corner
-			if (const u16 new_dist = bases[i].getDistanceFromSQ(p); new_dist < min_dists[i]) {
-				min_dists[i] = new_dist;
-				outs[i] = p;
-			}
-		}
-	}
-	bases = outs;
-}
-
-void LodMeshGenerator::generateDetailLod(std::bitset<NodeDrawType_END> types, u32 width, core::vector2d<f32> uvs[4])
-{
-	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Slanted", SPT_AVG);
-
-	static constexpr v3s16 directions[6] = {
-		v3s16(0, -1, 0), v3s16(0, 1, 0),
-		v3s16(-1, 0, 0), v3s16(1, 0, 0),
-		v3s16(0, 0, -1), v3s16(0, 0, 1)
-	};
-	u8 num = data->m_side_length / width;
-	std::array<v3s16, 8> bounds;
-
-	for (u8 x = 0; x < num; x++)
-	for (u8 y = 0; y < num; y++)
-	for (u8 z = 0; z < num; z++) {
-		v3s16 from = v3s16(x, y, z) * width + blockpos_nodes;
-		v3s16 to = from + width;
-
-		// eg lxhylz = corner of a block, where x and z are lowest and y is highest
-		// lxhylz is initialized with the values for the opposite corner, so high x and z, low y
-		bounds = {
-			v3s16(from.X - 1, from.Y, from.Z), // lxlylz
-			v3s16(from.X, from.Y, to.Z), //   lxlyhz
-			v3s16(from.X, to.Y, from.Z), //   lxhylz
-			v3s16(from.X, to.Y, to.Z), //     lxhyhz
-			v3s16(to.X, from.Y, from.Z), //   hxlylz
-			v3s16(to.X, from.Y, to.Z), //     hxlyhz
-			v3s16(to.X, to.Y, from.Z), //     hxhylz
-			v3s16(to.X, to.Y, to.Z), //       hxhyhz
-		};
-		// updates bounds to contain the actual bounds of the LOD object, where the corners are the nodes furthest away from their previous value
-		findClosestOfTypes(types, bounds, from, to);
-
-		// empty meshes
-		if (bounds[0].X == from.X - 1)
-			continue;
-
-		// moving for legibility
-		v3s16 lxlylz = bounds[0];
-		v3s16 lxlyhz = bounds[1];
-		v3s16 lxhylz = bounds[2];
-		v3s16 lxhyhz = bounds[3];
-		v3s16 hxlylz = bounds[4];
-		v3s16 hxlyhz = bounds[5];
-		v3s16 hxhylz = bounds[6];
-		v3s16 hxhyhz = bounds[7];
-
-		// subtract blockpos_nodes again, as we need relative coords here. Multiplied by blocksize.
-		// Then add/subtract half a blocksize to move to the corners of the nodes
-		core::vector3df lxlylz_f(
-			(lxlylz.X - blockpos_nodes.X) * BS - BS / 2,
-			(lxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + 0.1,
-			(lxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-		core::vector3df lxlyhz_f(
-			(lxlyhz.X - blockpos_nodes.X) * BS - BS / 2,
-			(lxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + 0.1,
-			(lxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-		core::vector3df lxhylz_f(
-			(lxhylz.X - blockpos_nodes.X) * BS - BS / 2,
-			(lxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + 0.1,
-			(lxhylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-		core::vector3df lxhyhz_f(
-			(lxhyhz.X - blockpos_nodes.X) * BS - BS / 2,
-			(lxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + 0.1,
-			(lxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-		core::vector3df hxlylz_f(
-			(hxlylz.X - blockpos_nodes.X) * BS + BS / 2,
-			(hxlylz.Y - blockpos_nodes.Y) * BS - BS / 2 + 0.1,
-			(hxlylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-		core::vector3df hxlyhz_f(
-			(hxlyhz.X - blockpos_nodes.X) * BS + BS / 2,
-			(hxlyhz.Y - blockpos_nodes.Y) * BS - BS / 2 + 0.1,
-			(hxlyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-		core::vector3df hxhylz_f(
-			(hxhylz.X - blockpos_nodes.X) * BS + BS / 2,
-			(hxhylz.Y - blockpos_nodes.Y) * BS + BS / 2 + 0.1,
-			(hxhylz.Z - blockpos_nodes.Z) * BS - BS / 2);
-		core::vector3df hxhyhz_f(
-			(hxhyhz.X - blockpos_nodes.X) * BS + BS / 2,
-			(hxhyhz.Y - blockpos_nodes.Y) * BS + BS / 2 + 0.1,
-			(hxhyhz.Z - blockpos_nodes.Z) * BS + BS / 2);
-
-		v3s16 node_coords[6][4] = {
-			{lxlylz, hxlylz, hxlyhz, lxlyhz}, {lxhylz, lxhyhz, hxhyhz, hxhylz}, //  bottom   top
-			{lxlyhz, lxhyhz, lxhylz, lxlylz}, {hxlylz, hxhylz, hxhyhz, hxlyhz}, //  left     right
-			{lxlylz, lxhylz, hxhylz, hxlylz}, {hxlyhz, hxhyhz, lxhyhz, lxlyhz}
-		}; // front    back
-		core::vector3df vertices[6][4] = {
-			{lxlylz_f, hxlylz_f, hxlyhz_f, lxlyhz_f}, {lxhylz_f, lxhyhz_f, hxhyhz_f, hxhylz_f},
-			{lxlyhz_f, lxhyhz_f, lxhylz_f, lxlylz_f}, {hxlylz_f, hxhylz_f, hxhyhz_f, hxlyhz_f},
-			{lxlylz_f, lxhylz_f, hxhylz_f, hxlylz_f}, {hxlyhz_f, hxhyhz_f, lxhyhz_f, lxlyhz_f}
-		};
-		TileSpec tile;
-		for (u8 i = 0; i < 6; i++) {
-			if (types.test(
-					(&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][0] + directions[i])))->
-					drawtype) &&
-				types.test(
-					(&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1] + directions[i])))->
-					drawtype) &&
-				types.test(
-					(&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][2] + directions[i])))->
-					drawtype) &&
-				types.test(
-					(&nodedef->get(data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3] + directions[i])))->
-					drawtype))
-				continue;
-
-			u8 day_light = 0;
-			u8 night_light = 0;
-			for (v3s16 p : node_coords[i]) {
-				if (types.test(NDT_NORMAL))
-					p += directions[i];
-				MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p);
-				ContentLightingFlags f = nodedef->getLightingFlags(n);
-				day_light = MYMAX(day_light, n.getLightRaw(LIGHTBANK_DAY, f));
-				night_light = MYMAX(night_light, n.getLightRaw(LIGHTBANK_NIGHT, f));
-			}
-			day_light = decode_light(day_light);
-			night_light = decode_light(night_light);
-
-			MapNode n1 = data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][1]);
-			MapNode n2 = data->m_vmanip.getNodeNoExNoEmerge(node_coords[i][3]);
-			video::SColor color1 = encode_light(
-				LightPair(day_light, night_light), nodedef->getLightingFlags(n1).light_source);
-			video::SColor color2 = encode_light(
-				LightPair(day_light, night_light), nodedef->getLightingFlags(n2).light_source);
-
-			if (m_is_mono_mat) {
-				video::SColor c2 = nodedef->get(n1).minimap_color;
-				color1.set(
-					color1.getAlpha(),
-					color1.getRed() * c2.getRed() / 255U,
-					color1.getGreen() * c2.getGreen() / 255U,
-					color1.getBlue() * c2.getBlue() / 255U);
-				c2 = nodedef->get(n2).minimap_color;
-				color2.set(
-					color2.getAlpha(),
-					color2.getRed() * c2.getRed() / 255U,
-					color2.getGreen() * c2.getGreen() / 255U,
-					color2.getBlue() * c2.getBlue() / 255U);
-			}
-
-			core::vector3df normal = (vertices[i][2] - vertices[i][1]).crossProduct(
-				vertices[i][0] - vertices[i][1]).normalize();
-			applyFacesShading(color1, normal);
-			applyFacesShading(color2, normal);
-			video::S3DVertex v[4] = {
-				video::S3DVertex(vertices[i][0], normal, color1, uvs[0]), // uvs are 0 1
-				video::S3DVertex(vertices[i][1], normal, color1, uvs[1]), // uvs are 0 0
-				video::S3DVertex(vertices[i][2], normal, color2, uvs[2]), // uvs are 1 1
-				video::S3DVertex(vertices[i][3], normal, color2, uvs[3]), // uvs are 1 0
-			};
-			getNodeTile(n1, node_coords[i][0], directions[i], data, tile);
-			collector->append(tile, v, 4, quad_indices, 6);
-		}
-	}
-}
-
-void LodMeshGenerator::generate(u8 lod)
+void LodMeshGenerator::generate(const u8 lod)
 {
 	ZoneScoped;
 
     u32 width = 1 << MYMIN(lod - 1, 31);
 
-	if (width > data->m_side_length)
-		width = data->m_side_length;
+	if (width > m_data->m_side_length)
+		width = m_data->m_side_length;
 
 	core::vector2d<f32> uvs[4] = {
-		core::vector2d<f32>{0, (f32)width},
+		core::vector2d<f32>{0, static_cast<f32>(width)},
 		core::vector2d<f32>{0, 0},
-		core::vector2d<f32>{(f32)width, 0},
-		core::vector2d<f32>{(f32)width, (f32)width},
+		core::vector2d<f32>{static_cast<f32>(width), 0},
+		core::vector2d<f32>{static_cast<f32>(width), static_cast<f32>(width)},
 	};
 
 	// liquids are always rendered separately
@@ -2299,15 +2109,13 @@ void LodMeshGenerator::generate(u8 lod)
 	transparent_set.set(NDT_LIQUID);
 	if (g_settings->get("leaves_style") == "simple")
 		transparent_set.set(NDT_GLASSLIKE);
-	if (lod == 1)
-		generateDetailLod(transparent_set, MYMAX(8, width), uvs);
-	else
-		generateCloseLod(transparent_set, width);
+
+	generateLodChunks(transparent_set, width);
 
 	std::bitset<NodeDrawType_END> solid_set;
 	solid_set.set(NDT_NORMAL);
 	solid_set.set(NDT_NODEBOX);
 	solid_set.set(NDT_ALLFACES);
 
-	generateCloseLod(solid_set, width);
+	generateLodChunks(solid_set, width);
 }

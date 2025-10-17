@@ -178,10 +178,10 @@ public:
     void generate(u8 lod);
 
 private:
-    MeshMakeData *const data;
-    MeshCollector *const collector;
-    const NodeDefManager *const nodedef;
-	const v3s16 blockpos_nodes;
+    MeshMakeData *const m_data;
+    MeshCollector *const m_collector;
+    const NodeDefManager *const m_nodedef;
+	const v3s16 m_blockpos_nodes;
 	const bool m_is_mono_mat;
 
 	// max bits the fit in a bitset
@@ -197,22 +197,28 @@ private:
 	bitset m_nodes_faces[6 * BITSET_MAX_NOPAD2];
 	bitset m_slices[6 * BITSET_MAX_NOPAD2];
 
-    static constexpr v3s16 directions[6] = {
-    	v3s16(0, -1, 0), v3s16(0, 1, 0),
-	    v3s16(-1, 0, 0), v3s16(1, 0, 0),
-	    v3s16(0, 0, -1), v3s16(0, 0, 1)
-    };
-	static constexpr core::vector3df normals[6] = {
+	static constexpr v3s16 s_directions[6] = {
+		v3s16(-1, 0, 0), v3s16(1, 0, 0),
+		v3s16(0, -1, 0), v3s16(0, 1, 0),
+		v3s16(0, 0, -1), v3s16(0, 0, 1)
+	};
+	static constexpr core::vector3df s_normals[6] = {
 		core::vector3df(-1, 0, 0), core::vector3df(1, 0, 0),
 		core::vector3df(0, -1, 0), core::vector3df(0, 1, 0),
 		core::vector3df(0, 0, -1), core::vector3df(0, 0, 1)
 	};
+	static constexpr TileSpec s_static_tile = [] {
+		TileSpec tile;
+		TileLayer layer;
+		layer.texture_id = 1;
+		tile.layers[0] = layer;
+		return tile;
+	}();
 
-    void findClosestOfTypes(std::bitset<NodeDrawType_END> types, std::array<v3s16, 8> &bases, v3s16 from, v3s16 to) const;
-    void generateDetailLod(std::bitset<NodeDrawType_END> types, u32, core::vector2d<f32>[4]);
 	void generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u8 width);
 	void generateBitsetMesh(MapNode n, u8 width, v3s16 seg_start, video::SColor color);
-    void generateCloseLod(std::bitset<NodeDrawType_END> types, u16 width);
+    LightPair computeMaxFaceLight(MapNode n, v3s16 p, v3s16 dir) const;
+    void generateLodChunks(std::bitset<NodeDrawType_END> types, u16 width);
 };
 
 struct NodeKey {

@@ -16,6 +16,8 @@
 #include <map>
 #include <unordered_map>
 
+#include "meshgen/collector.h"
+
 namespace video {
 	class IVideoDriver;
 }
@@ -292,6 +294,10 @@ private:
 	std::vector<PartialMeshBuffer> m_transparent_buffers;
 	// Is m_transparent_buffers currently in consolidated form?
 	bool m_transparent_buffers_consolidated = false;
+
+	void generateMonoMesh(MeshCollector& collector) const;
+
+	void generateMesh(MeshCollector& collector);
 };
 
 /*!
