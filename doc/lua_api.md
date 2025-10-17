@@ -5849,6 +5849,8 @@ Utilities
       particlespawner_exclude_player = true,
       -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
       generate_decorations_biomes = true,
+      -- 'chunksize' mapgen setting can be a vector, instead of a single number (5.15.0)
+      chunksize_vector = true,
   }
   ```
 
@@ -6704,7 +6706,7 @@ Environment access
       in that order.
     * `mapgen_limit` is an optional number. If it is absent, its value is that
       of the *active* mapgen setting `"mapgen_limit"`.
-    * `chunksize` is an optional number. If it is absent, its value is that
+    * `chunksize` is an optional number or vector. If it is absent, its value is that
       of the *active* mapgen setting `"chunksize"`.
 * `core.get_mapgen_chunksize()`
     * Returns the currently active chunksize of the mapgen, as a vector.
