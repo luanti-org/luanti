@@ -612,7 +612,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 	v3s16 bp = data->m_blockpos;
 	// Only generate minimap mapblocks at grid aligned coordinates.
 	// FIXME: ^ doesn't really make sense. and in practice, bp is always aligned
-	if (lod < 1 && mesh_grid.isMeshPos(bp) && data->m_generate_minimap) {
+	if (mesh_grid.isMeshPos(bp) && data->m_generate_minimap) {
 		// meshgen area always fits into a grid cell
 		m_minimap_mapblocks.resize(mesh_grid.getCellVolume(), nullptr);
 		v3s16 ofs;
@@ -634,7 +634,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 	v3f offset = intToFloat((data->m_blockpos - mesh_grid.getMeshPos(data->m_blockpos)) * MAP_BLOCKSIZE, BS);
 
 	MeshCollector collector(m_bounding_sphere_center, offset);
-	bool is_mono_mat = lod > 1;
+	bool is_mono_mat = lod >= g_settings->getU16("lod_color_threshold");;
 
 	{
         // Generate everything
@@ -657,23 +657,9 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
 			buf->Material = monoMaterial;
 			PreMeshBuffer &p = collector.prebuffers[0][i];
 
-			if (p.layer.isTransparent()) {
-				buf->append(&p.vertices[0], p.vertices.size(), nullptr, 0);
+			buf->append(&p.vertices[0], p.vertices.size(),
+				&p.indices[0], p.indices.size());
 
-				MeshTriangle t;
-				t.buffer = buf;
-				m_transparent_triangles.reserve(p.indices.size() / 3);
-				for (u32 i = 0; i < p.indices.size(); i += 3) {
-					t.p1 = p.indices[i];
-					t.p2 = p.indices[i + 1];
-					t.p3 = p.indices[i + 2];
-					t.updateAttributes();
-					m_transparent_triangles.push_back(t);
-				}
-			} else {
-				buf->append(&p.vertices[0], p.vertices.size(),
-					&p.indices[0], p.indices.size());
-			}
 			mesh->addMeshBuffer(buf);
 			std::ignore = buf->drop();
 		}
