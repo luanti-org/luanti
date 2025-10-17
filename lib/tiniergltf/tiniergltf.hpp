@@ -31,6 +31,12 @@ static inline void check(bool cond) {
 		throw std::runtime_error("invalid glTF");
 }
 
+template<typename T>
+static inline T checkedSub(T a, T b) {
+	check(a >= b);
+	return a - b;
+}
+
 template <typename T>
 static inline void checkIndex(const std::optional<std::vector<T>> &vec,
 		const std::optional<std::size_t> &i) {
@@ -1252,10 +1258,12 @@ struct GlTF {
 			const BufferView &view = bufferViews->at(bufferView);
 			if (view.byteStride.has_value())
 				check(*view.byteStride % accessor.componentSize() == 0);
-			check(byteOffset < view.byteLength);
-			// Use division to avoid overflows.
+
 			const auto effective_byte_stride = view.byteStride.value_or(accessor.elementSize());
-			check(count <= (view.byteLength - byteOffset) / effective_byte_stride);
+			// Want: (count-1) * effective_byte_stride + accessor.elementSize() + byteOffset <= view.byteLength
+			// so the last item is still in-bounds and can be read. Be careful to avoid wraparound.
+			const auto remaining_bytes = checkedSub(checkedSub(view.byteLength, byteOffset), accessor.elementSize());
+			check((remaining_bytes/effective_byte_stride) + 1 >= count);
 		};
 		checkForall(accessors, [&](const Accessor &accessor) {
 			if (accessor.bufferView.has_value())
