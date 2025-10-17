@@ -32,8 +32,6 @@ centroid varying vec2 varTexCoord;
 
 varying highp vec3 eyeVec;
 varying float nightRatio;
-// Color of the light emitted by the light sources.
-const vec3 artificialLight = vec3(1.04, 1.04, 1.04);
 varying float vIDiff;
 const float e = 2.718281828459;
 const float BS = 10.0;
@@ -89,6 +87,18 @@ float directional_ambient(vec3 normal)
 	return dot(v, vec3(0.670820, 1.000000, 0.836660));
 }
 
+vec3 get_artificial_light(vec3 color)
+{
+#ifdef ENABLE_WARM_LIGHTING
+	vec3 warmLight = vec3(1.04, 0.64, 0.34);
+	return warmLight + color; // prevent artificial lighting making brighter areas appear darker
+#else
+	return vec3(1.04, 1.04, 1.04);
+#endif
+}
+
+
+
 void main(void)
 {
 	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 1.0, 1.0)).st;
@@ -116,7 +126,7 @@ void main(void)
 	// The alpha gives the ratio of sunlight in the incoming light.
 	nightRatio = 1.0 - color.a;
 	color.rgb = color.rgb * (color.a * dayLight.rgb +
-		nightRatio * artificialLight.rgb) * 2.0;
+		nightRatio * get_artificial_light(color.rgb)) * 2.0;
 	color.a = 1.0;
 
 	// Emphase blue a bit in darker places
