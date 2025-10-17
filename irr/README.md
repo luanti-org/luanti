@@ -32,6 +32,7 @@ We aim to support these platforms:
 * Windows via MinGW
 * Linux (GL or GLES)
 * macOS
+* iOS (GLES)
 * Android
 
 This doesn't mean other platforms don't work or won't be supported, if you find something that doesn't work contributions are welcome.
@@ -51,7 +52,7 @@ Driver (rows) vs Device (columns)
 
 Notes:
 
-* [1] `CIrrDeviceSDL`: supports Android, Linux, macOS, Windows
+* [1] `CIrrDeviceSDL`: supports Android, Linux, macOS, iOS, Windows
 * [2] `CIrrDeviceLinux`: supports Linux
 * [3] `CIrrDeviceOSX`: supports macOS
 * [4] `CIrrDeviceWin32`: supports Windows
