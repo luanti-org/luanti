@@ -168,17 +168,28 @@ struct AnimationInfo {
 			m_frames(frames)
 	{};
 
+	void freeFrames()
+	{
+		delete m_frames;
+		m_frames = nullptr;
+	}
+
+	size_t getFrameCount() const
+	{
+		return m_frames ? m_frame_count : 0;
+	}
+
 	void updateTexture(video::SMaterial &material, float animation_time);
 
 	// Returns nullptr if texture did not change since last time
 	video::ITexture *getTexture(float animation_time);
 
 private:
-	u16 m_frame = 0; // last animation frame
 	u16 m_frame_length_ms = 0;
 	u16 m_frame_count = 1;
 
-	/// @note not owned by this struct
+	/// @note by default not owned by this struct
+	/// TODO. Change this to a shared pointer.
 	std::vector<FrameSpec> *m_frames = nullptr;
 };
 

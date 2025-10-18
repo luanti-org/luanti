@@ -10,10 +10,28 @@
 #include "itemdef.h"
 #include "inventory.h"
 
-ItemVisualsManager::ItemVisuals::~ItemVisuals() {
-	if (item_mesh.mesh)
-		item_mesh.mesh->drop();
-}
+struct ItemVisualsManager::ItemVisuals
+{
+	ItemMesh item_mesh;
+	Palette *palette;
+
+	AnimationInfo inventory_normal;
+	AnimationInfo inventory_overlay;
+
+	ItemVisuals() :
+		palette(nullptr)
+	{}
+
+	~ItemVisuals()
+	{
+		inventory_normal.freeFrames();
+		inventory_overlay.freeFrames();
+		if (item_mesh.mesh)
+			item_mesh.mesh->drop();
+	}
+
+	DISABLE_CLASS_COPY(ItemVisuals);
+};
 
 ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const ItemStack &item,
 		Client *client) const
@@ -50,44 +68,31 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	// Create new ItemVisuals
 	auto iv = std::make_unique<ItemVisuals>();
 
-	auto populate_texture_and_animation = [&](
-			const ItemImageDef &image, video::ITexture *&texture,
-			std::unique_ptr<ItemVisuals::OwnedAnimationInfo> &owned_animation)
+	auto populate_texture_and_animation = [tsrc](
+			const ItemImageDef &image,
+			AnimationInfo &animation)
 	{
+		int frame_length_ms = 0;
+		auto frames = std::make_unique<std::vector<FrameSpec>>();
 		if (image.name.empty()) {
-			texture = nullptr;
-			return;
+			// no-op
+		} else if (image.animation.type == TileAnimationType::TAT_NONE) {
+			frames->push_back({ .texture = tsrc->getTexture(image.name) });
+		} else {
+			// Animated
+			// Get inventory texture frames
+			*frames = createAnimationFrames(tsrc, image.name, image.animation, frame_length_ms);
 		}
-
-		if (image.animation.type == TileAnimationType::TAT_NONE) {
-			texture = tsrc->getTexture(image.name);
-			return;
-		}
-
-		// Get inventory texture frames
-		int frame_length_ms;
-		owned_animation = std::make_unique<ItemVisuals::OwnedAnimationInfo>(
-				createAnimationFrames(tsrc, image.name, image.animation,
-				frame_length_ms), frame_length_ms);
-
-		// Set first frame
-		if (!owned_animation || !owned_animation->frames.empty())
-			texture = owned_animation->frames[0].texture;
-		else
-			texture = nullptr;
+		animation = AnimationInfo(frames.release(), frame_length_ms);
+		// `frames` are freed in `ItemVisuals::~ItemVisuals`
 	};
 
-	populate_texture_and_animation(inventory_image, iv->inventory_texture,
-			iv->inventory_animation);
+	populate_texture_and_animation(inventory_image, iv->inventory_normal);
+	populate_texture_and_animation(inventory_overlay, iv->inventory_overlay);
 
-	populate_texture_and_animation(inventory_overlay, iv->inventory_overlay_texture,
-			iv->inventory_overlay_animation);
-
-	createItemMesh(client, def, iv->inventory_texture,
-			iv->inventory_animation ? &(iv->inventory_animation->info) : nullptr,
-			iv->inventory_overlay_texture,
-			iv->inventory_overlay_animation ? &(iv->inventory_overlay_animation->info) :
-				nullptr,
+	createItemMesh(client, def,
+			iv->inventory_normal,
+			iv->inventory_overlay,
 			&(iv->item_mesh));
 
 	iv->palette = tsrc->getPalette(def.palette_image);
@@ -98,59 +103,57 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	return ptr;
 }
 
-video::ITexture* ItemVisualsManager::getInventoryTexture(const ItemStack &item,
+// Needed because `ItemVisuals` is not known in the header.
+ItemVisualsManager::ItemVisualsManager()
+{
+	m_main_thread = std::this_thread::get_id();
+}
+
+ItemVisualsManager::~ItemVisualsManager()
+{
+}
+
+void ItemVisualsManager::clear()
+{
+	m_cached_item_visuals.clear();
+}
+
+
+video::ITexture *ItemVisualsManager::getInventoryTexture(const ItemStack &item,
 		Client *client) const
 {
 	ItemVisuals *iv = createItemVisuals(item, client);
 	if (!iv)
 		return nullptr;
 
-	if (iv->inventory_animation) {
-		// Texture animation update
-		video::ITexture *texture = iv->inventory_animation->info.getTexture(
-				client->getAnimationTime());
-		if (texture) {
-			iv->inventory_texture = texture;
-		}
-	}
-
-	return iv->inventory_texture;
+	// Texture animation update (if >1 frame)
+	return iv->inventory_normal.getTexture(client->getAnimationTime());
 }
 
-video::ITexture* ItemVisualsManager::getInventoryOverlayTexture(const ItemStack &item,
+video::ITexture *ItemVisualsManager::getInventoryOverlayTexture(const ItemStack &item,
 		Client *client) const
 {
 	ItemVisuals *iv = createItemVisuals(item, client);
 	if (!iv)
 		return nullptr;
 
-	if (iv->inventory_overlay_animation) {
-		// Texture animation update
-		video::ITexture *texture = iv->inventory_overlay_animation->info.getTexture(
-				client->getAnimationTime());
-		if (texture) {
-			iv->inventory_overlay_texture = texture;
-		}
-	}
-
-	return iv->inventory_overlay_texture;
+	// Texture animation update (if >1 frame)
+	return iv->inventory_overlay.getTexture(client->getAnimationTime());
 }
 
-ItemMesh* ItemVisualsManager::getItemMesh(const ItemStack &item, Client *client) const
+ItemMesh *ItemVisualsManager::getItemMesh(const ItemStack &item, Client *client) const
 {
 	ItemVisuals *iv = createItemVisuals(item, client);
-	if (!iv)
-		return nullptr;
-	return &(iv->item_mesh);
+	return iv ? &(iv->item_mesh) : nullptr;
 }
 
 AnimationInfo *ItemVisualsManager::getInventoryAnimation(const ItemStack &item,
 		Client *client) const
 {
 	ItemVisuals *iv = createItemVisuals(item, client);
-	if (!iv || !iv->inventory_animation)
+	if (!iv || iv->inventory_normal.getFrameCount() <= 1)
 		return nullptr;
-	return &(iv->inventory_animation->info);
+	return &iv->inventory_normal;
 }
 
 // Get item inventory overlay animation
@@ -159,9 +162,9 @@ AnimationInfo *ItemVisualsManager::getInventoryOverlayAnimation(const ItemStack 
 		Client *client) const
 {
 	ItemVisuals *iv = createItemVisuals(item, client);
-	if (!iv || !iv->inventory_overlay_animation)
+	if (!iv || iv->inventory_overlay.getFrameCount() <= 1)
 		return nullptr;
-	return &(iv->inventory_overlay_animation->info);
+	return &iv->inventory_overlay;
 }
 
 Palette* ItemVisualsManager::getPalette(const ItemStack &item, Client *client) const

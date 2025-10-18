@@ -407,7 +407,7 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 
 std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
 		const std::string &image_name, const TileAnimationParams &animation,
-		int& result_frame_length_ms)
+		int &result_frame_length_ms)
 {
 	result_frame_length_ms = 0;
 
@@ -469,30 +469,32 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		video::ITexture *wield_overlay_texture = nullptr;
 
 		int frame_length_ms;
-		m_wield_image_frames = std::vector<FrameSpec>(createAnimationFrames(
-				tsrc, wield_image.name, wield_image.animation, frame_length_ms));
+		m_wield_image_frames = createAnimationFrames(tsrc,
+				wield_image.name, wield_image.animation, frame_length_ms);
+
+		auto &l0 = m_buffer_info.emplace_back(0);
 		if (m_wield_image_frames.empty()) {
-			m_buffer_info.emplace_back(0);
 			wield_texture = tsrc->getTexture(wield_image.name);
 		} else {
-			m_buffer_info.emplace_back(0, &m_wield_image_frames, frame_length_ms);
 			wield_texture = m_wield_image_frames[0].texture;
+			l0.animation_info = std::make_unique<AnimationInfo>(
+				&m_wield_image_frames, frame_length_ms);
 		}
 
 		// Overlay
 		if (!wield_overlay.name.empty()) {
 			int overlay_frame_length_ms;
-			m_wield_overlay_frames = std::vector<FrameSpec>(createAnimationFrames(
-					tsrc, wield_overlay.name, wield_overlay.animation, overlay_frame_length_ms));
+			m_wield_overlay_frames = createAnimationFrames(tsrc,
+					wield_overlay.name, wield_overlay.animation, overlay_frame_length_ms);
+
+			// overlay is white, if present
+			auto &l1 = m_buffer_info.emplace_back(1, true, video::SColor(0xFFFFFFFF));
 			if (m_wield_overlay_frames.empty()) {
-				// overlay is white, if present
-				m_buffer_info.emplace_back(1, true, video::SColor(0xFFFFFFFF));
 				wield_overlay_texture = tsrc->getTexture(wield_overlay.name);
 			} else {
-				m_buffer_info.emplace_back(1,
-						&m_wield_overlay_frames, overlay_frame_length_ms,
-						true, video::SColor(0xFFFFFFFF));
 				wield_overlay_texture = m_wield_overlay_frames[0].texture;
+				l1.animation_info = std::make_unique<AnimationInfo>(
+					&m_wield_overlay_frames, overlay_frame_length_ms);
 			}
 		}
 
@@ -650,8 +652,8 @@ void WieldMeshSceneNode::changeToMesh(scene::IMesh *mesh)
 }
 
 void createItemMesh(Client *client, const ItemDefinition &def,
-		video::ITexture *inventory_texture, AnimationInfo* inventory_animation,
-		video::ITexture *inventory_overlay_texture, AnimationInfo* inventory_overlay_animation,
+		AnimationInfo &animation_normal,
+		AnimationInfo &animation_overlay,
 		ItemMesh *result)
 {
 	ITextureSource *tsrc = client->getTextureSource();
@@ -666,14 +668,17 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 	// Shading is on by default
 	result->needs_shading = true;
 
+	video::ITexture *inventory_texture = animation_normal.getTexture(0.0f),
+		*inventory_overlay_texture = animation_overlay.getTexture(0.0f);
+
 	// If inventory_image is defined, it overrides everything else
 	if (inventory_texture) {
 		mesh = getExtrudedMesh(inventory_texture, inventory_overlay_texture);
 
-		result->buffer_info.emplace_back(0, inventory_animation);
-		// overlay is white, if present
+		result->buffer_info.emplace_back(0, &animation_normal);
 
-		result->buffer_info.emplace_back(1, inventory_overlay_animation,
+		// overlay is white, if present
+		result->buffer_info.emplace_back(1, &animation_overlay,
 				true, video::SColor(0xFFFFFFFF));
 		// Items with inventory images do not need shading
 		result->needs_shading = false;
@@ -682,6 +687,7 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 		mesh = getExtrudedMesh(tsrc->getTexture("no_texture_airlike.png"),
 				inventory_overlay_texture);
 		result->buffer_info.emplace_back(0);
+
 		// overlay is white, if present
 		result->buffer_info.emplace_back(1, true, video::SColor(0xFFFFFFFF));
 		result->needs_shading = false;

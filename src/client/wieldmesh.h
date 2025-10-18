@@ -58,20 +58,15 @@ public:
 		layer(layer)
 	{}
 
+	ItemMeshBufferInfo(int layer, const AnimationInfo *animation,
+			bool override_c = false, video::SColor color = {}) :
+		override_color(color), override_color_set(override_c), layer(layer)
+	{
+		if (animation)
+			animation_info = std::make_unique<AnimationInfo>(*animation);
+	}
+
 	ItemMeshBufferInfo(int layer_num, const TileLayer &layer);
-
-	ItemMeshBufferInfo(int layer, AnimationInfo *animation,
-			bool override_c = false, video::SColor color = {}) :
-		override_color(color), override_color_set(override_c), layer(layer),
-		animation_info(animation ? std::make_unique<AnimationInfo>(*animation) : nullptr)
-	{}
-
-	ItemMeshBufferInfo(int layer, std::vector<FrameSpec> *frames, u16 frame_length_ms,
-			bool override_c = false, video::SColor color = {}) :
-		override_color(color), override_color_set(override_c), layer(layer),
-		animation_info(std::make_unique<AnimationInfo>(frames, frame_length_ms))
-	{}
-
 
 	void applyOverride(video::SColor &dest) const {
 		if (override_color_set)
@@ -192,6 +187,6 @@ scene::SMesh *getExtrudedMesh(video::ITexture *texture,
 // This is only used to initially generate an ItemMesh
 // To get the mesh, use ItemVisualsManager::getItemMesh(item, client) instead
 void createItemMesh(Client *client, const ItemDefinition &def,
-		video::ITexture *inventory_texture, AnimationInfo* inventory_animation,
-		video::ITexture *inventory_overlay_texture, AnimationInfo* inventory_overlay_animation,
+		AnimationInfo &animation_normal,
+		AnimationInfo &animation_overlay,
 		ItemMesh *result);

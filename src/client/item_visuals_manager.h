@@ -20,14 +20,11 @@ namespace video { class ITexture; }
 
 struct ItemVisualsManager
 {
-	ItemVisualsManager()
-	{
-		m_main_thread = std::this_thread::get_id();
-	}
+	ItemVisualsManager();
+	~ItemVisualsManager();
 
-	void clear() {
-		m_cached_item_visuals.clear();
-	}
+	/// Clears the cached visuals
+	void clear();
 
 	// Get item inventory texture
 	video::ITexture* getInventoryTexture(const ItemStack &item, Client *client) const;
@@ -55,37 +52,7 @@ struct ItemVisualsManager
 	video::SColor getItemstackColor(const ItemStack &stack, Client *client) const;
 
 private:
-	struct ItemVisuals
-	{
-		video::ITexture *inventory_texture;
-		video::ITexture *inventory_overlay_texture;
-		ItemMesh item_mesh;
-		Palette *palette;
-
-		// Exists to own the frames vector referenced by
-		// the contained AnimationInfo.
-		struct OwnedAnimationInfo {
-			AnimationInfo info;
-			std::vector<FrameSpec> frames;
-
-			OwnedAnimationInfo(std::vector<FrameSpec> &&f, u16 frame_length_ms) : frames(f) {
-				info = AnimationInfo(&frames, frame_length_ms);
-			};
-		};
-
-		// Null if non animated
-		std::unique_ptr<OwnedAnimationInfo> inventory_animation;
-		std::unique_ptr<OwnedAnimationInfo> inventory_overlay_animation;
-
-		ItemVisuals():
-			inventory_texture(nullptr),
-			palette(nullptr)
-		{}
-
-		~ItemVisuals();
-
-		DISABLE_CLASS_COPY(ItemVisuals);
-	};
+	struct ItemVisuals;
 
 	// The id of the thread that is allowed to use irrlicht directly
 	std::thread::id m_main_thread;
