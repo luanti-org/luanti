@@ -25,6 +25,21 @@ enum MaterialType : u8 {
 	TILE_MATERIAL_PLAIN_ALPHA
 };
 
+/**
+ * @brief change type so it has at least simple transparency
+ */
+static inline MaterialType material_type_with_alpha(MaterialType type)
+{
+	switch (type) {
+		case TILE_MATERIAL_OPAQUE:
+			return TILE_MATERIAL_BASIC;
+		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+			return TILE_MATERIAL_WAVING_LIQUID_BASIC;
+		default:
+			return type;
+	}
+}
+
 // Material flags
 // Should backface culling be enabled?
 #define MATERIAL_FLAG_BACKFACE_CULLING 0x01
@@ -85,7 +100,7 @@ struct TileLayer
 
 	/**
 	 * Set some material parameters accordingly.
-	 * @note does not set `MaterialType`
+	 * @note does not set `MaterialType`!
 	 * @param material material to mody
 	 * @param layer index of this layer in the `TileSpec`
 	 */
