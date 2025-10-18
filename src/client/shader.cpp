@@ -241,6 +241,9 @@ public:
 			float shadow_soft_radius = std::max(1.f,
 				g_settings->getFloat("shadow_soft_radius"));
 			constants["SOFTSHADOWRADIUS"] = shadow_soft_radius;
+
+			if (g_settings->getBool("enable_sun_tint"))
+				constants["ENABLE_TINTED_SUNLIGHT"] = 1;
 		}
 
 		if (g_settings->getBool("enable_bloom")) {
@@ -746,6 +749,10 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		shaders_header << "#define " << it.first << ' ';
 		putConstant(shaders_header, it.second);
 		shaders_header << '\n';
+	}
+
+	if (g_settings->getBool("enable_volumetric_depth_attenuation")) {
+		shaders_header << "#define VOLUMETRIC_DEPTH_ATTENUATION 1\n";
 	}
 
 	std::string common_header = shaders_header.str();
