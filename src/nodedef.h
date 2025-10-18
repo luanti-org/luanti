@@ -261,6 +261,7 @@ enum AlphaMode : u8 {
 	AlphaMode_END // Dummy for validity check
 };
 
+#if CHECK_CLIENT_BUILD()
 /**
  * @brief get fitting material type for an alpha mode
  */
@@ -276,6 +277,7 @@ static inline MaterialType alpha_mode_to_material_type(AlphaMode mode)
 		return TILE_MATERIAL_BASIC;
 	}
 }
+#endif
 
 
 /*
