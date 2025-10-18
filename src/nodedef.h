@@ -14,7 +14,9 @@
 #if CHECK_CLIENT_BUILD()
 #include "client/tile.h"
 #include <IMeshManipulator.h>
+#include <unordered_set>
 class Client;
+struct PreLoadedTextures;
 #endif
 #include "itemgroup.h"
 #include "sound.h" // SoundSpec
@@ -258,6 +260,24 @@ enum AlphaMode : u8 {
 	ALPHAMODE_LEGACY_COMPAT, /* only sent by old servers, equals OPAQUE */
 	AlphaMode_END // Dummy for validity check
 };
+
+#if CHECK_CLIENT_BUILD()
+/**
+ * @brief get fitting material type for an alpha mode
+ */
+static inline MaterialType alpha_mode_to_material_type(AlphaMode mode)
+{
+	switch (mode) {
+	case ALPHAMODE_BLEND:
+		return TILE_MATERIAL_ALPHA;
+	case ALPHAMODE_OPAQUE:
+		return TILE_MATERIAL_OPAQUE;
+	case ALPHAMODE_CLIP:
+	default:
+		return TILE_MATERIAL_BASIC;
+	}
+}
+#endif
 
 
 /*
@@ -505,8 +525,12 @@ struct ContentFeatures
 	}
 
 #if CHECK_CLIENT_BUILD()
+	void preUpdateTextures(ITextureSource *tsrc,
+		std::unordered_set<std::string> &pool, const TextureSettings &tsettings);
 	void updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
-		scene::IMeshManipulator *meshmanip, Client *client, const TextureSettings &tsettings);
+		Client *client, PreLoadedTextures *texture_pool,
+		const TextureSettings &tsettings);
+	void updateMesh(Client *client, const TextureSettings &tsettings);
 #endif
 
 private:
@@ -675,8 +699,9 @@ public:
 	 */
 	void applyTextureOverrides(const std::vector<TextureOverride> &overrides);
 
+#if CHECK_CLIENT_BUILD()
 	/*!
-	 * Only the client uses this. Loads textures and shaders required for
+	 * Loads textures and shaders required for
 	 * rendering the nodes.
 	 * @param gamedef must be a Client.
 	 * @param progress_cbk called each time a node is loaded. Arguments:
@@ -685,6 +710,7 @@ public:
 	 * @param progress_cbk_args passed to the callback function
 	 */
 	void updateTextures(IGameDef *gamedef, void *progress_cbk_args);
+#endif
 
 	/*!
 	 * Writes the content of this manager to the given output stream.

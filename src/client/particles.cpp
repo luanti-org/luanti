@@ -42,8 +42,11 @@ static video::ITexture *extractTexture(const TileDef &def, const TileLayer &laye
 {
 	// If animated take first frame from tile layer (so we don't have to handle
 	// that manually), otherwise look up by name.
-	if (!layer.empty() && (layer.material_flags & MATERIAL_FLAG_ANIMATION))
-		return (*layer.frames)[0].texture;
+	if (!layer.empty() && (layer.material_flags & MATERIAL_FLAG_ANIMATION)) {
+		auto *ret = (*layer.frames)[0].texture;
+		assert(ret->getType() == video::ETT_2D);
+		return ret;
+	}
 	if (!def.name.empty())
 		return tsrc->getTexture(def.name);
 	return nullptr;

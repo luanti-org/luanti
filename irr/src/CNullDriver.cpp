@@ -837,18 +837,18 @@ void CNullDriver::makeColorKeyTexture(video::ITexture *texture,
 	makeColorKeyTexture(texture, colorKey);
 }
 
-//! Returns the maximum amount of primitives (mostly vertices) which
-//! the device is able to render with one drawIndexedTriangleList
-//! call.
-u32 CNullDriver::getMaximalPrimitiveCount() const
+SDriverLimits CNullDriver::getLimits() const
 {
-	return 0xFFFFFFFF;
+	SDriverLimits ret;
+	ret.MaxPrimitiveCount = 0xFFFFFFFF;
+	ret.MaxTextureSize = 0x10000; // maybe large enough
+	return ret;
 }
 
 //! checks triangle count and print warning if wrong
 bool CNullDriver::checkPrimitiveCount(u32 prmCount) const
 {
-	const u32 m = getMaximalPrimitiveCount();
+	const u32 m = getLimits().MaxPrimitiveCount;
 
 	if (prmCount > m) {
 		char tmp[128];
@@ -1730,11 +1730,6 @@ SMaterial &CNullDriver::getMaterial2D()
 void CNullDriver::enableMaterial2D(bool enable)
 {
 	OverrideMaterial2DEnabled = enable;
-}
-
-core::dimension2du CNullDriver::getMaxTextureSize() const
-{
-	return core::dimension2du(0x10000, 0x10000); // maybe large enough
 }
 
 bool CNullDriver::needsTransparentRenderPass(const video::SMaterial &material) const

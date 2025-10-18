@@ -212,6 +212,8 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 		MapblockMeshGenerator(&mmd, &collector).generate();
 	}
 
+	const AlphaMode alpha_mode = ndef->get(n).alpha;
+
 	auto mesh = make_irr<scene::SMesh>();
 	animation.clear();
 	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
@@ -224,10 +226,8 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 			p.applyTileColor();
 
 			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
-				const FrameSpec &frame = (*p.layer.frames)[0];
-				p.layer.texture = frame.texture;
-
-				animation.emplace_back(MeshAnimationInfo{mesh->getMeshBufferCount(), 0, p.layer});
+				animation.emplace_back(MeshAnimationInfo{
+					mesh->getMeshBufferCount(), 0, p.layer});
 			}
 
 			auto buf = make_irr<scene::SMeshBuffer>();
@@ -236,9 +236,8 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 
 			// Set up material
 			auto &mat = buf->Material;
-			u32 shader_id = shdsrc->getShader("object_shader", p.layer.material_type, NDT_NORMAL);
-			mat.MaterialType = shdsrc->getShaderInfo(shader_id).material;
 			p.layer.applyMaterialOptions(mat, layer);
+			getAdHocNodeShader(mat, shdsrc, "object_shader", alpha_mode, layer == 1);
 
 			mesh->addMeshBuffer(buf.get());
 		}
