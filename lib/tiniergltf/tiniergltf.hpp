@@ -31,10 +31,20 @@ static inline void check(bool cond) {
 		throw std::runtime_error("invalid glTF");
 }
 
+// Unsigned arithmetic helpers with wraparound checks
+
 template<typename T>
-static inline T checkedSub(T a, T b) {
-	check(a >= b);
-	return a - b;
+static inline T checkedAdd(T a, T b) {
+	T c = std::numeric_limits<T>::max() - a;
+	check(b <= c);
+	return a + b;
+}
+
+template<typename T>
+static inline T checkedMul(T a, T b) {
+	T prod = a * b;
+	check(a == 0 || prod / a == b);
+	return prod;
 }
 
 template <typename T>
@@ -1247,10 +1257,8 @@ struct GlTF {
 		checkForall(bufferViews, [&](const BufferView &view) {
 			check(buffers.has_value());
 			const Buffer &buf = buffers->at(view.buffer);
-			// Be careful because of possible integer overflows.
-			check(view.byteOffset < buf.byteLength);
-			check(view.byteLength <= buf.byteLength);
-			check(view.byteOffset <= buf.byteLength - view.byteLength);
+			// View must fit into the buffer
+			check(checkedAdd(view.byteOffset, view.byteLength) <= buf.byteLength);
 		});
 
 		const auto checkAccessor = [&](const auto &accessor,
@@ -1259,11 +1267,12 @@ struct GlTF {
 			if (view.byteStride.has_value())
 				check(*view.byteStride % accessor.componentSize() == 0);
 
-			const auto effective_byte_stride = view.byteStride.value_or(accessor.elementSize());
+			const std::size_t effective_byte_stride = view.byteStride.value_or(accessor.elementSize());
+			// Accessor must fit into the buffer view: The last element must be fully in bounds.
 			// Want: (count-1) * effective_byte_stride + accessor.elementSize() + byteOffset <= view.byteLength
-			// so the last item is still in-bounds and can be read. Be careful to avoid wraparound.
-			const auto remaining_bytes = checkedSub(checkedSub(view.byteLength, byteOffset), accessor.elementSize());
-			check((remaining_bytes/effective_byte_stride) + 1 >= count);
+			// Be careful to avoid wraparound.
+			check(checkedAdd(checkedMul(count - 1, effective_byte_stride),
+					checkedAdd(accessor.elementSize(), byteOffset)) <= view.byteLength);
 		};
 		checkForall(accessors, [&](const Accessor &accessor) {
 			if (accessor.bufferView.has_value())
