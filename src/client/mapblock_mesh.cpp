@@ -29,11 +29,11 @@
 	MeshMakeData
 */
 
-MeshMakeData::MeshMakeData(const NodeDefManager *ndef,
-		u16 side_length, MeshGrid mesh_grid) :
-	m_side_length(side_length),
-	m_mesh_grid(mesh_grid),
-	m_nodedef(ndef)
+MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, MeshGrid mesh_grid/*, u16 lod*/):
+    m_side_length(side_length),
+    m_mesh_grid(mesh_grid),
+    // m_lod(lod),
+    m_nodedef(ndef)
 {
 	assert(m_side_length > 0);
 }
@@ -588,7 +588,15 @@ void PartialMeshBuffer::draw(video::IVideoDriver *driver) const
 	MapBlockMesh
 */
 
-MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
+static const video::SMaterial monoMaterial = [] {
+	video::SMaterial mat;
+	mat.FogEnable = true;
+	mat.MaterialType = video::EMT_SOLID;
+	return mat;
+}();
+
+MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
+	m_lod(lod),
 	m_tsrc(client->getTextureSource()),
 	m_shdrsrc(client->getShaderSource()),
 	m_bounding_sphere_center((data->m_side_length * 0.5f - 0.5f) * BS),
@@ -626,18 +634,55 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	v3f offset = intToFloat((data->m_blockpos - mesh_grid.getMeshPos(data->m_blockpos)) * MAP_BLOCKSIZE, BS);
 
 	MeshCollector collector(m_bounding_sphere_center, offset);
+	bool is_mono_mat = lod >= g_settings->getU16("lod_color_threshold");;
 
 	{
-		// Generate everything
-		MapblockMeshGenerator(data, &collector).generate();
+        // Generate everything
+        if (lod == 0)
+			MapblockMeshGenerator(data, &collector).generate();
+        else
+	        LodMeshGenerator(data, &collector, is_mono_mat).generate(lod);
 	}
 
 	/*
 		Convert MeshCollector to SMesh
 	*/
-
 	m_bounding_radius = std::sqrt(collector.m_bounding_radius_sq);
 
+	if (is_mono_mat)
+		generateMonoMesh(collector);
+	else
+		generateMesh(collector);
+
+	m_bsp_tree.buildTree(&m_transparent_triangles, data->m_side_length);
+
+	// Check if animation is required for this mesh
+	m_has_animation =
+		!m_crack_materials.empty() ||
+		!m_animation_info.empty();
+}
+
+void MapBlockMesh::generateMonoMesh(MeshCollector &collector) const {
+	scene::SMesh *mesh = static_cast<scene::SMesh *>(m_mesh[0].get());
+
+	for(u32 i = 0; i < collector.prebuffers[0].size(); i++) {
+		scene::SMeshBuffer *buf = new scene::SMeshBuffer();
+		buf->Material = monoMaterial;
+		PreMeshBuffer &p = collector.prebuffers[0][i];
+
+		buf->append(&p.vertices[0], p.vertices.size(),
+			&p.indices[0], p.indices.size());
+
+		mesh->addMeshBuffer(buf);
+		std::ignore = buf->drop();
+	}
+	if (mesh) {
+		// Use VBO for mesh (this just would set this for every buffer)
+		mesh->setHardwareMappingHint(scene::EHM_STATIC);
+	}
+}
+
+void MapBlockMesh::generateMesh(MeshCollector &collector) {
 	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
 		scene::SMesh *mesh = static_cast<scene::SMesh *>(m_mesh[layer].get());
 
@@ -717,13 +762,6 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 			mesh->setHardwareMappingHint(scene::EHM_STATIC);
 		}
 	}
-
-	m_bsp_tree.buildTree(&m_transparent_triangles, data->m_side_length);
-
-	// Check if animation is required for this mesh
-	m_has_animation =
-		!m_crack_materials.empty() ||
-		!m_animation_info.empty();
 }
 
 MapBlockMesh::~MapBlockMesh()

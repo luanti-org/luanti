@@ -26,6 +26,7 @@ struct QueuedMeshUpdate
 	MeshMakeData *data = nullptr; // This is generated in MeshUpdateQueue::pop()
 	std::vector<MapBlock*> map_blocks;
 	bool urgent = false;
+    // u16 lod;
 
 	QueuedMeshUpdate() = default;
 	~QueuedMeshUpdate();

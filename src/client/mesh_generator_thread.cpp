@@ -6,6 +6,7 @@
 #include "settings.h"
 #include "profiler.h"
 #include "client.h"
+#include "camera.h"
 #include "mapblock.h"
 #include "map.h"
 #include "util/directiontables.h"
@@ -208,10 +209,10 @@ void MeshUpdateQueue::done(v3s16 pos)
 
 void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
-	auto mesh_grid = m_client->getMeshGrid();
-	MeshMakeData *data = new MeshMakeData(m_client->ndef(),
-			MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid);
-	q->data = data;
+    MeshGrid mesh_grid = m_client->getMeshGrid();
+    MeshMakeData *data = new MeshMakeData(m_client->ndef(),
+            MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid/*, q->lod*/);
+    q->data = data;
 
 	data->fillBlockDataBegin(q->p);
 
@@ -243,8 +244,20 @@ void MeshUpdateWorkerThread::doUpdate()
 	while ((q = m_queue_in->pop())) {
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
+		// /*
+		//  * Calculate LOD
+		//  */
+		const v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE // current player block
+						// other block positions are on the corner, so offset this position as well for dist calcs
+						- m_client->getMeshGrid().cell_size / 2;
+		const u16 dist2 = cam_pos.getDistanceFromSQ(q->p); // distance squared
+		u16 lod_threshold = g_settings->getU16("lod_threshold");
+		lod_threshold *= lod_threshold;
+		const u8 lod = dist2 < lod_threshold ? 0 :
+		1 + (u8)(std::log2(dist2 / lod_threshold) / g_settings->getFloat("lod_quality"));
+
 		// This generates the mesh:
-		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
+		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, lod);
 
 		MeshUpdateResult r;
 		r.p = q->p;
