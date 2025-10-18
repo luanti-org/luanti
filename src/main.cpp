@@ -71,6 +71,7 @@ extern "C" {
 #define ENV_NO_COLOR "NO_COLOR"
 #define ENV_CLICOLOR "CLICOLOR"
 #define ENV_CLICOLOR_FORCE "CLICOLOR_FORCE"
+#define ENV_LOG_TIMESTAMP "LOG_TIMESTAMP"
 
 typedef std::map<std::string, ValueSpec> OptionList;
 
@@ -293,7 +294,7 @@ static void get_env_opts(Settings &args)
 	// CLICOLOR != 0: ANSI colors are supported (auto-detection, this is the default)
 	// CLICOLOR == 0: ANSI colors are NOT supported
 	const char *clicolor = std::getenv(ENV_CLICOLOR);
-	if (clicolor && std::string(clicolor) == "0") {
+	if (clicolor && std::string_view(clicolor) == "0") {
 		args.set("color", "never");
 	}
 	// NO_COLOR only specifies that no color is allowed.
@@ -304,10 +305,15 @@ static void get_env_opts(Settings &args)
 	}
 	// CLICOLOR_FORCE is another option, which should turn on colors "no matter what".
 	const char *clicolor_force = std::getenv(ENV_CLICOLOR_FORCE);
-	if (clicolor_force && std::string(clicolor_force) != "0") {
+	if (clicolor_force && std::string_view(clicolor_force) != "0") {
 		// should ALWAYS have colors, so we ignore tty (no "auto")
 		args.set("color", "always");
 	}
+
+	// No standard, Luanti-specific
+	const char *log_ts = std::getenv(ENV_LOG_TIMESTAMP);
+	if (log_ts)
+		args.set("log-timestamp", log_ts);
 }
 
 static bool get_cmdline_opts(int argc, char *argv[], Settings *cmd_args)
@@ -355,8 +361,10 @@ static void set_allowed_options(OptionList *allowed_options)
 			"'name' lists names, 'both' lists both)"))));
 	allowed_options->insert(std::make_pair("quiet", ValueSpec(VALUETYPE_FLAG,
 			_("Print only errors to console"))));
-	allowed_options->insert(std::make_pair("color", ValueSpec(VALUETYPE_STRING,
-			_("Coloured logs ('always', 'never' or 'auto'), defaults to 'auto'"))));
+	allowed_options->emplace("color", ValueSpec(VALUETYPE_STRING,
+			_("Coloured logs ('always', 'never' or 'auto'), default: 'auto'")));
+	allowed_options->emplace("log-timestamp", ValueSpec(VALUETYPE_STRING,
+			_("Timestamped logs ('wall', 'relative' or 'none'), default: 'wall'")));
 	allowed_options->insert(std::make_pair("info", ValueSpec(VALUETYPE_FLAG,
 			_("Print more information to console"))));
 	allowed_options->insert(std::make_pair("verbose",  ValueSpec(VALUETYPE_FLAG,
@@ -524,11 +532,9 @@ static bool setup_log_params(const Settings &cmd_args)
 		g_logger.addOutputMaxLevel(&stderr_output, LL_ERROR);
 	}
 
-	// Coloured log messages (see log.h)
+	// Message color
 	std::string color_mode;
-	if (cmd_args.exists("color")) {
-		color_mode = cmd_args.get("color");
-	}
+	cmd_args.getNoEx("color", color_mode);
 	if (!color_mode.empty()) {
 		if (color_mode == "auto") {
 			Logger::color_mode = LOG_COLOR_AUTO;
@@ -538,6 +544,22 @@ static bool setup_log_params(const Settings &cmd_args)
 			Logger::color_mode = LOG_COLOR_NEVER;
 		} else {
 			errorstream << "Invalid color mode: " << color_mode << std::endl;
+			return false;
+		}
+	}
+
+	// Timestamp
+	std::string ts_mode;
+	cmd_args.getNoEx("log-timestamp", ts_mode);
+	if (!ts_mode.empty()) {
+		if (ts_mode == "wall") {
+			Logger::timestamp_mode = LOG_TIMESTAMP_WALL;
+		} else if (ts_mode == "relative") {
+			Logger::timestamp_mode = LOG_TIMESTAMP_RELATIVE;
+		} else if (ts_mode == "none") {
+			Logger::timestamp_mode = LOG_TIMESTAMP_NONE;
+		} else {
+			errorstream << "Invalid timestamp mode: " << ts_mode << std::endl;
 			return false;
 		}
 	}

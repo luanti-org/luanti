@@ -106,18 +106,24 @@ struct ItemStack
 	const ToolCapabilities& getToolCapabilities(
 			const IItemDefManager *itemdef, const ItemStack *hand = nullptr) const
 	{
-		const ToolCapabilities *item_cap = itemdef->get(name).tool_capabilities;
+		// Check for override
+		auto &meta_item_cap = metadata.getToolCapabilitiesOverride();
+		if (meta_item_cap.has_value())
+			return meta_item_cap.value();
 
-		if (item_cap) {
-			return metadata.getToolCapabilities(*item_cap); // Check for override
-		}
+		const ToolCapabilities *item_cap = itemdef->get(name).tool_capabilities;
+		if (item_cap)
+			return *item_cap;
 
 		// Fall back to the hand's tool capabilities
 		if (hand) {
+			auto &hand_meta_item_cap = hand->metadata.getToolCapabilitiesOverride();
+			if (hand_meta_item_cap.has_value())
+				return hand_meta_item_cap.value();
+
 			item_cap = itemdef->get(hand->name).tool_capabilities;
-			if (item_cap) {
-				return hand->metadata.getToolCapabilities(*item_cap);
-			}
+			if (item_cap)
+				return *item_cap;
 		}
 
 		item_cap = itemdef->get("").tool_capabilities;

@@ -8651,7 +8651,9 @@ child will follow movement and rotation of that bone.
     * Does not reset rotation incurred through `automatic_rotate`.
       Remove & re-add your objects to force a certain rotation.
 * `get_rotation()`: returns the rotation, a vector (radians)
-* `set_yaw(yaw)`: sets the yaw in radians (heading).
+* `set_yaw(yaw)`
+    * Sets the yaw in radians (heading).
+    * Also resets pitch and roll to 0.
 * `get_yaw()`: returns number in radians
 * `set_texture_mod(mod)`
     * Set a texture modifier to the base texture, for sprites and meshes.

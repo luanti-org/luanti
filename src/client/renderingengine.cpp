@@ -101,7 +101,7 @@ public:
 	}
 };
 
-IShaderUniformSetter *FogShaderUniformSetterFactory::create()
+IShaderUniformSetter *FogShaderUniformSetterFactory::create(const std::string &name)
 {
 	return new FogShaderUniformSetter();
 }

@@ -160,28 +160,44 @@ private:
 class ShaderCallback : public video::IShaderConstantSetCallBack
 {
 	std::vector<std::unique_ptr<IShaderUniformSetter>> m_setters;
+	irr_ptr<IShaderUniformSetterRC> m_extra_setter;
 
 public:
 	template <typename Factories>
-	ShaderCallback(const Factories &factories)
+	ShaderCallback(const std::string &name, const Factories &factories)
 	{
 		for (auto &&factory : factories) {
-			auto *setter = factory->create();
-			if (setter)
+			auto *setter = factory->create(name);
+			if (setter) {
+				// since we use unique_ptr, the object may not be refcounted
+				assert(dynamic_cast<IReferenceCounted*>(setter) == nullptr);
 				m_setters.emplace_back(setter);
+			}
 		}
+	}
+
+	~ShaderCallback() = default;
+
+	void setExtraSetter(IShaderUniformSetterRC *setter)
+	{
+		assert(!m_extra_setter);
+		m_extra_setter.grab(setter);
 	}
 
 	virtual void OnSetConstants(video::IMaterialRendererServices *services, s32 userData) override
 	{
 		for (auto &&setter : m_setters)
 			setter->onSetUniforms(services);
+		if (m_extra_setter)
+			m_extra_setter->onSetUniforms(services);
 	}
 
 	virtual void OnSetMaterial(const video::SMaterial& material) override
 	{
 		for (auto &&setter : m_setters)
 			setter->onSetMaterial(material);
+		if (m_extra_setter)
+			m_extra_setter->onSetMaterial(material);
 	}
 };
 
@@ -328,7 +344,7 @@ public:
 class MainShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
-	virtual IShaderUniformSetter* create()
+	virtual IShaderUniformSetter* create(const std::string &name)
 		{ return new MainShaderUniformSetter(); }
 };
 
@@ -350,7 +366,7 @@ public:
 		The id 0 points to a null shader. Its material is EMT_SOLID.
 	*/
 	u32 getShaderIdDirect(const std::string &name, const ShaderConstants &input_const,
-		video::E_MATERIAL_TYPE base_mat);
+		video::E_MATERIAL_TYPE base_mat, IShaderUniformSetterRC *setter_cb);
 
 	/*
 		If shader specified by the name pointed by the id doesn't
@@ -361,7 +377,8 @@ public:
 		for processing.
 	*/
 	u32 getShader(const std::string &name, const ShaderConstants &input_const,
-		video::E_MATERIAL_TYPE base_mat) override;
+		video::E_MATERIAL_TYPE base_mat,
+		IShaderUniformSetterRC *setter_cb = nullptr) override;
 
 	const ShaderInfo &getShaderInfo(u32 id) override;
 
@@ -414,9 +431,8 @@ private:
 	// Global uniform setter factories
 	std::vector<std::unique_ptr<IShaderUniformSetterFactory>> m_uniform_factories;
 
-	// Generate shader given the shader name.
-	ShaderInfo generateShader(const std::string &name,
-		const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat);
+	// Generate shader for given input parameters.
+	void generateShader(ShaderInfo &info);
 
 	/// @brief outputs a constant to an ostream
 	inline void putConstant(std::ostream &os, const ShaderConstants::mapped_type &it)
@@ -465,14 +481,15 @@ ShaderSource::~ShaderSource()
 }
 
 u32 ShaderSource::getShader(const std::string &name,
-	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat)
+	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat,
+	IShaderUniformSetterRC *setter_cb)
 {
 	/*
 		Get shader
 	*/
 
 	if (std::this_thread::get_id() == m_main_thread) {
-		return getShaderIdDirect(name, input_const, base_mat);
+		return getShaderIdDirect(name, input_const, base_mat, setter_cb);
 	}
 
 	errorstream << "ShaderSource::getShader(): getting from "
@@ -510,7 +527,8 @@ u32 ShaderSource::getShader(const std::string &name,
 	This method generates all the shaders
 */
 u32 ShaderSource::getShaderIdDirect(const std::string &name,
-	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat)
+	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat,
+	IShaderUniformSetterRC *setter_cb)
 {
 	// Empty name means shader 0
 	if (name.empty()) {
@@ -522,23 +540,23 @@ u32 ShaderSource::getShaderIdDirect(const std::string &name,
 	for (u32 i = 0; i < m_shaderinfo_cache.size(); i++) {
 		auto &info = m_shaderinfo_cache[i];
 		if (info.name == name && info.base_material == base_mat &&
-			info.input_constants == input_const)
+			info.input_constants == input_const && info.setter_cb == setter_cb)
 			return i;
 	}
 
-	/*
-		Calling only allowed from main thread
-	*/
-	if (std::this_thread::get_id() != m_main_thread) {
-		errorstream<<"ShaderSource::getShaderIdDirect() "
-				"called not from main thread"<<std::endl;
-		return 0;
-	}
+	// Calling only allowed from main thread
+	sanity_check(std::this_thread::get_id() == m_main_thread);
 
-	ShaderInfo info = generateShader(name, input_const, base_mat);
+	ShaderInfo info;
+	info.name = name;
+	info.input_constants = input_const;
+	info.base_material = base_mat;
+	info.setter_cb.grab(setter_cb);
+
+	generateShader(info);
 
 	/*
-		Add shader to caches (add dummy shaders too)
+		Add shader to caches
 	*/
 
 	MutexAutoLock lock(m_shaderinfo_cache_mutex);
@@ -597,29 +615,28 @@ void ShaderSource::rebuildShaders()
 
 	// Recreate shaders
 	for (ShaderInfo &i : m_shaderinfo_cache) {
-		ShaderInfo *info = &i;
-		if (!info->name.empty()) {
-			*info = generateShader(info->name, info->input_constants, info->base_material);
+		if (!i.name.empty()) {
+			generateShader(i);
 		}
 	}
 }
 
 
-ShaderInfo ShaderSource::generateShader(const std::string &name,
-	const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat)
+void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 {
-	ShaderInfo shaderinfo;
-	shaderinfo.name = name;
-	shaderinfo.input_constants = input_const;
+	const auto &name = shaderinfo.name;
+	const auto &input_const = shaderinfo.input_constants;
+
 	// fixed pipeline materials don't make sense here
-	assert(base_mat != video::EMT_TRANSPARENT_VERTEX_ALPHA && base_mat != video::EMT_ONETEXTURE_BLEND);
-	shaderinfo.base_material = base_mat;
-	shaderinfo.material = shaderinfo.base_material;
+	assert(shaderinfo.base_material != video::EMT_TRANSPARENT_VERTEX_ALPHA &&
+		shaderinfo.base_material != video::EMT_ONETEXTURE_BLEND);
 
 	auto *driver = RenderingEngine::get_video_driver();
 	// The null driver doesn't support shaders (duh), but we can pretend it does.
-	if (driver->getDriverType() == video::EDT_NULL)
-		return shaderinfo;
+	if (driver->getDriverType() == video::EDT_NULL) {
+		shaderinfo.material = shaderinfo.base_material;
+		return;
+	}
 
 	auto *gpu = driver->getGPUProgrammingServices();
 	if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu) {
@@ -746,7 +763,9 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 		geometry_shader_ptr = geometry_shader.c_str();
 	}
 
-	auto cb = make_irr<ShaderCallback>(m_uniform_factories);
+	auto cb = make_irr<ShaderCallback>(name, m_uniform_factories);
+	cb->setExtraSetter(shaderinfo.setter_cb.get());
+
 	infostream << "Compiling high level shaders for " << log_name << std::endl;
 	s32 shadermat = gpu->addHighLevelShaderMaterial(
 		vertex_shader.c_str(), fragment_shader.c_str(), geometry_shader_ptr,
@@ -765,7 +784,6 @@ ShaderInfo ShaderSource::generateShader(const std::string &name,
 
 	// Apply the newly created material type
 	shaderinfo.material = (video::E_MATERIAL_TYPE) shadermat;
-	return shaderinfo;
 }
 
 /*

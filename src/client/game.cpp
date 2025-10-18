@@ -401,8 +401,10 @@ public:
 		created_nosky.clear();
 	}
 
-	virtual IShaderUniformSetter* create()
+	virtual IShaderUniformSetter* create(const std::string &name)
 	{
+		if (str_starts_with(name, "shadow/"))
+			return nullptr;
 		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_client);
 		if (!m_sky)
 			created_nosky.push_back(scs);
@@ -3740,8 +3742,7 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 	} else {
 		runData.dig_time_complete = params.time;
 
-		client->getParticleManager()->addNodeParticle(client,
-				player, nodepos, n, features);
+		client->getParticleManager()->addNodeParticle(player, nodepos, n);
 	}
 
 	if (!runData.digging) {
@@ -3826,8 +3827,7 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 
 		client->interact(INTERACT_DIGGING_COMPLETED, pointed);
 
-		client->getParticleManager()->addDiggingParticles(client,
-			player, nodepos, n, features);
+		client->getParticleManager()->addDiggingParticles(player, nodepos, n);
 
 		// Send event to trigger sound
 		client->getEventManager()->put(new NodeDugEvent(nodepos, n));

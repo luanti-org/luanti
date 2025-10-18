@@ -339,6 +339,7 @@ void set_default_settings()
 	settings->setDefault("enable_auto_exposure", "false");
 	settings->setDefault("debanding", "true");
 	settings->setDefault("antialiasing", "none");
+	settings->setDefault("fxaa", "false");
 	settings->setDefault("enable_bloom", "false");
 	settings->setDefault("enable_bloom_debug", "false");
 	settings->setDefault("enable_volumetric_lighting", "false");
@@ -425,7 +426,7 @@ void set_default_settings()
 #endif
 
 	// Server
-	settings->setDefault("strip_color_codes", "false");
+	settings->setDefault("strip_color_codes", "true");
 #ifndef NDEBUG
 	settings->setDefault("random_mod_load_order", "true");
 #else

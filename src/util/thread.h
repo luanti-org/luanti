@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <utility> // std::move
 #include "irrlichttypes.h"
 #include "threading/thread.h"
 #include "threading/mutex_auto_lock.h"
@@ -72,6 +73,8 @@ public:
 template<typename Key, typename T, typename Caller, typename CallerData>
 class GetRequest {
 public:
+	typedef CallerInfo<Caller, CallerData, Key, T> caller_info_type;
+
 	GetRequest() = default;
 	~GetRequest() = default;
 
@@ -80,99 +83,94 @@ public:
 	}
 
 	Key key;
-	std::list<CallerInfo<Caller, CallerData, Key, T> > callers;
+	std::list<caller_info_type> callers;
 };
 
 /**
  * Notes for RequestQueue usage
  * @param Key unique key to identify a request for a specific resource
- * @param T ?
+ * @param T data passed back to caller
  * @param Caller unique id of calling thread
- * @param CallerData data passed back to caller
+ * @param CallerData additional data provided by caller
  */
 template<typename Key, typename T, typename Caller, typename CallerData>
 class RequestQueue {
 public:
-	bool empty()
+	typedef GetRequest<Key, T, Caller, CallerData> request_type;
+	typedef GetResult<Key, T, Caller, CallerData> result_type;
+	typedef ResultQueue<Key, T, Caller, CallerData> result_queue_type;
+
+	bool empty() const
 	{
 		return m_queue.empty();
 	}
 
 	void add(const Key &key, Caller caller, CallerData callerdata,
-		ResultQueue<Key, T, Caller, CallerData> *dest)
+		result_queue_type *dest)
 	{
 		{
 			MutexAutoLock lock(m_queue.getMutex());
 
-			/*
-				If the caller is already on the list, only update CallerData
-			*/
-			for (auto i = m_queue.getQueue().begin(); i != m_queue.getQueue().end(); ++i) {
-				auto &request = *i;
+			for (auto &request : m_queue.getQueue()) {
 				if (request.key != key)
 					continue;
 
-				for (auto j = request.callers.begin(); j != request.callers.end(); ++j) {
-					auto &ca = *j;
+				// If the caller is already on the list, only update CallerData
+				for (auto &ca : request.callers) {
 					if (ca.caller == caller) {
 						ca.data = callerdata;
 						return;
 					}
 				}
 
-				CallerInfo<Caller, CallerData, Key, T> ca;
+				// Or add this caller
+				typename request_type::caller_info_type ca;
 				ca.caller = caller;
 				ca.data = callerdata;
 				ca.dest = dest;
-				request.callers.push_back(ca);
+				request.callers.push_back(std::move(ca));
 				return;
 			}
 		}
 
-		/*
-			Else add a new request to the queue
-		*/
-
-		GetRequest<Key, T, Caller, CallerData> request;
+		// Else add a new request to the queue
+		request_type request;
 		request.key = key;
-		CallerInfo<Caller, CallerData, Key, T> ca;
+		typename request_type::caller_info_type ca;
 		ca.caller = caller;
 		ca.data = callerdata;
 		ca.dest = dest;
-		request.callers.push_back(ca);
+		request.callers.push_back(std::move(ca));
 
-		m_queue.push_back(request);
+		m_queue.push_back(std::move(request));
 	}
 
-	GetRequest<Key, T, Caller, CallerData> pop(unsigned int timeout_ms)
+	request_type pop(unsigned int timeout_ms)
 	{
 		return m_queue.pop_front(timeout_ms);
 	}
 
-	GetRequest<Key, T, Caller, CallerData> pop()
+	request_type pop()
 	{
 		return m_queue.pop_frontNoEx();
 	}
 
-	void pushResult(GetRequest<Key, T, Caller, CallerData> req, T res)
+	void pushResult(const request_type &req, const T &res)
 	{
-		for (auto i = req.callers.begin();
-				i != req.callers.end(); ++i) {
-			auto &ca = *i;
-
-			GetResult<Key,T,Caller,CallerData> result;
+		for (auto &ca : req.callers) {
+			result_type result;
 
 			result.key = req.key;
 			result.item = res;
 			result.caller.first = ca.caller;
 			result.caller.second = ca.data;
 
-			ca.dest->push_back(result);
+			ca.dest->push_back(std::move(result));
 		}
 	}
 
 private:
-	MutexedQueue<GetRequest<Key, T, Caller, CallerData> > m_queue;
+	MutexedQueue<request_type> m_queue;
 };
 
 class UpdateThread : public Thread

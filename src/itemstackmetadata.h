@@ -23,10 +23,9 @@ public:
 	void serialize(std::ostream &os) const;
 	void deSerialize(std::istream &is);
 
-	const ToolCapabilities &getToolCapabilities(
-			const ToolCapabilities &default_caps) const
+	const std::optional<ToolCapabilities> &getToolCapabilitiesOverride() const
 	{
-		return toolcaps_override.has_value() ? *toolcaps_override : default_caps;
+		return toolcaps_override;
 	}
 
 	void setToolCapabilities(const ToolCapabilities &caps);

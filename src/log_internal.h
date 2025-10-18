@@ -28,10 +28,16 @@ enum LogLevel {
 	LL_MAX,
 };
 
-enum LogColor {
+enum LogColor : u8 {
 	LOG_COLOR_NEVER,
 	LOG_COLOR_ALWAYS,
 	LOG_COLOR_AUTO,
+};
+
+enum LogTimestamp : u8 {
+	LOG_TIMESTAMP_NONE,
+	LOG_TIMESTAMP_WALL,
+	LOG_TIMESTAMP_RELATIVE
 };
 
 typedef u8 LogLevelMask;
@@ -65,6 +71,7 @@ public:
 	}
 
 	static LogColor color_mode;
+	static LogTimestamp timestamp_mode;
 
 private:
 	void logToOutputsRaw(LogLevel, std::string_view line);
@@ -73,12 +80,13 @@ private:
 		std::string_view payload_text);
 
 	const std::string &getThreadName();
+	static std::string getLogTimestamp();
 
+	mutable std::mutex m_mutex;
 	std::vector<ILogOutput *> m_outputs[LL_MAX];
 	std::atomic<bool> m_has_outputs[LL_MAX];
 	std::atomic<bool> m_silenced_levels[LL_MAX];
 	std::map<std::thread::id, std::string> m_thread_names;
-	mutable std::mutex m_mutex;
 };
 
 class ILogOutput {

@@ -4,8 +4,8 @@
 
 #pragma once
 #include <IMaterialRendererServices.h>
-#include <IShaderConstantSetCallBack.h>
 #include "client/shader.h"
+#include "util/string.h"
 
 // Used by main game rendering
 
@@ -42,20 +42,19 @@ public:
 class ShadowUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
-	virtual IShaderUniformSetter *create() {
+	virtual IShaderUniformSetter *create(const std::string &name) {
+		if (str_starts_with(name, "shadow/"))
+			return nullptr;
 		return new ShadowUniformSetter();
 	}
 };
 
 // Used by depth shader
 
-class ShadowDepthShaderCB : public video::IShaderConstantSetCallBack
+class ShadowDepthUniformSetter : public IShaderUniformSetterRC
 {
 public:
-	void OnSetMaterial(const video::SMaterial &material) override {}
-
-	void OnSetConstants(video::IMaterialRendererServices *services,
-			s32 userData) override;
+	virtual void onSetUniforms(video::IMaterialRendererServices *services) override;
 
 	f32 MaxFar{2048.0f}, MapRes{1024.0f};
 	f32 PerspectiveBiasXY {0.9f}, PerspectiveBiasZ {0.5f};
