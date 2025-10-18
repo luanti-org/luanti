@@ -19,7 +19,6 @@ centroid varying float varTexLayer; // actually int
 
 void main(void)
 {
-	vec3 color;
 	vec2 uv = varTexCoord.st;
 
 #ifdef USE_ARRAY_TEXTURE
@@ -38,9 +37,7 @@ void main(void)
 		discard;
 #endif
 
-	color = base.rgb;
-	vec4 col = vec4(color.rgb * varColor.rgb, 1.0);
-	col = vec4(col.rgb, base.a);
+	vec4 col = vec4(base.rgb * varColor.rgb, base.a);
 
-	gl_FragColor = vec4(color, 1.0);
+	gl_FragColor = col;
 }
