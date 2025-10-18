@@ -9,8 +9,10 @@ varying vec3 worldPosition;
 varying lowp vec4 varColor;
 #ifdef GL_ES
 varying mediump vec2 varTexCoord;
+varying float varTexLayer;
 #else
 centroid varying vec2 varTexCoord;
+centroid varying float varTexLayer; // actually int
 #endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
@@ -91,7 +93,11 @@ float directional_ambient(vec3 normal)
 
 void main(void)
 {
+#ifdef USE_ARRAY_TEXTURE
+	varTexLayer = inVertexAux;
+#endif
 	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 1.0, 1.0)).st;
+
 	gl_Position = mWorldViewProj * inVertexPosition;
 
 	vPosition = gl_Position.xyz;

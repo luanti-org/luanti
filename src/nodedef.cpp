@@ -945,9 +945,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 
 	bool is_liquid = false;
 
-	MaterialType material_type = alpha == ALPHAMODE_OPAQUE ?
-		TILE_MATERIAL_OPAQUE : (alpha == ALPHAMODE_CLIP ? TILE_MATERIAL_BASIC :
-		TILE_MATERIAL_ALPHA);
+	MaterialType material_type = alpha_mode_to_material_type(alpha);
 
 	switch (drawtype) {
 	default:
@@ -1069,11 +1067,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 
 	ShaderIds tile_shader = getNodeShader(material_type, drawtype);
 
-	MaterialType overlay_material = material_type;
-	if (overlay_material == TILE_MATERIAL_OPAQUE)
-		overlay_material = TILE_MATERIAL_BASIC;
-	else if (overlay_material == TILE_MATERIAL_LIQUID_OPAQUE)
-		overlay_material = TILE_MATERIAL_LIQUID_TRANSPARENT;
+	MaterialType overlay_material = material_type_with_alpha(material_type);
 
 	ShaderIds overlay_shader = getNodeShader(overlay_material, drawtype);
 
@@ -1125,6 +1119,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		else if (waving == 2)
 			special_material = TILE_MATERIAL_WAVING_LEAVES;
 	}
+
 	ShaderIds special_shader = getNodeShader(special_material, drawtype);
 
 	// Special tiles (fill in f->special_tiles[])

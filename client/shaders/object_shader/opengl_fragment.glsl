@@ -1,4 +1,8 @@
-uniform sampler2D baseTexture;
+#ifdef USE_ARRAY_TEXTURE
+	uniform sampler2DArray baseTexture;
+#else
+	uniform sampler2D baseTexture;
+#endif
 
 uniform vec3 dayLight;
 uniform lowp vec4 fogColor;
@@ -41,8 +45,10 @@ varying vec3 worldPosition;
 varying lowp vec4 varColor;
 #ifdef GL_ES
 varying mediump vec2 varTexCoord;
+varying float varTexLayer;
 #else
 centroid varying vec2 varTexCoord;
+centroid varying float varTexLayer; // actually int
 #endif
 varying highp vec3 eyeVec;
 varying float nightRatio;
@@ -365,7 +371,11 @@ void main(void)
 	vec3 color;
 	vec2 uv = varTexCoord.st;
 
+#ifdef USE_ARRAY_TEXTURE
+	vec4 base = texture(baseTexture, vec3(uv, varTexLayer)).rgba;
+#else
 	vec4 base = texture2D(baseTexture, uv).rgba;
+#endif
 
 	// Handle transparency by discarding pixel as appropriate.
 #ifdef USE_DISCARD
