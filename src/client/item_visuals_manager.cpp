@@ -77,7 +77,7 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 		if (image.name.empty()) {
 			// no-op
 		} else if (image.animation.type == TileAnimationType::TAT_NONE) {
-			frames->push_back({ .texture = tsrc->getTexture(image.name) });
+			frames->push_back({0, tsrc->getTexture(image.name)});
 		} else {
 			// Animated
 			// Get inventory texture frames
