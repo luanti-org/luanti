@@ -256,40 +256,44 @@ std::string ItemStack::getShortDescription(const IItemDefManager *itemdef) const
 	return desc;
 }
 
-std::string ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
+ItemImageDef ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("inventory_image");
-	if (texture.empty())
-		texture = getDefinition(itemdef).inventory_image;
+	ItemImageDef image = getDefinition(itemdef).inventory_image;
+	std::string meta_image = metadata.getString("inventory_image");
+	if (!meta_image.empty())
+		image = meta_image;
 
-	return texture;
+	return image;
 }
 
-std::string ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) const
+ItemImageDef ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("inventory_overlay");
-	if (texture.empty())
-		texture = getDefinition(itemdef).inventory_overlay;
+	ItemImageDef image = getDefinition(itemdef).inventory_overlay;
+	std::string meta_image = metadata.getString("inventory_overlay");
+	if (!meta_image.empty())
+		image = meta_image;
 
-	return texture;
+	return image;
 }
 
-std::string ItemStack::getWieldImage(const IItemDefManager *itemdef) const
+ItemImageDef ItemStack::getWieldImage(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("wield_image");
-	if (texture.empty())
-		texture = getDefinition(itemdef).wield_image;
+	ItemImageDef image = getDefinition(itemdef).wield_image;
+	std::string meta_image = metadata.getString("wield_image");
+	if (!meta_image.empty())
+		image = meta_image;
 
-	return texture;
+	return image;
 }
 
-std::string ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
+ItemImageDef ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("wield_overlay");
-	if (texture.empty())
-		texture = getDefinition(itemdef).wield_overlay;
+	ItemImageDef image = getDefinition(itemdef).wield_overlay;
+	std::string meta_image = metadata.getString("wield_overlay");
+	if (!meta_image.empty())
+		image = meta_image;
 
-	return texture;
+	return image;
 }
 
 v3f ItemStack::getWieldScale(const IItemDefManager *itemdef) const

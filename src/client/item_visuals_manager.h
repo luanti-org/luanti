@@ -20,21 +20,29 @@ namespace video { class ITexture; }
 
 struct ItemVisualsManager
 {
-	ItemVisualsManager()
-	{
-		m_main_thread = std::this_thread::get_id();
-	}
+	ItemVisualsManager();
+	~ItemVisualsManager();
 
-	void clear() {
-		m_cached_item_visuals.clear();
-	}
+	/// Clears the cached visuals
+	void clear();
 
 	// Get item inventory texture
 	video::ITexture* getInventoryTexture(const ItemStack &item, Client *client) const;
 
-	// Get item wield mesh
+	// Get item inventory overlay texture
+	video::ITexture* getInventoryOverlayTexture(const ItemStack &item, Client *client) const;
+
+	// Get item inventory animation
+	// returns nullptr if it is not animated
+	AnimationInfo *getInventoryAnimation(const ItemStack &item, Client *client) const;
+
+	// Get item inventory overlay animation
+	// returns nullptr if it is not animated
+	AnimationInfo *getInventoryOverlayAnimation(const ItemStack &item, Client *client) const;
+
+	// Get item mesh
 	// Once said to return nullptr if there is an inventory image, but this is wrong
-	ItemMesh* getWieldMesh(const ItemStack &item, Client *client) const;
+	ItemMesh *getItemMesh(const ItemStack &item, Client *client) const;
 
 	// Get item palette
 	Palette* getPalette(const ItemStack &item, Client *client) const;
@@ -44,21 +52,7 @@ struct ItemVisualsManager
 	video::SColor getItemstackColor(const ItemStack &stack, Client *client) const;
 
 private:
-	struct ItemVisuals
-	{
-		video::ITexture *inventory_texture;
-		ItemMesh wield_mesh;
-		Palette *palette;
-
-		ItemVisuals():
-			inventory_texture(nullptr),
-			palette(nullptr)
-		{}
-
-		~ItemVisuals();
-
-		DISABLE_CLASS_COPY(ItemVisuals);
-	};
+	struct ItemVisuals;
 
 	// The id of the thread that is allowed to use irrlicht directly
 	std::thread::id m_main_thread;
