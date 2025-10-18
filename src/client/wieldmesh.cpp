@@ -647,8 +647,8 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 
 	scene::SMesh *mesh = nullptr;
 
-	// Shading is on by default
-	result->needs_shading = true;
+	// Shading is off by default
+	result->needs_shading = false;
 
 	video::ITexture *inventory_texture = animation_normal.getTexture(0.0f),
 		*inventory_overlay_texture = animation_overlay.getTexture(0.0f);
@@ -662,8 +662,6 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 		// overlay is white, if present
 		result->buffer_info.emplace_back(1, &animation_overlay,
 				true, video::SColor(0xFFFFFFFF));
-		// Items with inventory images do not need shading
-		result->needs_shading = false;
 	} else if (def.type == ITEM_NODE && f.drawtype == NDT_AIRLIKE) {
 		// Fallback image for airlike node
 		mesh = getExtrudedMesh(tsrc->getTexture("no_texture_airlike.png"),
@@ -672,7 +670,6 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 
 		// overlay is white, if present
 		result->buffer_info.emplace_back(1, true, video::SColor(0xFFFFFFFF));
-		result->needs_shading = false;
 	} else if (def.type == ITEM_NODE) {
 		switch (f.drawtype) {
 		case NDT_PLANTLIKE: {
@@ -703,6 +700,7 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 
 			mesh = createGenericNodeMesh(client, n, &result->buffer_info, f);
 			scaleMesh(mesh, v3f(0.12f));
+			result->needs_shading = true;
 			break;
 		}
 		}
