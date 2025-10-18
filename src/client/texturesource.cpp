@@ -14,7 +14,7 @@
 #include "texturepaths.h"
 #include "util/thread.h"
 
-// Represents a to-be-generated texture for queueing purposes
+// Represents a to-be-generated texture for queuing purposes
 struct TextureRequest
 {
 	video::E_TEXTURE_TYPE type = video::ETT_2D;
@@ -32,7 +32,7 @@ struct TextureRequest
 	}
 
 	bool operator==(const TextureRequest &other) const {
-		return images == other.images;
+		return type == other.type && images == other.images;
 	}
 	bool operator!=(const TextureRequest &other) const {
 		return !(*this == other);
