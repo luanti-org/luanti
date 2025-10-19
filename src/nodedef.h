@@ -868,3 +868,36 @@ private:
 	u32 m_nnlistsizes_idx = 0;
 	bool m_resolve_done = false;
 };
+
+struct LightPair {
+	u8 lightDay;
+	u8 lightNight;
+
+	LightPair() = default;
+	explicit LightPair(u16 value) : lightDay(value & 0xff), lightNight(value >> 8) {}
+	LightPair(u8 valueA, u8 valueB) : lightDay(valueA), lightNight(valueB) {}
+	LightPair(float valueA, float valueB) :
+		lightDay(core::clamp(core::round32(valueA), 0, 255)),
+		lightNight(core::clamp(core::round32(valueB), 0, 255)) {}
+	operator u16() const { return lightDay | lightNight << 8; }
+};
+
+struct LightInfo {
+	float light_day;
+	float light_night;
+	float light_boosted;
+
+	LightPair getPair(float sunlight_boost = 0.0f) const
+	{
+		return LightPair(
+			(1 - sunlight_boost) * light_day
+			+ sunlight_boost * light_boosted,
+			light_night);
+	}
+};
+
+struct LightFrame {
+	f32 lightsDay[8];
+	f32 lightsNight[8];
+	bool sunlight[8];
+};

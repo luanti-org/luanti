@@ -13,6 +13,7 @@
 #include "mesh.h"
 #include "minimap.h"
 #include "content_mapblock.h"
+#include "lod_mapblock.h"
 #include "util/directiontables.h"
 #include "util/tracy_wrapper.h"
 #include "client/meshgen/collector.h"
