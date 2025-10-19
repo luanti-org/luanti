@@ -662,7 +662,6 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 			m_is_air_expired = false;
 		}
 	}
-	tryShrinkNodes();
 
 	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
 			<<": Done."<<std::endl);
