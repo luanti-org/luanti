@@ -288,7 +288,7 @@ class MainShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<SamplerLayer_t> m_texture2{"texture2"};
 	CachedPixelShaderSetting<SamplerLayer_t> m_texture3{"texture3"};
 
-	// commonly used way to pass material color to shader
+	// common material variables passed to shader
 	video::SColor m_material_color;
 	CachedPixelShaderSetting<float, 4> m_material_color_setting{"materialColor"};
 
@@ -700,12 +700,8 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		)";
 	}
 
-	// map legacy semantic texture names to texture identifiers
-	fragment_header += R"(
-		#define baseTexture texture0
-		#define normalTexture texture1
-		#define textureFlags texture2
-	)";
+	// legacy semantic texture name
+	fragment_header += "#define baseTexture texture0\n";
 
 	/// Unique name of this shader, for debug/logging
 	std::string log_name = name;

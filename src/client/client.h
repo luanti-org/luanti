@@ -285,6 +285,7 @@ public:
 		return m_animation_time;
 	}
 
+	/// @return integer ∊ [0, crack_animation_length] or -1 for invalid
 	int getCrackLevel();
 	v3s16 getCrackPos();
 	void setCrack(int level, v3s16 pos);

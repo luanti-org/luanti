@@ -179,21 +179,29 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 {
 	Sky *m_sky;
 	Client *m_client;
+
 	CachedVertexShaderSetting<float> m_animation_timer_vertex{"animationTimer"};
 	CachedPixelShaderSetting<float> m_animation_timer_pixel{"animationTimer"};
 	CachedVertexShaderSetting<float>
 		m_animation_timer_delta_vertex{"animationTimerDelta"};
 	CachedPixelShaderSetting<float>
 		m_animation_timer_delta_pixel{"animationTimerDelta"};
+	int m_crack_animation_length_i;
+	CachedPixelShaderSetting<float> m_crack_animation_length{"crackAnimationLength"};
+	int m_crack_level_i = -1;
+	CachedPixelShaderSetting<float> m_crack_level{"crackLevel"};
+	int m_crack_texture_scale_i = 0;
+	CachedPixelShaderSetting<float> m_crack_texture_scale{"crackTextureScale"};
 	CachedPixelShaderSetting<float, 3> m_day_light{"dayLight"};
 	CachedPixelShaderSetting<float, 3> m_minimap_yaw{"yawVec"};
 	CachedPixelShaderSetting<float, 3> m_camera_offset_pixel{"cameraOffset"};
 	CachedVertexShaderSetting<float, 3> m_camera_offset_vertex{"cameraOffset"};
-	CachedPixelShaderSetting<float, 3> m_camera_position_pixel{ "cameraPosition" };
-	CachedVertexShaderSetting<float, 3> m_camera_position_vertex{ "cameraPosition" };
+	CachedPixelShaderSetting<float, 3> m_camera_position_pixel{"cameraPosition"};
+	CachedVertexShaderSetting<float, 3> m_camera_position_vertex{"cameraPosition"};
 	CachedVertexShaderSetting<float, 2> m_texel_size0_vertex{"texelSize0"};
 	CachedPixelShaderSetting<float, 2> m_texel_size0_pixel{"texelSize0"};
 	v2f m_texel_size0;
+
 	CachedStructPixelShaderSetting<float, 7> m_exposure_params_pixel{
 		"exposureParams",
 		std::array<const char*, 7> {
@@ -235,9 +243,9 @@ public:
 
 	void setSky(Sky *sky) { m_sky = sky; }
 
-	GameGlobalShaderUniformSetter(Sky *sky, Client *client) :
+	GameGlobalShaderUniformSetter(Sky *sky, Game *game) :
 		m_sky(sky),
-		m_client(client)
+		m_client(game->getClient())
 	{
 		for (auto &name : SETTING_CALLBACKS)
 			g_settings->registerChangedCallback(name, settingsCallback, this);
@@ -245,6 +253,7 @@ public:
 		m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
 		m_bloom_enabled = g_settings->getBool("enable_bloom");
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
+		m_crack_animation_length_i = game->crack_animation_length;
 	}
 
 	~GameGlobalShaderUniformSetter()
@@ -283,6 +292,15 @@ public:
 
 		m_texel_size0_vertex.set(m_texel_size0, services);
 		m_texel_size0_pixel.set(m_texel_size0, services);
+
+		{
+			float tmp = m_crack_animation_length_i;
+			m_crack_animation_length.set(&tmp, services);
+			tmp = m_crack_level_i;
+			m_crack_level.set(&tmp, services);
+			tmp = m_crack_texture_scale_i;
+			m_crack_texture_scale.set(&tmp, services);
+		}
 
 		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
 
@@ -357,6 +375,11 @@ public:
 
 	void onSetMaterial(const video::SMaterial &material) override
 	{
+		// This is set only for node materials which have a crack, see mapblock_mesh.cpp.
+		auto pair = MapBlockMesh::unpackCrackMaterialParam(material.MaterialTypeParam);
+		m_crack_level_i = pair.first;
+		m_crack_texture_scale_i = pair.second;
+
 		video::ITexture *texture = material.getTexture(0);
 		if (texture) {
 			core::dimension2du size = texture->getSize();
@@ -371,11 +394,11 @@ public:
 class GameGlobalShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 	Sky *m_sky = nullptr;
-	Client *m_client;
-	std::vector<GameGlobalShaderUniformSetter *> created_nosky;
+	Game *m_game;
+	std::vector<GameGlobalShaderUniformSetter*> created_nosky;
 public:
-	GameGlobalShaderUniformSetterFactory(Client *client) :
-		m_client(client)
+	GameGlobalShaderUniformSetterFactory(Game *game) :
+		m_game(game)
 	{}
 
 	void setSky(Sky *sky)
@@ -391,7 +414,7 @@ public:
 	{
 		if (str_starts_with(name, "shadow/"))
 			return nullptr;
-		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_client);
+		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_game);
 		if (!m_sky)
 			created_nosky.push_back(scs);
 		return scs;
@@ -957,10 +980,19 @@ bool Game::createClient(const GameStartData &start_data)
 		return false;
 	}
 
+	// Pre-calculate crack length
+	video::ITexture *t = texture_src->getTexture("crack_anylength.png");
+	if (t) {
+		v2u32 size = t->getOriginalSize();
+		crack_animation_length = size.Y / size.X;
+	} else {
+		crack_animation_length = 5;
+	}
+
 	shader_src->addShaderConstantSetter(
 		std::make_unique<NodeShaderConstantSetter>());
 
-	auto scsf_up = std::make_unique<GameGlobalShaderUniformSetterFactory>(client);
+	auto scsf_up = std::make_unique<GameGlobalShaderUniformSetterFactory>(this);
 	auto* scsf = scsf_up.get();
 	shader_src->addShaderUniformSetterFactory(std::move(scsf_up));
 
@@ -987,16 +1019,6 @@ bool Game::createClient(const GameStartData &start_data)
 	 */
 	sky = make_irr<Sky>(-1, m_rendering_engine, texture_src, shader_src);
 	scsf->setSky(sky.get());
-
-	/* Pre-calculated values
-	 */
-	video::ITexture *t = texture_src->getTexture("crack_anylength.png");
-	if (t) {
-		v2u32 size = t->getOriginalSize();
-		crack_animation_length = size.Y / size.X;
-	} else {
-		crack_animation_length = 5;
-	}
 
 	if (!initGui())
 		return false;
