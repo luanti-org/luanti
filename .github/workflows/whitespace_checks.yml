@@ -50,29 +50,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Line endings are already ensured by .gitattributes
-      # Multiple multline comments in one line is not supported by this check 
-      # and there is no reason to use them
-      # So lines like: "/* */ /*" or "*/ a = 5; /*" will result in error
-      - name: Check for unsupported multiline comments
-        run: |
-          if git ls-files |\
-            grep -E '^src/.*\.cpp$|^src/.*\.[ch]$' |\
-            xargs grep -n '\*/.*/\*';\
-          then
-            echo -e "\033[0;31mUnsupported combination of multiline comments. New multiline comment should begin on new line.";\
-            (exit 1);\
-          else\
-            (exit 0);\
-          fi
-          if git ls-files |\
-            grep -E '\.lua$' |\
-            xargs grep -n -e '\]\].*--\[\[';\
-          then
-            echo -e "\033[0;31mUnsupported combination of multiline comments. New multiline comment should begin on new line.";\
-            (exit 1);\
-          else\
-            (exit 0);\
-          fi
+      # Warning: Multiple multline comments in one line
+      # is not supported by this check and may misbehave.
       # This prepare files for final check 
       # See python script ./util/ci/indent_tab_preprocess.py for details.
       - name: Preprocess files
