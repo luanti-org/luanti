@@ -20,17 +20,17 @@
 static constexpr u16 quad_indices_02[] = {0, 1, 2, 2, 3, 0};
 static const auto &quad_indices = quad_indices_02;
 
-LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_mono_mat):
-    m_data(input),
-    m_collector(output),
-    m_nodedef(m_data->m_nodedef),
-    m_blockpos_nodes(m_data->m_blockpos * MAP_BLOCKSIZE),
+LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, const bool is_mono_mat):
+	m_data(input),
+	m_collector(output),
+	m_nodedef(m_data->m_nodedef),
+	m_blockpos_nodes(m_data->m_blockpos * MAP_BLOCKSIZE),
 	m_is_mono_mat(is_mono_mat)
 {
 }
 
 void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
-		const v3s16 seg_start, const video::SColor color)
+                                          const v3s16 seg_start, const video::SColor color)
 {
 	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
 	const f32 scaled_BS = BS * width;

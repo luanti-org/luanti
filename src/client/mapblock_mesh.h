@@ -180,7 +180,7 @@ class MapBlockMesh
 {
 public:
 	// Builds the mesh given
-	MapBlockMesh(Client *client, MeshMakeData *data, u8 lod);
+	MapBlockMesh(Client *client, MeshMakeData *data, u8 lod, video::SMaterial mono_material);
 	~MapBlockMesh();
 
 	// Main animation function, parameters:
@@ -262,6 +262,7 @@ public:
 	const u8 m_lod;
 
 private:
+	video::SMaterial m_mono_material;
 
 	irr_ptr<scene::IMesh> m_mesh[MAX_TILE_LAYERS];
 	std::vector<MinimapMapblock*> m_minimap_mapblocks;

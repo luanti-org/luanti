@@ -49,7 +49,7 @@ private:
 	static constexpr TileSpec s_static_tile = [] {
 		TileSpec tile;
 		TileLayer layer;
-		layer.texture_id = 1;
+		layer.shader_id = -1;
 		tile.layers[0] = layer;
 		return tile;
 	}();

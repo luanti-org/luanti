@@ -589,15 +589,9 @@ void PartialMeshBuffer::draw(video::IVideoDriver *driver) const
 	MapBlockMesh
 */
 
-static const video::SMaterial monoMaterial = [] {
-	video::SMaterial mat;
-	mat.FogEnable = true;
-	mat.MaterialType = video::EMT_SOLID;
-	return mat;
-}();
-
-MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, u8 lod):
+MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, const video::SMaterial mono_material):
 	m_lod(lod),
+	m_mono_material(mono_material),
 	m_tsrc(client->getTextureSource()),
 	m_shdrsrc(client->getShaderSource()),
 	m_bounding_sphere_center((data->m_side_length * 0.5f - 0.5f) * BS),
@@ -668,11 +662,9 @@ void MapBlockMesh::generateMonoMesh(MeshCollector &collector) const {
 
 	for(u32 i = 0; i < collector.prebuffers[0].size(); i++) {
 		scene::SMeshBuffer *buf = new scene::SMeshBuffer();
-		buf->Material = monoMaterial;
+		buf->Material = m_mono_material;
 		PreMeshBuffer &p = collector.prebuffers[0][i];
-
-		buf->append(&p.vertices[0], p.vertices.size(),
-			&p.indices[0], p.indices.size());
+		buf->append(&p.vertices[0], p.vertices.size(), &p.indices[0], p.indices.size());
 
 		mesh->addMeshBuffer(buf);
 		std::ignore = buf->drop();
