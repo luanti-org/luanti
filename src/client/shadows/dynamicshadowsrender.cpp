@@ -433,6 +433,7 @@ void ShadowRenderer::renderShadowMap(video::ITexture *target,
 		material.MaterialType = depth_shader_trans;
 	} else {
 		material.MaterialType = depth_shader;
+		material.BlendOperation = video::EBO_MIN;
 	}
 
 	m_driver->setTransform(video::ETS_WORLD,
@@ -459,8 +460,10 @@ void ShadowRenderer::renderShadowObjects(
 		u32 n_node_materials = shadow_node.node->getMaterialCount();
 		std::vector<video::E_MATERIAL_TYPE> BufferMaterialList;
 		std::vector<std::pair<bool, bool>> BufferMaterialCullingList;
+		std::vector<video::E_BLEND_OPERATION> BufferBlendOperationList;
 		BufferMaterialList.reserve(n_node_materials);
 		BufferMaterialCullingList.reserve(n_node_materials);
+		BufferBlendOperationList.reserve(n_node_materials);
 
 		// backup materialtype for each material
 		// (aka shader)
@@ -475,6 +478,8 @@ void ShadowRenderer::renderShadowObjects(
 				(bool)current_mat.BackfaceCulling, (bool)current_mat.FrontfaceCulling);
 			current_mat.BackfaceCulling = true;
 			current_mat.FrontfaceCulling = false;
+
+			BufferBlendOperationList.push_back(current_mat.BlendOperation);
 		}
 
 		m_driver->setTransform(video::ETS_WORLD,
@@ -490,6 +495,8 @@ void ShadowRenderer::renderShadowObjects(
 
 			current_mat.BackfaceCulling = BufferMaterialCullingList[m].first;
 			current_mat.FrontfaceCulling = BufferMaterialCullingList[m].second;
+
+			current_mat.BlendOperation = BufferBlendOperationList[m];
 		}
 
 	} // end for caster shadow nodes
