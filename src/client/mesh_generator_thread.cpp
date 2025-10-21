@@ -6,10 +6,13 @@
 #include "settings.h"
 #include "profiler.h"
 #include "client.h"
+#include "camera.h"
 #include "mapblock.h"
 #include "map.h"
+#include "nodedef.h"
 #include "util/directiontables.h"
 #include "porting.h"
+#include "shader.h"
 
 /*
 	QueuedMeshUpdate
@@ -208,10 +211,10 @@ void MeshUpdateQueue::done(v3s16 pos)
 
 void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
-	auto mesh_grid = m_client->getMeshGrid();
-	MeshMakeData *data = new MeshMakeData(m_client->ndef(),
-			MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid);
-	q->data = data;
+    MeshGrid mesh_grid = m_client->getMeshGrid();
+    MeshMakeData *data = new MeshMakeData(m_client->ndef(),
+            MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid/*, q->lod*/);
+    q->data = data;
 
 	data->fillBlockDataBegin(q->p);
 
@@ -230,8 +233,8 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	MeshUpdateWorkerThread
 */
 
-MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager) :
-		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager)
+MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, video::SMaterial mono_material) :
+		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager), m_mono_material(mono_material)
 {
 	m_generation_interval = g_settings->getU16("mesh_generation_interval");
 	m_generation_interval = rangelim(m_generation_interval, 0, 25);
@@ -243,8 +246,20 @@ void MeshUpdateWorkerThread::doUpdate()
 	while ((q = m_queue_in->pop())) {
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
+		// /*
+		//  * Calculate LOD
+		//  */
+		const v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE // current player block
+						// other block positions are on the corner, so offset this position as well for dist calcs
+						- m_client->getMeshGrid().cell_size / 2;
+		const u16 dist2 = cam_pos.getDistanceFromSQ(q->p); // distance squared
+		u16 lod_threshold = g_settings->getU16("lod_threshold");
+		lod_threshold *= lod_threshold;
+		const u8 lod = dist2 < lod_threshold ? 0 :
+		1 + (u8)(std::log2(dist2 / lod_threshold) / g_settings->getFloat("lod_quality"));
+
 		// This generates the mesh:
-		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
+		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, lod, m_mono_material);
 
 		MeshUpdateResult r;
 		r.p = q->p;
@@ -285,8 +300,13 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 	number_of_threads = std::max(1, number_of_threads);
 	infostream << "MeshUpdateManager: using " << number_of_threads << " threads" << std::endl;
 
+	// getSHader only works in this thread, so the material has to be passed along from here
+	const u32 shader_id = client->getShaderSource()->getShader("nodes_shader", TILE_MATERIAL_TEXTURELESS, NDT_NORMAL);
+	video::SMaterial mono_material;
+	mono_material.MaterialType = client->getShaderSource()->getShaderInfo(shader_id).material;
+
 	for (int i = 0; i < number_of_threads; i++)
-		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this));
+		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this, mono_material));
 }
 
 void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,

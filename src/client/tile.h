@@ -22,7 +22,8 @@ enum MaterialType : u8 {
 	TILE_MATERIAL_WAVING_LIQUID_OPAQUE,
 	// Note: PLAIN isn't a material actually used by tiles, rather just entities.
 	TILE_MATERIAL_PLAIN,
-	TILE_MATERIAL_PLAIN_ALPHA
+	TILE_MATERIAL_PLAIN_ALPHA,
+	TILE_MATERIAL_TEXTURELESS
 };
 
 // Material flags

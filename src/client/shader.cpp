@@ -721,6 +721,9 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 	ShaderConstants constants = input_const;
 
+	if (shaderinfo.base_material == video::EMT_TEXTURELESS)
+		constants["TEXTURELESS"] = 1;
+
 	bool use_discard = fully_programmable;
 	if (!use_discard) {
 		// workaround for a certain OpenGL implementation lacking GL_ALPHA_TEST
@@ -811,6 +814,9 @@ u32 IShaderSource::getShader(const std::string &name,
 		case TILE_MATERIAL_WAVING_PLANTS:
 		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
 			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
+			break;
+		case TILE_MATERIAL_TEXTURELESS:
+			base_mat = video::EMT_TEXTURELESS;
 			break;
 		default:
 			break;

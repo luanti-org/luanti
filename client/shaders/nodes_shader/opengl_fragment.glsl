@@ -416,7 +416,11 @@ void main(void)
 	vec3 color;
 	vec2 uv = varTexCoord.st;
 
-	vec4 base = texture2D(baseTexture, uv).rgba;
+#ifdef TEXTURELESS
+    vec4 base = vec4(1); // white, so color is fully controlled by vertex color
+#else
+    vec4 base = texture2D(baseTexture, uv).rgba;
+#endif
 	// If alpha is zero, we can just discard the pixel. This fixes transparency
 	// on GPUs like GC7000L, where GL_ALPHA_TEST is not implemented in mesa,
 	// and also on GLES 2, where GL_ALPHA_TEST is missing entirely.

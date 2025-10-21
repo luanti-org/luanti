@@ -16,6 +16,8 @@
 #include <map>
 #include <unordered_map>
 
+#include "meshgen/collector.h"
+
 namespace video {
 	class IVideoDriver;
 }
@@ -53,7 +55,7 @@ struct MeshMakeData
 
 	const NodeDefManager *m_nodedef;
 
-	MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid);
+    MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid/*, u16 lod*/);
 
 	/*
 		Copy block data manually (to allow optimizations by the caller)
@@ -178,7 +180,7 @@ class MapBlockMesh
 {
 public:
 	// Builds the mesh given
-	MapBlockMesh(Client *client, MeshMakeData *data);
+	MapBlockMesh(Client *client, MeshMakeData *data, u8 lod, video::SMaterial mono_material);
 	~MapBlockMesh();
 
 	// Main animation function, parameters:
@@ -257,7 +259,10 @@ public:
 		return m_transparent_buffers;
 	}
 
+	const u8 m_lod;
+
 private:
+	video::SMaterial m_mono_material;
 
 	irr_ptr<scene::IMesh> m_mesh[MAX_TILE_LAYERS];
 	std::vector<MinimapMapblock*> m_minimap_mapblocks;
@@ -290,6 +295,10 @@ private:
 	std::vector<PartialMeshBuffer> m_transparent_buffers;
 	// Is m_transparent_buffers currently in consolidated form?
 	bool m_transparent_buffers_consolidated = false;
+
+	void generateMonoMesh(MeshCollector& collector) const;
+
+	void generateMesh(MeshCollector& collector);
 };
 
 /*!

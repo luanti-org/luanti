@@ -26,6 +26,7 @@ struct QueuedMeshUpdate
 	MeshMakeData *data = nullptr; // This is generated in MeshUpdateQueue::pop()
 	std::vector<MapBlock*> map_blocks;
 	bool urgent = false;
+    // u16 lod;
 
 	QueuedMeshUpdate() = default;
 	~QueuedMeshUpdate();
@@ -122,7 +123,7 @@ class MeshUpdateManager;
 class MeshUpdateWorkerThread : public UpdateThread
 {
 public:
-	MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager);
+	MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, video::SMaterial mono_material);
 
 protected:
 	virtual void doUpdate();
@@ -131,6 +132,7 @@ private:
 	Client *m_client;
 	MeshUpdateQueue *m_queue_in;
 	MeshUpdateManager *m_manager;
+	video::SMaterial m_mono_material;
 
 	// TODO: Add callback to update these when g_settings changes
 	int m_generation_interval;
