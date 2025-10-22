@@ -36,15 +36,10 @@ private:
 	bitset m_nodes_faces[6 * BITSET_MAX_NOPAD2];
 	bitset m_slices[6 * BITSET_MAX_NOPAD2];
 
-	static constexpr v3s16 s_directions[6] = {
-		v3s16(-1, 0, 0), v3s16(1, 0, 0),
-		v3s16(0, -1, 0), v3s16(0, 1, 0),
-		v3s16(0, 0, -1), v3s16(0, 0, 1)
-	};
 	static constexpr core::vector3df s_normals[6] = {
-		core::vector3df(-1, 0, 0), core::vector3df(1, 0, 0),
-		core::vector3df(0, -1, 0), core::vector3df(0, 1, 0),
-		core::vector3df(0, 0, -1), core::vector3df(0, 0, 1)
+		core::vector3df(0, 1, 0), core::vector3df(0, -1, 0),
+		core::vector3df(1, 0, 0), core::vector3df(-1, 0, 0),
+		core::vector3df(0, 0, 1), core::vector3df(0, 0, -1)
 	};
 	static constexpr TileSpec s_static_tile = [] {
 		TileSpec tile;
@@ -55,7 +50,7 @@ private:
 	}();
 
 	void generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u8 width);
-	void generateBitsetMesh(MapNode n, u8 width, v3s16 seg_start, video::SColor color);
+	void generateBitsetMesh(MapNode n, u8 width, v3s16 seg_start, video::SColor color_in);
     LightPair computeMaxFaceLight(MapNode n, v3s16 p, v3s16 dir) const;
     void generateLodChunks(std::bitset<NodeDrawType_END> types, u16 width);
 };

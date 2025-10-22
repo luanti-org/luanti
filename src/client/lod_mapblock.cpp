@@ -37,21 +37,19 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 
 	core::vector3df vertices[4];
 	video::S3DVertex irr_vertices[4];
-	for (u8 direction = 0; direction < 6; direction++) {
+	for (u8 direction = 0; direction < Direction_END; direction++) {
 		TileSpec tile;
 		video::SColor color;
 		if (!m_is_mono_mat) {
-			getNodeTile(n, m_blockpos_nodes, s_directions[direction], m_data, tile);
+			getNodeTileN(n, m_blockpos_nodes, direction, m_data, tile);
 			color = color_in;
 		} else {
-			// todo reorder every direction in here to not need this mapper anymore
-			constexpr u8 map[6] = {3, 2, 1, 0, 5, 4};
-			video::SColor c2 = m_nodedef->get(n).average_colors[map[direction]];
+			video::SColor c2 = m_nodedef->get(n).average_colors[direction];
 			color = video::SColor(
 				color.getAlpha(),
-				color_in.getRed() * c2.getRed() / 256U,
-				color_in.getGreen() * c2.getGreen() / 256U,
-				color_in.getBlue() * c2.getBlue() / 256U);
+				color_in.getRed() * c2.getRed() / 255U,
+				color_in.getGreen() * c2.getGreen() / 255U,
+				color_in.getBlue() * c2.getBlue() / 255U);
 		}
 
 		const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
@@ -82,48 +80,48 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 					v1 = (v0 + v1) * scaled_BS - BS / 2;
 					v0 = v0 * scaled_BS - BS / 2;
 					const s32 w = ((slice_i + 1) * width - 1
-						+ (direction % 2 == 0 ? -width + 1 : 1)) * BS
+						+ (direction % 2 == 1 ? -width + 1 : 1)) * BS
 						- BS / 2;
 					switch (direction) {
 					case 0:
-						vertices[0] = core::vector3df(w, u0, v1);
-						vertices[1] = core::vector3df(w, u1, v1);
-						vertices[2] = core::vector3df(w, u1, v0);
-						vertices[3] = core::vector3df(w, u0, v0);
-						break;
 					case 1:
-						vertices[0] = core::vector3df(w, u0, v0);
-						vertices[1] = core::vector3df(w, u0, v1);
-						vertices[2] = core::vector3df(w, u1, v1);
-						vertices[3] = core::vector3df(w, u1, v0);
-						break;
-					case 2:
-					case 3:
 						vertices[0] = core::vector3df(u0, w, v0);
 						vertices[1] = core::vector3df(u1, w, v0);
 						vertices[2] = core::vector3df(u1, w, v1);
 						vertices[3] = core::vector3df(u0, w, v1);
 						break;
-					case 4:
-						vertices[0] = core::vector3df(u0, v0, w);
-						vertices[1] = core::vector3df(u0, v1, w);
-						vertices[2] = core::vector3df(u1, v1, w);
-						vertices[3] = core::vector3df(u1, v0, w);
+					case 2:
+						vertices[0] = core::vector3df(w, u0, v0);
+						vertices[1] = core::vector3df(w, u0, v1);
+						vertices[2] = core::vector3df(w, u1, v1);
+						vertices[3] = core::vector3df(w, u1, v0);
 						break;
-					default:
+					case 3:
+						vertices[0] = core::vector3df(w, u0, v1);
+						vertices[1] = core::vector3df(w, u1, v1);
+						vertices[2] = core::vector3df(w, u1, v0);
+						vertices[3] = core::vector3df(w, u0, v0);
+						break;
+					case 4:
 						vertices[0] = core::vector3df(u1, v0, w);
 						vertices[1] = core::vector3df(u0, v0, w);
 						vertices[2] = core::vector3df(u0, v1, w);
 						vertices[3] = core::vector3df(u1, v1, w);
+						break;
+					default:
+						vertices[0] = core::vector3df(u0, v0, w);
+						vertices[1] = core::vector3df(u0, v1, w);
+						vertices[2] = core::vector3df(u1, v1, w);
+						vertices[3] = core::vector3df(u1, v0, w);
 						break;
 					}
 					for (core::vector3df& v : vertices)
 						v += seg_offset;
 
 					switch (direction) {
-					case 0:
-					case 2:
-					case 4:
+					case 1:
+					case 3:
+					case 5:
 						irr_vertices[0] = video::S3DVertex(vertices[0], s_normals[direction], color, uvs[0]);
 						irr_vertices[1] = video::S3DVertex(vertices[1], s_normals[direction], color, uvs[1]);
 						irr_vertices[2] = video::S3DVertex(vertices[2], s_normals[direction], color, uvs[2]);
@@ -209,44 +207,44 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 	}
 
-	constexpr bitset U62_MAX = U64_MAX >> 2;
+	static constexpr bitset U62_MAX = U64_MAX >> 2;
 
 	for (const auto& [node_key, nodes] : set_nodes) {
 		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
 		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
 			m_nodes_faces[BITSET_MAX_NOPAD * (u - 1) + v - 1] =
-				(nodes[BITSET_MAX * u + v] &
-				~(all_set_nodes[BITSET_MAX * u + v] << 1))
-				>> 1 & U62_MAX;
-
-			m_nodes_faces[BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
-				(nodes[BITSET_MAX * u + v] &
-				~(all_set_nodes[BITSET_MAX * u + v] >> 1))
-				>> 1 & U62_MAX;
-
-			m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
-				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
-				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] << 1))
-				>> 1 & U62_MAX;
-
-			m_nodes_faces[3 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
+			m_nodes_faces[BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
+				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] << 1))
+				>> 1 & U62_MAX;
+
+			m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+				(nodes[BITSET_MAX * u + v] &
+				~(all_set_nodes[BITSET_MAX * u + v] >> 1))
+				>> 1 & U62_MAX;
+
+			m_nodes_faces[3 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+				(nodes[BITSET_MAX * u + v] &
+				~(all_set_nodes[BITSET_MAX * u + v] << 1))
+				>> 1 & U62_MAX;
+
 			m_nodes_faces[4 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
-				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] << 1))
+				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
 			m_nodes_faces[5 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
-				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
+				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
 		}
 
 		memset(m_slices, 0, sizeof(m_slices));
-		for (u8 direction = 0; direction < 6; direction++) {
+		for (u8 direction = 0; direction < Direction_END; direction++) {
 			const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
 			for (u8 u = 0; u < BITSET_MAX_NOPAD; u++) {
 				const u64 u_offset = direction_offset + BITSET_MAX_NOPAD * u;
