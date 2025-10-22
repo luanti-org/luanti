@@ -356,6 +356,8 @@ void ContentFeatures::reset()
 #if CHECK_CLIENT_BUILD()
 	mesh_ptr = nullptr;
 	minimap_color = video::SColor(0, 0, 0, 0);
+	for (u8 d = 0; d < Direction_END; d++)
+		average_colors[d] = minimap_color;
 #endif
 	visual_scale = 1.0;
 	for (auto &i : tiledef)
@@ -905,6 +907,18 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		overlay_material = TILE_MATERIAL_LIQUID_TRANSPARENT;
 
 	u32 overlay_shader = shdsrc->getShader("nodes_shader", overlay_material, drawtype);
+
+	if (drawtype != NDT_AIRLIKE && !tdef[0].name.empty()) {
+		for (u8 d = 0; d < Direction_END; d++) {
+			if (!tdef_overlay[d].name.empty()) {
+				// Merge overlay and base texture
+				std::string combined = tdef[d].name + "^(" + tdef_overlay[d].name + ")";
+				average_colors[d] = tsrc->getTextureAverageColor(combined);
+			} else {
+				average_colors[d] = tsrc->getTextureAverageColor(tdef[d].name);
+			}
+		}
+	}
 
 	// minimap pixel color = average color of top tile
 	if (tsettings.enable_minimap && drawtype != NDT_AIRLIKE && !tdef[0].name.empty())

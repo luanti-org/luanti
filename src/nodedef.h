@@ -91,6 +91,17 @@ enum NodeBoxType : u8
 	NODEBOX_CONNECTED, // optionally draws nodeboxes if a neighbor node attaches
 };
 
+enum Direction : u8
+{
+	UP = 0, // y increase
+	DOWN = 1, // y decrease
+	LEFT = 2, // x increase
+	RIGHT = 3, // x decrease
+	BACK = 4, // z increase
+	FRONT = 5, // z decrease
+	Direction_END // Dummy for validity check
+};
+
 struct NodeBoxConnected
 {
 	std::vector<aabb3f> connect_top;
@@ -307,7 +318,7 @@ struct ContentFeatures
 #if CHECK_CLIENT_BUILD()
 	// 0     1     2     3     4     5
 	// up    down  right left  back  front
-	TileSpec tiles[6];
+	TileSpec tiles[Direction_END];
 	// Special tiles
 	TileSpec special_tiles[CF_SPECIAL_COUNT];
 	u8 solidness; // Used when choosing which face is drawn
@@ -343,6 +354,7 @@ struct ContentFeatures
 #if CHECK_CLIENT_BUILD()
 	scene::SMesh *mesh_ptr; // mesh in case of mesh node
 	video::SColor minimap_color;
+	video::SColor average_colors[Direction_END];
 #endif
 	float visual_scale; // Misc. scale parameter
 	TileDef tiledef[6];

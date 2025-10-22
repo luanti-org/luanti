@@ -30,7 +30,7 @@ LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, c
 }
 
 void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
-                                          const v3s16 seg_start, const video::SColor color)
+                                          const v3s16 seg_start, const video::SColor color_in)
 {
 	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
 	const f32 scaled_BS = BS * width;
@@ -39,8 +39,21 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 	video::S3DVertex irr_vertices[4];
 	for (u8 direction = 0; direction < 6; direction++) {
 		TileSpec tile;
-		if (!m_is_mono_mat)
+		video::SColor color;
+		if (!m_is_mono_mat) {
 			getNodeTile(n, m_blockpos_nodes, s_directions[direction], m_data, tile);
+			color = color_in;
+		} else {
+			// todo reorder every direction in here to not need this mapper anymore
+			constexpr u8 map[6] = {3, 2, 1, 0, 5, 4};
+			video::SColor c2 = m_nodedef->get(n).average_colors[map[direction]];
+			color = video::SColor(
+				color.getAlpha(),
+				color_in.getRed() * c2.getRed() / 256U,
+				color_in.getGreen() * c2.getGreen() / 256U,
+				color_in.getBlue() * c2.getBlue() / 256U);
+		}
+
 		const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
 		for (u8 slice_i = 0; slice_i < BITSET_MAX_NOPAD; slice_i++) {
 			const u64 slice_offset = direction_offset + BITSET_MAX_NOPAD * slice_i;
@@ -249,15 +262,7 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		}
 
 		MapNode n = node_types[node_key];
-		video::SColor color = encode_light(node_key.light, m_nodedef->getLightingFlags(n).light_source);
-		if (m_is_mono_mat) {
-			video::SColor c2 = m_nodedef->get(n).minimap_color;
-			color.set(
-				color.getAlpha(),
-				color.getRed() * c2.getRed() / 255U,
-				color.getGreen() * c2.getGreen() / 255U,
-				color.getBlue() * c2.getBlue() / 255U);
-		}
+		const video::SColor color = encode_light(node_key.light, m_nodedef->getLightingFlags(n).light_source);
 
 		generateBitsetMesh(n, width, seg_start - m_blockpos_nodes, color);
 	}
