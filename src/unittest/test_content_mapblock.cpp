@@ -38,7 +38,7 @@ public:
 
 	MeshMakeData makeSingleNodeMMD(bool smooth_lighting = true)
 	{
-        MeshMakeData data{ndef(), 1, MeshGrid{1}/*, 0*/};
+		MeshMakeData data{ndef(), 1, MeshGrid{1}};
 		data.m_generate_minimap = false;
 		data.m_smooth_lighting = smooth_lighting;
 		data.m_enable_water_reflections = false;
