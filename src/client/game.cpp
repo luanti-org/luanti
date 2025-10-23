@@ -961,12 +961,12 @@ bool Game::createClient(const GameStartData &start_data)
 	}
 
 	// Pre-calculate crack length
-	video::ITexture *t = texture_src->getTexture("crack_anylength.png");
-	if (t) {
-		v2u32 size = t->getOriginalSize();
-		crack_animation_length = size.Y / size.X;
-	} else {
-		crack_animation_length = 5;
+	{
+		auto size = texture_src->getTextureDimensions("crack_anylength.png");
+		if (size.Width && size.Height)
+			crack_animation_length = size.Height / size.Width;
+		else
+			crack_animation_length = 5;
 	}
 
 	shader_src->addShaderConstantSetter(

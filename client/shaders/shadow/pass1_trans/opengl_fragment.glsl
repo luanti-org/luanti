@@ -1,4 +1,4 @@
-uniform sampler2D ColorMapSampler;
+uniform sampler2D ColorMapSampler; // FIXME
 varying vec4 tPos;
 
 #ifdef GL_ES

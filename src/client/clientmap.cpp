@@ -1485,6 +1485,7 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	// For translucent leaves, we want to use backface culling instead of frontface.
 	if (translucent_foliage) {
 		// this is the material leaves would use, compare to nodedef.cpp
+		// FIXME
 		auto* shdsrc = m_client->getShaderSource();
 		const u32 leaves_shader = shdsrc->getShader("nodes_shader", TILE_MATERIAL_WAVING_LEAVES, NDT_ALLFACES);
 		leaves_material = shdsrc->getShaderInfo(leaves_shader).material;
