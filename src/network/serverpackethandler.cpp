@@ -1199,8 +1199,10 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 			}
 
 			// on_secondary_use might have removed the object
-			if (!pointed_object->isGone())
-				pointed_object->rightClick(playersao);
+			if (pointed_object->isGone())
+				return;
+
+			pointed_object->rightClick(playersao);
 		} else if (m_script->item_OnPlace(selected_item, playersao, pointed)) {
 			// Placement was handled in lua
 
