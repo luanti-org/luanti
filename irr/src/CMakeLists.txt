@@ -1,8 +1,12 @@
 set(DEFAULT_SDL2 ON)
+set(DEFAULT_SDL3 OFF)
 
 option(USE_SDL2 "Use the SDL2 backend" ${DEFAULT_SDL2})
-
 option(USE_SDL2_STATIC "Link with SDL2 static libraries" FALSE)
+
+option(USE_SDL3 "Use the SDL3 backend" ${DEFAULT_SDL3})
+option(USE_SDL3_STATIC "Link with SDL3 static libraries" FALSE)
+
 
 # Compiler flags
 
@@ -92,7 +96,7 @@ if(MSVC)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
-if(USE_SDL2)
+if(USE_SDL2 OR USE_SDL3)
 	set(DEVICE "SDL")
 elseif(DEVICE STREQUAL "SDL")
 	message(FATAL_ERROR "SDL was used but not enabled?!")
@@ -124,7 +128,7 @@ endif()
 
 # OpenGL
 
-if(USE_SDL2)
+if(USE_SDL2 OR USE_SDL3)
 	if(NOT ANDROID)
 		set(DEFAULT_OPENGL3 TRUE)
 	endif()
@@ -157,7 +161,7 @@ else()
 	endif()
 endif()
 
-if(ENABLE_OPENGL OR (ENABLE_OPENGL3 AND NOT USE_SDL2))
+if(ENABLE_OPENGL OR (ENABLE_OPENGL3 AND NOT USE_SDL2 AND NOT USE_SDL3))
 	if(ENABLE_OPENGL)
 		add_compile_definitions(_IRR_COMPILE_WITH_OPENGL_)
 		set(OPENGL_DIRECT_LINK TRUE) # driver relies on this
@@ -176,8 +180,8 @@ if(ENABLE_OPENGL3)
 		# supported
 	elseif(DEVICE STREQUAL "X11")
 		# supported
-	elseif (NOT USE_SDL2)
-		message(FATAL_ERROR "OpenGL 3 driver requires SDL2")
+	elseif (NOT USE_SDL2 AND NOT USE_SDL3)
+		message(FATAL_ERROR "OpenGL 3 driver requires SDL2 or SDL3")
 	endif()
 endif()
 
@@ -256,6 +260,16 @@ int main() {}" CHECK_SDL_VERSION)
 		set_target_properties(SDL2::SDL2 PROPERTIES
 			IMPORTED_LOCATION "${SDL2_LIBRARIES}")
 	endif()
+endif()
+
+if(USE_SDL3)
+	# https://wiki.libsdl.org/SDL3/README-cmake#a-system-sdl-library
+	if(USE_SDL3_STATIC)
+		set(SDL3_SUFFIX "static")
+	else()
+		set(SDL3_SUFFIX "shared")
+	endif()
+	find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-${SDL3_SUFFIX})
 endif()
 
 # More special config
@@ -476,6 +490,12 @@ if(APPLE)
 	)
 endif()
 
+if(USE_SDL3)
+	include_directories(IRROTHEROBJ $<TARGET_PROPERTY:SDL3::Headers,INTERFACE_INCLUDE_DIRECTORIES>)
+	target_compile_definitions(IRROTHEROBJ PRIVATE _IRR_SDL_IS_SDL3_)
+	target_compile_definitions(IRRVIDEOOBJ PRIVATE _IRR_SDL_IS_SDL3_) # OpenGL/Common.h
+endif()
+
 if(USE_X11)
 	target_compile_definitions(IRROTHEROBJ PRIVATE _IRR_COMPILE_WITH_X11_)
 endif()
@@ -585,6 +605,8 @@ target_link_libraries(IrrlichtMt PRIVATE
 	${PNG_LIBRARY}
 	"$<$<BOOL:${USE_SDL2_SHARED}>:SDL2::SDL2>"
 	"$<$<BOOL:${USE_SDL2_STATIC}>:SDL2::SDL2-static>"
+
+	"$<$<BOOL:${USE_SDL3}>:SDL3::SDL3-${SDL3_SUFFIX}>"
 
 	"$<$<BOOL:${OPENGL_DIRECT_LINK}>:${OPENGL_LIBRARIES}>"
 	${EGL_LIBRARY}
