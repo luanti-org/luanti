@@ -40,48 +40,59 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 	for (u8 direction = 0; direction < Direction_END; direction++) {
 		TileSpec tile;
 		video::SColor color;
-		if (!m_is_mono_mat) {
-			getNodeTileN(n, m_blockpos_nodes, direction, m_data, tile);
-			color = color_in;
-		} else {
+		if (m_is_mono_mat) {
+			// When generating a mesh with no texture, we have to color the vertices instead.
 			video::SColor c2 = m_nodedef->get(n).average_colors[direction];
 			color = video::SColor(
 				color.getAlpha(),
 				color_in.getRed() * c2.getRed() / 255U,
 				color_in.getGreen() * c2.getGreen() / 255U,
 				color_in.getBlue() * c2.getBlue() / 255U);
+		} else {
+			getNodeTileN(n, m_blockpos_nodes, direction, m_data, tile);
+			color = color_in;
 		}
 
 		const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
 		for (u8 slice_i = 0; slice_i < BITSET_MAX_NOPAD; slice_i++) {
 			const u64 slice_offset = direction_offset + BITSET_MAX_NOPAD * slice_i;
 			for (u8 u = 0; u < BITSET_MAX_NOPAD; u++) {
+
 				bitset column = m_slices[slice_offset + u];
 				while (column) {
 					s32 v0 = std::__countr_zero(column);
+					// Shift the bitset down, so it has no low 0s anymore,
+					// then count the numer of low 1s to get the length of the greedy quad.
 					s32 v1 = std::__countr_one(column >> v0);
 					const bitset mask = ((1ULL << v1) - 1) << v0;
 					column ^= mask;
+					// Determine the width of the greedy quad
 					s32 u1 = 1;
 					while (u + u1 < BITSET_MAX_NOPAD && // while still in current chunk
-						(m_slices[slice_offset + u + u1] & mask) == mask) {
-						// and next column shares faces
+						(m_slices[slice_offset + u + u1] & mask) == mask // and next column shares faces
+						) {
+						// then increase width and unset the bits
 						m_slices[slice_offset + u + u1] ^= mask;
 						u1++;
 					}
+
 					const core::vector2d<f32> uvs[4] = {
 						core::vector2d<f32>{0, static_cast<f32>(v1*width)},
 						core::vector2d<f32>{0, 0},
 						core::vector2d<f32>{static_cast<f32>(u1*width), 0},
 						core::vector2d<f32>{static_cast<f32>(u1*width), static_cast<f32>(v1*width)}
 					};
+
+					// calculate low (0) and high (1) coordinates for u and v axis
 					u1 = (u + u1) * scaled_BS - BS / 2;
 					const s32 u0 = u * scaled_BS - BS / 2;
 					v1 = (v0 + v1) * scaled_BS - BS / 2;
 					v0 = v0 * scaled_BS - BS / 2;
+					// calculate depth at which to place the quad
 					const s32 w = ((slice_i + 1) * width - 1
 						+ (direction % 2 == 1 ? -width + 1 : 1)) * BS
 						- BS / 2;
+
 					switch (direction) {
 					case 0:
 					case 1:
@@ -118,6 +129,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 					for (core::vector3df& v : vertices)
 						v += seg_offset;
 
+					// set winding order
 					switch (direction) {
 					case 1:
 					case 3:
@@ -150,8 +162,10 @@ LightPair LodMeshGenerator::computeMaxFaceLight(const MapNode n, const v3s16 p, 
 void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> types, const v3s16 seg_start,
 		const v3s16 seg_size, const u8 width)
 {
+	// all nodes in this volume, , for finding node faces
 	bitset all_set_nodes[3 * BITSET_MAX * BITSET_MAX] = {0};
 	std::map<content_t, MapNode> node_types;
+	// all nodes in this volume, on each of the 3 axes, grouped by type and brightness, for use in actual mesh generation
 	std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> set_nodes;
 
 	const v3s16 to = seg_start + seg_size;
@@ -165,9 +179,11 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		if (n.getContent() == CONTENT_IGNORE) {
 			continue;
 		}
+		// when our sample is air, take more samples in a straight line down, to make sure we always hit the surface
+		// otherwise, snowy mountains or grassy hills would display lumps of dirt and stone
 		const ContentFeatures* f = &m_nodedef->get(n);
 		for (u8 subtr = 1; subtr < width && f->drawtype == NDT_AIRLIKE; subtr++) {
-			n = m_data->m_vmanip.getNodeNoExNoEmerge(p - subtr);
+			n = m_data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, subtr, 0));
 			f = &m_nodedef->get(n);
 		}
 		if (!types.test(f->drawtype)) {
@@ -179,26 +195,25 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		node_types.try_emplace(node_type, n);
 
 		if (f->drawtype == NDT_NORMAL) {
+			// take a light sample for each side of a node, on each axis and take the maximum.
+			// it would be more accurate to take a sample for each of the 6 directions intead of each axis,
+			// but that would take twice the ram
 			LightPair lp = computeMaxFaceLight(n, p, v3s16(max_light_step, 0, 0));
 			NodeKey key = NodeKey{node_type, lp};
-			// node_types.try_emplace(key, n);
 			set_nodes[key][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
 
 			lp = computeMaxFaceLight(n, p, v3s16(0, max_light_step, 0));
 			key = NodeKey{node_type, lp};
-			// node_types.try_emplace(key, n);
 			set_nodes[key][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
 
 			lp = computeMaxFaceLight(n, p, v3s16(0, 0, max_light_step));
 			key = NodeKey{node_type, lp};
-			// node_types.try_emplace(key, n);
 			set_nodes[key][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 		}
 		else {
 			const LightPair lp = static_cast<LightPair>(getInteriorLight(n, 0, m_nodedef));
 
 			NodeKey key{node_type, lp};
-			// node_types.try_emplace(key, n);
 			auto &nodes = set_nodes[key];
 			nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
 			nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
@@ -215,6 +230,13 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 	for (const auto& [node_key, nodes] : set_nodes) {
 		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
 		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
+			// Shifting the bitset of set nodes in a column to the right, inverting it, then &-ing it with another bitset
+			// leaves only the bits with no neighbors to their left. So this calculates all left facing node faces
+			// in that column.
+			// To do it like this means we need a bit of padding on each side, which is why we are limited to only 62
+			// nodes per volume.
+			// These operations are considerably faster on a regular u64 (here aliased as bitset) instead of an
+			// std::bitset, so we *cant* flatten these bitsets into one large std::bitset.
 			m_nodes_faces[BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
@@ -246,6 +268,9 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 				>> 1 & U62_MAX;
 		}
 
+		// We only calculated the visible node faces per column, so far.
+		// But to use greedy meshing, we need the faces *next* to each other, not behind each other.
+		// Each node face is mapped to their corresponding slice/plane
 		memset(m_slices, 0, sizeof(m_slices));
 		for (u8 direction = 0; direction < Direction_END; direction++) {
 			const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
@@ -273,6 +298,8 @@ void LodMeshGenerator::generateLodChunks(const std::bitset<NodeDrawType_END> typ
 {
 	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Greedy", SPT_AVG);
 
+	// split chunk into 62^3 segments to be able to use 64 bit ints as bitsets
+	// the other two bits are used as padding to find node faces
 	const int attempted_seg_size = BITSET_MAX_NOPAD * width;
 
 	for (u16 x = 0; x < m_data->m_side_length; x += attempted_seg_size)
@@ -294,12 +321,14 @@ void LodMeshGenerator::generate(const u8 lod)
 {
 	ZoneScoped;
 
+	// cap LODs to 8, since there is no use larger than 256 node LODs
     u8 width = 1 << MYMIN(lod - 1, 7);
 
+	// cap LODs width to chunk size to account for different mesh chunk settings
 	if (width > m_data->m_side_length)
 		width = m_data->m_side_length;
 
-	// liquids are always rendered separately
+	// transparents are always rendered separately
 	std::bitset<NodeDrawType_END> transparent_set;
 	transparent_set.set(NDT_LIQUID);
 	if (g_settings->get("leaves_style") == "simple")
