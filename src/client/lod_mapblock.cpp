@@ -270,7 +270,7 @@ void LodMeshGenerator::generateLodChunks(const std::bitset<NodeDrawType_END> typ
 {
 	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Greedy", SPT_AVG);
 
-	const int attempted_seg_size = 62 * width;
+	const int attempted_seg_size = BITSET_MAX_NOPAD * width;
 
 	for (u16 x = 0; x < m_data->m_side_length; x += attempted_seg_size)
 	for (u16 y = 0; y < m_data->m_side_length; y += attempted_seg_size)
