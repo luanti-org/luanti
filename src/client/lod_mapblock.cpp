@@ -151,7 +151,7 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 		const v3s16 seg_size, const u8 width)
 {
 	bitset all_set_nodes[3 * BITSET_MAX * BITSET_MAX] = {0};
-	std::unordered_map<NodeKey, MapNode> node_types;
+	std::map<content_t, MapNode> node_types;
 	std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> set_nodes;
 
 	const v3s16 to = seg_start + seg_size;
@@ -176,26 +176,29 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 
 		const content_t node_type = n.getContent();
 		const v3s16 p_scaled = (p - seg_start + 1) / width;
+		node_types.try_emplace(node_type, n);
 
 		if (f->drawtype == NDT_NORMAL) {
 			LightPair lp = computeMaxFaceLight(n, p, v3s16(max_light_step, 0, 0));
 			NodeKey key = NodeKey{node_type, lp};
-			node_types.try_emplace(key, n);
+			// node_types.try_emplace(key, n);
 			set_nodes[key][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
 
 			lp = computeMaxFaceLight(n, p, v3s16(0, max_light_step, 0));
 			key = NodeKey{node_type, lp};
+			// node_types.try_emplace(key, n);
 			set_nodes[key][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
 
 			lp = computeMaxFaceLight(n, p, v3s16(0, 0, max_light_step));
 			key = NodeKey{node_type, lp};
+			// node_types.try_emplace(key, n);
 			set_nodes[key][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 		}
 		else {
 			const LightPair lp = static_cast<LightPair>(getInteriorLight(n, 0, m_nodedef));
 
 			NodeKey key{node_type, lp};
-			node_types.try_emplace(key, n);
+			// node_types.try_emplace(key, n);
 			auto &nodes = set_nodes[key];
 			nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
 			nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
@@ -259,14 +262,14 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 			}
 		}
 
-		MapNode n = node_types[node_key];
+		MapNode n = node_types[node_key.content];
 		const video::SColor color = encode_light(node_key.light, m_nodedef->getLightingFlags(n).light_source);
 
 		generateBitsetMesh(n, width, seg_start - m_blockpos_nodes, color);
 	}
 }
 
-void LodMeshGenerator::generateLodChunks(const std::bitset<NodeDrawType_END> types, const u16 width)
+void LodMeshGenerator::generateLodChunks(const std::bitset<NodeDrawType_END> types, const u8 width)
 {
 	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Greedy", SPT_AVG);
 
@@ -291,7 +294,7 @@ void LodMeshGenerator::generate(const u8 lod)
 {
 	ZoneScoped;
 
-    u32 width = 1 << MYMIN(lod - 1, 31);
+    u8 width = 1 << MYMIN(lod - 1, 7);
 
 	if (width > m_data->m_side_length)
 		width = m_data->m_side_length;
