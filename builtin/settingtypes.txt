@@ -434,7 +434,6 @@ window_maximized (Window maximized) bool false
 #    Save window size automatically when modified.
 #    If true, screen size is saved in screen_w and screen_h, and whether the window
 #    is maximized is stored in window_maximized.
-#    (Autosaving window_maximized only works if compiled with SDL.)
 #
 #    Requires: desktop
 autosave_screensize (Remember screen size) bool true

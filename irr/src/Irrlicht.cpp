@@ -8,18 +8,6 @@ static const char *const copyright = "Irrlicht Engine (c) 2002-2017 Nikolaus Geb
 #include "matrix4.h"
 #include "SMaterial.h"
 
-#ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
-#include "CIrrDeviceWin32.h"
-#endif
-
-#ifdef _IRR_COMPILE_WITH_X11_DEVICE_
-#include "CIrrDeviceLinux.h"
-#endif
-
-#ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
-#include "CIrrDeviceOSX.h"
-#endif
-
 #ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
 #include "CIrrDeviceSDL.h"
 #endif
@@ -48,21 +36,6 @@ extern "C" IrrlichtDevice *createDeviceEx(const SIrrlichtCreationParameters &par
 {
 
 	IrrlichtDevice *dev = 0;
-
-#ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
-	if (params.DeviceType == EIDT_WIN32 || (!dev && params.DeviceType == EIDT_BEST))
-		dev = new CIrrDeviceWin32(params);
-#endif
-
-#ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
-	if (params.DeviceType == EIDT_OSX || (!dev && params.DeviceType == EIDT_BEST))
-		dev = new CIrrDeviceMacOSX(params);
-#endif
-
-#ifdef _IRR_COMPILE_WITH_X11_DEVICE_
-	if (params.DeviceType == EIDT_X11 || (!dev && params.DeviceType == EIDT_BEST))
-		dev = new CIrrDeviceLinux(params);
-#endif
 
 #ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
 	if (params.DeviceType == EIDT_SDL || (!dev && params.DeviceType == EIDT_BEST))

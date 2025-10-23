@@ -2049,10 +2049,10 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 {
 	auto *cur_control = device->getCursorControl();
 
-	/* With CIrrDeviceSDL on Linux and Windows, enabling relative mouse mode
-	somehow results in simulated mouse events being generated from touch events,
-	although SDL_HINT_MOUSE_TOUCH_EVENTS and SDL_HINT_TOUCH_MOUSE_EVENTS are set to 0.
-	Since Minetest has its own code to synthesize mouse events from touch events,
+	/* On Linux and Windows, enabling relative mouse mode somehow results
+	in simulated mouse events being generated from touch events, even though
+	SDL_HINT_MOUSE_TOUCH_EVENTS and SDL_HINT_TOUCH_MOUSE_EVENTS are set to 0.
+	Since we have our own code to synthesize mouse events from touch events,
 	this results in duplicated input. To avoid that, we don't enable relative
 	mouse mode if we're in touchscreen mode. */
 	if (cur_control)

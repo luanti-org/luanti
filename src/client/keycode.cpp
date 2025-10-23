@@ -305,31 +305,24 @@ KeyPress::KeyPress(const std::string &name)
 
 KeyPress::KeyPress(const SEvent::SKeyInput &in)
 {
-	if (USE_SDL2) {
-		if (in.SystemKeyCode)
-			scancode.emplace<u32>(in.SystemKeyCode);
-		else
-			scancode.emplace<EKEY_CODE>(in.Key);
-	} else {
-		loadFromKey(in.Key, in.Char);
-	}
+	if (in.SystemKeyCode)
+		scancode.emplace<u32>(in.SystemKeyCode);
+	else
+		scancode.emplace<EKEY_CODE>(in.Key);
 }
 
 std::string KeyPress::formatScancode() const
 {
-	if (USE_SDL2) {
-		if (auto pv = std::get_if<u32>(&scancode))
-			return *pv == 0 ? "" : "SYSTEM_SCANCODE_" + std::to_string(*pv);
-	}
+	if (auto pv = std::get_if<u32>(&scancode))
+		return *pv == 0 ? "" : "SYSTEM_SCANCODE_" + std::to_string(*pv);
 	return "";
 }
 
 std::string KeyPress::sym() const
 {
 	std::string name = lookup_scancode(scancode).Name;
-	if (USE_SDL2 || name.empty())
-		if (auto newname = formatScancode(); !newname.empty())
-			return newname;
+	if (auto newname = formatScancode(); !newname.empty())
+		return newname;
 	return name;
 }
 
@@ -353,18 +346,14 @@ wchar_t KeyPress::getKeychar() const
 
 bool KeyPress::loadFromScancode(const std::string &name)
 {
-	if (USE_SDL2) {
-		if (!str_starts_with(name, "SYSTEM_SCANCODE_"))
-			return false;
-		char *p;
-		const auto code = strtoul(name.c_str()+16, &p, 10);
-		if (p != name.c_str() + name.size())
-			return false;
-		scancode.emplace<u32>(code);
-		return true;
-	} else {
+	if (!str_starts_with(name, "SYSTEM_SCANCODE_"))
 		return false;
-	}
+	char *p;
+	const auto code = strtoul(name.c_str()+16, &p, 10);
+	if (p != name.c_str() + name.size())
+		return false;
+	scancode.emplace<u32>(code);
+	return true;
 }
 
 std::unordered_map<std::string, KeyPress> specialKeyCache;
