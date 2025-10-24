@@ -667,10 +667,6 @@ smooth_lighting (Smooth lighting) bool true
 #    at the expense of minor visual glitches that do not impact game playability.
 performance_tradeoffs (Tradeoffs for performance) bool false
 
-#    Caps the maximum number of layers used with array textures (if supported).
-#    This is only useful for debugging.
-array_texture_max (Tradeoffs for performance) int 65535 0 65535
-
 
 [**Waving Nodes]
 
@@ -2060,6 +2056,10 @@ world_aligned_mode (World-aligned textures mode) enum enable disable,enable,forc
 #    See also texture_min_size.
 #    Warning: This option is EXPERIMENTAL!
 autoscale_mode (Autoscaling mode) enum disable disable,enable,force
+
+#    Caps the maximum number of layers used with array textures (if supported).
+#    This is only useful for debugging.
+array_texture_max (Array texture max layers) int 65535 0 65535
 
 #    When using bilinear/trilinear filtering, low-resolution textures
 #    can be blurred, so this option automatically upscales them to preserve

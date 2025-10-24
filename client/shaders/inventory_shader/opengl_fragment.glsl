@@ -11,7 +11,7 @@ varying lowp vec4 varColor;
 varying mediump vec2 varTexCoord;
 varying float varTexLayer;
 #else
-centroid varying lowp vec4 varColor;
+centroid varying vec4 varColor;
 centroid varying vec2 varTexCoord;
 centroid varying float varTexLayer; // actually int
 #endif
