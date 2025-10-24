@@ -350,8 +350,12 @@ void WieldMeshSceneNode::setExtruded(video::ITexture *texture,
 		material.MaterialTypeParam = 0.5f;
 		material.BackfaceCulling = true;
 		// don't filter low-res textures, makes them look blurry
-		bool f_ok = std::min(dim.Width, dim.Height) >= TEXTURE_FILTER_MIN_SIZE;
 		material.forEachTexture([=] (auto &tex) {
+			video::ITexture *t = tex.Texture;
+			if (!t)
+				return;
+			core::dimension2d<u32> d = t->getSize();
+			bool f_ok = std::min(d.Width, d.Height) >= TEXTURE_FILTER_MIN_SIZE;
 			setMaterialFilters(tex, m_bilinear_filter && f_ok,
 				m_trilinear_filter && f_ok, m_anisotropic_filter);
 		});

@@ -53,6 +53,13 @@ core.register_craftitem("testitems:overlay_global", {
 	color = GLOBAL_COLOR_ARG,
 })
 
+core.register_craftitem("testitems:overlay_size", {
+	description = S("Texture Overlay Test Item, Big Base Small Overlay") .. "\n" ..
+		S("Wield overlay should not be blurry."),
+	inventory_image = "[fill:1000x1000:#FFFFFF",
+	inventory_overlay = "testitems_overlay_overlay.png",
+})
+
 core.register_craftitem("testitems:image_meta", {
 	description = S("Image Override Meta Test Item"),
 	inventory_image = "default_apple.png",
