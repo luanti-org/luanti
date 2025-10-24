@@ -1175,14 +1175,15 @@ void ContentFeatures::updateMesh(Client *client, const TextureSettings &tsetting
 
 void ContentFeatures::collectMaterials(std::vector<u32> &leaves_materials)
 {
-	if (drawtype == NDT_AIRLIKE || waving == 0)
+	if (drawtype == NDT_AIRLIKE)
 		return;
 
 	for (u16 j = 0; j < 6; j++) {
-		if (!tiles[j].layers[0].empty())
-			leaves_materials.push_back(tiles[j].layers[0].shader_id);
-		if (!tiles[j].layers[1].empty())
-			leaves_materials.push_back(tiles[j].layers[1].shader_id);
+		auto &l = tiles[j].layers;
+		if (!l[0].empty() && l[0].material_type == TILE_MATERIAL_WAVING_LEAVES)
+			leaves_materials.push_back(l[0].shader_id);
+		if (!l[1].empty() && l[1].material_type == TILE_MATERIAL_WAVING_LEAVES)
+			leaves_materials.push_back(l[1].shader_id);
 	}
 }
 #endif
