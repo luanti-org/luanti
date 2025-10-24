@@ -68,10 +68,20 @@ void read_item_definition(lua_State* L, int index,
 
 	getstringfield(L, index, "description", def.description);
 	getstringfield(L, index, "short_description", def.short_description);
-	getstringfield(L, index, "inventory_image", def.inventory_image);
-	getstringfield(L, index, "inventory_overlay", def.inventory_overlay);
-	getstringfield(L, index, "wield_image", def.wield_image);
-	getstringfield(L, index, "wield_overlay", def.wield_overlay);
+
+	lua_getfield(L, index, "inventory_image");
+	def.inventory_image = read_item_image_definition(L, -1);
+	lua_pop(L, 1);
+	lua_getfield(L, index, "inventory_overlay");
+	def.inventory_overlay = read_item_image_definition(L, -1);
+	lua_pop(L, 1);
+	lua_getfield(L, index, "wield_image");
+	def.wield_image = read_item_image_definition(L, -1);
+	lua_pop(L, 1);
+	lua_getfield(L, index, "wield_overlay");
+	def.wield_overlay = read_item_image_definition(L, -1);
+	lua_pop(L, 1);
+
 	getstringfield(L, index, "palette", def.palette_image);
 
 	// Read item color.
@@ -212,13 +222,13 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 	}
 	lua_pushstring(L, type.c_str());
 	lua_setfield(L, -2, "type");
-	lua_pushstring(L, i.inventory_image.c_str());
+	push_item_image_definition(L, i.inventory_image);
 	lua_setfield(L, -2, "inventory_image");
-	lua_pushstring(L, i.inventory_overlay.c_str());
+	push_item_image_definition(L, i.inventory_overlay);
 	lua_setfield(L, -2, "inventory_overlay");
-	lua_pushstring(L, i.wield_image.c_str());
+	push_item_image_definition(L, i.wield_image);
 	lua_setfield(L, -2, "wield_image");
-	lua_pushstring(L, i.wield_overlay.c_str());
+	push_item_image_definition(L, i.wield_overlay);
 	lua_setfield(L, -2, "wield_overlay");
 	lua_pushstring(L, i.palette_image.c_str());
 	lua_setfield(L, -2, "palette_image");
@@ -1543,11 +1553,11 @@ void push_inventory_lists(lua_State *L, const Inventory &inv)
 void read_inventory_list(lua_State *L, int tableindex,
 		Inventory *inv, const char *name, IGameDef *gdef, int forcesize)
 {
-	if(tableindex < 0)
+	if (tableindex < 0)
 		tableindex = lua_gettop(L) + 1 + tableindex;
 
 	// If nil, delete list
-	if(lua_isnil(L, tableindex)){
+	if (lua_isnil(L, tableindex)) {
 		inv->deleteList(name);
 		return;
 	}
@@ -1568,6 +1578,40 @@ void read_inventory_list(lua_State *L, int tableindex,
 			break; // Truncate provided list of items
 		invlist->changeItem(i, items[i]);
 	}
+}
+
+/******************************************************************************/
+ItemImageDef read_item_image_definition(lua_State *L, int index)
+{
+	if(index < 0)
+		index = lua_gettop(L) + 1 + index;
+
+	ItemImageDef item_image;
+
+	if(lua_isstring(L, index)){
+		item_image.name = lua_tostring(L, index);
+	}
+	else if(lua_istable(L, index))
+	{
+		getstringfield(L, index, "name", item_image.name);
+
+		lua_getfield(L, index, "animation");
+		item_image.animation = read_animation_definition(L, -1);
+		lua_pop(L, 1);
+	}
+
+	return item_image;
+}
+
+/******************************************************************************/
+void push_item_image_definition(lua_State *L, const ItemImageDef &item_image)
+{
+	/* FIXME: inventory_image.animation, inventory_overlay.animation, wield_image.animation
+	 * and wield_overlay.animation, because for nodes we don't push "tiles" (yet) and
+	 * we don't have a push_TileAnimationParams function (yet). */
+
+	lua_pushstring(L, item_image.name.c_str());
+
 }
 
 /******************************************************************************/
