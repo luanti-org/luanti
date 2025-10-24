@@ -900,11 +900,13 @@ static size_t getArrayTextureMax(video::IVideoDriver *driver)
 	// must not be the legacy driver, due to custom vertex format
 	if (driver->getDriverType() == video::EDT_OPENGL)
 		return 0;
+	// doesn't work on GLES yet (TODO)
+	if (driver->getDriverType() == video::EDT_OGLES2)
+		return 0;
 	u32 n = driver->getLimits().MaxArrayTextureImages;
-	n = std::min(n, 65535U); // layer index is u16
-	// TODO: https://developer.arm.com/documentation/102502/0101/Shader-precision mediump?
-	if (getenv("ARRAYMAX"))
-		n = std::min<u32>(n, atoi(getenv("ARRAYMAX")));
+	constexpr u32 type_max = std::numeric_limits<decltype(TileLayer::texture_layer_idx)>::max();
+	n = std::min(n, type_max);
+	n = std::min(n, g_settings->getU32("array_texture_max"));
 	return n;
 }
 
@@ -1669,6 +1671,7 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 	// Group by size
 	std::unordered_map<v2u32, std::vector<std::string_view>> sizes;
 	if (arraymax > 1) {
+		infostream << "Using array textures with " << arraymax << " layers" << std::endl;
 		size_t i = 0;
 		for (auto &image : pool) {
 			core::dimension2du dim = tsrc->getTextureDimensions(image);

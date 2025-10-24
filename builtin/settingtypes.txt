@@ -667,6 +667,10 @@ smooth_lighting (Smooth lighting) bool true
 #    at the expense of minor visual glitches that do not impact game playability.
 performance_tradeoffs (Tradeoffs for performance) bool false
 
+#    Caps the maximum number of layers used with array textures (if supported).
+#    This is only useful for debugging.
+array_texture_max (Tradeoffs for performance) int 65535 0 65535
+
 
 [**Waving Nodes]
 

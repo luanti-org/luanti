@@ -1,4 +1,5 @@
-uniform sampler2D ColorMapSampler; // FIXME
+// FIXME missing array texture handling
+uniform sampler2D ColorMapSampler;
 varying vec4 tPos;
 
 #ifdef GL_ES

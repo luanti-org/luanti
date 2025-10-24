@@ -186,7 +186,7 @@ void main(void)
 	pos.y += disp_z * 0.1;
 	pos.z += disp_z;
 #elif MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS && ENABLE_WAVING_PLANTS
-	// FIXME: what does this do and why does it depend on the texture coords?
+	// bottom of plant doesn't wave
 	if (varTexCoord.y < 0.05) {
 		pos.x += disp_x;
 		pos.z += disp_z;

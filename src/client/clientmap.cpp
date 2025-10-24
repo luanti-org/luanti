@@ -1522,7 +1522,8 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	video::SMaterial clean;
 	clean.BlendOperation = video::EBO_ADD;
 	driver->setMaterial(clean); // reset material to defaults
-	// FIXME: why is this here?
+	// This is somehow needed to fully reset the rendering state, or later operations
+	// will be broken.
 	driver->draw3DLine(v3f(), v3f(), video::SColor(0));
 
 	g_profiler->avg(prefix + "draw meshes [ms]", draw.stop(true));
