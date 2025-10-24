@@ -44,9 +44,29 @@ private:
 		istack->getItem().metadata.clearWearBarParams();
 	}
 
+#define ITEM_IMAGE_FUNCTIONS(NAME) \
+	void set##NAME(const ItemImageDef &image) \
+	{ \
+		istack->getItem().metadata.set##NAME(image); \
+	} \
+	void clear##NAME() \
+	{ \
+		istack->getItem().metadata.clear##NAME(); \
+	}
+	ITEM_IMAGE_FUNCTIONS(InventoryImage)
+	ITEM_IMAGE_FUNCTIONS(OverlayImage)
+	ITEM_IMAGE_FUNCTIONS(WieldImage)
+	ITEM_IMAGE_FUNCTIONS(WieldOverlay)
+#undef ITEM_IMAGE_FUNCTIONS
+
+
 	// Exported functions
 	static int l_set_tool_capabilities(lua_State *L);
 	static int l_set_wear_bar_params(lua_State *L);
+	static int l_set_inventory_image(lua_State *L);
+	static int l_set_inventory_overlay(lua_State *L);
+	static int l_set_wield_image(lua_State *L);
+	static int l_set_wield_overlay(lua_State *L);
 public:
 	// takes a reference
 	ItemStackMetaRef(LuaItemStack *istack);

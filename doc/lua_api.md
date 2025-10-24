@@ -8255,6 +8255,13 @@ Can be obtained via `item:get_meta()`.
     * Overrides the item's wear bar parameters (see "Wear Bar Color" section)
     * A nil value will clear the override data and restore the original
       behavior.
+* `set_inventory_image(<Item image definition>)`
+* `set_inventory_overlay(<Item image definition>)`
+* `set_wield_image(<Item image definition>)`
+* `set_wield_overlay(<Item image definition>)`
+    * Overrides the item image definitions
+    * Takes precedence over the overwritten image names from [Item Metadata](#item-metadata)
+    * A nil value will clear the override data and restore the original behavior.
 
 `MetaDataRef`
 -------------

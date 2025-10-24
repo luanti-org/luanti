@@ -19,12 +19,25 @@
 
 #define TOOLCAP_KEY "tool_capabilities"
 #define WEAR_BAR_KEY "wear_color"
+#define INVENTORY_IMAGE_KEY "inventory_image_def"
+#define INVENTORY_OVERLAY_KEY "inventory_overlay_def"
+#define WIELD_IMAGE_KEY "wield_image_def"
+#define WIELD_OVERLAY_KEY "wield_overlay_def"
 
 void ItemStackMetadata::clear()
 {
 	SimpleMetadata::clear();
+	updateAll();
+}
+
+void ItemStackMetadata::updateAll()
+{
 	updateToolCapabilities();
 	updateWearBarParams();
+	updateInventoryImage();
+	updateOverlayImage();
+	updateWieldImage();
+	updateWieldOverlay();
 }
 
 static void sanitize_string(std::string &str)
@@ -46,6 +59,14 @@ bool ItemStackMetadata::setString(const std::string &name, std::string_view var)
 		updateToolCapabilities();
 	else if (clean_name == WEAR_BAR_KEY)
 		updateWearBarParams();
+	else if (clean_name == INVENTORY_IMAGE_KEY)
+		updateInventoryImage();
+	else if (clean_name == INVENTORY_OVERLAY_KEY)
+		updateOverlayImage();
+	else if (clean_name == WIELD_IMAGE_KEY)
+		updateWieldImage();
+	else if (clean_name == WIELD_OVERLAY_KEY)
+		updateWieldOverlay();
 	return result;
 }
 
@@ -81,8 +102,7 @@ void ItemStackMetadata::deSerialize(std::istream &is)
 			m_stringvars[""] = std::move(in);
 		}
 	}
-	updateToolCapabilities();
-	updateWearBarParams();
+	updateAll();
 }
 
 void ItemStackMetadata::updateToolCapabilities()
@@ -129,3 +149,32 @@ void ItemStackMetadata::clearWearBarParams()
 {
 	setString(WEAR_BAR_KEY, "");
 }
+
+// Item image overrides
+
+#define ITEM_IMAGE_FUNCTIONS(NAME, FIELD, KEY) \
+void ItemStackMetadata::set##NAME(const ItemImageDef &def) \
+{ \
+	std::ostringstream os; \
+	def.serializeJson(os); \
+	setString(KEY, os.str()); \
+} \
+void ItemStackMetadata::clear##NAME() \
+{ \
+	setString(KEY, ""); \
+} \
+void ItemStackMetadata::update##NAME() \
+{ \
+	if (contains(KEY)) { \
+		std::istringstream is(getString(KEY)); \
+		FIELD = ItemImageDef::deserializeJson(is); \
+	} else { \
+		FIELD.reset(); \
+	} \
+}
+
+ITEM_IMAGE_FUNCTIONS(InventoryImage, inventory_image_override,   INVENTORY_IMAGE_KEY)
+ITEM_IMAGE_FUNCTIONS(OverlayImage,   inventory_overlay_override, INVENTORY_OVERLAY_KEY)
+ITEM_IMAGE_FUNCTIONS(WieldImage,     wield_image_override,       WIELD_IMAGE_KEY)
+ITEM_IMAGE_FUNCTIONS(WieldOverlay,   wield_overlay_override,     WIELD_OVERLAY_KEY)
+#undef ITEM_IMAGE_FUNCTIONS

@@ -15,6 +15,8 @@
 #include "util/pointedthing.h"
 #include <map>
 #include <set>
+#include "convert_json.h"
+#include <json/json.h>
 
 TouchInteraction::TouchInteraction()
 {
@@ -101,6 +103,29 @@ void ItemImageDef::deSerialize(std::istream &is, u16 protocol_version)
 	if (protocol_version < 51)
 		return;
 	animation.deSerialize(is, protocol_version);
+}
+
+void ItemImageDef::serializeJson(std::ostream &os) const
+{
+	Json::Value root;
+	root["name"] = name;
+	root["animation"] = animation.serializeJson();
+
+	fastWriteJson(root, os);
+}
+
+std::optional<ItemImageDef> ItemImageDef::deserializeJson(std::istream &is)
+{
+	Json::Value root;
+	is >> root;
+	if (!root.isObject() || !root["name"].isString()) {
+		return std::nullopt;
+	}
+
+	ItemImageDef def;
+	def.name = root["name"].asString();
+	def.animation.deserializeJson(root["animation"]);
+	return def;
 }
 
 /*

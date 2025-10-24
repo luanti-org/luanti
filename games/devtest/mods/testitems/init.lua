@@ -233,3 +233,85 @@ core.register_craftitem("testitems:wield_image_animation_overlay", {
 	wield_overlay = animated_overlay,
 	color = "#ff0000",
 })
+
+local function animated_image_accelerated(speed)
+	local image = table.copy(animated_image)
+	image.animation.length = image.animation.length * speed
+	return image
+end
+
+local function animated_overlay_accelerated(speed)
+	local image = table.copy(animated_overlay)
+	image.animation.frame_length = image.animation.frame_length * speed
+	return image
+end
+
+local function update_animation(meta, mode, speed, name)
+	local msg
+	local speed_factor = 1/(speed+1)
+	if mode == 0 then
+		meta:set_wield_overlay()
+		msg = S"Not animated"
+	elseif mode == 1 then
+		meta:set_inventory_image(animated_image_accelerated(speed_factor))
+		msg = S"Inventory image animated"
+	elseif mode == 2 then
+		meta:set_inventory_image()
+		meta:set_inventory_overlay(animated_overlay_accelerated(speed_factor))
+		msg = S"Inventory overlay animated"
+	elseif mode == 3 then
+		meta:set_inventory_overlay()
+		meta:set_wield_image(animated_image_accelerated(speed_factor))
+		msg = S"Wield image animated"
+	else
+		meta:set_wield_image()
+		meta:set_wield_overlay(animated_overlay_accelerated(speed_factor))
+		msg = S"Wield overlay animated"
+	end
+	core.chat_send_player(name, msg .. S", speed " .. speed)
+end
+
+local function toggle_red_string_meta_inventory_image(itemstack)
+	local meta = itemstack:get_meta()
+	local image = meta:get_string("inventory_image") == "" and
+			"testnodes_anim.png^[invert:rgb^[verticalframe:4:0^[multiply:#ff0000" or ""
+	local overlay = meta:get_string("inventory_overlay") == "" and
+			"testitems_animation_overlay.png^[verticalframe:4:0^[multiply:#ff0000" or ""
+	meta:set_string("inventory_image", image)
+	meta:set_string("inventory_overlay", overlay)
+	meta:set_string("wield_image", image)
+	meta:set_string("wield_overlay", overlay)
+	return itemstack
+end
+
+core.register_craftitem("testitems:inventory_image_animation_meta", {
+	description = S("Animated Meta Test Item").."\n"..
+		S("Left click to cycle through modes").."\n"..
+		S("Hold sneak and left click to change speed").."\n"..
+		S("Right click to toggle red string meta inventory image fields"),
+	inventory_image = "testnodes_anim.png^[invert:rgb^[verticalframe:4:0",
+	inventory_overlay = "testitems_animation_overlay.png^[verticalframe:4:0",
+	wield_image = "testnodes_anim.png^[invert:rgb^[verticalframe:4:0",
+	wield_overlay = "testitems_animation_overlay.png^[verticalframe:4:0",
+	on_use = function(itemstack, user, pointed_thing)
+		if not core.is_player(user) then
+			return
+		end
+		local name = user:get_player_name()
+		local meta = itemstack:get_meta()
+		local speed = meta:get_int("speed")
+		local mode = meta:get_int("mode")
+
+		if user:get_player_control().sneak then
+			speed = (speed + 1) % 4
+			meta:set_int("speed", speed)
+		else
+			mode = (mode + 1) % 5
+			meta:set_int("mode", mode)
+		end
+		update_animation(meta, mode, speed, name)
+		return itemstack
+	end,
+	on_place = toggle_red_string_meta_inventory_image,
+	on_secondary_use = toggle_red_string_meta_inventory_image,
+})
