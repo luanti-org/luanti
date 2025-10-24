@@ -675,6 +675,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_USER:
 		event.EventType = EET_USER_EVENT;
+		event.UserEvent.code = 0;
 		event.UserEvent.UserData1 = static_cast<size_t>(wParam);
 		event.UserEvent.UserData2 = static_cast<size_t>(lParam);
 		dev = getDeviceFromHWnd(hWnd);
