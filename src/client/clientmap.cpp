@@ -1480,15 +1480,14 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 
 	bool translucent_foliage = g_settings->getBool("enable_translucent_foliage");
 
-	video::E_MATERIAL_TYPE leaves_material = video::EMT_SOLID;
-
 	// For translucent leaves, we want to use backface culling instead of frontface.
+	std::vector<video::E_MATERIAL_TYPE> leaves_material;
 	if (translucent_foliage) {
-		// this is the material leaves would use, compare to nodedef.cpp
-		// FIXME
-		auto* shdsrc = m_client->getShaderSource();
-		const u32 leaves_shader = shdsrc->getShader("nodes_shader", TILE_MATERIAL_WAVING_LEAVES, NDT_ALLFACES);
-		leaves_material = shdsrc->getShaderInfo(leaves_shader).material;
+		auto *shdsrc = m_client->getShaderSource();
+		// Find out all materials used by leaves so we can identify them
+		leaves_material.reserve(m_nodedef->m_leaves_materials.size());
+		for (u32 shader_id : m_nodedef->m_leaves_materials)
+			leaves_material.push_back(shdsrc->getShaderInfo(shader_id).material);
 	}
 
 	for (auto &descriptor : draw_order) {
@@ -1503,7 +1502,7 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 				local_material.BackfaceCulling = material.BackfaceCulling;
 				local_material.FrontfaceCulling = material.FrontfaceCulling;
 			}
-			if (local_material.MaterialType == leaves_material && translucent_foliage) {
+			if (translucent_foliage && CONTAINS(leaves_material, local_material.MaterialType)) {
 				local_material.BackfaceCulling = true;
 				local_material.FrontfaceCulling = false;
 			}

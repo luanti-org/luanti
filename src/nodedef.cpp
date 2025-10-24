@@ -1165,6 +1165,19 @@ void ContentFeatures::updateMesh(Client *client, const TextureSettings &tsetting
 		}
 	}
 }
+
+void ContentFeatures::collectMaterials(std::vector<u32> &leaves_materials)
+{
+	if (drawtype == NDT_AIRLIKE || waving == 0)
+		return;
+
+	for (u16 j = 0; j < 6; j++) {
+		if (!tiles[j].layers[0].empty())
+			leaves_materials.push_back(tiles[j].layers[0].shader_id);
+		if (!tiles[j].layers[1].empty())
+			leaves_materials.push_back(tiles[j].layers[1].shader_id);
+	}
+}
 #endif
 
 /*
@@ -1200,13 +1213,13 @@ void NodeDefManager::clear()
 	m_next_id = 0;
 	m_selection_box_union.reset(0,0,0);
 	m_selection_box_int_union.reset(0,0,0);
+#if CHECK_CLIENT_BUILD()
+	m_leaves_materials.clear();
+#endif
 
 	resetNodeResolveState();
 
-	u32 initial_length = 0;
-	initial_length = MYMAX(initial_length, CONTENT_UNKNOWN + 1);
-	initial_length = MYMAX(initial_length, CONTENT_AIR + 1);
-	initial_length = MYMAX(initial_length, CONTENT_IGNORE + 1);
+	constexpr u32 initial_length = std::max({CONTENT_UNKNOWN, CONTENT_AIR, CONTENT_IGNORE}) + 1;
 	m_content_features.resize(initial_length);
 
 	// Set CONTENT_UNKNOWN
@@ -1628,6 +1641,7 @@ void NodeDefManager::applyTextureOverrides(const std::vector<TextureOverride> &o
 			apply(nodedef.tiledef_special[5]);
 	}
 }
+
 #if CHECK_CLIENT_BUILD()
 void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_args)
 {
@@ -1710,9 +1724,14 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 		ContentFeatures *f = &(m_content_features[i]);
 		f->updateTextures(tsrc, shdsrc, client, &plt, tsettings);
 		f->updateMesh(client, tsettings);
+		f->collectMaterials(m_leaves_materials);
+
 		client->showUpdateProgressTexture(progress_callback_args,
 			0.66666f + 0.33333f * i / size);
 	}
+	SORT_AND_UNIQUE(m_leaves_materials);
+	infostream << "m_leaves_materials.size() = " << m_leaves_materials.size()
+		<< std::endl;
 
 	plt.printStats(rawstream);
 	tsrc->setImageCaching(false);

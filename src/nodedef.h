@@ -531,6 +531,7 @@ struct ContentFeatures
 		Client *client, PreLoadedTextures *texture_pool,
 		const TextureSettings &tsettings);
 	void updateMesh(Client *client, const TextureSettings &tsettings);
+	void collectMaterials(std::vector<u32> &leaves_materials);
 #endif
 
 private:
@@ -753,6 +754,12 @@ public:
 	 * Must be called after node registration has finished!
 	 */
 	void resolveCrossrefs();
+
+#if CHECK_CLIENT_BUILD()
+	// Set of all shader IDs used by leaves-like nodes
+	// (kind of a hack but is needed for dynamic shadows)
+	std::vector<u32> m_leaves_materials;
+#endif
 
 private:
 	/*!
