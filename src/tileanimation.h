@@ -37,8 +37,13 @@ struct TileAnimationParams
 
 	void serialize(std::ostream &os, u16 protocol_ver) const;
 	void deSerialize(std::istream &is, u16 protocol_ver);
+
 	void determineParams(v2u32 texture_size, int *frame_count, int *frame_length_ms,
 			v2u32 *frame_size) const;
 	void getTextureModifer(std::ostream &os, v2u32 texture_size, int frame) const;
 	v2f getTextureCoords(v2u32 texture_size, int frame) const;
+
+	// Modifies the texture name such that it only contains the first frame
+	// If the texture_size is know (client code), getTextureModifer should be used instead
+	void extractFirstFrame(std::string &name) const;
 };

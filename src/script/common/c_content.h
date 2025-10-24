@@ -82,6 +82,9 @@ ItemStack read_item(lua_State *L, int index, IItemDefManager *idef);
 
 struct TileAnimationParams read_animation_definition(lua_State *L, int index);
 
+ItemImageDef read_item_image_definition(lua_State *L, int index);
+void push_item_image_definition(lua_State *L, const ItemImageDef &item_image);
+
 PointabilityType read_pointability_type(lua_State *L, int index);
 Pointabilities read_pointabilities(lua_State *L, int index);
 void push_pointability_type(lua_State *L, PointabilityType pointable);
