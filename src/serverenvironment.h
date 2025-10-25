@@ -357,9 +357,9 @@ private:
 	// The map
 	std::unique_ptr<ServerMap> m_map;
 	// Lua state
-	ServerScripting* m_script;
+	ServerScripting *m_script = nullptr;
 	// Server definition
-	Server *m_server;
+	Server *m_server = nullptr;
 	// Active Object Manager
 	server::ActiveObjectMgr m_ao_manager;
 	// on_mapblocks_changed map event receiver
@@ -378,6 +378,8 @@ private:
 	IntervalLimiter m_active_blocks_nodemetadata_interval;
 	// Whether the variables below have been read from file yet
 	bool m_meta_loaded = false;
+	// Are we shutting down?
+	bool m_shutting_down = false;
 	// Time from the beginning of the game in seconds.
 	// Incremented in step().
 	u32 m_game_time = 0;
