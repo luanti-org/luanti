@@ -8525,7 +8525,7 @@ child will follow movement and rotation of that bone.
     * Attaches object to `parent`
     * See 'Attachments' section for details
     * `parent`: `ObjectRef` to attach to
-    * `bone`: Bone to attach to. Default is `""` (the root bone)
+    * `bone`: Bone to attach to. Default is `""` which attaches to the parent object's origin.
     * `position`: relative position, default `{x=0, y=0, z=0}`
     * `rotation`: relative rotation in degrees, default `{x=0, y=0, z=0}`
     * `forced_visible`: Boolean to control whether the attached entity
