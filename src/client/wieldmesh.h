@@ -13,6 +13,7 @@
 #include <SColor.h>
 #include <memory>
 #include "tile.h"
+#include "nodedef.h"
 
 namespace scene
 {
@@ -26,6 +27,7 @@ struct ItemStack;
 struct TileDef;
 class Client;
 class ITextureSource;
+class IShaderSource;
 class ShadowRenderer;
 
 /*
@@ -160,6 +162,19 @@ private:
 
 	ShadowRenderer *m_shadow;
 };
+
+/**
+ * Replace the material's shader with a custom one while respecting the usual
+ * things expected of node rendering (texture type, alpha mode, overlay).
+ * Call this after `TileLayer::applyMaterialOptions`.
+ * @param mat material to modify
+ * @param shdsrc shader source
+ * @param shader name of shader
+ * @param mode alpha mode from nodedef
+ * @param layer index of this layer
+ */
+void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
+		const char *shader, AlphaMode mode, int layer);
 
 /**
  * NOTE: The item mesh is only suitable for inventory rendering (due to its

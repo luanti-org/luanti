@@ -20,10 +20,12 @@ varying vec3 worldPosition;
 #ifdef GL_ES
 varying lowp vec4 varColor;
 varying mediump vec2 varTexCoord;
+varying float varTexLayer;
 varying float nightRatio;
 #else
-centroid varying lowp vec4 varColor;
+centroid varying vec4 varColor;
 centroid varying vec2 varTexCoord;
+centroid varying float varTexLayer; // actually int
 centroid varying float nightRatio;
 #endif
 #ifdef ENABLE_DYNAMIC_SHADOWS
@@ -149,6 +151,9 @@ float snoise(vec3 p)
 
 void main(void)
 {
+#ifdef USE_ARRAY_TEXTURE
+	varTexLayer = inVertexAux;
+#endif
 	varTexCoord = inTexCoord0.st;
 
 	float disp_x;
@@ -181,6 +186,7 @@ void main(void)
 	pos.y += disp_z * 0.1;
 	pos.z += disp_z;
 #elif MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS && ENABLE_WAVING_PLANTS
+	// bottom of plant doesn't wave
 	if (varTexCoord.y < 0.05) {
 		pos.x += disp_x;
 		pos.z += disp_z;

@@ -429,32 +429,12 @@ public:
 
 	void onGenerate(const std::string &name, ShaderConstants &constants) override
 	{
-		if (constants.find("DRAWTYPE") == constants.end())
+		if (constants.find("MATERIAL_TYPE") == constants.end())
 			return; // not a node shader
-		[[maybe_unused]] const auto drawtype =
-			static_cast<NodeDrawType>(std::get<int>(constants["DRAWTYPE"]));
 		[[maybe_unused]] const auto material_type =
 			static_cast<MaterialType>(std::get<int>(constants["MATERIAL_TYPE"]));
 
 #define PROVIDE(constant) constants[ #constant ] = (int)constant
-
-		PROVIDE(NDT_NORMAL);
-		PROVIDE(NDT_AIRLIKE);
-		PROVIDE(NDT_LIQUID);
-		PROVIDE(NDT_FLOWINGLIQUID);
-		PROVIDE(NDT_GLASSLIKE);
-		PROVIDE(NDT_ALLFACES);
-		PROVIDE(NDT_ALLFACES_OPTIONAL);
-		PROVIDE(NDT_TORCHLIKE);
-		PROVIDE(NDT_SIGNLIKE);
-		PROVIDE(NDT_PLANTLIKE);
-		PROVIDE(NDT_FENCELIKE);
-		PROVIDE(NDT_RAILLIKE);
-		PROVIDE(NDT_NODEBOX);
-		PROVIDE(NDT_GLASSLIKE_FRAMED);
-		PROVIDE(NDT_FIRELIKE);
-		PROVIDE(NDT_GLASSLIKE_FRAMED_OPTIONAL);
-		PROVIDE(NDT_PLANTLIKE_ROOTED);
 
 		PROVIDE(TILE_MATERIAL_BASIC);
 		PROVIDE(TILE_MATERIAL_ALPHA);
@@ -981,12 +961,12 @@ bool Game::createClient(const GameStartData &start_data)
 	}
 
 	// Pre-calculate crack length
-	video::ITexture *t = texture_src->getTexture("crack_anylength.png");
-	if (t) {
-		v2u32 size = t->getOriginalSize();
-		crack_animation_length = size.Y / size.X;
-	} else {
-		crack_animation_length = 5;
+	{
+		auto size = texture_src->getTextureDimensions("crack_anylength.png");
+		if (size.Width && size.Height)
+			crack_animation_length = size.Height / size.Width;
+		else
+			crack_animation_length = 5;
 	}
 
 	shader_src->addShaderConstantSetter(
@@ -1303,7 +1283,8 @@ bool Game::getServerContent(bool *aborted)
 				message << " (" << cur << ' ' << cur_unit << ")";
 			}
 
-			progress = 30 + client->mediaReceiveProgress() * 35 + 0.5;
+			// 30% -> 65%
+			progress = 30 + std::ceil(client->mediaReceiveProgress() * 35 + 0.5f);
 			m_rendering_engine->draw_load_screen(utf8_to_wide(message.str()), guienv,
 				texture_src, dtime, progress);
 		}

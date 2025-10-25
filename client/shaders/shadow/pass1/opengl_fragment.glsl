@@ -1,3 +1,4 @@
+// FIXME missing array texture handling
 uniform sampler2D ColorMapSampler;
 varying vec4 tPos;
 
@@ -10,7 +11,7 @@ centroid varying vec2 varTexCoord;
 void main()
 {
 	vec4 col = texture2D(ColorMapSampler, varTexCoord);
-
+	// FIXME: magic number???
 	if (col.a < 0.70)
 		discard;
 

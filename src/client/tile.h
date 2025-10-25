@@ -25,6 +25,21 @@ enum MaterialType : u8 {
 	TILE_MATERIAL_PLAIN_ALPHA
 };
 
+/**
+ * @brief change type so it has at least simple transparency
+ */
+static inline MaterialType material_type_with_alpha(MaterialType type)
+{
+	switch (type) {
+		case TILE_MATERIAL_OPAQUE:
+			return TILE_MATERIAL_BASIC;
+		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+			return TILE_MATERIAL_WAVING_LIQUID_BASIC;
+		default:
+			return type;
+	}
+}
+
 // Material flags
 // Should backface culling be enabled?
 #define MATERIAL_FLAG_BACKFACE_CULLING 0x01
@@ -39,6 +54,7 @@ enum MaterialType : u8 {
 	This fully defines the looks of a tile.
 	The SMaterial of a tile is constructed according to this.
 */
+
 struct FrameSpec
 {
 	FrameSpec() = default;
@@ -66,7 +82,7 @@ struct TileLayer
 	{
 		return
 			texture_id == other.texture_id &&
-			material_type == other.material_type &&
+			shader_id == other.shader_id &&
 			material_flags == other.material_flags &&
 			has_color == other.has_color &&
 			color == other.color &&
@@ -84,7 +100,7 @@ struct TileLayer
 
 	/**
 	 * Set some material parameters accordingly.
-	 * @note does not set `MaterialType`
+	 * @note does not set `MaterialType`!
 	 * @param material material to mody
 	 * @param layer index of this layer in the `TileSpec`
 	 */
@@ -121,6 +137,9 @@ struct TileLayer
 
 	u16 animation_frame_length_ms = 0;
 	u16 animation_frame_count = 1;
+
+	/// Layer index to use, if the texture is an array texture
+	u16 texture_layer_idx = 0;
 
 	MaterialType material_type = TILE_MATERIAL_BASIC;
 	u8 material_flags =
