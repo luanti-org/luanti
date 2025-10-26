@@ -9,6 +9,7 @@
 #include "texturesource.h"
 #include "itemdef.h"
 #include "inventory.h"
+#include "IMesh.h"
 
 struct ItemVisualsManager::ItemVisuals
 {

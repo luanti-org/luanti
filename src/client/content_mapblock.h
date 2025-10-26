@@ -5,6 +5,7 @@
 #pragma once
 
 #include "nodedef.h"
+#include "tile.h"
 
 struct MeshMakeData;
 struct MeshCollector;

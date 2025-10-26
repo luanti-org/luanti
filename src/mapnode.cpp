@@ -29,15 +29,6 @@ static const u8 rot_to_wallmounted[] = {
 	MapNode
 */
 
-void MapNode::getColor(const ContentFeatures &f, video::SColor *color) const
-{
-	if (f.palette) {
-		*color = (*f.palette)[param2];
-		return;
-	}
-	*color = f.color;
-}
-
 u8 MapNode::getFaceDir(const NodeDefManager *nodemgr,
 	bool allow_wallmounted) const
 {

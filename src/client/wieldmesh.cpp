@@ -8,6 +8,7 @@
 #include "inventory.h"
 #include "client.h"
 #include "itemdef.h"
+#include "node_visuals.h"
 #include "nodedef.h"
 #include "mesh.h"
 #include "content_mapblock.h"
@@ -15,7 +16,6 @@
 #include "client/meshgen/collector.h"
 #include "client/tile.h"
 #include "client/texturesource.h"
-#include "log.h"
 #include "util/numeric.h"
 #include <map>
 #include <IMeshManipulator.h>
@@ -430,6 +430,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 	const NodeDefManager *ndef = client->getNodeDefManager();
 	const ItemDefinition &def = item.getDefinition(idef);
 	const ContentFeatures &f = ndef->get(def.name);
+	const NodeVisuals &v = *(f.visuals);
 
 	{
 		// Initialize material type used by setExtruded
@@ -504,13 +505,13 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			v3f wscale = wield_scale;
 			if (f.drawtype == NDT_FLOWINGLIQUID)
 				wscale.Z *= 0.1f;
-			setExtruded(f.tiledef[0], f.tiles[0].layers[0],
-				f.tiledef_overlay[0], f.tiles[0].layers[1], wscale, tsrc);
+			setExtruded(f.tiledef[0], v.tiles[0].layers[0],
+				f.tiledef_overlay[0], v.tiles[0].layers[1], wscale, tsrc);
 			break;
 		}
 		case NDT_PLANTLIKE_ROOTED: {
 			// use the plant tile
-			setExtruded(f.tiledef_special[0], f.special_tiles[0].layers[0],
+			setExtruded(f.tiledef_special[0], v.special_tiles[0].layers[0],
 				TileDef(), TileLayer(), wield_scale, tsrc);
 			break;
 		}
@@ -646,6 +647,7 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 	IShaderSource *shdsrc = client->getShaderSource();
 	const NodeDefManager *ndef = client->getNodeDefManager();
 	const ContentFeatures &f = ndef->get(def.name);
+	const NodeVisuals &v = *(f.visuals);
 	assert(result);
 
 	FATAL_ERROR_IF(!g_extrusion_mesh_cache, "Extrusion mesh cache is not yet initialized");
@@ -678,8 +680,8 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 	} else if (def.type == ITEM_NODE) {
 		switch (f.drawtype) {
 		case NDT_PLANTLIKE: {
-			const TileLayer &l0 = f.tiles[0].layers[0];
-			const TileLayer &l1 = f.tiles[0].layers[1];
+			const TileLayer &l0 = v.tiles[0].layers[0];
+			const TileLayer &l1 = v.tiles[0].layers[1];
 			mesh = getExtrudedMesh(
 				extractTexture(f.tiledef[0], l0, tsrc),
 				extractTexture(f.tiledef[1], l1, tsrc));
@@ -690,7 +692,7 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 		}
 		case NDT_PLANTLIKE_ROOTED: {
 			// Use the plant tile
-			const TileLayer &l0 = f.special_tiles[0].layers[0];
+			const TileLayer &l0 = v.special_tiles[0].layers[0];
 			mesh = getExtrudedMesh(
 				extractTexture(f.tiledef_special[0], l0, tsrc)
 			);

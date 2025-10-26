@@ -4,6 +4,8 @@
 
 #pragma once
 #include <IMaterialRendererServices.h>
+#include <SMaterial.h>
+#include <S3DVertex.h>
 #include "client/shader.h"
 
 class ShadowScreenQuad

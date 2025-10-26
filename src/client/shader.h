@@ -12,6 +12,7 @@
 #include <map>
 #include <variant>
 #include "nodedef.h"
+#include "tile.h" // MaterialType
 
 /*
 	shader.{h,cpp}: Shader handling stuff.
