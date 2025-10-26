@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cmath>
+#include <IAnimatedMesh.h>
 #include <IFileSystem.h>
 #include <json/json.h>
 #include "client.h"
@@ -52,6 +53,7 @@
 #include "chatmessage.h"
 #include "translation.h"
 #include "content/mod_configuration.h"
+#include "node_visuals.h"
 #include "mapnode.h"
 #include "item_visuals_manager.h"
 
@@ -1865,7 +1867,7 @@ void Client::afterContentReceived()
 	TextureUpdateArgs tu_args;
 	tu_args.last_time_ms = porting::getTimeMs();
 	tu_args.text_base = wstrgettext("Initializing nodes");
-	m_nodedef->updateTextures(this, &tu_args);
+	fillNodeVisuals(m_nodedef, this, &tu_args);
 
 	// Start mesh update thread after setting up content definitions
 	infostream<<"- Starting mesh update thread"<<std::endl;

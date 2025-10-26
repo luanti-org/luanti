@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "constants.h"
 #include "objdef.h"
 #include "nodedef.h"
 #include "noise.h"

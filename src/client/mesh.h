@@ -12,6 +12,7 @@ namespace scene {
 	class IAnimatedMesh;
 	class IMesh;
 	class IMeshBuffer;
+	struct SMesh;
 }
 
 

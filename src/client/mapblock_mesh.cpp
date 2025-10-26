@@ -7,6 +7,7 @@
 #include "client.h"
 #include "mapblock.h"
 #include "map.h"
+#include "node_visuals.h"
 #include "noise.h"
 #include "profiler.h"
 #include "shader.h"
@@ -166,7 +167,7 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 		if (f.light_source > light_source_max)
 			light_source_max = f.light_source;
 		// Check f.solidness because fast-style leaves look better this way
-		if (f.param_type == CPT_LIGHT && f.solidness != 2) {
+		if (f.param_type == CPT_LIGHT && f.visuals->solidness != 2) {
 			u8 light_level_day = n.getLight(LIGHTBANK_DAY, f.getLightingFlags());
 			u8 light_level_night = n.getLight(LIGHTBANK_NIGHT, f.getLightingFlags());
 			if (light_level_day == LIGHT_SUN)
@@ -335,13 +336,13 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 {
 	const NodeDefManager *ndef = data->m_nodedef;
 	const ContentFeatures &f = ndef->get(mn);
-	tile = f.tiles[tileindex];
+	tile = f.visuals->tiles[tileindex];
 	bool has_crack = p == data->m_crack_pos_relative;
 	for (TileLayer &layer : tile.layers) {
 		if (layer.empty())
 			continue;
 		if (!layer.has_color)
-			mn.getColor(f, &(layer.color));
+			f.visuals->getColor(mn.param2, &(layer.color));
 		// Apply temporary crack
 		if (has_crack)
 			layer.material_flags |= MATERIAL_FLAG_CRACK;
@@ -914,7 +915,7 @@ u8 get_solid_sides(MeshMakeData *data)
 
 		for (u8 k = 0; k < 6; k++) {
 			const MapNode &top = data->m_vmanip.getNodeRefUnsafe(blockpos_nodes + positions[k]);
-			if (ndef->get(top).solidness != 2)
+			if (ndef->get(top).visuals->solidness != 2)
 				result &= ~(1 << k);
 		}
 	}
