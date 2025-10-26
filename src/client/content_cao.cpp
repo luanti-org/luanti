@@ -1693,9 +1693,9 @@ void GenericCAO::processMessage(const std::string &data)
 			props.scale.previous = props.scale.vector;
 		} else {
 			// Disable interpolation
-			props.position.interp_timer = 0.0f;
-			props.rotation.interp_timer = 0.0f;
-			props.scale.interp_timer = 0.0f;
+			props.position.interp_duration = 0.0f;
+			props.rotation.interp_duration = 0.0f;
+			props.scale.interp_duration = 0.0f;
 		}
 		// Read new values
 		props.position.vector = readV3F32(is);
@@ -1707,9 +1707,9 @@ void GenericCAO::processMessage(const std::string &data)
 			props.position.absolute = true;
 			props.rotation.absolute = true;
 		} else {
-			props.position.interp_timer = readF32(is);
-			props.rotation.interp_timer = readF32(is);
-			props.scale.interp_timer = readF32(is);
+			props.position.interp_duration = readF32(is);
+			props.rotation.interp_duration = readF32(is);
+			props.scale.interp_duration = readF32(is);
 			u8 absoluteFlag = readU8(is);
 			props.position.absolute = (absoluteFlag & 1) > 0;
 			props.rotation.absolute = (absoluteFlag & 2) > 0;
