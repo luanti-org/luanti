@@ -419,8 +419,11 @@ std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
 		return {};
 
 	// Still create texture if not animated
-	if (animation.type == TileAnimationType::TAT_NONE)
-		return {{0, tsrc->getTexture(image_name)}};
+	if (animation.type == TileAnimationType::TAT_NONE) {
+		u32 id;
+		video::ITexture *texture = tsrc->getTextureForMesh(image_name, &id);
+		return {{id, texture}};
+	}
 
 	video::ITexture *orginal_texture = tsrc->getTexture(image_name);
 	if (!orginal_texture)
