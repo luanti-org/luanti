@@ -415,8 +415,12 @@ std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
 {
 	result_frame_length_ms = 0;
 
-	if (image_name.empty() || animation.type == TileAnimationType::TAT_NONE)
+	if (image_name.empty())
 		return {};
+
+	// Still create texture if not animated
+	if (animation.type == TileAnimationType::TAT_NONE)
+		return {{0, tsrc->getTexture(image_name)}};
 
 	video::ITexture *orginal_texture = tsrc->getTexture(image_name);
 	if (!orginal_texture)
@@ -656,8 +660,8 @@ void WieldMeshSceneNode::changeToMesh(scene::IMesh *mesh)
 }
 
 void createItemMesh(Client *client, const ItemDefinition &def,
-		AnimationInfo &animation_normal,
-		AnimationInfo &animation_overlay,
+		const AnimationInfo &animation_normal,
+		const AnimationInfo &animation_overlay,
 		ItemMesh *result)
 {
 	ITextureSource *tsrc = client->getTextureSource();
@@ -700,7 +704,9 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 		case NDT_PLANTLIKE: {
 			const TileLayer &l0 = f.tiles[0].layers[0];
 			const TileLayer &l1 = f.tiles[0].layers[1];
-			mesh = getExtrudedMesh(l0.texture, l1.texture);
+			mesh = getExtrudedMesh(
+				extractTexture(f.tiledef[0], l0, tsrc),
+				extractTexture(f.tiledef[1], l1, tsrc));
 			// Add color
 			result->buffer_info.emplace_back(0, l0);
 			result->buffer_info.emplace_back(1, l1);
@@ -709,7 +715,9 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 		case NDT_PLANTLIKE_ROOTED: {
 			// Use the plant tile
 			const TileLayer &l0 = f.special_tiles[0].layers[0];
-			mesh = getExtrudedMesh(l0.texture);
+			mesh = getExtrudedMesh(
+				extractTexture(f.tiledef_special[0], l0, tsrc)
+			);
 			result->buffer_info.emplace_back(0, l0);
 			break;
 		}

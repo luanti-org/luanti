@@ -187,6 +187,6 @@ scene::SMesh *getExtrudedMesh(video::ITexture *texture,
 // This is only used to initially generate an ItemMesh
 // To get the mesh, use ItemVisualsManager::getItemMesh(item, client) instead
 void createItemMesh(Client *client, const ItemDefinition &def,
-		AnimationInfo &animation_normal,
-		AnimationInfo &animation_overlay,
+		const AnimationInfo &animation_normal,
+		const AnimationInfo &animation_overlay,
 		ItemMesh *result);

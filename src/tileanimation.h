@@ -45,5 +45,6 @@ struct TileAnimationParams
 
 	// Modifies the texture name such that it only contains the first frame
 	// If the texture_size is know (client code), getTextureModifer should be used instead
+	// This function only exists for compatibility with old clients
 	void extractFirstFrame(std::string &name) const;
 };

@@ -18,14 +18,16 @@ struct ItemVisualsManager::ItemVisuals
 	AnimationInfo inventory_normal;
 	AnimationInfo inventory_overlay;
 
+	// ItemVisuals owns the frames and AnimationInfo points to them
+	std::vector<FrameSpec> frames_normal;
+	std::vector<FrameSpec> frames_overlay;
+
 	ItemVisuals() :
 		palette(nullptr)
 	{}
 
 	~ItemVisuals()
 	{
-		inventory_normal.freeFrames();
-		inventory_overlay.freeFrames();
 		if (item_mesh.mesh)
 			item_mesh.mesh->drop();
 	}
@@ -65,30 +67,18 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 
 	ITextureSource *tsrc = client->getTextureSource();
 
-	// Create new ItemVisuals
 	auto iv = std::make_unique<ItemVisuals>();
 
-	auto populate_texture_and_animation = [tsrc](
-			const ItemImageDef &image,
-			AnimationInfo &animation)
-	{
-		int frame_length_ms = 0;
-		auto frames = std::make_unique<std::vector<FrameSpec>>();
-		if (image.name.empty()) {
-			// no-op
-		} else if (image.animation.type == TileAnimationType::TAT_NONE) {
-			frames->push_back({0, tsrc->getTexture(image.name)});
-		} else {
-			// Animated
-			// Get inventory texture frames
-			*frames = createAnimationFrames(tsrc, image.name, image.animation, frame_length_ms);
-		}
-		animation = AnimationInfo(frames.release(), frame_length_ms);
-		// `frames` are freed in `ItemVisuals::~ItemVisuals`
-	};
+	// Create inventory image textures
+	int frame_length = 0;
+	iv->frames_normal = createAnimationFrames(tsrc, inventory_image.name,
+			inventory_image.animation, frame_length);
+	iv->inventory_normal = AnimationInfo(&iv->frames_normal, frame_length);
 
-	populate_texture_and_animation(inventory_image, iv->inventory_normal);
-	populate_texture_and_animation(inventory_overlay, iv->inventory_overlay);
+	// Create inventory overlay textures
+	iv->frames_overlay = createAnimationFrames(tsrc, inventory_overlay.name,
+			inventory_overlay.animation, frame_length);
+	iv->inventory_overlay = AnimationInfo(&iv->frames_overlay, frame_length);
 
 	createItemMesh(client, def,
 			iv->inventory_normal,

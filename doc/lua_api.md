@@ -5855,7 +5855,7 @@ Utilities
       -- 'chunksize' mapgen setting can be a vector, instead of a single number (5.15.0)
       chunksize_vector = true,
       -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
-      -- and `wield_overlay` accept a table containing animation definitions. (5.16.0)
+      -- and `wield_overlay` accept a table containing animation definitions. (5.15.0)
       item_image_animation = true,
   }
   ```

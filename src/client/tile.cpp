@@ -5,7 +5,7 @@
 #include "tile.h"
 #include <cassert>
 
-video::ITexture *AnimationInfo::getTexture(float animation_time)
+video::ITexture *AnimationInfo::getTexture(float animation_time) const
 {
 	if (getFrameCount() == 0)
 		return nullptr;
