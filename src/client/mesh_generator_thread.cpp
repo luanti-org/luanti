@@ -121,6 +121,18 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	MutexAutoLock lock(m_mutex);
 
 	/*
+	 * Calculate LOD
+	 */
+	const v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE // current player block
+		// other block positions are on the corner, so offset this position as well for dist calcs
+		- m_client->getMeshGrid().cell_size / 2;
+	const u16 dist2 = cam_pos.getDistanceFromSQ(p); // distance squared
+	u16 lod_threshold = g_settings->getU16("lod_threshold");
+	lod_threshold *= lod_threshold;
+	const u8 lod = dist2 < lod_threshold ? 0 :
+		1 + static_cast<u8>(std::log2(dist2 / lod_threshold) / g_settings->getFloat("lod_quality"));
+
+	/*
 		Mark the block as urgent if requested
 	*/
 	if (urgent)
@@ -138,6 +150,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 			q->crack_pos = m_client->getCrackPos();
 			q->urgent |= urgent;
 			q->retrieveBlocks(map, mesh_grid.cell_size);
+			q->lod = lod;
 			return true;
 		}
 	}
@@ -153,6 +166,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
 	q->retrieveBlocks(map, mesh_grid.cell_size);
+	q->lod = lod;
 
 	/*
 		Air blocks won't suddenly become visible due to a neighbor update, so
@@ -213,7 +227,7 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
     MeshGrid mesh_grid = m_client->getMeshGrid();
     MeshMakeData *data = new MeshMakeData(m_client->ndef(),
-            MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid/*, q->lod*/);
+            MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid);
     q->data = data;
 
 	data->fillBlockDataBegin(q->p);
@@ -246,20 +260,8 @@ void MeshUpdateWorkerThread::doUpdate()
 	while ((q = m_queue_in->pop())) {
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
-		// /*
-		//  * Calculate LOD
-		//  */
-		const v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE // current player block
-						// other block positions are on the corner, so offset this position as well for dist calcs
-						- m_client->getMeshGrid().cell_size / 2;
-		const u16 dist2 = cam_pos.getDistanceFromSQ(q->p); // distance squared
-		u16 lod_threshold = g_settings->getU16("lod_threshold");
-		lod_threshold *= lod_threshold;
-		const u8 lod = dist2 < lod_threshold ? 0 :
-		1 + (u8)(std::log2(dist2 / lod_threshold) / g_settings->getFloat("lod_quality"));
-
 		// This generates the mesh:
-		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, lod, m_mono_material);
+		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, q->lod, m_mono_material);
 
 		MeshUpdateResult r;
 		r.p = q->p;
