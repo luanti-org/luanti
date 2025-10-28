@@ -179,7 +179,6 @@ private:
 	u16 m_frame_count = 1;
 
 	/// @note by default not owned by this struct
-	/// TODO. Change this to a shared pointer.
 	std::vector<FrameSpec> *m_frames = nullptr;
 };
 
