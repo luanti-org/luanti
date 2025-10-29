@@ -76,7 +76,7 @@ struct TileLayer
 	TileLayer() = default;
 
 	/*!
-	 * Two layers are equal if they can be merged.
+	 * Two layers are equal if they can be merged (same material).
 	 */
 	bool operator==(const TileLayer &other) const
 	{
@@ -86,8 +86,8 @@ struct TileLayer
 			material_flags == other.material_flags &&
 			has_color == other.has_color &&
 			color == other.color &&
-			scale == other.scale &&
 			need_polygon_offset == other.need_polygon_offset;
+		// texture_layer_idx and scale are notably part of the vertex data
 	}
 
 	/*!
@@ -147,6 +147,7 @@ struct TileLayer
 		MATERIAL_FLAG_TILEABLE_HORIZONTAL|
 		MATERIAL_FLAG_TILEABLE_VERTICAL;
 
+	/// Texture scale in both directions (used for world-align)
 	u8 scale = 1;
 
 	/// does this tile need to have a positive polygon offset set?

@@ -398,20 +398,19 @@ std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
 		return {{id, texture}};
 	}
 
-	video::ITexture *orginal_texture = tsrc->getTexture(image_name);
-	if (!orginal_texture)
+	auto texture_size = tsrc->getTextureDimensions(image_name);
+	if (!texture_size.Width || !texture_size.Height)
 		return {};
 
 	int frame_count = 1;
-	auto orginal_size = orginal_texture->getOriginalSize();
-	animation.determineParams(orginal_size, &frame_count, &result_frame_length_ms, nullptr);
+	animation.determineParams(texture_size, &frame_count, &result_frame_length_ms, nullptr);
 
 	std::vector<FrameSpec> frames(frame_count);
 	std::ostringstream os(std::ios::binary);
 	for (int i = 0; i < frame_count; i++) {
 		os.str("");
 		os << image_name;
-		animation.getTextureModifer(os, orginal_size, i);
+		animation.getTextureModifer(os, texture_size, i);
 
 		u32 id;
 		frames[i].texture = tsrc->getTextureForMesh(os.str(), &id);
