@@ -126,7 +126,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	const v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE // current player block
 		// other block positions are on the corner, so offset this position as well for dist calcs
 		- m_client->getMeshGrid().cell_size / 2;
-	const u16 dist2 = cam_pos.getDistanceFromSQ(p); // distance squared
+	const u16 dist2 = cam_pos.getDistanceFromSQ(mesh_grid.getMeshPos(p));
 	u16 lod_threshold = g_settings->getU16("lod_threshold");
 	lod_threshold *= lod_threshold;
 	const u8 lod = dist2 < lod_threshold ? 0 :
