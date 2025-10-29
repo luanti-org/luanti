@@ -342,6 +342,10 @@ Package - content which is downloadable from the content db, may or may not be i
           optional_depends = {"mod", "names"}, -- mods only
       }
       ```
+* `core.get_mod_list(path, virtual_path)`
+    * Returns a flat list of mod and modpack information found within the specified path.
+    * Each entry consists of the fields `name`, `author`, `release`, `description`,
+      `path`, `virtual_path`, `is_name_explicit`, `is_modpack`, `modpack_depth`.
 * `core.check_mod_configuration(world_path, mod_paths)`
     * Checks whether configuration is valid.
     * `world_path`: path to the world

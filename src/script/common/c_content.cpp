@@ -2653,11 +2653,13 @@ void push_mod_spec(lua_State *L, const ModSpec &spec, bool include_unsatisfied)
 	lua_pushstring(L, spec.virtual_path.c_str());
 	lua_setfield(L, -2, "virtual_path");
 
-	lua_newtable(L);
-	int i = 1;
-	for (const auto &dep : spec.unsatisfied_depends) {
-		lua_pushstring(L, dep.c_str());
-		lua_rawseti(L, -2, i++);
+	if (include_unsatisfied) {
+		lua_newtable(L);
+		int i = 1;
+		for (const auto &dep : spec.unsatisfied_depends) {
+			lua_pushstring(L, dep.c_str());
+			lua_rawseti(L, -2, i++);
+		}
+		lua_setfield(L, -2, "unsatisfied_depends");
 	}
-	lua_setfield(L, -2, "unsatisfied_depends");
 }

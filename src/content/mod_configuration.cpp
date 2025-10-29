@@ -58,7 +58,7 @@ void ModConfiguration::addMods(const std::vector<ModSpec> &new_mods)
 		std::set<std::string> seen_this_iteration;
 
 		for (const ModSpec &mod : new_mods) {
-			if (mod.part_of_modpack != want_from_modpack)
+			if ((mod.modpack_depth > 0) != want_from_modpack)
 				continue;
 
 			// unrelated to this code, but we want to assert it somewhere
