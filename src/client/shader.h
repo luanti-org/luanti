@@ -282,6 +282,11 @@ public:
 			video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
 		return getShader(name, ShaderConstants(), base_mat);
 	}
+
+	/**
+	 * @brief Returns true if 'sampler2DArray' is supported in GLSL
+	 */
+	virtual bool supportsSampler2DArray() const = 0;
 };
 
 class IWritableShaderSource : public IShaderSource {

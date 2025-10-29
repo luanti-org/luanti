@@ -405,6 +405,17 @@ public:
 		m_uniform_factories.emplace_back(std::move(setter));
 	}
 
+	bool supportsSampler2DArray() const override
+	{
+		auto *driver = RenderingEngine::get_video_driver();
+		if (driver->getDriverType() == video::EDT_OGLES2) {
+			// Funnily OpenGL ES 2.0 may support creating array textures
+			// with an extension, but to practically use them you need 3.0.
+			return m_have_glsl3;
+		}
+		return m_fully_programmable;
+	}
+
 private:
 
 	// The id of the thread that is allowed to use irrlicht directly

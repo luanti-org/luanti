@@ -892,16 +892,14 @@ static bool isWorldAligned(AlignStyle style, WorldAlignMode mode, NodeDrawType d
 }
 
 /// @return maximum number of layers in array textures we can use (0 if unsupported)
-static size_t getArrayTextureMax(video::IVideoDriver *driver)
+static size_t getArrayTextureMax(IShaderSource *shdsrc)
 {
-	// needs to actually support array textures
+	auto *driver = RenderingEngine::get_video_driver();
+	// needs to support creating array textures
 	if (!driver->queryFeature(video::EVDF_TEXTURE_2D_ARRAY))
 		return 0;
-	// must not be the legacy driver, due to custom vertex format
-	if (driver->getDriverType() == video::EDT_OPENGL)
-		return 0;
-	// doesn't work on GLES yet (TODO)
-	if (driver->getDriverType() == video::EDT_OGLES2)
+	// must support sampling from them
+	if (!shdsrc->supportsSampler2DArray())
 		return 0;
 	// shadow shaders can't handle array textures yet (TODO)
 	if (g_settings->getBool("enable_dynamic_shadows"))
@@ -1050,7 +1048,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		}
 	}
 
-	const bool texture_2d_array = getArrayTextureMax(RenderingEngine::get_video_driver()) > 1;
+	const bool texture_2d_array = getArrayTextureMax(shdsrc) > 1;
 	const auto &getNodeShader = [&] (MaterialType my_material, NodeDrawType my_drawtype) {
 		ShaderIds ret;
 		ret.normal = shdsrc->getShader("nodes_shader", my_material, my_drawtype);
@@ -1673,7 +1671,7 @@ void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_a
 	}
 
 	/* texture pre-loading stage */
-	const size_t arraymax = getArrayTextureMax(RenderingEngine::get_video_driver());
+	const size_t arraymax = getArrayTextureMax(shdsrc);
 	// Group by size
 	std::unordered_map<v2u32, std::vector<std::string_view>> sizes;
 	if (arraymax > 1) {

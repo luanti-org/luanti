@@ -1,5 +1,5 @@
 #ifdef USE_ARRAY_TEXTURE
-	uniform sampler2DArray baseTexture;
+	uniform mediump sampler2DArray baseTexture;
 #else
 	uniform sampler2D baseTexture;
 #endif
