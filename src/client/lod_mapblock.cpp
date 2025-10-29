@@ -20,55 +20,6 @@
 static constexpr u16 quad_indices_02[] = {0, 1, 2, 2, 3, 0};
 static const auto &quad_indices = quad_indices_02;
 
-// a binary search implementation of std::countr_zero
-u8 countr_zeros(u64 n) {
-	switch (n) {
-		case 0:
-			return 64;
-		case 0xFFFFFFFFFFFFFFFF:
-			return 0;
-		default:
-			break;
-	}
-	u8 out = 0;
-	if ((n & 0xFFFFFFFF) == 0) {
-		out += 32;
-		n >>= 32;
-	}
-	if ((n & 0xFFFF) == 0) {
-		out += 16;
-		n >>= 16;
-	}
-	if ((n & 0xFF) == 0) {
-		out += 8;
-		n >>= 8;
-	}
-	if ((n & 0xF) == 0) {
-		out += 4;
-		n >>= 4;
-	}
-	switch (n & 0xF) {
-		case 0b0000:
-			out += 4;
-			break;
-		case 0b1000:
-			out += 3;
-			break;
-		case 0b0100:
-		case 0b1100:
-			out += 2;
-			break;
-		case 0b0010:
-		case 0b0110:
-		case 0b1010:
-		case 0b1110:
-			out += 1;
-		default:
-			break;
-	}
-	return out;
-}
-
 LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, const bool is_mono_mat):
 	m_data(input),
 	m_collector(output),
@@ -109,10 +60,10 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 
 				bitset column = m_slices[slice_offset + u];
 				while (column) {
-					s32 v0 = countr_zeros(column);
+					s32 v0 = __builtin_ctzll(column);
 					// Shift the bitset down, so it has no low 0s anymore,
 					// then count the numer of low 1s to get the length of the greedy quad.
-					s32 v1 = countr_zeros(~(column >> v0));
+					s32 v1 = __builtin_ctzll(~(column >> v0));
 					const bitset mask = ((1ULL << v1) - 1) << v0;
 					column ^= mask;
 					// Determine the width of the greedy quad
@@ -328,7 +279,7 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 				for (u8 v = 0; v < BITSET_MAX_NOPAD; v++) {
 					bitset column = m_nodes_faces[u_offset + v];
 					while (column) {
-						const u8 first_filled = countr_zeros(column);
+						const u8 first_filled = __builtin_ctzll(column);
 						m_slices[direction_offset + BITSET_MAX_NOPAD * first_filled + u] |= 1ULL << v;
 						column &= column - 1;
 					}
