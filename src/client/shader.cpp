@@ -410,6 +410,11 @@ private:
 	// The id of the thread that is allowed to use irrlicht directly
 	std::thread::id m_main_thread;
 
+	// Driver has fully programmable pipeline?
+	bool m_fully_programmable = false;
+	// Driver supports GLSL (ES) 3.x?
+	bool m_have_glsl3 = false;
+
 	// Cache of source shaders
 	// This should be only accessed from the main thread
 	SourceShaderCache m_sourcecache;
@@ -459,6 +464,25 @@ ShaderSource::ShaderSource()
 	// Add global stuff
 	addShaderConstantSetter(std::make_unique<MainShaderConstantSetter>());
 	addShaderUniformSetterFactory(std::make_unique<MainShaderUniformSetterFactory>());
+
+	auto *driver = RenderingEngine::get_video_driver();
+	const auto driver_type = driver->getDriverType();
+	if (driver_type != video::EDT_NULL) {
+		auto *gpu = driver->getGPUProgrammingServices();
+		if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu)
+			throw ShaderException(gettext("GLSL is not supported by the driver"));
+
+		v2s32 glver = driver->getLimits().GLVersion;
+		infostream << "ShaderSource: driver reports GL version " << glver.X << "."
+			<< glver.Y << std::endl;
+		assert(glver.X >= 2);
+		m_fully_programmable = driver_type != video::EDT_OPENGL;
+		if (driver_type == video::EDT_OGLES2) {
+			m_have_glsl3 = glver.X >= 3;
+		} else if (driver_type == video::EDT_OPENGL3) {
+			// future TODO
+		}
+	}
 }
 
 ShaderSource::~ShaderSource()
@@ -467,7 +491,6 @@ ShaderSource::~ShaderSource()
 
 	// Delete materials
 	auto *gpu = RenderingEngine::get_video_driver()->getGPUProgrammingServices();
-	assert(gpu);
 	u32 n = 0;
 	for (ShaderInfo &i : m_shaderinfo_cache) {
 		if (!i.name.empty()) {
@@ -639,24 +662,31 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	}
 
 	auto *gpu = driver->getGPUProgrammingServices();
-	if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu) {
-		throw ShaderException(gettext("GLSL is not supported by the driver"));
-	}
+	assert(gpu);
 
 	// Create shaders header
-	bool fully_programmable = driver->getDriverType() == video::EDT_OGLES2 || driver->getDriverType() == video::EDT_OPENGL3;
 	std::ostringstream shaders_header;
 	shaders_header
 		<< std::noboolalpha
 		<< std::showpoint // for GLSL ES
 		;
 	std::string vertex_header, fragment_header, geometry_header;
-	if (fully_programmable) {
+	if (m_fully_programmable) {
+		const bool use_glsl3 = m_have_glsl3;
 		if (driver->getDriverType() == video::EDT_OPENGL3) {
+			assert(!use_glsl3);
 			shaders_header << "#version 150\n";
+		} else if (driver->getDriverType() == video::EDT_OGLES2) {
+			shaders_header << (use_glsl3 ? "#version 300 es\n" : "#version 100\n");
 		} else {
-			shaders_header << "#version 100\n";
+			assert(false);
 		}
+		if (use_glsl3) {
+			shaders_header << "#define ATTRIBUTE_(n) layout(location = n) in\n";
+		} else {
+			shaders_header << "#define ATTRIBUTE_(n) attribute\n";
+		}
+
 		// cf. EVertexAttributes.h for the predefined ones
 		vertex_header = R"(
 			precision mediump float;
@@ -665,21 +695,34 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			uniform highp mat4 mWorldViewProj;
 			uniform mediump mat4 mTexture;
 
-			attribute highp vec4 inVertexPosition;
-			attribute mediump vec3 inVertexNormal;
-			attribute lowp vec4 inVertexColor;
-			attribute mediump float inVertexAux;
-			attribute mediump vec2 inTexCoord0;
-			attribute mediump vec2 inTexCoord1;
-			attribute mediump vec4 inVertexTangent;
-			attribute mediump vec4 inVertexBinormal;
+			ATTRIBUTE_(0) highp vec4 inVertexPosition;
+			ATTRIBUTE_(1) mediump vec3 inVertexNormal;
+			ATTRIBUTE_(2) lowp vec4 inVertexColor;
+			ATTRIBUTE_(3) mediump float inVertexAux;
+			ATTRIBUTE_(4) mediump vec2 inTexCoord0;
+			ATTRIBUTE_(5) mediump vec2 inTexCoord1;
+			ATTRIBUTE_(6) mediump vec4 inVertexTangent;
+			ATTRIBUTE_(7) mediump vec4 inVertexBinormal;
 		)";
+		if (use_glsl3) {
+			vertex_header += "#define VARYING_ out\n";
+		} else {
+			vertex_header += "#define VARYING_ varying\n";
+		}
 		// Our vertex color has components reversed compared to what OpenGL
 		// normally expects, so we need to take that into account.
 		vertex_header += "#define inVertexColor (inVertexColor.bgra)\n";
+
 		fragment_header = R"(
 			precision mediump float;
 		)";
+		if (use_glsl3) {
+			fragment_header += "#define VARYING_ in\n"
+				"#define gl_FragColor outFragColor\n"
+				"layout(location = 0) out vec4 outFragColor;\n";
+		} else {
+			fragment_header += "#define VARYING_ varying\n";
+		}
 	} else {
 		/* legacy OpenGL driver */
 		shaders_header << R"(
@@ -699,6 +742,11 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			#define inVertexNormal gl_Normal
 			#define inVertexTangent gl_MultiTexCoord1
 			#define inVertexBinormal gl_MultiTexCoord2
+
+			#define VARYING_ varying
+		)";
+		fragment_header = R"(
+			#define VARYING_ varying
 		)";
 	}
 
@@ -719,7 +767,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 	ShaderConstants constants = input_const;
 
-	bool use_discard = fully_programmable;
+	bool use_discard = m_fully_programmable;
 	if (!use_discard) {
 		// workaround for a certain OpenGL implementation lacking GL_ALPHA_TEST
 		const char *renderer = reinterpret_cast<const char*>(GL.GetString(GL.RENDERER));
