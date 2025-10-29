@@ -68,7 +68,7 @@ bool parseModContents(ModSpec &spec)
 	if (fs::IsFile(spec.path + DIR_DELIM + "modpack.txt") ||
 			fs::IsFile(spec.path + DIR_DELIM + "modpack.conf")) {
 		spec.is_modpack = true;
-		spec.modpack_content = getModsInPath(spec.path, spec.virtual_path, true);
+		spec.modpack_content = getModsInPath(spec.path, spec.virtual_path, spec.modpack_depth + 1);
 		return true;
 	} else if (!fs::IsFile(spec.path + DIR_DELIM + "init.lua")) {
 		return false;
@@ -78,10 +78,12 @@ bool parseModContents(ModSpec &spec)
 	Settings info;
 	info.readConfigFile((spec.path + DIR_DELIM + "mod.conf").c_str());
 
-	if (info.exists("name"))
+	if (info.exists("name")) {
 		spec.name = info.get("name");
-	else
+		spec.is_name_explicit = true;
+	} else {
 		spec.deprecation_msgs.push_back("Mods not having a mod.conf file with the name is deprecated.");
+	}
 
 	if (info.exists("author"))
 		spec.author = info.get("author");
@@ -147,7 +149,7 @@ bool parseModContents(ModSpec &spec)
 }
 
 std::map<std::string, ModSpec> getModsInPath(
-		const std::string &path, const std::string &virtual_path, bool part_of_modpack)
+		const std::string &path, const std::string &virtual_path, int modpack_depth)
 {
 	// NOTE: this function works in mutual recursion with parseModContents
 
@@ -174,7 +176,7 @@ std::map<std::string, ModSpec> getModsInPath(
 		// Intentionally uses / to keep paths same on different platforms
 		mod_virtual_path.append(virtual_path).append("/").append(modname);
 
-		ModSpec spec(modname, mod_path, part_of_modpack, mod_virtual_path);
+		ModSpec spec(modname, mod_path, modpack_depth, mod_virtual_path);
 		if (parseModContents(spec)) {
 			result[modname] = std::move(spec);
 		}
@@ -182,19 +184,19 @@ std::map<std::string, ModSpec> getModsInPath(
 	return result;
 }
 
-std::vector<ModSpec> flattenMods(const std::map<std::string, ModSpec> &mods)
+std::vector<ModSpec> flattenMods(const std::map<std::string, ModSpec> &mods,
+		bool discard_modpacks)
 {
 	std::vector<ModSpec> result;
 	for (const auto &it : mods) {
 		const ModSpec &mod = it.second;
+		if (!mod.is_modpack || !discard_modpacks) {
+			result.push_back(mod);
+		}
 		if (mod.is_modpack) {
 			std::vector<ModSpec> content = flattenMods(mod.modpack_content);
 			result.reserve(result.size() + content.size());
 			result.insert(result.end(), content.begin(), content.end());
-
-		} else // not a modpack
-		{
-			result.push_back(mod);
 		}
 	}
 	return result;
