@@ -1088,6 +1088,7 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	u32 vertex_count = 0;
 	u32 drawcall_count = 0;
 	u32 material_swaps = 0;
+	u32 array_texture_use = 0;
 
 	// Render all mesh buffers in order
 	drawcall_count += draw_order.size();
@@ -1117,8 +1118,12 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 				layer.MagFilter = video::ETMAGF_NEAREST;
 				layer.AnisotropicFilter = 0;
 			}
+
 			driver->setMaterial(material);
 			++material_swaps;
+			if (auto *tex = material.getTexture(0); tex && tex->getType() == video::ETT_2D_ARRAY)
+				++array_texture_use;
+
 			material.TextureLayers[ShadowRenderer::TEXTURE_LAYER_SHADOW].Texture = nullptr;
 		}
 
@@ -1158,6 +1163,10 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	g_profiler->avg(prefix + "vertices drawn [#]", vertex_count);
 	g_profiler->avg(prefix + "drawcalls [#]", drawcall_count);
 	g_profiler->avg(prefix + "material swaps [#]", material_swaps);
+	if (material_swaps && array_texture_use) {
+		int percent = (100.0f * array_texture_use) / material_swaps;
+		g_profiler->avg(prefix + "array texture use [%]", percent);
+	}
 }
 
 void ClientMap::invalidateMapBlockMesh(MapBlockMesh *mesh)
