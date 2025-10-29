@@ -3,15 +3,15 @@
 uniform sampler2D rendered;
 uniform vec2 texelSize0;
 
-varying vec2 sampleNW;
-varying vec2 sampleNE;
-varying vec2 sampleSW;
-varying vec2 sampleSE;
+VARYING_ vec2 sampleNW;
+VARYING_ vec2 sampleNE;
+VARYING_ vec2 sampleSW;
+VARYING_ vec2 sampleSE;
 
 #ifdef GL_ES
-varying mediump vec2 varTexCoord;
+VARYING_ mediump vec2 varTexCoord;
 #else
-centroid varying vec2 varTexCoord;
+centroid VARYING_ vec2 varTexCoord;
 #endif
 
 /**
@@ -63,7 +63,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 vec4 fxaa(sampler2D tex, vec2 fragCoord, vec2 inverseVP,
             vec2 v_rgbNW, vec2 v_rgbNE,
             vec2 v_rgbSW, vec2 v_rgbSE,
-            vec2 v_rgbM) {
+            vec2 v_rgbM)
+{
     vec4 color;
     vec3 rgbNW = texture2D(tex, v_rgbNW).xyz;
     vec3 rgbNE = texture2D(tex, v_rgbNE).xyz;

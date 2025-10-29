@@ -1,13 +1,13 @@
-varying vec3 vNormal;
-varying vec3 vPosition;
+VARYING_ vec3 vNormal;
+VARYING_ vec3 vPosition;
 #ifdef GL_ES
-varying lowp vec4 varColor;
-varying mediump vec2 varTexCoord;
-varying float varTexLayer;
+VARYING_ lowp vec4 varColor;
+VARYING_ mediump vec2 varTexCoord;
+VARYING_ float varTexLayer;
 #else
-centroid varying vec4 varColor;
-centroid varying vec2 varTexCoord;
-centroid varying float varTexLayer; // actually int
+centroid VARYING_ vec4 varColor;
+centroid VARYING_ vec2 varTexCoord;
+centroid VARYING_ float varTexLayer; // actually int
 #endif
 
 void main(void)

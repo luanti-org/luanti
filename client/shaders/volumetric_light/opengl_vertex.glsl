@@ -1,9 +1,8 @@
 #ifdef GL_ES
-varying mediump vec2 varTexCoord;
+VARYING_ mediump vec2 varTexCoord;
 #else
-centroid varying vec2 varTexCoord;
+centroid VARYING_ vec2 varTexCoord;
 #endif
-
 
 void main(void)
 {

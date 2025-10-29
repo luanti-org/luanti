@@ -1,15 +1,15 @@
 uniform vec2 texelSize0;
 
 #ifdef GL_ES
-varying mediump vec2 varTexCoord;
+VARYING_ mediump vec2 varTexCoord;
 #else
-centroid varying vec2 varTexCoord;
+centroid VARYING_ vec2 varTexCoord;
 #endif
 
-varying vec2 sampleNW;
-varying vec2 sampleNE;
-varying vec2 sampleSW;
-varying vec2 sampleSE;
+VARYING_ vec2 sampleNW;
+VARYING_ vec2 sampleNE;
+VARYING_ vec2 sampleSW;
+VARYING_ vec2 sampleSE;
 
 /*
 Based on

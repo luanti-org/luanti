@@ -3,16 +3,16 @@ uniform vec3 dayLight;
 uniform float animationTimer;
 uniform lowp vec4 materialColor;
 
-varying vec3 vNormal;
-varying vec3 vPosition;
-varying vec3 worldPosition;
-varying lowp vec4 varColor;
+VARYING_ vec3 vNormal;
+VARYING_ vec3 vPosition;
+VARYING_ vec3 worldPosition;
+VARYING_ lowp vec4 varColor;
 #ifdef GL_ES
-varying mediump vec2 varTexCoord;
-varying float varTexLayer;
+VARYING_ mediump vec2 varTexCoord;
+VARYING_ float varTexLayer;
 #else
-centroid varying vec2 varTexCoord;
-centroid varying float varTexLayer; // actually int
+centroid VARYING_ vec2 varTexCoord;
+centroid VARYING_ float varTexLayer; // actually int
 #endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
@@ -25,18 +25,18 @@ centroid varying float varTexLayer; // actually int
 	uniform float f_timeofday;
 	uniform vec4 CameraPos;
 
-	varying float cosLight;
-	varying float adj_shadow_strength;
-	varying float f_normal_length;
-	varying vec3 shadow_position;
-	varying float perspective_factor;
+	VARYING_ float cosLight;
+	VARYING_ float adj_shadow_strength;
+	VARYING_ float f_normal_length;
+	VARYING_ vec3 shadow_position;
+	VARYING_ float perspective_factor;
 #endif
 
-varying highp vec3 eyeVec;
-varying float nightRatio;
+VARYING_ highp vec3 eyeVec;
+VARYING_ float nightRatio;
 // Color of the light emitted by the light sources.
 const vec3 artificialLight = vec3(1.04, 1.04, 1.04);
-varying float vIDiff;
+VARYING_ float vIDiff;
 const float e = 2.718281828459;
 const float BS = 10.0;
 uniform float xyPerspectiveBias0;
