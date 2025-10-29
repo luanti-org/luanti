@@ -66,14 +66,6 @@ RemoteClient::RemoteClient() :
 {
 }
 
-void RemoteClient::ResendBlockIfOnWire(v3s16 p)
-{
-	// if this block is on wire, mark it for sending again as soon as possible
-	if (m_blocks_sending.find(p) != m_blocks_sending.end()) {
-		SetBlockNotSent(p);
-	}
-}
-
 static LuaEntitySAO *getAttachedObject(PlayerSAO *sao, ServerEnvironment *env)
 {
 	ServerActiveObject *ao = sao;
@@ -450,6 +442,30 @@ void RemoteClient::SetBlocksNotSent(const std::vector<v3s16> &blocks, bool low_p
 {
 	for (v3s16 p : blocks) {
 		SetBlockNotSent(p, low_priority);
+	}
+}
+
+void RemoteClient::respondToInteraction(InteractAction action,
+	const PointedThing &pointed, bool prediction_success)
+{
+	if ((action != INTERACT_PLACE && action != INTERACT_DIGGING_COMPLETED)
+			|| pointed.type != POINTEDTHING_NODE)
+		// The client has not predicted not node changes
+		return;
+
+	// The client may have an outdated mapblock if the placement or dig
+	// prediction was wrong or if an old mapblock is still being sent to it.
+	v3s16 blockpos = getNodeBlockPos(pointed.node_undersurface);
+	if (!prediction_success
+			|| m_blocks_sending.find(blockpos) != m_blocks_sending.end()) {
+		SetBlockNotSent(blockpos);
+	}
+	if (action != INTERACT_PLACE)
+		return;
+	v3s16 blockpos2 = getNodeBlockPos(pointed.node_abovesurface);
+	if (blockpos2 != blockpos && (!prediction_success
+			|| m_blocks_sending.find(blockpos2) != m_blocks_sending.end())) {
+		SetBlockNotSent(blockpos2);
 	}
 }
 
