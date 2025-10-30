@@ -5,7 +5,7 @@
 #include "guiScene.h"
 
 #include <SViewFrustum.h>
-#include <IAnimatedMeshSceneNode.h>
+#include <CAnimatedMeshSceneNode.h>
 #include <IVideoDriver.h>
 #include <ISceneManager.h>
 #include "porting.h"
@@ -29,7 +29,7 @@ GUIScene::~GUIScene()
 	m_smgr->drop();
 }
 
-scene::IAnimatedMeshSceneNode *GUIScene::setMesh(scene::IAnimatedMesh *mesh)
+scene::CAnimatedMeshSceneNode *GUIScene::setMesh(scene::IAnimatedMesh *mesh)
 {
 	if (m_mesh) {
 		m_mesh->remove();

@@ -12,7 +12,7 @@
 #include "IImageLoader.h"
 #include "IImageWriter.h"
 #include "IMaterialRenderer.h"
-#include "IAnimatedMeshSceneNode.h"
+#include "CAnimatedMeshSceneNode.h"
 #include "CMeshManipulator.h"
 #include "CColorConverter.h"
 #include "IReferenceCounted.h"
@@ -1244,7 +1244,7 @@ void CNullDriver::addOcclusionQuery(scene::ISceneNode *node, const scene::IMesh 
 		else if (node->getType() == scene::ESNT_MESH)
 			mesh = static_cast<scene::IMeshSceneNode *>(node)->getMesh();
 		else
-			mesh = static_cast<scene::IAnimatedMeshSceneNode *>(node)->getMesh();
+			mesh = static_cast<scene::CAnimatedMeshSceneNode *>(node)->getMesh();
 		if (!mesh)
 			return;
 	}

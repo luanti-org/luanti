@@ -4,6 +4,7 @@
 
 #include "CAnimatedMeshSceneNode.h"
 #include "CBoneSceneNode.h"
+#include "ISceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
 #include "S3DVertex.h"
@@ -34,7 +35,7 @@ CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(IAnimatedMesh *mesh,
 		const core::vector3df &position,
 		const core::vector3df &rotation,
 		const core::vector3df &scale) :
-		IAnimatedMeshSceneNode(parent, mgr, id, position, rotation, scale),
+		ISceneNode(parent, mgr, id, position, rotation, scale),
 		Mesh(nullptr),
 		StartFrame(0), EndFrame(0), FramesPerSecond(0.025f),
 		CurrentFrameNr(0.f), LastTimeMs(0),
@@ -186,7 +187,7 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	if (OnAnimateCallback)
 		OnAnimateCallback(dtimeMs / 1000.0f);
 
-	IAnimatedMeshSceneNode::OnAnimate(timeMs);
+	ISceneNode::OnAnimate(timeMs);
 
 	if (auto *skinnedMesh = dynamic_cast<SkinnedMesh*>(Mesh)) {
 		for (u16 i = 0; i < PerJoint.SceneNodes.size(); ++i)
@@ -522,7 +523,7 @@ void CAnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 //! updates the absolute position based on the relative and the parents position
 void CAnimatedMeshSceneNode::updateAbsolutePosition()
 {
-	IAnimatedMeshSceneNode::updateAbsolutePosition();
+	ISceneNode::updateAbsolutePosition();
 }
 
 //! Sets the transition time in seconds (note: This needs to enable joints)
