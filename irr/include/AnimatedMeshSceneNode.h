@@ -16,17 +16,17 @@
 namespace scene
 {
 
-class CAnimatedMeshSceneNode : public ISceneNode
+class AnimatedMeshSceneNode : public ISceneNode
 {
 public:
 	//! constructor
-	CAnimatedMeshSceneNode(IAnimatedMesh *mesh, ISceneNode *parent, ISceneManager *mgr, s32 id,
+	AnimatedMeshSceneNode(IAnimatedMesh *mesh, ISceneNode *parent, ISceneManager *mgr, s32 id,
 			const core::vector3df &position = core::vector3df(0, 0, 0),
 			const core::vector3df &rotation = core::vector3df(0, 0, 0),
 			const core::vector3df &scale = core::vector3df(1.0f, 1.0f, 1.0f));
 
 	//! destructor
-	virtual ~CAnimatedMeshSceneNode();
+	virtual ~AnimatedMeshSceneNode();
 
 	//! frame
 	void OnRegisterSceneNode() override;

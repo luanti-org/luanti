@@ -22,7 +22,7 @@
 #include "CB3DMeshFileLoader.h"
 #include "CGLTFMeshFileLoader.h"
 #include "CBillboardSceneNode.h"
-#include "CAnimatedMeshSceneNode.h"
+#include "AnimatedMeshSceneNode.h"
 #include "CCameraSceneNode.h"
 #include "CMeshSceneNode.h"
 #include "CDummyTransformationSceneNode.h"
@@ -177,7 +177,7 @@ IMeshSceneNode *CSceneManager::addMeshSceneNode(IMesh *mesh, ISceneNode *parent,
 }
 
 //! adds a scene node for rendering an animated mesh model
-CAnimatedMeshSceneNode *CSceneManager::addAnimatedMeshSceneNode(IAnimatedMesh *mesh, ISceneNode *parent, s32 id,
+AnimatedMeshSceneNode *CSceneManager::addAnimatedMeshSceneNode(IAnimatedMesh *mesh, ISceneNode *parent, s32 id,
 		const core::vector3df &position, const core::vector3df &rotation,
 		const core::vector3df &scale, bool alsoAddIfMeshPointerZero)
 {
@@ -188,7 +188,7 @@ CAnimatedMeshSceneNode *CSceneManager::addAnimatedMeshSceneNode(IAnimatedMesh *m
 		parent = this;
 
 	auto *node =
-			new CAnimatedMeshSceneNode(mesh, parent, this, id, position, rotation, scale);
+			new AnimatedMeshSceneNode(mesh, parent, this, id, position, rotation, scale);
 	node->drop();
 
 	return node;

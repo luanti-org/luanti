@@ -19,7 +19,7 @@
 namespace scene {
 	class IMeshSceneNode;
 	class IBillboardSceneNode;
-	class CAnimatedMeshSceneNode;
+	class AnimatedMeshSceneNode;
 }
 
 class Client;
@@ -89,7 +89,7 @@ private:
 
 	// Visuals
 	scene::IMeshSceneNode *m_meshnode = nullptr;
-	scene::CAnimatedMeshSceneNode *m_animated_meshnode = nullptr;
+	scene::AnimatedMeshSceneNode *m_animated_meshnode = nullptr;
 	WieldMeshSceneNode *m_wield_meshnode = nullptr;
 	scene::IBillboardSceneNode *m_spritenode = nullptr;
 	scene::IDummyTransformationSceneNode *m_matrixnode = nullptr;
@@ -191,7 +191,7 @@ public:
 
 	scene::ISceneNode *getSceneNode() const override;
 
-	scene::CAnimatedMeshSceneNode *getAnimatedMeshSceneNode() const override;
+	scene::AnimatedMeshSceneNode *getAnimatedMeshSceneNode() const override;
 
 	// m_matrixnode controls the position and rotation of the child node
 	// for all scene nodes, as a workaround for an Irrlicht problem with

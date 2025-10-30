@@ -6,7 +6,7 @@
 #include <IBillboardSceneNode.h>
 #include <ICameraSceneNode.h>
 #include <IMeshManipulator.h>
-#include <CAnimatedMeshSceneNode.h>
+#include <AnimatedMeshSceneNode.h>
 #include <ISceneNode.h>
 #include "client/client.h"
 #include "client/renderingengine.h"
@@ -400,7 +400,7 @@ scene::ISceneNode *GenericCAO::getSceneNode() const
 	return NULL;
 }
 
-scene::CAnimatedMeshSceneNode *GenericCAO::getAnimatedMeshSceneNode() const
+scene::AnimatedMeshSceneNode *GenericCAO::getAnimatedMeshSceneNode() const
 {
 	return m_animated_meshnode;
 }
@@ -1433,7 +1433,7 @@ void GenericCAO::updateAttachments()
 	{
 		parent->updateAttachments();
 		scene::ISceneNode *parent_node = parent->getSceneNode();
-		scene::CAnimatedMeshSceneNode *parent_animated_mesh_node =
+		scene::AnimatedMeshSceneNode *parent_animated_mesh_node =
 				parent->getAnimatedMeshSceneNode();
 		if (parent_animated_mesh_node && !m_attachment_bone.empty()) {
 			parent_node = parent_animated_mesh_node->getJointNode(m_attachment_bone.c_str());

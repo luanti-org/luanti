@@ -45,7 +45,7 @@
 #include "version.h"
 #include "script/scripting_client.h"
 #include "hud.h"
-#include <CAnimatedMeshSceneNode.h>
+#include <AnimatedMeshSceneNode.h>
 #include "util/tracy_wrapper.h"
 #include "item_visuals_manager.h"
 
@@ -2246,7 +2246,7 @@ static void pauseNodeAnimation(PausedNodesList &paused, scene::ISceneNode *node)
 		pauseNodeAnimation(paused, child);
 	if (node->getType() != scene::ESNT_ANIMATED_MESH)
 		return;
-	auto animated_node = static_cast<scene::CAnimatedMeshSceneNode *>(node);
+	auto animated_node = static_cast<scene::AnimatedMeshSceneNode *>(node);
 	float speed = animated_node->getAnimationSpeed();
 	if (!speed)
 		return;

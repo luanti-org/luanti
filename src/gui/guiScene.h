@@ -6,7 +6,7 @@
 
 #include "ICameraSceneNode.h"
 #include "StyleSpec.h"
-#include <CAnimatedMeshSceneNode.h>
+#include <AnimatedMeshSceneNode.h>
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
 
@@ -19,7 +19,7 @@ public:
 
 	~GUIScene();
 
-	scene::CAnimatedMeshSceneNode *setMesh(scene::IAnimatedMesh *mesh = nullptr);
+	scene::AnimatedMeshSceneNode *setMesh(scene::IAnimatedMesh *mesh = nullptr);
 	void setTexture(u32 idx, video::ITexture *texture);
 	void setBackgroundColor(const video::SColor &color) noexcept { m_bgcolor = color; };
 	void setFrameLoop(f32 begin, f32 end);
@@ -49,7 +49,7 @@ private:
 	video::IVideoDriver *m_driver;
 	scene::ICameraSceneNode *m_cam;
 	scene::ISceneNode *m_target = nullptr;
-	scene::CAnimatedMeshSceneNode *m_mesh = nullptr;
+	scene::AnimatedMeshSceneNode *m_mesh = nullptr;
 
 	f32 m_cam_distance = 50.f;
 
