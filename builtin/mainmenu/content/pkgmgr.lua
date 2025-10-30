@@ -294,11 +294,8 @@ function pkgmgr.render_packagelist(render_list, use_technical_names, with_icon)
 		end
 
 		retval[#retval + 1] = color
-		if v.modpack ~= nil or v.loc == "game" then
-			retval[#retval + 1] = "1"
-		else
-			retval[#retval + 1] = "0"
-		end
+		-- `v.modpack_depth` is `nil` for the selected game (treated as level 0)
+		retval[#retval + 1] = (v.modpack_depth or 0) + (v.loc == "game" and 1 or 0)
 
 		if with_icon then
 			retval[#retval + 1] = icon
