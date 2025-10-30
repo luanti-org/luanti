@@ -44,7 +44,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 			// When generating a mesh with no texture, we have to color the vertices instead.
 			video::SColor c2 = m_nodedef->get(n).average_colors[direction];
 			color = video::SColor(
-				color.getAlpha(),
+				color_in.getAlpha(),
 				color_in.getRed() * c2.getRed() / 255U,
 				color_in.getGreen() * c2.getGreen() / 255U,
 				color_in.getBlue() * c2.getBlue() / 255U);
