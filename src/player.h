@@ -204,6 +204,16 @@ public:
 	void setWieldIndex(u16 index);
 	u16 getWieldIndex();
 
+	const std::string &getWieldListName() const
+	{
+		return m_wield_list_name;
+	}
+
+	void setWieldListName(const std::string &name)
+	{
+		m_wield_list_name = name;
+	}
+
 	bool setFov(const PlayerFovSpec &spec)
 	{
 		if (m_fov_override_spec == spec)
@@ -233,6 +243,7 @@ protected:
 	std::string m_name;
 	v3f m_speed; // velocity; in BS-space
 	u16 m_wield_index = 0;
+	std::string m_wield_list_name;
 	PlayerFovSpec m_fov_override_spec = { 0.0f, false, 0.0f };
 
 private:
