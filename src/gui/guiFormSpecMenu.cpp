@@ -23,7 +23,7 @@
 #include <IGUIFont.h>
 #include <IGUITabControl.h>
 #include <IGUIImage.h>
-#include <IAnimatedMeshSceneNode.h>
+#include <AnimatedMeshSceneNode.h>
 #include "client/renderingengine.h"
 #include "client/joystick_controller.h"
 #include "log.h"

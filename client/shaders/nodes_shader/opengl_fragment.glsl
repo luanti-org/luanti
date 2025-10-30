@@ -1,4 +1,6 @@
 uniform sampler2D baseTexture;
+#define crackTexture texture1
+uniform sampler2D crackTexture;
 
 uniform vec3 dayLight;
 uniform lowp vec4 fogColor;
@@ -9,6 +11,10 @@ uniform float fogShadingParameter;
 uniform highp vec3 cameraOffset;
 uniform vec3 cameraPosition;
 uniform float animationTimer;
+uniform float crackAnimationLength;
+uniform float crackLevel;
+uniform float crackTextureScale;
+
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow texture
 	uniform sampler2D ShadowMapSampler;
@@ -411,9 +417,18 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 #endif
 #endif
 
+// maps [0, N] to [0, 1] like GL_REPEAT would
+vec2 uv_repeat(vec2 v)
+{
+	if (v.x > 1.0)
+		v.x = fract(v.x);
+	if (v.y > 1.0)
+		v.y = fract(v.y);
+	return v;
+}
+
 void main(void)
 {
-	vec3 color;
 	vec2 uv = varTexCoord.st;
 
 	vec4 base = texture2D(baseTexture, uv).rgba;
@@ -429,8 +444,19 @@ void main(void)
 		discard;
 #endif
 
-	color = base.rgb;
-	vec4 col = vec4(color.rgb * varColor.rgb, 1.0);
+	// Apply crack overlay
+	float crack_progress = min(crackLevel, crackAnimationLength - 1.0);
+	if (crack_progress >= 0.0) {
+		// undo scaling of e.g. world-aligned nodes
+		vec2 orig_uv = uv_repeat(uv * vec2(crackTextureScale));
+
+		vec2 cuv_offset = vec2(0.0, crack_progress / crackAnimationLength);
+		vec2 cuv_factor = vec2(1.0, 1.0 / crackAnimationLength);
+		vec4 crack = texture2D(crackTexture, cuv_offset + orig_uv * cuv_factor);
+		base = mix(base, crack, crack.a);
+	}
+
+	vec4 col = vec4(base.rgb * varColor.rgb, 1.0);
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// Fragment normal, can differ from vNormal which is derived from vertex normals.
@@ -570,5 +596,5 @@ void main(void)
 	col = mix(fogColor * pow(fogColor / fogColorMax, vec4(2.0 * clarity)), col, clarity);
 	col = vec4(col.rgb, base.a);
 
-	gl_FragData[0] = col;
+	gl_FragColor = col;
 }

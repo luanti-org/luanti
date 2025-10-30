@@ -185,7 +185,7 @@ public:
 	//   faraway: whether the block is far away from the camera (~50 nodes)
 	//   time: the global animation time, 0 .. 60 (repeats every minute)
 	//   daynight_ratio: 0 .. 1000
-	//   crack: -1 .. CRACK_ANIMATION_LENGTH-1 (-1 for off)
+	//   crack: -1 .. CRACK_ANIMATION_LENGTH (-1 for off)
 	// Returns true if anything has been changed.
 	bool animate(bool faraway, float time, int crack, u32 daynight_ratio);
 
@@ -257,7 +257,27 @@ public:
 		return m_transparent_buffers;
 	}
 
+	/**
+	 * Texture layer in SMaterial where the crack texture is put
+	 */
+	static const int TEXTURE_LAYER_CRACK = 1;
+
+	static float packCrackMaterialParam(int crack, u8 layer_scale)
+	{
+		// +1 so that the default MaterialTypeParam = 0 is a no-op,
+		// since the shader needs to know when to actually apply the crack.
+		u32 n = (layer_scale << 16) | (u16) (crack + 1);
+		return n;
+	}
+	static std::pair<int, u8> unpackCrackMaterialParam(float param)
+	{
+		u32 n = param;
+		return std::make_pair<int, u8>((n & 0xffff) - 1, (n >> 16) & 0xff);
+	}
+
 private:
+
+	typedef std::pair<u8 /* layer index */, u32 /* buffer index */> MeshIndex;
 
 	irr_ptr<scene::IMesh> m_mesh[MAX_TILE_LAYERS];
 	std::vector<MinimapMapblock*> m_minimap_mapblocks;
@@ -274,13 +294,12 @@ private:
 	// Animation info: cracks
 	// Last crack value passed to animate()
 	int m_last_crack;
-	// Maps mesh and mesh buffer (i.e. material) indices to base texture names
-	std::map<std::pair<u8, u32>, std::string> m_crack_materials;
+	// Indicates which materials to apply the crack to
+	std::vector<MeshIndex> m_crack_materials;
 
 	// Animation info: texture animation
 	// Maps mesh and mesh buffer indices to TileSpecs
-	// Keys are pairs of (mesh index, buffer index in the mesh)
-	std::map<std::pair<u8, u32>, AnimationInfo> m_animation_info;
+	std::map<MeshIndex, AnimationInfo> m_animation_info;
 
 	// list of all semitransparent triangles in the mapblock
 	std::vector<MeshTriangle> m_transparent_triangles;

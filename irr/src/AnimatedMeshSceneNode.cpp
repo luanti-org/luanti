@@ -2,8 +2,9 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#include "CAnimatedMeshSceneNode.h"
+#include "AnimatedMeshSceneNode.h"
 #include "CBoneSceneNode.h"
+#include "ISceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
 #include "S3DVertex.h"
@@ -29,12 +30,12 @@ namespace scene
 {
 
 //! constructor
-CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(IAnimatedMesh *mesh,
+AnimatedMeshSceneNode::AnimatedMeshSceneNode(IAnimatedMesh *mesh,
 		ISceneNode *parent, ISceneManager *mgr, s32 id,
 		const core::vector3df &position,
 		const core::vector3df &rotation,
 		const core::vector3df &scale) :
-		IAnimatedMeshSceneNode(parent, mgr, id, position, rotation, scale),
+		ISceneNode(parent, mgr, id, position, rotation, scale),
 		Mesh(nullptr),
 		StartFrame(0), EndFrame(0), FramesPerSecond(0.025f),
 		CurrentFrameNr(0.f), LastTimeMs(0),
@@ -47,14 +48,14 @@ CAnimatedMeshSceneNode::CAnimatedMeshSceneNode(IAnimatedMesh *mesh,
 }
 
 //! destructor
-CAnimatedMeshSceneNode::~CAnimatedMeshSceneNode()
+AnimatedMeshSceneNode::~AnimatedMeshSceneNode()
 {
 	if (Mesh)
 		Mesh->drop();
 }
 
 //! Sets the current frame. From now on the animation is played from this frame.
-void CAnimatedMeshSceneNode::setCurrentFrame(f32 frame)
+void AnimatedMeshSceneNode::setCurrentFrame(f32 frame)
 {
 	// if you pass an out of range value, we just clamp it
 	CurrentFrameNr = core::clamp(frame, (f32)StartFrame, (f32)EndFrame);
@@ -63,13 +64,13 @@ void CAnimatedMeshSceneNode::setCurrentFrame(f32 frame)
 }
 
 //! Returns the currently displayed frame number.
-f32 CAnimatedMeshSceneNode::getFrameNr() const
+f32 AnimatedMeshSceneNode::getFrameNr() const
 {
 	return CurrentFrameNr;
 }
 
 //! Get CurrentFrameNr and update transiting settings
-void CAnimatedMeshSceneNode::buildFrameNr(u32 timeMs)
+void AnimatedMeshSceneNode::buildFrameNr(u32 timeMs)
 {
 	if (Transiting != 0.f) {
 		TransitingBlend += (f32)(timeMs)*Transiting;
@@ -106,7 +107,7 @@ void CAnimatedMeshSceneNode::buildFrameNr(u32 timeMs)
 	}
 }
 
-void CAnimatedMeshSceneNode::OnRegisterSceneNode()
+void AnimatedMeshSceneNode::OnRegisterSceneNode()
 {
 	if (IsVisible && Mesh) {
 		// because this node supports rendering of mixed mode meshes consisting of
@@ -146,7 +147,7 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 	}
 }
 
-IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
+IMesh *AnimatedMeshSceneNode::getMeshForCurrentFrame()
 {
 	if (Mesh->getMeshType() != EAMT_SKINNED) {
 		return Mesh;
@@ -164,7 +165,7 @@ IMesh *CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 }
 
 //! OnAnimate() is called just before rendering the whole scene.
-void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
+void AnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 {
 	if (LastTimeMs == 0) { // first frame
 		LastTimeMs = timeMs;
@@ -186,7 +187,7 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 	if (OnAnimateCallback)
 		OnAnimateCallback(dtimeMs / 1000.0f);
 
-	IAnimatedMeshSceneNode::OnAnimate(timeMs);
+	ISceneNode::OnAnimate(timeMs);
 
 	if (auto *skinnedMesh = dynamic_cast<SkinnedMesh*>(Mesh)) {
 		for (u16 i = 0; i < PerJoint.SceneNodes.size(); ++i)
@@ -200,7 +201,7 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 }
 
 //! renders the node.
-void CAnimatedMeshSceneNode::render()
+void AnimatedMeshSceneNode::render()
 {
 	video::IVideoDriver *driver = SceneManager->getVideoDriver();
 
@@ -312,20 +313,20 @@ void CAnimatedMeshSceneNode::render()
 }
 
 //! Returns the current start frame number.
-f32 CAnimatedMeshSceneNode::getStartFrame() const
+f32 AnimatedMeshSceneNode::getStartFrame() const
 {
 	return StartFrame;
 }
 
 //! Returns the current start frame number.
-f32 CAnimatedMeshSceneNode::getEndFrame() const
+f32 AnimatedMeshSceneNode::getEndFrame() const
 {
 	return EndFrame;
 }
 
 //! sets the frames between the animation is looped.
 //! the default is 0 - MaximalFrameCount of the mesh.
-bool CAnimatedMeshSceneNode::setFrameLoop(f32 begin, f32 end)
+bool AnimatedMeshSceneNode::setFrameLoop(f32 begin, f32 end)
 {
 	const f32 maxFrame = Mesh->getMaxFrameNumber();
 	if (end < begin) {
@@ -344,24 +345,24 @@ bool CAnimatedMeshSceneNode::setFrameLoop(f32 begin, f32 end)
 }
 
 //! sets the speed with witch the animation is played
-void CAnimatedMeshSceneNode::setAnimationSpeed(f32 framesPerSecond)
+void AnimatedMeshSceneNode::setAnimationSpeed(f32 framesPerSecond)
 {
 	FramesPerSecond = framesPerSecond * 0.001f;
 }
 
-f32 CAnimatedMeshSceneNode::getAnimationSpeed() const
+f32 AnimatedMeshSceneNode::getAnimationSpeed() const
 {
 	return FramesPerSecond * 1000.f;
 }
 
 //! returns the axis aligned bounding box of this node
-const core::aabbox3d<f32> &CAnimatedMeshSceneNode::getBoundingBox() const
+const core::aabbox3d<f32> &AnimatedMeshSceneNode::getBoundingBox() const
 {
 	return Box;
 }
 
 //! returns the material based on the zero based index i.
-video::SMaterial &CAnimatedMeshSceneNode::getMaterial(u32 i)
+video::SMaterial &AnimatedMeshSceneNode::getMaterial(u32 i)
 {
 	if (i >= Materials.size())
 		return ISceneNode::getMaterial(i);
@@ -370,14 +371,14 @@ video::SMaterial &CAnimatedMeshSceneNode::getMaterial(u32 i)
 }
 
 //! returns amount of materials used by this scene node.
-u32 CAnimatedMeshSceneNode::getMaterialCount() const
+u32 AnimatedMeshSceneNode::getMaterialCount() const
 {
 	return Materials.size();
 }
 
 //! Returns a pointer to a child node, which has the same transformation as
 //! the corresponding joint, if the mesh in this scene node is a skinned mesh.
-IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(const c8 *jointName)
+IBoneSceneNode *AnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 {
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED) {
 		os::Printer::log("No mesh, or mesh not of skinned mesh type", ELL_WARNING);
@@ -405,7 +406,7 @@ IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 
 //! Returns a pointer to a child node, which has the same transformation as
 //! the corresponding joint, if the mesh in this scene node is a skinned mesh.
-IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(u32 jointID)
+IBoneSceneNode *AnimatedMeshSceneNode::getJointNode(u32 jointID)
 {
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED) {
 		os::Printer::log("No mesh, or mesh not of skinned mesh type", ELL_WARNING);
@@ -423,7 +424,7 @@ IBoneSceneNode *CAnimatedMeshSceneNode::getJointNode(u32 jointID)
 }
 
 //! Gets joint count.
-u32 CAnimatedMeshSceneNode::getJointCount() const
+u32 AnimatedMeshSceneNode::getJointCount() const
 {
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED)
 		return 0;
@@ -436,7 +437,7 @@ u32 CAnimatedMeshSceneNode::getJointCount() const
 //! Removes a child from this scene node.
 //! Implemented here, to be able to remove the shadow properly, if there is one,
 //! or to remove attached childs.
-bool CAnimatedMeshSceneNode::removeChild(ISceneNode *child)
+bool AnimatedMeshSceneNode::removeChild(ISceneNode *child)
 {
 	if (ISceneNode::removeChild(child)) {
 		if (JointsUsed) { // stop weird bugs caused while changing parents as the joints are being created
@@ -455,31 +456,31 @@ bool CAnimatedMeshSceneNode::removeChild(ISceneNode *child)
 
 //! Sets looping mode which is on by default. If set to false,
 //! animations will not be looped.
-void CAnimatedMeshSceneNode::setLoopMode(bool playAnimationLooped)
+void AnimatedMeshSceneNode::setLoopMode(bool playAnimationLooped)
 {
 	Looping = playAnimationLooped;
 }
 
 //! returns the current loop mode
-bool CAnimatedMeshSceneNode::getLoopMode() const
+bool AnimatedMeshSceneNode::getLoopMode() const
 {
 	return Looping;
 }
 
 //! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
-void CAnimatedMeshSceneNode::setReadOnlyMaterials(bool readonly)
+void AnimatedMeshSceneNode::setReadOnlyMaterials(bool readonly)
 {
 	ReadOnlyMaterials = readonly;
 }
 
 //! Returns if the scene node should not copy the materials of the mesh but use them in a read only style
-bool CAnimatedMeshSceneNode::isReadOnlyMaterials() const
+bool AnimatedMeshSceneNode::isReadOnlyMaterials() const
 {
 	return ReadOnlyMaterials;
 }
 
 //! Sets a new mesh
-void CAnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
+void AnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 {
 	if (!mesh)
 		return; // won't set null mesh
@@ -520,14 +521,14 @@ void CAnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 }
 
 //! updates the absolute position based on the relative and the parents position
-void CAnimatedMeshSceneNode::updateAbsolutePosition()
+void AnimatedMeshSceneNode::updateAbsolutePosition()
 {
-	IAnimatedMeshSceneNode::updateAbsolutePosition();
+	ISceneNode::updateAbsolutePosition();
 }
 
 //! Sets the transition time in seconds (note: This needs to enable joints)
 //! you must call animateJoints(), or the mesh will not animate
-void CAnimatedMeshSceneNode::setTransitionTime(f32 time)
+void AnimatedMeshSceneNode::setTransitionTime(f32 time)
 {
 	const u32 ttime = (u32)core::floor32(time * 1000.0f);
 	if (TransitionTime == ttime)
@@ -536,12 +537,12 @@ void CAnimatedMeshSceneNode::setTransitionTime(f32 time)
 }
 
 //! render mesh ignoring its transformation. Used with ragdolls. (culling is unaffected)
-void CAnimatedMeshSceneNode::setRenderFromIdentity(bool enable)
+void AnimatedMeshSceneNode::setRenderFromIdentity(bool enable)
 {
 	RenderFromIdentity = enable;
 }
 
-void CAnimatedMeshSceneNode::addJoints()
+void AnimatedMeshSceneNode::addJoints()
 {
 	const auto &joints = static_cast<SkinnedMesh*>(Mesh)->getAllJoints();
 	PerJoint.setN(joints.size());
@@ -561,7 +562,7 @@ void CAnimatedMeshSceneNode::addJoints()
 	}
 }
 
-void CAnimatedMeshSceneNode::updateJointSceneNodes(
+void AnimatedMeshSceneNode::updateJointSceneNodes(
 		const std::vector<SkinnedMesh::SJoint::VariantTransform> &transforms)
 {
 	for (size_t i = 0; i < transforms.size(); ++i) {
@@ -578,7 +579,7 @@ void CAnimatedMeshSceneNode::updateJointSceneNodes(
 }
 
 //! updates the joint positions of this mesh
-void CAnimatedMeshSceneNode::animateJoints()
+void AnimatedMeshSceneNode::animateJoints()
 {
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED)
 		return;
@@ -603,7 +604,7 @@ void CAnimatedMeshSceneNode::animateJoints()
 	}
 }
 
-void CAnimatedMeshSceneNode::checkJoints()
+void AnimatedMeshSceneNode::checkJoints()
 {
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED)
 		return;
@@ -617,7 +618,7 @@ void CAnimatedMeshSceneNode::checkJoints()
 	}
 }
 
-void CAnimatedMeshSceneNode::copyOldTransforms()
+void AnimatedMeshSceneNode::copyOldTransforms()
 {
 	for (u32 i = 0; i < PerJoint.SceneNodes.size(); ++i) {
 		if (!PerJoint.SceneNodes[i]->Matrix) {
@@ -628,7 +629,7 @@ void CAnimatedMeshSceneNode::copyOldTransforms()
 	}
 }
 
-void CAnimatedMeshSceneNode::beginTransition()
+void AnimatedMeshSceneNode::beginTransition()
 {
 	if (!JointsUsed)
 		return;
@@ -639,15 +640,15 @@ void CAnimatedMeshSceneNode::beginTransition()
 	TransitingBlend = 0.f;
 }
 
-ISceneNode *CAnimatedMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *newManager)
+ISceneNode *AnimatedMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *newManager)
 {
 	if (!newParent)
 		newParent = Parent;
 	if (!newManager)
 		newManager = SceneManager;
 
-	CAnimatedMeshSceneNode *newNode =
-			new CAnimatedMeshSceneNode(Mesh, NULL, newManager, ID, RelativeTranslation,
+	AnimatedMeshSceneNode *newNode =
+			new AnimatedMeshSceneNode(Mesh, NULL, newManager, ID, RelativeTranslation,
 					RelativeRotation, RelativeScale);
 
 	if (newParent) {

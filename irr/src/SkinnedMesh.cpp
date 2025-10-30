@@ -3,13 +3,9 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "SkinnedMesh.h"
-#include "IBoneSceneNode.h"
-#include "CBoneSceneNode.h"
-#include "IAnimatedMeshSceneNode.h"
 #include "SSkinMeshBuffer.h"
 #include "Transform.h"
 #include "aabbox3d.h"
-#include "irrMath.h"
 #include "matrix4.h"
 #include "os.h"
 #include "vector3d.h"

@@ -52,10 +52,9 @@ void ShadowUniformSetter::onSetUniforms(video::IMaterialRendererServices *servic
 	m_perspective_zbias_pixel.set(&zbias, services);
 }
 
-void ShadowDepthShaderCB::OnSetConstants(
-		video::IMaterialRendererServices *services, s32 userData)
+void ShadowDepthUniformSetter::onSetUniforms(video::IMaterialRendererServices *services)
 {
-	video::IVideoDriver *driver = services->getVideoDriver();
+	auto *driver = services->getVideoDriver();
 
 	core::matrix4 lightMVP = driver->getTransform(video::ETS_PROJECTION);
 	lightMVP *= driver->getTransform(video::ETS_VIEW);

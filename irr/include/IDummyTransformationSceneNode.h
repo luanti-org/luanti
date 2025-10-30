@@ -14,7 +14,7 @@ namespace scene
 set/getRotation and set/getScale. Its just a simple scene node that takes a
 matrix as relative transformation, making it possible to insert any transformation
 anywhere into the scene graph.
-This scene node is for example used by the IAnimatedMeshSceneNode for emulating
+This scene node is for example used by the AnimatedMeshSceneNode for emulating
 joint scene nodes when playing skeletal animations.
 */
 class IDummyTransformationSceneNode : public ISceneNode

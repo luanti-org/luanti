@@ -216,10 +216,12 @@ void TextureBufferOutput::activate(PipelineContext &context)
 	if (depth_stencil != NO_DEPTH_TEXTURE)
 		depth_texture = buffer->getTexture(depth_stencil);
 
-	render_target->setTexture(textures, depth_texture);
+	if (render_target) {
+		render_target->setTexture(textures, depth_texture);
 
-	driver->setRenderTargetEx(render_target, m_clear ? video::ECBF_ALL : video::ECBF_NONE, context.clear_color);
-	driver->OnResize(size);
+		driver->setRenderTargetEx(render_target, m_clear ? video::ECBF_ALL : video::ECBF_NONE, context.clear_color);
+		driver->OnResize(size);
+	}
 
 	RenderTarget::activate(context);
 }

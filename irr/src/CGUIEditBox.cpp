@@ -12,13 +12,10 @@
 #include "rect.h"
 #include "os.h"
 #include "Keycodes.h"
-#include <cwctype> // std::iswspace, std::iswpunct
+#include <cwctype> // std::iswspace, std::iswpunct, std::iswalnum
 
 /*
 	todo:
-	optional scrollbars
-	ctrl+left/right to select word
-	double click/ctrl click: word select + drag to select whole words, triple click to select line
 	optional? dragging selected text
 	numerical
 */
@@ -992,6 +989,11 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 {
 	switch (event.MouseInput.Event) {
 	case EMIE_LMOUSE_LEFT_UP:
+		if (InhibitLeftMouseUpOnce) {
+			InhibitLeftMouseUpOnce = false;
+			break;
+		}
+
 		if (Environment->hasFocus(this)) {
 			CursorPos = getCursorPos(event.MouseInput.X, event.MouseInput.Y);
 			if (MouseMarking) {
@@ -999,6 +1001,61 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 			}
 			MouseMarking = false;
 			calculateScrollPos();
+			return true;
+		}
+		break;
+	case EMIE_LMOUSE_DOUBLE_CLICK:
+		// Select the clicked word
+		if (!Text.empty()) {
+			// The cursor is already set by the first EMIE_LMOUSE_PRESSED_DOWN.
+			s32 newMarkBegin = CursorPos,
+				newMarkEnd = CursorPos;
+
+			const bool is_alnum = std::iswalnum(
+				Text[std::min<size_t>(CursorPos, Text.size() - 1)]
+			);
+			for (; newMarkEnd < (s32)Text.size(); ++newMarkEnd) {
+				if (!!std::iswalnum(Text[newMarkEnd]) != is_alnum)
+					break;
+			}
+			for (; newMarkBegin > 0; --newMarkBegin) {
+				if (!!std::iswalnum(Text[newMarkBegin - 1]) != is_alnum)
+					break;
+			}
+
+			setTextMarkers(newMarkBegin, newMarkEnd);
+			// The mouse up event fires afterwards. Prevent selection changes there.
+			InhibitLeftMouseUpOnce = true;
+			MouseMarking = false;
+			return true;
+		}
+		break;
+	case EMIE_LMOUSE_TRIPLE_CLICK:
+		// Select a 'new line'-separated line. This may span multiple broken lines.
+		if (!Text.empty()) {
+			s32 newMarkBegin = CursorPos,
+				newMarkEnd = CursorPos;
+
+			if (MultiLine) {
+				for (; newMarkEnd < (s32)Text.size(); ++newMarkEnd) {
+					wchar_t c = Text[newMarkEnd];
+					if (c == L'\r'|| c == L'\n')
+						break;
+				}
+
+				for (; newMarkBegin > 0; --newMarkBegin) {
+					wchar_t c = Text[newMarkBegin - 1];
+					if (c == '\r' || c == '\n')
+						break;
+				}
+			} else {
+				newMarkBegin = 0;
+				newMarkEnd = Text.size();
+			}
+
+			setTextMarkers(newMarkBegin, newMarkEnd);
+			InhibitLeftMouseUpOnce = true;
+			MouseMarking = false;
 			return true;
 		}
 		break;

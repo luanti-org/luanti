@@ -6,7 +6,7 @@
 #include <IBillboardSceneNode.h>
 #include <ICameraSceneNode.h>
 #include <IMeshManipulator.h>
-#include <IAnimatedMeshSceneNode.h>
+#include <AnimatedMeshSceneNode.h>
 #include <ISceneNode.h>
 #include "client/client.h"
 #include "client/renderingengine.h"
@@ -400,7 +400,7 @@ scene::ISceneNode *GenericCAO::getSceneNode() const
 	return NULL;
 }
 
-scene::IAnimatedMeshSceneNode *GenericCAO::getAnimatedMeshSceneNode() const
+scene::AnimatedMeshSceneNode *GenericCAO::getAnimatedMeshSceneNode() const
 {
 	return m_animated_meshnode;
 }
@@ -702,17 +702,21 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			});
 
 			m_animated_meshnode->setOnAnimateCallback([&](f32 dtime) {
-				for (auto &it : m_bone_override) {
-					auto* bone = m_animated_meshnode->getJointNode(it.first.c_str());
-					if (!bone)
-						continue;
-
-					BoneOverride &props = it.second;
+				for (auto it = m_bone_override.begin(); it != m_bone_override.end();) {
+					BoneOverride &props = it->second;
 					props.dtime_passed += dtime;
 
-					bone->setPosition(props.getPosition(bone->getPosition()));
-					bone->setRotation(props.getRotationEulerDeg(bone->getRotation()));
-					bone->setScale(props.getScale(bone->getScale()));
+					if (props.isIdentity()) {
+						it = m_bone_override.erase(it);
+						continue;
+					}
+
+					if (auto *bone = m_animated_meshnode->getJointNode(it->first.c_str())) {
+						bone->setPosition(props.getPosition(bone->getPosition()));
+						bone->setRotation(props.getRotationEulerDeg(bone->getRotation()));
+						bone->setScale(props.getScale(bone->getScale()));
+					}
+					++it;
 				}
 			});
 		} else
@@ -1433,7 +1437,7 @@ void GenericCAO::updateAttachments()
 	{
 		parent->updateAttachments();
 		scene::ISceneNode *parent_node = parent->getSceneNode();
-		scene::IAnimatedMeshSceneNode *parent_animated_mesh_node =
+		scene::AnimatedMeshSceneNode *parent_animated_mesh_node =
 				parent->getAnimatedMeshSceneNode();
 		if (parent_animated_mesh_node && !m_attachment_bone.empty()) {
 			parent_node = parent_animated_mesh_node->getJointNode(m_attachment_bone.c_str());
@@ -1689,9 +1693,9 @@ void GenericCAO::processMessage(const std::string &data)
 			props.scale.previous = props.scale.vector;
 		} else {
 			// Disable interpolation
-			props.position.interp_timer = 0.0f;
-			props.rotation.interp_timer = 0.0f;
-			props.scale.interp_timer = 0.0f;
+			props.position.interp_duration = 0.0f;
+			props.rotation.interp_duration = 0.0f;
+			props.scale.interp_duration = 0.0f;
 		}
 		// Read new values
 		props.position.vector = readV3F32(is);
@@ -1703,19 +1707,15 @@ void GenericCAO::processMessage(const std::string &data)
 			props.position.absolute = true;
 			props.rotation.absolute = true;
 		} else {
-			props.position.interp_timer = readF32(is);
-			props.rotation.interp_timer = readF32(is);
-			props.scale.interp_timer = readF32(is);
+			props.position.interp_duration = readF32(is);
+			props.rotation.interp_duration = readF32(is);
+			props.scale.interp_duration = readF32(is);
 			u8 absoluteFlag = readU8(is);
 			props.position.absolute = (absoluteFlag & 1) > 0;
 			props.rotation.absolute = (absoluteFlag & 2) > 0;
 			props.scale.absolute = (absoluteFlag & 4) > 0;
 		}
-		if (props.isIdentity()) {
-			m_bone_override.erase(bone);
-		} else {
-			m_bone_override[bone] = props;
-		}
+		m_bone_override[bone] = props;
 	} else if (cmd == AO_CMD_ATTACH_TO) {
 		u16 parent_id = readS16(is);
 		std::string bone = deSerializeString16(is);

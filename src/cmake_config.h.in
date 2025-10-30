@@ -41,5 +41,4 @@
 #cmakedefine01 CURSES_HAVE_NCURSESW_CURSES_H
 #cmakedefine01 BUILD_UNITTESTS
 #cmakedefine01 BUILD_BENCHMARKS
-#cmakedefine01 USE_SDL2
 #cmakedefine01 BUILD_WITH_TRACY

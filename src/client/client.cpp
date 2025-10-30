@@ -566,9 +566,8 @@ void Client::step(float dtime)
 	{
 		float &counter = m_playerpos_send_timer;
 		counter += dtime;
-		if((m_state == LC_Ready) && (counter >= m_recommended_send_interval))
-		{
-			counter = 0.0;
+		if (m_state == LC_Ready && counter >= m_recommended_send_interval) {
+			counter = 0;
 			sendPlayerPos();
 		}
 	}
@@ -1403,7 +1402,7 @@ void Client::sendPlayerPos()
 	f32 movement_speed = player->control.movement_speed;
 	f32 movement_dir = player->control.movement_direction;
 
-	if (
+	bool identical = (
 			player->last_position        == player->getPosition() &&
 			player->last_speed           == player->getSpeed()    &&
 			player->last_pitch           == player->getPitch()    &&
@@ -1413,8 +1412,19 @@ void Client::sendPlayerPos()
 			player->last_camera_inverted == camera_inverted       &&
 			player->last_wanted_range    == wanted_range          &&
 			player->last_movement_speed  == movement_speed        &&
-			player->last_movement_dir    == movement_dir)
-		return;
+			player->last_movement_dir    == movement_dir);
+
+	if (identical) {
+		// Since the movement info is sent non-reliable an unfortunate desync might
+		// occur if we stop sending and the last packet gets lost or re-ordered.
+		// To make this situation less likely we stop sending duplicate packets
+		// only after a delay.
+		m_playerpos_repeat_count++;
+		if (m_playerpos_repeat_count >= 5)
+			return;
+	} else {
+		m_playerpos_repeat_count = 0;
+	}
 
 	player->last_position        = player->getPosition();
 	player->last_speed           = player->getSpeed();

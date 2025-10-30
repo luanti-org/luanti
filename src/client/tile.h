@@ -30,11 +30,8 @@ enum MaterialType : u8 {
 #define MATERIAL_FLAG_BACKFACE_CULLING 0x01
 // Should a crack be drawn?
 #define MATERIAL_FLAG_CRACK 0x02
-// Should the crack be drawn on transparent pixels (unset) or not (set)?
-// Ignored if MATERIAL_FLAG_CRACK is not set.
-#define MATERIAL_FLAG_CRACK_OVERLAY 0x04
+// Does this layer have texture animation?
 #define MATERIAL_FLAG_ANIMATION 0x08
-//#define MATERIAL_FLAG_HIGHLIGHTED 0x10
 #define MATERIAL_FLAG_TILEABLE_HORIZONTAL 0x20
 #define MATERIAL_FLAG_TILEABLE_VERTICAL 0x40
 
@@ -78,7 +75,7 @@ struct TileLayer
 	}
 
 	/*!
-	 * Two tiles are not equal if they must have different vertices.
+	 * Two layers are not equal if they must have different vertices.
 	 */
 	bool operator!=(const TileLayer &other) const
 	{
@@ -127,7 +124,6 @@ struct TileLayer
 
 	MaterialType material_type = TILE_MATERIAL_BASIC;
 	u8 material_flags =
-		//0 // <- DEBUG, Use the one below
 		MATERIAL_FLAG_BACKFACE_CULLING |
 		MATERIAL_FLAG_TILEABLE_HORIZONTAL|
 		MATERIAL_FLAG_TILEABLE_VERTICAL;
@@ -160,16 +156,29 @@ struct AnimationInfo {
 			m_frame_length_ms(tile.animation_frame_length_ms),
 			m_frame_count(tile.animation_frame_count),
 			m_frames(tile.frames)
-	{};
+	{}
+
+	AnimationInfo(std::vector<FrameSpec> *frames, u16 frame_length_ms) :
+			m_frame_length_ms(frame_length_ms),
+			m_frame_count(frames->size()),
+			m_frames(frames)
+	{}
+
+	size_t getFrameCount() const
+	{
+		return m_frames ? m_frame_count : 0;
+	}
 
 	void updateTexture(video::SMaterial &material, float animation_time);
 
+	// Returns nullptr if texture did not change since last time
+	video::ITexture *getTexture(float animation_time) const;
+
 private:
-	u16 m_frame = 0; // last animation frame
 	u16 m_frame_length_ms = 0;
 	u16 m_frame_count = 1;
 
-	/// @note not owned by this struct
+	/// @note by default not owned by this struct
 	std::vector<FrameSpec> *m_frames = nullptr;
 };
 

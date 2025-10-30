@@ -5,17 +5,26 @@
 #include "tile.h"
 #include <cassert>
 
+video::ITexture *AnimationInfo::getTexture(float animation_time) const
+{
+	if (getFrameCount() == 0)
+		return nullptr;
+
+	// Figure out current frame
+	u16 frame = (u32)(animation_time * 1000.0f / std::max<u16>(1, m_frame_length_ms))
+			% m_frame_count;
+
+	assert(frame < m_frames->size());
+	return (*m_frames)[frame].texture;
+}
+
 void AnimationInfo::updateTexture(video::SMaterial &material, float animation_time)
 {
-	// Figure out current frame
-	u16 frame = (u16)(animation_time * 1000 / m_frame_length_ms) % m_frame_count;
-	// Only adjust if frame changed
-	if (frame != m_frame) {
-		m_frame = frame;
-		assert(m_frame < m_frames->size());
-		material.setTexture(0, (*m_frames)[m_frame].texture);
+	video::ITexture *texture = getTexture(animation_time);
+	if (texture) {
+		material.setTexture(0, texture);
 	}
-};
+}
 
 void TileLayer::applyMaterialOptions(video::SMaterial &material, int layer) const
 {

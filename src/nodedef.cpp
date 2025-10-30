@@ -15,6 +15,7 @@
 #include <IMeshManipulator.h>
 #include <SMesh.h>
 #include <SkinnedMesh.h>
+#include "client/wieldmesh.h" // createAnimationFrames
 #endif
 #include "log.h"
 #include "settings.h"
@@ -712,34 +713,17 @@ static void fillTileAttribs(ITextureSource *tsrc, TileLayer *layer,
 	else
 		layer->color = color;
 
-	// Animation parameters
-	int frame_count = 1;
+	// Animation
 	if (layer->material_flags & MATERIAL_FLAG_ANIMATION) {
-		assert(layer->texture);
 		int frame_length_ms = 0;
-		tiledef.animation.determineParams(layer->texture->getOriginalSize(),
-				&frame_count, &frame_length_ms, NULL);
-		layer->animation_frame_count = frame_count;
-		layer->animation_frame_length_ms = frame_length_ms;
-	}
-
-	if (frame_count == 1) {
-		layer->material_flags &= ~MATERIAL_FLAG_ANIMATION;
-	} else {
-		assert(layer->texture);
-		if (!layer->frames)
-			layer->frames = new std::vector<FrameSpec>();
-		layer->frames->resize(frame_count);
-
-		std::ostringstream os(std::ios::binary);
-		for (int i = 0; i < frame_count; i++) {
-			os.str("");
-			os << tiledef.name;
-			tiledef.animation.getTextureModifer(os,
-					layer->texture->getOriginalSize(), i);
-
-			FrameSpec &frame = (*layer->frames)[i];
-			frame.texture = tsrc->getTextureForMesh(os.str(), &frame.texture_id);
+		std::vector<FrameSpec> frames = createAnimationFrames(
+				tsrc, tiledef.name, tiledef.animation, frame_length_ms);
+		if (frames.size() > 1) {
+			layer->frames = new std::vector<FrameSpec>(frames);
+			layer->animation_frame_count = layer->frames->size();
+			layer->animation_frame_length_ms = frame_length_ms;
+		} else {
+			layer->material_flags &= ~MATERIAL_FLAG_ANIMATION;
 		}
 	}
 }

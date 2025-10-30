@@ -84,6 +84,9 @@ The game directory can contain the following files:
       When both `allowed_mapgens` and `disallowed_mapgens` are
       specified, `allowed_mapgens` is applied before
       `disallowed_mapgens`.
+    * `default_mapgen`
+      e.g. `default_mapgen = valleys`
+      Set default mapgen for game, this will be the default selection when creating a new world.
     * `disallowed_mapgen_settings= <comma-separated mapgen settings>`
       e.g. `disallowed_mapgen_settings = mgv5_spflags`
       These mapgen settings are hidden for this game in the world creation
@@ -2705,10 +2708,10 @@ Some of the values in the key-value store are handled specially:
   See also: `get_description` in [`ItemStack`](#itemstack)
 * `short_description`: Set the item stack's short description.
   See also: `get_short_description` in [`ItemStack`](#itemstack)
-* `inventory_image`: Override inventory_image
-* `inventory_overlay`: Override inventory_overlay
-* `wield_image`: Override wield_image
-* `wield_overlay`: Override wield_overlay
+* `inventory_image`: Override inventory_image.name
+* `inventory_overlay`: Override inventory_overlay.name
+* `wield_image`: Override wield_image.name
+* `wield_overlay`: Override wield_overlay.name
 * `wield_scale`: Override wield_scale, use vector.to_string
 * `color`: A `ColorString`, which sets the stack's color.
 * `palette_index`: If the item has a palette, this is used to get the
@@ -5849,6 +5852,11 @@ Utilities
       particlespawner_exclude_player = true,
       -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
       generate_decorations_biomes = true,
+      -- 'chunksize' mapgen setting can be a vector, instead of a single number (5.15.0)
+      chunksize_vector = true,
+      -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
+      -- and `wield_overlay` accept a table containing animation definitions. (5.15.0)
+      item_image_animation = true,
   }
   ```
 
@@ -6704,7 +6712,7 @@ Environment access
       in that order.
     * `mapgen_limit` is an optional number. If it is absent, its value is that
       of the *active* mapgen setting `"mapgen_limit"`.
-    * `chunksize` is an optional number. If it is absent, its value is that
+    * `chunksize` is an optional number or vector. If it is absent, its value is that
       of the *active* mapgen setting `"chunksize"`.
 * `core.get_mapgen_chunksize()`
     * Returns the currently active chunksize of the mapgen, as a vector.
@@ -8523,7 +8531,7 @@ child will follow movement and rotation of that bone.
     * Attaches object to `parent`
     * See 'Attachments' section for details
     * `parent`: `ObjectRef` to attach to
-    * `bone`: Bone to attach to. Default is `""` (the root bone)
+    * `bone`: Bone to attach to. Default is `""` which attaches to the parent object's origin.
     * `position`: relative position, default `{x=0, y=0, z=0}`
     * `rotation`: relative rotation in degrees, default `{x=0, y=0, z=0}`
     * `forced_visible`: Boolean to control whether the attached entity
@@ -8651,7 +8659,9 @@ child will follow movement and rotation of that bone.
     * Does not reset rotation incurred through `automatic_rotate`.
       Remove & re-add your objects to force a certain rotation.
 * `get_rotation()`: returns the rotation, a vector (radians)
-* `set_yaw(yaw)`: sets the yaw in radians (heading).
+* `set_yaw(yaw)`
+    * Sets the yaw in radians (heading).
+    * Also resets pitch and roll to 0.
 * `get_yaw()`: returns number in radians
 * `set_texture_mod(mod)`
     * Set a texture modifier to the base texture, for sprites and meshes.
@@ -9511,6 +9521,7 @@ Player properties need to be saved manually.
     --   `core.itemstring_with_palette()`), the entity will inherit the color.
     --   Wielditems are scaled a bit. If you want a wielditem to appear
     --   to be as large as a node, use `0.667` in `visual_size`
+    --   Currently, item image animations are not played. This may change in the future.
     -- "item" is similar to "wielditem" but ignores the 'wield_image' parameter.
     -- "node" looks exactly like a node in-world (supported since 5.12.0)
     --   Note that visual effects like waving or liquid reflections will not work.
@@ -9851,6 +9862,13 @@ Tile animation definition
 }
 ```
 
+Item image definition
+---------------------
+
+* `"image.png"`
+* `{name="image.png", animation={Tile Animation definition}}`
+    * Basically a tile definition but for items
+
 Item definition
 ---------------
 
@@ -9877,18 +9895,18 @@ Used by `core.register_node`, `core.register_craftitem`, and
     --      {bendy = 2, snappy = 1},
     --      {hard = 1, metal = 1, spikes = 1}
 
-    inventory_image = "",
-    -- Texture shown in the inventory GUI
+    inventory_image = <Item image definition>,
+    -- Image shown in the inventory GUI
     -- Defaults to a 3D rendering of the node if left empty.
 
-    inventory_overlay = "",
-    -- An overlay texture which is not affected by colorization
+    inventory_overlay = <Item image definition>,
+    -- An overlay image which is not affected by colorization
 
-    wield_image = "",
-    -- Texture shown when item is held in hand
+    wield_image = <Item image definition>,
+    -- Image shown when item is held in hand
     -- Defaults to a 3D rendering of the node if left empty.
 
-    wield_overlay = "",
+    wield_overlay = <Item image definition>,
     -- Like inventory_overlay but only used in the same situation as wield_image
 
     wield_scale = {x = 1, y = 1, z = 1},

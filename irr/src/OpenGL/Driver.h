@@ -135,9 +135,6 @@ public:
 	//! Returns the name of the video driver.
 	const char *getName() const override;
 
-	//! Returns the maximum texture size supported.
-	core::dimension2du getMaxTextureSize() const override;
-
 	//! sets a viewport
 	void setViewPort(const core::rect<s32> &area) override;
 
@@ -202,8 +199,7 @@ public:
 	//! Returns a pointer to the IVideoDriver interface.
 	IVideoDriver *getVideoDriver() override;
 
-	//! Returns the maximum amount of primitives
-	u32 getMaximalPrimitiveCount() const override;
+	SDriverLimits getLimits() const override;
 
 	virtual ITexture *addRenderTargetTexture(const core::dimension2d<u32> &size,
 			const io::path &name, const ECOLOR_FORMAT format = ECF_UNKNOWN) override;

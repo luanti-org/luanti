@@ -95,7 +95,7 @@ core.register_entity("testentities:sam", {
 		self.object:set_bone_override("Head", {
 			scale = {
 				vec = vector.new(s, s, s),
-				absolute = true,
+				absolute = false,
 				interpolation = self._head_anim_duration,
 			},
 		})

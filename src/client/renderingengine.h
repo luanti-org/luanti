@@ -55,7 +55,7 @@ class FogShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
 	FogShaderUniformSetterFactory() {};
-	virtual IShaderUniformSetter *create();
+	virtual IShaderUniformSetter *create(const std::string &name);
 };
 
 /* Rendering engine class */

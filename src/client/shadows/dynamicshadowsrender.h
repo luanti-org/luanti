@@ -12,9 +12,9 @@
 #include <ISceneNode.h>
 #include <ISceneManager.h>
 
-class ShadowDepthShaderCB;
-class shadowScreenQuad;
-class shadowScreenQuadCB;
+class ShadowDepthUniformSetter;
+class ShadowScreenQuad;
+class ShadowScreenQuadUniformSetter;
 class IWritableShaderSource;
 
 enum E_SHADOW_MODE : u8
@@ -144,19 +144,13 @@ private:
 	// Shadow Shader stuff
 
 	void createShaders();
-	std::string readShaderFile(const std::string &path);
 
-	s32 depth_shader{-1};
-	s32 depth_shader_entities{-1};
-	s32 depth_shader_trans{-1};
-	s32 mixcsm_shader{-1};
+	video::E_MATERIAL_TYPE depth_shader, depth_shader_trans;
 
-	ShadowDepthShaderCB *m_shadow_depth_cb{nullptr};
-	ShadowDepthShaderCB *m_shadow_depth_entity_cb{nullptr};
-	ShadowDepthShaderCB *m_shadow_depth_trans_cb{nullptr};
+	ShadowDepthUniformSetter *m_shadow_depth_cb{nullptr};
+	ShadowDepthUniformSetter *m_shadow_depth_trans_cb{nullptr};
 
-	shadowScreenQuad *m_screen_quad{nullptr};
-	shadowScreenQuadCB *m_shadow_mix_cb{nullptr};
+	ShadowScreenQuad *m_screen_quad{nullptr};
 };
 
 /**
