@@ -433,7 +433,7 @@ int ModApiMainMenu::l_get_mod_list(lua_State *L)
 
 	CHECK_SECURE_PATH(L, path.c_str(), false)
 
-	std::vector<ModSpec> mods_flat = flattenMods(getModsInPath(path, virtual_path), 0);
+	std::vector<ModSpec> mods_flat = flattenMods(getModsInPath(path, virtual_path), false);
 	int i = 0;
 	lua_createtable(L, mods_flat.size(), 0);
 	for (const ModSpec &spec : mods_flat) {

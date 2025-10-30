@@ -64,32 +64,51 @@ bool parseModContents(ModSpec &spec)
 	spec.is_modpack = false;
 	spec.modpack_content.clear();
 
+	std::string conf_filename;
+
 	// Handle modpacks (defined by containing modpack.txt)
-	if (fs::IsFile(spec.path + DIR_DELIM + "modpack.txt") ||
-			fs::IsFile(spec.path + DIR_DELIM + "modpack.conf")) {
+	if (fs::IsFile(spec.path + DIR_DELIM + "modpack.conf")) {
 		spec.is_modpack = true;
-		spec.modpack_content = getModsInPath(spec.path, spec.virtual_path, spec.modpack_depth + 1);
-		return true;
+		conf_filename = "modpack.conf";
+	} else if (fs::IsFile(spec.path + DIR_DELIM + "modpack.txt")) {
+		spec.is_modpack = true;
 	} else if (!fs::IsFile(spec.path + DIR_DELIM + "init.lua")) {
 		return false;
+	} else {
+		// Is a mod
+		conf_filename = "mod.conf";
 	}
 
+	if (spec.is_modpack)
+		spec.modpack_content = getModsInPath(spec.path, spec.virtual_path, spec.modpack_depth + 1);
 
 	Settings info;
-	info.readConfigFile((spec.path + DIR_DELIM + "mod.conf").c_str());
+	if (!conf_filename.empty())
+		info.readConfigFile((spec.path + DIR_DELIM + conf_filename).c_str());
 
 	if (info.exists("name")) {
 		spec.name = info.get("name");
 		spec.is_name_explicit = true;
-	} else {
+	} else if (!spec.is_modpack) {
 		spec.deprecation_msgs.push_back("Mods not having a mod.conf file with the name is deprecated.");
 	}
+
+	if (info.exists("description"))
+		spec.desc = info.get("description");
+	else if (fs::ReadFile(spec.path + DIR_DELIM + "description.txt", spec.desc))
+		spec.deprecation_msgs.push_back("description.txt is deprecated, please use mod[pack].conf instead.");
 
 	if (info.exists("author"))
 		spec.author = info.get("author");
 
 	if (info.exists("release"))
 		spec.release = info.getS32("release");
+
+
+	// The subsequent fields are not available for modpacks
+	if (spec.is_modpack)
+		return true;
+
 
 	// Attempt to load dependencies from mod.conf
 	bool mod_conf_has_depends = false;
@@ -140,11 +159,6 @@ bool parseModContents(ModSpec &spec)
 		}
 	}
 
-	if (info.exists("description"))
-		spec.desc = info.get("description");
-	else if (fs::ReadFile(spec.path + DIR_DELIM + "description.txt", spec.desc))
-		spec.deprecation_msgs.push_back("description.txt is deprecated, please use mod.conf instead.");
-
 	return true;
 }
 
@@ -194,7 +208,7 @@ std::vector<ModSpec> flattenMods(const std::map<std::string, ModSpec> &mods,
 			result.push_back(mod);
 		}
 		if (mod.is_modpack) {
-			std::vector<ModSpec> content = flattenMods(mod.modpack_content);
+			std::vector<ModSpec> content = flattenMods(mod.modpack_content, discard_modpacks);
 			result.reserve(result.size() + content.size());
 			result.insert(result.end(), content.begin(), content.end());
 		}
