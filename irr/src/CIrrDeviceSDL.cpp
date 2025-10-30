@@ -255,6 +255,11 @@ std::variant<u32, EKEY_CODE> CIrrDeviceSDL::getScancodeFromKey(const Keycode &ke
 	} else {
 		keynum = std::get<wchar_t>(key);
 	}
+
+	// SDL3 returns a valid scancode for keycode 0. This is undesired.
+	if (keynum == 0)
+		return (u32) 0;
+
 #ifdef _IRR_SDL_IS_SDL3_
 	SDL_Keymod kmod = SDL_KMOD_NONE; // TODO: respect modifiers
 	return (u32)SDL_GetScancodeFromKey(keynum, &kmod);
@@ -373,7 +378,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 
 		// Set IME hints
 #ifdef _IRR_SDL_IS_SDL3_
-		SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "1");
+		SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "0");
 #else
 		SDL_SetHint(SDL_HINT_IME_INTERNAL_EDITING, "1");
 #endif
