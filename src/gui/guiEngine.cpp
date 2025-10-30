@@ -215,7 +215,7 @@ std::string findLocaleFileWithExtension(const std::string &path)
 /******************************************************************************/
 std::string findLocaleFileInMods(const std::string &path, const std::string &filename_no_ext)
 {
-	std::vector<ModSpec> mods = flattenMods(getModsInPath(path, "root", true));
+	std::vector<ModSpec> mods = flattenMods(getModsInPath(path, "root", 0));
 
 	for (const auto &mod : mods) {
 		std::string ret = findLocaleFileWithExtension(

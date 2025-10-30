@@ -58,6 +58,8 @@ private:
 
 	static int l_get_content_info(lua_State *L);
 
+	static int l_get_mod_list(lua_State *L);
+
 	static int l_check_mod_configuration(lua_State *L);
 
 	static int l_get_content_translation(lua_State *L);
