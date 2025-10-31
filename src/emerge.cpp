@@ -32,7 +32,6 @@
 
 EmergeParams::~EmergeParams()
 {
-	infostream << "EmergeParams: destroying " << this << std::endl;
 	// Delete everything that was cloned on creation of EmergeParams
 	delete biomegen;
 	delete biomemgr;
@@ -62,7 +61,9 @@ EmergeParams::EmergeParams(EmergeManager *parent, const BiomeGen *biomegen,
 
 EmergeManager::EmergeManager(Server *server, MetricsBackend *mb)
 {
-	this->ndef      = server->getNodeDefManager();
+	assert(server);
+	this->m_server  = server;
+	this->ndef      = server->ndef();
 	this->biomemgr  = new BiomeManager(server);
 	this->oremgr    = new OreManager(server);
 	this->decomgr   = new DecorationManager(server);
@@ -89,31 +90,14 @@ EmergeManager::EmergeManager(Server *server, MetricsBackend *mb)
 		);
 	}
 
-	s16 nthreads = 1;
-	g_settings->getS16NoEx("num_emerge_threads", nthreads);
-	// If automatic, leave a proc for the main thread and one for
-	// some other misc thread
-	if (nthreads <= 0)
-		nthreads = Thread::getNumberOfProcessors() - 2;
-	if (nthreads < 1)
-		nthreads = 1;
-
 	m_qlimit_total = g_settings->getU32("emergequeue_limit_total");
-	// FIXME: these fallback values are probably not good
-	if (!g_settings->getU32NoEx("emergequeue_limit_diskonly", m_qlimit_diskonly))
-		m_qlimit_diskonly = nthreads * 5 + 1;
-	if (!g_settings->getU32NoEx("emergequeue_limit_generate", m_qlimit_generate))
-		m_qlimit_generate = nthreads + 1;
+	m_qlimit_diskonly = g_settings->getU32("emergequeue_limit_diskonly");
+	m_qlimit_generate = g_settings->getU32("emergequeue_limit_generate");
 
 	// don't trust user input for something very important like this
 	m_qlimit_diskonly = rangelim(m_qlimit_diskonly, 2, 1000000);
 	m_qlimit_generate = rangelim(m_qlimit_generate, 1, 1000000);
 	m_qlimit_total = std::max(m_qlimit_total, std::max(m_qlimit_diskonly, m_qlimit_generate));
-
-	for (s16 i = 0; i < nthreads; i++)
-		m_threads.push_back(new EmergeThread(server, i));
-
-	infostream << "EmergeManager: using " << nthreads << " threads" << std::endl;
 }
 
 
@@ -190,18 +174,51 @@ void EmergeManager::initMapgens(MapgenParams *params)
 
 	mgparams = params;
 
+	infostream << "EmergeManager: initializing for mapgen="
+		<< Mapgen::getMapgenName(params->mgtype)
+		<< " and chunksize=" << params->chunksize << std::endl;
+
+	/*
+	 * Singlenode is currently the only mapgen not affected by the
+	 * unfinished slice bug, so allow multiple threads by default.
+	 * We do this for the Lua mapgens who benefit from this (since singlenode
+	 * itself isn't very useful).
+	 * see <https://github.com/luanti-org/luanti/issues/9357>
+	 */
+	bool multithread = params->mgtype == MAPGEN_SINGLENODE;
+	initThreads(multithread);
+
 	v3s16 csize = params->chunksize * MAP_BLOCKSIZE;
 	biomegen = biomemgr->createBiomeGen(BIOMEGEN_ORIGINAL, params->bparams, csize);
 
 	for (u32 i = 0; i != m_threads.size(); i++) {
 		EmergeParams *p = new EmergeParams(this, biomegen,
 			biomemgr, oremgr, decomgr, schemmgr);
-		infostream << "EmergeManager: Created params " << p
-			<< " for thread " << i << std::endl;
 		m_mapgens.push_back(Mapgen::createMapgen(params->mgtype, params, p));
 	}
 }
 
+void EmergeManager::initThreads(bool should_multithread)
+{
+	s16 nthreads = g_settings->getS16("num_emerge_threads");
+	if (nthreads <= 0) {
+		/*
+		 * Use 50% of all cores, but with a conservative maximum due to the
+		 * memory overhead associated with mapgen code esp. if Lua gets involved.
+		 * Though someone with 16 cores hopefully(?) has a matching amount of RAM as well.
+		 */
+		nthreads = std::min<s16>(8, Thread::getNumberOfProcessors() / 2);
+		if (!should_multithread)
+			nthreads = 1;
+	}
+	nthreads = std::max<s16>(1, nthreads);
+
+	FATAL_ERROR_IF(!m_threads.empty(), "Threads already initialized.");
+	for (s16 i = 0; i < nthreads; i++)
+		m_threads.push_back(new EmergeThread(m_server, i));
+
+	infostream << "EmergeManager: using " << nthreads << " thread(s)" << std::endl;
+}
 
 Mapgen *EmergeManager::getCurrentMapgen()
 {
@@ -246,12 +263,6 @@ void EmergeManager::stopThreads()
 		m_threads[i]->wait();
 
 	m_threads_active = false;
-}
-
-
-bool EmergeManager::isRunning()
-{
-	return m_threads_active;
 }
 
 
