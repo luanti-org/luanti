@@ -16,7 +16,6 @@ extern "C" {
 #include <lua.h>
 }
 
-#include <iostream>
 #include <vector>
 #include <array>
 

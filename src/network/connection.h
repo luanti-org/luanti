@@ -4,11 +4,11 @@
 #pragma once
 
 #include "irrlichttypes.h"
-#include "socket.h"
 #include "networkprotocol.h" // session_t
 
 class NetworkPacket;
 class PeerHandler;
+class Address;
 
 namespace con
 {

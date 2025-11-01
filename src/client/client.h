@@ -5,7 +5,6 @@
 #pragma once
 
 #include "clientenvironment.h"
-#include "config.h"
 #include "gamedef.h"
 #include "gameparams.h" // ELoginRegister
 #include "inventorymanager.h"

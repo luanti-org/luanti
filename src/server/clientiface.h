@@ -12,7 +12,6 @@
 #include "clientdynamicinfo.h"
 #include "constants.h" // PEER_ID_INEXISTENT
 
-#include <list>
 #include <memory>
 #include <mutex>
 #include <set>

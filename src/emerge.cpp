@@ -8,21 +8,17 @@
 
 #include <iostream>
 
-#include "util/container.h"
 #include "config.h"
 #include "constants.h"
-#include "environment.h"
 #include "irrlicht_changes/printing.h"
 #include "filesys.h"
 #include "log.h"
 #include "servermap.h"
-#include "database/database.h"
 #include "mapblock.h"
 #include "mapgen/mg_biome.h"
 #include "mapgen/mg_ore.h"
 #include "mapgen/mg_decoration.h"
 #include "mapgen/mg_schematic.h"
-#include "nodedef.h"
 #include "profiler.h"
 #include "scripting_server.h"
 #include "scripting_emerge.h"

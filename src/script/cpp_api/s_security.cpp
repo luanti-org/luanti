@@ -5,7 +5,6 @@
 #include "cpp_api/s_security.h"
 #include "lua_api/l_base.h"
 #include "filesys.h"
-#include "porting.h"
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"

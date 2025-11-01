@@ -16,8 +16,6 @@
 #include "itemdef.h"
 #include "log.h"
 #include "tool.h"
-#include "porting.h"
-#include "mapgen/mg_schematic.h"
 #include "noise.h"
 #include "server/player_sao.h"
 #include "util/pointedthing.h"
