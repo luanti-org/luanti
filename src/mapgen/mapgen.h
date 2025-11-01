@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "constants.h"
 #include "noise.h"
 #include "nodedef.h"
 #include "util/string.h"

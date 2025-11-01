@@ -5,8 +5,8 @@
 #include "mesh.h"
 #include "IMeshBuffer.h"
 #include "SSkinMeshBuffer.h"
+#include "constants.h"
 #include "debug.h"
-#include "log.h"
 #include <cmath>
 #include <IAnimatedMesh.h>
 #include "S3DVertex.h"

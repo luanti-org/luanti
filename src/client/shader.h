@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
 #include <IMaterialRendererServices.h>
 #include "irr_ptr.h"
 #include <string>
 #include <map>
 #include <variant>
 #include "nodedef.h"
+#include "tile.h" // MaterialType
 
 /*
 	shader.{h,cpp}: Shader handling stuff.

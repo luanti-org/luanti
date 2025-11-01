@@ -8,6 +8,7 @@
 #include "clientmap.h"
 #include "settings.h"
 #include "shader.h"
+#include "node_visuals.h"
 #include "mapblock.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
@@ -413,12 +414,13 @@ void Minimap::blitMinimapPixelsToImageSurface(
 		} else if (overlay.name.empty() && tile.has_color) {
 			tilecolor = tile.color;
 		} else {
-			mmpixel->n.getColor(f, &tilecolor);
+			f.visuals->getColor(mmpixel->n.param2, &tilecolor);
 		}
 		// Multiply with pre-generated "color of texture"
-		tilecolor.setRed(tilecolor.getRed() * f.minimap_color.getRed() / 255);
-		tilecolor.setGreen(tilecolor.getGreen() * f.minimap_color.getGreen() / 255);
-		tilecolor.setBlue(tilecolor.getBlue() * f.minimap_color.getBlue() / 255);
+		auto &minimap_color = f.visuals->minimap_color;
+		tilecolor.setRed(tilecolor.getRed() * minimap_color.getRed() / 255);
+		tilecolor.setGreen(tilecolor.getGreen() * minimap_color.getGreen() / 255);
+		tilecolor.setBlue(tilecolor.getBlue() * minimap_color.getBlue() / 255);
 		tilecolor.setAlpha(240);
 
 		map_image->setPixel(x, data->mode.map_size - z - 1, tilecolor);

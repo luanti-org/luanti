@@ -188,14 +188,6 @@ struct alignas(u32) MapNode
 		param2 = p;
 	}
 
-	/*!
-	 * Returns the color of the node.
-	 *
-	 * \param f content features of this node
-	 * \param color output, contains the node's color.
-	 */
-	void getColor(const ContentFeatures &f, video::SColor *color) const;
-
 	inline void setLight(LightBank bank, u8 a_light, ContentLightingFlags f) noexcept
 	{
 		// If node doesn't contain light data, ignore this

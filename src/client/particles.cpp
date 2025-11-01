@@ -14,9 +14,9 @@
 #include "util/numeric.h"
 #include "light.h"
 #include "localplayer.h"
-#include "environment.h"
 #include "clientmap.h"
 #include "mapnode.h"
+#include "node_visuals.h"
 #include "nodedef.h"
 #include "client.h"
 #include "settings.h"
@@ -891,7 +891,7 @@ bool ParticleManager::getNodeParticleParams(Client *client, const MapNode &n,
 	else
 		texid = myrand_range(0,5);
 
-	const TileLayer &tile = f.tiles[texid].layers[0];
+	const TileLayer &tile = f.visuals->tiles[texid].layers[0];
 	*texture = extractTexture(f.tiledef[texid], tile, client->tsrc());
 	p.texture.blendmode = f.alpha == ALPHAMODE_BLEND
 			? BlendMode::alpha : BlendMode::clip;
@@ -908,7 +908,7 @@ bool ParticleManager::getNodeParticleParams(Client *client, const MapNode &n,
 	if (tile.has_color)
 		*color = tile.color;
 	else
-		n.getColor(f, color);
+		f.visuals->getColor(n.param2, color);
 
 	return true;
 }
