@@ -2,58 +2,68 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include <iostream>
-#include <algorithm>
-#include <sstream>
-#include <cmath>
-#include <IFileSystem.h>
-#include <json/json.h>
 #include "client.h"
-#include "client/fontengine.h"
-#include "network/clientopcodes.h"
-#include "network/connection.h"
-#include "network/networkpacket.h"
-#include "threading/mutex_auto_lock.h"
+
+#include "chatmessage.h"
 #include "client/clientevent.h"
+#include "clientdynamicinfo.h"
+#include "client/fontengine.h"
+#include "client/localplayer.h"
+#include "clientmap.h"
+#include "clientmedia.h"
+#include "client/mesh_generator_thread.h"
+#include "client/particles.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
 #include "client/texturepaths.h"
 #include "client/texturesource.h"
-#include "client/mesh_generator_thread.h"
-#include "client/particles.h"
-#include "client/localplayer.h"
+#include "filesys.h"
+#include "game.h"
+#include "gettext.h"
+#include "gettime.h"
+#include "guiscalingfilter.h"
+#include "item_visuals_manager.h"
+#include "mapblock.h"
+#include "mapblock_mesh.h"
+#include "mapnode.h"
+#include "mapsector.h"
+#include "minimap.h"
+#include "profiler.h"
+#include "shader.h"
+#include "threading/mutex_auto_lock.h"
+#include "translation.h"
 #include "util/auth.h"
 #include "util/directiontables.h"
 #include "util/pointedthing.h"
 #include "util/serialize.h"
-#include "util/string.h"
 #include "util/srp.h"
-#include "filesys.h"
-#include "mapblock_mesh.h"
-#include "mapblock.h"
-#include "mapsector.h"
-#include "minimap.h"
-#include "modchannels.h"
-#include "content/mods.h"
-#include "profiler.h"
-#include "shader.h"
-#include "gettext.h"
-#include "gettime.h"
-#include "clientdynamicinfo.h"
-#include "clientmap.h"
-#include "clientmedia.h"
+#include "util/string.h"
 #include "version.h"
+
+// Modding
+#include "content/mod_configuration.h"
+#include "content/mods.h"
+#include "modchannels.h"
+#include "script/common/c_types.h" // LuaError
+#include "script/scripting_client.h"
+
+// Network
+#include "network/clientopcodes.h"
+#include "network/connection.h"
+#include "network/networkpacket.h"
+#include "serialization.h"
+
+// Database
 #include "database/database-files.h"
 #include "database/database-sqlite3.h"
-#include "serialization.h"
-#include "guiscalingfilter.h"
-#include "script/scripting_client.h"
-#include "game.h"
-#include "chatmessage.h"
-#include "translation.h"
-#include "content/mod_configuration.h"
-#include "mapnode.h"
-#include "item_visuals_manager.h"
+
+#include <IFileSystem.h>
+#include <json/json.h>
+
+#include <iostream>
+#include <algorithm>
+#include <sstream>
+#include <cmath>
 
 extern gui::IGUIEnvironment* guienv;
 
@@ -1773,6 +1783,11 @@ ClientEvent *Client::getClientEvent()
 	ClientEvent *event = m_client_event_queue.front();
 	m_client_event_queue.pop();
 	return event;
+}
+
+void Client::setFatalError(const LuaError &e)
+{
+	setFatalError(std::string("Lua: ") + e.what());
 }
 
 const Address Client::getServerAddress()

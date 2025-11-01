@@ -5,23 +5,23 @@
 #pragma once
 
 #include "clientenvironment.h"
-#include "irrlichttypes.h"
-#include <ostream>
-#include <map>
-#include <memory>
-#include <set>
-#include <vector>
-#include <unordered_set>
+#include "config.h"
 #include "gamedef.h"
+#include "gameparams.h" // ELoginRegister
 #include "inventorymanager.h"
+#include "irrlichttypes.h"
 #include "network/address.h"
 #include "network/networkprotocol.h" // multiple enums
 #include "network/peerhandler.h"
-#include "gameparams.h"
-#include "script/common/c_types.h" // LuaError
 #include "util/numeric.h"
 #include "util/string.h" // StringMap
-#include "config.h"
+
+#include <map>
+#include <memory>
+#include <ostream>
+#include <set>
+#include <unordered_set>
+#include <vector>
 
 #if !IS_CLIENT_BUILD
 #error Do not include in server builds
@@ -35,6 +35,7 @@ class ISoundManager;
 class IWritableItemDefManager;
 class IWritableShaderSource;
 class IWritableTextureSource;
+class LuaError;
 class MapDatabase;
 class MeshUpdateManager;
 class Minimap;
@@ -321,10 +322,7 @@ public:
 		m_access_denied = true;
 		m_access_denied_reason = reason;
 	}
-	inline void setFatalError(const LuaError &e)
-	{
-		setFatalError(std::string("Lua: ") + e.what());
-	}
+	void setFatalError(const LuaError &e);
 
 	// Renaming accessDeniedReason to better name could be good as it's used to
 	// disconnect client when CSM failed.
