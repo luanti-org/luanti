@@ -821,6 +821,10 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	std::string fragment_shader = m_sourcecache.getOrLoad(name, "opengl_fragment.glsl");
 	std::string geometry_shader = m_sourcecache.getOrLoad(name, "opengl_geometry.glsl");
 
+	if (vertex_shader.empty() || fragment_shader.empty()) {
+		throw ShaderException(fmtgettext("Failed to find \"%s\" shader files.", name.c_str()));
+	}
+
 	vertex_shader = common_header + vertex_header + final_header + vertex_shader;
 	fragment_shader = common_header + fragment_header + final_header + fragment_shader;
 	const char *geometry_shader_ptr = nullptr; // optional
@@ -840,9 +844,10 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	if (shadermat == -1) {
 		errorstream << "generateShader(): failed to generate shaders for "
 			<< log_name << ", addHighLevelShaderMaterial failed." << std::endl;
-		dumpShaderProgram(warningstream, "Vertex", vertex_shader);
-		dumpShaderProgram(warningstream, "Fragment", fragment_shader);
-		dumpShaderProgram(warningstream, "Geometry", geometry_shader);
+		dumpShaderProgram(warningstream, "vertex", vertex_shader);
+		dumpShaderProgram(warningstream, "fragment", fragment_shader);
+		if (geometry_shader_ptr)
+			dumpShaderProgram(warningstream, "geometry", geometry_shader);
 		throw ShaderException(
 			fmtgettext("Failed to compile the \"%s\" shader.", log_name.c_str()) +
 			strgettext("\nCheck debug.txt for details."));
@@ -887,20 +892,21 @@ u32 IShaderSource::getShader(const std::string &name,
 	return getShader(name, input_const, base_mat);
 }
 
-void dumpShaderProgram(std::ostream &output_stream,
+void dumpShaderProgram(std::ostream &os,
 		const std::string &program_type, std::string_view program)
 {
-	output_stream << program_type << " shader program:" << std::endl <<
-		"----------------------------------" << std::endl;
-	size_t pos = 0;
-	size_t prev = 0;
-	s16 line = 1;
+	os << program_type << " shader program:\n"
+		"----------------------------------" << '\n';
+	size_t pos = 0, prev = 0;
+	int nline = 1;
 	while ((pos = program.find('\n', prev)) != std::string::npos) {
-		output_stream << line++ << ": "<< program.substr(prev, pos - prev) <<
-			std::endl;
+		auto line = program.substr(prev, pos - prev);
+		// Be smart about line number reset
+		if (trim(line) == "#line 0")
+			nline = 0;
+		os << (nline++) << ": " << line << '\n';
 		prev = pos + 1;
 	}
-	output_stream << line << ": " << program.substr(prev) << std::endl <<
-		"End of " << program_type << " shader program." << std::endl <<
-		" " << std::endl;
+	os << nline << ": " << program.substr(prev) << '\n' <<
+		"End of " << program_type << " shader program.\n \n" << std::flush;
 }
