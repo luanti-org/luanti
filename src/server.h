@@ -15,6 +15,7 @@
 #include "serverenvironment.h"
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
+#include "translation.h"
 #include "sound.h"
 #include <atomic>
 #include <csignal>
@@ -47,7 +48,6 @@ class ServerInventoryManager;
 class ServerModManager;
 class ServerScripting;
 class ServerThread;
-class Translations;
 
 struct ChatEventChat;
 struct ChatInterface;
@@ -714,6 +714,8 @@ private:
 	// Craft definition manager
 	IWritableCraftDefManager *m_craftdef;
 
+	// NOTE: Cannot use forward declaration of 'Translations'. Whereas most
+	// modern compilers support incomplete types here, it's not in the C++ spec.
 	std::unordered_map<std::string, Translations> server_translations;
 
 	ModIPCStore m_ipcstore;
