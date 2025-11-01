@@ -15,19 +15,13 @@ VARYING_ vec3 vPosition;
 // precision must be considered).
 VARYING_ vec3 worldPosition;
 // The centroid keyword ensures that after interpolation the texture coordinates
-// lie within the same bounds when MSAA is en- and disabled.
+// lie within the same bounds when MSAA is en- or disabled.
 // This fixes the stripes problem with nearest-neighbor textures and MSAA.
-#ifdef GL_ES
-VARYING_ lowp vec4 varColor;
-VARYING_ mediump vec2 varTexCoord;
-VARYING_ float varTexLayer;
-VARYING_ float nightRatio;
-#else
-centroid VARYING_ vec4 varColor;
-centroid VARYING_ vec2 varTexCoord;
-centroid VARYING_ float varTexLayer; // actually int
-centroid VARYING_ float nightRatio;
-#endif
+CENTROID_ VARYING_ lowp vec4 varColor;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
+CENTROID_ VARYING_ float nightRatio;
+
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow uniforms
 	uniform vec3 v_LightDirection;

@@ -49,17 +49,10 @@ VARYING_ vec3 vPosition;
 // cameraOffset + worldPosition (for large coordinates the limits of float
 // precision must be considered).
 VARYING_ vec3 worldPosition;
-#ifdef GL_ES
-VARYING_ lowp vec4 varColor;
-VARYING_ mediump vec2 varTexCoord;
-VARYING_ float varTexLayer;
-VARYING_ float nightRatio;
-#else
-centroid VARYING_ lowp vec4 varColor;
-centroid VARYING_ vec2 varTexCoord;
-centroid VARYING_ float varTexLayer; // actually int
-centroid VARYING_ float nightRatio;
-#endif
+CENTROID_ VARYING_ lowp vec4 varColor;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
+CENTROID_ VARYING_ float nightRatio;
 VARYING_ highp vec3 eyeVec;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS

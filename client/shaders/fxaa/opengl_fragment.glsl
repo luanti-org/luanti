@@ -8,11 +8,7 @@ VARYING_ vec2 sampleNE;
 VARYING_ vec2 sampleSW;
 VARYING_ vec2 sampleSE;
 
-#ifdef GL_ES
-VARYING_ mediump vec2 varTexCoord;
-#else
-centroid VARYING_ vec2 varTexCoord;
-#endif
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
 
 /**
 Basic FXAA implementation based on the code on geeks3d.com with the

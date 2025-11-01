@@ -7,13 +7,8 @@ VARYING_ vec3 vNormal;
 VARYING_ vec3 vPosition;
 VARYING_ vec3 worldPosition;
 VARYING_ lowp vec4 varColor;
-#ifdef GL_ES
-VARYING_ mediump vec2 varTexCoord;
-VARYING_ float varTexLayer;
-#else
-centroid VARYING_ vec2 varTexCoord;
-centroid VARYING_ float varTexLayer; // actually int
-#endif
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow uniforms

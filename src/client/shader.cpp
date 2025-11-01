@@ -686,9 +686,16 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		const bool use_glsl3 = m_have_glsl3;
 		if (driver->getDriverType() == video::EDT_OPENGL3) {
 			assert(!use_glsl3);
-			shaders_header << "#version 150\n";
+			shaders_header << "#version 150\n"
+				<< "#define CENTROID_ centroid\n";
 		} else if (driver->getDriverType() == video::EDT_OGLES2) {
-			shaders_header << (use_glsl3 ? "#version 300 es\n" : "#version 100\n");
+			if (use_glsl3) {
+				shaders_header << "#version 300 es\n"
+					<< "#define CENTROID_ centroid\n";
+			} else {
+				shaders_header << "#version 100\n"
+					<< "#define CENTROID_\n";
+			}
 		} else {
 			assert(false);
 		}
@@ -755,9 +762,11 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			#define inVertexBinormal gl_MultiTexCoord2
 
 			#define VARYING_ varying
+			#define CENTROID_ centroid
 		)";
 		fragment_header = R"(
 			#define VARYING_ varying
+			#define CENTROID_ centroid
 		)";
 	}
 

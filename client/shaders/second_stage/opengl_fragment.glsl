@@ -21,11 +21,7 @@ uniform ExposureParams exposureParams;
 uniform lowp float bloomIntensity;
 uniform lowp float saturation;
 
-#ifdef GL_ES
-VARYING_ mediump vec2 varTexCoord;
-#else
-centroid VARYING_ vec2 varTexCoord;
-#endif
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
 
 #ifdef ENABLE_AUTO_EXPOSURE
 VARYING_ float exposure; // linear exposure factor, see vertex shader
