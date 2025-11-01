@@ -305,6 +305,7 @@ void WieldMeshSceneNode::setExtruded(const TileDef &d0, const TileLayer &l0,
 	m_buffer_info.emplace_back(1, l1);
 }
 
+// This does not set m_buffer_info
 void WieldMeshSceneNode::setExtruded(video::ITexture *texture,
 		video::ITexture *overlay_texture, v3f wield_scale)
 {
@@ -520,6 +521,8 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		switch (f.drawtype) {
 		case NDT_AIRLIKE:
 			setExtruded(tsrc->getTexture("no_texture_airlike.png"), nullptr, v3f(1));
+			m_buffer_info.emplace_back(0);
+			m_buffer_info.emplace_back(1);
 			break;
 		case NDT_SIGNLIKE:
 		case NDT_TORCHLIKE:
