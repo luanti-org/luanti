@@ -700,7 +700,8 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			assert(false);
 		}
 		if (use_glsl3) {
-			shaders_header << "#define ATTRIBUTE_(n) layout(location = n) in\n";
+			shaders_header << "#define ATTRIBUTE_(n) layout(location = n) in\n"
+				"#define texture2D texture\n";
 		} else {
 			shaders_header << "#define ATTRIBUTE_(n) attribute\n";
 		}
