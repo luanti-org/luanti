@@ -522,8 +522,8 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		case NDT_AIRLIKE:
 			setExtruded(tsrc->getTexture("no_texture_airlike.png"), nullptr, v3f(1));
 			m_buffer_info.emplace_back(0);
-			m_buffer_info.emplace_back(1);
-			break;
+			setColor(video::SColor(0xFFFFFFFF));
+			return;
 		case NDT_SIGNLIKE:
 		case NDT_TORCHLIKE:
 		case NDT_RAILLIKE:
