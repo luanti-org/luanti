@@ -21,38 +21,41 @@ extern "C" {
 #include <array>
 
 #include "irrlichttypes_bloated.h"
-#include "util/string.h"
 #include "itemgroup.h"
-#include "itemdef.h"
 #include "util/pointabilities.h"
 // We do an explicit path include because by default c_content.h include src/client/hud.h
 // prior to the src/hud.h, which is not good on server only build
 #include "../../hud.h"
-#include "content/mods.h"
 
-namespace Json { class Value; }
-
-struct MapNode;
-class NodeDefManager;
-struct PointedThing;
-struct ItemStack;
-struct ItemDefinition;
-struct ToolCapabilities;
-struct ObjectProperties;
-struct SoundSpec;
-struct ServerPlayingSound;
+class IGameDef;
+class IItemDefManager;
 class Inventory;
 class InventoryList;
-struct NodeBox;
-struct ContentFeatures;
-struct TileDef;
-class IGameDef;
-struct DigParams;
-struct HitParams;
-struct EnumString;
-struct NoiseParams;
+class NodeDefManager;
 class ServerActiveObject;
+
 struct collisionMoveResult;
+struct ContentFeatures;
+struct DigParams;
+struct EnumString;
+struct FlagDesc;
+struct HitParams;
+struct ItemDefinition;
+struct ItemImageDef;
+struct ItemStack;
+struct MapNode;
+struct ModSpec;
+struct NodeBox;
+struct NoiseParams;
+struct ObjectProperties;
+struct PointedThing;
+struct ServerPlayingSound;
+struct SoundSpec;
+struct TileDef;
+struct ToolCapabilities;
+struct WearBarParams;
+
+namespace Json { class Value; }
 namespace treegen { struct TreeDef; }
 
 extern struct EnumString es_TileAnimationType[];

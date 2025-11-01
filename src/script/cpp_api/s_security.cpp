@@ -10,6 +10,7 @@
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
 #endif
+#include "content/mods.h" // ModSpec
 #include "settings.h"
 
 #include <cerrno>
