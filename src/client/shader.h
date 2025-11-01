@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
 #include <IMaterialRendererServices.h>
 #include "irr_ptr.h"
 #include <string>

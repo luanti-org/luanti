@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include "irrlichttypes_bloated.h"
 #include "SColor.h"
 #include "SMaterialLayer.h"
-#include "nodedef.h"
 
 namespace scene {
 	class IAnimatedMesh;

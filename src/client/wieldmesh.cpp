@@ -16,7 +16,6 @@
 #include "client/meshgen/collector.h"
 #include "client/tile.h"
 #include "client/texturesource.h"
-#include "log.h"
 #include "util/numeric.h"
 #include <map>
 #include <IMeshManipulator.h>

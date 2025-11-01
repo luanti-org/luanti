@@ -14,7 +14,6 @@
 #include "util/numeric.h"
 #include "light.h"
 #include "localplayer.h"
-#include "environment.h"
 #include "clientmap.h"
 #include "mapnode.h"
 #include "node_visuals.h"

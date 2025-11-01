@@ -9,7 +9,6 @@
 #include "util/directiontables.h"
 #include "util/tracy_wrapper.h"
 #include "mapblock_mesh.h"
-#include "settings.h"
 #include "node_visuals.h"
 #include "nodedef.h"
 #include "client/tile.h"

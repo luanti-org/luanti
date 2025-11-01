@@ -14,7 +14,6 @@
 #include "client.h"
 #include "inventory.h"
 #include "shader.h"
-#include "client/tile.h"
 #include "localplayer.h"
 #include "camera.h"
 #include "fontengine.h"

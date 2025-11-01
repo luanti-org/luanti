@@ -12,7 +12,6 @@
 #include "mapblock.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
-#include "gettext.h"
 
 ////
 //// MinimapUpdateThread
