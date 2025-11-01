@@ -10,6 +10,7 @@
 #include "util/basic_macros.h"
 #include "util/string.h"
 #include <string>
+#include "util/hotbar_source.h"
 
 #define PLAYERNAME_SIZE 20
 
@@ -224,10 +225,7 @@ public:
 	void        clearHud();
 
 	u32 hud_flags;
-	s32 hud_hotbar_itemcount;
-
-	// Get actual usable number of hotbar items (clamped to size of "main" list)
-	u16 getMaxHotbarItemcount();
+	HotbarSource hotbar_source;
 
 protected:
 	std::string m_name;
