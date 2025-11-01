@@ -26,6 +26,7 @@
 #include "profiler.h"
 #include "scripting_server.h"
 #include "scripting_emerge.h"
+#include "script/common/c_types.h" // LuaError
 #include "server.h"
 #include "settings.h"
 #include "voxel.h"

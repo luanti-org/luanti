@@ -8,6 +8,7 @@
 #include "nodedef.h"
 #include "mapnode.h"
 #include "server.h"
+#include "server/serverinventorymgr.h"
 #include "environment.h"
 #include "lua_api/l_item.h"
 
