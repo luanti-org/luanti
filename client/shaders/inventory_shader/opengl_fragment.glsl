@@ -1,20 +1,14 @@
 #ifdef USE_ARRAY_TEXTURE
-	uniform sampler2DArray baseTexture;
+	uniform mediump sampler2DArray baseTexture;
 #else
 	uniform sampler2D baseTexture;
 #endif
 
-varying vec3 vNormal;
-varying vec3 vPosition;
-#ifdef GL_ES
-varying lowp vec4 varColor;
-varying mediump vec2 varTexCoord;
-varying float varTexLayer;
-#else
-centroid varying vec4 varColor;
-centroid varying vec2 varTexCoord;
-centroid varying float varTexLayer; // actually int
-#endif
+VARYING_ vec3 vNormal;
+VARYING_ vec3 vPosition;
+CENTROID_ VARYING_ lowp vec4 varColor;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
 
 
 void main(void)

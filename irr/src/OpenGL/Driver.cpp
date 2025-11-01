@@ -1693,6 +1693,7 @@ ITexture *COpenGL3DriverBase::addRenderTargetTextureCubemap(const u32 sideLen, c
 SDriverLimits COpenGL3DriverBase::getLimits() const
 {
 	SDriverLimits ret;
+	ret.GLVersion = core::vector2di(Version.Major, Version.Minor);
 	ret.MaxPrimitiveCount = Version.Spec == OpenGLSpec::ES ? UINT16_MAX : INT32_MAX;
 	ret.MaxTextureSize = MaxTextureSize;
 	ret.MaxArrayTextureImages = MaxArrayTextureLayers;

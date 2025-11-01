@@ -2655,6 +2655,7 @@ ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const 
 SDriverLimits COpenGLDriver::getLimits() const
 {
 	SDriverLimits ret;
+	ret.GLVersion = core::vector2di(Version / 100, Version % 100);
 	ret.MaxPrimitiveCount = 0x7fffffff;
 	ret.MaxTextureSize = MaxTextureSize;
 	return ret;

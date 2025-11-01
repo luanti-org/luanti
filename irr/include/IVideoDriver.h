@@ -63,6 +63,8 @@ struct SFrameStats {
 };
 
 struct SDriverLimits {
+	//! Major and minor GL version
+	core::vector2di GLVersion;
 	//! Maximum amount of primitives that can be rendered in a single call
 	u32 MaxPrimitiveCount = 0;
 	//! Maximum width/height for a texture

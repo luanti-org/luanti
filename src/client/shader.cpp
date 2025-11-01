@@ -255,7 +255,7 @@ public:
 		if (g_settings->get("antialiasing") == "ssaa") {
 			constants["ENABLE_SSAA"] = 1;
 			u16 ssaa_scale = std::max<u16>(2, g_settings->getU16("fsaa"));
-			constants["SSAA_SCALE"] = ssaa_scale;
+			constants["SSAA_SCALE"] = (float)ssaa_scale;
 		}
 
 		if (g_settings->getBool("debanding"))
@@ -405,10 +405,26 @@ public:
 		m_uniform_factories.emplace_back(std::move(setter));
 	}
 
+	bool supportsSampler2DArray() const override
+	{
+		auto *driver = RenderingEngine::get_video_driver();
+		if (driver->getDriverType() == video::EDT_OGLES2) {
+			// Funnily OpenGL ES 2.0 may support creating array textures
+			// with an extension, but to practically use them you need 3.0.
+			return m_have_glsl3;
+		}
+		return m_fully_programmable;
+	}
+
 private:
 
 	// The id of the thread that is allowed to use irrlicht directly
 	std::thread::id m_main_thread;
+
+	// Driver has fully programmable pipeline?
+	bool m_fully_programmable = false;
+	// Driver supports GLSL (ES) 3.x?
+	bool m_have_glsl3 = false;
 
 	// Cache of source shaders
 	// This should be only accessed from the main thread
@@ -459,6 +475,25 @@ ShaderSource::ShaderSource()
 	// Add global stuff
 	addShaderConstantSetter(std::make_unique<MainShaderConstantSetter>());
 	addShaderUniformSetterFactory(std::make_unique<MainShaderUniformSetterFactory>());
+
+	auto *driver = RenderingEngine::get_video_driver();
+	const auto driver_type = driver->getDriverType();
+	if (driver_type != video::EDT_NULL) {
+		auto *gpu = driver->getGPUProgrammingServices();
+		if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu)
+			throw ShaderException(gettext("GLSL is not supported by the driver"));
+
+		v2s32 glver = driver->getLimits().GLVersion;
+		infostream << "ShaderSource: driver reports GL version " << glver.X << "."
+			<< glver.Y << std::endl;
+		assert(glver.X >= 2);
+		m_fully_programmable = driver_type != video::EDT_OPENGL;
+		if (driver_type == video::EDT_OGLES2) {
+			m_have_glsl3 = glver.X >= 3;
+		} else if (driver_type == video::EDT_OPENGL3) {
+			// future TODO
+		}
+	}
 }
 
 ShaderSource::~ShaderSource()
@@ -467,7 +502,6 @@ ShaderSource::~ShaderSource()
 
 	// Delete materials
 	auto *gpu = RenderingEngine::get_video_driver()->getGPUProgrammingServices();
-	assert(gpu);
 	u32 n = 0;
 	for (ShaderInfo &i : m_shaderinfo_cache) {
 		if (!i.name.empty()) {
@@ -639,24 +673,39 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	}
 
 	auto *gpu = driver->getGPUProgrammingServices();
-	if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu) {
-		throw ShaderException(gettext("GLSL is not supported by the driver"));
-	}
+	assert(gpu);
 
 	// Create shaders header
-	bool fully_programmable = driver->getDriverType() == video::EDT_OGLES2 || driver->getDriverType() == video::EDT_OPENGL3;
 	std::ostringstream shaders_header;
 	shaders_header
 		<< std::noboolalpha
 		<< std::showpoint // for GLSL ES
 		;
 	std::string vertex_header, fragment_header, geometry_header;
-	if (fully_programmable) {
+	if (m_fully_programmable) {
+		const bool use_glsl3 = m_have_glsl3;
 		if (driver->getDriverType() == video::EDT_OPENGL3) {
-			shaders_header << "#version 150\n";
+			assert(!use_glsl3);
+			shaders_header << "#version 150\n"
+				<< "#define CENTROID_ centroid\n";
+		} else if (driver->getDriverType() == video::EDT_OGLES2) {
+			if (use_glsl3) {
+				shaders_header << "#version 300 es\n"
+					<< "#define CENTROID_ centroid\n";
+			} else {
+				shaders_header << "#version 100\n"
+					<< "#define CENTROID_\n";
+			}
 		} else {
-			shaders_header << "#version 100\n";
+			assert(false);
 		}
+		if (use_glsl3) {
+			shaders_header << "#define ATTRIBUTE_(n) layout(location = n) in\n"
+				"#define texture2D texture\n";
+		} else {
+			shaders_header << "#define ATTRIBUTE_(n) attribute\n";
+		}
+
 		// cf. EVertexAttributes.h for the predefined ones
 		vertex_header = R"(
 			precision mediump float;
@@ -665,21 +714,34 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			uniform highp mat4 mWorldViewProj;
 			uniform mediump mat4 mTexture;
 
-			attribute highp vec4 inVertexPosition;
-			attribute mediump vec3 inVertexNormal;
-			attribute lowp vec4 inVertexColor;
-			attribute mediump float inVertexAux;
-			attribute mediump vec2 inTexCoord0;
-			attribute mediump vec2 inTexCoord1;
-			attribute mediump vec4 inVertexTangent;
-			attribute mediump vec4 inVertexBinormal;
+			ATTRIBUTE_(0) highp vec4 inVertexPosition;
+			ATTRIBUTE_(1) mediump vec3 inVertexNormal;
+			ATTRIBUTE_(2) lowp vec4 inVertexColor;
+			ATTRIBUTE_(3) mediump float inVertexAux;
+			ATTRIBUTE_(4) mediump vec2 inTexCoord0;
+			ATTRIBUTE_(5) mediump vec2 inTexCoord1;
+			ATTRIBUTE_(6) mediump vec4 inVertexTangent;
+			ATTRIBUTE_(7) mediump vec4 inVertexBinormal;
 		)";
+		if (use_glsl3) {
+			vertex_header += "#define VARYING_ out\n";
+		} else {
+			vertex_header += "#define VARYING_ varying\n";
+		}
 		// Our vertex color has components reversed compared to what OpenGL
 		// normally expects, so we need to take that into account.
 		vertex_header += "#define inVertexColor (inVertexColor.bgra)\n";
+
 		fragment_header = R"(
 			precision mediump float;
 		)";
+		if (use_glsl3) {
+			fragment_header += "#define VARYING_ in\n"
+				"#define gl_FragColor outFragColor\n"
+				"layout(location = 0) out vec4 outFragColor;\n";
+		} else {
+			fragment_header += "#define VARYING_ varying\n";
+		}
 	} else {
 		/* legacy OpenGL driver */
 		shaders_header << R"(
@@ -699,6 +761,13 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			#define inVertexNormal gl_Normal
 			#define inVertexTangent gl_MultiTexCoord1
 			#define inVertexBinormal gl_MultiTexCoord2
+
+			#define VARYING_ varying
+			#define CENTROID_ centroid
+		)";
+		fragment_header = R"(
+			#define VARYING_ varying
+			#define CENTROID_ centroid
 		)";
 	}
 
@@ -719,7 +788,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 	ShaderConstants constants = input_const;
 
-	bool use_discard = fully_programmable;
+	bool use_discard = m_fully_programmable;
 	if (!use_discard) {
 		// workaround for a certain OpenGL implementation lacking GL_ALPHA_TEST
 		const char *renderer = reinterpret_cast<const char*>(GL.GetString(GL.RENDERER));
@@ -753,6 +822,10 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	std::string fragment_shader = m_sourcecache.getOrLoad(name, "opengl_fragment.glsl");
 	std::string geometry_shader = m_sourcecache.getOrLoad(name, "opengl_geometry.glsl");
 
+	if (vertex_shader.empty() || fragment_shader.empty()) {
+		throw ShaderException(fmtgettext("Failed to find \"%s\" shader files.", name.c_str()));
+	}
+
 	vertex_shader = common_header + vertex_header + final_header + vertex_shader;
 	fragment_shader = common_header + fragment_header + final_header + fragment_shader;
 	const char *geometry_shader_ptr = nullptr; // optional
@@ -772,9 +845,10 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	if (shadermat == -1) {
 		errorstream << "generateShader(): failed to generate shaders for "
 			<< log_name << ", addHighLevelShaderMaterial failed." << std::endl;
-		dumpShaderProgram(warningstream, "Vertex", vertex_shader);
-		dumpShaderProgram(warningstream, "Fragment", fragment_shader);
-		dumpShaderProgram(warningstream, "Geometry", geometry_shader);
+		dumpShaderProgram(warningstream, "vertex", vertex_shader);
+		dumpShaderProgram(warningstream, "fragment", fragment_shader);
+		if (geometry_shader_ptr)
+			dumpShaderProgram(warningstream, "geometry", geometry_shader);
 		throw ShaderException(
 			fmtgettext("Failed to compile the \"%s\" shader.", log_name.c_str()) +
 			strgettext("\nCheck debug.txt for details."));
@@ -819,20 +893,21 @@ u32 IShaderSource::getShader(const std::string &name,
 	return getShader(name, input_const, base_mat);
 }
 
-void dumpShaderProgram(std::ostream &output_stream,
+void dumpShaderProgram(std::ostream &os,
 		const std::string &program_type, std::string_view program)
 {
-	output_stream << program_type << " shader program:" << std::endl <<
-		"----------------------------------" << std::endl;
-	size_t pos = 0;
-	size_t prev = 0;
-	s16 line = 1;
+	os << program_type << " shader program:\n"
+		"----------------------------------" << '\n';
+	size_t pos = 0, prev = 0;
+	int nline = 1;
 	while ((pos = program.find('\n', prev)) != std::string::npos) {
-		output_stream << line++ << ": "<< program.substr(prev, pos - prev) <<
-			std::endl;
+		auto line = program.substr(prev, pos - prev);
+		// Be smart about line number reset
+		if (trim(line) == "#line 0")
+			nline = 0;
+		os << (nline++) << ": " << line << '\n';
 		prev = pos + 1;
 	}
-	output_stream << line << ": " << program.substr(prev) << std::endl <<
-		"End of " << program_type << " shader program." << std::endl <<
-		" " << std::endl;
+	os << nline << ": " << program.substr(prev) << '\n' <<
+		"End of " << program_type << " shader program.\n \n" << std::flush;
 }

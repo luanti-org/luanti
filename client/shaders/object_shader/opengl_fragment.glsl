@@ -1,5 +1,5 @@
 #ifdef USE_ARRAY_TEXTURE
-	uniform sampler2DArray baseTexture;
+	uniform mediump sampler2DArray baseTexture;
 #else
 	uniform sampler2D baseTexture;
 #endif
@@ -26,34 +26,29 @@ uniform float animationTimer;
 	uniform float xyPerspectiveBias1;
 	uniform vec3 shadow_tint;
 
-	varying float adj_shadow_strength;
-	varying float cosLight;
-	varying float f_normal_length;
-	varying vec3 shadow_position;
-	varying float perspective_factor;
+	VARYING_ float adj_shadow_strength;
+	VARYING_ float cosLight;
+	VARYING_ float f_normal_length;
+	VARYING_ vec3 shadow_position;
+	VARYING_ float perspective_factor;
 #endif
 
 
-varying vec3 vNormal;
-varying vec3 vPosition;
+VARYING_ vec3 vNormal;
+VARYING_ vec3 vPosition;
 // World position in the visible world (i.e. relative to the cameraOffset.)
 // This can be used for many shader effects without loss of precision.
 // If the absolute position is required it can be calculated with
 // cameraOffset + worldPosition (for large coordinates the limits of float
 // precision must be considered).
-varying vec3 worldPosition;
-varying lowp vec4 varColor;
-#ifdef GL_ES
-varying mediump vec2 varTexCoord;
-varying float varTexLayer;
-#else
-centroid varying vec2 varTexCoord;
-centroid varying float varTexLayer; // actually int
-#endif
-varying highp vec3 eyeVec;
-varying float nightRatio;
+VARYING_ vec3 worldPosition;
+VARYING_ lowp vec4 varColor;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
+VARYING_ highp vec3 eyeVec;
+VARYING_ float nightRatio;
 
-varying float vIDiff;
+VARYING_ float vIDiff;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 
@@ -467,5 +462,5 @@ void main(void)
 	col = mix(fogColor * pow(fogColor / fogColorMax, vec4(2.0 * clarity)), col, clarity);
 	col = vec4(col.rgb, base.a);
 
-	gl_FragData[0] = col;
+	gl_FragColor = col;
 }

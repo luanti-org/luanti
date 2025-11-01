@@ -1,5 +1,5 @@
 #ifdef USE_ARRAY_TEXTURE
-	uniform sampler2DArray baseTexture;
+	uniform mediump sampler2DArray baseTexture;
 #else
 	uniform sampler2D baseTexture;
 #endif
@@ -33,34 +33,27 @@ uniform float crackTextureScale;
 	uniform float xyPerspectiveBias1;
 	uniform vec3 shadow_tint;
 
-	varying float adj_shadow_strength;
-	varying float cosLight;
-	varying float f_normal_length;
-	varying vec3 shadow_position;
-	varying float perspective_factor;
+	VARYING_ float adj_shadow_strength;
+	VARYING_ float cosLight;
+	VARYING_ float f_normal_length;
+	VARYING_ vec3 shadow_position;
+	VARYING_ float perspective_factor;
 #endif
 
 
-varying vec3 vNormal;
-varying vec3 vPosition;
+VARYING_ vec3 vNormal;
+VARYING_ vec3 vPosition;
 // World position in the visible world (i.e. relative to the cameraOffset.)
 // This can be used for many shader effects without loss of precision.
 // If the absolute position is required it can be calculated with
 // cameraOffset + worldPosition (for large coordinates the limits of float
 // precision must be considered).
-varying vec3 worldPosition;
-#ifdef GL_ES
-varying lowp vec4 varColor;
-varying mediump vec2 varTexCoord;
-varying float varTexLayer;
-varying float nightRatio;
-#else
-centroid varying lowp vec4 varColor;
-centroid varying vec2 varTexCoord;
-centroid varying float varTexLayer; // actually int
-centroid varying float nightRatio;
-#endif
-varying highp vec3 eyeVec;
+VARYING_ vec3 worldPosition;
+CENTROID_ VARYING_ lowp vec4 varColor;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
+CENTROID_ VARYING_ float nightRatio;
+VARYING_ highp vec3 eyeVec;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 #if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)

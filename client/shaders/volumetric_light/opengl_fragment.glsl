@@ -18,11 +18,7 @@ uniform vec3 v_LightDirection;
 const vec3 v_LightDirection = vec3(0.0, -1.0, 0.0);
 #endif
 
-#ifdef GL_ES
-varying mediump vec2 varTexCoord;
-#else
-centroid varying vec2 varTexCoord;
-#endif
+CENTROID_  VARYING_ mediump vec2 varTexCoord;
 
 const float far = 1000.;
 float mapDepth(float depth)
