@@ -370,21 +370,30 @@ KeyPress KeyPress::getSpecialKey(const std::string &name)
 */
 
 // A simple cache for quicker lookup
-static std::unordered_map<std::string, KeyPress> g_key_setting_cache;
+static std::unordered_map<std::string, std::vector<KeyPress>> g_key_setting_cache;
 
-KeyPress getKeySetting(const std::string &settingname)
+const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
 {
 	auto n = g_key_setting_cache.find(settingname);
 	if (n != g_key_setting_cache.end())
 		return n->second;
 
-	auto keysym = g_settings->get(settingname);
+	auto setting_value = g_settings->get(settingname);
 	auto &ref = g_key_setting_cache[settingname];
-	ref = KeyPress(keysym);
-	if (!keysym.empty() && !ref) {
-		warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
+	for (const auto &keysym: str_split(setting_value, '|')) {
+		if (KeyPress kp = keysym) {
+			ref.push_back(kp);
+		} else {
+			warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
+		}
 	}
 	return ref;
+}
+
+bool keySettingHasMatch(const std::string &settingname, KeyPress kp)
+{
+	const auto &keylist = getKeySetting(settingname);
+	return std::find(keylist.begin(), keylist.end(), kp) != keylist.end();
 }
 
 void clearKeyCache()
