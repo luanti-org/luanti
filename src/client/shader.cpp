@@ -255,7 +255,7 @@ public:
 		if (g_settings->get("antialiasing") == "ssaa") {
 			constants["ENABLE_SSAA"] = 1;
 			u16 ssaa_scale = std::max<u16>(2, g_settings->getU16("fsaa"));
-			constants["SSAA_SCALE"] = ssaa_scale;
+			constants["SSAA_SCALE"] = (float)ssaa_scale;
 		}
 
 		if (g_settings->getBool("debanding"))
