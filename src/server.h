@@ -12,7 +12,6 @@
 #include "network/peerhandler.h"
 #include "util/thread.h"
 #include "util/basic_macros.h"
-#include "serverenvironment.h"
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
 #include "translation.h"
@@ -53,6 +52,7 @@ struct ChatEventChat;
 struct ChatInterface;
 struct ChatMessage;
 struct CloudParams;
+struct GameParams;
 struct Lighting;
 struct MoonParams;
 struct PackedValue;
@@ -364,7 +364,7 @@ public:
 	void addShutdownError(const ModError &e);
 
 	bool showFormspec(const char *name, const std::string &formspec, const std::string &formname);
-	Map & getMap() { return m_env->getMap(); }
+	Map &getMap();
 	ServerEnvironment & getEnv() { return *m_env; }
 	v3f findSpawnPos();
 

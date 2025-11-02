@@ -28,6 +28,7 @@
 #include "player.h"
 #include "porting.h"
 #include "serialization.h" // SER_FMT_VER_HIGHEST_*
+#include "serverenvironment.h"
 #include "servermap.h"
 #include "network/socket.h"
 #include "mapblock.h"

@@ -17,6 +17,7 @@
 #include "tool.h"
 #include "remoteplayer.h"
 #include "server.h"
+#include "serverenvironment.h"
 #include "hud.h"
 #include "scripting_server.h"
 #include "server/luaentity_sao.h"

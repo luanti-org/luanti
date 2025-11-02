@@ -8,7 +8,7 @@
 #include "common/c_content.h"
 #include "cpp_api/s_base.h"
 #include "server.h"
-#include "environment.h"
+#include "serverenvironment.h"
 #include "database/database.h"
 #include <algorithm>
 

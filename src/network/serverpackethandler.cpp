@@ -4,6 +4,7 @@
 
 #include "chatmessage.h"
 #include "server.h"
+#include "serverenvironment.h"
 #include "log.h"
 #include "emerge.h"
 #include "itemdef.h"

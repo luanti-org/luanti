@@ -4017,6 +4017,11 @@ void Server::addShutdownError(const ModError &e)
 	}
 }
 
+Map &Server::getMap()
+{
+	return m_env->getMap();
+}
+
 v3f Server::findSpawnPos()
 {
 	ServerMap &map = m_env->getServerMap();
