@@ -205,50 +205,19 @@ inline u16 A1R5G5B5toR5G6B5(u16 color)
 	return (((color & 0x7FE0) << 1) | (color & 0x1F));
 }
 
-//! Returns the alpha component from A1R5G5B5 color
-/** In Irrlicht, alpha refers to opacity.
-\return The alpha value of the color. 0 is transparent, 1 is opaque. */
-inline u32 getAlpha(u16 color)
-{
-	return ((color >> 15) & 0x1);
-}
-
-//! Returns the red component from A1R5G5B5 color.
-/** Shift left by 3 to get 8 bit value. */
-inline u32 getRed(u16 color)
-{
-	return ((color >> 10) & 0x1F);
-}
-
-//! Returns the green component from A1R5G5B5 color
-/** Shift left by 3 to get 8 bit value. */
-inline u32 getGreen(u16 color)
-{
-	return ((color >> 5) & 0x1F);
-}
-
-//! Returns the blue component from A1R5G5B5 color
-/** Shift left by 3 to get 8 bit value. */
-inline u32 getBlue(u16 color)
-{
-	return (color & 0x1F);
-}
-
 //! Class representing a 32 bit ARGB color.
 /** The color values for alpha, red, green, and blue are
 stored in a single u32. So all four values may be between 0 and 255.
-Alpha in Irrlicht is opacity, so 0 is fully transparent, 255 is fully opaque (solid).
-This class is used by most parts of the Irrlicht Engine
-to specify a color. Another way is using the class SColorf, which
-stores the color values in 4 floats.
+Alpha in Irrlicht is non-premultiplied.
+This class is used by most parts of the engine, another way is using the SColorf,
+which stores the color values in 4 floats.
 This class must consist of only one u32 and must not use virtual functions.
 */
 class SColor
 {
 public:
-	//! Constructor of the Color. Does nothing.
-	/** The color value is not initialized to save time. */
-	SColor() {}
+	//! Default constructor
+	constexpr SColor() : color(0) {}
 
 	//! Constructs the color from 4 values representing the alpha, red, green and blue component.
 	/** Must be values between 0 and 255. */

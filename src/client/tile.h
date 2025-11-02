@@ -161,7 +161,7 @@ struct TileLayer
 	 * The color of the tile, or if the tile does not own
 	 * a color then the color of the node owning this tile.
 	 */
-	video::SColor color = video::SColor(0, 0, 0, 0);
+	video::SColor color;
 
 	//! If true, the tile has its own color.
 	bool has_color = false;

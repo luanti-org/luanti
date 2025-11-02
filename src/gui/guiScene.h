@@ -69,5 +69,5 @@ private:
 	bool m_inf_rot    = false;
 	bool m_initial_rotation = true;
 
-	video::SColor m_bgcolor = 0;
+	video::SColor m_bgcolor;
 };

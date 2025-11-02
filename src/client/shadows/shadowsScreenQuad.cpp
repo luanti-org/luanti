@@ -9,7 +9,7 @@ ShadowScreenQuad::ShadowScreenQuad()
 {
 	Material.Wireframe = false;
 
-	video::SColor color(0x0);
+	video::SColor color;
 	Vertices[0] = video::S3DVertex(
 			-1.0f, -1.0f, 0.0f, 0, 0, 1, color, 0.0f, 1.0f);
 	Vertices[1] = video::S3DVertex(
