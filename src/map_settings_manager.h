@@ -6,7 +6,8 @@
 
 #include <memory>
 #include <string>
-#include "settings.h"
+
+class Settings;
 
 struct NoiseParams;
 struct MapgenParams;

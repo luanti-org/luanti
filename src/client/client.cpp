@@ -63,6 +63,8 @@
 #include <sstream>
 #include <cmath>
 
+#include "itemdef.h"
+
 extern gui::IGUIEnvironment* guienv;
 
 /*

@@ -9,6 +9,7 @@
 #include "client/client.h"
 #include "porting.h"
 #include "inventory.h"
+#include "itemdef.h"
 #include "client/mesh.h"
 #include "client/wieldmesh.h"
 #include "client/texturesource.h"

@@ -5,15 +5,15 @@
 #pragma once
 
 #include "player.h"
-#include "environment.h"
 #include "constants.h"
 #include "lighting.h"
 #include <string>
 
 class Client;
+class ClientActiveObject;
 class Environment;
 class GenericCAO;
-class ClientActiveObject;
+class Map;
 struct CollisionInfo;
 struct collisionMoveResult;
 

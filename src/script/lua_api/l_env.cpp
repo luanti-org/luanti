@@ -24,6 +24,7 @@
 #include "pathfinder.h"
 #include "face_position_cache.h"
 #include "remoteplayer.h"
+#include "servermap.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 #include "util/string.h"

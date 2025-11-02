@@ -6,7 +6,7 @@
 
 #include "irrlichttypes_bloated.h"
 #include "map.h"
-#include "camera.h"
+#include <ISceneNode.h>
 #include <set>
 #include <map>
 
@@ -23,6 +23,9 @@ struct MapDrawControl
 };
 
 class Client;
+class RenderingEngine;
+
+enum CameraMode : int;
 
 namespace scene
 {

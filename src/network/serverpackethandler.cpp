@@ -6,6 +6,7 @@
 #include "server.h"
 #include "log.h"
 #include "emerge.h"
+#include "itemdef.h"
 #include "mapblock.h"
 #include "modchannels.h"
 #include "nodedef.h"

@@ -27,6 +27,7 @@
 #include "texturesource.h"
 #include "gui/mainmenumanager.h"
 #include "gui/profilergraph.h"
+#include "localplayer.h"
 #include "minimap.h"
 #include "nodedef.h"         // Needed for determining pointing to nodes
 #include "nodemetadata.h"
@@ -46,6 +47,7 @@
 #include "script/scripting_client.h"
 #include "hud.h"
 #include <AnimatedMeshSceneNode.h>
+#include <ICameraSceneNode.h>
 #include "util/tracy_wrapper.h"
 #include "item_visuals_manager.h"
 
@@ -2078,6 +2080,12 @@ f32 Game::getSensitivityScaleFactor() const
 	// 16:9 aspect ratio to minimize disruption of existing sensitivity
 	// settings.
 	return std::tan(fov_y / 2.0f) * 1.3763819f;
+}
+
+bool Game::isTouchShootlineUsed() const
+{
+	return g_touchcontrols && g_touchcontrols->isShootlineAvailable() &&
+			camera->getCameraMode() == CAMERA_MODE_FIRST;
 }
 
 void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)

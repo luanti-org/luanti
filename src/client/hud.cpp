@@ -27,6 +27,7 @@
 #include "util/enriched_string.h"
 #include "irrlicht_changes/CGUITTFont.h"
 #include "gui/drawItemStack.h"
+#include <ICameraSceneNode.h>
 
 #define OBJECT_CROSSHAIR_LINE_SIZE 8
 #define CROSSHAIR_LINE_SIZE 10

@@ -4,30 +4,37 @@
 
 #pragma once
 
+#include <memory> // std::unique_ptr
 #include <set>
-#include <utility>
+#include <unordered_map>
+#include <utility> // std::function
+#include <vector>
 
-#include "activeobject.h"
 #include "environment.h"
-#include "servermap.h"
 #include "util/guid.h"
-#include "map.h"
-#include "settings.h"
+#include "map.h" // MapEventReceiver
 #include "server/activeobjectmgr.h"
 #include "server/blockmodifier.h"
 #include "util/numeric.h"
 #include "util/metricsbackend.h"
 
-struct GameParams;
-class RemotePlayer;
-class PlayerDatabase;
 class AuthDatabase;
+class ActiveObject;
+class MetricsBackend;
+class PlayerDatabase;
 class PlayerSAO;
-class ServerEnvironment;
-struct StaticObject;
-class ServerActiveObject;
+class RemotePlayer;
 class Server;
+class ServerActiveObject;
+class ServerEnvironment;
 class ServerScripting;
+class Settings;
+struct ActiveObjectMessage;
+struct GameParams;
+struct StaticObject;
+
+class ServerMap;
+
 enum AccessDeniedCode : u8;
 typedef u16 session_t;
 

@@ -19,6 +19,7 @@
 #include "remoteplayer.h"
 #include "scripting_server.h"
 #include "server.h"
+#include "servermap.h"
 #include "util/serialize.h"
 #include "util/numeric.h"
 #include "util/basic_macros.h"

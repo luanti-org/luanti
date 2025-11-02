@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <string>
-#include <iostream>
-#include <vector>
-#include <utility>
 #include "gamedef.h"
-#include "inventory.h"
+
+#include <string>
+#include <vector>
+
+struct ItemStack;
 
 /*
 	Crafting methods.
@@ -61,9 +61,7 @@ struct CraftInput
 	CraftInput() = default;
 
 	CraftInput(CraftMethod method_, unsigned int width_,
-			const std::vector<ItemStack> &items_):
-		method(method_), width(width_), items(items_)
-	{}
+			const std::vector<ItemStack> &items_);
 
 	// Returns true if all items are empty.
 	bool empty() const;
