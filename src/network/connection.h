@@ -5,10 +5,10 @@
 
 #include "irrlichttypes.h"
 #include "networkprotocol.h" // session_t
+#include "socket.h" // Address
 
 class NetworkPacket;
 class PeerHandler;
-class Address;
 
 namespace con
 {
