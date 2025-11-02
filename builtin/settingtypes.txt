@@ -1057,10 +1057,6 @@ anticheat_flags (Anticheat flags) flags digging,interaction,movement digging,int
 #    Increase the value if players experience stuttery movement.
 anticheat_movement_tolerance (Anticheat movement tolerance) float 1.0 1.0
 
-#    If enabled, actions are recorded for rollback.
-#    This option is only read when server starts.
-enable_rollback_recording (Rollback recording) bool false
-
 [**Client-side Modding]
 
 #    Restricts the access of certain client-side functions on servers.
@@ -2248,6 +2244,11 @@ kick_msg_crash (Crash message) string This server has experienced an internal er
 #    Whether to ask clients to reconnect after a (Lua) crash.
 #    Set this to true if your server is set up to restart automatically.
 ask_reconnect_on_crash (Ask to reconnect after crash) bool false
+
+#    If enabled, node and inventory actions are recorded for rollback.
+#    This option is only read on server start. Note that the engine will not
+#    automatically clean old entries from the rollback database.
+enable_rollback_recording (Rollback recording) bool false
 
 [**Server/Env Performance] [server]
 
