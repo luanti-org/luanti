@@ -30,6 +30,7 @@
 #include "serialization.h" // SER_FMT_VER_HIGHEST_*
 #include "serverenvironment.h"
 #include "servermap.h"
+#include "settings.h"
 #include "network/socket.h"
 #include "mapblock.h"
 #if USE_CURSES

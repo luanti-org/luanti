@@ -47,6 +47,7 @@ class ServerInventoryManager;
 class ServerModManager;
 class ServerScripting;
 class ServerThread;
+class Settings;
 
 struct ChatEventChat;
 struct ChatInterface;

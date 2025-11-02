@@ -18,6 +18,7 @@
 #include "remoteplayer.h"
 #include "server.h"
 #include "serverenvironment.h"
+#include "settings.h"
 #include "hud.h"
 #include "scripting_server.h"
 #include "server/luaentity_sao.h"

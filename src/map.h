@@ -4,22 +4,22 @@
 
 #pragma once
 
-#include <iostream>
-#include <set>
 #include <map>
+#include <ostream>
+#include <set>
+#include <unordered_map>
 
 #include "irrlichttypes_bloated.h"
-#include "mapblock.h"
+#include "mapblock.h" // for forEachNodeInArea
 #include "mapnode.h"
 #include "constants.h"
 #include "voxel.h"
 #include "modifiedstate.h"
-#include "util/numeric.h"
-#include "nodetimer.h"
-#include "debug.h"
+#include "util/numeric.h" // for forEachNodeInArea
 
 class MapSector;
 class NodeMetadata;
+class NodeTimer;
 class IGameDef;
 
 /*

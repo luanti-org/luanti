@@ -16,6 +16,7 @@ extern "C" {
 #include "log.h"
 #include "config.h"
 #include "filesys.h"
+#include "settings.h"
 #include "porting.h"
 #include "common/c_internal.h"
 #include "common/c_packer.h"

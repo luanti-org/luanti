@@ -9,6 +9,7 @@
 #include "scripting_server.h"
 #include "server.h"
 #include "serverenvironment.h"
+#include "settings.h"
 
 PlayerSAO::PlayerSAO(ServerEnvironment *env_, RemotePlayer *player_, session_t peer_id_,
 		bool is_singleplayer):
