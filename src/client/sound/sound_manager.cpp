@@ -192,7 +192,7 @@ void OpenALSoundManager::playSoundGeneric(sound_handle_t id, const std::string &
 			getOrLoadLoadedSoundNameFromGroup(group_name) :
 			getLoadedSoundNameFromGroup(group_name);
 	if (sound_name.empty()) {
-		warningstream << "OpenALSoundManager: Sound \"" << group_name << "\" not found."
+		infostream << "OpenALSoundManager: \"" << group_name << "\" not found."
 				<< std::endl;
 		reportRemovedSound(id);
 		return;
