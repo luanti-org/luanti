@@ -321,7 +321,7 @@ void LodMeshGenerator::generate(const u8 lod)
 {
 	ZoneScoped;
 
-	// cap LODs to 8, since there is no use larger than 256 node LODs
+	// cap LODs to 8, since there is no use for larger than 256 node LODs
     u8 width = 1 << MYMIN(lod - 1, 7);
 
 	// cap LODs width to chunk size to account for different mesh chunk settings
@@ -331,8 +331,7 @@ void LodMeshGenerator::generate(const u8 lod)
 	// transparents are always rendered separately
 	std::bitset<NodeDrawType_END> transparent_set;
 	transparent_set.set(NDT_LIQUID);
-	if (g_settings->get("leaves_style") == "simple")
-		transparent_set.set(NDT_GLASSLIKE);
+	transparent_set.set(NDT_GLASSLIKE);
 
 	generateLodChunks(transparent_set, width);
 
