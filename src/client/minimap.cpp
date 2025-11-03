@@ -4,14 +4,15 @@
 
 #include "minimap.h"
 #include <cmath>
+#include "camera.h"
 #include "client.h"
-#include "clientmap.h"
+#include "mapblock.h" // getNodeBlockPos
 #include "settings.h"
 #include "shader.h"
-#include "mapblock.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
 #include "gettext.h"
+#include "voxel.h"
 
 ////
 //// MinimapUpdateThread

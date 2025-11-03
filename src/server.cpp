@@ -23,6 +23,7 @@
 #include "profiler.h"
 #include "remoteplayer.h"
 #include "server/ban.h"
+#include "serverenvironment.h"
 #include "servermap.h"
 #include "server/player_sao.h"
 #include "server/rollback.h"

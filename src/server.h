@@ -12,6 +12,7 @@
 #include "network/peerhandler.h"
 #include "util/thread.h"
 #include "util/basic_macros.h"
+#include "util/metricsbackend.h"
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
 #include "translation.h"
