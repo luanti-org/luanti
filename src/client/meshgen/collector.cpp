@@ -23,10 +23,12 @@ void MeshCollector::append(const TileLayer &layer, const video::S3DVertex *verti
 {
 	PreMeshBuffer &p = findBuffer(layer, layernum, numVertices);
 
+	const u16 aux = layer.texture_layer_idx;
+
 	u32 vertex_count = p.vertices.size();
 	for (u32 i = 0; i < numVertices; i++) {
 		p.vertices.emplace_back(vertices[i].Pos + offset, vertices[i].Normal,
-				vertices[i].Color, vertices[i].TCoords);
+				vertices[i].Color, vertices[i].TCoords, aux);
 		m_bounding_radius_sq = std::max(m_bounding_radius_sq,
 				(vertices[i].Pos - m_center_pos).getLengthSQ());
 	}

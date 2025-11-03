@@ -58,6 +58,7 @@ static const VertexType vtStandard = {
 				{EVA_NORMAL, 3, GL_FLOAT, VertexAttribute::Mode::Regular, offsetof(S3DVertex, Normal)},
 				{EVA_COLOR, 4, GL_UNSIGNED_BYTE, VertexAttribute::Mode::Normalized, offsetof(S3DVertex, Color)},
 				{EVA_TCOORD0, 2, GL_FLOAT, VertexAttribute::Mode::Regular, offsetof(S3DVertex, TCoords)},
+				{EVA_AUX, 1, GL_UNSIGNED_SHORT, VertexAttribute::Mode::Regular, offsetof(S3DVertex, Aux)},
 		},
 };
 
@@ -66,6 +67,7 @@ static const VertexType vtStandard = {
 // - only one class in the hierarchy has non-static data members
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
+
 
 static const VertexType vt2TCoords = {
 		sizeof(S3DVertex2TCoords),
@@ -1688,10 +1690,13 @@ ITexture *COpenGL3DriverBase::addRenderTargetTextureCubemap(const u32 sideLen, c
 	return renderTargetTexture;
 }
 
-//! Returns the maximum amount of primitives
-u32 COpenGL3DriverBase::getMaximalPrimitiveCount() const
+SDriverLimits COpenGL3DriverBase::getLimits() const
 {
-	return Version.Spec == OpenGLSpec::ES ? 65535 : 0x7fffffff;
+	SDriverLimits ret;
+	ret.MaxPrimitiveCount = Version.Spec == OpenGLSpec::ES ? UINT16_MAX : INT32_MAX;
+	ret.MaxTextureSize = MaxTextureSize;
+	ret.MaxArrayTextureImages = MaxArrayTextureLayers;
+	return ret;
 }
 
 bool COpenGL3DriverBase::setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SColor clearColor, f32 clearDepth, u8 clearStencil)
@@ -1862,11 +1867,6 @@ void COpenGL3DriverBase::removeTexture(ITexture *texture)
 {
 	CacheHandler->getTextureCache().remove(texture);
 	CNullDriver::removeTexture(texture);
-}
-
-core::dimension2du COpenGL3DriverBase::getMaxTextureSize() const
-{
-	return core::dimension2du(MaxTextureSize, MaxTextureSize);
 }
 
 GLenum COpenGL3DriverBase::getGLBlend(E_BLEND_FACTOR factor) const

@@ -579,7 +579,7 @@ int ModApiUtil::l_colorspec_to_colorstring(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	video::SColor color(0);
+	video::SColor color;
 	if (read_color(L, 1, &color)) {
 		char colorstring[10];
 		snprintf(colorstring, 10, "#%02X%02X%02X%02X",
@@ -596,7 +596,7 @@ int ModApiUtil::l_colorspec_to_bytes(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	video::SColor color(0);
+	video::SColor color;
 	if (read_color(L, 1, &color)) {
 		u8 colorbytes[4] = {
 			(u8) color.getRed(),
@@ -616,7 +616,7 @@ int ModApiUtil::l_colorspec_to_table(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	video::SColor color(0);
+	video::SColor color;
 	if (read_color(L, 1, &color)) {
 		push_ARGB8(L, color);
 		return 1;

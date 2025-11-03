@@ -71,10 +71,13 @@
 	PROTOCOL VERSION 50
 		Support for TOCLIENT_SPAWN_PARTICLE_BATCH
 		[scheduled bump for 5.14.0]
+	PROTOCOL VERSION 51
+		Only send first frame of animated item/wield images to older client
+		[scheduled bump for 5.15.0]
 */
 
 // Note: Also update core.protocol_versions in builtin when bumping
-const u16 LATEST_PROTOCOL_VERSION = 50;
+const u16 LATEST_PROTOCOL_VERSION = 51;
 
 // See also formspec [Version History] in doc/lua_api.md
 const u16 FORMSPEC_API_VERSION = 10;

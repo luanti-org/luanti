@@ -241,10 +241,7 @@ public:
 	//! IMaterialRendererServices)
 	IVideoDriver *getVideoDriver() override;
 
-	//! Returns the maximum amount of primitives (mostly vertices) which
-	//! the device is able to render with one drawIndexedTriangleList
-	//! call.
-	u32 getMaximalPrimitiveCount() const override;
+	SDriverLimits getLimits() const override;
 
 	virtual ITexture *addRenderTargetTexture(const core::dimension2d<u32> &size,
 			const io::path &name, const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
@@ -273,9 +270,6 @@ public:
 
 	//! Returns the graphics card vendor name.
 	core::stringc getVendorInfo() override { return VendorName; }
-
-	//! Returns the maximum texture size supported.
-	core::dimension2du getMaxTextureSize() const override;
 
 	//! Removes a texture from the texture cache and deletes it, freeing lot of memory.
 	void removeTexture(ITexture *texture) override;

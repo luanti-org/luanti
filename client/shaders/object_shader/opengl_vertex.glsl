@@ -9,8 +9,10 @@ varying vec3 worldPosition;
 varying lowp vec4 varColor;
 #ifdef GL_ES
 varying mediump vec2 varTexCoord;
+varying float varTexLayer;
 #else
 centroid varying vec2 varTexCoord;
+centroid varying float varTexLayer; // actually int
 #endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
@@ -91,7 +93,11 @@ float directional_ambient(vec3 normal)
 
 void main(void)
 {
+#ifdef USE_ARRAY_TEXTURE
+	varTexLayer = inVertexAux;
+#endif
 	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 1.0, 1.0)).st;
+
 	gl_Position = mWorldViewProj * inVertexPosition;
 
 	vPosition = gl_Position.xyz;
@@ -104,9 +110,9 @@ void main(void)
 #else
 	// This is intentional comparison with zero without any margin.
 	// If normal is not equal to zero exactly, then we assume it's a valid, just not normalized vector
-	vIDiff = length(inVertexNormal) == 0.0
+	vIDiff = length(vNormal) == 0.0
 		? 1.0
-		: directional_ambient(normalize(inVertexNormal));
+		: directional_ambient(normalize(vNormal));
 #endif
 
 	vec4 color = inVertexColor;

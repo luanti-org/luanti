@@ -15,6 +15,7 @@
 #include <IMeshManipulator.h>
 #include <SMesh.h>
 #include <SkinnedMesh.h>
+#include "client/wieldmesh.h" // createAnimationFrames
 #endif
 #include "log.h"
 #include "settings.h"
@@ -268,6 +269,10 @@ void TileDef::deSerialize(std::istream &is, NodeDrawType drawtype, u16 protocol_
 	}
 }
 
+/*
+	TextureSettings
+*/
+
 void TextureSettings::readSettings()
 {
 	connected_glass                = g_settings->getBool("connected_glass");
@@ -305,6 +310,56 @@ void TextureSettings::readSettings()
 }
 
 /*
+	Texture pool and related
+*/
+
+#if CHECK_CLIENT_BUILD()
+struct PreLoadedTexture {
+	video::ITexture *texture = nullptr;
+	u32 texture_id = 0;
+	u16 texture_layer_idx = 0;
+	bool used = false; // For debugging
+};
+
+struct PreLoadedTextures {
+	std::unordered_map<std::string, PreLoadedTexture> pool;
+	std::unordered_set<std::string> missed; // For debugging
+
+	PreLoadedTexture find(const std::string &name);
+	void add(const std::string &name, const PreLoadedTexture &t);
+
+	void printStats(std::ostream &to) const;
+};
+
+PreLoadedTexture PreLoadedTextures::find(const std::string &name)
+{
+	auto it = pool.find(name);
+	if (it == pool.end()) {
+		missed.emplace(name);
+		return {};
+	}
+	it->second.used = true;
+	return it->second;
+}
+
+void PreLoadedTextures::add(const std::string &name, const PreLoadedTexture &t)
+{
+	assert(pool.find(name) == pool.end());
+	pool[name] = t;
+}
+
+void PreLoadedTextures::printStats(std::ostream &to) const
+{
+	size_t unused = 0;
+	for (auto &it : pool)
+		unused += it.second.used ? 0 : 1;
+	to << "PreLoadedTextures: " << pool.size() << "\n  wasted: " << unused
+		<< " missed: " << missed.size() << std::endl;
+}
+#endif
+
+
+/*
 	ContentFeatures
 */
 
@@ -320,8 +375,10 @@ ContentFeatures::~ContentFeatures()
 		delete tiles[j].layers[0].frames;
 		delete tiles[j].layers[1].frames;
 	}
-	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++)
+	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++) {
 		delete special_tiles[j].layers[0].frames;
+		delete special_tiles[j].layers[1].frames;
+	}
 #endif
 }
 
@@ -671,20 +728,47 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 }
 
 #if CHECK_CLIENT_BUILD()
-static void fillTileAttribs(ITextureSource *tsrc, TileLayer *layer,
-		const TileSpec &tile, const TileDef &tiledef, video::SColor color,
-		MaterialType material_type, u32 shader_id, bool backface_culling,
-		const TextureSettings &tsettings)
-{
-	layer->shader_id     = shader_id;
-	layer->texture       = tsrc->getTextureForMesh(tiledef.name, &layer->texture_id);
-	layer->material_type = material_type;
+struct TileAttribContext {
+	ITextureSource *tsrc;
+	PreLoadedTextures *texture_pool;
+	video::SColor base_color;
+	const TextureSettings &tsettings;
+};
 
+struct ShaderIds {
+	u32 normal;
+	// Shader that will handle an array texture and texture_layer_idx
+	u32 with_layers;
+};
+
+static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
+		const TileSpec &tile, const TileDef &tiledef,
+		MaterialType material_type, ShaderIds shader)
+{
+	auto *tsrc = context.tsrc;
+	const auto &tsettings = context.tsettings;
+
+	std::string texture_image;
+	if (!tiledef.name.empty()) {
+		texture_image = tiledef.name;
+		if (tsrc->needFilterForMesh())
+			texture_image += tsrc->FILTER_FOR_MESH;
+	} else {
+		// Tile is empty, nothing to do.
+		return;
+	}
+
+	core::dimension2du texture_size;
+	if (!texture_image.empty())
+		texture_size = tsrc->getTextureDimensions(texture_image);
+	if (!texture_size.Width || !texture_size.Height)
+		texture_size = {1, 1}; // dummy if there's an error
+
+	// Scale
 	bool has_scale = tiledef.scale > 0;
 	bool use_autoscale = tsettings.autoscale_mode == AUTOSCALE_FORCE ||
 		(tsettings.autoscale_mode == AUTOSCALE_ENABLE && !has_scale);
-	if (use_autoscale && layer->texture) {
-		auto texture_size = layer->texture->getOriginalSize();
+	if (use_autoscale) {
 		float base_size = tsettings.node_texture_size;
 		float size = std::fmin(texture_size.Width, texture_size.Height);
 		layer->scale = std::fmax(base_size, size) / base_size;
@@ -696,9 +780,10 @@ static void fillTileAttribs(ITextureSource *tsrc, TileLayer *layer,
 	if (!tile.world_aligned)
 		layer->scale = 1;
 
-	// Material flags
+	// Material
+	layer->material_type = material_type;
 	layer->material_flags = 0;
-	if (backface_culling)
+	if (tiledef.backface_culling)
 		layer->material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
 	if (tiledef.animation.type != TAT_NONE)
 		layer->material_flags |= MATERIAL_FLAG_ANIMATION;
@@ -712,37 +797,84 @@ static void fillTileAttribs(ITextureSource *tsrc, TileLayer *layer,
 	if (tiledef.has_color)
 		layer->color = tiledef.color;
 	else
-		layer->color = color;
+		layer->color = context.base_color;
 
-	// Animation parameters
-	int frame_count = 1;
+	// Animation
 	if (layer->material_flags & MATERIAL_FLAG_ANIMATION) {
-		assert(layer->texture);
 		int frame_length_ms = 0;
-		tiledef.animation.determineParams(layer->texture->getOriginalSize(),
-				&frame_count, &frame_length_ms, NULL);
-		layer->animation_frame_count = frame_count;
-		layer->animation_frame_length_ms = frame_length_ms;
+		std::vector<FrameSpec> frames = createAnimationFrames(
+				tsrc, tiledef.name, tiledef.animation, frame_length_ms);
+		if (frames.size() > 1) {
+			layer->frames = new std::vector<FrameSpec>(frames);
+			layer->animation_frame_count = layer->frames->size();
+			layer->animation_frame_length_ms = frame_length_ms;
+
+			// Set default texture to first frame (not used practice)
+			layer->texture = (*layer->frames)[0].texture;
+			layer->texture_id = (*layer->frames)[0].texture_id;
+		} else {
+			layer->material_flags &= ~MATERIAL_FLAG_ANIMATION;
+		}
 	}
 
-	if (frame_count == 1) {
-		layer->material_flags &= ~MATERIAL_FLAG_ANIMATION;
-	} else {
-		assert(layer->texture);
-		if (!layer->frames)
-			layer->frames = new std::vector<FrameSpec>();
-		layer->frames->resize(frame_count);
-
-		std::ostringstream os(std::ios::binary);
-		for (int i = 0; i < frame_count; i++) {
-			os.str("");
-			os << tiledef.name;
-			tiledef.animation.getTextureModifer(os,
-					layer->texture->getOriginalSize(), i);
-
-			FrameSpec &frame = (*layer->frames)[i];
-			frame.texture = tsrc->getTextureForMesh(os.str(), &frame.texture_id);
+	if (!(layer->material_flags & MATERIAL_FLAG_ANIMATION)) {
+		// Grab texture
+		auto tex = context.texture_pool->find(texture_image);
+		if (!tex.texture) {
+			// wasn't pre-loaded: create standard texture on the fly
+			layer->texture = tsrc->getTexture(texture_image, &layer->texture_id);
+		} else {
+			layer->texture = tex.texture;
+			layer->texture_id = tex.texture_id;
+			layer->texture_layer_idx = tex.texture_layer_idx;
 		}
+	}
+
+	// Decide on shader to use
+	if (layer->texture) {
+		layer->shader_id = (layer->texture->getType() == video::ETT_2D_ARRAY) ?
+			shader.with_layers : shader.normal;
+	}
+}
+
+void ContentFeatures::preUpdateTextures(ITextureSource *tsrc,
+		std::unordered_set<std::string> &pool, const TextureSettings &tsettings)
+{
+	// Find out the exact texture strings this node might use, and put them into the pool
+	// (this should match updateTextures, but it's not the end of the world if
+	// a mismatch occurs)
+	std::string append;
+	if (tsrc->needFilterForMesh())
+		append = ITextureSource::FILTER_FOR_MESH;
+	std::string append_overlay = append, append_special = append;
+	bool use = true, use_overlay = true, use_special = true;
+
+	if (drawtype == NDT_ALLFACES_OPTIONAL) {
+		use_special = (tsettings.leaves_style == LEAVES_SIMPLE);
+		use = !use_special;
+		if (tsettings.leaves_style == LEAVES_OPAQUE)
+			append.insert(0, "^[noalpha");
+	}
+
+	const auto &consider_tile = [&] (const TileDef &def, const std::string &append) {
+		// Animations are chopped into frames later, so we won't actually need
+		// the source texture
+		if (!def.name.empty() && def.animation.type == TAT_NONE) {
+			pool.insert(def.name + append);
+		}
+	};
+
+	for (u32 j = 0; j < 6; j++) {
+		if (use)
+			consider_tile(tiledef[j], append);
+	}
+	for (u32 j = 0; j < 6; j++) {
+		if (use_overlay)
+			consider_tile(tiledef_overlay[j], append_overlay);
+	}
+	for (u32 j = 0; j < CF_SPECIAL_COUNT; j++) {
+		if (use_special)
+			consider_tile(tiledef_special[j], append_special);
 	}
 }
 
@@ -761,8 +893,32 @@ static bool isWorldAligned(AlignStyle style, WorldAlignMode mode, NodeDrawType d
 	return false;
 }
 
+/// @return maximum number of layers in array textures we can use (0 if unsupported)
+static size_t getArrayTextureMax(video::IVideoDriver *driver)
+{
+	// needs to actually support array textures
+	if (!driver->queryFeature(video::EVDF_TEXTURE_2D_ARRAY))
+		return 0;
+	// must not be the legacy driver, due to custom vertex format
+	if (driver->getDriverType() == video::EDT_OPENGL)
+		return 0;
+	// doesn't work on GLES yet (TODO)
+	if (driver->getDriverType() == video::EDT_OGLES2)
+		return 0;
+	// shadow shaders can't handle array textures yet (TODO)
+	if (g_settings->getBool("enable_dynamic_shadows"))
+		return 0;
+
+	u32 n = driver->getLimits().MaxArrayTextureImages;
+	constexpr u32 type_max = std::numeric_limits<decltype(TileLayer::texture_layer_idx)>::max();
+	n = std::min(n, type_max);
+	n = std::min(n, g_settings->getU32("array_texture_max"));
+	return n;
+}
+
 void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
-	scene::IMeshManipulator *meshmanip, Client *client, const TextureSettings &tsettings)
+	Client *client, PreLoadedTextures *texture_pool,
+	const TextureSettings &tsettings)
 {
 	// Figure out the actual tiles to use
 	TileDef tdef[6];
@@ -785,9 +941,7 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 
 	bool is_liquid = false;
 
-	MaterialType material_type = alpha == ALPHAMODE_OPAQUE ?
-		TILE_MATERIAL_OPAQUE : (alpha == ALPHAMODE_CLIP ? TILE_MATERIAL_BASIC :
-		TILE_MATERIAL_ALPHA);
+	MaterialType material_type = alpha_mode_to_material_type(alpha);
 
 	switch (drawtype) {
 	default:
@@ -898,15 +1052,21 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		}
 	}
 
-	u32 tile_shader = shdsrc->getShader("nodes_shader", material_type, drawtype);
+	const bool texture_2d_array = getArrayTextureMax(RenderingEngine::get_video_driver()) > 1;
+	const auto &getNodeShader = [&] (MaterialType my_material, NodeDrawType my_drawtype) {
+		ShaderIds ret;
+		ret.normal = shdsrc->getShader("nodes_shader", my_material, my_drawtype);
+		// need to avoid generating the shader if unsupported
+		if (texture_2d_array)
+			ret.with_layers = shdsrc->getShader("nodes_shader", my_material, my_drawtype, true);
+		return ret;
+	};
 
-	MaterialType overlay_material = material_type;
-	if (overlay_material == TILE_MATERIAL_OPAQUE)
-		overlay_material = TILE_MATERIAL_BASIC;
-	else if (overlay_material == TILE_MATERIAL_LIQUID_OPAQUE)
-		overlay_material = TILE_MATERIAL_LIQUID_TRANSPARENT;
+	ShaderIds tile_shader = getNodeShader(material_type, drawtype);
 
-	u32 overlay_shader = shdsrc->getShader("nodes_shader", overlay_material, drawtype);
+	MaterialType overlay_material = material_type_with_alpha(material_type);
+
+	ShaderIds overlay_shader = getNodeShader(overlay_material, drawtype);
 
 	if (drawtype != NDT_AIRLIKE && !tdef[0].name.empty()) {
 		for (u8 d = 0; d < Direction_END; d++) {
@@ -934,16 +1094,18 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 
 	// Tiles (fill in f->tiles[])
 	bool any_polygon_offset = false;
+	TileAttribContext tac{tsrc, texture_pool, color, tsettings};
+
 	for (u16 j = 0; j < 6; j++) {
 		tiles[j].world_aligned = isWorldAligned(tdef[j].align_style,
 				tsettings.world_aligned_mode, drawtype);
-		fillTileAttribs(tsrc, &tiles[j].layers[0], tiles[j], tdef[j],
-				color, material_type, tile_shader,
-				tdef[j].backface_culling, tsettings);
-		if (!tdef_overlay[j].name.empty())
-			fillTileAttribs(tsrc, &tiles[j].layers[1], tiles[j], tdef_overlay[j],
-					color, overlay_material, overlay_shader,
-					tdef[j].backface_culling, tsettings);
+		fillTileAttribs(&tiles[j].layers[0], tac, tiles[j], tdef[j],
+				material_type, tile_shader);
+		if (!tdef_overlay[j].name.empty()) {
+			tdef_overlay[j].backface_culling = tdef[j].backface_culling;
+			fillTileAttribs(&tiles[j].layers[1], tac, tiles[j], tdef_overlay[j],
+					overlay_material, overlay_shader);
+		}
 
 		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
 		any_polygon_offset |= tiles[j].layers[0].need_polygon_offset;
@@ -966,13 +1128,14 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 		else if (waving == 2)
 			special_material = TILE_MATERIAL_WAVING_LEAVES;
 	}
-	u32 special_shader = shdsrc->getShader("nodes_shader", special_material, drawtype);
+
+	ShaderIds special_shader = getNodeShader(special_material, drawtype);
 
 	// Special tiles (fill in f->special_tiles[])
-	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++)
-		fillTileAttribs(tsrc, &special_tiles[j].layers[0], special_tiles[j], tdef_spec[j],
-				color, special_material, special_shader,
-				tdef_spec[j].backface_culling, tsettings);
+	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++) {
+		fillTileAttribs(&special_tiles[j].layers[0], tac,
+				special_tiles[j], tdef_spec[j], special_material, special_shader);
+	}
 
 	if (param_type_2 == CPT2_COLOR ||
 			param_type_2 == CPT2_COLORED_FACEDIR ||
@@ -980,6 +1143,13 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 			param_type_2 == CPT2_COLORED_WALLMOUNTED ||
 			param_type_2 == CPT2_COLORED_DEGROTATE)
 		palette = tsrc->getPalette(palette_name);
+
+}
+
+void ContentFeatures::updateMesh(Client *client, const TextureSettings &tsettings)
+{
+	auto *manip = client->getSceneManager()->getMeshManipulator();
+	(void)tsettings;
 
 	if (drawtype == NDT_MESH && !mesh.empty()) {
 		// Note: By freshly reading, we get an unencumbered mesh.
@@ -1009,11 +1179,25 @@ void ContentFeatures::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc
 				// TODO this should be done consistently when the mesh is loaded
 				infostream << "ContentFeatures: recalculating normals for mesh "
 					<< mesh << std::endl;
-				meshmanip->recalculateNormals(mesh_ptr, true, false);
+				manip->recalculateNormals(mesh_ptr, true, false);
 			}
 		} else {
 			mesh_ptr = nullptr;
 		}
+	}
+}
+
+void ContentFeatures::collectMaterials(std::vector<u32> &leaves_materials)
+{
+	if (drawtype == NDT_AIRLIKE)
+		return;
+
+	for (u16 j = 0; j < 6; j++) {
+		auto &l = tiles[j].layers;
+		if (!l[0].empty() && l[0].material_type == TILE_MATERIAL_WAVING_LEAVES)
+			leaves_materials.push_back(l[0].shader_id);
+		if (!l[1].empty() && l[1].material_type == TILE_MATERIAL_WAVING_LEAVES)
+			leaves_materials.push_back(l[1].shader_id);
 	}
 }
 #endif
@@ -1051,13 +1235,13 @@ void NodeDefManager::clear()
 	m_next_id = 0;
 	m_selection_box_union.reset(0,0,0);
 	m_selection_box_int_union.reset(0,0,0);
+#if CHECK_CLIENT_BUILD()
+	m_leaves_materials.clear();
+#endif
 
 	resetNodeResolveState();
 
-	u32 initial_length = 0;
-	initial_length = MYMAX(initial_length, CONTENT_UNKNOWN + 1);
-	initial_length = MYMAX(initial_length, CONTENT_AIR + 1);
-	initial_length = MYMAX(initial_length, CONTENT_IGNORE + 1);
+	constexpr u32 initial_length = std::max({CONTENT_UNKNOWN, CONTENT_AIR, CONTENT_IGNORE}) + 1;
 	m_content_features.resize(initial_length);
 
 	// Set CONTENT_UNKNOWN
@@ -1194,7 +1378,7 @@ content_t NodeDefManager::allocateId()
  * @param[in]      boxes     the vector containing the boxes
  * @param[in, out] box_union the union of the arguments
  */
-void boxVectorUnion(const std::vector<aabb3f> &boxes, aabb3f *box_union)
+static void boxVectorUnion(const std::vector<aabb3f> &boxes, aabb3f *box_union)
 {
 	for (const aabb3f &box : boxes) {
 		box_union->addInternalBox(box);
@@ -1210,7 +1394,7 @@ void boxVectorUnion(const std::vector<aabb3f> &boxes, aabb3f *box_union)
  * can be rotated
  * @param[in, out] box_union the union of the arguments
  */
-void getNodeBoxUnion(const NodeBox &nodebox, const ContentFeatures &features,
+static void getNodeBoxUnion(const NodeBox &nodebox, const ContentFeatures &features,
 	aabb3f *box_union)
 {
 	switch(nodebox.type) {
@@ -1480,32 +1664,101 @@ void NodeDefManager::applyTextureOverrides(const std::vector<TextureOverride> &o
 	}
 }
 
+#if CHECK_CLIENT_BUILD()
 void NodeDefManager::updateTextures(IGameDef *gamedef, void *progress_callback_args)
 {
-#if CHECK_CLIENT_BUILD()
 	infostream << "NodeDefManager::updateTextures(): Updating "
 		"textures in node definitions" << std::endl;
 
 	Client *client = (Client *)gamedef;
 	ITextureSource *tsrc = client->tsrc();
 	IShaderSource *shdsrc = client->getShaderSource();
-	auto smgr = client->getSceneManager();
-	scene::IMeshManipulator *meshmanip = smgr->getMeshManipulator();
 	TextureSettings tsettings;
 	tsettings.readSettings();
 
 	tsrc->setImageCaching(true);
+	const u32 size = m_content_features.size();
 
-	u32 size = m_content_features.size();
+	/* collect all textures we might use */
+	std::unordered_set<std::string> pool;
 	for (u32 i = 0; i < size; i++) {
 		ContentFeatures *f = &(m_content_features[i]);
-		f->updateTextures(tsrc, shdsrc, meshmanip, client, tsettings);
-		client->showUpdateProgressTexture(progress_callback_args, i, size);
+		f->preUpdateTextures(tsrc, pool, tsettings);
 	}
 
+	/* texture pre-loading stage */
+	const size_t arraymax = getArrayTextureMax(RenderingEngine::get_video_driver());
+	// Group by size
+	std::unordered_map<v2u32, std::vector<std::string_view>> sizes;
+	if (arraymax > 1) {
+		infostream << "Using array textures with " << arraymax << " layers" << std::endl;
+		size_t i = 0;
+		for (auto &image : pool) {
+			core::dimension2du dim = tsrc->getTextureDimensions(image);
+			client->showUpdateProgressTexture(progress_callback_args,
+				0.33333f * ++i / pool.size());
+			if (!dim.Width || !dim.Height) // error
+				continue;
+			sizes[v2u32(dim)].emplace_back(image);
+		}
+	}
+
+	// create array textures as far as possible
+	size_t num_preloadable = 0, preload_progress = 0;
+	for (auto &it : sizes) {
+		if (it.second.size() < 2)
+			continue;
+		num_preloadable += it.second.size();
+	}
+	PreLoadedTextures plt;
+	const auto &doBunch = [&] (const std::vector<std::string> &bunch) {
+		PreLoadedTexture t;
+		t.texture = tsrc->addArrayTexture(bunch, &t.texture_id);
+		preload_progress += bunch.size();
+		client->showUpdateProgressTexture(progress_callback_args,
+			0.33333f + 0.33333f * preload_progress / num_preloadable);
+		if (t.texture) {
+			// Success: all of the images in this bunch can now refer to this texture
+			for (size_t idx = 0; idx < bunch.size(); idx++) {
+				t.texture_layer_idx = idx;
+				plt.add(bunch[idx], t);
+			}
+		}
+	};
+	for (auto &it : sizes) {
+		if (it.second.size() < 2)
+			continue;
+		std::vector<std::string> bunch;
+		for (auto &image : it.second) {
+			bunch.emplace_back(image);
+			if (bunch.size() == arraymax) {
+				doBunch(bunch);
+				bunch.clear();
+			}
+		}
+		if (!bunch.empty())
+			doBunch(bunch);
+	}
+	// note that standard textures aren't preloaded
+
+	/* final step */
+	for (u32 i = 0; i < size; i++) {
+		ContentFeatures *f = &(m_content_features[i]);
+		f->updateTextures(tsrc, shdsrc, client, &plt, tsettings);
+		f->updateMesh(client, tsettings);
+		f->collectMaterials(m_leaves_materials);
+
+		client->showUpdateProgressTexture(progress_callback_args,
+			0.66666f + 0.33333f * i / size);
+	}
+	SORT_AND_UNIQUE(m_leaves_materials);
+	verbosestream << "m_leaves_materials.size() = " << m_leaves_materials.size()
+		<< std::endl;
+
+	plt.printStats(infostream);
 	tsrc->setImageCaching(false);
-#endif
 }
+#endif
 
 void NodeDefManager::serialize(std::ostream &os, u16 protocol_version) const
 {

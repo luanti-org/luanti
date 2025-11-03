@@ -288,7 +288,7 @@ class MainShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<SamplerLayer_t> m_texture2{"texture2"};
 	CachedPixelShaderSetting<SamplerLayer_t> m_texture3{"texture3"};
 
-	// commonly used way to pass material color to shader
+	// common material variables passed to shader
 	video::SColor m_material_color;
 	CachedPixelShaderSetting<float, 4> m_material_color_setting{"materialColor"};
 
@@ -666,9 +666,11 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			uniform mediump mat4 mTexture;
 
 			attribute highp vec4 inVertexPosition;
-			attribute lowp vec4 inVertexColor;
-			attribute mediump vec2 inTexCoord0;
 			attribute mediump vec3 inVertexNormal;
+			attribute lowp vec4 inVertexColor;
+			attribute mediump float inVertexAux;
+			attribute mediump vec2 inTexCoord0;
+			attribute mediump vec2 inTexCoord1;
 			attribute mediump vec4 inVertexTangent;
 			attribute mediump vec4 inVertexBinormal;
 		)";
@@ -700,12 +702,8 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		)";
 	}
 
-	// map legacy semantic texture names to texture identifiers
-	fragment_header += R"(
-		#define baseTexture texture0
-		#define normalTexture texture1
-		#define textureFlags texture2
-	)";
+	// legacy semantic texture name
+	fragment_header += "#define baseTexture texture0\n";
 
 	/// Unique name of this shader, for debug/logging
 	std::string log_name = name;
@@ -794,11 +792,13 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 */
 
 u32 IShaderSource::getShader(const std::string &name,
-	MaterialType material_type, NodeDrawType drawtype)
+	MaterialType material_type, NodeDrawType drawtype, bool array_texture)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
-	input_const["DRAWTYPE"] = (int)drawtype;
+	(void) drawtype; // unused
+	if (array_texture)
+		input_const["USE_ARRAY_TEXTURE"] = 1;
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
 	switch (material_type) {

@@ -3,18 +3,22 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "lua_api/l_server.h"
-#include "lua_api/l_internal.h"
-#include "common/c_converter.h"
+
 #include "common/c_content.h"
+#include "common/c_converter.h"
 #include "common/c_packer.h"
+#include "content/mods.h" // ModSpec
 #include "cpp_api/s_base.h"
 #include "cpp_api/s_security.h"
+#include "environment.h"
+#include "filesys.h"
+#include "log.h"
+#include "lua_api/l_internal.h"
+#include "network/connection.h"
+#include "remoteplayer.h"
 #include "scripting_server.h"
 #include "server.h"
-#include "environment.h"
-#include "remoteplayer.h"
-#include "log.h"
-#include "filesys.h"
+
 #include <algorithm>
 
 // request_shutdown()

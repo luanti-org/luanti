@@ -406,7 +406,7 @@ void Clouds::render()
 	const float cloud_full_radius = cloud_size * m_cloud_radius_i;
 
 	// Get fog parameters for setting them back later
-	video::SColor fog_color(0,0,0,0);
+	video::SColor fog_color;
 	video::E_FOG_TYPE fog_type = video::EFT_FOG_LINEAR;
 	f32 fog_start = 0;
 	f32 fog_end = 0;

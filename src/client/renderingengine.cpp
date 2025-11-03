@@ -79,7 +79,7 @@ public:
 		auto *driver = services->getVideoDriver();
 		assert(driver);
 
-		video::SColor fog_color(0);
+		video::SColor fog_color;
 		video::E_FOG_TYPE fog_type = video::EFT_FOG_LINEAR;
 		f32 fog_start = 0;
 		f32 fog_end = 0;

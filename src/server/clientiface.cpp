@@ -8,6 +8,7 @@
 #include "network/connection.h"
 #include "network/networkpacket.h"
 #include "network/serveropcodes.h"
+#include "porting.h" // porting::getTimeS
 #include "remoteplayer.h"
 #include "serialization.h" // SER_FMT_VER_INVALID
 #include "settings.h"
@@ -62,7 +63,8 @@ RemoteClient::RemoteClient() :
 	m_block_optimize_distance(g_settings->getS16("block_send_optimize_distance")),
 	m_block_cull_optimize_distance(g_settings->getS16("block_cull_optimize_distance")),
 	m_max_gen_distance(g_settings->getS16("max_block_generate_distance")),
-	m_occ_cull(g_settings->getBool("server_side_occlusion_culling"))
+	m_occ_cull(g_settings->getBool("server_side_occlusion_culling")),
+	m_connection_time(porting::getTimeS())
 {
 }
 
@@ -617,6 +619,11 @@ void RemoteClient::setEncryptedPassword(const std::string& pwd)
 	enc_pwd = pwd;
 	// We just set SRP encrypted password, we accept only it now
 	allowed_auth_mechs = AUTH_MECHANISM_SRP;
+}
+
+u64 RemoteClient::uptime() const
+{
+	return porting::getTimeS() - m_connection_time;
 }
 
 void RemoteClient::setVersionInfo(u8 major, u8 minor, u8 patch, const std::string &full)

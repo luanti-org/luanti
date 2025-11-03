@@ -1086,6 +1086,7 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	u32 vertex_count = 0;
 	u32 drawcall_count = 0;
 	u32 material_swaps = 0;
+	u32 array_texture_use = 0;
 
 	// Render all mesh buffers in order
 	drawcall_count += draw_order.size();
@@ -1115,8 +1116,12 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 				layer.MagFilter = video::ETMAGF_NEAREST;
 				layer.AnisotropicFilter = 0;
 			}
+
 			driver->setMaterial(material);
 			++material_swaps;
+			if (auto *tex = material.getTexture(0); tex && tex->getType() == video::ETT_2D_ARRAY)
+				++array_texture_use;
+
 			material.TextureLayers[ShadowRenderer::TEXTURE_LAYER_SHADOW].Texture = nullptr;
 		}
 
@@ -1156,6 +1161,10 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	g_profiler->avg(prefix + "vertices drawn [#]", vertex_count);
 	g_profiler->avg(prefix + "drawcalls [#]", drawcall_count);
 	g_profiler->avg(prefix + "material swaps [#]", material_swaps);
+	if (material_swaps && array_texture_use) {
+		int percent = (100.0f * array_texture_use) / material_swaps;
+		g_profiler->avg(prefix + "array texture use [%]", percent);
+	}
 }
 
 void ClientMap::invalidateMapBlockMesh(MapBlockMesh *mesh)
@@ -1478,14 +1487,14 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 
 	bool translucent_foliage = g_settings->getBool("enable_translucent_foliage");
 
-	video::E_MATERIAL_TYPE leaves_material = video::EMT_SOLID;
-
 	// For translucent leaves, we want to use backface culling instead of frontface.
+	std::vector<video::E_MATERIAL_TYPE> leaves_material;
 	if (translucent_foliage) {
-		// this is the material leaves would use, compare to nodedef.cpp
-		auto* shdsrc = m_client->getShaderSource();
-		const u32 leaves_shader = shdsrc->getShader("nodes_shader", TILE_MATERIAL_WAVING_LEAVES, NDT_ALLFACES);
-		leaves_material = shdsrc->getShaderInfo(leaves_shader).material;
+		auto *shdsrc = m_client->getShaderSource();
+		// Find out all materials used by leaves so we can identify them
+		leaves_material.reserve(m_nodedef->m_leaves_materials.size());
+		for (u32 shader_id : m_nodedef->m_leaves_materials)
+			leaves_material.push_back(shdsrc->getShaderInfo(shader_id).material);
 	}
 
 	for (auto &descriptor : draw_order) {
@@ -1500,7 +1509,7 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 				local_material.BackfaceCulling = material.BackfaceCulling;
 				local_material.FrontfaceCulling = material.FrontfaceCulling;
 			}
-			if (local_material.MaterialType == leaves_material && translucent_foliage) {
+			if (translucent_foliage && CONTAINS(leaves_material, local_material.MaterialType)) {
 				local_material.BackfaceCulling = true;
 				local_material.FrontfaceCulling = false;
 			}
@@ -1520,7 +1529,8 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	video::SMaterial clean;
 	clean.BlendOperation = video::EBO_ADD;
 	driver->setMaterial(clean); // reset material to defaults
-	// FIXME: why is this here?
+	// This is somehow needed to fully reset the rendering state, or later operations
+	// will be broken.
 	driver->draw3DLine(v3f(), v3f(), video::SColor(0));
 
 	g_profiler->avg(prefix + "draw meshes [ms]", draw.stop(true));

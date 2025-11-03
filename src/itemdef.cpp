@@ -82,6 +82,27 @@ void TouchInteraction::deSerialize(std::istream &is)
 		pointed_object = (TouchInteractionMode)tmp;
 }
 
+void ItemImageDef::serialize(std::ostream &os, u16 protocol_version) const
+{
+	if (protocol_version < 51) {
+		// Use first frame if animation is not supported
+		std::string image_to_send = name;
+		animation.extractFirstFrame(image_to_send);
+		os << serializeString16(image_to_send);
+		return;
+	}
+	os << serializeString16(name);
+	animation.serialize(os, protocol_version);
+
+}
+void ItemImageDef::deSerialize(std::istream &is, u16 protocol_version)
+{
+	name = deSerializeString16(is);
+	if (protocol_version < 51)
+		return;
+	animation.deSerialize(is, protocol_version);
+}
+
 /*
 	ItemDefinition
 */
@@ -153,10 +174,10 @@ void ItemDefinition::reset()
 	name.clear();
 	description.clear();
 	short_description.clear();
-	inventory_image.clear();
-	inventory_overlay.clear();
-	wield_image.clear();
-	wield_overlay.clear();
+	inventory_image.reset();
+	inventory_overlay.reset();
+	wield_image.reset();
+	wield_overlay.reset();
 	palette_image.clear();
 	color = video::SColor(0xFFFFFFFF);
 	wield_scale = v3f(1.0, 1.0, 1.0);
@@ -187,8 +208,8 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	writeU8(os, type);
 	os << serializeString16(name);
 	os << serializeString16(description);
-	os << serializeString16(inventory_image);
-	os << serializeString16(wield_image);
+	inventory_image.serialize(os, protocol_version);
+	wield_image.serialize(os, protocol_version);
 	writeV3F32(os, wield_scale);
 	writeS16(os, stack_max);
 	writeU8(os, usable);
@@ -217,8 +238,8 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	writeF32(os, range);
 	os << serializeString16(palette_image);
 	writeARGB8(os, color);
-	os << serializeString16(inventory_overlay);
-	os << serializeString16(wield_overlay);
+	inventory_overlay.serialize(os, protocol_version);
+	wield_overlay.serialize(os, protocol_version);
 
 	os << serializeString16(short_description);
 
@@ -273,8 +294,8 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 
 	name = deSerializeString16(is);
 	description = deSerializeString16(is);
-	inventory_image = deSerializeString16(is);
-	wield_image = deSerializeString16(is);
+	inventory_image.deSerialize(is, protocol_version);
+	wield_image.deSerialize(is, protocol_version);
 	wield_scale = readV3F32(is);
 	stack_max = readS16(is);
 	usable = readU8(is);
@@ -303,8 +324,8 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 	range = readF32(is);
 	palette_image = deSerializeString16(is);
 	color = readARGB8(is);
-	inventory_overlay = deSerializeString16(is);
-	wield_overlay = deSerializeString16(is);
+	inventory_overlay .deSerialize(is, protocol_version);
+	wield_overlay.deSerialize(is, protocol_version);
 
 	// If you add anything here, insert it inside the try-catch
 	// block to not need to increase the version.

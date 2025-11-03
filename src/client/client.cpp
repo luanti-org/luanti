@@ -2,58 +2,66 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include <iostream>
-#include <algorithm>
-#include <sstream>
-#include <cmath>
-#include <IFileSystem.h>
-#include <json/json.h>
 #include "client.h"
-#include "client/fontengine.h"
-#include "network/clientopcodes.h"
-#include "network/connection.h"
-#include "network/networkpacket.h"
-#include "threading/mutex_auto_lock.h"
+
+#include "chatmessage.h"
 #include "client/clientevent.h"
+#include "clientdynamicinfo.h"
+#include "client/fontengine.h"
+#include "client/localplayer.h"
+#include "clientmap.h"
+#include "clientmedia.h"
+#include "client/mesh_generator_thread.h"
+#include "client/particles.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
 #include "client/texturepaths.h"
 #include "client/texturesource.h"
-#include "client/mesh_generator_thread.h"
-#include "client/particles.h"
-#include "client/localplayer.h"
-#include "util/auth.h"
-#include "util/directiontables.h"
-#include "util/pointedthing.h"
-#include "util/serialize.h"
-#include "util/string.h"
-#include "util/srp.h"
 #include "filesys.h"
-#include "mapblock_mesh.h"
-#include "mapblock.h"
-#include "mapsector.h"
-#include "minimap.h"
-#include "modchannels.h"
-#include "content/mods.h"
-#include "profiler.h"
-#include "shader.h"
+#include "game.h"
 #include "gettext.h"
 #include "gettime.h"
-#include "clientdynamicinfo.h"
-#include "clientmap.h"
-#include "clientmedia.h"
+#include "guiscalingfilter.h"
+#include "item_visuals_manager.h"
+#include "mapblock.h"
+#include "mapblock_mesh.h"
+#include "mapnode.h"
+#include "mapsector.h"
+#include "minimap.h"
+#include "profiler.h"
+#include "shader.h"
+#include "translation.h"
+#include "util/auth.h"
+#include "util/pointedthing.h"
+#include "util/serialize.h"
+#include "util/srp.h"
+#include "util/string.h"
 #include "version.h"
+
+// Modding
+#include "content/mod_configuration.h"
+#include "content/mods.h"
+#include "modchannels.h"
+#include "script/common/c_types.h" // LuaError
+#include "script/scripting_client.h"
+
+// Network
+#include "network/clientopcodes.h"
+#include "network/connection.h"
+#include "network/networkpacket.h"
+#include "serialization.h"
+
+// Database
 #include "database/database-files.h"
 #include "database/database-sqlite3.h"
-#include "serialization.h"
-#include "guiscalingfilter.h"
-#include "script/scripting_client.h"
-#include "game.h"
-#include "chatmessage.h"
-#include "translation.h"
-#include "content/mod_configuration.h"
-#include "mapnode.h"
-#include "item_visuals_manager.h"
+
+#include <IFileSystem.h>
+#include <json/json.h>
+
+#include <iostream>
+#include <algorithm>
+#include <sstream>
+#include <cmath>
 
 extern gui::IGUIEnvironment* guienv;
 
@@ -1775,6 +1783,11 @@ ClientEvent *Client::getClientEvent()
 	return event;
 }
 
+void Client::setFatalError(const LuaError &e)
+{
+	setFatalError(std::string("Lua: ") + e.what());
+}
+
 const Address Client::getServerAddress()
 {
 	return m_con ? m_con->GetPeerAddress(PEER_ID_SERVER) : Address();
@@ -1799,10 +1812,10 @@ struct TextureUpdateArgs {
 	std::wstring text_base;
 };
 
-void Client::showUpdateProgressTexture(void *args, u32 progress, u32 max_progress)
+void Client::showUpdateProgressTexture(void *args, float progress)
 {
 	auto *targs = reinterpret_cast<TextureUpdateArgs*>(args);
-	u16 cur_percent = std::ceil(progress * 100.f / max_progress);
+	u16 cur_percent = std::ceil(100 * progress);
 
 	// Throttle menu drawing
 	bool do_draw = false;
@@ -1817,7 +1830,8 @@ void Client::showUpdateProgressTexture(void *args, u32 progress, u32 max_progres
 
 	std::wostringstream strm;
 	strm << targs->text_base << L" " << cur_percent << L"%...";
-	int shown_progress = 72 + std::ceil(0.18f * cur_percent);
+	// 70% -> 99%
+	int shown_progress = 70 + std::ceil(0.29f * cur_percent);
 	m_rendering_engine->draw_load_screen(strm.str(), guienv, m_tsrc,
 		0, shown_progress);
 }
@@ -1837,19 +1851,19 @@ void Client::afterContentReceived()
 	// Rebuild inherited images and recreate textures
 	infostream<<"- Rebuilding images and textures"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Loading textures..."),
-			guienv, m_tsrc, 0, 70);
+			guienv, m_tsrc, 0, 66);
 	m_tsrc->rebuildImagesAndTextures();
 
 	// Rebuild shaders
 	infostream<<"- Rebuilding shaders"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Rebuilding shaders..."),
-			guienv, m_tsrc, 0, 71);
+			guienv, m_tsrc, 0, 68);
 	m_shsrc->rebuildShaders();
 
 	// Update node aliases
 	infostream<<"- Updating node aliases"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Initializing nodes..."),
-			guienv, m_tsrc, 0, 72);
+			guienv, m_tsrc, 0, 70);
 	m_nodedef->updateAliases(m_itemdef);
 	for (const auto &path : getTextureDirs()) {
 		TextureOverrideSource override_source(path + DIR_DELIM + "override.txt");

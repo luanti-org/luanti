@@ -6,6 +6,7 @@
 #pragma once
 
 #include "constants.h"
+#include "inventorymanager.h" // InventoryLocation
 #include "metadata.h"
 #include "network/networkprotocol.h"
 #include "unit_sao.h"

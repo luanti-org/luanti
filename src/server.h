@@ -6,67 +6,71 @@
 
 #include "irr_v3d.h"
 #include "map.h"
-#include "hud.h"
+#include "hud.h" // HudElementStat
 #include "gamedef.h"
-#include "content/mods.h"
-#include "inventorymanager.h"
 #include "content/subgames.h"
 #include "network/peerhandler.h"
-#include "network/connection.h"
-#include "util/numeric.h"
 #include "util/thread.h"
 #include "util/basic_macros.h"
-#include "util/metricsbackend.h"
 #include "serverenvironment.h"
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
-#include "chatmessage.h"
-#include "sound.h"
 #include "translation.h"
-#include "script/common/c_types.h" // LuaError
+#include "sound.h"
 #include <atomic>
 #include <csignal>
 #include <string>
 #include <list>
-#include <map>
 #include <vector>
+#include <unordered_map>
 #include <unordered_set>
 #include <optional>
 #include <string_view>
 #include <shared_mutex>
 #include <condition_variable>
 
-class ChatEvent;
-struct ChatEventChat;
-struct ChatInterface;
-class IWritableItemDefManager;
-class NodeDefManager;
-class IWritableCraftDefManager;
 class BanManager;
+class ChatEvent;
+class EmergeManager;
 class Inventory;
+class IRollbackManager;
+class IWritableCraftDefManager;
+class IWritableItemDefManager;
+class LuaError;
+class MetricsBackend;
 class ModChannelMgr;
-class RemotePlayer;
+class NodeDefManager;
 class Player;
 class PlayerSAO;
-struct PlayerHPChangeReason;
-class IRollbackManager;
-struct RollbackAction;
-class EmergeManager;
-class ServerScripting;
+class RemotePlayer;
 class ServerEnvironment;
-struct SoundSpec;
-struct CloudParams;
-struct SkyboxParams;
-struct SunParams;
-struct MoonParams;
-struct StarParams;
-struct Lighting;
-class ServerThread;
-class ServerModManager;
 class ServerInventoryManager;
+class ServerModManager;
+class ServerScripting;
+class ServerThread;
+
+struct ChatEventChat;
+struct ChatInterface;
+struct ChatMessage;
+struct CloudParams;
+struct Lighting;
+struct MoonParams;
 struct PackedValue;
 struct ParticleParameters;
 struct ParticleSpawnerParameters;
+struct PlayerHPChangeReason;
+struct RollbackAction;
+struct SkyboxParams;
+struct SoundSpec;
+struct StarParams;
+struct SunParams;
+
+namespace con {
+	class IConnection;
+	class IPeer;
+
+	enum rtt_stat_type : int;
+}
 
 // Anticheat flags
 enum {
@@ -354,10 +358,7 @@ public:
 	StepSettings getStepSettings() { return m_step_settings.load(); }
 
 	void setAsyncFatalError(const std::string &error);
-	inline void setAsyncFatalError(const LuaError &e)
-	{
-		setAsyncFatalError(std::string("Lua: ") + e.what());
-	}
+	void setAsyncFatalError(const LuaError &e);
 
 	// Not thread-safe.
 	void addShutdownError(const ModError &e);
@@ -713,6 +714,8 @@ private:
 	// Craft definition manager
 	IWritableCraftDefManager *m_craftdef;
 
+	// NOTE: Cannot use forward declaration of 'Translations'. Whereas most
+	// modern compilers support incomplete types here, it's not in the C++ spec.
 	std::unordered_map<std::string, Translations> server_translations;
 
 	ModIPCStore m_ipcstore;

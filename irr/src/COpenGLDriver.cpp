@@ -44,10 +44,6 @@ bool COpenGLDriver::initDriver()
 
 	genericDriverInit();
 
-#if defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_) || defined(_IRR_COMPILE_WITH_X11_DEVICE_)
-	extGlSwapInterval(Params.Vsync ? 1 : 0);
-#endif
-
 	return true;
 }
 
@@ -2656,9 +2652,12 @@ ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const 
 //! Returns the maximum amount of primitives (mostly vertices) which
 //! the device is able to render with one drawIndexedTriangleList
 //! call.
-u32 COpenGLDriver::getMaximalPrimitiveCount() const
+SDriverLimits COpenGLDriver::getLimits() const
 {
-	return 0x7fffffff;
+	SDriverLimits ret;
+	ret.MaxPrimitiveCount = 0x7fffffff;
+	ret.MaxTextureSize = MaxTextureSize;
+	return ret;
 }
 
 bool COpenGLDriver::setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SColor clearColor, f32 clearDepth, u8 clearStencil)
@@ -2865,11 +2864,6 @@ IImage *COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 		}
 	}
 	return newImage;
-}
-
-core::dimension2du COpenGLDriver::getMaxTextureSize() const
-{
-	return core::dimension2du(MaxTextureSize, MaxTextureSize);
 }
 
 //! Convert E_PRIMITIVE_TYPE to OpenGL equivalent

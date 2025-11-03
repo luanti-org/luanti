@@ -189,7 +189,8 @@ public:
 	int getSpawnLevelAtPoint(v2s16 p);
 	bool isBlockUnderground(v3s16 blockpos);
 
-	static v3s16 getContainingChunk(v3s16 blockpos, s16 chunksize);
+	/// @return min edge of chunk in block units
+	static v3s16 getContainingChunk(v3s16 blockpos, v3s16 chunksize);
 
 private:
 	std::vector<Mapgen *> m_mapgens;
