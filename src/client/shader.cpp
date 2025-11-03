@@ -719,9 +719,6 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 	ShaderConstants constants = input_const;
 
-	if (shaderinfo.base_material == video::EMT_TEXTURELESS)
-		constants["TEXTURELESS"] = 1;
-
 	bool use_discard = fully_programmable;
 	if (!use_discard) {
 		// workaround for a certain OpenGL implementation lacking GL_ALPHA_TEST
@@ -792,13 +789,15 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 */
 
 u32 IShaderSource::getShader(const std::string &name,
-	MaterialType material_type, NodeDrawType drawtype, bool array_texture)
+	MaterialType material_type, NodeDrawType drawtype, bool is_textureless, bool array_texture)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
 	(void) drawtype; // unused
 	if (array_texture)
 		input_const["USE_ARRAY_TEXTURE"] = 1;
+	if (is_textureless)
+		input_const["TEXTURELESS"] = 1;
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
 	switch (material_type) {
@@ -814,9 +813,6 @@ u32 IShaderSource::getShader(const std::string &name,
 		case TILE_MATERIAL_WAVING_PLANTS:
 		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
 			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
-			break;
-		case TILE_MATERIAL_TEXTURELESS:
-			base_mat = video::EMT_TEXTURELESS;
 			break;
 		default:
 			break;

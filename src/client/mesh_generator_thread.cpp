@@ -303,7 +303,8 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 	infostream << "MeshUpdateManager: using " << number_of_threads << " threads" << std::endl;
 
 	// getSHader only works in this thread, so the material has to be passed along from here
-	const u32 shader_id = client->getShaderSource()->getShader("nodes_shader", TILE_MATERIAL_TEXTURELESS, NDT_NORMAL);
+	const u32 shader_id = client->getShaderSource()->getShader(
+		"nodes_shader", TILE_MATERIAL_BASIC, NDT_NORMAL, true);
 	video::SMaterial mono_material;
 	mono_material.MaterialType = client->getShaderSource()->getShaderInfo(shader_id).material;
 

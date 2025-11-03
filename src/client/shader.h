@@ -267,7 +267,8 @@ public:
 
 	/// @brief Helper: Generates or gets a shader suitable for nodes and entities
 	u32 getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL,
+	MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL,
+		bool is_textureless = false,
 		bool array_texture = false);
 
 	/**
