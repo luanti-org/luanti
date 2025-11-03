@@ -350,6 +350,7 @@ void LodMeshGenerator::generate(const u8 lod)
 	solid_set.set(NDT_NORMAL);
 	solid_set.set(NDT_NODEBOX);
 	solid_set.set(NDT_ALLFACES);
+	solid_set.set(NDT_MESH);
 
 	generateLodChunks(solid_set, width);
 }
