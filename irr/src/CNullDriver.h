@@ -12,7 +12,6 @@
 #include "IMesh.h"
 #include "IMeshBuffer.h"
 #include "IMeshSceneNode.h"
-#include "CFPSCounter.h"
 #include "S3DVertex.h"
 #include "SVertexIndex.h"
 #include "SExposedVideoData.h"
@@ -175,9 +174,6 @@ public:
 			f32 &start, f32 &end, f32 &density,
 			bool &pixelFog, bool &rangeFog) override;
 
-	//! get color format of the current color buffer
-	ECOLOR_FORMAT getColorFormat() const override;
-
 	//! get screen size
 	const core::dimension2d<u32> &getScreenSize() const override;
 
@@ -186,9 +182,6 @@ public:
 
 	//! get render target size
 	const core::dimension2d<u32> &getCurrentRenderTargetSize() const override;
-
-	// get current frames per second value
-	s32 getFPS() const override;
 
 	SFrameStats getFrameStats() const override;
 
@@ -221,13 +214,6 @@ public:
 	//! Creates a render target texture for a cubemap
 	ITexture *addRenderTargetTextureCubemap(const u32 sideLen,
 			const io::path &name, const ECOLOR_FORMAT format) override;
-
-	//! Creates an 1bit alpha channel of the texture based of an color key.
-	void makeColorKeyTexture(video::ITexture *texture, video::SColor color) const override;
-
-	//! Creates an 1bit alpha channel of the texture based of an color key position.
-	virtual void makeColorKeyTexture(video::ITexture *texture,
-			core::position2d<s32> colorKeyPixelPos) const override;
 
 	SDriverLimits getLimits() const override;
 
@@ -436,8 +422,6 @@ public:
 	//! Returns amount of currently available material renderers.
 	u32 getMaterialRendererCount() const override;
 
-	//! Returns name of the material renderer
-	const char *getMaterialRendererName(u32 idx) const override;
 
 	//! Adds a new material renderer to the VideoDriver, based on a high level shading language.
 	virtual s32 addHighLevelShaderMaterial(
@@ -491,9 +475,6 @@ public:
 
 	//! Writes the provided image to a file.
 	bool writeImageToFile(IImage *image, io::IWriteFile *file, u32 param = 0) override;
-
-	//! Sets the name of a material renderer.
-	void setMaterialRendererName(u32 idx, const char *name) override;
 
 	//! Swap the material renderers used for certain id's
 	void swapMaterialRenderers(u32 idx1, u32 idx2, bool swapNames) override;
@@ -692,7 +673,6 @@ protected:
 	core::dimension2d<u32> ScreenSize;
 	core::matrix4 TransformationMatrix;
 
-	CFPSCounter FPSCounter;
 	SFrameStats FrameStats;
 
 	u32 MinVertexCountForVBO;

@@ -183,9 +183,6 @@ public:
 	//! Returns type of video driver
 	E_DRIVER_TYPE getDriverType() const override;
 
-	//! get color format of the current color buffer
-	ECOLOR_FORMAT getColorFormat() const override;
-
 	//! Returns the transformation set by setTransform
 	const core::matrix4 &getTransform(E_TRANSFORMATION_STATE state) const override;
 
@@ -367,9 +364,6 @@ private:
 	core::stringc VendorName;
 
 	core::matrix4 TextureFlipMatrix;
-
-	//! Color buffer format
-	ECOLOR_FORMAT ColorFormat;
 
 	E_OPENGL_FIXED_PIPELINE_STATE FixedPipelineState;
 

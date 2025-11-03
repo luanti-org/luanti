@@ -54,9 +54,6 @@ public:
 	//! returns if window is minimized.
 	bool isWindowMinimized() const override;
 
-	//! returns color format of the window.
-	video::ECOLOR_FORMAT getColorFormat() const override;
-
 	//! notifies the device that it should close itself
 	void closeDevice() override;
 

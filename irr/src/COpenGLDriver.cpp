@@ -28,7 +28,7 @@ const u16 COpenGLDriver::Quad2DIndices[4] = {0, 1, 2, 3};
 
 COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager) :
 		CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(), CacheHandler(0), CurrentRenderMode(ERM_NONE), ResetRenderStates(true),
-		Transformation3DChanged(true), AntiAlias(params.AntiAlias), ColorFormat(ECF_R8G8B8), FixedPipelineState(EOFPS_ENABLE), Params(params),
+		Transformation3DChanged(true), AntiAlias(params.AntiAlias), FixedPipelineState(EOFPS_ENABLE), Params(params),
 		ContextManager(contextManager)
 {}
 
@@ -2505,12 +2505,6 @@ E_DRIVER_TYPE COpenGLDriver::getDriverType() const
 	return EDT_OPENGL;
 }
 
-//! returns color format
-ECOLOR_FORMAT COpenGLDriver::getColorFormat() const
-{
-	return ColorFormat;
-}
-
 //! Get a vertex shader constant index.
 s32 COpenGLDriver::getVertexShaderConstantID(const c8 *name)
 {
@@ -2776,7 +2770,7 @@ IImage *COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 		return 0;
 
 	if (format == video::ECF_UNKNOWN)
-		format = getColorFormat();
+		format = video::ECF_R8G8B8;
 
 	// TODO: Maybe we could support more formats (floating point and some of those beyond ECF_R8), didn't really try yet
 	if (IImage::isCompressedFormat(format) || IImage::isDepthFormat(format) || IImage::isFloatingPointFormat(format) || format >= ECF_R8)

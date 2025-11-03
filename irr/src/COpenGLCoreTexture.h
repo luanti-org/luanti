@@ -151,7 +151,7 @@ public:
 		OriginalColorFormat = format;
 
 		if (ECF_UNKNOWN == OriginalColorFormat)
-			ColorFormat = getBestColorFormat(Driver->getColorFormat());
+			ColorFormat = getBestColorFormat(video::ECF_A8R8G8B8);
 		else
 			ColorFormat = OriginalColorFormat;
 

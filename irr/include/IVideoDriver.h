@@ -379,32 +379,6 @@ public:
 	/** This is glBlitFramebuffer in OpenGL. */
 	virtual void blitRenderTarget(IRenderTarget *from, IRenderTarget *to) = 0;
 
-	//! Sets a boolean alpha channel on the texture based on a color key.
-	/** This makes the texture fully transparent at the texels where
-	this color key can be found when using for example draw2DImage
-	with useAlphachannel==true.  The alpha of other texels is not modified.
-	\param texture Texture whose alpha channel is modified.
-	\param color Color key color. Every texel with this color will
-	become fully transparent as described above. Please note that the
-	colors of a texture may be converted when loading it, so the
-	color values may not be exactly the same in the engine and for
-	example in picture edit programs. To avoid this problem, you
-	could use the makeColorKeyTexture method, which takes the
-	position of a pixel instead a color value. */
-	virtual void makeColorKeyTexture(video::ITexture *texture,
-			video::SColor color) const = 0;
-
-	//! Sets a boolean alpha channel on the texture based on the color at a position.
-	/** This makes the texture fully transparent at the texels where
-	the color key can be found when using for example draw2DImage
-	with useAlphachannel==true.  The alpha of other texels is not modified.
-	\param texture Texture whose alpha channel is modified.
-	\param colorKeyPixelPos Position of a pixel with the color key
-	color. Every texel with this color will become fully transparent as
-	described above. */
-	virtual void makeColorKeyTexture(video::ITexture *texture,
-			core::position2d<s32> colorKeyPixelPos) const = 0;
-
 	//! Set a render target.
 	/** This will only work if the driver supports the
 	EVDF_RENDER_TO_TARGET feature, which can be queried with
@@ -812,10 +786,6 @@ public:
 			f32 &start, f32 &end, f32 &density,
 			bool &pixelFog, bool &rangeFog) = 0;
 
-	//! Get the current color format of the color buffer
-	/** \return Color format of the color buffer. */
-	virtual ECOLOR_FORMAT getColorFormat() const = 0;
-
 	//! Get the size of the screen or render window.
 	/** \return Size of screen or render window. */
 	virtual const core::dimension2d<u32> &getScreenSize() const = 0;
@@ -826,14 +796,6 @@ public:
 	target is the screen.
 	\return Size of render target or screen/window */
 	virtual const core::dimension2d<u32> &getCurrentRenderTargetSize() const = 0;
-
-	//! Returns current frames per second value.
-	/** This value is updated approximately every 1.5 seconds and
-	is only intended to provide a rough guide to the average frame
-	rate. It is not suitable for use in performing timing
-	calculations or framerate independent movement.
-	\return Approximate amount of frames per second drawn. */
-	virtual s32 getFPS() const = 0;
 
 	//! Return some statistics about the last frame
 	virtual SFrameStats getFrameStats() const = 0;
@@ -1005,26 +967,6 @@ public:
 	//! Get amount of currently available material renderers.
 	/** \return Amount of currently available material renderers. */
 	virtual u32 getMaterialRendererCount() const = 0;
-
-	//! Get name of a material renderer
-	/** This string can, e.g., be used to test if a specific
-	renderer already has been registered/created, or use this
-	string to store data about materials: This returned name will
-	be also used when serializing materials.
-	\param idx Id of the material renderer. Can be a value of the
-	E_MATERIAL_TYPE enum or a value which was returned by
-	addMaterialRenderer().
-	\return String with the name of the renderer, or 0 if not
-	existing */
-	virtual const c8 *getMaterialRendererName(u32 idx) const = 0;
-
-	//! Sets the name of a material renderer.
-	/** Will have no effect on built-in material renderers.
-	\param idx: Id of the material renderer. Can be a value of the
-	E_MATERIAL_TYPE enum or a value which was returned by
-	addMaterialRenderer().
-	\param name: New name of the material renderer. */
-	virtual void setMaterialRendererName(u32 idx, const c8 *name) = 0;
 
 	//! Swap the material renderers used for certain id's
 	/** Swap the IMaterialRenderers responsible for rendering specific
