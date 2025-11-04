@@ -263,6 +263,18 @@ int ModApiUtil::l_is_yes(lua_State *L)
 	return 1;
 }
 
+// path_exists(path)
+int ModApiUtil::l_path_exists(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	std::string path = luaL_checkstring(L, 1); //path
+
+	lua_pushboolean(L, fs::PathExists(path));
+
+	return 1;
+}
+
 // get_builtin_path()
 int ModApiUtil::l_get_builtin_path(lua_State *L)
 {
@@ -724,6 +736,8 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 
 	API_FCT(is_yes);
 
+	API_FCT(path_exists);
+
 	API_FCT(get_builtin_path);
 	API_FCT(get_user_path);
 
@@ -808,6 +822,8 @@ void ModApiUtil::InitializeAsync(lua_State *L, int top)
 	API_FCT(write_json);
 
 	API_FCT(is_yes);
+
+	API_FCT(path_exists);
 
 	API_FCT(get_builtin_path);
 	API_FCT(get_user_path);
