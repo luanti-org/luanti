@@ -5963,7 +5963,7 @@ Utilities
   }
   ```
 * `core.path_exists(path)`: returns true if the given path is valid else false
-    * `path` is the path that will be tested can be either a directory or a file   
+    * `path` is the path that will be tested can be either a directory or a file
 * `core.mkdir(path)`: returns success.
     * Creates a directory specified by `path`, creating parent directories
       if they don't exist.
