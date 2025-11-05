@@ -270,7 +270,10 @@ int ModApiUtil::l_path_exists(lua_State *L)
 
 	std::string path = luaL_checkstring(L, 1); //path
 
-	lua_pushboolean(L, fs::PathExists(path));
+	CHECK_SECURE_PATH(L, path.c_str(), false);
+
+	bool exists = fs::PathExists(path);
+	lua_pushboolean(L, exists);
 
 	return 1;
 }
