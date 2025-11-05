@@ -691,12 +691,6 @@ water_wave_length (Waving liquids wavelength) float 20.0 0.1
 #
 water_wave_speed (Waving liquids wave speed) float 5.0
 
-#   When enabled, crude liquid reflections are simulated.
-#   Wave height, length and speed will affect these reflections.
-#
-#   Requires: enable_dynamic_shadows
-enable_water_reflections (Liquid reflections) bool false
-
 [**Dynamic shadows]
 
 #    Set to true to enable Shadow Mapping.
@@ -762,6 +756,12 @@ shadow_sky_body_orbit_tilt (Sky Body Orbit Tilt) float 0.0 -60.0 60.0
 #    Requires: enable_dynamic_shadows, opengl
 enable_sun_tint (Tinted sunlight) bool false
 
+#   When enabled, crude liquid reflections are simulated.
+#   Wave height, length and speed will affect these reflections.
+#
+#   Requires: enable_dynamic_shadows
+enable_water_reflections (Liquid reflections) bool false
+
 [**Post Processing]
 
 #    Enables the post processing pipeline.
@@ -774,6 +774,14 @@ enable_post_processing (Enable Post Processing) bool true
 #
 #    Requires: enable_post_processing
 tone_mapping (Filmic tone mapping) bool false
+
+#   Set the post processing gamma value.
+#   Higher values give lower contrast and vice versa.
+#   Range: from 1.0 to 5.0
+#   Default: 1.6
+#
+#   Requires: enable_post_processing, tone_mapping
+secondstage_gamma (Gamma) float 1.6 1.0 5.0
 
 #    Enable automatic exposure correction
 #    When enabled, the post-processing engine will
@@ -789,14 +797,6 @@ enable_auto_exposure (Enable Automatic Exposure) bool false
 #
 #    Requires: enable_post_processing, enable_auto_exposure
 exposure_compensation (Exposure compensation) float 0.0 -1.0 1.0
-
-#   Set the post processing gamma value.
-#   Higher values give lower contrast and vice versa.
-#   Range: from 1.0 to 5.0
-#   Default: 1.6
-#
-#   Requires: enable_post_processing, tone_mapping
-secondstage_gamma (Gamma) float 1.6 1.0 5.0
 
 #    Apply dithering to reduce color banding artifacts.
 #    Dithering significantly increases the size of losslessly-compressed
@@ -835,11 +835,6 @@ enable_tinted_fog (Tinted fog) bool false
 #
 #   Requires: enable_dynamic_shadows
 enable_translucent_foliage (Translucent foliage) bool false
-
-#   When enabled, liquid reflections are simulated.
-#
-#   Requires: enable_waving_water, enable_dynamic_shadows
-enable_water_reflections (Liquid reflections) bool false
 
 [*Audio]
 
