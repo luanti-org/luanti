@@ -274,6 +274,15 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 	if (cmd_args.exists("name"))
 		start_data.name = cmd_args.get("name");
 
+	// If a world was commanded, select it
+	if (!start_data.world_path.empty()) {
+		auto &spec = start_data.world_spec;
+
+		spec.path = start_data.world_path;
+		spec.gameid = getWorldGameId(spec.path, true);
+		spec.name = _("[--world parameter]");
+	}
+
 	random_input = g_settings->getBool("random_input")
 			|| cmd_args.getFlag("random-input");
 }
@@ -413,17 +422,8 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		}
 	}
 
-	// If a world was commanded, append and select it
-	// This is provieded by "get_world_from_cmdline()", main.cpp
-	if (!start_data.world_path.empty()) {
-		auto &spec = start_data.world_spec;
-
-		spec.path = start_data.world_path;
-		spec.gameid = getWorldGameId(spec.path, true);
-		spec.name = _("[--world parameter]");
-	}
-
-	/* Show the GUI menu
+	/*
+	 * Show the GUI menu
 	 */
 	std::string server_name, server_description;
 	if (!skip_main_menu) {
@@ -440,7 +440,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		main_menu(&menudata);
 
 		// Skip further loading if there was an exit signal.
-		if (*porting::signal_handler_killstatus())
+		if (!m_rendering_engine->run() || *porting::signal_handler_killstatus())
 			return false;
 
 		if (!menudata.script_data.errormessage.empty()) {
@@ -461,6 +461,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		int world_index = menudata.selected_world;
 		if (world_index >= 0 && world_index < (int)worldspecs.size()) {
 			start_data.world_spec = worldspecs[world_index];
+			start_data.world_path = start_data.world_spec.path;
 		}
 
 		start_data.name = menudata.name;
@@ -476,9 +477,6 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		start_data.local_server = !start_data.world_path.empty() &&
 			start_data.address.empty() && !start_data.name.empty();
 	}
-
-	if (!m_rendering_engine->run())
-		return false;
 
 	if (!start_data.isSinglePlayer() && start_data.name.empty()) {
 		error_message = gettext("Please choose a name!");
@@ -502,12 +500,9 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		return false;
 	}
 
-	auto &worldspec = start_data.world_spec;
-	infostream << "Selected world: " << worldspec.name
-	           << " [" << worldspec.path << "]" << std::endl;
-
+	// For singleplayer and local server
 	if (start_data.address.empty()) {
-		// For singleplayer and local server
+		auto &worldspec = start_data.world_spec;
 		if (worldspec.path.empty()) {
 			error_message = gettext("No world selected and no address "
 					"provided. Nothing to do.");
@@ -515,26 +510,30 @@ bool ClientLauncher::launch_game(std::string &error_message,
 			return false;
 		}
 
-		if (!fs::PathExists(worldspec.path)) {
-			error_message = gettext("Provided world path doesn't exist: ")
-					+ worldspec.path;
-			errorstream << error_message << std::endl;
-			return false;
+		infostream << "Selected world: " << worldspec.name
+			<< " [" << worldspec.path << "]" << std::endl;
+
+		// Figure out which game we'll be using
+		// Note that start_data.game_spec contains the gameid from the command line
+		bool world_exists = getWorldExists(worldspec.path);
+		if (world_exists) {
+			auto world_game = findWorldSubgame(worldspec.path);
+			if (world_game.isValid())
+				start_data.game_spec = world_game;
 		}
 
-		// Load gamespec for required game
-		start_data.game_spec = findWorldSubgame(worldspec.path);
 		if (!start_data.game_spec.isValid()) {
-			error_message = gettext("Could not find or load game: ")
+			if (world_exists) {
+				error_message = gettext("Could not find or load game: ")
 					+ worldspec.gameid;
+			} else {
+				error_message = gettext("World does not exist and no game selected to create one.");
+			}
 			errorstream << error_message << std::endl;
 			return false;
 		}
-
-		return true;
 	}
 
-	start_data.world_path = start_data.world_spec.path;
 	return true;
 }
 

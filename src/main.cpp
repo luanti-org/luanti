@@ -1041,8 +1041,7 @@ static bool get_game_from_cmdline(GameParams *game_params, const Settings &cmd_a
 			errorstream << "Game \"" << gameid << "\" not found" << std::endl;
 			return false;
 		}
-		dstream << _("Using game specified by --gameid on the command line")
-		        << std::endl;
+		infostream << "Using commanded gameid [" << commanded_gamespec.id << "]" << std::endl;
 		game_params->game_spec = commanded_gamespec;
 		return true;
 	}
@@ -1052,18 +1051,19 @@ static bool get_game_from_cmdline(GameParams *game_params, const Settings &cmd_a
 
 static bool determine_subgame(GameParams *game_params)
 {
-	SubgameSpec gamespec;
+	if (!game_params->is_dedicated_server) {
+		// ClientLauncher has its own logic to choose a game
+		return true;
+	}
 
+	SubgameSpec gamespec;
 	assert(!game_params->world_path.empty());	// Pre-condition
 
-	// If world doesn't exist
-	if (!game_params->world_path.empty()
-		&& !getWorldExists(game_params->world_path)) {
+	if (!getWorldExists(game_params->world_path)) {
 		// Try to take gamespec from command line
 		if (game_params->game_spec.isValid()) {
 			gamespec = game_params->game_spec;
-			infostream << "Using commanded gameid [" << gamespec.id << "]" << std::endl;
-		} else if (game_params->is_dedicated_server) {
+		} else {
 			auto games = getAvailableGameIds();
 			// If there's exactly one obvious choice then do the right thing
 			if (games.size() > 1)
@@ -1094,16 +1094,12 @@ static bool determine_subgame(GameParams *game_params)
 				            << world_gameid << "]" << std::endl;
 			}
 		} else {
-			// If world contains an embedded game, use it;
-			// Otherwise find world from local system.
 			gamespec = findWorldSubgame(game_params->world_path);
 			infostream << "Using world gameid [" << gamespec.id << "]" << std::endl;
 		}
 	}
 
 	if (!gamespec.isValid()) {
-		if (!game_params->is_dedicated_server)
-			return true; // not an error, this would prevent the main menu from running
 		errorstream << "Game [" << gamespec.id << "] could not be found."
 		            << std::endl;
 		return false;
