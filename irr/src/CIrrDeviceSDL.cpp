@@ -338,7 +338,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 #endif
 
 		// Set IME hints
-		SDL_SetHint(SDL_HINT_IME_INTERNAL_EDITING, "1");
+		SDL_SetHint(SDL_HINT_IME_INTERNAL_EDITING, "0");
 #if defined(SDL_HINT_IME_SHOW_UI)
 		SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
@@ -882,6 +882,18 @@ bool CIrrDeviceSDL::run()
 			delete irrevent.StringInput.Str;
 			irrevent.StringInput.Str = NULL;
 		} break;
+
+		case SDL_TEXTEDITING: {
+			irrevent.EventType = EET_STRING_COMPOSITION_EVENT;
+			irrevent.StringComposition.Str = new core::stringw();
+			core::utf8ToWString(*irrevent.StringInput.Str, SDL_event.edit.text);
+			irrevent.StringComposition.Start = SDL_event.edit.start;
+			irrevent.StringComposition.Length = SDL_event.edit.length;
+			postEventFromUser(irrevent);
+			delete irrevent.StringInput.Str;
+			irrevent.StringInput.Str = NULL;
+			break;
+		}
 
 		case SDL_KEYDOWN:
 		case SDL_KEYUP: {
