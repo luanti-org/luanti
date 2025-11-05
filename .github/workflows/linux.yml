@@ -119,7 +119,7 @@ jobs:
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps clang-18 lldb
+          install_linux_deps clang-18 lldb xvfb
 
       - name: Build
         run: |
@@ -135,6 +135,10 @@ jobs:
       - name: Integration test + devtest
         run: |
           ./util/test_multiplayer.sh
+
+      - name: Singleplayer test
+        run: |
+          xvfb-run ./util/test_singleplayer.sh
 
   # Build with prometheus-cpp (server-only), also runs on ARM64
   clang_prometheus_arm:
