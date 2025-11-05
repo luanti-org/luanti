@@ -6,12 +6,13 @@
 local function exit_dialog_formspec()
 	local show_dialog = core.settings:get_bool("enable_esc_dialog", true)
 	local formspec = {
-		"size[10,3,true]" ..
-		"label[0.5,0.5;" .. fgettext("Are you sure you want to quit?") .. "]" ..
-		"checkbox[0.5,1;cb_show_dialog;" .. fgettext("Always show this dialog.") .. ";" .. tostring(show_dialog) .. "]" ..
+		"formspec_version[10]" ..
+		"size[10,3]" ..
+		"label[0.5,0.45;" .. fgettext("Are you sure you want to quit?") .. "]" ..
+		"checkbox[0.5,1.15;cb_show_dialog;" .. fgettext("Always show this dialog.") .. ";" .. tostring(show_dialog) .. "]" ..
 		"style[btn_quit_confirm_yes;bgcolor=red]" ..
-		"button[0.5,2.0;2.5,0.5;btn_quit_confirm_yes;" .. fgettext("Quit") .. "]" ..
-		"button[7.0,2.0;2.5,0.5;btn_quit_confirm_cancel;" .. fgettext("Cancel") .. "]"
+		"button[6.5,1.75;3,0.8;btn_quit_confirm_yes;" .. fgettext("Quit") .. "]" ..
+		"button[0.5,1.75;3,0.8;btn_quit_confirm_cancel;" .. fgettext("Cancel") .. "]"
 	}
 	return table.concat(formspec, "")
 end
@@ -25,11 +26,9 @@ local function exit_dialog_buttonhandler(this, fields)
 		this:delete()
 		core.close()
 		return true
-	elseif fields.btn_quit_confirm_cancel or fields.key_escape or fields.quit then
+	elseif fields.btn_quit_confirm_cancel then
 		this:delete()
-		if this and this.show then
-			this:show()
-		end
+		this:show()
 		return true
 	end
 end
