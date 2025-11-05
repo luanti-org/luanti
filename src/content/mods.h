@@ -34,6 +34,7 @@ struct ModSpec
 	std::unordered_set<std::string> optdepends;
 	std::unordered_set<std::string> unsatisfied_depends;
 
+	bool valid = true;  /// False if incomplete
 	bool part_of_modpack = false;
 	bool is_modpack = false;
 

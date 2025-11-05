@@ -2650,4 +2650,7 @@ void push_mod_spec(lua_State *L, const ModSpec &spec, bool include_unsatisfied)
 		lua_rawseti(L, -2, i++);
 	}
 	lua_setfield(L, -2, "unsatisfied_depends");
+
+	lua_pushboolean(L, spec.valid);
+	lua_setfield(L, -2, "valid");
 }

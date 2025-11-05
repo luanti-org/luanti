@@ -233,6 +233,11 @@ std::string ScriptApiBase::getCurrentModNameInsecure(lua_State *L)
 void ScriptApiBase::loadMod(const std::string &script_path,
 		const std::string &mod_name)
 {
+	if (!fs::IsFile(script_path)) {
+		throw ModError("Failed to load mod \"" + mod_name
+			+ "\" as it's initialization script at \"" + script_path
+			+ "\" does not exist. Try to reinstall/update mod or disable it.");
+	}
 	ModNameStorer mod_name_storer(getStack(), mod_name);
 
 	loadScript(script_path);
