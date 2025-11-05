@@ -7,12 +7,14 @@ local function exit_dialog_formspec()
 	local show_dialog = core.settings:get_bool("enable_esc_dialog", true)
 	local formspec = {
 		"formspec_version[10]" ..
-		"size[10,3]" ..
-		"label[0.5,0.45;" .. fgettext("Are you sure you want to quit?") .. "]" ..
-		"checkbox[0.5,1.15;cb_show_dialog;" .. fgettext("Always show this dialog.") .. ";" .. tostring(show_dialog) .. "]" ..
+		"size[10,3.6]" ..
+		"style_type[label;font=bold]" ..
 		"style[btn_quit_confirm_yes;bgcolor=red]" ..
-		"button[6.5,1.75;3,0.8;btn_quit_confirm_yes;" .. fgettext("Quit") .. "]" ..
-		"button[0.5,1.75;3,0.8;btn_quit_confirm_cancel;" .. fgettext("Cancel") .. "]"
+		"label[0.5,0.5;" .. fgettext("Are you sure you want to quit?") .. "]" ..
+		"checkbox[0.5,1.4;cb_show_dialog;" .. fgettext("Always show this dialog.") .. ";" .. tostring(show_dialog) .. "]" ..
+		"button[0.5,2.3;3,0.8;btn_quit_confirm_cancel;" .. fgettext("Cancel") .. "]" ..
+		"button[6.5,2.3;3,0.8;btn_quit_confirm_yes;" .. fgettext("Quit") .. "]" ..
+		"set_focus[btn_quit_confirm_yes]"
 	}
 	return table.concat(formspec, "")
 end
