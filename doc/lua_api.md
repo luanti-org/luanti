@@ -9124,7 +9124,7 @@ child will follow movement and rotation of that bone.
         * `bright`: brightness of the vignette's brightest part (default: `1.0`)
         * `power`: the higher this is set, the more the vignette "retreats" to the edges of the screen (default: `1.0`)
       * `cdl`: is a table that controls the ASL CDL color grading effect.
-        * This has no effect on clients who have the "Color grading" effect disabled.
+        * This has no effect on clients who have post processing disabled.
         * The output color follows the equation: `out = pow(in*slope+offset, power)`
         * `slope`: "Tints" the scene, affects brighter colors more (default: `{x=1.2, y=1.0, z=0.8}`)
         * `offset`: This can be used to brighten or darken the scene (default: `{x=0.0, y=0.0, z=0.0}`)
