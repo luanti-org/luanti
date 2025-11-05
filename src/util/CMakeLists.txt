@@ -6,6 +6,7 @@ set(util_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/auth.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/base64.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/colorize.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/convex_polygon.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/directiontables.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/enriched_string.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/guid.cpp
