@@ -20,12 +20,12 @@
 static constexpr u16 quad_indices_02[] = {0, 1, 2, 2, 3, 0};
 static const auto &quad_indices = quad_indices_02;
 
-LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, const bool is_mono_mat):
+LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, const bool is_textureless):
 	m_data(input),
 	m_collector(output),
 	m_nodedef(m_data->m_nodedef),
 	m_blockpos_nodes(m_data->m_blockpos * MAP_BLOCKSIZE),
-	m_is_mono_mat(is_mono_mat)
+	m_is_textureless(is_textureless)
 {
 }
 
@@ -40,7 +40,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 	for (u8 direction = 0; direction < Direction_END; direction++) {
 		TileSpec tile;
 		video::SColor color;
-		if (m_is_mono_mat) {
+		if (m_is_textureless) {
 			// When generating a mesh with no texture, we have to color the vertices instead.
 			video::SColor c2 = m_nodedef->get(n).average_colors[direction];
 			color = video::SColor(
@@ -152,7 +152,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 						irr_vertices[2] = video::S3DVertex(vertices[2], s_normals[direction], color, uvs[2]);
 						irr_vertices[3] = video::S3DVertex(vertices[1], s_normals[direction], color, uvs[3]);
 					}
-					m_collector->append(m_is_mono_mat ? s_static_tile : tile, irr_vertices, 4, quad_indices, 6);
+					m_collector->append(m_is_textureless ? s_static_tile : tile, irr_vertices, 4, quad_indices, 6);
 				}
 			}
 		}

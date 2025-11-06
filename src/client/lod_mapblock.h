@@ -13,7 +13,7 @@ struct MeshCollector;
 class LodMeshGenerator
 {
 public:
-    LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_mono_mat);
+    LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_textureless);
     void generate(u8 lod);
 
 private:
@@ -21,7 +21,7 @@ private:
     MeshCollector *const m_collector;
     const NodeDefManager *const m_nodedef;
 	const v3s16 m_blockpos_nodes;
-	const bool m_is_mono_mat;
+	const bool m_is_textureless;
 
 	// max bits the fit in a bitset
 	static constexpr s16 BITSET_MAX = 64;

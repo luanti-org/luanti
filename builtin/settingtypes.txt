@@ -484,7 +484,7 @@ lod_threshold (LOD Threshold) int 20 10 50
 lod_quality (LOD Quality) float 1.5 0.5 5
 
 #    LOD level at which they should be textureless
-lod_color_threshold (LOD Color Threshold) int 2 1 5
+lod_texture_threshold (LOD Color Threshold) int 2 1 5
 
 [**3D]
 
