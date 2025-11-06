@@ -1,9 +1,6 @@
 # Compiling Luanti
 
-- [Compiling on GNU/Linux](linux.md)
-- [Compiling on Windows](windows.md)
-- [Compiling on MacOS](macos.md)
-
+- See [Compiling Luanti docs](https://docs.luanti.org/for-engine-devs/compiling/)
 
 ## CMake options
 
