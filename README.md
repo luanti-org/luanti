@@ -12,10 +12,9 @@ Luanti is a free open-source voxel game engine with easy modding and game creati
 Copyright (C) 2010-2025 Perttu Ahola <celeron55@gmail.com>
 and contributors (see source file comments and the version control log)
 
-Table of Contents
+Table of Contents <!-- omit in toc -->
 ------------------
 
-- [Table of Contents](#table-of-contents)
 - [Further documentation](#further-documentation)
 - [Default controls](#default-controls)
 - [Paths](#paths)
