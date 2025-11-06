@@ -77,36 +77,4 @@ some shader settings cannot be used on OpenGL ES.
 Changing the graphic driver setting to OpenGL will not work.
 
 ## Building Requirements
-
-In order to build, you will need the following development tools:
-
-* Java JDK
-* Android SDK
-* `gettext` command line tools
-* Android Studio [optional]
-
-Additionally, you'll need to have an Internet connection available on the
-build system, as the Android build will download some source packages.
-
-## Build
-
-The new build system Luanti Android is fully functional and is designed to
-speed up and simplify the work, as well as adding the possibility of
-cross-platform build.
-You can use `./gradlew assembleRelease` or `./gradlew assembleDebug` from the
-command line or use Android Studio and click the build button.
-
-When using gradlew, the newest NDK will be downloaded and installed
-automatically. You have to create a `local.properties` file and specify
-`sdk.dir` yourself if you want to use an existing installation.
-
-* In order to make a release build you'll have to have a keystore setup to sign
-  the resulting apk package. How this is done is not part of this README. There
-  are different tutorials on the web explaining how to do it
-  - choose one yourself.
-
-* Once your keystore is setup, enter the android subdirectory and create a new
-  file "ant.properties" there. Add the following lines to that file:
-
-  > key.store=<path to your keystore>
-  > key.alias=Minetest
+Build instructions: <https://docs.luanti.org/for-engine-devs/compiling/android/>.
