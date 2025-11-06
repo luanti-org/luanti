@@ -629,11 +629,12 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, con
 	v3f offset = intToFloat((data->m_blockpos - mesh_grid.getMeshPos(data->m_blockpos)) * MAP_BLOCKSIZE, BS);
 
 	MeshCollector collector(m_bounding_sphere_center, offset);
-	const bool is_textureless = lod >= g_settings->getU16("lod_texture_threshold");
+	const bool is_lod_enabled = g_settings->getBool("enable_lod");
+	const bool is_textureless = is_lod_enabled && lod >= g_settings->getU16("lod_texture_threshold");
 
 	{
         // Generate everything
-        if (lod == 0)
+        if (lod == 0 || !is_lod_enabled)
 			MapblockMeshGenerator(data, &collector).generate();
         else
 	        LodMeshGenerator(data, &collector, is_textureless).generate(lod);
@@ -644,7 +645,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, con
 	*/
 	m_bounding_radius = std::sqrt(collector.m_bounding_radius_sq);
 
-	if (is_textureless)
+	if (is_lod_enabled)
 		generateMonoMesh(collector);
 	else
 		generateMesh(collector);
