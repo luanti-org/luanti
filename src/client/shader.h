@@ -229,9 +229,9 @@ using CachedStructPixelShaderSetting = CachedStructShaderSetting<T, count, cache
 
 struct ShaderInfo {
 	std::string name;
-	video::E_MATERIAL_TYPE base_material = video::EMT_SOLID;
+	video::E_MATERIAL_TYPE base_material = video::EMT_INVALID;
 	// Material ID the shader has received from Irrlicht
-	video::E_MATERIAL_TYPE material = video::EMT_SOLID;
+	video::E_MATERIAL_TYPE material = video::EMT_INVALID;
 	// Input constants
 	ShaderConstants input_constants;
 	// Extra uniform callback

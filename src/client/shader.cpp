@@ -640,7 +640,7 @@ void ShaderSource::rebuildShaders()
 	for (ShaderInfo &i : m_shaderinfo_cache) {
 		if (!i.name.empty()) {
 			gpu->deleteShaderMaterial(i.material);
-			i.material = video::EMT_SOLID; // invalidate
+			i.material = video::EMT_INVALID;
 		}
 	}
 
