@@ -13,13 +13,13 @@ struct MeshCollector;
 class LodMeshGenerator
 {
 public:
-    LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_textureless);
-    void generate(u8 lod);
+	LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_textureless);
+	void generate(u8 lod);
 
 private:
-    MeshMakeData *const m_data;
-    MeshCollector *const m_collector;
-    const NodeDefManager *const m_nodedef;
+	MeshMakeData *const m_data;
+	MeshCollector *const m_collector;
+	const NodeDefManager *const m_nodedef;
 	const v3s16 m_blockpos_nodes;
 	const bool m_is_textureless;
 
