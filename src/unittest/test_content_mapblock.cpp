@@ -44,7 +44,7 @@ public:
 		// Need to fill node visuals for predefined nodes
 		node_mgr()->applyFunction([] (ContentFeatures &f) {
 			if (!f.visuals)
-				f.visuals = new NodeVisuals(&f);
+				f.visuals = constructNodeVisuals(&f);
 		});
 	}
 
@@ -70,7 +70,7 @@ public:
 		itemdef.description = name;
 
 		CContentFeatures f;
-		f.visuals = new NodeVisuals(&f);
+		f.visuals = constructNodeVisuals(&f);
 		f.name = itemdef.name;
 		f.drawtype = NDT_NORMAL;
 		f.visuals->solidness = 2;
@@ -91,7 +91,7 @@ public:
 		itemdef.description = name;
 
 		CContentFeatures f;
-		f.visuals = new NodeVisuals(&f);
+		f.visuals = constructNodeVisuals(&f);
 		f.name = itemdef.name;
 		f.drawtype = NDT_LIQUID;
 		f.visuals->solidness = 1;
@@ -119,7 +119,7 @@ public:
 		itemdef.description = name;
 
 		CContentFeatures f;
-		f.visuals = new NodeVisuals(&f);
+		f.visuals = constructNodeVisuals(&f);
 		f.name = itemdef.name;
 		f.drawtype = NDT_FLOWINGLIQUID;
 		f.visuals->solidness = 0;

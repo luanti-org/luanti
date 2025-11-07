@@ -1882,7 +1882,7 @@ void Client::afterContentReceived()
 	TextureUpdateArgs tu_args;
 	tu_args.last_time_ms = porting::getTimeMs();
 	tu_args.text_base = wstrgettext("Initializing nodes");
-	fillNodeVisuals(m_nodedef, this, &tu_args);
+	NodeVisuals::fillNodeVisuals(m_nodedef, this, &tu_args);
 
 	// Start mesh update thread after setting up content definitions
 	infostream<<"- Starting mesh update thread"<<std::endl;

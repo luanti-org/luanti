@@ -418,7 +418,7 @@ void Minimap::blitMinimapPixelsToImageSurface(
 			f.visuals->getColor(mmpixel->n.param2, &tilecolor);
 		}
 		// Multiply with pre-generated "color of texture"
-		auto &minimap_color = f.visuals->minimap_color;
+		video::SColor &minimap_color = f.visuals->minimap_color;
 		tilecolor.setRed(tilecolor.getRed() * minimap_color.getRed() / 255);
 		tilecolor.setGreen(tilecolor.getGreen() * minimap_color.getGreen() / 255);
 		tilecolor.setBlue(tilecolor.getBlue() * minimap_color.getBlue() / 255);

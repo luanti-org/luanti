@@ -498,39 +498,40 @@ void NodeVisuals::updateMesh(Client *client, const TextureSettings &tsettings)
 	(void)tsettings;
 
 	const auto &mesh = f->mesh;
-	if (f->drawtype == NDT_MESH && !mesh.empty()) {
-		// Note: By freshly reading, we get an unencumbered mesh.
-		if (scene::IMesh *src_mesh = client->getMesh(mesh)) {
-			bool apply_bs = false;
-			if (auto *skinned_mesh = dynamic_cast<scene::SkinnedMesh *>(src_mesh)) {
-				// Compatibility: Animated meshes, as well as static gltf meshes, are not scaled by BS.
-				// See https://github.com/luanti-org/luanti/pull/16112#issuecomment-2881860329
-				bool is_gltf = skinned_mesh->getSourceFormat() ==
-						scene::SkinnedMesh::SourceFormat::GLTF;
-				apply_bs = skinned_mesh->isStatic() && !is_gltf;
-				// Nodes do not support mesh animation, so we clone the static pose.
-				// This simplifies working with the mesh: We can just scale the vertices
-				// as transformations have already been applied.
-				mesh_ptr = cloneStaticMesh(src_mesh);
-				src_mesh->drop();
-			} else {
-				auto *static_mesh = dynamic_cast<scene::SMesh *>(src_mesh);
-				assert(static_mesh);
-				mesh_ptr = static_mesh;
-				// Compatibility: Apply BS scaling to static meshes (.obj). See #15811.
-				apply_bs = true;
-			}
-			scaleMesh(mesh_ptr, v3f((apply_bs ? BS : 1.0f) * f->visual_scale));
-			recalculateBoundingBox(mesh_ptr);
-			if (!checkMeshNormals(mesh_ptr)) {
-				// TODO this should be done consistently when the mesh is loaded
-				infostream << "ContentFeatures: recalculating normals for mesh "
-					<< mesh << std::endl;
-				manip->recalculateNormals(mesh_ptr, true, false);
-			}
+	if (f->drawtype != NDT_MESH || mesh.empty())
+		return;
+
+	// Note: By freshly reading, we get an unencumbered mesh.
+	if (scene::IMesh *src_mesh = client->getMesh(mesh)) {
+		bool apply_bs = false;
+		if (auto *skinned_mesh = dynamic_cast<scene::SkinnedMesh *>(src_mesh)) {
+			// Compatibility: Animated meshes, as well as static gltf meshes, are not scaled by BS.
+			// See https://github.com/luanti-org/luanti/pull/16112#issuecomment-2881860329
+			bool is_gltf = skinned_mesh->getSourceFormat() ==
+					scene::SkinnedMesh::SourceFormat::GLTF;
+			apply_bs = skinned_mesh->isStatic() && !is_gltf;
+			// Nodes do not support mesh animation, so we clone the static pose.
+			// This simplifies working with the mesh: We can just scale the vertices
+			// as transformations have already been applied.
+			mesh_ptr = cloneStaticMesh(src_mesh);
+			src_mesh->drop();
 		} else {
-			mesh_ptr = nullptr;
+			auto *static_mesh = dynamic_cast<scene::SMesh *>(src_mesh);
+			assert(static_mesh);
+			mesh_ptr = static_mesh;
+			// Compatibility: Apply BS scaling to static meshes (.obj). See #15811.
+			apply_bs = true;
 		}
+		scaleMesh(mesh_ptr, v3f((apply_bs ? BS : 1.0f) * f->visual_scale));
+		recalculateBoundingBox(mesh_ptr);
+		if (!checkMeshNormals(mesh_ptr)) {
+			// TODO this should be done consistently when the mesh is loaded
+			infostream << "ContentFeatures: recalculating normals for mesh "
+				<< mesh << std::endl;
+			manip->recalculateNormals(mesh_ptr, true, false);
+		}
+	} else {
+		mesh_ptr = nullptr;
 	}
 }
 
@@ -557,7 +558,7 @@ void NodeVisuals::getColor(u8 param2, video::SColor *color) const
 	*color = f->color;
 }
 
-void fillNodeVisuals(NodeDefManager *ndef, Client *client, void *progress_callback_args)
+void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *progress_callback_args)
 {
 	infostream << "fillNodeVisuals: Updating "
 			"textures in node definitions" << std::endl;
