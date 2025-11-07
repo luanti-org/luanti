@@ -51,8 +51,8 @@ private:
 
 	void generateGreedyLod(std::bitset<NodeDrawType_END> types, v3s16 seg_start, v3s16 seg_size, u8 width);
 	void generateBitsetMesh(MapNode n, u8 width, v3s16 seg_start, video::SColor color_in);
-    LightPair computeMaxFaceLight(MapNode n, v3s16 p, v3s16 dir) const;
-    void generateLodChunks(std::bitset<NodeDrawType_END> types, u8 width);
+	LightPair computeMaxFaceLight(MapNode n, v3s16 p, v3s16 dir) const;
+	void generateLodChunks(std::bitset<NodeDrawType_END> types, u8 width);
 };
 
 struct NodeKey {
