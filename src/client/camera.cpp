@@ -18,7 +18,7 @@
 #include "util/numeric.h"
 #include "constants.h"
 #include "fontengine.h"
-#include "font_enriched_string_composite.h"
+#include "font_enriched_string.h"
 #include "script/scripting_client.h"
 #include "gettext.h"
 
