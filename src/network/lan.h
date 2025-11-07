@@ -46,4 +46,5 @@ public:
 
 private:
 	unsigned short server_port = 0;
+	int socket;
 };
