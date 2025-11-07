@@ -66,10 +66,12 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 						// then count the numer of low 1s to get the length of the greedy quad.
 						s32 v1 = __builtin_ctzll(~(column >> v0));
 					#elif defined(_MSC_VER)
-						s32 v0 = _BitScanForward64(column);
+						s32 v0;
+						_BitScanForward64(&v0, column);
 						// Shift the bitset down, so it has no low 0s anymore,
 						// then count the numer of low 1s to get the length of the greedy quad.
-						s32 v1 = _BitScanForward64(~(column >> v0));
+						s32 v1;
+						_BitScanForward64(&v1, ~(column >> v0));
 					#endif
 					const bitset mask = ((1ULL << v1) - 1) << v0;
 					column ^= mask;
@@ -289,7 +291,8 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 						#if defined( __GNUC__ ) || defined( __clang__ ) || defined(__MINGW32__)
 							const u8 first_filled = __builtin_ctzll(column);
 						#elif defined(_MSC_VER)
-							const u8 first_filled = _BitScanForward64(column);
+							const u8 first_filled;
+							_BitScanForward64(&first_filled, column);
 						#endif
 						m_slices[direction_offset + BITSET_MAX_NOPAD * first_filled + u] |= 1ULL << v;
 						column &= column - 1;
