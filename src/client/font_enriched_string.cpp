@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2024 cx384
 
-#include "font_enriched_string_composite.h"
+#include "font_enriched_string.h"
 #include "irrlicht_changes/CGUITTFont.h"
 #include "util/string.h"
 #include <utility>
