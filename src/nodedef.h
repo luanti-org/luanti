@@ -93,6 +93,17 @@ enum NodeBoxType : u8
 	NODEBOX_CONNECTED, // optionally draws nodeboxes if a neighbor node attaches
 };
 
+enum Direction : u8
+{
+	UP = 0, // y increase
+	DOWN = 1, // y decrease
+	LEFT = 2, // x increase
+	RIGHT = 3, // x decrease
+	BACK = 4, // z increase
+	FRONT = 5, // z decrease
+	Direction_END // Dummy for validity check
+};
+
 struct NodeBoxConnected
 {
 	std::vector<aabb3f> connect_top;
@@ -327,7 +338,7 @@ struct ContentFeatures
 #if CHECK_CLIENT_BUILD()
 	// 0     1     2     3     4     5
 	// up    down  right left  back  front
-	TileSpec tiles[6];
+	TileSpec tiles[Direction_END];
 	// Special tiles
 	TileSpec special_tiles[CF_SPECIAL_COUNT];
 	u8 solidness; // Used when choosing which face is drawn
@@ -363,6 +374,7 @@ struct ContentFeatures
 #if CHECK_CLIENT_BUILD()
 	scene::SMesh *mesh_ptr; // mesh in case of mesh node
 	video::SColor minimap_color;
+	video::SColor average_colors[Direction_END];
 #endif
 	float visual_scale; // Misc. scale parameter
 	TileDef tiledef[6];
@@ -900,4 +912,37 @@ private:
 	// Index of the next "m_nnlistsizes" entry to process
 	u32 m_nnlistsizes_idx = 0;
 	bool m_resolve_done = false;
+};
+
+struct LightPair {
+	u8 lightDay;
+	u8 lightNight;
+
+	LightPair() = default;
+	explicit LightPair(u16 value) : lightDay(value & 0xff), lightNight(value >> 8) {}
+	LightPair(u8 valueA, u8 valueB) : lightDay(valueA), lightNight(valueB) {}
+	LightPair(float valueA, float valueB) :
+		lightDay(core::clamp(core::round32(valueA), 0, 255)),
+		lightNight(core::clamp(core::round32(valueB), 0, 255)) {}
+	operator u16() const { return lightDay | lightNight << 8; }
+};
+
+struct LightInfo {
+	float light_day;
+	float light_night;
+	float light_boosted;
+
+	LightPair getPair(float sunlight_boost = 0.0f) const
+	{
+		return LightPair(
+			(1 - sunlight_boost) * light_day
+			+ sunlight_boost * light_boosted,
+			light_night);
+	}
+};
+
+struct LightFrame {
+	f32 lightsDay[8];
+	f32 lightsNight[8];
+	bool sunlight[8];
 };

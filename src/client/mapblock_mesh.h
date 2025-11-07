@@ -16,6 +16,8 @@
 #include <map>
 #include <unordered_map>
 
+#include "meshgen/collector.h"
+
 namespace video {
 	class IVideoDriver;
 }
@@ -178,7 +180,7 @@ class MapBlockMesh
 {
 public:
 	// Builds the mesh given
-	MapBlockMesh(Client *client, MeshMakeData *data);
+	MapBlockMesh(Client *client, MeshMakeData *data, u8 lod, video::SMaterial mono_material);
 	~MapBlockMesh();
 
 	// Main animation function, parameters:
@@ -275,7 +277,10 @@ public:
 		return std::make_pair<int, u8>((n & 0xffff) - 1, (n >> 16) & 0xff);
 	}
 
+	const u8 m_lod;
+
 private:
+	video::SMaterial m_mono_material;
 
 	typedef std::pair<u8 /* layer index */, u32 /* buffer index */> MeshIndex;
 
@@ -309,6 +314,10 @@ private:
 	std::vector<PartialMeshBuffer> m_transparent_buffers;
 	// Is m_transparent_buffers currently in consolidated form?
 	bool m_transparent_buffers_consolidated = false;
+
+	void generateMonoMesh(MeshCollector& collector) const;
+
+	void generateMesh(MeshCollector& collector);
 };
 
 /*!
