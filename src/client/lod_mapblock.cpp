@@ -30,7 +30,7 @@ LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, c
 }
 
 void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
-                                          const v3s16 seg_start, const video::SColor color_in)
+		const v3s16 seg_start, const video::SColor color_in)
 {
 	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
 	const f32 scaled_BS = BS * width;
@@ -336,7 +336,7 @@ void LodMeshGenerator::generate(const u8 lod)
 	ZoneScoped;
 
 	// cap LODs to 8, since there is no use for larger than 256 node LODs
-    u8 width = 1 << MYMIN(lod - 1, 7);
+	u8 width = 1 << MYMIN(lod - 1, 7);
 
 	// cap LODs width to chunk size to account for different mesh chunk settings
 	if (width > m_data->m_side_length)
