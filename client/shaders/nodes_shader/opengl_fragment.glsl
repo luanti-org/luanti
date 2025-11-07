@@ -438,7 +438,7 @@ void main(void)
 	vec4 base = texture2D(baseTexture, uv).rgba;
 #endif
 
-    // Handle transparency by discarding pixel as appropriate.
+	// Handle transparency by discarding pixel as appropriate.
 #ifdef USE_DISCARD
 	if (base.a == 0.0)
 		discard;

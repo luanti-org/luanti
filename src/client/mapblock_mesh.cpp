@@ -30,11 +30,10 @@
 	MeshMakeData
 */
 
-MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, MeshGrid mesh_grid/*, u16 lod*/):
-    m_side_length(side_length),
-    m_mesh_grid(mesh_grid),
-    // m_lod(lod),
-    m_nodedef(ndef)
+MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, MeshGrid mesh_grid):
+	m_side_length(side_length),
+	m_mesh_grid(mesh_grid),
+	m_nodedef(ndef)
 {
 	assert(m_side_length > 0);
 }
@@ -645,7 +644,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, con
 	*/
 	m_bounding_radius = std::sqrt(collector.m_bounding_radius_sq);
 
-	if (is_lod_enabled)
+	if (is_textureless)
 		generateMonoMesh(collector);
 	else
 		generateMesh(collector);

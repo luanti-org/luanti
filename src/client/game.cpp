@@ -1968,8 +1968,8 @@ void Game::increaseViewRange()
 	s16 range_new = range + 10;
 	s16 server_limit = sky->getFogDistance();
 
-	if (range_new >= 8000) {
-		range_new = 8000;
+	if (range_new >= 4000) {
+		range_new = 4000;
 		std::wstring msg = server_limit >= 0 && range_new > server_limit ?
 				fwgettext("Viewing range changed to %d (the maximum), but limited to %d by game or mod", range_new, server_limit) :
 				fwgettext("Viewing range changed to %d (the maximum)", range_new);

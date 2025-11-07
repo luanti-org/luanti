@@ -55,7 +55,7 @@ struct MeshMakeData
 
 	const NodeDefManager *m_nodedef;
 
-    MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid);
+	MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid);
 
 	/*
 		Copy block data manually (to allow optimizations by the caller)
