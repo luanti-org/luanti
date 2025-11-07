@@ -701,7 +701,7 @@ void Camera::drawNametags()
 		}
 
 		const auto wtext = utf8_to_wide(nametag->text);
-		FontEnrichedStringComposite fesc(translate_string(wtext).c_str(), nametag->textcolor);
+		FontEnrichedString fesc(translate_string(wtext).c_str(), nametag->textcolor);
 		core::dimension2du textsize = fesc.getDimension();
 		v2s32 screen_pos;
 		screen_pos.X = screensize.X *

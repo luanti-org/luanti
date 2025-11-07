@@ -11,10 +11,12 @@
 // Note this is client code, because of the draw function.
 
 // A text consisting of multiple enriched strings which are drawn with different fonts
-struct FontEnrichedStringComposite {
-	FontEnrichedStringComposite(const std::wstring &s,
-		const video::SColor &initial_color = video::SColor(255, 255, 255, 255),
-		const FontSpec &initial_font = FontSpec(FONT_SIZE_UNSPECIFIED, FM_Standard, false, false));
+struct FontEnrichedString
+{
+	FontEnrichedString(const std::wstring &s,
+			video::SColor initial_color = video::SColor(255, 255, 255, 255),
+			const FontSpec &initial_font = FontSpec(FONT_SIZE_UNSPECIFIED, FM_Standard,
+			false, false));
 
 	void draw(core::rect<s32> position) const;
 

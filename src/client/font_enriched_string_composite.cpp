@@ -7,7 +7,44 @@
 #include "util/string.h"
 #include <utility>
 
-static bool parseFontModifier(std::string_view s, FontModifier &modifier) {
+enum class FontModifier : u8
+{
+	Mono,
+	Unmono,
+	Bold,
+	Unbold,
+	Italic,
+	Unitalic,
+};
+
+static void applyFontModifier(FontSpec &spec, FontModifier modifier)
+{
+	switch (modifier) {
+		case FontModifier::Mono :
+			spec.mode = FM_Mono;
+			break;
+		case FontModifier::Unmono :
+			spec.mode = FM_Standard;
+			break;
+		case FontModifier::Bold :
+			spec.bold = true;
+			break;
+		case FontModifier::Unbold :
+			spec.bold = false;
+			break;
+		case FontModifier::Italic :
+			spec.italic = true;
+			break;
+		case FontModifier::Unitalic :
+			spec.italic = false;
+			break;
+		default:
+			break;
+	}
+}
+
+static bool parseFontModifier(std::string_view s, FontModifier &modifier)
+{
 	if (s == "mono")
 		modifier = FontModifier::Mono;
 	else if (s == "unmono")
@@ -25,8 +62,9 @@ static bool parseFontModifier(std::string_view s, FontModifier &modifier) {
 	return true;
 };
 
-FontEnrichedStringComposite::FontEnrichedStringComposite(const std::wstring &s,
-		const video::SColor &initial_color, const FontSpec &initial_font) {
+FontEnrichedString::FontEnrichedString(const std::wstring &s,
+		video::SColor initial_color, const FontSpec &initial_font)
+{
 
 	FontSpec font = initial_font;
 	video::SColor color = initial_color;
@@ -39,12 +77,12 @@ FontEnrichedStringComposite::FontEnrichedStringComposite(const std::wstring &s,
 		if (s[i] == L'\n') {
 			// Split lines
 
-			EnrichedString fragment(std::wstring(s, fragmen_start, i-fragmen_start), color);
-			line.push_back(std::make_pair(fragment, font));
-
+			EnrichedString fragment(std::wstring(s, fragmen_start, i - fragmen_start), color);
 			auto colors = fragment.getColors();
+			line.emplace_back(std::make_pair(std::move(fragment), font));
+
 			if (!colors.empty())
-				color =	colors.back();
+				color = colors.back();
 
 			if (!line.empty()) {
 				m_lines.emplace_back(std::move(line));
@@ -85,21 +123,22 @@ FontEnrichedStringComposite::FontEnrichedStringComposite(const std::wstring &s,
 			}
 			FontModifier modifier;
 			if (parseFontModifier(wide_to_utf8(parts[1]), modifier)) {
-				EnrichedString fragment(std::wstring(s, fragmen_start, start_index-fragmen_start), color);
-				line.push_back(std::make_pair(fragment, font));
-
-				fragmen_start = start_index + length + 1;
-				font.applyFontModifier(modifier);
-
+				EnrichedString fragment(std::wstring(s, fragmen_start,
+						start_index - fragmen_start), color);
 				auto colors = fragment.getColors();
 				if (!colors.empty())
-					color =	colors.back();
+					color = colors.back();
+
+				line.emplace_back(std::make_pair(std::move(fragment), font));
+
+				fragmen_start = start_index + length + 1;
+				applyFontModifier(font, modifier);
 			}
 		}
 	}
 	if (fragmen_start < s.length()) {
-		EnrichedString fragment(std::wstring(s, fragmen_start), color);
-		line.push_back(std::make_pair(fragment, font));
+		line.emplace_back(std::make_pair(EnrichedString{std::wstring(s, fragmen_start), color},
+				font));
 	}
 
 	if (!line.empty())
@@ -107,16 +146,17 @@ FontEnrichedStringComposite::FontEnrichedStringComposite(const std::wstring &s,
 
 };
 
-void FontEnrichedStringComposite::draw(core::rect<s32> position) const {
+void FontEnrichedString::draw(core::rect<s32> position) const
+{
 	u32 start_pos_x = position.UpperLeftCorner.X;
-	for (auto line : m_lines) {
+	for (auto &line : m_lines) {
 		position.UpperLeftCorner.X = start_pos_x;
 		u32 max_h = 0;
-		for (auto [es, spec] : line) {
+		for (auto &[es, spec] : line) {
 			gui::IGUIFont *font = g_fontengine->getFont(spec);
 			assert(font);
 			gui::CGUITTFont *ttfont = dynamic_cast<gui::CGUITTFont*>(font);
-			if (ttfont) { // Don't draw other fonts
+			if (ttfont) {
 				ttfont->draw(es, position);
 
 				auto frag_dim = ttfont->getDimension(es.c_str());
@@ -129,12 +169,13 @@ void FontEnrichedStringComposite::draw(core::rect<s32> position) const {
 	}
 };
 
-core::dimension2d<u32> FontEnrichedStringComposite::getDimension() const {
+core::dimension2d<u32> FontEnrichedString::getDimension() const
+{
 	core::dimension2d<u32> dim(0, 0);
-	for (auto line : m_lines) {
+	for (auto &line : m_lines) {
 		u32 max_h = 0;
 		u32 sum_w = 0;
-		for (auto [es, spec] : line) {
+		for (auto &[es, spec] : line) {
 			gui::IGUIFont *font = g_fontengine->getFont(spec);
 			assert(font);
 			gui::CGUITTFont *ttfont = dynamic_cast<gui::CGUITTFont*>(font);
