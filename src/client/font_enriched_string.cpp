@@ -45,20 +45,31 @@ static void applyFontModifier(FontSpec &spec, FontModifier modifier)
 
 static bool parseFontModifier(std::string_view s, FontModifier &modifier)
 {
-	if (s == "mono")
-		modifier = FontModifier::Mono;
-	else if (s == "unmono")
-		modifier = FontModifier::Unmono;
-	else if (s == "bold")
-		modifier = FontModifier::Bold;
-	else if (s == "unbold")
-		modifier = FontModifier::Unbold;
-	else if (s == "italic")
-		modifier = FontModifier::Italic;
-	else if (s == "unitalic")
-		modifier = FontModifier::Unitalic;
-	else
+	if (s.empty())
 		return false;
+
+	switch (s[0]) {
+		case 'M':
+			modifier = FontModifier::Mono;
+			break;
+		case 'm':
+			modifier = FontModifier::Unmono;
+			break;
+		case 'B':
+			modifier = FontModifier::Bold;
+			break;
+		case 'b':
+			modifier = FontModifier::Unbold;
+			break;
+		case 'I':
+			modifier = FontModifier::Italic;
+			break;
+		case 'i':
+			modifier = FontModifier::Unitalic;
+			break;
+		default:
+			return false;
+	}
 	return true;
 };
 

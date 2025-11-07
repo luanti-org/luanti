@@ -210,13 +210,13 @@ core.register_entity("testentities:nametag", {
 -- Enriched nametag strings
 do
 
-local bold = core.get_font_escape_sequence("bold")
-local unbold = core.get_font_escape_sequence("unbold")
-local italic = core.get_font_escape_sequence("italic")
-local unitalic = core.get_font_escape_sequence("unitalic")
-local mono = core.get_font_escape_sequence("mono")
-local unmono = core.get_font_escape_sequence("unmono")
-local all_off = unbold..unitalic..unmono
+local bold = core.get_font_escape_sequence({bold = true})
+local unbold = core.get_font_escape_sequence({bold = false})
+local italic = core.get_font_escape_sequence({italic = true})
+local unitalic = core.get_font_escape_sequence({italic = false})
+local mono = core.get_font_escape_sequence({mono = true})
+local unmono = core.get_font_escape_sequence({mono = false})
+local all_off =  core.get_font_escape_sequence({bold = false, mono = false, italic = false})
 
 local nametags = {
 	"normal "..bold.."bold "..unbold..italic.."italic "..unitalic..mono.."mono",

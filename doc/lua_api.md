@@ -3935,11 +3935,11 @@ The following functions provide escape sequences:
     * Removes background colors added by `get_background_escape_sequence`.
 * `core.strip_colors(str)`
     * Removes all color escape sequences.
-* `core.get_font_escape_sequence(font_modifier)`
+* `core.get_font_escape_sequence({mono = true, bold = true, italic = true})`
     * Can currently only be used for nametags.
-    * `font_modifier` can be "mono", "unmono", "bold", "unbold", "italic" or "unitalic"
+    * Takes a table with keys "mono", "bold" and "italic", each can be
+    * `true`, `false` or `nil`, to enable, disable or use the previous configuration.
     * The escape sequence modifies the font of the subsequent string.
-    * You can concatenate them, to for example get bold italic text.
 * `core.strip_font(str)`
     * Removes all font escape sequences.
 * `core.strip_escapes(str)`

@@ -16,7 +16,7 @@ struct FontEnrichedString
 	FontEnrichedString(const std::wstring &s,
 			video::SColor initial_color = video::SColor(255, 255, 255, 255),
 			const FontSpec &initial_font = FontSpec(FONT_SIZE_UNSPECIFIED, FM_Standard,
-			false, false));
+					false, false));
 
 	void draw(core::rect<s32> position) const;
 

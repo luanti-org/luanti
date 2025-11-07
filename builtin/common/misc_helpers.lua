@@ -654,7 +654,30 @@ function core.get_background_escape_sequence(color)
 end
 
 function core.get_font_escape_sequence(font)
-	return ESCAPE_CHAR .. "(f@" .. font .. ")"
+	local s = ""
+	if type(font) ~= "table" then
+		return s
+	end
+
+	if font.mono == true then
+		s = s .. ESCAPE_CHAR .. "(f@M)"
+	elseif font.mono == false then
+		s = s .. ESCAPE_CHAR .. "(f@m)"
+	end
+
+	if font.bold == true then
+		s = s .. ESCAPE_CHAR .. "(f@B)"
+	elseif font.bold == false then
+		s = s .. ESCAPE_CHAR .. "(f@b)"
+	end
+
+	if font.italic == true then
+		s = s .. ESCAPE_CHAR .. "(f@I)"
+	elseif font.italic == false then
+		s = s .. ESCAPE_CHAR .. "(f@i)"
+	end
+
+	return s
 end
 
 function core.colorize(color, message)
