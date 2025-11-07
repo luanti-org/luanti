@@ -22,11 +22,7 @@ struct TileAttribContext {
 	const TextureSettings &tsettings;
 };
 
-struct ShaderIds {
-	u32 normal;
-	// Shader that will handle an array texture and texture_layer_idx
-	u32 with_layers;
-};
+using GetShaderCallback = std::function<u32 /* shader id */ (bool /* array_texture */)>;
 
 /*
 	Texture pool and related
@@ -78,7 +74,7 @@ void PreLoadedTextures::printStats(std::ostream &to) const
 
 static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 		const TileSpec &tile, const TileDef &tiledef,
-		MaterialType material_type, ShaderIds shader)
+		MaterialType material_type, GetShaderCallback get_shader)
 {
 	auto *tsrc = context.tsrc;
 	const auto &tsettings = context.tsettings;
@@ -167,8 +163,7 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 
 	// Decide on shader to use
 	if (layer->texture) {
-		layer->shader_id = (layer->texture->getType() == video::ETT_2D_ARRAY) ?
-			shader.with_layers : shader.normal;
+		layer->shader_id = get_shader(layer->texture->getType() == video::ETT_2D_ARRAY);
 	}
 }
 
@@ -412,21 +407,15 @@ void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Cl
 		}
 	}
 
-	const bool texture_2d_array = getArrayTextureMax(shdsrc) > 1;
-	const auto &getNodeShader = [&] (MaterialType my_material, NodeDrawType my_drawtype) {
-		ShaderIds ret;
-		ret.normal = shdsrc->getShader("nodes_shader", my_material, my_drawtype);
-		// need to avoid generating the shader if unsupported
-		if (texture_2d_array)
-			ret.with_layers = shdsrc->getShader("nodes_shader", my_material, my_drawtype, true);
-		return ret;
+	GetShaderCallback tile_shader = [&] (bool array_texture) {
+		return shdsrc->getShader("nodes_shader", material_type, drawtype, array_texture);
 	};
-
-	ShaderIds tile_shader = getNodeShader(material_type, drawtype);
 
 	MaterialType overlay_material = material_type_with_alpha(material_type);
 
-	ShaderIds overlay_shader = getNodeShader(overlay_material, drawtype);
+	GetShaderCallback overlay_shader = [&] (bool array_texture) {
+		return shdsrc->getShader("nodes_shader", overlay_material, drawtype, array_texture);
+	};
 
 	// minimap pixel color = average color of top tile
 	if (tsettings.enable_minimap && drawtype != NDT_AIRLIKE && !tdef[0].name.empty())
@@ -477,7 +466,9 @@ void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Cl
 			special_material = TILE_MATERIAL_WAVING_LEAVES;
 	}
 
-	ShaderIds special_shader = getNodeShader(special_material, drawtype);
+	GetShaderCallback special_shader = [&] (bool array_texture) {
+		return shdsrc->getShader("nodes_shader", special_material, drawtype, array_texture);
+	};
 
 	// Special tiles (fill in f->special_tiles[])
 	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++) {
