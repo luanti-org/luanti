@@ -25,7 +25,7 @@ struct QueuedMeshUpdate
 	v3s16 crack_pos;
 	MeshMakeData *data = nullptr; // This is generated in MeshUpdateQueue::pop()
 	std::vector<MapBlock*> map_blocks;
-    u8 lod;
+	u8 lod;
 	bool urgent = false;
 
 	QueuedMeshUpdate() = default;

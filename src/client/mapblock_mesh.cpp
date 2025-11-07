@@ -637,7 +637,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, con
         if (lod == 0 || !is_lod_enabled)
 			MapblockMeshGenerator(data, &collector).generate();
         else
-	        LodMeshGenerator(data, &collector, is_textureless).generate(lod);
+			LodMeshGenerator(data, &collector, is_textureless).generate(lod);
 	}
 
 	/*
