@@ -1414,7 +1414,7 @@ void ClientMap::PrintInfo(std::ostream &out)
 }
 
 void ClientMap::renderMapShadows(video::IVideoDriver *driver,
-		const video::SMaterial &material, s32 pass, int frame, int total_frames)
+		ModifyMaterialCallback cb, s32 pass, int frame, int total_frames)
 {
 	bool is_transparent_pass = pass != scene::ESNRP_SOLID;
 	std::string prefix;
@@ -1504,22 +1504,9 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 
 	for (auto &descriptor : draw_order) {
 		if (!descriptor.m_reuse_material) {
-			// override some material properties
 			video::SMaterial local_material = descriptor.getMaterial();
-			// do not override culling if the original material renders both back
-			// and front faces in solid mode (e.g. plantlike)
-			// Transparent plants would still render shadows only from one side,
-			// but this conflicts with water which occurs much more frequently
-			if (is_transparent_pass || local_material.BackfaceCulling || local_material.FrontfaceCulling) {
-				local_material.BackfaceCulling = material.BackfaceCulling;
-				local_material.FrontfaceCulling = material.FrontfaceCulling;
-			}
-			if (translucent_foliage && CONTAINS(leaves_material, local_material.MaterialType)) {
-				local_material.BackfaceCulling = true;
-				local_material.FrontfaceCulling = false;
-			}
-			local_material.MaterialType = material.MaterialType;
-			local_material.BlendOperation = material.BlendOperation;
+			bool is_foliage = translucent_foliage && CONTAINS(leaves_material, local_material.MaterialType);
+			cb(local_material, is_foliage);
 			driver->setMaterial(local_material);
 			++material_swaps;
 		}
@@ -1533,9 +1520,9 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	// restore the driver material state
 	video::SMaterial clean;
 	clean.BlendOperation = video::EBO_ADD;
-	driver->setMaterial(clean); // reset material to defaults
+	driver->setMaterial(clean);
 	// This is somehow needed to fully reset the rendering state, or later operations
-	// will be broken.
+	// will be broken. (TODO why?)
 	driver->draw3DLine(v3f(), v3f(), video::SColor(0));
 
 	g_profiler->avg(prefix + "draw meshes [ms]", draw.stop(true));

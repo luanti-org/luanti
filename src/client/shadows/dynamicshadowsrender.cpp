@@ -415,34 +415,40 @@ video::ITexture *ShadowRenderer::getSMTexture(const std::string &shadow_map_name
 void ShadowRenderer::renderShadowMap(video::ITexture *target,
 		DirectionalLight &light, scene::E_SCENE_NODE_RENDER_PASS pass)
 {
+	bool is_transparent_pass = pass != scene::ESNRP_SOLID;
+
 	m_driver->setTransform(video::ETS_VIEW, light.getFutureViewMatrix());
 	m_driver->setTransform(video::ETS_PROJECTION, light.getFutureProjectionMatrix());
 
+	// ClientMap will call this for every material it renders
+	ModifyMaterialCallback cb = [&] (video::SMaterial &mat, bool foliage) {
+		// Do not override culling if the original material renders both back
+		// and front faces in solid mode (e.g. plantlike)
+		// Transparent plants would still render shadows only from one side,
+		// but this conflicts with water which occurs much more frequently
+		if (is_transparent_pass || mat.BackfaceCulling || mat.FrontfaceCulling) {
+			mat.BackfaceCulling = false;
+			mat.FrontfaceCulling = true;
+		}
+		if (foliage) {
+			mat.BackfaceCulling = true;
+			mat.FrontfaceCulling = false;
+		}
+
+		if (m_shadow_map_colored && is_transparent_pass) {
+			mat.MaterialType = depth_shader_trans;
+		} else {
+			mat.MaterialType = depth_shader;
+			mat.BlendOperation = video::EBO_MIN;
+		}
+	};
+
 	ClientMap &map_node = static_cast<ClientMap &>(m_client->getEnv().getMap());
-
-	video::SMaterial material;
-	if (map_node.getMaterialCount() > 0) {
-		// we only want the first material, which is the one with the albedo info
-		material = map_node.getMaterial(0);
-	}
-
-	material.BackfaceCulling = false;
-	material.FrontfaceCulling = true;
-
-	if (m_shadow_map_colored && pass != scene::ESNRP_SOLID) {
-		material.MaterialType = depth_shader_trans;
-	} else {
-		material.MaterialType = depth_shader;
-		material.BlendOperation = video::EBO_MIN;
-	}
-
-	m_driver->setTransform(video::ETS_WORLD,
-			map_node.getAbsoluteTransformation());
 
 	int frame = m_force_update_shadow_map ? 0 : m_current_frame;
 	int total_frames = m_force_update_shadow_map ? 1 : m_map_shadow_update_frames;
 
-	map_node.renderMapShadows(m_driver, material, pass, frame, total_frames);
+	map_node.renderMapShadows(m_driver, cb, pass, frame, total_frames);
 }
 
 void ShadowRenderer::renderShadowObjects(
@@ -480,6 +486,7 @@ void ShadowRenderer::renderShadowObjects(
 			current_mat.FrontfaceCulling = false;
 
 			BufferBlendOperationList.push_back(current_mat.BlendOperation);
+			// shouldn't we be setting EBO_MIN here?
 		}
 
 		m_driver->setTransform(video::ETS_WORLD,
