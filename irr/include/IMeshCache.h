@@ -11,8 +11,6 @@ namespace scene
 {
 class IMesh;
 class IAnimatedMesh;
-class IAnimatedMeshSceneNode;
-class IMeshLoader;
 
 //! The mesh cache stores already loaded meshes and provides an interface to them.
 /** You can access it using ISceneManager::getMeshCache(). All existing

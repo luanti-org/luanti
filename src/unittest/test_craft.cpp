@@ -4,7 +4,9 @@
 
 #include "test.h"
 
+#include "inventory.h" // ItemStack
 #include "craftdef.h"
+#include "itemdef.h"
 
 class TestCraft : public TestBase
 {

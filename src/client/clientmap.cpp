@@ -7,14 +7,16 @@
 #include "client/mesh.h"
 #include "mapblock_mesh.h"
 #include <IMaterialRenderer.h>
+#include <ISceneManager.h>
 #include <IVideoDriver.h>
 #include <matrix4.h>
 #include "mapsector.h"
 #include "mapblock.h"
 #include "nodedef.h"
+#include "player.h" // CameraMode
 #include "profiler.h"
 #include "settings.h"
-#include "camera.h"               // CameraModes
+#include "camera.h"
 #include "util/basic_macros.h"
 #include "util/tracy_wrapper.h"
 #include "client/renderingengine.h"
@@ -202,7 +204,13 @@ void ClientMap::onSettingChanged(std::string_view name, bool all)
 
 ClientMap::~ClientMap()
 {
+	verbosestream << FUNCTION_NAME << std::endl;
+
 	g_settings->deregisterAllChangedCallbacks(this);
+
+	// avoid refcount warning from ~Map()
+	clearDrawList();
+	clearDrawListShadow();
 
 	for (auto &it : m_dynamic_buffers)
 		it.second.drop();
@@ -351,22 +359,28 @@ private:
 	v3s16 volume;
 };
 
-void ClientMap::updateDrawList()
+void ClientMap::clearDrawList()
 {
-	ScopeProfiler sp(g_profiler, "CM::updateDrawList()", SPT_AVG);
-
-	m_needs_update_drawlist = false;
-
 	for (auto &i : m_drawlist) {
 		MapBlock *block = i.second;
 		block->refDrop();
 	}
 	m_drawlist.clear();
 
-	for (auto &block : m_keeplist) {
+	for (auto &block : m_keeplist)
 		block->refDrop();
-	}
 	m_keeplist.clear();
+
+	m_needs_update_drawlist = true;
+}
+
+void ClientMap::updateDrawList()
+{
+	ScopeProfiler sp(g_profiler, "CM::updateDrawList()", SPT_AVG);
+
+	clearDrawList();
+
+	m_needs_update_drawlist = false;
 
 	const v3s16 cam_pos_nodes = floatToInt(m_camera_position, BS);
 
@@ -1076,6 +1090,7 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	u32 vertex_count = 0;
 	u32 drawcall_count = 0;
 	u32 material_swaps = 0;
+	u32 array_texture_use = 0;
 
 	// Render all mesh buffers in order
 	drawcall_count += draw_order.size();
@@ -1105,8 +1120,12 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 				layer.MagFilter = video::ETMAGF_NEAREST;
 				layer.AnisotropicFilter = 0;
 			}
+
 			driver->setMaterial(material);
 			++material_swaps;
+			if (auto *tex = material.getTexture(0); tex && tex->getType() == video::ETT_2D_ARRAY)
+				++array_texture_use;
+
 			material.TextureLayers[ShadowRenderer::TEXTURE_LAYER_SHADOW].Texture = nullptr;
 		}
 
@@ -1146,6 +1165,10 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	g_profiler->avg(prefix + "vertices drawn [#]", vertex_count);
 	g_profiler->avg(prefix + "drawcalls [#]", drawcall_count);
 	g_profiler->avg(prefix + "material swaps [#]", material_swaps);
+	if (material_swaps && array_texture_use) {
+		int percent = (100.0f * array_texture_use) / material_swaps;
+		g_profiler->avg(prefix + "array texture use [%]", percent);
+	}
 }
 
 void ClientMap::invalidateMapBlockMesh(MapBlockMesh *mesh)
@@ -1468,14 +1491,14 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 
 	bool translucent_foliage = g_settings->getBool("enable_translucent_foliage");
 
-	video::E_MATERIAL_TYPE leaves_material = video::EMT_SOLID;
-
 	// For translucent leaves, we want to use backface culling instead of frontface.
+	std::vector<video::E_MATERIAL_TYPE> leaves_material;
 	if (translucent_foliage) {
-		// this is the material leaves would use, compare to nodedef.cpp
-		auto* shdsrc = m_client->getShaderSource();
-		const u32 leaves_shader = shdsrc->getShader("nodes_shader", TILE_MATERIAL_WAVING_LEAVES, NDT_ALLFACES);
-		leaves_material = shdsrc->getShaderInfo(leaves_shader).material;
+		auto *shdsrc = m_client->getShaderSource();
+		// Find out all materials used by leaves so we can identify them
+		leaves_material.reserve(m_nodedef->m_leaves_materials.size());
+		for (u32 shader_id : m_nodedef->m_leaves_materials)
+			leaves_material.push_back(shdsrc->getShaderInfo(shader_id).material);
 	}
 
 	for (auto &descriptor : draw_order) {
@@ -1490,7 +1513,7 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 				local_material.BackfaceCulling = material.BackfaceCulling;
 				local_material.FrontfaceCulling = material.FrontfaceCulling;
 			}
-			if (local_material.MaterialType == leaves_material && translucent_foliage) {
+			if (translucent_foliage && CONTAINS(leaves_material, local_material.MaterialType)) {
 				local_material.BackfaceCulling = true;
 				local_material.FrontfaceCulling = false;
 			}
@@ -1510,13 +1533,23 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	video::SMaterial clean;
 	clean.BlendOperation = video::EBO_ADD;
 	driver->setMaterial(clean); // reset material to defaults
-	// FIXME: why is this here?
+	// This is somehow needed to fully reset the rendering state, or later operations
+	// will be broken.
 	driver->draw3DLine(v3f(), v3f(), video::SColor(0));
 
 	g_profiler->avg(prefix + "draw meshes [ms]", draw.stop(true));
 	g_profiler->avg(prefix + "vertices drawn [#]", vertex_count);
 	g_profiler->avg(prefix + "drawcalls [#]", drawcall_count);
 	g_profiler->avg(prefix + "material swaps [#]", material_swaps);
+}
+
+void ClientMap::clearDrawListShadow()
+{
+	for (auto &i : m_drawlist_shadow) {
+		MapBlock *block = i.second;
+		block->refDrop();
+	}
+	m_drawlist_shadow.clear();
 }
 
 /*
@@ -1526,11 +1559,7 @@ void ClientMap::updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir,
 {
 	ScopeProfiler sp(g_profiler, "CM::updateDrawListShadow()", SPT_AVG);
 
-	for (auto &i : m_drawlist_shadow) {
-		MapBlock *block = i.second;
-		block->refDrop();
-	}
-	m_drawlist_shadow.clear();
+	clearDrawListShadow();
 
 	// Number of blocks currently loaded by the client
 	u32 blocks_loaded = 0;

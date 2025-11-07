@@ -27,11 +27,8 @@ struct VideoDriverInfo {
 };
 
 class ITextureSource;
-class Camera;
 class Client;
-class LocalPlayer;
 class Hud;
-class Minimap;
 
 class RenderingCore;
 
@@ -58,7 +55,7 @@ class FogShaderUniformSetterFactory : public IShaderUniformSetterFactory
 {
 public:
 	FogShaderUniformSetterFactory() {};
-	virtual IShaderUniformSetter *create();
+	virtual IShaderUniformSetter *create(const std::string &name);
 };
 
 /* Rendering engine class */

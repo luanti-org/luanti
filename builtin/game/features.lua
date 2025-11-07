@@ -48,6 +48,11 @@ core.features = {
 	remove_item_match_meta = true,
 	httpfetch_additional_methods = true,
 	object_guids = true,
+	on_timer_four_args = true,
+	particlespawner_exclude_player = true,
+	generate_decorations_biomes = true,
+	chunksize_vector = true,
+	item_inventory_image_animation = true,
 }
 
 function core.has_feature(arg)

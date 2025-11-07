@@ -579,7 +579,7 @@ int ModApiUtil::l_colorspec_to_colorstring(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	video::SColor color(0);
+	video::SColor color;
 	if (read_color(L, 1, &color)) {
 		char colorstring[10];
 		snprintf(colorstring, 10, "#%02X%02X%02X%02X",
@@ -596,7 +596,7 @@ int ModApiUtil::l_colorspec_to_bytes(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	video::SColor color(0);
+	video::SColor color;
 	if (read_color(L, 1, &color)) {
 		u8 colorbytes[4] = {
 			(u8) color.getRed(),
@@ -616,7 +616,7 @@ int ModApiUtil::l_colorspec_to_table(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	video::SColor color(0);
+	video::SColor color;
 	if (read_color(L, 1, &color)) {
 		push_ARGB8(L, color);
 		return 1;
@@ -695,6 +695,17 @@ int ModApiUtil::l_is_valid_player_name(lua_State *L)
 	return 1;
 }
 
+// strip_escapes(str)
+int ModApiUtil::l_strip_escapes(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	auto s = readParam<std::string_view>(L, 1);
+	auto r = unescape_enriched(s);
+	lua_pushlstring(L, r.c_str(), r.size());
+	return 1;
+}
+
 void ModApiUtil::Initialize(lua_State *L, int top)
 {
 	API_FCT(log);
@@ -746,6 +757,7 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 
 	API_FCT(urlencode);
 	API_FCT(is_valid_player_name);
+	API_FCT(strip_escapes);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
@@ -780,6 +792,7 @@ void ModApiUtil::InitializeClient(lua_State *L, int top)
 	API_FCT(set_last_run_mod);
 
 	API_FCT(urlencode);
+	API_FCT(strip_escapes);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
@@ -828,6 +841,7 @@ void ModApiUtil::InitializeAsync(lua_State *L, int top)
 	API_FCT(set_last_run_mod);
 
 	API_FCT(urlencode);
+	API_FCT(strip_escapes);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");

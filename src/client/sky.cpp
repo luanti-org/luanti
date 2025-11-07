@@ -3,22 +3,26 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 // Copyright (C) 2020 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
-#include <cmath>
 #include "sky.h"
-#include <ITexture.h>
-#include <IVideoDriver.h>
-#include <ISceneManager.h>
-#include <ICameraSceneNode.h>
-#include <S3DVertex.h>
+
+#include "camera.h"
 #include "client/mesh.h"
-#include "client/tile.h"
-#include "noise.h" // easeCurve
-#include "profiler.h"
-#include "util/numeric.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
+#include "client/tile.h"
+#include "noise.h" // easeCurve
+#include "player.h" // CameraMode
+#include "profiler.h"
 #include "settings.h"
-#include "camera.h" // CameraModes
+#include "util/numeric.h"
+
+#include <ICameraSceneNode.h>
+#include <ISceneManager.h>
+#include <ITexture.h>
+#include <IVideoDriver.h>
+#include <S3DVertex.h>
+
+#include <cmath>
 
 using namespace core;
 

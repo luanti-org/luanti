@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-07-10 03:05+0000\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-08-24 19:02+0000\n"
 "Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
 "Language-Team: Serbian <https://hosted.weblate.org/projects/minetest/"
 "minetest/sr/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.13\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -1237,10 +1237,6 @@ msgid "New"
 msgstr "Нови"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Нема створених или одабраних светова!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Играј игру"
 
@@ -1387,9 +1383,9 @@ msgid "Rebuilding shaders..."
 msgstr "Преобликујем сенчење..."
 
 #: src/client/client.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Снимци радне површи"
+msgstr "Слика радне површи је сачувана у „%s“"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1845,10 +1841,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Приказан је профилер (страна %d од %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Програми"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Пребриши"
 
@@ -1878,44 +1870,19 @@ msgid "Down Arrow"
 msgstr "Стрелица доле"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Kraj"
+#, fuzzy
+msgid "End Key"
+msgstr "Дугме изборника"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Избирши ЕОФ"
+#, fuzzy
+msgid "Help Key"
+msgstr "Дугме бриши"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Изврши"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Помоћ"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Матица"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "ИМЕ Прихвати"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "ИМЕ Претвори"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "ИМЕ Излаз"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "ИМЕ Измена измене"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "ИМЕ Непретвори"
+#, fuzzy
+msgid "Home Key"
+msgstr "Дугме приближавања"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1926,8 +1893,9 @@ msgid "Left Arrow"
 msgstr "Стрелица лево"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Лево дугме"
+#, fuzzy
+msgid "Left Click"
+msgstr "Леви управљач"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1941,18 +1909,26 @@ msgstr "Леви изборник"
 msgid "Left Shift"
 msgstr "Леви помак"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Леви прозор"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Дугме изборника"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Средње дугме"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2019,10 +1995,6 @@ msgid "Numpad 9"
 msgstr "Бројчано дугме 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "Очисти ЕОФ"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Страница доле"
 
@@ -2053,8 +2025,9 @@ msgid "Right Arrow"
 msgstr "Стрелица десно"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Десно дугме"
+#, fuzzy
+msgid "Right Click"
+msgstr "Десни управљач"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2068,6 +2041,7 @@ msgstr "Десни изборник"
 msgid "Right Shift"
 msgstr "Десни помак"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Десни прозор"
@@ -2076,46 +2050,27 @@ msgstr "Десни прозор"
 msgid "Scroll Lock"
 msgstr "Закључавање клизања"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Означи"
+#, fuzzy
+msgid "Select Key"
+msgstr "Дугме бриши"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Дугме помак"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Спавање"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Снимак"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Размак"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Лист"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Дугме прелома"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Стрелица навише"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Х дугме 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Х дугме 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Дугме приближавања"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2353,7 +2308,7 @@ msgstr "Неисправна лозинка"
 #: src/network/clientpackethandler.cpp src/script/lua_api/l_client.cpp
 #: src/script/lua_api/l_mainmenu.cpp
 msgid "LANG_CODE"
-msgstr "LANG_CODE"
+msgstr "sr"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2522,12 +2477,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3Д подршка.\n"
 "Тренутно су подржани:\n"
@@ -2608,7 +2562,6 @@ msgid "Admin name"
 msgstr "Име руковаоца"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Advanced"
 msgstr "Напредно"
 
@@ -2627,14 +2580,12 @@ msgid "Allows liquids to be translucent."
 msgstr "Омогућава течностима да буду прозирне."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
-"Дугме за шуњање.\n"
 "Такође се користи за силазак и спуштање у воду уколико је онемогућено дугме "
-"спољње1_силазак."
+"aux1_descend."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2863,6 +2814,17 @@ msgstr "Глачање камере"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Глачање камере у погледу трећег лица"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3176,7 +3138,6 @@ msgid "Debug log level"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Debugging"
 msgstr "Уклањање грешака"
 
@@ -3361,6 +3322,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5120,6 +5085,11 @@ msgid "Maximum users"
 msgstr "Највећи број играча"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Пустињски дворци"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "Порука дана"
 
@@ -5160,7 +5130,6 @@ msgid "Mipmapping"
 msgstr "Мала карта"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Miscellaneous"
 msgstr "Разно"
 
@@ -5274,7 +5243,8 @@ msgid ""
 msgstr ""
 "Име играча.\n"
 "Приликом рада служитеља, странка које се повезује са оваквим именом је "
-"руковалац."
+"руковалац.\n"
+"Приликом покретања из главног изборника, ово се премошћује."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5829,7 +5799,6 @@ msgid "Send player names to the server list"
 msgstr "Пошаљи имена играча на списак служитеља"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Server"
 msgstr "Служитељ"
 
@@ -6129,7 +6098,6 @@ msgid "Soft shadow radius"
 msgstr "Меки пречник сене"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Sound"
 msgstr "Звук"
 
@@ -6563,7 +6531,6 @@ msgid "Toggle profiler"
 msgstr "Прекидач профилера"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
 msgstr "Дугме прекидач неограниченог опсега погледа."
 
@@ -6668,8 +6635,13 @@ msgid ""
 "set\n"
 "to a non-default value."
 msgstr ""
-"Подузорковање је слично коришћењу ниже размере заслона, али се примењуј\n"
-"само на свет игре, држећи цртежно сучеље нетакнутим."
+"Подузорковање је слично коришћењу ниже размере заслона, али се примењује\n"
+"само на свет игре, држећи цртежно сучеље нетакнутим.\n"
+"Требало би да значајно побољша учинак по цену губљења појединости на слици.\n"
+"Већа вредност исходи у лошију слику.\n"
+"Примедба: Подузроковање тренутно није подржано уколико је постављено "
+"„3d_mode“\n"
+"на вредност која није подразумевана."
 
 #: src/settings_translation_file.cpp
 msgid "Unlimited player transfer distance"
@@ -7011,11 +6983,8 @@ msgid "Width of the selection box lines around nodes."
 msgstr "Ширина линија около чворова кутија означавања."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Will also disable autoforward, when active."
-msgstr ""
-"Дугме за кретање играча уназад.\n"
-"Такође онемогућава самостално уназад, када делује."
+msgstr "Такође онемогућава самостално уназад, када делује."
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7114,188 +7083,68 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "Дугме за смањивање опсега погледа."
+#~ msgid "Apps"
+#~ msgstr "Програми"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "Дугме за смањивање јачине звука."
+#~ msgid "End"
+#~ msgstr "Kraj"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "Дугме за испуштање тренутно означене ставке."
+#~ msgid "Erase EOF"
+#~ msgstr "Избирши ЕОФ"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "Дугме за повећање опсега погледа."
+#~ msgid "Execute"
+#~ msgstr "Изврши"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "Дугме за појачавање звука."
+#~ msgid "Help"
+#~ msgstr "Помоћ"
 
-#~ msgid "Key for jumping."
-#~ msgstr "Дугме за рипање."
+#~ msgid "Home"
+#~ msgstr "Матица"
 
-#~ msgid "Key for moving the player forward."
-#~ msgstr "Дугме за кретање играча напред."
+#~ msgid "IME Accept"
+#~ msgstr "ИМЕ Прихвати"
 
-#~ msgid "Key for moving the player left."
-#~ msgstr "Дугме за кретање играча улево."
+#~ msgid "IME Convert"
+#~ msgstr "ИМЕ Претвори"
 
-#~ msgid "Key for moving the player right."
-#~ msgstr "Дугме за кретање играча удесно."
+#~ msgid "IME Escape"
+#~ msgstr "ИМЕ Излаз"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "Дугме за умукнути игру."
+#~ msgid "IME Mode Change"
+#~ msgstr "ИМЕ Измена измене"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "Дугме за отварање прозора ћаскања."
+#~ msgid "IME Nonconvert"
+#~ msgstr "ИМЕ Непретвори"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "Дугме за отварање иметка."
+#~ msgid "Left Button"
+#~ msgstr "Лево дугме"
 
-#~ msgid "Key for selecting the 11th hotbar slot."
-#~ msgstr "Дугме за означавање једанаестог брзог поља."
+#~ msgid "Middle Button"
+#~ msgstr "Средње дугме"
 
-#~ msgid "Key for selecting the 12th hotbar slot."
-#~ msgstr "Дугме за означавање дванаестог брзог поља."
+#~ msgid "No world created or selected!"
+#~ msgstr "Нема створених или одабраних светова!"
 
-#~ msgid "Key for selecting the 13th hotbar slot."
-#~ msgstr "Дугме за означавање тринаестог брзог поља."
+#~ msgid "OEM Clear"
+#~ msgstr "Очисти ЕОФ"
 
-#~ msgid "Key for selecting the 14th hotbar slot."
-#~ msgstr "Дугме за означавање четрнаестог брзог поља."
+#~ msgid "Right Button"
+#~ msgstr "Десно дугме"
 
-#~ msgid "Key for selecting the 15th hotbar slot."
-#~ msgstr "Дугме за означавање петнаестог брзог поља."
+#~ msgid "Select"
+#~ msgstr "Означи"
 
-#~ msgid "Key for selecting the 16th hotbar slot."
-#~ msgstr "Дугме за означавање шестнаестог брзог поља."
+#~ msgid "Sleep"
+#~ msgstr "Спавање"
 
-#~ msgid "Key for selecting the 17th hotbar slot."
-#~ msgstr "Дугме за означавање седамнаестог брзог поља."
+#~ msgid "Snapshot"
+#~ msgstr "Снимак"
 
-#~ msgid "Key for selecting the 18th hotbar slot."
-#~ msgstr "Дугме за означавање осамнаестог брзог поља."
+#~ msgid "Tab"
+#~ msgstr "Лист"
 
-#~ msgid "Key for selecting the 19th hotbar slot."
-#~ msgstr "Дугме за означавање деветнаестог брзог поља."
+#~ msgid "X Button 1"
+#~ msgstr "Х дугме 1"
 
-#~ msgid "Key for selecting the 20th hotbar slot."
-#~ msgstr "Дугме за означавање двадесетог брзог поља."
-
-#~ msgid "Key for selecting the 21st hotbar slot."
-#~ msgstr "Дугме за означавање двадесет првог брзог поља."
-
-#~ msgid "Key for selecting the 22nd hotbar slot."
-#~ msgstr "Дугме за означавање двадесет другог брзог поља."
-
-#~ msgid "Key for selecting the 23rd hotbar slot."
-#~ msgstr "Дугме за означавање двадесет трећег брзог поља."
-
-#~ msgid "Key for selecting the 24th hotbar slot."
-#~ msgstr "Дугме за означавање двадесет четвртог брзог поља."
-
-#~ msgid "Key for selecting the 25th hotbar slot."
-#~ msgstr "Дугме за означавање двадесет петог брзог поља."
-
-#~ msgid "Key for selecting the 26th hotbar slot."
-#~ msgstr "Дугме за означавање двадесет шестог брзог поља."
-
-#~ msgid "Key for selecting the 27th hotbar slot."
-#~ msgstr "Дугме за означавање двадесет седмог брзог поља."
-
-#~ msgid "Key for selecting the 28th hotbar slot."
-#~ msgstr "Дугме за означавање двадесет осмог брзог поља."
-
-#~ msgid "Key for selecting the 29th hotbar slot."
-#~ msgstr "Дугме за означавање двадесет деветог брзог поља."
-
-#~ msgid "Key for selecting the 30th hotbar slot."
-#~ msgstr "Дугме за означавање тридесетог брзог поља."
-
-#~ msgid "Key for selecting the 31st hotbar slot."
-#~ msgstr "Дугме за означавање тридесет првог брзог поља."
-
-#~ msgid "Key for selecting the 32nd hotbar slot."
-#~ msgstr "Дугме за означавање тридесет другог брзог поља."
-
-#~ msgid "Key for selecting the eighth hotbar slot."
-#~ msgstr "Дугме за означавање осмог брзог поља."
-
-#~ msgid "Key for selecting the fifth hotbar slot."
-#~ msgstr "Дугме за означавање петог брзог поља."
-
-#~ msgid "Key for selecting the first hotbar slot."
-#~ msgstr "Дугме за означавање првог брзог поља."
-
-#~ msgid "Key for selecting the fourth hotbar slot."
-#~ msgstr "Дугме за означавање четвртог брзог поља."
-
-#~ msgid "Key for selecting the next item in the hotbar."
-#~ msgstr "Дугме за означавање следеће ставке у врућој траци."
-
-#~ msgid "Key for selecting the ninth hotbar slot."
-#~ msgstr "Дугме за означавање деветог брзог поља."
-
-#~ msgid "Key for selecting the previous item in the hotbar."
-#~ msgstr "Дугме за означавање претходне ставке у врућој траци."
-
-#~ msgid "Key for selecting the second hotbar slot."
-#~ msgstr "Дугме за означавање другог брзог поља."
-
-#~ msgid "Key for selecting the seventh hotbar slot."
-#~ msgstr "Дугме за означавање седмог брзог поља."
-
-#~ msgid "Key for selecting the sixth hotbar slot."
-#~ msgstr "Дугме за означавање шестог брзог поља."
-
-#~ msgid "Key for selecting the tenth hotbar slot."
-#~ msgstr "Дугме за означавање десетог брзог поља."
-
-#~ msgid "Key for selecting the third hotbar slot."
-#~ msgstr "Дугме за означавање трећег брзог поља."
-
-#~ msgid "Key for switching between first- and third-person camera."
-#~ msgstr "Дугме за прелаз погледа из првог и трећег лица."
-
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Дугме за сликање заслона радне површи."
-
-#~ msgid "Key for toggling autoforward."
-#~ msgstr "Дугме прекидач самосталног кретања напред."
-
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Дугме прекидач приказа погледа из трећег лица."
-
-#~ msgid "Key for toggling display of minimap."
-#~ msgstr "Дугме прекидач приказа мале карте."
-
-#~ msgid "Key for toggling fast mode."
-#~ msgstr "Дугме прекидач брзог кретања."
-
-#~ msgid "Key for toggling flying."
-#~ msgstr "Дугме прекидач летења."
-
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Дугме прекидач за пуни приказ прозора игре."
-
-#~ msgid "Key for toggling noclip mode."
-#~ msgstr "Дугме прекидач кретања скрозирањем."
-
-#~ msgid "Key for toggling pitch move mode."
-#~ msgstr "Дугме прекидач за нагибно кретање."
-
-#~ msgid "Key for toggling the display of chat."
-#~ msgstr "Дугме прекидач приказа ћаскања."
-
-#~ msgid "Key for toggling the display of debug info."
-#~ msgstr "Дугме прекидач приказа података о исправкама грешака."
-
-#~ msgid "Key for toggling the display of fog."
-#~ msgstr "Дугме прекидач приказа магле."
-
-#~ msgid "Key for toggling the display of the HUD."
-#~ msgstr "Дугме прекидач приказа ХУД-а."
-
-#~ msgid "Key for toggling the display of the large chat console."
-#~ msgstr "Дугме прекидач приказа великог прозора ћаскања."
-
-#~ msgid "Key to use view zoom when possible."
-#~ msgstr "Дугме за приближен поглед када је могуће."
+#~ msgid "X Button 2"
+#~ msgstr "Х дугме 2"

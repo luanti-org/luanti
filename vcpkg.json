@@ -3,10 +3,11 @@
   "dependencies": [
     "zlib",
     "zstd",
+    "openssl",
     {
       "name": "curl",
       "features": [
-        "winssl"
+        "ssl"
       ]
     },
     "openal-soft",

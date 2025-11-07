@@ -5,11 +5,11 @@
 #include "cpp_api/s_security.h"
 #include "lua_api/l_base.h"
 #include "filesys.h"
-#include "porting.h"
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
 #endif
+#include "content/mods.h" // ModSpec
 #include "settings.h"
 
 #include <cerrno>
@@ -52,6 +52,7 @@ static void shallow_copy_table(lua_State *L, int from=-2, int to=-1)
 static inline void push_original(lua_State *L, const char *lib, const char *func)
 {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
+	assert(lua_istable(L, -1));
 	lua_getfield(L, -1, lib);
 	lua_remove(L, -2);  // Remove globals_backup
 	lua_getfield(L, -1, func);
@@ -119,7 +120,6 @@ void ScriptApiSecurity::initializeSecurity()
 	static const char *debug_whitelist[] = {
 		"gethook",
 		"traceback",
-		"getinfo",
 		"upvalueid",
 		"sethook",
 		"debug",
@@ -218,6 +218,10 @@ void ScriptApiSecurity::initializeSecurity()
 	lua_getfield(L, old_globals, "debug");
 	lua_newtable(L);
 	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(debug, getinfo);
+
 	lua_setglobal(L, "debug");
 	lua_pop(L, 1);  // Pop old debug
 
@@ -309,7 +313,6 @@ void ScriptApiSecurity::initializeSecurityClient()
 		"time"
 	};
 	static const char *debug_whitelist[] = {
-		"getinfo", // used by builtin and unset before mods load
 		"traceback"
 	};
 
@@ -330,7 +333,15 @@ void ScriptApiSecurity::initializeSecurityClient()
 	m_secure = true;
 
 	lua_State *L = getStack();
-	int thread = getThread(L);
+	const int thread = getThread(L);
+
+	// Back up selected globals to the registry (needed for push_original)
+	lua_newtable(L);
+	for (const char *name : {"debug"}) {
+		lua_getglobal(L, name);
+		lua_setfield(L, -2, name);
+	}
+	lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
 
 	// create an empty environment
 	createEmptyEnv(L);
@@ -362,8 +373,13 @@ void ScriptApiSecurity::initializeSecurityClient()
 	lua_getglobal(L, "debug");
 	lua_newtable(L);
 	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(debug, getinfo); // (used by builtin and unset before mods load)
+
 	lua_setfield(L, -3, "debug");
 	lua_pop(L, 1);  // Pop old debug
+
 
 #if USE_LUAJIT
 	// Copy safe jit functions, if they exist
@@ -961,5 +977,39 @@ int ScriptApiSecurity::sl_os_setlocale(lua_State *L)
 	if (cat)
 		lua_pushvalue(L, 2);
 	lua_call(L, cat ? 2 : 1, 1);
+	return 1;
+}
+
+
+int ScriptApiSecurity::sl_debug_getinfo(lua_State *L)
+{
+	// signature: [thread,] function [, what]
+	const bool thread = lua_isthread(L, 1);
+	const int funidx = thread ? 2 : 1;
+	const bool fun = lua_isfunction(L, funidx);
+	const bool what = lua_gettop(L) > funidx;
+	const int nargs = funidx + (what ? 1 : 0);
+	if (lua_gettop(L) < nargs)
+		return luaL_error(L, "missing function argument");
+
+	push_original(L, "debug", "getinfo");
+	if (thread)
+		lua_pushvalue(L, 1);
+	if (fun) {
+		lua_pushvalue(L, funidx);
+	} else {
+		// +1 to account for wrapper (unless coroutine)
+		lua_pushinteger(L, luaL_checkinteger(L, funidx) + (thread ? 0 : 1));
+	}
+	if (what)
+		lua_pushvalue(L, funidx + 1);
+	lua_call(L, nargs, 1);
+
+	if (!fun && !lua_isnil(L, -1)) {
+		assert(lua_istable(L, -1));
+		// don't allow stack functions to be returned
+		lua_pushnil(L);
+		lua_setfield(L, -2, "func");
+	}
 	return 1;
 }

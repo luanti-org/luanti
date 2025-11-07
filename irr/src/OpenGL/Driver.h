@@ -20,7 +20,6 @@ namespace video
 {
 struct VertexType;
 
-class COpenGL3FixedPipelineRenderer;
 class COpenGL3Renderer2D;
 
 class COpenGL3DriverBase : public CNullDriver, public IMaterialRendererServices, public COpenGL3ExtensionHandler
@@ -136,9 +135,6 @@ public:
 	//! Returns the name of the video driver.
 	const char *getName() const override;
 
-	//! Returns the maximum texture size supported.
-	core::dimension2du getMaxTextureSize() const override;
-
 	//! sets a viewport
 	void setViewPort(const core::rect<s32> &area) override;
 
@@ -147,9 +143,6 @@ public:
 
 	//! Returns type of video driver
 	E_DRIVER_TYPE getDriverType() const override;
-
-	//! get color format of the current color buffer
-	ECOLOR_FORMAT getColorFormat() const override;
 
 	//! Returns the transformation set by setTransform
 	const core::matrix4 &getTransform(E_TRANSFORMATION_STATE state) const override;
@@ -203,8 +196,7 @@ public:
 	//! Returns a pointer to the IVideoDriver interface.
 	IVideoDriver *getVideoDriver() override;
 
-	//! Returns the maximum amount of primitives
-	u32 getMaximalPrimitiveCount() const override;
+	SDriverLimits getLimits() const override;
 
 	virtual ITexture *addRenderTargetTexture(const core::dimension2d<u32> &size,
 			const io::path &name, const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
@@ -325,15 +317,13 @@ protected:
 	bool LockRenderStateMode;
 	u8 AntiAlias;
 
-	core::matrix4 TextureFlipMatrix;
-
 	using FColorConverter = void (*)(const void *source, s32 count, void *dest);
 	struct STextureFormatInfo
 	{
-		GLenum InternalFormat;
-		GLenum PixelFormat;
-		GLenum PixelType;
-		FColorConverter Converter;
+		GLenum InternalFormat = 0;
+		GLenum PixelFormat = 0;
+		GLenum PixelType = 0;
+		FColorConverter Converter = nullptr;
 	};
 	STextureFormatInfo TextureFormats[ECF_UNKNOWN] = {};
 
@@ -357,9 +347,6 @@ private:
 	io::path OGLES2ShaderPath;
 
 	SMaterial Material, LastMaterial;
-
-	//! Color buffer format
-	ECOLOR_FORMAT ColorFormat;
 
 	IContextManager *ContextManager;
 

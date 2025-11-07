@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Russian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-07-06 11:01+0000\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-09-01 03:01+0000\n"
 "Last-Translator: BlackImpostor <SkyBuilderOFFICAL@yandex.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/minetest/"
 "minetest/ru/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.13.1-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -71,8 +71,8 @@ msgstr "Получить справку по командам (-t: вывод в
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
 msgstr ""
-"Используйте «.help <cmd>» для получения дополнительной информации, или «."
-"help all» для вывода всего списка."
+"Используйте «.help <cmd>» для получения дополнительной информации, или "
+"«.help all» для вывода всего списка."
 
 #: builtin/common/chatcommands.lua
 msgid "[all | <cmd>] [-t]"
@@ -608,9 +608,8 @@ msgid "Website"
 msgstr "Вебсайт"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1"
-msgstr "$1 из $2"
+msgstr "от $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1231,10 +1230,6 @@ msgid "New"
 msgstr "Новый"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Мир не создан или не выбран!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Играть"
 
@@ -1362,7 +1357,7 @@ msgstr "Готово!"
 #: src/client/client.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
-msgstr ""
+msgstr "Не удалось сохранить снимок экрана в \"%s\""
 
 #: src/client/client.cpp
 msgid "Initializing nodes"
@@ -1381,9 +1376,9 @@ msgid "Rebuilding shaders..."
 msgstr "Сборка шейдеров..."
 
 #: src/client/client.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Скриншоты"
+msgstr "Снимок экрана сохранён в \"%s\""
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1839,10 +1834,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Профилировщик (страница %d из %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Приложения"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1872,44 +1863,19 @@ msgid "Down Arrow"
 msgstr "Вниз"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Стереть EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Выполнить"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Help"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Принятие IME"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Конвертирование IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "Выход IME"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Изменение Режима IME"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "Неконвертирование IME"
+#, fuzzy
+msgid "Home Key"
+msgstr "Zoom"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1920,8 +1886,9 @@ msgid "Left Arrow"
 msgstr "Влево"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Левая кнопка"
+#, fuzzy
+msgid "Left Click"
+msgstr "Левый Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1935,18 +1902,26 @@ msgstr "Левый Alt"
 msgid "Left Shift"
 msgstr "Левый Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Левый Win"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Средняя кнопка"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2013,10 +1988,6 @@ msgid "Numpad 9"
 msgstr "Цифровая клавиатура 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "Отчистка OEM"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2047,8 +2018,9 @@ msgid "Right Arrow"
 msgstr "Вправо"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Правая кнопка"
+#, fuzzy
+msgid "Right Click"
+msgstr "Правый Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2062,6 +2034,7 @@ msgstr "Правый Alt"
 msgid "Right Shift"
 msgstr "Правый Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Правый Win"
@@ -2070,46 +2043,27 @@ msgstr "Правый Win"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Выбор"
+#, fuzzy
+msgid "Select Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Сон"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Snapshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Пробел"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Break"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Вверх"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Доп. кнопка 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Доп. кнопка 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zoom"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2539,15 +2493,15 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "3D-шум, определяющий количество подземелий на мапчанк карты."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Поддержка 3D.\n"
 "Сейчас поддерживаются:\n"
@@ -2657,14 +2611,12 @@ msgid "Allows liquids to be translucent."
 msgstr "Позволяет жидкостям быть прозрачными."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
-"Клавиша, чтобы красться.\n"
-"Также используется для спуска и погружения под воду, если параметр "
-"aux1_descends отключён."
+"Также используется для спуска и погружения в воду, если параметр "
+"aux1_descends отключен."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2928,6 +2880,17 @@ msgid "Camera smoothing in cinematic mode"
 msgstr "Сглаживание камеры в кинематографическом режиме"
 
 #: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Cave noise"
 msgstr "Шум пещер"
 
@@ -3094,8 +3057,8 @@ msgid ""
 msgstr ""
 "Список разделенных запятыми расширений AL и ALC, которые не следует "
 "использовать.\n"
-"Полезно для тестирования. Подробности смотрите в разделе al_extensions.[h,"
-"cpp]."
+"Полезно для тестирования. Подробности смотрите в разделе al_extensions."
+"[h,cpp]."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3429,14 +3392,13 @@ msgid "Defines tree areas and tree density."
 msgstr "Определяет области и плотность деревьев."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
 "down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
-"Задержка между обновлением мешей на клиенте в мс. Увеличение этого значения\n"
-"замедлит скорость обновления мешей, тем самым уменьшая проседания на "
-"медленных клиентах."
+"Задержка между обновлениями мешей на клиенте в мс. Увеличение этого "
+"параметра\n"
+"замедлит частоту обновлений мешей, что поможет уменьшить дрожание."
 
 #: src/settings_translation_file.cpp
 msgid "Delay in sending blocks after building"
@@ -3481,6 +3443,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Для разработчиков"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5431,6 +5397,11 @@ msgid "Maximum users"
 msgstr "Максимум пользователей"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Пустынные храмы"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "Сообщение дня"
 
@@ -5491,6 +5462,8 @@ msgid ""
 "Modifier key bind for closing your world.\n"
 "Requires ESC + the selected key to work."
 msgstr ""
+"Клавиша-модификатор для закрытия мира.\n"
+"Требует одновременного нажатия ESC и выбранной клавиши."
 
 #: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
@@ -5670,15 +5643,14 @@ msgstr ""
 "Количество сообщений, которые игрок может отправить в течении 10 секунд."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Number of threads to use for mesh generation.\n"
 "Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 "Количество потоков, используемых для генерации мешей.\n"
-"Значение 0 (по умолчанию) позволит Luanti автоматически определять "
-"количество доступных потоков."
+"Значение 0 (по умолчанию) позволяет Luanti автоматически выбирать количество "
+"потоков."
 
 #: src/settings_translation_file.cpp
 msgid "Occlusion Culler"
@@ -5966,9 +5938,8 @@ msgstr ""
 "READ_PLAYERINFO: 32 (отключить вызов get_player_names со стороны клиента)"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Return to Main Menu"
-msgstr "Выйти в главное меню"
+msgstr "Вернуться в Главное Меню"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6675,8 +6646,8 @@ msgstr ""
 "островов.\n"
 "Вода по умолчанию отключена и будет размещена только в том случае, если это "
 "значение\n"
-"будет установлено выше «mgv7_floatland_ymax» - "
-"«mgv7_floatland_taper» (начало\n"
+"будет установлено выше «mgv7_floatland_ymax» - «mgv7_floatland_taper» "
+"(начало\n"
 "верхнего сужения).\n"
 "*** ПРЕДУПРЕЖДЕНИЕ, ВЕРОЯТНАЯ ОПАСНОСТЬ ДЛЯ МИРОВ И РАБОТЫ СЕРВЕРА ***:\n"
 "При включении размещения воды парящих островов должны быть сконфигурированы "
@@ -7081,9 +7052,8 @@ msgid "Toggle fullscreen"
 msgstr "Включить полноэкранный режим"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle large chat console"
-msgstr "Большая чат-консоль"
+msgstr "Включить большую чат-консоль"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
@@ -7094,9 +7064,8 @@ msgid "Toggle profiler"
 msgstr "Переключить профилировщик"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
-msgstr "Клавиша включения неограниченной дальности обзора."
+msgstr "Клавиша включения неограниченной дальности обзора"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7596,11 +7565,8 @@ msgid "Width of the selection box lines around nodes."
 msgstr "Толщина рамки выделения вокруг нод."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Will also disable autoforward, when active."
-msgstr ""
-"Клавиша для передвижения игрока назад.\n"
-"При активации также отключает автобег."
+msgstr "При активации также отключает автоматическое движение вперёд."
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7719,195 +7685,68 @@ msgstr "Таймаут взаимодействия cURL"
 msgid "cURL parallel limit"
 msgstr "Лимит одновременных соединений cURL"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Применить зеркальное затенение к блокам."
+#~ msgid "Apps"
+#~ msgstr "Приложения"
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "Клавиша уменьшения дальности обзора."
+#~ msgid "End"
+#~ msgstr "End"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "Клавиша уменьшения громкости."
+#~ msgid "Erase EOF"
+#~ msgstr "Стереть EOF"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "Клавиша выкидывания выбранного предмета."
+#~ msgid "Execute"
+#~ msgstr "Выполнить"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "Клавиша увеличения дальности обзора."
+#~ msgid "Help"
+#~ msgstr "Help"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "Клавиша увеличения громкости."
+#~ msgid "Home"
+#~ msgstr "Home"
 
-#~ msgid "Key for jumping."
-#~ msgstr "Клавиша прыжка."
+#~ msgid "IME Accept"
+#~ msgstr "Принятие IME"
 
-#~ msgid "Key for moving the player forward."
-#~ msgstr "Клавиша для передвижения игрока вперед."
+#~ msgid "IME Convert"
+#~ msgstr "Конвертирование IME"
 
-#~ msgid "Key for moving the player left."
-#~ msgstr "Клавиша для передвижения игрока влево."
+#~ msgid "IME Escape"
+#~ msgstr "Выход IME"
 
-#~ msgid "Key for moving the player right."
-#~ msgstr "Клавиша для передвижения игрока вправо."
+#~ msgid "IME Mode Change"
+#~ msgstr "Изменение Режима IME"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "Клавиша заглушения игры."
+#~ msgid "IME Nonconvert"
+#~ msgstr "Неконвертирование IME"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "Клавиша открытия окна чата."
+#~ msgid "Left Button"
+#~ msgstr "Левая кнопка"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "Клавиша открытия инвентаря."
+#~ msgid "Middle Button"
+#~ msgstr "Средняя кнопка"
 
-#~ msgid "Key for selecting the 11th hotbar slot."
-#~ msgstr "Клавиша выбора 11-го слота для хотбара."
+#~ msgid "No world created or selected!"
+#~ msgstr "Мир не создан или не выбран!"
 
-#~ msgid "Key for selecting the 12th hotbar slot."
-#~ msgstr "Клавиша выбора 12-го слота для хотбара."
+#~ msgid "OEM Clear"
+#~ msgstr "Отчистка OEM"
 
-#~ msgid "Key for selecting the 13th hotbar slot."
-#~ msgstr "Клавиша выбора 13-го слота для хотбара."
+#~ msgid "Right Button"
+#~ msgstr "Правая кнопка"
 
-#~ msgid "Key for selecting the 14th hotbar slot."
-#~ msgstr "Клавиша выбора 14-го слота для хотбара."
+#~ msgid "Select"
+#~ msgstr "Выбор"
 
-#~ msgid "Key for selecting the 15th hotbar slot."
-#~ msgstr "Клавиша выбора 15-го слота для хотбара."
+#~ msgid "Sleep"
+#~ msgstr "Сон"
 
-#~ msgid "Key for selecting the 16th hotbar slot."
-#~ msgstr "Клавиша выбора 16-го слота для хотбара."
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
 
-#~ msgid "Key for selecting the 17th hotbar slot."
-#~ msgstr "Клавиша выбора 17-го слота для хотбара."
+#~ msgid "Tab"
+#~ msgstr "Tab"
 
-#~ msgid "Key for selecting the 18th hotbar slot."
-#~ msgstr "Клавиша выбора 18-го слота для хотбара."
+#~ msgid "X Button 1"
+#~ msgstr "Доп. кнопка 1"
 
-#~ msgid "Key for selecting the 19th hotbar slot."
-#~ msgstr "Клавиша выбора 19-го слота для хотбара."
-
-#~ msgid "Key for selecting the 20th hotbar slot."
-#~ msgstr "Клавиша выбора 20-го слота для хотбара."
-
-#~ msgid "Key for selecting the 21st hotbar slot."
-#~ msgstr "Клавиша выбора 21-го слота для хотбара."
-
-#~ msgid "Key for selecting the 22nd hotbar slot."
-#~ msgstr "Клавиша выбора 22-го слота для хотбара."
-
-#~ msgid "Key for selecting the 23rd hotbar slot."
-#~ msgstr "Клавиша выбора 23-го слота для хотбара."
-
-#~ msgid "Key for selecting the 24th hotbar slot."
-#~ msgstr "Клавиша выбора 24-го слота для хотбара."
-
-#~ msgid "Key for selecting the 25th hotbar slot."
-#~ msgstr "Клавиша выбора 25-го слота для хотбара."
-
-#~ msgid "Key for selecting the 26th hotbar slot."
-#~ msgstr "Клавиша выбора 26-го слота для хотбара."
-
-#~ msgid "Key for selecting the 27th hotbar slot."
-#~ msgstr "Клавиша выбора 27-го слота для хотбара."
-
-#~ msgid "Key for selecting the 28th hotbar slot."
-#~ msgstr "Клавиша выбора 28-го слота для хотбара."
-
-#~ msgid "Key for selecting the 29th hotbar slot."
-#~ msgstr "Клавиша выбора 29-го слота для хотбара."
-
-#~ msgid "Key for selecting the 30th hotbar slot."
-#~ msgstr "Клавиша выбора 30-го слота для хотбара."
-
-#~ msgid "Key for selecting the 31st hotbar slot."
-#~ msgstr "Клавиша выбора 31-го слота для хотбара."
-
-#~ msgid "Key for selecting the 32nd hotbar slot."
-#~ msgstr "Клавиша выбора 32-го слота для хотбара."
-
-#~ msgid "Key for selecting the eighth hotbar slot."
-#~ msgstr "Клавиша выбора восьмого слота для хотбара."
-
-#~ msgid "Key for selecting the fifth hotbar slot."
-#~ msgstr "Клавиша выбора пятого слота для хотбара."
-
-#~ msgid "Key for selecting the first hotbar slot."
-#~ msgstr "Клавиша выбора первого слота для хотбара."
-
-#~ msgid "Key for selecting the fourth hotbar slot."
-#~ msgstr "Клавиша выбора четвертого слота для хотбара."
-
-#~ msgid "Key for selecting the next item in the hotbar."
-#~ msgstr "Клавиша выбора следующего предмета в хотбаре."
-
-#~ msgid "Key for selecting the ninth hotbar slot."
-#~ msgstr "Клавиша выбора девятого слота для хотбара."
-
-#~ msgid "Key for selecting the previous item in the hotbar."
-#~ msgstr "Клавиша выбора предыдущего предмета в хотбаре."
-
-#~ msgid "Key for selecting the second hotbar slot."
-#~ msgstr "Клавиша выбора второго слота для хотбара."
-
-#~ msgid "Key for selecting the seventh hotbar slot."
-#~ msgstr "Клавиша выбора седьмого слота для хотбара."
-
-#~ msgid "Key for selecting the sixth hotbar slot."
-#~ msgstr "Клавиша выбора шестого слота для хотбара."
-
-#~ msgid "Key for selecting the tenth hotbar slot."
-#~ msgstr "Клавиша выбора десятого слота для хотбара."
-
-#~ msgid "Key for selecting the third hotbar slot."
-#~ msgstr "Клавиша выбора третьего слота для хотбара."
-
-#~ msgid "Key for switching between first- and third-person camera."
-#~ msgstr ""
-#~ "Клавиша для переключения между камерой от первого и от третьего лица."
-
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Клавиша для создания снимков экрана."
-
-#~ msgid "Key for toggling autoforward."
-#~ msgstr "Клавиша для включения автобега."
-
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Клавиша включения кинематографичного режима."
-
-#~ msgid "Key for toggling display of minimap."
-#~ msgstr "Клавиша включения отображения миникарты."
-
-#~ msgid "Key for toggling fast mode."
-#~ msgstr "Клавиша для включения режима быстрого перемещения."
-
-#~ msgid "Key for toggling flying."
-#~ msgstr "Клавиша для включения полета."
-
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Клавиша для включения полноэкранного режима."
-
-#~ msgid "Key for toggling noclip mode."
-#~ msgstr "Клавиша включения режима прохождения сквозь стены."
-
-#~ msgid "Key for toggling pitch move mode."
-#~ msgstr "Клавиша включения режима движения по направлению взгляда."
-
-#~ msgid "Key for toggling the display of chat."
-#~ msgstr "Клавиша включения отображения чата."
-
-#~ msgid "Key for toggling the display of debug info."
-#~ msgstr "Клавиша включения отображения отладочных сведений."
-
-#~ msgid "Key for toggling the display of fog."
-#~ msgstr "Клавиша включения отображения тумана."
-
-#~ msgid "Key for toggling the display of the HUD."
-#~ msgstr "Клавиша включения отображения игрового интерфейса."
-
-#~ msgid "Key for toggling the display of the large chat console."
-#~ msgstr "Клавиша включения большой чат-консоли."
-
-#~ msgid "Key to use view zoom when possible."
-#~ msgstr "Клавиша для использования зума, когда возможно."
-
-#~ msgid "Node specular"
-#~ msgstr "Зеркальный блок"
+#~ msgid "X Button 2"
+#~ msgstr "Доп. кнопка 2"

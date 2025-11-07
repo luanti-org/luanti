@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-04-22 22:19+0000\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-09-07 00:02+0000\n"
 "Last-Translator: Divarrek <a.guechoum@proton.me>\n"
 "Language-Team: Breton <https://hosted.weblate.org/projects/minetest/minetest/"
 "br/>\n"
@@ -21,11 +21,11 @@ msgstr ""
 "&& n % 100 != 92) ? 1 : ((((n % 10 == 3 || n % 10 == 4) || n % 10 == 9) && "
 "(n % 100 < 10 || n % 100 > 19) && (n % 100 < 70 || n % 100 > 79) && (n % 100 "
 "< 90 || n % 100 > 99)) ? 2 : ((n != 0 && n % 1000000 == 0) ? 3 : 4)));\n"
-"X-Generator: Weblate 5.11.1-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
-msgstr ""
+msgstr "Skarzhañ lostennad ar flapadenn"
 
 #: builtin/client/chatcommands.lua
 msgid "Empty command."
@@ -53,7 +53,7 @@ msgstr "C'hoarierien enlinenn: "
 
 #: builtin/client/chatcommands.lua
 msgid "The out chat queue is now empty."
-msgstr ""
+msgstr "Goullo eo lostennad ar flapadenn."
 
 #: builtin/client/chatcommands.lua
 msgid "This command is disabled by server."
@@ -73,7 +73,7 @@ msgstr "Urzhiad dihegerz: "
 
 #: builtin/common/chatcommands.lua
 msgid "Get help for commands (-t: output in chat)"
-msgstr ""
+msgstr "Kaout skoazell an urzhiadoù (-t: diskouez ar flapadenn)"
 
 #: builtin/common/chatcommands.lua
 msgid ""
@@ -92,16 +92,15 @@ msgstr "Merdeiñ"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "Kenniñv gant \"$1\""
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
 msgstr "Embann"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Remove keybinding"
-msgstr "Berradennoù klavier."
+msgstr "Dilemel ar verradenn klavier"
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
@@ -113,11 +112,11 @@ msgstr "Diuzañ ur restr"
 
 #: builtin/common/settings/components.lua
 msgid "Set"
-msgstr ""
+msgstr "Arventennañ"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
-msgstr ""
+msgstr "(Deskrivadur ebet evit an arventenn-mañ)"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "2D Noise"
@@ -168,15 +167,15 @@ msgstr "Hadenn"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "X spread"
-msgstr ""
+msgstr "Strewiñ X"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Y spread"
-msgstr ""
+msgstr "Strewiñ Y"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Z spread"
-msgstr ""
+msgstr "Strewiñ Z"
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -199,7 +198,7 @@ msgstr "dre ziouer"
 #. the settings menu.
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "eased"
-msgstr ""
+msgstr "aesaet"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable automatic exposure as well)"
@@ -233,7 +232,7 @@ msgstr "Distreiñ"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
-msgstr ""
+msgstr "Boutonoù gant ur buker"
 
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
@@ -263,7 +262,7 @@ msgstr "Hollek"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
-msgstr ""
+msgstr "Stokad hir"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Movement"
@@ -288,7 +287,7 @@ msgstr "Klask"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
-msgstr ""
+msgstr "Stokad berr"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
@@ -299,9 +298,8 @@ msgid "Show technical names"
 msgstr "Diskouez an anvioù teknikel"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Tap"
-msgstr "Taolenn"
+msgstr "Stokad"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
@@ -313,7 +311,7 @@ msgstr "Aozadur ar skramm-stekiñ"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
-msgstr ""
+msgstr "Kemmoù an arval"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Content: Games"
@@ -346,15 +344,15 @@ msgstr "Izel"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Medium"
-msgstr ""
+msgstr "Etre"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very High"
-msgstr ""
+msgstr "Uhel kenañ"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very Low"
-msgstr ""
+msgstr "Izel kenañ"
 
 #: builtin/fstk/ui.lua
 msgid "<none available>"
@@ -390,7 +388,7 @@ msgstr "Ne genglot ket handelv ar c'homenad. "
 
 #: builtin/mainmenu/common.lua
 msgid "Server enforces protocol version $1. "
-msgstr ""
+msgstr "An dafariad a lak da ret handelv $1 ar c'homenad. "
 
 #: builtin/mainmenu/common.lua
 msgid "Server supports protocol versions between $1 and $2. "
@@ -400,7 +398,7 @@ msgstr ""
 
 #: builtin/mainmenu/common.lua
 msgid "We only support protocol version $1."
-msgstr ""
+msgstr "Skoret e vez ganeomp handelv $1 ar c'homenad nemetken."
 
 #: builtin/mainmenu/common.lua
 msgid "We support protocol versions between version $1 and $2."
@@ -452,7 +450,7 @@ msgstr "O pellgargañ..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
-msgstr ""
+msgstr "Dibabet"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -479,7 +477,7 @@ msgstr "Hizivadur ebet"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Queued"
-msgstr ""
+msgstr "Da heul"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Texture Packs"
@@ -495,7 +493,7 @@ msgstr "Hizivaat pep tra [$1}"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 and $2 dependencies will be installed."
-msgstr ""
+msgstr "$1 a vo bet staliet asambles gant $2 amzalc'h."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
@@ -515,12 +513,12 @@ msgstr "Staliet dija"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Base Game:"
-msgstr ""
+msgstr "C'hoari diazez:"
 
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Dependencies:"
-msgstr ""
+msgstr "Amzalc'hioù:"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Error getting dependencies for package $1"
@@ -537,7 +535,7 @@ msgstr "Staliañ $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Install missing dependencies"
-msgstr ""
+msgstr "Staliañ an amzalc'hioù a vank"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Not found"
@@ -549,7 +547,7 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "You need to install a game before you can install a mod"
-msgstr ""
+msgstr "Ur c'hoari a vez ret staliañ a-raok bezañ gouest da staliañ ur c'hemm"
 
 #: builtin/mainmenu/content/dlg_overwrite.lua
 msgid "\"$1\" already exists. Would you like to overwrite it?"
@@ -569,7 +567,7 @@ msgstr "Deskrivadur"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
-msgstr ""
+msgstr "Donezonañ"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
@@ -621,13 +619,12 @@ msgid "Website"
 msgstr "Lec'hienn web"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1"
-msgstr "$1 gant $2"
+msgstr "gant $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
-msgstr ""
+msgstr "gant $1  —  $2 a bellgargadennoù  —  +$3 / $4 / -$5"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 (Enabled)"
@@ -635,7 +632,7 @@ msgstr "$1 (Gweredekaet)"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 mods"
-msgstr ""
+msgstr "$1 a gemmoù"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Failed to install $1 to $2"
@@ -662,6 +659,8 @@ msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
+"C'hoarierien kennasket ouzh\n"
+"$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
@@ -677,7 +676,7 @@ msgstr "Diweredekaat pep tra"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Disable modpack"
-msgstr ""
+msgstr "Diweredekaat ar pakad kemmoù"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Enable all"
@@ -685,7 +684,7 @@ msgstr "Gweredekaat pep tra"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Enable modpack"
-msgstr ""
+msgstr "Gweredekaat ar pakad kemmoù"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid ""
@@ -695,15 +694,15 @@ msgstr ""
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Find More Mods"
-msgstr ""
+msgstr "Kavout kemmoù ouzhpenn"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Mod:"
-msgstr ""
+msgstr "Kemm:"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
-msgstr ""
+msgstr "Amzalc'h (diret) ebet"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No game description provided."
@@ -719,11 +718,11 @@ msgstr ""
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No optional dependencies"
-msgstr ""
+msgstr "Amzalc'h diret ebet"
 
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
-msgstr ""
+msgstr "Amzalc'hioù diret:"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "World:"
@@ -789,7 +788,7 @@ msgstr ""
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Dungeons"
-msgstr ""
+msgstr "Doñjonoù"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Flat terrain"
@@ -952,17 +951,15 @@ msgstr ""
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Close"
-msgstr ""
+msgstr "Serriñ"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Keybindings changed"
-msgstr "Berradennoù klavier."
+msgstr "Cheñchet eo bet ar berradennoù klavier"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Arventennoù"
+msgstr "Digeriñ an arventennoù"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
@@ -1101,7 +1098,7 @@ msgstr "A-zivout"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Active Contributors"
-msgstr ""
+msgstr "Perzhidi pennañ"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Active renderer:"
@@ -1231,10 +1228,6 @@ msgid "New"
 msgstr "Nevez"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Bed ebet bet krouet pe diuzet!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "C'hoari"
 
@@ -1359,7 +1352,7 @@ msgstr "Graet!"
 #: src/client/client.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
-msgstr ""
+msgstr "C'hwitadenn war an enrollañ an dapadenn-skramm da \"%s\""
 
 #: src/client/client.cpp
 msgid "Initializing nodes"
@@ -1378,9 +1371,9 @@ msgid "Rebuilding shaders..."
 msgstr ""
 
 #: src/client/client.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Tapadennoù skramm"
+msgstr "Tapadenn skramm enrollet da \"%s\""
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1820,10 +1813,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Arloadoù"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Kilesaouiñ"
 
@@ -1853,45 +1842,19 @@ msgid "Down Arrow"
 msgstr "Bir traoñ"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Dibenn"
-
-#: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Skoazell"
+#, fuzzy
+msgid "End Key"
+msgstr "Lañser"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "Home"
-msgstr "Degemer"
+msgid "Help Key"
+msgstr "Dilemel"
 
 #: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr ""
+#, fuzzy
+msgid "Home Key"
+msgstr "Zoum"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1902,8 +1865,9 @@ msgid "Left Arrow"
 msgstr "Bir kleiz"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Klik kleiz"
+#, fuzzy
+msgid "Left Click"
+msgstr "Reol. kleiz"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1917,19 +1881,27 @@ msgstr "Lañser kleiz"
 msgid "Left Shift"
 msgstr "Pennlizh. kleiz"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows kleiz"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Lañser"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Bouton kreiz"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -1996,10 +1968,6 @@ msgid "Numpad 9"
 msgstr "Klavier niverel 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr ""
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Pajenn traoñ"
 
@@ -2019,19 +1987,20 @@ msgstr "C'hoari"
 #. ~ "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
-msgstr ""
+msgstr "Tap. skramm"
 
 #: src/client/keycode.cpp
 msgid "Return Key"
-msgstr ""
+msgstr "Distro"
 
 #: src/client/keycode.cpp
 msgid "Right Arrow"
 msgstr "Bir dehoù"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Klik dehou"
+#, fuzzy
+msgid "Right Click"
+msgstr "Reol. dehoù"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2045,6 +2014,7 @@ msgstr "Lañser dehoù"
 msgid "Right Shift"
 msgstr "Pennlizh. dehoù"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows dehoù"
@@ -2053,50 +2023,31 @@ msgstr "Windows dehoù"
 msgid "Scroll Lock"
 msgstr "Prennañ dibun"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Diuzañ"
+#, fuzzy
+msgid "Select Key"
+msgstr "Dilemel"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Pennlizherenn"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr ""
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Esaouenn"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Taolenn"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Ehan"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Bir krec'h"
 
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Bouton X 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Bouton X 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zoum"
-
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
-msgstr ""
+msgstr "Minikartenn guzhet"
 
 #: src/client/minimap.cpp
 #, c-format
@@ -2194,7 +2145,7 @@ msgstr "Mud"
 #: src/gui/guiVolumeChange.cpp
 #, c-format
 msgid "Sound Volume: %d%%"
-msgstr ""
+msgstr "Tregern ar son: %d%%"
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Add button"
@@ -2262,7 +2213,7 @@ msgstr ""
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Place/use"
-msgstr ""
+msgstr "Plasañ/implijout"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Range select"
@@ -2290,7 +2241,7 @@ msgstr "(Di)weredekaat an nijal"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle minimap"
-msgstr ""
+msgstr "(De)weredekaat ar minikartenn"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle noclip"
@@ -2495,12 +2446,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2713,7 +2663,7 @@ msgstr "Aodio"
 
 #: src/settings_translation_file.cpp
 msgid "Automatic jumping"
-msgstr ""
+msgstr "Lammat ez-emgefreek"
 
 #: src/settings_translation_file.cpp
 msgid "Automatically jump up single-node obstacles."
@@ -2824,6 +2774,17 @@ msgid "Camera smoothing in cinematic mode"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Cave noise"
 msgstr "Trouz ar greier"
 
@@ -2883,7 +2844,7 @@ msgstr "Urzhiadoù ar flapiñ"
 
 #: src/settings_translation_file.cpp
 msgid "Chat font size"
-msgstr ""
+msgstr "Ment nodrezh ar flapiñ"
 
 #: src/settings_translation_file.cpp
 msgid "Chat log level"
@@ -3103,7 +3064,7 @@ msgstr "Kemennadenn sac'hadenn"
 
 #: src/settings_translation_file.cpp
 msgid "Crosshair alpha"
-msgstr ""
+msgstr "Demerez ar buker"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3305,6 +3266,10 @@ msgid "Developer Options"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
 msgstr "Na aotren ket gerioù-tremen goullo"
 
@@ -3350,15 +3315,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Dungeon maximum Y"
-msgstr ""
+msgstr "Y uheloc'h an doñjonoù"
 
 #: src/settings_translation_file.cpp
 msgid "Dungeon minimum Y"
-msgstr ""
+msgstr "Y izeloc'h an doñjonoù"
 
 #: src/settings_translation_file.cpp
 msgid "Dungeon noise"
-msgstr ""
+msgstr "Trouz an doñjonoù"
 
 #: src/settings_translation_file.cpp
 msgid "Effects"
@@ -3791,7 +3756,7 @@ msgstr "Skramm a-bezh"
 
 #: src/settings_translation_file.cpp
 msgid "Fullscreen mode."
-msgstr ""
+msgstr "Mod skrammad a-bezh."
 
 #: src/settings_translation_file.cpp
 msgid "GUI"
@@ -3834,11 +3799,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Graphics"
-msgstr ""
+msgstr "Kevregañ"
 
 #: src/settings_translation_file.cpp
 msgid "Graphics and Audio"
-msgstr ""
+msgstr "Kevregañ hag aodio"
 
 #: src/settings_translation_file.cpp
 msgid "Gravity"
@@ -3854,7 +3819,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "HTTP mods"
-msgstr ""
+msgstr "Kemmoù HTTP"
 
 #: src/settings_translation_file.cpp
 msgid "HUD"
@@ -4263,7 +4228,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Increase volume"
-msgstr ""
+msgstr "Kreskaat an tregern"
 
 #: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
@@ -4301,7 +4266,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Interaction style"
-msgstr ""
+msgstr "Doare etrewezhiañ"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
@@ -4473,9 +4438,8 @@ msgid "Key for toggling the display of the profiler. Used for development."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keybindings"
-msgstr "Berradennoù klavier."
+msgstr "Berradennoù klavier"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -4593,7 +4557,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Lighting"
-msgstr "Sklerijennañ"
+msgstr "Goulaouiñ"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4986,6 +4950,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Niver uhelañ a c'hoarierien"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Temploù an dezerzh"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -5913,7 +5882,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Smooth lighting"
-msgstr ""
+msgstr "Goulaouiñ lenkr"
 
 #: src/settings_translation_file.cpp
 msgid "Smooth scrolling"
@@ -5941,11 +5910,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Soft clouds"
-msgstr ""
+msgstr "Koumoul dous"
 
 #: src/settings_translation_file.cpp
 msgid "Soft shadow radius"
-msgstr ""
+msgstr "Skin ar skeud kuñv"
 
 #: src/settings_translation_file.cpp
 msgid "Sound"
@@ -5953,7 +5922,7 @@ msgstr "Aodio"
 
 #: src/settings_translation_file.cpp
 msgid "Sound Extensions Blacklist"
-msgstr ""
+msgstr "Roll du an askouezhioù aodio"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6369,7 +6338,7 @@ msgstr "Skramm-stekiñ"
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen controls"
-msgstr ""
+msgstr "Reolerezhioù ar skramm-stekiñ"
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen sensitivity"
@@ -6381,7 +6350,7 @@ msgstr "Lieskementer kizidigezh ar skramm-stekiñ."
 
 #: src/settings_translation_file.cpp
 msgid "Tradeoffs for performance"
-msgstr ""
+msgstr "Treuzvarc'hadoù a-fed an digonusted"
 
 #: src/settings_translation_file.cpp
 msgid "Translucent foliage"
@@ -6416,7 +6385,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Trusted mods"
-msgstr ""
+msgstr "Kemmoù fiziañs enno"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6527,7 +6496,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "User Interfaces"
-msgstr ""
+msgstr "Ketalioù an arveriaded"
 
 #: src/settings_translation_file.cpp
 msgid "VSync"
@@ -6593,7 +6562,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Video driver"
-msgstr ""
+msgstr "Stur video"
 
 #: src/settings_translation_file.cpp
 msgid "View bobbing factor"
@@ -6613,7 +6582,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Volume"
-msgstr ""
+msgstr "Tregern"
 
 #: src/settings_translation_file.cpp
 msgid "Volume multiplier when the window is unfocused."
@@ -6631,7 +6600,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Volumetric lighting"
-msgstr ""
+msgstr "Goulaouiñ trimentek"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6664,19 +6633,19 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Waving Nodes"
-msgstr ""
+msgstr "Gwagenniñ ar c'hlomoù"
 
 #: src/settings_translation_file.cpp
 msgid "Waving leaves"
-msgstr ""
+msgstr "Gwagenniñ an delioù"
 
 #: src/settings_translation_file.cpp
 msgid "Waving liquids"
-msgstr ""
+msgstr "Gwagenniñ an dourennoù"
 
 #: src/settings_translation_file.cpp
 msgid "Waving liquids wave height"
-msgstr ""
+msgstr "Uhelded gwagenniñ an dourennoù"
 
 #: src/settings_translation_file.cpp
 msgid "Waving liquids wave speed"
@@ -6688,7 +6657,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Waving plants"
-msgstr ""
+msgstr "Gwagenniñ ar plant"
 
 #: src/settings_translation_file.cpp
 msgid "Weblink color"
@@ -6869,3 +6838,43 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr ""
+
+#~ msgid "Apps"
+#~ msgstr "Arloadoù"
+
+#~ msgid "End"
+#~ msgstr "Dibenn"
+
+#~ msgid "Help"
+#~ msgstr "Skoazell"
+
+#, fuzzy
+#~ msgid "Home"
+#~ msgstr "Degemer"
+
+#~ msgid "Left Button"
+#~ msgstr "Klik kleiz"
+
+#~ msgid "Middle Button"
+#~ msgstr "Klik kreiz"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Bed ebet bet krouet pe diuzet!"
+
+#~ msgid "Right Button"
+#~ msgstr "Klik dehou"
+
+#~ msgid "Select"
+#~ msgstr "Diuzañ"
+
+#~ msgid "Sleep"
+#~ msgstr "Kousk"
+
+#~ msgid "Tab"
+#~ msgstr "Taolenn"
+
+#~ msgid "X Button 1"
+#~ msgstr "Bouton X 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "Bouton X 2"

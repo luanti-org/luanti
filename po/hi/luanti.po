@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-03-19 11:07+0000\n"
 "Last-Translator: Ritwik <ritwikraghav14@gmail.com>\n"
 "Language-Team: Hindi <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1238,10 +1238,6 @@ msgid "New"
 msgstr "नया"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "कोई दुनिया उपस्थित या चुनी गयी नहीं है !"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "खेल खेलें"
 
@@ -1856,10 +1852,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "प्रोफाईलर दिखाई दे रही है (पृष्ठ %d %d पृष्ठों में से)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "एप्स"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "बैकस्पेस"
 
@@ -1892,44 +1884,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "एंड"
+#, fuzzy
+msgid "End Key"
+msgstr "मेनू (कीबोर्ड)"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "ई.ओ.एफ खाली करें"
+#, fuzzy
+msgid "Help Key"
+msgstr "हटायें"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "एग्सीक्यूट"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "हेल्प"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "होम"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "आई एम ई एक्सेप्ट"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "आई एम ई कन्वर्ट"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "आई एम ई एस्केप"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "आई एम ई मोड चेंज"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "आई एम ई नानकन्वर्ट"
+#, fuzzy
+msgid "Home Key"
+msgstr "ज़ूम"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1941,8 +1908,9 @@ msgid "Left Arrow"
 msgstr "बायां कंट्रोल"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "बायां बटन"
+#, fuzzy
+msgid "Left Click"
+msgstr "बायां कंट्रोल"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1956,19 +1924,27 @@ msgstr "बायां मेनू"
 msgid "Left Shift"
 msgstr "लेफ्ट शिफ्ट"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "लेफ्ट विंडोज"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "मेनू (कीबोर्ड)"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "बीच का बटन"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2035,10 +2011,6 @@ msgid "Numpad 9"
 msgstr "नम्पैड ९"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "ओ ई एम क्लीयर"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "पेज डाऊन"
@@ -2074,8 +2046,9 @@ msgid "Right Arrow"
 msgstr "दाहिना"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "दाहिना बटन"
+#, fuzzy
+msgid "Right Click"
+msgstr "दाहिना"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2089,6 +2062,7 @@ msgstr "दाहिना मेनू"
 msgid "Right Shift"
 msgstr "राईट शिफ्ट"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "राईट विंडोज"
@@ -2097,10 +2071,10 @@ msgstr "राईट विंडोज"
 msgid "Scroll Lock"
 msgstr "स्क्रोल लाक"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "सिलेक्ट"
+#, fuzzy
+msgid "Select Key"
+msgstr "हटायें"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2108,37 +2082,17 @@ msgid "Shift Key"
 msgstr "शिफ्ट"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "स्लीप"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "स्नैपशॉट"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "स्पेसबार"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "टैब बटन"
+#, fuzzy
+msgid "Tab Key"
+msgstr "खाली करें"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X बटन १"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X बटन २"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "ज़ूम"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2544,12 +2498,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2877,6 +2830,17 @@ msgstr "केमरा चिकनाई"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "सिनेमा मोड में केमरा चिकनाई"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3362,6 +3326,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "सजावट"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5057,6 +5025,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6959,6 +6931,68 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "सिनेमा मोड में केमरा चिकनाई"
+#~ msgid "Apps"
+#~ msgstr "एप्स"
+
+#~ msgid "End"
+#~ msgstr "एंड"
+
+#~ msgid "Erase EOF"
+#~ msgstr "ई.ओ.एफ खाली करें"
+
+#~ msgid "Execute"
+#~ msgstr "एग्सीक्यूट"
+
+#~ msgid "Help"
+#~ msgstr "हेल्प"
+
+#~ msgid "Home"
+#~ msgstr "होम"
+
+#~ msgid "IME Accept"
+#~ msgstr "आई एम ई एक्सेप्ट"
+
+#~ msgid "IME Convert"
+#~ msgstr "आई एम ई कन्वर्ट"
+
+#~ msgid "IME Escape"
+#~ msgstr "आई एम ई एस्केप"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "आई एम ई मोड चेंज"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "आई एम ई नानकन्वर्ट"
+
+#~ msgid "Left Button"
+#~ msgstr "बायां बटन"
+
+#~ msgid "Middle Button"
+#~ msgstr "बीच का बटन"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "कोई दुनिया उपस्थित या चुनी गयी नहीं है !"
+
+#~ msgid "OEM Clear"
+#~ msgstr "ओ ई एम क्लीयर"
+
+#~ msgid "Right Button"
+#~ msgstr "दाहिना बटन"
+
+#~ msgid "Select"
+#~ msgstr "सिलेक्ट"
+
+#~ msgid "Sleep"
+#~ msgstr "स्लीप"
+
+#~ msgid "Snapshot"
+#~ msgstr "स्नैपशॉट"
+
+#~ msgid "Tab"
+#~ msgstr "टैब बटन"
+
+#~ msgid "X Button 1"
+#~ msgstr "X बटन १"
+
+#~ msgid "X Button 2"
+#~ msgstr "X बटन २"

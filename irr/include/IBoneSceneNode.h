@@ -10,7 +10,7 @@ namespace scene
 {
 
 //! Interface for bones used for skeletal animation.
-/** Used with SkinnedMesh and IAnimatedMeshSceneNode. */
+/** Used with SkinnedMesh and AnimatedMeshSceneNode. */
 class IBoneSceneNode : public ISceneNode
 {
 public:

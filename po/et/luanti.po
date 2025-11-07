@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Estonian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2023-10-22 17:18+0000\n"
 "Last-Translator: Janar Leas <janarleas+ubuntuone@googlemail.com>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/minetest/"
@@ -1239,10 +1239,6 @@ msgid "New"
 msgstr "Uus"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Pole valitud ega loodud ühtegi maailma!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Mängi"
 
@@ -1845,10 +1841,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Koormushinnang (%d leht %d-st)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Aplikatsioonid"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Tagasinihe"
 
@@ -1882,44 +1874,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Lõpeta"
+#, fuzzy
+msgid "End Key"
+msgstr "Menüü"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Kustuta EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Kustuta"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Soorita"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Abi"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Kodu"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Sisendviisiga nõustumine"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Sisendviisi teisendamine"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "Sisendviisi paoklahv"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Sisendviisi laadi vahetus"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "Sisendviisi mitte-teisendada"
+#, fuzzy
+msgid "Home Key"
+msgstr "Suumi"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1931,8 +1898,9 @@ msgid "Left Arrow"
 msgstr "Vasak CTRL"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Vasak nupp"
+#, fuzzy
+msgid "Left Click"
+msgstr "Vasak CTRL"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1946,19 +1914,27 @@ msgstr "Vasak Menüü"
 msgid "Left Shift"
 msgstr "Vasak Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Vasak Windowsi nupp"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Menüü"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Keskmine nupp"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2025,10 +2001,6 @@ msgid "Numpad 9"
 msgstr "Numbrilaual 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Tühi"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Lehekülg alla"
@@ -2064,8 +2036,9 @@ msgid "Right Arrow"
 msgstr "Parem CTRL"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Parem nupp"
+#, fuzzy
+msgid "Right Click"
+msgstr "Parem CTRL"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2079,6 +2052,7 @@ msgstr "Parem Menüü"
 msgid "Right Shift"
 msgstr "Parem Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Parem Windowsi nupp"
@@ -2087,10 +2061,10 @@ msgstr "Parem Windowsi nupp"
 msgid "Scroll Lock"
 msgstr "Scroll lukk"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Vali"
+#, fuzzy
+msgid "Select Key"
+msgstr "Kustuta"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2098,37 +2072,17 @@ msgid "Shift Key"
 msgstr "Shift,"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Maga"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Mängupilt"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Tühik"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Reavahetus"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Hiilimis klahv"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Nuppp 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Nupp 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Suumi"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2533,12 +2487,11 @@ msgstr "Kolmemõõtmeline müra, mis määratleb kambristike sageduse kaardijaos
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2862,6 +2815,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3347,6 +3311,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Arendaja valikud"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5045,6 +5013,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Enim kasutajaid"
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -6940,3 +6912,69 @@ msgstr "cURL-i interaktiivne aegumine"
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr ""
+
+#~ msgid "Apps"
+#~ msgstr "Aplikatsioonid"
+
+#~ msgid "End"
+#~ msgstr "Lõpeta"
+
+#~ msgid "Erase EOF"
+#~ msgstr "Kustuta EOF"
+
+#~ msgid "Execute"
+#~ msgstr "Soorita"
+
+#~ msgid "Help"
+#~ msgstr "Abi"
+
+#~ msgid "Home"
+#~ msgstr "Kodu"
+
+#~ msgid "IME Accept"
+#~ msgstr "Sisendviisiga nõustumine"
+
+#~ msgid "IME Convert"
+#~ msgstr "Sisendviisi teisendamine"
+
+#~ msgid "IME Escape"
+#~ msgstr "Sisendviisi paoklahv"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "Sisendviisi laadi vahetus"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "Sisendviisi mitte-teisendada"
+
+#~ msgid "Left Button"
+#~ msgstr "Vasak nupp"
+
+#~ msgid "Middle Button"
+#~ msgstr "Keskmine nupp"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Pole valitud ega loodud ühtegi maailma!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Tühi"
+
+#~ msgid "Right Button"
+#~ msgstr "Parem nupp"
+
+#~ msgid "Select"
+#~ msgstr "Vali"
+
+#~ msgid "Sleep"
+#~ msgstr "Maga"
+
+#~ msgid "Snapshot"
+#~ msgstr "Mängupilt"
+
+#~ msgid "Tab"
+#~ msgstr "Reavahetus"
+
+#~ msgid "X Button 1"
+#~ msgstr "X Nuppp 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X Nupp 2"

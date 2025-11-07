@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Korean (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-02-02 12:01+0000\n"
-"Last-Translator: alasa ala <dave.stop.stop@gmail.com>\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-08-04 03:02+0000\n"
+"Last-Translator: Zipo <03-leghorn.chervil@icloud.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/minetest/minetest/"
 "ko/>\n"
 "Language: ko\n"
@@ -12,11 +12,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
-msgstr ""
+msgstr "채팅 대기열 지우기"
 
 #: builtin/client/chatcommands.lua
 #, fuzzy
@@ -33,7 +33,7 @@ msgstr "유효하지 않은 명령어: "
 
 #: builtin/client/chatcommands.lua
 msgid "Issued command: "
-msgstr ""
+msgstr "명령어 발행됨: "
 
 #: builtin/client/chatcommands.lua
 msgid "List online players"
@@ -45,7 +45,7 @@ msgstr "온라인 플레이어: "
 
 #: builtin/client/chatcommands.lua
 msgid "The out chat queue is now empty."
-msgstr ""
+msgstr "외부 채팅 대기열이 비어있습니다."
 
 #: builtin/client/chatcommands.lua
 msgid "This command is disabled by server."
@@ -79,7 +79,7 @@ msgstr ""
 
 #: builtin/common/chatcommands.lua
 msgid "[all | <cmd>] [-t]"
-msgstr ""
+msgstr "[all | <cmd>] [-t]"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -200,27 +200,27 @@ msgstr "맵 부드러움"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable automatic exposure as well)"
-msgstr ""
+msgstr "(게임은 가능하면 자동 노출을 가능하다면 활성화해야 합니다)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable bloom as well)"
-msgstr ""
+msgstr "(게임은 가능하다면 블룸을 활성화해야 합니다)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable volumetric lighting as well)"
-msgstr ""
+msgstr "(게임은 가능하다면 볼류매트릭 라이팅을 활성화해야 합니다)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(Use system language)"
-msgstr ""
+msgstr "(시스템 언어 사용)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
-msgstr ""
+msgstr "접근성"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Auto"
-msgstr ""
+msgstr "자동"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
@@ -256,7 +256,7 @@ msgstr "활성화됨"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
-msgstr ""
+msgstr "일반"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
@@ -278,7 +278,7 @@ msgstr "기본값 복원"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default ($1)"
-msgstr ""
+msgstr "기본 설정으로 재설정하기 ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
@@ -290,7 +290,7 @@ msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
-msgstr ""
+msgstr "고급 설정 표시"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show technical names"
@@ -327,11 +327,11 @@ msgstr "컨텐츠"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "(The game will need to enable shadows as well)"
-msgstr ""
+msgstr "(게임은 가능하면 그림자를 활성화해야 합니다)"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Custom"
-msgstr ""
+msgstr "커스텀"
 
 #: builtin/common/settings/shadows_component.lua
 #: src/settings_translation_file.cpp
@@ -341,27 +341,27 @@ msgstr "글꼴 그림자"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "High"
-msgstr ""
+msgstr "높은"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Low"
-msgstr ""
+msgstr "낮은"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Medium"
-msgstr ""
+msgstr "중간"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very High"
-msgstr ""
+msgstr "매우 높은"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very Low"
-msgstr ""
+msgstr "매우 낮은"
 
 #: builtin/fstk/ui.lua
 msgid "<none available>"
-msgstr ""
+msgstr "<사용 불가능>"
 
 #: builtin/fstk/ui.lua
 msgid "An error occurred in a Lua script:"
@@ -409,7 +409,7 @@ msgstr "프로토콜 버전 $1와(과) $2 사이의 버전을 제공합니다."
 
 #: builtin/mainmenu/content/contentdb.lua
 msgid "Error installing \"$1\": $2"
-msgstr ""
+msgstr "설치 오류 “$1”: $2"
 
 #: builtin/mainmenu/content/contentdb.lua
 #, fuzzy
@@ -444,7 +444,7 @@ msgstr "다운 받는 중..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "All"
-msgstr ""
+msgstr "모두"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
@@ -457,7 +457,7 @@ msgstr "다운 받는 중..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
-msgstr ""
+msgstr "기능"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -484,7 +484,7 @@ msgstr "업데이트 없음"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Queued"
-msgstr ""
+msgstr "대기 중"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
@@ -493,11 +493,11 @@ msgstr "텍스처 팩"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "The package $1 was not found."
-msgstr ""
+msgstr "$1 패키지가 발견되지 않음."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Update All [$1]"
-msgstr ""
+msgstr "모두 업데이트 [$1]"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 and $2 dependencies will be installed."
@@ -505,15 +505,15 @@ msgstr "$1 과 $2 종속품이 설치됩니다."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
-msgstr ""
+msgstr "$2에 의한 $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 required dependencies could not be found."
-msgstr ""
+msgstr "$1가 요구하는 종속성들이 발견되지 않았습니다."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 will be installed, and $2 dependencies will be skipped."
-msgstr ""
+msgstr "$1은 설치될 것입니다, 그리고 $2 종속성들은 건너뛸 것입니다."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Already installed"
@@ -531,7 +531,7 @@ msgstr "의존:"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Error getting dependencies for package $1"
-msgstr ""
+msgstr "$1 패키지를 위한 종속성 가져오기 오류"
 
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/content/dlg_package.lua
@@ -554,11 +554,11 @@ msgstr "찾을 수 없음"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Please check that the base game is correct."
-msgstr ""
+msgstr "베이스 게임이 맞는지 확인해 주십시오."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "You need to install a game before you can install a mod"
-msgstr ""
+msgstr "당신은 모드를 설치하기 전에 게임을 설치해야 합니다"
 
 #: builtin/mainmenu/content/dlg_overwrite.lua
 msgid "\"$1\" already exists. Would you like to overwrite it?"
@@ -566,7 +566,7 @@ msgstr "\"$1\"은 이미 존재합니다. 덮어쓰기 하시겠습니까?"
 
 #: builtin/mainmenu/content/dlg_overwrite.lua
 msgid "Overwrite"
-msgstr ""
+msgstr "덮어씌우기"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
@@ -580,7 +580,7 @@ msgstr "서버 설명"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
-msgstr ""
+msgstr "기부하기"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
@@ -593,7 +593,7 @@ msgstr "클라이언트 만드는 중..."
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
-msgstr ""
+msgstr "포럼 화제"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
@@ -607,7 +607,7 @@ msgstr "설치"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
-msgstr ""
+msgstr "이슈 트래커"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
@@ -615,11 +615,11 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
-msgstr ""
+msgstr "소스"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Translate"
-msgstr ""
+msgstr "번역하기"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
@@ -631,7 +631,7 @@ msgstr "업데이트"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
-msgstr ""
+msgstr "웹사이트"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1"
@@ -639,7 +639,7 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
-msgstr ""
+msgstr "$1에 의한 — $2 다운로드 — +$3 / $4 / -$5"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 (Enabled)"
@@ -680,11 +680,11 @@ msgstr ""
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
-msgstr ""
+msgstr "(활성화되었습니다, 오류가 있습니다)"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Unsatisfied)"
-msgstr ""
+msgstr "(충족되지 않았습니다)"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Disable all"
@@ -792,7 +792,7 @@ msgstr "장식"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Desert temples"
-msgstr ""
+msgstr "사막 사원"
 
 #: builtin/mainmenu/dlg_create_world.lua
 #, fuzzy
@@ -804,6 +804,7 @@ msgid ""
 "Different dungeon variant generated in desert biomes (only if dungeons "
 "enabled)"
 msgstr ""
+"다른 던전 변수는 사막 기후에서 생성됩니다 (오직 던전들이 활성화되었을 때만)"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Dungeons"
@@ -839,7 +840,7 @@ msgstr "강 주변의 습도 증가"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Install another game"
-msgstr ""
+msgstr "다른 게임 설치하기"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Lakes"
@@ -992,7 +993,7 @@ msgstr "비밀번호 확인"
 
 #: builtin/mainmenu/dlg_register.lua
 msgid "Joining $1"
-msgstr ""
+msgstr "$1에 가입하기"
 
 #: builtin/mainmenu/dlg_register.lua
 #, fuzzy
@@ -1002,7 +1003,7 @@ msgstr "Mapgen 이름"
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_local.lua
 #: builtin/mainmenu/tab_online.lua
 msgid "Name"
-msgstr ""
+msgstr "이름"
 
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_local.lua
 #: builtin/mainmenu/tab_online.lua
@@ -1022,27 +1023,31 @@ msgstr "등록하고 참여"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Dismiss"
-msgstr ""
+msgstr "끄기"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid ""
 "For a long time, Luanti shipped with a default game called \"Minetest "
 "Game\". Since version 5.8.0, Luanti ships without a default game."
 msgstr ""
+"오랜 시간동안, Luanti는 “Minetest Game”이라 불리우는 기본 게임을 제공해 왔습"
+"니다. 버전 5.8.0부터, Luanti는 기본 게임을 제공하지 않습니다."
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid ""
 "If you want to continue playing in your Minetest Game worlds, you need to "
 "reinstall Minetest Game."
 msgstr ""
+"만약 당신이 Minetest Game 월드를 지속적으로 플레이하길 원한다면, 당신은 "
+"Minetest Game을 재설치 해야 합니다."
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Minetest Game is no longer installed by default"
-msgstr ""
+msgstr "Minetest Game은 더이상 기본적으로 설치되지 않습니다"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Reinstall Minetest Game"
-msgstr ""
+msgstr "Minetest Game 재설치"
 
 #: builtin/mainmenu/dlg_rename_modpack.lua
 msgid "Accept"
@@ -1079,7 +1084,7 @@ msgstr ""
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
-msgstr ""
+msgstr "새로운 $1 버전은 사용가능합니다"
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid ""
@@ -1088,18 +1093,21 @@ msgid ""
 "Visit $3 to find out how to get the newest version and stay up to date with "
 "features and bugfixes."
 msgstr ""
+"설치된 버전: $1\n"
+"새 버전: $2\n"
+"$3를 방문하여 더욱 향상되고 버그픽스된 새버전을 얻는 방법을 알아보세요."
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "Later"
-msgstr ""
+msgstr "다음에"
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "Never"
-msgstr ""
+msgstr "절대"
 
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "Visit website"
-msgstr ""
+msgstr "웹사이트 방문"
 
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
@@ -1116,7 +1124,7 @@ msgstr "인터넷 연결을 확인한 후 서버 목록을 새로 고쳐보세�
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
-msgstr ""
+msgstr "에 관해"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Active Contributors"
@@ -1133,7 +1141,7 @@ msgstr "코어 개발자"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
-msgstr ""
+msgstr "핵심 팀"
 
 #: builtin/mainmenu/tab_about.lua
 #, fuzzy
@@ -1145,6 +1153,8 @@ msgid ""
 "Opens the directory that contains user-provided worlds, games, mods,\n"
 "and texture packs in a file manager / explorer."
 msgstr ""
+"유저가 제공한 월드, 게임, 모드 그리고 텍스쳐 팩을 파일 매니저 / 탐색기에서 열"
+"기."
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Previous Contributors"
@@ -1241,21 +1251,18 @@ msgstr "ContentDB에서 게임 설치"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Luanti doesn't come with a game by default."
-msgstr ""
+msgstr "Luanti는 기본적으로 게임과 같이 오지 않습니다."
 
 #: builtin/mainmenu/tab_local.lua
 msgid ""
 "Luanti is a game-creation platform that allows you to play many different "
 "games."
 msgstr ""
+"Luanti는 매우 다양한 게임들을 플레이할 수 있게 해주는 게임 개발 플랫폼입니다."
 
 #: builtin/mainmenu/tab_local.lua
 msgid "New"
 msgstr "새로 만들기"
-
-#: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "월드를 만들거나 선택하지 않았습니다!"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
@@ -1284,7 +1291,7 @@ msgstr "게임 시작"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "You need to install a game before you can create a world."
-msgstr ""
+msgstr "당신은 월드를 생성하기 전에 게임을 설치해야 합니다."
 
 #: builtin/mainmenu/tab_online.lua
 #, fuzzy
@@ -1318,7 +1325,7 @@ msgstr "게임"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
-msgstr ""
+msgstr "호환되지 않는 서버들"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Join Game"
@@ -1326,7 +1333,7 @@ msgstr "게임 참가"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Login"
-msgstr ""
+msgstr "로그인"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Number of mods: $1"
@@ -1363,7 +1370,7 @@ msgstr "서버 알리기"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Refresh"
-msgstr ""
+msgstr "새로고침"
 
 #: builtin/mainmenu/tab_online.lua
 #, fuzzy
@@ -1463,7 +1470,7 @@ msgstr "오류가 발생했습니다:"
 #: src/client/game.cpp
 #, c-format
 msgid "Access denied. Reason: %s"
-msgstr ""
+msgstr "액새스 거부됨. 이유: $s"
 
 #: src/client/game.cpp
 #, fuzzy
@@ -1480,15 +1487,15 @@ msgstr "자동 전진 활성화"
 
 #: src/client/game.cpp
 msgid "Block bounds hidden"
-msgstr ""
+msgstr "숨겨진 범위 차단"
 
 #: src/client/game.cpp
 msgid "Block bounds shown for current block"
-msgstr ""
+msgstr "현재 차단을 보여주는 범위 차단"
 
 #: src/client/game.cpp
 msgid "Block bounds shown for nearby blocks"
-msgstr ""
+msgstr "근처 보이는 블록들 차단"
 
 #: src/client/game.cpp
 msgid "Bounding boxes shown"
@@ -1534,12 +1541,12 @@ msgstr "연결 오류 (시간초과)"
 
 #: src/client/game.cpp
 msgid "Connection failed for unknown reason"
-msgstr ""
+msgstr "알 수 없는 이유로 연결에 실패함"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Couldn't resolve address: %s"
-msgstr ""
+msgstr "주소를 처리할 수 없음: $s"
 
 #: src/client/game.cpp
 msgid "Creating client..."
@@ -1671,17 +1678,17 @@ msgstr "음소거 해제"
 #: src/client/game.cpp
 #, c-format
 msgid "The server is probably running a different version of %s."
-msgstr ""
+msgstr "서버는 다른 버전의 $s를 적절히 실행중입니다."
 
 #: src/client/game.cpp
 #, c-format
 msgid "Unable to connect to %s because IPv6 is disabled"
-msgstr ""
+msgstr "IPv6가 비활성화 되어있기 때문에 $s에 연결할 수 없습니다"
 
 #: src/client/game.cpp
 #, c-format
 msgid "Unable to listen on %s because IPv6 is disabled"
-msgstr ""
+msgstr "IPv6가 비활성화 되었기 때문에 $s에서 들을 수 없습니다"
 
 #: src/client/game.cpp
 #, fuzzy
@@ -1696,6 +1703,8 @@ msgstr "제한없는 시야 범위 활성화"
 #: src/client/game.cpp
 msgid "Unlimited viewing range enabled, but forbidden by game or mod"
 msgstr ""
+"제한없는 보기 범위가 활성화되었습니다, 하지만 게임이나 모드에 의해 금지되었습"
+"니다"
 
 #: src/client/game.cpp
 #, fuzzy, c-format
@@ -1706,6 +1715,8 @@ msgstr "시야 범위 최소치 : %d"
 #, c-format
 msgid "Viewing changed to %d (the minimum), but limited to %d by game or mod"
 msgstr ""
+"$d로 변하는 걸 보았습니다 (최소), 하지만 게임이나 모드에 의해 $d로 변하는데 "
+"제한이 걸렸습니다"
 
 #: src/client/game.cpp
 #, c-format
@@ -1722,6 +1733,8 @@ msgstr "시야 범위 %d로 바꿈"
 msgid ""
 "Viewing range changed to %d (the maximum), but limited to %d by game or mod"
 msgstr ""
+"보기 범위가 $d로 변했습니다 (최소), 하지만 게임이나 모드에 의해 $d로 변하는"
+"데 제한이 걸렸습니다"
 
 #: src/client/game.cpp
 #, fuzzy, c-format
@@ -1874,10 +1887,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "프로파일러 보이기 (%d중 %d 페이지)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "애플리케이션"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "뒤로"
 
@@ -1908,47 +1917,22 @@ msgstr "삭제"
 
 #: src/client/keycode.cpp
 msgid "Down Arrow"
-msgstr ""
+msgstr "아래쪽 화살표"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "끝"
+#, fuzzy
+msgid "End Key"
+msgstr "메뉴"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "EOF 지우기"
+#, fuzzy
+msgid "Help Key"
+msgstr "삭제"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "실행"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "도움말"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME 확인"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME 변환"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME 종료"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME 모드 변경"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME 변환 안함"
+#, fuzzy
+msgid "Home Key"
+msgstr "확대/축소"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1960,8 +1944,9 @@ msgid "Left Arrow"
 msgstr "왼쪽 컨트롤"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "왼쪽 버튼"
+#, fuzzy
+msgid "Left Click"
+msgstr "왼쪽 컨트롤"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1975,19 +1960,27 @@ msgstr "왼쪽 메뉴"
 msgid "Left Shift"
 msgstr "왼쪽 쉬프트"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "왼쪽 창"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "메뉴"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "가운데 버튼"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2054,10 +2047,6 @@ msgid "Numpad 9"
 msgstr "숫자 키패드 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM 초기화"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "페이지 내리기"
@@ -2093,8 +2082,9 @@ msgid "Right Arrow"
 msgstr "오른쪽 컨트롤"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "오른쪽 버튼"
+#, fuzzy
+msgid "Right Click"
+msgstr "오른쪽 컨트롤"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2108,6 +2098,7 @@ msgstr "오른쪽 메뉴"
 msgid "Right Shift"
 msgstr "오른쪽 쉬프트"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "오른쪽 창"
@@ -2116,10 +2107,10 @@ msgstr "오른쪽 창"
 msgid "Scroll Lock"
 msgstr "스크롤 락"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "선택"
+#, fuzzy
+msgid "Select Key"
+msgstr "삭제"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2127,37 +2118,17 @@ msgid "Shift Key"
 msgstr "쉬프트"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "잠자기"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "스냅샷"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "스페이스바"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "탭"
+#, fuzzy
+msgid "Tab Key"
+msgstr "살금살금걷기 키"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X 버튼 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X 버튼 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "확대/축소"
+msgstr "위쪽 화살표"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2192,18 +2163,20 @@ msgstr "본 빌드에서 지원되지 않는 사운드 시스템"
 #: src/content/mod_configuration.cpp
 #, c-format
 msgid "%s is missing:"
-msgstr ""
+msgstr "$s는 없어졌습니다:"
 
 #: src/content/mod_configuration.cpp
 msgid ""
 "Install and enable the required mods, or disable the mods causing errors."
-msgstr ""
+msgstr "요구하는 모드, 또는 에러를 유발하여 비활성화된 모드를 설치하고 활성화"
 
 #: src/content/mod_configuration.cpp
 msgid ""
 "Note: this may be caused by a dependency cycle, in which case try updating "
 "the mods."
 msgstr ""
+"노트: 이는 종속성 사이클에 의해 야기될 수 있습니다, 이 사례에서 모드를 업데이"
+"트하려 노력합니다."
 
 #: src/content/mod_configuration.cpp
 #, fuzzy
@@ -2222,7 +2195,7 @@ msgstr "$1을 다운로드하는 데에 실패했습니다"
 
 #: src/gui/guiChatConsole.cpp
 msgid "Opening webpage"
-msgstr ""
+msgstr "웹페이지 열기"
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2230,11 +2203,11 @@ msgstr "계속하기"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open"
-msgstr ""
+msgstr "열기"
 
 #: src/gui/guiOpenURL.cpp
 msgid "Open URL?"
-msgstr ""
+msgstr "URL을 열까요?"
 
 #: src/gui/guiOpenURL.cpp
 #, fuzzy
@@ -2299,7 +2272,7 @@ msgstr ""
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Aux1"
-msgstr ""
+msgstr "Aux1"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Change camera"
@@ -2323,7 +2296,7 @@ msgstr "인벤토리"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Joystick"
-msgstr ""
+msgstr "조이스틱"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Jump"
@@ -2331,7 +2304,7 @@ msgstr "점프"
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Overflow menu"
-msgstr ""
+msgstr "오버플로우 메뉴"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 #, fuzzy
@@ -2380,14 +2353,17 @@ msgid ""
 "Another client is connected with this name.  If your client closed "
 "unexpectedly, try again in a minute."
 msgstr ""
+"다른 클라이언트는 이 이름과 연결되었습니다. 만약 당신의 클라이언트가 예상치 "
+"않게 닫혔다면, 몇분 뒤 다시 시도하세요."
 
 #: src/network/clientpackethandler.cpp
 msgid "Empty passwords are disallowed.  Set a password and try again."
 msgstr ""
+"빈 패스워드들은 허용되지 않습니다. 비밀번호를 설정하고 다시 시도하세요."
 
 #: src/network/clientpackethandler.cpp
 msgid "Internal server error"
-msgstr ""
+msgstr "내부 서버 오류"
 
 #: src/network/clientpackethandler.cpp
 #, fuzzy
@@ -2406,6 +2382,8 @@ msgstr "ko"
 msgid ""
 "Name is not registered. To create an account on this server, click 'Register'"
 msgstr ""
+"이름은 등록되지 않습니다. 이 서버에서 계정을 생성하기 위해, ‘등록’을 클릭하세"
+"요"
 
 #: src/network/clientpackethandler.cpp
 #, fuzzy
@@ -2414,7 +2392,7 @@ msgstr "이름을 선택하세요!"
 
 #: src/network/clientpackethandler.cpp
 msgid "Player name contains disallowed characters"
-msgstr ""
+msgstr "플레이어 이름은 허용되지 않는 문자를 포함합니다"
 
 #: src/network/clientpackethandler.cpp
 #, fuzzy
@@ -2429,15 +2407,16 @@ msgstr "서버가 닫혔습니다..."
 #: src/network/clientpackethandler.cpp
 msgid ""
 "The server has experienced an internal error.  You will now be disconnected."
-msgstr ""
+msgstr "서버는 내부 오류를 경험했습니다. 당신은 이제 연결해제 될 것입니다."
 
 #: src/network/clientpackethandler.cpp
 msgid "The server is running in singleplayer mode.  You cannot connect."
 msgstr ""
+"서버는 싱글플레이어 모드에서 실행되고 있습니다. 당신은 연결할 수 없습니다."
 
 #: src/network/clientpackethandler.cpp
 msgid "Too many users"
-msgstr ""
+msgstr "너무 많은 사용자들"
 
 #: src/network/clientpackethandler.cpp
 msgid "Unknown disconnect reason."
@@ -2448,12 +2427,16 @@ msgid ""
 "Your client sent something the server didn't expect.  Try reconnecting or "
 "updating your client."
 msgstr ""
+"당신의 클라이언트는 서버가 예상하지 못한 걸 보냈습니다. 다시 연결하거나 당신"
+"의 클라이언트를 업데이트 하세요."
 
 #: src/network/clientpackethandler.cpp
 msgid ""
 "Your client's version is not supported.\n"
 "Please contact the server administrator."
 msgstr ""
+"당신의 서버의 버전은 지원되지 않습니다.\n"
+"서버 관리자와 접촉하시길 바랍니다."
 
 #: src/server.cpp
 #, fuzzy, c-format
@@ -2529,7 +2512,7 @@ msgstr "강 계곡과 채널에 위치한 2D 노이즈."
 
 #: src/settings_translation_file.cpp
 msgid "3D"
-msgstr ""
+msgstr "3D"
 
 #: src/settings_translation_file.cpp
 msgid "3D clouds"
@@ -2590,12 +2573,11 @@ msgstr "맵 당 던전 수를 결정하는 3D 노이즈."
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D 지원.\n"
 "현재 지원되는 것:\n"
@@ -2628,7 +2610,7 @@ msgstr "ABM 간격"
 
 #: src/settings_translation_file.cpp
 msgid "ABM time budget"
-msgstr ""
+msgstr "ABM 시간 아끼기"
 
 #: src/settings_translation_file.cpp
 msgid "Absolute limit of queued blocks to emerge"
@@ -2660,7 +2642,7 @@ msgstr "객체 전달 범위 활성화"
 
 #: src/settings_translation_file.cpp
 msgid "Adjust the detected display density, used for scaling UI elements."
-msgstr ""
+msgstr "스케일링 UI 엘리먼트를 위해 디스플레이 밀도를 감지하여 조정합니다."
 
 #: src/settings_translation_file.cpp
 #, no-c-format
@@ -2699,7 +2681,7 @@ msgstr "평평하게 보는 대신에 3D 구름 효과를 사용합니다."
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
-msgstr ""
+msgstr "액체가 투명할 수 있도록 허용합니다."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -2710,8 +2692,8 @@ msgstr ""
 "살금살금걷기 키입니다.\n"
 "만약 aux1_descends를 사용할 수 없는 경우에 물에서 내려가거나 올라올 수 있습니"
 "다.\n"
-"Http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3 참조"
+"Http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3 참조"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2764,11 +2746,11 @@ msgstr "매끄럽게 표현하기:"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat flags"
-msgstr ""
+msgstr "안티채팅 플래그"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat movement tolerance"
-msgstr ""
+msgstr "안티채팅 이동 관용"
 
 #: src/settings_translation_file.cpp
 msgid "Append item name"
@@ -2972,6 +2954,17 @@ msgstr "카메라를 부드럽게"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "시네마틱 모드에서 카메라 부드럽게"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3489,6 +3482,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "장식"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5255,6 +5252,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "최대 사용자"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "사막 사원"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7174,8 +7176,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "플레이어가 \n"
 "뒤쪽으로 움직이는 키입니다.\n"
-"Http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3 참조"
+"Http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3 참조"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7276,14 +7278,68 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Screenshots의 형식입니다."
+#~ msgid "Apps"
+#~ msgstr "애플리케이션"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "시네마틱 모드에서 카메라 부드럽게"
+#~ msgid "End"
+#~ msgstr "끝"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "전체 화면 모드."
+#~ msgid "Erase EOF"
+#~ msgstr "EOF 지우기"
+
+#~ msgid "Execute"
+#~ msgstr "실행"
+
+#~ msgid "Help"
+#~ msgstr "도움말"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME 확인"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME 변환"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME 종료"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME 모드 변경"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME 변환 안함"
+
+#~ msgid "Left Button"
+#~ msgstr "왼쪽 버튼"
+
+#~ msgid "Middle Button"
+#~ msgstr "가운데 버튼"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "월드를 만들거나 선택하지 않았습니다!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM 초기화"
+
+#~ msgid "Right Button"
+#~ msgstr "오른쪽 버튼"
+
+#~ msgid "Select"
+#~ msgstr "선택"
+
+#~ msgid "Sleep"
+#~ msgstr "잠자기"
+
+#~ msgid "Snapshot"
+#~ msgstr "스냅샷"
+
+#~ msgid "Tab"
+#~ msgstr "탭"
+
+#~ msgid "X Button 1"
+#~ msgstr "X 버튼 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X 버튼 2"

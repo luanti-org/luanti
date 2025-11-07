@@ -7,6 +7,7 @@
 
 #include "irrlichttypes_bloated.h"
 #include <IMaterialRendererServices.h>
+#include "irr_ptr.h"
 #include <string>
 #include <map>
 #include <variant>
@@ -51,26 +52,41 @@ public:
 	Abstraction for updating uniforms used by shaders
 */
 
-namespace video {
-	class IMaterialRendererServices;
-}
-
-
 class IShaderUniformSetter {
 public:
 	virtual ~IShaderUniformSetter() = default;
+	/**
+	 * Called when uniforms need to be updated
+	 * @param services interface for setting uniforms
+	 */
 	virtual void onSetUniforms(video::IMaterialRendererServices *services) = 0;
 	virtual void onSetMaterial(const video::SMaterial& material)
 	{ }
+};
+
+class IShaderUniformSetterRC : public IShaderUniformSetter, public IReferenceCounted
+{
+	// Reference counted variant for special use-cases
 };
 
 
 class IShaderUniformSetterFactory {
 public:
 	virtual ~IShaderUniformSetterFactory() = default;
-	virtual IShaderUniformSetter* create() = 0;
+	/**
+	 * Called to create an uniform setter for a specific shader
+	 * @param name name of the shader
+	 * @return new uniform setter (or nullptr). caller takes ownership.
+	 */
+	virtual IShaderUniformSetter *create(const std::string &name) = 0;
 };
 
+/*
+	Helpers to set uniforms only when changed.
+
+	Be warned that when using this you can't attach a IShaderUniformSetter to
+	multiple different shaders. But you probably don't want to anyway.
+*/
 
 template <typename T, std::size_t count, bool cache>
 class CachedShaderSetting {
@@ -217,6 +233,8 @@ struct ShaderInfo {
 	video::E_MATERIAL_TYPE material = video::EMT_SOLID;
 	// Input constants
 	ShaderConstants input_constants;
+	// Extra uniform callback
+	irr_ptr<IShaderUniformSetterRC> setter_cb;
 };
 
 class IShaderSource {
@@ -239,15 +257,18 @@ public:
 	 * @param name name of the shader (directory on disk)
 	 * @param input_const primary key constants for this shader
 	 * @param base_mat base material to use
+	 * @param setter_cb additional uniform setter to use
 	 * @return shader ID
 	 * @note `base_material` only controls alpha behavior
 	 */
 	virtual u32 getShader(const std::string &name,
-		const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat) = 0;
+		const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat,
+		IShaderUniformSetterRC *setter_cb = nullptr) = 0;
 
 	/// @brief Helper: Generates or gets a shader suitable for nodes and entities
 	u32 getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL);
+		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL,
+		bool array_texture = false);
 
 	/**
 	 * Helper: Generates or gets a shader for common, general use.
@@ -261,6 +282,11 @@ public:
 			video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
 		return getShader(name, ShaderConstants(), base_mat);
 	}
+
+	/**
+	 * @brief Returns true if 'sampler2DArray' is supported in GLSL
+	 */
+	virtual bool supportsSampler2DArray() const = 0;
 };
 
 class IWritableShaderSource : public IShaderSource {
@@ -274,10 +300,10 @@ public:
 	virtual void rebuildShaders()=0;
 
 	/// @note Takes ownership of @p setter.
-	virtual void addShaderConstantSetter(IShaderConstantSetter *setter) = 0;
+	virtual void addShaderConstantSetter(std::unique_ptr<IShaderConstantSetter> setter) = 0;
 
 	/// @note Takes ownership of @p setter.
-	virtual void addShaderUniformSetterFactory(IShaderUniformSetterFactory *setter) = 0;
+	virtual void addShaderUniformSetterFactory(std::unique_ptr<IShaderUniformSetterFactory> setter) = 0;
 };
 
 IWritableShaderSource *createShaderSource();

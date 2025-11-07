@@ -13,9 +13,9 @@
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "scripting_server.h"
-#include "environment.h"
 #include "mapblock.h"
 #include "server.h"
+#include "serverenvironment.h"
 #include "nodedef.h"
 #include "daynightratio.h"
 #include "util/pointedthing.h"
@@ -24,6 +24,7 @@
 #include "pathfinder.h"
 #include "face_position_cache.h"
 #include "remoteplayer.h"
+#include "servermap.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 #include "util/string.h"
@@ -1158,7 +1159,6 @@ int ModApiEnv::l_raycast(lua_State *L)
 int ModApiEnv::l_load_area(lua_State *L)
 {
 	GET_ENV_PTR;
-	MAP_LOCK_REQUIRED;
 
 	Map *map = &(env->getMap());
 	v3s16 bp1 = getNodeBlockPos(check_v3s16(L, 1));
@@ -1373,7 +1373,8 @@ int ModApiEnv::l_forceload_free_block(lua_State *L)
 // get_translated_string(lang_code, string)
 int ModApiEnv::l_get_translated_string(lua_State * L)
 {
-	GET_ENV_PTR;
+	NO_MAP_LOCK_REQUIRED;
+
 	std::string lang_code = luaL_checkstring(L, 1);
 	std::string string = luaL_checkstring(L, 2);
 

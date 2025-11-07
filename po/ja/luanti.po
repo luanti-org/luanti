@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Japanese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-05-26 02:03+0000\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-08-04 03:02+0000\n"
 "Last-Translator: BreadW <toshiharu.uno@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/minetest/"
 "minetest/ja/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -607,9 +607,8 @@ msgid "Website"
 msgstr "ウェブサイト"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1"
-msgstr "$1 by $2"
+msgstr "$1 によって"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1225,10 +1224,6 @@ msgid "New"
 msgstr "新規作成"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "ワールドが作成または選択されていません！"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "ゲームプレイ"
 
@@ -1356,7 +1351,7 @@ msgstr "完了！"
 #: src/client/client.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
-msgstr ""
+msgstr "スクリーンショットを%sに保存失敗"
 
 #: src/client/client.cpp
 msgid "Initializing nodes"
@@ -1375,9 +1370,9 @@ msgid "Rebuilding shaders..."
 msgstr "シェーダーを再構築中..."
 
 #: src/client/client.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "スクリーンショット"
+msgstr "スクリーンショットを「%s」に保存"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1828,10 +1823,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "観測記録 表示 (ページ %d / %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "アプリケーション"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Back Space"
 
@@ -1861,44 +1852,19 @@ msgid "Down Arrow"
 msgstr "下矢印"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Menuキー"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "EOFを消去する"
+#, fuzzy
+msgid "Help Key"
+msgstr "Deleteキー"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Execute"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "ヘルプ"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME Accept"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME変換"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "Esc"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IMEモード変更"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "無変換"
+#, fuzzy
+msgid "Home Key"
+msgstr "ズームキー"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1909,8 +1875,9 @@ msgid "Left Arrow"
 msgstr "左矢印"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "左ボタン"
+#, fuzzy
+msgid "Left Click"
+msgstr "左Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1924,18 +1891,26 @@ msgstr "左Alt"
 msgid "Left Shift"
 msgstr "左Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "左Windows"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menuキー"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "中ボタン"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2002,10 +1977,6 @@ msgid "Numpad 9"
 msgstr "数値キーパッド 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Clear"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2036,8 +2007,9 @@ msgid "Right Arrow"
 msgstr "右矢印"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "右ボタン"
+#, fuzzy
+msgid "Right Click"
+msgstr "右Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2051,6 +2023,7 @@ msgstr "右メニュー"
 msgid "Right Shift"
 msgstr "右Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "右Windows"
@@ -2059,46 +2032,27 @@ msgstr "右Windows"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Select"
+#, fuzzy
+msgid "Select Key"
+msgstr "Deleteキー"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shiftキー"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "スリープ"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Snapshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Space"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Breakキー"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "上矢印"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Xボタン1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Xボタン2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "ズームキー"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2521,15 +2475,15 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "マップチャンクごとのダンジョンの数を決定する3Dノイズ。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3Dサポート。\n"
 "現在のサポート:\n"
@@ -2637,13 +2591,12 @@ msgid "Allows liquids to be translucent."
 msgstr "液体が半透明になることを可能にします。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
-"スニークするためのキーです。\n"
-"aux1_descends が無効中は、降りるときや水中で潜るときにも使用されます。"
+"aux1_descends が無効になっている場合は、水中を下降したりするためにも使用され"
+"ます。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2901,6 +2854,17 @@ msgstr "カメラの滑らかさ"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "シネマティックモードでのカメラの滑らかさ"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3396,13 +3360,12 @@ msgid "Defines tree areas and tree density."
 msgstr "木の地域と木の密度を定義します。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
 "down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
-"クライアント上のメッシュ更新間の遅延 (ミリ秒)。これを大きくすると\n"
-"メッシュの更新速度が遅くなり、低速のクライアントのジッタが減少します。"
+"クライアント上のメッシュ更新間の遅延（ミリ秒）。この値を増やすと\n"
+"メッシュ更新の速度が遅くなり、ジッターの軽減に役立ちます。"
 
 #: src/settings_translation_file.cpp
 msgid "Delay in sending blocks after building"
@@ -3445,6 +3408,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "開発者向けオプション"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -4187,131 +4154,131 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 1"
-msgstr "ホットバーのスロット1"
+msgstr "ホットバー スロット1"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 10"
-msgstr "ホットバーのスロット10"
+msgstr "ホットバー スロット10"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 11"
-msgstr "ホットバーのスロット11"
+msgstr "ホットバー スロット11"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 12"
-msgstr "ホットバーのスロット12"
+msgstr "ホットバー スロット12"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 13"
-msgstr "ホットバーのスロット13"
+msgstr "ホットバー スロット13"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 14"
-msgstr "ホットバーのスロット14"
+msgstr "ホットバー スロット14"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 15"
-msgstr "ホットバーのスロット15"
+msgstr "ホットバー スロット15"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 16"
-msgstr "ホットバーのスロット16"
+msgstr "ホットバー スロット16"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 17"
-msgstr "ホットバーのスロット17"
+msgstr "ホットバー スロット17"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 18"
-msgstr "ホットバーのスロット18"
+msgstr "ホットバー スロット18"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 19"
-msgstr "ホットバーのスロット19"
+msgstr "ホットバー スロット19"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 2"
-msgstr "ホットバーのスロット2"
+msgstr "ホットバー スロット2"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 20"
-msgstr "ホットバーのスロット20"
+msgstr "ホットバー スロット20"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 21"
-msgstr "ホットバーのスロット21"
+msgstr "ホットバー スロット21"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 22"
-msgstr "ホットバーのスロット22"
+msgstr "ホットバー スロット22"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 23"
-msgstr "ホットバーのスロット23"
+msgstr "ホットバー スロット23"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 24"
-msgstr "ホットバーのスロット24"
+msgstr "ホットバー スロット24"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 25"
-msgstr "ホットバーのスロット25"
+msgstr "ホットバー スロット25"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 26"
-msgstr "ホットバーのスロット26"
+msgstr "ホットバー スロット26"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 27"
-msgstr "ホットバーのスロット27"
+msgstr "ホットバー スロット27"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 28"
-msgstr "ホットバーのスロット28"
+msgstr "ホットバー スロット28"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 29"
-msgstr "ホットバーのスロット29"
+msgstr "ホットバー スロット29"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 3"
-msgstr "ホットバーのスロット3"
+msgstr "ホットバー スロット3"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 30"
-msgstr "ホットバーのスロット30"
+msgstr "ホットバー スロット30"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 31"
-msgstr "ホットバーのスロット31"
+msgstr "ホットバー スロット31"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 32"
-msgstr "ホットバーのスロット32"
+msgstr "ホットバー スロット32"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 4"
-msgstr "ホットバーのスロット4"
+msgstr "ホットバー スロット4"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 5"
-msgstr "ホットバーのスロット5"
+msgstr "ホットバー スロット5"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 6"
-msgstr "ホットバーのスロット6"
+msgstr "ホットバー スロット6"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 7"
-msgstr "ホットバーのスロット7"
+msgstr "ホットバー スロット7"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 8"
-msgstr "ホットバーのスロット8"
+msgstr "ホットバー スロット8"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar slot 9"
-msgstr "ホットバーのスロット9"
+msgstr "ホットバー スロット9"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
@@ -5377,6 +5344,11 @@ msgid "Maximum users"
 msgstr "最大ユーザー数"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "砂漠の寺院"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "その日のメッセージ"
 
@@ -5437,6 +5409,8 @@ msgid ""
 "Modifier key bind for closing your world.\n"
 "Requires ESC + the selected key to work."
 msgstr ""
+"ワールドを閉じるためのキー割り当てです。\n"
+"動作させるには ESC + 選択したキーが必要です。"
 
 #: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
@@ -5612,14 +5586,13 @@ msgid "Number of messages a player may send per 10 seconds."
 msgstr "プレイヤーが10秒間に送信できるメッセージの数です。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Number of threads to use for mesh generation.\n"
 "Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 "メッシュ生成に使用するスレッドの数です。\n"
-"値 0 (既定値) を指定すると、Luantiは使用可能なスレッドの数を自動検出します。"
+"値 0 (既定値) を指定すると、Luantiは使用可能なスレッドの数を自動選択します。"
 
 #: src/settings_translation_file.cpp
 msgid "Occlusion Culler"
@@ -5681,7 +5654,7 @@ msgid ""
 "Path to save screenshots at. Can be an absolute or relative path.\n"
 "The folder will be created if it doesn't already exist."
 msgstr ""
-"スクリーンショットを保存するパス。絶対パスまたは相対パスを指定できます。\n"
+"スクリーンショットを保存するパスです。絶対または相対パスを指定できます。\n"
 "フォルダーが存在しない場合は作成されます。"
 
 #: src/settings_translation_file.cpp
@@ -5903,7 +5876,6 @@ msgstr ""
 "READ_PLAYERINFO: 32 (クライアント側での get_player_names 呼び出しを無効)"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Return to Main Menu"
 msgstr "メインメニューに戻る"
 
@@ -6983,9 +6955,8 @@ msgid "Toggle fullscreen"
 msgstr "全画面表示モード切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle large chat console"
-msgstr "大型チャットコンソール"
+msgstr "大型チャットコンソール切替"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
@@ -6996,9 +6967,8 @@ msgid "Toggle profiler"
 msgstr "観測記録表示切替"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
-msgstr "無制限な視野を切り替えるためのキーです。"
+msgstr "無制限な視野切替"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7491,11 +7461,8 @@ msgid "Width of the selection box lines around nodes."
 msgstr "ノードを囲む選択ボックスの枠線の幅。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Will also disable autoforward, when active."
-msgstr ""
-"プレイヤーを後方へ移動するキーです。\n"
-"自動前進中に押すと自動前進を停止します。"
+msgstr "使用中は自動前進も無効になります。"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7611,194 +7578,68 @@ msgstr "cURL インタラクティブタイムアウト"
 msgid "cURL parallel limit"
 msgstr "cURL並行処理制限"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "ノードにスペキュラーシェーディングを適用します。"
+#~ msgid "Apps"
+#~ msgstr "アプリケーション"
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "視野を縮小させるためのキーです。"
+#~ msgid "End"
+#~ msgstr "End"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "音量を下げるためのキーです。"
+#~ msgid "Erase EOF"
+#~ msgstr "EOFを消去する"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "選択中のアイテムを落とすためのキーです。"
+#~ msgid "Execute"
+#~ msgstr "Execute"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "視野を拡大させるためのキーです。"
+#~ msgid "Help"
+#~ msgstr "ヘルプ"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "音量を上げるためのキーです。"
+#~ msgid "Home"
+#~ msgstr "Home"
 
-#~ msgid "Key for jumping."
-#~ msgstr "ジャンプするのためのキーです。"
+#~ msgid "IME Accept"
+#~ msgstr "IME Accept"
 
-#~ msgid "Key for moving the player forward."
-#~ msgstr "プレイヤーを前方へ移動させるためのキーです。"
+#~ msgid "IME Convert"
+#~ msgstr "IME変換"
 
-#~ msgid "Key for moving the player left."
-#~ msgstr "プレイヤーを左へ移動させるためのキーです。"
+#~ msgid "IME Escape"
+#~ msgstr "Esc"
 
-#~ msgid "Key for moving the player right."
-#~ msgstr "プレイヤーを右へ移動させるためのキーです。"
+#~ msgid "IME Mode Change"
+#~ msgstr "IMEモード変更"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "ゲームを無音にするためのキーです。"
+#~ msgid "IME Nonconvert"
+#~ msgstr "無変換"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "チャットウィンドウを開くためのキーです。"
+#~ msgid "Left Button"
+#~ msgstr "左ボタン"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "インベントリを開けるためのキーです。"
+#~ msgid "Middle Button"
+#~ msgstr "中ボタン"
 
-#~ msgid "Key for selecting the 11th hotbar slot."
-#~ msgstr "ホットバーの11番スロットを選択するためのキーです。"
+#~ msgid "No world created or selected!"
+#~ msgstr "ワールドが作成または選択されていません！"
 
-#~ msgid "Key for selecting the 12th hotbar slot."
-#~ msgstr "ホットバーの12番スロットを選択するためのキーです。"
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Clear"
 
-#~ msgid "Key for selecting the 13th hotbar slot."
-#~ msgstr "ホットバーの13番スロットを選択するためのキーです。"
+#~ msgid "Right Button"
+#~ msgstr "右ボタン"
 
-#~ msgid "Key for selecting the 14th hotbar slot."
-#~ msgstr "ホットバーの14番スロットを選択するためのキーです。"
+#~ msgid "Select"
+#~ msgstr "Select"
 
-#~ msgid "Key for selecting the 15th hotbar slot."
-#~ msgstr "ホットバーの15番スロットを選択するためのキーです。"
+#~ msgid "Sleep"
+#~ msgstr "スリープ"
 
-#~ msgid "Key for selecting the 16th hotbar slot."
-#~ msgstr "ホットバーの16番スロットを選択するためのキーです。"
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
 
-#~ msgid "Key for selecting the 17th hotbar slot."
-#~ msgstr "ホットバーの17番スロットを選択するためのキーです。"
+#~ msgid "Tab"
+#~ msgstr "Tab"
 
-#~ msgid "Key for selecting the 18th hotbar slot."
-#~ msgstr "ホットバーの18番スロットを選択するためのキーです。"
+#~ msgid "X Button 1"
+#~ msgstr "Xボタン1"
 
-#~ msgid "Key for selecting the 19th hotbar slot."
-#~ msgstr "ホットバーの19番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 20th hotbar slot."
-#~ msgstr "ホットバーの20番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 21st hotbar slot."
-#~ msgstr "ホットバーの21番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 22nd hotbar slot."
-#~ msgstr "ホットバーの22番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 23rd hotbar slot."
-#~ msgstr "ホットバーの23番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 24th hotbar slot."
-#~ msgstr "ホットバーの24番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 25th hotbar slot."
-#~ msgstr "ホットバーの25番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 26th hotbar slot."
-#~ msgstr "ホットバーの26番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 27th hotbar slot."
-#~ msgstr "ホットバーの27番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 28th hotbar slot."
-#~ msgstr "ホットバーの28番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 29th hotbar slot."
-#~ msgstr "ホットバーの29番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 30th hotbar slot."
-#~ msgstr "ホットバーの30番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 31st hotbar slot."
-#~ msgstr "ホットバーの31番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the 32nd hotbar slot."
-#~ msgstr "ホットバーの32番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the eighth hotbar slot."
-#~ msgstr "ホットバーの8番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the fifth hotbar slot."
-#~ msgstr "ホットバーの5番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the first hotbar slot."
-#~ msgstr "ホットバーの1番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the fourth hotbar slot."
-#~ msgstr "ホットバーの4番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the next item in the hotbar."
-#~ msgstr "ホットバーの次のアイテムを選択するためのキーです。"
-
-#~ msgid "Key for selecting the ninth hotbar slot."
-#~ msgstr "ホットバーの9番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the previous item in the hotbar."
-#~ msgstr "ホットバーの前のアイテムを選択するためのキーです。"
-
-#~ msgid "Key for selecting the second hotbar slot."
-#~ msgstr "ホットバーの2番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the seventh hotbar slot."
-#~ msgstr "ホットバーの7番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the sixth hotbar slot."
-#~ msgstr "ホットバーの6番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the tenth hotbar slot."
-#~ msgstr "ホットバーの10番スロットを選択するためのキーです。"
-
-#~ msgid "Key for selecting the third hotbar slot."
-#~ msgstr "ホットバーの3番スロットを選択するためのキーです。"
-
-#~ msgid "Key for switching between first- and third-person camera."
-#~ msgstr "一人称視点カメラと第3者視点カメラを切り替えるためのキーです。"
-
-#~ msgid "Key for taking screenshots."
-#~ msgstr "スクリーンショットを撮るためのキーです。"
-
-#~ msgid "Key for toggling autoforward."
-#~ msgstr "自動前進を切り替えるためのキーです。"
-
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "シネマティックモードを切り替えるためのキーです。"
-
-#~ msgid "Key for toggling display of minimap."
-#~ msgstr "ミニマップの表示を切り替えるためのキーです。"
-
-#~ msgid "Key for toggling fast mode."
-#~ msgstr "高速移動モードを切り替えるためのキーです。"
-
-#~ msgid "Key for toggling flying."
-#~ msgstr "飛行モードを切り替えるためのキーです。"
-
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "全画面表示モードを切り替えるためのキーです。"
-
-#~ msgid "Key for toggling noclip mode."
-#~ msgstr "すり抜けモードを切り替えるためのキーです。"
-
-#~ msgid "Key for toggling pitch move mode."
-#~ msgstr "ピッチ移動モードを切り替えるためのキーです。"
-
-#~ msgid "Key for toggling the display of chat."
-#~ msgstr "チャット表示を切り替えるためのキーです。"
-
-#~ msgid "Key for toggling the display of debug info."
-#~ msgstr "デバッグ情報の表示を切り替えるためのキーです。"
-
-#~ msgid "Key for toggling the display of fog."
-#~ msgstr "霧の表示を切り替えるためのキーです。"
-
-#~ msgid "Key for toggling the display of the HUD."
-#~ msgstr "HUD表示を切り替えるためのキーです。"
-
-#~ msgid "Key for toggling the display of the large chat console."
-#~ msgstr "大型チャットコンソールの表示を切り替えるためのキーです。"
-
-#~ msgid "Key to use view zoom when possible."
-#~ msgstr "可能な限りズームするためのキーです。"
-
-#~ msgid "Node specular"
-#~ msgstr "ノード スペキュラー"
+#~ msgid "X Button 2"
+#~ msgstr "Xボタン2"

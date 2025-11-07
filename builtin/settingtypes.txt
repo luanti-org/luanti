@@ -40,6 +40,7 @@
 # `type_args` can be:
 #   * int:
 #            - default
+#            - default min
 #            - default min max
 #   * string:
 #            - default (if default is not specified then "" is set)
@@ -47,8 +48,10 @@
 #            - default
 #   * float:
 #            - default
+#            - default min
 #            - default min max
 #   * enum:
+#            Empty string "" is a valid enum value
 #            - default value1,value2,...
 #   * path:
 #            - default (if default is not specified then "" is set)
@@ -431,7 +434,6 @@ window_maximized (Window maximized) bool false
 #    Save window size automatically when modified.
 #    If true, screen size is saved in screen_w and screen_h, and whether the window
 #    is maximized is stored in window_maximized.
-#    (Autosaving window_maximized only works if compiled with SDL.)
 #
 #    Requires: desktop
 autosave_screensize (Remember screen size) bool true
@@ -474,13 +476,12 @@ undersampling (Undersampling) int 1 1 8
 
 #    3D support.
 #    Currently supported:
-#    -    none: no 3d output.
-#    -    anaglyph: cyan/magenta color 3d.
-#    -    interlaced: odd/even line based polarization screen support.
-#    -    topbottom: split screen top/bottom.
-#    -    sidebyside: split screen side by side.
-#    -    crossview: Cross-eyed 3d
-3d_mode (3D mode) enum none none,anaglyph,interlaced,topbottom,sidebyside,crossview
+#    -    none: no 3D output
+#    -    anaglyph: cyan/magenta color 3D
+#    -    topbottom: split screen top/bottom
+#    -    sidebyside: split screen side-by-side
+#    -    crossview: cross-eyed 3D
+3d_mode (3D mode) enum none none,anaglyph,topbottom,sidebyside,crossview
 
 #    Strength of 3D mode parallax.
 3d_paralax_strength (3D mode parallax strength) float 0.025 -0.087 0.087
@@ -612,18 +613,21 @@ anisotropic_filter (Anisotropic filtering) bool false
 #             Also, if Post Processing is disabled, FSAA will not work together with
 #             undersampling or a non-default "3d_mode" setting.
 #
-#    * FXAA - Fast approximate antialiasing
-#             Applies a post-processing filter to detect and smoothen high-contrast edges.
-#             Provides balance between speed and image quality.
-#
 #    * SSAA - Super-sampling antialiasing
 #             Renders higher-resolution image of the scene, then scales down to reduce
 #             the aliasing effects. This is the slowest and the most accurate method.
-antialiasing (Antialiasing method) enum none none,fsaa,fxaa,ssaa
+antialiasing (Antialiasing method) enum none none,fsaa,ssaa
 
 #    Defines the size of the sampling grid for FSAA and SSAA antialiasing methods.
 #    Value of 2 means taking 2x2 = 4 samples.
 fsaa (Anti-aliasing scale) enum 2 2,4,8,16
+
+#    Applies a post-processing filter to detect and smoothen high-contrast edges.
+#    Provides balance between speed and image quality.
+#    fxaa can used in combination with the other anti-aliasing methods
+#
+#    Requires: enable_post_processing
+fxaa (Fast approximate antialiasing) bool false
 
 [**Occlusion Culling]
 
@@ -867,7 +871,7 @@ formspec_fullscreen_bg_color (Formspec Full-Screen Background Color) string (0,0
 gui_scaling_filter (GUI scaling filter) bool false
 
 #    Delay showing tooltips, stated in milliseconds.
-tooltip_show_delay (Tooltip delay) int 400 0 18446744073709551615
+tooltip_show_delay (Tooltip delay) int 400 0
 
 #    Append item name to tooltip.
 tooltip_append_itemname (Append item name) bool false
@@ -1056,10 +1060,6 @@ anticheat_flags (Anticheat flags) flags digging,interaction,movement digging,int
 #    Increase the value if players experience stuttery movement.
 anticheat_movement_tolerance (Anticheat movement tolerance) float 1.0 1.0
 
-#    If enabled, actions are recorded for rollback.
-#    This option is only read when server starts.
-enable_rollback_recording (Rollback recording) bool false
-
 [**Client-side Modding]
 
 #    Restricts the access of certain client-side functions on servers.
@@ -1082,7 +1082,7 @@ csm_restriction_noderange (Client-side node lookup range restriction) int 0 0 42
 
 #    Remove color codes from incoming chat messages
 #    Use this to stop players from being able to use color in their messages
-strip_color_codes (Strip color codes) bool false
+strip_color_codes (Strip color codes) bool true
 
 #    Set the maximum length of a chat message (in characters) sent by clients.
 chat_message_max_size (Chat message max length) int 500 10 65535
@@ -1947,6 +1947,14 @@ enable_mod_channels (Mod channels) [server] bool false
 #    Useful for mod developers and server operators.
 profiler.load (Load the game profiler) bool false
 
+#    Disable if you only want to instrument with Tracy.
+profiler.measure (Measure time samples) bool true
+
+#    Capture Tracy zones with the profiler's instrumentation.
+#    You need to build with Tracy to use this, see doc/developing/profiling.md
+#    for details.
+profiler.tracy (Capture Tracy zones) bool false
+
 #    The default format in which profiles are being saved,
 #    when calling `/profiler save [format]` without format.
 profiler.default_report_format (Default report format) enum txt txt,csv,lua,json,json_pretty
@@ -2047,6 +2055,10 @@ world_aligned_mode (World-aligned textures mode) enum enable disable,enable,forc
 #    See also texture_min_size.
 #    Warning: This option is EXPERIMENTAL!
 autoscale_mode (Autoscaling mode) enum disable disable,enable,force
+
+#    Caps the maximum number of layers used with array textures (if supported).
+#    This is only useful for debugging.
+array_texture_max (Array texture max layers) int 65535 0 65535
 
 #    When using bilinear/trilinear filtering, low-resolution textures
 #    can be blurred, so this option automatically upscales them to preserve
@@ -2200,10 +2212,10 @@ client_mapblock_limit (Mapblock limit) [client] int 7500 -1 2147483647
 #    Maximum number of blocks that are simultaneously sent per client.
 #    The maximum total count is calculated dynamically:
 #    max_total = ceil((#clients + max_users) * per_client / 4)
-max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 40 1 4294967295
+max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 40 1
 
-#    To reduce lag, block transfers are slowed down when a player is building something.
-#    This determines how long they are slowed down after placing or removing a node.
+#    To save bandwidth, block transfers are slowed down when a player is building something.
+#    This determines how long the throttling lasts after placing a node.
 full_block_send_enable_min_time_from_building (Delay in sending blocks after building) [server] float 2.0 0.0
 
 #    Maximum number of packets sent per send step in the low-level networking code.
@@ -2235,6 +2247,11 @@ kick_msg_crash (Crash message) string This server has experienced an internal er
 #    Whether to ask clients to reconnect after a (Lua) crash.
 #    Set this to true if your server is set up to restart automatically.
 ask_reconnect_on_crash (Ask to reconnect after crash) bool false
+
+#    If enabled, node and inventory actions are recorded for rollback.
+#    This option is only read on server start. Note that the engine will not
+#    automatically clean old entries from the rollback database.
+enable_rollback_recording (Rollback recording) bool false
 
 [**Server/Env Performance] [server]
 

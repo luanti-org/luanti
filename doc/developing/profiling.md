@@ -1,5 +1,16 @@
 # Profiling
 
+## Using builtin's mod profiler
+
+Builtin has a profiler for callbacks registered by mods. It measures how much
+time each callback took per server-step (on average / min / max).
+
+To start, enable the `profiler.load` setting.
+(There are more settings, see `profiler.*` and `instrument.*`.)
+
+Use the `profiler` chatcommand to look at the results.
+
+
 ## Profiling Luanti on Linux with perf
 
 We will be using a tool called "perf", which you can get by installing `perf` or `linux-perf` or `linux-tools-common`.
@@ -22,12 +33,12 @@ It will give you flamegraphs, per-thread, per-function views and much more.
 
 Attach perf to your running server, press *^C* to stop:
 ```bash
-perf record -z --call-graph dwarf -F 400 -p "$(pidof minetestserver)"
+perf record -z --call-graph dwarf -F 400 -p "$(pidof luantiserver)"
 ```
 
 Collect a copy of the required libraries/executables:
 ```bash
-perf buildid-list | grep -Eo '/[^ ]+(minetestserver|\.so)[^ ]*$' | \
+perf buildid-list | grep -Eo '/[^ ]+(luantiserver|\.so)[^ ]*$' | \
 	tar -cvahf debug.tgz --files-from=- --ignore-failed-read
 ```
 
@@ -65,12 +76,15 @@ Build Luanti with `-DDBUILD_WITH_TRACY=1`, this will fetch Tracy for building
 the Tracy client. And use `FETCH_TRACY_GIT_TAG` to get a version matching your
 Tracy server, e.g. `-DFETCH_TRACY_GIT_TAG=v0.11.0` if it's `0.11.0`.
 
-To actually use Tracy, you also have to enable it with Tracy's build options:
-```
--DTRACY_ENABLE=1 -DTRACY_ONLY_LOCALHOST=1
-```
+To actually use Tracy, you also have to enable it with Tracy's build options
+(`-DTRACY_ENABLE=1`).
 
 See Tracy's documentation for more build options.
+
+TL;DR:
+```
+-DDBUILD_WITH_TRACY=1 -DFETCH_TRACY_GIT_TAG=<your_version> -DTRACY_ENABLE=1 -DTRACY_ONLY_LOCALHOST=1
+```
 
 ### Using in C++
 
@@ -87,3 +101,6 @@ See Tracy's official documentation for more information.
 
 Note: The whole Tracy Lua API is accessible to all mods. And we don't check if it
 is or becomes insecure. Run untrusted mods at your own risk.
+
+Enable `profiler.load` and `profiler.tracy` to automatically instrument mod
+callback functions.

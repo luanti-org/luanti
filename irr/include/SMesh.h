@@ -26,7 +26,7 @@ struct SMesh final : public IAnimatedMesh
 	}
 
 	//! clean mesh
-	virtual void clear()
+	void clear()
 	{
 		for (auto *buf : MeshBuffers)
 			buf->drop();

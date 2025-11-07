@@ -12,10 +12,6 @@
 #include "irrArray.h"
 #include "IMeshLoader.h"
 
-namespace io
-{
-class IFileSystem;
-}
 namespace scene
 {
 class IMeshCache;
@@ -44,7 +40,7 @@ public:
 	video::IVideoDriver *getVideoDriver() override;
 
 	//! adds a scene node for rendering an animated mesh model
-	virtual IAnimatedMeshSceneNode *addAnimatedMeshSceneNode(IAnimatedMesh *mesh, ISceneNode *parent = 0, s32 id = -1,
+	virtual AnimatedMeshSceneNode *addAnimatedMeshSceneNode(IAnimatedMesh *mesh, ISceneNode *parent = 0, s32 id = -1,
 			const core::vector3df &position = core::vector3df(0, 0, 0),
 			const core::vector3df &rotation = core::vector3df(0, 0, 0),
 			const core::vector3df &scale = core::vector3df(1.0f, 1.0f, 1.0f),

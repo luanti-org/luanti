@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Chinese (Simplified) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-06-08 13:07+0000\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-09-30 20:02+0000\n"
 "Last-Translator: maxchen32 <maxchen32@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/minetest/minetest/zh_Hans/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -604,9 +604,8 @@ msgid "Website"
 msgstr "网站"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1"
-msgstr "$1 作者： $2"
+msgstr "作者：$1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -1205,15 +1204,11 @@ msgstr "Luanti 不自带任何子游戏。"
 msgid ""
 "Luanti is a game-creation platform that allows you to play many different "
 "games."
-msgstr "Luanti 是一方游戏创作平台，可让你游玩各类游戏。"
+msgstr "Luanti 是一个游戏创作平台，可让你游玩各类游戏。"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "New"
 msgstr "新建"
-
-#: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "未创建或选择世界!"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
@@ -1343,7 +1338,7 @@ msgstr "完成!"
 #: src/client/client.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
-msgstr ""
+msgstr "无法将屏幕截图保存到“%s”"
 
 #: src/client/client.cpp
 msgid "Initializing nodes"
@@ -1362,9 +1357,9 @@ msgid "Rebuilding shaders..."
 msgstr "重建着色器..."
 
 #: src/client/client.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "屏幕截图"
+msgstr "已将屏幕截图保存到“%s”"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1429,15 +1424,15 @@ msgstr "自动前进已启用"
 
 #: src/client/game.cpp
 msgid "Block bounds hidden"
-msgstr "已隐藏方块边界"
+msgstr "隐藏区块边界"
 
 #: src/client/game.cpp
 msgid "Block bounds shown for current block"
-msgstr "已为当前方块描边"
+msgstr "显示当前区块的边界"
 
 #: src/client/game.cpp
 msgid "Block bounds shown for nearby blocks"
-msgstr "已为周围方块描边"
+msgstr "显示周围区块的边界"
 
 #: src/client/game.cpp
 msgid "Bounding boxes shown"
@@ -1815,10 +1810,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "性能分析图已显示 (第 %d 页 共 %d 页)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "应用"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "退格"
 
@@ -1848,44 +1839,17 @@ msgid "Down Arrow"
 msgstr "⇩"
 
 #: src/client/keycode.cpp
-msgid "End"
+msgid "End Key"
 msgstr "End键"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "擦除EOF键"
+#, fuzzy
+msgid "Help Key"
+msgstr "帮助键"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "执行"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "帮助"
-
-#: src/client/keycode.cpp
-msgid "Home"
+msgid "Home Key"
 msgstr "Home键"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME接受"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME转换"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME脱离"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME模式更改"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME无转换"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1896,8 +1860,8 @@ msgid "Left Arrow"
 msgstr "⇦"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "左键"
+msgid "Left Click"
+msgstr "鼠标左键"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1911,18 +1875,26 @@ msgstr "左菜单键"
 msgid "Left Shift"
 msgstr "左Shift键"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "左Windows键"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "菜单键"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "中键"
+msgid "Middle Click"
+msgstr "鼠标中键"
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr "鼠标X1键"
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr "鼠标X2键"
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -1989,10 +1961,6 @@ msgid "Numpad 9"
 msgstr "小键盘9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Clear键"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "下一页"
 
@@ -2023,8 +1991,8 @@ msgid "Right Arrow"
 msgstr "⇨"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "右键"
+msgid "Right Click"
+msgstr "鼠标右键"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2038,6 +2006,7 @@ msgstr "右菜单键"
 msgid "Right Shift"
 msgstr "右Shift键"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "右Windows键"
@@ -2046,46 +2015,26 @@ msgstr "右Windows键"
 msgid "Scroll Lock"
 msgstr "Scroll Lock键"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "选择键"
+#, fuzzy
+msgid "Select Key"
+msgstr "删除键"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift键"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "睡眠"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "快照"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "空格"
 
 #: src/client/keycode.cpp
-msgid "Tab"
+msgid "Tab Key"
 msgstr "Tab键"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "⇧"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X键1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X键2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "缩放"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2501,18 +2450,16 @@ msgstr "确定每个地图块的地牢数量的3D噪声。"
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D 支持。\n"
 "目前已支持：\n"
 "-    无 (none)：无 3D 输出。\n"
 "-    色差式 (anaglyph)：红蓝眼镜 3D。\n"
-"-    偏振式 (interlaced)：基于奇偶行的偏振屏支持。\n"
 "-    上下分屏 (topbottom)：将画面分为上下两部分。\n"
 "-    左右分屏 (sidebyside)：将画面分为左右两部分。\n"
 "-    斜视 (crossview)：斜视左右分屏 3D"
@@ -2611,13 +2558,10 @@ msgid "Allows liquids to be translucent."
 msgstr "允许液体呈现半透明效果。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
-msgstr ""
-"潜行（下蹲）键。\n"
-"若aux1_descends禁用，也可用于向下攀爬、在水中向下游。"
+msgstr "若aux1_descends禁用，也可用于向下攀爬或在水中向下游。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2729,14 +2673,13 @@ msgid ""
 "optimization.\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
-"在此距离下，服务器将积极优化将哪些块发送到客户端。\n"
-"小数值可能会极大地提高性能，\n"
-"却会造成可见的渲染故障。\n"
-"（有些方块将不会在水和洞穴中呈现，\n"
-"有时在陆地上也不会呈现）\n"
-"将其设置为大于 max_block_send_distance 的值\n"
-"将禁用此优化。\n"
-"以 MapBlocks（16 个节点）为单位。"
+"在此距离下，服务器会积极优化将哪些区块发送到客户端。\n"
+"小数值可能大幅提升性能，\n"
+"代价是会造成可见的渲染异常\n"
+"（洞穴中的部分区块可能无法正确渲染）。\n"
+"若将其设置为大于 max_block_send_distance 的值\n"
+"则会禁用此优化。\n"
+"以 MapBlocks（16 个方块）为单位。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2870,6 +2813,17 @@ msgstr "镜头平滑"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "电影模式中的镜头平滑"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3408,6 +3362,10 @@ msgid "Developer Options"
 msgstr "开发者选项"
 
 #: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
 msgstr "禁止使用空密码"
 
@@ -3570,7 +3528,7 @@ msgstr "启用 mod 安全"
 
 #: src/settings_translation_file.cpp
 msgid "Enable mouse wheel (scroll) for item selection in hotbar."
-msgstr "启用鼠标滚轮（滚动），以便在热栏中选择项目。"
+msgstr "启用鼠标滚轮（滚动），以便在快捷栏中选择项目。"
 
 #: src/settings_translation_file.cpp
 msgid "Enable random mod loading (mainly used for testing)."
@@ -3658,14 +3616,17 @@ msgid ""
 "\"auto\" means that the touchscreen controls will be enabled and disabled\n"
 "automatically depending on the last used input method."
 msgstr ""
-"启用触摸屏控制，允许您通过触摸屏玩游戏。\n"
-"“自动”意味着触摸屏控件将根据上次使用的输入方法自动启用和禁用。"
+"启用触摸屏控制，让您可以通过触摸屏玩游戏。\n"
+"“自动”意味着触摸屏控件将根据上次使用的输入方法\n"
+"自动启用和禁用。"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Enables tradeoffs that reduce CPU load or increase rendering performance\n"
 "at the expense of minor visual glitches that do not impact game playability."
-msgstr "允许不影响可玩性的轻微视觉错误，以此减少 CPU 负载，或提高渲染性能。"
+msgstr ""
+"允许不影响可玩性的轻微视觉错误，\n"
+"以此减少 CPU 负载，或提高渲染性能。"
 
 #: src/settings_translation_file.cpp
 msgid "Engine Profiler"
@@ -3777,8 +3738,8 @@ msgid ""
 "Fixes the position of virtual joystick.\n"
 "If disabled, virtual joystick will center to first-touch's position."
 msgstr ""
-"（Android）修复虚拟操纵杆的位置。\n"
-"如果禁用，虚拟操纵杆将居中至第一次触摸的位置。"
+"固定虚拟摇杆的位置。\n"
+"如果禁用，虚拟摇杆将以第一次触摸时的位置为中心。"
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -4333,7 +4294,7 @@ msgstr ""
 msgid ""
 "If disabled, \"Aux1\" key is used to fly fast if both fly and fast mode are\n"
 "enabled."
-msgstr "如果禁用，“Aux1”键将用于快速飞行(飞行和快速模式同时启用)。"
+msgstr "如果禁用，“Aux1”键将用于快速飞行（如果飞行和快速模式同时启用）。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4341,8 +4302,8 @@ msgid ""
 "ContentDB to\n"
 "check for package updates when opening the mainmenu."
 msgstr ""
-"如果启用并且您安装了 ContentDB 包，Luanti 可能会在打开主菜单时联系 ContentDB "
-"检查包更新。"
+"如果启用此选项并且安装了 ContentDB 包，\n"
+"Luanti 可能会在打开主菜单时连接 ContentDB 检查包更新。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4659,7 +4620,7 @@ msgstr "跳跃速度"
 
 #: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
-msgstr ""
+msgstr "用于在 Quicktune 中降低已选变量的数值的按键。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4671,7 +4632,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
-msgstr ""
+msgstr "用于在 Quicktune 中提高已选变量的数值的按键。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
@@ -4695,11 +4656,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the next entry in Quicktune."
-msgstr ""
+msgstr "用于在 Quicktune 中选择下一个变量的按键。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the previous entry in Quicktune."
-msgstr ""
+msgstr "用于在 Quicktune 中选择上一个变量的按键。"
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
@@ -5003,7 +4964,6 @@ msgid "Map generation attributes specific to Mapgen v5."
 msgstr "针对v5地图生成器的属性。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Map generation attributes specific to Mapgen v6.\n"
 "The 'snowbiomes' flag enables the new 5 biome system.\n"
@@ -5013,9 +4973,10 @@ msgid ""
 "will appear instead."
 msgstr ""
 "针对v6地图生成器的属性。\n"
-"'snowboimes'启用新版5生物群系系统。\n"
-"当'snowbiomes'开启使丛林自动启用，\n"
-"忽略'jungles'标签。"
+"'snowboimes' 启用新版5生物群系系统。\n"
+"当 'snowbiomes' 开启时，丛林自动启用，\n"
+"忽略 'jungles' 标签。\n"
+"启用 'temples' 标签将禁止沙漠神庙生成，取而代之的是普通地牢。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5295,6 +5256,11 @@ msgid "Maximum users"
 msgstr "最大用户数"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "沙漠神庙"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "今日消息"
 
@@ -5351,10 +5317,13 @@ msgid "Mod channels"
 msgstr "mod频道"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Modifier key bind for closing your world.\n"
 "Requires ESC + the selected key to work."
 msgstr ""
+"用于退出世界的修饰键。\n"
+"玩家需要按下这个键和 Esc 键才可以退出世界。"
 
 #: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
@@ -5541,11 +5510,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Occlusion Culler"
-msgstr "摔落保护"
+msgstr "遮挡剔除器"
 
 #: src/settings_translation_file.cpp
 msgid "Occlusion Culling"
-msgstr "服务器端遮挡删除"
+msgstr "遮挡剔除"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5719,19 +5688,19 @@ msgstr "打击手势"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: decrement value"
-msgstr ""
+msgstr "Quicktune：降低变量数值"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: increment value"
-msgstr ""
+msgstr "Quicktune：提高变量数值"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: select next entry"
-msgstr ""
+msgstr "Quicktune：选择下一项"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: select previous entry"
-msgstr ""
+msgstr "Quicktune：选择上一项"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5815,9 +5784,8 @@ msgstr ""
 "READ_PLAYERINFO：32（禁止客户端调用 get_player_names）"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Return to Main Menu"
-msgstr "退出至主菜单"
+msgstr "返回到主菜单"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6213,7 +6181,7 @@ msgstr "设置为真以启用飘动树叶。"
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable waving liquids (like water)."
-msgstr "设置为真以启用摇动流体（例如水）。"
+msgstr "设置为真以启用波动流体（例如水）。"
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable waving plants."
@@ -6782,7 +6750,7 @@ msgid ""
 "the place button."
 msgstr ""
 "按住放置按钮时，\n"
-"会重复放置方块。"
+"重复放置方块所需的时间（秒）。"
 
 #: src/settings_translation_file.cpp
 msgid "The type of joystick"
@@ -6896,9 +6864,8 @@ msgid "Toggle profiler"
 msgstr "显示/隐藏性能分析信息"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
-msgstr "用于启用/禁用无限视野的按键。"
+msgstr "启用/禁用无限视野"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6926,7 +6893,7 @@ msgstr "灵敏度（触摸屏）"
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen sensitivity multiplier."
-msgstr "触摸屏灵敏度倍增器."
+msgstr "触摸屏灵敏度倍数。"
 
 #: src/settings_translation_file.cpp
 msgid "Tradeoffs for performance"
@@ -6980,7 +6947,7 @@ msgid ""
 "\n"
 "This setting should only be changed if you have performance problems."
 msgstr ""
-"闭塞剔除器类型\n"
+"遮挡剔除器类型\n"
 "\n"
 "\"loops \"是传统算法，带有嵌套循环，复杂度为 O(n³)\n"
 "\"bfs \"是基于广度优先搜索和边剔除的新算法\n"
@@ -7015,11 +6982,12 @@ msgid ""
 "set\n"
 "to a non-default value."
 msgstr ""
-"下采样类似于使用较低的屏幕分辨率，但是它\n"
+"下采样类似于使用较低的屏幕分辨率，但是\n"
 "仅用于游戏世界渲染中，保持GUI完整。\n"
-"这会在性能上带来显著提升，代价是图像细节较少。\n"
-"较高的值会导致图像不太清晰。\n"
-"注意：当前如果“3D模式”设置为非默认值，则暂时不支持下采样。"
+"这样会显著提升性能，代价是图像细节减少。\n"
+"较高的值会使画面不太清晰。\n"
+"注意：如果“3D模式”设置为非默认值，\n"
+"则暂时不支持下采样。"
 
 #: src/settings_translation_file.cpp
 msgid "Unlimited player transfer distance"
@@ -7254,7 +7222,7 @@ msgstr "摇动节点"
 
 #: src/settings_translation_file.cpp
 msgid "Waving leaves"
-msgstr "摇动树叶"
+msgstr "飘动树叶"
 
 #: src/settings_translation_file.cpp
 msgid "Waving liquids"
@@ -7326,8 +7294,8 @@ msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
-"无论默认情况下应显示名称标签背景.\n"
-"模组都可能仍然设置一个背景."
+"是否默认显示名称标签背景。\n"
+"Mod可能仍会设置背景。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7339,7 +7307,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Whether the window is maximized."
-msgstr "这个窗口是否会被放大."
+msgstr "是否最大化窗口。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7377,15 +7345,12 @@ msgid "Width of the selection box lines around nodes."
 msgstr "结点周围的选择框的线宽。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Will also disable autoforward, when active."
-msgstr ""
-"后退键。\n"
-"在按下时也会取消自动前进。"
+msgstr "在按下时也会取消自动前进。"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
-msgstr "窗口放大"
+msgstr "窗口最大化"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7494,194 +7459,68 @@ msgstr "cURL 超时"
 msgid "cURL parallel limit"
 msgstr "cURL 并发限制"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "对节点应用高光阴影。"
+#~ msgid "Apps"
+#~ msgstr "应用"
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "用于缩小水平视野范围的按键。"
+#~ msgid "End"
+#~ msgstr "End键"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "减小音量的按键。"
+#~ msgid "Erase EOF"
+#~ msgstr "擦除EOF键"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "丢弃手中物品的按键。"
+#~ msgid "Execute"
+#~ msgstr "执行"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "用于扩大水平视野范围的按键。"
+#~ msgid "Help"
+#~ msgstr "帮助"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "增大音量的按键。"
+#~ msgid "Home"
+#~ msgstr "Home键"
 
-#~ msgid "Key for jumping."
-#~ msgstr "用于跳跃的按键。"
+#~ msgid "IME Accept"
+#~ msgstr "IME接受"
 
-#~ msgid "Key for moving the player forward."
-#~ msgstr "向前移动玩家的按键。"
+#~ msgid "IME Convert"
+#~ msgstr "IME转换"
 
-#~ msgid "Key for moving the player left."
-#~ msgstr "向左移动玩家的按键。"
+#~ msgid "IME Escape"
+#~ msgstr "IME脱离"
 
-#~ msgid "Key for moving the player right."
-#~ msgstr "向右移动玩家的按键。"
+#~ msgid "IME Mode Change"
+#~ msgstr "IME模式更改"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "将游戏静音的按键。"
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME无转换"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "打开聊天窗口的按键。"
+#~ msgid "Left Button"
+#~ msgstr "左键"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "用于打开物品栏的按键。"
+#~ msgid "Middle Button"
+#~ msgstr "中键"
 
-#~ msgid "Key for selecting the 11th hotbar slot."
-#~ msgstr "选中快捷栏第11项的按键。"
+#~ msgid "No world created or selected!"
+#~ msgstr "未创建或选择世界!"
 
-#~ msgid "Key for selecting the 12th hotbar slot."
-#~ msgstr "选中快捷栏第12项的按键。"
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Clear键"
 
-#~ msgid "Key for selecting the 13th hotbar slot."
-#~ msgstr "选中快捷栏第13项的按键。"
+#~ msgid "Right Button"
+#~ msgstr "右键"
 
-#~ msgid "Key for selecting the 14th hotbar slot."
-#~ msgstr "选中快捷栏第14项的按键。"
+#~ msgid "Select"
+#~ msgstr "选择键"
 
-#~ msgid "Key for selecting the 15th hotbar slot."
-#~ msgstr "选中快捷栏第15项的按键。"
+#~ msgid "Sleep"
+#~ msgstr "睡眠"
 
-#~ msgid "Key for selecting the 16th hotbar slot."
-#~ msgstr "选中快捷栏第16项的按键。"
+#~ msgid "Snapshot"
+#~ msgstr "快照"
 
-#~ msgid "Key for selecting the 17th hotbar slot."
-#~ msgstr "选中快捷栏第17项的按键。"
+#~ msgid "Tab"
+#~ msgstr "Tab键"
 
-#~ msgid "Key for selecting the 18th hotbar slot."
-#~ msgstr "选中快捷栏第18项的按键。"
+#~ msgid "X Button 1"
+#~ msgstr "X键1"
 
-#~ msgid "Key for selecting the 19th hotbar slot."
-#~ msgstr "选中快捷栏第19项的按键。"
-
-#~ msgid "Key for selecting the 20th hotbar slot."
-#~ msgstr "选中快捷栏第20项的按键。"
-
-#~ msgid "Key for selecting the 21st hotbar slot."
-#~ msgstr "选中快捷栏第21项的按键。"
-
-#~ msgid "Key for selecting the 22nd hotbar slot."
-#~ msgstr "选中快捷栏第22项的按键。"
-
-#~ msgid "Key for selecting the 23rd hotbar slot."
-#~ msgstr "选中快捷栏第23项的按键。"
-
-#~ msgid "Key for selecting the 24th hotbar slot."
-#~ msgstr "选中快捷栏第24项的按键。"
-
-#~ msgid "Key for selecting the 25th hotbar slot."
-#~ msgstr "选中快捷栏第25项的按键。"
-
-#~ msgid "Key for selecting the 26th hotbar slot."
-#~ msgstr "选中快捷栏第26项的按键。"
-
-#~ msgid "Key for selecting the 27th hotbar slot."
-#~ msgstr "选中快捷栏第27项的按键。"
-
-#~ msgid "Key for selecting the 28th hotbar slot."
-#~ msgstr "选中快捷栏第28项的按键。"
-
-#~ msgid "Key for selecting the 29th hotbar slot."
-#~ msgstr "选中快捷栏第29项的按键。"
-
-#~ msgid "Key for selecting the 30th hotbar slot."
-#~ msgstr "选中快捷栏第30项的按键。"
-
-#~ msgid "Key for selecting the 31st hotbar slot."
-#~ msgstr "选中快捷栏第31项的按键。"
-
-#~ msgid "Key for selecting the 32nd hotbar slot."
-#~ msgstr "选中快捷栏第32项的按键。"
-
-#~ msgid "Key for selecting the eighth hotbar slot."
-#~ msgstr "选中快捷栏第8项的按键。"
-
-#~ msgid "Key for selecting the fifth hotbar slot."
-#~ msgstr "选中快捷栏第5项的按键。"
-
-#~ msgid "Key for selecting the first hotbar slot."
-#~ msgstr "选中快捷栏第1项的按键。"
-
-#~ msgid "Key for selecting the fourth hotbar slot."
-#~ msgstr "选中快捷栏第4项的按键。"
-
-#~ msgid "Key for selecting the next item in the hotbar."
-#~ msgstr "选中快捷栏下一项的按键。"
-
-#~ msgid "Key for selecting the ninth hotbar slot."
-#~ msgstr "选中快捷栏第9项的按键。"
-
-#~ msgid "Key for selecting the previous item in the hotbar."
-#~ msgstr "选中快捷栏上一项的按键。"
-
-#~ msgid "Key for selecting the second hotbar slot."
-#~ msgstr "选中快捷栏第2项的按键。"
-
-#~ msgid "Key for selecting the seventh hotbar slot."
-#~ msgstr "选中快捷栏第7项的按键。"
-
-#~ msgid "Key for selecting the sixth hotbar slot."
-#~ msgstr "选中快捷栏第6项的按键。"
-
-#~ msgid "Key for selecting the tenth hotbar slot."
-#~ msgstr "选中快捷栏第10项的按键。"
-
-#~ msgid "Key for selecting the third hotbar slot."
-#~ msgstr "选中快捷栏第3项的按键。"
-
-#~ msgid "Key for switching between first- and third-person camera."
-#~ msgstr "切换第一人称和第三人称视角的按键。"
-
-#~ msgid "Key for taking screenshots."
-#~ msgstr "用于屏幕截图的按键。"
-
-#~ msgid "Key for toggling autoforward."
-#~ msgstr "启用/禁用自动前进的按键。"
-
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "用于切换电影模式（镜头平滑）的按键。"
-
-#~ msgid "Key for toggling display of minimap."
-#~ msgstr "显示/隐藏小地图的按键。"
-
-#~ msgid "Key for toggling fast mode."
-#~ msgstr "启用/禁用快速模式的按键。"
-
-#~ msgid "Key for toggling flying."
-#~ msgstr "启用/禁用飞行模式的按键。"
-
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "用于切换全屏模式的按键。"
-
-#~ msgid "Key for toggling noclip mode."
-#~ msgstr "启用/禁用穿墙模式的按键。"
-
-#~ msgid "Key for toggling pitch move mode."
-#~ msgstr "启用/禁用俯仰移动模式的按键。"
-
-#~ msgid "Key for toggling the display of chat."
-#~ msgstr "启用/禁用聊天显示的按键。"
-
-#~ msgid "Key for toggling the display of debug info."
-#~ msgstr "显示/隐藏调试信息的按键。"
-
-#~ msgid "Key for toggling the display of fog."
-#~ msgstr "启用/禁用雾气显示的按键。"
-
-#~ msgid "Key for toggling the display of the HUD."
-#~ msgstr "显示/隐藏HUD的按键。"
-
-#~ msgid "Key for toggling the display of the large chat console."
-#~ msgstr "显示/隐藏大型聊天控制台的按键。"
-
-#~ msgid "Key to use view zoom when possible."
-#~ msgstr "视距缩放可用时使用的按键。"
-
-#~ msgid "Node specular"
-#~ msgstr "节点高光"
+#~ msgid "X Button 2"
+#~ msgstr "X键2"

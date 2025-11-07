@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Hebrew (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-06-21 13:01+0000\n"
 "Last-Translator: ShiloMazuz <shiloteam@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1240,10 +1240,6 @@ msgid "New"
 msgstr "חדש"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "אין עולם שנוצר או נבחר!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "להתחיל לשחק"
 
@@ -1858,10 +1854,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "פרופיילר מוצג (עמוד %d מתוך %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "אפליקציות"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1894,44 +1886,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "תפריט"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "מחק EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "מחיקה"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "בצע"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "עזרה"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "קבל IME"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "המרת IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "יציאת IME"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "שינוי מצב IME"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME ללא המרה"
+#, fuzzy
+msgid "Home Key"
+msgstr "זום"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1943,8 +1910,9 @@ msgid "Left Arrow"
 msgstr "מקש Control השמאלי"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "הלחצן השמאלי"
+#, fuzzy
+msgid "Left Click"
+msgstr "מקש Control השמאלי"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1958,19 +1926,27 @@ msgstr "תפריט שמאלי"
 msgid "Left Shift"
 msgstr "מקש Shift השמאלי"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "מקש Windows השמאלי"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "תפריט"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "כפתור אמצעי"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2037,10 +2013,6 @@ msgid "Numpad 9"
 msgstr "מקלדת נומרית 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "ניקוי OME"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Page down"
@@ -2076,8 +2048,9 @@ msgid "Right Arrow"
 msgstr "מקש Control הימני"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "הלחצן הימני"
+#, fuzzy
+msgid "Right Click"
+msgstr "מקש Control הימני"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2091,6 +2064,7 @@ msgstr "תפריט ימני"
 msgid "Right Shift"
 msgstr "מקש Shift הימני"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "מקש Windows הימני"
@@ -2099,10 +2073,10 @@ msgstr "מקש Windows הימני"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Select"
+#, fuzzy
+msgid "Select Key"
+msgstr "מחיקה"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2110,37 +2084,17 @@ msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "שינה"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "צילום רגעי"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "רווח"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "נקה"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X כפתור 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X כפתור 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "זום"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2569,12 +2523,11 @@ msgstr "רעש תלת ממדי הקובע את מספר הצינוקים בנת�
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "תמיכה בתלת מימד.\n"
 "נתמך כרגע:\n"
@@ -2944,6 +2897,17 @@ msgstr "החלקת מצלמה"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "החלקת מצלמה ומצב קולנועי"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3437,6 +3401,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "קישוטים"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5135,6 +5103,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7069,10 +7041,68 @@ msgstr "(cURL) מגבלת זמן"
 msgid "cURL parallel limit"
 msgstr "(cURL) מגבלה לפעולות במקביל"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "החלקת מצלמה ומצב קולנועי"
+#~ msgid "Apps"
+#~ msgstr "אפליקציות"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "מצב מסך מלא."
+#~ msgid "End"
+#~ msgstr "End"
+
+#~ msgid "Erase EOF"
+#~ msgstr "מחק EOF"
+
+#~ msgid "Execute"
+#~ msgstr "בצע"
+
+#~ msgid "Help"
+#~ msgstr "עזרה"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "קבל IME"
+
+#~ msgid "IME Convert"
+#~ msgstr "המרת IME"
+
+#~ msgid "IME Escape"
+#~ msgstr "יציאת IME"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "שינוי מצב IME"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME ללא המרה"
+
+#~ msgid "Left Button"
+#~ msgstr "הלחצן השמאלי"
+
+#~ msgid "Middle Button"
+#~ msgstr "כפתור אמצעי"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "אין עולם שנוצר או נבחר!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "ניקוי OME"
+
+#~ msgid "Right Button"
+#~ msgstr "הלחצן הימני"
+
+#~ msgid "Select"
+#~ msgstr "Select"
+
+#~ msgid "Sleep"
+#~ msgstr "שינה"
+
+#~ msgid "Snapshot"
+#~ msgstr "צילום רגעי"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "X כפתור 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X כפתור 2"

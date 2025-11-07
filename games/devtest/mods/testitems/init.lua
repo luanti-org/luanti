@@ -53,6 +53,13 @@ core.register_craftitem("testitems:overlay_global", {
 	color = GLOBAL_COLOR_ARG,
 })
 
+core.register_craftitem("testitems:overlay_size", {
+	description = S("Texture Overlay Test Item, Big Base Small Overlay") .. "\n" ..
+		S("Wield overlay should not be blurry."),
+	inventory_image = "[fill:1000x1000:#FFFFFF",
+	inventory_overlay = "testitems_overlay_overlay.png",
+})
+
 core.register_craftitem("testitems:image_meta", {
 	description = S("Image Override Meta Test Item"),
 	inventory_image = "default_apple.png",
@@ -170,3 +177,59 @@ core.register_craftitem("testitems:tree_spawner_vmanip", {
 core.register_on_leaveplayer(function(player, timed_out)
 	vmanip_for_trees[player:get_player_name()] = nil
 end)
+
+-- Animation test items
+
+local animated_image = {
+	name = "testnodes_anim.png^[invert:rgb",
+	animation = {
+		type = "vertical_frames",
+		aspect_w = 16,
+		aspect_h = 16,
+		length = 4.0,
+	}
+}
+
+local animated_overlay = {
+	name = "testitems_animation_overlay.png",
+	animation = {
+		type = "sheet_2d",
+		frames_w = 1,
+		frames_h = 4,
+		frame_length = 1.0,
+	}
+}
+
+core.register_craftitem("testitems:inventory_image_animation", {
+	description = S("Animated Test Item").."\n"..
+		S("Image animate from A to D in 4s cycle"),
+	inventory_image = animated_image
+})
+
+core.register_craftitem("testitems:inventory_image_animation_overlay", {
+	description = S("Animated Test Item With Overlay").."\n"..
+		S("Should be colored red and have green stripes that move").."\n"..
+		S("Image animate from A to D in 4s cycle"),
+	inventory_image = animated_image,
+	inventory_overlay = animated_overlay,
+	color = "#ff0000",
+})
+
+core.register_craftitem("testitems:wield_image_animation", {
+	description = S("Wield Animated Test Item").."\n"..
+		S("Looks like the Animated Test Item, "..
+			"but only animated for the wield mesh."),
+	inventory_image = "testnodes_anim.png^[invert:rgb^[verticalframe:4:0",
+	wield_image = animated_image,
+})
+
+core.register_craftitem("testitems:wield_image_animation_overlay", {
+	description = S("Wield Animated Test Item With Overlay").."\n"..
+		S("Looks like the animated Test Item With Overlay, "..
+			"but only animated for the wield mesh."),
+	inventory_image = "testnodes_anim.png^[invert:rgb^[verticalframe:4:0",
+	inventory_overlay = "testitems_animation_overlay.png^[verticalframe:4:0",
+	wield_image = animated_image,
+	wield_overlay = animated_overlay,
+	color = "#ff0000",
+})

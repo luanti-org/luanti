@@ -24,7 +24,7 @@
 namespace scene
 {
 
-class IAnimatedMeshSceneNode;
+class AnimatedMeshSceneNode;
 class IBoneSceneNode;
 class ISceneManager;
 
@@ -151,7 +151,7 @@ public:
 
 	//! Creates an array of joints from this mesh as children of node
 	std::vector<IBoneSceneNode *> addJoints(
-			IAnimatedMeshSceneNode *node, ISceneManager *smgr);
+			AnimatedMeshSceneNode *node, ISceneManager *smgr);
 
 	//! A vertex weight
 	struct SWeight

@@ -6,6 +6,7 @@
 #include "inventory.h"
 #include "inventorymanager.h"
 #include "constants.h" // BS
+#include "util/serialize.h"
 #include "serverenvironment.h"
 
 ServerActiveObject::ServerActiveObject(ServerEnvironment *env, v3f pos):

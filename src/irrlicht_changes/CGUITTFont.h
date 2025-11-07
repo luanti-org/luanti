@@ -298,7 +298,7 @@ namespace gui
 			void setFontHinting(const bool enable, const bool enable_auto_hinting = true);
 
 			//! Draws some text and clips it to the specified rectangle if wanted.
-			virtual void draw(const core::stringw& text, const core::rect<s32>& position,
+			virtual void draw(const core::stringw& utext, const core::rect<s32>& position,
 				video::SColor color, bool hcenter=false, bool vcenter=false,
 				const core::rect<s32>* clip=0) override;
 
@@ -383,12 +383,17 @@ namespace gui
 				if (useMonochrome()) load_flags |= FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO;
 				else load_flags |= FT_LOAD_TARGET_NORMAL;
 			}
+
+			/// Gets the overall font height, including a line gap of 1 px
+			inline u32 getLineHeight() const { return font_metrics.height / 64 + 1; }
 			u32 getWidthFromCharacter(char32_t c) const;
 			u32 getHeightFromCharacter(char32_t c) const;
+			/// Returns (index + 1) of `this->Glyphs`
+			/// Returns 0 if no such glyph is provided by the font.
 			u32 getGlyphIndexByChar(char32_t c) const;
 			core::vector2di getKerning(const char32_t thisLetter, const char32_t previousLetter) const;
 
-			video::IVideoDriver* Driver;
+			video::IVideoDriver* Driver = nullptr;
 			std::optional<io::path> filename;
 			FT_Face tt_face;
 			FT_Size_Metrics font_metrics;
@@ -397,13 +402,13 @@ namespace gui
 			mutable core::array<CGUITTGlyphPage*> Glyph_Pages;
 			mutable core::array<SGUITTGlyph> Glyphs;
 
-			s32 GlobalKerningWidth;
-			s32 GlobalKerningHeight;
-			std::u32string Invisible;
-			u32 shadow_offset;
-			u32 shadow_alpha;
+			s32 GlobalKerningWidth = 0;
+			s32 GlobalKerningHeight = 0;
+			std::u32string InvisibleChars;
+			u32 shadow_offset = 0;
+			u32 shadow_alpha = 0;
 
-			gui::IGUIFont* fallback;
+			gui::IGUIFont *fallback = nullptr;
 	};
 
 } // end namespace gui

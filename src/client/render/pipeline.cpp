@@ -5,6 +5,7 @@
 #include "pipeline.h"
 #include "client/client.h"
 #include "client/hud.h"
+#include "gettext.h"
 #include "IRenderTarget.h"
 #include "SColor.h"
 
@@ -84,8 +85,13 @@ void TextureBuffer::reset(PipelineContext &context)
 	// change textures to match definitions
 	for (u32 i = 0; i < m_definitions.size(); i++) {
 		video::ITexture **ptr = &m_textures[i];
-
 		ensureTexture(ptr, m_definitions[i], context);
+		if (m_definitions[i].valid && !*ptr) {
+			throw ShaderException(
+				fmtgettext("Failed to create the texture \"%s\" for the rendering pipeline.",
+					m_definitions[i].name.c_str()) +
+				strgettext("\nCheck debug.txt for details."));
+		}
 		m_definitions[i].dirty = false;
 	}
 
@@ -131,7 +137,15 @@ bool TextureBuffer::ensureTexture(video::ITexture **texture, const TextureDefini
 	if (definition.valid) {
 		if (!m_driver->queryTextureFormat(definition.format)) {
 			errorstream << "Failed to create texture \"" << definition.name
-				<< "\": unsupported format " << video::ColorFormatNames[definition.format]
+				<< "\": unsupported format " << video::ColorFormatName(definition.format)
+				<< std::endl;
+			return false;
+		}
+
+		const core::dimension2du max_size = m_driver->getMaxTextureSize();
+		if (size.Width > max_size.Width || size.Height > max_size.Height) {
+			errorstream << "Failed to create texture \"" << definition.name
+				<< "\": exceeds limit " << size.Width << "x" << size.Height
 				<< std::endl;
 			return false;
 		}
@@ -202,10 +216,12 @@ void TextureBufferOutput::activate(PipelineContext &context)
 	if (depth_stencil != NO_DEPTH_TEXTURE)
 		depth_texture = buffer->getTexture(depth_stencil);
 
-	render_target->setTexture(textures, depth_texture);
+	if (render_target) {
+		render_target->setTexture(textures, depth_texture);
 
-	driver->setRenderTargetEx(render_target, m_clear ? video::ECBF_ALL : video::ECBF_NONE, context.clear_color);
-	driver->OnResize(size);
+		driver->setRenderTargetEx(render_target, m_clear ? video::ECBF_ALL : video::ECBF_NONE, context.clear_color);
+		driver->OnResize(size);
+	}
 
 	RenderTarget::activate(context);
 }

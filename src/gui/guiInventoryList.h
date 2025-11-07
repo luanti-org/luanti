@@ -69,9 +69,11 @@ public:
 		const Options &options,
 		gui::IGUIFont *font);
 
-	virtual void draw() override;
+	void draw() override;
 
-	virtual bool OnEvent(const SEvent &event) override;
+	bool OnEvent(const SEvent &event) override;
+
+	bool isPointInside(const core::position2d<s32> &point) const override;
 
 	const InventoryLocation &getInventoryloc() const
 	{

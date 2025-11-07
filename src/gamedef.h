@@ -11,22 +11,12 @@
 class IItemDefManager;
 class NodeDefManager;
 class ICraftDefManager;
-class ITextureSource;
-class IShaderSource;
 class IRollbackManager;
-class EmergeManager;
-class Camera;
 class ModChannel;
-class ModStorage;
 class ModStorageDatabase;
 struct SubgameSpec;
 struct ModSpec;
 struct ModIPCStore;
-
-namespace scene {
-	class IAnimatedMesh;
-	class ISceneManager;
-}
 
 /*
 	An interface for fetching game-global definitions like tool and
@@ -71,4 +61,5 @@ public:
 	virtual bool sendModChannelMessage(const std::string &channel,
 		const std::string &message) = 0;
 	virtual ModChannel *getModChannel(const std::string &channel) = 0;
+	virtual bool isClient() = 0;
 };

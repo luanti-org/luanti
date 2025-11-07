@@ -25,16 +25,28 @@ enum MaterialType : u8 {
 	TILE_MATERIAL_PLAIN_ALPHA
 };
 
+/**
+ * @brief change type so it has at least simple transparency
+ */
+static inline MaterialType material_type_with_alpha(MaterialType type)
+{
+	switch (type) {
+		case TILE_MATERIAL_OPAQUE:
+			return TILE_MATERIAL_BASIC;
+		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
+			return TILE_MATERIAL_WAVING_LIQUID_BASIC;
+		default:
+			return type;
+	}
+}
+
 // Material flags
 // Should backface culling be enabled?
 #define MATERIAL_FLAG_BACKFACE_CULLING 0x01
 // Should a crack be drawn?
 #define MATERIAL_FLAG_CRACK 0x02
-// Should the crack be drawn on transparent pixels (unset) or not (set)?
-// Ignored if MATERIAL_FLAG_CRACK is not set.
-#define MATERIAL_FLAG_CRACK_OVERLAY 0x04
+// Does this layer have texture animation?
 #define MATERIAL_FLAG_ANIMATION 0x08
-//#define MATERIAL_FLAG_HIGHLIGHTED 0x10
 #define MATERIAL_FLAG_TILEABLE_HORIZONTAL 0x20
 #define MATERIAL_FLAG_TILEABLE_VERTICAL 0x40
 
@@ -42,6 +54,7 @@ enum MaterialType : u8 {
 	This fully defines the looks of a tile.
 	The SMaterial of a tile is constructed according to this.
 */
+
 struct FrameSpec
 {
 	FrameSpec() = default;
@@ -63,22 +76,22 @@ struct TileLayer
 	TileLayer() = default;
 
 	/*!
-	 * Two layers are equal if they can be merged.
+	 * Two layers are equal if they can be merged (same material).
 	 */
 	bool operator==(const TileLayer &other) const
 	{
 		return
 			texture_id == other.texture_id &&
-			material_type == other.material_type &&
+			shader_id == other.shader_id &&
 			material_flags == other.material_flags &&
 			has_color == other.has_color &&
 			color == other.color &&
-			scale == other.scale &&
 			need_polygon_offset == other.need_polygon_offset;
+		// texture_layer_idx and scale are notably part of the vertex data
 	}
 
 	/*!
-	 * Two tiles are not equal if they must have different vertices.
+	 * Two layers are not equal if they must have different vertices.
 	 */
 	bool operator!=(const TileLayer &other) const
 	{
@@ -87,7 +100,7 @@ struct TileLayer
 
 	/**
 	 * Set some material parameters accordingly.
-	 * @note does not set `MaterialType`
+	 * @note does not set `MaterialType`!
 	 * @param material material to mody
 	 * @param layer index of this layer in the `TileSpec`
 	 */
@@ -125,13 +138,16 @@ struct TileLayer
 	u16 animation_frame_length_ms = 0;
 	u16 animation_frame_count = 1;
 
+	/// Layer index to use, if the texture is an array texture
+	u16 texture_layer_idx = 0;
+
 	MaterialType material_type = TILE_MATERIAL_BASIC;
 	u8 material_flags =
-		//0 // <- DEBUG, Use the one below
 		MATERIAL_FLAG_BACKFACE_CULLING |
 		MATERIAL_FLAG_TILEABLE_HORIZONTAL|
 		MATERIAL_FLAG_TILEABLE_VERTICAL;
 
+	/// Texture scale in both directions (used for world-align)
 	u8 scale = 1;
 
 	/// does this tile need to have a positive polygon offset set?
@@ -145,7 +161,7 @@ struct TileLayer
 	 * The color of the tile, or if the tile does not own
 	 * a color then the color of the node owning this tile.
 	 */
-	video::SColor color = video::SColor(0, 0, 0, 0);
+	video::SColor color;
 
 	//! If true, the tile has its own color.
 	bool has_color = false;
@@ -160,16 +176,29 @@ struct AnimationInfo {
 			m_frame_length_ms(tile.animation_frame_length_ms),
 			m_frame_count(tile.animation_frame_count),
 			m_frames(tile.frames)
-	{};
+	{}
+
+	AnimationInfo(std::vector<FrameSpec> *frames, u16 frame_length_ms) :
+			m_frame_length_ms(frame_length_ms),
+			m_frame_count(frames->size()),
+			m_frames(frames)
+	{}
+
+	size_t getFrameCount() const
+	{
+		return m_frames ? m_frame_count : 0;
+	}
 
 	void updateTexture(video::SMaterial &material, float animation_time);
 
+	// Returns nullptr if texture did not change since last time
+	video::ITexture *getTexture(float animation_time) const;
+
 private:
-	u16 m_frame = 0; // last animation frame
 	u16 m_frame_length_ms = 0;
 	u16 m_frame_count = 1;
 
-	/// @note not owned by this struct
+	/// @note by default not owned by this struct
 	std::vector<FrameSpec> *m_frames = nullptr;
 };
 

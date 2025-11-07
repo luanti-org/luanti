@@ -7,6 +7,7 @@
 #include "mock_inventorymanager.h"
 #include "mock_server.h"
 #include "mock_serveractiveobject.h"
+#include "servermap.h"
 
 class TestMoveAction : public TestBase
 {

@@ -168,7 +168,7 @@ local CsvFormatter = Formatter:new {
 	end
 }
 
-local function format_statistics(profile, format, filter)
+local function format_statistics(profile, format, filter, enable_translation)
 	local formatter
 	if format == "csv" then
 		formatter = CsvFormatter:new {
@@ -180,16 +180,20 @@ local function format_statistics(profile, format, filter)
 		}
 	end
 	formatter:format(filter)
-	return formatter:flush()
+	local out = formatter:flush()
+	if not enable_translation then
+		out = core.strip_escapes(out)
+	end
+	return out
 end
 
 ---
 -- Format the profile ready for display and
 -- @return string to be printed to the console
 --
-function reporter.print(profile, filter)
+function reporter.print(profile, filter, enable_translation)
 	if filter == "" then filter = nil end
-	return format_statistics(profile, "txt", filter)
+	return format_statistics(profile, "txt", filter, enable_translation)
 end
 
 ---
@@ -215,7 +219,7 @@ local function serialize_profile(profile, format, filter)
 		end
 	end
 	-- Fall back to textual formats.
-	return format_statistics(profile, format, filter)
+	return format_statistics(profile, format, filter, false)
 end
 
 local worldpath = core.get_worldpath()

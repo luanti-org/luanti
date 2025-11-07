@@ -207,3 +207,32 @@ local function test_vector_preserve(cb)
 	end, {vec})
 end
 unittests.register("test_async_vector", test_vector_preserve, {async=true})
+
+local function test_async_job_replacement(cb)
+	core.ipc_set("unittests:end_blocking", nil)
+	local capacity = core.get_async_threading_capacity()
+	for _ = 1, capacity do
+		core.handle_async(function()
+			core.ipc_poll("unittests:end_blocking", 1000)
+		end, function() end)
+	end
+	local job = core.handle_async(function()
+	end, function()
+		return cb("Canceled async job ran")
+	end)
+	if not job:cancel() then
+		return cb("AsyncJob:cancel sanity check failed")
+	end
+	core.ipc_set("unittests:end_blocking", true)
+
+	-- Try to cancel a job that is already run.
+	job = core.handle_async(function(x)
+		return x
+	end, function(ret)
+		if job:cancel() then
+			return cb("AsyncJob:cancel canceled a completed job")
+		end
+		cb()
+	end, 1)
+end
+unittests.register("test_async_job_replacement", test_async_job_replacement, {async=true})

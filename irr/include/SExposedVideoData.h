@@ -15,65 +15,7 @@ you are using the software or the null device.
 */
 struct SExposedVideoData
 {
-	SExposedVideoData()
-	{
-		OpenGLWin32.HDc = 0;
-		OpenGLWin32.HRc = 0;
-		OpenGLWin32.HWnd = 0;
-	}
-	explicit SExposedVideoData(void *Window)
-	{
-		OpenGLWin32.HDc = 0;
-		OpenGLWin32.HRc = 0;
-		OpenGLWin32.HWnd = Window;
-	}
-
-	struct SOpenGLWin32
-	{
-		//! Private GDI Device Context.
-		/** Get if for example with: HDC h = reinterpret_cast<HDC>(exposedData.OpenGLWin32.HDc) */
-		void *HDc;
-
-		//! Permanent Rendering Context.
-		/** Get if for example with: HGLRC h = reinterpret_cast<HGLRC>(exposedData.OpenGLWin32.HRc) */
-		void *HRc;
-
-		//! Window handle.
-		/** Get with for example with: HWND h = reinterpret_cast<HWND>(exposedData.OpenGLWin32.HWnd) */
-		void *HWnd;
-	};
-
-	struct SOpenGLLinux
-	{
-		// XWindow handles
-		void *X11Display;
-		void *X11Context;
-		unsigned long X11Window;
-		unsigned long GLXWindow;
-	};
-
-	struct SOpenGLOSX
-	{
-		//! The NSOpenGLContext object.
-		void *Context;
-
-		//! The NSWindow object.
-		void *Window;
-	};
-
-	struct SOGLESAndroid
-	{
-		//! The ANativeWindow object.
-		void *Window;
-	};
-
-	union
-	{
-		SOpenGLWin32 OpenGLWin32;
-		SOpenGLLinux OpenGLLinux;
-		SOpenGLOSX OpenGLOSX;
-		SOGLESAndroid OGLESAndroid;
-	};
+	char dummy = 0;
 };
 
 } // end namespace video

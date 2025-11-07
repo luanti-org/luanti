@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Swahili (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Swahili <https://hosted.weblate.org/projects/minetest/"
@@ -1293,10 +1293,6 @@ msgid "New"
 msgstr "Mpya"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Duniani hakuna kuundwa au kuteuliwa!"
-
-#: builtin/mainmenu/tab_local.lua
 #, fuzzy
 msgid "Play Game"
 msgstr "Jina la mchezaji"
@@ -1935,10 +1931,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Programu"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Backspace"
 msgstr "Nyuma"
@@ -1973,50 +1965,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Mwisho"
+#, fuzzy
+msgid "End Key"
+msgstr "Menyu"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "Erase EOF"
-msgstr "Futa OEF"
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Kutekeleza"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Msaada"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Nyumbani"
+msgid "Help Key"
+msgstr "Futa"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "IME Accept"
-msgstr "Kukubali"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Convert"
-msgstr "Geuza"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Escape"
-msgstr "Kutoroka"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Mode Change"
-msgstr "Mabadiliko ya hali ya"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Nonconvert"
-msgstr "Nonconvert"
+msgid "Home Key"
+msgstr "Kuza"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -2028,8 +1989,9 @@ msgid "Left Arrow"
 msgstr "Udhibiti wa kushoto"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Kitufe kushoto"
+#, fuzzy
+msgid "Left Click"
+msgstr "Udhibiti wa kushoto"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -2043,19 +2005,27 @@ msgstr "Menyu ya kushoto"
 msgid "Left Shift"
 msgstr "Kisogezi kushoto"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows kushoto"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Menyu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Kitufe kati"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2123,10 +2093,6 @@ msgid "Numpad 9"
 msgstr "Kinanda 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "Wazi ya OEM"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Chini"
@@ -2161,8 +2127,9 @@ msgid "Right Arrow"
 msgstr "Udhibiti sahihi"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Kitufe kulia"
+#, fuzzy
+msgid "Right Click"
+msgstr "Udhibiti sahihi"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2176,6 +2143,7 @@ msgstr "Menyu kulia"
 msgid "Right Shift"
 msgstr "Kisogezi kulia"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows kulia"
@@ -2184,10 +2152,10 @@ msgstr "Windows kulia"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Teua"
+#, fuzzy
+msgid "Select Key"
+msgstr "Futa"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2195,37 +2163,17 @@ msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Usingizi"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Taswira tuli"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Nafasi"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Kichupo"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Zawadi muhimu"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X kitufe 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X kitufe 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Kuza"
 
 #: src/client/minimap.cpp
 #, fuzzy
@@ -2646,12 +2594,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Msaada ya 3D.\n"
 "Tegemeza kwa sasa:-Hakuna: Hakuna towe 3d.\n"
@@ -2764,8 +2711,8 @@ msgstr ""
 "Muhimu kwa ajili ya sneaking.\n"
 "Pia kutumika kwa ajili ya kupanda na kushuka katika maji kama aux1_descends "
 "imelemazwa.\n"
-"Ona http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Ona http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3013,6 +2960,17 @@ msgstr "Kamera unyooshaji"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Kamera unyooshaji hali cinematic"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -3539,6 +3497,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "Instrumentation"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5440,6 +5402,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Watumiaji wa kiwango cha juu"
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7448,8 +7414,8 @@ msgstr "Upana wa mistari ya selectionbox karibu fundo."
 msgid "Will also disable autoforward, when active."
 msgstr ""
 "Muhimu kwa ajili ya kuhamia mchezaji nyuma.\n"
-"Ona http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Ona http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7553,14 +7519,74 @@ msgstr "muda wa kuisha wa cURL"
 msgid "cURL parallel limit"
 msgstr "cURL kikomo sambamba"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Umbizo la viwambo."
+#~ msgid "Apps"
+#~ msgstr "Programu"
+
+#~ msgid "End"
+#~ msgstr "Mwisho"
 
 #, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Kamera unyooshaji hali cinematic"
+#~ msgid "Erase EOF"
+#~ msgstr "Futa OEF"
+
+#~ msgid "Execute"
+#~ msgstr "Kutekeleza"
+
+#~ msgid "Help"
+#~ msgstr "Msaada"
+
+#~ msgid "Home"
+#~ msgstr "Nyumbani"
 
 #, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Hali-tumizi ya skrini nzima."
+#~ msgid "IME Accept"
+#~ msgstr "Kukubali"
+
+#, fuzzy
+#~ msgid "IME Convert"
+#~ msgstr "Geuza"
+
+#, fuzzy
+#~ msgid "IME Escape"
+#~ msgstr "Kutoroka"
+
+#, fuzzy
+#~ msgid "IME Mode Change"
+#~ msgstr "Mabadiliko ya hali ya"
+
+#, fuzzy
+#~ msgid "IME Nonconvert"
+#~ msgstr "Nonconvert"
+
+#~ msgid "Left Button"
+#~ msgstr "Kitufe kushoto"
+
+#~ msgid "Middle Button"
+#~ msgstr "Kitufe kati"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Duniani hakuna kuundwa au kuteuliwa!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "Wazi ya OEM"
+
+#~ msgid "Right Button"
+#~ msgstr "Kitufe kulia"
+
+#~ msgid "Select"
+#~ msgstr "Teua"
+
+#~ msgid "Sleep"
+#~ msgstr "Usingizi"
+
+#~ msgid "Snapshot"
+#~ msgstr "Taswira tuli"
+
+#~ msgid "Tab"
+#~ msgstr "Kichupo"
+
+#~ msgid "X Button 1"
+#~ msgstr "X kitufe 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X kitufe 2"

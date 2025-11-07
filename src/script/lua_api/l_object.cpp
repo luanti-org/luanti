@@ -17,6 +17,8 @@
 #include "tool.h"
 #include "remoteplayer.h"
 #include "server.h"
+#include "serverenvironment.h"
+#include "settings.h"
 #include "hud.h"
 #include "scripting_server.h"
 #include "server/luaentity_sao.h"
@@ -668,7 +670,7 @@ int ObjectRef::l_set_bone_override(lua_State *L)
 
 		lua_getfield(L, -1, "interpolation");
 		if (lua_isnumber(L, -1))
-			prop.interp_timer = lua_tonumber(L, -1);
+			prop.interp_duration = lua_tonumber(L, -1);
 		lua_pop(L, 1);
 	};
 
@@ -718,7 +720,7 @@ static void push_bone_override(lua_State *L, const BoneOverride &props)
 		lua_newtable(L);
 		push_v3f(L, vec);
 		lua_setfield(L, -2, "vec");
-		lua_pushnumber(L, prop.interp_timer);
+		lua_pushnumber(L, prop.interp_duration);
 		lua_setfield(L, -2, "interpolation");
 		lua_pushboolean(L, prop.absolute);
 		lua_setfield(L, -2, "absolute");
@@ -770,7 +772,7 @@ int ObjectRef::l_get_bone_overrides(lua_State *L)
 // set_attach(self, parent, bone, position, rotation, force_visible)
 int ObjectRef::l_set_attach(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
 	ObjectRef *parent_ref = checkObject<ObjectRef>(L, 2);
 	ServerActiveObject *sao = getobject(ref);
@@ -797,7 +799,7 @@ int ObjectRef::l_set_attach(lua_State *L)
 // get_attach(self)
 int ObjectRef::l_get_attach(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
 	ServerActiveObject *sao = getobject(ref);
 	if (sao == nullptr)
@@ -825,7 +827,7 @@ int ObjectRef::l_get_attach(lua_State *L)
 // get_children(self)
 int ObjectRef::l_get_children(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
 	ServerActiveObject *sao = getobject(ref);
 	if (sao == nullptr)
@@ -898,7 +900,7 @@ int ObjectRef::l_get_properties(lua_State *L)
 // set_observers(self, observers)
 int ObjectRef::l_set_observers(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_ENV_PTR_NO_MAP_LOCK;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
 	ServerActiveObject *sao = getobject(ref);
 	if (sao == nullptr)
@@ -1903,15 +1905,14 @@ int ObjectRef::l_hud_get_all(lua_State *L)
 		return 0;
 
 	lua_newtable(L);
-	player->hudApply([&](const std::vector<HudElement*>& hud) {
-		for (std::size_t id = 0; id < hud.size(); ++id) {
-			HudElement *elem = hud[id];
-			if (elem != nullptr) {
-				push_hud_element(L, elem);
-				lua_rawseti(L, -2, id);
-			}
+	u32 id = 0;
+	for (HudElement *elem : player->getHudElements()) {
+		if (elem != nullptr) {
+			push_hud_element(L, elem);
+			lua_rawseti(L, -2, id);
 		}
-	});
+		++id;
+	}
 	return 1;
 }
 

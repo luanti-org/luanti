@@ -19,6 +19,7 @@
 #include "gui/guiPasswordChange.h"
 #include "gui/guiOpenURL.h"
 #include "gui/guiVolumeChange.h"
+#include "localplayer.h"
 
 /*
 	Text input system

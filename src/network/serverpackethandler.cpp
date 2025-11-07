@@ -4,8 +4,10 @@
 
 #include "chatmessage.h"
 #include "server.h"
+#include "serverenvironment.h"
 #include "log.h"
 #include "emerge.h"
+#include "itemdef.h"
 #include "mapblock.h"
 #include "modchannels.h"
 #include "nodedef.h"
@@ -1173,11 +1175,6 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		std::optional<ItemStack> selected_item;
 		getWieldedItem(playersao, selected_item);
 
-		// Reset build time counter
-		if (pointed.type == POINTEDTHING_NODE &&
-				selected_item->getDefinition(m_itemdef).type == ITEM_NODE)
-			getClient(peer_id)->m_time_from_building = 0.0;
-
 		const bool had_prediction = !selected_item->getDefinition(m_itemdef).
 			node_placement_prediction.empty();
 
@@ -1198,6 +1195,10 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 					SendInventory(player, true);
 			}
 
+			// on_secondary_use might have removed the object
+			if (pointed_object->isGone())
+				return;
+
 			pointed_object->rightClick(playersao);
 		} else if (m_script->item_OnPlace(selected_item, playersao, pointed)) {
 			// Placement was handled in lua
@@ -1209,6 +1210,8 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 		if (pointed.type != POINTEDTHING_NODE)
 			return;
+
+		getClient(peer_id)->m_time_from_building = 0;
 
 		// If item has node placement prediction, always send the
 		// blocks to make sure the client knows what exactly happened

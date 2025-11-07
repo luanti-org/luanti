@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1189,11 +1189,11 @@ msgid "Host Server"
 msgstr ""
 
 #: builtin/mainmenu/tab_local.lua
-msgid "Select Mods"
+msgid "New"
 msgstr ""
 
 #: builtin/mainmenu/tab_local.lua
-msgid "New"
+msgid "Select Mods"
 msgstr ""
 
 #: builtin/mainmenu/tab_local.lua
@@ -1222,10 +1222,6 @@ msgstr ""
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
-msgstr ""
-
-#: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
 msgstr ""
 
 #: builtin/mainmenu/tab_local.lua
@@ -1784,11 +1780,11 @@ msgid "Profiler hidden"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Left Button"
+msgid "Left Click"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Right Button"
+msgid "Right Click"
 msgstr ""
 
 #. ~ Usually paired with the Pause key
@@ -1797,15 +1793,15 @@ msgid "Break Key"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
+msgid "Middle Click"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "X Button 1"
+msgid "Mouse X1"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "X Button 2"
+msgid "Mouse X2"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -1813,7 +1809,7 @@ msgid "Backspace"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Tab"
+msgid "Tab Key"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -1832,7 +1828,6 @@ msgstr ""
 msgid "Control Key"
 msgstr ""
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr ""
@@ -1859,11 +1854,11 @@ msgid "Page Down"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
+msgid "End Key"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Home"
+msgid "Home Key"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -1882,22 +1877,13 @@ msgstr ""
 msgid "Down Arrow"
 msgstr ""
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
+msgid "Select Key"
 msgstr ""
 
 #. ~ "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -1909,13 +1895,15 @@ msgid "Delete Key"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Help"
+msgid "Help Key"
 msgstr ""
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr ""
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr ""
@@ -2013,47 +2001,7 @@ msgid "Right Menu"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Apps"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Sleep"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr ""
-
-#: src/client/keycode.cpp
 msgid "Play"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "OEM Clear"
 msgstr ""
 
 #: src/client/minimap.cpp
@@ -3034,12 +2982,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5616,6 +5563,25 @@ msgid ""
 "Load the game profiler to collect game profiling data.\n"
 "Provides a /profiler command to access the compiled profile.\n"
 "Useful for mod developers and server operators."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp

@@ -11,7 +11,6 @@
 struct PointedThing;
 struct ItemStack;
 class ServerActiveObject;
-struct ItemDefinition;
 class LuaItemStack;
 class ModApiItem;
 class InventoryList;

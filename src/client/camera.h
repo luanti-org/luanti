@@ -5,11 +5,8 @@
 #pragma once
 
 #include "irrlichttypes.h"
-#include "inventory.h"
+#include "inventory.h" // ItemStack
 #include "util/numeric.h"
-#include "client/localplayer.h"
-#include <ICameraSceneNode.h>
-#include <ISceneNode.h>
 #include <plane3d.h>
 #include <array>
 #include <list>
@@ -21,30 +18,27 @@ class Client;
 class RenderingEngine;
 class WieldMeshSceneNode;
 
+enum CameraMode : int;
+
+namespace scene {
+	class ICameraSceneNode;
+	class ISceneManager;
+	class ISceneNode;
+};
+
 struct Nametag
 {
-	scene::ISceneNode *parent_node;
+	scene::ISceneNode *parent_node = nullptr;
 	std::string text;
 	video::SColor textcolor;
 	std::optional<video::SColor> bgcolor;
-	v3f pos;
-
-	Nametag(scene::ISceneNode *a_parent_node,
-			const std::string &text,
-			const video::SColor &textcolor,
-			const std::optional<video::SColor> &bgcolor,
-			const v3f &pos):
-		parent_node(a_parent_node),
-		text(text),
-		textcolor(textcolor),
-		bgcolor(bgcolor),
-		pos(pos)
-	{
-	}
+	std::optional<u32> textsize;
+	v3f pos; // offset from parent node
+	bool scale_z;
 
 	video::SColor getBgColor(bool use_fallback) const
 	{
-		if (bgcolor)
+		if (bgcolor.has_value())
 			return bgcolor.value();
 		else if (!use_fallback)
 			return video::SColor(0, 0, 0, 0);
@@ -86,10 +80,7 @@ public:
 	}
 
 	// Returns the absolute position of the head SceneNode in the world
-	inline v3f getHeadPosition() const
-	{
-		return m_headnode->getAbsolutePosition();
-	}
+	v3f getHeadPosition() const;
 
 	// Get the camera direction (in absolute camera coordinates).
 	// This has view bobbing applied.
@@ -167,15 +158,7 @@ public:
 	void drawWieldedTool(core::matrix4* translation=NULL);
 
 	// Toggle the current camera mode
-	void toggleCameraMode()
-	{
-		if (m_camera_mode == CAMERA_MODE_FIRST)
-			m_camera_mode = CAMERA_MODE_THIRD;
-		else if (m_camera_mode == CAMERA_MODE_THIRD)
-			m_camera_mode = CAMERA_MODE_THIRD_FRONT;
-		else
-			m_camera_mode = CAMERA_MODE_FIRST;
-	}
+	void toggleCameraMode();
 
 	// Set the current camera mode
 	inline void setCameraMode(CameraMode mode)
@@ -189,9 +172,7 @@ public:
 		return m_camera_mode;
 	}
 
-	Nametag *addNametag(scene::ISceneNode *parent_node,
-		const std::string &text, video::SColor textcolor,
-		std::optional<video::SColor> bgcolor, const v3f &pos);
+	Nametag *addNametag(const Nametag &params);
 
 	void removeNametag(Nametag *nametag);
 
@@ -268,7 +249,7 @@ private:
 	f32 m_wield_change_timer = 0.125f;
 	ItemStack m_wield_item_next;
 
-	CameraMode m_camera_mode = CAMERA_MODE_FIRST;
+	CameraMode m_camera_mode;
 
 	f32 m_cache_view_bobbing_amount;
 	bool m_arm_inertia;

@@ -11,10 +11,10 @@ void MeshCollector::append(const TileSpec &tile, const video::S3DVertex *vertice
 		u32 numVertices, const u16 *indices, u32 numIndices)
 {
 	for (int layernum = 0; layernum < MAX_TILE_LAYERS; layernum++) {
-		const TileLayer *layer = &tile.layers[layernum];
-		if (layer->empty())
+		const TileLayer &layer = tile.layers[layernum];
+		if (layer.empty())
 			continue;
-		append(*layer, vertices, numVertices, indices, numIndices, layernum);
+		append(layer, vertices, numVertices, indices, numIndices, layernum);
 	}
 }
 
@@ -23,10 +23,12 @@ void MeshCollector::append(const TileLayer &layer, const video::S3DVertex *verti
 {
 	PreMeshBuffer &p = findBuffer(layer, layernum, numVertices);
 
+	const u16 aux = layer.texture_layer_idx;
+
 	u32 vertex_count = p.vertices.size();
 	for (u32 i = 0; i < numVertices; i++) {
 		p.vertices.emplace_back(vertices[i].Pos + offset, vertices[i].Normal,
-				vertices[i].Color, vertices[i].TCoords);
+				vertices[i].Color, vertices[i].TCoords, aux);
 		m_bounding_radius_sq = std::max(m_bounding_radius_sq,
 				(vertices[i].Pos - m_center_pos).getLengthSQ());
 	}

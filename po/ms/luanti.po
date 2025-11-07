@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Malay (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2024-11-28 13:00+0000\n"
 "Last-Translator: Muhammad Nuruddin <nuruddin6106@gmail.com>\n"
 "Language-Team: Malay <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1250,10 +1250,6 @@ msgid "New"
 msgstr "Buat Baru"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Tiada dunia dicipta atau dipilih!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Mula Main"
 
@@ -1865,10 +1861,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Pembukah ditunjukkan (halaman %d / %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Aplikasi"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1898,44 +1890,19 @@ msgid "Down Arrow"
 msgstr "Anak Panah Bawah"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Kekunci Menu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Padam EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Kekunci Hapus"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Lakukan"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Bantuan"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME - Terima"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME - Tukar"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME - Keluar"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME - Tukar Mod"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME - Tidaktukar"
+#, fuzzy
+msgid "Home Key"
+msgstr "Kekunci Zum"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1946,8 +1913,9 @@ msgid "Left Arrow"
 msgstr "Anak Panah Kiri"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Butang Kiri"
+#, fuzzy
+msgid "Left Click"
+msgstr "Ctrl Kiri"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1961,18 +1929,26 @@ msgstr "Menu Kiri"
 msgid "Left Shift"
 msgstr "Shift Kiri"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows Kiri"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Kekunci Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Butang Tengah"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2039,10 +2015,6 @@ msgid "Numpad 9"
 msgstr "Pad Angka 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "Padam OEM"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2073,8 +2045,9 @@ msgid "Right Arrow"
 msgstr "Anak Panah Kanan"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Butang Kanan"
+#, fuzzy
+msgid "Right Click"
+msgstr "Ctrl Kanan"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2088,6 +2061,7 @@ msgstr "Menu Kanan"
 msgid "Right Shift"
 msgstr "Shift Kanan"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows Kanan"
@@ -2096,46 +2070,27 @@ msgstr "Windows Kanan"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Select"
+#, fuzzy
+msgid "Select Key"
+msgstr "Kekunci Hapus"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Kekunci Anjakan"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Sleep"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Tangkap Gambar Skrin"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Selang"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Kekunci Putus"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Anak Panah Atas"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Butang X 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Butang X 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Kekunci Zum"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2577,12 +2532,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Sokongan 3D.\n"
 "Mod yang disokong ketika ini:\n"
@@ -2702,8 +2656,8 @@ msgstr ""
 "Kekunci untuk menyelinap.\n"
 "Juga digunakan untuk turun bawah ketika memanjat dan dalam air jika tetapan "
 "aux1_descends dilumpuhkan.\n"
-"Lihat http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Lihat http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2965,6 +2919,17 @@ msgstr "Pelembutan kamera"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Pelembutan kamera dalam mod sinematik"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3523,6 +3488,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Pilihan Pembangun"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5527,6 +5496,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Had jumlah pengguna"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Kuil gurun"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7743,8 +7717,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "Kekunci untuk menggerakkan pemain ke belakang.\n"
 "Juga akan melumpuhkan autopergerakan, apabila aktif.\n"
-"Lihat http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Lihat http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7864,20 +7838,68 @@ msgstr "Had masa saling tindak cURL"
 msgid "cURL parallel limit"
 msgstr "Had cURL selari"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Gunakan pembayangan spekular pada nod."
+#~ msgid "Apps"
+#~ msgstr "Aplikasi"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Format yang digunakan untuk tangkap layar."
+#~ msgid "End"
+#~ msgstr "End"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Pelembutan kamera dalam mod sinematik"
+#~ msgid "Erase EOF"
+#~ msgstr "Padam EOF"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Mod skrin penuh."
+#~ msgid "Execute"
+#~ msgstr "Lakukan"
 
-#~ msgid "Node specular"
-#~ msgstr "Spekular nod"
+#~ msgid "Help"
+#~ msgstr "Bantuan"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME - Terima"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME - Tukar"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME - Keluar"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME - Tukar Mod"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME - Tidaktukar"
+
+#~ msgid "Left Button"
+#~ msgstr "Butang Kiri"
+
+#~ msgid "Middle Button"
+#~ msgstr "Butang Tengah"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Tiada dunia dicipta atau dipilih!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "Padam OEM"
+
+#~ msgid "Right Button"
+#~ msgstr "Butang Kanan"
+
+#~ msgid "Select"
+#~ msgstr "Select"
+
+#~ msgid "Sleep"
+#~ msgstr "Sleep"
+
+#~ msgid "Snapshot"
+#~ msgstr "Tangkap Gambar Skrin"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "Butang X 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "Butang X 2"

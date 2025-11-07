@@ -7,10 +7,6 @@
 #include "IReferenceCounted.h"
 #include "IFileArchive.h"
 
-namespace video
-{
-class IVideoDriver;
-} // end namespace video
 namespace io
 {
 

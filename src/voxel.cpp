@@ -177,7 +177,7 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 	delete[] old_flags;
 }
 
-void VoxelManipulator::copyFrom(MapNode *src, const VoxelArea& src_area,
+void VoxelManipulator::copyFrom(MapNode *src, bool is_mono_block, const VoxelArea& src_area,
 		v3s16 from_pos, v3s16 to_pos, const v3s16 &size)
 {
 	/* The reason for this optimised code is that we're a member function
@@ -216,8 +216,12 @@ void VoxelManipulator::copyFrom(MapNode *src, const VoxelArea& src_area,
 
 	for (s16 z = 0; z < size.Z; z++) {
 		for (s16 y = 0; y < size.Y; y++) {
-			memcpy(&m_data[i_local], &src[i_src], size.X * sizeof(*m_data));
-			memset(&m_flags[i_local], 0, size.X);
+			if (is_mono_block) {
+				std::fill_n(m_data + i_local, size.X, src[0]);
+			} else {
+				std::copy_n(src + i_src, size.X, m_data + i_local);
+			}
+			std::fill_n(m_flags + i_local, size.X, 0);
 			i_src += src_step;
 			i_local += dest_step;
 		}

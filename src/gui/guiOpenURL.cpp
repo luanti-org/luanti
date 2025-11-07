@@ -126,7 +126,7 @@ void GUIOpenURLMenu::regenerateGui(v2u32 screensize)
 		text = wrap_rows(text, max_cols, true);
 
 		rect += topleft_client + v2s32(20 * s, ypos);
-		IGUIEditBox *e = new GUIEditBoxWithScrollBar(utf8_to_wide(text).c_str(), true, Environment,
+		gui::IGUIEditBox *e = new GUIEditBoxWithScrollBar(utf8_to_wide(text).c_str(), true, Environment,
 				this, ID_url, rect, m_tsrc, false, true);
 		e->setMultiLine(true);
 		e->setWordWrap(true);

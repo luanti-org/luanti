@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Swedish (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-05-25 00:52+0000\n"
 "Last-Translator: ROllerozxa <rollerozxa@voxelmanip.se>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/minetest/"
@@ -1226,10 +1226,6 @@ msgid "New"
 msgstr "Ny"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Ingen värld skapad eller vald!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Starta spel"
 
@@ -1835,10 +1831,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profilering visas (sida %d av %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Appar"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1868,44 +1860,19 @@ msgid "Down Arrow"
 msgstr "Nedåt pil"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Slut"
+#, fuzzy
+msgid "End Key"
+msgstr "Menyknapp"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Radera EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Ta bort knapp"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Kör"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Hjälp"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Hem"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Acceptera IME"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Konvertera IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "Avbryt IME"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Ändra IME Läge"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "Ickekonvertera IME"
+#, fuzzy
+msgid "Home Key"
+msgstr "Zoomknapp"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1916,8 +1883,9 @@ msgid "Left Arrow"
 msgstr "Vänster pil"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Vänster Knapp"
+#, fuzzy
+msgid "Left Click"
+msgstr "Vänster Control"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1931,18 +1899,26 @@ msgstr "Vänster Meny"
 msgid "Left Shift"
 msgstr "Vänster Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Vänster Windowstangent"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menyknapp"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Mittknappen"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2009,10 +1985,6 @@ msgid "Numpad 9"
 msgstr "Numpad 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "Rensa OEM"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2043,8 +2015,9 @@ msgid "Right Arrow"
 msgstr "Höger pil"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Höger Knapp"
+#, fuzzy
+msgid "Right Click"
+msgstr "Höger Control"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2058,6 +2031,7 @@ msgstr "Höger Meny"
 msgid "Right Shift"
 msgstr "Höger Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Höger Windowstangent"
@@ -2066,46 +2040,27 @@ msgstr "Höger Windowstangent"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Välj"
+#, fuzzy
+msgid "Select Key"
+msgstr "Ta bort knapp"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Skifttagent"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Sov"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Snapshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Mellanslag"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Break"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Uppåt pil"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Knapp 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Knapp 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zoomknapp"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2531,15 +2486,15 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "3D-brus som bestämmer antalet fängelsehålor per mappchunk."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D stöd.\n"
 "Stödjs för närvarande:\n"
@@ -2911,6 +2866,17 @@ msgstr "Kamerautjämning"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Kamerautjämning i filmiskt läge"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3465,6 +3431,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Utvecklarinställningar"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5257,6 +5227,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Ökentempel"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7148,14 +7123,68 @@ msgstr "cURL-interaktivtimeout"
 msgid "cURL parallel limit"
 msgstr "cURL parallellgräns"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Applicera spekulär skuggning till noder."
+#~ msgid "Apps"
+#~ msgstr "Appar"
 
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Tangent för skärmdumpar."
+#~ msgid "End"
+#~ msgstr "Slut"
 
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Tangent för växling av filmiskt läge"
+#~ msgid "Erase EOF"
+#~ msgstr "Radera EOF"
 
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Tangent för växling av fullskärmsläge."
+#~ msgid "Execute"
+#~ msgstr "Kör"
+
+#~ msgid "Help"
+#~ msgstr "Hjälp"
+
+#~ msgid "Home"
+#~ msgstr "Hem"
+
+#~ msgid "IME Accept"
+#~ msgstr "Acceptera IME"
+
+#~ msgid "IME Convert"
+#~ msgstr "Konvertera IME"
+
+#~ msgid "IME Escape"
+#~ msgstr "Avbryt IME"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "Ändra IME Läge"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "Ickekonvertera IME"
+
+#~ msgid "Left Button"
+#~ msgstr "Vänster Knapp"
+
+#~ msgid "Middle Button"
+#~ msgstr "Mittknappen"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Ingen värld skapad eller vald!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "Rensa OEM"
+
+#~ msgid "Right Button"
+#~ msgstr "Höger Knapp"
+
+#~ msgid "Select"
+#~ msgstr "Välj"
+
+#~ msgid "Sleep"
+#~ msgstr "Sov"
+
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "X Knapp 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X Knapp 2"

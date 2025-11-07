@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Danish (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-03-02 06:55+0000\n"
 "Last-Translator: Peter Leth <peter@pluk.dk>\n"
 "Language-Team: Danish <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1239,10 +1239,6 @@ msgid "New"
 msgstr "Ny"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Ingen verden oprettet eller valgt!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Start spil"
 
@@ -1851,10 +1847,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profiler vist (side %d af %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Apps"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Tilbage"
 
@@ -1885,44 +1877,19 @@ msgid "Down Arrow"
 msgstr "Pil ned"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu-tast"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Slet slut-på-fil (EOF)"
+#, fuzzy
+msgid "Help Key"
+msgstr "Slet-tast"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Eksekvér"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Hjælp"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME-accept"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME-konvertér"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME Escape"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME-tilstandsskift"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME-ikke-konvertér"
+#, fuzzy
+msgid "Home Key"
+msgstr "Zoom-tast"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1933,8 +1900,9 @@ msgid "Left Arrow"
 msgstr "Venstre Pil"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Venstre knap"
+#, fuzzy
+msgid "Left Click"
+msgstr "Venstre Control"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1948,18 +1916,26 @@ msgstr "Venstre Menu"
 msgid "Left Shift"
 msgstr "Venstre Skift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Venstre meta"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menu-tast"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Midterste knap"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2026,10 +2002,6 @@ msgid "Numpad 9"
 msgstr "Numpad 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Ryd"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Side ned"
 
@@ -2061,8 +2033,9 @@ msgid "Right Arrow"
 msgstr "Højre Pil"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Højre knap"
+#, fuzzy
+msgid "Right Click"
+msgstr "Højre Control"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2076,6 +2049,7 @@ msgstr "Højre Menu"
 msgid "Right Shift"
 msgstr "Højre Skift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Højre meta"
@@ -2084,46 +2058,27 @@ msgstr "Højre meta"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Vælg"
+#, fuzzy
+msgid "Select Key"
+msgstr "Slet-tast"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift-tast"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Sov"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Øjebliksbillede"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Mellemrum"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tabulator"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Snigetast"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Pil op"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X knap 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X knap 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zoom-tast"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2556,12 +2511,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Understøttelse af 3D.\n"
 "Understøttet på nuværende tidspunkt:\n"
@@ -2674,8 +2628,8 @@ msgstr ""
 "Tast til snigning.\n"
 "Bruges også til at klatre ned og synke ned i vand hvis aux1_descends er "
 "deaktiveret.\n"
-"Se http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Se http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2918,6 +2872,17 @@ msgstr "Kameraudjævning"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Kameraudjævning i biograftilstand"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -3448,6 +3413,10 @@ msgid "Developer Options"
 msgstr "Udviklerindstillinger"
 
 #: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
 msgstr "Tillad ikke tomme adgangskoder"
 
@@ -3647,8 +3616,8 @@ msgid ""
 "when connecting to the server."
 msgstr ""
 "Aktiver brug af ekstern medieserver (hvis tilbudt af server).\n"
-"Eksterne servere tilbyder en signifikant hurtigere måde at hente medier (f."
-"eks. teksturer\n"
+"Eksterne servere tilbyder en signifikant hurtigere måde at hente medier "
+"(f.eks. teksturer\n"
 "ved forbindelse til serveren."
 
 #: src/settings_translation_file.cpp
@@ -5338,6 +5307,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Maksimum antal brugere"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Ørkentempler"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7227,8 +7201,8 @@ msgstr ""
 msgid "Will also disable autoforward, when active."
 msgstr ""
 "Tast til at bevæge spilleren baglæns.\n"
-"Se http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Se http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7329,14 +7303,68 @@ msgstr "cURL-tidsudløb"
 msgid "cURL parallel limit"
 msgstr ""
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Format for skærmbilleder."
+#~ msgid "Apps"
+#~ msgstr "Apps"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Kameraudjævning i biograftilstand"
+#~ msgid "End"
+#~ msgstr "End"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Fuldskærmstilstand."
+#~ msgid "Erase EOF"
+#~ msgstr "Slet slut-på-fil (EOF)"
+
+#~ msgid "Execute"
+#~ msgstr "Eksekvér"
+
+#~ msgid "Help"
+#~ msgstr "Hjælp"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME-accept"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME-konvertér"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME Escape"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME-tilstandsskift"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME-ikke-konvertér"
+
+#~ msgid "Left Button"
+#~ msgstr "Venstre knap"
+
+#~ msgid "Middle Button"
+#~ msgstr "Midterste knap"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Ingen verden oprettet eller valgt!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Ryd"
+
+#~ msgid "Right Button"
+#~ msgstr "Højre knap"
+
+#~ msgid "Select"
+#~ msgstr "Vælg"
+
+#~ msgid "Sleep"
+#~ msgstr "Sov"
+
+#~ msgid "Snapshot"
+#~ msgstr "Øjebliksbillede"
+
+#~ msgid "Tab"
+#~ msgstr "Tabulator"
+
+#~ msgid "X Button 1"
+#~ msgstr "X knap 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X knap 2"

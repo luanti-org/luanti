@@ -14,18 +14,18 @@
 #include "itemgroup.h"
 #include "client/tile.h"
 #include <cassert>
-#include <map>
 #include <memory>
 
 namespace scene {
 	class IMeshSceneNode;
 	class IBillboardSceneNode;
+	class AnimatedMeshSceneNode;
 }
 
-class Camera;
 class Client;
 struct Nametag;
 struct MinimapMarker;
+class WieldMeshSceneNode;
 
 /*
 	SmoothTranslator and other helpers
@@ -89,7 +89,7 @@ private:
 
 	// Visuals
 	scene::IMeshSceneNode *m_meshnode = nullptr;
-	scene::IAnimatedMeshSceneNode *m_animated_meshnode = nullptr;
+	scene::AnimatedMeshSceneNode *m_animated_meshnode = nullptr;
 	WieldMeshSceneNode *m_wield_meshnode = nullptr;
 	scene::IBillboardSceneNode *m_spritenode = nullptr;
 	scene::IDummyTransformationSceneNode *m_matrixnode = nullptr;
@@ -149,6 +149,7 @@ private:
 	bool visualExpiryRequired(const ObjectProperties &newprops) const;
 
 public:
+
 	GenericCAO(Client *client, ClientEnvironment *env);
 
 	~GenericCAO();
@@ -190,7 +191,7 @@ public:
 
 	scene::ISceneNode *getSceneNode() const override;
 
-	scene::IAnimatedMeshSceneNode *getAnimatedMeshSceneNode() const override;
+	scene::AnimatedMeshSceneNode *getAnimatedMeshSceneNode() const override;
 
 	// m_matrixnode controls the position and rotation of the child node
 	// for all scene nodes, as a workaround for an Irrlicht problem with
@@ -299,4 +300,10 @@ public:
 	}
 
 	void updateMeshCulling();
+
+private:
+
+	/// Update the parent chain so getPosition() returns an up to date position.
+	void updateParentChain() const;
+
 };

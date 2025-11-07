@@ -7,7 +7,6 @@
 #include "IReadFile.h"
 #include "irrString.h"
 
-class CUnicodeConverter;
 
 namespace io
 {

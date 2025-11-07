@@ -6,7 +6,7 @@ from collections import defaultdict
 codefiles = r"(\.[ch](pp)?|\.lua|\.md|\.cmake|\.java|\.gradle|Makefile|CMakeLists\.txt)$"
 
 # two minor versions back, for "Active Contributors"
-REVS_ACTIVE = "5.10.0..HEAD"
+REVS_ACTIVE = "5.11.0..HEAD"
 # all time, for "Previous Contributors"
 REVS_PREVIOUS = "HEAD"
 
@@ -18,6 +18,7 @@ CUTOFF_PREVIOUS = 21
 
 def load(revs):
 	points = defaultdict(int)
+	count = 0
 	p = subprocess.Popen(["git", "log", "--mailmap", "--pretty=format:%h %aN <%aE>", revs],
 		stdout=subprocess.PIPE, universal_newlines=True)
 	for line in p.stdout:
@@ -32,6 +33,7 @@ def load(revs):
 				n += int(added)
 		p2.wait()
 
+		count += 1
 		if n == 0:
 			continue
 		if n > 1200:
@@ -49,20 +51,24 @@ def load(revs):
 	for author in ("updatepo.sh <script@mt>", "Weblate <42@minetest.ru>",
 		"import <script@mt>", "minetest <minetest@minetest.net>"):
 		points.pop(author, None)
-	return points
+	return points, count
 
-points_active = load(REVS_ACTIVE)
-points_prev = load(REVS_PREVIOUS)
+points_active, _ = load(REVS_ACTIVE)
+points_prev, ncommits = load(REVS_PREVIOUS)
+
+if ncommits < 11000:
+	raise ValueError("Found too few commits in total, do you have shallow clone? Aborting.")
 
 with open("results.txt", "w") as f:
+	f.write('\n--- Active contributors:\n\n')
 	for author, points in sorted(points_active.items(), key=(lambda e: e[1]), reverse=True):
 		if points < CUTOFF_ACTIVE: break
 		points_prev.pop(author, None) # active authors don't appear in previous
 		f.write("%d\t%s\n" % (points, author))
-	f.write('\n---------\n\n')
+	f.write('\n--- Previous contributors:\n\n')
 	once = True
 	for author, points in sorted(points_prev.items(), key=(lambda e: e[1]), reverse=True):
 		if points < CUTOFF_PREVIOUS and once:
-			f.write('\n---------\n\n')
+			f.write('\n-- (contributors below the cutoff threshold) --\n\n')
 			once = False
 		f.write("%d\t%s\n" % (points, author))

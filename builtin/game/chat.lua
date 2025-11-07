@@ -43,7 +43,7 @@ end
 -- Chat command handler
 --
 
-core.chatcommands = core.registered_chatcommands -- BACKWARDS COMPATIBILITY
+core.chatcommands = core.registered_chatcommands -- backwards compatibility
 
 local msg_time_threshold =
 	tonumber(core.settings:get("chatcommand_msg_time_threshold")) or 0.1
@@ -902,6 +902,7 @@ core.register_chatcommand("spawnentity", {
 core.register_chatcommand("pulverize", {
 	params = "",
 	description = S("Destroy item in hand"),
+	privs = {give=true},
 	func = function(name, param)
 		local player = core.get_player_by_name(name)
 		if not player then
@@ -1302,6 +1303,7 @@ core.register_chatcommand("last-login", {
 core.register_chatcommand("clearinv", {
 	params = S("[<name>]"),
 	description = S("Clear the inventory of yourself or another player"),
+	privs = {give=true},
 	func = function(name, param)
 		local player
 		if param and param ~= "" and param ~= name then

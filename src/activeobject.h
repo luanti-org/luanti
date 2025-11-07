@@ -66,12 +66,12 @@ struct BoneOverride
 		v3f previous;
 		v3f vector;
 		bool absolute = false;
-		f32 interp_timer = 0;
+		f32 interp_duration = 0.0f;
 	} position;
 
 	v3f getPosition(v3f anim_pos) const {
-		f32 progress = dtime_passed / position.interp_timer;
-		if (progress > 1.0f || position.interp_timer == 0.0f)
+		f32 progress = dtime_passed / position.interp_duration;
+		if (progress > 1.0f || position.interp_duration == 0.0f)
 			progress = 1.0f;
 		return position.vector.getInterpolated(position.previous, progress)
 				+ (position.absolute ? v3f() : anim_pos);
@@ -85,14 +85,14 @@ struct BoneOverride
 		// so that we can return them in the appropriate getters
 		v3f next_radians;
 		bool absolute = false;
-		f32 interp_timer = 0;
+		f32 interp_duration = 0.0f;
 	} rotation;
 
 	v3f getRotationEulerDeg(v3f anim_rot_euler) const {
 		core::quaternion rot;
 
-		f32 progress = dtime_passed / rotation.interp_timer;
-		if (progress > 1.0f || rotation.interp_timer == 0.0f)
+		f32 progress = dtime_passed / rotation.interp_duration;
+		if (progress > 1.0f || rotation.interp_duration == 0.0f)
 			progress = 1.0f;
 		rot.slerp(rotation.previous, rotation.next, progress);
 		if (!rotation.absolute) {
@@ -107,27 +107,35 @@ struct BoneOverride
 
 	struct ScaleProperty
 	{
-		v3f previous;
-		v3f vector{1, 1, 1};
+		v3f previous = v3f(1.0f);
+		v3f vector = v3f(1.0f);
 		bool absolute = false;
-		f32 interp_timer = 0;
+		f32 interp_duration = 0.0f;
 	} scale;
 
 	v3f getScale(v3f anim_scale) const {
-		f32 progress = dtime_passed / scale.interp_timer;
-		if (progress > 1.0f || scale.interp_timer == 0.0f)
+		f32 progress = dtime_passed / scale.interp_duration;
+		if (progress > 1.0f || scale.interp_duration == 0.0f)
 			progress = 1.0f;
 		return scale.vector.getInterpolated(scale.previous, progress)
-				* (scale.absolute ? v3f(1) : anim_scale);
+				* (scale.absolute ? v3f(1.0f) : anim_scale);
 	}
 
-	f32 dtime_passed = 0;
+	f32 dtime_passed = 0.0f;
+
+	bool finishedInterpolation() const
+	{
+		return dtime_passed >= std::max(std::max(
+				position.interp_duration, rotation.interp_duration),
+				scale.interp_duration);
+	}
 
 	bool isIdentity() const
 	{
-		return !position.absolute && position.vector == v3f()
+		return finishedInterpolation()
+				&& !position.absolute && position.vector == v3f()
 				&& !rotation.absolute && rotation.next == core::quaternion()
-				&& !scale.absolute && scale.vector == v3f(1);
+				&& !scale.absolute && scale.vector == v3f(1.0f);
 	}
 };
 
