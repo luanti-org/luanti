@@ -12,6 +12,7 @@
 #include "guiFormSpecMenu.h"
 #include "EGUIElementTypes.h"
 #include "constants.h"
+#include "itemdef.h"
 #include "gamedef.h"
 #include "client/keycode.h"
 #include "gui/guiTable.h"

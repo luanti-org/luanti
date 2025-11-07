@@ -119,6 +119,9 @@ end
 -- }]]
 function dump(value, indent)
 	indent = indent or "\t"
+
+	assert(type(indent) == "string", "dump()'s second argument should be a string or nil.")
+
 	local newline = indent == "" and "" or "\n"
 
 	local rope = {}
@@ -873,3 +876,4 @@ function core.parse_coordinates(x, y, z, relative_to)
 	local rz = core.parse_relative_number(z, relative_to.z)
 	return rx and ry and rz and vector.new(rx, ry, rz)
 end
+

@@ -17,7 +17,7 @@
 #include "sqlite3.h"
 #include "filesys.h"
 
-#define POINTS_PER_NODE (16.0)
+#define POINTS_PER_NODE (16.0f)
 
 #define SQLRES(f, good) \
 	if ((f) != (good)) {\
@@ -44,11 +44,11 @@ public:
 		return *this;
 	}
 
-	int id;
+	int id = 0;
 };
 
 struct ActionRow {
-	int          id;
+	int          id = 0;
 	int          actor;
 	time_t       timestamp;
 	int          type;
@@ -231,7 +231,6 @@ bool RollbackManager::createTables()
 		"CREATE INDEX IF NOT EXISTS `actionIndex` ON `action`(`x`,`y`,`z`,`timestamp`,`actor`);\n"
 		"CREATE INDEX IF NOT EXISTS `actionTimestampActorIndex` ON `action`(`timestamp`,`actor`);\n",
 		NULL, NULL, NULL));
-	verbosestream << "SQL Rollback: SQLite3 database structure was created" << std::endl;
 
 	return true;
 }
@@ -241,13 +240,10 @@ bool RollbackManager::initDatabase()
 {
 	verbosestream << "RollbackManager: Database connection setup" << std::endl;
 
-	bool needs_create = !fs::PathExists(database_path);
 	SQLOK(sqlite3_open_v2(database_path.c_str(), &db,
 			SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL));
 
-	if (needs_create) {
-		createTables();
-	}
+	createTables();
 
 	SQLOK(sqlite3_prepare_v2(db,
 		"INSERT INTO `action` (\n"
@@ -362,7 +358,7 @@ bool RollbackManager::initDatabase()
 	}
 	SQLOK(sqlite3_reset(stmt_knownNode_select));
 
-	return needs_create;
+	return true;
 }
 
 
@@ -522,7 +518,6 @@ ActionRow RollbackManager::actionRowFromRollbackAction(const RollbackAction & ac
 {
 	ActionRow row;
 
-	row.id        = 0;
 	row.actor     = getActorId(action.actor);
 	row.timestamp = action.unix_time;
 	row.type      = action.type;
@@ -589,7 +584,7 @@ const std::list<RollbackAction> RollbackManager::rollbackActionsFromActionRows(
 			break;
 
 		default:
-			throw ("W.T.F.");
+			assert(false);
 			break;
 		}
 
@@ -667,12 +662,10 @@ float RollbackManager::getSuspectNearness(bool is_guess, v3s16 suspect_p,
 	f -= 1 * (action_t - suspect_t);
 	// If is a guess, halve the points
 	if (is_guess) {
-		f *= 0.5;
+		f /= 2;
 	}
 	// Limit to 0
-	if (f < 0) {
-		f = 0;
-	}
+	f = MYMAX(f, 0);
 	return f;
 }
 
@@ -730,12 +723,11 @@ std::string RollbackManager::getSuspect(v3s16 p, float nearness_shortcut,
 	if (!current_actor.empty()) {
 		return current_actor;
 	}
-	int cur_time = time(0);
+	time_t cur_time = time(0);
 	time_t first_time = cur_time - (100 - min_nearness);
 	RollbackAction likely_suspect;
 	float likely_suspect_nearness = 0;
-	for (std::list<RollbackAction>::const_reverse_iterator
-	     i = action_latest_buffer.rbegin();
+	for (auto i = action_latest_buffer.rbegin();
 	     i != action_latest_buffer.rend(); ++i) {
 		if (i->unix_time < first_time) {
 			break;
@@ -795,14 +787,19 @@ void RollbackManager::addAction(const RollbackAction & action)
 	if (action_todisk_buffer.size() >= 500) {
 		flush();
 	}
+	// Cut off latest log sometimes
+	while (action_latest_buffer.size() >= 500) {
+		action_latest_buffer.pop_front();
+	}
 }
 
 std::list<RollbackAction> RollbackManager::getNodeActors(v3s16 pos, int range,
 		time_t seconds, int limit)
 {
-	flush();
 	time_t cur_time = time(0);
 	time_t first_time = cur_time - seconds;
+
+	flush();
 
 	return getActionsSince_range(first_time, pos, range, limit);
 }

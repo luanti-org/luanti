@@ -43,7 +43,7 @@ end
 -- Chat command handler
 --
 
-core.chatcommands = core.registered_chatcommands -- BACKWARDS COMPATIBILITY
+core.chatcommands = core.registered_chatcommands -- backwards compatibility
 
 local msg_time_threshold =
 	tonumber(core.settings:get("chatcommand_msg_time_threshold")) or 0.1

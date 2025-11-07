@@ -10,7 +10,6 @@
 #include "content/mods.h" // ModSpec
 #include "cpp_api/s_base.h"
 #include "cpp_api/s_security.h"
-#include "environment.h"
 #include "filesys.h"
 #include "log.h"
 #include "lua_api/l_internal.h"
@@ -18,6 +17,7 @@
 #include "remoteplayer.h"
 #include "scripting_server.h"
 #include "server.h"
+#include "serverenvironment.h"
 
 #include <algorithm>
 

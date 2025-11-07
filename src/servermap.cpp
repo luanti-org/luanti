@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2024 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#include "servermap.h"
+
 #include <algorithm>
 
 #include "map.h"
@@ -23,6 +25,7 @@
 #include "mapgen/mg_biome.h"
 #include "config.h"
 #include "server.h"
+#include "serverenvironment.h"
 #include "database/database.h"
 #include "database/database-dummy.h"
 #include "database/database-sqlite3.h"

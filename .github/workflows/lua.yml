@@ -23,7 +23,7 @@ jobs:
     - name: Install deps
       run: |
         source ./util/ci/common.sh
-        install_linux_deps clang gdb libluajit-5.1-dev
+        install_linux_deps clang gdb libluajit-5.1-dev xvfb
 
     - name: Build
       run: |
@@ -36,6 +36,10 @@ jobs:
     - name: Integration test + devtest
       run: |
         serverconf="profiler.load=true" ./util/test_multiplayer.sh
+
+    - name: Singleplayer test (GL3)
+      run: |
+        clientconf="video_driver=opengl3" xvfb-run ./util/test_singleplayer.sh
 
   luacheck:
     name: "Builtin Luacheck and Unit Tests"

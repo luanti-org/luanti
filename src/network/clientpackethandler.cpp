@@ -15,6 +15,7 @@
 #include "servermap.h"
 #include "mapsector.h"
 #include "client/minimap.h"
+#include "itemdef.h"
 #include "modchannels.h"
 #include "nodedef.h"
 #include "serialization.h"

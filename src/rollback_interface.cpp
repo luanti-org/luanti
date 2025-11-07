@@ -9,6 +9,7 @@
 #include "util/numeric.h"
 #include "map.h"
 #include "gamedef.h"
+#include "itemdef.h"
 #include "nodedef.h"
 #include "nodemetadata.h"
 #include "exceptions.h"

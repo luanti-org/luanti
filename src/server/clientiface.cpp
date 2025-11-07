@@ -56,7 +56,8 @@ const char *ClientInterface::state2Name(ClientState state)
 RemoteClient::RemoteClient() :
 	serialization_version(SER_FMT_VER_INVALID),
 	m_pending_serialization_version(SER_FMT_VER_INVALID),
-	m_max_simul_sends(g_settings->getU16("max_simultaneous_block_sends_per_client")),
+	m_max_simul_sends(std::max<u16>(1,
+		g_settings->getU16("max_simultaneous_block_sends_per_client"))),
 	m_min_time_from_building(
 		g_settings->getFloat("full_block_send_enable_min_time_from_building")),
 	m_max_send_distance(g_settings->getS16("max_block_send_distance")),
@@ -149,14 +150,15 @@ void RemoteClient::GetNextBlocks (
 	u16 max_simul_sends_usually = m_max_simul_sends;
 
 	/*
-		Check the time from last addNode/removeNode.
-
 		Decrease send rate if player is building stuff.
+
+		The idea is that we can save some bandwidth since the player is busy
+		and not looking around.
 	*/
 	m_time_from_building += dtime;
 	if (m_time_from_building < m_min_time_from_building) {
-		max_simul_sends_usually
-			= LIMITED_MAX_SIMULTANEOUS_BLOCK_SENDS;
+		max_simul_sends_usually *= LIMITED_BLOCK_SENDS_FACTOR;
+		max_simul_sends_usually = MYMAX(1, max_simul_sends_usually);
 	}
 
 	/*
@@ -223,17 +225,19 @@ void RemoteClient::GetNextBlocks (
 	s16 d_max = full_d_max;
 
 	// Don't loop very much at a time
-	s16 max_d_increment_at_time = 2;
+	const s16 max_d_increment_at_time = 2;
 	if (d_max > d_start + max_d_increment_at_time)
 		d_max = d_start + max_d_increment_at_time;
 
-	// cos(angle between velocity and camera) * |velocity|
-	// Limit to 0.0f in case player moves backwards.
-	f32 dot = rangelim(camera_dir.dotProduct(playerspeed), 0.0f, 300.0f);
+	{
+		// cos(angle between velocity and camera) * |velocity|
+		// Limit to 0.0f in case player moves backwards.
+		f32 dot = rangelim(camera_dir.dotProduct(playerspeed), 0.0f, 300.0f);
 
-	// Reduce the field of view when a player moves and looks forward.
-	// limit max fov effect to 50%, 60% at 20n/s fly speed
-	camera_fov = camera_fov / (1 + dot / 300.0f);
+		// Reduce the field of view when a player moves and looks forward.
+		// limit max fov effect to 50%, 60% at 20n/s fly speed
+		camera_fov = camera_fov / (1 + dot / 300.0f);
+	}
 
 	s32 nearest_emerged_d = -1;
 	s32 nearest_sent_d = -1;
@@ -260,11 +264,9 @@ void RemoteClient::GetNextBlocks (
 				Also, don't send blocks that are already flying.
 			*/
 
-			// Start with the usual maximum
 			u16 max_simul_dynamic = max_simul_sends_usually;
-
 			// If block is very close, allow full maximum
-			if (d <= BLOCK_SEND_DISABLE_LIMITS_MAX_D)
+			if (d <= BLOCK_ALWAYS_SEND_MAX_D)
 				max_simul_dynamic = m_max_simul_sends;
 
 			/*
@@ -388,8 +390,8 @@ queue_full_break:
 			new_nearest_unsent_d = 0;
 			m_nothing_to_send_pause_timer = 2.0f;
 			infostream << "Server: Player " << m_name << ", peer_id=" << peer_id
-				<< ": full map send completed after " << m_map_send_completion_timer
-				<< "s, restarting" << std::endl;
+				<< ": full map send (d=" << d << ") completed after "
+				<< m_map_send_completion_timer << "s, restarting" << std::endl;
 			m_map_send_completion_timer = 0.0f;
 		} else {
 			if (nearest_sent_d != -1)

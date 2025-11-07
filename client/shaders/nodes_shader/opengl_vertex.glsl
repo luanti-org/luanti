@@ -6,28 +6,22 @@ uniform vec3 dayLight;
 uniform highp vec3 cameraOffset;
 uniform float animationTimer;
 
-varying vec3 vNormal;
-varying vec3 vPosition;
+VARYING_ vec3 vNormal;
+VARYING_ vec3 vPosition;
 // World position in the visible world (i.e. relative to the cameraOffset.)
 // This can be used for many shader effects without loss of precision.
 // If the absolute position is required it can be calculated with
 // cameraOffset + worldPosition (for large coordinates the limits of float
 // precision must be considered).
-varying vec3 worldPosition;
+VARYING_ vec3 worldPosition;
 // The centroid keyword ensures that after interpolation the texture coordinates
-// lie within the same bounds when MSAA is en- and disabled.
+// lie within the same bounds when MSAA is en- or disabled.
 // This fixes the stripes problem with nearest-neighbor textures and MSAA.
-#ifdef GL_ES
-varying lowp vec4 varColor;
-varying mediump vec2 varTexCoord;
-varying float varTexLayer;
-varying float nightRatio;
-#else
-centroid varying vec4 varColor;
-centroid varying vec2 varTexCoord;
-centroid varying float varTexLayer; // actually int
-centroid varying float nightRatio;
-#endif
+CENTROID_ VARYING_ lowp vec4 varColor;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
+CENTROID_ VARYING_ float nightRatio;
+
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow uniforms
 	uniform vec3 v_LightDirection;
@@ -38,15 +32,15 @@ centroid varying float nightRatio;
 	uniform float f_timeofday;
 	uniform vec4 CameraPos;
 
-	varying float cosLight;
-	varying float normalOffsetScale;
-	varying float adj_shadow_strength;
-	varying float f_normal_length;
-	varying vec3 shadow_position;
-	varying float perspective_factor;
+	VARYING_ float cosLight;
+	VARYING_ float normalOffsetScale;
+	VARYING_ float adj_shadow_strength;
+	VARYING_ float f_normal_length;
+	VARYING_ vec3 shadow_position;
+	VARYING_ float perspective_factor;
 #endif
 
-varying highp vec3 eyeVec;
+VARYING_ highp vec3 eyeVec;
 // Color of the light emitted by the light sources.
 const vec3 artificialLight = vec3(1.04, 1.04, 1.04);
 const float e = 2.718281828459;

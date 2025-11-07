@@ -1082,10 +1082,6 @@ anticheat_flags (Anticheat flags) flags digging,interaction,movement digging,int
 #    Increase the value if players experience stuttery movement.
 anticheat_movement_tolerance (Anticheat movement tolerance) float 1.0 1.0
 
-#    If enabled, actions are recorded for rollback.
-#    This option is only read when server starts.
-enable_rollback_recording (Rollback recording) bool false
-
 [**Client-side Modding]
 
 #    Restricts the access of certain client-side functions on servers.
@@ -2238,10 +2234,10 @@ client_mapblock_limit (Mapblock limit) [client] int 7500 -1 2147483647
 #    Maximum number of blocks that are simultaneously sent per client.
 #    The maximum total count is calculated dynamically:
 #    max_total = ceil((#clients + max_users) * per_client / 4)
-max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 40 1 4294967295
+max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 40 1
 
-#    To reduce lag, block transfers are slowed down when a player is building something.
-#    This determines how long they are slowed down after placing or removing a node.
+#    To save bandwidth, block transfers are slowed down when a player is building something.
+#    This determines how long the throttling lasts after placing a node.
 full_block_send_enable_min_time_from_building (Delay in sending blocks after building) [server] float 2.0 0.0
 
 #    Maximum number of packets sent per send step in the low-level networking code.
@@ -2273,6 +2269,11 @@ kick_msg_crash (Crash message) string This server has experienced an internal er
 #    Whether to ask clients to reconnect after a (Lua) crash.
 #    Set this to true if your server is set up to restart automatically.
 ask_reconnect_on_crash (Ask to reconnect after crash) bool false
+
+#    If enabled, node and inventory actions are recorded for rollback.
+#    This option is only read on server start. Note that the engine will not
+#    automatically clean old entries from the rollback database.
+enable_rollback_recording (Rollback recording) bool false
 
 [**Server/Env Performance] [server]
 

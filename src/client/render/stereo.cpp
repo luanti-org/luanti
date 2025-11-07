@@ -8,6 +8,7 @@
 #include "client/camera.h"
 #include "constants.h"
 #include "settings.h"
+#include <ICameraSceneNode.h>
 
 OffsetCameraStep::OffsetCameraStep(float eye_offset)
 {

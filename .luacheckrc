@@ -23,7 +23,7 @@ read_globals = {
 	"tracy",
 
 	string = {fields = {"split", "trim"}},
-	table  = {fields = {"copy", "copy_with_metatables", "getn", "indexof", "keyof", "insert_all"}},
+	table  = {fields = {"copy", "copy_with_metatables", "getn", "indexof", "keyof", "insert_all", "shuffle"}},
 	math   = {fields = {"hypot", "round"}},
 }
 

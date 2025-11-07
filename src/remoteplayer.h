@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "constants.h" // PEER_ID_INEXISTENT
 #include "player.h"
 #include "skyparams.h"
 #include "lighting.h"

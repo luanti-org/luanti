@@ -23,6 +23,7 @@
 #include "profiler.h"
 #include "remoteplayer.h"
 #include "server/ban.h"
+#include "serverenvironment.h"
 #include "servermap.h"
 #include "server/player_sao.h"
 #include "server/rollback.h"
@@ -4015,6 +4016,11 @@ void Server::addShutdownError(const ModError &e)
 			*m_shutdown_errmsg += "\n\n" + msg;
 		}
 	}
+}
+
+Map &Server::getMap()
+{
+	return m_env->getMap();
 }
 
 v3f Server::findSpawnPos()

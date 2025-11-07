@@ -9,6 +9,7 @@
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "server.h"
+#include "server/serveractiveobject.h"
 #include "particles.h"
 
 namespace LuaParticleParams

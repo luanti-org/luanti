@@ -633,10 +633,10 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, con
 	const bool is_textureless = is_lod_enabled && lod >= g_settings->getU16("lod_texture_threshold");
 
 	{
-        // Generate everything
-        if (lod == 0 || !is_lod_enabled)
+		// Generate everything
+		if (lod == 0 || !is_lod_enabled)
 			MapblockMeshGenerator(data, &collector).generate();
-        else
+		else
 			LodMeshGenerator(data, &collector, is_textureless).generate(lod);
 	}
 

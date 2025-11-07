@@ -9,6 +9,8 @@
 #include "client/content_cao.h"
 #include "client/camera.h"
 #include "client/client.h"
+#include "client/localplayer.h"
+#include <ICameraSceneNode.h>
 
 LuaCamera::LuaCamera(Camera *m) : m_camera(m)
 {
