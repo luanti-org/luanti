@@ -623,14 +623,13 @@ bool CB3DMeshFileLoader::readChunkANIM()
 	os::Printer::log(logStr.c_str(), ELL_DEBUG);
 #endif
 
-	s32 animFlags;  // not stored\used
-	s32 animFrames; // not stored\used
-	f32 animFPS;    // not stored\used
+	s32 animFlags;  // not stored/used
+	s32 animFrames; // not stored/used
+	f32 animFPS;    // not stored/used
 
 	B3DFile->read(&animFlags, sizeof(s32));
 	B3DFile->read(&animFrames, sizeof(s32));
 	readFloats(&animFPS, 1);
-	// TODO do something with the fps..?
 	os::Printer::log("FPS", io::path((double)animFPS), ELL_DEBUG);
 
 #ifdef __BIG_ENDIAN__

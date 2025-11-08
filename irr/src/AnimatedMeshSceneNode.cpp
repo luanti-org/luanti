@@ -4,7 +4,6 @@
 
 #include "AnimatedMeshSceneNode.h"
 #include "CBoneSceneNode.h"
-#include "ILogger.h"
 #include "ISceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"

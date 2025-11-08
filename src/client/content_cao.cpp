@@ -36,6 +36,7 @@
 #include <cmath>
 #include "client/shader.h"
 #include "client/minimap.h"
+#include <optional>
 #include <quaternion.h>
 #include <SMesh.h>
 #include <IMeshBuffer.h>
@@ -993,8 +994,6 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		rot_translator.val_current = m_rotation;
 
 		if (m_is_visible) {
-			LocalPlayerAnimation old_anim = player->last_animation;
-			float old_anim_speed = player->last_animation_speed;
 			m_velocity = v3f(0,0,0);
 			m_acceleration = v3f(0,0,0);
 			const PlayerControl &controls = player->getPlayerControl();
@@ -1006,8 +1005,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 				walking = true;
 			}
 
-			v2f new_anim(0,0);
-			bool allow_update = false;
+			LocalPlayerAnimation new_anim = LocalPlayerAnimation::NO_ANIM;
 
 			// increase speed if using fast or flying fast
 			if((g_settings->getBool("fast_move") &&
@@ -1016,46 +1014,31 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 					(!player->touching_ground &&
 					g_settings->getBool("free_move") &&
 					m_client->checkLocalPrivilege("fly"))))
-					new_speed *= 1.5;
+			{
+				new_speed *= 1.5;
+			}
 			// slowdown speed if sneaking
 			if (controls.sneak && walking)
 				new_speed /= 2;
 
 			if (walking && (controls.dig || controls.place)) {
-				new_anim = player->local_animations[3];
-				player->last_animation = LocalPlayerAnimation::WD_ANIM;
+				new_anim = LocalPlayerAnimation::WD_ANIM;
 			} else if (walking) {
-				new_anim = player->local_animations[1];
-				player->last_animation = LocalPlayerAnimation::WALK_ANIM;
+				new_anim = LocalPlayerAnimation::WALK_ANIM;
 			} else if (controls.dig || controls.place) {
-				new_anim = player->local_animations[2];
-				player->last_animation = LocalPlayerAnimation::DIG_ANIM;
+				new_anim = LocalPlayerAnimation::DIG_ANIM;
 			}
 
-			// Apply animations if input detected and not attached
-			// or set idle animation
-			// TODO do something with this shit
-			/* if ((new_anim.X + new_anim.Y) > 0 && !getParent()) {
-				allow_update = true;
-				m_animation_range = new_anim;
-				m_animation_speed = new_speed;
-				player->last_animation_speed = m_animation_speed;
-			} else {
-				player->last_animation = LocalPlayerAnimation::NO_ANIM;
-
-				if (old_anim != LocalPlayerAnimation::NO_ANIM) {
-					m_animation_range = player->local_animations[0];
-					updateAnimation();
-				}
+			if (getParent()) {
+				// If attached: Idle animation only
+				new_anim = LocalPlayerAnimation::NO_ANIM;
 			}
 
-			// Update local player animations
-			if ((player->last_animation != old_anim ||
-					m_animation_speed != old_anim_speed) &&
-					player->last_animation != LocalPlayerAnimation::NO_ANIM &&
-					allow_update)
-				updateAnimation(); */
+			if (new_anim == LocalPlayerAnimation::NO_ANIM) {
+				new_speed = player->local_animation_speed;
+			}
 
+			setLocalPlayerAnimation(new_anim, new_speed);
 		}
 	}
 
@@ -1388,7 +1371,42 @@ void GenericCAO::updateAnimation(u16 track)
 	if (!m_animated_meshnode)
 		return;
 
+	if (m_local_player_animation) {
+		// Reset local player animation override
+		m_local_player_animation = std::nullopt;
+		m_animated_meshnode->getAnimation().tracks = m_animation.tracks;
+		return;
+	}
+
 	m_animated_meshnode->getAnimation().tracks[track] = m_animation.tracks[track];
+}
+
+void GenericCAO::setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed)
+{
+	if (!m_animated_meshnode)
+		return;
+
+	assert(m_is_local_player);
+	LocalPlayer *player = m_env->getLocalPlayer();
+
+	if (local_anim == player->last_animation &&
+			speed == player->last_animation_speed)
+		return; // no change
+
+	v2f range = player->local_animations[static_cast<u8>(local_anim)];
+	if (range == v2f())
+		return; // animation not defined, stick to current animation
+
+	scene::TrackAnimSpec track_anim;
+	track_anim.min_frame = track_anim.cur_frame = range.X;
+	track_anim.max_frame = range.Y;
+	track_anim.fps = speed;
+
+	m_local_player_animation = scene::AnimSpec{{{0, track_anim}}};
+	m_animated_meshnode->getAnimation() = *m_local_player_animation;
+
+	player->last_animation = local_anim;
+	player->last_animation_speed = speed;
 }
 
 void GenericCAO::updateAttachments()
@@ -1683,17 +1701,15 @@ void GenericCAO::processMessage(const std::string &data)
 			m_animation.tracks[track] = anim;
 			updateAnimation(track);
 		} else {
-			// TODO wtf is this
 			LocalPlayer *player = m_env->getLocalPlayer();
 			// update animation only if local animations present
 			// and received animation is unknown (except idle animation)
 			bool is_known = false;
-			for (int i = 1;i<4;i++)
-			{
-				if(anim.max_frame == player->local_animations[i].Y)
+			for (const auto &local_anim : player->local_animations) {
+				if (track == 0 && anim.max_frame == local_anim.Y)
 					is_known = true;
 			}
-			if(!is_known ||
+			if (!is_known ||
 					(player->local_animations[1].Y + player->local_animations[2].Y < 1))
 			{
 				updateAnimation(track);

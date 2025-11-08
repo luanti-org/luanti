@@ -6,6 +6,7 @@
 
 #include "EMaterialTypes.h"
 #include "IDummyTransformationSceneNode.h"
+#include "client/localplayer.h"
 #include "irrlichttypes.h"
 #include "AnimSpec.h"
 
@@ -125,6 +126,7 @@ private:
 	float m_anim_timer = 0.0f;
 
 	scene::AnimSpec m_animation;
+	std::optional<scene::AnimSpec> m_local_player_animation;
 
 	// stores position and rotation for each bone name
 	BoneOverrideMap m_bone_override;
@@ -284,6 +286,7 @@ public:
 	void updateTextures(std::string mod);
 
 	void updateAnimation(u16 track);
+	void setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed);
 
 	//! Read a track number, default to 0 if missing or invalid
 	u16 readTrackNumber(std::istringstream &is);
