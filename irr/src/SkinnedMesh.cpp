@@ -32,13 +32,10 @@ SkinnedMesh::~SkinnedMesh()
 
 std::optional<u16> SkinnedMesh::getTrackNumber(const std::string &track_name) const
 {
-	// TODO maybe keep index?
-	for (u16 i = 0; i < animations.size(); ++i) {
-		const auto &anim = animations[i];
-		if (anim.name == track_name)
-			return i;
-	}
-	return std::nullopt;
+	const auto it = anim_name_to_idx.find(track_name);
+	if (it == anim_name_to_idx.end())
+		return std::nullopt;
+	return it->second;
 }
 
 f32 SkinnedMesh::getMaxFrameNumber(u16 track) const
@@ -486,6 +483,13 @@ void SkinnedMesh::topoSortJoints()
 SkinnedMesh *SkinnedMeshBuilder::finalize()
 {
 	os::Printer::log("Skinned Mesh - finalize", ELL_DEBUG);
+
+	for (u16 i = 0; i < animations.size(); ++i) {
+		auto &anim = animations[i];
+		if (!anim.name.empty()) {
+			anim_name_to_idx[anim.name] = i;
+		}
+	}
 
 	topoSortJoints();
 

@@ -19,6 +19,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <unordered_map>
 
 namespace scene
 {
@@ -31,7 +32,7 @@ class SkinnedMesh : public IAnimatedMesh
 {
 public:
 
-	enum class SourceFormat {
+	enum class SourceFormat : u8 {
 		B3D,
 		X,
 		GLTF,
@@ -327,7 +328,7 @@ public:
 		};
 		std::vector<JointKeys> joint_keys;
 		f32 end_frame = 0.0f;
-		std::string name; // TODO make optional?
+		std::string name;
 	};
 
 	struct AnimationProgress {
@@ -385,6 +386,7 @@ protected:
 
 	//! Animation tracks
 	std::vector<Animation> animations;
+	std::unordered_map<std::string, u16> anim_name_to_idx;
 
 	// bool can't be used here because std::vector<bool>
 	// doesn't allow taking a reference to individual elements.
