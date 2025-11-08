@@ -1373,7 +1373,7 @@ void GenericCAO::updateAnimation(u16 track)
 
 	if (m_local_player_animation) {
 		// Reset local player animation override
-		m_local_player_animation = std::nullopt;
+		m_local_player_animation = false;
 		m_animated_meshnode->getAnimation().tracks = m_animation.tracks;
 		return;
 	}
@@ -1402,8 +1402,8 @@ void GenericCAO::setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float 
 	track_anim.max_frame = range.Y;
 	track_anim.fps = speed;
 
-	m_local_player_animation = scene::AnimSpec{{{0, track_anim}}};
-	m_animated_meshnode->getAnimation() = *m_local_player_animation;
+	m_local_player_animation = true;
+	m_animated_meshnode->getAnimation() = scene::AnimSpec{{{0, track_anim}}};
 
 	player->last_animation = local_anim;
 	player->last_animation_speed = speed;
@@ -1503,7 +1503,6 @@ u16 GenericCAO::readTrackNumber(std::istringstream &is) {
 	if (const auto opt = m_animated_meshnode->getMesh()->getTrackNumber(track_name)) {
 		return *opt;
 	}
-	// TODO only log once?
 	warningstream << "Track name " << track_name << " not found in mesh " << m_prop.mesh << std::endl;
 	return 0;
 }

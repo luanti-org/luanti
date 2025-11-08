@@ -115,7 +115,6 @@ private:
 	SmoothTranslatorWrappedv3f rot_translator;
 
 	// Spritesheet stuff
-	// TODO pack up into a struct
 	v2f m_tx_size = v2f(1,1);
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set = false;
@@ -126,7 +125,7 @@ private:
 	float m_anim_timer = 0.0f;
 
 	scene::AnimSpec m_animation;
-	std::optional<scene::AnimSpec> m_local_player_animation;
+	bool m_local_player_animation = false;
 
 	// stores position and rotation for each bone name
 	BoneOverrideMap m_bone_override;
