@@ -29,6 +29,9 @@ public:
 	}
 
 	// ContentFeatures that doesn't destroy the visuals
+	// Needed because nodedef.set(feature) creates a copy of the ContentFeatures and since
+	// the NodeDefManager destructs its ContentFeatures, this prevents double free.
+	// Should only be used if the visuals get freed somewhere else.
 	struct CContentFeatures : public ContentFeatures {
 		~CContentFeatures() { visuals = nullptr; }
 	};

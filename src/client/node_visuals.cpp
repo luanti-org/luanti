@@ -196,6 +196,7 @@ static size_t getArrayTextureMax(IShaderSource *shdsrc)
 		return 0;
 	// must support sampling from them
 	if (!shdsrc->supportsSampler2DArray())
+		return 0;
 	// shadow shaders can't handle array textures yet (TODO)
 	if (g_settings->getBool("enable_dynamic_shadows"))
 		return 0;
