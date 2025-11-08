@@ -1690,9 +1690,7 @@ void GenericCAO::processMessage(const std::string &data)
 					m_animated_meshnode->getMesh()->getMaxFrameNumber(track));
 		}
 		if (!is.eof()) {
-			anim.priority = readF32(is);
-			// TODO special value to allow keeping frame & blend?
-			anim.cur_frame = std::clamp(readF32(is), anim.min_frame, anim.max_frame);
+			anim.priority = readS32(is);
 		}
 
 		// Apply animation

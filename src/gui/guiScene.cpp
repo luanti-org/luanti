@@ -147,7 +147,7 @@ void GUIScene::setFrameLoop(f32 begin, f32 end)
 	auto &track = m_mesh->getAnimation().tracks[0];
 	track.min_frame = begin;
 	track.max_frame = end;
-	// TODO reset current frame?
+	track.cur_frame = track.fps >= 0 ? begin : end;
 }
 
 /**

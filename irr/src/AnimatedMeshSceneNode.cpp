@@ -453,7 +453,7 @@ void AnimatedMeshSceneNode::animateJoints()
 	std::vector<u16> anim_idxs(n_tracks);
 	struct Progress {
 		SkinnedMesh::AnimationProgress progress;
-		f32 priority;
+		s32 priority;
 	};
 	std::vector<Progress> progresses;
 	for (const auto [track, anim] : anim_spec.tracks) {

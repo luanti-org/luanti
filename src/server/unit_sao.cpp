@@ -396,7 +396,7 @@ std::string UnitSAO::generateUpdateAnimationCommand(const scene::TrackId &track)
 	writeU8(os, !anim.loop);
 
 	writeTrackIdentifier(os, track);
-	// TODO write the rest..
+	writeS32(os, anim.priority);
 
 	return os.str();
 }
