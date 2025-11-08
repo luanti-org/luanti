@@ -43,13 +43,6 @@ AnimatedMeshSceneNode::AnimatedMeshSceneNode(IAnimatedMesh *mesh,
 	setMesh(mesh);
 }
 
-//! destructor
-AnimatedMeshSceneNode::~AnimatedMeshSceneNode()
-{
-	if (Mesh)
-		Mesh->drop();
-}
-
 void AnimatedMeshSceneNode::advanceAnimations(f32 dtime_s)
 {
 	anim_spec.advance(dtime_s);
