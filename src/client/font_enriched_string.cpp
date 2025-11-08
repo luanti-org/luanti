@@ -71,7 +71,7 @@ static bool parseFontModifier(std::string_view s, FontModifier &modifier)
 			return false;
 	}
 	return true;
-};
+}
 
 FontEnrichedString::FontEnrichedString(const std::wstring &s,
 		video::SColor initial_color, const FontSpec &initial_font)
@@ -90,14 +90,14 @@ FontEnrichedString::FontEnrichedString(const std::wstring &s,
 
 			EnrichedString fragment(std::wstring(s, fragmen_start, i - fragmen_start), color);
 			auto colors = fragment.getColors();
-			line.emplace_back(std::make_pair(std::move(fragment), font));
+			line.emplace_back(std::move(fragment), font);
 
 			if (!colors.empty())
 				color = colors.back();
 
 			if (!line.empty()) {
 				m_lines.emplace_back(std::move(line));
-				line = Line();
+				line.clear();
 			}
 			i++;
 			fragmen_start = i;
@@ -140,7 +140,7 @@ FontEnrichedString::FontEnrichedString(const std::wstring &s,
 				if (!colors.empty())
 					color = colors.back();
 
-				line.emplace_back(std::make_pair(std::move(fragment), font));
+				line.emplace_back(std::move(fragment), font);
 
 				fragmen_start = start_index + length + 1;
 				applyFontModifier(font, modifier);
@@ -148,14 +148,13 @@ FontEnrichedString::FontEnrichedString(const std::wstring &s,
 		}
 	}
 	if (fragmen_start < s.length()) {
-		line.emplace_back(std::make_pair(EnrichedString{std::wstring(s, fragmen_start), color},
-				font));
+		line.emplace_back(EnrichedString{std::wstring(s, fragmen_start), color}, font);
 	}
 
 	if (!line.empty())
 		m_lines.push_back(line);
 
-};
+}
 
 void FontEnrichedString::draw(core::rect<s32> position) const
 {
@@ -178,7 +177,7 @@ void FontEnrichedString::draw(core::rect<s32> position) const
 		}
 		position.UpperLeftCorner.Y += max_h;
 	}
-};
+}
 
 core::dimension2d<u32> FontEnrichedString::getDimension() const
 {
@@ -202,4 +201,4 @@ core::dimension2d<u32> FontEnrichedString::getDimension() const
 			dim.Width = sum_w;
 	}
 	return dim;
-};
+}
