@@ -17,7 +17,7 @@ struct TrackAnimSpec {
 	bool loop = true;
 	f32 blend = 0.0f;
 
-	s32 priority = 0.0f; ///< higher priority tracks override lower priority ones
+	s32 priority = 0; ///< higher priority tracks override lower priority ones
 
 	// Animation progress
 	f32 cur_frame = 0.0f;

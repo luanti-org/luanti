@@ -8660,15 +8660,16 @@ Track numbers start at 1.
 * `play_animation(track, [animation])`
       `.x` and `.b3d` models only have a single animation track.
     * `animation` is an optional table with the following optional fields:
-	  * `start_frame = 0`, `end_frame = math.huge`, animation range in frames (seconds);
-	     clamped on the client to first and last frame in the corresponding track.
-      * `speed = 1`, animation speed in frames per second.
+      * `start_frame = 0.0`, `end_frame = math.huge`, animation range in frames (seconds);
+         clamped on the client to first and last frame in the corresponding track.
+      * `speed = 1.0`, animation speed in frames per second.
+        (Recall that glTF frames are typically just timetamps in seconds.)
         A negative speed plays the animation backwards.
-        A speed of `0` can be used to pause an animation.
+        A speed of `0.0` can be used to pause an animation.
       * `loop = true`, boolean, whether the animation repeats after completion.
         Defaults to `true`.
-      * `blend = 0`, transition time in seconds when changing to the new animation.
-      * `priority = 0`, integer.
+      * `blend = 0.0`, transition time in seconds when changing to the new animation.
+      * `priority = 0.0`, integer.
         Higher priority animations are applied after lower priority ones,
         taking precedence if the same bones are being animated.
     * Example: `obj:play_animation("walk")`.

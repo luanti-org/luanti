@@ -364,7 +364,7 @@ static void writeTrackIdentifier(std::ostream &os,
 {
 	if (const auto *str = std::get_if<std::string>(&track)) {
 		writeU16(os, 0);
-		os << serializeString16({*str});
+		os << serializeString16(*str);
 	} else {
 		writeU16(os, std::get<u16>(track) + 1);
 	}
