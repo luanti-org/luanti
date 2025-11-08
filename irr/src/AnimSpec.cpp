@@ -19,7 +19,7 @@ void TrackAnimSpec::advance(f32 dtime_s) {
 
 f32 TrackAnimSpec::framemod(f32 frame) const {
 	const f32 frame_duration = max_frame - min_frame;
-	return frame_duration == 0.0f ? 0.0f : std::fmodf(frame, frame_duration);
+	return frame_duration == 0.0f ? 0.0f : std::fmod(frame, frame_duration);
 }
 
 void AnimSpec::advance(f32 dtime_s) {
