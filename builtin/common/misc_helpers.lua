@@ -654,10 +654,8 @@ function core.get_background_escape_sequence(color)
 end
 
 function core.get_font_escape_sequence(font)
+	assert(type(font) == "table")
 	local s = ""
-	if type(font) ~= "table" then
-		return s
-	end
 
 	if font.mono == true then
 		s = s .. ESCAPE_CHAR .. "(f@M)"
