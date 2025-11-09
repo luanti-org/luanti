@@ -213,7 +213,6 @@ protected:
 	wchar_t PasswordChar;
 	EGUI_ALIGNMENT HAlign, VAlign;
 
-	s32 LinesDrawnCount = 0;
 	core::array<core::stringw> BrokenText;
 	core::array<s32> BrokenTextPositions;
 
