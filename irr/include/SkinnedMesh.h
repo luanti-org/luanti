@@ -43,7 +43,6 @@ public:
 	SkinnedMesh(SourceFormat src_format) :
 		EndFrame(0.f), FramesPerSecond(25.f),
 		HasAnimation(false), PreparedForSkinning(false),
-		AnimateNormals(true),
 		SrcFormat(src_format)
 	{
 		SkinningBuffers = &LocalBuffers;
@@ -126,14 +125,6 @@ public:
 	\return Number of the joint or std::nullopt if not found. */
 	std::optional<u32> getJointNumber(const std::string &name) const;
 
-	//! Update Normals when Animating
-	/** \param on If false don't animate, which is faster.
-	Else update normals, which allows for proper lighting of
-	animated meshes (default). */
-	void updateNormalsWhenAnimating(bool on) {
-		AnimateNormals = on;
-	}
-
 	//! converts the vertex type of all meshbuffers to tangents.
 	/** E.g. used for bump mapping. */
 	void convertMeshToTangents();
@@ -143,8 +134,8 @@ public:
 		return !HasAnimation;
 	}
 
-	//! Refreshes vertex data cached in joints such as positions and normals
-	void refreshJointCache();
+	//! Back up static pose after local buffers have been modified directly
+	void updateStaticPose();
 
 	//! Moves the mesh into static position.
 	void resetAnimation();
@@ -152,26 +143,6 @@ public:
 	//! Creates an array of joints from this mesh as children of node
 	std::vector<IBoneSceneNode *> addJoints(
 			AnimatedMeshSceneNode *node, ISceneManager *smgr);
-
-	//! A vertex weight
-	struct SWeight
-	{
-		//! Index of the mesh buffer
-		u16 buffer_id; // I doubt 32bits is needed
-
-		//! Index of the vertex
-		u32 vertex_id; // Store global ID here
-
-		//! Weight Strength/Percentage (0-1)
-		f32 strength;
-
-	private:
-		//! Internal members used by SkinnedMesh
-		friend class SkinnedMesh;
-		char *Moved;
-		core::vector3df StaticPos;
-		core::vector3df StaticNormal;
-	};
 
 	template <class T>
 	struct Channel {
@@ -329,12 +300,10 @@ public:
 
 		//! List of attached meshes
 		std::vector<u32> AttachedMeshes;
+		// TODO ^ should turn this into optional meshbuffer parent field?
 
 		// Animation keyframes for translation, rotation, scale
 		Keys keys;
-
-		//! Skin weights
-		std::vector<SWeight> Weights;
 
 		//! Bounding box of all affected vertices, in local space
 		core::aabbox3df LocalBoundingBox{{0, 0, 0}};
@@ -369,15 +338,11 @@ public:
 protected:
 	bool checkForAnimation() const;
 
-	void topoSortJoints();
-
 	void prepareForSkinning();
 
 	void calculateStaticBoundingBox();
 	void calculateJointBoundingBoxes();
 	void calculateBufferBoundingBoxes();
-
-	void normalizeWeights();
 
 	void calculateTangents(core::vector3df &normal,
 			core::vector3df &tangent, core::vector3df &binormal,
@@ -387,15 +352,12 @@ protected:
 	std::vector<SSkinMeshBuffer *> *SkinningBuffers; // Meshbuffer to skin, default is to skin localBuffers
 
 	std::vector<SSkinMeshBuffer *> LocalBuffers;
+
 	//! Mapping from meshbuffer number to bindable texture slot
 	std::vector<u32> TextureSlots;
 
 	//! Joints, topologically sorted (parents come before their children).
 	std::vector<SJoint *> AllJoints;
-
-	// bool can't be used here because std::vector<bool>
-	// doesn't allow taking a reference to individual elements.
-	std::vector<std::vector<char>> Vertices_Moved;
 
 	//! Bounding box of just the static parts of the mesh
 	core::aabbox3df StaticPartsBox{{0, 0, 0}};
@@ -408,7 +370,6 @@ protected:
 
 	bool HasAnimation;
 	bool PreparedForSkinning;
-	bool AnimateNormals;
 
 	SourceFormat SrcFormat;
 };
@@ -440,8 +401,22 @@ public:
 	void addRotationKey(SJoint *joint, f32 frame, core::quaternion rotation);
 	void addScaleKey(SJoint *joint, f32 frame, core::vector3df scale);
 
-	//! Adds a new weight to the mesh, access it as last one
-	SWeight *addWeight(SJoint *joint);
+	//! Adds a new weight to the mesh
+	void addWeight(SJoint *joint, u16 buf, u32 vert_id, f32 strength);
+
+private:
+
+	void topoSortJoints();
+
+	struct Weight {
+		u16 joint_id;
+		u16 buffer_id;
+		u32 vertex_id;
+		f32 strength;
+	};
+
+	std::vector<Weight> Weights;
+
 };
 
 } // end namespace scene

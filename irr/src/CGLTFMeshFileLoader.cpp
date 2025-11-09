@@ -501,10 +501,8 @@ void SelfType::MeshExtractor::addPrimitive(
 				if (strength <= 0)
 					continue; // note: also ignores negative weights
 
-				SkinnedMesh::SWeight *weight = m_irr_model->addWeight(m_loaded_nodes.at(skin.joints.at(jointIdx)));
-				weight->buffer_id = meshbufNr;
-				weight->vertex_id = v;
-				weight->strength = strength;
+				m_irr_model->addWeight(m_loaded_nodes.at(skin.joints.at(jointIdx)),
+						meshbufNr, v, strength);
 			}
 		}
 		if (negative_weights)

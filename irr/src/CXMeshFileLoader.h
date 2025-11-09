@@ -63,8 +63,12 @@ public:
 
 		core::array<video::SMaterial> Materials; // material array
 
-		core::array<u32> WeightJoint;
-		core::array<u32> WeightNum;
+		struct Weight {
+			u16 joint_id;
+			u32 global_vertex_id;
+			f32 strength;
+		};
+		std::vector<Weight> Weights;
 
 		s32 AttachedJointID;
 

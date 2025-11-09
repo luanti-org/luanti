@@ -541,11 +541,10 @@ bool CB3DMeshFileLoader::readChunkBONE(SkinnedMesh::SJoint *inJoint)
 			if (AnimatedVertices_VertexID[globalVertexID] == -1) {
 				os::Printer::log("B3dMeshLoader: Weight has bad vertex id (no link to meshbuffer index found)");
 			} else if (strength > 0) {
-				SkinnedMesh::SWeight *weight = AnimatedMesh->addWeight(inJoint);
-				weight->strength = strength;
-				// Find the meshbuffer and Vertex index from the Global Vertex ID:
-				weight->vertex_id = AnimatedVertices_VertexID[globalVertexID];
-				weight->buffer_id = AnimatedVertices_BufferID[globalVertexID];
+				AnimatedMesh->addWeight(inJoint,
+						AnimatedVertices_BufferID[globalVertexID],
+						AnimatedVertices_VertexID[globalVertexID],
+						strength);
 			}
 		}
 	}
