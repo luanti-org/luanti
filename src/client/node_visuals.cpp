@@ -192,9 +192,6 @@ static size_t getArrayTextureMax(IShaderSource *shdsrc)
 	// must support sampling from them
 	if (!shdsrc->supportsSampler2DArray())
 		return 0;
-	// shadow shaders can't handle array textures yet (TODO)
-	if (g_settings->getBool("enable_dynamic_shadows"))
-		return 0;
 
 	u32 n = driver->getLimits().MaxArrayTextureImages;
 	constexpr u32 type_max = std::numeric_limits<decltype(TileLayer::texture_layer_idx)>::max();

@@ -1,12 +1,12 @@
-// FIXME missing array texture handling
-uniform sampler2D ColorMapSampler;
+#ifdef USE_ARRAY_TEXTURE
+	uniform mediump sampler2DArray baseTexture;
+#else
+	uniform sampler2D baseTexture;
+#endif
 varying vec4 tPos;
 
-#ifdef GL_ES
-varying mediump vec2 varTexCoord;
-#else
-centroid varying vec2 varTexCoord;
-#endif
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
 
 #ifdef COLORED_SHADOWS
 varying vec3 varColor;
@@ -21,27 +21,27 @@ float packColor(vec3 color)
 		+ floor(color.g * c_precision + 0.5) * c_precisionp1
 		+ floor(color.r * c_precision + 0.5) * c_precisionp1 * c_precisionp1;
 }
-
-const vec3 black = vec3(0.0);
 #endif
 
 void main()
 {
-	vec4 col = texture2D(ColorMapSampler, varTexCoord);
+#ifdef USE_ARRAY_TEXTURE
+	vec4 base = texture(baseTexture, vec3(varTexCoord, varTexLayer)).rgba;
+#else
+	vec4 base = texture2D(baseTexture, varTexCoord).rgba;
+#endif
 #ifndef COLORED_SHADOWS
-	if (col.a < 0.5)
+	if (base.a < 0.5)
 		discard;
 #endif
 
 	float depth = 0.5 + tPos.z * 0.5;
-	// ToDo: Liso: Apply movement on waving plants
 	// depth in [0, 1] for texture
 
-	//col.rgb = col.a == 1.0 ? vec3(1.0) : col.rgb;
 #ifdef COLORED_SHADOWS
-	col.rgb *= varColor.rgb;
+	base.rgb *= varColor.rgb;
 	// premultiply color alpha (see-through side)
-	float packedColor = packColor(col.rgb * (1.0 - col.a));
+	float packedColor = packColor(base.rgb * (1.0 - base.a));
 	gl_FragColor = vec4(depth, packedColor, 0.0,1.0);
 #else
 	gl_FragColor = vec4(depth, 0.0, 0.0, 1.0);

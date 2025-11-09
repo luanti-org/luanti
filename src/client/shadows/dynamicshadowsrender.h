@@ -138,17 +138,20 @@ private:
 	f32 m_perspective_bias_xy;
 	f32 m_perspective_bias_z;
 
-	video::ECOLOR_FORMAT m_texture_format{video::ECOLOR_FORMAT::ECF_R16F};
-	video::ECOLOR_FORMAT m_texture_format_color{video::ECOLOR_FORMAT::ECF_R16G16};
+	video::ECOLOR_FORMAT m_texture_format{video::ECF_R16F};
+	video::ECOLOR_FORMAT m_texture_format_color{video::ECF_R16G16};
 
 	// Shadow Shader stuff
 
 	void createShaders();
 
-	video::E_MATERIAL_TYPE depth_shader, depth_shader_trans;
+	// _a suffix is with support for array textures
+	video::E_MATERIAL_TYPE depth_shader{video::EMT_INVALID},
+		depth_shader_a{video::EMT_INVALID};
+	video::E_MATERIAL_TYPE depth_shader_trans{video::EMT_INVALID},
+		depth_shader_trans_a{video::EMT_INVALID};
 
-	ShadowDepthUniformSetter *m_shadow_depth_cb{nullptr};
-	ShadowDepthUniformSetter *m_shadow_depth_trans_cb{nullptr};
+	std::vector<ShadowDepthUniformSetter*> m_shadow_depth_cb;
 
 	ShadowScreenQuad *m_screen_quad{nullptr};
 };

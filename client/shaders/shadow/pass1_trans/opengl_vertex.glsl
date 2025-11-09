@@ -9,11 +9,8 @@ uniform float xyPerspectiveBias0;
 uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
 
-#ifdef GL_ES
-varying mediump vec2 varTexCoord;
-#else
-centroid varying vec2 varTexCoord;
-#endif
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
 
 vec4 getRelativePosition(in vec4 position)
 {
@@ -48,7 +45,11 @@ void main()
 	tPos = applyPerspectiveDistortion(pos);
 
 	gl_Position = vec4(tPos.xyz, 1.0);
-	varTexCoord = inTexCoord0.xy;
+
+	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 1.0, 1.0)).st;
+#ifdef USE_ARRAY_TEXTURE
+	varTexLayer = inVertexAux;
+#endif
 
 #ifdef COLORED_SHADOWS
 	varColor = inVertexColor.rgb;

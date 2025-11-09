@@ -49,13 +49,16 @@ ShadowRenderer::~ShadowRenderer()
 	// call to disable releases dynamically allocated resources
 	disable();
 
-	if (m_shadow_depth_cb) {
-		m_shadow_depth_cb->drop();
-		m_shadow_depth_cb = nullptr;
+	for (auto *ptr : m_shadow_depth_cb) {
+		if (ptr)
+			ptr->drop();
 	}
-	if (m_shadow_depth_trans_cb) {
-		m_shadow_depth_trans_cb->drop();
-		m_shadow_depth_trans_cb = nullptr;
+	m_shadow_depth_cb.clear();
+
+	auto *gpu = m_driver->getGPUProgrammingServices();
+	for (auto id : {depth_shader, depth_shader_a, depth_shader_trans, depth_shader_trans_a}) {
+		if (id != video::EMT_INVALID)
+			gpu->deleteShaderMaterial(id);
 	}
 
 	delete m_screen_quad;
@@ -231,14 +234,14 @@ void ShadowRenderer::updateSMTextures()
 		video::ECOLOR_FORMAT frt;
 		if (m_shadow_map_texture_32bit) {
 			if (m_shadow_map_colored)
-				frt = video::ECOLOR_FORMAT::ECF_A32B32G32R32F;
+				frt = video::ECF_A32B32G32R32F;
 			else
-				frt = video::ECOLOR_FORMAT::ECF_R32F;
+				frt = video::ECF_R32F;
 		} else {
 			if (m_shadow_map_colored)
-				frt = video::ECOLOR_FORMAT::ECF_A16B16G16R16F;
+				frt = video::ECF_A16B16G16R16F;
 			else
-				frt = video::ECOLOR_FORMAT::ECF_R16F;
+				frt = video::ECF_R16F;
 		}
 		shadowMapTextureFinal = getSMTexture(
 			std::string("shadowmap_final_") + itos(m_shadow_map_texture_size),
@@ -271,7 +274,7 @@ void ShadowRenderer::updateSMTextures()
 		// Update SM incrementally:
 		for (DirectionalLight &light : m_light_list) {
 			// Static shader values.
-			for (auto *cb : {m_shadow_depth_cb, m_shadow_depth_trans_cb}) {
+			for (auto *cb : m_shadow_depth_cb) {
 				if (cb) {
 					cb->MapRes = (u32)m_shadow_map_texture_size;
 					cb->MaxFar = (f32)m_shadow_map_max_distance * BS;
@@ -292,7 +295,6 @@ void ShadowRenderer::updateSMTextures()
 				// This is also handled in ClientMap.
 				if (m_current_frame == m_map_shadow_update_frames - 1 || m_force_update_shadow_map) {
 					if (m_shadow_map_colored) {
-						m_driver->setRenderTarget(0, false, false);
 						m_driver->setRenderTarget(shadowMapTextureColors,
 								true, false, video::SColor(255, 255, 255, 255));
 					}
@@ -340,7 +342,10 @@ void ShadowRenderer::update(video::ITexture *outputTarget)
 			// Static shader values for entities are set in updateSMTextures
 			// SM texture for entities is not updated incrementally and
 			// must by updated using current player position.
-			m_shadow_depth_cb->CameraPos = light.getPlayerPos();
+			for (auto *cb : m_shadow_depth_cb) {
+				if (cb)
+					cb->CameraPos = light.getPlayerPos();
+			}
 
 			// render shadows for the non-map objects.
 			m_driver->setRenderTarget(shadowMapTextureDynamicObjects, true,
@@ -435,10 +440,19 @@ void ShadowRenderer::renderShadowMap(video::ITexture *target,
 			mat.FrontfaceCulling = false;
 		}
 
+		/*
+		 * Here we unconditionally replace the material shader with our custom ones
+		 * to render the depth map.
+		 * Be warned that this is a very flawed approach and the reason why waving
+		 * doesn't work or why the node alpha mode is totally ignored.
+		 * Array texture support was tacked on but this should really be rewritten:
+		 * The shadow map code should be part of nodes_shader and activated on demand.
+		 */
+		bool array_tex = mat.getTexture(0) && mat.getTexture(0)->getType() == video::ETT_2D_ARRAY;
 		if (m_shadow_map_colored && is_transparent_pass) {
-			mat.MaterialType = depth_shader_trans;
+			mat.MaterialType = array_tex ? depth_shader_trans_a : depth_shader_trans;
 		} else {
-			mat.MaterialType = depth_shader;
+			mat.MaterialType = array_tex ? depth_shader_a : depth_shader;
 			mat.BlendOperation = video::EBO_MIN;
 		}
 	};
@@ -478,6 +492,8 @@ void ShadowRenderer::renderShadowObjects(
 			auto &current_mat = shadow_node.node->getMaterial(m);
 
 			BufferMaterialList.push_back(current_mat.MaterialType);
+			// Note: this suffers from the same misdesign and will break once we
+			// start doing more special shader things for entities.
 			current_mat.MaterialType = depth_shader;
 
 			BufferMaterialCullingList.emplace_back(
@@ -517,20 +533,41 @@ void ShadowRenderer::createShaders()
 {
 	auto *shdsrc = m_client->getShaderSource();
 
-	assert(!m_shadow_depth_cb);
+	assert(m_shadow_depth_cb.empty());
+
+	ShaderConstants a_const;
+	a_const["USE_ARRAY_TEXTURE"] = 1;
 
 	{
-		m_shadow_depth_cb = new ShadowDepthUniformSetter();
+		auto *cb = new ShadowDepthUniformSetter();
+		m_shadow_depth_cb.push_back(cb);
 		u32 shader_id = shdsrc->getShader("shadow/pass1", {},
-			video::EMT_SOLID, m_shadow_depth_cb);
+			video::EMT_SOLID, cb);
 		depth_shader = shdsrc->getShaderInfo(shader_id).material;
 	}
 
+	if (shdsrc->supportsSampler2DArray()) {
+		auto *cb = new ShadowDepthUniformSetter();
+		m_shadow_depth_cb.push_back(cb);
+		u32 shader_id = shdsrc->getShader("shadow/pass1", a_const,
+			video::EMT_SOLID, cb);
+		depth_shader_a = shdsrc->getShaderInfo(shader_id).material;
+	}
+
 	if (m_shadow_map_colored) {
-		m_shadow_depth_trans_cb = new ShadowDepthUniformSetter();
+		auto *cb = new ShadowDepthUniformSetter();
+		m_shadow_depth_cb.push_back(cb);
 		u32 shader_id = shdsrc->getShader("shadow/pass1_trans", {},
-			video::EMT_SOLID, m_shadow_depth_trans_cb);
+			video::EMT_SOLID, cb);
 		depth_shader_trans = shdsrc->getShaderInfo(shader_id).material;
+	}
+
+	if (m_shadow_map_colored && shdsrc->supportsSampler2DArray()) {
+		auto *cb = new ShadowDepthUniformSetter();
+		m_shadow_depth_cb.push_back(cb);
+		u32 shader_id = shdsrc->getShader("shadow/pass1_trans", a_const,
+			video::EMT_SOLID, cb);
+		depth_shader_trans_a = shdsrc->getShaderInfo(shader_id).material;
 	}
 
 	{
