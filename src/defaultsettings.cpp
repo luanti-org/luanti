@@ -525,6 +525,7 @@ void set_default_settings()
 	Mapgen::setDefaultSettings(settings);
 
 	// Server list announcing
+	settings->setDefault("serverlist_lan", "true");
 	settings->setDefault("server_announce", "false");
 	settings->setDefault("server_url", "");
 	settings->setDefault("server_address", "");

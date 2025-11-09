@@ -4,14 +4,27 @@
 
 local function get_sorted_servers()
 	local servers = {
+		lan = {},
 		fav = {},
 		public = {},
 		incompatible = {}
 	}
 
+	local serverlist = table.copy(serverlistmgr.servers)
+
+	if minetest.settings:get_bool("serverlist_lan") then
+		local lan_servers = core.get_lan_servers()
+
+		for _, server in ipairs(lan_servers) do
+			server.is_compatible = is_server_protocol_compat(server.proto_min, server.proto_max)
+			server.is_local = true
+			table.insert(serverlist, server)
+		end
+	end
+
 	local favs = serverlistmgr.get_favorites()
 	local taken_favs = {}
-	local result = menudata.search_result or serverlistmgr.servers
+	local result = menudata.search_result or serverlist
 	for _, server in ipairs(result) do
 		server.is_favorite = false
 		for index, fav in ipairs(favs) do
@@ -25,7 +38,11 @@ local function get_sorted_servers()
 		if server.is_favorite then
 			table.insert(servers.fav, server)
 		elseif server.is_compatible then
-			table.insert(servers.public, server)
+			if server.is_local then
+				table.insert(servers.lan, server)
+			else
+				table.insert(servers.public, server)
+			end
 		else
 			table.insert(servers.incompatible, server)
 		end
@@ -249,11 +266,12 @@ local function get_formspec(tabview, name, tabdata)
 	local servers = get_sorted_servers()
 
 	local dividers = {
+		lan = "1,#00ff00," .. fgettext("Lan") .. ",,,0,0,,",
 		fav = "5,#ffff00," .. fgettext("Favorites") .. ",,,0,0,,",
 		public = "6,#4bdd42," .. fgettext("Public Servers") .. ",,,0,0,,",
 		incompatible = "7,"..mt_color_grey.."," .. fgettext("Incompatible Servers") .. ",,,0,0,,"
 	}
-	local order = {"fav", "public", "incompatible"}
+	local order = {"lan", "fav", "public", "incompatible"}
 
 	tabdata.lookup = {} -- maps row number to server
 	local rows = {}
