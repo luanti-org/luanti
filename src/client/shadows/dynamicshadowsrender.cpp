@@ -586,9 +586,7 @@ std::unique_ptr<ShadowRenderer> createShadowRenderer(IrrlichtDevice *device, Cli
 		return nullptr;
 
 	// disable if unsupported
-	// See also checks in builtin/mainmenu/settings/dlg_settings.lua
-	const video::E_DRIVER_TYPE type = device->getVideoDriver()->getDriverType();
-	if (type != video::EDT_OPENGL && type != video::EDT_OPENGL3) {
+	if (!ShadowRenderer::isSupported(device)) {
 		warningstream << "Shadows: disabled dynamic shadows due to being unsupported" << std::endl;
 		g_settings->setBool("enable_dynamic_shadows", false);
 		return nullptr;
@@ -597,4 +595,13 @@ std::unique_ptr<ShadowRenderer> createShadowRenderer(IrrlichtDevice *device, Cli
 	auto shadow_renderer = std::make_unique<ShadowRenderer>(device, client);
 	shadow_renderer->initialize();
 	return shadow_renderer;
+}
+
+bool ShadowRenderer::isSupported(IrrlichtDevice *device) {
+	auto driver = device->getVideoDriver();
+	const video::E_DRIVER_TYPE type = driver->getDriverType();
+	v2s32 glver = driver->getLimits().GLVersion;
+
+	return type == video::EDT_OPENGL || type == video::EDT_OPENGL3 ||
+			(type == video::EDT_OGLES2 && glver.X >= 3);
 }

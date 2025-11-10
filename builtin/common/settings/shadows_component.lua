@@ -69,7 +69,7 @@ end
 return {
 	query_text = "Shadows",
 	requires = {
-		opengl = true,
+		shadows_support = true,
 	},
 	context = "client",
 	get_formspec = function(self, avail_w)

@@ -93,6 +93,8 @@ public:
 	f32 getPerspectiveBiasXY() { return m_perspective_bias_xy; }
 	f32 getPerspectiveBiasZ() { return m_perspective_bias_z; }
 
+	static bool isSupported(IrrlichtDevice *device);
+
 private:
 	video::ITexture *getSMTexture(const std::string &shadow_map_name,
 			video::ECOLOR_FORMAT texture_format,
