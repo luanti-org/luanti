@@ -596,7 +596,8 @@ std::unique_ptr<ShadowRenderer> createShadowRenderer(IrrlichtDevice *device, Cli
 	return shadow_renderer;
 }
 
-bool ShadowRenderer::isSupported(IrrlichtDevice *device) {
+bool ShadowRenderer::isSupported(IrrlichtDevice *device)
+{
 	auto driver = device->getVideoDriver();
 	const video::E_DRIVER_TYPE type = driver->getDriverType();
 	v2s32 glver = driver->getLimits().GLVersion;
