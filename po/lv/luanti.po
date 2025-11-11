@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2024-01-22 21:01+0000\n"
 "Last-Translator: Uko Koknevics <TheZeus121@gmail.com>\n"
 "Language-Team: Latvian <https://hosted.weblate.org/projects/minetest/"
@@ -1253,10 +1253,6 @@ msgid "New"
 msgstr "Jauns"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Pasaule nav ne izveidota, ne izvēlēta!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Spēlēt"
 
@@ -1871,10 +1867,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profilētājs parādīts (lapa %d no %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Menu"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1907,44 +1899,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Alt"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Erase EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Izdzēst"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Execute"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Palīdzība"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME Accept"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME Convert"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME Escape"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME Mode Change"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME Nonconvert"
+#, fuzzy
+msgid "Home Key"
+msgstr "Zoom"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1956,8 +1923,9 @@ msgid "Left Arrow"
 msgstr "Kreisais Ctrl"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Kreisā poga"
+#, fuzzy
+msgid "Left Click"
+msgstr "Kreisais Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1971,19 +1939,27 @@ msgstr "Kreisais Alt"
 msgid "Left Shift"
 msgstr "Kreisais Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Kreisā Windows poga"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Alt"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Vidējā poga"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2050,10 +2026,6 @@ msgid "Numpad 9"
 msgstr "Ciparbloka 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Clear"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Page down"
@@ -2089,8 +2061,9 @@ msgid "Right Arrow"
 msgstr "Labais Ctrl"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Labā poga"
+#, fuzzy
+msgid "Right Click"
+msgstr "Labais Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2104,6 +2077,7 @@ msgstr "Labais Alt"
 msgid "Right Shift"
 msgstr "Labais Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Labā Windows poga"
@@ -2112,10 +2086,10 @@ msgstr "Labā Windows poga"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Select"
+#, fuzzy
+msgid "Select Key"
+msgstr "Izdzēst"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2123,37 +2097,17 @@ msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Sleep"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Snapshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Atstarpe"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Notīrīt"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Poga 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Poga 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Zoom"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2559,12 +2513,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2888,6 +2841,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3374,6 +3338,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "Dekorācijas"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5062,6 +5030,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6956,3 +6928,69 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr ""
+
+#~ msgid "Apps"
+#~ msgstr "Menu"
+
+#~ msgid "End"
+#~ msgstr "End"
+
+#~ msgid "Erase EOF"
+#~ msgstr "Erase EOF"
+
+#~ msgid "Execute"
+#~ msgstr "Execute"
+
+#~ msgid "Help"
+#~ msgstr "Palīdzība"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME Accept"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME Convert"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME Escape"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME Mode Change"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME Nonconvert"
+
+#~ msgid "Left Button"
+#~ msgstr "Kreisā poga"
+
+#~ msgid "Middle Button"
+#~ msgstr "Vidējā poga"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Pasaule nav ne izveidota, ne izvēlēta!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Clear"
+
+#~ msgid "Right Button"
+#~ msgstr "Labā poga"
+
+#~ msgid "Select"
+#~ msgstr "Select"
+
+#~ msgid "Sleep"
+#~ msgstr "Sleep"
+
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "X Poga 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X Poga 2"

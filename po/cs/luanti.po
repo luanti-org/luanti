@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Czech (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-02-05 11:03+0000\n"
 "Last-Translator: Matyáš Pilz <matys.pilz@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1248,10 +1248,6 @@ msgid "New"
 msgstr "Nový"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Žádný svět nebyl vytvořen ani vybrán!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Hrát hru"
 
@@ -1853,10 +1849,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profilování zobrazeno (strana %d z %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Aplikace"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1886,44 +1878,19 @@ msgid "Down Arrow"
 msgstr "Šipka Dolů"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Nabídka"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Vymazat EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Spustit"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Nápověda"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Povolené IME"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Převést IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME opustit"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Změna režimu IME"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME „Nonconvert“ (nepřevádět)"
+#, fuzzy
+msgid "Home Key"
+msgstr "Přiblížení"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1934,8 +1901,9 @@ msgid "Left Arrow"
 msgstr "Šipka Vlevo"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Levé tlačítko myši"
+#, fuzzy
+msgid "Left Click"
+msgstr "Levý Control"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1949,19 +1917,27 @@ msgstr "Levá klávesa Menu"
 msgid "Left Shift"
 msgstr "Levý Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Levá klávesa Windows"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Nabídka"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Prostřední tlačítko myši"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2028,10 +2004,6 @@ msgid "Numpad 9"
 msgstr "Numerická klávesnice: 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "„OEM Clear“"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2064,8 +2036,9 @@ msgid "Right Arrow"
 msgstr "Šipka Vpravo"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Pravé tlačítko myši"
+#, fuzzy
+msgid "Right Click"
+msgstr "Pravý Control"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2079,6 +2052,7 @@ msgstr "Pravá klávesa Menu"
 msgid "Right Shift"
 msgstr "Pravý Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Pravá klávesa Windows"
@@ -2087,47 +2061,27 @@ msgstr "Pravá klávesa Windows"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Vybrat"
+#, fuzzy
+msgid "Select Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Spánek"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Snapshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Mezerník"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tabulátor"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Klávesa Break"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Šipka Nahoru"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Tlačítko 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Tlačítko 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Přiblížení"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2559,12 +2513,11 @@ msgstr "3D šum definující počet žalářů na kusu mapy."
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Podpora 3D.\n"
 "V současné době podporovány:\n"
@@ -2931,6 +2884,17 @@ msgstr "Vyhlazení pohybu kamery"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Vyhlazení pohybu kamery ve filmovém režimu"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3481,6 +3445,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Možnosti pro vývojáře"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5452,6 +5420,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Maximální počet uživatelů"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Pouštní chrámy"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7595,8 +7568,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "Klávesa pro pohyb hráče zpět.\n"
 "Také vypne automatický pohyb vpřed, pokud je zapnutý.\n"
-"viz. http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"viz. http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7716,14 +7689,68 @@ msgstr "Interaktivní časový limit cURL"
 msgid "cURL parallel limit"
 msgstr "cURL limit paralelních stahování"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Formát snímků obrazovky."
+#~ msgid "Apps"
+#~ msgstr "Aplikace"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Vyhlazení pohybu kamery ve filmovém režimu"
+#~ msgid "End"
+#~ msgstr "End"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Celoobrazovkový režim."
+#~ msgid "Erase EOF"
+#~ msgstr "Vymazat EOF"
+
+#~ msgid "Execute"
+#~ msgstr "Spustit"
+
+#~ msgid "Help"
+#~ msgstr "Nápověda"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "Povolené IME"
+
+#~ msgid "IME Convert"
+#~ msgstr "Převést IME"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME opustit"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "Změna režimu IME"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME „Nonconvert“ (nepřevádět)"
+
+#~ msgid "Left Button"
+#~ msgstr "Levé tlačítko myši"
+
+#~ msgid "Middle Button"
+#~ msgstr "Prostřední tlačítko myši"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Žádný svět nebyl vytvořen ani vybrán!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "„OEM Clear“"
+
+#~ msgid "Right Button"
+#~ msgstr "Pravé tlačítko myši"
+
+#~ msgid "Select"
+#~ msgstr "Vybrat"
+
+#~ msgid "Sleep"
+#~ msgstr "Spánek"
+
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
+
+#~ msgid "Tab"
+#~ msgstr "Tabulátor"
+
+#~ msgid "X Button 1"
+#~ msgstr "X Tlačítko 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X Tlačítko 2"

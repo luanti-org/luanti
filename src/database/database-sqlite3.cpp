@@ -821,6 +821,7 @@ ModStorageDatabaseSQLite3::~ModStorageDatabaseSQLite3()
 	FINALIZE_STATEMENT(get)
 	FINALIZE_STATEMENT(get_keys)
 	FINALIZE_STATEMENT(get_all)
+	FINALIZE_STATEMENT(get_mods)
 }
 
 void ModStorageDatabaseSQLite3::createDatabase()
@@ -840,6 +841,7 @@ void ModStorageDatabaseSQLite3::createDatabase()
 
 void ModStorageDatabaseSQLite3::initStatements()
 {
+	PREPARE_STATEMENT(get_mods, "SELECT DISTINCT `modname` FROM `entries`");
 	PREPARE_STATEMENT(get_all, "SELECT `key`, `value` FROM `entries` WHERE `modname` = ?");
 	PREPARE_STATEMENT(get_keys, "SELECT `key` FROM `entries` WHERE `modname` = ?");
 	PREPARE_STATEMENT(get,
@@ -964,21 +966,11 @@ void ModStorageDatabaseSQLite3::listMods(std::vector<std::string> *res)
 {
 	verifyDatabase();
 
-	// FIXME: please don't do this. this should be sqlite3_step like all others.
-	char *errmsg;
-	int status = sqlite3_exec(m_database,
-		"SELECT `modname` FROM `entries` GROUP BY `modname`;",
-		[](void *res_vp, int n_col, char **cols, char **col_names) noexcept -> int {
-			try {
-				((decltype(res)) res_vp)->emplace_back(cols[0]);
-			} catch (...) {
-				return 1;
-			}
-			return 0;
-		}, (void *) res, &errmsg);
-	if (status != SQLITE_OK) {
-		auto msg = std::string("Error trying to list mods with metadata: ") + errmsg;
-		sqlite3_free(errmsg);
-		throw DatabaseException(msg);
+	while (sqlite3_step(m_stmt_get_mods) == SQLITE_ROW) {
+		auto name = sqlite_to_string_view(m_stmt_get_mods, 0);
+		res->emplace_back(name);
 	}
+	sqlite3_vrfy(sqlite3_errcode(m_database), SQLITE_DONE);
+
+	sqlite3_reset(m_stmt_get_mods);
 }

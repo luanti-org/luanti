@@ -42,6 +42,13 @@ struct QueuedMeshUpdate
 	 * @note not done by destructor, since this is only safe on main thread
 	 */
 	void dropBlocks();
+	/**
+	 * Check if the blocks that would comprise the mesh are all air, so the
+	 * update can be skipped entirely.
+	 * @param cell_size mesh grid cell size
+	 * @return (true = all air)
+	 */
+	bool checkSkip(u16 cell_size);
 };
 
 /*

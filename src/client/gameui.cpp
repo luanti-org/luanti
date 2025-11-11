@@ -16,6 +16,7 @@
 #include "fontengine.h"
 #include "hud.h" // HUD_FLAG_*
 #include "nodedef.h"
+#include "localplayer.h"
 #include "profiler.h"
 #include "renderingengine.h"
 #include "version.h"

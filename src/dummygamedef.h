@@ -11,6 +11,9 @@
 #include "craftdef.h"
 #include "content/mods.h"
 #include "database/database-dummy.h"
+#if CHECK_CLIENT_BUILD()
+#include "client/node_visuals.h"
+#endif
 
 class DummyGameDef : public IGameDef {
 public:
@@ -30,6 +33,7 @@ public:
 		delete m_itemdef;
 	}
 
+	bool isClient() override { return false; }
 	IItemDefManager *getItemDefManager() override { return m_itemdef; }
 	const NodeDefManager *getNodeDefManager() override { return m_nodedef; }
 	NodeDefManager* getWritableNodeDefManager() { return m_nodedef; }
@@ -61,4 +65,8 @@ protected:
 	NodeDefManager *m_nodedef = nullptr;
 	ICraftDefManager *m_craftdef = nullptr;
 	ModStorageDatabase *m_mod_storage_database = nullptr;
+
+#if CHECK_CLIENT_BUILD()
+	static NodeVisuals *constructNodeVisuals(ContentFeatures *f) { return new NodeVisuals(f); }
+#endif
 };

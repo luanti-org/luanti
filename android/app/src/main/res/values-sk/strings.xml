@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">Luanti</string>
+    <string name="loading">Načítavam…</string>
+    <string name="notification_channel_name">Hlavné oznámenie</string>
+    <string name="notification_channel_description">Oznámenia Luanti</string>
+    <string name="unzip_notification_title">Načítanie Luanti</string>
+    <string name="unzip_notification_description">Už iba minútka…</string>
+    <string name="game_notification_title">Luanti už frčí</string>
+    <string name="ime_dialog_done">Hotovo</string>
+    <string name="no_web_browser">Nenašiel som žiaden prehliadač</string>
+</resources>

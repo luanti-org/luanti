@@ -9,7 +9,7 @@
 #include "util/directiontables.h"
 #include "util/tracy_wrapper.h"
 #include "mapblock_mesh.h"
-#include "settings.h"
+#include "node_visuals.h"
 #include "nodedef.h"
 #include "client/tile.h"
 #include "mesh.h"
@@ -98,7 +98,8 @@ void MapblockMeshGenerator::getTile(v3s16 direction, TileSpec *tile_ret)
 // Returns a special tile, ready for use, non-rotated.
 void MapblockMeshGenerator::getSpecialTile(int index, TileSpec *tile_ret, bool apply_crack)
 {
-	*tile_ret = cur_node.f->special_tiles[index];
+	const ContentFeatures &f = *cur_node.f;
+	*tile_ret = f.visuals->special_tiles[index];
 	TileLayer *top_layer = nullptr;
 
 	for (auto &layernum : tile_ret->layers) {
@@ -107,7 +108,7 @@ void MapblockMeshGenerator::getSpecialTile(int index, TileSpec *tile_ret, bool a
 			continue;
 		top_layer = layer;
 		if (!layer->has_color)
-			cur_node.n.getColor(*cur_node.f, &layer->color);
+			f.visuals->getColor(cur_node.n.param2, &layer->color);
 	}
 
 	if (apply_crack)
@@ -451,12 +452,12 @@ void MapblockMeshGenerator::drawSolidNode()
 			continue;
 		if (n2 != CONTENT_AIR) {
 			const ContentFeatures &f2 = nodedef->get(n2);
-			if (f2.solidness == 2)
+			if (f2.visuals->solidness == 2)
 				continue;
 			if (cur_node.f->drawtype == NDT_LIQUID) {
 				if (cur_node.f->sameLiquidRender(f2))
 					continue;
-				backface_culling = f2.solidness || f2.visual_solidness;
+				backface_culling = f2.visuals->solidness || f2.visuals->visual_solidness;
 			}
 		}
 		faces |= 1 << face;
@@ -565,7 +566,7 @@ void MapblockMeshGenerator::prepareLiquidNodeDrawing()
 			&& (nbottom.getContent() != cur_liquid.c_source);
 	if (cur_liquid.draw_bottom) {
 		const ContentFeatures &f2 = nodedef->get(nbottom.getContent());
-		if (f2.solidness > 1)
+		if (f2.visuals->solidness > 1)
 			cur_liquid.draw_bottom = false;
 	}
 
@@ -707,7 +708,7 @@ void MapblockMeshGenerator::drawLiquidSides()
 
 		const ContentFeatures &neighbor_features = nodedef->get(neighbor.content);
 		// Don't draw face if neighbor is blocking the view
-		if (neighbor_features.solidness == 2)
+		if (neighbor_features.visuals->solidness == 2)
 			continue;
 
 		video::S3DVertex vertices[4];
@@ -1021,8 +1022,9 @@ void MapblockMeshGenerator::drawGlasslikeFramedNode()
 
 	// Optionally render internal liquid level defined by param2
 	// Liquid is textured with 1 tile defined in nodedef 'special_tiles'
-	if (param2 > 0 && cur_node.f->param_type_2 == CPT2_GLASSLIKE_LIQUID_LEVEL &&
-			cur_node.f->special_tiles[0].layers[0].texture) {
+	auto &cf = *cur_node.f;
+	if (param2 > 0 && cf.param_type_2 == CPT2_GLASSLIKE_LIQUID_LEVEL &&
+			!cf.visuals->special_tiles[0].layers[0].empty()) {
 		// Internal liquid level has param2 range 0 .. 63,
 		// convert it to -0.5 .. 0.5
 		float vlev = (param2 / 63.0f) * 2.0f - 1.0f;
@@ -1054,7 +1056,7 @@ void MapblockMeshGenerator::drawTorchlikeNode()
 		default: tileindex = 2; // side (or invalid, shouldn't happen)
 	}
 	TileSpec tile;
-	useTile(&tile, tileindex, MATERIAL_FLAG_CRACK_OVERLAY, MATERIAL_FLAG_BACKFACE_CULLING);
+	useTile(&tile, tileindex, 0, MATERIAL_FLAG_BACKFACE_CULLING);
 
 	float size = BS / 2 * cur_node.f->visual_scale;
 	v3f vertices[4] = {
@@ -1108,7 +1110,7 @@ void MapblockMeshGenerator::drawSignlikeNode()
 {
 	u8 wall = cur_node.n.getWallMounted(nodedef);
 	TileSpec tile;
-	useTile(&tile, 0, MATERIAL_FLAG_CRACK_OVERLAY, MATERIAL_FLAG_BACKFACE_CULLING);
+	useTile(&tile, 0, 0, MATERIAL_FLAG_BACKFACE_CULLING);
 	static const float offset = BS / 16;
 	float size = BS / 2 * cur_node.f->visual_scale;
 	// Wall at X+ of node
@@ -1294,9 +1296,10 @@ void MapblockMeshGenerator::drawPlantlikeNode()
 void MapblockMeshGenerator::drawPlantlikeRootedNode()
 {
 	drawSolidNode();
+
 	TileSpec tile;
-	useTile(&tile, 0, MATERIAL_FLAG_CRACK_OVERLAY, 0, true);
-	cur_node.origin += v3f(0.0, BS, 0.0);
+	useTile(&tile, 0, 0, 0, true);
+	cur_node.origin += v3f(0, BS, 0);
 	cur_node.p.Y++;
 	if (data->m_smooth_lighting) {
 		getSmoothLightFrame();
@@ -1379,10 +1382,7 @@ void MapblockMeshGenerator::drawFirelikeNode()
 void MapblockMeshGenerator::drawFencelikeNode()
 {
 	TileSpec tile_nocrack;
-	useTile(&tile_nocrack, 0, 0, 0);
-
-	for (auto &layer : tile_nocrack.layers)
-		layer.material_flags &= ~MATERIAL_FLAG_CRACK;
+	useTile(&tile_nocrack, 0, 0, MATERIAL_FLAG_CRACK);
 
 	// Put wood the right way around in the posts
 	TileSpec tile_rot = tile_nocrack;
@@ -1529,7 +1529,7 @@ void MapblockMeshGenerator::drawRaillikeNode()
 	}
 
 	TileSpec tile;
-	useTile(&tile, tile_index, MATERIAL_FLAG_CRACK_OVERLAY, MATERIAL_FLAG_BACKFACE_CULLING);
+	useTile(&tile, tile_index, 0, MATERIAL_FLAG_BACKFACE_CULLING);
 
 	static const float offset = BS / 64;
 	static const float size   = BS / 2;
@@ -1710,9 +1710,10 @@ void MapblockMeshGenerator::drawMeshNode()
 		degrotate = cur_node.n.getDegRotate(nodedef);
 	}
 
-	if (cur_node.f->mesh_ptr) {
+	auto *mesh_ptr = cur_node.f->visuals->mesh_ptr;
+	if (mesh_ptr) {
 		// clone and rotate mesh
-		mesh = cloneStaticMesh(cur_node.f->mesh_ptr);
+		mesh = cloneStaticMesh(mesh_ptr);
 		bool modified = true;
 		if (facedir)
 			rotateMeshBy6dFacedir(mesh, facedir);

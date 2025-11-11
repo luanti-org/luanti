@@ -32,7 +32,6 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/render/anaglyph.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/core.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/factory.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/render/interlaced.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/plain.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/sidebyside.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/render/stereo.cpp
@@ -67,6 +66,7 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/mesh.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mesh_generator_thread.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/minimap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/node_visuals.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/particles.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/renderingengine.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shader.cpp

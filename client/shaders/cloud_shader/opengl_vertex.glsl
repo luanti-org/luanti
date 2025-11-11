@@ -1,8 +1,8 @@
 uniform lowp vec4 materialColor;
 
-varying lowp vec4 varColor;
+VARYING_ lowp vec4 varColor;
 
-varying highp vec3 eyeVec;
+VARYING_ highp vec3 eyeVec;
 
 void main(void)
 {

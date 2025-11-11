@@ -3,8 +3,8 @@ uniform sampler2D normalTexture;
 uniform vec3 yawVec;
 uniform float mapSize;
 
-varying lowp vec4 varColor;
-varying mediump vec2 varTexCoord;
+VARYING_ lowp vec4 varColor;
+VARYING_ mediump vec2 varTexCoord;
 
 void main (void)
 {

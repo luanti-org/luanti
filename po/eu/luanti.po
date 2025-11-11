@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-05-21 10:48+0000\n"
 "Last-Translator: Josu Igoa <josuigoa@ni.eus>\n"
 "Language-Team: Basque <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1247,10 +1247,6 @@ msgid "New"
 msgstr "Berria"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Ez da mundurik sortu edo hautatu!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Jolastu Jokoa"
 
@@ -1840,10 +1836,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profilaria ikusgai (%d/%d orria)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Aplikazioak"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr ""
 
@@ -1877,44 +1869,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Amaiera"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr ""
+#, fuzzy
+msgid "Help Key"
+msgstr "Ezabatu"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Exekutatu"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Laguntza"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Hasiera"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr ""
+#, fuzzy
+msgid "Home Key"
+msgstr "Zoom"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1926,8 +1893,9 @@ msgid "Left Arrow"
 msgstr "Ezkerreko ctrl"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Ezkerreko botoia"
+#, fuzzy
+msgid "Left Click"
+msgstr "Ezkerreko ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1941,19 +1909,27 @@ msgstr "Ezkerreko menua"
 msgid "Left Shift"
 msgstr "Ezkerreko maius."
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Ezkerreko leihoa"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Erdiko botoia"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2020,10 +1996,6 @@ msgid "Numpad 9"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr ""
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Orrialdea behera"
@@ -2059,8 +2031,9 @@ msgid "Right Arrow"
 msgstr "Eskuineko ctrl"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Eskuineko botoia"
+#, fuzzy
+msgid "Right Click"
+msgstr "Eskuineko ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2074,6 +2047,7 @@ msgstr "Eskuineko menua"
 msgid "Right Shift"
 msgstr "Eskuineko maius."
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Eskuineko leihoa"
@@ -2082,10 +2056,10 @@ msgstr "Eskuineko leihoa"
 msgid "Scroll Lock"
 msgstr ""
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Hautatu"
+#, fuzzy
+msgid "Select Key"
+msgstr "Ezabatu"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2093,37 +2067,17 @@ msgid "Shift Key"
 msgstr "Maius."
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Lokartu"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Pantaila-argazkia"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Espazioa"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tabuladorea"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Isilean mugitu tekla"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "1. X botoia"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "2. X botoia"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Zoom"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2530,12 +2484,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2860,6 +2813,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3348,6 +3312,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "Apaingarriak"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5049,6 +5017,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6949,3 +6921,48 @@ msgstr "cURL-en denbora muga"
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr ""
+
+#~ msgid "Apps"
+#~ msgstr "Aplikazioak"
+
+#~ msgid "End"
+#~ msgstr "Amaiera"
+
+#~ msgid "Execute"
+#~ msgstr "Exekutatu"
+
+#~ msgid "Help"
+#~ msgstr "Laguntza"
+
+#~ msgid "Home"
+#~ msgstr "Hasiera"
+
+#~ msgid "Left Button"
+#~ msgstr "Ezkerreko botoia"
+
+#~ msgid "Middle Button"
+#~ msgstr "Erdiko botoia"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Ez da mundurik sortu edo hautatu!"
+
+#~ msgid "Right Button"
+#~ msgstr "Eskuineko botoia"
+
+#~ msgid "Select"
+#~ msgstr "Hautatu"
+
+#~ msgid "Sleep"
+#~ msgstr "Lokartu"
+
+#~ msgid "Snapshot"
+#~ msgstr "Pantaila-argazkia"
+
+#~ msgid "Tab"
+#~ msgstr "Tabuladorea"
+
+#~ msgid "X Button 1"
+#~ msgstr "1. X botoia"
+
+#~ msgid "X Button 2"
+#~ msgstr "2. X botoia"

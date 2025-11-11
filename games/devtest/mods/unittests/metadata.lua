@@ -128,3 +128,42 @@ local function test_node_metadata(player, pos)
 	test_metadata(core.get_meta(pos))
 end
 unittests.register("test_node_metadata", test_node_metadata, {map=true})
+
+local function get_cracky_cap(item)
+	local value = item:get_tool_capabilities()
+	assert(type(value) == "table")
+	value = value.groupcaps
+	assert(type(value) == "table")
+	value = value.cracky
+	assert(type(value) == "table")
+	value = value.times
+	assert(type(value) == "table")
+	value = value[1]
+	assert(type(value) == "number")
+	return value
+end
+
+local function test_item_metadata_tool_capabilities()
+	local test_caps = {
+		groupcaps={
+			cracky={times={123}},
+		},
+	}
+
+	-- has no tool capabilities
+	local item = ItemStack("unittests:stick")
+	local item_meta = item:get_meta()
+	assert(dump(item:get_tool_capabilities()) == dump(ItemStack(""):get_tool_capabilities()))
+	item_meta:set_tool_capabilities(test_caps)
+	-- Can't directly compare the tables, because the pushback to Lua from get_tool_capabilities()
+	-- adds values to left out fields of the tool capabilities table.
+	assert(get_cracky_cap(item) == 123)
+
+	-- has preexisting tool capabilities in its definition table
+	item = ItemStack("unittests:unrepairable_tool")
+	item_meta = item:get_meta()
+	assert(get_cracky_cap(item) == 3)
+	item_meta:set_tool_capabilities(test_caps)
+	assert(get_cracky_cap(item) == 123)
+end
+unittests.register("test_item_metadata_tool_capabilities", test_item_metadata_tool_capabilities)

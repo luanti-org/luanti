@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: French (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-07-01 14:49+0000\n"
 "Last-Translator: Tanavit MINETEST <tanavit@posto.ovh>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1237,10 +1237,6 @@ msgid "New"
 msgstr "Nouveau"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Aucun monde créé ou sélectionné !"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Jouer"
 
@@ -1844,10 +1840,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profileur affiché (page %d1 sur %d2)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Applications"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Retour"
 
@@ -1877,44 +1869,19 @@ msgid "Down Arrow"
 msgstr "Flèche bas"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Fin"
+#, fuzzy
+msgid "End Key"
+msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Écraser l'EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Supprimer"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Exécuter"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Aide"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Origine"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Accepter IME"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Convertir IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "Échap. IME"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Changer de mode IME"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "Non converti IME"
+#, fuzzy
+msgid "Home Key"
+msgstr "Zoom"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1925,8 +1892,9 @@ msgid "Left Arrow"
 msgstr "Flèche gauche"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Clic gauche"
+#, fuzzy
+msgid "Left Click"
+msgstr "Contrôle gauche"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1940,18 +1908,26 @@ msgstr "Menu gauche"
 msgid "Left Shift"
 msgstr "Maj. gauche"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Wind. gauche"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Clic central"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2018,10 +1994,6 @@ msgid "Numpad 9"
 msgstr "Pavé num. 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Clear"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Bas de page"
 
@@ -2052,8 +2024,9 @@ msgid "Right Arrow"
 msgstr "Flèche droite"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Clic droit"
+#, fuzzy
+msgid "Right Click"
+msgstr "Contrôle droite"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2067,6 +2040,7 @@ msgstr "Menu droite"
 msgid "Right Shift"
 msgstr "Maj. droit"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Wind. droite"
@@ -2075,46 +2049,27 @@ msgstr "Wind. droite"
 msgid "Scroll Lock"
 msgstr "Arrêt défil."
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Sélectionner"
+#, fuzzy
+msgid "Select Key"
+msgstr "Supprimer"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Majuscule"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Mise en veille"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Capture d'écran"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Espace"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tabulation"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Attente"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Flèche haut"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Bouton X 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Bouton X 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zoom"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2551,15 +2506,15 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "Bruit 3D déterminant le nombre de donjons par tranche de carte."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Prise en charge de la 3D.\n"
 "Actuellement disponible :\n"
@@ -2939,6 +2894,17 @@ msgstr "Lissage du mouvement de la caméra"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Lissage du mouvement de la caméra en mode cinématique"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3497,6 +3463,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Options de développeur"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5489,6 +5459,11 @@ msgid "Maximum users"
 msgstr "Nombre maximal de joueurs"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Temples du désert"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "Message du jour"
 
@@ -5918,8 +5893,8 @@ msgstr ""
 "Adresse d'écoute pour Prometheus.\n"
 "Lorsque Luanti est compilé avec prise en charge de Prometheus, cette adresse "
 "est utilisée pour l'écoute de données.\n"
-"Par défaut, les métriques peuvent être récupérées à partir de "
-"http://127.0.0.1:30000/metrics.\n"
+"Par défaut, les métriques peuvent être récupérées à partir de http://"
+"127.0.0.1:30000/metrics.\n"
 "Une valeur vide désactive l'écoute des métriques."
 
 #: src/settings_translation_file.cpp
@@ -7817,233 +7792,68 @@ msgstr "Délai d'interruption interactif de cURL"
 msgid "cURL parallel limit"
 msgstr "Limite parallèle de cURL"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Appliquer un ombrage spéculaire aux nœuds."
+#~ msgid "Apps"
+#~ msgstr "Applications"
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "Touche pour réduire la distance de vue."
+#~ msgid "End"
+#~ msgstr "Fin"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "Touche pour réduire le volume."
+#~ msgid "Erase EOF"
+#~ msgstr "Écraser l'EOF"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "Touche pour lâcher l'objet sélectionné."
+#~ msgid "Execute"
+#~ msgstr "Exécuter"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "Touche pour augmenter la distance de vue."
+#~ msgid "Help"
+#~ msgstr "Aide"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "Touche pour augmenter le volume."
+#~ msgid "Home"
+#~ msgstr "Origine"
 
-#~ msgid "Key for jumping."
-#~ msgstr "Touche pour sauter."
+#~ msgid "IME Accept"
+#~ msgstr "Accepter IME"
 
-#~ msgid "Key for moving the player forward."
-#~ msgstr "Touche pour avancer."
+#~ msgid "IME Convert"
+#~ msgstr "Convertir IME"
 
-#~ msgid "Key for moving the player left."
-#~ msgstr "Touche de déplacement vers la gauche."
+#~ msgid "IME Escape"
+#~ msgstr "Échap. IME"
 
-#~ msgid "Key for moving the player right."
-#~ msgstr "Touche de déplacement vers la droite."
+#~ msgid "IME Mode Change"
+#~ msgstr "Changer de mode IME"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "Touche pour couper le son du jeu."
+#~ msgid "IME Nonconvert"
+#~ msgstr "Non converti IME"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "Touche pour ouvrir le tchat."
+#~ msgid "Left Button"
+#~ msgstr "Clic gauche"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "Touche pour ouvrir l'inventaire."
+#~ msgid "Middle Button"
+#~ msgstr "Clic central"
 
-#~ msgid "Key for selecting the 11th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 11ᵉ emplacement de la barre d'inventaire."
+#~ msgid "No world created or selected!"
+#~ msgstr "Aucun monde créé ou sélectionné !"
 
-#~ msgid "Key for selecting the 12th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 12ᵉ emplacement de la barre d'inventaire."
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Clear"
 
-#~ msgid "Key for selecting the 13th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 13ᵉ emplacement de la barre d'inventaire."
+#~ msgid "Right Button"
+#~ msgstr "Clic droit"
 
-#~ msgid "Key for selecting the 14th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 14ᵉ emplacement de la barre d'inventaire."
+#~ msgid "Select"
+#~ msgstr "Sélectionner"
 
-#~ msgid "Key for selecting the 15th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 15ᵉ emplacement de la barre d'inventaire."
+#~ msgid "Sleep"
+#~ msgstr "Mise en veille"
 
-#~ msgid "Key for selecting the 16th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 16ᵉ emplacement de la barre d'inventaire."
+#~ msgid "Snapshot"
+#~ msgstr "Capture d'écran"
 
-#~ msgid "Key for selecting the 17th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 17ᵉ emplacement de la barre d'inventaire."
+#~ msgid "Tab"
+#~ msgstr "Tabulation"
 
-#~ msgid "Key for selecting the 18th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 18ᵉ emplacement de la barre d'inventaire."
+#~ msgid "X Button 1"
+#~ msgstr "Bouton X 1"
 
-#~ msgid "Key for selecting the 19th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 19ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 20th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 20ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 21st hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 21ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 22nd hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 22ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 23rd hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 23ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 24th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 24ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 25th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 25ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 26th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 26ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 27th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 27ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 28th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 28ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 29th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 29ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 30th hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 30ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 31st hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 31ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the 32nd hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le 32ᵉ emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the eighth hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le huitième emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the fifth hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le cinquième emplacement de la barre "
-#~ "d'inventaire."
-
-#~ msgid "Key for selecting the first hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le premier emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the fourth hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le quatrième emplacement de la barre "
-#~ "d'inventaire."
-
-#~ msgid "Key for selecting the next item in the hotbar."
-#~ msgstr ""
-#~ "Touche pour sélectionner l'objet suivant dans la barre d'inventaire."
-
-#~ msgid "Key for selecting the ninth hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le neuvième emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the previous item in the hotbar."
-#~ msgstr ""
-#~ "Touche pour sélectionner l'objet précédent dans la barre d'inventaire."
-
-#~ msgid "Key for selecting the second hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le deuxième emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the seventh hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le septième emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the sixth hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le sixième emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the tenth hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le dixième emplacement de la barre d'inventaire."
-
-#~ msgid "Key for selecting the third hotbar slot."
-#~ msgstr ""
-#~ "Touche pour sélectionner le troisième emplacement de la barre "
-#~ "d'inventaire."
-
-#~ msgid "Key for switching between first- and third-person camera."
-#~ msgstr ""
-#~ "Touche pour changer de vue entre la première et la troisième personne."
-
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Touche pour prendre des captures d'écran."
-
-#~ msgid "Key for toggling autoforward."
-#~ msgstr "Touche pour avancer automatiquement."
-
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Touche pour passer en mode cinématique."
-
-#~ msgid "Key for toggling display of minimap."
-#~ msgstr "Touche pour afficher la mini-carte."
-
-#~ msgid "Key for toggling fast mode."
-#~ msgstr "Touche pour passer en mode rapide."
-
-#~ msgid "Key for toggling flying."
-#~ msgstr "Touche pour voler."
-
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Touche pour passer en mode plein écran."
-
-#~ msgid "Key for toggling noclip mode."
-#~ msgstr "Touche pour passer en mode sans collision."
-
-#~ msgid "Key for toggling pitch move mode."
-#~ msgstr "Touche pour passer en mode mouvement de tangage."
-
-#~ msgid "Key for toggling the display of chat."
-#~ msgstr "Touche pour afficher le tchat."
-
-#~ msgid "Key for toggling the display of debug info."
-#~ msgstr "Touche pour afficher les infos de débogage."
-
-#~ msgid "Key for toggling the display of fog."
-#~ msgstr "Touche pour activer le brouillard."
-
-#~ msgid "Key for toggling the display of the HUD."
-#~ msgstr "Touche pour afficher l'ATH."
-
-#~ msgid "Key for toggling the display of the large chat console."
-#~ msgstr ""
-#~ "Touche pour afficher la console de tchat à la hauteur maximale définie."
-
-#~ msgid "Key to use view zoom when possible."
-#~ msgstr "Touche pour zoomer lorsque c'est possible."
-
-#~ msgid "Node specular"
-#~ msgstr "Nœud spéculaire"
+#~ msgid "X Button 2"
+#~ msgstr "Bouton X 2"

@@ -31,10 +31,10 @@
     Server
 */
 
-// This many blocks are sent when player is building
-#define LIMITED_MAX_SIMULTANEOUS_BLOCK_SENDS 0
-// Override for the previous one when distance of block is very low
-#define BLOCK_SEND_DISABLE_LIMITS_MAX_D 1
+// Reduces block send rate while player is building
+#define LIMITED_BLOCK_SENDS_FACTOR 0.33f
+// Override for the previous one for blocks that are close by
+#define BLOCK_ALWAYS_SEND_MAX_D 1
 
 /*
     Client/Server

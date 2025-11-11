@@ -3,6 +3,7 @@
     <id>org.luanti.luanti</id>
     <provides>
         <id>net.minetest.minetest</id>
+        <binary>luanti</binary>
     </provides>
     <replaces>
         <id>net.minetest.minetest</id>
@@ -165,15 +166,11 @@
     <url type="vcs-browser">https://github.com/luanti-org/luanti</url>
     <url type="contribute">https://www.luanti.org/get-involved</url>
 
-    <provides>
-        <binary>luanti</binary>
-    </provides>
-
     <translation type="gettext">luanti</translation>
 
     <update_contact>celeron55@gmail.com</update_contact>
 
     <releases>
-        <release date="2025-08-01" version="5.13.0"/>
+        <release date="2025-10-05" version="5.14.0"/>
     </releases>
 </component>

@@ -34,6 +34,11 @@ ObjectProperties::ObjectProperties()
 
 std::string ObjectProperties::dump() const
 {
+	const auto &put_color = [] (std::ostream &os, video::SColor color) {
+		os << "\"" << color.getAlpha() << "," << color.getRed() << ","
+			<< color.getGreen() << "," << color.getBlue() << "\" ";
+	};
+
 	std::ostringstream os(std::ios::binary);
 	os << "hp_max=" << hp_max;
 	os << ", breath_max=" << breath_max;
@@ -49,10 +54,8 @@ std::string ObjectProperties::dump() const
 	}
 	os << "]";
 	os << ", colors=[";
-	for (const video::SColor &color : colors) {
-		os << "\"" << color.getAlpha() << "," << color.getRed() << ","
-			<< color.getGreen() << "," << color.getBlue() << "\" ";
-	}
+	for (const video::SColor &color : colors)
+		put_color(os, color);
 	os << "]";
 	os << ", spritediv=" << spritediv;
 	os << ", initial_sprite_basepos=" << initial_sprite_basepos;
@@ -62,15 +65,18 @@ std::string ObjectProperties::dump() const
 	os << ", backface_culling="<< backface_culling;
 	os << ", glow=" << glow;
 	os << ", nametag=" << nametag;
-	os << ", nametag_color=" << "\"" << nametag_color.getAlpha() << "," << nametag_color.getRed()
-			<< "," << nametag_color.getGreen() << "," << nametag_color.getBlue() << "\" ";
-
+	os << ", nametag_color=";
+	put_color(os, nametag_color);
+	os << ", nametag_bgcolor=";
 	if (nametag_bgcolor)
-		os << ", nametag_bgcolor=" << "\"" << nametag_color.getAlpha() << "," << nametag_color.getRed()
-		   << "," << nametag_color.getGreen() << "," << nametag_color.getBlue() << "\" ";
+		put_color(os, nametag_bgcolor.value());
 	else
-		os << ", nametag_bgcolor=null ";
-
+		os << "=null ";
+	os << ", nametag_fontsize=";
+	if (nametag_fontsize)
+		os << "=" << nametag_fontsize.value() << " ";
+	else
+		os << "=null ";
 	os << ", selectionbox=" << selectionbox.MinEdge << "," << selectionbox.MaxEdge;
 	os << ", rotate_selectionbox=" << rotate_selectionbox;
 	os << ", pointable=" << Pointabilities::toStringPointabilityType(pointable);
@@ -83,22 +89,24 @@ std::string ObjectProperties::dump() const
 	os << ", damage_texture_modifier=" << damage_texture_modifier;
 	os << ", shaded=" << shaded;
 	os << ", show_on_minimap=" << show_on_minimap;
+	os << ", nametag_scale_z=" << nametag_scale_z;
 	return os.str();
 }
 
-static auto tie(const ObjectProperties &o)
+static inline auto tie(const ObjectProperties &o)
 {
 	// Make sure to add new members to this list!
 	return std::tie(
 	o.textures, o.colors, o.collisionbox, o.selectionbox, o.visual, o.mesh,
 	o.damage_texture_modifier, o.nametag, o.infotext, o.wield_item, o.visual_size,
-	o.nametag_color, o.nametag_bgcolor, o.spritediv, o.initial_sprite_basepos,
+	o.nametag_color, o.nametag_bgcolor, o.nametag_fontsize, o.spritediv,
+	o.initial_sprite_basepos,
 	o.stepheight, o.automatic_rotate, o.automatic_face_movement_dir_offset,
 	o.automatic_face_movement_max_rotation_per_sec, o.eye_height, o.zoom_fov,
 	o.node, o.hp_max, o.breath_max, o.glow, o.pointable, o.physical,
 	o.collideWithObjects, o.rotate_selectionbox, o.is_visible, o.makes_footstep_sound,
 	o.automatic_face_movement_dir, o.backface_culling, o.static_save, o.use_texture_alpha,
-	o.shaded, o.show_on_minimap
+	o.shaded, o.show_on_minimap, o.nametag_scale_z
 	);
 }
 
@@ -201,6 +209,13 @@ void ObjectProperties::serialize(std::ostream &os) const
 	writeU16(os, node.getContent());
 	writeU8(os, node.getParam1());
 	writeU8(os, node.getParam2());
+
+	if (!nametag_fontsize)
+		writeU32(os, U32_MAX); // null placeholder
+	else
+		writeU32(os, nametag_fontsize.value());
+
+	writeU8(os, nametag_scale_z);
 
 	// Add stuff only at the bottom.
 	// Never remove anything, because we don't want new versions of this!
@@ -305,6 +320,15 @@ void ObjectProperties::deSerialize(std::istream &is)
 		return;
 	node.param1 = readU8(is);
 	node.param2 = readU8(is);
+
+	u32 fontsize;
+	if (!tryRead<u32, readU32>(fontsize, is))
+		return;
+	if (fontsize != U32_MAX)
+		nametag_fontsize = fontsize;
+	else
+		nametag_fontsize = std::nullopt;
+	nametag_scale_z = readU8(is);
 
 	// Add new properties down here and remember to use either tryRead<> or a try-catch.
 }

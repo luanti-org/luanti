@@ -32,5 +32,5 @@ public:
 	void stop() = delete;
 
 private:
-	void SendChatMessage(session_t peer_id, const ChatMessage &message) {}
+	void SendChatMessage(session_t peer_id, const ChatMessage &message) override {}
 };

@@ -6,9 +6,10 @@
 
 #include "irrlichttypes_bloated.h"
 #include "map.h"
-#include "camera.h"
+#include <ISceneNode.h>
 #include <set>
 #include <map>
+#include <functional>
 
 struct MapDrawControl
 {
@@ -23,6 +24,9 @@ struct MapDrawControl
 };
 
 class Client;
+class RenderingEngine;
+
+enum CameraMode : int;
 
 namespace scene
 {
@@ -43,6 +47,7 @@ struct CachedMeshBuffer {
 
 using CachedMeshBuffers = std::unordered_map<std::string, CachedMeshBuffer>;
 
+using ModifyMaterialCallback = std::function<void(video::SMaterial& /* material */, bool /* is_foliage */)>;
 
 /*
 	ClientMap
@@ -104,7 +109,7 @@ public:
 	void renderMap(video::IVideoDriver* driver, s32 pass);
 
 	void renderMapShadows(video::IVideoDriver *driver,
-			const video::SMaterial &material, s32 pass, int frame, int total_frames);
+			ModifyMaterialCallback cb, s32 pass, int frame, int total_frames);
 
 	int getBackgroundBrightness(float max_d, u32 daylight_factor,
 			int oldvalue, bool *sunlight_seen_result);

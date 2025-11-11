@@ -4,21 +4,14 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
+#include <functional>
 #include <string>
 #include <iostream>
 #include <memory> // shared_ptr
-#include <map>
 #include "mapnode.h"
 #include "nameidmapping.h"
-#if CHECK_CLIENT_BUILD()
-#include "client/tile.h"
-#include <IMeshManipulator.h>
-class Client;
-#endif
 #include "itemgroup.h"
 #include "sound.h" // SoundSpec
-#include "constants.h" // BS
 #include "texture_override.h" // TextureOverride
 #include "tileanimation.h"
 #include "util/pointabilities.h"
@@ -30,6 +23,9 @@ class IGameDef;
 class NodeResolver;
 #if BUILD_UNITTESTS
 class TestSchematic;
+#endif
+#if CHECK_CLIENT_BUILD()
+struct NodeVisuals;
 #endif
 
 enum ContentParamType : u8
@@ -259,7 +255,6 @@ enum AlphaMode : u8 {
 	AlphaMode_END // Dummy for validity check
 };
 
-
 /*
 	Stand-alone definition of a TileSpec (basically a server-side TileSpec)
 */
@@ -301,20 +296,6 @@ struct ContentFeatures
 	// write checks that depend directly on the protocol version instead.
 	static const u8 CONTENTFEATURES_VERSION = 13;
 
-	/*
-		Cached stuff
-	 */
-#if CHECK_CLIENT_BUILD()
-	// 0     1     2     3     4     5
-	// up    down  right left  back  front
-	TileSpec tiles[6];
-	// Special tiles
-	TileSpec special_tiles[CF_SPECIAL_COUNT];
-	u8 solidness; // Used when choosing which face is drawn
-	u8 visual_solidness; // When solidness=0, this tells how it looks like
-	bool backface_culling;
-#endif
-
 	// Server-side cached callback existence for fast skipping
 	bool has_on_construct;
 	bool has_on_destruct;
@@ -340,10 +321,6 @@ struct ContentFeatures
 
 	enum NodeDrawType drawtype;
 	std::string mesh;
-#if CHECK_CLIENT_BUILD()
-	scene::SMesh *mesh_ptr; // mesh in case of mesh node
-	video::SColor minimap_color;
-#endif
 	float visual_scale; // Misc. scale parameter
 	TileDef tiledef[6];
 	// These will be drawn over the base tiles.
@@ -353,7 +330,6 @@ struct ContentFeatures
 	// The color of the node.
 	video::SColor color;
 	std::string palette_name;
-	std::vector<video::SColor> *palette;
 	// Used for waving leaves/plants
 	u8 waving;
 	// for NDT_CONNECTED pairing
@@ -367,6 +343,14 @@ struct ContentFeatures
 	u8 leveled;
 	// Maximum value for leveled nodes
 	u8 leveled_max;
+
+	// --- CLIENT ONLY ---
+
+#if CHECK_CLIENT_BUILD()
+	// The Client class fills this for its NodeDefManager using fillNodeVisuals,
+	// thus for ContentFeatures of a Client it is not a nullptr.
+	NodeVisuals *visuals = nullptr;
+#endif
 
 	// --- LIGHTING-RELATED ---
 
@@ -504,11 +488,6 @@ struct ContentFeatures
 		return itemgroup_get(groups, group);
 	}
 
-#if CHECK_CLIENT_BUILD()
-	void updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
-		scene::IMeshManipulator *meshmanip, Client *client, const TextureSettings &tsettings);
-#endif
-
 private:
 	void setAlphaFromLegacy(u8 legacy_alpha);
 
@@ -534,7 +513,6 @@ public:
 	 * \ref CONTENT_AIR, \ref CONTENT_UNKNOWN and \ref CONTENT_IGNORE.
 	 */
 	NodeDefManager();
-	~NodeDefManager();
 
 	/*!
 	 * Returns the properties for the given content type.
@@ -676,15 +654,20 @@ public:
 	void applyTextureOverrides(const std::vector<TextureOverride> &overrides);
 
 	/*!
-	 * Only the client uses this. Loads textures and shaders required for
-	 * rendering the nodes.
-	 * @param gamedef must be a Client.
-	 * @param progress_cbk called each time a node is loaded. Arguments:
-	 * `progress_cbk_args`, number of loaded ContentFeatures, number of
-	 * total ContentFeatures.
-	 * @param progress_cbk_args passed to the callback function
+	 * Applies a function to all Content Features.
+	 * Clients need this to make use of the visuals field.
+	 * @param function to apply
 	 */
-	void updateTextures(IGameDef *gamedef, void *progress_cbk_args);
+	void applyFunction(const std::function<void(ContentFeatures&)> &function);
+
+	/*!
+	 * Returns the amount of managed content IDs.
+	 * Invalid and removed IDs are also counted.
+	 */
+	inline u32 size() const
+	{
+		return m_content_features.size();
+	}
 
 	/*!
 	 * Writes the content of this manager to the given output stream.
@@ -727,6 +710,12 @@ public:
 	 * Must be called after node registration has finished!
 	 */
 	void resolveCrossrefs();
+
+#if CHECK_CLIENT_BUILD()
+	// Set of all shader IDs used by leaves-like nodes
+	// (kind of a hack but is needed for dynamic shadows)
+	std::vector<u32> m_leaves_materials;
+#endif
 
 private:
 	/*!

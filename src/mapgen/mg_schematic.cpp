@@ -14,6 +14,7 @@
 #include "util/numeric.h"
 #include "util/serialize.h"
 #include "serialization.h"
+#include "servermap.h"
 #include "filesys.h"
 #include "voxelalgorithms.h"
 #include "porting.h"

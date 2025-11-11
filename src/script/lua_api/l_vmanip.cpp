@@ -9,10 +9,9 @@
 #include "common/c_content.h"
 #include "common/c_converter.h"
 #include "common/c_packer.h"
-#include "environment.h"
-#include "map.h"
 #include "mapblock.h"
-#include "server.h"
+#include "serverenvironment.h"
+#include "servermap.h"
 #include "voxelalgorithms.h"
 
 // garbage collector

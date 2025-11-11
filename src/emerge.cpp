@@ -8,24 +8,22 @@
 
 #include <iostream>
 
-#include "util/container.h"
 #include "config.h"
 #include "constants.h"
-#include "environment.h"
 #include "irrlicht_changes/printing.h"
 #include "filesys.h"
 #include "log.h"
+#include "serverenvironment.h"
 #include "servermap.h"
-#include "database/database.h"
 #include "mapblock.h"
 #include "mapgen/mg_biome.h"
 #include "mapgen/mg_ore.h"
 #include "mapgen/mg_decoration.h"
 #include "mapgen/mg_schematic.h"
-#include "nodedef.h"
 #include "profiler.h"
 #include "scripting_server.h"
 #include "scripting_emerge.h"
+#include "script/common/c_types.h" // LuaError
 #include "server.h"
 #include "settings.h"
 #include "voxel.h"
@@ -190,7 +188,7 @@ void EmergeManager::initMapgens(MapgenParams *params)
 
 	mgparams = params;
 
-	v3s16 csize = v3s16(1, 1, 1) * (params->chunksize * MAP_BLOCKSIZE);
+	v3s16 csize = params->chunksize * MAP_BLOCKSIZE;
 	biomegen = biomemgr->createBiomeGen(BIOMEGEN_ORIGINAL, params->bparams, csize);
 
 	for (u32 i = 0; i != m_threads.size(); i++) {
@@ -319,11 +317,9 @@ bool EmergeManager::isBlockInQueue(v3s16 pos)
 //
 
 
-// TODO(hmmmm): Move this to ServerMap
-v3s16 EmergeManager::getContainingChunk(v3s16 blockpos, s16 chunksize)
+v3s16 EmergeManager::getContainingChunk(v3s16 blockpos, v3s16 chunksize)
 {
-	s16 coff = -chunksize / 2;
-	v3s16 chunk_offset(coff, coff, coff);
+	v3s16 chunk_offset = -chunksize / 2;
 
 	return getContainerPos(blockpos - chunk_offset, chunksize)
 		* chunksize + chunk_offset;
@@ -737,6 +733,8 @@ void *EmergeThread::run()
 
 			if (!error)
 				block = finishGen(pos, &bmdata, &modified_blocks);
+			else
+				m_map->cancelBlockMake(&bmdata);
 			if (!block || error)
 				action = EMERGE_ERRORED;
 

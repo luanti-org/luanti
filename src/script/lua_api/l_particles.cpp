@@ -157,7 +157,7 @@ int ModApiParticles::l_add_particlespawner(lua_State *L)
 	// Get parameters
 	ParticleSpawnerParameters p;
 	ServerActiveObject *attached = NULL;
-	std::string playername;
+	std::string playername, not_playername;
 
 	using namespace ParticleParamTypes;
 	if (lua_gettop(L) > 1) //deprecated
@@ -257,7 +257,6 @@ int ModApiParticles::l_add_particlespawner(lua_State *L)
 		lua_pop(L, 1);
 
 		p.vertical = getboolfield_default(L, 1, "vertical", p.vertical);
-		playername = getstringfield_default(L, 1, "playername", "");
 		p.glow = getintfield_default(L, 1, "glow", p.glow);
 
 		lua_getfield(L, 1, "texpool");
@@ -279,12 +278,16 @@ int ModApiParticles::l_add_particlespawner(lua_State *L)
 		lua_pop(L, 1);
 
 		p.node_tile = getintfield_default(L, 1, "node_tile", p.node_tile);
+
+		// meta parameters
+		playername = getstringfield_default(L, 1, "playername", "");
+		not_playername = getstringfield_default(L, 1, "exclude_player", "");
 	}
 
 	if (p.time < 0)
 		throw LuaError("particle spawner 'time' must be >= 0");
 
-	u32 id = getServer(L)->addParticleSpawner(p, attached, playername);
+	u32 id = getServer(L)->addParticleSpawner(p, attached, playername, not_playername);
 	lua_pushnumber(L, id);
 
 	return 1;

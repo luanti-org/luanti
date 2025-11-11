@@ -14,9 +14,9 @@
 #include "util/numeric.h"
 #include "light.h"
 #include "localplayer.h"
-#include "environment.h"
 #include "clientmap.h"
 #include "mapnode.h"
+#include "node_visuals.h"
 #include "nodedef.h"
 #include "client.h"
 #include "settings.h"
@@ -35,6 +35,21 @@ ClientParticleTexture::ClientParticleTexture(const ServerParticleTexture& p, ITe
 	// Try to show another texture to indicate a code issue.
 	if (!ref)
 		ref = tsrc->getTexture("no_texture.png");
+}
+
+static video::ITexture *extractTexture(const TileDef &def, const TileLayer &layer,
+	ITextureSource *tsrc)
+{
+	// If animated take first frame from tile layer (so we don't have to handle
+	// that manually), otherwise look up by name.
+	if (!layer.empty() && (layer.material_flags & MATERIAL_FLAG_ANIMATION)) {
+		auto *ret = (*layer.frames)[0].texture;
+		assert(ret->getType() == video::ETT_2D);
+		return ret;
+	}
+	if (!def.name.empty())
+		return tsrc->getTexture(def.name);
+	return nullptr;
 }
 
 /*
@@ -451,10 +466,8 @@ void ParticleSpawner::spawnParticle(ClientEnvironment *env, float radius,
 	video::SColor color(0xFFFFFFFF);
 
 	if (p.node.getContent() != CONTENT_IGNORE) {
-		const ContentFeatures &f =
-			m_particlemanager->m_env->getGameDef()->ndef()->get(p.node);
-		if (!ParticleManager::getNodeParticleParams(p.node, f, pp, &texture.ref,
-				texpos, texsize, &color, p.node_tile))
+		if (!ParticleManager::getNodeParticleParams(env->getGameDef(), p.node,
+				pp, &texture.ref, texpos, texsize, &color, p.node_tile))
 			return;
 	} else {
 		if (m_texpool.size() == 0)
@@ -830,9 +843,8 @@ void ParticleManager::handleParticleEvent(ClientEvent *event, Client *client,
 			f32 oldsize = p.size;
 
 			if (p.node.getContent() != CONTENT_IGNORE) {
-				const ContentFeatures &f = m_env->getGameDef()->ndef()->get(p.node);
-				getNodeParticleParams(p.node, f, p, &texture.ref, texpos,
-						texsize, &color, p.node_tile);
+				getNodeParticleParams(m_env->getGameDef(), p.node, p,
+						&texture.ref, texpos, texsize, &color, p.node_tile);
 			} else {
 				/* with no particlespawner to own the texture, we need
 				 * to save it on the heap. it will be freed when the
@@ -861,28 +873,29 @@ void ParticleManager::handleParticleEvent(ClientEvent *event, Client *client,
 	}
 }
 
-bool ParticleManager::getNodeParticleParams(const MapNode &n,
-	const ContentFeatures &f, ParticleParameters &p, video::ITexture **texture,
+bool ParticleManager::getNodeParticleParams(Client *client, const MapNode &n,
+	ParticleParameters &p, video::ITexture **texture,
 	v2f &texpos, v2f &texsize, video::SColor *color, u8 tilenum)
 {
+	const ContentFeatures &f = client->ndef()->get(n);
+
 	// No particles for "airlike" nodes
 	if (f.drawtype == NDT_AIRLIKE)
 		return false;
 
 	// Texture
+	// Note: we ignore the overlay here, oh well
 	u8 texid;
 	if (tilenum > 0 && tilenum <= 6)
 		texid = tilenum - 1;
 	else
 		texid = myrand_range(0,5);
-	const TileLayer &tile = f.tiles[texid].layers[0];
-	p.animation.type = TAT_NONE;
 
-	// Only use first frame of animated texture
-	if (tile.material_flags & MATERIAL_FLAG_ANIMATION)
-		*texture = (*tile.frames)[0].texture;
-	else
-		*texture = tile.texture;
+	const TileLayer &tile = f.visuals->tiles[texid].layers[0];
+	*texture = extractTexture(f.tiledef[texid], tile, client->tsrc());
+	p.texture.blendmode = f.alpha == ALPHAMODE_BLEND
+			? BlendMode::alpha : BlendMode::clip;
+	p.animation.type = TAT_NONE;
 
 	float size = (myrand_range(0,8)) / 64.0f;
 	p.size = BS * size;
@@ -895,7 +908,7 @@ bool ParticleManager::getNodeParticleParams(const MapNode &n,
 	if (tile.has_color)
 		*color = tile.color;
 	else
-		n.getColor(f, color);
+		f.visuals->getColor(n.param2, color);
 
 	return true;
 }
@@ -903,34 +916,25 @@ bool ParticleManager::getNodeParticleParams(const MapNode &n,
 // The final burst of particles when a node is finally dug, *not* particles
 // spawned during the digging of a node.
 
-void ParticleManager::addDiggingParticles(IGameDef *gamedef,
-	LocalPlayer *player, v3s16 pos, const MapNode &n, const ContentFeatures &f)
+void ParticleManager::addDiggingParticles(LocalPlayer *player, v3s16 pos, const MapNode &n)
 {
-	// No particles for "airlike" nodes
-	if (f.drawtype == NDT_AIRLIKE)
-		return;
-
 	for (u16 j = 0; j < 16; j++) {
-		addNodeParticle(gamedef, player, pos, n, f);
+		addNodeParticle(player, pos, n);
 	}
 }
 
 // During the digging of a node particles are spawned individually by this
 // function, called from Game::handleDigging() in game.cpp.
 
-void ParticleManager::addNodeParticle(IGameDef *gamedef,
-	LocalPlayer *player, v3s16 pos, const MapNode &n, const ContentFeatures &f)
+void ParticleManager::addNodeParticle(LocalPlayer *player, v3s16 pos, const MapNode &n)
 {
 	ParticleParameters p;
 	video::ITexture *ref = nullptr;
 	v2f texpos, texsize;
 	video::SColor color;
 
-	if (!getNodeParticleParams(n, f, p, &ref, texpos, texsize, &color))
+	if (!getNodeParticleParams(m_env->getGameDef(), n, p, &ref, texpos, texsize, &color))
 		return;
-
-	p.texture.blendmode = f.alpha == ALPHAMODE_BLEND
-			? BlendMode::alpha : BlendMode::clip;
 
 	p.expirationtime = myrand_range(0, 100) / 100.0f;
 

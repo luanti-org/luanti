@@ -12,7 +12,6 @@
 #include "IMesh.h"
 #include "IMeshBuffer.h"
 #include "IMeshSceneNode.h"
-#include "CFPSCounter.h"
 #include "S3DVertex.h"
 #include "SVertexIndex.h"
 #include "SExposedVideoData.h"
@@ -175,9 +174,6 @@ public:
 			f32 &start, f32 &end, f32 &density,
 			bool &pixelFog, bool &rangeFog) override;
 
-	//! get color format of the current color buffer
-	ECOLOR_FORMAT getColorFormat() const override;
-
 	//! get screen size
 	const core::dimension2d<u32> &getScreenSize() const override;
 
@@ -186,9 +182,6 @@ public:
 
 	//! get render target size
 	const core::dimension2d<u32> &getCurrentRenderTargetSize() const override;
-
-	// get current frames per second value
-	s32 getFPS() const override;
 
 	SFrameStats getFrameStats() const override;
 
@@ -222,17 +215,7 @@ public:
 	ITexture *addRenderTargetTextureCubemap(const u32 sideLen,
 			const io::path &name, const ECOLOR_FORMAT format) override;
 
-	//! Creates an 1bit alpha channel of the texture based of an color key.
-	void makeColorKeyTexture(video::ITexture *texture, video::SColor color) const override;
-
-	//! Creates an 1bit alpha channel of the texture based of an color key position.
-	virtual void makeColorKeyTexture(video::ITexture *texture,
-			core::position2d<s32> colorKeyPixelPos) const override;
-
-	//! Returns the maximum amount of primitives (mostly vertices) which
-	//! the device is able to render with one drawIndexedTriangleList
-	//! call.
-	u32 getMaximalPrimitiveCount() const override;
+	SDriverLimits getLimits() const override;
 
 	//! Enables or disables a texture creation flag.
 	void setTextureCreationFlag(E_TEXTURE_CREATION_FLAG flag, bool enabled) override;
@@ -280,7 +263,7 @@ public:
 	//! Check if the driver supports creating textures with the given color format
 	bool queryTextureFormat(ECOLOR_FORMAT format) const override
 	{
-		return false;
+		return format == video::ECF_A8R8G8B8;
 	}
 
 protected:
@@ -439,8 +422,6 @@ public:
 	//! Returns amount of currently available material renderers.
 	u32 getMaterialRendererCount() const override;
 
-	//! Returns name of the material renderer
-	const char *getMaterialRendererName(u32 idx) const override;
 
 	//! Adds a new material renderer to the VideoDriver, based on a high level shading language.
 	virtual s32 addHighLevelShaderMaterial(
@@ -495,9 +476,6 @@ public:
 	//! Writes the provided image to a file.
 	bool writeImageToFile(IImage *image, io::IWriteFile *file, u32 param = 0) override;
 
-	//! Sets the name of a material renderer.
-	void setMaterialRendererName(u32 idx, const char *name) override;
-
 	//! Swap the material renderers used for certain id's
 	void swapMaterialRenderers(u32 idx1, u32 idx2, bool swapNames) override;
 
@@ -528,9 +506,6 @@ public:
 	{
 		AllowZWriteOnTransparent = flag;
 	}
-
-	//! Returns the maximum texture size supported.
-	core::dimension2du getMaxTextureSize() const override;
 
 	//! Used by some SceneNodes to check if a material should be rendered in the transparent render pass
 	bool needsTransparentRenderPass(const video::SMaterial &material) const override;
@@ -611,7 +586,7 @@ protected:
 
 		void *lock(E_TEXTURE_LOCK_MODE mode = ETLM_READ_WRITE, u32 mipmapLevel = 0, u32 layer = 0, E_TEXTURE_LOCK_FLAGS lockFlags = ETLF_FLIP_Y_UP_RTT) override { return 0; }
 		void unlock() override {}
-		void regenerateMipMapLevels(u32 layer = 0) override {}
+		void regenerateMipMapLevels() override {}
 	};
 	core::array<SSurface> Textures;
 
@@ -698,7 +673,6 @@ protected:
 	core::dimension2d<u32> ScreenSize;
 	core::matrix4 TransformationMatrix;
 
-	CFPSCounter FPSCounter;
 	SFrameStats FrameStats;
 
 	u32 MinVertexCountForVBO;

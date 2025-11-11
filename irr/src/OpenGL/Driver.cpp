@@ -58,6 +58,7 @@ static const VertexType vtStandard = {
 				{EVA_NORMAL, 3, GL_FLOAT, VertexAttribute::Mode::Regular, offsetof(S3DVertex, Normal)},
 				{EVA_COLOR, 4, GL_UNSIGNED_BYTE, VertexAttribute::Mode::Normalized, offsetof(S3DVertex, Color)},
 				{EVA_TCOORD0, 2, GL_FLOAT, VertexAttribute::Mode::Regular, offsetof(S3DVertex, TCoords)},
+				{EVA_AUX, 1, GL_UNSIGNED_SHORT, VertexAttribute::Mode::Regular, offsetof(S3DVertex, Aux)},
 		},
 };
 
@@ -66,6 +67,7 @@ static const VertexType vtStandard = {
 // - only one class in the hierarchy has non-static data members
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
+
 
 static const VertexType vt2TCoords = {
 		sizeof(S3DVertex2TCoords),
@@ -139,7 +141,7 @@ void COpenGL3DriverBase::debugCb(GLenum source, GLenum type, GLuint id, GLenum s
 		ll = ELL_ERROR;
 	else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
 		ll = ELL_WARNING;
-	char buf[300];
+	char buf[512];
 	snprintf_irr(buf, sizeof(buf), "%04x %04x %.*s", source, type, length, message);
 	os::Printer::log("GL", buf, ll);
 }
@@ -150,7 +152,7 @@ COpenGL3DriverBase::COpenGL3DriverBase(const SIrrlichtCreationParameters &params
 		MaterialRenderer2DActive(0), MaterialRenderer2DTexture(0), MaterialRenderer2DNoTexture(0),
 		CurrentRenderMode(ERM_NONE), Transformation3DChanged(true),
 		OGLES2ShaderPath(params.OGLES2ShaderPath),
-		ColorFormat(ECF_R8G8B8), ContextManager(contextManager), EnableErrorTest(params.DriverDebug)
+		ContextManager(contextManager), EnableErrorTest(params.DriverDebug)
 {
 	if (!ContextManager)
 		return;
@@ -266,7 +268,6 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 
 	GL.ClearDepthf(1.0f);
 
-	GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 	GL.FrontFace(GL_CW);
 
 	// create material renderers
@@ -277,9 +278,6 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 
 	// set fog mode
 	setFog(FogColor, FogType, FogStart, FogEnd, FogDensity, PixelFog, RangeFog);
-
-	// create matrix for flipping textures
-	TextureFlipMatrix.buildTextureTransform(0.0f, core::vector2df(0, 0), core::vector2df(0, 1.0f), core::vector2df(1.0f, -1.0f));
 
 	// We need to reset once more at the beginning of the first rendering.
 	// This fixes problems with intermediate changes to the material during texture load.
@@ -1178,6 +1176,8 @@ void COpenGL3DriverBase::setRenderStates3DMode()
 		if (static_cast<u32>(Material.MaterialType) < MaterialRenderers.size())
 			MaterialRenderers[Material.MaterialType].Renderer->OnSetMaterial(
 					Material, LastMaterial, ResetRenderStates, this);
+		else
+			os::Printer::log("Attempt to render with invalid material", ELL_WARNING);
 
 		LastMaterial = Material;
 		CacheHandler->correctCacheMaterial(LastMaterial);
@@ -1562,12 +1562,6 @@ E_DRIVER_TYPE COpenGL3DriverBase::getDriverType() const
 	return EDT_OPENGL3;
 }
 
-//! returns color format
-ECOLOR_FORMAT COpenGL3DriverBase::getColorFormat() const
-{
-	return ColorFormat;
-}
-
 //! Get a vertex shader constant index.
 s32 COpenGL3DriverBase::getVertexShaderConstantID(const c8 *name)
 {
@@ -1666,26 +1660,15 @@ ITexture *COpenGL3DriverBase::addRenderTargetTexture(const core::dimension2d<u32
 ITexture *COpenGL3DriverBase::addRenderTargetTextureMs(const core::dimension2d<u32> &size, u8 msaa,
 		const io::path &name, const ECOLOR_FORMAT format)
 {
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
-
 	COpenGL3Texture *renderTargetTexture = new COpenGL3Texture(name, size, msaa > 0 ? ETT_2D_MS : ETT_2D, format, this, msaa);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
-
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
 
 	return renderTargetTexture;
 }
 
 ITexture *COpenGL3DriverBase::addRenderTargetTextureCubemap(const u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
 {
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
-
 	bool supportForFBO = (Feature.ColorAttachment > 0);
 
 	const core::dimension2d<u32> size(sideLen, sideLen);
@@ -1700,16 +1683,17 @@ ITexture *COpenGL3DriverBase::addRenderTargetTextureCubemap(const u32 sideLen, c
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
 
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
-
 	return renderTargetTexture;
 }
 
-//! Returns the maximum amount of primitives
-u32 COpenGL3DriverBase::getMaximalPrimitiveCount() const
+SDriverLimits COpenGL3DriverBase::getLimits() const
 {
-	return Version.Spec == OpenGLSpec::ES ? 65535 : 0x7fffffff;
+	SDriverLimits ret;
+	ret.GLVersion = core::vector2di(Version.Major, Version.Minor);
+	ret.MaxPrimitiveCount = Version.Spec == OpenGLSpec::ES ? UINT16_MAX : INT32_MAX;
+	ret.MaxTextureSize = MaxTextureSize;
+	ret.MaxArrayTextureImages = MaxArrayTextureLayers;
+	return ret;
 }
 
 bool COpenGL3DriverBase::setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SColor clearColor, f32 clearDepth, u8 clearStencil)
@@ -1717,6 +1701,15 @@ bool COpenGL3DriverBase::setRenderTargetEx(IRenderTarget *target, u16 clearFlag,
 	if (target && target->getDriverType() != getDriverType()) {
 		os::Printer::log("Fatal Error: Tried to set a render target not owned by OpenGL 3 driver.", ELL_ERROR);
 		return false;
+	}
+
+	if (CurrentRenderTarget) {
+		// Update mip-map of the generated texture, if enabled.
+		auto textures = CurrentRenderTarget->getTexture();
+		for (size_t i = 0; i < textures.size(); ++i) {
+			if (textures[i])
+				textures[i]->regenerateMipMapLevels();
+		}
 	}
 
 	core::dimension2d<u32> destRenderTargetSize(0, 0);
@@ -1871,11 +1864,6 @@ void COpenGL3DriverBase::removeTexture(ITexture *texture)
 {
 	CacheHandler->getTextureCache().remove(texture);
 	CNullDriver::removeTexture(texture);
-}
-
-core::dimension2du COpenGL3DriverBase::getMaxTextureSize() const
-{
-	return core::dimension2du(MaxTextureSize, MaxTextureSize);
 }
 
 GLenum COpenGL3DriverBase::getGLBlend(E_BLEND_FACTOR factor) const

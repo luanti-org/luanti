@@ -2,58 +2,70 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include <iostream>
-#include <algorithm>
-#include <sstream>
-#include <cmath>
-#include <IFileSystem.h>
-#include <json/json.h>
 #include "client.h"
-#include "client/fontengine.h"
-#include "network/clientopcodes.h"
-#include "network/connection.h"
-#include "network/networkpacket.h"
-#include "threading/mutex_auto_lock.h"
+
+#include "chatmessage.h"
 #include "client/clientevent.h"
+#include "clientdynamicinfo.h"
+#include "client/fontengine.h"
+#include "client/localplayer.h"
+#include "clientmap.h"
+#include "clientmedia.h"
+#include "client/mesh_generator_thread.h"
+#include "client/particles.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
 #include "client/texturepaths.h"
 #include "client/texturesource.h"
-#include "client/mesh_generator_thread.h"
-#include "client/particles.h"
-#include "client/localplayer.h"
-#include "util/auth.h"
-#include "util/directiontables.h"
-#include "util/pointedthing.h"
-#include "util/serialize.h"
-#include "util/string.h"
-#include "util/srp.h"
+#include "camera.h"
 #include "filesys.h"
-#include "mapblock_mesh.h"
-#include "mapblock.h"
-#include "mapsector.h"
-#include "minimap.h"
-#include "modchannels.h"
-#include "content/mods.h"
-#include "profiler.h"
-#include "shader.h"
+#include "game.h"
 #include "gettext.h"
 #include "gettime.h"
-#include "clientdynamicinfo.h"
-#include "clientmap.h"
-#include "clientmedia.h"
+#include "guiscalingfilter.h"
+#include "item_visuals_manager.h"
+#include "itemdef.h"
+#include "mapblock.h"
+#include "mapblock_mesh.h"
+#include "mapnode.h"
+#include "mapsector.h"
+#include "minimap.h"
+#include "node_visuals.h"
+#include "profiler.h"
+#include "shader.h"
+#include "translation.h"
+#include "util/auth.h"
+#include "util/pointedthing.h"
+#include "util/serialize.h"
+#include "util/srp.h"
+#include "util/string.h"
 #include "version.h"
+
+// Modding
+#include "content/mod_configuration.h"
+#include "content/mods.h"
+#include "modchannels.h"
+#include "script/common/c_types.h" // LuaError
+#include "script/scripting_client.h"
+
+// Network
+#include "network/clientopcodes.h"
+#include "network/connection.h"
+#include "network/networkpacket.h"
+#include "serialization.h"
+
+// Database
 #include "database/database-files.h"
 #include "database/database-sqlite3.h"
-#include "serialization.h"
-#include "guiscalingfilter.h"
-#include "script/scripting_client.h"
-#include "game.h"
-#include "chatmessage.h"
-#include "translation.h"
-#include "content/mod_configuration.h"
-#include "mapnode.h"
-#include "item_visuals_manager.h"
+
+#include <IAnimatedMesh.h>
+#include <IFileSystem.h>
+#include <json/json.h>
+
+#include <iostream>
+#include <algorithm>
+#include <sstream>
+#include <cmath>
 
 extern gui::IGUIEnvironment* guienv;
 
@@ -566,9 +578,8 @@ void Client::step(float dtime)
 	{
 		float &counter = m_playerpos_send_timer;
 		counter += dtime;
-		if((m_state == LC_Ready) && (counter >= m_recommended_send_interval))
-		{
-			counter = 0.0;
+		if (m_state == LC_Ready && counter >= m_recommended_send_interval) {
+			counter = 0;
 			sendPlayerPos();
 		}
 	}
@@ -1403,7 +1414,7 @@ void Client::sendPlayerPos()
 	f32 movement_speed = player->control.movement_speed;
 	f32 movement_dir = player->control.movement_direction;
 
-	if (
+	bool identical = (
 			player->last_position        == player->getPosition() &&
 			player->last_speed           == player->getSpeed()    &&
 			player->last_pitch           == player->getPitch()    &&
@@ -1413,8 +1424,19 @@ void Client::sendPlayerPos()
 			player->last_camera_inverted == camera_inverted       &&
 			player->last_wanted_range    == wanted_range          &&
 			player->last_movement_speed  == movement_speed        &&
-			player->last_movement_dir    == movement_dir)
-		return;
+			player->last_movement_dir    == movement_dir);
+
+	if (identical) {
+		// Since the movement info is sent non-reliable an unfortunate desync might
+		// occur if we stop sending and the last packet gets lost or re-ordered.
+		// To make this situation less likely we stop sending duplicate packets
+		// only after a delay.
+		m_playerpos_repeat_count++;
+		if (m_playerpos_repeat_count >= 5)
+			return;
+	} else {
+		m_playerpos_repeat_count = 0;
+	}
 
 	player->last_position        = player->getPosition();
 	player->last_speed           = player->getSpeed();
@@ -1765,6 +1787,11 @@ ClientEvent *Client::getClientEvent()
 	return event;
 }
 
+void Client::setFatalError(const LuaError &e)
+{
+	setFatalError(std::string("Lua: ") + e.what());
+}
+
 const Address Client::getServerAddress()
 {
 	return m_con ? m_con->GetPeerAddress(PEER_ID_SERVER) : Address();
@@ -1775,44 +1802,42 @@ float Client::mediaReceiveProgress()
 	if (m_media_downloader)
 		return m_media_downloader->getProgress();
 
-	return 1.0; // downloader only exists when not yet done
+	return 1.0f; // downloader only exists when not yet done
 }
 
-void Client::drawLoadScreen(const std::wstring &text, float dtime, int percent) {
+void Client::drawLoadScreen(const std::wstring &text, float dtime, int percent)
+{
 	m_rendering_engine->run();
 	m_rendering_engine->draw_load_screen(text, guienv, m_tsrc, dtime, percent);
 }
 
 struct TextureUpdateArgs {
-	gui::IGUIEnvironment *guienv;
 	u64 last_time_ms;
-	u16 last_percent;
 	std::wstring text_base;
-	ITextureSource *tsrc;
 };
 
-void Client::showUpdateProgressTexture(void *args, u32 progress, u32 max_progress)
+void Client::showUpdateProgressTexture(void *args, float progress)
 {
-		TextureUpdateArgs* targs = (TextureUpdateArgs*) args;
-		u16 cur_percent = std::ceil(progress / max_progress * 100.f);
+	auto *targs = reinterpret_cast<TextureUpdateArgs*>(args);
+	u16 cur_percent = std::ceil(100 * progress);
 
-		// update the loading menu -- if necessary
-		bool do_draw = false;
-		u64 time_ms = targs->last_time_ms;
-		if (cur_percent != targs->last_percent) {
-			targs->last_percent = cur_percent;
-			time_ms = porting::getTimeMs();
-			// only draw when the user will notice something:
-			do_draw = (time_ms - targs->last_time_ms > 100);
-		}
+	// Throttle menu drawing
+	bool do_draw = false;
+	u64 time_ms = porting::getTimeMs();
+	if (time_ms - targs->last_time_ms > 50) {
+		do_draw = true;
+		targs->last_time_ms = time_ms;
+	}
 
-		if (do_draw) {
-			targs->last_time_ms = time_ms;
-			std::wostringstream strm;
-			strm << targs->text_base << L" " << targs->last_percent << L"%...";
-			m_rendering_engine->draw_load_screen(strm.str(), targs->guienv, targs->tsrc, 0,
-				72 + (u16) ((18. / 100.) * (double) targs->last_percent));
-		}
+	if (!do_draw)
+		return;
+
+	std::wostringstream strm;
+	strm << targs->text_base << L" " << cur_percent << L"%...";
+	// 70% -> 99%
+	int shown_progress = 70 + std::ceil(0.29f * cur_percent);
+	m_rendering_engine->draw_load_screen(strm.str(), guienv, m_tsrc,
+		0, shown_progress);
 }
 
 void Client::afterContentReceived()
@@ -1830,19 +1855,19 @@ void Client::afterContentReceived()
 	// Rebuild inherited images and recreate textures
 	infostream<<"- Rebuilding images and textures"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Loading textures..."),
-			guienv, m_tsrc, 0, 70);
+			guienv, m_tsrc, 0, 66);
 	m_tsrc->rebuildImagesAndTextures();
 
 	// Rebuild shaders
 	infostream<<"- Rebuilding shaders"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Rebuilding shaders..."),
-			guienv, m_tsrc, 0, 71);
+			guienv, m_tsrc, 0, 68);
 	m_shsrc->rebuildShaders();
 
 	// Update node aliases
 	infostream<<"- Updating node aliases"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Initializing nodes..."),
-			guienv, m_tsrc, 0, 72);
+			guienv, m_tsrc, 0, 70);
 	m_nodedef->updateAliases(m_itemdef);
 	for (const auto &path : getTextureDirs()) {
 		TextureOverrideSource override_source(path + DIR_DELIM + "override.txt");
@@ -1855,12 +1880,9 @@ void Client::afterContentReceived()
 	// Update node textures and assign shaders to each tile
 	infostream<<"- Updating node textures"<<std::endl;
 	TextureUpdateArgs tu_args;
-	tu_args.guienv = guienv;
 	tu_args.last_time_ms = porting::getTimeMs();
-	tu_args.last_percent = 0;
 	tu_args.text_base = wstrgettext("Initializing nodes");
-	tu_args.tsrc = m_tsrc;
-	m_nodedef->updateTextures(this, &tu_args);
+	NodeVisuals::fillNodeVisuals(m_nodedef, this, &tu_args);
 
 	// Start mesh update thread after setting up content definitions
 	infostream<<"- Starting mesh update thread"<<std::endl;

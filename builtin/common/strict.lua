@@ -1,4 +1,4 @@
-local getinfo, rawget, rawset = debug.getinfo, rawget, rawset
+local debug_getinfo, rawget, rawset = debug.getinfo, rawget, rawset
 
 function core.global_exists(name)
 	if type(name) ~= "string" then
@@ -18,7 +18,7 @@ function meta:__newindex(name, value)
 	if declared[name] then
 		return
 	end
-	local info = getinfo(2, "Sl")
+	local info = debug_getinfo(2, "Sl")
 	if info ~= nil then
 		local desc = ("%s:%d"):format(info.short_src, info.currentline)
 		local warn_key = ("%s\0%d\0%s"):format(info.source, info.currentline, name)
@@ -36,7 +36,7 @@ function meta:__index(name)
 	if declared[name] then
 		return
 	end
-	local info = getinfo(2, "Sl")
+	local info = debug_getinfo(2, "Sl")
 	if info == nil then
 		return
 	end

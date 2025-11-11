@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Romanian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-01-27 15:28+0000\n"
 "Last-Translator: Negoitescu <negoitescumario@gmail.com>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/minetest/"
@@ -1237,10 +1237,6 @@ msgid "New"
 msgstr "Nou"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Nicio lume creată sau selectată!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Joacă jocul"
 
@@ -1843,10 +1839,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profiler afișat (pagina %d din %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Aplicații"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Înapoi"
 
@@ -1876,44 +1868,19 @@ msgid "Down Arrow"
 msgstr "Săgeată jos"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Sfârșit"
+#, fuzzy
+msgid "End Key"
+msgstr "Tastă Meniu"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Ștergere EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Tasta de ștergere"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Execută"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Ajutor"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Acceptare IME"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Conversie IME"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME de Evacuare"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Schimbare mod IME"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME Nonconvertit"
+#, fuzzy
+msgid "Home Key"
+msgstr "Tasta Mărire"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1924,8 +1891,9 @@ msgid "Left Arrow"
 msgstr "Săgeată stânga"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Stânga"
+#, fuzzy
+msgid "Left Click"
+msgstr "Ctrl Stânga"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1939,18 +1907,26 @@ msgstr "Meniu Stânga"
 msgid "Left Shift"
 msgstr "Shift Stânga"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows Stânga"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Tastă Meniu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Rotiță"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2017,10 +1993,6 @@ msgid "Numpad 9"
 msgstr "Num pad 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "Curățare OEM"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Pagină jos"
 
@@ -2051,8 +2023,9 @@ msgid "Right Arrow"
 msgstr "Săgeată dreapta"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Drepata"
+#, fuzzy
+msgid "Right Click"
+msgstr "Ctrl Dreapta"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2066,6 +2039,7 @@ msgstr "Meniu Drepata"
 msgid "Right Shift"
 msgstr "Shift Dreapta"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows Dreapta"
@@ -2074,46 +2048,27 @@ msgstr "Windows Dreapta"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Selectează"
+#, fuzzy
+msgid "Select Key"
+msgstr "Tasta de ștergere"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Tasta Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Somn"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "PrintScreen"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Spațiu"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Tasta de pauză"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Săgeată sus"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Butonul 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Butonul 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Tasta Mărire"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2552,12 +2507,11 @@ msgstr "Zgomot 3D care determină numărul de temnițe pe bucată de hartă."
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Suport 3D.\n"
 "În prezent, suportate:\n"
@@ -2938,6 +2892,17 @@ msgstr "Netezirea camerei"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Cameră fluidă în modul cinematic"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3470,6 +3435,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Opțiuni pentru dezvoltatori"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5160,6 +5129,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Temple în deșert"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7062,6 +7036,68 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Cameră fluidă în modul cinematic"
+#~ msgid "Apps"
+#~ msgstr "Aplicații"
+
+#~ msgid "End"
+#~ msgstr "Sfârșit"
+
+#~ msgid "Erase EOF"
+#~ msgstr "Ștergere EOF"
+
+#~ msgid "Execute"
+#~ msgstr "Execută"
+
+#~ msgid "Help"
+#~ msgstr "Ajutor"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "IME Accept"
+#~ msgstr "Acceptare IME"
+
+#~ msgid "IME Convert"
+#~ msgstr "Conversie IME"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME de Evacuare"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "Schimbare mod IME"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME Nonconvertit"
+
+#~ msgid "Left Button"
+#~ msgstr "Stânga"
+
+#~ msgid "Middle Button"
+#~ msgstr "Rotiță"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Nicio lume creată sau selectată!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "Curățare OEM"
+
+#~ msgid "Right Button"
+#~ msgstr "Drepata"
+
+#~ msgid "Select"
+#~ msgstr "Selectează"
+
+#~ msgid "Sleep"
+#~ msgstr "Somn"
+
+#~ msgid "Snapshot"
+#~ msgstr "PrintScreen"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"
+
+#~ msgid "X Button 1"
+#~ msgstr "X Butonul 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X Butonul 2"

@@ -8,6 +8,7 @@
 #include "raycast.h"
 #include "scripting_server.h"
 #include "server.h"
+#include "settings.h"
 #include "daynightratio.h"
 #include "emerge.h"
 

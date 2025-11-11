@@ -5,23 +5,22 @@
 #pragma once
 
 #include "clientenvironment.h"
-#include "irrlichttypes.h"
-#include <ostream>
-#include <map>
-#include <memory>
-#include <set>
-#include <vector>
-#include <unordered_set>
 #include "gamedef.h"
+#include "gameparams.h" // ELoginRegister
 #include "inventorymanager.h"
+#include "irrlichttypes.h"
 #include "network/address.h"
 #include "network/networkprotocol.h" // multiple enums
 #include "network/peerhandler.h"
-#include "gameparams.h"
-#include "script/common/c_types.h" // LuaError
 #include "util/numeric.h"
 #include "util/string.h" // StringMap
-#include "config.h"
+
+#include <map>
+#include <memory>
+#include <ostream>
+#include <set>
+#include <unordered_set>
+#include <vector>
 
 #if !IS_CLIENT_BUILD
 #error Do not include in server builds
@@ -35,6 +34,7 @@ class ISoundManager;
 class IWritableItemDefManager;
 class IWritableShaderSource;
 class IWritableTextureSource;
+class LuaError;
 class MapDatabase;
 class MeshUpdateManager;
 class Minimap;
@@ -194,6 +194,7 @@ public:
 	void handleCommand_DetachedInventory(NetworkPacket* pkt);
 	void handleCommand_ShowFormSpec(NetworkPacket* pkt);
 	void handleCommand_SpawnParticle(NetworkPacket* pkt);
+	void handleCommand_SpawnParticleBatch(NetworkPacket *pkt);
 	void handleCommand_AddParticleSpawner(NetworkPacket* pkt);
 	void handleCommand_DeleteParticleSpawner(NetworkPacket* pkt);
 	void handleCommand_HudAdd(NetworkPacket* pkt);
@@ -284,6 +285,7 @@ public:
 		return m_animation_time;
 	}
 
+	/// @return integer ∊ [0, crack_animation_length] or -1 for invalid
 	int getCrackLevel();
 	v3s16 getCrackPos();
 	void setCrack(int level, v3s16 pos);
@@ -319,10 +321,7 @@ public:
 		m_access_denied = true;
 		m_access_denied_reason = reason;
 	}
-	inline void setFatalError(const LuaError &e)
-	{
-		setFatalError(std::string("Lua: ") + e.what());
-	}
+	void setFatalError(const LuaError &e);
 
 	// Renaming accessDeniedReason to better name could be good as it's used to
 	// disconnect client when CSM failed.
@@ -355,7 +354,7 @@ public:
 
 	void drawLoadScreen(const std::wstring &text, float dtime, int percent);
 	void afterContentReceived();
-	void showUpdateProgressTexture(void *args, u32 progress, u32 max_progress);
+	void showUpdateProgressTexture(void *args, float progress);
 
 	float getRTT();
 	float getCurRate();
@@ -371,6 +370,7 @@ public:
 	scene::ISceneManager *getSceneManager();
 
 	// IGameDef interface
+	bool isClient() override { return true; }
 	IItemDefManager* getItemDefManager() override;
 	const NodeDefManager* getNodeDefManager() override;
 	ICraftDefManager* getCraftDefManager() override;
@@ -476,6 +476,7 @@ private:
 	float m_connection_reinit_timer = 0.1f;
 	float m_avg_rtt_timer = 0.0f;
 	float m_playerpos_send_timer = 0.0f;
+	int m_playerpos_repeat_count = 0;
 	IntervalLimiter m_map_timer_and_unload_interval;
 
 	IWritableTextureSource *m_tsrc;
@@ -521,7 +522,7 @@ private:
 	// The authentication methods we can use to enter sudo mode (=change password)
 	u32 m_sudo_auth_methods;
 
-	// The seed returned by the server in TOCLIENT_INIT is stored here
+	// The seed returned by the server in TOCLIENT_AUTH_ACCEPT is stored here
 	u64 m_map_seed = 0;
 
 	// Auth data

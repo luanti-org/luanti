@@ -4,14 +4,16 @@
 
 #include "minimap.h"
 #include <cmath>
+#include "camera.h"
 #include "client.h"
-#include "clientmap.h"
+#include "mapblock.h" // getNodeBlockPos
+#include "node_visuals.h"
 #include "settings.h"
 #include "shader.h"
-#include "mapblock.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
 #include "gettext.h"
+#include "voxel.h"
 
 ////
 //// MinimapUpdateThread
@@ -396,24 +398,30 @@ void Minimap::blitMinimapPixelsToImageRadar(video::IImage *map_image)
 void Minimap::blitMinimapPixelsToImageSurface(
 	video::IImage *map_image, video::IImage *heightmap_image)
 {
-	// This variable creation/destruction has a 1% cost on rendering minimap
+	assert(map_image && heightmap_image);
 	video::SColor tilecolor;
 	for (s16 x = 0; x < data->mode.map_size; x++)
 	for (s16 z = 0; z < data->mode.map_size; z++) {
 		MinimapPixel *mmpixel = &data->minimap_scan[x + z * data->mode.map_size];
 
 		const ContentFeatures &f = m_ndef->get(mmpixel->n);
-		const TileDef *tile = &f.tiledef[0];
+		const auto &tile = f.tiledef[0], &overlay = f.tiledef_overlay[0];
 
-		// Color of the 0th tile (mostly this is the topmost)
-		if(tile->has_color)
-			tilecolor = tile->color;
-		else
-			mmpixel->n.getColor(f, &tilecolor);
-
-		tilecolor.setRed(tilecolor.getRed() * f.minimap_color.getRed() / 255);
-		tilecolor.setGreen(tilecolor.getGreen() * f.minimap_color.getGreen() / 255);
-		tilecolor.setBlue(tilecolor.getBlue() * f.minimap_color.getBlue() / 255);
+		// Figure out the color of the top of the node
+		// Note that this is very simplified. The overlay and normal tile can be
+		// colored independently and the overlay might only cover half or less.
+		if (!overlay.name.empty() && overlay.has_color) {
+			tilecolor = overlay.color;
+		} else if (overlay.name.empty() && tile.has_color) {
+			tilecolor = tile.color;
+		} else {
+			f.visuals->getColor(mmpixel->n.param2, &tilecolor);
+		}
+		// Multiply with pre-generated "color of texture"
+		video::SColor &minimap_color = f.visuals->minimap_color;
+		tilecolor.setRed(tilecolor.getRed() * minimap_color.getRed() / 255);
+		tilecolor.setGreen(tilecolor.getGreen() * minimap_color.getGreen() / 255);
+		tilecolor.setBlue(tilecolor.getBlue() * minimap_color.getBlue() / 255);
 		tilecolor.setAlpha(240);
 
 		map_image->setPixel(x, data->mode.map_size - z - 1, tilecolor);

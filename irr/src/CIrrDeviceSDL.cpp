@@ -384,7 +384,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		sdlver += SDL_GetPlatform();
 	}
 
-	Operator = new COSOperator(sdlver);
+	Operator = new COSOperator();
 	if (SDLDeviceInstances == 1) {
 		os::Printer::log(sdlver.c_str(), ELL_INFORMATION);
 	}
@@ -1351,26 +1351,6 @@ bool CIrrDeviceSDL::isWindowMinimized() const
 	return Window && (SDL_GetWindowFlags(Window) & SDL_WINDOW_MINIMIZED) != 0;
 }
 
-//! returns color format of the window.
-video::ECOLOR_FORMAT CIrrDeviceSDL::getColorFormat() const
-{
-	if (Window) {
-		SDL_Surface *surface = SDL_GetWindowSurface(Window);
-		if (surface->format->BitsPerPixel == 16) {
-			if (surface->format->Amask != 0)
-				return video::ECF_A1R5G5B5;
-			else
-				return video::ECF_R5G6B5;
-		} else {
-			if (surface->format->Amask != 0)
-				return video::ECF_A8R8G8B8;
-			else
-				return video::ECF_R8G8B8;
-		}
-	} else
-		return CIrrDeviceStub::getColorFormat();
-}
-
 void CIrrDeviceSDL::createKeyMap()
 {
 	// I don't know if this is the best method  to create
@@ -1408,7 +1388,7 @@ void CIrrDeviceSDL::createKeyMap()
 	// select missing
 	KeyMap.emplace(SDLK_PRINTSCREEN, KEY_PRINT);
 	// execute missing
-	KeyMap.emplace(SDLK_PRINTSCREEN, KEY_SNAPSHOT);
+	// snapshot missing
 
 	KeyMap.emplace(SDLK_INSERT, KEY_INSERT);
 	KeyMap.emplace(SDLK_DELETE, KEY_DELETE);

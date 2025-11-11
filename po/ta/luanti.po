@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
-"PO-Revision-Date: 2025-06-22 06:49+0000\n"
-"Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"PO-Revision-Date: 2025-08-02 09:02+0000\n"
+"Last-Translator: Krock <mk939@ymail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/minetest/minetest/"
 "ta/>\n"
 "Language: ta\n"
@@ -1233,10 +1233,6 @@ msgid "New"
 msgstr "புதிய"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "எந்த உலகமும் உருவாக்கப்படவில்லை அல்லது தேர்ந்தெடுக்கப்படவில்லை!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "விளையாட்டு விளையாடுங்கள்"
 
@@ -1844,10 +1840,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "சுயவிவரக் காட்டப்பட்டுள்ளது ( %d இன் பக்கம் %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "பயன்பாடுகள்"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "பேக்ச்பேச்"
 
@@ -1877,44 +1869,19 @@ msgid "Down Arrow"
 msgstr "கீழ் அம்பு"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "முடிவு"
+#, fuzzy
+msgid "End Key"
+msgstr "பட்டி விசை"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "EOF ஐ அழிக்கவும்"
+#, fuzzy
+msgid "Help Key"
+msgstr "விசையை நீக்கு"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "செயல்படுத்தவும்"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "உதவி"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "வீடு"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Ime ஏற்றுக்கொள்ளுங்கள்"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME மாற்ற"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "எச்பேப் செய்ய"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME பயன்முறை மாற்றம்"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "Ime non convert"
+#, fuzzy
+msgid "Home Key"
+msgstr "பெரிதாக்க விசை"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1925,8 +1892,9 @@ msgid "Left Arrow"
 msgstr "இடது அம்பு"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "இடது பொத்தான்"
+#, fuzzy
+msgid "Left Click"
+msgstr "இடது கட்டுப்பாடு"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1940,18 +1908,26 @@ msgstr "இடது பட்டியல்"
 msgid "Left Shift"
 msgstr "இடது மாற்றம்"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "இடது சன்னல்கள்"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "பட்டி விசை"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "நடுத்தர பொத்தான்"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2018,10 +1994,6 @@ msgid "Numpad 9"
 msgstr "நம்பட் 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "ஒஇஎம் தெளிவாக"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "பக்கம் கீழே"
 
@@ -2052,8 +2024,9 @@ msgid "Right Arrow"
 msgstr "வலது அம்பு"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "வலது பொத்தான்"
+#, fuzzy
+msgid "Right Click"
+msgstr "சரியான கட்டுப்பாடு"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2067,6 +2040,7 @@ msgstr "வலது பட்டியல்"
 msgid "Right Shift"
 msgstr "சரியான மாற்றம்"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "வலது சாளரங்கள்"
@@ -2075,46 +2049,27 @@ msgstr "வலது சாளரங்கள்"
 msgid "Scroll Lock"
 msgstr "உருள் பூட்டு"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "தேர்ந்தெடு"
+#, fuzzy
+msgid "Select Key"
+msgstr "விசையை நீக்கு"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "சிப்ட் விசை"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "தூங்கு"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "ச்னாப்சாட்"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "இடைவெளி"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "தாவல்"
+#, fuzzy
+msgid "Tab Key"
+msgstr "உடைக்கும் விசை"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "அம்பு"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "ஃச் பொத்தான் 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "ஃச் பொத்தான் 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "பெரிதாக்க விசை"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2351,7 +2306,7 @@ msgstr "தவறான கடவுச்சொல்"
 #: src/network/clientpackethandler.cpp src/script/lua_api/l_client.cpp
 #: src/script/lua_api/l_mainmenu.cpp
 msgid "LANG_CODE"
-msgstr "Lang_code"
+msgstr "ta"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2538,15 +2493,15 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "3 டி ஒலி ஒரு மேப்சங்கிற்கு நிலவறைகளின் எண்ணிக்கையை நிர்ணயிக்கும்."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D உதவி. \n"
 "தற்போது ஆதரிக்கப்படுகிறது: \n"
@@ -2919,6 +2874,17 @@ msgstr "கேமரா மென்மையாக்குதல்"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "சினிமா பயன்முறையில் கேமரா மென்மையாக்குகிறது"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3477,6 +3443,10 @@ msgid "Developer Options"
 msgstr "உருவாக்குபவர் விருப்பங்கள்"
 
 #: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
 msgstr "வெற்று கடவுச்சொற்களை அனுமதிக்காதீர்கள்"
 
@@ -3691,8 +3661,8 @@ msgid ""
 "when connecting to the server."
 msgstr ""
 "தொலை ஊடக சேவையகத்தின் பயன்பாட்டை இயக்கவும் (சேவையகத்தால் வழங்கப்பட்டால்).\n"
-" தொலை சேவையகங்கள் மீடியாவைப் பதிவிறக்குவதற்கு கணிசமாக விரைவான வழியை வழங்குகின்றன (எ."
-"கா. அமைப்பு)\n"
+" தொலை சேவையகங்கள் மீடியாவைப் பதிவிறக்குவதற்கு கணிசமாக விரைவான வழியை வழங்குகின்றன "
+"(எ.கா. அமைப்பு)\n"
 " சேவையகத்துடன் இணைக்கும்போது."
 
 #: src/settings_translation_file.cpp
@@ -5420,6 +5390,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "அதிகபட்ச பயனர்கள்"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "பாலைவன கோயில்கள்"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7680,194 +7655,68 @@ msgstr "ஊடாடும் காலக்கெடுவை சுருட�
 msgid "cURL parallel limit"
 msgstr "இணையான வரம்பை சுருட்டுங்கள்"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "முனைகளுக்கு ஏகப்பட்ட நிழலைப் பயன்படுத்துங்கள்."
+#~ msgid "Apps"
+#~ msgstr "பயன்பாடுகள்"
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "பார்க்கும் வரம்பைக் குறைப்பதற்கான விசை."
+#~ msgid "End"
+#~ msgstr "முடிவு"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "அளவைக் குறைப்பதற்கான திறவுகோல்."
+#~ msgid "Erase EOF"
+#~ msgstr "EOF ஐ அழிக்கவும்"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "தற்போது தேர்ந்தெடுக்கப்பட்ட உருப்படியைக் கைவிடுவதற்கான திறவுகோல்."
+#~ msgid "Execute"
+#~ msgstr "செயல்படுத்தவும்"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "பார்க்கும் வரம்பை அதிகரிப்பதற்கான திறவுகோல்."
+#~ msgid "Help"
+#~ msgstr "உதவி"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "அளவை அதிகரிப்பதற்கான திறவுகோல்."
+#~ msgid "Home"
+#~ msgstr "வீடு"
 
-#~ msgid "Key for jumping."
-#~ msgstr "குதிப்பதற்கான திறவுகோல்."
+#~ msgid "IME Accept"
+#~ msgstr "Ime ஏற்றுக்கொள்ளுங்கள்"
 
-#~ msgid "Key for moving the player forward."
-#~ msgstr "பிளேயரை முன்னோக்கி நகர்த்துவதற்கான திறவுகோல்."
+#~ msgid "IME Convert"
+#~ msgstr "IME மாற்ற"
 
-#~ msgid "Key for moving the player left."
-#~ msgstr "வீரரை இடதுபுறமாக நகர்த்துவதற்கான திறவுகோல்."
+#~ msgid "IME Escape"
+#~ msgstr "எச்பேப் செய்ய"
 
-#~ msgid "Key for moving the player right."
-#~ msgstr "பிளேயரை சரியாக நகர்த்துவதற்கான திறவுகோல்."
+#~ msgid "IME Mode Change"
+#~ msgstr "IME பயன்முறை மாற்றம்"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "விளையாட்டை முடக்குவதற்கான திறவுகோல்."
+#~ msgid "IME Nonconvert"
+#~ msgstr "Ime non convert"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "அரட்டை சாளரத்தைத் திறப்பதற்கான விசை."
+#~ msgid "Left Button"
+#~ msgstr "இடது பொத்தான்"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "சரக்குகளைத் திறப்பதற்கான திறவுகோல்."
+#~ msgid "Middle Button"
+#~ msgstr "நடுத்தர பொத்தான்"
 
-#~ msgid "Key for selecting the 11th hotbar slot."
-#~ msgstr "11 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
+#~ msgid "No world created or selected!"
+#~ msgstr "எந்த உலகமும் உருவாக்கப்படவில்லை அல்லது தேர்ந்தெடுக்கப்படவில்லை!"
 
-#~ msgid "Key for selecting the 12th hotbar slot."
-#~ msgstr "12 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
+#~ msgid "OEM Clear"
+#~ msgstr "ஒஇஎம் தெளிவாக"
 
-#~ msgid "Key for selecting the 13th hotbar slot."
-#~ msgstr "13 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
+#~ msgid "Right Button"
+#~ msgstr "வலது பொத்தான்"
 
-#~ msgid "Key for selecting the 14th hotbar slot."
-#~ msgstr "14 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
+#~ msgid "Select"
+#~ msgstr "தேர்ந்தெடு"
 
-#~ msgid "Key for selecting the 15th hotbar slot."
-#~ msgstr "15 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
+#~ msgid "Sleep"
+#~ msgstr "தூங்கு"
 
-#~ msgid "Key for selecting the 16th hotbar slot."
-#~ msgstr "16 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
+#~ msgid "Snapshot"
+#~ msgstr "ச்னாப்சாட்"
 
-#~ msgid "Key for selecting the 17th hotbar slot."
-#~ msgstr "17 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
+#~ msgid "Tab"
+#~ msgstr "தாவல்"
 
-#~ msgid "Key for selecting the 18th hotbar slot."
-#~ msgstr "18 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
+#~ msgid "X Button 1"
+#~ msgstr "ஃச் பொத்தான் 1"
 
-#~ msgid "Key for selecting the 19th hotbar slot."
-#~ msgstr "19 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 20th hotbar slot."
-#~ msgstr "20 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 21st hotbar slot."
-#~ msgstr "21 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 22nd hotbar slot."
-#~ msgstr "22 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 23rd hotbar slot."
-#~ msgstr "23 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 24th hotbar slot."
-#~ msgstr "24 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 25th hotbar slot."
-#~ msgstr "25 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 26th hotbar slot."
-#~ msgstr "26 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 27th hotbar slot."
-#~ msgstr "27 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 28th hotbar slot."
-#~ msgstr "28 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 29th hotbar slot."
-#~ msgstr "29 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 30th hotbar slot."
-#~ msgstr "30 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 31st hotbar slot."
-#~ msgstr "31 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the 32nd hotbar slot."
-#~ msgstr "32 வது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the eighth hotbar slot."
-#~ msgstr "எட்டாவது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the fifth hotbar slot."
-#~ msgstr "ஐந்தாவது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the first hotbar slot."
-#~ msgstr "முதல் ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the fourth hotbar slot."
-#~ msgstr "நான்காவது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the next item in the hotbar."
-#~ msgstr "ஆட்பாரில் அடுத்த உருப்படியைத் தேர்ந்தெடுப்பதற்கான விசை."
-
-#~ msgid "Key for selecting the ninth hotbar slot."
-#~ msgstr "ஒன்பதாவது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the previous item in the hotbar."
-#~ msgstr "ஆட்பாரில் முந்தைய உருப்படியைத் தேர்ந்தெடுப்பதற்கான விசை."
-
-#~ msgid "Key for selecting the second hotbar slot."
-#~ msgstr "இரண்டாவது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the seventh hotbar slot."
-#~ msgstr "ஏழாவது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the sixth hotbar slot."
-#~ msgstr "ஆறாவது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the tenth hotbar slot."
-#~ msgstr "பத்தாவது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for selecting the third hotbar slot."
-#~ msgstr "மூன்றாவது ஆட்பார் ச்லாட்டைத் தேர்ந்தெடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for switching between first- and third-person camera."
-#~ msgstr "முதல் மற்றும் மூன்றாம் நபர் கேமராவுக்கு இடையில் மாறுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for taking screenshots."
-#~ msgstr "திரை சாட்களை எடுப்பதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling autoforward."
-#~ msgstr "ஆட்டோஃபார்வார்ட்டை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "சினிமா பயன்முறையை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling display of minimap."
-#~ msgstr "மினிமேப்பின் காட்சியை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling fast mode."
-#~ msgstr "வேகமான பயன்முறையை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling flying."
-#~ msgstr "பறப்பதை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "முழுத்திரை பயன்முறையை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling noclip mode."
-#~ msgstr "NOCLIP பயன்முறையை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling pitch move mode."
-#~ msgstr "பிட்ச் மூவ் பயன்முறையை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling the display of chat."
-#~ msgstr "அரட்டையின் காட்சியை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling the display of debug info."
-#~ msgstr "பிழைத்திருத்த தகவலின் காட்சியை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling the display of fog."
-#~ msgstr "மூடுபனியின் காட்சியை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling the display of the HUD."
-#~ msgstr "HUD இன் காட்சியை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key for toggling the display of the large chat console."
-#~ msgstr "பெரிய அரட்டை கன்சோலின் காட்சியை மாற்றுவதற்கான திறவுகோல்."
-
-#~ msgid "Key to use view zoom when possible."
-#~ msgstr "பார்வை பெரிதாக்க முடிந்தவரை பயன்படுத்த விசை."
-
-#~ msgid "Node specular"
-#~ msgstr "முனை ஏகப்பட்ட"
+#~ msgid "X Button 2"
+#~ msgstr "ஃச் பொத்தான் 2"

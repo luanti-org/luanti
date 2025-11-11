@@ -7,14 +7,17 @@
 #include "client/mesh.h"
 #include "mapblock_mesh.h"
 #include <IMaterialRenderer.h>
+#include <ISceneManager.h>
 #include <IVideoDriver.h>
 #include <matrix4.h>
 #include "mapsector.h"
 #include "mapblock.h"
+#include "node_visuals.h"
 #include "nodedef.h"
+#include "player.h" // CameraMode
 #include "profiler.h"
 #include "settings.h"
-#include "camera.h"               // CameraModes
+#include "camera.h"
 #include "util/basic_macros.h"
 #include "util/tracy_wrapper.h"
 #include "client/renderingengine.h"
@@ -399,7 +402,7 @@ void ClientMap::updateDrawList()
 	bool occlusion_culling_enabled = mesh_grid.cell_size < 4;
 	if (m_control.allow_noclip) {
 		MapNode n = getNode(cam_pos_nodes);
-		if (n.getContent() == CONTENT_IGNORE || m_nodedef->get(n).solidness == 2)
+		if (n.getContent() == CONTENT_IGNORE || m_nodedef->get(n).visuals->solidness == 2)
 			occlusion_culling_enabled = false;
 	}
 
@@ -1088,6 +1091,7 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	u32 vertex_count = 0;
 	u32 drawcall_count = 0;
 	u32 material_swaps = 0;
+	u32 array_texture_use = 0;
 
 	// Render all mesh buffers in order
 	drawcall_count += draw_order.size();
@@ -1117,8 +1121,12 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 				layer.MagFilter = video::ETMAGF_NEAREST;
 				layer.AnisotropicFilter = 0;
 			}
+
 			driver->setMaterial(material);
 			++material_swaps;
+			if (auto *tex = material.getTexture(0); tex && tex->getType() == video::ETT_2D_ARRAY)
+				++array_texture_use;
+
 			material.TextureLayers[ShadowRenderer::TEXTURE_LAYER_SHADOW].Texture = nullptr;
 		}
 
@@ -1158,6 +1166,10 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	g_profiler->avg(prefix + "vertices drawn [#]", vertex_count);
 	g_profiler->avg(prefix + "drawcalls [#]", drawcall_count);
 	g_profiler->avg(prefix + "material swaps [#]", material_swaps);
+	if (material_swaps && array_texture_use) {
+		int percent = (100.0f * array_texture_use) / material_swaps;
+		g_profiler->avg(prefix + "array texture use [%]", percent);
+	}
 }
 
 void ClientMap::invalidateMapBlockMesh(MapBlockMesh *mesh)
@@ -1382,7 +1394,7 @@ void ClientMap::renderPostFx(CameraMode cam_mode)
 
 	// If the camera is in a solid node, make everything black.
 	// (first person mode only)
-	if (features.solidness == 2 && cam_mode == CAMERA_MODE_FIRST &&
+	if (features.visuals->solidness == 2 && cam_mode == CAMERA_MODE_FIRST &&
 			!m_control.allow_noclip) {
 		post_color = video::SColor(255, 0, 0, 0);
 	}
@@ -1402,7 +1414,7 @@ void ClientMap::PrintInfo(std::ostream &out)
 }
 
 void ClientMap::renderMapShadows(video::IVideoDriver *driver,
-		const video::SMaterial &material, s32 pass, int frame, int total_frames)
+		ModifyMaterialCallback cb, s32 pass, int frame, int total_frames)
 {
 	bool is_transparent_pass = pass != scene::ESNRP_SOLID;
 	std::string prefix;
@@ -1480,34 +1492,21 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 
 	bool translucent_foliage = g_settings->getBool("enable_translucent_foliage");
 
-	video::E_MATERIAL_TYPE leaves_material = video::EMT_SOLID;
-
 	// For translucent leaves, we want to use backface culling instead of frontface.
+	std::vector<video::E_MATERIAL_TYPE> leaves_material;
 	if (translucent_foliage) {
-		// this is the material leaves would use, compare to nodedef.cpp
-		auto* shdsrc = m_client->getShaderSource();
-		const u32 leaves_shader = shdsrc->getShader("nodes_shader", TILE_MATERIAL_WAVING_LEAVES, NDT_ALLFACES);
-		leaves_material = shdsrc->getShaderInfo(leaves_shader).material;
+		auto *shdsrc = m_client->getShaderSource();
+		// Find out all materials used by leaves so we can identify them
+		leaves_material.reserve(m_nodedef->m_leaves_materials.size());
+		for (u32 shader_id : m_nodedef->m_leaves_materials)
+			leaves_material.push_back(shdsrc->getShaderInfo(shader_id).material);
 	}
 
 	for (auto &descriptor : draw_order) {
 		if (!descriptor.m_reuse_material) {
-			// override some material properties
 			video::SMaterial local_material = descriptor.getMaterial();
-			// do not override culling if the original material renders both back
-			// and front faces in solid mode (e.g. plantlike)
-			// Transparent plants would still render shadows only from one side,
-			// but this conflicts with water which occurs much more frequently
-			if (is_transparent_pass || local_material.BackfaceCulling || local_material.FrontfaceCulling) {
-				local_material.BackfaceCulling = material.BackfaceCulling;
-				local_material.FrontfaceCulling = material.FrontfaceCulling;
-			}
-			if (local_material.MaterialType == leaves_material && translucent_foliage) {
-				local_material.BackfaceCulling = true;
-				local_material.FrontfaceCulling = false;
-			}
-			local_material.MaterialType = material.MaterialType;
-			local_material.BlendOperation = material.BlendOperation;
+			bool is_foliage = translucent_foliage && CONTAINS(leaves_material, local_material.MaterialType);
+			cb(local_material, is_foliage);
 			driver->setMaterial(local_material);
 			++material_swaps;
 		}
@@ -1521,8 +1520,9 @@ void ClientMap::renderMapShadows(video::IVideoDriver *driver,
 	// restore the driver material state
 	video::SMaterial clean;
 	clean.BlendOperation = video::EBO_ADD;
-	driver->setMaterial(clean); // reset material to defaults
-	// FIXME: why is this here?
+	driver->setMaterial(clean);
+	// This is somehow needed to fully reset the rendering state, or later operations
+	// will be broken. (TODO why?)
 	driver->draw3DLine(v3f(), v3f(), video::SColor(0));
 
 	g_profiler->avg(prefix + "draw meshes [ms]", draw.stop(true));

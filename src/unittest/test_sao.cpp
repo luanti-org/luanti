@@ -6,6 +6,8 @@
 
 #include "mock_server.h"
 #include "server/luaentity_sao.h"
+#include "serverenvironment.h"
+#include "servermap.h"
 #include "emerge.h"
 
 /*

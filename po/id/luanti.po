@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Indonesian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-05-15 23:01+0000\n"
 "Last-Translator: Linerly <linerly@proton.me>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/minetest/"
@@ -1226,10 +1226,6 @@ msgid "New"
 msgstr "Baru"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Tiada dunia yang dibuat atau dipilih!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Mainkan Permainan"
 
@@ -1836,10 +1832,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Pemrofil ditampilkan (halaman %d dari %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Tombol Menu"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1869,44 +1861,19 @@ msgid "Down Arrow"
 msgstr "Panah Bawah"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "End"
+#, fuzzy
+msgid "End Key"
+msgstr "Alt"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Erase OEF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Menjalankan"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Bantuan"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME Terima"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME Konversi"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME Pelarian"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME Perubahan Mode"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME Tidak Berkonversi"
+#, fuzzy
+msgid "Home Key"
+msgstr "Zum"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1917,8 +1884,9 @@ msgid "Left Arrow"
 msgstr "Panah Kiri"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Klik Kiri"
+#, fuzzy
+msgid "Left Click"
+msgstr "Ctrl Kiri"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1932,18 +1900,26 @@ msgstr "Alt Kiri"
 msgid "Left Shift"
 msgstr "Shift Kiri"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows Kiri"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Alt"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Klik Tengah"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2010,10 +1986,6 @@ msgid "Numpad 9"
 msgstr "Papan Angka 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Bersihkan"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Page Down"
 
@@ -2044,8 +2016,9 @@ msgid "Right Arrow"
 msgstr "Panah Kanan"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Klik Kanan"
+#, fuzzy
+msgid "Right Click"
+msgstr "Ctrl Kanan"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2059,6 +2032,7 @@ msgstr "Alt Kanan"
 msgid "Right Shift"
 msgstr "Shift Kanan"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows Kanan"
@@ -2067,46 +2041,27 @@ msgstr "Windows Kanan"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Pilih"
+#, fuzzy
+msgid "Select Key"
+msgstr "Delete"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Tidur"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Snapshot"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Spasi"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Break"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Panah Atas"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "Tombol X 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "Tombol X 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zum"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2532,15 +2487,15 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "Noise 3D yang mengatur jumlah dungeon per potongan peta."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Dukungan 3D.\n"
 "Yang didukung saat ini:\n"
@@ -2916,6 +2871,17 @@ msgstr "Penghalusan kamera"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Penghalusan kamera dalam mode sinema"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3470,6 +3436,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Pilihan Pengembang"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -4561,8 +4531,8 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "In-game chat console background color (R,G,B)."
 msgstr ""
-"Warna latar belakang konsol obrolan dalam permainan (merah,hijau,biru atau R,"
-"G,B)."
+"Warna latar belakang konsol obrolan dalam permainan (merah,hijau,biru atau "
+"R,G,B)."
 
 #: src/settings_translation_file.cpp
 #, no-c-format
@@ -5414,6 +5384,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Jumlah pengguna maksimum"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Kuil gurun"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7680,195 +7655,68 @@ msgstr "cURL: batas waktu interaksi"
 msgid "cURL parallel limit"
 msgstr "cURL: batas jumlah paralel"
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Terapkan pembayangan spekular ke node."
+#~ msgid "Apps"
+#~ msgstr "Tombol Menu"
 
-#~ msgid "Key for decreasing the viewing range."
-#~ msgstr "Tombol untuk mengurangi jarak pandang."
+#~ msgid "End"
+#~ msgstr "End"
 
-#~ msgid "Key for decreasing the volume."
-#~ msgstr "Tombol untuk mengurangi volume."
+#~ msgid "Erase EOF"
+#~ msgstr "Erase OEF"
 
-#~ msgid "Key for dropping the currently selected item."
-#~ msgstr "Tombol untuk menjatuhkan item yang sedang dipilih."
+#~ msgid "Execute"
+#~ msgstr "Menjalankan"
 
-#~ msgid "Key for increasing the viewing range."
-#~ msgstr "Tombol untuk menambah jarak pandang."
+#~ msgid "Help"
+#~ msgstr "Bantuan"
 
-#~ msgid "Key for increasing the volume."
-#~ msgstr "Tombol untuk menambah volume."
+#~ msgid "Home"
+#~ msgstr "Home"
 
-#~ msgid "Key for jumping."
-#~ msgstr "Tombol untuk melompat."
+#~ msgid "IME Accept"
+#~ msgstr "IME Terima"
 
-#~ msgid "Key for moving the player forward."
-#~ msgstr "Tombol untuk bergerak maju."
+#~ msgid "IME Convert"
+#~ msgstr "IME Konversi"
 
-#~ msgid "Key for moving the player left."
-#~ msgstr "Tombol untuk bergerak ke kiri."
+#~ msgid "IME Escape"
+#~ msgstr "IME Pelarian"
 
-#~ msgid "Key for moving the player right."
-#~ msgstr "Tombol untuk bergerak ke kanan."
+#~ msgid "IME Mode Change"
+#~ msgstr "IME Perubahan Mode"
 
-#~ msgid "Key for muting the game."
-#~ msgstr "Tombol untuk membisukan game."
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME Tidak Berkonversi"
 
-#~ msgid "Key for opening the chat window."
-#~ msgstr "Tombol untuk membuka jendela obrolan."
+#~ msgid "Left Button"
+#~ msgstr "Klik Kiri"
 
-#~ msgid "Key for opening the inventory."
-#~ msgstr "Tombol untuk membuka inventaris."
+#~ msgid "Middle Button"
+#~ msgstr "Klik Tengah"
 
-#~ msgid "Key for selecting the 11th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-11."
+#~ msgid "No world created or selected!"
+#~ msgstr "Tiada dunia yang dibuat atau dipilih!"
 
-#~ msgid "Key for selecting the 12th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-12."
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Bersihkan"
 
-#~ msgid "Key for selecting the 13th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-13."
+#~ msgid "Right Button"
+#~ msgstr "Klik Kanan"
 
-#~ msgid "Key for selecting the 14th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-14."
+#~ msgid "Select"
+#~ msgstr "Pilih"
 
-#~ msgid "Key for selecting the 15th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-15."
+#~ msgid "Sleep"
+#~ msgstr "Tidur"
 
-#~ msgid "Key for selecting the 16th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-16."
+#~ msgid "Snapshot"
+#~ msgstr "Snapshot"
 
-#~ msgid "Key for selecting the 17th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-17."
+#~ msgid "Tab"
+#~ msgstr "Tab"
 
-#~ msgid "Key for selecting the 18th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-18."
+#~ msgid "X Button 1"
+#~ msgstr "Tombol X 1"
 
-#~ msgid "Key for selecting the 19th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-19."
-
-#~ msgid "Key for selecting the 20th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-20."
-
-#~ msgid "Key for selecting the 21st hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-21."
-
-#~ msgid "Key for selecting the 22nd hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-22."
-
-#~ msgid "Key for selecting the 23rd hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-23."
-
-#~ msgid "Key for selecting the 24th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-24."
-
-#~ msgid "Key for selecting the 25th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-25."
-
-#~ msgid "Key for selecting the 26th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-26."
-
-#~ msgid "Key for selecting the 27th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-27."
-
-#~ msgid "Key for selecting the 28th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-28."
-
-#~ msgid "Key for selecting the 29th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-29."
-
-#~ msgid "Key for selecting the 30th hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-30."
-
-#~ msgid "Key for selecting the 31st hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-31."
-
-#~ msgid "Key for selecting the 32nd hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ke-32."
-
-#~ msgid "Key for selecting the eighth hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar kedelapan."
-
-#~ msgid "Key for selecting the fifth hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar kelima."
-
-#~ msgid "Key for selecting the first hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar pertama."
-
-#~ msgid "Key for selecting the fourth hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar keempat."
-
-#~ msgid "Key for selecting the next item in the hotbar."
-#~ msgstr "Tombol untuk memilih item berikutnya di hotbar."
-
-#~ msgid "Key for selecting the ninth hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar kesembilan."
-
-#~ msgid "Key for selecting the previous item in the hotbar."
-#~ msgstr "Tombol untuk memilih item sebelumnya di hotbar."
-
-#~ msgid "Key for selecting the second hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar kedua."
-
-#~ msgid "Key for selecting the seventh hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ketujuh."
-
-#~ msgid "Key for selecting the sixth hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar keenam."
-
-#~ msgid "Key for selecting the tenth hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar kesepuluh."
-
-#~ msgid "Key for selecting the third hotbar slot."
-#~ msgstr "Tombol untuk memilih slot hotbar ketiga."
-
-#~ msgid "Key for switching between first- and third-person camera."
-#~ msgstr "Tombol untuk beralih antara kamera orang pertama dan ketiga."
-
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Tombol untuk mengambil tangkapan layar."
-
-#~ msgid "Key for toggling autoforward."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan maju otomatis."
-
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan mode sinematik."
-
-#~ msgid "Key for toggling display of minimap."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan tampilan minimap."
-
-#~ msgid "Key for toggling fast mode."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan mode cepat."
-
-#~ msgid "Key for toggling flying."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan terbang."
-
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan layar penuh."
-
-#~ msgid "Key for toggling noclip mode."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan mode noclip."
-
-#~ msgid "Key for toggling pitch move mode."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan mode gerak pitch."
-
-#~ msgid "Key for toggling the display of chat."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan tampilan obrolan."
-
-#~ msgid "Key for toggling the display of debug info."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan tampilan info debug."
-
-#~ msgid "Key for toggling the display of fog."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan tampilan kabut."
-
-#~ msgid "Key for toggling the display of the HUD."
-#~ msgstr "Tombol untuk mengaktifkan/menonaktifkan tampilan HUD."
-
-#~ msgid "Key for toggling the display of the large chat console."
-#~ msgstr ""
-#~ "Tombol untuk mengaktifkan/menonaktifkan tampilan konsol obrolan besar."
-
-#~ msgid "Key to use view zoom when possible."
-#~ msgstr "Tombol untuk menggunakan zoom tampilan jika memungkinkan."
-
-#~ msgid "Node specular"
-#~ msgstr "Spekular node"
+#~ msgid "X Button 2"
+#~ msgstr "Tombol X 2"

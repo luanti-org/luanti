@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Slovenian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-05-30 05:02+0000\n"
 "Last-Translator: Vesel Sem <veselsem@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/minetest/"
@@ -1232,10 +1232,6 @@ msgid "New"
 msgstr "Novo"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Ni ustvarjenega oziroma izbranega sveta!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Zaženi igro"
 
@@ -1848,10 +1844,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profiler je prikazan (stran %d od %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Aplikacije"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
 
@@ -1881,44 +1873,19 @@ msgid "Down Arrow"
 msgstr "Puščica dol"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Konec"
+#, fuzzy
+msgid "End Key"
+msgstr "Tipka za meni (super key)"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Izbriši EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Tipka izbriši"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Izvedi"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Pomoč"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Začetno mesto"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME Sprejem"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME Pretvorba"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME Izhod"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME sprememba načina"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME Nepretvorba"
+#, fuzzy
+msgid "Home Key"
+msgstr "Tipka za približanje"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1929,8 +1896,9 @@ msgid "Left Arrow"
 msgstr "Puščica levo"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Leva tipka"
+#, fuzzy
+msgid "Left Click"
+msgstr "Leva tipka Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1944,18 +1912,26 @@ msgstr "Leva tipka Meni"
 msgid "Left Shift"
 msgstr "Leva tipka Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Leva tipka Win"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Tipka za meni (super key)"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Srednji gumb"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2022,10 +1998,6 @@ msgid "Numpad 9"
 msgstr "Tipka 9 na številčnici"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM počisti"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Stran nižje"
 
@@ -2056,8 +2028,9 @@ msgid "Right Arrow"
 msgstr "Desna puščica"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Desna tipka"
+#, fuzzy
+msgid "Right Click"
+msgstr "Desna tipka Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2071,6 +2044,7 @@ msgstr "Desna tipka Meni"
 msgid "Right Shift"
 msgstr "Desna tipka Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Desna tipka Win"
@@ -2079,46 +2053,27 @@ msgstr "Desna tipka Win"
 msgid "Scroll Lock"
 msgstr "Tipka zaklepa drsnika"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Izberi"
+#, fuzzy
+msgid "Select Key"
+msgstr "Tipka izbriši"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Spanje"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Posnetek"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Preslednica"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tabulator"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Tipka za odmor"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Puščica gor"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Gumb 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Gumb 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Tipka za približanje"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2543,15 +2498,15 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "3D šum, ki določa število ječ na posamezen kos zemljevida."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "3D Podpora.\n"
 "Trenutno podprto:\n"
@@ -2925,6 +2880,17 @@ msgstr "Glajenje premikanja kamere"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Glajenje premikanja kamere v filmskem načinu"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3474,6 +3440,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Možnosti za razvijalce"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5303,6 +5273,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Največ uporabnikov"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Measure time samples"
+msgstr "Puščavski templji"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7223,17 +7198,68 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#~ msgid "Apply specular shading to nodes."
-#~ msgstr "Uporabi zrcalno senčenje na vozliščih."
+#~ msgid "Apps"
+#~ msgstr "Aplikacije"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Oblika posnetkov zaslona."
+#~ msgid "End"
+#~ msgstr "Konec"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Glajenje premikanja kamere v filmskem načinu"
+#~ msgid "Erase EOF"
+#~ msgstr "Izbriši EOF"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Celozaslonski način."
+#~ msgid "Execute"
+#~ msgstr "Izvedi"
+
+#~ msgid "Help"
+#~ msgstr "Pomoč"
+
+#~ msgid "Home"
+#~ msgstr "Začetno mesto"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME Sprejem"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME Pretvorba"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME Izhod"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME sprememba načina"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME Nepretvorba"
+
+#~ msgid "Left Button"
+#~ msgstr "Leva tipka"
+
+#~ msgid "Middle Button"
+#~ msgstr "Srednji gumb"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Ni ustvarjenega oziroma izbranega sveta!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM počisti"
+
+#~ msgid "Right Button"
+#~ msgstr "Desna tipka"
+
+#~ msgid "Select"
+#~ msgstr "Izberi"
+
+#~ msgid "Sleep"
+#~ msgstr "Spanje"
+
+#~ msgid "Snapshot"
+#~ msgstr "Posnetek"
+
+#~ msgid "Tab"
+#~ msgstr "Tabulator"
+
+#~ msgid "X Button 1"
+#~ msgstr "X Gumb 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X Gumb 2"

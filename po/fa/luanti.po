@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2025-05-14 20:53+0000\n"
 "Last-Translator: Sepehr <realsepehrz@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Persian <https://hosted.weblate.org/projects/minetest/"
@@ -1204,10 +1204,6 @@ msgid "New"
 msgstr "جدید"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "هیچ جهانی ساخته یا انتخاب نشده!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr ""
 
@@ -1787,10 +1783,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "برنامه ها"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr ""
 
@@ -1820,43 +1812,16 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
+msgid "End Key"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Help"
+#, fuzzy
+msgid "Help Key"
 msgstr "کمک"
 
 #: src/client/keycode.cpp
-msgid "Home"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
+msgid "Home Key"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -1868,7 +1833,7 @@ msgid "Left Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Left Button"
+msgid "Left Click"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -1883,17 +1848,25 @@ msgstr ""
 msgid "Left Shift"
 msgstr ""
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr ""
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -1961,10 +1934,6 @@ msgid "Numpad 9"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr ""
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr ""
 
@@ -1995,7 +1964,7 @@ msgid "Right Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Right Button"
+msgid "Right Click"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -2010,6 +1979,7 @@ msgstr ""
 msgid "Right Shift"
 msgstr ""
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr ""
@@ -2018,9 +1988,8 @@ msgstr ""
 msgid "Scroll Lock"
 msgstr ""
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
+msgid "Select Key"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -2028,35 +1997,15 @@ msgid "Shift Key"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr ""
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Tab"
+msgid "Tab Key"
 msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
 msgstr ""
 
 #: src/client/minimap.cpp
@@ -2452,12 +2401,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2776,6 +2724,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3256,6 +3215,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4933,6 +4896,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6800,3 +6767,9 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr ""
+
+#~ msgid "Apps"
+#~ msgstr "برنامه ها"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "هیچ جهانی ساخته یا انتخاب نشده!"

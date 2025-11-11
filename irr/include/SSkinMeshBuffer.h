@@ -90,7 +90,7 @@ struct SSkinMeshBuffer final : public IMeshBuffer
 	}
 
 	//! Get standard vertex at given index
-	virtual video::S3DVertex *getVertex(u32 index)
+	video::S3DVertex *getVertex(u32 index)
 	{
 		switch (VertexType) {
 		case video::EVT_2TCOORDS:

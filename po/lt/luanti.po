@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lithuanian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2024-05-01 12:07+0000\n"
 "Last-Translator: EditaNEmilis <ramanauskiene.edita@gmail.com>\n"
 "Language-Team: Lithuanian <https://hosted.weblate.org/projects/minetest/"
@@ -1266,10 +1266,6 @@ msgid "New"
 msgstr "Naujas"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Nesukurtas ar pasirinktas joks pasaulis!"
-
-#: builtin/mainmenu/tab_local.lua
 #, fuzzy
 msgid "Play Game"
 msgstr "Pradėti žaidimą"
@@ -1899,10 +1895,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Programos"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Backspace"
 msgstr "Atgal"
@@ -1937,49 +1929,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Baigti"
+#, fuzzy
+msgid "End Key"
+msgstr "Meniu"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "Erase EOF"
-msgstr "Ištrinti OEF"
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Vykdyti"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Pagalba"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Pradžia"
+msgid "Help Key"
+msgstr "Ištrinti"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "IME Accept"
-msgstr "Priimti"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Convert"
-msgstr "Konvertuoti"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Escape"
-msgstr "Atšaukti"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Mode Change"
-msgstr "Būsenos keitimas"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr ""
+msgid "Home Key"
+msgstr "Pritraukti"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1991,8 +1953,9 @@ msgid "Left Arrow"
 msgstr "Kairysis Control"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Kairysis mygtukas"
+#, fuzzy
+msgid "Left Click"
+msgstr "Kairysis Control"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -2006,19 +1969,27 @@ msgstr "Kairysis meniu"
 msgid "Left Shift"
 msgstr "Kairysis Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Kairieji langai"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Meniu"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Vidurinis mygtukas"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2086,10 +2057,6 @@ msgid "Numpad 9"
 msgstr "SkaitKlav 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM valymas"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Žemyn"
@@ -2124,8 +2091,9 @@ msgid "Right Arrow"
 msgstr "Dešinysis Control"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Dešinysis mygtukas"
+#, fuzzy
+msgid "Right Click"
+msgstr "Dešinysis Control"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2139,6 +2107,7 @@ msgstr "Dešinysis meniu"
 msgid "Right Shift"
 msgstr "Dešinysis Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Dešinieji langai"
@@ -2147,10 +2116,10 @@ msgstr "Dešinieji langai"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Pasirinkti"
+#, fuzzy
+msgid "Select Key"
+msgstr "Ištrinti"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2158,37 +2127,17 @@ msgid "Shift Key"
 msgstr "Shift (Lyg2)"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Užmigdyti"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Užlaikymas"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Tarpas"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tabuliacija"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Nustatyti klavišus"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X mygtukas 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X mygtukas 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Pritraukti"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2597,12 +2546,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2926,6 +2874,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3423,6 +3382,10 @@ msgstr ""
 #, fuzzy
 msgid "Developer Options"
 msgstr "Dekoracijos"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5121,6 +5084,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7035,3 +7002,71 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr ""
+
+#~ msgid "Apps"
+#~ msgstr "Programos"
+
+#~ msgid "End"
+#~ msgstr "Baigti"
+
+#, fuzzy
+#~ msgid "Erase EOF"
+#~ msgstr "Ištrinti OEF"
+
+#~ msgid "Execute"
+#~ msgstr "Vykdyti"
+
+#~ msgid "Help"
+#~ msgstr "Pagalba"
+
+#~ msgid "Home"
+#~ msgstr "Pradžia"
+
+#, fuzzy
+#~ msgid "IME Accept"
+#~ msgstr "Priimti"
+
+#, fuzzy
+#~ msgid "IME Convert"
+#~ msgstr "Konvertuoti"
+
+#, fuzzy
+#~ msgid "IME Escape"
+#~ msgstr "Atšaukti"
+
+#, fuzzy
+#~ msgid "IME Mode Change"
+#~ msgstr "Būsenos keitimas"
+
+#~ msgid "Left Button"
+#~ msgstr "Kairysis mygtukas"
+
+#~ msgid "Middle Button"
+#~ msgstr "Vidurinis mygtukas"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Nesukurtas ar pasirinktas joks pasaulis!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM valymas"
+
+#~ msgid "Right Button"
+#~ msgstr "Dešinysis mygtukas"
+
+#~ msgid "Select"
+#~ msgstr "Pasirinkti"
+
+#~ msgid "Sleep"
+#~ msgstr "Užmigdyti"
+
+#~ msgid "Snapshot"
+#~ msgstr "Užlaikymas"
+
+#~ msgid "Tab"
+#~ msgstr "Tabuliacija"
+
+#~ msgid "X Button 1"
+#~ msgstr "X mygtukas 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X mygtukas 2"

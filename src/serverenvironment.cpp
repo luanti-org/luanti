@@ -19,6 +19,7 @@
 #include "remoteplayer.h"
 #include "scripting_server.h"
 #include "server.h"
+#include "servermap.h"
 #include "util/serialize.h"
 #include "util/numeric.h"
 #include "util/basic_macros.h"
@@ -278,8 +279,12 @@ void ServerEnvironment::init()
 
 void ServerEnvironment::deactivateBlocksAndObjects()
 {
+	// Prevent any funny business from happening in case further callbacks
+	// try to add new objects.
+	m_shutting_down = true;
+
 	// Clear active block list.
-	// This makes the next one delete all active objects.
+	// This makes the next code delete all active objects.
 	m_active_blocks.clear();
 
 	deactivateFarObjects(true);
@@ -287,6 +292,7 @@ void ServerEnvironment::deactivateBlocksAndObjects()
 
 ServerEnvironment::~ServerEnvironment()
 {
+	m_script = nullptr;
 	assert(m_active_blocks.size() == 0); // deactivateBlocksAndObjects does this
 
 	// Drop/delete map
@@ -301,9 +307,12 @@ ServerEnvironment::~ServerEnvironment()
 	for (RemotePlayer *m_player : m_players) {
 		delete m_player;
 	}
+	m_players.clear();
 
 	delete m_player_database;
+	m_player_database = nullptr;
 	delete m_auth_database;
+	m_auth_database = nullptr;
 }
 
 Map & ServerEnvironment::getMap()
@@ -572,8 +581,8 @@ void ServerEnvironment::activateBlock(MapBlock *block)
 		return;
 
 	// Run node timers
-	block->step((float)dtime_s, [&](v3s16 p, MapNode n, f32 d) -> bool {
-		return m_script->node_on_timer(p, n, d);
+	block->step((float)dtime_s, [&](v3s16 p, MapNode n, NodeTimer t) -> bool {
+		return m_script->node_on_timer(p, n, t.elapsed, t.timeout);
 	});
 }
 
@@ -999,8 +1008,8 @@ void ServerEnvironment::step(float dtime)
 			}
 
 			// Run node timers
-			block->step(dtime, [&](v3s16 p, MapNode n, f32 d) -> bool {
-				return m_script->node_on_timer(p, n, d);
+			block->step(dtime, [&](v3s16 p, MapNode n, NodeTimer t) -> bool {
+				return m_script->node_on_timer(p, n, t.elapsed, t.timeout);
 			});
 		}
 	}
@@ -1208,6 +1217,11 @@ void ServerEnvironment::deleteParticleSpawner(u32 id, bool remove_from_object)
 u16 ServerEnvironment::addActiveObject(std::unique_ptr<ServerActiveObject> object)
 {
 	assert(object);	// Pre-condition
+	if (m_shutting_down) {
+		warningstream << "ServerEnvironment: refusing to add active object "
+			"during shutdown: " << object->getDescription() << std::endl;
+		return 0;
+	}
 	m_added_objects++;
 	u16 id = addActiveObjectRaw(std::move(object), nullptr, 0);
 	return id;
@@ -1569,7 +1583,7 @@ std::unique_ptr<ServerActiveObject> ServerEnvironment::createSAO(ActiveObjectTyp
 */
 void ServerEnvironment::activateObjects(MapBlock *block, u32 dtime_s)
 {
-	if (block == NULL)
+	if (!block || m_shutting_down)
 		return;
 
 	if (!block->onObjectsActivation())
@@ -1828,6 +1842,21 @@ void ServerEnvironment::processActiveObjectRemove(ServerActiveObject *obj)
 	m_script->removeObjectReference(obj);
 }
 
+std::vector<std::string> ServerEnvironment::getPlayerDatabaseBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
+	ret.emplace_back("dummy");
+#if USE_POSTGRESQL
+	ret.emplace_back("postgresql");
+#endif
+#if USE_LEVELDB
+	ret.emplace_back("leveldb");
+#endif
+	ret.emplace_back("files");
+	return ret;
+}
+
 PlayerDatabase *ServerEnvironment::openPlayerDatabase(const std::string &name,
 		const std::string &savedir, const Settings &conf)
 {
@@ -1942,6 +1971,21 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 		return false;
 	}
 	return true;
+}
+
+std::vector<std::string> ServerEnvironment::getAuthDatabaseBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
+	ret.emplace_back("dummy");
+#if USE_POSTGRESQL
+	ret.emplace_back("postgresql");
+#endif
+	ret.emplace_back("files");
+#if USE_LEVELDB
+	ret.emplace_back("leveldb");
+#endif
+	return ret;
 }
 
 AuthDatabase *ServerEnvironment::openAuthDatabase(

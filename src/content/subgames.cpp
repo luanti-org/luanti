@@ -237,9 +237,11 @@ std::vector<SubgameSpec> getAvailableGames()
 
 bool getWorldExists(const std::string &world_path)
 {
+	if (world_path.empty())
+		return false;
 	// Note: very old worlds are valid without a world.mt
-	return (fs::PathExists(world_path + DIR_DELIM + "map_meta.txt") ||
-			fs::PathExists(world_path + DIR_DELIM + "world.mt"));
+	return (fs::IsFile(world_path + DIR_DELIM + "map_meta.txt") ||
+			fs::IsFile(world_path + DIR_DELIM + "world.mt"));
 }
 
 //! Try to get the displayed name of a world

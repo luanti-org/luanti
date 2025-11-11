@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Kyrgyz (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2019-11-10 15:04+0000\n"
 "Last-Translator: Krock <mk939@ymail.com>\n"
 "Language-Team: Kyrgyz <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -1251,10 +1251,6 @@ msgid "New"
 msgstr "Жаңы"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr ""
-
-#: builtin/mainmenu/tab_local.lua
 #, fuzzy
 msgid "Play Game"
 msgstr "Оюнду баштоо/туташуу"
@@ -1876,10 +1872,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Тиркемелер"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Backspace"
 msgstr "Артка"
@@ -1914,47 +1906,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Аягы"
-
-#: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Аткаруу"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Жардам"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Home"
+#, fuzzy
+msgid "End Key"
+msgstr "Меню"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "IME Accept"
-msgstr "Кабыл алуу"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr ""
+msgid "Help Key"
+msgstr "Өчүрүү"
 
 #: src/client/keycode.cpp
 #, fuzzy
-msgid "IME Escape"
-msgstr "Esc"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "IME Mode Change"
-msgstr "Режимди өзгөртүү"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr ""
+msgid "Home Key"
+msgstr "Масштаб"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1966,8 +1930,9 @@ msgid "Left Arrow"
 msgstr "Сол Ctrl"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Сол баскыч"
+#, fuzzy
+msgid "Left Click"
+msgstr "Сол Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1981,19 +1946,27 @@ msgstr "Сол меню"
 msgid "Left Shift"
 msgstr "Сол Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Сол Windows"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Меню"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Ортоңку баскыч"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2061,10 +2034,6 @@ msgid "Numpad 9"
 msgstr "Кош. клав. 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr ""
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Ылдый"
@@ -2098,8 +2067,9 @@ msgid "Right Arrow"
 msgstr "Оң Ctrl"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Оң баскыч"
+#, fuzzy
+msgid "Right Click"
+msgstr "Оң Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2113,6 +2083,7 @@ msgstr "Оң меню"
 msgid "Right Shift"
 msgstr "Оң Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Оң Windows"
@@ -2121,10 +2092,10 @@ msgstr "Оң Windows"
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Тандоо"
+#, fuzzy
+msgid "Select Key"
+msgstr "Өчүрүү"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2132,37 +2103,17 @@ msgid "Shift Key"
 msgstr "Shift"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Уйку"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Тез сүрөт"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Боштук"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tab"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Уурданып басуу"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr ""
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Масштаб"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2569,12 +2520,11 @@ msgstr ""
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2899,6 +2849,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3391,6 +3352,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5078,6 +5043,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6994,3 +6963,51 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
 msgstr ""
+
+#~ msgid "Apps"
+#~ msgstr "Тиркемелер"
+
+#~ msgid "End"
+#~ msgstr "Аягы"
+
+#~ msgid "Execute"
+#~ msgstr "Аткаруу"
+
+#~ msgid "Help"
+#~ msgstr "Жардам"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#, fuzzy
+#~ msgid "IME Accept"
+#~ msgstr "Кабыл алуу"
+
+#, fuzzy
+#~ msgid "IME Escape"
+#~ msgstr "Esc"
+
+#, fuzzy
+#~ msgid "IME Mode Change"
+#~ msgstr "Режимди өзгөртүү"
+
+#~ msgid "Left Button"
+#~ msgstr "Сол баскыч"
+
+#~ msgid "Middle Button"
+#~ msgstr "Ортоңку баскыч"
+
+#~ msgid "Right Button"
+#~ msgstr "Оң баскыч"
+
+#~ msgid "Select"
+#~ msgstr "Тандоо"
+
+#~ msgid "Sleep"
+#~ msgstr "Уйку"
+
+#~ msgid "Snapshot"
+#~ msgstr "Тез сүрөт"
+
+#~ msgid "Tab"
+#~ msgstr "Tab"

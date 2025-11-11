@@ -4,6 +4,7 @@
 
 #include "texturesource.h"
 
+#include <cassert>
 #include <IVideoDriver.h>
 #include "guiscalingfilter.h"
 #include "imagefilters.h"
@@ -13,14 +14,47 @@
 #include "texturepaths.h"
 #include "util/thread.h"
 
+// Represents a to-be-generated texture for queuing purposes
+struct TextureRequest
+{
+	video::E_TEXTURE_TYPE type = video::ETT_2D;
+	std::vector<std::string> images;
+
+	void print(std::ostream &to) const {
+		if (images.size() == 1) {
+			to << "image=\"" << images[0] << "\"";
+		} else {
+			to << "images={";
+			for (auto &image : images)
+				to << "\"" << image << "\" ";
+			to << "}";
+		}
+	}
+
+	bool operator==(const TextureRequest &other) const {
+		return type == other.type && images == other.images;
+	}
+	bool operator!=(const TextureRequest &other) const {
+		return !(*this == other);
+	}
+};
 
 // Stores internal information about a texture.
 struct TextureInfo
 {
+	// Type the texture should have (when created)
+	video::E_TEXTURE_TYPE type = video::ETT_2D;
+
+	// Name of the texture
+	// For standard textures this is equivalent to images[0]
 	std::string name;
+
+	// Name of the images that comprise this texture
+	// (multiple for array textures)
+	std::vector<std::string> images;
+
 	video::ITexture *texture = nullptr;
 
-	// Stores source image names which ImageSource::generateImage used.
 	std::set<std::string> sourceImages{};
 };
 
@@ -38,71 +72,22 @@ public:
 	TextureSource();
 	virtual ~TextureSource();
 
-	/*
-		Example case:
-		Now, assume a texture with the id 1 exists, and has the name
-		"stone.png^mineral1".
-		Then a random thread calls getTextureId for a texture called
-		"stone.png^mineral1^crack0".
-		...Now, WTF should happen? Well:
-		- getTextureId strips off stuff recursively from the end until
-		  the remaining part is found, or nothing is left when
-		  something is stripped out
-
-		But it is slow to search for textures by names and modify them
-		like that?
-		- ContentFeatures is made to contain ids for the basic plain
-		  textures
-		- Crack textures can be slow by themselves, but the framework
-		  must be fast.
-
-		Example case #2:
-		- Assume a texture with the id 1 exists, and has the name
-		  "stone.png^mineral_coal.png".
-		- Now getNodeTile() stumbles upon a node which uses
-		  texture id 1, and determines that MATERIAL_FLAG_CRACK
-		  must be applied to the tile
-		- MapBlockMesh::animate() finds the MATERIAL_FLAG_CRACK and
-		  has received the current crack level 0 from the client. It
-		  finds out the name of the texture with getTextureName(1),
-		  appends "^crack0" to it and gets a new texture id with
-		  getTextureId("stone.png^mineral_coal.png^crack0").
-
-	*/
-
-	/*
-		Gets a texture id from cache or
-		- if main thread, generates the texture, adds to cache and returns id.
-		- if other thread, adds to request queue and waits for main thread.
-
-		The id 0 points to a NULL texture. It is returned in case of error.
-	*/
 	u32 getTextureId(const std::string &name);
 
-	// Finds out the name of a cached texture.
 	std::string getTextureName(u32 id);
 
-	/*
-		If texture specified by the name pointed by the id doesn't
-		exist, create it, then return the cached texture.
-
-		Can be called from any thread. If called from some other thread
-		and not found in cache, the call is queued to the main thread
-		for processing.
-	*/
 	video::ITexture* getTexture(u32 id);
 
-	video::ITexture* getTexture(const std::string &name, u32 *id = NULL);
+	video::ITexture* getTexture(const std::string &name, u32 *id = nullptr);
 
-	/*
-		Get a texture specifically intended for mesh
-		application, i.e. not HUD, compositing, or other 2D
-		use.  This texture may be a different size and may
-		have had additional filters applied.
-	*/
-	video::ITexture* getTextureForMesh(const std::string &name, u32 *id);
+	video::ITexture *addArrayTexture(
+		const std::vector<std::string> &images, u32 *id = nullptr);
 
-	virtual Palette* getPalette(const std::string &name);
+	bool needFilterForMesh() const {
+		return mesh_filter_needed;
+	}
+
+	Palette *getPalette(const std::string &name);
 
 	bool isKnownSourceImage(const std::string &name)
 	{
@@ -130,6 +115,8 @@ public:
 
 	video::SColor getTextureAverageColor(const std::string &name);
 
+	core::dimension2du getTextureDimensions(const std::string &image);
+
 	void setImageCaching(bool enabled);
 
 private:
@@ -151,13 +138,20 @@ private:
 	// (main thread use only)
 	std::unordered_map<std::string, ImageInfo> m_image_cache;
 
-	// Rebuild images and textures from the current set of source images
-	// Shall be called from the main thread.
-	// You ARE expected to be holding m_textureinfo_cache_mutex
+	// Rebuild a single texture
 	void rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti);
 
-	// Generate a texture
+	// Process texture request
+	u32 processRequestQueued(const TextureRequest &req);
+
+	// Process texture request directly (main thread only)
+	u32 processRequest(const TextureRequest &req);
+
+	// Generate standard texture
 	u32 generateTexture(const std::string &name);
+
+	// Generate array texture
+	u32 generateArrayTexture(const std::vector<std::string> &names);
 
 	// Thread-safe cache of what source images are known (true = known)
 	MutexedMap<std::string, bool> m_source_image_existence;
@@ -171,7 +165,7 @@ private:
 	std::mutex m_textureinfo_cache_mutex;
 
 	// Queued texture fetches (to be processed by the main thread)
-	RequestQueue<std::string, u32, std::thread::id, u8> m_get_texture_queue;
+	RequestQueue<TextureRequest, u32, std::thread::id, char> m_get_texture_queue;
 
 	// Textures that have been overwritten with other ones
 	// but can't be deleted because the ITexture* might still be used
@@ -194,7 +188,7 @@ TextureSource::TextureSource()
 	m_main_thread = std::this_thread::get_id();
 
 	// Add a NULL TextureInfo as the first index, named ""
-	m_textureinfo_cache.emplace_back(TextureInfo{""});
+	m_textureinfo_cache.emplace_back(TextureInfo{video::ETT_2D, "", {}});
 	m_name_to_id[""] = 0;
 
 	// Cache some settings
@@ -236,7 +230,8 @@ video::IImage *TextureSource::getOrGenerateImage(const std::string &name,
 {
 	auto it = m_image_cache.find(name);
 	if (it != m_image_cache.end()) {
-		source_image_names = it->second.sourceImages;
+		std::set copy(it->second.sourceImages);
+		source_image_names.merge(copy);
 		it->second.image->grab();
 		return it->second.image;
 	}
@@ -247,8 +242,39 @@ video::IImage *TextureSource::getOrGenerateImage(const std::string &name,
 		img->grab();
 		m_image_cache[name] = {img, tmp};
 	}
-	source_image_names = std::move(tmp);
+	source_image_names.merge(tmp);
 	return img;
+}
+
+u32 TextureSource::processRequestQueued(const TextureRequest &req)
+{
+	if (std::this_thread::get_id() == m_main_thread) {
+		// Generate directly
+		return processRequest(req);
+	}
+
+	infostream << "TextureSource: Queued: ";
+	req.print(infostream);
+	infostream << std::endl;
+
+	// We're gonna ask the result to be put into here
+	static thread_local decltype(m_get_texture_queue)::result_queue_type result_queue;
+
+	// Throw a request in
+	m_get_texture_queue.add(req, std::this_thread::get_id(), 0, &result_queue);
+
+	try {
+		// Wait for result for up to 1 seconds (empirical value)
+		auto result = result_queue.pop_front(1000);
+
+		assert(result.key == req);
+		return result.item;
+	} catch (ItemNotFoundException &e) {
+		errorstream << "TextureSource: Waiting for texture ";
+		req.print(infostream);
+		infostream << " timed out." << std::endl;
+		return 0;
+	}
 }
 
 u32 TextureSource::getTextureId(const std::string &name)
@@ -260,41 +286,99 @@ u32 TextureSource::getTextureId(const std::string &name)
 			return n->second;
 	}
 
-	// Get texture
-	if (std::this_thread::get_id() == m_main_thread) {
-		return generateTexture(name);
+	TextureRequest req{video::ETT_2D, {name}};
+
+	return processRequestQueued(req);
+}
+
+video::ITexture *TextureSource::addArrayTexture(
+	const std::vector<std::string> &images, u32 *ret_id)
+{
+	if (images.empty())
+		return NULL;
+
+	TextureRequest req{video::ETT_2D_ARRAY, images};
+
+	u32 id = processRequestQueued(req);
+	if (ret_id)
+		*ret_id = id;
+	return getTexture(id);
+}
+
+u32 TextureSource::processRequest(const TextureRequest &req)
+{
+	if (req.type == video::ETT_2D) {
+		assert(req.images.size() == 1);
+		return generateTexture(req.images[0]);
 	}
 
-
-	infostream << "getTextureId(): Queued: name=\"" << name << "\"" << std::endl;
-
-	// We're gonna ask the result to be put into here
-	static thread_local ResultQueue<std::string, u32, std::thread::id, u8> result_queue;
-
-	// Throw a request in
-	m_get_texture_queue.add(name, std::this_thread::get_id(), 0, &result_queue);
-
-	try {
-		while(true) {
-			// Wait for result for up to 1 seconds (empirical value)
-			GetResult<std::string, u32, std::thread::id, u8>
-				result = result_queue.pop_front(1000);
-
-			if (result.key == name) {
-				return result.item;
-			}
-		}
-	} catch(ItemNotFoundException &e) {
-		errorstream << "Waiting for texture " << name << " timed out." << std::endl;
-		return 0;
+	if (req.type == video::ETT_2D_ARRAY) {
+		assert(!req.images.empty());
+		return generateArrayTexture(req.images);
 	}
 
-	infostream << "getTextureId(): Failed" << std::endl;
-
+	errorstream << "TextureSource::processRequest(): unknown type "
+			<< (int)req.type << std::endl;
 	return 0;
 }
 
-// This method generates all the textures
+u32 TextureSource::generateArrayTexture(const std::vector<std::string> &images)
+{
+	std::set<std::string> source_image_names;
+	std::vector<video::IImage*> imgs;
+	const auto &drop_imgs = [&imgs] () {
+		for (auto *img : imgs) {
+			if (img)
+				img->drop();
+		}
+		imgs.clear();
+	};
+	for (auto &name : images) {
+		video::IImage *img = getOrGenerateImage(name, source_image_names);
+		if (!img) {
+			// Since the caller needs to make sure of the dimensions beforehand
+			// anyway, this should not ever happen. So the "unhelpful" error is ok.
+			errorstream << "generateArrayTexture(): one of " << images.size()
+				<< " images failed to generate, aborting." << std::endl;
+			drop_imgs();
+			return 0;
+		}
+		imgs.push_back(img);
+	}
+	assert(!imgs.empty());
+
+	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
+	sanity_check(driver);
+	assert(driver->queryFeature(video::EVDF_TEXTURE_2D_ARRAY));
+
+	MutexAutoLock lock(m_textureinfo_cache_mutex);
+	const u32 id = m_textureinfo_cache.size();
+	std::string name;
+	{ // automatically choose a name
+		char buf[64];
+		porting::mt_snprintf(buf, sizeof(buf), "array#%u %ux%ux%u", id,
+			imgs[0]->getDimension().Width, imgs[0]->getDimension().Height,
+			imgs.size());
+		name = buf;
+	}
+
+	video::ITexture *tex = driver->addArrayTexture(name, imgs.data(), imgs.size());
+	drop_imgs();
+
+	if (!tex) {
+		warningstream << "generateArrayTexture(): failed to upload texture \""
+				<< name << "\"" << std::endl;
+	}
+
+	// Add texture to caches (add NULL textures too)
+
+	TextureInfo ti{video::ETT_2D_ARRAY, name, images, tex, std::move(source_image_names)};
+	m_textureinfo_cache.emplace_back(std::move(ti));
+	m_name_to_id[name] = id;
+
+	return id;
+}
+
 u32 TextureSource::generateTexture(const std::string &name)
 {
 	// Empty name means texture 0
@@ -311,16 +395,11 @@ u32 TextureSource::generateTexture(const std::string &name)
 	}
 
 	// Calling only allowed from main thread
-	if (std::this_thread::get_id() != m_main_thread) {
-		errorstream << "TextureSource::generateTexture() "
-				"called not from main thread" << std::endl;
-		return 0;
-	}
+	sanity_check(std::this_thread::get_id() == m_main_thread);
 
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	sanity_check(driver);
 
-	// passed into texture info for dynamic media tracking
 	std::set<std::string> source_image_names;
 	video::IImage *img = getOrGenerateImage(name, source_image_names);
 
@@ -332,13 +411,17 @@ u32 TextureSource::generateTexture(const std::string &name)
 		guiScalingCache(io::path(name.c_str()), driver, img);
 		img->drop();
 	}
+	if (!tex) {
+		warningstream << "generateTexture(): failed to upload texture \""
+				<< name << "\"" << std::endl;
+	}
 
 	// Add texture to caches (add NULL textures too)
 
 	MutexAutoLock lock(m_textureinfo_cache_mutex);
 
-	u32 id = m_textureinfo_cache.size();
-	TextureInfo ti{name, tex, std::move(source_image_names)};
+	const u32 id = m_textureinfo_cache.size();
+	TextureInfo ti{video::ETT_2D, name, {name}, tex, std::move(source_image_names)};
 	m_textureinfo_cache.emplace_back(std::move(ti));
 	m_name_to_id[name] = id;
 
@@ -376,14 +459,6 @@ video::ITexture* TextureSource::getTexture(const std::string &name, u32 *id)
 		*id = actual_id;
 
 	return getTexture(actual_id);
-}
-
-video::ITexture* TextureSource::getTextureForMesh(const std::string &name, u32 *id)
-{
-	// Avoid duplicating texture if it won't actually change
-	if (mesh_filter_needed && !name.empty())
-		return getTexture(name + "^[applyfiltersformesh", id);
-	return getTexture(name, id);
 }
 
 Palette* TextureSource::getPalette(const std::string &name)
@@ -444,13 +519,10 @@ Palette* TextureSource::getPalette(const std::string &name)
 
 void TextureSource::processQueue()
 {
-	// Fetch textures
-	// NOTE: process outstanding requests from all mesh generation threads
 	while (!m_get_texture_queue.empty()) {
-		GetRequest<std::string, u32, std::thread::id, u8>
-				request = m_get_texture_queue.pop();
+		auto request = m_get_texture_queue.pop();
 
-		m_get_texture_queue.pushResult(request, generateTexture(request.key));
+		m_get_texture_queue.pushResult(request, processRequest(request.key));
 	}
 }
 
@@ -517,6 +589,15 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 	assert(!ti.name.empty());
 	sanity_check(std::this_thread::get_id() == m_main_thread);
 
+	if (ti.type != video::ETT_2D) {
+		// It's unclear how this idea is supposed to work with array textures,
+		// since after a rebuild the dimensions of some images can mismatch
+		// so that creating an array is no longer possible.
+		infostream << "TextureSource::rebuildTexture(): "
+			"Refusing to rebuild array texture" << std::endl;
+		return;
+	}
+
 	std::set<std::string> source_image_names;
 	video::IImage *img = getOrGenerateImage(ti.name, source_image_names);
 
@@ -555,6 +636,8 @@ void TextureSource::rebuildTexture(video::IVideoDriver *driver, TextureInfo &ti)
 video::SColor TextureSource::getTextureAverageColor(const std::string &name)
 {
 	assert(std::this_thread::get_id() == m_main_thread);
+	if (name.empty())
+		return {0, 0, 0, 0};
 
 	std::set<std::string> unused;
 	auto *image = getOrGenerateImage(name, unused);
@@ -565,6 +648,23 @@ video::SColor TextureSource::getTextureAverageColor(const std::string &name)
 	image->drop();
 
 	return c;
+}
+
+core::dimension2du TextureSource::getTextureDimensions(const std::string &name)
+{
+	assert(std::this_thread::get_id() == m_main_thread);
+
+	core::dimension2du ret;
+	if (!name.empty()) {
+		std::set<std::string> unused;
+		auto *image = getOrGenerateImage(name, unused);
+		if (image) {
+			ret = image->getDimension();
+			image->drop();
+		}
+	}
+
+	return ret;
 }
 
 void TextureSource::setImageCaching(bool enabled)

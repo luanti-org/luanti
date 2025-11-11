@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Esperanto (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 19:59+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2024-12-27 21:05+0000\n"
 "Last-Translator: Hugo <urbestro@duck.com>\n"
 "Language-Team: Esperanto <https://hosted.weblate.org/projects/minetest/"
@@ -1248,10 +1248,6 @@ msgid "New"
 msgstr "Nova"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Neniu mondo estas kreita aŭ elektita!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Ludi"
 
@@ -1858,10 +1854,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profililo montrita (paĝo %d el %d)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Aplikaĵoj"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Reenklavo"
 
@@ -1892,44 +1884,19 @@ msgid "Down Arrow"
 msgstr "Malsupren"
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Fino"
+#, fuzzy
+msgid "End Key"
+msgstr "Menuo"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Viŝi dosierfinon"
+#, fuzzy
+msgid "Help Key"
+msgstr "Forigo"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Ruli"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Helpo"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Hejmen"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "IME-akcepto"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "IME-konverto"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "IME-eskapo"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "IME-reĝimŝanĝo"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "IME-nekonverto"
+#, fuzzy
+msgid "Home Key"
+msgstr "Zomo"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1940,8 +1907,9 @@ msgid "Left Arrow"
 msgstr "Maldekstren"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Maldekstra butono"
+#, fuzzy
+msgid "Left Click"
+msgstr "Maldekstra Stiro"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1955,18 +1923,26 @@ msgstr "Maldekstra Menuo"
 msgid "Left Shift"
 msgstr "Maldekstra Majuskligo"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Maldekstra Vindozo"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 msgid "Menu Key"
 msgstr "Menuo"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Meza butono"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2033,10 +2009,6 @@ msgid "Numpad 9"
 msgstr "Klavareta 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Vakigi"
-
-#: src/client/keycode.cpp
 msgid "Page Down"
 msgstr "Paĝon suben"
 
@@ -2067,8 +2039,9 @@ msgid "Right Arrow"
 msgstr "Dekstren"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Dekstra butono"
+#, fuzzy
+msgid "Right Click"
+msgstr "Dekstra Stiro"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2082,6 +2055,7 @@ msgstr "Dekstra Menuo"
 msgid "Right Shift"
 msgstr "Dekstra Majuskligo"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Dekstra Vindozo"
@@ -2090,46 +2064,27 @@ msgstr "Dekstra Vindozo"
 msgid "Scroll Lock"
 msgstr "Ruluma Baskulo"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Elekti"
+#, fuzzy
+msgid "Select Key"
+msgstr "Forigo"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
 msgstr "Majuskligo"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Dormo"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Ekrankopio"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Spacetklavo"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Tabo"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Kaŝira klavo"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Supren"
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X-Butono 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X-Butono 2"
-
-#: src/client/keycode.cpp
-msgid "Zoom Key"
-msgstr "Zomo"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2565,12 +2520,11 @@ msgstr "3D-bruo, kiu determinas la nombron de forgeskeloj en mondoparto."
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 "Subteno de 3d-a vido.\n"
 "Nun subtenataj:\n"
@@ -2685,8 +2639,8 @@ msgstr ""
 "Klavo por kaŝirado.\n"
 "Ankaŭ uzata por malsupreniro kaj malsuprennaĝo se ‹aux1_descends› estas "
 "malŝaltita.\n"
-"Vidu http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Vidu http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2940,6 +2894,17 @@ msgstr "Glatigo de vidpunkto"
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
 msgstr "Glatigo de vidpunkto por glita vidpunkto"
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -3487,6 +3452,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Elektebloj por programistoj"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -5452,6 +5421,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Maksimuma nombro da uzantoj"
+
+#: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -7576,8 +7549,8 @@ msgid "Will also disable autoforward, when active."
 msgstr ""
 "Klavo por movi la ludanton reen.\n"
 "Aktivigo ankaŭ malŝaltos memiradon.\n"
-"Vidu http://irrlicht.sourceforge.net/docu/namespaceirr."
-"html#a54da2a0e231901735e3da1b0edf72eb3"
+"Vidu http://irrlicht.sourceforge.net/docu/"
+"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7694,14 +7667,68 @@ msgstr "Interaga tempolimo de cURL"
 msgid "cURL parallel limit"
 msgstr "Samtempa limo de cURL"
 
-#, fuzzy
-#~ msgid "Key for taking screenshots."
-#~ msgstr "Dosierformo de ekrankopioj."
+#~ msgid "Apps"
+#~ msgstr "Aplikaĵoj"
 
-#, fuzzy
-#~ msgid "Key for toggling cinematic mode."
-#~ msgstr "Glatigo de vidpunkto por glita vidpunkto"
+#~ msgid "End"
+#~ msgstr "Fino"
 
-#, fuzzy
-#~ msgid "Key for toggling fullscreen mode."
-#~ msgstr "Tutekrana reĝimo."
+#~ msgid "Erase EOF"
+#~ msgstr "Viŝi dosierfinon"
+
+#~ msgid "Execute"
+#~ msgstr "Ruli"
+
+#~ msgid "Help"
+#~ msgstr "Helpo"
+
+#~ msgid "Home"
+#~ msgstr "Hejmen"
+
+#~ msgid "IME Accept"
+#~ msgstr "IME-akcepto"
+
+#~ msgid "IME Convert"
+#~ msgstr "IME-konverto"
+
+#~ msgid "IME Escape"
+#~ msgstr "IME-eskapo"
+
+#~ msgid "IME Mode Change"
+#~ msgstr "IME-reĝimŝanĝo"
+
+#~ msgid "IME Nonconvert"
+#~ msgstr "IME-nekonverto"
+
+#~ msgid "Left Button"
+#~ msgstr "Maldekstra butono"
+
+#~ msgid "Middle Button"
+#~ msgstr "Meza butono"
+
+#~ msgid "No world created or selected!"
+#~ msgstr "Neniu mondo estas kreita aŭ elektita!"
+
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Vakigi"
+
+#~ msgid "Right Button"
+#~ msgstr "Dekstra butono"
+
+#~ msgid "Select"
+#~ msgstr "Elekti"
+
+#~ msgid "Sleep"
+#~ msgstr "Dormo"
+
+#~ msgid "Snapshot"
+#~ msgstr "Ekrankopio"
+
+#~ msgid "Tab"
+#~ msgstr "Tabo"
+
+#~ msgid "X Button 1"
+#~ msgstr "X-Butono 1"
+
+#~ msgid "X Button 2"
+#~ msgstr "X-Butono 2"

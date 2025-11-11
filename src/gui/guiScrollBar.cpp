@@ -19,7 +19,7 @@ the arrow buttons where there is insufficient space.
 GUIScrollBar::GUIScrollBar(IGUIEnvironment *environment, IGUIElement *parent, s32 id,
 		core::rect<s32> rectangle, bool horizontal, bool auto_scale,
 		ISimpleTextureSource *tsrc) :
-		IGUIElement(EGUIET_ELEMENT, environment, parent, id, rectangle),
+		IGUIScrollBar(environment, parent, id, rectangle),
 		up_button(nullptr), down_button(nullptr), is_dragging(false),
 		is_horizontal(horizontal), is_auto_scaling(auto_scale),
 		dragged_by_slider(false), tray_clicked(false), scroll_pos(0),
@@ -281,7 +281,7 @@ void GUIScrollBar::setPos(const s32 pos)
 	target_pos = std::nullopt;
 }
 
-void GUIScrollBar::setPosAndSend(const s32 &pos)
+void GUIScrollBar::setPosAndSend(const s32 pos)
 {
 	const s32 old_pos = scroll_pos;
 	setPos(pos);
@@ -295,7 +295,7 @@ void GUIScrollBar::setPosAndSend(const s32 &pos)
 	}
 }
 
-void GUIScrollBar::setPosInterpolated(const s32 &pos)
+void GUIScrollBar::setPosInterpolated(const s32 pos)
 {
 	if (!g_settings->getBool("smooth_scrolling")) {
 		setPosAndSend(pos);
@@ -311,17 +311,17 @@ void GUIScrollBar::setPosInterpolated(const s32 &pos)
 	}
 }
 
-void GUIScrollBar::setSmallStep(const s32 &step)
+void GUIScrollBar::setSmallStep(const s32 step)
 {
 	small_step = step > 0 ? step : 10;
 }
 
-void GUIScrollBar::setLargeStep(const s32 &step)
+void GUIScrollBar::setLargeStep(const s32 step)
 {
 	large_step = step > 0 ? step : 50;
 }
 
-void GUIScrollBar::setMax(const s32 &max)
+void GUIScrollBar::setMax(const s32 max)
 {
 	max_pos = max;
 	if (min_pos > max_pos)
@@ -333,7 +333,7 @@ void GUIScrollBar::setMax(const s32 &max)
 	updatePos();
 }
 
-void GUIScrollBar::setMin(const s32 &min)
+void GUIScrollBar::setMin(const s32 min)
 {
 	min_pos = min;
 	if (max_pos < min_pos)
@@ -345,7 +345,7 @@ void GUIScrollBar::setMin(const s32 &min)
 	updatePos();
 }
 
-void GUIScrollBar::setPageSize(const s32 &size)
+void GUIScrollBar::setPageSize(const s32 size)
 {
 	page_size = size;
 	updatePos();

@@ -585,6 +585,7 @@ u32 ParsedText::parseTag(const wchar_t *text, u32 cursor)
 				return 0;
 			openTag(name, attrs)->style = m_elementtags["action"];
 		}
+		endElement();
 
 	} else if (m_elementtags.count(name)) {
 		if (end) {

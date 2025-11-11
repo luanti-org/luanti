@@ -26,6 +26,12 @@ class AsyncEngine;
 struct LuaJobInfo
 {
 	LuaJobInfo() = default;
+	LuaJobInfo(std::string &&func, std::string &&params, const std::string &mod_origin = "") :
+		function(func), params(params), mod_origin(mod_origin) {}
+	LuaJobInfo(std::string &&func, PackedValue *params, const std::string &mod_origin = "") :
+		function(func), mod_origin(mod_origin) {
+		params_ext.reset(params);
+	}
 
 	// Function to be called in async environment (from string.dump)
 	std::string function;
@@ -103,10 +109,24 @@ public:
 			const std::string &mod_origin = "");
 
 	/**
+	 * Try to cancel an async job
+	 * @param id The ID of the job
+	 * @return Whether the job was cancelled
+	 */
+	bool cancelAsyncJob(u32 id);
+
+	/**
 	 * Engine step to process finished jobs
 	 * @param L The Lua stack
 	 */
 	void step(lua_State *L);
+
+	/**
+	 * Get the maximum number of threads that can be used by the async environment
+	 */
+	unsigned int getThreadingCapacity() const {
+		return MYMAX(workerThreads.size(), autoscaleMaxWorkers);
+	}
 
 protected:
 	/**
@@ -116,6 +136,13 @@ protected:
 	 * @return whether a job was available
 	 */
 	bool getJob(LuaJobInfo *job);
+
+	/**
+	 * Queue an async job
+	 * @param job The job to queue (takes ownership!)
+	 * @return Id of the queued job
+	 */
+	u32 queueAsyncJob(LuaJobInfo &&job);
 
 	/**
 	 * Put a Job result back to result queue
@@ -205,4 +232,24 @@ private:
 
 	// Counter semaphore for job dispatching
 	Semaphore jobQueueCounter;
+};
+
+class ScriptApiAsync:
+	virtual public ScriptApiBase
+{
+public:
+	ScriptApiAsync(Server *server): asyncEngine(server) {}
+
+	virtual void initAsync() = 0;
+	void stepAsync();
+
+	u32 queueAsync(std::string &&serialized_func,
+			PackedValue *param, const std::string &mod_origin);
+	bool cancelAsync(u32 id);
+	unsigned int getThreadingCapacity() const {
+		return asyncEngine.getThreadingCapacity();
+	}
+
+protected:
+	AsyncEngine asyncEngine;
 };

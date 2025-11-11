@@ -9,6 +9,7 @@
 #include "scripting_server.h"
 #include "server.h"
 #include "serverenvironment.h"
+#include "settings.h"
 
 PlayerSAO::PlayerSAO(ServerEnvironment *env_, RemotePlayer *player_, session_t peer_id_,
 		bool is_singleplayer):
@@ -49,6 +50,8 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, RemotePlayer *player_, session_t p
 	if (!g_settings->getBool("enable_damage"))
 		m_armor_groups["immortal"] = 1;
 }
+
+// PlayerSAO::~PlayerSAO(): eventually deleted by `ActiveObjectMgr::removeObject`
 
 void PlayerSAO::finalize(RemotePlayer *player, const std::set<std::string> &privs)
 {

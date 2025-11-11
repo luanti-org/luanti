@@ -261,12 +261,6 @@ bool CIrrDeviceStub::isFullscreen() const
 	return CreationParams.Fullscreen;
 }
 
-//! returns color format
-video::ECOLOR_FORMAT CIrrDeviceStub::getColorFormat() const
-{
-	return video::ECF_R5G6B5;
-}
-
 //! No-op in this implementation
 bool CIrrDeviceStub::activateJoysticks(core::array<SJoystickInfo> &joystickInfo)
 {

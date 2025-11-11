@@ -101,9 +101,6 @@ public:
 	//! Checks if the window is running in fullscreen mode.
 	bool isFullscreen() const override;
 
-	//! get color format of the current window
-	video::ECOLOR_FORMAT getColorFormat() const override;
-
 	//! Activate any joysticks, and generate events for them.
 	bool activateJoysticks(core::array<SJoystickInfo> &joystickInfo) override;
 

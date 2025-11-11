@@ -5,11 +5,7 @@ uniform vec2 texelSize0;
 uniform mediump float bloomRadius;
 uniform mat3 bloomBlurWeights;
 
-#ifdef GL_ES
-varying mediump vec2 varTexCoord;
-#else
-centroid varying vec2 varTexCoord;
-#endif
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
 
 // smoothstep - squared
 float smstsq(float f)

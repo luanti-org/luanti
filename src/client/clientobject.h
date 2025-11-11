@@ -18,7 +18,7 @@ struct ItemStack;
 
 namespace scene
 {
-	class IAnimatedMeshSceneNode;
+	class AnimatedMeshSceneNode;
 	class ISceneNode;
 	class ISceneManager;
 }
@@ -41,7 +41,7 @@ public:
 	virtual const v3f getVelocity() const { return v3f(0.0f); } // in BS-space
 	virtual scene::ISceneNode *getSceneNode() const
 	{ return NULL; }
-	virtual scene::IAnimatedMeshSceneNode *getAnimatedMeshSceneNode() const
+	virtual scene::AnimatedMeshSceneNode *getAnimatedMeshSceneNode() const
 	{ return NULL; }
 	virtual bool isLocalPlayer() const { return false; }
 
