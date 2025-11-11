@@ -46,9 +46,6 @@ struct MapEditEvent
 	MapNode n = CONTENT_AIR;
 	std::vector<v3s16> modified_blocks; // Represents a set
 	bool is_private_change = false;
-	// Setting low_priority to true allows the server
-	// to send this change to clients with some delay.
-	bool low_priority = false;
 
 	MapEditEvent() = default;
 

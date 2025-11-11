@@ -774,7 +774,6 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
 			event.type = MEET_OTHER;
-			event.low_priority = true;
 			event.setModifiedBlocks(modified_blocks);
 			dispatchEvent(event);
 		}
