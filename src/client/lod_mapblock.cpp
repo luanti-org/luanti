@@ -40,17 +40,23 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 	for (u8 direction = 0; direction < Direction_END; direction++) {
 		TileSpec tile;
 		video::SColor color;
+		getNodeTileN(n, m_blockpos_nodes, direction, m_data, tile);
 		if (m_is_textureless) {
-			// When generating a mesh with no texture, we have to color the vertices instead.
+			// When generating a mesh with no texture, we have to color the vertices instead of relying on the texture.
 			video::SColor c2 = m_nodedef->get(n).average_colors[direction];
+			video::SColor c3 = tile.layers[0].color;
 			color = video::SColor(
 				color_in.getAlpha(),
-				color_in.getRed() * c2.getRed() / 255U,
-				color_in.getGreen() * c2.getGreen() / 255U,
-				color_in.getBlue() * c2.getBlue() / 255U);
+				color_in.getRed() * c2.getRed() * c3.getRed() / 65025U,
+				color_in.getGreen() * c2.getGreen() * c3.getGreen() / 65025U,
+				color_in.getBlue() * c2.getBlue() * c3.getBlue() / 65025U);
 		} else {
-			getNodeTileN(n, m_blockpos_nodes, direction, m_data, tile);
-			color = color_in;
+			video::SColor c2 = tile.layers[0].color;
+			color = video::SColor(
+				color_in.getAlpha(),
+				color_in.getRed() * c2.getRed() * 255U,
+				color_in.getGreen() * c2.getGreen() * 255U,
+				color_in.getBlue() * c2.getBlue() * 255U);
 		}
 
 		const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
