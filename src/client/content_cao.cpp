@@ -1638,14 +1638,10 @@ void GenericCAO::processMessage(const std::string &data)
 		v2f range = readV2F32(is);
 		anim.min_frame = std::min(range.X, range.Y);
 		anim.max_frame = std::max(range.X, range.Y);
-
 		anim.fps = readF32(is);
-		if (anim.fps >= 0) {
-			anim.cur_frame = anim.min_frame;
-		} else {
-			anim.cur_frame = anim.max_frame;
-		}
+		anim.cur_frame = anim.fps >= 0 ? anim.min_frame : anim.max_frame;
 		anim.blend = readF32(is);
+
 		// these are sent inverted so we get true when the server sends nothing
 		anim.loop = !readU8(is);
 
@@ -1656,6 +1652,7 @@ void GenericCAO::processMessage(const std::string &data)
 		}
 		if (!is.eof()) {
 			anim.priority = readS32(is);
+			anim.cur_frame = readF32(is);
 		}
 
 		// Apply animation
