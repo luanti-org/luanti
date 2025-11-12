@@ -142,16 +142,59 @@ See [Player File Format](#player-file-format) below.
 
 World metadata.
 
-    gameid = mesetint             - name of the game
-    enable_damage = true          - whether damage is enabled or not
-    creative_mode = false         - whether creative mode is enabled or not
-    backend = sqlite3             - which DB backend to use for blocks (sqlite3, dummy, leveldb, redis, postgresql)
-    player_backend = sqlite3      - which DB backend to use for player data
-    readonly_backend = sqlite3    - optionally read-only seed DB (DB file _must_ be located in "readonly" subfolder)
-    auth_backend = files          - which DB backend to use for authentication data
-    mod_storage_backend = sqlite3 - which DB backend to use for mod storage
-    server_announce = false       - whether the server is publicly announced or not
-    load_mod_<mod> = false        - whether <mod> is to be loaded in this world
+        world_name = <string>         - human-readable name of the world.
+                                                                         Set by the client when creating a singleplayer world
+                                                                         (see `builtin/mainmenu/dlg_create_world.lua` and
+                                                                         `src/content/subgames.cpp`). This is primarily used
+                                                                         by the client UI and does not affect server behaviour.
+        gameid = <string>             - id of the game used by the world (for example `minetest` or a subgame id)
+        enable_damage = true/false    - whether damage is enabled or not
+        creative_mode = true/false    - whether creative mode is enabled or not
+        backend = <backend>           - which DB backend to use for blocks; common values:
+                                                                     `sqlite3`, `dummy`, `leveldb`, `redis`, `postgresql`
+        readonly_backend = <backend>  - optionally a read-only seed DB backend. If set, the DB file
+                                                                     must be located in the `readonly` subfolder.
+        player_backend = <backend>    - which DB backend to use for player data (e.g. `sqlite3`, `files`)
+        auth_backend = <backend>      - which DB backend to use for authentication data (e.g. `sqlite3`, `files`)
+        mod_storage_backend = <backend> - which DB backend to use for mod storage (e.g. `sqlite3`)
+        blocksize = <int>             - the compiled MAP_BLOCKSIZE used when the world was created.
+                                                                     Clients/servers check this value and will fail to load worlds
+                                                                     whose blocksize doesn't match the binary (see `src/content/subgames.cpp`)
+        server_announce = true/false  - whether the server is publicly announced or not
+        load_mod_<mod> = false|true|path - whether `<mod>` is to be loaded in this world. When
+                                                                     set to a path (e.g. `mods/modpack/moddir`) it specifies a
+                                                                     relative path to the mod directory to load from.
+
+Database-specific connection/settings (only relevant if a DB backend requires them):
+
+        pgsql_connection = <connection string>          - PostgreSQL connection string for block DB
+        pgsql_player_connection = <connection string>   - PostgreSQL connection string for player DB
+        pgsql_readonly_connection = <connection string> - PostgreSQL connection string for readonly DB
+        pgsql_auth_connection = <connection string>     - PostgreSQL connection string for auth DB
+        pgsql_mod_storage_connection = <connection string> - PostgreSQL connection string for mod storage
+
+        redis_address = <address>       - Redis server address (if `backend` is `redis`)
+        redis_port = <port>             - Redis server port (optional)
+        redis_hash = <string>           - Redis hash prefix
+        redis_password = <password>     - Redis password (optional)
+
+Notes:
+* Some keys are commonly written by the client when creating a local/singleplayer world
+    (for example `world_name`, `gameid`, `backend`, `blocksize` in `src/content/subgames.cpp`).
+    Other keys are server-side defaults that may be added/updated by the server code (for example
+    defaulting `player_backend`/`auth_backend` to `files` when missing; see `src/serverenvironment.cpp`).
+* Map generation parameters and the world seed are stored in `map_meta.txt` (see the `map_meta.txt`
+    section), not in `world.mt`.
+* Many engine settings in `minetest.conf` can be overridden per-world by adding them to `world.mt`.
+    However, some settings are client-only UI metadata (like `world_name`) and are not used by servers.
+
+Source references
+* `src/content/subgames.cpp` — client/mainmenu world creation and initial `world.mt` writes (sets `world_name`, `gameid`, `backend`, `player_backend`, `auth_backend`, `mod_storage_backend`, `blocksize`). See functions around `loadGameConfAndInitWorld` and `getWorldName`.
+* `builtin/mainmenu/dlg_create_world.lua` — mainmenu formspec / UI that supplies the world name to creation flow.
+* `src/serverenvironment.cpp` — server-side reading and defaulting of `player_backend` and `auth_backend` (may write defaults back to `world.mt` if missing).
+* `src/servermap.cpp` / `src/server.cpp` / `src/main.cpp` — server map and startup code that read `backend`, `readonly_backend`, and other storage-related settings from `world.mt`.
+
+These references are provided so reviewers can quickly verify which keys are written by the client and which are read/used by server code.
 
 For `load_mod_<mod>`, the possible values are:
 
