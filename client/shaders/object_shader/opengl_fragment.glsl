@@ -35,7 +35,6 @@ uniform float animationTimer;
 
 
 VARYING_ vec3 vNormal;
-VARYING_ vec3 vPosition;
 // World position in the visible world (i.e. relative to the cameraOffset.)
 // This can be used for many shader effects without loss of precision.
 // If the absolute position is required it can be calculated with
@@ -62,13 +61,16 @@ vec3 getLightSpacePosition()
 {
 	return shadow_position * 0.5 + 0.5;
 }
-// custom smoothstep implementation because it's not defined in glsl1.2
-// https://docs.gl/sl4/smoothstep
+
+#if __VERSION__ >= 130
+#define mtsmoothstep smoothstep
+#else
 float mtsmoothstep(in float edge0, in float edge1, in float x)
 {
 	float t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 	return t * t * (3.0 - 2.0 * t);
 }
+#endif
 
 #ifdef COLORED_SHADOWS
 
@@ -363,7 +365,6 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 
 void main(void)
 {
-	vec3 color;
 	vec2 uv = varTexCoord.st;
 
 #ifdef USE_ARRAY_TEXTURE
@@ -382,8 +383,7 @@ void main(void)
 		discard;
 #endif
 
-	color = base.rgb;
-	vec4 col = vec4(color.rgb * varColor.rgb, 1.0);
+	vec4 col = vec4(base.rgb * varColor.rgb, 1.0);
 	col.rgb *= vIDiff;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS

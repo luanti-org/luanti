@@ -696,6 +696,9 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 				shaders_header << "#version 100\n"
 					<< "#define CENTROID_\n";
 			}
+			// Precision is only meaningful on GLES
+			shaders_header << "precision mediump float;\n"
+				"precision mediump sampler2D;\n";
 		} else {
 			assert(false);
 		}
@@ -708,8 +711,6 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 		// cf. EVertexAttributes.h for the predefined ones
 		vertex_header = R"(
-			precision mediump float;
-
 			uniform highp mat4 mWorldView;
 			uniform highp mat4 mWorldViewProj;
 			uniform mediump mat4 mTexture;
@@ -732,9 +733,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		// normally expects, so we need to take that into account.
 		vertex_header += "#define inVertexColor (inVertexColor.bgra)\n";
 
-		fragment_header = R"(
-			precision mediump float;
-		)";
+		fragment_header = "";
 		if (use_glsl3) {
 			fragment_header += "#define VARYING_ in\n"
 				"#define gl_FragColor outFragColor\n"

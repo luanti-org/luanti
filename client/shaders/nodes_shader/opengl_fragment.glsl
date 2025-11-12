@@ -42,7 +42,6 @@ uniform float crackTextureScale;
 
 
 VARYING_ vec3 vNormal;
-VARYING_ vec3 vPosition;
 // World position in the visible world (i.e. relative to the cameraOffset.)
 // This can be used for many shader effects without loss of precision.
 // If the absolute position is required it can be calculated with
@@ -63,7 +62,8 @@ vec4 perm(vec4 x)
 }
 
 // Corresponding gradient of snoise
-vec3 gnoise(vec3 p){
+vec3 gnoise(vec3 p)
+{
     vec3 a = floor(p);
     vec3 d = p - a;
     vec3 dd = 6.0 * d * (1.0 - d);
@@ -96,7 +96,10 @@ vec3 gnoise(vec3 p){
 }
 
 vec2 wave_noise(vec3 p, float off) {
-	return (gnoise(p + vec3(0.0, 0.0, off)) * 0.4 + gnoise(2.0 * p + vec3(0.0, off, off)) * 0.2 + gnoise(3.0 * p + vec3(0.0, off, off)) * 0.225 + gnoise(4.0 * p + vec3(-off, off, 0.0)) * 0.2).xz;
+	return (gnoise(p + vec3(0.0, 0.0, off)) * 0.4 +
+		gnoise(2.0 * p + vec3(0.0, off, off)) * 0.2 +
+		gnoise(3.0 * p + vec3(0.0, off, off)) * 0.225 +
+		gnoise(4.0 * p + vec3(-off, off, 0.0)) * 0.2).xz;
 }
 #endif
 
@@ -110,13 +113,16 @@ vec3 getLightSpacePosition()
 {
 	return shadow_position * 0.5 + 0.5;
 }
-// custom smoothstep implementation because it's not defined in glsl1.2
-// https://docs.gl/sl4/smoothstep
+
+#if __VERSION__ >= 130
+#define mtsmoothstep smoothstep
+#else
 float mtsmoothstep(in float edge0, in float edge1, in float x)
 {
 	float t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 	return t * t * (3.0 - 2.0 * t);
 }
+#endif
 
 float shadowCutoff(float x) {
 	#if defined(ENABLE_TRANSLUCENT_FOLIAGE) && MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES
