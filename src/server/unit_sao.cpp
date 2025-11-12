@@ -392,11 +392,12 @@ std::string UnitSAO::generateUpdateAnimationCommand(const scene::TrackId &track)
 	writeF32(os, anim.max_frame);
 	writeF32(os, anim.fps);
 	writeF32(os, anim.blend);
-	// these are sent inverted so we get true when the server sends nothing
+	// sent inverted so we get true when the server sends nothing
 	writeU8(os, !anim.loop);
 
 	writeTrackIdentifier(os, track);
 	writeS32(os, anim.priority);
+	writeF32(os, anim.cur_frame);
 
 	return os.str();
 }

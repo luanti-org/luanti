@@ -491,6 +491,8 @@ static void readTrackAnimSpec(lua_State *L, int tidx,
 	anim.max_frame = getfloatfield_default(L, tidx, "max_frame",
 			std::numeric_limits<f32>::infinity());
 	anim.fps = getfloatfield_default(L, tidx, "speed", 1.0f);
+	anim.cur_frame = getfloatfield_default(L, tidx, "frame",
+			anim.fps >= 0 ? anim.min_frame : anim.max_frame);
 	anim.blend = getfloatfield_default(L, tidx, "blend", 0.0f);
 	anim.loop = getboolfield_default(L, tidx, "loop", true);
 	anim.priority = getintfield_default(L, tidx, "priority", 0);
@@ -502,6 +504,7 @@ static void pushTrackAnimSpec(lua_State *L,
 	lua_newtable(L);
 	setfloatfield(L, -1, "min_frame", anim.min_frame);
 	setfloatfield(L, -1, "max_frame", anim.max_frame);
+	setfloatfield(L, -1, "frame", anim.cur_frame);
 	setfloatfield(L, -1, "speed", anim.fps);
 	setfloatfield(L, -1, "blend", anim.blend);
 	setboolfield(L, -1, "loop", anim.loop);

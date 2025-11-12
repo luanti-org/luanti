@@ -8659,8 +8659,9 @@ Track numbers start at 1.
 * `play_animation(track, [animation])`
       `.x` and `.b3d` models only have a single animation track.
     * `animation` is an optional table with the following optional fields:
-      * `start_frame = 0.0`, `end_frame = math.huge`, animation range in frames (seconds);
+      * `min_frame = 0.0`, `max_frame = math.huge`, animation range in frames (seconds);
          clamped on the client to first and last frame in the corresponding track.
+      * `frame`, where to start playing the animation, defaults to `min_frame` if `speed >= 0`, `max_frame` otherwise.
       * `speed = 1.0`, animation speed in frames per second.
         (Recall that glTF frames are typically just timetamps in seconds.)
         A negative speed plays the animation backwards.
