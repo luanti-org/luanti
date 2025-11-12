@@ -119,7 +119,11 @@ else()
 endif()
 
 if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-	set(ENABLE_GLES2 FALSE)
+	if(USE_ANGLE)
+		set(DEFAULT_GLES2 TRUE)
+	else()
+		set(ENABLE_GLES2 FALSE)
+	endif()
 	set(ENABLE_WEBGL1 FALSE)
 else()
 	if(ANDROID OR EMSCRIPTEN OR USE_ANGLE)
@@ -520,7 +524,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 		"-framework AVFoundation"
 		"-framework CoreAudio"
 		"-framework CoreMotion"
-		"-framework IOSurface"
 		${OPENGLES2_LIBRARY}
 		${SDL2_LIBRARIES}
 	)
@@ -528,6 +531,13 @@ else()
 	target_link_libraries(IrrlichtMt PRIVATE
 		"$<$<BOOL:${USE_SDL2_SHARED}>:SDL2::SDL2>"
 		"$<$<BOOL:${USE_SDL2_STATIC}>:SDL2::SDL2-static>"
+	)
+endif()
+
+if(APPLE AND USE_ANGLE)
+	target_link_libraries(IrrlichtMt PRIVATE
+		"-framework IOSurface"
+		${OPENGLES2_LIBRARY}
 	)
 endif()
 
