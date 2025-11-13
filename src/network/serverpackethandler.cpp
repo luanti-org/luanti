@@ -152,6 +152,7 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 	}
 
 	// Do not allow multiple players in simple singleplayer mode
+	// but allow the name "singleplayer" on servers
 	if (isSingleplayer() && !m_clients.getClientIDs(CS_HelloSent).empty()) {
 		infostream << "Server: Not allowing another client (" << addr_s <<
 			") to connect in simple singleplayer mode" << std::endl;
@@ -159,12 +160,12 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 		return;
 	}
 	// Or the "singleplayer" name to be used on regular servers
-	if (!isSingleplayer() && strcasecmp(playername, "singleplayer") == 0) {
-		actionstream << "Server: Player with the name \"singleplayer\" tried "
-			"to connect from " << addr_s << std::endl;
-		DenyAccess(peer_id, SERVER_ACCESSDENIED_WRONG_NAME);
-		return;
-	}
+	//if (!isSingleplayer() && strcasecmp(playername, "singleplayer") == 0) {
+	//	actionstream << "Server: Player with the name \"singleplayer\" tried "
+	//		"to connect from " << addr_s << std::endl;
+	//	DenyAccess(peer_id, SERVER_ACCESSDENIED_WRONG_NAME);
+	//	return;
+	//}
 
 	{
 		RemotePlayer *player = m_env->getPlayer(playername, true);
@@ -1421,7 +1422,6 @@ void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 	RemoteClient *client = getClient(peer_id, CS_Invalid);
 	ClientState cstate = client->getState();
 	const std::string playername = client->getName();
-
 	std::string salt, verification_key;
 
 	std::string addr_s = client->getAddress().serializeString();
@@ -1431,10 +1431,8 @@ void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 
 	verbosestream << "Server: Got TOSERVER_FIRST_SRP from " << addr_s
 		<< ", with is_empty=" << (is_empty == 1) << std::endl;
-
 	const bool empty_disallowed = !isSingleplayer() && is_empty == 1 &&
 		g_settings->getBool("disallow_empty_password");
-
 	// Either this packet is sent because the user is new or to change the password
 	if (cstate == CS_HelloSent) {
 		if (!client->isMechAllowed(AUTH_MECHANISM_FIRST_SRP)) {
@@ -1620,7 +1618,7 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 	ClientState cstate = client->getState();
 	const std::string addr_s = client->getAddress().serializeString();
 	const std::string playername = client->getName();
-
+	const char* playernamechar = playername.c_str();
 	const bool wantSudo = (cstate == CS_Active);
 
 	verbosestream << "Server: Received TOSERVER_SRP_BYTES_M." << std::endl;
@@ -1661,7 +1659,8 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 	srp_verifier_verify_session((SRPVerifier *) client->auth_data,
 		(unsigned char *)bytes_M.c_str(), &bytes_HAMK);
 
-	if (!bytes_HAMK) {
+	// only do this if not in singleplayer mode.
+	if (!bytes_HAMK && !isSingleplayer() && strcasecmp(playernamechar, "singleplayer") == 0) {
 		if (wantSudo) {
 			actionstream << "Server: User " << playername << " at " << addr_s
 				<< " tried to change their password, but supplied wrong"
