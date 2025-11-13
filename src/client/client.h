@@ -12,9 +12,6 @@
 #include "network/address.h"
 #include "network/networkprotocol.h" // multiple enums
 #include "network/peerhandler.h"
-//#include "gameparams.h"
-//#include "script/common/c_types.h" // LuaError
-//#include "clientdynamicinfo.h"
 #include "clientauth.h"
 #include "util/numeric.h"
 #include "util/string.h" // StringMap
