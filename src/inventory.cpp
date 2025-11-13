@@ -259,6 +259,10 @@ std::string ItemStack::getShortDescription(const IItemDefManager *itemdef) const
 
 ItemImageDef ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
 {
+	const auto &override_image = metadata.getInventoryImageOverride();
+	if (override_image)
+		return override_image.value();
+
 	ItemImageDef image = getDefinition(itemdef).inventory_image;
 	std::string meta_image = metadata.getString("inventory_image");
 	if (!meta_image.empty())
@@ -269,6 +273,10 @@ ItemImageDef ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
 
 ItemImageDef ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) const
 {
+	const auto &override_image = metadata.getInventoryOverlayOverride();
+	if (override_image)
+		return override_image.value();
+
 	ItemImageDef image = getDefinition(itemdef).inventory_overlay;
 	std::string meta_image = metadata.getString("inventory_overlay");
 	if (!meta_image.empty())
@@ -279,6 +287,10 @@ ItemImageDef ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) cons
 
 ItemImageDef ItemStack::getWieldImage(const IItemDefManager *itemdef) const
 {
+	const auto &override_image = metadata.getWieldImageOverride();
+	if (override_image)
+		return override_image.value();
+
 	ItemImageDef image = getDefinition(itemdef).wield_image;
 	std::string meta_image = metadata.getString("wield_image");
 	if (!meta_image.empty())
@@ -289,6 +301,10 @@ ItemImageDef ItemStack::getWieldImage(const IItemDefManager *itemdef) const
 
 ItemImageDef ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
 {
+	const auto &override_image = metadata.getWieldOverlayOverride();
+	if (override_image)
+		return override_image.value();
+
 	ItemImageDef image = getDefinition(itemdef).wield_overlay;
 	std::string meta_image = metadata.getString("wield_overlay");
 	if (!meta_image.empty())
