@@ -44,5 +44,6 @@ cmake .. -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_DEPLOYMENT_TARGET=$osver -DCMAKE_FI
 					-DCMAKE_EXE_LINKER_FLAGS="-lbz2 ${DEPS_DIR}/lib/libANGLE_static.a ${DEPS_DIR}/lib/libEGL_static.a" \
 					-DXCODE_CODE_SIGN_ENTITLEMENTS=${REPDIR}/misc/ios/entitlements/release.entitlements \
 					-GXcode
+cat CMakeCache.txt
 xcodebuild -project luanti.xcodeproj -scheme luanti -configuration Release build
 
