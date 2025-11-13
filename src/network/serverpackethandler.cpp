@@ -1611,7 +1611,6 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 	ClientState cstate = client->getState();
 	const std::string addr_s = client->getAddress().serializeString();
 	const std::string playername = client->getName();
-	const char* playernamechar = playername.c_str();
 	const bool wantSudo = (cstate == CS_Active);
 
 	verbosestream << "Server: Received TOSERVER_SRP_BYTES_M." << std::endl;
