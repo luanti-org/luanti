@@ -68,6 +68,9 @@ install_ios_deps() {
 	brew unlink $(brew ls --formula)
 	brew link "${pkgs[@]}"
 
+	DIR=$(pwd)
+	cd /Users/Shared
 	wget -O ios${osver}_deps.tar.gz https://github.com/luanti-org/luanti_ios_deps/releases/download/latest/ios${osver}_deps.tar.gz
 	tar -xf ios${osver}_deps.tar.gz
+	cd ${DIR}	
 }

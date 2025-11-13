@@ -52,7 +52,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          export DEPS_DIR=${REPDIR}/ios${osver}_deps/iPhoneSimulator
+          export DEPS_DIR=/Users/Shared/ios${osver}_deps/iPhoneSimulator
           ../util/ci/build_ios.sh
 
       - name: Run in iPhoneSimulator 
