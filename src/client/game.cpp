@@ -2204,20 +2204,14 @@ inline void Game::step(f32 dtime)
 	ZoneScoped;
 
 	if (server) {
-		float fps_max = !device->isWindowFocused() && simple_singleplayer_mode ?
-				g_settings->getFloat("fps_max_unfocused") :
-				g_settings->getFloat("fps_max");
-		fps_max = std::max(fps_max, 1.0f);
-		/*
-		 * Unless you have a barebones game, running the server at more than 60Hz
-		 * is hardly realistic and you're at the point of diminishing returns.
-		 * fps_max is also not necessarily anywhere near the FPS actually achieved
-		 * (also due to vsync).
-		 */
-		fps_max = std::min(fps_max, 60.0f);
+		float server_step;
+		if(!device->isWindowFocused() && simple_singleplayer_mode)
+			server_step = 1.0f / std::max(g_settings->getFloat("fps_max_unfocused"), 1.0f);
+		else
+			server_step = g_settings->getFloat("dedicated_server_step");
 
 		server->setStepSettings(Server::StepSettings{
-				1.0f / fps_max,
+				server_step,
 				m_is_paused
 			});
 

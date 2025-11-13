@@ -431,7 +431,7 @@ void set_default_settings()
 	settings->setDefault("strict_protocol_version_checking", "false");
 	settings->setDefault("protocol_version_min", "1");
 	settings->setDefault("player_transfer_distance", "0");
-	settings->setDefault("max_simultaneous_block_sends_per_client", "40");
+	settings->setDefault("max_simultaneous_block_sends_per_client", "160");
 
 	settings->setDefault("motd", "");
 	settings->setDefault("max_users", "15");
@@ -487,9 +487,9 @@ void set_default_settings()
 	settings->setDefault("debug_log_level", "action");
 	settings->setDefault("debug_log_size_max", "50");
 	settings->setDefault("chat_log_level", "error");
-	settings->setDefault("emergequeue_limit_total", "1024");
-	settings->setDefault("emergequeue_limit_diskonly", "128");
-	settings->setDefault("emergequeue_limit_generate", "128");
+	settings->setDefault("emergequeue_limit_total", "4096");
+	settings->setDefault("emergequeue_limit_diskonly", "512");
+	settings->setDefault("emergequeue_limit_generate", "512");
 	settings->setDefault("num_emerge_threads", "0");
 	settings->setDefault("secure.enable_security", "true");
 	settings->setDefault("secure.trusted_mods", "");
@@ -551,9 +551,9 @@ void set_default_settings()
 	settings->setDefault("screen_w", "0");
 	settings->setDefault("screen_h", "0");
 	settings->setDefault("performance_tradeoffs", "true");
-	settings->setDefault("max_simultaneous_block_sends_per_client", "10");
-	settings->setDefault("emergequeue_limit_diskonly", "16");
-	settings->setDefault("emergequeue_limit_generate", "16");
+	settings->setDefault("max_simultaneous_block_sends_per_client", "40");
+	settings->setDefault("emergequeue_limit_diskonly", "64");
+	settings->setDefault("emergequeue_limit_generate", "64");
 	settings->setDefault("max_block_generate_distance", "5");
 	settings->setDefault("sqlite_synchronous", "1");
 	settings->setDefault("server_map_save_interval", "15");
