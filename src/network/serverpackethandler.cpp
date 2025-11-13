@@ -159,13 +159,6 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 		DenyAccess(peer_id, SERVER_ACCESSDENIED_SINGLEPLAYER);
 		return;
 	}
-	// Or the "singleplayer" name to be used on regular servers
-	//if (!isSingleplayer() && strcasecmp(playername, "singleplayer") == 0) {
-	//	actionstream << "Server: Player with the name \"singleplayer\" tried "
-	//		"to connect from " << addr_s << std::endl;
-	//	DenyAccess(peer_id, SERVER_ACCESSDENIED_WRONG_NAME);
-	//	return;
-	//}
 
 	{
 		RemotePlayer *player = m_env->getPlayer(playername, true);
