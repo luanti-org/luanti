@@ -5,8 +5,6 @@
 #include "guiChatConsole.h"
 #include "chat.h"
 #include "client/client.h"
-#include "debug.h"
-#include "gettime.h"
 #include "client/keycode.h"
 #include "settings.h"
 #include "porting.h"

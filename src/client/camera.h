@@ -6,6 +6,7 @@
 
 #include "irrlichttypes.h"
 #include "inventory.h" // ItemStack
+#include "util/basic_macros.h"
 #include "util/numeric.h"
 #include <plane3d.h>
 #include <array>

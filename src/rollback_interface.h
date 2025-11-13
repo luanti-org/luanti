@@ -6,9 +6,7 @@
 
 #include "irr_v3d.h"
 #include <string>
-#include <iostream>
 #include <list>
-#include "exceptions.h"
 #include "inventory.h"
 
 class Map;

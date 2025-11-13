@@ -8,9 +8,6 @@
 #include <cmath>
 #include "map.h"
 #include "mapgen.h"
-#include "mapgen_v5.h"
-#include "mapgen_v6.h"
-#include "mapgen_v7.h"
 #include "mg_biome.h"
 #include "cavegen.h"
 

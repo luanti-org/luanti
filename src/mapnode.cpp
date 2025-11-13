@@ -4,17 +4,13 @@
 
 #include "irrlichttypes_bloated.h"
 #include "mapnode.h"
-#include "porting.h"
 #include "nodedef.h"
 #include "map.h"
 #include "content_mapnode.h" // For mapnode_translate_*_internal
 #include "serialization.h" // For ser_ver_supported_*
 #include "util/serialize.h"
-#include "log.h"
 #include "util/directiontables.h"
-#include "util/numeric.h"
 #include <string>
-#include <sstream>
 
 static const Rotation wallmounted_to_rot[] = {
 	ROTATE_0, ROTATE_180, ROTATE_90, ROTATE_270

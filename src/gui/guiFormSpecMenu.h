@@ -18,7 +18,6 @@
 #include "guiScrollBar.h"
 #include "guiTable.h"
 #include "util/string.h"
-#include "util/enriched_string.h"
 #include "StyleSpec.h"
 #include <ICursorControl.h> // gui::ECURSOR_ICON
 #include <IGUIStaticText.h>

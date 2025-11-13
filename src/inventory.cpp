@@ -3,8 +3,6 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "inventory.h"
-#include "serialization.h"
-#include "debug.h"
 #include <algorithm>
 #include <sstream>
 #include "log.h"

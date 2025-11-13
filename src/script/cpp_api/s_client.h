@@ -7,7 +7,6 @@
 
 #include "cpp_api/s_base.h"
 #include "mapnode.h"
-#include "util/string.h"
 #include "util/pointedthing.h"
 
 #ifdef _CRT_MSVCP_CURRENT

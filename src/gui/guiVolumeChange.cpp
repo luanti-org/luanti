@@ -18,10 +18,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include "guiVolumeChange.h"
-#include "debug.h"
 #include "guiButton.h"
 #include "guiScrollBar.h"
-#include "serialization.h"
 #include <string>
 #include <IGUICheckBox.h>
 #include <IGUIButton.h>

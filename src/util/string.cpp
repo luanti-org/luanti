@@ -8,9 +8,7 @@
 #include "log.h"
 
 #include "hex.h"
-#include "porting.h"
 #include "translation.h"
-#include "strfnd.h"
 
 #include <algorithm>
 #include <array>

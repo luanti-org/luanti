@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "irr_v3d.h"
-#include <iostream>
 #include <vector>
 #include "util/string.h"
 

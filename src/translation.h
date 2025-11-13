@@ -10,7 +10,6 @@
 #include <optional>
 #include <string>
 #include <vector>
-#include "config.h"
 
 class Translations;
 extern Translations *g_client_translations;

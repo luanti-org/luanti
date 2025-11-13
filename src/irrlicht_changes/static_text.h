@@ -7,14 +7,10 @@
 #pragma once
 
 #include "IGUIStaticText.h"
-#include "irrArray.h"
-
-#include "log.h"
 
 #include <vector>
 
 #include "util/enriched_string.h"
-#include "config.h"
 #include <IGUIEnvironment.h>
 
 

@@ -7,7 +7,6 @@
 #include "irrlichttypes_bloated.h"
 #include "map.h"
 #include <ISceneNode.h>
-#include <set>
 #include <map>
 #include <functional>
 

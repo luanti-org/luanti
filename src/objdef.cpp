@@ -6,7 +6,6 @@
 #include "util/numeric.h"
 #include "log.h"
 #include "gamedef.h"
-#include "porting.h" // strcasecmp
 
 #include <cassert>
 

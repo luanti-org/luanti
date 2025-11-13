@@ -2,21 +2,18 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include <iomanip>
-#include <cerrno>
 #include <algorithm>
 #include <cmath>
 #include "network/mtp/internal.h"
-#include "serialization.h"
 #include "log.h"
 #include "porting.h"
 #include "network/mtp/threads.h"
 #include "network/peerhandler.h"
+#include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "util/serialize.h"
 #include "util/numeric.h"
 #include "util/string.h"
-#include "settings.h"
 #include "profiler.h"
 
 namespace con

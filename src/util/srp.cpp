@@ -40,7 +40,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
-#include <cstdint>
 
 #include <config.h>
 

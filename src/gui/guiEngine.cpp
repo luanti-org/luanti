@@ -7,8 +7,6 @@
 #include "client/fontengine.h"
 #include "client/guiscalingfilter.h"
 #include "client/renderingengine.h"
-#include "client/shader.h"
-#include "client/tile.h"
 #include "clientdynamicinfo.h"
 #include "config.h"
 #include "content/content.h"
@@ -21,8 +19,6 @@
 #include "porting.h"
 #include "scripting_mainmenu.h"
 #include "settings.h"
-#include "sound.h"
-#include "version.h"
 #include <ICameraSceneNode.h>
 #include <IGUIStaticText.h>
 #include "client/imagefilters.h"

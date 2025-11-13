@@ -20,7 +20,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "enriched_string.h"
 #include "util/string.h"
 #include "debug.h"
-#include "log.h"
 
 using namespace video;
 

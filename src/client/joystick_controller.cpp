@@ -5,7 +5,6 @@
 #include "joystick_controller.h"
 #include "keys.h"
 #include "settings.h"
-#include "gettime.h"
 #include "porting.h"
 #include "util/string.h"
 #include "util/numeric.h"

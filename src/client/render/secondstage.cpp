@@ -7,9 +7,8 @@
 #include "secondstage.h"
 #include "client/client.h"
 #include "client/shader.h"
-#include "client/tile.h"
 #include "settings.h"
-#include "mt_opengl.h"
+#include "plain.h"
 #include <ISceneManager.h>
 
 PostProcessingStep::PostProcessingStep(u32 _shader_id, const std::vector<u8> &_texture_map) :

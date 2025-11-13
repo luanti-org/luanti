@@ -7,9 +7,6 @@
 #if USE_CURSES
 #include "version.h"
 #include "terminal_chat_console.h"
-#include "porting.h"
-#include "settings.h"
-#include "util/numeric.h"
 #include "util/string.h"
 #include "chat_interface.h"
 

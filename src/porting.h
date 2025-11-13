@@ -18,7 +18,6 @@
 #include "config.h"
 #include "irrlichttypes.h" // u64
 #include "debug.h"
-#include "constants.h"
 #include "util/timetaker.h" // TimePrecision
 
 #ifdef _MSC_VER

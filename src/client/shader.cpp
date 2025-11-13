@@ -3,8 +3,6 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 // Copyright (C) 2013 Kahrl <kahrl@gmx.net>
 
-#include <fstream>
-#include <iterator>
 #include "shader.h"
 #include "irr_ptr.h"
 #include "debug.h"
@@ -20,9 +18,7 @@
 #include "client/renderingengine.h"
 #include "gettext.h"
 #include "log.h"
-#include "gamedef.h"
 #include "client/tile.h"
-#include "config.h"
 
 #include <mt_opengl.h>
 

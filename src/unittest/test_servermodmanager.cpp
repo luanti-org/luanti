@@ -4,9 +4,9 @@
 
 #include "test.h"
 #include <algorithm>
+#include "content/subgames.h"
 #include "server/mods.h"
 #include "settings.h"
-#include "util/string.h"
 
 #define SUBGAME_ID "devtest"
 

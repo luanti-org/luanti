@@ -5,10 +5,12 @@
 #include "mod_configuration.h"
 #include "log.h"
 #include "settings.h"
+#include "subgames.h"
 #include "filesys.h"
 #include "gettext.h"
 #include "exceptions.h"
 #include "util/numeric.h"
+#include <list>
 #include <optional>
 #include <algorithm>
 

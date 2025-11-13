@@ -11,6 +11,7 @@
 #include "lua_api/l_playermeta.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
+#include "cpp_api/s_base.h"
 #include "log.h"
 #include "player.h"
 #include "server/serveractiveobject.h"
@@ -20,12 +21,9 @@
 #include "serverenvironment.h"
 #include "settings.h"
 #include "hud.h"
-#include "scripting_server.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 #include "server/serverinventorymgr.h"
-#include "server/unit_sao.h"
-#include "util/string.h"
 
 using object_t = ServerActiveObject::object_t;
 

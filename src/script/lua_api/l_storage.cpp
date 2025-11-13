@@ -5,7 +5,6 @@
 
 #include "lua_api/l_storage.h"
 #include "l_internal.h"
-#include "server.h"
 
 int ModApiStorage::l_get_mod_storage(lua_State *L)
 {

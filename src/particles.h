@@ -8,12 +8,9 @@
 #include <sstream>
 #include <vector>
 #include <type_traits>
-#include "irrlicht_changes/printing.h"
 #include "irrlichttypes_bloated.h"
 #include "tileanimation.h"
 #include "mapnode.h"
-#include "util/serialize.h"
-#include "util/numeric.h"
 
 // This file defines the particle-related structures that both the server and
 // client need. The ParticleManager and rendering is in client/particles.h

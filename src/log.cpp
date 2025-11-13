@@ -5,13 +5,9 @@
 #include "log_internal.h"
 
 #include "threading/mutex_auto_lock.h"
-#include "debug.h"
 #include "gettime.h"
 #include "porting.h"
-#include "settings.h"
-#include "config.h"
 #include "exceptions.h"
-#include "util/numeric.h"
 #include "filesys.h"
 
 #ifdef __ANDROID__

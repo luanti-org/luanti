@@ -20,6 +20,7 @@
 #include "mapgen/mg_ore.h"
 #include "mapgen/mg_decoration.h"
 #include "mapgen/mg_schematic.h"
+#include "porting.h"
 #include "profiler.h"
 #include "scripting_server.h"
 #include "scripting_emerge.h"

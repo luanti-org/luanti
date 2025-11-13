@@ -8,7 +8,6 @@
 #include "util/string.h"
 #include "util/basic_macros.h"
 #include <string>
-#include <set>
 #include <map>
 #include <mutex>
 

@@ -4,12 +4,10 @@
 
 #include "guid.h"
 #include <cstring>
-#include <sstream>
 #include <string_view>
 
 #include "exceptions.h"
 #include "util/base64.h"
-#include "log.h"
 #include "porting.h"
 #include "util/numeric.h"
 

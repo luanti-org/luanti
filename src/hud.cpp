@@ -3,7 +3,6 @@
 // Copyright (C) 2010-2018 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "hud.h"
-#include <cmath>
 
 const struct EnumString es_HudElementType[] =
 {

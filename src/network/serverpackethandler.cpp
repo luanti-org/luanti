@@ -17,9 +17,8 @@
 #include "serialization.h"
 #include "settings.h"
 #include "tool.h"
-#include "version.h"
-#include "irrlicht_changes/printing.h"
 #include "network/connection.h"
+#include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "network/networkprotocol.h"
 #include "network/serveropcodes.h"
@@ -28,7 +27,6 @@
 #include "util/auth.h"
 #include "util/base64.h"
 #include "util/pointedthing.h"
-#include "util/serialize.h"
 #include "util/srp.h"
 #include "clientdynamicinfo.h"
 
