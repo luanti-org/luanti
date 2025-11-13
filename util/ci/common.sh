@@ -72,5 +72,5 @@ install_ios_deps() {
 	cd /Users/Shared
 	wget -O ios${osver}_deps.tar.gz https://github.com/luanti-org/luanti_ios_deps/releases/download/latest/ios${osver}_deps.tar.gz
 	tar -xf ios${osver}_deps.tar.gz
-	cd ${DIR}	
+	cd ${DIR}
 }
