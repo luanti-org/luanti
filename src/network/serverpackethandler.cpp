@@ -152,11 +152,17 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 	}
 
 	// Do not allow multiple players in simple singleplayer mode
-	// but allow the name "singleplayer" on servers
 	if (isSingleplayer() && !m_clients.getClientIDs(CS_HelloSent).empty()) {
 		infostream << "Server: Not allowing another client (" << addr_s <<
 			") to connect in simple singleplayer mode" << std::endl;
 		DenyAccess(peer_id, SERVER_ACCESSDENIED_SINGLEPLAYER);
+		return;
+	}
+	// Or the "singleplayer" name to be used on regular servers
+	if (!isSingleplayer() && strcasecmp(playername, "singleplayer") == 0) {
+		actionstream << "Server: Player with the name \"singleplayer\" tried "
+			"to connect from " << addr_s << std::endl;
+		DenyAccess(peer_id, SERVER_ACCESSDENIED_WRONG_NAME);
 		return;
 	}
 
