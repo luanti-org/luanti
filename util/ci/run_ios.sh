@@ -3,6 +3,8 @@
 DEVICE_NAME=$1
 TIMEOUT=$2
 
+sudo xcode-select -s /Applications/Xcode_${xcodever}.app/Contents/Developer
+
 xcrun simctl boot "$DEVICE_NAME"
 xcrun simctl install booted build/build/Release-iphonesimulator/luanti.app
 
