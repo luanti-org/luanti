@@ -1652,7 +1652,7 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 		(unsigned char *)bytes_M.c_str(), &bytes_HAMK);
 
 	// only do this if not in singleplayer mode.
-	const bool is_true_singleplayer = isSingleplayer() && str_equal(playername, "singleplayer", true);
+	const bool is_true_singleplayer = isSingleplayer() && (strcasecmp(playername.c_str(), "singleplayer") == 0);
 	if (!bytes_HAMK && !is_true_singleplayer) {
 		if (wantSudo) {
 			actionstream << "Server: User " << playername << " at " << addr_s
