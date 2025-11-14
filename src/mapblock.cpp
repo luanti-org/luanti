@@ -24,6 +24,7 @@
 #include "util/string.h"
 #include "util/serialize.h"
 #include "util/basic_macros.h"
+#include "serverenvironment.h"
 
 // Like a std::unordered_map<content_t, content_t>, but faster.
 //
@@ -693,14 +694,22 @@ bool MapBlock::storeActiveObject(u16 id)
 	return false;
 }
 
-u32 MapBlock::clearObjects()
+u32 MapBlock::clearObjects(ClearObjectsConfig &config)
 {
-	u32 size = m_static_objects.size();
-	if (size > 0) {
-		m_static_objects.clear();
-		raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_CLEAR_ALL_OBJECTS);
+	if (config.callback == nullptr) {
+		u32 size = m_static_objects.size();
+		if (size > 0) {
+			m_static_objects.clear();
+			raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_CLEAR_ALL_OBJECTS);
+		}
+		return size;
 	}
-	return size;
+	else {
+		u32 size = m_static_objects.clearInactive(config);
+		if (size > 0)
+			raiseModified(MOD_STATE_WRITE_NEEDED, MOD_REASON_CLEAR_ALL_OBJECTS);
+		return size;
+	}
 }
 /*
 	Legacy serialization

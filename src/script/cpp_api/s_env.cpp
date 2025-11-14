@@ -343,6 +343,46 @@ void ScriptApiEnv::on_emerge_area_completion(
 	}
 }
 
+bool ScriptApiEnv::on_clear_object(
+	const std::string &name, const std::string &staticdata, ScriptCallbackState *state)
+{
+	Server *server = getServer();
+
+	// This function should be executed with envlock held.
+	// The caller (LuaClearObjectback in src/script/lua_api/l_env.cpp)
+	// should have obtained the lock.
+	// Note that the order of these locks is important!  Envlock must *ALWAYS*
+	// be acquired before attempting to acquire scriptlock, or else ServerThread
+	// will try to acquire scriptlock after it already owns envlock, thus
+	// deadlocking EmergeThread and ServerThread
+
+	SCRIPTAPI_PRECHECKHEADER
+
+	int error_handler = PUSH_ERROR_HANDLER(L);
+
+	lua_rawgeti(L, LUA_REGISTRYINDEX, state->callback_ref);
+	//luaL_checktype(L, -1, LUA_TFUNCTION);
+
+	lua_pushstring(L, name.c_str());
+	lua_pushstring(L, staticdata.c_str());
+	lua_rawgeti(L, LUA_REGISTRYINDEX, state->args_ref);
+
+	setOriginDirect(state->origin.c_str());
+
+	try {
+		PCALL_RES(lua_pcall(L, 3, 1, error_handler));
+
+		bool result = lua_toboolean(L, -1);
+		lua_pop(L, 2); // Pop callback result and error handler
+
+		return result;
+	} catch (LuaError &e) {
+		// Note: don't throw here, we still need to run the cleanup code below
+		server->setAsyncFatalError(e);
+		return false;
+	}
+}
+
 void ScriptApiEnv::check_for_falling(v3s16 p)
 {
 	SCRIPTAPI_PRECHECKHEADER

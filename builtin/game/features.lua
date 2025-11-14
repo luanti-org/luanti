@@ -53,6 +53,7 @@ core.features = {
 	generate_decorations_biomes = true,
 	chunksize_vector = true,
 	item_inventory_image_animation = true,
+	clear_objects_with_callback = true,
 }
 
 function core.has_feature(arg)

@@ -156,6 +156,19 @@ void LuaEmergeAreaCallback(v3s16 blockpos, EmergeAction action, void *param)
 		delete state;
 }
 
+bool LuaClearObjectCallback(const std::string &name, const std::string &staticdata, void *param)
+{
+	ScriptCallbackState *state = static_cast<ScriptCallbackState *>(param);
+	assert(state != NULL);
+	assert(state->script != NULL);
+
+	// state must be protected by envlock
+	//Server *server = state->script->getServer();
+	//MutexAutoLock envlock(server->m_env_mutex);
+
+	return state->script->on_clear_object(name, staticdata, state);
+}
+
 /* Exported functions */
 
 // set_node(pos, node)
@@ -1090,13 +1103,48 @@ int ModApiEnv::l_clear_objects(lua_State *L)
 {
 	GET_ENV_PTR;
 
-	ClearObjectsMode mode = CLEAR_OBJECTS_MODE_QUICK;
+	ScriptCallbackState *state = NULL;
+
+	ClearObjectsConfig config;
+	config.mode = CLEAR_OBJECTS_MODE_QUICK;
+	config.callback = nullptr;
 	if (lua_istable(L, 1)) {
-		mode = (ClearObjectsMode)getenumfield(L, 1, "mode",
-			ModApiEnv::es_ClearObjectsMode, mode);
+		lua_getfield(L, 1, "mode");
+		config.mode = (ClearObjectsMode)getenumfield(L, 1, "mode",
+			ModApiEnv::es_ClearObjectsMode, config.mode);
+		lua_pop(L, 1);
+
+		lua_getfield(L, 1, "callback");
+		if (lua_isfunction(L, -1)) {
+			config.callback = LuaClearObjectCallback;
+
+			int callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+			lua_getfield(L, 1, "params");
+			int args_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+			state = new ScriptCallbackState;
+			state->script       = getServer(L)->getScriptIface();
+			state->callback_ref = callback_ref;
+			state->args_ref     = args_ref;
+			state->refcount     = 1;
+			state->origin       = getScriptApiBase(L)->getOrigin();
+
+			config.param = static_cast<void *>(state);
+		}
+		else {
+			lua_pop(L, 1);
+		}
 	}
 
-	env->clearObjects(mode);
+	env->clearObjects(config);
+
+	if (state) {
+		luaL_unref(L, LUA_REGISTRYINDEX, state->callback_ref);
+		luaL_unref(L, LUA_REGISTRYINDEX, state->args_ref);
+		delete state;
+	}
+
 	return 0;
 }
 
