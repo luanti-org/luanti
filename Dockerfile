@@ -5,7 +5,7 @@ ENV LUAJIT_VERSION v2.1
 
 RUN apk add --no-cache git build-base cmake curl-dev zlib-dev zstd-dev \
 		sqlite-dev postgresql-dev hiredis-dev leveldb-dev \
-		gmp-dev jsoncpp-dev ninja ca-certificates
+		gmp-dev jsoncpp-dev linux-headers ninja ca-certificates
 
 WORKDIR /usr/src/
 RUN git clone --recursive https://github.com/jupp0r/prometheus-cpp && \
