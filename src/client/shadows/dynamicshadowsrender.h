@@ -51,7 +51,8 @@ public:
 	// the shaders are dealt with.
 	static void preInit(IWritableShaderSource *shsrc);
 
-	void initialize();
+	/// @return shadows supported?
+	bool initialize();
 
 	/// Adds a directional light shadow map (Usually just one (the sun) except in
 	/// Tattoine ).
@@ -92,7 +93,7 @@ public:
 	f32 getPerspectiveBiasXY() { return m_perspective_bias_xy; }
 	f32 getPerspectiveBiasZ() { return m_perspective_bias_z; }
 
-	static bool isSupported(IrrlichtDevice *device);
+	static bool isSupported(video::IVideoDriver *driver);
 
 private:
 	video::ITexture *getSMTexture(const std::string &shadow_map_name,

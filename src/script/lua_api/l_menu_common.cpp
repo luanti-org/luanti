@@ -31,7 +31,8 @@ int ModApiMenuCommon::l_get_active_driver(lua_State *L)
 
 int ModApiMenuCommon::l_driver_supports_shadows(lua_State *L)
 {
-	lua_pushboolean(L, ShadowRenderer::isSupported(RenderingEngine::get_raw_device()));
+	auto *device = RenderingEngine::get_raw_device();
+	lua_pushboolean(L, ShadowRenderer::isSupported(device->getVideoDriver()));
 	return 1;
 }
 
