@@ -148,7 +148,7 @@ World metadata.
   - Primary use: display in UIs and world listings. The server CLI may also
     use this value to list or select worlds by name; however, `world_name`
     does not replace `gameid` or other machine-readable identifiers and is
-    not authoritative for server configuration. 
+    not authoritative for server configuration.
         gameid = <string>             - id of the game used by the world (for example `minetest` or a subgame id)
         enable_damage = true/false    - whether damage is enabled or not
         creative_mode = true/false    - whether creative mode is enabled or not
@@ -160,25 +160,25 @@ World metadata.
   - Which DB backend to use for player data. Possible values (may depend
     on build options): `sqlite3`, `files`, `dummy`, `leveldb`, `postgresql`.
     See `src/serverenvironment.cpp` and `PlayerDatabase` implementations for
-    build-dependent availability.                                       
+    build-dependent availability.
 
 - `auth_backend` = <backend>
   - Which DB backend to use for authentication data. Possible values
     (may depend on build options): `sqlite3`, `files`, `dummy`, `leveldb`,
-    `postgresql`. See `src/serverenvironment.cpp` and `AuthDatabase` code.  
+    `postgresql`. See `src/serverenvironment.cpp` and `AuthDatabase` code.
 
 - `mod_storage_backend` = <backend>
   - Which DB backend to use for mod storage (commonly `sqlite3`, or other
-    backends if compiled).                                                 
+    backends if compiled).
         blocksize = <int>             - the compiled MAP_BLOCKSIZE used when the world was created.
     - `server_announce` = true | false
   - Whether the server is publicly announced to the serverlist (if server-mode).
-  - Typical value: `false` for private worlds, `true` for public servers.   
+  - Typical value: `false` for private worlds, `true` for public servers.
 
 - `load_mod_<mod>` = false | true | <path>
   - Controls whether a mod is loaded for this world; see the dedicated
     section below titled "For `load_mod_<mod>`" for the exhaustive list of
-    supported values and path prefixes.                                
+    supported values and path prefixes.
 
 Database-specific connection/settings (only relevant if a DB backend requires them):
 
