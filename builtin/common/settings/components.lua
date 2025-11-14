@@ -45,15 +45,32 @@ local function is_valid_number(value)
 end
 
 
-function make.heading(text)
+function make.heading(text, info_text)
 	return {
 		full_width = true,
+		info_text = info_text,
 		get_formspec = function(self, avail_w)
 			return ("label[0,0.6;%s]box[0,0.9;%f,0.05;#ccc6]"):format(core.formspec_escape(text), avail_w), 1.2
 		end,
 	}
 end
 
+
+function make.unavail_list(settings)
+	return {
+		full_width = true,
+		get_formspec = function(self, avail_w)
+			local h = 0.2
+			local fs = {}
+			for _, setting in ipairs(settings) do
+				fs[#fs + 1] = ("label[0.3,%f;%s]"):format(h,
+					core.colorize("#bbb", core.formspec_escape(get_label(setting))))
+				h = h + 0.4
+			end
+			return table.concat(fs, ""), h
+		end,
+	}
+end
 
 function make.note(text)
 	return {
