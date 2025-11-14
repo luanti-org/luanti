@@ -12,12 +12,12 @@ The build system is CMake.
 
 The following libraries are required to be installed:
  * zlib, libPNG, libJPEG
- * OpenGL
-   * or on mobile: OpenGL ES (can be optionally enabled on desktop too)
+ * OpenGL or OpenGL ES
+   * a headless build is possible, but not very useful
  * SDL2 or SDL3 (see below)
 
 Aside from standard search options (`ZLIB_INCLUDE_DIR`, `ZLIB_LIBRARY`, ...) the following options are available:
- * `ENABLE_OPENGL` - Enable OpenGL driver
+ * `ENABLE_OPENGL` - Enable legacy OpenGL driver
  * `ENABLE_OPENGL3` - Enable OpenGL 3+ driver
  * `ENABLE_GLES2` - Enable OpenGL ES 2+ driver
  * `USE_SDL3` (default: `OFF`) - Use the SDL3 device instead of SDL2 (**experimental**)

@@ -308,7 +308,7 @@ void set_default_settings()
 
 	// Effects
 	settings->setDefault("enable_post_processing", "true");
-	settings->setDefault("post_processing_texture_bits", "16");
+	settings->setDefault("post_processing_texture_bits", "10");
 	settings->setDefault("directional_colored_fog", "true");
 	settings->setDefault("inventory_items_animations", "false");
 	settings->setDefault("mip_map", "false");

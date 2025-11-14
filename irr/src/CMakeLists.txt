@@ -104,7 +104,7 @@ option(ENABLE_OPENGL3 "Enable OpenGL 3+" ${DEFAULT_OPENGL3})
 if(ANDROID OR EMSCRIPTEN)
 	set(ENABLE_OPENGL FALSE)
 else()
-	option(ENABLE_OPENGL "Enable OpenGL" TRUE)
+	option(ENABLE_OPENGL "Enable legacy OpenGL" TRUE)
 endif()
 
 if(APPLE)
@@ -148,13 +148,9 @@ endif()
 
 # Configuration report
 
-message(STATUS "OpenGL: ${ENABLE_OPENGL}")
+message(STATUS "OpenGL (legacy): ${ENABLE_OPENGL}")
 message(STATUS "OpenGL 3: ${ENABLE_OPENGL3}")
-if (ENABLE_GLES2)
-	message(STATUS "OpenGL ES 2: ON (unified)")
-else()
-	message(STATUS "OpenGL ES 2: OFF")
-endif()
+message(STATUS "OpenGL ES 2: ${ENABLE_GLES2}")
 #message(STATUS "WebGL: ${ENABLE_WEBGL1}")
 
 # Required libs
@@ -297,7 +293,7 @@ set(IRRDRVROBJ
 	mt_opengl_loader.cpp
 )
 
-# the two legacy drivers
+# the legacy driver
 
 if(ENABLE_OPENGL)
 	set(IRRDRVROBJ
