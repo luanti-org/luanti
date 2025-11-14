@@ -144,7 +144,9 @@ const char *Mapgen::getMapgenName(MapgenType mgtype)
 	if (index == MAPGEN_INVALID || index >= ARRLEN(g_reg_mapgens))
 		return "invalid";
 
-	return g_reg_mapgens[index].name;
+	auto &it = g_reg_mapgens[index];
+	assert(it.name);
+	return it.name;
 }
 
 

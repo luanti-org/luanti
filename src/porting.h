@@ -127,6 +127,12 @@ void initializePaths();
 const std::string &get_sysinfo();
 
 
+/*
+	Return size of system RAM in MB
+	(or 0 if unavailable/error)
+*/
+u32 getMemorySizeMB();
+
 // Monotonic timer
 
 #ifdef _WIN32 // Windows

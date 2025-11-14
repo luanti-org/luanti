@@ -2367,17 +2367,12 @@ emergequeue_limit_diskonly (Per-player limit of queued blocks load from disk) in
 #    This limit is enforced per player.
 emergequeue_limit_generate (Per-player limit of queued blocks to generate) int 128 1 1000000
 
-#    Number of emerge threads to use.
-#    Value 0:
-#    -    Automatic selection. The number of emerge threads will be
-#    -    'number of processors - 2', with a lower limit of 1.
-#    Any other value:
-#    -    Specifies the number of emerge threads, with a lower limit of 1.
-#    WARNING: Increasing the number of emerge threads increases engine mapgen
-#    speed, but this may harm game performance by interfering with other
-#    processes, especially in singleplayer and/or when running Lua code in
-#    'on_generated'. For many users the optimum setting may be '1'.
-num_emerge_threads (Number of emerge threads) int 1 0 32767
+#    Number of emerge threads (responsible for map generation and loading) to use.
+#    If 0 then the engine will automatically choose a suitable value depending
+#    on the hardware and type of map generator.
+#    WARNING: There are known bugs in the default map generators (v6, v7, ...)
+#    when using more than 1 thread. The automatic choice will avoid this.
+num_emerge_threads (Number of emerge threads) int 0 0 32767
 
 [**cURL] [common]
 

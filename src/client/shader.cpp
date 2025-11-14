@@ -698,13 +698,13 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			}
 			// Precision is only meaningful on GLES
 			shaders_header << R"(
-#ifdef GL_FRAGMENT_PRECISION_HIGH
+				#ifdef GL_FRAGMENT_PRECISION_HIGH
 				precision highp float;
 				precision highp sampler2D;
-#else
+				#else
 				precision mediump float;
 				precision mediump sampler2D;
-#endif
+				#endif
 			)";
 		} else {
 			assert(false);
