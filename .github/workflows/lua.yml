@@ -37,9 +37,9 @@ jobs:
       run: |
         serverconf="profiler.load=true" ./util/test_multiplayer.sh
 
-    - name: Singleplayer test
+    - name: Singleplayer test (legacy GL)
       run: |
-        xvfb-run ./util/test_singleplayer.sh
+        clientconf="video_driver=opengl" xvfb-run ./util/test_singleplayer.sh
 
   luacheck:
     name: "Builtin Luacheck and Unit Tests"
