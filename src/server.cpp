@@ -2001,6 +2001,13 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 	pkt << lighting.bloom_intensity << lighting.bloom_strength_factor <<
 			lighting.bloom_radius;
 
+	pkt << lighting.sky_light.color_offset.X
+			<< lighting.sky_light.color_offset.Y
+			<< lighting.sky_light.color_offset.Z
+			<< lighting.sky_light.color_ratio_coef.X
+			<< lighting.sky_light.color_ratio_coef.Y
+			<< lighting.sky_light.color_ratio_coef.Z;
+
 	Send(&pkt);
 }
 

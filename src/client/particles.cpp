@@ -11,6 +11,7 @@
 #include "client/clientevent.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
+#include "client/mapblock_mesh.h"
 #include "util/numeric.h"
 #include "light.h"
 #include "localplayer.h"
@@ -179,7 +180,6 @@ void Particle::step(float dtime, ClientEnvironment *env)
 
 video::SColor Particle::updateLight(ClientEnvironment *env)
 {
-	u8 light = 0;
 	bool pos_ok;
 
 	v3s16 p = v3s16(
@@ -187,18 +187,38 @@ video::SColor Particle::updateLight(ClientEnvironment *env)
 		floor(m_pos.Y+0.5),
 		floor(m_pos.Z+0.5)
 	);
+	video::SColor light;
+	video::SColor data;
+	u32 daynight_ratio = env->getDayNightRatio();
+	const Lighting &lighting = env->getLocalPlayer()->getLighting();
 	MapNode n = env->getClientMap().getNode(p, &pos_ok);
-	if (pos_ok)
-		light = n.getLightBlend(env->getDayNightRatio(),
-				env->getGameDef()->ndef()->getLightingFlags(n));
-	else
-		light = blend_light(env->getDayNightRatio(), LIGHT_SUN, 0);
+	if (pos_ok) {
+		u16 light_level = getInteriorLight(n, -1, env->getGameDef()->ndef());
+		ContentLightingFlags f = env->getGameDef()->ndef()->getLightingFlags(n);
+		data = encode_light(light_level, f.light_source);
+	} else {
+		// night<<8 has no effect
+		u16 light_level = LIGHT_SUN;
+		data = encode_light(light_level, 0);
+	}
+	video::SColorf day_light;
+	get_skylight_color(&day_light, daynight_ratio, lighting.sky_light);
+	data.setRed(data.getRed() * m_base_color.getRed()/ 255);
+	data.setGreen(data.getGreen() * m_base_color.getGreen()/ 255);
+	data.setBlue(data.getBlue() * m_base_color.getBlue() / 255);
+	final_color_blend(&light, data, day_light);
 
-	u8 m_light = decode_light(light + m_p.glow);
+	// divided by maximum allowed value of particle glow - 14
 	return video::SColor(255,
-		m_light * m_base_color.getRed() / 255,
-		m_light * m_base_color.getGreen() / 255,
-		m_light * m_base_color.getBlue() / 255);
+		core::clamp(
+			(s32) (light.getRed() + m_p.glow * m_base_color.getRed() / 14),
+			0, 255),
+		core::clamp(
+			(s32) (light.getGreen() + m_p.glow * m_base_color.getGreen() / 14),
+			0, 255),
+		core::clamp(
+			(s32) (light.getBlue() + m_p.glow * m_base_color.getBlue() / 14),
+			0, 255));
 }
 
 void Particle::updateVertices(ClientEnvironment *env, video::SColor color)

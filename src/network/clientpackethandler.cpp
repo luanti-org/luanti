@@ -1830,4 +1830,12 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.bloom_strength_factor
 				>> lighting.bloom_radius;
 	}
+	if (pkt->getRemainingBytes() >= 24) {
+		*pkt >> lighting.sky_light.color_offset.X
+				>> lighting.sky_light.color_offset.Y
+				>> lighting.sky_light.color_offset.Z
+				>> lighting.sky_light.color_ratio_coef.X
+				>> lighting.sky_light.color_ratio_coef.Y
+				>> lighting.sky_light.color_ratio_coef.Z;
+	}
 }

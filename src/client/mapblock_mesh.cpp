@@ -14,6 +14,7 @@
 #include "util/tracy_wrapper.h"
 #include "client/meshgen/collector.h"
 #include "client/renderingengine.h"
+#include "client/localplayer.h"
 #include <array>
 #include <cmath>
 #include "client/texturesource.h"
@@ -148,7 +149,7 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 	u8 light_source_max = 0;
 	u16 light_day = 0;
 	u16 light_night = 0;
-	bool direct_sunlight = false;
+	bool direct_skylight = false;
 
 	auto add_node = [&] (u8 i, bool obstructed = false) -> bool {
 		if (obstructed) {
@@ -166,7 +167,7 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 			u8 light_level_day = n.getLight(LIGHTBANK_DAY, f.getLightingFlags());
 			u8 light_level_night = n.getLight(LIGHTBANK_NIGHT, f.getLightingFlags());
 			if (light_level_day == LIGHT_SUN)
-				direct_sunlight = true;
+				direct_skylight = true;
 			light_day += decode_light(light_level_day);
 			light_night += decode_light(light_level_night);
 			light_count++;
@@ -200,8 +201,8 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 		light_night /= light_count;
 	}
 
-	// boost direct sunlight, if any
-	if (direct_sunlight)
+	// boost direct skylight, if any
+	if (direct_skylight)
 		light_day = 0xFF;
 
 	// Boost brightness around light sources
@@ -275,35 +276,32 @@ u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner, MeshMakeData 
 	return getSmoothLightCombined(p, dirs, data);
 }
 
-void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio)
-{
-	f32 rg = daynight_ratio / 1000.0f - 0.04f;
-	f32 b = (0.98f * daynight_ratio) / 1000.0f + 0.078f;
-	sunlight->r = rg;
-	sunlight->g = rg;
-	sunlight->b = b;
+void get_skylight_color(video::SColorf *skylight, u32 daynight_ratio, const SkyLight &sky_light){
+	skylight->r = sky_light.color_offset.X + sky_light.color_ratio_coef.X * daynight_ratio;
+	skylight->g = sky_light.color_offset.Y + sky_light.color_ratio_coef.Y * daynight_ratio;
+	skylight->b = sky_light.color_offset.Z + sky_light.color_ratio_coef.Z * daynight_ratio;
 }
 
 void final_color_blend(video::SColor *result,
-		u16 light, u32 daynight_ratio)
+		u16 light, u32 daynight_ratio, const SkyLight &sky_light)
 {
-	video::SColorf dayLight;
-	get_sunlight_color(&dayLight, daynight_ratio);
+	video::SColorf day_light;
+	get_skylight_color(&day_light, daynight_ratio, sky_light);
 	final_color_blend(result,
-		encode_light(light, 0), dayLight);
+		encode_light(light, 0), day_light);
 }
 
 void final_color_blend(video::SColor *result,
-		const video::SColor &data, const video::SColorf &dayLight)
+		const video::SColor &data, const video::SColorf &day_light)
 {
-	static const video::SColorf artificialColor(1.04f, 1.04f, 1.04f);
+	static const video::SColorf artificial_color(1.04f, 1.04f, 1.04f);
 
 	video::SColorf c(data);
 	f32 n = 1 - c.a;
 
-	f32 r = c.r * (c.a * dayLight.r + n * artificialColor.r) * 2.0f;
-	f32 g = c.g * (c.a * dayLight.g + n * artificialColor.g) * 2.0f;
-	f32 b = c.b * (c.a * dayLight.b + n * artificialColor.b) * 2.0f;
+	f32 r = c.r * (c.a * day_light.r + n * artificial_color.r) * 2.0f;
+	f32 g = c.g * (c.a * day_light.g + n * artificial_color.g) * 2.0f;
+	f32 b = c.b * (c.a * day_light.b + n * artificial_color.b) * 2.0f;
 
 	// Emphase blue a bit in darker places
 	// Each entry of this array represents a range of 8 blue levels
@@ -644,10 +642,9 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 			p.applyTileColor();
 
 			// Generate animation data
-			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
+			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION)
 				// Add to MapBlockMesh in order to animate these tiles
 				m_animation_info.emplace(std::make_pair(layer, i), AnimationInfo(p.layer));
-			}
 
 			// Create material
 			video::SMaterial material;
@@ -726,7 +723,7 @@ MapBlockMesh::~MapBlockMesh()
 }
 
 bool MapBlockMesh::animate(bool faraway, float time, int crack,
-	u32 daynight_ratio)
+	u32 daynight_ratio, const SkyLight &sky_light)
 {
 	if (!m_has_animation) {
 		m_animation_force_timer = 100000;
@@ -869,7 +866,7 @@ video::SColor encode_light(u16 light, u8 emissive_light)
 	night += emissive_light * 2.5f;
 	if (night > 255)
 		night = 255;
-	// Since we don't know if the day light is sunlight or
+	// Since we don't know if the day light is skylight or
 	// artificial light, assume it is artificial when the night
 	// light bank is also lit.
 	if (day < night)
@@ -877,7 +874,7 @@ video::SColor encode_light(u16 light, u8 emissive_light)
 	else
 		day = day - night;
 	u32 sum = day + night;
-	// Ratio of sunlight:
+	// Ratio of skylight:
 	u32 r;
 	if (sum > 0)
 		r = day * 255 / sum;

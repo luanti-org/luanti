@@ -2692,7 +2692,7 @@ int ObjectRef::l_set_lighting(lua_State *L)
 		if (lua_istable(L, -1)) {
 			lighting.exposure.luminance_min       = getfloatfield_default(L, -1, "luminance_min",       lighting.exposure.luminance_min);
 			lighting.exposure.luminance_max       = getfloatfield_default(L, -1, "luminance_max",       lighting.exposure.luminance_max);
-			lighting.exposure.exposure_correction = getfloatfield_default(L, -1, "exposure_correction",      lighting.exposure.exposure_correction);
+			lighting.exposure.exposure_correction = getfloatfield_default(L, -1, "exposure_correction", lighting.exposure.exposure_correction);
 			lighting.exposure.speed_dark_bright   = getfloatfield_default(L, -1, "speed_dark_bright",   lighting.exposure.speed_dark_bright);
 			lighting.exposure.speed_bright_dark   = getfloatfield_default(L, -1, "speed_bright_dark",   lighting.exposure.speed_bright_dark);
 			lighting.exposure.center_weight_power = getfloatfield_default(L, -1, "center_weight_power", lighting.exposure.center_weight_power);
@@ -2713,7 +2713,26 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			lighting.bloom_radius          = getfloatfield_default(L, -1, "radius",          lighting.bloom_radius);
 		}
 		lua_pop(L, 1); // bloom
-}
+
+		lua_getfield(L, 2, "sky_light");
+		if (lua_istable(L, -1)) {
+			lua_getfield(L, 3, "color_offset");
+			if (lua_istable(L, -1)) {
+				lighting.sky_light.color_offset.X = getfloatfield_default(L, -1, "r", lighting.sky_light.color_offset.X);
+				lighting.sky_light.color_offset.Y = getfloatfield_default(L, -1, "g", lighting.sky_light.color_offset.Y);
+				lighting.sky_light.color_offset.Z = getfloatfield_default(L, -1, "b", lighting.sky_light.color_offset.Z);
+			}
+			lua_pop(L, 1); // color_offset
+			lua_getfield(L, 3, "color_ratio_coef");
+			if (lua_istable(L, -1)) {
+				lighting.sky_light.color_ratio_coef.X = getfloatfield_default(L, -1, "r", lighting.sky_light.color_ratio_coef.X);
+				lighting.sky_light.color_ratio_coef.Y = getfloatfield_default(L, -1, "g", lighting.sky_light.color_ratio_coef.Y);
+				lighting.sky_light.color_ratio_coef.Z = getfloatfield_default(L, -1, "b", lighting.sky_light.color_ratio_coef.Z);
+			}
+			lua_pop(L, 1); // color_ratio_coef
+		}
+		lua_pop(L, 1); // sky_light
+	}
 
 	getServer(L)->setLighting(player, lighting);
 	return 0;
@@ -2765,6 +2784,24 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_pushnumber(L, lighting.bloom_radius);
 	lua_setfield(L, -2, "radius");
 	lua_setfield(L, -2, "bloom");
+	lua_newtable(L); // "sky_light"
+	lua_newtable(L); // "color_offset"
+	lua_pushnumber(L, lighting.sky_light.color_offset.X);
+	lua_setfield(L, -2, "r");
+	lua_pushnumber(L, lighting.sky_light.color_offset.Y);
+	lua_setfield(L, -2, "g");
+	lua_pushnumber(L, lighting.sky_light.color_offset.Z);
+	lua_setfield(L, -2, "b");
+	lua_setfield(L, -2, "color_offset");
+	lua_newtable(L); // "color_ratio_coef"
+	lua_pushnumber(L, lighting.sky_light.color_ratio_coef.X);
+	lua_setfield(L, -2, "r");
+	lua_pushnumber(L, lighting.sky_light.color_ratio_coef.Y);
+	lua_setfield(L, -2, "g");
+	lua_pushnumber(L, lighting.sky_light.color_ratio_coef.Z);
+	lua_setfield(L, -2, "b");
+	lua_setfield(L, -2, "color_ratio_coef");
+	lua_setfield(L, -2, "sky_light");
 	return 1;
 }
 

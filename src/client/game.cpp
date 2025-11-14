@@ -266,9 +266,10 @@ public:
 	void onSetUniforms(video::IMaterialRendererServices *services) override
 	{
 		u32 daynight_ratio = (float)m_client->getEnv().getDayNightRatio();
-		video::SColorf sunlight;
-		get_sunlight_color(&sunlight, daynight_ratio);
-		m_day_light.set(sunlight, services);
+		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
+		video::SColorf skylight;
+		get_skylight_color(&skylight, daynight_ratio, lighting.sky_light);
+		m_day_light.set(skylight, services);
 
 		u32 animation_timer = m_client->getEnv().getFrameTime() % 1000000;
 		float animation_timer_f = (float)animation_timer / 100000.f;
@@ -303,8 +304,6 @@ public:
 			tmp = m_crack_texture_scale_i;
 			m_crack_texture_scale.set(&tmp, services);
 		}
-
-		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
 
 		const AutoExposure &exposure_params = lighting.exposure;
 		std::array<float, 7> exposure_buffer = {
@@ -2990,8 +2989,9 @@ PointedThing Game::updatePointedThing(
 		}
 
 		u32 daynight_ratio = client->getEnv().getDayNightRatio();
+		const Lighting &lighting = client->getEnv().getLocalPlayer()->getLighting();
 		video::SColor c;
-		final_color_blend(&c, light_level, daynight_ratio);
+		final_color_blend(&c, light_level, daynight_ratio, lighting.sky_light);
 
 		// Modify final color a bit with time
 		u32 timer = client->getEnv().getFrameTime() % 5000;
