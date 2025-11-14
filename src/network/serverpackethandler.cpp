@@ -11,6 +11,7 @@
 #include "mapblock.h"
 #include "modchannels.h"
 #include "nodedef.h"
+#include "porting.h" // strcasecmp
 #include "remoteplayer.h"
 #include "rollback_interface.h"
 #include "scripting_server.h"
