@@ -1445,6 +1445,7 @@ void Client::handleCommand_HudSetStars(NetworkPacket *pkt)
 		>> stars.starcolor >> stars.scale;
 	try {
 		*pkt >> stars.day_opacity;
+		*pkt >> stars.star_seed;
 	} catch (PacketError &e) {};
 
 	ClientEvent *event = new ClientEvent();
