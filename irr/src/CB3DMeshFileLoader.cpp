@@ -13,6 +13,7 @@
 #include "SkinnedMesh.h"
 #include "coreutil.h"
 #include "os.h"
+#include "vector3d.h"
 
 #include <algorithm>
 
@@ -47,6 +48,7 @@ IAnimatedMesh *CB3DMeshFileLoader::createMesh(io::IReadFile *file)
 
 	B3DFile = file;
 	AnimatedMesh = new scene::SkinnedMeshBuilder(SkinnedMesh::SourceFormat::B3D);
+	AnimatedMesh->addAnimation();
 	ShowWarning = true; // If true a warning is issued if too many textures are used
 	VerticesStart = 0;
 
@@ -556,9 +558,10 @@ bool CB3DMeshFileLoader::readChunkBONE(SkinnedMesh::SJoint *inJoint)
 
 bool CB3DMeshFileLoader::readChunkKEYS(SkinnedMesh::SJoint *inJoint)
 {
+	SkinnedMesh::Keys keys;
 #ifdef _B3D_READER_DEBUG
 	// Only print first, that's just too much output otherwise
-	if (!inJoint || inJoint->keys.empty()) {
+	if (!inJoint || keys.empty()) {
 		core::stringc logStr;
 		for (u32 i = 1; i < B3dStack.size(); ++i)
 			logStr += "-";
@@ -591,19 +594,22 @@ bool CB3DMeshFileLoader::readChunkKEYS(SkinnedMesh::SJoint *inJoint)
 		f32 data[4];
 		if (flags & 1) {
 			readFloats(data, 3);
-			AnimatedMesh->addPositionKey(inJoint, frame - 1, {data[0], data[1], data[2]});
+			keys.position.pushBack(frame - 1, {data[0], data[1], data[2]});
 		}
 		if (flags & 2) {
 			readFloats(data, 3);
-			AnimatedMesh->addScaleKey(inJoint, frame - 1, {data[0], data[1], data[2]});
+			keys.scale.pushBack(frame - 1, {data[0], data[1], data[2]});
 		}
 		if (flags & 4) {
 			readFloats(data, 4);
-			AnimatedMesh->addRotationKey(inJoint, frame - 1, core::quaternion(data[1], data[2], data[3], data[0]));
+			keys.rotation.pushBack(frame - 1, core::quaternion(data[1], data[2], data[3], data[0]));
 		}
 	}
 
 	B3dStack.erase(B3dStack.size() - 1);
+	auto &anim = AnimatedMesh->getAnimation(0);
+	anim.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
+			inJoint->JointID, std::move(keys)});
 	return true;
 }
 
@@ -617,15 +623,13 @@ bool CB3DMeshFileLoader::readChunkANIM()
 	os::Printer::log(logStr.c_str(), ELL_DEBUG);
 #endif
 
-	s32 animFlags;  // not stored\used
-	s32 animFrames; // not stored\used
-	f32 animFPS;    // not stored\used
+	s32 animFlags;  // not stored/used
+	s32 animFrames; // not stored/used
+	f32 animFPS;    // not stored/used
 
 	B3DFile->read(&animFlags, sizeof(s32));
 	B3DFile->read(&animFrames, sizeof(s32));
 	readFloats(&animFPS, 1);
-	if (animFPS > 0.f)
-		AnimatedMesh->setAnimationSpeed(animFPS);
 	os::Printer::log("FPS", io::path((double)animFPS), ELL_DEBUG);
 
 #ifdef __BIG_ENDIAN__

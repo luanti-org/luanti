@@ -9,7 +9,6 @@
 #include "CMeshBuffer.h"
 #include "SSkinMeshBuffer.h"
 #include "aabbox3d.h"
-#include "irrMath.h"
 #include "irrTypes.h"
 #include "matrix4.h"
 #include "quaternion.h"
@@ -20,6 +19,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <unordered_map>
 
 namespace scene
 {
@@ -32,7 +32,7 @@ class SkinnedMesh : public IAnimatedMesh
 {
 public:
 
-	enum class SourceFormat {
+	enum class SourceFormat : u8 {
 		B3D,
 		X,
 		GLTF,
@@ -41,7 +41,6 @@ public:
 
 	//! constructor
 	SkinnedMesh(SourceFormat src_format) :
-		EndFrame(0.f), FramesPerSecond(25.f),
 		HasAnimation(false), PreparedForSkinning(false),
 		AnimateNormals(true),
 		SrcFormat(src_format)
@@ -56,17 +55,9 @@ public:
 	//! Important for legacy reasons pertaining to different mesh loader behavior.
 	SourceFormat getSourceFormat() const { return SrcFormat; }
 
-	//! If the duration is 0, it is a static (=non animated) mesh.
-	f32 getMaxFrameNumber() const override;
+	virtual std::optional<u16> getTrackNumber(const std::string &track_name) const override;
 
-	//! Gets the default animation speed of the animated mesh.
-	/** \return Amount of frames per second. If the amount is 0, it is a static, non animated mesh. */
-	f32 getAnimationSpeed() const override;
-
-	//! Gets the frame count of the animated mesh.
-	/** \param fps Frames per second to play the animation with. If the amount is 0, it is not animated.
-	The actual speed is set in the scene node the mesh is instantiated in.*/
-	void setAnimationSpeed(f32 fps) override;
+	virtual f32 getMaxFrameNumber(u16 track) const override;
 
 	//! Turns the given array of local matrices into an array of global matrices
 	//! by multiplying with respective parent matrices.
@@ -307,31 +298,8 @@ public:
 		using VariantTransform = std::variant<core::Transform, core::matrix4>;
 		VariantTransform transform{core::Transform{}};
 
-		VariantTransform animate(f32 frame) const {
-			if (keys.empty())
-				return transform;
-
-			if (std::holds_alternative<core::matrix4>(transform)) {
-				// .x lets animations override matrix transforms entirely,
-				// which is what we implement here.
-				// .gltf does not allow animation of nodes using matrix transforms.
-				// Note that a decomposition into a TRS transform need not exist!
-				core::Transform trs;
-				keys.updateTransform(frame, trs);
-				return {trs};
-			}
-
-			auto trs = std::get<core::Transform>(transform);
-			keys.updateTransform(frame, trs);
-			return {trs};
-		}
-
-
 		//! List of attached meshes
 		std::vector<u32> AttachedMeshes;
-
-		// Animation keyframes for translation, rotation, scale
-		Keys keys;
 
 		//! Skin weights
 		std::vector<SWeight> Weights;
@@ -353,8 +321,27 @@ public:
 		std::optional<u16> ParentJointID;
 	};
 
+	struct Animation {
+		struct JointKeys {
+			u16 joint_id;
+			Keys keys;
+		};
+		std::vector<JointKeys> joint_keys;
+		f32 end_frame = 0.0f;
+		std::string name;
+	};
+
+	struct AnimationProgress {
+		u16 track;
+		f32 frame;
+		f32 blend; // from 0 (old) to 1 (new)
+	};
+
 	//! Animates joints based on frame input
-	std::vector<SJoint::VariantTransform> animateMesh(f32 frame);
+	//! \param progresses Vector of AnimationProgress, one per track, by decreasing priority.
+	std::vector<SJoint::VariantTransform> animateMesh(
+			const std::vector<AnimationProgress> &progresses,
+			const std::vector<std::optional<core::Transform>> &old_transforms) const;
 
 	//! Calculates a bounding box given an animation in the form of global joint transforms.
 	core::aabbox3df calculateBoundingBox(
@@ -364,6 +351,10 @@ public:
 
 	const std::vector<SJoint *> &getAllJoints() const {
 		return AllJoints;
+	}
+
+	const Animation &getAnimation(u16 index) const {
+		return animations.at(index);
 	}
 
 protected:
@@ -393,6 +384,10 @@ protected:
 	//! Joints, topologically sorted (parents come before their children).
 	std::vector<SJoint *> AllJoints;
 
+	//! Animation tracks
+	std::vector<Animation> animations;
+	std::unordered_map<std::string, u16> anim_name_to_idx;
+
 	// bool can't be used here because std::vector<bool>
 	// doesn't allow taking a reference to individual elements.
 	std::vector<std::vector<char>> Vertices_Moved;
@@ -402,9 +397,6 @@ protected:
 
 	//! Bounding box of the mesh in static pose
 	core::aabbox3df StaticPoseBox{{0, 0, 0}};
-
-	f32 EndFrame;
-	f32 FramesPerSecond;
 
 	bool HasAnimation;
 	bool PreparedForSkinning;
@@ -436,12 +428,17 @@ public:
 	//! Adds a new joint to the mesh, access it as last one
 	SJoint *addJoint(SJoint *parent = nullptr);
 
-	void addPositionKey(SJoint *joint, f32 frame, core::vector3df pos);
-	void addRotationKey(SJoint *joint, f32 frame, core::quaternion rotation);
-	void addScaleKey(SJoint *joint, f32 frame, core::vector3df scale);
-
 	//! Adds a new weight to the mesh, access it as last one
 	SWeight *addWeight(SJoint *joint);
+
+	u16 addAnimation() {
+		animations.emplace_back();
+		return animations.size() - 1;
+	}
+
+	Animation &getAnimation(u16 index) {
+		return animations.at(index);
+	}
 };
 
 } // end namespace scene

@@ -133,7 +133,7 @@ core.register_entity("testentities:cool_guy", {
 		},
 	},
 	on_activate = function(self)
-		self.object:set_animation({x = 0, y = 29}, 30, 0, true)
+
 	end,
 })
 

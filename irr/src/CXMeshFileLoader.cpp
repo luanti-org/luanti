@@ -5,6 +5,7 @@
 #include "CXMeshFileLoader.h"
 #include "SkinnedMesh.h"
 #include "Transform.h"
+#include "irrlichttypes.h"
 #include "os.h"
 
 #include "fast_atof.h"
@@ -54,6 +55,7 @@ IAnimatedMesh *CXMeshFileLoader::createMesh(io::IReadFile *file)
 #endif
 
 	AnimatedMesh = new SkinnedMeshBuilder(SkinnedMesh::SourceFormat::X);
+	AnimatedMesh->addAnimation();
 
 	SkinnedMesh *res = nullptr;
 	if (load(file)) {
@@ -426,13 +428,8 @@ bool CXMeshFileLoader::parseDataObject()
 		return parseDataObjectFrame(0);
 	} else if (objectName == "Mesh") {
 		// some meshes have no frames at all
-		// CurFrame = AnimatedMesh->addJoint(0);
-
 		SXMesh *mesh = new SXMesh;
-
-		// mesh->Buffer=AnimatedMesh->addMeshBuffer();
 		Meshes.push_back(mesh);
-
 		return parseDataObjectMesh(*mesh);
 	} else if (objectName == "AnimationSet") {
 		return parseDataObjectAnimationSet();
@@ -520,9 +517,8 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 #ifdef _XREADER_DEBUG
 		os::Printer::log("creating joint ", name.c_str(), ELL_DEBUG);
 #endif
-		joint = AnimatedMesh->addJoint(Parent);
-		joint->Name = name.c_str();
-		JointID = AnimatedMesh->getAllJoints().size() - 1;
+		joint = addJoint(Parent, name.c_str());
+		JointID = joint->JointID;
 	} else {
 #ifdef _XREADER_DEBUG
 		os::Printer::log("using joint ", name.c_str(), ELL_DEBUG);
@@ -948,8 +944,7 @@ bool CXMeshFileLoader::parseDataObjectSkinWeights(SXMesh &mesh)
 		os::Printer::log("creating joint for skinning ", TransformNodeName.c_str(), ELL_DEBUG);
 #endif
 		n = AnimatedMesh->getAllJoints().size();
-		joint = AnimatedMesh->addJoint(0);
-		joint->Name = TransformNodeName.c_str();
+		joint = addJoint(nullptr, TransformNodeName.c_str());
 	}
 
 	// read vertex weights
@@ -1320,7 +1315,7 @@ bool CXMeshFileLoader::parseDataObjectAnimationTicksPerSecond()
 		SET_ERR_AND_RETURN();
 	}
 
-	const u32 ticks = readInt();
+	readInt(); // ticks, unused
 
 	if (!checkForOneFollowingSemicolons()) {
 		os::Printer::log("No closing semicolon in AnimationTicksPerSecond in x file", ELL_WARNING);
@@ -1333,8 +1328,6 @@ bool CXMeshFileLoader::parseDataObjectAnimationTicksPerSecond()
 		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 		SET_ERR_AND_RETURN();
 	}
-
-	AnimatedMesh->setAnimationSpeed(static_cast<f32>(ticks));
 
 	return true;
 }
@@ -1353,7 +1346,7 @@ bool CXMeshFileLoader::parseDataObjectAnimation()
 
 	// anim.closed = true;
 	// anim.linearPositionQuality = true;
-	SkinnedMesh::SJoint animationDump;
+	SkinnedMesh::Keys keys;
 
 	core::stringc FrameName;
 
@@ -1367,7 +1360,7 @@ bool CXMeshFileLoader::parseDataObjectAnimation()
 		} else if (objectName == "}") {
 			break; // animation finished
 		} else if (objectName == "AnimationKey") {
-			if (!parseDataObjectAnimationKey(&animationDump))
+			if (!parseDataObjectAnimationKey(keys))
 				return false;
 		} else if (objectName == "AnimationOptions") {
 			// TODO: parse options.
@@ -1402,18 +1395,16 @@ bool CXMeshFileLoader::parseDataObjectAnimation()
 #ifdef _XREADER_DEBUG
 			os::Printer::log("creating joint for animation ", FrameName.c_str(), ELL_DEBUG);
 #endif
-			joint = AnimatedMesh->addJoint(0);
-			joint->Name = FrameName.c_str();
+			joint = addJoint(nullptr, FrameName.c_str());
 		}
-
-		joint->keys.append(animationDump.keys);
+		addKeys(joint, std::move(keys));
 	} else
 		os::Printer::log("joint name was never given", ELL_WARNING);
 
 	return true;
 }
 
-bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
+bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::Keys &keys)
 {
 #ifdef _XREADER_DEBUG
 	os::Printer::log("CXFileReader: reading animation key", ELL_DEBUG);
@@ -1472,7 +1463,7 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 
 			core::quaternion rotation(X, Y, Z, W);
 			rotation.normalize();
-			AnimatedMesh->addRotationKey(joint, time, rotation);
+			keys.rotation.pushBack(time, rotation);
 		} break;
 		case 1: // scale
 		case 2: // position
@@ -1495,9 +1486,9 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 			}
 
 			if (keyType == 2) {
-				AnimatedMesh->addPositionKey(joint, time, vector);
+				keys.position.pushBack(time, vector);
 			} else {
-				AnimatedMesh->addScaleKey(joint, time, vector);
+				keys.scale.pushBack(time, vector);
 			}
 		} break;
 		case 3:
@@ -1522,8 +1513,8 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 				os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 			}
 
-			AnimatedMesh->addRotationKey(joint, time, core::quaternion(mat.getTransposed()));
-			AnimatedMesh->addPositionKey(joint, time, mat.getTranslation());
+			keys.rotation.pushBack(time, core::quaternion(mat.getTransposed()));
+			keys.position.pushBack(time, mat.getTranslation());
 
 			/*
 							core::vector3df scale=mat.getScale();
@@ -1999,6 +1990,27 @@ bool CXMeshFileLoader::readMatrix(core::matrix4 &mat)
 	for (u32 i = 0; i < 16; ++i)
 		mat[i] = readFloat();
 	return checkForOneFollowingSemicolons();
+}
+
+SkinnedMesh::SJoint *CXMeshFileLoader::addJoint(SkinnedMesh::SJoint *parent, std::string name)
+{
+	auto *joint = AnimatedMesh->addJoint(parent);
+	joint->Name = std::move(name);
+	JointKeysIdx.resize(joint->JointID + 1);
+	return joint;
+}
+
+void CXMeshFileLoader::addKeys(SkinnedMesh::SJoint *joint, SkinnedMesh::Keys &&keys)
+{
+	auto &animation = AnimatedMesh->getAnimation(0);
+	auto &joint_keys_idx = JointKeysIdx.at(joint->JointID);
+	if (joint_keys_idx) {
+		animation.joint_keys.at(*joint_keys_idx).keys.append(keys);
+	} else {
+		joint_keys_idx = animation.joint_keys.size();
+		animation.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
+				joint->JointID, std::move(keys) });
+	}
 }
 
 } // end namespace scene
