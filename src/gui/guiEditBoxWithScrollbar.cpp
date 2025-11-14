@@ -43,8 +43,6 @@ void GUIEditBoxWithScrollBar::draw()
 	if (!skin)
 		return;
 
-	video::SColor default_bg_color;
-
 	if (m_bg_color_used) {
 		OverrideBgColor = m_bg_color;
 	} else if (IsWritable) {

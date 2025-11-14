@@ -21,7 +21,7 @@ class ISimpleTextureSource;
 
 using namespace gui;
 
-class GUIScrollBar : public IGUIScrollBar
+class GUIScrollBar final : public IGUIScrollBar
 {
 public:
 	GUIScrollBar(IGUIEnvironment *environment, IGUIElement *parent, s32 id,

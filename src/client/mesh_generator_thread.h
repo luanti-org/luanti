@@ -16,7 +16,7 @@
 class Map;
 class MapBlock;
 class MapBlockMesh;
-class MeshMakeData;
+struct MeshMakeData;
 class Client;
 
 struct QueuedMeshUpdate

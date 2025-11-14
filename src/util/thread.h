@@ -81,7 +81,7 @@ public:
 	}
 
 	Key key;
-	std::list<caller_info_type> callers;
+	std::vector<caller_info_type> callers;
 };
 
 /**

@@ -94,13 +94,13 @@ private:
 
 	float *float_offset_cache = nullptr;
 
-	Noise *noise_terrain_base;
-	Noise *noise_terrain_alt;
-	Noise *noise_terrain_persist;
-	Noise *noise_height_select;
-	Noise *noise_mount_height;
-	Noise *noise_ridge_uwater;
-	Noise *noise_mountain;
-	Noise *noise_ridge;
-	Noise *noise_floatland;
+	Noise *noise_terrain_base = nullptr;
+	Noise *noise_terrain_alt = nullptr;
+	Noise *noise_terrain_persist = nullptr;
+	Noise *noise_height_select = nullptr;
+	Noise *noise_mount_height = nullptr;
+	Noise *noise_ridge_uwater = nullptr;
+	Noise *noise_mountain = nullptr;
+	Noise *noise_ridge = nullptr;
+	Noise *noise_floatland = nullptr;
 };

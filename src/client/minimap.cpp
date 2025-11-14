@@ -534,10 +534,10 @@ v3f Minimap::getYawVec()
 		return v3f(
 			std::cos(m_angle * core::DEGTORAD),
 			std::sin(m_angle * core::DEGTORAD),
-			1.0);
+			1.0f);
 	}
 
-	return v3f(1.0, 0.0, 1.0);
+	return v3f(1.0f, 0.0, 1.0f);
 }
 
 irr_ptr<scene::SMeshBuffer> Minimap::createMinimapMeshBuffer()
@@ -651,18 +651,16 @@ void Minimap::drawMinimap(core::rect<s32> rect)
 	static const video::SColor c[4] = {col, col, col, col};
 	f32 sin_angle = std::sin(m_angle * core::DEGTORAD);
 	f32 cos_angle = std::cos(m_angle * core::DEGTORAD);
-	s32 marker_size2 =  0.025 * (float)rect.getWidth();;
-	for (auto i = m_active_markers.begin();
-			i != m_active_markers.end(); ++i) {
-		v2f posf = *i;
+	s32 marker_size2 = 0.025f * (float)rect.getWidth();
+	for (v2f posf : m_active_markers) {
 		if (data->minimap_shape_round) {
 			f32 t1 = posf.X * cos_angle - posf.Y * sin_angle;
 			f32 t2 = posf.X * sin_angle + posf.Y * cos_angle;
 			posf.X = t1;
 			posf.Y = t2;
 		}
-		posf.X = (posf.X + 0.5) * (float)rect.getWidth();
-		posf.Y = (posf.Y + 0.5) * (float)rect.getHeight();
+		posf.X = (posf.X + 0.5f) * (float)rect.getWidth();
+		posf.Y = (posf.Y + 0.5f) * (float)rect.getHeight();
 		core::rect<s32> dest_rect(
 			s_pos.X + posf.X - marker_size2,
 			s_pos.Y + posf.Y - marker_size2,
@@ -683,8 +681,14 @@ MinimapMarker *Minimap::addMarker(scene::ISceneNode *parent_node)
 
 void Minimap::removeMarker(MinimapMarker **m)
 {
-	m_markers.remove_if([ptr = *m](const auto &up) { return up.get() == ptr; });
+	MinimapMarker *ptr = *m;
 	*m = nullptr;
+
+	auto it = std::find_if(m_markers.begin(), m_markers.end(), [&] (const auto &it) {
+		return it.get() == ptr;
+	});
+	assert(it != m_markers.end());
+	m_markers.erase(it);
 }
 
 void Minimap::updateActiveMarkers()
