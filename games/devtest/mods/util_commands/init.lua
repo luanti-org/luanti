@@ -1,3 +1,38 @@
+if core.is_singleplayer() then
+	local function format_result(success, ...)
+		if success then
+			local res = {}
+			for i = 1, select("#", ...) do
+				local v = select(i, ...)
+				table.insert(res, dump(v))
+			end
+			if #res == 0 then
+				return true, "No return values."
+			end
+			return true, "Return values: " .. table.concat(res, ",\n")
+		end
+		return false, "Error: " .. tostring((...))
+	end
+
+	core.register_chatcommand("lua", {
+		params = "<code>",
+		description = "Execute Lua code",
+		func = function(name, param)
+			local func, err = load("return "..param)
+			if not func then
+				func, err = load(param)
+				if not func then
+					return false, "Syntax error: "..err
+				end
+			end
+			setfenv(func, setmetatable({
+				me = core.get_player_by_name(name),
+			}, {__index = _G}))
+			return format_result(pcall(func))
+		end,
+	})
+end
+
 core.register_chatcommand("hotbar", {
 	params = "<size>",
 	description = "Set hotbar size",
