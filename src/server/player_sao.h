@@ -249,7 +249,7 @@ struct PlayerHPChangeReason
 
 	// For PLAYER_PUNCH
 	ServerActiveObject *object = nullptr;
-	// For NODE_DAMAGE
+	// For NODE_DAMAGE and DROWNING
 	std::string node;
 	v3s16 node_pos;
 
