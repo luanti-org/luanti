@@ -236,6 +236,35 @@ void ScriptApiPlayer::on_authplayer(const std::string &name, const std::string &
 	runCallbacks(3, RUN_CALLBACKS_MODE_FIRST);
 }
 
+void ScriptApiPlayer::on_hotbar_slot_selected(
+	ServerActiveObject* player,
+	InventoryLocation& loc,
+	const std::string &list,
+	int hotbar_slot,
+	int prev_hotbar_slot,
+	bool is_from_scroll
+)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_hotbar_slot_selected");
+	// param 1
+	objectrefGetOrCreate(L, player);
+	// param 2
+	InvRef::create(L, loc);
+	// param 3
+	lua_pushstring(L, list.c_str());
+	// param 4
+	lua_pushinteger(L, hotbar_slot + 1);
+	// param 5
+	lua_pushinteger(L, prev_hotbar_slot + 1);
+	// param 6
+	lua_pushboolean(L, is_from_scroll);
+
+	runCallbacks(6, RUN_CALLBACKS_MODE_LAST);
+}
+
 void ScriptApiPlayer::pushMoveArguments(
 		const MoveAction &ma, int count,
 		ServerActiveObject *player)
