@@ -7,7 +7,6 @@
 #include "chat.h"
 #include "threading/thread.h"
 #include "util/container.h"
-#include "log.h"
 #include "log_internal.h"
 
 #include <csignal>

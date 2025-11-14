@@ -6,8 +6,6 @@
 #pragma once
 
 #include "lua_api/l_base.h"
-#include "itemdef.h"
-#include "tool.h"
 
 class ModApiClient : public ModApiBase
 {

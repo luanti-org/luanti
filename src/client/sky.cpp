@@ -6,10 +6,8 @@
 #include "sky.h"
 
 #include "camera.h"
-#include "client/mesh.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
-#include "client/tile.h"
 #include "noise.h" // easeCurve
 #include "player.h" // CameraMode
 #include "profiler.h"

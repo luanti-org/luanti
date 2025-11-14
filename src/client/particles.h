@@ -15,6 +15,7 @@
 #include <vector>
 #include <unordered_map>
 #include "../particles.h"
+#include "util/numeric.h"
 
 namespace video {
 	class ITexture;

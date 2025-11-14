@@ -8,7 +8,6 @@ extern "C" {
 #include "lua.h"
 }
 
-#include <iostream>
 #include "exceptions.h"
 
 class StackUnroller

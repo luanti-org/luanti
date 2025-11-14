@@ -6,7 +6,6 @@
 
 #include <IFileSystem.h>
 #include "imagefilters.h"
-#include "mesh.h"
 #include "renderingengine.h"
 #include "settings.h"
 #include "texturepaths.h"

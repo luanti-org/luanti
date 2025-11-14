@@ -7,6 +7,7 @@
 #include "log.h"
 #include "profiler.h"
 #include "settings.h"
+#include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "util/serialize.h"
 

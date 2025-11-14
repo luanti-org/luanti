@@ -5,8 +5,6 @@
 #pragma once
 
 #include "guiButton.h"
-#include "IGUIButton.h"
-
 
 class Client;
 class GUIItemImage;

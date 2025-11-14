@@ -6,7 +6,6 @@
 #include "map.h"
 #include "mapblock.h"
 #include "nodedef.h"
-#include "util/timetaker.h"
 
 
 ReflowScan::ReflowScan(Map *map, const NodeDefManager *ndef) :

@@ -7,10 +7,10 @@
 #include <cassert>
 #include <unordered_set>
 #include <optional>
+#include <queue>
 #include "irrlichttypes_bloated.h"
 #include "activeobject.h"
 #include "itemgroup.h"
-#include "util/container.h"
 
 
 /*

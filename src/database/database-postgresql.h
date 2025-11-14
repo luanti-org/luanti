@@ -7,7 +7,6 @@
 #include <string>
 #include <libpq-fe.h>
 #include "database.h"
-#include "util/basic_macros.h"
 
 // Template class for PostgreSQL based data storage
 class Database_PostgreSQL : public Database

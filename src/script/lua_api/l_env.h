@@ -6,6 +6,7 @@
 
 #include "lua_api/l_base.h"
 #include "raycast.h"
+#include "util/enum_string.h"
 
 class ServerScripting;
 

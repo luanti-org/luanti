@@ -4,20 +4,11 @@
 
 #include "address.h"
 
-#include <cstdio>
 #include <iostream>
-#include <cstdlib>
 #include <cstring>
 #include <cerrno>
-#include <sstream>
-#include <iomanip>
 #include "network/networkexceptions.h"
-#include "util/string.h"
-#include "util/numeric.h"
-#include "constants.h"
-#include "debug.h"
 #include "settings.h"
-#include "log.h"
 
 #ifdef _WIN32
 #include <windows.h>

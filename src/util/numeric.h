@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "basic_macros.h"
 #include "constants.h"
 #include "irrlichttypes.h"
 #include "irr_v2d.h"

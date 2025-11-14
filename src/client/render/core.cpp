@@ -4,9 +4,9 @@
 // Copyright (C) 2017 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
 #include "core.h"
-#include "plain.h"
+
+#include "pipeline.h"
 #include "client/shadows/dynamicshadowsrender.h"
-#include "settings.h"
 
 RenderingCore::RenderingCore(IrrlichtDevice *_device, Client *_client, Hud *_hud,
 		std::unique_ptr<ShadowRenderer> _shadow_renderer,

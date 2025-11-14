@@ -5,14 +5,17 @@
 #pragma once
 
 #include "irrlichttypes_bloated.h"
-#include "SColor.h"
-#include "SMaterialLayer.h"
 
 namespace scene {
 	class IAnimatedMesh;
 	class IMesh;
 	class IMeshBuffer;
 	struct SMesh;
+}
+
+namespace video {
+	class SMaterialLayer;
+	class SColor;
 }
 
 

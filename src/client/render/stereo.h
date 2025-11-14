@@ -4,8 +4,6 @@
 // Copyright (C) 2017 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
 #pragma once
-#include "core.h"
-#include "plain.h"
 #include "pipeline.h"
 
 

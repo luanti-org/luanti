@@ -9,8 +9,6 @@
 #include "common/c_content.h"
 #include "server.h"
 #include "server/serverinventorymgr.h"
-#include "remoteplayer.h"
-
 /*
 	InvRef
 */

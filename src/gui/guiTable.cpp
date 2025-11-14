@@ -4,22 +4,18 @@
 
 
 #include "guiTable.h"
-#include <queue>
 #include <sstream>
 #include <utility>
 #include <cstring>
 #include <IGUISkin.h>
 #include <IGUIFont.h>
 #include "client/renderingengine.h"
-#include "debug.h"
 #include "irrlicht_changes/CGUITTFont.h"
 #include "log.h"
 #include "client/texturesource.h"
-#include "gettime.h"
 #include "util/string.h"
 #include "util/numeric.h"
 #include "util/string.h" // for parseColorString()
-#include "settings.h" // for settings
 #include "porting.h" // for dpi
 #include "client/guiscalingfilter.h"
 

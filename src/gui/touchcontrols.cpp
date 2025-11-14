@@ -7,7 +7,6 @@
 #include "touchcontrols.h"
 #include "touchscreenlayout.h"
 
-#include "gettime.h"
 #include "irr_v2d.h"
 #include "log.h"
 #include "porting.h"
@@ -16,11 +15,9 @@
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
 #include "util/enum_string.h"
-#include "util/numeric.h"
 #include "irr_gui_ptr.h"
 #include "IGUIImage.h"
 #include "IGUIStaticText.h"
-#include "IGUIFont.h"
 #include <IrrlichtDevice.h>
 #include <ISceneCollisionManager.h>
 #include <IGUIElement.h>

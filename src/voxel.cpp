@@ -3,13 +3,12 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "voxel.h"
-#include "map.h"
-#include "gettime.h"
+
+#include "constants.h"
 #include "nodedef.h"
-#include "util/directiontables.h"
-#include "util/timetaker.h"
 #include "porting.h"
 #include <cstring>  // memcpy, memset
+#include <algorithm>
 
 /*
 	Debug stuff

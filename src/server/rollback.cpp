@@ -3,14 +3,10 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "rollback.h"
-#include <fstream>
 #include <list>
-#include <sstream>
 #include "log.h"
-#include "mapnode.h"
 #include "gamedef.h"
 #include "nodedef.h"
-#include "util/serialize.h"
 #include "util/string.h"
 #include "util/numeric.h"
 #include "inventorymanager.h" // deserializing InventoryLocations

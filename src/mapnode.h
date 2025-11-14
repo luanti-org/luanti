@@ -7,7 +7,6 @@
 #include "irrlichttypes_bloated.h"
 #include "light.h"
 #include "util/pointer.h"
-#include <string>
 #include <vector>
 
 class NodeDefManager;

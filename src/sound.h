@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <set>
 #include <string>
 #include "util/serialize.h"
 #include "irrlichttypes_bloated.h"

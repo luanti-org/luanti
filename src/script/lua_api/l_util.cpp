@@ -7,7 +7,6 @@
 #include "lua_api/l_settings.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
-#include "cpp_api/s_async.h"
 #include "network/networkprotocol.h"
 #include "serialization.h"
 #include <json/json.h>
@@ -15,7 +14,6 @@
 #include "cpp_api/s_security.h"
 #include "porting.h"
 #include "convert_json.h"
-#include "debug.h"
 #include "log.h"
 #include "log_internal.h"
 #include "tool.h"

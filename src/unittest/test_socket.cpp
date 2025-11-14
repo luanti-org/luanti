@@ -4,8 +4,11 @@
 
 #include "test.h"
 
+#include "constants.h"
 #include "log.h"
 #include "settings.h"
+#include "network/address.h"
+#include "network/networkexceptions.h"
 #include "network/socket.h"
 
 class TestSocket : public TestBase {

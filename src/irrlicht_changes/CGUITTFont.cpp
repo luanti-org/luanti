@@ -37,7 +37,6 @@
 #include "log.h"
 #include "filesys.h"
 #include "debug.h"
-#include "IFileSystem.h"
 #include "IGUIEnvironment.h"
 
 #include <cstdlib>

@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "json-forwards.h"
 #include <ostream>
+
+namespace Json { class Value; }
 
 void fastWriteJson(const Json::Value &value, std::ostream &to);
 

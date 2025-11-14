@@ -29,6 +29,7 @@
 #include "gui/profilergraph.h"
 #include "localplayer.h"
 #include "minimap.h"
+#include "network/networkexceptions.h"
 #include "nodedef.h"         // Needed for determining pointing to nodes
 #include "nodemetadata.h"
 #include "particles.h"

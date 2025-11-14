@@ -7,8 +7,6 @@
 #include "mapgen.h"
 #include "noise.h"
 #include "map.h"
-#include "log.h"
-#include "util/numeric.h"
 #include <cmath>
 #include <algorithm>
 

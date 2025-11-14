@@ -6,6 +6,7 @@
 #include "clientiface.h"
 #include "debug.h"
 #include "network/connection.h"
+#include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "network/serveropcodes.h"
 #include "porting.h" // porting::getTimeS

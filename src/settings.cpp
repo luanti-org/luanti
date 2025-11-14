@@ -13,7 +13,6 @@
 #include <sstream>
 #include "debug.h"
 #include "log.h"
-#include "util/serialize.h"
 #include "filesys.h"
 #include "noise.h"
 #include <cctype>

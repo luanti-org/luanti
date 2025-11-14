@@ -13,11 +13,9 @@
 #include "gamedef.h"
 #include "inventory.h"
 #include "itemdef.h"
-#include "util/serialize.h"
 #include "util/string.h"
 #include "util/numeric.h"
 #include "util/strfnd.h"
-#include "exceptions.h"
 
 inline bool isGroupRecipeStr(const std::string &rec_name)
 {

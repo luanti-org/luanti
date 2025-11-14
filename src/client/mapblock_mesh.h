@@ -12,9 +12,7 @@
 #include "util/numeric.h"
 #include "client/tile.h"
 #include "voxel.h"
-#include <array>
 #include <map>
-#include <unordered_map>
 
 namespace video {
 	class IVideoDriver;

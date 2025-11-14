@@ -9,11 +9,11 @@
 #include "constants.h"
 #include "util/pointer.h"
 #include "util/container.h"
-#include "util/numeric.h"
 #include "porting.h"
+#include "network/address.h"
 #include "network/networkprotocol.h"
 #include <atomic>
-#include <iostream>
+#include <cfloat>
 #include <vector>
 #include <memory>
 #include <map>

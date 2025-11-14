@@ -6,7 +6,6 @@
 #include <cstring>
 #include <cmath>
 #include <cassert>
-#include <unordered_set>
 #include <unordered_map>
 #include "c_packer.h"
 #include "c_internal.h"

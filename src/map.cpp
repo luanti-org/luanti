@@ -13,10 +13,9 @@
 #include "profiler.h"
 #include "nodedef.h"
 #include "gamedef.h"
-#include "util/directiontables.h"
 #include "rollback_interface.h"
 #include "environment.h"
-#include "irrlicht_changes/printing.h"
+#include <queue>
 
 /*
 	Map

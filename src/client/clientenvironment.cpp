@@ -18,10 +18,8 @@
 #include "raycast.h"
 #include "voxelalgorithms.h"
 #include "settings.h"
-#include "shader.h"
 #include "content_cao.h"
 #include "porting.h"
-#include <algorithm>
 #include "client/renderingengine.h"
 
 /*

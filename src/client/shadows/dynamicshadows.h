@@ -6,7 +6,6 @@
 
 #include "irrlichttypes_bloated.h"
 #include <matrix4.h>
-#include "util/basic_macros.h"
 #include "constants.h"
 
 class Camera;

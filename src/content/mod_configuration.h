@@ -6,6 +6,7 @@
 
 #include "mods.h"
 
+struct SubgameSpec;
 
 /**
  * ModConfiguration is a subset of installed mods. This class

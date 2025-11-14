@@ -5,13 +5,11 @@
 
 #include "itemdef.h"
 
-#include "nodedef.h"
+#include "debug.h"
 #include "tool.h"
 #include "log.h"
 #include "settings.h"
 #include "util/serialize.h"
-#include "util/container.h"
-#include "util/thread.h"
 #include "util/pointedthing.h"
 #include <map>
 #include <set>

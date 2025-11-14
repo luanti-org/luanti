@@ -12,7 +12,6 @@
 #include <SColor.h>
 
 #include "CGUITTFont.h"
-#include "util/string.h"
 
 
 namespace gui

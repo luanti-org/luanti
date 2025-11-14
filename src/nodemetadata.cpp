@@ -11,7 +11,6 @@
 #include "debug.h"
 #include "util/serialize.h"
 #include "constants.h" // MAP_BLOCKSIZE
-#include <sstream>
 
 /*
 	NodeMetadata

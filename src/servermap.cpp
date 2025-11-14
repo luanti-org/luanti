@@ -4,8 +4,6 @@
 
 #include "servermap.h"
 
-#include <algorithm>
-
 #include "map.h"
 #include "mapsector.h"
 #include "filesys.h"
@@ -21,7 +19,6 @@
 #include "rollback_interface.h"
 #include "reflowscan.h"
 #include "emerge.h"
-#include "mapgen/mapgen_v6.h"
 #include "mapgen/mg_biome.h"
 #include "config.h"
 #include "server.h"
@@ -30,7 +27,6 @@
 #include "database/database-dummy.h"
 #include "database/database-sqlite3.h"
 #include "script/scripting_server.h"
-#include "irrlicht_changes/printing.h"
 #if USE_LEVELDB
 #include "database/database-leveldb.h"
 #endif

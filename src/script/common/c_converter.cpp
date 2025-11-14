@@ -8,7 +8,6 @@ extern "C" {
 }
 
 #include "util/numeric.h"
-#include "util/serialize.h"
 #include "util/string.h"
 #include "log.h"
 #include "common/c_converter.h"

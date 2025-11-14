@@ -26,7 +26,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <IGUIFont.h>
 #include <IVideoDriver.h>
 
-#include "porting.h"
 #include "gettext.h"
 
 const int ID_oldPassword = 256;

@@ -11,8 +11,6 @@
 #include "rect.h"
 
 #include "guiScrollBar.h"
-#include "porting.h"
-#include "Keycodes.h"
 
 using namespace gui;
 

@@ -10,8 +10,8 @@
 #include "util/serialize.h"
 #include "network/peerhandler.h"
 #include "network/mtp/internal.h"
+#include "network/networkexceptions.h"
 #include "network/networkpacket.h"
-#include "network/socket.h"
 
 class TestConnection : public TestBase {
 public:

@@ -7,7 +7,6 @@
 #include "common/c_content.h"
 #include "common/c_converter.h"
 #include "lua_api/l_internal.h"
-#include "lua_api/l_object.h"
 #include "lua_api/l_particleparams.h"
 #include "client/particles.h"
 #include "client/client.h"

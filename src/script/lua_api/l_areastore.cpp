@@ -10,7 +10,7 @@
 #include "irr_v3d.h"
 #include "util/areastore.h"
 #include "filesys.h"
-#include <fstream>
+#include <sstream>
 
 static inline void get_data_and_corner_flags(lua_State *L, u8 start_i,
 		bool *corners, bool *data)

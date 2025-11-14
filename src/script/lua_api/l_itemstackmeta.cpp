@@ -7,7 +7,6 @@
 #include "lua_api/l_itemstackmeta.h"
 #include "lua_api/l_internal.h"
 #include "common/c_content.h"
-#include "common/c_converter.h"
 #include "tool.h"
 
 /*

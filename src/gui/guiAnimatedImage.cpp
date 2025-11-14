@@ -1,11 +1,7 @@
 #include "guiAnimatedImage.h"
 
 #include "client/guiscalingfilter.h"
-#include "log.h"
 #include "porting.h"
-#include "util/string.h"
-#include <string>
-#include <vector>
 #include <ITexture.h>
 
 GUIAnimatedImage::GUIAnimatedImage(gui::IGUIEnvironment *env, gui::IGUIElement *parent,

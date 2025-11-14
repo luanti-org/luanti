@@ -10,7 +10,6 @@
 #include "pathfinder.h"
 #include "map.h"
 #include "nodedef.h"
-#include "irrlicht_changes/printing.h"
 
 //#define PATHFINDER_DEBUG
 //#define PATHFINDER_CALC_TIME

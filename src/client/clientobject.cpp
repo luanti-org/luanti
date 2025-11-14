@@ -4,7 +4,6 @@
 
 #include "clientobject.h"
 #include "debug.h"
-#include "porting.h"
 
 /*
 	ClientActiveObject

@@ -7,9 +7,7 @@
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "common/c_packer.h"
-#include "log.h"
 #include "porting.h"
-#include "util/numeric.h"
 
 ///////////////////////////////////////
 /*

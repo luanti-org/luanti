@@ -8,7 +8,6 @@
 #include "mapnode.h"
 #include "nodedef.h"
 #include "nameidmapping.h"
-#include "util/string.h"
 
 /*
 	Legacy node content type IDs

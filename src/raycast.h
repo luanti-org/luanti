@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <queue>
 #include "voxelalgorithms.h"
 #include "util/pointedthing.h"
 

@@ -17,6 +17,7 @@
 #include "log.h"
 #include "tool.h"
 #include "noise.h"
+#include "porting.h" // strlcpy
 #include "server/player_sao.h"
 #include "util/pointedthing.h"
 #include "debug.h" // For FATAL_ERROR

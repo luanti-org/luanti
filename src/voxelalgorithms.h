@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "voxel.h"
+#include <map>
 #include "mapnode.h"
-#include "util/container.h"
 
 class Map;
 class MapBlock;

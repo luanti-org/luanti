@@ -16,6 +16,7 @@
 #include "client/texturesource.h"
 #include "camera.h"
 #include "minimap.h"
+#include "porting.h"
 #include "clientmap.h"
 #include "renderingengine.h"
 #include "render/core.h"

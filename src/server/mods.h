@@ -5,7 +5,6 @@
 #pragma once
 
 #include "content/mod_configuration.h"
-#include <memory>
 
 class ServerScripting;
 

@@ -14,8 +14,6 @@
 #include "filesys.h"
 #include "porting.h"
 
-#include <limits>
-
 namespace sound {
 
 void OpenALSoundManager::stepStreams(f32 dtime)
