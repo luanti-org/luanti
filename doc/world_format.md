@@ -194,16 +194,13 @@ Database-specific connection/settings (only relevant if a DB backend requires th
         redis_password = <password>     - Redis password (optional)
 
 Notes:
-* Some keys are commonly written by the client when creating a local/singleplayer world
-    (for example `world_name`, `gameid`, `backend`, `blocksize` in `src/content/subgames.cpp`).
-    Other keys are server-side defaults that may be added/updated by the server code (for example
-    defaulting `player_backend`/`auth_backend` to `files` when missing; see `src/serverenvironment.cpp`).
+* Some keys are commonly written by the client when creating a local/singleplayer world (for example world_name, gameid, backend, blocksize; see subgames.cpp).Server-side code may add or update other keys (for example servers may default player_backend and auth_backend to files when missing; see serverenvironment.cpp). These server-side defaults are relevant to server operators and to server behaviour, but are not always written by the client.
 * Map generation parameters and the world seed are stored in `map_meta.txt` (see the `map_meta.txt`
     section), not in `world.mt`.
 * * Some games or mods may store per-world settings in `world.mt`, but not all
   settings in `minetest.conf` are automatically applied from `world.mt`. Use
   the source code of the relevant game/mod to determine whether a specific
-  `minetest.conf`-style setting is recognized when placed into `world.mt`.  
+  `minetest.conf`-style setting is recognized when placed into `world.mt`.
 
 Source references
 * `src/content/subgames.cpp` — client/mainmenu world creation and initial `world.mt` writes (sets `world_name`, `gameid`, `backend`, `player_backend`, `auth_backend`, `mod_storage_backend`, `blocksize`). See functions around `loadGameConfAndInitWorld` and `getWorldName`.
