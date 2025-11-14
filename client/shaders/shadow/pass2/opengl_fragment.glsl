@@ -4,7 +4,7 @@ uniform sampler2D ShadowMapClientMapTraslucent;
 #endif
 uniform sampler2D ShadowMapSamplerdynamic;
 
-CENTROID_ VARYING_ vec2 varTexCoord;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
 
 void main()
 {

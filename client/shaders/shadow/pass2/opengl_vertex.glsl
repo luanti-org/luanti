@@ -1,4 +1,4 @@
-CENTROID_ VARYING_ vec2 varTexCoord;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
 
 void main()
 {
