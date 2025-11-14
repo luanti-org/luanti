@@ -141,12 +141,14 @@ See [Player File Format](#player-file-format) below.
 ## `world.mt`
 
 World metadata.
-
-        world_name = <string>         - human-readable name of the world.
-                                                                         Set by the client when creating a singleplayer world
-                                                                         (see `builtin/mainmenu/dlg_create_world.lua` and
-                                                                         `src/content/subgames.cpp`). This is primarily used
-                                                                         by the client UI and does not affect server behaviour.
+- `world_name` = <string>
+  - Human-readable name of the world.
+  - Set by the client when creating a singleplayer world (see
+    `builtin/mainmenu/dlg_create_world.lua` and `src/content/subgames.cpp`).
+  - Primary use: display in UIs and world listings. The server CLI may also
+    use this value to list or select worlds by name; however, `world_name`
+    does not replace `gameid` or other machine-readable identifiers and is
+    not authoritative for server configuration. 
         gameid = <string>             - id of the game used by the world (for example `minetest` or a subgame id)
         enable_damage = true/false    - whether damage is enabled or not
         creative_mode = true/false    - whether creative mode is enabled or not
@@ -154,16 +156,29 @@ World metadata.
                                                                      `sqlite3`, `dummy`, `leveldb`, `redis`, `postgresql`
         readonly_backend = <backend>  - optionally a read-only seed DB backend. If set, the DB file
                                                                      must be located in the `readonly` subfolder.
-        player_backend = <backend>    - which DB backend to use for player data (e.g. `sqlite3`, `files`)
-        auth_backend = <backend>      - which DB backend to use for authentication data (e.g. `sqlite3`, `files`)
-        mod_storage_backend = <backend> - which DB backend to use for mod storage (e.g. `sqlite3`)
+       - `player_backend` = <backend>
+  - Which DB backend to use for player data. Possible values (may depend
+    on build options): `sqlite3`, `files`, `dummy`, `leveldb`, `postgresql`.
+    See `src/serverenvironment.cpp` and `PlayerDatabase` implementations for
+    build-dependent availability.                                       
+
+- `auth_backend` = <backend>
+  - Which DB backend to use for authentication data. Possible values
+    (may depend on build options): `sqlite3`, `files`, `dummy`, `leveldb`,
+    `postgresql`. See `src/serverenvironment.cpp` and `AuthDatabase` code.  
+
+- `mod_storage_backend` = <backend>
+  - Which DB backend to use for mod storage (commonly `sqlite3`, or other
+    backends if compiled).                                                 
         blocksize = <int>             - the compiled MAP_BLOCKSIZE used when the world was created.
-                                                                     Clients/servers check this value and will fail to load worlds
-                                                                     whose blocksize doesn't match the binary (see `src/content/subgames.cpp`)
-        server_announce = true/false  - whether the server is publicly announced or not
-        load_mod_<mod> = false|true|path - whether `<mod>` is to be loaded in this world. When
-                                                                     set to a path (e.g. `mods/modpack/moddir`) it specifies a
-                                                                     relative path to the mod directory to load from.
+    - `server_announce` = true | false
+  - Whether the server is publicly announced to the serverlist (if server-mode).
+  - Typical value: `false` for private worlds, `true` for public servers.   
+
+- `load_mod_<mod>` = false | true | <path>
+  - Controls whether a mod is loaded for this world; see the dedicated
+    section below titled "For `load_mod_<mod>`" for the exhaustive list of
+    supported values and path prefixes.                                
 
 Database-specific connection/settings (only relevant if a DB backend requires them):
 
@@ -185,8 +200,10 @@ Notes:
     defaulting `player_backend`/`auth_backend` to `files` when missing; see `src/serverenvironment.cpp`).
 * Map generation parameters and the world seed are stored in `map_meta.txt` (see the `map_meta.txt`
     section), not in `world.mt`.
-* Many engine settings in `minetest.conf` can be overridden per-world by adding them to `world.mt`.
-    However, some settings are client-only UI metadata (like `world_name`) and are not used by servers.
+* * Some games or mods may store per-world settings in `world.mt`, but not all
+  settings in `minetest.conf` are automatically applied from `world.mt`. Use
+  the source code of the relevant game/mod to determine whether a specific
+  `minetest.conf`-style setting is recognized when placed into `world.mt`.  
 
 Source references
 * `src/content/subgames.cpp` — client/mainmenu world creation and initial `world.mt` writes (sets `world_name`, `gameid`, `backend`, `player_backend`, `auth_backend`, `mod_storage_backend`, `blocksize`). See functions around `loadGameConfAndInitWorld` and `getWorldName`.
