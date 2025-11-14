@@ -1268,6 +1268,7 @@ void read_server_sound_params(lua_State *L, int index,
 		getfloatfield(L, index, "fade", params.spec.fade);
 		getfloatfield(L, index, "pitch", params.spec.pitch);
 		getfloatfield(L, index, "start_time", params.spec.start_time);
+		getfloatfield(L, index, "resend_time", params.spec.resend_time);
 		getboolfield(L, index, "loop", params.spec.loop);
 
 		getfloatfield(L, index, "gain", params.gain);

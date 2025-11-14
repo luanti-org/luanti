@@ -1285,10 +1285,39 @@ void Server::handleCommand_RemovedSounds(NetworkPacket* pkt)
 		if (i == m_playing_sounds.end())
 			continue;
 
+		session_t peer_id = pkt->getPeerId();
+
 		ServerPlayingSound &psound = i->second;
-		psound.clients.erase(pkt->getPeerId());
-		if (psound.clients.empty())
+		psound.clients.erase(peer_id);
+		verbosestream << "Server: Sound " << id << " erase peer "
+				<< peer_id << "." << std::endl;
+		if (!psound.allow_resend && psound.clients.empty()) {
 			m_playing_sounds.erase(i);
+			verbosestream << "Server: Erase sound " << id << "." << std::endl;
+		}
+		else if (psound.allow_resend && !psound.spec.loop) {
+			if (psound.resend_time < m_playing_sounds_time) {
+				/* Sound resend time reached, done_clients do not need to be updated. */
+				verbosestream << "Server: Done sound " << id << " for peer "
+						<< peer_id << "." << std::endl;
+				continue;
+			}
+
+			PlayerSAO *plrsao = getPlayerSAO(peer_id);
+			if (!plrsao)
+				continue;
+			bool pos_exists;
+			v3f pos = psound.getPos(m_env, &pos_exists);
+			assert(pos_exists);
+
+			if (pos.getDistanceFrom(plrsao->getBasePosition()) <= psound.max_hear_distance) {
+				/* If client remove sound in hear distance,
+				   we are sure, that sound has been fully played. */
+				psound.done_clients.insert(peer_id);
+				verbosestream << "Server: Done sound " << id << " for peer "
+						<< peer_id << "." << std::endl;
+			}
+		}
 	}
 }
 

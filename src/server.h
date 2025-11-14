@@ -132,6 +132,16 @@ struct ServerPlayingSound
 
 	SoundSpec spec;
 
+	// server processing values
+
+	// relative server time when sound has been added
+	// used for update spec.start_time when sending sound to new client
+	float start_time;
+	// hold time limit for sound sending to new clients
+	float resend_time;
+	bool allow_resend = false;
+
+	std::unordered_set<session_t> done_clients; // peer ids
 	std::unordered_set<session_t> clients; // peer ids
 };
 
@@ -277,6 +287,10 @@ public:
 	s32 playSound(ServerPlayingSound &params, bool ephemeral=false);
 	void stopSound(s32 handle);
 	void fadeSound(s32 handle, float step, float gain);
+	// Stop all sounds attached to given objects, for a certain client
+	void stopAttachedSounds(session_t peer_id, const std::vector<u16> &object_ids);
+	void createSoundPacket(NetworkPacket &pkt, s32 sound_id,
+		const ServerPlayingSound &params, const v3f &pos, bool ephemeral = false);
 
 	// Envlock
 	std::set<std::string> getPlayerEffectivePrivs(const std::string &name);
@@ -617,6 +631,7 @@ private:
 	void SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersao);
 	void SendActiveObjectMessages(session_t peer_id, const std::string &datas,
 		bool reliable = true);
+	void SendSound(session_t peer_id, s32 sound_id, const ServerPlayingSound &params, const v3f &pos);
 	void SendCSMRestrictionFlags(session_t peer_id);
 
 	/*
@@ -786,6 +801,7 @@ private:
 	std::unordered_map<s32, ServerPlayingSound> m_playing_sounds;
 	s32 m_playing_sounds_id_last_used = 0; // positive values only
 	s32 nextSoundId();
+	float m_playing_sounds_time = 0.0f;
 
 	ModStorageDatabase *m_mod_storage_database = nullptr;
 	float m_mod_storage_save_timer = 10.0f;

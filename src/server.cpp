@@ -965,6 +965,64 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 	}
 
 	/*
+		Send sounds if needed
+	*/
+	{
+		m_playing_sounds_time += dtime;
+
+		EnvAutoLock envlock(this);
+
+		ClientInterface::AutoLock clientlock(m_clients);
+		const RemoteClientMap &clients = m_clients.getClientList();
+
+		for (auto it = m_playing_sounds.begin(); it != m_playing_sounds.end(); it++) {
+			ServerPlayingSound &sound = it->second;
+
+			if (!sound.allow_resend)
+				continue;
+
+			if (!sound.spec.loop && (sound.resend_time < m_playing_sounds_time)) {
+				sound.allow_resend = false;
+				verbosestream << "Server: Marking sound " << it->first
+						<< " as expired." << std::endl;
+				continue;
+			}
+
+			// this should be never called for sound not attached to pos or object
+			bool pos_exists;
+			v3f pos = sound.getPos(m_env, &pos_exists);
+
+			for (const auto &client_it : clients) {
+				RemoteClient *client = client_it.second;
+
+				if (client->getState() < CS_DefinitionsSent)
+					continue;
+
+				PlayerSAO *playersao = getPlayerSAO(client->peer_id);
+				if (!playersao)
+					continue;
+
+				if (sound.clients.find(client->peer_id) != sound.clients.end())
+					continue;
+
+				if (sound.done_clients.find(client->peer_id) != sound.clients.end())
+					continue;
+
+				if (!sound.exclude_player.empty() &&
+						sound.exclude_player == client->getName())
+					continue;
+
+				if (pos.getDistanceFrom(playersao->getBasePosition()) <= sound.max_hear_distance) {
+					SendSound(client->peer_id, it->first, sound, pos);
+					sound.clients.insert(client->peer_id);
+					verbosestream << "Server: Sound " << it->first << " add peer "
+							<< client->peer_id << "." << std::endl;
+				}
+			}
+		}
+	}
+
+	/*
 		Send queued-for-sending map edit events.
 	*/
 	{
@@ -2179,9 +2237,18 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersa
 	// Removed objects
 	pkt << static_cast<u16>(removed_objects.size());
 
+	std::vector<u16> sounds_to_stop;
+
 	for (auto &it : removed_objects) {
 		const auto [gone, id] = it;
 		ServerActiveObject *obj = m_env->getActiveObject(id);
+
+		// Stop sounds if objects go out of range.
+		// This fixes https://github.com/minetest/minetest/issues/8094.
+		// We may not remove sounds if an entity was removed on the server.
+		// See https://github.com/minetest/minetest/issues/14422.
+		if (!gone) // just out of range for client, not gone on server?
+			sounds_to_stop.push_back(id);
 
 		pkt << id;
 
@@ -2190,6 +2257,9 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersa
 		if (obj && obj->m_known_by_count > 0)
 			obj->m_known_by_count--;
 	}
+
+	if (!sounds_to_stop.empty())
+		stopAttachedSounds(client->peer_id, sounds_to_stop);
 
 	// Note: Do yet NOT stop or remove object-attached sounds where the object goes out
 	// of range (client side). Such sounds would need to be re-sent when coming into range.
@@ -2230,6 +2300,15 @@ void Server::SendActiveObjectMessages(session_t peer_id, const std::string &data
 
 	auto &ccf = clientCommandFactoryTable[pkt.getCommand()];
 	m_clients.sendCustom(pkt.getPeerId(), reliable ? ccf.channel : 1, &pkt, reliable);
+}
+
+void Server::SendSound(session_t peer_id, s32 sound_id,
+		const ServerPlayingSound &params, const v3f &pos)
+{
+	NetworkPacket pkt(TOCLIENT_PLAY_SOUND, 0, peer_id);
+	createSoundPacket(pkt, sound_id, params, pos);
+
+	Send(&pkt);
 }
 
 void Server::SendCSMRestrictionFlags(session_t peer_id)
@@ -2273,6 +2352,8 @@ s32 Server::playSound(ServerPlayingSound &params, bool ephemeral)
 	if(pos_exists != (params.type != SoundLocation::Local))
 		return -1;
 
+	params.allow_resend = pos_exists;
+
 	// Filter destination clients
 	std::vector<session_t> dst_clients;
 	if (!params.to_player.empty()) {
@@ -2283,6 +2364,7 @@ s32 Server::playSound(ServerPlayingSound &params, bool ephemeral)
 			return -1;
 		}
 		dst_clients.push_back(player->getPeerId());
+		params.allow_resend = false;
 	} else {
 		std::vector<session_t> clients = m_clients.getClientIDs();
 
@@ -2307,7 +2389,10 @@ s32 Server::playSound(ServerPlayingSound &params, bool ephemeral)
 		}
 	}
 
-	if(dst_clients.empty())
+	// lets finish only for ephmeral sounds, non-looped sounds and
+	// sounds without resend_time if no clients in hear distance.
+	if (dst_clients.empty() &&
+			(ephemeral || (params.spec.resend_time == 0 && !params.spec.loop)))
 		return -1;
 
 	// old clients will still use this, so pick a reserved ID (-1)
@@ -2315,23 +2400,27 @@ s32 Server::playSound(ServerPlayingSound &params, bool ephemeral)
 	if (id == 0)
 		return 0;
 
-	float gain = params.gain * params.spec.gain;
-	NetworkPacket pkt(TOCLIENT_PLAY_SOUND, 0);
-	pkt << id << params.spec.name << gain
-			<< (u8) params.type << pos << params.object
-			<< params.spec.loop << params.spec.fade << params.spec.pitch
-			<< ephemeral << params.spec.start_time;
+	params.start_time = m_playing_sounds_time;
+	params.resend_time = m_playing_sounds_time + params.spec.resend_time;
 
-	const bool as_reliable = !ephemeral;
+	if (!dst_clients.empty()) {
+		NetworkPacket pkt(TOCLIENT_PLAY_SOUND, 0);
+		createSoundPacket(pkt, id, params, pos, ephemeral);
 
-	for (const session_t peer_id : dst_clients) {
-		if (!ephemeral)
-			params.clients.insert(peer_id);
-		m_clients.sendCustom(peer_id, 0, &pkt, as_reliable);
+		const bool as_reliable = !ephemeral;
+
+		for (const session_t peer_id : dst_clients) {
+			if (!ephemeral)
+				params.clients.insert(peer_id);
+			m_clients.sendCustom(peer_id, 0, &pkt, as_reliable);
+		}
 	}
 
-	if (!ephemeral)
+	if (!ephemeral) {
 		m_playing_sounds[id] = std::move(params);
+		verbosestream << "Server:playSound: Create sound "
+				<< id << "." << std::endl;
+	}
 	return id;
 }
 void Server::stopSound(s32 handle)
@@ -2351,6 +2440,9 @@ void Server::stopSound(s32 handle)
 
 	// Remove sound reference
 	m_playing_sounds.erase(it);
+
+	verbosestream << "Server:stopSound: Stop sound "
+			<< handle << "." << std::endl;
 }
 
 void Server::fadeSound(s32 handle, float step, float gain)
@@ -2372,6 +2464,53 @@ void Server::fadeSound(s32 handle, float step, float gain)
 	// Remove sound reference
 	if (gain <= 0 || psound.clients.empty())
 		m_playing_sounds.erase(it);
+}
+
+void Server::stopAttachedSounds(session_t peer_id,
+	const std::vector<u16> &object_ids)
+{
+	assert(peer_id != PEER_ID_INEXISTENT);
+	assert(!object_ids.empty());
+
+	auto cb = [&] (const s32 id, ServerPlayingSound &sound) -> bool {
+		if (!CONTAINS(object_ids, sound.object))
+			return false;
+
+		auto clients_it = sound.clients.find(peer_id);
+		if (clients_it == sound.clients.end())
+			return false;
+
+		NetworkPacket pkt(TOCLIENT_STOP_SOUND, 4);
+		pkt << id;
+		Send(peer_id, &pkt);
+
+		sound.clients.erase(clients_it);
+		// delete if client list empty
+		return !sound.allow_resend && sound.clients.empty();
+	};
+
+	for (auto it = m_playing_sounds.begin(); it != m_playing_sounds.end(); ) {
+		if (cb(it->first, it->second)) {
+			// Remove sound reference
+			verbosestream << "Server:stopAttachedSounds: Stop sound "
+					<< it->first << "." << std::endl;
+			it = m_playing_sounds.erase(it);
+		}
+		else
+			++it;
+	}
+}
+
+void Server::createSoundPacket(NetworkPacket &pkt, s32 sound_id,
+		const ServerPlayingSound &params, const v3f &pos, bool ephemeral)
+{
+	float gain = params.gain * params.spec.gain;
+	float start_time = params.spec.start_time +
+	                   m_playing_sounds_time - params.start_time;
+	pkt << sound_id << params.spec.name << gain
+			<< (u8) params.type << pos << params.object
+			<< params.spec.loop << params.spec.fade << params.spec.pitch
+			<< ephemeral << start_time;
 }
 
 void Server::sendRemoveNode(v3s16 p, std::unordered_set<u16> *far_players,
