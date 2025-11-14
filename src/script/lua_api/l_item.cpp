@@ -616,7 +616,7 @@ int ModApiItem::l_register_item_raw(lua_State *L)
 	// Read the node definition (content features) and register it
 	if (def.type == ITEM_NODE) {
 		ContentFeatures f;
-		read_content_features(L, f, table);
+		read_content_features(L, f, table, ndef);
 		// when a mod reregisters ignore, only texture changes and such should
 		// be done
 		if (f.name == "ignore")

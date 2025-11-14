@@ -63,7 +63,8 @@ extern struct EnumString es_TouchInteractionMode[];
 
 extern const std::array<const char *, 35> object_property_keys;
 
-void read_content_features(lua_State *L, ContentFeatures &f, int index);
+void read_content_features(lua_State *L, ContentFeatures &f, int index,
+		NodeDefManager *ndef);
 void push_content_features(lua_State *L, const ContentFeatures &c);
 
 void push_nodebox(lua_State *L, const NodeBox &box);

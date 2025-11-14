@@ -14,6 +14,7 @@
 #include "log.h"
 #include "servermap.h"
 #include "mapsector.h"
+#include "client/clientmap.h"
 #include "client/minimap.h"
 #include "itemdef.h"
 #include "modchannels.h"
@@ -269,10 +270,19 @@ void Client::handleCommand_NodemetaChanged(NetworkPacket *pkt)
 	NodeMetadataList meta_updates_list(false);
 	meta_updates_list.deSerialize(sstr, m_itemdef, true);
 
+	std::vector<v3s16> changed_blocks;
+	v3s16 blockpos_old(-32768, -32767, -32768);
+
 	Map &map = m_env.getMap();
 	for (auto i = meta_updates_list.begin();
 			i != meta_updates_list.end(); ++i) {
 		v3s16 pos = i->first;
+
+		v3s16 blockpos = getNodeBlockPos(pos);
+		if (blockpos != blockpos_old) {
+			blockpos_old = blockpos;
+			changed_blocks.push_back(blockpos);
+		}
 
 		if (map.isValidPosition(pos) &&
 				map.setNodeMetadata(pos, i->second))
@@ -281,6 +291,12 @@ void Client::handleCommand_NodemetaChanged(NetworkPacket *pkt)
 		// Meta couldn't be set, unused metadata
 		delete i->second;
 	}
+	/*
+		Add changed blocks to update queue.
+	*/
+	auto end = std::unique(changed_blocks.begin(), changed_blocks.end());
+	for (auto it = changed_blocks.begin(); it != end; it++)
+		addUpdateMeshTaskWithEdge(*it, true);
 }
 
 void Client::handleCommand_BlockData(NetworkPacket* pkt)
@@ -319,6 +335,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 		block->deSerialize(istr, m_server_ser_ver, false);
 		block->deSerializeNetworkSpecific(istr);
 	}
+	block->buildRenderCache(getNodeDefManager());
 
 	if (m_localdb) {
 		ServerMap::saveBlock(block, m_localdb.get());

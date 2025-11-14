@@ -222,6 +222,10 @@ enum NodeDrawType : u8
 	NDT_MESH,
 	// Combined plantlike-on-solid
 	NDT_PLANTLIKE_ROOTED,
+	// sunken node
+	NDT_SUNKEN,
+	// covered node
+	NDT_COVERED,
 
 	// Dummy for validity check
 	NodeDrawType_END
@@ -464,7 +468,7 @@ struct ContentFeatures
 	}
 
 	bool isLiquidRender() const {
-		return (drawtype == NDT_LIQUID || drawtype == NDT_FLOWINGLIQUID);
+		return (drawtype == NDT_LIQUID || drawtype == NDT_FLOWINGLIQUID || drawtype == NDT_SUNKEN);
 	}
 
 	bool sameLiquidRender(const ContentFeatures &f) const {

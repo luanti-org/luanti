@@ -217,7 +217,7 @@ public:
 	 * @param meta pointer to @c NodeMetadata object
 	 * @return @c true on success, false on failure
 	 */
-	bool setNodeMetadata(v3s16 p, NodeMetadata *meta);
+	virtual bool setNodeMetadata(v3s16 p, NodeMetadata *meta);
 	void removeNodeMetadata(v3s16 p);
 
 	/*

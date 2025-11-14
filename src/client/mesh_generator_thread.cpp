@@ -216,8 +216,10 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	data->fillBlockDataBegin(q->p);
 
 	for (auto *block : q->map_blocks) {
-		if (block)
+		if (block) {
 			block->copyTo(data->m_vmanip);
+			data->m_render_cache[block->getPos()] = std::move(block->m_node_metadata.getRenderCache());
+		}
 	}
 
 	data->setCrack(q->crack_level, q->crack_pos);

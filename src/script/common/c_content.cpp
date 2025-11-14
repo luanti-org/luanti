@@ -646,6 +646,7 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 			[[fallthrough]];
 		case NDT_MESH:
 		case NDT_LIQUID:
+		case NDT_SUNKEN:
 			default_culling = false;
 			break;
 		case NDT_PLANTLIKE_ROOTED:
@@ -706,7 +707,7 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 }
 
 /******************************************************************************/
-void read_content_features(lua_State *L, ContentFeatures &f, int index)
+void read_content_features(lua_State *L, ContentFeatures &f, int index, NodeDefManager *ndef)
 {
 	if(index < 0)
 		index = lua_gettop(L) + 1 + index;

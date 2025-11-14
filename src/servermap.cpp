@@ -1099,7 +1099,7 @@ void ServerMap::transformLiquids(std::map<v3s16, MapBlock*> &modified_blocks,
 			// liquid_kind will be set to either the flowing alternative of the node (if it's a liquid)
 			// or the flowing alternative of the first of the surrounding sources (if it's air), so
 			// it's perfectly safe to use liquid_kind here to determine the new node content.
-			new_node_content = m_nodedef->get(liquid_kind).liquid_alternative_source_id;
+			new_node_content = (liquid_type != LIQUID_SOURCE) ? (m_nodedef->get(liquid_kind).liquid_alternative_source_id) : (n0.getContent());
 		} else if (num_sources >= 1 && sources[0].t != NEIGHBOR_LOWER) {
 			// liquid_kind is set properly, see above
 			max_node_level = new_node_level = LIQUID_LEVEL_MAX;

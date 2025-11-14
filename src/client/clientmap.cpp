@@ -1593,6 +1593,32 @@ void ClientMap::updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir,
 	g_profiler->avg("SHADOW MapBlocks loaded [#]", blocks_loaded);
 }
 
+bool ClientMap::setNodeMetadata(v3s16 p, NodeMetadata *meta)
+{
+
+	v3s16 blockpos = getNodeBlockPos(p);
+	v3s16 p_rel = p - blockpos*MAP_BLOCKSIZE;
+
+	MapBlock *block = getBlockNoCreateNoEx(blockpos);
+	if(!block){
+		infostream<<"Map::setNodeMetadata(): Need to emerge "
+				<<blockpos<<std::endl;
+		block = emergeBlock(blockpos, false);
+	}
+	if(!block){
+		warningstream<<"Map::setNodeMetadata(): Block not found"
+				<<std::endl;
+		return false;
+	}
+
+	const NodeDefManager *ndef = m_client->getNodeDefManager();
+	const MapNode node = block->getNodeNoCheck(p_rel);
+	const ContentFeatures &f = ndef->get(node.param0);
+
+	block->m_node_metadata.set(p_rel, meta, &f, ndef);
+	return true;
+}
+
 void ClientMap::reportMetrics(u64 save_time_us, u32 saved_blocks, u32 all_blocks)
 {
 	g_profiler->avg("CM::reportMetrics loaded blocks [#]", all_blocks);

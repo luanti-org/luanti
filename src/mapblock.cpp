@@ -404,6 +404,22 @@ void MapBlock::correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 	}
 }
 
+#ifndef SERVER
+void MapBlock::buildRenderCache(const NodeDefManager *ndef)
+{
+	v3s16 pos;
+
+	m_node_metadata.clearRenderCache();
+
+	for (pos.Z = 0; pos.Z < MAP_BLOCKSIZE; pos.Z++)
+	for (pos.Y = 0; pos.Y < MAP_BLOCKSIZE; pos.Y++)
+	for (pos.X = 0; pos.X < MAP_BLOCKSIZE; pos.X++) {
+		const ContentFeatures &f = ndef->get(getNodeNoEx(pos).param0);
+		m_node_metadata.setRenderCache(pos, &f, ndef);
+	}
+}
+#endif
+
 void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int compression_level)
 {
 	if (!ser_ver_supported_write(version))

@@ -391,6 +391,15 @@ void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Cl
 	case NDT_PLANTLIKE_ROOTED:
 		solidness = 2;
 		break;
+	case NDT_SUNKEN:
+		if (tsettings.translucent_liquids)
+			alpha = ALPHAMODE_OPAQUE;
+		solidness = 1;
+		is_liquid = true;
+		break;
+	case NDT_COVERED:
+		solidness = 0;
+		break;
 	}
 
 	if (is_liquid) {
