@@ -18,7 +18,8 @@ varying vec4 vVertexColor;
 
 void main()
 {
-	gl_Position = uProjection * inVertexPosition;
+	// Subpixel offset to fix 2D image distortion
+	gl_Position = uProjection * (inVertexPosition + vec4(0.375, 0.375, 0.0, 0.0));
 	gl_PointSize = uThickness;
 	vTextureCoord = inTexCoord0;
 	vVertexColor = inVertexColor.bgra;
