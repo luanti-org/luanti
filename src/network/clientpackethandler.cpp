@@ -97,8 +97,7 @@ void Client::handleCommand_Hello(NetworkPacket* pkt)
 			<< "(chosen_mech=" << m_chosen_auth_mech << ")." << std::endl;
 		if (m_chosen_auth_mech == AUTH_MECHANISM_SRP ||
 				m_chosen_auth_mech == AUTH_MECHANISM_LEGACY_PASSWORD) {
-			srp_user_delete((SRPUser *) m_auth_data);
-			m_auth_data = 0;
+			m_auth->clear();
 		}
 	}
 
@@ -167,9 +166,7 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 
 void Client::handleCommand_AcceptSudoMode(NetworkPacket* pkt)
 {
-	deleteAuthData();
-
-	m_password = m_new_password;
+	*m_auth = std::move(m_new_auth);
 
 	verbosestream << "Client: Received TOCLIENT_ACCEPT_SUDO_MODE." << std::endl;
 
@@ -195,6 +192,8 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 	// to be processed even if the serialization format has
 	// not been agreed yet, the same as TOCLIENT_AUTH_ACCEPT.
 	m_access_denied = true;
+
+	deleteAuthData();
 
 	if (pkt->getCommand() != TOCLIENT_ACCESS_DENIED) {
 		// Servers older than 5.6 still send TOCLIENT_ACCESS_DENIED_LEGACY sometimes.
@@ -1583,16 +1582,23 @@ void Client::handleCommand_SrpBytesSandB(NetworkPacket* pkt)
 
 	char *bytes_M = 0;
 	size_t len_M = 0;
-	SRPUser *usr = (SRPUser *) m_auth_data;
+	SRPUser *usr = nullptr;
+	try
+	{
+		usr = m_auth->getAuthData(m_chosen_auth_mech);
+	} catch (AuthError &e) {
+		errorstream << "Client: Bad SRP data: " << e.what() << std::endl;
+		return;
+	}
 	std::string s;
 	std::string B;
 	*pkt >> s >> B;
 
 	infostream << "Client: Received TOCLIENT_SRP_BYTES_S_B." << std::endl;
 
-	srp_user_process_challenge(usr, (const unsigned char *) s.c_str(), s.size(),
-		(const unsigned char *) B.c_str(), B.size(),
-		(unsigned char **) &bytes_M, &len_M);
+	srp_user_process_challenge(usr, reinterpret_cast<const unsigned char *>(s.c_str()), s.size(),
+		reinterpret_cast<const unsigned char *>(B.c_str()), B.size(),
+		reinterpret_cast<unsigned char **>(&bytes_M), &len_M);
 
 	if ( !bytes_M ) {
 		errorstream << "Client: SRP-6a S_B safety check violation!" << std::endl;
