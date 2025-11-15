@@ -612,7 +612,7 @@ bool CIrrDeviceSDL::createWindowWithContextSDL()
 	SDL_Flags |= SDL_WINDOW_OPENGL;
 
 	SDL_GL_ResetAttributes();
-	
+
 	switch (CreationParams.DriverType) {
 	case video::EDT_OPENGL:
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -690,7 +690,7 @@ bool CIrrDeviceSDL::createWindowWithContextAppleANGLE()
 {
 	u32 SDL_Flags = 0;
 	SDL_Flags |= SDL_WINDOW_ALLOW_HIGHDPI;
-	
+
 #if not TARGET_OS_IPHONE
 	SDL_Flags |= getFullscreenFlag(CreationParams.Fullscreen);
 	if (Resizable)
