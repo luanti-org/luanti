@@ -733,10 +733,16 @@ Nametag *Camera::addNametag(const Nametag &params)
 
 void Camera::removeNametag(Nametag *nametag)
 {
-	auto it = std::find(m_nametags.begin(), m_nametags.end(), nametag);
-	assert(it != m_nametags.end());
-	m_nametags.erase(it);
-	delete nametag;
+	for (auto it = m_nametags.begin(); it != m_nametags.end(); ++it) {
+		if (*it == nametag) {
+			// Swap with last and then remove
+			*it = m_nametags.back();
+			m_nametags.pop_back();
+			delete nametag;
+			return;
+		}
+	}
+	assert(false);
 }
 
 std::array<core::plane3d<f32>, 4> Camera::getFrustumCullPlanes() const

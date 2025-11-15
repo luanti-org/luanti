@@ -172,6 +172,6 @@ private:
 	u16 m_surface_mode_scan_height;
 	f32 m_angle;
 	std::mutex m_mutex;
-	std::list<std::unique_ptr<MinimapMarker>> m_markers;
-	std::list<v2f> m_active_markers;
+	std::vector<std::unique_ptr<MinimapMarker>> m_markers;
+	std::vector<v2f> m_active_markers;
 };

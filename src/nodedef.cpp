@@ -1037,6 +1037,9 @@ void NodeDefManager::updateAliases(IItemDefManager *idef)
 
 void NodeDefManager::applyTextureOverrides(const std::vector<TextureOverride> &overrides)
 {
+	if (overrides.empty())
+		return;
+
 	infostream << "NodeDefManager::applyTextureOverrides(): Applying "
 		"overrides to textures" << std::endl;
 

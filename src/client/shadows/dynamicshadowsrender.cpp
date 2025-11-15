@@ -21,8 +21,8 @@ ShadowRenderer::ShadowRenderer(IrrlichtDevice *device, Client *client) :
 		m_time_day(0.0f), m_force_update_shadow_map(false), m_current_frame(0),
 		m_perspective_bias_xy(0.8f), m_perspective_bias_z(0.5f)
 {
-	m_shadows_supported = true; // assume shadows supported. We will check actual support in initialize
-	m_shadows_enabled = true;
+	m_shadows_supported = true; // we will check actual support in initialize()
+	m_shadows_enabled = false;
 
 	m_shadow_strength_gamma = g_settings->getFloat("shadow_strength_gamma");
 	if (std::isnan(m_shadow_strength_gamma))
@@ -113,20 +113,38 @@ void ShadowRenderer::preInit(IWritableShaderSource *shsrc)
 	}
 }
 
-void ShadowRenderer::initialize()
+bool ShadowRenderer::initialize()
 {
+	const auto dtype = m_driver->getDriverType();
+	if (dtype != video::EDT_OPENGL && dtype != video::EDT_OPENGL3)
+		m_shadows_supported = false;
+	if (!m_shadows_supported)
+		return false;
+
+	/* Set up texture formats */
+	auto &fmt1 = m_texture_format;
+	auto &fmt2 = m_texture_format_color;
+
+	if (m_shadow_map_texture_32bit && m_driver->queryTextureFormat(video::ECF_R32F))
+		fmt1 = video::ECF_R32F;
+	else if (m_driver->queryTextureFormat(video::ECF_R16F))
+		fmt1 = video::ECF_R16F;
+
+	if (m_shadow_map_texture_32bit && m_driver->queryTextureFormat(video::ECF_G32R32F))
+		fmt2 = video::ECF_G32R32F;
+	else if (m_driver->queryTextureFormat(video::ECF_G16R16F))
+		fmt2 = video::ECF_G16R16F;
+
+	infostream << "ShadowRenderer: color format = " << video::ColorFormatName(fmt1)
+		<< " or " << video::ColorFormatName(fmt2) << std::endl;
+
+	if (fmt1 == video::ECF_UNKNOWN || fmt2 == video::ECF_UNKNOWN)
+		m_shadows_supported = false;
+	if (!m_shadows_supported)
+		return false;
+
 	createShaders();
-
-
-	m_texture_format = m_shadow_map_texture_32bit
-					   ? video::ECOLOR_FORMAT::ECF_R32F
-					   : video::ECOLOR_FORMAT::ECF_R16F;
-
-	m_texture_format_color = m_shadow_map_texture_32bit
-						 ? video::ECOLOR_FORMAT::ECF_G32R32F
-						 : video::ECOLOR_FORMAT::ECF_G16R16F;
-
-	m_shadows_enabled &= m_shadows_supported;
+	return true;
 }
 
 
@@ -229,7 +247,7 @@ void ShadowRenderer::updateSMTextures()
 		assert(shadowMapTextureColors != nullptr);
 	}
 
-	// The merge all shadowmaps texture
+	// Then merge all shadowmap textures
 	if (!shadowMapTextureFinal) {
 		video::ECOLOR_FORMAT frt;
 		if (m_shadow_map_texture_32bit) {
@@ -585,16 +603,10 @@ std::unique_ptr<ShadowRenderer> createShadowRenderer(IrrlichtDevice *device, Cli
 	if (!g_settings->getBool("enable_dynamic_shadows"))
 		return nullptr;
 
-	// disable if unsupported
-	// See also checks in builtin/mainmenu/settings/dlg_settings.lua
-	const video::E_DRIVER_TYPE type = device->getVideoDriver()->getDriverType();
-	if (type != video::EDT_OPENGL && type != video::EDT_OPENGL3) {
-		warningstream << "Shadows: disabled dynamic shadows due to being unsupported" << std::endl;
-		g_settings->setBool("enable_dynamic_shadows", false);
-		return nullptr;
+	auto renderer = std::make_unique<ShadowRenderer>(device, client);
+	if (!renderer->initialize()) {
+		warningstream << "Disabling dynamic shadows due to being unsupported." << std::endl;
+		renderer.reset();
 	}
-
-	auto shadow_renderer = std::make_unique<ShadowRenderer>(device, client);
-	shadow_renderer->initialize();
-	return shadow_renderer;
+	return renderer;
 }

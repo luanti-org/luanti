@@ -51,7 +51,8 @@ public:
 	// the shaders are dealt with.
 	static void preInit(IWritableShaderSource *shsrc);
 
-	void initialize();
+	/// @return shadows supported?
+	bool initialize();
 
 	/// Adds a directional light shadow map (Usually just one (the sun) except in
 	/// Tattoine ).
