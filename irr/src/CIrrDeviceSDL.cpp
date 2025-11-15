@@ -820,7 +820,6 @@ bool CIrrDeviceSDL::run()
 	SDL_Event SDL_event;
 
 	auto get_touch_id_x_y = [this, &irrevent, SDL_event]() {
-		irrevent.TouchInput.Event = ETIE_PRESSED_DOWN;
 		irrevent.TouchInput.ID = SDL_FINGER_ID(SDL_event);
 		irrevent.TouchInput.X = static_cast<s32>(SDL_event.tfinger.x * Width);
 		irrevent.TouchInput.Y = static_cast<s32>(SDL_event.tfinger.y * Height);
@@ -1105,6 +1104,7 @@ bool CIrrDeviceSDL::run()
 
 		case SDL_EVENT_FINGER_DOWN:
 			irrevent.EventType = EET_TOUCH_INPUT_EVENT;
+			irrevent.TouchInput.Event = ETIE_PRESSED_DOWN;
 			get_touch_id_x_y();
 			CurrentTouchCount++;
 			irrevent.TouchInput.touchedCount = CurrentTouchCount;
