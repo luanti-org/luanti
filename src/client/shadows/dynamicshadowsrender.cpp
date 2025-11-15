@@ -524,10 +524,6 @@ void ShadowRenderer::renderShadowObjects(
 	} // end for caster shadow nodes
 }
 
-void ShadowRenderer::mixShadowsQuad()
-{
-}
-
 void ShadowRenderer::createShaders()
 {
 	auto *shdsrc = m_client->getShaderSource();

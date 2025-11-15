@@ -103,7 +103,6 @@ private:
 			scene::E_SCENE_NODE_RENDER_PASS pass =
 					scene::ESNRP_SOLID);
 	void renderShadowObjects(video::ITexture *target, DirectionalLight &light);
-	void mixShadowsQuad();
 	void updateSMTextures();
 
 	void disable();
