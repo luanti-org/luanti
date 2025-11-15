@@ -598,12 +598,12 @@ bool ShadowRenderer::isSupported(IrrlichtDevice *device)
 	const video::E_DRIVER_TYPE type = driver->getDriverType();
 	v2s32 glver = driver->getLimits().GLVersion;
 
-	if (type == video::EDT_OPENGL || type == video::EDT_OPENGL3)
-		return true;
+	if (type != video::EDT_OPENGL && type != video::EDT_OPENGL3 &&
+			!(type == video::EDT_OGLES2 && glver.X >= 3))
+		return false;
 
-	if (type == video::EDT_OGLES2 && glver.X >= 3 &&
-			driver->queryFeature(video::EVDF_RENDER_TO_FLOAT_TEXTURE))
-		return true;
+	if (!driver->queryFeature(video::EVDF_RENDER_TO_FLOAT_TEXTURE))
+		return false;
 
-	return false;
+	return true;
 }
