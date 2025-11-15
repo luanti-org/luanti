@@ -183,6 +183,10 @@ if(USE_SDL3)
 		set(SDL3_SUFFIX "shared")
 	endif()
 	find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-${SDL3_SUFFIX})
+	message(STATUS "Found SDL3: ${SDL3_VERSION} (${SDL3_SUFFIX} library)")
+
+	# https://github.com/libsdl-org/SDL/blob/release-3.2.x/include/SDL3/SDL_opengl_glext.h#L2859
+	set(USE_SDL_OPENGL_4_5_HEADER TRUE)
 else()
 	# Fall back to SDL2
 
@@ -218,20 +222,21 @@ endif()
 
 # More special config
 
-if(ENABLE_OPENGL)
-	# The legacy GL driver requires some symbols from GL 4.5 to compile,
-	# which SDL only provides since 2.26.0 (Nov 2022).
-	# We have a fallback in case this isn't satisfied so test for it.
+if(USE_SDL2 AND ENABLE_OPENGL)
 	set(CMAKE_REQUIRED_INCLUDES ${SDL2_INCLUDE_DIRS})
-	unset(CHECK_GL_VERSION_4_5 CACHE)
 	check_cxx_source_compiles("#include <SDL_opengl.h>\n\
 #ifndef GL_VERSION_4_5\n\
 #error\n\
 #endif\n\
-int main() {}" CHECK_GL_VERSION_4_5)
-	if(CHECK_GL_VERSION_4_5)
-		add_compile_definitions(IRR_PREFER_SDL_GL_HEADER)
-	endif()
+int main() {}" USE_SDL_OPENGL_4_5_HEADER)
+endif()
+
+if(USE_SDL_OPENGL_4_5_HEADER)
+	# The legacy GL driver requires some symbols from GL 4.5 to compile,
+	# which SDL only provides since 2.26.0 (Nov 2022).
+	# We have a fallback in case this isn't satisfied so test for it.
+	add_compile_definitions(IRR_PREFER_SDL_GL_HEADER)
+	message(STATUS "Using SDL OpenGL header")
 endif()
 
 # Platform-specific libs
