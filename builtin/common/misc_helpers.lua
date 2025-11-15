@@ -582,6 +582,15 @@ function table.insert_all(t, other)
 end
 
 
+function table.merge(...)
+	local new = {}
+	for _, t in ipairs{...} do
+		table.insert_all(new, t)
+	end
+	return new
+end
+
+
 function table.key_value_swap(t)
 	local ti = {}
 	for k,v in pairs(t) do
@@ -877,3 +886,46 @@ function core.parse_coordinates(x, y, z, relative_to)
 	return rx and ry and rz and vector.new(rx, ry, rz)
 end
 
+local function class_try_return(obj, ...)
+	if select("#", ...) ~= 0 then
+		return ...
+	end
+	return obj
+end
+
+local function class_call(class, ...)
+	local obj = setmetatable({}, class)
+
+	if obj.new then
+		return class_try_return(obj, obj:new(...))
+	end
+
+	return obj
+end
+
+function core.class(super)
+	local class = setmetatable({}, {__call = class_call, __index = super})
+	class.__index = class
+
+	return class
+end
+
+function core.super(class)
+	local meta = getmetatable(class)
+	return meta and meta.__index
+end
+
+function core.is_subclass(class, super)
+	while class ~= nil do
+		if class == super then
+			return true
+		end
+		class = core.super(class)
+	end
+
+	return false
+end
+
+function core.is_instance(obj, class)
+	return type(obj) == "table" and core.is_subclass(getmetatable(obj), class)
+end

@@ -1293,6 +1293,14 @@ void Client::sendInventoryFields(const std::string &formname,
 	Send(&pkt);
 }
 
+void Client::sendUiMessage(const char *data, size_t len)
+{
+	NetworkPacket pkt(TOSERVER_UI_MESSAGE, 0);
+	pkt.putRawString(data, len);
+
+	Send(&pkt);
+}
+
 void Client::sendInventoryAction(InventoryAction *a)
 {
 	std::ostringstream os(std::ios_base::binary);

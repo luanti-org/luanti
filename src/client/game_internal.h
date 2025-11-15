@@ -35,6 +35,11 @@ class EventManager;
 class GUIChatConsole;
 class QuicktuneShortcutter;
 
+namespace ui
+{
+	class GUIManagerElem;
+}
+
 const static float object_hit_delay = 0.2;
 
 const static u16 bbox_debug_flag = scene::EDS_BBOX_ALL;
@@ -264,6 +269,7 @@ private:
 	void handleClientEvent_ShowFormSpec(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_ShowCSMFormSpec(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_ShowPauseMenuFormSpec(ClientEvent *event, CameraOrientation *cam);
+	void handleClientEvent_UiMessage(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_HandleParticleEvent(ClientEvent *event,
 		CameraOrientation *cam);
 	void handleClientEvent_HudAdd(ClientEvent *event, CameraOrientation *cam);
@@ -314,6 +320,9 @@ private:
 
 	std::unique_ptr<GameUI> m_game_ui;
 	irr_ptr<GUIChatConsole> gui_chat_console;
+#if BUILD_UI
+	irr_ptr<ui::GUIManagerElem> gui_manager_elem;
+#endif
 	MapDrawControl *draw_control = nullptr;
 	Camera *camera = nullptr;
 	irr_ptr<Clouds> clouds;

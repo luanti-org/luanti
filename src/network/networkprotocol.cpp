@@ -73,6 +73,7 @@
 		[scheduled bump for 5.14.0]
 	PROTOCOL VERSION 51
 		Only send first frame of animated item/wield images to older client
+		Add TOCLIENT_UI_MESSAGE and TOSERVER_UI_MESSAGE
 		[scheduled bump for 5.15.0]
 */
 
