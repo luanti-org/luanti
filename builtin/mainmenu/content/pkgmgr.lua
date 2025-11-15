@@ -102,7 +102,8 @@ function pkgmgr.get_mods(path, virtual_path, listing)
 
 		if toadd.is_modpack then
 			parent[toadd.modpack_depth + 1] = toadd
-		elseif parent[toadd.modpack_depth] then
+		end
+		if parent[toadd.modpack_depth] then
 			toadd.modpack = parent[toadd.modpack_depth].name
 		end
 
@@ -220,6 +221,29 @@ function pkgmgr.is_valid_modname(modpath)
 	return modpath:match("[^a-z0-9_]") == nil
 end
 
+
+-- expensive: recursively check all contained mods and return whether at least
+-- one of the contained mods is enabled resp. disabled
+local function check_modpack_status(rawlist, modpack)
+	local enabled_found, disabled_found
+	for j = 1, #rawlist do
+		if rawlist[j].modpack == modpack.name and rawlist[j].parent_dir == modpack.path then
+			if rawlist[j].is_modpack then
+				enabled_found, disabled_found = check_modpack_status(rawlist, rawlist[j])
+			elseif rawlist[j].enabled then
+				enabled_found = true
+			else
+				disabled_found = true
+			end
+
+			if enabled_found and disabled_found then
+				return true, true
+			end
+		end
+	end
+	return enabled_found, disabled_found
+end
+
 --------------------------------------------------------------------------------
 --- @param render_list filterlist
 --- @param use_technical_names boolean to show technical names instead of human-readable titles
@@ -249,12 +273,20 @@ function pkgmgr.render_packagelist(render_list, use_technical_names, with_icon)
 			color = mt_color_dark_green
 
 			for j = 1, #rawlist do
-				if rawlist[j].modpack == list[i].name then
+				if rawlist[j].modpack == list[i].name and rawlist[j].parent_dir == list[i].path then
 					if with_icon then
 						update_icon_info(with_icon[rawlist[j].virtual_path or rawlist[j].path])
 					end
 
-					if rawlist[j].enabled then
+					if rawlist[j].is_modpack then
+						local enabled_found, disabled_found = check_modpack_status(rawlist, rawlist[j])
+						if enabled_found then
+							icon = 1
+						end
+						if disabled_found or not enabled_found then
+							color = mt_color_grey
+						end
+					elseif rawlist[j].enabled then
 						icon = 1
 					else
 						-- Modpack not entirely enabled so showing as grey
@@ -322,19 +354,14 @@ function pkgmgr.get_dependencies(path)
 end
 
 ----------- tests whether all of the mods in the modpack are enabled -----------
-function pkgmgr.is_modpack_entirely_enabled(data, name)
-	local rawlist = data.list:get_raw_list()
-	for j = 1, #rawlist do
-		if rawlist[j].modpack == name and not rawlist[j].enabled then
-			return false
-		end
-	end
-	return true
+function pkgmgr.is_modpack_entirely_enabled(rawlist, modpack)
+	local _, disabled_found = check_modpack_status(rawlist, modpack)
+	return not disabled_found
 end
 
 local function disable_all_by_name(list, name, except)
 	for i=1, #list do
-		if list[i].name == name and list[i] ~= except then
+		if not list[i].is_modpack and list[i].name == name and list[i] ~= except then
 			list[i].enabled = false
 		end
 	end
@@ -362,7 +389,7 @@ local function toggle_mod_or_modpack(list, toggled_mods, enabled_mods, toset, mo
 		-- Toggle or en/disable every mod in the modpack,
 		-- interleaved unsupported
 		for i = 1, #list do
-			if list[i].modpack == mod.name then
+			if list[i].modpack == mod.name and list[i].parent_dir == mod.path then
 				toggle_mod_or_modpack(list, toggled_mods, enabled_mods, toset, list[i])
 			end
 		end
