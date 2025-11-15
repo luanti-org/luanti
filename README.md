@@ -12,17 +12,17 @@ Luanti is a free open-source voxel game engine with easy modding and game creati
 Copyright (C) 2010-2025 Perttu Ahola <celeron55@gmail.com>
 and contributors (see source file comments and the version control log)
 
-Table of Contents
+Table of Contents <!-- omit in toc -->
 ------------------
 
-1. [Further Documentation](#further-documentation)
-2. [Default Controls](#default-controls)
-3. [Paths](#paths)
-4. [Configuration File](#configuration-file)
-5. [Command-line Options](#command-line-options)
-6. [Compiling](#compiling)
-7. [Docker](#docker)
-8. [Version Scheme](#version-scheme)
+- [Further documentation](#further-documentation)
+- [Default controls](#default-controls)
+- [Paths](#paths)
+- [Configuration file](#configuration-file)
+- [Command-line options](#command-line-options)
+- [Compiling](#compiling)
+- [Docker](#docker)
+- [Version scheme](#version-scheme)
 
 
 Further documentation
@@ -122,10 +122,8 @@ Command-line options
 Compiling
 ---------
 
-- [Compiling - common information](doc/compiling/README.md)
-- [Compiling on GNU/Linux](doc/compiling/linux.md)
-- [Compiling on Windows](doc/compiling/windows.md)
-- [Compiling on MacOS](doc/compiling/macos.md)
+- [Compiling - common information](doc/compiling.md)
+- [Compiling Luanti](https://docs.luanti.org/for-engine-devs/compiling/)
 
 Docker
 ------
