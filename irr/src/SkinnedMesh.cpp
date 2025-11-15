@@ -367,7 +367,7 @@ void SkinnedMeshBuilder::topoSortJoints()
 	}
 	AllJoints = std::move(joints);
 
-	for (auto &weight : Weights) {
+	for (auto &weight : weights) {
 		weight.joint_id = old_to_new_id[weight.joint_id];
 	}
 
@@ -409,7 +409,7 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 		}
 	}
 
-	for (const auto &weight : Weights) {
+	for (const auto &weight : weights) {
 		auto *buf = LocalBuffers.at(weight.buffer_id);
 		if (!buf->Weights)
 			buf->Weights = WeightBuffer(buf->getVertexCount());
@@ -419,7 +419,7 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 		buf->Weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);
 	}
 	// We don't want the SkinnedMesh to unnecessarily carry this around
-	Weights = {};
+	weights = {};
 
 	for (auto *buffer : LocalBuffers) {
 		if (buffer->Weights)
@@ -481,7 +481,7 @@ void SkinnedMeshBuilder::addWeight(SJoint *joint, u16 buf_id, u32 vert_id, f32 s
 	assert(joint);
 	if (strength <= 0.0f)
 		return;
-	Weights.emplace_back(Weight{joint->JointID, buf_id, vert_id, strength});
+	weights.emplace_back(Weight{joint->JointID, buf_id, vert_id, strength});
 }
 
 void SkinnedMesh::convertMeshToTangents()

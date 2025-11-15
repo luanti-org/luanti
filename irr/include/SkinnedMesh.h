@@ -415,7 +415,8 @@ private:
 		f32 strength;
 	};
 
-	std::vector<Weight> Weights;
+	/// Weights to be added once all mesh buffers have been loaded
+	std::vector<Weight> weights;
 
 };
 
