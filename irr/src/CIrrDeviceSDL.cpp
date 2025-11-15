@@ -819,7 +819,7 @@ bool CIrrDeviceSDL::run()
 	SEvent irrevent;
 	SDL_Event SDL_event;
 
-	auto get_touch_id_x_y = [this, &irrevent, SDL_event]() {
+	auto get_touch_id_x_y = [this, &irrevent, &SDL_event]() {
 		irrevent.TouchInput.ID = SDL_FINGER_ID(SDL_event);
 		irrevent.TouchInput.X = static_cast<s32>(SDL_event.tfinger.x * Width);
 		irrevent.TouchInput.Y = static_cast<s32>(SDL_event.tfinger.y * Height);
