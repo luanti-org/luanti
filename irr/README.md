@@ -11,15 +11,16 @@ Build
 The build system is CMake.
 
 The following libraries are required to be installed:
-* zlib, libPNG, libJPEG
-* OpenGL
-  * or on mobile: OpenGL ES (can be optionally enabled on desktop too)
-* SDL2
+ * zlib, libPNG, libJPEG
+ * OpenGL
+   * or on mobile: OpenGL ES (can be optionally enabled on desktop too)
+ * SDL2 or SDL3 (see below)
 
 Aside from standard search options (`ZLIB_INCLUDE_DIR`, `ZLIB_LIBRARY`, ...) the following options are available:
-* `ENABLE_OPENGL` - Enable OpenGL driver
-* `ENABLE_OPENGL3` - Enable OpenGL 3+ driver
-* `ENABLE_GLES2` - Enable OpenGL ES 2+ driver
+ * `ENABLE_OPENGL` - Enable OpenGL driver
+ * `ENABLE_OPENGL3` - Enable OpenGL 3+ driver
+ * `ENABLE_GLES2` - Enable OpenGL ES 2+ driver
+ * `USE_SDL3` (default: `OFF`) - Use the SDL3 device instead of SDL2 (**experimental**)
 
 **However, IrrlichtMt cannot be built or installed separately.**
 
@@ -33,6 +34,25 @@ We aim to support these platforms:
 * Android
 
 This doesn't mean other platforms don't work or won't be supported, if you find something that doesn't work contributions are welcome.
+
+Compatibility matrix
+--------------------
+
+Driver (rows) vs Device (columns)
+
+|                           | SDL2 [1] | SDL3 [2] |
+|---------------------------|----------|----------|
+| OpenGL 1.2 (to 2.1)       | Works    | Testing  |
+| OpenGL 3.2+               | Works    | Works    |
+| OpenGL ES 2.x             | Works    | Testing  |
+| WebGL 1                   | ?        | ?        |
+| Null (no graphics output) | Works    | Works    |
+
+Notes:
+
+ * [1] `CIrrDeviceSDL` with `USE_SDL3=0`: supports [many platforms](https://wiki.libsdl.org/SDL3/README-platforms)
+ * [2] `CIrrDeviceSDL` with `USE_SDL3=1`
+
 
 License
 -------

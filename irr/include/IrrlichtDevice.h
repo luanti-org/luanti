@@ -361,6 +361,7 @@ public:
 	\return The corresponding keycode.
 	*/
 	virtual Keycode getKeyFromScancode(const u32 scancode) const {
-		return Keycode(KEY_UNKNOWN, (wchar_t)scancode);
+		(void)scancode;
+		return Keycode(KEY_UNKNOWN, (wchar_t)0xFFFF);
 	}
 };
