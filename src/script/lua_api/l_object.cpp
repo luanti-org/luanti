@@ -1971,7 +1971,7 @@ int ObjectRef::l_hud_set_hotbar_itemcount(lua_State *L)
 
 	s32 hotbar_itemcount = luaL_checkint(L, 2);
 
-	if (!getServer(L)->hudSetHotbarItemcount(player, hotbar_itemcount))
+	if (!getServer(L)->hudSetHotbarItemcountLegacy(player, hotbar_itemcount))
 		return 0;
 
 	lua_pushboolean(L, true);
@@ -1987,7 +1987,71 @@ int ObjectRef::l_hud_get_hotbar_itemcount(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	lua_pushinteger(L, player->getMaxHotbarItemcount());
+	lua_pushinteger(L, player->hotbar_source.getMaxLength());
+	return 1;
+}
+
+// get_hotbar_source(self)
+int ObjectRef::l_get_hotbar_source(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	lua_newtable(L);
+
+	auto &sources = player->hotbar_source.getSources();
+	for (std::size_t i = 0; i < sources.size(); i++) {
+		auto &source = sources[i];
+		lua_newtable(L);
+
+		lua_pushstring(L, source.list.c_str());
+		lua_setfield(L, -2, "list");
+
+		lua_pushinteger(L, source.length);
+		lua_setfield(L, -2, "length");
+
+		lua_pushinteger(L, source.offset);
+		lua_setfield(L, -2, "offset");
+
+		lua_rawseti(L, -2, i+1);
+	}
+
+	return 1;
+}
+
+// set_hotbar_source(self, sources)
+int ObjectRef::l_set_hotbar_source(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	if (!lua_istable(L, 2))
+		return 0;
+
+	HotbarSource hotbar_source;
+
+	lua_pushnil(L);
+	while (lua_next(L, 2) != 0) {
+		std::string_view list;
+		if(lua_istable(L, -1) && getstringfield(L, -1, "list", list)) {
+			hotbar_source.addSource(list,
+					getintfield_default(L, -1, "length", 0),
+					getintfield_default(L, -1, "offset", 0));
+		}
+
+
+		lua_pop(L, 1);
+	}
+
+	if (!getServer(L)->hudSetHotbarSource(player, hotbar_source))
+		return 0;
+
 	return 1;
 }
 
@@ -2945,6 +3009,8 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod(ObjectRef, hud_get_flags),
 	luamethod(ObjectRef, hud_set_hotbar_itemcount),
 	luamethod(ObjectRef, hud_get_hotbar_itemcount),
+	luamethod(ObjectRef, get_hotbar_source),
+	luamethod(ObjectRef, set_hotbar_source),
 	luamethod(ObjectRef, hud_set_hotbar_image),
 	luamethod(ObjectRef, hud_get_hotbar_image),
 	luamethod(ObjectRef, hud_set_hotbar_selected_image),

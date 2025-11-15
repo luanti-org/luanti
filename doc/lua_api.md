@@ -8494,7 +8494,7 @@ child will follow movement and rotation of that bone.
 * `get_inventory()`: returns an `InvRef` for players, otherwise returns `nil`
 * `get_wield_list()`: returns the name of the inventory list the wielded item
    is in.
-* `get_wield_index()`: returns the wield list index of the wielded item (starting with 1)
+* `get_wield_index()`: returns the index of the wielded item in the wield list
 * `get_wielded_item()`: returns a copy of the wielded item as an `ItemStack`
 * `set_wielded_item(item)`: replaces the wielded item, returns `true` if
   successful.
@@ -8870,8 +8870,16 @@ child will follow movement and rotation of that bone.
 * `hud_set_hotbar_itemcount(count)`: sets number of items in builtin hotbar
     * `count`: number of items, must be between `1` and `32`
     * If `count` exceeds the `"main"` list size, the list size will be used instead.
-* `hud_get_hotbar_itemcount()`: returns number of visible items
-    * This value is also clamped by the `"main"` list size.
+    * equal `set_hotbar_source({{list = "main", length = count}})`
+* `hud_get_hotbar_itemcount()`: returns number of selectable items
+* `get_hotbar_source()` returns used `hotbar_source`
+* `set_hotbar_source({{list = "main", length = 6, offset = 24}, {list = "bag1", length = 4}, ...})`
+    * Sets inventory lists for the player to use in hotbar(s) and to select the wield item from.
+      `list` is a player inventory list
+      `length` is the amount of inventory slots
+      `offset` adjusts starting inventory position, 0 if not specified
+    * Note: Do not use this together with mods that rely on a fixed wield list and list size.
+      All mods should use `get_wield_list()` and `get_wield_index()` to get the wield position.
 * `hud_set_hotbar_image(texturename)`
     * sets background image for hotbar
 * `hud_get_hotbar_image()`: returns texturename
