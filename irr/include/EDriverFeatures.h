@@ -133,6 +133,11 @@ enum E_VIDEO_DRIVER_FEATURE
 	//! Support for 2D array textures.
 	EVDF_TEXTURE_2D_ARRAY,
 
+	//! Support for floating-point textures as framebuffer color attachments.
+	// Note that proper checks are only implemented for EDT_OGLES2, otherwise
+	// this always returns true.
+	EVDF_RENDER_TO_FLOAT_TEXTURE,
+
 	//! Only used for counting the elements of this enum
 	EVDF_COUNT
 };

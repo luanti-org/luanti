@@ -73,6 +73,7 @@ void COpenGL3Driver::initFeatures()
 	KHRDebugSupported = isVersionAtLeast(4, 6) || queryExtension("GL_KHR_debug");
 	if (KHRDebugSupported)
 		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
+	RenderToFloatTextureSupported = true; // no research done on this
 
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 16, "Only up to 16 textures are guaranteed");
