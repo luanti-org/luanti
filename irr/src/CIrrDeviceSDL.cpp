@@ -30,7 +30,7 @@
 
 #include "CSDLManager.h"
 
-#ifdef _IRR_COMPILE_WITH_ANGLE_
+#ifdef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES2/gl2.h>
@@ -417,7 +417,7 @@ CIrrDeviceSDL::~CIrrDeviceSDL()
 	for (u32 i = 0; i < numJoysticks; ++i)
 		SDL_JoystickClose(Joysticks[i]);
 #endif
-#ifndef _IRR_COMPILE_WITH_ANGLE_
+#ifndef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 	if (Window && Context) {
 		SDL_GL_MakeCurrent(Window, NULL);
 		SDL_GL_DeleteContext(Context);
@@ -439,10 +439,10 @@ CIrrDeviceSDL::~CIrrDeviceSDL()
 	if (View) {
 		SDL_Metal_DestroyView(View);
 	}
+#endif
 	if (Window) {
 		SDL_DestroyWindow(Window);
 	}
-#endif
 
 	if (--SDLDeviceInstances == 0) {
 		SDL_Quit();
@@ -598,9 +598,21 @@ bool CIrrDeviceSDL::createWindowWithContextEmscripten()
 	return true;
 }
 #else // _IRR_EMSCRIPTEN_PLATFORM_
-#ifndef _IRR_COMPILE_WITH_ANGLE_
+#ifndef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 bool CIrrDeviceSDL::createWindowWithContextSDL()
 {
+	u32 SDL_Flags = 0;
+	SDL_Flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+
+	SDL_Flags |= getFullscreenFlag(CreationParams.Fullscreen);
+	if (Resizable)
+		SDL_Flags |= SDL_WINDOW_RESIZABLE;
+	if (CreationParams.WindowMaximized)
+		SDL_Flags |= SDL_WINDOW_MAXIMIZED;
+	SDL_Flags |= SDL_WINDOW_OPENGL;
+
+	SDL_GL_ResetAttributes();
+	
 	switch (CreationParams.DriverType) {
 	case video::EDT_OPENGL:
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -648,12 +660,7 @@ bool CIrrDeviceSDL::createWindowWithContextSDL()
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 	}
 
-	if (!SDL_GL_LoadLibrary(NULL)) {
-		os::Printer::log("Could not load OpenGL ES library", SDL_GetError(), ELL_WARNING);
-		return false;
-	}
-
-	Window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+	Window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_Flags);
 	if (!Window) {
 		os::Printer::log("Could not create window", SDL_GetError(), ELL_WARNING);
 		return false;
@@ -670,7 +677,7 @@ bool CIrrDeviceSDL::createWindowWithContextSDL()
 	int major, minor;
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
-	os::Printer::log("OpenGL ES version", std::to_string(major) + "." + std::to_string(minor), ELL_INFORMATION);
+	os::Printer::log("OpenGL version", std::to_string(major) + "." + std::to_string(minor), ELL_INFORMATION);
 
 	const char* error = SDL_GetError();
 	if (*error != '\0') {
@@ -678,10 +685,22 @@ bool CIrrDeviceSDL::createWindowWithContextSDL()
 		SDL_ClearError();
 	}
 }
-#else // _IRR_COMPILE_WITH_ANGLE_
-bool CIrrDeviceSDL::createWindowWithContextANGLE()
+#else // _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
+bool CIrrDeviceSDL::createWindowWithContextAppleANGLE()
 {
-	Window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_METAL | SDL_WINDOW_ALLOW_HIGHDPI);
+	u32 SDL_Flags = 0;
+	SDL_Flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+	
+#if not TARGET_OS_IPHONE
+	SDL_Flags |= getFullscreenFlag(CreationParams.Fullscreen);
+	if (Resizable)
+		SDL_Flags |= SDL_WINDOW_RESIZABLE;
+	if (CreationParams.WindowMaximized)
+		SDL_Flags |= SDL_WINDOW_MAXIMIZED;
+#endif
+	SDL_Flags |= SDL_WINDOW_METAL;
+
+	Window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Width, Height, SDL_Flags);
 	if (!Window) {
 		os::Printer::log("Could not create window", SDL_GetError(), ELL_WARNING);
 		return false;
@@ -754,32 +773,21 @@ bool CIrrDeviceSDL::createWindowWithContextANGLE()
 		return false;
 	}
 }
-#endif // _IRR_COMPILE_WITH_ANGLE_
+#endif // _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 #endif // _IRR_EMSCRIPTEN_PLATFORM_
 
 bool CIrrDeviceSDL::createWindowWithContext()
 {
-	u32 SDL_Flags = 0;
-	SDL_Flags |= SDL_WINDOW_ALLOW_HIGHDPI;
-
-	SDL_Flags |= getFullscreenFlag(CreationParams.Fullscreen);
-	if (Resizable)
-		SDL_Flags |= SDL_WINDOW_RESIZABLE;
-	if (CreationParams.WindowMaximized)
-		SDL_Flags |= SDL_WINDOW_MAXIMIZED;
-	SDL_Flags |= SDL_WINDOW_OPENGL;
-	//SDL_Flags |= SDL_WINDOW_METAL;
-
 	SDL_GL_ResetAttributes();
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 	createWindowWithContextEmscripten();
 #else // !_IRR_EMSCRIPTEN_PLATFORM_
 
-#ifndef _IRR_COMPILE_WITH_ANGLE_
+#ifndef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 	createWindowWithContextSDL();
 #else
-	createWindowWithContextANGLE();
+	createWindowWithContextAppleANGLE();
 #endif
 
 	updateSizeAndScale();
@@ -1300,7 +1308,7 @@ float CIrrDeviceSDL::getDisplayDensity() const
 
 void CIrrDeviceSDL::SwapWindow()
 {
-#ifndef _IRR_COMPILE_WITH_ANGLE_
+#ifndef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 	SDL_GL_SwapWindow(Window);
 #else
 	eglSwapBuffers(Display, Surface);

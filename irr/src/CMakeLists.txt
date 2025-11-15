@@ -96,7 +96,11 @@ endif()
 add_compile_definitions("_IRR_COMPILE_WITH_SDL_DEVICE_")
 
 if(USE_ANGLE)
-	add_definitions("-D_IRR_COMPILE_WITH_ANGLE_")
+	if(APPLE)
+		add_definitions("-D_IRR_COMPILE_WITH_ANGLE_ON_APPLE_")
+	else()
+		message(FATAL_ERROR "ANGLE is avaliable only for macOS and iOS.")
+	endif()
 endif()
 
 # Joystick

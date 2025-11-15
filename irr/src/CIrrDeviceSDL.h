@@ -18,7 +18,7 @@
 
 #include <SDL.h>
 
-#ifdef _IRR_COMPILE_WITH_ANGLE_
+#ifdef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 #include <EGL/egl.h>
 #endif
 
@@ -301,11 +301,11 @@ private:
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 	bool createWindowWithContextEmscripten();
 #else // _IRR_EMSCRIPTEN_PLATFORM_
-#ifndef _IRR_COMPILE_WITH_ANGLE_
+#ifndef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 	bool createWindowWithContextSDL();
-#else // _IRR_COMPILE_WITH_ANGLE_
-	bool createWindowWithContextANGLE();
-#endif // _IRR_COMPILE_WITH_ANGLE_
+#else // _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
+	bool createWindowWithContextAppleANGLE();
+#endif // _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 #endif // _IRR_EMSCRIPTEN_PLATFORM_
 	bool createWindowWithContext();
 
@@ -314,7 +314,7 @@ private:
 	void logAttributes();
 
 	SDL_Window *Window;
-#ifndef _IRR_COMPILE_WITH_ANGLE_
+#ifndef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 	SDL_GLContext Context;
 #else
 	SDL_MetalView View;

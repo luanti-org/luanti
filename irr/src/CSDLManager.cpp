@@ -33,7 +33,7 @@ bool CSDLManager::activateContext(const SExposedVideoData &videoData, bool resto
 
 void *CSDLManager::getProcAddress(const std::string &procName)
 {
-#ifndef _IRR_COMPILE_WITH_ANGLE_
+#ifndef _IRR_COMPILE_WITH_ANGLE_ON_APPLE_
 	return SDL_GL_GetProcAddress(procName.c_str());
 #else
 	return (void *)eglGetProcAddress(procName.c_str());
