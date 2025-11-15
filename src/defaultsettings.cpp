@@ -340,7 +340,7 @@ void set_default_settings()
 	settings->setDefault("shadow_update_frames", "16");
 	settings->setDefault("shadow_soft_radius", "5.0");
 	settings->setDefault("shadow_sky_body_orbit_tilt", "0.0");
-#ifndef __ANDROID
+#ifndef __ANDROID__
 	// equivalent to "Medium" preset
 	// see "shadows_component.lua"
 	settings->setDefault("shadow_map_max_distance", "140.0");
