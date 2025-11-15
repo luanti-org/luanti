@@ -27,8 +27,17 @@ namespace scene
 
 //! Constructor
 CXMeshFileLoader::CXMeshFileLoader(scene::ISceneManager *smgr) :
-		AnimatedMesh(0), Buffer(0), P(0), End(0), BinaryNumCount(0), Line(0), ErrorState(false),
-		CurFrame(0), MajorVersion(0), MinorVersion(0), BinaryFormat(false), FloatSize(0)
+		Buffer(nullptr),
+		P(nullptr),
+		End(nullptr),
+		BinaryNumCount(0),
+		Line(0),
+		ErrorState(false),
+		CurFrame(nullptr),
+		MajorVersion(0),
+		MinorVersion(0),
+		BinaryFormat(false),
+		FloatSize(0)
 {}
 
 //! returns true if the file maybe is able to be loaded by this class
@@ -45,20 +54,17 @@ bool CXMeshFileLoader::isALoadableFileExtension(const io::path &filename) const
 IAnimatedMesh *CXMeshFileLoader::createMesh(io::IReadFile *file)
 {
 	if (!file)
-		return 0;
+		return nullptr;
 
 #ifdef _XREADER_DEBUG
 	u32 time = os::Timer::getRealTime();
 #endif
 
-	AnimatedMesh = new SkinnedMeshBuilder(SkinnedMesh::SourceFormat::X);
+	AnimatedMesh = SkinnedMeshBuilder(SkinnedMesh::SourceFormat::X);
 
 	SkinnedMesh *res = nullptr;
 	if (load(file)) {
-		res = AnimatedMesh->finalize();
-	} else {
-		AnimatedMesh->drop();
-		AnimatedMesh = 0;
+		res = std::move(AnimatedMesh).finalize();
 	}
 #ifdef _XREADER_DEBUG
 	time = os::Timer::getRealTime() - time;
@@ -69,7 +75,7 @@ IAnimatedMesh *CXMeshFileLoader::createMesh(io::IReadFile *file)
 	tmpString += "ms";
 	os::Printer::log(tmpString.c_str());
 #endif
-	// Clear up
+	// Clean up
 
 	MajorVersion = 0;
 	MinorVersion = 0;
@@ -109,15 +115,15 @@ bool CXMeshFileLoader::load(io::IReadFile *file)
 		u32 i;
 
 		mesh->Buffers.reallocate(mesh->Materials.size());
-		const u32 bufferOffset = AnimatedMesh->getMeshBufferCount();
+		const u32 bufferOffset = AnimatedMesh.getMeshBufferCount();
 		for (i = 0; i < mesh->Materials.size(); ++i) {
-			mesh->Buffers.push_back(AnimatedMesh->addMeshBuffer());
+			mesh->Buffers.push_back(AnimatedMesh.addMeshBuffer());
 			mesh->Buffers.getLast()->Material = mesh->Materials[i];
 
 			if (!mesh->HasSkinning) {
 				// Set up rigid animation
 				if (mesh->AttachedJointID != -1) {
-					AnimatedMesh->getAllJoints()[mesh->AttachedJointID]->AttachedMeshes.push_back(AnimatedMesh->getMeshBufferCount() - 1);
+					AnimatedMesh.getJoints()[mesh->AttachedJointID]->AttachedMeshes.push_back(AnimatedMesh.getMeshBufferCount() - 1);
 				}
 			}
 		}
@@ -230,8 +236,8 @@ bool CXMeshFileLoader::load(io::IReadFile *file)
 
 			u16 buf_id = verticesLinkBuffer[id] + bufferOffset;
 			u32 vert_id = verticesLinkIndex[id];
-			auto *joint = AnimatedMesh->getAllJoints()[weight.joint_id];
-			AnimatedMesh->addWeight(joint, buf_id, vert_id, weight.strength);
+			auto *joint = AnimatedMesh.getJoints()[weight.joint_id];
+			AnimatedMesh.addWeight(joint, buf_id, vert_id, weight.strength);
 		}
 	}
 
@@ -415,10 +421,10 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 	SkinnedMesh::SJoint *joint = 0;
 
 	if (name.size()) {
-		auto n = AnimatedMesh->getJointNumber(name.c_str());
+		auto n = AnimatedMesh.getJointNumber(name.c_str());
 		if (n.has_value()) {
 			JointID = *n;
-			joint = AnimatedMesh->getAllJoints()[JointID];
+			joint = AnimatedMesh.getJoints()[JointID];
 			joint->setParent(Parent);
 		}
 	}
@@ -427,9 +433,9 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 #ifdef _XREADER_DEBUG
 		os::Printer::log("creating joint ", name.c_str(), ELL_DEBUG);
 #endif
-		joint = AnimatedMesh->addJoint(Parent);
+		joint = AnimatedMesh.addJoint(Parent);
 		joint->Name = name.c_str();
-		JointID = AnimatedMesh->getAllJoints().size() - 1;
+		JointID = AnimatedMesh.getJoints().size() - 1;
 	} else {
 #ifdef _XREADER_DEBUG
 		os::Printer::log("using joint ", name.c_str(), ELL_DEBUG);
@@ -847,14 +853,14 @@ bool CXMeshFileLoader::parseDataObjectSkinWeights(SXMesh &mesh)
 
 	mesh.HasSkinning = true;
 
-	auto joint_id = AnimatedMesh->getJointNumber(TransformNodeName.c_str());
-	SkinnedMesh::SJoint *joint = joint_id.has_value() ? AnimatedMesh->getAllJoints()[*joint_id] : nullptr;
+	auto joint_id = AnimatedMesh.getJointNumber(TransformNodeName.c_str());
+	SkinnedMesh::SJoint *joint = joint_id.has_value() ? AnimatedMesh.getJoints()[*joint_id] : nullptr;
 
 	if (!joint) {
 #ifdef _XREADER_DEBUG
 		os::Printer::log("creating joint for skinning ", TransformNodeName.c_str(), ELL_DEBUG);
 #endif
-		joint = AnimatedMesh->addJoint(nullptr);
+		joint = AnimatedMesh.addJoint(nullptr);
 		joint->Name = TransformNodeName.c_str();
 		joint_id = joint->JointID;
 	}
@@ -1215,7 +1221,7 @@ bool CXMeshFileLoader::parseDataObjectAnimationTicksPerSecond()
 		SET_ERR_AND_RETURN();
 	}
 
-	const u32 ticks = readInt();
+	static_cast<void>(readInt());
 
 	if (!checkForOneFollowingSemicolons()) {
 		os::Printer::log("No closing semicolon in AnimationTicksPerSecond in x file", ELL_WARNING);
@@ -1228,8 +1234,6 @@ bool CXMeshFileLoader::parseDataObjectAnimationTicksPerSecond()
 		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 		SET_ERR_AND_RETURN();
 	}
-
-	AnimatedMesh->setAnimationSpeed(static_cast<f32>(ticks));
 
 	return true;
 }
@@ -1288,16 +1292,16 @@ bool CXMeshFileLoader::parseDataObjectAnimation()
 #ifdef _XREADER_DEBUG
 		os::Printer::log("frame name", FrameName.c_str(), ELL_DEBUG);
 #endif
-		auto n = AnimatedMesh->getJointNumber(FrameName.c_str());
+		auto joint_id = AnimatedMesh.getJointNumber(FrameName.c_str());
 
 		SkinnedMesh::SJoint *joint;
-		if (n.has_value()) {
-			joint = AnimatedMesh->getAllJoints()[*n];
+		if (joint_id.has_value()) {
+			joint = AnimatedMesh.getJoints()[*joint_id];
 		} else {
 #ifdef _XREADER_DEBUG
 			os::Printer::log("creating joint for animation ", FrameName.c_str(), ELL_DEBUG);
 #endif
-			joint = AnimatedMesh->addJoint(0);
+			joint = AnimatedMesh.addJoint();
 			joint->Name = FrameName.c_str();
 		}
 
@@ -1367,7 +1371,7 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 
 			core::quaternion rotation(X, Y, Z, W);
 			rotation.normalize();
-			AnimatedMesh->addRotationKey(joint, time, rotation);
+			AnimatedMesh.addRotationKey(joint, time, rotation);
 		} break;
 		case 1: // scale
 		case 2: // position
@@ -1390,9 +1394,9 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 			}
 
 			if (keyType == 2) {
-				AnimatedMesh->addPositionKey(joint, time, vector);
+				AnimatedMesh.addPositionKey(joint, time, vector);
 			} else {
-				AnimatedMesh->addScaleKey(joint, time, vector);
+				AnimatedMesh.addScaleKey(joint, time, vector);
 			}
 		} break;
 		case 3:
@@ -1417,8 +1421,8 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 				os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 			}
 
-			AnimatedMesh->addRotationKey(joint, time, core::quaternion(mat.getTransposed()));
-			AnimatedMesh->addPositionKey(joint, time, mat.getTranslation());
+			AnimatedMesh.addRotationKey(joint, time, core::quaternion(mat.getTransposed()));
+			AnimatedMesh.addPositionKey(joint, time, mat.getTranslation());
 
 			/*
 							core::vector3df scale=mat.getScale();

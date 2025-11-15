@@ -11,6 +11,7 @@
 #include "aabbox3d.h"
 #include "irrMath.h"
 #include "irrTypes.h"
+#include "irr_ptr.h"
 #include "matrix4.h"
 #include "quaternion.h"
 #include "vector3d.h"
@@ -87,8 +88,6 @@ public:
 	IMeshBuffer *getMeshBuffer(const video::SMaterial &material) const override;
 
 	u32 getTextureSlot(u32 meshbufNr) const override;
-
-	void setTextureSlot(u32 meshbufNr, u32 textureSlot);
 
 	//! Returns bounding box of the mesh *in static pose*.
 	const core::aabbox3d<f32> &getBoundingBox() const override {
@@ -349,6 +348,8 @@ protected:
 			const core::vector3df &vt1, const core::vector3df &vt2, const core::vector3df &vt3,
 			const core::vector2df &tc1, const core::vector2df &tc2, const core::vector2df &tc3);
 
+	friend class SkinnedMeshBuilder;
+
 	std::vector<SSkinMeshBuffer *> *SkinningBuffers; // Meshbuffer to skin, default is to skin localBuffers
 
 	std::vector<SSkinMeshBuffer *> LocalBuffers;
@@ -375,27 +376,46 @@ protected:
 };
 
 // Interface for mesh loaders
-class SkinnedMeshBuilder : public SkinnedMesh {
+class SkinnedMeshBuilder {
+	using SJoint = SkinnedMesh::SJoint;
+
 public:
-	SkinnedMeshBuilder(SourceFormat src_format) : SkinnedMesh(src_format) {}
+
+	// HACK the .x and .b3d loader do not separate the "loader" class from an "extractor" class
+	// used and destroyed in a specific loading process (contrast with the .gltf mesh loader).
+	// This means we need an empty skinned mesh builder.
+	SkinnedMeshBuilder() {}
+
+	SkinnedMeshBuilder(SkinnedMesh::SourceFormat src_format)
+		: mesh(new SkinnedMesh(src_format))
+	{}
 
 	//! loaders should call this after populating the mesh
-	// returns *this, so do not try to drop the mesh builder instance
-	SkinnedMesh *finalize();
+	SkinnedMesh *finalize() &&;
 
 	//! alternative method for adding joints
-	std::vector<SJoint *> &getAllJoints() {
-		return AllJoints;
-	}
+	std::vector<SJoint *> &getJoints() { return mesh->AllJoints; }
 
 	//! Adds a new meshbuffer to the mesh, access it as last one
 	SSkinMeshBuffer *addMeshBuffer();
 
-	//! Adds a new meshbuffer to the mesh, access it as last one
-	void addMeshBuffer(SSkinMeshBuffer *meshbuf);
+	//! Adds a new meshbuffer to the mesh, returns ID
+	u32 addMeshBuffer(SSkinMeshBuffer *meshbuf);
+
+	u32 getMeshBufferCount() { return mesh->getMeshBufferCount(); }
+
+	void setTextureSlot(u32 meshbufNr, u32 textureSlot)
+	{
+		mesh->TextureSlots.at(meshbufNr) = textureSlot;
+	}
 
 	//! Adds a new joint to the mesh, access it as last one
 	SJoint *addJoint(SJoint *parent = nullptr);
+
+	std::optional<u32> getJointNumber(const std::string &name) const
+	{
+		return mesh->getJointNumber(name);
+	}
 
 	void addPositionKey(SJoint *joint, f32 frame, core::vector3df pos);
 	void addRotationKey(SJoint *joint, f32 frame, core::quaternion rotation);
@@ -408,6 +428,9 @@ private:
 
 	void topoSortJoints();
 
+	//! The mesh that is being built
+	irr_ptr<SkinnedMesh> mesh;
+
 	struct Weight {
 		u16 joint_id;
 		u16 buffer_id;
@@ -415,7 +438,7 @@ private:
 		f32 strength;
 	};
 
-	/// Weights to be added once all mesh buffers have been loaded
+	//! Weights to be added once all mesh buffers have been loaded
 	std::vector<Weight> weights;
 
 };

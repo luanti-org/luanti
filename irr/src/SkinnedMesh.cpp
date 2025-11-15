@@ -175,10 +175,6 @@ u32 SkinnedMesh::getTextureSlot(u32 meshbufNr) const
 	return TextureSlots.at(meshbufNr);
 }
 
-void SkinnedMesh::setTextureSlot(u32 meshbufNr, u32 textureSlot) {
-	TextureSlots.at(meshbufNr) = textureSlot;
-}
-
 //! set the hardware mapping hint, for driver
 void SkinnedMesh::setHardwareMappingHint(E_HARDWARE_MAPPING newMappingHint,
 		E_BUFFER_TYPE buffer)
@@ -335,13 +331,14 @@ void SkinnedMesh::recalculateBaseBoundingBoxes() {
 
 void SkinnedMeshBuilder::topoSortJoints()
 {
-	size_t n = AllJoints.size();
+	auto &joints = getJoints();
+	size_t n = joints.size();
 
 	std::vector<u16> new_to_old_id;
 
 	std::vector<std::vector<u16>> children(n);
 	for (u16 i = 0; i < n; ++i) {
-		if (auto parentId = AllJoints[i]->ParentJointID)
+		if (auto parentId = joints[i]->ParentJointID)
 			children[*parentId].push_back(i);
 		else
 		 	new_to_old_id.push_back(i);
@@ -358,59 +355,60 @@ void SkinnedMeshBuilder::topoSortJoints()
 	for (u16 i = 0; i < n; ++i)
 		old_to_new_id[new_to_old_id[i]] = i;
 
-	std::vector<SJoint *> joints(n);
+	std::vector<SJoint *> sorted_joints(n);
 	for (u16 i = 0; i < n; ++i) {
-		joints[i] = AllJoints[new_to_old_id[i]];
-		joints[i]->JointID = i;
-		if (auto parentId = joints[i]->ParentJointID)
-			joints[i]->ParentJointID = old_to_new_id[*parentId];
+		auto *joint = joints[new_to_old_id[i]];
+		if (auto parentId = joint->ParentJointID)
+			joint->ParentJointID = old_to_new_id[*parentId];
+		sorted_joints[i] = joint;
+		joint->JointID = i;
 	}
-	AllJoints = std::move(joints);
+	// Verify that the topological ordering is correct
+	for (u16 i = 0; i < n; ++i) {
+		if (auto pjid = sorted_joints[i]->ParentJointID)
+			assert(*pjid < i);
+	}
+	getJoints() = std::move(sorted_joints);
 
 	for (auto &weight : weights) {
 		weight.joint_id = old_to_new_id[weight.joint_id];
 	}
-
-	for (u16 i = 0; i < n; ++i) {
-		if (auto pjid = AllJoints[i]->ParentJointID)
-			assert(*pjid < i);
-	}
 }
 
 //! called by loader after populating with mesh and bone data
-SkinnedMesh *SkinnedMeshBuilder::finalize()
+SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 {
 	os::Printer::log("Skinned Mesh - finalize", ELL_DEBUG);
 
 	topoSortJoints();
 
-	prepareForSkinning();
+	mesh->prepareForSkinning();
 
 	std::vector<core::matrix4> matrices;
-	matrices.reserve(AllJoints.size());
-	for (auto *joint : AllJoints) {
+	matrices.reserve(getJoints().size());
+	for (auto *joint : getJoints()) {
 		if (const auto *matrix = std::get_if<core::matrix4>(&joint->transform))
 			matrices.push_back(*matrix);
 		else
 		 	matrices.push_back(std::get<core::Transform>(joint->transform).buildMatrix());
 	}
-	calculateGlobalMatrices(matrices);
+	mesh->calculateGlobalMatrices(matrices);
 
-	for (size_t i = 0; i < AllJoints.size(); ++i) {
-		auto *joint = AllJoints[i];
+	for (size_t i = 0; i < getJoints().size(); ++i) {
+		auto *joint = getJoints()[i];
 		if (!joint->GlobalInversedMatrix) {
 			joint->GlobalInversedMatrix = matrices[i];
 			joint->GlobalInversedMatrix->makeInverse();
 		}
 		// rigid animation for non animated meshes
 		for (u32 attachedMeshIdx : joint->AttachedMeshes) {
-			SSkinMeshBuffer *Buffer = (*SkinningBuffers)[attachedMeshIdx];
+			SSkinMeshBuffer *Buffer = (*mesh->SkinningBuffers)[attachedMeshIdx];
 			Buffer->Transformation = matrices[i];
 		}
 	}
 
 	for (const auto &weight : weights) {
-		auto *buf = LocalBuffers.at(weight.buffer_id);
+		auto *buf = mesh->LocalBuffers.at(weight.buffer_id);
 		if (!buf->Weights)
 			buf->Weights = WeightBuffer(buf->getVertexCount());
 		if (weight.vertex_id >= buf->Weights->n_verts) {
@@ -418,33 +416,32 @@ SkinnedMesh *SkinnedMeshBuilder::finalize()
 		}
 		buf->Weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);
 	}
-	// We don't want the SkinnedMesh to unnecessarily carry this around
-	weights = {};
 
-	for (auto *buffer : LocalBuffers) {
+	for (auto *buffer : mesh->LocalBuffers) {
 		if (buffer->Weights)
 			buffer->Weights->finalize();
 	}
-	updateStaticPose();
+	mesh->updateStaticPose();
 
-	recalculateBaseBoundingBoxes();
-	StaticPoseBox = calculateBoundingBox(matrices);
+	mesh->recalculateBaseBoundingBoxes();
+	mesh->StaticPoseBox = mesh->calculateBoundingBox(matrices);
 
-	return this;
+	return mesh.release();
 }
 
 scene::SSkinMeshBuffer *SkinnedMeshBuilder::addMeshBuffer()
 {
 	scene::SSkinMeshBuffer *buffer = new scene::SSkinMeshBuffer();
-	TextureSlots.push_back(LocalBuffers.size());
-	LocalBuffers.push_back(buffer);
+	mesh->TextureSlots.push_back(mesh->LocalBuffers.size());
+	mesh->LocalBuffers.push_back(buffer);
 	return buffer;
 }
 
-void SkinnedMeshBuilder::addMeshBuffer(SSkinMeshBuffer *meshbuf)
+u32 SkinnedMeshBuilder::addMeshBuffer(SSkinMeshBuffer *meshbuf)
 {
-	TextureSlots.push_back(LocalBuffers.size());
-	LocalBuffers.push_back(meshbuf);
+	mesh->TextureSlots.push_back(mesh->LocalBuffers.size());
+	mesh->LocalBuffers.push_back(meshbuf);
+	return mesh->getMeshBufferCount() - 1;
 }
 
 SkinnedMesh::SJoint *SkinnedMeshBuilder::addJoint(SJoint *parent)
@@ -452,8 +449,8 @@ SkinnedMesh::SJoint *SkinnedMeshBuilder::addJoint(SJoint *parent)
 	SJoint *joint = new SJoint;
 	joint->setParent(parent);
 
-	joint->JointID = AllJoints.size();
-	AllJoints.push_back(joint);
+	joint->JointID = getJoints().size();
+	getJoints().push_back(joint);
 
 	return joint;
 }

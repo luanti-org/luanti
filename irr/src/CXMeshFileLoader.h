@@ -156,7 +156,7 @@ private:
 	bool readRGB(video::SColor &color);
 	bool readRGBA(video::SColor &color);
 
-	SkinnedMeshBuilder *AnimatedMesh;
+	SkinnedMeshBuilder AnimatedMesh;
 
 	c8 *Buffer;
 	const c8 *P;
