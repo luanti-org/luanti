@@ -3,13 +3,13 @@
 #else
 	uniform sampler2D baseTexture;
 #endif
-varying vec4 tPos;
+VARYING_ vec4 tPos;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 CENTROID_ VARYING_ float varTexLayer; // actually int
 
 #ifdef COLORED_SHADOWS
-varying vec3 varColor;
+VARYING_ vec3 varColor;
 
 // c_precision of 128 fits within 7 base-10 digits
 const float c_precision = 128.0;

@@ -336,15 +336,24 @@ void set_default_settings()
 	// Effects Shadows
 	settings->setDefault("enable_dynamic_shadows", "false");
 	settings->setDefault("shadow_strength_gamma", "1.0");
-	settings->setDefault("shadow_map_max_distance", "140.0");
-	settings->setDefault("shadow_map_texture_size", "2048");
-	settings->setDefault("shadow_map_texture_32bit", "true");
-	settings->setDefault("shadow_map_color", "false");
-	settings->setDefault("shadow_filters", "1");
 	settings->setDefault("shadow_poisson_filter", "true");
 	settings->setDefault("shadow_update_frames", "16");
 	settings->setDefault("shadow_soft_radius", "5.0");
 	settings->setDefault("shadow_sky_body_orbit_tilt", "0.0");
+#ifndef __ANDROID__
+	// equivalent to "Medium" preset
+	// see "shadows_component.lua"
+	settings->setDefault("shadow_map_max_distance", "140.0");
+	settings->setDefault("shadow_map_texture_size", "2048");
+	settings->setDefault("shadow_filters", "1");
+#else
+	// equivalent to "Low" preset
+	settings->setDefault("shadow_map_max_distance", "93.0");
+	settings->setDefault("shadow_map_texture_size", "1024");
+	settings->setDefault("shadow_filters", "0");
+#endif
+	settings->setDefault("shadow_map_texture_32bit", "true");
+	settings->setDefault("shadow_map_color", "false");
 
 	// Input
 	settings->setDefault("invert_mouse", "false");

@@ -35,7 +35,6 @@ ShadowRenderer::ShadowRenderer(IrrlichtDevice *device, Client *client) :
 
 	m_shadow_map_texture_32bit = g_settings->getBool("shadow_map_texture_32bit");
 	m_shadow_map_colored = g_settings->getBool("shadow_map_color");
-	m_shadow_samples = g_settings->getS32("shadow_filters");
 	m_map_shadow_update_frames = g_settings->getS16("shadow_update_frames");
 
 	m_screen_quad = new ShadowScreenQuad();
@@ -525,10 +524,6 @@ void ShadowRenderer::renderShadowObjects(
 	} // end for caster shadow nodes
 }
 
-void ShadowRenderer::mixShadowsQuad()
-{
-}
-
 void ShadowRenderer::createShaders()
 {
 	auto *shdsrc = m_client->getShaderSource();
@@ -586,9 +581,7 @@ std::unique_ptr<ShadowRenderer> createShadowRenderer(IrrlichtDevice *device, Cli
 		return nullptr;
 
 	// disable if unsupported
-	// See also checks in builtin/mainmenu/settings/dlg_settings.lua
-	const video::E_DRIVER_TYPE type = device->getVideoDriver()->getDriverType();
-	if (type != video::EDT_OPENGL && type != video::EDT_OPENGL3) {
+	if (!ShadowRenderer::isSupported(device)) {
 		warningstream << "Shadows: disabled dynamic shadows due to being unsupported" << std::endl;
 		g_settings->setBool("enable_dynamic_shadows", false);
 		return nullptr;
@@ -597,4 +590,20 @@ std::unique_ptr<ShadowRenderer> createShadowRenderer(IrrlichtDevice *device, Cli
 	auto shadow_renderer = std::make_unique<ShadowRenderer>(device, client);
 	shadow_renderer->initialize();
 	return shadow_renderer;
+}
+
+bool ShadowRenderer::isSupported(IrrlichtDevice *device)
+{
+	auto driver = device->getVideoDriver();
+	const video::E_DRIVER_TYPE type = driver->getDriverType();
+	v2s32 glver = driver->getLimits().GLVersion;
+
+	if (type != video::EDT_OPENGL && type != video::EDT_OPENGL3 &&
+			!(type == video::EDT_OGLES2 && glver.X >= 3))
+		return false;
+
+	if (!driver->queryFeature(video::EVDF_RENDER_TO_FLOAT_TEXTURE))
+		return false;
+
+	return true;
 }

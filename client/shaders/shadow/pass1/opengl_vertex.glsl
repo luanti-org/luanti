@@ -1,6 +1,6 @@
 uniform mat4 LightMVP; // world matrix
 uniform vec4 CameraPos; // camera position
-varying vec4 tPos;
+VARYING_ vec4 tPos;
 
 uniform float xyPerspectiveBias0;
 uniform float xyPerspectiveBias1;

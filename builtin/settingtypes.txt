@@ -91,8 +91,9 @@
 # * The value of a boolean setting, such as enable_dynamic_shadows
 # * An engine-defined value:
 #     * desktop / android
+#     * touch_support
 #     * touchscreen / keyboard_mouse
-#     * opengl / gles
+#     * shadows_support
 # * You can negate any requirement by prepending with !
 # * The "keyboard_mouse" requirement is automatically added to settings with the
 #   "key" type.
@@ -702,60 +703,60 @@ water_wave_speed (Waving liquids wave speed) float 5.0
 
 #    Set to true to enable Shadow Mapping.
 #
-#    Requires: opengl
+#    Requires: shadows_support
 enable_dynamic_shadows (Dynamic shadows) bool false
 
 #    Set the shadow strength gamma.
 #    Adjusts the intensity of in-game dynamic shadows.
 #    Lower value means lighter shadows, higher value means darker shadows.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_strength_gamma (Shadow strength gamma) float 1.0 0.1 10.0
 
 #    Maximum distance to render shadows.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_map_max_distance (Shadow map max distance in nodes to render shadows) float 140.0 10.0 1000.0
 
 #    Texture size to render the shadow map on.
 #    This must be a power of two.
 #    Bigger numbers create better shadows but it is also more expensive.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_map_texture_size (Shadow map texture size) int 2048 128 8192
 
 #    Sets shadow texture quality to 32 bits.
 #    On false, 16 bits texture will be used.
 #    This can cause much more artifacts in the shadow.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_map_texture_32bit (Shadow map texture in 32 bits) bool true
 
 #    Define shadow filtering quality.
 #    This simulates the soft shadows effect by applying a PCF or Poisson disk
 #    but also uses more resources.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_filters (Shadow filter quality) enum 1 0,1,2
 
 #    Enable colored shadows for transculent nodes.
 #    This is expensive.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_map_color (Colored shadows) bool false
 
 #    Set the soft shadow radius size.
 #    Lower values mean sharper shadows, bigger values mean softer shadows.
 #    Minimum value: 1.0; maximum value: 15.0
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_soft_radius (Soft shadow radius) float 5.0 1.0 15.0
 
 #    Set the default tilt of Sun/Moon orbit in degrees.
 #    Games may change orbit tilt via API.
 #    Value of 0 means no tilt / vertical orbit.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_sky_body_orbit_tilt (Sky Body Orbit Tilt) float 0.0 -60.0 60.0
 
 [**Post Processing]
@@ -2083,14 +2084,14 @@ post_processing_texture_bits (Color depth for post-processing texture) enum 16 8
 #    Enable Poisson disk filtering.
 #    On true uses Poisson disk to make "soft shadows". Otherwise uses PCF filtering.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_poisson_filter (Poisson filtering) bool true
 
 #    Spread a complete update of the shadow map over a given number of frames.
 #    Higher values might make shadows laggy, lower values
 #    will consume more resources.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_update_frames (Map shadows update frames) int 16 1 32
 
 #    Set to true to render debugging breakdown of the bloom effect.

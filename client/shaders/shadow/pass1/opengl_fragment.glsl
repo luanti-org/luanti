@@ -3,7 +3,7 @@
 #else
 	uniform sampler2D baseTexture;
 #endif
-varying vec4 tPos;
+VARYING_ vec4 tPos;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 CENTROID_ VARYING_ float varTexLayer; // actually int

@@ -69,10 +69,11 @@ void COpenGL3Driver::initFeatures()
 	LODBiasSupported = true;
 	BlendMinMaxSupported = true;
 	TextureMultisampleSupported = true;
-	Texture2DArraySupported = Version.Major >= 3 || queryExtension("GL_EXT_texture_array");
+	Texture2DArraySupported = true;
 	KHRDebugSupported = isVersionAtLeast(4, 6) || queryExtension("GL_KHR_debug");
 	if (KHRDebugSupported)
 		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
+	RenderToFloatTextureSupported = true;
 
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 16, "Only up to 16 textures are guaranteed");

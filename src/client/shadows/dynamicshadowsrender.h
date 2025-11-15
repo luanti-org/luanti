@@ -85,13 +85,14 @@ public:
 	void setShadowIntensity(float shadow_intensity);
 	void setShadowTint(video::SColor shadow_tint) { m_shadow_tint = shadow_tint; }
 
-	s32 getShadowSamples() const { return m_shadow_samples; }
 	float getShadowStrength() const { return m_shadows_enabled ? m_shadow_strength : 0.0f; }
 	video::SColor getShadowTint() const { return m_shadow_tint; }
 	float getTimeOfDay() const { return m_time_day; }
 
 	f32 getPerspectiveBiasXY() { return m_perspective_bias_xy; }
 	f32 getPerspectiveBiasZ() { return m_perspective_bias_z; }
+
+	static bool isSupported(IrrlichtDevice *device);
 
 private:
 	video::ITexture *getSMTexture(const std::string &shadow_map_name,
@@ -102,7 +103,6 @@ private:
 			scene::E_SCENE_NODE_RENDER_PASS pass =
 					scene::ESNRP_SOLID);
 	void renderShadowObjects(video::ITexture *target, DirectionalLight &light);
-	void mixShadowsQuad();
 	void updateSMTextures();
 
 	void disable();
@@ -127,7 +127,6 @@ private:
 	float m_shadow_map_max_distance;
 	u32 m_shadow_map_texture_size;
 	float m_time_day;
-	int m_shadow_samples;
 	bool m_shadow_map_texture_32bit;
 	bool m_shadows_enabled;
 	bool m_shadows_supported;

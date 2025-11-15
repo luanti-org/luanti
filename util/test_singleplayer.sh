@@ -14,20 +14,15 @@ rm -rf "$worldpath"
 mkdir -p "$worldpath/worldmods"
 
 # enable a lot of visual effects so we can catch shader errors and other obvious bugs
-opts1=(
+opts=(
 	screen_w=384 screen_h=256 fps_max=5
 	active_block_range=1 viewing_range=40 helper_mode=devtest
 	opengl_debug=true mip_map=true enable_waving_{leaves,plants,water}=true
 	antialiasing=ssaa node_highlighting=halo
-)
-opts2=(
 	enable_{auto_exposure,bloom,dynamic_shadows,translucent_foliage,volumetric_lighting,water_reflections}=true
 	shadow_map_color=true
 )
-printf '%s\n' "${opts1[@]}" "${clientconf:-}" >"$conf_client"
-if ! grep -q 'video_driver *= *ogles2' "$conf_client"; then # no shadows on GLES
-	printf '%s\n' "${opts2[@]}" >>"$conf_client"
-fi
+printf '%s\n' "${opts[@]}" "${clientconf:-}" >"$conf_client"
 
 ln -s "$dir/helper_mod" "$worldpath/worldmods/"
 
