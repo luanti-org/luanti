@@ -52,6 +52,7 @@ extern "C" {
 #endif
 }
 
+// Use SDLmain.a to load, initialize and call SDL_main after on iOS
 #if TARGET_OS_IPHONE
 #include <SDL2/SDL.h>
 #endif

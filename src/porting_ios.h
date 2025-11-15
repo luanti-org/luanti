@@ -4,5 +4,10 @@
 
 #include <string>
 
+namespace porting
+{
+
 std::string getAppleDocumentsDirectory();
 std::string getAppleLibraryDirectory();
+
+}

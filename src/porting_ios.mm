@@ -6,12 +6,18 @@
 
 #import <Foundation/Foundation.h>
 
+namespace porting
+{
+
 std::string getAppleDocumentsDirectory() {
-    NSString *documentsDirectory = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
-    return std::string([documentsDirectory UTF8String]);
+		NSString *documentsDirectory = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+		return std::string([documentsDirectory UTF8String]);
 }
 
 std::string getAppleLibraryDirectory() {
-    NSString *libraryDirectory = [NSHomeDirectory() stringByAppendingPathComponent:@"Library"];
-    return std::string([libraryDirectory UTF8String]);
+		NSString *libraryDirectory = [NSHomeDirectory() stringByAppendingPathComponent:@"Library"];
+		return std::string([libraryDirectory UTF8String]);
+}
+
+// namespace porting
 }
