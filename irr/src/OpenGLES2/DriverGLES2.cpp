@@ -127,7 +127,7 @@ void COpenGLES2Driver::initFeatures()
 	KHRDebugSupported = queryExtension("GL_KHR_debug");
 	if (KHRDebugSupported)
 		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
-	RenderToFloatTextureSupported = (Version.Major >= 3 && Version.Minor >= 2) || queryExtension("GL_EXT_color_buffer_float");
+	RenderToFloatTextureSupported = isVersionAtLeast(3, 2)|| queryExtension("GL_EXT_color_buffer_float");
 
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 8, "Only up to 8 textures are guaranteed");
