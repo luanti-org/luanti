@@ -224,6 +224,7 @@ endif()
 
 if(USE_SDL2 AND ENABLE_OPENGL)
 	set(CMAKE_REQUIRED_INCLUDES ${SDL2_INCLUDE_DIRS})
+	unset(USE_SDL_OPENGL_4_5_HEADER CACHE) # Why?
 	check_cxx_source_compiles("#include <SDL_opengl.h>\n\
 #ifndef GL_VERSION_4_5\n\
 #error\n\
