@@ -362,14 +362,27 @@ bool CGUIEditBox::processKey(const SEvent &event)
 			BlinkStartTime = os::Timer::getTime();
 			break;
 		case KEY_UP:
-			if (!onKeyUp(event, newMarkBegin, newMarkEnd)) {
-				return false;
-			}
-			break;
 		case KEY_DOWN:
-			if (!onKeyDown(event, newMarkBegin, newMarkEnd)) {
+			if (!onKeyUpDown(event.KeyInput, newMarkBegin, newMarkEnd, 1)) {
 				return false;
 			}
+			BlinkStartTime = os::Timer::getTime();
+			break;
+		case KEY_PRIOR:
+		case KEY_NEXT:
+			if (gui::IGUIFont *font = getActiveFont()) {
+				const f32 WINDOW_SCROLL_FACTOR = 0.75f; // of all visible lines
+
+				// This is a "good enough" approximation
+				u32 lineHeight = font->getDimension(L"A").Height + font->getKerning(L'A').Y;
+				f32 linesMax = WINDOW_SCROLL_FACTOR *
+					AbsoluteClippingRect.getHeight() / (f32)lineHeight;
+
+				if (!onKeyUpDown(event.KeyInput, newMarkBegin, newMarkEnd, linesMax + 0.5f)) {
+					return false;
+				}
+			}
+			BlinkStartTime = os::Timer::getTime();
 			break;
 		case KEY_INSERT:
 			if (!isEnabled() || !IsWritable)
@@ -493,64 +506,60 @@ void CGUIEditBox::processKeyLR(const SEvent::SKeyInput &input, s32 &new_mark_beg
 	}
 }
 
-bool CGUIEditBox::onKeyUp(const SEvent &event, s32 &mark_begin, s32 &mark_end)
+bool CGUIEditBox::onKeyUpDown(const SEvent::SKeyInput &input, s32 &mark_begin,
+		s32 &mark_end, u32 lines_max)
 {
-	if (MultiLine || (WordWrap && BrokenText.size() > 1)) {
-		s32 lineNo = getLineFromPos(CursorPos);
-		s32 mb = (MarkBegin == MarkEnd) ? CursorPos :
-			(MarkBegin > MarkEnd ? MarkBegin : MarkEnd);
-		if (lineNo > 0) {
-			s32 cp = CursorPos - BrokenTextPositions[lineNo];
-			if ((s32)BrokenText[lineNo - 1].size() < cp) {
-				CursorPos = BrokenTextPositions[lineNo - 1] +
-					core::max_((u32)1, BrokenText[lineNo - 1].size()) - 1;
+	if (!MultiLine && !(WordWrap && BrokenText.size() > 1))
+		return false;
+
+	const s8 dir = (input.Key == KEY_DOWN || input.Key == KEY_NEXT) ? 1 : -1;
+	s32 new_pos = CursorPos;
+
+	for (u32 i = 0; i < lines_max; ++i) {
+		s32 lineNo = getLineFromPos(new_pos);
+
+		if (dir > 0) {
+			// Down
+			if (lineNo >= (s32)BrokenText.size() - 1) {
+				if (i == 0)
+					new_pos = Text.size();
+				break;
 			}
-			else
-				CursorPos = BrokenTextPositions[lineNo - 1] + cp;
-		}
-
-		if (event.KeyInput.Shift) {
-			mark_begin = mb;
-			mark_end = CursorPos;
 		} else {
-			mark_begin = 0;
-			mark_end = 0;
+			// Up
+			if (lineNo <= 0) {
+				if (i == 0)
+					new_pos = 0;
+				break;
+			}
 		}
 
-		return true;
+		s32 offset = new_pos - BrokenTextPositions[lineNo];
+		size_t next_len = BrokenText[lineNo + dir].size();
+		// Try to go to the same position in the next line, or clamp.
+		new_pos = BrokenTextPositions[lineNo + dir] +
+			std::max<s32>(0, std::min<s32>(offset, next_len));
 	}
 
-	return false;
-}
-
-bool CGUIEditBox::onKeyDown(const SEvent &event, s32 &mark_begin, s32 &mark_end)
-{
-	if (MultiLine || (WordWrap && BrokenText.size() > 1)) {
-		s32 lineNo = getLineFromPos(CursorPos);
-		s32 mb = (MarkBegin == MarkEnd) ? CursorPos :
-			(MarkBegin < MarkEnd ? MarkBegin : MarkEnd);
-		if (lineNo < (s32)BrokenText.size() - 1) {
-			s32 cp = CursorPos - BrokenTextPositions[lineNo];
-			if ((s32)BrokenText[lineNo + 1].size() < cp) {
-				CursorPos = BrokenTextPositions[lineNo + 1] +
-					core::max_((u32)1, BrokenText[lineNo + 1].size()) - 1;
-			}
-			else
-				CursorPos = BrokenTextPositions[lineNo + 1] + cp;
-		}
-
-		if (event.KeyInput.Shift) {
-			mark_begin = mb;
-			mark_end = CursorPos;
-		} else {
-			mark_begin = 0;
-			mark_end = 0;
-		}
-
-		return true;
+	if (!input.Shift) {
+		// Reset selection
+		mark_begin = 0;
+		mark_end = 0;
 	}
 
-	return false;
+	if (new_pos >= 0 && new_pos <= (s32)Text.size()) {
+		// Update cursor (and selection)
+		if (input.Shift) {
+			if (MarkBegin == MarkEnd)
+				mark_begin = CursorPos;
+
+			mark_end = new_pos;
+		}
+
+		CursorPos = new_pos;
+	}
+
+	return true;
 }
 
 void CGUIEditBox::onKeyControlC(const SEvent &event)
