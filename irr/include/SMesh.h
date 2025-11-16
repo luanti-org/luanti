@@ -138,8 +138,6 @@ struct SMesh final : public IAnimatedMesh
 	// with all the animation-related parts behind an optional.
 
 	virtual f32 getMaxFrameNumber() const override { return 0.0f; }
-	virtual f32 getAnimationSpeed() const override { return 0.0f; }
-	virtual void setAnimationSpeed(f32 fps) override {}
 	E_ANIMATED_MESH_TYPE getMeshType() const override { return EAMT_STATIC; }
 };
 
